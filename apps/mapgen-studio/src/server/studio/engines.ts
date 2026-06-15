@@ -22,8 +22,22 @@ import { deployMod, resolveModsDir } from "@civ7/plugin-mods";
 import type {
   RunInGamePhase,
   RunInGameRequestStatus,
+  StudioBoundedDiagnostics,
   StudioEventHubApi,
   StudioOperationEvent,
+  StudioRuntimeFailure,
+} from "@civ7/studio-server";
+import {
+  autoplayStartStopFailed,
+  autoplayVerificationFailed,
+  dependencyUnavailable,
+  deployFailed,
+  invalidRequest,
+  isStudioRuntimeFailure,
+  materializationFailed,
+  operationBlocked,
+  operationNotFound,
+  proofFailed,
 } from "@civ7/studio-server";
 import { buildLiveRuntimeStatusState } from "../../features/liveRuntime/model";
 import { buildSwooperMapsStudioDeployPlan } from "../mapConfigs/deploy";
@@ -49,7 +63,6 @@ import {
   runInGameRequiredMaterializationMarkers,
 } from "../runInGame/proofIdentity";
 import { parseRunInGameSetupRequest } from "../runInGame/requestValidation";
-import { StudioEngineError } from "./engineErrors";
 
 // ============================================================================
 // Studio engines — the stateful server core (bun-server workstream, slice 2)
@@ -62,15 +75,9 @@ import { StudioEngineError } from "./engineErrors";
 // daemon), shared by every oRPC mount, or the queue/mutex semantics diverge
 // (architecture/10 §7).
 //
-// Each engine returns its success body, or THROWS:
-//   - `StudioEngineError` (carries statusCode + details) — preserves the
-//     non-uniform legacy status codes (409 mutex, run-in-game/save-deploy 404)
-//     and known invalid/unavailable/failed engine categories.
-//   - an unexpected exception — mapped by the oRPC context to `*_FAILED`.
-// The oRPC context adapts return/throw → value/ORPCError (./context.ts), mapping
-// each status onto the contract's DECLARED error codes (409→*_BLOCKED,
-// 400→*_INVALID, 404→*_STATUS_NOT_FOUND, 503→*_UNAVAILABLE, else *_FAILED) so
-// those statuses survive the oRPC boundary as defined typed errors.
+// Each engine returns its success body, or throws a package-owned
+// `StudioRuntimeFailure` for known runtime outcomes. Unexpected exceptions are
+// defect-contained by the oRPC context as namespace `*_FAILED` errors.
 // ============================================================================
 
 const execFileAsync = promisify(execFile);
@@ -133,11 +140,13 @@ function invalidEngineRequest(
   message: string,
   code: string,
   details: Record<string, unknown> = {}
-): StudioEngineError {
-  return new StudioEngineError(400, message, {
-    code,
-    ...details,
-    recoveryActions: ["copy-diagnostics"],
+): StudioRuntimeFailure {
+  return invalidRequest({
+    message,
+    diagnostics: boundedDiagnostics({
+      code,
+      ...details,
+    }),
   });
 }
 
@@ -146,14 +155,19 @@ function unavailableEngineDependency(
   code: string,
   err?: unknown,
   details: Record<string, unknown> = {}
-): StudioEngineError {
+): StudioRuntimeFailure {
   const directControlCode = err instanceof Civ7DirectControlError ? err.code : undefined;
   const cause = err instanceof Civ7DirectControlError ? err.details : err;
-  return new StudioEngineError(503, message, {
-    code,
-    ...details,
+  return dependencyUnavailable({
+    message,
+    dependency: "direct-control",
     ...(directControlCode === undefined ? {} : { directControlCode }),
-    ...(cause === undefined ? {} : { cause: cloneForJson(cause) }),
+    causeSummary: diagnosticString(cause),
+    diagnostics: boundedDiagnostics({
+      code,
+      ...details,
+      ...(directControlCode === undefined ? {} : { directControlCode }),
+    }),
     recoveryActions: ["copy-diagnostics", "retry-status", "retry-run"],
   });
 }
@@ -502,12 +516,79 @@ function cloneForJson(value: unknown): unknown {
   }
 }
 
+function diagnosticString(value: unknown): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value === "string") return value;
+  if (value instanceof Error) return value.message;
+  const cloned = cloneForJson(value);
+  return typeof cloned === "string" ? cloned : JSON.stringify(cloned);
+}
+
+function boundedDiagnostics(details: Record<string, unknown>): StudioBoundedDiagnostics {
+  const out: Record<string, string | number | boolean | null | string[]> = {};
+  for (const [key, value] of Object.entries(details)) {
+    if (value === undefined) continue;
+    if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean" ||
+      value === null
+    ) {
+      out[key] = value;
+    } else if (Array.isArray(value) && value.every((item) => typeof item === "string")) {
+      out[key] = [...value];
+    } else {
+      const stringValue = diagnosticString(value);
+      if (stringValue !== undefined) out[key] = stringValue;
+    }
+  }
+  return out;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value != null && typeof value === "object" && !Array.isArray(value);
 }
 
-function engineDetails(err: unknown): Record<string, unknown> {
-  return err instanceof StudioEngineError && isRecord(err.details) ? err.details : {};
+function failureDiagnostics(err: unknown): Record<string, unknown> {
+  return isStudioRuntimeFailure(err) && isRecord(err.diagnostics) ? err.diagnostics : {};
+}
+
+function saveDeployFailureForOperation(
+  err: unknown,
+  phase: "saving" | "deploying",
+  details: Readonly<{
+    path: string;
+    sourcePath?: string;
+    rollbackFailure?: unknown;
+  }>
+): StudioRuntimeFailure {
+  if (isStudioRuntimeFailure(err) && details.rollbackFailure === undefined) {
+    return err;
+  }
+  const reason =
+    details.rollbackFailure !== undefined ? "rollback-failed" : phase === "saving" ? "save-failed" : "deploy-failed";
+  const originalFailure = isStudioRuntimeFailure(err) ? err : undefined;
+  return deployFailed({
+    message: originalFailure?.message ?? (err instanceof Error ? err.message : "Deploy failed"),
+    reason,
+    diagnostics: boundedDiagnostics({
+      ...failureDiagnostics(err),
+      code: `save-deploy-${reason}`,
+      path: details.path,
+      sourcePath: details.sourcePath,
+      failedAtPhase: phase,
+      originalFailureTag: originalFailure?.tag,
+      originalFailureReason: originalFailure?.reason,
+      cause: originalFailure === undefined ? err : undefined,
+      rollbackFailure: details.rollbackFailure,
+    }),
+    recoveryActions: [
+      "copy-diagnostics",
+      "retry-status",
+      "retry-save-deploy",
+      ...(phase === "deploying" ? ["inspect-deploy-output" as const] : []),
+    ],
+  });
 }
 
 async function restoreRepoConfig(target: string, previous: string | null): Promise<void> {
@@ -580,10 +661,10 @@ export type StudioOperationsCurrent = Readonly<{
  *
  * Contract: engines serialize through a process-wide operation queue (one
  * Civ7-mutating operation at a time), record progress in TTL-bounded
- * operation stores keyed by request id, and throw `StudioEngineError`
- * (legacy HTTP status + structured `details`) for every client-visible
- * failure — transports map it 1:1, so error codes stay stable across the
- * Vite middleware and Bun daemon mounts.
+ * operation stores keyed by request id, and throw package-owned
+ * `StudioRuntimeFailure` values for every known client-visible failure.
+ * The context maps those failures to declared oRPC errors by procedure, so
+ * legacy status/error-code behavior stays stable without a status-code bridge.
  */
 export interface StudioEngines {
   /** Process-lifetime identity — clients reconcile run-in-game state against it. */
@@ -697,27 +778,25 @@ export function createStudioEngines(
   async function runAutoplayEngine(action: "start" | "stop"): Promise<AutoplayEngineResult> {
     const activeRunInGame = runInGameOperations.findActive();
     if (activeRunInGame) {
-      throw new StudioEngineError(
-        409,
-        "Run in Game is running; wait for it to finish before changing autoplay.",
-        {
+      throw operationBlocked({
+        message: "Run in Game is running; wait for it to finish before changing autoplay.",
+        activeRequestId: activeRunInGame.requestId,
+        activePhase: activeRunInGame.phase,
+        diagnostics: boundedDiagnostics({
           code: "run-in-game-operation-active",
-          activeRequestId: activeRunInGame.requestId,
-          activePhase: activeRunInGame.phase,
-        }
-      );
+        }),
+      });
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
     if (activeSaveDeploy) {
-      throw new StudioEngineError(
-        409,
-        "Save/Deploy is running; wait for it to finish before changing autoplay.",
-        {
+      throw operationBlocked({
+        message: "Save/Deploy is running; wait for it to finish before changing autoplay.",
+        activeRequestId: activeSaveDeploy.requestId,
+        activePhase: activeSaveDeploy.phase,
+        diagnostics: boundedDiagnostics({
           code: "save-deploy-operation-active",
-          activeRequestId: activeSaveDeploy.requestId,
-          activePhase: activeSaveDeploy.phase,
-        }
-      );
+        }),
+      });
     }
     const opts = {
       timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS,
@@ -728,15 +807,31 @@ export function createStudioEngines(
       ? startCiv7Autoplay(opts)
       : stopCiv7Autoplay(opts)
     ).catch((err: unknown) => {
-      throw unavailableEngineDependency(
-        `Civ7 autoplay ${action} is unavailable`,
-        "civ7-autoplay-unavailable",
-        err,
-        { action }
-      );
+      throw autoplayStartStopFailed({
+        message: `Civ7 autoplay ${action} failed`,
+        reason: action === "start" ? "start-failed" : "stop-failed",
+        diagnostics: boundedDiagnostics({
+          code: `civ7-autoplay-${action}-failed`,
+          action,
+          ...failureDiagnostics(err),
+          cause: err,
+        }),
+      });
     });
+    if (!result.verified) {
+      throw autoplayVerificationFailed({
+        message: `Civ7 autoplay ${action} verification failed`,
+        diagnostics: boundedDiagnostics({
+          code: "civ7-autoplay-verification-failed",
+          action,
+          autoplay: result.after.autoplay,
+          game: result.after.game,
+          gameContext: result.after.gameContext,
+        }),
+      });
+    }
     return {
-      ok: result.verified,
+      ok: true,
       action,
       autoplay: result.after.autoplay,
       game: result.after.game,
@@ -763,10 +858,9 @@ export function createStudioEngines(
     try {
       parsedRequest = parseRunInGameSetupRequest(body);
     } catch (err) {
-      throw new StudioEngineError(
-        400,
+      throw invalidEngineRequest(
         err instanceof Error ? err.message : "Invalid Run in Game request",
-        { code: "run-in-game-request-invalid" }
+        "run-in-game-request-invalid"
       );
     }
     const selected = body.selectedConfig ?? {};
@@ -826,27 +920,26 @@ export function createStudioEngines(
           },
         };
       }
-      throw new StudioEngineError(
-        409,
-        "Another Run in Game request is already running; wait for it to finish before launching a different config.",
-        {
+      throw operationBlocked({
+        message:
+          "Another Run in Game request is already running; wait for it to finish before launching a different config.",
+        activeRequestId: activeOperation.requestId,
+        activePhase: activeOperation.phase,
+        diagnostics: boundedDiagnostics({
           code: "run-in-game-operation-active",
-          activeRequestId: activeOperation.requestId,
-          activePhase: activeOperation.phase,
-        }
-      );
+        }),
+      });
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
     if (activeSaveDeploy) {
-      throw new StudioEngineError(
-        409,
-        "Save/Deploy is running; wait for it to finish before Run in Game.",
-        {
+      throw operationBlocked({
+        message: "Save/Deploy is running; wait for it to finish before Run in Game.",
+        activeRequestId: activeSaveDeploy.requestId,
+        activePhase: activeSaveDeploy.phase,
+        diagnostics: boundedDiagnostics({
           code: "save-deploy-operation-active",
-          activeRequestId: activeSaveDeploy.requestId,
-          activePhase: activeSaveDeploy.phase,
-        }
-      );
+        }),
+      });
     }
     const requestId = createCiv7ControlRequestId("studio-run-in-game");
     const sourceSnapshotProof = buildRunInGameSourceSnapshotProof({
@@ -961,15 +1054,14 @@ export function createStudioEngines(
           requiredMarkers: requiredMaterializationMarkers,
         });
         if (materializationScriptUnresolvedLinks.length > 0) {
-          throw new StudioEngineError(
-            500,
-            "Generated Swooper map script is missing current materialization proof markers",
-            {
+          throw materializationFailed({
+            message: "Generated Swooper map script is missing current materialization proof markers",
+            diagnostics: boundedDiagnostics({
               code: "map-script-materialization-proof-missing",
               unresolvedLinks: materializationScriptUnresolvedLinks,
               materialization,
-            }
-          );
+            }),
+          });
         }
 
         // Fail fast if the freshly built bundle does not embed this request's
@@ -980,10 +1072,10 @@ export function createStudioEngines(
         const localBundlePath = localModScriptPath(repoRoot, id);
         const localBundleText = await readFile(localBundlePath, "utf8").catch(() => "");
         if (!mapScriptEmbedsRequestId(localBundleText, requestId)) {
-          throw new StudioEngineError(
-            500,
-            "Deployed map bundle does not embed the Run in Game request id; the in-game proof could never match.",
-            {
+          throw materializationFailed({
+            message:
+              "Deployed map bundle does not embed the Run in Game request id; the in-game proof could never match.",
+            diagnostics: boundedDiagnostics({
               code: "run-request-id-not-materialized",
               requestId,
               mapScript: materialized.mapScript,
@@ -991,8 +1083,8 @@ export function createStudioEngines(
               recoveryHint:
                 "Rebuild map artifacts (gen:maps must see SWOOPER_STUDIO_RUN_ID; check the nx env input/cache for mod-swooper-maps:build), then retry the run.",
               materialization,
-            }
-          );
+            }),
+          });
         }
 
         let processRestart;
@@ -1006,11 +1098,12 @@ export function createStudioEngines(
         phase = "checking-civ7";
         runInGameOperations.update(requestId, { phase, materialization });
         await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS }).catch((err) => {
-          throw new StudioEngineError(503, "Civ7 direct-control status is unavailable", {
-            code: "direct-control-status-unavailable",
-            cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
-            materialization,
-          });
+          throw unavailableEngineDependency(
+            "Civ7 direct-control status is unavailable",
+            "direct-control-status-unavailable",
+            err,
+            { materialization }
+          );
         });
 
         const launchMapScript = materialized.mapScript;
@@ -1030,14 +1123,17 @@ export function createStudioEngines(
         }
         const rowProof = rowVisibility.final;
         if (rowProof.rows.length === 0) {
-          throw new StudioEngineError(409, `Civ7 setup cannot see ${launchMapScript}`, {
-            code: "setup-map-row-not-visible",
-            reloadRequired: true,
-            reloadBoundary:
-              requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
-            reloadAttempted: rowVisibility.refreshed,
-            mapScript: launchMapScript,
-            materialization: { mode: requestedMode, path: materialized.path },
+          throw operationBlocked({
+            message: `Civ7 setup cannot see ${launchMapScript}`,
+            diagnostics: boundedDiagnostics({
+              code: "setup-map-row-not-visible",
+              reloadRequired: true,
+              reloadBoundary:
+                requestedMode === "disposable" ? "process-restart-required" : "setup-row-missing",
+              reloadAttempted: rowVisibility.refreshed,
+              mapScript: launchMapScript,
+              materialization: { mode: requestedMode, path: materialized.path },
+            }),
           });
         }
 
@@ -1072,10 +1168,14 @@ export function createStudioEngines(
             mapScript: launchMapScript,
           });
           if (mapgenFailure) {
-            throw new StudioEngineError(500, mapgenFailure.message, {
-              ...mapgenFailure,
-              materialization,
-              cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
+            throw proofFailed({
+              message: mapgenFailure.message,
+              reason: "start-game-failed",
+              diagnostics: boundedDiagnostics({
+                ...mapgenFailure,
+                materialization,
+                cause: cloneForJson(err instanceof Civ7DirectControlError ? err.details : err),
+              }),
             });
           }
           throw unavailableEngineDependency(
@@ -1103,10 +1203,14 @@ export function createStudioEngines(
             mapScript: launchMapScript,
           });
           if (mapgenFailure) {
-            throw new StudioEngineError(500, mapgenFailure.message, {
-              ...mapgenFailure,
-              materialization,
-              cause: err instanceof Error ? err.message : String(err),
+            throw proofFailed({
+              message: mapgenFailure.message,
+              reason: "log-proof-missing",
+              diagnostics: boundedDiagnostics({
+                ...mapgenFailure,
+                materialization,
+                cause: err instanceof Error ? err.message : String(err),
+              }),
             });
           }
           throw unavailableEngineDependency(
@@ -1129,10 +1233,10 @@ export function createStudioEngines(
           seed,
         });
         if (!logProof) {
-          throw new StudioEngineError(
-            500,
-            "Swooper log proof payload did not match the Studio Run in Game request",
-            {
+          throw proofFailed({
+            message: "Swooper log proof payload did not match the Studio Run in Game request",
+            reason: "log-proof-missing",
+            diagnostics: boundedDiagnostics({
               code: "swooper-log-proof-missing",
               requestId,
               configHash,
@@ -1140,8 +1244,8 @@ export function createStudioEngines(
               seed,
               markers: logMarkerProof.matched,
               materialization,
-            }
-          );
+            }),
+          });
         }
         const liveRuntimeStatus = start.start.mapSummary
           ? buildLiveRuntimeStatusState({
@@ -1224,8 +1328,10 @@ export function createStudioEngines(
   function runRunInGameStatusEngine(requestId: string): RunInGameOperationState {
     const status = runInGameOperations.get(requestId);
     if (!status) {
-      throw new StudioEngineError(404, `Run in Game request not found: ${requestId}`, {
-        code: "run-in-game-request-not-found",
+      throw operationNotFound({
+        message: `Run in Game request not found: ${requestId}`,
+        requestId,
+        diagnostics: boundedDiagnostics({ code: "run-in-game-request-not-found" }),
       });
     }
     return status;
@@ -1245,22 +1351,22 @@ export function createStudioEngines(
     }
     const activeRunInGame = runInGameOperations.findActive();
     if (activeRunInGame) {
-      throw new StudioEngineError(
-        409,
-        "Run in Game is running; wait for it to finish before Save/Deploy.",
-        {
+      throw operationBlocked({
+        message: "Run in Game is running; wait for it to finish before Save/Deploy.",
+        activeRequestId: activeRunInGame.requestId,
+        activePhase: activeRunInGame.phase,
+        diagnostics: boundedDiagnostics({
           code: "run-in-game-operation-active",
-          activeRequestId: activeRunInGame.requestId,
-          activePhase: activeRunInGame.phase,
-        }
-      );
+        }),
+      });
     }
     const activeSaveDeploy = saveDeployOperations.findActive();
     if (activeSaveDeploy && activeSaveDeploy.requestId !== parsedRequest.requestId) {
-      throw new StudioEngineError(409, "Save/Deploy is already running.", {
-        code: "save-deploy-operation-active",
+      throw operationBlocked({
+        message: "Save/Deploy is already running.",
         activeRequestId: activeSaveDeploy.requestId,
         activePhase: activeSaveDeploy.phase,
+        diagnostics: boundedDiagnostics({ code: "save-deploy-operation-active" }),
       });
     }
     if (activeSaveDeploy && activeSaveDeploy.requestId === parsedRequest.requestId) {
@@ -1303,7 +1409,6 @@ export function createStudioEngines(
         deploy = await deploySwooperMaps(repoRoot);
         saveDeployOperations.complete(requestId, { path, saved: true, deployed: true, deploy });
       } catch (err) {
-        const error = err instanceof Error ? err.message : "Deploy failed";
         let rollbackFailure: unknown;
         if (phase === "deploying") {
           try {
@@ -1312,16 +1417,15 @@ export function createStudioEngines(
             rollbackFailure = restoreErr;
           }
         }
-        saveDeployOperations.fail(requestId, phase, error, {
+        const failure = saveDeployFailureForOperation(err, phase, {
+          path,
+          sourcePath: parsedRequest.sourcePath,
+          rollbackFailure,
+        });
+        saveDeployOperations.fail(requestId, phase, failure, {
           path,
           saved: false,
           deployed: false,
-          details: {
-            ...engineDetails(err),
-            ...(rollbackFailure === undefined
-              ? {}
-              : { rollbackFailure: cloneForJson(rollbackFailure) }),
-          },
         });
       }
     };
@@ -1336,8 +1440,10 @@ export function createStudioEngines(
   function runSaveDeployStatusEngine(requestId: string): SaveDeployEngineResult {
     const status = saveDeployOperations.get(requestId);
     if (!status) {
-      throw new StudioEngineError(404, `Save/Deploy request not found: ${requestId}`, {
-        code: "save-deploy-request-not-found",
+      throw operationNotFound({
+        message: `Save/Deploy request not found: ${requestId}`,
+        requestId,
+        diagnostics: boundedDiagnostics({ code: "save-deploy-request-not-found" }),
       });
     }
     return status;

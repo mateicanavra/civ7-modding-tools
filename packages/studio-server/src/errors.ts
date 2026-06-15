@@ -12,10 +12,13 @@
  *   - mapConfigs.* → 409/400/500/503; 404 status miss (with server-identity echo)
  *   - everything else (status / mapSummary / savedConfigs / setupCatalog) → 500
  *
- * Procedures throw via the typed `errors.CODE({ message, data })` constructor the
- * effect handler receives (router/*); the host context throws raw `ORPCError`s
- * matching the declared entries, which oRPC validates into DEFINED errors. There
- * is no ad-hoc status→code construction left here — only the message fallback.
+ * Read procedures throw via the typed `errors.CODE({ message, data })`
+ * constructor the effect handler receives (router/*). Stateful app engines
+ * construct package-owned `StudioRuntimeFailure` values; the app host context
+ * maps those through the package mapper into declared `ORPCError`s that this
+ * router rethrows unchanged. There is no app-local status→code bridge left here;
+ * unexpected stateful host defects are sanitized into namespace `*_FAILED`
+ * `UnexpectedDefectData` at the router edge.
  */
 
 /** Map an arbitrary thrown value to its message, matching `err instanceof Error ? err.message : fallback`. */

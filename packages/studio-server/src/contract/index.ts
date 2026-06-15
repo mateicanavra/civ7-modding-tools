@@ -1,7 +1,8 @@
-import { Civ7ControlOrpcContract } from "@civ7/control-orpc";
+import { Civ7ControlOrpcContract } from "@civ7/control-orpc/contract";
 import { oc } from "@orpc/contract";
 
 import { RecipeDagGetContract } from "../recipeDag/contract.js";
+import type { StudioRecoveryAction } from "../errors/failure.js";
 import * as civ7 from "./civ7.js";
 import * as live from "./live.js";
 import * as mapConfigs from "./mapConfigs.js";
@@ -73,15 +74,19 @@ export const studioEffectContract = oc.router({
 
 export type StudioEffectContract = typeof studioEffectContract;
 
-export const contract = oc.router({
+export type StudioContract = Omit<StudioEffectContract, "civ7"> & {
+  civ7: StudioEffectContract["civ7"] & typeof Civ7ControlOrpcContract;
+};
+
+export type { StudioRecoveryAction };
+
+export const contract: StudioContract = oc.router({
   ...studioEffectContract,
   civ7: {
     ...studioCiv7Contract,
     ...Civ7ControlOrpcContract,
   },
 });
-
-export type StudioContract = typeof contract;
 
 export type { RecipeDagResult } from "../recipeDag/schema.js";
 export type {

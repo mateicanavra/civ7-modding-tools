@@ -1,0 +1,66 @@
+export type {
+  DependencyUnavailableData,
+  ExpectedFailureErrorData,
+  FailedErrorData,
+  StatusNotFoundData,
+  StatusNotFoundErrorData,
+  StudioFailureData,
+  UnavailableFailureErrorData,
+  UnexpectedDefectData,
+} from "./errorData.js";
+export {
+  dependencyUnavailableDataSchema,
+  expectedFailureDataSchema,
+  expectedFailureErrorDataSchema,
+  failedErrorDataSchema,
+  statusNotFoundDataSchema,
+  statusNotFoundErrorDataSchema,
+  studioFailureDataSchema,
+  studioRecoveryActionSchema,
+  unavailableFailureErrorDataSchema,
+  unexpectedDefectDataSchema,
+} from "./errorData.js";
+export type {
+  StudioBoundedDiagnostics,
+  StudioBoundedDiagnosticValue,
+  StudioDependencyKind,
+  StudioFailureReasonCode,
+  StudioFailureTag,
+  StudioOperationNamespace,
+  StudioRecoveryAction,
+  StudioRuntimeFailure,
+} from "./failure.js";
+export {
+  autoplayStartStopFailed,
+  autoplayVerificationFailed,
+  daemonIdentityMismatch,
+  dependencyUnavailable,
+  deployFailed,
+  invalidRequest,
+  isStudioRuntimeFailure,
+  materializationFailed,
+  operationBlocked,
+  operationExpired,
+  operationNotFound,
+  proofFailed,
+  runtimeDisposed,
+  STUDIO_DEPENDENCY_KINDS,
+  STUDIO_FAILURE_REASON_CODES,
+  STUDIO_FAILURE_TAGS,
+  STUDIO_OPERATION_NAMESPACES,
+  STUDIO_RECOVERY_ACTIONS,
+  unsupportedOperationType,
+} from "./failure.js";
+export type {
+  StudioDaemonIdentity,
+  StudioDeclaredErrorCode,
+  StudioDefinedErrorProjection,
+  StudioOperationProcedure,
+} from "./mapping.js";
+export {
+  mapStudioFailureToDefinedError,
+  mapUnexpectedDefectToDefinedError,
+  mapUnknownToStudioDefinedError,
+  STUDIO_OPERATION_PROCEDURES,
+  toStudioDefinedOrpcError,
+} from "./mapping.js";

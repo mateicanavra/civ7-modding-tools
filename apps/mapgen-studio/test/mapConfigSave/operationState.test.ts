@@ -1,4 +1,5 @@
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
+import { deployFailed } from "@civ7/studio-server";
 import { describe, expect, it } from "vitest";
 import { createMapConfigSaveDeployOperationStore } from "../../src/server/mapConfigs/operationState";
 
@@ -69,7 +70,7 @@ describe("Map config save/deploy operation store", () => {
     });
     store.complete("studio-save-deploy-1", { path: "configs/studio-current.config.json" });
     store.create("studio-save-deploy-2");
-    store.fail("studio-save-deploy-2", "deploying", "Deploy failed");
+    store.fail("studio-save-deploy-2", "deploying", deployFailed({ message: "Deploy failed" }));
 
     expect(events.map((event) => [event.requestId, event.phase, event.status])).toEqual([
       ["studio-save-deploy-1", "queued", "running"],
@@ -83,18 +84,27 @@ describe("Map config save/deploy operation store", () => {
   it("records failed phase details and prunes stale records", () => {
     const harness = createStore();
     harness.store.create("studio-save-deploy-test");
-    const failed = harness.store.fail("studio-save-deploy-test", "deploying", "Deploy failed", {
-      path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
-      saved: false,
-      deployed: false,
-      details: {
-        code: "save-deploy-existing-config-unavailable",
-      },
-    });
+    const failed = harness.store.fail(
+      "studio-save-deploy-test",
+      "deploying",
+      deployFailed({
+        message: "Deploy failed",
+        diagnostics: {
+          code: "save-deploy-existing-config-unavailable",
+        },
+      }),
+      {
+        path: "mods/mod-swooper-maps/src/maps/configs/studio-current.config.json",
+        saved: false,
+        deployed: false,
+      }
+    );
 
     expect(failed.status).toBe("failed");
     expect(failed.details?.failedAtPhase).toBe("deploying");
     expect(failed.details?.code).toBe("save-deploy-existing-config-unavailable");
+    expect(failed.details?.failureTag).toBe("DeployFailed");
+    expect(failed.details?.reason).toBe("deploy-failed");
     expect(failed.details?.recoveryActions).toContain("inspect-deploy-output");
     expect(failed.recoveryActions).toEqual([
       "copy-diagnostics",

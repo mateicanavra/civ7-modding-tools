@@ -5,6 +5,10 @@ import { implementEffect } from "effect-orpc";
 
 import { type StudioEffectContract, studioEffectContract } from "../contract/index.js";
 import { errorMessage } from "../errors.js";
+import {
+  type StudioOperationProcedure,
+  mapUnexpectedDefectToDefinedError,
+} from "../errors/index.js";
 import { readLiveGameStatusBody } from "../liveGame/statusRead.js";
 import type { StudioRuntime } from "../runtime.js";
 import { Civ7TunerClient } from "../services/Civ7TunerClient.js";
@@ -27,12 +31,14 @@ import { StudioEventHub } from "../services/StudioEventHub.js";
  *   - `civ7.live.status` runs the four reads under `Effect.all({ mode: "either" })`
  *     (the `Promise.allSettled` analogue) and embeds `{ error }` per field at 200;
  *     only an outer defect yields a transport error. PARITY INVARIANT.
- *   - The three stateful engines (autoplay #8, runInGame #13/#14, mapConfigs
+ *   - The three stateful surfaces (autoplay #8, runInGame #13/#14, mapConfigs
  *     #15/#16) delegate to the host-injected `StudioConfig` fns (shared queue +
- *     dual-store mutex live host-side; see ../context.ts). The host throws raw
- *     `ORPCError`s whose code/status/data MATCH the declared contract entries, so
- *     re-throwing them unchanged still yields DEFINED errors client-side; any
- *     non-ORPCError throw falls back to the namespace `*_FAILED` code.
+ *     dual-store mutex live host-side; see ../context.ts). App engines throw
+ *     package-owned `StudioRuntimeFailure` values for known outcomes; the app
+ *     host context maps them to declared `ORPCError`s before this router sees
+ *     them. The router rethrows those declared errors unchanged; any
+ *     non-ORPCError defect is contained here as the namespace `*_FAILED`
+ *     code with package-projected `UnexpectedDefectData`.
  *
  * Query parsing parity (clamps, csv split/trim/filter, playerId omit) that the
  * legacy handlers did from the URL is reproduced here against the typed input.
@@ -97,9 +103,17 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             err instanceof ORPCError
               ? err
-              : errors.AUTOPLAY_FAILED({
-                  message: errorMessage(err, "Civ7 autoplay request failed"),
-                })
+              : (() => {
+                  const projected = statefulDefect(
+                    err,
+                    "autoplay.command",
+                    "Civ7 autoplay request failed"
+                  );
+                  return errors.AUTOPLAY_FAILED({
+                    message: projected.message,
+                    data: projected.data,
+                  });
+                })()
           )
         );
       }),
@@ -275,7 +289,13 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             err instanceof ORPCError
               ? err
-              : errors.RUN_IN_GAME_FAILED({ message: errorMessage(err, "Run in Game failed") })
+              : (() => {
+                  const projected = statefulDefect(err, "runInGame.start", "Run in Game failed");
+                  return errors.RUN_IN_GAME_FAILED({
+                    message: projected.message,
+                    data: projected.data,
+                  });
+                })()
           )
         );
       }),
@@ -290,9 +310,17 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             err instanceof ORPCError
               ? err
-              : errors.RUN_IN_GAME_FAILED({
-                  message: errorMessage(err, "Run in Game status failed"),
-                })
+              : (() => {
+                  const projected = statefulDefect(
+                    err,
+                    "runInGame.status",
+                    "Run in Game status failed"
+                  );
+                  return errors.RUN_IN_GAME_FAILED({
+                    message: projected.message,
+                    data: projected.data,
+                  });
+                })()
           )
         );
       }),
@@ -309,7 +337,13 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             err instanceof ORPCError
               ? err
-              : errors.SAVE_DEPLOY_FAILED({ message: errorMessage(err, "Save failed") })
+              : (() => {
+                  const projected = statefulDefect(err, "saveDeploy.start", "Save failed");
+                  return errors.SAVE_DEPLOY_FAILED({
+                    message: projected.message,
+                    data: projected.data,
+                  });
+                })()
           )
         );
       }),
@@ -324,9 +358,17 @@ export function createStudioRouter(
           Effect.mapError((err) =>
             err instanceof ORPCError
               ? err
-              : errors.SAVE_DEPLOY_FAILED({
-                  message: errorMessage(err, "Save/Deploy status failed"),
-                })
+              : (() => {
+                  const projected = statefulDefect(
+                    err,
+                    "saveDeploy.status",
+                    "Save/Deploy status failed"
+                  );
+                  return errors.SAVE_DEPLOY_FAILED({
+                    message: projected.message,
+                    data: projected.data,
+                  });
+                })()
           )
         );
       }),
@@ -397,6 +439,18 @@ export function createStudioRouter(
         });
       }),
     },
+  });
+}
+
+function statefulDefect(
+  err: unknown,
+  procedure: StudioOperationProcedure,
+  fallbackMessage: string
+) {
+  return mapUnexpectedDefectToDefinedError({
+    err,
+    procedure,
+    fallbackMessage: errorMessage(err, fallbackMessage),
   });
 }
 

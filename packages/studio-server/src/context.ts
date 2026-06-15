@@ -30,15 +30,13 @@ export type SetupCatalog = StudioOutputs["civ7"]["setupCatalog"]["catalog"];
  * `@civ7/direct-control` directly - only the catalog loader and the three
  * stateful engines cross this seam.
  *
- * Each engine fn returns the SAME success shape its `/api` handler wrote, OR
- * throws an `ORPCError` whose code/status/data MATCH the procedure's DECLARED
- * contract errors (./contract/errors.ts) - `AUTOPLAY_BLOCKED`/
- * `AUTOPLAY_UNAVAILABLE`/`AUTOPLAY_FAILED`,
- * `RUN_IN_GAME_BLOCKED`/`_INVALID`/`_FAILED`/`_UNAVAILABLE`/`_STATUS_NOT_FOUND`,
- * `SAVE_DEPLOY_BLOCKED`/`_INVALID`/`_UNAVAILABLE`/`_FAILED`/
- * `_STATUS_NOT_FOUND` - so oRPC
- * validates them into DEFINED typed errors client-side. The package re-throws
- * engine `ORPCError`s unchanged.
+ * Each router-facing stateful host fn returns the SAME success shape its `/api`
+ * handler wrote, OR throws a package-mapped declared `ORPCError`. The app
+ * engines construct package-owned `StudioRuntimeFailure` values for known
+ * outcomes; the app host context maps them by procedure to declared oRPC errors
+ * (./contract/errors.ts) before they cross this seam. Unknown exceptions remain
+ * router-edge defect containment and map only to namespace `*_FAILED` with
+ * package-projected `UnexpectedDefectData`.
  */
 export interface StudioServerContext {
   /** Process-lifetime singletons surfaced by `studio.serverInfo` + run-in-game 404 echo. */
@@ -76,24 +74,25 @@ export interface StudioServerContext {
   loadSetupCatalog(): Promise<SetupCatalog>;
 
   /**
-   * Autoplay engine (#8). Resolves with the success body; throws `ORPCError`
-   * 409 (run-in-game OR save/deploy active, `data.details.code`), 503, or 500.
+   * Autoplay engine (#8). Resolves with the success body; throws declared
+   * `ORPCError`s for blocked, unavailable, and failed outcomes.
    */
   autoplay(input: StudioInputs["civ7"]["autoplay"]): Promise<StudioOutputs["civ7"]["autoplay"]>;
 
   /**
    * Launch run-in-game (#14). Resolves the 202-equivalent operation snapshot
    * (incl. the duplicate-request snapshot when fingerprint matches an active op);
-   * throws `ORPCError` 409/400/500/503 with `data.details`.
+   * throws declared `ORPCError`s for blocked, invalid, unavailable,
+   * materialization, and proof outcomes.
    */
   runInGameStart(
     input: StudioInputs["runInGame"]["start"]
   ): Promise<StudioOutputs["runInGame"]["start"]>;
 
   /**
-   * Poll run-in-game (#13). Resolves the operation snapshot; throws `ORPCError`
-   * 404 carrying `data.serverInstanceId`/`data.serverStartedAt` for restart
-   * detection (parity invariant).
+   * Poll run-in-game (#13). Resolves the operation snapshot; throws a declared
+   * 404 `ORPCError` with request id plus daemon identity for restart detection
+   * (parity invariant).
    */
   runInGameStatus(
     input: StudioInputs["runInGame"]["status"]
@@ -101,15 +100,16 @@ export interface StudioServerContext {
 
   /**
    * Save + deploy (#16). Resolves the 202-equivalent snapshot (idempotent on an
-   * active requestId); throws `ORPCError` 409 (mutex) / 400 (validation).
+   * active requestId); throws declared `ORPCError`s for mutex, validation,
+   * unavailable, and deploy outcomes.
    */
   mapConfigSaveDeploy(
     input: StudioInputs["mapConfigs"]["saveDeploy"]
   ): Promise<StudioOutputs["mapConfigs"]["saveDeploy"]>;
 
   /**
-   * Poll save/deploy (#15). Resolves the snapshot; throws `ORPCError` 404
-   * carrying `data.serverInstanceId`/`data.serverStartedAt` for the same
+   * Poll save/deploy (#15). Resolves the snapshot; throws a declared 404
+   * `ORPCError` with request id plus daemon identity for the same
    * restart-detection contract as run-in-game status.
    */
   mapConfigStatus(

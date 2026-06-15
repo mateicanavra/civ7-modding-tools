@@ -180,8 +180,14 @@ describe("studio-server TypeBox contract spine", () => {
       "utf8"
     );
 
-    expect(runInGameFeatureStatus).toMatch(/from "@civ7\/studio-server"/);
-    expect(mapConfigFeatureStatus).toMatch(/from "@civ7\/studio-server"/);
+    expect(runInGameFeatureStatus).toMatch(/from "@civ7\/studio-server\/contract"/);
+    expect(mapConfigFeatureStatus).toMatch(/from "@civ7\/studio-server\/contract"/);
+    expect(runInGameFeatureStatus).not.toMatch(
+      /^import\s+(?!type).*from "@civ7\/studio-server";/m
+    );
+    expect(mapConfigFeatureStatus).not.toMatch(
+      /^import\s+(?!type).*from "@civ7\/studio-server";/m
+    );
     expect(runInGameFeatureStatus).not.toMatch(
       /export\s+type\s+\{[\s\S]*\}\s+from\s+["']@civ7\/studio-server["']/
     );

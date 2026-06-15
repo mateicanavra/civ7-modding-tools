@@ -1,5 +1,16 @@
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Type } from "typebox";
 
+import {
+  expectedFailureErrorDataSchema,
+  failedErrorDataSchema,
+  statusNotFoundErrorDataSchema,
+  unavailableFailureErrorDataSchema,
+  type ExpectedFailureErrorData,
+  type FailedErrorData,
+  type StatusNotFoundErrorData,
+  type UnavailableFailureErrorData,
+} from "../errors/errorData.js";
 import { toStandardSchema } from "../typeboxStandardSchema.js";
 
 /**
@@ -12,18 +23,10 @@ import { toStandardSchema } from "../typeboxStandardSchema.js";
  *   - engines: 409 *_BLOCKED / 400 *_INVALID / 404 *_STATUS_NOT_FOUND /
  *     503 *_UNAVAILABLE / 500 *_FAILED
  *
- * Two emission paths resolve to the SAME defined wire errors:
- *   1. Router procedures throw via the typed `errors.CODE({ message, data })`
- *      constructor param (effect-orpc forwards oRPC's native constructor map).
- *   2. The host context (apps/mapgen-studio/src/server/studio/context.ts) maps
- *      engine `StudioEngineError`s to raw `new ORPCError(code, { status, … })`;
- *      because code/status/data match a declared entry, oRPC validates and
- *      delivers them client-side as DEFINED errors (the "combining both
- *      approaches" rule) without importing this module.
- *
- * All `data` schemas are PERMISSIVE (optional fields, open `details` records,
- * optional top level) so engine payload evolution can never flunk validation and
- * silently downgrade a defined error to an undefined one.
+ * Expected engine failures are package-owned D3 failure values projected through
+ * `../errors/mapping.ts`; unknown exceptions are router-edge defect containment.
+ * Declared public data is TypeBox-owned and deliberately sealed. The old
+ * open-ended engine details are not an accepted protocol.
  */
 
 /** `observedAt` echo carried by the read failures that historically included it. */
@@ -39,39 +42,25 @@ const observedAtData = toStandardSchema(
   ])
 );
 
-/**
- * Engine failure payload: the `StudioEngineError.details` value
- * (`code`, `activeRequestId`, `materialization`, recovery boundaries, …).
- */
-const engineDetailsData = toStandardSchema(
-  Type.Union([
-    Type.Object(
-      {
-        details: Type.Optional(Type.Unknown()),
-      },
-      { additionalProperties: false }
-    ),
-    Type.Undefined(),
-  ])
-);
+const expectedFailureData: StandardSchemaV1<
+  ExpectedFailureErrorData,
+  ExpectedFailureErrorData
+> = toStandardSchema(expectedFailureErrorDataSchema);
+const unavailableFailureData: StandardSchemaV1<
+  UnavailableFailureErrorData,
+  UnavailableFailureErrorData
+> = toStandardSchema(unavailableFailureErrorDataSchema);
+const failedFailureData: StandardSchemaV1<FailedErrorData, FailedErrorData> =
+  toStandardSchema(failedErrorDataSchema);
 
 /**
  * Run-in-game status-miss echo: the server identity the client uses for
  * restart detection (PARITY INVARIANT, audit/05 #13).
  */
-const serverIdentityEchoData = toStandardSchema(
-  Type.Union([
-    Type.Object(
-      {
-        serverInstanceId: Type.Optional(Type.String()),
-        serverStartedAt: Type.Optional(Type.String()),
-        details: Type.Optional(Type.Unknown()),
-      },
-      { additionalProperties: Type.Unknown() }
-    ),
-    Type.Undefined(),
-  ])
-);
+const serverIdentityEchoData: StandardSchemaV1<
+  StatusNotFoundErrorData,
+  StatusNotFoundErrorData
+> = toStandardSchema(statusNotFoundErrorDataSchema);
 
 // ---------------------------------------------------------------------------
 // civ7.* reads — per-procedure codes (legacy statuses preserved exactly)
@@ -151,22 +140,22 @@ export const autoplayErrors = {
   AUTOPLAY_BLOCKED: {
     status: 409,
     message: "Civ7 autoplay is blocked by an active operation",
-    data: engineDetailsData,
+    data: expectedFailureData,
   },
   AUTOPLAY_INVALID: {
     status: 400,
     message: "Invalid Civ7 autoplay request",
-    data: engineDetailsData,
+    data: expectedFailureData,
   },
   AUTOPLAY_UNAVAILABLE: {
     status: 503,
     message: "Civ7 autoplay dependencies are unavailable",
-    data: engineDetailsData,
+    data: unavailableFailureData,
   },
   AUTOPLAY_FAILED: {
     status: 500,
     message: "Civ7 autoplay request failed",
-    data: engineDetailsData,
+    data: failedFailureData,
   },
 } as const;
 
@@ -178,22 +167,22 @@ export const runInGameErrors = {
   RUN_IN_GAME_BLOCKED: {
     status: 409,
     message: "Run in Game is blocked by an active operation",
-    data: engineDetailsData,
+    data: expectedFailureData,
   },
   RUN_IN_GAME_INVALID: {
     status: 400,
     message: "Invalid Run in Game request",
-    data: engineDetailsData,
+    data: expectedFailureData,
   },
   RUN_IN_GAME_FAILED: {
     status: 500,
     message: "Run in Game failed",
-    data: engineDetailsData,
+    data: failedFailureData,
   },
   RUN_IN_GAME_UNAVAILABLE: {
     status: 503,
     message: "Run in Game dependencies are unavailable",
-    data: engineDetailsData,
+    data: unavailableFailureData,
   },
   RUN_IN_GAME_STATUS_NOT_FOUND: {
     status: 404,
@@ -210,22 +199,22 @@ export const mapConfigsErrors = {
   SAVE_DEPLOY_BLOCKED: {
     status: 409,
     message: "Save/Deploy is blocked by an active operation",
-    data: engineDetailsData,
+    data: expectedFailureData,
   },
   SAVE_DEPLOY_INVALID: {
     status: 400,
     message: "Invalid Save/Deploy request",
-    data: engineDetailsData,
+    data: expectedFailureData,
   },
   SAVE_DEPLOY_UNAVAILABLE: {
     status: 503,
     message: "Save/Deploy dependencies are unavailable",
-    data: engineDetailsData,
+    data: unavailableFailureData,
   },
   SAVE_DEPLOY_FAILED: {
     status: 500,
     message: "Save failed",
-    data: engineDetailsData,
+    data: failedFailureData,
   },
   SAVE_DEPLOY_STATUS_NOT_FOUND: {
     status: 404,

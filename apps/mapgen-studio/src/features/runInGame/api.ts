@@ -7,27 +7,35 @@
 // preserved verbatim; failures are read through oRPC's NATIVE typed contract
 // errors: `safe(...)` + `isDefinedError(...)` expose the DECLARED code
 // (RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE/STATUS_NOT_FOUND, statuses
-// pinned in packages/studio-server/src/contract/errors.ts) and its typed `data`
-// (`details`, and the STATUS_NOT_FOUND server-identity echo). The caller's
-// server-restart detection branches on `code === "RUN_IN_GAME_STATUS_NOT_FOUND"`
-// instead of a raw 404 status code.
+// pinned in packages/studio-server/src/contract/errors.ts) and sealed typed
+// failure data. The caller's server-restart detection branches on
+// `code === "RUN_IN_GAME_STATUS_NOT_FOUND"` instead of a raw 404 status code.
 
-import type { RunInGameFailureDetails, RunInGameOperationStatus } from "@civ7/studio-server";
+import type {
+  RunInGameFailureDetails,
+  RunInGameOperationStatus,
+} from "@civ7/studio-server/contract";
 import { isDefinedError, safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
 
 /**
- * Read the engine-attached `RunInGameFailureDetails` from a defined error's typed
- * `data`. The runInGame error map's `data` is a union (`{ details? }` for the
- * engine failures, the server-identity echo for STATUS_NOT_FOUND), so the read is
- * runtime-guarded rather than property-accessed across the union.
+ * Project sealed package failure data into the browser's copyable failure-details
+ * shape. D3 removed the old `{ details? }` bridge; defined errors now expose
+ * top-level tag/reason/message/recoveryActions plus bounded diagnostics.
  */
 function definedErrorDetails(data: unknown): RunInGameFailureDetails | undefined {
-  if (data && typeof data === "object" && "details" in data) {
-    return (data as { details?: RunInGameFailureDetails }).details;
-  }
-  return undefined;
+  if (!isRecord(data)) return undefined;
+  const diagnostics = isRecord(data.diagnostics) ? data.diagnostics : {};
+  const details: Record<string, unknown> = { ...diagnostics };
+  if (typeof data.tag === "string") details.failureTag = data.tag;
+  if (typeof data.reason === "string") details.reason = data.reason;
+  if (typeof data.requestId === "string") details.requestId = data.requestId;
+  return Object.keys(details).length === 0 ? undefined : (details as RunInGameFailureDetails);
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === "object" && !Array.isArray(value);
 }
 
 export async function runCurrentConfigInGame(args: {

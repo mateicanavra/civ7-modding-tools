@@ -1,6 +1,7 @@
 import { oc } from "@orpc/contract";
 import { type Static, Type } from "typebox";
 
+import { studioRecoveryActionSchema } from "../errors/errorData.js";
 import { runInGameErrors } from "./errors.js";
 import { contractSchema, unknownRecordSchema } from "./shared.js";
 
@@ -265,7 +266,7 @@ export const operationStatusTypeSchema = Type.Object(
     error: Type.Optional(Type.String()),
     details: Type.Optional(failureDetails),
     result: Type.Optional(Type.Unknown()),
-    recoveryActions: Type.Optional(Type.Array(Type.String())),
+    recoveryActions: Type.Optional(Type.Array(studioRecoveryActionSchema)),
   },
   { additionalProperties: false }
 );
@@ -303,8 +304,8 @@ export const status = oc
 // ---------------------------------------------------------------------------
 // Body: the full setup request. Success 202: RunInGameOperationState (async).
 // 202 dup (same fingerprint -> details.duplicateRequest). Errors: 409 (run-in-game
-// OR save/deploy active), 400/500/503 via StudioEngineError (details carries
-// code/materialization/recovery boundaries) - declared as the defined
+// OR save/deploy active), 400/500/503 via package-owned StudioRuntimeFailure
+// data (sealed code/materialization/recovery diagnostics) - declared as the defined
 // RUN_IN_GAME_BLOCKED/INVALID/FAILED/UNAVAILABLE codes (./errors.ts).
 //
 // SECURITY BOUNDARY (target-arch section 1): the handler runs `assertNoRawControlFields`
