@@ -4,17 +4,21 @@
 It protects a load-bearing MapGen architecture boundary: recipe and map source
 must consume domain public surfaces rather than deep domain internals.
 
-Fresh evidence shows the rule exists, is registered, has a passing native Grit
-sample, and currently passes through the Habitat wrapper. That is not enough to
-close the row. The current sample covers one default-import `ops/private` case
-and one allowed public `/ops` import. The row still needs an implementation
-packet for exact scan roots, fixture expansion, parser-edge coverage,
-false-positive controls, current-tree proof classes, injected violation proof,
-baseline behavior, relation to the apply codemod, and downstream record
-alignment.
-
-This change opens that packet. It does not change the pattern or implement the
-proof harness.
+Current checkpoint evidence repairs the native `ops-by-id` predicate gap,
+expands native fixture coverage, reconciles the row metadata with the Grit
+`.ts`/`.tsx` filename predicate, and records parser-grade live inventory over
+recipe/map roots. That is still not enough to close the row as complete.
+After restacking onto the accepted scaffold repair base, current shared wrapper
+selector/current-tree, baseline file/integrity, and injected-probe API proof are
+inherited only through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+`HGPR-PER-RULE-SELECTORS-2026-06-15`,
+`HGPR-BASELINE-FILES-2026-06-15`,
+`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+`HGPR-INJECTED-GRIT-ROWS-2026-06-15`. Raw direct Grit acquisition remains
+explicitly unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`. DDI-specific
+generated-output remediation, relative local-domain reach disposition, apply
+safety, retired parity, broader public-surface closure, and product/runtime
+proof remain non-claims.
 
 ## Target Authority Refs
 
@@ -38,8 +42,10 @@ proof harness.
 - Specify that this workstream owns the check proof for recipe/map deep domain
   imports of `ops/<tail>`, `ops-by-id`, `rules/<tail>`, and
   `strategies/<tail>`.
-- Record `ops-by-id` as a current semantic defect: it is claimed by the rule
-  metadata and docs, but the current pattern does not report it.
+- Repair `ops-by-id` for native Grit predicate/fixture proof; current
+  restacked shared wrapper/injected proof is represented only by accepted HGPR
+  shared proof ids, while DDI-specific path-control and closure remain
+  non-claims.
 - Define the exact proof classes needed before the row can leave pending
   status in the aggregate Grit proof matrix.
 - Require fixture expansion beyond the current default-import sample:
@@ -53,16 +59,16 @@ proof harness.
   specifiers, not relative reaches into `mods/mod-swooper-maps/src/domain/...`.
 - Require explicit empty baseline proof for
   `tools/habitat-harness/baselines/grit-domain-deep-import.json`.
-- Require metadata/predicate reconciliation: registry scope, Grit filename
-  predicate, corpus-ledger scan roots, and implementation probes must agree on
-  `.ts` and `.tsx` treatment.
+- Reconcile metadata/predicate scope: registry scope, Grit filename predicate,
+  corpus-ledger scan roots, and native fixtures now agree on `.ts` and `.tsx`
+  treatment.
 - Require explicit duplicate-diagnostic ownership disposition with
   `grit-recipe-domain-surface` and step-contract checks before injected proof
   can be accepted as row-level closure.
 - Require test-path scope classification for recipe/map-local `__tests__`,
   `__type_tests__`, `*.test.ts`, and external `test/**` paths.
-- Require injected violation proof through the Habitat wrapper path after the
-  accepted Grit adapter substrate can create probes and clean them up.
+- Require any DDI-specific injected violation/path-control proof to use the
+  accepted shared injected-probe API instead of ad hoc probe creation.
 
 ## What Does Not Change
 
@@ -160,8 +166,11 @@ substrate.
 
 - The rule cannot distinguish its exact deep-domain internals from public
   `/ops`, `/config.js`, or domain-root imports with documented Grit semantics.
-- `ops-by-id` remains claimed by this rule but does not report through native
-  Grit or the Habitat wrapper.
+- Exact `ops-by-id` stops reporting through native Grit, or lookalike
+  specifiers such as `ops-by-identity`, `ops-by-id-extra`, or
+  `ops-by-id/private` start reporting. Any wrapper `ops-by-id` projection claim
+  must cite the accepted shared selector/injected proof ids or remain an
+  explicitly row-specific non-claim.
 - The rule registry metadata, corpus ledger, and Grit filename predicate
   disagree about `.ts` and `.tsx` reach without an accepted alignment decision.
 - Recipe/map-local test paths report unintentionally or are excluded

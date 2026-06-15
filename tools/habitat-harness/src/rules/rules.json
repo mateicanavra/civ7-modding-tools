@@ -121,7 +121,7 @@
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",
       "lane": "enforced",
-      "scope": "mods/*/src/{recipes,maps}/**/*.ts",
+      "scope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
       "forbids": "recipe/map source deep-importing domain ops internals, ops-by-id, rules, or strategies",
       "why": "Domain surfaces are named contracts; recipe/map code composes through public entrypoints.",
       "detect": ["habitat", "check", "--tool", "grit-check"],

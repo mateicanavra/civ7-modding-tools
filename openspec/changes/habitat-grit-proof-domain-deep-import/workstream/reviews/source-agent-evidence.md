@@ -8,11 +8,18 @@ between check proof and apply proof.
 
 ## Confirmed Evidence
 
-- Native Grit fixture proof passes for the current pattern.
-- Habitat wrapper proof passes for
-  `bun run habitat:check -- --json --rule grit-domain-deep-import`.
-- Raw Grit scan over recipe and map roots returns `results: []`.
-- Regex inventory for alias-based forbidden families returns no live findings.
+- Native Grit fixture proof passes for the current pattern with exact
+  `ops-by-id` positives and lookalike negatives.
+- Prior seed notes claimed Habitat wrapper proof for
+  `bun run habitat:check -- --json --rule grit-domain-deep-import`; those
+  notes remain historical context only. Current restacked shared wrapper
+  selector/current-tree proof is inherited through
+  `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
+- Prior raw scan notes returned `results: []`, but raw acquisition/adapter
+  proof is not consumed by this checkpoint.
+- TypeScript parser inventory for alias-based forbidden families returns no
+  live findings.
 - Current recipe/map source contains many public domain-root, `/ops`, and
   `/config.js` imports that must remain negative examples.
 - Architecture docs support public domain surfaces for recipe/map composition.
@@ -30,7 +37,9 @@ or accepted non-claim before downstream records can claim full coverage.
 
 - Whether relative local-domain reaches should become a sibling Grit check,
   generator repair, migration, or accepted non-claim.
-- Whether generated map source is scanned as read-only evidence only or also
-  needs special current-tree proof treatment.
-- Whether `import type`, namespace imports, and `.tsx` reach are actually
-  matched by the accepted pattern semantics.
+- Whether generated map source needs special current-tree proof treatment
+  beyond read-only parser inventory.
+- Whether DDI-specific injected/path-control proof needs additional row-local
+  evidence beyond the accepted shared injected-probe API for native
+  `import type`, namespace, re-export, exact `ops-by-id`, and `.tsx`
+  semantics.

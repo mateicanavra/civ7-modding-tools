@@ -2,29 +2,33 @@
 
 ## Authority Order
 
-1. `docs/projects/habitat-harness/dra-takeover-frame.md`
-2. `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
-3. `tools/habitat-harness/src/rules/rules.json`
-4. `docs/system/libs/mapgen/policies/IMPORTS.md`
-5. `docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md`
-6. Current pattern file and command behavior
-7. Official Grit docs
-8. H5/H6 historical records
+1. Direct supervisor continuation for the bounded native/parser checkpoint.
+2. `docs/projects/habitat-harness/dra-takeover-frame.md`.
+3. `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`.
+4. `tools/habitat-harness/src/rules/rules.json`.
+5. `docs/system/libs/mapgen/policies/IMPORTS.md`.
+6. `docs/system/libs/mapgen/policies/NORMALIZATION-GUARDRAILS.md`.
+7. Current pattern file and native Grit/parser behavior.
+8. H5/H6 historical records as downstream realignment inputs only.
 
 ## Product Source
 
-The takeover frame requires each Grit pattern workstream to start from a
-corpus row, state owner/proof shape, and keep proof classes separate. The Grit
-ledger row for `grit-domain-deep-import` says recipes/maps compose domains
-through public surfaces, not deep internals, and assigns OpenSpec id
+The takeover frame requires every Grit row to start from the corpus row, state
+the owner/proof shape, and keep proof classes separate. The corpus ledger row
+for `grit-domain-deep-import` says recipes/maps compose domains through public
+surfaces, not deep internals, and assigns OpenSpec id
 `habitat-grit-proof-domain-deep-import`.
+
+This checkpoint is bounded to native fixture/parser-edge proof, parser
+inventory/live zero-candidate evidence, metadata scope truth, and record truth.
+It does not claim full row closure.
 
 ## Architecture Source
 
 `rules.json` registers the rule as enforced, owner `grit-check`, owner project
-`mod-swooper-maps`, scope `mods/*/src/{recipes,maps}/**/*.ts`, and message
-"Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather
-than deep internals."
+`mod-swooper-maps`, scope `mods/*/src/{recipes,maps}/**/*.{ts,tsx}`, and
+message "Import domain code through @mapgen/domain/<domain>, /ops, or
+/config.js rather than deep internals."
 
 `IMPORTS.md` says recipe assembly should use public domain surfaces and expose
 needed symbols through domain root, `/ops`, or `/config.js`.
@@ -41,65 +45,75 @@ internals.
 - frontmatter `level: error`;
 - explicit `language js(typescript)`;
 - file predicate for `mods/<mod>/src/recipes` and `mods/<mod>/src/maps`;
-- source predicate for `ops/<tail>`, `ops-by-id`, `rules/<tail>`, and
-  `strategies/<tail>`;
+- source predicate for `ops/<tail>`, exact `ops-by-id` followed by a
+  string-literal terminator, `rules/<tail>`, and `strategies/<tail>`;
 - import, named re-export, and star re-export arms.
 
-Current native samples:
+Current native fixture proof:
 
-- one positive default import from `@mapgen/domain/foundation/ops/private`;
-- one negative public `/ops` import.
+- 11 positive current-predicate matches;
+- 0 ignore-sample matches;
+- positives include value imports, type-only imports, namespace imports, named
+  re-exports, type-only re-exports, export-star, `.tsx`, map paths, exact
+  `ops-by-id`, and recipe/map-local test paths;
+- controls include public domain root, public `/ops`, public `/config.js`,
+  `ops-by-id` lookalikes, domain-source paths, external test paths, relative
+  local-domain reaches, and source strings.
 
-Current defect evidence:
+## Current Inventory Source
 
-- `ops-by-id` is claimed by rule metadata and this row's intended source
-  family, but a disposable Grit probe reports `ops/private` while not reporting
-  `ops-by-id` import or re-export.
-- Recipe/map-local test paths under `__tests__` and `__type_tests__` currently
-  report this rule because they satisfy the filename predicate.
-- Relative local-domain reaches such as
-  `../../../../../../domain/resources/lib/corpus/types.js` are outside this
-  alias-based pattern and need a sibling guard or accepted non-claim.
+Parser inventory over
+`mods/mod-swooper-maps/src/recipes` and
+`mods/mod-swooper-maps/src/maps` found:
 
-## Official Grit Source
+- 241 scanned TS/TSX/JSON files;
+- 235 current-predicate `.ts` files and 0 `.tsx` files;
+- 7 generated map files inside the current predicate;
+- 0 forbidden alias import/re-export candidates;
+- 125 domain-alias import declarations;
+- 83 public domain-root references;
+- 12 public `/ops` references;
+- 30 public `/config.js` references;
+- 2 map-local test files and 0 recipe-local test files;
+- 6 relative local-domain reaches outside this alias-based rule;
+- 0 parse diagnostics.
 
-Official Grit docs establish:
+The six relative local-domain reaches are:
 
-- `grit patterns test --filter` as the pattern fixture proof command;
-- Markdown pattern conventions under `.grit/patterns`;
-- frontmatter `level` for diagnostics;
-- `grit check [PATHS]...` as current-tree check command;
-- explicit `language js(typescript)` as the TypeScript parser declaration.
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-vegetation/index.ts:5`;
+- `mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-wetlands/index.ts:5`;
+- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine/steps/climateRefine.ts:18`;
+- `mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography/river-adjacency.ts:1`;
+- `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/plan-resources/planning.ts:6`;
+- `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/plan-resources/planning.ts:17`.
 
-Official docs do not establish Habitat rule projection, shrink-only baselines,
-injected-probe cleanup, or stale-record truth. Habitat owns those proof
-classes.
-
-## Local Evidence
-
-| Evidence id | Source | Result | Implication |
-| --- | --- | --- | --- |
-| DDI-E1 | `grit patterns test --filter domain_deep_import --json` | exits 0; one testable pattern succeeds | native fixture proof exists |
-| DDI-E2 | `bun run habitat:check -- --json --rule grit-domain-deep-import` | exits 0; `grit-domain-deep-import` and `baseline-integrity` pass | valid wrapper selection currently passes |
-| DDI-E3 | `rg` exact forbidden source family over recipes/maps | no output | no obvious live forbidden imports |
-| DDI-E4 | bounded raw `grit check` over recipe/map roots | exits 0 with `results: []` | raw current-tree zero-result seed for the bounded roots |
-| DDI-E5 | `rg "@mapgen/domain/"` over recipes/maps | many public domain root, `/ops`, and `/config.js` imports | negatives are live and should remain allowed |
-| DDI-E6 | `git status --short --branch` after probes | clean branch header | evidence probes did not leave changes |
-| DDI-E7 | disposable `ops-by-id` Grit probe | `ops/private` reports; `ops-by-id` import/re-export do not | claimed family needs predicate repair |
-| DDI-E8 | disposable recipe/map-local test-path probes | test paths report for `ops/private` | test-scope decision is required |
-| DDI-E9 | relative local-domain import inventory | six current recipe imports reach local `src/domain/**` | alias-only non-claim is required |
+These relative reaches are not `@mapgen/domain/...` specifiers, so this row
+cannot claim complete public-surface enforcement. They remain sibling guard or
+accepted non-claim input.
 
 ## Design Consequences
 
-1. The row is ready for a per-pattern packet.
-2. Native fixture proof needs expansion before implementation closure.
-3. Current zero-result proof is useful but does not replace injected proof.
-4. Public `/ops`, `/config.js`, and domain-root imports must remain negative
-   cases.
-5. Apply remediation stays in the separate apply packet.
-6. `ops-by-id` must be repaired and proven before this row can leave pending
-   status.
-7. Recipe/map-local test paths must be explicitly included or excluded.
-8. Relative local-domain reaches must be linked to a sibling guard or accepted
-   non-claim.
-9. Probe implementation waits for the accepted Grit adapter substrate.
+1. Native `ops-by-id` import and re-export behavior is repaired for this
+   checkpoint, with lookalike negatives.
+2. Type-only imports and type-only named re-exports from forbidden source
+   families are current-predicate positives.
+3. Recipe/map-local test paths are included by the current predicate; external
+   `test/**` paths are out of scope for this row.
+4. `.tsx` is in current predicate and registry scope, though no live `.tsx`
+   recipe/map files currently exist.
+5. Generated map files are scanned by the predicate and inventory, but they are
+   protected read-only evidence and are not authored fixture or injected probe
+   targets.
+6. Apply remediation stays in
+   `habitat-grit-apply-deep-import-public-surface-proof`.
+7. Current restacked shared wrapper selector/current-tree, baseline
+   file/integrity, and injected-probe API proof is inherited only through
+   `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+   `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+   `HGPR-BASELINE-FILES-2026-06-15`,
+   `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+   `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+8. Raw direct Grit acquisition remains `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`;
+   DDI-specific generated-output remediation/path-control, relative
+   local-domain reach disposition, apply safety, retired parity, broader
+   public-surface closure, and product/runtime proof remain non-claims.
