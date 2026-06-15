@@ -1,19 +1,35 @@
-# Review Disposition Ledger - S4.1 Game Door Invariant
+# D12 Review Disposition Ledger - Game Door Invariant
 
-| ID | Severity | Source | Finding | Disposition | Repair Evidence | Blocks Closure |
-|---|---:|---|---|---|---|---|
-| S4.1-W1 | P1 | watcher Rawls `019ec217-32d7-7561-9b52-768885b9fed8` | S4.1 invariant deliverables absent: guard test and Habitat-style invariant doc required. | accepted-repaired | Added `docs/system/direct-control/GAME-DOOR-INVARIANT.md` and `packages/studio-server/test/gameDoorInvariant.test.ts`. | No |
-| S4.1-W2 | P1 | watcher Rawls | Legacy Zod success schemas remained without S4.1 closeout. | accepted-repaired | Migrated `packages/studio-server/src/contract/{shared,studio,civ7,live,runInGame,mapConfigs}.ts` to TypeBox/Standard Schema and removed direct `zod` dependency from `@civ7/studio-server`. | No |
-| S4.1-W3 | P1 | watcher Rawls | `mapgen-studio-tuner-session` still had unresolved task closeout. | accepted-repaired | Updated tuner-session tasks: per-flow sessions closed by game-door invariant; Restart Civ7 affordance moved to `DEF-015`. | No |
-| S4.1-W4 | P2 | watcher Rawls | Stale coexistence/bridge comments remained in live code. | accepted-repaired | Updated `packages/studio-server/src/context.ts` and `packages/studio-server/src/router/index.ts` comments. | No |
+| ID | Severity | Reviewer/Lane | Finding | Blocker Class | Disposition | Repair Demand | Evidence | Blocks Closure |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| D12-TEST-01 | P1 | testing/schema/runtime `019ec82d-c5a4-7643-812f-a6125dfa897f` | D12 cannot be accepted until review findings are recorded, packet train marks D12 accepted, validation passes, and repo state is clean. | closure mechanics | accepted-repaired as packet gate | Record findings, run validation, update packet train, and commit cleanly before acceptance closure. | This ledger records the findings; `closure-checklist.md` blocks validation/status/Graphite closure until complete. | No |
+| D12-TEST-02 | P1 | testing/schema/runtime `019ec82d-c5a4-7643-812f-a6125dfa897f` | Negative-search set could miss active dev supervisor residue in package scripts. | residue search gap | accepted-repaired | Add search over `package.json`, app docs/specs, and app package scripts for `devLive.ts`, app dev script route, Turbo dev route, and daemon Bun watcher. | `prework-ledger.md` negative search set and `proposal.md` final search list include package-script/dev-residue coverage. | No |
+| D12-TEST-03 | P2 | testing/schema/runtime `019ec82d-c5a4-7643-812f-a6125dfa897f` | Impact path named `packages/control-orpc/**`, but actual package path is `packages/civ7-control-orpc/**`. | write-set path error | accepted-repaired | Correct the impact path. | `proposal.md` uses `packages/civ7-control-orpc/**`. | No |
+| D12-PRE-01 | P1 | direct-control/prework `019ec82d-7a88-7f53-ae05-84003c1c7643` | Review findings, checklist, packet train, and validation evidence were not yet synchronized, so D12 could not honestly be accepted. | closure mechanics | accepted-repaired as packet gate | Synchronize review ledger, checklist, packet train, validation, and Graphite commit before closure. | This ledger records the finding; `closure-checklist.md` and packet train acceptance are gated on validation/status proof. | No |
+| D12-PRE-02 | P2 | direct-control/prework `019ec82d-7a88-7f53-ae05-84003c1c7643` | The game-door invariant could be misread as allowing Studio per-flow wrappers. D5 requires Studio workflows to use the shared `Civ7TunerSession`; per-flow wrappers are a direct-control package boundary. | ownership ambiguity | accepted-repaired | Tighten D12 invariant language so Studio game-wire calls use `Civ7TunerSession` and only `@civ7/direct-control` owns bounded wrappers. | `proposal.md`, `design.md`, and `spec.md` state the sanctioned owners and forbidden owners. | No |
+| D12-PRE-03 | P1 | direct-control/prework `019ec82d-7a88-7f53-ae05-84003c1c7643` | Retiring `RunInGameHttpError` alone could leave active `StudioEngineError` status-code bridge residue unowned. | orphan bridge | accepted-repaired | Add `StudioEngineError` to D12 residue search and classification requirements. | `proposal.md`, `design.md`, `tasks.md`, `spec.md`, `prework-ledger.md`, and `final-proof-ledger.md` name `StudioEngineError`. | No |
+| D12-PRE-04 | P1 | direct-control/prework `019ec82d-7a88-7f53-ae05-84003c1c7643` | Public/manual status endpoint classification was a category, not an enumerated corpus. | corpus gap | accepted-repaired | Add an endpoint corpus naming every retained status/identity surface and its allowed role. | `workstream/status-endpoint-corpus.md` enumerates and classifies retained surfaces. | No |
+| D12-BI-01 | P1 | hardening/black-ice `019ec82d-9d35-7041-a967-61aecd8c49e5` | D12 was not accept-ready while packet train, review ledger, checklist, validation, and worktree state were pending. | closure mechanics | accepted-repaired as packet gate | Do not mark D12 accepted until validation and repo/Graphite evidence agree. | `closure-checklist.md` and packet train are updated only after validation; final commit leaves worktree clean. | No |
+| D12-BI-02 | P1 | hardening/black-ice `019ec82d-9d35-7041-a967-61aecd8c49e5` | Public/manual status and control-oRPC surface corpora were still categories, leaving implementers room to branch silently. | black ice / corpus gap | accepted-repaired | Add explicit ledgers for each retained status endpoint and each control-oRPC procedure family. | `status-endpoint-corpus.md` and `control-orpc-surface-corpus.md`. | No |
+| D12-BI-03 | P2 | hardening/black-ice `019ec82d-9d35-7041-a967-61aecd8c49e5` | Generic mutation residue search was too broad and could classify valid control-oRPC internals as blockers or miss public Studio DTO residue. | residue oracle ambiguity | accepted-repaired | Split generic mutation residue by boundary: public Studio DTOs, control-oRPC/direct-control internals, tests/historical docs. | `control-orpc-surface-corpus.md` and `final-proof-ledger.md` define the split. | No |
+| D12-BI-04 | P2 | hardening/black-ice `019ec82d-9d35-7041-a967-61aecd8c49e5` | Final residue proof needed active docs/OpenSpec scans, not source/test scans only. | residue search gap | accepted-repaired | Add active docs/OpenSpec search and classification rules for historical authority text versus stale implementation claims. | `prework-ledger.md` and `final-proof-ledger.md` include docs/OpenSpec residue searches. | No |
+| D12-BI-05 | P3 | hardening/black-ice `019ec82d-9d35-7041-a967-61aecd8c49e5` | Validation evidence was available during authoring but not recorded in closure artifacts. | proof recording | accepted-repaired as packet gate | Record validation commands and results after rerun. | `closure-checklist.md` will record final validation before commit. | No |
+| D12-CORPUS-01 | P1 | prework/black-ice corpus `019ec834-888a-7cb1-9af4-eea1b0a39417` | `runInGame.status`, `mapConfigs.status`, and `studio.operations.current` were over-flattened as diagnostic-only even though they read/project daemon-owned mutation state. | classification error | accepted-repaired | Split status classifications into diagnostic reads, mutation-state reads/projections, identity reads, and background freshness authority. | `status-endpoint-corpus.md`, `proposal.md`, `design.md`, `tasks.md`, and `spec.md` use the split classification. | No |
+| D12-CORPUS-02 | P2 | prework/black-ice corpus `019ec834-888a-7cb1-9af4-eea1b0a39417` | The control-oRPC corpus did not separately classify the hosted controller bridge and mutation-proof enforcement as internal protocol/proof-only. | corpus gap | accepted-repaired | Add controller ingress as an internal protocol/proof surface, distinct from Studio runtime truth. | `control-orpc-surface-corpus.md` includes `bridge/controller-ingress.ts` and hosted controller bridge rules. | No |
+| D12-CORPUS-03 | P2 | prework/black-ice corpus `019ec834-888a-7cb1-9af4-eea1b0a39417` | `final-proof-ledger.md` was marked accepted even though it lists required evidence rather than executed proof. | proof inflation | accepted-repaired | Rename the ledger status to planned/proof contract until implementation evidence is recorded. | `final-proof-ledger.md` status is `planned packet proof contract pending implementation evidence`. | No |
 
-## Cleared Watcher Checks
+## Disposition Rules
 
-- No production `new Civ7DirectControlSession` outside the shared session owner
-  and direct-control package wrapper.
-- No live `RunInGameHttpError` symbol in current app/package code.
-- No old satellite client/source files for `civ7ControlOrpcClient`,
-  `recipeDag/client`, `studioServerClient`, `nodeWebBridge`, or `rpcPath`.
-- No operation polling hook, daemon watchdog hook, live runtime poll delay, live
-  status timer, or localStorage request-id bridge in current app/package source.
-- Vite dev proxy is a single `/rpc` rule.
+- `accepted`: repair before dependent implementation or closure.
+- `rejected`: record source evidence showing the finding does not apply.
+- `invalidated`: record later source evidence that made the finding false.
+- `user-decision`: record the user or authority decision that resolves the finding.
+- `waived`: allowed only for P3/nonblocking findings; record risk, owner, and trigger.
+- `deferred`: allowed only for P3/nonblocking findings; record destination, owner, and context.
+- `accepted-repaired`: accepted material finding repaired inside this packet with
+  evidence and no remaining packet-acceptance block.
+- `accepted-repaired as packet gate`: accepted finding is an implementation
+  proof obligation, repaired for packet acceptance by making it an explicit
+  future implementation closure gate rather than overclaiming current proof.
+
+No material finding may remain undispositioned at phase closure.

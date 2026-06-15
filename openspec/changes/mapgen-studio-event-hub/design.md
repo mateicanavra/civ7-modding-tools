@@ -1,71 +1,154 @@
-# Design — event hub (S3.1)
+# Design - Studio Event Hub
 
-## D1. Event category
+## Component Role
 
-The production event union is category-first:
+D8 is the event-spine component for Studio runtime state. It takes D7's selected
+stream bridge and gives it one production owner:
 
-- `hello`: daemon identity and connection metadata.
-- `operation`: a future operation status event, with `kind` discriminating
-  `run-in-game` vs `save-deploy`.
-- `live-game`: a future live-game state event.
+```text
+Studio daemon
+  creates one StudioEventHub
+  injects it into StudioServerContext
+  provides it to the package Effect runtime
 
-S3.1 emits only `hello`. The other variants are part of the sealed contract so
-S3.2/S3.3 can fill the category without changing the watch procedure shape.
+studio.events.watch
+  emits hello immediately
+  subscribes to StudioEventHub
+  releases subscription on close/abort/interruption
 
-## D2. Hub ownership
+Studio client
+  subscribes with experimental_liveOptions
+  owns nonzero retry on the actual watch call
+  uses hello to re-adopt daemon current operations
+```
 
-The package defines the EventHub API and TypeBox event types. The daemon creates
-one hub instance and passes it through `StudioServerContext`. `runtime.ts`
-provides that hub into the Effect runtime layer.
+D8 does not publish operation or live-game events yet. It defines the stable
+contract and runtime channel those downstream publishers must use.
 
-This keeps one bus:
+## Event Contract
 
-- `studio.events.watch` reads the hub from the package runtime.
-- S3.2 app-side operation registries can publish to the same hub through the
-  injected context object.
+The event union is category-first and TypeBox-owned:
 
-Do not create a package-only bus that app-side engine publishers cannot reach.
+- `hello`: daemon identity and connection observation metadata.
+- `operation`: future operation status event. `kind` distinguishes
+  `run-in-game` from `save-deploy`; `status` reuses the canonical operation DTOs
+  from `studio.operations.current`.
+- `live-game`: future live-game state event. `state` reuses the canonical
+  live-game state schema.
 
-## D3. Watch procedure
+The event contract is sealed at D8 so D9 and D10 add publishers without changing
+the watch procedure shape. Sealed does not mean extensible-by-details-blob:
+adding a new public event category requires an explicit future spec change.
 
-`studio.events.watch` uses the S3.0-selected bridge:
+The TypeBox schema is converted to Standard Schema through the owned adapter.
+Zod, ad hoc casts, or app-local event DTO definitions are forbidden owners.
+
+## Hub Ownership
+
+`packages/studio-server` owns the `StudioEventHub` API and service tag. The app
+daemon owns the concrete instance lifetime:
+
+- the daemon creates one hub per daemon runtime;
+- `StudioServerContext` carries that hub into the package router/runtime;
+- D9 operation publishers and D10 live-game publishers receive the same hub
+  through context, not a second bus;
+- daemon shutdown closes the hub and interrupts open subscribers.
+
+The service API is intentionally small:
+
+- `publish(event)` appends an event to current subscribers;
+- `subscribe({ initialEvents })` returns an async iterator over the immediate
+  initial events and then hub events;
+- `activeSubscriberCount()` exists only as observability for cleanup proof;
+- `shutdown()` terminates the hub for daemon disposal/tests.
+
+There is no browser-owned event bus, app-local server bus, alternate package
+bus, or localStorage event recovery path.
+
+## Watch Procedure
+
+`studio.events.watch` is the only Studio event subscription procedure:
 
 - contract output: `eventIterator(StudioEventSchema)`;
 - router implementation: `oe.studio.events.watch.effect(...)`;
 - handler return: an async iterator object;
-- first yielded event: `hello` with `serverInstanceId` and `serverStartedAt`;
-- subsequent events: EventHub PubSub subscription events;
-- iterator `return()` closes the subscription scope.
+- first yielded event: `hello`;
+- subsequent events: `StudioEventHub` subscription events;
+- route: existing `/rpc` handler from D0.
 
-The watch procedure lives on the existing one `/rpc` mount. There is no
-parallel SSE endpoint.
+`hello` includes:
 
-## D4. Client subscription and reconnect
+- `serverInstanceId`;
+- `serverStartedAt`;
+- `observedAt`.
 
-The Studio app adds one hook for event subscription. The hook consumes
-`orpc.studio.events.watch.experimental_liveOptions(...)` because the event
-spine represents latest daemon truth rather than an accumulating log.
+`observedAt` is the server-side emission time for the event, not a client clock
+or durable replay cursor.
 
-On `hello`, the hook:
+## Subscription Cleanup
 
-- records the daemon identity seen from the event stream;
-- calls `studio.operations.current`;
-- adopts active/recent Run in Game and Save&Deploy operations through the same
-  adoption helper used on initial boot.
+Each watch subscription must acquire its underlying Effect `PubSub`
+subscription in a scope owned by the iterator. Cleanup is a behavior, not a code
+style:
 
-The existing watchdog remains until S3.2. During S3.1, `hello` re-adoption is
-additive and should not reload the page.
+- iterator `return()` closes the subscription scope;
+- client abort/disconnect closes the subscription scope;
+- runtime/fiber interruption closes the subscription scope;
+- hub shutdown releases pending subscribers;
+- repeated subscribe/close cycles return observable subscriber count to
+  baseline.
 
-## D5. Retry plugin
+Production closure cannot rely only on reading a `finally` block. Tests must
+observe subscriber cleanup.
 
-`ClientRetryPlugin` is added to the single Studio `RPCLink` with a nonzero retry
-policy. S3.0 proved last-event-id transport, but S3.1 still uses
-`operations.current` as reconnect truth; the event stream is not an operation
-durability ledger.
+## Client Subscription
 
-## D6. Proof fixture disposition
+The Studio app adds one event subscription hook:
 
-`packages/studio-server/test/streamSpike.test.ts` is S3.0 proof-only. S3.1
-must either delete it or promote its assertions into production watch tests.
-Closure is blocked if the proof fixture remains beside equivalent production
-tests without an explicit reason.
+- consumes `orpc.studio.events.watch.experimental_liveOptions(...)`;
+- passes explicit nonzero retry on the actual watch path;
+- sets TanStack query retry behavior so oRPC owns event-stream reconnect;
+- treats event data as latest daemon state, not an accumulating log.
+
+The selected client helper is `experimental_liveOptions`. Accumulating stream
+helpers and stale `streamedOptions` vocabulary are rejected for Studio events.
+
+On `hello`, the hook calls `studio.operations.current` and applies the D6
+operation adoption helper. The hook must not reload the page or resurrect
+browser request-id recovery.
+
+On future `operation` and `live-game` events, the hook may apply the event DTOs
+to local UI state, but D9 and D10 own the publisher conversions and poll
+deletions that make those events authoritative.
+
+## Downstream Handoffs
+
+D8 leaves named downstream work, not open-ended deferral:
+
+- D9 `mapgen-studio-operations-push` publishes operation transitions through
+  this hub and deletes operation polling/watchdog authority after parity is
+  proven.
+- D10 `mapgen-studio-live-game-watch` publishes daemon live-game state through
+  this hub and deletes browser live-game polling/timer authority after parity is
+  proven.
+- D12 `mapgen-studio-game-door-invariant` closes remaining game-door runtime
+  invariants after event-pushed runtime ownership is complete.
+
+D9/D10 must not introduce another bus, route, retry owner, event schema family,
+or app-local stream wrapper.
+
+## Packet Blockers
+
+D8 is not accepted while any of the following remain:
+
+- event contract or watch procedure still described with stale closure status
+  instead of D8 packet-train ownership;
+- `operation` or `live-game` categories lack downstream owners;
+- polling/watchdog retention lacks D9/D10 deletion owner and proof trigger;
+- watch retry proof relies on default `ClientRetryPlugin` construction;
+- cleanup proof collapses close, abort/disconnect, interruption, shutdown, and
+  repeated subscribe/close into one vague assertion;
+- packet allows an alternate event route, parallel bridge, app-local event
+  server, Zod event schema, or browser storage recovery path;
+- D7 spike-only fixture disposition is unowned;
+- review finds unresolved P1/P2 ambiguity.

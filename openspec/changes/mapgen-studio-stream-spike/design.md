@@ -1,80 +1,81 @@
-# Design — stream spike (S3.0)
+# Design - Studio Stream Transport Decision
 
-## D1. Spike boundary
+## Component Role
 
-S3.0 is a feasibility slice. It may add test-local reference code, focused
-fixtures, and spike artifacts. It does not introduce the production
-`EventHub`, the production `studio.events.watch` procedure, or client store
-feed rewrites. Production implementation starts in S3.1 after this slice names
-the selected bridge.
+D7 is the transport-selection component for the Studio event spine. It does not own the production event bus categories; it owns the decision that D8-D10 build on:
 
-The reference code has one of two terminal dispositions:
-
-- promoted by S3.1 into the production `studio.events.watch` path; or
-- deleted by S3.1 when it has served as proof-only scaffolding.
-
-No spike reference may remain as an unused route, shim, or compatibility path.
-
-## D2. Contract proof
-
-The contract proof answers whether the current installed packages can express:
-
-```ts
-studio.events.watch -> eventIterator(StudioEventSchema)
+```text
+studio.events.watch
+  contract: TypeBox StudioEvent -> Standard Schema -> eventIterator(...)
+  router: effect-orpc .effect()
+  server bridge: Effect PubSub subscription -> scoped async iterator
+  transport: existing /rpc mount
+  client: experimental_liveOptions with explicit nonzero retry
 ```
 
-where the handler is implemented through the same `effect-orpc`
-`implementEffect` pattern used by `packages/studio-server`. The evidence must
-include the installed type/runtime source that makes the verdict true or false.
+D7 prevents D8 from rediscovering transport details while implementing EventHub semantics.
 
-If `.effect()` cannot return an event iterator safely, S3.1 shall implement the
-watch procedure with a plain oRPC `.handler()` that calls into the Effect
-runtime boundary. That is a selected implementation path, not a retained
-fallback.
+## Selected Procedure Bridge
 
-## D3. PubSub adapter proof
+The production watch bridge is:
 
-The daemon-side event category is Effect-native. The spike must prove a small
-adapter from `PubSub` subscription to async iterator consumption:
+- `@orpc/contract` `eventIterator(...)` output;
+- `effect-orpc` `.effect()` implementation;
+- handler result is the async iterator object, not a drained array or buffered response;
+- TypeBox event union converted through the owned Standard Schema adapter;
+- existing one `/rpc` mount from D0.
 
-- every published event is yielded in order for one subscriber;
-- closing the iterator or aborting the client releases the subscription;
-- cleanup is observable by a focused test, not inferred from code review.
+The plain oRPC `.handler()` bridge is rejected for Studio events. It is not retained as a parallel implementation, legacy route, or local emergency path.
 
-The adapter may be test-local in S3.0. S3.1 owns the production EventHub
-service and final adapter placement.
+## Effect Subscription Bridge
 
-## D4. Transport proof
+The EventHub subscription bridge uses Effect `PubSub` and scoped cleanup:
 
-The future watch procedure must use the existing one `/rpc` surface. The spike
-must prove that the server handler and development proxy path preserve streaming
-semantics. Evidence can be a focused app-level test, a Bun fetch proof against
-the handler, or a source-backed disposition if the current test harness cannot
-exercise vite without adding brittle infrastructure.
+- each subscriber acquires a subscription in a `Scope`;
+- iterator `return()` closes the scope;
+- client abort/disconnect closes the iterator and releases the subscription;
+- runtime/fiber interruption closes the scope;
+- repeated subscribe/close cycles leave subscriber/dequeue counts at baseline.
 
-The proof must name what it falsifies: buffering all events until close,
-dropping later events, or failing to run cleanup on client disconnect.
+D7 requires observable cleanup tests. Code review of `finally` blocks or scope construction is not proof.
 
-## D5. Client proof
+## Client Consumption Bridge
 
-The plan named `streamedOptions`, but the installed client package is the
-authority for exact API names. The spike records the actual API exposed by the
-installed `@orpc/tanstack-query` version and demonstrates the consumption shape
-or records the source-backed correction for S3.1.
+The installed TanStack oRPC helper for latest daemon state is `experimental_liveOptions`. The Studio event spine is a latest-state channel: `hello` re-adopts current daemon truth, operation events replace operation polling, and live-game events replace browser live polling. It is not an accumulating chunk log.
 
-The reconnect proof must inspect `ClientRetryPlugin` behavior for event
-iterator retries and record whether S3.1 can rely on it directly. If a live
-network retry test is impractical in S3.0, the findings must state the boundary
-and the minimal S3.1 test that closes it.
+`experimental_streamedOptions` is a source-backed non-fit for production Studio events because it accumulates chunks. Bare `streamedOptions` is stale plan vocabulary and must not appear as a production API name.
 
-## D6. Findings format
+The retry owner must be explicit on the actual event-watch path. Either the RPC link or the watch call context supplies nonzero retry. A default `new ClientRetryPlugin()` has retry `0` and does not prove reconnect behavior.
 
-`workstream/findings.md` is the durable output. It must contain:
+## Transport Proof
 
-- verdict: feasible, feasible with caveats, risky, or rejected;
-- selected S3.1 procedure bridge;
-- evidence map with file/package pointers;
-- integration touchpoints;
-- constraints and risks;
-- deletion/promotion targets for any spike-only reference;
-- exact next tests S3.1 must keep or add.
+The stream uses the existing one `/rpc` path through the Studio daemon and Vite development proxy. D7's transport proof must falsify:
+
+- all events buffered until upstream close;
+- first event delivered but later events dropped;
+- client close not reaching server cleanup;
+- dev proxy turning an event stream into a non-streaming response.
+
+The durable dev proxy guard is `apps/mapgen-studio/test/devServer/viteProxyStream.test.ts`, or an equal/stronger successor that reads at least two ordered chunks from the response body before upstream close.
+
+## Spike Fixture Disposition
+
+Any spike-only reference code is temporary proof infrastructure. The next production packet that owns the same behavior must do one of:
+
+- promote the assertions into production EventHub/watch tests; or
+- delete the fixture after equivalent production coverage exists.
+
+No spike fixture, reference route, helper, or test-only procedure can remain as a hidden runtime path or unowned proof island.
+
+## Packet Blockers
+
+D7 is not accepted while any of the following remain:
+
+- plain `.handler()` is described as an available production bridge for Studio events;
+- the packet permits a second event route, second RPC mount, or parallel SSE endpoint;
+- cleanup proof does not include interruption/disconnect and repeated subscribe/close behavior;
+- retry proof relies on default `ClientRetryPlugin` construction only;
+- client consumption uses stale or accumulating stream helper vocabulary;
+- spike fixture promotion/deletion is unowned;
+- D8/D9/D10 production semantics are collapsed into D7 transport selection;
+- review finds unresolved P1/P2 ambiguity.

@@ -3,11 +3,12 @@
 ### Requirement: Operation Registries Publish Transition Events
 
 MapGen Studio SHALL publish daemon operation transitions to
-`studio.events.watch` as `operation` events.
+`studio.events.watch` as `operation` events through the D8 `StudioEventHub`.
 
 #### Scenario: Run in Game transition publishes an operation event
 
-- **WHEN** a Run in Game operation is created or updated in the daemon registry
+- **WHEN** a Run in Game operation is created, updated, completed, or failed in
+  the daemon registry
 - **THEN** the daemon publishes a `studio.events.watch` event with
   `type: "operation"`
 - **AND** `kind` is `run-in-game`
@@ -16,18 +17,35 @@ MapGen Studio SHALL publish daemon operation transitions to
 
 #### Scenario: Save&Deploy transition publishes an operation event
 
-- **WHEN** a Save&Deploy operation is created or updated in the daemon registry
+- **WHEN** a Save&Deploy operation is created, updated, completed, or failed in
+  the daemon registry
 - **THEN** the daemon publishes a `studio.events.watch` event with
   `type: "operation"`
 - **AND** `kind` is `save-deploy`
 - **AND** the event status matches the daemon-owned Save&Deploy operation
   status snapshot
 
-#### Scenario: Publication is wired to the existing EventHub
+#### Scenario: Publication uses the D8 EventHub
 
 - **WHEN** the daemon constructs Studio engines
-- **THEN** operation publishers use the S3.1 daemon-owned EventHub
-- **AND** no alternate event transport or operation-specific stream is added
+- **THEN** operation publishers use the D8 daemon-owned `StudioEventHub`
+- **AND** no alternate event transport, operation-specific stream, or
+  operation-only bus is added
+
+#### Scenario: Production daemon composition supplies EventHub
+
+- **WHEN** the production Studio daemon creates Studio engines
+- **THEN** it supplies the D8 `StudioEventHub`
+- **AND** any no-publisher construction path is limited to tests or explicitly
+  non-daemon composition
+
+#### Scenario: Publish failure does not reopen polling
+
+- **WHEN** EventHub publication rejects unexpectedly after a daemon operation
+  transition is recorded
+- **THEN** the operation transition remains recorded in the daemon registry
+- **AND** the failure is surfaced as diagnostics
+- **AND** no background status polling path is started as compensation
 
 ### Requirement: Client Applies Operation Events Without Polling
 
@@ -52,6 +70,7 @@ events instead of background status polling.
 - **WHEN** the client receives an event stream `hello`
 - **THEN** it continues to call `studio.operations.current`
 - **AND** it adopts daemon-retained operations for reconnect/boot truth
+- **AND** this adoption is not replaced by browser request-id recovery
 
 ### Requirement: Operation Polling And ServerInfo Watchdog Are Deleted
 
@@ -60,7 +79,7 @@ identity watchdog after operation events own operation freshness.
 
 #### Scenario: Operation status polling hook is gone
 
-- **WHEN** S3.2 is complete
+- **WHEN** D9 is implemented
 - **THEN** no `useOperationStatusPolls` hook, import, or call remains
 - **AND** no background Run in Game or Save&Deploy status polling loop remains
 
@@ -72,15 +91,23 @@ identity watchdog after operation events own operation freshness.
 - **AND** terminal completion reaches the client through pushed operation
   events or reconnect adoption
 
+#### Scenario: Polling-only status-miss handling is gone
+
+- **WHEN** D9 is implemented
+- **THEN** `StudioShell` no longer synthesizes operation terminal state from
+  polling-only 404/status-miss callbacks
+- **AND** operation errors are surfaced through the operation event/adoption
+  paths that own current UI state
+
 #### Scenario: ServerInfo watchdog no longer owns identity
 
-- **WHEN** S3.2 is complete
+- **WHEN** D9 is implemented
 - **THEN** no `useDaemonInstanceWatchdog` hook, import, or call remains
 - **AND** the event stream `hello` is the client identity/reconnect authority
 
-#### Scenario: Live-game polling remains for S3.3
+#### Scenario: Live-game polling remains D10-owned
 
-- **WHEN** S3.2 is complete
+- **WHEN** D9 is implemented
 - **THEN** live-game polling behavior remains unchanged
-- **AND** S3.3 remains the owner for live-game event publication and live-game
-  poll deletion
+- **AND** D10 remains the owner for live-game event publication and browser
+  live-game polling/timer deletion

@@ -1,151 +1,82 @@
-# Phase Record
+# D6 Packet Phase Record - Operations Current
 
-## Phase
+Status: accepted
+Date: 2026-06-14
+Domino: D6
+OpenSpec change: `mapgen-studio-operations-current`
+Graphite packet branch: `codex/runtime-effect-openspec-packets`
 
-- Project: Studio runtime simplification
-- Phase: S2.1 `operations-current`
-- Owner: Codex DRA implementation lane
-- Branch/Graphite stack: `codex/operations-current` stacked on `main`
-- Started: 2026-06-13
-- Status: closed; merged and drained through Graphite
+## Frame
 
-## Objective
+D6 exposes daemon-owned operation truth through `studio.operations.current` and deletes browser-owned operation recovery. D4 owns runtime current projection, terminal-retention, expiry tombstones, TTL pruning, and daemon identity. D5 workflows publish operation transitions into that runtime. D6 makes `apps/mapgen-studio/src/app/operationAdoption.ts` and `StudioShell.tsx` consume the projection at boot while protecting D8/D9 event surfaces.
 
-- Target movement: move operation recovery ownership from browser localStorage
-  request-id replay to daemon-owned `studio.operations.current`.
-- Non-goals: operation durability across daemon restarts; SSE/EventHub or push;
-  deletion of unrelated localStorage owners; successful operation execution
-  changes.
-- Done condition: boot adoption reads daemon truth; operation recovery
-  localStorage bridge is deleted; fresh daemon/TTL/status-miss/current behavior
-  is pinned.
+## Dependencies
 
-## Authority
+- D0 accepted one-mount baseline.
+- D1 accepted dev-watch deploy isolation.
+- D2 accepted runtime effect corpus.
+- D2.5 accepted TypeBox public contract spine.
+- D3 accepted error spine and typed not-found vocabulary.
+- D4 accepted `StudioOperationRuntime` lifecycle/current ownership.
+- D5 accepted package-owned workflow pipelines and operation transition publication.
+- D8/D9 consume D6 boot adoption when replacing status polling with events/push.
 
-- Root/subtree `AGENTS.md`: root repo router and Graphite process docs.
-- Product refs: `docs/projects/studio-runtime-simplification/PLAN.md` WS-2 S2.1.
-- Architecture refs: S1.1 one `/rpc` surface; S1.2 typed status-miss identity
-  errors; app runtime owns presentation, daemon engines own ephemeral truth.
-- Project refs: `openspec/changes/mapgen-studio-runtime-one-mount/`,
-  `openspec/changes/mapgen-studio-dev-watch-deploy-isolation/`,
-  `openspec/changes/mapgen-studio-error-spine/`.
-- Excluded/stale inputs: stale habitat branch; original dirty checkout;
-  legacy localStorage parity comments before S2.1.
+## Required Review Lanes
 
-## Current State
+- Runtime projection / D4 ownership review.
+- Browser recovery deletion review.
+- TypeBox/schema projection review.
+- Testing/parity review.
+- Hardening/prework philosophy review.
+- Black-ice disambiguation review.
+- Downstream D8/D9 realignment review.
 
-- Repo/Graphite state: `codex/operations-current` merged via PR #1682 into
-  `main` at `5c9b356a9cddcd1476610825bc285bfb8d0eedd1`, then pruned from the
-  local Graphite stack.
-- Dirty files and owner: none for S2.1 after merge/drain.
-- Current code evidence: daemon stores expose pruned newest-first `list()`;
-  `StudioEngines.currentOperations()` returns daemon identity plus active/recent
-  Run in Game and Save&Deploy operations; the unified oRPC contract exposes
-  `studio.operations.current` using TypeBox/Standard Schema; client boot adopts
-  daemon current truth instead of replaying persisted request ids.
-- Generated outputs affected: workspace builds produced ignored `dist/` and
-  mod map outputs only; no generated artifacts are in the dirty set.
-- Tests/guards affected: operation store tests, handler/one-mount tests,
-  client state/store tests, StudioShell boot adoption coverage if available.
+## Packet Acceptance Stop Conditions
 
-## Scope
+D6 cannot be accepted if:
 
-- Write set: `openspec/changes/mapgen-studio-operations-current/**`,
-  `packages/studio-server/src/contract/**`,
-  `packages/studio-server/src/{context,router,index}.ts`,
-  `apps/mapgen-studio/src/server/**/operationState.ts`,
-  `apps/mapgen-studio/src/server/studio/{engines,context}.ts`,
-  `apps/mapgen-studio/src/stores/runStore.ts`,
-  `apps/mapgen-studio/src/app/StudioShell.tsx`,
-  focused tests under `apps/mapgen-studio/test/**` and
-  `packages/studio-server/test/**`.
-- Protected files: generated outputs, unrelated localStorage state owners,
-  WS-3 event/push surfaces beyond explicit deletion-target comments.
-- Owners: Studio daemon engines/registries for ephemeral truth; Studio app for
-  rendering/adopting daemon truth.
-- Forbidden owners: browser localStorage as operation recovery source; generated
-  artifacts; new durability database/file ledger.
-- Consumer impact: internal Studio app only; public SDK/CLI/mod behavior unchanged.
-- Downstream assumptions: S3.1/S3.2 can subscribe/re-adopt from
-  `operations.current`; watchdog remains until S3.2.
+- browser localStorage operation recovery remains a valid path;
+- `operations.current` reads app-local stores instead of D4 runtime projection;
+- TypeBox schema origin is unclear;
+- TTL/status agreement is not specified;
+- fresh-daemon empty truth is not specified;
+- client adoption can replay persisted request ids into status calls;
+- unrelated localStorage owners are not protected from deletion;
+- active operations are duplicated into terminal-only `recent`;
+- expired-known tombstones and physically pruned ids collapse into the same status outcome;
+- D8/D9 polling/event scope is conflated with D6;
+- review finds unresolved P1/P2 findings.
 
-## Spec/Tasks
+## Future Implementation Closure Blockers
 
-- Spec/proposal: `openspec/changes/mapgen-studio-operations-current/`.
-- Tasks: `tasks.md`.
-- Validation status: strict OpenSpec validation passed.
+The D6 implementation slice cannot close if:
 
-## Review
+- `studio.operations.current` bypasses `StudioOperationRuntime.current`;
+- operation current DTOs are Zod-backed or broader than TypeBox validation;
+- expected current/status misses use raw errors, status-code truth, or public unknown details;
+- production browser code reads or writes Run in Game / SaveDeploy operation recovery keys;
+- retained parser/snapshot helpers have any storage read/write path;
+- boot adoption can synthesize active operations from browser-only persisted request ids;
+- status polling is broadened beyond existing active-operation polling before D8/D9;
+- localStorage authoring/view/theme/preset owners are changed without owning scope;
+- negative searches for operation recovery bridge symbols are unresolved;
+- package/app gates and focused adoption/current tests are absent.
 
-- Review lanes: S2.1 read-only watcher `019ebfd0-fde2-7f51-99de-7f540c3eff2a`.
-- Blocking findings: none known yet.
-- Accepted findings repaired: none.
-- Rejected/invalidated/waived/deferred findings: none.
+## Packet Acceptance Evidence
 
-## Agent Fleet State
+Review:
 
-- Active agents: none.
-- Completed agents: watcher `019ebfd0-fde2-7f51-99de-7f540c3eff2a`.
-- Assigned write sets: watcher is read-only.
-- Latest evidence by agent: watcher returned `DONT_NOTIFY`; write set matched
-  expected S2.1 surfaces and no pre-implementation P1/P2 violation was found.
-- Open findings by agent: none.
-- Running/stale status: watcher complete.
-- Integration owner: Codex DRA implementation lane.
+- Runtime lifecycle semantics: accepted by Newton.
+- Browser recovery deletion / protected storage: accepted by Russell.
+- TypeBox/schema/testing adequacy: accepted by Boole.
+- Hardening/prework/black ice: accepted by Mendel.
 
-## Implementation
+Verification:
 
-- Completed tasks: S2.1 OpenSpec scaffold; daemon current enumeration and
-  `studio.operations.current`; TypeBox/Standard Schema current output; client
-  boot adoption; operation recovery localStorage bridge deletion; focused tests
-  and stale-bridge scan.
-- Remaining tasks: none for S2.1; continue WS-3.
-- Stop conditions triggered: none.
-
-## Verification
-
-- Commands run:
-  - `bun run openspec -- validate mapgen-studio-operations-current --strict`
-  - `bun x turbo run check --filter=@civ7/studio-server`
-  - `bun x turbo run build --filter=@civ7/studio-server`
-  - `bun run --cwd packages/studio-server test -- test/handler.test.ts`
-  - `bun run --cwd apps/mapgen-studio test -- test/runInGame/operationState.test.ts test/mapConfigSave/operationState.test.ts`
-  - `bun run --cwd apps/mapgen-studio test -- test/server/oneMount.test.ts`
-  - `bun run --cwd apps/mapgen-studio test -- test/runInGame/clientState.test.ts`
-  - `bun x turbo run build --filter=@swooper/mapgen-core`
-  - `bun x turbo run build --filter=@civ7/plugin-mods --filter=mod-swooper-maps`
-  - stale bridge scan: `rg -n "setRunInGameRequestId|setSaveDeployRequestId|runInGameRequestId|saveDeployRequestId|RUN_IN_GAME_LAST|MAP_CONFIG_SAVE_LAST_REQUEST|sourceSnapshotStorage|readStoredRunInGameSourceSnapshot|fan-out|localStorage recovery bridge|request-id bridge|for now|best-effort|zod" ...`
-- Results: OpenSpec strict validation passed; studio-server check/build passed;
-  studio-server handler tests passed; app operation store tests passed; app
-  one-mount current procedure test passed after building workspace exports; app
-  run-in-game client-state relation tests passed.
-- Gate disposition: `bun run --cwd apps/mapgen-studio check` first failed on
-  missing built workspace package exports
-  (`mod-swooper-maps/*`, `@civ7/plugin-mods`). After building those workspace
-  dependencies, the check remained active for a long run without S2.1
-  diagnostics and was stopped to avoid leaving a hanging process. Treat focused
-  app tests plus package `tsc` as the slice evidence boundary.
-- Evidence boundary: no live Civ7 operation execution in S2.1; this slice
-  changes boot recovery ownership, not Play/Save&Deploy execution paths.
-
-## Realignment
-
-- Downstream docs/specs/issues updated: S2.1 OpenSpec proposal/design/spec/tasks
-  and this phase record.
-- Tests/guards updated: operation store list/TTL tests, studio-server handler
-  current assertion, one-mount current assertion, client-state relation test
-  rerun.
-- Deferrals/triage updated: status polling and daemon watchdog deliberately
-  remain with deletion targets in WS-3 S3.2/S3.3.
-- Downstream realignment ledger: stale bridge scan leaves only intended
-  OpenSpec/plan references, polling variable names, and unrelated existing
-  localStorage owners.
-
-## Next Action
-
-- Exact next step: open WS-3 S3.0 `stream-spike`.
-- First files to inspect if revisiting: `packages/studio-server/src/contract/studio.ts`,
-  `packages/studio-server/src/router/index.ts`, `apps/mapgen-studio/src/server/studio/engines.ts`,
-  `apps/mapgen-studio/src/app/StudioShell.tsx`, `apps/mapgen-studio/src/stores/runStore.ts`.
-- Stop condition: any requested operation durability across daemon restarts or
-  event-push semantics belongs to WS-3/S4, not S2.1.
+- `bun install --frozen-lockfile` passed on 2026-06-14 with no dependency changes.
+- `bun run build` passed on 2026-06-14. The build dirtied `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js`; that generated output was restored because it is outside the D6 packet write set.
+- `bun run check` passed on 2026-06-14. `lint-mapgen-docs` emitted the existing three `@mapgen/*` warnings and exited OK.
+- `bun run openspec -- validate mapgen-studio-operations-current --strict` passed.
+- `bun run openspec:validate` passed 151/151.
+- `git diff --check -- openspec/changes/mapgen-studio-operations-current` passed.
+- Dirty-file quarantine after gates: only D6 packet docs and `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md` are dirty.

@@ -5,7 +5,7 @@ or dispositioned with source evidence.
 
 ## Entries
 
-### 2026-06-13 - Client retry plugin default leaves event watch reconnect inert
+### 2026-06-13 / D8 - Client retry plugin default leaves event watch reconnect inert
 
 Status: accepted-repaired; scoped event-watch call context owns retry
 
@@ -19,9 +19,9 @@ scoped `experimental_liveOptions(...)` call context with
 
 Principle:
 
-S3.1 owns `studio.events.watch` client subscription and reconnect adoption.
-The accepted S3.0 findings say `ClientRetryPlugin` defaults retry to `0`, so
-S3.1 must wire retry deliberately on the Studio client link or call context.
+D8 owns `studio.events.watch` client subscription and reconnect adoption.
+The accepted D7 stream findings say `ClientRetryPlugin` defaults retry to `0`,
+so D8 must wire retry deliberately on the Studio event watch path.
 
 Rationale:
 
@@ -48,6 +48,6 @@ Evidence:
 
 Closure Condition:
 
-Met. The S3.1 diff contains an event watch retry policy with nonzero attempts,
-a focused app test for that policy, strict OpenSpec validation, and no closure
-claim that relies on the default `ClientRetryPlugin` constructor alone.
+The D8 packet now requires event watch retry with nonzero attempts, a focused
+app test for that policy, strict OpenSpec validation, and no closure claim that
+relies on the default `ClientRetryPlugin` constructor alone.

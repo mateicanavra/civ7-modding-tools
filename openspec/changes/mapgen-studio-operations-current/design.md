@@ -1,15 +1,42 @@
-# Design — operations current (S2.1)
+# Design - Studio Operations Current
 
-## D1. The daemon owns recovery by enumeration, not by browser replay
+## Component Role
 
-The status endpoints remain request-id lookups. S2.1 adds a separate daemon
-truth read:
+D6 is the read-model component for daemon-owned operation truth. D4 owns admission, registries, current projection, TTL, events, and disposal. D5 workflows publish typed phase/proof/failure transitions into D4. D6 exposes that state through `studio.operations.current` and makes the browser adopt it at boot.
 
-```ts
-studio.operations.current({})
+D6 does not create another registry. It does not make browser storage a recovery source. It does not replay request ids into status procedures to discover daemon state.
+
+## Target Module Topology
+
+Use the D4/D5 runtime topology:
+
+```text
+packages/studio-server/src/contract/studio.ts
+  StudioOperationsCurrentRequest
+  StudioOperationsCurrentResponse
+  StudioOperationsCurrentOperation
+
+packages/studio-server/src/services/StudioOperationRuntime.ts
+  current(): Effect.Effect<StudioOperationsCurrentResponse, never, never>
+
+packages/studio-server/src/router/index.ts
+  studio.operations.current -> resolves StudioOperationRuntime.current
+
+apps/mapgen-studio/src/app/operationAdoption.ts
+  readAndAdoptStudioOperationsCurrent from studio.operations.current
+
+apps/mapgen-studio/src/app/StudioShell.tsx
+  calls the adoption helper once during boot
+
+apps/mapgen-studio/src/stores/runStore.ts
+  session UI state only; no persisted operation recovery keys
 ```
 
-The response includes:
+This file/symbol map is the target D6 topology. Existing `currentOperations` engine helpers are migration source evidence, not the target owner. Package runtime owns current truth; router is a thin Effect/oRPC leaf; app shell plus `operationAdoption.ts` adopt the projection; browser stores hold UI state only. `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts` is protected D8/D9 event/push surface and is not inside the D6 write set except for explicit deletion-target notes.
+
+## Runtime Projection Contract
+
+`studio.operations.current({})` returns:
 
 - `serverInstanceId`
 - `serverStartedAt`
@@ -19,80 +46,77 @@ The response includes:
 - `saveDeploy.active`
 - `saveDeploy.recent`
 
-`active` is the currently running operation or `null`. `recent` is the full set
-of non-pruned retained operations, including terminal records, ordered newest
-first. A fresh daemon returns both `active: null` and `recent: []` for both
-registries. The client does not replay browser-owned request ids into status
-calls to discover this.
+Every operation projection is TypeBox-backed and derived from the D2.5/D3/D4 public ADTs. It includes only public operation identity, kind, status/phase, timestamps, failure/recovery/proof summaries, and daemon identity required by the UI. It excludes private app store state, raw control fields, unknown details blobs, registry internals, callback references, and request fingerprint internals.
 
-## D2. Current snapshots use the existing stores and TTL semantics
+`recent` is terminal-only and ordered newest first after D4 TTL pruning. Active operations appear in `active`, not duplicated in `recent`. Terminal records remain visible only inside the retained runtime window. A fresh daemon returns empty active/recent collections and its own daemon identity.
 
-The operation stores already own TTL pruning and `findActive()`. S2.1 adds
-enumeration methods on those stores rather than creating a second registry:
+## TTL And Status Agreement
 
-- `list(): readonly OperationState[]` prunes first.
-- `current(): { active, recent }` can be composed by the engine over both
-  stores.
+D6 reads through D4 runtime pruning rules. Current and status cannot disagree about lifecycle state:
 
-Status lookup and `operations.current` therefore agree on expiry: a pruned
-request disappears from `current`, and a direct status lookup for the old id
-returns the existing typed `*_STATUS_NOT_FOUND` error with the current daemon
-identity.
+- if `operations.current` reports an operation, direct status lookup for that operation id returns the same public projection family;
+- if an active operation exists, `operations.current` reports it in `active`, direct status reports an active/in-progress projection, and `recent` does not duplicate it;
+- if a terminal operation remains retained, `operations.current` reports it in terminal-only `recent`, direct status reports the same terminal public projection, and `active` is null for that operation kind;
+- if D4 has marked an id expired but still knows the tombstone, `operations.current` omits it and direct status returns D3 `OperationExpired` with current daemon identity;
+- if D4 has physically pruned the id, or never knew it, `operations.current` omits it and direct status returns D3 typed not-found data with current daemon identity;
+- if the id belongs to a different daemon identity, status returns D3 `DaemonIdentityMismatch` with the current daemon identity;
+- a daemon restart creates a new `serverInstanceId` and reports empty operation truth.
 
-## D3. New contract schema is TypeBox/Standard Schema
+D6 cannot synthesize an uncertain browser state for a missing operation. Missing daemon truth is represented as missing daemon truth.
 
-The runtime simplification program already recorded that new durable contract
-schemas should not extend the legacy Zod success I/O surface. The new
-`operations.current` output uses TypeBox through the shared
-`typeboxStandardSchema` adapter. Existing legacy Zod schemas remain a S4.1
-closeout target and are not expanded for the new state spine procedure.
+## Client Boot Adoption
 
-## D4. Client adoption is explicit and narrow
+The app performs one boot read:
 
-On boot, `StudioShell` calls `studio.operations.current` once. It adopts:
+```ts
+studio.operations.current({})
+```
 
-- `runInGame.active` if present, otherwise the newest retained Run in Game
-  operation if useful for status display.
-- `saveDeploy.active` if present, otherwise the newest retained Save&Deploy
-  operation if useful for status display.
+The shell/adoption hook uses the response to seed displayed operation state:
 
-After adoption, existing status polls continue while operations are active.
-S3.2 deletes those polls when operation events exist. S2.1 does not add a new
-poll for `operations.current`.
+- active Run in Game adopts as active Play state;
+- retained terminal Run in Game seeds only terminal recent/current display and cannot be treated as active work;
+- active Save/Deploy adopts as active deploy state;
+- retained terminal Save/Deploy seeds only terminal recent/current display and cannot restart deploy;
+- Autoplay remains a D5 immediate command outside D6 current projection.
 
-## D5. Browser recovery bridge deletion boundary
+Existing active-operation status polling remains only as a D8/D9 deletion-targeted surface until D8/D9 replace it with event/push transport. D6 does not add a polling loop for `operations.current`.
 
-`runStore` remains the owner of session-only run UI state:
+## Browser Recovery Deletion
 
-- `runInGameSnapshot`
-- `lastRunInGameSource`
-- `lastRunSnapshot`
-- `lastSaveDeployConfig`
+The following are deleted as operation recovery sources:
 
-It no longer persists or hydrates any operation recovery field:
+- persisted Run in Game request id;
+- persisted Run in Game source snapshot;
+- persisted last Run in Game source;
+- persisted Save/Deploy request id;
+- any production `sourceSnapshotStorage.ts` module that supports cross-reload operation recovery.
 
-- `runInGameRequestId`
-- `runInGameSnapshot`
-- `lastRunInGameSource`
-- `saveDeployRequestId`
+The implementation search corpus includes current symbol names: `runInGameRequestId`, `saveDeployRequestId`, `runInGameSnapshot`, `lastRunInGameSource`, `setRunInGameSnapshot`, `setLastRunInGameSource`, `sourceSnapshotStorage`, `readStoredRunInGameSourceSnapshot`, `parseRunInGameClientSnapshot`, and `parseRunInGameSourceSnapshot`. `runStore` operation-shaped fields are in-memory session UI/proof aids only and are not serialized for operation recovery. Retained snapshot/fingerprint helpers are pure relation/proof helpers with no operation recovery storage path.
 
-`lastRunInGameSource` can remain in memory as a session UI aid for the Live Game
-preset, but it is not a cross-reload recovery channel. The
-`sourceSnapshotStorage.ts` localStorage module is deleted. Snapshot and source
-snapshot builders/parsers in `clientState.ts` stay because proof identity and
-current/stale relation logic still depend on their shapes.
+Protected storage owners are exact and tested:
 
-## D6. Verification shape
+- authoring state key `mapgen-studio.authoring-state.v1` in `apps/mapgen-studio/src/features/studioState/persistence.ts`;
+- preset scratch key `mapgen-studio.scratchConfigs` in `apps/mapgen-studio/src/features/presets/storage.ts`;
+- theme key `theme-preference` in `apps/mapgen-studio/src/ui/hooks/useTheme.ts`;
+- non-operation UI state owners outside the D6 write set.
 
-Tests should falsify the owner flip:
+## TypeBox And Error Discipline
 
-- fresh engine instance -> `operations.current` reports empty registries;
-- active Run in Game or Save&Deploy operation appears in `current`;
-- terminal retained operation appears in `recent`;
-- after TTL expiry, `current` omits the operation and status by the old id
-  yields typed NOT_FOUND with current `serverInstanceId`;
-- client/store tests no longer write/read operation recovery localStorage keys;
-- `clientState.test.ts` current/stale relation pins remain.
+D6 adds no Zod schema. The operation-current public contract uses TypeBox and the repo Standard Schema adapter with recoverable `TSchema` origin. Static public TypeScript types are derived from canonical TypeBox operation DTO schemas and are no broader than runtime validation.
 
-Shortcut scan target: no live S2.1 artifact may describe the deleted
-localStorage operation bridge as parity, hard-core, recovery, or compatibility.
+Known missing-operation outcomes use D3 typed not-found data. D6 does not construct `RunInGameHttpError`, `StudioEngineError`, raw `ORPCError`, status-code truth, or public `details?: unknown` for expected current/status outcomes.
+
+## Packet Blockers
+
+D6 is not accepted while any of the following remain:
+
+- the packet treats browser localStorage operation replay as a valid recovery path;
+- `operations.current` reads app-local stores instead of D4 runtime projection;
+- current/status TTL agreement is not specified;
+- fresh-daemon empty truth is not specified;
+- TypeBox schema origin is not specified;
+- client boot adoption can replay request ids into status calls;
+- unrelated localStorage owners are accidentally inside the deletion boundary;
+- D8/D9 event/push replacement is conflated with D6;
+- review finds unresolved P1/P2 ambiguity.

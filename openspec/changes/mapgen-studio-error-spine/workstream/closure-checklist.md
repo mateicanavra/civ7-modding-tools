@@ -1,64 +1,56 @@
-# Closure Checklist
+# D3 Packet Closure Checklist
 
-## Phase
+Status: accepted
+Date: 2026-06-14
 
-- Project: Studio runtime simplification
-- Phase: S1.2 `error-spine`
-- Phase state: closed; merged via Graphite PR #1680
-- Artifact path: `openspec/changes/mapgen-studio-error-spine/`
+## Packet Shape
 
-## Review
+- [x] Proposal repaired.
+- [x] Design repaired.
+- [x] Tasks repaired.
+- [x] Spec delta repaired.
+- [x] Phase record repaired.
+- [x] Error corpus ledger drafted.
+- [x] Failure vocabulary ledger drafted.
+- [x] Prework ledger drafted.
+- [x] Testing ledger drafted.
+- [x] Fresh reviews complete.
+- [x] Hardening/prework review complete.
+- [x] Black-ice review complete.
+- [x] Accepted P1/P2 findings repaired or rejected with evidence.
+- [x] Packet status moved from draft to accepted.
 
-- Review lanes completed: initial watcher framing pass complete; closure watcher
-  returned one P2 residue finding, repaired locally; final recheck clean
-- P1/P2 accepted findings repaired: WATCH-1, WATCH-2, WATCH-3, USER-1, USER-2
-  repaired
-- Rejected/invalidated/waived/deferred findings recorded: none
-- Remaining review risk: none known
+## Packet Verification Before Acceptance
 
-## Verification
+- [x] `bun install --frozen-lockfile`
+- [x] historical pre-settlement packet-authoring base: `bun run build` and `bun run check`
+- [x] `git status --short --branch`
+- [x] `gt status`
+- [x] `gt log --no-interactive`
+- [x] `bun run openspec -- validate mapgen-studio-error-spine --strict`
+- [x] `bun run openspec:validate`
+- [x] `git diff --check`
+- [x] selected-baseline and dirty-file quarantine note recorded
+- [x] failure corpus recorded in `error-corpus-ledger.md`
+- [x] failure vocabulary recorded in `failure-vocabulary-ledger.md`
+- [x] failure reason codes are TypeBox-declared before engine/application projections can emit them
+- [x] implementation prework and peer-agent prework lanes recorded in `prework-ledger.md`
+- [x] future implementation closure gates recorded in `testing-ledger.md`
 
-- Repo/package gates run: strict OpenSpec validation, all OpenSpec validation,
-  mapgen-studio check, focused app tests, studio-server check/test,
-  control-orpc check/test, direct-control check/test
-- Results: passed
-- Skipped gates and rationale: no fresh in-game successful Play/Save&Deploy
-  smoke was run for S1.2 because this slice changes error classification,
-  status-miss identity echo, and contract schemas, not successful execution or
-  deploy graph isolation. S1.1a remains the live execution/watch proof.
-- Evidence boundary: local package/app gates prove the error spine and status
-  behavior; they do not prove a new successful in-game deployment.
+Dirty-file quarantine note: `bun run build` rewrote the generated `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` bundle; it was restored from `HEAD` and is not part of D3.
 
-## Downstream Realignment
+## Future Implementation Closure Gates
 
-- Downstream realignment ledger: `workstream/downstream-realignment-ledger.md`
-- Downstream artifacts updated: `mapgen-studio-server-orpc` spec/design,
-  proposal/tasks, `packages/studio-server` contract/context/error comments and schemas,
-  `docs/projects/studio-runtime-simplification/PLAN.md`
-- Deferrals/triage updated: S4.1 program closeout target added for remaining
-  legacy Zod success I/O schema-tech decision
-- Deferred inventory: none inside S1.2 error data; remaining legacy success I/O
-  schema decision is scheduled as S4.1 closeout
-
-## Agent Fleet State
-
-- Active agents: none
-- Completed agents: watcher lane returned `NOTIFY` with two P2 framing findings;
-  closure watcher returned one P2 residue finding and then a clean recheck
-- Stale/running agents closed or handed off: watcher lanes complete
-- Assigned write sets reconciled: watcher lanes are read-only
-- Integration owner: Codex DRA implementation lane
-
-## Repo State
-
-- Branch/Graphite stack: `codex/error-spine` on `main`; PR #1680 merged into
-  `origin/main` at `ec1a88250`
-- Dirty files: none at S1.2 merge
-- Untracked files: none at S1.2 merge
-- Commit made: `68111dbea` (`fix(mapgen-studio): seal studio engine error spine`)
-
-## Handoff
-
-- Next Packet written: not needed; S2.1 proceeds from merged `origin/main`
-- Exact next action: open S2.1 `operations-current`
-- Stop condition: none for S1.2
+- [ ] no expected public error data uses `Type.Unknown()` / `details?: unknown`
+- [ ] no expected failure path uses status-code truth as the domain model
+- [ ] no raw `ORPCError` construction outside router/runtime mapping ownership
+- [ ] status-miss identity echo parity remains green
+- [ ] recovery actions are TypeBox vocabulary values
+- [ ] operation-state projections use typed failure data and sealed recovery-action values
+- [ ] mapper totality tests cover all operation namespaces and expected tags
+- [ ] lifecycle mapper tests cover the exact D3 matrix without implementation-selected mappings
+- [ ] Autoplay start/stop and verification failures map to typed `AUTOPLAY_FAILED` outcomes
+- [ ] no unclassified `effect-orpc` imports outside router/runtime ownership
+- [ ] no production `StudioEngineError` / `RunInGameHttpError` construction, catch, import, or bridge mapping remains
+- [ ] `@civ7/control-orpc` and `@civ7/direct-control` package gates run when touched, or untouched-package negative scans are recorded
+- [ ] stale old-S1.2 closure and schema allowance comments are deleted or corrected

@@ -1,79 +1,94 @@
-# MapGen Studio error spine
+# MapGen Studio Error Spine
 
 ## Why
 
-S1.1 unified Studio runtime traffic onto one `/rpc` surface, and S1.1a made
-Play/Save&Deploy live proof meaningful by removing deploy-written files from
-the daemon import graph. The next runtime simplification slice is the error
-spine: the daemon should not expose known engine failures as anonymous 500s.
+D2.5 makes TypeBox the public contract spine. D3 consumes that spine for expected Studio runtime failures: Run in Game, Save/Deploy, and Autoplay must not expose known engine outcomes through `statusCode`-driven `Error` objects, raw `ORPCError` construction, or permissive `details?: unknown` payloads.
 
-Today `createStudioServerContext` maps engine `StudioEngineError` statuses
-through a partial status table and falls through to `*_FAILED` 500 for known
-but unmapped categories. Some engine paths also still throw plain `Error`s, and
-Save&Deploy status 404 does not carry the server identity echo that Run in Game
-uses for restart detection. That keeps the client from making durable decisions
-based on typed failure data.
+The current baseline already contains an old S1.2 error-spine implementation, but that implementation is not the final runtime-refactor target. It still treats `StudioEngineError` as an Error bridge with `statusCode` and `details?: unknown`, maps by status-derived failure kinds, lets declared error data stay permissive, and confines the typed model to the app host. D3 repairs the packet to the accepted frame: expected failures become typed runtime values, wire data is TypeBox-owned and sanitized, and router mapping is exhaustive at the package boundary.
 
-## Target Authority Refs
+## Authority
 
-- `docs/projects/studio-runtime-simplification/PLAN.md` — S1.2 requires sealed
-  failure unions, no unmapped 500s, Save&Deploy 404 identity echo, and
-  normalized recovery-action hints across Run in Game and Save&Deploy.
-- `openspec/changes/mapgen-studio-runtime-one-mount/` — S1.1 left error-spine
-  work intentionally untouched.
-- `openspec/changes/mapgen-studio-dev-watch-deploy-isolation/` — S1.1a closed
-  the dev-watch self-restart blocker so live proof is meaningful again.
-- `apps/mapgen-studio/src/server/studio/context.ts` and
-  `apps/mapgen-studio/src/server/studio/engines.ts` — current engine error
-  adapter and throw sites.
-- `packages/studio-server/src/contract/errors.ts` — declared oRPC error
-  envelopes that must become the single contract authority.
+- `docs/projects/studio-runtime-simplification/RUNTIME-EFFECT-REFACTOR-FRAME.md`
+- `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`
+- `openspec/changes/mapgen-studio-engine-effect-corpus/`
+- `openspec/changes/mapgen-studio-contract-typebox-spine/`
+- Current evidence:
+  - `apps/mapgen-studio/src/server/studio/engineErrors.ts`
+  - `apps/mapgen-studio/src/server/studio/context.ts`
+  - `apps/mapgen-studio/src/server/studio/engines.ts`
+  - `packages/studio-server/src/contract/errors.ts`
+  - `packages/studio-server/src/context.ts`
+  - `apps/mapgen-studio/test/server/engineErrorSpine.test.ts`
+  - `packages/studio-server/test/handler.test.ts`
 
 ## What Changes
 
-- Introduce a sealed engine failure model for Studio host engines, with tagged
-  failure categories instead of ad-hoc status-code fallthroughs.
-- Delete the legacy Run-in-Game-named host error bridge in favor of a
-  Studio-owned engine error type; no compatibility alias remains.
-- Replace the partial `toOrpc()` fallthrough with an exhaustive mapping from every
-  known engine failure category to a declared oRPC error code/status/data shape.
-- Preserve durable existing error-code pins while adding a new no-unmapped-500
-  pin over the failure union.
-- Add Save&Deploy status 404 server identity echo parity so both operation
-  status endpoints can support restart-aware client behavior.
-- Realign the still-live `mapgen-studio-server-orpc` OpenSpec wording and
-  package contract/context comments that still described Save&Deploy 404 without
-  the identity echo.
-- Normalize recovery-action hints in Run in Game and Save&Deploy failure data
-  instead of leaving recovery guidance as one-off detail fields.
+- Replace the status-code-shaped `StudioEngineError` bridge with Studio runtime failure ADTs whose tags encode the domain reason: blocked operation, invalid request, missing operation, expired operation, daemon identity mismatch, runtime disposed, unsupported operation type, dependency unavailable, and materialization/deploy/proof failure.
+- Move public failure-data schemas into `@civ7/studio-server` TypeBox contract ownership; declared oRPC errors must not use `details?: Type.Unknown()` as the expected-failure protocol.
+- Define a package-owned mapper from failure ADT plus namespace to declared oRPC code/status/data. The mapper is total over expected tags and has no known-category fallback to generic 500.
+- Keep unknown exception containment only at the router edge. Unknown exceptions map to declared `*_FAILED` defect data after sanitization; they are not accepted as expected runtime outcomes.
+- Preserve status-miss daemon identity echo for Run in Game and Save/Deploy.
+- Normalize recovery actions as typed data, not prose-only details.
+- Add a direct D2.5 closeout: any retained permissive expected-error `details?: unknown` bridge must be deleted or narrowed in D3, with a guard proving it cannot become a durable unknown-data protocol.
+- Delete production status-code bridge errors in D3 implementation closure. `StudioEngineError` and `RunInGameHttpError` cannot survive as construction, catch, import, or mapping surfaces after D3 closes.
+- Realign stale old-S1.2 docs/records that say the slice is already closed, merged, or allowed to keep legacy Zod/permissive details.
 
 ## Non-Goals
 
-- No S2.1 operation recovery or daemon-truth adoption.
-- No client localStorage bridge deletion.
-- No UI copy rewrite beyond consuming the normalized error shape if required by
-  tests.
-- No fallback/dual-path compatibility shim without an explicit deletion target.
+- No D4 runtime service implementation.
+- No D5 pipeline service implementation.
+- No D6 current-operation projection migration.
+- No UI copy rewrite except type consumption required by the new failure data.
+- No fallback, compatibility, status-code bridge, or dual public failure protocol.
 
-## Impact
+## Future Implementation Write Set
 
+- `packages/studio-server/src/contract/errors.ts`
+- `packages/studio-server/src/contract/errorData.ts` or equivalent package-owned error-data module
+- `packages/studio-server/src/errors.ts`
+- `packages/studio-server/src/context.ts`
+- `packages/studio-server/src/router/**`
+- `apps/mapgen-studio/src/server/studio/engineErrors.ts` or replacement failure module
 - `apps/mapgen-studio/src/server/studio/context.ts`
 - `apps/mapgen-studio/src/server/studio/engines.ts`
-- Run in Game / Save&Deploy operation error helpers and tests
-- `packages/studio-server/src/contract/errors.ts`
-- `packages/studio-server/src/contract/mapConfigs.ts`
-- `packages/studio-server/src/context.ts`
-- `openspec/changes/mapgen-studio-server-orpc/specs/mapgen-studio/spec.md`
-- App and package tests that pin typed engine errors
+- Run in Game / Save&Deploy / Autoplay request validation and operation-state helpers
+- Package and app tests covering mapper, contract data, handler/client behavior, and scenario failure paths
+
+Protected paths:
+
+- Generated mod/app artifacts.
+- D4-D12 OpenSpec packets except for explicit downstream realignment notes.
+- Runtime success-path engines beyond changes required to emit typed expected failures.
 
 ## Verification Gates
 
+### Packet Acceptance Gates
+
+- `bun install --frozen-lockfile`
+- Current packet-authoring base: `bun run build` and `bun run check`
+- `git status --short --branch`
+- `gt status`
+- `gt log --no-interactive`
 - `bun run openspec -- validate mapgen-studio-error-spine --strict`
-- Focused engine-error tests proving every sealed failure maps to a declared
-  non-fallback error.
-- App gate: `bun x turbo run check --filter=mapgen-studio`
-- Package gates: `@civ7/studio-server`, `@civ7/control-orpc`,
-  `@civ7/direct-control`
-- Live proof disposition: Play/Save&Deploy failure paths return typed errors
-  without daemon restart; success-path live proof can reuse S1.1a coverage
-  unless implementation touches operation execution.
+- `bun run openspec:validate`
+- `git diff --check`
+- Fresh error-corpus, hardening/prework, black-ice, TypeScript/schema, Effect/lifecycle, and testing reviews have no unresolved P1/P2 findings.
+
+### Future Implementation Closure Gates
+
+- Package gates for `@civ7/studio-server`.
+- App gates for `mapgen-studio`.
+- Package gates for `@civ7/control-orpc` and `@civ7/direct-control`, or an explicit untouched-package disposition backed by negative scans.
+- Focused mapper tests enumerating every expected failure tag for Autoplay, Run in Game, and Save/Deploy.
+- TypeBox `Value.Check` / `Value.Parse` tests for every declared Studio error data schema.
+- Handler/client tests proving defined oRPC errors for blocked, invalid, unavailable, not-found identity echo, expected failed, and unknown-defect containment.
+- Negative searches:
+  - no `RunInGameHttpError`;
+  - no expected-failure `details?: unknown` or `Type.Unknown()` bridge in declared error data;
+  - no status-code-driven failure-kind truth;
+  - no raw `ORPCError` construction outside router/runtime mapping ownership;
+  - no `effect-orpc` imports outside router/runtime ownership, with recipe-DAG contract/error-builder hits classified as D2.5 residue until removed;
+  - no production `StudioEngineError` or `RunInGameHttpError` construction, catch, import, or bridge mapping remains;
+  - no stale comments claiming old S1.2 closure, legacy Zod allowance, or permissive data as the durable target.
+- Scenario tests for Run in Game, Save/Deploy, and Autoplay failure paths.
+- Live proof disposition: D3 does not claim fresh live failure-path proof at packet acceptance. Future error-only implementation closes with package/app handler, client, and scenario proof plus an explicit live-proof boundary. Fresh live proof is required only if implementation changes successful Play/Save&Deploy execution, daemon watch mounts, or deploy graph isolation.

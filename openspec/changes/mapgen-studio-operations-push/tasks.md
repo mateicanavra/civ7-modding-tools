@@ -1,44 +1,87 @@
-## 1. Frame
+## 1. Packet Entrance
 
-- [x] 1.1 Create S3.2 proposal/design/tasks/spec delta from the accepted plan,
-      S3.1 handoff, and watcher findings.
-- [x] 1.2 Run strict OpenSpec validation before implementation.
-- [x] 1.3 Keep watcher/review lane active through implementation and record
-      dispositions.
+- [x] 1.1 Confirm D0-D8 are accepted in `OPENSPEC-PACKET-TRAIN.md`.
+- [x] 1.2 Classify the existing `mapgen-studio-operations-push` change as
+      historical implementation-closure notes requiring D9 frame-standard
+      repair.
+- [x] 1.3 Complete D9 prework, testing/vendor-alignment, downstream, and
+      hardening/black-ice scout lanes.
+- [x] 1.4 Run D9 operation-publisher, testing/vendor-alignment,
+      hardening/black-ice, and downstream realignment review lanes.
+- [x] 1.5 Record packet entrance proof: branch/status, selected baseline,
+      dirty-file quarantine, dependency/build entrance, and Graphite stack
+      state.
 
-## 2. Server Operation Publishers
+## 2. Packet Scope
 
-- [x] 2.1 Inject the S3.1 EventHub into app-side Studio engine construction.
-- [x] 2.2 Add one audited publisher callback path for Run in Game operation
-      store transitions.
-- [x] 2.3 Add one audited publisher callback path for Save&Deploy operation
-      store transitions.
-- [x] 2.4 Add focused falsification tests proving operation transitions publish
-      events for both registries.
+- [x] 2.1 Specify one D8 `StudioEventHub` publisher path for Run in Game
+      operation transitions.
+- [x] 2.2 Specify one D8 `StudioEventHub` publisher path for Save&Deploy
+      operation transitions.
+- [x] 2.3 Specify create/update/complete/fail publication obligations for both
+      operation families.
+- [x] 2.4 Specify publisher failure semantics: diagnostic only, no polling
+      retained path, transition remains recorded.
+- [x] 2.4a Specify production daemon composition must supply D8 EventHub; any
+      no-publisher seam is test/non-daemon only.
+- [x] 2.5 Specify client `operation` event application for Run in Game and
+      Save&Deploy.
+- [x] 2.6 Specify terminal toast parity for adopted terminal vs live pushed
+      terminal Run in Game operations.
+- [x] 2.7 Specify deletion of `useOperationStatusPolls`, polling-only
+      `StudioShell` callbacks, synthetic polling-only 404 handling, hidden
+      Save&Deploy completion loop, `useDaemonInstanceWatchdog`, and client
+      `serverInfo` identity polling.
+- [x] 2.8 Specify D10 ownership for live-game event publication and browser
+      live-game cadence deletion.
 
-## 3. Client Operation Push
+## 3. Packet Proof Strategy
 
-- [x] 3.1 Add explicit `operation` event handling to the Studio event hook.
-- [x] 3.2 Preserve Run in Game terminal toast behavior for live pushed terminal
-      events while still suppressing stale boot/reconnect terminal toasts.
-- [x] 3.3 Add focused app tests proving pushed Run in Game and Save&Deploy
-      operation events update client state.
+- [x] 3.1 Define publisher path falsification tests for both operation stores.
+- [x] 3.1a Define production-composition proof that daemon engine construction
+      supplies EventHub.
+- [x] 3.2 Define operation event payload parity tests against canonical DTOs.
+- [x] 3.3 Define client pushed Run in Game state test.
+- [x] 3.4 Define client pushed Save&Deploy state test.
+- [x] 3.5 Define terminal toast parity test.
+- [x] 3.6 Define negative searches for deleted polling/watchdog symbols.
+- [x] 3.7 Define negative searches for alternate operation event route/bus,
+      browser event recovery, and app-local operation DTO mirrors.
+- [x] 3.8 Define D10 protected live-game boundary checks.
 
-## 4. Delete Operation Polling + Identity Watchdog
+## 3A. Future Implementation Closure Gates
 
-- [x] 4.1 Delete `useOperationStatusPolls` and remove its call sites.
-- [x] 4.2 Delete polling-only status refresh callbacks and synthetic 404
-      status-missing mapping from `StudioShell`.
-- [x] 4.3 Delete the hidden Save&Deploy background completion loop.
-- [x] 4.4 Delete `useDaemonInstanceWatchdog` and remove the client
-      `serverInfo` identity polling path.
-- [x] 4.5 Keep live-game polling unchanged for S3.3.
+These are D9 implementation obligations recorded by this packet, not
+pre-acceptance authoring tasks.
 
-## 5. Verification + Closure
+- [ ] 3A.1 Implement or preserve Run in Game transition publication through the
+      D8 `StudioEventHub`.
+- [ ] 3A.2 Implement or preserve Save&Deploy transition publication through the
+      D8 `StudioEventHub`.
+- [ ] 3A.3 Prove publisher path falsification for both operation families.
+- [ ] 3A.3a Prove production daemon composition supplies EventHub and no
+      no-publisher production path exists.
+- [ ] 3A.4 Prove pushed Run in Game events update client state.
+- [ ] 3A.5 Prove pushed Save&Deploy events update client state.
+- [ ] 3A.6 Prove terminal toast parity for adopted terminal vs live pushed
+      terminal Run in Game operations.
+- [ ] 3A.7 Delete operation polling/watchdog symbols and prove with negative
+      searches.
+- [ ] 3A.8 Prove no hidden Save&Deploy sleep/status completion loop remains.
+- [ ] 3A.9 Prove D10 live-game polling/timer behavior is untouched by D9.
 
-- [x] 5.1 `bun run openspec -- validate mapgen-studio-operations-push --strict`.
-- [x] 5.2 Focused package/app tests for operation publication and event
-      application.
-- [x] 5.3 Negative search proofs for deleted operation polling/watchdog paths.
-- [x] 5.4 Package/app check gates selected by blast radius.
-- [x] 5.5 Graphite submit/merge/drain according to repo rules.
+## 4. Verification
+
+- [x] 4.1 `bun run openspec -- validate mapgen-studio-operations-push --strict`.
+- [x] 4.2 `bun run openspec:validate`.
+- [x] 4.3 `git diff --check`.
+- [x] 4.4 Shortcut/black-ice scan.
+- [x] 4.5 `git status --short --branch`, `gt status`, and
+      `gt log --no-interactive`.
+
+## 5. Closure
+
+- [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
+- [x] 5.2 Mark D9 accepted in `OPENSPEC-PACKET-TRAIN.md`.
+- [ ] 5.3 Commit accepted D9 packet through Graphite with clean/quarantined
+      worktree state.

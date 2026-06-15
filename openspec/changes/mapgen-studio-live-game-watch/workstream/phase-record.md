@@ -1,155 +1,163 @@
-# Phase Record
+# D10 Phase Record - Studio Live Game Watch
 
 ## Phase
 
-- Project: Studio runtime simplification
-- Phase: S3.3 `live-game-watch`
-- Owner: Codex DRA implementation lane
-- Branch/Graphite stack: `codex/live-game-watch` stacked on `main`
-- Started: 2026-06-13
-- Status: complete; feature branch merged via PR #1690; closeout branch records
-  final state
+- Project: Studio runtime Effect refactor
+- Domino: D10
+- OpenSpec change: `mapgen-studio-live-game-watch`
+- Owner: Codex DRA packet-authoring lane
+- Branch/Graphite stack: `codex/runtime-effect-live-game-watch`
+- Status: draft pending validation and commit
 
 ## Objective
 
-- Target movement: live Civ7 status freshness moves from a browser
-  `setTimeout` loop to daemon `live-game` events over the existing EventHub,
-  with snapshot reads remaining request/response.
-- Non-goals: new event route/transport, operation poll reintroduction,
-  localStorage recovery, event-stream snapshot payloads, broad legacy Zod
-  migration.
-- Done condition: daemon watcher publishes only on live-game key changes,
-  client applies pushed state without status polling, strict OpenSpec validates,
-  focused package/app gates pass, watcher findings are dispositioned, and
-  Graphite closes cleanly.
+- Target movement: move live Civ7 status freshness from browser cadence into an
+  Effect-scoped daemon runtime watcher that publishes `live-game` events through
+  D8 `StudioEventHub`.
+- Non-goals: alternate event transport, browser recovery, operation push,
+  operation polling/watchdog deletion, snapshot/setup streaming, dev-process
+  runner cleanup, final public/manual status endpoint closeout.
+- Done condition: packet can be handed to a D10 implementer with explicit
+  runtime ownership, TypeBox contract, client follow-up rules, deletion targets,
+  live-proof boundary, tests, downstream owners, and review dispositions.
 
-## Authority
+## Gate 1 - Frame
 
-- Root `AGENTS.md`: exact staging, Graphite process, no dirty closure.
-- Product refs: `docs/projects/studio-runtime-simplification/PLAN.md` WS-3
-  S3.3 and DP-3/DP-4.
-- Upstream refs: S3.1 EventHub and event watch; S3.2 operation push and
-  identity/poll deletion.
-- User refs: "for now" is not a cheap exit; TypeBox is required for this new
-  event contract.
-- Watcher refs: S3.3 watcher `019ec1b3-1ab3-7910-8466-6c20bae12f4a`.
-- Excluded/stale inputs: client live status polling as fallback, new Zod event
-  schemas, alternate live-game transport.
+- Hard core: one daemon-runtime live-game watcher, shared `Civ7TunerSession`,
+  D8 event hub, first/change-only publication, clock-only quiet behavior, client
+  pushed-state application, request/response snapshot/setup follow-ups, browser
+  cadence deletion, live proof or not-green `next-packet.md`.
+- Exterior: D11 Nx dev runner, D12 game-door invariant, public/manual status
+  endpoint classification, operation event push, browser storage recovery,
+  generated outputs.
+- Falsifier: an implementer can keep a renamed browser live-status loop, read
+  FireTuner through an alternate session, publish every tick, count clock-only
+  fields as changes, skip live proof while claiming green, or treat old S3.3
+  implementation history as current closure.
+- Proof labels: OpenSpec validation, package watcher tests, daemon composition
+  tests, app event/follow-up tests, negative searches, live Civ7 proof,
+  downstream realignment, Graphite/worktree cleanliness.
+- Review lanes: prework/corpus scout, hardening/black-ice, testing/vendor
+  alignment.
 
-## Current State
+## Gate 2 - Repo State
 
-- Repo/Graphite state: `codex/live-game-watch` merged via PR #1690; `main`
-  fast-forwarded by `gt sync --no-restack` to merge commit
-  `c83f531bae7179bc60cd0131f1c74fe833ebf5c9`; closeout branch
-  `codex/live-game-watch-closeout` records final task completion.
-- Dirty files and owner: S3.3 OpenSpec/code/test/package metadata files owned
-  by this slice.
-- Current code evidence: package runtime owns the daemon live-game watcher and
-  TypeBox event state; app consumes pushed live-game state and no client live
-  status polling/backoff symbols remain.
-- Generated outputs affected: none expected.
-- Tests/guards affected: package event/watcher tests, app live runtime model
-  tests, app event adoption tests, focused checks.
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-refactor-frame`
+- Branch: `codex/runtime-effect-live-game-watch`
+- Entrance status: clean after D9 commit `c8ff22cb8`.
+- Dirty-file quarantine: none at entrance; D10 edits are restricted to
+  `openspec/changes/mapgen-studio-live-game-watch/**` and
+  `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md`.
+- Dependency/build entrance: D6 refreshed dependency/build/check baseline; D8
+  and D9 passed strict and full OpenSpec validation. D10 packet authoring is
+  docs/OpenSpec-only and requires OpenSpec/status/Graphite gates unless code is
+  touched.
 
-## Scope
+## Gate 3 - Diagnosis
 
-- Write set: `openspec/changes/mapgen-studio-live-game-watch/**`,
-  `packages/studio-server/src/contract/studio.ts`,
-  `packages/studio-server/src/liveGame/**`,
-  `packages/studio-server/src/handler.ts`,
-  `packages/studio-server/src/router/index.ts`,
-  `packages/studio-server/src/index.ts`,
-  `apps/mapgen-studio/src/server/daemon/daemon.ts`,
-  `apps/mapgen-studio/src/app/hooks/useStudioEvents.ts`,
-  `apps/mapgen-studio/src/app/StudioShell.tsx`,
-  `apps/mapgen-studio/src/features/liveRuntime/model.ts`, focused tests.
-- Protected files: generated outputs, unrelated operation state, unrelated
-  status contracts, localStorage recovery surfaces, non-daemon package hosts
-  unless guarded by explicit watcher enablement.
-- Owners: package runtime owns shared-session live status reads; EventHub owns
-  publication; client event hook owns event dispatch; `StudioShell` owns
-  request/response snapshot/setup follow-up.
-- Forbidden owners: browser status cadence, second transport, new Zod event
-  schemas, fallback polling without deletion target.
+The existing `mapgen-studio-live-game-watch` record was historical S3.3
+implementation-closure evidence, not a D10 packet. It claimed all tasks done,
+merged PR state, and green verification even though the current train marks D10
+pending. That stale closure would mislead implementation agents into treating
+unit tests and old merge state as current live proof.
 
-## Spec/Tasks
+The design risk D10 must remove is not only one helper name. It is hidden
+browser-owned live status freshness: timers, polling hooks, refetch intervals,
+background browser status callers, readiness overlay cadence, and any renamed
+client scheduler that keeps FireTuner truth outside the daemon runtime.
 
-- Spec/proposal: `openspec/changes/mapgen-studio-live-game-watch/`.
-- Tasks: `tasks.md`.
-- Validation status: `bun run openspec -- validate mapgen-studio-live-game-watch --strict`
-  passed before implementation.
+## Gate 4 - Corpus / Action Surfaces
 
-## Review
+| Surface | Owner | Consumer | Verification |
+| --- | --- | --- | --- |
+| `live-game` event payload | `packages/studio-server` TypeBox contract | app event hook | TypeBox/Standard Schema tests |
+| live-game key helper | package live-game model | watcher and client model | keying tests, duplicate-helper search |
+| `StudioLiveGameWatcher` | daemon runtime service/layer | EventHub and Studio app | package watcher tests, disposal tests |
+| shared live status read | `Civ7TunerClient` / `Civ7TunerSession` | watcher and manual status endpoint | composition proof, negative search |
+| event publication | D8 `StudioEventHub` | `studio.events.watch` subscribers | first/change/quiet tests |
+| client event hook | `useStudioEvents` | `StudioShell` state | app hook/scenario tests |
+| snapshot follow-up | request/response `civ7.live.snapshot` | live preview state | request-key/stale-commit tests |
+| setup follow-up | request/response setup reads | setup suggestions/visibility | abort/newer-event tests |
+| browser cadence deletion | app source/tests | live status freshness | negative searches |
+| live proof | local Civ7 runtime | product confidence | bounded logs/payload proof or next packet |
 
-- Review lanes: watcher lane `019ec1b3-1ab3-7910-8466-6c20bae12f4a`.
-- Blocking findings: none after repair.
-- Accepted findings repaired: `S3.3-W1` through `S3.3-W4`.
-- Rejected/invalidated/waived/deferred findings: none yet.
+## Gate 5 - Grouping
 
-## Agent Fleet State
+- Contract group: TypeBox event payload, event union membership, Standard Schema
+  origin.
+- Runtime group: Effect-scoped watcher, shared session, EventHub publication,
+  disposal/finalizer behavior.
+- Client group: event hook application, `StudioShell` state update, snapshot and
+  setup request/response follow-ups.
+- Deletion group: browser timers, polling hooks, refetch intervals, background
+  status/readiness calls, cadence tests.
+- Proof group: unit/component tests, negative searches, live Civ7 evidence, or
+  not-green next-packet handoff.
 
-- Active agents: none after watcher completion.
-- Completed agents: watcher `019ec1b3-1ab3-7910-8466-6c20bae12f4a`.
-- Assigned write sets: watcher is read-only.
-- Latest evidence by agent: watcher reported browser-owned live status/backoff,
-  inert live-game client events, setup/suggestion coupling to the old poll, and
-  snapshot read coupling to the old poll.
-- Open findings by agent: none after accepted-repaired dispositions.
-- Integration owner: Codex DRA implementation lane.
+## Gate 6 - Expected Behavior
 
-## Implementation
+- The daemon publishes a `live-game` event on first observation.
+- Changed stable live-game key publishes.
+- Unchanged key, clock-only changes, and failure-count-only changes stay quiet.
+- Production watcher reads through the daemon runtime's shared session.
+- Client state updates from pushed events.
+- Snapshot/setup reads are request/response follow-ups triggered by pushed
+  state, with request keys and stale/newer-event protection.
+- Browser live status freshness has no remaining scheduler.
+- D10 implementation closure is not green without live Civ7 proof when that
+  environment is unavailable.
 
-- Completed tasks: OpenSpec frame, watcher disposition, package watcher,
-  TypeBox live-game event state, client event application, client poll deletion,
-  focused tests, app/package checks, negative search proofs, Graphite
-  submit/merge/drain for the feature branch.
-- Remaining tasks: none for S3.3 after closeout branch merges.
-- Stop conditions triggered: none.
+## Gate 7 - Architecture Translation
 
-## Verification
+- Owning package: `@civ7/studio-server`.
+- App composition owner: `apps/mapgen-studio` daemon and Studio shell.
+- Effect resources: `StudioLiveGameWatcher` service/layer, scoped fiber or
+  schedule loop, shared `Civ7TunerSession`, D8 `StudioEventHub`, finalizer.
+- Forbidden owners: browser live-status timer, app-local polling hook, alternate
+  FireTuner status reader, direct-control bypass, second event route, Zod event
+  mirror, hidden compatibility cadence.
+- Public surface: `studio.events.watch` on existing `/rpc`.
 
-- Commands run:
-- `bun run openspec -- validate mapgen-studio-live-game-watch --strict`
-- `bun run openspec:validate`
-- `bun run --cwd packages/studio-server check`
-- `bun run --cwd packages/studio-server build`
-- `bun run --cwd packages/studio-server test -- test/liveGameWatcher.test.ts test/handler.test.ts`
-- `bun run --cwd apps/mapgen-studio test -- test/liveRuntime/model.test.ts test/studioEvents/operationAdoption.test.ts`
-- `bun run --cwd apps/mapgen-studio check`
-- `bun run --cwd apps/mapgen-studio test -- test/server/oneMount.test.ts`
-- `rg "nextLiveRuntimePollDelayMs|liveStatusFailureCountRef|setTimeout\\(poll|civ7\\.live\\.status\\(\\{\\}|liveControlPort\\.readiness\\.current\\(" apps/mapgen-studio/src apps/mapgen-studio/test packages/studio-server/src packages/studio-server/test -g '*.{ts,tsx}'`
-- `git diff --check`
-- `bun run openspec -- validate mapgen-studio-live-game-watch --strict`
-- `gt submit --dry-run --stack --branch codex/live-game-watch --no-interactive`
-- `gt submit --stack --branch codex/live-game-watch --ai --no-interactive`
-- `gt submit --publish --no-edit --no-interactive --ai`
-- `gt merge --no-interactive`
-- `gt sync --no-restack --no-interactive`
-- Results: listed checks passed; repo-wide OpenSpec validation reported 146
-  passed and 0 failed; negative search returned no matches; package build
-  regenerated ignored `packages/studio-server/dist` for app subpath type
-  availability.
-- Gate disposition: green; feature branch merged via Graphite PR #1690.
-- Evidence boundary: live Civ7 click-through is expected only if local runtime
-  conditions permit; focused tests and negative searches are required either
-  way.
+## Gate 8 - Slice Plan
 
-## Realignment
+D10 is one OpenSpec change and one future implementation Graphite branch. It
+specifies live-game daemon publication and browser live-status cadence deletion.
+D11 owns Nx dev runner/process simplification. D12 owns final game-door
+invariant, public/manual status endpoint classification, and final schema
+residue closeout.
 
-- Downstream docs/specs/issues updated: S3.3 OpenSpec, phase record, and
-  review ledger.
-- Tests/guards updated: package watcher quiet/loud test; client live-game
-  adoption test; live-runtime model poll-delay pin deleted while turn/hash and
-  snapshot commit gates remain.
-- Deferrals/triage updated: S4.1 still owns final game-door invariant and
-  schema-tech closeout.
-- Downstream realignment ledger: S4.1 still owns final game-door invariant and
-  schema-tech closeout; S3.3 closes only the live-game event publisher/client
-  poll deletion boundary.
+## Gates 9-10 - Proof Labels
+
+- OpenSpec validation proves packet/spec shape only.
+- Package watcher tests prove first/change/quiet/clock-only/disposal behavior.
+- Daemon composition tests prove shared session and EventHub ownership.
+- App tests prove pushed event application and event-triggered snapshot/setup
+  follow-ups.
+- Negative searches prove browser live-status cadence deletion.
+- Live Civ7 proof proves product/runtime behavior. If unavailable, D10 writes a
+  next packet and remains not-green for live behavior.
+
+## Gate 11 - Review
+
+- Prework scout: `019ec81c-856e-7910-8ca0-0cca286ae393`.
+- Hardening/black-ice reviewer: `019ec81c-a226-72c1-9111-2323262d8ea7`.
+- Testing/vendor alignment reviewer: `019ec81c-bd15-7df0-b7c6-3d9e87711810`.
+- Review ledger must capture all P1/P2 findings before packet acceptance.
+
+## Gate 12 - Closure
+
+Closure is blocked until:
+
+- D10 proposal/design/spec/tasks/ledgers agree.
+- `review-disposition-ledger.md` has no unresolved P1/P2 finding.
+- strict and full OpenSpec validation pass.
+- shortcut/black-ice scan has no unowned retained path or stale S3/S4 closure
+  language.
+- `OPENSPEC-PACKET-TRAIN.md` marks D10 accepted with an accurate owner note.
+- Graphite/worktree state is clean after commit.
 
 ## Next Action
 
-- Exact next step: submit/merge the closeout branch, then proceed to S4.1
-  `game-door-invariant`.
-- Stop condition: do not keep or reintroduce browser live status polling as a
-  backup path.
+Finish D10 ledger repairs, validate, update the packet train ledger, and commit
+D10 through Graphite. Then open D11 `mapgen-studio-nx-dev-runner` on the next
+stack branch.
