@@ -12,10 +12,12 @@ truth.
 
 ## Current Code Evidence
 
-- `classifyPath` manually scans workspace roots for `package.json` instead of
-  consuming resolved Nx project metadata.
-- `projectTargets()` always emits `<project>:check` and `<project>:test`.
-- `workspaceTargets()` emits fixed Habitat/Nx commands.
+- `classifyPath` consumes resolved Nx project graph metadata instead of
+  manually scanning workspace roots for `package.json`.
+- Project target emission is gated by resolved Nx target metadata. Missing
+  targets are recorded as unavailable instead of runnable commands.
+- `workspaceTargets()` emits fixed workspace gates with structured ownership
+  proof separate from project-local targets.
 - `rulesInScope` includes every rule owned by the classified project plus every
   `@internal/habitat-harness` rule.
 - `classifyTarget()` supports literal diffs and patch files by extracting
@@ -31,7 +33,8 @@ truth.
 ## Fresh Command Evidence
 
 - `bun run habitat classify packages/civ7-adapter/src/index.ts` reports
-  `@civ7/adapter:check` and `@civ7/adapter:test`.
+  `@civ7/adapter:check`, does not report `@civ7/adapter:test`, and records
+  `test` as an unavailable project target.
 - `nx show project @civ7/adapter --json` reports targets `build`,
   `check`, and `nx-release-publish`.
 - `nx show target @civ7/adapter:test` exits 1 because the target is not
@@ -97,9 +100,9 @@ truth.
 
 ## Uncertainties
 
-- Exact implementation API for resolved Nx metadata remains to be selected:
-  command-backed `nx show` proof, structured Nx project graph APIs, or a
-  Habitat metadata adapter.
+- Resolved Nx metadata implementation uses `@nx/devkit`
+  `createProjectGraphAsync()` in-process. Native `nx show` commands remain the
+  proof surface for command evidence.
 - Exact classify output schema evolution requires implementation design:
   preserving backward-compatible fields may be possible, but exact-scope proof
   needs structured additions.

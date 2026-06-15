@@ -5,11 +5,13 @@
 - Project: Habitat Harness
 - Phase: classify/generator repair / `habitat-classify-generator-repair`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `codex/habitat-dra-takeover-frame`
+- Branch/Graphite stack: HR classify/generator repair layer above the accepted
+  Pattern Authority Effect decision layer and below the HG pattern stack.
 - Started: 2026-06-14
-- Status: design packet opened; adversarial review accepted P2
-  command-surface dependency finding; repair patched; validation passed; ready
-  for Graphite commit
+- Status: target-truth implementation checkpoint committed and pending
+  supervisor review; resolved Nx metadata reader and classify target emission
+  repaired; generator support, rule-scope precision, migration proof
+  boundaries, downstream realignment, and packet closure remain open.
 
 ## Objective
 
@@ -19,9 +21,10 @@
 - Exterior: pattern metadata implementation, Grit proof, baseline semantics,
   hook side effects, Biome behavior, taxonomy policy, domain-specific
   generators, product/runtime behavior.
-- Done condition: reviewed OpenSpec packet, accepted classify target/generator
-  contract, implementation-ready task list, downstream realignment,
-  validation, Graphite commit, clean worktree.
+- Done condition: resolved target truth, path-aware rule scope, generator
+  support/refusal, migration proof boundaries, downstream realignment,
+  validation, Graphite commit, clean worktree, and supervisor acceptance for
+  the packet's claimed proof classes.
 
 ## Authority
 
@@ -41,19 +44,24 @@
 
 ## Current State
 
-- Repo state at phase open: clean worktree on
-  `codex/habitat-dra-takeover-frame`.
-- `classify` reports static project-local `check` and `test` target commands.
-- `@civ7/adapter:test` is emitted by classify and rejected by Nx.
+- Repo state at implementation resume: clean HR worktree on the inserted
+  classify/generator repair layer.
+- `classify` now consumes resolved Nx project graph metadata for project owner,
+  tags, and targets.
+- `@civ7/adapter:test` is no longer emitted by classify; it is represented as
+  an unavailable project target because Nx metadata does not resolve it.
 - Four workspace projects currently lack package `test` scripts, making static
-  `:test` target emission a class defect.
+  `:test` target emission a class defect repaired for classify target
+  reporting.
 - `rulesInScope` is owner-level and over-includes broad Habitat-owned rules.
 - Project generator refuses unsupported `mod` kind.
 - Project generator accepts mismatched `--kind=app --directory=packages/...` in
   dry-run.
 - Local Nx is available in this worktree as v22.7.5, and `nx show` probes
-  resolve projects/targets; an earlier sidecar no-workspace claim is invalid
-  for this packet.
+  resolve projects/targets. Official Nx docs support resolved project/target
+  metadata and inferred targets as the target-truth source; Habitat uses
+  `@nx/devkit` project graph metadata for implementation and `nx show`
+  commands as native proof.
 - README and root AGENTS still contain H8-era generator guidance that must be
   realigned with resolved target and pattern metadata contracts.
 
@@ -63,8 +71,8 @@ See `workstream/source-synthesis.md`.
 
 Core synthesis:
 
-- current classify ownership and target output are useful but not yet
-  resolved-graph-backed;
+- current classify ownership and target output are now resolved-graph-backed
+  for project owner, tags, existing targets, and unavailable targets;
 - official Nx docs support target proof through resolved project/target
   metadata;
 - generator support must include kind/root/target proof, not enum membership
@@ -113,10 +121,13 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks: 1.1-1.4, 2.1-2.5, 2.8, 9.1-9.3, and 9.11.
-- Remaining tasks: review, validation, implementation, verification,
-  downstream realignment, closure.
-- Implementation status: not started.
+- Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 7.2-7.5,
+  9.1-9.3, 9.11, and 9.13.
+- Remaining tasks: path-aware rule-scope precision, generator support/refusal,
+  migration proof-boundary repair, full classify matrix, full Nx target matrix,
+  downstream realignment, final verification, and supervisor acceptance.
+- Implementation status: target-truth slice implemented, verified, and
+  committed as a bounded checkpoint. Full packet closure remains open.
 
 ## Verification
 
@@ -145,11 +156,22 @@ Core synthesis:
   - `bun run openspec:validate`
   - `git diff --check`
   - full-depth-language guardrail scan over this packet
-- Evidence boundary: current phase has design evidence and code/document
-  diagnosis. It does not prove the classify/generator repair.
-  It also does not prove canonical command-surface repair; this packet must
-  consume implemented `habitat-oclif-entrypoint-repair` proof before claiming
-  canonical `habitat classify` product proof.
+  - official Nx docs refresh for project configuration, inferred tasks,
+    `@nx/devkit`, and `createProjectGraphAsync`
+  - official Bun docs refresh for workspace script/package-manager role
+  - `bun run --cwd tools/habitat-harness test -- classify.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- habitat-commands.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run habitat classify packages/civ7-adapter/src/index.ts`
+  - `bun run nx show project @civ7/adapter --json`
+  - `bun run nx show target @civ7/adapter:test`
+- Evidence boundary: current implementation proves resolved Nx target truth for
+  the adapter missing-target case, structured target proof output, unavailable
+  target reporting, workspace-only target handling, literal diff target
+  preservation, and async oclif classify output. It does not prove full
+  generator support/refusal, rule-scope precision, migration capability,
+  current-tree Grit row proof, baseline behavior, hook behavior, or
+  product/runtime behavior.
 
 ## Realignment
 
@@ -158,4 +180,6 @@ Core synthesis:
 
 ## Next Action
 
-- Commit this design packet through Graphite.
+- Await supervisor review for the bounded target-truth checkpoint, then proceed
+  to the next packet slice: path-aware rule-scope precision or generator
+  support/refusal, depending on dependency review.

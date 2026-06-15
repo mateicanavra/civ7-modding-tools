@@ -25,26 +25,26 @@
   root acceptance in dry-run.
 - [x] 2.5 Capture package inventory evidence for projects without `test`
   scripts.
-- [ ] 2.6 Refresh official Nx docs and local Nx command behavior before
+- [x] 2.6 Refresh official Nx docs and local Nx command behavior before
   implementation selects exact metadata APIs.
 - [ ] 2.7 Refresh Effect fit evidence if implementation crosses into external
   command orchestration, provenance, service-runtime, scoped resource,
   retry/concurrency, or typed failure-channel boundaries.
-- [x] 2.8 Capture command-surface dependency evidence: the upstream
-  `habitat-oclif-entrypoint-repair` packet remains implementation-open, and
-  current root `bun run habitat -- --help` still fails through the manual dev
-  dispatcher.
+- [x] 2.8 Refresh command-surface dependency evidence: the upstream
+  `habitat-oclif-entrypoint-repair` packet is accepted downstack, so this
+  packet may use Habitat wrapper classify probes for bounded command-surface
+  proof while keeping generator/rule-scope closure separate.
 
 ## 3. Resolved Target Classification
 
-- [ ] 3.1 Add a resolved project metadata reader for classify.
-- [ ] 3.2 Replace static project target construction with target existence
+- [x] 3.1 Add a resolved project metadata reader for classify.
+- [x] 3.2 Replace static project target construction with target existence
   checks.
-- [ ] 3.3 Separate project-local targets from workspace/Habitat gates.
-- [ ] 3.4 Record missing targets as absent or unavailable instead of emitting
+- [x] 3.3 Separate project-local targets from workspace/Habitat gates.
+- [x] 3.4 Record missing targets as absent or unavailable instead of emitting
   commands.
-- [ ] 3.5 Add target proof data to classify output or internal verification.
-- [ ] 3.6 Add workspace-level path handling that reports only workspace/Habitat
+- [x] 3.5 Add target proof data to classify output or internal verification.
+- [x] 3.6 Add workspace-level path handling that reports only workspace/Habitat
   gates.
 
 ## 4. Path-Aware Rule Scope
@@ -80,11 +80,11 @@
 
 - [ ] 7.1 Add classify matrix tests for adapter, mod, foundation, app, tooling,
   plugin, generated-zone, and workspace-level paths.
-- [ ] 7.2 Add tests that missing project targets are not emitted.
-- [ ] 7.3 Add tests that existing project targets are emitted with proof.
-- [ ] 7.4 Add tests that workspace/Habitat gates are separate from project
+- [x] 7.2 Add tests that missing project targets are not emitted.
+- [x] 7.3 Add tests that existing project targets are emitted with proof.
+- [x] 7.4 Add tests that workspace/Habitat gates are separate from project
   targets.
-- [ ] 7.5 Add tests for literal diff classification with resolved targets.
+- [x] 7.5 Add tests for literal diff classification with resolved targets.
 - [ ] 7.6 Add tests for missing paths and multi-path diffs.
 - [ ] 7.7 Add generator refusal tests for unsupported kinds.
 - [ ] 7.8 Add generator refusal tests for mismatched kind/root pairs.
@@ -123,7 +123,7 @@
 - [x] 9.11 full-depth-language guardrail scan over this packet
 - [ ] 9.12 Effect fit decision proof if the implementation crosses its
   substrate decision boundary
-- [ ] 9.13 Upstream command-surface proof consumed: root/dev/prod Habitat
+- [x] 9.13 Upstream command-surface proof consumed: root/dev/prod Habitat
   entrypoints and selector behavior are repaired before this packet claims
   canonical `habitat classify` product proof.
 

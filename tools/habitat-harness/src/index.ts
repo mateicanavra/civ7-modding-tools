@@ -20,6 +20,7 @@ export type {
 export {
   buildHabitatCommand,
   classifyPath,
+  classifyTarget,
   commandSummary,
   createCheckReport,
   expandBaselines,
@@ -31,6 +32,13 @@ export {
   runHook,
   selectRules,
   stringifyCheckReport,
+} from "./lib/command-engine.js";
+export type {
+  ClassifiedTarget,
+  Classification,
+  ClassifyOptions,
+  DiffClassification,
+  UnavailableClassifiedTarget,
 } from "./lib/command-engine.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
 export { effectParityProbeProgram, runEffectParityProbe } from "./lib/effect-parity.js";
