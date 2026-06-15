@@ -49,14 +49,15 @@
 
 ## 4. Path-Aware Rule Scope
 
-- [ ] 4.1 Add rule-scope classification for exact-path, project-owner,
+- [x] 4.1 Add rule-scope classification for exact-path, project-owner,
   workspace-gate, and unresolved-metadata.
-- [ ] 4.2 Use scan-root metadata where it exists.
-- [ ] 4.3 Mark Grit and rule-pack rows with unresolved scope when metadata is not
+- [x] 4.2 Use machine-readable scan-root metadata where it exists.
+- [x] 4.3 Mark Grit and rule-pack rows with unresolved scope when metadata is not
   yet present.
-- [ ] 4.4 Preserve current useful guidance without presenting unresolved scope as
+- [x] 4.4 Preserve current useful guidance without presenting unresolved scope as
   exact.
-- [ ] 4.5 Add tests proving exact scope and unresolved scope are distinct.
+- [x] 4.5 Add tests proving exact scope, qualifier/exclusion refusal, and
+  unresolved scope are distinct.
 
 ## 5. Generator Support And Refusal
 

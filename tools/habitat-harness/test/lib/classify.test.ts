@@ -40,6 +40,13 @@ const fixtureNxProjects: NxProjectMetadataReader = {
         tags: ["kind:tooling"],
         targets: [{ name: "check" }, { name: "test" }],
       },
+      {
+        name: "@swooper/mapgen-core",
+        root: "packages/mapgen-core",
+        sourceRoot: null,
+        tags: ["kind:foundation"],
+        targets: [{ name: "check" }, { name: "test" }],
+      },
     ];
   },
 };
@@ -78,6 +85,7 @@ describe("Habitat classify", () => {
     expect(result.rulesInScope).toContain(rule);
     expect(result.requiredTargets).toContain(`nx run ${project}:check`);
     expect(result.requiredTargets).toContain("bun run lint");
+    expect(result.rulesInScope).toEqual(result.scopedRules?.map((scopedRule) => scopedRule.ruleId));
     expect(result.targets).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -106,6 +114,94 @@ describe("Habitat classify", () => {
         reason: "missing-nx-target",
       },
     ]);
+  });
+
+  test("reports exact path scope when rule metadata matches the path", async () => {
+    const result = await classifyPath("mods/mod-swooper-maps/src/recipes/standard/recipe.ts", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.scopedRules).toContainEqual(
+      expect.objectContaining({
+        ruleId: "grit-recipe-domain-surface",
+        scope: "exact-path",
+      })
+    );
+  });
+
+  test("reports project-owner scope for owned rules without exact path metadata", async () => {
+    const result = await classifyPath("mods/mod-swooper-maps/src/recipes/standard/recipe.ts", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.scopedRules).toContainEqual(
+      expect.objectContaining({
+        ruleId: "normalization-guardrails",
+        scope: "project-owner",
+      })
+    );
+  });
+
+  test("reports workspace gates separately from exact path rules", async () => {
+    const result = await classifyPath("packages/config/src/index.ts", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.scopedRules).toContainEqual(
+      expect.objectContaining({
+        ruleId: "workspace-entrypoints",
+        scope: "workspace-gate",
+      })
+    );
+  });
+
+  test("marks Grit rows with insufficient path metadata as unresolved", async () => {
+    const result = await classifyPath(
+      "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts",
+      { nxProjects: fixtureNxProjects }
+    );
+
+    expect(result.scopedRules).toContainEqual(
+      expect.objectContaining({
+        ruleId: "grit-runtime-validation-imports",
+        scope: "unresolved-metadata",
+      })
+    );
+  });
+
+  test("does not include exact internal rules for unrelated paths", async () => {
+    const result = await classifyPath("packages/civ7-adapter/src/index.ts", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.rulesInScope).not.toContain("grit-studio-recipe-artifacts");
+  });
+
+  test("does not scrape excluded prose scopes into exact matches", async () => {
+    const result = await classifyPath("packages/civ7-adapter/src/index.ts", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.rulesInScope).not.toContain("grit-adapter-base-standard-import");
+    expect(result.scopedRules).not.toContainEqual(
+      expect.objectContaining({
+        ruleId: "grit-adapter-base-standard-import",
+        scope: "exact-path",
+      })
+    );
+  });
+
+  test("preserves exact matches for pure machine-readable glob scopes", async () => {
+    const result = await classifyPath("packages/mapgen-core/src/core/index.ts", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.scopedRules).toContainEqual(
+      expect.objectContaining({
+        ruleId: "grit-mapgen-core-runtime-civ7",
+        scope: "exact-path",
+      })
+    );
   });
 
   test("workspace-level paths report only workspace gates", async () => {

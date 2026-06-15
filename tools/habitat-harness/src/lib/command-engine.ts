@@ -102,10 +102,25 @@ export interface Classification {
   projectRoot?: string;
   tags?: string[];
   rulesInScope?: string[];
+  scopedRules?: ScopedRule[];
   requiredTargets?: string[];
   targets?: ClassifiedTarget[];
   unavailableTargets?: UnavailableClassifiedTarget[];
   note?: string;
+}
+
+export type RuleScopeKind =
+  | "exact-path"
+  | "project-owner"
+  | "workspace-gate"
+  | "unresolved-metadata";
+
+export interface ScopedRule {
+  ruleId: string;
+  ownerTool: string;
+  ownerProject: string;
+  scope: RuleScopeKind;
+  reason: string;
 }
 
 export interface ClassifiedTarget {
@@ -563,23 +578,171 @@ function classifyPathWithProjects(
       targets: workspace,
     };
   }
-  const owningRules = rules
-    .filter(
-      (rule) =>
-        rule.ownerProject === owner.name || rule.ownerProject === "@internal/habitat-harness"
-    )
-    .map((rule) => rule.id);
+  const scopedRules = rulesInScopeForPath(rel, owner);
   const resolvedProjectTargets = projectTargets(owner);
   return {
     path: rel,
     project: owner.name,
     projectRoot: owner.root,
     tags: owner.tags,
-    rulesInScope: owningRules,
+    rulesInScope: scopedRules.map((rule) => rule.ruleId),
+    scopedRules,
     requiredTargets: [...resolvedProjectTargets.targets, ...workspace].map((target) => target.command),
     targets: [...resolvedProjectTargets.targets, ...workspace],
     unavailableTargets: resolvedProjectTargets.unavailableTargets,
   };
+}
+
+function rulesInScopeForPath(pathInRepo: string, owner: NxProjectMetadata): ScopedRule[] {
+  return rules
+    .map((rule) => classifyRuleScope(rule, pathInRepo, owner))
+    .filter((rule): rule is ScopedRule => Boolean(rule))
+    .sort((a, b) => a.ruleId.localeCompare(b.ruleId));
+}
+
+function classifyRuleScope(
+  rule: HarnessRule,
+  pathInRepo: string,
+  owner: NxProjectMetadata
+): ScopedRule | undefined {
+  const matchedPattern = scopePathPatterns(rule).find((pattern) =>
+    scopePatternMatches(pattern, pathInRepo)
+  );
+  if (matchedPattern) {
+    return {
+      ruleId: rule.id,
+      ownerTool: rule.ownerTool,
+      ownerProject: rule.ownerProject,
+      scope: "exact-path",
+      reason: `Path matches rule scope pattern ${matchedPattern}.`,
+    };
+  }
+
+  if (rule.ownerProject === owner.name) {
+    if (requiresExplicitScanRoot(rule)) {
+      return {
+        ruleId: rule.id,
+        ownerTool: rule.ownerTool,
+        ownerProject: rule.ownerProject,
+        scope: "unresolved-metadata",
+        reason: "Rule is owned by the project, but current metadata is not precise enough for exact path scope.",
+      };
+    }
+    return {
+      ruleId: rule.id,
+      ownerTool: rule.ownerTool,
+      ownerProject: rule.ownerProject,
+      scope: "project-owner",
+      reason: `Rule owner project matches ${owner.name}.`,
+    };
+  }
+
+  if (isWorkspaceGate(rule)) {
+    return {
+      ruleId: rule.id,
+      ownerTool: rule.ownerTool,
+      ownerProject: rule.ownerProject,
+      scope: "workspace-gate",
+      reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
+    };
+  }
+
+  return undefined;
+}
+
+function requiresExplicitScanRoot(rule: HarnessRule): boolean {
+  return rule.ownerTool === "grit-check" || rule.ownerTool === "wrapped-test";
+}
+
+function isWorkspaceGate(rule: HarnessRule): boolean {
+  if (rule.ownerProject !== "@internal/habitat-harness") return false;
+  const scope = rule.scope.toLowerCase();
+  return (
+    scope.includes("all ") ||
+    scope.includes("live repo") ||
+    scope.includes("workspace") ||
+    scope.includes("staged ") ||
+    scope.includes("package.json") ||
+    scope.includes("docs/") ||
+    scope.includes("package-manager")
+  );
+}
+
+function scopePathPatterns(rule: HarnessRule): string[] {
+  if (!scopeIsMachineParseable(rule.scope)) return [];
+  const patterns: string[] = [];
+  const matches = rule.scope.matchAll(/\b(apps|docs|mods|packages|scripts|tools)\/[^\s;)]+/g);
+  for (const match of matches) {
+    const pattern = trimScopePattern(match[0]);
+    if (pattern) patterns.push(...expandScopePattern(pattern));
+  }
+  return [...new Set(patterns)];
+}
+
+function scopeIsMachineParseable(scope: string): boolean {
+  const normalized = scope.toLowerCase();
+  const unmodeledQualifiers = [
+    " outside ",
+    " except ",
+    " excluding ",
+    " and root ",
+    " or root ",
+    " and ",
+    " or ",
+  ];
+  return !unmodeledQualifiers.some((qualifier) => normalized.includes(qualifier));
+}
+
+function trimScopePattern(pattern: string): string {
+  return pattern.replace(/[,.]+$/g, "").replace(/^`|`$/g, "");
+}
+
+function expandScopePattern(pattern: string): string[] {
+  const brace = pattern.match(/^(.*)\{([^{}]+)\}(.*)$/);
+  if (!brace) return [pattern];
+  const [, prefix, values, suffix] = brace;
+  return values.split(",").flatMap((value) => expandScopePattern(`${prefix}${value}${suffix}`));
+}
+
+function scopePatternMatches(pattern: string, pathInRepo: string): boolean {
+  const normalized = pattern.replaceAll("\\", "/");
+  if (!normalized.includes("*")) {
+    return pathInRepo === normalized || pathInRepo.startsWith(`${normalized}/`);
+  }
+  return globToRegExp(normalized).test(pathInRepo);
+}
+
+function globToRegExp(pattern: string): RegExp {
+  let source = "^";
+  for (let index = 0; index < pattern.length; index += 1) {
+    const char = pattern[index];
+    const next = pattern[index + 1];
+    if (char === "*" && next === "*") {
+      if (pattern[index + 2] === "/") {
+        source += "(?:.*/)?";
+        index += 2;
+        continue;
+      }
+      source += ".*";
+      index += 1;
+      continue;
+    }
+    if (char === "*") {
+      source += "[^/]*";
+      continue;
+    }
+    if (char === "?") {
+      source += "[^/]";
+      continue;
+    }
+    source += escapeRegExp(char);
+  }
+  source += "$";
+  return new RegExp(source);
+}
+
+function escapeRegExp(char: string): string {
+  return /[\\^$+?.()|[\]{}]/.test(char) ? `\\${char}` : char;
 }
 
 function projectTargets(project: NxProjectMetadata): {

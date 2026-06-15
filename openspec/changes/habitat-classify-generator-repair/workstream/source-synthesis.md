@@ -18,8 +18,13 @@ truth.
   targets are recorded as unavailable instead of runnable commands.
 - `workspaceTargets()` emits fixed workspace gates with structured ownership
   proof separate from project-local targets.
-- `rulesInScope` includes every rule owned by the classified project plus every
-  `@internal/habitat-harness` rule.
+- `rulesInScope` is now derived from structured `scopedRules` entries.
+  Classify distinguishes exact path matches, project-owner rules,
+  workspace-level gates, and unresolved metadata instead of presenting
+  owner-level aggregation as exact path truth.
+- Exact path extraction only consumes machine-readable scope strings. Scope
+  prose with unmodeled qualifiers such as exclusions or compound natural
+  language is not partially scraped into exact path truth.
 - `classifyTarget()` supports literal diffs and patch files by extracting
   changed paths and classifying each path.
 - Project generator supports `plugin`, `foundation`, and `app`, refuses other
@@ -35,6 +40,23 @@ truth.
 - `bun run habitat classify packages/civ7-adapter/src/index.ts` reports
   `@civ7/adapter:check`, does not report `@civ7/adapter:test`, and records
   `test` as an unavailable project target.
+- `bun run habitat classify apps/mapgen-studio/src/main.tsx` reports
+  `grit-studio-recipe-artifacts` as `exact-path` because the path matches the
+  rule's current scope pattern.
+- `bun run habitat classify packages/civ7-adapter/src/index.ts` does not report
+  `grit-studio-recipe-artifacts`, and reports `adapter-boundary` as
+  `exact-path`.
+- `bun run habitat classify packages/civ7-adapter/src/index.ts` does not report
+  `grit-adapter-base-standard-import`; its `packages/**/*.ts outside
+  packages/civ7-adapter` prose scope is not machine-readable exact scan-root
+  metadata.
+- `bun run habitat classify packages/mapgen-core/src/core/index.ts` reports
+  `grit-mapgen-core-runtime-civ7` as `exact-path`, preserving pure glob scope
+  behavior for machine-readable metadata.
+- `bun run habitat classify mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts`
+  reports `grit-domain-ops-boundary-imports` as `exact-path` and
+  `grit-runtime-validation-imports` as `unresolved-metadata`, preserving the
+  row without pretending the current prose-only scope is exact.
 - `nx show project @civ7/adapter --json` reports targets `build`,
   `check`, and `nx-release-publish`.
 - `nx show target @civ7/adapter:test` exits 1 because the target is not
@@ -83,7 +105,9 @@ truth.
 1. Classify output must be resolved-metadata-backed.
 2. Target absence must be represented as absence or unavailable state, not as a
    command to run.
-3. Rule scope must stop implying exact path truth from owner name alone.
+3. Rule scope now stops implying exact path truth from owner name or partial
+   prose scraping alone; rows with insufficient scan-root metadata stay visible
+   as unresolved rather than exact.
 4. Workspace/Habitat gates need separate presentation from project-local
    targets.
 5. Generator support must validate accepted kind/root/package/tag matrix before

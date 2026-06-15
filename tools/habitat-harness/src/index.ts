@@ -38,6 +38,8 @@ export type {
   Classification,
   ClassifyOptions,
   DiffClassification,
+  RuleScopeKind,
+  ScopedRule,
   UnavailableClassifiedTarget,
 } from "./lib/command-engine.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
