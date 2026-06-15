@@ -81,9 +81,8 @@ async function main(): Promise<void> {
     console.warn("⚠️  Failed to start watcher (continuing):", e);
   }
 
-  const mintBin = resolve(process.cwd(), "node_modules/.bin/mint");
-  const command = existsSync(mintBin) ? mintBin : "mint";
-  await runCommand(command, ["dev", "-p", "4000", "--no-open"]);
+  const mintlifyBin = resolve(process.cwd(), "node_modules/.bin/mintlify");
+  await runCommand(mintlifyBin, ["dev", "-p", "4000", "--no-open"]);
 }
 
 main().catch((err) => {
