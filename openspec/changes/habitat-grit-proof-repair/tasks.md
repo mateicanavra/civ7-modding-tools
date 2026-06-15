@@ -56,13 +56,13 @@
 
 ## 5. Baseline Contract
 
-- [ ] 5.1 Add explicit committed empty baseline files for every current
+- [x] 5.1 Add explicit committed empty baseline files for every current
   enforced Grit check that lacks one.
-- [ ] 5.2 Add or update tests for explicit empty Grit baseline behavior.
-- [ ] 5.3 Prove `baseline-integrity` accepts explicit empty Grit baselines.
-- [ ] 5.4 Prove baseline expansion cannot make Grit baselines grow outside the
+- [x] 5.2 Add or update tests for explicit empty Grit baseline behavior.
+- [x] 5.3 Prove `baseline-integrity` accepts explicit empty Grit baselines.
+- [x] 5.4 Prove baseline expansion cannot make Grit baselines grow outside the
   accepted rule-introduction policy.
-- [ ] 5.5 Realign H5/H6 wording so historical missing-file behavior is not
+- [x] 5.5 Realign H5/H6 wording so historical missing-file behavior is not
   confused with the explicit Grit baseline record introduced by this repair.
 
 ## 6. Apply Codemod Proof
@@ -103,9 +103,9 @@
 
 ## 8. Downstream Realignment
 
-- [ ] 8.1 Update `openspec/changes/habitat-grit-catalog/tasks.md` and phase
+- [x] 8.1 Update `openspec/changes/habitat-grit-catalog/tasks.md` and phase
   record so historical H5 proof is accurately classified.
-- [ ] 8.2 Update `openspec/changes/habitat-enforcement-consolidation/workstream/phase-record.md`
+- [x] 8.2 Update `openspec/changes/habitat-enforcement-consolidation/workstream/phase-record.md`
   where H6 retirements rely on H5 proof.
 - [ ] 8.3 Update Habitat project records and ledgers listed in
   `workstream/downstream-realignment-ledger.md`.
@@ -123,7 +123,7 @@
 - [x] 9.4 `bun run habitat:check -- --json --tool grit-check`
 - [x] 9.5 `bun run habitat:check -- --json --rule grit-check`
 - [ ] 9.6 injected-violation proof suite for all current Grit checks
-- [ ] 9.7 explicit Grit baseline behavior proof suite
+- [x] 9.7 explicit Grit baseline behavior proof suite
 - [ ] 9.8 old-mechanism parity probes:
   `wrapped-script`, `wrapped-eslint`, and `wrapped-test`
 - [ ] 9.9 `nx run @internal/habitat-harness:grit:check --outputStyle=static`

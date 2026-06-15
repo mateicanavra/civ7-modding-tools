@@ -37,7 +37,7 @@ The following evidence was collected on branch `codex/habitat-dra-takeover-frame
 after the command-trust design checkpoint. It is historical Stage 0 diagnosis,
 not current post-repair command behavior. Current implementation proof rows live
 in `workstream/command-proof-log.md`, and the phase record names the current
-selector/current-tree proof classes and non-claims.
+selector/current-tree and explicit-baseline proof classes and non-claims.
 
 | Probe | Result | Proof class | Non-claim |
 | --- | --- | --- | --- |
@@ -277,15 +277,17 @@ Any accepted Grit adapter substrate must include tests or proof cases for:
 ## Substrate Decision Table
 
 Before implementation tasks 4, 6, or any adapter tests begin, fill this table
-in the phase record and have the Effect/substrate lane accept it:
+in the phase record and have the Effect/substrate lane accept it. Current
+implementation consumes the accepted `habitat-effect-grit-adapter` substrate at
+`3ceb93d5c`; row-level proof remains owned by this packet.
 
 | Concern | Current-code capability | Required proof | Chosen substrate | Trigger result | Evidence path | Reviewer |
 | --- | --- | --- | --- | --- | --- | --- |
-| Injected violation harness | pending | exact rule id, path control, cleanup | pending | blocked | pending | Effect/substrate |
-| Grit command provenance | pending | argv/cwd/env/cache/duration/failure class | pending | blocked | pending | Effect/substrate |
-| Parse/schema classification | pending | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | pending | blocked | pending | Effect/substrate |
-| Apply transaction | pending | clean precheck, target export preflight, dry-run, diff, rollback, cleanup | pending | blocked | pending | Effect/substrate |
-| Fake-service tests | pending | fake command/fs/baseline/clock or accepted no-fake rationale | pending | blocked | pending | Effect/substrate |
+| Injected violation harness | accepted adapter substrate; row probes pending | exact rule id, path control, cleanup | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `openspec/changes/habitat-effect-grit-adapter/workstream/phase-record.md` | supervisor / Effect-substrate |
+| Grit command provenance | accepted adapter substrate; row proof pending | argv/cwd/env/cache/duration/failure class | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/habitat-process.ts`; adapter phase record | supervisor / Effect-substrate |
+| Parse/schema classification | accepted adapter substrate; row proof pending | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/grit.ts`; adapter tests | supervisor / Effect-substrate |
+| Apply transaction | accepted adapter substrate; target-export and semantic proof pending | clean precheck, target export preflight, dry-run, diff, rollback, cleanup | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/grit-apply.ts`; adapter phase record | supervisor / Effect-substrate |
+| Fake-service tests | accepted adapter substrate; row probes pending | fake command/fs/baseline/clock or accepted no-fake rationale | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/test/lib/*` adapter tests | supervisor / Effect-substrate |
 
 ## Pattern Generator Gate
 

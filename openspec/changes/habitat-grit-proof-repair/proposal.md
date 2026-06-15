@@ -1,7 +1,8 @@
 ## Why
 
 The H5 Grit catalog is implemented, but the current proof record is not strong
-enough to support new pattern backfill or retirements. Fresh evidence shows:
+enough to support new pattern backfill or retirements. Stage 0 seed evidence
+showed:
 
 - native Grit samples pass for 23 testable patterns and 45 samples;
 - `bun run habitat:check -- --json --tool grit-check` exits 0 with the 22 Grit
@@ -13,8 +14,15 @@ enough to support new pattern backfill or retirements. Fresh evidence shows:
   a useful design-probe bound and produced no captured proof;
 - `habitat fix --dry-run` currently finds 0 matches on the live tree, which is
   useful hygiene evidence but not codemod safety proof;
-- only `adapter-boundary.json` exists under `tools/habitat-harness/baselines`,
-  so H5 "empty baseline" claims currently depend on missing-file semantics.
+- only `adapter-boundary.json` existed under
+  `tools/habitat-harness/baselines`, so H5 "empty baseline" claims depended on
+  missing-file semantics.
+
+Current implementation proof is recorded in `workstream/command-proof-log.md`
+and `workstream/phase-record.md`. As of the explicit-baseline slice, the 22
+current Grit checks have committed `[]` baseline files and
+`baseline-integrity` accepts them; injected violations, apply safety, parity
+retirement, and product/runtime proof remain open.
 
 This repair makes the proof model truthful before the first Grit pilot. It does
 not add new patterns. It proves or reclassifies the current 22 enforced checks,

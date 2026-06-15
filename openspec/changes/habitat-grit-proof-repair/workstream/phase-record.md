@@ -9,9 +9,9 @@
   `agent-HR-habitat-effect-grit-adapter` over
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
-- Status: selector/current-tree wrapper and native-sample implementation slice
-  recorded; injected, baseline, apply, parity, downstream realignment, and
-  closure remain open
+- Status: selector/current-tree wrapper, native-sample, and explicit baseline
+  implementation slices recorded; injected, apply, parity, broader downstream
+  realignment, and closure remain open
 
 ## Objective
 
@@ -46,8 +46,7 @@
 
 - Repo state at implementation slice start: clean worktree on
   `agent-HR-habitat-grit-proof-repair`, Graphite-tracked above the accepted
-  adapter and command-trust layers. Current record edits are uncommitted until
-  this slice is validated and committed.
+  adapter and command-trust layers.
 - Accepted upstream command-trust layer:
   `1673c1b65 fix(habitat): repair command entrypoint trust`.
 - Accepted upstream adapter substrate layer:
@@ -84,11 +83,31 @@
     `baseline-integrity:pass`.
 - Direct raw Grit current-tree acquisition remains explicitly unclaimed as
   `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
+- Explicit baseline file inventory is recorded as
+  `HGPR-BASELINE-FILES-2026-06-15`:
+  - all 22 current `ownerTool=grit-check` ids have committed
+    `tools/habitat-harness/baselines/<rule-id>.json` files containing explicit
+    `[]`.
+  - inventory summary recorded missing=0, extra=0, nonEmpty=0.
+- Explicit baseline-integrity wrapper proof is recorded as
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`:
+  - `bun run habitat:check -- --json --tool grit-check`
+  - exit 0; CheckReport schemaVersion 1, `ok:true`, 22 Grit reports plus
+    `baseline-integrity`, all pass with zero diagnostics.
+- Baseline shrink-only unit behavior is recorded as
+  `HGPR-BASELINE-UNIT-2026-06-15`:
+  - `bun run --cwd tools/habitat-harness test -- baseline.test.ts`
+  - exit 0; Vitest passed 1 file / 3 tests for explicit empty baselines,
+    rejection of added entries for existing rules, and allowance only for
+    rule-introduction changes.
 - Dry-run apply proof remains design-seed only until this packet runs the
   required apply row. Accepted adapter isolated-copy dry-run/apply-match
   behavior is substrate proof, not row semantic proof.
 - Baseline corpus:
-  - only `tools/habitat-harness/baselines/adapter-boundary.json` exists.
+  - `tools/habitat-harness/baselines/adapter-boundary.json` continues to cover
+    the non-Grit adapter-boundary rule.
+  - 22 explicit `[]` Grit baseline files now exist for the current enforced
+    Grit check ids.
 
 ## Scope
 
@@ -177,14 +196,21 @@ implementation tasks 4, 6, or adapter tests begin.
     `habitat-effect-grit-adapter` dependency.
   - 9.2-9.5 native samples, harness native wrapper, valid tool selector, and
     wrong-namespace selector command gates.
+  - 5.1-5.5 explicit Grit baseline files, tests, baseline-integrity proof,
+    shrink-only growth policy proof, and H5/H6 baseline wording realignment.
+  - 8.1-8.2 H5/H6 downstream records patched for the baseline historical/current
+    split.
+  - 9.7 explicit Grit baseline behavior proof suite.
 - Remaining tasks: matrix fields 2.1-2.2 and 2.5-2.7, injected violation
-  harness, explicit Grit baselines, apply codemod proof, downstream
-  realignment, remaining verification, Graphite commit, and closure.
+  harness, apply codemod proof, broader downstream realignment, parity and
+  scheduling probes, remaining verification, Graphite commit, and closure.
 - Stop/non-claim state: direct raw current-tree Grit acquisition remains
   unresolved and explicitly unclaimed; wrapper proof controls only the Habitat
-  current-tree wrapper claim. Explicit empty Grit baselines are still the chosen
-  repair disposition for current enforced Grit checks, but no baseline files or
-  baseline shrink/write proof are accepted from this slice.
+  current-tree wrapper claim. Explicit empty Grit baselines are accepted only as
+  the current file inventory, baseline-integrity wrapper pass, and unit
+  shrink-only policy proof. This slice does not prove injected violations, raw
+  direct acquisition, live baseline writes, apply safety, parity retirement, or
+  product/runtime behavior.
 
 ## Verification
 
@@ -212,26 +238,48 @@ implementation tasks 4, 6, or adapter tests begin.
   - Node batch executing
     `bun run habitat:check -- --json --rule <rule-id>` for all 22 current
     Grit check ids (`HGPR-PER-RULE-SELECTORS-2026-06-15`)
+  - inventory capture for 22 explicit `[]` Grit baseline files
+    (`HGPR-BASELINE-FILES-2026-06-15`)
+  - `bun run habitat:check -- --json --tool grit-check`
+    (`HGPR-BASELINE-INTEGRITY-2026-06-15`)
+  - `bun run --cwd tools/habitat-harness test -- baseline.test.ts`
+    (`HGPR-BASELINE-UNIT-2026-06-15`)
+  - `bun run --cwd tools/habitat-harness check` passed after baseline test
+    addition.
+  - `bun run --cwd tools/habitat-harness test` passed after baseline test
+    addition; 13 files / 80 tests.
   - `bun run openspec -- validate habitat-grit-proof-repair --strict` passed
     after record updates.
+  - `bun run openspec -- validate habitat-grit-catalog --strict` passed after
+    H5 baseline-record realignment.
+  - `bun run openspec -- validate habitat-enforcement-consolidation --strict`
+    passed after H6 baseline-record realignment.
   - `bun run openspec:validate` passed with 181 items.
   - `git diff --check` passed.
 - Evidence boundary: current implementation slice proves native Grit sample
   success and Habitat wrapper selector/current-tree zero-finding projection
   through CheckReport schemaVersion 1 on the branch that contains the accepted
-  command-trust and Effect adapter layers. It does not prove raw direct Grit
-  current-tree acquisition, injected violations, baseline shrink/write behavior,
-  apply safety, semantic target exports, parity retirement, downstream
-  realignment, or product/runtime Civ7 behavior.
+  command-trust and Effect adapter layers. It also proves explicit empty Grit
+  baseline files exist for the 22 current Grit checks, `baseline-integrity`
+  accepts them, and unit shrink-only policy rejects added entries for existing
+  rules. It does not prove raw direct Grit current-tree acquisition, injected
+  violations, live baseline writes, apply safety, semantic target exports,
+  parity retirement, broader downstream realignment, or product/runtime Civ7
+  behavior.
 
 ## Realignment
 
 - Downstream realignment ledger:
   `workstream/downstream-realignment-ledger.md`.
 - Known stale records to patch during implementation:
-  - `openspec/changes/habitat-grit-catalog/tasks.md`
-  - `openspec/changes/habitat-grit-catalog/workstream/phase-record.md`
+  - `openspec/changes/habitat-grit-catalog/tasks.md` patched for baseline
+    historical/current split; other H5 proof realignment remains open.
+  - `openspec/changes/habitat-grit-catalog/workstream/phase-record.md` patched
+    for baseline historical/current split; other H5 proof realignment remains
+    open.
   - `openspec/changes/habitat-enforcement-consolidation/workstream/phase-record.md`
+    patched for baseline historical/current split; other H6 retirement proof
+    realignment remains open.
   - `docs/projects/habitat-harness/workstream-record.md`
   - `docs/projects/habitat-harness/recovery-claim-ledger.md`
   - `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
@@ -243,9 +291,8 @@ implementation tasks 4, 6, or adapter tests begin.
 
 ## Next Action
 
-- After the selector/current-tree record slice is committed via Graphite,
-  continue with the injected-violation harness and/or explicit Grit baseline
-  contract using the accepted adapter contract.
+- After the explicit baseline slice is committed via Graphite, continue with
+  the injected-violation harness using the accepted adapter contract.
 - For apply proof, consume the isolated transaction-copy diff evidence as
   command/apply safety proof only; keep target-export and symbol/import
   semantic proof in this Grit proof packet.

@@ -50,6 +50,12 @@
 - Existing enforcement still active: wrapped lint scripts, wrapped ESLint, and
   wrapped architecture tests remain authoritative until H6 retirement. H5 only
   ports, proves parity, and adds generated-zone protection.
+- Baseline note after `habitat-grit-proof-repair`: H5's "empty baseline"
+  closure language was historical shorthand for missing-file-as-empty locked
+  behavior. Current explicit empty baseline files for the Grit tranche and
+  baseline-integrity proof are recorded in
+  `openspec/changes/habitat-grit-proof-repair/`; this H5 record is not current
+  explicit-baseline file proof.
 - Generated outputs affected: none expected; all `dist/**`, `mod/**`,
   `types/**`, generated map/config/type/table outputs remain protected from
   hand edit.
@@ -163,6 +169,10 @@
     grit-adapter-base-standard-import` failed on a temporary
     `packages/sdk/src/habitat-grit-exit-probe.ts` `/base-standard/` import,
     emitted the locked-baseline diagnostic, and exited 1. Probe file removed.
+  - Historical baseline classification: this locked-baseline result depended
+    on Habitat's missing-file-as-empty behavior at H5 time. Current explicit
+    Grit baseline files and baseline-integrity acceptance are proven by
+    `habitat-grit-proof-repair`.
   - Original mechanisms remain green on the current tree:
     `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-script`
     passed with the existing adapter baseline debt and `doc-ambiguity`

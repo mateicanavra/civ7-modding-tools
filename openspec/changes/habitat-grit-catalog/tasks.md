@@ -70,10 +70,13 @@
 - [x] 5.1 All fixtures green; `bunx nx affected -t grit:check` green;
   generated-zone staged probe fails then removed.
 - [x] 5.2 Ratchet entries for every rule introduced in this slice — all grit
-  patterns AND the three file-layer generated-zone rules use empty baselines
-  and are locked at adoption. Adapter runtime-import Grit rule starts empty;
-  the legacy broad adapter-boundary script remains wrapped with 7 allowlisted
-  provenance/test files until H6 disposition.
+  patterns AND the three file-layer generated-zone rules used the then-current
+  missing-file-as-empty behavior and were treated as locked at adoption.
+  Current explicit empty Grit baseline files and baseline-integrity proof are
+  recorded by `habitat-grit-proof-repair`; do not read this historical H5 row
+  as current explicit-baseline file evidence. Adapter runtime-import Grit rule
+  starts empty; the legacy broad adapter-boundary script remains wrapped with 7
+  allowlisted provenance/test files until H6 disposition.
 - [x] 5.3 `bun run build && bun run check && bun run test` unchanged-green;
   `bun run openspec -- validate habitat-grit-catalog --strict`; realignment +
   closure per workstream record.
