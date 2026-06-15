@@ -5,10 +5,13 @@
 - Project: Habitat Harness
 - Phase: P0/P1 Grit proof repair / `habitat-grit-proof-repair`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `codex/habitat-dra-takeover-frame`
+- Branch/Graphite stack: `agent-HR-habitat-grit-proof-repair` over
+  `agent-HR-habitat-effect-grit-adapter` over
+  `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
-- Status: Design packet reviewed; accepted findings repaired in draft;
-  implementation not started
+- Status: selector/current-tree wrapper and native-sample implementation slice
+  recorded; injected, baseline, apply, parity, downstream realignment, and
+  closure remain open
 
 ## Objective
 
@@ -41,37 +44,49 @@
 
 ## Current State
 
-- Repo state at phase open: clean worktree on
-  `codex/habitat-dra-takeover-frame`.
-- Recent local commit before phase open:
-  `4f7672876 docs(habitat): design command trust repair`.
+- Repo state at implementation slice start: clean worktree on
+  `agent-HR-habitat-grit-proof-repair`, Graphite-tracked above the accepted
+  adapter and command-trust layers. Current record edits are uncommitted until
+  this slice is validated and committed.
+- Accepted upstream command-trust layer:
+  `1673c1b65 fix(habitat): repair command entrypoint trust`.
+- Accepted upstream adapter substrate layer:
+  `3ceb93d5c feat(habitat): add Effect Grit adapter substrate`.
 - Current implemented corpus:
   - 22 check patterns under `.grit/patterns/habitat/checks/`.
   - 1 apply pattern under `.grit/patterns/habitat/apply/`.
-- Fresh native sample proof:
-  - `GRIT_TELEMETRY_DISABLED=true grit patterns test --json`
-  - 23 reports, 45 samples, all success/pass.
-- Fresh Habitat current-tree wrapper proof:
+- Native sample proof recorded as
+  `HGPR-NATIVE-SAMPLES-2026-06-15`:
+  - `GRIT_TELEMETRY_DISABLED=true bun x --no-install grit patterns test --json`
+  - exit 0; 23 testable patterns, 45 samples, 0 failures.
+  - Native Grit writes human pattern lines plus JSON on stderr for this command;
+    this is not Habitat adapter parser proof.
+- Harness native sample wrapper proof recorded as
+  `HGPR-HARNESS-GRIT-PATTERNS-2026-06-15`:
+  - `bun run --cwd tools/habitat-harness test -- grit-patterns.test.ts`
+  - exit 0; Vitest passed 1 file / 1 test.
+- Habitat current-tree wrapper proof recorded as
+  `HGPR-HABITAT-GRIT-TOOL-2026-06-15`:
   - `bun run habitat:check -- --json --tool grit-check`
-  - schemaVersion 1, `ok:true`, 23 passing reports including
-    `baseline-integrity`.
-- Fresh selector contradiction:
+  - exit 0; CheckReport schemaVersion 1, `ok:true`, 22 Grit reports plus
+    `baseline-integrity`, all pass with zero diagnostics.
+- Wrong-namespace selector proof recorded as
+  `HGPR-WRONG-NAMESPACE-2026-06-15`:
   - `bun run habitat:check -- --json --rule grit-check`
-  - schemaVersion 1, `ok:true`, only `baseline-integrity`.
-- Fresh raw Grit acquisition probe:
-  - direct raw current-tree command was interrupted after useful design-probe
-    bound and produced no captured proof.
-- Fresh dry-run apply proof:
-  - `bun run habitat:fix -- --dry-run`
-  - Grit processed 234 files and found 0 matches; Biome checked 2343 files and
-    applied no fixes.
-- Fresh old-mechanism probes:
-  - wrapped-script: 4 pass.
-  - wrapped-test: 7 pass.
-  - wrapped-eslint: 1 pass.
-- Fresh Nx scheduling probe:
-  - `nx run @internal/habitat-harness:grit:check --outputStyle=static`
-    passed from Nx cache.
+  - exit 1; CheckReport schemaVersion 1, `ok:false`,
+    `rule-selection-integrity` fails because `grit-check` is a tool id, not a
+    rule id.
+- Per-rule selector proof recorded as
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`:
+  - Node batch executed `bun run habitat:check -- --json --rule <rule-id>` for
+    all 22 current `ownerTool=grit-check` rule ids.
+  - Each command exited 0 with exactly the requested Grit rule as `pass` plus
+    `baseline-integrity:pass`.
+- Direct raw Grit current-tree acquisition remains explicitly unclaimed as
+  `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
+- Dry-run apply proof remains design-seed only until this packet runs the
+  required apply row. Accepted adapter isolated-copy dry-run/apply-match
+  behavior is substrate proof, not row semantic proof.
 - Baseline corpus:
   - only `tools/habitat-harness/baselines/adapter-boundary.json` exists.
 
@@ -87,18 +102,17 @@
 
 ## Effect Decision
 
-This phase starts as a proof repair over current TypeScript. It does not adopt
-Effect merely to record proof. Effect is reopened before dependent code changes
-if implementation needs new manual machinery for:
+This repair packet did not add new manual Grit orchestration. The
+Effect/substrate trigger fired for Grit command provenance, exact JSON
+parse/schema failure classes, scan-root service seams, dry-run/apply
+transactions, cleanup/finalizers, and fake-service adapter tests. Those concerns
+were moved into and accepted through `habitat-effect-grit-adapter` at
+`3ceb93d5c`.
 
-- Grit command provenance;
-- JSON parse/schema failure classes;
-- scan-root service seams;
-- dry-run/apply transactions;
-- cleanup/finalizers;
-- fake-service adapter tests.
-
-The authoritative trigger list is the Effect Trigger Matrix in `design.md`.
+This packet may consume the accepted adapter contract for command/result,
+selector/current-tree wrapper, injected-probe, proof-artifact, and isolated-copy
+apply evidence. It must still prove row semantics, baselines, target exports,
+and downstream realignment in this packet.
 
 ## Spec/Tasks
 
@@ -106,8 +120,10 @@ The authoritative trigger list is the Effect Trigger Matrix in `design.md`.
 - Tasks: `openspec/changes/habitat-grit-proof-repair/tasks.md`
 - Proof matrix: `workstream/grit-proof-matrix.md`
 - Command proof log: `workstream/command-proof-log.md`
-- Validation status: `bun run openspec -- validate habitat-grit-proof-repair --strict`
-  passed on 2026-06-14 after review repairs.
+- Validation status:
+  - `bun run openspec -- validate habitat-grit-proof-repair --strict` passed on
+    2026-06-15 after selector/current-tree record updates.
+  - `bun run openspec:validate` passed on 2026-06-15 with 181 items.
 
 ## Substrate Decision Table
 
@@ -116,11 +132,11 @@ implementation tasks 4, 6, or adapter tests begin.
 
 | Concern | Current-code capability | Required proof | Chosen substrate | Trigger result | Evidence path | Reviewer |
 | --- | --- | --- | --- | --- | --- | --- |
-| Injected violation harness | pending in this packet | exact rule id, path control, cleanup | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `openspec/changes/habitat-effect-grit-adapter/workstream/phase-record.md` | Effect/substrate |
-| Grit command provenance | pending in this packet | argv/cwd/env/cache/duration/failure class | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/src/lib/habitat-process.ts`; adapter phase record | Effect/substrate |
-| Parse/schema classification | pending in this packet | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/src/lib/grit.ts`; adapter tests | Effect/substrate |
-| Apply transaction | pending in this packet | clean precheck, pattern-owned approval/failure intake, isolated-copy dry-run diff proof, rollback, cleanup | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/src/lib/grit-apply.ts`; adapter phase record | Effect/substrate |
-| Fake-service tests | pending in this packet | fake command/fs/baseline/clock or accepted no-fake rationale | `habitat-effect-grit-adapter` after supervisor acceptance | substrate available | `tools/habitat-harness/test/lib/*` adapter tests | Effect/substrate |
+| Injected violation harness | accepted adapter substrate; row probes pending in this packet | exact rule id, path control, cleanup | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `openspec/changes/habitat-effect-grit-adapter/workstream/phase-record.md` | supervisor / Effect-substrate |
+| Grit command provenance | accepted adapter substrate; row proof pending in this packet | argv/cwd/env/cache/duration/failure class | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/habitat-process.ts`; adapter phase record | supervisor / Effect-substrate |
+| Parse/schema classification | accepted adapter substrate; row proof pending in this packet | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/grit.ts`; adapter tests | supervisor / Effect-substrate |
+| Apply transaction | accepted adapter substrate; target-export and semantic proof pending in this packet | clean precheck, pattern-owned approval/failure intake, isolated-copy dry-run diff proof, rollback, cleanup | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/grit-apply.ts`; adapter phase record | supervisor / Effect-substrate |
+| Fake-service tests | accepted adapter substrate; row probes pending in this packet | fake command/fs/baseline/clock or accepted no-fake rationale | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/test/lib/*` adapter tests | supervisor / Effect-substrate |
 
 ## Review
 
@@ -139,19 +155,36 @@ implementation tasks 4, 6, or adapter tests begin.
 ## Agent Fleet State
 
 - Active agents: none.
+- Closed advisory sidecar: `Pascal`
+  (`019ec99a-1a96-7472-9a93-ae229fcdff78`) was queued during this slice for a
+  separate Bun/Nx/Grit tool-resolution investigation and then closed before
+  commit. Its output was not read, consumed, or used as proof or implementation
+  input for this Graphite layer.
 - Completed agents: Grit corpus, evidence/system, and Effect/substrate
   reviewers.
 - DRA owner retains synthesis, proof claims, review disposition, and repo state.
 
 ## Implementation
 
-- Completed tasks: 1.1-1.4 design/review gate.
-- Remaining tasks: implementation, verification, downstream realignment, and
-  closure tasks remain unchecked.
-- Stop conditions triggered: raw current-tree Grit acquisition proof is
-  unresolved; this is a design input, not an implementation blocker yet.
-  Explicit empty Grit baselines are the chosen repair disposition for current
-  enforced Grit checks.
+- Completed tasks:
+  - 1.1-1.4 design/review gate.
+  - 2.3-2.4 native sample and current-tree wrapper command/output records.
+  - 3.1-3.5 selector and current-tree proof slice after accepted command-trust
+    and adapter layers.
+  - 4.6 and 6.9 adapter-acceptance dependency gates for injected harness and
+    destructive apply proof.
+  - 7.1-7.5 substrate decision recorded as accepted
+    `habitat-effect-grit-adapter` dependency.
+  - 9.2-9.5 native samples, harness native wrapper, valid tool selector, and
+    wrong-namespace selector command gates.
+- Remaining tasks: matrix fields 2.1-2.2 and 2.5-2.7, injected violation
+  harness, explicit Grit baselines, apply codemod proof, downstream
+  realignment, remaining verification, Graphite commit, and closure.
+- Stop/non-claim state: direct raw current-tree Grit acquisition remains
+  unresolved and explicitly unclaimed; wrapper proof controls only the Habitat
+  current-tree wrapper claim. Explicit empty Grit baselines are still the chosen
+  repair disposition for current enforced Grit checks, but no baseline files or
+  baseline shrink/write proof are accepted from this slice.
 
 ## Verification
 
@@ -168,8 +201,28 @@ implementation tasks 4, 6, or adapter tests begin.
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`
   - full-depth-language guardrail scan over Habitat initiative docs
-- Evidence boundary: current phase has design evidence only. It does not prove
-  injected violations, baseline disposition, or apply safety.
+  - `GRIT_TELEMETRY_DISABLED=true bun x --no-install grit patterns test --json`
+    (`HGPR-NATIVE-SAMPLES-2026-06-15`)
+  - `bun run --cwd tools/habitat-harness test -- grit-patterns.test.ts`
+    (`HGPR-HARNESS-GRIT-PATTERNS-2026-06-15`)
+  - `bun run habitat:check -- --json --tool grit-check`
+    (`HGPR-HABITAT-GRIT-TOOL-2026-06-15`)
+  - `bun run habitat:check -- --json --rule grit-check`
+    (`HGPR-WRONG-NAMESPACE-2026-06-15`)
+  - Node batch executing
+    `bun run habitat:check -- --json --rule <rule-id>` for all 22 current
+    Grit check ids (`HGPR-PER-RULE-SELECTORS-2026-06-15`)
+  - `bun run openspec -- validate habitat-grit-proof-repair --strict` passed
+    after record updates.
+  - `bun run openspec:validate` passed with 181 items.
+  - `git diff --check` passed.
+- Evidence boundary: current implementation slice proves native Grit sample
+  success and Habitat wrapper selector/current-tree zero-finding projection
+  through CheckReport schemaVersion 1 on the branch that contains the accepted
+  command-trust and Effect adapter layers. It does not prove raw direct Grit
+  current-tree acquisition, injected violations, baseline shrink/write behavior,
+  apply safety, semantic target exports, parity retirement, downstream
+  realignment, or product/runtime Civ7 behavior.
 
 ## Realignment
 
@@ -190,10 +243,9 @@ implementation tasks 4, 6, or adapter tests begin.
 
 ## Next Action
 
-- Keep implementation tasks 4, 6, 7, and adapter tests blocked until
-  `habitat-effect-grit-adapter` is reviewed and accepted.
-- After that substrate packet is accepted, resume this repair from the
-  injected-harness and apply-proof tasks using the adapter contract rather than
-  adding new manual Grit plumbing. For apply proof, consume the isolated
-  transaction-copy diff evidence as command/apply safety proof only; keep
-  target-export and symbol/import semantic proof in this Grit proof packet.
+- After the selector/current-tree record slice is committed via Graphite,
+  continue with the injected-violation harness and/or explicit Grit baseline
+  contract using the accepted adapter contract.
+- For apply proof, consume the isolated transaction-copy diff evidence as
+  command/apply safety proof only; keep target-export and symbol/import
+  semantic proof in this Grit proof packet.

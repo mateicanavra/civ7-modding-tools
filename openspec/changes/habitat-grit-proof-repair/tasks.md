@@ -14,9 +14,9 @@
 - [ ] 2.1 Fill `workstream/grit-proof-matrix.md` for all 22 current checks and
   the current apply pattern.
 - [ ] 2.2 Record exact scan roots and exclusions for every check row.
-- [ ] 2.3 Record native sample command, report count, sample count, and
+- [x] 2.3 Record native sample command, report count, sample count, and
   non-claims for every row.
-- [ ] 2.4 Record current-tree Habitat wrapper command and output class for
+- [x] 2.4 Record current-tree Habitat wrapper command and output class for
   every row.
 - [ ] 2.5 Record parity source, current parity command, and parity disposition
   for each row that H5/H6 tied to an old mechanism.
@@ -28,15 +28,15 @@
 
 ## 3. Selector And Current-Tree Proof
 
-- [ ] 3.1 Verify this repair runs after `habitat-oclif-entrypoint-repair` or
+- [x] 3.1 Verify this repair runs after `habitat-oclif-entrypoint-repair` or
   mark selector-dependent tasks blocked.
-- [ ] 3.2 Prove `--tool grit-check` selects the 22 current Grit checks plus
+- [x] 3.2 Prove `--tool grit-check` selects the 22 current Grit checks plus
   `baseline-integrity`.
-- [ ] 3.3 Prove `--rule grit-check` fails truthfully as a wrong-namespace
+- [x] 3.3 Prove `--rule grit-check` fails truthfully as a wrong-namespace
   selector after the command repair.
-- [ ] 3.4 Prove `--rule <each current grit rule id>` selects exactly that rule
+- [x] 3.4 Prove `--rule <each current grit rule id>` selects exactly that rule
   plus `baseline-integrity`.
-- [ ] 3.5 Update every affected matrix row with one raw acquisition value:
+- [x] 3.5 Update every affected matrix row with one raw acquisition value:
   satisfied with command-proof log id, or direct raw proof unclaimed and
   Habitat wrapper proof controls only the current-tree wrapper claim.
 
@@ -50,7 +50,7 @@
   not cover the row's false-positive model.
 - [ ] 4.4 Prove probe cleanup leaves `git status --short` clean.
 - [ ] 4.5 Record generated-output and protected-path non-claims.
-- [ ] 4.6 Do not implement this harness until `habitat-effect-grit-adapter` is
+- [x] 4.6 Do not implement this harness until `habitat-effect-grit-adapter` is
   supervisor-accepted with scan-root injection, command provenance, exact rule
   mapping, path-control probes, and cleanup.
 
@@ -81,23 +81,23 @@
 - [ ] 6.7 Run selected typecheck/test gates after the applied diff.
 - [ ] 6.8 Revert probe changes through normal Git cleanup and prove the
   worktree is clean.
-- [ ] 6.9 Do not run destructive apply proof until `habitat-effect-grit-adapter`
+- [x] 6.9 Do not run destructive apply proof until `habitat-effect-grit-adapter`
   is supervisor-accepted. Consume its isolated transaction-copy diff evidence
   for dry-run/apply safety proof only; keep target-export and symbol/import
   semantic proof in this packet.
 
 ## 7. Effect/Substrate Gate
 
-- [ ] 7.1 Evaluate whether implementation needs new Grit adapter
+- [x] 7.1 Evaluate whether implementation needs new Grit adapter
   parse/provenance/transaction code.
-- [ ] 7.2 Fill the substrate decision table in `phase-record.md` before tasks
+- [x] 7.2 Fill the substrate decision table in `phase-record.md` before tasks
   4, 6, or adapter tests begin.
-- [ ] 7.3 If any Effect Trigger Matrix row fires, open
+- [x] 7.3 If any Effect Trigger Matrix row fires, open
   `habitat-effect-grit-adapter` or `habitat-effect-command-runner` before
   dependent code changes.
-- [ ] 7.4 Record the accepted substrate decision in the phase record and proof
+- [x] 7.4 Record the accepted substrate decision in the phase record and proof
   matrix.
-- [ ] 7.5 If a Grit adapter substrate opens, require tests for no JSON,
+- [x] 7.5 If a Grit adapter substrate opens, require tests for no JSON,
   malformed JSON, wrapper noise, schema drift, empty scan roots, pattern miss,
   cache provenance, and cache/fresh status.
 
@@ -117,11 +117,11 @@
 
 ## 9. Verification
 
-- [ ] 9.1 `bun run openspec -- validate habitat-grit-proof-repair --strict`
-- [ ] 9.2 `GRIT_TELEMETRY_DISABLED=true grit patterns test --json`
-- [ ] 9.3 `bun run --cwd tools/habitat-harness test -- grit-patterns.test.ts`
-- [ ] 9.4 `bun run habitat:check -- --json --tool grit-check`
-- [ ] 9.5 `bun run habitat:check -- --json --rule grit-check`
+- [x] 9.1 `bun run openspec -- validate habitat-grit-proof-repair --strict`
+- [x] 9.2 `GRIT_TELEMETRY_DISABLED=true grit patterns test --json`
+- [x] 9.3 `bun run --cwd tools/habitat-harness test -- grit-patterns.test.ts`
+- [x] 9.4 `bun run habitat:check -- --json --tool grit-check`
+- [x] 9.5 `bun run habitat:check -- --json --rule grit-check`
 - [ ] 9.6 injected-violation proof suite for all current Grit checks
 - [ ] 9.7 explicit Grit baseline behavior proof suite
 - [ ] 9.8 old-mechanism parity probes:
@@ -133,7 +133,7 @@
 - [ ] 9.13 stale-record scan:
   `rg -n "H5|grit|Grit|baseline|parity|fixture|current-tree|apply|codemod|retired|closed|CLOSED|green|proof" docs/projects/habitat-harness openspec/changes/habitat-* -g '*.md'`
 - [ ] 9.14 full-depth-language scan over Habitat initiative docs
-- [ ] 9.15 `bun run openspec:validate`
+- [x] 9.15 `bun run openspec:validate`
 - [ ] 9.16 `workstream/command-proof-log.md` contains a row for every accepted
   proof label above.
 

@@ -31,17 +31,20 @@ This design fails if a future agent can claim a Grit rule is enforced because
 native samples passed, while the current-tree scan root, Habitat rule mapping,
 baseline behavior, and injected violation proof for that rule are absent.
 
-## Current Diagnosis
+## Stage 0 Diagnosis
 
-Fresh proof collected on branch `codex/habitat-dra-takeover-frame` after the
-command-trust design checkpoint:
+The following evidence was collected on branch `codex/habitat-dra-takeover-frame`
+after the command-trust design checkpoint. It is historical Stage 0 diagnosis,
+not current post-repair command behavior. Current implementation proof rows live
+in `workstream/command-proof-log.md`, and the phase record names the current
+selector/current-tree proof classes and non-claims.
 
 | Probe | Result | Proof class | Non-claim |
 | --- | --- | --- | --- |
 | `rg --files .grit/patterns/habitat` | 22 check patterns and 1 apply pattern found | corpus enumeration | no current-tree enforcement proof |
 | `GRIT_TELEMETRY_DISABLED=true grit patterns test --json` | 23 reports, 45 samples, all success/pass | native sample proof | no scan-root, baseline, parity, or apply safety proof |
 | `bun run habitat:check -- --json --tool grit-check` | schemaVersion 1, `ok:true`, 23 passing reports including `baseline-integrity` | Habitat current-tree wrapper proof for valid tool selector | selector truth for wrong namespace |
-| `bun run habitat:check -- --json --rule grit-check` | schemaVersion 1, `ok:true`, only `baseline-integrity` | selector false-green evidence | not valid proof of Grit rule behavior |
+| `bun run habitat:check -- --json --rule grit-check` | schemaVersion 1, `ok:true`, only `baseline-integrity` | historical selector false-green evidence before `habitat-oclif-entrypoint-repair` | not valid proof of Grit rule behavior or current selector behavior |
 | raw `grit --json check` over declared roots | interrupted after useful design-probe bound; no output captured | unresolved raw acquisition proof | no failure or pass claim |
 | `bun run habitat:fix -- --dry-run` | Grit apply roots processed 234 files with 0 matches; Biome checked 2343 files with no fixes | live-tree dry-run hygiene | no injected rewrite safety proof |
 | `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-script --json` | 4 pass | current wrapper state | no per-rule parity mapping |
@@ -65,7 +68,7 @@ has and the proof class it lacks.
 | Task scheduling and affected-scope optimization | Nx |
 | Generated-zone hand-edit protection | file-layer, not Grit |
 | Product/runtime behavior | tests/runtime proof, not Grit |
-| Typed command/provenance/resource orchestration | current TypeScript only until an Effect trigger fires |
+| Typed command/provenance/resource orchestration | accepted `habitat-effect-grit-adapter` substrate for Grit command/result, parser, injected-probe, proof-artifact, and isolated-copy apply concerns |
 
 ## Proof Classes
 
@@ -159,12 +162,11 @@ The repair must add or reuse a controlled probe harness with these properties:
 - Fails if `git status --short` is not clean after cleanup.
 - Does not touch generated output or protected resource submodules.
 
-Tasks that add the injected harness, adapter seams, scan-root injection, or
-adapter tests are blocked until `habitat-effect-grit-adapter` or an accepted
-typed Grit adapter design is opened and accepted. A docs-only proof matrix may
-be completed before that substrate packet; code touching `grit.ts`, scan-root
-control, command provenance, parse/schema classification, or cleanup machinery
-may not.
+Tasks that add injected row probes may use the accepted
+`habitat-effect-grit-adapter` substrate. This packet must still keep row-level
+proof separate from substrate proof: exact rule-id failures, path-control
+probes, generated-output non-claims, baselines, parity, and apply semantics are
+not accepted merely because the adapter exists.
 
 ## Baseline Decision
 
@@ -205,20 +207,15 @@ under-proven until all of the following pass:
 - selected typecheck/test gates pass after the applied diff;
 - rollback is normal Git cleanup and leaves the worktree clean.
 
-If proving this requires a transaction layer, cleanup finalizers, or command
-result classes beyond the current runner, open `habitat-effect-grit-adapter` or
-`habitat-effect-command-runner` before applying code changes.
+The accepted `habitat-effect-grit-adapter` substrate provides the transaction,
+cleanup, command-result, and isolated-copy diff-evidence boundary for this row.
+This does not close the row: target export preflight, missing-export negative
+behavior, type-only preservation, selected type/test gates, and any live
+worktree apply claim remain pending in this packet.
 
-The applied-diff proof is therefore blocked until one of these exists:
-
-1. `habitat-effect-grit-adapter`, potentially depending on
-   `habitat-effect-command-runner`; or
-2. a reviewed typed transaction design with clean-worktree precheck, target
-   export preflight, command metadata, finalizer/rollback proof, and final
-   clean-status proof.
-
-Until that substrate exists, live dry-run hygiene remains useful evidence but
-does not prove safe transformation.
+Until those row-specific proofs exist, live dry-run hygiene and accepted
+isolated-copy substrate evidence remain useful but do not prove safe
+transformation.
 
 ## Command Proof Log Contract
 
