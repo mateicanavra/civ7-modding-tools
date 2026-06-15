@@ -33,3 +33,50 @@
 - [x] 5.1 Record review acceptance in `review-disposition-ledger.md`.
 - [x] 5.2 Mark D2 accepted in `OPENSPEC-PACKET-TRAIN.md`.
 - [x] 5.3 Commit accepted D2 packet through Graphite with clean/quarantined worktree state.
+
+## 6. Implementation Refresh
+
+- [x] 6.1 Create the D2 implementation Graphite branch
+  `codex/runtime-effect-engine-effect-corpus` above the committed D1 slice.
+- [x] 6.2 Re-scan the restacked D1/D2 source corpus for app-hosted Studio
+  runtime surfaces, `StudioServerContext` host functions,
+  `civ7ControlOrpcMutationProcedure` declarations, and retained display/view
+  behavior state machines.
+- [x] 6.3 Add a durable D2 corpus guard test that fails when a current runtime
+  source token or control-oRPC mutation surface lacks explicit ledger coverage.
+- [x] 6.4 Repair ledger token coverage exposed by the guard: exact
+  `runInGameOperations`, `saveDeployOperations`, `serverInstanceId`,
+  `StudioServerContext.*` host functions, proof-builder symbols, and
+  `focusCiv7CameraOnPlot`.
+- [x] 6.5 Run focused test/OpenSpec/type gates and record evidence.
+- [x] 6.6 Run fresh review for D2 corpus omissions/proof gaps and disposition
+  findings.
+- [x] 6.7 Commit D2 implementation refresh through Graphite with clean
+  post-commit status proof.
+
+Implementation refresh evidence, 2026-06-15:
+
+- Green: `bun run --cwd apps/mapgen-studio test --
+  test/server/engineEffectCorpus.test.ts` (5 tests).
+- Green: `bun run openspec -- validate mapgen-studio-engine-effect-corpus --strict`.
+- Green: `bun run openspec:validate` (186 passed, 0 failed).
+- Green: `bun run nx run mapgen-studio:check --outputStyle=static`.
+- Green: `git diff --check`.
+- Generated-output audit: no tracked changes under `packages/mapgen-core/dist`,
+  `mods/mod-swooper-maps/dist`, `mods/mod-swooper-maps/mod`, or
+  `mods/mod-swooper-maps/src/maps/generated` after Nx check regenerated map
+  artifacts.
+- Habitat owner check: `bun tools/habitat-harness/bin/dev.ts check --owner
+  @internal/habitat-harness --json` remains non-green only on the stack-owned
+  `workspace-entrypoints` failure in
+  `packages/civ7-control-orpc/package.json`; D2-relevant `mapgen-docs`,
+  `nx-boundaries`, `biome-ci`, `grit-studio-recipe-artifacts`, file-layer
+  generated-output guards, and baseline integrity pass.
+- Post-commit proof: D2 was committed through Graphite on
+  `codex/runtime-effect-engine-effect-corpus`. The observed commit before this
+  bookkeeping amend was `7d55f559f` (`test(studio): guard engine Effect
+  corpus`); this file is amended into the same Graphite slice, so the durable
+  commit identity after bookkeeping is the branch tip reported by `git log -1`.
+  After the D2 Graphite commit, `git status --short --branch` returned only
+  `## codex/runtime-effect-engine-effect-corpus`, and `gt status` passed
+  through to Git status with `nothing to commit, working tree clean`.

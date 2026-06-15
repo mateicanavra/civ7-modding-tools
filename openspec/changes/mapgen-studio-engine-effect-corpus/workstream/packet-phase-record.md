@@ -1,10 +1,11 @@
 # D2 Packet Phase Record - Engine Effect Corpus
 
-Status: accepted
-Date: 2026-06-14
+Status: accepted; implementation refresh committed on D2 Graphite slice
+Date: 2026-06-14; implementation refresh 2026-06-15
 Domino: D2
 OpenSpec change: `mapgen-studio-engine-effect-corpus`
 Graphite packet branch: `codex/runtime-effect-openspec-packets`
+Implementation branch: `codex/runtime-effect-engine-effect-corpus`
 
 ## Frame
 
@@ -53,3 +54,52 @@ D2 cannot be accepted if:
 - review finds an unresolved P1/P2 finding.
 
 All stop conditions are cleared as of D2 acceptance on 2026-06-14.
+
+## Implementation Refresh - 2026-06-15
+
+- D2 implementation branch created above the committed D1 slice:
+  `codex/runtime-effect-engine-effect-corpus`.
+- Added `apps/mapgen-studio/test/server/engineEffectCorpus.test.ts` as the
+  durable D2 corpus guard. It scans current source and fails when app-hosted
+  runtime tokens, exact `StudioServerContext` host functions,
+  `civ7ControlOrpcMutationProcedure` production declarations, retained
+  display/view behavior procedures, or direct-control atoms lack explicit D2
+  ledger coverage.
+- The guard parses D2 markdown rows and requires matched rows to carry nonempty
+  classification, risk, oracle, and re-entry trigger fields. This prevents
+  query/prose-only token hits from satisfying corpus coverage.
+- The first focused guard run failed on missing exact `runInGameOperations`
+  ledger coverage, proving the guard catches a real omission class. Runtime
+  ledger tokens were tightened for `runInGameOperations`,
+  `saveDeployOperations`, `serverInstanceId`, exact proof-builder symbols,
+  exact `StudioServerContext.*` host functions, the `StudioServerContext.civ7Control`
+  composition seam, and the Run in Game live-runtime snapshot projection. The
+  control-oRPC coverage query now includes `focusCiv7CameraOnPlot` as the
+  direct-control camera atom behind the retained facade method
+  `focusCiv7Camera`, and `getCiv7VisibilitySummary` for display explore.
+- Fresh implementation-refresh review by Rawls accepted five findings
+  (`D2-IR1` through `D2-IR5`); all are dispositioned in
+  `review-disposition-ledger.md`.
+- Green focused proof: `bun run --cwd apps/mapgen-studio test --
+  test/server/engineEffectCorpus.test.ts` (5 tests).
+- Green implementation-refresh gates: `bun run openspec -- validate
+  mapgen-studio-engine-effect-corpus --strict`, `bun run openspec:validate`
+  (186 passed, 0 failed), `bun run nx run mapgen-studio:check
+  --outputStyle=static`, and `git diff --check`.
+- Generated-output audit after Nx check found no tracked changes under
+  `packages/mapgen-core/dist`, `mods/mod-swooper-maps/dist`,
+  `mods/mod-swooper-maps/mod`, or
+  `mods/mod-swooper-maps/src/maps/generated`.
+- Habitat owner check remains non-green only on the stack-owned
+  `workspace-entrypoints` failure in
+  `packages/civ7-control-orpc/package.json`. D2-relevant `mapgen-docs`,
+  `nx-boundaries`, `biome-ci`, `grit-studio-recipe-artifacts`, file-layer
+  generated-output guards, and baseline integrity pass.
+- Post-commit proof: D2 was committed through Graphite on
+  `codex/runtime-effect-engine-effect-corpus`. The observed commit before this
+  bookkeeping amend was `7d55f559f` (`test(studio): guard engine Effect
+  corpus`); this phase record is amended into that same Graphite slice, so the
+  current durable commit identity is the branch tip reported by `git log -1`.
+  After the D2 Graphite commit, `git status --short --branch` returned only
+  `## codex/runtime-effect-engine-effect-corpus`, and `gt status` passed
+  through to Git status with `nothing to commit, working tree clean`.
