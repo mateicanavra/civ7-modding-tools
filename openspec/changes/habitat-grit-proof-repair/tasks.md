@@ -56,12 +56,16 @@
     `ownerTool=grit-check` rows through the generic `runInjectedGritProbe(...)`
     API. The clean-start command exited 0, proved 22/22 injected matching
     source shapes, proved each outside-scope control path produced no finding,
-    and ended with clean git status. The proof uses a harness-owned injected
-    probe mirror root for exact-path rows so it never overwrites tracked source
-    files; ordinary Grit scans still reject that root unless the injected-probe
-    API explicitly enables it. This is injected violation and cleanup proof
-    only, not raw direct Grit acquisition, baseline shrink/write, apply safety,
-    old-mechanism parity, generated-output freshness, or product/runtime proof.
+    and ended with clean git status plus no injected-probe filesystem residue
+    (`filesystemCleanup.clean:true`, empty initial/final residue arrays, and
+    post-run `find tools/habitat-harness/injected-probe-roots -maxdepth 8
+    -print` returned "No such file or directory"). The proof uses a
+    harness-owned injected probe mirror root for exact-path rows so it never
+    overwrites tracked source files; ordinary Grit scans still reject that root
+    unless the injected-probe API explicitly enables it. This is injected
+    violation and cleanup proof only, not raw direct Grit acquisition, baseline
+    shrink/write, apply safety, old-mechanism parity, generated-output
+    freshness, or product/runtime proof.
 - [x] 4.6 Do not implement this harness until `habitat-effect-grit-adapter` is
   supervisor-accepted with scan-root injection, command provenance, exact rule
   mapping, path-control probes, and cleanup.
@@ -137,7 +141,7 @@
 - [x] 9.6 injected-violation proof suite for all current Grit checks
   - `HGPR-INJECTED-GRIT-ROWS-2026-06-15`: clean-start runner proof over 22
     rows, 22 pass, 0 failures, cleanup restored for every row, final git status
-    clean.
+    clean, and the injected-probe filesystem root absent after the run.
 - [x] 9.7 explicit Grit baseline behavior proof suite
 - [ ] 9.8 old-mechanism parity probes:
   `wrapped-script`, `wrapped-eslint`, and `wrapped-test`

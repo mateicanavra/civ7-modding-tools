@@ -90,10 +90,11 @@ Each current check row carries:
   and passed 22/22 current `ownerTool=grit-check` rows with zero failures.
   Every row used the generic `runInjectedGritProbe(...)` API, a matching
   injected source shape, and an outside-scope control path; every row restored
-  cleanup status and the final git status was clean. The proof uses the
-  harness-owned injected probe mirror root for exact-path rows so no tracked
-  source file is overwritten. Ordinary Grit scans still reject that root unless
-  called through the injected-probe API.
+  cleanup status, the final git status was clean, and the injected-probe
+  filesystem root was absent after completion. The proof uses the harness-owned
+  injected probe mirror root for exact-path rows so no tracked source file is
+  overwritten. Ordinary Grit scans still reject that root unless called through
+  the injected-probe API.
 - Raw direct Grit scan proof `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`: direct raw
   Grit current-tree acquisition remains unclaimed. Habitat wrapper proof
   controls current-tree wrapper claims only.

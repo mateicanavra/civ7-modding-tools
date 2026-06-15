@@ -91,8 +91,11 @@
     --require-clean-start`
   - exit 0; schemaVersion 1 proof report, `ok:true`, 22 rows, 22 pass, 0
     failures.
-  - The command started and ended with clean git status; every row reports
-    `cleanupRestoredStatus:true` and `finalStatusClean:true`.
+  - The command started and ended with clean git status, reported
+    `filesystemCleanup.clean:true` with empty initial/final residue arrays, and
+    post-run filesystem inspection found no
+    `tools/habitat-harness/injected-probe-roots` directory.
+  - Every row reports `cleanupRestoredStatus:true` and `finalStatusClean:true`.
   - Row data is packet-owned in `workstream/injected-probes.json`, and the
     generic `runInjectedGritProbe(...)` API executes matching and outside-scope
     control files through the live Habitat Grit wrapper.
@@ -208,6 +211,17 @@
     alone. The later local `HGPR-INJECTED-GRIT-ROWS-2026-06-15` proof records
     those row/cleanup claims for supervisor review. Packet closure remains
     open.
+  - Follow-up P2 filesystem cleanup repair:
+    `HGPR-INJECT-P2-FILESYSTEM-CLEANUP-2026-06-15` distinguished Git-clean
+    cleanup from filesystem-clean cleanup after review found empty
+    `tools/habitat-harness/injected-probe-roots` directory residue. The runner
+    now fails clean-start proof when that root contains residue, removes only
+    the run-owned `__habitat...` tree with recursive cleanup, and removes the
+    shared injected-probe parent with empty-directory-only semantics.
+    Follow-up test cleanup checkpoint `a43f7a60c` applies the same empty-parent
+    cleanup to focused probe tests that create injected mirror roots directly,
+    so routine harness verification also leaves no injected-probe filesystem
+    residue.
 
 ## Scope
 
@@ -326,8 +340,10 @@ implementation tasks 4, 6, or adapter tests begin.
   cache; the supervisor accepted this safety/cache boundary. The local
   `HGPR-INJECTED-GRIT-ROWS-2026-06-15` proof now executes all 22 current Grit
   check rows through a packet-owned corpus and ends clean. This is local
-  injected violation / cleanup proof pending supervisor review, not raw direct
-  Grit acquisition, apply safety, parity closure, or product proof.
+  injected violation / cleanup proof pending supervisor review. The cleanup
+  proof now includes both clean Git status and absent injected-probe filesystem
+  residue. This does not prove raw direct Grit acquisition, apply safety,
+  parity closure, or product proof.
 - Current parity state:
   `wrapped-script` is current-green, the named `wrapped-eslint` probe is a
   repaired-selector unknown-tool failure and formally stale H5/H6 command
@@ -373,6 +389,7 @@ implementation tasks 4, 6, or adapter tests begin.
   - `bun tools/habitat-harness/bin/dev.ts check --tool grit-check --json`
   - `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts
     --require-clean-start`
+  - `find tools/habitat-harness/injected-probe-roots -maxdepth 8 -print`
   - `find tools/habitat-harness/baselines -maxdepth 1 -type f`
   - `bun run openspec -- validate habitat-grit-proof-repair --strict`
   - full-depth-language guardrail scan over Habitat initiative docs
@@ -540,17 +557,31 @@ implementation tasks 4, 6, or adapter tests begin.
       `aea91e62e24e30e0e3d318ab7cebfe0450e733a6`
       (`feat(habitat): add injected Grit probe corpus`) added the packet-owned
       corpus and runner plus the narrow injected-probe root allowance.
+    - Filesystem cleanup checkpoint:
+      `89eee142d` (`fix(habitat): remove injected probe filesystem residue`)
+      made clean-start proof fail on injected-probe filesystem residue, removes
+      the run-owned `__habitat...` tree, and removes the shared
+      injected-probe parent only when it is empty.
+    - Focused test cleanup checkpoint:
+      `a43f7a60c` (`test(habitat): clean injected probe test root`) applies the
+      same empty-directory-only parent cleanup to harness tests that create
+      injected mirror roots directly.
     - Clean-start proof command:
       `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts
       --require-clean-start` exited 0; artifact
-      `/tmp/habitat-injected-probes-clean.json`,
-      `sha256=313c89415690a40b69dfaa92edcb32086189377ce1fd025011cf8195fd762a81`;
+      `/tmp/habitat-injected-probes-cleanup-fixed.json`,
+      `sha256=9272f70725ba28f17367e9a34be3850c8bcdfc9ff6c3a5c04b08fe2cc42d9a8f`;
       corpus hash
       `94c77bdd02c3625c4ca02201f96555e0144c9d45394859575631c3a36c7cb946`.
     - Parsed summary: schemaVersion 1 proof report, `ok:true`, 22 rows, 22
       pass, 0 failures, `requireCleanStart:true`, initial and final git status
-      clean, every row `cleanupRestoredStatus:true` and
+      clean, `filesystemCleanup.clean:true` with empty initial/final residue
+      arrays, every row `cleanupRestoredStatus:true` and
       `finalStatusClean:true`.
+    - Post-run filesystem check:
+      `find tools/habitat-harness/injected-probe-roots -maxdepth 8 -print`
+      reported "No such file or directory", proving the injected-probe root is
+      absent rather than merely Git-clean.
     - Boundary: the runner uses a harness-owned injected probe mirror root for
       exact-path rows so it never overwrites tracked source files. Focused unit
       proof also verifies ordinary Grit scans reject that root unless called
