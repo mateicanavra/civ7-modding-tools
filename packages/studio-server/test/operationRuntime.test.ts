@@ -4,7 +4,7 @@ import { Value } from "typebox/value";
 import { afterEach, describe, expect, test } from "vitest";
 import type { StudioInputs } from "../src/context";
 import { operationStatusTypeSchema } from "../src/contract/runInGame";
-import { operationsCurrent, studioEventSchema, type StudioEvent } from "../src/contract/studio";
+import { operationsCurrent, type StudioEvent, studioEventSchema } from "../src/contract/studio";
 import { invalidRequest } from "../src/errors/failure";
 import {
   makeStudioOperationRuntimeLayer,
@@ -91,9 +91,7 @@ describe("StudioOperationRuntime", () => {
     const { runtime } = makeRuntime();
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const run = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const run = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect
       .poll(async () => {
         const status = await runtime.runPromise(
@@ -135,16 +133,18 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput({
-        sourceSnapshot: {
-          recipeSettings: { seed: "123" },
-          worldSettings: { mapSize: "tiny" },
-          pipelineConfig: { example: true },
-          setupConfig: { players: [] },
-          materializationMode: "disposable",
-          selectedConfig: { id: "current" },
-        },
-      }))
+      service.runInGameStart(
+        runInGameInput({
+          sourceSnapshot: {
+            recipeSettings: { seed: "123" },
+            worldSettings: { mapSize: "tiny" },
+            pipelineConfig: { example: true },
+            setupConfig: { players: [] },
+            materializationMode: "disposable",
+            selectedConfig: { id: "current" },
+          },
+        })
+      )
     );
 
     expect(accepted.request?.sourceSnapshot).toMatchObject({
@@ -194,21 +194,23 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput({
-        config: { beta: undefined, alpha: { z: 1, a: 2 } },
-        selectedConfig: {
-          id: "studio-current",
-          latitudeBounds: { north: 75, south: -55 },
-        },
-        sourceSnapshot: {
-          recipeSettings: { seed: 42, omitted: undefined },
-          worldSettings: { resources: "balanced" },
-          pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
-          setupConfig: { players: [] },
-          materializationMode: "disposable",
-          selectedConfig: { id: "studio-current" },
-        },
-      }))
+      service.runInGameStart(
+        runInGameInput({
+          config: { beta: undefined, alpha: { z: 1, a: 2 } },
+          selectedConfig: {
+            id: "studio-current",
+            latitudeBounds: { north: 75, south: -55 },
+          },
+          sourceSnapshot: {
+            recipeSettings: { seed: 42, omitted: undefined },
+            worldSettings: { resources: "balanced" },
+            pipelineConfig: { continents: { knobs: { landmassRatio: 0.42 } } },
+            setupConfig: { players: [] },
+            materializationMode: "disposable",
+            selectedConfig: { id: "studio-current" },
+          },
+        })
+      )
     );
     const acceptedSourceSnapshot = accepted.request?.sourceSnapshot;
     expect(acceptedSourceSnapshot).toBeDefined();
@@ -266,9 +268,11 @@ describe("StudioOperationRuntime", () => {
     await expect(
       expectFailure(
         runtime,
-        service.runInGameStart(runInGameInput({
-          config: { nested: { rawJs: "UI.notifyUIReady()" } },
-        }))
+        service.runInGameStart(
+          runInGameInput({
+            config: { nested: { rawJs: "UI.notifyUIReady()" } },
+          })
+        )
       )
     ).resolves.toMatchObject({
       tag: "InvalidRequest",
@@ -315,51 +319,54 @@ describe("StudioOperationRuntime", () => {
     expect(current.runInGame.recent).toEqual([]);
   });
 
-  test.each(["", "   ", "{swooper-maps}/maps/bad\nscript.js", "bad\rscript.js", "bad\0script.js"])(
-    "rejects invalid Run in Game setup mapScript before admission: %j",
-    async (mapScript) => {
-      const events: StudioEvent[] = [];
-      let materializeCalls = 0;
-      const { runtime } = makeRuntime({
-        eventSink: events,
-        ports: {
-          materializeRunInGame: async () => {
-            materializeCalls += 1;
-            return {};
-          },
+  test.each([
+    "",
+    "   ",
+    "{swooper-maps}/maps/bad\nscript.js",
+    "bad\rscript.js",
+    "bad\0script.js",
+  ])("rejects invalid Run in Game setup mapScript before admission: %j", async (mapScript) => {
+    const events: StudioEvent[] = [];
+    let materializeCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        materializeRunInGame: async () => {
+          materializeCalls += 1;
+          return {};
         },
-      });
-      const service = await runtime.runPromise(StudioOperationRuntime);
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
 
-      await expect(
-        expectFailure(
-          runtime,
-          service.runInGameStart(
-            runInGameInput({
-              setupConfig: {
-                mapScript,
-                gameOptions: {},
-                playerOptions: [{ playerId: 0, options: {} }],
-              },
-            })
-          )
+    await expect(
+      expectFailure(
+        runtime,
+        service.runInGameStart(
+          runInGameInput({
+            setupConfig: {
+              mapScript,
+              gameOptions: {},
+              playerOptions: [{ playerId: 0, options: {} }],
+            },
+          })
         )
-      ).resolves.toMatchObject({
-        tag: "InvalidRequest",
-        reason: "invalid-request",
-        diagnostics: {
-          code: "run-in-game-map-script-invalid",
-          field: "setupConfig.mapScript",
-        },
-      });
+      )
+    ).resolves.toMatchObject({
+      tag: "InvalidRequest",
+      reason: "invalid-request",
+      diagnostics: {
+        code: "run-in-game-map-script-invalid",
+        field: "setupConfig.mapScript",
+      },
+    });
 
-      const current = await runtime.runPromise(service.operationsCurrent);
-      expect(events).toEqual([]);
-      expect(materializeCalls).toBe(0);
-      expect(current.runInGame.active).toBeNull();
-      expect(current.runInGame.recent).toEqual([]);
-    }
-  );
+    const current = await runtime.runPromise(service.operationsCurrent);
+    expect(events).toEqual([]);
+    expect(materializeCalls).toBe(0);
+    expect(current.runInGame.active).toBeNull();
+    expect(current.runInGame.recent).toEqual([]);
+  });
 
   test("preserves a valid setup mapScript in the canonical prepared request", async () => {
     const mapScript = "{swooper-maps}/maps/studio-current.js";
@@ -426,10 +433,12 @@ describe("StudioOperationRuntime", () => {
     const service = await runtime.runPromise(StudioOperationRuntime);
 
     const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput({
-        seed: "43",
-        materialization: { mode: "disposable" },
-      }))
+      service.runInGameStart(
+        runInGameInput({
+          seed: "43",
+          materialization: { mode: "disposable" },
+        })
+      )
     );
 
     await expect
@@ -473,12 +482,8 @@ describe("StudioOperationRuntime", () => {
     });
 
     const service = await runtime.runPromise(StudioOperationRuntime);
-    const first = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
-    const second = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const first = await runtime.runPromise(service.runInGameStart(runInGameInput()));
+    const second = await runtime.runPromise(service.runInGameStart(runInGameInput()));
 
     expect(second.requestId).toBe(first.requestId);
     expect(second.details).toMatchObject({
@@ -516,9 +521,7 @@ describe("StudioOperationRuntime", () => {
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const first = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const first = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect
       .poll(
         async () => {
@@ -553,9 +556,7 @@ describe("StudioOperationRuntime", () => {
     });
 
     const service = await runtime.runPromise(StudioOperationRuntime);
-    const run = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const run = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect(
       expectFailure(
         runtime,
@@ -888,9 +889,7 @@ describe("StudioOperationRuntime", () => {
     });
 
     const service = await runtime.runPromise(StudioOperationRuntime);
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await runtime.dispose();
 
     await expect(
@@ -976,9 +975,7 @@ describe("StudioOperationRuntime", () => {
     });
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect
       .poll(async () => {
         const status = await runtime.runPromise(
@@ -1017,9 +1014,7 @@ describe("StudioOperationRuntime", () => {
     openRuntimes.push(runtime);
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect
       .poll(async () => {
         const status = await runtime.runPromise(
@@ -1070,9 +1065,7 @@ describe("StudioOperationRuntime", () => {
     openRuntimes.push(runtime);
     const service = await runtime.runPromise(StudioOperationRuntime);
 
-    const accepted = await runtime.runPromise(
-      service.runInGameStart(runInGameInput())
-    );
+    const accepted = await runtime.runPromise(service.runInGameStart(runInGameInput()));
     await expect
       .poll(async () => {
         const status = await runtime.runPromise(
