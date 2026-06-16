@@ -417,6 +417,21 @@
       "hookScope": "pre-commit"
     },
     {
+      "id": "grit-control-app-surface",
+      "ownerTool": "grit-check",
+      "ownerProject": "@internal/habitat-harness",
+      "lane": "enforced",
+      "scope": "apps/**/*.ts, apps/**/*.tsx, packages/**/*.ts, packages/**/*.tsx",
+      "forbids": "caller-local Civ7DirectControlSession construction outside sanctioned session owner files and tests",
+      "why": "Studio and tooling code use canonical game-wire doors; direct-control session lifecycle belongs to @civ7/direct-control and the Studio server session service.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Use Civ7TunerSession or withCiv7DirectControlSession instead of constructing Civ7DirectControlSession locally.",
+      "exceptionPath": "none",
+      "gritPattern": "control_app_surface",
+      "hookScope": "pre-commit"
+    },
+    {
       "id": "grit-viz-contract-ownership",
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",

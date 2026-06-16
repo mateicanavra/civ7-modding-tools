@@ -252,6 +252,20 @@
     }
   },
   {
+    "ruleId": "grit-control-app-surface",
+    "patternIdentity": "control_app_surface",
+    "rulesJsonScope": "apps/**/*.ts, apps/**/*.tsx, packages/**/*.ts, packages/**/*.tsx",
+    "sourcePredicate": "caller-local Civ7DirectControlSession construction outside sanctioned session owner files and tests",
+    "match": {
+      "path": "apps/mapgen-studio/src/features/liveRuntime/session.ts",
+      "body": "const session = new Civ7DirectControlSession({ host: \"127.0.0.1\" });\n"
+    },
+    "control": {
+      "path": "packages/studio-server/src/services/Civ7TunerSession.ts",
+      "body": "const session = new Civ7DirectControlSession(directControlOptions);\n"
+    }
+  },
+  {
     "ruleId": "grit-viz-contract-ownership",
     "patternIdentity": "viz_contract_ownership",
     "rulesJsonScope": "standard recipe stage visualization files",
