@@ -65,7 +65,12 @@ function registeredPatternPromotionProgram(input) {
     yield* validateRegisteredBaselineContract(store, manifest);
 
     const activePatternPath = `.grit/patterns/habitat/checks/${input.patternName}.md`;
-    yield* failIfExists(store, activePatternPath, input.ruleId, "active Grit pattern already exists");
+    yield* failIfExists(
+      store,
+      activePatternPath,
+      input.ruleId,
+      "active Grit pattern already exists"
+    );
     yield* failIfExists(
       store,
       `tools/habitat-harness/src/rules/pattern-authority/candidates/${input.ruleId}.json`,
@@ -219,11 +224,13 @@ function validateRegisteredBaselineContract(store, manifest) {
 }
 
 function failIfExists(store, path, ruleId, message) {
-  return store.exists(path).pipe(
-    Effect.flatMap((exists) =>
-      exists ? fail("unexpected-collision", ruleId, `${message}: ${path}`) : Effect.void
-    )
-  );
+  return store
+    .exists(path)
+    .pipe(
+      Effect.flatMap((exists) =>
+        exists ? fail("unexpected-collision", ruleId, `${message}: ${path}`) : Effect.void
+      )
+    );
 }
 
 function fail(reason, ruleId, message) {

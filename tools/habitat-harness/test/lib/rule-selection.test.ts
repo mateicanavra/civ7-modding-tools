@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
 import {
   createCheckReport,
-  rulesForExecution,
   type RuleSelection,
   renderCheckReport,
+  rulesForExecution,
   selectRules,
   stagedGritScanRoots,
 } from "../../src/lib/command-engine.js";
@@ -122,7 +122,11 @@ describe("rule selector boundary", () => {
     const hookScoped = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
       hookScope: "pre-commit",
     });
-    const currentTreeOnly = fakeRule("grit-current-tree", "grit-check", "@internal/habitat-harness");
+    const currentTreeOnly = fakeRule(
+      "grit-current-tree",
+      "grit-check",
+      "@internal/habitat-harness"
+    );
     const nativeRule = fakeRule("file-layer-rule", "file-layer", "@internal/habitat-harness");
 
     expect(

@@ -281,9 +281,9 @@ describe("Habitat pattern generator", () => {
     tree.write("tools/habitat-harness/baselines/grit-existing-baseline.json", "[]\n");
     const beforeRules = tree.read(rulesPath, "utf8");
 
-    await expect(
-      patternGenerator(tree, { ruleId: "grit-existing-baseline" })
-    ).rejects.toThrow("Baseline already exists");
+    await expect(patternGenerator(tree, { ruleId: "grit-existing-baseline" })).rejects.toThrow(
+      "Baseline already exists"
+    );
 
     const candidatePaths = candidateArtifactPaths({
       ruleId: "grit-existing-baseline",
@@ -292,9 +292,7 @@ describe("Habitat pattern generator", () => {
     expect(tree.exists(candidatePaths.patternPath)).toBe(false);
     expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
     expect(
-      tree.exists(
-        "tools/habitat-harness/src/rules/pattern-authority/grit-existing-baseline.json"
-      )
+      tree.exists("tools/habitat-harness/src/rules/pattern-authority/grit-existing-baseline.json")
     ).toBe(false);
     expect(tree.read("tools/habitat-harness/baselines/grit-existing-baseline.json", "utf8")).toBe(
       "[]\n"
@@ -441,8 +439,7 @@ function registeredManifest(
     provingSources: [
       {
         kind: "test",
-        pathOrCommand:
-          "bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts",
+        pathOrCommand: "bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts",
         claim: "The generator validates registered manifests before promotion writes.",
       },
     ],

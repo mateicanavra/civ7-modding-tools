@@ -92,6 +92,14 @@
   Habitat `biome-ci` rule. It does not claim product/runtime behavior, full CI
   execution, broad root `check`/`test` closure, generated-output semantics, or
   any HG row proof.
+- Current drift repair boundary: later Habitat harness changes introduced
+  included-file Biome formatting/import-order drift in the generator,
+  command-engine, and focused test surfaces. The current repair applies Biome's
+  owner-layer formatter/organizer only to the reported included files and
+  re-proves the `@internal/habitat-harness:biome:ci` target plus Habitat
+  `biome-ci` wrapper rule. Generated-output freshness, root verify closure,
+  broad CI execution, HG row proof, and product/runtime behavior remain
+  non-claims.
 
 ## Verification
 

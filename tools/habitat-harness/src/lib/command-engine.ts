@@ -16,8 +16,8 @@ import {
 } from "./baseline.js";
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
-import { runGritApplyPatterns } from "./grit-apply.js";
 import { validateScanRoots } from "./grit.js";
+import { runGritApplyPatterns } from "./grit-apply.js";
 
 export { runHook } from "./hooks.js";
 

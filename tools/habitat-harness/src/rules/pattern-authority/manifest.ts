@@ -693,10 +693,7 @@ function validateRuleReference(
       `Registered rule-pack reference for '${ruleId || "<unknown>"}' must include a lifecycle lane.`
     );
   }
-  if (
-    typeof value.patternName === "string" &&
-    reference.patternName !== value.patternName
-  ) {
+  if (typeof value.patternName === "string" && reference.patternName !== value.patternName) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -704,10 +701,7 @@ function validateRuleReference(
       `Manifest pattern '${value.patternName}' does not match rule-pack pattern '${reference.patternName}'.`
     );
   }
-  if (
-    options.manifestPath &&
-    reference.manifestPath !== options.manifestPath
-  ) {
+  if (options.manifestPath && reference.manifestPath !== options.manifestPath) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -724,10 +718,7 @@ function validateRuleReference(
       `Rule-pack reference for '${ruleId}' must point at '${expectedPath}'.`
     );
   }
-  if (
-    typeof value.ownerTool === "string" &&
-    reference.ownerTool !== value.ownerTool
-  ) {
+  if (typeof value.ownerTool === "string" && reference.ownerTool !== value.ownerTool) {
     addIssue(
       issues,
       "contradicted-manifest",
