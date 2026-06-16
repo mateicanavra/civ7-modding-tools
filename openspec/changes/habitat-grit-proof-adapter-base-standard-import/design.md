@@ -4,8 +4,8 @@
 
 ### Objective
 
-Make `grit-adapter-base-standard-import` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Make `grit-adapter-base-standard-import` truthful as a row-owned Habitat active
+check closure for the current Grit predicate.
 
 ### Product Movement
 
@@ -45,14 +45,14 @@ owner layer. Other packages must not take a direct dependency on
 - Package source remediation.
 - Predicate repair for import forms outside the current native predicate.
 - Legacy wrapped-script allowlist migration.
-- Baseline mutation.
+- Baseline mutation beyond the explicit empty row baseline.
 - Product/runtime Civ7 behavior.
 
 ### Falsifier
 
 This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if live current-predicate `/base-standard/` import candidates are
-found but recorded as a clean pass without owner disposition, if broad
+fixtures alone, if live current-predicate `/base-standard/` import candidates
+are found but recorded as a clean pass without owner disposition, if broad
 provenance strings are mislabeled as current-row imports, or if product/runtime
 proof is treated as proven by this row.
 
@@ -78,8 +78,9 @@ inside the script, with H5/H6 follow-up needed.
 imports, negative adapter-owned imports, current package scan, existing adapter
 baseline reconciliation, and non-apply disposition.
 
-`grit-proof-matrix.md` records a design seed with one match and one ignore and
-marks parser-edge and false-positive classification pending.
+`grit-proof-matrix.md` now records the current ABSI closure proof classes while
+keeping raw acquisition, retired parity, wrapped-script parity, broader adapter
+policy closure, and product/runtime proof separate.
 
 ## Fixture Matrix
 
@@ -98,29 +99,40 @@ This row checkpoint may record:
 
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live candidate evidence over current package source;
+- Habitat wrapper current-tree and per-rule selector proof;
+- explicit empty baseline integrity proof;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
 Proof ids:
 
-- `ABSI-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for
+- `ABSI-NATIVE-FIXTURES-2026-06-16`: native fixture/parser-edge proof for
   current-predicate positive classes and recorded controls.
-- `ABSI-PACKAGE-INVENTORY-2026-06-15`: parser inventory/live evidence over
+- `ABSI-NATIVE-CORPUS-REFRESH-2026-06-16`: current native corpus health with
+  ABSI included.
+- `ABSI-PACKAGE-INVENTORY-2026-06-16`: parser inventory/live evidence over
   current package source.
+- `ABSI-PER-RULE-SELECTOR-2026-06-16`: Habitat per-rule selector and wrapper
+  proof for ABSI plus `baseline-integrity`.
+- `ABSI-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof
+  with ABSI included.
+- `ABSI-BASELINE-FILES-2026-06-16`: explicit empty row baseline plus
+  `baseline-integrity`.
+- `ABSI-INJECTED-PROBE-2026-06-16`: row-specific injected finding and path
+  control proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
 - generator/migration proof;
 - retired parity or wrapped-script parity;
 - broader adapter policy closure;
 - neighboring row proof;
-- product proof.
+- aggregate injected-corpus closure while DDIT is blocked;
+- product/runtime proof.
 
 ## Downstream Records
 

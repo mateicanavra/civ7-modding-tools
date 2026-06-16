@@ -27,9 +27,10 @@ and the filename does not include:
 
 - `packages/civ7-adapter/`
 
-The current predicate is syntax/path scoped. It does not by itself prove
-wrapper command behavior, raw acquisition, injected cleanup, baseline behavior,
-wrapped-script parity, source remediation, or product/runtime closure.
+The current predicate is syntax/path scoped. Native proof, wrapper proof,
+baseline integrity, and injected proof are recorded separately. None of those
+proof classes proves raw acquisition, wrapped-script parity, source remediation,
+broader adapter policy closure, or product/runtime behavior.
 
 ## Fixture Plan
 
@@ -67,7 +68,7 @@ counts, broad string-lookalike counts, live candidate paths, row id, proof ids,
 blockers, and explicit non-claims. Stdout or scratch files are not durable
 proof.
 
-Current checkpoint counts:
+Current closure checkpoint counts:
 
 - 944 scanned TS/TSX/JSON files under `packages`.
 - 910 `.ts` suffix files, including 2 `.d.ts` files and 908 non-`.d.ts`
@@ -106,3 +107,18 @@ context, not current-row direct import candidates:
 - `packages/civ7-map-policy/test/map-policy.test.ts`
 - `packages/civ7-types/index.d.ts`
 - `packages/mapgen-core/test/setup.ts`
+
+## Current Wrapper, Baseline, And Injected Proof
+
+- Per-rule wrapper proof selects exactly `grit-adapter-base-standard-import` plus
+  `baseline-integrity`, both passing with zero diagnostics.
+- Aggregate `grit-check` wrapper proof selects 30 Grit rules plus
+  `baseline-integrity`, all passing with ABSI included.
+- The explicit row baseline file is
+  `tools/habitat-harness/baselines/grit-adapter-base-standard-import.json` and
+  contains `[]`.
+- The row-specific injected proof reports one diagnostic at
+  `packages/config/src/demo.ts` and keeps the adapter-owned control
+  `packages/civ7-adapter/src/demo.ts` clean.
+- Aggregate injected-corpus closure remains a non-claim while the unrelated DDIT
+  adapter activation gap is blocked.

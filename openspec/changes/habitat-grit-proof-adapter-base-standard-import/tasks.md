@@ -20,24 +20,25 @@
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, blockers, and
   non-claims in this packet.
 
-## 3. Dependency-Bound Gates
+## 3. Active Check Closure Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `ABSI-PER-RULE-SELECTOR-2026-06-16` selects exactly
+    `grit-adapter-base-standard-import` plus `baseline-integrity`, both passing
+    with zero diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
-  - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+  - Raw direct Grit acquisition remains a non-claim for this checkpoint.
+- [x] 3.3 Injected violation and cleanup proof.
+  - `ABSI-INJECTED-PROBE-2026-06-16` records one diagnostic at an injected
+    non-adapter package path and a clean adapter-owned control; aggregate
+    injected-corpus closure remains a non-claim while DDIT is blocked.
+- [x] 3.4 Explicit baseline proof.
+  - `ABSI-BASELINE-FILES-2026-06-16` records the explicit `[]` row baseline and
+    `baseline-integrity` passing in per-rule and aggregate wrapper proof.
 - [x] 3.5 Live current-predicate base-standard import disposition.
   - Parser inventory must record live current-row direct import candidates as
-    blockers or zero-candidate evidence. Clean row closure remains a non-claim
-    until wrapper/current-tree, baseline, injected, raw/adapter, and supervisor
-    acceptance gates are available.
+    blockers or zero-candidate evidence. Parser inventory records zero live
+    current-row candidates outside the adapter.
 
 ## 4. Downstream Realignment
 
@@ -55,7 +56,11 @@
 - [x] 5.1 `bun run openspec -- validate habitat-grit-proof-adapter-base-standard-import --strict`
 - [x] 5.2 native fixture proof
 - [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.4 Habitat per-rule wrapper proof
+- [x] 5.5 aggregate `grit-check` wrapper proof
+- [x] 5.6 explicit empty baseline / `baseline-integrity` proof
+- [x] 5.7 row-specific injected violation/path-control proof
+- [x] 5.8 active-packet language guardrail scan
+- [x] 5.9 `git diff --check`
+- [x] 5.10 `bun run openspec:validate`
+- [x] 5.11 commit via Graphite with a clean worktree
