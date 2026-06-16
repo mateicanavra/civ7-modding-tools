@@ -1,12 +1,13 @@
-# Design - Domain Engine Imports Candidate Disposition
+# Design - Domain Engine Imports Active Check Repair
 
 ## Frame
 
 ### Objective
 
-Make `habitat-grit-domain-engine-imports` truthful as a candidate blocker
-checkpoint: the product boundary is real, the current source inventory is clean,
-and the current Grit predicate design is unsafe to register.
+Make `habitat-grit-domain-engine-imports` truthful as an active Grit-check
+checkpoint. The previous predicate blocker is repaired for the proven static
+import subset, the current source inventory is clean, and the rule can be
+registered with explicit baseline and injected-probe proof.
 
 ### Product Movement
 
@@ -17,9 +18,9 @@ surfaces. Type-only references must stay distinct from runtime value imports.
 
 ### Selection
 
-- Candidate id: `habitat-grit-domain-engine-imports`
-- Proposed Grit pattern: `domain_engine_imports`
-- Owner layer: candidate `grit-check`
+- Change id: `habitat-grit-proof-domain-engine-imports`
+- Grit pattern: `domain_engine_imports`
+- Owner layer: `grit-check`
 - Intended scan root: `mods/mod-swooper-maps/src/domain`
 - Intended current predicate: domain-op `.ts` files under
   `mods/mod-swooper-maps/src/domain/**/ops/**/*.ts`
@@ -32,10 +33,10 @@ surfaces. Type-only references must stay distinct from runtime value imports.
 2. Type-only engine imports are controls unless an owner later decides they are
    also forbidden.
 3. Native Grit fixture proof and parser inventory are separate proof classes.
-4. This checkpoint must not register a pattern that false-positives pure
-   type-only controls.
-5. Current source inventory is evidence about today's tree, not proof that the
-   Grit rule is implementable or registered.
+4. The active predicate must not false-positive pure type-only controls inside
+   the proven single-line control boundary.
+5. Current source inventory is evidence about today's tree; native fixture,
+   wrapper, baseline, and injected proof are recorded separately.
 
 ### Exterior
 
@@ -50,7 +51,8 @@ surfaces. Type-only references must stay distinct from runtime value imports.
 
 This checkpoint fails if it registers an unsafe pattern, treats a type-only
 false positive as acceptable fixture proof, omits current source inventory, or
-claims wrapper/baseline/injected/apply/product proof from parser inventory.
+conflates parser inventory with wrapper, baseline, injected, apply, or product
+proof.
 
 ## Source Synthesis
 
@@ -59,8 +61,8 @@ under each domain ops root: one for imports from
 `@swooper/mapgen-core/engine` or `@mapgen/engine`, and one for non-type engine
 imports using a PCRE negative lookahead.
 
-`grit-pattern-corpus-ledger.md` carries the candidate as a Grit-check row for
-domain ops staying engine/adapter clean except explicitly allowed type-only
+`grit-pattern-corpus-ledger.md` now carries the repaired active Grit-check row
+for domain ops staying engine/adapter clean except explicitly allowed type-only
 surfaces.
 
 `taxonomy.md` and `invariant-corpus.md` support the owner boundary: domain ops
@@ -71,10 +73,11 @@ runtime/engine coupling.
 
 | Attempt class | Result | Disposition |
 | --- | --- | --- |
-| Structural `import $imports from $source` with `$source` bound to exact engine sources and textual negation of `type` imports | Positive samples matched, but pure `import type` and `import { type ... }` controls also matched | Unsafe; not registered |
-| Structural import-node binding with `includes` or regex negation on the matched import node | Type-only controls still matched | Unsafe; not registered |
+| Structural `import $imports from $source` with `$source` bound to exact engine sources and textual negation of `type` imports | Positive import-from samples matched, but it did not cover side-effect imports by itself | Incomplete; not registered alone |
+| Broad structural side-effect snippets such as ``import "$source"`` | Side-effect positives matched, but Grit also matched import-from declarations with the same source, including pure type-only controls | Unsafe; not registered |
+| Root/standalone regex import alternatives without AST binding | Positive samples did not match as current Grit AST patterns | Non-working; not registered |
 | Root regex using negative lookahead like `import(?!\s+type)` | Native Grit rejected the regex because lookaround is unsupported | Unsupported; not registered |
-| Root or `contains` regex alternatives without lookahead | Positive samples did not match | Non-working; not registered |
+| AST `import_statement(source=$source)` binding with exact engine-source regex and full-statement type-only guards | Positive value/default, namespace, side-effect, and value-first mixed value/type imports matched; pure `import type` and single-line inline type-only controls did not match | Registered active check for the proven static import subset |
 
 ## Parser Inventory Contract
 
@@ -94,29 +97,30 @@ current-row match list.
 This checkpoint may record:
 
 - current-source parser inventory and zero exact engine-import candidates;
-- failed native predicate design evidence for the candidate;
-- durable non-registration and non-claim records.
+- repaired native predicate design evidence;
+- active native fixture proof;
+- Habitat wrapper/current-tree selector proof;
+- explicit empty baseline proof;
+- registered injected probe/path-control proof;
+- durable non-claim records.
 
 This checkpoint must not record:
 
-- active Grit rule registration;
-- native positive fixture proof;
-- Habitat wrapper/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - apply safety;
 - classify/generator behavior;
 - retired parity;
 - broader domain-refactor closure;
+- export-from, dynamic import, source-string, or broader inline type-only
+  formatting closure;
 - product/runtime proof.
 
 ## Reopen Trigger
 
-Reopen the candidate when one of these is true:
+Reopen the row when one of these is true:
 
-- Grit can safely express value engine imports without pure type-only false
-  positives and positive fixtures prove that behavior; or
+- the product owner wants export-from, dynamic import, source-string, or broader
+  inline type-only formatting closure; or
 - Habitat intentionally moves this boundary to a TypeScript parser-backed check
   with row-level proof and owner acceptance; or
 - the architecture owner decides type-only engine imports should also be
@@ -124,7 +128,6 @@ Reopen the candidate when one of these is true:
 
 ## Downstream Records
 
-The corpus ledger and command proof log are updated for this candidate blocker.
-The aggregate proof matrix is not updated as a current check row because no
-active `rules.json` entry, `.grit` pattern, baseline, or injected probe is
-registered for this candidate.
+The corpus ledger, proof matrix, and command proof log are updated for this
+active check. The records keep raw direct Grit acquisition, unsupported import
+forms, apply safety, retired parity, and product/runtime proof as non-claims.

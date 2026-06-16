@@ -522,6 +522,21 @@
       "hookScope": "pre-commit"
     },
     {
+      "id": "grit-domain-engine-imports",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+      "forbids": "domain ops importing engine runtime entrypoints as values",
+      "why": "Domain ops stay portable domain logic; engine runtime entrypoints belong behind approved domain/runtime surfaces.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Do not import engine runtime entrypoints from domain ops.",
+      "exceptionPath": "none",
+      "gritPattern": "domain_engine_imports",
+      "hookScope": "pre-commit"
+    },
+    {
       "id": "grit-op-calls-op",
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",
