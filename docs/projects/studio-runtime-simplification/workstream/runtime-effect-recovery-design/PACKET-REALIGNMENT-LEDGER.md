@@ -1,6 +1,11 @@
 # Packet Realignment Ledger
 
-Status: design draft pending sidecar review.
+Status: design reviewed and executed through R0-R3; R4 closeout audit pending.
+
+R4 closeout note: the ledger's design dispositions have been applied as
+docs/OpenSpec realignment slices. The only retained open packet state is D10's
+narrowed watcher-specific live-game proof gap, which remains outside the
+docs-only realignment closure claim.
 
 ## Current Main Evidence
 

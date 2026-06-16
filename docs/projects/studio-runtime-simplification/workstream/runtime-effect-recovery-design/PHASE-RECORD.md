@@ -6,8 +6,8 @@
 - Phase id: `runtime-effect-recovery-design`.
 - Branch: `codex/runtime-effect-recovery-design`.
 - Parent slice: `codex/runtime-effect-prework-frame`.
-- Status: design reviewed and approved for sequential docs/OpenSpec realignment;
-  no runtime implementation edits.
+- Status: design reviewed, approved, and executed through R0-R3 docs/OpenSpec
+  realignment; R4 closeout audit in progress; no runtime implementation edits.
 - Started: 2026-06-16.
 
 ## Objective
@@ -133,6 +133,22 @@ The approved implementation sequence is in `CHANGESET-DESIGN.md`. No slice is
 approved for implementation until `REVIEW-DISPOSITION.md` records no accepted
 unresolved P1/P2 finding against this design.
 
+## Gate 8A - Implementation Record
+
+| Slice | Branch | Commit | Disposition |
+| --- | --- | --- | --- |
+| Prework | `codex/runtime-effect-prework-frame` | `dad1c74e9` | Framing, investigation, packet corpus, classification, review disposition, and next objective package committed. |
+| Design | `codex/runtime-effect-recovery-design` | `f10de82d4` | Full R0-R4 docs/OpenSpec realignment design reviewed and approved. |
+| R0 | `codex/runtime-effect-d12-drain-reconcile` | `315efbbf1` | D12 final-drain records reconciled to current `origin/main` evidence through `#1748`. |
+| R1 | `codex/runtime-effect-live-proof-realign` | `7d98eaaa0` | D11 and D5 consumed-proof handoffs closed with D12 pointers; D10 narrowed to watcher-specific live-game proof only. |
+| R2 | `codex/runtime-effect-packet-accounting-realign` | `04cc86f83` | Historical packet accounting ledgers realigned; completed packets no longer appear open by stale row state. |
+| R3 | `codex/runtime-effect-active-doc-drift` | `bc31bf51a` | Active project docs bannered so historical browser/polling and early-packet text is not current runtime authority. |
+| R4 | `codex/runtime-effect-recovery-closeout` | current slice | Final audit records agreement, validation boundaries, and retained D10 proof gap. |
+
+The remaining open runtime-record item after R0-R3 is the deliberately retained
+D10 live-game watcher-specific proof row. It is not a docs/OpenSpec realignment
+defect and it is not closed by this recovery audit.
+
 ## Gates 9-10 - Proof Labels
 
 | Proof class | Design phase claim |
@@ -177,4 +193,6 @@ This design phase closes when:
 | `bun run openspec:validate` | Passed: 186 items passed, 0 failed. | OpenSpec tree shape only. |
 | `bun run habitat classify docs/projects/studio-runtime-simplification/workstream/runtime-effect-recovery-design` | Passed; workspace-level path; returned `bun run lint`. | Required target discovery for this docs-only path. |
 | `bun run lint` | Non-green on `mod-swooper-maps:habitat:check`: `arch-test-m11-projection-band`, `arch-test-map-bundle-runtime-imports`, `arch-test-cutover`. `@internal/habitat-harness:habitat:check` passed with advisory `doc-ambiguity`. | Root graph hygiene is not green. The failures are outside this docs-only design write set and are not repaired here. |
-| `git diff --check` | Passed before review integration; rerun required before commit. | Diff whitespace hygiene only. |
+| `git diff --check` | Passed for design and R4 closeout edits before commit. | Diff whitespace hygiene only. |
+| R4 `bun run openspec -- list` packet scan | All runtime Effect packets complete except `mapgen-studio-live-game-watch` at `36/37 tasks`. | Confirms the retained D10 proof gap remains explicit. |
+| R4 habitat classify | `runtime-effect-recovery-design` and `runtime-effect-recovery-closeout` both classify as workspace-level docs paths requiring `bun run lint`. | Required target discovery for the closeout write set. |
