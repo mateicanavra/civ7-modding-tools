@@ -26,6 +26,12 @@
 			SortIndex="503"
 		/>
 		<Row
+			File="{swooper-maps}/maps/latest-juicy.js"
+			Name="LOC_MAP_LATEST_JUICY_NAME"
+			Description="LOC_MAP_LATEST_JUICY_DESCRIPTION"
+			SortIndex="1900"
+		/>
+		<Row
 			File="{swooper-maps}/maps/mountain-patch.js"
 			Name="LOC_MAP_MOUNTAIN_PATCH_NAME"
 			Description="LOC_MAP_MOUNTAIN_PATCH_DESCRIPTION"
