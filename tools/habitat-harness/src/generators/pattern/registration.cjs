@@ -61,16 +61,16 @@ function registeredPatternPromotionProgram(input) {
       );
     }
 
-    if (input.lifecycle === "registered-enforced") {
+    const manifest = validation.manifest;
+    if (input.lifecycle === "registered-enforced" && manifest.hookScope.decision === "pre-commit") {
       return yield* fail(
-        "enforced-promotion-blocked",
+        "enforced-hook-scope-blocked",
         input.ruleId,
-        "registered-enforced writes remain blocked until native Grit, current-tree, baseline, and hook-scope proof are accepted"
+        "pre-commit hook scope remains blocked until staged-scope and hook cost proof are accepted"
       );
     }
 
-    const manifest = validation.manifest;
-    yield* validateAdvisoryBaselineContract(store, manifest);
+    yield* validateRegisteredBaselineContract(store, manifest);
 
     const activePatternPath = `.grit/patterns/habitat/checks/${input.patternName}.md`;
     yield* failIfExists(store, activePatternPath, input.ruleId, "active Grit pattern already exists");
@@ -90,7 +90,7 @@ function registeredPatternPromotionProgram(input) {
     const rulesPath = "tools/habitat-harness/src/rules/rules.json";
     const rulesFile = yield* store.readJson(rulesPath);
     const rulesJson = normalizeRulesJson(rulesFile, input.ruleId);
-    const ruleEntry = registeredAdvisoryRuleEntry(input, manifest);
+    const ruleEntry = registeredRuleEntry(input, manifest);
     yield* store.writeText(activePatternPath, registeredPatternMarkdown(input, manifest));
     yield* store.writeJson(rulesPath, {
       ...rulesJson,
@@ -101,17 +101,18 @@ function registeredPatternPromotionProgram(input) {
       writtenPaths: [activePatternPath, rulesPath],
       ruleId: input.ruleId,
       patternName: input.patternName,
-      lifecycle: "registered-advisory",
+      lifecycle: input.lifecycle,
     };
   });
 }
 
-function registeredAdvisoryRuleEntry(input, manifest) {
+function registeredRuleEntry(input, manifest) {
+  const lane = input.lifecycle === "registered-enforced" ? "enforced" : "advisory";
   return {
     id: input.ruleId,
     ownerTool: "grit-check",
     ownerProject: manifest.ownerProject,
-    lane: "advisory",
+    lane,
     scope: `include: ${manifest.scanRoots.include.join(", ")}; exclude: ${manifest.scanRoots.exclude.join(", ")}`,
     forbids: `Matches generated Grit pattern '${input.patternName}' under the accepted Pattern Authority Manifest.`,
     why: manifest.normativeSources.map((source) => source.claim).join(" "),
@@ -126,7 +127,8 @@ function registeredAdvisoryRuleEntry(input, manifest) {
 
 function registeredPatternMarkdown(input, manifest) {
   const identifier = `__habitat_forbidden_${input.patternName}`.replace(/[^a-zA-Z0-9_]/g, "_");
-  return `---\nlevel: error\ntags:\n  - habitat-generated\n  - habitat-advisory\n---\n# ${titleize(input.ruleId)}\n\nGenerated registered advisory pattern. Habitat authority is stored in \`${manifest.baselineContract.ruleIntroductionManifest}\` and \`${input.manifestPath}\`; Grit prose is not the authority source.\n\n\`\`\`grit\nlanguage ${manifest.language.gritLanguage}\n\n\`${identifier}($value)\`\n\`\`\`\n\n## Matches fixture\n\n\`\`\`typescript\n${identifier}(\"violation\");\n\`\`\`\n\n\`\`\`typescript\n${identifier}(\"violation\");\n\`\`\`\n\n## Ignores fixture\n\n\`\`\`typescript\nconst allowed = \"${identifier}\";\n\`\`\`\n`;
+  const lane = input.lifecycle === "registered-enforced" ? "enforced" : "advisory";
+  return `---\nlevel: error\ntags:\n  - habitat-generated\n  - habitat-${lane}\n---\n# ${titleize(input.ruleId)}\n\nGenerated registered ${lane} pattern. Habitat authority is stored in \`${manifest.baselineContract.ruleIntroductionManifest}\` and \`${input.manifestPath}\`; Grit prose is not the authority source.\n\n\`\`\`grit\nlanguage ${manifest.language.gritLanguage}\n\n\`${identifier}($value)\`\n\`\`\`\n\n## Matches fixture\n\n\`\`\`typescript\n${identifier}(\"violation\");\n\`\`\`\n\n\`\`\`typescript\n${identifier}(\"violation\");\n\`\`\`\n\n## Ignores fixture\n\n\`\`\`typescript\nconst allowed = \"${identifier}\";\n\`\`\`\n`;
 }
 
 function normalizeRulesJson(value, ruleId) {
@@ -145,7 +147,7 @@ function normalizeRulesJson(value, ruleId) {
   return value;
 }
 
-function validateAdvisoryBaselineContract(store, manifest) {
+function validateRegisteredBaselineContract(store, manifest) {
   return Effect.gen(function* () {
     const baseline = manifest.baselineContract;
     const expectedBaselinePath = `tools/habitat-harness/baselines/${manifest.ruleId}.json`;
@@ -172,7 +174,7 @@ function validateAdvisoryBaselineContract(store, manifest) {
       return yield* fail(
         "baseline-contract-rejected",
         manifest.ruleId,
-        `baseline file '${baseline.baselinePath}' must already exist before advisory registration`
+        `baseline file '${baseline.baselinePath}' must already exist before registered promotion`
       );
     }
     if (!introductionManifestExists) {

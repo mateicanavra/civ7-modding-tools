@@ -7,6 +7,7 @@
   `habitat-pattern-generator-metadata-repair`
 - Owner: DRA Habitat recovery owner
 - Branch/Graphite stack:
+  `agent-HR-habitat-pattern-registered-enforced` over
   `agent-HR-habitat-pattern-registered-advisory` over
   `agent-HR-habitat-pattern-registration-gates` over
   `agent-HR-habitat-pattern-authority-registration-contract` over
@@ -19,9 +20,10 @@
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
 - Status: registered-promotion Effect decision, registered manifest/reference
-  contract, and registration gate/refusal checkpoints supervisor-accepted;
-  registered advisory output checkpoint implemented locally and pending
-  supervisor review; registered enforced and hook-scoped writes remain open
+  contract, registration gate/refusal, and registered advisory output
+  checkpoints supervisor-accepted; registered enforced non-hook output
+  checkpoint implemented locally and pending supervisor review; hook-scoped
+  writes remain open
 
 ## Objective
 
@@ -68,6 +70,14 @@
   only the active advisory Grit pattern plus `rules.json` manifest reference,
   preserve rule-pack top-level metadata, and prove the generated pattern through
   native Grit samples plus the Habitat wrapper check path.
+- Current enforced-generation checkpoint condition: registered enforced
+  generator invocations with `hookScope: none` consume the same accepted
+  Pattern Authority Manifest, Effect runtime, explicit baseline, and
+  rule-introduction baseline manifest contracts before writing only the active
+  enforced Grit pattern plus `rules.json` manifest reference. Native Grit sample
+  proof and Habitat wrapper current-tree proof are required for the generated
+  scratch rule. Pre-commit hook scope remains blocked until staged-scope and
+  hook cost proof are accepted.
 - Full packet done condition remains open: accepted Pattern Authority Manifest
   validation, baseline-manifest consumption, native fixture/current-tree proof,
   hook-scope proof, and registered promotion orchestration.
@@ -134,7 +144,8 @@
   accepted metadata gates: it writes the generated advisory `.grit` pattern and
   appends a `rules.json` entry with `manifestPath`, while consuming rather than
   creating the explicit baseline file and rule-introduction manifest. Registered
-  enforced and pre-commit hook scope remain blocked.
+  enforced generation has the same active write path only for manifests that
+  explicitly declare no hook scope. Pre-commit hook scope remains blocked.
 
 ## Source Synthesis
 
@@ -206,11 +217,11 @@ Core synthesis:
   3.2, 3.4, 4.6, 5.1, 5.2, 6.5, 6.7, and 8.8.
 - Completed tasks for the registered promotion gate/refusal checkpoint: 4.3,
   4.4, and 6.6.
-- Completed tasks for the registered advisory output checkpoint: 4.7, 6.2, 6.8,
-  and 8.5.
-- Remaining tasks: registered enforced output and promotion, pre-commit
-  hook-scope proof, full guardrail scan, downstream realignment closure, and
-  full packet closure.
+- Completed tasks for the registered advisory output checkpoint: 8.5.
+- Completed tasks for the registered enforced non-hook output checkpoint: 4.7,
+  5.3, 6.2, 6.8, 8.6, and 8.7.
+- Remaining tasks: pre-commit hook-scope proof, full guardrail scan,
+  downstream realignment closure, and full packet closure.
 - Implementation status: bounded candidate/refusal checkpoint accepted by
   supervisor; bounded manifest-validator checkpoint implemented on
   `agent-HR-habitat-pattern-authority-manifest-validator`.
@@ -224,9 +235,12 @@ Core synthesis:
 - Registered promotion gate/refusal status: implemented locally for supervisor
   review; the generator validates registered manifest/reference/hook-scope gates
   before the still-blocked active write path.
-- Registered advisory output status: implemented locally for supervisor review;
-  advisory promotion uses the accepted Habitat Effect runtime edge and writes no
-  baselines, no enforced rule, and no hook scope.
+- Registered advisory output status: supervisor-accepted; advisory promotion
+  uses the accepted Habitat Effect runtime edge and writes no baselines, no
+  enforced rule, and no hook scope.
+- Registered enforced non-hook output status: implemented locally for
+  supervisor review; enforced promotion uses the accepted Habitat Effect
+  runtime edge and writes no baselines and no hook scope.
 
 ## Verification
 
@@ -376,6 +390,31 @@ Core synthesis:
   rule. It does not prove registered enforced output, pre-commit hook
   activation, baseline creation or mutation, HG row semantics, broad current
   rule backfill, or product/runtime behavior.
+- Commands run for registered enforced non-hook output checkpoint:
+  - `bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts pattern-authority-manifest.test.ts`
+    passed: registered enforced success requires accepted manifest, existing
+    explicit baseline, matching rule-introduction manifest, and preserves
+    top-level `rules.json` metadata; pre-commit hook-scoped enforced output
+    remains blocked.
+  - `bun run nx g @internal/habitat-harness:pattern grit-registered-enforced-proof --lifecycle=registered-enforced --manifestPath=tools/habitat-harness/src/rules/pattern-authority/grit-registered-enforced-proof.json --no-interactive --verbose`
+    exited 0 in the normal HR worktree after scratch manifest/baseline setup,
+    creating only `.grit/patterns/habitat/checks/registered_enforced_proof.md`
+    and updating `tools/habitat-harness/src/rules/rules.json`.
+  - `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter registered_enforced_proof --verbose`
+    exited 0 with both generated samples passing.
+  - `bun run habitat:check -- --json --rule grit-registered-enforced-proof`
+    exited 0 with `grit-registered-enforced-proof` enforced pass and
+    `baseline-integrity` pass.
+  - Targeted cleanup removed the scratch active pattern, scratch manifest,
+    scratch baseline, scratch rule-introduction manifest, and restored
+    `rules.json`; post-cleanup status contained only intended implementation
+    and packet record changes.
+- Registered enforced non-hook output evidence boundary: this checkpoint proves
+  the active enforced write path for a non-hook scratch rule, existing-baseline
+  consumption, rule-pack metadata preservation, native generated-sample syntax,
+  and Habitat wrapper zero-finding/baseline-integrity behavior. It does not
+  prove pre-commit hook activation, baseline creation or mutation, HG row
+  semantics, broad current rule backfill, or product/runtime behavior.
 
 ## Realignment
 
@@ -384,7 +423,7 @@ Core synthesis:
 
 ## Next Action
 
-- Finish local verification and Graphite checkpoint for the registered advisory
-  output slice, then hold for supervisor acceptance or repair. Remaining packet
-  work is registered enforced writes, pre-commit hook-scope proof, full
-  guardrail scan, downstream realignment, and full packet closure.
+- Finish local verification and Graphite checkpoint for the registered enforced
+  non-hook output slice, then hold for supervisor acceptance or repair.
+  Remaining packet work is pre-commit hook-scope proof, full guardrail scan,
+  downstream realignment, and full packet closure.

@@ -154,7 +154,36 @@ describe("Habitat pattern generator", () => {
       manifestPath,
     });
 
-    assertRegisteredAdvisoryWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
+    assertRegisteredWrites(tree, manifest, beforeRules, manifestPath, beforeManifest, "advisory");
+  });
+
+  test("writes registered enforced output after accepted non-hook manifest and explicit baseline contract", async () => {
+    const tree = createPatternTree({
+      $comment: "preserve rule-pack metadata",
+      rules: [],
+    });
+    const beforeRules = tree.read(rulesPath, "utf8");
+    const manifest = registeredManifest({
+      lifecycle: "registered-enforced",
+      hookScope: {
+        decision: "none",
+        rationale: "This enforced checkpoint is not hook-scoped.",
+        costAndScopeEvidence:
+          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+      },
+    });
+    const manifestPath = writeRegisteredManifest(tree, manifest);
+    const beforeManifest = tree.read(manifestPath, "utf8");
+    writeBaselineContract(tree, manifest);
+
+    await patternGenerator(tree, {
+      ruleId: manifest.ruleId,
+      patternName: manifest.patternName,
+      lifecycle: "registered-enforced",
+      manifestPath,
+    });
+
+    assertRegisteredWrites(tree, manifest, beforeRules, manifestPath, beforeManifest, "enforced");
   });
 
   test("refuses registered advisory output when the explicit baseline file is missing", async () => {
@@ -177,7 +206,7 @@ describe("Habitat pattern generator", () => {
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
-  test("validates registered enforced hook metadata before blocking active writes", async () => {
+  test("refuses registered enforced pre-commit hook scope before active writes", async () => {
     const tree = createPatternTree();
     const beforeRules = tree.read(rulesPath, "utf8");
     const manifest = registeredManifest({
@@ -200,7 +229,7 @@ describe("Habitat pattern generator", () => {
         manifestPath,
         hookScope: "pre-commit",
       })
-    ).rejects.toThrow("registered-enforced writes remain blocked");
+    ).rejects.toThrow("pre-commit hook scope remains blocked");
 
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
@@ -314,12 +343,13 @@ function assertNoPromotionWrites(
   expect(tree.read(rulesPath, "utf8")).toBe(beforeRules);
 }
 
-function assertRegisteredAdvisoryWrites(
+function assertRegisteredWrites(
   tree: ReturnType<typeof createPatternTree>,
   manifest: RegisteredPatternAuthorityManifest,
   beforeRules: string | null,
   manifestPath: string,
-  beforeManifest: string | null
+  beforeManifest: string | null,
+  lane: "advisory" | "enforced"
 ) {
   const candidatePaths = candidateArtifactPaths({
     ruleId: manifest.ruleId,
@@ -332,6 +362,7 @@ function assertRegisteredAdvisoryWrites(
   const activePatternPath = `.grit/patterns/habitat/checks/${manifest.patternName}.md`;
   expect(tree.exists(activePatternPath)).toBe(true);
   expect(tree.read(activePatternPath, "utf8")).toContain("level: error");
+  expect(tree.read(activePatternPath, "utf8")).toContain(`habitat-${lane}`);
   expect(tree.read(activePatternPath, "utf8")).toContain("language js(typescript)");
   const before = beforeRules ? JSON.parse(beforeRules) : { rules: [] };
   const rules = readJson(tree, rulesPath);
@@ -341,7 +372,7 @@ function assertRegisteredAdvisoryWrites(
     id: manifest.ruleId,
     ownerTool: "grit-check",
     ownerProject: manifest.ownerProject,
-    lane: "advisory",
+    lane,
     detect: ["habitat", "check", "--tool", "grit-check"],
     gritPattern: manifest.patternName,
     manifestPath,

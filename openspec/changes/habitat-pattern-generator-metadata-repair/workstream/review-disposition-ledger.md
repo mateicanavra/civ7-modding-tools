@@ -3,9 +3,9 @@
 **Change:** `habitat-pattern-generator-metadata-repair`
 **Status:** P1/P2 design findings accepted and patched; candidate/refusal,
 manifest-validator, registered-promotion Effect decision, and registered
-manifest/reference contract, and registered promotion gate/refusal checkpoints
-are supervisor-accepted; registered advisory output checkpoint is implemented
-locally and pending supervisor review
+manifest/reference contract, registered promotion gate/refusal, and registered
+advisory output checkpoints are supervisor-accepted; registered enforced
+non-hook output checkpoint is implemented locally and pending supervisor review
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
@@ -60,6 +60,17 @@ generated advisory Grit pattern and appends a `rules.json` entry with
 Habitat wrapper proof are recorded for a scratch generated advisory rule. It
 does not implement registered enforced output, pre-commit hook activation,
 baseline creation/mutation, HG row semantics, or product/runtime proof.
+
+Registered enforced non-hook output checkpoint note: this checkpoint extends
+the same accepted Effect-backed promotion boundary to registered enforced
+rules whose Pattern Authority Manifest explicitly declares no hook scope. It
+requires the accepted manifest/reference contract, existing explicit baseline
+file, matching rule-introduction baseline manifest, native Grit sample proof,
+and Habitat wrapper current-tree proof before writing active artifacts. It
+writes only the active enforced Grit pattern and `rules.json` reference for the
+scratch proof, then cleans those scratch artifacts. Pre-commit hook scope,
+baseline creation/mutation, HG row semantics, and product/runtime proof remain
+non-claims.
 
 P3 watch item: when registered rule-pack context is implemented, call
 `validatePatternAuthorityManifest(...)` with `requireRuleReference: true` and

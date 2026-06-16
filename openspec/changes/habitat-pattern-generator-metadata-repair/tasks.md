@@ -53,8 +53,7 @@
 - [x] 4.6 Preserve duplicate `ruleId`, duplicate `patternName`, and existing
   baseline refusal behavior.
 - [x] 4.7 Emit Grit-native frontmatter and explicit language declaration for
-  registered advisory generated patterns; registered enforced scratch output
-  remains open under 8.6.
+  registered advisory and non-hook registered enforced generated patterns.
 - [x] 4.8 Block registered promotion until the Effect fit decision is accepted;
   use accepted Effect-backed services if command/file proof orchestration fits
   the slice.
@@ -67,8 +66,8 @@
   packet.
 - [x] 5.2 Keep baseline file creation/refusal under the baseline owner; do not
   duplicate baseline policy in generator code.
-- [ ] 5.3 Require native Grit fixture proof and current-tree scan status before
-  enforced registration.
+- [x] 5.3 Require native Grit fixture proof and current-tree scan status before
+  non-hook enforced registration.
 - [ ] 5.4 Require hook-scope rationale, staged-scope evidence, and cost/scope
   evidence before pre-commit registration.
 - [ ] 5.5 Keep Grit adapter semantics and existing pattern proof repair outside
@@ -77,16 +76,17 @@
 ## 6. Tests
 
 - [x] 6.1 Add unit tests for candidate generation output.
-- [x] 6.2 Add unit tests for registered advisory output; registered enforced
-  output remains blocked until native/current-tree/hook proof is accepted.
+- [x] 6.2 Add unit tests for registered advisory output and non-hook registered
+  enforced output; hook-scoped enforced output remains blocked until hook proof
+  is accepted.
 - [x] 6.3 Add schema tests for missing, malformed, placeholder, and accepted
   manifests.
 - [x] 6.4 Add no-write tests for refused registration.
 - [x] 6.5 Add duplicate id/name tests.
 - [x] 6.6 Add hook-scope refusal tests.
 - [x] 6.7 Add baseline-manifest dependency tests.
-- [x] 6.8 Add native Grit sample proof for the generated registered advisory
-  sample; registered enforced scratch proof remains open under 8.6.
+- [x] 6.8 Add native Grit sample proof for generated registered advisory and
+  non-hook registered enforced scratch samples.
 - [x] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
   manifest fields cannot substitute for each other.
 - [ ] 6.10 Add tests for the registered-promotion orchestration decision:
@@ -113,8 +113,8 @@
 - [x] 8.3 Candidate generator command proof
 - [x] 8.4 Refused registration no-write proof
 - [x] 8.5 Registered advisory generation proof
-- [ ] 8.6 Registered enforced generation proof in scratch path
-- [ ] 8.7 Native Grit fixture proof
+- [x] 8.6 Registered enforced generation proof in scratch path
+- [x] 8.7 Native Grit fixture proof
 - [x] 8.8 Baseline-manifest dependency proof at the manifest/reference
   contract boundary
 - [x] 8.9 README/AGENTS stale guidance scan
