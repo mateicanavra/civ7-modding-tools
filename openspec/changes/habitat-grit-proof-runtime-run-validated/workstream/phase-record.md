@@ -2,62 +2,68 @@
 
 ## Current Gate
 
-Gate 12 / bounded checkpoint accepted. The row packet is opened, native
-fixture/parser-edge expansion is implemented, parser inventory is recorded in
-durable row records, downstream ledgers are aligned, verification has passed,
-and the checkpoint is committed. A P2 call-count record ambiguity was accepted
-for repair and amended in this row layer. Successor HG rows are committed
-through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so
-this packet is not the active next-row gate.
+Active-check closure checkpoint implemented for supervisor review. The row now
+records current native fixture proof, refreshed parser inventory,
+per-rule/aggregate Habitat wrapper proof, explicit empty baseline proof,
+row-specific injected violation/path-control proof, downstream record truth,
+and verification evidence. A P2 call-count record ambiguity was already
+accepted and repaired in the earlier bounded checkpoint.
 
 ## Branch / Stack
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-runtime-run-validated`
-- Parent: `agent-HG-habitat-grit-runtime-validation-imports`
-- Historical row-local proof did not consume HR repair layers. Current
-  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
-  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
-  `HGPR-BASELINE-FILES-2026-06-15`,
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+- Branch: `agent-HG-habitat-grit-runtime-run-validated-closure`
+- Parent: `agent-HG-habitat-grit-contract-export-all-closure`
+- The older `agent-HG-habitat-grit-runtime-run-validated` checkpoint remains
+  historical native/parser evidence. This branch records the current active
+  closure evidence for the same row.
 
 ## Scope
 
 This checkpoint owns:
 
-- packet and record truth for `habitat-grit-proof-runtime-run-validated`;
+- active-check closure record truth for
+  `habitat-grit-proof-runtime-run-validated`;
 - native fixture/parser-edge expansion for
   `.grit/patterns/habitat/checks/runtime_run_validated.md`;
 - parser inventory over current Swooper runtime recipe/domain roots;
+- Habitat wrapper selector/current-tree proof;
+- explicit empty baseline proof;
+- row-specific injected violation/path-control proof;
 - aggregate proof matrix, command proof log, and corpus ledger realignment.
 
 This checkpoint does not own:
 
 - runtime source refactors;
 - Grit apply/codemod behavior;
-- baseline mutation;
+- baseline mutation beyond the existing explicit `[]` file;
 - Habitat command wrapper repair;
 - raw adapter/acquisition repair;
-- Effect adapter or injected cleanup behavior;
+- Effect adapter behavior;
 - neighboring runtime-purity rows;
 - product/runtime proof.
 
 ## Evidence Planned
 
-- `RRV-NATIVE-FIXTURES-2026-06-15`: native Grit fixture/parser-edge proof.
-- `RRV-RUNTIME-INVENTORY-2026-06-15`: parser inventory/live corpus evidence.
+- `RRV-NATIVE-FIXTURES-2026-06-16`: native Grit fixture/parser-edge proof.
+- `RRV-NATIVE-CORPUS-REFRESH-2026-06-16`: full native corpus refresh.
+- `RRV-RUNTIME-INVENTORY-2026-06-16`: parser inventory/live corpus evidence.
+- `RRV-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper proof.
+- `RRV-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof.
+- `RRV-BASELINE-FILES-2026-06-16`: explicit empty baseline proof.
+- `RRV-INJECTED-PROBE-2026-06-16`: row-specific injected proof.
 
 ## Review / Findings
 
-`RRV-P2-CALL-COUNT-AMBIGUITY-2026-06-15` was accepted and repaired in this
-row layer. No accepted P1/P2 findings remain open after the repair.
+`RRV-P2-CALL-COUNT-AMBIGUITY-2026-06-15` was accepted and repaired in the
+earlier bounded row layer. No accepted P1/P2 finding is currently open after
+this closure repair.
 
 ## Next Actions
 
-1. Preserve this packet as a bounded, accepted historical checkpoint.
+1. Commit this closure checkpoint locally and request supervisor review.
 2. Keep raw acquisition, retired parity, neighboring runtime-purity row proof,
-   apply safety, Effect adapter closure, and product proof as separate gates
-   unless separately recorded.
+   apply safety, Effect adapter closure, aggregate injected-corpus closure while
+   DDIT remains blocked, and product proof as separate gates unless separately
+   recorded.
