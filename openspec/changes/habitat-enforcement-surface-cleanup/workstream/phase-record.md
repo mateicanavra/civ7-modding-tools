@@ -5,10 +5,10 @@
 - Project: Habitat Harness
 - Phase: enforcement surface cleanup / `habitat-enforcement-surface-cleanup`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-enforcement-inventory-proof`
+- Branch/Graphite stack: `agent-HR-habitat-enforcement-wrapper-policy`
 - Started: 2026-06-14
-- Status: root/CI/rule-owner/plugin-target inventory proof checkpoint in
-  implementation; broader enforcement-surface cleanup remains open.
+- Status: wrapper/parser policy checkpoint in implementation; broader
+  enforcement-surface cleanup remains open.
 
 ## Objective
 
@@ -49,8 +49,9 @@
 - Current root direct diagnostic aliases remain for `mapgen-docs` and
   strict-core domain refactor guardrails.
 - Current rule pack still contains wrapped scripts and wrapped tests.
-- Current stale owner-tool selector `wrapped-eslint` green-passes with only
-  `baseline-integrity`.
+- Earlier seed evidence found stale owner-tool selector `wrapped-eslint`
+  green-passing with only `baseline-integrity`; current selector proof remains
+  open under the selector/empty-proof slice.
 - Current `habitat verify --base HEAD --json` emits a schemaVersion 1
   `VerifyProof` artifact and exits 1 before Nx affected because Habitat check
   currently fails on unrelated `biome-ci` and
@@ -120,13 +121,16 @@ Core synthesis:
 - Completed tasks before implementation: 1.1-2.6, 6.1, 6.2, 7.4, 7.5,
   9.1-9.3, 9.12-9.14, and 9.16. The structured `habitat verify --json`
   proof checkpoint is supervisor-accepted.
-- Completed in this checkpoint: 3.1, 3.2, 9.4, 9.5, and 9.6 for the
-  root/CI/rule-owner/plugin-target inventory proof boundary.
-- Remaining tasks: wrapper disposition/parity, stale selector proof,
-  verify composition decision, downstream realignment, packet closure, and
-  supervisor review.
-- Implementation status: inventory-proof checkpoint ready for local
-  verification and Graphite commit.
+- Completed in accepted inventory checkpoint: 3.1, 3.2, 9.4, 9.5, and 9.6
+  for the root/CI/rule-owner/plugin-target inventory proof boundary.
+- Completed in this checkpoint: 3.3, 3.5, 4.1-4.6, 9.7, and 9.9-9.11 for the
+  current wrapper-disposition, direct-vs-Habitat projection, and legacy wrapper
+  file inventory boundary.
+- Remaining tasks: root script/docs patching if accepted command names
+  overclaim, stale selector proof, verify composition decision, downstream
+  realignment, packet closure, and supervisor review.
+- Implementation status: wrapper-policy checkpoint ready for local verification
+  and Graphite commit.
 
 ## Verification
 
@@ -215,6 +219,48 @@ Core synthesis:
   proof, no Grit row semantics, no baseline semantics, and no product/runtime
   proof.
 
+## Wrapper Policy Checkpoint
+
+- Implementation adds `workstream/wrapper-disposition.md` and executable
+  coverage in `enforcement-surface.test.ts`.
+- Proof classes:
+  - Wrapper disposition: every current `wrapped-script` and `wrapped-test` rule
+    has an owner tool, proof class, parser policy, direct-output policy, and
+    retirement trigger.
+  - Direct wrapped-script projection: direct `mapgen-docs`, `adapter-boundary`,
+    and `domain-refactor-guardrails` outputs are run through the Habitat
+    projection function. Zero-exit docs warnings and domain progress output are
+    outside the structural diagnostics claim; adapter allowlisted debt projects
+    as baselined diagnostics.
+  - Direct wrapped-test projection: every current wrapped architecture-test
+    command is run through the Habitat projection function. Zero-exit test
+    output is outside diagnostics; the current generated map-bundle failure
+    remains visible through the coarse wrapper tail and is generated-output
+    freshness debt, not wrapper parser closure.
+  - Legacy wrapper file inventory: current lint wrapper scripts under
+    `scripts/**` are classified as wrapped detect commands or a compatibility
+    forwarder.
+- Direct command evidence refreshed in this worktree:
+  - `python3 ./scripts/lint/lint-mapgen-docs.py`
+  - `./scripts/lint/lint-adapter-boundary.sh`
+  - `./scripts/lint/lint-domain-refactor-guardrails.sh`
+  - `bun run nx run @swooper/mapgen-core:test:architecture-core-purity --outputStyle=static`
+  - `bun run nx run mod-swooper-maps:test:architecture-rng-authority --outputStyle=static`
+  - `bun run nx run mod-swooper-maps:test:architecture-ecology-step-imports --outputStyle=static`
+  - `bun run nx run mod-swooper-maps:test:architecture-m11-projection-band --outputStyle=static`
+  - `bun test mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts`
+  - `bun run nx run mod-swooper-maps:test:architecture-cutover --outputStyle=static`
+- Habitat wrapper evidence refreshed in this worktree:
+  - `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-script --json`
+  - `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-test --json`
+- Manual non-adoption of Effect remains accepted for this bounded slice:
+  exposing the existing projection function for test proof does not add new
+  command orchestration, cleanup ownership, resource scopes, retries, parallel
+  composition, or service lifecycle.
+- Non-claims: no wrapper retirement, no generated-output freshness repair, no
+  invalid selector proof, no CI execution proof, no Grit row semantics, no
+  baseline semantics, no product/runtime proof, and no packet closure.
+
 ## Realignment
 
 - Downstream realignment ledger:
@@ -222,5 +268,5 @@ Core synthesis:
 
 ## Next Action
 
-- Finish focused verification, commit this inventory-proof checkpoint through
+- Finish focused verification, commit this wrapper-policy checkpoint through
   Graphite, and stop for supervisor review.

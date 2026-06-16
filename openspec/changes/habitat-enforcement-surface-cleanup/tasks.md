@@ -38,27 +38,27 @@
   verifier, or stale bypass.
 - [x] 3.2 Classify every Habitat-owned Nx target in `tools/habitat-harness/src/plugin.js`
   by proof class and cache/fresh requirement.
-- [ ] 3.3 Define accepted naming and documentation policy for retained direct
+- [x] 3.3 Define accepted naming and documentation policy for retained direct
   diagnostic scripts.
 - [ ] 3.4 Patch root scripts and docs when a script name implies stronger proof
   than the command supplies.
-- [ ] 3.5 Inventory surviving enforcement wrapper files under `scripts/**` and
+- [x] 3.5 Inventory surviving enforcement wrapper files under `scripts/**` and
   classify duplicates, direct aliases, and Habitat-mediated paths.
 
 ## 4. Wrapper And Parser Policy
 
-- [ ] 4.1 Build a wrapper-disposition table for every `wrapped-script` and
+- [x] 4.1 Build a wrapper-disposition table for every `wrapped-script` and
   `wrapped-test` rule.
-- [ ] 4.2 Compare direct output and Habitat report output for `mapgen-docs`,
+- [x] 4.2 Compare direct output and Habitat report output for `mapgen-docs`,
   `adapter-boundary`, and `domain-refactor-guardrails`.
-- [ ] 4.3 Compare direct output and Habitat report output for every
+- [x] 4.3 Compare direct output and Habitat report output for every
   `wrapped-test` rule, including skip/warning/debt output, prerequisite output,
   proof class, owner, non-claims, and retirement trigger.
-- [ ] 4.4 Decide whether direct zero-exit warnings are outside the structural
+- [x] 4.4 Decide whether direct zero-exit warnings are outside the structural
   claim, advisory diagnostics, or enforced diagnostics.
-- [ ] 4.5 Patch parser behavior, rule metadata, or docs so wrapper output policy
+- [x] 4.5 Patch parser behavior, rule metadata, or docs so wrapper output policy
   is executable and recorded.
-- [ ] 4.6 Record retirement triggers for every surviving wrapper and wrapped
+- [x] 4.6 Record retirement triggers for every surviving wrapper and wrapped
   architecture test.
 
 ## 5. Selector And Empty-Proof Dependency
@@ -127,11 +127,11 @@
 - [x] 9.4 Root script inventory proof
 - [x] 9.5 CI step classification proof
 - [x] 9.6 Rule ownerTool inventory proof
-- [ ] 9.7 Wrapped-script and wrapped-test proof
+- [x] 9.7 Wrapped-script and wrapped-test proof
 - [ ] 9.8 Invalid selector proof after command-surface dependency lands
-- [ ] 9.9 Direct-vs-Habitat wrapper output comparison
-- [ ] 9.10 Direct-vs-Habitat wrapped-test output comparison
-- [ ] 9.11 Legacy enforcement wrapper file inventory proof
+- [x] 9.9 Direct-vs-Habitat wrapper output comparison
+- [x] 9.10 Direct-vs-Habitat wrapped-test output comparison
+- [x] 9.11 Legacy enforcement wrapper file inventory proof
 - [x] 9.12 Effect decision proof for orchestration-changing slices
 - [x] 9.13 Structured `VerifyProof` artifact proof, including skipped-Nx
   execution-state proof

@@ -3,7 +3,8 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 import { createNodesV2 } from "../../src/plugin.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import { rules } from "../../src/rules/architecture.js";
+import { run } from "../../src/lib/spawn.js";
+import { projectRuleDiagnostics, rules, type HarnessRule } from "../../src/rules/architecture.js";
 
 type SurfaceClass =
   | "direct-habitat-cli"
@@ -107,6 +108,87 @@ const rootScriptPolicy: Record<string, { command: string; surface: SurfaceClass 
   },
 };
 
+type WrapperDisposition = {
+  ownerTool: "wrapped-script" | "wrapped-test";
+  proofClass: "legacy-script" | "architecture-test";
+  parserPolicy: "coarse-exit" | "allowlist-baseline-parser";
+  directOutputPolicy: "zero-exit-output-outside-claim" | "baselined-debt" | "generated-output-gated";
+  retirementTrigger: string;
+};
+
+const wrapperDisposition: Record<string, WrapperDisposition> = {
+  "mapgen-docs": {
+    ownerTool: "wrapped-script",
+    proofClass: "legacy-script",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "zero-exit-output-outside-claim",
+    retirementTrigger: "Retire when the docs invariant is Habitat-native or the script emits structured diagnostics.",
+  },
+  "adapter-boundary": {
+    ownerTool: "wrapped-script",
+    proofClass: "legacy-script",
+    parserPolicy: "allowlist-baseline-parser",
+    directOutputPolicy: "baselined-debt",
+    retirementTrigger: "Retire when adapter-boundary allowlist debt moves to explicit Habitat baseline state.",
+  },
+  "domain-refactor-guardrails": {
+    ownerTool: "wrapped-script",
+    proofClass: "legacy-script",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "zero-exit-output-outside-claim",
+    retirementTrigger: "Retire when domain-boundary guardrails are owned by typed Habitat/Grit rules.",
+  },
+  "arch-test-core-purity": {
+    ownerTool: "wrapped-test",
+    proofClass: "architecture-test",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "zero-exit-output-outside-claim",
+    retirementTrigger: "Retain while package architecture test is the owner of core-purity semantics.",
+  },
+  "arch-test-rng-authority": {
+    ownerTool: "wrapped-test",
+    proofClass: "architecture-test",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "zero-exit-output-outside-claim",
+    retirementTrigger: "Retain while package architecture test is the owner of RNG-authority semantics.",
+  },
+  "arch-test-ecology-step-imports": {
+    ownerTool: "wrapped-test",
+    proofClass: "architecture-test",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "zero-exit-output-outside-claim",
+    retirementTrigger: "Retain while package architecture test is the owner of ecology-step topology semantics.",
+  },
+  "arch-test-m11-projection-band": {
+    ownerTool: "wrapped-test",
+    proofClass: "architecture-test",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "zero-exit-output-outside-claim",
+    retirementTrigger: "Retain while package architecture test is the owner of projection-band semantics.",
+  },
+  "arch-test-map-bundle-runtime-imports": {
+    ownerTool: "wrapped-test",
+    proofClass: "architecture-test",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "generated-output-gated",
+    retirementTrigger: "Retain while built map bundle freshness is the owner of runtime-import semantics.",
+  },
+  "arch-test-cutover": {
+    ownerTool: "wrapped-test",
+    proofClass: "architecture-test",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "zero-exit-output-outside-claim",
+    retirementTrigger: "Retain while package architecture test is the owner of cutover semantics.",
+  },
+};
+
+const legacyLintWrapperFiles: Record<string, "compat-forwarder" | "wrapped-rule-detect"> = {
+  "scripts/lint-adapter-boundary.sh": "compat-forwarder",
+  "scripts/lint/lint-adapter-boundary.sh": "wrapped-rule-detect",
+  "scripts/lint/lint-domain-refactor-guardrails.sh": "wrapped-rule-detect",
+  "scripts/lint/lint-mapgen-docs.py": "wrapped-rule-detect",
+};
+
 describe("enforcement surface inventory", () => {
   test("classifies every current root structural script", () => {
     const scripts = readRootScripts();
@@ -190,6 +272,69 @@ describe("enforcement surface inventory", () => {
       ])
     );
   });
+
+  test("records disposition for every surviving wrapped rule", () => {
+    const wrappedRules = rules
+      .filter((rule) => rule.ownerTool === "wrapped-script" || rule.ownerTool === "wrapped-test")
+      .sort((left, right) => left.id.localeCompare(right.id));
+
+    expect(Object.keys(wrapperDisposition).sort()).toEqual(wrappedRules.map((rule) => rule.id));
+    for (const rule of wrappedRules) {
+      const disposition = wrapperDisposition[rule.id];
+      expect(disposition.ownerTool).toBe(rule.ownerTool);
+      expect(disposition.retirementTrigger).not.toHaveLength(0);
+    }
+  });
+
+  test("classifies surviving legacy lint wrapper files", () => {
+    const lintWrapperFiles = [
+      "scripts/lint-adapter-boundary.sh",
+      "scripts/lint/lint-adapter-boundary.sh",
+      "scripts/lint/lint-domain-refactor-guardrails.sh",
+      "scripts/lint/lint-mapgen-docs.py",
+    ].sort();
+
+    expect(Object.keys(legacyLintWrapperFiles).sort()).toEqual(lintWrapperFiles);
+    for (const file of lintWrapperFiles) {
+      expect(readFileSync(path.join(repoRoot, file), "utf8").trim()).not.toHaveLength(0);
+    }
+  });
+
+  test("projects direct wrapped-script output through the accepted Habitat parser policy", () => {
+    const mapgenDocs = runDirectRule("mapgen-docs");
+    expect(mapgenDocs.output).toContain("WARN");
+    expect(projectRuleDiagnostics(mapgenDocs.rule, mapgenDocs.result)).toEqual([]);
+
+    const adapterBoundary = runDirectRule("adapter-boundary");
+    expect(adapterBoundary.output).toContain("Allowlisted violations");
+    const adapterDiagnostics = projectRuleDiagnostics(adapterBoundary.rule, adapterBoundary.result);
+    expect(adapterDiagnostics).toHaveLength(8);
+    expect(adapterDiagnostics.every((diagnostic) => diagnostic.baselined)).toBe(true);
+
+    const domainGuardrails = runDirectRule("domain-refactor-guardrails");
+    expect(domainGuardrails.output).toContain("Domain refactor guardrails passed");
+    expect(projectRuleDiagnostics(domainGuardrails.rule, domainGuardrails.result)).toEqual([]);
+  });
+
+  test("projects direct wrapped-test output without hiding generated-output failures", () => {
+    const wrappedTests = rules
+      .filter((rule) => rule.ownerTool === "wrapped-test")
+      .sort((left, right) => left.id.localeCompare(right.id));
+
+    for (const rule of wrappedTests) {
+      const result = run(rule.detect, { cwd: repoRoot });
+      const diagnostics = projectRuleDiagnostics(rule, result);
+
+      if (rule.id === "arch-test-map-bundle-runtime-imports" && result.exitCode !== 0) {
+        expect(diagnostics).toHaveLength(1);
+        expect(diagnostics[0]?.message).toContain("--- tool output (tail) ---");
+        continue;
+      }
+
+      expect(result.exitCode).toBe(0);
+      expect(diagnostics).toEqual([]);
+    }
+  }, 20_000);
 });
 
 function readRootScripts(): Record<string, string> {
@@ -224,4 +369,19 @@ function inferPluginProjects(): Record<string, string[]> {
       .map(([root, project]) => [root, Object.keys(project.targets).sort()])
       .sort(([left], [right]) => left.localeCompare(right))
   );
+}
+
+function runDirectRule(ruleId: string): {
+  rule: HarnessRule;
+  result: ReturnType<typeof run>;
+  output: string;
+} {
+  const rule = rules.find((candidate) => candidate.id === ruleId);
+  expect(rule).toBeDefined();
+  const result = run(rule!.detect, { cwd: repoRoot });
+  return {
+    rule: rule!,
+    result,
+    output: `${result.stdout}${result.stderr}`,
+  };
 }
