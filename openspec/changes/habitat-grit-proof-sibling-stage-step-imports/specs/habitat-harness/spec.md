@@ -36,11 +36,19 @@ predicate.
 #### Scenario: Current predicate stage file imports a sibling stage step
 
 - **WHEN** a matching
-  `mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts` file imports a
-  source containing `../<stage>/steps/`
+  `mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts` file uses a
+  static import declaration whose source contains `../<stage>/steps/`
 - **THEN** `grit-sibling-stage-step-imports` SHALL report the import
 - **AND** the proof record SHALL state whether the behavior is proven by native
   fixtures, parser inventory, or Habitat wrapper proof
+
+#### Scenario: Current predicate stage file side-effect imports a sibling stage step
+
+- **WHEN** a matching file uses a side-effect static import declaration whose
+  source contains `../<stage>/steps/`
+- **THEN** `grit-sibling-stage-step-imports` SHALL report the import
+- **AND** re-export, dynamic import, and source-string forms SHALL remain
+  separate non-claims unless native and wrapper proof are added for those forms
 
 #### Scenario: Current predicate stage file imports its own stage step
 
@@ -54,11 +62,12 @@ predicate.
 Habitat SHALL keep proof classes separate for
 `grit-sibling-stage-step-imports`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Proof classes remain separated after active closure
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, or apply safety is not available in the
-  current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** wrapper selector truth, baseline behavior, or injected cleanup is
+  proven by row-specific Habitat commands
+- **THEN** row records SHALL cite those proof commands separately from native
+  fixture and parser inventory proof
+- **AND** raw acquisition, Effect adapter behavior, export-from and dynamic
+  import closure, apply safety, neighboring rows, and product/runtime proof
+  SHALL remain explicit non-claims unless separately proven
