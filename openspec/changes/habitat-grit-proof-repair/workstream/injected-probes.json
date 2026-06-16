@@ -20,11 +20,11 @@
     "sourcePredicate": "recipe/map source deep domain import",
     "match": {
       "path": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-      "body": "import x from \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = x;\n"
+      "body": "import \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = true;\n"
     },
     "control": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/demo.ts",
-      "body": "import x from \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = x;\n"
+      "body": "import \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = true;\n"
     }
   },
   {

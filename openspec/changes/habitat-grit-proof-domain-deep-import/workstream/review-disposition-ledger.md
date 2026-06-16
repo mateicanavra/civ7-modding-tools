@@ -8,6 +8,7 @@
 | DDI-R3 | adversarial downstream | P2 | Recovery claim ledger rows were omitted from downstream realignment even though they own H5/H6/baseline/stale-record truth. | accepted | Aggregate proof matrix, corpus ledger, and command proof log are realigned for `DDI-NATIVE-FIXTURES-2026-06-15`, `DDI-IMPORT-INVENTORY-2026-06-15`, and inherited shared proof ids. Recovery claim closure remains gated because raw direct acquisition, DDI-specific path-control/generated-output disposition, broader public-surface closure, and product proof remain non-claims. | partially repaired; full closure gated |
 | DDI-R4 | adversarial baseline | P3 | Baseline expansion safety belongs to shared scaffold/baseline contract repair, not this row alone. | accepted | Current restacked baseline file and integrity proof are represented by `HGPR-BASELINE-FILES-2026-06-15` and `HGPR-BASELINE-INTEGRITY-2026-06-15`. This row does not create a separate baseline-mutation claim. | shared proof inherited; row-specific mutation claim avoided |
 | DDI-R5 | source-agent product boundary | P2 | Relative recipe imports reach local `src/domain/**`, outside this alias-based pattern. | accepted | Parser inventory records six relative local-domain reaches as outside this alias row. They remain sibling guard or accepted non-claim input; no complete public-surface enforcement claim is made. | repaired for record truth; sibling disposition gated |
+| DDI-R6 | product enforcement | P2 | The import snippet did not prove bare side-effect static imports from forbidden deep domain internals, even though the rule owns static recipe/map deep imports. | accepted | Predicate now uses `import_statement(source=...)`, exact optional-quote source matching, side-effect native fixture proof, prefix/protocol controls, and a row-specific side-effect injected probe with clean domain-source control. | repaired for side-effect import checkpoint |
 
 ## Remaining Review / Closure Gates
 
@@ -16,9 +17,10 @@ record-truth repair. This record-truth repair is implemented and pending
 supervisor review; no known P1/P2 remains after local repair evidence.
 
 Remaining gates are row-specific and non-closure items: raw direct Grit
-acquisition or accepted adapter proof if full closure needs it, DDI-specific
-generated-output/path-control proof beyond the accepted shared injected-probe
-API, relative local-domain reach disposition, apply safety owned by
+acquisition or accepted adapter proof if full closure needs it, map,
+`ops-by-id`, or generated-output path-control proof beyond the accepted
+side-effect injected probe, relative local-domain reach disposition, apply
+safety owned by
 `deep_import_to_public_surface`, retired parity, broader public-surface
 closure, recovery-claim ledger closure, and product/runtime proof. Future
 product/outcome, Grit semantics, architecture/public-surface authority,

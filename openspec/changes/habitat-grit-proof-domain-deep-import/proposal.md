@@ -4,21 +4,16 @@
 It protects a load-bearing MapGen architecture boundary: recipe and map source
 must consume domain public surfaces rather than deep domain internals.
 
-Current checkpoint evidence repairs the native `ops-by-id` predicate gap,
-expands native fixture coverage, reconciles the row metadata with the Grit
-`.ts`/`.tsx` filename predicate, and records parser-grade live inventory over
-recipe/map roots. That is still not enough to close the row as complete.
-After restacking onto the accepted scaffold repair base, current shared wrapper
-selector/current-tree, baseline file/integrity, and injected-probe API proof are
-inherited only through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`,
-`HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`. Raw direct Grit acquisition remains
-explicitly unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`. DDI-specific
-generated-output remediation, relative local-domain reach disposition, apply
-safety, retired parity, broader public-surface closure, and product/runtime
-proof remain non-claims.
+Current checkpoint evidence repairs the static import predicate so bare
+side-effect imports from forbidden deep domain internals report through the
+active rule. It also tightens source matching to exact optional-quote
+specifiers, proves the repaired import class with native fixtures, current
+wrapper proof, explicit empty baseline proof, and a row-specific injected
+side-effect probe/path-control. Raw direct Grit acquisition remains explicitly
+unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`. Generated-output
+remediation, relative local-domain reach disposition, apply safety, retired
+parity, broader public-surface closure, and product/runtime proof remain
+non-claims.
 
 ## Target Authority Refs
 
@@ -46,12 +41,15 @@ proof remain non-claims.
   restacked shared wrapper/injected proof is represented only by accepted HGPR
   shared proof ids, while DDI-specific path-control and closure remain
   non-claims.
+- Repair the static import arm with `import_statement(source=...)` so bare
+  side-effect imports from forbidden deep domain internals report, with exact
+  source-prefix/protocol controls and row-specific injected proof.
 - Define the exact proof classes needed before the row can leave pending
   status in the aggregate Grit proof matrix.
 - Require fixture expansion beyond the current default-import sample:
   named imports, type imports, namespace imports, re-exports, map paths,
-  `ops-by-id`, `rules`, `strategies`, public-domain negatives, and path-control
-  negatives.
+  side-effect imports, `ops-by-id`, `rules`, `strategies`, public-domain
+  negatives, and path-control negatives.
 - Define false-positive boundaries with `grit-recipe-domain-surface`,
   `grit-step-contract-domain-surface`, and
   `deep_import_to_public_surface`.
