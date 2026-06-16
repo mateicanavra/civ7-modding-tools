@@ -5,11 +5,8 @@ async function patternGenerator(tree, rawOptions) {
   validateNoActiveRegistrationCollision(tree, options);
 
   if (options.lifecycle !== "candidate") {
-    await validateRegisteredPromotionGate(tree, options);
-    throw new Error(
-      `Registered pattern generation for '${options.ruleId}' passed Pattern Authority validation, ` +
-        "but active registered writes remain blocked until registered-promotion implementation is accepted."
-    );
+    await promoteRegisteredPattern(tree, options);
+    return;
   }
 
   const candidatePaths = candidateArtifactPaths(options);
@@ -59,54 +56,21 @@ function normalizeHookScope(value) {
   throw new Error(`Unsupported pattern hookScope '${String(value)}'.`);
 }
 
-async function validateRegisteredPromotionGate(tree, options) {
-  if (!options.manifestPath) {
-    throw new Error(
-      `Registered pattern generation for '${options.ruleId}' requires --manifestPath before any writes.`
-    );
-  }
-
+async function promoteRegisteredPattern(tree, options) {
+  const { Effect } = require("effect");
+  const { runHabitatEffect } = require("../../lib/effect-runtime.ts");
   const {
-    patternAuthorityRuleReferenceFromRule,
-    validatePatternAuthorityManifest,
-  } = require("../../rules/pattern-authority/manifest.ts");
-  const manifest = readJsonIfPresent(tree, options.manifestPath);
-  const result = validatePatternAuthorityManifest(manifest, {
-    manifestPath: options.manifestPath,
-    requireRuleReference: true,
-    ruleReferences: [
-      patternAuthorityRuleReferenceFromRule({
-        id: options.ruleId,
-        gritPattern: options.patternName,
-        manifestPath: options.manifestPath,
-        ownerTool: "grit-check",
-        lane: options.lifecycle === "registered-enforced" ? "enforced" : "advisory",
-        hookScope: options.hookScope,
-      }),
-    ],
-  });
-
-  if (!result.ok) {
-    throw new Error(
-      `Registered pattern generation for '${options.ruleId}' refused by Pattern Authority Manifest: ${formatValidationIssues(result.issues)}`
-    );
-  }
-}
-
-function readJsonIfPresent(tree, path) {
-  if (!tree.exists(path)) return undefined;
-  const text = tree.read(path, "utf8");
+    makeNxTreePatternPromotionStoreLayer,
+    registeredPatternPromotionProgram,
+  } = require("./registration.cjs");
+  const program = registeredPatternPromotionProgram(options).pipe(
+    Effect.provide(makeNxTreePatternPromotionStoreLayer(tree))
+  );
   try {
-    return JSON.parse(text);
+    await runHabitatEffect(program);
   } catch (error) {
-    throw new Error(
-      `Registered Pattern Authority Manifest '${path}' is not valid JSON: ${error.message}`
-    );
+    throw new Error(error && error.message ? error.message : String(error));
   }
-}
-
-function formatValidationIssues(issues) {
-  return issues.map((issue) => `${issue.reason} at ${issue.path}: ${issue.message}`).join("; ");
 }
 
 function validateNoActiveRegistrationCollision(tree, options) {
@@ -116,7 +80,8 @@ function validateNoActiveRegistrationCollision(tree, options) {
 
   if (tree.exists(activePatternPath))
     throw new Error(`Grit pattern already exists: ${activePatternPath}`);
-  if (tree.exists(baselinePath)) throw new Error(`Baseline already exists: ${baselinePath}`);
+  if (options.lifecycle === "candidate" && tree.exists(baselinePath))
+    throw new Error(`Baseline already exists: ${baselinePath}`);
 
   const rulesText = tree.read(rulesPath, "utf8");
   const rulesJson = JSON.parse(rulesText);

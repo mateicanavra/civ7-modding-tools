@@ -7,6 +7,7 @@
   `habitat-pattern-generator-metadata-repair`
 - Owner: DRA Habitat recovery owner
 - Branch/Graphite stack:
+  `agent-HR-habitat-pattern-registered-advisory` over
   `agent-HR-habitat-pattern-registration-gates` over
   `agent-HR-habitat-pattern-authority-registration-contract` over
   `agent-HR-habitat-pattern-authority-effect-decision` over
@@ -17,10 +18,10 @@
   `agent-HR-habitat-effect-grit-adapter` over
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
-- Status: registered-promotion Effect decision and registered manifest/reference
-  contract checkpoints supervisor-accepted; registered promotion gate/refusal
-  checkpoint implemented locally and pending supervisor review; active
-  registered writes remain open
+- Status: registered-promotion Effect decision, registered manifest/reference
+  contract, and registration gate/refusal checkpoints supervisor-accepted;
+  registered advisory output checkpoint implemented locally and pending
+  supervisor review; registered enforced and hook-scoped writes remain open
 
 ## Objective
 
@@ -60,6 +61,13 @@
   manifests must match explicit hook-scope invocation. Even after these gates
   pass, this checkpoint still refuses active registered writes until registered
   promotion implementation is accepted.
+- Current advisory-generation checkpoint condition: registered advisory
+  generator invocations consume the accepted Pattern Authority Manifest
+  validator through the Habitat Effect runtime edge, require an existing
+  explicit baseline file and matching rule-introduction baseline manifest, write
+  only the active advisory Grit pattern plus `rules.json` manifest reference,
+  preserve rule-pack top-level metadata, and prove the generated pattern through
+  native Grit samples plus the Habitat wrapper check path.
 - Full packet done condition remains open: accepted Pattern Authority Manifest
   validation, baseline-manifest consumption, native fixture/current-tree proof,
   hook-scope proof, and registered promotion orchestration.
@@ -122,6 +130,11 @@
   validator before the write path. Missing manifests, placeholder authority, and
   hook-scope mismatch fail closed before candidate artifacts, active Grit
   patterns, baselines, or rule-pack entries are written.
+- Registered advisory generation now has a narrow active write path after the
+  accepted metadata gates: it writes the generated advisory `.grit` pattern and
+  appends a `rules.json` entry with `manifestPath`, while consuming rather than
+  creating the explicit baseline file and rule-introduction manifest. Registered
+  enforced and pre-commit hook scope remain blocked.
 
 ## Source Synthesis
 
@@ -193,11 +206,11 @@ Core synthesis:
   3.2, 3.4, 4.6, 5.1, 5.2, 6.5, 6.7, and 8.8.
 - Completed tasks for the registered promotion gate/refusal checkpoint: 4.3,
   4.4, and 6.6.
-- Remaining tasks: registered manifest writes through the source-artifact path,
-  registered advisory/enforced output and promotion, live baseline-manifest
-  consumption, native Grit fixture/current-tree proof, full guardrail scan,
-  registered-promotion orchestration tests/implementation, downstream
-  realignment closure, and full packet closure.
+- Completed tasks for the registered advisory output checkpoint: 4.7, 6.2, 6.8,
+  and 8.5.
+- Remaining tasks: registered enforced output and promotion, pre-commit
+  hook-scope proof, full guardrail scan, downstream realignment closure, and
+  full packet closure.
 - Implementation status: bounded candidate/refusal checkpoint accepted by
   supervisor; bounded manifest-validator checkpoint implemented on
   `agent-HR-habitat-pattern-authority-manifest-validator`.
@@ -211,6 +224,9 @@ Core synthesis:
 - Registered promotion gate/refusal status: implemented locally for supervisor
   review; the generator validates registered manifest/reference/hook-scope gates
   before the still-blocked active write path.
+- Registered advisory output status: implemented locally for supervisor review;
+  advisory promotion uses the accepted Habitat Effect runtime edge and writes no
+  baselines, no enforced rule, and no hook scope.
 
 ## Verification
 
@@ -333,6 +349,33 @@ Core synthesis:
   entries. This does not prove active registered generation, baseline writes,
   native/current-tree Grit proof, live hook-scope activation, registered
   promotion orchestration, or product/runtime behavior.
+- Commands run for registered advisory output checkpoint:
+  - `bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts pattern-authority-manifest.test.ts`
+    passed: registered advisory success requires accepted manifest, existing
+    explicit baseline, matching rule-introduction manifest, and preserves
+    top-level `rules.json` metadata; registered enforced remains blocked.
+  - `bun run --cwd tools/habitat-harness check`
+    passed.
+  - `bun run nx g @internal/habitat-harness:pattern grit-registered-advisory-proof --lifecycle=registered-advisory --manifestPath=tools/habitat-harness/src/rules/pattern-authority/grit-registered-advisory-proof.json --no-interactive --verbose`
+    exited 0 in the normal HR worktree after scratch manifest/baseline setup,
+    creating only `.grit/patterns/habitat/checks/registered_advisory_proof.md`
+    and updating `tools/habitat-harness/src/rules/rules.json`.
+  - `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter registered_advisory_proof --verbose`
+    exited 0 with both generated samples passing.
+  - `bun run habitat:check -- --json --rule grit-registered-advisory-proof`
+    exited 0 with `grit-registered-advisory-proof` advisory pass and
+    `baseline-integrity` pass.
+  - Targeted cleanup removed the scratch active pattern, scratch manifest,
+    scratch baseline, scratch rule-introduction manifest, and restored
+    `rules.json`; post-cleanup status contained only intended implementation
+    and packet record changes.
+- Registered advisory output evidence boundary: this checkpoint proves the
+  advisory-only active write path, existing-baseline consumption, rule-pack
+  metadata preservation, native generated-sample syntax, and Habitat wrapper
+  zero-finding/baseline-integrity behavior for the scratch generated advisory
+  rule. It does not prove registered enforced output, pre-commit hook
+  activation, baseline creation or mutation, HG row semantics, broad current
+  rule backfill, or product/runtime behavior.
 
 ## Realignment
 
@@ -341,8 +384,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor acceptance or repair demand on the committed registered
-  promotion gate/refusal checkpoint. Remaining packet work is registered
-  advisory/enforced writes and promotion, live baseline-manifest consumption,
-  native/current-tree Grit proof, full guardrail scan, downstream realignment,
-  and full packet closure.
+- Finish local verification and Graphite checkpoint for the registered advisory
+  output slice, then hold for supervisor acceptance or repair. Remaining packet
+  work is registered enforced writes, pre-commit hook-scope proof, full
+  guardrail scan, downstream realignment, and full packet closure.

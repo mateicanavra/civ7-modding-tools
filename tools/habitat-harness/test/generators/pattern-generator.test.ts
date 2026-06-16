@@ -136,12 +136,34 @@ describe("Habitat pattern generator", () => {
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
-  test("validates registered advisory metadata before blocking active writes", async () => {
+  test("writes registered advisory output after accepted manifest and explicit baseline contract", async () => {
+    const tree = createPatternTree({
+      $comment: "preserve rule-pack metadata",
+      rules: [],
+    });
+    const beforeRules = tree.read(rulesPath, "utf8");
+    const manifest = registeredManifest();
+    const manifestPath = writeRegisteredManifest(tree, manifest);
+    const beforeManifest = tree.read(manifestPath, "utf8");
+    writeBaselineContract(tree, manifest);
+
+    await patternGenerator(tree, {
+      ruleId: manifest.ruleId,
+      patternName: manifest.patternName,
+      lifecycle: "registered-advisory",
+      manifestPath,
+    });
+
+    assertRegisteredAdvisoryWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
+  });
+
+  test("refuses registered advisory output when the explicit baseline file is missing", async () => {
     const tree = createPatternTree();
     const beforeRules = tree.read(rulesPath, "utf8");
     const manifest = registeredManifest();
     const manifestPath = writeRegisteredManifest(tree, manifest);
     const beforeManifest = tree.read(manifestPath, "utf8");
+    tree.write(manifest.baselineContract.ruleIntroductionManifest, baselineContractText(manifest));
 
     await expect(
       patternGenerator(tree, {
@@ -150,7 +172,7 @@ describe("Habitat pattern generator", () => {
         lifecycle: "registered-advisory",
         manifestPath,
       })
-    ).rejects.toThrow("active registered writes remain blocked");
+    ).rejects.toThrow("baseline file");
 
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
@@ -178,7 +200,7 @@ describe("Habitat pattern generator", () => {
         manifestPath,
         hookScope: "pre-commit",
       })
-    ).rejects.toThrow("active registered writes remain blocked");
+    ).rejects.toThrow("registered-enforced writes remain blocked");
 
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
@@ -292,6 +314,40 @@ function assertNoPromotionWrites(
   expect(tree.read(rulesPath, "utf8")).toBe(beforeRules);
 }
 
+function assertRegisteredAdvisoryWrites(
+  tree: ReturnType<typeof createPatternTree>,
+  manifest: RegisteredPatternAuthorityManifest,
+  beforeRules: string | null,
+  manifestPath: string,
+  beforeManifest: string | null
+) {
+  const candidatePaths = candidateArtifactPaths({
+    ruleId: manifest.ruleId,
+    patternName: manifest.patternName,
+  });
+  expect(tree.exists(candidatePaths.patternPath)).toBe(false);
+  expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
+  expect(tree.read(manifestPath, "utf8")).toBe(beforeManifest);
+  expect(tree.read(manifest.baselineContract.baselinePath, "utf8")).toBe("[]\n");
+  const activePatternPath = `.grit/patterns/habitat/checks/${manifest.patternName}.md`;
+  expect(tree.exists(activePatternPath)).toBe(true);
+  expect(tree.read(activePatternPath, "utf8")).toContain("level: error");
+  expect(tree.read(activePatternPath, "utf8")).toContain("language js(typescript)");
+  const before = beforeRules ? JSON.parse(beforeRules) : { rules: [] };
+  const rules = readJson(tree, rulesPath);
+  expect(rules.$comment).toBe(before.$comment);
+  expect(rules.rules).toHaveLength(before.rules.length + 1);
+  expect(rules.rules.at(-1)).toMatchObject({
+    id: manifest.ruleId,
+    ownerTool: "grit-check",
+    ownerProject: manifest.ownerProject,
+    lane: "advisory",
+    detect: ["habitat", "check", "--tool", "grit-check"],
+    gritPattern: manifest.patternName,
+    manifestPath,
+  });
+}
+
 function writeRegisteredManifest(
   tree: ReturnType<typeof createPatternTree>,
   manifest: RegisteredPatternAuthorityManifest
@@ -299,6 +355,30 @@ function writeRegisteredManifest(
   const manifestPath = patternAuthorityManifestPath(manifest.ruleId);
   tree.write(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   return manifestPath;
+}
+
+function writeBaselineContract(
+  tree: ReturnType<typeof createPatternTree>,
+  manifest: RegisteredPatternAuthorityManifest
+) {
+  tree.write(manifest.baselineContract.baselinePath, "[]\n");
+  tree.write(manifest.baselineContract.ruleIntroductionManifest, baselineContractText(manifest));
+}
+
+function baselineContractText(manifest: RegisteredPatternAuthorityManifest) {
+  return `${JSON.stringify(
+    {
+      changeId: manifest.openspecChangeId,
+      ruleId: manifest.ruleId,
+      ownerProject: manifest.ownerProject,
+      ownerTool: manifest.ownerTool,
+      baselinePath: manifest.baselineContract.baselinePath,
+      initialBaselineKeys: [],
+      comparisonBase: "HEAD",
+    },
+    null,
+    2
+  )}\n`;
 }
 
 function registeredManifest(
