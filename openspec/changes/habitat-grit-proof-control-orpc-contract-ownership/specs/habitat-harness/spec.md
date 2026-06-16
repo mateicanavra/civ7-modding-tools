@@ -9,16 +9,18 @@ injected violations, explicit baseline behavior, retired-mechanism parity,
 broader control-oRPC architecture closure, apply safety, and downstream record
 truth.
 
-#### Scenario: Native fixture proof passes
+#### Scenario: Repaired native fixture proof passes
 
 - **WHEN** `grit patterns test --filter control_orpc_contract_ownership --json`
   exits 0
 - **THEN** Habitat records native fixture proof for
   `control_orpc_contract_ownership`
-- **AND** Habitat SHALL NOT claim Habitat wrapper behavior, raw acquisition,
-  baseline behavior, injected cleanup, apply safety, generator/migration,
-  broader control-oRPC architecture proof, neighboring row proof, or product
-  proof from that command
+- **AND** the proof SHALL include module-contract direct-control imports,
+  module-contract private schema const exports, and root-index
+  module-contract schema re-exports in direct and aliased named forms
+- **AND** Habitat SHALL NOT claim raw acquisition, source remediation, apply
+  safety, generator/migration, broader control-oRPC architecture proof,
+  neighboring row proof, or product proof from that command
 
 #### Scenario: Control-oRPC parser inventory is recorded
 
@@ -26,8 +28,8 @@ truth.
 - **THEN** the record SHALL name scan roots, exclusions, predicate path classes,
   counts, row id, and non-claims
 - **AND** stdout or scratch files SHALL NOT be cited as durable proof
-- **AND** live current-predicate candidates SHALL be recorded as blocker or
-  disposition inputs rather than clean enforcement closure
+- **AND** live current-predicate candidates SHALL be recorded as blocker,
+  remediation, baseline-debt, or accepted zero-candidate evidence
 
 ### Requirement: Control oRPC Contracts Stay Transport-Pure
 
@@ -70,9 +72,8 @@ contracts or re-export them from the package root.
 - **WHEN** `packages/civ7-control-orpc/src/index.ts` exports schema specifiers
   from `./modules/<module>/contract`
 - **THEN** `grit-control-orpc-contract-ownership` SHALL report the re-export
-- **AND** if the current native predicate does not report this fixture class,
-  row records SHALL preserve it as a predicate-gap blocker rather than clean
-  closure
+- **AND** row records SHALL distinguish direct and aliased named schema
+  specifiers from non-module-contract schema exports
 
 #### Scenario: Root index exports non-module-contract schemas
 
@@ -86,11 +87,13 @@ contracts or re-export them from the package root.
 Habitat SHALL keep proof classes separate for
 `grit-control-orpc-contract-ownership`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Proof classes remain separated
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, apply safety, generator/migration proof, or
-  retired parity is not available in the current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** Habitat records native fixtures, parser inventory, wrapper proof,
+  baseline proof, injected proof, raw acquisition, Effect adapter behavior,
+  apply safety, generator/migration proof, retired parity, or product/runtime
+  proof
+- **THEN** row records SHALL label each proof class independently
+- **AND** the row SHALL NOT infer raw acquisition, source remediation, apply
+  safety, broader architecture, or product/runtime proof from native fixtures,
+  parser inventory, wrapper proof, baseline proof, or injected proof
