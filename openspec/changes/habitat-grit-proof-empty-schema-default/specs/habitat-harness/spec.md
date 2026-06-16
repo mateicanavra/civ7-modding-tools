@@ -22,8 +22,9 @@ schema/default rows, apply safety, and downstream record truth.
 - **THEN** the record SHALL name scan roots, exclusions, predicate path classes,
   counts, row id, and non-claims
 - **AND** temporary stdout or scratch files SHALL NOT be cited as durable proof
-- **AND** live current-predicate candidates SHALL be recorded as blocker or
-  disposition inputs rather than clean enforcement closure
+- **AND** live current-predicate candidates SHALL be remediated, baselined with
+  accepted debt proof, or recorded as blocker/disposition inputs rather than
+  clean enforcement closure
 
 ### Requirement: Contract Schemas Avoid Empty Object Defaults
 
@@ -32,20 +33,20 @@ Contract schema files SHALL avoid object-level `default: {}` under the current
 
 #### Scenario: Current predicate contract schema uses an empty object default
 
-- **WHEN** a matching `*.contract.ts` domain op or recipe step file contains
-  object-level `default: {}`
+- **WHEN** a matching `*.contract.ts` or ordinary `contract.ts` domain op or
+  recipe step contract file contains object-level `default: {}`
 - **THEN** `grit-empty-schema-default` SHALL report the default
 - **AND** the proof record SHALL state whether the behavior is proven by native
   fixtures, parser inventory, or Habitat wrapper proof
 
-#### Scenario: Ordinary contract file uses an empty object default
+#### Scenario: Ordinary contract files are inside the repaired predicate
 
 - **WHEN** an ordinary `contract.ts` file contains object-level `default: {}`
-- **THEN** this row SHALL NOT claim a violation under the current predicate
-- **AND** any future predicate expansion SHALL require separate path-control
-  proof and downstream record updates
-- **AND** any live ordinary-contract candidates SHALL be recorded as
-  predicate-gap or exact-policy closure inputs rather than clean row closure
+- **THEN** the repaired predicate SHALL report the default
+- **AND** fixture, inventory, and injected path-control records SHALL distinguish
+  ordinary `contract.ts` from non-contract lookalike paths
+- **AND** any live ordinary-contract candidates SHALL be remediated or accepted
+  as explicit baseline debt before clean row closure
 
 ### Requirement: Empty Schema Default Non-Claims Stay Explicit
 

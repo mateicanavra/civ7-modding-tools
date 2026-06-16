@@ -4,8 +4,8 @@
 
 ### Objective
 
-Make `grit-empty-schema-default` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Make `grit-empty-schema-default` an active row-owned Habitat proof checkpoint
+for contract schema files that still try to use object-level empty defaults.
 
 ### Product Movement
 
@@ -24,15 +24,15 @@ property-level defaults make defaults explicit and reviewable.
   `mods/mod-swooper-maps/src/recipes` and
   `mods/mod-swooper-maps/src/domain`
 - Current Grit predicate scope:
-  `mods/<mod>/src/domain/**/ops/**/*.contract.ts` and
-  `mods/<mod>/src/recipes/**/steps/**/*.contract.ts`
+  `mods/<mod>/src/domain/**/ops/**/{*.contract.ts,contract.ts}` and
+  `mods/<mod>/src/recipes/**/steps/**/{*.contract.ts,contract.ts}`
 - Forbidden current syntax class: object property `default: {}`.
 
 ### Hard Core
 
 1. This is a check proof, not an apply proof.
-2. Current predicate proof covers `*.contract.ts` paths only; ordinary
-   `contract.ts` files are outside the current predicate.
+2. Current predicate proof covers both `*.contract.ts` paths and ordinary
+   `contract.ts` files under domain op and recipe step contract roots.
 3. Native fixture proof, parser inventory, Habitat wrapper behavior, raw Grit
    acquisition, injected proof, baseline behavior, and product proof are
    separate proof classes.
@@ -41,8 +41,8 @@ property-level defaults make defaults explicit and reviewable.
 
 ### Exterior
 
-- Contract schema remediation or migration.
-- Predicate repair to cover ordinary `contract.ts` files.
+- General contract schema migration outside the two live empty-default
+  remediations.
 - Runtime validation import proof, runtime default merge proof, or TypeBox
   runtime-purity neighboring rows.
 - Baseline mutation.
@@ -51,11 +51,10 @@ property-level defaults make defaults explicit and reviewable.
 ### Falsifier
 
 This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if a live current-predicate empty schema default is found but recorded
-as a pass without owner disposition, if ordinary `contract.ts` files are
-treated as covered by the current predicate, if temporary inventory artifacts
-are cited as durable proof, or if neighboring schema/default rows are treated
-as proven by this row.
+fixtures, if a live current-predicate empty schema default remains after
+remediation, if ordinary `contract.ts` files are treated as controls, if
+temporary inventory artifacts are cited as durable proof, or if neighboring
+schema/default rows are treated as proven by this row.
 
 ## Source Synthesis
 
@@ -79,13 +78,15 @@ marks parser-edge and false-positive classification pending.
 | Class | Expected current-predicate behavior |
 | --- | --- |
 | Domain op `*.contract.ts` object-level `default: {}` | Reports |
+| Domain op ordinary `contract.ts` object-level `default: {}` | Reports |
 | Domain op TypeBox options object containing `default: {}` | Reports as a current-predicate fact |
 | Nested schema object containing `default: {}` | Reports as a current-predicate fact |
 | Recipe step `*.contract.ts` object-level `default: {}` | Reports |
+| Recipe step ordinary `contract.ts` object-level `default: {}` | Reports |
 | Other-mod `*.contract.ts` object-level `default: {}` | Current behavior to classify as raw predicate fact |
 | Property-level defaults inside schema properties | Do not report unless they contain object-level `default: {}` under current predicate |
 | Non-empty object, array, null, string, numeric, boolean defaults | Do not report |
-| Ordinary `contract.ts`, config, test, map, package, non-contract, and `.tsx` paths | Do not report under current predicate |
+| Config, test, map, package, non-contract, contract-helper, and `.tsx` paths | Do not report under current predicate |
 | Lookalike property names such as `defaultValue` | Do not report |
 
 ## Proof Contract
@@ -93,27 +94,33 @@ marks parser-edge and false-positive classification pending.
 This row checkpoint may record:
 
 - native fixture/parser-edge proof for current-predicate behavior;
+- source remediation for the two live ordinary-contract empty defaults;
 - parser inventory/live candidate evidence over current Swooper recipe and
   domain contract-schema roots;
+- Habitat wrapper/current-tree selector proof, explicit empty baseline proof,
+  and row-specific injected path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
 Planned proof ids:
 
-- `ESD-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for
+- `ESD-SOURCE-REMEDIATION-2026-06-16`: removal of the two live ordinary
+  `contract.ts` empty defaults with focused tests proving property-default
+  materialization.
+- `ESD-NATIVE-FIXTURES-2026-06-16`: native fixture/parser-edge proof for
   current-predicate positive classes and recorded controls.
-- `ESD-SCHEMA-INVENTORY-2026-06-15`: parser inventory/live evidence over
-  current Swooper recipe and domain roots. This evidence is zero-candidate for
-  the current `*.contract.ts` predicate, but it exposes ordinary `contract.ts`
-  empty defaults outside the current predicate, so exact schema-policy closure
-  remains blocked.
+- `ESD-SCHEMA-INVENTORY-2026-06-16`: parser inventory/live evidence over
+  current Swooper recipe and domain roots after predicate repair and source
+  remediation.
+- `ESD-HABITAT-GRIT-TOOL-2026-06-16` and
+  `ESD-PER-RULE-SELECTOR-2026-06-16`: wrapper/current-tree proof for the
+  aggregate and per-rule Habitat selector surfaces.
+- `ESD-INJECTED-PROBE-2026-06-16`: row-specific injected violation and
+  path-control proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
 - retired parity;

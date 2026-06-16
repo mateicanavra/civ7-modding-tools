@@ -145,11 +145,11 @@
     "rulesJsonScope": "contract schema files",
     "sourcePredicate": "empty object default in contract schema file",
     "match": {
-      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts",
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts",
       "body": "export const Schema = {\n  default: {},\n};\n"
     },
     "control": {
-      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo.ts",
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract-helper.ts",
       "body": "export const Schema = {\n  default: {},\n};\n"
     }
   },

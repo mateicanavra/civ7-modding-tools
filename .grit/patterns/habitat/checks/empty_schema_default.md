@@ -9,7 +9,7 @@ Contract schema definitions should not use empty object defaults.
 language js(typescript)
 
 `default: {}` where {
-  $filename <: r".*mods/[^/]+/src/(?:domain/.*/ops/.*\.contract|recipes/.*/steps/.*\.contract)\.ts$"
+  $filename <: r".*mods/[^/]+/src/(?:domain/.*/ops/(?:.*/contract|.*\.contract)|recipes/.*/steps/(?:.*/contract|.*\.contract))\.ts$"
 }
 ```
 
@@ -47,6 +47,16 @@ export const StepContract = {
       default: {},
     }
   ),
+};
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts
+export const OrdinaryContract = {
+  default: {},
+};
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot/contract.ts
+export const StepOrdinaryContract = {
+  default: {},
 };
 
 // @filename: mods/other-mod/src/domain/ecology/ops/demo.contract.ts
@@ -88,13 +98,8 @@ export const LookalikeDefault = {
   defaultValue: {},
 };
 
-// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts
-export const OrdinaryContract = {
-  default: {},
-};
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/contract.ts
-export const StepOrdinaryContract = {
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract-helper.ts
+export const ContractHelper = {
   default: {},
 };
 
