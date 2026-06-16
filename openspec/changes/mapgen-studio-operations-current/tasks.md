@@ -47,9 +47,17 @@ These are D6 implementation obligations recorded by this packet, not pre-accepta
 - [x] 4.1 `bun run openspec -- validate mapgen-studio-operations-current --strict`.
 - [x] 4.2 `bun run openspec:validate`.
 - [x] 4.3 `git diff --check`.
-- [ ] 4.4 `bun install --frozen-lockfile`.
-- [ ] 4.5 Current packet-authoring base: `bun run build` and `bun run check`.
+- [x] 4.4 `bun install --frozen-lockfile`.
+- [x] 4.5 Current packet-authoring base: `bun run build` and `bun run check`.
 - [x] 4.6 `git status --short --branch`, `gt status`, and `gt log --no-interactive`.
+
+Verification reconciliation note, 2026-06-16:
+
+- These rows were stale packet-authoring entrance checks, not current D6 code
+  work. Current main includes D6 via PR `#1740`, and later D12 validation
+  records include full OpenSpec validation plus runtime state-machine proof
+  using `studio.operations.current({})` for invalid, Run in Game, and
+  Save&Deploy flows.
 
 ## 5. Closure
 

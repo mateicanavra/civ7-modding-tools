@@ -7,7 +7,8 @@
 - OpenSpec change: `mapgen-studio-event-hub`
 - Owner: Codex DRA packet-authoring lane
 - Branch/Graphite stack: `codex/runtime-effect-openspec-packets`
-- Status: packet accepted; implementation pending
+- Status: packet accepted; implementation landed on current main; D12 later
+  repaired package-owned EventHub lifecycle
 
 ## Objective
 

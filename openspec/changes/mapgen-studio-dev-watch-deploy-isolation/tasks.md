@@ -2,7 +2,7 @@
 
 - [x] 1.1 Consume accepted D0 baseline packet and Nx/Habitat scout report.
 - [x] 1.2 Reframe D1 as watch-graph isolation on the accepted migrated baseline, not as a Turbo-era hotfix.
-- [ ] 1.3 Run fresh D1 review lanes and disposition all P1/P2 findings before D2 starts.
+- [x] 1.3 Run fresh D1 review lanes and disposition all P1/P2 findings before D2 starts.
 
 Restack adoption note, 2026-06-15:
 
@@ -63,8 +63,8 @@ Implementation proof note, 2026-06-15:
 - [x] 3.9 Focused tests: contract-only recipe-DAG import, transitive daemon import graph, deploy write-set disjointness, deploy command, daemon watch/import trigger, frontend watcher ignores, and D0 one-mount regression.
 - [x] 3.10 Negative search for daemon imports from `mod-swooper-maps/recipes/*`, full recipe runtime modules, generated recipe files, generated map outputs, and deployable mod outputs.
 - [x] 3.11 Negative search for active runtime dev/deploy specs prescribing Turbo, global-only/on-the-fly Nx, direct binary Nx, broad root orchestration, generated recipe targets, fallback, shim, temporary, dual path, support-both, optional target shape, or only-if-needed language.
-- [ ] 3.12 Live Play proof: same operation id sampled through accepted, deploy-entered, deploy-exited, and terminal phases; `serverInstanceId` remains stable; deploy command and log pointer recorded; browser persistence/restart recovery excluded.
-- [ ] 3.13 Live Save&Deploy proof: same operation id sampled through accepted, deploy-entered, deploy-exited, and terminal phases; `serverInstanceId` remains stable; deploy command and log pointer recorded; browser persistence/restart recovery excluded.
+- [x] 3.12 Live Play proof: same operation id sampled through accepted, deploy-entered, deploy-exited, and terminal phases; `serverInstanceId` remains stable; deploy command and log pointer recorded; browser persistence/restart recovery excluded.
+- [x] 3.13 Live Save&Deploy proof: same operation id sampled through accepted, deploy-entered, deploy-exited, and terminal phases; `serverInstanceId` remains stable; deploy command and log pointer recorded; browser persistence/restart recovery excluded.
 
 Verification evidence, 2026-06-15:
 
@@ -82,19 +82,24 @@ Verification evidence, 2026-06-15:
 - Green: `git diff --check`.
 - Habitat owner check: `bun tools/habitat-harness/bin/dev.ts check --owner @internal/habitat-harness --json` is non-green only because of the stack-owned `workspace-entrypoints` failure below. D1-relevant `mapgen-docs`, `nx-boundaries`, `biome-ci`, `grit-studio-recipe-artifacts`, file-layer generated-output checks, and baseline integrity pass.
 - Pending rerun before commit: final Graphite status/stack inspection.
-- Non-green stack-owned lint gate: `bun run lint` still fails on
+- Historical non-green stack-owned lint gate: `bun run lint` failed on
   `workspace-entrypoints` for `packages/civ7-control-orpc/package.json` script
-  chaining (`tsup --config tsup.config.ts && tsc ...`). This is outside the D1
-  import-graph slice, but it is owned by the runtime Effect stack lower slice
-  `codex/runtime-effect-control-orpc-build`; final stack closure must repair it
-  there or in a direct follow-up stack slice before claiming root lint green.
-  The D1-caused `nx-boundaries` failure is repaired and green.
+  chaining (`tsup --config tsup.config.ts && tsc ...`). This was outside the D1
+  import-graph slice and was owned by the runtime Effect stack lower slice
+  `codex/runtime-effect-control-orpc-build`. Later D12/root graph records
+  supersede this as final stack hygiene evidence. The current recovery branches
+  see different unrelated Swooper Habitat failures, not this
+  `workspace-entrypoints` failure.
 - Non-green environment gate: `bun run nx run mod-swooper-maps:test --outputStyle=static`
   and focused `bun run --cwd mods/mod-swooper-maps test -- test/resources/resource-corpus-contract.test.ts`
   fail because `.civ7/outputs/resources` is an empty gitlink checkout in this
   worktree; the failing tests read missing official resource XML/modinfo files.
-- Not run: live Play and Save&Deploy same-operation proofs. D1 local proof does
-  not claim live Civ7 runtime success.
+- Reconciled 2026-06-16: D12 later ran live Run in Game and Save&Deploy
+  state-machine proof through the D11 Nx Studio runner, with stable daemon
+  identity, pushed event terminal completion, keyed status agreement, current
+  projection agreement, and tracked generated/catalog artifacts restored cleanly.
+  This consumes D1's broad live Play/Save&Deploy operation proof handoff without
+  adding new D1 runtime behavior proof.
 
 ## 4. Closure
 
@@ -115,7 +120,8 @@ Post-commit proof, 2026-06-15:
   `gt status` passed through to Git status with `nothing to commit, working
   tree clean`.
 
-D11 disposition: D1 did not materially change Nx dev-runner facts. The only
-stack-owned non-green root lint item surfaced during D1 is the
-`packages/civ7-control-orpc/package.json` `workspace-entrypoints` failure, which
-belongs to `codex/runtime-effect-control-orpc-build`, not D11.
+D11 disposition: D1 did not materially change Nx dev-runner facts. The
+stack-owned root lint item surfaced during D1 was historical
+`packages/civ7-control-orpc/package.json` `workspace-entrypoints` debt owned by
+`codex/runtime-effect-control-orpc-build`; later D12/root graph records
+supersede it as final stack hygiene evidence.
