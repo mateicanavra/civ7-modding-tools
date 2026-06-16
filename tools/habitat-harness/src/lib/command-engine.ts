@@ -17,6 +17,7 @@ import {
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
 import { runGritApplyPatterns } from "./grit-apply.js";
+import { validateScanRoots } from "./grit.js";
 
 export { runHook } from "./hooks.js";
 
@@ -70,6 +71,7 @@ export interface CheckOptions extends RuleSelection {
   base?: string;
   commandArgs?: readonly string[];
   staged?: boolean;
+  stagedPaths?: readonly string[];
 }
 
 export interface EmitCheckOptions {
@@ -272,9 +274,10 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
   const selection = selectRules(options);
   if (!selection.ok) return createRuleSelectionFailureReport(selection, options);
 
+  const selectedRules = rulesForExecution(selection.rules, options);
   const reports: RuleReport[] = [];
-  const ruleResults = await executeSelectedRules(selection.rules, options);
-  for (const rule of selection.rules) {
+  const ruleResults = await executeSelectedRules(selectedRules, options);
+  for (const rule of selectedRules) {
     const baseline = loadBaselineState(rule);
     const execution = ruleResults.get(rule.id);
     if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
@@ -392,9 +395,34 @@ export async function expandBaselines(
   return { ok: true, messages };
 }
 
+export function rulesForExecution(
+  selectedRules: readonly HarnessRule[],
+  options: Pick<CheckOptions, "staged" | "stagedPaths"> = {}
+): HarnessRule[] {
+  if (!options.staged) return [...selectedRules];
+  if (!selectedRules.some((rule) => rule.ownerTool === "grit-check")) return [...selectedRules];
+  const hasStagedGritRoots =
+    stagedGritScanRoots(options.stagedPaths ?? currentStagedPaths()).length > 0;
+  return selectedRules.filter(
+    (rule) =>
+      rule.ownerTool !== "grit-check" || (rule.hookScope === "pre-commit" && hasStagedGritRoots)
+  );
+}
+
+export function stagedGritScanRoots(stagedPaths: readonly string[]): string[] {
+  const candidates = sortedUnique(
+    stagedPaths
+      .map((candidate) => toRepoRelative(candidate))
+      .filter((candidate) => gritCandidateExtensions.has(path.extname(candidate)))
+  );
+  return candidates.filter(
+    (candidate) => validateScanRoots([candidate], { requireExisting: false }) === null
+  );
+}
+
 async function executeSelectedRules(
   selectedRules: readonly HarnessRule[],
-  options: Pick<CheckOptions, "staged"> = {}
+  options: Pick<CheckOptions, "staged" | "stagedPaths"> = {}
 ): Promise<Map<string, { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }>> {
   const results = new Map<
     string,
@@ -404,7 +432,10 @@ async function executeSelectedRules(
   if (gritRules.length > 0) {
     const { runGritRules } = await import("./grit.js");
     const started = Date.now();
-    const gritResults = await runGritRules(gritRules);
+    const scanRoots = options.staged
+      ? stagedGritScanRoots(options.stagedPaths ?? currentStagedPaths())
+      : undefined;
+    const gritResults = await runGritRules(gritRules, scanRoots ? { scanRoots } : {});
     const durationMs = Date.now() - started;
     for (const rule of gritRules) {
       const result = gritResults.get(rule.id);
@@ -420,6 +451,12 @@ async function executeSelectedRules(
   }
 
   return results;
+}
+
+function currentStagedPaths(): string[] {
+  const result = run(["git", "diff", "--cached", "--name-only", "-z"], { cwd: repoRoot });
+  if (result.exitCode !== 0 || !result.stdout) return [];
+  return result.stdout.split("\0").filter(Boolean).map(toRepoRelative);
 }
 
 export function renderCheckReport(report: CheckReport, options: EmitCheckOptions = {}): string {
@@ -583,6 +620,17 @@ export const verifyAffectedTargets = [
   "grit:check",
   "generated:check",
 ];
+
+const gritCandidateExtensions = new Set([
+  ".cjs",
+  ".cts",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".mts",
+  ".ts",
+  ".tsx",
+]);
 
 export interface VerifyProofInput {
   requestedBase?: string;

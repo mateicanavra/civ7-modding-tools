@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { mergeBase } from "./baseline.js";
+import type { CheckReport } from "./diagnostics.js";
+import { validateCheckReport } from "./diagnostics.js";
+import { validateScanRoots } from "./grit.js";
 import { baselinesDir, repoRoot, toRepoRelative } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 
@@ -21,10 +24,6 @@ interface HookRuntime {
   reporter?: HookReporter;
   resourcePublisher?: ResourcePublisher;
   trace?: HookTrace;
-}
-
-interface GritReport {
-  results?: unknown[];
 }
 
 type ResourceStateKind =
@@ -348,44 +347,53 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     output.writeStdout("biome: no staged supported files\n");
   }
 
-  const gritPaths = staged.filter((candidate) =>
-    gritCandidateExtensions.has(path.extname(candidate))
-  );
+  const gritPaths = hookGritScanRoots(staged);
   if (runtime.trace?.preCommit) runtime.trace.preCommit.gritPaths = gritPaths;
   if (gritPaths.length > 0) {
     const grit = runHookCommand(
       runtime,
       "grit-check",
-      ["grit", "--json", "check", "--level", "error", ...gritPaths],
+      [
+        "bun",
+        "tools/habitat-harness/bin/dev.ts",
+        "check",
+        "--staged",
+        "--tool",
+        "grit-check",
+        "--json",
+      ],
       {
         cwd: repoRoot,
-        env: {
-          GRIT_CACHE_DIR: path.join(repoRoot, ".grit", "cache"),
-          GRIT_TELEMETRY_DISABLED: "true",
-        },
       }
     );
     output.writeStdout(section("grit check", grit.stdout));
     output.writeStderr(grit.stderr);
-    if (grit.exitCode !== 0) {
-      return finalizePreCommit(runtime, "grit-command-failed", {
-        exitCode: grit.exitCode,
-        ...output.result(),
-      });
-    }
-    const report = parseGritJson(grit.stdout) ?? parseGritJson(grit.stderr);
+    const report = parseCheckReportJson(grit.stdout) ?? parseCheckReportJson(grit.stderr);
     if (!report) {
-      output.writeStderr("habitat hook pre-commit: could not parse Grit JSON output.\n");
+      if (grit.exitCode !== 0) {
+        return finalizePreCommit(runtime, "grit-command-failed", {
+          exitCode: grit.exitCode,
+          ...output.result(),
+        });
+      }
+      output.writeStderr("habitat hook pre-commit: could not parse Habitat Grit check JSON.\n");
       return finalizePreCommit(runtime, "grit-parse-failed", {
         exitCode: 1,
         ...output.result(),
       });
     }
-    if ((report.results?.length ?? 0) > 0) {
+    if (!report.ok) {
+      if (hasGritAdapterParseFailure(report)) {
+        output.writeStderr("habitat hook pre-commit: could not parse Grit JSON output.\n");
+        return finalizePreCommit(runtime, "grit-parse-failed", {
+          exitCode: 1,
+          ...output.result(),
+        });
+      }
       return finalizePreCommit(runtime, "grit-finding", { exitCode: 1, ...output.result() });
     }
   } else {
-    output.writeStdout("grit: no staged TypeScript/JavaScript files\n");
+    output.writeStdout("grit: no staged TypeScript/JavaScript files in approved scan roots\n");
   }
 
   output.writeStdout("habitat hook pre-commit: PASS\n");
@@ -785,15 +793,34 @@ function fileHash(repoRelativePath: string): string | null {
   return createHash("sha256").update(readFileSync(absolute)).digest("hex");
 }
 
-function parseGritJson(output: string): GritReport | undefined {
+function hookGritScanRoots(stagedPaths: readonly string[]): string[] {
+  return stagedPaths
+    .filter((candidate) => gritCandidateExtensions.has(path.extname(candidate)))
+    .filter((candidate) => validateScanRoots([candidate], { requireExisting: false }) === null);
+}
+
+function parseCheckReportJson(output: string): CheckReport | undefined {
   const trimmed = output.trim();
   if (!trimmed) return undefined;
   if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return undefined;
   try {
-    return JSON.parse(trimmed) as GritReport;
+    const report = JSON.parse(trimmed) as CheckReport;
+    return validateCheckReport(report).length === 0 ? report : undefined;
   } catch {
     return undefined;
   }
+}
+
+function hasGritAdapterParseFailure(report: CheckReport): boolean {
+  return report.rules.some(
+    (rule) =>
+      rule.ownerTool === "grit-check" &&
+      rule.diagnostics.some((diagnostic) =>
+        /grit adapter failure \((GritMalformedJson|GritNoJson|GritSchemaDrift|GritUnexpectedResultShape|GritAdapterInternalContractViolation)\)/i.test(
+          diagnostic.message
+        )
+      )
+  );
 }
 
 function createHookOutput(reporter?: HookReporter): {

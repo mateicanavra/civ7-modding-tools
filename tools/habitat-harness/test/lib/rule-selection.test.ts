@@ -1,9 +1,11 @@
 import { describe, expect, test } from "vitest";
 import {
   createCheckReport,
+  rulesForExecution,
   type RuleSelection,
   renderCheckReport,
   selectRules,
+  stagedGritScanRoots,
 } from "../../src/lib/command-engine.js";
 import { validateCheckReport } from "../../src/lib/diagnostics.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
@@ -115,6 +117,44 @@ describe("rule selector boundary", () => {
     const json = renderCheckReport(report, { json: true });
     expect(JSON.parse(json)).toMatchObject({ schemaVersion: 1, ok: false });
   });
+
+  test("staged execution keeps only hook-scoped Grit rules when approved staged roots exist", () => {
+    const hookScoped = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
+      hookScope: "pre-commit",
+    });
+    const currentTreeOnly = fakeRule("grit-current-tree", "grit-check", "@internal/habitat-harness");
+    const nativeRule = fakeRule("file-layer-rule", "file-layer", "@internal/habitat-harness");
+
+    expect(
+      rulesForExecution([hookScoped, currentTreeOnly, nativeRule], {
+        staged: true,
+        stagedPaths: ["packages/mapgen-core/src/core/index.ts"],
+      }).map((rule) => rule.id)
+    ).toEqual(["grit-hook", "file-layer-rule"]);
+  });
+
+  test("staged execution excludes Grit rules when staged paths are outside approved roots", () => {
+    const hookScoped = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
+      hookScope: "pre-commit",
+    });
+
+    expect(
+      rulesForExecution([hookScoped], {
+        staged: true,
+        stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
+      }).map((rule) => rule.id)
+    ).toEqual([]);
+  });
+
+  test("staged Grit scan roots preserve exact approved file paths", () => {
+    expect(
+      stagedGritScanRoots([
+        "packages/mapgen-core/src/core/index.ts",
+        "tools/habitat-harness/src/lib/hooks.ts",
+        "README.md",
+      ])
+    ).toEqual(["packages/mapgen-core/src/core/index.ts"]);
+  });
 });
 
 function selectedIds(selection: RuleSelection): string[] {
@@ -131,7 +171,12 @@ function selectionFailure(selection: RuleSelection) {
   return result;
 }
 
-function fakeRule(id: string, ownerTool: string, ownerProject: string): HarnessRule {
+function fakeRule(
+  id: string,
+  ownerTool: string,
+  ownerProject: string,
+  overrides: Partial<HarnessRule> = {}
+): HarnessRule {
   return {
     id,
     ownerTool,
@@ -144,5 +189,6 @@ function fakeRule(id: string, ownerTool: string, ownerProject: string): HarnessR
     remediate: null,
     message: "test fixture",
     exceptionPath: "none",
+    ...overrides,
   };
 }
