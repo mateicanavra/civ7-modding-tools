@@ -64,11 +64,13 @@
 - [x] 5.6 Record Habitat `nx-boundaries` JSON proof and assert the selected
   `rules[]` entry is present, locked, passing, owner/tool-labeled, and
   diagnostics-empty.
-- [ ] 5.7 Record `habitat verify` proof only after current full-check blockers
-  are outside the selected range or repaired; `bun run habitat -- verify --base
-  HEAD` currently fails before affected tasks on unrelated `biome-ci` and
-  `arch-test-map-bundle-runtime-imports`, so this packet does not claim
-  `habitat verify` closure.
+- [x] 5.7 Record `habitat verify` proof after the unrelated H4/H6 full-check
+  blockers were repaired. `bun run habitat -- verify --base HEAD --json` now
+  exits 0 for the explicit clean `HEAD` range: Habitat check has zero failing
+  rules, `nx-boundaries` is selected as part of the structural surface, Nx
+  affected executes and runs no tasks, and post-state remains clean. This is
+  explicit clean-range Habitat verify proof only, not CI execution or broad
+  changed-range affected proof.
 
 ## 6. Owner-Layer And Effect Decision
 
@@ -109,7 +111,7 @@
 - [x] 8.9 Direct target boundary proof
 - [x] 8.10 Normal run-many boundary proof
 - [x] 8.11 Habitat `nx-boundaries` JSON proof with selected-rule assertion
-- [ ] 8.12 `habitat verify` proof after unrelated full-check blockers are
+- [x] 8.12 `habitat verify` proof after unrelated full-check blockers are
   repaired or explicitly scoped out
 - [x] 8.13 Stale-record scan and patches
 - [x] 8.14 Full-depth-language guardrail scan over this packet
@@ -121,4 +123,4 @@
 - [x] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
 - [x] 9.3 Ensure downstream realignment ledger is patched or has exact watched
   actions.
-- [ ] 9.4 Commit through Graphite with a clean worktree.
+- [x] 9.4 Commit through Graphite with a clean worktree.

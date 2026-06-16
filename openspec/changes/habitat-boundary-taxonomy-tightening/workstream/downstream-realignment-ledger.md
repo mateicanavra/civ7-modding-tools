@@ -5,7 +5,7 @@
 
 | Downstream artifact | Current risk | Current status | Required disposition | Status |
 | --- | --- | --- | --- | --- |
-| `docs/projects/habitat-harness/recovery-claim-ledger.md` | `CLAIM-H3-TAXONOMY` was unknown despite historical H3 closure. | patched | Record current project-plane proof boundary, verifier evidence, command proof, and non-claims. | done |
+| `docs/projects/habitat-harness/recovery-claim-ledger.md` | `CLAIM-H3-TAXONOMY` was unknown despite historical H3 closure, then still lacked the post-H4/H6 explicit clean-range verify proof. | patched | Record current project-plane proof boundary, verifier evidence, command proof, explicit clean-range `habitat verify` participation, and non-claims. | done |
 | `docs/projects/habitat-harness/workstream-record.md` | Historical H3 architecture review row could be read as current recovery proof. | patched | Keep adoption review as historical source evidence and point current proof to this repair packet. | done |
 | `docs/projects/habitat-harness/taxonomy.md` | Taxonomy still leaned on adoption-green wording and did not reflect the current `mod-swooper-maps -> @civ7/plugin-mods` graph edge. | patched | Update `kind:mod` and config parity for current graph evidence; clarify current proof requires taxonomy/config/resolved graph agreement. | done |
 | `openspec/changes/habitat-boundary-tags/proposal.md` | Historical proposal said the taxonomy was green at adoption and cited `bunx nx run-many` as the gate without current-command context. | patched | Mark those as historical adoption proof and point current proof to repo-local normal Nx commands in this repair. | done |

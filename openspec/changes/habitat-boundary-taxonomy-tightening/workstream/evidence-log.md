@@ -103,7 +103,7 @@ above for current recovery claims.
 | BTT-I7 | `bun run nx run-many -t boundaries --all --outputStyle=static` | default | 0 | aggregate boundary command succeeds; Nx reports matching cached output for the single boundary target | aggregate command no longer shows the historical post-target Nx failure | command reliability |
 | BTT-I8 | `bun run habitat:check -- --json --rule nx-boundaries` | default | 0 | CheckReport v1 selects `nx-boundaries` and `baseline-integrity`; `nx-boundaries` locked/pass/diagnostics-empty with ownerTool `nx-boundaries` | Habitat wrapper exposes the boundary owner without selector false-green inflation | Habitat wrapper proof |
 | BTT-I9 | `bun run --cwd tools/habitat-harness check` | default | 0 | `tsc -p tsconfig.json --noEmit` passes | verifier implementation typechecks | type behavior |
-| BTT-I10 | `bun run habitat -- verify --base HEAD` | default | 1 | full Habitat check fails on unrelated `biome-ci` and `arch-test-map-bundle-runtime-imports` before affected tasks | `habitat verify` remains a non-claim for this packet | non-claim evidence |
+| BTT-I10 | `bun run habitat -- verify --base HEAD --json` | default | 0 | JSON proof: Habitat check selects 42 rules including `nx-boundaries` and `baseline-integrity`, records zero failing rules and one advisory, executes Nx affected for explicit clean `HEAD`, runs no tasks, and reports clean post-state | explicit clean-range Habitat verify proof now includes the taxonomy owner rule in the full structural surface after H4/H6 blockers were repaired | Habitat wrapper proof |
 | BTT-I11 | `bun run openspec -- validate habitat-boundary-taxonomy-tightening --strict` | default | 0 | active change is valid | active packet record/spec shape is valid | spec validation |
 | BTT-I12 | `bun run openspec -- validate habitat-boundary-tags --strict` | default | 0 | touched historical H3 change is valid | historical record realignment preserved OpenSpec shape | spec validation |
 | BTT-I13 | `bun run openspec:validate` | default | 0 | 181 passed, 0 failed | aggregate OpenSpec shape remains valid | spec validation |
@@ -111,7 +111,7 @@ above for current recovery claims.
 
 Current non-claims:
 
-- No `habitat verify` closure.
+- No CI execution proof or broad changed-range affected proof.
 - No Grit row semantics, file-layer, Biome, hook, baseline, generated-output,
   registered promotion, runtime, or product proof.
 - No HG-owned aggregate proof-record mutation.
