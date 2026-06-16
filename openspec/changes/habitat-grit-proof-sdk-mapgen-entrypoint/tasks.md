@@ -22,22 +22,28 @@
 
 ## 3. Dependency-Bound Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `SME-PER-RULE-SELECTOR-2026-06-16` selects exactly
+    `grit-sdk-mapgen-entrypoint` plus `baseline-integrity`, both passing with
+    zero diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
   - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+- [x] 3.3 Injected violation and cleanup proof.
+  - `SME-INJECTED-PROBE-2026-06-16` records one diagnostic at the registered
+    SDK root probe path, a clean SDK mapgen subpath control, clean initial/final
+    git state, and clean injected-probe filesystem cleanup. Aggregate
+    injected-corpus closure remains unclaimed while unrelated DDIT is blocked.
+- [x] 3.4 Explicit baseline proof.
+  - `tools/habitat-harness/baselines/grit-sdk-mapgen-entrypoint.json` is
+    explicit `[]`; `SME-BASELINE-FILES-2026-06-16` records 30 Grit baseline
+    files, no missing/extra/non-empty baselines, and `baseline-integrity`
+    passing through per-rule and aggregate wrapper proof.
 - [x] 3.5 Live current-predicate candidate disposition.
   - Parser inventory must record live current-row candidates as blockers or
-    zero-candidate evidence. Clean row closure remains a non-claim until
-    wrapper/current-tree, baseline, injected, raw/adapter, and supervisor
-    acceptance gates are available.
+    zero-candidate evidence. Raw acquisition remains a non-claim; active-check
+    closure is bounded to native fixture proof, current parser inventory,
+    Habitat wrapper proof, explicit empty baseline proof, and row-specific
+    injected proof.
 
 ## 4. Downstream Realignment
 

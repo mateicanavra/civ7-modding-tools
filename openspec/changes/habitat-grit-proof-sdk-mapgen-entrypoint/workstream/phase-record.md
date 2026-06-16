@@ -2,27 +2,24 @@
 
 ## Current Gate
 
-Gate 6 / native fixture and parser inventory checkpoint implemented, verified,
-record-aligned, committed, and supervisor-accepted as a bounded checkpoint. The
-row is limited to native fixture/parser-edge proof, parser inventory over SDK
-and mapgen-core source, and record truth. Clean row closure remains a non-claim
-for proof classes not separately recorded. Successor HG rows are committed
-through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so
-this packet is not the active next-row gate.
+Active-check closure implemented and record-aligned for supervisor review. The
+row records native fixture/parser-edge proof, full native corpus refresh, parser
+inventory over SDK and mapgen-core source, Habitat per-rule wrapper proof,
+aggregate `grit-check` proof, explicit empty baseline proof, and row-specific
+injected violation/path-control proof. Raw direct Grit acquisition, Effect
+adapter proof, apply safety, broader SDK/mapgen architecture closure, aggregate
+injected-corpus closure while DDIT remains blocked, and product/runtime proof
+remain non-claims.
 
 ## Branch / Stack
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-sdk-mapgen-entrypoint`
-- Parent: `agent-HG-habitat-grit-viz-contract-ownership`
-- Historical row-local proof did not consume HR repair layers. Current
-  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
-  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
-  `HGPR-BASELINE-FILES-2026-06-15`,
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+- Branch: `agent-HG-habitat-grit-sdk-mapgen-entrypoint-closure`
+- Parent: `agent-HG-habitat-grit-viz-contract-ownership-closure`
+- Closure proof is row-owned for SME and aggregate-owned for current
+  `grit-check` health; it does not change SDK source, mapgen-core source,
+  registry metadata, baseline content, or injected-probe metadata.
 
 ## Scope
 
@@ -32,7 +29,8 @@ This checkpoint owns:
 - native fixture/parser-edge expansion for
   `.grit/patterns/habitat/checks/sdk_mapgen_entrypoint.md`;
 - parser inventory over current SDK and mapgen-core source;
-- aggregate proof matrix, command proof log, and corpus ledger realignment.
+- aggregate proof matrix, command proof log, and corpus ledger realignment for
+  current wrapper/baseline/injected proof truth.
 
 This checkpoint does not own package source remediation, SDK public contract
 changes, predicate repair beyond the SDK-root named value re-export branch
@@ -40,9 +38,10 @@ repaired by `SME-P2-NAMED-REEXPORT-PREDICATE-GAP-2026-06-15` and the inline
 type-only control branch repaired by
 `SME-P2-INLINE-TYPE-REEXPORT-CONTROL-GAP-2026-06-15`, Grit apply/codemod
 behavior, baseline mutation, Habitat command wrapper repair, raw
-adapter/acquisition repair, Effect adapter or injected cleanup behavior,
+adapter/acquisition repair, Effect adapter behavior,
 multiline or alternate-whitespace inline type-only parser-edge closure,
-neighboring SDK/mapgen rows, or product/runtime proof.
+neighboring SDK/mapgen rows, aggregate injected-corpus closure while DDIT
+remains blocked, or product/runtime proof.
 
 ## Evidence
 
@@ -67,10 +66,19 @@ neighboring SDK/mapgen rows, or product/runtime proof.
   allowed SDK mapgen subpath
   `@civ7/adapter/civ7` import; 0 mapgen-core `@civ7/adapter/civ7` imports; and
   0 parse diagnostics. Current-row match list is empty.
-- Verification commands run so far for this checkpoint:
-  `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter sdk_mapgen_entrypoint --json 2>&1`
-  and inline Node/TypeScript parser inventory. OpenSpec and hygiene checks run
-  after record realignment.
+- `SME-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus refresh
+  passed with 32 testable patterns and 0 failures.
+- `SME-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper proof selected
+  exactly SME plus `baseline-integrity`, both passing with zero diagnostics.
+- `SME-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` proof passed with
+  SME included in the 30 Grit rules plus `baseline-integrity`.
+- `SME-BASELINE-FILES-2026-06-16`: 30 Grit rule ids, 30 explicit empty baseline
+  files, no missing/extra/non-empty baselines, and SME included.
+- `SME-INJECTED-PROBE-2026-06-16`: clean-start injected runner reported SME
+  passed with one diagnostic at `packages/sdk/src/index.ts`, a clean
+  `packages/sdk/src/mapgen/index.ts` control, clean initial/final git state,
+  and clean injected-probe cleanup. The runner exited 1 only because unrelated
+  DDIT remains blocked.
 
 ## Review / Findings
 
@@ -82,14 +90,18 @@ re-exports from `./mapgen` and `./mapgen/index.js` are native positives, while
 named re-exports remain non-runtime controls. Multiline or alternate-whitespace
 inline type-only formatting remains an unproven parser-edge non-claim. Parser
 inventory found 0 live current-row candidates in SDK root, SDK non-mapgen
-source, and mapgen-core source. Supervisor accepted the bounded checkpoint at
-`292c5eba9`.
+source, and mapgen-core source. This closure checkpoint adds current wrapper,
+baseline, and row-specific injected proof without claiming raw acquisition,
+broader SDK/mapgen architecture closure, or product/runtime behavior.
 
 ## Next Actions
 
-1. Preserve this packet as a bounded, accepted historical checkpoint.
-2. Keep multiline or alternate-whitespace inline type-only closure, type-first
-   or alternate mixed-order closure, broader SDK/mapgen architecture closure, raw
-   acquisition, Effect adapter closure, apply safety, generator/migration proof,
-   product proof, and row-specific proof beyond inherited shared
-   wrapper/baseline/injected IDs as non-claims unless separately recorded.
+1. Await supervisor acceptance of the committed SME closure checkpoint before
+   opening the next HG row.
+2. After supervisor acceptance, select the next eligible HG-owned row from
+   current corpus, proof-matrix, command-log, and packet evidence.
+3. Keep multiline or alternate-whitespace inline type-only closure, type-first
+   or alternate mixed-order closure, broader SDK/mapgen architecture closure,
+   raw acquisition, Effect adapter closure, apply safety, generator/migration
+   proof, product proof, and aggregate injected-corpus closure while DDIT remains
+   blocked as non-claims unless separately recorded.

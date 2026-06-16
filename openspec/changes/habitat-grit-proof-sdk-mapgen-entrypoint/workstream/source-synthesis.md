@@ -101,5 +101,8 @@ imports, export-form controls, and parse diagnostics.
   diagnostics.
 
 The current-row match list is empty. This is parser inventory/live
-zero-candidate evidence only, not Habitat wrapper/current-tree proof, baseline
-proof, injected proof, apply safety, or product proof.
+zero-candidate evidence only. Current closure additionally records separate
+Habitat wrapper/current-tree proof, explicit empty baseline proof, and
+row-specific injected proof; parser inventory does not prove raw direct Grit
+acquisition, apply safety, broader SDK/mapgen architecture closure, or product
+runtime behavior.

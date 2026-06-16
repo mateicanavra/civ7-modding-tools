@@ -4,10 +4,10 @@
 safe for Node/Bun build-tool consumers while exposing Civ7 map runtime helpers
 only from the explicit SDK mapgen subpath.
 
-This checkpoint opens the row packet before fixture or proof claims and limits
-the row to the independent checkpoint class available in this stack:
-current-predicate native fixture proof, parser inventory over SDK and
-mapgen-core source, and record truth only.
+This closure records the row-owned active-check proof now available for the
+current stack: current-predicate native fixture proof, parser inventory over SDK
+and mapgen-core source, Habitat wrapper proof, explicit empty baseline proof,
+row-specific injected violation/path-control proof, and aggregate record truth.
 
 ## Target Authority Refs
 
@@ -40,7 +40,7 @@ mapgen-core source, and record truth only.
   row id, proof-class labels, candidate counts, allowed SDK mapgen imports, and
   non-claims in durable records.
 - Update the aggregate Grit proof matrix, command proof log, and corpus ledger
-  for this row's current checkpoint after evidence is gathered.
+  for this row's current closure after evidence is gathered.
 
 ## What Does Not Change
 
@@ -51,11 +51,11 @@ mapgen-core source, and record truth only.
   `SME-P2-INLINE-TYPE-REEXPORT-CONTROL-GAP-2026-06-15`.
 - No multiline or alternate-whitespace inline type-only re-export closure is
   claimed from this row.
-- No source remediation, baseline, or apply behavior is claimed.
-- No Habitat wrapper/current-tree proof is claimed.
-- No raw Grit acquisition, injected cleanup, Effect adapter, generator/migration,
-  retired parity, broader SDK/mapgen architecture closure, neighboring row, or
-  product proof is claimed.
+- No source remediation or apply behavior is claimed.
+- No raw Grit acquisition, Effect adapter, generator/migration, retired parity,
+  broader SDK/mapgen architecture closure, neighboring row, aggregate
+  injected-corpus closure while DDIT remains blocked, or product/runtime proof
+  is claimed.
 
 ## Owner Boundary
 
@@ -63,15 +63,12 @@ This workstream owns fixture and proof-record truth for
 `grit-sdk-mapgen-entrypoint`.
 
 This workstream does not own SDK or mapgen-core source remediation, public SDK
-contract changes, baseline mutation, Habitat wrapper/adapter implementation, or
-product/runtime proof.
+contract changes, baseline mutation, Habitat wrapper/adapter implementation, raw
+direct acquisition, or product/runtime proof.
 
 ## Requires
 
 - Supervisor acceptance before stacking another row above this checkpoint.
-- A landed/restacked command-trust layer before Habitat wrapper selector proof.
-- An accepted typed adapter/probe cleanup surface before injected proof.
-- The scaffold/baseline contract surface before explicit baseline proof.
 - Supervisor/source-owner disposition if parser inventory finds live
   current-row candidates.
 
@@ -82,14 +79,22 @@ product/runtime proof.
 - Current inventory finds live candidates and no owner accepts remediation,
   migration, or baseline disposition.
 - Closure would rely on stdout artifacts or scratch files.
-- Closure would claim wrapper, raw acquisition, baseline, injected, Effect
-  adapter, apply, generator/migration, neighboring row, retired parity, broader
-  architecture, or product proof from native fixture/parser inventory evidence.
+- Closure would claim raw acquisition, Effect adapter, apply,
+  generator/migration, neighboring row, retired parity, broader architecture,
+  aggregate injected-corpus closure, or product proof from native
+  fixture/parser inventory, wrapper, baseline, or row-specific injected
+  evidence.
 
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter sdk_mapgen_entrypoint --json`
+- `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --json`
 - Parser inventory over `packages/sdk/src` and `packages/mapgen-core/src`
+- `bun run habitat:check -- --json --rule grit-sdk-mapgen-entrypoint`
+- `bun run habitat:check -- --json --tool grit-check`
+- explicit Grit baseline inventory
+- `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
 - `bun run openspec -- validate habitat-grit-proof-sdk-mapgen-entrypoint --strict`
+- `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - `bun run openspec:validate`
 - `git diff --check`

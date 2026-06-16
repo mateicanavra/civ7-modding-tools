@@ -66,11 +66,21 @@ entrypoint under the current `grit-sdk-mapgen-entrypoint` predicate.
 
 Habitat SHALL keep proof classes separate for `grit-sdk-mapgen-entrypoint`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Wrapper, baseline, and injected proof are recorded
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, apply safety, generator/migration proof, or
-  retired parity is not available in the current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** the row records Habitat per-rule wrapper proof, aggregate
+  `grit-check` proof, explicit empty baseline proof, and row-specific injected
+  violation/path-control proof
+- **THEN** those proof classes SHALL be named separately from native fixtures
+  and parser inventory
+- **AND** aggregate injected-corpus closure SHALL remain unclaimed while an
+  unrelated row remains blocked
+
+#### Scenario: Unproved proof classes remain outside closure
+
+- **WHEN** raw acquisition, Effect adapter behavior, apply safety,
+  generator/migration proof, retired parity, broader SDK/mapgen architecture
+  closure, or product/runtime proof is not separately proven
+- **THEN** row records SHALL label those proof classes as non-claims
+- **AND** the row SHALL NOT close those gates through native fixtures, parser
+  inventory, wrapper proof, baseline proof, or injected path-control proof
