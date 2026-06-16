@@ -4,8 +4,8 @@
 
 ### Objective
 
-Make `grit-placement-outcome-boundary` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Make `grit-placement-outcome-boundary` truthful as a row-owned active-check
+closure for the current Grit predicate.
 
 ### Product Movement
 
@@ -39,8 +39,8 @@ the terminal apply step consumes them.
    row.
 5. Same-name property/member lookalikes, non-placement apply paths, generated
    output, packages, `.tsx`, and other-mod paths are controls under this row.
-6. Current parser inventory is not Habitat wrapper enforcement proof or product
-   placement proof.
+6. Current parser inventory, Habitat wrapper proof, baseline proof, and
+   row-specific injected proof are separate proof classes.
 
 ### Exterior
 
@@ -97,27 +97,38 @@ marks parser-edge and false-positive classification pending.
 
 ## Proof Contract
 
-This row checkpoint may record:
+This row checkpoint records:
 
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live candidate evidence over current Swooper terminal
   placement apply source;
+- Habitat per-rule wrapper selector/current-tree proof;
+- aggregate Habitat `grit-check` wrapper proof with POB included;
+- explicit empty baseline ownership through `baseline-integrity`;
+- row-specific injected violation and path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
 Proof ids:
 
-- `POB-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for
+- `POB-NATIVE-FIXTURES-2026-06-16`: native fixture/parser-edge proof for
   current-predicate positive classes and recorded controls.
-- `POB-PLACEMENT-INVENTORY-2026-06-15`: parser inventory/live evidence over
+- `POB-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus proof with
+  POB included.
+- `POB-PLACEMENT-INVENTORY-2026-06-16`: parser inventory/live evidence over
   current Swooper terminal placement apply source.
+- `POB-PER-RULE-SELECTOR-2026-06-16`: Habitat per-rule selector/current-tree
+  proof.
+- `POB-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` proof with POB
+  included.
+- `POB-BASELINE-FILES-2026-06-16`: explicit empty baseline plus
+  `baseline-integrity` proof.
+- `POB-INJECTED-PROBE-2026-06-16`: row-specific injected finding and path
+  control proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
 - generator/migration proof;

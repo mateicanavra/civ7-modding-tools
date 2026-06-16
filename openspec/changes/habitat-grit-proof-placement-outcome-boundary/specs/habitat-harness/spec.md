@@ -29,6 +29,28 @@ downstream record truth.
 - **AND** live current-predicate candidates SHALL be recorded as blocker or
   disposition inputs rather than clean enforcement closure
 
+#### Scenario: Habitat wrapper and baseline proof pass
+
+- **WHEN** `habitat:check -- --json --rule grit-placement-outcome-boundary`
+  exits 0 with only `grit-placement-outcome-boundary` and
+  `baseline-integrity` selected
+- **THEN** Habitat records row-specific wrapper selector/current-tree proof for
+  this rule
+- **AND** Habitat records explicit empty baseline ownership through
+  `baseline-integrity`
+- **AND** Habitat SHALL NOT claim raw direct Grit acquisition, broader placement
+  product closure, apply safety, generator/migration behavior, neighboring row
+  proof, retired parity, or product proof from that command
+
+#### Scenario: Injected violation path control passes
+
+- **WHEN** the registered POB injected probe reports one finding on terminal
+  placement apply source and keeps the out-of-scope placement index control
+  clean
+- **THEN** Habitat records row-specific injected finding and path-control proof
+- **AND** aggregate injected-corpus closure SHALL remain separate from this row
+  while unrelated injected rows remain blocked
+
 ### Requirement: Terminal Placement Apply Does Not Call Official Generators
 
 Swooper terminal placement apply source SHALL avoid direct official
@@ -64,11 +86,12 @@ resource/discovery generator calls under the current
 Habitat SHALL keep proof classes separate for
 `grit-placement-outcome-boundary`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Non-claimed proof classes remain separate
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, apply safety, or generator/migration proof
-  is not available in the current row stack/base
+- **WHEN** raw acquisition, Effect adapter behavior, apply safety,
+  generator/migration proof, retired parity, broader placement product closure,
+  neighboring row proof, aggregate injected-corpus closure, or product/runtime
+  proof is not available in the current row proof set
 - **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **AND** the row SHALL NOT close those gates through native fixtures, parser
+  inventory, wrapper proof, baseline proof, or row-specific injected proof
