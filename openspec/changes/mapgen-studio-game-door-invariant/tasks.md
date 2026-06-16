@@ -75,8 +75,18 @@
 - [x] 6.1 Review findings dispositioned with no unresolved P1/P2.
 - [x] 6.2 Packet train marks D12 accepted and all D0-D12 packets accepted.
 - [x] 6.3 Submit the full Graphite stack with `--ai`.
-- [ ] 6.4 Merge/drain the stack bottom-to-top when review/merge policy allows.
-- [ ] 6.5 Run `gt sync --no-restack --no-interactive --force` and confirm
+- [x] 6.4 Merge/drain the stack bottom-to-top when review/merge policy allows.
+- [x] 6.5 Run `gt sync --no-restack --no-interactive --force` and confirm
       merged branches are not checked out in worktrees.
 - [x] 6.6 Leave worktree clean or write a precise next packet if external review
       or live proof blocks final closure.
+
+Drain reconciliation note, 2026-06-16:
+
+- Current `origin/main` first-parent history contains the submitted runtime
+  stack PRs `#1729` through `#1747`, followed by `#1748`
+  (`654f58d8f`) for D12 formatting/build hygiene after merge.
+- Local and `origin/*` runtime-effect branch refs are no longer present, and no
+  worktree has `codex/runtime-effect-game-door-invariant` checked out.
+- This closes the Graphite merge/sync/drain task class from current repo
+  evidence. It does not add new runtime/live proof.

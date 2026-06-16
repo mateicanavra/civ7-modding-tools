@@ -1,6 +1,7 @@
 # D12 Closure Checklist - Game Door Invariant
 
-Status: D12 implementation submitted; live Civ7 proof executed; final merge/sync/drain not claimed
+Status: D12 implementation submitted, live Civ7 proof executed, and final
+merge/sync/drain reconciled from current `origin/main`
 Date: 2026-06-14; implementation update 2026-06-15
 
 - [x] Proposal, design, tasks, and spec delta agree on D12 ownership.
@@ -52,13 +53,16 @@ Implementation evidence:
 - [x] Graphite stack submitted with `gt submit --stack --publish --ai --branch
       codex/runtime-effect-game-door-invariant --no-interactive`; PRs #1729
       through #1747 created.
-- [ ] Graphite stack merge/sync/drain proof recorded when review policy allows
-      final stack closure.
+- [x] Graphite stack merge/sync/drain proof recorded when review policy allows
+      final stack closure: current `origin/main` contains PRs `#1729` through
+      `#1748`; local and `origin/*` runtime-effect branch refs are absent; no
+      worktree has `codex/runtime-effect-game-door-invariant` checked out.
 
 Residual implementation risk:
 
-- Live Civ7 proof ran in this D12 worktree after the transient
-  `studio-current` artifact repair. Final Graphite merge/sync/drain remains
-  open until review/merge policy permits it.
+- Live Civ7 proof ran in the D12 worktree after the transient
+  `studio-current` artifact repair. Final Graphite merge/sync/drain is now
+  closed by current repo evidence on `origin/main`; this is a branch/stack
+  hygiene claim, not additional runtime behavior proof.
 - Long leaf Promise ports remain bounded adapter lifecycle debt; D12 does not
   claim underlying host Promise cancellation ownership.
