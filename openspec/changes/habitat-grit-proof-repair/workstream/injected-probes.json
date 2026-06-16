@@ -28,6 +28,20 @@
     }
   },
   {
+    "ruleId": "grit-relative-domain-imports",
+    "patternIdentity": "relative_domain_imports",
+    "rulesJsonScope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+    "sourcePredicate": "recipe/map source imports local domain source through a relative ../domain path",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+      "body": "import { isAnyRiverClass } from \"../../../../domain/hydrology/index.js\";\n\nexport const value = isAnyRiverClass;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/control.ts",
+      "body": "import { isAnyRiverClass } from \"../domain/hydrology/index.js\";\n\nexport const value = isAnyRiverClass;\n"
+    }
+  },
+  {
     "ruleId": "grit-domain-deep-import-tests",
     "patternIdentity": "domain_deep_import_tests",
     "rulesJsonScope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",

@@ -1,26 +1,20 @@
 import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
 import { CIV7_POLICY_TABLES_V1 } from "@civ7/map-policy";
-import resources from "@mapgen/domain/resources";
-import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import type { Static } from "@swooper/mapgen-core/authoring";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
-  resolveResourceRuntimeIds,
-} from "../../../../../../domain/resources/index.js";
-import type { OfficialResourceType } from "../../../../../../domain/resources/lib/corpus/types.js";
-import {
   buildHabitatEligibility,
+  buildResourceLegalityMask,
+  getInitialMapResourcePolicyForType,
+  type OfficialResourceType,
   RESOURCE_HABITAT_SIGNALS,
   type ResourceFamilyId,
-} from "../../../../../../domain/resources/policy/habitat-eligibility.js";
-import {
-  getInitialMapResourcePolicyForType,
-  resolveActiveResourceAge,
-} from "../../../../../../domain/resources/policy/initial-map-authoring.js";
-import {
-  buildResourceLegalityMask,
   type ResourceLegalitySurface,
-} from "../../../../../../domain/resources/policy/resource-legality.js";
+  resolveActiveResourceAge,
+  resolveResourceRuntimeIds,
+  default as resources,
+} from "@mapgen/domain/resources";
+import type { ExtendedMapContext } from "@swooper/mapgen-core";
+import type { Static } from "@swooper/mapgen-core/authoring";
 
 type HabitatFields = Static<(typeof resources.ops.deriveHabitatFields)["output"]>;
 type SelectSitesInput = Static<(typeof resources.ops.selectResourceSites)["input"]>;

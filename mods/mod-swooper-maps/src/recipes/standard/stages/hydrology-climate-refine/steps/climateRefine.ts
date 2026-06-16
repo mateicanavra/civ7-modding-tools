@@ -1,3 +1,4 @@
+import { isMajorRiverClass, isMinorRiverClass, RIVER_CLASS_NONE } from "@mapgen/domain/hydrology";
 import type {
   HydrologyCryosphereKnob,
   HydrologyDrynessKnob,
@@ -15,11 +16,6 @@ import {
   writeClimateField,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import {
-  isMajorRiverClass,
-  isMinorRiverClass,
-  RIVER_CLASS_NONE,
-} from "../../../../../domain/hydrology/index.js";
 import { computeRiverAdjacencyMaskFromRiverClass } from "../../hydrology-hydrography/river-adjacency.js";
 import { hydrologyClimateRefineArtifacts } from "../artifacts.js";
 import ClimateRefineStepContract from "./climateRefine.contract.js";

@@ -1,4 +1,4 @@
-import { isAnyRiverClass } from "../../../../domain/hydrology/index.js";
+import { isAnyRiverClass } from "@mapgen/domain/hydrology";
 
 export function computeRiverAdjacencyMaskFromRiverClass(options: {
   width: number;
