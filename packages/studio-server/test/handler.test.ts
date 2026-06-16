@@ -111,7 +111,12 @@ describe("studio-server RPC handler", () => {
       }),
     });
     const client = await listenWithClient(context);
-    const run = await client.runInGame.start({ recipeId: "mod-swooper-maps/standard" });
+    const run = await client.runInGame.start({
+      recipeId: "mod-swooper-maps/standard",
+      seed: 43,
+      mapSize: "MAPSIZE_STANDARD",
+      config: {},
+    });
 
     const { error } = await safe(
       client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
@@ -244,7 +249,12 @@ describe("studio-server RPC handler", () => {
       .poll(async () => (await client.mapConfigs.status({ requestId: save.requestId })).phase)
       .toBe("complete");
 
-    const run = await client.runInGame.start({ recipeId: "mod-swooper-maps/standard" });
+    const run = await client.runInGame.start({
+      recipeId: "mod-swooper-maps/standard",
+      seed: 43,
+      mapSize: "MAPSIZE_STANDARD",
+      config: {},
+    });
     const runEvent = await readOperationEvent(
       iterator,
       (event) => event.kind === "run-in-game" && event.status.requestId === run.requestId
