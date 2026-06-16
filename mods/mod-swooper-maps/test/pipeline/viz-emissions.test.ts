@@ -78,6 +78,8 @@ describe("standard pipeline viz emissions", () => {
       "morphology.shelf.capTiles",
       "morphology.routing.flowAccum",
       "map.morphology.coasts.waterClass",
+      "map.morphology.coasts.sourceCoastMask",
+      "map.morphology.coasts.policyCoastMask",
       "morphology.mountains.mountainMask",
       "hydrology.climate.rainfall",
       "hydrology.hydrography.discharge",
@@ -441,6 +443,20 @@ describe("standard pipeline viz emissions", () => {
     const waterClassMetas = metasByKey.get("map.morphology.coasts.waterClass") as any[] | undefined;
     expect(
       waterClassMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")
+    ).toBe(true);
+
+    const sourceCoastMetas = metasByKey.get("map.morphology.coasts.sourceCoastMask") as
+      | any[]
+      | undefined;
+    expect(
+      sourceCoastMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")
+    ).toBe(true);
+
+    const policyCoastMetas = metasByKey.get("map.morphology.coasts.policyCoastMask") as
+      | any[]
+      | undefined;
+    expect(
+      policyCoastMetas?.some((m) => m?.visibility === "debug" && m?.role === "membership")
     ).toBe(true);
 
     const projectedRiverMetas = metasByKey.get("map.rivers.projectedRiverMask") as

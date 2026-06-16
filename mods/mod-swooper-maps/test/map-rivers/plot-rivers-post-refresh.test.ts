@@ -11,6 +11,7 @@ import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
 import { RIVER_CLASS_MAJOR, RIVER_CLASS_MINOR } from "../../src/domain/hydrology/index.js";
 import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
+import { mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts.js";
 import { mapRiversArtifacts } from "../../src/recipes/standard/stages/map-rivers/artifacts.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
@@ -142,6 +143,16 @@ describe("map-rivers/plot-rivers", () => {
       lakeMask: new Uint8Array(size),
       plannedLakeTileCount: 0,
       sinkLakeCount: 0,
+    });
+    context.artifacts.set(mapMorphologyArtifacts.coastClassification.id, {
+      width,
+      height,
+      baseWaterClass: new Uint8Array(size),
+      sourceCoastMask: new Uint8Array(size),
+      waterClass: new Uint8Array(size),
+      policyCoastMask: new Uint8Array(size),
+      coastBufferTiles: 0,
+      promotedOceanToCoast: 0,
     });
 
     expect(adapter.getTerrainType(0, 0)).toBe(FLAT_TERRAIN);

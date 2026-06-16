@@ -10,7 +10,7 @@ const PlotContinentsStepContract = defineStep({
   requires: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.continentsPlotted],
   artifacts: {
-    requires: [morphologyArtifacts.topography],
+    requires: [morphologyArtifacts.topography, mapMorphologyArtifacts.coastClassification],
     provides: [mapMorphologyArtifacts.continentValidationTerrainSnapshot],
   },
   schema: Type.Object({}),

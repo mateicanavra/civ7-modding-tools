@@ -8,6 +8,10 @@ const MapMorphologyCoastClassificationArtifactSchema = Type.Object(
       description:
         "Pre-policy water class derived from Morphology truth (0=land, 1=coast, 2=ocean).",
     }),
+    sourceCoastMask: TypedArraySchemas.u8({
+      description:
+        "Pre-policy mask of water tiles selected for coast projection from coastlineMetrics coastalWater or shelfMask.",
+    }),
     waterClass: TypedArraySchemas.u8({
       description:
         "Post-policy water class stamped into engine terrain (0=land, 1=coast, 2=ocean).",

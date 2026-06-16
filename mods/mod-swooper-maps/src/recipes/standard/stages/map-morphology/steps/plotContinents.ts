@@ -1,5 +1,6 @@
 import { defineVizMeta, logLandmassAscii, snapshotEngineHeightfield } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { restoreProjectedCoastTerrain } from "../../../projection-policies/coastProjectionParity.js";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
 import { mapMorphologyArtifacts } from "../artifacts.js";
 import PlotContinentsStepContract from "./plotContinents.contract.js";
@@ -13,11 +14,13 @@ export default createStep(PlotContinentsStepContract, {
   }),
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
+    const coastClassification = deps.artifacts.coastClassification.read(context);
     const { width, height } = context.dimensions;
 
     context.adapter.validateAndFixTerrain();
     context.adapter.recalculateAreas();
     context.adapter.stampContinents();
+    restoreProjectedCoastTerrain(context, coastClassification, "map-morphology/plot-continents");
 
     const physics = context.buffers.heightfield;
     const engine = snapshotEngineHeightfield(context);
