@@ -108,9 +108,15 @@ Each current check row carries:
 - Old-mechanism parity repair probe
   `HGPR-PARITY-WRAPPED-*-NX-2026-06-15`: `wrapped-script` remains green;
   `wrapped-eslint` is formally stale historical command identity under the
-  repaired selector contract; `wrapped-test` now runs dependency-fresh
-  Nx-owned architecture targets for five wrapped-test rules and those pass.
-  `arch-test-map-bundle-runtime-imports` remains current-red because proving it
-  through `mod-swooper-maps:build` dirties generated/tracked outputs. This is
-  generated-output freshness evidence and does not close old-mechanism parity,
-  Grit row parity, retirement safety, or product/runtime proof.
+  repaired selector contract; `wrapped-test` runs dependency-fresh Nx-owned
+  architecture targets for five wrapped-test rules and those pass. The
+  generated-output freshness blocker for `arch-test-map-bundle-runtime-imports`
+  was later repaired in the owning generated-output slice.
+- Old-mechanism parity closure probe
+  `HGPR-PARITY-WRAPPED-*-CLOSURE-2026-06-16`: `wrapped-script` remains green;
+  `wrapped-eslint` remains the expected stale historical selector failure; and
+  `wrapped-test` now passes all six wrapped-test rules plus
+  `baseline-integrity`. This closes current old-mechanism command parity
+  disposition only. It does not prove Grit row semantic parity, wrapper
+  retirement safety, raw direct Grit acquisition, CI execution, or
+  product/runtime proof.
