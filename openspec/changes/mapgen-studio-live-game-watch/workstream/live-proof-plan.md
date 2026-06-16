@@ -97,6 +97,16 @@ Start the repo-native full Studio dev target when browser/UI proof is in scope:
 bun run nx run mapgen-studio:dev --outputStyle=static
 ```
 
+If the default Studio ports are occupied, isolate this proof worktree with
+explicit environment ports:
+
+```bash
+STUDIO_DAEMON_PORT=5274 \
+STUDIO_DEV_PORT=5273 \
+STUDIO_DEV_RPC_TARGET=http://127.0.0.1:5274 \
+bun run nx run mapgen-studio:dev --outputStyle=static
+```
+
 Expected local surfaces:
 
 - frontend: `http://127.0.0.1:5173` or the port printed by Vite;
@@ -118,6 +128,9 @@ timeout 12s curl -sN \
   http://127.0.0.1:5174/rpc/studio/events/watch \
   | tee /tmp/d10-live-watch-1.sse
 ```
+
+When isolated ports are used, replace `5174` with the recorded
+`STUDIO_DAEMON_PORT`.
 
 Use the same command for reconnect replay with a new output file after the first
 `live-game` event has been captured.

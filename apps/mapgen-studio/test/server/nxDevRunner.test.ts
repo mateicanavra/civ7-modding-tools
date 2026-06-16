@@ -63,4 +63,13 @@ describe("Nx dev runner topology", () => {
     expect(JSON.stringify(appPackage.scripts)).not.toContain("bun --watch");
     expect(existsSync(join(appRoot, "src/server/daemon/devLive.ts"))).toBe(false);
   });
+
+  test("dev server ports can be isolated by environment", () => {
+    const daemonSource = readFileSync(join(appRoot, "src/server/daemon/daemon.ts"), "utf8");
+    const viteSource = readFileSync(join(appRoot, "vite.config.ts"), "utf8");
+
+    expect(daemonSource).toContain("STUDIO_DAEMON_PORT");
+    expect(viteSource).toContain("STUDIO_DEV_PORT");
+    expect(viteSource).toContain("STUDIO_DEV_RPC_TARGET");
+  });
 });

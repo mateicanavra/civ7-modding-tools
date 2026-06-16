@@ -1,6 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { createStudioDaemonFetch, type StudioDaemonDeps } from "../../src/server/daemon/daemon";
+import {
+  createStudioDaemonFetch,
+  parseStudioDaemonArgs,
+  type StudioDaemonDeps,
+} from "../../src/server/daemon/daemon";
 
 function makeDeps(overrides: Partial<StudioDaemonDeps> = {}): {
   deps: StudioDaemonDeps;
@@ -21,6 +25,28 @@ function makeDeps(overrides: Partial<StudioDaemonDeps> = {}): {
 }
 
 describe("studio daemon fetch router", () => {
+  test("daemon args accept an env override for isolated dev ports", () => {
+    expect(
+      parseStudioDaemonArgs([], {
+        repoRoot: "/repo",
+        env: { STUDIO_DAEMON_PORT: "5274" },
+      })
+    ).toMatchObject({
+      host: "127.0.0.1",
+      port: 5274,
+      repoRoot: "/repo",
+    });
+  });
+
+  test("explicit daemon port args override the env port", () => {
+    expect(
+      parseStudioDaemonArgs(["--port", "5374"], {
+        repoRoot: "/repo",
+        env: { STUDIO_DAEMON_PORT: "5274" },
+      }).port
+    ).toBe(5374);
+  });
+
   test("serves /healthz from the health probe", async () => {
     const { deps } = makeDeps();
     const fetchHandler = createStudioDaemonFetch(deps);
