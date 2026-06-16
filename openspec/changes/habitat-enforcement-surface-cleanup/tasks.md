@@ -103,7 +103,7 @@
 - [x] 7.5 If Effect is not adopted for a trigger-area slice, prove the manual
   implementation still supplies typed failure states, command provenance,
   cleanup proof, and test substitution.
-- [ ] 7.6 If Effect is adopted, prove runtime-edge discipline, `CheckReport`
+- [x] 7.6 If Effect is adopted, prove runtime-edge discipline, `CheckReport`
   compatibility, selector failure, command provenance, collect-all check
   behavior, fail-closed mutation behavior, and service-injected tests paired
   with real root/dev/prod command tests.

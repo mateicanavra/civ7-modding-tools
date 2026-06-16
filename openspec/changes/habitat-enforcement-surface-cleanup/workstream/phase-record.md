@@ -7,8 +7,8 @@
 - Owner: DRA Habitat recovery owner
 - Branch/Graphite stack: local HESC repair stack
 - Started: 2026-06-14
-- Status: closure checkpoint locally committed for supervisor acceptance or
-  repair.
+- Status: Effect-adopted Grit path proof checkpoint locally committed for
+  supervisor acceptance or repair.
 
 ## Objective
 
@@ -141,8 +141,13 @@ Core synthesis:
   `@internal/habitat-harness:test` target passes uncached with the current
   long-running suite, and clean explicit-range `habitat verify --base HEAD
   --json` exits 0 with no affected tasks.
-- Closure state: all HESC task rows are satisfied for the packet's accepted
-  scope; this closure checkpoint is pending supervisor acceptance or repair.
+- Completed in this Effect-proof checkpoint: 7.6 for the accepted
+  Grit-scoped Effect adapter path. HESC consumes the accepted
+  `habitat-effect-grit-adapter` substrate only for Grit check/fix execution
+  and proves runtime-edge discipline, `CheckReport` compatibility, selector
+  failure, command provenance, collect-all check behavior, fail-closed dry-run
+  mutation behavior, service-injected tests, and root/dev/prod command paths
+  without claiming HG row semantics or product/runtime behavior.
 
 ## Verification
 
@@ -411,6 +416,38 @@ Core synthesis:
   semantics, no hook policy change, no product/runtime proof, and no automatic
   closure for other repair packets.
 
+## Effect-Adopted Grit Path Proof Checkpoint
+
+- HESC consumes the accepted `habitat-effect-grit-adapter` closure as the
+  packet's adopted Effect path for Grit-scoped check/fix execution only.
+- Proof classes:
+  - Unit/service behavior:
+    `bun run --cwd tools/habitat-harness test -- effect-parity.test.ts grit-adapter.test.ts grit-apply.test.ts habitat-process.test.ts workspace-tools.test.ts`
+    passes. This covers runtime-edge discipline, argument-array command
+    provenance, broad Grit-sized output capture, workspace-local command
+    routing, fake process-layer substitution, isolated-copy apply proof,
+    missing-export refusal, and fail-closed apply behavior.
+  - Habitat wrapper behavior:
+    `bun run habitat:check -- --json --tool grit-check` exits 0 with
+    schemaVersion 1, 22 Grit rules plus `baseline-integrity`, no failing rules,
+    and `baseline-integrity` passing.
+  - Selector failure behavior:
+    `bun run habitat:check -- --json --tool definitely-not-a-tool` exits 1
+    with schemaVersion 1, `rule-selection-integrity`, and no
+    `baseline-integrity` false green.
+  - Mutation no-write behavior:
+    `bun run habitat:fix -- --dry-run` exits 0, processes the current source
+    corpus, and reports 0 matches without writing source files.
+  - Native/prod command behavior:
+    after `@internal/habitat-harness:build`,
+    `bun tools/habitat-harness/bin/run.js check --json --tool grit-check`
+    exits 0 with the same schemaVersion 1, 22-rule Grit CheckReport and
+    passing `baseline-integrity`.
+- Non-claims: no all-row semantic proof beyond the current accepted Grit rule
+  set, no HG row proof, no baseline shrink/write proof, no live apply proof,
+  no hook policy proof, no CI execution proof, no broad Nx affected coverage,
+  and no product/runtime proof.
+
 ## Realignment
 
 - Downstream realignment ledger:
@@ -418,5 +455,5 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor acceptance or repair disposition of this HESC closure
-  checkpoint before opening another repair-chain slice.
+- Hold for supervisor acceptance or repair disposition of this Effect-adopted
+  Grit path proof checkpoint before opening another repair-chain slice.
