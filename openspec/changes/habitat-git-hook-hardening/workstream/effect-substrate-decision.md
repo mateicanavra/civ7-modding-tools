@@ -1,7 +1,7 @@
 # Hook Effect Substrate Decision
 
 **Change:** `habitat-git-hook-hardening`
-**Status:** implemented decision record; pending supervisor review
+**Status:** supervisor-accepted substrate decision; consumed by packet closure
 **Decision:** Do not adopt Effect for the current hook-hardening scope.
 
 ## Decision Boundary
@@ -44,8 +44,9 @@ change adds one of these surfaces:
 
 ## Non-Claims
 
-This decision does not prove Effect package adoption, dependency versions,
-lockfile changes, runtime-edge discipline for `Effect.run*`, CI execution,
-broad Nx affected coverage, current-tree Grit parse-output staged behavior,
+This decision record does not itself prove Effect package adoption, dependency
+versions, lockfile changes, runtime-edge discipline for `Effect.run*`, CI
+execution, broad Nx affected coverage, current-tree staged hook probes,
 implicit hook publishing, Grit row semantics, baseline semantics, packet
-closure, or product/runtime behavior.
+closure, or product/runtime behavior. Those hook behavior and packet closure
+claims require their own packet evidence.

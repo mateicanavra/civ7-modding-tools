@@ -5,15 +5,16 @@
 - Project: Habitat Harness
 - Phase: git hook hardening / `habitat-git-hook-hardening`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-hook-resource-publisher` above
-  `agent-HR-habitat-hook-ci-nonclaim`
+- Branch/Graphite stack: `agent-HR-habitat-hook-hardening-closure` above
+  `agent-HR-habitat-hook-grit-parse-output`
 - Started: 2026-06-14
 - Status: resource-publish, staged-mutation, pre-push base/range,
-  current-tree staged-probe, native Grit finding staged-probe, hook transaction
-  trace, hook pre/post-state trace, H7 historical realignment,
-  hook reporter-service, hook CI-authority non-claim, and hook
-  resource-publisher service checkpoints supervisor-accepted; hook Effect
-  substrate decision checkpoint implemented locally for supervisor review
+  current-tree staged-probe, native Grit finding staged-probe, native Grit
+  parse-output staged-probe, hook transaction trace, hook pre/post-state trace,
+  H7 historical realignment, hook reporter-service, hook CI-authority
+  non-claim, hook resource-publisher service, and hook Effect substrate
+  decision checkpoints supervisor-accepted; packet closure records implemented
+  for supervisor review
 
 ## Objective
 
@@ -24,8 +25,8 @@
   semantics, baseline semantics, Biome config policy, Nx taxonomy policy, broad
   command-surface repair.
 - Done condition: reviewed OpenSpec packet, accepted hook transaction/resource
-  policy contract, implementation-ready task list, downstream realignment,
-  validation, Graphite commit, clean worktree.
+  policy contract, current task list, downstream realignment, validation,
+  Graphite commit, clean worktree.
 
 ## Authority
 
@@ -57,8 +58,14 @@
 - Clean resources and clean staged resource gitlinks continue through local
   staged hook checks without publishing.
 - Focused hook tests exercise resource-state classification, staged mutation
-  boundaries, and pre-push base selection through a fake command/filesystem/hash
-  boundary; broader hook transaction proof remains open.
+  boundaries, pre-push base selection, typed trace/pre-post-state capture,
+  reporter substitution, resource-publisher command boundaries, and Grit
+  fail-closed behavior through fake command/filesystem/hash/clock service
+  boundaries.
+- Current-tree staged probes cover generated-zone and package-manager
+  file-layer refusal, partial-staging refusal, formatter-touched restage,
+  row-owned native Grit finding refusal, and native non-JSON Grit output parse
+  refusal with targeted scratch cleanup.
 - H7 historical records are realigned and supervisor-accepted as historical hook
   wiring/staged containment evidence, not current resource side-effect proof.
 
@@ -74,10 +81,13 @@ Core synthesis:
   can push remote state;
 - default pre-commit should inspect resources but leave publishing to the
   explicit `bun run resources:publish` path;
-- this checkpoint does not adopt a new Effect hook transaction layer because it
-  removes the hidden publish side effect and adds a typed read-only classifier
-  with injected command/filesystem tests; broader hook transaction orchestration
-  still requires the packet's Effect/equivalent proof decision before closure.
+- this packet does not adopt a new Effect hook transaction layer because the
+  accepted hook surface is synchronous, local-feedback-only, no longer owns
+  hidden resource publishing, and has typed outcomes, pre/post snapshots,
+  command provenance, deterministic timing, reporter substitution, and
+  resource-publisher command boundaries; future remote push, staged rollback,
+  temporary cleanup, parallel orchestration, or registered hook-scope activation
+  must reopen the Effect/equivalent substrate decision before implementation.
 
 ## Scope
 
@@ -117,11 +127,10 @@ Core synthesis:
 - Completed tasks for this staged-mutation checkpoint: 2.5, 6.5, 6.6, 6.7,
   and 6.8.
 - Completed tasks for the accepted pre-push checkpoint: 6.9 and 8.7.
-- Current-tree staged-probe progress for this checkpoint: row-owned
-  generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
-  restage, and native Grit finding probes are recorded toward 8.5. Task 8.5
-  remains open until Grit parse-output staged proof is also proven or
-  explicitly rescheduled.
+- Current-tree staged-probe progress: row-owned generated-zone, pnpm artifact,
+  partial-staging refusal, formatter-touched restage, native Grit finding, and
+  native non-JSON Grit parse-output probes are recorded. Task 8.5 is closed for
+  the staged-probe matrix covered by this packet.
 - Hook transaction trace progress for this checkpoint: `runPreCommit()` and
   `runPrePush()` now accept an optional typed trace sink that records command
   phase, argv, cwd, selected env, exit code, staged/Biome/Grit path sets,
@@ -167,7 +176,7 @@ Core synthesis:
   rollback, hook-owned temporary resource cleanup, parallel orchestration, and
   registered hook-scope activation remain reopen triggers for Effect or an
   equivalent runtime substrate.
-- Current-tree Grit parse-output staged proof progress for this checkpoint:
+- Current-tree Grit parse-output staged proof progress:
   a staged scratch file at
   `tools/habitat-harness/test/__hook-probes__/invalid-utf8.ts` containing
   invalid UTF-8 bytes reached the native Grit hook path after Biome
@@ -176,9 +185,15 @@ Core synthesis:
   `habitat hook pre-commit: could not parse Grit JSON output.` The scratch path
   was unstaged and removed, and the worktree returned clean. This closes 8.5
   for the staged-probe matrix.
-- Remaining tasks: aggregate verification and packet closure.
-- Implementation status: hook Grit parse-output staged proof checkpoint
-  implemented and locally verified for supervisor review.
+- Closure progress: task 7.6 required no downstream patch because this packet
+  does not accept generated-rule hook-scope activation or Grit row semantics.
+  Closure tasks 9.1 through 9.4 are current for this packet closure checkpoint:
+  verification/proof boundaries are recorded here, the review ledger has no
+  unresolved accepted P1/P2 findings, the downstream ledger is patched or
+  records exact non-claims, and this closure checkpoint is committed through
+  Graphite with a clean worktree.
+- Implementation status: hook-hardening packet closure records implemented for
+  supervisor review.
 
 ## Verification
 
@@ -292,12 +307,12 @@ Core synthesis:
     passing the staged file-layer check, passing Biome format/check with no
     formatter changes, and emitting the native Grit JSON result for
     `mapgen_core_runtime_civ7`. The scratch file was unstaged and removed.
-  - Parse-output non-proof: scratch
+  - Parse-output non-proof superseded by the later invalid-UTF8 proof: scratch
     `packages/mapgen-core/src/core/hr-hook-grit-parse-probe.ts` containing
     malformed TypeScript caused `bun run habitat hook pre-commit` to exit 1 in
     `biome format` before native Grit ran. This is recorded only as evidence
     that malformed source does not prove the Grit JSON parse-output path;
-    current-tree Grit parse-output proof remains open.
+    the accepted proof for that path is the later invalid-UTF8 staged probe.
 - New implementation evidence for the hook transaction trace checkpoint:
   - `tools/habitat-harness/src/lib/hooks.ts` now exports `HookTrace`,
     `HookCommandRecord`, typed pre-commit/pre-push trace records, and
@@ -383,9 +398,9 @@ Core synthesis:
     decision for this packet. It names the accepted equivalent typed proof
     surface and the reopen triggers that would require Effect or an equivalent
     runtime substrate before further hook orchestration changes.
-  - `tasks.md` now marks 4.2, 4.3, and 4.4 complete from the previously
-    accepted staged-mutation/current-tree and unit/service evidence while
-    keeping current-tree Grit parse-output staged proof open under 8.5.
+  - `tasks.md` now marks 4.2, 4.3, and 4.4 complete from the accepted
+    staged-mutation/current-tree, unit/service, and invalid-UTF8 native
+    non-JSON Grit output evidence recorded under 8.5.
   - `tasks.md` now marks 5.2, 5.3, 5.4, and 8.12 current for the non-adoption
     decision without claiming Effect dependency/version/lockfile or
     `Effect.run*` runtime-edge proof.
@@ -403,53 +418,20 @@ Core synthesis:
     `habitat hook pre-commit: could not parse Grit JSON output.`
   - Cleanup: the scratch path was removed with targeted cleanup; final
     `git status --short --branch` was clean.
-- Evidence boundary: the accepted resource checkpoint proves the default
-  pre-commit resource publish removal, typed resource-state classification,
+- Evidence boundary: this packet proves local hook hardening for default
+  pre-commit resource publish removal, read-only resource-state gates,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
-  clean/staged-gitlink continuation, root/dev pre-commit clean-resource command
-  behavior, and adjacent record truth. This staged-mutation checkpoint proves
-  focused unit behavior for file-layer ordering before mutation, partial
-  staging refusal, formatter-touched restage scope, and Grit parse/finding
-  fail-closed behavior. This pre-push checkpoint proves unit behavior for
-  Graphite parent, non-Graphite merge-base, literal-main fallback, explicit
-  base override, Nx command provenance, and Nx failure propagation; it also
-  proves the explicit-base wrapper path on an empty current-tree range. It does
-  not prove full hook transaction safety, CI authority, broad Nx affected
-  coverage, or product/runtime behavior. This current-tree staged-probe
-  checkpoint proves staged file-layer generated-zone and pnpm artifact
-  failures, partial-staging refusal, formatter-touched restage, native Grit
-  finding refusal for a row-owned `mapgen_core_runtime_civ7` scratch path, and
-  targeted cleanup for the exercised scratch paths. It does not prove Grit
-  parse-output current-tree staged behavior, full hook transaction safety, CI
-  authority, or product/runtime behavior. This transaction trace checkpoint
-  proves typed hook state/provenance capture through fake services for the
-  covered phases. This pre/post-state trace checkpoint proves branch/head,
-  staged/unstaged path, resource-state, and timing capture through fake
-  services for the covered phases; it does not prove the full transaction
-  architecture, reporter/resource-publisher services, CI authority, or
-  product/runtime behavior. This historical H7 realignment checkpoint proves
-  record truth for the superseded H7 resource-publish policy only; it does not
-  prove new hook behavior, current-tree Grit parse-output staged behavior,
-  CI authority, or product/runtime behavior. This reporter-service checkpoint
-  proves typed reporter substitution for hook output in focused unit tests; it
-  does not prove resource-publisher service behavior, full transaction
-  architecture, current-tree Grit parse-output staged behavior, CI authority, or
-  product/runtime behavior. This CI-authority output checkpoint proves hook
-  output carries the local-feedback non-claim; it does not prove CI execution,
-  broad Nx affected coverage, packet closure, or product/runtime behavior. This
-  resource-publisher service checkpoint proves typed service substitution for
-  explicit resource command remediation and direct explicit-publish command
-  provenance; it does not prove implicit hook publishing, full hook transaction
-  architecture, current-tree Grit parse-output staged behavior, CI authority, or
-  product/runtime behavior. This Effect substrate decision checkpoint proves
-  record truth for the packet's non-adoption decision and equivalent typed hook
-  proof boundary; it does not prove Effect package adoption,
-  dependency/version/lockfile changes, current-tree Grit parse-output staged
-  behavior, CI execution, packet closure, or product/runtime behavior. This
-  Grit parse-output staged proof checkpoint proves the remaining current-tree
-  staged probe matrix item for native non-JSON Grit output fail-closed behavior;
-  it does not prove Grit row semantics, CI execution, broad Nx affected
-  coverage, packet closure, or product/runtime behavior.
+  clean/staged-gitlink continuation, staged file-layer ordering before
+  mutation, partial-staging refusal, formatter-touched restage, pre-push
+  base/range selection and Nx command provenance, typed trace/pre-post-state
+  capture, reporter substitution, resource-publisher command boundaries,
+  bounded Effect non-adoption, H7 historical record truth, and current-tree
+  staged probes for generated-zone, pnpm artifact, partial/format behavior,
+  native Grit finding refusal, and native non-JSON Grit parse-output refusal.
+  It does not prove CI execution, broad Nx affected coverage, Grit row
+  semantics, generated-rule hook-scope activation, baseline semantics, future
+  hook orchestration beyond the accepted synchronous local-feedback surface, or
+  product/runtime behavior.
 
 ## Realignment
 
@@ -458,6 +440,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the hook Grit parse-output staged proof checkpoint for supervisor review.
-  Do not claim Grit row semantics, CI execution proof, broad Nx affected
-  coverage, packet closure, or product/runtime behavior from this slice.
+- Hold the hook-hardening packet closure checkpoint for supervisor review. Do
+  not claim CI execution proof, broad Nx affected coverage, Grit row semantics,
+  generated-rule hook-scope activation, baseline semantics, future hook
+  orchestration, or product/runtime behavior from this packet.

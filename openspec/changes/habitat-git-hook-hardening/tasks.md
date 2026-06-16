@@ -98,8 +98,11 @@
 - [x] 7.4 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`.
 - [x] 7.5 Update `openspec/changes/habitat-git-hooks/**` historical records so
   old H7 closure does not overclaim side-effect proof.
-- [ ] 7.6 Update `habitat-pattern-generator-metadata-repair` or Grit pilot
+- [x] 7.6 Update `habitat-pattern-generator-metadata-repair` or Grit pilot
   records only if hook-scope acceptance wording changes their dependencies.
+  No downstream patch is required for this packet closure: hook-hardening
+  proves hook runtime/staged behavior only and does not accept generated-rule
+  hook-scope activation or Grit row semantics.
 
 ## 8. Verification
 
@@ -132,9 +135,9 @@
 
 ## 9. Closure
 
-- [ ] 9.1 Record verification results and proof boundaries in
+- [x] 9.1 Record verification results and proof boundaries in
   `workstream/phase-record.md`.
-- [ ] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
-- [ ] 9.3 Ensure downstream realignment ledger is patched or has exact
+- [x] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
+- [x] 9.3 Ensure downstream realignment ledger is patched or has exact
   remaining actions.
-- [ ] 9.4 Commit through Graphite with a clean worktree.
+- [x] 9.4 Commit through Graphite with a clean worktree.
