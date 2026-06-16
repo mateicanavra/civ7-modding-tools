@@ -203,8 +203,8 @@ This provisional selection is controlled by:
 
 ### Grit Adapter Implementation Checkpoint - 2026-06-15
 
-`habitat-effect-grit-adapter` now implements the selected Grit substrate in the
-implementation worktree, pending supervisor review and Graphite commit:
+`habitat-effect-grit-adapter` implements the selected Grit substrate and is
+supervisor-accepted for the Grit-scoped adapter boundary:
 
 - Effect runtime edge is centralized in the Habitat runtime bridge.
 - `HabitatProcess` records command provenance, output digests, Git state,
