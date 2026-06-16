@@ -48,7 +48,8 @@
 
 ## Review
 
-- Review lanes: spec lane CLOSED pre-H1; architecture-review lane CLOSED pre-H3 with LOCK-SAFE verdict.
+- Review lanes: spec lane CLOSED pre-H1; architecture-review lane CLOSED
+  pre-H3 with adoption-time LOCK-SAFE verdict.
 - Blocking findings: none open.
 - Accepted findings repaired: A1-A6 in taxonomy/review docs and inherited config shape; verify during implementation.
 - Rejected/invalidated/waived/deferred findings: none.
@@ -101,7 +102,17 @@
   - `bun run check`
   - `bun run test`
   - restored generated `mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js` after build dirtied it
-- Results: tags match taxonomy; spot-checked Nx graph includes expected `kind:*` tags plus harmless `npm:*` tags; `nx-boundaries` locked empty; direct, run-many, and affected boundary gates green after repairs; violation probe failed with the expected tag-rule message.
+- Historical adoption results: tags matched taxonomy; spot-checked Nx graph
+  included expected `kind:*` tags plus harmless `npm:*` tags; `nx-boundaries`
+  locked empty; direct, run-many, and affected boundary gates were green after
+  repairs; violation probe failed with the expected tag-rule message.
+- Current recovery note: these results are H3 adoption evidence. The active
+  current-state taxonomy proof is now owned by
+  `habitat-boundary-taxonomy-tightening`, which rechecks workspace manifests,
+  resolved Nx metadata, config parity, graph-edge legality, selected
+  false-negative probes, and Habitat `nx-boundaries` wrapper output with
+  repo-local normal Nx command forms. H3 affected/run-many rows must not be used
+  as standalone current recovery proof.
 - `bun run build`: PASS for 20 build projects plus dependent task.
 - `bun run check`: PASS for 22 projects plus root lint scripts; mapgen-docs emitted its pre-existing warning-only `@mapgen/*` mentions.
 - `bun run habitat:check -- --json`: PASS; `nx-boundaries` present, locked, and diagnostics-empty; `adapter-boundary` remains baselined for its known 6 allowlist entries + the H2 river metadata baseline; `doc-ambiguity` advisory findings remain advisory.

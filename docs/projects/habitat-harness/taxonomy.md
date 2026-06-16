@@ -51,7 +51,7 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 `docs/projects/studio-runtime-simplification/PLAN.md`, and
 `packages/studio-server/src/services/Civ7TunerSession.ts`.
 
-## 2. Per-project assignment (all 21 existing projects + the new harness package)
+## 2. Per-project assignment
 
 | Project | Path | Tags |
 |---|---|---|
@@ -81,10 +81,11 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 
 ## 3. Dependency constraints (project plane, initial rule set)
 
-Encodes current enforcement generalized to tags. Verified against actual
-`package.json` dependency edges at `main` — **no current violations** except
-the allowlisted adapter-boundary files (which are file-level, not project-level,
-and become the grit rule's baseline).
+Encodes current enforcement generalized to tags. Current proof compares this
+table against workspace manifests, resolved Nx project metadata, the quarantined
+ESLint boundary config, and the resolved Nx project graph. File-level debts such
+as adapter-boundary allowlists are outside this project-plane taxonomy and stay
+owned by their Grit/file-layer rules.
 
 | sourceTag | onlyDependOnLibsWithTags | Generalizes |
 |---|---|---|
@@ -95,8 +96,8 @@ and become the grit rule's baseline).
 | `kind:plugin` | `kind:plugin`, `kind:foundation` | plugins stay leaf-local (`cli/AGENTS.md`) |
 | `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
 | `kind:control` | `kind:control`, `kind:foundation`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |
-| `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:control` | mods consume SDK/engine/adapter/policy |
-| `kind:app` | everything except `kind:app` | apps are top of the graph; nothing imports apps |
+| `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:control`, `kind:plugin` | mods consume SDK/engine/adapter/policy/control and plugin utilities needed for mod package workflows |
+| `kind:app` | everything except `kind:app` and `kind:workspace` | apps are top of the graph; nothing imports apps or the workspace root |
 | `kind:tooling` | `kind:tooling`, `kind:foundation` | harness stays out of product graph |
 
 Dual-tagged projects (`mod-civ7-intelligence-bridge`: `kind:mod` +
@@ -110,14 +111,14 @@ runtime deps (`enforce-module-boundaries` lints imports wherever the config's
 globs reach; dep kind is irrelevant to the tag check). Verified green at
 adoption (4 devDep edges).
 
-Initial baseline expectation: **all constraints green at adoption** — confirmed
-by the pre-H3 architecture review and locked on 2026-06-13 when
-`nx-boundaries` was adopted with an empty baseline. The H3 direct rule run also
-found one hidden relative test import from `@civ7/direct-control` into
+Initial baseline expectation: **all constraints green**. The original H3
+adoption proof locked `nx-boundaries` with an empty baseline; current recovery
+proof keeps that claim live only when the taxonomy, boundary config, resolved
+Nx tags, and resolved graph edges agree. The H3 direct rule run also found one
+hidden relative test import from `@civ7/direct-control` into
 `@civ7/map-policy`; it was repaired as an explicit package import/devDependency
 because `kind:control -> kind:foundation` is tag-legal. The burn-down backlog
-lives in the intra-project plane (existing allowlists + new file-layer/grit
-rules).
+lives in the intra-project plane (existing allowlists + file-layer/Grit rules).
 
 ## 4. `scope:*` rule families (intra-project plane — grit/file-layer owned)
 
