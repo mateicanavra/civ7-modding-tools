@@ -107,6 +107,12 @@
         ],
         "cache": true
       },
+      "test:architecture-map-bundle-runtime-imports": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true
+      },
       "gen:maps": {
         "dependsOn": [
           {
@@ -210,6 +216,7 @@
     "test:architecture-rng-authority": "bun test test/pipeline/rng-authority-boundary.test.ts",
     "test:architecture-ecology-step-imports": "bun test test/ecology/ecology-step-import-guardrails.test.ts",
     "test:architecture-m11-projection-band": "bun test test/foundation/m11-projection-boundary-band.test.ts",
+    "test:architecture-map-bundle-runtime-imports": "bun test test/build/map-bundle-runtime-imports.test.ts",
     "test:architecture-cutover": "bun test test/foundation/no-op-calls-op-tectonics.test.ts test/pipeline/no-dual-contract-paths.test.ts test/pipeline/no-shim-surfaces.test.ts test/pipeline/foundation-topology-lock.test.ts",
     "viz:standard": "bun ./src/dev/viz/standard-run.ts",
     "diag:dump": "bun ./src/dev/diagnostics/run-standard-dump.ts",

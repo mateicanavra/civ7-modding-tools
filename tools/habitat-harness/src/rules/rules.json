@@ -692,10 +692,12 @@
       "forbids": "map bundles missing embedded workspace packages, TextEncoder bootstrap, or river markers",
       "why": "Civ7 loads bundles as self-contained scripts; missing embeds fail only in-game. Requires a built tree.",
       "detect": [
-        "bun",
-        "test",
-        "mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts"
+        "nx",
+        "run",
+        "mod-swooper-maps:test:architecture-map-bundle-runtime-imports",
+        "--outputStyle=static"
       ],
+      "nxTarget": "mod-swooper-maps:test:architecture-map-bundle-runtime-imports",
       "remediate": "nx run mod-swooper-maps:build",
       "message": "Rebuild mod-swooper-maps; if it persists, the bundling config regressed.",
       "exceptionPath": "none"
