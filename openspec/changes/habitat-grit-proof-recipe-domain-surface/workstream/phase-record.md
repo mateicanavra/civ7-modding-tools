@@ -4,148 +4,79 @@
 
 Selected workstream: `habitat-grit-proof-recipe-domain-surface`.
 
-Reason: this is the first current check row in the Grit corpus ledger without a
-row-specific OpenSpec packet after the already-opened domain deep import and
-contract export rows. It also guards retired recipe import lint/test invariants,
-so stale closure records are likely unless the row gets its own proof contract.
+Reason: `grit-recipe-domain-surface` protects the Swooper recipe public-domain
+surface contract, and the earlier packet identified a real exact-surface gap in
+the Grit predicate. The row is product-bearing because it converts that policy
+from catalog/native-sample presence into an active Habitat check proof with
+exact owner boundaries.
 
-## Systematic Gates
+## Current Closure State
 
-### Gate 1 - Frame
+Current branch layer: `agent-HG-habitat-grit-recipe-domain-surface-closure`.
 
-Objective, hard core, exterior, falsifier, owner boundary, stop conditions, and
-proof gates are recorded in `proposal.md` and `design.md`.
+This checkpoint repairs and proves the RDS row as an active Grit check:
 
-### Gate 2 - Repo State
+- predicate now allows only exact domain root, exact `/ops`, and exact
+  `/config.js` public surfaces;
+- predicate partitions DDI-owned `ops/<tail>`, `ops-by-id`, `rules/<tail>`,
+  and `strategies/<tail>` classes to the accepted
+  `grit-domain-deep-import` row;
+- predicate reports RDS-owned non-public recipe domain subpaths, including
+  `config.js/<tail>` and RDS-owned `/ops` / `config.js` lookalikes;
+- native focused fixture proof passes with 13 match objects and 0 ignore
+  matches;
+- full native Grit corpus proof passes with 32 testable patterns and 0
+  failures;
+- TypeScript parser inventory over the recipe roots records 222 scanned `.ts`
+  files, 124 recipe-predicate domain references, 0 current-row matches, 124
+  exact allowed references, 0 DDI-owned sibling candidates, 0 substring
+  lookalikes, and 0 parse diagnostics;
+- per-rule Habitat wrapper proof selects RDS plus `baseline-integrity`, both
+  passing with zero diagnostics;
+- aggregate `grit-check` wrapper proof passes with RDS included;
+- explicit empty RDS baseline is present and accepted by `baseline-integrity`;
+- row-specific injected proof passes for the positive recipe probe and
+  outside-scope domain control.
 
-Initial state:
+## Proof Class Separation
 
-- branch: `codex/habitat-dra-takeover-frame`;
-- latest commit: `a4d80a087 docs(habitat): design contract export proof`;
-- Graphite status: clean before this packet opened;
-- worktree status: clean before this packet opened;
-- active mode: design/specification, not implementation.
+Native Grit fixture proof, parser inventory, Habitat wrapper projection,
+explicit baseline proof, and injected/path-control proof are recorded
+separately in the command proof log and aggregate proof matrix.
 
-### Gate 3 - Diagnosis
+This checkpoint does not claim:
 
-Current evidence proves catalog presence and current pass state, but not
-row-level closure:
+- raw direct Grit acquisition closure;
+- source remediation;
+- generated-output coverage or edits;
+- DDI source-family ownership by RDS;
+- step-contract policy closure;
+- retired-mechanism parity;
+- apply/codemod safety;
+- Effect adapter proof beyond consuming the accepted Habitat Grit
+  injected-probe substrate;
+- aggregate injected-corpus closure while the unrelated DDIT adapter activation
+  gap remains;
+- product/runtime proof.
 
-- native fixture passes;
-- wrapper rule selection passes;
-- bounded raw check over the recipe root reports no results;
-- current native fixture does not prove parser-edge forms or exact root/ops/config
-  negatives;
-- current predicate allows any source containing `/ops` or `/config.js` through
-  substring exclusions, including tail cases and lookalike segments;
-- `ops-by-id` is outside this row and currently defective in the neighboring
-  domain-deep-import row;
-- namespace imports, side-effect imports, and recipe-local tests need
-  classification before downstream records can claim all recipe imports;
-- injected violation and baseline proof remain absent.
+## Downstream State
 
-### Gate 4 - Corpus
+The corpus ledger, aggregate proof matrix, command proof log, task list,
+evidence log, source synthesis, and downstream realignment ledger are aligned
+to the repaired predicate and current proof IDs:
 
-Corpus row source:
+- `RDS-NATIVE-FIXTURES-2026-06-16`;
+- `RDS-NATIVE-CORPUS-REFRESH-2026-06-16`;
+- `RDS-IMPORT-INVENTORY-2026-06-16`;
+- `RDS-PER-RULE-SELECTOR-2026-06-16`;
+- `RDS-HABITAT-GRIT-TOOL-2026-06-16`;
+- `RDS-BASELINE-FILES-2026-06-16`;
+- `RDS-INJECTED-PROBE-2026-06-16`.
 
-- `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` row
-  `grit-recipe-domain-surface`;
-- aggregate matrix row in
-  `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md`.
+Historical 2026-06-15 RDS rows remain design/pre-restack evidence only and are
+not the accepted closure boundary.
 
-### Gate 5 - Grouping
+## Next Action
 
-This row belongs to the domain-surface family. It remains recipe `.ts`
-public-surface proof until exact-surface gaps and neighboring-rule overlap are
-accepted.
-
-### Gate 6 - Expectations
-
-Expected current state before implementation:
-
-- no live in-scope recipe `.ts` violations;
-- live recipe `/ops` and `/config.js` imports remain allowed;
-- `/ops/<tail>` should be linked to `grit-domain-deep-import`;
-- `ops-by-id` remains blocked until a neighboring repair or accepted owner
-  proves it;
-- `config.js/<tail>` requires repair, sibling ownership, or blocked downstream
-  disposition;
-- contains-substring lookalikes such as `/ops-private`, `/private/ops`,
-  `/config.js-private`, and `/private/config.js` require repair, sibling
-  ownership, or blocked downstream disposition;
-- namespace imports, side-effect imports, and recipe-local test paths require
-  fixture or adapter proof before closure;
-- injected positives should fail the exact Habitat rule id.
-
-### Gate 7 - Architecture Translation
-
-Owner: Grit check. Forbidden owners: import rewrite safety, generator repair,
-runtime proof, map-source policy except via boundary records, and step-contract
-policy except via boundary records.
-
-### Gate 8 - Slice
-
-This OpenSpec packet is the slice. It defines write set, protected paths,
-review lanes, tasks, and downstream realignment.
-
-## Effect/Substrate Note
-
-Injected proof implementation waits for `habitat-effect-grit-adapter` or an
-accepted typed Grit adapter substrate because the probe harness needs scoped
-file creation, command provenance, exact rule projection, overlap
-classification, parser-edge classification, and cleanup proof.
-
-The substrate decision is not decorative. If implementation chooses not to use
-Effect for this row, the substitute must still provide typed failures,
-service-injected tests, scan-root provenance, parser classifications, overlap
-classification, and cleanup behavior.
-
-## Current Status
-
-- Packet opened.
-- Local evidence recorded.
-- External review completed with no P1 findings and three accepted P2 repairs.
-- Implementation pending adapter-substrate readiness and row-level proof.
-
-## Implementation DRA Update - 2026-06-15
-
-Branch/worktree:
-
-- branch: `agent-HG-habitat-grit-recipe-domain-surface`;
-- parent layer: `agent-HG-habitat-grit-pattern-chain`;
-- worktree:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
-- row: `grit-recipe-domain-surface` / `recipe_domain_surface`.
-
-Completed independent row-owned work:
-
-- expanded the native `Matches fixture` to cover ten current-predicate classes:
-  default import, named import, namespace import, type import, side-effect
-  import, named re-export, type re-export, star re-export, recipe-local test
-  path, and step-contract overlap path;
-- expanded the native `Ignores fixture` for domain root, exact `/ops`, exact
-  `/config.js`, `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`,
-  contains-substring lookalikes, `.tsx`, maps, other mods, and non-recipe
-  controls;
-- recorded parser inventory over current wrapper roots: 230 `@mapgen/domain`
-  references, 124 inside the recipe predicate, 0 current-row matches, 124
-  exact allowed recipe references, 0 excluded-but-non-exact recipe references,
-  0 recipe-local test references, and 38 step-contract references inside the
-  recipe predicate.
-
-Blocked/non-claim surfaces:
-
-- Shared Habitat wrapper selector proof is inherited in current aggregate state
-  through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`;
-- raw acquisition closure waits for accepted raw acquisition or typed adapter
-  proof;
-- shared explicit baseline proof is inherited through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`;
-- shared injected Grit-row proof is inherited through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; row-specific injected positive recipe
-  probes beyond that shared aggregate proof remain unclaimed;
-- exact-surface closure for `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`,
-  and contains-substring lookalikes waits for predicate repair, sibling proof
-  ids, or downstream blocked records.
+Stop at the clean local Graphite checkpoint for supervisor review. Do not open
+the next HG row until this RDS closure checkpoint is dispositioned.

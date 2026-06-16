@@ -60,8 +60,7 @@ predicate, and import/export source predicate for
   effective predicate
 - **THEN** this rule SHALL NOT claim coverage for that path
 - **AND** any broader policy SHALL be owned by predicate expansion proof,
-  sibling implementation/proof ids, or downstream blocked downgrade with a
-  named owner
+  sibling implementation/proof ids, or an explicit named non-claim
 
 #### Scenario: Same source appears in recipe-local tests
 
@@ -92,11 +91,8 @@ pattern claims to classify.
 
 - **WHEN** a matching recipe file uses a side-effect import from a non-public
   domain source
-- **THEN** `grit-recipe-domain-surface` SHALL report the import or closure SHALL
-  remain blocked until an accepted policy record assigns the form to another
-  owner and downgrades this row's all-import claims
-- **AND** the proof record SHALL name the source form, owner, and downstream
-  non-claim
+- **THEN** `grit-recipe-domain-surface` SHALL report the import
+- **AND** the proof record SHALL name the source form and proof class
 
 #### Scenario: Non-public domain re-exports appear
 
@@ -124,24 +120,24 @@ or downstream blocked records.
 #### Scenario: `/ops/<tail>` appears
 
 - **WHEN** a recipe file imports `@mapgen/domain/<domain>/ops/<tail>`
-- **THEN** the proof record SHALL link `grit-domain-deep-import` proof ids or
-  a reviewed predicate expansion
+- **THEN** the proof record SHALL link accepted `grit-domain-deep-import`
+  proof ids or a reviewed predicate expansion
 - **AND** this row SHALL NOT claim that substring allowance proves exact `/ops`
   policy
 
 #### Scenario: `ops-by-id` appears
 
 - **WHEN** a recipe file imports `@mapgen/domain/<domain>/ops-by-id`
-- **THEN** the proof record SHALL link the domain-deep-import defect repair,
-  another accepted owner, or a blocked downstream record
-- **AND** complete recipe domain-surface enforcement SHALL remain unproven until
-  that link exists
+- **THEN** the proof record SHALL link accepted `grit-domain-deep-import`
+  proof ids or another accepted owner
+- **AND** this row SHALL keep `ops-by-id` out of the RDS-owned predicate unless
+  that ownership is deliberately redesigned
 
 #### Scenario: `config.js/<tail>` appears
 
 - **WHEN** a recipe file imports `@mapgen/domain/<domain>/config.js/<tail>`
-- **THEN** the proof record SHALL link predicate repair, sibling proof ids, or
-  a blocked downstream record with named owner
+- **THEN** the proof record SHALL link predicate repair or accepted sibling
+  proof ids with named owner
 - **AND** exact `/config.js` policy SHALL NOT be claimed from substring
   allowance
 
@@ -152,8 +148,8 @@ or downstream blocked records.
   `@mapgen/domain/<domain>/private/ops`,
   `@mapgen/domain/<domain>/config.js-private`, or
   `@mapgen/domain/<domain>/private/config.js`
-- **THEN** the proof record SHALL link predicate repair, sibling proof ids, or
-  a blocked downstream record with named owner
+- **THEN** the proof record SHALL link predicate repair or accepted sibling
+  proof ids with named owner
 - **AND** exact public-surface enforcement SHALL NOT be claimed from substring
   allowance
 

@@ -11,7 +11,7 @@
 
 ## 2. Source And Authority Refresh
 
-- [ ] 2.1 Reread the takeover frame, Grit corpus ledger, recovery claim ledger,
+- [x] 2.1 Reread the takeover frame, Grit corpus ledger, recovery claim ledger,
   invariant corpus, taxonomy, discrepancy log, H5 catalog records, H6
   enforcement records, official Grit docs pack, local Grit corpus extraction,
   `IMPORTS.md`, `NORMALIZATION-GUARDRAILS.md`, and aggregate Grit proof
@@ -22,14 +22,19 @@
   adapter scan roots.
 - [x] 2.4 Confirm the retired recipe import lint/test invariant and retirement
   parity claim.
-- [ ] 2.5 Reconcile registry metadata, import policy, taxonomy, corpus row, and
+- [x] 2.5 Reconcile registry metadata, import policy, taxonomy, corpus row, and
   Grit predicate on exact domain-root, `/ops`, and `/config.js` surfaces.
+  - Current closure reconciles the rule to exact root, exact `/ops`, and exact
+    `/config.js` public surfaces. DDI-owned `ops/<tail>`, `ops-by-id`,
+    `rules/<tail>`, and `strategies/<tail>` classes are partitioned to
+    `grit-domain-deep-import`; RDS owns other non-public recipe domain
+    subpaths and `/ops` / `config.js` lookalikes.
 - [x] 2.6 Confirm neighboring boundaries with `grit-domain-deep-import`,
   `grit-step-contract-domain-surface`, and domain-import apply rows.
-  - Current row records the boundary: `/ops/<tail>` is sibling-owned by
-    `grit-domain-deep-import`, `ops-by-id` remains blocked on that row's
-    defect repair, and step-contract overlap remains a neighboring proof
-    dependency.
+  - Current row records the boundary: `/ops/<tail>`, `ops-by-id`,
+    `rules/<tail>`, and `strategies/<tail>` are sibling-owned by the accepted
+    `grit-domain-deep-import` proof; step-contract overlap remains a
+    neighboring policy boundary rather than an RDS closure claim.
 
 ## 3. Native Fixture And Parser-Edge Proof
 
@@ -40,19 +45,22 @@
   re-export, and star re-export fixtures.
 - [x] 3.3 Add or record proof for allowed domain-root, exact `/ops`, and exact
   `/config.js` imports.
-- [ ] 3.4 Add or record proof for every non-exact source containing `/ops` or
+- [x] 3.4 Add or record proof for every non-exact source containing `/ops` or
   `/config.js`, including `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`,
   `/ops-private`, `/private/ops`, `/config.js-private`, and
   `/private/config.js`.
-  - Partial: native controls prove these forms do not match this current
-    predicate; enforcement closure remains blocked until predicate repair,
-    sibling proof ids, or downstream blocked records exist.
-- [ ] 3.5 Add path-control fixtures for `.tsx`, maps, other mods, recipe-local
+  - Repaired: native fixture proof records `config.js/<tail>`,
+    `/ops-private`, `/private/ops`, `/config.js-private`, and
+    `/private/config.js` as RDS positives. `/ops/<tail>`, `ops-by-id`,
+    `rules/<tail>`, and `strategies/<tail>` remain DDI-owned controls to avoid
+    duplicate injected-probe identities while preserving exact policy coverage
+    through the accepted DDI row.
+- [x] 3.5 Add path-control fixtures for `.tsx`, maps, other mods, recipe-local
   tests, tests outside recipe roots, step contracts, and generated paths.
-  - Partial: native fixtures classify recipe-local tests and step-contract
-    overlap as current-predicate positives, while `.tsx`, maps, other mods,
-    and non-recipe tests are non-matching controls. Generated outputs remain
-    protected non-targets, not fixture proof targets.
+  - Native fixtures classify recipe-local tests and step-contract overlap as
+    current-predicate positives, while `.tsx`, maps, other mods, and non-recipe
+    tests are non-matching controls. Generated outputs remain protected
+    non-targets, not fixture proof targets.
 - [x] 3.6 Record fixture class counts and parser-edge proof ids in the
   aggregate proof matrix.
 
@@ -69,12 +77,16 @@
 - [x] 4.2 Record exact Habitat wrapper scan roots and selected rule projection.
   - Exact adapter scan roots are recorded from source; selected rule projection
     proof is current through the shared wrapper/selector proof IDs above.
-- [ ] 4.3 Run bounded raw Grit acquisition over the recipe root or consume an
+- [x] 4.3 Run bounded raw Grit acquisition over the recipe root or consume an
   accepted adapter proof id.
-  - Blocked/non-claim for closure; prior bounded raw seed is not consumed as
-    row proof.
-- [ ] 4.4 Prove how bounded raw roots relate to wrapper scan roots, including
+  - Current row consumes accepted Habitat Grit adapter/wrapper proof through
+    per-rule and aggregate `habitat:check` runs. Raw direct Grit acquisition
+    remains an explicit non-claim.
+- [x] 4.4 Prove how bounded raw roots relate to wrapper scan roots, including
   omitted-root projection proof or explicit non-claims.
+  - Per-rule and aggregate wrapper runs prove current projection through the
+    Habitat Grit adapter scan roots. Direct raw-root equivalence remains
+    unclaimed.
 - [x] 4.5 Run current-tree inventory for `@mapgen/domain/<domain>/<tail>`
   imports and re-exports inside and outside effective scope.
 - [x] 4.6 Record live `/ops`, `/config.js`, root, `/ops/<tail>`, `ops-by-id`,
@@ -84,29 +96,43 @@
 
 ## 5. Injected Violation Proof
 
-- [ ] 5.1 Complete or consume `habitat-effect-grit-adapter`, or record an
+- [x] 5.1 Complete or consume `habitat-effect-grit-adapter`, or record an
   accepted typed Grit adapter substrate with equivalent proof, before
   implementing probe creation/cleanup, parser classification, pattern
   projection, overlap classification, or command provenance.
-- [ ] 5.2 Add positive recipe probe that fails the exact Habitat rule id.
+  - The row consumes the accepted typed Habitat Grit injected-probe substrate
+    used by `run-injected-probes.ts`.
+- [x] 5.2 Add positive recipe probe that fails the exact Habitat rule id.
 - [ ] 5.3 Add parser-edge probes for namespace imports, type imports,
   side-effect imports, and export forms.
+  - Native parser-edge fixture proof covers these forms; row-specific injected
+    proof is limited to the positive recipe probe and outside-scope control.
 - [ ] 5.4 Add exact allowed-surface path controls for root, `/ops`, `/config.js`,
   and non-exact contains-substring lookalikes.
+  - Native fixtures and current-tree zero-candidate proof cover exact
+    allowed-surface controls. The injected corpus keeps only one RDS control to
+    preserve row-isolated probe behavior.
 - [ ] 5.5 Add outside-scope and classified-scope path-control probes for maps,
   other mods, `.tsx`, recipe-local tests, and tests outside recipe roots.
-- [ ] 5.6 Add neighboring-rule overlap probes for recipe `rules`/`strategies`
+  - Row-specific injected proof uses a domain-source outside-scope control;
+    broader path controls remain native/current-tree proof, not injected proof.
+- [x] 5.6 Add neighboring-rule overlap probes for recipe `rules`/`strategies`
   and step-contract paths, or record accepted predicate partition proof.
-- [ ] 5.7 Prove cleanup leaves `git status --short` clean after success and
+  - Predicate partition is recorded: DDI-owned `rules/<tail>` and
+    `strategies/<tail>` are RDS controls; step-contract overlap remains
+    current-predicate native proof while SCDS owns stricter contract policy.
+- [x] 5.7 Prove cleanup leaves `git status --short` clean after success and
   failure.
-- [ ] 5.8 Record protected generated-output non-claims.
-- [ ] 5.9 Record the Effect/no-Effect substrate decision and prove a non-Effect
+- [x] 5.8 Record protected generated-output non-claims.
+- [x] 5.9 Record the Effect/no-Effect substrate decision and prove a non-Effect
   substrate supplies tagged failures, service-injected tests, explicit command
   provenance, scan-root provenance, parser classification, overlap
   classification, and cleanup behavior before use.
-- [ ] 5.10 Block row closure if the implementation preserves string-only JSON
+- [x] 5.10 Block row closure if the implementation preserves string-only JSON
   recovery, exit-code-only command facts, cleanup by convention, or unit tests
   that require real repo mutation.
+  - Not triggered: the row uses the accepted typed Habitat Grit injected-probe
+    substrate rather than ad hoc file mutation or string-only projection.
 
 ## 6. Baseline Proof
 
@@ -117,7 +143,7 @@
     mutation claim.
 - [x] 6.2 Record accepted `baseline-integrity` proof through
   `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- [ ] 6.3 Prove an injected finding is unbaselined and fails.
+- [x] 6.3 Prove an injected finding is unbaselined and fails.
 - [x] 6.4 Link shared baseline owner/integrity to
   `HGPR-BASELINE-FILES-2026-06-15` and
   `HGPR-BASELINE-INTEGRITY-2026-06-15`; no separate RDS baseline-mutation
@@ -130,18 +156,24 @@
   with proof ids and fixture counts.
 - [x] 7.2 Update `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
   for this row after implementation.
-- [ ] 7.3 Update `docs/projects/habitat-harness/taxonomy.md`,
+- [x] 7.3 Update `docs/projects/habitat-harness/taxonomy.md`,
   `docs/projects/habitat-harness/discrepancy-log.md`, and `IMPORTS.md` only if
   implementation changes policy or remediation text.
+  - No update required; implementation aligns the predicate to the existing
+    policy rather than changing policy.
 - [ ] 7.4 Update H5/H6 historical records if their wording implies stronger
   proof than implementation supplies.
+  - No direct H5/H6 edit in this row; aggregate proof/corpus records carry the
+    current proof boundary and historical rows remain historical.
 - [x] 7.5 Update `docs/projects/habitat-harness/recovery-claim-ledger.md` rows
   for H5, H6, baseline, and stale-record truth after aggregate proof ids exist.
   - Current front-door recovery ledger realignment is recorded in the HG
     record-truth follow-up layer; it does not close raw acquisition, injected
     row-local proof, apply safety, or product proof.
-- [ ] 7.6 Update command docs only if user-visible diagnostics or remediation
+- [x] 7.6 Update command docs only if user-visible diagnostics or remediation
   text changes.
+  - No command-doc update required; diagnostic text and remediation command
+    surface did not change.
 
 ## 8. Verification
 
@@ -149,20 +181,20 @@
 - [x] 8.2 native fixture proof
 - [x] 8.3 parser-edge import/export proof
 - [x] 8.4 exact allowed-surface proof
-- [ ] 8.5 substring-gap disposition
+- [x] 8.5 substring-gap disposition
 - [x] 8.6 namespace and side-effect import disposition
 - [x] 8.7 recipe-local test-path classification
-- [ ] 8.8 neighboring-rule overlap disposition
+- [x] 8.8 neighboring-rule overlap disposition
 - [x] 8.9 Habitat current-tree wrapper proof inherited through
   `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
   `HGPR-PER-RULE-SELECTORS-2026-06-15`
 - [x] 8.10 wrapper scan-root and projection proof inherited through
   `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
   `HGPR-PER-RULE-SELECTORS-2026-06-15`
-- [ ] 8.11 bounded raw acquisition or adapter proof id
+- [x] 8.11 bounded raw acquisition or adapter proof id
 - [x] 8.12 current-tree import inventory
-- [ ] 8.13 injected recipe proof
-- [ ] 8.14 outside-scope path-control proof
+- [x] 8.13 injected recipe proof
+- [x] 8.14 outside-scope path-control proof
 - [x] 8.15 explicit baseline proof inherited through
   `HGPR-BASELINE-FILES-2026-06-15` and
   `HGPR-BASELINE-INTEGRITY-2026-06-15`
