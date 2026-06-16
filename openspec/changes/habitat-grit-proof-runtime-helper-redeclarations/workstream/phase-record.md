@@ -2,30 +2,24 @@
 
 ## Current Gate
 
-Gate 13 / accepted blocker checkpoint with live-candidate disposition blocker. The row
-packet is opened, native fixture/parser-edge expansion has passed, parser
-inventory is recorded in durable row records, downstream ledgers are aligned,
-verification has passed, and the checkpoint is committed. Parser inventory
-found 3 current-predicate `function clamp01` redeclarations in Swooper domain
-strategy files, so this row cannot claim clean enforcement closure without
-supervisor/source owner disposition, accepted baseline handling, or a separate
-apply row. The bounded blocker checkpoint was supervisor-accepted; successor HG
-rows are committed through `agent-HG-habitat-grit-domain-ops-boundary-imports`
-at `f268f3bf5`, so this packet is not the active next-row gate.
+Active-check closure checkpoint. The historical RHR blocker checkpoint found
+three live `function clamp01` redeclarations in Swooper domain strategy files.
+The accepted successor `habitat-grit-apply-helper-redeclarations` row remediated
+those source findings. This checkpoint records fresh RHR closure evidence:
+native fixture proof, full native Grit corpus proof, zero-candidate parser
+inventory, per-rule Habitat wrapper proof, aggregate `grit-check` wrapper proof,
+explicit empty baseline / `baseline-integrity`, row-specific injected
+violation/path-control proof, and aligned durable records.
 
 ## Branch / Stack
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-runtime-helper-redeclarations`
-- Parent: `agent-HG-habitat-grit-runtime-run-validated`
-- Historical row-local proof did not consume HR repair layers. Current
-  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
-  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
-  `HGPR-BASELINE-FILES-2026-06-15`,
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+- Branch: `agent-HG-habitat-grit-runtime-helper-redeclarations-closure`
+- Parent: `agent-HG-habitat-grit-runtime-validation-imports-closure`
+- Current proof is row-specific for RHR. Shared proof surfaces remain available,
+  but this checkpoint records direct RHR per-rule wrapper, aggregate wrapper,
+  baseline, and injected-probe evidence.
 
 ## Scope
 
@@ -36,33 +30,49 @@ This checkpoint owns:
 - native fixture/parser-edge expansion for
   `.grit/patterns/habitat/checks/runtime_helper_redeclarations.md`;
 - parser inventory over current Swooper runtime recipe/domain roots;
+- Habitat wrapper/current-tree proof for the active RHR rule;
+- explicit empty baseline / `baseline-integrity` proof;
+- row-specific injected violation/path-control proof;
 - aggregate proof matrix, command proof log, and corpus ledger realignment.
 
 This checkpoint does not own:
 
-- runtime source refactors;
-- Grit apply/codemod behavior;
-- baseline mutation;
+- runtime source refactors, which are owned by the accepted AHR row;
+- generic Habitat apply registration, transaction, rollback, or injected apply
+  behavior;
+- baseline mutation or baseline debt writes;
 - Habitat command wrapper repair;
 - raw adapter/acquisition repair;
-- Effect adapter or injected cleanup behavior;
+- Effect adapter behavior;
+- aggregate injected-corpus closure while DDIT remains blocked;
 - neighboring runtime-purity rows;
 - product/runtime proof.
 
 ## Evidence
 
 - `RHR-NATIVE-FIXTURES-2026-06-15`: native Grit fixture/parser-edge proof.
-- `RHR-RUNTIME-INVENTORY-2026-06-15`: parser inventory/live corpus evidence
-  with 3 current-predicate helper redeclaration candidates.
+- `RHR-RUNTIME-INVENTORY-2026-06-15`: historical parser inventory/live corpus
+  evidence with 3 current-predicate helper redeclaration candidates.
+- `RHR-CLOSURE-INVENTORY-2026-06-16`: current parser inventory proving zero
+  current-row helper redeclaration candidates after AHR remediation.
+- `RHR-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus proof.
+- `RHR-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper/current-tree
+  proof.
+- `RHR-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof.
+- `RHR-BASELINE-FILES-2026-06-16`: explicit empty baseline and
+  `baseline-integrity` proof.
+- `RHR-INJECTED-PROBE-2026-06-16`: row-specific injected violation/path-control
+  proof.
 
 ## Review / Findings
 
-No accepted P1/P2 findings are open at packet creation. Live current-predicate
-findings are recorded as a row closure blocker, not repaired in this layer.
+No accepted P1/P2 findings are open for this closure checkpoint. The historical
+live current-predicate findings are repaired by AHR and are no longer an active
+RHR closure blocker.
 
 ## Next Actions
 
-1. Preserve this packet as an accepted blocker checkpoint.
-2. Keep the 3 live helper redeclarations as a source-owner/apply/baseline
-   disposition blocker for clean row closure; do not treat inherited shared proof
-   as source remediation or apply safety.
+1. Request supervisor review for this active-check closure checkpoint.
+2. Keep AHR source remediation, generic apply safety, neighboring
+   runtime-purity rows, raw acquisition, Effect adapter proof, aggregate
+   injected-corpus closure, and product/runtime proof as separate proof classes.

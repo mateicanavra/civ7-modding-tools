@@ -9,8 +9,8 @@
 | `docs/projects/habitat-harness/taxonomy.md` | `scope:runtime-purity` includes no helper redeclarations in steps/strategies. | Policy family only. |
 | `docs/projects/habitat-harness/invariant-corpus.md` | Retired `eslint-redefined-helpers` invariant maps exact helper redeclarations to `grit-check`. | Retired parity remains unproven in this checkpoint. |
 | `scripts/lint/lint-domain-refactor-guardrails.sh` | Full profile scans include duplicate helper redefinition checks including `clamp01`. | Proving lineage only; not retired parity closure. |
-| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Candidate row requests positive exact helper redeclarations, negative unrelated helper names, parser-edge function expressions, current runtime scan, empty locked baseline unless findings prove otherwise, and separate exact-helper apply ownership. | Aggregate row to align after proof is gathered. |
-| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Design seed had 1 match and 1 ignore, with parser-edge and false-positive classification pending. | Aggregate row to align after proof is gathered. |
+| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | RHR has native fixture coverage, historical live-candidate inventory, accepted AHR remediation, current zero-candidate inventory, active wrapper proof, explicit empty baseline, and separate exact-helper apply ownership. | Aggregate row to align with current closure evidence. |
+| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | RHR should name current active-check proof ids while preserving historical blocker and AHR remediation ownership. | Aggregate row to align with current closure evidence. |
 
 ## Current Predicate
 
@@ -64,6 +64,12 @@ Exclusions:
 - `dist`
 - `mod`
 
-Durable records will include scan roots, exclusions, current-predicate file
-counts, declaration counts, row id, proof ids, and explicit non-claims.
-Temporary stdout or scratch files are not durable proof.
+Durable records include scan roots, exclusions, current-predicate file counts,
+declaration counts, row id, proof ids, and explicit non-claims. Temporary
+stdout or scratch files are not durable proof.
+
+The current closure inventory runs after the accepted
+`habitat-grit-apply-helper-redeclarations` remediation and records zero
+current-row helper redeclaration candidates. The historical 3-candidate RHR
+inventory remains source-owner/remediation context, not current active-blocker
+truth.

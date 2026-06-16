@@ -6,7 +6,8 @@ Habitat SHALL NOT classify `grit-runtime-helper-redeclarations` as complete
 until row-level proof records separate native fixture behavior, parser
 inventory, Habitat wrapper behavior, raw acquisition or accepted adapter proof,
 injected violations, explicit baseline behavior, retired-mechanism parity,
-neighboring runtime-purity rows, apply safety, and downstream record truth.
+neighboring runtime-purity rows, apply/source-remediation ownership, and
+downstream record truth.
 
 #### Scenario: Native fixture proof passes
 
@@ -26,6 +27,15 @@ neighboring runtime-purity rows, apply safety, and downstream record truth.
 - **AND** temporary stdout or scratch files SHALL NOT be cited as durable proof
 - **AND** live current-predicate candidates SHALL be recorded as blocker or
   disposition inputs rather than clean enforcement closure
+
+#### Scenario: Current helper inventory is clean after source-owner remediation
+
+- **WHEN** successor source-owner remediation has removed former live helper
+  redeclarations
+- **THEN** the row SHALL record fresh parser inventory from the current source
+  tree
+- **AND** the row SHALL keep source remediation and generic apply safety owned
+  by the separate apply packet rather than this active-check proof
 
 ### Requirement: Runtime Layers Avoid Helper Redeclarations
 
@@ -63,11 +73,12 @@ Runtime recipe steps and domain strategies SHALL avoid exact redeclarations of
 Habitat SHALL keep proof classes separate for
 `grit-runtime-helper-redeclarations`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Active check proof closes without broadening neighboring claims
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, or apply safety is not available in the
-  current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** Habitat wrapper selector proof, explicit empty baseline proof, and
+  row-specific injected violation/path-control proof pass for RHR
+- **THEN** row records MAY close the active RHR check proof
+- **AND** row records SHALL still keep raw direct Grit acquisition, Effect
+  adapter proof, generic Habitat apply safety, neighboring runtime-purity rows,
+  aggregate injected-corpus closure while DDIT remains blocked, and
+  product/runtime proof as non-claims

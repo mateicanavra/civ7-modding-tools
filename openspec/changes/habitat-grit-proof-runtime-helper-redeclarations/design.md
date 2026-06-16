@@ -4,8 +4,9 @@
 
 ### Objective
 
-Make `grit-runtime-helper-redeclarations` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Close `grit-runtime-helper-redeclarations` as a row-owned active Habitat check
+after the accepted AHR source-owner remediation removed the former live helper
+redeclarations.
 
 ### Product Movement
 
@@ -37,11 +38,12 @@ or domain strategies: runtime code should use shared deterministic helpers from
 2. `scope:runtime-purity` is the policy family; this row covers exact helper
    redeclaration syntax only.
 3. Native fixture proof, parser inventory, Habitat wrapper behavior, raw Grit
-   acquisition, injected proof, baseline behavior, and product proof are
-   separate proof classes.
+   acquisition, injected proof, baseline behavior, apply/source remediation,
+   and product proof are separate proof classes.
 4. Helper imports and helper calls are controls unless the current predicate
    reports a redeclaration.
-5. Current parser inventory is not Habitat wrapper enforcement proof.
+5. Current parser inventory is not Habitat wrapper enforcement proof, and AHR
+   source remediation is not generic Habitat apply safety.
 
 ### Exterior
 
@@ -56,10 +58,10 @@ or domain strategies: runtime code should use shared deterministic helpers from
 ### Falsifier
 
 This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if a live runtime helper redeclaration is found but recorded as a
-pass without owner disposition, if temporary inventory artifacts are cited as
-durable proof, or if neighboring runtime-purity rows are treated as proven by
-this helper-redeclaration row.
+fixtures, if a live runtime helper redeclaration remains after AHR remediation,
+if temporary inventory artifacts are cited as durable proof, if AHR's bounded
+source remediation is broadened into generic apply safety, or if neighboring
+runtime-purity rows are treated as proven by this helper-redeclaration row.
 
 ## Source Synthesis
 
@@ -99,11 +101,14 @@ in this checkpoint, not retired parity closure.
 
 ## Proof Contract
 
-This row checkpoint may record:
+This row checkpoint records:
 
 - native fixture/parser-edge proof for current-predicate behavior;
-- parser inventory/live zero-candidate evidence over current Swooper recipe and
-  domain roots;
+- parser inventory zero-candidate evidence over current Swooper recipe and
+  domain roots after AHR remediation;
+- Habitat per-rule and aggregate `grit-check` wrapper/current-tree proof;
+- explicit empty baseline and `baseline-integrity` proof;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
@@ -111,26 +116,33 @@ Planned proof ids:
 
 - `RHR-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for
   current-predicate positive classes and recorded controls.
-- `RHR-RUNTIME-INVENTORY-2026-06-15`: parser inventory/live candidate
-  evidence over the current Swooper recipe and domain roots. This evidence is
-  not a clean enforcement closure because it found live current-predicate
-  helper redeclarations.
+- `RHR-RUNTIME-INVENTORY-2026-06-15`: historical parser inventory/live
+  candidate evidence over the current Swooper recipe and domain roots.
+- `RHR-CLOSURE-INVENTORY-2026-06-16`: current parser inventory proving zero
+  helper redeclaration candidates after AHR remediation.
+- `RHR-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus health with
+  RHR included.
+- `RHR-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper/current-tree
+  proof.
+- `RHR-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof.
+- `RHR-BASELINE-FILES-2026-06-16`: explicit empty baseline and
+  `baseline-integrity` proof.
+- `RHR-INJECTED-PROBE-2026-06-16`: row-specific injected violation/path-control
+  proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
-- apply safety;
+- source remediation or generic apply safety;
 - retired parity;
 - neighboring runtime-purity row proof;
+- aggregate injected-corpus closure while DDIT remains blocked;
 - product proof.
 
 ## Downstream Records
 
 The aggregate proof matrix, command proof log, and corpus ledger are updated
-for this row's current checkpoint after evidence is gathered. Recovery ledger,
-taxonomy, invariant corpus, and command docs remain unchanged because the
-implementation does not change policy, diagnostics, or user-facing behavior.
+for this active-check closure checkpoint. Recovery ledger, taxonomy, invariant
+corpus, and command docs remain unchanged because the implementation does not
+change policy, diagnostics, or user-facing behavior.
