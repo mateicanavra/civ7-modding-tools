@@ -1,6 +1,6 @@
-import { Context, Data, Effect, Layer } from "effect";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { Context, Data, Effect, Layer } from "effect";
 import type { HabitatCommandResult } from "./habitat-process.js";
 import { repoRoot } from "./paths.js";
 

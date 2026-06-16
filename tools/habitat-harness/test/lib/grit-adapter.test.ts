@@ -11,9 +11,9 @@ import {
   renderGritAdapterFailure,
 } from "../../src/lib/grit-failures.js";
 import {
+  type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
   makeHabitatCommandResult,
-  type HabitatProcessRequest,
   type OutputCapture,
 } from "../../src/lib/habitat-process.js";
 import { repoRoot } from "../../src/lib/paths.js";
@@ -164,9 +164,9 @@ describe("Grit check adapter parser and projection", () => {
       ],
     });
 
-    expect(projected.get(requested.id)?.diagnostics.map((diagnostic) => diagnostic.message)).toEqual(
-      ["first domain finding", "duplicate domain finding"]
-    );
+    expect(
+      projected.get(requested.id)?.diagnostics.map((diagnostic) => diagnostic.message)
+    ).toEqual(["first domain finding", "duplicate domain finding"]);
     expect(projected.get(other.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
@@ -320,9 +320,7 @@ describe("Grit check adapter parser and projection", () => {
     });
 
     expect(results.get(rule.id)?.exitCode).toBe(1);
-    expect(results.get(rule.id)?.diagnostics[0]?.message).toContain(
-      "GritCacheProvenanceMissing"
-    );
+    expect(results.get(rule.id)?.diagnostics[0]?.message).toContain("GritCacheProvenanceMissing");
   });
 
   test("implements and renders every accepted adapter failure tag", () => {
@@ -357,7 +355,8 @@ function commandResult(options: { stdout?: string; stderr?: string; exitCode?: n
       exit: { code: options.exitCode ?? 0, signal: null, interrupted: false },
       stdout: output(options.stdout ?? ""),
       stderr: output(options.stderr ?? ""),
-      failureTag: options.exitCode === undefined || options.exitCode === 0 ? null : "GritCommandFailed",
+      failureTag:
+        options.exitCode === undefined || options.exitCode === 0 ? null : "GritCommandFailed",
     }
   );
 }

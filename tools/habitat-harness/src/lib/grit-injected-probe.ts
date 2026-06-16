@@ -1,18 +1,15 @@
-import { existsSync, mkdirSync, rmSync, rmdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Effect, Layer } from "effect";
+import { type HarnessRule, ruleById, rules } from "../rules/architecture.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
-import {
-  isGritAdapterFailureTag,
-  type GritAdapterFailureTag,
-} from "./grit-failures.js";
+import { type HabitatGitState, readGitState } from "./git-state.js";
 import { runGritRules, validateScanRoots } from "./grit.js";
-import { readGitState, type HabitatGitState } from "./git-state.js";
+import { type GritAdapterFailureTag, isGritAdapterFailureTag } from "./grit-failures.js";
 import type { HabitatProcess } from "./habitat-process.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
 import { run } from "./spawn.js";
-import { ruleById, rules, type HarnessRule } from "../rules/architecture.js";
 
 export interface InjectedProbeScope {
   adapterRoot: string;
@@ -120,7 +117,12 @@ export function injectedGritProbeProgram(
           Effect.succeed(
             error.ok === false
               ? error
-              : failure(input, "GritAdapterInternalContractViolation", String(error), beforeGitState)
+              : failure(
+                  input,
+                  "GritAdapterInternalContractViolation",
+                  String(error),
+                  beforeGitState
+                )
           )
         )
       )
@@ -197,7 +199,13 @@ function assertInjectedProbeResult(
 
   const cleanupRestoredStatus = beforeGitState.statusDigest === afterGitState.statusDigest;
   if (input.requireCleanFinalStatus && afterGitState.dirty) {
-    return failure(input, "GritAdapterInternalContractViolation", "Injected proof final status is dirty.", beforeGitState, afterGitState);
+    return failure(
+      input,
+      "GritAdapterInternalContractViolation",
+      "Injected proof final status is dirty.",
+      beforeGitState,
+      afterGitState
+    );
   }
 
   return {
@@ -268,7 +276,11 @@ function validateInjectedGritProbeInput(
     if (pathFailure) return failure(input, "GritAdapterInternalContractViolation", pathFailure);
   }
   if (normalizeProbePath(input.probePath) === normalizeProbePath(input.controlPath)) {
-    return failure(input, "GritAdapterInternalContractViolation", "Probe and control paths must be distinct.");
+    return failure(
+      input,
+      "GritAdapterInternalContractViolation",
+      "Probe and control paths must be distinct."
+    );
   }
   return null;
 }
@@ -278,9 +290,7 @@ function validateProbePath(probePath: string, scanRoots: readonly string[]): str
   if (relative === ".." || relative.startsWith("../")) {
     return `Injected probe path is outside the repo: ${probePath}.`;
   }
-  if (
-    !scanRoots.some((scanRoot) => relative === scanRoot || relative.startsWith(`${scanRoot}/`))
-  ) {
+  if (!scanRoots.some((scanRoot) => relative === scanRoot || relative.startsWith(`${scanRoot}/`))) {
     return `Injected probe path is outside the effective scan roots: ${relative}.`;
   }
   if (!hasProbeOwnershipMarker(relative)) {
@@ -300,11 +310,7 @@ function validateProbePath(probePath: string, scanRoots: readonly string[]): str
   return null;
 }
 
-function acquireProbeFile(
-  probePath: string,
-  body: string,
-  input: InjectedGritProbeInput
-) {
+function acquireProbeFile(probePath: string, body: string, input: InjectedGritProbeInput) {
   return Effect.acquireRelease(
     Effect.try({
       try: () => {
@@ -361,7 +367,9 @@ function hasProbeOwnershipMarker(relative: string): boolean {
   return relative.split(/[\\/]+/).some((segment) => segment.startsWith("__habitat"));
 }
 
-function findAdapterFailure(diagnostics: readonly HabitatDiagnostic[]): GritAdapterFailureTag | null {
+function findAdapterFailure(
+  diagnostics: readonly HabitatDiagnostic[]
+): GritAdapterFailureTag | null {
   for (const diagnostic of diagnostics) {
     const match = diagnostic.message.match(/grit adapter failure \(([^)]+)\)/);
     if (match && isGritAdapterFailureTag(match[1])) return match[1];

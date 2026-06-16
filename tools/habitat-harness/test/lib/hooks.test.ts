@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import type { HookReportEvent, ResourcePublisher } from "../../src/lib/hooks.js";
 import {
   classifyResourcesState,
   createHookTrace,
@@ -6,7 +7,6 @@ import {
   runPreCommit,
   runPrePush,
 } from "../../src/lib/hooks.js";
-import type { HookReportEvent, ResourcePublisher } from "../../src/lib/hooks.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/lib/spawn.js";
 
@@ -23,7 +23,9 @@ describe("Habitat hook resource policy", () => {
     expect(result.stdout).toContain("resources: clean");
     expect(result.stdout).toContain("hook proof: local feedback only; CI remains authoritative.");
     expect(result.stdout).toContain("habitat hook pre-commit: PASS");
-    expect(fake.calls).toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
   });
 
@@ -37,7 +39,9 @@ describe("Habitat hook resource policy", () => {
     expect(result.stderr).toContain("bun run resources:publish");
     expect(result.stderr).toContain("bun run resources:status");
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
-    expect(fake.calls).not.toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).not.toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
     expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
@@ -52,7 +56,9 @@ describe("Habitat hook resource policy", () => {
     expect(result.stderr).toContain("bun run resources:init");
     expect(result.stderr).toContain("bun run resources:status");
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
-    expect(fake.calls).not.toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).not.toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
   });
 
   test("fails a present resources directory that resolves to the monorepo Git root", () => {
@@ -64,7 +70,9 @@ describe("Habitat hook resource policy", () => {
     expect(result.stdout).toContain("resources: uninitialized");
     expect(result.stderr).toContain("exists but is not an initialized submodule Git worktree");
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
-    expect(fake.calls).not.toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).not.toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
   });
 
   test("fails locked resources with unlock and status remediation", () => {
@@ -77,7 +85,9 @@ describe("Habitat hook resource policy", () => {
     expect(result.stderr).toContain("bun run resources:unlock");
     expect(result.stderr).toContain("bun run resources:status");
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
-    expect(fake.calls).not.toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).not.toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
   });
 
   test("fails an unstaged resources gitlink before file-layer checks", () => {
@@ -90,7 +100,9 @@ describe("Habitat hook resource policy", () => {
     expect(result.stderr).toContain("git add .civ7/outputs/resources");
     expect(result.stderr).toContain("bun run resources:status");
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
-    expect(fake.calls).not.toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).not.toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
   });
 
   test("allows a staged clean resources gitlink as an explicit pointer update", () => {
@@ -100,7 +112,9 @@ describe("Habitat hook resource policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: staged-gitlink");
-    expect(fake.calls).toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
   });
 
@@ -154,7 +168,9 @@ describe("Habitat hook resource policy", () => {
     expect(publishCalls).toBe(0);
     expect(fake.calls).not.toContain("bun run resources:publish");
     expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
-    expect(fake.calls).not.toContain("bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json");
+    expect(fake.calls).not.toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
+    );
   });
 
   test("records explicit resource publisher command provenance only when directly invoked", () => {
@@ -251,9 +267,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("formatter restage: 1 path(s)");
-    expect(fake.calls).toContain(
-      "git add -- packages/example/src/index.ts"
-    );
+    expect(fake.calls).toContain("git add -- packages/example/src/index.ts");
     expect(fake.calls).not.toContain("git add -- packages/example/src/unchanged.ts");
     expect(fake.calls).not.toContain("git add -- README.md");
     expect(fake.calls).toContain(
@@ -267,7 +281,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
   test("fails closed when Grit emits malformed JSON", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritStdout: "wrapper {\"results\":[]} text\n",
+      gritStdout: 'wrapper {"results":[]} text\n',
     });
 
     const result = runPreCommit(fake.runtime);
@@ -329,16 +343,18 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(trace.preCommit?.durationMs).toBeGreaterThan(0);
     expect(trace.commands.every((command) => command.durationMs >= 0)).toBe(true);
     expect(trace.commands.map((command) => command.phase)).toContain("repo-state");
-    expect(trace.commands.map((command) => command.phase)).toEqual(expect.arrayContaining([
-      "resource-state",
-      "staged-paths",
-      "file-layer",
-      "partial-staging",
-      "biome-format",
-      "formatter-restage",
-      "biome-check",
-      "grit-check",
-    ]));
+    expect(trace.commands.map((command) => command.phase)).toEqual(
+      expect.arrayContaining([
+        "resource-state",
+        "staged-paths",
+        "file-layer",
+        "partial-staging",
+        "biome-format",
+        "formatter-restage",
+        "biome-check",
+        "grit-check",
+      ])
+    );
     expect(trace.commands.find((command) => command.phase === "grit-check")).toMatchObject({
       argv: ["grit", "--json", "check", "--level", "error", "packages/example/src/index.ts"],
       cwd: repoRoot,
@@ -354,7 +370,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const trace = createHookTrace();
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritStdout: "wrapper {\"results\":[]} text\n",
+      gritStdout: 'wrapper {"results":[]} text\n',
     });
 
     const result = runPreCommit({ ...fake.runtime, trace });
@@ -376,7 +392,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const events: HookReportEvent[] = [];
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritStdout: "wrapper {\"results\":[]} text\n",
+      gritStdout: 'wrapper {"results":[]} text\n',
     });
 
     const result = runPreCommit({
@@ -420,9 +436,7 @@ describe("Habitat pre-push base policy", () => {
     const result = runPrePush({}, fake.runtime);
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain(
-      "habitat hook pre-push: repo Nx affected base=agent-HR-parent"
-    );
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
     expect(fake.calls).toContain("gt branch info --no-interactive");
     expect(fake.calls).toContain(
       "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base agent-HR-parent --head HEAD --outputStyle=static"
@@ -436,9 +450,7 @@ describe("Habitat pre-push base policy", () => {
     const result = runPrePush({}, fake.runtime);
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain(
-      "habitat hook pre-push: repo Nx affected base=abc123mergebase"
-    );
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=abc123mergebase");
     expect(fake.calls).toContain("gt branch info --no-interactive");
     expect(fake.calls).toContain("git merge-base HEAD main");
     expect(fake.calls).toContain(
@@ -471,9 +483,7 @@ describe("Habitat pre-push base policy", () => {
     const result = runPrePush({}, fake.runtime);
 
     expect(result.exitCode).toBe(1);
-    expect(result.stdout).toContain(
-      "habitat hook pre-push: repo Nx affected base=agent-HR-parent"
-    );
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
     expect(result.stdout).toContain("affected failed");
     expect(result.stderr).toContain("target failed");
   });
@@ -509,15 +519,15 @@ describe("Habitat pre-push base policy", () => {
     });
     expect(trace.commands.find((command) => command.phase === "pre-push-affected")).toMatchObject({
       argv: [
-          "nx",
-          "affected",
-          "-t",
-          "biome:ci,boundaries,grit:check,habitat:check,test",
-          "--base",
-          "agent-HR-parent",
-          "--head",
-          "HEAD",
-          "--outputStyle=static",
+        "nx",
+        "affected",
+        "-t",
+        "biome:ci,boundaries,grit:check,habitat:check,test",
+        "--base",
+        "agent-HR-parent",
+        "--head",
+        "HEAD",
+        "--outputStyle=static",
       ],
       cwd: repoRoot,
       env: undefined,

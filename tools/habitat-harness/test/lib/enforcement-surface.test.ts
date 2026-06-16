@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
-import { createNodesV2 } from "../../src/plugin.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import { run } from "../../src/lib/spawn.js";
-import { projectRuleDiagnostics, rules, type HarnessRule } from "../../src/rules/architecture.js";
+import { createNodesV2 } from "../../src/plugin.js";
+import { type HarnessRule, projectRuleDiagnostics, rules } from "../../src/rules/architecture.js";
 
 type SurfaceClass =
   | "direct-habitat-cli"
@@ -99,7 +99,8 @@ const rootScriptPolicy: Record<string, { command: string; surface: SurfaceClass 
     surface: "graph-owned-project-diagnostic",
   },
   "lint:workspace-entrypoints": {
-    command: "nx run --project=@internal/habitat-harness --target=habitat:rule:workspace-entrypoints",
+    command:
+      "nx run --project=@internal/habitat-harness --target=habitat:rule:workspace-entrypoints",
     surface: "habitat-rule-alias",
   },
   verify: {
@@ -112,7 +113,10 @@ type WrapperDisposition = {
   ownerTool: "wrapped-script" | "wrapped-test";
   proofClass: "legacy-script" | "architecture-test";
   parserPolicy: "coarse-exit" | "allowlist-baseline-parser";
-  directOutputPolicy: "zero-exit-output-outside-claim" | "baselined-debt" | "generated-output-gated";
+  directOutputPolicy:
+    | "zero-exit-output-outside-claim"
+    | "baselined-debt"
+    | "generated-output-gated";
   retirementTrigger: string;
 };
 
@@ -122,56 +126,64 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
     proofClass: "legacy-script",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
-    retirementTrigger: "Retire when the docs invariant is Habitat-native or the script emits structured diagnostics.",
+    retirementTrigger:
+      "Retire when the docs invariant is Habitat-native or the script emits structured diagnostics.",
   },
   "adapter-boundary": {
     ownerTool: "wrapped-script",
     proofClass: "legacy-script",
     parserPolicy: "allowlist-baseline-parser",
     directOutputPolicy: "baselined-debt",
-    retirementTrigger: "Retire when adapter-boundary allowlist debt moves to explicit Habitat baseline state.",
+    retirementTrigger:
+      "Retire when adapter-boundary allowlist debt moves to explicit Habitat baseline state.",
   },
   "domain-refactor-guardrails": {
     ownerTool: "wrapped-script",
     proofClass: "legacy-script",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
-    retirementTrigger: "Retire when domain-boundary guardrails are owned by typed Habitat/Grit rules.",
+    retirementTrigger:
+      "Retire when domain-boundary guardrails are owned by typed Habitat/Grit rules.",
   },
   "arch-test-core-purity": {
     ownerTool: "wrapped-test",
     proofClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
-    retirementTrigger: "Retain while package architecture test is the owner of core-purity semantics.",
+    retirementTrigger:
+      "Retain while package architecture test is the owner of core-purity semantics.",
   },
   "arch-test-rng-authority": {
     ownerTool: "wrapped-test",
     proofClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
-    retirementTrigger: "Retain while package architecture test is the owner of RNG-authority semantics.",
+    retirementTrigger:
+      "Retain while package architecture test is the owner of RNG-authority semantics.",
   },
   "arch-test-ecology-step-imports": {
     ownerTool: "wrapped-test",
     proofClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
-    retirementTrigger: "Retain while package architecture test is the owner of ecology-step topology semantics.",
+    retirementTrigger:
+      "Retain while package architecture test is the owner of ecology-step topology semantics.",
   },
   "arch-test-m11-projection-band": {
     ownerTool: "wrapped-test",
     proofClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
-    retirementTrigger: "Retain while package architecture test is the owner of projection-band semantics.",
+    retirementTrigger:
+      "Retain while package architecture test is the owner of projection-band semantics.",
   },
   "arch-test-map-bundle-runtime-imports": {
     ownerTool: "wrapped-test",
     proofClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "generated-output-gated",
-    retirementTrigger: "Retain while built map bundle freshness is the owner of runtime-import semantics.",
+    retirementTrigger:
+      "Retain while built map bundle freshness is the owner of runtime-import semantics.",
   },
   "arch-test-cutover": {
     ownerTool: "wrapped-test",
@@ -218,7 +230,9 @@ describe("enforcement surface inventory", () => {
 
     expect(workflow).toContain("run: bun run ci");
     expect(workflow).toContain("run: bun run ci:architecture-strict-core");
-    expect(workflow).toContain("run: bun run habitat check --json --output habitat-diagnostics.json");
+    expect(workflow).toContain(
+      "run: bun run habitat check --json --output habitat-diagnostics.json"
+    );
     expect(workflow).toContain("uses: actions/upload-artifact@v4");
     expect(workflow).not.toContain("habitat:verify");
   });

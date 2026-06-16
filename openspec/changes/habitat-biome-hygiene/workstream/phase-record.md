@@ -7,13 +7,23 @@
 - Owner: workstream owner agent (Codex continuation)
 - Branch/Graphite stack: `agent-F-habitat-biome-hygiene` -> `agent-F-habitat-boundary-tags` -> `agent-F-habitat-harness-scaffold` -> `agent-F-habitat-nx-adoption` -> `agent-F-habitat-harness-workstream` -> `main`
 - Started: 2026-06-13
-- Status: LOCALLY CLOSED PENDING COMMIT — all H4 tasks complete; Biome setup, format commit, blame shield, Prettier retirement, lint lane, and harness/Nx/CI integration complete; DL-15/DL-16 promoted repairs are verified; root build/parity and full root `test` are green after promoted H4 proof-repair slices.
+- Status: current HR closure proof recorded for supervisor review. Historical H4
+  setup remains complete; the current repair-chain checkpoint refreshes
+  executable proof that Biome still owns the hygiene layer, that protected and
+  generated zones remain excluded, that ESLint remains quarantined to
+  project-plane boundaries, and that the current Nx/Habitat Biome command
+  surfaces pass after repairing included-file hygiene drift through Biome.
 
 ## Objective
 
 - Target movement: make Biome the single owner of the hygiene layer, retire Prettier, land a dedicated blame-shielded repo-wide reformat, and wire Biome through the Habitat harness, Nx targets, `habitat fix`, `habitat check`, and CI.
 - Non-goals: no product/runtime behavior changes, no Grit/file-layer rules, no changes to `eslint.config.js` except later H6 retirement, no generated-output hand edits, no semantic codemods, no out-of-scope red-test fixes.
-- Done condition: H4 tasks 1.1-4.3 complete; Biome configuration and lint lane ratcheted; dedicated format-only commit recorded in `.git-blame-ignore-revs`; build-output parity verified per the proposal; habitat integration and OpenSpec validation green; Graphite branch committed cleanly.
+- Done condition: H4 tasks 1.1-5.4 complete; Biome configuration and lint lane
+  ratcheted; dedicated format-only commit recorded in
+  `.git-blame-ignore-revs`; protected/generated zones excluded; direct
+  Prettier surfaces retired; ESLint limited to project-plane boundaries;
+  current unit/config proof and Nx/Habitat Biome command proof green; OpenSpec
+  validation green; Graphite branch committed cleanly.
 
 ## Authority
 
@@ -27,7 +37,19 @@
 
 - Repo/Graphite state: active H4 branch `agent-F-habitat-biome-hygiene`, stacked above H3 (`agent-F-habitat-boundary-tags`); current working diff is H4-owned harness integration and records.
 - Dirty files and owner: current dirty files are H4 integration files (`tools/habitat-harness`, CI, root scripts/Nx config) plus H4 records; all are owned by this H4 step.
-- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been removed; direct `prettier` / `eslint-config-prettier` package surfaces have been removed; Biome 2.4.16 is installed and `biome.json` loads successfully; the Swooper Maps import guard now parses import declarations with TypeScript so Biome multiline imports do not create false architecture failures; Biome linter/hygiene runs as locked `biome-ci` habitat rule and as inferred Nx `biome:format`, `biome:check`, and `biome:ci` targets.
+- Current code evidence: H1/H2/H3 locally closed; `openspec list` showed
+  `habitat-biome-hygiene` at 0/11 tasks at phase open; `.prettierrc` has been
+  removed; direct `prettier` / `eslint-config-prettier` package surfaces have
+  been removed; Biome 2.4.16 is installed and `biome.json` loads successfully;
+  the Swooper Maps import guard now parses import declarations with TypeScript
+  so Biome multiline imports do not create false architecture failures; Biome
+  linter/hygiene runs as locked `biome-ci` habitat rule and as inferred Nx
+  `biome:format`, `biome:check`, and `biome:ci` targets. Current HR closure
+  proof adds executable harness coverage for the Biome config, protected-zone
+  exclusions, direct-Prettier retirement, Nx target inference, `biome-ci` rule
+  registration, and ESLint quarantine. The first current command refresh found
+  included-file Biome drift; this checkpoint repairs that drift through
+  `biome check --write .` and does not touch generated/protected zones.
 - Generated outputs affected: tracked post-format `mods/*/mod/**` hashes still match the pre-format capture exactly. After the promoted intelligence-bridge repair, a fresh root build completed without tracked generated-zone drift.
 - Tests/guards affected: the Swooper Maps contract guard now tolerates Biome multiline imports; H4 adds the locked `biome-ci` Habitat rule plus Nx/CI wiring; existing `nx-boundaries` and H2 harness rules remain authoritative.
 
@@ -59,11 +81,17 @@
 
 ## Implementation
 
-- Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 4.1, 4.2, 4.3.
+- Completed tasks: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 4.1, 4.2, 4.3,
+  5.1, 5.2, 5.3, 5.4.
 - Remaining tasks: none. Task 2.4 is now locally green: root build passed after promoted repairs; tracked pre/post format hashes match; fresh root build produced no generated drift after DL-16 repair; plugin package tests and SDK package tests are green after DL-15 repairs; the `mapgen-studio:test`, CLI root-load, second mapgen root-load, Swooper catalog-order, and generated recipe artifact race blockers all have local repair slices; and full root `test` passes after `swooper-recipe-artifact-race`.
 - Biome lint lane: selected green bug-risk rule set is enabled in `biome.json` with `recommended: false`; no desired red Biome rule was silently disabled after selection. The red assist class (`organizeImports`) was repaired mechanically by applying the safe assist and committing it separately; no ratchet baseline is required for `biome-ci` because the rule is locked with zero diagnostics.
 - Harness integration: `@internal/habitat-harness` now infers `biome:format`, `biome:check`, and `biome:ci`; `habitat fix` runs `biome check --write .` and `--dry-run` runs non-writing `biome check .`; `habitat check` includes locked `biome-ci`; `habitat verify` composes `build,check,test,boundaries,biome:ci`; CI runs `bunx nx run-many -t biome:ci`; README documents editor setup and the never-plain-`lint` target convention.
 - Stop conditions triggered and resolved: DL-15 package-local Vitest fan-out / SDK teardown defects, DL-16 intelligence-bridge bundle drift, first root-test `mapgen-studio:test` timeout class, CLI timeout class, second mapgen root-load class, Swooper Maps catalog-order proof, and Swooper Maps generated recipe artifact race are all repaired by promoted slices. No H4 stop condition remains after the final strict validations pass.
+- Current HR proof boundary: this checkpoint proves current Biome ownership and
+  current command behavior for `@internal/habitat-harness:biome:ci` and the
+  Habitat `biome-ci` rule. It does not claim product/runtime behavior, full CI
+  execution, broad root `check`/`test` closure, generated-output semantics, or
+  any HG row proof.
 
 ## Verification
 
@@ -112,7 +140,26 @@
   - `bun run habitat:check -- --json --output /tmp/h4-habitat-check-after-biome.json`
   - `bunx nx affected -t biome:ci --base HEAD~1 --skip-nx-cache`
   - `NX_DAEMON=false bunx nx affected -t build,check,test,boundaries,biome:ci --base HEAD --head HEAD --outputStyle=static`
+  - `bun run --cwd tools/habitat-harness test -- biome-closure.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run biome:check -- --write --max-diagnostics=80`
+  - `bun run nx run @internal/habitat-harness:biome:ci --outputStyle=static`
+  - `bun run nx run @internal/habitat-harness:biome:ci --outputStyle=static --skipNxCache`
+  - `bun run habitat:check -- --json --rule biome-ci`
+  - `bun run --cwd tools/habitat-harness test`
+  - `bun run --cwd tools/habitat-harness test -- --testTimeout=30000`
+  - `bun run openspec -- validate habitat-biome-hygiene --strict`
+  - `bun run openspec:validate`
 - Results: H4 branch opened cleanly above H3; OpenSpec list shows H1/H2/H3 complete and H4 at 0/11 tasks.
+- Current HR closure result: focused `biome-closure.test.ts` passed 7/7;
+  harness typecheck passed; uncached `@internal/habitat-harness:biome:ci`
+  passed; and Habitat `--rule biome-ci` returned CheckReport schemaVersion 1 with
+  `biome-ci` and `baseline-integrity` passing. The default-timeout full
+  harness suite is recorded as non-proof because long-running command/apply
+  tests timed out under parallel load; the same package suite passed with
+  `--testTimeout=30000` at 22 files / 191 tests. No deleted files, protected
+  generated-path changes, injected-probe residue, or apply-copy residue were
+  present after the proof runs.
 - Biome setup results: `@biomejs/biome` exact-pinned at 2.4.16; config loads
   successfully; formatter settings match `.prettierrc` semantics (`semi`,
   double quotes, trailing commas `es5`, line width 100, two-space indent) and

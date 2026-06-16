@@ -4,14 +4,14 @@ import path from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
 import {
   applyBaseline,
+  type BaselineContractContext,
+  type BaselineRuleContractInput,
   baselineFailureDiagnostic,
   checkBaselineIntegrity,
   guardBaselineExpansion,
   isBaselineLocked,
   loadBaselineState,
   validateBaselineContract,
-  type BaselineContractContext,
-  type BaselineRuleContractInput,
 } from "../../src/lib/baseline.js";
 import type { HabitatDiagnostic } from "../../src/lib/diagnostics.js";
 
@@ -81,10 +81,10 @@ describe("Habitat baseline contract", () => {
   test("fails malformed, non-array, non-string, duplicate, and unsorted baseline files", () => {
     const cases = [
       { ruleId: "bad-json", body: "{", reason: "malformed-baseline" },
-      { ruleId: "non-array", body: "{\"items\":[]}", reason: "malformed-baseline" },
+      { ruleId: "non-array", body: '{"items":[]}', reason: "malformed-baseline" },
       { ruleId: "non-string", body: "[1]", reason: "non-string-baseline-key" },
-      { ruleId: "duplicate", body: "[\"a::b\",\"a::b\"]", reason: "duplicate-baseline-key" },
-      { ruleId: "unsorted", body: "[\"z::b\",\"a::b\"]", reason: "unsorted-baseline" },
+      { ruleId: "duplicate", body: '["a::b","a::b"]', reason: "duplicate-baseline-key" },
+      { ruleId: "unsorted", body: '["z::b","a::b"]', reason: "unsorted-baseline" },
     ] as const;
     const ctx = createBaselineContext({
       registry: cases.map(({ ruleId }) => rule(ruleId)),
@@ -150,7 +150,10 @@ describe("Habitat baseline contract", () => {
     writeBaselineFile(ctx.baselinesDir, "explicit-rule", ["src/a.ts::tracked debt"]);
     const state = loadBaselineState(rule("explicit-rule"), ctx);
 
-    const failures = applyBaseline([diagnostic("explicit-rule", "src/a.ts", "tracked debt", true)], state);
+    const failures = applyBaseline(
+      [diagnostic("explicit-rule", "src/a.ts", "tracked debt", true)],
+      state
+    );
     expect(failures).toEqual([
       expect.objectContaining({ reason: "parser-owned-baseline-without-contract" }),
     ]);
@@ -174,7 +177,9 @@ describe("Habitat baseline contract", () => {
         file: "tools/habitat-harness/baselines/existing-rule.json",
         ruleId: "existing-rule",
         addedKeys: ["src/example.ts::diagnostic"],
-        reason: expect.stringContaining("baselines are shrink-only outside rule-introduction changes"),
+        reason: expect.stringContaining(
+          "baselines are shrink-only outside rule-introduction changes"
+        ),
       }),
     ]);
   });
@@ -254,7 +259,9 @@ describe("Habitat baseline contract", () => {
         reason: expect.stringContaining("existing rule 'downstack-rule' grew"),
       }),
     ]);
-    expect(guardBaselineExpansion("downstack-rule", [key], "agent-HR-parent", trustedParentContext)).toEqual(
+    expect(
+      guardBaselineExpansion("downstack-rule", [key], "agent-HR-parent", trustedParentContext)
+    ).toEqual(
       expect.objectContaining({
         ok: false,
         reason: "baseline-growth-existing-rule",
@@ -306,7 +313,9 @@ describe("Habitat baseline contract", () => {
       rulePackAtBase: ["existing-rule"],
       baselinesAtBase: new Map([["existing-rule", "{"]]),
     });
-    writeBaselineFile(badBaseBaseline.baselinesDir, "existing-rule", ["src/example.ts::diagnostic"]);
+    writeBaselineFile(badBaseBaseline.baselinesDir, "existing-rule", [
+      "src/example.ts::diagnostic",
+    ]);
     expect(checkBaselineIntegrity("main", badBaseBaseline)).toEqual([
       expect.objectContaining({ reason: expect.stringContaining("base-baseline-unreadable") }),
     ]);
@@ -319,7 +328,9 @@ describe("Habitat baseline contract", () => {
       baselinesAtBase: new Map([["existing-rule", []]]),
     });
 
-    expect(guardBaselineExpansion("existing-rule", ["src/example.ts::diagnostic"], "main", ctx)).toEqual(
+    expect(
+      guardBaselineExpansion("existing-rule", ["src/example.ts::diagnostic"], "main", ctx)
+    ).toEqual(
       expect.objectContaining({
         ok: false,
         reason: "baseline-growth-existing-rule",

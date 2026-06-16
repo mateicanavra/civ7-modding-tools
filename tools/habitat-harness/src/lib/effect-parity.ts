@@ -1,7 +1,7 @@
-import { Effect, Data, Ref } from "effect";
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { Data, Effect, Ref } from "effect";
 import { runHabitatEffect } from "./effect-runtime.js";
 import {
   HabitatProcess,
@@ -32,9 +32,7 @@ export interface EffectParityProbeResult {
   };
 }
 
-class HabitatEffectParityTaggedError extends Data.TaggedError(
-  "HabitatEffectParityTaggedError"
-)<{
+class HabitatEffectParityTaggedError extends Data.TaggedError("HabitatEffectParityTaggedError")<{
   readonly message: string;
 }> {}
 
@@ -103,9 +101,7 @@ function scopedCleanupProbe() {
 }
 
 function taggedErrorProbe() {
-  return Effect.fail(
-    new HabitatEffectParityTaggedError({ message: "parity tagged error" })
-  ).pipe(
+  return Effect.fail(new HabitatEffectParityTaggedError({ message: "parity tagged error" })).pipe(
     Effect.catchTag("HabitatEffectParityTaggedError", (error) =>
       Effect.succeed({ tag: error._tag, caught: true })
     )

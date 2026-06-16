@@ -1,7 +1,7 @@
-import { createProjectGraphAsync } from "@nx/devkit";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { createProjectGraphAsync } from "@nx/devkit";
 import type { NxProjectMetadata } from "./nx-projects.js";
 import { repoRoot } from "./paths.js";
 
@@ -79,7 +79,9 @@ export function parseBoundaryTaxonomy(markdown: string): ParsedBoundaryTaxonomy 
   };
 }
 
-export async function readWorkspaceManifestProjects(root = repoRoot): Promise<WorkspaceManifestProject[]> {
+export async function readWorkspaceManifestProjects(
+  root = repoRoot
+): Promise<WorkspaceManifestProject[]> {
   const rootPackagePath = path.join(root, "package.json");
   const rootPackage = JSON.parse(await fs.readFile(rootPackagePath, "utf8")) as {
     name?: string;
@@ -137,7 +139,9 @@ export function extractBoundaryConfigConstraints(config: unknown): TaxonomyConst
       constraints.push({
         sourceTag: depConstraint.sourceTag,
         onlyDependOnLibsWithTags: sortedUnique(
-          depConstraint.onlyDependOnLibsWithTags.filter((tag): tag is string => typeof tag === "string")
+          depConstraint.onlyDependOnLibsWithTags.filter(
+            (tag): tag is string => typeof tag === "string"
+          )
         ),
       });
     }
@@ -326,7 +330,11 @@ export function auditBoundaryTaxonomy(input: {
     const source = nxByName.get(edge.source);
     const target = nxByName.get(edge.target);
     if (!source || !target) continue;
-    const failedConstraint = firstFailedConstraint(source.tags, target.tags, input.configConstraints);
+    const failedConstraint = firstFailedConstraint(
+      source.tags,
+      target.tags,
+      input.configConstraints
+    );
     if (failedConstraint) {
       issues.push({
         reason: "illegal-graph-edge",

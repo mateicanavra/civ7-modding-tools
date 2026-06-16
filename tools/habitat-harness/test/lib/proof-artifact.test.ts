@@ -2,13 +2,13 @@ import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, test } from "vitest";
+import { makeHabitatCommandResult } from "../../src/lib/habitat-process.js";
+import { repoRoot } from "../../src/lib/paths.js";
 import {
   adapterProofArtifactPath,
   buildAdapterProofArtifact,
   writeAdapterProofArtifact,
 } from "../../src/lib/proof-artifact.js";
-import { makeHabitatCommandResult } from "../../src/lib/habitat-process.js";
-import { repoRoot } from "../../src/lib/paths.js";
 
 describe("adapter proof artifacts", () => {
   test("builds the packet-local proof path and rejects unsafe ids", () => {
@@ -70,7 +70,9 @@ describe("adapter proof artifacts", () => {
         repoRootOverride: tempRoot,
       });
 
-      expect(readFileSync(artifact.artifactPath, "utf8")).toContain('"proofId": "proof-write-test"');
+      expect(readFileSync(artifact.artifactPath, "utf8")).toContain(
+        '"proofId": "proof-write-test"'
+      );
     } finally {
       rmSync(tempRoot, { recursive: true, force: true });
     }

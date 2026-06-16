@@ -5,16 +5,16 @@ import { Effect, Layer } from "effect";
 import type { HarnessRule, RuleRunResult } from "../rules/architecture.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
+import { generatedZones } from "./generated-zones.js";
 import { gritMachineOutputEnv } from "./grit-env.js";
 import { renderGritAdapterFailure } from "./grit-failures.js";
-import { generatedZones } from "./generated-zones.js";
 import {
-  GritToolUnavailable,
-  HabitatProcess,
-  HabitatProcessLive,
   type GritAdapterFailureTag,
   type GritParseStatus,
+  GritToolUnavailable,
   type HabitatCommandResult,
+  HabitatProcess,
+  HabitatProcessLive,
   type HabitatProcessRequest,
 } from "./habitat-process.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
@@ -100,7 +100,9 @@ export function resetGritCacheForTests(): void {
 
 export async function runGritRule(rule: HarnessRule): Promise<RuleRunResult> {
   const results = await runGritRules([rule]);
-  return results.get(rule.id) ?? infrastructureFailure(rule, "GritAdapterInternalContractViolation");
+  return (
+    results.get(rule.id) ?? infrastructureFailure(rule, "GritAdapterInternalContractViolation")
+  );
 }
 
 export async function runGritRules(
@@ -148,68 +150,68 @@ export async function runGritRules(
 }
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
-  return Effect.scoped(Effect.gen(function* () {
-    const emptyRootFailure = validateScanRoots(scanRoots, {
-      allowInjectedProbeRoot: options.allowInjectedProbeRoot,
-    });
-    if (emptyRootFailure) {
-      return {
-        ok: false as const,
-        failureTag: "GritEmptyScanRoots" as const,
-        parseStatus: "unsupported-mode" as const,
-        message: emptyRootFailure,
-      };
-    }
-    const process = yield* HabitatProcess;
-    const requestOptions =
-      options.cacheMode === "fresh"
-        ? {
-            cacheDir: yield* acquireGritCheckCacheDir(),
-            observableCacheStatus: "fresh" as const,
-          }
-        : {};
-    const result = yield* process.run(
-      gritCheckRequest(scanRoots, requestOptions)
-    ).pipe(
-      Effect.catchTag("GritToolUnavailable", (error) =>
-        Effect.fail(
-          new GritToolUnavailable({
-            commandId: error.commandId,
-            executable: error.executable,
-            argv: error.argv,
-            cwd: error.cwd,
-            cause: error.cause,
-          })
-        )
-      )
-    );
-    if (
-      options.requireObservableCacheStatus &&
-      result.cachePolicy.observableStatus === "unknown"
-    ) {
-      return {
-        ok: false as const,
-        failureTag: "GritCacheProvenanceMissing" as const,
-        parseStatus: "unsupported-mode" as const,
-        message: "Grit cache/fresh status is not observable for this command result.",
-        commandResult: {
-          ...result,
+  return Effect.scoped(
+    Effect.gen(function* () {
+      const emptyRootFailure = validateScanRoots(scanRoots, {
+        allowInjectedProbeRoot: options.allowInjectedProbeRoot,
+      });
+      if (emptyRootFailure) {
+        return {
+          ok: false as const,
+          failureTag: "GritEmptyScanRoots" as const,
           parseStatus: "unsupported-mode" as const,
+          message: emptyRootFailure,
+        };
+      }
+      const process = yield* HabitatProcess;
+      const requestOptions =
+        options.cacheMode === "fresh"
+          ? {
+              cacheDir: yield* acquireGritCheckCacheDir(),
+              observableCacheStatus: "fresh" as const,
+            }
+          : {};
+      const result = yield* process.run(gritCheckRequest(scanRoots, requestOptions)).pipe(
+        Effect.catchTag("GritToolUnavailable", (error) =>
+          Effect.fail(
+            new GritToolUnavailable({
+              commandId: error.commandId,
+              executable: error.executable,
+              argv: error.argv,
+              cwd: error.cwd,
+              cause: error.cause,
+            })
+          )
+        )
+      );
+      if (
+        options.requireObservableCacheStatus &&
+        result.cachePolicy.observableStatus === "unknown"
+      ) {
+        return {
+          ok: false as const,
           failureTag: "GritCacheProvenanceMissing" as const,
-        },
-      };
-    }
-    return parseGritCheckOutput(result);
-  }).pipe(
-    Effect.catchTag("GritToolUnavailable", (error) =>
-      Effect.succeed({
-        ok: false as const,
-        failureTag: "GritToolUnavailable" as const,
-        parseStatus: "unparsed" as const,
-        message: `Grit executable unavailable: ${error.executable}.`,
-      })
+          parseStatus: "unsupported-mode" as const,
+          message: "Grit cache/fresh status is not observable for this command result.",
+          commandResult: {
+            ...result,
+            parseStatus: "unsupported-mode" as const,
+            failureTag: "GritCacheProvenanceMissing" as const,
+          },
+        };
+      }
+      return parseGritCheckOutput(result);
+    }).pipe(
+      Effect.catchTag("GritToolUnavailable", (error) =>
+        Effect.succeed({
+          ok: false as const,
+          failureTag: "GritToolUnavailable" as const,
+          parseStatus: "unparsed" as const,
+          message: `Grit executable unavailable: ${error.executable}.`,
+        })
+      )
     )
-  ));
+  );
 }
 
 export function gritCheckRequest(
@@ -262,8 +264,16 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
   }
 
   const candidates = [
-    { stream: "stdout", text: commandResult.stdout.text, truncated: commandResult.stdout.truncated },
-    { stream: "stderr", text: commandResult.stderr.text, truncated: commandResult.stderr.truncated },
+    {
+      stream: "stdout",
+      text: commandResult.stdout.text,
+      truncated: commandResult.stdout.truncated,
+    },
+    {
+      stream: "stderr",
+      text: commandResult.stderr.text,
+      truncated: commandResult.stderr.truncated,
+    },
   ];
   const nonEmpty = candidates.filter((candidate) => candidate.text.trim().length > 0);
   if (nonEmpty.length === 0) {
@@ -394,7 +404,12 @@ function validateGritReport(
   value: unknown
 ): GritCheckParseResult {
   if (!value || typeof value !== "object") {
-    return parseFailure(commandResult, "GritSchemaDrift", "schema-drift", "Grit JSON is not an object.");
+    return parseFailure(
+      commandResult,
+      "GritSchemaDrift",
+      "schema-drift",
+      "Grit JSON is not an object."
+    );
   }
   const report = value as Partial<GritReport>;
   if (!Array.isArray(report.results)) {
@@ -443,7 +458,11 @@ function validateGritResult(value: unknown): string | null {
     return "Grit result start.line must be a number when present.";
   if (result.extra !== undefined) {
     if (typeof result.extra !== "object") return "Grit result extra must be an object.";
-    if (result.extra.message !== undefined && typeof result.extra.message !== "string" && result.extra.message !== null)
+    if (
+      result.extra.message !== undefined &&
+      typeof result.extra.message !== "string" &&
+      result.extra.message !== null
+    )
       return "Grit result extra.message must be a string or null when present.";
   }
   return null;

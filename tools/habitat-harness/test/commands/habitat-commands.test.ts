@@ -121,13 +121,16 @@ describe("Habitat oclif commands", () => {
   test("check expand-baseline uses the authoring path instead of report emission", async () => {
     await Check.run(["--expand-baseline", "--rule", "demo-rule"]);
 
-    expect(engine.expandBaselines).toHaveBeenCalledWith({
-      owner: undefined,
-      rule: "demo-rule",
-      tool: undefined,
-    }, {
-      base: "main",
-    });
+    expect(engine.expandBaselines).toHaveBeenCalledWith(
+      {
+        owner: undefined,
+        rule: "demo-rule",
+        tool: undefined,
+      },
+      {
+        base: "main",
+      }
+    );
     expect(engine.createCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
   });
