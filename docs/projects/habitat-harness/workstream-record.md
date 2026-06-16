@@ -49,7 +49,7 @@
 | H4 | `habitat-biome-hygiene` | Biome owns hygiene; prettier retired; one blame-shielded reformat commit; ratcheted lint lane | H1, H2, H3 | — (serialized after H3: shared writes on `package.json` files, `ci.yml`, rule pack — reformat would conflict with tag edits; ledger F1) |
 | H4.5 | `habitat-oclif-cli` | Replace the H2 Bun-run hand parser with repo-standard oclif command classes, help, tests, and manifest discipline while preserving command semantics | H2, H3, H4 | inserted before downstream CLI hardening (Matei D7) |
 | H5 | `habitat-grit-catalog` | Grit pattern catalog (ports 8 eslint families + script families incl. G8/G10/G11, fixtures, probe-confirmed parity), first codemods, file-layer generated-zone protection | H2, H4, H4.5 | — |
-| H6 | `habitat-enforcement-consolidation` | Retire superseded scripts/eslint/tests with per-rule parity + probe evidence; habitat verify becomes the single path; CI re-pointed | H3, H4.5, H5 | — |
+| H6 | `habitat-enforcement-consolidation` | Historical retirement slice for superseded scripts/eslint/tests with per-rule parity + probe evidence; current command truth is superseded by `habitat-enforcement-surface-cleanup` | H3, H4.5, H5 | — |
 | H7 | `habitat-git-hooks` | Husky pre-commit (staged scope; restage ONLY formatter-touched files) + pre-push affected verify; dispositions legacy `scripts/git-hooks` | H2, H3, H4, H4.5, H5 | — |
 | H8 | `habitat-generators-migrations` | Project/pattern generators, harness migrations, habitat classify, agent operating procedure in AGENTS.md | H4.5, H6, H7 | train tail (strictly after H7; ledger F40) |
 

@@ -40,7 +40,7 @@
   by proof class and cache/fresh requirement.
 - [x] 3.3 Define accepted naming and documentation policy for retained direct
   diagnostic scripts.
-- [ ] 3.4 Patch root scripts and docs when a script name implies stronger proof
+- [x] 3.4 Patch root scripts and docs when a script name implies stronger proof
   than the command supplies.
 - [x] 3.5 Inventory surviving enforcement wrapper files under `scripts/**` and
   classify duplicates, direct aliases, and Habitat-mediated paths.
@@ -79,19 +79,19 @@
   not accepted as closure proof. The artifact distinguishes executed Nx
   affected proof from skipped Nx affected proof and does not synthesize an Nx
   exit code when Habitat check fails before Nx runs.
-- [ ] 6.3 Decide whether verify target composition should avoid direct `check`
+- [x] 6.3 Decide whether verify target composition should avoid direct `check`
   recursion or stale target names.
-- [ ] 6.4 Patch `verify` command, target metadata, docs, or proof records if the
+- [x] 6.4 Patch `verify` command, target metadata, docs, or proof records if the
   accepted command policy differs from historical H6.
 
 ## 7. Owner-Layer And Effect Decision
 
-- [ ] 7.1 Reaffirm Nx, Grit, Biome, file-layer, Habitat-native, and tests as
+- [x] 7.1 Reaffirm Nx, Grit, Biome, file-layer, Habitat-native, and tests as
   distinct proof owners.
-- [ ] 7.2 Reaffirm command selector implementation belongs to
+- [x] 7.2 Reaffirm command selector implementation belongs to
   `habitat-oclif-entrypoint-repair` unless this packet consumes an accepted
   selector repair.
-- [ ] 7.3 Reaffirm Grit pattern semantics and apply safety belong to
+- [x] 7.3 Reaffirm Grit pattern semantics and apply safety belong to
   `habitat-grit-proof-repair` and per-pattern packets.
 - [x] 7.4 If implementation changes command orchestration, wrapper execution,
   proof provenance, cleanup finalizers, service-injected tests, or typed error
@@ -107,16 +107,16 @@
 
 ## 8. Downstream Realignment
 
-- [ ] 8.1 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`
+- [x] 8.1 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`
   `CLAIM-H6-ONE-PATH` with reviewed current proof boundaries.
-- [ ] 8.2 Update `docs/projects/habitat-harness/workstream-record.md` if H6
+- [x] 8.2 Update `docs/projects/habitat-harness/workstream-record.md` if H6
   closure wording overclaims current proof.
-- [ ] 8.3 Update `openspec/changes/habitat-enforcement-consolidation/**`
+- [x] 8.3 Update `openspec/changes/habitat-enforcement-consolidation/**`
   historical records that claim one path, green closure, or retired mechanisms
   beyond current evidence.
-- [ ] 8.4 Update `tools/habitat-harness/README.md` and root `AGENTS.md` if
+- [x] 8.4 Update `tools/habitat-harness/README.md` and root `AGENTS.md` if
   accepted root/CI command policy changes agent guidance.
-- [ ] 8.5 Update dependent repair packets that cite H6 as proof without the
+- [x] 8.5 Update dependent repair packets that cite H6 as proof without the
   current cleanup boundary.
 
 ## 9. Verification
@@ -136,13 +136,13 @@
 - [x] 9.13 Structured `VerifyProof` artifact proof, including skipped-Nx
   execution-state proof
 - [x] 9.14 `habitat verify` whole-command proof
-- [ ] 9.15 Stale-record scan and patches
+- [x] 9.15 Stale-record scan and patches
 - [x] 9.16 Full-depth-language guardrail scan over this packet
 
 ## 10. Closure
 
-- [ ] 10.1 Record verification results and proof boundaries in
+- [x] 10.1 Record verification results and proof boundaries in
   `workstream/phase-record.md`.
-- [ ] 10.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
-- [ ] 10.3 Ensure downstream realignment ledger is patched or has exact actions.
-- [ ] 10.4 Commit through Graphite with a clean worktree.
+- [x] 10.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
+- [x] 10.3 Ensure downstream realignment ledger is patched or has exact actions.
+- [x] 10.4 Commit through Graphite with a clean worktree.

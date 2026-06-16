@@ -5,10 +5,10 @@
 - Project: Habitat Harness
 - Phase: enforcement surface cleanup / `habitat-enforcement-surface-cleanup`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-enforcement-selector-proof`
+- Branch/Graphite stack: `agent-HR-habitat-enforcement-realignment`
 - Started: 2026-06-14
-- Status: selector/empty-proof checkpoint in implementation; broader
-  enforcement-surface cleanup remains open.
+- Status: downstream realignment checkpoint; broader enforcement-surface cleanup
+  remains pending supervisor acceptance.
 
 ## Objective
 
@@ -126,13 +126,13 @@ Core synthesis:
 - Completed in accepted wrapper-policy checkpoint: 3.3, 3.5, 4.1-4.6, 9.7,
   and 9.9-9.11 for the current wrapper-disposition, direct-vs-Habitat
   projection, and legacy wrapper file inventory boundary.
-- Completed in this checkpoint: 5.1-5.3 and 9.8 for stale owner-tool selector
-  failure and parsed JSON proof.
-- Remaining tasks: root script/docs patching if accepted command names
-  overclaim, verify composition decision, downstream realignment, packet
-  closure, and supervisor review.
-- Implementation status: selector-proof checkpoint committed locally and awaiting
-  supervisor acceptance or repair disposition.
+- Completed in accepted selector-proof checkpoint: 5.1-5.3 and 9.8 for stale
+  owner-tool selector failure and parsed JSON proof.
+- Completed in this checkpoint: 3.4, 6.3, 6.4, 7.1-7.3, 8.1-8.5, 9.15, and
+  10.1-10.3 for root/verify command-policy record truth, owner-layer
+  reaffirmation, stale H6 downstream realignment, and stale-record scan.
+- Closure state: this downstream realignment checkpoint requires supervisor
+  acceptance before HESC packet closure is claimed.
 
 ## Verification
 
@@ -268,6 +268,8 @@ Core synthesis:
 
 - Implementation adds a real-command regression in `habitat-entrypoints.test.ts`
   for the stale `wrapped-eslint` ownerTool seed case.
+- Supervisor acceptance: accepted for the bounded HESC selector false-green
+  rejection outcome.
 - Proof class:
   - Command/Habitat wrapper behavior: `bun run habitat:check -- --json --tool
     wrapped-eslint` exits 1 with schemaVersion 1, `ok:false`, exactly one
@@ -284,6 +286,47 @@ Core synthesis:
   CI execution proof, no Grit row semantics, no baseline semantics, no
   product/runtime proof, and no packet closure.
 
+## Downstream Realignment Checkpoint
+
+- Implementation updates current-command and historical-record truth after the
+  accepted verify-proof, inventory, wrapper-policy, and selector-proof
+  checkpoints.
+- Root command policy:
+  - root `check` is the Nx build/check/lint/test/verify aggregate;
+  - root `lint` carries project lint plus the Habitat structural-check lane
+    through Nx;
+  - root `verify` runs package-owned verifier targets;
+  - direct `habitat verify --json` remains a structured diagnostic proof artifact
+    path and is not the root/CI single path.
+- Owner-layer reaffirmation:
+  - Nx owns project/task graph scheduling and root aggregates;
+  - Habitat owns rule IDs, report projection, selector integrity, baselines, and
+    structural mutation commands;
+  - Grit, Biome, file-layer, Habitat-native rules, and retained tests keep
+    separate proof classes;
+  - Grit pattern semantics/apply safety remain owned by `habitat-grit-proof-repair`
+    and row/pattern packets.
+- Downstream records patched:
+  - `docs/projects/habitat-harness/recovery-claim-ledger.md`
+    `CLAIM-H6-ONE-PATH`;
+  - `docs/projects/habitat-harness/workstream-record.md`;
+  - `docs/projects/habitat-harness/invariant-corpus.md`;
+  - `openspec/changes/habitat-enforcement-consolidation/proposal.md`;
+  - `openspec/changes/habitat-enforcement-consolidation/tasks.md`;
+  - `openspec/changes/habitat-enforcement-consolidation/workstream/phase-record.md`;
+  - this packet's downstream realignment ledger.
+- Scanned/no-edit-needed records:
+  - root `AGENTS.md` and `tools/habitat-harness/README.md` already describe the
+    current root Nx/Habitat guidance for this slice;
+  - `habitat-grit-proof-repair` does not need a dependency edit because this
+    slice does not change accepted Grit proof command surfaces;
+  - `habitat-git-hook-hardening` does not need a dependency edit because this
+    slice does not change hook pre-push target policy.
+- Non-claims: no wrapper retirement, no generated-output freshness repair, no
+  CI execution proof, no broad Nx affected coverage, no Grit row semantics, no
+  baseline semantics, no hook policy change, no product/runtime proof, and no
+  supervisor packet-closure acceptance before review.
+
 ## Realignment
 
 - Downstream realignment ledger:
@@ -291,5 +334,5 @@ Core synthesis:
 
 ## Next Action
 
-- Await supervisor acceptance or repair disposition for the selector-proof
-  checkpoint before opening the next HESC slice.
+- Hold for supervisor acceptance or repair disposition before opening the next
+  repair-chain slice.

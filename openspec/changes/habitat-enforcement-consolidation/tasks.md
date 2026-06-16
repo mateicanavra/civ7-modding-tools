@@ -57,10 +57,12 @@
 
 ## 4. Single-Path Wiring
 
-- [x] 4.1 Re-point root `check` and `ci:architecture-strict-core` to
-  `habitat verify`; CI uploads habitat JSON diagnostics; record CI timing vs
-  the retired aggregate (stop-condition bound: ≤ 1.25× the retired
-  aggregate's wall-clock on CI; both timings in the phase record).
+- [x] 4.1 Historical H6 target was to re-point root `check` and
+  `ci:architecture-strict-core` to `habitat verify`; current recovery truth is
+  superseded by `habitat-enforcement-surface-cleanup`: root `check` is a
+  build/check/lint/test/verify Nx aggregate, root `lint` carries Habitat checks,
+  root `verify` runs package-owned verifier targets, and strict-core remains a
+  direct diagnostic alias.
 - [x] 4.2 Docs/AGENTS sweep for retired-script references.
 
 ## 5. Verification And Closure
