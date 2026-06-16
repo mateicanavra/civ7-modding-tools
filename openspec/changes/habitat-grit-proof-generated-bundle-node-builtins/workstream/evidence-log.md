@@ -16,9 +16,10 @@ Current inventory:
 - 0 Node builtin import/require/dynamic-import source matches across scanned
   files.
 - 0 direct-control/runtime transport token matches across scanned files.
-- `mods/mod-swooper-maps/mod/swooper-maps.modinfo` lists
-  `maps/studio-current.js`, but the ignored generated output directory does
-  not currently contain that file.
+- Historical row-local observation: `mods/mod-swooper-maps/mod/swooper-maps.modinfo`
+  listed `maps/studio-current.js` while the ignored generated output directory
+  did not contain that file. That observation is superseded by the accepted
+  map-bundle/downstack freshness repair.
 
 This is scan evidence only. It does not hand-edit generated output, prove
 Swooper bundle freshness, prove active Grit behavior, or prove product/runtime
@@ -78,20 +79,17 @@ tracked bundle and left it present without a tracked generated-output diff.
 
 ## GBNB-SWOOPER-FRESHNESS-BLOCKER-2026-06-15
 
-Proof class: generated-output freshness blocker.
+Proof class: historical generated-output freshness blocker.
 
 Command:
 
 `bun test mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts`
 
-Observed result during row discovery: failed because the manifest lists
-`maps/studio-current.js` while the ignored generated map output directory does
-not contain that script. Existing Swooper map bundle wrapped-test ownership
-remains active, but this row does not repair that generated-output freshness
-gap.
+Observed result during row discovery: failed because the manifest listed
+`maps/studio-current.js` while the ignored generated map output directory did
+not contain that script. This is superseded by the accepted
+map-bundle/downstack freshness repair. Existing Swooper map bundle wrapped-test
+ownership remains separate from this Intelligence Bridge row.
 
-Aggregate wrapped-test result after the Intelligence Bridge rule was added:
-`arch-test-intelligence-bridge-bundle-runtime-imports` passed and
-`baseline-integrity` passed, but aggregate `wrapped-test` exited 1 because the
-existing Swooper map bundle rule still cannot read the missing ignored
-`maps/studio-current.js` output.
+Current aggregate wrapped-test health is inherited from the accepted
+map-bundle/downstack freshness repair, not from this row.

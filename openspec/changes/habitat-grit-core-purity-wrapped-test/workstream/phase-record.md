@@ -28,13 +28,13 @@ selected by Habitat.
 - Do not change MapGen core source in this row.
 - Do not register duplicate Grit enforcement for the wrapped-test-owned core
   purity invariant.
-- Do not repair the separate Swooper generated map bundle freshness blocker in
-  this row.
+- Do not claim ownership of the separate Swooper generated map bundle freshness
+  repair in this row.
 
 ## Non-Claims
 
 No active Grit check, native Grit fixture proof, Grit baseline, injected Grit
 probe, source remediation, MapGen core Grit import-predicate repair, adapter
-type-import policy closure, Swooper map bundle freshness repair, aggregate
-wrapped-test closure, apply safety, classify/generator behavior, retired parity,
-or product/runtime proof is claimed.
+type-import policy closure, Swooper map bundle freshness repair ownership,
+apply safety, classify/generator behavior, retired parity, or product/runtime
+proof is claimed.

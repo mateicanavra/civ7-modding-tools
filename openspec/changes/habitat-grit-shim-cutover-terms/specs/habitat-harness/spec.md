@@ -35,10 +35,11 @@ wrapped-test owner layer selected by `arch-test-cutover`.
 Habitat SHALL keep cutover proof separate from unrelated generated-output,
 Grit, and product proof classes.
 
-#### Scenario: Aggregate wrapped-test remains current-red for another rule
+#### Scenario: Aggregate wrapped-test health is inherited
 
-- **WHEN** aggregate `wrapped-test` evidence includes a Swooper map bundle
-  freshness failure
-- **THEN** records SHALL keep that failure separate from cutover
-- **AND** records SHALL NOT claim aggregate wrapped-test closure from the
+- **WHEN** current aggregate `wrapped-test` evidence is green after the accepted
+  map-bundle/downstack freshness repair
+- **THEN** records SHALL keep that inherited aggregate health separate from
+  cutover
+- **AND** records SHALL NOT claim generated-output freshness ownership from the
   cutover per-rule proof

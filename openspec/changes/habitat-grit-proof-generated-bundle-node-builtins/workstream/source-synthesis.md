@@ -24,10 +24,10 @@ dynamic imports, direct-control package tokens, or runtime transport tokens in
 the row scan.
 
 The Swooper generated map output directory is ignored by Git. Six generated
-map scripts exist locally and have no current row token matches, but the
-Swooper mod manifest lists `maps/studio-current.js` and the ignored generated
-output directory lacks that file. That prevents Swooper map bundle closure in
-this row.
+map scripts were scanned in this row's historical inventory and had no row
+token matches. Earlier missing-output evidence for `maps/studio-current.js` is
+superseded by the accepted map-bundle/downstack freshness repair. Swooper map
+bundle closure remains outside this Intelligence Bridge row.
 
 ## Owner Decision
 
@@ -42,6 +42,6 @@ inspecting it.
 - No generated output hand edit.
 - No active Grit rule, Grit baseline, or injected Grit probe.
 - The new wrapped-test rule has an explicit empty Habitat baseline.
-- No Swooper map bundle freshness repair.
+- No Swooper map bundle freshness repair ownership.
 - No generated-output build pipeline repair.
 - No apply safety, classify/generator behavior, or product/runtime proof.

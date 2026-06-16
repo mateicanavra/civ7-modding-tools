@@ -23,9 +23,10 @@
 
 - [x] 3.1 `nx run mod-swooper-maps:test:architecture-cutover --outputStyle=static`
 - [x] 3.2 `bun run habitat:check -- --json --rule arch-test-cutover`
-- [x] 3.3 `bun run habitat:check -- --json --tool wrapped-test` recorded
-  cutover passing and the separate Swooper map bundle freshness blocker; the
-  aggregate wrapped-test command remains current-red.
+- [x] 3.3 `bun run habitat:check -- --json --tool wrapped-test` originally
+  recorded cutover passing with a separate Swooper map bundle freshness
+  blocker; current aggregate wrapped-test health is superseded by the accepted
+  map-bundle/downstack freshness repair.
 - [x] 3.4 Deterministic no-shim runtime source inventory records zero current
   term hits over the owning roots.
 - [x] 3.5 Deterministic wrapped-test baseline inventory includes the cutover
@@ -43,7 +44,7 @@
   Grit probe is claimed.
 - [x] 4.2 No source remediation or natural-language documentation keyword rule
   is claimed.
-- [x] 4.3 No Swooper map bundle freshness repair or aggregate wrapped-test
-  closure is claimed.
+- [x] 4.3 No Swooper map bundle freshness repair ownership is claimed by this
+  cutover row.
 - [x] 4.4 No apply safety, classify/generator behavior, retired parity, or
   product/runtime proof is claimed.

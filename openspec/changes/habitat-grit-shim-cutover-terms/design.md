@@ -40,8 +40,8 @@ Grit-owned.
    compare, compatibility, and transitional surface terms.
 5. The same target also checks no op-calls-op tectonics, no dual contract paths,
    and locked foundation topology.
-6. Aggregate `wrapped-test` closure is still blocked by the independent Swooper
-   generated map bundle freshness issue, not by cutover.
+6. Current aggregate `wrapped-test` health is inherited from the accepted
+   map-bundle/downstack freshness repair, not from cutover.
 
 ### Exterior
 
@@ -90,7 +90,7 @@ barrel imports, `ops.bind`, and `runValidated`.
 | Current runtime roots contain no matching shim term | `arch-test-cutover` passes; deterministic inventory records 0 hits |
 | Legacy stage alias, dual contract path, or foundation topology drift | `arch-test-cutover` fails through the owning package test |
 | Candidate is considered for Grit keyword registration | rejected for this row because precise executable authority is the package cutover target |
-| Aggregate wrapped-test run includes cutover | Cutover rule passes; aggregate still may fail on unrelated generated map bundle freshness |
+| Aggregate wrapped-test run includes cutover | Cutover rule passes; current aggregate health is inherited from accepted map-bundle/downstack freshness repair |
 
 ## Proof Contract
 
@@ -100,9 +100,10 @@ This row checkpoint may record:
   `mod-swooper-maps:test:architecture-cutover`.
 - `SCT-HABITAT-WRAPPED-TEST-2026-06-15`: Habitat per-rule selector/wrapper
   proof for `arch-test-cutover`.
-- `SCT-WRAPPED-TEST-AGGREGATE-2026-06-15`: aggregate wrapped-test evidence
-  showing cutover passes while a separate generated-map freshness blocker
-  remains current-red.
+- `SCT-WRAPPED-TEST-AGGREGATE-2026-06-15`: historical aggregate wrapped-test
+  evidence showed cutover passing while map-bundle freshness was still a
+  separate blocker; current aggregate wrapped-test health is superseded by the
+  accepted map-bundle/downstack freshness repair.
 - `SCT-SHIM-INVENTORY-2026-06-15`: deterministic zero-hit inventory for the
   no-shim runtime source roots and term set.
 - `SCT-BASELINE-FILES-2026-06-15`: explicit empty Habitat baseline for

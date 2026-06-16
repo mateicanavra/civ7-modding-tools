@@ -23,9 +23,10 @@
 
 - [x] 3.1 `nx run @swooper/mapgen-core:test:architecture-core-purity --outputStyle=static`
 - [x] 3.2 `bun run habitat:check -- --json --rule arch-test-core-purity`
-- [x] 3.3 `bun run habitat:check -- --json --tool wrapped-test` records core
-  purity passing and the separate Swooper map bundle freshness blocker; the
-  aggregate wrapped-test command remains current-red.
+- [x] 3.3 `bun run habitat:check -- --json --tool wrapped-test` originally
+  recorded core purity passing with a separate Swooper map bundle freshness
+  blocker; current aggregate wrapped-test health is superseded by the accepted
+  map-bundle/downstack freshness repair.
 - [x] 3.4 Deterministic source inventory records current production core source
   counts and zero runtime-value candidates.
 - [x] 3.5 Deterministic wrapped-test baseline inventory includes the core
@@ -44,7 +45,7 @@
 - [x] 4.2 No source remediation is claimed.
 - [x] 4.3 No MapGen core Grit import-predicate repair or adapter type-import
   policy closure is claimed.
-- [x] 4.4 No Swooper map bundle freshness repair or aggregate wrapped-test
-  closure is claimed.
+- [x] 4.4 No Swooper map bundle freshness repair ownership is claimed by this
+  core-purity row.
 - [x] 4.5 No apply safety, classify/generator behavior, retired parity, or
   product/runtime proof is claimed.

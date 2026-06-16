@@ -2,16 +2,16 @@
 
 ## Current Review State
 
-No supervisor review has accepted this row checkpoint yet. Local implementation
-is recording the core-purity rule as an active wrapped-test proof checkpoint,
-not a Grit rule.
+Supervisor review accepted this row as an active wrapped-test proof checkpoint,
+not a Grit rule. Current aggregate wrapped-test health is inherited from the
+accepted map-bundle/downstack freshness repair, not from this row.
 
 ## Findings
 
 | Finding id | Priority | Status | Disposition |
 | --- | --- | --- | --- |
 | `CORE-PURITY-GRIT-OWNER-MISMATCH-2026-06-16` | P2 | Accepted/local repaired | The product invariant is already enforced by `arch-test-core-purity`; this checkpoint records wrapped-test ownership instead of duplicate Grit registration. |
-| `CORE-PURITY-WRAPPED-TEST-AGGREGATE-2026-06-16` | P2 | Accepted/local open | Aggregate `wrapped-test` remains current-red because the separate Swooper map bundle rule cannot read missing ignored `maps/studio-current.js`; core purity passes in its owner target and per-rule Habitat wrapper. |
+| `CORE-PURITY-WRAPPED-TEST-AGGREGATE-2026-06-16` | P2 | Superseded by accepted map-bundle repair | Historical aggregate evidence showed core purity passing while the separate map-bundle rule was red. Current aggregate wrapped-test health is inherited from the accepted map-bundle/downstack freshness repair; core purity still owns only its package target and per-rule Habitat proof. |
 
 ## Non-Claims Preserved
 
@@ -20,6 +20,6 @@ not a Grit rule.
 - No source remediation.
 - No MapGen core Grit import-predicate repair or adapter type-import policy
   closure.
-- No Swooper map bundle freshness repair or aggregate wrapped-test closure.
+- No Swooper map bundle freshness repair ownership.
 - No apply safety, classify/generator behavior, retired parity, or
   product/runtime proof.

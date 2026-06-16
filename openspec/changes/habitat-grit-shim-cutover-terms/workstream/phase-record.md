@@ -29,8 +29,8 @@ guards.
 
 - Do not register duplicate Grit enforcement for the test-owned cutover
   invariant.
-- Do not repair the separate Swooper generated map bundle freshness blocker in
-  this row.
+- Do not claim ownership of the separate Swooper generated map bundle freshness
+  repair in this row.
 - Do not hand-edit generated output or broaden this row into documentation
   keyword enforcement.
 
@@ -38,6 +38,5 @@ guards.
 
 No active Grit check, native Grit fixture proof, Grit baseline, injected Grit
 probe, source remediation, documentation keyword enforcement, Swooper map bundle
-freshness repair, aggregate wrapped-test closure, apply safety,
-classify/generator behavior, retired parity, or product/runtime proof is
-claimed.
+freshness repair ownership, apply safety, classify/generator behavior, retired
+parity, or product/runtime proof is claimed.

@@ -39,18 +39,19 @@
 
 ## `CORE-PURITY-WRAPPED-TEST-AGGREGATE-2026-06-16`
 
-- Proof class: aggregate wrapped-test blocker separation.
+- Proof class: historical aggregate wrapped-test blocker separation.
 - Command:
   `bun run habitat:check -- --json --tool wrapped-test`
 - Exit status: 1.
-- Result: CheckReport `ok:false`; `arch-test-core-purity` passed with zero
-  diagnostics and `baseline-integrity` passed. Aggregate `wrapped-test`
-  remained current-red because `arch-test-map-bundle-runtime-imports` failed
-  reading missing ignored generated output
-  `mods/mod-swooper-maps/mod/maps/studio-current.js`.
-- Boundary: records that core purity is clean inside the aggregate report and
-  that the aggregate blocker belongs to separate Swooper generated-output
-  freshness work.
+- Historical result: CheckReport `ok:false`; `arch-test-core-purity` passed
+  with zero diagnostics and `baseline-integrity` passed, while
+  `arch-test-map-bundle-runtime-imports` failed on missing generated map
+  output.
+- Current disposition: this historical red state is superseded by the accepted
+  map-bundle/downstack freshness repair. The core-purity row still owns only
+  its package target and Habitat per-rule proof.
+- Boundary: records that core purity is clean inside the historical aggregate
+  report and that generated-output freshness is owned outside this row.
 
 ## `CORE-PURITY-BASELINE-FILES-2026-06-16`
 
@@ -70,6 +71,6 @@
 - No source remediation.
 - No MapGen core Grit import-predicate repair or adapter type-import policy
   closure.
-- No Swooper map bundle freshness repair or aggregate wrapped-test closure.
+- No Swooper map bundle freshness repair ownership.
 - No classify/generator behavior, apply safety, retired parity, or
   product/runtime proof.

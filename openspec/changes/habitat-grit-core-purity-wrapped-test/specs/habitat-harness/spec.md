@@ -36,10 +36,11 @@ boundary through the wrapped-test owner layer selected by
 Habitat SHALL keep core-purity proof separate from unrelated generated-output,
 Grit, and runtime proof classes.
 
-#### Scenario: Aggregate wrapped-test remains current-red for another rule
+#### Scenario: Aggregate wrapped-test health is inherited
 
-- **WHEN** aggregate `wrapped-test` evidence includes a Swooper map bundle
-  freshness failure
-- **THEN** records SHALL keep that failure separate from core purity
-- **AND** records SHALL NOT claim aggregate wrapped-test closure from the core
-  purity per-rule proof
+- **WHEN** current aggregate `wrapped-test` evidence is green after the accepted
+  map-bundle/downstack freshness repair
+- **THEN** records SHALL keep that inherited aggregate health separate from core
+  purity
+- **AND** records SHALL NOT claim generated-output freshness ownership from the
+  core purity per-rule proof

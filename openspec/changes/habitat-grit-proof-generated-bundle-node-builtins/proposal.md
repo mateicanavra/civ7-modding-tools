@@ -8,9 +8,9 @@ that belongs in package/server/control owner layers.
 
 This checkpoint owns the row-specific generated-bundle test hardening,
 Habitat wrapped-test registration, current bundle inventory, and record truth
-for the Intelligence Bridge UI bundle. Swooper map bundle freshness remains an
-existing wrapped-test blocker because the ignored generated output directory is
-missing a manifest-listed script in this checkout.
+for the Intelligence Bridge UI bundle. Historical Swooper map bundle freshness
+failure evidence is superseded by the accepted map-bundle/downstack freshness
+repair; this row still does not own that repair.
 
 ## Target Authority Refs
 
@@ -37,11 +37,12 @@ missing a manifest-listed script in this checkout.
 - Record current generated-bundle inventory for the tracked Intelligence
   Bridge UI bundle and present Swooper map bundles.
 - Record that generated output is not a Grit scan-root owner in this row.
+- Keep Swooper map-bundle freshness ownership outside this row.
 
 ## What Does Not Change
 
 - No generated output is hand-edited.
-- No Swooper map bundle freshness repair is claimed.
+- No Swooper map bundle freshness repair ownership is claimed.
 - No active Grit check, Grit baseline, injected probe, raw Grit acquisition,
   apply safety, classify/generator behavior, or product/runtime proof is
   claimed.

@@ -34,8 +34,9 @@ separate Grit import-predicate gap.
 
 - The package-owned Nx target passes.
 - Habitat per-rule wrapper selection for `arch-test-core-purity` passes.
-- Aggregate `wrapped-test` includes the core-purity rule as passing, while
-  remaining current-red for separate Swooper map bundle freshness.
+- Historical aggregate `wrapped-test` evidence included the core-purity rule as
+  passing while map-bundle freshness was still red; current aggregate health is
+  inherited from the accepted map-bundle/downstack freshness repair.
 - Parser inventory found 92 production MapGen core `.ts` files, 153 import
   declarations, 4 type-only adapter imports, and 0 runtime value candidates.
 - The explicit empty Habitat baseline for `arch-test-core-purity` exists.
@@ -44,6 +45,6 @@ separate Grit import-predicate gap.
 
 No active Grit rule, Grit baseline, injected Grit probe, source remediation,
 MapGen core Grit import-predicate repair, adapter type-import policy closure,
-Swooper generated map freshness repair, aggregate wrapped-test closure,
+Swooper generated map freshness repair ownership,
 classify/generator behavior, apply safety, retired parity, or product/runtime
 proof is claimed.

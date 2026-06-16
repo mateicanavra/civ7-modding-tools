@@ -22,6 +22,6 @@
 
 ## Remaining Gates
 
-- Swooper generated map bundle freshness remains a separate wrapped-test
-  blocker.
+- Swooper generated map bundle freshness remains outside this row and is
+  inherited from the accepted map-bundle/downstack freshness repair.
 - Product/runtime proof remains outside this row.

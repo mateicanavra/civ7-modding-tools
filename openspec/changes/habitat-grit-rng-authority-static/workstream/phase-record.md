@@ -27,12 +27,12 @@ invariant corpus keeps RNG authority as a test-owned runtime semantics guard.
 
 - Do not change source generation behavior in this row.
 - Do not register duplicate Grit enforcement for the test-owned RNG invariant.
-- Do not repair the separate Swooper generated map bundle freshness blocker in
-  this row.
+- Do not claim ownership of the separate Swooper generated map bundle freshness
+  repair in this row.
 
 ## Non-Claims
 
 No active Grit check, native Grit fixture proof, Grit baseline, injected Grit
-probe, source remediation, Swooper map bundle freshness repair, aggregate
-wrapped-test closure, apply safety, classify/generator behavior, retired parity,
-or product/runtime proof is claimed.
+probe, source remediation, Swooper map bundle freshness repair ownership,
+apply safety, classify/generator behavior, retired parity, or product/runtime
+proof is claimed.

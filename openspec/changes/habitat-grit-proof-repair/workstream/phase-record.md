@@ -142,7 +142,7 @@
     `arch-test-map-bundle-runtime-imports`, and `arch-test-cutover` failed.
   - Parity closure remains blocked; this evidence is current command truth,
     not row-level Grit parity or retirement proof.
-- Current old-mechanism parity repair probe is recorded as:
+- Historical old-mechanism parity repair probe is recorded as:
   - `HGPR-NX-TARGET-OWNERSHIP-2026-06-15`: `nx show project` confirms the
     focused `wrapped-test` architecture targets are real Nx targets with
     `dependsOn` declared through project configuration, and the generated
@@ -155,13 +155,15 @@
     --json --tool wrapped-eslint` still exits 1 through
     `rule-selection-integrity`; `wrapped-eslint` is formally stale H5/H6
     command identity, not a current Habitat tool to resurrect in this packet.
-  - `HGPR-PARITY-WRAPPED-TEST-NX-2026-06-15`: `bun run habitat:check --
-    --json --tool wrapped-test` now runs dependency-fresh Nx-owned commands for
-    `arch-test-core-purity`, `arch-test-rng-authority`,
-    `arch-test-ecology-step-imports`, `arch-test-m11-projection-band`, and
-    `arch-test-cutover`, and those rules pass. The command still exits 1
-    because `arch-test-map-bundle-runtime-imports` fails on missing generated
-    map bundle output (`studio-current.js`).
+  - `HGPR-PARITY-WRAPPED-TEST-NX-2026-06-15`: historical `bun run
+    habitat:check -- --json --tool wrapped-test` proof showed
+    dependency-fresh Nx-owned commands for `arch-test-core-purity`,
+    `arch-test-rng-authority`, `arch-test-ecology-step-imports`,
+    `arch-test-m11-projection-band`, and `arch-test-cutover`, while
+    `arch-test-map-bundle-runtime-imports` still failed on missing generated
+    map bundle output. That failed aggregate evidence is superseded for current
+    wrapped-test health by the accepted map-bundle/downstack freshness repair;
+    it remains historical parity-repair evidence only.
   - Discarded generated-output attempt: wiring
     `arch-test-map-bundle-runtime-imports` to an Nx target depending on
     `mod-swooper-maps:build` made `wrapped-test` exit 0 but dirtied generated
@@ -170,8 +172,9 @@
     `mods/mod-swooper-maps/mod/text/en_us/MapText.xml`) and deleted
     `mods/mod-swooper-maps/src/maps/generated/studio-current.ts` in the
     implementation worktree. Those artifacts were restored from `HEAD`; this
-    packet treats map-bundle generated-output freshness as a blocker/non-claim,
-    not as a green parity repair.
+    discarded attempt remains historical failed proof. Current map-bundle
+    freshness is inherited from the accepted downstack repair, not from this
+    old parity-repair probe.
 - Current old-mechanism parity closure probe is recorded as:
   - `HGPR-PARITY-WRAPPED-SCRIPT-CLOSURE-2026-06-16`: `bun run
     habitat:check -- --json --tool wrapped-script` exited 0 with CheckReport
@@ -449,8 +452,8 @@ implementation tasks 4, 6, or adapter tests begin.
 - Current parity state:
   `wrapped-script` is current-green, the named `wrapped-eslint` probe is a
   repaired-selector unknown-tool failure and formally stale H5/H6 command
-  identity, and `wrapped-test` is current-green after the accepted
-  generated-output freshness repair. Task 9.8 is closed for current
+  identity, and `wrapped-test` is current-green after accepted Nx-owned target
+  and map-bundle/downstack freshness repair. Task 9.8 is closed for current
   old-mechanism command parity disposition. H5/H6 wrapper retirement safety,
   Grit row semantic parity, raw direct Grit acquisition, CI execution, and
   product/runtime proof remain separate non-claims.

@@ -37,13 +37,14 @@ RNG-consumption behavior recorded by the existing test suite.
 
 - The package-owned Nx target passes.
 - Habitat per-rule wrapper selection for `arch-test-rng-authority` passes.
-- Aggregate `wrapped-test` includes the RNG rule as passing, while remaining
-  current-red for separate Swooper map bundle freshness.
+- Historical aggregate `wrapped-test` evidence included the RNG rule as passing
+  while map-bundle freshness was still red; current aggregate health is
+  inherited from the accepted map-bundle/downstack freshness repair.
 - The explicit empty Habitat baseline for `arch-test-rng-authority` exists.
 
 ## Non-Claims
 
 No active Grit rule, Grit baseline, injected Grit probe, source remediation,
-Swooper generated map freshness repair, aggregate wrapped-test closure,
+Swooper generated map freshness repair ownership,
 classify/generator behavior, apply safety, retired parity, or product/runtime
 proof is claimed.

@@ -34,8 +34,9 @@ owned by the package tests.
 
 - The package-owned Nx target passes.
 - Habitat per-rule wrapper selection for `arch-test-cutover` passes.
-- Aggregate `wrapped-test` includes the cutover rule as passing, while remaining
-  current-red for separate Swooper map bundle freshness.
+- Historical aggregate `wrapped-test` evidence included the cutover rule as
+  passing while map-bundle freshness was still red; current aggregate health is
+  inherited from the accepted map-bundle/downstack freshness repair.
 - The no-shim runtime source inventory finds 0 current term hits in the owning
   roots.
 - The explicit empty Habitat baseline for `arch-test-cutover` exists.
@@ -44,5 +45,5 @@ owned by the package tests.
 
 No active Grit rule, Grit baseline, injected Grit probe, source remediation,
 natural-language documentation keyword enforcement, Swooper generated map
-freshness repair, aggregate wrapped-test closure, classify/generator behavior,
+freshness repair ownership, classify/generator behavior,
 apply safety, retired parity, or product/runtime proof is claimed.

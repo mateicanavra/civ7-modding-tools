@@ -20,8 +20,9 @@ record-truth repair before any next HG row.
 - Registered `arch-test-intelligence-bridge-bundle-runtime-imports` as a
   Habitat wrapped-test rule through the graph-owned target.
 - Added the explicit empty Habitat baseline for the new wrapped-test rule.
-- Recorded current bundle inventory and Swooper generated-output freshness
-  blocker.
+- Recorded current bundle inventory and historical Swooper generated-output
+  freshness evidence that is now superseded by the accepted
+  map-bundle/downstack repair.
 - Repaired the graph target after an initial failed target run deleted the
   generated UI bundle before failing; the corrected target regenerates the
   bundle and leaves it present without a tracked generated-output diff.
@@ -42,5 +43,5 @@ record-truth repair before any next HG row.
 ## Non-Claims
 
 No active Grit check, Grit baseline, injected probe, raw Grit acquisition,
-Swooper map bundle freshness repair, apply safety, classify/generator
-behavior, or product/runtime proof is claimed.
+Swooper map bundle freshness repair ownership, apply safety,
+classify/generator behavior, or product/runtime proof is claimed.

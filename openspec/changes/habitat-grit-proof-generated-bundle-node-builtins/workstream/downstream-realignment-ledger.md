@@ -8,7 +8,7 @@
 - `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md`
   must keep Grit proof classes separate and record the non-Grit owner layer.
 - `openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md`
-  must record the final commands and distinguish the Swooper freshness blocker
+  must record the final commands and distinguish Swooper freshness ownership
   from Intelligence Bridge bundle proof.
 
 ## Not Realigned

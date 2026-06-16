@@ -25,17 +25,19 @@
 
 ## `RNG-WRAPPED-TEST-AGGREGATE-2026-06-15`
 
-- Proof class: aggregate wrapped-test blocker separation.
+- Proof class: historical aggregate wrapped-test blocker separation.
 - Command:
   `bun run habitat:check -- --json --tool wrapped-test`
 - Exit status: 1.
-- Result: `arch-test-rng-authority` passed with zero diagnostics; aggregate
-  wrapped-test remained current-red because `arch-test-map-bundle-runtime-imports`
-  failed on missing ignored generated output
-  `mods/mod-swooper-maps/mod/maps/studio-current.js`.
-- Boundary: records that RNG authority is clean inside the aggregate report and
-  that the aggregate blocker belongs to separate Swooper generated-output
-  freshness work.
+- Historical result: `arch-test-rng-authority` passed with zero diagnostics;
+  aggregate wrapped-test was red because `arch-test-map-bundle-runtime-imports`
+  failed on missing generated map output.
+- Current disposition: this historical red state is superseded by the accepted
+  map-bundle/downstack freshness repair. The RNG row still owns only its package
+  target and Habitat per-rule proof.
+- Boundary: records that RNG authority was clean inside the historical
+  aggregate report and that generated-output freshness is owned outside this
+  row.
 
 ## `RNG-BASELINE-FILES-2026-06-15`
 
@@ -53,6 +55,6 @@
 - No active Grit rule, native Grit fixture, Grit baseline, or injected Grit
   probe.
 - No source remediation.
-- No Swooper map bundle freshness repair or aggregate wrapped-test closure.
+- No Swooper map bundle freshness repair ownership.
 - No classify/generator behavior, apply safety, retired parity, or
   product/runtime proof.

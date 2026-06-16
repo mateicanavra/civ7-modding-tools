@@ -21,8 +21,8 @@
 
 ## Remaining Gates
 
-- Swooper generated map bundle freshness remains a separate wrapped-test
-  blocker.
+- Swooper generated map bundle freshness remains outside this row and is
+  inherited from the accepted map-bundle/downstack freshness repair.
 - MapGen core Grit import-predicate/type-import policy remains owned by the
   existing `grit-mapgen-core-runtime-civ7` row and future owner disposition.
 - Product/runtime proof remains outside this row.

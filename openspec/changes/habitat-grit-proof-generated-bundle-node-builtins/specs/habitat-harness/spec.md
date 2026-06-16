@@ -32,10 +32,11 @@ hand-editing them.
 Habitat SHALL keep generated-bundle proof classes separate from Grit-row proof
 classes.
 
-#### Scenario: Swooper map bundle freshness is still blocked
+#### Scenario: Swooper map bundle freshness is separately owned
 
-- **WHEN** current disk evidence shows a manifest-listed Swooper map bundle is
-  missing from the ignored generated output directory
-- **THEN** records SHALL keep Swooper map bundle freshness as a blocker
+- **WHEN** historical row-local evidence showed a manifest-listed Swooper map
+  bundle missing from the ignored generated output directory
+- **THEN** records SHALL treat that evidence as superseded by the accepted
+  map-bundle/downstack freshness repair
 - **AND** records SHALL NOT claim Swooper map bundle closure from the
   Intelligence Bridge wrapped-test proof

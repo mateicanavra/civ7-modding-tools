@@ -34,8 +34,8 @@ and Grit import-predicate semantics remain separate proof classes.
    `src/dev`, and reports runtime adapter/value references.
 5. The separate Grit row `grit-mapgen-core-runtime-civ7` remains a syntax-layer
    check with its own native fixture/parser-edge and type-import non-claims.
-6. Aggregate `wrapped-test` closure is still blocked by the independent Swooper
-   generated map bundle freshness issue, not by core purity.
+6. Current aggregate `wrapped-test` health is inherited from the accepted
+   map-bundle/downstack freshness repair, not from core purity.
 
 ### Exterior
 
@@ -91,8 +91,9 @@ This row checkpoint may record:
 - `CORE-PURITY-HABITAT-WRAPPED-TEST-2026-06-16`: Habitat per-rule selector proof
   for `arch-test-core-purity`.
 - `CORE-PURITY-WRAPPED-TEST-AGGREGATE-2026-06-16`: aggregate wrapped-test evidence
-  showing core purity passes while a separate generated-map freshness blocker
-  remains current-red.
+  showing core purity passed while a separate generated-map freshness blocker
+  was still red; current aggregate wrapped-test health is superseded by the
+  accepted map-bundle/downstack freshness repair.
 - `CORE-PURITY-SOURCE-INVENTORY-2026-06-16`: deterministic current source
   inventory for the package test boundary.
 - `CORE-PURITY-BASELINE-FILES-2026-06-16`: explicit empty Habitat baseline for

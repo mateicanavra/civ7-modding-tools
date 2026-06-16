@@ -32,8 +32,8 @@ core contracts typed without binding runtime implementation.
 - No MapGen core source is remediated.
 - No active Grit check is registered for core purity.
 - No Grit baseline or injected Grit probe is added.
-- No aggregate wrapped-test closure is claimed while the separate Swooper map
-  bundle freshness blocker remains current-red.
+- Current aggregate wrapped-test health is inherited from the accepted
+  map-bundle/downstack freshness repair; this row does not own that repair.
 - No apply safety, classify/generator behavior, retired parity, or
   product/runtime proof is claimed.
 
