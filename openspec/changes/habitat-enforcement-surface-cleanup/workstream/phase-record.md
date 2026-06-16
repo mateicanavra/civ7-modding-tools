@@ -5,10 +5,10 @@
 - Project: Habitat Harness
 - Phase: enforcement surface cleanup / `habitat-enforcement-surface-cleanup`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-enforcement-realignment`
+- Branch/Graphite stack: local HESC repair stack
 - Started: 2026-06-14
-- Status: downstream realignment checkpoint; broader enforcement-surface cleanup
-  remains pending supervisor acceptance.
+- Status: closure checkpoint locally committed for supervisor acceptance or
+  repair.
 
 ## Objective
 
@@ -133,8 +133,16 @@ Core synthesis:
 - Completed in this checkpoint: 3.4, 6.3, 6.4, 7.1-7.3, 8.1-8.5, 9.15, and
   10.1-10.3 for root/verify command-policy record truth, owner-layer
   reaffirmation, stale H6 downstream realignment, and stale-record scan.
-- Closure state: this downstream realignment checkpoint requires supervisor
-  acceptance before HESC packet closure is claimed.
+- Completed in accepted generated-output freshness checkpoint:
+  `arch-test-map-bundle-runtime-imports` now passes from owner-generated map
+  artifacts, and full Habitat check has no enforced failures while
+  `doc-ambiguity` remains advisory.
+- Completed in accepted harness test-target checkpoint: the repo-local
+  `@internal/habitat-harness:test` target passes uncached with the current
+  long-running suite, and clean explicit-range `habitat verify --base HEAD
+  --json` exits 0 with no affected tasks.
+- Closure state: all HESC task rows are satisfied for the packet's accepted
+  scope; this closure checkpoint is pending supervisor acceptance or repair.
 
 ## Verification
 
@@ -345,10 +353,11 @@ Core synthesis:
     the Habitat wrapper with `baseline-integrity` passing.
   - Whole-command proof: `habitat check --json` has no enforced failures after
     the refresh; `doc-ambiguity` remains advisory.
-  - Verify artifact truth: `habitat verify --base HEAD --json` reaches Nx
-    affected after the Habitat check succeeds, then exits 1 on unrelated
-    `mapgen-studio:test` and `@internal/habitat-harness:test` failures; this is
-    not generated-output freshness debt or root verify closure.
+  - Verify artifact truth at that checkpoint: `habitat verify --base HEAD
+    --json` reached Nx affected after the Habitat check succeeded, then exited
+    1 on unrelated `mapgen-studio:test` and `@internal/habitat-harness:test`
+    failures. The later harness test-target checkpoint supersedes that
+    not-closed verify state for the clean explicit `HEAD` range.
 - Non-claims: no wrapper retirement, no CI execution proof, no broad Nx
   affected coverage, no Grit row semantics, no baseline semantics, no hook
   policy change, and no product/runtime proof.
@@ -378,6 +387,30 @@ Core synthesis:
   coverage, no Grit row semantics, no baseline semantics, no hook policy
   change, and no product/runtime proof.
 
+## Closure Checkpoint
+
+- Proof classes:
+  - Spec validation: `bun run openspec -- validate
+    habitat-enforcement-surface-cleanup --strict` passes.
+  - Aggregate OpenSpec validation: `bun run openspec:validate` passes.
+  - Native Nx behavior: `bun run verify` exits 0 through the root
+    package-owned verifier aggregate.
+  - Native Nx behavior: uncached `@internal/habitat-harness:test` passes through
+    the repo-local Nx target with the current long-running Habitat harness
+    suite.
+  - Habitat wrapper behavior: `bun run habitat -- verify --base HEAD --json`
+    exits 0 from a clean explicit `HEAD` range with no Habitat rule failures,
+    `doc-ambiguity` advisory, executed Nx affected state, no affected
+    projects/tasks, and clean resources.
+  - Record truth proof: HESC task, phase, downstream, and recovery records
+    distinguish root verifier proof, direct `habitat verify --json` proof,
+    wrapper/parser policy, selector false-green refusal, generated-output
+    freshness, and harness test-target proof.
+- Non-claims: no CI execution proof, no changed-range broad Nx affected
+  coverage, no wrapper retirement, no Grit row semantics, no baseline
+  semantics, no hook policy change, no product/runtime proof, and no automatic
+  closure for other repair packets.
+
 ## Realignment
 
 - Downstream realignment ledger:
@@ -385,5 +418,5 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor acceptance or repair disposition before opening the next
-  repair-chain slice.
+- Hold for supervisor acceptance or repair disposition of this HESC closure
+  checkpoint before opening another repair-chain slice.
