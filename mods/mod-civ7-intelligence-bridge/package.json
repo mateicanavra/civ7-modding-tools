@@ -10,6 +10,7 @@
     "targets": {
       "build:bundle": {
         "dependsOn": [
+          "^build",
           "gen:modinfo"
         ],
         "cache": true,
@@ -22,6 +23,12 @@
           "build:bundle"
         ],
         "cache": true
+      },
+      "test:architecture-bundle-runtime-imports": {
+        "dependsOn": [
+          "build"
+        ],
+        "cache": true
       }
     }
   },
@@ -32,6 +39,7 @@
     "check": "tsc --noEmit",
     "gen:modinfo": "bun ./scripts/generate-mod-artifacts.ts",
     "test": "bun test",
+    "test:architecture-bundle-runtime-imports": "bun test test/controller-mod-package.test.ts",
     "build:bundle": "tsup",
     "clean:generated-artifacts": "bun ./scripts/clean-generated-artifacts.ts"
   },

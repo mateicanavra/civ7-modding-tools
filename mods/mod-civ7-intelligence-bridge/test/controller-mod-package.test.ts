@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import { builtinModules } from "node:module";
 import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
@@ -8,6 +9,33 @@ import {
 } from "../src/modinfo";
 
 const packageRoot = new URL("..", import.meta.url);
+const forbiddenBundleRuntimeTokens = [
+  "@civ7/direct-control",
+  "encodeCiv7TunerRequest",
+  "withCiv7DirectControlSession",
+  "executeCiv7Command",
+  "DEFAULT_CIV7_TUNER_HOST",
+  "RPCHandler",
+  "RPCLink",
+] as const;
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const forbiddenBundleNodeSources = Array.from(
+  new Set(
+    builtinModules.flatMap((source) =>
+      source.startsWith("node:") ? [source] : [source, `node:${source}`]
+    )
+  )
+).sort((left, right) => right.length - left.length);
+const forbiddenBundleNodeImportPattern = new RegExp(
+  String.raw`(?:\bfrom\s*["']|\bimport\s*(?:\(\s*)?["']|\brequire\s*\(\s*["'])(?:${forbiddenBundleNodeSources
+    .map(escapeRegExp)
+    .join("|")})["']`,
+  "g"
+);
 
 describe("Civ7 intelligence bridge mod package", () => {
   test("declares a game-scoped UIScript entry for the controller bootstrap", () => {
@@ -41,15 +69,9 @@ describe("Civ7 intelligence bridge mod package", () => {
       "utf8"
     );
 
-    expect(bundle).not.toContain('from "net"');
-    expect(bundle).not.toContain('from "os"');
-    expect(bundle).not.toContain('from "path"');
-    expect(bundle).not.toContain("@civ7/direct-control");
-    expect(bundle).not.toContain("encodeCiv7TunerRequest");
-    expect(bundle).not.toContain("withCiv7DirectControlSession");
-    expect(bundle).not.toContain("executeCiv7Command");
-    expect(bundle).not.toContain("DEFAULT_CIV7_TUNER_HOST");
-    expect(bundle).not.toContain("RPCHandler");
-    expect(bundle).not.toContain("RPCLink");
+    expect(Array.from(new Set(bundle.match(forbiddenBundleNodeImportPattern) ?? []))).toEqual([]);
+    for (const token of forbiddenBundleRuntimeTokens) {
+      expect(bundle).not.toContain(token);
+    }
   });
 });
