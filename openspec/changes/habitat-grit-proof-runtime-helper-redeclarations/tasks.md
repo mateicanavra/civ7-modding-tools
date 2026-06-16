@@ -32,11 +32,11 @@
 - [ ] 3.4 Explicit baseline proof.
   - Blocked/non-claim until the scaffold/baseline contract surface is
     available.
-- [ ] 3.5 Live helper redeclaration disposition.
-  - Blocked: parser inventory found 3 current-predicate `clamp01` function
-    redeclarations in Swooper domain strategies. This row does not mutate
-    runtime source or create a baseline; closure needs supervisor/source owner
-    disposition, an accepted baseline contract, or a separate apply row.
+- [x] 3.5 Live helper redeclaration disposition.
+  - Resolved by successor `habitat-grit-apply-helper-redeclarations`: the three
+    current-predicate `clamp01` function declarations were remediated through a
+    bounded source-owner/apply checkpoint, and current parser inventory now
+    reports zero RHR candidates.
 
 ## 4. Downstream Realignment
 

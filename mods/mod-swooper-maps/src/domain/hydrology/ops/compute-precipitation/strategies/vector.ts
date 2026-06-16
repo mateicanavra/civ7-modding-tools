@@ -1,3 +1,4 @@
+import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
   estimateDivergenceOddQ,
@@ -28,10 +29,6 @@ const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
   [-1, -1],
   [1, -1],
 ];
-
-function clamp01(v: number): number {
-  return Math.max(0, Math.min(1, v));
-}
 
 function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Vec2 {
   const base = projectOddqToHexSpace(baseX, 0);
