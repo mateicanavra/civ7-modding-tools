@@ -16,16 +16,16 @@ subclaim.
 
 The remaining missing proof is live Civ7 runtime evidence that:
 
-- daemon startup activates `StudioLiveGameWatcher` through the package
-  `ManagedRuntime`;
-- watcher reads flow through `Civ7TunerClient` and the shared
-  `Civ7TunerSession` path;
+- the daemon package `ManagedRuntime` activates `StudioLiveGameWatcher` before
+  serving `/rpc` requests that depend on runtime identity or event streaming;
+- live watcher event output is paired with source-composition proof that reads
+  flow through `Civ7TunerClient` and the shared `Civ7TunerSession` path;
 - the first observed live-game state is delivered to `studio.events.watch`;
 - a subscriber that connects after the first observation receives `hello`
   followed by the latest retained `live-game` state;
 - unchanged stable live-game keys stay quiet;
 - changed turn/hash/seed/readiness state publishes a new `live-game` event;
-- browser UI updates from the event stream without calling background
+- browser UI updates from the event stream in the same run without calling background
   `civ7.live.status` or `liveControlPort.readiness.current`.
 
 ## Environment Prerequisites
