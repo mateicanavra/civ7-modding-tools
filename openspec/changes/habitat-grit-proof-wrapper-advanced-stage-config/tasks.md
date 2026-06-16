@@ -21,22 +21,25 @@
 
 ## 3. Dependency-Bound Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `WASC-PER-RULE-SELECTOR-2026-06-16` passed for
+    `grit-wrapper-advanced-stage-config` plus `baseline-integrity` with zero
+    diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
   - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+- [x] 3.3 Injected violation and cleanup proof.
+  - `WASC-INJECTED-PROBE-2026-06-16` records row-specific injected finding and
+    path-control proof. Aggregate injected-corpus closure remains unclaimed
+    while unrelated DDIT remains blocked.
+- [x] 3.4 Explicit baseline proof.
+  - `WASC-BASELINE-FILES-2026-06-16` records the explicit `[]` baseline and
+    `baseline-integrity` passing in per-rule and aggregate wrapper proof.
 - [x] 3.5 Live current-predicate wrapper advanced config disposition.
   - Parser inventory found 0 live current-row exact `advanced` config-key
-    candidates. Clean row closure remains a non-claim until wrapper/current-tree,
-    baseline, injected, raw/adapter, and supervisor acceptance gates are
-    available.
+    candidates. Raw acquisition, broader config-surface closure, generator or
+    migration behavior, apply safety, retired parity, neighboring-row proof,
+    Effect adapter proof, aggregate injected-corpus closure, and product/runtime
+    proof remain non-claims.
 
 ## 4. Downstream Realignment
 
@@ -53,8 +56,14 @@
 
 - [x] 5.1 `bun run openspec -- validate habitat-grit-proof-wrapper-advanced-stage-config --strict`
 - [x] 5.2 native fixture proof
-- [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.3 full native Grit corpus proof
+- [x] 5.4 parser inventory proof
+- [x] 5.5 per-rule Habitat wrapper proof
+- [x] 5.6 aggregate Habitat `grit-check` wrapper proof
+- [x] 5.7 explicit empty baseline / `baseline-integrity` proof
+- [x] 5.8 clean-start injected proof after local row commit
+- [x] 5.9 `bun run openspec -- validate habitat-grit-proof-repair --strict`
+- [x] 5.10 `bun run openspec:validate`
+- [x] 5.11 `git diff --check HEAD^..HEAD` and `git diff --check`
+- [x] 5.12 deleted-file guard
+- [x] 5.13 commit via Graphite with a clean worktree

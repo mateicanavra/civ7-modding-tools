@@ -44,7 +44,8 @@ should use supported step/domain config paths, not the retired wrapper-only
    work deliberately changes the rule.
 6. Broader config-surface closure and retired parity remain separate
    non-claims until their proof classes are available.
-7. Current parser inventory is not Habitat wrapper enforcement proof.
+7. Current parser inventory is not Habitat wrapper enforcement proof; wrapper,
+   baseline, and injected proof are recorded through their own commands.
 
 ### Exterior
 
@@ -56,11 +57,11 @@ should use supported step/domain config paths, not the retired wrapper-only
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if live current-predicate `advanced` config candidates are found but
-recorded as a clean pass without owner disposition, if ordinary `advanced`
-words are mislabeled as exact config-key candidates, or if broader config
-normalization closure is treated as proven by this row.
+This checkpoint fails if it claims raw acquisition or product/runtime proof
+from native fixtures, if live current-predicate `advanced` config candidates
+are found but recorded as a clean pass without owner disposition, if ordinary
+`advanced` words are mislabeled as exact config-key candidates, or if broader
+config normalization closure is treated as proven by this row.
 
 ## Source Synthesis
 
@@ -78,8 +79,9 @@ negative current step-id config, ordinary advanced-word false positives, a
 current recipe/map config scan, an empty locked baseline unless findings prove
 otherwise, and non-apply disposition.
 
-`grit-proof-matrix.md` records a design seed with one match and one ignore and
-marks parser-edge and false-positive classification pending.
+Current aggregate records cite the WASC native fixture, parser inventory,
+wrapper selector, aggregate `grit-check`, baseline, and injected proof ids as
+the active proof boundary for this row.
 
 ## Fixture Matrix
 
@@ -97,27 +99,38 @@ marks parser-edge and false-positive classification pending.
 
 ## Proof Contract
 
-This row checkpoint may record:
+This row checkpoint records:
 
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live candidate evidence over current Swooper standard recipe
   and map source;
+- Habitat per-rule wrapper selector/current-tree proof;
+- aggregate Habitat `grit-check` wrapper proof with WASC included;
+- explicit empty baseline ownership through `baseline-integrity`;
+- row-specific injected violation and path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
 Proof ids:
 
-- `WASC-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for
+- `WASC-NATIVE-FIXTURES-2026-06-16`: native fixture/parser-edge proof for
   current-predicate positive classes and recorded controls.
-- `WASC-CONFIG-INVENTORY-2026-06-15`: parser inventory/live evidence over
+- `WASC-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus proof with
+  WASC included.
+- `WASC-CONFIG-INVENTORY-2026-06-16`: parser inventory/live evidence over
   current Swooper standard recipe and map source.
+- `WASC-PER-RULE-SELECTOR-2026-06-16`: Habitat per-rule selector/current-tree
+  proof.
+- `WASC-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` proof with WASC
+  included.
+- `WASC-BASELINE-FILES-2026-06-16`: explicit empty baseline plus
+  `baseline-integrity` proof.
+- `WASC-INJECTED-PROBE-2026-06-16`: row-specific injected finding and path
+  control proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
 - generator/migration proof;
