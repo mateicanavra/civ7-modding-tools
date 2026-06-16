@@ -330,7 +330,7 @@ describe("enforcement surface inventory", () => {
     expect(projectRuleDiagnostics(domainGuardrails.rule, domainGuardrails.result)).toEqual([]);
   });
 
-  test("projects direct wrapped-test output without hiding generated-output failures", () => {
+  test("projects direct wrapped-test output with current generated-output freshness", () => {
     const wrappedTests = rules
       .filter((rule) => rule.ownerTool === "wrapped-test")
       .sort((left, right) => left.id.localeCompare(right.id));
@@ -338,12 +338,6 @@ describe("enforcement surface inventory", () => {
     for (const rule of wrappedTests) {
       const result = run(rule.detect, { cwd: repoRoot });
       const diagnostics = projectRuleDiagnostics(rule, result);
-
-      if (rule.id === "arch-test-map-bundle-runtime-imports" && result.exitCode !== 0) {
-        expect(diagnostics).toHaveLength(1);
-        expect(diagnostics[0]?.message).toContain("--- tool output (tail) ---");
-        continue;
-      }
 
       expect(result.exitCode).toBe(0);
       expect(diagnostics).toEqual([]);

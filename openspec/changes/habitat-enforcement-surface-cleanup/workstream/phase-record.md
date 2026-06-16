@@ -53,10 +53,11 @@
   green-passing with only `baseline-integrity`; current command-surface proof
   now rejects that selector with `rule-selection-integrity`.
 - Current `habitat verify --base HEAD --json` emits a schemaVersion 1
-  `VerifyProof` artifact and exits 1 before Nx affected because Habitat check
-  currently fails on unrelated `biome-ci` and
-  `arch-test-map-bundle-runtime-imports`. This is whole-command truth for the
-  direct Habitat CLI verify path, not verify closure.
+  `VerifyProof` artifact. The command proof path now consumes accepted Biome
+  current-drift repair and this packet's generated map-bundle freshness repair:
+  Habitat check has no enforced failures and `doc-ambiguity` remains advisory.
+  Full verify closure remains open because Nx affected now executes and fails
+  later on `mapgen-studio:test` and `@internal/habitat-harness:test`.
 
 ## Source Synthesis
 
@@ -189,10 +190,11 @@ Core synthesis:
     execution.
 - Current command proof:
   - `bun run habitat -- verify --base HEAD --json` exits 1 with
-    `command.exitCode: 1`, selected real rule ids, failing count 2, advisory
-    count 1, `nxAffected.status: "skipped"`, `skipReason:
-    "habitat-check-failed"`, `nxAffected.exitCode: null`, and clean resources
-    status because Nx was not run after the failing Habitat check.
+    `command.exitCode: 1`, selected real rule ids, failing count 0, advisory
+    count 1, `nxAffected.status: "executed"`, and clean resources status.
+    Habitat check is no longer the blocker; Nx affected now runs and fails later
+    on unrelated `mapgen-studio:test` and `@internal/habitat-harness:test`
+    tasks.
 - Non-claims: no green `habitat verify` closure, no CI execution proof, no
   broad Nx affected coverage, no wrapper parity closure, no selector closure
   beyond consumed command-surface behavior, no Grit row semantics, no baseline
@@ -237,9 +239,9 @@ Core synthesis:
     as baselined diagnostics.
   - Direct wrapped-test projection: every current wrapped architecture-test
     command is run through the Habitat projection function. Zero-exit test
-    output is outside diagnostics; the current generated map-bundle failure
-    remains visible through the coarse wrapper tail and is generated-output
-    freshness debt, not wrapper parser closure.
+    output is outside diagnostics. The generated map-bundle runtime-import rule
+    is generated-output-owned; freshness is proved by the owner generator plus
+    generated-zone drift gate, not by wrapper parser behavior.
   - Legacy wrapper file inventory: current lint wrapper scripts under
     `scripts/**` are classified as wrapped detect commands or a compatibility
     forwarder.
@@ -260,9 +262,9 @@ Core synthesis:
   exposing the existing projection function for test proof does not add new
   command orchestration, cleanup ownership, resource scopes, retries, parallel
   composition, or service lifecycle.
-- Non-claims: no wrapper retirement, no generated-output freshness repair, no
-  invalid selector proof, no CI execution proof, no Grit row semantics, no
-  baseline semantics, no product/runtime proof, and no packet closure.
+- Non-claims: no wrapper retirement, no invalid selector proof, no CI execution
+  proof, no Grit row semantics, no baseline semantics, no product/runtime
+  proof, and no packet closure.
 
 ## Selector Proof Checkpoint
 
@@ -282,9 +284,9 @@ Core synthesis:
   - `bun run habitat:check -- --json --tool wrapped-eslint`
   - `bun run habitat:check -- --json --tool wrapped-script`
   - `bun run habitat:check -- --json --tool wrapped-test`
-- Non-claims: no wrapper retirement, no generated-output freshness repair, no
-  CI execution proof, no Grit row semantics, no baseline semantics, no
-  product/runtime proof, and no packet closure.
+- Non-claims: no wrapper retirement, no CI execution proof, no Grit row
+  semantics, no baseline semantics, no product/runtime proof, and no packet
+  closure.
 
 ## Downstream Realignment Checkpoint
 
@@ -322,10 +324,35 @@ Core synthesis:
     slice does not change accepted Grit proof command surfaces;
   - `habitat-git-hook-hardening` does not need a dependency edit because this
     slice does not change hook pre-push target policy.
-- Non-claims: no wrapper retirement, no generated-output freshness repair, no
-  CI execution proof, no broad Nx affected coverage, no Grit row semantics, no
-  baseline semantics, no hook policy change, no product/runtime proof, and no
-  supervisor packet-closure acceptance before review.
+- Non-claims: no wrapper retirement, no CI execution proof, no broad Nx
+  affected coverage, no Grit row semantics, no baseline semantics, no hook
+  policy change, no product/runtime proof, and no supervisor packet-closure
+  acceptance before review.
+
+## Generated Output Freshness Checkpoint
+
+- Implementation refreshes the tracked Swooper map generated-output surface
+  through the owning generator, `bun run --cwd mods/mod-swooper-maps gen:maps`.
+  The refresh removes stale `studio-current` generated references after the
+  source config was removed: generated mod metadata no longer lists
+  `maps/studio-current.js`, generated map text no longer contains
+  `LOC_MAP_STUDIO_CURRENT_*`, and stale
+  `src/maps/generated/studio-current.ts` is removed.
+- Proof classes:
+  - Generated-output proof: `@internal/habitat-harness:generated:check`
+    re-runs the owner generator with snapshot/restore protection and reports no
+    drift after the refresh.
+  - Habitat wrapper proof: `arch-test-map-bundle-runtime-imports` passes through
+    the Habitat wrapper with `baseline-integrity` passing.
+  - Whole-command proof: `habitat check --json` has no enforced failures after
+    the refresh; `doc-ambiguity` remains advisory.
+  - Verify artifact truth: `habitat verify --base HEAD --json` reaches Nx
+    affected after the Habitat check succeeds, then exits 1 on unrelated
+    `mapgen-studio:test` and `@internal/habitat-harness:test` failures; this is
+    not generated-output freshness debt or root verify closure.
+- Non-claims: no wrapper retirement, no CI execution proof, no broad Nx
+  affected coverage, no Grit row semantics, no baseline semantics, no hook
+  policy change, and no product/runtime proof.
 
 ## Realignment
 

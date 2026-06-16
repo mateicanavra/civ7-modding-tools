@@ -21,7 +21,7 @@ semantics, or prove product/runtime behavior.
 | `arch-test-rng-authority` | `nx run mod-swooper-maps:test:architecture-rng-authority --outputStyle=static` | Exits 0 with package test output. | Zero-exit test output is outside diagnostics; Habitat reports pass. | Retain while the package architecture test owns RNG-authority semantics. |
 | `arch-test-ecology-step-imports` | `nx run mod-swooper-maps:test:architecture-ecology-step-imports --outputStyle=static` | Exits 0 with package test output. | Zero-exit test output is outside diagnostics; Habitat reports pass. | Retain while the package architecture test owns ecology-step topology semantics. |
 | `arch-test-m11-projection-band` | `nx run mod-swooper-maps:test:architecture-m11-projection-band --outputStyle=static` | Exits 0 with package test output. | Zero-exit test output is outside diagnostics; Habitat reports pass. | Retain while the package architecture test owns projection-band semantics. |
-| `arch-test-map-bundle-runtime-imports` | `bun test mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts` | Current tree exits 1 when generated map bundle output is missing or stale. | Habitat projects nonzero output through the coarse wrapper tail. This is generated-output freshness debt, not wrapper parser closure or product/runtime proof. | Retain while built map bundle output freshness owns runtime-import semantics. |
+| `arch-test-map-bundle-runtime-imports` | `bun test mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts` | Exits 0 when generated map bundle output is current; stale or missing generated bundle output remains a direct test failure. | Habitat projects this architecture test through the coarse wrapper. Generated-output freshness is proved by regenerating map artifacts through the owning generator and by the generated-zone drift gate, not by wrapper parser behavior. | Retain while built map bundle output freshness owns runtime-import semantics. |
 | `arch-test-cutover` | `nx run mod-swooper-maps:test:architecture-cutover --outputStyle=static` | Exits 0 with package test output. | Zero-exit test output is outside diagnostics; Habitat reports pass. | Retain while the package architecture test owns cutover semantics. |
 
 ## Legacy Script Inventory
@@ -41,6 +41,7 @@ semantics, or prove product/runtime behavior.
   projection function and proves the accepted parser policies for zero-exit
   warnings, baselined adapter debt, and zero-exit progress output.
 - The same test runs current direct wrapped-test commands through the Habitat
-  projection function and proves zero-exit output is not hidden as diagnostics,
-  while a generated-output failure remains visible through the coarse wrapper
-  tail.
+  projection function and proves zero-exit output is not hidden as diagnostics.
+  The map-bundle runtime-import rule remains a generated-output-owned
+  architecture test; freshness is proved by the generated-zone gate and current
+  Habitat wrapper command, not by changing the wrapper parser.
