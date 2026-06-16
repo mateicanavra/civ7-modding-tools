@@ -115,13 +115,19 @@ classifications, overlap classification, and cleanup behavior.
 
 ## Current Status
 
-- Packet opened.
-- Local evidence recorded.
-- Internal review findings accepted in the draft.
-- External adversarial review completed with two accepted/repaired P2 findings.
-- Implementation checkpoint now has native fixture and parser inventory proof;
-  wrapper, raw/adapter, injected, baseline, parity, exact-scope, and product
-  closure remain open.
+- Active-check closure checkpoint implemented on
+  `agent-HG-habitat-grit-step-contract-domain-surface-closure`.
+- Predicate repaired for exact intended step-contract filename classes,
+  recipe-local test exclusion, and exact optional-quote non-root domain source
+  specifiers.
+- Native fixture proof, full native corpus proof, parser inventory,
+  per-rule Habitat wrapper proof, aggregate `grit-check` proof, explicit empty
+  baseline integrity, and row-specific injected violation/path-control proof are
+  recorded.
+- Raw direct Grit acquisition, all-mod wrapper enforcement beyond current
+  wrapper roots, source remediation, retired parity, apply safety, aggregate
+  injected-corpus closure while DDIT remains blocked, neighboring-row closure,
+  and product/runtime proof remain non-claims.
 
 ## Implementation DRA Update - 2026-06-15
 
@@ -140,9 +146,9 @@ Worktree:
 
 Completed independent row work:
 
-- Expanded `.grit/patterns/habitat/checks/step_contract_domain_surface.md`
-  fixtures to cover 22 current-predicate positive classes and path/source
-  controls inside the native Grit fixture contract.
+- Historical checkpoint expanded `.grit/patterns/habitat/checks/step_contract_domain_surface.md`
+  fixtures to cover 22 pre-repair positive classes and path/source controls
+  inside the native Grit fixture contract.
 - Recorded `SCDS-NATIVE-FIXTURES-2026-06-15` as native fixture/parser-edge
   proof only.
 - Ran an inline Node/TypeScript parser inventory over the current wrapper scan
@@ -169,22 +175,46 @@ Current durable parser inventory summary:
   references, 0 source lookalikes, 146 out-of-scope domain-subpath references,
   and 0 other-mod raw matching files.
 
-Blocked/non-claim proof classes:
+## Closure DRA Update - 2026-06-16
 
-- Shared Habitat wrapper selector/current-tree proof is inherited in current
-  aggregate state through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
-- Raw Grit acquisition or accepted adapter proof remains unclaimed for closure.
-- Shared injected Grit-row proof is inherited through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; row-specific injected positive
-  step-contract probes beyond that shared aggregate proof remain unclaimed.
-- Shared explicit baseline proof is inherited through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`; injected unbaselined-finding proof
-  remains unclaimed.
-- Exact filename/source-scope closure remains open because source-prefix,
-  source-relative, source-protocol, and `notacontract.ts` cases are current
-  predicate facts, not predicate repair.
-- Other-mod and recipe-local test fixture positives are native/current
-  predicate facts only; they are not all-mod wrapper enforcement proof or
-  product proof.
+Completed row-owned closure work:
+
+- Repaired `.grit/patterns/habitat/checks/step_contract_domain_surface.md` so
+  source-prefix, source-relative, source-protocol, filename-lookalike, and
+  recipe-local test cases are controls, not positives.
+- Ran focused native proof:
+  `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter step_contract_domain_surface --json`.
+  Result: 17 positive matches and 0 ignore-sample matches.
+- Ran full native corpus proof:
+  `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --json`.
+  Result: 32 testable patterns and 0 failures.
+- Ran parser inventory over current wrapper roots. Result: 1,942 TS/TSX files,
+  53 current-predicate step contract files, 38 current-predicate domain
+  references, all exact domain roots, 0 current-row matches, 0 exact forbidden
+  references, 0 source lookalikes, 0 filename lookalikes, 0 recipe-local test
+  contract files, 15 artifact contract files outside predicate, 146 out-of-scope
+  domain-subpath references, and 0 parse diagnostics.
+- Ran per-rule wrapper proof:
+  `bun run habitat:check -- --json --rule grit-step-contract-domain-surface`.
+  Result: SCDS plus `baseline-integrity`, both passing with 0 diagnostics.
+- Ran aggregate wrapper proof:
+  `bun run habitat:check -- --json --tool grit-check`.
+  Result: 30 Grit rules plus `baseline-integrity`, all passing with 0
+  diagnostics and SCDS included.
+- Ran clean-start injected proof:
+  `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`.
+  Result: SCDS passed with one diagnostic at the injected step-contract path,
+  a clean non-step contract control, clean initial/final git state, and clean
+  probe-root cleanup. Aggregate exit remains nonzero only because accepted
+  unrelated DDIT projection is still blocked.
+
+Current non-claims:
+
+- raw direct Grit acquisition;
+- all-mod wrapper enforcement beyond current wrapper roots;
+- source remediation;
+- retired parity;
+- apply/codemod safety;
+- neighboring-row closure;
+- aggregate injected-corpus closure while DDIT remains blocked;
+- product/runtime proof.

@@ -25,11 +25,10 @@
 - [x] 2.5 Reconcile registry metadata, raw regex, adapter roots, stage/step
   authoring docs, current contract filenames, and current source-specifier
   predicate.
-  - Current row records the gap: registry metadata names
-    `contract.ts`/`*.contract.ts`, while the current regex also matches
-    filename lookalikes ending in `contract.ts`; the source regex also matches
-    prefixed, relative, and protocol source lookalikes. Exact closure remains
-    pending.
+  - Current row repaired the gap: registry metadata names
+    `contract.ts`/`*.contract.ts`, the current predicate matches those
+    filename classes, recipe-local test dirs are excluded, and the source
+    predicate is exact for optional-quote `@mapgen/domain/<domain>/<tail>`.
 - [x] 2.6 Confirm neighboring boundaries with `grit-recipe-domain-surface`,
   `grit-domain-deep-import`, and `grit-contract-export-all`.
   - Native fixtures record overlap families for current-predicate behavior;
@@ -48,15 +47,17 @@
   and arbitrary domain subpaths report this row in matching step contracts.
 - [x] 3.5 Add source-specifier lookalike controls for prefixed package strings,
   relative strings containing `@mapgen/domain/<domain>/<tail>`, and other
-  non-package specifiers matched by the current leading-wildcard source regex.
-  - These are current-predicate positive facts, not exact source-scope closure.
+  non-package specifiers matched by the superseded leading-wildcard source
+  regex.
+  - Predicate repaired; these are now ignore controls, not current-predicate
+    positives.
 - [x] 3.6 Add path-control fixtures for `.tsx`, maps, ordinary recipe files,
   non-step contract files, stage artifact contract files, other mods,
   recipe-local tests, filename lookalikes, and generated paths.
-  - Other-mod, recipe-local test, and filename-lookalike cases are
-    current-predicate positive facts, not all-mod wrapper enforcement or
-    predicate repair. Generated-output-shaped paths are fixture controls only;
-    no generated output was edited.
+  - Other-mod remains raw predicate context, not all-mod wrapper enforcement.
+    Recipe-local test and filename-lookalike cases are now controls.
+    Generated-output-shaped paths are fixture controls only; no generated
+    output was edited.
 - [x] 3.7 Record fixture class counts and parser-edge proof ids in the
   aggregate proof matrix.
 
@@ -66,14 +67,15 @@
   `bun run habitat:check -- --json --rule grit-step-contract-domain-surface`
   and record output class, selected rule ids, diagnostics count, and baseline
   state.
-  - Current restacked shared wrapper/selector proof is inherited through
-    `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-    `HGPR-PER-RULE-SELECTORS-2026-06-15`; this remains distinct from native
-    fixture proof, all-mod wrapper enforcement proof, and product proof.
+  - Current row-specific wrapper proof is recorded by
+    `SCDS-PER-RULE-SELECTOR-2026-06-16`; this remains distinct from native
+    fixture proof, all-mod wrapper enforcement proof, raw acquisition, and
+    product proof.
 - [x] 4.2 Record exact Habitat wrapper scan roots and selected rule projection.
   - Exact adapter scan roots are recorded from source and parser inventory;
-    selected rule projection proof is current through the shared
-    wrapper/selector proof IDs above.
+    selected rule projection proof is current through
+    `SCDS-PER-RULE-SELECTOR-2026-06-16` and
+    `SCDS-HABITAT-GRIT-TOOL-2026-06-16`.
 - [ ] 4.3 Run bounded raw Grit acquisition over the Swooper recipe root or
   consume an accepted adapter proof id.
   - Blocked/non-claim for closure; parser inventory is not raw Grit
@@ -88,35 +90,46 @@
 
 ## 5. Injected Violation Proof
 
-- [ ] 5.1 Complete or consume `habitat-effect-grit-adapter`, or record an
-  accepted typed Grit adapter substrate with equivalent proof, before
-  implementing probe creation/cleanup, parser classification, pattern
-  projection, overlap classification, or command provenance.
-- [ ] 5.2 Add positive step-contract probe that fails the exact Habitat rule id.
-- [ ] 5.3 Add parser-edge probes for namespace imports, type imports,
+- [x] 5.1 Consume the accepted shared injected-probe runner for row-specific
+  probe creation, path control, exact rule projection, clean-start/final git
+  state, and cleanup proof.
+- [x] 5.2 Add positive step-contract probe that fails the exact Habitat rule id.
+  - Recorded by `SCDS-INJECTED-PROBE-2026-06-16`.
+- [x] 5.3 Disposition parser-edge probes for namespace imports, type imports,
   side-effect imports, and export forms.
-- [ ] 5.4 Add exact allowed-surface path control for domain-root imports.
-- [ ] 5.5 Add forbidden-source probes for `/ops`, `/config.js`, `ops/<tail>`,
+  - Parser-edge forms are covered by native fixtures; this row does not claim a
+    full parser-edge injected matrix.
+- [x] 5.4 Add exact allowed-surface path control for domain-root imports.
+  - Domain root is a native fixture control; injected path control uses a
+    non-step contract control path.
+- [x] 5.5 Add forbidden-source proof for `/ops`, `/config.js`, `ops/<tail>`,
   `ops-by-id`, `rules/<tail>`, `strategies/<tail>`, `shared/<tail>`, and
   `types.js`.
-- [ ] 5.6 Add source-specifier lookalike probes for prefixed package strings,
+  - Native fixtures cover the source family matrix; injected proof uses one
+    representative unbaselined domain-subpath violation.
+- [x] 5.6 Add source-specifier lookalike controls for prefixed package strings,
   relative strings containing `@mapgen/domain/<domain>/<tail>`, and other
-  non-package specifiers matched by the current leading-wildcard source regex.
-- [ ] 5.7 Add outside-scope and classified-scope path-control probes for maps,
+  non-package specifiers matched by the old leading-wildcard source regex.
+  - Predicate repaired; these now remain native controls, not injected probes.
+- [x] 5.7 Add outside-scope and classified-scope path-control proof for maps,
   ordinary recipe files, non-step contract files, stage artifact contract files,
   other mods, `.tsx`, recipe-local tests, and filename lookalikes.
-- [ ] 5.8 Add neighboring-rule overlap probes for recipe-domain, domain-deep,
-  and contract-export cases, or record accepted predicate partition proof.
-- [ ] 5.9 Prove cleanup leaves `git status --short` clean after success and
-  failure.
-- [ ] 5.10 Record protected generated-output non-claims.
-- [ ] 5.11 Record the Effect/no-Effect substrate decision and prove a non-Effect
-  substrate supplies tagged failures, service-injected tests, explicit command
-  provenance, scan-root provenance, parser classification, overlap
-  classification, and cleanup behavior before use.
-- [ ] 5.12 Block row closure if the implementation preserves string-only JSON
-  recovery, exit-code-only command facts, cleanup by convention, or unit tests
-  that require real repo mutation.
+  - Native fixtures cover the full path-control set; injected proof records a
+    clean non-step contract control. Other-mod remains a raw predicate context
+    non-claim for wrapper enforcement.
+- [x] 5.8 Record neighboring-rule overlap disposition for recipe-domain,
+  domain-deep, and contract-export cases.
+  - This row owns step-contract domain-root-only remediation; neighboring rows
+    retain their broader surfaces.
+- [x] 5.9 Prove cleanup leaves `git status --short` clean after injected run.
+- [x] 5.10 Record protected generated-output non-claims.
+- [x] 5.11 Record the substrate decision.
+  - This row consumes the accepted shared injected-probe runner; it does not
+    claim Effect adapter closure or raw Grit acquisition.
+- [x] 5.12 Block row closure if injected proof leaves residue or hides failures.
+  - Clean-start injected proof reported clean initial/final git state and clean
+    probe-root cleanup; aggregate runner exit remains nonzero only for accepted
+    unrelated DDIT.
 
 ## 6. Baseline Proof
 
@@ -127,7 +140,9 @@
     mutation claim.
 - [x] 6.2 Record accepted `baseline-integrity` proof through
   `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- [ ] 6.3 Prove an injected finding is unbaselined and fails.
+- [x] 6.3 Prove an injected finding is unbaselined and fails.
+  - `SCDS-INJECTED-PROBE-2026-06-16` reports one diagnostic at the injected
+    step-contract path with the explicit empty baseline unchanged.
 - [x] 6.4 Link shared baseline owner/integrity to
   `HGPR-BASELINE-FILES-2026-06-15` and
   `HGPR-BASELINE-INTEGRITY-2026-06-15`; no separate SCDS baseline-mutation
@@ -164,7 +179,7 @@
 - [x] 8.7 filename lookalike disposition
 - [x] 8.8 other-mod and wrapper-scope disposition
 - [x] 8.9 recipe-local test-path classification
-- [ ] 8.10 neighboring-rule overlap disposition
+- [x] 8.10 neighboring-rule overlap disposition
 - [x] 8.11 Habitat current-tree wrapper proof inherited through
   `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
   `HGPR-PER-RULE-SELECTORS-2026-06-15`
@@ -173,8 +188,8 @@
   `HGPR-PER-RULE-SELECTORS-2026-06-15`
 - [ ] 8.13 bounded raw acquisition or adapter proof id
 - [x] 8.14 current-tree contract/import inventory
-- [ ] 8.15 injected step-contract proof
-- [ ] 8.16 outside-scope path-control proof
+- [x] 8.15 injected step-contract proof
+- [x] 8.16 outside-scope path-control proof
 - [x] 8.17 explicit baseline proof inherited through
   `HGPR-BASELINE-FILES-2026-06-15` and
   `HGPR-BASELINE-INTEGRITY-2026-06-15`

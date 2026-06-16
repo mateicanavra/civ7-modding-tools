@@ -49,17 +49,17 @@ Selected row:
 2. Step contracts are stricter than ordinary recipes: only domain root imports
    are allowed.
 3. Current wrapper scope and raw Grit regex scope must stay separate.
-4. Filename scope is a proof obligation because the authored regex can match
-   lookalike filenames ending in `contract.ts`.
-5. Source-specifier scope is a proof obligation because the authored source
-   regex has a leading wildcard and can match prefixed or relative strings that
-   contain `@mapgen/domain/<domain>/<tail>` without being that package source.
+4. Filename scope is proven through the repaired predicate plus native controls
+   for `notacontract.ts` and recipe-local test paths.
+5. Source-specifier scope is proven through the repaired exact optional-quote
+   source predicate plus native controls for prefixed, relative, and protocol
+   lookalikes.
 6. Native sample proof, current-tree wrapper proof, raw acquisition, injected
    violation, baseline behavior, retired-mechanism parity, and downstream
    realignment remain separate proof classes.
-7. Other mods, `.tsx`, maps, non-step contract files, stage artifact contracts,
-   recipe-local tests, and star-export shape are not proven by this row unless
-   implementation proves predicate expansion or sibling ownership.
+7. Other mods remain raw predicate context unless wrapper roots expand; `.tsx`,
+   maps, non-step contract files, stage artifact contracts, and recipe-local
+   tests are native/path-control non-matches for this row.
 
 ### Structural Alternative Considered
 
@@ -74,25 +74,23 @@ remediation message.
 
 ### Falsifier
 
-This packet fails if a future implementation can mark the row complete from a
-native sample alone, if it claims all-mod coverage from the Swooper-only
-Habitat wrapper root, if it treats `notacontract.ts`-style filenames or
-prefixed source-specifier lookalikes as irrelevant without proof, or if
-injected proof cannot fail the exact Habitat rule id through the real wrapper
-path.
+This packet fails if a future implementation marks the row complete from native
+samples alone, claims all-mod coverage from the Swooper-only Habitat wrapper
+root, drops the filename/source lookalike controls, or cannot fail the exact
+Habitat rule id through the real wrapper path.
 
 ## Current Diagnosis
 
 | Surface | Current evidence | Design implication |
 | --- | --- | --- |
 | Rule registration | `rules.json` registers `grit-step-contract-domain-surface` as enforced `grit-check`, scope `mods/*/src/recipes/**/stages/**/steps/**/{contract.ts,*.contract.ts}`, pattern `step_contract_domain_surface`. | Habitat has a rule identity and intended scope metadata. |
-| Pattern semantics | Pattern uses `language js(typescript)`, matches import, named re-export, and star re-export forms, filters filenames with `.*mods/[^/]+/src/recipes/.*/stages/.*/steps/.*(?:contract|\.contract)\.ts$`, and matches sources with `.*@mapgen/domain/[^/]+/.+`. | Raw Grit can match all mods, any filename ending in `contract.ts`, and prefixed source-specifier lookalikes that contain a non-root domain package string; current wrapper proof is narrower because adapter roots are narrower. |
-| Native proof | `grit patterns test --filter step_contract_domain_surface --json` exits 0 with one positive `/ops` import sample and one domain-root negative sample. | Fixture proof exists but does not prove parser-edge forms, path controls, current-tree wrapper behavior, or neighboring overlap. |
-| Habitat wrapper | `bun run habitat:check -- --json --rule grit-step-contract-domain-surface` exits 0 with this rule and `baseline-integrity`, both pass. | Valid individual rule selection currently works for this id. |
+| Pattern semantics | Repaired pattern uses `language js(typescript)`, matches import, named re-export, and star re-export forms, filters filenames with `.*mods/[^/]+/src/recipes/.*/stages/.*/steps/(?:.*/)?(?:contract|[^/]+\.contract)\.ts$`, excludes `__tests__` / `__type_tests__`, and matches sources with `^[\"']?@mapgen/domain/[^/]+/.+[\"']?$`. | Raw Grit can match all mods if passed those paths; exact filename/source lookalikes are now native controls. Current wrapper proof is still narrower because adapter roots are narrower. |
+| Native proof | `SCDS-NATIVE-FIXTURES-2026-06-16` passes with 17 positives and 0 ignore matches; full native corpus passes with 32 testable patterns and 0 failures. | Fixture proof covers parser-edge forms, source/path controls, and native predicate behavior; wrapper, baseline, and injected proof are recorded separately. |
+| Habitat wrapper | `bun run habitat:check -- --json --rule grit-step-contract-domain-surface` exits 0 with this rule and `baseline-integrity`, both pass with zero diagnostics; aggregate `grit-check` also passes with SCDS included. | Valid rule selection and current-tree wrapper projection are proven for current wrapper roots. |
 | Raw acquisition | Direct `grit check mods/mod-swooper-maps/src/recipes --json --level error --no-cache` exits 0 with `results: []`. | Bounded raw zero-result evidence exists for the current Swooper recipe root. |
 | Live step contracts | `find` finds 53 matching Swooper step contract files: 23 `contract.ts`, 30 `*.contract.ts`, zero lookalikes, zero `.tsx`. | Current file inventory supports no obvious filename false positives, but proof must encode controls. |
 | Live imports | Matching step contracts import domain roots only; `rg` finds no `@mapgen/domain/<domain>/<tail>` sources in those files. | Supplemental live inventory supports current zero findings. |
-| Disposable probe | Matching contract file reports default, named, namespace, type, side-effect imports, named re-export, type re-export, and star re-export from domain subpaths; domain root does not report. Probe also showed `notacontract.ts`, other-mod raw paths, recipe-local `__tests__/contract.ts`, and a prefixed source like `not-a-real-prefix@mapgen/domain/ecology/ops` report; `.tsx`, maps, and non-`steps` paths do not. | Core parser forms work, but file controls, source-specifier controls, and wrapper/raw scope divergence must be formal proof obligations. |
+| Current closure proof | Parser inventory scanned 1,942 TS/TSX files across wrapper roots, found 53 current-predicate step contract files, 38 exact domain-root references, 0 current-row matches, 0 source lookalikes, 0 filename lookalikes, 0 recipe-local test contract files, and 0 parse diagnostics. The clean-start injected runner reports SCDS passing with one diagnostic at the injected step-contract domain-subpath import and a clean non-step contract control. | Current source is clean for the repaired predicate; injected proof is row-specific and aggregate injected-corpus closure remains blocked only by unrelated DDIT. |
 | Neighboring overlap | `recipe_domain_surface` overlaps on many contract subpaths; `domain_deep_import` overlaps on `ops/<tail>`, `rules/<tail>`, and `strategies/<tail>`; `contract_export_all` overlaps on value `export *`. | Closure must record expected multi-rule diagnostics and remediation ownership. |
 | Retired parity | `invariant-corpus.md` records `eslint-step-contract-imports` as a port candidate; H5/H6 records include Grit catalog retirement work. | Parity proof must compare the old invariant with current row boundaries. |
 
@@ -103,7 +101,8 @@ Official Grit docs support this rule shape:
 - Markdown pattern files in `.grit/patterns` derive pattern identity from file
   names and carry frontmatter `level`.
 - `grit patterns test --filter` is the native fixture proof surface.
-- `grit check [PATHS]...` is the current-tree check surface.
+- `grit check [PATHS]...` is a direct current-tree check surface, but this
+  row does not claim raw direct Grit acquisition.
 - Explicit `language js(typescript)` is the parser declaration for TypeScript.
 - Structural snippets plus `where` conditions and regex source predicates are
   valid Grit matching tools.
@@ -146,7 +145,7 @@ Local architecture sources refine the invariant:
 
 ## Pattern Semantics
 
-The current pattern matches three declaration forms:
+The repaired pattern matches three declaration forms:
 
 ```text
 import ... from <source>
@@ -157,21 +156,25 @@ export * from <source>
 It filters files through:
 
 ```text
-.*mods/[^/]+/src/recipes/.*/stages/.*/steps/.*(?:contract|\.contract)\.ts$
+.*mods/[^/]+/src/recipes/.*/stages/.*/steps/(?:.*/)?(?:contract|[^/]+\.contract)\.ts$
+```
+
+It excludes recipe-local test directories:
+
+```text
+.*/(?:__tests__|__type_tests__)/.*
 ```
 
 It matches source specifiers shaped like:
 
 ```text
-.*@mapgen/domain/[^/]+/.+
+^[\"']?@mapgen/domain/[^/]+/.+[\"']?$
 ```
 
-The leading wildcard is part of the current behavior. It can match a source
-specifier that merely contains `@mapgen/domain/<domain>/<tail>`, such as a
-prefixed package-lookalike string. Accepted closure must either repair the
-predicate to exact package-source semantics or explicitly classify those source
-lookalikes as in-scope, sibling-owned, or blocked before claiming exact
-source-scope enforcement.
+The source predicate is exact for optional-quote Grit source nodes. Prefixed,
+relative, and protocol strings that merely contain
+`@mapgen/domain/<domain>/<tail>` are native ignore controls, not current
+positives.
 
 Accepted implementation must prove:
 
@@ -180,12 +183,11 @@ Accepted implementation must prove:
   `ops-by-id`, and arbitrary domain subpaths report this rule;
 - domain-root imports do not report;
 - prefixed, relative, and other string lookalikes containing
-  `@mapgen/domain/<domain>/<tail>` are repaired, sibling-owned, or blocked
-  before exact source-scope claims;
+  `@mapgen/domain/<domain>/<tail>` do not report;
 - default, named, namespace, type-only, and side-effect imports are classified;
 - named re-exports, type re-exports, and star re-exports are classified;
-- filename scope handles `contract.ts`, `*.contract.ts`, and lookalikes such as
-  `notacontract.ts`;
+- filename scope handles `contract.ts` and `*.contract.ts`, while lookalikes
+  such as `notacontract.ts` do not report;
 - `.tsx`, maps, non-step contract files, stage artifact contract files,
   ordinary recipe files, other mods, and recipe-local tests are either excluded
   with proof or included through reviewed predicate/metadata expansion;
@@ -205,19 +207,19 @@ Accepted implementation must prove:
 | positive type re-export | step contract `export type { Value } from` non-root domain source |
 | positive star re-export | step contract `export * from` non-root domain source |
 | allowed domain root | `@mapgen/domain/<domain>` does not report |
-| source lookalike control | prefixed, relative, and other strings containing `@mapgen/domain/<domain>/<tail>` are repaired, sibling-owned, or blocked before exact source-scope claims |
+| source lookalike control | prefixed, relative, and other strings containing `@mapgen/domain/<domain>/<tail>` do not report |
 | `/ops` positive | `@mapgen/domain/<domain>/ops` reports this row |
 | `/config.js` positive | `@mapgen/domain/<domain>/config.js` reports this row |
 | private subpath positives | `rules/<tail>`, `strategies/<tail>`, `shared/<tail>`, `types.js`, and `ops-by-id` report or are dispositioned |
 | filename exact path | `steps/**/contract.ts` reports for non-root domain source |
 | filename dot-contract path | `steps/**/*.contract.ts` reports for non-root domain source |
-| filename lookalike | `steps/**/notacontract.ts` repaired, sibling-owned, or blocked as false-positive risk |
+| filename lookalike | `steps/**/notacontract.ts` does not report |
 | `.tsx` path control | `contract.tsx` dispositioned against current `.ts` predicate |
 | map path control | same non-root domain source under maps does not claim this rule |
 | non-step contract control | same non-root source outside `steps/**` does not claim this rule |
 | stage artifact contract control | `stages/**/artifacts/contract/*.contract.ts` remains outside this row unless predicate expands |
-| other-mod scope | raw all-mod predicate and current Swooper wrapper root are reconciled |
-| recipe-local test path | `steps/**/__tests__/contract.ts`, `__type_tests__`, `*.test.ts`, and `*.spec.ts` classified |
+| other-mod scope | raw all-mod predicate behavior is native context; current wrapper proof is limited to current wrapper roots |
+| recipe-local test path | `steps/**/__tests__/contract.ts` and `__type_tests__` are excluded; `*.test.ts` and `*.spec.ts` remain outside the filename predicate |
 | generated path control | generated outputs are not probe targets |
 
 ## Proof Contract
@@ -233,11 +235,11 @@ proof matrix:
 | effective scope | registry metadata, raw regex, exact wrapper scan roots, bounded raw root, omitted-root projection proof, filename predicate, and source-specifier predicate |
 | form semantics | default import, named import, namespace import, type import, side-effect import, named export, type export, star export |
 | allowed surface | exact domain root only |
-| forbidden surfaces | every exact `@mapgen/domain/<domain>/<tail>` package source in step contracts, plus explicit disposition for prefixed or relative source lookalikes matched by the current regex |
+| forbidden surfaces | every exact `@mapgen/domain/<domain>/<tail>` package source in step contracts, plus native controls for prefixed or relative source lookalikes that matched the superseded regex |
 | filename controls | `contract.ts`, `*.contract.ts`, lookalikes, `.tsx`, tests, non-step contract paths, and stage artifact contract paths |
 | native sample proof | command, report id/count, sample count, and non-claims |
 | current-tree wrapper proof | Habitat command, output class, selected rule ids, diagnostics count |
-| raw acquisition | bounded direct Grit check command or adapter proof id |
+| raw acquisition | explicit unclaimed value unless a separate raw acquisition proof lands |
 | live inventory | parser-grade or reviewed regex inventory of matching step contracts and domain imports |
 | injected proof | positive step-contract probe and outside-scope path controls |
 | baseline | explicit empty baseline file and `baseline-integrity` proof |
@@ -302,16 +304,12 @@ The implementation must therefore keep three claims separate:
 - current wrapper enforcement over the Swooper recipe root;
 - intended all-mod metadata if future adapter roots expand.
 
-Closure must also decide the filename lookalike question. Today the regex can
-match a file like `notacontract.ts` under `steps/**`. There are no live Swooper
-lookalike files in the matching root, but zero live examples is not a proof that
-the predicate is exact.
-
-Closure must also decide the source-specifier lookalike question. Today the
-source regex can match a string that contains `@mapgen/domain/<domain>/<tail>`
-even when the module specifier is not exactly the domain package. There are no
-live matching step-contract imports of this shape in the current Swooper root,
-but zero live examples is not a proof that the predicate is exact.
+The filename and source-specifier lookalike questions are closed for the
+current predicate by native controls and parser inventory: `notacontract.ts`,
+recipe-local test directories, source-prefix, source-relative, and
+source-protocol examples do not report, and the current tree has no matching
+lookalike candidates. All-mod wrapper enforcement remains a non-claim because
+the current wrapper roots still exercise Swooper paths for this row.
 
 ## Relationship To Apply
 
@@ -326,38 +324,27 @@ claiming any automated transform.
 
 ## Baseline Policy
 
-Implementation should add an explicit empty baseline file:
+The row has an explicit empty baseline file:
 
 ```text
 tools/habitat-harness/baselines/grit-step-contract-domain-surface.json
 ```
 
-The baseline proof must show:
+The baseline proof shows:
 
 - the file is committed as `[]`;
-- `baseline-integrity` accepts it;
+- `baseline-integrity` accepts it through per-rule and aggregate wrapper proof;
 - a controlled injected finding is unbaselined and fails the rule;
-- baseline expansion safety is linked from the accepted scaffold/baseline
-  contract repair owner before this row claims shared mutation safety.
+- shared baseline mutation safety remains owned by the accepted scaffold /
+  baseline contract surface, not this row.
 
 ## Effect/Substrate Decision
 
-Injected proof for this row needs typed behavior that the current manual Grit
-runner does not provide: scan-root provenance, command provenance,
-parser-classified output, pattern-projection failure classes, overlap
-classification, cleanup on failure, and fake-service tests.
-
-The accepted implementation path is to consume or complete
-`habitat-effect-grit-adapter` before writing injected probes for this row. A
-non-Effect typed substrate can replace that dependency only after design review
-proves it supplies the same capabilities that Effect would supply for this row:
-tagged failures, services, scoped resources, command data, parser
-classification, runtime-edge discipline, and deterministic tests.
-
-If the implementation path preserves string-only JSON recovery, exit-code-only
-command facts, probe cleanup by convention, or tests that require real repo
-mutation for unit proof, the row must move to the Effect adapter substrate
-before closure.
+This row consumes the accepted shared injected-probe runner for row-specific
+probe creation, path control, exact rule projection, clean-start/final git
+state, and probe-root cleanup. It does not claim Effect adapter closure, raw
+direct Grit acquisition, a full parser-edge injected matrix, or aggregate
+injected-corpus closure while DDIT remains blocked.
 
 ## Write Set
 
@@ -365,7 +352,6 @@ Expected implementation write set:
 
 - `.grit/patterns/habitat/checks/step_contract_domain_surface.md`;
 - `tools/habitat-harness/baselines/grit-step-contract-domain-surface.json`;
-- `tools/habitat-harness/test/**` after the accepted adapter substrate;
 - `openspec/changes/habitat-grit-proof-repair/**`;
 - this packet's `workstream/**`.
 
