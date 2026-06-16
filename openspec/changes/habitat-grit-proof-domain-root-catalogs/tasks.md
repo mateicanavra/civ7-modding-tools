@@ -19,24 +19,31 @@
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, blockers, and
   non-claims in this packet.
 
-## 3. Dependency-Bound Gates
+## 3. Active Check Proof Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `DRC-PER-RULE-SELECTOR-2026-06-16` proves
+    `bun run habitat:check -- --json --rule grit-domain-root-catalogs`
+    selects `grit-domain-root-catalogs` plus `baseline-integrity`, with both
+    passing and zero diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
-  - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+  - Raw direct Grit current-tree acquisition remains unclaimed for this
+    checkpoint; Habitat wrapper proof owns current-tree projection.
+- [x] 3.3 Injected violation and cleanup proof.
+  - `DRC-INJECTED-PROBE-2026-06-16` proves the registered DRC injected
+    `domain/ecology/tags.ts` probe reports one diagnostic, the
+    `domain/ecology/index.ts` control stays clean, and the runner restores
+    clean initial/final git state and probe-root cleanup. Aggregate injected
+    corpus closure remains a non-claim while unrelated DDIT is blocked.
+- [x] 3.4 Explicit baseline proof.
+  - `tools/habitat-harness/baselines/grit-domain-root-catalogs.json` is the
+    explicit empty baseline for this rule, and `baseline-integrity` passes in
+    both per-rule and aggregate wrapper proof.
 - [x] 3.5 Live current-predicate catalog disposition.
   - Parser inventory found 0 live current-row domain-root catalog matches and
-    0 nested domain catalog filename matches. Clean row closure remains a
-    non-claim until wrapper/current-tree, baseline, injected, raw/adapter, and
-    supervisor acceptance gates are available.
+    0 nested domain catalog filename matches. Clean source closure is accepted
+    only inside the current predicate; broader facade/export and
+    generator/migration closure remain non-claims.
 
 ## 4. Downstream Realignment
 
@@ -58,3 +65,8 @@
 - [x] 5.5 `git diff --check`
 - [x] 5.6 `bun run openspec:validate`
 - [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.8 `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --json`
+- [x] 5.9 `bun run habitat:check -- --json --rule grit-domain-root-catalogs`
+- [x] 5.10 `bun run habitat:check -- --json --tool grit-check`
+- [x] 5.11 `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
+- [x] 5.12 `bun run openspec -- validate habitat-grit-proof-repair --strict`

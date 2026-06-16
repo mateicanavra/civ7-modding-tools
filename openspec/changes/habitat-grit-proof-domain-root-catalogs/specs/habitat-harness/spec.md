@@ -2,12 +2,13 @@
 
 ### Requirement: Domain Root Catalogs Rule Has Row-Level Proof
 
-Habitat SHALL NOT classify `grit-domain-root-catalogs` as complete until
-row-level proof records separate native fixture behavior, parser inventory,
-Habitat wrapper behavior, raw acquisition or accepted adapter proof, injected
-violations, explicit baseline behavior, retired-mechanism parity, broader
-domain-root facade coverage, generator/migration behavior, apply safety, and
-downstream record truth.
+Habitat SHALL classify `grit-domain-root-catalogs` as complete only for the
+proof classes that are actually current: native fixture behavior, parser
+inventory, Habitat wrapper behavior, explicit empty baseline behavior,
+row-specific injected violation/path-control proof, and downstream record
+truth. Raw acquisition or accepted adapter proof, retired-mechanism parity,
+broader domain-root facade coverage, generator/migration behavior, apply
+safety, and product/runtime proof remain separate non-claims.
 
 #### Scenario: Native fixture proof passes
 
@@ -63,11 +64,31 @@ predicate.
 
 Habitat SHALL keep proof classes separate for `grit-domain-root-catalogs`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Habitat wrapper and baseline proof are current
+
+- **WHEN** Habitat runs `habitat check --json --rule grit-domain-root-catalogs`
+- **THEN** the selector SHALL include `grit-domain-root-catalogs` plus
+  `baseline-integrity`
+- **AND** both rules SHALL pass with zero diagnostics against the current tree
+- **AND** this SHALL NOT claim raw direct Grit acquisition, apply safety,
+  generator/migration behavior, broader facade closure, or product/runtime
+  proof
+
+#### Scenario: Injected domain-root catalog probe is current
+
+- **WHEN** the registered injected probe writes a domain-root `tags.ts` catalog
+  and a domain-root `index.ts` control
+- **THEN** `grit-domain-root-catalogs` SHALL report the injected `tags.ts`
+  path
+- **AND** the `index.ts` control path SHALL stay clean
+- **AND** proof records SHALL keep aggregate injected-corpus closure separate
+  from the row-specific DRC result
+
+#### Scenario: Dependency-bound proof remains unavailable or out of scope
 
 - **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
   cleanup, Effect adapter behavior, apply safety, or generator/migration proof
-  is not available in the current row stack/base
+  is not available or is outside this row's proof boundary
 - **THEN** row records SHALL label those proof classes as blocked or non-claims
 - **AND** the row SHALL NOT close those gates through native fixtures or parser
   inventory
