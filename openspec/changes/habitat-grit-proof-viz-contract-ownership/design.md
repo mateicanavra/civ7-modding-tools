@@ -4,14 +4,18 @@
 
 ### Objective
 
-Make `grit-viz-contract-ownership` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate and live source inventory.
+Close `grit-viz-contract-ownership` as a row-owned Habitat proof checkpoint by
+repairing the import predicate gap, remediating the one live same-stage
+cross-step private-viz import, and recording current wrapper, baseline, injected,
+source, and downstream proof separately.
 
 ### Product Movement
 
-This row helps Habitat keep shared visualization contracts at stage owner
-surfaces and prevents step-private visualization helpers from becoming implicit
-shared hubs.
+This row keeps shared visualization contracts at stage owner surfaces and
+prevents step-private visualization helpers from becoming implicit shared hubs.
+The live `map-ecology` helper was shared by `plotBiomes.ts`, so its owner is the
+nearest stage-level `stages/map-ecology/viz.ts` surface rather than
+`steps/plot-biomes/viz.ts`.
 
 ### Selection
 
@@ -22,38 +26,38 @@ shared hubs.
 - Registry scope: standard recipe stage visualization files
 - Current Grit predicate scope:
   `mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\.ts$`
-- Current fixture-proven native positive:
-  - `stages/<stage>/steps/viz.ts` file program.
-- Intended but currently blocked/gap classes:
-  - imports that resolve to `stages/<stage>/steps/viz`;
-  - cross-step private imports that resolve to
-    `stages/<stage>/steps/<step>/viz`.
 
 ### Hard Core
 
-1. This is a check proof, not an apply proof.
-2. Current native fixture proof covers the `steps/viz.ts` file-hub branch only.
-3. Import-branch evidence remains a predicate-gap blocker unless a later repair
-   proves those branches.
-4. Parser inventory may identify live intended visualization ownership findings,
-   but it is not Habitat wrapper enforcement proof.
-5. Stage-level `stages/<stage>/viz.ts` imports and same-step private
-   `./viz.js` imports are control shapes for this row.
-6. Current parser inventory is not product/runtime proof.
+1. This is a check proof plus source-remediation checkpoint, not an apply proof.
+2. Predicate repair uses `import_statement(source=$source)` and source-literal
+   guards for the row-owned import classes instead of the old snippet/resolve
+   shape that failed to prove imports.
+3. Source remediation is limited to moving the shared map-ecology biome-id
+   visualization helper to the stage owner surface and updating consumers/tests.
+4. Stage-level `stages/<stage>/viz.ts` imports and same-step private `./viz.js`
+   imports are control shapes for this row.
+5. Package source tests/checks, native Grit proof, Habitat wrapper proof,
+   explicit baseline proof, and injected proof are separate proof classes.
+6. Current parser inventory, wrapper success, and OpenSpec validation are not
+   product/runtime proof.
 
 ### Exterior
 
-- Swooper source remediation.
-- Predicate repair for import branches not proven by current native fixtures.
-- Baseline mutation.
+- Raw direct Grit acquisition.
+- Broad visualization architecture closure beyond VCO-owned stage/private-viz
+  surfaces.
+- Generated-output edits.
+- Grit apply/codemod safety.
 - Product/runtime Civ7 behavior.
+- Neighboring visualization/runtime rows.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if the live private-viz import finding is recorded as clean closure,
-if import predicate gaps are treated as proven, or if product/runtime proof is
-treated as proven by this row.
+This checkpoint fails if source remediation is hidden as a non-claim, if old
+import predicate-gap evidence is treated as current closure, if same-step private
+viz imports are reported as cross-step findings, if wrapper/baseline/injected
+proof is conflated with source behavior, or if product/runtime proof is claimed.
 
 ## Source Synthesis
 
@@ -67,68 +71,77 @@ contracts at the stage surface and step-private helpers in their owning step
 only. It also says guardrails reject private-step visualization hubs or
 cross-step imports once a stage-level surface exists.
 
-`discrepancy-log.md` records DL-7: visualization contract ownership guardrail
-coverage exists but still needs evergreen Swooper architecture documentation.
+Swooper source routers require source edits under `mods/mod-swooper-maps/src` to
+be validated through the package-local build/check flow and treat generated
+outputs as read-only.
 
-`grit-pattern-corpus-ledger.md` requests positive shared viz hub/private
-cross-step import probes, negative stage-local viz contracts, current stage
-visualization scan, and non-apply disposition.
-
-`grit-proof-matrix.md` records a design seed with one match and one ignore and
-marks parser-edge and false-positive classification pending.
+The prior VCO checkpoint recorded two blockers: native import predicates did not
+match, and `plotBiomes.ts` imported a shared helper from
+`steps/plot-biomes/viz.js`. This closure resolves both inside VCO ownership.
 
 ## Fixture Matrix
 
 | Class | Expected current-predicate behavior |
 | --- | --- |
 | `stages/<stage>/steps/viz.ts` file | Reports |
-| Import resolving to `stages/<stage>/steps/viz` | Current native fixture does not report; record as predicate-gap blocker |
-| Cross-step private import resolving to `stages/<stage>/steps/<step>/viz` | Current native fixture does not report; record as predicate-gap blocker |
+| Import source `../steps/viz.js` from a stage file | Reports |
+| Side-effect import source `../steps/viz.js` from a stage file | Reports |
+| Import source `./<step>/viz.js` from an immediate step file | Reports |
+| Side-effect import source `./<step>/viz.js` from an immediate step file | Reports |
+| Import source `../<step>/viz.js` from a nested step file | Reports |
 | Stage-level `stages/<stage>/viz.ts` file or import | Does not report |
 | Same-step private `./viz.js` import | Does not report |
-| Live-style `./<step>/viz.js` cross-step import | Does not report in current native predicate; record as predicate-gap/live-finding blocker if present |
-| Browser-test recipe, `.tsx`, string lookalike, dynamic import, package path | Does not report in this current native predicate |
+| Other-stage `../../<stage>/viz.js` import | Does not report |
+| Browser-test recipe, `.tsx`, string lookalike, dynamic import, package path | Does not report |
 
 ## Proof Contract
 
 This row checkpoint may record:
 
-- native fixture/parser-edge proof for current `steps/viz.ts` file behavior;
-- native predicate-gap evidence for import branches;
-- parser inventory/live candidate evidence over current standard recipe stage
-  source;
+- predicate repair for row-owned static import declarations;
+- native fixture/parser-edge proof for file-hub and import classes;
+- parser inventory/current-tree zero-candidate evidence over standard recipe
+  stage source;
+- source remediation that moves the shared map-ecology helper to
+  `stages/map-ecology/viz.ts`;
+- package source tests/checks for the moved helper and updated imports;
+- Habitat per-rule wrapper and aggregate `grit-check` proof;
+- explicit empty baseline and `baseline-integrity` proof;
+- row-specific injected violation/path-control proof for the repaired import
+  class;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
 Proof ids:
 
-- `VCO-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for the
-  current file-hub branch, controls, and import-branch predicate gaps.
-- `VCO-STAGE-VIZ-INVENTORY-2026-06-15`: parser inventory/live evidence over
-  current standard recipe stage source.
-- `VCO-IMPORT-PREDICATE-GAP-2026-06-15`: blocker for import branches not proven
-  by current native fixture output.
+- `VCO-PREDICATE-REPAIR-2026-06-16`
+- `VCO-SOURCE-REMEDIATION-2026-06-16`
+- `VCO-NATIVE-FIXTURES-2026-06-16`
+- `VCO-NATIVE-CORPUS-REFRESH-2026-06-16`
+- `VCO-STAGE-VIZ-INVENTORY-2026-06-16`
+- `VCO-SWOOPER-SOURCE-PROOF-2026-06-16`
+- `VCO-PER-RULE-SELECTOR-2026-06-16`
+- `VCO-HABITAT-GRIT-TOOL-2026-06-16`
+- `VCO-BASELINE-FILES-2026-06-16`
+- `VCO-INJECTED-PROBE-2026-06-16`
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
+- generated-output edit or freshness proof;
 - Effect adapter proof;
 - apply safety;
 - generator/migration proof;
 - retired parity;
-- source remediation;
 - broader visualization architecture closure;
 - neighboring row proof;
-- product proof.
+- aggregate injected-corpus closure while DDIT remains blocked;
+- product/runtime proof.
 
 ## Downstream Records
 
-The aggregate proof matrix, command proof log, and corpus ledger will be
-updated for this row's current checkpoint after evidence is gathered. Recovery
-ledger, taxonomy, invariant corpus, discrepancy log, and command docs remain
-unchanged unless implementation changes policy, diagnostics, or user-facing
-behavior. DL-7 remains open because this row does not update evergreen Swooper
-architecture documentation.
+The aggregate proof matrix, command proof log, and corpus ledger are updated for
+the current closure checkpoint. Recovery ledger, taxonomy, invariant corpus,
+discrepancy log, and command docs remain unchanged because this row does not
+change taxonomy, add a new invariant, close DL-7 evergreen docs, or claim a
+recovery/product closure.

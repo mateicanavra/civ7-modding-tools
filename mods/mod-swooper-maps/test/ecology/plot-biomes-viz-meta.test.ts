@@ -3,8 +3,8 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 
+import { buildEngineBiomeIdVizCategories } from "../../src/recipes/standard/stages/map-ecology/viz.js";
 import { resolveEngineBiomeIds } from "../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/helpers/engine-bindings.js";
-import { buildEngineBiomeIdVizCategories } from "../../src/recipes/standard/stages/map-ecology/steps/plot-biomes/viz.js";
 
 describe("plot biomes viz meta (engine biomeId)", () => {
   it("declares explicit stable categories/colors for engine biomeId", () => {

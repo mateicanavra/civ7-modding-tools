@@ -6,56 +6,58 @@
 - [x] 1.2 Confirm `rules.json`, current Grit predicate, Swooper routers,
   mapgen normalization spec authority, discrepancy log, corpus ledger, and
   proof matrix source.
-- [x] 1.3 Validate this packet with OpenSpec strict mode.
+- [x] 1.3 Reclassify the row from bounded blocker checkpoint to VCO closure
+  because source remediation is row-owned and explicitly in scope.
 
-## 2. Native Fixture And Parser Inventory
+## 2. Predicate, Fixture, And Inventory
 
-- [x] 2.1 Expand
+- [x] 2.1 Repair
   `.grit/patterns/habitat/checks/viz_contract_ownership.md` with
-  current-predicate positive and negative/control fixtures.
-- [x] 2.2 Run
-  `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter viz_contract_ownership --json`.
-- [x] 2.3 Run parser inventory over current standard recipe stage source with
-  exclusions recorded in row-owned durable records.
-- [x] 2.4 Record fixture classes, inventory counts, proof ids, blockers, and
-  non-claims in this packet.
+  `import_statement(source=$source)` and row-owned import source-shape guards.
+- [x] 2.2 Prove the focused native fixture with
+  `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter viz_contract_ownership --json`.
+- [x] 2.3 Prove full native corpus health with
+  `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --json`.
+- [x] 2.4 Run parser inventory over current standard recipe stage source and
+  record zero current VCO candidates after source remediation.
 
-## 3. Dependency-Bound Gates
+## 3. Source Remediation
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
-- [ ] 3.2 Raw acquisition or accepted adapter proof.
-  - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
-- [x] 3.5 Live visualization ownership disposition.
-  - Parser inventory must record live intended private-viz findings as blockers
-    or zero-candidate evidence. Clean row closure remains a non-claim until
-    wrapper/current-tree, baseline, injected, raw/adapter, predicate-gap, and
-    supervisor acceptance gates are available.
+- [x] 3.1 Move the shared map-ecology biome-id visualization helper to
+  `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/viz.ts`.
+- [x] 3.2 Update `plotBiomes.ts` to consume the stage owner surface.
+- [x] 3.3 Update the focused plot-biomes viz metadata test to import the stage
+  owner surface.
+- [x] 3.4 Run focused Swooper test proof for the moved helper.
+- [x] 3.5 Run required package build/check proof from the Swooper routers.
 
-## 4. Downstream Realignment
+## 4. Wrapper, Baseline, And Injected Proof
 
-- [x] 4.1 Update
+- [x] 4.1 Prove per-rule Habitat wrapper/current-tree behavior with
+  `bun run habitat:check -- --json --rule grit-viz-contract-ownership`.
+- [x] 4.2 Prove aggregate `grit-check` health with
+  `bun run habitat:check -- --json --tool grit-check`.
+- [x] 4.3 Prove explicit empty baseline ownership and `baseline-integrity`.
+- [x] 4.4 Update the row-specific injected probe to exercise the repaired
+  cross-step private-viz import class.
+- [x] 4.5 Run clean-start injected probe proof and record the VCO row result.
+
+## 5. Downstream Realignment
+
+- [x] 5.1 Update
   `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md`.
-- [x] 4.2 Update `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`.
-- [x] 4.3 Update
+- [x] 5.2 Update `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`.
+- [x] 5.3 Update
   `openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md`.
-- [x] 4.4 Record no-change dispositions for taxonomy, invariant corpus,
-  discrepancy log, recovery, and command docs unless policy or user-facing
-  behavior changes.
+- [x] 5.4 Preserve no-change dispositions for taxonomy, invariant corpus,
+  discrepancy log, recovery, and command docs.
 
-## 5. Verification
+## 6. Verification
 
-- [x] 5.1 `bun run openspec -- validate habitat-grit-proof-viz-contract-ownership --strict`
-- [x] 5.2 native fixture proof
-- [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 6.1 `bun run openspec -- validate habitat-grit-proof-viz-contract-ownership --strict`
+- [x] 6.2 `bun run openspec -- validate habitat-grit-proof-repair --strict`
+- [x] 6.3 `bun run openspec:validate`
+- [x] 6.4 `git diff --check HEAD^..HEAD`
+- [x] 6.5 `git diff --check`
+- [x] 6.6 deleted-file guard
+- [x] 6.7 commit via Graphite with a clean worktree

@@ -269,14 +269,14 @@
     "ruleId": "grit-viz-contract-ownership",
     "patternIdentity": "viz_contract_ownership",
     "rulesJsonScope": "standard recipe stage visualization files",
-    "sourcePredicate": "shared viz contract under steps/",
+    "sourcePredicate": "cross-step private viz import",
     "match": {
-      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts",
-      "body": "export const viz = {};\n"
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts",
+      "body": "import { privateViz } from \"./mesh/viz.js\";\n\nexport const crust = privateViz;\n"
     },
     "control": {
-      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/viz.ts",
-      "body": "export const viz = {};\n"
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust/index.ts",
+      "body": "import { privateViz } from \"./viz.js\";\n\nexport const crust = privateViz;\n"
     }
   },
   {
