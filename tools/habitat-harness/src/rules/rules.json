@@ -132,6 +132,21 @@
       "hookScope": "pre-commit"
     },
     {
+      "id": "grit-domain-deep-import-tests",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+      "forbids": "test files deep-importing domain internals instead of public domain surfaces",
+      "why": "Tests should exercise domain contracts through the same public surfaces as product code unless an explicit architecture decision owns a deeper reach.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Use @mapgen/domain/<domain>, /ops, or /config.js from tests instead of domain internals.",
+      "exceptionPath": "none",
+      "gritPattern": "domain_deep_import_tests",
+      "hookScope": "pre-commit"
+    },
+    {
       "id": "grit-recipe-domain-surface",
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",

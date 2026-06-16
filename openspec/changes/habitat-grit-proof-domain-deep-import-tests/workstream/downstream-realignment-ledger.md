@@ -1,0 +1,7 @@
+# Downstream Realignment Ledger - Domain Deep Import Tests
+
+| Surface | Update | Proof boundary |
+| --- | --- | --- |
+| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Candidate row recorded as a DDIT native/parser/source checkpoint with source remediation, explicit baseline, selector/report evidence, and an adapter activation blocker for wrapper/injected projection over test roots. | Does not claim wrapper/current-tree projection over DDIT-owned test roots, injected cleanup/path-control proof, dynamic import closure, source-string closure, package export-map closure, raw acquisition, apply safety, classify/generator behavior, broader architecture closure, or product proof. |
+| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Added DDIT proof summary with the wrapper/injected activation blocker separated from native fixture, parser inventory, source remediation, and baseline record truth. | Proof classes are separated by native fixture, parser inventory, selector/report evidence, baseline inventory, blocked wrapper/injected activation, raw non-claim, and apply/product non-claims. |
+| `openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md` | Added DDIT command rows for source remediation, parser inventory, native fixture/corpus refresh, selector/report commands, baseline, and the failed clean-start injected activation proof. | Raw output artifacts are not retained as durable proof; durable evidence is command shape, counts, and committed records. |

@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
-import { storyTagOrogenyBelts } from "@mapgen/domain/narrative/orogeny/index.js";
-import { getStoryOverlay, STORY_OVERLAY_KEYS } from "@mapgen/domain/narrative/overlays/index.js";
+import {
+  getStoryOverlay,
+  storyTagOrogenyBelts,
+  STORY_OVERLAY_KEYS,
+} from "@mapgen/domain/narrative";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 
 describe("story/orogeny", () => {

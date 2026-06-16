@@ -11,7 +11,7 @@ import {
   publishStoryOverlay,
   resetStoryOverlays,
   STORY_OVERLAY_KEYS,
-} from "@mapgen/domain/narrative/overlays/index.js";
+} from "@mapgen/domain/narrative";
 import type { StoryOverlayRegistry } from "@swooper/mapgen-core";
 
 describe("story/overlays", () => {

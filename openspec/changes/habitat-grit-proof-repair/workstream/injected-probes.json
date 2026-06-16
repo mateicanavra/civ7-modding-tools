@@ -28,6 +28,20 @@
     }
   },
   {
+    "ruleId": "grit-domain-deep-import-tests",
+    "patternIdentity": "domain_deep_import_tests",
+    "rulesJsonScope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+    "sourcePredicate": "test imports or re-exports domain deep internals",
+    "match": {
+      "path": "mods/mod-swooper-maps/test/domain/public-surface.test.ts",
+      "body": "import { privateRule } from \"@mapgen/domain/ecology/rules/private.js\";\n\nexport const value = privateRule;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/test/domain/public-surface-control.test.ts",
+      "body": "import ecology from \"@mapgen/domain/ecology/ops\";\n\nexport const value = ecology;\n"
+    }
+  },
+  {
     "ruleId": "grit-recipe-domain-surface",
     "patternIdentity": "recipe_domain_surface",
     "rulesJsonScope": "mods/mod-swooper-maps/src/recipes/**/*.ts",
