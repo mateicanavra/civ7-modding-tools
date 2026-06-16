@@ -33,10 +33,10 @@
 
 ## 3. Enforcement Surface Taxonomy
 
-- [ ] 3.1 Classify every root structural script as canonical Habitat entrypoint,
+- [x] 3.1 Classify every root structural script as canonical Habitat entrypoint,
   Habitat alias, non-canonical diagnostic command, exterior product/runtime
   verifier, or stale bypass.
-- [ ] 3.2 Classify every Habitat-owned Nx target in `tools/habitat-harness/src/plugin.js`
+- [x] 3.2 Classify every Habitat-owned Nx target in `tools/habitat-harness/src/plugin.js`
   by proof class and cache/fresh requirement.
 - [ ] 3.3 Define accepted naming and documentation policy for retained direct
   diagnostic scripts.
@@ -124,9 +124,9 @@
 - [x] 9.1 `bun run openspec -- validate habitat-enforcement-surface-cleanup --strict`
 - [x] 9.2 `bun run openspec:validate`
 - [x] 9.3 `git diff --check`
-- [ ] 9.4 Root script inventory proof
-- [ ] 9.5 CI step classification proof
-- [ ] 9.6 Rule ownerTool inventory proof
+- [x] 9.4 Root script inventory proof
+- [x] 9.5 CI step classification proof
+- [x] 9.6 Rule ownerTool inventory proof
 - [ ] 9.7 Wrapped-script and wrapped-test proof
 - [ ] 9.8 Invalid selector proof after command-surface dependency lands
 - [ ] 9.9 Direct-vs-Habitat wrapper output comparison

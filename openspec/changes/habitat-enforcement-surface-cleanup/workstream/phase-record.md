@@ -5,10 +5,10 @@
 - Project: Habitat Harness
 - Phase: enforcement surface cleanup / `habitat-enforcement-surface-cleanup`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-enforcement-surface-cleanup`
+- Branch/Graphite stack: `agent-HR-habitat-enforcement-inventory-proof`
 - Started: 2026-06-14
-- Status: structured `habitat verify --json` proof checkpoint implemented;
-  broader enforcement-surface cleanup remains open.
+- Status: root/CI/rule-owner/plugin-target inventory proof checkpoint in
+  implementation; broader enforcement-surface cleanup remains open.
 
 ## Objective
 
@@ -117,14 +117,16 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks before implementation: 1.1-2.6, 9.1-9.3, and 9.16.
-- Completed in this checkpoint: 6.1, 6.2, 7.4, 7.5, 9.12, 9.13, and 9.14 for
-  the direct `habitat verify --json` proof artifact boundary.
-- Remaining tasks: root/CI/wrapper/selector inventories, wrapper parity,
+- Completed tasks before implementation: 1.1-2.6, 6.1, 6.2, 7.4, 7.5,
+  9.1-9.3, 9.12-9.14, and 9.16. The structured `habitat verify --json`
+  proof checkpoint is supervisor-accepted.
+- Completed in this checkpoint: 3.1, 3.2, 9.4, 9.5, and 9.6 for the
+  root/CI/rule-owner/plugin-target inventory proof boundary.
+- Remaining tasks: wrapper disposition/parity, stale selector proof,
   verify composition decision, downstream realignment, packet closure, and
   supervisor review.
-- Implementation status: verify-proof checkpoint ready for local verification
-  and Graphite commit.
+- Implementation status: inventory-proof checkpoint ready for local
+  verification and Graphite commit.
 
 ## Verification
 
@@ -161,6 +163,7 @@ Core synthesis:
 
 - Implementation adds `habitat verify --json` as a structured proof artifact
   path without changing the existing human transcript mode.
+- Supervisor acceptance: accepted for the bounded proof-artifact outcome.
 - Manual non-adoption of Effect is accepted for this bounded slice because the
   implementation is local data assembly over existing synchronous command
   boundaries: typed `VerifyProof` data, explicit final exit code, selected
@@ -189,6 +192,29 @@ Core synthesis:
   beyond consumed command-surface behavior, no Grit row semantics, no baseline
   migration, and no product/runtime proof.
 
+## Enforcement Inventory Checkpoint
+
+- Implementation adds focused executable inventory coverage in
+  `enforcement-surface.test.ts`.
+- Proof classes:
+  - Root structural script inventory: root `check`, `ci`, `lint`, `verify`,
+    `habitat*`, and structural `lint:*` / `check:*` scripts are classified as
+    graph-owned aggregate, graph-owned Habitat lint, package diagnostic,
+    direct Habitat CLI/mutation, direct legacy diagnostic, or Habitat rule
+    alias.
+  - CI step classification: `.github/workflows/ci.yml` is checked for the main
+    `bun run ci` graph step, strict-core diagnostic step, Habitat JSON
+    diagnostics artifact step, upload step, and absence of stale
+    `habitat:verify` wiring.
+  - Rule owner inventory: the typed rule pack is checked for current
+    `ownerTool` counts.
+  - Habitat-owned Nx target inference: `src/plugin.js` is invoked directly to
+    prove the currently inferred Habitat project targets and rule aliases.
+- Non-claims: no wrapper direct-vs-Habitat parity, no invalid selector proof,
+  no wrapper retirement, no downstream realignment closure, no CI execution
+  proof, no Grit row semantics, no baseline semantics, and no product/runtime
+  proof.
+
 ## Realignment
 
 - Downstream realignment ledger:
@@ -196,5 +222,5 @@ Core synthesis:
 
 ## Next Action
 
-- Finish focused verification, commit this verify-proof checkpoint through
+- Finish focused verification, commit this inventory-proof checkpoint through
   Graphite, and stop for supervisor review.
