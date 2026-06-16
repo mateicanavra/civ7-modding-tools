@@ -63,11 +63,11 @@
 
 ## 5. Selector And Empty-Proof Dependency
 
-- [ ] 5.1 Consume `habitat-oclif-entrypoint-repair` selector truth before closing
+- [x] 5.1 Consume `habitat-oclif-entrypoint-repair` selector truth before closing
   stale owner/tool/rule proof.
-- [ ] 5.2 Prove stale owner tool selections such as `wrapped-eslint` cannot pass
+- [x] 5.2 Prove stale owner tool selections such as `wrapped-eslint` cannot pass
   as proof.
-- [ ] 5.3 Require parsed JSON assertions for selected rule/tool/owner proof.
+- [x] 5.3 Require parsed JSON assertions for selected rule/tool/owner proof.
 
 ## 6. Verify Command Proof
 
@@ -128,7 +128,7 @@
 - [x] 9.5 CI step classification proof
 - [x] 9.6 Rule ownerTool inventory proof
 - [x] 9.7 Wrapped-script and wrapped-test proof
-- [ ] 9.8 Invalid selector proof after command-surface dependency lands
+- [x] 9.8 Invalid selector proof after command-surface dependency lands
 - [x] 9.9 Direct-vs-Habitat wrapper output comparison
 - [x] 9.10 Direct-vs-Habitat wrapped-test output comparison
 - [x] 9.11 Legacy enforcement wrapper file inventory proof

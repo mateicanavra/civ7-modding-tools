@@ -5,9 +5,9 @@
 - Project: Habitat Harness
 - Phase: enforcement surface cleanup / `habitat-enforcement-surface-cleanup`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-enforcement-wrapper-policy`
+- Branch/Graphite stack: `agent-HR-habitat-enforcement-selector-proof`
 - Started: 2026-06-14
-- Status: wrapper/parser policy checkpoint in implementation; broader
+- Status: selector/empty-proof checkpoint in implementation; broader
   enforcement-surface cleanup remains open.
 
 ## Objective
@@ -50,8 +50,8 @@
   strict-core domain refactor guardrails.
 - Current rule pack still contains wrapped scripts and wrapped tests.
 - Earlier seed evidence found stale owner-tool selector `wrapped-eslint`
-  green-passing with only `baseline-integrity`; current selector proof remains
-  open under the selector/empty-proof slice.
+  green-passing with only `baseline-integrity`; current command-surface proof
+  now rejects that selector with `rule-selection-integrity`.
 - Current `habitat verify --base HEAD --json` emits a schemaVersion 1
   `VerifyProof` artifact and exits 1 before Nx affected because Habitat check
   currently fails on unrelated `biome-ci` and
@@ -123,14 +123,16 @@ Core synthesis:
   proof checkpoint is supervisor-accepted.
 - Completed in accepted inventory checkpoint: 3.1, 3.2, 9.4, 9.5, and 9.6
   for the root/CI/rule-owner/plugin-target inventory proof boundary.
-- Completed in this checkpoint: 3.3, 3.5, 4.1-4.6, 9.7, and 9.9-9.11 for the
-  current wrapper-disposition, direct-vs-Habitat projection, and legacy wrapper
-  file inventory boundary.
+- Completed in accepted wrapper-policy checkpoint: 3.3, 3.5, 4.1-4.6, 9.7,
+  and 9.9-9.11 for the current wrapper-disposition, direct-vs-Habitat
+  projection, and legacy wrapper file inventory boundary.
+- Completed in this checkpoint: 5.1-5.3 and 9.8 for stale owner-tool selector
+  failure and parsed JSON proof.
 - Remaining tasks: root script/docs patching if accepted command names
-  overclaim, stale selector proof, verify composition decision, downstream
-  realignment, packet closure, and supervisor review.
-- Implementation status: wrapper-policy checkpoint ready for local verification
-  and Graphite commit.
+  overclaim, verify composition decision, downstream realignment, packet
+  closure, and supervisor review.
+- Implementation status: selector-proof checkpoint committed locally and awaiting
+  supervisor acceptance or repair disposition.
 
 ## Verification
 
@@ -223,6 +225,7 @@ Core synthesis:
 
 - Implementation adds `workstream/wrapper-disposition.md` and executable
   coverage in `enforcement-surface.test.ts`.
+- Supervisor acceptance: accepted for the bounded HESC wrapper-policy outcome.
 - Proof classes:
   - Wrapper disposition: every current `wrapped-script` and `wrapped-test` rule
     has an owner tool, proof class, parser policy, direct-output policy, and
@@ -261,6 +264,26 @@ Core synthesis:
   invalid selector proof, no CI execution proof, no Grit row semantics, no
   baseline semantics, no product/runtime proof, and no packet closure.
 
+## Selector Proof Checkpoint
+
+- Implementation adds a real-command regression in `habitat-entrypoints.test.ts`
+  for the stale `wrapped-eslint` ownerTool seed case.
+- Proof class:
+  - Command/Habitat wrapper behavior: `bun run habitat:check -- --json --tool
+    wrapped-eslint` exits 1 with schemaVersion 1, `ok:false`, exactly one
+    selected rule report, `rule-selection-integrity`, and an unknown-tool
+    diagnostic. The report does not include `baseline-integrity`, so it cannot
+    be mistaken for a selected-rule proof.
+  - Parsed JSON proof: the test parses stdout as JSON and asserts selected rule
+    ids and diagnostic text instead of relying on terminal success/failure text.
+- Direct command evidence refreshed in this worktree:
+  - `bun run habitat:check -- --json --tool wrapped-eslint`
+  - `bun run habitat:check -- --json --tool wrapped-script`
+  - `bun run habitat:check -- --json --tool wrapped-test`
+- Non-claims: no wrapper retirement, no generated-output freshness repair, no
+  CI execution proof, no Grit row semantics, no baseline semantics, no
+  product/runtime proof, and no packet closure.
+
 ## Realignment
 
 - Downstream realignment ledger:
@@ -268,5 +291,5 @@ Core synthesis:
 
 ## Next Action
 
-- Finish focused verification, commit this wrapper-policy checkpoint through
-  Graphite, and stop for supervisor review.
+- Await supervisor acceptance or repair disposition for the selector-proof
+  checkpoint before opening the next HESC slice.
