@@ -4,9 +4,10 @@
 **Status:** P1/P2 design findings accepted and patched; candidate/refusal,
 manifest-validator, registered-promotion Effect decision, and registered
 manifest/reference contract, registered promotion gate/refusal, registered
-advisory output, and registered enforced non-hook output checkpoints are
-supervisor-accepted; pre-commit hook-scoped promotion remains blocked until a
-hook-owned scope/filter proof is accepted
+advisory output, registered enforced non-hook output, generator closure, and
+hook-owned generated pattern scope checkpoints are supervisor-accepted;
+pre-commit hook-scoped promotion checkpoint is locally implemented and pending
+supervisor review
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
@@ -74,13 +75,15 @@ reference for the scratch proof, then cleans those scratch artifacts.
 Pre-commit hook scope, baseline creation/mutation, HG row semantics, and
 product/runtime proof remain non-claims.
 
-Packet closure note: the generator packet is locally closed for candidate,
-registered advisory, and non-hook registered enforced promotion. Pre-commit
-hook-scoped generated rules remain intentionally blocked because the current
-hook path executes native Grit over staged JavaScript/TypeScript paths and does
-not provide a rule-pack-filtered hook-scope contract for newly generated
-patterns. That future repair belongs to the hook owner before any generated
-registered pattern may claim pre-commit activation.
+Hook-scoped promotion checkpoint note: the accepted hook-owned generated
+pattern scope proof supplies the staged rule-pack filter contract this packet
+previously lacked. This checkpoint permits pre-commit hook-scoped
+`registered-enforced` generation only when the manifest, rule-pack reference,
+explicit baseline, rule-introduction manifest, native Grit sample proof,
+Habitat wrapper current-tree proof, and staged hook proof are all satisfied for
+the generated scratch rule. It does not create or mutate baselines, activate
+hooks from metadata alone, consume HG row semantics, or prove product/runtime
+behavior.
 
 P3 watch item: when registered rule-pack context is implemented, call
 `validatePatternAuthorityManifest(...)` with `requireRuleReference: true` and

@@ -69,31 +69,33 @@
 - [x] 5.3 Require native Grit fixture proof and current-tree scan status before
   non-hook enforced registration.
 - [x] 5.4 Require hook-scope rationale, staged-scope evidence, and cost/scope
-  evidence before pre-commit registration; pre-commit registration remains
-  blocked by this packet until hook-owned scope proof exists.
+  evidence before pre-commit registration; hook-scoped registration consumes
+  the accepted hook-owned staged-scope/filter proof and remains gated by the
+  registered manifest, baseline, native Grit, and current-tree proof contract.
 - [x] 5.5 Keep Grit adapter semantics and existing pattern proof repair outside
   this packet.
 
 ## 6. Tests
 
 - [x] 6.1 Add unit tests for candidate generation output.
-- [x] 6.2 Add unit tests for registered advisory output and non-hook registered
-  enforced output; hook-scoped enforced output remains blocked until hook proof
-  is accepted.
+- [x] 6.2 Add unit tests for registered advisory output, non-hook registered
+  enforced output, and pre-commit hook-scoped registered enforced output.
 - [x] 6.3 Add schema tests for missing, malformed, placeholder, and accepted
   manifests.
 - [x] 6.4 Add no-write tests for refused registration.
 - [x] 6.5 Add duplicate id/name tests.
-- [x] 6.6 Add hook-scope refusal tests.
+- [x] 6.6 Add hook-scope agreement/refusal tests and hook-scoped promotion
+  projection tests.
 - [x] 6.7 Add baseline-manifest dependency tests.
-- [x] 6.8 Add native Grit sample proof for generated registered advisory and
-  non-hook registered enforced scratch samples.
+- [x] 6.8 Add native Grit sample proof for generated registered advisory,
+  non-hook registered enforced, and pre-commit hook-scoped registered enforced
+  scratch samples.
 - [x] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
   manifest fields cannot substitute for each other.
 - [x] 6.10 Add tests for the registered-promotion orchestration decision:
   candidate generation without registered writes, accepted Effect-backed
-  promotion when selected, and blocked hook-scoped promotion while the remaining
-  hook decision is not accepted.
+  promotion when selected, and hook-scoped promotion only after the hook
+  staged-scope/filter proof is accepted.
 
 ## 7. Downstream Realignment
 
@@ -126,6 +128,9 @@
 - [x] 8.13 Effect fit decision proof for registered promotion, including typed
   failures, command provenance, service substitution, scoped cleanup, and
   no-write behavior.
+- [x] 8.14 Registered enforced pre-commit hook-scoped promotion proof, including
+  rule-pack `hookScope` projection, native Grit sample proof, Habitat wrapper
+  current-tree proof, staged hook proof, and targeted scratch cleanup.
 
 ## 9. Closure
 

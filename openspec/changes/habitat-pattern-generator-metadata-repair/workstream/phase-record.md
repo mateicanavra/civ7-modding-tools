@@ -7,6 +7,8 @@
   `habitat-pattern-generator-metadata-repair`
 - Owner: DRA Habitat recovery owner
 - Branch/Graphite stack:
+  `agent-HR-habitat-pattern-hook-scoped-promotion` over
+  `agent-HR-habitat-hook-generated-pattern-scope` over
   `agent-HR-habitat-pattern-generator-closure` over
   `agent-HR-habitat-pattern-registered-enforced` over
   `agent-HR-habitat-pattern-registered-advisory` over
@@ -21,10 +23,10 @@
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
 - Status: registered-promotion Effect decision, registered manifest/reference
-  contract, registration gate/refusal, registered advisory output, and
-  registered enforced non-hook output checkpoints supervisor-accepted; closure
-  checkpoint locally committed and pending supervisor review/repair; hook-scoped
-  writes remain blocked on a hook-owned staged-scope/filter proof
+  contract, registration gate/refusal, registered advisory output, registered
+  enforced non-hook output, generator closure, and hook-owned generated pattern
+  scope checkpoints supervisor-accepted; hook-scoped promotion checkpoint is in
+  local supervisor-review state
 
 ## Objective
 
@@ -77,14 +79,22 @@
   rule-introduction baseline manifest contracts before writing only the active
   enforced Grit pattern plus `rules.json` manifest reference. Native Grit sample
   proof and Habitat wrapper current-tree proof are required for the generated
-  scratch rule. Pre-commit hook scope remains blocked until staged-scope and
-  hook cost proof are accepted.
+  scratch rule.
+- Current hook-scoped promotion checkpoint condition: registered enforced
+  generator invocations with `hookScope: pre-commit` consume the accepted
+  hook-owned staged-scope/filter proof plus the same Pattern Authority Manifest,
+  Effect runtime, explicit baseline, rule-introduction manifest, native Grit
+  sample, and Habitat wrapper current-tree contracts before writing the active
+  enforced Grit pattern and `rules.json` manifest reference. The generated rule
+  entry carries `hookScope: "pre-commit"` so the hook execution surface can
+  select it through rule-pack metadata instead of treating the manifest alone as
+  activation.
 - Full packet done condition for this repair boundary: accepted Pattern
   Authority Manifest validation, baseline-manifest consumption,
   native fixture/current-tree proof, and registered promotion orchestration for
-  candidate, advisory, and non-hook enforced generated rules. Pre-commit
-  hook-scoped generated rules remain a blocked exterior until the hook owner
-  supplies accepted staged-scope/filter proof.
+  candidate, advisory, non-hook enforced, and pre-commit hook-scoped generated
+  rules. Baseline creation/mutation, HG row semantics, broad current rule
+  backfill, and product/runtime behavior remain exterior.
 
 ## Authority
 
@@ -228,34 +238,34 @@ Core synthesis:
   5.3, 6.2, 6.8, 8.6, and 8.7.
 - Completed tasks for the closure checkpoint: 5.4, 5.5, 6.10, 7.4, 7.5, 8.10,
   9.1, 9.2, and 9.3.
-- Remaining tasks: Graphite commit and supervisor acceptance for this closure
-  checkpoint. Pre-commit hook-scoped generated promotion remains blocked by a
-  hook-owner dependency rather than open generator implementation.
+- Completed tasks for the hook-scoped promotion checkpoint: 8.14.
+- Remaining tasks: supervisor acceptance or repair for this hook-scoped
+  promotion checkpoint.
 - Implementation status: bounded candidate/refusal checkpoint accepted by
-  supervisor; bounded manifest-validator checkpoint implemented on
-  `agent-HR-habitat-pattern-authority-manifest-validator`.
+  supervisor; bounded manifest-validator checkpoint supervisor-accepted.
 - Effect decision status: bounded decision checkpoint accepted by supervisor.
   This checkpoint records the service boundary and failure classes for future
   registered promotion, but does not implement registered advisory/enforced
   writes.
-- Registered manifest/reference contract status: implemented locally for
-  supervisor review; no active registered pattern, baseline, hook scope, or
-  rule-pack write is committed.
-- Registered promotion gate/refusal status: implemented locally for supervisor
-  review; the generator validates registered manifest/reference/hook-scope gates
-  before the still-blocked active write path.
+- Registered manifest/reference contract status: supervisor-accepted; no active
+  registered pattern, baseline, hook scope, or rule-pack write is committed by
+  that checkpoint.
+- Registered promotion gate/refusal status: supervisor-accepted; the generator
+  validates registered manifest/reference/hook-scope gates before promotion
+  writes.
 - Registered advisory output status: supervisor-accepted; advisory promotion
   uses the accepted Habitat Effect runtime edge and writes no baselines, no
   enforced rule, and no hook scope.
 - Registered enforced non-hook output status: supervisor-accepted; enforced
   promotion uses the accepted Habitat Effect runtime edge and writes no
   baselines and no hook scope.
-- Closure status: implemented locally for supervisor review. The generator
-  packet is closed for candidate, advisory, and non-hook enforced promotion
-  boundaries; generated pre-commit hook activation remains blocked because the
-  current hook path runs native Grit over staged JavaScript/TypeScript files and
-  does not provide a rule-pack-filtered hook-scope contract for generated
-  patterns.
+- Closure status: supervisor-accepted. The generator packet is closed for
+  candidate, advisory, and non-hook enforced promotion boundaries.
+- Hook-scoped promotion status: implemented locally for supervisor review; this
+  checkpoint consumes the accepted hook-owner rule-pack filter/staged-scope
+  proof and extends registered enforced promotion to pre-commit hook-scoped
+  generated rules without changing baseline ownership, HG row semantics, or
+  product/runtime behavior.
 
 ## Verification
 
@@ -455,6 +465,34 @@ Core synthesis:
   non-hook enforced promotion surface. It does not prove generated pre-commit
   hook activation, HG row semantics, current 22-rule manifest backfill,
   baseline creation/mutation, or product/runtime behavior.
+- Commands run for hook-scoped promotion checkpoint:
+  - `bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts pattern-authority-manifest.test.ts`
+    passed: registered enforced pre-commit hook-scoped output requires accepted
+    manifest, explicit hook-scope invocation, existing explicit baseline,
+    matching rule-introduction manifest, and writes a `rules.json` entry with
+    `hookScope: "pre-commit"` while preserving top-level rule-pack metadata.
+  - `bun run nx g @internal/habitat-harness:pattern grit-hook-scoped-promotion-proof --lifecycle=registered-enforced --hookScope=pre-commit --manifestPath=tools/habitat-harness/src/rules/pattern-authority/grit-hook-scoped-promotion-proof.json --no-interactive --verbose`
+    exited 0 in the normal HR worktree after scratch manifest/baseline setup,
+    creating only `.grit/patterns/habitat/checks/hook_scoped_promotion_proof.md`
+    and updating `tools/habitat-harness/src/rules/rules.json`.
+  - `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter hook_scoped_promotion_proof --verbose`
+    exited 0 with both generated samples passing.
+  - `bun run habitat:check -- --json --rule grit-hook-scoped-promotion-proof`
+    exited 0 with the generated enforced rule passing and
+    `baseline-integrity` passing.
+  - `bun run habitat hook pre-commit` with staged scratch
+    `packages/mapgen-core/src/core/supervisor-generated-hook-promotion.ts`
+    exited 1 as expected after selecting the normalized staged Habitat Grit
+    check, reporting `grit-hook-scoped-promotion-proof` on the exact staged
+    probe path, and keeping `baseline-integrity` passing.
+  - Targeted cleanup removes the scratch active pattern, scratch manifest,
+    scratch baseline, scratch rule-introduction manifest, staged scratch probe,
+    and restores `rules.json`.
+- Hook-scoped promotion evidence boundary: this checkpoint proves the generated
+  pre-commit hook-scoped active write path and the rule-pack `hookScope`
+  selection contract for a scratch generated rule. It does not prove baseline
+  creation or mutation, HG row semantics, broad current rule backfill, CI
+  authority, or product/runtime behavior.
 
 ## Realignment
 
@@ -463,6 +501,5 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor acceptance or repair. Do not implement generated
-  pre-commit hook activation until the hook owner supplies accepted
-  staged-scope/filter proof.
+- Hold for supervisor acceptance or repair of this hook-scoped promotion
+  checkpoint.

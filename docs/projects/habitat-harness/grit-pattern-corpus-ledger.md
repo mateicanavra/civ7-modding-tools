@@ -77,15 +77,15 @@ committed `tools/habitat-harness/baselines/<rule-id>.json` file containing
 `habitat-scaffold-contract-repair`, "empty locked" means that explicit file and
 `baseline-integrity` contract proof, not missing-file convention.
 
-Generated pattern output is candidate-only by default. Registered advisory and
-non-hook registered enforced generation require an accepted Pattern Authority
-Manifest plus explicit baseline/rule-introduction contract, native Grit sample
-proof, Habitat wrapper current-tree proof, fixture strategy, false-positive
-model, and hook decision. Candidate drafts under
+Generated pattern output is candidate-only by default. Registered advisory,
+non-hook registered enforced, and pre-commit hook-scoped registered enforced
+generation require an accepted Pattern Authority Manifest plus explicit
+baseline/rule-introduction contract, native Grit sample proof, Habitat wrapper
+current-tree proof, fixture strategy, false-positive model, and hook decision.
+Hook-scoped generation also requires the accepted hook-owner staged-scope and
+rule-pack filtering proof. Candidate drafts under
 `tools/habitat-harness/src/rules/pattern-authority/candidates/` are not active
 Grit checks, rule-pack entries, baselines, hook-scope decisions, or row proof.
-Generated pre-commit hook activation remains blocked until the hook owner
-provides an accepted staged-scope/filtering proof.
 
 | Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

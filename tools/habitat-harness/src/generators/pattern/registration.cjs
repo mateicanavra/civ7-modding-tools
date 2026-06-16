@@ -62,14 +62,6 @@ function registeredPatternPromotionProgram(input) {
     }
 
     const manifest = validation.manifest;
-    if (input.lifecycle === "registered-enforced" && manifest.hookScope.decision === "pre-commit") {
-      return yield* fail(
-        "enforced-hook-scope-blocked",
-        input.ruleId,
-        "pre-commit hook scope remains blocked until staged-scope and hook cost proof are accepted"
-      );
-    }
-
     yield* validateRegisteredBaselineContract(store, manifest);
 
     const activePatternPath = `.grit/patterns/habitat/checks/${input.patternName}.md`;
@@ -122,6 +114,7 @@ function registeredRuleEntry(input, manifest) {
     exceptionPath: "none",
     gritPattern: input.patternName,
     manifestPath: input.manifestPath,
+    ...(manifest.hookScope.decision === "pre-commit" ? { hookScope: "pre-commit" } : {}),
   };
 }
 

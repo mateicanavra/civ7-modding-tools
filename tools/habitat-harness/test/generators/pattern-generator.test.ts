@@ -206,8 +206,11 @@ describe("Habitat pattern generator", () => {
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
-  test("refuses registered enforced pre-commit hook scope before active writes", async () => {
-    const tree = createPatternTree();
+  test("writes registered enforced pre-commit hook-scoped output after accepted hook proof", async () => {
+    const tree = createPatternTree({
+      $comment: "preserve rule-pack metadata",
+      rules: [],
+    });
     const beforeRules = tree.read(rulesPath, "utf8");
     const manifest = registeredManifest({
       lifecycle: "registered-enforced",
@@ -220,18 +223,17 @@ describe("Habitat pattern generator", () => {
     });
     const manifestPath = writeRegisteredManifest(tree, manifest);
     const beforeManifest = tree.read(manifestPath, "utf8");
+    writeBaselineContract(tree, manifest);
 
-    await expect(
-      patternGenerator(tree, {
-        ruleId: manifest.ruleId,
-        patternName: manifest.patternName,
-        lifecycle: "registered-enforced",
-        manifestPath,
-        hookScope: "pre-commit",
-      })
-    ).rejects.toThrow("pre-commit hook scope remains blocked");
+    await patternGenerator(tree, {
+      ruleId: manifest.ruleId,
+      patternName: manifest.patternName,
+      lifecycle: "registered-enforced",
+      manifestPath,
+      hookScope: "pre-commit",
+    });
 
-    assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
+    assertRegisteredWrites(tree, manifest, beforeRules, manifestPath, beforeManifest, "enforced");
   });
 
   test("refuses candidate generation when the rule already exists", async () => {
@@ -377,6 +379,11 @@ function assertRegisteredWrites(
     gritPattern: manifest.patternName,
     manifestPath,
   });
+  if (manifest.hookScope.decision === "pre-commit") {
+    expect(rules.rules.at(-1)).toMatchObject({ hookScope: "pre-commit" });
+  } else {
+    expect(rules.rules.at(-1)).not.toHaveProperty("hookScope");
+  }
 }
 
 function writeRegisteredManifest(
