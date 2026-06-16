@@ -4,8 +4,9 @@
 
 ### Objective
 
-Make `grit-runtime-validation-imports` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Close `grit-runtime-validation-imports` as a row-owned active Habitat Grit
+check with current native fixture, parser inventory, wrapper, baseline, injected,
+and record-truth evidence.
 
 ### Product Movement
 
@@ -42,7 +43,8 @@ contract surfaces instead of leaking into runtime execution.
    separate proof classes.
 4. Contract/config/test paths are controls unless they match the current
    runtime predicate.
-5. Current parser inventory is not Habitat wrapper enforcement proof.
+5. Current parser inventory, wrapper proof, baseline proof, and injected proof
+   remain separate proof classes.
 
 ### Exterior
 
@@ -51,15 +53,18 @@ contract surfaces instead of leaking into runtime execution.
 - `runValidated` call proof, which belongs to `grit-runtime-run-validated`.
 - Helper redeclaration proof, which belongs to
   `grit-runtime-helper-redeclarations`.
-- Baseline mutation.
+- Baseline mutation beyond the explicit empty row baseline.
+- Raw direct Grit acquisition or Effect adapter closure.
+- Apply/codemod behavior.
 - Product/runtime Civ7 behavior.
 
 ### Falsifier
 
 This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if a live runtime forbidden import is found but recorded as a pass
-without owner disposition, if temporary inventory artifacts are cited as durable
-proof, or if neighboring runtime-purity rows are treated as proven by this
+fixtures alone, if a live runtime forbidden import is found but recorded as a
+pass without owner disposition, if temporary inventory artifacts are cited as
+durable proof, if injected proof is conflated with aggregate injected-corpus
+closure, or if neighboring runtime-purity rows are treated as proven by this
 import-source row.
 
 ## Source Synthesis
@@ -99,11 +104,15 @@ runtime typebox/value import scanning.
 
 ## Proof Contract
 
-This row checkpoint may record:
+This row closure may record:
 
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live zero-candidate evidence over current Swooper recipe and
   domain roots;
+- per-rule Habitat wrapper selector/current-tree proof;
+- aggregate `grit-check` wrapper proof;
+- explicit empty baseline ownership with `baseline-integrity`;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
@@ -113,20 +122,32 @@ Current proof ids:
   current-predicate positive classes and the recorded controls.
 - `RVI-RUNTIME-INVENTORY-2026-06-15`: parser inventory/live zero-candidate
   evidence over the current Swooper recipe and domain roots.
+- `RVI-NATIVE-FIXTURES-2026-06-16`: refreshed native fixture proof at the
+  closure checkpoint.
+- `RVI-NATIVE-CORPUS-REFRESH-2026-06-16`: full native pattern corpus proof with
+  RVI included.
+- `RVI-RUNTIME-INVENTORY-2026-06-16`: refreshed parser inventory/live
+  zero-candidate evidence over current Swooper recipe and domain roots.
+- `RVI-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper selector and
+  current-tree proof.
+- `RVI-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof with
+  RVI included.
+- `RVI-BASELINE-FILES-2026-06-16`: explicit empty baseline ownership.
+- `RVI-INJECTED-PROBE-2026-06-16`: row-specific injected violation and
+  path-control proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
+- neighboring runtime-purity row closure;
+- retired parity closure;
 - product proof.
 
 ## Downstream Records
 
-The aggregate proof matrix and corpus ledger are updated for this row's current
-checkpoint after evidence is gathered. Recovery ledger, taxonomy, invariant
-corpus, and command docs remain unchanged unless the implementation changes
-policy, diagnostics, or user-facing behavior.
+The aggregate proof matrix, command proof log, and corpus ledger are updated for
+this row's active-check closure evidence. Recovery ledger, taxonomy, invariant
+corpus, and command docs remain unchanged because this checkpoint does not
+change policy, diagnostics, source behavior, or user-facing command behavior.

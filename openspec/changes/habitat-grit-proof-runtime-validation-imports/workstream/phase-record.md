@@ -5,62 +5,53 @@
 Selected workstream: `habitat-grit-proof-runtime-validation-imports`.
 
 Reason: this is the next independent implemented Grit check row in aggregate
-matrix order after the accepted Recipe Runtime Domain Ops checkpoint. It is
-suitable for a fixture/parser-inventory checkpoint because the row is check-only
-and can be advanced without consuming wrapper, raw acquisition, baseline,
-injected cleanup, Effect adapter, apply, or product proof.
+matrix order after the accepted Runtime Run Validated checkpoint. It is suitable
+for active-check closure because the rule is already registered, current source
+has zero candidates, and row-specific wrapper, baseline, and injected proof are
+available without source remediation or HR-owned implementation changes.
 
 ## Repo State
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-runtime-validation-imports`
-- Parent layer: `agent-HG-habitat-grit-recipe-runtime-domain-ops`
+- Branch: `agent-HG-habitat-grit-runtime-validation-imports-closure`
+- Parent layer: `agent-HG-habitat-grit-runtime-run-validated-closure`
 - Graphite stack:
-  `agent-HG-habitat-grit-runtime-validation-imports` ->
-  `agent-HG-habitat-grit-recipe-runtime-domain-ops` ->
-  `agent-HG-habitat-grit-studio-recipe-artifacts` ->
-  `agent-HG-habitat-grit-step-contract-domain-surface` ->
-  `agent-HG-habitat-grit-recipe-domain-surface` ->
-  `agent-HG-habitat-grit-pattern-chain` -> `main`
+  local linear HG stack, with this closure branch above
+  `agent-HG-habitat-grit-runtime-run-validated-closure`.
 
 ## Current Gate
 
-Native fixture and parser inventory checkpoint is implemented, verified,
-record-aligned, and committed on
-`agent-HG-habitat-grit-runtime-validation-imports`, then supervisor-accepted as
-a bounded checkpoint. Successor HG rows are committed through
-`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this
-packet is not the active next-row gate.
+Active-check closure checkpoint is implemented locally for supervisor review.
+The row now has current native fixture proof, native corpus proof, refreshed
+parser zero-candidate inventory, per-rule Habitat wrapper proof, aggregate
+`grit-check` proof, explicit empty baseline proof, and row-specific injected
+violation/path-control proof.
 
 ## Dependency Boundary
 
-Historical row-local proof did not consume HR repair layers. Current restacked
-aggregate state inherits shared wrapper/selector, explicit baseline, and
-injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`, `HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+Historical row-local proof did not consume HR repair layers. This closure adds
+row-specific wrapper, baseline, and injected proof on the current HG stack.
 
 Raw acquisition, Effect adapter closure, apply safety, retired parity,
-neighboring runtime-purity row proof, and product proof remain non-claims for
-this checkpoint unless separately proven.
+neighboring runtime-purity row proof, aggregate injected-corpus closure while
+DDIT remains blocked, and product proof remain non-claims for this checkpoint
+unless separately proven.
 
 ## Protected Paths
 
 - Generated outputs.
-- Runtime source imports, unless supervisor explicitly requests remediation for
-  a live violation.
+- Runtime source imports, because current inventory has zero live candidates and
+  this closure does not need remediation.
 - Habitat wrapper/adapter implementation owned by repair-chain work.
-- Baseline files; explicit empty/debt baseline proof is inherited only through
-  the accepted shared HGPR baseline proof IDs, not by row-local mutation.
+- Baseline files outside `tools/habitat-harness/baselines/grit-runtime-validation-imports.json`.
 
 ## Next Actions
 
-1. Preserve this packet as a bounded, accepted historical checkpoint.
-2. Do not treat this packet as clean row/product closure; raw acquisition, apply
-   safety, retired parity, Effect adapter closure, neighboring-row proof, and
-   product proof remain separate gates unless separately recorded.
+1. Request supervisor review of this local closure checkpoint.
+2. Keep raw acquisition, apply safety, retired parity, Effect adapter closure,
+   neighboring-row proof, aggregate injected-corpus closure while DDIT remains
+   blocked, and product proof as separate gates unless separately recorded.
 
 ## Implementation DRA Update - 2026-06-15
 
@@ -96,16 +87,16 @@ Current durable parser inventory summary:
   0 out-of-scope forbidden references, 0 source lookalikes in runtime, 0
   `typebox/value` alias runtime imports, and 0 root TypeBox runtime imports.
 
-Blocked/non-claim proof classes:
+Closure update:
 
-- Shared Habitat wrapper selector/current-tree proof is inherited in current
-  aggregate state through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
-- Shared explicit baseline proof is inherited through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- Shared injected Grit-row proof is inherited through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+- Added `RVI-NATIVE-FIXTURES-2026-06-16`,
+  `RVI-NATIVE-CORPUS-REFRESH-2026-06-16`,
+  `RVI-RUNTIME-INVENTORY-2026-06-16`,
+  `RVI-PER-RULE-SELECTOR-2026-06-16`,
+  `RVI-HABITAT-GRIT-TOOL-2026-06-16`,
+  `RVI-BASELINE-FILES-2026-06-16`, and
+  `RVI-INJECTED-PROBE-2026-06-16`.
 - Raw Grit acquisition or accepted adapter proof, retired parity, apply safety,
-  neighboring runtime-purity row proof, Effect adapter closure, and product proof
-  remain unclaimed for this checkpoint.
+  neighboring runtime-purity row proof, Effect adapter closure, aggregate
+  injected-corpus closure while DDIT remains blocked, and product proof remain
+  unclaimed for this checkpoint.

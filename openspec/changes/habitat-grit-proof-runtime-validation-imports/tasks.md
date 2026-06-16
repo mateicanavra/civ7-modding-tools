@@ -18,19 +18,26 @@
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, and non-claims
   in this packet.
 
-## 3. Dependency-Bound Gates
+## 3. Active Check Closure Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `RVI-PER-RULE-SELECTOR-2026-06-16` selects exactly
+    `grit-runtime-validation-imports` plus `baseline-integrity`, both passing
+    with zero diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
-  - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+  - Non-claim for this checkpoint; row closure uses Habitat wrapper behavior,
+    not raw direct Grit acquisition.
+- [x] 3.3 Injected violation and cleanup proof.
+  - `RVI-INJECTED-PROBE-2026-06-16` proves one diagnostic at the injected
+    runtime step path with a clean stage-root control and clean filesystem/Git
+    cleanup. Aggregate injected-corpus closure remains blocked by unrelated DDIT.
+- [x] 3.4 Explicit baseline proof.
+  - `tools/habitat-harness/baselines/grit-runtime-validation-imports.json` is
+    explicit `[]`; per-rule and aggregate wrapper commands include passing
+    `baseline-integrity`.
+- [x] 3.5 Aggregate `grit-check` wrapper proof.
+  - `RVI-HABITAT-GRIT-TOOL-2026-06-16` records aggregate `grit-check` passing
+    with RVI included.
 
 ## 4. Downstream Realignment
 
@@ -46,8 +53,12 @@
 
 - [x] 5.1 `bun run openspec -- validate habitat-grit-proof-runtime-validation-imports --strict`
 - [x] 5.2 native fixture proof
-- [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.3 full native Grit corpus proof
+- [x] 5.4 parser inventory proof
+- [x] 5.5 Habitat per-rule wrapper proof
+- [x] 5.6 Habitat aggregate `grit-check` wrapper proof
+- [x] 5.7 row-specific injected violation/path-control proof
+- [x] 5.8 active-packet language guardrail scan
+- [x] 5.9 `git diff --check`
+- [x] 5.10 `bun run openspec:validate`
+- [x] 5.11 commit via Graphite with a clean worktree
