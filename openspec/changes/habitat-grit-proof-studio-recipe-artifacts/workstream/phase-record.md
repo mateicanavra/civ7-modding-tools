@@ -5,43 +5,31 @@
 Selected workstream: `habitat-grit-proof-studio-recipe-artifacts`.
 
 Reason: this is the next independent implemented Grit check row in aggregate
-matrix order after the accepted contract-export, recipe-domain, and
-step-contract checkpoints. It is suitable for a fixture/parser-inventory
-checkpoint because the row is check-only and can be advanced without consuming
-wrapper, raw acquisition, baseline, injected cleanup, Effect adapter, apply, or
-product proof.
+matrix order after the accepted contract-export and recipe-domain checkpoints.
+It is suitable for active-check closure because the row is check-only, has no
+live current-predicate Studio UI violations, and can prove wrapper, baseline,
+and row-specific injected behavior without source remediation.
 
 ## Repo State
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-studio-recipe-artifacts`
-- Parent layer: `agent-HG-habitat-grit-step-contract-domain-surface`
-- Graphite stack:
-  `agent-HG-habitat-grit-studio-recipe-artifacts` ->
-  `agent-HG-habitat-grit-step-contract-domain-surface` ->
-  `agent-HG-habitat-grit-recipe-domain-surface` ->
-  `agent-HG-habitat-grit-pattern-chain` -> `main`
+- Branch: `agent-HG-habitat-grit-studio-recipe-artifacts-closure`
+- Parent layer: `agent-HG-habitat-grit-recipe-domain-surface-closure`
+- Graphite stack remains the local HG chain above the accepted HR foundation.
 
 ## Current Gate
 
-Native fixture and parser inventory checkpoint is implemented, verified,
-record-aligned, committed, and supervisor-accepted as a bounded checkpoint on
-`agent-HG-habitat-grit-studio-recipe-artifacts`. Successor HG rows are committed
-through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so
-this packet is not the active next-row gate.
+Active-check closure is implemented for supervisor review. The row records
+native fixture proof, fresh Studio parser inventory, per-rule Habitat wrapper
+proof, aggregate `grit-check` proof, explicit empty baseline proof, and
+row-specific injected violation/path-control proof.
 
 ## Dependency Boundary
 
-Historical row-local proof did not consume HR repair layers. Current restacked
-aggregate state inherits shared wrapper/selector, explicit baseline, and
-injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`, `HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
-
-Raw acquisition, Effect adapter closure, apply safety, retired parity, and
-product proof remain non-claims for this checkpoint unless separately proven.
+Raw acquisition, generated artifact proof, Effect adapter closure, apply safety,
+retired parity, aggregate injected-corpus closure while unrelated DDIT remains
+blocked, and product/runtime proof remain non-claims.
 
 ## Protected Paths
 
@@ -49,15 +37,14 @@ product proof remain non-claims for this checkpoint unless separately proven.
 - Studio source imports, unless supervisor explicitly requests remediation for
   a live violation.
 - Habitat wrapper/adapter implementation owned by repair-chain work.
-- Baseline files; explicit empty/debt baseline proof is inherited only through
-  the accepted shared HGPR baseline proof IDs, not by row-local mutation.
+- Baseline files, except the already-present explicit empty SRA baseline is
+  read as proof evidence and not mutated.
 
 ## Next Actions
 
-1. Preserve this packet as a bounded, accepted historical checkpoint.
-2. Do not treat this packet as clean row/product closure; raw acquisition, apply
-   safety, retired parity, Effect adapter closure, and product proof remain
-   separate gates unless separately recorded.
+1. Stop at the local clean Graphite checkpoint for supervisor review.
+2. Do not open the next HG row until this active-check closure checkpoint is
+   dispositioned.
 
 ## Implementation DRA Update - 2026-06-15
 
@@ -86,15 +73,22 @@ Current durable parser inventory summary:
   0 runtime side-effect imports, 2 runtime default imports, and 0 source
   lookalikes.
 
-Blocked/non-claim proof classes:
+Unclaimed proof classes:
 
-- Shared Habitat wrapper selector/current-tree proof is inherited in current
-  aggregate state through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
-- Shared explicit baseline proof is inherited through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- Shared injected Grit-row proof is inherited through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
-- Raw Grit acquisition or accepted adapter proof, retired parity, apply safety,
-  Effect adapter closure, and product proof remain unclaimed for this checkpoint.
+- Raw Grit acquisition or accepted adapter proof, generated artifact proof,
+  retired parity, apply safety, Effect adapter closure, aggregate
+  injected-corpus closure while DDIT remains blocked, and product/runtime proof
+  remain unclaimed for this checkpoint.
+
+## Closure Update - 2026-06-16
+
+- Re-ran focused native fixture proof: 8 positive matches and 0 ignore matches.
+- Re-ran the full native Grit corpus: 32 testable patterns and 0 failures.
+- Re-ran Studio parser inventory: 145 `.ts`/`.tsx` files, 487 import/export
+  references, 0 current-predicate UI runtime matches, and 0 parse diagnostics.
+- Proved the Habitat per-rule selector and aggregate `grit-check` wrapper are
+  green with SRA included.
+- Proved the explicit empty baseline through `baseline-integrity`.
+- Proved row-specific injected violation/path-control behavior; the aggregate
+  injected runner still exits nonzero only because the unrelated accepted DDIT
+  adapter activation gap remains.

@@ -18,19 +18,24 @@
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, and non-claims
   in this packet.
 
-## 3. Dependency-Bound Gates
+## 3. Current Wrapper, Baseline, And Injected Proof
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `SRA-PER-RULE-SELECTOR-2026-06-16` selects exactly
+    `grit-studio-recipe-artifacts` plus `baseline-integrity`, both passing with
+    zero diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
-  - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+  - Non-claim for this closure; parser inventory, wrapper proof, and injected
+    proof are not raw direct Grit acquisition.
+- [x] 3.3 Injected violation and cleanup proof.
+  - `SRA-INJECTED-PROBE-2026-06-16` reports one diagnostic at the injected
+    Studio UI runtime import path, keeps the `browser-runner` control clean,
+    and leaves initial/final git state and probe cleanup clean. Aggregate
+    injected-corpus closure remains unclaimed while unrelated DDIT is blocked.
+- [x] 3.4 Explicit baseline proof.
+  - `tools/habitat-harness/baselines/grit-studio-recipe-artifacts.json` is
+    explicit `[]`; per-rule and aggregate wrapper proof pass
+    `baseline-integrity`.
 
 ## 4. Downstream Realignment
 
@@ -47,7 +52,12 @@
 - [x] 5.1 `bun run openspec -- validate habitat-grit-proof-studio-recipe-artifacts --strict`
 - [x] 5.2 native fixture proof
 - [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.4 full native Grit corpus refresh
+- [x] 5.5 Habitat per-rule wrapper proof
+- [x] 5.6 aggregate `grit-check` wrapper proof
+- [x] 5.7 explicit empty baseline / `baseline-integrity` proof
+- [x] 5.8 row-specific injected violation/path-control proof
+- [x] 5.9 active-packet language guardrail scan
+- [x] 5.10 `git diff --check`
+- [x] 5.11 `bun run openspec:validate`
+- [x] 5.12 commit via Graphite with a clean worktree

@@ -2,13 +2,13 @@
 
 | Finding | Source | Severity | Disposition | Evidence / action |
 | --- | --- | --- | --- | --- |
-| Dependency-bound proof unavailable in original row stack/base | Supervisor boundary for post-step rows | P1 | Accepted/re-scoped | Historical native/parser checkpoint kept wrapper/current-tree, raw acquisition, baseline, injected cleanup, Effect adapter, apply, and product proof as non-claims. Current restacked aggregate state inherits shared wrapper/selector, explicit baseline, and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`, `HGPR-PER-RULE-SELECTORS-2026-06-15`, `HGPR-BASELINE-FILES-2026-06-15`, `HGPR-BASELINE-INTEGRITY-2026-06-15`, and `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; raw acquisition, apply safety, Effect adapter closure, and product proof remain separate non-claims unless separately proven. |
+| Historical dependency-bound proof gap in original row stack/base | Supervisor boundary for post-step rows | P1 | Accepted/re-scoped | Historical native/parser checkpoint kept wrapper/current-tree, raw acquisition, baseline, injected cleanup, Effect adapter, apply, and product proof as non-claims. Current SRA closure repairs the wrapper, baseline, and row-specific injected gates through `SRA-PER-RULE-SELECTOR-2026-06-16`, `SRA-HABITAT-GRIT-TOOL-2026-06-16`, `SRA-BASELINE-FILES-2026-06-16`, and `SRA-INJECTED-PROBE-2026-06-16`; raw acquisition, apply safety, Effect adapter closure, retired parity, and product/runtime proof remain separate non-claims unless separately proven. |
 | Temporary inventory artifacts cannot be durable proof | Supervisor guardrail from prior row, applied forward | P1 | Accepted/repaired | `SRA-STUDIO-INVENTORY-2026-06-15` records command shape, scan root, exclusions, counts, row id, and non-claims in durable row-owned records; temporary stdout remains scratch only. |
+| Active-check closure requires current wrapper/baseline/injected proof | Closure review gate | P2 | Repaired/pending supervisor review | Current SRA closure records `SRA-PER-RULE-SELECTOR-2026-06-16`, `SRA-HABITAT-GRIT-TOOL-2026-06-16`, `SRA-BASELINE-FILES-2026-06-16`, and `SRA-INJECTED-PROBE-2026-06-16`; raw acquisition, generated artifact proof, Effect adapter closure, apply safety, retired parity, aggregate injected-corpus closure while DDIT remains blocked, and product/runtime proof remain non-claims. |
 
 ## Current Review State
 
-This checkpoint was supervisor-accepted as a bounded native fixture/parser
-inventory checkpoint at `1a72ee2dc`, and successor HG rows have since been
-committed through `agent-HG-habitat-grit-domain-ops-boundary-imports` at
-`f268f3bf5`. No Studio P1/P2 finding remains as a next-row sequencing blocker;
-row-specific non-claims remain separate from inherited shared proof.
+The earlier native/parser checkpoint was supervisor-accepted. This active-check
+closure repair is implemented and pending supervisor review; no known Studio
+P1/P2 remains after local proof evidence. Row-specific non-claims remain
+separate from wrapper, baseline, and injected proof.

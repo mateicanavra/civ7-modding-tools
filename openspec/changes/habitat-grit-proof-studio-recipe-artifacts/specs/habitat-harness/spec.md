@@ -52,16 +52,16 @@ under the current `grit-studio-recipe-artifacts` predicate.
 - **AND** any future predicate expansion SHALL require separate path-control
   proof and downstream record updates
 
-### Requirement: Studio Recipe Artifacts Non-Claims Stay Explicit
+### Requirement: Studio Recipe Artifacts Closure Keeps Non-Claims Explicit
 
 Habitat SHALL keep proof classes separate for
 `grit-studio-recipe-artifacts`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Active check proof closes without broadening product claims
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, or Effect adapter behavior is not available in the current
-  row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** native fixtures, parser inventory, Habitat wrapper proof, explicit
+  baseline proof, and row-specific injected proof are current
+- **THEN** row records MAY classify the active SRA check as row-closed
+- **AND** row records SHALL keep raw direct Grit acquisition, generated artifact
+  proof, Effect adapter closure, apply safety, retired parity, and
+  product/runtime proof as explicit non-claims
