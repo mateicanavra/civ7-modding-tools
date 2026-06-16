@@ -2,7 +2,11 @@ import { createRequire } from "node:module";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
-import { validatePatternAuthorityManifest } from "../../src/rules/pattern-authority/manifest.js";
+import {
+  patternAuthorityManifestPath,
+  type RegisteredPatternAuthorityManifest,
+  validatePatternAuthorityManifest,
+} from "../../src/rules/pattern-authority/manifest.js";
 
 const require = createRequire(import.meta.url);
 const {
@@ -50,7 +54,7 @@ describe("Habitat pattern generator", () => {
     expect(tree.read(candidatePaths.patternPath, "utf8")).toContain("level: info");
   });
 
-  test("refuses registered advisory generation before any writes", async () => {
+  test("refuses registered advisory generation without a manifest before any writes", async () => {
     const tree = createPatternTree();
     const beforeRules = tree.read(rulesPath, "utf8");
 
@@ -59,12 +63,12 @@ describe("Habitat pattern generator", () => {
         ruleId: "grit-advisory-probe",
         lifecycle: "registered-advisory",
       })
-    ).rejects.toThrow("Registered pattern generation");
+    ).rejects.toThrow("requires --manifestPath");
 
     assertNoGeneratedArtifacts(tree, "grit-advisory-probe", "advisory_probe", beforeRules);
   });
 
-  test("refuses registered enforced generation before any writes", async () => {
+  test("refuses registered enforced generation without a manifest before any writes", async () => {
     const tree = createPatternTree();
     const beforeRules = tree.read(rulesPath, "utf8");
 
@@ -73,9 +77,110 @@ describe("Habitat pattern generator", () => {
         ruleId: "grit-enforced-probe",
         lifecycle: "registered-enforced",
       })
-    ).rejects.toThrow("Registered pattern generation");
+    ).rejects.toThrow("requires --manifestPath");
 
     assertNoGeneratedArtifacts(tree, "grit-enforced-probe", "enforced_probe", beforeRules);
+  });
+
+  test("refuses registered generation when the manifest keeps placeholder authority", async () => {
+    const tree = createPatternTree();
+    const beforeRules = tree.read(rulesPath, "utf8");
+    const manifest = registeredManifest({
+      normativeSources: [
+        {
+          kind: "accepted-spec",
+          pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
+          claim: "TODO replace with accepted authority claim",
+        },
+      ],
+    });
+    const manifestPath = writeRegisteredManifest(tree, manifest);
+    const beforeManifest = tree.read(manifestPath, "utf8");
+
+    await expect(
+      patternGenerator(tree, {
+        ruleId: manifest.ruleId,
+        patternName: manifest.patternName,
+        lifecycle: "registered-advisory",
+        manifestPath,
+      })
+    ).rejects.toThrow("placeholder-manifest");
+
+    assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
+  });
+
+  test("refuses registered hook scope unless the invocation and manifest agree", async () => {
+    const tree = createPatternTree();
+    const beforeRules = tree.read(rulesPath, "utf8");
+    const manifest = registeredManifest({
+      lifecycle: "registered-enforced",
+      hookScope: {
+        decision: "pre-commit",
+        rationale: "staged-scope proof accepted for this enforced rule",
+        costAndScopeEvidence:
+          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+      },
+    });
+    const manifestPath = writeRegisteredManifest(tree, manifest);
+    const beforeManifest = tree.read(manifestPath, "utf8");
+
+    await expect(
+      patternGenerator(tree, {
+        ruleId: manifest.ruleId,
+        patternName: manifest.patternName,
+        lifecycle: "registered-enforced",
+        manifestPath,
+      })
+    ).rejects.toThrow("Manifest pre-commit hook scope requires a matching rule-pack hookScope");
+
+    assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
+  });
+
+  test("validates registered advisory metadata before blocking active writes", async () => {
+    const tree = createPatternTree();
+    const beforeRules = tree.read(rulesPath, "utf8");
+    const manifest = registeredManifest();
+    const manifestPath = writeRegisteredManifest(tree, manifest);
+    const beforeManifest = tree.read(manifestPath, "utf8");
+
+    await expect(
+      patternGenerator(tree, {
+        ruleId: manifest.ruleId,
+        patternName: manifest.patternName,
+        lifecycle: "registered-advisory",
+        manifestPath,
+      })
+    ).rejects.toThrow("active registered writes remain blocked");
+
+    assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
+  });
+
+  test("validates registered enforced hook metadata before blocking active writes", async () => {
+    const tree = createPatternTree();
+    const beforeRules = tree.read(rulesPath, "utf8");
+    const manifest = registeredManifest({
+      lifecycle: "registered-enforced",
+      hookScope: {
+        decision: "pre-commit",
+        rationale: "staged-scope proof accepted for this enforced rule",
+        costAndScopeEvidence:
+          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+      },
+    });
+    const manifestPath = writeRegisteredManifest(tree, manifest);
+    const beforeManifest = tree.read(manifestPath, "utf8");
+
+    await expect(
+      patternGenerator(tree, {
+        ruleId: manifest.ruleId,
+        patternName: manifest.patternName,
+        lifecycle: "registered-enforced",
+        manifestPath,
+        hookScope: "pre-commit",
+      })
+    ).rejects.toThrow("active registered writes remain blocked");
+
+    assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
   test("refuses candidate generation when the rule already exists", async () => {
@@ -166,4 +271,108 @@ function assertNoGeneratedArtifacts(
   expect(tree.exists(`.grit/patterns/habitat/checks/${patternName}.md`)).toBe(false);
   expect(tree.exists(`tools/habitat-harness/baselines/${ruleId}.json`)).toBe(false);
   expect(tree.read(rulesPath, "utf8")).toBe(beforeRules);
+}
+
+function assertNoPromotionWrites(
+  tree: ReturnType<typeof createPatternTree>,
+  manifest: RegisteredPatternAuthorityManifest,
+  beforeRules: string | null,
+  manifestPath: string,
+  beforeManifest: string | null
+) {
+  const candidatePaths = candidateArtifactPaths({
+    ruleId: manifest.ruleId,
+    patternName: manifest.patternName,
+  });
+  expect(tree.exists(candidatePaths.patternPath)).toBe(false);
+  expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
+  expect(tree.read(manifestPath, "utf8")).toBe(beforeManifest);
+  expect(tree.exists(`.grit/patterns/habitat/checks/${manifest.patternName}.md`)).toBe(false);
+  expect(tree.exists(`tools/habitat-harness/baselines/${manifest.ruleId}.json`)).toBe(false);
+  expect(tree.read(rulesPath, "utf8")).toBe(beforeRules);
+}
+
+function writeRegisteredManifest(
+  tree: ReturnType<typeof createPatternTree>,
+  manifest: RegisteredPatternAuthorityManifest
+) {
+  const manifestPath = patternAuthorityManifestPath(manifest.ruleId);
+  tree.write(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  return manifestPath;
+}
+
+function registeredManifest(
+  overrides: Partial<RegisteredPatternAuthorityManifest> = {}
+): RegisteredPatternAuthorityManifest {
+  return {
+    schemaVersion: 1,
+    ruleId: "grit-authority-probe",
+    patternName: "authority_probe",
+    lifecycle: "registered-advisory",
+    openspecChangeId: "habitat-pattern-generator-metadata-repair",
+    ownerProject: "@internal/habitat-harness",
+    ownerTool: "grit-check",
+    normativeSources: [
+      {
+        kind: "accepted-spec",
+        pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
+        claim:
+          "Generated Grit-backed rules require structured Habitat authority before registration.",
+      },
+    ],
+    provingSources: [
+      {
+        kind: "test",
+        pathOrCommand:
+          "bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts",
+        claim: "The generator validates registered manifests before promotion writes.",
+      },
+    ],
+    language: {
+      gritLanguage: "js(typescript)",
+      parserVariant: "typescript",
+      officialDocsSource: "docs/projects/habitat-harness/research/official-docs-gritql.md",
+      localProofCommand:
+        "GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose",
+    },
+    scanRoots: {
+      include: ["tools/habitat-harness/src"],
+      exclude: ["tools/habitat-harness/dist"],
+      gritignorePolicy: "Use committed .gritignore plus explicit manifest exclusions.",
+    },
+    fixtureStrategy: {
+      positive: ["tools/habitat-harness/test/fixtures/positive.ts"],
+      negative: ["tools/habitat-harness/test/fixtures/negative.ts"],
+      parserEdge: ["tools/habitat-harness/test/fixtures/parser-edge.ts"],
+      falsePositive: ["tools/habitat-harness/test/fixtures/allowed.ts"],
+    },
+    falsePositiveModel: {
+      risk: ["Overmatching structurally similar imports outside the owning source root."],
+      controls: ["Constrain scanRoots.include and verify negative fixtures."],
+      suppressionPolicy: "No inline suppression accepted for generated registered rules.",
+    },
+    currentTreeScan: {
+      command: "bun run habitat:check -- --json --rule grit-authority-probe",
+      resultClass: "zero-findings",
+      evidencePath:
+        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/command-proof-log.md",
+    },
+    baselineContract: {
+      baselinePath: "tools/habitat-harness/baselines/grit-authority-probe.json",
+      ruleIntroductionManifest:
+        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/rule-introduction-baseline.json",
+      baselineAction: "committed-empty",
+    },
+    hookScope: {
+      decision: "none",
+      rationale: "This advisory checkpoint is not hook-scoped.",
+      costAndScopeEvidence:
+        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+    },
+    applySafety: {
+      kind: "not-apply",
+      rationale: "This manifest describes a check-only Grit pattern.",
+    },
+    ...overrides,
+  };
 }

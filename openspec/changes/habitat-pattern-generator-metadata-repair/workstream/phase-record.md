@@ -7,6 +7,7 @@
   `habitat-pattern-generator-metadata-repair`
 - Owner: DRA Habitat recovery owner
 - Branch/Graphite stack:
+  `agent-HR-habitat-pattern-registration-gates` over
   `agent-HR-habitat-pattern-authority-registration-contract` over
   `agent-HR-habitat-pattern-authority-effect-decision` over
   `agent-HR-habitat-pattern-authority-manifest-validator` over
@@ -16,9 +17,10 @@
   `agent-HR-habitat-effect-grit-adapter` over
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
-- Status: registered-promotion Effect decision checkpoint supervisor-accepted;
-  registered manifest/reference contract checkpoint implemented locally and
-  pending supervisor review; registered manifest promotion remains open
+- Status: registered-promotion Effect decision and registered manifest/reference
+  contract checkpoints supervisor-accepted; registered promotion gate/refusal
+  checkpoint implemented locally and pending supervisor review; active
+  registered writes remain open
 
 ## Objective
 
@@ -52,6 +54,12 @@
   baseline-introduction references; generator tests preserve candidate manifest
   validity plus duplicate rule id, duplicate pattern name, and existing baseline
   refusal before writes across known generator-owned side-effect paths.
+- Current registration-gate checkpoint condition: registered generator
+  invocations must provide a Pattern Authority Manifest path, the manifest must
+  validate with the complete rule-pack reference contract, and hook-scoped
+  manifests must match explicit hook-scope invocation. Even after these gates
+  pass, this checkpoint still refuses active registered writes until registered
+  promotion implementation is accepted.
 - Full packet done condition remains open: accepted Pattern Authority Manifest
   validation, baseline-manifest consumption, native fixture/current-tree proof,
   hook-scope proof, and registered promotion orchestration.
@@ -110,6 +118,10 @@
 - Generated candidate manifests now default `openspecChangeId` to this owning
   packet rather than placeholder text and validate as candidate-state manifests
   through `validatePatternAuthorityManifest(...)`.
+- Registered generator invocations now consume the Pattern Authority Manifest
+  validator before the write path. Missing manifests, placeholder authority, and
+  hook-scope mismatch fail closed before candidate artifacts, active Grit
+  patterns, baselines, or rule-pack entries are written.
 
 ## Source Synthesis
 
@@ -179,11 +191,13 @@ Core synthesis:
 - Completed tasks for the Effect decision checkpoint: 8.13.
 - Completed tasks for the registered manifest/reference contract checkpoint:
   3.2, 3.4, 4.6, 5.1, 5.2, 6.5, 6.7, and 8.8.
+- Completed tasks for the registered promotion gate/refusal checkpoint: 4.3,
+  4.4, and 6.6.
 - Remaining tasks: registered manifest writes through the source-artifact path,
-  registered advisory/enforced promotion, live baseline-manifest consumption,
-  native Grit fixture/current-tree proof, hook-scope proof, full guardrail
-  scan, registered-promotion orchestration tests/implementation, and full
-  packet closure.
+  registered advisory/enforced output and promotion, live baseline-manifest
+  consumption, native Grit fixture/current-tree proof, full guardrail scan,
+  registered-promotion orchestration tests/implementation, downstream
+  realignment closure, and full packet closure.
 - Implementation status: bounded candidate/refusal checkpoint accepted by
   supervisor; bounded manifest-validator checkpoint implemented on
   `agent-HR-habitat-pattern-authority-manifest-validator`.
@@ -194,6 +208,9 @@ Core synthesis:
 - Registered manifest/reference contract status: implemented locally for
   supervisor review; no active registered pattern, baseline, hook scope, or
   rule-pack write is committed.
+- Registered promotion gate/refusal status: implemented locally for supervisor
+  review; the generator validates registered manifest/reference/hook-scope gates
+  before the still-blocked active write path.
 
 ## Verification
 
@@ -295,6 +312,27 @@ Core synthesis:
   write active registered patterns, mutate `rules.json`, create baselines, enable
   hook scope, consume live baseline manifests, run native/current-tree Grit
   proof, or implement registered promotion.
+- Commands run for registered promotion gate/refusal checkpoint:
+  - `bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts pattern-authority-manifest.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run nx g @internal/habitat-harness:pattern grit-registration-gate-candidate --dry-run`
+  - `bun run nx g @internal/habitat-harness:pattern grit-registration-gate-missing --lifecycle=registered-advisory --manifestPath=tools/habitat-harness/src/rules/pattern-authority/grit-registration-gate-missing.json --dry-run`
+  - `bun run openspec -- validate habitat-pattern-generator-metadata-repair --strict`
+  - `bun run openspec:validate`
+  - `git diff --check HEAD~1..HEAD`
+  - `git diff --check`
+  - `git ls-files --deleted | wc -l`
+  - `git status --short --branch`
+- Registered promotion gate/refusal evidence boundary: this checkpoint proves
+  generator requests for registered advisory/enforced lifecycles are evaluated
+  against the accepted Pattern Authority Manifest validator and rule-pack
+  reference contract before any write. Missing manifest, placeholder authority,
+  and hook-scope mismatch states fail closed; accepted advisory and enforced
+  manifest inputs reach the explicit active-write block without creating
+  candidate artifacts, active `.grit` patterns, baselines, or `rules.json`
+  entries. This does not prove active registered generation, baseline writes,
+  native/current-tree Grit proof, live hook-scope activation, registered
+  promotion orchestration, or product/runtime behavior.
 
 ## Realignment
 
@@ -303,7 +341,8 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor acceptance or repair demand on the committed registration
-  contract checkpoint. Remaining packet work is registered advisory/enforced
-  writes and promotion, live baseline-manifest consumption, native/current-tree
-  Grit proof, hook-scope proof, and full packet closure.
+- Hold for supervisor acceptance or repair demand on the committed registered
+  promotion gate/refusal checkpoint. Remaining packet work is registered
+  advisory/enforced writes and promotion, live baseline-manifest consumption,
+  native/current-tree Grit proof, full guardrail scan, downstream realignment,
+  and full packet closure.

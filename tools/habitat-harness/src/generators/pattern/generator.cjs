@@ -5,10 +5,10 @@ async function patternGenerator(tree, rawOptions) {
   validateNoActiveRegistrationCollision(tree, options);
 
   if (options.lifecycle !== "candidate") {
+    await validateRegisteredPromotionGate(tree, options);
     throw new Error(
-      `Registered pattern generation for '${options.ruleId}' is blocked until ` +
-        "Pattern Authority Manifest validation, baseline-manifest consumption, " +
-        "current-tree proof, and the registered-promotion Effect decision are accepted."
+      `Registered pattern generation for '${options.ruleId}' passed Pattern Authority validation, ` +
+        "but active registered writes remain blocked until registered-promotion implementation is accepted."
     );
   }
 
@@ -36,6 +36,8 @@ function normalizeOptions(rawOptions) {
     identifier: identifierFor(patternName),
     ownerProject: rawOptions.ownerProject ?? "@internal/habitat-harness",
     openspecChangeId: rawOptions.openspecChangeId ?? "habitat-pattern-generator-metadata-repair",
+    manifestPath: rawOptions.manifestPath,
+    hookScope: normalizeHookScope(rawOptions.hookScope),
   };
 }
 
@@ -49,6 +51,62 @@ function normalizeLifecycle(value) {
     throw new Error(`Unsupported pattern lifecycle '${lifecycle}'.`);
   }
   return lifecycle;
+}
+
+function normalizeHookScope(value) {
+  if (value == null || value === "" || value === "none") return undefined;
+  if (value === "pre-commit") return "pre-commit";
+  throw new Error(`Unsupported pattern hookScope '${String(value)}'.`);
+}
+
+async function validateRegisteredPromotionGate(tree, options) {
+  if (!options.manifestPath) {
+    throw new Error(
+      `Registered pattern generation for '${options.ruleId}' requires --manifestPath before any writes.`
+    );
+  }
+
+  const {
+    patternAuthorityRuleReferenceFromRule,
+    validatePatternAuthorityManifest,
+  } = require("../../rules/pattern-authority/manifest.ts");
+  const manifest = readJsonIfPresent(tree, options.manifestPath);
+  const result = validatePatternAuthorityManifest(manifest, {
+    manifestPath: options.manifestPath,
+    requireRuleReference: true,
+    ruleReferences: [
+      patternAuthorityRuleReferenceFromRule({
+        id: options.ruleId,
+        gritPattern: options.patternName,
+        manifestPath: options.manifestPath,
+        ownerTool: "grit-check",
+        lane: options.lifecycle === "registered-enforced" ? "enforced" : "advisory",
+        hookScope: options.hookScope,
+      }),
+    ],
+  });
+
+  if (!result.ok) {
+    throw new Error(
+      `Registered pattern generation for '${options.ruleId}' refused by Pattern Authority Manifest: ${formatValidationIssues(result.issues)}`
+    );
+  }
+}
+
+function readJsonIfPresent(tree, path) {
+  if (!tree.exists(path)) return undefined;
+  const text = tree.read(path, "utf8");
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      `Registered Pattern Authority Manifest '${path}' is not valid JSON: ${error.message}`
+    );
+  }
+}
+
+function formatValidationIssues(issues) {
+  return issues.map((issue) => `${issue.reason} at ${issue.path}: ${issue.message}`).join("; ");
 }
 
 function validateNoActiveRegistrationCollision(tree, options) {

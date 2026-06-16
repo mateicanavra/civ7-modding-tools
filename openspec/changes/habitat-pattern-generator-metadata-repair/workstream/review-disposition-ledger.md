@@ -2,9 +2,10 @@
 
 **Change:** `habitat-pattern-generator-metadata-repair`
 **Status:** P1/P2 design findings accepted and patched; candidate/refusal,
-manifest-validator, and registered-promotion Effect decision checkpoints are
-supervisor-accepted; registered manifest/reference contract checkpoint is
-implemented locally and pending supervisor review
+manifest-validator, registered-promotion Effect decision, and registered
+manifest/reference contract checkpoints are supervisor-accepted; registered
+promotion gate/refusal checkpoint is implemented locally and pending supervisor
+review
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
@@ -42,6 +43,13 @@ hook-scope agreement when hook scope is claimed, keeps normal candidate
 generation validator-acceptable, and expands no-write assertions over the known
 generator-owned side-effect paths. It does not write active registered patterns,
 `rules.json` entries, baselines, or hook scope.
+
+Registered promotion gate/refusal checkpoint note: this checkpoint routes
+registered generator requests through the Pattern Authority Manifest validator
+before the still-blocked active write path. It proves missing manifests,
+placeholder authority, and hook-scope mismatch fail closed before writes, and
+that accepted manifest inputs reach the explicit active-write block without
+creating active patterns, baselines, hook scope, or `rules.json` entries.
 
 P3 watch item: when registered rule-pack context is implemented, call
 `validatePatternAuthorityManifest(...)` with `requireRuleReference: true` and

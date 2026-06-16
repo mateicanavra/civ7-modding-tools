@@ -31,6 +31,16 @@
       "type": "string",
       "description": "OpenSpec change id that owns the candidate draft, when known.",
       "default": "habitat-pattern-generator-metadata-repair"
+    },
+    "manifestPath": {
+      "type": "string",
+      "description": "Canonical Pattern Authority Manifest path required for registered lifecycles."
+    },
+    "hookScope": {
+      "type": "string",
+      "description": "Registered rule-pack hook scope requested by the generator invocation. Omit or use none when the manifest is not hook-scoped.",
+      "enum": ["none", "pre-commit"],
+      "default": "none"
     }
   },
   "required": ["ruleId"]

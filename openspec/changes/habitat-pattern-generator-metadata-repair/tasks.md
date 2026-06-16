@@ -44,10 +44,10 @@
 - [x] 4.1 Split candidate pattern generation from registered rule generation.
 - [x] 4.2 Ensure candidate generation does not write `rules.json`, baselines, or
   hook scope.
-- [ ] 4.3 Refuse registered output unless the manifest passes authority,
+- [x] 4.3 Refuse registered output unless the manifest passes authority,
   proving-source, scan-root, fixture, false-positive, current-tree, baseline,
   and hook-scope gates.
-- [ ] 4.4 Remove scaffold/default authority values from the registered path.
+- [x] 4.4 Remove scaffold/default authority values from the registered path.
 - [x] 4.5 Prevent `lane: "enforced"` and `hookScope: "pre-commit"` defaults
   for sparse generator output.
 - [x] 4.6 Preserve duplicate `ruleId`, duplicate `patternName`, and existing
@@ -81,7 +81,7 @@
   manifests.
 - [x] 6.4 Add no-write tests for refused registration.
 - [x] 6.5 Add duplicate id/name tests.
-- [ ] 6.6 Add hook-scope refusal tests.
+- [x] 6.6 Add hook-scope refusal tests.
 - [x] 6.7 Add baseline-manifest dependency tests.
 - [ ] 6.8 Add native Grit sample proof for generated registered samples.
 - [x] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
