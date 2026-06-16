@@ -3,9 +3,10 @@
 **Change:** `habitat-pattern-generator-metadata-repair`
 **Status:** P1/P2 design findings accepted and patched; candidate/refusal,
 manifest-validator, registered-promotion Effect decision, and registered
-manifest/reference contract, registered promotion gate/refusal, and registered
-advisory output checkpoints are supervisor-accepted; registered enforced
-non-hook output checkpoint is implemented locally and pending supervisor review
+manifest/reference contract, registered promotion gate/refusal, registered
+advisory output, and registered enforced non-hook output checkpoints are
+supervisor-accepted; pre-commit hook-scoped promotion remains blocked until a
+hook-owned scope/filter proof is accepted
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
@@ -15,7 +16,8 @@ authority decision.
 Checkpoint note: this branch implements candidate-only sparse generation and
 registered advisory/enforced no-write refusal. It does not close Pattern
 Authority Manifest validation, registered rule promotion, Grit row proof,
-baseline write/shrink proof, hook-scope proof, classify proof, or product proof.
+baseline write/shrink proof, pre-commit hook activation, classify proof, or
+product proof.
 
 Validator checkpoint note: the child branch
 `agent-HR-habitat-pattern-authority-manifest-validator` adds a pure
@@ -61,16 +63,24 @@ Habitat wrapper proof are recorded for a scratch generated advisory rule. It
 does not implement registered enforced output, pre-commit hook activation,
 baseline creation/mutation, HG row semantics, or product/runtime proof.
 
-Registered enforced non-hook output checkpoint note: this checkpoint extends
-the same accepted Effect-backed promotion boundary to registered enforced
-rules whose Pattern Authority Manifest explicitly declares no hook scope. It
-requires the accepted manifest/reference contract, existing explicit baseline
-file, matching rule-introduction baseline manifest, native Grit sample proof,
-and Habitat wrapper current-tree proof before writing active artifacts. It
-writes only the active enforced Grit pattern and `rules.json` reference for the
-scratch proof, then cleans those scratch artifacts. Pre-commit hook scope,
-baseline creation/mutation, HG row semantics, and product/runtime proof remain
-non-claims.
+Registered enforced non-hook output checkpoint note: this supervisor-accepted
+checkpoint extends the same accepted Effect-backed promotion boundary to
+registered enforced rules whose Pattern Authority Manifest explicitly declares
+no hook scope. It requires the accepted manifest/reference contract, existing
+explicit baseline file, matching rule-introduction baseline manifest, native
+Grit sample proof, and Habitat wrapper current-tree proof before writing active
+artifacts. It writes only the active enforced Grit pattern and `rules.json`
+reference for the scratch proof, then cleans those scratch artifacts.
+Pre-commit hook scope, baseline creation/mutation, HG row semantics, and
+product/runtime proof remain non-claims.
+
+Packet closure note: the generator packet is locally closed for candidate,
+registered advisory, and non-hook registered enforced promotion. Pre-commit
+hook-scoped generated rules remain intentionally blocked because the current
+hook path executes native Grit over staged JavaScript/TypeScript paths and does
+not provide a rule-pack-filtered hook-scope contract for newly generated
+patterns. That future repair belongs to the hook owner before any generated
+registered pattern may claim pre-commit activation.
 
 P3 watch item: when registered rule-pack context is implemented, call
 `validatePatternAuthorityManifest(...)` with `requireRuleReference: true` and

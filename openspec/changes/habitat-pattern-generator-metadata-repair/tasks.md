@@ -68,9 +68,10 @@
   duplicate baseline policy in generator code.
 - [x] 5.3 Require native Grit fixture proof and current-tree scan status before
   non-hook enforced registration.
-- [ ] 5.4 Require hook-scope rationale, staged-scope evidence, and cost/scope
-  evidence before pre-commit registration.
-- [ ] 5.5 Keep Grit adapter semantics and existing pattern proof repair outside
+- [x] 5.4 Require hook-scope rationale, staged-scope evidence, and cost/scope
+  evidence before pre-commit registration; pre-commit registration remains
+  blocked by this packet until hook-owned scope proof exists.
+- [x] 5.5 Keep Grit adapter semantics and existing pattern proof repair outside
   this packet.
 
 ## 6. Tests
@@ -89,10 +90,10 @@
   non-hook registered enforced scratch samples.
 - [x] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
   manifest fields cannot substitute for each other.
-- [ ] 6.10 Add tests for the registered-promotion orchestration decision:
+- [x] 6.10 Add tests for the registered-promotion orchestration decision:
   candidate generation without registered writes, accepted Effect-backed
-  promotion when selected, and blocked promotion when the Effect decision is not
-  accepted.
+  promotion when selected, and blocked hook-scoped promotion while the remaining
+  hook decision is not accepted.
 
 ## 7. Downstream Realignment
 
@@ -101,9 +102,9 @@
   manifests.
 - [x] 7.3 Update `habitat-generators-migrations` records to mark the old pattern
   generator closure as historical for authority metadata.
-- [ ] 7.4 Update `habitat-grit-proof-repair` dependencies if existing current
+- [x] 7.4 Update `habitat-grit-proof-repair` dependencies if existing current
   rules require backfilled manifests.
-- [ ] 7.5 Update `habitat-scaffold-contract-repair` downstream records if the
+- [x] 7.5 Update `habitat-scaffold-contract-repair` downstream records if the
   final manifest path or rule-introduction interface changes.
 
 ## 8. Verification
@@ -118,7 +119,7 @@
 - [x] 8.8 Baseline-manifest dependency proof at the manifest/reference
   contract boundary
 - [x] 8.9 README/AGENTS stale guidance scan
-- [ ] 8.10 Full-depth-language guardrail scan over active Habitat initiative
+- [x] 8.10 Full-depth-language guardrail scan over active Habitat initiative
   docs touched by this packet
 - [x] 8.11 `git diff --check`
 - [x] 8.12 `bun run openspec:validate`
@@ -128,9 +129,9 @@
 
 ## 9. Closure
 
-- [ ] 9.1 Record verification results and proof boundaries in
+- [x] 9.1 Record verification results and proof boundaries in
   `workstream/phase-record.md`.
-- [ ] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
-- [ ] 9.3 Ensure downstream realignment ledger is patched or has exact remaining
+- [x] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
+- [x] 9.3 Ensure downstream realignment ledger is patched or has exact remaining
   actions.
-- [ ] 9.4 Commit through Graphite with a clean worktree.
+- [x] 9.4 Commit through Graphite with a clean worktree.

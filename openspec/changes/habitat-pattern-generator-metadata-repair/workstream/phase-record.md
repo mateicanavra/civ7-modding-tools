@@ -7,6 +7,7 @@
   `habitat-pattern-generator-metadata-repair`
 - Owner: DRA Habitat recovery owner
 - Branch/Graphite stack:
+  `agent-HR-habitat-pattern-generator-closure` over
   `agent-HR-habitat-pattern-registered-enforced` over
   `agent-HR-habitat-pattern-registered-advisory` over
   `agent-HR-habitat-pattern-registration-gates` over
@@ -20,10 +21,10 @@
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
 - Status: registered-promotion Effect decision, registered manifest/reference
-  contract, registration gate/refusal, and registered advisory output
-  checkpoints supervisor-accepted; registered enforced non-hook output
-  checkpoint implemented locally and pending supervisor review; hook-scoped
-  writes remain open
+  contract, registration gate/refusal, registered advisory output, and
+  registered enforced non-hook output checkpoints supervisor-accepted; closure
+  checkpoint locally committed and pending supervisor review/repair; hook-scoped
+  writes remain blocked on a hook-owned staged-scope/filter proof
 
 ## Objective
 
@@ -78,9 +79,12 @@
   proof and Habitat wrapper current-tree proof are required for the generated
   scratch rule. Pre-commit hook scope remains blocked until staged-scope and
   hook cost proof are accepted.
-- Full packet done condition remains open: accepted Pattern Authority Manifest
-  validation, baseline-manifest consumption, native fixture/current-tree proof,
-  hook-scope proof, and registered promotion orchestration.
+- Full packet done condition for this repair boundary: accepted Pattern
+  Authority Manifest validation, baseline-manifest consumption,
+  native fixture/current-tree proof, and registered promotion orchestration for
+  candidate, advisory, and non-hook enforced generated rules. Pre-commit
+  hook-scoped generated rules remain a blocked exterior until the hook owner
+  supplies accepted staged-scope/filter proof.
 
 ## Authority
 
@@ -116,13 +120,15 @@
   `tools/habitat-harness/src/rules/pattern-authority/candidates/`.
 - Candidate generation does not write active `.grit` patterns, `rules.json`,
   baselines, or hook scope.
-- `registered-advisory` and `registered-enforced` generation fail closed before
-  writes until Pattern Authority Manifest validation, baseline-manifest
+- `registered-advisory` and non-hook `registered-enforced` generation now fail
+  closed unless Pattern Authority Manifest validation, baseline-manifest
   consumption, current-tree proof, and registered-promotion Effect decision are
-  accepted.
+  accepted. `registered-enforced` generation with pre-commit hook scope still
+  fails closed before active writes.
 - README, root `AGENTS.md`, recovery claim ledger, Grit corpus ledger, and H8
-  generator migration records now describe candidate-only generation and
-  registered promotion as still blocked.
+  generator migration records now describe candidate-only generation,
+  accepted advisory/non-hook enforced registration gates, and the remaining
+  pre-commit hook-scope block.
 - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts` now defines
   the first Habitat-owned Pattern Authority Manifest model and pure validator
   boundary. It performs no command execution, no filesystem mutation, no
@@ -220,8 +226,11 @@ Core synthesis:
 - Completed tasks for the registered advisory output checkpoint: 8.5.
 - Completed tasks for the registered enforced non-hook output checkpoint: 4.7,
   5.3, 6.2, 6.8, 8.6, and 8.7.
-- Remaining tasks: pre-commit hook-scope proof, full guardrail scan,
-  downstream realignment closure, and full packet closure.
+- Completed tasks for the closure checkpoint: 5.4, 5.5, 6.10, 7.4, 7.5, 8.10,
+  9.1, 9.2, and 9.3.
+- Remaining tasks: Graphite commit and supervisor acceptance for this closure
+  checkpoint. Pre-commit hook-scoped generated promotion remains blocked by a
+  hook-owner dependency rather than open generator implementation.
 - Implementation status: bounded candidate/refusal checkpoint accepted by
   supervisor; bounded manifest-validator checkpoint implemented on
   `agent-HR-habitat-pattern-authority-manifest-validator`.
@@ -238,9 +247,15 @@ Core synthesis:
 - Registered advisory output status: supervisor-accepted; advisory promotion
   uses the accepted Habitat Effect runtime edge and writes no baselines, no
   enforced rule, and no hook scope.
-- Registered enforced non-hook output status: implemented locally for
-  supervisor review; enforced promotion uses the accepted Habitat Effect
-  runtime edge and writes no baselines and no hook scope.
+- Registered enforced non-hook output status: supervisor-accepted; enforced
+  promotion uses the accepted Habitat Effect runtime edge and writes no
+  baselines and no hook scope.
+- Closure status: implemented locally for supervisor review. The generator
+  packet is closed for candidate, advisory, and non-hook enforced promotion
+  boundaries; generated pre-commit hook activation remains blocked because the
+  current hook path runs native Grit over staged JavaScript/TypeScript files and
+  does not provide a rule-pack-filtered hook-scope contract for generated
+  patterns.
 
 ## Verification
 
@@ -367,7 +382,8 @@ Core synthesis:
   - `bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts pattern-authority-manifest.test.ts`
     passed: registered advisory success requires accepted manifest, existing
     explicit baseline, matching rule-introduction manifest, and preserves
-    top-level `rules.json` metadata; registered enforced remains blocked.
+    top-level `rules.json` metadata; pre-commit hook-scoped enforced output
+    remains blocked.
   - `bun run --cwd tools/habitat-harness check`
     passed.
   - `bun run nx g @internal/habitat-harness:pattern grit-registered-advisory-proof --lifecycle=registered-advisory --manifestPath=tools/habitat-harness/src/rules/pattern-authority/grit-registered-advisory-proof.json --no-interactive --verbose`
@@ -415,6 +431,30 @@ Core synthesis:
   and Habitat wrapper zero-finding/baseline-integrity behavior. It does not
   prove pre-commit hook activation, baseline creation or mutation, HG row
   semantics, broad current rule backfill, or product/runtime behavior.
+- Commands run for closure checkpoint:
+  - Full-depth-language guardrail scan over active pattern-generator packet
+    records, root generator guidance, Habitat harness README, Grit corpus
+    ledger, recovery ledger, and H8 generator migration records found no
+    remaining current claim that sparse generator invocation is sufficient for
+    active enforcement. The unrelated Effect orchestration evaluation line
+    remains historical context and is not live proof for this packet.
+  - Source inspection of `tools/habitat-harness/src/lib/hooks.ts` shows the
+    current pre-commit path runs native Grit over staged JavaScript/TypeScript
+    paths rather than a rule-pack-filtered `hookScope` contract. Generated
+    pre-commit hook activation therefore remains blocked outside this generator
+    packet.
+  - `bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts pattern-authority-manifest.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run openspec -- validate habitat-pattern-generator-metadata-repair --strict`
+  - `bun run openspec -- validate habitat-generators-migrations --strict`
+  - `bun run openspec:validate`
+  - `git diff --check`
+  - `git ls-files --deleted | wc -l`
+- Closure evidence boundary: this checkpoint proves record truth and the final
+  generator-side diagnostic cleanup for the accepted candidate, advisory, and
+  non-hook enforced promotion surface. It does not prove generated pre-commit
+  hook activation, HG row semantics, current 22-rule manifest backfill,
+  baseline creation/mutation, or product/runtime behavior.
 
 ## Realignment
 
@@ -423,7 +463,6 @@ Core synthesis:
 
 ## Next Action
 
-- Finish local verification and Graphite checkpoint for the registered enforced
-  non-hook output slice, then hold for supervisor acceptance or repair.
-  Remaining packet work is pre-commit hook-scope proof, full guardrail scan,
-  downstream realignment, and full packet closure.
+- Hold for supervisor acceptance or repair. Do not implement generated
+  pre-commit hook activation until the hook owner supplies accepted
+  staged-scope/filter proof.

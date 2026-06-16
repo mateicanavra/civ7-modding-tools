@@ -181,7 +181,7 @@ function validateRegisteredBaselineContract(store, manifest) {
       return yield* fail(
         "baseline-contract-rejected",
         manifest.ruleId,
-        `rule-introduction baseline manifest '${baseline.ruleIntroductionManifest}' must already exist before advisory registration`
+        `rule-introduction baseline manifest '${baseline.ruleIntroductionManifest}' must already exist before registered promotion`
       );
     }
 
