@@ -67,7 +67,20 @@
 - [ ] 5.8 Live Civ7 proof with branch, commit, command/API path, timestamps,
       relevant logs, and parsed payload shape.
 - [x] 5.9 If Civ7 is unavailable, write `workstream/next-packet.md` and leave
-      D10 not-green for live behavior.
+      D10 not-green for live-game watcher behavior.
+
+Live-proof reconciliation note, 2026-06-16:
+
+- D12 later ran live Run in Game and Save&Deploy state-machine proof through
+  Nx Studio, `studio.events.watch`, keyed status, and
+  `studio.operations.current({})`.
+- That proof consumes the broad operation/product handoff from D10/D11, but it
+  does not explicitly prove D10's live-game watcher-specific subclaims: first
+  retained `live-game`, reconnect replay, unchanged-key quiet behavior, and
+  changed live-game state publication against a real Civ7 session.
+- Task 5.8 therefore remains open as a narrowed live-game watcher proof gap,
+  not as a blocker for D12 drain or Run in Game / Save&Deploy state-machine
+  closure.
 
 ## 6. Closure
 

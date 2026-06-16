@@ -8,7 +8,7 @@
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/runtime-effect-nx-dev-runner`
 - Status: implementation committed at current branch tip; live Civ7
-  Play/SaveDeploy proof is not-green and handed off in `next-packet.md`
+  Play/SaveDeploy proof consumed by D12 live state-machine pass
 
 ## Objective
 
@@ -19,8 +19,8 @@
   changes.
 - Done condition: D11 implementation lands as its own Graphite slice with Nx
   target topology, process deletion targets, proof gates, live operation
-  stability handoff, baseline stop conditions, and downstream D12 residue
-  realignment recorded truthfully.
+  stability handoff or downstream proof consumption, baseline stop conditions,
+  and downstream D12 residue realignment recorded truthfully.
 
 ## Gate 1 - Frame
 
@@ -147,13 +147,13 @@ D11 implementation closure requires:
 - shortcut scan has no active fallback/dual-path/Turbo/app-supervisor target.
 - running process proof shows Nx-owned daemon/frontend, no `devLive.ts`, and
   no daemon `bun --watch`.
-- live Play/SaveDeploy proof is either run or carried as an explicit not-green
-  next packet; current D11 does not claim live product proof.
+- live Play/SaveDeploy proof is either run or consumed by a downstream proof
+  record; D12 consumed this with a live state-machine pass through the D11 Nx
+  Studio runner.
 - Graphite/worktree state is clean after commit.
 
 ## Next Action
 
-After the closure-record/message amend, verify `git status --short --branch`
-is clean on D11 before moving to D12. D12 consumes D11's process-proof,
-live-proof gap, lint disposition, and EventHub/runtime-residue outputs for
-final closeout.
+D11's live operation proof handoff is closed by D12 proof consumption. Future
+work should not reopen D11 unless Nx dev topology or Play/SaveDeploy behavior
+changes.
