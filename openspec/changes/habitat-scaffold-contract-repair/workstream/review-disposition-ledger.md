@@ -1,10 +1,11 @@
 # Review Disposition Ledger
 
 **Change:** `habitat-scaffold-contract-repair`
-**Status:** implementation checkpoint complete on
-`agent-HR-habitat-scaffold-contract-repair`; accepted design findings,
-supervisor residue finding, and `ES-01` trusted-base proof finding are repaired
-in the committed Graphite checkpoint
+**Status:** implementation checkpoint supervisor-accepted for the typed
+baseline contract boundary. Accepted design findings, supervisor residue
+finding, and `ES-01` trusted-base proof finding are repaired; the current
+packet-record closure checkpoint is locally implemented for supervisor
+acceptance or repair.
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
