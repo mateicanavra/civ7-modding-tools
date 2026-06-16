@@ -1,9 +1,9 @@
 # Review Disposition Ledger
 
 **Change:** `habitat-classify-generator-repair`
-**Status:** P1/P2 review findings dispositioned; classify/generator repair slices
-implemented through stale-guidance and downstream realignment; final packet
-acceptance pending supervisor review
+**Status:** P1/P2 review findings dispositioned; classify/generator repair
+slices are supervisor-accepted, and the final packet-record closure checkpoint
+is locally implemented for supervisor acceptance or repair.
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with

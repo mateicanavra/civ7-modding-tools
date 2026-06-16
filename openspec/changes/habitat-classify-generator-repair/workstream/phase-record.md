@@ -11,10 +11,13 @@
 - Started: 2026-06-14
 - Status: classify target-truth, path-aware rule-scope, generator
   support/refusal, generator scratch discovery/target-matrix, migration
-  proof-boundary, committed scratch discovery tests, classify matrix, and
-  representative Nx target-existence checkpoints are supervisor-accepted.
-  Stale guidance and downstream realignment are implemented in the current
-  slice; final packet acceptance remains pending supervisor review.
+  proof-boundary, committed scratch discovery tests, classify matrix,
+  representative Nx target-existence, and stale-guidance/downstream
+  realignment checkpoints are supervisor-accepted. This final packet-record
+  closure checkpoint is locally implemented for supervisor acceptance or
+  repair, and preserves the accepted non-claims for convention migration,
+  non-uniform/domain generators, HG row semantics, CI execution, and
+  product/runtime behavior.
 
 ## Objective
 
@@ -169,7 +172,8 @@ Core synthesis:
 
 - Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
   6.1-6.3, 7.1-7.11, 8.1-8.7, 9.1-9.13, and 10.1-10.4.
-- Remaining tasks: final supervisor review/acceptance.
+- Remaining tasks: supervisor acceptance or repair of this final packet-record
+  closure checkpoint.
 - Implementation status: target-truth slice committed as a bounded checkpoint;
   path-aware rule-scope slice committed and supervisor-accepted; generator
   support/refusal slice committed and supervisor-accepted; generator scratch
@@ -179,8 +183,10 @@ Core synthesis:
   coverage committed and supervisor-accepted; classify matrix test coverage
   committed and supervisor-accepted; Nx target-existence proof matrix committed
   and supervisor-accepted; stale guidance/downstream realignment implemented in
-  the current slice. Full packet acceptance remains open until supervisor
-  review.
+  the current slice. This checkpoint records final packet closure for the
+  accepted classify/generator proof boundary pending supervisor disposition;
+  convention migrations, non-uniform/domain generators, HG row semantics, CI
+  execution, and product/runtime behavior remain outside this packet's closure.
 
 ## Verification
 
@@ -326,5 +332,5 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor review of the committed stale-guidance/downstream
-  realignment and final packet-record checkpoint.
+- Hold this final packet-record closure checkpoint for supervisor acceptance or
+  repair before opening another classify/generator repair slice.
