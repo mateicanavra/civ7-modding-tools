@@ -22,6 +22,9 @@ record truth for `habitat-grit-proof-recipe-imports-in-domain`.
 ## What Changes
 
 - Add `.grit/patterns/habitat/checks/recipe_imports_in_domain.md`.
+- Repair the predicate/fixture boundary so dynamic imports from recipe modules
+  in domain `.ts` source are recurrence violations, with source-string and
+  lookalike controls preserved.
 - Register `grit-recipe-imports-in-domain` as an enforced Grit check scoped to
   `mods/mod-swooper-maps/src/domain/**/*.ts`.
 - Add explicit empty baseline
@@ -36,7 +39,6 @@ record truth for `habitat-grit-proof-recipe-imports-in-domain`.
 - No domain or recipe source is changed.
 - No source remediation or apply/codemod safety is claimed.
 - No raw direct Grit acquisition is claimed.
-- No dynamic import closure is claimed unless separately proven.
 - No classify/generator behavior, broader domain-refactor closure, or
   product/runtime proof is claimed.
 

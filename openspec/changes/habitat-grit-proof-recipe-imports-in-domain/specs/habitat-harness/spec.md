@@ -27,8 +27,9 @@ behavior, and downstream record truth.
 
 ### Requirement: Domain Source Avoids Recipe Imports
 
-Swooper domain `.ts` source SHALL avoid static imports or re-exports from
-recipe modules under the current `grit-recipe-imports-in-domain` predicate.
+Swooper domain `.ts` source SHALL avoid static imports, dynamic imports, or
+re-exports from recipe modules under the current
+`grit-recipe-imports-in-domain` predicate.
 
 #### Scenario: Domain source imports a recipe module
 
@@ -42,10 +43,16 @@ recipe modules under the current `grit-recipe-imports-in-domain` predicate.
   a recipe alias or relative `../recipes` source
 - **THEN** `grit-recipe-imports-in-domain` SHALL report the re-export
 
-#### Scenario: Non-domain or non-static source classes appear
+#### Scenario: Domain source dynamically imports a recipe module
+
+- **WHEN** a Swooper domain `.ts` file uses a dynamic import expression from a
+  recipe alias or relative `../recipes` source
+- **THEN** `grit-recipe-imports-in-domain` SHALL report the dynamic import
+
+#### Scenario: Non-domain or source-lookalike classes appear
 
 - **WHEN** the same source strings appear in recipe files, `.tsx` files, other
-  mods, source strings, dynamic imports, or recipe-looking source lookalikes
+  mods, source strings, or recipe-looking source lookalikes
 - **THEN** this row SHALL classify them as controls or non-claims, not as
   current-row violations
 
@@ -63,6 +70,6 @@ Habitat SHALL keep proof classes separate for
   inventory, and injected-probe evidence before treating those proof classes as
   satisfied for this registered row
 - **AND** row records SHALL keep raw direct Grit acquisition, source
-  remediation, dynamic import closure, classify/generator behavior, retired
-  parity, apply safety, broader domain-refactor closure, and product proof as
-  separate non-claims unless separately proven
+  remediation, classify/generator behavior, retired parity, apply safety,
+  broader domain-refactor closure, and product proof as separate non-claims
+  unless separately proven

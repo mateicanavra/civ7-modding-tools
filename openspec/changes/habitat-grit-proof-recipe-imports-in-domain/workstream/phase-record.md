@@ -14,13 +14,14 @@ are present.
 - Owner: Habitat Grit check row.
 - Scan root: `mods/mod-swooper-maps/src/domain`.
 - Current predicate: Swooper domain `.ts` files importing or re-exporting recipe
-  modules through explicit alias or relative `../recipes` source declarations.
+  modules through explicit alias or relative `../recipes` source declarations,
+  including dynamic import expressions.
 
 ## Non-Claims
 
-No raw direct Grit acquisition, source remediation, dynamic import closure,
-apply safety, classify/generator behavior, retired parity, broader
-domain-refactor closure, or product/runtime proof is claimed.
+No raw direct Grit acquisition, source remediation, apply safety,
+classify/generator behavior, retired parity, broader domain-refactor closure,
+or product/runtime proof is claimed.
 
 ## Next Actions
 
