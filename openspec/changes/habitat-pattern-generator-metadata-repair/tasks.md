@@ -28,10 +28,12 @@
 
 - [x] 3.1 Add a structured Pattern Authority Manifest schema with the accepted
   fields from `design.md`.
-- [ ] 3.2 Store manifests as source artifacts adjacent to the Habitat rule pack.
+- [x] 3.2 Define and validate registered manifest source-artifact storage
+  adjacent to the Habitat rule pack.
 - [x] 3.3 Add validation for missing, malformed, placeholder, contradicted, and
   orphan manifest states.
-- [ ] 3.4 Add `rules.json` manifest references for generated registered rules.
+- [x] 3.4 Add the `rules.json` `manifestPath` reference contract for
+  generated registered rules; actual registered writes remain open.
 - [x] 3.5 Validate that Habitat authority metadata is not accepted solely from
   Grit frontmatter or prose.
 - [x] 3.6 Validate that Nx generator schema fields are treated as option/prompt
@@ -48,7 +50,7 @@
 - [ ] 4.4 Remove scaffold/default authority values from the registered path.
 - [x] 4.5 Prevent `lane: "enforced"` and `hookScope: "pre-commit"` defaults
   for sparse generator output.
-- [ ] 4.6 Preserve duplicate `ruleId`, duplicate `patternName`, and existing
+- [x] 4.6 Preserve duplicate `ruleId`, duplicate `patternName`, and existing
   baseline refusal behavior.
 - [ ] 4.7 Emit Grit-native frontmatter and explicit language declaration for
   registered generated patterns.
@@ -58,9 +60,11 @@
 
 ## 5. Baseline, Grit, And Hook Boundaries
 
-- [ ] 5.1 Consume the accepted rule-introduction baseline manifest contract from
-  `habitat-scaffold-contract-repair`.
-- [ ] 5.2 Keep baseline file creation/refusal under the baseline owner; do not
+- [x] 5.1 Consume the accepted rule-introduction baseline manifest contract
+  shape from `habitat-scaffold-contract-repair` as a required registered
+  manifest reference; baseline write behavior remains owned by the baseline
+  packet.
+- [x] 5.2 Keep baseline file creation/refusal under the baseline owner; do not
   duplicate baseline policy in generator code.
 - [ ] 5.3 Require native Grit fixture proof and current-tree scan status before
   enforced registration.
@@ -76,9 +80,9 @@
 - [x] 6.3 Add schema tests for missing, malformed, placeholder, and accepted
   manifests.
 - [x] 6.4 Add no-write tests for refused registration.
-- [ ] 6.5 Add duplicate id/name tests.
+- [x] 6.5 Add duplicate id/name tests.
 - [ ] 6.6 Add hook-scope refusal tests.
-- [ ] 6.7 Add baseline-manifest dependency tests.
+- [x] 6.7 Add baseline-manifest dependency tests.
 - [ ] 6.8 Add native Grit sample proof for generated registered samples.
 - [x] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
   manifest fields cannot substitute for each other.
@@ -108,7 +112,8 @@
 - [ ] 8.5 Registered advisory generation proof
 - [ ] 8.6 Registered enforced generation proof in scratch path
 - [ ] 8.7 Native Grit fixture proof
-- [ ] 8.8 Baseline-manifest dependency proof
+- [x] 8.8 Baseline-manifest dependency proof at the manifest/reference
+  contract boundary
 - [x] 8.9 README/AGENTS stale guidance scan
 - [ ] 8.10 Full-depth-language guardrail scan over active Habitat initiative
   docs touched by this packet

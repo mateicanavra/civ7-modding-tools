@@ -35,7 +35,7 @@ function normalizeOptions(rawOptions) {
     lifecycle: normalizeLifecycle(rawOptions.lifecycle ?? "candidate"),
     identifier: identifierFor(patternName),
     ownerProject: rawOptions.ownerProject ?? "@internal/habitat-harness",
-    openspecChangeId: rawOptions.openspecChangeId ?? "candidate-draft",
+    openspecChangeId: rawOptions.openspecChangeId ?? "habitat-pattern-generator-metadata-repair",
   };
 }
 

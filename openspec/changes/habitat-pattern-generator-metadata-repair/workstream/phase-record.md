@@ -7,6 +7,7 @@
   `habitat-pattern-generator-metadata-repair`
 - Owner: DRA Habitat recovery owner
 - Branch/Graphite stack:
+  `agent-HR-habitat-pattern-authority-registration-contract` over
   `agent-HR-habitat-pattern-authority-effect-decision` over
   `agent-HR-habitat-pattern-authority-manifest-validator` over
   `agent-HR-habitat-pattern-generator-metadata-repair` over
@@ -15,7 +16,8 @@
   `agent-HR-habitat-effect-grit-adapter` over
   `agent-HR-habitat-repair-chain` over `main`
 - Started: 2026-06-14
-- Status: registered-promotion Effect decision checkpoint implemented and
+- Status: registered-promotion Effect decision checkpoint supervisor-accepted;
+  registered manifest/reference contract checkpoint implemented locally and
   pending supervisor review; registered manifest promotion remains open
 
 ## Objective
@@ -36,12 +38,20 @@
   placeholder, contradicted, orphan, Grit-only, and Nx-options-only authority
   states without writing registered artifacts.
 - Current decision checkpoint condition: registered Pattern Authority promotion
-  has an implemented substrate/proof-contract proposal pending supervisor
-  acceptance before implementation: future promotion orchestration should
-  consume the Habitat Effect runtime/process substrate and service boundaries
-  for command proof, no-write proof, scoped file transactions,
-  baseline-manifest consumption, hook-scope proof, cleanup, and durable proof
-  records if this checkpoint is accepted.
+  has a supervisor-accepted substrate/proof-contract decision: future promotion
+  orchestration should consume the Habitat Effect runtime/process substrate and
+  service boundaries for command proof, no-write proof, scoped file
+  transactions, baseline-manifest consumption, hook-scope proof, cleanup, and
+  durable proof records.
+- Current reference-contract checkpoint condition: registered manifests have a
+  canonical source-artifact path adjacent to the Habitat rule pack; `rules.json`
+  references have a complete typed identity contract for manifest path, pattern
+  name, owner tool, lifecycle lane, and hook-scope agreement where hook scope is
+  claimed; the validator rejects registered manifests stored under candidate
+  paths, sparse or contradicted rule-pack references, and placeholder
+  baseline-introduction references; generator tests preserve candidate manifest
+  validity plus duplicate rule id, duplicate pattern name, and existing baseline
+  refusal before writes across known generator-owned side-effect paths.
 - Full packet done condition remains open: accepted Pattern Authority Manifest
   validation, baseline-manifest consumption, native fixture/current-tree proof,
   hook-scope proof, and registered promotion orchestration.
@@ -97,6 +107,9 @@
   file transactions, scratch resources, baseline-manifest consumption, or
   hook-scope proof orchestration. Candidate generation and pure manifest
   validation remain non-Effect paths because they do not own those effects.
+- Generated candidate manifests now default `openspecChangeId` to this owning
+  packet rather than placeholder text and validate as candidate-state manifests
+  through `validatePatternAuthorityManifest(...)`.
 
 ## Source Synthesis
 
@@ -113,11 +126,10 @@ Core synthesis:
 - registered promotion must run the Effect fit decision before growing command,
   no-write, scoped file, scratch-resource, rollback/diff, baseline-manifest, or
   hook-scope orchestration.
-- the Effect fit decision record for future registered promotion now proposes
+- the Effect fit decision record for future registered promotion now selects
   the existing Habitat Effect substrate as the owner-layer fit for
-  orchestration, while keeping registered promotion implementation, rules.json
-  references, baseline-manifest consumption, hook scope, and proof commands
-  open pending supervisor review.
+  orchestration, while keeping registered promotion implementation,
+  baseline-manifest consumption, hook scope, and proof commands open.
 
 ## Scope
 
@@ -165,19 +177,23 @@ Core synthesis:
 - Completed tasks for the manifest-validator checkpoint: 3.1, 3.3, 3.5, 3.6,
   6.3, 6.9, and 8.2.
 - Completed tasks for the Effect decision checkpoint: 8.13.
-- Remaining tasks: source-artifact storage for registered manifests,
-  `rules.json` manifest references, registered advisory/enforced promotion,
-  baseline-manifest consumption, native Grit fixture/current-tree proof,
-  hook-scope proof, full guardrail scan, registered-promotion orchestration
-  tests/implementation, and full packet closure.
+- Completed tasks for the registered manifest/reference contract checkpoint:
+  3.2, 3.4, 4.6, 5.1, 5.2, 6.5, 6.7, and 8.8.
+- Remaining tasks: registered manifest writes through the source-artifact path,
+  registered advisory/enforced promotion, live baseline-manifest consumption,
+  native Grit fixture/current-tree proof, hook-scope proof, full guardrail
+  scan, registered-promotion orchestration tests/implementation, and full
+  packet closure.
 - Implementation status: bounded candidate/refusal checkpoint accepted by
   supervisor; bounded manifest-validator checkpoint implemented on
   `agent-HR-habitat-pattern-authority-manifest-validator`.
-- Effect decision status: bounded decision checkpoint implemented on
-  `agent-HR-habitat-pattern-authority-effect-decision`. This checkpoint records
-  the proposed service boundary and failure classes for future registered
-  promotion pending supervisor review, but does not implement registered
-  advisory/enforced writes.
+- Effect decision status: bounded decision checkpoint accepted by supervisor.
+  This checkpoint records the service boundary and failure classes for future
+  registered promotion, but does not implement registered advisory/enforced
+  writes.
+- Registered manifest/reference contract status: implemented locally for
+  supervisor review; no active registered pattern, baseline, hook scope, or
+  rule-pack write is committed.
 
 ## Verification
 
@@ -261,6 +277,24 @@ Core synthesis:
   contracts. It does not prove registered promotion command behavior,
   current-tree scans, baseline writes/shrinks, hook behavior, active rule-pack
   mutation, or product/runtime behavior.
+- Commands run for registered manifest/reference contract checkpoint:
+  - `bun run --cwd tools/habitat-harness test -- pattern-authority-manifest.test.ts pattern-generator.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run openspec -- validate habitat-pattern-generator-metadata-repair --strict`
+  - `bun run openspec:validate`
+  - `git diff --check HEAD~1..HEAD`
+  - `git diff --check`
+  - `git ls-files --deleted | wc -l`
+  - `git status --short --branch`
+- Registered manifest/reference evidence boundary: this checkpoint proves the
+  pure validator/reference contract and generator refusal surfaces. Candidate
+  generation emits validator-acceptable candidate manifests; registered
+  validation requires complete rule-pack identity fields and hook-scope agreement
+  when a manifest claims pre-commit scope; registered and collision refusals
+  preserve known generator-owned side-effect paths before writes. This does not
+  write active registered patterns, mutate `rules.json`, create baselines, enable
+  hook scope, consume live baseline manifests, run native/current-tree Grit
+  proof, or implement registered promotion.
 
 ## Realignment
 
@@ -269,8 +303,7 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor review or repair demand on the committed Effect decision
-  checkpoint. Do not implement registered advisory/enforced writes,
-  `rules.json` references, baselines, hook scope, or HG row-owned proof until
-  this decision checkpoint is reviewed and explicitly sequenced into a
-  registered-promotion implementation slice.
+- Hold for supervisor acceptance or repair demand on the committed registration
+  contract checkpoint. Remaining packet work is registered advisory/enforced
+  writes and promotion, live baseline-manifest consumption, native/current-tree
+  Grit proof, hook-scope proof, and full packet closure.

@@ -83,20 +83,21 @@ rules are safe to harden.
    for any registered generated-rule write path that touches baselines or
    command-selected rule registration.
 8. Registered promotion must not grow another manual orchestration routine.
-   `workstream/effect-promotion-decision.md` records a supervisor-pending
-   proposal to use the existing Habitat Effect substrate for future
+   `workstream/effect-promotion-decision.md` records the supervisor-accepted
+   decision to use the existing Habitat Effect substrate for future
    registered-promotion orchestration, with typed services for manifest,
    rule-pack, baseline-introduction, command, filesystem, clock, and reporting
    boundaries.
 
 ## Uncertainties
 
-- Exact manifest storage path should be confirmed during implementation; this
-  packet proposes `tools/habitat-harness/src/rules/pattern-authority/<rule-id>.json`.
+- Registered manifest storage is now the canonical source artifact path
+  `tools/habitat-harness/src/rules/pattern-authority/<rule-id>.json`; future
+  registered writes must use that path.
 - The candidate artifact path needs implementation proof that native Grit will
   not import candidate patterns as active checks.
 - Existing 22 Grit rules may later need manifest backfill, but that belongs to
   `habitat-grit-proof-repair` or per-pattern packets.
-- The proposed Effect service boundary for registered promotion is recorded in
-  `workstream/effect-promotion-decision.md` and is pending supervisor review;
-  implementation of those services and registered writes remains future work.
+- The accepted Effect service boundary for registered promotion is recorded in
+  `workstream/effect-promotion-decision.md`; implementation of those services
+  and registered writes remains future work.

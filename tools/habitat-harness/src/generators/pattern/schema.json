@@ -30,7 +30,7 @@
     "openspecChangeId": {
       "type": "string",
       "description": "OpenSpec change id that owns the candidate draft, when known.",
-      "default": "candidate-draft"
+      "default": "habitat-pattern-generator-metadata-repair"
     }
   },
   "required": ["ruleId"]

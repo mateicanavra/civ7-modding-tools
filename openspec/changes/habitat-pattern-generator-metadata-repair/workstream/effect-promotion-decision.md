@@ -3,21 +3,19 @@
 **Change:** `habitat-pattern-generator-metadata-repair`
 **Checkpoint branch:** `agent-HR-habitat-pattern-authority-effect-decision`
 **Date:** 2026-06-15
-**Status:** implemented substrate decision record pending supervisor review;
-no registered writes implemented in this checkpoint
+**Status:** supervisor-accepted substrate decision; no registered writes
+implemented in this checkpoint
 
-## Decision Proposal Pending Supervisor Acceptance
+## Accepted Decision
 
 Registered Pattern Authority promotion should use the accepted Habitat Effect
-substrate for command/file proof orchestration if this decision record is
-accepted, when it crosses from pure manifest validation into registered
-advisory or registered enforced writes.
+substrate for command/file proof orchestration when it crosses from pure
+manifest validation into registered advisory or registered enforced writes.
 
-This records the proposed adoption decision for the future promotion
-implementation boundary and is pending supervisor review. It is not an
-implementation of registered generation. This checkpoint does not write active
-Grit patterns, `rules.json` entries, baseline files, hook scope, or current-tree
-proof artifacts.
+This records the adoption decision for the future promotion implementation
+boundary. It is not an implementation of registered generation. This checkpoint
+does not write active Grit patterns, `rules.json` entries, baseline files, hook
+scope, or current-tree proof artifacts.
 
 Candidate generation and pure manifest validation remain plain TypeScript/Nx
 generator and in-memory validation paths because they do not execute commands,
@@ -53,7 +51,7 @@ manifests, or perform hook-scope proof.
   implementation must add its own focused tests; this parity test is substrate
   evidence only.
 
-## Proposed Service Boundary Pending Review
+## Service Boundary For Future Promotion
 
 The future registered-promotion implementation must consume or introduce Effect
 services at the orchestration boundary, preserving the existing
