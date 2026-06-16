@@ -33,15 +33,14 @@ MapGen core and engine source SHALL avoid Civ7 runtime value imports,
 `/base-standard/` imports, and direct member access on Civ7 engine globals under
 the current `grit-mapgen-core-runtime-civ7` predicate.
 
-#### Scenario: Current predicate file imports a Civ7 runtime value but native predicate behavior does not report it
+#### Scenario: Current predicate file imports a Civ7 runtime value
 
 - **WHEN** a matching `packages/mapgen-core/src/core/**/*.ts` or
   `packages/mapgen-core/src/engine/**/*.ts` file imports a value from
   `@civ7/adapter`, `@civ7/adapter/civ7`, or `/base-standard/...`
-- **THEN** this checkpoint SHALL record whether native Grit reports the import
-- **AND** if native Grit does not report it, the proof record SHALL label
-  import-class enforcement as a predicate-gap blocker rather than clean row
-  closure
+- **THEN** `grit-mapgen-core-runtime-civ7` SHALL report the import
+- **AND** pure type-only imports SHALL remain controls unless future row
+  authority deliberately broadens this check beyond runtime value coupling
 
 #### Scenario: Current predicate file references a Civ7 runtime global member
 
@@ -67,11 +66,11 @@ the current `grit-mapgen-core-runtime-civ7` predicate.
 Habitat SHALL keep proof classes separate for
 `grit-mapgen-core-runtime-civ7`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Non-row proof remains unavailable
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, or apply safety is not available in the
-  current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** raw acquisition, Effect adapter behavior, apply safety, retired
+  parity, neighboring rows, or product/runtime behavior is not proven by this
+  row
+- **THEN** row records SHALL label those proof classes as non-claims
+- **AND** the row SHALL NOT close those gates through native fixtures, parser
+  inventory, wrapper proof, baseline proof, or injected proof

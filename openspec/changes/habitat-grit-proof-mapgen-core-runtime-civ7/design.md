@@ -1,17 +1,18 @@
-# Design - MapGen Core Runtime Civ7 Proof
+# Design - MapGen Core Runtime Civ7 Closure
 
 ## Frame
 
 ### Objective
 
-Make `grit-mapgen-core-runtime-civ7` truthful as a row-owned Habitat blocker
-checkpoint for the current Grit predicate.
+Close `grit-mapgen-core-runtime-civ7` as an active, registered Habitat Grit
+check for MapGen core/engine runtime-coupling syntax.
 
 ### Product Movement
 
-This row helps Habitat preserve the MapGen owner boundary before agents edit
-core generation logic: pure engine code stays portable and testable, while
-Civ7 runtime values stay behind adapter/control surfaces.
+MapGen core is a pure TypeScript engine. This row keeps runtime Civ7 adapter
+values, `/base-standard/` runtime paths, and direct engine globals out of
+`packages/mapgen-core/src/core` and `packages/mapgen-core/src/engine` so
+future edits do not reintroduce adapter-layer coupling.
 
 ### Selection
 
@@ -20,128 +21,118 @@ Civ7 runtime values stay behind adapter/control surfaces.
 - Pattern file: `.grit/patterns/habitat/checks/mapgen_core_runtime_civ7.md`
 - Owner layer: `grit-check`
 - Registry scope: `packages/mapgen-core/src/{core,engine}/**/*.ts`
-- Current Grit predicate scope:
-  `packages/mapgen-core/src/core/**/*.ts` and
+- Predicate scope: `packages/mapgen-core/src/core/**/*.ts` and
   `packages/mapgen-core/src/engine/**/*.ts`
-- Textual predicate classes:
-  - imports from `@civ7/adapter`, `@civ7/adapter/civ7`, or
-    `/base-standard/...` under the current predicate;
-  - side-effect imports from `/base-standard/...` under the current predicate;
+- Predicate classes:
+  - value-bearing static imports from `@civ7/adapter`,
+    `@civ7/adapter/civ7`, or `/base-standard/...`;
+  - side-effect imports from the same runtime sources;
+  - mixed value/type imports where at least one imported binding is a value;
   - member expressions on `GameplayMap`, `TerrainBuilder`,
     `ResourceBuilder`, `FeatureBuilder`, `AreaBuilder`,
-    `MapConstructibles`, or `GameInfo` under the current predicate.
-- Proven native behavior in this checkpoint: runtime global member expressions
-  report; import classes do not report and are recorded as a predicate gap.
+    `MapConstructibles`, or `GameInfo`.
+- Explicit controls:
+  - pure `import type` adapter imports;
+  - single-line pure inline `import { type ... }` adapter imports;
+  - paths outside core/engine, `.tsx`, package/test paths, source lookalikes,
+    and local identifier-name lookalikes.
 
 ### Hard Core
 
 1. This is a check proof, not an apply proof.
-2. Current predicate proof covers `packages/mapgen-core/src/core/**/*.ts` and
-   `packages/mapgen-core/src/engine/**/*.ts` only.
-3. Native fixture proof, parser inventory, Habitat wrapper behavior, raw Grit
-   acquisition, injected proof, baseline behavior, and product proof are
-   separate proof classes.
-4. Type-only adapter imports are a required parser-edge classification because
-   existing MapGen core files import adapter types.
-5. Current parser inventory is not Habitat wrapper enforcement proof.
-6. Clean row closure is blocked because import-class predicate behavior does
-   not match the row/registry intent.
+2. Type-only adapter imports are not runtime coupling for this row because the
+   registry forbids adapter value imports and runtime globals.
+3. Native fixtures, parser inventory, Habitat wrapper behavior, baseline
+   behavior, injected proof, and product/runtime behavior are separate proof
+   classes.
+4. Parser inventory can prove zero current-source candidates, but not raw Grit
+   acquisition or product behavior.
+5. This row does not mutate MapGen source because the repaired current
+   predicate has zero live value-bearing candidates.
 
 ### Exterior
 
-- MapGen source remediation or migration.
-- Predicate repair for broader runtime-coupling syntax.
-- SDK mapgen entrypoint proof, adapter base-standard import proof, or
-  direct-control/runtime product proof.
-- Baseline mutation.
+- Broad type-reference policy for MapGen core.
+- SDK mapgen entrypoint proof, adapter base-standard import proof,
+  direct-control/runtime product proof, or neighboring row closure.
+- Source remediation or migration.
+- Generic apply/codemod safety.
+- Raw direct Grit acquisition and Effect adapter proof.
 - Product/runtime Civ7 behavior.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if live intended runtime-coupling candidates are found but recorded
-as a clean pass without owner disposition, if type-only adapter imports are
-hidden instead of classified, if the import predicate gap is represented as
-clean enforcement closure, if temporary inventory artifacts are cited as
-durable proof, or if neighboring runtime/adapter rows are treated as proven by
-this row.
+This checkpoint fails if value-bearing import fixtures do not report, if pure
+type-only imports report, if current source has live value-bearing candidates
+that are recorded as clean, if wrapper/injected proof is inferred from native
+fixtures alone, or if raw acquisition/product proof is claimed.
 
 ## Source Synthesis
 
-`packages/mapgen-core/AGENTS.md` defines MapGen core as pure TypeScript domain
-logic and says direct Civ7 engine imports do not belong there; engine
-interaction goes through `@civ7/adapter` and `MapGenContext.adapter`.
+`packages/mapgen-core/AGENTS.md` and `packages/mapgen-core/src/AGENTS.md`
+define MapGen core as pure TypeScript domain logic. Runtime Civ7 interaction
+goes through adapter/control layers.
 
 `rules.json` registers `grit-mapgen-core-runtime-civ7` as an enforced
-`grit-check` for `@swooper/mapgen-core`, scoped to
-`packages/mapgen-core/src/{core,engine}/**/*.ts`, forbidding Civ7 adapter value
-imports, `/base-standard` paths, and runtime globals.
+`grit-check` scoped to `packages/mapgen-core/src/{core,engine}/**/*.ts`,
+forbidding Civ7 adapter value imports, `/base-standard` paths, and runtime
+globals.
 
-`taxonomy.md` classifies `@swooper/mapgen-core` as `kind:engine`: pure TS
-engine/domain logic with no Civ7 runtime values or engine globals.
+`taxonomy.md`, `invariant-corpus.md`, and the engine-refactor packet record
+the same owner boundary: MapGen core is `kind:engine` and should not depend on
+Civ7 runtime values.
 
-`invariant-corpus.md` records normalization guardrail G3 and core-purity
-lineage for MapGen core production code.
-
-`grit-pattern-corpus-ledger.md` requests positive Civ7 runtime imports,
-negative authoring/adapter boundaries, parser-edge type imports, current
-MapGen core scan, empty locked baseline unless findings prove otherwise, and
-non-apply disposition.
-
-`grit-proof-matrix.md` records a design seed with one match and one ignore and
-marks parser-edge and false-positive classification pending.
+The accepted `habitat-grit-core-purity-wrapped-test` row is adjacent context:
+it proves a wrapped-test source scan for MapGen core production purity. This
+row remains Grit-owned and proves the registered Grit syntax guard.
 
 ## Fixture Matrix
 
-| Class | Expected current-predicate behavior |
+| Class | Expected behavior |
 | --- | --- |
-| Core/engine value import from `@civ7/adapter` | Does not report under current native behavior; predicate-gap blocker |
-| Core/engine value import from `@civ7/adapter/civ7` | Does not report under current native behavior; predicate-gap blocker |
-| Core/engine value import from `/base-standard/...` | Does not report under current native behavior; predicate-gap blocker |
-| Core/engine side-effect import from `/base-standard/...` | Does not report under current native behavior; predicate-gap blocker |
+| Core/engine value import from `@civ7/adapter` | Reports |
+| Core/engine value import from `@civ7/adapter/civ7` | Reports |
+| Core/engine value import from `/base-standard/...` | Reports |
+| Core/engine side-effect import from adapter or `/base-standard/...` | Reports |
+| Core/engine mixed value/type import from adapter | Reports |
 | Core/engine member expression on listed Civ7 globals | Reports |
-| Core/engine type-only adapter import | Does not report under current native behavior; parser-edge/policy-disposition blocker |
-| Authoring, adapter-style, package, map, test, `.tsx`, and non-core/engine paths | Do not report under current predicate |
+| Core/engine pure `import type` adapter import | Does not report |
+| Core/engine pure inline `import { type ... }` adapter import | Does not report |
+| Authoring, adapter-style, package, map, test, `.tsx`, and non-core/engine paths | Do not report |
 | Source lookalikes such as `@civ7/adapterish` or `/base-standardish/...` | Do not report |
-| Local identifiers or interface names that merely contain runtime global names | Do not report unless they form the current member-expression predicate |
+| Local identifiers or interface names containing runtime global names | Do not report unless they form the member-expression predicate |
 
 ## Proof Contract
 
-This row checkpoint may record:
+This row may record:
 
-- native fixture/parser-edge proof for proven runtime-global member behavior
-  and import-class predicate-gap controls;
-- parser inventory/live candidate evidence over current MapGen core/engine
-  roots;
-- record-truth updates in the corpus ledger, proof matrix, command log, and
-  packet files.
+- `MCR-PREDICATE-REPAIR-2026-06-16`: repaired native predicate for
+  value-bearing static imports and runtime globals.
+- `MCR-NATIVE-FIXTURES-2026-06-16`: native fixture/parser-edge proof for
+  import, runtime-global, path, and type-only control classes.
+- `MCR-CORE-INVENTORY-2026-06-16`: parser inventory/live zero-candidate
+  evidence over current MapGen core/engine roots.
+- `MCR-PER-RULE-SELECTOR-2026-06-16`: Habitat per-rule wrapper proof.
+- `MCR-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof.
+- `MCR-BASELINE-FILES-2026-06-16`: explicit empty baseline and
+  `baseline-integrity` proof.
+- `MCR-INJECTED-PROBE-2026-06-16`: row-specific injected violation and
+  path-control proof.
 
-Planned proof ids:
+This row must not record:
 
-- `MCR-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for
-  runtime-global member positive classes and recorded import/path controls.
-- `MCR-CORE-INVENTORY-2026-06-15`: parser inventory/live evidence over current
-  MapGen core/engine roots. This evidence classifies value imports, type-only
-  imports, `/base-standard` references, runtime global member expressions, and
-  out-of-scope lookalikes without claiming Habitat wrapper behavior. Live
-  type-only adapter imports are disposition inputs, not clean closure.
-
-This row checkpoint must not record:
-
-- Habitat wrapper selector/current-tree proof;
-- raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
+- raw direct Grit acquisition;
+- generated-output edits;
 - Effect adapter proof;
 - apply safety;
 - retired parity;
-- neighboring adapter/sdk/runtime row proof;
-- product proof.
-- import-class enforcement closure.
+- neighboring adapter/sdk/runtime row closure;
+- broad type-reference closure;
+- product/runtime proof.
 
 ## Downstream Records
 
 The aggregate proof matrix, command proof log, and corpus ledger are updated
-for this row's current checkpoint after evidence is gathered. Recovery ledger,
-taxonomy, invariant corpus, and command docs remain unchanged unless the
-implementation changes policy, diagnostics, or user-facing behavior.
+for this row's current active-check closure. Recovery ledger, taxonomy,
+invariant corpus, and command docs remain unchanged because the product policy
+is existing authority; this row repairs and proves the executable Grit check.
