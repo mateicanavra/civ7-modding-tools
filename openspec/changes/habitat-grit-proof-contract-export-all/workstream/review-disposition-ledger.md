@@ -13,12 +13,14 @@
 
 ## Current Review State
 
-The original packet required external review lanes before dependent closure.
-Successor HG rows have since been committed through
-`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this is
-not an active next-row sequencing gate. Row-specific non-claims and broader
-domain-surface/export-list blockers remain governed by this packet's task state
-and the aggregate proof matrix.
+The current CEA closure checkpoint has row-owned proof for native fixtures,
+current-tree wrapper behavior, explicit empty baseline integrity, parser
+inventory/type-star current-source allowance, and the registered injected
+domain-op/path-control probe.
+
+No P1/P2 finding is known in this packet after local repair evidence. Broader
+domain-surface/export-list blockers remain governed by this packet's task
+state and the aggregate proof matrix.
 
 Historical review lanes:
 
@@ -28,3 +30,17 @@ Historical review lanes:
 - evidence/proof classes;
 - system ownership and stale-record risk;
 - Effect/substrate fit.
+
+Current non-claims preserved for supervisor review:
+
+- raw direct Grit acquisition;
+- source remediation;
+- broader domain-root facade/export closure;
+- generator or migration behavior;
+- export-list apply safety;
+- Effect adapter proof;
+- retired parity;
+- neighboring-row proof;
+- product/runtime proof;
+- aggregate injected-corpus closure while unrelated
+  `grit-domain-deep-import-tests` remains blocked.

@@ -2,11 +2,16 @@
 
 ### Requirement: Contract Export All Rule Has Row-Level Proof
 
-Habitat SHALL NOT classify `grit-contract-export-all` as
-implementation-complete until row-level proof exists for native fixtures,
-type-star behavior, current-tree wrapper behavior, raw acquisition or accepted
-adapter proof, injected violations, explicit baseline behavior, old-mechanism
-parity, domain-root facade disposition, and downstream records.
+Habitat SHALL NOT classify `grit-contract-export-all` as an active-check
+closure until row-level proof exists for native fixtures, type-star behavior,
+current-tree wrapper behavior, registered injected violation/path-control,
+explicit baseline behavior, domain-root facade disposition, and downstream
+records.
+
+Habitat SHALL NOT infer raw direct Grit acquisition, old-mechanism parity,
+export-list apply safety, broader domain-root facade closure, or
+product/runtime proof from this row unless those proof classes are separately
+recorded.
 
 #### Scenario: Native fixture proof passes
 
