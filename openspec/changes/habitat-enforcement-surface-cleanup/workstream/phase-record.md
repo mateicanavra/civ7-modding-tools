@@ -5,10 +5,10 @@
 - Project: Habitat Harness
 - Phase: enforcement surface cleanup / `habitat-enforcement-surface-cleanup`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `codex/habitat-dra-takeover-frame`
+- Branch/Graphite stack: `agent-HR-habitat-enforcement-surface-cleanup`
 - Started: 2026-06-14
-- Status: design packet opened; reviews received; accepted P1/P2 findings
-  patched; OpenSpec and language validation passed for the design packet
+- Status: structured `habitat verify --json` proof checkpoint implemented;
+  broader enforcement-surface cleanup remains open.
 
 ## Objective
 
@@ -51,7 +51,11 @@
 - Current rule pack still contains wrapped scripts and wrapped tests.
 - Current stale owner-tool selector `wrapped-eslint` green-passes with only
   `baseline-integrity`.
-- Current `habitat verify` exits 0 locally, with one Nx task read from cache.
+- Current `habitat verify --base HEAD --json` emits a schemaVersion 1
+  `VerifyProof` artifact and exits 1 before Nx affected because Habitat check
+  currently fails on unrelated `biome-ci` and
+  `arch-test-map-bundle-runtime-imports`. This is whole-command truth for the
+  direct Habitat CLI verify path, not verify closure.
 
 ## Source Synthesis
 
@@ -113,11 +117,14 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2.1, 2.2, 2.3,
-  2.4, 2.5, 2.6, 9.1, 9.2, 9.3, and 9.16.
-- Remaining tasks: review, validation, implementation proof design, downstream
-  realignment, closure.
-- Implementation status: not started.
+- Completed tasks before implementation: 1.1-2.6, 9.1-9.3, and 9.16.
+- Completed in this checkpoint: 6.1, 6.2, 7.4, 7.5, 9.12, 9.13, and 9.14 for
+  the direct `habitat verify --json` proof artifact boundary.
+- Remaining tasks: root/CI/wrapper/selector inventories, wrapper parity,
+  verify composition decision, downstream realignment, packet closure, and
+  supervisor review.
+- Implementation status: verify-proof checkpoint ready for local verification
+  and Graphite commit.
 
 ## Verification
 
@@ -148,7 +155,39 @@ Core synthesis:
   - `bun run openspec:validate`
   - `git diff --check`
 - Evidence boundary: current phase has design evidence and diagnosis. It does
-  not prove implementation repair.
+  not prove full enforcement-surface cleanup.
+
+## Verify Proof Checkpoint
+
+- Implementation adds `habitat verify --json` as a structured proof artifact
+  path without changing the existing human transcript mode.
+- Manual non-adoption of Effect is accepted for this bounded slice because the
+  implementation is local data assembly over existing synchronous command
+  boundaries: typed `VerifyProof` data, explicit final exit code, selected
+  real rule ids excluding built-ins, conservative cache-state modeling, bounded
+  stdout/stderr fields, and post-run Git/resource state. It does not add
+  parallel orchestration, resource acquisition/finalizers, retry policy,
+  cleanup ownership, or new command-runner abstraction.
+- Unit coverage:
+  - `habitat-commands.test.ts` proves `verify --json` calls
+    `createVerifyProof` and emits JSON instead of falling through to the human
+    transcript.
+  - `verify-proof.test.ts` proves Nx stdout/stderr are embedded truthfully and
+    that a global Nx cache phrase does not mark every task as `cache-hit`.
+    It also proves the failed-Habitat-check path emits
+    `nxAffected.status: "skipped"`, `skipReason: "habitat-check-failed"`, and
+    `exitCode: null` instead of presenting a not-run Nx command as a failed Nx
+    execution.
+- Current command proof:
+  - `bun run habitat -- verify --base HEAD --json` exits 1 with
+    `command.exitCode: 1`, selected real rule ids, failing count 2, advisory
+    count 1, `nxAffected.status: "skipped"`, `skipReason:
+    "habitat-check-failed"`, `nxAffected.exitCode: null`, and clean resources
+    status because Nx was not run after the failing Habitat check.
+- Non-claims: no green `habitat verify` closure, no CI execution proof, no
+  broad Nx affected coverage, no wrapper parity closure, no selector closure
+  beyond consumed command-surface behavior, no Grit row semantics, no baseline
+  migration, and no product/runtime proof.
 
 ## Realignment
 
@@ -157,4 +196,5 @@ Core synthesis:
 
 ## Next Action
 
-- Commit through Graphite with clean worktree.
+- Finish focused verification, commit this verify-proof checkpoint through
+  Graphite, and stop for supervisor review.

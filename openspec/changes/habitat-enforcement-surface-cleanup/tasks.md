@@ -71,12 +71,14 @@
 
 ## 6. Verify Command Proof
 
-- [ ] 6.1 Run `habitat verify` and record branch, base, command, env, exit code,
+- [x] 6.1 Run `habitat verify` and record branch, base, command, env, exit code,
   Habitat rule counts, Nx target/project list, cache/fresh status, duration,
   and post-run repo/resource state.
-- [ ] 6.2 Implement or generate the structured `VerifyProof` artifact described
+- [x] 6.2 Implement or generate the structured `VerifyProof` artifact described
   in `workstream/verify-proof-contract.md`; terminal transcript summaries are
-  not accepted as closure proof.
+  not accepted as closure proof. The artifact distinguishes executed Nx
+  affected proof from skipped Nx affected proof and does not synthesize an Nx
+  exit code when Habitat check fails before Nx runs.
 - [ ] 6.3 Decide whether verify target composition should avoid direct `check`
   recursion or stale target names.
 - [ ] 6.4 Patch `verify` command, target metadata, docs, or proof records if the
@@ -91,11 +93,11 @@
   selector repair.
 - [ ] 7.3 Reaffirm Grit pattern semantics and apply safety belong to
   `habitat-grit-proof-repair` and per-pattern packets.
-- [ ] 7.4 If implementation changes command orchestration, wrapper execution,
+- [x] 7.4 If implementation changes command orchestration, wrapper execution,
   proof provenance, cleanup finalizers, service-injected tests, or typed error
   states, record an adopt/manual Effect decision using the trigger table in
   `design.md`.
-- [ ] 7.5 If Effect is not adopted for a trigger-area slice, prove the manual
+- [x] 7.5 If Effect is not adopted for a trigger-area slice, prove the manual
   implementation still supplies typed failure states, command provenance,
   cleanup proof, and test substitution.
 - [ ] 7.6 If Effect is adopted, prove runtime-edge discipline, `CheckReport`
@@ -130,9 +132,10 @@
 - [ ] 9.9 Direct-vs-Habitat wrapper output comparison
 - [ ] 9.10 Direct-vs-Habitat wrapped-test output comparison
 - [ ] 9.11 Legacy enforcement wrapper file inventory proof
-- [ ] 9.12 Effect decision proof for orchestration-changing slices
-- [ ] 9.13 Structured `VerifyProof` artifact proof
-- [ ] 9.14 `habitat verify` whole-command proof
+- [x] 9.12 Effect decision proof for orchestration-changing slices
+- [x] 9.13 Structured `VerifyProof` artifact proof, including skipped-Nx
+  execution-state proof
+- [x] 9.14 `habitat verify` whole-command proof
 - [ ] 9.15 Stale-record scan and patches
 - [x] 9.16 Full-depth-language guardrail scan over this packet
 

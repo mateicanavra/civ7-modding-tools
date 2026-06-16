@@ -44,20 +44,37 @@ interface VerifyProof {
     advisoryCount: number;
     failingCount: number;
   };
-  nxAffected: {
-    argv: string[];
-    targets: string[];
-    projects: string[];
-    cacheStateByTask: Array<{
-      taskId: string;
-      project: string;
-      target: string;
-      cacheState: "fresh" | "cache-hit" | "unknown";
-    }>;
-    exitCode: number;
-    stdoutArtifact?: string;
-    stderrArtifact?: string;
-  };
+  nxAffected:
+    | {
+        status: "executed";
+        argv: string[];
+        targets: string[];
+        projects: string[];
+        cacheStateByTask: Array<{
+          taskId: string;
+          project: string;
+          target: string;
+          cacheState: "fresh" | "cache-hit" | "unknown";
+        }>;
+        exitCode: number;
+        stdout: string;
+        stderr: string;
+        stdoutTruncated: boolean;
+        stderrTruncated: boolean;
+      }
+    | {
+        status: "skipped";
+        skipReason: "habitat-check-failed";
+        argv: string[];
+        targets: string[];
+        projects: [];
+        cacheStateByTask: [];
+        exitCode: null;
+        stdout: "";
+        stderr: "";
+        stdoutTruncated: false;
+        stderrTruncated: false;
+      };
   postState: {
     gitStatusShort: string;
     resourcesStatus: string;
@@ -71,10 +88,14 @@ interface VerifyProof {
 - `selectedRealRuleIds` excludes built-in integrity-only checks.
 - A requested selector with no `selectedRealRuleIds` cannot close a structural
   proof claim.
+- `nxAffected.status` must state whether the Nx affected command executed. A
+  skipped Nx command must include a `skipReason` and must not synthesize a
+  numeric Nx exit code.
 - `cacheStateByTask` may report `unknown` only when the implementation records
   why Nx output cannot be parsed into a firmer cache state for that task.
-- `stdoutArtifact` and `stderrArtifact` may point to bounded proof logs instead
-  of embedding full terminal output.
+- Nx stdout/stderr must be embedded as bounded streams or point to durable
+  repo-local proof logs for executed runs. If embedded, truncation must be
+  explicit.
 - `nonClaims` must name proof classes not established by the run, including CI
   execution, Grit apply safety, baseline key migration, and product/runtime
   behavior when those remain outside the command.

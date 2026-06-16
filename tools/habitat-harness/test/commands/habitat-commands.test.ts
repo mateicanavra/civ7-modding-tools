@@ -18,6 +18,23 @@ vi.mock("../../src/lib/command-engine.js", () => ({
     requiredTargets: ["bun run habitat:check"],
   })),
   createCheckReport: vi.fn(() => mockReport),
+  createVerifyProof: vi.fn(() => ({
+    schemaVersion: 1,
+    command: { argv: ["habitat", "verify", "--json"], exitCode: 0 },
+    habitatCheck: { selectedRealRuleIds: ["workspace-entrypoints"] },
+    nxAffected: {
+      status: "executed",
+      targets: ["build"],
+      projects: [],
+      cacheStateByTask: [],
+      exitCode: 0,
+      stdout: "affected ok\n",
+      stderr: "",
+      stdoutTruncated: false,
+      stderrTruncated: false,
+    },
+    nonClaims: ["CI execution proof"],
+  })),
   describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
   expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
   renderCheckReport: vi.fn(() => '{"ok":true}'),
@@ -131,6 +148,27 @@ describe("Habitat oclif commands", () => {
     );
     expect(engine.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
     expect(stdout.join("")).toContain("affected ok");
+  });
+
+  test("verify can emit structured proof JSON", async () => {
+    await Verify.run(["--base", "HEAD~1", "--json"]);
+
+    expect(engine.createCheckReport).toHaveBeenCalledWith(
+      expect.objectContaining({ base: "HEAD~1", commandArgs: ["--base", "HEAD~1", "--json"] })
+    );
+    expect(engine.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
+    expect(engine.createVerifyProof).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requestedBase: "HEAD~1",
+        resolvedBase: "HEAD~1",
+        commandArgs: ["--base", "HEAD~1", "--json"],
+        exitCode: 0,
+        checkReport: mockReport,
+      })
+    );
+    const payload = JSON.parse(capturedOutput()) as { schemaVersion: number; nonClaims: string[] };
+    expect(payload.schemaVersion).toBe(1);
+    expect(payload.nonClaims).toContain("CI execution proof");
   });
 
   test("graph forwards compact JSON output", async () => {

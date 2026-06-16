@@ -2,6 +2,7 @@ import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
 import {
   createCheckReport,
+  createVerifyProof,
   renderCheckReport,
   resolveVerifyBase,
   runAffectedVerification,
@@ -20,17 +21,44 @@ export default class Verify extends HabitatCommand {
     base: Flags.string({
       description: "Git base ref for affected targets and baseline integrity.",
     }),
+    json: Flags.boolean({
+      description: "Emit a structured VerifyProof artifact instead of human output.",
+    }),
   };
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Verify);
+    const startedAt = new Date().toISOString();
+    const startedMs = Date.now();
     const base = resolveVerifyBase(flags.base);
     const report = await createCheckReport({ base, commandArgs: this.rawArgv() });
+    let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;
+    let exitCode = 0;
+    if (!report.ok) exitCode = 1;
+    else affectedResult = runAffectedVerification(base);
+    if (affectedResult) exitCode = affectedResult.exitCode;
+
+    if (flags.json) {
+      const proof = createVerifyProof({
+        requestedBase: flags.base,
+        resolvedBase: base,
+        commandArgs: this.rawArgv(),
+        startedAt,
+        durationMs: Date.now() - startedMs,
+        exitCode,
+        checkReport: report,
+        affectedResult,
+      });
+      this.log(JSON.stringify(proof, null, 2));
+      if (exitCode !== 0) this.exitWith(exitCode);
+      return;
+    }
+
     this.log(renderCheckReport(report));
     if (!report.ok) this.exit(1);
 
     this.log(`\nhabitat verify: running repo Nx affected (base=${base}) ...`);
-    const result = runAffectedVerification(base);
+    const result = affectedResult ?? runAffectedVerification(base);
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);
