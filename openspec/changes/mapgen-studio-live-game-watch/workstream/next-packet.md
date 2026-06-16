@@ -1,10 +1,10 @@
 # D10 Next Packet - Narrow Live-Game Watcher Proof
 
-Status: narrowed live-game watcher proof gap; operation live proof consumed by D12
+Status: closed by 2026-06-16 D10 watcher-specific live proof
 Date opened: 2026-06-15
 Date narrowed: 2026-06-16
 
-## Missing Proof Class
+## Original Missing Proof Class
 
 D10 unit, source, OpenSpec, and Nx gates prove the daemon/runtime watcher shape,
 browser live-status cadence deletion, event-hub replay, and client stale-result
@@ -12,9 +12,10 @@ guards. D12 later ran live Run in Game and Save&Deploy state-machine proof
 through Nx Studio, `studio.events.watch`, keyed status, and
 `studio.operations.current({})`. That D12 proof consumes the broad operation
 handoff, but it does not explicitly prove every D10 live-game watcher-specific
-subclaim.
+subclaim. This section records the original gap that the closure append below
+supersedes.
 
-The remaining missing proof is live Civ7 runtime evidence that:
+The then-missing proof was live Civ7 runtime evidence that:
 
 - the daemon package `ManagedRuntime` activates `StudioLiveGameWatcher` before
   serving `/rpc` requests that depend on runtime identity or event streaming;
@@ -90,3 +91,25 @@ the D10 claim as:
 
 > implementation/static gates green; D12 consumed operation state-machine live
 > proof; live-game watcher-specific Civ7 proof not run or claimed.
+
+## Closure Append - 2026-06-16
+
+This packet was executed on branch `codex/studio-dev-port-env` at `aa8325a83`.
+The accepted evidence is recorded in `workstream/testing-ledger.md` under
+`Live Proof Append - 2026-06-16`.
+
+Closed observations:
+
+- `hello` and first retained `live-game` from `/tmp/d10-live-watch-1.sse`;
+- reconnect replay from `/tmp/d10-live-watch-2.sse`;
+- unchanged-key quiet behavior across bounded streams;
+- changed live-game state after autoplay trigger, including `turn: 34 -> 35`,
+  from `/tmp/d10-live-turn-change-summary.json` and
+  `/tmp/d10-live-watch-turn-change.sse`;
+- browser/network event-stream consumption without background live-status or
+  readiness cadence from `/tmp/d10-browser-network-proof.json`;
+- source-composition proof from daemon host, handler, runtime, and watcher
+  source pointers named in `workstream/testing-ledger.md`.
+
+Residual exterior: Graphite submit/drain and broad product state-machine proof
+remain outside this D10 next-packet closure.

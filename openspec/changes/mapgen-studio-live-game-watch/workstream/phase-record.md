@@ -7,9 +7,9 @@
 - OpenSpec change: `mapgen-studio-live-game-watch`
 - Owner: Codex implementation DRA lane
 - Branch/Graphite stack: `codex/runtime-effect-live-game-watch`
-- Status: implementation committed at current branch tip; operation
-  state-machine live proof consumed by D12; live-game watcher-specific Civ7
-  proof remains narrowed in `next-packet.md`
+- Status: implementation committed; operation state-machine live proof consumed
+  by D12; D10 live-game watcher-specific Civ7 proof passed in the 2026-06-16
+  re-entry.
 
 ## Objective
 
@@ -87,7 +87,7 @@ The implementation repairs the ownership split:
 | snapshot follow-up | request/response `civ7.live.snapshot` | live preview state | request-key/stale-commit tests retained |
 | setup follow-up | request/response setup reads | setup suggestions/visibility | setup request-key stale/newer-event model test |
 | browser cadence deletion | app source/tests | live status freshness | negative searches |
-| live proof | local Civ7 runtime | product confidence | not run; `workstream/next-packet.md` records re-entry |
+| live proof | local Civ7 runtime | product confidence | D10 watcher-specific proof passed 2026-06-16; `workstream/testing-ledger.md` records raw and parsed captures |
 
 ## Gate 5 - Grouping
 
@@ -107,7 +107,8 @@ The implementation repairs the ownership split:
 - Client state updates from pushed events.
 - Snapshot/setup reads are request/response follow-ups triggered by pushed state, with request keys and stale/newer-event protection.
 - Browser live status freshness has no remaining scheduler or readiness cadence seam.
-- D10 is not green for live Civ7 product behavior until the next-packet proof is run.
+- D10 watcher-specific live proof is green as of the 2026-06-16 re-entry. Broad
+  product/state-machine proof remains owned by the downstream D12 records.
 
 ## Gate 7 - Architecture Translation
 
@@ -141,8 +142,8 @@ schema/residue closeout.
 - App tests prove live-runtime model keying and event adoption paths.
 - Negative searches prove browser live-status cadence deletion.
 - D12 records live Run in Game and Save&Deploy operation state-machine proof.
-- `next-packet.md` records the remaining live-game watcher-specific proof; D10
-  does not claim that proof from D12.
+- `testing-ledger.md` records the live-game watcher-specific proof; D10 does not
+  claim that proof from D12.
 
 ## Gate 11 - Review
 
@@ -153,14 +154,14 @@ schema/residue closeout.
   live-game replay, non-throwing failure counts, proof wording, native Effect
   tick path, private fake-read seam, and workstream proof truthfulness.
 
-## Gate 12 - Closure
+## Gate 12 - Historical Implementation Closure
 
-Implementation commit closure requires:
+The original implementation commit closure required:
 
 - fresh implementation review has no unresolved P1/P2;
 - OpenSpec, package/app checks, focused tests, Nx checks, negative searches, and
   `git diff --check` are recorded;
-- `workstream/next-packet.md` records the narrowed unrun live-game watcher
+- `workstream/next-packet.md` records the then-narrowed unrun live-game watcher
   proof;
 - explicit paths are staged and Graphite commit leaves the worktree clean.
 
@@ -170,14 +171,36 @@ Implementation commit closure requires:
 - Re-entry reason: the recovery closeout stack preserved D10 task 5.8 as the
   only open runtime Effect packet row after D12 drain and stale accounting were
   reconciled.
-- Current status: proof-slice design draft in `workstream/live-proof-plan.md`;
+- Entry status: proof-slice design draft in `workstream/live-proof-plan.md`;
   fresh review found one P1 and multiple P2 plan issues, all repaired in the
-  plan before proof execution; no live Civ7 proof has been rerun or claimed in
-  this branch.
+  plan before proof execution; live Civ7 proof was not yet claimed at this
+  re-entry checkpoint.
 - Owner: D10 live-game watcher proof records and task 5.8 only.
 - Exterior: runtime code, public contracts, generated outputs, success-only
   proof logging, Graphite submit, and broad product/state-machine closure
   outside the watcher-specific claim.
-- Gate position: systematic gates 1-8 have been reopened and repaired for the
-  retained live proof only; gates 9-12 remain blocked until the static gates,
-  environment preflight, event-stream proof, and browser/network proof exist.
+- Gate position at entry: systematic gates 1-8 had been reopened and repaired
+  for the retained live proof only; gates 9-12 remained blocked until the
+  static gates, environment preflight, event-stream proof, and browser/network
+  proof existed.
+
+## D10 Live-Proof Execution - 2026-06-16
+
+- Branch and commit: `codex/studio-dev-port-env` at `aa8325a83`.
+- Proof target: D10 task 5.8 only.
+- Dev surfaces: daemon `127.0.0.1:5274`, frontend `http://localhost:5273`.
+- Static gates: `git diff --check`, focused app port tests,
+  `mapgen-studio:check`, `mapgen-studio:test`, D10 strict OpenSpec validation,
+  full OpenSpec validation, and `bun run lint` passed; lint retained only the
+  existing `doc-ambiguity` advisory.
+- Live gates: `/tmp/d10-game-status.json` and `/tmp/d10-game-health.json`
+  returned `ok: true` and `readiness: "tuner-ready"`;
+  `/tmp/d10-live-watch-1.sse` proved first `hello` and `live-game`;
+  `/tmp/d10-live-watch-2.sse` proved reconnect replay; the bounded streams
+  proved quiet unchanged-key behavior; `/tmp/d10-live-turn-change-summary.json`
+  and `/tmp/d10-live-watch-turn-change.sse` proved changed state after an
+  autoplay trigger with `turn: 34 -> 35`;
+  `/tmp/d10-browser-network-proof.json` proved browser event-stream consumption
+  without background live-status or readiness cadence.
+- Gate position: D10 task 5.8 is closed by this proof record; proof-audit
+  findings are accepted/repaired in `workstream/testing-ledger.md`.
