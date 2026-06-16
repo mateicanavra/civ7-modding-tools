@@ -56,8 +56,9 @@
   `VerifyProof` artifact. The command proof path now consumes accepted Biome
   current-drift repair and this packet's generated map-bundle freshness repair:
   Habitat check has no enforced failures and `doc-ambiguity` remains advisory.
-  Full verify closure remains open because Nx affected now executes and fails
-  later on `mapgen-studio:test` and `@internal/habitat-harness:test`.
+  After the harness test-target repair, the clean explicit `HEAD` range exits 0
+  with `nxAffected.status: "executed"` and no affected tasks. Changed-range Nx
+  affected coverage and CI execution remain non-claims.
 
 ## Source Synthesis
 
@@ -189,16 +190,14 @@ Core synthesis:
     `exitCode: null` instead of presenting a not-run Nx command as a failed Nx
     execution.
 - Current command proof:
-  - `bun run habitat -- verify --base HEAD --json` exits 1 with
-    `command.exitCode: 1`, selected real rule ids, failing count 0, advisory
-    count 1, `nxAffected.status: "executed"`, and clean resources status.
-    Habitat check is no longer the blocker; Nx affected now runs and fails later
-    on unrelated `mapgen-studio:test` and `@internal/habitat-harness:test`
-    tasks.
-- Non-claims: no green `habitat verify` closure, no CI execution proof, no
-  broad Nx affected coverage, no wrapper parity closure, no selector closure
-  beyond consumed command-surface behavior, no Grit row semantics, no baseline
-  migration, and no product/runtime proof.
+  - `bun run habitat -- verify --base HEAD --json` exits 0 from a clean
+    explicit `HEAD` range with `command.exitCode: 0`, failing count 0, advisory
+    count 1, `nxAffected.status: "executed"`, empty affected projects/tasks,
+    `nxAffected.exitCode: 0`, and clean resources status.
+- Non-claims: no CI execution proof, no changed-range broad Nx affected
+  coverage, no wrapper parity closure, no selector closure beyond consumed
+  command-surface behavior, no Grit row semantics, no baseline migration, and no
+  product/runtime proof.
 
 ## Enforcement Inventory Checkpoint
 
@@ -353,6 +352,31 @@ Core synthesis:
 - Non-claims: no wrapper retirement, no CI execution proof, no broad Nx
   affected coverage, no Grit row semantics, no baseline semantics, no hook
   policy change, and no product/runtime proof.
+
+## Harness Test Target Proof Checkpoint
+
+- Implementation keeps the Habitat harness package test target aligned with the
+  current long-running proof suite by running Vitest with
+  `--testTimeout=30000`; the wrapper projection test keeps its explicit
+  per-test timeout because it runs direct wrapped architecture commands and can
+  exceed the package default under full-suite contention.
+- The Effect parity proof now asserts the owned command result while tolerating
+  ambient Nx/Bun warning text after the expected stderr payload. The test still
+  proves exit code, stdout, expected stderr payload, and secret redaction.
+- Proof classes:
+  - Unit behavior: forced-color `effect-parity.test.ts` passes and proves the
+    parity assertion is stable under the Nx warning environment.
+  - Unit behavior: focused `enforcement-surface.test.ts` passes with current
+    generated-output freshness.
+  - Native Nx behavior: uncached `@internal/habitat-harness:test` passes through
+    the repo-local Nx target.
+  - Verify artifact truth: clean explicit-range
+    `habitat verify --base HEAD --json` exits 0, reports Habitat check pass
+    with `doc-ambiguity` advisory, executes Nx affected, and reports no tasks
+    for the clean `HEAD` range.
+- Non-claims: no CI execution proof, no changed-range broad Nx affected
+  coverage, no Grit row semantics, no baseline semantics, no hook policy
+  change, and no product/runtime proof.
 
 ## Realignment
 

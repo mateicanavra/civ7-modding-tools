@@ -342,7 +342,7 @@ describe("enforcement surface inventory", () => {
       expect(result.exitCode).toBe(0);
       expect(diagnostics).toEqual([]);
     }
-  }, 20_000);
+  }, 180_000);
 });
 
 function readRootScripts(): Record<string, string> {

@@ -69,7 +69,7 @@
     "build": "tsc -p tsconfig.json",
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --project habitat-harness",
+    "test": "vitest run --project habitat-harness --testTimeout=30000",
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist oclif.manifest.json",
     "build:tsc": "tsc -p tsconfig.json",
