@@ -167,9 +167,17 @@ Core synthesis:
   rollback, hook-owned temporary resource cleanup, parallel orchestration, and
   registered hook-scope activation remain reopen triggers for Effect or an
   equivalent runtime substrate.
-- Remaining tasks: Grit parse-output current-tree staged proof, aggregate
-  verification, and packet closure.
-- Implementation status: hook Effect substrate decision checkpoint
+- Current-tree Grit parse-output staged proof progress for this checkpoint:
+  a staged scratch file at
+  `tools/habitat-harness/test/__hook-probes__/invalid-utf8.ts` containing
+  invalid UTF-8 bytes reached the native Grit hook path after Biome
+  format/check. Native Grit exited 0 with non-JSON `Failed to read file ...`
+  output; `bun run habitat hook pre-commit` exited 1 and rendered
+  `habitat hook pre-commit: could not parse Grit JSON output.` The scratch path
+  was unstaged and removed, and the worktree returned clean. This closes 8.5
+  for the staged-probe matrix.
+- Remaining tasks: aggregate verification and packet closure.
+- Implementation status: hook Grit parse-output staged proof checkpoint
   implemented and locally verified for supervisor review.
 
 ## Verification
@@ -381,6 +389,20 @@ Core synthesis:
   - `tasks.md` now marks 5.2, 5.3, 5.4, and 8.12 current for the non-adoption
     decision without claiming Effect dependency/version/lockfile or
     `Effect.run*` runtime-edge proof.
+- New command evidence for the current-tree Grit parse-output staged proof
+  checkpoint:
+  - Probe setup: staged scratch
+    `tools/habitat-harness/test/__hook-probes__/invalid-utf8.ts` containing
+    invalid UTF-8 bytes.
+  - Native tool behavior: `bun run habitat hook pre-commit` reached
+    `[biome format]`, `[biome check]`, then native Grit emitted repeated
+    `Failed to read file
+    "tools/habitat-harness/test/__hook-probes__/invalid-utf8.ts"` lines instead
+    of JSON while returning through the Grit check path.
+  - Hook behavior: pre-commit exited 1 and rendered
+    `habitat hook pre-commit: could not parse Grit JSON output.`
+  - Cleanup: the scratch path was removed with targeted cleanup; final
+    `git status --short --branch` was clean.
 - Evidence boundary: the accepted resource checkpoint proves the default
   pre-commit resource publish removal, typed resource-state classification,
   fail-closed remediation for dirty/uninitialized/locked/unstaged states,
@@ -423,7 +445,11 @@ Core synthesis:
   record truth for the packet's non-adoption decision and equivalent typed hook
   proof boundary; it does not prove Effect package adoption,
   dependency/version/lockfile changes, current-tree Grit parse-output staged
-  behavior, CI execution, packet closure, or product/runtime behavior.
+  behavior, CI execution, packet closure, or product/runtime behavior. This
+  Grit parse-output staged proof checkpoint proves the remaining current-tree
+  staged probe matrix item for native non-JSON Grit output fail-closed behavior;
+  it does not prove Grit row semantics, CI execution, broad Nx affected
+  coverage, packet closure, or product/runtime behavior.
 
 ## Realignment
 
@@ -432,7 +458,6 @@ Core synthesis:
 
 ## Next Action
 
-- Hold the hook Effect substrate decision checkpoint for supervisor review. Do
-  not claim Effect adoption, implicit hook publishing, Grit parse-output staged
-  probe closure, CI execution proof, broad Nx affected coverage, or packet
-  closure from this slice.
+- Hold the hook Grit parse-output staged proof checkpoint for supervisor review.
+  Do not claim Grit row semantics, CI execution proof, broad Nx affected
+  coverage, packet closure, or product/runtime behavior from this slice.

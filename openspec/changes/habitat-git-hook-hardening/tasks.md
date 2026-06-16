@@ -47,7 +47,8 @@
 - [x] 4.2 Preserve partial-staging refusal before formatting.
 - [x] 4.3 Preserve formatter-touched restage only.
 - [x] 4.4 Make Grit parse failure a failing proof class. Unit/service proof is
-  closed; current-tree Grit parse-output staged proof remains open under 8.5.
+  closed, and current-tree Grit parse-output staged proof is recorded under
+  8.5 for the invalid-UTF8 native non-JSON Grit output case.
 - [x] 4.5 Record command provenance for Biome, Grit, Git, Nx, Bun, and resource
   publish commands where relevant.
 - [x] 4.6 Preserve CI-authority non-claims in output or docs.
@@ -111,10 +112,11 @@
   terminal outcomes; resource publisher service tests cover explicit command
   remediation, no hidden hook invocation, and direct explicit-publish command
   provenance. Full hook transaction architecture remains open.
-- [ ] 8.5 Pre-commit staged probe matrix. Current-tree probes for
+- [x] 8.5 Pre-commit staged probe matrix. Current-tree probes for
   generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
   restage, and native Grit finding refusal are recorded; Grit parse-output
-  staged proof remains open before this matrix can close.
+  staged proof is recorded with an invalid-UTF-8 scratch `.ts` path that native
+  Grit reports as non-JSON output after Biome format/check.
 - [x] 8.6 Explicit resource publish policy proof across dirty submodule,
   uninitialized resources, locked resources, unstaged gitlink, staged gitlink,
   clean resources, and not-configured resources
