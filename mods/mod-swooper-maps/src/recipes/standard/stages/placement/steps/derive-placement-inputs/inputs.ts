@@ -184,11 +184,11 @@ export function buildPlacementInputs(
     const featureType = entry.featureType | 0;
     const policy = FEATURE_POLICIES[String(featureType)];
     const materializationDirection = resolveNaturalWonderMaterializationDirection(
-      policy ?? {},
+      policy,
       entry.direction | 0
     );
     const footprintOffsets = getNaturalWonderFootprintOffsets(
-      policy ?? {},
+      policy,
       materializationDirection
     );
     if (!footprintOffsets) return [];

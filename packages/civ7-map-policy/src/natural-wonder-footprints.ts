@@ -5,6 +5,7 @@ export type NaturalWonderPlacementPolicy = Readonly<{
   naturalWonderTiles?: number;
   naturalWonderDirection?: number;
 }>;
+type OptionalNaturalWonderPlacementPolicy = NaturalWonderPlacementPolicy | undefined;
 
 const ANCHOR: readonly NaturalWonderFootprintOffset[] = [{ dx: 0, dy: 0 }];
 
@@ -44,15 +45,15 @@ export function hasUnsupportedNaturalWonderPolicyTags(
 }
 
 export function resolveNaturalWonderPlacementDirection(
-  policy: NaturalWonderPlacementPolicy
+  policy: OptionalNaturalWonderPlacementPolicy
 ): number {
-  const direction = policy.naturalWonderDirection;
+  const direction = policy?.naturalWonderDirection;
   if (Number.isFinite(direction)) return Math.trunc(direction as number);
   return -1;
 }
 
 export function resolveNaturalWonderMaterializationDirection(
-  policy: NaturalWonderPlacementPolicy,
+  policy: OptionalNaturalWonderPlacementPolicy,
   direction = resolveNaturalWonderPlacementDirection(policy)
 ): number {
   return normalizeFootprintDirection(direction);
@@ -68,11 +69,11 @@ function directionOffset(direction: number): NaturalWonderFootprintOffset {
 }
 
 export function getNaturalWonderFootprintOffsets(
-  policy: NaturalWonderPlacementPolicy,
+  policy: OptionalNaturalWonderPlacementPolicy,
   direction = resolveNaturalWonderPlacementDirection(policy)
 ): readonly NaturalWonderFootprintOffset[] | null {
-  const placementClass = policy.placementClass ?? "ONE";
-  const tiles = Math.max(1, policy.naturalWonderTiles ?? 1);
+  const placementClass = policy?.placementClass ?? "ONE";
+  const tiles = Math.max(1, policy?.naturalWonderTiles ?? 1);
   if (tiles <= 1 || placementClass === "ONE") return ANCHOR;
 
   const normalizedDirection = resolveNaturalWonderMaterializationDirection(policy, direction);
@@ -95,7 +96,7 @@ export function getNaturalWonderFootprintIndices(args: {
   y: number;
   width: number;
   height: number;
-  policy: NaturalWonderPlacementPolicy;
+  policy?: NaturalWonderPlacementPolicy;
   direction?: number;
 }): number[] | null {
   const offsets = getNaturalWonderFootprintOffsets(args.policy, args.direction);

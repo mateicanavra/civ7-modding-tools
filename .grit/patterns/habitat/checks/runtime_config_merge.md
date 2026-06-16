@@ -1,0 +1,61 @@
+---
+level: error
+---
+# Runtime Config Merge
+
+Runtime recipe steps and domain ops must not hide config normalization behind
+local empty-object merge/default syntax.
+
+```grit
+language js(typescript)
+
+or {
+  `$value ?? {}` where {
+    $filename <: r".*mods/mod-swooper-maps/src/(?:recipes/.*/stages/.*/steps|domain/.*/ops)/.*\.ts$"
+  },
+  `Value.Default($args)` where {
+    $filename <: r".*mods/mod-swooper-maps/src/(?:recipes/.*/stages/.*/steps|domain/.*/ops)/.*\.ts$"
+  }
+}
+```
+
+## Matches fixture
+
+```typescript
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.ts
+const config = input.config ?? {};
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+const config = opConfig ?? {};
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/strategies/default.ts
+const config = strategyConfig ?? {};
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+const schema = Value.Default(schemaNode);
+```
+
+## Ignores fixture
+
+```typescript
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts
+const config = stageConfig ?? {};
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.tsx
+const config = input.config ?? {};
+
+// @filename: mods/other-mod/src/recipes/standard/stages/ecology/steps/plot.ts
+const config = input.config ?? {};
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+const config = input.config ?? { fallback: true };
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+const config = input.config || {};
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+const schema = defaults.Value.Default(schemaNode);
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/score-biomes/index.ts
+const source = "config ?? {}";
+```

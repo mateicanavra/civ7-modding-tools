@@ -622,6 +622,10 @@ function stableConfigString(value: unknown): string {
   return JSON.stringify(value);
 }
 
+function stableRootConfigString(value: unknown): string {
+  return stableConfigString(value === undefined ? {} : value);
+}
+
 /**
  * Enforces the mountain-family invariant at the stage boundary. Both ops accept
  * the same family config schema because their thresholds and caps describe one
@@ -637,8 +641,8 @@ export function assertSameMountainFamilySelection(
       `[Morphology] Mountain-family config requires identical ridge/foothill strategies (ridges=${String(ridges.strategy)}, foothills=${String(foothills.strategy)}).`
     );
   }
-  const ridgeConfig = stableConfigString(ridges.config ?? {});
-  const foothillConfig = stableConfigString(foothills.config ?? {});
+  const ridgeConfig = stableRootConfigString(ridges.config);
+  const foothillConfig = stableRootConfigString(foothills.config);
   if (ridgeConfig !== foothillConfig) {
     throw new Error(
       "[Morphology] Mountain-family config requires identical ridge/foothill config; tune the shared terrain-classification posture once, not as divergent op-local worlds."

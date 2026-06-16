@@ -1,11 +1,11 @@
-# Downstream Realignment Ledger - Runtime Config Merge Candidate
+# Downstream Realignment Ledger - Runtime Config Merge Active Check
 
 | Surface | Disposition | Evidence |
 | --- | --- | --- |
-| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Updated candidate row with draft predicate proof, parser inventory, live-candidate blocker, non-registration, and reopen trigger. | `RCM-DRAFT-FIXTURES-2026-06-15`; `RCM-RUNTIME-INVENTORY-2026-06-15` |
-| `openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md` | Updated with draft fixture and parser-inventory proof rows. | `RCM-DRAFT-FIXTURES-2026-06-15`; `RCM-RUNTIME-INVENTORY-2026-06-15` |
-| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Not updated as a current check row because this candidate has no active `rules.json` entry, `.grit` pattern, baseline, or injected probe. | `RCM-LIVE-CANDIDATE-BLOCKER-2026-06-15` |
-| `.grit/patterns/habitat/checks/runtime_config_merge.md` | Not present; draft proof file was removed after native fixture proof. | `RCM-DRAFT-FIXTURES-2026-06-15` |
-| `tools/habitat-harness/src/rules/rules.json` | No `grit-runtime-config-merge` entry added. | `RCM-LIVE-CANDIDATE-BLOCKER-2026-06-15` |
-| `tools/habitat-harness/baselines/grit-runtime-config-merge.json` | Not present; baselines are only for registered rules and no baseline-debt disposition exists. | `RCM-LIVE-CANDIDATE-BLOCKER-2026-06-15` |
-| `openspec/changes/habitat-grit-proof-repair/workstream/injected-probes.json` | No injected probe added for the unregistered candidate. | `RCM-LIVE-CANDIDATE-BLOCKER-2026-06-15` |
+| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Updated RCM row with source remediation, active rule proof, zero-candidate parser inventory, explicit baseline, RCM injected/path-control proof, and non-claims. | `RCM-SOURCE-REMEDIATION-2026-06-15`; `RCM-NATIVE-FIXTURES-2026-06-15`; `RCM-RUNTIME-INVENTORY-2026-06-15`; `RCM-HABITAT-GRIT-TOOL-2026-06-15`; `RCM-PER-RULE-SELECTOR-2026-06-15`; `RCM-BASELINE-FILES-2026-06-15`; `RCM-INJECTED-PROBE-2026-06-15` |
+| `openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md` | Updated with active RCM source-remediation, native, parser, wrapper, baseline, and injected-proof rows. | `RCM-SOURCE-REMEDIATION-2026-06-15`; `RCM-NATIVE-FIXTURES-2026-06-15`; `RCM-NATIVE-CORPUS-REFRESH-2026-06-15`; `RCM-RUNTIME-INVENTORY-2026-06-15`; `RCM-HABITAT-GRIT-TOOL-2026-06-15`; `RCM-PER-RULE-SELECTOR-2026-06-15`; `RCM-BASELINE-FILES-2026-06-15`; `RCM-INJECTED-PROBE-2026-06-15` |
+| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Added active check row for `grit-runtime-config-merge`. | `RCM-NATIVE-FIXTURES-2026-06-15`; `RCM-RUNTIME-INVENTORY-2026-06-15`; `RCM-HABITAT-GRIT-TOOL-2026-06-15`; `RCM-PER-RULE-SELECTOR-2026-06-15`; `RCM-BASELINE-FILES-2026-06-15`; `RCM-INJECTED-PROBE-2026-06-15` |
+| `.grit/patterns/habitat/checks/runtime_config_merge.md` | Active pattern added for runtime step/domain-op `?? {}` and `Value.Default(...)` syntax classes. | `RCM-NATIVE-FIXTURES-2026-06-15`; `RCM-NATIVE-CORPUS-REFRESH-2026-06-15` |
+| `tools/habitat-harness/src/rules/rules.json` | `grit-runtime-config-merge` registered as an active `grit-check` rule. | `RCM-PER-RULE-SELECTOR-2026-06-15`; `RCM-HABITAT-GRIT-TOOL-2026-06-15` |
+| `tools/habitat-harness/baselines/grit-runtime-config-merge.json` | Explicit empty baseline added for the active registered rule. | `RCM-BASELINE-FILES-2026-06-15` |
+| `openspec/changes/habitat-grit-proof-repair/workstream/injected-probes.json` | Injected probe metadata added for runtime-step finding and stage-root control path. | `RCM-INJECTED-PROBE-2026-06-15` |

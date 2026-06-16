@@ -7,6 +7,7 @@ import {
 } from "@swooper/mapgen-core/lib/grid";
 
 import { BOUNDARY_TYPE } from "../../src/domain/foundation/constants.js";
+import { assertSameMountainFamilySelection } from "../../src/domain/morphology/ops.js";
 import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
 import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
 
@@ -52,6 +53,24 @@ function createRidgeInput(width: number, height: number) {
 }
 
 describe("morphology mountain-family controls", () => {
+  it("treats absent mountain-family config as the empty shared config", () => {
+    expect(() =>
+      assertSameMountainFamilySelection(
+        { strategy: "default", config: {} },
+        { strategy: "default" }
+      )
+    ).not.toThrow();
+  });
+
+  it("does not collapse nested undefined mountain-family config to an empty object", () => {
+    expect(() =>
+      assertSameMountainFamilySelection(
+        { strategy: "default", config: { nested: undefined } },
+        { strategy: "default", config: { nested: {} } }
+      )
+    ).toThrow("identical ridge/foothill config");
+  });
+
   it("derives Civ map-size range-system counts from one spacing input", () => {
     const mountainRangeSpacingTiles = Math.sqrt((106 * 66) / 18);
     const officialMapSizes = [
