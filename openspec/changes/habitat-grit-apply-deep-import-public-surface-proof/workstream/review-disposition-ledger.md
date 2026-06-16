@@ -9,12 +9,9 @@
 | DIPS-R4 | adversarial | P2 | Downstream realignment missed H5 catalog records and the Habitat workstream record. | accepted | Add H5 proposal/tasks/phase record and workstream record to downstream ledger. | repaired |
 | DIPS-R5 | adversarial | P3 | Evidence log clean-status wording could be read against the current untracked packet directory. | accepted | Clarify that the clean tracked-source status was at dry-run probe time before packet doc additions. | repaired |
 
-## Pending External Review
+## Current Review Gate
 
-Required review lanes before implementation:
-
-- product/outcome;
-- Grit/apply semantics;
-- TypeScript/export authority;
-- Effect/substrate;
-- evidence/system.
+Recorded review findings are repaired in the packet. The current checkpoint
+aligns the packet to accepted aggregate apply proof ids and is pending
+supervisor review. No new product/runtime, raw acquisition, full-test,
+generated-output freshness, or broad future-codemod safety claim is made here.

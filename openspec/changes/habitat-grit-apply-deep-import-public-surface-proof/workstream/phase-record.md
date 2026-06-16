@@ -50,9 +50,9 @@ Review lanes required:
 
 ### Implementation Packet Boundary
 
-This packet is design/specification work. Implementation starts only after the
-review lanes accept the packet and the transaction substrate dependency is
-available for live apply proof.
+This packet now consumes the accepted downstack apply transaction proof
+surface. The current checkpoint is record-truth alignment for the existing
+`deep_import_to_public_surface` apply proof, not a new source remediation.
 
 ## Effect Reconsideration
 
@@ -66,7 +66,23 @@ not as a distant enhancement.
 
 ## Current Status
 
-- Packet opened.
+- Packet opened and reviewed.
 - Native sample and live zero-match dry-run evidence recorded.
-- Review pending.
-- Implementation pending accepted transaction substrate.
+- Target-export unit proof, missing-export refusal, positive dry-run no-write
+  proof, controlled proof-worktree live apply, selected cold gates, and
+  proof-worktree cleanup are recorded in the aggregate command proof log under
+  `HGPR-APPLY-*` proof ids.
+- The current branch aligns this packet with those inherited proof records and
+  has a local Graphite checkpoint. Supervisor review is the next gate before
+  any dependent row work.
+
+## Current Non-Claims
+
+- No broad full-test closure.
+- No generated-output freshness closure.
+- No baseline write or shrink proof.
+- No old-mechanism parity closure.
+- No raw direct Grit acquisition proof.
+- No product/runtime proof.
+- No guarantee that unsupported default, namespace, mixed default-plus-named,
+  side-effect, or future unproved import forms are safe to rewrite.

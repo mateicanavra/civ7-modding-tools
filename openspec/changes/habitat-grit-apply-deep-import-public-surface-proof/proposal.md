@@ -1,28 +1,32 @@
 ## Why
 
-Habitat currently ships one allowlisted Grit apply pattern:
+Habitat ships one allowlisted Grit apply pattern:
 `deep_import_to_public_surface`. It is wired into `habitat fix`, and it can
-rewrite imports under recipe and map source roots. That is not yet enough to
-count as product-safe structural transformation.
+rewrite imports under recipe and map source roots. This packet records the
+proof boundary that makes the supported named-import rewrite path safe to cite
+as a bounded structural transformation.
 
-Fresh evidence shows:
+Current evidence shows:
 
 - native Grit tests pass for the pattern;
 - the live tree currently has zero matching deep domain ops imports under the
   apply scan roots;
 - `bun run habitat:fix -- --dry-run` exits 0 and reports zero matches;
+- target-export unit proof covers safe public-export rewrites, type-only
+  preservation, missing-export refusal, and unchanged source on refusal;
+- injected dry-run proof leaves the probe source unchanged for both safe and
+  missing-export cases;
+- controlled proof-worktree live apply rewrites only the approved morphology
+  probe import and runs selected cold Swooper gates;
 - public domain `/ops` entrypoints do not consistently re-export every symbol
   from the deeper `ops/index.ts` implementation surfaces;
-- the current adapter invokes `grit apply` with `--force` and returns only
-  exit code, stdout, and stderr;
-- the Effect evaluation has already provisionally selected
-  `habitat-effect-grit-adapter` for Grit command provenance, parser/projection
-  proof, dry-run proof, and apply transactions.
+- the accepted apply transaction substrate records command provenance,
+  target-export failure tags, bounded diffs, selected gates, and cleanup.
 
-This change turns the existing codemod from "implemented under proof" into an
-implementation-ready repair packet with a codemod-specific safety contract. It
-does not run a live write. It specifies the proof required before any agent may
-claim `deep_import_to_public_surface` as a safe transformation capability.
+This change turns the existing codemod packet from pre-implementation design
+state into current proof-state documentation for the bounded safe-transform
+contract. It does not add a new source remediation and does not claim broad
+product/runtime transformation closure.
 
 ## Target Authority Refs
 
@@ -43,25 +47,25 @@ claim `deep_import_to_public_surface` as a safe transformation capability.
 
 ## What Changes
 
-- Add an apply-codemod proof packet for
-  `deep_import_to_public_surface`.
-- Specify target-export preflight for every candidate imported symbol before
+- Align the apply-codemod proof packet for
+  `deep_import_to_public_surface` with current aggregate proof.
+- Record target-export preflight for supported named import candidates before
   rewrite approval.
-- Require missing-export refusal proof, including an injected negative case.
-- Require live and injected candidate inventory over the exact recipe/map roots.
-- Require dry-run no-write proof as its own class, with final clean status.
-- Require applied-diff proof only through `habitat-effect-grit-adapter` or an
-  accepted typed transaction substrate with equivalent command provenance,
-  scoped cleanup, rollback, and final clean-status proof.
-- Require type-only import preservation, Biome handoff over changed paths, and
-  selected type/test gates after an applied diff.
-- Realign downstream ledgers so the existing pattern is not counted as product
-  safe transformation until those proofs exist.
+- Record missing-export refusal proof, including an injected negative case.
+- Record live and injected candidate inventory over the exact recipe/map roots.
+- Record dry-run no-write proof as its own class, with final clean status.
+- Record controlled applied-diff proof through the accepted transaction
+  substrate with command provenance, scoped cleanup, rollback, and final
+  clean-status proof.
+- Record type-only import preservation, Biome handoff over changed paths, and
+  selected cold type/test gates after an applied diff.
+- Realign downstream ledgers so the existing pattern is counted only inside the
+  supported bounded safe-transform proof boundary.
 
 ## What Does Not Change
 
 - No new Grit pattern is introduced.
-- No live codemod apply is run by this design packet.
+- No new live codemod apply is run by this record-alignment checkpoint.
 - No public `/ops` export is added by this packet.
 - No generated output, lockfile, or Civ7 runtime artifact is edited.
 - No claim is made that Grit proves TypeScript export existence, Biome
@@ -81,17 +85,15 @@ cleanup, rollback proof, export-preflight failures as data, and final clean
 status after every outcome. Preserving the current `SpawnResult` plus handwritten
 phase notes is not accepted.
 
-Live writes for this codemod are therefore gated by
-`habitat-effect-grit-adapter` task 8 or by an equivalent reviewed substrate.
-Native sample proof, live zero-match dry-run, and pattern-file presence remain
-useful evidence, but they are not safe-transform proof.
+Live writes for this codemod remain gated by the accepted transaction
+substrate. Native sample proof, live zero-match dry-run, target-export unit
+proof, injected dry-run, controlled proof-worktree apply, selected gates, and
+cleanup are separate proof classes.
 
 ## Requires
 
-- Accepted design packet for `habitat-effect-grit-adapter`, already present in
-  this stack.
-- Implementation of `habitat-effect-grit-adapter` task 8 before live apply
-  proof, or an equivalent typed transaction substrate accepted by review.
+- Accepted Grit apply transaction substrate from the downstack Habitat repair
+  layers.
 - `habitat-grit-proof-repair` proof matrix remains the aggregate Grit proof
   ledger and points to this packet for the apply row.
 - Official Grit and Effect evidence read before implementation.
@@ -145,14 +147,16 @@ useful evidence, but they are not safe-transform proof.
 
 ## Consumer Impact
 
-After implementation, agents may treat this codemod as a product-safe structural
-transform only when the proof artifact names: live match inventory, export
-preflight, missing-export refusal, dry-run no-write, approved applied diff,
-type-only preservation, Biome handoff, selected type/test gates, rollback, and
-final clean status.
+Agents may treat this codemod as a bounded safe structural transform only for
+the supported named value/type import path where target export existence is
+proved, missing exports fail closed, import kind is preserved, the applied diff
+is bounded, selected gates pass, and cleanup returns the proof worktree to clean
+status.
 
-Until then, the truthful consumer message is: the pattern exists and its native
-sample passes, but it is not yet safe-transform product evidence.
+The truthful consumer message is still narrower than broad product closure:
+unsupported import forms, broad full-test closure, generated-output freshness,
+baseline writes, parity closure, raw direct Grit acquisition, and
+product/runtime behavior remain non-claims.
 
 ## Verification Gates
 
