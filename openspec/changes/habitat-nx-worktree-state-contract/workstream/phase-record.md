@@ -5,9 +5,8 @@
 - Project: habitat-harness / workspace tooling
 - Phase: Nx root workflow contract
 - Owner: Codex workstream owner
-- Branch: `agent-F-habitat-nx-worktree-state`
-- Status: implemented on primary worktree; fresh-worktree verification remains
-  pending
+- Status: implemented and verified for the Nx root workflow/fresh-worktree
+  contract; supervisor acceptance remains pending
 
 ## Objective
 
@@ -108,9 +107,33 @@ global-to-local Nx CLI path with official Nx defaults.
   result fails on locked Habitat/Grit findings in `habitat:check` targets; the
   lint targets themselves pass. This is existing architecture rule debt, not
   yargs/dependency resolution, Nx invocation, or Biome formatting failure.
-- Implementation commit exists as `46e5cdc57 fix(habitat): normalize Nx workflow graph`.
+- Fresh verification worktree proof:
+  - Created a detached fresh verification worktree from the committed branch
+    head so the active HR branch remained checked out only in the HR worktree.
+  - `bun install` passed in the fresh worktree.
+  - Initial `bun run verify` failed because the official resources submodule was
+    not initialized in the fresh worktree. `bun run resources:init` initialized
+    `.civ7/outputs/resources` through the repo-owned resource workflow, and the
+    generated-output side effects from the failed attempt were restored before
+    rerunning proof.
+  - `bun run verify` then passed through direct `nx run-many --targets=verify`.
+  - `nx run @internal/habitat-harness:build --output-style=stream` passed.
+  - `nx run --project=@internal/habitat-harness --target=habitat:rule:workspace-entrypoints`
+    passed.
+  - `nx run @civ7/direct-control:build --output-style=stream` passed.
+  - The fresh worktree was source-clean before removal and was removed after
+    verification. Removal used the explicit forced worktree removal path because
+    the proof worktree intentionally contained the initialized resources
+    submodule; it contained no unique source edits.
+- Non-proof probes during the fresh-worktree pass:
+  - `nx run @internal/habitat-harness:test --output-style=stream` was current-red
+    on broader Habitat/Grit/tooling tests and is not claimed by this H1
+    worktree-state proof.
+  - `nx run @internal/habitat-harness:generated:check --output-style=stream`
+    was current-red on Swooper generated map drift and remains generated-output
+    freshness debt, not Nx invocation failure.
 
 ## Current Next Action
 
-Verify from a fresh worktree created from the committed branch, then record the
-install/build/verify results and remove the verification worktree.
+Fresh-worktree proof record is locally committed and awaiting supervisor
+acceptance or repair.
