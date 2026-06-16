@@ -4,8 +4,9 @@
 
 ### Objective
 
-Make `grit-recipe-runtime-domain-ops` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Close `grit-recipe-runtime-domain-ops` as a row-owned active Habitat/Grit check
+with exact predicate behavior, current-tree zero-candidate proof, wrapper
+projection, baseline ownership, and row-specific injected path-control proof.
 
 ### Product Movement
 
@@ -22,9 +23,9 @@ contract roots stay in contract and step-boundary surfaces.
 - Registry scope: `mods/*/src/recipes/**/recipe.ts`
 - Current wrapper root that can exercise this row:
   `mods/mod-swooper-maps/src/recipes`
-- Current Grit predicate scope:
-  `mods/<mod>/src/recipes/**/recipe.ts` with an import source matching
-  `.*@mapgen/domain/[^/]+$`
+- Repaired current Grit predicate scope:
+  `mods/<mod>/src/recipes/**/recipe.ts` import declarations with exact
+  optional-quote sources shaped `@mapgen/domain/<domain>`
 - Forbidden current source class:
   runtime recipe imports from domain contract roots.
 - Allowed current source class:
@@ -38,9 +39,10 @@ contract roots stay in contract and step-boundary surfaces.
 3. Native fixture proof, parser inventory, Habitat wrapper behavior, raw Grit
    acquisition, injected proof, baseline behavior, and product proof are
    separate proof classes.
-4. The current predicate includes all `mods/<mod>/src/recipes/**/recipe.ts`
-   paths and source-prefix root lookalikes; recording those facts is not
-   predicate repair or exact policy closure.
+4. The repaired predicate includes all `mods/<mod>/src/recipes/**/recipe.ts`
+   import declarations and excludes source-prefix, relative, protocol, trailing
+   slash, `/ops`, `/config.js`, deep domain, re-export, dynamic, and
+   non-`recipe.ts` controls.
 5. Current parser inventory over Swooper recipes is not all-mod wrapper
    enforcement proof.
 
@@ -56,11 +58,11 @@ contract roots stay in contract and step-boundary surfaces.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if a live runtime `recipe.ts` domain-root import is found but recorded
-as a pass without owner disposition, if temporary inventory artifacts are cited
-as durable proof, or if current-predicate lookalikes are treated as exact policy
-closure.
+This checkpoint fails if a live runtime `recipe.ts` domain-root import is found
+but recorded as a pass without owner disposition, if temporary inventory
+artifacts are cited as durable proof, if source lookalikes report, or if raw
+acquisition, apply safety, all-mod wrapper enforcement, or product/runtime proof
+is claimed from this check row.
 
 ## Source Synthesis
 
@@ -76,9 +78,9 @@ implementations by op id.
 `docs/projects/habitat-harness/invariant-corpus.md` records the retired
 `eslint-recipe-domain-ops` invariant and assigns it to `grit-check`.
 
-The current Grit predicate matches `import ... from <source>` in
-`mods/<mod>/src/recipes/**/recipe.ts` when `<source>` ends with
-`@mapgen/domain/<domain>`.
+The repaired Grit predicate uses `import_statement(source=$source)` in
+`mods/<mod>/src/recipes/**/recipe.ts` and matches exact optional-quote
+`@mapgen/domain/<domain>` source specifiers.
 
 Current source exemplars:
 
@@ -99,7 +101,8 @@ Current source exemplars:
 | Browser-test runtime `recipe.ts` domain-root import | Reports |
 | Other-mod runtime `recipe.ts` domain-root import | Reports as a raw current-predicate fact |
 | Nested runtime `recipe.ts` domain-root import | Reports |
-| Source-prefix root lookalike | Reports as a current-predicate fact |
+| Single-quote runtime `recipe.ts` domain-root import | Reports |
+| Source-prefix, source-relative, or source-protocol root lookalike | Does not report |
 | Approved `/ops` import | Does not report |
 | Domain `/config.js` or deeper domain path | Does not report under this predicate |
 | Non-`recipe.ts`, `.tsx`, maps, package, and step-contract paths | Do not report |
@@ -109,28 +112,41 @@ Current source exemplars:
 
 This row checkpoint may record:
 
-- native fixture/parser-edge proof for current-predicate behavior;
+- predicate repair and native fixture/parser-edge proof for current-predicate
+  behavior;
 - parser inventory/live zero-candidate evidence over
   `mods/mod-swooper-maps/src/recipes`;
+- Habitat per-rule wrapper and aggregate `grit-check` proof;
+- explicit empty baseline proof through `baseline-integrity`;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
 Current proof ids:
 
-- `RDO-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for 9
-  current-predicate positive classes and the recorded controls.
-- `RDO-RECIPE-INVENTORY-2026-06-15`: parser inventory/live zero-candidate
+- `RDO-PREDICATE-REPAIR-2026-06-16`: exact source predicate repair.
+- `RDO-NATIVE-FIXTURES-2026-06-16`: native fixture/parser-edge proof for 9
+  positive classes and the recorded controls.
+- `RDO-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus remains
+  green with RDO included.
+- `RDO-RECIPE-INVENTORY-2026-06-16`: parser inventory/live zero-candidate
   evidence over the current Swooper recipe root.
+- `RDO-PER-RULE-SELECTOR-2026-06-16`: per-rule wrapper proof.
+- `RDO-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` proof.
+- `RDO-BASELINE-FILES-2026-06-16`: explicit empty baseline plus wrapper
+  `baseline-integrity` proof.
+- `RDO-INJECTED-PROBE-2026-06-16`: row-specific injected violation and
+  path-control proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
-- product proof.
+- all-mod wrapper enforcement beyond current wrapper roots;
+- retired parity;
+- aggregate injected-corpus closure while DDIT remains blocked;
+- product/runtime proof.
 
 ## Downstream Records
 

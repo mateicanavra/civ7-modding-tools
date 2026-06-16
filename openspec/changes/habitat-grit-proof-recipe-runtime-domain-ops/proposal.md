@@ -5,13 +5,12 @@ recipe boundary: recipe compilation files bind runtime op bundles from
 `@mapgen/domain/<domain>/ops`, not domain contract roots. This is a source
 shape rule inside the recipe tree, so it belongs to `grit-check`.
 
-The rule is registered and has a native sample, but the row still needs
-row-level proof before future agents can treat it as executable structural
-truth. This checkpoint opens the row packet and proves the current predicate's
-native fixture/parser behavior and current Swooper recipe runtime inventory
-only. It does not claim Habitat wrapper selector truth, raw acquisition,
-injected cleanup, baseline behavior, Effect adapter behavior, apply safety, or
-product proof because those surfaces are outside this row's current stack/base.
+This checkpoint closes the row's executable proof boundary. It repairs the Grit
+predicate to exact optional-quote `@mapgen/domain/<domain>` source specifiers,
+keeps source-prefix/relative/protocol lookalikes as controls, proves current
+native fixture behavior, proves current Swooper recipe runtime inventory, and
+records per-rule wrapper, aggregate `grit-check`, explicit empty baseline, and
+row-specific injected violation/path-control proof.
 
 ## Target Authority Refs
 
@@ -29,27 +28,28 @@ product proof because those surfaces are outside this row's current stack/base.
 
 - Add a per-pattern OpenSpec packet for
   `habitat-grit-proof-recipe-runtime-domain-ops`.
-- Expand the native fixture for current-predicate behavior:
+- Repair the native predicate and fixture for current-predicate behavior:
   - runtime `recipe.ts` imports from domain roots report;
-  - default, named, namespace, type-only, side-effect, nested recipe, raw
-    all-mod, and source-prefix classes are recorded as current-predicate facts;
+  - default, named, namespace, type-only, side-effect, single-quote, nested
+    recipe, browser-test recipe, and other-mod raw predicate classes report;
   - approved `/ops`, config/deep domain paths, non-`recipe.ts` files, `.tsx`,
-    maps, packages, step contracts, re-exports, dynamic imports, and trailing
-    slash paths remain controls.
+    maps, packages, step contracts, re-exports, dynamic imports, trailing slash
+    paths, and source-prefix/relative/protocol lookalikes remain controls.
 - Record a parser inventory over the current Swooper recipe scan root with exact
   scan root, exclusions, counts, row id, and proof-class labels in durable
   records.
+- Record current per-rule wrapper, aggregate `grit-check`, baseline-integrity,
+  and row-specific injected probe proof for this active check.
 - Update the aggregate Grit proof matrix, command proof log, and corpus ledger
-  for this row's current checkpoint.
+  for this row's current closure checkpoint.
 
 ## What Does Not Change
 
 - No recipe source imports are changed.
-- No pattern predicate repair is claimed.
 - No generated recipe artifacts are edited.
-- No Habitat wrapper/current-tree proof is claimed.
-- No raw Grit acquisition, baseline, injected cleanup, Effect adapter, apply
-  safety, or product proof is claimed.
+- No raw Grit acquisition, source remediation, Effect adapter closure, apply
+  safety, retired parity, all-mod wrapper enforcement beyond current wrapper
+  roots, aggregate injected-corpus closure, or product/runtime proof is claimed.
 
 ## Owner Boundary
 
@@ -63,25 +63,26 @@ selector/baseline/adapter implementation.
 ## Requires
 
 - Supervisor acceptance before stacking another row above this checkpoint.
-- A landed/restacked command-trust layer before Habitat wrapper selector proof.
-- An accepted typed adapter/probe cleanup surface before injected proof.
-- The scaffold/baseline contract surface before explicit baseline proof.
 - A separate apply row before any exact import normalization claim.
 
 ## Stop Conditions
 
-- Native fixture behavior requires predicate semantics repair rather than
-  current-predicate proof expansion.
+- Native fixture behavior finds a parser form that the repaired predicate cannot
+  express safely.
 - Current inventory finds live runtime `recipe.ts` domain-root imports and no
   owner accepts remediation or baseline disposition.
 - Closure would rely on temporary stdout artifacts or scratch files.
-- Closure would claim wrapper, raw acquisition, baseline, injected, Effect
-  adapter, apply, or product proof from native fixture/parser inventory
-  evidence.
+- Closure would claim raw acquisition, Effect adapter, apply, all-mod wrapper
+  enforcement, or product proof from native fixture/parser inventory evidence.
 
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter recipe_runtime_domain_ops --json`
+- `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --json`
+- `bun run habitat:check -- --json --rule grit-recipe-runtime-domain-ops`
+- `bun run habitat:check -- --json --tool grit-check`
+- `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
 - `bun run openspec -- validate habitat-grit-proof-recipe-runtime-domain-ops --strict`
+- `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - `bun run openspec:validate`
 - `git diff --check`
