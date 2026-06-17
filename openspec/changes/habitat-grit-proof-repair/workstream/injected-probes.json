@@ -342,11 +342,11 @@
     "sourcePredicate": "domain op imports domain-root config facade",
     "match": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-      "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
+      "body": "export async function loadConfig() {\n  return import(\"../../config.js\");\n}\n"
     },
     "control": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
-      "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
+      "body": "export async function loadConfig() {\n  return import(\"../../config.js\");\n}\n"
     }
   },
   {

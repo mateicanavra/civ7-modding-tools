@@ -5,16 +5,11 @@ domain-refactor boundary profile. Domain ops should receive normalized config
 contracts and must not reach back to domain-root config facades through parent
 traversal; root config facades are composition surfaces.
 
-This checkpoint opens the row packet before proof closure and limits the row to
-row-owned check proof: native Grit fixture behavior, parser inventory over
-current domain source, and record truth. Current restacked shared wrapper
-selector/current-tree, explicit baseline file/integrity, and injected-probe API
-proof are inherited only through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`,
-`HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`. Raw direct Grit acquisition remains
-explicitly unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
+This checkpoint repairs the row predicate so the enforced check covers the
+current module-edge recurrence class: static imports, re-exports, and dynamic
+string-literal imports from parent-traversal domain-root `config.js` facades in
+domain-op `.ts` files. Raw direct Grit acquisition remains explicitly
+unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 
 ## Target Authority Refs
 
@@ -29,20 +24,20 @@ explicitly unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 
 ## What Changes
 
-- Expand the native Grit fixture for `domain_ops_root_config`.
+- Repair the native Grit predicate and fixture for `domain_ops_root_config`.
 - Record current-predicate positives for upward root-config import
-  declarations from Swooper domain-op `.ts` files at two-or-more parent
-  traversal levels.
+  declarations, re-exports, and dynamic string-literal imports from Swooper
+  domain-op `.ts` files at two-or-more parent traversal levels.
 - Record import-form positives for default, named, namespace, type-only,
-  side-effect, and single-quoted imports.
+  side-effect, and single-quoted imports, plus named/star re-export and dynamic
+  import positives.
 - Record controls for local config, one-parent config, non-op domain paths,
   other mods, `.tsx`, recipe paths, extensionless paths, JSON paths,
-  re-exports, dynamic imports, and source strings.
+  one-parent re-exports, one-parent/JSON dynamic imports, and source strings.
 - Record deterministic TypeScript parser inventory over
   `mods/mod-swooper-maps/src/domain`, with exact current-predicate counts and
   zero current-row candidates.
-- Update aggregate proof matrix, command proof log, and corpus ledger for this
-  row's current checkpoint.
+- Update only proof-relevant DORC packet and aggregate rows for this repair.
 
 ## What Does Not Change
 
@@ -54,12 +49,14 @@ explicitly unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 - No product/runtime Civ7 behavior is claimed.
 - No retired wrapped-script parity or broader domain-refactor closure is
   claimed.
-- No export-from or dynamic-import root-config closure is claimed.
+- No neighboring source families or non-string dynamic import closure is
+  claimed.
 
 ## Owner Boundary
 
-This workstream owns fixture, parser inventory, and proof-record truth for
-`grit-domain-ops-root-config`.
+This workstream owns predicate repair, fixture proof, parser inventory,
+wrapper proof, baseline proof, injected violation/path-control proof, and
+proof-record truth for `grit-domain-ops-root-config`.
 
 This workstream does not own domain source remediation, config architecture,
 classify/generator behavior, broader domain-refactor full-profile parity, safe
@@ -69,7 +66,7 @@ writes, or product runtime proof.
 
 - Supervisor acceptance before stacking another Grit row above this checkpoint.
 - Row-local source-owner disposition if future inventory finds live current-row
-  root-config import candidates.
+  root-config candidates.
 - A separate apply/remediation row before mutating domain implementation source.
 - A separate proof row before claiming raw acquisition, retired parity, broader
   config architecture closure, classify/generator behavior, or product/runtime
@@ -83,16 +80,18 @@ writes, or product runtime proof.
   remediation, blocker, or baseline disposition.
 - Records would cite scratch stdout files as durable proof instead of command
   shape, scan roots, exclusions, counts, and non-claims.
-- Closure would claim wrapper/current-tree, raw acquisition, row-specific
-  injected cleanup, baseline mutation, apply safety, broader domain-refactor
-  parity, classify, generator, or product proof from native fixture/parser
-  inventory evidence.
+- Closure would claim raw acquisition, baseline mutation, apply safety, broader
+  domain-refactor parity, classify, generator, non-string dynamic import, or
+  product proof from native fixture/parser inventory evidence.
 
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter domain_ops_root_config --json`
 - Deterministic TypeScript parser inventory over
   `mods/mod-swooper-maps/src/domain`
+- `bun run habitat:check -- --json --rule grit-domain-ops-root-config`
+- `bun run habitat:check -- --json --tool grit-check`
+- Clean-start injected probe runner
 - `bun run openspec -- validate habitat-grit-proof-domain-ops-root-config --strict`
 - `bun run openspec:validate`
 - `git diff --check`

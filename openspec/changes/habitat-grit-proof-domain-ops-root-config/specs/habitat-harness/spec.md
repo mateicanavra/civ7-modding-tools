@@ -13,11 +13,10 @@ classify/generator behavior, and downstream record truth.
 - **WHEN** `grit patterns test --filter domain_ops_root_config --json` exits 0
 - **THEN** Habitat records native fixture proof for
   `domain_ops_root_config`
-- **AND** Habitat SHALL NOT claim raw acquisition, row-specific injected
-  cleanup/path-control closure, baseline mutation, classify/generator behavior,
-  apply safety, retired parity, broader domain-refactor closure,
-  export-from closure, dynamic import closure, or product/runtime proof from
-  that command
+- **AND** Habitat SHALL NOT claim raw acquisition, baseline mutation,
+  classify/generator behavior, apply safety, retired parity,
+  broader domain-refactor closure, non-string dynamic import closure, or
+  product/runtime proof from that command
 
 #### Scenario: Domain parser inventory is recorded
 
@@ -35,11 +34,19 @@ domain-root `config.js` facades under the current
 `grit-domain-ops-root-config` predicate for
 `mods/mod-swooper-maps/src/domain/**/ops/**/*.ts`.
 
-#### Scenario: Domain op imports a supported root config facade path
+#### Scenario: Domain op statically imports a supported root config facade path
 
 - **WHEN** a Swooper domain-op `.ts` file imports from `config.js` through
   two-or-more parent traversal
 - **THEN** `grit-domain-ops-root-config` SHALL report the import
+
+#### Scenario: Domain op re-exports or dynamically imports a supported root config facade path
+
+- **WHEN** a Swooper domain-op `.ts` file re-exports from `config.js` through
+  two-or-more parent traversal
+- **OR** dynamically imports a string-literal `config.js` source through
+  two-or-more parent traversal
+- **THEN** `grit-domain-ops-root-config` SHALL report the module edge
 
 #### Scenario: Domain op imports local config
 
@@ -50,8 +57,8 @@ domain-root `config.js` facades under the current
 
 #### Scenario: Root config source appears outside current import predicate
 
-- **WHEN** the same root config source appears outside a Swooper domain-op
-  `.ts` import declaration
+- **WHEN** the same root config source appears outside a supported Swooper
+  domain-op `.ts` import, re-export, or dynamic string-literal import
 - **THEN** this row SHALL classify it as a current predicate gap or control,
   not as a proven clean closure class
 
@@ -60,13 +67,13 @@ domain-root `config.js` facades under the current
 Habitat SHALL keep proof classes separate for
 `grit-domain-ops-root-config`.
 
-#### Scenario: Shared proof is inherited but row-local proof is unrun
+#### Scenario: Row proof classes stay separated
 
-- **WHEN** current restacked shared wrapper selector, explicit baseline, and
-  injected-probe API proof exist through accepted HGPR ids
-- **THEN** row records MAY cite those shared ids as inherited current state
+- **WHEN** row-specific wrapper, explicit baseline, and injected-probe proof
+  exist for `grit-domain-ops-root-config`
+- **THEN** row records MAY cite those proof ids for the supported current
+  predicate classes
 - **AND** row records SHALL keep raw direct Grit acquisition, row-specific
-  injected cleanup/path-control closure, export-from closure, dynamic import
-  closure, source remediation, classify/generator behavior, retired parity,
-  apply safety, and product proof as separate non-claims unless separately
-  proven
+  source remediation, classify/generator behavior, retired parity, apply
+  safety, non-string dynamic import closure, and product proof as separate
+  non-claims unless separately proven
