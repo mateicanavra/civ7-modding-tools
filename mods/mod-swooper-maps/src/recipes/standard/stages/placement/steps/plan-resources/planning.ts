@@ -1,9 +1,9 @@
 import { getCiv7StandardMapSizePresetForDimensions } from "@civ7/adapter";
 import { CIV7_POLICY_TABLES_V1 } from "@civ7/map-policy";
 import {
-  EARTHLIKE_RESOURCE_EXPECTATIONS,
   buildHabitatEligibility,
   buildResourceLegalityMask,
+  EARTHLIKE_RESOURCE_EXPECTATIONS,
   getInitialMapResourcePolicyForType,
   type OfficialResourceType,
   RESOURCE_HABITAT_SIGNALS,

@@ -39,18 +39,18 @@ Before registration, live deep imports in mod tests were remediated:
 Parser inventory after remediation found zero forbidden static import or
 re-export candidates in the current predicate.
 
-## Adapter Activation Disposition
+## Adapter Projection Disposition
 
 Native Grit can match DDIT-owned test files, including side-effect imports, when
-the file is passed directly to Grit. The current Habitat wrapper selector also
-selects `grit-domain-deep-import-tests`, but the shared Grit scan/ignore
-configuration still omits the owned mod/package test roots and the injected
-mirror path. A broad `.gritignore` removal would activate the probe, but it also
-changes scan policy for unrelated test trees and is not part of this row.
+the file is passed directly to Grit. The accepted downstack HR adapter projection
+repair now gives the Habitat wrapper and injected runner the same row-scoped test
+projection without broad `.gritignore` removal.
 
-DDIT therefore remains blocked on a narrow Habitat Grit adapter scan-root/ignore
-activation repair before wrapper/current-tree or injected cleanup proof can be
-claimed.
+Current per-rule wrapper, aggregate `grit-check`, and clean-start injected proof
+therefore close DDIT wrapper/current-tree projection and injected
+violation/path-control. The row still does not claim raw direct Grit acquisition,
+dynamic import closure, source-string closure, package export-map closure, apply
+safety, broader domain-refactor closure, or product/runtime behavior.
 
 ## GritQL Design Notes
 

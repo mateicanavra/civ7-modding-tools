@@ -7,9 +7,9 @@ import {
 } from "@swooper/mapgen-core/lib/grid";
 
 import { BOUNDARY_TYPE } from "../../src/domain/foundation/constants.js";
-import { assertSameMountainFamilySelection } from "../../src/domain/morphology/ops.js";
 import planFoothills from "../../src/domain/morphology/ops/plan-foothills/index.js";
 import planRidges from "../../src/domain/morphology/ops/plan-ridges/index.js";
+import { assertSameMountainFamilySelection } from "../../src/domain/morphology/ops.js";
 
 function countMask(mask: Uint8Array): number {
   let count = 0;

@@ -1,55 +1,13 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import PlanTerrestrialResourcesContract from "../contract.js";
-
-type TerrestrialResourceType =
-  | "RESOURCE_CAMELS"
-  | "RESOURCE_HIDES"
-  | "RESOURCE_HORSES"
-  | "RESOURCE_WOOL"
-  | "RESOURCE_IVORY"
-  | "RESOURCE_FURS"
-  | "RESOURCE_TRUFFLES"
-  | "RESOURCE_RUBBER"
-  | "RESOURCE_HARDWOOD"
-  | "RESOURCE_WILD_GAME"
-  | "RESOURCE_LLAMAS";
-
-type MaskField =
-  | "aridRangelandMask"
-  | "openGrassPlainsMask"
-  | "tundraColdEdgeMask"
-  | "hillHighlandMask"
-  | "savannaWateringHoleMask"
-  | "tropicalForestEdgeMask"
-  | "taigaBorealForestMask"
-  | "moistWoodlandEdgeMask"
-  | "tropicalForestMask"
-  | "diverseWildHabitatMask"
-  | "tropicalHighlandMask";
-
-type SuppressionField =
-  | "coldMask"
-  | "aridWithoutWaterMask"
-  | "denseForestMask"
-  | "cultivatedPressureMask";
-
-type TerrestrialLaneId =
-  | "arid-rangeland"
-  | "open-grazing"
-  | "highland-pastoral"
-  | "savanna-megafauna"
-  | "cold-boreal-furs"
-  | "woodland-host"
-  | "tropical-forest-product"
-  | "diverse-wild-habitat"
-  | "tropical-highland-pastoral";
-
-type ResourceSignals = {
-  readonly laneId: TerrestrialLaneId;
-  readonly primary: readonly MaskField[];
-  readonly suppress: readonly SuppressionField[];
-};
+import {
+  TERRESTRIAL_RESOURCE_TYPES,
+  TERRESTRIAL_SIGNALS,
+  type TerrestrialMaskField,
+  type TerrestrialResourceSignals,
+  type TerrestrialResourceType,
+} from "../signals.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -57,83 +15,6 @@ const DEFAULT_RANGE = {
   target: 0,
   max: 0,
   evidence: "blocked" as const,
-};
-
-const TERRESTRIAL_RESOURCE_TYPES: readonly TerrestrialResourceType[] = [
-  "RESOURCE_CAMELS",
-  "RESOURCE_HIDES",
-  "RESOURCE_HORSES",
-  "RESOURCE_WOOL",
-  "RESOURCE_IVORY",
-  "RESOURCE_FURS",
-  "RESOURCE_TRUFFLES",
-  "RESOURCE_RUBBER",
-  "RESOURCE_HARDWOOD",
-  "RESOURCE_WILD_GAME",
-  "RESOURCE_LLAMAS",
-];
-
-export const TERRESTRIAL_SIGNALS: Record<TerrestrialResourceType, ResourceSignals> = {
-  RESOURCE_CAMELS: {
-    laneId: "arid-rangeland",
-    primary: ["aridRangelandMask", "openGrassPlainsMask"],
-    suppress: ["coldMask"],
-  },
-  RESOURCE_HIDES: {
-    laneId: "open-grazing",
-    primary: ["openGrassPlainsMask", "tundraColdEdgeMask"],
-    suppress: ["denseForestMask"],
-  },
-  RESOURCE_HORSES: {
-    laneId: "open-grazing",
-    primary: ["openGrassPlainsMask"],
-    suppress: ["denseForestMask", "aridWithoutWaterMask"],
-  },
-  RESOURCE_WOOL: {
-    laneId: "highland-pastoral",
-    primary: ["hillHighlandMask", "aridRangelandMask", "tundraColdEdgeMask"],
-    suppress: [],
-  },
-  RESOURCE_IVORY: {
-    laneId: "savanna-megafauna",
-    primary: ["savannaWateringHoleMask", "tropicalForestEdgeMask"],
-    suppress: ["coldMask"],
-  },
-  RESOURCE_FURS: {
-    laneId: "cold-boreal-furs",
-    primary: ["taigaBorealForestMask", "tundraColdEdgeMask"],
-    suppress: [],
-  },
-  RESOURCE_TRUFFLES: {
-    laneId: "woodland-host",
-    primary: ["moistWoodlandEdgeMask"],
-    suppress: ["aridWithoutWaterMask"],
-  },
-  RESOURCE_RUBBER: {
-    laneId: "tropical-forest-product",
-    primary: ["tropicalForestMask"],
-    suppress: ["aridWithoutWaterMask", "coldMask"],
-  },
-  RESOURCE_HARDWOOD: {
-    laneId: "tropical-forest-product",
-    primary: ["tropicalForestMask", "taigaBorealForestMask"],
-    suppress: [],
-  },
-  RESOURCE_WILD_GAME: {
-    laneId: "diverse-wild-habitat",
-    primary: [
-      "diverseWildHabitatMask",
-      "tropicalForestMask",
-      "openGrassPlainsMask",
-      "tundraColdEdgeMask",
-    ],
-    suppress: ["cultivatedPressureMask"],
-  },
-  RESOURCE_LLAMAS: {
-    laneId: "tropical-highland-pastoral",
-    primary: ["tropicalHighlandMask"],
-    suppress: [],
-  },
 };
 
 export const defaultStrategy = createStrategy(PlanTerrestrialResourcesContract, "default", {
@@ -253,18 +134,24 @@ function validateGrid(width: number, height: number): number {
   return size;
 }
 
-function presentFields(input: Record<string, unknown>, fields: readonly MaskField[]): string[] {
+function presentFields(
+  input: Record<string, unknown>,
+  fields: readonly TerrestrialMaskField[]
+): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
   input: Record<string, unknown>,
   size: number,
-  signals: ResourceSignals
+  signals: TerrestrialResourceSignals
 ): number {
   const primaryMasks = signals.primary
     .map((field) => ({ field, mask: readMask(input, field, size) }))
-    .filter((entry): entry is { field: MaskField; mask: Uint8Array } => entry.mask !== undefined);
+    .filter(
+      (entry): entry is { field: TerrestrialMaskField; mask: Uint8Array } =>
+        entry.mask !== undefined
+    );
   if (primaryMasks.length === 0) return 0;
 
   const suppressMasks = signals.suppress

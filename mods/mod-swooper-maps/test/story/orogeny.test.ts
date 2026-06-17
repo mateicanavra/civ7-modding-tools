@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import {
   getStoryOverlay,
-  storyTagOrogenyBelts,
   STORY_OVERLAY_KEYS,
+  storyTagOrogenyBelts,
 } from "@mapgen/domain/narrative";
 import { createExtendedMapContext } from "@swooper/mapgen-core";
 

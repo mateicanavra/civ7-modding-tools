@@ -1,58 +1,13 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import PlanCultivatedResourcesContract from "../contract.js";
-
-type CultivatedResourceType =
-  | "RESOURCE_COTTON"
-  | "RESOURCE_DATES"
-  | "RESOURCE_DYES"
-  | "RESOURCE_INCENSE"
-  | "RESOURCE_SILK"
-  | "RESOURCE_WINE"
-  | "RESOURCE_COCOA"
-  | "RESOURCE_SPICES"
-  | "RESOURCE_SUGAR"
-  | "RESOURCE_TEA"
-  | "RESOURCE_COFFEE"
-  | "RESOURCE_TOBACCO"
-  | "RESOURCE_CITRUS"
-  | "RESOURCE_QUININE"
-  | "RESOURCE_MANGOS"
-  | "RESOURCE_RICE"
-  | "RESOURCE_CLOVES"
-  | "RESOURCE_FLAX";
-
-type MaskField =
-  | "warmAlluvialMask"
-  | "floodplainOrRiverMask"
-  | "warmGrassPlainsMask"
-  | "oasisOrDesertWaterMask"
-  | "aridDryWoodlandMask"
-  | "coastalMarineMask"
-  | "humidTropicalForestMask"
-  | "wetTropicsMask"
-  | "highlandOrReliefMask"
-  | "temperateDryPlainsMask"
-  | "savannaForestMask"
-  | "tropicalFruitMask"
-  | "wetlandPaddyMask"
-  | "coolTemperatePlainsMask";
-
-type SuppressionField = "coldMask" | "aridWithoutWaterMask" | "waterloggedMask";
-
-type ResourceSignals = {
-  readonly laneId:
-    | "alluvial-irrigated"
-    | "arid-oasis-resin"
-    | "marine-dye"
-    | "temperate-field-orchard"
-    | "humid-tropical-plantation"
-    | "highland-medicinal"
-    | "wetland-paddy"
-    | "blocked-no-valid-biome";
-  readonly primary: readonly MaskField[];
-  readonly suppress: readonly SuppressionField[];
-};
+import {
+  CULTIVATED_RESOURCE_TYPES,
+  CULTIVATED_SIGNALS,
+  type CultivatedMaskField,
+  type CultivatedResourceSignals,
+  type CultivatedResourceType,
+} from "../signals.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -60,120 +15,6 @@ const DEFAULT_RANGE = {
   target: 0,
   max: 0,
   evidence: "blocked" as const,
-};
-
-const CULTIVATED_RESOURCE_TYPES: readonly CultivatedResourceType[] = [
-  "RESOURCE_COTTON",
-  "RESOURCE_DATES",
-  "RESOURCE_DYES",
-  "RESOURCE_INCENSE",
-  "RESOURCE_SILK",
-  "RESOURCE_WINE",
-  "RESOURCE_COCOA",
-  "RESOURCE_SPICES",
-  "RESOURCE_SUGAR",
-  "RESOURCE_TEA",
-  "RESOURCE_COFFEE",
-  "RESOURCE_TOBACCO",
-  "RESOURCE_CITRUS",
-  "RESOURCE_QUININE",
-  "RESOURCE_MANGOS",
-  "RESOURCE_RICE",
-  "RESOURCE_CLOVES",
-  "RESOURCE_FLAX",
-];
-
-export const CULTIVATED_SIGNALS: Record<CultivatedResourceType, ResourceSignals> = {
-  RESOURCE_COTTON: {
-    laneId: "alluvial-irrigated",
-    primary: ["warmAlluvialMask", "floodplainOrRiverMask", "warmGrassPlainsMask"],
-    suppress: ["coldMask"],
-  },
-  RESOURCE_DATES: {
-    laneId: "arid-oasis-resin",
-    primary: ["oasisOrDesertWaterMask"],
-    suppress: ["coldMask"],
-  },
-  RESOURCE_DYES: {
-    laneId: "marine-dye",
-    primary: ["coastalMarineMask"],
-    suppress: [],
-  },
-  RESOURCE_INCENSE: {
-    laneId: "arid-oasis-resin",
-    primary: ["aridDryWoodlandMask"],
-    suppress: [],
-  },
-  RESOURCE_SILK: {
-    laneId: "alluvial-irrigated",
-    primary: ["floodplainOrRiverMask", "warmGrassPlainsMask"],
-    suppress: ["coldMask", "aridWithoutWaterMask"],
-  },
-  RESOURCE_WINE: {
-    laneId: "temperate-field-orchard",
-    primary: ["temperateDryPlainsMask", "warmGrassPlainsMask"],
-    suppress: ["coldMask"],
-  },
-  RESOURCE_COCOA: {
-    laneId: "humid-tropical-plantation",
-    primary: ["humidTropicalForestMask", "wetTropicsMask"],
-    suppress: ["aridWithoutWaterMask", "coldMask"],
-  },
-  RESOURCE_SPICES: {
-    laneId: "humid-tropical-plantation",
-    primary: ["humidTropicalForestMask", "wetTropicsMask"],
-    suppress: ["aridWithoutWaterMask"],
-  },
-  RESOURCE_SUGAR: {
-    laneId: "alluvial-irrigated",
-    primary: ["floodplainOrRiverMask", "wetTropicsMask", "warmAlluvialMask"],
-    suppress: ["coldMask", "aridWithoutWaterMask"],
-  },
-  RESOURCE_TEA: {
-    laneId: "highland-medicinal",
-    primary: ["highlandOrReliefMask", "wetTropicsMask"],
-    suppress: ["aridWithoutWaterMask"],
-  },
-  RESOURCE_COFFEE: {
-    laneId: "highland-medicinal",
-    primary: ["highlandOrReliefMask", "humidTropicalForestMask"],
-    suppress: ["aridWithoutWaterMask", "coldMask"],
-  },
-  RESOURCE_TOBACCO: {
-    laneId: "temperate-field-orchard",
-    primary: ["warmGrassPlainsMask", "savannaForestMask"],
-    suppress: ["coldMask", "waterloggedMask"],
-  },
-  RESOURCE_CITRUS: {
-    laneId: "temperate-field-orchard",
-    primary: ["tropicalFruitMask", "warmGrassPlainsMask", "warmAlluvialMask"],
-    suppress: ["coldMask"],
-  },
-  RESOURCE_QUININE: {
-    laneId: "highland-medicinal",
-    primary: ["highlandOrReliefMask", "humidTropicalForestMask", "savannaForestMask"],
-    suppress: ["aridWithoutWaterMask"],
-  },
-  RESOURCE_MANGOS: {
-    laneId: "humid-tropical-plantation",
-    primary: ["tropicalFruitMask", "wetTropicsMask", "humidTropicalForestMask"],
-    suppress: ["coldMask"],
-  },
-  RESOURCE_RICE: {
-    laneId: "wetland-paddy",
-    primary: ["wetlandPaddyMask", "floodplainOrRiverMask"],
-    suppress: ["aridWithoutWaterMask"],
-  },
-  RESOURCE_CLOVES: {
-    laneId: "blocked-no-valid-biome",
-    primary: [],
-    suppress: [],
-  },
-  RESOURCE_FLAX: {
-    laneId: "temperate-field-orchard",
-    primary: ["coolTemperatePlainsMask", "warmGrassPlainsMask"],
-    suppress: [],
-  },
 };
 
 export const defaultStrategy = createStrategy(PlanCultivatedResourcesContract, "default", {
@@ -295,18 +136,23 @@ function validateGrid(width: number, height: number): number {
   return size;
 }
 
-function presentFields(input: Record<string, unknown>, fields: readonly MaskField[]): string[] {
+function presentFields(
+  input: Record<string, unknown>,
+  fields: readonly CultivatedMaskField[]
+): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
   input: Record<string, unknown>,
   size: number,
-  signals: ResourceSignals
+  signals: CultivatedResourceSignals
 ): number {
   const primaryMasks = signals.primary
     .map((field) => ({ field, mask: readMask(input, field, size) }))
-    .filter((entry): entry is { field: MaskField; mask: Uint8Array } => entry.mask !== undefined);
+    .filter(
+      (entry): entry is { field: CultivatedMaskField; mask: Uint8Array } => entry.mask !== undefined
+    );
   if (primaryMasks.length === 0) return 0;
 
   const suppressMasks = signals.suppress

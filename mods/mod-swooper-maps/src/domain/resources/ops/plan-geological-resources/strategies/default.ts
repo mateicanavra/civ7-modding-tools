@@ -1,80 +1,13 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import PlanGeologicalResourcesContract from "../contract.js";
-
-// TODO: either import these from the official civ7 map policy package in our repo, or if they are local types put them in types
-type GeologicalResourceType =
-  | "RESOURCE_GOLD"
-  | "RESOURCE_GOLD_DISTANT_LANDS"
-  | "RESOURCE_SILVER"
-  | "RESOURCE_SILVER_DISTANT_LANDS"
-  | "RESOURCE_GYPSUM"
-  | "RESOURCE_JADE"
-  | "RESOURCE_KAOLIN"
-  | "RESOURCE_MARBLE"
-  | "RESOURCE_IRON"
-  | "RESOURCE_SALT"
-  | "RESOURCE_LAPIS_LAZULI"
-  | "RESOURCE_NITER"
-  | "RESOURCE_COAL"
-  | "RESOURCE_NICKEL"
-  | "RESOURCE_OIL"
-  | "RESOURCE_CLAY"
-  | "RESOURCE_LIMESTONE"
-  | "RESOURCE_TIN"
-  | "RESOURCE_PITCH"
-  | "RESOURCE_RUBIES";
-
-type GeologicalLaneId =
-  | "orogenic-hydrothermal"
-  | "blocked-derivative"
-  | "evaporite-sedimentary"
-  | "ultramafic-metamorphic"
-  | "weathering-clay"
-  | "carbonate-metamorphic"
-  | "craton-orogen"
-  | "closed-basin-salt"
-  | "blocked-no-valid-biome"
-  | "arid-nitrate"
-  | "sedimentary-fuel"
-  | "wet-alluvial-clay"
-  | "carbonate-industrial"
-  | "granite-orogen-placer"
-  | "hydrocarbon-seep"
-  | "ruby-metamorphic";
-
-type MaskField =
-  | "orogenyMask"
-  | "alluvialPlacerMask"
-  | "tundraDesertHillMask"
-  | "evaporiteBasinMask"
-  | "sedimentaryBasinMask"
-  | "ultramaficMask"
-  | "weatheringClayFlatMask"
-  | "carbonateBeltMask"
-  | "cratonMask"
-  | "closedBasinMask"
-  | "aridSoilMask"
-  | "forestWetlandBasinMask"
-  | "hydrocarbonBasinMask"
-  | "wetAlluvialMask"
-  | "graniteBeltMask"
-  | "oilAdjacencyMask"
-  | "metamorphicBeltMask"
-  | "collisionBeltMask";
-
-type SuppressionField =
-  | "flatNonGeologicMask"
-  | "wetSuppressionMask"
-  | "humidSuppressionMask"
-  | "offshoreMask"
-  | "igneousTerrainMask";
-
-type ResourceSignals = {
-  readonly laneId: GeologicalLaneId;
-  readonly primary: readonly MaskField[];
-  readonly suppress: readonly SuppressionField[];
-};
+import {
+  GEOLOGICAL_RESOURCE_TYPES,
+  GEOLOGICAL_SIGNALS,
+  type GeologicalMaskField,
+  type GeologicalResourceSignals,
+  type GeologicalResourceType,
+} from "../signals.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -82,132 +15,6 @@ const DEFAULT_RANGE = {
   target: 0,
   max: 0,
   evidence: "blocked" as const,
-};
-
-const GEOLOGICAL_RESOURCE_TYPES: readonly GeologicalResourceType[] = [
-  "RESOURCE_GOLD",
-  "RESOURCE_GOLD_DISTANT_LANDS",
-  "RESOURCE_SILVER",
-  "RESOURCE_SILVER_DISTANT_LANDS",
-  "RESOURCE_GYPSUM",
-  "RESOURCE_JADE",
-  "RESOURCE_KAOLIN",
-  "RESOURCE_MARBLE",
-  "RESOURCE_IRON",
-  "RESOURCE_SALT",
-  "RESOURCE_LAPIS_LAZULI",
-  "RESOURCE_NITER",
-  "RESOURCE_COAL",
-  "RESOURCE_NICKEL",
-  "RESOURCE_OIL",
-  "RESOURCE_CLAY",
-  "RESOURCE_LIMESTONE",
-  "RESOURCE_TIN",
-  "RESOURCE_PITCH",
-  "RESOURCE_RUBIES",
-];
-
-export const GEOLOGICAL_SIGNALS: Record<GeologicalResourceType, ResourceSignals> = {
-  RESOURCE_GOLD: {
-    laneId: "orogenic-hydrothermal",
-    primary: ["orogenyMask", "alluvialPlacerMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
-  RESOURCE_GOLD_DISTANT_LANDS: {
-    laneId: "blocked-derivative",
-    primary: [],
-    suppress: [],
-  },
-  RESOURCE_SILVER: {
-    laneId: "orogenic-hydrothermal",
-    primary: ["orogenyMask", "tundraDesertHillMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
-  RESOURCE_SILVER_DISTANT_LANDS: {
-    laneId: "blocked-derivative",
-    primary: [],
-    suppress: [],
-  },
-  RESOURCE_GYPSUM: {
-    laneId: "evaporite-sedimentary",
-    primary: ["evaporiteBasinMask", "sedimentaryBasinMask"],
-    suppress: ["wetSuppressionMask"],
-  },
-  RESOURCE_JADE: {
-    laneId: "ultramafic-metamorphic",
-    primary: ["ultramaficMask", "orogenyMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
-  RESOURCE_KAOLIN: {
-    laneId: "weathering-clay",
-    primary: ["weatheringClayFlatMask", "wetAlluvialMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
-  RESOURCE_MARBLE: {
-    laneId: "carbonate-metamorphic",
-    primary: ["carbonateBeltMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
-  RESOURCE_IRON: {
-    laneId: "craton-orogen",
-    primary: ["cratonMask", "orogenyMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
-  RESOURCE_SALT: {
-    laneId: "closed-basin-salt",
-    primary: ["closedBasinMask", "evaporiteBasinMask"],
-    suppress: ["humidSuppressionMask"],
-  },
-  RESOURCE_LAPIS_LAZULI: {
-    laneId: "blocked-no-valid-biome",
-    primary: [],
-    suppress: [],
-  },
-  RESOURCE_NITER: {
-    laneId: "arid-nitrate",
-    primary: ["closedBasinMask", "aridSoilMask"],
-    suppress: ["humidSuppressionMask"],
-  },
-  RESOURCE_COAL: {
-    laneId: "sedimentary-fuel",
-    primary: ["sedimentaryBasinMask", "forestWetlandBasinMask"],
-    suppress: [],
-  },
-  RESOURCE_NICKEL: {
-    laneId: "blocked-no-valid-biome",
-    primary: [],
-    suppress: [],
-  },
-  RESOURCE_OIL: {
-    laneId: "sedimentary-fuel",
-    primary: ["hydrocarbonBasinMask", "sedimentaryBasinMask"],
-    suppress: ["offshoreMask"],
-  },
-  RESOURCE_CLAY: {
-    laneId: "wet-alluvial-clay",
-    primary: ["wetAlluvialMask", "weatheringClayFlatMask"],
-    suppress: [],
-  },
-  RESOURCE_LIMESTONE: {
-    laneId: "carbonate-industrial",
-    primary: ["carbonateBeltMask"],
-    suppress: ["igneousTerrainMask"],
-  },
-  RESOURCE_TIN: {
-    laneId: "granite-orogen-placer",
-    primary: ["graniteBeltMask", "orogenyMask", "alluvialPlacerMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
-  RESOURCE_PITCH: {
-    laneId: "hydrocarbon-seep",
-    primary: ["hydrocarbonBasinMask", "oilAdjacencyMask"],
-    suppress: [],
-  },
-  RESOURCE_RUBIES: {
-    laneId: "ruby-metamorphic",
-    primary: ["metamorphicBeltMask", "collisionBeltMask"],
-    suppress: ["flatNonGeologicMask"],
-  },
 };
 
 export const defaultStrategy = createStrategy(PlanGeologicalResourcesContract, "default", {
@@ -327,18 +134,23 @@ function validateGrid(width: number, height: number): number {
   return size;
 }
 
-function presentFields(input: Record<string, unknown>, fields: readonly MaskField[]): string[] {
+function presentFields(
+  input: Record<string, unknown>,
+  fields: readonly GeologicalMaskField[]
+): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
   input: Record<string, unknown>,
   size: number,
-  signals: ResourceSignals
+  signals: GeologicalResourceSignals
 ): number {
   const primaryMasks = signals.primary
     .map((field) => ({ field, mask: readMask(input, field, size) }))
-    .filter((entry): entry is { field: MaskField; mask: Uint8Array } => entry.mask !== undefined);
+    .filter(
+      (entry): entry is { field: GeologicalMaskField; mask: Uint8Array } => entry.mask !== undefined
+    );
   if (primaryMasks.length === 0) return 0;
 
   const suppressMasks = signals.suppress

@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { createMockAdapter } from "@civ7/adapter";
 import {
   getStoryOverlay,
-  storyTagStrategicCorridors,
   STORY_OVERLAY_KEYS,
+  storyTagStrategicCorridors,
 } from "@mapgen/domain/narrative";
 import { CorridorsConfigSchema } from "@mapgen/domain/narrative/config.js";
 import { createExtendedMapContext, OCEAN_TERRAIN } from "@swooper/mapgen-core";

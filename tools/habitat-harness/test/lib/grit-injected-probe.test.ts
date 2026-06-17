@@ -321,8 +321,7 @@ describe("injected Grit probe harness", () => {
         expectedDiagnostic: "test deep import",
         scope: {
           adapterRoot: mirrorRoot,
-          rulesJsonScope:
-            "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+          rulesJsonScope: "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
           sourcePredicate: "test imports or re-exports domain deep internals",
           scanRoots: [mirrorRoot],
           exclusions: [],

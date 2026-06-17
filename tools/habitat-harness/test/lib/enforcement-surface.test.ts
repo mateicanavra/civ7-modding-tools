@@ -185,6 +185,14 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
     retirementTrigger:
       "Retain while built map bundle freshness is the owner of runtime-import semantics.",
   },
+  "arch-test-intelligence-bridge-bundle-runtime-imports": {
+    ownerTool: "wrapped-test",
+    proofClass: "architecture-test",
+    parserPolicy: "coarse-exit",
+    directOutputPolicy: "generated-output-gated",
+    retirementTrigger:
+      "Retain while built Intelligence Bridge bundle freshness is the owner of runtime-import semantics.",
+  },
   "arch-test-cutover": {
     ownerTool: "wrapped-test",
     proofClass: "architecture-test",
@@ -241,11 +249,11 @@ describe("enforcement surface inventory", () => {
     expect(ownerToolCounts()).toEqual({
       biome: 1,
       "file-layer": 4,
-      "grit-check": 22,
+      "grit-check": 31,
       "habitat-native": 4,
       "nx-boundaries": 1,
       "wrapped-script": 3,
-      "wrapped-test": 6,
+      "wrapped-test": 7,
     });
   });
 

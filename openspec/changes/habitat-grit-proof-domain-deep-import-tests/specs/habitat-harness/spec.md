@@ -68,13 +68,13 @@ Habitat SHALL keep proof classes separate for
   behavior, retired parity, apply safety, broader domain-refactor closure, and
   product proof as separate non-claims unless separately proven
 
-#### Scenario: Wrapper scan activation is blocked
+#### Scenario: Wrapper scan activation is proven
 
-- **WHEN** the Habitat wrapper selects `grit-domain-deep-import-tests` but the
-  shared Grit scan/ignore configuration omits the row-owned test roots or
-  injected mirrors
-- **THEN** row records SHALL treat wrapper/current-tree projection and injected
-  cleanup/path-control proof as blocked rather than satisfied
-- **AND** records SHALL NOT broaden global test scan policy from this row unless
-  a narrow adapter activation repair proves unrelated test roots remain
-  unaffected
+- **WHEN** the Habitat wrapper selects `grit-domain-deep-import-tests` after the
+  accepted adapter projection repair
+- **THEN** row records SHALL cite current per-rule wrapper proof, aggregate
+  `grit-check` proof, explicit baseline proof, and clean-start injected
+  violation/path-control proof before treating DDIT as closed
+- **AND** records SHALL NOT broaden global test scan policy from this row or
+  claim raw acquisition, dynamic/source-string closure, apply safety, or
+  product/runtime behavior

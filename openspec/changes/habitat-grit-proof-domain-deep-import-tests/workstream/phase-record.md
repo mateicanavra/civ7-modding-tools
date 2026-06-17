@@ -2,9 +2,10 @@
 
 ## Current Gate
 
-The DDIT native/parser/source checkpoint is implemented. Full active-row
-closure is blocked on a narrow Habitat Grit adapter scan-root/ignore activation
-repair for DDIT-owned test roots and injected mirrors.
+The DDIT native/parser/source checkpoint is implemented and the downstream HR
+adapter projection repair now supplies wrapper/current-tree and injected mirror
+projection for DDIT-owned test roots. This checkpoint closes the row-specific
+wrapper/current-tree and injected violation/path-control proof classes.
 
 ## Implemented Scope
 
@@ -19,17 +20,17 @@ repair for DDIT-owned test roots and injected mirrors.
 ## Proof Boundary
 
 Local proof classes already run are native fixture proof, parser inventory,
-per-rule selector/report commands, explicit empty baseline inventory, native Grit
-corpus refresh, and source-remediation type/build proof through the owning Nx
-target.
+per-rule wrapper/current-tree proof, aggregate `grit-check` wrapper proof,
+explicit empty baseline inventory, native Grit corpus refresh, source-remediation
+type/build proof through the owning Nx target, and clean-start injected
+violation/path-control proof.
 
-The per-rule and aggregate wrapper commands select DDIT and return 0
-diagnostics, but clean-start injected proof fails with
-`GritPatternProjectionMiss` because shared Grit scan/ignore configuration omits
-the row-owned test roots and injected mirror. Wrapper/current-tree projection
-over DDIT-owned test roots and injected cleanup/path-control proof therefore
-remain blocked until a narrow adapter activation repair lands. Broad removal of
-global test ignores is explicitly not part of this row.
+The per-rule wrapper command selects exactly DDIT plus `baseline-integrity`, the
+aggregate Grit wrapper includes DDIT in the 31-rule Grit set, and the clean-start
+injected runner passes 31/31 rows. DDIT reports one diagnostic at the injected
+test path and keeps the public-surface control clean. The adapter projection
+mechanism is supplied by the accepted downstack HR repair; broad removal of
+global test ignores remains outside this row.
 
 Raw direct Grit acquisition, dynamic import closure, source-string closure,
 package export-map closure, classify/generator behavior, apply safety, retired
@@ -38,8 +39,10 @@ non-claims.
 
 ## Next Actions
 
-- Supervisor accepted the DDIT native/parser/source checkpoint boundary. Keep
-  wrapper/current-tree projection and injected cleanup/path-control proof open
-  until a narrow Habitat Grit adapter scan-root/ignore activation repair lands.
-- After that repair lands, rerun wrapper, injected, baseline, OpenSpec, and
-  hygiene proof from the clean committed head before full active-row closure.
+- DDIT is ready for supervisor review as a row-specific wrapper/current-tree,
+  baseline, and injected violation/path-control closure over the accepted HR
+  adapter projection substrate.
+- Future work should not reopen the old `GritPatternProjectionMiss` blocker
+  unless a current command regresses; raw direct acquisition, dynamic/source
+  string closure, package export-map closure, apply safety, and product/runtime
+  behavior remain separate non-claims.
