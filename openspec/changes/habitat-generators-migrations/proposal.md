@@ -5,9 +5,11 @@ generators" and "agents classify before they author." With enforcement
 consolidated, the remaining gap is generative: creating a new
 package/plugin/pattern by hand invites the exact drift the harness exists to
 prevent, and harness convention changes have no propagation mechanism. This
-slice adds Nx generators for the repo's real project kinds, a pattern
-generator for new grit rules, harness migrations, and the agent operating
+historical slice added Nx generators for the repo's uniform project kinds, the
+first pattern-generator path, harness migration wiring, and the agent operating
 procedure wiring (AGENTS.md routing) that makes classify-first the default.
+Current repair packets supersede this slice where target truth, registered
+pattern authority, and migration proof boundaries require stricter contracts.
 
 ## Target Authority Refs
 
@@ -25,9 +27,11 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
   src/index.ts, test stub, and rule-pack-conformant layout; refuses kinds
   whose shape is not uniform yet (mod, engine, control) with a documented
   rationale.
-- `@internal/habitat-harness:pattern` generator: scaffolds a grit pattern +
-  fixtures + rule-pack entry + empty baseline (rule-introduction path with
-  the `--expand-baseline` gate from H2).
+- `@internal/habitat-harness:pattern` generator: historical H8 output produced
+  a grit pattern, fixtures, rule-pack entry, and empty baseline. Current
+  Pattern Authority repair changes sparse generation to candidate-only output;
+  registered advisory/enforced promotion requires accepted manifest, baseline,
+  current-tree, fixture, false-positive, and hook-scope gates.
 - Harness migrations wiring: migrations ship in the plugin's
   `migrations.json`; because `@internal/habitat-harness` is unpublished,
   `nx migrate @internal/habitat-harness` (npm-registry version
@@ -36,8 +40,10 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
   `./tools/habitat-harness`, then `nx migrate
   --run-migrations=<run-file>.json --skip-install`; versioned migration stubs
   so future harness convention changes propagate.
-- `habitat classify <path-or-diff>` completes: maps any path/diff to project,
-  tags, owning rules, and required targets (the agent entry point).
+- `habitat classify <path-or-diff>` completes the agent entry point. Current
+  classify repair resolves project ownership and emitted targets from Nx
+  metadata, records missing targets as unavailable, and separates project-local
+  targets from Habitat workspace gates.
 - Agent operating procedure: root `AGENTS.md` Tooling Defaults section gains
   the classify→generate→author→verify loop; harness README carries the full
   procedure (spec draft §10 adapted).
@@ -57,7 +63,9 @@ procedure wiring (AGENTS.md routing) that makes classify-first the default.
 
 ## Enables Parallel Work
 
-- Train complete; future rule-introduction changes use the pattern generator.
+- The H8 generator train is historical. Future rule-introduction changes use
+  Pattern Authority candidate generation and registered-promotion gates, not
+  the old direct rule-pack write path.
 
 ## Affected Owners
 
@@ -96,9 +104,11 @@ impossible for supported kinds.
   migration run file using package `./tools/habitat-harness` +
   `nx migrate --run-migrations=<run-file>.json --skip-install` (no
   registry resolution; the package is unpublished).
-- `habitat classify` spot-check matrix — four probe paths with expected
-  outputs (per `docs/projects/habitat-harness/taxonomy.md`), each naming the
-  owning project, tags, in-scope rules, and required verification targets:
+- Historical `habitat classify` spot-check matrix — four probe paths with
+  expected outputs (per `docs/projects/habitat-harness/taxonomy.md`), each
+  naming the owning project, tags, in-scope rules, and required verification
+  targets. Current classify proof additionally requires resolved Nx target
+  existence and unavailable-target modeling:
   - `packages/civ7-adapter/src/<any>.ts` → project `@civ7/adapter`, tag
     `kind:adapter` (adapter `/base-standard/` ownership rules in scope)
   - `mods/mod-swooper-maps/src/recipes/<any>` → project `mod-swooper-maps`,

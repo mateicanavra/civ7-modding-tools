@@ -3,8 +3,9 @@
 - [x] 1.1 Implement `project` generator for uniform kinds (plugin, foundation,
   app): package.json with tags, tsconfig, src/test stubs, workspace
   registration; refusal path with rationale for non-uniform kinds.
-- [x] 1.2 Implement `pattern` generator: grit pattern + fixtures + rule-pack
-  entry + empty baseline via the rule-introduction gate.
+- [x] 1.2 Implement historical `pattern` generator path. Current Pattern
+  Authority repair supersedes direct sparse rule-pack/baseline writes with
+  candidate-only output and registered-promotion gates.
 - [x] 1.3 Probe: one generated project per supported kind passes
   `habitat check` + build/check/test cold; remove probes.
 
@@ -20,8 +21,9 @@
 
 ## 3. Classify And Agent Procedure
 
-- [x] 3.1 Complete `habitat classify <path-or-diff>`: project, tags, owning
-  rules, required targets; JSON output.
+- [x] 3.1 Complete historical `habitat classify <path-or-diff>` JSON output.
+  Current classify repair supersedes static target claims with resolved Nx
+  target emission and unavailable-target modeling.
 - [x] 3.2 Update root `AGENTS.md` Tooling Defaults with the
   classify→generate→author→verify loop; full procedure in harness README.
 
@@ -29,7 +31,9 @@
 
 - [x] 4.1 All proposal gates pass; classify spot-checks recorded against the
   four-path expected-output matrix in the proposal (owning project, tags,
-  in-scope rules, required verification targets per path).
+  in-scope rules, and historical target output per path). Current target proof
+  is owned by `habitat-classify-generator-repair` and requires resolved Nx
+  target evidence plus unavailable-target modeling.
 - [x] 4.2 `bun run openspec -- validate habitat-generators-migrations
   --strict`; downstream realignment (AGENTS routers, process docs); train
   closure review against FRAME end-state checklist (§14 of spec draft input).

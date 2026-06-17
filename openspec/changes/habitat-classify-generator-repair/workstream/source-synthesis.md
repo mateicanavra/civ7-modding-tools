@@ -12,26 +12,57 @@ truth.
 
 ## Current Code Evidence
 
-- `classifyPath` manually scans workspace roots for `package.json` instead of
-  consuming resolved Nx project metadata.
-- `projectTargets()` always emits `<project>:check` and `<project>:test`.
-- `workspaceTargets()` emits fixed Habitat/Nx commands.
-- `rulesInScope` includes every rule owned by the classified project plus every
-  `@internal/habitat-harness` rule.
+- `classifyPath` consumes resolved Nx project graph metadata instead of
+  manually scanning workspace roots for `package.json`.
+- Project target emission is gated by resolved Nx target metadata. Missing
+  targets are recorded as unavailable instead of runnable commands.
+- `workspaceTargets()` emits fixed workspace gates with structured ownership
+  proof separate from project-local targets.
+- `rulesInScope` is now derived from structured `scopedRules` entries.
+  Classify distinguishes exact path matches, project-owner rules,
+  workspace-level gates, and unresolved metadata instead of presenting
+  owner-level aggregation as exact path truth.
+- Exact path extraction only consumes machine-readable scope strings. Scope
+  prose with unmodeled qualifiers such as exclusions or compound natural
+  language is not partially scraped into exact path truth.
 - `classifyTarget()` supports literal diffs and patch files by extracting
   changed paths and classifying each path.
-- Project generator supports `plugin`, `foundation`, and `app`, refuses other
-  kinds, writes package/config/source/test/README files, and accepts a
-  directory override.
+- Project generator supports only the canonical uniform `plugin`,
+  `foundation`, and `app` contracts. It refuses unsupported kinds, mismatched
+  roots, mismatched package names, non-empty roots, and workspace package-name
+  collisions before writes.
+- Generated scratch projects for supported `plugin`, `foundation`, and `app`
+  contracts are discoverable by Nx and expose `build`, `check`, and `test`
+  targets. Scratch proof uses temporary generated project roots in the normal
+  HR implementation worktree and removes those roots after proof.
 - Pattern generator remains separately governed by
   `habitat-pattern-generator-metadata-repair`.
-- Current migration metadata declares a no-op migration, which proves wiring
-  only.
+- Current migration metadata declares a no-op migration. It proves wiring only:
+  the implementation returns no file operations and `nx migrate` can execute it
+  from a hand-authored run file with no workspace changes.
 
 ## Fresh Command Evidence
 
 - `bun run habitat classify packages/civ7-adapter/src/index.ts` reports
-  `@civ7/adapter:check` and `@civ7/adapter:test`.
+  `@civ7/adapter:check`, does not report `@civ7/adapter:test`, and records
+  `test` as an unavailable project target.
+- `bun run habitat classify apps/mapgen-studio/src/main.tsx` reports
+  `grit-studio-recipe-artifacts` as `exact-path` because the path matches the
+  rule's current scope pattern.
+- `bun run habitat classify packages/civ7-adapter/src/index.ts` does not report
+  `grit-studio-recipe-artifacts`, and reports `adapter-boundary` as
+  `exact-path`.
+- `bun run habitat classify packages/civ7-adapter/src/index.ts` does not report
+  `grit-adapter-base-standard-import`; its `packages/**/*.ts outside
+  packages/civ7-adapter` prose scope is not machine-readable exact scan-root
+  metadata.
+- `bun run habitat classify packages/mapgen-core/src/core/index.ts` reports
+  `grit-mapgen-core-runtime-civ7` as `exact-path`, preserving pure glob scope
+  behavior for machine-readable metadata.
+- `bun run habitat classify mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts`
+  reports `grit-domain-ops-boundary-imports` as `exact-path` and
+  `grit-runtime-validation-imports` as `unresolved-metadata`, preserving the
+  row without pretending the current prose-only scope is exact.
 - `nx show project @civ7/adapter --json` reports targets `build`,
   `check`, and `nx-release-publish`.
 - `nx show target @civ7/adapter:test` exits 1 because the target is not
@@ -53,7 +84,32 @@ truth.
 - `nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
   refuses before writes.
 - `nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
-  plans files under `packages/`, showing kind/root mismatch is not refused yet.
+  refuses before writes because the `app` root contract is `apps/<name>`.
+- `nx g @internal/habitat-harness:project generator-plugin-probe --kind=plugin --dry-run`
+  plans only canonical plugin files under
+  `packages/plugins/plugin-generator-plugin-probe/`.
+- `nx g @internal/habitat-harness:project generator-foundation-probe --kind=foundation --dry-run`
+  plans only canonical foundation files under
+  `packages/generator-foundation-probe/`.
+- `nx g @internal/habitat-harness:project generator-app-probe --kind=app --dry-run`
+  plans only canonical app files under `apps/generator-app-probe/`.
+- `nx g @internal/habitat-harness:project adapter --kind=foundation --dry-run`
+  refuses before writes because `@civ7/adapter` already exists at
+  `packages/civ7-adapter/package.json`.
+- Non-dry-run scratch generation for `hr-proof-plugin`,
+  `hr-proof-foundation`, and `hr-proof-app` in the normal HR implementation
+  worktree creates only canonical project roots. `nx show project` discovers
+  `@civ7/plugin-hr-proof-plugin`, `@civ7/hr-proof-foundation`, and
+  `hr-proof-app` with matching `kind:*` tags, and `nx show target` resolves
+  `build`, `check`, and `test` for each generated project before targeted
+  cleanup removes the scratch roots.
+- `bun run --cwd tools/habitat-harness test -- migration-boundary.test.ts project-generator.test.ts`
+  proves the registered baseline migration is described as no-op wiring, not a
+  convention change, and that the implementation returns `[]`.
+- `bun run nx migrate --run-migrations=migrations.hr-proof-noop.json --skip-install`
+  executes the hand-authored run file for
+  `0.1.0-baseline-metadata-noop`, reports "No changes were made", and leaves
+  no source changes after targeted run-file cleanup.
 
 ## Official Documentation Evidence
 
@@ -80,14 +136,17 @@ truth.
 1. Classify output must be resolved-metadata-backed.
 2. Target absence must be represented as absence or unavailable state, not as a
    command to run.
-3. Rule scope must stop implying exact path truth from owner name alone.
+3. Rule scope now stops implying exact path truth from owner name or partial
+   prose scraping alone; rows with insufficient scan-root metadata stay visible
+   as unresolved rather than exact.
 4. Workspace/Habitat gates need separate presentation from project-local
    targets.
-5. Generator support must validate accepted kind/root/package/tag matrix before
+5. Generator support validates accepted kind/root/package/tag matrix before
    writes.
 6. Unsupported-kind refusal is current behavior to preserve.
-7. Mismatched kind/root acceptance is a repair target.
-8. Migration proof must distinguish no-op wiring from convention migration.
+7. Mismatched kind/root acceptance is repaired for the supported uniform
+   project generator contract.
+8. Migration proof distinguishes no-op wiring from convention migration.
 9. Classify implementation closure must consume command-surface repair evidence
    before claiming canonical command proof.
 10. Effect is not a syntax preference. It becomes a substrate decision when
@@ -97,9 +156,9 @@ truth.
 
 ## Uncertainties
 
-- Exact implementation API for resolved Nx metadata remains to be selected:
-  command-backed `nx show` proof, structured Nx project graph APIs, or a
-  Habitat metadata adapter.
+- Resolved Nx metadata implementation uses `@nx/devkit`
+  `createProjectGraphAsync()` in-process. Native `nx show` commands remain the
+  proof surface for command evidence.
 - Exact classify output schema evolution requires implementation design:
   preserving backward-compatible fields may be possible, but exact-scope proof
   needs structured additions.
@@ -113,3 +172,8 @@ truth.
 - One earlier Nx sidecar local-workspace claim was invalidated because it came
   from the wrong checkout. The official-doc constraints remain useful, but
   current local proof comes from this worktree's `nx ...` probes.
+- Generator scratch project discovery and generated target-matrix proof are now
+  closed for the three supported uniform kinds. No-op migration wiring proof is
+  also closed. These do not prove convention migration capability, registered
+  pattern promotion, non-uniform domain generators, or product/runtime
+  behavior.

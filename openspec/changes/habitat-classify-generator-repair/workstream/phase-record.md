@@ -5,11 +5,16 @@
 - Project: Habitat Harness
 - Phase: classify/generator repair / `habitat-classify-generator-repair`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `codex/habitat-dra-takeover-frame`
+- Branch/Graphite stack: HR classify/generator repair layers above the accepted
+  Pattern Authority Effect decision layer. HG descendants may be moved by
+  supervisor coordination only.
 - Started: 2026-06-14
-- Status: design packet opened; adversarial review accepted P2
-  command-surface dependency finding; repair patched; validation passed; ready
-  for Graphite commit
+- Status: classify target-truth, path-aware rule-scope, generator
+  support/refusal, generator scratch discovery/target-matrix, migration
+  proof-boundary, committed scratch discovery tests, classify matrix, and
+  representative Nx target-existence checkpoints are supervisor-accepted.
+  Stale guidance and downstream realignment are implemented in the current
+  slice; final packet acceptance remains pending supervisor review.
 
 ## Objective
 
@@ -19,9 +24,10 @@
 - Exterior: pattern metadata implementation, Grit proof, baseline semantics,
   hook side effects, Biome behavior, taxonomy policy, domain-specific
   generators, product/runtime behavior.
-- Done condition: reviewed OpenSpec packet, accepted classify target/generator
-  contract, implementation-ready task list, downstream realignment,
-  validation, Graphite commit, clean worktree.
+- Done condition: resolved target truth, path-aware rule scope, generator
+  support/refusal, migration proof boundaries, downstream realignment,
+  validation, Graphite commit, clean worktree, and supervisor acceptance for
+  the packet's claimed proof classes.
 
 ## Authority
 
@@ -41,21 +47,63 @@
 
 ## Current State
 
-- Repo state at phase open: clean worktree on
-  `codex/habitat-dra-takeover-frame`.
-- `classify` reports static project-local `check` and `test` target commands.
-- `@civ7/adapter:test` is emitted by classify and rejected by Nx.
+- Repo state at implementation resume: clean HR worktree on the inserted
+  classify/generator repair layer.
+- `classify` now consumes resolved Nx project graph metadata for project owner,
+  tags, and targets.
+- `@civ7/adapter:test` is no longer emitted by classify; it is represented as
+  an unavailable project target because Nx metadata does not resolve it.
 - Four workspace projects currently lack package `test` scripts, making static
-  `:test` target emission a class defect.
-- `rulesInScope` is owner-level and over-includes broad Habitat-owned rules.
+  `:test` target emission a class defect repaired for classify target
+  reporting.
+- `rulesInScope` is now the compatibility list of structured `scopedRules`;
+  scopes distinguish exact-path, project-owner, workspace-gate, and
+  unresolved-metadata reasons.
+- Classify matrix coverage now spans adapter, mod, foundation, app, tooling,
+  plugin, generated-zone, and workspace-level paths. Missing paths are
+  classified by path ownership without pretending to prove filesystem
+  existence, and multi-path diffs are classified per changed path in stable
+  path order.
+- Exact-path extraction now fails closed for rule scope prose with unmodeled
+  exclusions or compound qualifiers instead of scraping a partial glob and
+  presenting it as machine-readable path truth.
 - Project generator refuses unsupported `mod` kind.
-- Project generator accepts mismatched `--kind=app --directory=packages/...` in
-  dry-run.
+- Project generator now accepts only the canonical uniform project contracts:
+  `plugin` under `packages/plugins/plugin-<name>` with `@civ7/plugin-<name>`,
+  `foundation` under `packages/<name>` with `@civ7/<name>`, and `app` under
+  `apps/<name>` with package name `<name>`.
+- Project generator refuses unsupported non-uniform kinds, mismatched
+  kind/root pairs, mismatched package names, non-empty roots, and workspace
+  package-name collisions before writes.
+- Generated scratch projects for all three supported uniform kinds are
+  discoverable by Nx from the normal HR implementation worktree and expose the
+  accepted `build`, `check`, and `test` targets. The scratch project roots were
+  removed with targeted cleanup after proof and are not committed fixtures.
+- Committed generator scratch discovery coverage now creates supported scratch
+  projects through the repo-local Nx generator, proves Nx discovers each
+  generated project with the accepted `build`, `check`, and `test` targets, and
+  removes only the exact scratch roots.
+- Current migration metadata declares a no-op baseline migration. It proves
+  migration wiring only: the registered implementation returns no file changes,
+  and `nx migrate --run-migrations=<run-file>.json --skip-install` executes
+  the no-op with no workspace changes. Convention migrations still require a
+  named source shape, target shape, file operation plan, and idempotence proof.
 - Local Nx is available in this worktree as v22.7.5, and `nx show` probes
-  resolve projects/targets; an earlier sidecar no-workspace claim is invalid
-  for this packet.
-- README and root AGENTS still contain H8-era generator guidance that must be
-  realigned with resolved target and pattern metadata contracts.
+  resolve projects/targets. Official Nx docs support resolved project/target
+  metadata and inferred targets as the target-truth source; Habitat uses
+  `@nx/devkit` project graph metadata for implementation and `nx show`
+  commands as native proof.
+- Native Nx target-existence proof now covers representative emitted and
+  refused targets across adapter, foundation, app, tooling, plugin,
+  generated-zone, and mod rows. Emitted project targets resolve through
+  `bun run nx show target`; unavailable targets such as `@civ7/adapter:test`
+  and `@civ7/types:test` are reported by classify as missing and rejected by
+  Nx.
+- README, root AGENTS, recovery ledger rows, and H8 historical records now
+  distinguish resolved classify target truth, supported generator roots,
+  candidate-only pattern generation, and no-op migration wiring proof from
+  still-open registered promotion, convention migration, and product/runtime
+  proof.
 
 ## Source Synthesis
 
@@ -63,12 +111,17 @@ See `workstream/source-synthesis.md`.
 
 Core synthesis:
 
-- current classify ownership and target output are useful but not yet
-  resolved-graph-backed;
+- current classify ownership, target output, and rule-scope output are now
+  structured and evidence-labeled for project owner, tags, existing targets,
+  unavailable targets, exact path rules, broad workspace gates, and unresolved
+  metadata;
 - official Nx docs support target proof through resolved project/target
   metadata;
-- generator support must include kind/root/target proof, not enum membership
-  alone;
+- generator support now has a kind/root/package/tag refusal contract for
+  uniform kinds, and normal-worktree scratch proof shows generated supported
+  projects are discovered by Nx with the accepted target matrix;
+- current migration proof is explicitly wiring-only, with convention migration
+  capability remaining a separate future proof class;
 - pattern-generator metadata remains a separate workstream;
 - Effect is a substrate decision if implementation turns target proof into
   command orchestration, provenance capture, service substitution, scoped
@@ -96,7 +149,8 @@ Core synthesis:
   - Effect/substrate reviewer.
 - Review artifacts:
   - `workstream/review-disposition-ledger.md`
-- Blocking findings: accepted P2 command-surface dependency finding patched in
+- Blocking findings: accepted P2 command-surface dependency finding patched;
+  accepted P2 rule-scope precision finding supervisor-accepted in
   `workstream/review-disposition-ledger.md`.
 
 ## Agent Fleet State
@@ -113,10 +167,20 @@ Core synthesis:
 
 ## Implementation
 
-- Completed tasks: 1.1-1.4, 2.1-2.5, 2.8, 9.1-9.3, and 9.11.
-- Remaining tasks: review, validation, implementation, verification,
-  downstream realignment, closure.
-- Implementation status: not started.
+- Completed tasks: 1.1-1.4, 2.1-2.6, 2.8, 3.1-3.6, 4.1-4.5, 5.1-5.7,
+  6.1-6.3, 7.1-7.11, 8.1-8.7, 9.1-9.13, and 10.1-10.4.
+- Remaining tasks: final supervisor review/acceptance.
+- Implementation status: target-truth slice committed as a bounded checkpoint;
+  path-aware rule-scope slice committed and supervisor-accepted; generator
+  support/refusal slice committed and supervisor-accepted; generator scratch
+  discovery/target-matrix command proof recorded as the current local
+  checkpoint and supervisor-accepted; migration proof-boundary slice
+  committed and supervisor-accepted; committed generator scratch discovery test
+  coverage committed and supervisor-accepted; classify matrix test coverage
+  committed and supervisor-accepted; Nx target-existence proof matrix committed
+  and supervisor-accepted; stale guidance/downstream realignment implemented in
+  the current slice. Full packet acceptance remains open until supervisor
+  review.
 
 ## Verification
 
@@ -145,11 +209,115 @@ Core synthesis:
   - `bun run openspec:validate`
   - `git diff --check`
   - full-depth-language guardrail scan over this packet
-- Evidence boundary: current phase has design evidence and code/document
-  diagnosis. It does not prove the classify/generator repair.
-  It also does not prove canonical command-surface repair; this packet must
-  consume implemented `habitat-oclif-entrypoint-repair` proof before claiming
-  canonical `habitat classify` product proof.
+  - official Nx docs refresh for project configuration, inferred tasks,
+    `@nx/devkit`, and `createProjectGraphAsync`
+  - official Bun docs refresh for workspace script/package-manager role
+  - `bun run --cwd tools/habitat-harness test -- classify.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- habitat-commands.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run habitat classify packages/civ7-adapter/src/index.ts`
+  - `bun run nx show project @civ7/adapter --json`
+  - `bun run nx show target @civ7/adapter:test`
+  - `bun run --cwd tools/habitat-harness test -- classify.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- habitat-commands.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run habitat classify apps/mapgen-studio/src/main.tsx`
+  - `bun run habitat classify packages/civ7-adapter/src/index.ts`
+  - `bun run habitat classify mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts`
+- Commands run for generator contract implementation evidence:
+  - `bun run --cwd tools/habitat-harness test -- project-generator.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run nx g @internal/habitat-harness:project generator-plugin-probe --kind=plugin --dry-run`
+  - `bun run nx g @internal/habitat-harness:project generator-foundation-probe --kind=foundation --dry-run`
+  - `bun run nx g @internal/habitat-harness:project generator-app-probe --kind=app --dry-run`
+  - `bun run nx g @internal/habitat-harness:project unsupported-mod-probe --kind=mod --dry-run`
+  - `bun run nx g @internal/habitat-harness:project misplaced-probe --kind=app --directory=packages/misplaced-app-probe --dry-run`
+  - `bun run nx g @internal/habitat-harness:project adapter --kind=foundation --dry-run`
+  - `bun run nx g @internal/habitat-harness:project hr-proof-plugin --kind=plugin`
+  - `bun run nx g @internal/habitat-harness:project hr-proof-foundation --kind=foundation`
+  - `bun run nx g @internal/habitat-harness:project hr-proof-app --kind=app`
+  - `bun run nx show project @civ7/plugin-hr-proof-plugin --json`
+  - `bun run nx show project @civ7/hr-proof-foundation --json`
+  - `bun run nx show project hr-proof-app --json`
+  - `bun run nx show target` for `build`, `check`, and `test` on each
+    generated proof project
+  - targeted cleanup of `packages/plugins/plugin-hr-proof-plugin`,
+    `packages/hr-proof-foundation`, and `apps/hr-proof-app`, followed by clean
+    `git status --short --branch`
+  - `bun run --cwd tools/habitat-harness test -- migration-boundary.test.ts project-generator.test.ts`
+  - temporary migration run file `migrations.hr-proof-noop.json` with package
+    `./tools/habitat-harness`
+  - `bun run nx migrate --run-migrations=migrations.hr-proof-noop.json --skip-install`
+    -> pass; reported no changes
+  - targeted deletion of `migrations.hr-proof-noop.json`, followed by clean
+    source status except the committed test/record edits
+  - `bun run --cwd tools/habitat-harness test -- project-generator.test.ts`
+    -> pass; generated supported `plugin`, `foundation`, and `app` scratch
+    projects through `bun run nx g @internal/habitat-harness:project`, proved
+    `nx show project --json` discovery and `build`/`check`/`test` targets for
+    each generated project, then removed the exact scratch roots
+  - `bun run --cwd tools/habitat-harness test -- classify.test.ts`
+    -> pass; classify matrix covers adapter, mod, foundation, app, tooling,
+    plugin, generated-zone, and workspace-level paths, plus missing-path and
+    multi-path diff behavior
+  - `bun run habitat classify packages/civ7-adapter/src/index.ts`,
+    `packages/config/src/index.ts`, `apps/mapgen-studio/src/main.tsx`,
+    `tools/habitat-harness/src/plugin.js`,
+    `packages/plugins/plugin-graph/src/index.ts`,
+    `packages/civ7-types/generated/foo.d.ts`, and
+    `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+    -> emitted only resolved project targets plus `bun run lint`; adapter and
+    Civ7 types test targets were recorded as unavailable
+  - `bun run nx show target` probes for `@civ7/adapter:check`,
+    `@civ7/config:test`, `mapgen-studio:test`,
+    `@internal/habitat-harness:test`, `@civ7/plugin-graph:test`,
+    `@civ7/types:check`, `mod-swooper-maps:check`, and
+    `mod-swooper-maps:test` -> resolved; probes for `@civ7/adapter:test` and
+    `@civ7/types:test` rejected with missing-target output
+  - `bun run nx show projects --with-target test --json` and
+    `bun run nx show projects --with-target check --json` -> current resolved
+    project inventory used as native Nx target-existence evidence
+  - stale guidance scan over root `AGENTS.md`,
+    `tools/habitat-harness/README.md`,
+    `docs/projects/habitat-harness/recovery-claim-ledger.md`,
+    `openspec/changes/habitat-generators-migrations/**`,
+    `openspec/changes/habitat-pattern-generator-metadata-repair/**`, and this
+    packet's records -> repaired current-read ambiguity around resolved
+    targets, supported generator roots, candidate-only pattern generation, and
+    migration proof boundaries
+  - `bun run --cwd tools/habitat-harness test -- classify.test.ts project-generator.test.ts migration-boundary.test.ts`
+    -> pass, 3 files / 31 tests
+  - `bun run --cwd tools/habitat-harness check` -> pass
+  - `bun run openspec -- validate habitat-classify-generator-repair --strict`
+    -> pass
+  - `bun run openspec -- validate habitat-generators-migrations --strict`
+    -> pass
+  - `bun run openspec -- validate habitat-pattern-generator-metadata-repair --strict`
+    -> pass
+  - `bun run openspec:validate` -> pass, 181/181
+  - `git diff --check` -> pass
+  - `git ls-files --deleted | wc -l` -> 0
+- Evidence boundary: current implementation proves resolved Nx target truth for
+  the adapter missing-target case, structured target proof output, unavailable
+  target reporting, workspace-only target handling, literal diff target
+  preservation, async oclif classify output, exact path rule-scope labeling,
+  project-owner labeling, workspace-gate labeling, unresolved metadata labeling
+  for Grit rows without parseable scan roots, conservative refusal to treat
+  prose exclusions such as `outside packages/civ7-adapter` as exact scan-root
+  truth, preservation of pure-glob exact matches, and exclusion of unrelated
+  internal exact-path rules. The classify test matrix now covers adapter, mod,
+  foundation, app, tooling, plugin, generated-zone, and workspace-level paths,
+  plus missing path and multi-path diff behavior. It also proves the project
+  generator's uniform kind/root/package/tag contract and fail-closed refusal
+  for unsupported kinds,
+  mismatched roots, mismatched package names, non-empty roots, and workspace
+  package-name collisions. It also proves through command evidence that scratch
+  projects generated from the normal HR implementation worktree are discovered
+  by Nx and expose `build`, `check`, and `test` targets for `plugin`,
+  `foundation`, and `app`, and adds committed test coverage for that scratch
+  discovery boundary. It proves only no-op migration wiring, not convention
+  migration capability. It does not prove current-tree Grit row proof, baseline
+  behavior, hook behavior, or product/runtime behavior.
 
 ## Realignment
 
@@ -158,4 +326,5 @@ Core synthesis:
 
 ## Next Action
 
-- Commit this design packet through Graphite.
+- Hold for supervisor review of the committed stale-guidance/downstream
+  realignment and final packet-record checkpoint.

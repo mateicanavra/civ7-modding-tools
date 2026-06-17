@@ -18,6 +18,6 @@ export default class Classify extends HabitatCommand {
 
   async run(): Promise<void> {
     const { args } = await this.parse(Classify);
-    this.log(JSON.stringify(classifyTarget(args.path), null, 2));
+    this.log(JSON.stringify(await classifyTarget(args.path), null, 2));
   }
 }

@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { executeRule, type HarnessRule, rules } from "../rules/architecture.js";
@@ -22,6 +22,13 @@ export { runHook } from "./hooks.js";
 
 import { repoRoot, toRepoRelative } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
+import {
+  findOwningProject,
+  NxProjectGraphMetadataReader,
+  type NxProjectMetadata,
+  type NxProjectMetadataReader,
+  projectHasTarget,
+} from "./nx-projects.js";
 
 export interface RuleSelection {
   owner?: string;
@@ -95,8 +102,42 @@ export interface Classification {
   projectRoot?: string;
   tags?: string[];
   rulesInScope?: string[];
+  scopedRules?: ScopedRule[];
   requiredTargets?: string[];
+  targets?: ClassifiedTarget[];
+  unavailableTargets?: UnavailableClassifiedTarget[];
   note?: string;
+}
+
+export type RuleScopeKind =
+  | "exact-path"
+  | "project-owner"
+  | "workspace-gate"
+  | "unresolved-metadata";
+
+export interface ScopedRule {
+  ruleId: string;
+  ownerTool: string;
+  ownerProject: string;
+  scope: RuleScopeKind;
+  reason: string;
+}
+
+export interface ClassifiedTarget {
+  command: string;
+  owner: "project" | "workspace" | "habitat";
+  project: string | null;
+  target: string;
+  proof:
+    | { kind: "nx-project-graph"; project: string; target: string }
+    | { kind: "habitat-owned"; reason: string };
+}
+
+export interface UnavailableClassifiedTarget {
+  owner: "project";
+  project: string;
+  target: string;
+  reason: "missing-nx-target";
 }
 
 export interface DiffClassification {
@@ -493,68 +534,260 @@ export function runGraph(options: { json?: boolean } = {}): SpawnResult {
   }
 }
 
-export function classifyTarget(target: string): Classification | DiffClassification {
+export interface ClassifyOptions {
+  nxProjects?: NxProjectMetadataReader;
+}
+
+export async function classifyTarget(
+  target: string,
+  options: ClassifyOptions = {}
+): Promise<Classification | DiffClassification> {
   const diff = diffText(target);
   if (diff) {
+    const projects = await readNxProjects(options);
     return {
       schemaVersion: 1,
       inputKind: "diff",
-      paths: extractDiffPaths(diff).map(classifyPath),
+      paths: extractDiffPaths(diff).map((diffPath) => classifyPathWithProjects(diffPath, projects)),
     };
   }
-  return classifyPath(target);
+  return classifyPath(target, options);
 }
 
-export function classifyPath(target: string): Classification {
+export async function classifyPath(
+  target: string,
+  options: ClassifyOptions = {}
+): Promise<Classification> {
+  const projects = await readNxProjects(options);
+  return classifyPathWithProjects(target, projects);
+}
+
+function classifyPathWithProjects(
+  target: string,
+  projects: readonly NxProjectMetadata[]
+): Classification {
   const rel = toRepoRelative(target);
-  const roots: Array<{ name: string; root: string; tags: string[] }> = [];
-  for (const glob of ["apps", "packages", "packages/plugins", "mods", "tools"]) {
-    const dir = path.join(repoRoot, glob);
-    if (!existsSync(dir)) continue;
-    for (const entry of readdirSync(dir)) {
-      const packagePath = path.join(dir, entry, "package.json");
-      if (!existsSync(packagePath)) continue;
-      const pkg = JSON.parse(readFileSync(packagePath, "utf8"));
-      roots.push({
-        name: pkg.name,
-        root: toRepoRelative(path.join(dir, entry)),
-        tags: pkg.nx?.tags ?? [],
-      });
-    }
-  }
-  const owner = roots
-    .filter((root) => rel === root.root || rel.startsWith(`${root.root}/`))
-    .sort((a, b) => b.root.length - a.root.length)[0];
+  const owner = findOwningProject(rel, projects);
+  const workspace = workspaceTargets();
   if (!owner) {
     return {
       path: rel,
       project: null,
       note: "workspace-level path",
-      requiredTargets: workspaceTargets(),
+      requiredTargets: workspace.map((target) => target.command),
+      targets: workspace,
     };
   }
-  const owningRules = rules
-    .filter(
-      (rule) =>
-        rule.ownerProject === owner.name || rule.ownerProject === "@internal/habitat-harness"
-    )
-    .map((rule) => rule.id);
+  const scopedRules = rulesInScopeForPath(rel, owner);
+  const resolvedProjectTargets = projectTargets(owner);
   return {
     path: rel,
     project: owner.name,
     projectRoot: owner.root,
     tags: owner.tags,
-    rulesInScope: owningRules,
-    requiredTargets: projectTargets(owner.name),
+    rulesInScope: scopedRules.map((rule) => rule.ruleId),
+    scopedRules,
+    requiredTargets: [...resolvedProjectTargets.targets, ...workspace].map((target) => target.command),
+    targets: [...resolvedProjectTargets.targets, ...workspace],
+    unavailableTargets: resolvedProjectTargets.unavailableTargets,
   };
 }
 
-function projectTargets(projectName: string): string[] {
-  return [`nx run ${projectName}:check`, `nx run ${projectName}:test`, ...workspaceTargets()];
+function rulesInScopeForPath(pathInRepo: string, owner: NxProjectMetadata): ScopedRule[] {
+  return rules
+    .map((rule) => classifyRuleScope(rule, pathInRepo, owner))
+    .filter((rule): rule is ScopedRule => Boolean(rule))
+    .sort((a, b) => a.ruleId.localeCompare(b.ruleId));
 }
 
-function workspaceTargets(): string[] {
-  return ["bun run lint"];
+function classifyRuleScope(
+  rule: HarnessRule,
+  pathInRepo: string,
+  owner: NxProjectMetadata
+): ScopedRule | undefined {
+  const matchedPattern = scopePathPatterns(rule).find((pattern) =>
+    scopePatternMatches(pattern, pathInRepo)
+  );
+  if (matchedPattern) {
+    return {
+      ruleId: rule.id,
+      ownerTool: rule.ownerTool,
+      ownerProject: rule.ownerProject,
+      scope: "exact-path",
+      reason: `Path matches rule scope pattern ${matchedPattern}.`,
+    };
+  }
+
+  if (rule.ownerProject === owner.name) {
+    if (requiresExplicitScanRoot(rule)) {
+      return {
+        ruleId: rule.id,
+        ownerTool: rule.ownerTool,
+        ownerProject: rule.ownerProject,
+        scope: "unresolved-metadata",
+        reason: "Rule is owned by the project, but current metadata is not precise enough for exact path scope.",
+      };
+    }
+    return {
+      ruleId: rule.id,
+      ownerTool: rule.ownerTool,
+      ownerProject: rule.ownerProject,
+      scope: "project-owner",
+      reason: `Rule owner project matches ${owner.name}.`,
+    };
+  }
+
+  if (isWorkspaceGate(rule)) {
+    return {
+      ruleId: rule.id,
+      ownerTool: rule.ownerTool,
+      ownerProject: rule.ownerProject,
+      scope: "workspace-gate",
+      reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
+    };
+  }
+
+  return undefined;
+}
+
+function requiresExplicitScanRoot(rule: HarnessRule): boolean {
+  return rule.ownerTool === "grit-check" || rule.ownerTool === "wrapped-test";
+}
+
+function isWorkspaceGate(rule: HarnessRule): boolean {
+  if (rule.ownerProject !== "@internal/habitat-harness") return false;
+  const scope = rule.scope.toLowerCase();
+  return (
+    scope.includes("all ") ||
+    scope.includes("live repo") ||
+    scope.includes("workspace") ||
+    scope.includes("staged ") ||
+    scope.includes("package.json") ||
+    scope.includes("docs/") ||
+    scope.includes("package-manager")
+  );
+}
+
+function scopePathPatterns(rule: HarnessRule): string[] {
+  if (!scopeIsMachineParseable(rule.scope)) return [];
+  const patterns: string[] = [];
+  const matches = rule.scope.matchAll(/\b(apps|docs|mods|packages|scripts|tools)\/[^\s;)]+/g);
+  for (const match of matches) {
+    const pattern = trimScopePattern(match[0]);
+    if (pattern) patterns.push(...expandScopePattern(pattern));
+  }
+  return [...new Set(patterns)];
+}
+
+function scopeIsMachineParseable(scope: string): boolean {
+  const normalized = scope.toLowerCase();
+  const unmodeledQualifiers = [
+    " outside ",
+    " except ",
+    " excluding ",
+    " and root ",
+    " or root ",
+    " and ",
+    " or ",
+  ];
+  return !unmodeledQualifiers.some((qualifier) => normalized.includes(qualifier));
+}
+
+function trimScopePattern(pattern: string): string {
+  return pattern.replace(/[,.]+$/g, "").replace(/^`|`$/g, "");
+}
+
+function expandScopePattern(pattern: string): string[] {
+  const brace = pattern.match(/^(.*)\{([^{}]+)\}(.*)$/);
+  if (!brace) return [pattern];
+  const [, prefix, values, suffix] = brace;
+  return values.split(",").flatMap((value) => expandScopePattern(`${prefix}${value}${suffix}`));
+}
+
+function scopePatternMatches(pattern: string, pathInRepo: string): boolean {
+  const normalized = pattern.replaceAll("\\", "/");
+  if (!normalized.includes("*")) {
+    return pathInRepo === normalized || pathInRepo.startsWith(`${normalized}/`);
+  }
+  return globToRegExp(normalized).test(pathInRepo);
+}
+
+function globToRegExp(pattern: string): RegExp {
+  let source = "^";
+  for (let index = 0; index < pattern.length; index += 1) {
+    const char = pattern[index];
+    const next = pattern[index + 1];
+    if (char === "*" && next === "*") {
+      if (pattern[index + 2] === "/") {
+        source += "(?:.*/)?";
+        index += 2;
+        continue;
+      }
+      source += ".*";
+      index += 1;
+      continue;
+    }
+    if (char === "*") {
+      source += "[^/]*";
+      continue;
+    }
+    if (char === "?") {
+      source += "[^/]";
+      continue;
+    }
+    source += escapeRegExp(char);
+  }
+  source += "$";
+  return new RegExp(source);
+}
+
+function escapeRegExp(char: string): string {
+  return /[\\^$+?.()|[\]{}]/.test(char) ? `\\${char}` : char;
+}
+
+function projectTargets(project: NxProjectMetadata): {
+  targets: ClassifiedTarget[];
+  unavailableTargets: UnavailableClassifiedTarget[];
+} {
+  const targetNames = ["check", "test"];
+  return {
+    targets: targetNames
+      .filter((targetName) => projectHasTarget(project, targetName))
+      .map((targetName) => ({
+        command: `nx run ${project.name}:${targetName}`,
+        owner: "project" as const,
+        project: project.name,
+        target: targetName,
+        proof: { kind: "nx-project-graph" as const, project: project.name, target: targetName },
+      })),
+    unavailableTargets: targetNames
+      .filter((targetName) => !projectHasTarget(project, targetName))
+      .map((targetName) => ({
+        owner: "project" as const,
+        project: project.name,
+        target: targetName,
+        reason: "missing-nx-target" as const,
+      })),
+  };
+}
+
+function workspaceTargets(): ClassifiedTarget[] {
+  return [
+    {
+      command: "bun run lint",
+      owner: "workspace",
+      project: null,
+      target: "lint",
+      proof: {
+        kind: "habitat-owned",
+        reason: "workspace-level structural gate from root package scripts",
+      },
+    },
+  ];
+}
+
+async function readNxProjects(options: ClassifyOptions): Promise<NxProjectMetadata[]> {
+  return (options.nxProjects ?? new NxProjectGraphMetadataReader()).readProjects();
 }
 
 function diffText(target: string): string | undefined {

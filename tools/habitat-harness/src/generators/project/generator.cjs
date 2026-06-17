@@ -1,12 +1,44 @@
 const { writeJson } = require("@nx/devkit");
 const path = require("node:path");
 
-const SUPPORTED_KINDS = new Set(["plugin", "foundation", "app"]);
+const PROJECT_KIND_CONTRACTS = {
+  plugin: {
+    tag: "kind:plugin",
+    rootForName: (name) => `packages/plugins/${pluginSlugForName(name)}`,
+    packageNameForName: (name) => `@civ7/${pluginSlugForName(name)}`,
+  },
+  foundation: {
+    tag: "kind:foundation",
+    rootForName: (name) => `packages/${name}`,
+    packageNameForName: (name) => `@civ7/${name}`,
+  },
+  app: {
+    tag: "kind:app",
+    rootForName: (name) => `apps/${name}`,
+    packageNameForName: (name) => name,
+  },
+};
+
+const SUPPORTED_KINDS = new Set(Object.keys(PROJECT_KIND_CONTRACTS));
+const PACKAGE_SCAN_IGNORED_DIRECTORIES = new Set([
+  ".git",
+  ".nx",
+  "dist",
+  "mod",
+  "node_modules",
+  "tmp",
+]);
 
 async function projectGenerator(tree, rawOptions) {
   const options = normalizeOptions(rawOptions);
   if (tree.exists(options.root) && tree.children(options.root).length > 0) {
     throw new Error(`Refusing to overwrite non-empty project root: ${options.root}`);
+  }
+  const packageNameCollision = findPackageNameCollision(tree, options.packageName, options.root);
+  if (packageNameCollision) {
+    throw new Error(
+      `Refusing to generate ${options.packageName}; package name already exists at ${packageNameCollision}.`
+    );
   }
 
   writeJson(tree, path.posix.join(options.root, "package.json"), packageJson(options));
@@ -25,23 +57,29 @@ function normalizeOptions(rawOptions) {
   }
 
   const name = slugify(rawOptions.name);
-  const pluginSlug = name.startsWith("plugin-") ? name : `plugin-${name}`;
-  const root =
-    rawOptions.directory ??
-    (kind === "plugin"
-      ? `packages/plugins/${pluginSlug}`
-      : kind === "foundation"
-        ? `packages/${name}`
-        : `apps/${name}`);
-  const packageName =
-    rawOptions.packageName ??
-    (kind === "plugin" ? `@civ7/${pluginSlug}` : kind === "foundation" ? `@civ7/${name}` : name);
+  const contract = PROJECT_KIND_CONTRACTS[kind];
+  const expectedRoot = contract.rootForName(name);
+  const expectedPackageName = contract.packageNameForName(name);
+  const root = normalizePath(rawOptions.directory ?? expectedRoot);
+  const packageName = rawOptions.packageName ?? expectedPackageName;
+
+  if (root !== expectedRoot) {
+    throw new Error(
+      `Refusing mismatched Habitat project root for kind:${kind}: expected ${expectedRoot}, received ${root}.`
+    );
+  }
+
+  if (packageName !== expectedPackageName) {
+    throw new Error(
+      `Refusing mismatched Habitat package name for kind:${kind}: expected ${expectedPackageName}, received ${packageName}.`
+    );
+  }
 
   return {
     kind,
-    tag: `kind:${kind}`,
+    tag: contract.tag,
     name,
-    root: normalizePath(root),
+    root,
     packageName,
   };
 }
@@ -116,8 +154,51 @@ function slugify(value) {
   return slug;
 }
 
+function pluginSlugForName(name) {
+  return name.startsWith("plugin-") ? name : `plugin-${name}`;
+}
+
 function normalizePath(value) {
   return String(value).replace(/\\/g, "/").replace(/^\/+/, "").replace(/\/+$/g, "");
+}
+
+function findPackageNameCollision(tree, packageName, projectRoot) {
+  for (const packageJsonPath of packageJsonPaths(tree)) {
+    if (packageJsonPath === path.posix.join(projectRoot, "package.json")) continue;
+    const parsed = readTreeJson(tree, packageJsonPath);
+    if (parsed?.name === packageName) return packageJsonPath;
+  }
+  return null;
+}
+
+function packageJsonPaths(tree) {
+  const paths = [];
+  const roots = ["apps", "mods", "packages", "tools"];
+  for (const root of roots) {
+    collectPackageJsonPaths(tree, root, paths);
+  }
+  return paths;
+}
+
+function collectPackageJsonPaths(tree, directory, paths) {
+  if (!tree.exists(directory)) return;
+  if (tree.exists(path.posix.join(directory, "package.json"))) {
+    paths.push(path.posix.join(directory, "package.json"));
+  }
+  for (const child of tree.children(directory)) {
+    if (PACKAGE_SCAN_IGNORED_DIRECTORIES.has(child)) continue;
+    const childPath = path.posix.join(directory, child);
+    if (!tree.exists(path.posix.join(childPath, "package.json")) && tree.children(childPath).length === 0) {
+      continue;
+    }
+    collectPackageJsonPaths(tree, childPath, paths);
+  }
+}
+
+function readTreeJson(tree, filePath) {
+  const contents = tree.read(filePath, "utf8");
+  if (!contents) return null;
+  return JSON.parse(contents);
 }
 
 function relativePrefix(root) {
@@ -129,6 +210,7 @@ function relativePrefix(root) {
 }
 
 module.exports = {
+  PROJECT_KIND_CONTRACTS,
   projectGenerator,
   default: projectGenerator,
 };
