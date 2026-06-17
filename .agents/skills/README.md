@@ -12,6 +12,7 @@ discipline; they should not duplicate the packet as a parallel spec.
 
 | Skill | Use When |
 |---|---|
+| `civ7-mapgen-workstream` | Taking a map-generation request end-to-end (investigate → design → implement → verify in-game → review → finalize): routing between the technical (recipe structure) and behavioral (physical realism) arms and the generation-logic vs Studio-visualization problem classes. Composes cognition design skills + `civ7-*` skills + live mod source; adds physics/verification/Civ7-domain facets. |
 | `civ7-architecture-authority` | Placing code, moving boundaries, changing MapGen stage/step/domain shape, separating core/mod/adapter/generated concerns, or reviewing architecture drift. |
 | `civ7-product-authority` | Deciding product/domain ownership, public SDK/CLI/mod behavior, official game-data authority, consumer contract claims, or proof boundaries. |
 | `civ7-open-spec-workstream` | Running a bounded spec/workstream phase from authority grounding through implementation, verification, downstream realignment, and handoff. |
