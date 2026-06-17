@@ -14,6 +14,7 @@
 import type { MapConfigSaveDeployStatus } from "@civ7/studio-server";
 import { safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
+import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
 
 export function toConfigId(label: string): string {
   const id = label
@@ -39,7 +40,16 @@ export async function saveRepoBackedConfig(args: {
   onStatus?: (status: MapConfigSaveDeployStatus) => void;
 }): Promise<
   | { ok: true; status: MapConfigSaveDeployStatus; path?: string }
-  | { ok: false; error: string; saved?: boolean; deployed?: boolean; path?: string }
+  | {
+      ok: false;
+      error: string;
+      saved?: boolean;
+      deployed?: boolean;
+      path?: string;
+      code?: string;
+      statusCode?: number;
+      details?: MapConfigSaveDeployStatus["details"];
+    }
 > {
   const path = args.sourcePath ?? `mods/mod-swooper-maps/src/maps/configs/${args.id}.config.json`;
   const envelope = {
@@ -62,12 +72,15 @@ export async function saveRepoBackedConfig(args: {
       })
     );
     if (saveResult.error) {
+      const projected = projectStudioBrowserError(saveResult.error, "Repo config save failed");
       return {
         ok: false,
-        error:
-          saveResult.error instanceof Error && saveResult.error.message
-            ? saveResult.error.message
-            : "Repo config save failed",
+        error: projected.error,
+        ...(projected.code === undefined ? {} : { code: projected.code }),
+        ...(projected.statusCode === undefined ? {} : { statusCode: projected.statusCode }),
+        ...(projected.details === undefined
+          ? {}
+          : { details: projected.details as MapConfigSaveDeployStatus["details"] }),
       };
     }
     const status = saveResult.data;

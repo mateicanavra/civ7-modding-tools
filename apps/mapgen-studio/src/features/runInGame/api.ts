@@ -15,28 +15,10 @@ import type {
   RunInGameFailureDetails,
   RunInGameOperationStatus,
 } from "@civ7/studio-server/contract";
-import { isDefinedError, safe } from "@orpc/client";
+import { safe } from "@orpc/client";
 import { orpcClient } from "../../lib/orpc";
 import { type Civ7StudioSetupConfig, normalizeStudioSetupConfig } from "../civ7Setup/setupConfig";
-
-/**
- * Project sealed package failure data into the browser's copyable failure-details
- * shape. D3 removed the old `{ details? }` bridge; defined errors now expose
- * top-level tag/reason/message/recoveryActions plus bounded diagnostics.
- */
-function definedErrorDetails(data: unknown): RunInGameFailureDetails | undefined {
-  if (!isRecord(data)) return undefined;
-  const diagnostics = isRecord(data.diagnostics) ? data.diagnostics : {};
-  const details: Record<string, unknown> = { ...diagnostics };
-  if (typeof data.tag === "string") details.failureTag = data.tag;
-  if (typeof data.reason === "string") details.reason = data.reason;
-  if (typeof data.requestId === "string") details.requestId = data.requestId;
-  return Object.keys(details).length === 0 ? undefined : (details as RunInGameFailureDetails);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value != null && typeof value === "object" && !Array.isArray(value);
-}
+import { projectStudioBrowserError } from "../studioErrors/definedErrorProjection";
 
 export async function runCurrentConfigInGame(args: {
   recipeId: string;
@@ -62,7 +44,13 @@ export async function runCurrentConfigInGame(args: {
   sourceSnapshot?: unknown;
 }): Promise<
   | RunInGameOperationStatus
-  | { ok: false; error: string; details?: RunInGameFailureDetails; code?: string }
+  | {
+      ok: false;
+      error: string;
+      details?: RunInGameFailureDetails;
+      code?: string;
+      statusCode?: number;
+    }
 > {
   // The request envelope is assembled exactly as before (the server runs
   // `assertNoRawControlFields` over it); only the transport is the oRPC client.
@@ -88,18 +76,15 @@ export async function runCurrentConfigInGame(args: {
   };
   const { error, data } = await safe(orpcClient.runInGame.start(request));
   if (error) {
-    if (isDefinedError(error)) {
-      const details = definedErrorDetails(error.data);
-      return {
-        ok: false,
-        error: error.message || "Run in Game failed",
-        code: error.code,
-        ...(details !== undefined ? { details } : {}),
-      };
-    }
+    const projected = projectStudioBrowserError(error, "Run in Game failed");
     return {
       ok: false,
-      error: error instanceof Error && error.message ? error.message : "Run in Game failed",
+      error: projected.error,
+      ...(projected.code === undefined ? {} : { code: projected.code }),
+      ...(projected.statusCode === undefined ? {} : { statusCode: projected.statusCode }),
+      ...(projected.details === undefined
+        ? {}
+        : { details: projected.details as RunInGameFailureDetails }),
     };
   }
   return data;
