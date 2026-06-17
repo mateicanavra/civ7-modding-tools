@@ -1,6 +1,8 @@
 # Phase Record: Studio Effect State-Machine Closeout
 
-Status: closeout reconciliation implemented and locally verified.
+Status: resumed proof pass recorded; the priority Run in Game
+`studio-current` path is product-proven on the current top, while broad
+state-machine product proof and Graphite submission remain unclaimed.
 
 Normative packet: `docs/projects/studio-runtime-simplification/workstream/studio-effect-state-machine-recovery/PACKET-TRAIN.md#smr-08---state-machine-closeout`.
 
@@ -96,3 +98,48 @@ Validation commands run:
 - `gt ls` and `gt log short` recorded the Studio stack rendered below unrelated
   habitat branches marked `needs restack`; no broad restack/sync/submit was
   performed.
+
+## 2026-06-17 Resume Proof Pass
+
+Current branch is `codex/studio-effect-state-machine-closeout` at
+`baa9d7f8e docs(studio): reconcile state-machine closeout`.
+
+The resumed objective is to prove, or explicitly keep unresolved, the remaining
+product-facing labels without changing Graphite topology:
+
+- keep using the original Studio stack; do not create a parallel replacement
+  stack;
+- use isolated dev ports because other worktrees currently have
+  `mapgen-studio`/Nx processes running;
+- treat Civ7 tuner availability on `127.0.0.1:4318` as live-runtime
+  opportunity, not proof by itself;
+- re-run source/build/dev gates before another live Run in Game proof;
+- if a new branch must be inserted later, use Graphite insert from the current
+  stack rather than a separate stack.
+
+Current excluded dirt remains unrelated to this closeout pass:
+
+- `.agents/skills/README.md`
+- `.agents/skills/civ7-mapgen-workstream/`
+- `docs/projects/mapgen-workstream-skill/`
+
+The next proof pass must update `workstream/reconciliation-ledger.md` and
+`openspec/changes/studio-live-civ7-proof-gates/workstream/live-proof-ledger.md`
+with the fresh request id, commands, ports, generated/deployed hashes, bounded
+logs, and any unresolved browser/product conditions.
+
+Resume pass outcome:
+
+- browser Run in Game proof succeeded for request
+  `studio-run-in-game-mqhqd5ic-jrj-5`;
+- Civ7 selected and loaded `{swooper-maps}/maps/studio-current.js`;
+- direct tuner/readback observed the started game at turn `1`, seed `123`, and
+  map dimensions `84x54`;
+- bounded `Scripting.log` and `Modding.log` contain the Swooper
+  `studio-current` proof/load signals for the same request;
+- bounded `Database.log` and `UI.log` contain no Swooper/studio-current
+  matches, while `UI.log` still has unrelated local third-party UI noise;
+- after the proof, the daemon restarted under a new server identity and
+  `runInGame.status` no longer had the old request, so operation-history
+  durability across daemon restarts remains outside the current product-proof
+  claim.

@@ -2,10 +2,10 @@
 
 Date: 2026-06-17
 
-Status: closeout reconciliation in progress on
-`codex/studio-effect-state-machine-closeout`. The fresh live/log proof below
-was recorded before this evidence update commit, with pre-update head
-`0444e6188 docs(studio): reconcile state-machine closeout`.
+Status: closeout reconciliation resumed on
+`codex/studio-effect-state-machine-closeout`. A fresh current-top browser/live
+proof pass was recorded on head
+`baa9d7f8e docs(studio): reconcile state-machine closeout`.
 
 This ledger is the SMR-08 final accounting surface. It reconciles the prework
 scenario corpus, error-boundary ledger, packet records, review findings, and
@@ -14,7 +14,7 @@ proof labels without substituting one proof type for another.
 ## Current Stack And Worktree
 
 - Current branch: `codex/studio-effect-state-machine-closeout`.
-- Pre-update head: `0444e6188 docs(studio): reconcile state-machine closeout`.
+- Proof-pass head: `baa9d7f8e docs(studio): reconcile state-machine closeout`.
 - Downstack Studio packet heads:
   - `1b9ec418e fix(studio): scope restart recovery to current run state`
   - `2a3d126ac docs(studio): record browser scenario proof`
@@ -132,12 +132,127 @@ some earned evidence while a named label remains unclaimed.
 | EB-16 | `recipeDag.get` declared-error and defect behavior is tested under shared handler behavior. | `tested`, `built`. | none for source claim. |
 | EB-17 | `studio-current.js` local bundle, deployed bundle, setup visibility, setup/start readback, and bounded `Scripting.log` markers were proven; restart fallback narrowed. | `generated`, `deployed`, `tuner-exercised`, `in-game observed`, `logged`. | sibling logs if required for broader diagnostics; final product proof. |
 
+## 2026-06-17 Resume Proof On Current Top
+
+This pass was run after the closeout reconciliation commit at current stack top:
+
+- Branch/head: `codex/studio-effect-state-machine-closeout` at
+  `baa9d7f8e docs(studio): reconcile state-machine closeout`.
+- Dev command:
+  `STUDIO_DAEMON_PORT=5298 STUDIO_DEV_PORT=5198 NX_DAEMON=false bun run dev:mapgen-studio`.
+- Dev surfaces observed:
+  - daemon `http://127.0.0.1:5298`;
+  - Vite `http://localhost:5198/`.
+- Browser action: clicked the rendered `Run in Game` action in Chrome.
+- Request id: `studio-run-in-game-mqhqd5ic-jrj-5`.
+- Initial browser state before click: `Ready`, live Civ7 turn `1`, seed
+  `1337`, previous request shown as `studio-run-in-game-mqhq4d24-jrj-4`.
+- Running browser state after click: `Run in Game deploying`, disabled action
+  button, current request `studio-run-in-game-mqhqd5ic-jrj-5`.
+- Final browser state: `Ready. Live Civ7 turn 1 seed 123. Run in Game complete`;
+  action affordance reported `Run in Game: Complete`, map
+  `{swooper-maps}/maps/studio-current.js`, and `Studio state: Current`.
+- Browser console/fetch failures: no page errors and no failed requests were
+  captured; the only network miss was the Vite favicon `404`.
+- Screenshots:
+  - `/tmp/studio-proof-initial.png`
+  - `/tmp/studio-proof-after-action-click.png`
+  - `/tmp/studio-proof-final-run.png`
+
+Fresh source/build gates from this pass:
+
+- `bun run nx run @civ7/studio-server:test --outputStyle=static`: passed, 76
+  tests.
+- `bun run nx run mapgen-studio:test --outputStyle=static`: passed, 258 tests.
+- RJSF key-warning cleanup:
+  `bun run nx run mapgen-studio:test --outputStyle=static -- test/config/rjsfFieldTemplateErrors.test.tsx`
+  passed, 10 tests, after keying the RJSF object-template child lists.
+- `bun run nx run mod-swooper-maps:test:studio-run-in-game --outputStyle=static`:
+  passed, 45 tests.
+- `bun run nx run @civ7/studio-server:build --outputStyle=static`: passed.
+- `bun run nx run mapgen-studio:build:vite --outputStyle=static`: passed with
+  the existing Vite chunk-size warning.
+- `SWOOPER_INCLUDE_STUDIO_CURRENT=1 SWOOPER_STUDIO_RUN_ID=studio-proof-resume-20260617 bun run nx run mod-swooper-maps:build:studio-deploy --outputStyle=static`:
+  passed and generated/deployed `studio-current`.
+
+Fresh generated/deployed proof from this pass:
+
+- Source config:
+  `mods/mod-swooper-maps/src/maps/configs/studio-current.config.json` sha256
+  `480d8d38cd6ebd17887c12e99aab956440886e365571d89d8981739bf2953d3f`.
+- Post-run disposable local paths were absent, which is expected cleanup for
+  this flow:
+  - `mods/mod-swooper-maps/src/maps/generated/studio-current.ts`;
+  - `mods/mod-swooper-maps/mod/maps/studio-current.js`.
+- Deployed script:
+  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`.
+- Deployed script sha256:
+  `1b9aee5f882e329371d9e16384290eab357d143c4d06e78ff7e5e67eb2ca218a`.
+- Deployed script mtime: `2026-06-17 03:09:23`.
+- Deployed marker proofs:
+  - `requestId: "studio-run-in-game-mqhqd5ic-jrj-5"`;
+  - `configHash: "6e7a3f18679ef2dbebba8992f7b7b6e89226132b6a2a60e9b6d59d2c9fd1ec9c"`;
+  - `envelopeHash: "523d45759fda3f03fcf2c96810dc5014838fc52fd7567e418e320028667488df"`;
+  - `map.rivers.authoredTerrainMaterialization`;
+  - `POST-AUTHORED-RIVERS`.
+
+Fresh tuner/readback proof from this pass:
+
+- Direct health command:
+  `bun packages/cli/bin/run.js game health --tuner --json`.
+- Direct health result: `ok=true`, host `127.0.0.1`, port `4318`, state
+  `{ id: "1", name: "Tuner" }`, ready `true`, turn `1`, date `4000 BCE`, map
+  width `84`, height `54`, alive human ids `[0]`.
+- `civ7.setupConfig` readback at `2026-06-17T07:15:21.658Z`: `phase` was
+  `running-game`; selected setup row was
+  `{swooper-maps}/maps/studio-current.js`; config readback had `mapSeed=123`,
+  `gameSeed=123`, and `playerCount=6`.
+- `civ7.live.snapshot` readback at `2026-06-17T07:15:22.035Z`: state
+  `{ id: "1", name: "Tuner" }`, map width `84`, height `54`, sampled plot count
+  `432`.
+
+Fresh bounded Civ7 log proof from this pass:
+
+- Log bounds were captured before the browser action:
+  - `Scripting.log` offset `319766`;
+  - `Modding.log` offset `3557789`;
+  - `Database.log` offset `10511`;
+  - `UI.log` offset `19054504`.
+- `Scripting.log` after the bound contains
+  `[SWOOPER_MOD] [mapgen-proof]` and `[SWOOPER_MOD] [mapgen-complete]` for
+  request `studio-run-in-game-mqhqd5ic-jrj-5` with seed `123`, dimensions
+  `84x54`, and the config/envelope hashes listed above.
+- `Modding.log` after the bound contains
+  `Map Script: {swooper-maps}/maps/studio-current.js` and
+  `Loading maps/studio-current.js`.
+- `Database.log` after the bound has no `mod-swooper-maps`, `swooper`, or
+  `studio-current` matches.
+- `UI.log` after the bound has no `mod-swooper-maps`, `swooper`, or
+  `studio-current` matches. It still contains unrelated third-party/UI noise
+  from the local mod environment, so this pass does not claim a globally clean
+  Civ7 UI log.
+
+State-machine gap found during the resume pass:
+
+- After the browser proof, the daemon serving `5298` restarted with
+  `serverInstanceId=studio-server-mqhqkd0r-23o4-1` and
+  `serverStartedAt=2026-06-17T07:14:55.851Z`.
+- `runInGame.status` for `studio-run-in-game-mqhqd5ic-jrj-5` then returned
+  `404 RUN_IN_GAME_STATUS_NOT_FOUND`.
+- `studio.operations.current` returned empty `runInGame.recent` and
+  `saveDeploy.recent` arrays for the new server identity.
+- This does not invalidate the browser/deployed/log/tuner proof above, but it
+  keeps daemon-restart operation-history recovery outside the product-proof
+  claim.
+
 ## Product And Graphite Labels
 
-Product proof is not claimed by this ledger. The workstream has strong source,
-browser fast-path, generated/deployed, direct-control, bounded `Scripting.log`,
-and in-game evidence, but final Graphite submission and broad product/release
-proof remain separate labels.
+Product proof is satisfied for the priority user-reported path exercised in the
+fresh resume pass: from the rendered Studio button, disposable
+`studio-current` was generated, deployed, selected by Civ7 setup, loaded by the
+game, and observed in-game with bounded logs and tuner readback. Broad
+state-machine product proof remains unresolved for daemon-restart operation
+history, fallback restart rendering, and full release/environment cleanliness.
 
 Graphite submitted is not claimed. The stack is locally committed but not
 submitted from this lane because current Graphite metadata interleaves unrelated

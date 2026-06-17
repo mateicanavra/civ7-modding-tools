@@ -243,12 +243,98 @@ Exact authorship proof:
   `status:1:4cd3196d`.
 - `unresolvedLinks: []`.
 
+## 2026-06-17 Resume Current-Top Proof
+
+This is the current-top rerun after the closeout reconciliation branch resumed:
+
+- Branch/head: `codex/studio-effect-state-machine-closeout` at
+  `baa9d7f8e docs(studio): reconcile state-machine closeout`.
+- Dev server: `STUDIO_DAEMON_PORT=5298 STUDIO_DEV_PORT=5198 NX_DAEMON=false bun run dev:mapgen-studio`.
+- Browser entrypoint: `http://localhost:5198/`.
+- Studio daemon: `http://127.0.0.1:5298/`.
+- Browser action: clicked the rendered Run in Game button.
+- Request id: `studio-run-in-game-mqhqd5ic-jrj-5`.
+- Final browser state: `Ready. Live Civ7 turn 1 seed 123. Run in Game complete`.
+- Final action state: `Run in Game: Complete`, map
+  `{swooper-maps}/maps/studio-current.js`, `Studio state: Current`.
+- Screenshots:
+  - `/tmp/studio-proof-initial.png`
+  - `/tmp/studio-proof-after-action-click.png`
+  - `/tmp/studio-proof-final-run.png`
+
+Current-top generated/deployed evidence:
+
+- Source config:
+  `mods/mod-swooper-maps/src/maps/configs/studio-current.config.json` sha256
+  `480d8d38cd6ebd17887c12e99aab956440886e365571d89d8981739bf2953d3f`.
+- Deployed script:
+  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`.
+- Deployed script sha256:
+  `1b9aee5f882e329371d9e16384290eab357d143c4d06e78ff7e5e67eb2ca218a`.
+- Deployed script mtime: `2026-06-17 03:09:23`.
+- Deployed marker proofs:
+  - `requestId: "studio-run-in-game-mqhqd5ic-jrj-5"`;
+  - `configHash: "6e7a3f18679ef2dbebba8992f7b7b6e89226132b6a2a60e9b6d59d2c9fd1ec9c"`;
+  - `envelopeHash: "523d45759fda3f03fcf2c96810dc5014838fc52fd7567e418e320028667488df"`;
+  - `map.rivers.authoredTerrainMaterialization`;
+  - `POST-AUTHORED-RIVERS`.
+- Disposable local paths were absent after the completed run, which preserves
+  the intended cleanup boundary:
+  - `mods/mod-swooper-maps/src/maps/generated/studio-current.ts`;
+  - `mods/mod-swooper-maps/mod/maps/studio-current.js`.
+
+Current-top Civ7 readback:
+
+- Direct health command:
+  `bun packages/cli/bin/run.js game health --tuner --json`.
+- Health result: `ok=true`, host `127.0.0.1`, port `4318`, state
+  `{ id: "1", name: "Tuner" }`, ready `true`, turn `1`, date `4000 BCE`,
+  width `84`, height `54`, alive human ids `[0]`.
+- `civ7.setupConfig` at `2026-06-17T07:15:21.658Z`: `phase=running-game`,
+  selected map row `{swooper-maps}/maps/studio-current.js`, `mapSeed=123`,
+  `gameSeed=123`, player count `6`.
+- `civ7.live.snapshot` at `2026-06-17T07:15:22.035Z`: state
+  `{ id: "1", name: "Tuner" }`, map width `84`, height `54`, sampled plot count
+  `432`.
+
+Current-top bounded log evidence:
+
+- Bounds before browser action:
+  - `Scripting.log` offset `319766`;
+  - `Modding.log` offset `3557789`;
+  - `Database.log` offset `10511`;
+  - `UI.log` offset `19054504`.
+- `Scripting.log` contains `[SWOOPER_MOD] [mapgen-proof]` and
+  `[SWOOPER_MOD] [mapgen-complete]` for
+  `studio-run-in-game-mqhqd5ic-jrj-5`, seed `123`, dimensions `84x54`, and the
+  config/envelope hashes above.
+- `Modding.log` contains `Map Script: {swooper-maps}/maps/studio-current.js`
+  and `Loading maps/studio-current.js`.
+- `Database.log` has no Swooper/studio-current matches in the bounded search.
+- `UI.log` has no Swooper/studio-current matches in the bounded search; it is
+  not claimed as globally clean because unrelated third-party UI errors exist
+  in the local Civ7 environment.
+
+Current-top operation-history caveat:
+
+- After the browser proof, the Studio daemon serving `5298` restarted with
+  `serverInstanceId=studio-server-mqhqkd0r-23o4-1`.
+- `runInGame.status` for `studio-run-in-game-mqhqd5ic-jrj-5` returned
+  `404 RUN_IN_GAME_STATUS_NOT_FOUND` under the new identity.
+- `studio.operations.current` returned no active or recent operations under the
+  new identity.
+- Therefore this pass proves the user-reported generated/deployed/setup/start
+  path, but not durable operation-history recovery across daemon restarts.
+
 ## Unresolved Labels
 
-- Fresh bounded `Scripting.log` proof is claimed for request
-  `studio-run-in-game-mqhog22i-13if-2`.
-- Sibling `Modding.log`, `Database.log`, and `UI.log` ranges are not claimed
-  for broader load/product diagnostics.
+- Fresh bounded `Scripting.log`, `Modding.log`, `Database.log`, and `UI.log`
+  searches are claimed for the current-top request
+  `studio-run-in-game-mqhqd5ic-jrj-5` within the limits above.
+- `UI.log` is not globally clean because the local Civ7 environment includes
+  unrelated third-party UI errors outside Swooper/studio-current.
+- Operation history across a Studio daemon restart is unresolved for
+  `studio-run-in-game-mqhqd5ic-jrj-5`.
 - Full Studio browser-button execution after this branch was later recorded in
   `openspec/changes/studio-browser-scenario-proof/workstream/browser-proof-ledger.md`
   for request `studio-run-in-game-mqhng9hg-1pku-2`. That browser fast path
