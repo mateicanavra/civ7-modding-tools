@@ -12,8 +12,8 @@ import {
 } from "../src/ports";
 import {
   Civ7TunerSession,
-  makeCiv7TunerSessionLayer,
   type Civ7TunerSessionApi,
+  makeCiv7TunerSessionLayer,
 } from "../src/services/Civ7TunerSession";
 
 describe("Studio workflow session graph", () => {
