@@ -1,3 +1,4 @@
+import { clampPct } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { isMajorRiverClass, isMinorRiverClass } from "../../../river-class.js";
 import {
@@ -7,14 +8,9 @@ import {
 } from "../../../river-network-metrics.js";
 import SelectNavigableRiverTerrainContract from "../contract.js";
 
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.max(0, Math.min(1, value));
-}
-
 function percentileFloor(valuesAscending: readonly number[], percentile: number): number {
   if (valuesAscending.length === 0) return Infinity;
-  const p = clamp01(percentile);
+  const p = clampPct(percentile, 0, 1, 0);
   const index = Math.floor((valuesAscending.length - 1) * p);
   return valuesAscending[index] ?? Infinity;
 }
@@ -126,7 +122,7 @@ export const defaultStrategy = createStrategy(SelectNavigableRiverTerrainContrac
     }
 
     const riverMask = new Uint8Array(size);
-    const targetMajorTileFraction = clamp01(config.targetMajorTileFraction);
+    const targetMajorTileFraction = clampPct(config.targetMajorTileFraction, 0, 1, 0);
     const targetTileCount =
       eligibleTileCount === 0
         ? 0

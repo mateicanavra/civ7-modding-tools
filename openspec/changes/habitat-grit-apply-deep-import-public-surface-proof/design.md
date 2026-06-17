@@ -5,8 +5,9 @@
 ### Objective
 
 Make the existing `deep_import_to_public_surface` codemod safe enough to be
-claimed as a Habitat structural transformation, or keep it explicitly out of
-the product-safe set until the required proof exists.
+claimed as a bounded Habitat structural transformation for supported named
+value/type imports, while keeping unsupported forms and broad product/runtime
+closure explicitly outside the claim.
 
 ### Product Movement
 
@@ -71,12 +72,35 @@ gate leaves the worktree dirty.
 
 | Surface | Current evidence | Design implication |
 | --- | --- | --- |
-| Pattern presence | `.grit/patterns/habitat/apply/deep_import_to_public_surface.md` exists and is allowlisted in `tools/habitat-harness/src/lib/grit.ts`. | Implementation exists, but product safety is unproven. |
+| Pattern presence | `.grit/patterns/habitat/apply/deep_import_to_public_surface.md` exists and is allowlisted in `tools/habitat-harness/src/lib/grit.ts`. | Implementation exists; bounded safe-transform proof is now recorded through the accepted apply substrate. |
 | Native sample | `grit patterns test --filter deep_import_to_public_surface --json` passes with one rewrite sample; the current expected rewrite drops semicolons from the two import lines. | Native sample proof is accepted as fixture proof only; implementation must either preserve semicolons in the rewrite template or classify the semicolon delta as Biome-owned formatting in applied-diff proof. |
 | Live match inventory | `rg` over recipe/map roots finds no `@mapgen/domain/.../ops/...` imports; direct `grit apply ... --dry-run --output compact` reports 234 files and 0 matches. | Live tree currently has no rewrite candidates, so current proof cannot include applied-diff safety. |
 | Habitat dry-run | `bun run habitat:fix -- --dry-run` exits 0, reports 0 Grit matches, and Biome applies no fixes. | Useful command hygiene, not target-export or transaction proof. |
 | Public ops exports | Domain `ops.ts` files usually default-export `createDomain(...)` from `./ops/index.js`; they do not uniformly re-export every named operation from `ops/index.ts`. | Target-export preflight is mandatory before any rewrite. |
-| Adapter shape | `runGritApplyPatterns` calls `grit apply`, passes `--force`, returns `SpawnResult`, and then `runFix` invokes Biome. | Current manual orchestration cannot carry the required safety proof without a typed transaction substrate. |
+| Adapter shape | The accepted apply substrate records dry-run inventory, target-export failures, bounded apply diffs, Biome handoff, selected gates, and cleanup. | Current safe-transform claim is limited to proof classes named in the aggregate `HGPR-APPLY-*` records. |
+
+## Current Proof-State Update
+
+The aggregate command proof log now records the proof classes this design
+required for the supported named import rewrite path:
+
+- `HGPR-APPLY-TARGET-EXPORT-UNIT-2026-06-15`: target-export success,
+  type-only preservation, missing-export refusal, and unchanged source on
+  refusal;
+- `HGPR-APPLY-LIVE-INVENTORY-2026-06-15`: current live zero-candidate
+  inventory over recipe/map roots;
+- `HGPR-APPLY-POSITIVE-DRY-RUN-2026-06-15` and
+  `HGPR-APPLY-MISSING-EXPORT-2026-06-15`: injected no-write success and
+  fail-closed missing-export dry-run proof;
+- `HGPR-APPLY-LIVE-FIXED-2026-06-15`: controlled proof-worktree applied diff
+  on the safe morphology import case;
+- `HGPR-APPLY-LIVE-COLD-GATES-2026-06-15`: cold selected Swooper gates after
+  the applied diff;
+- `HGPR-APPLY-LIVE-ROLLBACK-2026-06-15`: proof-worktree cleanup.
+
+These proof ids do not claim unsupported import-clause forms, broad
+`mod-swooper-maps:test`, generated-output freshness, baseline writes, parity
+closure, raw direct Grit acquisition, or product/runtime behavior.
 
 ## Source Synthesis
 
@@ -215,13 +239,18 @@ TypeScript export authority.
 
 ## Downstream Realignment
 
-- `habitat-grit-proof-repair/workstream/grit-proof-matrix.md` keeps the current
-  apply row, but its applied-diff, rollback, and type/test cells point to this
-  packet after implementation.
-- `docs/projects/habitat-harness/recovery-claim-ledger.md` keeps
-  `CLAIM-PRODUCT-TRANSFORMS` unclosed until this proof exists.
+- `habitat-grit-proof-repair/workstream/grit-proof-matrix.md` and the command
+  proof log now point the current apply row at the accepted target-export,
+  dry-run, applied-diff, selected-gate, and cleanup proof ids.
+- `docs/projects/habitat-harness/recovery-claim-ledger.md` keeps broad product
+  transformation closure unclosed, but records this codemod as a bounded safe
+  transform for supported named value/type imports under the accepted
+  `HGPR-APPLY-*` proof ids.
 - `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` records the
-  codemod as executable under proof, not product-safe.
+  codemod as executable under proof for that supported shape, with unsupported
+  import forms, broad product/runtime closure, generated-output freshness,
+  baseline writes, raw direct Grit acquisition, broad tests, and parity closure
+  preserved as non-claims.
 - `docs/projects/habitat-harness/effect-orchestration-evaluation.md` remains
   the substrate decision authority for why the live write path consumes Effect.
 

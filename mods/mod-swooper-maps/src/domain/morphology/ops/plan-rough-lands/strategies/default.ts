@@ -1,4 +1,5 @@
 import { BOUNDARY_TYPE } from "@mapgen/domain/foundation/constants.js";
+import { clampPct } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import {
@@ -29,11 +30,6 @@ type RoughLandInputs = Readonly<{
   distanceToCoast: Uint16Array;
   fractalRoughLand: Int16Array;
 }>;
-
-function clamp01(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.max(0, Math.min(1, value));
-}
 
 function validateRoughLandInputs(input: PlanRoughLandsTypes["input"]): RoughLandInputs {
   const { width, height } = input;
@@ -122,7 +118,7 @@ function computeLocalRelief(params: {
 }
 
 function normalizeFlowAccum(value: number): number {
-  return clamp01(Math.log1p(Math.max(0, value)) / 8);
+  return clampPct(Math.log1p(Math.max(0, value)) / 8, 0, 1, 0);
 }
 
 function countAcceptedWithinHexDistance(params: {
@@ -224,12 +220,15 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
         driverSignalByteMin: config.driverSignalByteMin,
         driverExponent: config.driverExponent,
       });
-      const resistantSubstrate = clamp01(1 - (erodibilityK[i] ?? 0.5));
-      const thinSediment = clamp01(1 - (sedimentDepth[i] ?? 0.5));
-      const coastInterior = clamp01((distanceToCoast[i] ?? 0) / 8);
-      const elevationRelief = clamp01(((elevation[i] ?? 0) - input.seaLevel) / 35);
-      const localRelief = clamp01(
-        computeLocalRelief({ index: i, width, height, elevation, landMask }) / 16
+      const resistantSubstrate = clampPct(1 - (erodibilityK[i] ?? 0.5), 0, 1, 0);
+      const thinSediment = clampPct(1 - (sedimentDepth[i] ?? 0.5), 0, 1, 0);
+      const coastInterior = clampPct((distanceToCoast[i] ?? 0) / 8, 0, 1, 0);
+      const elevationRelief = clampPct(((elevation[i] ?? 0) - input.seaLevel) / 35, 0, 1, 0);
+      const localRelief = clampPct(
+        computeLocalRelief({ index: i, width, height, elevation, landMask }) / 16,
+        0,
+        1,
+        0
       );
       const flowRelief = normalizeFlowAccum(flowAccum[i] ?? 0);
 
@@ -259,18 +258,29 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
         ? (0.18 + flowRelief * 0.22 + localRelief * 0.2 + thinSediment * 0.18) *
           (0.45 + fractal * 0.55)
         : 0;
-      const localReliefSupport = clamp01(localRelief * 1.2 + escarpment * 0.8 + basinMargin * 0.5);
-      const activeDeformationSupport = clamp01(
+      const localReliefSupport = clampPct(
+        localRelief * 1.2 + escarpment * 0.8 + basinMargin * 0.5,
+        0,
+        1,
+        0
+      );
+      const activeDeformationSupport = clampPct(
         boundaryShoulder * 0.85 +
           riftShoulder * 0.65 +
-          stress * (boundary === BOUNDARY_TYPE.transform ? 0.45 : 0.15)
+          stress * (boundary === BOUNDARY_TYPE.transform ? 0.45 : 0.15),
+        0,
+        1,
+        0
       );
-      const dissectedUplandSupport = clamp01(
+      const dissectedUplandSupport = clampPct(
         (oldHighland * 0.3 + rollingUpland * 0.25 + plateau * 0.45) *
-          (0.15 + localReliefSupport * 0.65 + fractal * 0.2)
+          (0.15 + localReliefSupport * 0.65 + fractal * 0.2),
+        0,
+        1,
+        0
       );
 
-      const score = clamp01(
+      const score = clampPct(
         (oldHighland * 0.25 +
           rollingUpland * 0.35 +
           riftShoulder * 0.7 +
@@ -281,7 +291,10 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
           orographicBasinMargin * 0.55 +
           dissectedUplandSupport * 0.8) *
           Math.max(0, config.tectonicIntensity) *
-          (0.45 + fractal * 0.65)
+          (0.45 + fractal * 0.65),
+        0,
+        1,
+        0
       );
       roughScoreByTile[i] = score;
       roughnessPotential[i] = encodeNormalizedToU8(score);
