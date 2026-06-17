@@ -171,6 +171,7 @@ describe("GameConsole live runtime and save/deploy", () => {
   it("renders save/deploy status with its request id", () => {
     const html = renderConsole({
       operationControlsDisabled: true,
+      operationBusyLabel: "Game controls are paused while Save & Deploy is running.",
       saveDeployStatus: {
         ok: true,
         requestId: "studio-save-deploy-test",
@@ -184,6 +185,8 @@ describe("GameConsole live runtime and save/deploy", () => {
 
     expect(html).toContain("Save/Deploy: Deploying");
     expect(html).toContain("studio-save-deploy-test");
+    expect(html).toContain("Game controls are paused while Save &amp; Deploy is running.");
+    expect(html).toContain("Busy");
     expect(html).toContain("disabled");
   });
 
@@ -229,6 +232,19 @@ describe("GameConsole live runtime and save/deploy", () => {
     });
 
     expect(html).toContain("Explore request in flight");
+  });
+
+  it("shows the shared busy reason on disabled Autoplay and Explore controls", () => {
+    const html = renderConsole({
+      liveRuntime: { status: "ok", readiness: "ready" },
+      onToggleAutoplay: vi.fn(),
+      onExplore: vi.fn(),
+      operationControlsDisabled: true,
+      operationBusyLabel: "Game controls are paused while Run in Game is running.",
+    });
+
+    expect(html).toContain("Game controls are paused while Run in Game is running.");
+    expect(html).toContain("Busy");
   });
 
   it("highlights live seed status when a proved live game is out of sync with Studio", () => {

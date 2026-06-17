@@ -80,17 +80,26 @@ describe("AppFooter world/map console", () => {
   });
 
   it("disables map settings and run controls while Run in Game is running (shared operation gate)", () => {
-    const html = renderFooter({ isRunInGameRunning: true });
+    const html = renderFooter({
+      isRunInGameRunning: true,
+      operationBusyLabel: "World controls are paused while Run in Game is running.",
+    });
 
     expect(html).toContain("disabled");
+    expect(html).toContain("World controls are paused while Run in Game is running.");
+    expect(html).toContain("Busy");
     // The relocated selects ride the same gate as seed/reroll/run.
     const sizeTrigger = html.match(/<button[^>]*aria-label="World size"[^>]*>/)?.[0] ?? "";
     expect(sizeTrigger).toContain("disabled");
   });
 
   it("disables run controls while config save/deploy is running (shared operation gate)", () => {
-    const html = renderFooter({ isSaveDeployRunning: true });
+    const html = renderFooter({
+      isSaveDeployRunning: true,
+      operationBusyLabel: "World controls are paused while Save & Deploy is running.",
+    });
 
     expect(html).toContain("disabled");
+    expect(html).toContain("World controls are paused while Save &amp; Deploy is running.");
   });
 });

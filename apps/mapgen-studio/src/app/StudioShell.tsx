@@ -146,6 +146,7 @@ import { useToast } from "./hooks/useToast";
 import { LeftDock } from "./LeftDock";
 import { readAndAdoptStudioOperationsCurrent } from "./operationAdoption";
 import { RightDock } from "./RightDock";
+import { studioBusyGateMessage } from "./studioEventRecovery";
 
 export type StudioShellProps = {
   themePreference: "system" | "light" | "dark";
@@ -494,9 +495,16 @@ export function StudioShell(props: StudioShellProps) {
 
   const browserRunning = browserRunner.state.running;
   const [localError, setLocalError] = useState<string | null>(null);
+  const clearLocalErrorIfCurrent = useCallback((message: string) => {
+    setLocalError((current) => (current === message ? null : current));
+  }, []);
   const [saveDeployOperation, setSaveDeployOperation] = useState<MapConfigSaveDeployStatus | null>(
     null
   );
+  const runInGameOperationRef = useRef<RunInGameOperationStatus | null>(null);
+  const saveDeployOperationCurrentRef = useRef<MapConfigSaveDeployStatus | null>(null);
+  runInGameOperationRef.current = runInGameOperation;
+  saveDeployOperationCurrentRef.current = saveDeployOperation;
   const saveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
   const saveDeployWaitersRef = useRef<Map<string, SaveDeployTerminalWaiter>>(new Map());
   // Run presentation state is session-only; cross-reload operation recovery is
@@ -1655,6 +1663,8 @@ export function StudioShell(props: StudioShellProps) {
         markRunInGameToastHandled,
       },
       isCancelled: () => cancelled,
+      getCurrentRunInGameOperation: () => runInGameOperationRef.current,
+      getCurrentSaveDeployOperation: () => saveDeployOperationCurrentRef.current,
       onError: setLocalError,
     });
     return () => {
@@ -1664,10 +1674,13 @@ export function StudioShell(props: StudioShellProps) {
 
   useStudioEvents({
     applyLiveGameState,
+    currentRunInGameOperation: runInGameOperation,
+    currentSaveDeployOperation: saveDeployOperation,
     setRunInGameOperation,
     setSaveDeployOperation,
     markRunInGameToastHandled,
     setLocalError,
+    clearLocalError: clearLocalErrorIfCurrent,
   });
 
   useRunInGameTerminalToast({
@@ -1917,7 +1930,20 @@ export function StudioShell(props: StudioShellProps) {
   ]);
 
   const handleToggleAutoplay = useCallback(async () => {
-    if (autoplayActionRunning || browserRunning || runInGameRunning || saveDeployRunning) return;
+    if (autoplayActionRunning) {
+      toast("Autoplay request is already in flight.", { variant: "info" });
+      return;
+    }
+    const busyMessage = studioBusyGateMessage({
+      subject: "Autoplay",
+      browserRunning,
+      runInGameRunning,
+      saveDeployRunning,
+    });
+    if (busyMessage) {
+      toast(busyMessage, { variant: "info" });
+      return;
+    }
     const action = liveRuntime.autoplayActive ? "stop" : "start";
     setAutoplayActionRunning(true);
     try {
@@ -1959,7 +1985,20 @@ export function StudioShell(props: StudioShellProps) {
    * session; player 0 is the canonical local player, matching the CLI.
    */
   const handleExplore = useCallback(async () => {
-    if (exploreActionRunning || browserRunning || runInGameRunning || saveDeployRunning) return;
+    if (exploreActionRunning) {
+      toast("Explore request is already in flight.", { variant: "info" });
+      return;
+    }
+    const busyMessage = studioBusyGateMessage({
+      subject: "Explore",
+      browserRunning,
+      runInGameRunning,
+      saveDeployRunning,
+    });
+    if (busyMessage) {
+      toast(busyMessage, { variant: "info" });
+      return;
+    }
     setExploreActionRunning(true);
     try {
       const result = await liveControlPort.display.explore.request({ playerId: 0 });
@@ -1990,6 +2029,19 @@ export function StudioShell(props: StudioShellProps) {
       );
     }
   }, [runInGameOperation, toast]);
+
+  const gameOperationBusyLabel = studioBusyGateMessage({
+    subject: "Game controls",
+    browserRunning,
+    runInGameRunning,
+    saveDeployRunning,
+  });
+  const worldOperationBusyLabel = studioBusyGateMessage({
+    subject: "World controls",
+    browserRunning,
+    runInGameRunning,
+    saveDeployRunning,
+  });
 
   const dataTypeModel = viz.dataTypeModel;
   const dataTypeOptions: DataTypeOption[] = useMemo(() => {
@@ -2565,6 +2617,7 @@ export function StudioShell(props: StudioShellProps) {
           onExplore={handleExplore}
           isExploreActionRunning={exploreActionRunning}
           operationControlsDisabled={browserRunning || runInGameRunning || saveDeployRunning}
+          operationBusyLabel={gameOperationBusyLabel}
           isRunInGameRunning={runInGameRunning}
           runInGameStatus={runInGameOperation}
           runInGameCurrentRelation={runInGameCurrentRelation}
@@ -2691,6 +2744,7 @@ export function StudioShell(props: StudioShellProps) {
       isRunning={browserRunning}
       isRunInGameRunning={runInGameRunning}
       isSaveDeployRunning={saveDeployRunning}
+      operationBusyLabel={worldOperationBusyLabel}
       isDirty={isDirty}
       onToast={(message) => toast(message, { variant: "success" })}
       autoRunEnabled={autoRunEnabled}
