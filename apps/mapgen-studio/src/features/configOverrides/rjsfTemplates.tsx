@@ -5,7 +5,7 @@ import type {
   RJSFSchema,
 } from "@rjsf/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { FieldRow } from "../../ui/components/fields";
 import { pathToPointer } from "./schemaPresentation";
 
@@ -282,7 +282,9 @@ function FlatObjectChildren(args: {
           <div key={run.item.name ?? index}>{run.item.content}</div>
         ) : (
           <div key={index} className={`flex flex-col ${FORM.rhythm.siblings} ${args.fieldsClass}`}>
-            {run.items.map((p) => p.content)}
+            {run.items.map((p, itemIndex) => (
+              <Fragment key={p.name ?? itemIndex}>{p.content}</Fragment>
+            ))}
           </div>
         )
       )}
@@ -310,13 +312,25 @@ export function BrowserConfigObjectFieldTemplate(
     // only volume change (a recessed slab opens under the row).
     return (
       <div className={`flex flex-col divide-y divide-border-subtle border-y ${FORM.borderSubtle}`}>
-        {properties.filter((p) => !p.hidden).map((p) => p.content)}
+        {properties
+          .filter((p) => !p.hidden)
+          .map((p, index) => (
+            <Fragment key={p.name ?? index}>{p.content}</Fragment>
+          ))}
       </div>
     );
   }
 
   if (isTransparent) {
-    return <div>{properties.filter((p) => !p.hidden).map((p) => p.content)}</div>;
+    return (
+      <div>
+        {properties
+          .filter((p) => !p.hidden)
+          .map((p, index) => (
+            <Fragment key={p.name ?? index}>{p.content}</Fragment>
+          ))}
+      </div>
+    );
   }
 
   const prettyTitle = title

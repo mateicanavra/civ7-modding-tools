@@ -45,3 +45,31 @@ Interpretation:
 Known console noise:
 
 - Browser console retained one pre-existing error entry from page boot; it did not block the scenario and no Run in Game terminal error was observed.
+
+## 2026-06-17 Restart Recovery Scope Regression
+
+Branch/worktree:
+
+- branch: `codex/studio-run-restart-relation-scope`
+- commit: `1b9ec418e fix(studio): scope restart recovery to current run state`
+
+Evidence:
+
+- `bun run --cwd apps/mapgen-studio test test/runInGame/status.test.ts test/runInGame/GameConsole.test.tsx`
+  passed with 21 tests.
+- `bun run nx run mapgen-studio:check --outputStyle=static` passed.
+
+Observed behavior:
+
+- A current operation with `reloadBoundary: "process-restart-required"` still
+  renders `Restart Civ & Run`.
+- A stale prior operation with the same diagnostic renders `Run Current` and no
+  longer carries process-restart intent into the next authored Studio run.
+
+Interpretation:
+
+- Browser restart recovery is scoped to the operation relation. It remains an
+  explicit recovery affordance for the current failure, not a sticky global
+  setting for later map reruns.
+- No new live Civ7, generated, deployed, tuner, log, or product proof is claimed
+  by this regression test.
