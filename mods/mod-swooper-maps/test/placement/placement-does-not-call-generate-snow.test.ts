@@ -2,8 +2,6 @@ import { describe, expect, it } from "bun:test";
 
 import {
   createMockAdapter,
-  type DiscoveryPlacementIntent,
-  type DiscoveryPlacementOutcome,
   type MapInfo,
   MockAdapter,
   type ResourcePlacementIntent,
@@ -101,22 +99,9 @@ function readDiscoveryOutcomes(context: ReturnType<typeof runStandardPlacementRe
           plannedCount: number;
           placedCount: number;
           rejectedCount: number;
-          mismatchCount: number;
         };
       }
     | undefined;
-}
-
-class RejectingDiscoveryAdapter extends MockAdapter {
-  override stampDiscovery(
-    x: number,
-    y: number,
-    discoveryVisualType: number,
-    discoveryActivationType: number
-  ): boolean {
-    this.calls.stampDiscovery.push({ x, y, discoveryVisualType, discoveryActivationType });
-    return false;
-  }
 }
 
 class MismatchingResourceAdapter extends MockAdapter {
@@ -155,36 +140,40 @@ class UntypedResourceRejectionAdapter extends MockAdapter {
   }
 }
 
-class MislocatedDiscoveryAdapter extends MockAdapter {
-  override placeDiscoveryIntent(
-    width: number,
-    height: number,
-    intent: DiscoveryPlacementIntent
-  ): DiscoveryPlacementOutcome {
-    const outcome = super.placeDiscoveryIntent(width, height, intent);
-    if (outcome.status !== "placed") return outcome;
-    return {
-      ...outcome,
-      plotIndex: outcome.plotIndex + 1,
-      x: outcome.x + 1,
-    };
-  }
-}
-
 describe("placement reconciliation", () => {
-  it("materializes resources and discoveries through typed adapter intents", () => {
-    const { adapter, context } = runStandardPlacementRecipe();
+  it("places resources through typed intents and discoveries through the official generator", () => {
+    const width = 20;
+    const height = 12;
+    const seed = 1337;
+    const adapter = createMockAdapter({
+      width,
+      height,
+      mapInfo: { GridWidth: width, GridHeight: height },
+      mapSizeId: 1,
+      rng: createLabelRng(seed),
+      officialDiscoveriesPlacedCount: 5,
+    });
+
+    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
 
     const resourceOutcomes = readResourceOutcomes(context);
     const discoveryOutcomes = readDiscoveryOutcomes(context);
 
+    // Snow and the official RESOURCE generator stay off: the mod owns resource
+    // placement via typed intents (engine indices + readback).
     expect(adapter.calls.generateSnow.length).toBe(0);
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
-    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
     expect(resourceOutcomes?.summary.plannedCount).toBeGreaterThan(0);
-    expect(discoveryOutcomes?.summary.plannedCount).toBeGreaterThan(0);
     expect(adapter.calls.setResourceType.length).toBe(resourceOutcomes?.summary.placedCount);
-    expect(adapter.calls.stampDiscovery.length).toBe(discoveryOutcomes?.summary.placedCount);
+
+    // Discoveries defer to Civ7's official generator (narrative-coupled type and
+    // availability), not a map-side catalog: the step calls it exactly once and
+    // records the observed counts; it never stamps per-tile discovery intents.
+    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(1);
+    expect(adapter.calls.stampDiscovery.length).toBe(0);
+    expect(discoveryOutcomes?.summary.plannedCount).toBe(5);
+    expect(discoveryOutcomes?.summary.placedCount).toBe(5);
+    expect(discoveryOutcomes?.summary.rejectedCount).toBe(0);
   });
 
   it("records typed resource rejections without relocation when the engine oracle rejects every intent", () => {
@@ -217,28 +206,6 @@ describe("placement reconciliation", () => {
       resourceOutcomes?.summary.byReason.every((row) => row.reason === "cannot-have-resource")
     ).toBe(true);
     expect(resourceOutcomes?.reconciliation.shortfalls.length).toBeGreaterThan(0);
-  });
-
-  it("records typed discovery rejections without falling back to official generation", () => {
-    const width = 20;
-    const height = 12;
-    const seed = 1551;
-    const adapter = new RejectingDiscoveryAdapter({
-      width,
-      height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
-
-    const { context } = runStandardPlacementRecipe({ adapter, seed, width, height });
-    const discoveryOutcomes = readDiscoveryOutcomes(context);
-
-    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
-    expect(discoveryOutcomes?.summary.plannedCount).toBeGreaterThan(0);
-    expect(discoveryOutcomes?.summary.placedCount).toBe(0);
-    expect(discoveryOutcomes?.summary.rejectedCount).toBe(discoveryOutcomes?.summary.plannedCount);
-    expect(discoveryOutcomes?.summary.mismatchCount).toBe(0);
   });
 
   it("fails hard when resource readback contradicts typed intent", () => {
@@ -277,26 +244,6 @@ describe("placement reconciliation", () => {
       /untyped rejection reason/i
     );
     expect(adapter.calls.generateOfficialResources.length).toBe(0);
-    expect(adapter.calls.recalculateFertility).toBe(0);
-    expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
-  });
-
-  it("fails hard when discovery outcomes drift from typed intent location", () => {
-    const width = 20;
-    const height = 12;
-    const seed = 1881;
-    const adapter = new MislocatedDiscoveryAdapter({
-      width,
-      height,
-      mapInfo: { GridWidth: width, GridHeight: height },
-      mapSizeId: 1,
-      rng: createLabelRng(seed),
-    });
-
-    expect(() => runStandardPlacementRecipe({ adapter, seed, width, height })).toThrow(
-      /outcome location\/type drifted/i
-    );
-    expect(adapter.calls.generateOfficialDiscoveries.length).toBe(0);
     expect(adapter.calls.recalculateFertility).toBe(0);
     expect(adapter.calls.assignAdvancedStartRegions).toBe(0);
   });

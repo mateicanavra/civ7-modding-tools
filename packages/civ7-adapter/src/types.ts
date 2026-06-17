@@ -114,6 +114,19 @@ export interface DiscoveryPlacementIntent {
 }
 
 /**
+ * Counts observed while running Civ7's official discovery generator.
+ * `attemptedCount` = `MapConstructibles.addDiscovery` calls the generator made;
+ * `placedCount` = calls the engine accepted. `attempted - placed` is the
+ * engine-side rejection count (commonly narrative-budget exhaustion). Discovery
+ * type/availability is a live narrative-system product, so unlike resources the
+ * mod observes counts rather than re-deriving engine ids.
+ */
+export interface OfficialDiscoveryGenerationResult {
+  attemptedCount: number;
+  placedCount: number;
+}
+
+/**
  * Discovery reconciliation result for one planned intent. The adapter can only
  * confirm placement or expose a named rejection, so there is no discovery
  * mismatch state until Civ7 offers richer readback.
@@ -775,14 +788,15 @@ export interface EngineAdapter {
    * Run Civ7's official discovery generator.
    * Wraps /base-standard/maps/discovery-generator.js generateDiscoveries().
    *
-   * Returns the number of successful discovery placements observed during generation.
+   * Returns the attempted/placed counts observed during generation (see
+   * {@link OfficialDiscoveryGenerationResult}).
    */
   generateOfficialDiscoveries(
     width: number,
     height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
-  ): number;
+  ): OfficialDiscoveryGenerationResult;
 
   /** Engine catalog of natural wonder feature definitions. */
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];

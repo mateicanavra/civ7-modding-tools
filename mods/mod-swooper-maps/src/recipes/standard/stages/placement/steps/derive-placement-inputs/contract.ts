@@ -44,16 +44,11 @@ const DerivePlacementInputsContract = defineStep({
       ecologyArtifacts.biomeBindings,
       ecologyArtifacts.pedology,
     ],
-    provides: [
-      placementArtifacts.placementInputs,
-      placementArtifacts.naturalWonderPlan,
-      placementArtifacts.discoveryPlan,
-    ],
+    provides: [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
   },
   ops: {
     wonders: placement.ops.planWonders,
     naturalWonders: placement.ops.planNaturalWonders,
-    discoveries: placement.ops.planDiscoveries,
   },
   schema: Type.Object({}),
 });

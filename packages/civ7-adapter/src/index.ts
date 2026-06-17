@@ -73,6 +73,7 @@ export type {
   NaturalWonderFootprintReadbackStatus,
   NaturalWonderPlacementOutcome,
   NaturalWonderPlacementRejectionReason,
+  OfficialDiscoveryGenerationResult,
   PlotTagName,
   ResourceCatalogEntry,
   ResourcePlacementIntent,

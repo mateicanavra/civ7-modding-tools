@@ -8,53 +8,47 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function isCount(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0;
+}
+
 /**
- * Validate hook for the discovery placement outcomes artifact
- * (placement-realignment S6): count coherence between the summary and the
- * outcome rows, and typed reasons on every non-placed row.
+ * Validate hook for the discovery placement summary artifact. Discoveries are
+ * placed by the official generator, so this checks count coherence only:
+ * non-negative integers, placed within planned (attempts), and
+ * planned = placed + rejected.
  */
 export function validateDiscoveryPlacementOutcomesArtifact(value: unknown): ValidationIssue[] {
   if (!isRecord(value)) return [issue("discoveryPlacementOutcomes artifact must be an object.")];
-  const issues: ValidationIssue[] = [];
   const summary = isRecord(value.summary) ? value.summary : null;
-  const outcomes = Array.isArray(value.outcomes) ? value.outcomes : null;
   if (!summary) return [issue("discoveryPlacementOutcomes.summary must be an object.")];
-  if (!outcomes) return [issue("discoveryPlacementOutcomes.outcomes must be an array.")];
 
-  if (summary.plannedCount !== outcomes.length) {
-    issues.push(
-      issue(
-        `summary.plannedCount ${String(summary.plannedCount)} != outcomes.length ${outcomes.length}.`
-      )
-    );
-  }
-  let placed = 0;
-  let rejected = 0;
-  for (const outcome of outcomes) {
-    if (!isRecord(outcome)) continue;
-    if (outcome.status === "placed") {
-      placed += 1;
-    } else if (outcome.status === "rejected") {
-      rejected += 1;
-      if (typeof outcome.reason !== "string" || outcome.reason.length === 0) {
-        issues.push(
-          issue(
-            `rejected discovery outcome on plot ${String(outcome.plotIndex)} has no typed reason.`
-          )
-        );
-      }
-    } else {
-      issues.push(issue(`discovery outcome has untyped status ${String(outcome.status)}.`));
+  const issues: ValidationIssue[] = [];
+  const { plannedCount, placedCount, rejectedCount } = summary;
+  for (const [name, count] of [
+    ["plannedCount", plannedCount],
+    ["placedCount", placedCount],
+    ["rejectedCount", rejectedCount],
+  ] as const) {
+    if (!isCount(count)) {
+      issues.push(issue(`summary.${name} must be a non-negative integer (got ${String(count)}).`));
     }
   }
-  if (summary.placedCount !== placed) {
+  if (isCount(plannedCount) && isCount(placedCount) && placedCount > plannedCount) {
     issues.push(
-      issue(`summary.placedCount ${String(summary.placedCount)} != placed rows ${placed}.`)
+      issue(`summary.placedCount ${placedCount} exceeds summary.plannedCount ${plannedCount}.`)
     );
   }
-  if (summary.rejectedCount !== rejected) {
+  if (
+    isCount(plannedCount) &&
+    isCount(placedCount) &&
+    isCount(rejectedCount) &&
+    placedCount + rejectedCount !== plannedCount
+  ) {
     issues.push(
-      issue(`summary.rejectedCount ${String(summary.rejectedCount)} != rejected rows ${rejected}.`)
+      issue(
+        `summary.placedCount ${placedCount} + rejectedCount ${rejectedCount} != plannedCount ${plannedCount}.`
+      )
     );
   }
   return issues;

@@ -23,6 +23,7 @@ import type {
   DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
+  OfficialDiscoveryGenerationResult,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -1552,7 +1553,7 @@ export class MockAdapter implements EngineAdapter {
     height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
-  ): number {
+  ): OfficialDiscoveryGenerationResult {
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
@@ -1567,7 +1568,12 @@ export class MockAdapter implements EngineAdapter {
       polarMargin: resolvedPolarMargin,
     });
     this.recordPlacementEffect();
-    return this.officialDiscoveriesPlacedCount;
+    // The mock does not run the real generator; it reports the configured count
+    // as both attempted and placed (no engine-side rejection in the mock).
+    return {
+      attemptedCount: this.officialDiscoveriesPlacedCount,
+      placedCount: this.officialDiscoveriesPlacedCount,
+    };
   }
 
   generateOfficialResources(

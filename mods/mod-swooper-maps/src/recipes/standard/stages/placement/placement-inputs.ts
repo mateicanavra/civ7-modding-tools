@@ -5,7 +5,6 @@ export const PlacementInputsConfigSchema = Type.Object(
   {
     wonders: placement.ops.planWonders.config,
     naturalWonders: placement.ops.planNaturalWonders.config,
-    discoveries: placement.ops.planDiscoveries.config,
   },
   { additionalProperties: false }
 );

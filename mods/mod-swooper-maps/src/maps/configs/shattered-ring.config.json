@@ -627,10 +627,6 @@
       "naturalWonders": {
         "minSpacingTiles": 6
       },
-      "discoveries": {
-        "densityPer100Tiles": 3,
-        "minSpacingTiles": 3
-      },
       "resources": {}
     }
   }

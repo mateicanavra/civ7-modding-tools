@@ -22,6 +22,7 @@ import type {
   DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
+  OfficialDiscoveryGenerationResult,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -1207,7 +1208,7 @@ export class Civ7Adapter implements EngineAdapter {
     height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
-  ): number {
+  ): OfficialDiscoveryGenerationResult {
     const resolvedWidth = Math.max(0, Math.trunc(width));
     const resolvedHeight = Math.max(0, Math.trunc(height));
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
@@ -1235,6 +1236,7 @@ export class Civ7Adapter implements EngineAdapter {
       );
     }
 
+    let attemptedCount = 0;
     let placedCount = 0;
     const originalAddDiscovery = mapConstructibles.addDiscovery;
     mapConstructibles.addDiscovery = (
@@ -1243,6 +1245,7 @@ export class Civ7Adapter implements EngineAdapter {
       discoveryVisualType: number,
       discoveryActivationType: number
     ): boolean => {
+      attemptedCount += 1;
       const placed = Boolean(
         originalAddDiscovery.call(
           mapConstructibles,
@@ -1273,7 +1276,7 @@ export class Civ7Adapter implements EngineAdapter {
     }
 
     this.recordPlacementEffect();
-    return placedCount;
+    return { attemptedCount, placedCount };
   }
 
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
