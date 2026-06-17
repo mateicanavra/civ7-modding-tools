@@ -1,7 +1,7 @@
 # Review Disposition - Runtime Effect Recovery Design
 
-Status: review wave complete; design approved for sequential docs/OpenSpec
-realignment.
+Status: review wave complete; design approved and executed through R0-R3
+docs/OpenSpec realignment; R4 closeout audit pending.
 
 Accepted P1/P2 findings block design approval until repaired, rejected with
 evidence, or moved outside the design closure claim.
@@ -31,7 +31,10 @@ evidence, or moved outside the design closure claim.
 
 ## Design Approval State
 
-Design is approved for implementation of R0-R4 in the order defined by
-`CHANGESET-DESIGN.md`. There are no accepted unresolved P1/P2 findings against
-the design. R0 remains the first implementation slice and must complete before
-any later realignment slice starts.
+Design was approved for implementation of R0-R4 in the order defined by
+`CHANGESET-DESIGN.md`. R0-R3 have been implemented, and there are no accepted
+unresolved P1/P2 findings against the docs/OpenSpec realignment design.
+
+The remaining D10 watcher-specific live-game proof row is not a rejected review
+finding and is not closed by this docs-only recovery stack. It is retained as
+the next proof owner if the broader runtime-proof objective continues.
