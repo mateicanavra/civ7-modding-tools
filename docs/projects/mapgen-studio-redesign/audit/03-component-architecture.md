@@ -5,6 +5,15 @@
 **Date:** 2026-06-08
 **Lens applied:** `dev:vercel-composition-patterns`, `dev:vercel-react-best-practices`, `dev:frontend-design`
 
+> **Current-status note (2026-06-16):** this audit predates the Studio runtime
+> Effect refactor stack that landed on `origin/main` through PR `#1748`. Its
+> polling, watchdog, browser-recovery, and TanStack status-query recommendations
+> are historical decomposition evidence, not current runtime authority. Current
+> runtime ownership is daemon/EventHub/Effect-owned; see
+> `docs/projects/studio-runtime-simplification/OPENSPEC-PACKET-TRAIN.md` and the
+> `mapgen-studio-game-door-invariant` D12 proof ledgers before using this audit
+> for runtime behavior.
+
 > **Behavior-parity constraint (non-negotiable):** map-gen pipeline, Deck.gl rendering, recipe semantics, and the live-game runtime loop must be preserved bit-for-bit. Sections flag every piece of **load-bearing live-control state** so decomposition does not break the live loop.
 
 ---

@@ -4,6 +4,14 @@ Status: normative spike frame
 Date: 2026-06-14
 Scope: Mapgen Studio runtime simplification closeout and Effect-based mutation runtime refactor
 
+Current-main reconciliation, 2026-06-16: the D0-D12 runtime stack has landed on
+`origin/main` through PR `#1748`. The domino descriptions below remain the
+normative frame and historical proof plan for the stack, but the "Immediate Next
+Work" section is superseded by current OpenSpec workstream records. Current
+known open runtime-record work is D10's narrowed live-game watcher-specific
+Civ7 proof gap plus any later docs/OpenSpec realignment slice, not reopening D2
+or D3.
+
 ## Purpose
 
 The product outcome is a strong, reliable Mapgen Studio core: the daemon owns ephemeral runtime truth, game-facing mutations are orchestrated through typed Effect services, public contracts are TypeBox-owned, and the local development loop is boring enough that Play and Save/Deploy do not destabilize the server that is reporting their state.
@@ -697,6 +705,11 @@ Live slices:
 - Arc is not part of this refactor's implementation plan; it is not a task runner, build tool, process manager, or reactive state library: <https://arc.tsdk.dev/>.
 
 ## Immediate Next Work
+
+This section is historical. It described the next work as of 2026-06-14 before
+the runtime stack landed on `origin/main` through `#1748`. Use the current
+OpenSpec workstream records and packet train status instead of reopening these
+early dominoes by default.
 
 1. Confirm the active runtime stack base and whether the tactical `dev-watch-deploy-isolation`/dev-host cleanup branches are merged, pending, or dirty.
 2. Open D2 (`mapgen-studio-engine-effect-corpus`) if the corpus is not already represented in a live OpenSpec change.
