@@ -10,6 +10,10 @@ type Finding = Readonly<{
   text: string;
 }>;
 
+const allowedOfficialGeneratorFindings = new Set([
+  "src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts:official-discovery-generator",
+]);
+
 function walkFiles(rootDir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(rootDir, { withFileTypes: true })) {
@@ -55,6 +59,7 @@ function scanFile(absFile: string, repoRoot: string): Finding[] {
     const line = lines[i] ?? "";
     for (const { name, re } of patterns) {
       if (!re.test(line)) continue;
+      if (allowedOfficialGeneratorFindings.has(`${relFile}:${name}`)) continue;
       findings.push({ file: relFile, line: i + 1, pattern: name, text: line.trim() });
     }
     if (

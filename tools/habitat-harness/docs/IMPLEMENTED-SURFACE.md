@@ -59,6 +59,7 @@ Implemented command qualities:
 Implemented graph integration:
 
 - Habitat inference plugin loaded from `nx.json`;
+- inferred aggregate `habitat:check:all` for one-pass full Habitat graph checks;
 - inferred `habitat:check` per rule owner;
 - inferred `habitat:rule:<rule-id>` aliases;
 - inferred repo-wide `boundaries`, `biome:*`, `grit:check`, and

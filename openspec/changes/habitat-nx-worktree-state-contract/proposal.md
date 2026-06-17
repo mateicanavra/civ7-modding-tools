@@ -110,9 +110,9 @@ official defaults.
 - `nx run --project=@internal/habitat-harness --target=habitat:rule:workspace-entrypoints`
 - `nx run @internal/habitat-harness:generated:check --output-style=stream`
 - `nx run @civ7/direct-control:build --output-style=stream`
-- `bun run lint` is expected to execute the graph-owned `lint,habitat:check`
-  aggregate; current failure means locked Habitat/Grit rule debt, not
-  dependency or Nx execution failure.
+- `bun run lint` is expected to execute the graph-owned Biome hygiene target.
+  Full Habitat structural proof is a separate explicit command path, so locked
+  Habitat/Grit rule debt must not make the fast lint gate slow or non-local.
 - Fresh verification worktree from this branch:
   - `bun install`
   - `bun run verify`

@@ -22,7 +22,6 @@ import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
-  OfficialDiscoveryGenerationResult,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -32,6 +31,7 @@ import type {
   MapSizeId,
   NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
+  OfficialDiscoveryGenerationResult,
   PlotTagName,
   ResourceCatalogEntry,
   ResourcePlacementIntent,

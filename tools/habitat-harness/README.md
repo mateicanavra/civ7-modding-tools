@@ -26,8 +26,8 @@ pattern: command classes live under `src/commands/**`, local repo scripts run
 
 ```bash
 bun run habitat            # command help
-bun run lint               # graph-owned package lint + Habitat rule aggregate
-bun run habitat:check      # graph-owned Habitat rule aggregate
+bun run lint               # graph-owned repo-wide Biome hygiene
+bun run habitat:check      # diagnostic full Habitat rule aggregate
 bun run habitat:fix        # approved Grit codemods, then Biome safe writes
 bun run verify             # graph-owned package verifier aggregate
 bun run check              # graph-owned build/check/lint/test/verify aggregate

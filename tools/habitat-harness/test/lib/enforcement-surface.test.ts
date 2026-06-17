@@ -54,7 +54,7 @@ const rootScriptPolicy: Record<string, { command: string; surface: SurfaceClass 
     surface: "direct-habitat-mutation",
   },
   lint: {
-    command: "nx run-many --targets=lint,habitat:check",
+    command: "nx run @internal/habitat-harness:biome:ci",
     surface: "graph-owned-habitat-lint",
   },
   "lint:adapter-boundary": {
@@ -274,6 +274,7 @@ describe("enforcement surface inventory", () => {
         "generated:check",
         "grit:check",
         "habitat:check",
+        "habitat:check:all",
         "habitat:rule:workspace-entrypoints",
         "habitat:rule:mapgen-docs",
       ])

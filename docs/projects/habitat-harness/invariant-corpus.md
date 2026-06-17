@@ -60,7 +60,8 @@ survives only in `eslint.boundaries.config.mjs`, whose sole rule is
 | ID | Where | Behavior | Disposition |
 |---|---|---|---|
 | pnpm-guard | `.github/workflows/ci.yml` | fail on pnpm artifacts | keep; H7 adds a **registered file-layer rule** (empty baseline, locked) run in pre-commit — not an unregistered native check |
-| root-check | `package.json` `check` | graph-owned aggregate | current root `check` runs `nx run-many --targets=build,check,lint,test,verify`; the structural Habitat lane is part of root `lint` through Nx |
+| root-lint | `package.json` `lint` | graph-owned hygiene gate | current root `lint` runs `@internal/habitat-harness:biome:ci`; full Habitat structural proof is separate |
+| root-check | `package.json` `check` | graph-owned aggregate | current root `check` runs `nx run-many --targets=build,check,lint,test,verify`; structural Habitat proof remains explicit through Habitat/check/verify paths rather than hidden in lint |
 | architecture-strict-core | ci.yml job | strict-core guardrails plus Habitat diagnostics artifact | current strict-core remains a direct full-profile diagnostic step; Habitat diagnostics are captured separately through `habitat:check --json` |
 
 ## E. Generated zones (file layer)

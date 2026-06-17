@@ -20,7 +20,6 @@ import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.j
 import type {
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
-  OfficialDiscoveryGenerationResult,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -30,6 +29,7 @@ import type {
   MapSizeId,
   NaturalWonderCatalogEntry,
   NaturalWonderPlacementOutcome,
+  OfficialDiscoveryGenerationResult,
   PlotTagName,
   ResourceCatalogEntry,
   ResourcePlacementIntent,
