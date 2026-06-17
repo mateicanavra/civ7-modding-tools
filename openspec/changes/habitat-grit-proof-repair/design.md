@@ -31,17 +31,20 @@ This design fails if a future agent can claim a Grit rule is enforced because
 native samples passed, while the current-tree scan root, Habitat rule mapping,
 baseline behavior, and injected violation proof for that rule are absent.
 
-## Current Diagnosis
+## Stage 0 Diagnosis
 
-Fresh proof collected on branch `codex/habitat-dra-takeover-frame` after the
-command-trust design checkpoint:
+The following evidence was collected on branch `codex/habitat-dra-takeover-frame`
+after the command-trust design checkpoint. It is historical Stage 0 diagnosis,
+not current post-repair command behavior. Current implementation proof rows live
+in `workstream/command-proof-log.md`, and the phase record names the current
+selector/current-tree and explicit-baseline proof classes and non-claims.
 
 | Probe | Result | Proof class | Non-claim |
 | --- | --- | --- | --- |
 | `rg --files .grit/patterns/habitat` | 22 check patterns and 1 apply pattern found | corpus enumeration | no current-tree enforcement proof |
 | `GRIT_TELEMETRY_DISABLED=true grit patterns test --json` | 23 reports, 45 samples, all success/pass | native sample proof | no scan-root, baseline, parity, or apply safety proof |
 | `bun run habitat:check -- --json --tool grit-check` | schemaVersion 1, `ok:true`, 23 passing reports including `baseline-integrity` | Habitat current-tree wrapper proof for valid tool selector | selector truth for wrong namespace |
-| `bun run habitat:check -- --json --rule grit-check` | schemaVersion 1, `ok:true`, only `baseline-integrity` | selector false-green evidence | not valid proof of Grit rule behavior |
+| `bun run habitat:check -- --json --rule grit-check` | schemaVersion 1, `ok:true`, only `baseline-integrity` | historical selector false-green evidence before `habitat-oclif-entrypoint-repair` | not valid proof of Grit rule behavior or current selector behavior |
 | raw `grit --json check` over declared roots | interrupted after useful design-probe bound; no output captured | unresolved raw acquisition proof | no failure or pass claim |
 | `bun run habitat:fix -- --dry-run` | Grit apply roots processed 234 files with 0 matches; Biome checked 2343 files with no fixes | live-tree dry-run hygiene | no injected rewrite safety proof |
 | `bun tools/habitat-harness/bin/dev.ts check --tool wrapped-script --json` | 4 pass | current wrapper state | no per-rule parity mapping |
@@ -65,7 +68,7 @@ has and the proof class it lacks.
 | Task scheduling and affected-scope optimization | Nx |
 | Generated-zone hand-edit protection | file-layer, not Grit |
 | Product/runtime behavior | tests/runtime proof, not Grit |
-| Typed command/provenance/resource orchestration | current TypeScript only until an Effect trigger fires |
+| Typed command/provenance/resource orchestration | accepted `habitat-effect-grit-adapter` substrate for Grit command/result, parser, injected-probe, proof-artifact, and isolated-copy apply concerns |
 
 ## Proof Classes
 
@@ -159,22 +162,23 @@ The repair must add or reuse a controlled probe harness with these properties:
 - Fails if `git status --short` is not clean after cleanup.
 - Does not touch generated output or protected resource submodules.
 
-Tasks that add the injected harness, adapter seams, scan-root injection, or
-adapter tests are blocked until `habitat-effect-grit-adapter` or an accepted
-typed Grit adapter design is opened and accepted. A docs-only proof matrix may
-be completed before that substrate packet; code touching `grit.ts`, scan-root
-control, command provenance, parse/schema classification, or cleanup machinery
-may not.
+Tasks that add injected row probes may use the accepted
+`habitat-effect-grit-adapter` substrate. This packet must still keep row-level
+proof separate from substrate proof: exact rule-id failures, path-control
+probes, generated-output non-claims, baselines, parity, and apply semantics are
+not accepted merely because the adapter exists.
 
 ## Baseline Decision
 
-Current code treats a missing baseline file as an empty locked baseline. That
-is executable behavior, but it is not the same as H5's historical wording that
-every introduced rule has an explicit ratchet entry.
+Seed evidence for this packet showed current code treating a missing baseline
+file as an empty locked baseline. That executable behavior was not the same as
+H5's historical wording that every introduced rule has an explicit ratchet
+entry.
 
-This repair chooses explicit committed empty baseline files for every current
-enforced Grit check. Empty JSON arrays keep the rule locked, align the filesystem
-with the record claim, and avoid using missing-file behavior as hidden proof.
+This repair chose explicit committed empty baseline files for every current
+enforced Grit check. Empty JSON arrays keep the rule locked, align the
+filesystem with the record claim, and avoid using missing-file behavior as
+hidden proof.
 
 Implementation must:
 
@@ -186,9 +190,13 @@ Implementation must:
 - update H5/H6 records to distinguish historical missing-file behavior from the
   new explicit Grit baseline record.
 
-The broader scaffold contract may still decide whether missing baseline files
-remain an accepted future policy, but this Grit proof repair will not rely on
-that policy for the current tranche.
+The broader scaffold contract is now owned by
+`habitat-scaffold-contract-repair`: missing registered-rule baselines become
+contract failures, current non-external rules require explicit committed
+baseline files, and external exception sources must be modeled. Grit row proof
+may consume that contract only when the branch/stack contains the scaffold
+repair; this Grit proof repair still does not claim row semantics from baseline
+state alone.
 
 ## Apply Safety Boundary
 
@@ -205,20 +213,15 @@ under-proven until all of the following pass:
 - selected typecheck/test gates pass after the applied diff;
 - rollback is normal Git cleanup and leaves the worktree clean.
 
-If proving this requires a transaction layer, cleanup finalizers, or command
-result classes beyond the current runner, open `habitat-effect-grit-adapter` or
-`habitat-effect-command-runner` before applying code changes.
+The accepted `habitat-effect-grit-adapter` substrate provides the transaction,
+cleanup, command-result, and isolated-copy diff-evidence boundary for this row.
+This does not close the row: target export preflight, missing-export negative
+behavior, type-only preservation, selected type/test gates, and any live
+worktree apply claim remain pending in this packet.
 
-The applied-diff proof is therefore blocked until one of these exists:
-
-1. `habitat-effect-grit-adapter`, potentially depending on
-   `habitat-effect-command-runner`; or
-2. a reviewed typed transaction design with clean-worktree precheck, target
-   export preflight, command metadata, finalizer/rollback proof, and final
-   clean-status proof.
-
-Until that substrate exists, live dry-run hygiene remains useful evidence but
-does not prove safe transformation.
+Until those row-specific proofs exist, live dry-run hygiene and accepted
+isolated-copy substrate evidence remain useful but do not prove safe
+transformation.
 
 ## Command Proof Log Contract
 
@@ -280,15 +283,17 @@ Any accepted Grit adapter substrate must include tests or proof cases for:
 ## Substrate Decision Table
 
 Before implementation tasks 4, 6, or any adapter tests begin, fill this table
-in the phase record and have the Effect/substrate lane accept it:
+in the phase record and have the Effect/substrate lane accept it. Current
+implementation consumes the accepted `habitat-effect-grit-adapter` substrate at
+`3ceb93d5c`; row-level proof remains owned by this packet.
 
 | Concern | Current-code capability | Required proof | Chosen substrate | Trigger result | Evidence path | Reviewer |
 | --- | --- | --- | --- | --- | --- | --- |
-| Injected violation harness | pending | exact rule id, path control, cleanup | pending | blocked | pending | Effect/substrate |
-| Grit command provenance | pending | argv/cwd/env/cache/duration/failure class | pending | blocked | pending | Effect/substrate |
-| Parse/schema classification | pending | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | pending | blocked | pending | Effect/substrate |
-| Apply transaction | pending | clean precheck, target export preflight, dry-run, diff, rollback, cleanup | pending | blocked | pending | Effect/substrate |
-| Fake-service tests | pending | fake command/fs/baseline/clock or accepted no-fake rationale | pending | blocked | pending | Effect/substrate |
+| Injected violation harness | accepted adapter substrate; row probes pending | exact rule id, path control, cleanup | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `openspec/changes/habitat-effect-grit-adapter/workstream/phase-record.md` | supervisor / Effect-substrate |
+| Grit command provenance | accepted adapter substrate; row proof pending | argv/cwd/env/cache/duration/failure class | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/habitat-process.ts`; adapter phase record | supervisor / Effect-substrate |
+| Parse/schema classification | accepted adapter substrate; row proof pending | no JSON, malformed JSON, wrapper noise, schema drift, empty roots, pattern miss | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/grit.ts`; adapter tests | supervisor / Effect-substrate |
+| Apply transaction | accepted adapter substrate; target-export and semantic proof pending | clean precheck, target export preflight, dry-run, diff, rollback, cleanup | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/src/lib/grit-apply.ts`; adapter phase record | supervisor / Effect-substrate |
+| Fake-service tests | accepted adapter substrate; row probes pending | fake command/fs/baseline/clock or accepted no-fake rationale | `habitat-effect-grit-adapter` | accepted at `3ceb93d5c` | `tools/habitat-harness/test/lib/*` adapter tests | supervisor / Effect-substrate |
 
 ## Pattern Generator Gate
 

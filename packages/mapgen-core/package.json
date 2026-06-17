@@ -4,7 +4,15 @@
   "nx": {
     "tags": [
       "kind:engine"
-    ]
+    ],
+    "targets": {
+      "test:architecture-core-purity": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": true
+      }
+    }
   },
   "description": "Pure TypeScript domain library for map generation algorithms",
   "type": "module",
@@ -83,6 +91,7 @@
   "scripts": {
     "build": "tsup",
     "test": "bun test",
+    "test:architecture-core-purity": "bun test test/architecture/core-purity.test.ts",
     "check": "tsc --noEmit"
   },
   "dependencies": {

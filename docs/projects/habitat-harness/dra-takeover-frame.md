@@ -203,9 +203,12 @@ proof.
   rules and only existing Nx targets.
 - H7 hook closure is not trustworthy until the resource-publish side effect is
   explicitly retained, bounded, or removed with proof.
-- Baseline semantics are implicit where missing baseline files are treated as
-  empty locked baselines; repair must decide whether that is an intended
-  contract.
+- Baseline semantics were implicit in Stage 0 seed evidence where missing
+  baseline files were treated as empty locked baselines. Current proof belongs
+  to `habitat-scaffold-contract-repair`, which makes missing registered-rule
+  baseline files contract failures, requires explicit empty/debt files or
+  modeled external exception sources, and keeps pattern generator metadata as a
+  separate downstream repair.
 - Pattern scaffolding currently creates enforced pre-commit Grit rules with
   placeholder authority text; recovery requires authority/evidence metadata
   before generated patterns become hardened rules.

@@ -1,8 +1,10 @@
 # Review Disposition Ledger
 
 **Change:** `habitat-scaffold-contract-repair`
-**Status:** review run; accepted findings patched into proposal, design, spec,
-tasks, phase record, source synthesis, and downstream ledger
+**Status:** implementation checkpoint complete on
+`agent-HR-habitat-scaffold-contract-repair`; accepted design findings,
+supervisor residue finding, and `ES-01` trusted-base proof finding are repaired
+in the committed Graphite checkpoint
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
@@ -17,7 +19,8 @@ authority decision.
 | PO-02 | Product/outcome | P1 | Baseline contract contradiction was not settled: missing-file-as-locked remained compatible with old H2 acceptance. | Accepted. | Design now makes missing baseline a contract failure and requires committed explicit baseline files or modeled external sources. | patched |
 | PO-03 | Product/outcome | P1 | Historical H2 scaffold acceptance could be inherited as current proof. | Accepted. | Phase/downstream ledgers now classify H2 baseline/key-format claims as historical source and require current proof. | patched |
 | PO-04 | Product/outcome | P1 | Generator metadata dependency was outside scope but still needed a blocking interface. | Accepted. | Added rule-introduction baseline manifest and future metadata repair dependency. | patched |
-| ES-01 | Evidence/system | P1 | Trunk merge-base comparison can let a Graphite child branch grow a downstack rule baseline while the rule appears new relative to trunk. | Accepted. | Baseline integrity now requires trusted stack-parent or explicit trusted comparison-base proof. | patched |
+| ES-01 | Evidence/system | P1 | Trunk merge-base comparison can let a Graphite child branch grow a downstack rule baseline while the rule appears new relative to trunk. | Accepted. | Baseline integrity now proves the explicit trusted comparison-base mechanism: when the caller supplies the trusted stack parent through `--base`/the baseline `base` input, child-added keys are refused as existing-rule growth. Automatic Graphite parent discovery is not implemented or claimed. | repaired-in-amended-checkpoint |
+| SUP-SCAFFOLD-P1-ES01-2026-06-15 | Supervisor review | P1 | `ES-01`, tasks 5.6/8.10, and packet records claimed Graphite child/downstack baseline-growth protection without a test that modeled the rule existing on the trusted parent while appearing new relative to trunk. | Accepted. | Added an engine-level fake Git test that first proves trunk/base would treat the seeded baseline as a manifest-gated new rule, then proves supplying the trusted parent as the explicit comparison base rejects the same key as existing-rule growth for both `baseline-integrity` and `guardBaselineExpansion`. Packet language now names explicit trusted comparison base and leaves automatic Graphite parent discovery as a non-claim. | repaired-in-amended-checkpoint |
 | ES-02 | Evidence/system | P2 | H2 parity conflated raw wrapped-check detection with Habitat ratchet exit semantics. | Accepted. | Downstream proof boundaries split detection parity from ratchet exit behavior for accepted debt. | patched |
 | ES-03 | Evidence/system | P2 | Current tests are mostly command mocks and do not prove the baseline engine matrix. | Accepted. | Tasks now require fake Git, fake registry, fake filesystem engine-level tests. | patched |
 | ES-04 | Evidence/system | P3 | `--staged` behavior is file-layer-only in practice. | Accepted as boundary clarity. | Tasks and proof boundaries record staged scope unless future owner-specific packet expands it. | patched |
@@ -33,3 +36,4 @@ authority decision.
 | EV-01 | Evidence sidecar | P1 | H2 key-format language conflicts with current `violationKey()` implementation. | Accepted. | Locked v1 key format to `path::message` and moved richer key text to future migration scope. | patched |
 | EV-02 | Evidence sidecar | P2 | Unknown rule/tool selector behavior can produce false green reports. | Accepted as upstream dependency. | Mutation proof consumes `habitat-oclif-entrypoint-repair`; no baseline write path may proceed without accepted selector truth. | patched |
 | EF-01 | User/Product substrate | P1 | Effect should be reconsidered if manual Habitat structure is producing systematic proof gaps. | Accepted. | Added Effect adoption gate to proposal, design, spec, tasks, and downstream ledger. | patched |
+| SUP-SCAFFOLD-P2-RESIDUE-2026-06-15 | Supervisor watcher | P2 | An untracked source-tree directory `mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/` appeared in the worktree, outside this packet's write set. | Accepted. | Inspected the path and identified it as isolated-copy apply test probe residue from `grit-apply.test.ts`. Added focused before/after cleanup hooks to the apply test and verified the path is absent after the focused rerun and final harness suite. | repaired-in-committed-checkpoint |

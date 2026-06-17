@@ -149,9 +149,10 @@ growth using structured rule registry comparison.
 
 #### Scenario: Graphite child branch grows a downstack rule baseline
 - **WHEN** a child branch baseline contains added keys for a rule that existed
-  on the trusted stack parent but appears new relative to trunk merge-base
-- **THEN** `baseline-integrity` compares against the trusted stack parent or
-  explicit trusted comparison base and refuses the growth
+  on the trusted stack parent but appears new relative to trunk merge-base, and
+  the caller supplies that stack parent as the explicit trusted comparison base
+- **THEN** `baseline-integrity` compares against that explicit trusted
+  comparison base and refuses the growth
 
 #### Scenario: Contract shape is invalid during check
 - **WHEN** missing, malformed, duplicate, unsorted, orphan, or unmodeled external

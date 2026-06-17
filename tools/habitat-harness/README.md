@@ -20,7 +20,7 @@ pattern: command classes live under `src/commands/**`, local repo scripts run
 bun run habitat            # command help
 bun run lint               # graph-owned package lint + Habitat rule aggregate
 bun run habitat:check      # graph-owned Habitat rule aggregate
-bun run habitat:fix        # Biome safe writes: format + organize imports + safe fixes
+bun run habitat:fix        # approved Grit codemods, then Biome safe writes
 bun run verify             # graph-owned package verifier aggregate
 bun run check              # graph-owned build/check/lint/test/verify aggregate
 bun run habitat check      # diagnostic Habitat CLI loop (add --json for JSON)
@@ -41,10 +41,22 @@ Notes:
   locked Habitat/Grit architecture finding, not only Biome or style hygiene.
 - Advisory-lane rules (`adr-lint`, `doc-ambiguity`) report but never fail —
   matching their pre-harness enforcement reality.
-- Baselines (`baselines/<rule-id>.json`) are shrink-only. Additions are valid
-  only in the change that introduces the rule (`--expand-baseline` locally;
-  CI cross-references the rule pack at the merge-base and rejects everything
-  else). An empty baseline means the rule is locked: any violation fails.
+- Baselines (`baselines/<rule-id>.json`) are explicit contract artifacts and
+  shrink-only. A registered rule with no baseline file is a contract failure
+  unless the rule is modeled as an external exception source. An empty baseline
+  file means the rule is locked: any violation fails. A non-empty baseline file
+  means matching findings are tracked debt and new findings fail.
+- Baseline files must be JSON arrays of sorted, unique strings using the v1
+  `path::message` key format. Malformed, duplicate, unsorted, orphaned, or
+  missing required baseline state fails through `baseline-integrity`.
+- `adapter-boundary` and `doc-ambiguity` are the current modeled external
+  exception sources. `adapter-boundary` validates its script allowlist
+  projection against reported baselined diagnostics; `doc-ambiguity` keeps its
+  advisory native baseline at `docs/.doc-ambiguity-lint-baseline.json`.
+- Baseline additions are valid only in the change that introduces the rule
+  (`--expand-baseline` locally with an accepted rule-introduction manifest; CI
+  cross-references the rule pack at the merge-base and rejects existing-rule
+  growth).
 - Requested check selectors are validated before rule execution. Unknown
   `--owner`, `--rule`, or `--tool` values, values passed in the wrong selector
   namespace, and valid selectors whose intersection contains no rules exit
@@ -151,8 +163,8 @@ Biome-owned rules into ESLint.
 Use:
 
 ```bash
-bun run habitat:fix -- --dry-run   # report hygiene drift without writes
-bun run habitat:fix                # apply Biome format + safe assists
+bun run habitat:fix -- --dry-run   # report approved Grit codemods + hygiene drift without writes
+bun run habitat:fix                # apply approved Grit codemods, then Biome format + safe assists
 nx run-many -t biome:ci # CI-equivalent hygiene gate
 ```
 

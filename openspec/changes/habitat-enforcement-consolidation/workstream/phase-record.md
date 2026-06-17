@@ -56,6 +56,11 @@
   `grit --json check --level error` per Habitat `grit-check` invocation;
   Habitat owns rule-pack mapping, baselines, and fail/pass interpretation
   because raw Grit JSON mode exits 0 even with findings.
+- Baseline note after `habitat-grit-proof-repair`: H6 references to H5
+  "locked empty Grit rules" are historical and originally depended on
+  missing-file-as-empty behavior. Current explicit empty Grit baseline files
+  and baseline-integrity proof are owned by
+  `openspec/changes/habitat-grit-proof-repair/`.
 - Generated outputs are protected and must not be hand-edited.
 
 ## Scope
@@ -99,7 +104,7 @@ reconciled before deletion:
 | Mechanism | H6 disposition | Evidence |
 |---|---|---|
 | `lint-adapter-boundary.sh` | Kept wrapped for broad provenance-string scan; H5 Grit owns runtime `/base-standard/` import shape. | Full `habitat check` still surfaces seven baselined broad-string/provenance findings; no deletion. |
-| `lint-mapgen-recipe-imports.sh` | Deleted; retired to `grit-recipe-domain-surface` and related Grit domain-surface rules. | H5 locked empty Grit rules; H6 injected `mods/mod-swooper-maps/src/recipes/standard/habitat-h6-probe.ts` with a deep `@mapgen/domain/.../rules/private` import and `habitat check --rule grit-recipe-domain-surface` failed. |
+| `lint-mapgen-recipe-imports.sh` | Deleted; retired to `grit-recipe-domain-surface` and related Grit domain-surface rules. | Historical H5 locked-empty claim now points to `habitat-grit-proof-repair` for current explicit baseline files; H6 injected `mods/mod-swooper-maps/src/recipes/standard/habitat-h6-probe.ts` with a deep `@mapgen/domain/.../rules/private` import and `habitat check --rule grit-recipe-domain-surface` failed. |
 | `lint-domain-refactor-guardrails.sh` | Kept wrapped for boundary profile; strict/full manual alias preserved because full profile has pre-existing findings and is not a default green gate. | `habitat check --rule domain-refactor-guardrails` passes; strict profile probe found 29 existing violation groups, so no full-profile retirement. |
 | `lint-normalization-guardrails.mjs` | Moved/slimmed to Habitat-native G1/G6/G7 only; G2/G3-runtime/G5/G8/G9/G10/G11 stay with H5 Grit rules. | `habitat check --rule normalization-guardrails` passes; H6 injected `M99_HABITAT_PROBE` and the Habitat rule failed. |
 | `lint-control-orpc-contract-ownership.mjs` | Deleted; retired to `grit-control-orpc-contract-ownership`. | H6 injected `packages/civ7-control-orpc/src/modules/habitat-h6-probe/contract.ts` importing `@civ7/direct-control`; Habitat Grit rule failed. |

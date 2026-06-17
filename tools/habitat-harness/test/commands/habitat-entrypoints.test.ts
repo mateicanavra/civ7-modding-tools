@@ -1,11 +1,12 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 const commandEnv = { ...process.env, FORCE_COLOR: "0" };
+const baselinesDir = path.join(repoRoot, "tools", "habitat-harness", "baselines");
 
 describe("Habitat real command entrypoints", () => {
   test("root package script renders root and check help", () => {
@@ -111,6 +112,73 @@ describe("Habitat real command entrypoints", () => {
     rmSync(outputPath, { force: true });
   });
 
+  test("baseline contract JSON reports missing, malformed, and orphan states", () => {
+    const workspaceBaseline = path.join(baselinesDir, "workspace-entrypoints.json");
+    const workspaceBackup = `${workspaceBaseline}.vitest-bak`;
+    const orphanBaseline = path.join(baselinesDir, "vitest-orphan-rule.json");
+    const originalWorkspaceBaseline = readFileSync(workspaceBaseline, "utf8");
+
+    try {
+      renameSync(workspaceBaseline, workspaceBackup);
+      const missing = runCommand([
+        "bun",
+        "run",
+        "habitat:check",
+        "--",
+        "--json",
+        "--rule",
+        "workspace-entrypoints",
+      ]);
+      expect(missing.status).toBe(1);
+      expect(JSON.parse(missing.stdout)).toMatchObject({
+        ok: false,
+        rules: expect.arrayContaining([
+          expect.objectContaining({
+            ruleId: "workspace-entrypoints",
+            status: "fail",
+            diagnostics: expect.arrayContaining([
+              expect.objectContaining({
+                message: expect.stringContaining("missing-baseline"),
+              }),
+            ]),
+          }),
+        ]),
+      });
+      renameSync(workspaceBackup, workspaceBaseline);
+
+      writeFileSync(workspaceBaseline, "{\n");
+      const malformed = runCommand([
+        "bun",
+        "run",
+        "habitat:check",
+        "--",
+        "--json",
+        "--rule",
+        "workspace-entrypoints",
+      ]);
+      expect(malformed.status).toBe(1);
+      expect(malformed.stdout).toContain("malformed-baseline");
+      writeFileSync(workspaceBaseline, originalWorkspaceBaseline);
+
+      writeFileSync(orphanBaseline, "[]\n");
+      const orphan = runCommand([
+        "bun",
+        "run",
+        "habitat:check",
+        "--",
+        "--json",
+        "--rule",
+        "workspace-entrypoints",
+      ]);
+      expect(orphan.status).toBe(1);
+      expect(orphan.stdout).toContain("orphan-baseline");
+    } finally {
+      if (existsSync(workspaceBackup)) renameSync(workspaceBackup, workspaceBaseline);
+      else writeFileSync(workspaceBaseline, originalWorkspaceBaseline);
+      rmSync(orphanBaseline, { force: true });
+    }
+  });
+
   test("invalid baseline expansion selectors fail before authoring", () => {
     for (const argv of [
       ["bun", "run", "habitat:check", "--", "--expand-baseline", "--rule", "definitely-not-a-rule"],
@@ -136,13 +204,24 @@ describe("Habitat real command entrypoints", () => {
         "biome",
       ],
     ]) {
+      const beforeBaselines = snapshotBaselines();
       const result = runCommand(argv);
       expect(result.status).toBe(1);
       expect(result.stderr).toMatch(/Unknown Habitat|No Habitat rules match/);
       expect(result.stdout).not.toContain("baseline written");
+      expect(snapshotBaselines()).toEqual(beforeBaselines);
     }
   });
 });
+
+function snapshotBaselines(): Record<string, string> {
+  return Object.fromEntries(
+    readdirSync(baselinesDir)
+      .filter((file) => file.endsWith(".json"))
+      .sort()
+      .map((file) => [file, readFileSync(path.join(baselinesDir, file), "utf8")])
+  );
+}
 
 function runCommand(argv: string[]) {
   const [command, ...args] = argv;

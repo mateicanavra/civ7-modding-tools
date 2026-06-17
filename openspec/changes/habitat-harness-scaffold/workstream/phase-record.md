@@ -45,7 +45,10 @@ N/A - solo phase
   locked at empty; `--expand-baseline` = local authoring gate; CI-visible gate
   = `baseline-integrity` rule comparing baselines vs merge-base and rejecting
   additions unless the ruleId is new at merge-base (rule-pack cross-reference,
-  ledger F5).
+  ledger F5). Current recovery note: this H2 record is historical for baseline
+  intent. `habitat-scaffold-contract-repair` supersedes missing-file-as-empty
+  behavior with explicit empty/debt files, modeled external exception sources,
+  and contract failures for missing/malformed/orphan state.
 - **Real violation surfaced by the wrap (and ratcheted):**
   `packages/civ7-map-policy/src/river-type-metadata.source.ts` has
   `/base-standard/` provenance strings and is NOT in the adapter-boundary

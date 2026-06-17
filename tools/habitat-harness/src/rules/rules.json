@@ -495,7 +495,13 @@
       "scope": "packages/mapgen-core prod code",
       "forbids": "Civ7 runtime references in mapgen-core production code",
       "why": "mapgen-core is a pure TS engine; runtime coupling belongs to the adapter.",
-      "detect": ["bun", "test", "packages/mapgen-core/test/architecture/core-purity.test.ts"],
+      "detect": [
+        "nx",
+        "run",
+        "@swooper/mapgen-core:test:architecture-core-purity",
+        "--outputStyle=static"
+      ],
+      "nxTarget": "@swooper/mapgen-core:test:architecture-core-purity",
       "remediate": null,
       "message": "Remove the Civ7 runtime reference; use adapter types only.",
       "exceptionPath": "none"
@@ -509,10 +515,12 @@
       "forbids": "engine RNG / official generators in authored generation",
       "why": "Deterministic, seed-stable generation requires the authored RNG authority.",
       "detect": [
-        "bun",
-        "test",
-        "mods/mod-swooper-maps/test/pipeline/rng-authority-boundary.test.ts"
+        "nx",
+        "run",
+        "mod-swooper-maps:test:architecture-rng-authority",
+        "--outputStyle=static"
       ],
+      "nxTarget": "mod-swooper-maps:test:architecture-rng-authority",
       "remediate": null,
       "message": "Use the recipe RNG authority, never engine RNG.",
       "exceptionPath": "none"
@@ -526,10 +534,12 @@
       "forbids": "ecology steps deep-importing ops/rules; presence of retired stage dirs",
       "why": "Stage isolation + retired-structure absence.",
       "detect": [
-        "bun",
-        "test",
-        "mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts"
+        "nx",
+        "run",
+        "mod-swooper-maps:test:architecture-ecology-step-imports",
+        "--outputStyle=static"
       ],
+      "nxTarget": "mod-swooper-maps:test:architecture-ecology-step-imports",
       "remediate": null,
       "message": "Compose via the recipe layer; do not resurrect retired stage directories.",
       "exceptionPath": "none"
@@ -543,10 +553,12 @@
       "forbids": "projection band algorithm regressions (domain-logic test; stays a test permanently)",
       "why": "Correctness test invoked through the harness for one-stop verification; not harness-owned.",
       "detect": [
-        "bun",
-        "test",
-        "mods/mod-swooper-maps/test/foundation/m11-projection-boundary-band.test.ts"
+        "nx",
+        "run",
+        "mod-swooper-maps:test:architecture-m11-projection-band",
+        "--outputStyle=static"
       ],
+      "nxTarget": "mod-swooper-maps:test:architecture-m11-projection-band",
       "remediate": null,
       "message": "Projection algorithm regression; see the test for the expected band.",
       "exceptionPath": "none"
@@ -576,7 +588,13 @@
       "scope": "mods/mod-swooper-maps (4 cutover scans)",
       "forbids": "op-calls-op in tectonics, dual contract paths, shim surfaces, foundation topology drift",
       "why": "M-cutover structural invariants (coarse wrap of test:architecture-cutover).",
-      "detect": ["bun", "run", "--cwd", "mods/mod-swooper-maps", "test:architecture-cutover"],
+      "detect": [
+        "nx",
+        "run",
+        "mod-swooper-maps:test:architecture-cutover",
+        "--outputStyle=static"
+      ],
+      "nxTarget": "mod-swooper-maps:test:architecture-cutover",
       "remediate": null,
       "message": "See the failing cutover test output for the violated invariant.",
       "exceptionPath": "none"

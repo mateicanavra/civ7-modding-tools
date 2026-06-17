@@ -8,9 +8,10 @@
 - **Original stack root:** `agent-F-habitat-harness-workstream` (historical
   H1-H8 execution train)
 - **Latest settled baseline branch:** `agent-F-habitat-nx-worktree-state`
-- **Active recovery packet:** `habitat-oclif-entrypoint-repair` on
-  `agent-HR-habitat-repair-chain` for command-surface and selector-truth
-  repair.
+- **Active recovery packet:** `habitat-scaffold-contract-repair` on
+  `agent-HR-habitat-scaffold-contract-repair` for explicit baseline/scaffold
+  contract repair after accepted command-surface, adapter, Grit proof, and live
+  apply checkpoints.
 - **Status:** RECOVERY ACTIVE. The H1-H8 records are historical implementation
   evidence, not current closure authority by themselves. Current closure must
   be taken from the recovery claim ledger, the Grit pattern corpus ledger, and
@@ -30,7 +31,7 @@
 | 3 Diagnosis | DONE | FRAME §6 grounding insights; spec disposition §5 |
 | 4 Corpus | DONE | invariant-corpus.md (every existing check, owner, disposition) |
 | 5 Grouping | DONE | corpus §A–F families; taxonomy.md scope:* families |
-| 6 Expectations | DONE | per-slice verification gates; ratchet baselines predeclared (project plane green; adapter-boundary baseline = 6) |
+| 6 Expectations | HISTORICAL + RECOVERY UPDATED | per-slice verification gates; H2 ratchet intent and `path::message` keys remain useful history, but current baseline proof comes from explicit committed baseline files or modeled external exception sources in `habitat-scaffold-contract-repair`, not missing-file convention. |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
 | 8 Slices | HISTORICAL + RECOVERY OPEN | H1-H8 historical train exists; active recovery slices and per-pattern packets now control implementation readiness. |
 | 9 Local stats | PARTIAL CURRENT PROOF | Nx normalization has current `build` and `verify` proof; original H5/H6/H8 proof claims remain historical until their repair packets reprove them. |
@@ -71,11 +72,16 @@ not sufficient current proof. The active truth is:
 - Command trust, baseline semantics, Grit current-tree proof, classify target
   truth, hook side effects, pattern generator metadata, and individual locked
   Grit violations remain active repair/pattern workstreams.
-- P0 command trust is being repaired in
-  `openspec/changes/habitat-oclif-entrypoint-repair/`. That packet owns
-  current root/dev/source/production help, unknown-command behavior, and
+- P0 command trust is repaired in accepted
+  `openspec/changes/habitat-oclif-entrypoint-repair/` checkpoints. That packet
+  owns current root/dev/source/production help, unknown-command behavior, and
   requested selector truth. It does not close Grit current-tree proof,
   baseline proof, injected violation proof, or row-level Grit pattern closure.
+- Baseline/scaffold contract repair is active in
+  `openspec/changes/habitat-scaffold-contract-repair/`. That packet owns
+  missing-file failure, explicit empty/debt baseline state, external exception
+  modeling, shrink-only write refusal, and baseline record truth. It does not
+  close Grit row proof, generator authority metadata, or product/runtime proof.
 
 ## Proof classes per slice (predeclared)
 
@@ -127,10 +133,10 @@ train redefines the other's authority.
 
 ## Next exact action
 
-1. Close `habitat-oclif-entrypoint-repair` with fresh command-surface,
-   selector-failure, JSON compatibility, production-runner, stale-record, and
-   Graphite proof.
-2. Resume implementation only through the active recovery order:
-   command trust, baseline/scaffold contract, Grit proof repair, boundary
-   taxonomy proof, classify/generator repair, hook hardening, enforcement
-   surface cleanup, and then individual Grit proof/apply pattern workstreams.
+1. Close `habitat-scaffold-contract-repair` with typed baseline contract,
+   explicit-file inventory, external exception projection, shrink-only write
+   refusal, stale-record, validation, and Graphite proof.
+2. Continue the repair order only after supervisor acceptance:
+   remaining baseline/Grit proof slices, boundary taxonomy proof,
+   classify/generator repair, hook hardening, enforcement surface cleanup, and
+   then individual Grit proof/apply pattern workstreams.

@@ -5,15 +5,18 @@ import { executeRule, type HarnessRule, rules } from "../rules/architecture.js";
 import { renderReport } from "../rules/messages.js";
 import {
   applyBaseline,
+  baselineFailureDiagnostic,
   checkBaselineIntegrity,
-  loadBaseline,
+  guardBaselineExpansion,
+  isBaselineLocked,
+  loadBaselineState,
   mergeBase,
   violationKey,
   writeBaseline,
 } from "./baseline.js";
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
-import { runGritApplyPatterns } from "./grit.js";
+import { runGritApplyPatterns } from "./grit-apply.js";
 
 export { runHook } from "./hooks.js";
 
@@ -73,7 +76,13 @@ export interface FixOptions {
 
 export type BaselineExpansionResult =
   | { ok: true; messages: string[] }
-  | Extract<RuleSelectionResult, { ok: false }>;
+  | Extract<RuleSelectionResult, { ok: false }>
+  | {
+      ok: false;
+      requested: RuleSelection;
+      reason: "baseline-contract";
+      message: string;
+    };
 
 export interface VerifyOptions {
   base?: string;
@@ -150,16 +159,19 @@ export function buildHabitatCommand(command: string, argv: readonly string[] = [
   return `habitat ${command}${tail}`;
 }
 
-export function createCheckReport(options: CheckOptions = {}): CheckReport {
+export async function createCheckReport(options: CheckOptions = {}): Promise<CheckReport> {
   const selection = selectRules(options);
   if (!selection.ok) return createRuleSelectionFailureReport(selection, options);
 
   const reports: RuleReport[] = [];
+  const ruleResults = await executeSelectedRules(selection.rules, options);
   for (const rule of selection.rules) {
-    const started = Date.now();
-    const baseline = loadBaseline(rule.id);
-    const { diagnostics } = executeRule(rule, { staged: options.staged });
-    applyBaseline(diagnostics, baseline);
+    const baseline = loadBaselineState(rule);
+    const execution = ruleResults.get(rule.id);
+    if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
+    const { diagnostics } = execution.result;
+    const baselineFailures = applyBaseline(diagnostics, baseline);
+    diagnostics.push(...baselineFailures.map((failure) => baselineFailureDiagnostic(rule.id, failure)));
     const newViolations = diagnostics.filter(
       (diagnostic) => !diagnostic.baselined && diagnostic.severity === "error"
     );
@@ -176,8 +188,8 @@ export function createCheckReport(options: CheckOptions = {}): CheckReport {
       ownerTool: rule.ownerTool,
       lane: rule.lane,
       status,
-      locked: baseline.size === 0 && rule.exceptionPath === "none",
-      durationMs: Date.now() - started,
+      locked: isBaselineLocked(baseline),
+      durationMs: execution.durationMs,
       diagnostics,
       detect: rule.detect,
       message: rule.message,
@@ -186,7 +198,7 @@ export function createCheckReport(options: CheckOptions = {}): CheckReport {
   }
 
   const integrityStarted = Date.now();
-  const integrity = checkBaselineIntegrity(options.base ?? "main");
+  const integrity = checkBaselineIntegrity(options.base ?? "main", { registry: rules });
   reports.push({
     ruleId: "baseline-integrity",
     ownerTool: "habitat-native",
@@ -216,22 +228,82 @@ export function createCheckReport(options: CheckOptions = {}): CheckReport {
   };
 }
 
-export function expandBaselines(selection: RuleSelection = {}): BaselineExpansionResult {
+export async function expandBaselines(
+  selection: RuleSelection = {},
+  options: { base?: string } = {}
+): Promise<BaselineExpansionResult> {
   const selected = selectRules(selection);
   if (!selected.ok) return selected;
 
   const messages: string[] = [];
+  const ruleResults = await executeSelectedRules(selected.rules);
   for (const rule of selected.rules) {
-    const { diagnostics } = executeRule(rule);
+    const baseline = loadBaselineState(rule);
+    if (baseline.kind === "contract-failure") {
+      return {
+        ok: false,
+        requested: selection,
+        reason: "baseline-contract",
+        message: baseline.message,
+      };
+    }
+    const execution = ruleResults.get(rule.id);
+    if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
+    const { diagnostics } = execution.result;
+    const baselineFailures = applyBaseline(diagnostics, baseline);
+    if (baselineFailures.length > 0) {
+      return {
+        ok: false,
+        requested: selection,
+        reason: "baseline-contract",
+        message: baselineFailures.map((failure) => failure.message).join(" "),
+      };
+    }
     const keys = diagnostics
       .filter((diagnostic) => diagnostic.severity === "error" && !diagnostic.baselined)
       .map(violationKey);
     if (keys.length > 0) {
+      const guard = guardBaselineExpansion(rule.id, keys, options.base ?? "main", { registry: rules });
+      if (!guard.ok) {
+        return {
+          ok: false,
+          requested: selection,
+          reason: "baseline-contract",
+          message: guard.message,
+        };
+      }
       writeBaseline(rule.id, keys);
       messages.push(`baseline written: ${rule.id} (${keys.length} entries)`);
     }
   }
   return { ok: true, messages };
+}
+
+async function executeSelectedRules(
+  selectedRules: readonly HarnessRule[],
+  options: Pick<CheckOptions, "staged"> = {}
+): Promise<Map<string, { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }>> {
+  const results = new Map<string, { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }>();
+  const gritRules = selectedRules.filter((rule) => rule.ownerTool === "grit-check");
+  if (gritRules.length > 0) {
+    const { runGritRules } = await import("./grit.js");
+    const started = Date.now();
+    const gritResults = await runGritRules(gritRules);
+    const durationMs = Date.now() - started;
+    for (const rule of gritRules) {
+      const result = gritResults.get(rule.id);
+      if (result) results.set(rule.id, { result, durationMs });
+    }
+  }
+
+  for (const rule of selectedRules) {
+    if (rule.ownerTool === "grit-check") continue;
+    const started = Date.now();
+    const result = await executeRule(rule, { staged: options.staged });
+    results.set(rule.id, { result, durationMs: Date.now() - started });
+  }
+
+  return results;
 }
 
 export function renderCheckReport(report: CheckReport, options: EmitCheckOptions = {}): string {
@@ -337,9 +409,7 @@ function describeSelectorFacts(facts: RuleSelectorFact[]): string {
     .join(" ");
 }
 
-export function describeRuleSelectionFailure(
-  failure: Extract<RuleSelectionResult, { ok: false }>
-): string {
+export function describeRuleSelectionFailure(failure: { message: string }): string {
   return failure.message;
 }
 
@@ -380,16 +450,8 @@ function createRuleSelectionFailureReport(
   };
 }
 
-export function runFix(options: FixOptions = {}): SpawnResult {
-  const grit = runGritApplyPatterns({ dryRun: options.dryRun });
-  if (grit.exitCode !== 0) return grit;
-  const argv = options.dryRun ? ["biome", "check", "."] : ["biome", "check", "--write", "."];
-  const biome = run(argv, { cwd: repoRoot });
-  return {
-    exitCode: biome.exitCode,
-    stdout: `${grit.stdout}${biome.stdout}`,
-    stderr: `${grit.stderr}${biome.stderr}`,
-  };
+export async function runFix(options: FixOptions = {}): Promise<SpawnResult> {
+  return runGritApplyPatterns({ dryRun: options.dryRun });
 }
 
 export function resolveVerifyBase(base?: string): string {

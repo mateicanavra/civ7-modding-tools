@@ -13,8 +13,8 @@ proof on top of the current Grit adapter. Current source evidence shows:
   and empty scan roots toward generic diagnostics.
 - `runGritApplyPatterns()` hardcodes the single apply pattern, always passes
   `--force`, runs against live roots, and has no clean-worktree transaction,
-  target-export preflight, diff proof, rollback resource, or interruption
-  cleanup.
+  pattern-owned rewrite approval intake, diff proof, rollback resource, or
+  interruption cleanup.
 
 Official Effect docs support the exact substrate Habitat lacks: typed error
 channels, service requirements through Context/Layers, scoped finalizers,
@@ -69,9 +69,9 @@ command provenance, and apply transactions.
   run the real Habitat Grit path, assert exact rule projection, remove probes
   on every exit path, and prove final repo cleanliness.
 - Add an apply transaction for `deep_import_to_public_surface`: clean-worktree
-  precheck, target-export preflight, dry-run proof, approved rewrite set,
-  actual apply, Biome handoff, selected type/test gate, rollback/finalizer, and
-  final clean-status proof.
+  precheck, pattern-owned rewrite approval/failure intake, dry-run proof,
+  approved rewrite set, actual apply, Biome handoff, selected type/test gate,
+  rollback/finalizer, and final clean-status proof.
 - Preserve CheckReport schemaVersion 1 compatibility at the command boundary.
 
 ## What Does Not Change

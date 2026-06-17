@@ -47,9 +47,14 @@
 - Completed tasks: phase record opened before implementation; project
   generator implemented for `foundation`, `plugin`, and `app`; unsupported
   kinds refuse with domain-owner rationale; pattern generator implemented for
-  native Grit pattern + empty locked baseline + rule-pack entry; no-op
-  migration wired; classify path/diff output completed; AGENTS and README
-  procedure updated; probes and final gates passed.
+  native Grit pattern + empty locked baseline + rule-pack entry under the
+  historical H8 contract; no-op migration wired; classify path/diff output
+  completed; AGENTS and README procedure updated; probes and final gates
+  passed. Current recovery note: registered generated-rule baseline creation
+  now depends on `habitat-scaffold-contract-repair`'s explicit baseline and
+  rule-introduction manifest contract plus the future
+  `habitat-pattern-generator-metadata-repair`; H8 alone is not accepted
+  authority for new enforced rules.
 - Remaining tasks: Graphite commit/clean proof only.
 - Stop conditions triggered: none.
 - Timing interpretation carried from H7: broad self-edits to root/Habitat inputs are an operational boundary, not the normal hook path. H8 should keep normal checks scoped and explicit rather than optimizing around the broad self-edit case.

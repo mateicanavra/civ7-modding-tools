@@ -3,7 +3,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 import { type FileLayerContext, runGeneratedZoneRule } from "../lib/generated-zones.js";
-import { runGritRule } from "../lib/grit.js";
 import { repoRoot } from "../lib/paths.js";
 import { run, type SpawnResult } from "../lib/spawn.js";
 
@@ -23,6 +22,7 @@ export interface HarnessRule {
   forbids: string;
   why: string;
   detect: string[];
+  nxTarget?: string;
   remediate: string | null;
   message: string;
   exceptionPath: string;
@@ -102,8 +102,14 @@ export interface RuleRunResult {
 }
 
 /** Execute a rule's detect command and parse its output into diagnostics. */
-export function executeRule(rule: HarnessRule, context: FileLayerContext = {}): RuleRunResult {
-  if (rule.ownerTool === "grit-check") return runGritRule(rule);
+export async function executeRule(
+  rule: HarnessRule,
+  context: FileLayerContext = {}
+): Promise<RuleRunResult> {
+  if (rule.ownerTool === "grit-check") {
+    const { runGritRule } = await import("../lib/grit.js");
+    return runGritRule(rule);
+  }
   if (rule.ownerTool === "file-layer") return runGeneratedZoneRule(rule, context);
   const res = run(rule.detect, { cwd: repoRoot });
   const diagnostics =
