@@ -72,15 +72,16 @@ export async function saveRepoBackedConfig(args: {
       })
     );
     if (saveResult.error) {
-      const projected = projectStudioBrowserError(saveResult.error, "Repo config save failed");
+      const projected = projectStudioBrowserError<MapConfigSaveDeployStatus["details"]>(
+        saveResult.error,
+        "Repo config save failed"
+      );
       return {
         ok: false,
         error: projected.error,
         ...(projected.code === undefined ? {} : { code: projected.code }),
         ...(projected.statusCode === undefined ? {} : { statusCode: projected.statusCode }),
-        ...(projected.details === undefined
-          ? {}
-          : { details: projected.details as MapConfigSaveDeployStatus["details"] }),
+        ...(projected.details === undefined ? {} : { details: projected.details }),
       };
     }
     const status = saveResult.data;
