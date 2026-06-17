@@ -168,7 +168,6 @@ const PROJECTION_INTERNAL_STAGE_KEYS: Record<string, readonly string[]> = {
 const PLACEMENT_PUBLIC_KEYS = [
   "knobs",
   "naturalWonders",
-  "discoveries",
   "resources",
   "starts",
   "support",
@@ -916,10 +915,7 @@ describe("Shipped map configs", () => {
       strategy: "default",
       config: { minSpacingTiles: 6 },
     });
-    expect(compiled.placement["derive-placement-inputs"].discoveries).toEqual({
-      strategy: "default",
-      config: { densityPer100Tiles: 3, minSpacingTiles: 3 },
-    });
+    expect(compiled.placement["derive-placement-inputs"].discoveries).toBeUndefined();
     expect(compiled.placement["derive-placement-inputs"].resources).toBeUndefined();
     expect(compiled.placement["plan-resources"].selectSites.strategy).toBe("default");
     expect(compiled.placement["plan-resources"].selectSites.config).toMatchObject({
