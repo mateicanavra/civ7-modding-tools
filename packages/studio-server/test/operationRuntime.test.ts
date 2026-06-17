@@ -865,6 +865,155 @@ describe("StudioOperationRuntime", () => {
     });
   });
 
+  test("Run in Game worker failures are classified by lifecycle phase", async () => {
+    const cases: Array<{
+      requestId: string;
+      input?: Partial<StudioInputs["runInGame"]["start"]>;
+      ports?: Partial<StudioOperationRuntimePorts>;
+      civ7?: Partial<Civ7WorkflowControlApi>;
+      expected: {
+        status: "failed" | "uncertain";
+        code: string;
+        reason: string;
+        failedAtPhase: string;
+        recoveryActions?: string[];
+      };
+    }> = [
+      {
+        requestId: "run-materialize-fail",
+        ports: {
+          materializeRunInGame: async () => {
+            throw new Error("materialize failed");
+          },
+        },
+        expected: {
+          status: "failed",
+          code: "run-in-game-materialization-failed",
+          reason: "materialization-proof-missing",
+          failedAtPhase: "materializing",
+        },
+      },
+      {
+        requestId: "run-deploy-fail",
+        ports: {
+          deployRunInGame: async () => {
+            throw new Error("deploy failed");
+          },
+        },
+        expected: {
+          status: "failed",
+          code: "run-in-game-deploy-failed",
+          reason: "deploy-failed",
+          failedAtPhase: "deploying",
+          recoveryActions: ["inspect-deploy-output"],
+        },
+      },
+      {
+        requestId: "run-restart-fail",
+        input: { recovery: { restartCivProcess: true } },
+        ports: {
+          restartCivForRunInGame: async () => {
+            throw new Error("restart failed");
+          },
+        },
+        expected: {
+          status: "failed",
+          code: "run-in-game-restart-failed",
+          reason: "restart-failed",
+          failedAtPhase: "restarting-civ",
+          recoveryActions: ["restart-civ-process-and-retry"],
+        },
+      },
+      {
+        requestId: "run-setup-row-fail",
+        civ7: {
+          prepareSetup: () =>
+            Effect.fail(new Error("Civ7 setup cannot see {swooper-maps}/maps/studio-current.js")),
+        },
+        expected: {
+          status: "failed",
+          code: "run-in-game-setup-row-unavailable",
+          reason: "setup-row-unavailable",
+          failedAtPhase: "preparing-setup",
+          recoveryActions: ["exit-to-shell-and-continue"],
+        },
+      },
+      {
+        requestId: "run-start-game-fail",
+        civ7: {
+          startGame: () => Effect.fail(new Error("start game failed")),
+        },
+        expected: {
+          status: "uncertain",
+          code: "run-in-game-start-game-failed",
+          reason: "start-game-failed",
+          failedAtPhase: "starting-game",
+          recoveryActions: ["dismiss-civ-notification-and-retry"],
+        },
+      },
+      {
+        requestId: "run-log-proof-fail",
+        ports: {
+          waitForRunInGameLogProof: async () => {
+            throw new Error("log proof missing");
+          },
+        },
+        expected: {
+          status: "failed",
+          code: "run-in-game-log-proof-missing",
+          reason: "log-proof-missing",
+          failedAtPhase: "waiting-for-proof",
+        },
+      },
+    ];
+
+    for (const entry of cases) {
+      const { runtime } = makeRuntime({
+        ports: entry.ports,
+        civ7: entry.civ7,
+      });
+      const service = await runtime.runPromise(StudioOperationRuntime);
+
+      const accepted = await runtime.runPromise(
+        service.runInGameStart(
+          runInGameInput({
+            requestId: entry.requestId,
+            ...(entry.input ?? {}),
+          })
+        )
+      );
+      await expect
+        .poll(async () => {
+          const status = await runtime.runPromise(
+            service.runInGameStatus({ requestId: accepted.requestId })
+          );
+          return status.status;
+        })
+        .toBe(entry.expected.status);
+
+      const failed = await runtime.runPromise(
+        service.runInGameStatus({ requestId: accepted.requestId })
+      );
+      expect(failed).toMatchObject({
+        ok: false,
+        requestId: accepted.requestId,
+        phase: entry.expected.status,
+        status: entry.expected.status,
+        details: {
+          failureClass: entry.expected.status,
+          code: entry.expected.code,
+          reason: entry.expected.reason,
+          failedAtPhase: entry.expected.failedAtPhase,
+        },
+      });
+      for (const action of entry.expected.recoveryActions ?? []) {
+        expect(failed.recoveryActions).toContain(action);
+      }
+      expect(failed.details?.cause).toEqual(failed.error);
+      expectTypeboxValid(operationStatusTypeSchema, failed);
+    }
+  });
+
   test("maps status misses to runtime-owned not-found failures with identity available", async () => {
     const { runtime } = makeRuntime();
     const service = await runtime.runPromise(StudioOperationRuntime);

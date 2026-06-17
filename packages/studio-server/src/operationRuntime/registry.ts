@@ -9,12 +9,18 @@ import type {
   RunInGameProcessRestartStatus,
 } from "../contract/runInGame.js";
 import {
+  dependencyUnavailable,
+  deployFailed,
   invalidRequest,
   isStudioRuntimeFailure,
+  materializationFailed,
   operationBlocked,
   operationExpired,
   operationNotFound,
+  proofFailed,
   runtimeDisposed,
+  type StudioBoundedDiagnostics,
+  type StudioBoundedDiagnosticValue,
   type StudioRuntimeFailure,
 } from "../errors/index.js";
 import type {
@@ -270,12 +276,18 @@ export function failRunInGame(
             startedAt: args.nowIso,
             updatedAt: args.nowIso,
             completedPhases: [],
-            failure: toRuntimeFailure(args.err, "Run in Game failed"),
+            failure: toRuntimeFailure(args.err, "Run in Game failed", {
+              operation: "run-in-game",
+              phase: args.phase,
+            }),
           } satisfies RunInGameInternalOperation),
         state,
       ] as const;
     }
-    const failure = toRuntimeFailure(args.err, "Run in Game failed");
+    const failure = toRuntimeFailure(args.err, "Run in Game failed", {
+      operation: "run-in-game",
+      phase: args.phase,
+    });
     const operation = failRunOperation(current, args.nowIso, failure, args.phase);
     return [
       operation,
@@ -439,12 +451,18 @@ export function failSaveDeploy(
             status: "failed",
             startedAt: args.nowIso,
             updatedAt: args.nowIso,
-            failure: toRuntimeFailure(args.err, "Save failed"),
+            failure: toRuntimeFailure(args.err, "Save failed", {
+              operation: "save-deploy",
+              phase: args.phase,
+            }),
           } satisfies SaveDeployInternalOperation),
         state,
       ] as const;
     }
-    const failure = toRuntimeFailure(args.err, "Save failed");
+    const failure = toRuntimeFailure(args.err, "Save failed", {
+      operation: "save-deploy",
+      phase: args.phase,
+    });
     const operation = failSaveOperation(current, args.nowIso, failure, args.phase);
     return [
       operation,
@@ -651,15 +669,175 @@ function failSaveOperation(
   };
 }
 
-function toRuntimeFailure(err: unknown, fallbackMessage: string): StudioRuntimeFailure {
+type RuntimeFailureContext =
+  | Readonly<{ operation: "run-in-game"; phase: RunInGameFailurePhase }>
+  | Readonly<{ operation: "save-deploy"; phase: "saving" | "deploying" }>;
+
+function toRuntimeFailure(
+  err: unknown,
+  fallbackMessage: string,
+  context?: RuntimeFailureContext
+): StudioRuntimeFailure {
   if (isStudioRuntimeFailure(err)) return err;
+  if (context?.operation === "run-in-game") {
+    return runInGameFailureForPhase(err, fallbackMessage, context.phase);
+  }
+  if (context?.operation === "save-deploy") {
+    return deployFailed({
+      message: errorMessage(err, fallbackMessage),
+      reason: context.phase === "saving" ? "save-failed" : "deploy-failed",
+      diagnostics: boundedDiagnostics({
+        code: `save-deploy-${context.phase === "saving" ? "save-failed" : "deploy-failed"}`,
+        failureTag: "DeployFailed",
+        reason: context.phase === "saving" ? "save-failed" : "deploy-failed",
+        failedAtPhase: context.phase,
+        cause: diagnosticString(err),
+      }),
+    });
+  }
   return invalidRequest({
-    message: err instanceof Error && err.message ? err.message : fallbackMessage,
+    message: errorMessage(err, fallbackMessage),
     diagnostics: {
       code: "studio-operation-runtime-unclassified-error",
-      cause: err instanceof Error && err.message ? err.message : String(err),
+      cause: diagnosticString(err) ?? String(err),
     },
   });
+}
+
+function runInGameFailureForPhase(
+  err: unknown,
+  fallbackMessage: string,
+  phase: RunInGameFailurePhase
+): StudioRuntimeFailure {
+  const message = errorMessage(err, fallbackMessage);
+  switch (phase) {
+    case "materializing":
+      return materializationFailed({
+        message,
+        diagnostics: runInGameDiagnostics(err, phase, {
+          code: "run-in-game-materialization-failed",
+          failureTag: "MaterializationFailed",
+          reason: "materialization-proof-missing",
+        }),
+      });
+    case "deploying":
+      return deployFailed({
+        message,
+        reason: "deploy-failed",
+        diagnostics: runInGameDiagnostics(err, phase, {
+          code: "run-in-game-deploy-failed",
+          failureTag: "DeployFailed",
+          reason: "deploy-failed",
+        }),
+        recoveryActions: ["inspect-deploy-output", "retry-run", "copy-diagnostics"],
+      });
+    case "restarting-civ":
+      return dependencyUnavailable({
+        message,
+        reason: "restart-failed",
+        dependency: "civ7-process",
+        diagnostics: runInGameDiagnostics(err, phase, {
+          code: "run-in-game-restart-failed",
+          failureTag: "DependencyUnavailable",
+          reason: "restart-failed",
+        }),
+        recoveryActions: ["restart-civ-process-and-retry", "retry-run", "copy-diagnostics"],
+      });
+    case "checking-civ7":
+      return dependencyUnavailable({
+        message,
+        reason: "direct-control-unavailable",
+        dependency: "direct-control",
+        diagnostics: runInGameDiagnostics(err, phase, {
+          code: "run-in-game-civ7-check-failed",
+          failureTag: "DependencyUnavailable",
+          reason: "direct-control-unavailable",
+        }),
+        recoveryActions: ["check-dev-server", "retry-run", "copy-diagnostics"],
+      });
+    case "preparing-setup":
+    case "reload-needed":
+      return proofFailed({
+        message,
+        reason: "setup-row-unavailable",
+        diagnostics: runInGameDiagnostics(err, phase, {
+          code: "run-in-game-setup-row-unavailable",
+          failureTag: "ProofFailed",
+          reason: "setup-row-unavailable",
+        }),
+        recoveryActions: ["exit-to-shell-and-continue", "retry-run", "copy-diagnostics"],
+      });
+    case "starting-game":
+      return proofFailed({
+        message,
+        reason: "start-game-failed",
+        diagnostics: runInGameDiagnostics(err, phase, {
+          code: "run-in-game-start-game-failed",
+          failureTag: "ProofFailed",
+          reason: "start-game-failed",
+        }),
+        recoveryActions: ["dismiss-civ-notification-and-retry", "retry-run", "copy-diagnostics"],
+      });
+    case "waiting-for-proof":
+      return proofFailed({
+        message,
+        reason: "log-proof-missing",
+        diagnostics: runInGameDiagnostics(err, phase, {
+          code: "run-in-game-log-proof-missing",
+          failureTag: "ProofFailed",
+          reason: "log-proof-missing",
+        }),
+      });
+  }
+}
+
+function runInGameDiagnostics(
+  err: unknown,
+  phase: RunInGameFailurePhase,
+  fields: Record<string, unknown>
+): StudioBoundedDiagnostics {
+  return boundedDiagnostics({
+    ...fields,
+    failedAtPhase: phase,
+    cause: diagnosticString(err),
+  });
+}
+
+function boundedDiagnostics(value: Record<string, unknown>): StudioBoundedDiagnostics {
+  const out: Record<string, StudioBoundedDiagnosticValue> = {};
+  for (const [key, entry] of Object.entries(value)) {
+    if (entry !== undefined) out[key] = boundedDiagnosticValue(entry);
+  }
+  return out;
+}
+
+function boundedDiagnosticValue(value: unknown): StudioBoundedDiagnosticValue {
+  if (
+    value === null ||
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  ) {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((entry) => diagnosticString(entry) ?? "");
+  }
+  return diagnosticString(value) ?? "";
+}
+
+function errorMessage(err: unknown, fallbackMessage: string): string {
+  return err instanceof Error && err.message ? err.message : fallbackMessage;
+}
+
+function diagnosticString(value: unknown): string | undefined {
+  if (value === undefined) return undefined;
+  if (value instanceof Error && value.message) return value.message;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
 }
 
 function runtimeDisposedFailure(): StudioRuntimeFailure {
