@@ -74,6 +74,31 @@ describe("Habitat real command entrypoints", () => {
     }
   });
 
+  test("stale wrapped-eslint selector cannot pass as baseline-only proof", () => {
+    const result = runCommand([
+      "bun",
+      "run",
+      "habitat:check",
+      "--",
+      "--json",
+      "--tool",
+      "wrapped-eslint",
+    ]);
+
+    expect(result.status).toBe(1);
+    const report = JSON.parse(result.stdout) as {
+      ok: boolean;
+      rules: Array<{
+        ruleId: string;
+        diagnostics: Array<{ message: string }>;
+      }>;
+    };
+    expect(report.ok).toBe(false);
+    expect(report.rules.map((rule) => rule.ruleId)).toEqual(["rule-selection-integrity"]);
+    expect(report.rules[0]?.diagnostics[0]?.message).toBe('Unknown Habitat tool id: "wrapped-eslint".');
+    expect(result.stdout).not.toContain("baseline-integrity");
+  });
+
   test("invalid human-mode selectors fail without CheckReports", () => {
     for (const argv of [
       ["bun", "run", "habitat:check", "--", "--owner", "definitely-not-a-project"],

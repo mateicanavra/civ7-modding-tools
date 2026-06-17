@@ -29,10 +29,14 @@
 
 ## 4. Verification And Closure
 
-- [x] 4.1 `bunx nx run-many -t boundaries --all` green; violation probe fails
-  with tag-rule message, then removed.
+- [x] 4.1 Historical adoption proof: `bunx nx run-many -t boundaries --all`
+  green; violation probe fails with tag-rule message, then removed. Current
+  recovery proof for this surface is owned by
+  `habitat-boundary-taxonomy-tightening` and uses repo-local `bun run nx ...`
+  commands with normal Nx defaults.
 - [x] 4.2 Harness README documents tag vocabulary + taxonomy revision
-  protocol; taxonomy.md marked "locked at adoption" with date.
+  protocol; taxonomy.md records adoption lock plus current recovery-proof
+  requirements.
 - [x] 4.3 `bun run build && bun run check && bun run test` posture recorded
   (build/check green; test remains red only for pre-existing failure classes);
   `bun run openspec -- validate habitat-boundary-tags --strict`; downstream

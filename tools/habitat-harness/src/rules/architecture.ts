@@ -101,6 +101,10 @@ export interface RuleRunResult {
   diagnostics: HabitatDiagnostic[];
 }
 
+export function projectRuleDiagnostics(rule: HarnessRule, res: SpawnResult): HabitatDiagnostic[] {
+  return rule.id === "adapter-boundary" ? parseAdapterBoundary(rule, res) : coarse(rule, res);
+}
+
 /** Execute a rule's detect command and parse its output into diagnostics. */
 export async function executeRule(
   rule: HarnessRule,
@@ -112,7 +116,6 @@ export async function executeRule(
   }
   if (rule.ownerTool === "file-layer") return runGeneratedZoneRule(rule, context);
   const res = run(rule.detect, { cwd: repoRoot });
-  const diagnostics =
-    rule.id === "adapter-boundary" ? parseAdapterBoundary(rule, res) : coarse(rule, res);
+  const diagnostics = projectRuleDiagnostics(rule, res);
   return { exitCode: res.exitCode, diagnostics };
 }

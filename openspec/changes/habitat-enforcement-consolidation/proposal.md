@@ -4,9 +4,16 @@ After boundaries (H3) and the grit catalog (H5) are locked with recorded
 parity, the repo briefly enforces many rules twice: legacy scripts/ESLint
 blocks and their harness ports. Dual enforcement is transitional scaffolding,
 not an end state — it doubles maintenance, splits diagnostics, and reintroduces
-the pre-harness sprawl. This slice retires every superseded mechanism, makes
-the harness the only enforcement path, and re-points `check`/CI at
-`habitat verify`.
+the pre-harness sprawl. This historical slice retired superseded mechanisms
+where parity held and targeted a single Habitat enforcement path.
+
+Current recovery note: `habitat-enforcement-surface-cleanup` owns the present
+command truth. Root `check` is a graph-owned aggregate, root `lint` carries the
+Habitat structural-check lane through Nx, root `verify` runs package-owned
+verifier targets, and direct `habitat verify --json` is a diagnostic proof
+artifact path rather than the root/CI single path. Surviving wrappers and direct
+diagnostic aliases remain explicit non-claims until their own retirement gates
+land.
 
 ## Target Authority Refs
 
@@ -50,9 +57,11 @@ the harness the only enforcement path, and re-points `check`/CI at
   tags (the import-graph half retires); `rng-authority-boundary`,
   `m11-projection-boundary-band`, `map-bundle-runtime-imports` stay (runtime
   semantics, not structure).
-- Root `check` script and `ci:architecture-strict-core` re-point to
-  `habitat verify` (nx affected composition); CI uploads habitat diagnostics
-  as the single evidence artifact.
+- Historical target: root `check` and `ci:architecture-strict-core` were planned
+  to re-point to `habitat verify` (nx affected composition). Current recovery
+  evidence does not use that as present command truth: root `check` is the
+  build/check/lint/test/verify Nx aggregate, strict-core is a direct diagnostic
+  alias, and Habitat diagnostics are separate proof artifacts.
 - Sweep docs/AGENTS routers that referenced retired scripts.
 
 ## What Does Not Change
@@ -109,9 +118,10 @@ the harness the only enforcement path, and re-points `check`/CI at
 
 ## Consumer Impact
 
-One enforcement surface: `bun run habitat check|fix|verify` locally, habitat
-targets in CI. Contributors stop learning nine script idioms. Diagnostics are
-uniform JSON.
+Target operating model: root workflows enter the Nx DAG, Habitat owns structural
+rule reports and mutations, and diagnostic aliases are named as diagnostics
+rather than canonical closure proof. Contributors should use the current
+`habitat-enforcement-surface-cleanup` packet for present command truth.
 
 ## Verification Gates
 

@@ -95,11 +95,14 @@ citing this historical revalidation sentence.
   relative test import that the source scan missed
   (`@civ7/direct-control` -> `@civ7/map-policy`); it was tag-legal and repaired
   as an explicit package import/devDependency, with no baseline needed.
-- **Verdict: LOCK-SAFE** — 43/43 declared manifest edges green on both the
-  workstream branch and current main (incl. the post-derivation
+- **Verdict at adoption: LOCK-SAFE** — 43/43 declared manifest edges green on
+  both the workstream branch and then-current main (incl. the post-derivation
   `studio-server → control-orpc` edge from `331534895`). H3's implementation
   pass repaired the one missed hidden relative source import as a declared,
-  tag-legal devDependency. No baseline needed; the boundaries rule locks empty.
+  tag-legal devDependency. Current recovery proof for manifest, resolved Nx
+  metadata, boundary config, and graph-edge parity is owned by
+  `habitat-boundary-taxonomy-tightening`; this adoption verdict is historical
+  source evidence, not a substitute for that current proof.
 
 | ID | Sev | Finding | Disposition |
 |---|---|---|---|

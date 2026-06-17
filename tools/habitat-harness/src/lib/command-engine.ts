@@ -96,6 +96,74 @@ export interface VerifyOptions {
   commandArgs?: readonly string[];
 }
 
+export interface VerifyProof {
+  schemaVersion: 1;
+  command: {
+    argv: string[];
+    cwd: string;
+    env: Record<string, string>;
+    startedAt: string;
+    durationMs: number;
+    exitCode: number;
+  };
+  base: {
+    requested: string | null;
+    resolved: string;
+    source: "flag" | "default";
+  };
+  habitatCheck: {
+    reportSchemaVersion: 1;
+    requestedSelectors: {
+      owner?: string;
+      tool?: string;
+      rule?: string;
+      staged?: boolean;
+    };
+    selectedRuleIds: string[];
+    selectedRealRuleIds: string[];
+    builtInRuleIds: string[];
+    statusCounts: Record<string, number>;
+    advisoryCount: number;
+    failingCount: number;
+  };
+  nxAffected:
+    | {
+        status: "executed";
+        argv: string[];
+        targets: string[];
+        projects: string[];
+        cacheStateByTask: Array<{
+          taskId: string;
+          project: string;
+          target: string;
+          cacheState: "fresh" | "cache-hit" | "unknown";
+        }>;
+        exitCode: number;
+        stdout: string;
+        stderr: string;
+        stdoutTruncated: boolean;
+        stderrTruncated: boolean;
+      }
+    | {
+        status: "skipped";
+        skipReason: "habitat-check-failed";
+        argv: string[];
+        targets: string[];
+        projects: [];
+        cacheStateByTask: [];
+        exitCode: null;
+        stdout: "";
+        stderr: "";
+        stdoutTruncated: false;
+        stderrTruncated: false;
+      };
+  postState: {
+    gitStatusShort: string;
+    resourcesStatus: string;
+  };
+  nonClaims: string[];
+}
+
 export interface Classification {
   path: string;
   project: string | null;
@@ -499,20 +567,178 @@ export function resolveVerifyBase(base?: string): string {
   return base ?? mergeBase("main") ?? "main";
 }
 
-export function runAffectedVerification(base: string): SpawnResult {
-  return run(
-    [
-      "nx",
-      "affected",
-      "-t",
-      "build,check,test,boundaries,biome:ci,grit:check,generated:check",
-      "--base",
-      base,
-    ],
-    {
+export const verifyAffectedTargets = [
+  "build",
+  "check",
+  "test",
+  "boundaries",
+  "biome:ci",
+  "grit:check",
+  "generated:check",
+];
+
+export interface VerifyProofInput {
+  requestedBase?: string;
+  resolvedBase: string;
+  commandArgs?: readonly string[];
+  startedAt: string;
+  durationMs: number;
+  exitCode: number;
+  checkReport: CheckReport;
+  affectedResult?: SpawnResult;
+}
+
+export function createVerifyProof(input: VerifyProofInput): VerifyProof {
+  const nxArgv = affectedVerificationArgv(input.resolvedBase);
+  const gitStatus = run(["git", "status", "--short"], { cwd: repoRoot });
+  const resourcesStatus = run(["bun", "run", "resources:status"], { cwd: repoRoot });
+  const nxAffected = input.affectedResult
+    ? executedNxAffected(nxArgv, input.affectedResult)
+    : skippedNxAffected(nxArgv);
+  return {
+    schemaVersion: 1,
+    command: {
+      argv: ["habitat", "verify", ...(input.commandArgs ?? [])],
       cwd: repoRoot,
-    }
+      env: selectedVerifyEnv(),
+      startedAt: input.startedAt,
+      durationMs: input.durationMs,
+      exitCode: input.exitCode,
+    },
+    base: {
+      requested: input.requestedBase ?? null,
+      resolved: input.resolvedBase,
+      source: input.requestedBase ? "flag" : "default",
+    },
+    habitatCheck: summarizeVerifyCheckReport(input.checkReport),
+    nxAffected,
+    postState: {
+      gitStatusShort: gitStatus.stdout.trim(),
+      resourcesStatus: `${resourcesStatus.stdout}${resourcesStatus.stderr}`.trim(),
+    },
+    nonClaims: [
+      "CI execution proof",
+      "Grit apply safety",
+      "baseline key migration",
+      "Grit row semantics",
+      "product/runtime behavior",
+    ],
+  };
+}
+
+function executedNxAffected(
+  argv: string[],
+  affected: SpawnResult
+): Extract<VerifyProof["nxAffected"], { status: "executed" }> {
+  const stdout = boundedStream(affected.stdout);
+  const stderr = boundedStream(affected.stderr);
+  return {
+    status: "executed",
+    argv,
+    targets: verifyAffectedTargets,
+    projects: parseNxAffectedProjects(affected.stdout),
+    cacheStateByTask: parseNxTaskCacheStates(affected.stdout),
+    exitCode: affected.exitCode,
+    stdout: stdout.text,
+    stderr: stderr.text,
+    stdoutTruncated: stdout.truncated,
+    stderrTruncated: stderr.truncated,
+  };
+}
+
+function skippedNxAffected(
+  argv: string[]
+): Extract<VerifyProof["nxAffected"], { status: "skipped" }> {
+  return {
+    status: "skipped",
+    skipReason: "habitat-check-failed",
+    argv,
+    targets: verifyAffectedTargets,
+    projects: [],
+    cacheStateByTask: [],
+    exitCode: null,
+    stdout: "",
+    stderr: "",
+    stdoutTruncated: false,
+    stderrTruncated: false,
+  };
+}
+
+export function runAffectedVerification(base: string): SpawnResult {
+  return run(affectedVerificationArgv(base), {
+    cwd: repoRoot,
+  });
+}
+
+function affectedVerificationArgv(base: string): string[] {
+  return ["nx", "affected", "-t", verifyAffectedTargets.join(","), "--base", base];
+}
+
+function summarizeVerifyCheckReport(report: CheckReport): VerifyProof["habitatCheck"] {
+  const builtInRuleIds = report.rules
+    .filter((rule) => rule.ownerTool === "habitat-native" && rule.detect.includes("(built-in)"))
+    .map((rule) => rule.ruleId);
+  const selectedRuleIds = report.rules.map((rule) => rule.ruleId);
+  const selectedRealRuleIds = selectedRuleIds.filter((ruleId) => !builtInRuleIds.includes(ruleId));
+  return {
+    reportSchemaVersion: report.schemaVersion,
+    requestedSelectors: {},
+    selectedRuleIds,
+    selectedRealRuleIds,
+    builtInRuleIds,
+    statusCounts: countRuleStatuses(report.rules),
+    advisoryCount: report.rules.filter((rule) => rule.status === "advisory-findings").length,
+    failingCount: report.rules.filter((rule) => rule.status === "fail").length,
+  };
+}
+
+function countRuleStatuses(reports: readonly RuleReport[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const report of reports) {
+    counts[report.status] = (counts[report.status] ?? 0) + 1;
+  }
+  return counts;
+}
+
+function selectedVerifyEnv(): Record<string, string> {
+  return Object.fromEntries(
+    ["CI", "FORCE_COLOR", "NX_DAEMON", "NX_CACHE_PROJECT_GRAPH", "NX_PROJECT_GRAPH_CACHE"]
+      .filter((key) => process.env[key] !== undefined)
+      .map((key) => [key, process.env[key] as string])
   );
+}
+
+function parseNxAffectedProjects(stdout: string): string[] {
+  const projectLines = [...stdout.matchAll(/^\s*-\s+([^\s].*)$/gm)].map((match) => match[1].trim());
+  return sortedUnique(
+    projectLines
+      .map((line) => line.split(/\s+/)[0])
+      .filter((project) => project.length > 0 && !project.includes(":"))
+  );
+}
+
+function parseNxTaskCacheStates(stdout: string): VerifyProof["nxAffected"]["cacheStateByTask"] {
+  const tasks = [...stdout.matchAll(/^>\s+nx run ([^:\s]+):([^\s]+)(.*)$/gm)];
+  return tasks.map((match) => {
+    const project = match[1];
+    const target = match[2];
+    const taskLine = match[3] ?? "";
+    return {
+      taskId: `${project}:${target}`,
+      project,
+      target,
+      cacheState: taskLine.includes("existing outputs match the cache") ? "cache-hit" : "unknown",
+    };
+  });
+}
+
+function sortedUnique(values: readonly string[]): string[] {
+  return [...new Set(values)].sort();
+}
+
+function boundedStream(value: string, limit = 12000): { text: string; truncated: boolean } {
+  if (value.length <= limit) return { text: value, truncated: false };
+  return { text: value.slice(0, limit), truncated: true };
 }
 
 export function runGraph(options: { json?: boolean } = {}): SpawnResult {

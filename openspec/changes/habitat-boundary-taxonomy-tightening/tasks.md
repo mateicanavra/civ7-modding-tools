@@ -25,72 +25,75 @@
 
 ## 3. Taxonomy Corpus And Config Proof
 
-- [ ] 3.1 Build a current project inventory from workspace manifests,
+- [x] 3.1 Build a current project inventory from workspace manifests,
   taxonomy rows, and `nx show projects --json`.
-- [ ] 3.2 Prove every project has the expected `kind:*` tag set in package
+- [x] 3.2 Prove every project has the expected `kind:*` tag set in package
   manifests and resolved Nx project metadata.
-- [ ] 3.3 Prove `eslint.boundaries.config.mjs` depConstraints match
+- [x] 3.3 Prove `eslint.boundaries.config.mjs` depConstraints match
   `taxonomy.md`.
-- [ ] 3.4 Prove every resolved workspace graph edge satisfies the active
+- [x] 3.4 Prove every resolved workspace graph edge satisfies the active
   matching source-tag constraints.
-- [ ] 3.5 Record any edge that is legal only through a specific tag and cite
+- [x] 3.5 Record any edge that is legal only through a specific tag and cite
   the authority for that tag.
-- [ ] 3.6 Decide whether to add a dedicated taxonomy verifier script or keep the
+- [x] 3.6 Decide whether to add a dedicated taxonomy verifier script or keep the
   proof as command/test composition.
 
 ## 4. Dual-Tag And False-Negative Proof
 
-- [ ] 4.1 Add and remove a foundation-to-adapter violation probe that fails the
+- [x] 4.1 Add and remove a foundation-to-adapter violation probe that fails the
   expected `kind:foundation` constraint.
-- [ ] 4.2 Add and remove a `mod-civ7-intelligence-bridge` to SDK violation probe
+- [x] 4.2 Add and remove a `mod-civ7-intelligence-bridge` to SDK violation probe
   that fails the expected `kind:control` constraint.
-- [ ] 4.3 Prove probes leave no source, generated, staged, or untracked files.
-- [ ] 4.4 If dual-tag semantics are not guaranteed by current Nx behavior,
+- [x] 4.3 Prove probes leave no source, generated, staged, or untracked files.
+- [x] 4.4 If dual-tag semantics are not guaranteed by current Nx behavior,
   update the boundary config with explicit `allSourceTags` constraints or
   revise taxonomy with authority.
 
 ## 5. Command Reliability
 
-- [ ] 5.1 Run direct boundary target proof and record whole-command exit status.
-- [ ] 5.2 Run normal run-many boundary proof and record whole-command
+- [x] 5.1 Run direct boundary target proof and record whole-command exit status.
+- [x] 5.2 Run normal run-many boundary proof and record whole-command
   exit status.
-- [ ] 5.3 If normal run-many fails, diagnose the root cause and record the
+- [x] 5.3 If normal run-many fails, diagnose the root cause and record the
   owner repair; do not adopt daemon/cache/socket/link overrides as proof
   policy.
-- [ ] 5.4 Decide accepted command policy for boundary proof when focused target
+- [x] 5.4 Decide accepted command policy for boundary proof when focused target
   and normal aggregate behavior differ.
-- [ ] 5.5 Patch target metadata, command wiring, or docs if the accepted proof
+- [x] 5.5 Patch target metadata, command wiring, or docs if the accepted proof
   command differs from historical H3 records.
-- [ ] 5.6 Record Habitat `nx-boundaries` JSON proof and assert the selected
+- [x] 5.6 Record Habitat `nx-boundaries` JSON proof and assert the selected
   `rules[]` entry is present, locked, passing, owner/tool-labeled, and
   diagnostics-empty.
-- [ ] 5.7 Record `habitat verify` proof only after command-surface repair is
-  consumed.
+- [ ] 5.7 Record `habitat verify` proof only after current full-check blockers
+  are outside the selected range or repaired; `bun run habitat -- verify --base
+  HEAD` currently fails before affected tasks on unrelated `biome-ci` and
+  `arch-test-map-bundle-runtime-imports`, so this packet does not claim
+  `habitat verify` closure.
 
 ## 6. Owner-Layer And Effect Decision
 
-- [ ] 6.1 Reaffirm Nx owns only project-plane JS/TS import and package
+- [x] 6.1 Reaffirm Nx owns only project-plane JS/TS import and package
   dependency boundaries for this repair.
-- [ ] 6.2 Reaffirm Grit/file-layer/test/manual owners for intra-project,
+- [x] 6.2 Reaffirm Grit/file-layer/test/manual owners for intra-project,
   generated-output, semantic, and runtime obligations.
-- [ ] 6.3 If implementation changes Habitat command orchestration around Nx,
+- [x] 6.3 If implementation changes Habitat command orchestration around Nx,
   consume the Effect decision criteria and record adoption or equivalent typed
   non-adoption proof.
 
 ## 7. Downstream Realignment
 
-- [ ] 7.1 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`
+- [x] 7.1 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`
   `CLAIM-H3-TAXONOMY` with reviewed current proof boundaries.
-- [ ] 7.2 Update `docs/projects/habitat-harness/workstream-record.md` if H3
+- [x] 7.2 Update `docs/projects/habitat-harness/workstream-record.md` if H3
   closure wording overclaims current proof.
-- [ ] 7.3 Update `docs/projects/habitat-harness/taxonomy.md` only if evidence
+- [x] 7.3 Update `docs/projects/habitat-harness/taxonomy.md` only if evidence
   changes tag/constraint authority or command-proof wording.
-- [ ] 7.4 Update `openspec/changes/habitat-boundary-tags/**` historical records
+- [x] 7.4 Update `openspec/changes/habitat-boundary-tags/**` historical records
   that claim a command path, closure state, or green lock that current proof
   does not support.
-- [ ] 7.5 Update `tools/habitat-harness/README.md` and root `AGENTS.md` only if
+- [x] 7.5 Update `tools/habitat-harness/README.md` and root `AGENTS.md` only if
   their router guidance is stale after this proof policy.
-- [ ] 7.6 Update dependent Habitat packets only when their dependency wording
+- [x] 7.6 Update dependent Habitat packets only when their dependency wording
   would otherwise cite stale or overbroad taxonomy proof.
 
 ## 8. Verification
@@ -98,16 +101,17 @@
 - [x] 8.1 `bun run openspec -- validate habitat-boundary-taxonomy-tightening --strict`
 - [x] 8.2 `bun run openspec:validate`
 - [x] 8.3 `git diff --check`
-- [ ] 8.4 Package manifest tag audit
-- [ ] 8.5 Resolved Nx tag audit
-- [ ] 8.6 Resolved graph edge legality audit
-- [ ] 8.7 Boundary config parity audit
-- [ ] 8.8 Dual-tag and false-negative probes
-- [ ] 8.9 Direct target boundary proof
-- [ ] 8.10 Normal run-many boundary proof
-- [ ] 8.11 Habitat `nx-boundaries` JSON proof with selected-rule assertion
-- [ ] 8.12 `habitat verify` proof after command-surface dependency is consumed
-- [ ] 8.13 Stale-record scan and patches
+- [x] 8.4 Package manifest tag audit
+- [x] 8.5 Resolved Nx tag audit
+- [x] 8.6 Resolved graph edge legality audit
+- [x] 8.7 Boundary config parity audit
+- [x] 8.8 Dual-tag and false-negative probes
+- [x] 8.9 Direct target boundary proof
+- [x] 8.10 Normal run-many boundary proof
+- [x] 8.11 Habitat `nx-boundaries` JSON proof with selected-rule assertion
+- [ ] 8.12 `habitat verify` proof after unrelated full-check blockers are
+  repaired or explicitly scoped out
+- [x] 8.13 Stale-record scan and patches
 - [x] 8.14 Full-depth-language guardrail scan over this packet
 
 ## 9. Closure

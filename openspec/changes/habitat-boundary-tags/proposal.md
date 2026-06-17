@@ -6,9 +6,12 @@ strings) or not at all. With Nx adopted, the derived taxonomy
 (docs/projects/habitat-harness/taxonomy.md) can be locked as graph law:
 tags on every project, dependency constraints via
 `@nx/enforce-module-boundaries`, ESLint quarantined to exactly that one rule.
-The taxonomy encodes the current implied architecture (Matei D4) — it was
-verified against actual dependency edges and is green at adoption, so this
-slice locks immediately.
+The taxonomy encodes the implied architecture at adoption time (Matei D4). This
+historical H3 slice locked the initial project-plane rule. Current recovery
+closure for that taxonomy is owned by
+`habitat-boundary-taxonomy-tightening`, which rechecks manifests, resolved Nx
+metadata, boundary config, graph edges, and false-negative probes against the
+current repository.
 
 ## Target Authority Refs
 
@@ -30,7 +33,8 @@ slice locks immediately.
   `boundaries`, never `lint`); add it to `habitat check`/`verify` composition
   and CI affected targets.
 - Register the rule in the harness rule pack as `nx-boundaries` owner with an
-  empty baseline (locked at adoption — the project plane is verified green).
+  empty baseline at adoption. Later current-state proof must use the active
+  taxonomy recovery matrix rather than this historical adoption statement.
 - Document tag vocabulary and the revision protocol (taxonomy changes are
   deliberate rule-pack edits with provenance) in the harness README.
 
@@ -92,9 +96,10 @@ means zero immediate disruption.
 ## Verification Gates
 
 - `bun run openspec -- validate habitat-boundary-tags --strict`
-- `bunx nx run-many -t boundaries --all` green on the clean tree (the gate);
-  `bunx nx affected -t boundaries` runs as a smoke check only (affected on a
-  clean tree runs nothing and proves nothing).
+- Historical gate: `bunx nx run-many -t boundaries --all` green on the clean
+  adoption tree; `bunx nx affected -t boundaries` ran as a smoke check only
+  because affected on a clean tree runs nothing and proves nothing. Current
+  recovery proof uses repo-local `bun run nx ...` forms with normal Nx defaults.
 - Probe: add `import '@civ7/adapter'` (plus the dependency edge) in a scratch
   file inside `packages/config/src/` — `kind:foundation` may depend only on
   `kind:foundation`, so the `boundaries` target must fail naming the

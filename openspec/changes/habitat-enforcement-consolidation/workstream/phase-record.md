@@ -9,14 +9,20 @@
 - Branch/Graphite stack: `agent-F-habitat-enforcement-consolidation` above
   `agent-F-habitat-grit-catalog`
 - Started: 2026-06-14
-- Status: CLOSED locally — implementation, probe matrix, OpenSpec, and root
-  closure gates green.
+- Status: historical implementation evidence. Current command and proof
+  authority is superseded by `habitat-enforcement-surface-cleanup` where H6
+  root/CI routing, wrapper, selector, and verify-proof claims differ from
+  present repo behavior.
 
 ## Objective
 
 - Target movement: make Habitat the single structural enforcement path by
   retiring or simplifying legacy scripts, ESLint config, and duplicate
-  structural tests only after parity evidence and probe confirmation.
+  structural tests only after parity evidence and probe confirmation. Current
+  recovery evidence narrows that historical target: root workflows now enter the
+  Nx DAG, Habitat owns structural rule reports and mutations, and retained
+  diagnostic aliases/wrappers remain explicit non-claims until their retirement
+  gates land.
 - Non-goals: no new product/runtime rules, no generated-output hand edits, no
   weakening constraints, no deletion of an original mechanism while it still
   owns unported semantics, and no dual path kept merely from inertia.
@@ -126,11 +132,15 @@ reconciled before deletion:
 
 ## Implementation Evidence
 
-- Root `lint` is a `habitat:check` alias; root `check` and
-  `ci:architecture-strict-core` route through `habitat:verify`.
-- CI architecture-strict-core now runs `Habitat verify` and uploads Habitat
-  JSON diagnostics with `bun run habitat:check -- --json --output
-  habitat-diagnostics.json`.
+- Historical H6 closure claimed root `lint` as a `habitat:check` alias and root
+  `check` / `ci:architecture-strict-core` as `habitat:verify` routes. Current
+  recovery evidence supersedes that command truth: root `lint` runs project
+  lint plus Habitat checks through Nx, root `check` aggregates
+  build/check/lint/test/verify, root `verify` runs package-owned verifier
+  targets, and strict-core remains a direct full-profile diagnostic alias.
+- CI architecture diagnostics are separated by proof class: main CI uses the
+  root graph command, strict-core remains a direct diagnostic step, and Habitat
+  diagnostics are captured through the Habitat check JSON surface.
 - Habitat subprocesses call local tool names directly (`biome`, `grit`,
   `eslint`, `nx`); `tools/habitat-harness/src/lib/spawn.ts` prepends
   repo-local `node_modules/.bin` to `PATH` for supply-chain-safe resolution.
@@ -196,7 +206,9 @@ reconciled before deletion:
 
 ## Closure Notes
 
-- H6 is locally closed; CI remains to be observed after branch submission.
+- H6 local closure is historical evidence, not current packet closure authority.
+  Present command, wrapper, selector, and verify-proof boundaries are owned by
+  `habitat-enforcement-surface-cleanup`.
 - The strict/full domain-refactor profile is intentionally preserved as a
   manual legacy alias because its pre-existing findings make it unsuitable for
   the default green Habitat check.

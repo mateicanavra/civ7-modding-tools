@@ -50,6 +50,7 @@ const depConstraints = [
       "kind:adapter",
       "kind:foundation",
       "kind:control",
+      "kind:plugin",
     ],
   },
   {
