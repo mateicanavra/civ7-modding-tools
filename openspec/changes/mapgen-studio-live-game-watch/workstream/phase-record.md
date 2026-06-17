@@ -163,3 +163,21 @@ Implementation commit closure requires:
 - `workstream/next-packet.md` records the narrowed unrun live-game watcher
   proof;
 - explicit paths are staged and Graphite commit leaves the worktree clean.
+
+## D10 Live-Proof Re-Entry - 2026-06-16
+
+- Branch: `codex/runtime-effect-d10-live-proof`.
+- Re-entry reason: the recovery closeout stack preserved D10 task 5.8 as the
+  only open runtime Effect packet row after D12 drain and stale accounting were
+  reconciled.
+- Current status: proof-slice design draft in `workstream/live-proof-plan.md`;
+  fresh review found one P1 and multiple P2 plan issues, all repaired in the
+  plan before proof execution; no live Civ7 proof has been rerun or claimed in
+  this branch.
+- Owner: D10 live-game watcher proof records and task 5.8 only.
+- Exterior: runtime code, public contracts, generated outputs, success-only
+  proof logging, Graphite submit, and broad product/state-machine closure
+  outside the watcher-specific claim.
+- Gate position: systematic gates 1-8 have been reopened and repaired for the
+  retained live proof only; gates 9-12 remain blocked until the static gates,
+  environment preflight, event-stream proof, and browser/network proof exist.
