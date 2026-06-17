@@ -2623,7 +2623,10 @@ export function StudioShell(props: StudioShellProps) {
           runInGameCurrentRelation={runInGameCurrentRelation}
           onRunInGame={() => {
             void handleRunInGame({
-              restartCivProcess: runInGameRequiresProcessRestart(runInGameOperation),
+              restartCivProcess: runInGameRequiresProcessRestart(
+                runInGameOperation,
+                runInGameCurrentRelation
+              ),
             });
           }}
           onCopyRunInGameDiagnostics={copyRunInGameDiagnostics}
