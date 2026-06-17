@@ -23,11 +23,15 @@ or {
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
 generateOfficialResources();
-```
 
-```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
-generateOfficialResources();
+generateOfficialDiscoveries(context, discoveryPlan);
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
+const resourcesPlaced = generateOfficialResources(context, resourcePlan).placedCount;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
+await generateOfficialDiscoveries(context, discoveryPlan);
 ```
 
 ## Ignores fixture
@@ -35,4 +39,29 @@ generateOfficialResources();
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
 resourcePlacementOutcomes();
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
+const resourcesPlaced = resourcePlacement.summary.placedCount;
+const discoveriesPlaced = discoveryPlacement.summary.placedCount;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
+officialGenerators.generateOfficialResources(context, resourcePlan);
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.ts
+const generatorName = "generateOfficialDiscoveries";
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-resources/apply.ts
+generateOfficialResources(context, resourcePlan);
+
+// @filename: mods/mod-swooper-maps/mod/src/recipes/standard/stages/placement/steps/placement/apply.ts
+generateOfficialResources(context, resourcePlan);
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement/apply.tsx
+generateOfficialResources(context, resourcePlan);
+
+// @filename: packages/mapgen-core/src/recipes/standard/stages/placement/steps/placement/apply.ts
+generateOfficialResources(context, resourcePlan);
+
+// @filename: mods/other-mod/src/recipes/standard/stages/placement/steps/placement/apply.ts
+generateOfficialResources(context, resourcePlan);
 ```

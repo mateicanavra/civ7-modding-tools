@@ -95,15 +95,23 @@ specifier strings that contain `@mapgen/domain/<domain>/<tail>`. That current
 behavior must be repaired, sibling-owned, or blocked before exact source-scope
 claims.
 
-Current native samples:
+Current native fixtures now prove current-predicate behavior for:
 
-- one positive default import from `@mapgen/domain/ecology/ops`;
-- one negative import from `@mapgen/domain/ecology`.
+- default, named, namespace, type, and side-effect imports;
+- named re-export, type re-export, and star re-export forms;
+- `/ops`, `/config.js`, `ops/<tail>`, `ops-by-id`, `rules/<tail>`,
+  `strategies/<tail>`, `shared/<tail>`, `types.js`, and arbitrary domain
+  subpath sources;
+- prefixed, relative, and protocol source-specifier lookalikes that the current
+  leading-wildcard source regex reports;
+- filename lookalikes ending in `contract.ts`, recipe-local
+  `__tests__/contract.ts`, and other-mod raw predicate paths;
+- domain-root, `.tsx`, maps, ordinary recipe files, non-step contracts, stage
+  artifact contracts, generated-output-shaped paths, and package-path controls.
 
-Current native samples do not prove namespace imports, type imports,
-side-effect imports, named re-exports, type re-exports, star re-exports, path
-controls, neighboring overlap, current-tree wrapper behavior, injected
-violations, or explicit baseline behavior.
+These fixture facts do not prove current-tree wrapper behavior, all-mod wrapper
+coverage, predicate repair, exact filename/source-scope closure, injected
+violations, raw acquisition, retired parity, or explicit baseline behavior.
 
 ## Official Grit Source
 
@@ -147,25 +155,28 @@ provenance, and cleanup proof.
 | SCDS-E1 | `tools/habitat-harness/src/rules/rules.json` | Rule id `grit-step-contract-domain-surface` is registered as enforced `grit-check` with `mods/*` step-contract scope. | Rule identity and intended metadata exist. |
 | SCDS-E2 | `.grit/patterns/habitat/checks/step_contract_domain_surface.md` | Pattern matches import and re-export declarations from source specifiers containing non-root domain package strings in filenames ending in `contract.ts`. | Authored predicate exists and must be proven exactly. |
 | SCDS-E3 | `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter step_contract_domain_surface --json` | Exit 0; one testable pattern succeeds with one positive and one negative sample. | Native fixture proof seed exists. |
-| SCDS-E4 | `bun run habitat:check -- --json --rule grit-step-contract-domain-surface` | Exit 0; `grit-step-contract-domain-surface` and `baseline-integrity` pass. | Valid wrapper selection currently passes. |
-| SCDS-E5 | Direct raw Grit over `mods/mod-swooper-maps/src/recipes` | Exit 0 with `results: []`. | Bounded raw zero-result seed exists for the current Swooper recipe root. |
+| SCDS-E4 | `bun run habitat:check -- --json --rule grit-step-contract-domain-surface` design seed | Exit 0; `grit-step-contract-domain-surface` and `baseline-integrity` pass. | Historical wrapper selection seed exists but is not consumed as current wrapper proof because the accepted command-trust/selector layer is not available in this row's stack/base. |
+| SCDS-E5 | Direct raw Grit over `mods/mod-swooper-maps/src/recipes` design seed | Exit 0 with `results: []`. | Bounded raw zero-result seed exists but is not consumed as raw acquisition closure in this row checkpoint. |
 | SCDS-E6 | `tools/habitat-harness/src/lib/grit.ts` | Adapter scans existing roots from `packages`, `apps/mapgen-studio/src`, Swooper recipes, Swooper maps, and Swooper domain. | Wrapper roots and raw acquisition roots must be recorded separately. |
 | SCDS-E7 | Current-tree `find` over Swooper step contracts | 53 matching files: 23 `contract.ts`, 30 `*.contract.ts`, zero lookalikes, zero `.tsx`. | Live filename inventory supports current zero findings but not predicate exactness. |
 | SCDS-E8 | Current-tree import inventory over matching files | Domain imports are domain root only; no `@mapgen/domain/<domain>/<tail>` sources. | Supplemental live inventory supports zero current violations. |
-| SCDS-E9 | Disposable raw Grit probe under `/tmp` | Default, named, namespace, type, side-effect imports and named/type/star re-exports from domain subpaths report; domain root does not. | Parser-form behavior works under direct Grit and needs durable proof. |
-| SCDS-E10 | Disposable path-control probe under `/tmp` | `notacontract.ts`, other-mod raw paths, and `__tests__/contract.ts` report; `.tsx`, maps, and non-`steps` paths do not. | Filename lookalikes, recipe-local tests, and wrapper/raw scope divergence are closure issues. |
+| SCDS-E9 | Disposable scratch raw Grit parser-form probe from the design packet | Default, named, namespace, type, side-effect imports and named/type/star re-exports from domain subpaths report; domain root does not. | Parser-form behavior worked under direct Grit, but current durable proof comes from `SCDS-NATIVE-FIXTURES-2026-06-15`. |
+| SCDS-E10 | Disposable scratch raw Grit path-control probe from the design packet | `notacontract.ts`, other-mod raw paths, and `__tests__/contract.ts` report; `.tsx`, maps, and non-`steps` paths do not. | Filename lookalikes, recipe-local tests, and wrapper/raw scope divergence are closure issues now recorded through fixture and inventory proof. |
 | SCDS-E11 | External adversarial review agent `019ec731-6096-71e2-af1e-08b432b632bc` | No P1 findings; P2 finding that a prefixed source such as `not-a-real-prefix@mapgen/domain/ecology/ops` reports through the current leading-wildcard source regex. | Source-specifier lookalike controls are required before exact source-scope claims. |
 | SCDS-E12 | Neighboring rule probe facts | `recipe_domain_surface` overlaps on many contract subpaths; `domain_deep_import` overlaps on `ops/<tail>`, `rules/<tail>`, and `strategies/<tail>`; `contract_export_all` overlaps on star re-exports. | Closure needs reviewed multi-rule expectations or predicate partitioning. |
 | SCDS-E13 | `docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md` and `how-to/add-a-step.md` | Step contracts are authoring declarations and implementation lives in step modules. | The stricter domain-root-only rule has architecture authority. |
 | SCDS-E14 | `invariant-corpus.md` and H5/H6 records | Retired lint/test mechanisms mention step-contract import boundaries. | Parity and stale-record truth need row-level proof ids; these records do not outrank current behavior. |
 | SCDS-E15 | Effect docs and local Effect fit pack | Grit adapter hardening is a strong substrate fit. | Injected proof should consume or complete the typed adapter substrate. |
 | SCDS-E16 | `git status --short --branch` before packet | Branch `codex/habitat-dra-takeover-frame`; only this packet is untracked during drafting. | Design started from a clean committed base. |
+| SCDS-E17 | `SCDS-NATIVE-FIXTURES-2026-06-15` | Exit 0; committed fixture produces 22 current-predicate matches and 0 ignore-sample matches. | Native fixture/parser-edge proof now exists for the current predicate. |
+| SCDS-E18 | `SCDS-IMPORT-INVENTORY-2026-06-15` | Inline Node/TypeScript parser inventory over current wrapper roots scanned `packages`, `apps/mapgen-studio/src`, recipes, maps, and domain roots with `node_modules`, `dist`, and `mod` excluded. Counts: 1,943 TS/TSX files, 230 `@mapgen/domain` references, 53 current-predicate step contract files, 53 intended `contract.ts`/`*.contract.ts`, 38 current-predicate domain references, 38 exact domain roots, 0 current-row matches, 0 exact forbidden references, 0 source lookalikes, 0 filename lookalikes, 0 recipe-local test contract files, 0 other-mod raw matching files, 15 stage artifact contract files outside the predicate, and 146 out-of-scope domain-subpath references. Temporary stdout artifacts were scratch inputs only; this bounded summary is the durable row evidence. | Parser inventory and live zero-candidate evidence exist inside current wrapper roots; this is not Habitat wrapper proof or raw Grit acquisition. |
 
 ## Design Consequences
 
 1. The row is ready for a per-pattern packet.
-2. Native fixture proof needs expansion or supplement before implementation
-   closure.
+2. Native fixture proof has current-predicate coverage for the fixture/parser
+   subset; it does not close wrapper, baseline, injected, raw, parity, or
+   exact-scope gates.
 3. Current wrapper pass is useful but does not prove injected violations,
    all-mod enforcement, exact filename scope, or parser-edge coverage.
 4. Raw Grit capability, wrapper enforcement, registry metadata, and historical

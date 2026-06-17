@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Effect, Layer } from "effect";
@@ -82,6 +82,7 @@ const gritScanRootCandidates = [
   "mods/mod-swooper-maps/src/maps",
   "mods/mod-swooper-maps/src/domain",
 ];
+const ignoredTestScanRootCandidates = ["mods/mod-swooper-maps/test"];
 export const injectedProbeRoot = "tools/habitat-harness/injected-probe-roots";
 const protectedScanRootPrefixes = [
   ".civ7/",
@@ -92,6 +93,16 @@ const protectedScanRootPrefixes = [
   "tools/habitat-harness/dist/",
 ];
 const gritBin = "grit";
+const gritCandidateExtensions = new Set([
+  ".cjs",
+  ".cts",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".mts",
+  ".ts",
+  ".tsx",
+]);
 
 export function resetGritCacheForTests(): void {
   // Historical test helper retained for compatibility; the Effect adapter no
@@ -117,7 +128,10 @@ export async function runGritRules(
   } = {}
 ): Promise<Map<string, RuleRunResult>> {
   if (selectedRules.length === 0) return new Map();
-  const scanRoots = options.scanRoots ?? discoverGritScanRoots();
+  const scanRoots = effectiveGritScanRoots(
+    selectedRules,
+    options.scanRoots ?? discoverGritScanRoots(selectedRules)
+  );
   const emptyRootFailure = validateScanRoots(scanRoots, {
     allowInjectedProbeRoot: options.allowInjectedProbeRoot,
   });
@@ -369,8 +383,24 @@ export function projectGritResults(
   );
 }
 
-export function discoverGritScanRoots(): string[] {
-  return gritScanRootCandidates.filter((scanPath) => existsSync(path.join(repoRoot, scanPath)));
+export function discoverGritScanRoots(selectedRules: readonly HarnessRule[] = []): string[] {
+  const candidates = selectedRules.some(ruleOwnsIgnoredTestScope)
+    ? [...gritScanRootCandidates, ...ignoredTestScanRootCandidates]
+    : gritScanRootCandidates;
+  return candidates.filter((scanPath) => existsSync(path.join(repoRoot, scanPath)));
+}
+
+export function effectiveGritScanRoots(
+  selectedRules: readonly HarnessRule[],
+  scanRoots: readonly string[]
+): string[] {
+  if (!selectedRules.some(ruleOwnsIgnoredTestScope)) return [...scanRoots];
+  const exactTestFiles = scanRoots.flatMap(collectIgnoredTestFiles);
+  if (exactTestFiles.length === 0) return [...scanRoots];
+  return sortedUnique([
+    ...scanRoots.filter((scanRoot) => !isIgnoredTestDirectoryRoot(scanRoot)),
+    ...exactTestFiles,
+  ]);
 }
 
 export interface GritScanRootValidationOptions {
@@ -531,9 +561,54 @@ function isApprovedScanRoot(
   ) {
     return true;
   }
-  return gritScanRootCandidates.some(
+  return [...gritScanRootCandidates, ...ignoredTestScanRootCandidates].some(
     (root) => relative === root || relative.startsWith(`${root}/`)
   );
+}
+
+function ruleOwnsIgnoredTestScope(rule: HarnessRule): boolean {
+  return /(^|[,{]\s*)[^,\s]*\/test\/\*\*/.test(rule.scope) || /\btest\/\*\*/.test(rule.scope);
+}
+
+function collectIgnoredTestFiles(scanRoot: string): string[] {
+  const absolute = path.resolve(repoRoot, scanRoot);
+  if (!existsSync(absolute)) return [];
+  const relative = toRepoRelative(absolute);
+  const stats = statSync(absolute);
+  if (stats.isFile()) return isIgnoredTestCandidate(relative) ? [relative] : [];
+  if (!stats.isDirectory()) return [];
+  const files: string[] = [];
+  collectFiles(absolute, files);
+  return files.map(toRepoRelative).filter(isIgnoredTestCandidate);
+}
+
+function isIgnoredTestDirectoryRoot(scanRoot: string): boolean {
+  const absolute = path.resolve(repoRoot, scanRoot);
+  if (!existsSync(absolute)) return false;
+  if (!statSync(absolute).isDirectory()) return false;
+  const relative = toRepoRelative(absolute);
+  return relative.endsWith("/test") || relative.includes("/test/");
+}
+
+function collectFiles(absoluteRoot: string, files: string[]): void {
+  for (const entry of readdirSync(absoluteRoot, { withFileTypes: true })) {
+    const absolute = path.join(absoluteRoot, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === ".git") continue;
+      collectFiles(absolute, files);
+      continue;
+    }
+    if (entry.isFile()) files.push(absolute);
+  }
+}
+
+function isIgnoredTestCandidate(relative: string): boolean {
+  if (!gritCandidateExtensions.has(path.extname(relative))) return false;
+  return relative.includes("/test/") || /\.test\.[cm]?[jt]sx?$/.test(relative);
+}
+
+function sortedUnique(values: readonly string[]): string[] {
+  return [...new Set(values.map(toRepoRelative))].sort((a, b) => a.localeCompare(b));
 }
 
 function isGeneratedRoot(relative: string): boolean {

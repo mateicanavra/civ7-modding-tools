@@ -143,7 +143,7 @@
     rows, 22 pass, 0 failures, cleanup restored for every row, final git status
     clean, and the injected-probe filesystem root absent after the run.
 - [x] 9.7 explicit Grit baseline behavior proof suite
-- [ ] 9.8 old-mechanism parity probes:
+- [x] 9.8 old-mechanism parity probes:
   `wrapped-script`, `wrapped-eslint`, and `wrapped-test`
   - 2026-06-15 current probe evidence is recorded as
     `HGPR-PARITY-WRAPPED-SCRIPT-2026-06-15`,
@@ -164,6 +164,17 @@
     `mod-swooper-maps:build`, which dirtied generated/tracked outputs; this
     packet records that as a generated-output freshness blocker, not parity
     closure.
+  - 2026-06-16 closure probe evidence is recorded as
+    `HGPR-PARITY-WRAPPED-SCRIPT-CLOSURE-2026-06-16`,
+    `HGPR-PARITY-WRAPPED-ESLINT-CLOSURE-2026-06-16`, and
+    `HGPR-PARITY-WRAPPED-TEST-CLOSURE-2026-06-16`. `wrapped-script` remains
+    green, `wrapped-eslint` remains the expected stale historical selector
+    failure through `rule-selection-integrity`, and `wrapped-test` now exits 0
+    with all six wrapped-test rules plus `baseline-integrity` passing after
+    the accepted generated-output freshness repair. This closes current
+    old-mechanism command parity disposition only; it does not prove Grit row
+    semantic parity, wrapper retirement safety, raw direct Grit acquisition,
+    CI execution, or product/runtime behavior.
 - [x] 9.9 `bun run nx run @internal/habitat-harness:grit:check --outputStyle=static`
   - 2026-06-15 current probe evidence is recorded as
     `HGPR-NX-GRIT-TARGET-FAILED-2026-06-15`, and repair proof is recorded as

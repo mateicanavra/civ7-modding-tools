@@ -1,5 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
+  discoverGritScanRoots,
+  effectiveGritScanRoots,
   parseGritCheckOutput,
   projectGritResults,
   runGritRules,
@@ -218,6 +220,7 @@ describe("Grit check adapter parser and projection", () => {
   test("validates missing, outside, generated, protected, and approved scan roots", () => {
     expect(validateScanRoots(["packages"])).toBeNull();
     expect(validateScanRoots(["packages/mapgen-core/src"])).toBeNull();
+    expect(validateScanRoots(["mods/mod-swooper-maps/test"])).toBeNull();
     expect(validateScanRoots(["missing-root"])).toContain("does not exist");
     expect(validateScanRoots(["../outside"])).toContain("outside the repo");
     expect(validateScanRoots(["mods/mod-swooper-maps/src/maps/generated"])).toContain(
@@ -323,6 +326,73 @@ describe("Grit check adapter parser and projection", () => {
     expect(results.get(rule.id)?.diagnostics[0]?.message).toContain("GritCacheProvenanceMissing");
   });
 
+  test("activates ignored test roots only for rules that declare test scope", async () => {
+    const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
+      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+    });
+    const testRule = fakeGritRule("grit-domain-deep-import-tests", "domain_deep_import_tests", {
+      scope: "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+    });
+
+    expect(discoverGritScanRoots([sourceRule])).not.toContain("mods/mod-swooper-maps/test");
+    expect(discoverGritScanRoots([testRule])).toContain("mods/mod-swooper-maps/test");
+
+    const effectiveRoots = effectiveGritScanRoots([testRule], [
+      "packages",
+      "mods/mod-swooper-maps/src/recipes",
+      "mods/mod-swooper-maps/test",
+    ]);
+    expect(effectiveRoots).toContain("packages");
+    expect(effectiveRoots).toContain("mods/mod-swooper-maps/src/recipes");
+    expect(effectiveRoots).toContain("mods/mod-swooper-maps/test/hydrology-ocean-geometry.test.ts");
+    expect(effectiveRoots).toContain("packages/civ7-map-policy/test/map-policy.test.ts");
+    expect(effectiveRoots).not.toContain("mods/mod-swooper-maps/test");
+
+    let observedRequest: HabitatProcessRequest | undefined;
+    const fakeLayer = makeFakeHabitatProcessLayer((request) => {
+      observedRequest = request;
+      return makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: ["mods/mod-swooper-maps/test/domain/public-surface.test.ts"],
+            results: [
+              {
+                local_name: "domain_deep_import_tests",
+                path: "mods/mod-swooper-maps/test/domain/public-surface.test.ts",
+                start: { line: 1 },
+                extra: { message: "test deep import" },
+              },
+            ],
+          })
+        ),
+      });
+    });
+
+    const results = await runGritRules([sourceRule, testRule], {
+      scanRoots: ["packages", "mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/test"],
+      processLayer: fakeLayer,
+    });
+
+    expect(observedRequest?.scanRoots).toEqual(effectiveRoots);
+    expect(observedRequest?.argv).toEqual([
+      "--json",
+      "check",
+      "--level",
+      "error",
+      ...effectiveRoots,
+    ]);
+    expect(results.get(testRule.id)?.diagnostics).toEqual([
+      {
+        ruleId: testRule.id,
+        path: "mods/mod-swooper-maps/test/domain/public-surface.test.ts",
+        line: 1,
+        message: "test deep import",
+        severity: "error",
+        baselined: false,
+      },
+    ]);
+  });
+
   test("implements and renders every accepted adapter failure tag", () => {
     for (const tag of gritAdapterFailureTags) {
       const failure = createGritAdapterFailure(tag, {
@@ -370,7 +440,11 @@ function output(text: string): OutputCapture {
   };
 }
 
-function fakeGritRule(id: string, pattern: string): HarnessRule {
+function fakeGritRule(
+  id: string,
+  pattern: string,
+  overrides: Partial<HarnessRule> = {}
+): HarnessRule {
   return {
     id,
     gritPattern: pattern,
@@ -384,5 +458,6 @@ function fakeGritRule(id: string, pattern: string): HarnessRule {
     remediate: null,
     message: "test rule",
     exceptionPath: "none",
+    ...overrides,
   };
 }

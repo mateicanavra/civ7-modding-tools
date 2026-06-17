@@ -11,39 +11,53 @@
 
 ## 2. Source And Authority Refresh
 
-- [ ] 2.1 Reread the takeover frame, Grit corpus ledger, recovery claim ledger,
+- [x] 2.1 Reread the takeover frame, Grit corpus ledger, recovery claim ledger,
   invariant corpus, taxonomy, discrepancy log, H5/H6 records, official Grit
   docs pack, local Grit corpus extraction, stage/step authoring docs,
   `IMPORTS.md`, and aggregate Grit proof repair.
-- [ ] 2.2 Confirm `rules.json` metadata for
+- [x] 2.2 Confirm `rules.json` metadata for
   `grit-step-contract-domain-surface`.
-- [ ] 2.3 Confirm current Grit predicate file classes and exact Habitat Grit
+- [x] 2.3 Confirm current Grit predicate file classes and exact Habitat Grit
   adapter scan roots.
-- [ ] 2.4 Confirm the retired step-contract import invariant and parity claim.
-- [ ] 2.5 Reconcile registry metadata, raw regex, adapter roots, stage/step
+- [x] 2.4 Confirm the retired step-contract import invariant and parity claim.
+  - Confirmed as a historical parity target only; parity closure remains
+    unclaimed.
+- [x] 2.5 Reconcile registry metadata, raw regex, adapter roots, stage/step
   authoring docs, current contract filenames, and current source-specifier
   predicate.
-- [ ] 2.6 Confirm neighboring boundaries with `grit-recipe-domain-surface`,
+  - Current row records the gap: registry metadata names
+    `contract.ts`/`*.contract.ts`, while the current regex also matches
+    filename lookalikes ending in `contract.ts`; the source regex also matches
+    prefixed, relative, and protocol source lookalikes. Exact closure remains
+    pending.
+- [x] 2.6 Confirm neighboring boundaries with `grit-recipe-domain-surface`,
   `grit-domain-deep-import`, and `grit-contract-export-all`.
+  - Native fixtures record overlap families for current-predicate behavior;
+    reviewed multi-rule closure remains pending.
 
 ## 3. Native Fixture And Parser-Edge Proof
 
-- [ ] 3.1 Run
-  `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter step_contract_domain_surface --json`.
-- [ ] 3.2 Add or record proof for positive default import, named import,
+- [x] 3.1 Run
+  `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter step_contract_domain_surface --json`.
+- [x] 3.2 Add or record proof for positive default import, named import,
   namespace import, type import, side-effect import, named re-export, type
   re-export, and star re-export fixtures.
-- [ ] 3.3 Add or record proof that exact domain root imports do not report.
-- [ ] 3.4 Add or record proof that `/ops`, `/config.js`, `ops/<tail>`,
+- [x] 3.3 Add or record proof that exact domain root imports do not report.
+- [x] 3.4 Add or record proof that `/ops`, `/config.js`, `ops/<tail>`,
   `ops-by-id`, `rules/<tail>`, `strategies/<tail>`, `shared/<tail>`, `types.js`,
   and arbitrary domain subpaths report this row in matching step contracts.
-- [ ] 3.5 Add source-specifier lookalike controls for prefixed package strings,
+- [x] 3.5 Add source-specifier lookalike controls for prefixed package strings,
   relative strings containing `@mapgen/domain/<domain>/<tail>`, and other
   non-package specifiers matched by the current leading-wildcard source regex.
-- [ ] 3.6 Add path-control fixtures for `.tsx`, maps, ordinary recipe files,
+  - These are current-predicate positive facts, not exact source-scope closure.
+- [x] 3.6 Add path-control fixtures for `.tsx`, maps, ordinary recipe files,
   non-step contract files, stage artifact contract files, other mods,
   recipe-local tests, filename lookalikes, and generated paths.
-- [ ] 3.7 Record fixture class counts and parser-edge proof ids in the
+  - Other-mod, recipe-local test, and filename-lookalike cases are
+    current-predicate positive facts, not all-mod wrapper enforcement or
+    predicate repair. Generated-output-shaped paths are fixture controls only;
+    no generated output was edited.
+- [x] 3.7 Record fixture class counts and parser-edge proof ids in the
   aggregate proof matrix.
 
 ## 4. Current-Tree Proof
@@ -52,14 +66,21 @@
   `bun run habitat:check -- --json --rule grit-step-contract-domain-surface`
   and record output class, selected rule ids, diagnostics count, and baseline
   state.
+  - Blocked/non-claim under supervisor boundary because the accepted
+    command-trust/selector layer is not available in this row's stack/base.
 - [ ] 4.2 Record exact Habitat wrapper scan roots and selected rule projection.
+  - Exact adapter scan roots are recorded from source and parser inventory;
+    selected rule projection proof remains blocked until command selector truth
+    is available in this row's stack/base.
 - [ ] 4.3 Run bounded raw Grit acquisition over the Swooper recipe root or
   consume an accepted adapter proof id.
+  - Blocked/non-claim for closure; parser inventory is not raw Grit
+    acquisition.
 - [ ] 4.4 Prove how bounded raw roots relate to wrapper scan roots, including
   omitted-root projection proof or explicit non-claims.
-- [ ] 4.5 Run current-tree inventory for matching step-contract filenames and
+- [x] 4.5 Run current-tree inventory for matching step-contract filenames and
   domain imports.
-- [ ] 4.6 Record live domain-root import examples and zero-candidate evidence
+- [x] 4.6 Record live domain-root import examples and zero-candidate evidence
   for domain subpaths, source-specifier lookalikes, filename lookalikes, `.tsx`,
   and recipe-local tests.
 
@@ -99,17 +120,21 @@
 
 - [ ] 6.1 Add explicit empty baseline file
   `tools/habitat-harness/baselines/grit-step-contract-domain-surface.json`.
+  - Blocked/non-claim under supervisor boundary until the scaffold/baseline
+    contract repair surface is accepted.
 - [ ] 6.2 Prove `baseline-integrity` accepts the explicit empty baseline.
 - [ ] 6.3 Prove an injected finding is unbaselined and fails.
 - [ ] 6.4 Link baseline expansion safety to the accepted scaffold/baseline
   contract repair owner before claiming shared baseline mutation safety.
+  - Expected interface needed: explicit empty-baseline owner contract plus
+    shrink-only expansion rules that make row-local baseline additions safe.
 
 ## 7. Downstream Realignment
 
-- [ ] 7.1 Update
+- [x] 7.1 Update
   `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md`
   with proof ids and fixture counts.
-- [ ] 7.2 Update `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
+- [x] 7.2 Update `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
   for this row after implementation.
 - [ ] 7.3 Update `docs/projects/habitat-harness/taxonomy.md`,
   `docs/projects/habitat-harness/discrepancy-log.md`, `IMPORTS.md`, and
@@ -123,27 +148,27 @@
 
 ## 8. Verification
 
-- [ ] 8.1 `bun run openspec -- validate habitat-grit-proof-step-contract-domain-surface --strict`
-- [ ] 8.2 native fixture proof
-- [ ] 8.3 parser-edge import/export proof
-- [ ] 8.4 domain-root allowed proof
-- [ ] 8.5 forbidden-source family proof
-- [ ] 8.6 source-specifier lookalike disposition
-- [ ] 8.7 filename lookalike disposition
-- [ ] 8.8 other-mod and wrapper-scope disposition
-- [ ] 8.9 recipe-local test-path classification
+- [x] 8.1 `bun run openspec -- validate habitat-grit-proof-step-contract-domain-surface --strict`
+- [x] 8.2 native fixture proof
+- [x] 8.3 parser-edge import/export proof
+- [x] 8.4 domain-root allowed proof
+- [x] 8.5 forbidden-source family proof
+- [x] 8.6 source-specifier lookalike disposition
+- [x] 8.7 filename lookalike disposition
+- [x] 8.8 other-mod and wrapper-scope disposition
+- [x] 8.9 recipe-local test-path classification
 - [ ] 8.10 neighboring-rule overlap disposition
 - [ ] 8.11 Habitat current-tree wrapper proof
 - [ ] 8.12 wrapper scan-root and projection proof
 - [ ] 8.13 bounded raw acquisition or adapter proof id
-- [ ] 8.14 current-tree contract/import inventory
+- [x] 8.14 current-tree contract/import inventory
 - [ ] 8.15 injected step-contract proof
 - [ ] 8.16 outside-scope path-control proof
 - [ ] 8.17 explicit baseline proof
 - [ ] 8.18 baseline owner linkage
-- [ ] 8.19 aggregate proof matrix aligned
+- [x] 8.19 aggregate proof matrix aligned
 - [ ] 8.20 recovery claim ledger aligned
-- [ ] 8.21 active-packet language guardrail scan
-- [ ] 8.22 `git diff --check`
-- [ ] 8.23 `bun run openspec:validate`
-- [ ] 8.24 commit via Graphite with a clean worktree
+- [x] 8.21 active-packet language guardrail scan
+- [x] 8.22 `git diff --check`
+- [x] 8.23 `bun run openspec:validate`
+- [x] 8.24 commit via Graphite with a clean worktree

@@ -96,3 +96,37 @@ services, raw JSON parser classifications, or cleanup finalizers.
 - Source-agent review running.
 - Adversarial review pending after local draft validation.
 - Implementation pending review and adapter-substrate readiness.
+
+## Implementation DRA Update - 2026-06-15
+
+Branch/worktree:
+
+- branch: `agent-HG-habitat-grit-pattern-chain`;
+- worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
+- Graphite parent: `main`;
+- row: `grit-contract-export-all` / `contract_export_all`.
+
+Completed independent row-owned work:
+
+- expanded the native `Matches fixture` to cover eight current-predicate
+  positive classes: domain op index, domain op contract, domain op types,
+  rules index, rules non-index, strategies default, step contract, and dotted
+  step contract;
+- expanded the native `Ignores fixture` for named value export, named type
+  export, namespace re-export, domain root/config facades, op-local `rules.ts`,
+  `.tsx`, and package barrel controls;
+- recorded parser inventory over the current wrapper roots: zero in-scope bare
+  value-star exports, 135 in-scope type-star exports, and 21 Swooper
+  domain-root/config/facade value-star exports outside this row predicate.
+
+Blocked/non-claim surfaces:
+
+- Habitat wrapper selector proof waits for accepted oclif/root command trust
+  and selector-truth behavior from `habitat-oclif-entrypoint-repair`;
+- explicit empty baseline proof and baseline expansion safety wait for the
+  scaffold/baseline contract repair surface;
+- injected current-tree probes and cleanup proof wait for an accepted typed
+  Grit adapter substrate;
+- `export type *` allowance is not proven by native fixtures because the pinned
+  native markdown parser rejected that syntax during fixture expansion.

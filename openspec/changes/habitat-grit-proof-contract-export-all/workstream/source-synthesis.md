@@ -54,12 +54,17 @@ not the same as wrapper-root proof.
   `contract.ts`/`types.ts`/`index.ts`, and domain op `rules/**` or
   `strategies/**`.
 
-Current native samples:
+Current native fixture coverage:
 
-- one positive value-star re-export from a domain op index;
-- one negative named export from a domain op index.
+- eight positive value-star classes: domain op index, domain op contract,
+  domain op types, rules index, rules non-index, strategies default, step
+  contract, and dotted step contract;
+- controls for named value export, named type export, namespace re-export,
+  domain root/config facades, op-local `rules.ts`, `.tsx`, and package barrel.
 
-Current native samples do not prove the type-star allowance.
+Current native samples still do not prove the `export type *` allowance because
+the pinned native markdown parser rejected that syntax during fixture
+expansion.
 
 ## Official Grit Source
 
@@ -95,20 +100,20 @@ provenance, and cleanup proof.
 
 | Evidence id | Source | Result | Implication |
 | --- | --- | --- | --- |
-| CEA-E1 | `grit patterns test --filter contract_export_all --json` | exits 0; one testable pattern succeeds | native fixture proof exists |
-| CEA-E2 | `bun run habitat:check -- --json --rule grit-contract-export-all` | exits 0; `grit-contract-export-all` and `baseline-integrity` pass | valid wrapper selection currently passes |
-| CEA-E3 | bounded raw `grit check` over domain and recipe roots | exits 0 with `results: []` | raw current-tree zero-result seed for the bounded roots |
-| CEA-E4 | disposable value-star/type-star Grit probe | value-star reports in step contracts and domain op surfaces; type-star and named exports do not | direct Grit behavior supports intended core semantics |
-| CEA-E5 | live value-star inventory over domain roots | live value-star facades exist outside current predicate | domain-root facade coverage is not proven |
-| CEA-E6 | H5/H6 records | old guard retirement and type-star allowance are historical closure claims | parity needs row-level proof ids |
-| CEA-E7 | Effect docs and local Effect fit pack | Grit adapter hardening is a strong substrate fit | injected proof needs an explicit Effect/manual decision |
-| CEA-E8 | `tools/habitat-harness/src/lib/grit.ts` | wrapper scans packages, Studio source, recipes, maps, and domain roots by existence | wrapper-root proof must be separate from bounded raw proof |
+| CEA-E13 | `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter contract_export_all --json` | exits 0; 8 positive matches and 0 ignore matches across the expanded fixture classes | native fixture/parser-edge subset is satisfied |
+| CEA-E14 | TypeScript parser inventory over current wrapper roots | finds 0 in-scope bare value-star exports, 135 in-scope type-star exports, and 21 Swooper domain-root/config/facade value-star exports outside the predicate | parser inventory and domain-root non-claim evidence are recorded |
+| CEA-E15 | attempted `export type *` native fixture | native markdown parser rejects the syntax | type-star allowance remains blocked/non-claim |
+| CEA-E6 | `bun run habitat:check -- --json --rule grit-contract-export-all` design seed | exits 0; `grit-contract-export-all` and `baseline-integrity` pass | not consumed as wrapper proof while command selector truth is unsettled |
+| CEA-E7 | bounded raw `grit check` over domain and recipe roots | exits 0 with `results: []` | raw acquisition closure remains unclaimed |
+| CEA-E8 | disposable value-star/type-star Grit probe | value-star reports in step contracts and domain op surfaces; type-star and named exports do not | direct Grit behavior seed only, not current-tree closure |
+| CEA-E11 | Effect docs and local Effect fit pack | Grit adapter hardening is a strong substrate fit | injected proof needs an explicit Effect/manual decision |
+| CEA-E12 | `tools/habitat-harness/src/lib/grit.ts` | wrapper scans packages, Studio source, recipes, maps, and domain roots by existence | wrapper-root proof must be separate from bounded raw proof |
 
 ## Design Consequences
 
 1. The row is ready for a per-pattern packet.
-2. Native fixture proof needs expansion or supplement before implementation
-   closure.
+2. Native fixture proof has an expanded current-predicate subset, but still
+   needs type-star proof before implementation closure.
 3. Type-star allowance must be proven separately from the current native ignore
    fixture.
 4. Current zero-result proof is useful but does not replace injected proof.

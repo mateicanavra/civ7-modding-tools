@@ -118,5 +118,69 @@ classifications, overlap classification, and cleanup behavior.
 - Packet opened.
 - Local evidence recorded.
 - Internal review findings accepted in the draft.
-- External adversarial review pending.
-- Implementation pending adapter-substrate readiness and row-level proof.
+- External adversarial review completed with two accepted/repaired P2 findings.
+- Implementation checkpoint now has native fixture and parser inventory proof;
+  wrapper, raw/adapter, injected, baseline, parity, exact-scope, and product
+  closure remain open.
+
+## Implementation DRA Update - 2026-06-15
+
+Branch:
+
+- `agent-HG-habitat-grit-step-contract-domain-surface`
+
+Parent layer:
+
+- `agent-HG-habitat-grit-recipe-domain-surface` at
+  `387913daf82826508b2bbb12c33a8dd35850a1c5`
+
+Worktree:
+
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
+
+Completed independent row work:
+
+- Expanded `.grit/patterns/habitat/checks/step_contract_domain_surface.md`
+  fixtures to cover 22 current-predicate positive classes and path/source
+  controls inside the native Grit fixture contract.
+- Recorded `SCDS-NATIVE-FIXTURES-2026-06-15` as native fixture/parser-edge
+  proof only.
+- Ran an inline Node/TypeScript parser inventory over the current wrapper scan
+  roots with `node_modules`, `dist`, and `mod` excluded, then recorded the
+  durable counts in row-owned records as `SCDS-IMPORT-INVENTORY-2026-06-15`.
+  Temporary stdout artifacts from that inventory were scratch inputs only and
+  are not durable proof.
+- Updated the aggregate proof matrix, command proof log, corpus ledger, source
+  synthesis, evidence log, downstream ledger, and task state for this
+  checkpoint.
+
+Current durable parser inventory summary:
+
+- Scan roots: `packages`, `apps/mapgen-studio/src`,
+  `mods/mod-swooper-maps/src/recipes`, `mods/mod-swooper-maps/src/maps`,
+  `mods/mod-swooper-maps/src/domain`.
+- Exclusions: `node_modules`, `dist`, `mod`.
+- Counts: 1,943 scanned TS/TSX files, 230 `@mapgen/domain` references, 53
+  current-predicate matching step contract files, 53 intended
+  `contract.ts`/`*.contract.ts` files, 0 filename lookalikes, 0 `.tsx`
+  step-contract files, 15 stage artifact contract files outside the predicate,
+  0 recipe-local test contract files, 38 current-predicate domain references,
+  0 current-row matches, 38 exact domain-root references, 0 exact forbidden
+  references, 0 source lookalikes, 146 out-of-scope domain-subpath references,
+  and 0 other-mod raw matching files.
+
+Blocked/non-claim proof classes:
+
+- Habitat wrapper selector/current-tree proof waits because the accepted
+  command-trust/selector layer is not available in this row's stack/base.
+- Raw Grit acquisition or accepted adapter proof remains unclaimed for closure.
+- Injected proof remains blocked on the typed Grit adapter/injected cleanup
+  substrate.
+- Baseline proof remains blocked on the scaffold/baseline contract repair
+  surface.
+- Exact filename/source-scope closure remains open because source-prefix,
+  source-relative, source-protocol, and `notacontract.ts` cases are current
+  predicate facts, not predicate repair.
+- Other-mod and recipe-local test fixture positives are native/current
+  predicate facts only; they are not all-mod wrapper enforcement proof or
+  product proof.

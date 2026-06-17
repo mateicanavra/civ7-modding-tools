@@ -275,6 +275,75 @@ describe("injected Grit probe harness", () => {
     }
   });
 
+  test("expands test-scoped mirror probes to exact files without dropping the mirror root", async () => {
+    const mirrorRoot = `${injectedProbeRoot}/__habitat_probe_test_scope__`;
+    const matchingPath = `${mirrorRoot}/mods/mod-swooper-maps/test/domain/public-surface.test.ts`;
+    const controlPath = `${mirrorRoot}/mods/mod-swooper-maps/test/domain/public-surface-control.test.ts`;
+    const absoluteRoot = path.join(repoRoot, mirrorRoot);
+    const testRule = fakeGritRule("grit-domain-deep-import-tests", "domain_deep_import_tests", {
+      ownerProject: "mod-swooper-maps",
+      scope: "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+      message: "test files must use public domain surfaces",
+    });
+    let observedRequest: HabitatProcessRequest | undefined;
+    const fakeLayer = makeFakeHabitatProcessLayer((request) => {
+      observedRequest = request;
+      return makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: [matchingPath],
+            results: [
+              {
+                local_name: "domain_deep_import_tests",
+                path: matchingPath,
+                start: { line: 1 },
+                extra: { message: "test deep import" },
+              },
+            ],
+          })
+        ),
+      });
+    });
+
+    rmSync(absoluteRoot, { recursive: true, force: true });
+    mkdirSync(absoluteRoot, { recursive: true });
+
+    try {
+      const result = await runInjectedGritProbe({
+        ruleId: testRule.id,
+        patternIdentity: "domain_deep_import_tests",
+        probePath: matchingPath,
+        probeBody:
+          'import { privateRule } from "@mapgen/domain/ecology/rules/private.js";\n\nexport const value = privateRule;\n',
+        controlPath,
+        controlBody:
+          'import ecology from "@mapgen/domain/ecology/ops";\n\nexport const value = ecology;\n',
+        expectedDiagnostic: "test deep import",
+        scope: {
+          adapterRoot: mirrorRoot,
+          rulesJsonScope:
+            "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+          sourcePredicate: "test imports or re-exports domain deep internals",
+          scanRoots: [mirrorRoot],
+          exclusions: [],
+          matchingProbePath: matchingPath,
+          outsideScopeControlPath: controlPath,
+        },
+        registry: [testRule],
+        processLayer: fakeLayer,
+      });
+
+      expect(result.ok).toBe(true);
+      expect(observedRequest?.scanRoots).toContain(mirrorRoot);
+      expect(observedRequest?.scanRoots).toContain(matchingPath);
+      expect(observedRequest?.scanRoots).toContain(controlPath);
+      expect(result.ok && result.diagnostics[0]?.path).toBe(matchingPath);
+    } finally {
+      rmSync(absoluteRoot, { recursive: true, force: true });
+      removeEmptyInjectedProbeRoot();
+    }
+  });
+
   test("does not approve probe mirror roots for ordinary Grit scans", async () => {
     const mirrorRoot = `${injectedProbeRoot}/__habitat_probe_public_reject__`;
     const absoluteRoot = path.join(repoRoot, mirrorRoot);
@@ -341,7 +410,11 @@ function output(text: string): OutputCapture {
   };
 }
 
-function fakeGritRule(id: string, pattern: string): HarnessRule {
+function fakeGritRule(
+  id: string,
+  pattern: string,
+  overrides: Partial<HarnessRule> = {}
+): HarnessRule {
   return {
     id,
     gritPattern: pattern,
@@ -355,6 +428,7 @@ function fakeGritRule(id: string, pattern: string): HarnessRule {
     remediate: null,
     message: "test rule",
     exceptionPath: "none",
+    ...overrides,
   };
 }
 
