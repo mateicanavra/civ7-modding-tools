@@ -392,6 +392,20 @@
     }
   },
   {
+    "ruleId": "grit-domain-engine-imports",
+    "patternIdentity": "domain_engine_imports",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+    "sourcePredicate": "domain op source imports engine runtime entrypoints as values",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
+      "body": "import { EngineRuntime } from \"@swooper/mapgen-core/engine\";\n\nexport const runtime = EngineRuntime;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/type-control.ts",
+      "body": "import type { EngineRuntime } from \"@swooper/mapgen-core/engine\";\n\nexport type Runtime = EngineRuntime;\n"
+    }
+  },
+  {
     "ruleId": "grit-stage-contract-dependencies",
     "patternIdentity": "stage_contract_dependencies",
     "rulesJsonScope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/{contract.ts,*.contract.ts}",

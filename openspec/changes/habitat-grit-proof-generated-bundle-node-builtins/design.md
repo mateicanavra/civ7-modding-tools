@@ -36,9 +36,10 @@ hand.
    depends on this package's build chain so the generated bundle is refreshed
    before the test reads it, with upstream workspace builds available before
    the bundle resolves workspace package exports.
-4. Swooper map bundle freshness is already an executable wrapped-test concern,
-   but this checkout is missing a manifest-listed ignored output file and this
-   row does not repair that generated-output freshness gap.
+4. Swooper map bundle freshness is already an executable wrapped-test concern;
+   historical missing-output evidence is superseded by the accepted
+   map-bundle/downstack freshness repair. This row does not own that
+   generated-output freshness repair.
 5. Native Grit fixture proof, Grit baselines, injected probes, apply safety,
    classify/generator behavior, and product/runtime proof are non-claims.
 6. The registered wrapped-test rule still requires an explicit empty Habitat
@@ -57,9 +58,9 @@ hand.
 
 This checkpoint fails if the Intelligence Bridge wrapped-test rule is not
 selectable by Habitat, if the tracked generated UI bundle contains Node builtin
-imports or direct-control/runtime transport tokens, if records claim Swooper
-map bundle freshness is repaired, or if the row claims generated-output Grit
-closure.
+imports or direct-control/runtime transport tokens, if records claim this row
+owns Swooper map bundle freshness repair, or if the row claims generated-output
+Grit closure.
 
 ## Source Synthesis
 
@@ -78,11 +79,10 @@ Nx target depends on `build`; this package's `build` target depends on
 
 `mods/mod-swooper-maps/test/build/map-bundle-runtime-imports.test.ts` is the
 existing wrapped-test owner for Swooper generated map bundle self-containment.
-Current disk evidence shows that test fails before a Node-builtin assertion can
-serve as row closure because `mods/mod-swooper-maps/mod/swooper-maps.modinfo`
-lists `maps/studio-current.js` while the ignored generated output directory
-lacks that file. This checkpoint records that as a generated-output freshness
-blocker rather than hiding it behind a Grit rule or generated-file edit.
+This row originally recorded missing-output evidence for that separate owner;
+that historical evidence is superseded by the accepted map-bundle/downstack
+freshness repair. This checkpoint still keeps Swooper generated-output
+freshness outside the Intelligence Bridge row.
 
 `tools/habitat-harness/src/lib/grit.ts` rejects generated roots as Grit scan
 roots, so this row uses `wrapped-test` owner behavior.
@@ -95,7 +95,7 @@ roots, so this row uses `wrapped-test` owner behavior.
 | Tracked Intelligence Bridge UI bundle has direct-control/runtime transport tokens | Package-owned Nx target and Habitat wrapped-test report |
 | Tracked Intelligence Bridge UI bundle is browser/game-runtime safe | Package-owned Nx target and Habitat wrapped-test pass |
 | Present Swooper generated map bundles have no current Node/runtime token matches | Parser/file inventory records zero token matches |
-| Manifest-listed Swooper map output is missing from ignored generated directory | Existing map bundle wrapped-test remains blocked |
+| Historical manifest-listed Swooper map output was missing from ignored generated directory | Superseded by accepted map-bundle/downstack freshness repair; not owned by this row |
 | Generated output under ignored map bundle directory | Scan evidence only; not committed as a hand-edit target |
 
 ## Proof Contract
@@ -111,8 +111,9 @@ This row checkpoint may record:
   wrapped-test registration.
 - `GBNB-BUNDLE-INVENTORY-2026-06-15`: deterministic generated-bundle inventory
   over the tracked Intelligence Bridge bundle and present Swooper map bundles.
-- `GBNB-SWOOPER-FRESHNESS-BLOCKER-2026-06-15`: current Swooper generated map
-  freshness blocker evidence.
+- `GBNB-SWOOPER-FRESHNESS-BLOCKER-2026-06-15`: historical Swooper generated
+  map freshness blocker evidence, superseded by the accepted
+  map-bundle/downstack freshness repair.
 
 This row checkpoint must not record:
 

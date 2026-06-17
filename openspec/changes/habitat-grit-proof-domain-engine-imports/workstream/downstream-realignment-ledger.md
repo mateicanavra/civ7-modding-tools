@@ -2,10 +2,10 @@
 
 | Surface | Disposition | Evidence |
 | --- | --- | --- |
-| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Updated candidate row with blocker disposition, parser inventory counts, non-registration, and reopen trigger. | `DEI-PREDICATE-BLOCKER-2026-06-15`; `DEI-DOMAIN-OPS-INVENTORY-2026-06-15` |
-| `openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md` | Updated with predicate-blocker and parser-inventory proof rows. | `DEI-PREDICATE-BLOCKER-2026-06-15`; `DEI-DOMAIN-OPS-INVENTORY-2026-06-15` |
-| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Not updated as a current check row because this candidate has no active `rules.json` entry, `.grit` pattern, baseline, or injected probe. | `DEI-PREDICATE-BLOCKER-2026-06-15` |
-| `.grit/patterns/habitat/checks/domain_engine_imports.md` | Not present; unsafe draft removed. | `DEI-PREDICATE-BLOCKER-2026-06-15` |
-| `tools/habitat-harness/src/rules/rules.json` | No `grit-domain-engine-imports` entry added. | `DEI-PREDICATE-BLOCKER-2026-06-15` |
-| `tools/habitat-harness/baselines/grit-domain-engine-imports.json` | Not present; baselines are only for registered rules. | `DEI-PREDICATE-BLOCKER-2026-06-15` |
-| `openspec/changes/habitat-grit-proof-repair/workstream/injected-probes.json` | No injected probe added for the unregistered candidate. | `DEI-PREDICATE-BLOCKER-2026-06-15` |
+| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Update candidate row to active registered check proof, parser inventory counts, baseline/probe proof, and non-claims. | `DEI-PREDICATE-REPAIR-2026-06-15`; `DEI-DOMAIN-OPS-INVENTORY-2026-06-15` |
+| `openspec/changes/habitat-grit-proof-repair/workstream/command-proof-log.md` | Update with native, parser-inventory, wrapper, baseline, and injected proof rows. | `DEI-NATIVE-FIXTURES-2026-06-15`; `DEI-PER-RULE-SELECTOR-2026-06-15`; `DEI-INJECTED-PROBE-2026-06-15` |
+| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Add current check row for `grit-domain-engine-imports`. | `DEI-NATIVE-FIXTURES-2026-06-15`; `DEI-HABITAT-GRIT-TOOL-2026-06-15` |
+| `.grit/patterns/habitat/checks/domain_engine_imports.md` | Active check pattern added with exact static import predicate and controls. | `DEI-NATIVE-FIXTURES-2026-06-15` |
+| `tools/habitat-harness/src/rules/rules.json` | `grit-domain-engine-imports` registered as `ownerTool=grit-check`. | `DEI-PER-RULE-SELECTOR-2026-06-15` |
+| `tools/habitat-harness/baselines/grit-domain-engine-imports.json` | Explicit empty baseline added for the registered rule. | `DEI-BASELINE-FILES-2026-06-15` |
+| `openspec/changes/habitat-grit-proof-repair/workstream/injected-probes.json` | Injected probe and type-only control added for the registered rule. | `DEI-INJECTED-PROBE-2026-06-15` |

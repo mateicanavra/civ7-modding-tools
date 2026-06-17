@@ -36,16 +36,16 @@ source scanning with runtime RNG-consumption semantics.
 - No source generation code is remediated.
 - No active Grit check is registered for RNG authority.
 - No Grit baseline or injected Grit probe is added.
-- No aggregate wrapped-test closure is claimed while the separate Swooper map
-  bundle freshness blocker remains current-red.
+- Current aggregate wrapped-test health is inherited from the accepted
+  map-bundle/downstack freshness repair; this row does not own that repair.
 - No apply safety, classify/generator behavior, retired full-profile parity,
   or product/runtime proof is claimed.
 
 ## Owner Boundary
 
 This workstream owns proof and record truth for the RNG authority candidate's
-current Habitat enforcement surface. It does not own the Swooper map bundle
-freshness blocker, live Civ7 runtime proof, generated-output repair, or a new
+current Habitat enforcement surface. It does not own Swooper map bundle
+freshness repair, live Civ7 runtime proof, generated-output repair, or a new
 Grit pattern for runtime-semantics behavior.
 
 ## Verification Gates

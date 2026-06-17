@@ -11,13 +11,13 @@ checkpoint, not a Grit rule.
 | Finding id | Priority | Status | Disposition |
 | --- | --- | --- | --- |
 | `RNG-GRIT-OWNER-MISMATCH-2026-06-15` | P2 | Accepted/local repaired | The ledger candidate name suggests Grit, but canonical invariant records classify RNG authority as `keep-as-test`; this checkpoint records wrapped-test ownership instead of duplicate Grit registration. |
-| `RNG-WRAPPED-TEST-AGGREGATE-2026-06-15` | P2 | Accepted/local open | Aggregate `wrapped-test` remains current-red because the separate Swooper map bundle rule cannot read missing ignored generated `maps/studio-current.js`; RNG authority passes in that aggregate report. |
+| `RNG-WRAPPED-TEST-AGGREGATE-2026-06-15` | P2 | Superseded by accepted map-bundle repair | Historical aggregate evidence showed RNG authority passing while the separate map-bundle rule was red. Current aggregate wrapped-test health is inherited from the accepted map-bundle/downstack freshness repair; RNG still owns only its package target and per-rule Habitat proof. |
 
 ## Non-Claims Preserved
 
 - No active Grit rule, native Grit fixture, Grit baseline, or injected Grit
   probe.
 - No source remediation.
-- No Swooper map bundle freshness repair or aggregate wrapped-test closure.
+- No Swooper map bundle freshness repair ownership.
 - No apply safety, classify/generator behavior, retired parity, or
   product/runtime proof.

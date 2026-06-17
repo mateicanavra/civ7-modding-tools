@@ -38,8 +38,8 @@ the checks combine multiple structural scans.
 - No Grit baseline or injected Grit probe is added.
 - No source remediation is claimed.
 - No natural-language documentation keyword rule is added.
-- No aggregate wrapped-test closure is claimed while the separate Swooper map
-  bundle freshness blocker remains current-red.
+- Current aggregate wrapped-test health is inherited from the accepted
+  map-bundle/downstack freshness repair; this row does not own that repair.
 - No generated-output freshness repair, apply safety, classify/generator
   behavior, or product/runtime proof is claimed.
 
@@ -47,8 +47,8 @@ the checks combine multiple structural scans.
 
 This workstream owns proof and record truth for the current Habitat enforcement
 surface of the shim/cutover candidate. It does not own a new Grit pattern, the
-separate Swooper generated map bundle freshness blocker, generated-output
-repair, or broad documentation vocabulary enforcement.
+separate Swooper generated map bundle freshness repair, generated-output repair,
+or broad documentation vocabulary enforcement.
 
 ## Verification Gates
 

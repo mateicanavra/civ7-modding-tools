@@ -39,8 +39,8 @@ that this invariant is intentionally test-owned rather than Grit-owned.
 5. The separate standard runtime RNG authority test proves authored generation
    does not consume adapter RNG at runtime; that runtime proof remains a test
    concern, not a Grit proof.
-6. Aggregate `wrapped-test` closure is still blocked by the independent
-   Swooper generated map bundle freshness issue, not by RNG authority.
+6. Current aggregate `wrapped-test` health is inherited from the accepted
+   map-bundle/downstack freshness repair, not from RNG authority.
 
 ### Exterior
 
@@ -89,7 +89,7 @@ authored generation.
 | Current standard recipe/domain authored generation has no forbidden source hits | `arch-test-rng-authority` passes |
 | Standard runtime attempts to consume adapter RNG during authored generation | package test fails under `standard-rng-authority.test.ts`; not claimed by this row's Habitat rule proof |
 | RNG authority candidate is considered for Grit registration | rejected for this row because the canonical corpus says the invariant stays test-owned |
-| Aggregate wrapped-test run includes RNG authority | RNG rule passes; aggregate still may fail on unrelated generated map bundle freshness |
+| Aggregate wrapped-test run includes RNG authority | RNG rule passes; current aggregate health is inherited from accepted map-bundle/downstack freshness repair |
 
 ## Proof Contract
 
@@ -99,9 +99,10 @@ This row checkpoint may record:
   `mod-swooper-maps:test:architecture-rng-authority`.
 - `RNG-HABITAT-WRAPPED-TEST-2026-06-15`: Habitat per-rule selector/wrapper
   proof for `arch-test-rng-authority`.
-- `RNG-WRAPPED-TEST-AGGREGATE-2026-06-15`: aggregate wrapped-test evidence
-  showing RNG authority passes while a separate generated-map freshness
-  blocker remains current-red.
+- `RNG-WRAPPED-TEST-AGGREGATE-2026-06-15`: historical aggregate wrapped-test
+  evidence showed RNG authority passing while map-bundle freshness was still a
+  separate blocker; current aggregate wrapped-test health is superseded by the
+  accepted map-bundle/downstack freshness repair.
 - `RNG-BASELINE-FILES-2026-06-15`: explicit empty Habitat baseline for
   `arch-test-rng-authority`.
 
