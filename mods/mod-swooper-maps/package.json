@@ -113,8 +113,24 @@
         ],
         "cache": true
       },
+      "migrate:configs:check": {
+        "dependsOn": [
+          {
+            "projects": [
+              "@swooper/mapgen-core"
+            ],
+            "target": "build"
+          }
+        ],
+        "inputs": [
+          "default",
+          "^default"
+        ],
+        "cache": true
+      },
       "gen:maps": {
         "dependsOn": [
+          "migrate:configs:check",
           {
             "projects": [
               "@swooper/mapgen-core"
@@ -165,6 +181,7 @@
       },
       "build:studio-recipes:maps": {
         "dependsOn": [
+          "migrate:configs:check",
           "gen:studio-recipes-types"
         ],
         "cache": true,
