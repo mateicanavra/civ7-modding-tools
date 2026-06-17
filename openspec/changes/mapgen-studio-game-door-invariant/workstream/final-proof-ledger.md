@@ -1,6 +1,8 @@
 # D12 Final Proof And Residue Ledger
 
-Status: implementation evidence recorded and stack submitted; live Civ7 proof executed; final Graphite merge/sync/drain not closed
+Status: implementation evidence recorded, stack submitted, live Civ7 proof
+executed, and final Graphite merge/sync/drain reconciled from current
+`origin/main`
 Date: 2026-06-14; implementation update 2026-06-15
 
 ## Proof Classes
@@ -16,7 +18,7 @@ Date: 2026-06-14; implementation update 2026-06-15
 | Residue searches | final negative-search set | Deleted/guarded/historical/diagnostic/deferral classification is complete for named residue. | Absence of unrelated future debt. |
 | Package/app gates | repo-local Nx package/app check/test/build targets selected by Habitat/classification | Local code health and dependency ordering for changed implementation. | Live Civ7 behavior unless explicitly live. |
 | Live proof | D12 live state-machine pass over Nx Studio, oRPC events, Run in Game, and Save&Deploy | Behavior-changing runtime claims held against Civ7 for the exercised flows. | Source/package tests alone do not prove live Civ7 behavior. |
-| Graphite proof | `gt submit --ai`, merge/drain, `gt sync --no-restack --no-interactive --force`, status/log/worktree checks | Stack closure and branch hygiene. | Runtime correctness. |
+| Graphite proof | `gt submit --ai`, merge/drain, `gt sync --no-restack --no-interactive --force`, status/log/worktree checks | Stack closure and branch hygiene; current closeout evidence is `origin/main` through `#1748`, absent runtime-effect refs, and no D12 branch checked out in worktrees. | Runtime correctness. |
 
 ## Final Negative Search Set
 
@@ -187,10 +189,10 @@ disposition:
 | Tuner/session/convergence wording | `mapgen-studio-tuner-session` OpenSpec records, D12 tasks/ledgers, evergreen game-door doc | Closed or durably deferred through D12 status/next-packet records; stale `out of scope` text is allowed only when it points to accepted D12 disposition or owner. |
 | Live Civ7 proof | D12 testing/final-proof ledgers | Live Run in Game and Save&Deploy state-machine proof executed; source/package tests remain separate supporting evidence. |
 
-## Stack Drain Proof Requirements
+## Stack Drain Proof
 
-D12 implementation closure owns the final stack proof after review/merge policy
-allows closure:
+D12 implementation closure owned final stack proof after review/merge policy
+allowed closure. The historical requirements were:
 
 1. Submit every runtime refactor branch with Graphite and `--ai`.
 2. Merge bottom-to-top through Graphite.
@@ -199,9 +201,19 @@ allows closure:
 5. Record `git status --short --branch`, `gt status`, `gt log --no-interactive`,
    and `git worktree list`.
 
-If review or live Civ7 access blocks final drain, D12 writes
-`workstream/next-packet.md` with the exact external blocker and does not claim
-runtime refactor closure.
+Current reconciliation evidence, 2026-06-16:
+
+- `origin/main` first-parent history contains the runtime stack PRs `#1729`
+  through `#1747`.
+- `origin/main` then contains `#1748`
+  (`654f58d8f fix(studio): format runtime closeout files`) after the stack
+  merged.
+- Local and `origin/*` runtime-effect branch refs are absent in this worktree.
+- `git worktree list` shows the old runtime worktree detached at `654f58d8f`
+  and no worktree checking out `codex/runtime-effect-game-door-invariant`.
+
+This closes final drain as a repo-state/Graphite hygiene claim. It does not add
+new runtime, live Civ7, or product proof.
 
 ### Graphite Submit Evidence
 
@@ -239,6 +251,6 @@ to submit dependent branches through empty PRs. They were deleted with
 Graphite-native branch deletion, which reparented descendants without restack
 because no Git commits changed.
 
-Still open: review policy, bottom-to-top merge, post-merge
-`gt sync --no-restack --no-interactive --force`, and final worktree/branch drain
-proof.
+Drain reconciliation: review policy, bottom-to-top merge, post-merge sync, and
+final worktree/branch drain are no longer open on current repo evidence. The
+old final-drain handoff is superseded by the current `origin/main` state above.

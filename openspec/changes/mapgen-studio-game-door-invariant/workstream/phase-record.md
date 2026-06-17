@@ -7,7 +7,8 @@
 - OpenSpec change: `mapgen-studio-game-door-invariant`
 - Owner: Codex DRA implementation lane
 - Branch/Graphite stack: `codex/runtime-effect-game-door-invariant`
-- Status: D12 implementation committed; live Civ7 and final stack-drain proof not closed
+- Status: D12 implementation committed; live Civ7 proof executed; final
+  stack-drain proof reconciled from current `origin/main`
 
 ## Objective
 
@@ -140,10 +141,12 @@ D12 implementation closure requires:
 - shortcut scan has no active unowned bridge or stale implementation closure.
 - packet train marks D12 accepted and all D0-D12 accepted.
 - live proof is recorded from the D12 state-machine pass.
-- Graphite/worktree state is clean after commit.
+- Graphite/worktree state is clean after commit and final drain is reconciled
+  from current main after merge.
 
 ## Next Action
 
-Continue D12 implementation from the active Graphite branch, run final
-residue/proof gates, and drain the runtime refactor stack only after review and
-merge policy allow closure.
+D12 is closed for implementation and final drain on current repo evidence.
+Future work should not continue from the old D12 branch. If a later audit finds
+new stale packet accounting, open a separate docs/OpenSpec realignment slice
+instead of reopening runtime code by default.

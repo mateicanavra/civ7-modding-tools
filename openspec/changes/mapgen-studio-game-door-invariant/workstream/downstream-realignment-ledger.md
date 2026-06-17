@@ -34,14 +34,16 @@ must be one of:
 
 - canonical deferral in `docs/system/DEFERRALS.md`;
 - deployment-specific follow-up outside local runtime dev orchestration;
-- external review/merge state for the Graphite stack;
-- `workstream/next-packet.md` or a follow-up handoff if merge/drain is
-  externally blocked.
+- historical external review/merge state for the Graphite stack, if an audit
+  needs to reconstruct how the stack landed;
+- a follow-up handoff only if a future repo-state audit contradicts the current
+  `origin/main` drain evidence.
 
 Current implementation note: D10 and D11 both handed off live Civ7 proof gaps.
 D12 ran those live checks and records the results in the testing and
-final-proof ledgers. Remaining downstream work is final Graphite drain, not live
-product proof.
+final-proof ledgers. The final Graphite drain is now reconciled from current
+`origin/main` evidence through `#1748`; no downstream runtime-stack work remains
+in D12 by default.
 
 ## Public/Manual Status Endpoint Rule
 

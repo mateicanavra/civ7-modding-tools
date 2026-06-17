@@ -1,6 +1,7 @@
 # D12 Testing Ledger - Game Door Invariant
 
-Status: implementation evidence recorded; live Civ7 proof executed; final Graphite drain not claimed
+Status: implementation evidence recorded; live Civ7 proof executed; final
+Graphite drain reconciled from current `origin/main`
 Date: 2026-06-14; implementation update 2026-06-15
 
 | Layer | Required proof | Adequacy criterion |
@@ -14,7 +15,7 @@ Date: 2026-06-14; implementation update 2026-06-15
 | Residue deletion | negative searches | hits are deleted, guarded, historical, diagnostic, or durable deferral |
 | Package/app health | repo-local Nx check/test/build targets selected by Habitat/classification for touched packages/apps | implementation does not regress runtime surfaces or bypass dependency ordering |
 | Live proof | D12 live state-machine pass over Nx Studio, oRPC events, Run in Game, and Save&Deploy | final closeout validates product behavior instead of inflating source/package proof into live Civ7 proof |
-| Graphite drain | submit/merge/sync/status proof | stack closed and merged branches not checked out in worktrees |
+| Graphite drain | submit/merge/sync/status proof | stack closed and merged branches not checked out in worktrees; current reconciliation evidence is first-parent `origin/main` through `#1748`, absent runtime-effect refs, and no D12 branch checked out in worktrees |
 
 ## Focused Implementation Evidence Recorded
 
