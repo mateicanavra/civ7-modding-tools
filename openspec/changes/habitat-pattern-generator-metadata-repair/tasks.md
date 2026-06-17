@@ -28,10 +28,12 @@
 
 - [x] 3.1 Add a structured Pattern Authority Manifest schema with the accepted
   fields from `design.md`.
-- [ ] 3.2 Store manifests as source artifacts adjacent to the Habitat rule pack.
+- [x] 3.2 Define and validate registered manifest source-artifact storage
+  adjacent to the Habitat rule pack.
 - [x] 3.3 Add validation for missing, malformed, placeholder, contradicted, and
   orphan manifest states.
-- [ ] 3.4 Add `rules.json` manifest references for generated registered rules.
+- [x] 3.4 Add the `rules.json` `manifestPath` reference contract for
+  generated registered rules; actual registered writes remain open.
 - [x] 3.5 Validate that Habitat authority metadata is not accepted solely from
   Grit frontmatter or prose.
 - [x] 3.6 Validate that Nx generator schema fields are treated as option/prompt
@@ -42,50 +44,58 @@
 - [x] 4.1 Split candidate pattern generation from registered rule generation.
 - [x] 4.2 Ensure candidate generation does not write `rules.json`, baselines, or
   hook scope.
-- [ ] 4.3 Refuse registered output unless the manifest passes authority,
+- [x] 4.3 Refuse registered output unless the manifest passes authority,
   proving-source, scan-root, fixture, false-positive, current-tree, baseline,
   and hook-scope gates.
-- [ ] 4.4 Remove scaffold/default authority values from the registered path.
+- [x] 4.4 Remove scaffold/default authority values from the registered path.
 - [x] 4.5 Prevent `lane: "enforced"` and `hookScope: "pre-commit"` defaults
   for sparse generator output.
-- [ ] 4.6 Preserve duplicate `ruleId`, duplicate `patternName`, and existing
+- [x] 4.6 Preserve duplicate `ruleId`, duplicate `patternName`, and existing
   baseline refusal behavior.
-- [ ] 4.7 Emit Grit-native frontmatter and explicit language declaration for
-  registered generated patterns.
+- [x] 4.7 Emit Grit-native frontmatter and explicit language declaration for
+  registered advisory and non-hook registered enforced generated patterns.
 - [x] 4.8 Block registered promotion until the Effect fit decision is accepted;
   use accepted Effect-backed services if command/file proof orchestration fits
   the slice.
 
 ## 5. Baseline, Grit, And Hook Boundaries
 
-- [ ] 5.1 Consume the accepted rule-introduction baseline manifest contract from
-  `habitat-scaffold-contract-repair`.
-- [ ] 5.2 Keep baseline file creation/refusal under the baseline owner; do not
+- [x] 5.1 Consume the accepted rule-introduction baseline manifest contract
+  shape from `habitat-scaffold-contract-repair` as a required registered
+  manifest reference; baseline write behavior remains owned by the baseline
+  packet.
+- [x] 5.2 Keep baseline file creation/refusal under the baseline owner; do not
   duplicate baseline policy in generator code.
-- [ ] 5.3 Require native Grit fixture proof and current-tree scan status before
-  enforced registration.
-- [ ] 5.4 Require hook-scope rationale, staged-scope evidence, and cost/scope
-  evidence before pre-commit registration.
-- [ ] 5.5 Keep Grit adapter semantics and existing pattern proof repair outside
+- [x] 5.3 Require native Grit fixture proof and current-tree scan status before
+  non-hook enforced registration.
+- [x] 5.4 Require hook-scope rationale, staged-scope evidence, and cost/scope
+  evidence before pre-commit registration; hook-scoped registration consumes
+  the accepted hook-owned staged-scope/filter proof and remains gated by the
+  registered manifest, baseline, native Grit, and current-tree proof contract.
+- [x] 5.5 Keep Grit adapter semantics and existing pattern proof repair outside
   this packet.
 
 ## 6. Tests
 
 - [x] 6.1 Add unit tests for candidate generation output.
-- [ ] 6.2 Add unit tests for registered advisory and registered enforced output.
+- [x] 6.2 Add unit tests for registered advisory output, non-hook registered
+  enforced output, and pre-commit hook-scoped registered enforced output.
 - [x] 6.3 Add schema tests for missing, malformed, placeholder, and accepted
   manifests.
 - [x] 6.4 Add no-write tests for refused registration.
-- [ ] 6.5 Add duplicate id/name tests.
-- [ ] 6.6 Add hook-scope refusal tests.
-- [ ] 6.7 Add baseline-manifest dependency tests.
-- [ ] 6.8 Add native Grit sample proof for generated registered samples.
+- [x] 6.5 Add duplicate id/name tests.
+- [x] 6.6 Add hook-scope agreement/refusal tests and hook-scoped promotion
+  projection tests.
+- [x] 6.7 Add baseline-manifest dependency tests.
+- [x] 6.8 Add native Grit sample proof for generated registered advisory,
+  non-hook registered enforced, and pre-commit hook-scoped registered enforced
+  scratch samples.
 - [x] 6.9 Add tests proving Nx schema, Grit frontmatter, and Habitat authority
   manifest fields cannot substitute for each other.
-- [ ] 6.10 Add tests for the registered-promotion orchestration decision:
+- [x] 6.10 Add tests for the registered-promotion orchestration decision:
   candidate generation without registered writes, accepted Effect-backed
-  promotion when selected, and blocked promotion when the Effect decision is not
-  accepted.
+  promotion when selected, and hook-scoped promotion only after the hook
+  staged-scope/filter proof is accepted.
 
 ## 7. Downstream Realignment
 
@@ -94,9 +104,9 @@
   manifests.
 - [x] 7.3 Update `habitat-generators-migrations` records to mark the old pattern
   generator closure as historical for authority metadata.
-- [ ] 7.4 Update `habitat-grit-proof-repair` dependencies if existing current
+- [x] 7.4 Update `habitat-grit-proof-repair` dependencies if existing current
   rules require backfilled manifests.
-- [ ] 7.5 Update `habitat-scaffold-contract-repair` downstream records if the
+- [x] 7.5 Update `habitat-scaffold-contract-repair` downstream records if the
   final manifest path or rule-introduction interface changes.
 
 ## 8. Verification
@@ -105,24 +115,28 @@
 - [x] 8.2 Pattern Authority Manifest schema matrix
 - [x] 8.3 Candidate generator command proof
 - [x] 8.4 Refused registration no-write proof
-- [ ] 8.5 Registered advisory generation proof
-- [ ] 8.6 Registered enforced generation proof in scratch path
-- [ ] 8.7 Native Grit fixture proof
-- [ ] 8.8 Baseline-manifest dependency proof
+- [x] 8.5 Registered advisory generation proof
+- [x] 8.6 Registered enforced generation proof in scratch path
+- [x] 8.7 Native Grit fixture proof
+- [x] 8.8 Baseline-manifest dependency proof at the manifest/reference
+  contract boundary
 - [x] 8.9 README/AGENTS stale guidance scan
-- [ ] 8.10 Full-depth-language guardrail scan over active Habitat initiative
+- [x] 8.10 Full-depth-language guardrail scan over active Habitat initiative
   docs touched by this packet
 - [x] 8.11 `git diff --check`
 - [x] 8.12 `bun run openspec:validate`
 - [x] 8.13 Effect fit decision proof for registered promotion, including typed
   failures, command provenance, service substitution, scoped cleanup, and
   no-write behavior.
+- [x] 8.14 Registered enforced pre-commit hook-scoped promotion proof, including
+  rule-pack `hookScope` projection, native Grit sample proof, Habitat wrapper
+  current-tree proof, staged hook proof, and targeted scratch cleanup.
 
 ## 9. Closure
 
-- [ ] 9.1 Record verification results and proof boundaries in
+- [x] 9.1 Record verification results and proof boundaries in
   `workstream/phase-record.md`.
-- [ ] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
-- [ ] 9.3 Ensure downstream realignment ledger is patched or has exact remaining
+- [x] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
+- [x] 9.3 Ensure downstream realignment ledger is patched or has exact remaining
   actions.
-- [ ] 9.4 Commit through Graphite with a clean worktree.
+- [x] 9.4 Commit through Graphite with a clean worktree.

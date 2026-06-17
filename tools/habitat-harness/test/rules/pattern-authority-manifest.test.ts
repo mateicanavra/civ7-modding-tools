@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   patternAuthorityManifestPath,
+  patternAuthorityRuleReferenceFromRule,
   type RegisteredPatternAuthorityManifest,
   validatePatternAuthorityManifest,
 } from "../../src/rules/pattern-authority/manifest.js";
@@ -121,6 +122,108 @@ describe("Pattern Authority Manifest validator", () => {
     expect(issueReasons(result)).toContain("orphan-manifest");
   });
 
+  test("rejects registered manifests outside the canonical source-artifact path", () => {
+    const manifest = registeredManifest();
+    const result = validatePatternAuthorityManifest(manifest, {
+      manifestPath:
+        "tools/habitat-harness/src/rules/pattern-authority/candidates/grit-authority-probe.json",
+      requireRuleReference: true,
+      ruleReferences: [
+        {
+          ruleId: manifest.ruleId,
+          patternName: manifest.patternName,
+          manifestPath:
+            "tools/habitat-harness/src/rules/pattern-authority/candidates/grit-authority-probe.json",
+          ownerTool: "grit-check",
+          lifecycle: "advisory",
+        },
+      ],
+    });
+
+    expect(issueReasons(result)).toContain("contradicted-manifest");
+  });
+
+  test("rejects registered rule-pack references without manifest paths", () => {
+    const manifest = registeredManifest();
+    const result = validatePatternAuthorityManifest(manifest, {
+      manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+      requireRuleReference: true,
+      ruleReferences: [
+        {
+          ruleId: manifest.ruleId,
+          patternName: manifest.patternName,
+          manifestPath: "",
+          ownerTool: "grit-check",
+          lifecycle: "advisory",
+        },
+      ],
+    });
+
+    expect(issueReasons(result)).toContain("orphan-manifest");
+  });
+
+  test("rejects sparse registered rule-pack references", () => {
+    const manifest = registeredManifest();
+    const result = validatePatternAuthorityManifest(manifest, {
+      manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+      requireRuleReference: true,
+      ruleReferences: [
+        {
+          ruleId: manifest.ruleId,
+          manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+        },
+      ],
+    });
+
+    expect(issueReasons(result)).toContain("orphan-manifest");
+  });
+
+  test("rejects registered hook-scope mismatches", () => {
+    const manifest = registeredManifest({
+      lifecycle: "registered-enforced",
+      hookScope: {
+        decision: "pre-commit",
+        rationale: "staged-scope proof accepted for this enforced rule",
+        costAndScopeEvidence:
+          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+      },
+    });
+
+    const result = validatePatternAuthorityManifest(manifest, {
+      manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+      requireRuleReference: true,
+      ruleReferences: [
+        {
+          ruleId: manifest.ruleId,
+          patternName: manifest.patternName,
+          manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+          ownerTool: "grit-check",
+          lifecycle: "enforced",
+        },
+      ],
+    });
+
+    expect(issueReasons(result)).toContain("contradicted-manifest");
+  });
+
+  test("projects Habitat rule metadata into a Pattern Authority rule reference", () => {
+    expect(
+      patternAuthorityRuleReferenceFromRule({
+        id: "grit-authority-probe",
+        gritPattern: "authority_probe",
+        manifestPath: patternAuthorityManifestPath("grit-authority-probe"),
+        ownerTool: "grit-check",
+        lane: "advisory",
+      })
+    ).toEqual({
+      ruleId: "grit-authority-probe",
+      patternName: "authority_probe",
+      manifestPath: patternAuthorityManifestPath("grit-authority-probe"),
+      ownerTool: "grit-check",
+      lifecycle: "advisory",
+    });
+  });
+
   test("rejects Grit frontmatter or prose as Habitat authority", () => {
     const result = validatePatternAuthorityManifest({
       frontmatter: { level: "error", tags: ["habitat"] },
@@ -143,6 +246,20 @@ describe("Pattern Authority Manifest validator", () => {
     });
 
     expect(issueReasons(result)).toContain("nx-options-only");
+  });
+
+  test("rejects placeholder baseline manifest references", () => {
+    const result = validatePatternAuthorityManifest(
+      registeredManifest({
+        baselineContract: {
+          baselinePath: "tools/habitat-harness/baselines/grit-authority-probe.json",
+          ruleIntroductionManifest: "TODO replace with baseline manifest proof",
+          baselineAction: "committed-empty",
+        },
+      })
+    );
+
+    expect(issueReasons(result)).toContain("placeholder-manifest");
   });
 });
 

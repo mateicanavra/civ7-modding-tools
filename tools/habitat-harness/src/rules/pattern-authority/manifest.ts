@@ -142,6 +142,15 @@ export interface PatternAuthorityValidationIssue {
 
 export interface PatternAuthorityRuleReference {
   ruleId: string;
+  patternName: string;
+  manifestPath: string;
+  ownerTool: string;
+  lifecycle: "advisory" | "enforced";
+  hookScope?: "pre-commit";
+}
+
+export interface PatternAuthorityRuleReferenceInput {
+  ruleId: string;
   patternName?: string;
   manifestPath?: string;
   ownerTool?: string;
@@ -149,9 +158,18 @@ export interface PatternAuthorityRuleReference {
   hookScope?: "pre-commit";
 }
 
+export interface PatternAuthorityRulePackReferenceInput {
+  id: string;
+  gritPattern?: string;
+  manifestPath?: string;
+  ownerTool?: string;
+  lane?: "advisory" | "enforced";
+  hookScope?: "pre-commit";
+}
+
 export interface PatternAuthorityValidationOptions {
   manifestPath?: string;
-  ruleReferences?: readonly PatternAuthorityRuleReference[];
+  ruleReferences?: readonly PatternAuthorityRuleReferenceInput[];
   requireRuleReference?: boolean;
 }
 
@@ -185,6 +203,19 @@ const placeholderFragments = [
 
 export function patternAuthorityManifestPath(ruleId: string): string {
   return `${patternAuthorityManifestRoot}/${ruleId}.json`;
+}
+
+export function patternAuthorityRuleReferenceFromRule(
+  rule: PatternAuthorityRulePackReferenceInput
+): PatternAuthorityRuleReferenceInput {
+  return {
+    ruleId: rule.id,
+    patternName: rule.gritPattern,
+    manifestPath: rule.manifestPath,
+    ownerTool: rule.ownerTool,
+    lifecycle: rule.lane,
+    hookScope: rule.hookScope,
+  };
 }
 
 export function validatePatternAuthorityManifest(
@@ -236,6 +267,7 @@ export function validatePatternAuthorityManifest(
   validateBaseFields(value, issues);
 
   const lifecycle = typeof value.lifecycle === "string" ? value.lifecycle : undefined;
+  validateManifestStorage(value, issues, options);
   if (lifecycle === "candidate") {
     validateCandidateFields(value, issues);
   } else if (lifecycle === "registered-advisory" || lifecycle === "registered-enforced") {
@@ -251,6 +283,38 @@ export function validatePatternAuthorityManifest(
     state: manifest.lifecycle,
     authorityAccepted: manifest.lifecycle !== "candidate",
   };
+}
+
+function validateManifestStorage(
+  value: Record<string, unknown>,
+  issues: PatternAuthorityValidationIssue[],
+  options: PatternAuthorityValidationOptions
+) {
+  if (!options.manifestPath || typeof value.lifecycle !== "string") return;
+  if (value.lifecycle === "candidate") {
+    if (!options.manifestPath.startsWith(`${patternAuthorityCandidateRoot}/`)) {
+      addIssue(
+        issues,
+        "contradicted-manifest",
+        "manifestPath",
+        "Candidate Pattern Authority Manifests must be stored under the candidate artifact root."
+      );
+    }
+    return;
+  }
+  if (value.lifecycle !== "registered-advisory" && value.lifecycle !== "registered-enforced") {
+    return;
+  }
+  const ruleId = typeof value.ruleId === "string" ? value.ruleId : "";
+  const expectedPath = ruleId ? patternAuthorityManifestPath(ruleId) : undefined;
+  if (!expectedPath || options.manifestPath !== expectedPath) {
+    addIssue(
+      issues,
+      "contradicted-manifest",
+      "manifestPath",
+      `Registered Pattern Authority Manifest must be stored at '${expectedPath ?? patternAuthorityManifestRoot}'.`
+    );
+  }
 }
 
 function validateBaseFields(
@@ -464,7 +528,14 @@ function validateBaselineContract(
   const baselineContract = objectAt(value, "baselineContract", issues);
   if (!baselineContract) return;
   requireString(baselineContract, "baselinePath", issues, "baselineContract.baselinePath");
+  checkPlaceholderString(baselineContract, "baselinePath", issues, "baselineContract.baselinePath");
   requireString(
+    baselineContract,
+    "ruleIntroductionManifest",
+    issues,
+    "baselineContract.ruleIntroductionManifest"
+  );
+  checkPlaceholderString(
     baselineContract,
     "ruleIntroductionManifest",
     issues,
@@ -590,11 +661,39 @@ function validateRuleReference(
     );
     return;
   }
-  if (
-    typeof value.patternName === "string" &&
-    reference.patternName &&
-    reference.patternName !== value.patternName
-  ) {
+  if (!reference.patternName) {
+    addIssue(
+      issues,
+      "orphan-manifest",
+      "ruleReferences.patternName",
+      `Registered rule-pack reference for '${ruleId || "<unknown>"}' must include a patternName.`
+    );
+  }
+  if (!reference.manifestPath) {
+    addIssue(
+      issues,
+      "orphan-manifest",
+      "ruleReferences.manifestPath",
+      `Registered rule-pack reference for '${ruleId || "<unknown>"}' must include a manifestPath.`
+    );
+  }
+  if (!reference.ownerTool) {
+    addIssue(
+      issues,
+      "orphan-manifest",
+      "ruleReferences.ownerTool",
+      `Registered rule-pack reference for '${ruleId || "<unknown>"}' must include an ownerTool.`
+    );
+  }
+  if (!reference.lifecycle) {
+    addIssue(
+      issues,
+      "orphan-manifest",
+      "ruleReferences.lifecycle",
+      `Registered rule-pack reference for '${ruleId || "<unknown>"}' must include a lifecycle lane.`
+    );
+  }
+  if (typeof value.patternName === "string" && reference.patternName !== value.patternName) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -602,11 +701,7 @@ function validateRuleReference(
       `Manifest pattern '${value.patternName}' does not match rule-pack pattern '${reference.patternName}'.`
     );
   }
-  if (
-    options.manifestPath &&
-    reference.manifestPath &&
-    reference.manifestPath !== options.manifestPath
-  ) {
+  if (options.manifestPath && reference.manifestPath !== options.manifestPath) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -614,11 +709,16 @@ function validateRuleReference(
       `Manifest path '${options.manifestPath}' does not match rule-pack reference '${reference.manifestPath}'.`
     );
   }
-  if (
-    typeof value.ownerTool === "string" &&
-    reference.ownerTool &&
-    reference.ownerTool !== value.ownerTool
-  ) {
+  const expectedPath = ruleId ? patternAuthorityManifestPath(ruleId) : undefined;
+  if (expectedPath && reference.manifestPath && reference.manifestPath !== expectedPath) {
+    addIssue(
+      issues,
+      "contradicted-manifest",
+      "ruleReferences.manifestPath",
+      `Rule-pack reference for '${ruleId}' must point at '${expectedPath}'.`
+    );
+  }
+  if (typeof value.ownerTool === "string" && reference.ownerTool !== value.ownerTool) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -628,7 +728,6 @@ function validateRuleReference(
   }
   if (
     typeof value.lifecycle === "string" &&
-    reference.lifecycle &&
     ((value.lifecycle === "registered-advisory" && reference.lifecycle !== "advisory") ||
       (value.lifecycle === "registered-enforced" && reference.lifecycle !== "enforced"))
   ) {
@@ -637,6 +736,23 @@ function validateRuleReference(
       "contradicted-manifest",
       "lifecycle",
       `Manifest lifecycle '${value.lifecycle}' does not match rule-pack lane '${reference.lifecycle}'.`
+    );
+  }
+  const manifestHookDecision = objectAtNoIssue(value, "hookScope")?.decision;
+  if (manifestHookDecision === "pre-commit" && reference.hookScope !== "pre-commit") {
+    addIssue(
+      issues,
+      "contradicted-manifest",
+      "hookScope.decision",
+      "Manifest pre-commit hook scope requires a matching rule-pack hookScope."
+    );
+  }
+  if (manifestHookDecision === "none" && reference.hookScope === "pre-commit") {
+    addIssue(
+      issues,
+      "contradicted-manifest",
+      "ruleReferences.hookScope",
+      "Rule-pack pre-commit hook scope contradicts a manifest hookScope decision of none."
     );
   }
 }

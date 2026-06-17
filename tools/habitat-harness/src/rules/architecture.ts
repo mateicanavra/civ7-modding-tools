@@ -27,6 +27,7 @@ export interface HarnessRule {
   message: string;
   exceptionPath: string;
   gritPattern?: string;
+  manifestPath?: string;
   generatedZone?: string;
   forbiddenFileNames?: string[];
   hookScope?: "pre-commit";

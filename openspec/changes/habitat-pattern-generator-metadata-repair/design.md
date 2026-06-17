@@ -281,9 +281,10 @@ Registered enforced output requires:
 - downstream realignment entries for README, AGENTS, corpus ledger, and any
   pattern-specific OpenSpec workstream.
 
-`hookScope: "pre-commit"` requires `registered-enforced`. A registered rule can
-remain outside hooks when full-repo proof is accepted but staged pre-commit
-scope, cost, parser behavior, or side-effect risk is not accepted.
+`hookScope: "pre-commit"` requires `registered-enforced`, accepted hook-owner
+staged-scope/filter proof, and a rule-pack `hookScope` entry. A registered rule
+can remain outside hooks when full-repo proof is accepted but staged
+pre-commit scope, cost, parser behavior, or side-effect risk is not accepted.
 
 ## Refusal Conditions
 
@@ -297,7 +298,8 @@ baseline, or `rules.json` change when:
 - language/parser support is not tied to official Grit docs plus local proof;
 - current-tree scan status is missing or blocks registration;
 - baseline manifest status is missing or blocks registration;
-- `hookScope: "pre-commit"` is requested without enforced registration proof;
+- `hookScope: "pre-commit"` is requested without enforced registration proof
+  or accepted hook-owner staged-scope/filter proof;
 - apply mode is requested without dry-run no-write, applied-diff, rollback, and
   type/test proof plans.
 
@@ -404,7 +406,8 @@ Protected paths:
 - duplicate `patternName` refuses before write;
 - scan roots without concrete includes/exclusions refuse before write;
 - language/parser without official-doc source and local proof command refuses;
-- hook pre-commit request without enforced proof refuses;
+- hook pre-commit request without enforced proof or accepted hook-owner
+  staged-scope/filter proof refuses;
 - apply request without apply-safety proof plan refuses;
 - `rules.json` reference to a missing manifest fails validation;
 - manifest without matching `rules.json` entry is classified as candidate or

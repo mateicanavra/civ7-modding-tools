@@ -16,8 +16,10 @@
 - Target movement: make supported new structure generative, make `habitat classify` the agent orientation entry point, and wire harness migrations so future convention changes can propagate mechanically.
 - Current interpretation: later repair packets refine this H8 closure. Classify
   targets must be resolved from current Nx metadata; sparse pattern generation
-  is candidate-only until registered-promotion gates are accepted; no-op
-  migration proof remains wiring-only.
+  is candidate-only, while registered advisory and non-hook registered enforced
+  promotion are owned by `habitat-pattern-generator-metadata-repair` and its
+  accepted Pattern Authority, baseline, native-sample, and current-tree proof
+  gates; no-op migration proof remains wiring-only.
 - Non-goals: no retroactive restructuring of existing projects, no domain-specific mod/engine/control scaffolding, no new enforcement semantics beyond generated clean output, no generated-output hand edits.
 - Done condition: project and pattern generators exist with probes removed after verification, no-op migration wiring executes via local migration run file, classify returns project/tags/rules/targets for path and diff inputs, AGENTS/README procedure is current, OpenSpec/tasks/records are aligned, gates pass, and the branch is committed via Graphite with a clean worktree.
 
@@ -63,9 +65,9 @@
   now depends on `habitat-scaffold-contract-repair`'s explicit baseline and
   rule-introduction manifest contract plus authority/proof metadata from
   `habitat-pattern-generator-metadata-repair`. The current pattern generator
-  repair makes sparse generation candidate-only and fail-closes registered
-  lifecycles until the manifest/proof gates are accepted; H8 alone is not
-  accepted authority for new enforced rules. The no-op migration remains
+  repair makes sparse generation candidate-only and owns accepted advisory plus
+  non-hook enforced promotion gates; H8 alone is not accepted authority for new
+  enforced rules. The no-op migration remains
   wiring proof only; any future convention migration requires a named source
   shape, target shape, planned file operations, and idempotence proof.
 - Remaining tasks: none in H8; current repair obligations live in downstream

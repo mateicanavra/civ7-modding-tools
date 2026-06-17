@@ -5,11 +5,8 @@ async function patternGenerator(tree, rawOptions) {
   validateNoActiveRegistrationCollision(tree, options);
 
   if (options.lifecycle !== "candidate") {
-    throw new Error(
-      `Registered pattern generation for '${options.ruleId}' is blocked until ` +
-        "Pattern Authority Manifest validation, baseline-manifest consumption, " +
-        "current-tree proof, and the registered-promotion Effect decision are accepted."
-    );
+    await promoteRegisteredPattern(tree, options);
+    return;
   }
 
   const candidatePaths = candidateArtifactPaths(options);
@@ -35,7 +32,9 @@ function normalizeOptions(rawOptions) {
     lifecycle: normalizeLifecycle(rawOptions.lifecycle ?? "candidate"),
     identifier: identifierFor(patternName),
     ownerProject: rawOptions.ownerProject ?? "@internal/habitat-harness",
-    openspecChangeId: rawOptions.openspecChangeId ?? "candidate-draft",
+    openspecChangeId: rawOptions.openspecChangeId ?? "habitat-pattern-generator-metadata-repair",
+    manifestPath: rawOptions.manifestPath,
+    hookScope: normalizeHookScope(rawOptions.hookScope),
   };
 }
 
@@ -51,6 +50,29 @@ function normalizeLifecycle(value) {
   return lifecycle;
 }
 
+function normalizeHookScope(value) {
+  if (value == null || value === "" || value === "none") return undefined;
+  if (value === "pre-commit") return "pre-commit";
+  throw new Error(`Unsupported pattern hookScope '${String(value)}'.`);
+}
+
+async function promoteRegisteredPattern(tree, options) {
+  const { Effect } = require("effect");
+  const { runHabitatEffect } = require("../../lib/effect-runtime.ts");
+  const {
+    makeNxTreePatternPromotionStoreLayer,
+    registeredPatternPromotionProgram,
+  } = require("./registration.cjs");
+  const program = registeredPatternPromotionProgram(options).pipe(
+    Effect.provide(makeNxTreePatternPromotionStoreLayer(tree))
+  );
+  try {
+    await runHabitatEffect(program);
+  } catch (error) {
+    throw new Error(error && error.message ? error.message : String(error));
+  }
+}
+
 function validateNoActiveRegistrationCollision(tree, options) {
   const activePatternPath = `.grit/patterns/habitat/checks/${options.patternName}.md`;
   const baselinePath = `tools/habitat-harness/baselines/${options.ruleId}.json`;
@@ -58,7 +80,8 @@ function validateNoActiveRegistrationCollision(tree, options) {
 
   if (tree.exists(activePatternPath))
     throw new Error(`Grit pattern already exists: ${activePatternPath}`);
-  if (tree.exists(baselinePath)) throw new Error(`Baseline already exists: ${baselinePath}`);
+  if (options.lifecycle === "candidate" && tree.exists(baselinePath))
+    throw new Error(`Baseline already exists: ${baselinePath}`);
 
   const rulesText = tree.read(rulesPath, "utf8");
   const rulesJson = JSON.parse(rulesText);

@@ -40,13 +40,12 @@
   `bun run build` and `bun run verify` pass; `bun run lint` reaches the
   graph-owned Habitat checks and currently fails only on locked Habitat/Grit
   architecture findings.
-- [ ] 4.7 Commit the branch, create a fresh verification worktree from the branch,
+- [x] 4.7 Commit the branch, create a fresh verification worktree from the branch,
   install, and run focused Nx verification.
-- [ ] 4.8 Remove the fresh verification worktree and leave repo state clean.
+- [x] 4.8 Remove the fresh verification worktree and leave repo state clean.
 
 ## 5. Closure
 
 - [x] 5.1 Complete review disposition ledger.
 - [x] 5.2 Complete downstream realignment ledger.
-- [x] 5.3 Commit via Graphite with focused conventional commit
-  `46e5cdc57 fix(habitat): normalize Nx workflow graph`.
+- [x] 5.3 Commit via Graphite with focused conventional commits.

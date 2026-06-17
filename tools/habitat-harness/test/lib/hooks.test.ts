@@ -260,7 +260,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
         "packages/example/src/unchanged.ts": ["same", "same"],
         "README.md": ["foreign-before", "foreign-after"],
       },
-      gritStdout: '{"results":[]}\n',
     });
 
     const result = runPreCommit(fake.runtime);
@@ -274,14 +273,20 @@ describe("Habitat pre-commit staged mutation policy", () => {
       "biome check --no-errors-on-unmatched packages/example/src/index.ts packages/example/src/unchanged.ts"
     );
     expect(fake.calls).toContain(
-      "grit --json check --level error packages/example/src/index.ts packages/example/src/unchanged.ts"
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool grit-check --json"
     );
   });
 
   test("fails closed when Grit emits malformed JSON", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritStdout: 'wrapper {"results":[]} text\n',
+      gritExitCode: 1,
+      gritStdout: gritCheckReport({
+        ok: false,
+        status: "fail",
+        diagnosticMessage:
+          "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+      }),
     });
 
     const result = runPreCommit(fake.runtime);
@@ -293,13 +298,37 @@ describe("Habitat pre-commit staged mutation policy", () => {
   test("fails closed when Grit reports findings", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritStdout: '{"results":[{"message":"finding"}]}\n',
+      gritExitCode: 1,
+      gritStdout: gritCheckReport({
+        ok: false,
+        status: "fail",
+        diagnosticMessage: "finding",
+      }),
     });
 
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[grit check]");
+  });
+
+  test("does not run staged Grit for JavaScript files outside approved Grit scan roots", () => {
+    const fake = makeFakeRuntime({
+      stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
+    });
+
+    const result = runPreCommit(fake.runtime);
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain(
+      "grit: no staged TypeScript/JavaScript files in approved scan roots"
+    );
+    expect(fake.calls).toContain(
+      "biome check --no-errors-on-unmatched tools/habitat-harness/src/lib/hooks.ts"
+    );
+    expect(fake.calls).not.toContain(
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool grit-check --json"
+    );
   });
 
   test("records typed pre-commit state and command provenance through fake services", () => {
@@ -356,12 +385,17 @@ describe("Habitat pre-commit staged mutation policy", () => {
       ])
     );
     expect(trace.commands.find((command) => command.phase === "grit-check")).toMatchObject({
-      argv: ["grit", "--json", "check", "--level", "error", "packages/example/src/index.ts"],
+      argv: [
+        "bun",
+        "tools/habitat-harness/bin/dev.ts",
+        "check",
+        "--staged",
+        "--tool",
+        "grit-check",
+        "--json",
+      ],
       cwd: repoRoot,
-      env: {
-        GRIT_CACHE_DIR: `${repoRoot}/.grit/cache`,
-        GRIT_TELEMETRY_DISABLED: "true",
-      },
+      env: undefined,
       exitCode: 0,
     });
   });
@@ -370,7 +404,13 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const trace = createHookTrace();
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritStdout: 'wrapper {"results":[]} text\n',
+      gritExitCode: 1,
+      gritStdout: gritCheckReport({
+        ok: false,
+        status: "fail",
+        diagnosticMessage:
+          "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+      }),
     });
 
     const result = runPreCommit({ ...fake.runtime, trace });
@@ -392,7 +432,13 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const events: HookReportEvent[] = [];
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
-      gritStdout: 'wrapper {"results":[]} text\n',
+      gritExitCode: 1,
+      gritStdout: gritCheckReport({
+        ok: false,
+        status: "fail",
+        diagnosticMessage:
+          "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+      }),
     });
 
     const result = runPreCommit({
@@ -664,10 +710,10 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call.startsWith("biome check --no-errors-on-unmatched")) {
       return options.biomeCheckExitCode ? failure(options.biomeCheckExitCode) : ok();
     }
-    if (call.startsWith("grit --json check --level error")) {
+    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool grit-check --json") {
       return {
         exitCode: options.gritExitCode ?? 0,
-        stdout: options.gritStdout ?? '{"results":[]}\n',
+        stdout: options.gritStdout ?? gritCheckReport({ ok: true, status: "pass" }),
         stderr: options.gritStderr ?? "",
       };
     }
@@ -736,6 +782,47 @@ function renderReported(events: HookReportEvent[], channel: HookReportEvent["cha
     .filter((event) => event.channel === channel)
     .map((event) => event.text)
     .join("");
+}
+
+function gritCheckReport(options: {
+  ok: boolean;
+  status: "pass" | "fail" | "advisory-findings";
+  diagnosticMessage?: string;
+}): string {
+  return `${JSON.stringify(
+    {
+      schemaVersion: 1,
+      command: "habitat check --staged --tool grit-check --json",
+      startedAt: "2026-06-15T00:00:00.000Z",
+      ok: options.ok,
+      rules: [
+        {
+          ruleId: "grit-hook-scope-probe",
+          ownerTool: "grit-check",
+          lane: "enforced",
+          status: options.status,
+          locked: true,
+          durationMs: 1,
+          diagnostics: options.diagnosticMessage
+            ? [
+                {
+                  ruleId: "grit-hook-scope-probe",
+                  path: "packages/example/src/index.ts",
+                  message: options.diagnosticMessage,
+                  severity: "error",
+                  baselined: false,
+                },
+              ]
+            : [],
+          detect: ["habitat", "check", "--tool", "grit-check"],
+          message: "Grit hook scope probe",
+          remediate: null,
+        },
+      ],
+    },
+    null,
+    2
+  )}\n`;
 }
 
 function ok(stdout = ""): SpawnResult {
