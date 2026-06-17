@@ -301,7 +301,6 @@ const SelectResourceSitesContract = defineOp({
           },
           {
             additionalProperties: false,
-            default: {},
             description: "Per-family density overrides multiplying targets before range clamping.",
           }
         ),

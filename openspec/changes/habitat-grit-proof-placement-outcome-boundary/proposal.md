@@ -5,10 +5,10 @@ terminal Swooper placement apply step from returning to direct official
 resource/discovery generator calls. Placement apply consumes typed outcome
 artifacts; official generator output is not accepted truth at that boundary.
 
-This checkpoint opens the row packet before proof claims and limits the row to
-the independent checkpoint class available in this stack: current-predicate
-native fixture proof, parser inventory over current Swooper placement apply
-source, and record truth only.
+This checkpoint closes the row with current-predicate native fixture proof,
+parser inventory over current Swooper placement apply source, Habitat
+wrapper/current-tree proof, explicit empty baseline proof, and row-specific
+injected violation/path-control proof.
 
 ## Target Authority Refs
 
@@ -36,17 +36,16 @@ source, and record truth only.
   with exact scan roots, exclusions, counts, row id, and proof-class labels in
   durable records.
 - Update the aggregate Grit proof matrix, command proof log, and corpus ledger
-  for this row's current checkpoint after evidence is gathered.
+  for this row's current checkpoint.
 
 ## What Does Not Change
 
 - No Swooper placement source is changed.
 - No pattern predicate repair is claimed.
-- No source remediation, baseline, or apply behavior is claimed.
-- No Habitat wrapper/current-tree proof is claimed.
-- No raw Grit acquisition, injected cleanup, Effect adapter, generator/migration,
-  retired parity, broader placement product closure, neighboring row, or
-  product proof is claimed.
+- No source remediation or apply behavior is claimed.
+- No raw Grit acquisition, Effect adapter, generator/migration, retired parity,
+  broader placement product closure, neighboring row, aggregate injected-corpus
+  closure, or product/runtime proof is claimed.
 
 ## Owner Boundary
 
@@ -60,9 +59,6 @@ or product/runtime placement proof.
 ## Requires
 
 - Supervisor acceptance before stacking another row above this checkpoint.
-- A landed/restacked command-trust layer before Habitat wrapper selector proof.
-- An accepted typed adapter/probe cleanup surface before injected proof.
-- The scaffold/baseline contract surface before explicit baseline proof.
 - Supervisor/source-owner disposition if parser inventory finds live direct
   official-generator call candidates.
 
@@ -74,16 +70,22 @@ or product/runtime placement proof.
   candidates and no owner accepts remediation, migration, or baseline
   disposition.
 - Closure would rely on temporary stdout artifacts or scratch files.
-- Closure would claim wrapper, raw acquisition, baseline, injected, Effect
-  adapter, apply, generator/migration, neighboring row, retired parity, broader
-  placement product, or product proof from native fixture/parser inventory
+- Closure would claim raw acquisition, Effect adapter, apply,
+  generator/migration, neighboring row, retired parity, broader placement
+  product, aggregate injected-corpus closure, or product/runtime proof from
+  native fixture/parser inventory, wrapper, baseline, or row-specific injected
   evidence.
 
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter placement_outcome_boundary --json`
+- `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --json`
 - Parser inventory over
   `mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/placement`
+- `bun run habitat:check -- --json --rule grit-placement-outcome-boundary`
+- `bun run habitat:check -- --json --tool grit-check`
+- `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
 - `bun run openspec -- validate habitat-grit-proof-placement-outcome-boundary --strict`
+- `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - `bun run openspec:validate`
 - `git diff --check`

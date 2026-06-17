@@ -5,9 +5,11 @@ boundary: recipe steps and domain strategies should not call `runValidated`.
 Runtime execution should use the non-validating runtime surface after
 compile-time contract normalization has already happened.
 
-This checkpoint opens the row packet and limits the row to the independent
-checkpoint class available in this stack: current-predicate native fixture
-proof, parser inventory over the current runtime roots, and record truth only.
+This closure checkpoint records the active-check proof now available in the
+current stack: current-predicate native fixture proof, parser inventory over
+the current runtime roots, Habitat wrapper current-tree proof, explicit empty
+baseline ownership, row-specific injected violation/path-control proof, and
+truthful aggregate records.
 
 ## Target Authority Refs
 
@@ -37,17 +39,21 @@ proof, parser inventory over the current runtime roots, and record truth only.
 - Record a parser inventory over `mods/mod-swooper-maps/src/recipes` and
   `mods/mod-swooper-maps/src/domain` with exact scan roots, exclusions, counts,
   row id, and proof-class labels in durable records.
+- Record per-rule and aggregate Habitat wrapper proof for the active
+  `grit-runtime-run-validated` rule.
+- Record explicit empty baseline proof through the committed baseline file and
+  `baseline-integrity`.
+- Record row-specific injected violation/path-control proof for the
+  `runValidated(...)` call shape.
 - Update the aggregate Grit proof matrix, command proof log, and corpus ledger
-  for this row's current checkpoint.
+  for this row's closure checkpoint.
 
 ## What Does Not Change
 
 - No runtime source calls are changed.
 - No pattern predicate repair is claimed.
-- No Habitat wrapper/current-tree proof is claimed.
-- No raw Grit acquisition, baseline, injected cleanup, Effect adapter, apply
-  safety, retired parity, neighboring runtime-purity row, or product proof is
-  claimed.
+- No raw Grit acquisition, Effect adapter, apply safety, retired parity,
+  neighboring runtime-purity row, or product proof is claimed.
 
 ## Owner Boundary
 
@@ -56,13 +62,6 @@ This workstream owns fixture and proof-record truth for
 
 This workstream does not own runtime refactors, operation execution semantics,
 baseline mutation, or Habitat wrapper/adapter implementation.
-
-## Requires
-
-- Supervisor acceptance before stacking another row above this checkpoint.
-- A landed/restacked command-trust layer before Habitat wrapper selector proof.
-- An accepted typed adapter/probe cleanup surface before injected proof.
-- The scaffold/baseline contract surface before explicit baseline proof.
 
 ## Stop Conditions
 
@@ -78,6 +77,10 @@ baseline mutation, or Habitat wrapper/adapter implementation.
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter runtime_run_validated --json`
+- `bun run habitat:check -- --json --rule grit-runtime-run-validated`
+- `bun run habitat:check -- --json --tool grit-check`
+- `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
 - `bun run openspec -- validate habitat-grit-proof-runtime-run-validated --strict`
+- `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - `bun run openspec:validate`
 - `git diff --check`

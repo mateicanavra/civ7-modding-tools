@@ -58,16 +58,33 @@ Package source outside `packages/civ7-adapter` SHALL avoid direct
 - **AND** wrapped-script allowlist or baseline parity SHALL remain a separate
   proof class
 
+#### Scenario: Current wrapper and baseline proof pass
+
+- **WHEN** Habitat checks `grit-adapter-base-standard-import` through the
+  per-rule wrapper selector
+- **THEN** it SHALL select that rule plus `baseline-integrity`
+- **AND** the explicit empty row baseline SHALL remain distinct from source
+  remediation, adapter migration, and product/runtime proof
+
+#### Scenario: Injected base-standard import is isolated
+
+- **WHEN** the injected-probe runner inserts a `/base-standard/` import into a
+  non-adapter package path
+- **THEN** `grit-adapter-base-standard-import` SHALL report that path
+- **AND** an adapter-owned control path SHALL stay clean
+- **AND** aggregate injected-corpus closure SHALL remain separate if unrelated
+  rows still fail
+
 ### Requirement: Adapter Base Standard Import Non-Claims Stay Explicit
 
 Habitat SHALL keep proof classes separate for
 `grit-adapter-base-standard-import`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Independent proof classes remain unavailable
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, apply safety, generator/migration proof, or
-  wrapped-script parity is not available in the current row stack/base
+- **WHEN** raw acquisition, Effect adapter behavior, apply safety,
+  generator/migration proof, wrapped-script parity, broader adapter policy
+  closure, or product/runtime proof is not available in the current row
 - **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **AND** the row SHALL NOT close those gates through native fixtures, parser
+  inventory, wrapper proof, baseline proof, or row-specific injected proof

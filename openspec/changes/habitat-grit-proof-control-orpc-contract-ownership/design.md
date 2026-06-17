@@ -4,8 +4,9 @@
 
 ### Objective
 
-Make `grit-control-orpc-contract-ownership` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Close `grit-control-orpc-contract-ownership` as a row-owned active Habitat
+Grit check by repairing the root-index predicate gap and proving the current
+rule, inventory, wrapper, baseline, and injected-probe boundary.
 
 ### Product Movement
 
@@ -32,10 +33,9 @@ allowing runtime dependencies in the procedure/service layers that own behavior.
   - exported contract-local schema consts whose names match
     `Civ7*InputSchema`, `Civ7*ResultSchema`, `Civ7*OutputSchema`, or
     `Civ7*StandardSchema`;
-  - intended root `index.ts` named export-from declarations from
-    `./modules/<module>/contract` containing schema specifiers. The current
-    native fixture probe does not report this class and records it as a
-    predicate-gap blocker instead of claiming proof.
+  - root `index.ts` named export-from declarations from
+    `./modules/<module>/contract` containing input/result/output/standard
+    schema specifiers, including direct and aliased named specifiers.
 
 ### Hard Core
 
@@ -61,12 +61,10 @@ allowing runtime dependencies in the procedure/service layers that own behavior.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if live current-predicate candidates are found but recorded as a clean
-pass without owner disposition, if the root-index module-contract schema export
-gap is treated as proven, if root index bridge/error schema exports are
-mislabeled as module-contract schema leaks, or if product/runtime proof is
-treated as proven by this row.
+This checkpoint fails if live current-predicate candidates are found but
+recorded as a clean pass without owner disposition, if root index bridge/error
+schema exports are mislabeled as module-contract schema leaks, if proof classes
+are conflated, or if product/runtime proof is treated as proven by this row.
 
 ## Source Synthesis
 
@@ -98,7 +96,7 @@ marks parser-edge and false-positive classification pending.
 | Direct value import from `@civ7/direct-control` in a module `contract.ts` | Reports |
 | Direct type-only import from `@civ7/direct-control` in a module `contract.ts` | Reports if current native predicate reports it |
 | Exported `Civ7*InputSchema` / `Civ7*ResultSchema` / `Civ7*OutputSchema` / `Civ7*StandardSchema` const in a module `contract.ts` | Reports |
-| Root `index.ts` export-from of a schema from `./modules/<module>/contract` | Current native fixture probe does not report; record as predicate-gap blocker |
+| Root `index.ts` export-from of a schema from `./modules/<module>/contract` | Reports for direct and aliased named schema specifiers |
 | Private schema consts in module contracts | Does not report |
 | Exported non-input/result schema lookalikes in module contracts | Does not report |
 | Direct-control imports in procedures, context, and dependency files | Does not report in this row |
@@ -107,40 +105,49 @@ marks parser-edge and false-positive classification pending.
 
 ## Proof Contract
 
-This row checkpoint may record:
+This row checkpoint records:
 
-- native fixture/parser-edge proof for current-predicate behavior;
+- predicate repair and native fixture/parser-edge proof for current-predicate
+  behavior;
 - parser inventory/live candidate evidence over current control-oRPC source;
+- Habitat per-rule and aggregate `grit-check` wrapper proof;
+- explicit empty baseline proof through `baseline-integrity`;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
 Proof ids:
 
-- `COCO-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for
-  contract import/schema-export positive classes, recorded controls, and the
-  root-index predicate-gap probe.
-- `COCO-CONTROL-ORPC-INVENTORY-2026-06-15`: parser inventory/live evidence over
+- `COCO-PREDICATE-REPAIR-2026-06-16`: root-index predicate repair using
+  whole-specifier binding plus `text(...)`/regex guards for direct and aliased
+  module-contract schema re-exports.
+- `COCO-NATIVE-FIXTURES-2026-06-16`: native fixture/parser-edge proof for
+  contract import/schema-export positive classes, root-index schema re-export
+  positive classes, and recorded controls.
+- `COCO-CONTROL-ORPC-INVENTORY-2026-06-16`: parser inventory/live evidence over
   current control-oRPC source.
+- `COCO-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper/selector proof.
+- `COCO-HABITAT-GRIT-TOOL-2026-06-16`: aggregate Habitat `grit-check` proof.
+- `COCO-BASELINE-FILES-2026-06-16`: explicit empty baseline and
+  `baseline-integrity` proof.
+- `COCO-INJECTED-PROBE-2026-06-16`: row-specific injected violation and clean
+  control/path cleanup proof.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
 - generator/migration proof;
 - retired parity;
 - broader control-oRPC architecture closure;
-- exact root-index module-contract schema re-export closure;
 - neighboring row proof;
 - product proof.
 
 ## Downstream Records
 
-The aggregate proof matrix, command proof log, and corpus ledger will be
-updated for this row's current checkpoint after evidence is gathered. Recovery
+The aggregate proof matrix, command proof log, and corpus ledger are updated
+for this row's current closure checkpoint after evidence is gathered. Recovery
 ledger, taxonomy, invariant corpus, discrepancy log, and command docs remain
 unchanged unless implementation changes policy, diagnostics, or user-facing
 behavior.

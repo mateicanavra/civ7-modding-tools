@@ -92,6 +92,15 @@ function run(
 }
 
 describe("select-resource-sites operation contract", () => {
+  it("materializes family density from property defaults", () => {
+    expect(resources.ops.selectResourceSites.defaultConfig.config.familyDensity).toEqual({
+      aquatic: 1,
+      cultivated: 1,
+      terrestrial: 1,
+      geological: 1,
+    });
+  });
+
   it("allocates co-eligible rotation frequency proportional to 1/Weight (official deficit rotation, E2.1)", () => {
     // Scarce sites relative to targets so the rotation is the binding
     // mechanism: counts must fall as Weight rises.

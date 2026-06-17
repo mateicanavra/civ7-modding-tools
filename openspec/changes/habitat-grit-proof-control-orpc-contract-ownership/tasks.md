@@ -18,25 +18,26 @@
   exclusions recorded in row-owned durable records.
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, blockers, and
   non-claims in this packet.
+- [x] 2.5 Repair root-index module-contract schema re-export predicate and
+  prove direct plus aliased named schema specifier fixtures.
 
 ## 3. Dependency-Bound Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - Current closure records per-rule `grit-control-orpc-contract-ownership`
+    Habitat wrapper proof and aggregate `grit-check` proof.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
   - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+- [x] 3.3 Injected violation and cleanup proof.
+  - Current closure records row-specific injected violation/path-control proof;
+    aggregate injected-corpus closure remains separate while DDIT is blocked.
+- [x] 3.4 Explicit baseline proof.
+  - Current closure records explicit empty baseline ownership and
+    `baseline-integrity` through wrapper proof.
 - [x] 3.5 Live current-predicate control-oRPC contract ownership disposition.
-  - Parser inventory must record live current-row candidates as blockers or
-    zero-candidate evidence. Clean row closure remains a non-claim until
-    wrapper/current-tree, baseline, injected, raw/adapter, and supervisor
-    acceptance gates are available.
+  - Parser inventory records zero live current-row candidates. Raw acquisition,
+    broader architecture closure, apply safety, and product/runtime proof remain
+    non-claims.
 
 ## 4. Downstream Realignment
 
@@ -58,3 +59,6 @@
 - [x] 5.5 `git diff --check`
 - [x] 5.6 `bun run openspec:validate`
 - [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.8 `bun run habitat:check -- --json --rule grit-control-orpc-contract-ownership`
+- [x] 5.9 `bun run habitat:check -- --json --tool grit-check`
+- [x] 5.10 row-specific injected probe run from clean start

@@ -55,11 +55,11 @@ stay behind worker/server boundaries.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if a live UI runtime import is found but recorded as a pass without
-owner disposition, if temporary inventory artifacts are cited as durable proof,
-or if worker/server runtime imports are treated as UI violations without
-reviewed predicate repair.
+This checkpoint fails if wrapper/current-tree enforcement is inferred from
+native fixtures instead of Habitat commands, if a live UI runtime import is found
+but recorded as a pass without owner disposition, if temporary inventory
+artifacts are cited as durable proof, or if worker/server runtime imports are
+treated as UI violations without reviewed predicate repair.
 
 ## Source Synthesis
 
@@ -109,10 +109,14 @@ Current source exemplars:
 
 ## Proof Contract
 
-This row checkpoint may record:
+This row closure records:
 
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live zero-candidate evidence over `apps/mapgen-studio/src`;
+- Habitat per-rule selector/current-tree proof;
+- aggregate `grit-check` wrapper proof;
+- explicit empty baseline and `baseline-integrity` proof;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
@@ -120,18 +124,26 @@ Current proof ids:
 
 - `SRA-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for 8
   current-predicate positive classes and the recorded controls.
+- `SRA-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus refresh with
+  SRA included.
 - `SRA-STUDIO-INVENTORY-2026-06-15`: parser inventory/live zero-candidate
   evidence over the current Studio root.
+- `SRA-PER-RULE-SELECTOR-2026-06-16`: Habitat per-rule wrapper proof for SRA
+  plus `baseline-integrity`.
+- `SRA-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof with
+  SRA included.
+- `SRA-BASELINE-FILES-2026-06-16`: explicit empty baseline ownership for SRA.
+- `SRA-INJECTED-PROBE-2026-06-16`: row-specific injected UI runtime import
+  proof with a clean browser-runner control.
 
-This row checkpoint must not record:
+This row closure does not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
+- generated artifact proof;
 - Effect adapter proof;
 - apply safety;
-- product proof.
+- retired parity;
+- product/runtime proof.
 
 ## Downstream Records
 

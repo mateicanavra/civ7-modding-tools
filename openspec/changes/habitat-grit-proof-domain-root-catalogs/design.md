@@ -4,8 +4,8 @@
 
 ### Objective
 
-Make `grit-domain-root-catalogs` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Make `grit-domain-root-catalogs` truthful as a row-owned active Habitat check
+for the current Grit predicate.
 
 ### Product Movement
 
@@ -52,11 +52,12 @@ under a domain root.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if live current-predicate domain-root catalogs are found but recorded
-as a clean pass without owner disposition, if recipe-stage artifact/tag files
-are mislabeled as current-predicate domain-root catalogs, or if broader
-domain-root facade coverage is treated as proven by this row.
+This checkpoint fails if it claims raw Grit acquisition, apply safety,
+generator/migration behavior, product/runtime behavior, or broader domain-root
+facade coverage from the active check proof; if live current-predicate
+domain-root catalogs are found but recorded as a clean pass without owner
+disposition; or if recipe-stage artifact/tag files are mislabeled as
+current-predicate domain-root catalogs.
 
 ## Source Synthesis
 
@@ -81,8 +82,8 @@ approved generated/artifact surfaces, current domain scan, empty locked
 baseline unless findings prove otherwise, and generator/migration disposition
 if structural move is needed.
 
-`grit-proof-matrix.md` records a design seed with one match and one ignore and
-marks parser-edge and false-positive classification pending.
+`grit-proof-matrix.md` records the earlier native/parser checkpoint. This
+closure updates that row with current wrapper, baseline, and injected proof.
 
 ## Fixture Matrix
 
@@ -102,6 +103,10 @@ This row checkpoint may record:
 
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live candidate evidence over current Swooper domain source;
+- Habitat wrapper/current-tree selector proof for the registered rule;
+- aggregate `grit-check` wrapper health with this rule included;
+- explicit empty baseline ownership and `baseline-integrity` proof;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
@@ -114,13 +119,23 @@ Proof ids:
   current Swooper domain source. The current checkpoint records 0 live
   current-row domain-root catalog matches and 0 nested domain catalog filename
   matches.
+- `DRC-NATIVE-CORPUS-REFRESH-2026-06-16`: current native Grit pattern corpus
+  health with DRC included.
+- `DRC-DOMAIN-INVENTORY-2026-06-16`: current parser inventory/live evidence
+  over Swooper domain source. The closure records 0 live current-row
+  domain-root catalog matches and 0 nested domain catalog filename matches.
+- `DRC-PER-RULE-SELECTOR-2026-06-16`: Habitat wrapper proof selecting exactly
+  `grit-domain-root-catalogs` plus `baseline-integrity`.
+- `DRC-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof
+  with DRC included.
+- `DRC-BASELINE-FILES-2026-06-16`: explicit empty baseline ownership for DRC.
+- `DRC-INJECTED-PROBE-2026-06-16`: row-specific injected
+  violation/path-control proof. Aggregate injected-corpus closure remains a
+  non-claim while the accepted unrelated DDIT adapter activation gap remains.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
 - generator/migration proof;
@@ -131,8 +146,7 @@ This row checkpoint must not record:
 
 ## Downstream Records
 
-The aggregate proof matrix, command proof log, and corpus ledger will be
-updated for this row's current checkpoint after evidence is gathered. Recovery
-ledger, taxonomy, invariant corpus, discrepancy log, and command docs remain
-unchanged unless implementation changes policy, diagnostics, or user-facing
-behavior.
+The aggregate proof matrix, command proof log, and corpus ledger are updated
+for this row's active-check closure. Recovery ledger, taxonomy, invariant
+corpus, discrepancy log, and command docs remain unchanged because this closure
+does not change policy, diagnostics, or user-facing behavior.

@@ -6,12 +6,12 @@
 | --- | --- | --- |
 | `packages/civ7-control-orpc/AGENTS.md` | Package owns native oRPC/Effect contracts, routers, typed context, typed errors, middleware, server-side clients, and service behavior over `@civ7/direct-control` runtime ports; runtime access stays in `@civ7/direct-control`. | Package router only; not proof of Grit behavior. |
 | `tools/habitat-harness/src/rules/rules.json` | Registers `grit-control-orpc-contract-ownership` as enforced `grit-check`, scoped to module contracts and root index, forbidding direct-control imports in contracts or contract-local schemas from public root. | Registry authority only; not proof of wrapper behavior. |
-| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Candidate row requests positive transport/runtime import in contract, negative schema-private module use, current control-oRPC scan, empty baseline unless findings prove otherwise, and non-apply disposition. | Aggregate row to align after proof is gathered. |
-| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Design seed has 1 match and 1 ignore, with parser-edge and false-positive classification pending. | Aggregate row to align after proof is gathered. |
+| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Candidate row requests positive transport/runtime import in contract, negative schema-private module use, current control-oRPC scan, empty baseline unless findings prove otherwise, and non-apply disposition. | Aggregate row aligned by this checkpoint. |
+| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Historical design seed had 1 match and 1 ignore; current closure records repaired native fixtures, inventory, wrapper, baseline, and injected proof. | Aggregate row aligned by this checkpoint. |
 
 ## Current Predicate
 
-The current Grit predicate reports:
+The repaired Grit predicate reports:
 
 - import declarations from `@civ7/direct-control` when the filename matches
   `.*packages/civ7-control-orpc/src/modules/.*/contract\.ts$`;
@@ -19,12 +19,13 @@ The current Grit predicate reports:
   matches `Civ7*InputSchema`, `Civ7*ResultSchema`, `Civ7*OutputSchema`, or
   `Civ7*StandardSchema`;
 - root `index.ts` named export-from declarations from
-  `./modules/<module>/contract` when the exported specifiers contain schema
-  names.
+  `./modules/<module>/contract` when a direct or aliased exported specifier
+  matches `Civ7*InputSchema`, `Civ7*ResultSchema`, `Civ7*OutputSchema`, or
+  `Civ7*StandardSchema`.
 
-The current predicate is syntax/path scoped. It does not by itself prove
-wrapper command behavior, raw acquisition, injected cleanup, baseline behavior,
-source remediation, or product/runtime closure.
+The repaired predicate is syntax/path scoped. It does not by itself prove raw
+acquisition, source remediation, apply safety, Effect adapter behavior, broader
+control-oRPC architecture, or product/runtime closure.
 
 ## Fixture Plan
 
@@ -32,10 +33,11 @@ Positive/current-predicate classes:
 
 - direct-control value import in a module `contract.ts`;
 - direct-control type-only import in a module `contract.ts`;
-- exported `Civ7*InputSchema`, `Civ7*ResultSchema`, and
-  `Civ7*StandardSchema` consts in module `contract.ts`;
-- root `index.ts` module-contract schema re-export probe, recorded as a
-  predicate-gap blocker because the current native fixture does not report it.
+- exported `Civ7*InputSchema`, `Civ7*ResultSchema`,
+  `Civ7*OutputSchema`, and `Civ7*StandardSchema` consts in module
+  `contract.ts`;
+- root `index.ts` module-contract schema re-exports, including direct and
+  aliased named specifiers.
 
 Controls and parser-edge classifications:
 
@@ -87,12 +89,14 @@ Current checkpoint counts:
 - 0 dynamic imports in current-predicate files.
 - 0 parse diagnostics.
 
-`COCO-ROOT-INDEX-PREDICATE-GAP-2026-06-15`: the match fixture includes a root
-`index.ts` export-from probe from `./modules/demo/contract`, but the current
-native pattern output contains only the five module-contract import/schema const
-matches. Exact root-index module-contract schema re-export closure is blocked
-until predicate semantics are repaired or source-owner/supervisor disposition
-changes the row boundary.
+Historical `COCO-ROOT-INDEX-PREDICATE-GAP-2026-06-15` is superseded by
+`COCO-PREDICATE-REPAIR-2026-06-16` and
+`COCO-NATIVE-FIXTURES-2026-06-16`. The repaired native fixture reports eight
+positive matches: contract direct-control value import, contract direct-control
+type-only import, exported `InputSchema`, exported `ResultSchema`, exported
+`OutputSchema`, exported `StandardSchema`, direct root-index module-contract
+schema re-export, and aliased root-index module-contract schema re-export.
+Current control-oRPC source still has 0 live current-row candidates.
 
 The 9 outside-contract direct-control imports are path controls, not current-row
 contract candidates:

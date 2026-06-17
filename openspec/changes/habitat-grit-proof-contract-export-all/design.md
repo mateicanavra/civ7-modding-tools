@@ -68,9 +68,10 @@ the existing row and require an explicit domain-root facade disposition.
 ### Falsifier
 
 This packet fails if a future implementation can mark the row complete from a
-native sample alone, if type-star allowance is not directly proven, if
-domain-root facade claims remain stronger than the predicate, or if injected
-proof cannot fail the exact Habitat rule id through the real wrapper path.
+native sample alone, if type-star allowance is not proven through the accepted
+current-tree wrapper path, if domain-root facade claims remain stronger than
+the predicate, or if registered injected proof cannot fail the exact Habitat
+rule id through the real wrapper path.
 
 ## Current Diagnosis
 
@@ -85,6 +86,34 @@ proof cannot fail the exact Habitat rule id through the real wrapper path.
 | Disposable probe | Value `export *` reports in domain op `index.ts`, op `rules/index.ts`, op `strategies/index.ts`, and recipe step `contract.ts`; named export, `export type *`, non-op shared index, and `rules.ts` do not report. | Effective predicate can catch core positives and allows type-star in direct Grit checks; parser-edge and path controls need formal fixtures/proof. |
 | Domain-root facade gap | Live domain-root/config/index value-star facades exist outside current predicate. | This row cannot close taxonomy's domain-root facade promise without an expansion or sibling row. |
 | H5/H6 parity | H5/H6 records say the old value-star guard retired to `grit-contract-export-all`, with type-star allowed. | Parity proof must include old-mechanism claim, type-star allowance, and injected wrapper proof, not only current green checks. |
+
+## Current Closure Evidence - 2026-06-16
+
+The current HG closure checkpoint proves the active CEA row inside the
+contract/op-local predicate boundary:
+
+- native fixture proof passes with 8 current-predicate value-star positives and
+  0 ignore-sample matches;
+- per-rule Habitat wrapper proof selects exactly `grit-contract-export-all`
+  plus `baseline-integrity`, both passing with zero diagnostics;
+- aggregate `grit-check` wrapper proof passes with 30 Grit rules plus
+  `baseline-integrity`, including CEA;
+- current-tree parser inventory finds 0 in-scope bare value-star exports,
+  135 in-scope `export type *` declarations, 0 in-scope namespace exports, and
+  20 Swooper domain-root/config/facade value-star exports outside this
+  predicate;
+- the explicit empty CEA baseline is present and accepted by
+  `baseline-integrity`;
+- the registered injected-probe corpus reports one CEA diagnostic at an
+  injected domain-op `index.ts` value-star path and keeps the domain-root
+  outside-scope control clean.
+
+This row does not claim raw direct Grit acquisition, source remediation,
+broader domain-root facade/export closure, generator/migration behavior,
+export-list apply safety, Effect adapter proof, retired parity,
+neighboring-row proof, product/runtime proof, or aggregate injected-corpus
+closure while the unrelated `grit-domain-deep-import-tests` adapter activation
+gap remains.
 
 ## Source Synthesis
 
@@ -213,13 +242,13 @@ proof matrix:
 | native sample proof | command, report id/count, sample count, and non-claims |
 | type-star proof | direct Grit, adapter, or fixture proof for `export type *` |
 | current-tree wrapper proof | Habitat command, output class, selected rule ids, diagnostics count |
-| raw acquisition | bounded direct Grit check command or adapter proof id |
+| raw acquisition | explicit non-claim; direct raw acquisition is not closed by this row |
 | live inventory | current value-star and type-star examples inside and outside scope |
-| injected proof | step-contract probe, domain-op probe, and outside-scope path control |
+| injected proof | registered domain-op probe and outside-scope path control; step-contract and rules/strategies injected branch coverage remain non-claims |
 | baseline | explicit empty baseline file and `baseline-integrity` proof |
-| parity | old value-star guard relation and retirement claim |
+| parity | explicit non-claim; old-mechanism retirement parity is not closed by this row |
 | downstream records | H5/H6, taxonomy, discrepancy, recovery claim, and aggregate matrix records to update |
-| non-claims | export-list rewrite safety, domain-root facade coverage if excluded, package barrel policy, runtime behavior |
+| non-claims | raw acquisition, export-list rewrite safety, domain-root facade coverage if excluded, package barrel policy, retired parity, runtime behavior |
 
 ## Domain-Root Facade Boundary
 

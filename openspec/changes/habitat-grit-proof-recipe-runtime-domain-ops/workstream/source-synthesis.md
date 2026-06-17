@@ -34,12 +34,15 @@ retired ESLint row as `eslint-recipe-domain-ops` and assigns the port to
 
 ## Current Pattern Source
 
-The current Grit pattern has one arm:
+The repaired Grit pattern has one arm:
 
-- `import $imports from $source`
+- `import_statement(source=$source)`
 
 It filters filenames with `.*mods/[^/]+/src/recipes/.*/recipe\.ts$` and
-matches sources with `.*@mapgen/domain/[^/]+$`.
+matches exact optional-quote sources with
+`^[\"']?@mapgen/domain/[^/]+[\"']?$`. Source-prefix, source-relative,
+source-protocol, trailing slash, `/ops`, `/config.js`, and deeper domain
+sources are controls.
 
 ## Current Source Exemplars
 
@@ -60,34 +63,52 @@ ops bundle:
 
 ## Checkpoint Consequences
 
-Current native fixture proof now records
-`RDO-NATIVE-FIXTURES-2026-06-15`:
+Current predicate repair and native fixture proof now record
+`RDO-PREDICATE-REPAIR-2026-06-16` and
+`RDO-NATIVE-FIXTURES-2026-06-16`:
 
-- 9 current-predicate positive classes: default import, named import,
-  namespace import, type-only import, side-effect import, browser-test runtime
-  recipe import, other-mod raw predicate import, nested runtime recipe import,
-  and source-prefix root lookalike import;
+- 9 positive classes: default import, named import, namespace import,
+  type-only import, side-effect import, browser-test runtime recipe import,
+  other-mod raw predicate import, nested runtime recipe import, and
+  single-quote exact domain-root import;
 - 0 ignore-sample matches for approved `/ops`, `/config.js`, deeper domain
   paths, non-`recipe.ts`, `.tsx`, map, package, step-contract, re-export,
-  dynamic import, and trailing slash controls.
+  dynamic import, trailing slash, source-prefix, source-relative, and
+  source-protocol controls.
 
-Current parser inventory now records `RDO-RECIPE-INVENTORY-2026-06-15`:
+Full native corpus proof records `RDO-NATIVE-CORPUS-REFRESH-2026-06-16`:
+
+- 32 testable Grit patterns passed with 0 failures, including
+  `recipe_runtime_domain_ops`.
+
+Current parser inventory now records `RDO-RECIPE-INVENTORY-2026-06-16`:
 
 - scan root: `mods/mod-swooper-maps/src/recipes`;
 - exclusions: `node_modules`, `dist`, `mod`;
 - parser: TypeScript compiler API over `.ts`/`.tsx` imports and re-exports;
-- counts: 222 scanned TS/TSX files, 2 current-predicate `recipe.ts` files, 29
-  import declarations inside those runtime recipe files, 0 export-from
-  declarations inside those runtime recipe files, 7 domain references inside
-  those runtime recipe files, 0 current-row matches, 7 approved `/ops`
-  references, 0 config references, 0 other deep domain references, 0
-  source-prefix root lookalikes, 0 type-only root imports, 0 default root
-  imports, 0 named root imports, 0 namespace root imports, 0 side-effect root
-  imports, 0 root re-exports, 82 root-domain references outside runtime
-  `recipe.ts`, and 117 domain references outside runtime `recipe.ts`.
+- counts: 222 scanned `.ts` files, 2 current-predicate `recipe.ts` files, 29
+  current-predicate import declarations, 7 current-predicate domain references,
+  0 exact contract-root candidates, 7 approved `/ops` imports, 0 `/config.js`
+  imports, 0 other deep domain imports, 0 source lookalikes, 0
+  type-only/value/side-effect forbidden imports, 0 current export-from
+  declarations, 0 current dynamic imports, 82 root-domain references outside
+  runtime `recipe.ts`, 117 domain references outside runtime `recipe.ts`, and
+  0 parse diagnostics.
 
-This row proves current-predicate native fixture behavior and parser
-inventory/live zero-candidate evidence only. It cannot claim wrapper selector
-truth, raw acquisition, baseline behavior, injected cleanup, Effect adapter
-behavior, apply safety, retired parity, all-mod wrapper enforcement, or product
-proof in this stack/base.
+Current Habitat proof records:
+
+- `RDO-PER-RULE-SELECTOR-2026-06-16`: per-rule wrapper selects RDO plus
+  `baseline-integrity`, both passing with zero diagnostics.
+- `RDO-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` passes 30 Grit
+  rules plus `baseline-integrity`, with RDO included.
+- `RDO-BASELINE-FILES-2026-06-16`: explicit empty baseline file is present and
+  `baseline-integrity` passes.
+- `RDO-INJECTED-PROBE-2026-06-16`: row-specific injected probe reports one
+  diagnostic at the runtime recipe contract-root import and a clean
+  non-`recipe.ts` control with clean initial/final git state and probe cleanup.
+
+This row proves active-check closure for the repaired RDO predicate inside the
+current wrapper roots. It cannot claim raw acquisition, source remediation,
+all-mod wrapper enforcement beyond current wrapper roots, Effect adapter
+behavior, apply safety, retired parity, aggregate injected-corpus closure while
+DDIT remains blocked, or product/runtime proof.

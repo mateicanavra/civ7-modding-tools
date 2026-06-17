@@ -2,39 +2,22 @@
 
 ## Current Gate
 
-Gate 13 / accepted bounded checkpoint with predicate-gap disposition blocker. The row
-packet is opened, native fixture/parser-edge expansion has passed, parser
-inventory is recorded in durable row records, downstream ledgers are aligned,
-verification has passed, and the checkpoint is committed. Parser inventory
-found 0 current-predicate `*.contract.ts` empty object defaults, but found 2
-ordinary `contract.ts` empty object defaults outside the current predicate.
-This row can claim current-predicate native/parser evidence only; exact
-schema-policy closure remains blocked on predicate repair, source-owner
-disposition, accepted baseline handling, or a separate remediation row.
-The bounded checkpoint was supervisor-accepted; successor HG rows are committed
-through `agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so
-this packet is not the active next-row gate.
-The accepted P2 parser-inventory count-truth finding has been repaired in this
-amended row layer: records now distinguish 174 TS files whose basename contains
-`contract`, 167 TS files whose basename ends `contract.ts`, 119 ordinary
-`contract.ts` files, and 0 exact `defaultValue` properties inside the current
-predicate.
+Active closure checkpoint. The prior bounded ESD checkpoint recorded a
+predicate/source gap for ordinary `contract.ts` files. This row layer repairs
+that gap: the predicate now covers domain op and recipe step ordinary
+`contract.ts` files, the two live Swooper object-level empty defaults were
+removed, focused tests prove property-default materialization, and Habitat
+wrapper/baseline/injected proof is being recorded for the active rule.
 
 ## Branch / Stack
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-empty-schema-default`
-- Parent: `agent-HG-habitat-grit-runtime-helper-redeclarations`
-- Historical row-local proof did not consume HR repair layers. Current
-  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
-  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
-  `HGPR-BASELINE-FILES-2026-06-15`,
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
-- Downstack helper redeclaration blocker is accepted as a separate downstream
-  remediation/apply/source-owner input and is not consumed by this row.
+- Branch: `agent-HG-habitat-grit-empty-schema-default-closure`
+- Parent: `agent-HG-habitat-grit-wrapped-test-record-truth`
+- Current stack has accepted Habitat wrapper, baseline, and injected probe
+  surfaces available for row-specific proof. Raw direct Grit acquisition remains
+  unclaimed.
 
 ## Scope
 
@@ -43,38 +26,42 @@ This checkpoint owns:
 - packet and record truth for `habitat-grit-proof-empty-schema-default`;
 - native fixture/parser-edge expansion for
   `.grit/patterns/habitat/checks/empty_schema_default.md`;
+- source remediation for the two live ordinary-contract empty defaults;
 - parser inventory over current Swooper recipe/domain contract-schema roots;
+- Habitat wrapper selector/current-tree proof, explicit empty baseline proof,
+  and injected path-control proof;
 - aggregate proof matrix, command proof log, and corpus ledger realignment.
 
 This checkpoint does not own:
 
-- contract schema source refactors;
-- predicate repair for ordinary `contract.ts` files;
 - Grit apply/codemod behavior;
-- baseline mutation;
-- Habitat command wrapper repair;
 - raw adapter/acquisition repair;
-- Effect adapter or injected cleanup behavior;
+- Effect adapter behavior;
 - neighboring schema/default rows;
 - product/runtime proof.
 
 ## Evidence
 
-- `ESD-NATIVE-FIXTURES-2026-06-15`: native Grit fixture/parser-edge proof.
-- `ESD-SCHEMA-INVENTORY-2026-06-15`: parser inventory/live corpus evidence
-  with 0 current-predicate candidates and 2 ordinary-contract predicate-gap
-  candidates.
+- `ESD-SOURCE-REMEDIATION-2026-06-16`: source remediation and default
+  materialization tests.
+- `ESD-NATIVE-FIXTURES-2026-06-16`: repaired native Grit fixture/parser-edge
+  proof.
+- `ESD-SCHEMA-INVENTORY-2026-06-16`: parser inventory/live corpus evidence
+  with 149 repaired current-predicate files and 0 empty object defaults.
+- `ESD-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper and
+  `baseline-integrity` proof.
+- `ESD-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof.
+- `ESD-INJECTED-PROBE-2026-06-16`: ordinary-contract injected finding and
+  contract-helper path-control proof.
 
 ## Review / Findings
 
-`ESD-P2-INVENTORY-COUNT-TRUTH-2026-06-15` was accepted and repaired in this
-row layer. No accepted P1/P2 findings remain open after the repair.
-Ordinary-contract predicate-gap findings are recorded as exact-policy closure
-blockers, not repaired in this layer.
+`ESD-P2-INVENTORY-COUNT-TRUTH-2026-06-15` remains accepted/repaired. The prior
+ordinary-contract predicate/source gap is repaired in this row layer. No known
+P1/P2 remains after local evidence, pending supervisor review of this closure
+checkpoint.
 
 ## Next Actions
 
-1. Preserve this packet as an accepted bounded checkpoint.
-2. Keep the two ordinary `contract.ts` empty object defaults as a predicate-gap
-   disposition blocker for exact schema-policy closure; do not treat inherited
-   shared proof as predicate repair, source remediation, or apply safety.
+1. Finish validation and local Graphite checkpoint.
+2. Stop for supervisor review before opening another row.

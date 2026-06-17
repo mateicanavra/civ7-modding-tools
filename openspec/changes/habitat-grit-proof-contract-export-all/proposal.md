@@ -5,18 +5,20 @@ It protects explicit contract and public-surface shape: value surfaces should be
 published through named exports, while type-only aggregation through
 `export type *` remains allowed.
 
-Fresh evidence shows the rule exists, is registered, has a passing native Grit
-sample, passes through the Habitat wrapper, and currently reports no findings
-over the bounded domain/recipe roots. That is not enough to close the row. The
-current native ignore sample proves named exports, not the promised
-`export type *` allowance. Current taxonomy also ties this rule to
+Current closure evidence shows the active rule is registered, has passing
+native fixtures for its value-star predicate classes, passes through the
+Habitat wrapper and aggregate `grit-check` selector with zero diagnostics, has
+an explicit empty baseline, and has a registered injected violation/path-control
+probe. Type-star allowance is proven through current-tree inventory plus the
+wrapper zero-diagnostic run because the pinned native Markdown fixture parser
+does not accept `export type *` syntax. Current taxonomy also ties this rule to
 domain-root `export *` facades, while the current Grit predicate does not cover
-live domain-root/config/index value-star facades. The row needs an
-implementation packet that separates exact rule scope from broader
-domain-surface promises.
+live domain-root/config/index value-star facades. This checkpoint separates the
+active CEA row closure from those broader domain-surface promises.
 
-This change opens that packet. It does not change the pattern or implement the
-proof harness.
+This change closes the active CEA check row inside that boundary. It does not
+change source exports, broaden the predicate to domain-root facades, or claim
+raw acquisition, parity, apply safety, or product/runtime proof.
 
 ## Target Authority Refs
 
@@ -47,19 +49,19 @@ proof harness.
   - step contract files under recipe stage step roots;
   - domain op `contract.ts`, `types.ts`, and `index.ts` files;
   - domain op `rules/**` and `strategies/**` implementation files.
-- Require proof that named exports and `export type *` remain allowed.
+- Record proof that named exports remain native controls and `export type *`
+  remains allowed through current-tree inventory plus Habitat wrapper zero
+  diagnostics.
 - Require a domain-root facade disposition before downstream records can claim
   this row proves all `scope:domain-surface` export-star hygiene.
 - Require fixture expansion beyond the current single value-star positive and
   named-export negative.
-- Require current-tree proof classes to stay separate: native sample, Habitat
-  wrapper, wrapper scan-root truth, bounded raw acquisition, live inventory,
-  injected violation, baseline, old mechanism parity, and downstream
-  realignment.
+- Keep current-tree proof classes separate: native sample, Habitat wrapper,
+  wrapper scan-root truth, live inventory, injected violation, baseline, old
+  mechanism parity, raw acquisition, and downstream realignment.
 - Require explicit empty baseline proof for
   `tools/habitat-harness/baselines/grit-contract-export-all.json`.
-- Require injected violation proof through the Habitat wrapper after an
-  accepted typed Grit adapter substrate can create probes and clean them up.
+- Record injected violation proof through the accepted registered probe runner.
 
 ## What Does Not Change
 
@@ -89,13 +91,11 @@ This workstream does not own:
 - SDK/package barrel export policy outside the current predicate;
 - generated output repair.
 
-## Effect Decision For This Slice
+## Injected-Probe Decision For This Slice
 
-This packet is design/specification. Implementation of row-level injected
-probes, command provenance, parser classification, pattern projection, and
-cleanup SHALL consume `habitat-effect-grit-adapter`, complete that substrate
-first, or record an accepted typed Grit adapter substrate that proves the same
-properties.
+This packet consumes the accepted registered injected-probe runner for
+row-specific CEA proof. It does not claim Effect adapter implementation proof
+from this row.
 
 The current manual Grit runner is part of the evaluated failure surface because
 row closure needs exact pattern projection, parser-edge classification, and
@@ -108,21 +108,18 @@ Effect valuable here: tagged failures, service-injected tests, explicit command
 provenance, scan-root provenance, resource cleanup, runtime-edge discipline,
 and parser-classified outputs.
 
-Fixture edits and proof matrix documentation can proceed before that decision.
-Code that adds scan-root injection, fake command services, raw JSON parser
-classifications, or cleanup/finalizer behavior is blocked until the accepted
-adapter substrate exists.
+The registered CEA injected proof covers one domain-op value-star probe and a
+domain-root outside-scope path control. Native fixtures, not the injected
+runner, cover the step-contract and rules/strategies syntax branches in this
+checkpoint.
 
 ## Requires
 
 - Aggregate Grit proof repair remains the owner of the shared proof matrix.
-- `habitat-effect-grit-adapter` or equivalent typed Grit adapter substrate
-  before injected-probe implementation, with a recorded Effect/no-Effect
-  substrate decision.
-- `habitat-scaffold-contract-repair` before claiming shared baseline expansion
-  safety for this rule.
-- `habitat-oclif-entrypoint-repair` before final selector-truth proof for
-  wrong namespace or unknown selector cases.
+- Broader domain-root facade closure requires predicate expansion proof or a
+  sibling accepted implementation/proof id.
+- Retired old-mechanism parity requires a separate parity proof.
+- Export-list rewriting requires a separate apply/codemod proof.
 
 ## Enables Parallel Work
 
@@ -184,18 +181,16 @@ the current predicate follow the same policy.
 ## Verification Gates
 
 - `bun run openspec -- validate habitat-grit-proof-contract-export-all --strict`
-- `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter contract_export_all --json`
+- `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter contract_export_all --json`
 - `bun run habitat:check -- --json --rule grit-contract-export-all`
 - exact Habitat wrapper scan-root inventory
-- bounded direct raw Grit check with explicit relation to wrapper roots
-- omitted-root projection proof for roots outside the bounded raw check
 - live `export *` / `export type *` inventory for in-scope and out-of-scope
   paths
 - native fixture coverage matrix or accepted parser-edge adapter proof
 - domain-root facade disposition
-- injected step-contract positive proof
-- injected domain-op positive proof
+- aggregate `grit-check` wrapper proof
+- registered injected domain-op positive proof
 - outside-scope path-control proof
 - explicit empty baseline proof
-- downstream aggregate matrix and recovery-claim realignment
+- downstream aggregate matrix and corpus realignment
 - `bun run openspec:validate`

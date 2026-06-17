@@ -522,7 +522,6 @@ const PlanStartsContract = defineOp({
         },
         {
           additionalProperties: false,
-          default: {},
           description: "Additive score bias per viability tier.",
         }
       ),

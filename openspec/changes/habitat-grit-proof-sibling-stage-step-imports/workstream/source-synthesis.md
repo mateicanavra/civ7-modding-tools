@@ -15,7 +15,8 @@
 
 ## Current Predicate
 
-The current Grit predicate reports import declarations in files matching:
+The current Grit predicate uses `import_statement(source=$source)` and reports
+static import declarations in files matching:
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\.ts$`
 
@@ -39,6 +40,7 @@ Positive/current-predicate classes:
 - nested stage file using deeper relative traversal to a sibling stage step;
 - named import from a sibling step contract path;
 - type-only import from a sibling step types path;
+- side-effect static import from a sibling step path;
 - index and direct step file source variants;
 - sources with `.js` extension because current recipe source uses TS files
   importing JS module specifiers.
@@ -49,8 +51,8 @@ Controls and parser-edge classifications:
 - stage contract/config and `@mapgen/domain/...` imports;
 - package, map, test, `.tsx`, and non-standard recipe paths;
 - source lookalikes such as `stepstore` and `stepsish`;
-- re-export and dynamic import forms, which remain current native non-matches
-  in this row checkpoint.
+- re-export, dynamic import, and source-string forms, which remain current
+  native non-matches in this row checkpoint.
 
 ## Inventory Plan
 
@@ -80,10 +82,11 @@ Current checkpoint counts:
   dynamic import matches.
 - Actual current-predicate subset: 212 `.ts` files, 0 `.tsx` files, 776
   import declarations, 39 export-from declarations, 0 dynamic imports, 0
-  sibling-stage step import matches, 18 same-stage `./steps/...` imports, 112
-  domain surface imports, 82 relative contract/config-shaped imports, 0
-  sibling source lookalikes, 0 sibling export-from matches, and 0 sibling
-  dynamic import matches.
+  sibling-stage step import matches, 0 type-only/value/side-effect
+  sibling-stage step matches, 18 same-stage `./steps/...` imports, 112 domain
+  surface imports, 82 relative contract/config-shaped imports, 0 sibling
+  source lookalikes, 0 sibling export-from matches, 0 sibling dynamic import
+  matches, and 0 parse diagnostics.
 - Stage-root context: 19 immediate stage directories, 23 immediate stage-root
   entries, and 4 stage-root `.ts` files outside the current predicate:
   `ecology-public-config.ts`, `hydrology-public-config.ts`,
@@ -91,5 +94,5 @@ Current checkpoint counts:
 
 `Relative contract/config-shaped imports` means current-predicate import
 sources equal to `./contract.js` or `./config.js`, or relative import sources
-containing a `contract` or `config` path segment/name under the same stage
-root.
+containing `contract` or `config` in the module specifier, including
+`*.contract.js` and `*-public-config.js` controls.

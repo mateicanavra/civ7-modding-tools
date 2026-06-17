@@ -17,7 +17,8 @@ Behavior/proof authority:
 3. `tools/habitat-harness/src/lib/grit.ts`
 4. current source under `mods/mod-swooper-maps/src/recipes` and
    `mods/mod-swooper-maps/src/domain`
-5. fresh native Grit and parser inventory commands
+5. fresh native Grit, Habitat wrapper, injected probe, and parser inventory
+   commands
 
 ## Product Source
 
@@ -47,8 +48,9 @@ and domain strategy files:
 
 ## Checkpoint Consequences
 
-Current native fixture proof now records
-`RVI-NATIVE-FIXTURES-2026-06-15`:
+Historical native fixture proof recorded
+`RVI-NATIVE-FIXTURES-2026-06-15`, and current closure proof records
+`RVI-NATIVE-FIXTURES-2026-06-16`:
 
 - 10 current-predicate positive classes: TypeBox value import, TypeBox compiler
   import, mapgen compiler normalize import, authoring validation import,
@@ -59,25 +61,26 @@ Current native fixture proof now records
   domain op non-strategy paths, map paths, package paths, `.tsx`, source
   lookalikes, alias/root TypeBox imports, re-exports, and dynamic imports.
 
-Current parser inventory now records `RVI-RUNTIME-INVENTORY-2026-06-15`:
+Current parser inventory now records `RVI-RUNTIME-INVENTORY-2026-06-16`:
 
 - scan roots: `mods/mod-swooper-maps/src/recipes` and
   `mods/mod-swooper-maps/src/domain`;
 - exclusions: `node_modules`, `dist`, `mod`;
 - parser: TypeScript compiler API over `.ts`/`.tsx` imports, re-exports, and
   dynamic imports;
-- counts: 886 scanned TS/TSX files, 344 current-predicate TS files, 0
-  current-predicate TSX files, 159 runtime recipe step TS files, 185 domain
-  strategy TS files, 1,005 import declarations inside current-predicate files,
-  137 export-from declarations inside current-predicate files, 0 forbidden
-  import matches, 0 forbidden type-only imports, 0 forbidden side-effect
-  imports, 0 forbidden re-exports, 0 forbidden dynamic imports, 0 forbidden
-  `contract.ts` matches, 0 forbidden matches for every forbidden source class,
-  0 out-of-scope forbidden references, 0 source lookalikes in runtime, 0
-  `typebox/value` alias runtime imports, and 0 root TypeBox runtime imports.
+- counts: 886 scanned `.ts` files, 344 current-predicate `.ts` files, 0
+  current-predicate `.tsx` files, 159 runtime recipe step files, 185 domain
+  strategy files, 1,008 import declarations inside current-predicate files,
+  137 export-from declarations inside current-predicate files, 0 dynamic imports
+  inside current-predicate files, 0 forbidden import matches, 0 forbidden
+  value/type-only/side-effect import matches, 0 forbidden re-exports, 0
+  forbidden dynamic imports, 0 forbidden `contract.ts` matches, 0 forbidden
+  matches for every forbidden source class, 0 out-of-scope forbidden references,
+  0 source lookalikes in runtime, 0 `typebox/value` alias runtime imports, 0
+  root TypeBox runtime imports, and 0 parse diagnostics.
 
-This row proves current-predicate native fixture behavior and parser
-inventory/live zero-candidate evidence only. It cannot claim wrapper selector
-truth, raw acquisition, baseline behavior, injected cleanup, Effect adapter
-behavior, apply safety, neighboring runtime-purity rows, retired parity, or
-product proof in this stack/base.
+This closure also records per-rule Habitat wrapper proof, aggregate
+`grit-check` proof, explicit empty baseline proof, and row-specific injected
+violation/path-control proof. It cannot claim raw acquisition, Effect adapter
+behavior, apply safety, neighboring runtime-purity rows, retired parity,
+aggregate injected-corpus closure while DDIT remains blocked, or product proof.

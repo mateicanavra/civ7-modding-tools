@@ -12,20 +12,20 @@ or {
   `import $imports from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/.*\.ts$",
     $source <: r".*@mapgen/domain/[^/]+/.+",
-    ! $source <: includes "/ops",
-    ! $source <: includes "/config.js"
+    ! $source <: r".*@mapgen/domain/[^/]+/(?:ops|config\.js)[\"']?$",
+    ! $source <: r".*@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id[\"']|rules/.+|strategies/.+)"
   },
   `export { $exports } from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/.*\.ts$",
     $source <: r".*@mapgen/domain/[^/]+/.+",
-    ! $source <: includes "/ops",
-    ! $source <: includes "/config.js"
+    ! $source <: r".*@mapgen/domain/[^/]+/(?:ops|config\.js)[\"']?$",
+    ! $source <: r".*@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id[\"']|rules/.+|strategies/.+)"
   },
   `export * from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/.*\.ts$",
     $source <: r".*@mapgen/domain/[^/]+/.+",
-    ! $source <: includes "/ops",
-    ! $source <: includes "/config.js"
+    ! $source <: r".*@mapgen/domain/[^/]+/(?:ops|config\.js)[\"']?$",
+    ! $source <: r".*@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id[\"']|rules/.+|strategies/.+)"
   }
 }
 ```
@@ -34,17 +34,17 @@ or {
 
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts
-import rule from "@mapgen/domain/foundation/rules/private";
+import rule from "@mapgen/domain/foundation/shared/private";
 
 export const value = rule;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-named.ts
-import { buildRule } from "@mapgen/domain/foundation/rules/private";
+import { buildRule } from "@mapgen/domain/foundation/shared/private";
 
 export const named = buildRule;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-namespace.ts
-import * as strategy from "@mapgen/domain/foundation/strategies/private";
+import * as strategy from "@mapgen/domain/foundation/shared/private";
 
 export const namespaceValue = strategy;
 
@@ -74,21 +74,38 @@ export const testValue = testRule;
 import contractRule from "@mapgen/domain/foundation/shared/private";
 
 export const contractValue = contractRule;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts
+import opsPrivate from "@mapgen/domain/foundation/ops-private";
+import privateOpsPath from "@mapgen/domain/foundation/private/ops";
+
+export const opsLookalikes = [opsPrivate, privateOpsPath];
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts
+import privateConfig from "@mapgen/domain/foundation/config.js/private";
+
+export const privateConfigValue = privateConfig;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts
+import configPrivate from "@mapgen/domain/foundation/config.js-private";
+import privateConfigPath from "@mapgen/domain/foundation/private/config.js";
+
+export const configLookalikes = [configPrivate, privateConfigPath];
 ```
 
 ```typescript
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts
-import rule from "@mapgen/domain/foundation/rules/private";
+import rule from "@mapgen/domain/foundation/shared/private";
 
 export const value = rule;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-named.ts
-import { buildRule } from "@mapgen/domain/foundation/rules/private";
+import { buildRule } from "@mapgen/domain/foundation/shared/private";
 
 export const named = buildRule;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-namespace.ts
-import * as strategy from "@mapgen/domain/foundation/strategies/private";
+import * as strategy from "@mapgen/domain/foundation/shared/private";
 
 export const namespaceValue = strategy;
 
@@ -118,6 +135,23 @@ export const testValue = testRule;
 import contractRule from "@mapgen/domain/foundation/shared/private";
 
 export const contractValue = contractRule;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts
+import opsPrivate from "@mapgen/domain/foundation/ops-private";
+import privateOpsPath from "@mapgen/domain/foundation/private/ops";
+
+export const opsLookalikes = [opsPrivate, privateOpsPath];
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts
+import privateConfig from "@mapgen/domain/foundation/config.js/private";
+
+export const privateConfigValue = privateConfig;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts
+import configPrivate from "@mapgen/domain/foundation/config.js-private";
+import privateConfigPath from "@mapgen/domain/foundation/private/config.js";
+
+export const configLookalikes = [configPrivate, privateConfigPath];
 ```
 
 ## Ignores fixture
@@ -149,21 +183,14 @@ import opsById from "@mapgen/domain/foundation/ops-by-id";
 export const opsByIdValue = opsById;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-tail.ts
-import privateConfig from "@mapgen/domain/foundation/config.js/private";
+import rulesPrivate from "@mapgen/domain/foundation/rules/private";
 
-export const privateConfigValue = privateConfig;
+export const rulesValue = rulesPrivate;
 
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-ops-lookalikes.ts
-import opsPrivate from "@mapgen/domain/foundation/ops-private";
-import privateOpsPath from "@mapgen/domain/foundation/private/ops";
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-strategies-tail.ts
+import strategiesPrivate from "@mapgen/domain/foundation/strategies/private";
 
-export const opsLookalikes = [opsPrivate, privateOpsPath];
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo-config-lookalikes.ts
-import configPrivate from "@mapgen/domain/foundation/config.js-private";
-import privateConfigPath from "@mapgen/domain/foundation/private/config.js";
-
-export const configLookalikes = [configPrivate, privateConfigPath];
+export const strategiesValue = strategiesPrivate;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo.tsx
 import tsxRule from "@mapgen/domain/foundation/shared/private";

@@ -21,6 +21,14 @@ const { planDiscoveries, planNaturalWonders, planResources, planStarts, planWond
   placementDomain.ops;
 
 describe("placement plan operations", () => {
+  it("materializes plan-starts tier bias from property defaults", () => {
+    expect(planStarts.defaultConfig.config.tierBias).toEqual({
+      primary: 0.08,
+      islandCluster: 0.02,
+      marginal: -0.08,
+    });
+  });
+
   it("plans wonders from map-size defaults without bonus inflation", () => {
     const result = runOpValidated(
       planWonders,

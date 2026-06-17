@@ -6,13 +6,12 @@ runtime recipe modules. This is a UI/compute boundary that Nx project tags
 cannot express because the forbidden and allowed files live inside the same
 Studio project.
 
-The rule is registered and has a native sample, but the row still needs
-row-level proof before future agents can treat it as executable structural
-truth. This checkpoint opens the row packet and proves the current predicate's
-native fixture/parser behavior and current Studio import inventory only. It
-does not claim Habitat wrapper selector truth, raw acquisition, injected
-cleanup, baseline behavior, Effect adapter behavior, apply safety, or product
-proof because those surfaces are outside this row's current stack/base.
+The rule is registered and has native/parser proof. This closure checkpoint
+proves the current predicate's native fixture behavior, current Studio import
+inventory, Habitat wrapper selector behavior, explicit empty baseline behavior,
+and row-specific injected violation/path-control behavior. It does not claim
+raw direct Grit acquisition, generated artifact proof, Effect adapter closure,
+apply safety, retired parity, or product/runtime proof.
 
 ## Target Authority Refs
 
@@ -38,6 +37,8 @@ proof because those surfaces are outside this row's current stack/base.
     lookalikes remain controls.
 - Record a parser inventory over the current Studio scan root with exact scan
   roots, exclusions, counts, row id, and proof-class labels in durable records.
+- Record current Habitat wrapper, aggregate `grit-check`, explicit empty
+  baseline, and row-specific injected violation/path-control proof.
 - Update the aggregate Grit proof matrix, command proof log, and corpus ledger
   for this row's current checkpoint.
 
@@ -46,9 +47,8 @@ proof because those surfaces are outside this row's current stack/base.
 - No Studio source imports are changed.
 - No pattern predicate repair is claimed.
 - No generated recipe artifacts are edited.
-- No Habitat wrapper/current-tree proof is claimed.
-- No raw Grit acquisition, baseline, injected cleanup, Effect adapter, apply
-  safety, or product proof is claimed.
+- No raw Grit acquisition, generated artifact proof, Effect adapter closure,
+  apply safety, retired parity, or product/runtime proof is claimed.
 
 ## Owner Boundary
 
@@ -56,15 +56,15 @@ This workstream owns fixture and proof-record truth for
 `grit-studio-recipe-artifacts`.
 
 This workstream does not own recipe artifact generation, worker runtime module
-loading, server-side recipe DAG code, generated output repair, or command
-selector/baseline/adapter implementation.
+loading, server-side recipe DAG code, generated output repair, raw acquisition,
+or adapter implementation.
 
 ## Requires
 
 - Supervisor acceptance before stacking another row above this checkpoint.
-- A landed/restacked command-trust layer before Habitat wrapper selector proof.
-- An accepted typed adapter/probe cleanup surface before injected proof.
-- The scaffold/baseline contract surface before explicit baseline proof.
+- No live Studio UI runtime recipe import candidates in the current parser
+  inventory.
+- Clean wrapper, baseline, and injected proof from the current HG stack.
 
 ## Stop Conditions
 
@@ -75,13 +75,18 @@ selector/baseline/adapter implementation.
 - Current inventory finds live UI runtime imports and no owner accepts
   remediation or baseline disposition.
 - Closure would rely on temporary stdout artifacts or scratch files.
-- Closure would claim wrapper, raw acquisition, baseline, injected, Effect
-  adapter, apply, or product proof from native fixture/parser inventory
-  evidence.
+- Closure would claim raw acquisition, generated artifact proof, Effect adapter
+  closure, apply safety, retired parity, or product/runtime proof from native
+  fixture, wrapper, baseline, or injected evidence.
 
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter studio_recipe_artifacts --json`
+- `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --json`
+- `bun run habitat:check -- --json --rule grit-studio-recipe-artifacts`
+- `bun run habitat:check -- --json --tool grit-check`
+- `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
 - `bun run openspec -- validate habitat-grit-proof-studio-recipe-artifacts --strict`
+- `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - `bun run openspec:validate`
 - `git diff --check`

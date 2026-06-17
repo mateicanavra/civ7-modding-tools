@@ -20,26 +20,33 @@
   records.
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, and non-claims
   in this packet.
+- [x] 2.5 Repair predicate to `import_statement(source=$source)` and prove the
+  side-effect static import positive while preserving re-export, dynamic,
+  `.tsx`, same-stage, source-lookalike, map/test/package, and non-standard
+  recipe controls.
 
 ## 3. Dependency-Bound Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `bun run habitat:check -- --json --rule grit-sibling-stage-step-imports`
+    passed with exactly `grit-sibling-stage-step-imports` plus
+    `baseline-integrity`, both zero diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
   - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+- [x] 3.3 Injected violation and cleanup proof.
+  - Row-specific injected proof is recorded by
+    `SSS-INJECTED-PROBE-2026-06-16`; aggregate injected-corpus closure remains
+    separate while the unrelated DDIT adapter activation gap is accepted.
+- [x] 3.4 Explicit baseline proof.
+  - `tools/habitat-harness/baselines/grit-sibling-stage-step-imports.json`
+    is explicit `[]`; `baseline-integrity` passed in per-rule and aggregate
+    wrapper proof.
 - [x] 3.5 Live current-predicate sibling-stage import disposition.
   - Parser inventory found 0 live current-row sibling-stage step import
     matches in both the all-stage-root contextual scan and the actual
-    current-predicate subset. Clean row closure remains a non-claim until
-    wrapper/current-tree, baseline, injected, raw/adapter, and supervisor
-    acceptance gates are available.
+    current-predicate subset. Raw acquisition, export-from/dynamic closure,
+    apply safety, neighboring-row proof, and product/runtime proof remain
+    non-claims.
 
 ## 4. Downstream Realignment
 
@@ -61,3 +68,10 @@
 - [x] 5.5 `git diff --check`
 - [x] 5.6 `bun run openspec:validate`
 - [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.8 `bun run habitat:check -- --json --rule grit-sibling-stage-step-imports`
+- [x] 5.9 `bun run habitat:check -- --json --tool grit-check`
+- [x] 5.10 `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
+  - Exited 1 only for the accepted unrelated DDIT adapter activation gap; SSS
+    passed with one diagnostic at the injected path and a clean control path.
+- [x] 5.11 `bun run openspec -- validate habitat-grit-proof-repair --strict`
+- [x] 5.12 `bun run openspec:validate`

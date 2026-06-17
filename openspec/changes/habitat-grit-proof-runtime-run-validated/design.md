@@ -4,8 +4,8 @@
 
 ### Objective
 
-Make `grit-runtime-run-validated` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Close `grit-runtime-run-validated` as a row-owned active Habitat/Grit check for
+the current Grit predicate.
 
 ### Product Movement
 
@@ -55,11 +55,11 @@ compile-time normalization.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
-fixtures, if a live runtime `runValidated` call is found but recorded as a pass
-without owner disposition, if temporary inventory artifacts are cited as
-durable proof, or if neighboring runtime-purity rows are treated as proven by
-this call-syntax row.
+This checkpoint fails if wrapper/current-tree, baseline, or injected proof is
+claimed without current Habitat evidence, if a live runtime `runValidated` call
+is found but recorded as a pass without owner disposition, if temporary
+inventory artifacts are cited as durable proof, or if neighboring
+runtime-purity rows are treated as proven by this call-syntax row.
 
 ## Source Synthesis
 
@@ -105,6 +105,9 @@ This row checkpoint may record:
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live zero-candidate evidence over current Swooper recipe and
   domain roots;
+- Habitat wrapper selector/current-tree proof for the active rule;
+- explicit empty baseline ownership and `baseline-integrity`;
+- row-specific injected violation/path-control proof;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
@@ -112,15 +115,24 @@ Current proof ids:
 
 - `RRV-NATIVE-FIXTURES-2026-06-15`: native fixture/parser-edge proof for 9
   current-predicate positive classes and the recorded controls.
-- `RRV-RUNTIME-INVENTORY-2026-06-15`: parser inventory/live zero-candidate
+- `RRV-NATIVE-FIXTURES-2026-06-16`: clean-head native fixture/parser-edge
+  proof for the same 9 current-predicate positive classes and controls.
+- `RRV-NATIVE-CORPUS-REFRESH-2026-06-16`: full native corpus refresh with RRV
+  included.
+- `RRV-RUNTIME-INVENTORY-2026-06-16`: parser inventory/live zero-candidate
   evidence over the current Swooper recipe and domain roots.
+- `RRV-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper proof for RRV
+  plus `baseline-integrity`.
+- `RRV-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` proof with RRV
+  included.
+- `RRV-BASELINE-FILES-2026-06-16`: explicit empty baseline ownership through
+  `tools/habitat-harness/baselines/grit-runtime-run-validated.json`.
+- `RRV-INJECTED-PROBE-2026-06-16`: row-specific injected
+  `runValidated(...)` violation and outside-scope path control.
 
 This row checkpoint must not record:
 
-- Habitat wrapper selector/current-tree proof;
 - raw Grit acquisition;
-- baseline proof;
-- injected violation/cleanup proof;
 - Effect adapter proof;
 - apply safety;
 - retired parity;

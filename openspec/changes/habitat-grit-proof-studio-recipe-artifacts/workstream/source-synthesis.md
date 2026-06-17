@@ -79,7 +79,19 @@ Current parser inventory now records `SRA-STUDIO-INVENTORY-2026-06-15`:
   0 runtime side-effect imports, 2 runtime default imports, and 0 source
   lookalikes.
 
-This row proves current-predicate native fixture behavior and parser
-inventory/live zero-candidate evidence only. It cannot claim wrapper selector
-truth, raw acquisition, baseline behavior, injected cleanup, Effect adapter
-behavior, apply safety, retired parity, or product proof in this stack/base.
+Current wrapper proof now records:
+
+- `SRA-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat wrapper proof selects
+  exactly SRA plus `baseline-integrity`, both passing with zero diagnostics.
+- `SRA-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` selects 30 Grit
+  rules plus `baseline-integrity`, all passing, with SRA included.
+- `SRA-BASELINE-FILES-2026-06-16`: the SRA baseline file is explicit `[]` and
+  is checked through wrapper `baseline-integrity`.
+- `SRA-INJECTED-PROBE-2026-06-16`: row-specific injected proof reports one
+  diagnostic for a Studio UI runtime recipe import and keeps the
+  `browser-runner` control clean; aggregate injected-corpus closure remains
+  unclaimed while unrelated DDIT is blocked.
+
+This row does not claim raw direct Grit acquisition, generated artifact proof,
+Effect adapter closure, apply safety, retired parity, aggregate injected-corpus
+closure, or product/runtime proof.

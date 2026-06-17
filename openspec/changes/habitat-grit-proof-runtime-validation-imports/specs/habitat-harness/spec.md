@@ -47,16 +47,38 @@ validation and compiler normalization helper imports under the current
 - **AND** any future predicate expansion SHALL require separate path-control
   proof and downstream record updates
 
+### Requirement: Runtime Validation Imports Active Check Closure Is Explicit
+
+Habitat SHALL keep active-check closure evidence for
+`grit-runtime-validation-imports` separate from neighboring runtime-purity and
+product proof.
+
+#### Scenario: Habitat wrapper and baseline proof pass
+
+- **WHEN** `habitat check --rule grit-runtime-validation-imports` exits 0
+- **THEN** the report SHALL select `grit-runtime-validation-imports` and
+  `baseline-integrity`
+- **AND** both selected rules SHALL pass with zero diagnostics
+- **AND** the explicit row baseline SHALL remain `[]`
+
+#### Scenario: Row-specific injected probe reports
+
+- **WHEN** the injected-probe runner executes the RVI row
+- **THEN** the injected runtime-step file SHALL report one RVI diagnostic
+- **AND** the outside-scope control file SHALL remain clean
+- **AND** aggregate injected-corpus closure SHALL remain separate while
+  unrelated rows remain blocked
+
 ### Requirement: Runtime Validation Imports Non-Claims Stay Explicit
 
 Habitat SHALL keep proof classes separate for
 `grit-runtime-validation-imports`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Proof class is outside this row
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, or apply safety is not available in the
-  current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** raw acquisition, Effect adapter behavior, apply safety, retired
+  parity, neighboring runtime-purity row closure, or product/runtime proof is
+  not proven by this row
+- **THEN** row records SHALL label those proof classes as non-claims
+- **AND** the row SHALL NOT close those gates through native fixtures, parser
+  inventory, wrapper, baseline, or injected proof

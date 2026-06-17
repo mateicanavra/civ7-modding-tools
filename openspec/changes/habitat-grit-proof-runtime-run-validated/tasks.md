@@ -20,17 +20,17 @@
 
 ## 3. Dependency-Bound Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - Current proof: `RRV-PER-RULE-SELECTOR-2026-06-16` and
+    `RRV-HABITAT-GRIT-TOOL-2026-06-16`.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
   - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+- [x] 3.3 Injected violation and cleanup proof.
+  - Current proof: `RRV-INJECTED-PROBE-2026-06-16` records one injected
+    diagnostic at the runtime step path and a clean outside-scope control.
+- [x] 3.4 Explicit baseline proof.
+  - Current proof: `RRV-BASELINE-FILES-2026-06-16` plus wrapper
+    `baseline-integrity`; the baseline file is explicit `[]`.
 
 ## 4. Downstream Realignment
 
@@ -51,3 +51,7 @@
 - [x] 5.5 `git diff --check`
 - [x] 5.6 `bun run openspec:validate`
 - [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.8 per-rule Habitat wrapper proof
+- [x] 5.9 aggregate `grit-check` wrapper proof
+- [x] 5.10 registered injected probe/path-control proof
+- [x] 5.11 aggregate proof-repair strict OpenSpec validation

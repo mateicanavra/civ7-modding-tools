@@ -12,8 +12,8 @@
 | `docs/system/libs/mapgen/reference/STANDARD-RECIPE.md` | Records that step overrides live at `<stageId>.<stepId>` and wrapper-only `advanced` stage surfaces were removed. | Reference authority; not current-tree proof. |
 | `docs/system/libs/mapgen/explanation/ARCHITECTURE.md` | Points to the normalization packet as the active decision source and treats older `advanced` mentions as drift context. | Documentation drift remains outside this row's closure. |
 | `openspec/changes/archive/2026-05-30-normalize-config-surface/implementation.md` | D1 implementation removed wrapper-only `public.advanced` and migrated first-party config to top-level step IDs without dual-shape compatibility. | Historical implementation record; not current proof. |
-| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Candidate row requests positive wrapper advanced config, negative current step-id config, ordinary advanced-word false positives, current recipe/map config scan, empty locked baseline unless findings prove otherwise, and non-apply disposition. | Aggregate row to align after proof is gathered. |
-| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Design seed has 1 match and 1 ignore, with parser-edge and false-positive classification pending. | Aggregate row to align after proof is gathered. |
+| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Current row records WASC active-check closure evidence for native fixtures, current inventory, wrapper selector, aggregate `grit-check`, explicit empty baseline, and row-specific injected proof. | Aggregate row does not prove broader config-surface closure or product/runtime behavior. |
+| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Current row records the WASC active-check proof boundary and preserves raw acquisition, broader config-surface, generator/migration, apply, retired parity, and product/runtime non-claims. | Aggregate row to keep aligned after final injected proof is rerun. |
 
 ## Current Predicate
 
@@ -72,32 +72,30 @@ property counts, ordinary advanced-word lookalikes, live candidate paths, row
 id, proof ids, blockers, and explicit non-claims. Temporary stdout or scratch
 files are not durable proof.
 
-Current checkpoint counts:
+Current closure inventory counts:
 
-- 240 scanned TS/TSX/JSON files under the Swooper standard recipe and maps
+- 239 scanned TS/TSX/JSON files under the Swooper standard recipe and maps
   roots.
-- 234 `.ts` files, 0 `.tsx` files, and 6 `.json` files.
-- 240 current-predicate files: 234 current-predicate `.ts` files, 6
+- 233 `.ts` files, 0 `.tsx` files, and 6 `.json` files.
+- 239 current-predicate files: 233 current-predicate `.ts` files, 6
   current-predicate `.json` files, and 0 current-predicate `.tsx` files.
-- 221 current-predicate standard recipe files and 19 current-predicate map
+- 221 current-predicate standard recipe files and 18 current-predicate map
   files.
 - 0 exact `advanced` identifier properties.
 - 0 exact `"advanced"` string-literal properties.
 - 0 total exact `advanced` properties.
 - 0 exact JSON `advanced` properties.
 - 0 exact TS `advanced` properties.
-- 8 advanced-name lookalike properties and 39 advanced-name identifier
+- 6 advanced-name lookalike properties and 39 advanced-name identifier
   references.
 - 0 current-predicate files with exact `advanced` candidates.
-- 7 current-predicate files with lookalike-only advanced names.
+- 5 current-predicate files with lookalike-only advanced names.
 - 0 parse diagnostics.
 
-The 8 lookalike properties are ordinary gameplay/config terms and not exact
-wrapper `advanced` config-key candidates: `assign-advanced-starts`,
-`advancedStartAssignment`, and `advancedStartsAssigned` across placement recipe,
-artifact, step, and tag source.
+The 6 lookalike properties are ordinary gameplay/config terms and not exact
+wrapper `advanced` config-key candidates.
 
-The first attempted inventory command invoked `bun` with stdin and printed Bun
-usage. That stdout was scratch only and is not durable proof. The durable
-successful command shape is inline `node --input-type=module` with the
-TypeScript compiler API.
+Current wrapper proof selects exactly WASC plus `baseline-integrity`; aggregate
+`grit-check` proof includes WASC among 30 Grit rules; the committed baseline is
+explicit `[]`. Row-specific injected proof is recorded separately from
+aggregate injected-corpus closure.

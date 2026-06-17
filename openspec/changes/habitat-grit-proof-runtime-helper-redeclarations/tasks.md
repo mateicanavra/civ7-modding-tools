@@ -21,22 +21,34 @@
 
 ## 3. Dependency-Bound Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - Current closure proof runs
+    `bun run habitat:check -- --json --rule grit-runtime-helper-redeclarations`;
+    it selects exactly RHR plus `baseline-integrity` and reports zero
+    diagnostics (`RHR-PER-RULE-SELECTOR-2026-06-16`).
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
-  - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+  - Raw direct Grit acquisition remains unclaimed for this row.
+- [x] 3.3 Injected violation and cleanup proof.
+  - Current closure proof runs the clean-start injected probe harness. The
+    aggregate runner still exits nonzero only for accepted unrelated DDIT, while
+    RHR reports one diagnostic at the injected runtime step path and keeps the
+    outside-scope control clean (`RHR-INJECTED-PROBE-2026-06-16`).
+- [x] 3.4 Explicit baseline proof.
+  - `tools/habitat-harness/baselines/grit-runtime-helper-redeclarations.json`
+    is explicit `[]`; `baseline-integrity` passes in per-rule and aggregate
+    wrapper proof (`RHR-BASELINE-FILES-2026-06-16`).
 - [x] 3.5 Live helper redeclaration disposition.
   - Resolved by successor `habitat-grit-apply-helper-redeclarations`: the three
     current-predicate `clamp01` function declarations were remediated through a
     bounded source-owner/apply checkpoint, and current parser inventory now
     reports zero RHR candidates.
+- [x] 3.6 Aggregate `grit-check` wrapper proof.
+  - `bun run habitat:check -- --json --tool grit-check` passes with RHR
+    included in the current Grit rule set plus `baseline-integrity`
+    (`RHR-HABITAT-GRIT-TOOL-2026-06-16`).
+- [x] 3.7 Native Grit corpus refresh.
+  - Full native Grit corpus proof passes with RHR included
+    (`RHR-NATIVE-CORPUS-REFRESH-2026-06-16`).
 
 ## 4. Downstream Realignment
 
@@ -53,7 +65,11 @@
 - [x] 5.1 `bun run openspec -- validate habitat-grit-proof-runtime-helper-redeclarations --strict`
 - [x] 5.2 native fixture proof
 - [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.4 Habitat per-rule wrapper proof
+- [x] 5.5 aggregate `grit-check` wrapper proof
+- [x] 5.6 explicit empty baseline proof
+- [x] 5.7 row-specific injected violation/path-control proof
+- [x] 5.8 active-packet language guardrail scan
+- [x] 5.9 `git diff --check`
+- [x] 5.10 `bun run openspec:validate`
+- [x] 5.11 commit via Graphite with a clean worktree

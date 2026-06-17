@@ -5,46 +5,35 @@
 Selected workstream: `habitat-grit-proof-recipe-runtime-domain-ops`.
 
 Reason: this is the next independent implemented Grit check row in aggregate
-matrix order after the accepted contract-export, recipe-domain, step-contract,
-and Studio checkpoints. It is suitable for a fixture/parser-inventory
-checkpoint because the row is check-only and can be advanced without consuming
-wrapper, raw acquisition, baseline, injected cleanup, Effect adapter, apply, or
-product proof.
+matrix order after the accepted recipe-domain, Studio, and step-contract
+closures. It is suitable for active-check closure because the row is check-only,
+the current source has no live contract-root candidates, and exact predicate
+repair can be proven without HR-owned implementation changes.
 
 ## Repo State
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-recipe-runtime-domain-ops`
-- Parent layer: `agent-HG-habitat-grit-studio-recipe-artifacts`
-- Graphite stack:
-  `agent-HG-habitat-grit-recipe-runtime-domain-ops` ->
-  `agent-HG-habitat-grit-studio-recipe-artifacts` ->
-  `agent-HG-habitat-grit-step-contract-domain-surface` ->
-  `agent-HG-habitat-grit-recipe-domain-surface` ->
-  `agent-HG-habitat-grit-pattern-chain` -> `main`
+- Branch: `agent-HG-habitat-grit-recipe-runtime-domain-ops-closure`
+- Parent layer: `agent-HG-habitat-grit-step-contract-domain-surface-closure`
 
 ## Current Gate
 
-Native fixture and parser inventory checkpoint is implemented, verified,
-record-aligned, and committed on
-`agent-HG-habitat-grit-recipe-runtime-domain-ops`, then supervisor-accepted as a
-bounded checkpoint. Successor HG rows are committed through
-`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this
-packet is not the active next-row gate.
+Predicate repair, native fixture proof, current parser inventory, per-rule
+wrapper proof, aggregate `grit-check` proof, explicit empty baseline proof, and
+row-specific injected violation/path-control proof are implemented and awaiting
+supervisor review as the RDO closure checkpoint.
 
 ## Dependency Boundary
 
-Historical row-local proof did not consume HR repair layers. Current restacked
-aggregate state inherits shared wrapper/selector, explicit baseline, and
-injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`, `HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+Historical row-local proof did not consume HR repair layers. Current closure
+uses accepted wrapper, baseline, and injected-probe infrastructure through the
+row-specific proof IDs recorded in this packet and the aggregate proof records.
 
 Raw acquisition, Effect adapter closure, apply safety, retired parity, all-mod
-wrapper enforcement, and product proof remain non-claims for this checkpoint
-unless separately proven.
+wrapper enforcement beyond current wrapper roots, aggregate injected-corpus
+closure while DDIT remains blocked, and product/runtime proof remain non-claims
+for this checkpoint unless separately proven.
 
 ## Protected Paths
 
@@ -58,14 +47,12 @@ unless separately proven.
 
 ## Next Actions
 
-1. Preserve this packet as a bounded, accepted historical checkpoint.
-2. Do not treat this packet as clean row/product closure; raw acquisition, apply
-   safety, all-mod wrapper enforcement, retired parity, Effect adapter closure,
-   and product proof remain separate gates unless separately recorded.
+1. Await supervisor review of the committed RDO closure checkpoint.
+2. Do not open another HG row until this checkpoint receives supervisor disposition.
 
 ## Implementation DRA Update - 2026-06-15
 
-Completed independent row work:
+Historical independent row work:
 
 - Opened the row packet for
   `habitat-grit-proof-recipe-runtime-domain-ops`.
@@ -81,7 +68,7 @@ Completed independent row work:
   synthesis, evidence log, downstream ledger, and task state for this
   checkpoint.
 
-Current durable parser inventory summary:
+Historical durable parser inventory summary:
 
 - Scan root: `mods/mod-swooper-maps/src/recipes`.
 - Exclusions: `node_modules`, `dist`, `mod`.
@@ -95,16 +82,29 @@ Current durable parser inventory summary:
   imports, 0 root re-exports, 82 root-domain references outside runtime
   `recipe.ts`, and 117 domain references outside runtime `recipe.ts`.
 
-Blocked/non-claim proof classes:
+## Closure DRA Update - 2026-06-16
 
-- Shared Habitat wrapper selector/current-tree proof is inherited in current
-  aggregate state through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
-- Shared explicit baseline proof is inherited through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- Shared injected Grit-row proof is inherited through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
+Completed row-owned closure work:
+
+- Repaired `.grit/patterns/habitat/checks/recipe_runtime_domain_ops.md` from a
+  broad source-ending snippet to `import_statement(source=$source)` with exact
+  optional-quote `@mapgen/domain/<domain>` source matching.
+- Kept source-prefix, source-relative, source-protocol, trailing slash, `/ops`,
+  `/config.js`, deeper domain paths, re-export, dynamic import, and
+  non-`recipe.ts` classes as controls.
+- Recorded native focused proof with 9 positives and 0 ignore matches.
+- Recorded full native corpus proof with 32 testable patterns and 0 failures.
+- Refreshed parser inventory over `mods/mod-swooper-maps/src/recipes`: 222
+  scanned `.ts` files, 2 current-predicate `recipe.ts` files, 29
+  current-predicate import declarations, 7 approved `/ops` imports, 0 exact
+  contract-root candidates, 0 source lookalikes, and 0 parse diagnostics.
+- Proved per-rule wrapper selection, aggregate `grit-check`, explicit empty
+  baseline / `baseline-integrity`, and row-specific injected
+  violation/path-control behavior.
+
+Current non-claim proof classes:
+
 - Raw Grit acquisition or accepted adapter proof, retired parity, apply safety,
-  all-mod wrapper enforcement, Effect adapter closure, and product proof remain
-  unclaimed for this checkpoint.
+  all-mod wrapper enforcement beyond current wrapper roots, Effect adapter
+  closure, aggregate injected-corpus closure while DDIT remains blocked, and
+  product/runtime proof remain unclaimed for this checkpoint.

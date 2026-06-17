@@ -2,7 +2,7 @@
 
 ### Requirement: Runtime Run Validated Rule Has Row-Level Proof
 
-Habitat SHALL NOT classify `grit-runtime-run-validated` as complete until
+Habitat SHALL classify `grit-runtime-run-validated` as complete only when
 row-level proof records separate native fixture behavior, parser inventory,
 Habitat wrapper behavior, raw acquisition or accepted adapter proof, injected
 violations, explicit baseline behavior, retired-mechanism parity, neighboring
@@ -15,6 +15,22 @@ runtime-purity rows, and downstream record truth.
 - **AND** Habitat SHALL NOT claim Habitat wrapper behavior, raw acquisition,
   baseline behavior, injected cleanup, apply safety, neighboring
   runtime-purity row proof, or product proof from that command
+
+#### Scenario: Habitat wrapper proof passes
+
+- **WHEN** `habitat check --json --rule grit-runtime-run-validated` exits 0
+- **THEN** Habitat records per-rule wrapper proof for
+  `grit-runtime-run-validated`
+- **AND** the selected rules SHALL be exactly `grit-runtime-run-validated` plus
+  `baseline-integrity`
+
+#### Scenario: Runtime runValidated injected proof passes
+
+- **WHEN** the registered injected probe for `grit-runtime-run-validated`
+  reports the injected runtime call and keeps the outside-scope control clean
+- **THEN** Habitat records row-specific injected violation/path-control proof
+- **AND** aggregate injected-corpus closure SHALL remain separate from this row
+  while unrelated rows remain blocked
 
 #### Scenario: Runtime runValidated parser inventory is recorded
 
@@ -48,11 +64,11 @@ Runtime recipe steps and domain strategies SHALL avoid direct or member
 
 Habitat SHALL keep proof classes separate for `grit-runtime-run-validated`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Proof class remains outside this row
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, or apply safety is not available in the
-  current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
-- **AND** the row SHALL NOT close those gates through native fixtures or parser
-  inventory
+- **WHEN** raw acquisition, Effect adapter behavior, apply safety,
+  retired-mechanism parity, neighboring runtime-purity row proof, or product
+  behavior is not separately proven
+- **THEN** row records SHALL label those proof classes as non-claims
+- **AND** the row SHALL NOT close those gates through native fixtures, parser
+  inventory, wrapper proof, baseline proof, or injected proof

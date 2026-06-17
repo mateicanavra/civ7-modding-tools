@@ -10,17 +10,15 @@
 | SRA-E6 | `apps/mapgen-studio/src/browser-runner/recipeRuntime.ts` | Worker exception imports runtime recipe modules. | Current exception exemplar exists. | Does not authorize UI runtime imports. |
 | SRA-E7 | `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter studio_recipe_artifacts --json` on branch `agent-HG-habitat-grit-studio-recipe-artifacts` | Exit 0; one testable pattern succeeds. The committed fixture produces 8 current-predicate matches across default, named, namespace, type-only, side-effect, standard/browser-test runtime sources, and `browser-runnerish`/`serverish` path-lookalike classes. The ignore sample produces 0 matches for artifact imports, map-config artifacts, source lookalikes, re-exports, worker/server exception paths, `.js`/`.jsx`, non-Studio app paths, and package paths. | Native fixture/parser-edge proof for current predicate behavior. | No Habitat wrapper selector truth, current-tree wrapper proof, raw acquisition, baseline proof, injected cleanup proof, Effect adapter proof, retired parity, apply safety, product proof, or exact policy closure beyond current predicate. |
 | SRA-E8 | Inline Bun/Node TypeScript parser inventory over `apps/mapgen-studio/src` on branch `agent-HG-habitat-grit-studio-recipe-artifacts` | Scan root: `apps/mapgen-studio/src`; exclusions: `node_modules`, `dist`, `mod`; parsed `.ts`/`.tsx` imports and re-exports with the TypeScript compiler API. Counts: 145 scanned TS/TSX files, 487 import/export references, 2 runtime recipe references, 5 artifact recipe references, 0 current-predicate runtime matches, 2 browser-runner runtime references, 0 server runtime references, 0 UI runtime references, 3 UI artifact references, 0 runtime re-exports, 0 runtime side-effect imports, 2 runtime default imports, and 0 source lookalikes. Temporary stdout was scratch only; durable evidence is this bounded summary. | Parser inventory and live zero-candidate evidence inside the current Studio root. | Not native Grit current-tree behavior, not Habitat wrapper behavior, not raw Grit acquisition, not baseline behavior, not injected violation proof, not product proof, and not stale-record closure. |
+| SRA-E9 | `bun run habitat:check -- --json --rule grit-studio-recipe-artifacts` | Exit 0; selected exactly `grit-studio-recipe-artifacts` plus `baseline-integrity`, both passing with zero diagnostics. | Per-rule Habitat wrapper/current-tree selector proof and explicit empty baseline integrity for SRA. | Does not prove raw direct Grit acquisition, generated artifact proof, apply safety, retired parity, or product/runtime proof. |
+| SRA-E10 | `bun run habitat:check -- --json --tool grit-check` | Exit 0; aggregate `grit-check` selected 30 Grit rules plus `baseline-integrity`, all passing with zero diagnostics and SRA included. | Aggregate Grit wrapper health for the current stack, with SRA included. | Does not prove raw direct Grit acquisition, row-specific generated artifact proof, aggregate injected-corpus closure, apply safety, retired parity, or product/runtime proof. |
+| SRA-E11 | `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start` | Exit 1 only because accepted unrelated DDIT projection miss remains. SRA passed with one diagnostic at the injected Studio UI runtime import path and a clean `browser-runner` control; initial/final git state and probe cleanup were clean. | Row-specific injected violation/path-control proof for SRA. | Does not prove aggregate injected-corpus closure while DDIT remains blocked; does not prove raw acquisition, generated artifact proof, apply safety, retired parity, or product/runtime proof. |
 
-## Evidence Still Required
+## Evidence Still Unclaimed
 
-- current restacked shared wrapper/selector proof is inherited through
-  `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`;
-- current restacked shared explicit baseline proof is inherited through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`;
-- current restacked shared injected Grit-row proof is inherited through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`;
 - raw acquisition or accepted adapter proof;
+- generated artifact proof;
 - retired parity proof;
-- apply safety and product proof.
+- Effect adapter closure;
+- apply safety;
+- product/runtime proof.

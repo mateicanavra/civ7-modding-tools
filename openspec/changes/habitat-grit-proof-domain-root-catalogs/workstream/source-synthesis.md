@@ -10,7 +10,7 @@
 | `docs/projects/habitat-harness/invariant-corpus.md` | Normalization guardrail G2 records no domain-root catalogs and maps the ported rule to `grit-check`. | Retired parity remains unproven in this checkpoint. |
 | `docs/projects/habitat-harness/discrepancy-log.md` | DL-10 records broader domain-root public-surface documentation work. | This row does not close documentation discrepancy or broader facade coverage. |
 | `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Candidate row requests positive root catalog files, negative approved generated/artifact surfaces, current domain scan, empty locked baseline unless findings prove otherwise, and generator/migration disposition if needed. | Aggregate row to align after proof is gathered. |
-| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Design seed had 1 match and 1 ignore, with parser-edge and false-positive classification pending. | Aggregate row to align after proof is gathered. |
+| `openspec/changes/habitat-grit-proof-repair/workstream/grit-proof-matrix.md` | Earlier bounded checkpoint had native/parser proof only; this closure adds current wrapper, baseline, and injected proof. | Aggregate row to align after proof is gathered. |
 
 ## Current Predicate
 
@@ -60,10 +60,10 @@ predicate counts, nested catalog filename counts, domain-root non-catalog file
 counts, live candidate paths, row id, proof ids, blockers, and explicit
 non-claims. Temporary stdout or scratch files are not durable proof.
 
-Current checkpoint counts:
+Current closure counts:
 
 - 664 scanned TS/TSX files under the Swooper domain root, all `.ts`.
-- 7 immediate domain directories and 9 immediate domain-root entries.
+- 7 immediate domain directories and 46 immediate domain-root entries.
 - 26 immediate domain-root `.ts` files.
 - 0 current-predicate `tags.ts` files.
 - 0 current-predicate `artifacts.ts` files.
@@ -72,10 +72,10 @@ Current checkpoint counts:
 - 0 immediate-root catalog-name lookalikes.
 - 7 immediate-root `index.ts` files and 5 immediate-root `config.ts` files.
 - 46 immediate-root import declarations.
-- 34 total immediate-root `ExportDeclaration` nodes.
-- 32 immediate-root export-from declarations with module specifiers.
-- 21 immediate-root named export declaration nodes.
-- 48 immediate-root named export specifier elements.
+- 38 total immediate-root `ExportDeclaration` nodes.
+- 36 immediate-root export-from declarations with module specifiers.
+- 25 immediate-root named export declaration nodes.
+- 56 immediate-root named export specifier elements.
 - 52 immediate-root exported declaration symbols from exported
   `const`/`function`/`type`/`interface`/`enum` declarations.
 - 2 local named export declaration nodes without module specifiers, both in
@@ -87,3 +87,11 @@ Current checkpoint counts:
 
 An initial inventory attempt with an over-escaped file-extension regex produced
 0 scanned files. That stdout was scratch only and is not durable proof.
+
+Current wrapper proof selects DRC through
+`bun run habitat:check -- --json --rule grit-domain-root-catalogs`, and the
+aggregate `grit-check` wrapper includes DRC with 30 Grit rules plus
+`baseline-integrity` passing. The explicit DRC baseline is `[]`. The registered
+injected probe reports the injected domain-root `tags.ts` path and leaves the
+domain-root `index.ts` control clean. Raw direct Grit acquisition and broader
+domain-root facade closure remain non-claims.

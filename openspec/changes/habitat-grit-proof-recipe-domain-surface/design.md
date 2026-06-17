@@ -29,8 +29,9 @@ Selected row:
 - current effective file class:
   `mods/mod-swooper-maps/src/recipes/**/*.ts`;
 - forbidden form: imports or re-exports from non-public
-  `@mapgen/domain/<domain>/<tail>` sources when the source text does not
-  contain `/ops` or `/config.js`;
+  `@mapgen/domain/<domain>/<tail>` sources, except exact public `/ops` and
+  `/config.js` surfaces and DDI-owned deep `ops`, `ops-by-id`, `rules`, and
+  `strategies` classes;
 - allowed intent: domain root, exact `/ops`, and exact `/config.js`.
 
 ### Exterior
@@ -72,23 +73,23 @@ gaps, map/recipe differences, and duplicate-diagnostic ownership.
 
 This packet fails if a future implementation can mark the row complete from a
 native sample alone, if exact `/ops` and `/config.js` policy is claimed from
-substring exclusions, if `ops-by-id` remains uncovered while the downstream
-record claims exact three-surface enforcement, or if injected proof cannot fail
-the exact Habitat rule id through the real wrapper path.
+substring exclusions, if DDI-owned deep-domain families are double-claimed by
+this row, or if injected proof cannot fail the exact Habitat rule id through the
+real wrapper path.
 
 ## Current Diagnosis
 
 | Surface | Current evidence | Design implication |
 | --- | --- | --- |
 | Rule registration | `rules.json` registers `grit-recipe-domain-surface` as enforced `grit-check`, scope `mods/mod-swooper-maps/src/recipes/**/*.ts`, pattern `recipe_domain_surface`. | Habitat has a rule identity and owner metadata. |
-| Pattern semantics | Pattern uses `language js(typescript)`, matches import, named re-export, and star re-export forms, filters filenames to one mod's recipe `.ts` files, and excludes source text containing `/ops` or `/config.js`. | The effective predicate is recipe `.ts` plus substring-based allowed-source filtering. |
-| Native proof | `grit patterns test --filter recipe_domain_surface --json` exits 0 with one positive default import sample and one `/config.js` negative sample. | Fixture proof exists but does not prove root, exact `/ops`, parser edges, export forms, path controls, or substring gaps. |
+| Pattern semantics | Pattern uses `language js(typescript)`, matches import, named re-export, and star re-export forms, filters filenames to one mod's recipe `.ts` files, allows exact domain root, exact `/ops`, and exact `/config.js`, partitions DDI-owned `ops/<tail>`, `ops-by-id`, `rules/<tail>`, and `strategies/<tail>`, and reports other non-public domain subpaths. | The effective predicate now aligns with the exact recipe public-surface policy while avoiding duplicate injected identities with DDI. |
+| Native proof | `grit patterns test --filter recipe_domain_surface --json` exits 0 with 13 positive match objects, 15 positive source ranges, and 0 ignore matches after predicate repair. | Fixture proof covers parser-edge forms, exact allowed surfaces, RDS-owned substring lookalikes, DDI partition controls, and path controls. |
 | Habitat wrapper | `bun run habitat:check -- --json --rule grit-recipe-domain-surface` exits 0 with this rule and `baseline-integrity`, both pass. | Valid individual rule selection currently works for this id. |
-| Raw acquisition | `grit check mods/mod-swooper-maps/src/recipes --json --level error --no-cache` exits 0 with `results: []`. | Bounded raw zero-result evidence exists for the effective recipe root, but row proof still needs wrapper-root and injected behavior. |
+| Raw acquisition | Direct raw Grit acquisition remains unclaimed. | Current closure uses Habitat wrapper proof and parser inventory; raw direct Grit remains a separate non-claim. |
 | Live inventory | `rg` over recipe source finds only domain `/ops` and `/config.js` imports. | Supplemental live evidence supports no obvious current recipe violations. |
-| Disposable probe | Shared/private default import, named import, type import, named export, type export, and star export report in matching recipe `.ts`; root, `/ops`, `/config.js`, `.tsx`, maps, other mods, `/ops/private`, `ops-by-id`, and `config.js/private` do not report. | Core parser forms work, but exact allowed-surface, side-effect import, namespace import, recipe-local test, and scope boundaries need formal fixtures/proof. |
-| Neighboring overlap | `domain_deep_import` catches `/ops/private`; `ops-by-id` is already recorded as a semantic defect in the domain-deep-import packet. Step contracts have their own rule. | Closure must link neighboring proof ids or blocked records for uncovered exact-surface cases. |
-| Retired parity | H6 records `lint-mapgen-recipe-imports.sh` and `recipe-import-boundary.test.ts` retired to this row and related Grit checks. | Parity proof must compare the retired invariant with current row boundaries. |
+| Disposable probe | Historical probe seed; superseded by repaired native fixture and parser inventory. | Historical context only. |
+| Neighboring overlap | `domain_deep_import` owns `ops/<tail>`, `ops-by-id`, `rules/<tail>`, and `strategies/<tail>`; step contracts have their own rule. | RDS partitions DDI-owned sources to avoid duplicate injected identities and records step-contract overlap as a current-predicate/native fact while SCDS owns stricter contract policy. |
+| Retired parity | H6 records `lint-mapgen-recipe-imports.sh` and `recipe-import-boundary.test.ts` retired to this row and related Grit checks. | Retired parity remains outside this row's accepted proof boundary. |
 
 ## Source Synthesis
 
@@ -158,11 +159,15 @@ It matches source specifiers shaped like:
 .*@mapgen/domain/[^/]+/.+
 ```
 
-It then excludes any matched source whose text contains:
+It then excludes exact public surfaces and DDI-owned deep-domain classes:
 
 ```text
-/ops
-/config.js
+@mapgen/domain/<domain>/ops
+@mapgen/domain/<domain>/config.js
+@mapgen/domain/<domain>/ops/<tail>
+@mapgen/domain/<domain>/ops-by-id
+@mapgen/domain/<domain>/rules/<tail>
+@mapgen/domain/<domain>/strategies/<tail>
 ```
 
 Accepted implementation must prove:
@@ -173,14 +178,10 @@ Accepted implementation must prove:
 - domain-root imports do not report;
 - exact `/ops` imports do not report;
 - exact `/config.js` imports do not report;
-- every non-exact source containing `/ops` or `/config.js` is owned by exact
-  predicate repair, sibling proof, or blocked downstream disposition;
-- `/ops/<tail>` is owned by `grit-domain-deep-import` or by an accepted
-  predicate expansion;
-- `ops-by-id` is linked to the domain-deep-import defect repair or a current
-  blocked record;
-- `config.js/<tail>` is repaired, sibling-owned, or recorded as a blocked
-  exact-surface gap;
+- every non-exact RDS-owned source containing `/ops` or `/config.js` reports;
+- `/ops/<tail>`, `ops-by-id`, `rules/<tail>`, and `strategies/<tail>` are
+  DDI-owned controls linked to accepted `grit-domain-deep-import` proof;
+- `config.js/<tail>` and `config.js` lookalikes report through this row;
 - `.tsx`, map roots, other mods, recipe-local tests, and step contracts are
   either excluded with proof or included through reviewed predicate/metadata
   expansion;
@@ -202,10 +203,11 @@ Accepted implementation must prove:
 | allowed domain root | `@mapgen/domain/<domain>` does not report |
 | allowed exact ops | `@mapgen/domain/<domain>/ops` does not report |
 | allowed exact config | `@mapgen/domain/<domain>/config.js` does not report |
-| `/ops/<tail>` boundary | owned by `grit-domain-deep-import` or predicate expansion |
-| `ops-by-id` boundary | linked to domain-deep-import defect repair or blocked record |
-| `config.js/<tail>` boundary | repaired, sibling-owned, or blocked as exact-surface gap |
-| contains-substring lookalikes | `/ops-private`, `/private/ops`, `/config.js-private`, `/private/config.js`, and equivalent cases repaired, sibling-owned, or blocked |
+| `/ops/<tail>` boundary | DDI-owned control linked to accepted `grit-domain-deep-import` proof |
+| `ops-by-id` boundary | DDI-owned control linked to accepted `grit-domain-deep-import` proof |
+| `rules/<tail>` / `strategies/<tail>` boundary | DDI-owned controls linked to accepted `grit-domain-deep-import` proof |
+| `config.js/<tail>` boundary | reports as an RDS positive |
+| contains-substring lookalikes | `/ops-private`, `/private/ops`, `/config.js-private`, `/private/config.js`, and equivalent RDS-owned cases report |
 | `.tsx` path control | `.tsx` path dispositioned against registry wording and current `.ts` predicate |
 | map path control | same non-public source under maps does not claim this rule |
 | other-mod path control | same non-public source under another mod does not claim this rule |
@@ -226,10 +228,10 @@ proof matrix:
 | effective scope | registry metadata, exact wrapper scan roots, bounded raw root, omitted-root projection proof, and exact filename predicate |
 | form semantics | import, namespace import, type import, side-effect import, named export, type export, star export |
 | allowed surfaces | domain root, exact `/ops`, exact `/config.js` |
-| substring gaps | every non-exact source containing `/ops` or `/config.js`, including `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`, and lookalike segments |
+| exact-surface gaps | RDS-owned `config.js/<tail>` and lookalike segments report here; DDI-owned `ops/<tail>`, `ops-by-id`, `rules/<tail>`, and `strategies/<tail>` are controls linked to accepted DDI proof |
 | native sample proof | command, report id/count, sample count, and non-claims |
 | current-tree wrapper proof | Habitat command, output class, selected rule ids, diagnostics count |
-| raw acquisition | bounded direct Grit check command or adapter proof id |
+| raw acquisition | accepted Habitat Grit adapter/wrapper proof id; raw direct Grit acquisition stays non-claim unless separately proven |
 | live inventory | parser-grade or reviewed regex inventory of recipe domain imports |
 | injected proof | positive recipe probe and outside-scope path controls |
 | baseline | explicit empty baseline file and `baseline-integrity` proof |
@@ -247,20 +249,14 @@ Current overlap facts:
 
 - `grit-domain-deep-import` owns map source and exact deep internals under
   `ops`, `ops-by-id`, `rules`, and `strategies`.
-- `grit-recipe-domain-surface` currently catches recipe `rules/<tail>`,
-  `strategies/<tail>`, `shared/<tail>`, and other non-public domain subpaths
-  that do not contain `/ops` or `/config.js`.
-- Recipe `rules/<tail>` and `strategies/<tail>` can produce both this rule and
-  `grit-domain-deep-import`.
-- Recipe `/ops/<tail>` is currently outside this rule because `/ops` is a
-  substring exclusion, but it is covered by `grit-domain-deep-import`.
-- Recipe `ops-by-id` is currently outside this rule because `/ops` is a
-  substring exclusion and is a recorded semantic defect in
-  `grit-domain-deep-import`, so no downstream record may claim it is enforced
-  until that defect is repaired or another accepted owner proves it.
-- Any recipe source containing `/ops` or `/config.js` without being exactly the
-  allowed public source is outside this row's current reporting path unless a
-  sibling row catches it.
+- `grit-recipe-domain-surface` now catches recipe `shared/<tail>`,
+  `types.js`, `config.js/<tail>`, `/ops` lookalikes, `config.js` lookalikes,
+  and other non-public domain subpaths not partitioned to DDI.
+- Recipe `rules/<tail>` and `strategies/<tail>` are DDI-owned controls for this
+  row, avoiding duplicate injected identities.
+- Recipe `/ops/<tail>` and `ops-by-id` are DDI-owned controls linked to the
+  accepted DDI proof boundary.
+- Recipe `config.js/<tail>` and config lookalikes are RDS positives.
 - Step contracts live under `recipes/**` and can overlap this row, but
   `grit-step-contract-domain-surface` owns their stricter contract import
   policy.
@@ -268,12 +264,9 @@ Current overlap facts:
   when they use `.ts`, so implementation must classify them as intentionally
   in-scope, predicate-excluded, or sibling-owned before closure.
 
-Accepted implementation must choose one of these outcomes before closure:
-
-- specialize predicates or registry metadata so isolated proof produces one
-  diagnostic for the row being proved; or
-- keep overlapping diagnostics and record a reviewed multi-rule expectation,
-  including which rule owns remediation guidance and downstream records.
+Accepted implementation specializes the predicate so isolated injected proof
+produces the row identity being proved while sibling-owned DDI classes remain
+under `grit-domain-deep-import`.
 
 ## Exact Surface Gap
 
@@ -283,25 +276,19 @@ The intended policy says recipe imports may use exactly:
 - `@mapgen/domain/<domain>/ops`;
 - `@mapgen/domain/<domain>/config.js`.
 
-The current predicate does not prove exactness because it allows any source text
-containing `/ops` or `/config.js`. This is not limited to the familiar
-`/ops/<tail>` and `config.js/<tail>` families; it also includes lookalike path
-segments such as `/ops-private`, `/private/ops`, `/config.js-private`, and
-`/private/config.js`. Implementation must therefore do one of:
-
-- replace substring exclusions with fixture-proven exact allowed-surface logic;
-- link neighboring proof ids that cover the excluded-but-forbidden family; or
-- mark the broader exact-surface claim blocked/unproven with a named owner.
+The earlier predicate did not prove exactness because it allowed any source
+text containing `/ops` or `/config.js`. The closure replaces that with
+fixture-proven exact allowed-surface logic plus DDI partitioning.
 
 The known current cases are:
 
 - `/ops/<tail>`: owned by `grit-domain-deep-import`;
-- `ops-by-id`: blocked on the domain-deep-import defect repair or another
-  accepted owner;
-- `config.js/<tail>`: currently unowned by this row and needs repair or blocked
-  downstream disposition;
-- lookalike segments containing `/ops` or `/config.js`: currently unowned unless
-  a sibling proof id or predicate repair covers them.
+- `ops-by-id`: owned by `grit-domain-deep-import`;
+- `rules/<tail>` and `strategies/<tail>`: owned by
+  `grit-domain-deep-import`;
+- `config.js/<tail>`: reports in this row;
+- lookalike segments containing `/ops` or `/config.js`: RDS-owned lookalikes
+  report in this row unless they are one of the DDI-owned source families.
 
 ## Relationship To Apply
 
@@ -312,13 +299,15 @@ selected `@mapgen/domain/<domain>/ops/<tail>` imports to public `/ops`, and
 only when target exports, import-kind preservation, dry-run, applied diff,
 formatter handoff, type/test gates, and rollback proof exist.
 
-Shared/private recipe imports, side-effect imports, `config.js/<tail>`,
-`rules/<tail>`, `strategies/<tail>`, `ops-by-id`, and contains-substring
-lookalikes are check-only until a separate exact remediation owner is accepted.
+Shared/private recipe imports, side-effect imports, `config.js/<tail>`, and
+RDS-owned contains-substring lookalikes are check-only until a separate exact
+remediation owner is accepted. `rules/<tail>`, `strategies/<tail>`,
+`ops/<tail>`, and `ops-by-id` remain DDI-owned check findings rather than RDS
+rewrite inputs.
 
 ## Baseline Policy
 
-Implementation should add an explicit empty baseline file:
+The row uses the explicit empty baseline file:
 
 ```text
 tools/habitat-harness/baselines/grit-recipe-domain-surface.json
@@ -334,22 +323,13 @@ The baseline proof must show:
 
 ## Effect/Substrate Decision
 
-Injected proof for this row needs typed behavior that the current manual Grit
-runner does not provide: scan-root provenance, command provenance,
-parser-classified output, pattern-projection failure classes, overlap
-classification, cleanup on failure, and fake-service tests.
+Injected proof for this row consumes the accepted typed Habitat Grit
+injected-probe substrate. That substrate supplies command provenance, scan-root
+provenance, parser-classified output, projected pattern identity, cleanup
+behavior, and overlap classification for the row-specific probe.
 
-The accepted implementation path is to consume or complete
-`habitat-effect-grit-adapter` before writing injected probes for this row. A
-non-Effect typed substrate can replace that dependency only after design review
-proves it supplies the same capabilities that Effect would supply for this row:
-tagged failures, services, scoped resources, command data, parser
-classification, runtime-edge discipline, and deterministic tests.
-
-If the implementation path preserves string-only JSON recovery, exit-code-only
-command facts, probe cleanup by convention, or tests that require real repo
-mutation for unit proof, the row must move to the Effect adapter substrate
-before closure.
+Raw direct Grit acquisition and a separate Effect adapter proof remain
+non-claims for this row.
 
 ## Write Set
 
@@ -357,7 +337,6 @@ Expected implementation write set:
 
 - `.grit/patterns/habitat/checks/recipe_domain_surface.md`;
 - `tools/habitat-harness/baselines/grit-recipe-domain-surface.json`;
-- `tools/habitat-harness/test/**` after the accepted adapter substrate;
 - `openspec/changes/habitat-grit-proof-repair/**`;
 - this packet's `workstream/**`.
 

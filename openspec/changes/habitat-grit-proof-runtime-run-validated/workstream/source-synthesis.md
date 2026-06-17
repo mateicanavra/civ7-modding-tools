@@ -24,6 +24,26 @@ when `$filename` matches:
 - `mods/<mod>/src/recipes/**/stages/**/steps/**/*.ts`
 - `mods/<mod>/src/domain/**/ops/**/strategies/**/*.ts`
 
+## Current Closure Proof
+
+Current closure adds proof classes that the original native/parser checkpoint did
+not own:
+
+- clean-head native fixture proof remains 9 positive matches and 0 ignore
+  matches;
+- parser inventory over current Swooper recipe/domain roots finds zero current
+  `runValidated` candidate calls and zero parse diagnostics;
+- per-rule Habitat wrapper proof selects exactly `grit-runtime-run-validated`
+  plus `baseline-integrity`;
+- aggregate `grit-check` wrapper proof includes RRV and passes;
+- the explicit baseline file is `[]`;
+- the registered injected probe reports one runtime-step diagnostic and keeps
+  the outside-scope stage-root control clean.
+
+Raw direct Grit acquisition, retired parity, neighboring runtime-purity rows,
+apply safety, Effect adapter closure, aggregate injected-corpus closure while
+DDIT remains blocked, and product/runtime proof remain outside this row.
+
 ## Fixture Plan
 
 Positive/current-predicate classes:

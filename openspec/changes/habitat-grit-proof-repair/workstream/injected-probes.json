@@ -145,11 +145,11 @@
     "rulesJsonScope": "contract schema files",
     "sourcePredicate": "empty object default in contract schema file",
     "match": {
-      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo.contract.ts",
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract.ts",
       "body": "export const Schema = {\n  default: {},\n};\n"
     },
     "control": {
-      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo.ts",
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/contract-helper.ts",
       "body": "export const Schema = {\n  default: {},\n};\n"
     }
   },
@@ -157,10 +157,10 @@
     "ruleId": "grit-mapgen-core-runtime-civ7",
     "patternIdentity": "mapgen_core_runtime_civ7",
     "rulesJsonScope": "packages/mapgen-core/src/{core,engine}/**/*.ts",
-    "sourcePredicate": "mapgen-core core/engine Civ7 runtime member usage",
+    "sourcePredicate": "mapgen-core core/engine Civ7 runtime value import or member usage",
     "match": {
       "path": "packages/mapgen-core/src/core/demo.ts",
-      "body": "GameplayMap.getGridWidth();\n"
+      "body": "import { EngineAdapter } from \"@civ7/adapter\";\n\nexport const adapter = EngineAdapter;\n"
     },
     "control": {
       "path": "packages/mapgen-core/src/viz/demo.ts",

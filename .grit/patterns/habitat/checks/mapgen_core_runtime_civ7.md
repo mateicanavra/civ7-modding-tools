@@ -9,13 +9,12 @@ level: error
 language js(typescript)
 
 or {
-  `import $imports from $source` where {
+  import_statement(source=$source) as $import where {
     $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$",
-    $source <: r"^(?:@civ7/adapter(?:/civ7)?|/base-standard/.+)$"
-  },
-  `import $source` where {
-    $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$",
-    $source <: r"^/base-standard/.+"
+    $source <: r"^[\"']?(?:@civ7/adapter(?:/civ7)?|/base-standard/.+)[\"']?$",
+    ! $import <: includes "import type",
+    ! $import <: includes "import { type",
+    ! $import <: includes "import {type"
   },
   `GameplayMap.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
   `TerrainBuilder.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
@@ -50,16 +49,7 @@ MapConstructibles.addConstructible(0, 0, 1);
 
 // @filename: packages/mapgen-core/src/engine/game-info.ts
 GameInfo.Terrains.lookup("TERRAIN_GRASS");
-```
 
-## Ignores fixture
-
-```typescript
-// @filename: packages/mapgen-core/src/core/demo.ts
-export const pure = 1;
-
-// Current predicate gap: intended forbidden import classes do not report under
-// the existing import-source regex.
 // @filename: packages/mapgen-core/src/core/adapter-value.ts
 import { EngineAdapter } from "@civ7/adapter";
 
@@ -78,10 +68,31 @@ export const gameplayMap = BaseGameplayMap;
 // @filename: packages/mapgen-core/src/engine/base-side-effect.ts
 import "/base-standard/maps/gameplay-map.js";
 
+// @filename: packages/mapgen-core/src/core/adapter-side-effect.ts
+import "@civ7/adapter";
+
+// @filename: packages/mapgen-core/src/core/adapter-mixed.ts
+import { EngineRuntime, type EngineAdapterType } from "@civ7/adapter";
+
+export const mixedRuntime = EngineRuntime;
+export type MixedAdapter = EngineAdapterType;
+```
+
+## Ignores fixture
+
+```typescript
+// @filename: packages/mapgen-core/src/core/demo.ts
+export const pure = 1;
+
 // @filename: packages/mapgen-core/src/core/type-edge.ts
 import type { EngineAdapter as EngineAdapterType } from "@civ7/adapter";
 
 export type CoreAdapter = EngineAdapterType;
+
+// @filename: packages/mapgen-core/src/core/inline-type-edge.ts
+import { type EngineAdapter as EngineAdapterType } from "@civ7/adapter";
+
+export type InlineCoreAdapter = EngineAdapterType;
 
 // @filename: packages/mapgen-core/src/authoring/demo.ts
 import { EngineAdapter } from "@civ7/adapter";

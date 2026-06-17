@@ -9,8 +9,9 @@
 
 ## 2. Native Fixture And Parser Inventory
 
-- [x] 2.1 Expand `.grit/patterns/habitat/checks/empty_schema_default.md` with
-  current-predicate positive and negative/control fixtures.
+- [x] 2.1 Repair `.grit/patterns/habitat/checks/empty_schema_default.md` with
+  `*.contract.ts` and ordinary `contract.ts` positives plus negative/control
+  fixtures.
 - [x] 2.2 Run
   `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter empty_schema_default --json`.
 - [x] 2.3 Run parser inventory over the current Swooper contract-schema roots
@@ -18,24 +19,25 @@
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, and non-claims
   in this packet.
 
-## 3. Dependency-Bound Gates
+## 3. Source Remediation And Active Proof
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
-- [ ] 3.2 Raw acquisition or accepted adapter proof.
-  - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
-- [ ] 3.5 Exact schema-policy closure for ordinary `contract.ts` files.
-  - Blocked/non-claim: parser inventory found 2 ordinary `contract.ts` empty
-    object defaults outside the current `*.contract.ts` predicate. This row
-    does not repair predicate semantics, mutate contract source, or create a
-    baseline.
+- [x] 3.1 Remove the two live ordinary `contract.ts` empty object defaults.
+- [x] 3.2 Prove the source remediation preserves property-default materialized
+  config for `planStarts.tierBias` and `selectResourceSites.familyDensity`.
+- [x] 3.3 Habitat wrapper selector/current-tree proof.
+- [ ] 3.4 Raw acquisition or accepted adapter proof.
+  - Non-claim for this checkpoint.
+- [x] 3.5 Injected violation and cleanup proof.
+- [x] 3.6 Explicit baseline proof through the empty baseline file and
+  `baseline-integrity`.
+- [x] 3.7 Exact schema-policy closure for current domain op and recipe step
+  contract roots.
+- [ ] 3.8 Apply safety.
+  - Non-claim; this row performs manual source remediation, not a registered
+    apply/codemod path.
+- [ ] 3.9 Product/runtime proof.
+  - Non-claim; source tests and Habitat checks do not prove Civ7 runtime
+    behavior.
 
 ## 4. Downstream Realignment
 
@@ -52,7 +54,11 @@
 - [x] 5.1 `bun run openspec -- validate habitat-grit-proof-empty-schema-default --strict`
 - [x] 5.2 native fixture proof
 - [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.4 source remediation tests/checks
+- [x] 5.5 Habitat per-rule wrapper proof
+- [x] 5.6 aggregate `grit-check` wrapper proof
+- [x] 5.7 injected probe proof
+- [x] 5.8 active-packet language guardrail scan
+- [x] 5.9 `git diff --check`
+- [x] 5.10 `bun run openspec:validate`
+- [x] 5.11 commit via Graphite with a clean worktree

@@ -2,11 +2,11 @@
 
 ### Requirement: Recipe Runtime Domain Ops Rule Has Row-Level Proof
 
-Habitat SHALL NOT classify `grit-recipe-runtime-domain-ops` as complete until
-row-level proof records separate native fixture behavior, parser inventory,
-Habitat wrapper behavior, raw acquisition or accepted adapter proof, injected
-violations, explicit baseline behavior, retired-mechanism parity, apply
-disposition, and downstream record truth.
+Habitat SHALL classify `grit-recipe-runtime-domain-ops` as a closed active
+check row only when row-level proof records separate native fixture behavior,
+parser inventory, Habitat wrapper behavior, injected violations, explicit
+baseline behavior, raw acquisition or accepted adapter proof, retired-mechanism
+parity, apply disposition, and downstream record truth.
 
 #### Scenario: Native fixture proof passes
 
@@ -14,9 +14,8 @@ disposition, and downstream record truth.
   0
 - **THEN** Habitat records native fixture proof for
   `recipe_runtime_domain_ops`
-- **AND** Habitat SHALL NOT claim Habitat wrapper behavior, raw acquisition,
-  baseline behavior, injected cleanup, apply safety, or product proof from that
-  command
+- **AND** Habitat SHALL NOT claim raw acquisition, apply safety, or product
+  proof from that command
 
 #### Scenario: Recipe runtime parser inventory is recorded
 
@@ -39,6 +38,14 @@ roots under the current `grit-recipe-runtime-domain-ops` predicate.
 - **AND** the proof record SHALL state whether the behavior is proven by native
   fixtures, parser inventory, or Habitat wrapper proof
 
+#### Scenario: Runtime recipe source lookalike does not report
+
+- **WHEN** a `mods/<mod>/src/recipes/**/recipe.ts` file imports a source such
+  as `virtual:@mapgen/domain/<domain>`, `../@mapgen/domain/<domain>`, or
+  `node:@mapgen/domain/<domain>`
+- **THEN** `grit-recipe-runtime-domain-ops` SHALL NOT report that import
+- **AND** the proof record SHALL classify it as a source-lookalike control
+
 #### Scenario: Runtime recipe imports domain ops bundle
 
 - **WHEN** a runtime `recipe.ts` file imports
@@ -58,11 +65,11 @@ roots under the current `grit-recipe-runtime-domain-ops` predicate.
 Habitat SHALL keep proof classes separate for
 `grit-recipe-runtime-domain-ops`.
 
-#### Scenario: Dependency-bound proof is unavailable in the row stack
+#### Scenario: Non-claimed proof remains outside row closure
 
-- **WHEN** wrapper selector truth, raw acquisition, baseline behavior, injected
-  cleanup, Effect adapter behavior, or apply safety is not available in the
-  current row stack/base
-- **THEN** row records SHALL label those proof classes as blocked or non-claims
+- **WHEN** raw acquisition, Effect adapter behavior, all-mod wrapper
+  enforcement beyond current wrapper roots, retired parity, aggregate
+  injected-corpus closure, product/runtime proof, or apply safety is not proven
+- **THEN** row records SHALL label those proof classes as non-claims
 - **AND** the row SHALL NOT close those gates through native fixtures or parser
   inventory

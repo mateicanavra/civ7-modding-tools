@@ -17,10 +17,17 @@ or {
     $schema_name = text($schema),
     $schema_name <: r"^Civ7[A-Za-z0-9]+(?:Input|Result|Output)Schema$|^Civ7[A-Za-z0-9]+StandardSchema$"
   },
-  `export { $exports } from $source` where {
+  `export { $moduleSchema } from $source` where {
     $filename <: r".*packages/civ7-control-orpc/src/index\.ts$",
-    $source <: r"^\./modules/[^/]+/contract$",
-    $exports <: contains `Civ7$moduleSchema`
+    $source <: r"^[\"']?\./modules/[^/]+/contract[\"']?$",
+    $module_schema = text($moduleSchema),
+    $module_schema <: r"^Civ7[A-Za-z0-9]+(?:Input|Result|Output|Standard)Schema$"
+  },
+  `export { $moduleSchema as $alias } from $source` where {
+    $filename <: r".*packages/civ7-control-orpc/src/index\.ts$",
+    $source <: r"^[\"']?\./modules/[^/]+/contract[\"']?$",
+    $module_schema = text($moduleSchema),
+    $module_schema <: r"^Civ7[A-Za-z0-9]+(?:Input|Result|Output|Standard)Schema$"
   }
 }
 ```
@@ -45,10 +52,16 @@ export const Civ7DemoInputSchema = Type.Object({});
 export const Civ7DemoResultSchema = Type.Object({});
 
 // @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
+export const Civ7DemoOutputSchema = Type.Object({});
+
+// @filename: packages/civ7-control-orpc/src/modules/demo/contract.ts
 export const Civ7DemoStandardSchema = toStandardSchema(Civ7DemoInputSchema);
 
 // @filename: packages/civ7-control-orpc/src/index.ts
 export { Civ7DemoInputSchema } from "./modules/demo/contract";
+
+// @filename: packages/civ7-control-orpc/src/index.ts
+export { Civ7DemoOutputSchema as DemoOutputSchema } from "./modules/demo/contract";
 ```
 
 ## Ignores fixture
@@ -79,6 +92,12 @@ export type DemoSession = DirectControlSession;
 
 // @filename: packages/civ7-control-orpc/src/index.ts
 export { Civ7ControllerBridgeRequestSchema } from "./bridge/controller-ingress";
+
+// @filename: packages/civ7-control-orpc/src/index.ts
+export { Civ7DemoStatusSchema } from "./modules/demo/contract";
+
+// @filename: packages/civ7-control-orpc/src/index.ts
+export { Civ7DemoInputSchema } from "./modules/demo";
 
 // @filename: packages/civ7-control-orpc/src/modules/demo/contract.tsx
 import { session } from "@civ7/direct-control";

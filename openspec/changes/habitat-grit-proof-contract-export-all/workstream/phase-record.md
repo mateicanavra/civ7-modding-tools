@@ -91,11 +91,11 @@ services, raw JSON parser classifications, or cleanup finalizers.
 
 ## Current Status
 
-- Packet opened.
-- Local evidence recorded.
-- Source-agent review running.
-- Adversarial review pending after local draft validation.
-- Implementation pending review and adapter-substrate readiness.
+- Closure update complete for the current HG row checkpoint.
+- Active wrapper, baseline, inventory, and row-specific injected proof are
+  recorded in this packet and the aggregate proof surfaces.
+- Broader raw acquisition, domain-root facade closure, old-mechanism parity,
+  export-list apply safety, and product/runtime proof remain non-claims.
 
 ## Implementation DRA Update - 2026-06-15
 
@@ -120,13 +120,62 @@ Completed independent row-owned work:
   value-star exports, 135 in-scope type-star exports, and 21 Swooper
   domain-root/config/facade value-star exports outside this row predicate.
 
-Blocked/non-claim surfaces:
+Historical blocked/non-claim surfaces in the original 2026-06-15 row pass:
 
-- Habitat wrapper selector proof waits for accepted oclif/root command trust
-  and selector-truth behavior from `habitat-oclif-entrypoint-repair`;
-- explicit empty baseline proof and baseline expansion safety wait for the
-  scaffold/baseline contract repair surface;
-- injected current-tree probes and cleanup proof wait for an accepted typed
-  Grit adapter substrate;
+- Habitat wrapper selector proof originally waited for accepted oclif/root
+  command trust and selector-truth behavior from
+  `habitat-oclif-entrypoint-repair`;
+- explicit empty baseline proof and baseline expansion safety originally
+  waited for the scaffold/baseline contract repair surface;
+- injected current-tree probes and cleanup proof originally waited for an
+  accepted typed Grit adapter substrate;
 - `export type *` allowance is not proven by native fixtures because the pinned
   native markdown parser rejected that syntax during fixture expansion.
+
+This section is historical row context from the original pre-closure
+implementation pass. The current closure evidence below supersedes the
+wrapper, baseline, and registered injected-proof blockers while preserving the
+raw acquisition, parity, broader facade, apply, and product/runtime non-claims.
+
+## Closure Update - 2026-06-16
+
+Branch/worktree:
+
+- branch: `agent-HG-habitat-grit-contract-export-all-closure`;
+- worktree:
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
+- parent checkpoint: accepted `agent-HG-habitat-grit-domain-root-catalogs-closure`.
+
+Completed row-owned closure work:
+
+- reran native fixture proof for `contract_export_all`: one testable pattern,
+  8 current-predicate positive matches, and 0 ignore-sample matches;
+- reran the per-rule Habitat wrapper proof: selected exactly
+  `grit-contract-export-all` plus `baseline-integrity`, both passing with zero
+  diagnostics;
+- reran aggregate `grit-check` wrapper proof: 30 Grit rules plus
+  `baseline-integrity`, all passing with CEA included;
+- refreshed TypeScript parser inventory over current wrapper roots: 0
+  in-scope bare value-star exports, 135 in-scope `export type *` controls, 0
+  in-scope namespace exports, and 20 Swooper domain-root/config/facade
+  value-star exports outside the CEA predicate;
+- consumed the explicit empty CEA baseline file and current
+  `baseline-integrity` proof;
+- reran the registered injected-probe corpus from a clean start. CEA passed
+  with one diagnostic at the injected domain-op `index.ts` value-star path,
+  a clean domain-root outside-scope control, clean initial/final git state, and
+  clean injected-probe filesystem cleanup.
+
+Current non-claims:
+
+- no raw direct Grit acquisition closure;
+- no source remediation closure;
+- no broader domain-root facade/export closure;
+- no generator or migration closure;
+- no export-list apply safety closure;
+- no Effect adapter proof from this row;
+- no retired parity proof;
+- no neighboring-row proof;
+- no product/runtime proof;
+- no aggregate injected-corpus closure while the unrelated
+  `grit-domain-deep-import-tests` adapter activation gap remains.

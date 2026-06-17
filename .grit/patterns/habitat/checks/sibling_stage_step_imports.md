@@ -8,9 +8,9 @@ Stage code must not import another stage's private `steps/` implementation.
 ```grit
 language js(typescript)
 
-`import $imports from $source` where {
+import_statement(source=$source) where {
   $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\.ts$",
-  $source <: r".*\.\./[^/]+/steps/.*"
+  $source <: r"^[\"']?.*\.\./[^/]+/steps/.*[\"']?$"
 }
 ```
 
@@ -39,6 +39,9 @@ export const importedContract = contract;
 import type { StepOutput } from "../../b/steps/foo/types.js";
 
 export type ImportedOutput = StepOutput;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/a/index.ts
+import "../b/steps/foo/register.js";
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/b/steps/foo/index.ts
 export default {};

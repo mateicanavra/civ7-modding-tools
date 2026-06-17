@@ -11,6 +11,9 @@
 
 - [x] 2.1 Expand `.grit/patterns/habitat/checks/recipe_runtime_domain_ops.md`
   with current-predicate positive and negative/control fixtures.
+  - Closure repair uses `import_statement(source=$source)` with exact
+    optional-quote `@mapgen/domain/<domain>` source matching; source-prefix,
+    source-relative, and source-protocol lookalikes are controls.
 - [x] 2.2 Run
   `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter recipe_runtime_domain_ops --json`.
 - [x] 2.3 Run parser inventory over `mods/mod-swooper-maps/src/recipes` with
@@ -18,22 +21,28 @@
 - [x] 2.4 Record fixture classes, inventory counts, proof ids, and non-claims
   in this packet.
 
-## 3. Dependency-Bound Gates
+## 3. Current Wrapper, Baseline, Injected, And Non-Claim Gates
 
-- [ ] 3.1 Habitat wrapper selector/current-tree proof.
-  - Blocked/non-claim until the accepted command-trust/selector layer is
-    available in this row's stack/base or supervisor coordinates integration.
+- [x] 3.1 Habitat wrapper selector/current-tree proof.
+  - `RDO-PER-RULE-SELECTOR-2026-06-16` selects exactly
+    `grit-recipe-runtime-domain-ops` plus `baseline-integrity`, both passing
+    with zero diagnostics.
 - [ ] 3.2 Raw acquisition or accepted adapter proof.
   - Blocked/non-claim for this checkpoint.
-- [ ] 3.3 Injected violation and cleanup proof.
-  - Blocked/non-claim until the typed adapter/probe cleanup surface is
-    available.
-- [ ] 3.4 Explicit baseline proof.
-  - Blocked/non-claim until the scaffold/baseline contract surface is
-    available.
+- [x] 3.3 Injected violation and cleanup proof.
+  - `RDO-INJECTED-PROBE-2026-06-16` records one diagnostic at the injected
+    runtime recipe contract-root import and a clean non-`recipe.ts` control,
+    with clean initial/final git state and probe-root cleanup. Aggregate
+    injected-corpus closure remains a non-claim while DDIT is blocked.
+- [x] 3.4 Explicit baseline proof.
+  - The explicit empty baseline is present and `baseline-integrity` passes in
+    per-rule and aggregate wrapper proof.
 - [ ] 3.5 Apply safety proof for exact import normalization.
   - Blocked/non-claim for this check row; any rewrite belongs to a separate
     apply row.
+- [x] 3.6 Aggregate `grit-check` wrapper proof.
+  - `RDO-HABITAT-GRIT-TOOL-2026-06-16` passes with 30 Grit rules plus
+    `baseline-integrity`, with RDO included and zero diagnostics.
 
 ## 4. Downstream Realignment
 
@@ -50,8 +59,12 @@
 
 - [x] 5.1 `bun run openspec -- validate habitat-grit-proof-recipe-runtime-domain-ops --strict`
 - [x] 5.2 native fixture proof
-- [x] 5.3 parser inventory proof
-- [x] 5.4 active-packet language guardrail scan
-- [x] 5.5 `git diff --check`
-- [x] 5.6 `bun run openspec:validate`
-- [x] 5.7 commit via Graphite with a clean worktree
+- [x] 5.3 full native Grit corpus proof
+- [x] 5.4 parser inventory proof
+- [x] 5.5 per-rule and aggregate Habitat wrapper proof
+- [x] 5.6 row-specific injected/path-control proof
+- [x] 5.7 active-packet language guardrail scan
+- [x] 5.8 `bun run openspec -- validate habitat-grit-proof-repair --strict`
+- [x] 5.9 `git diff --check`
+- [x] 5.10 `bun run openspec:validate`
+- [x] 5.11 commit via Graphite with a clean worktree

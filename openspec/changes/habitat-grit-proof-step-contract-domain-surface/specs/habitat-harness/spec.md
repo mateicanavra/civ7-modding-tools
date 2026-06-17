@@ -4,21 +4,20 @@
 
 Habitat SHALL NOT classify `grit-step-contract-domain-surface` as
 implementation-complete until row-level proof exists for native fixtures,
-current-tree wrapper behavior, wrapper scan-root behavior, raw acquisition or
-accepted adapter proof, injected violations, explicit baseline behavior,
-retired-mechanism parity, neighboring-rule disposition, scope-gap disposition,
-filename-control disposition, source-specifier-control disposition, and
-downstream records.
+current-tree wrapper behavior, wrapper scan-root behavior, injected violations,
+explicit baseline behavior, neighboring-rule disposition, scope-gap
+disposition, filename-control disposition, source-specifier-control
+disposition, downstream records, and explicit non-claims for raw acquisition,
+retired-mechanism parity, apply safety, and product/runtime proof.
 
 #### Scenario: Native fixture proof passes
 
 - **WHEN** `grit patterns test --filter step_contract_domain_surface --json`
   exits 0
 - **THEN** Habitat records native fixture proof for this pattern
-- **AND** Habitat SHALL NOT claim current-tree enforcement, exact filename
-  scope, all-mod wrapper coverage, injected violation, baseline,
-  neighboring-rule ownership, or rewrite safety from that command unless those
-  proof classes are also present
+- **AND** Habitat SHALL NOT claim current-tree enforcement, all-mod wrapper
+  coverage, injected violation, baseline, neighboring-rule ownership, or
+  rewrite safety from that command unless those proof classes are also present
 
 #### Scenario: Current-tree wrapper proof passes
 
@@ -71,10 +70,10 @@ predicate, and import/export source predicate for
 - **WHEN** a matching step contract imports or re-exports from a prefixed,
   relative, or other non-package source specifier that contains
   `@mapgen/domain/<domain>/<tail>`
-- **THEN** the proof record SHALL link predicate repair, sibling proof ids, or
-  a blocked downstream record with named owner
-- **AND** exact source-scope enforcement SHALL NOT be claimed from the current
-  leading-wildcard source regex alone
+- **THEN** `grit-step-contract-domain-surface` SHALL NOT report it after the
+  source predicate repair
+- **AND** the proof record SHALL keep the lookalike as a native/source control,
+  not a step-contract domain-source violation
 
 #### Scenario: Same source appears outside current effective scope
 
@@ -168,10 +167,10 @@ Habitat SHALL classify filename and path boundaries before row closure.
 
 - **WHEN** the matching file name ends in `contract.ts` without being
   `contract.ts` or `*.contract.ts`, such as `notacontract.ts`
-- **THEN** the proof record SHALL link predicate repair, sibling proof ids, or
-  a blocked downstream record with named owner
-- **AND** exact filename-scope enforcement SHALL NOT be claimed from the current
-  regex alone
+- **THEN** `grit-step-contract-domain-surface` SHALL NOT report it after the
+  filename predicate repair
+- **AND** the proof record SHALL keep the lookalike as a native/path control,
+  not an intended step-contract file
 
 #### Scenario: Recipe-local test step contract appears
 
@@ -180,8 +179,8 @@ Habitat SHALL classify filename and path boundaries before row closure.
   `steps/**/__type_tests__/contract.ts`,
   `steps/**/*.test.ts`, or
   `steps/**/*.spec.ts`
-- **THEN** the proof record SHALL classify recipe-local tests as intentionally
-  in-scope, predicate-excluded, or sibling-owned
+- **THEN** the proof record SHALL classify recipe-local tests as predicate
+  excluded for this row
 - **AND** downstream records SHALL NOT claim test import policy from this row
   without that classification
 
@@ -235,38 +234,29 @@ from import rewrite proof.
   existence, import-kind preservation, formatting, typecheck/tests, and rollback
   proof
 
-### Requirement: Injected Proof Uses Accepted Typed Grit Adapter Substrate
+### Requirement: Injected Proof Uses Accepted Shared Probe Runner
 
-Habitat SHALL NOT implement injected probe creation, Grit command execution,
-parser classification, pattern projection, overlap classification, or cleanup
-proof for this row until an accepted typed Grit adapter substrate exists.
+Habitat SHALL NOT claim row-specific injected proof for this row unless a
+clean-start runner creates the probe, reports the exact rule id at the
+intended path, keeps an outside-scope control clean, and restores the worktree
+and probe root.
 
-#### Scenario: Effect adapter substrate is used
+#### Scenario: Shared injected runner is used
 
-- **WHEN** implementation consumes `habitat-effect-grit-adapter`
-- **THEN** injected proof SHALL record command provenance, scan-root
-  provenance, parser-classified output, projected pattern identity, cleanup
-  behavior, overlap classification, and typed failure classes
-- **AND** tests SHALL provide fake services for command, filesystem, and cleanup
-  behavior where unit proof does not need real repo mutation
+- **WHEN** implementation consumes the accepted injected-probe runner
+- **THEN** injected proof SHALL record the probe path, control path, diagnostic
+  count, projected pattern identity, clean initial/final git state, and
+  probe-root cleanup behavior
+- **AND** aggregate injected-corpus closure SHALL remain a non-claim while any
+  unrelated row remains an accepted projection miss
 
-#### Scenario: Non-Effect typed substrate is proposed
+#### Scenario: Parser-edge injected matrix is not provided
 
-- **WHEN** implementation proposes not to use the Effect adapter substrate
-- **THEN** the design SHALL prove equivalent tagged failures, service-injected
-  tests, command provenance, scan-root provenance, cleanup behavior,
-  parser classification, overlap classification, and runtime-edge discipline
-- **AND** the review record SHALL explain why Effect's native capabilities are
-  not selected for this row
-
-#### Scenario: Manual adapter behavior preserves current failure classes
-
-- **WHEN** implementation preserves string-only Grit JSON recovery,
-  exit-code-only command facts, cleanup by convention, parser edges without
-  typed classification, or unit tests that require real repo mutation
-- **THEN** row closure SHALL be blocked
-- **AND** the workstream SHALL consume or complete the accepted Effect adapter
-  substrate before injected proof is implemented
+- **WHEN** parser-edge import/export forms are proved through native fixtures
+  rather than injected probes
+- **THEN** the proof record SHALL say that row-specific injected proof is a
+  representative violation/path-control proof, not a full parser-edge
+  injected matrix
 
 ### Requirement: Step Contract Domain Surface Baseline Expansion Proof Uses Accepted Owner
 

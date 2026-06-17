@@ -6,10 +6,10 @@ is the sole owner of Civ7 engine globals and base-standard APIs; other packages
 must consume adapter abstractions or policy data rather than importing runtime
 engine modules directly.
 
-This checkpoint opens the row packet before fixture or proof claims and limits
-the row to the independent checkpoint class available in this stack:
-current-predicate native fixture proof, parser inventory over package source,
-and record truth only.
+This closure checkpoint records the active Grit row proof now available for the
+registered predicate: native fixture proof, parser inventory over package
+source, Habitat wrapper/current-tree proof, explicit empty baseline integrity,
+row-specific injected proof, and record truth.
 
 ## Target Authority Refs
 
@@ -38,17 +38,16 @@ and record truth only.
   roots, exclusions, counts, row id, proof-class labels, direct import counts,
   adapter-owned import counts, and string-lookalike counts in durable records.
 - Update the aggregate Grit proof matrix, command proof log, and corpus ledger
-  for this row's current checkpoint after evidence is gathered.
+  for this row's current closure checkpoint after evidence is gathered.
 
 ## What Does Not Change
 
 - No package source is changed.
 - No pattern predicate repair is claimed.
-- No source remediation, baseline, or apply behavior is claimed.
-- No Habitat wrapper/current-tree proof is claimed.
-- No raw Grit acquisition, injected cleanup, Effect adapter, generator/migration,
-  retired parity, wrapped-script parity, broader adapter policy closure,
-  neighboring row, or product proof is claimed.
+- No source remediation or apply behavior is claimed.
+- No raw Grit acquisition, Effect adapter, generator/migration, retired parity,
+  wrapped-script parity, broader adapter policy closure, neighboring row,
+  aggregate injected-corpus closure, or product/runtime proof is claimed.
 
 ## Owner Boundary
 
@@ -56,15 +55,12 @@ This workstream owns fixture and proof-record truth for
 `grit-adapter-base-standard-import`.
 
 This workstream does not own package source remediation, adapter API migration,
-baseline mutation, legacy wrapped-script allowlist migration, Habitat
-wrapper/adapter implementation, or product/runtime proof.
+legacy wrapped-script allowlist migration, Habitat wrapper/adapter
+implementation, or product/runtime proof.
 
 ## Requires
 
 - Supervisor acceptance before stacking another row above this checkpoint.
-- A landed/restacked command-trust layer before Habitat wrapper selector proof.
-- An accepted typed adapter/probe cleanup surface before injected proof.
-- The scaffold/baseline contract surface before explicit baseline proof.
 - Supervisor/source-owner disposition if parser inventory finds live direct
   `/base-standard/` import candidates outside `packages/civ7-adapter`.
 
@@ -76,15 +72,20 @@ wrapper/adapter implementation, or product/runtime proof.
   import candidates and no owner accepts remediation, migration, or baseline
   disposition.
 - Closure would rely on stdout artifacts or scratch files.
-- Closure would claim wrapper, raw acquisition, baseline, injected, Effect
-  adapter, apply, generator/migration, neighboring row, retired parity,
-  wrapped-script parity, broader adapter policy, or product proof from native
-  fixture/parser inventory evidence.
+- Closure would claim raw acquisition, Effect adapter, apply, generator/migration,
+  neighboring row, retired parity, wrapped-script parity, broader adapter
+  policy, aggregate injected-corpus closure, or product/runtime proof from native
+  fixture/parser inventory, wrapper, baseline, or row-specific injected evidence.
 
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter adapter_base_standard_import --json`
+- `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --json`
 - Parser inventory over `packages`
+- `bun run habitat:check -- --json --rule grit-adapter-base-standard-import`
+- `bun run habitat:check -- --json --tool grit-check`
+- `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
 - `bun run openspec -- validate habitat-grit-proof-adapter-base-standard-import --strict`
+- `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - `bun run openspec:validate`
 - `git diff --check`

@@ -48,29 +48,36 @@ or /config.js only."
 
 ## Current Pattern Source
 
-`.grit/patterns/habitat/checks/recipe_domain_surface.md`:
+`.grit/patterns/habitat/checks/recipe_domain_surface.md` now records the active
+predicate:
 
 - frontmatter `level: error`;
 - explicit `language js(typescript)`;
-- matches import declarations, named re-exports, and star re-exports;
+- matches static import declarations, named re-exports, and star re-exports;
 - filters filenames to `mods/mod-swooper-maps/src/recipes/.*\.ts`;
-- matches `@mapgen/domain/<domain>/<tail>`;
-- excludes sources containing `/ops`;
-- excludes sources containing `/config.js`.
+- matches `@mapgen/domain/<domain>/<tail>` sources;
+- allows only exact domain root, exact `/ops`, and exact `/config.js` public
+  surfaces;
+- partitions `ops/<tail>`, `ops-by-id`, `rules/<tail>`, and
+  `strategies/<tail>` to the accepted `grit-domain-deep-import` row;
+- reports other non-public recipe domain subpaths, including
+  `config.js/<tail>` and RDS-owned `/ops` / `config.js` lookalikes.
 
 Current native fixture coverage:
 
-- ten positive matches: default import, named import, namespace import, type
-  import, side-effect import, named re-export, type re-export, star re-export,
-  recipe-local test path, and step-contract overlap path;
+- thirteen positive match objects, covering default import, named import,
+  namespace import, type import, side-effect import, named re-export, type
+  re-export, star re-export, recipe-local test path, step-contract overlap
+  path, RDS-owned `/ops` lookalikes, `config.js/<tail>`, and RDS-owned
+  `config.js` lookalikes;
 - zero-match controls for domain root, exact `/ops`, exact `/config.js`,
-  `/ops/<tail>`, `ops-by-id`, `config.js/<tail>`, contains-substring
-  lookalikes, `.tsx`, maps, other mods, and non-recipe tests.
+  DDI-owned `/ops/<tail>`, `ops-by-id`, `rules/<tail>`,
+  `strategies/<tail>`, `.tsx`, maps, other mods, and non-recipe tests.
 
-Current native samples prove current predicate behavior for those forms. They
-do not prove Habitat wrapper selector truth, raw acquisition closure, injected
-violation behavior, baseline behavior, retired-mechanism parity, or sibling-row
-enforcement of substring-gap cases.
+Current native samples prove parser-edge behavior and the row-owned
+exact-surface partition. Habitat wrapper, baseline, and injected proof are
+recorded separately. Raw direct Grit acquisition, retired parity, source
+remediation, apply safety, and product/runtime proof remain non-claims.
 
 ## Official Grit Source
 
@@ -106,30 +113,30 @@ classification, command provenance, and cleanup proof.
 
 | Evidence id | Source | Result | Implication |
 | --- | --- | --- | --- |
-| RDS-E15 | `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter recipe_domain_surface --json` | exits 0; 10 positive matches and 0 ignore matches across the expanded fixture classes | native fixture/parser-edge subset is satisfied |
-| RDS-E16 | TypeScript parser inventory over current wrapper roots | finds 230 `@mapgen/domain` references, 124 inside the recipe predicate, 0 current-row matches, 124 exact allowed recipe references, 0 excluded-but-non-exact recipe references, 0 recipe-local test references, and 38 step-contract references inside the recipe predicate | parser inventory and live zero-candidate evidence are recorded |
-| RDS-E6 | `bun run habitat:check -- --json --rule grit-recipe-domain-surface` design seed | exits 0; `grit-recipe-domain-surface` and `baseline-integrity` pass | not consumed as wrapper proof because accepted command selector truth is not available in this row's stack/base |
-| RDS-E7 | bounded raw `grit check` over recipe root | exits 0 with `results: []` | raw acquisition closure remains unclaimed |
-| RDS-E9 | disposable parser-edge probe | shared/private import and export forms report; root, `/ops`, `/config.js`, `.tsx`, maps, other mods, `/ops/private`, `ops-by-id`, and `config.js/private` do not | direct Grit behavior seed only, not current-tree closure |
-| RDS-E10 | `domain_deep_import` packet | `/ops/private` is owned there; `ops-by-id` is a current defect there | neighboring proof ids are required before exact-surface closure |
-| RDS-E12 | Effect docs and local Effect fit pack | Grit adapter hardening is a strong substrate fit | injected proof needs explicit Effect/manual decision |
+| RDS-E15 | Historical native fixture proof | Superseded by `RDS-NATIVE-FIXTURES-2026-06-16`. | Historical design evidence only. |
+| RDS-E16 | Historical parser inventory | Superseded by `RDS-IMPORT-INVENTORY-2026-06-16`. | Historical count seed only. |
+| RDS-E21 | `RDS-NATIVE-FIXTURES-2026-06-16` | Focused native Grit proof exits 0 with 13 positive match objects and 0 ignore-sample matches. | Native fixture/parser-edge proof is current for the repaired predicate. |
+| RDS-E22 | `RDS-NATIVE-CORPUS-REFRESH-2026-06-16` | Full native corpus exits 0 with 32 testable patterns and 0 failures, RDS included. | The repaired fixture does not break the current native Grit corpus. |
+| RDS-E23 | `RDS-IMPORT-INVENTORY-2026-06-16` | TypeScript parser inventory scans 222 recipe `.ts` files, finds 124 recipe-predicate domain references, 0 current-row matches, 124 exact allowed references, 0 DDI-owned sibling candidates, 0 substring lookalikes, 23 step `contract.ts` files plus 30 step `*.contract.ts` files as neighboring-policy context, and 0 parse diagnostics. | Current-tree source inventory and zero-candidate evidence are current for the repaired predicate. |
+| RDS-E24 | `RDS-PER-RULE-SELECTOR-2026-06-16` | `habitat:check --rule grit-recipe-domain-surface` exits 0 with RDS plus `baseline-integrity`, both passing with zero diagnostics. | Per-rule Habitat wrapper projection and baseline-integrity proof are current. |
+| RDS-E25 | `RDS-HABITAT-GRIT-TOOL-2026-06-16` | Aggregate `habitat:check --tool grit-check` exits 0 with 30 Grit rules plus `baseline-integrity`, RDS included, all passing. | Aggregate Grit wrapper health is current with RDS included. |
+| RDS-E26 | `RDS-BASELINE-FILES-2026-06-16` | `tools/habitat-harness/baselines/grit-recipe-domain-surface.json` is explicit `[]`, and `baseline-integrity` passes in wrapper proof. | Explicit empty baseline ownership is current. |
+| RDS-E27 | `RDS-INJECTED-PROBE-2026-06-16` | Clean-start injected probe run reports RDS passing with one diagnostic at the injected recipe path and a clean outside-scope domain control; the aggregate runner still exits nonzero only for accepted unrelated DDIT. | Row-specific injected violation/path-control proof is current; aggregate injected-corpus closure remains unclaimed. |
 
 ## Design Consequences
 
-1. The row is ready for a per-pattern packet.
-2. Native fixture proof has an expanded current-predicate subset, but sibling
-   substring-gap and wrapper proof remain required before implementation
-   closure.
-3. Exact allowed-surface proof must replace or supplement substring allowance
-   for every non-exact source containing `/ops` or `/config.js`, not just the
-   familiar tail cases.
-4. Current zero-result proof is useful but does not replace injected proof.
-5. Neighboring-rule overlap must be reviewed before downstream H5/H6 closure.
+1. The row closes as an active Grit check proof for the repaired recipe `.ts`
+   predicate.
+2. Exact allowed-surface proof is implemented through exact source guards, not
+   substring exclusions.
+3. DDI-owned `ops/<tail>`, `ops-by-id`, `rules/<tail>`, and
+   `strategies/<tail>` are controls for this row and remain covered by the
+   accepted DDI proof boundary.
+4. RDS-owned `config.js/<tail>` and `/ops` / `config.js` lookalikes report in
+   this row.
+5. Current zero-candidate inventory, wrapper proof, explicit empty baseline,
+   and injected probe proof are separate proof classes.
 6. Apply remediation stays in a separate apply/generator/migration packet.
-7. Probe implementation waits for the accepted Grit adapter substrate.
-8. Manual injected-proof implementation must be rejected if it preserves the
-   same untyped parser, command, cleanup, or test gaps that caused current proof
-   drift.
-9. Namespace imports, side-effect imports, and recipe-local test paths are proof
-   requirements because the current policy language and filename predicate can
-   otherwise be read more broadly than the implemented pattern.
+7. Raw direct Grit acquisition, retired parity, source remediation, aggregate
+   injected-corpus closure while DDIT is blocked, and product/runtime proof
+   remain non-claims.
