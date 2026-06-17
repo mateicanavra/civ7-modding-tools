@@ -9,9 +9,13 @@
 // packages/studio-server/src/contract/errors.ts) and its typed `data`
 // (`observedAt`), so the failure envelope carries `{ error, code?, observedAt? }`
 // instead of a raw transport status code.
-import { isDefinedError, safe } from "@orpc/client";
+import { safe } from "@orpc/client";
 
 import { orpcClient } from "../../lib/orpc";
+import {
+  projectStudioBrowserError,
+  type StudioBrowserErrorDetails,
+} from "../studioErrors/definedErrorProjection";
 import type { Civ7SetupSnapshotLike } from "./setupConfig";
 
 export type Civ7SetupCatalogOption = Readonly<{
@@ -29,33 +33,22 @@ export type Civ7SetupCatalog = Readonly<{
   gameSpeeds: ReadonlyArray<Civ7SetupCatalogOption>;
 }>;
 
-export async function fetchCiv7SetupConfig(
-  options: { signal?: AbortSignal } = {}
-): Promise<
+export async function fetchCiv7SetupConfig(options: { signal?: AbortSignal } = {}): Promise<
   | { ok: true; observedAt: string; setup: Civ7SetupSnapshotLike }
-  | { ok: false; error: string; observedAt?: string; code?: string }
+  | {
+      ok: false;
+      error: string;
+      observedAt?: string;
+      code?: string;
+      statusCode?: number;
+      details?: StudioBrowserErrorDetails;
+    }
 > {
   const { error, data } = await safe(
     orpcClient.civ7.setupConfig({}, options.signal ? { signal: options.signal } : undefined)
   );
   if (error) {
-    if (isDefinedError(error)) {
-      // `observedAt` rides in the typed error data for the DECLARED
-      // SETUP_CONFIG_UNAVAILABLE (503) failure.
-      return {
-        ok: false,
-        error: error.message || "Civ7 setup config unavailable",
-        code: error.code,
-        ...(typeof error.data?.observedAt === "string"
-          ? { observedAt: error.data.observedAt }
-          : {}),
-      };
-    }
-    return {
-      ok: false,
-      error:
-        error instanceof Error && error.message ? error.message : "Civ7 setup config unavailable",
-    };
+    return { ok: false, ...projectStudioBrowserError(error, "Civ7 setup config unavailable") };
   }
   return {
     ok: true,
@@ -79,14 +72,13 @@ export async function requestCiv7Autoplay(action: "start" | "stop"): Promise<{
   autoplay?: { isActive?: boolean; isPaused?: boolean; isPausedOrPending?: boolean };
   game?: { turn?: { ok?: boolean; value?: number } };
   error?: string;
+  code?: string;
+  statusCode?: number;
+  details?: StudioBrowserErrorDetails;
 }> {
   const { error, data: body } = await safe(orpcClient.civ7.autoplay({ action }));
   if (error) {
-    return {
-      ok: false,
-      error:
-        error instanceof Error && error.message ? error.message : "Civ7 autoplay request failed",
-    };
+    return { ok: false, ...projectStudioBrowserError(error, "Civ7 autoplay request failed") };
   }
   // Parity: the autoplay procedure returns 200 with `ok = result.verified`, so a
   // succeeded-transport-but-unverified action still surfaces as `{ ok:false }`
