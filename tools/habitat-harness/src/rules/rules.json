@@ -671,6 +671,25 @@
       "exceptionPath": "none"
     },
     {
+      "id": "arch-test-intelligence-bridge-bundle-runtime-imports",
+      "ownerTool": "wrapped-test",
+      "ownerProject": "mod-civ7-intelligence-bridge",
+      "lane": "enforced",
+      "scope": "mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js generated UI bundle",
+      "forbids": "Node builtin imports or direct-control runtime transports in the generated game UI bridge",
+      "why": "Civ7 loads the bridge in the game UI runtime; Node and direct-control transports belong outside the generated UI bundle.",
+      "detect": [
+        "nx",
+        "run",
+        "mod-civ7-intelligence-bridge:test:architecture-bundle-runtime-imports",
+        "--outputStyle=static"
+      ],
+      "nxTarget": "mod-civ7-intelligence-bridge:test:architecture-bundle-runtime-imports",
+      "remediate": "nx run mod-civ7-intelligence-bridge:build",
+      "message": "Rebuild or narrow the Civ7 intelligence bridge UI bundle so it stays game-runtime safe.",
+      "exceptionPath": "none"
+    },
+    {
       "id": "arch-test-cutover",
       "ownerTool": "wrapped-test",
       "ownerProject": "mod-swooper-maps",
