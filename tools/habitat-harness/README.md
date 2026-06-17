@@ -45,6 +45,12 @@ Notes:
   only in the change that introduces the rule (`--expand-baseline` locally;
   CI cross-references the rule pack at the merge-base and rejects everything
   else). An empty baseline means the rule is locked: any violation fails.
+- Requested check selectors are validated before rule execution. Unknown
+  `--owner`, `--rule`, or `--tool` values, values passed in the wrong selector
+  namespace, and valid selectors whose intersection contains no rules exit
+  non-zero. JSON mode renders a schemaVersion 1 `CheckReport` with the single
+  failing `rule-selection-integrity` report; `--expand-baseline` exits before
+  any baseline file is written.
 - H2 wrapped existing mechanisms verbatim (zero new rules, zero semantic
   change). H3 added Nx boundaries; H4 makes Biome the hygiene owner. H4.5
   moved the command shell to oclif. H5 added the GritQL/file-layer catalog.

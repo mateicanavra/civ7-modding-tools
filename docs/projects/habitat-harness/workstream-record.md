@@ -7,7 +7,10 @@
   active recovery frame in `docs/projects/habitat-harness/dra-takeover-frame.md`
 - **Original stack root:** `agent-F-habitat-harness-workstream` (historical
   H1-H8 execution train)
-- **Current execution branch:** `agent-F-habitat-nx-worktree-state`
+- **Latest settled baseline branch:** `agent-F-habitat-nx-worktree-state`
+- **Active recovery packet:** `habitat-oclif-entrypoint-repair` on
+  `agent-HR-habitat-repair-chain` for command-surface and selector-truth
+  repair.
 - **Status:** RECOVERY ACTIVE. The H1-H8 records are historical implementation
   evidence, not current closure authority by themselves. Current closure must
   be taken from the recovery claim ledger, the Grit pattern corpus ledger, and
@@ -68,6 +71,11 @@ not sufficient current proof. The active truth is:
 - Command trust, baseline semantics, Grit current-tree proof, classify target
   truth, hook side effects, pattern generator metadata, and individual locked
   Grit violations remain active repair/pattern workstreams.
+- P0 command trust is being repaired in
+  `openspec/changes/habitat-oclif-entrypoint-repair/`. That packet owns
+  current root/dev/source/production help, unknown-command behavior, and
+  requested selector truth. It does not close Grit current-tree proof,
+  baseline proof, injected violation proof, or row-level Grit pattern closure.
 
 ## Proof classes per slice (predeclared)
 
@@ -119,11 +127,10 @@ train redefines the other's authority.
 
 ## Next exact action
 
-1. Finish packet realignment for the Nx DAG settlement and commit it cleanly.
-2. Close or correct `habitat-nx-worktree-state-contract` records: the change
-   is implemented, but lint status and fresh-worktree closure language must
-   match current evidence.
-3. Resume implementation only through the active recovery order:
+1. Close `habitat-oclif-entrypoint-repair` with fresh command-surface,
+   selector-failure, JSON compatibility, production-runner, stale-record, and
+   Graphite proof.
+2. Resume implementation only through the active recovery order:
    command trust, baseline/scaffold contract, Grit proof repair, boundary
    taxonomy proof, classify/generator repair, hook hardening, enforcement
    surface cleanup, and then individual Grit proof/apply pattern workstreams.

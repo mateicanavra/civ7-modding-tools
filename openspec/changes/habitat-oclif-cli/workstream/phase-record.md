@@ -9,6 +9,14 @@
 - Started: 2026-06-13
 - Status: Implemented and verified locally; ready for Graphite commit
 
+> 2026-06-15 recovery note: this phase record is historical evidence for the
+> original oclif migration, not current command-trust proof. Fresh P0 evidence
+> in `habitat-oclif-entrypoint-repair` found the canonical root/dev path had
+> regressed into a manual dispatcher that treated `--help` as an unknown
+> command and allowed invalid selectors to false-green through
+> `baseline-integrity`. Current command proof now belongs to
+> `openspec/changes/habitat-oclif-entrypoint-repair/workstream/phase-record.md`.
+
 ## Objective
 
 - Target movement: migrate the repo-local Habitat command surface from the H2 Bun hand parser to the repo-standard oclif command package shape without changing rule semantics, ratchet semantics, JSON schema, or exit behavior except for oclif-native help/parse formatting.
@@ -48,7 +56,7 @@ Old H2/H4 runner snapshot captured before implementation:
 | Probe | Old exit | Old behavior | Expected oclif delta |
 | --- | ---: | --- | --- |
 | `bun run habitat` | 0 | Prints scaffold usage and rule count. | Oclif help/list output is acceptable. |
-| `bun run habitat -- --help` | 2 | Treats `--help` as invalid command, prints scaffold usage. | Verified exit 0 with generated oclif root help. |
+| `bun run habitat -- --help` | 2 | Treats `--help` as invalid command, prints scaffold usage. | Historical H4.5 proof only; superseded by `habitat-oclif-entrypoint-repair` after fresh root/dev/prod command proof. |
 | `bun run habitat -- nope` | 2 | Prints scaffold usage. | Oclif invalid-command formatting acceptable; non-zero preserved. |
 | `bun run habitat:check -- --json --rule doc-ambiguity` | 0 | Emits `CheckReport` JSON with `doc-ambiguity` plus `baseline-integrity`; advisory finding does not fail. | Verified schema/rule selection/exit preserved. |
 | `bun run habitat:check -- --json --output /tmp/habitat-old-check-output.json --rule doc-ambiguity` | 0 | Writes same schema to output path and also prints JSON to stdout. | Verified output-file and stdout behavior. |

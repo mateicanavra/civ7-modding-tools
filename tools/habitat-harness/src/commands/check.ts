@@ -1,6 +1,11 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { createCheckReport, expandBaselines, renderCheckReport } from "../lib/command-engine.js";
+import {
+  createCheckReport,
+  describeRuleSelectionFailure,
+  expandBaselines,
+  renderCheckReport,
+} from "../lib/command-engine.js";
 
 export default class Check extends HabitatCommand {
   static override summary = "Run Habitat structural checks";
@@ -32,7 +37,9 @@ export default class Check extends HabitatCommand {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
     if (flags["expand-baseline"]) {
-      for (const message of expandBaselines(selection)) this.log(message);
+      const expansion = expandBaselines(selection);
+      if (!expansion.ok) this.error(describeRuleSelectionFailure(expansion), { exit: 1 });
+      for (const message of expansion.messages) this.log(message);
       return;
     }
 
