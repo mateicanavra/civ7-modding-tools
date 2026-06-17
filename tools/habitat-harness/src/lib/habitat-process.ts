@@ -1,12 +1,12 @@
+import { createHash } from "node:crypto";
+import path from "node:path";
 import { Command } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { PlatformError } from "@effect/platform/Error";
 import { Chunk, Context, Effect, Layer, Stream } from "effect";
-import { createHash } from "node:crypto";
-import path from "node:path";
-import { GritToolUnavailable, type GritAdapterFailureTag } from "./grit-failures.js";
-import { readGitState, unknownGitState, type HabitatCommandGitState } from "./git-state.js";
-import { materializeHabitatCommand, type HabitatToolExecutionPlane } from "./workspace-tools.js";
+import { type HabitatCommandGitState, readGitState, unknownGitState } from "./git-state.js";
+import { type GritAdapterFailureTag, GritToolUnavailable } from "./grit-failures.js";
+import { type HabitatToolExecutionPlane, materializeHabitatCommand } from "./workspace-tools.js";
 
 export type HabitatCommandKind =
   | "grit-check"
@@ -94,8 +94,8 @@ export class HabitatProcess extends Context.Tag("@internal/habitat-harness/Habit
   HabitatProcess,
   HabitatProcessService
 >() {}
-export { GritToolUnavailable };
 export type { GritAdapterFailureTag };
+export { GritToolUnavailable };
 
 const CAPTURE_LIMIT_BYTES = 4 * 1024 * 1024;
 const SENSITIVE_ENV_KEY = /(TOKEN|SECRET|PASSWORD|PASS|KEY|AUTH|CREDENTIAL|SESSION)/i;
@@ -209,7 +209,9 @@ function runLiveHabitatProcess(
   );
 }
 
-function collectStream(stream: Stream.Stream<Uint8Array, PlatformError>): Effect.Effect<string, PlatformError> {
+function collectStream(
+  stream: Stream.Stream<Uint8Array, PlatformError>
+): Effect.Effect<string, PlatformError> {
   return Stream.runCollect(stream).pipe(
     Effect.map((chunks) => Buffer.concat(Chunk.toReadonlyArray(chunks)).toString("utf8"))
   );
@@ -237,7 +239,9 @@ function captureOutput(text: string): OutputCapture {
   const bytes = Buffer.byteLength(text, "utf8");
   const buffer = Buffer.from(text, "utf8");
   const captured =
-    buffer.length > CAPTURE_LIMIT_BYTES ? buffer.subarray(0, CAPTURE_LIMIT_BYTES).toString("utf8") : text;
+    buffer.length > CAPTURE_LIMIT_BYTES
+      ? buffer.subarray(0, CAPTURE_LIMIT_BYTES).toString("utf8")
+      : text;
   return {
     text: captured,
     truncated: buffer.length > CAPTURE_LIMIT_BYTES,

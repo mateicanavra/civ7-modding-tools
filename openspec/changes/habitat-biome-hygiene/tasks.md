@@ -39,3 +39,18 @@
   target convention.
 - [x] 4.3 `bun run openspec -- validate habitat-biome-hygiene --strict`;
   realign docs; close per workstream record.
+
+## 5. Current HR Closure Proof Refresh
+
+- [x] 5.1 Add executable harness proof for current Biome ownership: formatter
+  config, linter/assist ownership, generated/protected exclusions,
+  direct-Prettier retirement, namespaced Nx targets, single `biome-ci` rule,
+  and ESLint quarantine to project-plane boundaries.
+- [x] 5.2 Repair current included-file Biome drift through the Biome owner
+  layer (`biome check --write .`) without touching generated/protected zones.
+- [x] 5.3 Prove current command behavior through the repo-local Nx
+  `@internal/habitat-harness:biome:ci` target and Habitat `biome-ci` wrapper
+  rule.
+- [x] 5.4 Update the recovery claim ledger so H4 is no longer unknown while
+  preserving non-claims for product/runtime proof, full root CI execution, and
+  generated-output semantics beyond excluded-path ownership.

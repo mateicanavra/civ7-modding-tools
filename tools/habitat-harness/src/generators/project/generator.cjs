@@ -188,7 +188,10 @@ function collectPackageJsonPaths(tree, directory, paths) {
   for (const child of tree.children(directory)) {
     if (PACKAGE_SCAN_IGNORED_DIRECTORIES.has(child)) continue;
     const childPath = path.posix.join(directory, child);
-    if (!tree.exists(path.posix.join(childPath, "package.json")) && tree.children(childPath).length === 0) {
+    if (
+      !tree.exists(path.posix.join(childPath, "package.json")) &&
+      tree.children(childPath).length === 0
+    ) {
       continue;
     }
     collectPackageJsonPaths(tree, childPath, paths);

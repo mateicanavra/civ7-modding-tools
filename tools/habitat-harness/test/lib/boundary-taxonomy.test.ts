@@ -3,13 +3,13 @@ import path from "node:path";
 import { describe, expect, test } from "vitest";
 import {
   auditBoundaryTaxonomy,
+  type BoundaryGraphEdge,
   extractBoundaryConfigConstraints,
   firstFailedConstraint,
   parseBoundaryTaxonomy,
   readBoundaryConfigConstraints,
   readNxProjectMetadataFromGraph,
   readWorkspaceManifestProjects,
-  type BoundaryGraphEdge,
   type TaxonomyConstraint,
 } from "../../src/lib/boundary-taxonomy.js";
 import type { NxProjectMetadata } from "../../src/lib/nx-projects.js";
@@ -31,12 +31,7 @@ describe("boundary taxonomy verifier", () => {
     });
     expect(taxonomy.constraints).toContainEqual({
       sourceTag: "kind:control",
-      onlyDependOnLibsWithTags: [
-        "kind:adapter",
-        "kind:control",
-        "kind:engine",
-        "kind:foundation",
-      ],
+      onlyDependOnLibsWithTags: ["kind:adapter", "kind:control", "kind:engine", "kind:foundation"],
     });
   });
 
@@ -91,7 +86,11 @@ describe("boundary taxonomy verifier", () => {
         ["@civ7/types", "packages/civ7-types", ["kind:foundation"]],
         ["@civ7/adapter", "packages/civ7-adapter", ["kind:adapter"]],
         ["@mateicanavra/civ7-sdk", "packages/sdk", ["kind:sdk"]],
-        ["mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", ["kind:mod", "kind:control"]],
+        [
+          "mod-civ7-intelligence-bridge",
+          "mods/mod-civ7-intelligence-bridge",
+          ["kind:mod", "kind:control"],
+        ],
       ]),
       configConstraints: taxonomy.constraints,
       graphEdges: [

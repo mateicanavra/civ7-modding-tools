@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
@@ -95,7 +95,9 @@ describe("Habitat real command entrypoints", () => {
     };
     expect(report.ok).toBe(false);
     expect(report.rules.map((rule) => rule.ruleId)).toEqual(["rule-selection-integrity"]);
-    expect(report.rules[0]?.diagnostics[0]?.message).toBe('Unknown Habitat tool id: "wrapped-eslint".');
+    expect(report.rules[0]?.diagnostics[0]?.message).toBe(
+      'Unknown Habitat tool id: "wrapped-eslint".'
+    );
     expect(result.stdout).not.toContain("baseline-integrity");
   });
 

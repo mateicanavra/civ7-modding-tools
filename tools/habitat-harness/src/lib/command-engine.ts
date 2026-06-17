@@ -20,8 +20,6 @@ import { runGritApplyPatterns } from "./grit-apply.js";
 
 export { runHook } from "./hooks.js";
 
-import { repoRoot, toRepoRelative } from "./paths.js";
-import { run, type SpawnResult } from "./spawn.js";
 import {
   findOwningProject,
   NxProjectGraphMetadataReader,
@@ -29,6 +27,8 @@ import {
   type NxProjectMetadataReader,
   projectHasTarget,
 } from "./nx-projects.js";
+import { repoRoot, toRepoRelative } from "./paths.js";
+import { run, type SpawnResult } from "./spawn.js";
 
 export interface RuleSelection {
   owner?: string;
@@ -280,7 +280,9 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
     if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
     const { diagnostics } = execution.result;
     const baselineFailures = applyBaseline(diagnostics, baseline);
-    diagnostics.push(...baselineFailures.map((failure) => baselineFailureDiagnostic(rule.id, failure)));
+    diagnostics.push(
+      ...baselineFailures.map((failure) => baselineFailureDiagnostic(rule.id, failure))
+    );
     const newViolations = diagnostics.filter(
       (diagnostic) => !diagnostic.baselined && diagnostic.severity === "error"
     );
@@ -372,7 +374,9 @@ export async function expandBaselines(
       .filter((diagnostic) => diagnostic.severity === "error" && !diagnostic.baselined)
       .map(violationKey);
     if (keys.length > 0) {
-      const guard = guardBaselineExpansion(rule.id, keys, options.base ?? "main", { registry: rules });
+      const guard = guardBaselineExpansion(rule.id, keys, options.base ?? "main", {
+        registry: rules,
+      });
       if (!guard.ok) {
         return {
           ok: false,
@@ -392,7 +396,10 @@ async function executeSelectedRules(
   selectedRules: readonly HarnessRule[],
   options: Pick<CheckOptions, "staged"> = {}
 ): Promise<Map<string, { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }>> {
-  const results = new Map<string, { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }>();
+  const results = new Map<
+    string,
+    { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }
+  >();
   const gritRules = selectedRules.filter((rule) => rule.ownerTool === "grit-check");
   if (gritRules.length > 0) {
     const { runGritRules } = await import("./grit.js");
@@ -813,7 +820,9 @@ function classifyPathWithProjects(
     tags: owner.tags,
     rulesInScope: scopedRules.map((rule) => rule.ruleId),
     scopedRules,
-    requiredTargets: [...resolvedProjectTargets.targets, ...workspace].map((target) => target.command),
+    requiredTargets: [...resolvedProjectTargets.targets, ...workspace].map(
+      (target) => target.command
+    ),
     targets: [...resolvedProjectTargets.targets, ...workspace],
     unavailableTargets: resolvedProjectTargets.unavailableTargets,
   };
@@ -851,7 +860,8 @@ function classifyRuleScope(
         ownerTool: rule.ownerTool,
         ownerProject: rule.ownerProject,
         scope: "unresolved-metadata",
-        reason: "Rule is owned by the project, but current metadata is not precise enough for exact path scope.",
+        reason:
+          "Rule is owned by the project, but current metadata is not precise enough for exact path scope.",
       };
     }
     return {

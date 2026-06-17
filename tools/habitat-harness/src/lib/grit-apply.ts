@@ -707,7 +707,10 @@ async function runIsolatedCopyApplyProof(
   }
 }
 
-function validateAppliedTargetExports(copyRoot: string, changedPaths: readonly string[]): string | null {
+function validateAppliedTargetExports(
+  copyRoot: string,
+  changedPaths: readonly string[]
+): string | null {
   for (const changedPath of changedPaths) {
     const absolute = path.join(copyRoot, changedPath);
     if (!existsSync(absolute)) continue;
@@ -794,7 +797,9 @@ function publicOpsTargetPath(domainPath: string): string | null {
 
 function exportedNames(sourceText: string): Map<string, ExportKind> {
   const names = new Map<string, ExportKind>();
-  for (const match of sourceText.matchAll(/export\s+(const|let|var|function|class|enum)\s+([A-Za-z_$][\w$]*)/g)) {
+  for (const match of sourceText.matchAll(
+    /export\s+(const|let|var|function|class|enum)\s+([A-Za-z_$][\w$]*)/g
+  )) {
     names.set(match[2], "value");
   }
   for (const match of sourceText.matchAll(/export\s+(type|interface)\s+([A-Za-z_$][\w$]*)/g)) {

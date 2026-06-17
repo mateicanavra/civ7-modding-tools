@@ -353,13 +353,18 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   );
   if (runtime.trace?.preCommit) runtime.trace.preCommit.gritPaths = gritPaths;
   if (gritPaths.length > 0) {
-    const grit = runHookCommand(runtime, "grit-check", ["grit", "--json", "check", "--level", "error", ...gritPaths], {
-      cwd: repoRoot,
-      env: {
-        GRIT_CACHE_DIR: path.join(repoRoot, ".grit", "cache"),
-        GRIT_TELEMETRY_DISABLED: "true",
-      },
-    });
+    const grit = runHookCommand(
+      runtime,
+      "grit-check",
+      ["grit", "--json", "check", "--level", "error", ...gritPaths],
+      {
+        cwd: repoRoot,
+        env: {
+          GRIT_CACHE_DIR: path.join(repoRoot, ".grit", "cache"),
+          GRIT_TELEMETRY_DISABLED: "true",
+        },
+      }
+    );
     output.writeStdout(section("grit check", grit.stdout));
     output.writeStderr(grit.stderr);
     if (grit.exitCode !== 0) {
@@ -422,7 +427,9 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
 
 export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState {
   const pathExists = runtime.pathExists ?? existsSync;
-  const resourceCommands = (runtime.resourcePublisher ?? createResourcePublisher(runtime)).commands();
+  const resourceCommands = (
+    runtime.resourcePublisher ?? createResourcePublisher(runtime)
+  ).commands();
   const gitmodulesPath = path.join(repoRoot, ".gitmodules");
   if (!pathExists(gitmodulesPath)) {
     return {
@@ -527,11 +534,10 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
     }
   );
   if (submoduleStatus.exitCode !== 0) {
-    return resourceFailure(
-      "uninitialized",
-      `Could not inspect ${resourcesSubmodulePath} status.`,
-      [resourceCommands.init, resourceCommands.status]
-    );
+    return resourceFailure("uninitialized", `Could not inspect ${resourcesSubmodulePath} status.`, [
+      resourceCommands.init,
+      resourceCommands.status,
+    ]);
   }
   if (submoduleStatus.stdout.trim()) {
     return resourceFailure(
@@ -613,17 +619,27 @@ function resolvePrePushBase(runtime: HookRuntime = {}): string {
 }
 
 function graphiteParent(runtime: HookRuntime = {}): string | null {
-  const info = runHookCommand(runtime, "pre-push-base", ["gt", "branch", "info", "--no-interactive"], {
-    cwd: repoRoot,
-  });
+  const info = runHookCommand(
+    runtime,
+    "pre-push-base",
+    ["gt", "branch", "info", "--no-interactive"],
+    {
+      cwd: repoRoot,
+    }
+  );
   if (info.exitCode !== 0) return null;
   return info.stdout.match(/Parent:\s*([^\s]+)/)?.[1] ?? null;
 }
 
 function stagedPaths(runtime: HookRuntime = {}): string[] {
-  const result = runHookCommand(runtime, "staged-paths", ["git", "diff", "--cached", "--name-status", "-z"], {
-    cwd: repoRoot,
-  });
+  const result = runHookCommand(
+    runtime,
+    "staged-paths",
+    ["git", "diff", "--cached", "--name-status", "-z"],
+    {
+      cwd: repoRoot,
+    }
+  );
   if (result.exitCode !== 0 || !result.stdout) return [];
   const tokens = result.stdout.split("\0").filter(Boolean);
   const out: string[] = [];
@@ -674,9 +690,14 @@ function captureRepoSnapshot(
   const head = runHookCommand(runtime, "repo-state", ["git", "rev-parse", "HEAD"], {
     cwd: repoRoot,
   });
-  const staged = runHookCommand(runtime, "repo-state", ["git", "diff", "--cached", "--name-only", "-z"], {
-    cwd: repoRoot,
-  });
+  const staged = runHookCommand(
+    runtime,
+    "repo-state",
+    ["git", "diff", "--cached", "--name-only", "-z"],
+    {
+      cwd: repoRoot,
+    }
+  );
   const unstaged = runHookCommand(runtime, "repo-state", ["git", "diff", "--name-only", "-z"], {
     cwd: repoRoot,
   });

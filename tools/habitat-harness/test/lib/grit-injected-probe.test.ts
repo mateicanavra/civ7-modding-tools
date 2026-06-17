@@ -1,12 +1,15 @@
 import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { afterAll, afterEach, describe, expect, test } from "vitest";
-import { runInjectedGritProbe, type InjectedProbeScope } from "../../src/lib/grit-injected-probe.js";
 import { injectedProbeRoot, runGritRules } from "../../src/lib/grit.js";
 import {
+  type InjectedProbeScope,
+  runInjectedGritProbe,
+} from "../../src/lib/grit-injected-probe.js";
+import {
+  type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
   makeHabitatCommandResult,
-  type HabitatProcessRequest,
   type OutputCapture,
 } from "../../src/lib/habitat-process.js";
 import { repoRoot } from "../../src/lib/paths.js";
@@ -76,7 +79,11 @@ describe("injected Grit probe harness", () => {
       probeBody: "import '@civ7/adapter/base-standard/probe';\n",
       controlPath,
       controlBody: "export const control = true;\n",
-      scope: { ...scope(), scanRoots: ["mods/mod-swooper-maps/src/maps"], matchingProbePath: generatedProbe },
+      scope: {
+        ...scope(),
+        scanRoots: ["mods/mod-swooper-maps/src/maps"],
+        matchingProbePath: generatedProbe,
+      },
       registry: [rule],
       processLayer: makeFakeHabitatProcessLayer((request) => makeHabitatCommandResult(request)),
     });

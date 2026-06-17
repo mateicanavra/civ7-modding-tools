@@ -1,9 +1,11 @@
 import { createRequire } from "node:module";
-import migrationsManifest from "../../migrations.json";
 import { describe, expect, test } from "vitest";
+import migrationsManifest from "../../migrations.json";
 
 const require = createRequire(import.meta.url);
-const { baselineMetadataNoopMigration } = require("../../src/migrations/baseline-metadata-noop.cjs");
+const {
+  baselineMetadataNoopMigration,
+} = require("../../src/migrations/baseline-metadata-noop.cjs");
 
 describe("Habitat migration boundary", () => {
   test("records the current migration as no-op wiring proof only", async () => {

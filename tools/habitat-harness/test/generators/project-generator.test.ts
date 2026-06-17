@@ -130,14 +130,19 @@ describe("Habitat project generator", () => {
 
   test("refuses package name collisions before writes", async () => {
     const tree = createProjectTree();
-    tree.write("packages/existing/package.json", `${JSON.stringify({ name: "@civ7/collision" })}\n`);
+    tree.write(
+      "packages/existing/package.json",
+      `${JSON.stringify({ name: "@civ7/collision" })}\n`
+    );
 
     await expect(projectGenerator(tree, { name: "collision", kind: "foundation" })).rejects.toThrow(
       "package name already exists"
     );
 
     expect(tree.exists("packages/collision/package.json")).toBe(false);
-    expect(tree.read("packages/existing/package.json", "utf8")).toBe('{"name":"@civ7/collision"}\n');
+    expect(tree.read("packages/existing/package.json", "utf8")).toBe(
+      '{"name":"@civ7/collision"}\n'
+    );
   });
 
   test("refuses non-empty project roots before writes", async () => {
@@ -167,11 +172,15 @@ describe("Habitat project generator", () => {
       }
 
       for (const fixture of scratchDiscoveryProjects) {
-        const project = JSON.parse(runNx(["show", "project", fixture.projectName, "--json"]).stdout);
+        const project = JSON.parse(
+          runNx(["show", "project", fixture.projectName, "--json"]).stdout
+        );
 
         expect(project.root).toBe(fixture.root);
         expect(project.tags).toContain(fixture.tag);
-        expect(Object.keys(project.targets)).toEqual(expect.arrayContaining(["build", "check", "test"]));
+        expect(Object.keys(project.targets)).toEqual(
+          expect.arrayContaining(["build", "check", "test"])
+        );
       }
     } finally {
       cleanupScratchDiscoveryProjects();

@@ -588,12 +588,7 @@
       "scope": "mods/mod-swooper-maps (4 cutover scans)",
       "forbids": "op-calls-op in tectonics, dual contract paths, shim surfaces, foundation topology drift",
       "why": "M-cutover structural invariants (coarse wrap of test:architecture-cutover).",
-      "detect": [
-        "nx",
-        "run",
-        "mod-swooper-maps:test:architecture-cutover",
-        "--outputStyle=static"
-      ],
+      "detect": ["nx", "run", "mod-swooper-maps:test:architecture-cutover", "--outputStyle=static"],
       "nxTarget": "mod-swooper-maps:test:architecture-cutover",
       "remediate": null,
       "message": "See the failing cutover test output for the violated invariant.",

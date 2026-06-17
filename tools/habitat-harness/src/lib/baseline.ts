@@ -112,7 +112,10 @@ export interface ExternalExceptionSourceModel {
   migrationOwner: string;
   projectedKeys?: string[];
   projectKeys?: (context: RequiredBaselineContext) => string[] | BaselineContractFailure;
-  validate?: (context: RequiredBaselineContext, model: ExternalExceptionSourceModel) => BaselineContractFailure | null;
+  validate?: (
+    context: RequiredBaselineContext,
+    model: ExternalExceptionSourceModel
+  ) => BaselineContractFailure | null;
 }
 
 interface RequiredBaselineContext {
@@ -223,8 +226,14 @@ export interface BaselineExpansionGuardResult {
   reason?: BaselineContractFailureReason;
 }
 
-function gitShow(ref: string, repoRelPath: string, context = resolveBaselineContext()): string | null {
-  const res = context.runCommand(["git", "show", `${ref}:${repoRelPath}`], { cwd: context.repoRoot });
+function gitShow(
+  ref: string,
+  repoRelPath: string,
+  context = resolveBaselineContext()
+): string | null {
+  const res = context.runCommand(["git", "show", `${ref}:${repoRelPath}`], {
+    cwd: context.repoRoot,
+  });
   return res.exitCode === 0 ? res.stdout : null;
 }
 
@@ -675,7 +684,12 @@ function validateDocAmbiguityBaseline(
     };
   }
   const value = parsed as { schemaVersion?: unknown; items?: unknown };
-  if (!parsed || typeof parsed !== "object" || value.schemaVersion !== 1 || !Array.isArray(value.items)) {
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    value.schemaVersion !== 1 ||
+    !Array.isArray(value.items)
+  ) {
     return {
       kind: "contract-failure",
       path: model.sourcePath,
@@ -686,7 +700,9 @@ function validateDocAmbiguityBaseline(
   return null;
 }
 
-function adapterBoundaryProjectedKeys(context: RequiredBaselineContext): string[] | BaselineContractFailure {
+function adapterBoundaryProjectedKeys(
+  context: RequiredBaselineContext
+): string[] | BaselineContractFailure {
   const scriptPath = path.join(context.repoRoot, "scripts/lint/lint-adapter-boundary.sh");
   let text: string;
   try {
@@ -726,7 +742,10 @@ function adapterBoundaryProjectedKeys(context: RequiredBaselineContext): string[
 
 function readCurrentRuleRegistry(root: string): BaselineRuleContractInput[] {
   const p = path.join(root, "tools/habitat-harness/src/rules/rules.json");
-  const parsed = parseRuleRegistry(readFileSync(p, "utf8"), "tools/habitat-harness/src/rules/rules.json");
+  const parsed = parseRuleRegistry(
+    readFileSync(p, "utf8"),
+    "tools/habitat-harness/src/rules/rules.json"
+  );
   if (parsed.kind === "contract-failure") throw new Error(parsed.message);
   return parsed.rules;
 }
@@ -783,7 +802,9 @@ function acceptedRuleIntroductionManifest(
   base: string,
   context: RequiredBaselineContext
 ): { ok: true } | { ok: false; reason: BaselineContractFailureReason; message: string } {
-  const manifest = context.ruleIntroductionManifests.find((candidate) => candidate.ruleId === ruleId);
+  const manifest = context.ruleIntroductionManifests.find(
+    (candidate) => candidate.ruleId === ruleId
+  );
   if (!manifest) {
     return {
       ok: false,
@@ -809,7 +830,10 @@ function acceptedRuleIntroductionManifest(
   return { ok: true };
 }
 
-function baseRegistryFinding(failure: BaselineContractFailure, mb: string): BaselineIntegrityFinding {
+function baseRegistryFinding(
+  failure: BaselineContractFailure,
+  mb: string
+): BaselineIntegrityFinding {
   return findingFromFailure({
     ...failure,
     reason: "base-rule-registry-malformed",

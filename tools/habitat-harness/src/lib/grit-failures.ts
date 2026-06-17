@@ -57,20 +57,46 @@ export class GritToolUnavailable extends Data.TaggedError("GritToolUnavailable")
   readonly cause: string;
 }> {}
 
-export class GritCommandFailed extends Data.TaggedError("GritCommandFailed")<GritAdapterFailureFields> {}
+export class GritCommandFailed extends Data.TaggedError(
+  "GritCommandFailed"
+)<GritAdapterFailureFields> {}
 export class GritNoJson extends Data.TaggedError("GritNoJson")<GritAdapterFailureFields> {}
-export class GritMalformedJson extends Data.TaggedError("GritMalformedJson")<GritAdapterFailureFields> {}
-export class GritSchemaDrift extends Data.TaggedError("GritSchemaDrift")<GritAdapterFailureFields> {}
-export class GritUnexpectedResultShape extends Data.TaggedError("GritUnexpectedResultShape")<GritAdapterFailureFields> {}
-export class GritEmptyScanRoots extends Data.TaggedError("GritEmptyScanRoots")<GritAdapterFailureFields> {}
-export class GritPatternProjectionMiss extends Data.TaggedError("GritPatternProjectionMiss")<GritAdapterFailureFields> {}
-export class GritUnexpectedPatternIdentity extends Data.TaggedError("GritUnexpectedPatternIdentity")<GritAdapterFailureFields> {}
-export class GritCacheProvenanceMissing extends Data.TaggedError("GritCacheProvenanceMissing")<GritAdapterFailureFields> {}
-export class GritApplyDirtyWorktree extends Data.TaggedError("GritApplyDirtyWorktree")<GritAdapterFailureFields> {}
-export class GritApplyDryRunMismatch extends Data.TaggedError("GritApplyDryRunMismatch")<GritAdapterFailureFields> {}
-export class GritApplyUnexpectedFile extends Data.TaggedError("GritApplyUnexpectedFile")<GritAdapterFailureFields> {}
-export class GritApplyMissingTargetExport extends Data.TaggedError("GritApplyMissingTargetExport")<GritAdapterFailureFields> {}
-export class GritApplyRollbackFailed extends Data.TaggedError("GritApplyRollbackFailed")<GritAdapterFailureFields> {}
+export class GritMalformedJson extends Data.TaggedError(
+  "GritMalformedJson"
+)<GritAdapterFailureFields> {}
+export class GritSchemaDrift extends Data.TaggedError(
+  "GritSchemaDrift"
+)<GritAdapterFailureFields> {}
+export class GritUnexpectedResultShape extends Data.TaggedError(
+  "GritUnexpectedResultShape"
+)<GritAdapterFailureFields> {}
+export class GritEmptyScanRoots extends Data.TaggedError(
+  "GritEmptyScanRoots"
+)<GritAdapterFailureFields> {}
+export class GritPatternProjectionMiss extends Data.TaggedError(
+  "GritPatternProjectionMiss"
+)<GritAdapterFailureFields> {}
+export class GritUnexpectedPatternIdentity extends Data.TaggedError(
+  "GritUnexpectedPatternIdentity"
+)<GritAdapterFailureFields> {}
+export class GritCacheProvenanceMissing extends Data.TaggedError(
+  "GritCacheProvenanceMissing"
+)<GritAdapterFailureFields> {}
+export class GritApplyDirtyWorktree extends Data.TaggedError(
+  "GritApplyDirtyWorktree"
+)<GritAdapterFailureFields> {}
+export class GritApplyDryRunMismatch extends Data.TaggedError(
+  "GritApplyDryRunMismatch"
+)<GritAdapterFailureFields> {}
+export class GritApplyUnexpectedFile extends Data.TaggedError(
+  "GritApplyUnexpectedFile"
+)<GritAdapterFailureFields> {}
+export class GritApplyMissingTargetExport extends Data.TaggedError(
+  "GritApplyMissingTargetExport"
+)<GritAdapterFailureFields> {}
+export class GritApplyRollbackFailed extends Data.TaggedError(
+  "GritApplyRollbackFailed"
+)<GritAdapterFailureFields> {}
 export class GritAdapterInternalContractViolation extends Data.TaggedError(
   "GritAdapterInternalContractViolation"
 )<GritAdapterFailureFields> {}

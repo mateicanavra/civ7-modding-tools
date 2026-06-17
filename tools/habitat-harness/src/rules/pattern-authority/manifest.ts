@@ -2,10 +2,7 @@ export const patternAuthorityManifestSchemaVersion = 1;
 export const patternAuthorityManifestRoot = "tools/habitat-harness/src/rules/pattern-authority";
 export const patternAuthorityCandidateRoot = `${patternAuthorityManifestRoot}/candidates`;
 
-export type PatternAuthorityLifecycle =
-  | "candidate"
-  | "registered-advisory"
-  | "registered-enforced";
+export type PatternAuthorityLifecycle = "candidate" | "registered-advisory" | "registered-enforced";
 
 export type PatternAuthorityOwnerTool = "grit-check" | "grit-apply";
 
@@ -201,7 +198,8 @@ export function validatePatternAuthorityManifest(
         {
           reason: "missing-manifest",
           path: options.manifestPath ?? "<manifest>",
-          message: "Pattern Authority Manifest is required before registered pattern authority can be accepted.",
+          message:
+            "Pattern Authority Manifest is required before registered pattern authority can be accepted.",
         },
       ],
     };
@@ -255,7 +253,10 @@ export function validatePatternAuthorityManifest(
   };
 }
 
-function validateBaseFields(value: Record<string, unknown>, issues: PatternAuthorityValidationIssue[]) {
+function validateBaseFields(
+  value: Record<string, unknown>,
+  issues: PatternAuthorityValidationIssue[]
+) {
   requireExactNumber(value, "schemaVersion", patternAuthorityManifestSchemaVersion, issues);
   requireString(value, "ruleId", issues);
   requireString(value, "patternName", issues);
@@ -316,7 +317,10 @@ function validateRegisteredFields(
   validateRuleReference(value, issues, options);
 }
 
-function validateSources(value: Record<string, unknown>, issues: PatternAuthorityValidationIssue[]) {
+function validateSources(
+  value: Record<string, unknown>,
+  issues: PatternAuthorityValidationIssue[]
+) {
   validateArrayOfObjects(value, "normativeSources", issues, { min: 1 }, (entry, index) => {
     requireEnum(
       entry,
@@ -333,7 +337,14 @@ function validateSources(value: Record<string, unknown>, issues: PatternAuthorit
     requireEnum(
       entry,
       "kind",
-      ["native-grit-sample", "current-tree-scan", "injected-violation", "retired-mechanism", "test", "manual-review"],
+      [
+        "native-grit-sample",
+        "current-tree-scan",
+        "injected-violation",
+        "retired-mechanism",
+        "test",
+        "manual-review",
+      ],
       issues,
       `provingSources.${index}.kind`
     );
@@ -343,16 +354,27 @@ function validateSources(value: Record<string, unknown>, issues: PatternAuthorit
   });
 }
 
-function validateLanguage(value: Record<string, unknown>, issues: PatternAuthorityValidationIssue[]) {
+function validateLanguage(
+  value: Record<string, unknown>,
+  issues: PatternAuthorityValidationIssue[]
+) {
   const language = objectAt(value, "language", issues);
   if (!language) return;
-  for (const field of ["gritLanguage", "parserVariant", "officialDocsSource", "localProofCommand"]) {
+  for (const field of [
+    "gritLanguage",
+    "parserVariant",
+    "officialDocsSource",
+    "localProofCommand",
+  ]) {
     requireString(language, field, issues, `language.${field}`);
     checkPlaceholderString(language, field, issues, `language.${field}`);
   }
 }
 
-function validateScanRoots(value: Record<string, unknown>, issues: PatternAuthorityValidationIssue[]) {
+function validateScanRoots(
+  value: Record<string, unknown>,
+  issues: PatternAuthorityValidationIssue[]
+) {
   const scanRoots = objectAt(value, "scanRoots", issues);
   if (!scanRoots) return;
   requireStringArray(scanRoots, "include", issues, { min: 1, path: "scanRoots.include" });
@@ -376,10 +398,18 @@ function validateFixtureStrategy(
 ) {
   const fixtureStrategy = objectAt(value, "fixtureStrategy", issues);
   if (!fixtureStrategy) return;
-  requireStringArray(fixtureStrategy, "positive", issues, { min: 1, path: "fixtureStrategy.positive" });
-  requireStringArray(fixtureStrategy, "negative", issues, { min: 1, path: "fixtureStrategy.negative" });
+  requireStringArray(fixtureStrategy, "positive", issues, {
+    min: 1,
+    path: "fixtureStrategy.positive",
+  });
+  requireStringArray(fixtureStrategy, "negative", issues, {
+    min: 1,
+    path: "fixtureStrategy.negative",
+  });
   requireStringArray(fixtureStrategy, "parserEdge", issues, { path: "fixtureStrategy.parserEdge" });
-  requireStringArray(fixtureStrategy, "falsePositive", issues, { path: "fixtureStrategy.falsePositive" });
+  requireStringArray(fixtureStrategy, "falsePositive", issues, {
+    path: "fixtureStrategy.falsePositive",
+  });
 }
 
 function validateFalsePositiveModel(
@@ -388,13 +418,26 @@ function validateFalsePositiveModel(
 ) {
   const falsePositiveModel = objectAt(value, "falsePositiveModel", issues);
   if (!falsePositiveModel) return;
-  requireStringArray(falsePositiveModel, "risk", issues, { min: 1, path: "falsePositiveModel.risk" });
+  requireStringArray(falsePositiveModel, "risk", issues, {
+    min: 1,
+    path: "falsePositiveModel.risk",
+  });
   requireStringArray(falsePositiveModel, "controls", issues, {
     min: 1,
     path: "falsePositiveModel.controls",
   });
-  requireString(falsePositiveModel, "suppressionPolicy", issues, "falsePositiveModel.suppressionPolicy");
-  checkPlaceholderString(falsePositiveModel, "suppressionPolicy", issues, "falsePositiveModel.suppressionPolicy");
+  requireString(
+    falsePositiveModel,
+    "suppressionPolicy",
+    issues,
+    "falsePositiveModel.suppressionPolicy"
+  );
+  checkPlaceholderString(
+    falsePositiveModel,
+    "suppressionPolicy",
+    issues,
+    "falsePositiveModel.suppressionPolicy"
+  );
 }
 
 function validateCurrentTreeScan(
@@ -436,17 +479,28 @@ function validateBaselineContract(
   );
 }
 
-function validateHookScope(value: Record<string, unknown>, issues: PatternAuthorityValidationIssue[]) {
+function validateHookScope(
+  value: Record<string, unknown>,
+  issues: PatternAuthorityValidationIssue[]
+) {
   const hookScope = objectAt(value, "hookScope", issues);
   if (!hookScope) return;
   requireEnum(hookScope, "decision", ["none", "pre-commit"], issues, "hookScope.decision");
   requireString(hookScope, "rationale", issues, "hookScope.rationale");
   requireString(hookScope, "costAndScopeEvidence", issues, "hookScope.costAndScopeEvidence");
   checkPlaceholderString(hookScope, "rationale", issues, "hookScope.rationale");
-  checkPlaceholderString(hookScope, "costAndScopeEvidence", issues, "hookScope.costAndScopeEvidence");
+  checkPlaceholderString(
+    hookScope,
+    "costAndScopeEvidence",
+    issues,
+    "hookScope.costAndScopeEvidence"
+  );
 }
 
-function validateApplySafety(value: Record<string, unknown>, issues: PatternAuthorityValidationIssue[]) {
+function validateApplySafety(
+  value: Record<string, unknown>,
+  issues: PatternAuthorityValidationIssue[]
+) {
   const applySafety = objectAt(value, "applySafety", issues);
   if (!applySafety) return;
   requireEnum(applySafety, "kind", ["not-apply", "apply"], issues, "applySafety.kind");
@@ -473,7 +527,10 @@ function validateRegisteredContradictions(
   value: Record<string, unknown>,
   issues: PatternAuthorityValidationIssue[]
 ) {
-  if (value.lifecycle !== "registered-enforced" && objectAtNoIssue(value, "hookScope")?.decision === "pre-commit") {
+  if (
+    value.lifecycle !== "registered-enforced" &&
+    objectAtNoIssue(value, "hookScope")?.decision === "pre-commit"
+  ) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -533,7 +590,11 @@ function validateRuleReference(
     );
     return;
   }
-  if (typeof value.patternName === "string" && reference.patternName && reference.patternName !== value.patternName) {
+  if (
+    typeof value.patternName === "string" &&
+    reference.patternName &&
+    reference.patternName !== value.patternName
+  ) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -541,7 +602,11 @@ function validateRuleReference(
       `Manifest pattern '${value.patternName}' does not match rule-pack pattern '${reference.patternName}'.`
     );
   }
-  if (options.manifestPath && reference.manifestPath && reference.manifestPath !== options.manifestPath) {
+  if (
+    options.manifestPath &&
+    reference.manifestPath &&
+    reference.manifestPath !== options.manifestPath
+  ) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -549,7 +614,11 @@ function validateRuleReference(
       `Manifest path '${options.manifestPath}' does not match rule-pack reference '${reference.manifestPath}'.`
     );
   }
-  if (typeof value.ownerTool === "string" && reference.ownerTool && reference.ownerTool !== value.ownerTool) {
+  if (
+    typeof value.ownerTool === "string" &&
+    reference.ownerTool &&
+    reference.ownerTool !== value.ownerTool
+  ) {
     addIssue(
       issues,
       "contradicted-manifest",
@@ -590,12 +659,7 @@ function requireExactNumber(
   issues: PatternAuthorityValidationIssue[]
 ) {
   if (value[field] !== expected) {
-    addIssue(
-      issues,
-      "malformed-manifest",
-      field,
-      `${field} must be ${expected}.`
-    );
+    addIssue(issues, "malformed-manifest", field, `${field} must be ${expected}.`);
   }
 }
 
@@ -607,12 +671,7 @@ function requireEnum(
   path = field
 ) {
   if (typeof value[field] !== "string" || !allowed.includes(value[field])) {
-    addIssue(
-      issues,
-      "malformed-manifest",
-      path,
-      `${path} must be one of: ${allowed.join(", ")}.`
-    );
+    addIssue(issues, "malformed-manifest", path, `${path} must be one of: ${allowed.join(", ")}.`);
   }
 }
 
@@ -629,7 +688,10 @@ function objectAt(
   return entry;
 }
 
-function objectAtNoIssue(value: Record<string, unknown>, field: string): Record<string, unknown> | undefined {
+function objectAtNoIssue(
+  value: Record<string, unknown>,
+  field: string
+): Record<string, unknown> | undefined {
   const entry = value[field];
   return isRecord(entry) ? entry : undefined;
 }
@@ -647,11 +709,21 @@ function validateArrayOfObjects(
     return;
   }
   if (options.min !== undefined && array.length < options.min) {
-    addIssue(issues, "malformed-manifest", field, `${field} must contain at least ${options.min} entry.`);
+    addIssue(
+      issues,
+      "malformed-manifest",
+      field,
+      `${field} must contain at least ${options.min} entry.`
+    );
   }
   array.forEach((entry, index) => {
     if (!isRecord(entry)) {
-      addIssue(issues, "malformed-manifest", `${field}.${index}`, `${field}.${index} must be an object.`);
+      addIssue(
+        issues,
+        "malformed-manifest",
+        `${field}.${index}`,
+        `${field}.${index} must be an object.`
+      );
       return;
     }
     validateEntry(entry, index);
@@ -671,11 +743,21 @@ function requireStringArray(
     return;
   }
   if (options.min !== undefined && array.length < options.min) {
-    addIssue(issues, "malformed-manifest", path, `${path} must contain at least ${options.min} entry.`);
+    addIssue(
+      issues,
+      "malformed-manifest",
+      path,
+      `${path} must contain at least ${options.min} entry.`
+    );
   }
   array.forEach((entry, index) => {
     if (typeof entry !== "string" || entry.trim() === "") {
-      addIssue(issues, "malformed-manifest", `${path}.${index}`, `${path}.${index} must be a non-empty string.`);
+      addIssue(
+        issues,
+        "malformed-manifest",
+        `${path}.${index}`,
+        `${path}.${index} must be a non-empty string.`
+      );
     } else if (isPlaceholderText(entry)) {
       addIssue(
         issues,
@@ -736,7 +818,8 @@ function looksLikePath(value: string): boolean {
 }
 
 function looksLikeGritOnlyAuthority(value: Record<string, unknown>): boolean {
-  const hasGritMetadata = "frontmatter" in value || "gritFrontmatter" in value || "markdown" in value;
+  const hasGritMetadata =
+    "frontmatter" in value || "gritFrontmatter" in value || "markdown" in value;
   return hasGritMetadata && !("normativeSources" in value) && !("provingSources" in value);
 }
 
@@ -747,7 +830,11 @@ function looksLikeNxOptionsOnlyAuthority(value: Record<string, unknown>): boolea
     "ruleId" in value && "patternName" in value && "ownerProject" in value && "lifecycle" in value;
   const hasCandidateManifestState = "candidateArtifacts" in value || "registration" in value;
   const hasManifestAuthority = "normativeSources" in value || "provingSources" in value;
-  return (hasOldGeneratorAuthorityInput || hasSparseGeneratorInput) && !hasManifestAuthority && !hasCandidateManifestState;
+  return (
+    (hasOldGeneratorAuthorityInput || hasSparseGeneratorInput) &&
+    !hasManifestAuthority &&
+    !hasCandidateManifestState
+  );
 }
 
 function arrayValue(value: unknown): unknown[] {

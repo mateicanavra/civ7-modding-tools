@@ -1,5 +1,5 @@
-import { createProjectGraphAsync } from "@nx/devkit";
 import path from "node:path";
+import { createProjectGraphAsync } from "@nx/devkit";
 import { repoRoot } from "./paths.js";
 
 export interface NxProjectTarget {

@@ -266,14 +266,17 @@ describe("Habitat classify", () => {
   });
 
   test("classifies literal diffs by changed path", async () => {
-    const result = await classifyTarget(`diff --git a/packages/config/src/index.ts b/packages/config/src/index.ts
+    const result = await classifyTarget(
+      `diff --git a/packages/config/src/index.ts b/packages/config/src/index.ts
 index 1111111..2222222 100644
 --- a/packages/config/src/index.ts
 +++ b/packages/config/src/index.ts
 @@ -1 +1 @@
 -export const a = 1;
 +export const a = 2;
-`, { nxProjects: fixtureNxProjects });
+`,
+      { nxProjects: fixtureNxProjects }
+    );
 
     expect("inputKind" in result && result.inputKind).toBe("diff");
     if (!("inputKind" in result)) throw new Error("expected diff classification");
@@ -283,7 +286,8 @@ index 1111111..2222222 100644
   });
 
   test("classifies multi-path diffs independently and in stable path order", async () => {
-    const result = await classifyTarget(`diff --git a/apps/mapgen-studio/src/main.tsx b/apps/mapgen-studio/src/main.tsx
+    const result = await classifyTarget(
+      `diff --git a/apps/mapgen-studio/src/main.tsx b/apps/mapgen-studio/src/main.tsx
 index 1111111..2222222 100644
 --- a/apps/mapgen-studio/src/main.tsx
 +++ b/apps/mapgen-studio/src/main.tsx
@@ -297,7 +301,9 @@ index 3333333..4444444 100644
 @@ -1 +1 @@
 -export const plugin = 1;
 +export const plugin = 2;
-`, { nxProjects: fixtureNxProjects });
+`,
+      { nxProjects: fixtureNxProjects }
+    );
 
     expect("inputKind" in result && result.inputKind).toBe("diff");
     if (!("inputKind" in result)) throw new Error("expected diff classification");

@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 import {
   patternAuthorityManifestPath,
-  validatePatternAuthorityManifest,
   type RegisteredPatternAuthorityManifest,
+  validatePatternAuthorityManifest,
 } from "../../src/rules/pattern-authority/manifest.js";
 
 describe("Pattern Authority Manifest validator", () => {
@@ -100,7 +100,8 @@ describe("Pattern Authority Manifest validator", () => {
       hookScope: {
         decision: "pre-commit",
         rationale: "staged-scope proof accepted in packet",
-        costAndScopeEvidence: "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/proof.md",
+        costAndScopeEvidence:
+          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/proof.md",
       },
     });
 
@@ -165,7 +166,8 @@ function registeredManifest(
       {
         kind: "accepted-spec",
         pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
-        claim: "Generated Grit-backed rules require structured Habitat authority before registration.",
+        claim:
+          "Generated Grit-backed rules require structured Habitat authority before registration.",
       },
     ],
     provingSources: [
@@ -180,7 +182,8 @@ function registeredManifest(
       gritLanguage: "js(typescript)",
       parserVariant: "typescript",
       officialDocsSource: "docs/projects/habitat-harness/research/official-docs-gritql.md",
-      localProofCommand: "GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose",
+      localProofCommand:
+        "GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose",
     },
     scanRoots: {
       include: ["tools/habitat-harness/src"],

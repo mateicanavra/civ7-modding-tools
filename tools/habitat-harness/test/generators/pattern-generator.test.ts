@@ -4,7 +4,10 @@ import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
 
 const require = createRequire(import.meta.url);
-const { candidateArtifactPaths, patternGenerator } = require("../../src/generators/pattern/generator.cjs");
+const {
+  candidateArtifactPaths,
+  patternGenerator,
+} = require("../../src/generators/pattern/generator.cjs");
 
 const rulesPath = "tools/habitat-harness/src/rules/rules.json";
 

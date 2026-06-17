@@ -17,7 +17,9 @@ async function patternGenerator(tree, rawOptions) {
     throw new Error(`Pattern candidate already exists: ${candidatePaths.patternPath}`);
   }
   if (tree.exists(candidatePaths.manifestPath)) {
-    throw new Error(`Pattern Authority Manifest candidate already exists: ${candidatePaths.manifestPath}`);
+    throw new Error(
+      `Pattern Authority Manifest candidate already exists: ${candidatePaths.manifestPath}`
+    );
   }
 
   tree.write(candidatePaths.patternPath, candidatePatternMarkdown(options));
@@ -54,7 +56,8 @@ function validateNoActiveRegistrationCollision(tree, options) {
   const baselinePath = `tools/habitat-harness/baselines/${options.ruleId}.json`;
   const rulesPath = "tools/habitat-harness/src/rules/rules.json";
 
-  if (tree.exists(activePatternPath)) throw new Error(`Grit pattern already exists: ${activePatternPath}`);
+  if (tree.exists(activePatternPath))
+    throw new Error(`Grit pattern already exists: ${activePatternPath}`);
   if (tree.exists(baselinePath)) throw new Error(`Baseline already exists: ${baselinePath}`);
 
   const rulesText = tree.read(rulesPath, "utf8");
