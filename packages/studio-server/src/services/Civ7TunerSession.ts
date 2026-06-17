@@ -1,6 +1,5 @@
 import { type Civ7DirectControlOptions, Civ7DirectControlSession } from "@civ7/direct-control";
 import { Clock, Context, Data, Effect, Layer, Ref, type Scope } from "effect";
-import type { UnknownException } from "effect/Cause";
 
 /**
  * `Civ7TunerSession` — the ONE Effect-scoped owner of the shared FireTuner
@@ -70,7 +69,7 @@ export interface Civ7TunerSessionApi {
   /** Run a direct-control promise against the shared session, behind the gate. */
   readonly use: <A>(
     run: (options: { readonly session: Civ7DirectControlSession }) => Promise<A>
-  ) => Effect.Effect<A, Civ7TunerBackoffError | UnknownException>;
+  ) => Effect.Effect<A, unknown>;
   readonly health: Effect.Effect<Civ7TunerSessionHealth>;
 }
 
@@ -105,7 +104,10 @@ const make = (
               retryAtMs: openUntil,
             });
           }
-          return yield* Effect.tryPromise(() => run({ session })).pipe(
+          return yield* Effect.tryPromise({
+            try: () => run({ session }),
+            catch: (err) => err,
+          }).pipe(
             Effect.tapError(() =>
               // The session's counter only moves on response-timeouts (the
               // wedge/busy signature) — connection-refused (game not running)
