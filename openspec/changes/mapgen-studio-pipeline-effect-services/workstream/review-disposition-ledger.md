@@ -1,6 +1,6 @@
 # D5 Review Disposition Ledger
 
-Status: implementation-diff review complete; Graphite commit pending
+Status: implementation-diff review complete; Graphite commit landed on current main
 Date: 2026-06-15
 
 | ID | Lane | Finding | Severity | Disposition | Repair |
@@ -51,4 +51,7 @@ Implementation repair evidence currently green:
 
 Live Play and Save/Deploy proof was not run and is not claimed. Browser-runner/recovery/watchdog residue is classified outside D5 and remains assigned to later packet ownership.
 
-Halley final implementation-diff review is complete with the P1 public override blocker accepted and repaired. No remaining P1/P2 findings are open before Graphite commit.
+Halley final implementation-diff review is complete with the P1 public override
+blocker accepted and repaired. No remaining P1/P2 findings were open before
+Graphite commit. The D5 implementation landed on current `origin/main` through
+PR `#1739`.
