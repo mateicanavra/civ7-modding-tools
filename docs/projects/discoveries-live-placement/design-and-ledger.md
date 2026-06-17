@@ -83,4 +83,29 @@ Step ordering already matches the official order (NW → resources → starts �
 **Pass rule:** D1 > 0 AND D3 hold on a Huge/earthlike seed → primary close; D2 corroborates visually; D4 guards regressions.
 Headless (H1) gates entry to the live run but, per the masking above, **cannot** itself prove placement.
 
-**Results:** _pending live run — record branch/commit/requestId/seed/size/age/timestamp here._
+## 6. Results — VERIFIED (in-game observed)
+
+Live run: branch `agent-A-civ7-discoveries-live-placement` @ `b5229b26b`, map `swooper-earthlike`,
+`MAPSIZE_HUGE` (106×66, 6996 plots), seed/game-seed 1337, 10 players, **antiquity** age, 2026-06-17 ~02:28 local.
+Gate: `studio-run-in-game-live` → exit 0, markers `[mapgen-complete]` + `"seed":1337`, no rejectPattern.
+
+| ID | Predicted | Observed | Verdict | Evidence class |
+|----|-----------|----------|---------|----------------|
+| D1 | placed `0 → > 0` (dozens on Huge) | **78 placed** (118 attempted, 40 rejected) | **PASS** | in-game observed |
+| D2 | ≥1 discovery model rendered at an expected tile | Rich@(61,37), Cave@(47,31) rendered (camera centerMatchesTarget; `/tmp/disc-rich-6137.png`, `/tmp/disc-cave-4731.png`) | **PASS** | visual |
+| D3 | `[mapgen-complete]` + `"seed":1337`, no rejectPattern | matched in order | **PASS** | in-game observed |
+| D4 | starts/resources/NW unchanged | 5 wonders + 219 resources placed; 53/53 steps ok | **PASS** | in-game observed |
+| H1 | local gates green | type-check, build, adapter tests 22/22, placement tests (− pre-existing `plan-ops` resources break), `diag:dump` | **PASS** | generated |
+
+Proof corroboration from `Scripting.log`:
+- `[SWOOPER_MOD] DISCOVERY_PLACEMENT_V1 {"plannedCount":118,"placedCount":78,"rejectedCount":40}` (my telemetry)
+- official: `Discovery generation 106 66` → `Total Discoveries Placed: 78` (0 ocean — correct for antiquity)
+- 78 `VALID DISCOVERY SPOT FOUND` lines; visual mix Cairn×11/Tents×10/Campfire×9/Cave×9/Wreckage×8/Rich×7/Ruins×7 (61 land + 17 coastal) — narrative-gated variety, not a single hardcoded type
+- `[51/53] ok ... place-discoveries (107.00ms)` vs the pre-fix silent **2ms / 0 placed**
+
+**Boundary:** in-game observed for this one Huge/earthlike/seed-1337/antiquity run. Other sizes/seeds/ages
+(exploration adds ocean shipwrecks) not separately proven. `final-surface-parity` does NOT cover discoveries
+(grid readback excludes constructibles), so the Scripting.log count + the visual capture are the closure evidence.
+
+**Pre-existing (not this change):** `plan-ops.test.ts` fails on a missing `resolveActiveResourceAge` export from the
+resources barrel — inherited from the studio-effect base, untouched here. Flagged for the resources owner.

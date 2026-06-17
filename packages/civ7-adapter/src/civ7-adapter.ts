@@ -16,10 +16,8 @@ import {
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 import type {
-  DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   OfficialDiscoveryGenerationResult,
@@ -1281,10 +1279,6 @@ export class Civ7Adapter implements EngineAdapter {
 
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
     return NATURAL_WONDER_CATALOG;
-  }
-
-  getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
-    return DISCOVERY_CATALOG;
   }
 
   generateSnow(width: number, height: number): void {

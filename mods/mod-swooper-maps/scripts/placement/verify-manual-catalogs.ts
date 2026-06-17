@@ -1,4 +1,3 @@
-import { DISCOVERY_CATALOG } from "@civ7/adapter/manual-catalogs/discoveries";
 import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintOffsets,
@@ -50,55 +49,6 @@ if (missingIds.length > 0) {
 const duplicates = actualIds.filter((id, index) => actualIds.indexOf(id) !== index);
 if (duplicates.length > 0) {
   throw new Error(`Natural wonder catalog contains duplicates: ${duplicates.join(", ")}`);
-}
-
-function hashString(str: string): number {
-  let hash = 5381;
-  for (let i = 0; i < str.length; ++i) {
-    hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
-  }
-  return hash | 0;
-}
-
-const discoveryPairs = [
-  ["IMPROVEMENT_CAVE", "BASIC"],
-  ["IMPROVEMENT_CAVE", "INVESTIGATION"],
-  ["IMPROVEMENT_RUINS", "BASIC"],
-  ["IMPROVEMENT_RUINS", "INVESTIGATION"],
-  ["IMPROVEMENT_CAMPFIRE", "BASIC"],
-  ["IMPROVEMENT_CAMPFIRE", "INVESTIGATION"],
-  ["IMPROVEMENT_TENTS", "BASIC"],
-  ["IMPROVEMENT_TENTS", "INVESTIGATION"],
-  ["IMPROVEMENT_PLAZA", "BASIC"],
-  ["IMPROVEMENT_PLAZA", "INVESTIGATION"],
-  ["IMPROVEMENT_CAIRN", "BASIC"],
-  ["IMPROVEMENT_CAIRN", "INVESTIGATION"],
-  ["IMPROVEMENT_RICH", "BASIC"],
-  ["IMPROVEMENT_RICH", "INVESTIGATION"],
-  ["IMPROVEMENT_WRECKAGE", "BASIC"],
-  ["IMPROVEMENT_WRECKAGE", "INVESTIGATION"],
-];
-
-const toU32 = (value: number): number => value >>> 0;
-
-const expectedDiscoveryKeys = new Set(
-  discoveryPairs.map(
-    ([improvement, activation]) =>
-      `${toU32(hashString(improvement))}:${toU32(hashString(activation))}`
-  )
-);
-const actualDiscoveryKeys = new Set(
-  DISCOVERY_CATALOG.map((entry) => `${entry.discoveryVisualType}:${entry.discoveryActivationType}`)
-);
-if (expectedDiscoveryKeys.size !== actualDiscoveryKeys.size) {
-  throw new Error(
-    `Discovery catalog size mismatch (expected ${expectedDiscoveryKeys.size}, got ${actualDiscoveryKeys.size}).`
-  );
-}
-for (const key of expectedDiscoveryKeys) {
-  if (!actualDiscoveryKeys.has(key)) {
-    throw new Error(`Discovery catalog missing entry ${key}`);
-  }
 }
 
 console.log("Placement catalogs verified.");

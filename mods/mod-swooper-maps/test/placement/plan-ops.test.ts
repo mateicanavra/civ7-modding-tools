@@ -17,8 +17,7 @@ import {
 } from "../../src/recipes/standard/stages/placement/steps/plan-resources/planning.js";
 import { runOpValidated } from "../support/compiler-helpers.js";
 
-const { planDiscoveries, planNaturalWonders, planResources, planStarts, planWonders } =
-  placementDomain.ops;
+const { planNaturalWonders, planResources, planStarts, planWonders } = placementDomain.ops;
 
 describe("placement plan operations", () => {
   it("materializes plan-starts tier bias from property defaults", () => {
@@ -144,49 +143,6 @@ describe("placement plan operations", () => {
     expect(result.targetCount).toBe(1);
     expect(result.plannedCount).toBe(1);
     expect(result.placements).toEqual([expect.objectContaining({ featureType: 1002 })]);
-  });
-
-  it("plans deterministic discovery placements from physical fields", () => {
-    const width = 5;
-    const height = 4;
-    const size = width * height;
-    const result = runOpValidated(
-      planDiscoveries,
-      {
-        width,
-        height,
-        landMask: new Uint8Array(size).fill(1),
-        elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i % width) * 10)),
-        aridityIndex: new Float32Array(size).fill(0.4),
-        riverClass: new Uint8Array(size),
-        lakeMask: new Uint8Array(size),
-        candidateDiscoveries: [
-          { discoveryVisualType: 11, discoveryActivationType: 22 },
-          { discoveryVisualType: 13, discoveryActivationType: 24 },
-        ],
-      },
-      {
-        strategy: "default",
-        config: { densityPer100Tiles: 10, minSpacingTiles: 1 },
-      }
-    );
-
-    expect(result.plannedCount).toBeGreaterThan(0);
-    expect(result.placements.length).toBe(result.plannedCount);
-    expect(result.candidateDiscoveries).toEqual([
-      { discoveryVisualType: 11, discoveryActivationType: 22 },
-      { discoveryVisualType: 13, discoveryActivationType: 24 },
-    ]);
-    for (const placement of result.placements) {
-      expect(placement.preferredDiscoveryOffset).toBeGreaterThanOrEqual(0);
-      expect(
-        result.candidateDiscoveries.some(
-          (candidate) =>
-            candidate.discoveryVisualType === placement.preferredDiscoveryVisualType &&
-            candidate.discoveryActivationType === placement.preferredDiscoveryActivationType
-        )
-      ).toBe(true);
-    }
   });
 
   // The generic plan-resources op was deleted in placement-realignment S3;

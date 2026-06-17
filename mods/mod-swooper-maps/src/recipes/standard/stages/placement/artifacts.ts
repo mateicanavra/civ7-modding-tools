@@ -7,7 +7,6 @@
  */
 import { advancedStartAssignmentArtifact } from "./artifacts/contract/advanced-start-assignment.contract.js";
 import { discoveryPlacementOutcomesArtifact } from "./artifacts/contract/discovery-placement-outcomes.contract.js";
-import { discoveryPlanArtifact } from "./artifacts/contract/discovery-plan.contract.js";
 import { engineStateArtifact } from "./artifacts/contract/engine-state.contract.js";
 import { naturalWonderPlacementArtifact } from "./artifacts/contract/natural-wonder-placement.contract.js";
 import { naturalWonderPlanArtifact } from "./artifacts/contract/natural-wonder-plan.contract.js";
@@ -34,7 +33,6 @@ export const placementArtifacts = {
   discoveryPlacementOutcomes: discoveryPlacementOutcomesArtifact,
   startAssignment: startAssignmentArtifact,
   advancedStartAssignment: advancedStartAssignmentArtifact,
-  discoveryPlan: discoveryPlanArtifact,
   placementOutputs: placementOutputsArtifact,
   engineState: engineStateArtifact,
 } as const;

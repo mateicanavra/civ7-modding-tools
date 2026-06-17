@@ -21,11 +21,6 @@ export interface NaturalWonderCatalogEntry {
   direction: number;
 }
 
-export interface DiscoveryCatalogEntry {
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-}
-
 /**
  * Runtime resource catalog row used to enrich placement telemetry with
  * symbolic resource names. The live adapter reads GameInfo.Resources; the
@@ -800,9 +795,6 @@ export interface EngineAdapter {
 
   /** Engine catalog of natural wonder feature definitions. */
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
-
-  /** Adapter-owned discovery visual/activation catalog for deterministic planners. */
-  getDiscoveryCatalog(): DiscoveryCatalogEntry[];
 
   /**
    * Generate snow terrain
