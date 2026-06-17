@@ -42,16 +42,16 @@
       one backend, one frontend, no `devLive.ts`, no daemon `bun --watch`.
 - [x] 4.6 Negative search for active Turbo dev routes, app-local supervisor
       routes, and daemon Bun watcher routes.
-- [ ] 4.7 Play live proof under Nx dev with accepted/deploy-entered/
+- [x] 4.7 Play live proof under Nx dev with accepted/deploy-entered/
       deploy-exited/terminal samples, stable `serverInstanceId`, operation id,
       branch, commit, command/API path, timestamps, and log pointers.
-- [ ] 4.8 Save&Deploy live proof under Nx dev with accepted/deploy-entered/
+- [x] 4.8 Save&Deploy live proof under Nx dev with accepted/deploy-entered/
       deploy-exited/terminal samples, stable `serverInstanceId`, operation id,
       branch, commit, command/API path, timestamps, log pointers, and D1
       deploy/write isolation still true.
 - [x] 4.9 If live Civ7 is unavailable, write `workstream/next-packet.md` and
       leave D11 not-green for live operation behavior.
-- [ ] 4.10 Package/app gates reported by Habitat classify.
+- [x] 4.10 Package/app gates reported by Habitat classify.
 - [x] 4.11 `git diff --check`, `git status --short --branch`, `gt status`, and
       `gt log --no-interactive`.
 
@@ -65,3 +65,15 @@
 - [x] 5.4 Graphite branch is committed cleanly without unrelated staged files;
       closure records refer to the current branch tip so later message-only
       amends do not stale the packet evidence.
+
+Live-proof reconciliation note, 2026-06-16:
+
+- D12 later ran the live state-machine pass through the D11 Nx Studio runner.
+  The D12 testing and final-proof ledgers record the Nx Studio frontend/daemon
+  ports, stable daemon identity, invalid Run in Game rejection before
+  operation admission, disposable Run in Game terminal `complete` through
+  `studio.events.watch`, keyed status, and current projection, plus
+  Save&Deploy terminal `complete` through the same event/status/current shape.
+- D12 also recorded root graph gates selected by Habitat classify. This closes
+  D11's live operation proof and Habitat-classify handoff as a downstream
+  proof-consumption record, without claiming new D11 runtime behavior.

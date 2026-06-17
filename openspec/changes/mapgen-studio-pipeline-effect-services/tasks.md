@@ -50,7 +50,8 @@ These are D5 implementation obligations recorded by this packet, not pre-accepta
 - [x] 3A.7 Replace app mutation lifecycle context callbacks with package services and bounded ports.
 - [x] 3A.8 Delete or reduce `createStudioEngines` to composition-only with negative proof.
 - [x] 3A.9 Run package/app/scenario tests and negative searches.
-- [ ] 3A.10 Live Play/SaveDeploy proof is not claimed in D5; D12 retains the game-door live-proof handoff.
+- [x] 3A.10 Live Play/SaveDeploy proof is not claimed in D5; D12 consumed the
+      game-door live-proof handoff with the later live state-machine pass.
 
 ## 4. Verification
 

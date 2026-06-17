@@ -1,16 +1,20 @@
-# D10 Next Packet - Live Civ7 Proof Handoff
+# D10 Next Packet - Narrow Live-Game Watcher Proof
 
-Status: D10 implementation is not green for live Civ7 product behavior until this proof is run.
-Owner: D12 game-door invariant lane unless a live-Civ7 D10 proof lane is opened first.
-Date: 2026-06-15
+Status: narrowed live-game watcher proof gap; operation live proof consumed by D12
+Date opened: 2026-06-15
+Date narrowed: 2026-06-16
 
 ## Missing Proof Class
 
 D10 unit, source, OpenSpec, and Nx gates prove the daemon/runtime watcher shape,
 browser live-status cadence deletion, event-hub replay, and client stale-result
-guards. They do not prove live FireTuner/game behavior.
+guards. D12 later ran live Run in Game and Save&Deploy state-machine proof
+through Nx Studio, `studio.events.watch`, keyed status, and
+`studio.operations.current({})`. That D12 proof consumes the broad operation
+handoff, but it does not explicitly prove every D10 live-game watcher-specific
+subclaim.
 
-The missing proof is live Civ7 runtime evidence that:
+The remaining missing proof is live Civ7 runtime evidence that:
 
 - daemon startup activates `StudioLiveGameWatcher` through the package
   `ManagedRuntime`;
@@ -80,7 +84,9 @@ Record the actual paths used by the dev runner. Expected places to inspect:
 ## Closure Rule
 
 Do not edit D10 retroactively to claim green live behavior without appending the
-live proof evidence to the D10/D12 workstream records. If the environment is
-unavailable again, keep this handoff open and preserve the D10 claim as:
+live-game watcher proof evidence to the D10/D12 workstream records. If the
+environment is unavailable again, keep this narrowed handoff open and preserve
+the D10 claim as:
 
-> implementation/static gates green; live Civ7 product proof not run or claimed.
+> implementation/static gates green; D12 consumed operation state-machine live
+> proof; live-game watcher-specific Civ7 proof not run or claimed.

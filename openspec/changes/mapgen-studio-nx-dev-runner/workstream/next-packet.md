@@ -1,58 +1,38 @@
-# D11 Next Packet - Live Nx Dev Operation Proof
+# D11 Next Packet - Closed Live Nx Dev Operation Proof
 
-Status: not-green live product proof handoff
-Date: 2026-06-15
-Branch: `codex/runtime-effect-nx-dev-runner`
+Status: closed by D12 live state-machine proof
+Date opened: 2026-06-15
+Date reconciled: 2026-06-16
+Branch originally recorded: `codex/runtime-effect-nx-dev-runner`
 
-## Missing Proof
+## Why This Exists
 
-D11 has executable proof for Nx-owned dev orchestration, process topology, and
-deletion of the app-local supervisor. It does not have live Civ7 Play or
-Save&Deploy phase-sampled `serverInstanceId` proof.
+D11 originally handed off live Civ7 Play and Save&Deploy proof under the
+Nx-owned Studio dev runner. D12 consumed that gap with a live state-machine pass
+recorded in:
 
-The missing proof is:
+- `openspec/changes/mapgen-studio-game-door-invariant/workstream/testing-ledger.md`
+- `openspec/changes/mapgen-studio-game-door-invariant/workstream/final-proof-ledger.md`
 
-- Run in Game / Play while `bun run nx run mapgen-studio:dev --outputStyle=stream`
-  is active.
-- Save&Deploy while the same Nx dev target is active.
-- For each operation, sample accepted, deploy-entered, deploy-exited, and
-  terminal phases from daemon APIs/events.
-- Record one stable `serverInstanceId` for all samples in the same operation.
-- Record branch, commit, operation id, API path or UI command, timestamps, and
-  relevant daemon/game log paths.
-- Prove operation completion is not explained by daemon restart recovery,
-  browser reload, or operation adoption after a new daemon starts.
+The D12 proof records:
 
-## Re-Entry Prerequisites
+- Nx Studio frontend on `localhost:5173` and daemon RPC on
+  `127.0.0.1:5174`;
+- stable daemon identity across the live pass;
+- invalid Run in Game rejection before operation admission;
+- disposable Run in Game terminal `complete` through `studio.events.watch`,
+  keyed status, and `studio.operations.current({})`;
+- Save&Deploy terminal `complete` through `studio.events.watch`, keyed status,
+  and `studio.operations.current({})`;
+- transient `studio-current` outputs ignored and tracked generated/catalog
+  artifacts restored cleanly.
 
-- Civ7 running and reachable through the normal Studio direct-control/FireTuner
-  path.
-- Studio dev runner started with:
+This closes the D11 live operation handoff as downstream proof consumption. It
+does not add new live proof beyond D12, and it does not prove D10's narrower
+live-game watcher replay/quiet/change subclaims.
 
-```bash
-bun run nx run mapgen-studio:dev --outputStyle=stream
-```
+## Reopening Rule
 
-- Backend health visible at `http://127.0.0.1:5174/healthz`.
-- Frontend visible at `http://localhost:5173/`.
-- No active process command containing `devLive.ts` or `bun --watch`.
-
-## Process Proof Already Captured
-
-Current D11 proof captured on 2026-06-15:
-
-- `bun run nx run mapgen-studio:dev --outputStyle=stream` started
-  `mapgen-studio:serve-daemon` and `mapgen-studio:dev`.
-- Process sample showed one Nx runner, two Nx executor children, one Vite
-  frontend process, and one `bun src/server/daemon/daemon.ts` backend process.
-- Process sample showed no `devLive.ts` and no `bun --watch`.
-- `curl http://127.0.0.1:5174/healthz` returned `ok: true`,
-  `runtimeMode: "studio-daemon-effect-orpc"`, and daemon identity
-  `studio-server-mqfnojkq-1gwf-1`.
-- `curl -I http://localhost:5173/` returned HTTP 200 from Vite.
-
-## Blocked Closure Claim
-
-Until the live operation proof above is run, D11 must not be described as live
-Play/SaveDeploy product-green. D12 must consume this as a live-proof gap rather
-than silently treating D10/D11 unit or process proof as end-to-end game proof.
+Do not use this file as an active next packet. Reopen only if a future change
+modifies Nx dev topology, Play/SaveDeploy runtime behavior under Nx dev, or the
+D12 live proof records are invalidated by stronger evidence.

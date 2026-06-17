@@ -7,7 +7,9 @@
 - OpenSpec change: `mapgen-studio-live-game-watch`
 - Owner: Codex implementation DRA lane
 - Branch/Graphite stack: `codex/runtime-effect-live-game-watch`
-- Status: implementation committed at current branch tip; live Civ7 proof not run or claimed
+- Status: implementation committed at current branch tip; operation
+  state-machine live proof consumed by D12; live-game watcher-specific Civ7
+  proof remains narrowed in `next-packet.md`
 
 ## Objective
 
@@ -19,9 +21,10 @@
   runner cleanup, final public/manual status endpoint closeout.
 - Done condition for this slice: code/tests/docs prove package-owned watcher
   mechanics, daemon/runtime composition, client pushed-state application,
-  browser cadence deletion, and either live Civ7 proof or a not-green live-proof
-  handoff. Live Civ7 proof is not available in this implementation pass, so
-  `workstream/next-packet.md` carries the remaining product-runtime proof.
+  browser cadence deletion, and either live-game watcher proof or a not-green
+  live-proof handoff. D12 later consumed Run in Game and Save&Deploy operation
+  live proof, while `workstream/next-packet.md` carries the remaining
+  live-game watcher-specific proof.
 
 ## Gate 1 - Frame
 
@@ -137,7 +140,9 @@ schema/residue closeout.
   watcher bypass.
 - App tests prove live-runtime model keying and event adoption paths.
 - Negative searches prove browser live-status cadence deletion.
-- `next-packet.md` records the missing live Civ7 proof; no live product proof is claimed.
+- D12 records live Run in Game and Save&Deploy operation state-machine proof.
+- `next-packet.md` records the remaining live-game watcher-specific proof; D10
+  does not claim that proof from D12.
 
 ## Gate 11 - Review
 
@@ -155,5 +160,6 @@ Implementation commit closure requires:
 - fresh implementation review has no unresolved P1/P2;
 - OpenSpec, package/app checks, focused tests, Nx checks, negative searches, and
   `git diff --check` are recorded;
-- `workstream/next-packet.md` records the unrun live Civ7 proof;
+- `workstream/next-packet.md` records the narrowed unrun live-game watcher
+  proof;
 - explicit paths are staged and Graphite commit leaves the worktree clean.
