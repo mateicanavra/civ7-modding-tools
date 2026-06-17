@@ -2,20 +2,20 @@ import { isDefinedError } from "@orpc/client";
 
 export type StudioBrowserErrorDetails = Readonly<Record<string, unknown>>;
 
-export type StudioBrowserErrorProjection = Readonly<{
+export type StudioBrowserErrorProjection<TDetails = StudioBrowserErrorDetails> = Readonly<{
   error: string;
   code?: string;
   statusCode?: number;
   observedAt?: string;
-  details?: StudioBrowserErrorDetails;
+  details?: TDetails;
 }>;
 
-export function projectStudioBrowserError(
+export function projectStudioBrowserError<TDetails = StudioBrowserErrorDetails>(
   error: unknown,
   fallbackMessage: string
-): StudioBrowserErrorProjection {
+): StudioBrowserErrorProjection<TDetails> {
   if (isDefinedError(error) || isOrpcErrorLike(error)) {
-    return projectStudioBrowserDefinedError({
+    return projectStudioBrowserDefinedError<TDetails>({
       code: error.code,
       message: error.message,
       statusCode: typeof error.status === "number" ? error.status : undefined,
@@ -28,13 +28,13 @@ export function projectStudioBrowserError(
   };
 }
 
-export function projectStudioBrowserDefinedError(args: {
+export function projectStudioBrowserDefinedError<TDetails = StudioBrowserErrorDetails>(args: {
   code: string;
   message?: string;
   statusCode?: number;
   data?: unknown;
   fallbackMessage: string;
-}): StudioBrowserErrorProjection {
+}): StudioBrowserErrorProjection<TDetails> {
   const data = isRecord(args.data) ? args.data : {};
   const diagnostics = isRecord(data.diagnostics) ? data.diagnostics : {};
   const details: Record<string, unknown> = { ...diagnostics };
@@ -66,7 +66,7 @@ export function projectStudioBrowserDefinedError(args: {
     code: args.code,
     ...(args.statusCode === undefined ? {} : { statusCode: args.statusCode }),
     ...(observedAt === undefined ? {} : { observedAt }),
-    ...(Object.keys(details).length === 0 ? {} : { details }),
+    ...(Object.keys(details).length === 0 ? {} : { details: details as TDetails }),
   };
 }
 

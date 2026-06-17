@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test } from "vitest";
 import type { StudioInputs } from "../src/context";
 import { operationStatusTypeSchema } from "../src/contract/runInGame";
 import { operationsCurrent, type StudioEvent, studioEventSchema } from "../src/contract/studio";
-import { invalidRequest } from "../src/errors/failure";
+import { invalidRequest, proofFailed } from "../src/errors/failure";
 import {
   makeStudioOperationRuntimeLayer,
   StudioOperationRuntime,
@@ -159,6 +159,113 @@ describe("StudioOperationRuntime", () => {
       configHash: expect.any(String),
       envelopeHash: expect.any(String),
     });
+  });
+
+  test("keeps disposable studio-current launches on exit-to-shell unless row proof requires restart", async () => {
+    const { runtime } = makeRuntime();
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({ materialization: { mode: "disposable" } }))
+    );
+
+    expect(accepted.request).toMatchObject({
+      selectedConfigId: "studio-current",
+      materializationMode: "disposable",
+    });
+    expect(accepted.request?.restartCivProcess).toBeUndefined();
+  });
+
+  test("restarts and retries setup only after disposable setup row proof misses", async () => {
+    const events: StudioEvent[] = [];
+    let prepareSetupCalls = 0;
+    let restartCalls = 0;
+    const { runtime } = makeRuntime({
+      eventSink: events,
+      ports: {
+        restartCivForRunInGame: async () => {
+          restartCalls += 1;
+          return {
+            processRestart: {
+              command: "restart-civ",
+            },
+          };
+        },
+      },
+      civ7: {
+        prepareSetup: () => {
+          prepareSetupCalls += 1;
+          if (prepareSetupCalls === 1) {
+            return Effect.fail(
+              proofFailed({
+                message: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+                reason: "setup-row-unavailable",
+                diagnostics: {
+                  code: "setup-map-row-not-visible",
+                  reloadBoundary: "process-restart-required",
+                },
+              })
+            );
+          }
+          return Effect.succeed({ rowProof: { rows: [{ file: "studio-current.js" }] } });
+        },
+      },
+    });
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const accepted = await runtime.runPromise(
+      service.runInGameStart(runInGameInput({ materialization: { mode: "disposable" } }))
+    );
+
+    await expect
+      .poll(async () => {
+        const status = await runtime.runPromise(
+          service.runInGameStatus({ requestId: accepted.requestId })
+        );
+        return status.phase;
+      })
+      .toBe("complete");
+
+    expect(prepareSetupCalls).toBe(2);
+    expect(restartCalls).toBe(1);
+    expect(operationPhases(events, accepted.requestId)).toEqual(
+      expect.arrayContaining([
+        "preparing-setup",
+        "reload-needed",
+        "restarting-civ",
+        "checking-civ7",
+        "starting-game",
+        "complete",
+      ])
+    );
+  });
+
+  test("keeps durable Run in Game launches restart opt-in", async () => {
+    const { runtime } = makeRuntime();
+    const service = await runtime.runPromise(StudioOperationRuntime);
+
+    const durable = await runtime.runPromise(
+      service.runInGameStart(
+        runInGameInput({
+          materialization: { mode: "durable" },
+          selectedConfig: { id: "latest-juicy" },
+        })
+      )
+    );
+    expect(durable.request?.restartCivProcess).toBeUndefined();
+
+    const { runtime: restartRuntime } = makeRuntime();
+    const restartService = await restartRuntime.runPromise(StudioOperationRuntime);
+    const restartDurable = await restartRuntime.runPromise(
+      restartService.runInGameStart(
+        runInGameInput({
+          materialization: { mode: "durable" },
+          selectedConfig: { id: "latest-juicy" },
+          recovery: { restartCivProcess: true },
+        })
+      )
+    );
+    expect(restartDurable.request?.restartCivProcess).toBe(true);
   });
 
   test("keeps one source snapshot proof identity across runtime projections and final proof", async () => {
@@ -1416,6 +1523,17 @@ function deferred<T>() {
     reject = rejectPromise;
   });
   return { promise, resolve, reject };
+}
+
+function operationPhases(events: readonly StudioEvent[], requestId: string): string[] {
+  return events
+    .filter(
+      (event) =>
+        event.type === "operation" &&
+        event.kind === "run-in-game" &&
+        event.status.requestId === requestId
+    )
+    .map((event) => event.status.phase);
 }
 
 function terminalSaveDeployEvents(

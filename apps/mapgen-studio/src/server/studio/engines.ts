@@ -5,7 +5,10 @@ import { dirname, relative, resolve } from "node:path";
 import { promisify } from "node:util";
 import {
   Civ7DirectControlError,
+  closeCiv7Displays,
   DEFAULT_CIV7_SCRIPTING_LOG,
+  DEFAULT_CIV7_TUNER_TIMEOUT_MS,
+  getCiv7PlayableStatus,
   logTextFromSnapshot,
   snapshotFile,
   waitForFreshLogMarkers,
@@ -72,6 +75,9 @@ const CIV7_PROCESS_LAUNCH_COMMAND_TIMEOUT_MS = 10_000;
 const CIV7_PROCESS_LAUNCH_START_TIMEOUT_MS = 20_000;
 const CIV7_PROCESS_LAUNCH_ATTEMPTS = 6;
 const CIV7_PROCESS_LAUNCH_RETRY_DELAY_MS = 5_000;
+const CIV7_PROCESS_LAUNCH_SHELL_TIMEOUT_MS = 180_000;
+const CIV7_PROCESS_INTRO_DISMISS_INTERVAL_MS = 4_000;
+const CIV7_PROCESS_INTRO_DISMISS_CATEGORIES = ["Cinematic"] as const;
 
 function tail(value: string): string {
   return value.length > MAX_DEPLOY_OUTPUT_CHARS ? value.slice(-MAX_DEPLOY_OUTPUT_CHARS) : value;
@@ -153,7 +159,13 @@ async function restartCiv7ProcessViaSteam(): Promise<{
   shutdown: Awaited<ReturnType<typeof shutdownCiv7MacProcess>>;
   launch: { command: string; stdout: string; stderr: string };
   launchAttempts: Awaited<ReturnType<typeof launchCiv7MacViaSteamWithRetries>>["attempts"];
-  setupPhase?: string;
+  shellReadiness?: {
+    readiness: string;
+    playable: boolean;
+    elapsedMs: number;
+    polls: number;
+    errors: readonly string[];
+  };
 }> {
   if (process.platform !== "darwin") {
     throw unavailableEngineDependency(
@@ -209,6 +221,17 @@ async function restartCiv7ProcessViaSteam(): Promise<{
       { launchAttempts: steamLaunch.attempts }
     );
   }
+  const shellReadiness = await waitForCiv7ShellReadiness({
+    timeoutMs: CIV7_PROCESS_LAUNCH_SHELL_TIMEOUT_MS,
+    pollIntervalMs: CIV7_PROCESS_RESTART_POLL_INTERVAL_MS,
+  }).catch((err: unknown) => {
+    throw unavailableEngineDependency(
+      "Civ7 did not reach shell after restart",
+      "civ7-shell-readiness-unavailable",
+      err,
+      { launchAttempts: steamLaunch.attempts }
+    );
+  });
 
   return {
     command: `${shutdown.quit.command} && ${steamLaunch.command}`,
@@ -218,7 +241,120 @@ async function restartCiv7ProcessViaSteam(): Promise<{
     shutdown,
     launch,
     launchAttempts: steamLaunch.attempts,
+    shellReadiness,
   };
+}
+
+async function waitForCiv7ShellReadiness(options: {
+  timeoutMs: number;
+  pollIntervalMs: number;
+}): Promise<{
+  readiness: string;
+  playable: boolean;
+  elapsedMs: number;
+  polls: number;
+  errors: readonly string[];
+}> {
+  const startedAt = Date.now();
+  let polls = 0;
+  let last: Awaited<ReturnType<typeof getCiv7PlayableStatus>> | undefined;
+  let lastIntroDismissAttemptAt = 0;
+  const introDismissals: Civ7IntroDisplayDismissalAttempt[] = [];
+  while (Date.now() - startedAt <= options.timeoutMs) {
+    polls += 1;
+    try {
+      const status = await getCiv7PlayableStatus({ timeoutMs: DEFAULT_CIV7_TUNER_TIMEOUT_MS });
+      last = status;
+      const inGame = directControlProbeValue(status.appUi.snapshot.ui.inGame);
+      const inShell = directControlProbeValue(status.appUi.snapshot.ui.inShell);
+      if (inShell === true) {
+        return {
+          readiness: status.readiness,
+          playable: status.playable,
+          elapsedMs: Date.now() - startedAt,
+          polls,
+          errors: status.errors,
+        };
+      }
+      const elapsedMs = Date.now() - startedAt;
+      if (
+        inGame !== true &&
+        elapsedMs - lastIntroDismissAttemptAt >= CIV7_PROCESS_INTRO_DISMISS_INTERVAL_MS
+      ) {
+        lastIntroDismissAttemptAt = elapsedMs;
+        introDismissals.push(await attemptCiv7IntroDisplayDismissal({ elapsedMs, poll: polls }));
+      }
+    } catch {
+      // Keep polling through the Civ7 intro/cinematic and tuner reconnect window.
+    }
+    await sleep(options.pollIntervalMs);
+  }
+  throw unavailableEngineDependency(
+    "Timed out waiting for Civ7 shell after restart",
+    "civ7-shell-readiness-timeout",
+    undefined,
+    {
+      elapsedMs: Date.now() - startedAt,
+      polls,
+      lastReadiness: last?.readiness,
+      lastErrors: last?.errors,
+      lastInGame: directControlProbeValue(last?.appUi.snapshot.ui.inGame),
+      lastInShell: directControlProbeValue(last?.appUi.snapshot.ui.inShell),
+      lastInLoading: directControlProbeValue(last?.appUi.snapshot.ui.inLoading),
+      introDismissals,
+    }
+  );
+}
+
+type Civ7IntroDisplayDismissalAttempt = Readonly<
+  | {
+      elapsedMs: number;
+      poll: number;
+      categories: readonly string[];
+      closedTotal: number;
+      closed: Awaited<ReturnType<typeof closeCiv7Displays>>["closed"];
+      remainingActive: Awaited<ReturnType<typeof closeCiv7Displays>>["remainingActive"];
+      remainingSuspended: Awaited<ReturnType<typeof closeCiv7Displays>>["remainingSuspended"];
+    }
+  | {
+      elapsedMs: number;
+      poll: number;
+      categories: readonly string[];
+      error: string;
+    }
+>;
+
+async function attemptCiv7IntroDisplayDismissal(args: {
+  elapsedMs: number;
+  poll: number;
+}): Promise<Civ7IntroDisplayDismissalAttempt> {
+  try {
+    const result = await closeCiv7Displays({
+      categories: CIV7_PROCESS_INTRO_DISMISS_CATEGORIES,
+    });
+    return {
+      elapsedMs: args.elapsedMs,
+      poll: args.poll,
+      categories: CIV7_PROCESS_INTRO_DISMISS_CATEGORIES,
+      closedTotal: result.closedTotal,
+      closed: result.closed,
+      remainingActive: result.remainingActive,
+      remainingSuspended: result.remainingSuspended,
+    };
+  } catch (err) {
+    return {
+      elapsedMs: args.elapsedMs,
+      poll: args.poll,
+      categories: CIV7_PROCESS_INTRO_DISMISS_CATEGORIES,
+      error: diagnosticString(err) ?? "Unknown display-queue close failure",
+    };
+  }
+}
+
+function directControlProbeValue<T>(
+  probe: { ok: true; value: T } | { ok: false } | undefined
+): T | undefined {
+  return probe?.ok === true ? probe.value : undefined;
 }
 
 // Deploy = the Nx build graph + the @civ7/plugin-mods deploy API (the
