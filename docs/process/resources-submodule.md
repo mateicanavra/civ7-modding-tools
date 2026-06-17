@@ -29,18 +29,27 @@ The intended flow is:
   - `git -C .civ7/outputs/resources status`
   - `git -C .civ7/outputs/resources diff`
 
-## Auto-publish behavior (source of truth = local)
+## Publishing Resources
+
+Resource publishing is explicit:
+
+- `bun run resources:publish`
+
+When `.civ7/outputs/resources` is dirty, that command:
+
+1. Commits changes directly to `main` in the resources repo
+2. Pushes `main` to `origin` (`mateicanavra/civ7-official-resources`)
+3. Stages the updated submodule pointer in the monorepo so the next monorepo
+   commit records it
 
 When Husky is installed by `bun install`, every monorepo commit runs:
 
 - `bun run habitat hook pre-commit`
-- Inside that hook, `scripts/civ7-resources/publish-submodule.sh`
 
-If `.civ7/outputs/resources` is dirty, it will:
-
-1. Commit changes directly to `main` in the resources repo
-2. Push `main` to `origin` (`mateicanavra/civ7-official-resources`)
-3. Stage the updated submodule pointer in the monorepo (so the subsequent monorepo commit records it)
+That hook checks resources state but does not commit or push resources. If the
+submodule is dirty, uninitialized, locked, or has an unstaged gitlink, the hook
+fails with the explicit command to run before retrying the commit. A clean
+staged gitlink is treated as an intentional pointer update.
 
 ## Cloning and updating
 
@@ -50,7 +59,7 @@ If `.civ7/outputs/resources` is dirty, it will:
   - `bun run resources:init`
   - Or: `git submodule update --init --recursive`
 
-## Temporarily disabling auto-publish (escape hatch)
+## Temporarily disabling hooks (escape hatch)
 
 - Bypass one commit:
   - `git commit --no-verify`

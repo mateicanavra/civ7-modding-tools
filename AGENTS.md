@@ -55,7 +55,7 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   scripts may still call non-Nx local tools such as `biome` and `grit` through
   the script PATH, but package scripts must not hide dependency ordering that
   belongs in Nx `dependsOn`.
-- Git hooks are Husky delegators into `habitat hook <name>`; hooks reduce local friction, while CI remains authoritative. Pre-commit may restage formatter-touched files only, plus the preserved resources-submodule publish gitlink behavior documented in `docs/process/resources-submodule.md`.
+- Git hooks are Husky delegators into `habitat hook <name>`; hooks reduce local friction, while CI remains authoritative. Pre-commit may restage formatter-touched files only. Resource publishing is an explicit command path documented in `docs/process/resources-submodule.md`, not a hidden default hook side effect.
 - Project-plane import boundaries are enforced by the Habitat `boundaries`
   target and `nx-boundaries` rule. See
   `docs/projects/habitat-harness/taxonomy.md` before changing `kind:*` tags or

@@ -7,14 +7,24 @@
 - Owner: workstream owner agent
 - Branch/Graphite stack: `agent-F-habitat-git-hooks` stacked on locally closed H6 `agent-F-habitat-enforcement-consolidation`
 - Started: 2026-06-14T00:54:22Z
-- Status: CLOSED locally - committed-range hooks wired and verified; branch
-  amended via Graphite
+- Status: historical closure realigned - committed-range hooks were wired and
+  verified; resource-publish-in-pre-commit behavior is superseded by
+  `habitat-git-hook-hardening`
 
 ## Objective
 
 - Target movement: add local Husky hook entrypoints that delegate to the Habitat oclif CLI so agents get staged-scope pre-commit feedback and merge-base affected pre-push feedback without treating hooks as proof.
 - Non-goals: no CI authority change, no commit-message enforcement, no post-checkout/post-merge hooks, no repo-wide pre-commit scan, no blanket staging, no stash juggling, no generated-output hand edits.
 - Done condition: hook commands and Husky delegators are implemented, legacy `scripts/git-hooks` behavior is intentionally preserved or retired with evidence, safety probes pass, timing budgets are recorded before wiring and met after wiring, docs/tasks/specs are current, verification gates pass, and the Graphite branch is clean.
+
+Current record-truth boundary: H7 is historical evidence for thin Husky
+delegation, staged-scope containment, formatter-touched restage, generated-zone
+and package-manager staged guards, and local pre-push affected wiring. It is not
+current proof for resource publication, full hook transaction architecture,
+current Grit parse-output staged behavior, CI authority, or product/runtime
+behavior. Current resource policy lives in `habitat-git-hook-hardening`: default
+pre-commit is read-only for resources and explicit resource publishing happens
+through the resource publish workflow.
 
 ## Authority
 
@@ -44,7 +54,12 @@
 - Forbidden owners: hooks must not become CI truth, ad-hoc shell policy engines, broad staging managers, or full repo pre-commit auditors.
 - Consumer impact: contributors get local staged feedback and pre-push affected checks; `--no-verify` remains allowed because CI is authoritative.
 - Downstream assumptions: H8 generators/migrations can rely on `habitat hook` existing as the local command boundary.
-- Mutation policy: formatter restage remains path-exact and limited to formatter-touched files. Legacy resource publishing is an explicit preserved behavior from the existing hook, not formatter restage; it may stage only the resource submodule gitlink when `publish-submodule.sh` produces a new resources commit.
+- Mutation policy: formatter restage remains path-exact and limited to
+  formatter-touched files. The original H7 closure preserved legacy resource
+  publishing as an explicit carve-out, but that carve-out is historical and no
+  longer the current pre-commit policy. Current pre-commit performs read-only
+  resource-state gating; resource publication is an explicit workflow outside
+  default hooks.
 
 ## Spec/Tasks
 
@@ -76,7 +91,8 @@
 - Completed tasks: phase record opened before implementation; task 1.1 timing
   baselines measured before Husky wiring; Husky wiring, pre-commit,
   pre-push, legacy hook fold-in, safety probes, docs, and focused gates are
-  implemented and verified.
+  implemented and verified for the historical H7 closure. The legacy resource
+  fold-in is superseded by the current hook-hardening policy.
 - Remaining tasks: final Graphite commit proof (`gt modify` with hooks), clean
   one-package timing probe against the recorded budgets, task file closure.
 - Stop conditions triggered: none.
@@ -90,8 +106,11 @@
 - Hook command shape:
   - `.husky/pre-commit` delegates to `bun run habitat hook pre-commit`.
   - `.husky/pre-push` delegates to `bun run habitat hook pre-push`.
-  - `habitat hook pre-commit` preserves the legacy resource publish script,
-    runs a staged file-layer guard first, fails fast on partially staged
+  - `habitat hook pre-commit` preserved the legacy resource publish script in
+    this historical closure; current hook-hardening supersedes that behavior
+    with a read-only resource-state gate and explicit publish workflow.
+  - The H7 pre-commit path ran a staged file-layer guard first, failed fast on
+    partially staged
     format-eligible files, formats/checks only staged Biome-supported paths,
     restages only formatter-touched paths, and runs one native path-scoped
     `grit --json check --level error` over staged TS/JS paths.
@@ -110,7 +129,7 @@ Record before wiring hooks per task 1.1:
 
 | Hook | Probe set | Baseline | Budget | Evidence command |
 |---|---|---:|---:|---|
-| pre-commit | 10 temporary staged TS files under `tools/habitat-harness/.hook-baseline-probe/`, including legacy resource publish, Biome format/check, one native staged-path Grit check, and staged file-layer guard | 1.88s | 3.76s | `/usr/bin/time -p sh -c 'bash scripts/civ7-resources/publish-submodule.sh; xargs biome format --write --no-errors-on-unmatched < /tmp/habitat-h7-precommit-files.txt; git add --pathspec-from-file=/tmp/habitat-h7-precommit-files.txt; xargs biome check --no-errors-on-unmatched < /tmp/habitat-h7-precommit-files.txt; GRIT_TELEMETRY_DISABLED=true GRIT_CACHE_DIR=.grit/cache xargs grit --json check --level error < /tmp/habitat-h7-precommit-files.txt >/tmp/habitat-h7-precommit-grit.json; bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json >/tmp/habitat-h7-precommit-file-layer.json'` |
+| pre-commit | 10 temporary staged TS files under `tools/habitat-harness/.hook-baseline-probe/`, including the then-current legacy resource publish path, Biome format/check, one native staged-path Grit check, and staged file-layer guard | 1.88s | 3.76s | `/usr/bin/time -p sh -c 'bash scripts/civ7-resources/publish-submodule.sh; xargs biome format --write --no-errors-on-unmatched < /tmp/habitat-h7-precommit-files.txt; git add --pathspec-from-file=/tmp/habitat-h7-precommit-files.txt; xargs biome check --no-errors-on-unmatched < /tmp/habitat-h7-precommit-files.txt; GRIT_TELEMETRY_DISABLED=true GRIT_CACHE_DIR=.grit/cache xargs grit --json check --level error < /tmp/habitat-h7-precommit-files.txt >/tmp/habitat-h7-precommit-grit.json; bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json >/tmp/habitat-h7-precommit-file-layer.json'` |
 | pre-push | one-package harness change measured against Graphite parent `agent-F-habitat-enforcement-consolidation`, target set `biome:ci,boundaries,grit:check,habitat:check,test` | 2.61s | 5.22s | `/usr/bin/time -p nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base agent-F-habitat-enforcement-consolidation --outputStyle=static` |
 
 Timing note: the same pre-push target set measured against `main` took 62.45s and affected 18 projects plus dependencies because the whole Graphite downstack differs from `main`. H7 therefore resolves the local hook base to the Graphite parent when available, falling back to the merge-base with `main` only outside a tracked stack.
@@ -181,12 +200,16 @@ files and untracked probes are deliberately outside the hook's scope.
 - Skipped gates and rationale: none. Timing boundary is recorded above: broad
   harness/root slices exceed the bounded probe budget by design of the affected
   surface and are not treated as the bounded one-package timing class.
-- Evidence boundary: local Git/hooks behavior only; CI proof remains post-submit.
+- Evidence boundary: local Git/hooks behavior only; CI proof remains
+  post-submit. Resource publish behavior in this record is historical and is not
+  current proof for default pre-commit side effects.
 
 ## Realignment
 
-- Downstream docs/specs/issues updated: H7 proposal/tasks, Habitat README,
-  root AGENTS, contributing/resource-submodule docs updated.
+- Downstream docs/specs/issues updated at H7 closure: H7 proposal/tasks,
+  Habitat README, root AGENTS, contributing/resource-submodule docs updated.
+  Later hook hardening supersedes resource-publish-in-pre-commit guidance with
+  explicit resource publishing and read-only pre-commit resource-state checks.
 - Tests/guards updated: Habitat command tests updated for real hook runner;
   native Grit pattern test kept as the Grit correctness authority; file-layer
   pnpm artifact guard added to the rule pack with empty locked baseline.
@@ -197,8 +220,9 @@ files and untracked probes are deliberately outside the hook's scope.
 
 ## Next Action
 
-- Exact next step: continue to H8 (`habitat-generators-migrations`) from the
-  clean H7 branch after final amend/restack.
+- Exact next step: historical packet is realigned for current record truth. Use
+  `habitat-git-hook-hardening` for current hook-resource and transaction proof
+  boundaries.
 - First files to inspect if a hook gate regresses:
   `tools/habitat-harness/src/lib/hooks.ts`,
   `tools/habitat-harness/src/lib/generated-zones.ts`,

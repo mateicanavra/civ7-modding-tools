@@ -7,6 +7,18 @@ in-scope and get done now; pre-commit auto-staging is allowed only for files
 the formatter itself touched. CI remains authoritative (FRAME hard core #5) —
 hooks are friction reduction, never verification truth.
 
+## Historical Status
+
+This change is a historical hook-wiring packet. Its original closure preserved
+the then-existing resource publish behavior inside pre-commit, but that behavior
+is no longer the current hook policy. Current Habitat hook behavior is governed
+by `habitat-git-hook-hardening`: pre-commit performs a read-only resource-state
+gate, and resource publication is an explicit `resources:publish` workflow. Use
+this packet as evidence for thin Husky delegation, staged-scope containment, and
+local pre-push affected wiring; do not use it as current proof for resource
+publishing, full hook transaction architecture, CI authority, or product/runtime
+behavior.
+
 ## Target Authority Refs
 
 - `docs/projects/habitat-harness/FRAME.md` (D3, hard core #5, trade-offs table)
@@ -29,7 +41,8 @@ hooks are friction reduction, never verification truth.
   never stages other dirty or foreign files (multi-lane worktree safety —
   see the foreign-staged-file probe, task 3.2, and its probe-matrix entry in
   the phase record: other lanes may have staged work in the same tree).
-- Disposition the EXISTING legacy hook mechanism: `scripts/git-hooks/pre-commit`
+- Historical disposition of the then-existing legacy hook mechanism:
+  `scripts/git-hooks/pre-commit`
   (runs `scripts/civ7-resources/publish-submodule.sh` on every commit),
   installed via `git config core.hooksPath scripts/git-hooks` by
   `scripts/git-hooks/setup.sh` (root script `setup:git-hooks`). Husky's
@@ -40,6 +53,8 @@ hooks are friction reduction, never verification truth.
   decision in the phase record), then retire `scripts/git-hooks/` and the
   `setup:git-hooks` root script in the same slice so the two mechanisms
   never coexist.
+  Later hook hardening supersedes this publish-in-pre-commit policy with an
+  explicit publish command and read-only pre-commit resource-state gate.
 - Implement `habitat hook pre-push`: `nx affected -t
   biome:ci,boundaries,grit:check,habitat:check,test --base=<stack-parent-or-merge-base>
   --head=HEAD --excludeTaskDependencies` bounded to a pre-measured time
@@ -130,7 +145,9 @@ staged files in shared worktrees are never touched (restage is path-exact).
 - Hook timing gate: budgets (2× measured baseline on the two declared probe
   sets) recorded in the phase record BEFORE wiring; wired hooks measured
   against them — the gate fails if either budget is exceeded.
-- Legacy hook disposition complete: publish-submodule behavior preserved in
+- Historical legacy hook disposition complete: publish-submodule behavior was
+  preserved in
   `habitat hook pre-commit`; `scripts/git-hooks/` and `setup:git-hooks`
-  retired in this slice.
+  retired in this slice. Current hook policy supersedes this with explicit
+  resource publication outside default pre-commit.
 - Fresh-clone `bun install` installs hooks (prepare script proof).

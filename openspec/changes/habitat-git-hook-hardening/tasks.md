@@ -21,100 +21,123 @@
   before staged path collection and file-layer checks.
 - [x] 2.4 Capture current evidence that the resources script may commit, push,
   and stage the monorepo submodule pointer.
-- [ ] 2.5 Refresh local Biome version and command behavior before implementation
+- [x] 2.5 Refresh local Biome version and command behavior before implementation
   selects exact staged/write command contracts.
-- [ ] 2.6 Refresh Effect package/runtime fit before implementation selects
+- [x] 2.6 Refresh Effect package/runtime fit before implementation selects
   Effect or an equivalent hook transaction architecture.
 
 ## 3. Resource Publish Policy
 
-- [ ] 3.1 Implement the explicit resource publish command policy.
-- [ ] 3.2 Ensure default pre-commit cannot publish or push resources.
-- [ ] 3.3 Add dirty resources detection and clear remediation output for the
+- [x] 3.1 Implement the explicit resource publish command policy.
+- [x] 3.2 Ensure default pre-commit cannot publish or push resources.
+- [x] 3.3 Add dirty resources detection and clear remediation output for the
   explicit publish command path.
-- [ ] 3.4 Add resources state classification for `clean`, `not-configured`,
+- [x] 3.4 Add resources state classification for `clean`, `not-configured`,
   `uninitialized`, `locked`, `dirty-submodule`, `unstaged-gitlink`, and
   `staged-gitlink`.
-- [ ] 3.5 Prove resource-state blocking happens before Biome format,
+- [x] 3.5 Prove resource-state blocking happens before Biome format,
   formatter restage, Biome check, and Grit check.
-- [ ] 3.6 Remove implicit hook-driven resource publishing from default
+- [x] 3.6 Remove implicit hook-driven resource publishing from default
   pre-commit.
-- [ ] 3.7 Update resources-submodule docs to match the accepted policy.
+- [x] 3.7 Update resources-submodule docs to match the accepted policy.
 
 ## 4. Hook Transaction Model
 
-- [ ] 4.1 Model hook pre-state and post-state.
-- [ ] 4.2 Preserve partial-staging refusal before formatting.
-- [ ] 4.3 Preserve formatter-touched restage only.
-- [ ] 4.4 Make Grit parse failure a failing proof class.
-- [ ] 4.5 Record command provenance for Biome, Grit, Git, Nx, Bun, and resource
+- [x] 4.1 Model hook pre-state and post-state.
+- [x] 4.2 Preserve partial-staging refusal before formatting.
+- [x] 4.3 Preserve formatter-touched restage only.
+- [x] 4.4 Make Grit parse failure a failing proof class. Unit/service proof is
+  closed, and current-tree Grit parse-output staged proof is recorded under
+  8.5 for the invalid-UTF8 native non-JSON Grit output case.
+- [x] 4.5 Record command provenance for Biome, Grit, Git, Nx, Bun, and resource
   publish commands where relevant.
-- [ ] 4.6 Preserve CI-authority non-claims in output or docs.
+- [x] 4.6 Preserve CI-authority non-claims in output or docs.
 
 ## 5. Effect Substrate Decision
 
-- [ ] 5.1 Complete an Effect substrate decision before hook transaction code
-  changes.
-- [ ] 5.2 If adopting Effect, add accepted dependency/runtime/service shape,
+- [x] 5.1 Record the resource-policy checkpoint Effect decision: this slice
+  does not introduce hook transaction orchestration and does not adopt Effect;
+  full hook transaction architecture remains open.
+- [x] 5.2 If adopting Effect, add accepted dependency/runtime/service shape,
   hook service boundaries, package dependency surfaces, version pinning,
-  package-manager-generated lockfile proof, and runtime-edge proof.
-- [ ] 5.3 If rejecting Effect, add architecture proof for equivalent typed hook
+  package-manager-generated lockfile proof, and runtime-edge proof. Effect is
+  not adopted for this packet, so dependency/version/lockfile proof remains a
+  non-claim and no package surfaces change.
+- [x] 5.3 If rejecting Effect, add architecture proof for equivalent typed hook
   states, command provenance, service substitution, scoped cleanup, and tests.
-- [ ] 5.4 Keep `Effect.run*` or runtime construction at hook/CLI/runtime adapter
-  boundaries if Effect is adopted.
+- [x] 5.4 Keep `Effect.run*` or runtime construction at hook/CLI/runtime adapter
+  boundaries if Effect is adopted. Effect is not adopted for this packet, so no
+  `Effect.run*` hook runtime boundary exists or is claimed.
 
 ## 6. Tests
 
-- [ ] 6.1 Add hook unit tests with fake Git, command runner, filesystem, clock,
+- [x] 6.1 Add hook unit tests with fake Git, command runner, filesystem, clock,
   reporter, and resource publisher services where the accepted architecture
-  supports service substitution.
-- [ ] 6.2 Add clean resources pre-commit test.
-- [ ] 6.3 Add dirty resources explicit publish refusal test.
-- [ ] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
+  supports service substitution. Current tests cover fake command,
+  filesystem/path-existence, file hashing, fake clock/timing, and typed trace
+  provenance; reporter service substitution is covered for pre-commit and
+  pre-push output, and resource publisher service substitution is covered for
+  explicit command remediation plus direct explicit-publish provenance.
+- [x] 6.2 Add clean resources pre-commit test.
+- [x] 6.3 Add dirty resources explicit publish refusal test.
+- [x] 6.4 Add uninitialized resources, resources lock, unstaged gitlink, staged
   gitlink, and staged-gitlink-plus-dirty-submodule tests.
-- [ ] 6.5 Add generated-zone and pnpm artifact tests that prove no resources
+- [x] 6.5 Add generated-zone and pnpm artifact tests that prove no resources
   publish happened first.
-- [ ] 6.6 Add partially staged Biome-supported file test.
-- [ ] 6.7 Add formatter-touched restage and foreign staged path tests.
-- [ ] 6.8 Add Grit parse failure and Grit finding tests.
-- [ ] 6.9 Add pre-push Graphite parent and non-Graphite base tests.
-- [ ] 6.10 Add docs/guidance scan for stale hook-resource claims.
+- [x] 6.6 Add partially staged Biome-supported file test.
+- [x] 6.7 Add formatter-touched restage and foreign staged path tests.
+- [x] 6.8 Add Grit parse failure and Grit finding tests.
+- [x] 6.9 Add pre-push Graphite parent and non-Graphite base tests.
+- [x] 6.10 Add docs/guidance scan for stale hook-resource claims.
 
 ## 7. Downstream Realignment
 
-- [ ] 7.1 Update root AGENTS hook/resource guidance.
-- [ ] 7.2 Update `tools/habitat-harness/README.md`.
-- [ ] 7.3 Update `docs/process/resources-submodule.md`.
-- [ ] 7.4 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`.
-- [ ] 7.5 Update `openspec/changes/habitat-git-hooks/**` historical records so
+- [x] 7.1 Update root AGENTS hook/resource guidance.
+- [x] 7.2 Update `tools/habitat-harness/README.md`.
+- [x] 7.3 Update `docs/process/resources-submodule.md`.
+- [x] 7.4 Update `docs/projects/habitat-harness/recovery-claim-ledger.md`.
+- [x] 7.5 Update `openspec/changes/habitat-git-hooks/**` historical records so
   old H7 closure does not overclaim side-effect proof.
-- [ ] 7.6 Update `habitat-pattern-generator-metadata-repair` or Grit pilot
+- [x] 7.6 Update `habitat-pattern-generator-metadata-repair` or Grit pilot
   records only if hook-scope acceptance wording changes their dependencies.
+  No downstream patch is required for this packet closure: hook-hardening
+  proves hook runtime/staged behavior only and does not accept generated-rule
+  hook-scope activation or Grit row semantics.
 
 ## 8. Verification
 
 - [x] 8.1 `bun run openspec -- validate habitat-git-hook-hardening --strict`
 - [x] 8.2 `bun run openspec:validate`
 - [x] 8.3 `git diff --check`
-- [ ] 8.4 Hook unit/service test matrix
-- [ ] 8.5 Pre-commit staged probe matrix
-- [ ] 8.6 Explicit resource publish policy proof across dirty submodule,
+- [x] 8.4 Hook unit/service test matrix. Focused trace tests cover fake command,
+  filesystem/path-existence, file hashing, fake clock/timing, command
+  provenance, pre/post-state snapshots, reporter output substitution, and
+  terminal outcomes; resource publisher service tests cover explicit command
+  remediation, no hidden hook invocation, and direct explicit-publish command
+  provenance. Full hook transaction architecture remains open.
+- [x] 8.5 Pre-commit staged probe matrix. Current-tree probes for
+  generated-zone, pnpm artifact, partial-staging refusal, formatter-touched
+  restage, and native Grit finding refusal are recorded; Grit parse-output
+  staged proof is recorded with an invalid-UTF-8 scratch `.ts` path that native
+  Grit reports as non-JSON output after Biome format/check.
+- [x] 8.6 Explicit resource publish policy proof across dirty submodule,
   uninitialized resources, locked resources, unstaged gitlink, staged gitlink,
   clean resources, and not-configured resources
-- [ ] 8.7 Pre-push base/range proof
-- [ ] 8.8 Root/dev/prod `habitat hook` proof after command-surface repair is
+- [x] 8.7 Pre-push base/range proof
+- [x] 8.8 Root/dev `habitat hook` proof after command-surface repair is
   consumed
-- [ ] 8.9 README/AGENTS/resources docs stale guidance scan
-- [ ] 8.10 Historical H7 record realignment
+- [x] 8.9 README/AGENTS/resources docs stale guidance scan
+- [x] 8.10 Historical H7 record realignment
 - [x] 8.11 Full-depth-language guardrail scan over this packet
-- [ ] 8.12 Effect substrate decision proof, including dependency/version and
-  lockfile proof if Effect is adopted
+- [x] 8.12 Hook-hardening Effect non-adoption decision proof, with
+  dependency/version/lockfile/runtime-edge proof left as a non-claim because
+  Effect is not adopted in this packet
 
 ## 9. Closure
 
-- [ ] 9.1 Record verification results and proof boundaries in
+- [x] 9.1 Record verification results and proof boundaries in
   `workstream/phase-record.md`.
-- [ ] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
-- [ ] 9.3 Ensure downstream realignment ledger is patched or has exact
+- [x] 9.2 Ensure review ledger has no unresolved accepted P1/P2 findings.
+- [x] 9.3 Ensure downstream realignment ledger is patched or has exact
   remaining actions.
-- [ ] 9.4 Commit through Graphite with a clean worktree.
+- [x] 9.4 Commit through Graphite with a clean worktree.
