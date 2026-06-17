@@ -47,11 +47,13 @@ import {
   executeCiv7TunerCommand,
 } from "@civ7/direct-control";
 import {
-  buildResourceLegalityMask,
   type OfficialResourceType,
-  type ResourceLegalitySurface,
   resolveResourceRuntimeIds,
 } from "../../src/domain/resources/index.js";
+import {
+  buildResourceLegalityMask,
+  type ResourceLegalitySurface,
+} from "../../src/domain/resources/policy/resource-legality.js";
 
 const AGREEMENT_GATE_THRESHOLD = 0.95;
 const DEFAULT_SAMPLE_SIZE = 400;
