@@ -45,7 +45,7 @@ export function projectRunInGame(operation: RunInGameInternalOperation): RunInGa
     recoveryActions:
       operation.failure === undefined && operation.phase === "complete"
         ? ["copy-diagnostics"]
-        : runInGameRecoveryActions({ phase, status: operation.status, details }),
+        : runInGameRecoveryActions({ phase, status: operation.status, details }, operation.failure),
   };
 }
 
@@ -199,7 +199,8 @@ function diagnosticSummary(value: unknown): string {
 }
 
 function runInGameRecoveryActions(
-  state: Pick<RunInGameOperationStatus, "phase" | "status" | "details">
+  state: Pick<RunInGameOperationStatus, "phase" | "status" | "details">,
+  failure?: StudioRuntimeFailure
 ): StudioRecoveryAction[] {
   const actions: StudioRecoveryAction[] = ["copy-diagnostics"];
   if (
@@ -225,6 +226,7 @@ function runInGameRecoveryActions(
   ) {
     actions.push("dismiss-civ-notification-and-retry");
   }
+  if (failure) actions.push(...failure.recoveryActions);
   return [...new Set(actions)];
 }
 

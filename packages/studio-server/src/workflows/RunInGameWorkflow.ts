@@ -130,6 +130,9 @@ function makeRunInGameWorkflow(
             materialization: deployment.materialization ?? materialized.materialization,
           });
 
+          if (workflow.prepared.request.restartCivProcess && args.ports.restartCivForRunInGame) {
+            phase = "restarting-civ";
+          }
           const restart = yield* maybeRestart(workflow, deployment);
           phase = "checking-civ7";
           yield* workflow.transitions.transition({
