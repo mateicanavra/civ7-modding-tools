@@ -54,6 +54,8 @@ export interface AppFooterProps {
   isRunInGameRunning: boolean;
   /** Whether config save/deploy is currently running (shared operation gate) */
   isSaveDeployRunning?: boolean;
+  /** Visible reason shown when shared operation gates disable world/map controls */
+  operationBusyLabel?: string | null;
   /** Whether current settings differ from last run */
   isDirty: boolean;
   /** Toast function for notifications */
@@ -77,6 +79,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
   isRunning,
   isRunInGameRunning,
   isSaveDeployRunning = false,
+  operationBusyLabel,
   isDirty,
   onToast,
   autoRunEnabled,
@@ -111,6 +114,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           : "Ready";
   const displaySize = MAP_SIZE_SHORT[lastGlobalSettings.mapSize] || lastGlobalSettings.mapSize;
   const operationControlsDisabled = isRunning || isRunInGameRunning || isSaveDeployRunning;
+  const busyTitle =
+    operationControlsDisabled && operationBusyLabel ? operationBusyLabel : undefined;
   const updateSetting = <K extends keyof RecipeSettings>(key: K, value: RecipeSettings[K]) => {
     onSettingsChange({
       ...currentSettings,
@@ -169,6 +174,14 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 rounded-full ${statusDotClass}`} />
             <span className={`text-data font-medium ${textPrimary}`}>{statusText}</span>
+            {busyTitle ? (
+              <span
+                className="rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning"
+                title={busyTitle}
+              >
+                Busy
+              </span>
+            ) : null}
           </div>
 
           {/* Run history — the collapsed last-run cluster. */}
@@ -260,6 +273,7 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 max={CIV7_STUDIO_SEED_MAX}
                 aria-label={`Generation seed (${CIV7_STUDIO_SEED_MIN}-${CIV7_STUDIO_SEED_MAX})`}
                 disabled={operationControlsDisabled}
+                title={busyTitle}
                 className="w-20 font-mono"
               />
             </TooltipTrigger>
@@ -274,7 +288,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 size="icon"
                 onClick={onReroll}
                 disabled={operationControlsDisabled}
-                aria-label="Re-roll: New seed and run"
+                aria-label={busyTitle ?? "Re-roll: New seed and run"}
+                title={busyTitle}
               >
                 <Dices className="w-3.5 h-3.5" />
               </Button>
@@ -291,7 +306,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
                 onClick={() => onAutoRunEnabledChange(!autoRunEnabled)}
                 disabled={operationControlsDisabled}
                 aria-pressed={autoRunEnabled}
-                aria-label="Toggle auto-run: run current seed on config changes"
+                aria-label={busyTitle ?? "Toggle auto-run: run current seed on config changes"}
+                title={busyTitle}
                 className={
                   autoRunEnabled ? "ring-1 ring-ring border-primary text-primary" : undefined
                 }
@@ -306,6 +322,8 @@ export const AppFooter: React.FC<AppFooterProps> = ({
           <Button
             onClick={onRun}
             disabled={operationControlsDisabled}
+            aria-label={busyTitle ?? "Run current map generation"}
+            title={busyTitle}
             className={`
             ${isDirty ? "ring-1 ring-ring border-primary" : ""}
             ${isRunning ? "opacity-70 cursor-wait" : ""}

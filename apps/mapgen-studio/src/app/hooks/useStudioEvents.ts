@@ -1,6 +1,10 @@
-import type { StudioEvent } from "@civ7/studio-server";
+import type {
+  MapConfigSaveDeployStatus,
+  RunInGameOperationStatus,
+  StudioEvent,
+} from "@civ7/studio-server";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import type { LiveRuntimeStatusState } from "../../features/liveRuntime/model";
 import { orpc, orpcClient } from "../../lib/orpc";
 import {
@@ -9,6 +13,13 @@ import {
   readAndAdoptStudioOperationsCurrent,
   type StudioOperationAdoptionTargets,
 } from "../operationAdoption";
+import {
+  formatStudioDaemonIdentityMismatch,
+  formatStudioEventStreamError,
+  identityFromStudioEvent,
+  identityFromStudioOperationsCurrent,
+  studioEventClearsStreamError,
+} from "../studioEventRecovery";
 
 export const STUDIO_EVENT_STREAM_RETRY_ATTEMPTS = Number.POSITIVE_INFINITY;
 
@@ -38,16 +49,27 @@ export function studioEventsWatchLiveOptionsFor(watch: StudioEventsWatchProcedur
 export function useStudioEvents(
   args: StudioOperationAdoptionTargets & {
     applyLiveGameState(state: LiveRuntimeStatusState): void;
+    currentRunInGameOperation?: RunInGameOperationStatus | null;
+    currentSaveDeployOperation?: MapConfigSaveDeployStatus | null;
     setLocalError(message: string | null): void;
+    clearLocalError(message: string): void;
   }
 ): void {
   const {
     applyLiveGameState,
+    currentRunInGameOperation,
+    currentSaveDeployOperation,
     setRunInGameOperation,
     setSaveDeployOperation,
     markRunInGameToastHandled,
     setLocalError,
+    clearLocalError,
   } = args;
+  const eventRecoveryErrorRef = useRef<string | null>(null);
+  const currentRunInGameOperationRef = useRef<RunInGameOperationStatus | null>(null);
+  const currentSaveDeployOperationRef = useRef<MapConfigSaveDeployStatus | null>(null);
+  currentRunInGameOperationRef.current = currentRunInGameOperation ?? null;
+  currentSaveDeployOperationRef.current = currentSaveDeployOperation ?? null;
   const eventQuery = useQuery(studioEventsWatchLiveOptions());
   const event = eventQuery.data as StudioEvent | undefined;
   const helloKey =
@@ -63,9 +85,25 @@ export function useStudioEvents(
       ? `${event.state.snapshotId ?? event.state.snapshotHash ?? event.state.status}:${event.observedAt}`
       : null;
 
+  const setEventRecoveryError = useCallback(
+    (message: string) => {
+      eventRecoveryErrorRef.current = message;
+      setLocalError(message);
+    },
+    [setLocalError]
+  );
+
+  const clearEventRecoveryError = useCallback(() => {
+    const message = eventRecoveryErrorRef.current;
+    if (!message) return;
+    eventRecoveryErrorRef.current = null;
+    clearLocalError(message);
+  }, [clearLocalError]);
+
   useEffect(() => {
-    if (!helloKey) return;
+    if (!helloKey || event?.type !== "hello") return;
     let cancelled = false;
+    const expectedIdentity = identityFromStudioEvent(event);
     void readAndAdoptStudioOperationsCurrent({
       readCurrent: () => orpcClient.studio.operations.current({}),
       targets: {
@@ -74,40 +112,56 @@ export function useStudioEvents(
         markRunInGameToastHandled,
       },
       isCancelled: () => cancelled,
-      onError: setLocalError,
+      getCurrentRunInGameOperation: () => currentRunInGameOperationRef.current,
+      getCurrentSaveDeployOperation: () => currentSaveDeployOperationRef.current,
+      shouldAdopt: (current) => {
+        const observedIdentity = identityFromStudioOperationsCurrent(current);
+        const mismatch =
+          expectedIdentity === null
+            ? null
+            : formatStudioDaemonIdentityMismatch(expectedIdentity, observedIdentity);
+        if (!mismatch) return true;
+        setEventRecoveryError(mismatch);
+        return false;
+      },
+      onAdopted: () => {
+        if (cancelled) return;
+        clearEventRecoveryError();
+      },
+      onError: setEventRecoveryError,
     });
     return () => {
       cancelled = true;
     };
   }, [
+    clearEventRecoveryError,
+    event,
     helloKey,
     markRunInGameToastHandled,
-    setLocalError,
+    setEventRecoveryError,
     setRunInGameOperation,
     setSaveDeployOperation,
   ]);
 
   useEffect(() => {
     if (!operationKey || event?.type !== "operation") return;
+    if (studioEventClearsStreamError(event)) clearEventRecoveryError();
     applyStudioOperationEvent(event, {
       setRunInGameOperation,
       setSaveDeployOperation,
     });
-  }, [event, operationKey, setRunInGameOperation, setSaveDeployOperation]);
+  }, [clearEventRecoveryError, event, operationKey, setRunInGameOperation, setSaveDeployOperation]);
 
   useEffect(() => {
     if (!liveGameKey || event?.type !== "live-game") return;
+    if (studioEventClearsStreamError(event)) clearEventRecoveryError();
     applyStudioLiveGameEvent(event, {
       applyLiveGameState,
     });
-  }, [applyLiveGameState, event, liveGameKey]);
+  }, [applyLiveGameState, clearEventRecoveryError, event, liveGameKey]);
 
   useEffect(() => {
     if (!eventQuery.error) return;
-    setLocalError(
-      eventQuery.error instanceof Error
-        ? eventQuery.error.message
-        : "Studio event stream unavailable"
-    );
-  }, [eventQuery.error, setLocalError]);
+    setEventRecoveryError(formatStudioEventStreamError(eventQuery.error));
+  }, [eventQuery.error, setEventRecoveryError]);
 }

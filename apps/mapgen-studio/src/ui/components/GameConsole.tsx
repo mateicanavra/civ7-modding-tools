@@ -74,6 +74,8 @@ export interface GameConsoleProps {
   isExploreActionRunning?: boolean;
   /** Whether any studio/game operation is in flight (shared control gating) */
   operationControlsDisabled: boolean;
+  /** Visible reason shown when shared operation gates disable game controls */
+  operationBusyLabel?: string | null;
   /** Whether Civ7 Run in Game is currently running */
   isRunInGameRunning: boolean;
   /** Request-correlated Civ7 Run in Game status */
@@ -111,6 +113,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   onExplore,
   isExploreActionRunning = false,
   operationControlsDisabled,
+  operationBusyLabel,
   isRunInGameRunning,
   runInGameStatus,
   runInGameCurrentRelation = "unknown",
@@ -216,14 +219,18 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
   // used to carry lives entirely in the accessible name + tooltip.
   const autoplayTitle = isAutoplayActionRunning
     ? "Autoplay request in flight"
-    : liveRuntime?.autoplayActive
-      ? `Stop Civ7 autoplay${liveRuntime.autoplayPaused ? " (paused)" : ""}`
-      : "Start Civ7 autoplay";
+    : operationControlsDisabled && operationBusyLabel
+      ? operationBusyLabel
+      : liveRuntime?.autoplayActive
+        ? `Stop Civ7 autoplay${liveRuntime.autoplayPaused ? " (paused)" : ""}`
+        : "Start Civ7 autoplay";
   const exploreTitle = !onExplore
     ? "Explore: tile visibility control is not yet available"
     : isExploreActionRunning
       ? "Explore request in flight"
-      : "Explore: reveal the full map in the live game";
+      : operationControlsDisabled && operationBusyLabel
+        ? operationBusyLabel
+        : "Explore: reveal the full map in the live game";
   const saveDeployLabel = saveDeployStatus
     ? formatMapConfigSaveDeployPhaseLabel(saveDeployStatus.phase)
     : null;
@@ -297,6 +304,7 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
     runInGameStatus?.details?.recoveryHint
       ? `Recovery: ${runInGameStatus.details.recoveryHint}`
       : null,
+    operationControlsDisabled && operationBusyLabel ? operationBusyLabel : null,
   ]
     .filter(Boolean)
     .join("\n");
@@ -342,6 +350,15 @@ export const GameConsole: React.FC<GameConsoleProps> = ({
         </TooltipTrigger>
         <TooltipContent className="whitespace-pre-line">{chipTitle}</TooltipContent>
       </Tooltip>
+
+      {operationControlsDisabled && operationBusyLabel ? (
+        <span
+          className="shrink-0 rounded border border-warning/40 px-1.5 py-0.5 text-label text-warning"
+          title={operationBusyLabel}
+        >
+          Busy
+        </span>
+      ) : null}
 
       <Tooltip>
         <TooltipTrigger asChild>

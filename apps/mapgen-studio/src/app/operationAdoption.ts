@@ -16,9 +16,17 @@ export interface StudioOperationAdoptionTargets {
 
 export function adoptStudioOperationsCurrent(
   current: StudioOperationsCurrent,
-  targets: StudioOperationAdoptionTargets
+  targets: StudioOperationAdoptionTargets,
+  options: Readonly<{
+    currentRunInGameOperation?: RunInGameOperationStatus | null;
+    currentSaveDeployOperation?: MapConfigSaveDeployStatus | null;
+  }> = {}
 ): void {
-  const runInGame = current.runInGame.active ?? current.runInGame.recent[0] ?? null;
+  const runInGame = selectOperationForAdoption(
+    current.runInGame.active ?? current.runInGame.recent[0] ?? null,
+    options.currentRunInGameOperation ?? null,
+    current.observedAt
+  );
   if (runInGame) {
     const operation = runInGame;
     targets.setRunInGameOperation(operation);
@@ -29,7 +37,11 @@ export function adoptStudioOperationsCurrent(
     targets.setRunInGameOperation(null);
   }
 
-  const saveDeploy = current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null;
+  const saveDeploy = selectOperationForAdoption(
+    current.saveDeploy.active ?? current.saveDeploy.recent[0] ?? null,
+    options.currentSaveDeployOperation ?? null,
+    current.observedAt
+  );
   targets.setSaveDeployOperation(saveDeploy);
 }
 
@@ -56,15 +68,41 @@ export async function readAndAdoptStudioOperationsCurrent(
     readCurrent(): Promise<StudioOperationsCurrent>;
     targets: StudioOperationAdoptionTargets;
     isCancelled?: () => boolean;
+    getCurrentRunInGameOperation?: () => RunInGameOperationStatus | null;
+    getCurrentSaveDeployOperation?: () => MapConfigSaveDeployStatus | null;
+    shouldAdopt?(current: StudioOperationsCurrent): boolean;
+    onAdopted?(current: StudioOperationsCurrent): void;
     onError(message: string): void;
   }>
 ): Promise<void> {
   try {
     const current = await args.readCurrent();
     if (args.isCancelled?.()) return;
-    adoptStudioOperationsCurrent(current, args.targets);
+    if (args.shouldAdopt && !args.shouldAdopt(current)) return;
+    adoptStudioOperationsCurrent(current, args.targets, {
+      currentRunInGameOperation: args.getCurrentRunInGameOperation?.() ?? null,
+      currentSaveDeployOperation: args.getCurrentSaveDeployOperation?.() ?? null,
+    });
+    args.onAdopted?.(current);
   } catch (err) {
     if (args.isCancelled?.()) return;
     args.onError(err instanceof Error ? err.message : "Unable to read current Studio operations");
   }
+}
+
+function selectOperationForAdoption<Operation extends { status: string; updatedAt: string }>(
+  incoming: Operation | null,
+  local: Operation | null,
+  observedAt: string
+): Operation | null {
+  if (!local || local.status === "running") return incoming;
+  if (incoming?.status === "running") return incoming;
+  if (!incoming) return isLocalNewerThanObserved(local, observedAt) ? local : null;
+  return Date.parse(local.updatedAt) > Date.parse(incoming.updatedAt) ? local : incoming;
+}
+
+function isLocalNewerThanObserved(local: { updatedAt: string }, observedAt: string): boolean {
+  const localTime = Date.parse(local.updatedAt);
+  const observedTime = Date.parse(observedAt);
+  return Number.isFinite(localTime) && Number.isFinite(observedTime) && localTime > observedTime;
 }

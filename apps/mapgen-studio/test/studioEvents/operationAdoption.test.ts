@@ -23,6 +23,14 @@ import {
   applyStudioOperationEvent,
   readAndAdoptStudioOperationsCurrent,
 } from "../../src/app/operationAdoption";
+import {
+  formatStudioDaemonIdentityMismatch,
+  formatStudioEventStreamError,
+  identityFromStudioOperationsCurrent,
+  sameStudioDaemonIdentity,
+  studioBusyGateMessage,
+  studioEventClearsStreamError,
+} from "../../src/app/studioEventRecovery";
 import type { LiveRuntimeStatusState } from "../../src/features/liveRuntime/model";
 
 const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
@@ -123,6 +131,104 @@ describe("Studio event operation adoption", () => {
     expect(state.saveDeploy).toBeNull();
   });
 
+  test("does not erase newer local terminal Run in Game diagnostics with older current truth", () => {
+    const state = adoptionState({
+      runInGame: {
+        ok: false,
+        requestId: "run-local-failed",
+        phase: "failed",
+        status: "failed",
+        startedAt: "2026-06-13T00:00:02.000Z",
+        updatedAt: "2026-06-13T00:00:03.000Z",
+        completedPhases: ["materializing", "deploying", "preparing-setup"],
+        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+      },
+    });
+
+    adoptStudioOperationsCurrent(currentOperations(), state.targets, {
+      currentRunInGameOperation: state.runInGame,
+    });
+
+    expect(state.runInGame?.requestId).toBe("run-local-failed");
+    expect(state.runInGame?.error).toContain("{swooper-maps}/maps/studio-current.js");
+  });
+
+  test("does not replace newer local terminal Run in Game diagnostics with an older recent operation", () => {
+    const state = adoptionState({
+      runInGame: {
+        ok: false,
+        requestId: "run-local-failed",
+        phase: "failed",
+        status: "failed",
+        startedAt: "2026-06-13T00:00:02.000Z",
+        updatedAt: "2026-06-13T00:00:05.000Z",
+        completedPhases: ["materializing", "deploying", "preparing-setup"],
+        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+      },
+    });
+
+    adoptStudioOperationsCurrent(
+      currentOperations({
+        observedAt: "2026-06-13T00:00:06.000Z",
+        runInGame: {
+          active: null,
+          recent: [
+            {
+              ok: true,
+              requestId: "older-terminal",
+              phase: "complete",
+              status: "complete",
+              startedAt: "2026-06-13T00:00:00.000Z",
+              updatedAt: "2026-06-13T00:00:01.000Z",
+              completedPhases: ["complete"],
+            },
+          ],
+        },
+      }),
+      state.targets,
+      { currentRunInGameOperation: state.runInGame }
+    );
+
+    expect(state.runInGame?.requestId).toBe("run-local-failed");
+  });
+
+  test("adopts newer active current operations over local terminal state", () => {
+    const state = adoptionState({
+      runInGame: {
+        ok: false,
+        requestId: "run-local-failed",
+        phase: "failed",
+        status: "failed",
+        startedAt: "2026-06-13T00:00:02.000Z",
+        updatedAt: "2026-06-13T00:00:05.000Z",
+        completedPhases: ["materializing"],
+        error: "old local error",
+      },
+    });
+
+    adoptStudioOperationsCurrent(
+      currentOperations({
+        observedAt: "2026-06-13T00:00:06.000Z",
+        runInGame: {
+          active: {
+            ok: true,
+            requestId: "run-active-new",
+            phase: "deploying",
+            status: "running",
+            startedAt: "2026-06-13T00:00:06.000Z",
+            updatedAt: "2026-06-13T00:00:07.000Z",
+            completedPhases: ["materializing"],
+          },
+          recent: [],
+        },
+      }),
+      state.targets,
+      { currentRunInGameOperation: state.runInGame }
+    );
+
+    expect(state.runInGame?.requestId).toBe("run-active-new");
+  });
+
   test("shell boot adoption reads daemon current without status replay", async () => {
     const state = adoptionState();
     let currentReads = 0;
@@ -170,6 +276,68 @@ describe("Studio event operation adoption", () => {
     expect(bootEffect).toContain("orpcClient.studio.operations.current({})");
     expect(bootEffect).not.toMatch(
       /fetchRunInGameStatus|fetchSaveDeployStatus|runInGame\.status|mapConfigs\.status/
+    );
+  });
+
+  test("current adoption reads latest local operation at adoption time", async () => {
+    const state = adoptionState();
+    let localOperation: RunInGameOperationStatus | null = null;
+    let resolveCurrent: ((current: StudioOperationsCurrent) => void) | null = null;
+    const currentPromise = new Promise<StudioOperationsCurrent>((resolve) => {
+      resolveCurrent = resolve;
+    });
+
+    const read = readAndAdoptStudioOperationsCurrent({
+      readCurrent: () => currentPromise,
+      targets: state.targets,
+      getCurrentRunInGameOperation: () => localOperation,
+      onError: () => {
+        throw new Error("unexpected current read failure");
+      },
+    });
+
+    localOperation = {
+      ok: false,
+      requestId: "run-local-after-read-start",
+      phase: "failed",
+      status: "failed",
+      startedAt: "2026-06-13T00:00:02.000Z",
+      updatedAt: "2026-06-13T00:00:03.000Z",
+      completedPhases: ["materializing", "deploying", "preparing-setup"],
+      error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+    };
+    resolveCurrent?.(currentOperations());
+    await read;
+
+    expect(state.runInGame?.requestId).toBe("run-local-after-read-start");
+  });
+
+  test("classifies stream recovery, daemon identity mismatch, and busy gates", () => {
+    const hello: TestStudioEvent = {
+      type: "hello",
+      serverInstanceId: "studio-a",
+      serverStartedAt: "2026-06-13T00:00:00.000Z",
+      observedAt: "2026-06-13T00:00:01.000Z",
+    };
+    const current = currentOperations({
+      serverInstanceId: "studio-a",
+      serverStartedAt: "2026-06-13T00:00:00.000Z",
+    });
+    const restarted = currentOperations({
+      serverInstanceId: "studio-b",
+      serverStartedAt: "2026-06-13T00:00:02.000Z",
+    });
+
+    expect(formatStudioEventStreamError(new Error("stream down"))).toBe("stream down");
+    expect(studioEventClearsStreamError(hello)).toBe(true);
+    expect(sameStudioDaemonIdentity(identityFromStudioOperationsCurrent(current), hello)).toBe(
+      true
+    );
+    expect(
+      formatStudioDaemonIdentityMismatch(hello, identityFromStudioOperationsCurrent(restarted))
+    ).toContain("Studio daemon restarted");
+    expect(studioBusyGateMessage({ subject: "Explore", runInGameRunning: true })).toContain(
+      "Run in Game"
     );
   });
 
