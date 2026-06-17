@@ -64,12 +64,13 @@
 - [x] 5.6 Package/app check gates selected by the implementation write set.
 - [x] 5.7 Negative searches for deleted browser cadence symbols and alternate
       watcher/session/event paths.
-- [ ] 5.8 Live Civ7 proof with branch, commit, command/API path, timestamps,
+- [x] 5.8 Live Civ7 proof with branch, commit, command/API path, timestamps,
       relevant logs, and parsed payload shape.
 - [x] 5.9 If Civ7 is unavailable, write `workstream/next-packet.md` and leave
       D10 not-green for live-game watcher behavior.
 
-Live-proof reconciliation note, 2026-06-16:
+Historical live-proof reconciliation note, 2026-06-16, superseded by the
+completion note below:
 
 - D12 later ran live Run in Game and Save&Deploy state-machine proof through
   Nx Studio, `studio.events.watch`, keyed status, and
@@ -78,9 +79,23 @@ Live-proof reconciliation note, 2026-06-16:
   does not explicitly prove D10's live-game watcher-specific subclaims: first
   retained `live-game`, reconnect replay, unchanged-key quiet behavior, and
   changed live-game state publication against a real Civ7 session.
-- Task 5.8 therefore remains open as a narrowed live-game watcher proof gap,
+- At that time, task 5.8 remained open as a narrowed live-game watcher proof gap,
   not as a blocker for D12 drain or Run in Game / Save&Deploy state-machine
   closure.
+
+Live-proof completion note, 2026-06-16:
+
+- Branch `codex/studio-dev-port-env` at `aa8325a83` ran the D10 narrowed
+  watcher proof against a local tuner-ready Civ7 session through full Studio
+  dev surfaces: daemon `127.0.0.1:5274`, frontend `http://localhost:5273`.
+- Raw captures are recorded in `workstream/testing-ledger.md`: preflight JSON,
+  first stream, reconnect stream, quiet-window streams, changed-turn stream,
+  parsed summaries, listener/daemon-health captures, and browser/network proof.
+- The accepted live claim is watcher-specific: `hello`, first retained
+  `live-game`, reconnect replay, unchanged-key quiet window, changed
+  `live-game` state after a real autoplay trigger including `turn: 34 -> 35`,
+  source-composition proof, and browser event-stream consumption without
+  background live-status/readiness cadence.
 
 ## 6. Closure
 

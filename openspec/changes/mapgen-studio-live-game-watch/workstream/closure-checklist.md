@@ -1,7 +1,7 @@
 # D10 Closure Checklist - Studio Live Game Watch
 
-Status: implementation committed at current branch tip; live Civ7 product proof not run or claimed.
-Date: 2026-06-15
+Status: implementation committed; D10 watcher-specific live Civ7 proof passed.
+Date: 2026-06-15; live proof updated 2026-06-16.
 
 - [x] Proposal, design, tasks, and spec delta agree on D10 ownership.
 - [x] D10 packet uses the runtime Effect refactor frame and packet train as
@@ -24,21 +24,23 @@ Date: 2026-06-15
       search with retained non-D10 hits classified.
 - [x] Snapshot/setup request-response follow-up rules are protected by model
       tests and `StudioShell` source guard.
-- [x] `workstream/next-packet.md` records the missing live Civ7 proof, re-entry
-      commands, prerequisites, log paths, owner, and not-green claim.
+- [x] `workstream/next-packet.md` records the original missing live Civ7 proof,
+      re-entry commands, prerequisites, log paths, owner, and later closure
+      append.
 - [x] `bun run openspec -- validate mapgen-studio-live-game-watch --strict`
       passed.
 - [x] `bun run openspec:validate` passed.
 - [x] Focused package/app tests and checks passed.
 - [x] Nx-owned `@civ7/studio-server:check` and `mapgen-studio:check` passed.
-- [ ] Live Civ7 proof with real game/FireTuner evidence passed.
+- [x] Live Civ7 proof with real game/FireTuner evidence passed for D10
+      watcher-specific task 5.8; raw captures and parsed browser/network proof
+      are recorded in `workstream/testing-ledger.md`.
 - [x] Graphite implementation commit exists for D10 at the current branch tip.
-- [x] Post-commit `git status --short --branch` was clean before closure-doc
-      amendment; this checklist is amended into that commit so the final
-      post-amend status must also be clean.
+- [x] Post-proof record commit must leave `git status --short --branch` clean
+      before D10 live-proof closeout is claimed.
 
 Residual implementation risk:
 
-- Live Civ7 behavior is not green until `workstream/next-packet.md` is executed
-  and recorded. D10 may commit static/runtime implementation evidence, but must
-  not claim product-runtime green for live game behavior.
+- This checklist does not claim Graphite submit/PR/drain.
+- This checklist does not claim live shared-socket instrumentation beyond
+  source-composition proof plus live stream output.

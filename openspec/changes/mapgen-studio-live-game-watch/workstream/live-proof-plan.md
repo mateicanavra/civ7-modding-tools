@@ -1,6 +1,7 @@
 # D10 Live-Game Watcher Proof Plan
 
-Status: proof-slice design repaired after fresh review; proof execution pending.
+Status: proof-slice design repaired after fresh review; proof executed for D10
+task 5.8 on 2026-06-16.
 Date: 2026-06-16.
 Branch: `codex/runtime-effect-d10-live-proof`.
 
@@ -97,6 +98,16 @@ Start the repo-native full Studio dev target when browser/UI proof is in scope:
 bun run nx run mapgen-studio:dev --outputStyle=static
 ```
 
+If the default Studio ports are occupied, isolate this proof worktree with
+explicit environment ports:
+
+```bash
+STUDIO_DAEMON_PORT=5274 \
+STUDIO_DEV_PORT=5273 \
+STUDIO_DEV_RPC_TARGET=http://127.0.0.1:5274 \
+bun run nx run mapgen-studio:dev --outputStyle=static
+```
+
 Expected local surfaces:
 
 - frontend: `http://127.0.0.1:5173` or the port printed by Vite;
@@ -118,6 +129,9 @@ timeout 12s curl -sN \
   http://127.0.0.1:5174/rpc/studio/events/watch \
   | tee /tmp/d10-live-watch-1.sse
 ```
+
+When isolated ports are used, replace `5174` with the recorded
+`STUDIO_DAEMON_PORT`.
 
 Use the same command for reconnect replay with a new output file after the first
 `live-game` event has been captured.
@@ -199,3 +213,36 @@ rejected with source evidence, or explicitly moved outside the closure claim.
 | D10-LIVE-REV-05 | P2 | proof/environment reviewers | L4 quiet proof was underbounded and the `curl` stream was indefinite/unparsed. | accepted-repaired: capture is bounded, two watcher intervals plus margin are required, and parsed event rows must record stable keys and timestamps. |
 | D10-LIVE-REV-06 | P2 | proof/environment reviewers | L7 allowed static negative search to replace live browser consumption. | accepted-repaired: same-run browser/network capture is required; source proof may only support absence/classification. |
 | D10-LIVE-REV-07 | P3 | environment reviewer | Environment prerequisites were not executable. | accepted-repaired: `civ7 game status --json` and `civ7 game health --tuner --json` preflights are now required. |
+
+## Execution Append - 2026-06-16
+
+Executed on branch `codex/studio-dev-port-env` at `aa8325a83` with isolated
+ports:
+
+```bash
+STUDIO_DAEMON_PORT=5274 \
+STUDIO_DEV_PORT=5273 \
+STUDIO_DEV_RPC_TARGET=http://127.0.0.1:5274 \
+bun run nx run mapgen-studio:dev --outputStyle=static
+```
+
+Accepted raw artifacts:
+
+- `/tmp/d10-live-watch-1.sse`;
+- `/tmp/d10-live-watch-2.sse`;
+- `/tmp/d10-live-watch-changed.sse`;
+- `/tmp/d10-live-proof-summary.json`;
+- `/tmp/d10-live-watch-current.sse`;
+- `/tmp/d10-live-watch-turn-change.sse`;
+- `/tmp/d10-live-turn-change-summary.json`;
+- `/tmp/d10-game-status.json`;
+- `/tmp/d10-game-health.json`;
+- `/tmp/d10-daemon-health.json`;
+- `/tmp/d10-vite-listener.txt`;
+- `/tmp/d10-daemon-listener.txt`;
+- `/tmp/d10-browser-network-proof.json`;
+- `/tmp/d10-browser-network-proof.png`.
+
+The detailed evidence ledger is `workstream/testing-ledger.md`. No runtime
+source edits were made for proof convenience; the only implementation slice
+needed before proof was isolated Studio dev ports.

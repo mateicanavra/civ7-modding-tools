@@ -20,7 +20,17 @@ import { defineConfig } from "vite";
 // daemon runs under Bun, which loads TS natively).
 // ===========================================================================
 
+const STUDIO_DEV_PORT = parsePort(process.env.STUDIO_DEV_PORT, 5173, "STUDIO_DEV_PORT");
 const STUDIO_DEV_RPC_TARGET = process.env.STUDIO_DEV_RPC_TARGET ?? "http://127.0.0.1:5174";
+
+function parsePort(value: string | undefined, fallback: number, label: string): number {
+  if (value === undefined) return fallback;
+  const port = Number(value);
+  if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
+    throw new Error(`${label} must be an integer from 1 to 65535: ${value}`);
+  }
+  return port;
+}
 
 export default defineConfig(({ command }) => ({
   plugins: [react(), tailwindcss()],
@@ -46,7 +56,7 @@ export default defineConfig(({ command }) => ({
     sourcemap: true,
   },
   server: {
-    port: 5173,
+    port: STUDIO_DEV_PORT,
     strictPort: true,
     proxy: {
       "/rpc": { target: STUDIO_DEV_RPC_TARGET },

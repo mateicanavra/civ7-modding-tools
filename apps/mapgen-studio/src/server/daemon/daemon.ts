@@ -58,8 +58,9 @@ const mimeTypes: Record<string, string> = {
 
 export function parseStudioDaemonArgs(
   argv: readonly string[],
-  defaults: Readonly<{ repoRoot: string }>
+  defaults: Readonly<{ repoRoot: string; env?: Readonly<Record<string, string | undefined>> }>
 ): StudioDaemonArgs {
+  const env = defaults.env ?? process.env;
   const options = new Map<string, string>();
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index];
@@ -71,12 +72,22 @@ export function parseStudioDaemonArgs(
     index += 1;
   }
   const assetsRoot = options.get("assets-root");
+  const portValue = options.get("port") ?? env.STUDIO_DAEMON_PORT;
   return {
     host: options.get("host") ?? "127.0.0.1",
-    port: Number(options.get("port") ?? STUDIO_DAEMON_DEFAULT_PORT),
+    port: parsePort(portValue, STUDIO_DAEMON_DEFAULT_PORT, "Studio daemon port"),
     repoRoot: resolve(options.get("repo-root") ?? defaults.repoRoot),
     ...(assetsRoot ? { assetsRoot: resolve(assetsRoot) } : {}),
   };
+}
+
+function parsePort(value: string | undefined, fallback: number, label: string): number {
+  if (value === undefined) return fallback;
+  const port = Number(value);
+  if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
+    throw new Error(`${label} must be an integer from 1 to 65535: ${value}`);
+  }
+  return port;
 }
 
 /**
