@@ -8,10 +8,10 @@
 - **Original stack root:** `agent-F-habitat-harness-workstream` (historical
   H1-H8 execution train)
 - **Latest settled baseline branch:** `agent-F-habitat-nx-worktree-state`
-- **Active recovery packet:** `habitat-scaffold-contract-repair` on
-  `agent-HR-habitat-scaffold-contract-repair` for explicit baseline/scaffold
-  contract repair after accepted command-surface, adapter, Grit proof, and live
-  apply checkpoints.
+- **Active recovery authority:** current closure comes from the recovery claim
+  ledger and each accepted repair OpenSpec packet. Historical H1-H8 rows remain
+  useful implementation evidence, but no single old packet name is the global
+  active recovery state.
 - **Status:** RECOVERY ACTIVE. The H1-H8 records are historical implementation
   evidence, not current closure authority by themselves. Current closure must
   be taken from the recovery claim ledger, the Grit pattern corpus ledger, and
@@ -34,7 +34,7 @@
 | 6 Expectations | HISTORICAL + RECOVERY UPDATED | per-slice verification gates; H2 ratchet intent and `path::message` keys remain useful history, but current baseline proof comes from explicit committed baseline files or modeled external exception sources in `habitat-scaffold-contract-repair`, not missing-file convention. |
 | 7 Architecture translation | DONE | taxonomy.md (tags/constraints); five-layer ownership in FRAME hard core #2 |
 | 8 Slices | HISTORICAL + RECOVERY OPEN | H1-H8 historical train exists; active recovery slices and per-pattern packets now control implementation readiness. |
-| 9 Local stats | PARTIAL CURRENT PROOF | Nx normalization has current `build` and `verify` proof; original H5/H6/H8 proof claims remain historical until their repair packets reprove them. |
+| 9 Local stats | PARTIAL CURRENT PROOF | Nx normalization has current `build` and `verify` proof; H6 command/enforcement proof is current in `habitat-enforcement-surface-cleanup`; H5 Grit row proof and H8 convention-migration claims remain packet-owned non-closures. |
 | 10 Runtime proof | N/A by design | harness touches structure only; byte-parity gates stand in (H1/H4) |
 | 11 Review | RECOVERY REVIEW ACTIVE | pre-execution spec/architecture reviews remain historical; active repair packets require fresh product/evidence/system review. |
 | 12 Closure | OPEN | Close only by repair/pattern packet after current command, graph, baseline, Grit, generator, hook, and record-proof requirements are met. |
@@ -133,10 +133,9 @@ train redefines the other's authority.
 
 ## Next exact action
 
-1. Close `habitat-scaffold-contract-repair` with typed baseline contract,
-   explicit-file inventory, external exception projection, shrink-only write
-   refusal, stale-record, validation, and Graphite proof.
-2. Continue the repair order only after supervisor acceptance:
-   remaining baseline/Grit proof slices, boundary taxonomy proof,
-   classify/generator repair, hook hardening, enforcement surface cleanup, and
-   then individual Grit proof/apply pattern workstreams.
+1. Use the recovery claim ledger and accepted repair packets as the current
+   authority for H1-H8 truth.
+2. Continue only product-bearing repair packets with fresh proof; remaining
+   non-claims include Grit row semantics, baseline semantics, convention
+   migration capability, CI execution, changed-range affected coverage, and
+   product/runtime behavior unless their owning packet proves them.

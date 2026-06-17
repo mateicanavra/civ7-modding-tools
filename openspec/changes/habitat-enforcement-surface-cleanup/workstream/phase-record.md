@@ -5,10 +5,10 @@
 - Project: Habitat Harness
 - Phase: enforcement surface cleanup / `habitat-enforcement-surface-cleanup`
 - Owner: DRA Habitat recovery owner
-- Branch/Graphite stack: `agent-HR-habitat-enforcement-realignment`
+- Branch/Graphite stack: local HESC repair stack
 - Started: 2026-06-14
-- Status: downstream realignment checkpoint; broader enforcement-surface cleanup
-  remains pending supervisor acceptance.
+- Status: Effect-adopted Grit path proof checkpoint locally committed for
+  supervisor acceptance or repair.
 
 ## Objective
 
@@ -56,8 +56,9 @@
   `VerifyProof` artifact. The command proof path now consumes accepted Biome
   current-drift repair and this packet's generated map-bundle freshness repair:
   Habitat check has no enforced failures and `doc-ambiguity` remains advisory.
-  Full verify closure remains open because Nx affected now executes and fails
-  later on `mapgen-studio:test` and `@internal/habitat-harness:test`.
+  After the harness test-target repair, the clean explicit `HEAD` range exits 0
+  with `nxAffected.status: "executed"` and no affected tasks. Changed-range Nx
+  affected coverage and CI execution remain non-claims.
 
 ## Source Synthesis
 
@@ -132,8 +133,21 @@ Core synthesis:
 - Completed in this checkpoint: 3.4, 6.3, 6.4, 7.1-7.3, 8.1-8.5, 9.15, and
   10.1-10.3 for root/verify command-policy record truth, owner-layer
   reaffirmation, stale H6 downstream realignment, and stale-record scan.
-- Closure state: this downstream realignment checkpoint requires supervisor
-  acceptance before HESC packet closure is claimed.
+- Completed in accepted generated-output freshness checkpoint:
+  `arch-test-map-bundle-runtime-imports` now passes from owner-generated map
+  artifacts, and full Habitat check has no enforced failures while
+  `doc-ambiguity` remains advisory.
+- Completed in accepted harness test-target checkpoint: the repo-local
+  `@internal/habitat-harness:test` target passes uncached with the current
+  long-running suite, and clean explicit-range `habitat verify --base HEAD
+  --json` exits 0 with no affected tasks.
+- Completed in this Effect-proof checkpoint: 7.6 for the accepted
+  Grit-scoped Effect adapter path. HESC consumes the accepted
+  `habitat-effect-grit-adapter` substrate only for Grit check/fix execution
+  and proves runtime-edge discipline, `CheckReport` compatibility, selector
+  failure, command provenance, collect-all check behavior, fail-closed dry-run
+  mutation behavior, service-injected tests, and root/dev/prod command paths
+  without claiming HG row semantics or product/runtime behavior.
 
 ## Verification
 
@@ -189,16 +203,14 @@ Core synthesis:
     `exitCode: null` instead of presenting a not-run Nx command as a failed Nx
     execution.
 - Current command proof:
-  - `bun run habitat -- verify --base HEAD --json` exits 1 with
-    `command.exitCode: 1`, selected real rule ids, failing count 0, advisory
-    count 1, `nxAffected.status: "executed"`, and clean resources status.
-    Habitat check is no longer the blocker; Nx affected now runs and fails later
-    on unrelated `mapgen-studio:test` and `@internal/habitat-harness:test`
-    tasks.
-- Non-claims: no green `habitat verify` closure, no CI execution proof, no
-  broad Nx affected coverage, no wrapper parity closure, no selector closure
-  beyond consumed command-surface behavior, no Grit row semantics, no baseline
-  migration, and no product/runtime proof.
+  - `bun run habitat -- verify --base HEAD --json` exits 0 from a clean
+    explicit `HEAD` range with `command.exitCode: 0`, failing count 0, advisory
+    count 1, `nxAffected.status: "executed"`, empty affected projects/tasks,
+    `nxAffected.exitCode: 0`, and clean resources status.
+- Non-claims: no CI execution proof, no changed-range broad Nx affected
+  coverage, no wrapper parity closure, no selector closure beyond consumed
+  command-surface behavior, no Grit row semantics, no baseline migration, and no
+  product/runtime proof.
 
 ## Enforcement Inventory Checkpoint
 
@@ -346,13 +358,95 @@ Core synthesis:
     the Habitat wrapper with `baseline-integrity` passing.
   - Whole-command proof: `habitat check --json` has no enforced failures after
     the refresh; `doc-ambiguity` remains advisory.
-  - Verify artifact truth: `habitat verify --base HEAD --json` reaches Nx
-    affected after the Habitat check succeeds, then exits 1 on unrelated
-    `mapgen-studio:test` and `@internal/habitat-harness:test` failures; this is
-    not generated-output freshness debt or root verify closure.
+  - Verify artifact truth at that checkpoint: `habitat verify --base HEAD
+    --json` reached Nx affected after the Habitat check succeeded, then exited
+    1 on unrelated `mapgen-studio:test` and `@internal/habitat-harness:test`
+    failures. The later harness test-target checkpoint supersedes that
+    not-closed verify state for the clean explicit `HEAD` range.
 - Non-claims: no wrapper retirement, no CI execution proof, no broad Nx
   affected coverage, no Grit row semantics, no baseline semantics, no hook
   policy change, and no product/runtime proof.
+
+## Harness Test Target Proof Checkpoint
+
+- Implementation keeps the Habitat harness package test target aligned with the
+  current long-running proof suite by running Vitest with
+  `--testTimeout=30000`; the wrapper projection test keeps its explicit
+  per-test timeout because it runs direct wrapped architecture commands and can
+  exceed the package default under full-suite contention.
+- The Effect parity proof now asserts the owned command result while tolerating
+  ambient Nx/Bun warning text after the expected stderr payload. The test still
+  proves exit code, stdout, expected stderr payload, and secret redaction.
+- Proof classes:
+  - Unit behavior: forced-color `effect-parity.test.ts` passes and proves the
+    parity assertion is stable under the Nx warning environment.
+  - Unit behavior: focused `enforcement-surface.test.ts` passes with current
+    generated-output freshness.
+  - Native Nx behavior: uncached `@internal/habitat-harness:test` passes through
+    the repo-local Nx target.
+  - Verify artifact truth: clean explicit-range
+    `habitat verify --base HEAD --json` exits 0, reports Habitat check pass
+    with `doc-ambiguity` advisory, executes Nx affected, and reports no tasks
+    for the clean `HEAD` range.
+- Non-claims: no CI execution proof, no changed-range broad Nx affected
+  coverage, no Grit row semantics, no baseline semantics, no hook policy
+  change, and no product/runtime proof.
+
+## Closure Checkpoint
+
+- Proof classes:
+  - Spec validation: `bun run openspec -- validate
+    habitat-enforcement-surface-cleanup --strict` passes.
+  - Aggregate OpenSpec validation: `bun run openspec:validate` passes.
+  - Native Nx behavior: `bun run verify` exits 0 through the root
+    package-owned verifier aggregate.
+  - Native Nx behavior: uncached `@internal/habitat-harness:test` passes through
+    the repo-local Nx target with the current long-running Habitat harness
+    suite.
+  - Habitat wrapper behavior: `bun run habitat -- verify --base HEAD --json`
+    exits 0 from a clean explicit `HEAD` range with no Habitat rule failures,
+    `doc-ambiguity` advisory, executed Nx affected state, no affected
+    projects/tasks, and clean resources.
+  - Record truth proof: HESC task, phase, downstream, and recovery records
+    distinguish root verifier proof, direct `habitat verify --json` proof,
+    wrapper/parser policy, selector false-green refusal, generated-output
+    freshness, and harness test-target proof.
+- Non-claims: no CI execution proof, no changed-range broad Nx affected
+  coverage, no wrapper retirement, no Grit row semantics, no baseline
+  semantics, no hook policy change, no product/runtime proof, and no automatic
+  closure for other repair packets.
+
+## Effect-Adopted Grit Path Proof Checkpoint
+
+- HESC consumes the accepted `habitat-effect-grit-adapter` closure as the
+  packet's adopted Effect path for Grit-scoped check/fix execution only.
+- Proof classes:
+  - Unit/service behavior:
+    `bun run --cwd tools/habitat-harness test -- effect-parity.test.ts grit-adapter.test.ts grit-apply.test.ts habitat-process.test.ts workspace-tools.test.ts`
+    passes. This covers runtime-edge discipline, argument-array command
+    provenance, broad Grit-sized output capture, workspace-local command
+    routing, fake process-layer substitution, isolated-copy apply proof,
+    missing-export refusal, and fail-closed apply behavior.
+  - Habitat wrapper behavior:
+    `bun run habitat:check -- --json --tool grit-check` exits 0 with
+    schemaVersion 1, 22 Grit rules plus `baseline-integrity`, no failing rules,
+    and `baseline-integrity` passing.
+  - Selector failure behavior:
+    `bun run habitat:check -- --json --tool definitely-not-a-tool` exits 1
+    with schemaVersion 1, `rule-selection-integrity`, and no
+    `baseline-integrity` false green.
+  - Mutation no-write behavior:
+    `bun run habitat:fix -- --dry-run` exits 0, processes the current source
+    corpus, and reports 0 matches without writing source files.
+  - Native/prod command behavior:
+    after `@internal/habitat-harness:build`,
+    `bun tools/habitat-harness/bin/run.js check --json --tool grit-check`
+    exits 0 with the same schemaVersion 1, 22-rule Grit CheckReport and
+    passing `baseline-integrity`.
+- Non-claims: no all-row semantic proof beyond the current accepted Grit rule
+  set, no HG row proof, no baseline shrink/write proof, no live apply proof,
+  no hook policy proof, no CI execution proof, no broad Nx affected coverage,
+  and no product/runtime proof.
 
 ## Realignment
 
@@ -361,5 +455,5 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor acceptance or repair disposition before opening the next
-  repair-chain slice.
+- Hold for supervisor acceptance or repair disposition of this Effect-adopted
+  Grit path proof checkpoint before opening another repair-chain slice.

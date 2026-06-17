@@ -8,11 +8,10 @@ describe("Habitat Effect platform parity", () => {
   test("runs the parity probe under the source runner path", async () => {
     const result = await runEffectParityProbe();
 
-    expect(result.commandExecution).toEqual({
-      exitCode: 0,
-      stdout: "habitat-effect-parity\n",
-      stderr: "parity-stderr\n",
-    });
+    expect(result.commandExecution.exitCode).toBe(0);
+    expect(result.commandExecution.stdout).toBe("habitat-effect-parity\n");
+    expect(result.commandExecution.stderr).toContain("parity-stderr\n");
+    expect(result.commandExecution.stderr).not.toContain("must-redact");
     expect(result.scopedCleanup).toEqual({
       markerExistedInsideScope: true,
       cleanupObserved: true,

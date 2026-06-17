@@ -83,6 +83,9 @@
   recursion or stale target names.
 - [x] 6.4 Patch `verify` command, target metadata, docs, or proof records if the
   accepted command policy differs from historical H6.
+- [x] 6.5 Repair the current `@internal/habitat-harness:test` target proof that
+  blocked the direct `habitat verify --json` Nx phase, while keeping clean-range
+  verify proof separate from CI or changed-range affected proof.
 
 ## 7. Owner-Layer And Effect Decision
 
@@ -100,7 +103,7 @@
 - [x] 7.5 If Effect is not adopted for a trigger-area slice, prove the manual
   implementation still supplies typed failure states, command provenance,
   cleanup proof, and test substitution.
-- [ ] 7.6 If Effect is adopted, prove runtime-edge discipline, `CheckReport`
+- [x] 7.6 If Effect is adopted, prove runtime-edge discipline, `CheckReport`
   compatibility, selector failure, command provenance, collect-all check
   behavior, fail-closed mutation behavior, and service-injected tests paired
   with real root/dev/prod command tests.
@@ -138,6 +141,8 @@
 - [x] 9.14 `habitat verify` whole-command proof
 - [x] 9.15 Stale-record scan and patches
 - [x] 9.16 Full-depth-language guardrail scan over this packet
+- [x] 9.17 Uncached `@internal/habitat-harness:test` Nx target proof
+- [x] 9.18 Clean explicit-range `habitat verify --base HEAD --json` proof
 
 ## 10. Closure
 

@@ -10,8 +10,10 @@
   stacked above `agent-HR-habitat-grit-proof-repair` at
   `7681f7c16 fix(habitat): prove live Grit apply boundary`
 - Started: 2026-06-14
-- Status: implementation verification complete on
-  `agent-HR-habitat-scaffold-contract-repair`; Graphite checkpoint complete
+- Status: scaffold/baseline contract checkpoint is supervisor-accepted for the
+  typed explicit baseline state boundary. This packet-record closure checkpoint
+  realigns current recovery-ledger status and is locally implemented for
+  supervisor acceptance or repair.
 
 ## Objective
 
@@ -158,9 +160,14 @@ Core synthesis:
   - 6.1-6.8 unit/integration tests;
   - 7.1-7.7 downstream realignment;
   - 8.1-8.17 verification gates.
-- Remaining tasks: supervisor review.
+- Remaining tasks: supervisor acceptance or repair of this packet-record
+  closure checkpoint.
 - Implementation status: code, records, verification, downstream realignment,
-  and Graphite checkpoint complete.
+  and Graphite checkpoint are complete for the accepted baseline contract
+  boundary. This closure checkpoint records the current recovery-ledger truth
+  and preserves non-claims for generator metadata closure, Grit pattern-row
+  closure, automatic Graphite parent discovery, baseline creation by pattern
+  generators, and product/runtime proof.
 
 ## Verification
 
@@ -262,4 +269,5 @@ Core synthesis:
 
 ## Next Action
 
-- Hold for supervisor review before opening the next repair-chain packet.
+- Hold this packet-record closure checkpoint for supervisor acceptance or
+  repair before opening another baseline/scaffold repair slice.

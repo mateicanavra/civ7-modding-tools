@@ -8,11 +8,11 @@
 - Branch/Graphite stack: `agent-HR-habitat-effect-grit-adapter` above
   `agent-HR-habitat-repair-chain`
 - Started: 2026-06-14
-- Status: closed for supervisor review; dependency/platform, command-result,
-  parser/projection, injected-harness, apply-transaction, live Grit check, and
-  isolated transaction-copy apply proof slices are implemented; downstream
-  realignment, final verification, Graphite commit, and clean worktree proof
-  are complete
+- Status: supervisor-accepted for the Grit-scoped Effect adapter substrate;
+  dependency/platform, command-result, parser/projection, injected-harness,
+  apply-transaction, live Grit check, and isolated transaction-copy apply proof
+  slices are complete. This packet-record closure checkpoint realigns current
+  recovery/evaluation records while preserving downstream row-proof non-claims.
 
 ## Objective
 
@@ -519,7 +519,8 @@ Dependency/platform non-claims:
 
 ## Next Action
 
-- Supervisor review of `agent-HR-habitat-effect-grit-adapter`.
+- Hold this packet-record closure checkpoint for supervisor acceptance or
+  repair before opening another Effect/Grit adapter slice.
 - Do not parse compact human dry-run output into semantic inventory by reading
   TypeScript source, and do not add domain-specific match reconstruction or
   import/export approval policy to `grit-apply.ts`.

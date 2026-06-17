@@ -9,7 +9,8 @@
   above `agent-HR-habitat-hook-hardening-closure` and below the HG pattern
   chain.
 - Started: 2026-06-14
-- Status: implementation proof complete; Graphite commit pending.
+- Status: taxonomy verify-proof checkpoint implemented locally; supervisor
+  acceptance pending.
 
 ## Objective
 
@@ -57,10 +58,11 @@
   invocations, Habitat `nx-boundaries` JSON proof, and live false-negative
   probes. Cached Nx success is recorded as command-surface behavior, not as
   the sole enforcement proof.
-- `bun run habitat -- verify --base HEAD` is current-red before affected tasks
-  because the full Habitat check surface fails on unrelated `biome-ci` and
-  `arch-test-map-bundle-runtime-imports`; this packet does not claim
-  `habitat verify` closure.
+- `bun run habitat -- verify --base HEAD --json` now exits 0 for the explicit
+  clean `HEAD` range after the H4 Biome and H6 generated-output blockers were
+  repaired in their owner packets. This proof records taxonomy participation in
+  the full structural surface; it does not claim CI execution, broad
+  changed-range affected coverage, or non-taxonomy proof classes.
 
 ## Source Synthesis
 
@@ -110,9 +112,10 @@ Core synthesis:
   taxonomy/config parity repair, false-negative live probes, direct Nx and
   Habitat wrapper proof, normal aggregate command proof, stale-record
   realignment, and owner-layer proof boundary.
-- Remaining tasks: Graphite commit and supervisor review.
-- Open non-claim task: `habitat verify` remains blocked by unrelated full-check
-  failures outside this taxonomy slice.
+- Remaining tasks: supervisor review/acceptance of the taxonomy verify-proof
+  checkpoint.
+- The prior `habitat verify` blocker is repaired by downstream H4/H6 owner
+  packets and consumed here as explicit clean-range proof.
 
 ## Verification
 
@@ -143,8 +146,10 @@ Commands and inspections run for current implementation proof:
   `nx-boundaries`, lane `enforced`, locked, pass, diagnostics empty, and used
   the direct ESLint detect argv.
 - `bun run --cwd tools/habitat-harness check`
-- `bun run habitat -- verify --base HEAD` exited 1 before affected tasks on
-  unrelated `biome-ci` and `arch-test-map-bundle-runtime-imports`.
+- `bun run habitat -- verify --base HEAD --json` exited 0: Habitat check
+  selected 42 rules including `nx-boundaries` and `baseline-integrity`, had
+  zero failing rules and one advisory, Nx affected executed for the explicit
+  clean `HEAD` range and ran no tasks, and post-state was clean.
 - `bun run openspec -- validate habitat-boundary-taxonomy-tightening --strict`
 - `bun run openspec -- validate habitat-boundary-tags --strict`
 - `bun run openspec:validate`
@@ -158,16 +163,20 @@ Validation results:
 - Harness typecheck: PASS.
 - Direct false-negative probes: PASS, expected failures then targeted cleanup.
 - Habitat wrapper proof: PASS for selected `nx-boundaries`.
+- Explicit clean-range Habitat verify proof: PASS.
 - Strict OpenSpec validation: PASS for active packet and touched H3 packet.
-- Aggregate OpenSpec validation: PASS, 181 passed and 0 failed.
+- Aggregate OpenSpec validation: PASS.
 - Diff/deleted-file/residue hygiene: PASS.
 
 Evidence boundary:
 
-- Proves project-plane taxonomy/config/tag/graph parity plus selected
-  false-negative behavior.
-- Does not prove Grit, file-layer, Biome, runtime, generated-output, hook,
-  baseline, registered promotion, or product behavior.
+- Proves project-plane taxonomy/config/tag/graph parity, selected
+  false-negative behavior, Habitat wrapper `nx-boundaries` selection, and
+  explicit clean-range `habitat verify` participation after unrelated full-check
+  blockers were repaired by their owners.
+- Does not prove CI execution, broad changed-range affected coverage, Grit,
+  file-layer, Biome, runtime, generated-output, hook, baseline, registered
+  promotion, or product behavior.
 - Daemon disabling, cache disabling, socket overrides, symlink repair, and
   routine cache reset remain excluded from accepted steady-state proof policy.
 
@@ -181,4 +190,5 @@ Evidence boundary:
 
 ## Next Action
 
-- Run final validation, commit through Graphite, and stop for supervisor review.
+- Hold for supervisor acceptance or repair of the taxonomy verify-proof
+  checkpoint before opening another HR slice.
