@@ -56,6 +56,29 @@ describe("Civ7TunerSession (Effect scoped shared session)", () => {
     expect(await waitForFin(tuner)).toBe(true);
   });
 
+  test("serializes use calls over the shared session", async () => {
+    const tuner = await startFakeTuner();
+    const { runtime, service } = await makeRuntime(tuner.port);
+    cleanups.push(() => runtime.dispose());
+
+    let active = 0;
+    let maxActive = 0;
+    const run = () =>
+      runtime.runPromise(
+        service.use(async () => {
+          active += 1;
+          maxActive = Math.max(maxActive, active);
+          await new Promise((resolve) => setTimeout(resolve, 30));
+          active -= 1;
+          return true;
+        })
+      );
+
+    await Promise.all([run(), run(), run()]);
+
+    expect(maxActive).toBe(1);
+  });
+
   test("gate: fails fast after the threshold, half-opens after cooldown, resets on success", async () => {
     const tuner = await startFakeTuner();
     const { runtime, service } = await makeRuntime(tuner.port, {

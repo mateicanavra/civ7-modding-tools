@@ -59,7 +59,7 @@ export function makeStudioRuntime(
   const eventHubLayer = StudioEventHubLive;
   const operationRuntimeLayer = makeStudioOperationRuntimeLayer({
     ports: context.operationRuntime,
-  }).pipe(Layer.provide(civ7TunerSessionLayer));
+  });
   const liveGameWatcherLayer =
     options.liveGameWatch === undefined
       ? Layer.empty
@@ -73,11 +73,9 @@ export function makeStudioRuntime(
     Layer.mergeAll(liveGameWatcherLayer, operationRuntimeLayer),
     eventHubLayer
   );
-  const layer = Layer.mergeAll(
-    civ7TunerSessionLayer,
-    civ7TunerClientLayer,
-    Layer.succeed(StudioConfig, context),
-    eventHubOwnedLayer
+  const layer = Layer.provideMerge(
+    Layer.mergeAll(civ7TunerClientLayer, Layer.succeed(StudioConfig, context), eventHubOwnedLayer),
+    civ7TunerSessionLayer
   );
   return ManagedRuntime.make(layer) as unknown as StudioRuntime;
 }

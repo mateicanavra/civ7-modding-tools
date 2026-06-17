@@ -31,7 +31,7 @@ describe("Studio workflow session graph", () => {
     expect(operationRuntime).toContain("Civ7WorkflowControlLive");
     expect(operationRuntime).toContain("Civ7TunerSession");
     expect(runtime).toContain("const civ7TunerSessionLayer = Civ7TunerSessionLive");
-    expect(runtime).toContain(".pipe(Layer.provide(civ7TunerSessionLayer))");
+    expect(runtime).not.toContain(".pipe(Layer.provide(civ7TunerSessionLayer))");
   });
 
   test("workflow control consumes an externally supplied tuner session service", async () => {

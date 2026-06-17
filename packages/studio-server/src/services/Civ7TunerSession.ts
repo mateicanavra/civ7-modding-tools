@@ -92,30 +92,33 @@ const make = (
       (s) => Effect.promise(() => s.close())
     );
     const gateOpenUntil = yield* Ref.make(0);
+    const useGate = yield* Effect.makeSemaphore(1);
 
     const use = <A>(run: (o: { readonly session: Civ7DirectControlSession }) => Promise<A>) =>
-      Effect.gen(function* () {
-        const now = yield* Clock.currentTimeMillis;
-        const openUntil = yield* Ref.get(gateOpenUntil);
-        if (now < openUntil) {
-          return yield* new Civ7TunerBackoffError({
-            consecutiveResponseTimeouts: session.stats.consecutiveResponseTimeouts,
-            retryAtMs: openUntil,
-          });
-        }
-        return yield* Effect.tryPromise(() => run({ session })).pipe(
-          Effect.tapError(() =>
-            // The session's counter only moves on response-timeouts (the
-            // wedge/busy signature) — connection-refused (game not running)
-            // stays un-gated so readiness keeps reporting fast.
-            session.stats.consecutiveResponseTimeouts >= threshold
-              ? Effect.flatMap(Clock.currentTimeMillis, (at) =>
-                  Ref.set(gateOpenUntil, at + cooldownMs)
-                )
-              : Effect.void
-          )
-        );
-      });
+      useGate.withPermits(1)(
+        Effect.gen(function* () {
+          const now = yield* Clock.currentTimeMillis;
+          const openUntil = yield* Ref.get(gateOpenUntil);
+          if (now < openUntil) {
+            return yield* new Civ7TunerBackoffError({
+              consecutiveResponseTimeouts: session.stats.consecutiveResponseTimeouts,
+              retryAtMs: openUntil,
+            });
+          }
+          return yield* Effect.tryPromise(() => run({ session })).pipe(
+            Effect.tapError(() =>
+              // The session's counter only moves on response-timeouts (the
+              // wedge/busy signature) — connection-refused (game not running)
+              // stays un-gated so readiness keeps reporting fast.
+              session.stats.consecutiveResponseTimeouts >= threshold
+                ? Effect.flatMap(Clock.currentTimeMillis, (at) =>
+                    Ref.set(gateOpenUntil, at + cooldownMs)
+                  )
+                : Effect.void
+            )
+          );
+        })
+      );
 
     const health = Effect.gen(function* () {
       const openUntil = yield* Ref.get(gateOpenUntil);
