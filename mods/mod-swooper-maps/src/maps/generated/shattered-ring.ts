@@ -17,7 +17,7 @@ export default createMap({
   description: mapConfig.description,
   recipe: standardRecipe,
   sourceConfigId: "shattered-ring",
-  configHash: "d57e1baa090c7ffd2c52ed4c915c0e03482d8cabea764755356a7eb075505b1e",
-  envelopeHash: "7e6d388295646f6f58d8c2932db0ece36c05e7f47da73879cfca2b3e1d27748d",
+  configHash: "6df62f2c03691d86712b4a0cc255a6ac4d8538ed4f4416b61277f1383a755c8d",
+  envelopeHash: "23d3259620dd415f39ba3edad29d88eea5aabdef739d4ad4a4ec6718c185d327",
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });

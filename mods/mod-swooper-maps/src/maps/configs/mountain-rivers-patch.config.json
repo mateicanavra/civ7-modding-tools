@@ -674,7 +674,21 @@
       "naturalWonders": {
         "minSpacingTiles": 6
       },
-      "resources": {},
+      "resources": {
+        "density": 1,
+        "sparsity": 0,
+        "rarityFidelity": 1,
+        "siteSpacingTiles": 3,
+        "perTypeSpacingFloorScale": 1,
+        "equityMaxDensityRatio": 1.8,
+        "familyDensity": {
+          "aquatic": 1,
+          "cultivated": 1,
+          "terrestrial": 1,
+          "geological": 1
+        },
+        "affinityRules": []
+      },
       "starts": {
         "minContiguousLandTiles": 24,
         "expansionRadiusTiles": 8,
@@ -689,7 +703,22 @@
         "fertilityWeight": 1.3,
         "freshwaterWeight": 0.8,
         "largeLandmassWeight": 2,
-        "roughnessPenaltyWeight": 0.2
+        "roughnessPenaltyWeight": 0.2,
+        "marginalLandRatio": 0.5,
+        "marginalExpansionRatio": 0.65,
+        "climateWeight": 1.6,
+        "climateExtremePenaltyWeight": 1.5,
+        "roughnessDivisor": 900,
+        "tierBias": {
+          "primary": 0.08,
+          "islandCluster": 0.02,
+          "marginal": -0.08
+        },
+        "rankingBlend": 0.86,
+        "fairnessTolerance": 0.3,
+        "coastalPreferenceWeight": 0,
+        "riverPreferenceWeight": 0,
+        "startBiasWeight": 1
       },
       "knobs": {}
     }

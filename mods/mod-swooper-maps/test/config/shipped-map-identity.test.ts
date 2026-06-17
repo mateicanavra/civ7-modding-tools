@@ -81,6 +81,10 @@ describe("shipped map config identity", () => {
       sparsity: 0,
       rarityFidelity: 1,
       siteSpacingTiles: 3,
+      perTypeSpacingFloorScale: 1,
+      equityMaxDensityRatio: 1.8,
+      familyDensity: { aquatic: 1, cultivated: 1, terrestrial: 1, geological: 1 },
+      affinityRules: [],
     });
 
     expect(earthlike.placement).not.toHaveProperty("floodplains");
