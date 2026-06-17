@@ -9,9 +9,23 @@ ops barrel.
 ```grit
 language js(typescript)
 
-`import $imports from $source` where {
-  $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
-  $source <: r".*(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']"
+or {
+  import_statement(source=$source) where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
+    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+  },
+  `export { $exports } from $source` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
+    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+  },
+  `export * from $source` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
+    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+  },
+  `import($source)` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/[^/]+/ops/[^/]+/index\.ts$",
+    $source <: r"^[\"']?(?:\.\./[^/]+/index\.js|@mapgen/domain/[^/]+/ops(?:/index\.js)?)[\"']?$"
+  }
 }
 ```
 
@@ -45,6 +59,17 @@ export const value = rivers;
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
 import "../compute-mesh/index.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+export { computeMesh } from "../compute-mesh/index.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+export * from "@mapgen/domain/foundation/ops";
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+export async function loadSiblingOp() {
+  return import("../compute-mesh/index.js");
+}
 ```
 
 ## Ignores fixture
@@ -111,10 +136,16 @@ import computeMesh from "../src/domain/foundation/ops/compute-mesh/index.js";
 export const value = computeMesh;
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
-export { computeMesh } from "../compute-mesh/index.js";
+export { defaultStrategy } from "./strategies/index.js";
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
-await import("../compute-mesh/index.js");
+export * from "@mapgen/domain/foundation/ops-by-id";
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+await import("./strategies/index.js");
+
+// @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
+await import("@mapgen/domain/foundation/ops/private");
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts
 const source = "../compute-mesh/index.js";

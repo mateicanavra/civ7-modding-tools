@@ -17,6 +17,9 @@
   other mods, recipes, tests, export-from, dynamic import, and source strings.
 - [x] 2.4 Run native Grit fixture proof and record
   `OCO-NATIVE-FIXTURES-2026-06-15`.
+- [x] 2.5 Repair the predicate/fixtures for named re-export, export-star, and
+  dynamic string-literal import recurrence classes and record
+  `OCO-EXPORT-DYNAMIC-NATIVE-FIXTURES-2026-06-17`.
 
 ## 3. Parser Inventory
 
@@ -25,6 +28,8 @@
 - [x] 3.2 Record current-predicate scan roots, exclusions, counts, zero
   current candidates, controls, and non-claims.
 - [x] 3.3 Record `OCO-DOMAIN-OPS-INVENTORY-2026-06-15`.
+- [x] 3.4 Record `OCO-EXPORT-DYNAMIC-INVENTORY-2026-06-17` for import,
+  re-export, and dynamic current-predicate classes.
 
 ## 4. Shared Proof And Baseline
 
@@ -49,14 +54,16 @@
   by `OCO-INJECTED-PROBE-2026-06-15`.
 - [x] 4.8 Prove the OCO registered injected finding is unbaselined, reports,
   cleans up to a clean worktree, and respects the out-of-scope control path.
+- [x] 4.9 Rerun clean-start injected proof from the committed export/dynamic
+  repair head and record `OCO-EXPORT-DYNAMIC-INJECTED-PROBE-2026-06-17`.
 
 ## 5. Downstream Realignment
 
 - [x] 5.1 Update the aggregate Grit proof matrix for this row.
 - [x] 5.2 Update the Grit pattern corpus ledger for this row.
 - [x] 5.3 Update the command proof log for this row.
-- [x] 5.4 Preserve non-claims for raw acquisition, export-from and dynamic
-  import closure, neighboring `ops.bind` / `runValidated` proof, source
+- [x] 5.4 Preserve non-claims for raw acquisition, non-string dynamic import
+  closure, neighboring `ops.bind` / `runValidated` proof, source
   remediation, classify/generator behavior, retired parity, apply safety, and
   product proof.
 

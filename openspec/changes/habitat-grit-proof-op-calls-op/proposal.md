@@ -5,9 +5,9 @@ Habitat Grit check. Domain op runtime entrypoints should not compose sibling
 ops or import the domain ops barrel; cross-op orchestration belongs in steps,
 stages, or public domain composition surfaces.
 
-This checkpoint owns the row-specific Grit pattern, fixture proof, current
-parser inventory, explicit empty baseline, injected-probe metadata, and record
-truth for `habitat-grit-proof-op-calls-op`.
+This checkpoint owns the row-specific Grit pattern repair, fixture proof,
+current parser inventory, explicit empty baseline, injected-probe metadata, and
+record truth for `habitat-grit-proof-op-calls-op`.
 
 ## Target Authority Refs
 
@@ -23,12 +23,15 @@ truth for `habitat-grit-proof-op-calls-op`.
 
 ## What Changes
 
-- Add `.grit/patterns/habitat/checks/op_calls_op.md`.
+- Repair `.grit/patterns/habitat/checks/op_calls_op.md` so the enforced row
+  covers import declarations, named/star re-exports, and dynamic string-literal
+  imports from sibling op runtimes or the domain ops barrel.
 - Register `grit-op-calls-op` as an enforced Grit check scoped to
   `mods/mod-swooper-maps/src/domain/**/ops/*/index.ts`.
 - Add explicit empty baseline
   `tools/habitat-harness/baselines/grit-op-calls-op.json`.
-- Add injected-probe metadata for the accepted shared injected proof surface.
+- Update injected-probe metadata to exercise the repaired dynamic import class
+  with the existing rules-path control.
 - Record deterministic parser inventory over Swooper domain source.
 - Update aggregate corpus, proof matrix, and command proof records for this
   row.
