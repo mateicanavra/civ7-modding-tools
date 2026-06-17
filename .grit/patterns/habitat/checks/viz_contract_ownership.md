@@ -12,16 +12,17 @@ or {
   program(statements=$body) where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/steps/viz\.ts$"
   },
-  `import $imports from $source` where {
+  import_statement(source=$source) where {
     $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\.ts$",
-    $resolved = resolve(path=$source),
-    $resolved <: r".*/stages/[^/]+/steps/viz(?:\.js|\.ts)?$"
+    $source <: r"^[\"']?\.\./steps/viz(?:\.js|\.ts)?[\"']?$"
   },
-  `import $imports from $source` where {
-    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\.ts$",
-    $source <: r"^\.\./",
-    $resolved = resolve(path=$source),
-    $resolved <: r".*/stages/[^/]+/steps/[^/]+/viz(?:\.js|\.ts)?$"
+  import_statement(source=$source) where {
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/steps/[^/]+\.ts$",
+    $source <: r"^[\"']?\./[A-Za-z0-9_-]+/viz(?:\.js|\.ts)?[\"']?$"
+  },
+  import_statement(source=$source) where {
+    $filename <: r".*mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/steps/[^/]+/.*\.ts$",
+    $source <: r"^[\"']?\.\./[A-Za-z0-9_-]+/viz(?:\.js|\.ts)?[\"']?$"
   }
 }
 ```
@@ -37,10 +38,21 @@ import { sharedViz } from "../steps/viz.js";
 
 export const crust = sharedViz;
 
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts
+import "../steps/viz.js";
+
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/erosion/index.ts
 import { privateViz } from "../mesh/viz.js";
 
 export const erosion = privateViz;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts
+import { privateViz as liveShape } from "./mesh/viz.js";
+
+export const live = liveShape;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts
+import "./mesh/viz.js";
 ```
 
 ## Ignores fixture
@@ -56,11 +68,6 @@ export const crust = stageViz;
 
 // @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust/index.ts
 import { privateViz } from "./viz.js";
-
-export const crust = privateViz;
-
-// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts
-import { privateViz } from "./mesh/viz.js";
 
 export const crust = privateViz;
 

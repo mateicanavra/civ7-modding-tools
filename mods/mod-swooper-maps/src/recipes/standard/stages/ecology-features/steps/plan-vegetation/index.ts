@@ -1,8 +1,8 @@
 import { FEATURE_KEY_INDEX } from "@mapgen/domain/ecology";
+import { isAnyRiverClass } from "@mapgen/domain/hydrology";
 import { ctxStepSeed } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { isAnyRiverClass } from "../../../../../../domain/hydrology/index.js";
 import {
   validateFeatureIntentsListArtifact,
   validateOccupancyArtifact,

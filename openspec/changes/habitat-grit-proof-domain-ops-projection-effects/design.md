@@ -73,8 +73,11 @@ produce typed domain truth and avoid leaking engine-facing fields/effects or
 
 `injected-probes.json` already has a row for this rule with the same
 `rulesJsonScope` and a positive `artifact:map.foo` op probe plus non-op path
-control. Current row-specific injected cleanup/path-control closure is not
-claimed here; only the accepted shared injected-probe API id is cited.
+control. `DOPE-INJECTED-PROBE-2026-06-16` records current row-specific injected
+violation/path-control proof for that registered probe: one diagnostic at the
+domain-op probe path, a clean non-op control path, clean initial/final git
+state, and clean injected-probe filesystem cleanup. Aggregate injected-corpus
+closure remains separate while unrelated DDIT remains blocked.
 
 ## Fixture Matrix
 
@@ -100,31 +103,36 @@ This row checkpoint may record:
   current predicate.
 - `DOPE-DOMAIN-OPS-INVENTORY-2026-06-15`: parser inventory/live
   zero-candidate record truth over current Swooper domain source.
+- `DOPE-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus health with
+  DOP included.
+- `DOPE-PER-RULE-SELECTOR-2026-06-16`: Habitat per-rule wrapper/current-tree
+  proof for DOP plus `baseline-integrity`.
+- `DOPE-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof
+  with DOP included.
+- `DOPE-BASELINE-FILES-2026-06-16`: explicit empty Grit baseline ownership
+  with DOP included.
+- `DOPE-INJECTED-PROBE-2026-06-16`: row-specific injected
+  violation/path-control proof.
 - Aggregate record alignment for this row.
 
 This row checkpoint must not record:
 
 - raw direct Grit acquisition;
 - neighboring-row proof;
-- row-specific injected cleanup/path-control closure;
 - baseline mutation;
+- aggregate injected-corpus closure while unrelated DDIT remains blocked;
 - classify or generator behavior;
 - apply/codemod safety;
 - retired wrapped-script parity or broader domain-refactor closure;
 - product/runtime proof.
 
-Current restacked shared proof ids may be cited only as inherited shared proof:
-`HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`,
-`HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`. Raw direct acquisition remains
-`HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
+Raw direct acquisition remains `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 
 ## Downstream Records
 
 The aggregate corpus ledger, proof matrix, and command proof log are updated
-with row-specific native fixture and parser inventory evidence. Recovery claim
+with row-specific native fixture, parser inventory, native corpus,
+wrapper/current-tree, baseline, and injected proof evidence. Recovery claim
 ledger, taxonomy, invariant corpus, discrepancy log, classify/generator
 records, and user-facing command docs remain unchanged because this checkpoint
 does not change source architecture, diagnostics text, generator behavior, or

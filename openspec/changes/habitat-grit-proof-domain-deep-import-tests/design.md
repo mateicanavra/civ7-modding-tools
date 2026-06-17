@@ -53,12 +53,11 @@ Current live test imports were repaired instead of baselined:
 - Dynamic import closure is not proven.
 - Source-string closure is not proven.
 - Raw direct Grit acquisition remains unclaimed.
-- Habitat wrapper/current-tree projection over the owned test roots is not
-  proven under the current shared Grit scan configuration because the wrapper
-  selector reports the registered row but shared test ignores keep the row's
-  test roots and injected mirrors out of the projected Grit corpus.
-- Injected violation cleanup/path-control proof is not proven until that
-  adapter activation repair exists.
+- Habitat wrapper/current-tree projection over the owned test roots is proven
+  after the accepted HR adapter projection repair, through current per-rule and
+  aggregate `grit-check` wrapper proof.
+- Injected violation cleanup/path-control proof is proven for the registered
+  DDIT probe after the accepted HR adapter projection repair.
 - Package export-map and publish-surface closure are not proven.
 - Apply safety is not claimed.
 - Classify/generator behavior is not claimed.

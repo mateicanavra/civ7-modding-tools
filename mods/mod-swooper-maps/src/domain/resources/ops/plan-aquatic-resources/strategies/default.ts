@@ -1,30 +1,13 @@
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 
 import PlanAquaticResourcesContract from "../contract.js";
-
-type AquaticResourceType =
-  | "RESOURCE_FISH"
-  | "RESOURCE_PEARLS"
-  | "RESOURCE_WHALES"
-  | "RESOURCE_CRABS"
-  | "RESOURCE_COWRIE"
-  | "RESOURCE_TURTLES";
-
-type MaskField =
-  | "coastalWaterMask"
-  | "shelfMask"
-  | "warmShallowWaterMask"
-  | "coldProductiveWaterMask"
-  | "reefOrProtectedShallowsMask"
-  | "estuaryMask"
-  | "navigableRiverMouthMask";
-
-type SuppressionField = "lakeMask" | "iceMask";
-
-type ResourceSignals = {
-  readonly primary: readonly MaskField[];
-  readonly suppress: readonly SuppressionField[];
-};
+import {
+  AQUATIC_RESOURCE_TYPES,
+  AQUATIC_SIGNALS,
+  type AquaticMaskField,
+  type AquaticResourceSignals,
+  type AquaticResourceType,
+} from "../signals.js";
 
 const DEFAULT_RANGE = {
   baseline: "standard-earthlike-map" as const,
@@ -32,42 +15,6 @@ const DEFAULT_RANGE = {
   target: 0,
   max: 0,
   evidence: "blocked" as const,
-};
-
-const AQUATIC_RESOURCE_TYPES: readonly AquaticResourceType[] = [
-  "RESOURCE_FISH",
-  "RESOURCE_PEARLS",
-  "RESOURCE_WHALES",
-  "RESOURCE_CRABS",
-  "RESOURCE_COWRIE",
-  "RESOURCE_TURTLES",
-];
-
-export const AQUATIC_SIGNALS: Record<AquaticResourceType, ResourceSignals> = {
-  RESOURCE_FISH: {
-    primary: ["coastalWaterMask", "shelfMask"],
-    suppress: ["lakeMask", "iceMask"],
-  },
-  RESOURCE_PEARLS: {
-    primary: ["warmShallowWaterMask", "reefOrProtectedShallowsMask"],
-    suppress: ["lakeMask", "iceMask"],
-  },
-  RESOURCE_WHALES: {
-    primary: ["coldProductiveWaterMask", "shelfMask"],
-    suppress: ["lakeMask", "iceMask"],
-  },
-  RESOURCE_CRABS: {
-    primary: ["estuaryMask", "navigableRiverMouthMask", "coastalWaterMask"],
-    suppress: ["iceMask"],
-  },
-  RESOURCE_COWRIE: {
-    primary: ["warmShallowWaterMask", "reefOrProtectedShallowsMask"],
-    suppress: ["lakeMask", "iceMask"],
-  },
-  RESOURCE_TURTLES: {
-    primary: ["warmShallowWaterMask", "reefOrProtectedShallowsMask", "coastalWaterMask"],
-    suppress: ["lakeMask", "iceMask"],
-  },
 };
 
 export const defaultStrategy = createStrategy(PlanAquaticResourcesContract, "default", {
@@ -180,18 +127,23 @@ function validateGrid(width: number, height: number): number {
   return size;
 }
 
-function presentFields(input: Record<string, unknown>, fields: readonly MaskField[]): string[] {
+function presentFields(
+  input: Record<string, unknown>,
+  fields: readonly AquaticMaskField[]
+): string[] {
   return fields.filter((field) => input[field] !== undefined);
 }
 
 function countEligibleTiles(
   input: Record<string, unknown>,
   size: number,
-  signals: ResourceSignals
+  signals: AquaticResourceSignals
 ): number {
   const primaryMasks = signals.primary
     .map((field) => ({ field, mask: readMask(input, field, size) }))
-    .filter((entry): entry is { field: MaskField; mask: Uint8Array } => entry.mask !== undefined);
+    .filter(
+      (entry): entry is { field: AquaticMaskField; mask: Uint8Array } => entry.mask !== undefined
+    );
   if (primaryMasks.length === 0) return 0;
 
   const suppressMasks = signals.suppress

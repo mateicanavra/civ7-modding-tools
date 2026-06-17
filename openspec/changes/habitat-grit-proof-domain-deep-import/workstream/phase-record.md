@@ -21,7 +21,7 @@ proof gates are recorded in `proposal.md` and `design.md`.
 Current checkpoint state:
 
 - worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`;
-- branch: `agent-HG-habitat-grit-domain-deep-import`;
+- branch: `agent-HG-habitat-grit-domain-deep-import-side-effect-repair`;
 - historical base at row start:
   `292c5eba9 test(habitat): expand sdk mapgen proof`;
 - Graphite parent: `agent-HG-habitat-grit-sdk-mapgen-entrypoint`;
@@ -33,7 +33,7 @@ Current checkpoint state:
   `HGPR-BASELINE-FILES-2026-06-15`,
   `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
   `HGPR-INJECTED-GRIT-ROWS-2026-06-15`;
-- mode: bounded native fixture/parser inventory/record-truth checkpoint.
+- mode: product-bearing side-effect import false-negative repair checkpoint.
 
 ### Gate 3 - Diagnosis
 
@@ -41,8 +41,9 @@ Original packet evidence proved catalog presence but not row closure. It also
 found an `ops-by-id` native predicate gap, recipe/map-local test-path reach, and
 relative local-domain reaches outside this alias rule.
 
-Current checkpoint repairs the native `ops-by-id` predicate gap and records the
-remaining dependency-bound proof classes as non-claims.
+Current checkpoint repairs a static import false-negative: bare side-effect
+imports from forbidden deep domain internals now report through the active DDI
+rule. The prior `ops-by-id` repair remains intact.
 
 ### Gate 4 - Corpus
 
@@ -66,6 +67,8 @@ this row is a check, not an apply codemod.
 Expected current state for this checkpoint:
 
 - native Grit fixtures report exact deep alias imports/re-exports;
+- bare side-effect imports from forbidden deep alias sources report;
+- source-prefix and source-protocol lookalikes remain clean controls;
 - public domain root, public `/ops`, and `/config.js` imports remain clean;
 - exact `ops-by-id` reports, while `ops-by-identity`, `ops-by-id-extra`, and
   `ops-by-id/private` remain clean;
@@ -82,12 +85,11 @@ safety.
 
 ### Gate 8 - Slice
 
-Current slice is a native fixture/parser inventory/record-truth checkpoint
-augmented by inherited shared proof ids after restack. It does not close the
-full row because raw direct acquisition, DDI-specific generated-output
-remediation/path-control, relative local-domain reach disposition, apply safety,
-retired parity, broader public-surface closure, and product/runtime proof remain
-non-claims.
+Current slice is a side-effect import predicate repair plus row-specific proof
+checkpoint. It does not close the full row because raw direct acquisition,
+map/`ops-by-id`/generated-output path-control beyond this repaired import class,
+relative local-domain reach disposition, apply safety, retired parity, broader
+public-surface closure, and product/runtime proof remain non-claims.
 
 ## Evidence
 
@@ -106,6 +108,27 @@ non-claims.
   candidates, 83 public domain-root references, 12 public `/ops` references, 30
   public `/config.js` references, 2 map-local test files, 0 recipe-local test
   files, 6 relative local-domain reaches, and 0 parse diagnostics.
+- `DDI-SIDE-EFFECT-PREDICATE-REPAIR-2026-06-16`: product repair. Static
+  imports now use `import_statement(source=...)`; exact optional-quote source
+  matching prevents source-prefix/protocol lookalikes; the registered injected
+  probe exercises a side-effect import.
+- `DDI-NATIVE-FIXTURES-2026-06-16`: native Grit fixture proof.
+  `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter domain_deep_import --json`
+  exited 0; the DDI sample produced 12 positive matches and 0 ignores.
+- `DDI-IMPORT-INVENTORY-2026-06-16`: parser inventory/live corpus evidence.
+  Current recipe/map roots contain 234 current-predicate `.ts` files, 0 `.tsx`,
+  0 side-effect imports, 0 forbidden side-effect candidates, 0 total forbidden
+  candidates, and 0 parse diagnostics.
+- `DDI-PER-RULE-SELECTOR-2026-06-16`: `bun run habitat:check -- --json --rule grit-domain-deep-import`
+  selected exactly DDI plus `baseline-integrity`, both passing.
+- `DDI-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` passed with 30
+  Grit rules plus `baseline-integrity`, DDI included.
+- `DDI-BASELINE-FILES-2026-06-16`: 30 Grit rules, 30 explicit empty Grit
+  baselines, no missing/extra/non-empty baselines, DDI included.
+- `DDI-INJECTED-PROBE-2026-06-16`: clean-start injected proof exited 1 only
+  because unrelated DDIT remains blocked; DDI passed with one diagnostic at the
+  side-effect import probe path, a clean domain-source control, clean
+  initial/final git state, and clean probe cleanup.
 
 ## Review / Findings
 
@@ -126,22 +149,26 @@ non-claims.
   baseline-mutation claim.
 - `DDI-R5`: accepted as non-claim input. Six relative local-domain reaches are
   outside this alias row and remain sibling guard/non-claim input.
+- `DDI-R6`: accepted and repaired for product enforcement. The prior import
+  snippet missed bare side-effect static imports; the rule now uses
+  `import_statement(source=...)` and row-specific injected proof exercises that
+  repaired import class.
 
 ## Current Status
 
-- Native predicate/fixture repair implemented.
-- Parser inventory completed, rerun, and recorded with explicit distinction
-  between 706 named-import declaration nodes and 1,214 named import specifier
-  elements.
+- Side-effect import predicate repair implemented and committed on the local
+  DDI Graphite layer.
+- Parser inventory completed, rerun, and recorded with explicit current counts.
 - Metadata scope aligned to `.ts`/`.tsx`.
 - Aggregate corpus/proof/command records updated for this bounded checkpoint.
-- Row OpenSpec strict validation, native Grit fixture proof, deterministic
-  parser inventory, full OpenSpec validation, diff hygiene, and deleted-file
-  guard all passed in the dirty worktree before Graphite commit.
-- Full row closure remains gated by raw direct acquisition, DDI-specific
-  generated-output remediation/path-control, relative local-domain reach
-  disposition, apply safety, retired parity, broader public-surface closure,
-  recovery-claim realignment, and product/runtime proof.
+- Native Grit fixture proof, full native corpus proof, Habitat per-rule wrapper,
+  aggregate `grit-check`, explicit empty baseline inventory, and clean-start
+  injected proof all passed for the repaired side-effect import class. The
+  injected runner still exits 1 only for accepted unrelated DDIT.
+- Full row closure remains gated by raw direct acquisition, additional
+  map/`ops-by-id`/generated-output path-control beyond this side-effect probe,
+  relative local-domain reach disposition, apply safety, retired parity, broader
+  public-surface closure, recovery-claim realignment, and product/runtime proof.
 
 ## Next Actions
 

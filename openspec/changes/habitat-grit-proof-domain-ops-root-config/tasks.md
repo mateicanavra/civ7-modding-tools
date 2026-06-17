@@ -9,14 +9,14 @@
 ## 2. Native Fixture Proof
 
 - [x] 2.1 Repair the predicate and expand positives for two-or-more-parent
-  root-config imports.
+  root-config imports, re-exports, and dynamic string-literal imports.
 - [x] 2.2 Add positives for default, named, namespace, type-only, side-effect,
   and single-quoted import classes that the current native predicate reports.
 - [x] 2.3 Add controls for local config, one-parent config, non-op domain
   paths, other mods, `.tsx`, recipe paths, extensionless paths, JSON paths,
-  re-exports, dynamic imports, and source strings.
+  one-parent re-exports, one-parent/JSON dynamic imports, and source strings.
 - [x] 2.4 Run native Grit fixture proof and record
-  `DORC-NATIVE-FIXTURES-2026-06-15`.
+  `DORC-NATIVE-FIXTURES-2026-06-17`.
 
 ## 3. Parser Inventory
 
@@ -24,31 +24,30 @@
   `mods/mod-swooper-maps/src/domain`.
 - [x] 3.2 Record current-predicate scan roots, exclusions, counts, zero
   current-row candidates, local config controls, and non-claims.
-- [x] 3.3 Record export-from and dynamic-import parser-edge non-claims.
+- [x] 3.3 Record current export-from and dynamic-import zero-candidate
+  inventory for the repaired predicate.
 
 ## 4. Shared Proof And Baseline
 
-- [x] 4.1 Record current restacked Habitat wrapper/current-tree proof inherited
-  through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
+- [x] 4.1 Record current Habitat wrapper/current-tree proof through
+  `DORC-PER-RULE-SELECTOR-2026-06-17` and
+  `DORC-HABITAT-GRIT-TOOL-2026-06-17`.
 - [ ] 4.2 Run or consume accepted raw direct Grit acquisition proof for this
   row; raw remains `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
-- [x] 4.3 Record shared injected-probe API inheritance through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; row-specific cleanup/path-control
-  closure remains unclaimed.
-- [x] 4.4 Record explicit empty baseline file/integrity inheritance through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- [ ] 4.5 Prove a row-specific injected finding is unbaselined and fails.
+- [x] 4.3 Record row-specific injected dynamic-import violation/path-control
+  proof through `DORC-INJECTED-PROBE-2026-06-17`.
+- [x] 4.4 Record explicit empty baseline file/integrity proof through
+  `DORC-BASELINE-FILES-2026-06-17`.
+- [x] 4.5 Prove a row-specific injected finding is unbaselined and fails.
 
 ## 5. Downstream Realignment
 
 - [x] 5.1 Update the aggregate Grit proof matrix for this row.
 - [x] 5.2 Update the Grit pattern corpus ledger for this row.
 - [x] 5.3 Update the command proof log for this row.
-- [x] 5.4 Preserve non-claims for raw acquisition, export-from and dynamic
-  import closure, source remediation, classify/generator behavior, retired
-  parity, apply safety, and product proof.
+- [x] 5.4 Preserve non-claims for raw acquisition, non-string dynamic import
+  closure, source remediation, classify/generator behavior, retired parity,
+  apply safety, and product proof.
 
 ## 6. Verification
 

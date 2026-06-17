@@ -25,12 +25,20 @@ Current source predicate:
 - `@mapgen/domain/<domain>/ops`
 - `@mapgen/domain/<domain>/ops/index.js`
 
+Current syntax classes:
+
+- import declarations, including value, type-only, namespace, and side-effect
+  imports;
+- named and star re-exports;
+- dynamic string-literal `import(...)` calls.
+
 ## Parser Inventory
 
-`OCO-DOMAIN-OPS-INVENTORY-2026-06-15` scanned
+`OCO-EXPORT-DYNAMIC-INVENTORY-2026-06-17` scanned
 `mods/mod-swooper-maps/src/domain`, skipped `node_modules`, `dist`, and `mod`,
 and found zero current candidates across 97 current-predicate runtime op
-`index.ts` files with 305 import declarations.
+`index.ts` files, 305 import declarations, 135 export-from declarations, and
+0 dynamic imports.
 
 Controls are visible in current source: same-op `./contract.js` and
 `./strategies/index.js` imports are common and intentionally allowed. The
@@ -38,14 +46,15 @@ inventory counted 86 same-op `./strategies/index.js` imports, 2 same-op other
 local imports, 11 parent `lib` imports, and 56 outside-current relative-index
 lookalikes under strategy/rule/policy source. Those outside-current lookalikes
 are context for the exact entrypoint predicate, not current-row candidates.
-Export-from and dynamic import classes are counted separately and remain
-non-claims for this row.
+Private/lookalike dynamic imports and source strings remain controls. Non-string
+dynamic imports remain outside this row.
 
 ## Row Boundary
 
 This row does not close the neighboring `ops.bind` / `runValidated` candidate.
 The registered OCO injected probe is proven through
-`OCO-INJECTED-PROBE-2026-06-15`; export-from and dynamic-import shapes remain
-outside the current native predicate. This row also does not claim full retired
-guardrail parity, source remediation, apply safety, classify/generator
-behavior, or product/runtime behavior.
+`OCO-EXPORT-DYNAMIC-INJECTED-PROBE-2026-06-17`; it exercises the repaired
+dynamic string-literal import class with a rules-path control. This row also
+does not claim full retired guardrail parity, source remediation, apply safety,
+classify/generator behavior, non-string dynamic import closure, or
+product/runtime behavior.

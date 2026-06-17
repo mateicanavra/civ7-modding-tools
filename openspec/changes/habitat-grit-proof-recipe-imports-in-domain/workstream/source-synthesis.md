@@ -15,7 +15,8 @@ dynamic import candidates from recipe modules.
 
 ## Predicate Boundary
 
-The current native predicate covers explicit static import and export-from
-source declarations in Swooper domain `.ts` files. It covers alias and relative
-`../recipes` source classes. It does not claim dynamic import closure or
-semantic relative-resolution beyond source strings matched by the predicate.
+The current native predicate covers explicit static import declarations,
+dynamic import expressions, and export-from source declarations in Swooper
+domain `.ts` files. It covers alias and relative `../recipes` source classes.
+It does not claim semantic relative-resolution beyond source strings matched by
+the predicate.

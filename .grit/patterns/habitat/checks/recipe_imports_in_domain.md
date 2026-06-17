@@ -25,6 +25,10 @@ or {
   `export * from $source` where {
     $filename <: r".*mods/mod-swooper-maps/src/domain/.*\.ts$",
     $source <: r".*(?:mod-swooper-maps/recipes(?:/|[\"'])|@mapgen/recipes(?:/|[\"'])|@mapgen/recipe(?:/|[\"'])|@swooper/recipes(?:/|[\"'])|(?:\.\./)+recipes(?:/|[\"'])).*"
+  },
+  `import($source)` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*\.ts$",
+    $source <: r".*(?:mod-swooper-maps/recipes(?:/|[\"'])|@mapgen/recipes(?:/|[\"'])|@mapgen/recipe(?:/|[\"'])|@swooper/recipes(?:/|[\"'])|(?:\.\./)+recipes(?:/|[\"'])).*"
   }
 }
 ```
@@ -60,6 +64,11 @@ export { standardRecipe } from "mod-swooper-maps/recipes/standard";
 
 // @filename: mods/mod-swooper-maps/src/domain/resources/index.ts
 export * from "@mapgen/recipes/browser-test";
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+export async function loadRecipe() {
+  return import("../../../../../recipes/standard/recipe.js");
+}
 ```
 
 ## Ignores fixture
@@ -111,5 +120,8 @@ const source = "../../../../../recipes/standard/recipe.js";
 export const sourceOnly = source;
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
-await import("../../../../../recipes/standard/recipe.js");
+await import("../../../../../recipes-extra/standard/recipe.js");
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts
+await import("../recipe.js");
 ```

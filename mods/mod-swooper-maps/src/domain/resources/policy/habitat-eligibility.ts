@@ -1,8 +1,8 @@
 import type { OfficialResourceType } from "../lib/corpus/types.js";
-import { AQUATIC_SIGNALS } from "../ops/plan-aquatic-resources/strategies/default.js";
-import { CULTIVATED_SIGNALS } from "../ops/plan-cultivated-resources/strategies/default.js";
-import { GEOLOGICAL_SIGNALS } from "../ops/plan-geological-resources/strategies/default.js";
-import { TERRESTRIAL_SIGNALS } from "../ops/plan-terrestrial-resources/strategies/default.js";
+import { AQUATIC_SIGNALS } from "../ops/plan-aquatic-resources/signals.js";
+import { CULTIVATED_SIGNALS } from "../ops/plan-cultivated-resources/signals.js";
+import { GEOLOGICAL_SIGNALS } from "../ops/plan-geological-resources/signals.js";
+import { TERRESTRIAL_SIGNALS } from "../ops/plan-terrestrial-resources/signals.js";
 
 /**
  * Per-type habitat signal lookup shared between the family demand planners

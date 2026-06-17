@@ -8,9 +8,23 @@ Domain ops do not import domain-root config facades through parent traversal.
 ```grit
 language js(typescript)
 
-`import $imports from $source` where {
-  $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
-  $source <: r".*(?:\.\./){2,}config\.js[\"']"
+or {
+  import_statement(source=$source) where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+  },
+  `export { $exports } from $source` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+  },
+  `export * from $source` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+  },
+  `import($source)` where {
+    $filename <: r".*mods/mod-swooper-maps/src/domain/.*/ops/.*\.ts$",
+    $source <: r"^[\"']?(?:\.\./){2,}config\.js[\"']?$"
+  }
 }
 ```
 
@@ -64,6 +78,17 @@ export type Value = DomainConfig;
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
 import "../../config.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+export { config } from "../../config.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+export * from "../../config.js";
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+export async function loadConfig() {
+  return import("../../config.js");
+}
 ```
 
 ## Ignores fixture
@@ -110,10 +135,13 @@ import config from "../../config.json";
 export const value = config;
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
-export { config } from "../../config.js";
+export { config } from "../config.js";
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
-await import("../../config.js");
+await import("../config.js");
+
+// @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
+await import("../../config.json");
 
 // @filename: mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts
 const source = "../../config.js";

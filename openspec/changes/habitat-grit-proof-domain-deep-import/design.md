@@ -31,11 +31,13 @@ Selected row:
   `@mapgen/domain/<domain>/ops-by-id`,
   `@mapgen/domain/<domain>/rules/<tail>`, and
   `@mapgen/domain/<domain>/strategies/<tail>`.
-- current checkpoint: `ops-by-id` is repaired for native Grit fixture proof
-  with lookalike negatives. Current restacked shared wrapper selector,
-  baseline, and injected-probe API proof is inherited only through accepted
-  HGPR shared proof ids; raw direct Grit acquisition and DDI-specific closure
-  remain non-claims.
+- current checkpoint: static import matching is repaired with
+  `import_statement(source=...)`, so bare side-effect imports from forbidden
+  deep domain internals report. Exact optional-quote source matching adds
+  source-prefix/protocol controls. Current wrapper, explicit empty baseline,
+  and row-specific side-effect injected proof are recorded for this repaired
+  import class; raw direct Grit acquisition and broader DDI closure remain
+  non-claims.
 
 ### Exterior
 
@@ -87,14 +89,14 @@ wrapper path.
 | Surface | Current evidence | Design implication |
 | --- | --- | --- |
 | Rule registration | `rules.json` registers `grit-domain-deep-import` with owner `grit-check`, scope `mods/*/src/{recipes,maps}/**/*.{ts,tsx}`, and pattern `domain_deep_import`. | Habitat has a rule identity and owner metadata aligned to the current Grit filename predicate. |
-| Pattern semantics | Pattern uses `language js(typescript)`, recipe/map filename regex, and source regex for `ops/<tail>`, exact `ops-by-id` followed by a string-literal terminator, `rules/<tail>`, and `strategies/<tail>`. | Semantics are check-level and source-shape based; native fixture proof now covers the exact source families. |
+| Pattern semantics | Pattern uses `language js(typescript)`, recipe/map filename regex, `import_statement(source=$source)` for static import declarations, named/star export snippets, and exact optional-quote source regex for `ops/<tail>`, exact `ops-by-id`, `rules/<tail>`, and `strategies/<tail>`. | Semantics are check-level and source-shape based; native fixture proof now covers the exact source families plus side-effect static imports and source-prefix/protocol controls. |
 | `ops-by-id` defect | Earlier disposable Grit probes showed `ops/private` reported while `ops-by-id` import/re-export did not. Current native fixture proof now reports `ops-by-id` import and re-export and keeps `ops-by-identity`, `ops-by-id-extra`, and `ops-by-id/private` clean. | Native predicate repair is complete for this checkpoint. Current restacked shared selector/injected proof is represented only by `HGPR-PER-RULE-SELECTORS-2026-06-15` and `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; DDI-specific path-control and closure remain non-claims. |
 | Scope reconciliation | `rules.json`, the Grit filename predicate, corpus-ledger scan roots, and fixture paths now include `.ts` and `.tsx`; live Swooper inventory found zero `.tsx` files in the current recipe/map roots. | The row records `.tsx` as current predicate scope even though current live source has no `.tsx` files. |
 | Neighboring overlap | `recipe_domain_surface` also matches recipe `rules/<tail>` and `strategies/<tail>` imports; `step_contract_domain_surface` matches domain subpaths in contract files. | Injected proof must either avoid overlapping paths when proving this row in isolation or record expected multi-rule diagnostics and ownership. |
 | Test-path reach | Disposable probes under recipe `__tests__` and map `__type_tests__` paths report this rule. | Test-path ownership is not exterior until recipe/map-local test paths are classified and fixtures prove the decision. |
 | Relative domain reaches | Current recipe source has relative imports into `mods/mod-swooper-maps/src/domain/**`. | This alias-based rule cannot claim complete domain public-surface enforcement. A sibling guard or accepted non-claim is required. |
-| Native proof | `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter domain_deep_import --json 2>&1` exits 0 with one testable pattern, 11 positive fixture matches, and 0 ignore-sample matches. | Native fixture/parser-edge proof exists for this checkpoint only. |
-| Habitat wrapper | Prior packet seed evidence recorded wrapper selection passing and is historical context only. Current restacked shared selector/current-tree proof is inherited through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and `HGPR-PER-RULE-SELECTORS-2026-06-15`. | Do not re-use the historical seed command as proof. Raw acquisition and DDI-specific closure remain separate non-claims. |
+| Native proof | `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --filter domain_deep_import --json` exits 0 with the DDI sample producing 12 positive fixture matches and 0 ignore-sample matches. | Native fixture/parser-edge proof exists for the repaired side-effect import class. The command also reports the sibling `domain_deep_import_tests` sample because this Grit filter is substring-based; DDIT remains separate. |
+| Habitat wrapper | `bun run habitat:check -- --json --rule grit-domain-deep-import` selects exactly DDI plus `baseline-integrity`, both passing with zero diagnostics. Aggregate `grit-check` also passes with DDI included. | Current wrapper/current-tree proof exists for this repaired row. Raw acquisition remains a separate non-claim. |
 | Raw acquisition | Prior packet seed evidence recorded a bounded raw zero-result command, but this checkpoint does not consume raw adapter/acquisition proof. | Raw acquisition remains a non-claim under the supervisor dependency boundary. |
 | Parser live inventory | TypeScript compiler API inventory over recipe/map roots found 235 current-predicate `.ts` files, 0 `.tsx`, 7 generated map files in scope, 0 forbidden candidates, 125 domain-alias import declarations, and 6 relative local-domain reaches outside this alias rule. | Parser inventory/live zero-candidate proof exists for this checkpoint only. |
 | Source policy | `IMPORTS.md` says recipe assembly should expose needed symbols through domain root, `/ops`, or `/config.js`. `NORMALIZATION-GUARDRAILS.md` G4 names this rule family. | Normative authority is stronger than H5 historical closure text alone. |
@@ -130,7 +132,8 @@ Local architecture sources support this invariant:
 
 The current pattern matches three syntactic families:
 
-1. `import ... from <forbidden-source>`;
+1. static `import_statement(source=<forbidden-source>)` declarations, including
+   bare side-effect imports;
 2. `export { ... } from <forbidden-source>`;
 3. `export * from <forbidden-source>`.
 
@@ -143,7 +146,7 @@ It filters files by:
 It filters source specifiers by:
 
 ```text
-.*@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id[\"']|rules/.+|strategies/.+)
+^[\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\"']?$
 ```
 
 Accepted implementation must prove:
@@ -169,6 +172,7 @@ Accepted implementation must prove:
 | Fixture class | Required shape |
 | --- | --- |
 | positive recipe import | recipe `.ts` file importing `@mapgen/domain/foundation/ops/private` |
+| positive side-effect import | recipe `.ts` file bare-importing `@mapgen/domain/foundation/ops/private/register.js` |
 | positive map import | non-generated map `.ts` file importing `@mapgen/domain/foundation/rules/private` |
 | positive `ops-by-id` | recipe and map import or re-export of `@mapgen/domain/<domain>/ops-by-id` after predicate repair |
 | `ops-by-id` lookalike negatives | imports from specifiers such as `ops-by-identity` or `ops-by-id-extra` do not report |
@@ -180,16 +184,18 @@ Accepted implementation must prove:
 | public `/ops` negative | import from `@mapgen/domain/<domain>/ops` |
 | public `/config.js` negative | import from `@mapgen/domain/<domain>/config.js` |
 | domain-root negative | import from `@mapgen/domain/<domain>` |
+| exact-source lookalike negatives | source-prefix and source-protocol lookalikes do not report |
 | out-of-scope path | same forbidden source in domain source or test source |
 | recipe/map-local test paths | `__tests__`, `__type_tests__`, and `*.test.ts` cases according to the accepted ownership decision |
 | relative local-domain reach | current relative `src/domain/**` reaches recorded as non-claims or sibling guard seed |
 | generated path control | prove generated map path is scanned or explicitly classified, but never used for injected writes |
 | neighboring overlap control | recipe `rules` or `strategies` case records expected neighboring diagnostics; map case proves this row outside recipe-only policy |
 
-Current checkpoint result: `import type` and `export type { ... } from` forms
-from forbidden source families are native positives. This proves native fixture
-behavior only; it does not prove wrapper projection, baseline behavior, or
-apply safety.
+Current checkpoint result: `import type`, side-effect import, and
+`export type { ... } from` forms from forbidden source families are native
+positives. Native proof plus wrapper, explicit empty baseline, and row-specific
+side-effect injected proof exist for this repaired import class. Raw direct Grit
+acquisition and apply safety remain non-claims.
 
 ## Proof Contract
 

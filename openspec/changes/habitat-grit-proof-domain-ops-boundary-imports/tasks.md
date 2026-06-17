@@ -28,18 +28,17 @@
 
 ## 4. Shared Proof And Baseline
 
-- [x] 4.1 Record current restacked Habitat wrapper/current-tree proof inherited
-  through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`.
+- [x] 4.1 Record current Habitat wrapper/current-tree proof for this row
+  through `DOBI-PER-RULE-SELECTOR-2026-06-16` and
+  `DOBI-HABITAT-GRIT-TOOL-2026-06-16`.
 - [ ] 4.2 Run or consume accepted raw direct Grit acquisition proof for this
   row; raw remains `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
-- [x] 4.3 Record shared injected-probe API inheritance through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; row-specific cleanup/path-control
-  closure remains unclaimed.
-- [x] 4.4 Record explicit empty baseline file/integrity inheritance through
-  `HGPR-BASELINE-FILES-2026-06-15` and
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- [ ] 4.5 Prove a row-specific injected finding is unbaselined and fails.
+- [x] 4.3 Record row-specific injected cleanup/path-control proof through
+  `DOBI-INJECTED-PROBE-2026-06-16`; aggregate injected-corpus closure remains
+  unclaimed while DDIT is blocked.
+- [x] 4.4 Record explicit empty baseline file/integrity proof through
+  `DOBI-BASELINE-FILES-2026-06-16` and wrapper `baseline-integrity`.
+- [x] 4.5 Prove a row-specific injected finding is unbaselined and fails.
 
 ## 5. Downstream Realignment
 
@@ -54,8 +53,16 @@
 - [x] 6.1 `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter domain_ops_boundary_imports --json`
 - [x] 6.2 Deterministic TypeScript parser inventory over
   `mods/mod-swooper-maps/src/domain`
-- [x] 6.3 `bun run openspec -- validate habitat-grit-proof-domain-ops-boundary-imports --strict`
-- [x] 6.4 `bun run openspec:validate`
-- [x] 6.5 `git diff --check`
-- [x] 6.6 `git ls-files --deleted`
-- [x] 6.7 Commit via Graphite with clean worktree
+- [x] 6.3 `GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --json`
+- [x] 6.4 `bun run habitat:check -- --json --rule grit-domain-ops-boundary-imports`
+- [x] 6.5 `bun run habitat:check -- --json --tool grit-check`
+- [x] 6.6 Baseline inventory confirms 30 Grit rules, 30 explicit empty
+  baselines, no missing/extra/non-empty baselines, and DOBI included.
+- [x] 6.7 `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
+- [x] 6.8 `bun run openspec -- validate habitat-grit-proof-domain-ops-boundary-imports --strict`
+- [x] 6.9 `bun run openspec -- validate habitat-grit-proof-repair --strict`
+- [x] 6.10 `bun run openspec:validate`
+- [x] 6.11 `git diff --check HEAD^..HEAD`
+- [x] 6.12 `git diff --check`
+- [x] 6.13 `git ls-files --deleted`
+- [x] 6.14 Commit via Graphite with clean worktree

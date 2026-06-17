@@ -9,17 +9,17 @@ Recipe and map source must use public domain surfaces, not deep internals.
 language js(typescript)
 
 or {
-  `import $imports from $source` where {
+  import_statement(source=$source) where {
     $filename <: r".*mods/[^/]+/src/(?:recipes|maps)/.*\.tsx?$",
-    $source <: r".*@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id[\"']|rules/.+|strategies/.+)"
+    $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\"']?$"
   },
   `export { $exports } from $source` where {
     $filename <: r".*mods/[^/]+/src/(?:recipes|maps)/.*\.tsx?$",
-    $source <: r".*@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id[\"']|rules/.+|strategies/.+)"
+    $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\"']?$"
   },
   `export * from $source` where {
     $filename <: r".*mods/[^/]+/src/(?:recipes|maps)/.*\.tsx?$",
-    $source <: r".*@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id[\"']|rules/.+|strategies/.+)"
+    $source <: r"^[\"']?@mapgen/domain/[^/]+/(?:ops/.+|ops-by-id|rules/.+|strategies/.+)[\"']?$"
   }
 }
 ```
@@ -36,6 +36,11 @@ export const value = x;
 import { byId } from "@mapgen/domain/foundation/ops-by-id";
 
 export const lookup = byId;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts
+import "@mapgen/domain/foundation/ops/private/register.js";
+
+export const sideEffectLoaded = true;
 
 // @filename: mods/mod-swooper-maps/src/maps/demo.ts
 import * as privateRules from "@mapgen/domain/hydrology/rules/private";
@@ -107,6 +112,16 @@ export const extraValue = extra;
 import nested from "@mapgen/domain/foundation/ops-by-id/private";
 
 export const nestedValue = nested;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts
+import prefixLookalike from "not-a-real-prefix@mapgen/domain/foundation/ops/private";
+
+export const prefixLookalikeValue = prefixLookalike;
+
+// @filename: mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts
+import protocolLookalike from "https://example.test/@mapgen/domain/foundation/ops/private";
+
+export const protocolLookalikeValue = protocolLookalike;
 
 // @filename: mods/mod-swooper-maps/src/domain/foundation/ops/private.ts
 import privateOp from "@mapgen/domain/foundation/ops/private";

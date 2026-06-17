@@ -89,8 +89,8 @@ the pattern claims to match.
 
 - **WHEN** fixtures are run for this pattern
 - **THEN** they SHALL include default, named, namespace or explicitly rejected
-  namespace, and type-only import cases according to the accepted rule
-  semantics
+  namespace, side-effect, and type-only import cases according to the accepted
+  rule semantics
 
 #### Scenario: Re-export forms are exercised
 

@@ -41,6 +41,8 @@
 - [x] 3.2a Add `ops-by-id` import and re-export positives after predicate
   repair.
 - [x] 3.2b Add `ops-by-id` lookalike negatives.
+- [x] 3.2c Repair static import matching with `import_statement(source=...)`
+  and add a side-effect import positive plus exact-source lookalike controls.
 - [x] 3.3 Add negative fixtures for public domain root, public `/ops`,
   `/config.js`, out-of-scope domain/external test paths, relative local-domain
   reaches, source strings, and `ops-by-id` lookalikes. Generated map paths are
@@ -74,19 +76,19 @@
 
 ## 5. Injected Violation Proof
 
-- [ ] 5.1 Wait for `habitat-effect-grit-adapter` or accepted typed Grit adapter
-  substrate before implementing probe creation/cleanup, parser
-  classification, pattern projection, or command provenance.
-- [ ] 5.2 Add positive recipe probe that fails the exact Habitat rule id.
+- [x] 5.1 Use the accepted shared injected-probe runner for row-specific proof;
+  no new probe substrate or Habitat implementation is added by this row.
+- [x] 5.2 Add positive recipe side-effect import probe that fails the exact
+  Habitat rule id.
 - [ ] 5.3 Add positive non-generated map probe that fails the exact Habitat
   rule id.
 - [ ] 5.4 Add `ops-by-id` injected recipe and map probes that fail the exact
   Habitat rule id.
-- [ ] 5.5 Add outside-scope path-control probe in domain or external test
+- [x] 5.5 Add outside-scope path-control probe in domain or external test
   source.
-- [ ] 5.6 Prove cleanup leaves `git status --short` clean after success and
+- [x] 5.6 Prove cleanup leaves `git status --short` clean after success and
   failure.
-- [ ] 5.7 Record protected generated-output non-claims.
+- [x] 5.7 Record protected generated-output non-claims.
 - [ ] 5.8 Record the Effect/no-Effect substrate decision and prove a non-Effect
   substrate supplies tagged failures, service-injected tests, explicit command
   provenance, scan-root provenance, and cleanup behavior before use.
@@ -98,7 +100,8 @@
   `HGPR-BASELINE-FILES-2026-06-15`.
 - [x] 6.2 Record accepted `baseline-integrity` proof through
   `HGPR-BASELINE-INTEGRITY-2026-06-15`.
-- [ ] 6.3 Prove an injected finding is unbaselined and fails.
+- [x] 6.3 Prove a row-specific injected finding is unbaselined and fails for
+  the side-effect import class.
 - [x] 6.4 Link baseline owner/integrity to
   `HGPR-BASELINE-FILES-2026-06-15` and
   `HGPR-BASELINE-INTEGRITY-2026-06-15`; no separate DDI baseline-mutation
@@ -135,11 +138,11 @@
 - [x] 8.8 `ops-by-id` defect repair proof
 - [x] 8.9 recipe/map-local test scope disposition
 - [x] 8.10 alias-only and relative local-domain reach disposition
-- [x] 8.11 shared injected-probe API proof inherited through
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; DDI-specific generated-output and
-  path-control closure remain non-claims
-- [ ] 8.12 DDI-specific outside-scope path-control closure, if needed beyond
-  the accepted shared injected-probe API
+- [x] 8.11 Shared injected-probe API proof exists through
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`; row-specific side-effect import
+  path-control proof is recorded by `DDI-INJECTED-PROBE-2026-06-16`.
+- [x] 8.12 DDI-specific outside-scope path-control closure for the repaired
+  side-effect import class.
 - [x] 8.13 explicit empty baseline proof inherited through
   `HGPR-BASELINE-FILES-2026-06-15` and
   `HGPR-BASELINE-INTEGRITY-2026-06-15`

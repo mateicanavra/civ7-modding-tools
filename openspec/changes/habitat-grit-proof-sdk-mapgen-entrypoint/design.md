@@ -4,8 +4,8 @@
 
 ### Objective
 
-Make `grit-sdk-mapgen-entrypoint` truthful as a row-owned Habitat proof
-checkpoint for the current Grit predicate.
+Make `grit-sdk-mapgen-entrypoint` truthful as a row-owned Habitat active-check
+closure for the current Grit predicate.
 
 ### Product Movement
 
@@ -64,11 +64,11 @@ loading through the SDK root or mapgen-core.
 
 ### Falsifier
 
-This checkpoint fails if it claims wrapper/current-tree enforcement from native
+This closure fails if it claims wrapper/current-tree enforcement from native
 fixtures, if live current-row candidates are found but recorded as clean closure
 without disposition, if syntax forms are mislabeled as native-proven when the
-fixture did not report them, or if product/runtime proof is treated as proven by
-this row.
+fixture did not report them, or if raw direct Grit acquisition or
+product/runtime proof is treated as proven by this row.
 
 ## Source Synthesis
 
@@ -120,6 +120,10 @@ This row checkpoint may record:
 - native fixture/parser-edge proof for current-predicate behavior;
 - parser inventory/live candidate evidence over current SDK and mapgen-core
   source;
+- Habitat per-rule and aggregate `grit-check` wrapper proof;
+- explicit empty baseline and `baseline-integrity` proof;
+- row-specific injected violation/path-control proof through the accepted
+  injected-probe harness;
 - record-truth updates in the corpus ledger, proof matrix, command log, and
   packet files.
 
@@ -129,11 +133,18 @@ Proof ids:
   current-predicate positive classes and recorded controls.
 - `SME-SDK-MAPGEN-INVENTORY-2026-06-15`: parser inventory/live evidence over
   current SDK and mapgen-core source.
+- `SME-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus refresh.
+- `SME-PER-RULE-SELECTOR-2026-06-16`: per-rule Habitat selector proof.
+- `SME-HABITAT-GRIT-TOOL-2026-06-16`: aggregate `grit-check` wrapper proof.
+- `SME-BASELINE-FILES-2026-06-16`: explicit empty baseline inventory and
+  `baseline-integrity` proof.
+- `SME-INJECTED-PROBE-2026-06-16`: row-specific injected violation/path-control
+  proof with cleanup.
 
-This row checkpoint must not record Habitat wrapper selector/current-tree proof,
-raw Grit acquisition, baseline proof, injected violation/cleanup proof, Effect
-adapter proof, apply safety, generator/migration proof, retired parity, broader
-SDK/mapgen architecture closure, neighboring row proof, or product proof.
+This row checkpoint must not record raw direct Grit acquisition, Effect adapter
+proof, apply safety, generator/migration proof, retired parity, broader
+SDK/mapgen architecture closure, neighboring row proof, aggregate
+injected-corpus closure while DDIT remains blocked, or product proof.
 
 ## Downstream Records
 

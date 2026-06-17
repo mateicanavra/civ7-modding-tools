@@ -9,13 +9,14 @@
 
 - [x] 2.1 Add `recipe_imports_in_domain` pattern and positives for domain
   source recipe imports/re-exports.
-- [x] 2.2 Add positives for value, type-only, side-effect, alias, named
-  re-export, and export-star classes.
+- [x] 2.2 Add positives for value, type-only, side-effect, dynamic import,
+  alias, named re-export, and export-star classes.
 - [x] 2.3 Add controls for public domain imports, domain-relative imports,
   source lookalikes, `.tsx`, other mods, recipes, source strings, and dynamic
-  imports.
+  import lookalikes.
 - [x] 2.4 Run native Grit fixture proof and record
-  `RID-NATIVE-FIXTURES-2026-06-15`.
+  `RID-NATIVE-FIXTURES-2026-06-15` plus the dynamic-import repair proof
+  `RID-DYNAMIC-NATIVE-FIXTURES-2026-06-16`.
 
 ## 3. Parser Inventory
 
@@ -43,7 +44,7 @@
 - [x] 5.1 Update the aggregate Grit proof matrix for this row.
 - [x] 5.2 Update the Grit pattern corpus ledger for this row.
 - [x] 5.3 Update the command proof log for this row.
-- [x] 5.4 Preserve non-claims for raw acquisition, dynamic import closure,
+- [x] 5.4 Preserve non-claims for raw acquisition,
   source remediation, classify/generator behavior, retired parity, apply
   safety, broader domain-refactor closure, and product proof.
 

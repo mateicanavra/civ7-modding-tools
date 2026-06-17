@@ -2,8 +2,8 @@
 
 ## Current Status
 
-This checkpoint is implemented locally and pending supervisor review. No known
-P1/P2 finding remains after local repair evidence.
+This active-check closure checkpoint is implemented locally and pending
+supervisor review. No known P1/P2 finding remains after local repair evidence.
 
 ## Findings
 
@@ -15,6 +15,7 @@ P1/P2 finding remains after local repair evidence.
 
 - Template-literal closure remains an unproven parser-edge non-claim.
 - Raw direct Grit acquisition remains unclaimed.
-- Row-specific injected cleanup/path-control closure remains unclaimed.
+- Aggregate injected-corpus closure remains unclaimed while unrelated DDIT
+  remains blocked.
 - Classify/generator behavior remains outside this row.
 - Retired parity, apply safety, and product/runtime proof remain unclaimed.

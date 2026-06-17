@@ -2,100 +2,77 @@
 
 ## Current Gate
 
-Gate 6 / native fixture and parser inventory blocker checkpoint implemented,
-verified, record-aligned, committed, and supervisor-accepted as a bounded
-checkpoint. The row is limited to native fixture/parser-edge proof, parser
-inventory over standard recipe stage source, and record truth. Clean row closure
-remains a non-claim because import predicate gaps and one live intended
-private-viz finding remain open, and because proof classes not separately
-recorded remain non-claims. Successor HG rows are committed through
-`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this
-packet is not the active next-row gate.
+Gate 7 / VCO closure checkpoint is implemented, locally committed, and pending
+supervisor review. This row now owns predicate repair plus source remediation
+for the one live same-stage cross-step private-viz import. It also owns
+row-specific wrapper, baseline, and injected proof. Product/runtime proof, raw
+direct Grit acquisition, generated output, apply safety, broader visualization
+architecture closure, and aggregate injected-corpus closure while DDIT remains
+blocked are non-claims.
 
 ## Branch / Stack
 
 - Worktree:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
-- Branch: `agent-HG-habitat-grit-viz-contract-ownership`
-- Parent: `agent-HG-habitat-grit-control-orpc-contract-ownership`
-- Historical row-local proof did not consume HR repair layers. Current
-  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
-  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
-  `HGPR-BASELINE-FILES-2026-06-15`,
-  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
-- Downstack blockers and non-claims remain separate downstream inputs and are
-  not consumed by this row.
+- Branch: `agent-HG-habitat-grit-viz-contract-ownership-closure`
+- Parent: `agent-HG-habitat-grit-control-orpc-contract-ownership-closure`
+- This is a local-only Graphite row above the accepted COCO checkpoint.
 
 ## Scope
 
 This checkpoint owns:
 
-- packet and record truth for `habitat-grit-proof-viz-contract-ownership`;
-- native fixture/parser-edge expansion for
-  `.grit/patterns/habitat/checks/viz_contract_ownership.md`;
+- predicate repair in `.grit/patterns/habitat/checks/viz_contract_ownership.md`;
+- source remediation for the live `map-ecology` cross-step private-viz import;
+- focused source tests/checks for the moved helper and updated import path;
 - parser inventory over current standard recipe stage source;
+- per-rule and aggregate Habitat wrapper proof;
+- explicit empty baseline and `baseline-integrity` proof;
+- row-specific injected violation/path-control proof;
 - aggregate proof matrix, command proof log, and corpus ledger realignment.
 
 This checkpoint does not own:
 
-- Swooper source refactors;
-- predicate repair outside the current fixture-proven file-hub branch;
+- generated-output edits or freshness;
+- raw direct Grit acquisition;
 - Grit apply/codemod behavior;
-- baseline mutation;
-- Habitat command wrapper repair;
-- raw adapter/acquisition repair;
-- Effect adapter or injected cleanup behavior;
+- Effect adapter behavior;
+- generator/migration behavior;
+- retired parity;
 - neighboring visualization/runtime rows;
+- broader visualization architecture or evergreen DL-7 documentation closure;
+- aggregate injected-corpus closure while DDIT remains blocked;
 - product/runtime proof.
 
 ## Evidence
 
-- `VCO-NATIVE-FIXTURES-2026-06-15`: native Grit fixture/parser-edge proof.
-  `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter viz_contract_ownership --json 2>&1`
-  exited 0 with one testable pattern, 1 `steps/viz.ts` file-hub positive
-  match, and 0 ignore-sample matches. Import probes in the match fixture did
-  not produce native matches and are recorded as
-  `VCO-IMPORT-PREDICATE-GAP-2026-06-15`.
-- `VCO-STAGE-VIZ-INVENTORY-2026-06-15`: parser inventory/live corpus evidence.
-  Inline Node/TypeScript compiler API inventory over
-  `mods/mod-swooper-maps/src/recipes/standard/stages`, excluding
-  `node_modules`, `dist`, and `mod`, used the actual current predicate path
-  regex `mods/mod-swooper-maps/src/recipes/standard/stages/[^/]+/.*\.ts$`.
-  The inventory counted 216 scanned TS/TSX/JSON files; 216 `.ts`; 0 `.tsx`; 0
-  `.json`; 212 actual current-predicate `.ts` files; 19 immediate stage
-  directories; 23 immediate stage-root entries; 4 immediate stage-root files;
-  25 nested step directories; 0 `stages/<stage>/steps/viz.ts` hub files; 3
-  stage-level `viz.ts` files; 3 private step `viz.ts` files; 785 all-stage-root
-  import declarations; 39 all-stage-root export-from declarations; 776
-  current-predicate import declarations; 39 current-predicate export-from
-  declarations; 0 dynamic imports; 20 stage-level viz imports; 0 step-hub viz
-  imports; 1 private step-viz cross-step import; 2 same-step private viz
-  imports; 0 different-stage private viz imports; 0 source lookalikes; and 0
-  parse diagnostics.
-- Live intended finding:
-  `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plotBiomes.ts:7`
-  imports `./plot-biomes/viz.js`, resolving to
-  `mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/steps/plot-biomes/viz.js`.
-- Verification commands run so far for this checkpoint:
-  `bun run openspec -- validate habitat-grit-proof-viz-contract-ownership --strict`,
-  `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter viz_contract_ownership --json 2>&1`,
-  inline Node/TypeScript parser inventory, `bun run openspec:validate`, and
-  `git diff --check`.
+- `VCO-PREDICATE-REPAIR-2026-06-16`: predicate repair uses
+  `import_statement(source=$source)` and row-owned source-shape guards for
+  shared `steps/viz.ts` imports and cross-step private `viz.ts` imports.
+- `VCO-SOURCE-REMEDIATION-2026-06-16`: the shared map-ecology biome-id
+  visualization helper moved from `steps/plot-biomes/viz.ts` to
+  `stages/map-ecology/viz.ts`; `plotBiomes.ts` and the focused
+  `plot-biomes-viz-meta` test now consume the stage surface.
+- `VCO-NATIVE-FIXTURES-2026-06-16`: focused native proof currently passes with
+  6 positive current-predicate matches and 0 ignore-sample matches.
+- `VCO-STAGE-VIZ-INVENTORY-2026-06-16`: parser inventory currently records 0
+  `steps/viz.ts` hub files, 4 stage-level `viz.ts` files, 2 private step
+  `viz.ts` files, 21 stage-level viz imports, 0 step-hub viz imports, 0
+  private step-viz cross-step imports, 2 same-step private viz imports, 0
+  current VCO matches, and 0 parse diagnostics.
+- `VCO-INJECTED-PROBE-2026-06-16`: clean-start injected proof exits 1 only for
+  accepted unrelated DDIT; VCO passes with one diagnostic at the injected
+  cross-step private-viz import path, a clean same-step private control, clean
+  initial/final git state, and clean probe cleanup.
 
 ## Review / Findings
 
-No accepted P1/P2 supervisor findings are open for this row checkpoint. The row
-records `VCO-IMPORT-PREDICATE-GAP-2026-06-15` and the live private-viz import
-finding as blockers, so this is not clean rule closure. Supervisor accepted the
-bounded checkpoint at `fd02191ed`.
+The previous bounded blocker checkpoint remains historical evidence only. Its
+import predicate-gap and live private-viz finding are superseded by this closure
+checkpoint. Supervisor guardrail required this packet realignment because source
+remediation is now in scope.
 
 ## Next Actions
 
-1. Preserve this packet as a bounded, accepted blocker checkpoint.
-2. Keep import-form predicate closure, private-viz source remediation or
-   baseline disposition, broader visualization architecture closure, raw
-   acquisition, Effect adapter closure, apply safety, generator/migration proof,
-   product proof, and row-specific proof beyond inherited shared
-   wrapper/baseline/injected IDs as non-claims unless separately recorded.
+Stop for supervisor review. Do not open the next HG row until this VCO
+checkpoint receives supervisor disposition.

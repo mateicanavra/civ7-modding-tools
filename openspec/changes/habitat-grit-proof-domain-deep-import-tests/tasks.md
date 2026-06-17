@@ -43,14 +43,16 @@
   `grit-domain-deep-import-tests`.
 - [x] 5.2 Add explicit empty baseline file.
 - [x] 5.3 Add injected-probe metadata for the intended injected proof surface.
-- [ ] 5.4 Prove Habitat wrapper/current-tree projection over the owned
-  mod/package test roots and injected mirrors; current wrapper selector commands
-  select DDIT but shared Grit scan/ignore configuration omits those test paths.
+- [x] 5.4 Prove Habitat wrapper/current-tree projection over the owned
+  mod/package test roots and injected mirrors after the HR adapter projection
+  repair landed downstack; `DDIT-PER-RULE-SELECTOR-2026-06-17` and
+  `DDIT-HABITAT-GRIT-TOOL-2026-06-17` both pass with zero diagnostics.
 - [ ] 5.5 Run or consume accepted raw direct Grit acquisition proof for this
   row; raw remains `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 - [x] 5.6 Record explicit empty baseline file/integrity proof for this row.
-- [ ] 5.7 Run registered injected probe/path-control proof from the clean
-  committed row head after narrow adapter scan-root/ignore activation exists.
+- [x] 5.7 Run registered injected probe/path-control proof after the narrow
+  adapter scan-root/ignore projection repair; `DDIT-INJECTED-PROBE-2026-06-17`
+  passes with one DDIT diagnostic, a clean control path, and clean cleanup.
 
 ## 6. Downstream Realignment
 
@@ -67,22 +69,23 @@
 - [x] 7.1 `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter domain_deep_import_tests --json`
 - [x] 7.2 Deterministic TypeScript parser inventory over mod/package test roots.
 - [x] 7.3 `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --json`
-- [ ] 7.4 `bun run habitat:check -- --json --rule grit-domain-deep-import-tests`
-  as DDIT-owned test-root projection proof. Current command exits 0 and selects
-  DDIT, but it is selector/report evidence only until adapter scan activation is
-  repaired.
-- [ ] 7.5 `bun run habitat:check -- --json --tool grit-check` as DDIT-owned
-  test-root projection proof. Current command exits 0 but does not prove DDIT
-  test-root scanning.
+- [x] 7.4 `bun run habitat:check -- --json --rule grit-domain-deep-import-tests`
+  as DDIT-owned test-root projection proof. Current command exits 0, selects
+  exactly DDIT plus `baseline-integrity`, and reports zero diagnostics.
+- [x] 7.5 `bun run habitat:check -- --json --tool grit-check` as aggregate
+  Grit wrapper proof. Current command exits 0 with DDIT included in the 31-rule
+  Grit set plus `baseline-integrity`, all passing.
 - [x] 7.6 Deterministic baseline inventory over Grit rules and baselines.
-- [ ] 7.7 `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
-  currently fails for DDIT with `GritPatternProjectionMiss` because the injected
-  test mirror is omitted by shared scan/ignore configuration.
+- [x] 7.7 `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
+  passes 31/31 rows after the HR adapter projection repair, with DDIT reporting
+  one diagnostic at the injected test path and a clean public-surface control.
 - [x] 7.8 Source remediation type/build or targeted check proof.
 - [x] 7.9 `bun run openspec -- validate habitat-grit-proof-domain-deep-import-tests --strict`
 - [x] 7.10 `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - [x] 7.11 `bun run openspec:validate`
 - [x] 7.12 `git diff --check`
 - [x] 7.13 `git ls-files --deleted`
-- [x] 7.14 Commit via Graphite with clean worktree as a native/parser/source
-  checkpoint plus adapter activation blocker, not full active-row closure.
+- [x] 7.14 Commit via Graphite with clean worktree as full active-row closure
+  for DDIT wrapper/current-tree and injected violation/path-control projection,
+  while preserving raw acquisition, dynamic/source-string, apply, and
+  product/runtime non-claims.

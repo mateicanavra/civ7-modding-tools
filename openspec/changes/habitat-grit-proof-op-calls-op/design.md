@@ -25,7 +25,9 @@ ops stay atomic units; recipe steps and stages own cross-op orchestration.
 - Forbidden current syntax classes:
   - import declarations from `../<sibling-op>/index.js`;
   - import declarations from `@mapgen/domain/<domain>/ops`;
-  - import declarations from `@mapgen/domain/<domain>/ops/index.js`.
+  - import declarations from `@mapgen/domain/<domain>/ops/index.js`;
+  - named and star re-exports from those same source classes;
+  - dynamic string-literal `import(...)` calls from those same source classes.
 
 ### Hard Core
 
@@ -35,12 +37,13 @@ ops stay atomic units; recipe steps and stages own cross-op orchestration.
    retired parity, classify/generator behavior, and product proof are separate
    proof classes.
 3. Current row predicate is Swooper domain op runtime `index.ts` files only.
-4. Value, type-only, namespace, named, single-quoted, and side-effect imports
-   from the forbidden source classes are current native positives.
+4. Value, type-only, namespace, named, single-quoted, side-effect imports,
+   named/star re-exports, and dynamic string-literal imports from the forbidden
+   source classes are current native positives.
 5. Same-op local imports, parent `lib` imports, domain private deep imports,
    `ops-by-id`, domain ops root barrel files, rules/strategy files, tests,
-   recipes, `.tsx`, export-from, dynamic import, and source strings are
-   controls or non-claims.
+   recipes, `.tsx`, same-op export-from, private/lookalike dynamic imports, and
+   source strings are controls or non-claims.
 
 ### Exterior
 
@@ -55,9 +58,8 @@ ops stay atomic units; recipe steps and stages own cross-op orchestration.
 
 This checkpoint fails if native fixture proof reports controls, if parser
 inventory finds live current candidates without disposition, if inherited
-shared proof is described as row-local proof, or if the row implies export,
-dynamic import, broad op architecture closure, classify/generator, apply, or
-product/runtime closure.
+shared proof is described as row-local proof, or if the row implies broad op
+architecture closure, classify/generator, apply, or product/runtime closure.
 
 ## Source Synthesis
 
@@ -85,7 +87,8 @@ barrels in Swooper domain op runtime entrypoints.
 | Parent `../../lib/...` imports | Do not report |
 | Domain private deep import and `ops-by-id` lookalikes | Do not report in this row |
 | Domain root `ops/index.ts`, rules path, `.tsx`, other mod, recipe, and test paths | Do not report |
-| Export-from, dynamic import, and source-string classes | Do not report in this current native predicate |
+| Named re-export, export-star, and dynamic string-literal import from forbidden source classes | Report |
+| Same-op export-from, private/lookalike dynamic imports, and source strings | Do not report |
 
 ## Proof Contract
 
@@ -102,6 +105,12 @@ This row checkpoint may record:
   OCO registration.
 - `OCO-INJECTED-PROBE-2026-06-15`: registered OCO injected probe and
   out-of-scope control path.
+- `OCO-EXPORT-DYNAMIC-NATIVE-FIXTURES-2026-06-17`: repaired fixture proof for
+  import, re-export, and dynamic string-literal classes.
+- `OCO-EXPORT-DYNAMIC-INVENTORY-2026-06-17`: parser inventory/live
+  zero-candidate proof over import, re-export, and dynamic classes.
+- `OCO-EXPORT-DYNAMIC-INJECTED-PROBE-2026-06-17`: registered injected proof for
+  the repaired dynamic import class and rules-path control.
 - Aggregate record alignment for this row.
 
 This row checkpoint must not record:
@@ -111,7 +120,7 @@ This row checkpoint must not record:
 - injected cleanup/path-control closure beyond the registered OCO probe shape;
 - baseline mutation;
 - classify or generator behavior;
-- export-from or dynamic import closure;
+- non-string dynamic import closure;
 - apply/codemod safety;
 - retired wrapped-script parity beyond the named Foundation test;
 - broader op-architecture or domain-refactor closure;

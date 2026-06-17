@@ -4,9 +4,10 @@
 
 Habitat SHALL NOT classify `grit-viz-contract-ownership` as complete until
 row-level proof records separate native fixture behavior, parser inventory,
-Habitat wrapper behavior, raw acquisition or accepted adapter proof, injected
-violations, explicit baseline behavior, retired-mechanism parity, broader
-visualization architecture closure, apply safety, and downstream record truth.
+source remediation when present, Habitat wrapper behavior, raw acquisition or
+accepted adapter proof, injected violations, explicit baseline behavior,
+retired-mechanism parity, broader visualization architecture closure, apply
+safety, and downstream record truth.
 
 #### Scenario: Native fixture proof passes
 
@@ -54,15 +55,26 @@ accepted dispositions when current source contains them.
 
 - **WHEN** a fixture or parser inventory identifies a private step-viz import
   shape that the current native predicate does not report
-- **THEN** row records SHALL preserve it as a predicate-gap blocker
-- **AND** the row SHALL NOT claim exact import-form closure from native fixture
-  proof
+- **THEN** row records SHALL preserve it as a predicate-gap blocker until a
+  predicate repair proves the import class
+- **AND** the row SHALL NOT claim exact import-form closure from older native
+  fixture proof
 
 #### Scenario: Same-step private viz import exists
 
 - **WHEN** a step imports `./viz.js` from its own step directory
 - **THEN** this row SHALL classify the import as same-step private control
   context, not a cross-step private import candidate
+
+#### Scenario: Same-stage cross-step private viz import is remediated
+
+- **WHEN** current source imports a private step visualization helper from a
+  different step path in the same standard recipe stage
+- **THEN** source remediation SHALL move the shared visualization helper to the
+  nearest stage-level `stages/<stage>/viz.ts` owner surface or record an
+  explicit owner disposition
+- **AND** the row SHALL record package source proof separately from native Grit
+  fixture proof and Habitat wrapper proof
 
 ### Requirement: Viz Contract Ownership Non-Claims Stay Explicit
 

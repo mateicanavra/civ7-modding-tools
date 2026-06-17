@@ -5,15 +5,16 @@ domain-refactor boundary profile. Domain ops must stay pure and composable; Civ7
 adapter access and map-context crossing belong outside domain implementation
 ops.
 
-This checkpoint opens the row packet before proof closure and limits the row to
-the current row-owned check proof: native Grit fixture/predicate repair, parser
-inventory over current domain source, and record truth. Current restacked shared
-wrapper selector/current-tree, explicit baseline file/integrity, and injected
-probe API proof are inherited only through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`,
-`HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`. Raw direct Grit acquisition remains
+This checkpoint closes the row-owned active-check proof boundary: native Grit
+fixture/predicate repair, parser inventory over current domain source, full
+native Grit corpus health, Habitat wrapper/current-tree selector proof,
+explicit empty baseline ownership, and row-specific injected violation plus
+path-control proof. The current closure records are
+`DOBI-NATIVE-CORPUS-REFRESH-2026-06-16`,
+`DOBI-PER-RULE-SELECTOR-2026-06-16`,
+`DOBI-HABITAT-GRIT-TOOL-2026-06-16`,
+`DOBI-BASELINE-FILES-2026-06-16`, and
+`DOBI-INJECTED-PROBE-2026-06-16`. Raw direct Grit acquisition remains
 explicitly unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 
 ## Target Authority Refs
@@ -52,6 +53,7 @@ explicitly unclaimed through `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 - No raw direct Grit acquisition is claimed.
 - No product/runtime Civ7 behavior is claimed.
 - No clean closure is claimed for dynamic import or element-access semantics.
+- No aggregate injected-corpus closure is claimed while DDIT remains blocked.
 - No retired wrapped-script parity or broader domain-refactor closure is
   claimed.
 
@@ -82,16 +84,22 @@ runtime proof.
   remediation, blocker, or baseline disposition.
 - Records would cite scratch stdout files as durable proof instead of command
   shape, scan roots, exclusions, counts, and non-claims.
-- Closure would claim wrapper/current-tree, raw acquisition, injected cleanup,
-  baseline behavior, apply safety, broader domain-refactor parity, or product
-  proof from native fixture/parser inventory evidence.
+- Closure would claim raw acquisition, dynamic import, element-access, source
+  remediation, aggregate injected-corpus closure, apply safety, broader
+  domain-refactor parity, or product proof from native fixture/parser inventory
+  evidence.
 
 ## Verification Gates
 
 - `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --filter domain_ops_boundary_imports --json`
+- `GRIT_TELEMETRY_DISABLED=true bunx grit patterns test --json`
 - Deterministic TypeScript parser inventory over
   `mods/mod-swooper-maps/src/domain`
+- `bun run habitat:check -- --json --rule grit-domain-ops-boundary-imports`
+- `bun run habitat:check -- --json --tool grit-check`
+- `bun openspec/changes/habitat-grit-proof-repair/workstream/run-injected-probes.ts --require-clean-start`
 - `bun run openspec -- validate habitat-grit-proof-domain-ops-boundary-imports --strict`
+- `bun run openspec -- validate habitat-grit-proof-repair --strict`
 - `bun run openspec:validate`
 - `git diff --check`
 - `git ls-files --deleted`

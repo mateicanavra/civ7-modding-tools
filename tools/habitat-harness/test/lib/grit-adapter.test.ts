@@ -337,11 +337,10 @@ describe("Grit check adapter parser and projection", () => {
     expect(discoverGritScanRoots([sourceRule])).not.toContain("mods/mod-swooper-maps/test");
     expect(discoverGritScanRoots([testRule])).toContain("mods/mod-swooper-maps/test");
 
-    const effectiveRoots = effectiveGritScanRoots([testRule], [
-      "packages",
-      "mods/mod-swooper-maps/src/recipes",
-      "mods/mod-swooper-maps/test",
-    ]);
+    const effectiveRoots = effectiveGritScanRoots(
+      [testRule],
+      ["packages", "mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/test"]
+    );
     expect(effectiveRoots).toContain("packages");
     expect(effectiveRoots).toContain("mods/mod-swooper-maps/src/recipes");
     expect(effectiveRoots).toContain("mods/mod-swooper-maps/test/hydrology-ocean-geometry.test.ts");

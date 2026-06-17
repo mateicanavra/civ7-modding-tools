@@ -187,10 +187,7 @@ export function buildPlacementInputs(
       policy,
       entry.direction | 0
     );
-    const footprintOffsets = getNaturalWonderFootprintOffsets(
-      policy,
-      materializationDirection
-    );
+    const footprintOffsets = getNaturalWonderFootprintOffsets(policy, materializationDirection);
     if (!footprintOffsets) return [];
     return [
       {

@@ -71,10 +71,11 @@ guard.
 invariant for boundary-profile ops purity. `taxonomy.md` records
 `@civ7/adapter` as the adapter owner layer.
 
-`injected-probes.json` already has a row for this rule with the same
-`rulesJsonScope` and a positive `context.adapter.run()` op probe plus non-op
-path control. Current row-specific injected cleanup/path-control closure is not
-claimed here; only the accepted shared injected-probe API id is cited.
+`injected-probes.json` has a row for this rule with the same `rulesJsonScope`
+and a positive `context.adapter.run()` op probe plus non-op path control.
+`DOBI-INJECTED-PROBE-2026-06-16` records the current row-specific injected
+violation and path-control proof; aggregate injected-corpus closure remains
+unclaimed while DDIT is blocked.
 
 ## Fixture Matrix
 
@@ -100,30 +101,34 @@ This row checkpoint may record:
   repaired current predicate.
 - `DOBI-DOMAIN-OPS-INVENTORY-2026-06-15`: parser inventory/live zero-candidate
   record truth over current Swooper domain source.
+- `DOBI-NATIVE-CORPUS-REFRESH-2026-06-16`: full native Grit corpus health with
+  DOBI included.
+- `DOBI-PER-RULE-SELECTOR-2026-06-16` and
+  `DOBI-HABITAT-GRIT-TOOL-2026-06-16`: Habitat per-rule and aggregate
+  wrapper/current-tree proof.
+- `DOBI-BASELINE-FILES-2026-06-16`: explicit empty baseline ownership and
+  baseline-integrity support.
+- `DOBI-INJECTED-PROBE-2026-06-16`: row-specific injected violation and
+  path-control proof.
 - Aggregate record alignment for this row.
 
 This row checkpoint must not record:
 
 - raw direct Grit acquisition;
 - DDI or neighboring-row proof;
-- row-specific injected cleanup/path-control closure;
+- aggregate injected-corpus closure while DDIT remains blocked;
 - baseline mutation;
 - apply/codemod safety;
 - retired wrapped-script parity or broader domain-refactor closure;
 - product/runtime proof.
 
-Current restacked shared proof ids may be cited only as inherited shared proof:
-`HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
-`HGPR-PER-RULE-SELECTORS-2026-06-15`,
-`HGPR-BASELINE-FILES-2026-06-15`,
-`HGPR-BASELINE-INTEGRITY-2026-06-15`, and
-`HGPR-INJECTED-GRIT-ROWS-2026-06-15`. Raw direct acquisition remains
-`HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
+Raw direct acquisition remains `HGPR-RAW-GRIT-UNCLAIMED-2026-06-15`.
 
 ## Downstream Records
 
 The aggregate corpus ledger, proof matrix, and command proof log are updated
-with row-specific native fixture and parser inventory evidence. Recovery claim
-ledger, taxonomy, invariant corpus, discrepancy log, and user-facing command
-docs remain unchanged because this checkpoint does not change source
-architecture, diagnostics text, or product behavior.
+with row-specific native fixture/corpus, parser inventory, wrapper, baseline,
+and injected proof. Recovery claim ledger, taxonomy, invariant corpus,
+discrepancy log, and user-facing command docs remain unchanged because this
+checkpoint does not change source architecture, diagnostics text, or product
+behavior.

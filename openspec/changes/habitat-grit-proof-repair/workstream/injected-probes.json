@@ -20,11 +20,25 @@
     "sourcePredicate": "recipe/map source deep domain import",
     "match": {
       "path": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",
-      "body": "import x from \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = x;\n"
+      "body": "import \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = true;\n"
     },
     "control": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/demo.ts",
-      "body": "import x from \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = x;\n"
+      "body": "import \"@mapgen/domain/foundation/ops/private\";\n\nexport const value = true;\n"
+    }
+  },
+  {
+    "ruleId": "grit-relative-domain-imports",
+    "patternIdentity": "relative_domain_imports",
+    "rulesJsonScope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+    "sourcePredicate": "recipe/map source imports local domain source through a relative ../domain path",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+      "body": "import { isAnyRiverClass } from \"../../../../domain/hydrology/index.js\";\n\nexport const value = isAnyRiverClass;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/control.ts",
+      "body": "import { isAnyRiverClass } from \"../domain/hydrology/index.js\";\n\nexport const value = isAnyRiverClass;\n"
     }
   },
   {
@@ -269,14 +283,14 @@
     "ruleId": "grit-viz-contract-ownership",
     "patternIdentity": "viz_contract_ownership",
     "rulesJsonScope": "standard recipe stage visualization files",
-    "sourcePredicate": "shared viz contract under steps/",
+    "sourcePredicate": "cross-step private viz import",
     "match": {
-      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/viz.ts",
-      "body": "export const viz = {};\n"
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.ts",
+      "body": "import { privateViz } from \"./mesh/viz.js\";\n\nexport const crust = privateViz;\n"
     },
     "control": {
-      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/viz.ts",
-      "body": "export const viz = {};\n"
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust/index.ts",
+      "body": "import { privateViz } from \"./viz.js\";\n\nexport const crust = privateViz;\n"
     }
   },
   {
@@ -328,25 +342,25 @@
     "sourcePredicate": "domain op imports domain-root config facade",
     "match": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-      "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
+      "body": "export async function loadConfig() {\n  return import(\"../../config.js\");\n}\n"
     },
     "control": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
-      "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
+      "body": "export async function loadConfig() {\n  return import(\"../../config.js\");\n}\n"
     }
   },
   {
     "ruleId": "grit-op-calls-op",
     "patternIdentity": "op_calls_op",
     "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
-    "sourcePredicate": "domain op runtime entrypoint imports sibling op runtime or domain ops barrel",
+    "sourcePredicate": "domain op runtime entrypoint imports, re-exports, or dynamically imports sibling op runtime or domain ops barrel",
     "match": {
       "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts",
-      "body": "import computeMesh from \"../compute-mesh/index.js\";\n\nexport const value = computeMesh;\n"
+      "body": "export async function loadSiblingOp() {\n  return import(\"../compute-mesh/index.js\");\n}\n"
     },
     "control": {
       "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/rules/index.ts",
-      "body": "import computeMesh from \"../compute-mesh/index.js\";\n\nexport const value = computeMesh;\n"
+      "body": "export async function loadSiblingOp() {\n  return import(\"../compute-mesh/index.js\");\n}\n"
     }
   },
   {
@@ -384,11 +398,11 @@
     "sourcePredicate": "domain source imports or re-exports recipe modules",
     "match": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
-      "body": "import recipe from \"../../../../../recipes/standard/recipe.js\";\n\nexport const value = recipe;\n"
+      "body": "export async function loadRecipe() {\n  return import(\"../../../../../recipes/standard/recipe.js\");\n}\n"
     },
     "control": {
       "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
-      "body": "import recipe from \"../recipe.js\";\n\nexport const value = recipe;\n"
+      "body": "export async function loadRecipe() {\n  return import(\"../recipe.js\");\n}\n"
     }
   },
   {

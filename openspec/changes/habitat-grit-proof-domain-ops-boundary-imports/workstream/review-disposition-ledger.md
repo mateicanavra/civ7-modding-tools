@@ -2,8 +2,9 @@
 
 ## Current Status
 
-This checkpoint is implemented locally and pending supervisor review. No known
-P1/P2 finding remains after local repair evidence.
+This closure checkpoint is implemented, validated, and committed locally.
+It is awaiting supervisor review. No known P1/P2 finding remains after local
+repair evidence.
 
 ## Findings
 
@@ -17,5 +18,7 @@ P1/P2 finding remains after local repair evidence.
 - Dynamic import and element-access closure remain unproven parser-edge
   non-claims.
 - Raw direct Grit acquisition remains unclaimed.
-- Row-specific injected cleanup/path-control closure remains unclaimed.
+- Row-specific injected cleanup/path-control proof is recorded by
+  `DOBI-INJECTED-PROBE-2026-06-16`; aggregate injected-corpus closure remains
+  unclaimed while DDIT is blocked.
 - Retired parity, apply safety, and product/runtime proof remain unclaimed.

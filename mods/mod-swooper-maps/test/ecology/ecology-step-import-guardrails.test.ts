@@ -103,7 +103,9 @@ describe("ecology retired-stage topology guardrails", () => {
       path.join(modRoot, "src", "recipes", "standard", "stages", "map-ecology"),
     ] as const;
 
-    const findings = roots.flatMap((root) => walkFiles(root)).flatMap((file) => scanFile(file, modRoot));
+    const findings = roots
+      .flatMap((root) => walkFiles(root))
+      .flatMap((file) => scanFile(file, modRoot));
 
     expect(findings.length, formatFindings(findings)).toBe(0);
   });

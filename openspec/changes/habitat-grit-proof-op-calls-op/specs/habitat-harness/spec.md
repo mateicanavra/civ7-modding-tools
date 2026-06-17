@@ -45,11 +45,18 @@ predicate for `mods/mod-swooper-maps/src/domain/**/ops/*/index.ts`.
   `@mapgen/domain/<domain>/ops/index.js`
 - **THEN** `grit-op-calls-op` SHALL report the import
 
+#### Scenario: Runtime entrypoint re-exports or dynamically imports sibling op runtime
+
+- **WHEN** a Swooper domain op runtime `index.ts` file re-exports from
+  `../<op>/index.js` or dynamically imports `../<op>/index.js`
+- **THEN** `grit-op-calls-op` SHALL report the re-export or dynamic import
+
 #### Scenario: Same-op or non-runtime path imports adjacent modules
 
 - **WHEN** the same source classes appear in same-op local imports, rules
   paths, strategy paths, root ops barrel files, recipes, tests, `.tsx` files,
-  export-from declarations, dynamic imports, or source strings
+  same-op export-from declarations, private/lookalike dynamic imports, or
+  source strings
 - **THEN** this row SHALL classify them as controls or non-claims, not as
   current-row violations
 
