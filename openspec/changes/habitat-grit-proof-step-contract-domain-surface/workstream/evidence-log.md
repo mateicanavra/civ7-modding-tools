@@ -9,7 +9,7 @@
 | SCDS-E5 | `docs/system/libs/mapgen/policies/IMPORTS.md` | Contract imports are distinguished from ordinary recipe imports; step contracts bind through the domain root. | Domain-root-only policy exists. | Ordinary recipe `/ops` and `/config.js` allowances do not apply to this row. |
 | SCDS-E6 | `docs/projects/habitat-harness/invariant-corpus.md` | Retired `eslint-step-contract-imports` invariant says step contracts import only `@mapgen/domain/<d>`. | Retired-mechanism parity source exists. | No current proof that Grit fully replaces it. |
 | SCDS-E7 | `GRIT_TELEMETRY_DISABLED=true grit patterns test --filter step_contract_domain_surface --json` | Exit 0; one pattern succeeds with one positive and one negative sample. | Native fixture seed proof exists. | No parser-edge, path-control, wrapper, baseline, injected, or overlap proof. |
-| SCDS-E8 | `bun run habitat:check -- --json --rule grit-step-contract-domain-surface` design seed | Exit 0; report includes `grit-step-contract-domain-surface` and `baseline-integrity`, both pass. | Historical valid single-rule wrapper selection seed exists. | Not consumed as current wrapper proof because the accepted command-trust/selector layer is not available in this row's stack/base; no injected violation, other-mod, or exact selector-truth proof. |
+| SCDS-E8 | `bun run habitat:check -- --json --rule grit-step-contract-domain-surface` design seed | Exit 0; report includes `grit-step-contract-domain-surface` and `baseline-integrity`, both pass. | Historical pre-restack single-rule wrapper selection seed exists. Current restacked shared wrapper/selector proof is inherited through `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and `HGPR-PER-RULE-SELECTORS-2026-06-15`. | The historical seed is not raw acquisition proof, all-mod wrapper enforcement proof, injected violation proof, exact selector-truth proof beyond inherited shared proof, or product proof. |
 | SCDS-E9 | Direct raw `grit check mods/mod-swooper-maps/src/recipes --json --level error --no-cache` design seed | Exit 0 with `results: []`. | Bounded raw zero-result seed for current Swooper recipe root exists. | Not consumed as raw acquisition closure in this row checkpoint; not a whole-wrapper proof and not an all-mod proof. |
 | SCDS-E10 | `tools/habitat-harness/src/lib/grit.ts` | Adapter scans existing roots from `packages`, `apps/mapgen-studio/src`, `mods/mod-swooper-maps/src/recipes`, `mods/mod-swooper-maps/src/maps`, and `mods/mod-swooper-maps/src/domain`. | Wrapper-root truth is available. | Raw recipe-root proof does not equal wrapper proof. |
 | SCDS-E11 | `find mods/mod-swooper-maps/src/recipes -path '*/stages/*/steps/*' -type f ...` | 53 matching files: 23 `contract.ts`, 30 `*.contract.ts`, zero lookalikes, zero `.tsx`. | Live filename inventory supports current pass state. | Zero live lookalikes does not prove filename predicate exactness. |
@@ -28,12 +28,19 @@
 
 - exact filename/source-scope closure or predicate repair for lookalikes now
   documented as current-predicate positives;
-- exact wrapper-root and omitted-root projection proof;
+- current restacked shared wrapper/selector proof is inherited through
+  `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`;
+- current restacked shared explicit baseline proof is inherited through
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`;
+- current restacked shared injected Grit-row proof is inherited through
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`;
 - Effect/no-Effect substrate decision for injected proof;
-- injected positive step-contract probe through the Habitat wrapper;
+- row-specific injected positive step-contract probe through the Habitat wrapper
+  beyond the shared aggregate proof;
 - outside-scope path-control proof through the accepted substrate;
-- explicit empty baseline proof and injected unbaselined-finding proof;
-- baseline owner linkage;
+- injected unbaselined-finding proof;
 - neighboring-rule overlap disposition;
 - aggregate proof matrix proof-id linkage;
 - stale-record and recovery-claim realignment.

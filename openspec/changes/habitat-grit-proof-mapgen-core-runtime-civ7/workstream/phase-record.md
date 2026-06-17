@@ -2,7 +2,7 @@
 
 ## Current Gate
 
-Gate 13 / supervisor review for blocker checkpoint. The row packet is opened, native
+Gate 13 / accepted blocker checkpoint. The row packet is opened, native
 fixture/parser-edge expansion has passed for proven runtime-global member
 behavior, parser inventory is recorded in durable row records, and downstream
 records are aligned. Verification has passed and the checkpoint is committed in
@@ -13,8 +13,10 @@ current-predicate type-only adapter imports and 0 adapter value imports, 0
 `/base-standard/` imports, and 0 runtime-global member accesses. This row can
 claim native runtime-global member fixture proof, parser inventory, and record
 truth only; clean row closure remains blocked on predicate semantics and
-source-owner/type-import policy disposition. Supervisor review remains the gate
-before next-row work.
+source-owner/type-import policy disposition. The bounded blocker checkpoint was
+supervisor-accepted; successor HG rows are committed through
+`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this
+packet is not the active next-row gate.
 
 ## Branch / Stack
 
@@ -22,9 +24,13 @@ before next-row work.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-mapgen-core-runtime-civ7`
 - Parent: `agent-HG-habitat-grit-empty-schema-default`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 - Downstack helper redeclaration blocker and empty-schema ordinary-contract
   predicate gap remain separate accepted downstream inputs and are not consumed
   by this row.
@@ -76,6 +82,8 @@ remediation, baseline, or predicate repair is performed in this row.
 
 ## Next Actions
 
-1. Wait for supervisor review.
-2. Do not open the next row until this blocker checkpoint is accepted or
-   explicitly re-scoped.
+1. Preserve this packet as an accepted blocker checkpoint.
+2. Keep import-class predicate repair, the four live type-only adapter imports,
+   source-owner/type-import policy disposition, source remediation, baseline
+   disposition, apply safety, and product proof as separate gates unless
+   separately recorded.

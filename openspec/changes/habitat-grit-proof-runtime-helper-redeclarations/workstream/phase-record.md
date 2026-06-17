@@ -2,14 +2,16 @@
 
 ## Current Gate
 
-Gate 13 / supervisor review with live-candidate disposition blocker. The row
+Gate 13 / accepted blocker checkpoint with live-candidate disposition blocker. The row
 packet is opened, native fixture/parser-edge expansion has passed, parser
 inventory is recorded in durable row records, downstream ledgers are aligned,
 verification has passed, and the checkpoint is committed. Parser inventory
 found 3 current-predicate `function clamp01` redeclarations in Swooper domain
 strategy files, so this row cannot claim clean enforcement closure without
 supervisor/source owner disposition, accepted baseline handling, or a separate
-apply row. Supervisor review remains the gate before next-row work.
+apply row. The bounded blocker checkpoint was supervisor-accepted; successor HG
+rows are committed through `agent-HG-habitat-grit-domain-ops-boundary-imports`
+at `f268f3bf5`, so this packet is not the active next-row gate.
 
 ## Branch / Stack
 
@@ -17,9 +19,13 @@ apply row. Supervisor review remains the gate before next-row work.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain`
 - Branch: `agent-HG-habitat-grit-runtime-helper-redeclarations`
 - Parent: `agent-HG-habitat-grit-runtime-run-validated`
-- Base stack still does not include the HR repair layers, so Habitat wrapper
-  selector/current-tree proof and typed adapter/injected cleanup proof remain
-  unavailable in this row's stack/base.
+- Historical row-local proof did not consume HR repair layers. Current
+  restacked aggregate state inherits shared wrapper/selector, explicit baseline,
+  and injected Grit-row proof through `HGPR-HABITAT-GRIT-TOOL-2026-06-15`,
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`,
+  `HGPR-BASELINE-FILES-2026-06-15`,
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`, and
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`.
 
 ## Scope
 
@@ -56,6 +62,7 @@ findings are recorded as a row closure blocker, not repaired in this layer.
 
 ## Next Actions
 
-1. Wait for supervisor review.
-2. Do not open the next row until the live-candidate blocker has an accepted
-   disposition.
+1. Preserve this packet as an accepted blocker checkpoint.
+2. Keep the 3 live helper redeclarations as a source-owner/apply/baseline
+   disposition blocker for clean row closure; do not treat inherited shared proof
+   as source remediation or apply safety.

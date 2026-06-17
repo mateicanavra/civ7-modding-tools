@@ -441,11 +441,11 @@ implementation tasks 4, 6, or adapter tests begin.
   normal public wrapper checks are no longer forced through fresh temporary
   cache; the supervisor accepted this safety/cache boundary. The local
   `HGPR-INJECTED-GRIT-ROWS-2026-06-15` proof now executes all 22 current Grit
-  check rows through a packet-owned corpus and ends clean. This is local
-  injected violation / cleanup proof pending supervisor review. The cleanup
-  proof now includes both clean Git status and absent injected-probe filesystem
-  residue. This does not prove raw direct Grit acquisition, apply safety,
-  parity closure, or product proof.
+  check rows through a packet-owned corpus and ends clean. This is the current
+  shared aggregate injected violation / cleanup proof. The cleanup proof now
+  includes both clean Git status and absent injected-probe filesystem residue.
+  This does not prove raw direct Grit acquisition, apply safety, parity closure,
+  or product proof.
 - Current parity state:
   `wrapped-script` is current-green, the named `wrapped-eslint` probe is a
   repaired-selector unknown-tool failure and formally stale H5/H6 command

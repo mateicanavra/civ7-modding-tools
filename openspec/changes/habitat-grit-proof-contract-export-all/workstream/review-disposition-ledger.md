@@ -11,9 +11,16 @@
 | CEA-R6 | external adversarial review | P2 | `contract.ts` and `types.ts` positives were treated as contingent despite the current predicate including them. | accepted | Packet now requires those fixtures while the current predicate includes them, plus reviewed scope-reduction records before any skip. | repaired |
 | CEA-R7 | external adversarial review | P3 | `.tsx`, named type exports, non-index rules/strategies files, and matching-root test paths needed explicit disposition. | accepted | Fixture and task matrices now require those controls. | repaired |
 
-## Pending External Review
+## Current Review State
 
-Required review lanes:
+The original packet required external review lanes before dependent closure.
+Successor HG rows have since been committed through
+`agent-HG-habitat-grit-domain-ops-boundary-imports` at `f268f3bf5`, so this is
+not an active next-row sequencing gate. Row-specific non-claims and broader
+domain-surface/export-list blockers remain governed by this packet's task state
+and the aggregate proof matrix.
+
+Historical review lanes:
 
 - product/outcome;
 - Grit semantics;

@@ -77,11 +77,14 @@ not sufficient current proof. The active truth is:
   owns current root/dev/source/production help, unknown-command behavior, and
   requested selector truth. It does not close Grit current-tree proof,
   baseline proof, injected violation proof, or row-level Grit pattern closure.
-- Baseline/scaffold contract repair is active in
+- Baseline/scaffold contract repair is accepted in
   `openspec/changes/habitat-scaffold-contract-repair/`. That packet owns
   missing-file failure, explicit empty/debt baseline state, external exception
-  modeling, shrink-only write refusal, and baseline record truth. It does not
-  close Grit row proof, generator authority metadata, or product/runtime proof.
+  modeling, shrink-only write refusal, and baseline record truth. Later accepted
+  HR pattern-authority layers own candidate-only generator safety and manifest
+  authority surfaces. They do not close row-specific Grit proof, raw direct
+  acquisition, DDI-specific generated-output/path-control closure, apply safety,
+  or product/runtime proof.
 
 ## Proof classes per slice (predeclared)
 
@@ -134,8 +137,10 @@ train redefines the other's authority.
 ## Next exact action
 
 1. Use the recovery claim ledger and accepted repair packets as the current
-   authority for H1-H8 truth.
+   authority for H1-H8 truth, with active HG row packets owning their own
+   current proof and non-claim boundaries.
 2. Continue only product-bearing repair packets with fresh proof; remaining
-   non-claims include Grit row semantics, baseline semantics, convention
-   migration capability, CI execution, changed-range affected coverage, and
-   product/runtime behavior unless their owning packet proves them.
+   non-claims include raw direct acquisition, row-specific generated-output or
+   path-control closure, apply safety, convention migration capability, CI
+   execution, changed-range affected coverage, broader product/runtime behavior,
+   and recovery-claim closure unless their owning packet proves them.

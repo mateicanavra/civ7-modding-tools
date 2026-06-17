@@ -16,7 +16,7 @@
   {
     "ruleId": "grit-domain-deep-import",
     "patternIdentity": "domain_deep_import",
-    "rulesJsonScope": "mods/*/src/{recipes,maps}/**/*.ts",
+    "rulesJsonScope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
     "sourcePredicate": "recipe/map source deep domain import",
     "match": {
       "path": "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts",

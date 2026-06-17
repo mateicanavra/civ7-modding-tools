@@ -12,9 +12,13 @@
 
 ## Evidence Still Required
 
-- wrapper current-tree proof after command-trust/selector layer is available in
-  this row's stack/base;
+- current restacked shared wrapper/selector proof is inherited through
+  `HGPR-HABITAT-GRIT-TOOL-2026-06-15` and
+  `HGPR-PER-RULE-SELECTORS-2026-06-15`;
+- current restacked shared explicit baseline proof is inherited through
+  `HGPR-BASELINE-FILES-2026-06-15` and
+  `HGPR-BASELINE-INTEGRITY-2026-06-15`;
+- current restacked shared injected Grit-row proof is inherited through
+  `HGPR-INJECTED-GRIT-ROWS-2026-06-15`;
 - raw acquisition or accepted adapter proof;
-- injected proof and cleanup proof;
-- explicit baseline proof;
 - retired parity proof.
