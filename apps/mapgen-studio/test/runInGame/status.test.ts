@@ -66,7 +66,9 @@ describe("Run in Game status helpers", () => {
     };
 
     expect(runInGameRequiresProcessRestart(status)).toBe(true);
+    expect(runInGameRequiresProcessRestart(status, "stale")).toBe(false);
     expect(runInGamePrimaryActionLabel(status, "current")).toBe("Restart Civ & Run");
+    expect(runInGamePrimaryActionLabel(status, "stale")).toBe("Run Current");
     expect(runInGamePrimaryActionLabel({ ...status, details: { code: "other" } }, "current")).toBe(
       "Retry Run"
     );

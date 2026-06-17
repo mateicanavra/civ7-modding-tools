@@ -20,6 +20,8 @@ const RUNNING_PHASES = new Set<RunInGamePhase>([
   "waiting-for-proof",
 ]);
 
+export type RunInGameActionRelation = "current" | "stale" | "unknown";
+
 export function isRunInGameTerminalPhase(phase: RunInGamePhase): boolean {
   return TERMINAL_PHASES.has(phase);
 }
@@ -64,16 +66,19 @@ export function formatRunInGamePhaseLabel(phase: RunInGamePhase): string {
   }
 }
 
-export function runInGameRequiresProcessRestart(status?: RunInGameOperationStatus | null): boolean {
-  return status?.details?.reloadBoundary === "process-restart-required";
+export function runInGameRequiresProcessRestart(
+  status?: RunInGameOperationStatus | null,
+  relation: RunInGameActionRelation = "unknown"
+): boolean {
+  return relation !== "stale" && status?.details?.reloadBoundary === "process-restart-required";
 }
 
 export function runInGamePrimaryActionLabel(
   status?: RunInGameOperationStatus | null,
-  relation: "current" | "stale" | "unknown" = "unknown"
+  relation: RunInGameActionRelation = "unknown"
 ): string {
   if (status?.status === "running") return formatRunInGamePhaseLabel(status.phase);
-  if (status && runInGameRequiresProcessRestart(status)) return "Restart Civ & Run";
+  if (status && runInGameRequiresProcessRestart(status, relation)) return "Restart Civ & Run";
   if (
     status?.status === "failed" ||
     status?.status === "blocked" ||

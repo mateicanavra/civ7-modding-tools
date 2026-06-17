@@ -108,6 +108,29 @@ describe("GameConsole Run in Game status", () => {
     expect(html).toContain("Restart Civ &amp; Run");
   });
 
+  it("does not carry restart-Civ recovery onto stale authored Studio state", () => {
+    const html = renderWithStatus(
+      {
+        ok: false,
+        requestId: "studio-run-in-game-stale-restart-needed",
+        phase: "blocked",
+        status: "blocked",
+        startedAt: "2026-06-01T00:00:00.000Z",
+        updatedAt: "2026-06-01T00:00:01.000Z",
+        completedPhases: ["materializing", "deploying", "checking-civ7"],
+        error: "Civ7 setup cannot see {swooper-maps}/maps/studio-current.js",
+        details: {
+          code: "setup-map-row-not-visible",
+          reloadBoundary: "process-restart-required",
+        },
+      },
+      "stale"
+    );
+
+    expect(html).toContain("Run Current");
+    expect(html).not.toContain("Restart Civ &amp; Run");
+  });
+
   it("keeps map script fatal recovery on retry instead of process restart", () => {
     const html = renderWithStatus(
       {
