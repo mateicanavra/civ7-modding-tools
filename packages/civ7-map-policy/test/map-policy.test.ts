@@ -211,6 +211,18 @@ describe("@civ7/map-policy", () => {
       { x: 65, y: 14 },
       { x: 65, y: 13 },
     ]);
+    expect(resolveNaturalWonderPlacementDirection(undefined)).toBe(-1);
+    expect(resolveNaturalWonderMaterializationDirection(undefined)).toBe(0);
+    expect(
+      getNaturalWonderFootprintIndices({
+        x: 4,
+        y: 3,
+        width: 10,
+        height: 8,
+        policy: undefined,
+        direction: -1,
+      })
+    ).toEqual([34]);
   });
 
   it("records the live-observed adjacent-land resource exception narrowly", () => {

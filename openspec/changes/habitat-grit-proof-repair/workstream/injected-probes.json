@@ -364,6 +364,20 @@
     }
   },
   {
+    "ruleId": "grit-runtime-config-merge",
+    "patternIdentity": "runtime_config_merge",
+    "rulesJsonScope": "runtime recipe steps and domain ops",
+    "sourcePredicate": "runtime handler empty-object config fallback",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/plot.ts",
+      "body": "const config = input.config ?? {};\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/index.ts",
+      "body": "const config = input.config ?? {};\n"
+    }
+  },
+  {
     "ruleId": "grit-recipe-imports-in-domain",
     "patternIdentity": "recipe_imports_in_domain",
     "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/*.ts",

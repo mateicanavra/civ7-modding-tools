@@ -341,7 +341,7 @@ export function stampNaturalWondersFromPlan({
       y,
       width,
       height,
-      policy: FEATURE_POLICIES[String(featureType)] ?? {},
+      policy: FEATURE_POLICIES[String(featureType)],
       direction,
     });
     if (!footprint) {
