@@ -354,9 +354,7 @@ function diagnosticString(value: unknown): string | undefined {
     const cause = errorCause(value);
     const causeMessage = cause === undefined ? undefined : diagnosticString(cause);
     if (!causeMessage) return value.message;
-    return value.message === "An unknown error occurred in Effect.tryPromise"
-      ? causeMessage
-      : `${value.message}: ${causeMessage}`;
+    return `${value.message}: ${causeMessage}`;
   }
   try {
     return JSON.stringify(value);

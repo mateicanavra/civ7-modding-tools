@@ -10,7 +10,11 @@ import {
   type RunInGameDeployment,
   type RunInGamePreparedRequest,
 } from "../src/ports";
-import { Civ7TunerSession, type Civ7TunerSessionApi } from "../src/services/Civ7TunerSession";
+import {
+  Civ7TunerSession,
+  makeCiv7TunerSessionLayer,
+  type Civ7TunerSessionApi,
+} from "../src/services/Civ7TunerSession";
 
 describe("Studio workflow session graph", () => {
   test("workflow control depends on the runtime-owned Civ7TunerSession layer", () => {
@@ -73,5 +77,18 @@ describe("Studio workflow session graph", () => {
     );
 
     expect(useCalls).toBe(1);
+  });
+
+  test("tuner session preserves direct-control rejection causes across the Effect boundary", async () => {
+    const directControlError = new Error("Unable to reach Civ7 tuner socket on 127.0.0.1:4318");
+
+    const failure = await Effect.runPromise(
+      Effect.gen(function* () {
+        const tuner = yield* Civ7TunerSession;
+        return yield* Effect.flip(tuner.use(() => Promise.reject(directControlError)));
+      }).pipe(Effect.provide(makeCiv7TunerSessionLayer()))
+    );
+
+    expect(failure).toBe(directControlError);
   });
 });

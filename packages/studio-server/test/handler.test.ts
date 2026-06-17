@@ -4,7 +4,7 @@ import { RPCLink } from "@orpc/client/fetch";
 import type { RouterClient } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { Effect, Layer, ManagedRuntime } from "effect";
-import { afterEach, describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
   createStudioRouter,
@@ -101,43 +101,50 @@ describe("studio-server RPC handler", () => {
   }, 10_000);
 
   test("maps runtime operation conflicts as the DEFINED SAVE_DEPLOY_BLOCKED error", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const blocker = deferred<void>();
-    const context = makeContext({
-      operationRuntime: makeOperationRuntimePorts({
-        deployRunInGame: async () => {
-          await blocker.promise;
-          return {};
-        },
-      }),
-    });
-    const client = await listenWithClient(context);
-    const run = await client.runInGame.start({
-      recipeId: "mod-swooper-maps/standard",
-      seed: 43,
-      mapSize: "MAPSIZE_STANDARD",
-      config: {},
-    });
+    try {
+      const context = makeContext({
+        operationRuntime: makeOperationRuntimePorts({
+          deployRunInGame: async () => {
+            await blocker.promise;
+            return {};
+          },
+        }),
+      });
+      const client = await listenWithClient(context);
+      const run = await client.runInGame.start({
+        recipeId: "mod-swooper-maps/standard",
+        seed: 43,
+        mapSize: "MAPSIZE_STANDARD",
+        config: {},
+      });
 
-    const { error } = await safe(
-      client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
-    );
-    blocker.resolve();
+      const { error } = await safe(
+        client.mapConfigs.saveDeploy({ requestId: "save-1", id: "test-config", envelope: {} })
+      );
+      blocker.resolve();
 
-    expect(error).toBeInstanceOf(ORPCError);
-    if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
-    expect(isDefinedError(error)).toBe(true);
-    expect(error.code).toBe("SAVE_DEPLOY_BLOCKED");
-    expect(error.status).toBe(409);
-    expect(error.message).toBe(
-      "run-in-game is running; wait for it to finish before starting another Studio operation."
-    );
-    expect(error.data).toMatchObject({
-      tag: "OperationBlocked",
-      namespace: "saveDeploy",
-      reason: "active-operation-conflict",
-      activeRequestId: run.requestId,
-      diagnostics: { code: "studio-operation-active" },
-    });
+      expect(error).toBeInstanceOf(ORPCError);
+      if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+      expect(isDefinedError(error)).toBe(true);
+      expect(error.code).toBe("SAVE_DEPLOY_BLOCKED");
+      expect(error.status).toBe(409);
+      expect(error.message).toBe(
+        "run-in-game is running; wait for it to finish before starting another Studio operation."
+      );
+      expect(error.data).toMatchObject({
+        tag: "OperationBlocked",
+        namespace: "saveDeploy",
+        reason: "active-operation-conflict",
+        activeRequestId: run.requestId,
+        diagnostics: { code: "studio-operation-active" },
+      });
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      blocker.resolve();
+      consoleError.mockRestore();
+    }
   });
 
   test("delivers a run-in-game status miss as RUN_IN_GAME_STATUS_NOT_FOUND with the server-identity echo", async () => {

@@ -1,5 +1,5 @@
 import { type Civ7ControlOrpcContext, Civ7ControlOrpcRouter } from "@civ7/control-orpc";
-import { onError, type Router } from "@orpc/server";
+import { isDefinedError, onError, type Router } from "@orpc/server";
 import { RPCHandler } from "@orpc/server/fetch";
 import { Effect } from "effect";
 import type { StudioServerContext } from "./context.js";
@@ -89,6 +89,7 @@ export function createStudioRpcHandler(
       onError((error) => {
         // Surface unexpected (non-ORPCError) defects in the host console; expected
         // status-mapped errors flow through quietly.
+        if (isDefinedError(error)) return;
         console.error("[studio-server] rpc error", error);
       }),
     ],

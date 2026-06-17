@@ -153,14 +153,14 @@ export function createStudioRouter(
       // #12 civ7.setupCatalog - host loader; error 500
       setupCatalog: oe.civ7.setupCatalog.effect(function* ({ errors }) {
         const config = yield* StudioConfig;
-        const catalog = yield* Effect.tryPromise(() => config.loadSetupCatalog()).pipe(
-          Effect.mapError((err) =>
+        const catalog = yield* Effect.tryPromise({
+          try: () => config.loadSetupCatalog(),
+          catch: (err) =>
             errors.SETUP_CATALOG_UNAVAILABLE({
               message: errorMessage(err, "Civ7 setup catalog unavailable"),
               data: { observedAt: new Date().toISOString() },
-            })
-          )
-        );
+            }),
+        });
         return { ok: true as const, catalog };
       }),
 
