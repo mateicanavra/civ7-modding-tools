@@ -102,21 +102,19 @@ and `clean` scripts. Non-uniform kinds (`mod`, `engine`, `control`, `adapter`,
 `sdk`, `tooling`) are refused until their owning domain supplies a real shape;
 do not guess those layouts in Habitat.
 
-For new Grit-backed rules, generate the native pattern and Habitat rule-pack
-entry together:
+For new Grit-backed rules, generate a non-enforcing candidate draft first:
 
 ```bash
-nx g @internal/habitat-harness:pattern grit-my-rule \
-  --ownerProject=@internal/habitat-harness \
-  --scope="source scope" \
-  --forbids="forbidden shape" \
-  --why="architectural rationale" \
-  --message="diagnostic message"
+nx g @internal/habitat-harness:pattern grit-my-rule
 ```
 
-The pattern generator writes `.grit/patterns/habitat/checks/<pattern>.md`, an
-empty locked baseline, and a `grit-check` rule-pack entry. Native Grit samples
-remain the pattern authority:
+Candidate output lives under
+`tools/habitat-harness/src/rules/pattern-authority/candidates/`. It is not an
+active `.grit` check, not a `rules.json` entry, not a baseline file, and not
+hook-scoped. Registered advisory or enforced Grit rules require an accepted
+Pattern Authority Manifest, baseline contract, current-tree proof, fixture
+strategy, false-positive model, and hook-scope decision before they can enter
+the rule pack. Native Grit samples remain one proof class only:
 
 ```bash
 GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose

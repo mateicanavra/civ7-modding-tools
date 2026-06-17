@@ -104,3 +104,20 @@ export type {
 } from "./lib/diagnostics.js";
 export { validateCheckReport } from "./lib/diagnostics.js";
 export { executeRule, type HarnessRule, ruleById, rules } from "./rules/architecture.js";
+export {
+  patternAuthorityCandidateRoot,
+  patternAuthorityManifestPath,
+  patternAuthorityManifestRoot,
+  patternAuthorityManifestSchemaVersion,
+  validatePatternAuthorityManifest,
+} from "./rules/pattern-authority/manifest.js";
+export type {
+  CandidatePatternAuthorityManifest,
+  PatternAuthorityManifest,
+  PatternAuthorityRuleReference,
+  PatternAuthorityValidationFailureReason,
+  PatternAuthorityValidationIssue,
+  PatternAuthorityValidationOptions,
+  PatternAuthorityValidationResult,
+  RegisteredPatternAuthorityManifest,
+} from "./rules/pattern-authority/manifest.js";

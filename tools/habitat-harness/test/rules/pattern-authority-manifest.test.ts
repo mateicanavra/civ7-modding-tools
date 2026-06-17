@@ -1,0 +1,225 @@
+import { describe, expect, test } from "vitest";
+import {
+  patternAuthorityManifestPath,
+  validatePatternAuthorityManifest,
+  type RegisteredPatternAuthorityManifest,
+} from "../../src/rules/pattern-authority/manifest.js";
+
+describe("Pattern Authority Manifest validator", () => {
+  test("accepts a structured registered advisory manifest with a matching rule reference", () => {
+    const manifest = registeredManifest();
+    const result = validatePatternAuthorityManifest(manifest, {
+      manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+      requireRuleReference: true,
+      ruleReferences: [
+        {
+          ruleId: manifest.ruleId,
+          patternName: manifest.patternName,
+          manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+          ownerTool: "grit-check",
+          lifecycle: "advisory",
+        },
+      ],
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      state: "registered-advisory",
+      authorityAccepted: true,
+    });
+  });
+
+  test("classifies candidate manifests as valid drafts, not accepted authority", () => {
+    const result = validatePatternAuthorityManifest({
+      schemaVersion: 1,
+      ruleId: "grit-candidate-probe",
+      patternName: "candidate_probe",
+      lifecycle: "candidate",
+      openspecChangeId: "habitat-pattern-generator-metadata-repair",
+      ownerProject: "@internal/habitat-harness",
+      ownerTool: "grit-check",
+      candidateArtifacts: {
+        patternPath:
+          "tools/habitat-harness/src/rules/pattern-authority/candidates/candidate_probe.md",
+        manifestPath:
+          "tools/habitat-harness/src/rules/pattern-authority/candidates/grit-candidate-probe.json",
+      },
+      registration: {
+        accepted: false,
+        reason: "candidate-only generation",
+      },
+      requiredForRegistration: ["accepted authority source"],
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      state: "candidate",
+      authorityAccepted: false,
+    });
+  });
+
+  test("reports a missing manifest", () => {
+    const result = validatePatternAuthorityManifest(undefined, {
+      manifestPath: patternAuthorityManifestPath("grit-missing-probe"),
+    });
+
+    expect(issueReasons(result)).toContain("missing-manifest");
+  });
+
+  test("reports malformed manifest fields", () => {
+    const result = validatePatternAuthorityManifest({
+      schemaVersion: 1,
+      ruleId: "grit-malformed-probe",
+      patternName: "malformed_probe",
+      lifecycle: "registered-advisory",
+      ownerTool: "grit-check",
+    });
+
+    expect(issueReasons(result)).toContain("malformed-manifest");
+  });
+
+  test("rejects placeholder authority and proof fields", () => {
+    const manifest = registeredManifest({
+      normativeSources: [
+        {
+          kind: "accepted-spec",
+          pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
+          claim: "TODO replace with architectural rationale",
+        },
+      ],
+    });
+
+    const result = validatePatternAuthorityManifest(manifest);
+
+    expect(issueReasons(result)).toContain("placeholder-manifest");
+  });
+
+  test("rejects contradicted registered manifest states", () => {
+    const manifest = registeredManifest({
+      lifecycle: "registered-advisory",
+      hookScope: {
+        decision: "pre-commit",
+        rationale: "staged-scope proof accepted in packet",
+        costAndScopeEvidence: "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/proof.md",
+      },
+    });
+
+    const result = validatePatternAuthorityManifest(manifest);
+
+    expect(issueReasons(result)).toContain("contradicted-manifest");
+  });
+
+  test("rejects orphan registered manifests when a rule-pack reference is required", () => {
+    const manifest = registeredManifest();
+    const result = validatePatternAuthorityManifest(manifest, {
+      manifestPath: patternAuthorityManifestPath(manifest.ruleId),
+      requireRuleReference: true,
+      ruleReferences: [],
+    });
+
+    expect(issueReasons(result)).toContain("orphan-manifest");
+  });
+
+  test("rejects Grit frontmatter or prose as Habitat authority", () => {
+    const result = validatePatternAuthorityManifest({
+      frontmatter: { level: "error", tags: ["habitat"] },
+      markdown: "# Rule rationale\n\nThis prose explains the Grit pattern.",
+    });
+
+    expect(issueReasons(result)).toContain("grit-metadata-only");
+  });
+
+  test("rejects Nx generator options as Habitat authority", () => {
+    const result = validatePatternAuthorityManifest({
+      ruleId: "grit-options-probe",
+      patternName: "options_probe",
+      lifecycle: "registered-enforced",
+      ownerProject: "@internal/habitat-harness",
+      scope: "source scope",
+      forbids: "forbidden shape",
+      why: "architectural rationale",
+      message: "diagnostic message",
+    });
+
+    expect(issueReasons(result)).toContain("nx-options-only");
+  });
+});
+
+function issueReasons(result: ReturnType<typeof validatePatternAuthorityManifest>) {
+  expect(result.ok).toBe(false);
+  return result.ok ? [] : result.issues.map((issue) => issue.reason);
+}
+
+function registeredManifest(
+  overrides: Partial<RegisteredPatternAuthorityManifest> = {}
+): RegisteredPatternAuthorityManifest {
+  return {
+    schemaVersion: 1,
+    ruleId: "grit-authority-probe",
+    patternName: "authority_probe",
+    lifecycle: "registered-advisory",
+    openspecChangeId: "habitat-pattern-generator-metadata-repair",
+    ownerProject: "@internal/habitat-harness",
+    ownerTool: "grit-check",
+    normativeSources: [
+      {
+        kind: "accepted-spec",
+        pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
+        claim: "Generated Grit-backed rules require structured Habitat authority before registration.",
+      },
+    ],
+    provingSources: [
+      {
+        kind: "test",
+        pathOrCommand:
+          "bun run --cwd tools/habitat-harness test -- pattern-authority-manifest.test.ts",
+        claim: "Validator accepts only structured Pattern Authority Manifest fields.",
+      },
+    ],
+    language: {
+      gritLanguage: "js(typescript)",
+      parserVariant: "typescript",
+      officialDocsSource: "docs/projects/habitat-harness/research/official-docs-gritql.md",
+      localProofCommand: "GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose",
+    },
+    scanRoots: {
+      include: ["tools/habitat-harness/src"],
+      exclude: ["tools/habitat-harness/dist"],
+      gritignorePolicy: "Use committed .gritignore plus explicit manifest exclusions.",
+    },
+    fixtureStrategy: {
+      positive: ["tools/habitat-harness/test/fixtures/positive.ts"],
+      negative: ["tools/habitat-harness/test/fixtures/negative.ts"],
+      parserEdge: ["tools/habitat-harness/test/fixtures/parser-edge.ts"],
+      falsePositive: ["tools/habitat-harness/test/fixtures/allowed.ts"],
+    },
+    falsePositiveModel: {
+      risk: ["Overmatching structurally similar imports outside the owning source root."],
+      controls: ["Constrain scanRoots.include and verify negative fixtures."],
+      suppressionPolicy: "No inline suppression accepted for generated registered rules.",
+    },
+    currentTreeScan: {
+      command: "bun run habitat:check -- --json --rule grit-authority-probe",
+      resultClass: "zero-findings",
+      evidencePath:
+        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/command-proof-log.md",
+    },
+    baselineContract: {
+      baselinePath: "tools/habitat-harness/baselines/grit-authority-probe.json",
+      ruleIntroductionManifest:
+        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/rule-introduction-baseline.json",
+      baselineAction: "committed-empty",
+    },
+    hookScope: {
+      decision: "none",
+      rationale: "This advisory checkpoint is not hook-scoped.",
+      costAndScopeEvidence:
+        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+    },
+    applySafety: {
+      kind: "not-apply",
+      rationale: "This manifest describes a check-only Grit pattern.",
+    },
+    ...overrides,
+  };
+}

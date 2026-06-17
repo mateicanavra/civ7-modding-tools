@@ -6,7 +6,7 @@
   "properties": {
     "ruleId": {
       "type": "string",
-      "description": "Habitat rule id to register.",
+      "description": "Habitat pattern candidate id. Candidate generation does not register a Habitat rule.",
       "$default": {
         "$source": "argv",
         "index": 0
@@ -21,25 +21,16 @@
       "type": "string",
       "description": "Optional Grit pattern name; defaults to the rule id without a grit- prefix."
     },
-    "scope": {
+    "lifecycle": {
       "type": "string",
-      "description": "Human-readable source scope for the rule.",
-      "default": "generated scaffold scope"
+      "description": "Pattern lifecycle to generate. Registered lifecycles are fail-closed until the Pattern Authority Manifest and proof gates are accepted.",
+      "enum": ["candidate", "registered-advisory", "registered-enforced"],
+      "default": "candidate"
     },
-    "forbids": {
+    "openspecChangeId": {
       "type": "string",
-      "description": "Human-readable forbidden shape.",
-      "default": "generated scaffold forbidden shape"
-    },
-    "why": {
-      "type": "string",
-      "description": "Rule rationale.",
-      "default": "Generated rule scaffold; replace with the architectural rationale before merging production use."
-    },
-    "message": {
-      "type": "string",
-      "description": "Diagnostic message.",
-      "default": "Generated Habitat Grit rule scaffold matched."
+      "description": "OpenSpec change id that owns the candidate draft, when known.",
+      "default": "candidate-draft"
     }
   },
   "required": ["ruleId"]

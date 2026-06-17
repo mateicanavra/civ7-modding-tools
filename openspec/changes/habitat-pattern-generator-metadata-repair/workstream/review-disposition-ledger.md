@@ -1,12 +1,43 @@
 # Review Disposition Ledger
 
 **Change:** `habitat-pattern-generator-metadata-repair`
-**Status:** P1/P2 review findings accepted and patched into packet
+**Status:** P1/P2 design findings accepted and patched; candidate/refusal
+checkpoint supervisor-accepted; manifest-validator checkpoint
+supervisor-accepted; registered-promotion Effect decision checkpoint
+implemented and pending supervisor review
 **Owner:** DRA Habitat recovery owner
 
 Accepted P1/P2 findings block implementation until repaired, rejected with
 source evidence, invalidated with later evidence, or moved by explicit
 authority decision.
+
+Checkpoint note: this branch implements candidate-only sparse generation and
+registered advisory/enforced no-write refusal. It does not close Pattern
+Authority Manifest validation, registered rule promotion, Grit row proof,
+baseline write/shrink proof, hook-scope proof, classify proof, or product proof.
+
+Validator checkpoint note: the child branch
+`agent-HR-habitat-pattern-authority-manifest-validator` adds a pure
+Pattern Authority Manifest model and validator. It validates missing,
+malformed, placeholder, contradicted, orphan, Grit-only, and Nx-options-only
+states without consuming HG row proof, mutating baselines, adding hook scope,
+or promoting registered rules.
+
+Effect decision checkpoint note: the child branch
+`agent-HR-habitat-pattern-authority-effect-decision` records the implemented
+substrate/proof-contract proposal for future registered promotion and is pending
+supervisor review. If accepted, registered promotion must consume the existing
+Habitat Effect runtime/process/proof substrate and service boundaries when it
+performs command proof, no-write proof, scoped file transactions,
+scratch-resource cleanup, baseline-manifest consumption, hook-scope proof, or
+durable proof-record orchestration. This note does not accept registered
+advisory/enforced writes, `rules.json` manifest references, baselines, hook
+scope, current-tree proof, or product/runtime proof.
+
+P3 watch item: when registered rule-pack context is implemented, call
+`validatePatternAuthorityManifest(...)` with `requireRuleReference: true` and
+matching rule references. Do not treat an isolated registered manifest as
+sufficient rule-pack authority.
 
 ## Findings
 

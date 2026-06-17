@@ -82,10 +82,12 @@ rules are safe to harden.
 7. Command selector and baseline contract implementation are upstream blockers
    for any registered generated-rule write path that touches baselines or
    command-selected rule registration.
-8. Registered promotion must not grow another manual orchestration routine
-   without first accepting or rejecting Effect through local proof. If Effect is
-   accepted, promotion must consume typed services for manifest, rule-pack,
-   baseline-introduction, command, filesystem, clock, and reporting boundaries.
+8. Registered promotion must not grow another manual orchestration routine.
+   `workstream/effect-promotion-decision.md` records a supervisor-pending
+   proposal to use the existing Habitat Effect substrate for future
+   registered-promotion orchestration, with typed services for manifest,
+   rule-pack, baseline-introduction, command, filesystem, clock, and reporting
+   boundaries.
 
 ## Uncertainties
 
@@ -95,6 +97,6 @@ rules are safe to harden.
   not import candidate patterns as active checks.
 - Existing 22 Grit rules may later need manifest backfill, but that belongs to
   `habitat-grit-proof-repair` or per-pattern packets.
-- The exact Effect service shape for registered promotion belongs to the
-  implementation design after the Effect gate; this packet defines the gate and
-  proof obligations, not final code names.
+- The proposed Effect service boundary for registered promotion is recorded in
+  `workstream/effect-promotion-decision.md` and is pending supervisor review;
+  implementation of those services and registered writes remains future work.

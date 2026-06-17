@@ -77,6 +77,13 @@ committed `tools/habitat-harness/baselines/<rule-id>.json` file containing
 `habitat-scaffold-contract-repair`, "empty locked" means that explicit file and
 `baseline-integrity` contract proof, not missing-file convention.
 
+Generated pattern output is candidate-only unless a registered rule has an
+accepted Pattern Authority Manifest plus baseline contract, current-tree proof,
+fixture strategy, false-positive model, and hook-scope decision. Candidate
+drafts under `tools/habitat-harness/src/rules/pattern-authority/candidates/`
+are not active Grit checks, rule-pack entries, baselines, hook-scope decisions,
+or row proof.
+
 | Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | `grit-contract-export-all` / `contract_export_all` | Contract/public surfaces use named value exports; type-star exports remain type-only. | `rules.json`; H5 Grit catalog; contract surface docs to verify. | Native Grit samples; retired guard intent to verify. | grit-check | contract/public-surface TypeScript files under current Grit scan roots | Positive value `export *`; negative `export type *`; parser-edge re-export forms; false-positive contract-only paths. | pending repair scan | empty locked unless findings prove otherwise | non-apply unless named export target is proven | `habitat-grit-proof-contract-export-all` |
