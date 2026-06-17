@@ -28,6 +28,20 @@
     }
   },
   {
+    "ruleId": "grit-domain-deep-import-tests",
+    "patternIdentity": "domain_deep_import_tests",
+    "rulesJsonScope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+    "sourcePredicate": "test imports or re-exports domain deep internals",
+    "match": {
+      "path": "mods/mod-swooper-maps/test/domain/public-surface.test.ts",
+      "body": "import { privateRule } from \"@mapgen/domain/ecology/rules/private.js\";\n\nexport const value = privateRule;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/test/domain/public-surface-control.test.ts",
+      "body": "import ecology from \"@mapgen/domain/ecology/ops\";\n\nexport const value = ecology;\n"
+    }
+  },
+  {
     "ruleId": "grit-recipe-domain-surface",
     "patternIdentity": "recipe_domain_surface",
     "rulesJsonScope": "mods/mod-swooper-maps/src/recipes/**/*.ts",
@@ -238,6 +252,20 @@
     }
   },
   {
+    "ruleId": "grit-control-app-surface",
+    "patternIdentity": "control_app_surface",
+    "rulesJsonScope": "apps/**/*.ts, apps/**/*.tsx, packages/**/*.ts, packages/**/*.tsx",
+    "sourcePredicate": "caller-local Civ7DirectControlSession construction outside sanctioned session owner files and tests",
+    "match": {
+      "path": "apps/mapgen-studio/src/features/liveRuntime/session.ts",
+      "body": "const session = new Civ7DirectControlSession({ host: \"127.0.0.1\" });\n"
+    },
+    "control": {
+      "path": "packages/studio-server/src/services/Civ7TunerSession.ts",
+      "body": "const session = new Civ7DirectControlSession(directControlOptions);\n"
+    }
+  },
+  {
     "ruleId": "grit-viz-contract-ownership",
     "patternIdentity": "viz_contract_ownership",
     "rulesJsonScope": "standard recipe stage visualization files",
@@ -305,6 +333,62 @@
     "control": {
       "path": "mods/mod-swooper-maps/src/domain/ecology/lib/demo.ts",
       "body": "import config from \"../../config.js\";\n\nexport const value = config;\n"
+    }
+  },
+  {
+    "ruleId": "grit-op-calls-op",
+    "patternIdentity": "op_calls_op",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+    "sourcePredicate": "domain op runtime entrypoint imports sibling op runtime or domain ops barrel",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts",
+      "body": "import computeMesh from \"../compute-mesh/index.js\";\n\nexport const value = computeMesh;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/rules/index.ts",
+      "body": "import computeMesh from \"../compute-mesh/index.js\";\n\nexport const value = computeMesh;\n"
+    }
+  },
+  {
+    "ruleId": "grit-ops-bind-runvalidated",
+    "patternIdentity": "ops_bind_runvalidated",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+    "sourcePredicate": "domain op runtime entrypoint calls ops.bind or runValidated",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/index.ts",
+      "body": "ops.bind(computeMesh, input);\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-crust/strategies/default.ts",
+      "body": "ops.bind(computeMesh, input);\n"
+    }
+  },
+  {
+    "ruleId": "grit-recipe-imports-in-domain",
+    "patternIdentity": "recipe_imports_in_domain",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/domain/**/*.ts",
+    "sourcePredicate": "domain source imports or re-exports recipe modules",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/domain/ecology/ops/demo/index.ts",
+      "body": "import recipe from \"../../../../../recipes/standard/recipe.js\";\n\nexport const value = recipe;\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/demo.ts",
+      "body": "import recipe from \"../recipe.js\";\n\nexport const value = recipe;\n"
+    }
+  },
+  {
+    "ruleId": "grit-stage-contract-dependencies",
+    "patternIdentity": "stage_contract_dependencies",
+    "rulesJsonScope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/{contract.ts,*.contract.ts}",
+    "sourcePredicate": "standard stage step contract string literal dependency key",
+    "match": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts",
+      "body": "import { defineStep, Type } from \"@swooper/mapgen-core/authoring\";\n\nexport default defineStep({\n  id: \"plot-rivers\",\n  phase: \"gameplay\",\n  requires: [\"effect:map.elevationBuilt\"],\n  provides: [],\n  schema: Type.Object({}),\n});\n"
+    },
+    "control": {
+      "path": "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRiversControl.contract.ts",
+      "body": "import { defineStep, Type } from \"@swooper/mapgen-core/authoring\";\nimport { MAP_PROJECTION_EFFECT_TAGS } from \"../../../../tags.js\";\n\nexport default defineStep({\n  id: \"plot-rivers\",\n  phase: \"gameplay\",\n  requires: [MAP_PROJECTION_EFFECT_TAGS.map.elevationBuilt],\n  provides: [],\n  schema: Type.Object({}),\n});\n"
     }
   }
 ]

@@ -132,6 +132,21 @@
       "hookScope": "pre-commit"
     },
     {
+      "id": "grit-domain-deep-import-tests",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+      "forbids": "test files deep-importing domain internals instead of public domain surfaces",
+      "why": "Tests should exercise domain contracts through the same public surfaces as product code unless an explicit architecture decision owns a deeper reach.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Use @mapgen/domain/<domain>, /ops, or /config.js from tests instead of domain internals.",
+      "exceptionPath": "none",
+      "gritPattern": "domain_deep_import_tests",
+      "hookScope": "pre-commit"
+    },
+    {
       "id": "grit-recipe-domain-surface",
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",
@@ -219,6 +234,51 @@
       "message": "Runtime layers must not call runValidated.",
       "exceptionPath": "none",
       "gritPattern": "runtime_run_validated",
+      "hookScope": "pre-commit"
+    },
+    {
+      "id": "grit-ops-bind-runvalidated",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+      "forbids": "domain op runtime entrypoints calling ops.bind or runValidated",
+      "why": "Domain ops are atomic runtime units; orchestration belongs in step/stage composition, not inside op entrypoints.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
+      "exceptionPath": "none",
+      "gritPattern": "ops_bind_runvalidated",
+      "hookScope": "pre-commit"
+    },
+    {
+      "id": "grit-recipe-imports-in-domain",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/src/domain/**/*.ts",
+      "forbids": "domain source importing or re-exporting recipe modules",
+      "why": "Domain code defines reusable public surfaces; recipe composition stays in recipes and must not flow back into domain implementation.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Domain source must not import recipe modules; move composition to recipes or expose a domain surface.",
+      "exceptionPath": "none",
+      "gritPattern": "recipe_imports_in_domain",
+      "hookScope": "pre-commit"
+    },
+    {
+      "id": "grit-stage-contract-dependencies",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/{contract.ts,*.contract.ts}",
+      "forbids": "string literal dependency keys in standard recipe stage step contracts",
+      "why": "Step contracts compose typed dependency/effect tags and artifact contracts; string literals drift from the owning surfaces.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Use typed dependency tag constants or artifact contract references instead of string literal dependency keys.",
+      "exceptionPath": "none",
+      "gritPattern": "stage_contract_dependencies",
       "hookScope": "pre-commit"
     },
     {
@@ -357,6 +417,21 @@
       "hookScope": "pre-commit"
     },
     {
+      "id": "grit-control-app-surface",
+      "ownerTool": "grit-check",
+      "ownerProject": "@internal/habitat-harness",
+      "lane": "enforced",
+      "scope": "apps/**/*.ts, apps/**/*.tsx, packages/**/*.ts, packages/**/*.tsx",
+      "forbids": "caller-local Civ7DirectControlSession construction outside sanctioned session owner files and tests",
+      "why": "Studio and tooling code use canonical game-wire doors; direct-control session lifecycle belongs to @civ7/direct-control and the Studio server session service.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Use Civ7TunerSession or withCiv7DirectControlSession instead of constructing Civ7DirectControlSession locally.",
+      "exceptionPath": "none",
+      "gritPattern": "control_app_surface",
+      "hookScope": "pre-commit"
+    },
+    {
       "id": "grit-viz-contract-ownership",
       "ownerTool": "grit-check",
       "ownerProject": "mod-swooper-maps",
@@ -429,6 +504,21 @@
       "message": "Do not import domain-root config facades from ops.",
       "exceptionPath": "none",
       "gritPattern": "domain_ops_root_config",
+      "hookScope": "pre-commit"
+    },
+    {
+      "id": "grit-op-calls-op",
+      "ownerTool": "grit-check",
+      "ownerProject": "mod-swooper-maps",
+      "lane": "enforced",
+      "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+      "forbids": "domain op runtime entrypoints importing sibling op runtimes or the domain ops barrel",
+      "why": "Domain ops stay atomic; step and stage composition owns cross-op orchestration.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Move op composition into the owning step/stage or public domain surface.",
+      "exceptionPath": "none",
+      "gritPattern": "op_calls_op",
       "hookScope": "pre-commit"
     },
     {

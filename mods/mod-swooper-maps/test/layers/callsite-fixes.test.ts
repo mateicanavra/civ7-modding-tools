@@ -7,7 +7,21 @@
  */
 
 import { describe, expect, it } from "bun:test";
-import type { ClimateAdapter } from "@mapgen/domain/hydrology/climate/index.js";
+import type { EngineAdapter } from "@swooper/mapgen-core";
+
+type ClimateAdapter = Pick<
+  EngineAdapter,
+  | "getElevation"
+  | "getLatitude"
+  | "getRainfall"
+  | "getRandomNumber"
+  | "isAdjacentToRivers"
+  | "isMountain"
+  | "isWater"
+  | "setRainfall"
+> & {
+  isCoastalLand?: (x: number, y: number) => boolean;
+};
 
 describe("CIV-18: Call-site Fixes", () => {
   describe("ClimateAdapter interface", () => {
