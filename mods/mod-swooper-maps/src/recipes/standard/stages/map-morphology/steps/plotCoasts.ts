@@ -37,15 +37,16 @@ export default createStep(PlotCoastsStepContract, {
 
     // 0=land, 1=coast, 2=ocean
     const baseWaterClass = new Uint8Array(size);
+    const sourceCoastMask = new Uint8Array(size);
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        // Coasts are shallow shelf water derived from Morphology truth (our analogue of Civ's
-        // validateAndFixTerrain + expandCoasts pipeline). We intentionally avoid Civ's coast expansion.
+        // The source mask is Morphology truth; the later policy pass is a separate engine-compatibility band.
         const isLand = topography.landMask[idx] === 1;
         const isCoast =
           !isLand &&
           (coastlineMetrics.coastalWater[idx] === 1 || coastlineMetrics.shelfMask[idx] === 1);
+        if (isCoast) sourceCoastMask[idx] = 1;
         baseWaterClass[idx] = isLand
           ? WATER_CLASS_LAND
           : isCoast
@@ -65,6 +66,7 @@ export default createStep(PlotCoastsStepContract, {
       width,
       height,
       baseWaterClass,
+      sourceCoastMask,
       waterClass,
       policyCoastMask: coastPolicy.policyCoastMask,
       coastBufferTiles: coastPolicy.coastBufferTiles,
@@ -114,16 +116,56 @@ export default createStep(PlotCoastsStepContract, {
       format: "u8",
       values: waterClass,
       meta: defineVizMeta("map.morphology.coasts.waterClass", {
-        label: "Water Class (Stamped)",
+        label: "Water Class (Engine Policy)",
         group: GROUP_MAP_MORPHOLOGY,
         description:
-          "What the engine actually receives after Morphology coast projection (0=land, 1=coast, 2=ocean).",
+          "Post-policy water class stamped into engine terrain (0=land, 1=coast, 2=ocean). This includes source coast tiles plus Civ7 compatibility coast-band promotions.",
         role: "membership",
         palette: "categorical",
         categories: [
           { value: 0, label: "Land", color: [156, 163, 175, 200] },
           { value: 1, label: "Coast", color: [56, 189, 248, 235] },
           { value: 2, label: "Ocean", color: [37, 99, 235, 235] },
+        ],
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.morphology.coasts.sourceCoastMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: sourceCoastMask,
+      meta: defineVizMeta("map.morphology.coasts.sourceCoastMask", {
+        label: "Source Coast Mask",
+        group: GROUP_MAP_MORPHOLOGY,
+        description:
+          "Pre-policy water tiles selected for coast terrain from coastlineMetrics coastalWater or shelfMask.",
+        visibility: "default",
+        role: "membership",
+        palette: "categorical",
+        categories: [
+          { value: 0, label: "Not source coast", color: [15, 23, 42, 40] },
+          { value: 1, label: "Source coast", color: [14, 165, 233, 235] },
+        ],
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "map.morphology.coasts.policyCoastMask",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: coastPolicy.policyCoastMask,
+      meta: defineVizMeta("map.morphology.coasts.policyCoastMask", {
+        label: "Policy Coast Additions",
+        group: GROUP_MAP_MORPHOLOGY,
+        description:
+          "Ocean tiles promoted to coast by the Civ7 compatibility policy after source coast selection.",
+        visibility: "debug",
+        role: "membership",
+        palette: "categorical",
+        categories: [
+          { value: 0, label: "Not policy-added", color: [15, 23, 42, 40] },
+          { value: 1, label: "Policy-added coast", color: [125, 211, 252, 235] },
         ],
       }),
     });

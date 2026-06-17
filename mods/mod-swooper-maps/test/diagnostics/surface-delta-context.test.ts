@@ -80,6 +80,7 @@ describe("surface delta context diagnostics", () => {
           },
           mapMorphologyCoastPolicy: {
             baseWaterClass: [1, 2, 1, 0, 1, 2],
+            sourceCoastMask: [1, 0, 1, 0, 1, 0],
             waterClass: [1, 2, 1, 0, 1, 2],
             policyCoastMask: [0, 0, 0, 0, 0, 0],
             coastBufferTiles: 4,
@@ -203,6 +204,7 @@ describe("surface delta context diagnostics", () => {
         },
         mapMorphologyCoastPolicy: {
           baseWaterClass: 2,
+          sourceCoastMask: 0,
           waterClass: 2,
           policyCoastMask: 0,
           coastBufferTiles: 4,

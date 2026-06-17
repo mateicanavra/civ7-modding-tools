@@ -1,6 +1,7 @@
 import { defineVizMeta, type ExtendedMapContext } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
+import { restoreProjectedCoastTerrain } from "../../../../projection-policies/coastProjectionParity.js";
 import { placementArtifacts } from "../../artifacts.js";
 import {
   PLACEMENT_TILE_SPACE_ID,
@@ -39,6 +40,7 @@ export default createStep(PreparePlacementSurfaceStepContract, {
   run: (context, _config, _ops, deps) => {
     const engineProjectionLakes = deps.artifacts.engineProjectionLakes.read(context);
     const landmassRegionSlotByTile = deps.artifacts.landmassRegionSlotByTile.read(context);
+    const coastClassification = deps.artifacts.coastClassification.read(context);
     const { adapter, trace } = context;
     const { width, height } = context.dimensions;
     const slotByTile = landmassRegionSlotByTile.slotByTile as Uint8Array;
@@ -58,6 +60,11 @@ export default createStep(PreparePlacementSurfaceStepContract, {
     let afterValidate = beforeValidate;
     runPlacementProductStep("placement.terrain.validate", emit, () => {
       adapter.validateAndFixTerrain();
+      restoreProjectedCoastTerrain(
+        context,
+        coastClassification,
+        "placement/prepare-surface/after-validate"
+      );
       afterValidate = readTerrainValidationBoundarySnapshot(
         adapter,
         width,

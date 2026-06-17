@@ -402,6 +402,7 @@ export type TerrainMorphologyProjectionRowContext = Readonly<{
 
 export type TerrainMapMorphologyCoastPolicyRowContext = Readonly<{
   baseWaterClass: number | null;
+  sourceCoastMask: number | null;
   waterClass: number | null;
   policyCoastMask: number | null;
   coastBufferTiles: number | null;
@@ -1737,6 +1738,7 @@ function terrainProjectionRowContext(
     mapMorphologyCoastPolicy: mapMorphologyCoastPolicy
       ? {
           baseWaterClass: indexedInteger(mapMorphologyCoastPolicy.baseWaterClass, plotIndex),
+          sourceCoastMask: indexedInteger(mapMorphologyCoastPolicy.sourceCoastMask, plotIndex),
           waterClass: indexedInteger(mapMorphologyCoastPolicy.waterClass, plotIndex),
           policyCoastMask: indexedInteger(mapMorphologyCoastPolicy.policyCoastMask, plotIndex),
           coastBufferTiles: finiteInteger(mapMorphologyCoastPolicy.coastBufferTiles),

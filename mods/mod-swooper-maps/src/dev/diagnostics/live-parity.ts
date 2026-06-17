@@ -836,6 +836,7 @@ function buildTerrainProjectionEvidence(
       "width",
       "height",
       "baseWaterClass",
+      "sourceCoastMask",
       "waterClass",
       "policyCoastMask",
       "coastBufferTiles",

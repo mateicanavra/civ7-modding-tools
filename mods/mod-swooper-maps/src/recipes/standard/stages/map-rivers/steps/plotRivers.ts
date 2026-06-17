@@ -14,6 +14,7 @@ import {
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { restoreProjectedCoastTerrain } from "../../../projection-policies/coastProjectionParity.js";
 import { mapRiversArtifacts } from "../artifacts.js";
 import PlotRiversStepContract from "./plotRivers.contract.js";
 
@@ -121,6 +122,7 @@ export default createStep(PlotRiversStepContract, {
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
+    const coastClassification = deps.artifacts.coastClassification.read(context);
     const { width, height } = context.dimensions;
 
     // Map-stage visualization: hydrology river fields are inputs to engine river modeling (not 1:1 with engine results).
@@ -328,6 +330,7 @@ export default createStep(PlotRiversStepContract, {
     }));
     logStats("POST-MODEL-RIVERS");
     context.adapter.validateAndFixTerrain();
+    restoreProjectedCoastTerrain(context, coastClassification, "map-rivers/plot-rivers");
     logStats("POST-VALIDATE");
     context.adapter.defineNamedRivers();
 

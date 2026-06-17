@@ -66,7 +66,7 @@ MORPHOLOGY is **tile-first**: its canonical “truth” products are tile-indexe
 **Ground truth anchors**
 
 - `mods/mod-swooper-maps/src/recipes/standard/projection-policies/noWaterDrift.ts` (`assertNoWaterDrift`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (stamps `TERRAIN_COAST` from `coastlineMetrics.coastalWater || coastlineMetrics.shelfMask`, guarded by `assertNoWaterDrift`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (seeds source coast from `coastlineMetrics.coastalWater || coastlineMetrics.shelfMask`, applies the Civ7 compatibility coast policy, then guards with `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.ts` (`context.adapter.stampContinents`, `assertNoWaterDrift`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts` (`context.adapter.buildElevation`, `assertNoWaterDrift`)
 
@@ -222,7 +222,8 @@ Fields:
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology/artifacts.ts` (`MorphologyCoastlineMetricsArtifactSchema`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.ts` (`computeDistanceToCoast`, publishing `coastlineMetrics`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (projection uses `coastlineMetrics` derived from Morphology truth; no Civ `expandCoasts`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.ts` (projection uses `coastlineMetrics` derived from Morphology truth, then records the Civ7 compatibility coast-band additions separately)
+- `mods/mod-swooper-maps/src/recipes/standard/projection-policies/coastProjectionParity.ts` (re-applies the declared coast/ocean water class after adapter maintenance can rewrite terrain)
 
 ### `artifact:morphology.volcanoes` (truth-only intent; tile space; immutable-at-F2)
 
@@ -558,10 +559,32 @@ Applies Morphology truth into the engine adapter (terrain/features), and emits e
 
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/index.ts` (`steps` ordering)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotCoasts.contract.ts` (`PlotCoastsStepContract.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotContinents.contract.ts` (`PlotContinentsStepContract.requires/provides`; requires `artifact:map.morphology.coastClassification` so terrain maintenance cannot leave stale coast/ocean classes)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.contract.ts` (`PlotMountainsStepContract.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotVolcanoes.contract.ts` (`PlotVolcanoesStepContract.requires/provides`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.contract.ts` (`BuildElevationStepContract.requires/provides`)
+
+**Coast terrain maintenance invariant**
+
+`artifact:map.morphology.coastClassification.waterClass` is the declared
+projection surface for topography-water coast/ocean terrain after `plot-coasts`.
+It is intentionally a post-policy engine surface, not a synonym for
+`artifact:morphology.coastlineMetrics.shelfMask`. The exact pre-policy source
+selection is
+`artifact:map.morphology.coastClassification.sourceCoastMask`, where a water
+tile is selected when `coastalWater || shelfMask`; policy-only additions are
+reported in `policyCoastMask`. Therefore `shelfMask` must be a subset of source
+coast selection, source coast selection must be a subset of stamped coast
+terrain, and stamped coast terrain may be wider than shelf water because of
+coastal-water adjacency and Civ7 compatibility promotion.
+Any later adapter-owned terrain maintenance boundary that may rewrite coast or
+ocean terrain must consume that artifact and restore the declared coast/ocean
+terrain class before publishing a downstream terrain snapshot or effect relied
+on by placement/resource/start planning. This applies at the current
+`plot-continents`, `map-rivers/plot-rivers`, and
+`placement/prepare-placement-surface` validation boundaries. Land-class terrain
+remains owned by the mountain, volcano, natural-wonder, and other land
+projection steps.
 
 ### Drift notes (only where it affects the contract surface)
 

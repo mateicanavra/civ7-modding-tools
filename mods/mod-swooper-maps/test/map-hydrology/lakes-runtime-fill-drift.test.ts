@@ -5,6 +5,7 @@ import { COAST_TERRAIN, createExtendedMapContext, FLAT_TERRAIN } from "@swooper/
 import { createLabelRng } from "@swooper/mapgen-core/lib/rng";
 import selectNavigableRiverTerrain from "../../src/domain/hydrology/ops/select-navigable-river-terrain/index.js";
 import lakes from "../../src/recipes/standard/stages/map-hydrology/steps/lakes.js";
+import { mapMorphologyArtifacts } from "../../src/recipes/standard/stages/map-morphology/artifacts.js";
 import plotRivers from "../../src/recipes/standard/stages/map-rivers/steps/plotRivers.js";
 import { buildTestDeps } from "../support/step-deps.js";
 
@@ -91,6 +92,16 @@ describe("map-hydrology/lakes runtime fill drift", () => {
       lakeMask: sinkLakeMask,
       plannedLakeTileCount: 1,
       sinkLakeCount: 1,
+    });
+    context.artifacts.set(mapMorphologyArtifacts.coastClassification.id, {
+      width,
+      height,
+      baseWaterClass: new Uint8Array(size),
+      sourceCoastMask: new Uint8Array(size),
+      waterClass: new Uint8Array(size),
+      policyCoastMask: new Uint8Array(size),
+      coastBufferTiles: 0,
+      promotedOceanToCoast: 0,
     });
 
     lakes.run(context as any, { projectionReadback: true }, {} as any, buildTestDeps(lakes));
