@@ -20,16 +20,18 @@ Primary worktree:
 
 Current branch:
 
-`codex/studio-effect-error-boundaries`
+`codex/studio-effect-state-machine-prework`
 
 Current HEAD:
 
-`a3541bd66468 fix(studio): preserve Effect promise failures`
+`f107448a3137 docs(studio): frame state-machine recovery workstream`
 
-Dirty state observed before writing this package:
+Dirty state observed during packet-train design:
 
 - Pre-existing untracked `docs/projects/mapgen-workstream-skill/`.
-- This package is a separate docs/control slice and must not stage or claim that directory.
+- Modified `WORKSTREAM-RECORD.md`.
+- Untracked packet-design artifacts in this workstream directory.
+- This package is a separate docs/control slice and must not stage or claim the unrelated `docs/projects/mapgen-workstream-skill/` directory.
 
 Formatter-only validation hygiene performed after `bun run lint` exposed workspace Biome failures:
 
@@ -43,7 +45,7 @@ Relevant worktrees:
 
 | Worktree | State |
 |---|---|
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-effect-error-boundaries` |
+| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-effect-state-machine-prework` |
 | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework` | `codex/studio-tuner-session-serialization`, duplicate downstack Studio worktree |
 | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor` | detached at `654f58d8f`, ancestor already contained by current runtime branches |
 | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain` | unrelated habitat stack |
@@ -51,7 +53,7 @@ Relevant worktrees:
 
 Graphite render risk:
 
-- `gt log --no-interactive` renders the Studio/runtime stack under `agent-HR-habitat-repair-chain (needs restack)`.
+- Earlier Graphite render output placed the Studio/runtime stack under `agent-HR-habitat-repair-chain (needs restack)`.
 - Git ancestry review indicates that habitat branch is not actual Git ancestry for the Studio stack path.
 - Do not run broad `gt restack`, `gt sync`, or `gt submit --stack` from this lane until stack parent metadata is intentionally resolved.
 
@@ -139,6 +141,12 @@ Future packet design must translate the scenario corpus into changes across thes
 
 The next objective must first design the full packet train, then implement only after the packet set is reviewed.
 
+Current packet-train artifact:
+
+- `PACKET-TRAIN.md`
+- `PACKET-REVIEW-DISPOSITION.md`
+- Eight OpenSpec packet scaffolds under `openspec/changes/studio-effect-*`, `openspec/changes/studio-operation-*`, `openspec/changes/studio-browser-*`, `openspec/changes/studio-event-*`, `openspec/changes/studio-dev-*`, and `openspec/changes/studio-live-*`.
+
 Expected packet families:
 
 1. Server/runtime error-boundary packet.
@@ -150,6 +158,19 @@ Expected packet families:
 7. Documentation and closeout packet.
 
 Each packet needs explicit write set, tests, proof labels, review lane, and stop condition before implementation begins.
+
+Packet-train validation recorded during design:
+
+- All eight packet change IDs validated with `bun run openspec -- validate <id> --strict`.
+- `bun run openspec:validate` reported 194 passed / 0 failed.
+- `bun run habitat classify docs/projects/studio-runtime-simplification/workstream/studio-effect-state-machine-recovery` returned required target `bun run lint`.
+- `bun run habitat classify openspec/changes/studio-live-civ7-proof-gates` returned required target `bun run lint`; single-path classification is used because the CLI returned exit 2 for a multi-path OpenSpec invocation.
+
+Priority live blocker added during packet-train design:
+
+- User-visible error: `Civ7 setup cannot see {swooper-maps}/maps/studio-current.js`.
+- Observed timing: immediately after `preparing-setup`; Civ7 remains at shell and does not create a new game.
+- Classification: OP-04/PROOF-02/PROOF-03/EB-17 priority blocker until source generation, local bundle, deployed bundle, Civ7 setup visibility, bounded logs, and game start/readback have separate current-run evidence.
 
 ## Dev Startup Probe
 
