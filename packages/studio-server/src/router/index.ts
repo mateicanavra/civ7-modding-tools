@@ -404,13 +404,16 @@ export function createStudioRouter(
                 },
               });
             }
-            return errors.RECIPE_DAG_UNAVAILABLE({
-              data: {
-                procedureKey: "recipeDag.get",
-                recipeId: input.recipeId,
-                source: "recipe-dag-service",
-              },
-            });
+            if (err instanceof Error && err.name === "RecipeDagUnavailable") {
+              return errors.RECIPE_DAG_UNAVAILABLE({
+                data: {
+                  procedureKey: "recipeDag.get",
+                  recipeId: input.recipeId,
+                  source: "recipe-dag-service",
+                },
+              });
+            }
+            throw err;
           },
         });
       }),

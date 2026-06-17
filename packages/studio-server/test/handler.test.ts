@@ -7,6 +7,7 @@ import { Effect, Layer, ManagedRuntime } from "effect";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import {
+  Civ7TunerClient,
   createStudioRouter,
   createStudioRpcHandler,
   StudioConfig,
@@ -194,6 +195,153 @@ describe("studio-server RPC handler", () => {
       serverStartedAt: "2026-06-10T00:00:00.000Z",
       diagnostics: { code: "save-deploy-request-not-found" },
     });
+  });
+
+  test("maps recipeDag.get not-found and explicit unavailable errors as defined errors without stack spam", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const notFound = namedError("RecipeDagNotFound", "missing recipe");
+      const unavailable = namedError("RecipeDagUnavailable", "recipe DAG unavailable");
+      const client = await listenWithClient(
+        makeContext({
+          recipeDagService: {
+            getRecipeDag: async (recipeId) => {
+              if (recipeId === "missing/recipe") throw notFound;
+              if (recipeId === "unavailable/recipe") throw unavailable;
+              return recipeDagResult(recipeId);
+            },
+          },
+        })
+      );
+
+      await expect(
+        client.recipeDag.get({ recipeId: "mod-swooper-maps/standard" })
+      ).resolves.toMatchObject({
+        recipeId: "mod-swooper-maps/standard",
+        recipeKey: "mod-swooper-maps/standard",
+      });
+
+      const missing = await safe(client.recipeDag.get({ recipeId: "missing/recipe" }));
+      expect(missing.error).toBeInstanceOf(ORPCError);
+      if (!(missing.error instanceof ORPCError)) throw new Error("expected an ORPCError");
+      expect(isDefinedError(missing.error)).toBe(true);
+      expect(missing.error.code).toBe("RECIPE_DAG_RECIPE_NOT_FOUND");
+      expect(missing.error.status).toBe(404);
+      expect(missing.error.data).toEqual({
+        procedureKey: "recipeDag.get",
+        recipeId: "missing/recipe",
+      });
+
+      const failed = await safe(client.recipeDag.get({ recipeId: "unavailable/recipe" }));
+      expect(failed.error).toBeInstanceOf(ORPCError);
+      if (!(failed.error instanceof ORPCError)) throw new Error("expected an ORPCError");
+      expect(isDefinedError(failed.error)).toBe(true);
+      expect(failed.error.code).toBe("RECIPE_DAG_UNAVAILABLE");
+      expect(failed.error.status).toBe(503);
+      expect(failed.error.data).toEqual({
+        procedureKey: "recipeDag.get",
+        recipeId: "unavailable/recipe",
+        source: "recipe-dag-service",
+      });
+      expect(consoleError).not.toHaveBeenCalled();
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  test("logs unexpected recipeDag.get defects exactly once instead of declaring them expected", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const client = await listenWithClient(
+        makeContext({
+          recipeDagService: {
+            getRecipeDag: async () => {
+              throw new TypeError("recipe graph invariant exploded");
+            },
+          },
+        })
+      );
+
+      const { error } = await safe(client.recipeDag.get({ recipeId: "broken/recipe" }));
+
+      expect(error).toBeInstanceOf(ORPCError);
+      if (!(error instanceof ORPCError)) throw new Error("expected an ORPCError");
+      expect(isDefinedError(error)).toBe(false);
+      expect(error.code).not.toBe("RECIPE_DAG_UNAVAILABLE");
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      expect(consoleError.mock.calls[0]?.[0]).toBe("[studio-server] rpc error");
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  test("maps read and live RPC unavailable paths to their declared statuses", async () => {
+    await withRouterCiv7Client(unavailableTunerClient("tuner unavailable"), async ({ client }) => {
+      const status = await safe(client.civ7.status({}));
+      expect(status.error).toMatchObject({
+        code: "CIV7_STATUS_UNAVAILABLE",
+        status: 500,
+      });
+
+      const mapSummary = await safe(client.civ7.mapSummary({}));
+      expect(mapSummary.error).toMatchObject({
+        code: "CIV7_MAP_SUMMARY_UNAVAILABLE",
+        status: 500,
+      });
+
+      const gameInfo = await safe(client.civ7.gameInfo({ table: "Terrains" }));
+      expect(gameInfo.error).toMatchObject({
+        code: "CIV7_GAMEINFO_FAILED",
+        status: 400,
+      });
+
+      const setupConfig = await safe(client.civ7.setupConfig({}));
+      expect(setupConfig.error).toMatchObject({
+        code: "SETUP_CONFIG_UNAVAILABLE",
+        status: 503,
+        data: { observedAt: expect.any(String) },
+      });
+
+      const snapshot = await safe(client.civ7.live.snapshot({}));
+      expect(snapshot.error).toMatchObject({
+        code: "CIV7_LIVE_SNAPSHOT_FAILED",
+        status: 400,
+      });
+
+      const entities = await safe(client.civ7.live.entities({}));
+      expect(entities.error).toMatchObject({
+        code: "CIV7_LIVE_ENTITIES_FAILED",
+        status: 400,
+      });
+
+      const liveGameInfo = await safe(client.civ7.live.gameInfo({ tables: "Terrains" }));
+      expect(liveGameInfo.error).toMatchObject({
+        code: "CIV7_LIVE_GAMEINFO_FAILED",
+        status: 400,
+      });
+    });
+  });
+
+  test("keeps civ7.live.status at 200 with per-field errors for partial tuner failures", async () => {
+    await withRouterCiv7Client(
+      {
+        ...unavailableTunerClient("unused"),
+        playableStatus: () => Effect.succeed({ playable: true, readiness: "ready" }),
+        appUiSnapshot: () => Effect.fail(new Error("app-ui down")),
+        liveMapSummary: () => Effect.succeed({ map: "visible" }),
+        autoplayStatus: () => Effect.fail("autoplay unavailable"),
+      },
+      async ({ client }) => {
+        await expect(client.civ7.live.status({})).resolves.toMatchObject({
+          ok: true,
+          playable: true,
+          status: { playable: true, readiness: "ready" },
+          appUi: { error: "Error: app-ui down" },
+          mapSummary: { map: "visible" },
+          autoplay: { error: "autoplay unavailable" },
+        });
+      }
+    );
   });
 
   test("passes non-rpc paths through for host fallback middleware", async () => {
@@ -586,6 +734,44 @@ function makeContext(overrides: Partial<StudioServerContext> = {}): StudioServer
   };
 }
 
+function namedError(name: string, message: string): Error {
+  const err = new Error(message);
+  err.name = name;
+  return err;
+}
+
+function recipeDagResult(
+  recipeId: string
+): Awaited<ReturnType<StudioServerContext["recipeDagService"]["getRecipeDag"]>> {
+  return {
+    recipeId,
+    recipeKey: recipeId,
+    title: "Test Recipe",
+    phases: [],
+    stages: [],
+    edges: [],
+    diagnostics: [],
+  };
+}
+
+function unavailableTunerClient(message: string): Civ7TunerClient {
+  const fail = () => Effect.fail(new Error(message));
+  return {
+    playableStatus: fail,
+    mapSummary: fail,
+    liveMapSummary: fail,
+    appUiSnapshot: fail,
+    autoplayStatus: fail,
+    gameInfoRows: fail,
+    setupSnapshot: fail,
+    savedConfigurations: fail,
+    mapGrid: fail,
+    playerSummary: fail,
+    unitSummary: fail,
+    citySummary: fail,
+  } as unknown as Civ7TunerClient;
+}
+
 function makeOperationRuntimePorts(
   overrides: Partial<StudioOperationRuntimePorts> = {}
 ): StudioOperationRuntimePorts {
@@ -714,6 +900,39 @@ async function withRouterEventHub<T>(
     );
 
     return await fn({ client, eventHub, runtime });
+  } finally {
+    await runtime.dispose();
+  }
+}
+
+async function withRouterCiv7Client<T>(
+  tunerClient: Civ7TunerClient,
+  fn: (args: { client: RouterClient<StudioRouter>; runtime: StudioRuntime }) => Promise<T>
+): Promise<T> {
+  const runtime = ManagedRuntime.make(
+    Layer.mergeAll(
+      Layer.succeed(Civ7TunerClient, tunerClient),
+      Layer.succeed(StudioConfig, makeContext()),
+      StudioEventHubLive,
+      Layer.succeed(StudioOperationRuntime, makeOperationRuntimeApi())
+    )
+  ) as unknown as StudioRuntime;
+  try {
+    const rpcHandler = new RPCHandler(createStudioRouter(runtime));
+    const client = createORPCClient<RouterClient<StudioRouter>>(
+      new RPCLink({
+        url: "http://studio.test/rpc",
+        fetch: async (request) => {
+          const result = await rpcHandler.handle(request, { prefix: "/rpc" });
+          if (!result.matched || !result.response) {
+            return new Response("not found", { status: 404 });
+          }
+          return result.response;
+        },
+      })
+    );
+
+    return await fn({ client, runtime });
   } finally {
     await runtime.dispose();
   }
