@@ -4,6 +4,12 @@ Date: 2026-06-16
 
 This ledger names the boundaries that the next objective must design and verify. It is not a claim that the current implementation is correct.
 
+Closeout note: this ledger is the prework error-boundary corpus. Final
+row-by-row disposition for SMR-08 is recorded in
+`openspec/changes/studio-effect-state-machine-closeout/workstream/reconciliation-ledger.md`.
+The closeout ledger preserves boundary ownership while separating source,
+browser, generated, deployed, tuner, log, in-game, Graphite, and product labels.
+
 | ID | Boundary | Known evidence | Risk | Next objective requirement |
 |---|---|---|---|---|
 | EB-01 | `packages/studio-server/src/router/**` effect-oRPC leaves | Router is the right place for declared runtime error projection. | Router leaves can convert expected runtime failures into defects or generic errors. | Enumerate every leaf and assert declared error mapping plus defect behavior. |

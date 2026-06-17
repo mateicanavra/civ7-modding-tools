@@ -20,18 +20,21 @@ Primary worktree:
 
 Current branch:
 
-`codex/studio-effect-state-machine-prework`
+`codex/studio-effect-state-machine-closeout`
 
-Current HEAD:
+Pre-update HEAD for the fresh closeout evidence docs:
 
-`f107448a3137 docs(studio): frame state-machine recovery workstream`
+`0444e6188 docs(studio): reconcile state-machine closeout`
 
-Dirty state observed during packet-train design:
+Dirty state observed during SMR-08 closeout audit:
 
 - Pre-existing untracked `docs/projects/mapgen-workstream-skill/`.
-- Modified `WORKSTREAM-RECORD.md`.
-- Untracked packet-design artifacts in this workstream directory.
-- This package is a separate docs/control slice and must not stage or claim the unrelated `docs/projects/mapgen-workstream-skill/` directory.
+- Pre-existing modified `.agents/skills/README.md`.
+- Pre-existing untracked `.agents/skills/civ7-mapgen-workstream/`.
+- SMR-08 documentation/control edits under this workstream and OpenSpec packet
+  records.
+- This package is a separate docs/control slice and must not stage or claim the
+  unrelated skill/mapgen-workstream files.
 
 Formatter-only validation hygiene performed after `bun run lint` exposed workspace Biome failures:
 
@@ -45,7 +48,7 @@ Relevant worktrees:
 
 | Worktree | State |
 |---|---|
-| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-effect-state-machine-prework` |
+| `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools` | `codex/studio-effect-state-machine-closeout` |
 | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-runtime-effect-prework` | `codex/studio-tuner-session-serialization`, duplicate downstack Studio worktree |
 | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-S-studio-runtime-effect-refactor` | detached at `654f58d8f`, ancestor already contained by current runtime branches |
 | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-HG-habitat-grit-pattern-chain` | unrelated habitat stack |
@@ -158,6 +161,25 @@ Expected packet families:
 7. Documentation and closeout packet.
 
 Each packet needs explicit write set, tests, proof labels, review lane, and stop condition before implementation begins.
+
+SMR-08 closeout status:
+
+- Packet train was accepted and implemented sequentially through SMR-07.
+- A post-SMR-07 user-review correction is recorded at
+  `codex/studio-run-restart-relation-scope`: stale browser operation state no
+  longer carries process-restart recovery into a changed authored Studio run.
+- Final row-by-row scenario and error-boundary disposition is recorded in
+  `openspec/changes/studio-effect-state-machine-closeout/workstream/reconciliation-ledger.md`.
+- Closeout live evidence for request `studio-run-in-game-mqhog22i-13if-2`
+  now claims generated, deployed, tuner-exercised, bounded `Scripting.log`, and
+  in-game observed labels for that request.
+- Final SMR-08 validation reran on the original
+  `codex/studio-effect-state-machine-closeout` stack: strict closeout OpenSpec,
+  full OpenSpec, habitat classification, `bun run lint`, and `git diff --check`
+  passed.
+- Product proof and Graphite submission are not claimed by local closeout
+  evidence. Sibling `Modding.log`, `Database.log`, and `UI.log` ranges remain
+  unclaimed unless a later product/load diagnostic requires them.
 
 Packet-train validation recorded during design:
 

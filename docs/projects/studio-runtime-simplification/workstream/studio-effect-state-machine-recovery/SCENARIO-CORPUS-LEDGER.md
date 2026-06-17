@@ -4,6 +4,15 @@ Date: 2026-06-16
 
 Status values: `corpus-only`, `designed`, `tested`, `built`, `generated`, `deployed`, `tuner-exercised`, `logged`, `in-game observed`, `unresolved`.
 
+Closeout note: this ledger is the prework corpus. Final row-by-row disposition
+for SMR-08 is recorded in
+`openspec/changes/studio-effect-state-machine-closeout/workstream/reconciliation-ledger.md`.
+The closeout ledger preserves this corpus while adding current proof labels and
+explicitly marking claimed and unclaimed labels. As of the SMR-08 closeout
+evidence update, bounded `Scripting.log` proof is claimed for request
+`studio-run-in-game-mqhog22i-13if-2`; Graphite submission, broad product proof,
+and sibling load-diagnostic logs remain separate.
+
 ## Server Read RPCs
 
 | ID | Surface | User scenario | Current evidence | Required next proof | Status |

@@ -8,7 +8,7 @@ Accepted P1/P2 findings must be repaired in this package, rejected with evidence
 
 | ID | Severity | Source | Finding | Disposition | Repair or evidence |
 |---|---:|---|---|---|---|
-| R-01 | P1 | Operational reviewer | Do not claim live proof without direct tuner/runtime action, fresh bounded logs, and exact-authorship/in-game evidence. | Accepted, repaired. | `FRAME.md`, `SCENARIO-CORPUS-LEDGER.md`, and `WORKSTREAM-RECORD.md` separate proof labels and mark live rows unresolved. |
+| R-01 | P1 | Operational reviewer | Do not claim live proof without direct tuner/runtime action, fresh bounded logs, and exact-authorship/in-game evidence. | Accepted, repaired. | `FRAME.md`, `SCENARIO-CORPUS-LEDGER.md`, and `WORKSTREAM-RECORD.md` separate proof labels; SMR-08 closeout records earned bounded `Scripting.log`, direct tuner, exact-authorship, and in-game labels while keeping Graphite/product proof separate. |
 | R-02 | P1 | Operational reviewer | Direct tuner unavailability should not block prework; it blocks later live proof labels only. | Accepted, repaired. | `INVESTIGATION-BRIEF.md` stop rules and `SCENARIO-CORPUS-LEDGER.md` mark tuner rows unresolved rather than inferred. |
 | R-03 | P1 | Graphite/worktree reviewer | Current checkout has pre-existing untracked `docs/projects/mapgen-workstream-skill/`; do not contaminate this slice. | Accepted, repaired by exclusion. | `WORKSTREAM-RECORD.md` records the untracked directory as pre-existing and excluded; only this package may be staged. |
 | R-04 | P1 | Graphite/worktree reviewer | Graphite metadata renders Studio stack under unrelated habitat state; avoid broad restack/sync/submit. | Accepted, repaired. | `WORKSTREAM-RECORD.md` records the render risk and forbids broad stack mutation from this lane. |

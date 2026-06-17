@@ -152,10 +152,110 @@ Production error handling remains Effect-based:
 - Missing setup rows map to `proofFailed` with reason `setup-row-unavailable`.
 - Materialization/deploy proof failures map to `materializationFailed`.
 
+## 2026-06-17 Closeout Logged Proof
+
+Closeout request:
+
+- Branch: `codex/studio-effect-state-machine-closeout`.
+- Request id: `studio-run-in-game-mqhog22i-13if-2`.
+- Studio daemon: `127.0.0.1:5297`.
+- Server instance:
+  `studio-server-mqhoepc2-13if-1`.
+- Result: `phase=complete`, `status=complete`, `ok=true`.
+- Completed phases: `materializing`, `deploying`, `checking-civ7`,
+  `preparing-setup`, `starting-game`, `waiting-for-proof`.
+
+Generated and deployed evidence:
+
+- Materialization mode: `disposable`.
+- Map script: `{swooper-maps}/maps/studio-current.js`.
+- Config hash:
+  `6e7a3f18679ef2dbebba8992f7b7b6e89226132b6a2a60e9b6d59d2c9fd1ec9c`.
+- Envelope hash:
+  `523d45759fda3f03fcf2c96810dc5014838fc52fd7567e418e320028667488df`.
+- Source config:
+  `mods/mod-swooper-maps/src/maps/configs/studio-current.config.json`
+  sha256
+  `48000de5ac26ccf232dabd65813e5181e66067fd0534fa2449e433bb35ba6e91`.
+- Generated source:
+  `mods/mod-swooper-maps/src/maps/generated/studio-current.ts`
+  sha256
+  `78333249eeb5f311ba4b670149f6f59baf4072933ebd778f574041f165afef44`.
+- Local mod script:
+  `mods/mod-swooper-maps/mod/maps/studio-current.js` sha256
+  `85d3eb03ac4709bc2f5bef27d6cdfec630bd53660a0162c526fcb3a6079a6632`.
+- Deployed mod script:
+  `/Users/mateicanavra/Library/Application Support/Civilization VII/Mods/mod-swooper-maps/maps/studio-current.js`
+  sha256
+  `85d3eb03ac4709bc2f5bef27d6cdfec630bd53660a0162c526fcb3a6079a6632`.
+- Marker proofs present in both local and deployed script:
+  request id, config hash, envelope hash,
+  `map.rivers.authoredTerrainMaterialization`, and
+  `POST-AUTHORED-RIVERS`.
+- Deploy task: `mod-swooper-maps:build:studio-deploy`, files copied `12`.
+
+Setup/start evidence:
+
+- Direct-control host: `127.0.0.1`.
+- Port: `4318`.
+- State: `{ id: "65535", name: "App UI" }`.
+- Setup row proof found setup-domain and config-db rows for
+  `{swooper-maps}/maps/studio-current.js`.
+- Row visibility: initial and final match present, `refreshed=false`,
+  `verified=true`.
+- Applied setup values:
+  - `Map: {swooper-maps}/maps/studio-current.js`
+  - `MapSize: MAPSIZE_STANDARD`
+  - `MapRandomSeed: 1781676935`
+  - `GameRandomSeed: 1781676935`
+  - `MaxMajorPlayers: 6`
+- Start result:
+  - `beginAttempted=true`
+  - final App UI observation reached `loadingStateName=GameStarted`,
+    `inGame=true`
+  - map summary width `84`, height `54`, plot count `4536`, random seed
+    `1781676935`
+  - game readback turn `1`, turn date `4000 BCE`
+
+Bounded log evidence:
+
+- Log path:
+  `/Users/mateicanavra/Library/Application Support/Civilization VII/Logs/Scripting.log`.
+- Observed at: `2026-06-17T06:16:10.396Z`.
+- Start offset: `61590`.
+- Matched markers:
+  `[mapgen-proof]`, `studio-run-in-game-mqhog22i-13if-2`, config hash,
+  envelope hash, and `[mapgen-complete]`.
+- Direct grep evidence:
+  - line 369:
+    `[2026-06-17 02:15:52] [SWOOPER_MOD] [mapgen-proof] ... requestId studio-run-in-game-mqhog22i-13if-2 ...`
+  - line 539:
+    `[2026-06-17 02:15:54] [SWOOPER_MOD] [mapgen-complete] ... requestId studio-run-in-game-mqhog22i-13if-2 ...`
+
+Exact authorship proof:
+
+- Status: `complete`.
+- Created at: `2026-06-17T06:16:10.399Z`.
+- Request fingerprint:
+  `db27c8581b359efea928e4b5778edc117124a6c01f2d10b1603c0149b57e9e43`.
+- Runtime readback: seed `1781676935`, width `84`, height `54`, plot count
+  `4536`, turn `1`, game hash `0`, source snapshot id
+  `status:1:4cd3196d`.
+- `unresolvedLinks: []`.
+
 ## Unresolved Labels
 
-- Fresh bounded `Scripting.log`, `Modding.log`, `Database.log`, and `UI.log`
-  ranges were not used for the current claim and remain unclaimed.
-- Full Studio browser-button execution after this branch was not yet run in the
-  rendered UI; the core live setup/start boundary was proven through the
-  repo-owned direct-control API.
+- Fresh bounded `Scripting.log` proof is claimed for request
+  `studio-run-in-game-mqhog22i-13if-2`.
+- Sibling `Modding.log`, `Database.log`, and `UI.log` ranges are not claimed
+  for broader load/product diagnostics.
+- Full Studio browser-button execution after this branch was later recorded in
+  `openspec/changes/studio-browser-scenario-proof/workstream/browser-proof-ledger.md`
+  for request `studio-run-in-game-mqhng9hg-1pku-2`. That browser fast path
+  reached `Complete` / `Current` without a process restart. The process-restart
+  fallback remains unit-tested rather than manually rendered in the browser.
+- A later top-of-stack correction
+  `1b9ec418e fix(studio): scope restart recovery to current run state`
+  prevents stale browser operation state from carrying `Restart Civ & Run` onto
+  a changed authored Studio state. No new live generated/deployed/tuner/log
+  proof is claimed from that UI-scoping correction.
