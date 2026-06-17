@@ -8,7 +8,7 @@
 - Branch/Graphite stack: `codex/habitat-domain-mapping-investigation-harness`
   on `codex/habitat-domain-mapping-prework`
 - Started: 2026-06-17
-- Status: domain packet assembled and ready for validation
+- Status: domain packet assembled; supporting investigation records archived
 
 ## Objective
 
@@ -17,10 +17,9 @@
 - Non-goals: no Habitat code changes, no MapGen generator implementation, no
   final domain model, no broad MapGen redesign, no current-code-as-domain
   authority claim.
-- Done condition: scenario corpus, flow maps, authority map, evidence ledger,
-  glossary, context map, critique, falsifier review, review disposition, and
-  domain design packet exist, validate, classify through Habitat, and are
-  locally committed through Graphite.
+- Done condition: the live domain design packet exists as the project entrypoint,
+  supporting investigation records are archived as historical evidence, current
+  validation passes, and the branch is locally committed through Graphite.
 
 ## Authority
 
@@ -61,8 +60,8 @@
 - Owners: DRA Habitat domain mapping owner.
 - Forbidden owners: Habitat implementation, MapGen implementation, generated
   output, baseline mutation, Grit rule/apply registration, hook behavior.
-- Consumer impact: future agents can resume the investigation from durable
-  ledgers.
+- Consumer impact: future agents should start from the live packet and use the
+  archive only to audit the investigation trail.
 - Downstream assumptions: later implementation slices wait for reviewed domain
   artifacts.
 
@@ -75,25 +74,29 @@
 
 ## Review
 
-- Review lanes: authority, evidence, domain critique, information-design, and
-  closure review recorded in
-  `docs/projects/habitat-harness/domain-mapping/review-disposition-ledger.md`.
-  No callable multi-agent spawn tool was available, so this is lane-based
-  self-review rather than independent peer review.
+- Review lanes: authority, evidence, domain critique, information-design,
+  closure review, document-history review, packet-mining review, and
+  stale-noise/archive review. The original closure review is archived under the
+  domain-mapping archive; the follow-up document sweep used fresh read-only
+  agents and owner synthesis.
 - Blocking findings: none.
 - Accepted findings repaired: collapsed-Grit risk, future-authoring overclaim
   risk, current-code mirror risk, packet discoverability risk, and
   implementation-authorization risk.
-- Rejected/invalidated/waived/deferred findings: independent agent review
-  deferred because no callable agent spawn tool was available.
+- Rejected/invalidated/waived/deferred findings: none blocking. Independent
+  agent review was completed for the document sweep; the original archived
+  closure caveat remains historical.
 
 ## Agent Fleet State
 
-- Active agents: N/A - solo harness phase.
-- Completed agents: N/A.
+- Active agents: none.
+- Completed agents: document-history/relevance lane, packet-mining lane, and
+  stale-noise/archive lane.
 - Assigned write sets: N/A.
-- Latest evidence by agent: N/A.
-- Open findings by agent: N/A.
+- Latest evidence by agent: supporting ledgers are useful historical evidence,
+  but should not compete with the packet as live guidance.
+- Open findings by agent: no blocking findings; Authoring Topology remains a
+  future MapGen-specific investigation.
 - Running/stale status: N/A.
 - Integration owner: DRA Habitat domain mapping owner.
 
@@ -101,8 +104,8 @@
 
 - Completed tasks: OpenSpec harness, scenario corpus, flow maps, authority map,
   evidence ledger, ubiquitous language, context map, current-code critique,
-  falsifier tests, review disposition, domain design packet, and validation
-  gates.
+  falsifier tests, review disposition, domain design packet, follow-up document
+  history sweep, packet mining, and archive organization.
 - Remaining tasks: none for this packet slice after local Graphite commit.
 - Stop conditions triggered: none.
 
@@ -113,9 +116,7 @@
   - `bun run openspec:validate`
   - `git diff --check`
   - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
-  - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/scenario-corpus.md`
-  - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/context-map.md`
-  - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/workstream-record.md`
+  - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/_archive/2026-06-17-domain-design-investigation/README.md`
   - `bun run habitat classify openspec/changes/habitat-domain-mapping-investigation/proposal.md`
   - `bun run lint:doc-ambiguity`
 - Results:
@@ -134,18 +135,20 @@
 
 ## Realignment
 
-- Downstream docs/specs/issues updated: project-local domain mapping packet and
-  ledgers added.
+- Downstream docs/specs/issues updated: project-local domain mapping packet kept
+  as the live entrypoint; supporting ledgers archived as historical evidence.
 - Tests/guards updated: none.
 - Deferrals/triage updated: none.
 - Downstream realignment ledger: not required for this preparatory harness;
-  downstream candidates are recorded in project ledgers.
+  downstream candidates are folded into the packet and source ledgers are
+  archived.
 
 ## Next Action
 
 - Exact next step: use the reviewed packet to plan a separate implementation
   or authoring-topology investigation slice.
-- First files to inspect: `domain-design-packet.md`, `context-map.md`,
-  `scenario-corpus.md`, `authority-map-ledger.md`, and `evidence-ledger.md`.
+- First file to inspect:
+  `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
+  Use `_archive/2026-06-17-domain-design-investigation/` only for audit.
 - Stop condition: any validation failure that shows the harness shape is not
   accepted by OpenSpec or Habitat classify.

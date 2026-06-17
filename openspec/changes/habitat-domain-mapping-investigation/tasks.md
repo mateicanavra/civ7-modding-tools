@@ -20,12 +20,15 @@
 - [x] 2.6 Run Phase 6 domain critique and falsifier review.
 - [x] 2.7 Assemble the Phase 7 Habitat domain design packet.
 - [x] 2.8 Run Phase 8 review, realignment, and implementation-slice handoff.
+- [x] 2.9 Run follow-up document history sweep, fold useful findings into the
+  packet, and archive superseded support records.
 
 ## 3. Harness Verification
 
 - [x] 3.1 Run `bun run openspec -- validate habitat-domain-mapping-investigation --strict`.
 - [x] 3.2 Run `bun run openspec:validate`.
 - [x] 3.3 Run `git diff --check`.
-- [x] 3.4 Run `bun run habitat classify docs/projects/habitat-harness/domain-mapping/workstream-record.md`.
+- [x] 3.4 Run `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 - [x] 3.5 Run `bun run habitat classify openspec/changes/habitat-domain-mapping-investigation/proposal.md`.
-- [x] 3.6 Commit through Graphite with a clean worktree.
+- [x] 3.6 Run `bun run habitat classify docs/projects/habitat-harness/domain-mapping/_archive/2026-06-17-domain-design-investigation/README.md`.
+- [x] 3.7 Commit through Graphite with a clean worktree.

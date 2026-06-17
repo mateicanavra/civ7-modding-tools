@@ -16,9 +16,9 @@ patterns that agents use to build, modify, and maintain repositories.
 | Phase | Gate | Output |
 | --- | --- | --- |
 | 1. Grounding and source-order confirmation | 1-3 | Confirmed source order, frame carry-forward, and contradiction list. |
-| 2. Scenario corpus extraction | 4-5 | `scenario-corpus.md` rows for supported, unsupported, and desired authoring scenarios. |
-| 3. Flow tracing | 3-5 | `flow-map-ledger.md` rows grounded in docs, code, tests, command behavior, and failure paths. |
-| 4. Language and authority analysis | 5-7 | Ubiquitous language notes and `authority-map-ledger.md` rows. |
+| 2. Scenario corpus extraction | 4-5 | Scenario rows for supported, unsupported, and desired authoring scenarios. |
+| 3. Flow tracing | 3-5 | Flow-map rows grounded in docs, code, tests, command behavior, and failure paths. |
+| 4. Language and authority analysis | 5-7 | Ubiquitous language notes and one-owner authority rows. |
 | 5. Candidate context-map synthesis | 7-8 | Candidate bounded contexts and relationships, explicitly labeled as hypotheses. |
 | 6. Domain critique and falsifier review | 11 | Review findings against the hard core and falsifiers in `DOMAIN-MAPPING.md`. |
 | 7. Domain design packet assembly | 8 | Habitat domain design packet with evidence-backed claims and non-claims. |
@@ -33,8 +33,8 @@ patterns that agents use to build, modify, and maintain repositories.
   throughout.
 - Rail coupling: rail-neutral ledgers with codebase deep-dive and manual
   synthesis as the likely first execution rails.
-- Artifact durability: durable project workstream records and a source-of-truth
-  candidate design packet only after review.
+- Artifact durability: the reviewed packet is the live entrypoint; lower-level
+  investigation records are archived as dated evidence after synthesis.
 
 ## Code-Vs-Doc Rule
 
@@ -46,25 +46,20 @@ authority analysis.
 
 ## Artifact Model
 
-The OpenSpec change is the downstream control record. The durable investigation
-assets live under `docs/projects/habitat-harness/domain-mapping/` because this
-slice is project-control and domain-design setup, not a Habitat implementation
-change.
+The OpenSpec change is the downstream control record. The live Habitat
+domain-mapping entrypoint is
+`docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`. The
+supporting investigation assets are archived under
+`docs/projects/habitat-harness/domain-mapping/_archive/2026-06-17-domain-design-investigation/`
+because they are evidence for the packet, not competing current guidance.
 
-The artifact set is deliberately small:
+The archived artifact set is deliberately small and grouped by purpose:
 
-- `workstream-record.md`: current gate, source order, branch state, write set,
-  proof classes, team state, and next action.
-- `investigation-brief.md`: rail-neutral brief carrying the frame, questions,
-  evidence policy, artifact contract, and stop conditions.
-- `scenario-corpus.md`: scenario rows that preserve per-scenario obligations.
-- `flow-map-ledger.md`: end-to-end flow trace contract for each scenario.
-- `authority-map-ledger.md`: one-owner-per-invariant and authority conflict
-  ledger.
-- `evidence-ledger.md`: claim-to-source ledger with strength labels and
-  unresolved states.
-- `agent-operating-model.md`: operating instructions for owner and read-only
-  lanes.
+- `00-workstream-control/`: gate, branch, frame, evidence-policy, owner, and
+  lane records.
+- `10-evidence-ledgers/`: scenario, flow, authority, and evidence rows.
+- `20-synthesis-inputs/`: context map, glossary, and current-code critique.
+- `30-review-closure/`: falsifier and review-disposition records.
 
 ## Agent Operating Model
 
@@ -93,6 +88,7 @@ explains user and agent outcomes better than the current technical layout.
 
 ## Closure Boundary
 
-This change closes only when the harness artifacts exist, validate, classify
-under Habitat, and are locally committed. It does not close the domain mapping
-investigation or produce the domain design packet.
+This change closes when the packet exists as the live entrypoint, supporting
+records are archived as historical evidence, focused validation passes, and the
+branch is locally committed. It remains a docs/domain-design slice only and
+does not authorize Habitat implementation changes.

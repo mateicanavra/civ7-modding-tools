@@ -102,5 +102,6 @@ in this slice.
 - `bun run openspec -- validate habitat-domain-mapping-investigation --strict`
 - `bun run openspec:validate`
 - `git diff --check`
-- `bun run habitat classify docs/projects/habitat-harness/domain-mapping/workstream-record.md`
+- `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
+- `bun run habitat classify docs/projects/habitat-harness/domain-mapping/_archive/2026-06-17-domain-design-investigation/README.md`
 - `bun run habitat classify openspec/changes/habitat-domain-mapping-investigation/proposal.md`
