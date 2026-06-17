@@ -29,8 +29,8 @@
 ## Status
 
 - Last updated: 2026-06-17
-- Current gate: Gate 2 - isolate repo state and open harness.
-- Next gate: Gate 4 - extract scenario corpus.
+- Current gate: Gate 12 - close and hand off from reviewed packet.
+- Next gate: implementation-slice planning from one accepted authority row.
 - Blocked by: no current blocker.
 - Stop condition: implementation work begins before scenario, authority, and
   evidence artifacts are reviewed.
@@ -54,14 +54,14 @@
 
 | Phase | Gate | Output | Status |
 | --- | --- | --- | --- |
-| 1. Grounding and source-order confirmation | 1-3 | Confirm source order and contradiction list. | planned |
-| 2. Scenario corpus extraction | 4-5 | Supported, unsupported, and desired authoring scenarios. | planned |
-| 3. Flow tracing | 3-5 | Flow maps across docs, commands, code, tests, and current behavior. | planned |
-| 4. Language and authority analysis | 5-7 | Glossary notes and one-owner authority map. | planned |
-| 5. Candidate context-map synthesis | 7-8 | Candidate bounded contexts and context relationships. | planned |
-| 6. Domain critique and falsifier review | 11 | Review findings and frame stress tests. | planned |
-| 7. Domain design packet assembly | 8 | Habitat domain design packet. | planned |
-| 8. Review, realignment, and handoff | 11-12 | Reviewed packet and follow-up implementation-slice handoff. | planned |
+| 1. Grounding and source-order confirmation | 1-3 | Confirm source order and contradiction list. | complete |
+| 2. Scenario corpus extraction | 4-5 | Supported, unsupported, and desired authoring scenarios. | complete |
+| 3. Flow tracing | 3-5 | Flow maps across docs, commands, code, tests, and current behavior. | complete |
+| 4. Language and authority analysis | 5-7 | Glossary notes and one-owner authority map. | complete |
+| 5. Candidate context-map synthesis | 7-8 | Candidate bounded contexts and context relationships. | complete |
+| 6. Domain critique and falsifier review | 11 | Review findings and frame stress tests. | complete |
+| 7. Domain design packet assembly | 8 | Habitat domain design packet. | complete |
+| 8. Review, realignment, and handoff | 11-12 | Reviewed packet and follow-up implementation-slice handoff. | complete |
 
 ## Corpus Gate
 
@@ -70,8 +70,8 @@
   and selected MapGen topology references for future authoring scenarios.
 - Corpus shape: mixed scenario/action/proof/authority surfaces.
 - Coverage ledger: `scenario-corpus.md`.
-- Open uncertainty: final scenario completeness remains unverified until Phase
-  2 is filled and reviewed.
+- Open uncertainty: future Authoring Topology remains hypothesis-labeled until
+  a MapGen-specific convention and product acceptance investigation runs.
 
 ## Proof Gates
 
@@ -80,9 +80,10 @@
 - Generated/deploy proof: not applicable.
 - Runtime proof: not required; Habitat domain mapping is structural/product
   design, not live Civ7 behavior.
-- Product proof: unresolved until the domain design packet is reviewed against
-  scenarios and falsifiers.
-- Closure boundary: this branch proves only the harness exists and validates.
+- Product proof: domain packet reviewed against scenarios and falsifiers;
+  implementation and runtime proof remain out of scope.
+- Closure boundary: this branch proves the documented domain packet and review
+  artifacts only, not any Habitat behavior change.
 
 ## Team
 
@@ -90,5 +91,7 @@
 - Evidence agents: reference synthesis, code-flow tracing, domain critique, and
   investigation review lanes as defined in `agent-operating-model.md`.
 - Review agents: authority, evidence, domain critique, information-design, and
-  closure review when the design packet is assembled.
-- Open findings: none yet.
+  closure review recorded in `review-disposition-ledger.md`. No callable
+  multi-agent spawn tool was available, so review is lane-based self-review.
+- Open findings: Authoring Topology requires the next MapGen-specific
+  investigation before implementation.

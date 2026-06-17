@@ -12,14 +12,14 @@
 
 ## 2. Investigation Phases
 
-- [ ] 2.1 Fill Phase 1 grounding and contradiction rows.
-- [ ] 2.2 Fill Phase 2 scenario corpus rows.
-- [ ] 2.3 Fill Phase 3 flow-map rows.
-- [ ] 2.4 Fill Phase 4 language and authority rows.
-- [ ] 2.5 Draft Phase 5 candidate bounded contexts and context map.
-- [ ] 2.6 Run Phase 6 domain critique and falsifier review.
-- [ ] 2.7 Assemble the Phase 7 Habitat domain design packet.
-- [ ] 2.8 Run Phase 8 review, realignment, and implementation-slice handoff.
+- [x] 2.1 Fill Phase 1 grounding and contradiction rows.
+- [x] 2.2 Fill Phase 2 scenario corpus rows.
+- [x] 2.3 Fill Phase 3 flow-map rows.
+- [x] 2.4 Fill Phase 4 language and authority rows.
+- [x] 2.5 Draft Phase 5 candidate bounded contexts and context map.
+- [x] 2.6 Run Phase 6 domain critique and falsifier review.
+- [x] 2.7 Assemble the Phase 7 Habitat domain design packet.
+- [x] 2.8 Run Phase 8 review, realignment, and implementation-slice handoff.
 
 ## 3. Harness Verification
 

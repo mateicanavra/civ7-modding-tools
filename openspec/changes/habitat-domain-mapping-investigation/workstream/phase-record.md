@@ -3,22 +3,24 @@
 ## Phase
 
 - Project: Habitat Harness
-- Phase: Habitat domain mapping investigation harness
+- Phase: Habitat domain mapping investigation packet
 - Owner: DRA Habitat domain mapping owner
 - Branch/Graphite stack: `codex/habitat-domain-mapping-investigation-harness`
   on `codex/habitat-domain-mapping-prework`
 - Started: 2026-06-17
-- Status: harness validation complete for local Graphite commit checkpoint
+- Status: domain packet assembled and ready for validation
 
 ## Objective
 
-- Target movement: open a compaction-safe investigation harness for producing a
-  Habitat domain design packet.
+- Target movement: produce a reviewed, scenario-driven Habitat domain design
+  packet from the committed investigation harness.
 - Non-goals: no Habitat code changes, no MapGen generator implementation, no
   final domain model, no broad MapGen redesign, no current-code-as-domain
   authority claim.
-- Done condition: OpenSpec change and project ledgers exist, validate, classify
-  through Habitat, and are locally committed through Graphite.
+- Done condition: scenario corpus, flow maps, authority map, evidence ledger,
+  glossary, context map, critique, falsifier review, review disposition, and
+  domain design packet exist, validate, classify through Habitat, and are
+  locally committed through Graphite.
 
 ## Authority
 
@@ -43,7 +45,7 @@
   skill/doc files and is protected external state.
 - Dirty files and owner: this branch owns only the new OpenSpec change and
   `docs/projects/habitat-harness/domain-mapping/**`.
-- Current code evidence: not changed in this phase.
+- Current code evidence: read and cited; no code changed in this phase.
 - Generated outputs affected: none.
 - Tests/guards affected: OpenSpec validation, diff check, and Habitat classify
   checks for new docs.
@@ -68,16 +70,22 @@
 
 - Spec/proposal: `openspec/changes/habitat-domain-mapping-investigation/`.
 - Tasks: `openspec/changes/habitat-domain-mapping-investigation/tasks.md`.
-- Validation status: strict OpenSpec validation and all-record OpenSpec
-  validation passed.
+- Validation status: strict OpenSpec, all-record OpenSpec, diff check, Habitat
+  classify, and doc ambiguity gates passed for the packet changes.
 
 ## Review
 
-- Review lanes: harness self-review now; future domain work requires authority,
-  evidence, domain critique, information-design, and closure review lanes.
-- Blocking findings: none recorded yet.
-- Accepted findings repaired: none recorded yet.
-- Rejected/invalidated/waived/deferred findings: none recorded yet.
+- Review lanes: authority, evidence, domain critique, information-design, and
+  closure review recorded in
+  `docs/projects/habitat-harness/domain-mapping/review-disposition-ledger.md`.
+  No callable multi-agent spawn tool was available, so this is lane-based
+  self-review rather than independent peer review.
+- Blocking findings: none.
+- Accepted findings repaired: collapsed-Grit risk, future-authoring overclaim
+  risk, current-code mirror risk, packet discoverability risk, and
+  implementation-authorization risk.
+- Rejected/invalidated/waived/deferred findings: independent agent review
+  deferred because no callable agent spawn tool was available.
 
 ## Agent Fleet State
 
@@ -91,9 +99,11 @@
 
 ## Implementation
 
-- Completed tasks: OpenSpec and project harness artifacts drafted; OpenSpec and
-  Habitat classify gates passed.
-- Remaining tasks: local Graphite commit.
+- Completed tasks: OpenSpec harness, scenario corpus, flow maps, authority map,
+  evidence ledger, ubiquitous language, context map, current-code critique,
+  falsifier tests, review disposition, domain design packet, and validation
+  gates.
+- Remaining tasks: none for this packet slice after local Graphite commit.
 - Stop conditions triggered: none.
 
 ## Verification
@@ -101,22 +111,31 @@
 - Commands run:
   - `bun run openspec -- validate habitat-domain-mapping-investigation --strict`
   - `bun run openspec:validate`
+  - `git diff --check`
+  - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
+  - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/scenario-corpus.md`
+  - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/context-map.md`
   - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/workstream-record.md`
   - `bun run habitat classify openspec/changes/habitat-domain-mapping-investigation/proposal.md`
+  - `bun run lint:doc-ambiguity`
 - Results:
   - `habitat-domain-mapping-investigation` is valid.
-  - `bun run openspec:validate` passed for all records.
-  - Both Habitat classify probes reported workspace-level paths with
-    `bun run lint` as the required workspace structural gate.
-- Skipped gates and rationale: no runtime or product proof; this is docs and
-  workstream-control setup only.
-- Evidence boundary: validation proves artifact shape and classify routing only,
-  not the domain model.
+  - `bun run openspec:validate` passed for all OpenSpec records.
+  - `git diff --check` passed.
+  - Habitat classify probes reported workspace-level docs with `bun run lint`
+    as the required workspace structural gate.
+  - `bun run lint:doc-ambiguity` passed with advisory findings only and no
+    failing rules.
+- Skipped gates and rationale: runtime proof is not required; this is
+  docs/product/domain design, not live Civ7 behavior or Habitat implementation.
+- Evidence boundary: validation proves artifact shape and classify routing
+  only. The design packet is supported by scenario/code/docs evidence and
+  falsifier review, not by behavior changes.
 
 ## Realignment
 
-- Downstream docs/specs/issues updated: project-local domain mapping ledgers
-  added.
+- Downstream docs/specs/issues updated: project-local domain mapping packet and
+  ledgers added.
 - Tests/guards updated: none.
 - Deferrals/triage updated: none.
 - Downstream realignment ledger: not required for this preparatory harness;
@@ -124,9 +143,9 @@
 
 ## Next Action
 
-- Exact next step: run focused validation gates and patch this record with
-  results.
-- First files to inspect: this phase record and
-  `docs/projects/habitat-harness/domain-mapping/workstream-record.md`.
+- Exact next step: use the reviewed packet to plan a separate implementation
+  or authoring-topology investigation slice.
+- First files to inspect: `domain-design-packet.md`, `context-map.md`,
+  `scenario-corpus.md`, `authority-map-ledger.md`, and `evidence-ledger.md`.
 - Stop condition: any validation failure that shows the harness shape is not
   accepted by OpenSpec or Habitat classify.
