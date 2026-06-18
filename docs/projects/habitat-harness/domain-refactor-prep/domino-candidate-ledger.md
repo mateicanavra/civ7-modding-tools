@@ -61,16 +61,16 @@ Consumers should receive projections, not the whole registry object, unless a pa
    - D3 Workspace Graph Integration Boundary -> D4 Orientation and Routing.
    - D5 Baseline Authority.
    - D6 Diagnostic Pattern Catalog.
-   - D10 Generated/Protected Zone Authority.
-5. D7 Structural Enforcement Pipeline after D5 and D6.
-6. D8 Pattern Governance after D5 and D6.
-7. D9 Transformation Transaction after D8.
-8. D11 Local Feedback after D7, D9, and D10.
-9. D12 Proof/Handoff Verify Command after D1, D3, and D7.
-10. D13 Scaffolding and Refusal Contracts after D0, D2, and D8.
-11. D14 Authoring Topology Fence after D4, D12, and D13.
-12. D15 Execution Provenance Substrate Trigger activates only inside packets where typed failures/provenance require it.
-13. G-HOST Host Policy Boundary Gate must be satisfied before D9, D10, or D13 claims generic closure over host-specific policy.
+   - G-HOST Host Policy Boundary Gate.
+5. D10 Generated/Protected Zone Authority after D2 and G-HOST.
+6. D7 Structural Enforcement Pipeline after D5, D6, and D10.
+7. D8 Pattern Governance after D5 and D6.
+8. D9 Transformation Transaction after D8, D6, and D10.
+9. D11 Local Feedback after D7, D9, and D10.
+10. D12 Proof/Handoff Verify Command after D1, D3, and D7.
+11. D13 Scaffolding and Refusal Contracts after D0, D2, D8, and G-HOST.
+12. D14 Authoring Topology Fence after D4, D12, and D13.
+13. D15 Execution Provenance Substrate Trigger activates only inside packets where typed failures/provenance require it.
 
 ## Dominoes
 
@@ -83,11 +83,11 @@ Consumers should receive projections, not the whole registry object, unless a pa
 | D4 | Orientation and Routing | Orientation owner | Agents and humans before editing | `habitat classify` path/diff output, owner, scoped rules, targets, unavailable facts | Classification uses optional-heavy shapes and prose-derived scope | D2, D3 | D14, scenario handoff packets | Command behavior, classify tests, malformed/refusal tests | Scenario corpus, classify examples |
 | D5 | Baseline Authority | Baseline owner | Structural Enforcement, Pattern Governance | explicit empty/debt/external-exception states, shrink-only guard, introduction manifest | Strong current state machine is applied inline with check and pattern admission | D2 | D7, D8 | Baseline contract tests, baseline-integrity current-tree check | Baseline contract record |
 | D6 | Diagnostic Pattern Catalog | Grit diagnostics owner | Structural Enforcement, Pattern Governance, Local Feedback | Grit acquisition/projection, scan roots, adapter failure projection, injected-probe proof | Grit diagnostics, pattern admission, and apply patterns share terms but not authority | D1, D2 | D7, D8, D9, D11 | Native sample, current-tree wrapper, injected violation, adapter failure tests | Grit proof matrix |
-| D7 | Structural Enforcement Pipeline | Enforcement owner | `check`, `verify`, hooks, Nx targets | Rule selection, execution, normalized CheckReport, baseline application, staged mode | `createCheckReport` mixes selection, execution, baselines, built-ins, status, and rendering | D1, D2, D5, D6 | D11, D12 | CheckReport schema, command behavior, selector tests | Enforcement compatibility matrix |
+| D7 | Structural Enforcement Pipeline | Enforcement owner | `check`, `verify`, hooks, Nx targets | Rule selection, execution, normalized CheckReport, baseline application, staged mode | `createCheckReport` mixes selection, execution, baselines, built-ins, status, and rendering | D1, D2, D5, D6, D10 | D11, D12 | CheckReport schema, command behavior, selector tests | Enforcement compatibility matrix |
 | D8 | Pattern Governance | Pattern Authority owner | Pattern authors, DRA, Structural Enforcement | Candidate vs registered lifecycle, manifest, baseline contract, hook-scope decision, fixture/proof sources | Generator, manifest validator, registration, Grit rows, and baselines jointly define admission | D1, D2, D5, D6 | D9, D13 | Manifest tests, registration tests, baseline proof | Pattern Authority ledger |
-| D9 | Transformation Transaction | Apply owner | `habitat fix`, future approved apply packets | dry-run inventory, isolated-copy proof, approved roots/paths, rollback, Biome handoff, per-pattern gates | Generic transaction currently embeds one pattern and MapGen-specific export validation | D1, D6, D8 | D11, future apply packets | Safe-write, transaction-copy, rollback, formatter handoff | Apply safety matrix |
+| D9 | Transformation Transaction | Apply owner | `habitat fix`, future approved apply packets | dry-run inventory, isolated-copy proof, approved roots/paths, rollback, Biome handoff, per-pattern gates | Generic transaction currently embeds one pattern and MapGen-specific export validation | D1, D6, D8, D10 | D11, future apply packets | Safe-write, transaction-copy, rollback, formatter handoff | Apply safety matrix |
 | D10 | Generated/Protected Zone Authority | Generated-zone owner | Structural Enforcement, hooks, apply, agents avoiding hand edits | Generated/protected zone declarations, staged mutation guard, drift check | Host-specific zones are encoded in generic modules and scripts | D1, D2, G-HOST | D7, D9, D11 | Staged file-layer tests, generated-check proof | Protected-zone authority record |
-| G-HOST | Host Policy Boundary Gate | Host policy owner | Generated/Protected Zone Authority, Transformation Transaction, Scaffolding | Host declaration/refusal contract for generated zones and pattern-specific gates | MapGen and Civ-specific policy currently appears inside generic modules | D0, D1 | D9, D10, D13 closure | Host declaration/refusal tests, command behavior, non-claims | Host policy boundary record |
+| G-HOST | Host Policy Boundary Gate | Host policy owner | Generated/Protected Zone Authority, Transformation Transaction, Scaffolding | Host declaration/refusal contract for generated zones and pattern-specific gates | MapGen and Civ-specific policy currently appears inside generic modules | D0, D1 | D10, D13, D9 host-policy consumption | Host declaration/refusal tests, command behavior, non-claims | Host policy boundary record |
 | D11 | Local Feedback | Hook owner | Developers and agents using Git hooks | local-only hook behavior, staged path policy, Graphite base detection, resource state guards | Hooks orchestrate many proof owners and can be mistaken for verification authority | D1, D6, D7, D9, D10 | Clean Graphite handoff ergonomics | Hook trace tests, staged mutation tests, pre-push base tests | Hook contract doc |
 | D12 | Proof/Handoff Verify Command | Proof owner | DRA, reviewers, agents handing off work | `habitat verify` runs check then affected Nx and emits non-claims | Verify depends on check shape, graph target list, post-state, stream parsing, and proof labels | D1, D3, D7 | Phase 2 closure model | VerifyProof schema/tests and command behavior | Verification contract |
 | D13 | Scaffolding and Refusal Contracts | Scaffolding owner | Agents creating supported uniform structures | supported project generator, pattern candidate generation, explicit unsupported-kind refusal | Project and pattern generators share Nx mechanics but answer different product questions | D0, D2, D8 | D14 | Generator tests, refusal tests, Nx discovery proof | Scaffolding matrix |
@@ -96,23 +96,28 @@ Consumers should receive projections, not the whole registry object, unless a pa
 
 ## Parallelism Model
 
-Safe parallel work after D0, D1, and D2:
+Safe parallel work:
 
+- G-HOST can start after D0 and D1. It may proceed while D2-D6 continue, but
+  D10 cannot close until both G-HOST and D2 are stable.
 - D3 then D4 can proceed as the graph/orientation lane.
 - D5 can proceed as the baseline lane.
 - D6 can proceed as the diagnostic Grit lane.
-- D10 can proceed as generated/protected zone lane.
+- D10 may investigate current generated-zone evidence in parallel, but it
+  cannot design or close generic generated/protected-zone authority until
+  G-HOST defines the host declaration/refusal boundary and D2 defines the
+  metadata facets it consumes.
 
 Sequential blockers:
 
-- D7 must wait for D5 and D6.
+- D10 must wait for G-HOST before claiming generic closure.
+- D7 must wait for D5, D6, and D10.
 - D8 must wait for D5 and D6.
-- D9 must wait for D8.
+- D9 must wait for D8, D6, and D10.
 - D11 must wait for D7, D9, and D10.
 - D12 must wait for D1, D3, and D7.
-- D13 must wait for D0, D2, and D8.
+- D13 must wait for D0, D2, D8, and G-HOST.
 - D14 must wait for D4, D12, and D13.
-- G-HOST must be satisfied before D9, D10, or D13 claim generic closure over host-specific policy.
 
 ## Anti-Dominoes
 

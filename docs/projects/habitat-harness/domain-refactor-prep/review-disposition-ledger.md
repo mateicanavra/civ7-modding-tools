@@ -20,7 +20,7 @@ Accepted P1/P2 findings block goal attachment until dispositioned. Disposition r
 | R0-003 | P1 | Generic Habitat could be justified by Civ7/MapGen-only behavior. | Guarded. MapGen-specific apply and generated-zone behavior are marked as host/pattern policy boundaries. | `scenario-corpus.md`; `domain-responsibility-map.md`; `domino-candidate-ledger.md`. |
 | R0-004 | P1 | Current full-suite Habitat test reliability is a proof risk. | Converted to Phase 2 stop condition and validation result. It does not block attaching the design goal, but blocks any packet proof closure that depends on Habitat tests until fixed or explicitly non-claimed. | `validation-results.md`; `domino-candidate-ledger.md`. |
 | R0-005 | P1 | `habitat:rule:biome-ci` alias may report false green due to colon target parsing. | Converted to Phase 2 stop condition and validation result. It does not block attaching the design goal, but blocks graph/alias proof closure until fixed or explicitly dispositioned. | `validation-results.md`; `domino-candidate-ledger.md`. |
-| R0-006 | P2 | Broad `src/index.ts` exports may harden internals as public API. | Tracked. D0 and Command/API Contract require export policy before internal movement. | `domain-responsibility-map.md`; `domino-candidate-ledger.md`. |
+| R0-006 | P2 | Broad `src/index.ts` exports may harden internals as public API. | Converted to Phase 2 stop condition. D0 must produce an explicit public/private/export-state matrix before any packet moves internals or narrows package exports. | `domain-responsibility-map.md`; `domino-candidate-ledger.md`; `phase2-workstream-packets/D0-scenario-public-contract-inventory.md`. |
 
 ## Wave 3 Findings
 
