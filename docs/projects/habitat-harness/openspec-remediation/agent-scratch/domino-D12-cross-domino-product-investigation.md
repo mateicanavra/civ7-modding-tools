@@ -91,7 +91,7 @@ D12 must require row-backed compatibility disposition for at least:
 - Docs/examples that compare `bun run verify`, `bun run check`, and `bun run habitat verify`.
 - Non-claim wording that affects how humans interpret the command result.
 
-D1 requires D12 to consume the proof-boundary taxonomy instead of locally renaming proof concepts. The target object is `VerifyReceipt`; `VerifyProof` is a compatibility fact only if D0 says it is preserved, versioned, or wrapped. D12 must copy the D1 non-claim set by identifier and then add D12-specific wording where needed. At a minimum, D12 has to deny CI, runtime behavior, product completion or approval, Graphite readiness, OpenSpec acceptance, apply safety, current-tree cleanliness as a readiness guarantee, and rule correctness beyond the consumed upstream results.
+D1 requires D12 to consume the receipt-boundary taxonomy instead of locally renaming legacy compatibility concepts. The target object is `VerifyReceipt`; `VerifyProof` is a compatibility fact only if D0 says it is preserved, versioned, or wrapped. D12 must copy the D1 non-claim set by identifier and then add D12-specific wording where needed. Required D12 non-claims include CI, runtime behavior, product completion or approval, Graphite readiness, OpenSpec acceptance, apply safety, current-tree cleanliness as a readiness guarantee, and rule correctness beyond the consumed upstream results.
 
 The current D12 spec says the command must not claim product approval, runtime behavior, Graphite readiness, or implementation correctness. That is necessary but incomplete. It omits several D1-owned non-claim families and does not establish typed receipt relationships. Without those, downstream docs and D14 cannot tell whether a green receipt is a local command receipt, an OpenSpec gate, a Graphite handoff, or a product-readiness statement.
 
@@ -248,7 +248,7 @@ Repair demand:
 
 - Expand `design.md` before implementation tasks are considered ready.
 - Convert implementation readiness from a generic checklist into a dependency-state checklist.
-- Add rejected alternatives for broad proof artifacts, local graph truth, local check reinterpretation, and conflating root verify with Habitat verify.
+- Add rejected alternatives for broad readiness records, local graph truth, local check reinterpretation, and conflating root verify with Habitat verify.
 
 ## Exact Repair Demands By Artifact
 
