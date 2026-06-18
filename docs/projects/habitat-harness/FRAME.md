@@ -222,11 +222,11 @@ H1's official migration path completed and the later
   hygiene: Nx remains a root dev dependency, `string-width@4.2.3` anchors the
   yargs 17 CJS path, and modern ESM consumers keep scoped `string-width@7`
   copies.
-- Current local proof after the settlement: `bun run build` and
-  `bun run verify` pass. `bun run lint` intentionally runs
-  `nx run-many --targets=lint,habitat:check` and currently fails on existing
-  locked Habitat/Grit rule violations, not on Biome, Nx invocation, or package
-  dependency resolution.
+- Current command boundary after the lint-topology repair: `bun run lint` is
+  the fast repo-wide Biome hygiene gate. Full Habitat structural proof remains
+  explicit through `bun run habitat:check`,
+  `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
+  `bun run check`; it is not hidden inside root lint.
 
 ## 5. Spec draft disposition
 

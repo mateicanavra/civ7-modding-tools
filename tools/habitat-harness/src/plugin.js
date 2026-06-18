@@ -27,6 +27,7 @@ export const createNodesV2 = [
   "tools/habitat-harness/src/rules/rules.json",
   (configFiles, options, _context) => {
     const checkTargetName = options?.checkTargetName ?? "habitat:check";
+    const aggregateCheckTargetName = options?.aggregateCheckTargetName ?? "habitat:check:all";
     const boundariesTargetName = options?.boundariesTargetName ?? "boundaries";
     const biomeFormatTargetName = options?.biomeFormatTargetName ?? "biome:format";
     const biomeCheckTargetName = options?.biomeCheckTargetName ?? "biome:check";
@@ -169,6 +170,15 @@ export const createNodesV2 = [
         "{workspaceRoot}/mods/**",
         "{workspaceRoot}/docs/**",
       ];
+      harnessProject.targets[aggregateCheckTargetName] = {
+        command: "bun tools/habitat-harness/bin/dev.ts check",
+        options: { cwd: "{workspaceRoot}" },
+        cache: true,
+        inputs: habitatInputs,
+        metadata: {
+          description: "aggregate Habitat rule check; runs broad native-tool checks once",
+        },
+      };
       const dependencyForTarget = (targetName) => {
         const separator = targetName.indexOf(":");
         if (separator === -1) return { target: targetName };

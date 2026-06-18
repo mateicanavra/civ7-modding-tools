@@ -48,7 +48,10 @@ The root script `bun run habitat` dispatches to
 
 Root scripts also expose graph-owned entrypoints:
 
-- `bun run lint` runs `nx run-many --targets=lint,habitat:check`.
+- `bun run lint` runs the canonical repo-wide Biome CI hygiene target.
+- Full Habitat structural proof lives in `bun run habitat:check`,
+  `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
+  `bun run check`; it is not hidden inside root lint.
 - `bun run verify` runs `nx run-many --targets=verify`.
 - `bun run check` runs `nx run-many --targets=build,check,lint,test,verify`.
 - `bun run habitat:fix` runs `bun run habitat fix`.
@@ -66,6 +69,7 @@ these Habitat-owned targets:
 - Repo-wide `biome:format`, `biome:check`, and `biome:ci`
 - Repo-wide `grit:check`
 - Repo-wide `generated:check`
+- Aggregate `habitat:check:all` for one-pass full Habitat graph checks
 - Per-rule `habitat:rule:<rule-id>` aliases
 - Per-owner `habitat:check` targets for projects that own Habitat rules
 

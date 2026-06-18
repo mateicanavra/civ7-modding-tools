@@ -10,10 +10,7 @@ import {
   traceNaturalWonderPlanInputRuntimeTelemetry,
 } from "./natural-wonder-plan-input-telemetry.js";
 import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
-import {
-  validateNaturalWonderPlanArtifact,
-  validatePlacementInputsArtifact,
-} from "./validate.js";
+import { validateNaturalWonderPlanArtifact, validatePlacementInputsArtifact } from "./validate.js";
 
 export default createStep(DerivePlacementInputsContract, {
   artifacts: implementArtifacts(
@@ -38,26 +35,21 @@ export default createStep(DerivePlacementInputsContract, {
     const biomeBindings = deps.artifacts.biomeBindings.read(context);
     const pedology = deps.artifacts.pedology.read(context);
 
-    const { inputs, naturalWonderPlan } = buildPlacementInputs(
-      context,
-      config,
-      ops,
-      {
-        topography: {
-          landMask: topography.landMask as Uint8Array,
-          elevation: topography.elevation as Int16Array,
-        },
-        hydrography: { riverClass: hydrography.riverClass as Uint8Array },
-        lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
-        biomeClassification: {
-          effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,
-          surfaceTemperature: biomeClassification.surfaceTemperature as Float32Array,
-          aridityIndex: biomeClassification.aridityIndex as Float32Array,
-        },
-        biomeBindings: { engineBiomeId: biomeBindings.engineBiomeId as Uint16Array },
-        pedology: { fertility: pedology.fertility as Float32Array },
-      }
-    );
+    const { inputs, naturalWonderPlan } = buildPlacementInputs(context, config, ops, {
+      topography: {
+        landMask: topography.landMask as Uint8Array,
+        elevation: topography.elevation as Int16Array,
+      },
+      hydrography: { riverClass: hydrography.riverClass as Uint8Array },
+      lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
+      biomeClassification: {
+        effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,
+        surfaceTemperature: biomeClassification.surfaceTemperature as Float32Array,
+        aridityIndex: biomeClassification.aridityIndex as Float32Array,
+      },
+      biomeBindings: { engineBiomeId: biomeBindings.engineBiomeId as Uint16Array },
+      pedology: { fertility: pedology.fertility as Float32Array },
+    });
     const naturalWonderPlanInputTelemetry = buildNaturalWonderPlanInputRuntimeTelemetry({
       context,
       plan: naturalWonderPlan,

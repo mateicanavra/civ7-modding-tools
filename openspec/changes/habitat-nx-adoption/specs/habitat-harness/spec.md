@@ -3,9 +3,10 @@
 ### Supersession Note
 
 This spec delta records the original H1 adoption contract. Current command
-guidance is supplied by `habitat-nx-worktree-state-contract`: root workflows use
+guidance is supplied by current Habitat command-surface docs: root workflows use
 root Bun scripts that call Nx targets, ad hoc Nx commands use `nx <args>`, root
-`verify` is an Nx target aggregate, and root `lint` includes Habitat checks.
+`verify` is an Nx target aggregate, root `lint` is the fast Biome hygiene gate,
+and full Habitat structural checks are explicit proof commands.
 Scenarios below that name `bunx nx` are historical H1 evidence, not current
 guidance for future packets.
 
