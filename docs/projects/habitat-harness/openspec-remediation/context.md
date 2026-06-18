@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d14-authoring-topology-fence-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/host-policy-boundary-gate-packet` |
 
 ## Path Variables
 
@@ -286,6 +286,27 @@ variables below.
 | `$D14_PHASE_RECORD` | `$D14_CHANGE/workstream/phase-record.md`. |
 | `$D14_DOWNSTREAM_LEDGER` | `$D14_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D14_CLOSURE_CHECKLIST` | `$D14_CHANGE/workstream/closure-checklist.md`. |
+
+## G-HOST Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$GHOST_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-host-policy-boundary-gate`. |
+| `$GHOST_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/G-HOST-host-policy-boundary-gate.md`. |
+| `$GHOST_DOMAIN_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-domain-ontology-review.md`. |
+| `$GHOST_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-typescript-state-review.md`. |
+| `$GHOST_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-code-vendor-topology-review.md`. |
+| `$GHOST_INFORMATION_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-openspec-information-testing-review.md`. |
+| `$GHOST_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-cross-domino-product-review.md`. |
+| `$GHOST_AFTER_REPAIR_DOMAIN_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-after-repair-domain-ontology-review.md`. |
+| `$GHOST_AFTER_REPAIR_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-after-repair-typescript-validation-review.md`. |
+| `$GHOST_AFTER_REPAIR_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-after-repair-openspec-information-review.md`. |
+| `$GHOST_AFTER_REPAIR_CODE_VENDOR_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-after-repair-code-vendor-topology-review.md`. |
+| `$GHOST_AFTER_REPAIR_CROSS_DOMINO_PRODUCT_REVIEW` | `$AGENT_SCRATCH/host-policy-boundary-after-repair-cross-domino-product-review.md`. |
+| `$GHOST_REVIEW_LEDGER` | `$GHOST_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$GHOST_PHASE_RECORD` | `$GHOST_CHANGE/workstream/phase-record.md`. |
+| `$GHOST_DOWNSTREAM_LEDGER` | `$GHOST_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$GHOST_CLOSURE_CHECKLIST` | `$GHOST_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 

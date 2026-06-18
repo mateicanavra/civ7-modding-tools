@@ -1,9 +1,19 @@
 # Downstream Realignment Ledger: Host Policy Boundary Gate
 
-| Downstream Surface | Disposition | Required Action |
-| --- | --- | --- |
-| Phase 2 packet suite | pending | Mark G-HOST as OpenSpec-packetized after review. |
-| D0 compatibility matrix | pending | Confirm public surfaces touched by G-HOST are classified before implementation. |
-| Habitat docs/examples | pending | Update only when implementation facts change or public guidance must be clarified. |
-| Tests and command fixtures | pending | Add or update during implementation according to tasks.md. |
-| Later domino packets | pending | Update dependency assumptions if review changes G-HOST contract. |
+G-HOST is accepted for design/specification only after after-repair final
+rereview accepted the repaired packet. These rows define the downstream
+assumptions preserved by that acceptance.
+
+| Downstream Surface | Current Assumption | Required Action / Disposition | Non-Claims |
+| --- | --- | --- | --- |
+| D0 Command Surface Inventory | Host declaration location, command output, exported types, generator help/errors, docs, and examples may become public/durable surfaces. | Source implementation remains blocked until D0 rows exist for every touched surface and record preserve/version/facade/deprecate/refuse/document-only/generated-only handling. | G-HOST design acceptance does not classify public compatibility by itself. |
+| D1 Receipt Contract Boundary | Host-policy refusals and non-claims must use D1 output-family handling where public output is touched. | D1 remains the owner of output-family/non-claim vocabulary; G-HOST must cite D1 handling for changed command/report output. | G-HOST does not create a new output family. |
+| D9 Transformation Transaction | D9 needs host-specific apply gates, including current MapGen public-ops validation, without owning host semantics. | D9 consumes `HostApplyGateProjection`; generated/protected path authority still flows through D10 where touched. D9 source work remains blocked until accepted/live G-HOST projections exist. | A declared host gate does not prove transaction safety, rollback safety, or generated-zone freshness. |
+| D10 Protected Zone Authority | D10 needs host-owned path, owner, recovery, generated/protected/external-resource, and missing-policy facts. | D10 consumes `HostSurfaceProjection`; it must not author host path lists, owners, or recovery instructions. D10 source work remains blocked until accepted/live G-HOST projections exist. | G-HOST does not decide the final D10 guard result. |
+| D13 Project Creation And Refusal Contracts | D13 needs host-owned support/refusal facts for non-authoring project creation requests and `host-policy-missing` refusals. | D13 consumes `HostProjectSupportProjection`; it owns the generic refusal envelope and no-write behavior. | G-HOST does not infer project support from schema enum values or package names. |
+| D14 Authoring Topology Fence | D14 must preserve authoring non-claims when host policy is mentioned. | D14 consumes `HostAuthoringBoundaryProjection` only for relation and non-claims. Authoring-specific blocked actions and future criteria remain D14-owned. | Host policy does not make MapGen authoring supported. |
+| D2 Rule Registry Metadata Contract | D2 may later carry generated-zone references or rule metadata consumed by D10/G-HOST. | D2 is not a G-HOST design prerequisite; source implementation must not assume live D2 generated-zone facts until they exist. | G-HOST does not own rule registry metadata. |
+| Native tool config (`nx.json`, `biome.json`, `.gritignore`, Grit patterns) | Existing native configs mirror generated/protected/apply realities. | G-HOST implementation must preserve native-tool ownership and update mirrors only through their owning config contracts. | G-HOST does not replace Nx scheduling, Biome formatting, Grit pattern semantics, or Git staged-state semantics. |
+| Tests and fixtures | Current test ownership is split across apply, hook, classify, generator, and future host-declaration tests. | Later implementation must add focused host declaration tests and run adjacent live tests named in `tasks.md`. | OpenSpec validation does not prove runtime behavior. |
+| Packet index | G-HOST row now records accepted design/specification status. | Preserve design-only status and D9/D10/D13/D14 source blockers until source implementation consumes accepted/live G-HOST projections. | Packet-index status does not mean implementation-complete. |
+| D15 Execution Provenance Trigger | G-HOST is not a provenance substrate trigger by default. | Only trigger D15 if G-HOST implementation records an impossible local command/provenance state after local DTO/projection modeling. | G-HOST does not authorize an Effect or process-substrate migration. |
