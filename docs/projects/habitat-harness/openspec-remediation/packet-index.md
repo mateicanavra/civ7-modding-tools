@@ -2,13 +2,11 @@
 
 This index tracks the conversion of the Phase 2 domino suite into OpenSpec
 change packets. It is part of the remediation frame, not an implementation
-commitment. Most rows remain incomplete packets: global review findings have
-been converted into shared constraints, but each domino remains blocking until
-its own per-domino adversarial review has run and all accepted P1/P2 findings
-are repaired. D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, D14, and G-HOST are the current exceptions: they are
-accepted for design/specification after their per-domino final reviews found no
-unresolved P1/P2 blockers. D0-D14 and G-HOST are not implementation-complete,
-and D15 remains blocking unless its own status row says otherwise.
+commitment. Global review findings were converted into shared constraints, and
+each domino then received its own per-domino adversarial review. D0-D15 and
+G-HOST are accepted for design/specification after their per-domino final
+reviews found no unresolved P1/P2 blockers. D0-D15 and G-HOST are not
+implementation-complete.
 
 Path variables and operational checkout fixtures are defined in
 `$REMEDIATION_DIR/context.md`. This index records packet identity and sequencing;
@@ -32,12 +30,12 @@ it does not repeat local worktree paths or branch names.
 | D12 | D12 Verify Handoff Receipt | `deep-habitat-d12-verify-handoff-receipt` | D0, D1, D3, D7, D11 where local-feedback or hook trace projections are consumed; concrete D0 rows, D1 output-family handling, live D3 verify target plan facts, live D7 verify check projection facts, and live D11 projections where consumed required before source implementation | D14 | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete; source implementation blocked behind concrete D0 rows, D1 output-family handling, live D3 verify target plan facts, live D7 verify check projection facts, and live D11 projections where consumed |
 | D13 | D13 Scaffolding And Refusal Contracts | `deep-habitat-d13-scaffolding-refusal-contracts` | D0, D2, D8, G-HOST | D14 | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete; source implementation blocked behind concrete D0 rows, live D2 governance/generated-zone facts, live D8 candidate/admission projections, accepted/live G-HOST host declarations where consumed, D10 path/zone decisions where touched, and D14 early-fence language for authoring-specific refusals |
 | D14 | D14 Authoring Topology Fence | `deep-habitat-d14-authoring-topology-fence` | D0, D4, D12, D13 | none | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete; source implementation blocked behind concrete D0 rows, D13 refusal-envelope source work, and live D4/D12 examples where consumed |
-| D15 | D15 Execution Provenance Trigger | `deep-habitat-d15-execution-provenance-trigger` | D6, D7, D9, or D11 consuming packet identifies impossible local states | A future packet-local substrate decision only when triggered | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D15 | D15 Execution Provenance Trigger | `deep-habitat-d15-execution-provenance-trigger` | D6, D7, D9, D11, or G-HOST consuming packet identifies a concrete command-observation state that local DTOs/projections cannot represent without contradiction | A future packet-local command-observation substrate decision only when triggered | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete; source implementation blocked unless a later accepted packet changes D15 from `dormant` to `trigger-accepted` with concrete D0 rows and D1 output-family handling |
 
 ## Review Gate Semantics
 
 - Global review artifacts are concern catalogs and corpus-wide constraints.
-  They are not packet-specific acceptance evidence.
+  They are not packet-specific acceptance records.
 - Each domino must still run its own adversarial domain-language, OpenSpec,
   topology, validation, information-design, and cross-domino review before the
   packet can advance from blocking packet status to accepted execution authority.
@@ -52,7 +50,7 @@ it does not repeat local worktree paths or branch names.
 
 - Existing Phase 2 packets are controlling inputs, not final OpenSpec outputs.
 - Domain and information design review are mandatory before implementation.
-- Proof/evidence-shaped product code and type names are suspect unless they
+- Verification-artifact-shaped product code and type names are suspect unless they
   directly serve a repo-maintenance scenario.
 - D15 is a trigger protocol, not a default substrate migration.
 - D14 is a fence/refusal packet unless a later accepted authority opens
@@ -90,7 +88,7 @@ artifacts use `$OPENSPEC_CHANGES/<change-slug>/...`.
 
 ## Evidence Status Policy
 
-- Current evidence must cite `$ACTIVE_REMEDIATION_WORKTREE` and
+- Current validation records must cite `$ACTIVE_REMEDIATION_WORKTREE` and
   `$ACTIVE_REMEDIATION_BRANCH` from `$REMEDIATION_DIR/context.md`, then name the
   command, expected status, actual status, cache/freshness stance, and
   non-claims.
@@ -98,6 +96,7 @@ artifacts use `$OPENSPEC_CHANGES/<change-slug>/...`.
 - OpenSpec packet commands must use `$REPO_ROOT`/path-template variables from
   `$REMEDIATION_DIR/context.md` or repo-relative paths when run by
   implementation agents.
-- Non-claims define what a passing receipt or command result does and does not prove; they do not convert a failed required gate into closure evidence.
+- Non-claims define what a passing receipt or command result does and does not
+  validate; they do not convert a failed required gate into closure.
 - If D15 is triggered by more than one consuming packet, shared substrate edits must move into one sequential owner packet before implementation.
 - D14 has two duties: early scope/future-authoring refusal authority before D13 authors those refusals, and late command-facing closure after D4/D12/D13 examples exist.
