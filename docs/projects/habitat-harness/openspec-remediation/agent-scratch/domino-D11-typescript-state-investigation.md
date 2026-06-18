@@ -4,7 +4,7 @@ Investigation lane: TypeScript refactoring and state-space collapse.
 
 Verdict: blocking. The current D11 OpenSpec packet is not implementation-ready. Later execution would still have to decide the concrete local hook state model, public compatibility treatment, write set, and validation oracle. Those are design authority decisions, not implementation details.
 
-This document is review input only. It is not acceptance evidence, does not update the packet index, and does not close D11.
+This document is review input only. It is not acceptance input, does not update the packet index, and does not close D11.
 
 ## Source Authority Read Register
 
@@ -62,8 +62,8 @@ Live implementation inputs read:
 
 Important authority facts:
 
-- D11 owns local hook feedback only. It does not own CI proof, review proof, OpenSpec acceptance, generated/protected-zone policy, Grit semantics, transformation safety, or Nx graph authority.
-- D1 owns canonical target naming, non-claims, and public-surface compatibility routing. D1 names `HookTrace` / `LocalFeedbackTrace` as local feedback traces, not proof artifacts.
+- D11 owns local hook feedback only. It does not own CI readiness, review readiness, OpenSpec acceptance, generated/protected-zone policy, Grit semantics, transformation safety, or Nx graph authority.
+- D1 owns canonical target naming, non-claims, and public-surface compatibility routing. D1 names `HookTrace` / `LocalFeedbackTrace` as local feedback traces, not authority artifacts.
 - D6 owns diagnostic pattern acquisition/projection. D11 must consume diagnostic outcomes; it must not interpret raw Grit output or message text as semantic authority.
 - D7 owns structural enforcement and local-feedback-safe check projection. D11 may decide hook sequencing and staged-file handling, but must consume D7 projection rather than parse D7 human output.
 - D9 owns apply/fix transaction semantics. D11 may only consume D9 local-feedback-safe outcomes.
@@ -196,11 +196,10 @@ Current symbols:
 
 D1 identifies `HookTrace` / `LocalFeedbackTrace` as a target family, and D0 controls public compatibility. The D11 packet does not yet decide whether current exported types are target contracts, legacy public compatibility, or implementation internals. It also does not cite D0 rows for changing the human output string:
 
-```ts
-hook proof: local feedback only; CI remains authoritative.
-```
+The current implementation emits a legacy local-feedback notice that includes
+old authority vocabulary.
 
-The word "proof" is target-hostile even though D1 records it as an existing compatibility phrase. D11 must not silently change it without D0 authority, but it also must not bless it as target terminology.
+That legacy vocabulary is target-hostile even though D1 records it as an existing compatibility phrase. D11 must not silently change it without D0 authority, but it also must not bless it as target terminology.
 
 ### P2: Repeated Branching Instead Of Stage Model
 
@@ -261,9 +260,9 @@ Current symbol:
 
 - `const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"]`
 
-D11 can define that pre-push runs a local affected feedback command, but it should not become the canonical owner of Nx target availability or graph dependency truth. That authority belongs to D3/Nx workspace integration and owning package targets. The D11 packet should require target selection to be consumed from accepted upstream graph/command contracts or explicitly mark this list as local hook configuration, not proof of graph coverage.
+D11 can define that pre-push runs a local affected feedback command, but it should not become the canonical owner of Nx target availability or graph dependency truth. That authority belongs to D3/Nx workspace integration and owning package targets. The D11 packet should require target selection to be consumed from accepted upstream graph/command contracts or explicitly mark this list as local hook configuration, not graph coverage authority.
 
-### P3: Proof-Shaped Names In Local Feedback Code
+### P3: Legacy Authority Names In Local Feedback Code
 
 Current symbol:
 
@@ -488,7 +487,7 @@ D11 should require these slices in order. Each slice has a compiler/test gate be
    - Gate: explicit base, Graphite parent, merge-base `main`, merge-base `origin/main`, literal `main`, and Nx affected failure tests.
 
 8. Delete compatibility-only shapes only after D0 permits it.
-   - Remove `allowPreCommit` from target code, proof-shaped names, and legacy optional DTO fields only when public compatibility has a documented preserve/version/facade/deprecate decision.
+   - Remove `allowPreCommit` from target code, legacy authority-shaped names, and legacy optional DTO fields only when public compatibility has a documented preserve/version/facade/deprecate decision.
    - Gate: D0 rows plus hook tests plus OpenSpec validation.
 
 ## Allowed Write And Protected Path Recommendations
@@ -549,7 +548,7 @@ File-layer and protected/generated-zone stops:
 
 - D10-origin refusal stops before Biome, Grit, generated publish, resource publish, and restage
 - D11 consumes D7/D10 local-feedback-safe projection rather than parsing text
-- generated/protected-zone refusal remains local feedback, not CI proof or generated freshness proof
+- generated/protected-zone refusal remains local feedback, not CI readiness or generated freshness authority
 
 Grit/Biome/Nx command results:
 
@@ -575,7 +574,7 @@ Trace and public compatibility:
 - every terminal state includes D1 non-claims
 - target trace stage sequence is closed and exhaustively matched
 - compatibility trace, if retained, exactly matches current public tests
-- human output does not add new proof claims
+- human output does not add new external-authority claims
 - any output text or exported DTO change has a D0 compatibility row
 
 Recommended gates after each logical move:
@@ -710,7 +709,7 @@ Add:
 
 - D11 is a state-space collapse and local-feedback contract repair.
 - D11 keeps Habitat generic and repo-local.
-- D11 does not create proof authority.
+- D11 does not create external authority.
 - D11 success means later implementation has no remaining decisions about state model, public compatibility, write set, or validation oracle.
 
 ### `design.md`

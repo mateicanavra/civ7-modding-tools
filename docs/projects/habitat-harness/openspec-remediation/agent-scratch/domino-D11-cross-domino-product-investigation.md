@@ -4,9 +4,9 @@
 
 Verdict: keep D11 blocking.
 
-D11 is not implementation-ready as currently scaffolded. It can proceed with hidden dependency assumptions around D6 staged diagnostic projections, D3 pre-push graph facts, D8 local-feedback admission/eligibility, G-HOST transitive protected/host policy gates, and D0/D1 compatibility for touched hook output and traces. The current packet has the right intent, but it is still a thin scaffold rather than an implementation authority.
+D11 is not implementation-ready in the reviewed disk state. It can proceed with hidden dependency assumptions around D6 staged diagnostic projections, D3 pre-push graph facts, D8 local-feedback admission/eligibility, G-HOST transitive protected/host policy gates, and D0/D1 compatibility for touched hook output and traces. The current packet has the right intent, but it is still underspecified rather than an implementation authority.
 
-This document is investigation/review input only. It is not acceptance evidence and does not update the packet index, closure records, or D11 packet files.
+This document is investigation/review input only. It is not acceptance input and does not update the packet index, closure records, or D11 packet files.
 
 ## Source Authority Read Register
 
@@ -54,10 +54,10 @@ Upstream packet contracts read:
 - D8 proposal/spec for Pattern Governance and explicit local-feedback admission/eligibility.
 - D9 proposal/spec for local-feedback-safe transaction projections.
 - D10 proposal/spec for protected/generated/host-owned mutation decisions and D11 staged refusal consumption.
-- D15 OpenSpec scaffold plus source packet for trigger evidence fields.
-- G-HOST OpenSpec scaffold for host-policy boundary.
+- D15 OpenSpec packet plus source packet for trigger records.
+- G-HOST OpenSpec packet for host-policy boundary.
 
-Current behavior evidence read:
+Current behavior inputs read:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/hooks.test.ts`
@@ -87,11 +87,11 @@ The fast recovery path should be stage-ordered:
 Pre-push feedback needs a different recovery model:
 
 - It should explain the selected affected base as observed Graphite/git state only.
-- It should state that `nx affected` success/failure is local feedback and not CI, Graphite readiness, review completion, or product proof.
+- It should state that `nx affected` success/failure is local feedback and not CI, Graphite readiness, review completion, or product readiness.
 - It should consume D3 graph target facts for target availability and graph refusals instead of treating raw `nx affected` exit status as target truth.
 - It should give a recovery path for missing Graphite parent, graph-read failure, unresolved targets, and affected failure.
 
-The current D11 scaffold has the non-claim headline, but it does not yet specify the recovery taxonomy, projection ownership, stop sequence, or output/trace compatibility envelope tightly enough for execution.
+The current D11 packet has the non-claim headline, but it does not yet specify the recovery taxonomy, projection ownership, stop sequence, or output/trace compatibility envelope tightly enough for execution.
 
 ## Dependency Graph
 
@@ -125,7 +125,7 @@ No extra dependency should be added for D12: D11 non-claims should say hooks do 
 
 ## D15 Trigger Assessment
 
-D15 should remain dormant for D11 unless D11 records a concrete representation failure. Current evidence does not yet prove such a failure; local discriminated DTOs appear sufficient if D11 narrows its model to owned hook orchestration plus upstream projections.
+D15 should remain dormant for D11 unless D11 records a concrete representation failure. Current inputs do not show such a failure; local discriminated DTOs appear sufficient if D11 narrows its model to owned hook orchestration plus upstream projections.
 
 If D11 does trigger D15, the exact trigger row should be:
 
@@ -136,11 +136,11 @@ If D11 does trigger D15, the exact trigger row should be:
 | Local DTO alternative rejected | A D11-owned discriminated `LocalFeedbackStageOutcome` with variants for resource, file-layer check projection, partial-staging refusal, formatter handoff, D6 diagnostic projection, D9 transaction projection, pre-push graph/affected projection, and blocked-missing-upstream-projection. |
 | Runtime command fields required | argv, cwd, bounded stdout/stderr or digests, exit code, duration, env subset if relevant, cache/freshness stance, staged paths, pre/post git snapshot, Graphite base observation for pre-push, and non-claim identifiers. |
 | Public output impact | Any HookTrace schema, human notice, help text, docs example, or exported type change must cite concrete D0 rows and D1 output-family handling. |
-| Proof class | Local feedback trace/provenance only; not CI, review proof, apply safety, product/runtime proof, Graphite readiness, OpenSpec acceptance, current-tree cleanliness, or rule correctness. |
+| Claim boundary | Local feedback trace/provenance only; not CI, review readiness, apply safety, product/runtime readiness, Graphite readiness, OpenSpec acceptance, current-tree cleanliness, or rule correctness. |
 | Rollback/escape plan | Keep provenance packet-local; if shared substrate is still required, move it into one sequential owner packet before D6/D7/D9/D11 implementation shares it. |
 | Type-check/performance risk | Measure compile/test impact and avoid broad Effect/substrate migration unless it removes a named contradictory state. |
 
-Absent that evidence, D11 should specify no D15 activation.
+Absent that representation failure, D11 should specify no D15 activation.
 
 ## Downstream Realignment Plan
 
@@ -149,14 +149,14 @@ After D11 implementation facts exist, realign at least these surfaces:
 - D11 OpenSpec packet and workstream ledgers: source authority, dependency graph, write set, projection contracts, validation gates, and review dispositions.
 - Packet index: D11 dependency row must include D6 and D3 for pre-push affected behavior, plus D8/G-HOST conditional wording.
 - D0 public-surface compatibility matrix: concrete rows for `habitat hook pre-commit`, `habitat hook pre-push`, `habitat hook --help`, hook human notice, HookTrace/LocalFeedbackTrace schema if public/exported, docs examples, Husky delegators, and any package exports.
-- D1 output-family records: hook trace non-claims, refusal/recovery instructions, Graphite observation handling, and legacy proof-shaped notice compatibility.
+- D1 output-family records: hook trace non-claims, refusal/recovery instructions, Graphite observation handling, and legacy local-feedback notice compatibility.
 - Tests: hook trace tests, resource-state constructor tests, staged D10 refusal stop tests, D6 diagnostic projection rendering tests, D7 local-feedback check projection tests, D9 transaction projection rendering tests, pre-push D3 graph/base/affected tests, partial-staging refusal tests, and public-output bad-case tests.
 - `docs/process/resources-submodule.md`: already aligned with current explicit publish/refusal behavior; keep it as the model.
 - `docs/process/CONTRIBUTING.md`: currently says resource diffs are auto-committed/pushed via pre-commit. D11 implementation should update this to match explicit `bun run resources:publish` plus hook refusal behavior.
 - `docs/process/GRAPHITE.md`: if D11 changes pre-push base detection or Graphite handoff guidance, add a local-feedback/non-claim note rather than treating hook pass as PR readiness.
 - Root `AGENTS.md` hook guidance: update only if behavior changes, preserving the rule that hooks reduce local friction while CI remains authoritative.
 - `.husky/pre-commit` and `.husky/pre-push`: keep stable unless D0 compatibility rows authorize any command-path change.
-- Tool docs/examples under `tools/habitat-harness/docs/**`: update examples that show proof-shaped hook output or old recovery behavior.
+- Tool docs/examples under `tools/habitat-harness/docs/**`: update examples that show legacy hook notice output or old recovery behavior.
 
 ## Findings
 
@@ -182,7 +182,7 @@ Repair: add a D11 stage contract table with `stage`, `upstream owner`, `input pr
 
 D11 currently says HookTrace and human output may change under D0/D1 compatibility, but does not require concrete D0 row IDs before changing hook output, help, docs examples, trace schema, package exports, or Husky command paths. D0 matrix file is not yet present in the expected project path, so implementation cannot cite concrete rows today.
 
-Repair: make D11 source implementation blocked until concrete D0 rows exist for every touched hook surface. Add D1 canonical non-claim IDs to the D11 spec, not just prose notices. Legacy "hook proof" text must be either preserved as a D0 compatibility phrase or replaced only through D0-approved versioning/deprecation.
+Repair: make D11 source implementation blocked until concrete D0 rows exist for every touched hook surface. Add D1 canonical non-claim IDs to the D11 spec, not just prose notices. Legacy hook notice text must be either preserved as a D0 compatibility phrase or replaced only through D0-approved versioning/deprecation.
 
 ### P2: D8 local-feedback admission is underspecified
 
@@ -204,7 +204,7 @@ Repair: add scenario map and acceptance cases for each failure family. Each case
 
 ### P2: Current hook behavior demonstrates target risks D11 must explicitly repair
 
-Current `hooks.ts` has target-risk patterns: `ResourceState.kind` plus `allowPreCommit` boolean correlation, legacy proof-shaped hook notice, local parsing of `CheckReport`/Grit adapter message text, direct fixed `nx affected` target list, and Graphite base observation recorded as hook trace state. These are acceptable as evidence, not target authority.
+Current `hooks.ts` has target-risk patterns: `ResourceState.kind` plus `allowPreCommit` boolean correlation, legacy hook notice wording, local parsing of `CheckReport`/Grit adapter message text, direct fixed `nx affected` target list, and Graphite base observation recorded as hook trace state. These are acceptable as current-behavior inputs, not target authority.
 
 Repair: D11 should require discriminated resource states with allowed/refused derived from variant; projection-based diagnostic and check handling; D3-backed pre-push target/graph handling; D1 non-claim IDs; and tests that make contradictory states unrepresentable or rejected.
 
@@ -228,7 +228,7 @@ Repair: add this to D11 downstream realignment. The doc should point to `bun run
 ### `openspec/changes/deep-habitat-d11-local-feedback/design.md`
 
 - Add a local feedback stage table with owner, projection, output, stop/continue rule, recovery instruction, trace field, and non-claims.
-- Define target `LocalFeedbackTrace`/`HookTrace` semantics as D1-bounded local feedback, not proof.
+- Define target `LocalFeedbackTrace`/`HookTrace` semantics as D1-bounded local feedback, not authority outside the local hook.
 - Define resource state as discriminated variants: `clean`, `not-configured`, `staged-gitlink-allowed`, `dirty-submodule-refused`, `unstaged-gitlink-refused`, `locked-refused`, `uninitialized-refused`, `inspection-failed-refused`.
 - Define pre-push graph consumption through D3 target facts and graph refusals; raw `nx affected` exit status is command outcome, not target truth.
 - Define D15 trigger minimization and explicitly state no trigger unless the local DTO alternative fails.
@@ -244,7 +244,7 @@ Repair: add this to D11 downstream realignment. The doc should point to `bun run
 - Add pre-implementation tasks to cite concrete D0 rows and D1 output-family/non-claim decisions.
 - Add D6, D3, D8 conditional, and G-HOST-through-D10/D9 dependency checks.
 - Split implementation tasks by stage, not by vague "clarify output".
-- Add falsifying tests for staged D10 refusal, D6 diagnostic projection failure, D8 missing admission, D9 transaction recovery projection, D3 graph refusal, resource-state contradiction, and proof-shaped notice compatibility.
+- Add falsifying tests for staged D10 refusal, D6 diagnostic projection failure, D8 missing admission, D9 transaction recovery projection, D3 graph refusal, resource-state contradiction, and legacy notice compatibility.
 
 ### `openspec/changes/deep-habitat-d11-local-feedback/workstream/phase-record.md`
 
@@ -275,7 +275,7 @@ Recommendation only; no source edits in this review pass.
 - Later implementation should stop local parsing of raw Grit/check output as target diagnostic authority and consume accepted projections.
 - Replace boolean-correlated `ResourceState` with discriminated constructors.
 - Keep restaging restricted to formatter-touched files and prove partial-staging refusal remains before writes.
-- Replace proof-shaped notice or preserve it only through D0/D1 compatibility.
+- Replace legacy hook notice wording or preserve it only through D0/D1 compatibility.
 - Make pre-push target/base behavior consume D3 graph facts and render Graphite base as observed state only.
 
 ## Stop Condition Check

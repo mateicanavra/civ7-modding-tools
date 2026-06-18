@@ -1,6 +1,6 @@
 # D11 Local Feedback OpenSpec Information/Testing Investigation
 
-Status: investigation/review input only; not acceptance evidence and not a
+Status: investigation/review input only; not acceptance input and not a
 closure record.
 
 Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
@@ -30,11 +30,11 @@ Live branch observed: `codex/d11-local-feedback-packet`.
 
 | Source | Read | Notes |
 | --- | --- | --- |
-| Source domino packet `$PHASE2_PACKET_DIR/D11-local-feedback.md` | full | Richer scenario inventory than current OpenSpec packet; still contains old proof vocabulary. |
+| Source domino packet `$PHASE2_PACKET_DIR/D11-local-feedback.md` | full | Richer scenario inventory than current OpenSpec packet; still contains old local-authority vocabulary. |
 | Current D11 packet `$OPENSPEC_CHANGES/deep-habitat-d11-local-feedback/**` | full | Proposal, design, spec, tasks, phase record, review ledger, downstream ledger, closure checklist. |
 | Packet index `$REMEDIATION_DIR/packet-index.md` | full | D11 remains incomplete/blocking; index currently lists D11 dependencies without D6. |
 | Current hook code `$HABITAT_TOOL/src/lib/hooks.ts` | full | Present behavior includes resource state, staged file-layer, partial staging, Biome, Grit JSON parsing, Graphite base, Nx affected, HookTrace. |
-| Current hook tests `$HABITAT_TOOL/test/lib/hooks.test.ts` | full | Current tests cover several D11 scenarios but still assert legacy `hook proof` wording. |
+| Current hook tests `$HABITAT_TOOL/test/lib/hooks.test.ts` | full | Current tests cover several D11 scenarios but still assert legacy hook notice wording. |
 | D0/D1/D6/D7/D9/D10 OpenSpec specs and targeted designs | read relevant full specs plus projection sections | Used to identify exact upstream projections and prohibited inferences. |
 | `$REMEDIATION_DIR/context.md` | read relevant section | Operational fixture has stale `$ACTIVE_REMEDIATION_BRANCH` value: `codex/d10-protected-zone-authority-packet`. |
 | Root `AGENTS.md` in active worktree | full | Confirms Graphite workflow, absolute `apply_patch` rule, hooks are local friction reduction while CI is authoritative. |
@@ -69,7 +69,7 @@ Blocking gaps:
 
 ### Design
 
-The design is a scaffold. It names the domain boundary and rejected alternative
+The design is underspecified. It names the domain boundary and rejected alternative
 but does not resolve enough decisions for implementation.
 
 Missing design decisions:
@@ -126,7 +126,7 @@ Tasks are not implementation slices. They are broad reminders.
 Problems:
 
 - 2.1 through 2.3 are design statements, not executable source/test slices.
-- No task names the exact later write set. At minimum, D11 must name
+- No task names the exact later write set. Required D11 write-set records include
   `$HABITAT_TOOL/src/lib/hooks.ts`, hook CLI entrypoint/command wiring if
   touched, `$HABITAT_TOOL/test/lib/hooks.test.ts`, any new test fixtures, and
   D0 matrix/docs surfaces before implementation.
@@ -156,7 +156,7 @@ Problems:
 
 ## Required Spec Requirement Families And Scenario List
 
-D11 needs a materially larger spec delta. The minimum complete requirement
+D11 needs a materially larger spec delta. The complete requirement
 families are below.
 
 ### 1. Hook Commands Are Local Feedback Entrypoints
@@ -296,7 +296,7 @@ Scenarios:
 
 - Any hook command, hook output, help text, `HookTrace`, exported type, docs
   example, or D0 plane touched by D11 cites concrete D0 surface rows.
-- Existing `hook proof` phrase is treated only as D1/D0 compatibility wording
+- Existing legacy hook notice phrase is treated only as D1/D0 compatibility wording
   whose target meaning is `local-feedback-only`.
 - Target code/product terms use checks, diagnostics, command records, receipts,
   decisions, transactions, outcomes, validation gates, and non-claims.
@@ -340,7 +340,7 @@ checks passed.
 | Nx affected failure | existing pre-push test | exit follows Nx nonzero; outcome `affected-failed`; false-green impossible. |
 | Unknown hook/help | `bun run habitat hook -- --help`, `bun run habitat hook definitely-not-a-hook` or unit equivalent | help exits per D0 row; unknown exits nonzero with expected names and no passing trace. |
 | Public compatibility | D0 matrix validation plus D11 changed-surface audit | every changed hook output/trace/export/docs surface has D0 row and closed handling. |
-| Wording audit | `rg -n "proof|evidence|fallback|shim|temporary|dual path|silent skip|optional target|only if needed" $D11_CHANGE` | only historical/source critique or forbidden-language sections may match; target terms repaired. |
+| Wording audit | scan for legacy authority terms and shortcut terms in `$D11_CHANGE` | only source critique or forbidden-language sections may match; target terms repaired. |
 | OpenSpec shape | `bun run openspec -- validate deep-habitat-d11-local-feedback --strict` | exit 0; shape only, not implementation readiness. |
 | Full OpenSpec corpus | `bun run openspec:validate` | exit 0 before packet acceptance; shape only. |
 | Whitespace | `git diff --check` | exit 0 before commit/closure. |
@@ -352,15 +352,15 @@ validation after code changes.
 
 ## Wording Audit Concerns
 
-- Source D11 uses `proof` throughout. That is acceptable as historical input
+- Source D11 uses legacy authority wording throughout. That is acceptable as historical input
   only; target D11 packet language should use validation gates, command
   records, local feedback traces, outcomes, receipts, decisions, diagnostics,
   transactions, and non-claims.
-- Current D11 packet still says "present-behavior evidence" and "Repair
-  Evidence" in ledgers. For control artifacts this is tolerable if the word is
-  not target product vocabulary, but D11 should avoid carrying those words into
+- Current D11 packet still says "present-behavior input" and repair records
+  in ledgers. For control artifacts this is tolerable if the wording is
+  not target product vocabulary, but D11 should avoid carrying authority terms into
   hook output, type names, product docs, or target spec requirements.
-- Current hook code and tests still assert `hook proof: local feedback only; CI
+- Current hook code and tests still assert the legacy hook notice that says local feedback only and CI
   remains authoritative.` D1 treats this as a D0-classified compatibility
   phrase, not target meaning. D11 must either preserve through explicit D0 row
   or replace/version it through D0 handling.
@@ -375,10 +375,10 @@ validation after code changes.
 | ID | Finding | Why It Blocks | Required Repair |
 | --- | --- | --- | --- |
 | D11-P1-001 | D11 omits D6 as a direct consumed authority in proposal/requirements and has no D6 diagnostic scenarios. | Supervisor watchpoint requires D11 to explicitly consume D6 staged diagnostic projections. Without this, implementation can collapse diagnostic feedback into current hook Grit parsing or D7-only check output. | Add D6 to `Requires`; define D6 `DiagnosticRunOutcome` / hook-eligible diagnostic projection consumption; name D7 `LocalFeedbackCheckProjection` only as mediation, with prohibited inference that D7 owns D6 diagnostic truth. |
-| D11-P1-002 | Spec delta is too thin to be an implementation authority. | Two scenarios leave product/domain trade-offs to implementation: stage order, terminal states, upstream unavailable states, false-green refusal, public compatibility, and hook trace compatibility. | Replace with complete D11 requirement families and normative scenarios listed above. |
+| D11-P1-002 | Spec delta is underspecified as an implementation authority. | Two scenarios leave product/domain trade-offs to implementation: stage order, terminal states, upstream unavailable states, false-green refusal, public compatibility, and hook trace compatibility. | Replace with complete D11 requirement families and normative scenarios listed above. |
 | D11-P1-003 | False-green refusals are not normative. | Hook pass remains spec-representable after unavailable required authority, unparseable diagnostics, protected-zone refusal, partial staging, formatter/restage failure, or affected-target failure. | Add a false-green refusal requirement and focused scenarios/tests that make those pass states unrepresentable or validation-rejected. |
 | D11-P1-004 | Tasks are not executable slices and do not name write set/protected paths. | Later implementation would decide file ownership, sequencing, public compatibility, and validation oracles while coding. | Rewrite tasks into ordered slices with exact write set, protected paths, dependencies, and per-slice validation commands/oracles. |
-| D11-P1-005 | Public compatibility is deferred generically. | D0/D1 require hook output, help, HookTrace, exports, docs examples, and legacy proof wording to be classified before changes. | Add D0 matrix rows/gates as explicit pre-source blockers and task requirements; do not allow hook output/trace changes without D0 closed handling. |
+| D11-P1-005 | Public compatibility is deferred generically. | D0/D1 require hook output, help, HookTrace, exports, docs examples, and legacy hook notice wording to be classified before changes. | Add D0 matrix rows/gates as explicit pre-source blockers and task requirements; do not allow hook output/trace changes without D0 closed handling. |
 
 ### P2 Findings
 

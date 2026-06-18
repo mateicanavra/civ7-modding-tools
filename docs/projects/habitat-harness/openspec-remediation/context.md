@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d10-protected-zone-authority-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d11-local-feedback-packet` |
 
 ## Path Variables
 
@@ -190,6 +190,27 @@ variables below.
 | `$D10_PHASE_RECORD` | `$D10_CHANGE/workstream/phase-record.md`. |
 | `$D10_DOWNSTREAM_LEDGER` | `$D10_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D10_CLOSURE_CHECKLIST` | `$D10_CHANGE/workstream/closure-checklist.md`. |
+
+## D11 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D11_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d11-local-feedback`. |
+| `$D11_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D11-local-feedback.md`. |
+| `$D11_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D11-domain-ontology-investigation.md`. |
+| `$D11_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D11-typescript-state-investigation.md`. |
+| `$D11_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D11-code-vendor-topology-investigation.md`. |
+| `$D11_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D11-openspec-information-testing-investigation.md`. |
+| `$D11_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D11-cross-domino-product-investigation.md`. |
+| `$D11_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D11-final-domain-ontology-review.md`. |
+| `$D11_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D11-final-typescript-validation-review.md`. |
+| `$D11_FINAL_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D11-final-openspec-information-review.md`. |
+| `$D11_FINAL_CODE_VENDOR_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D11-final-code-vendor-topology-review.md`. |
+| `$D11_FINAL_CROSS_DOMINO_PRODUCT_REVIEW` | `$AGENT_SCRATCH/domino-D11-final-cross-domino-product-review.md`. |
+| `$D11_REVIEW_LEDGER` | `$D11_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D11_PHASE_RECORD` | `$D11_CHANGE/workstream/phase-record.md`. |
+| `$D11_DOWNSTREAM_LEDGER` | `$D11_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D11_CLOSURE_CHECKLIST` | `$D11_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 
