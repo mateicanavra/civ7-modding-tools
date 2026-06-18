@@ -2,8 +2,12 @@
 
 | Downstream Surface | Disposition | Required Action |
 | --- | --- | --- |
-| Phase 2 packet suite | pending | Mark D14 as OpenSpec-packetized after review. |
-| D0 compatibility matrix | pending | Confirm public surfaces touched by D14 are classified before implementation. |
-| Habitat docs/examples | pending | Update only when implementation facts change or public guidance must be clarified. |
-| Tests and command fixtures | pending | Add or update during implementation according to tasks.md. |
-| Later domino packets | pending | Update dependency assumptions if review changes D14 contract. |
+| D13 Scaffolding And Refusal Contracts | accepted design/specification handoff | D13 remains generic refusal-envelope owner and consumes D14's authoring-specific blocked action, recovery, retry, empty-write, and non-claim fields. D13 must not invent authoring vocabulary or route authoring requests through supported project or pattern scaffolds. |
+| D4 Classify Orientation And Routing | accepted design/specification handoff | D4 examples may orient existing MapGen paths and unresolved authoring-looking requests. D14 consumes those examples only as orientation/non-support context; D4 classify success is not authoring readiness. |
+| D12 Verify Handoff Receipt | accepted design/specification handoff | D12 examples and receipts may show handoff limits and non-claims. D14 consumes them only to prevent verify success from becoming authoring support, product readiness, runtime correctness, CI readiness, Graphite readiness, or OpenSpec acceptance. |
+| D0 compatibility matrix | source-blocking dependency | Concrete D0 rows are required before later source work touches generator schema/help, command output, docs/examples, exports, scripts, Nx targets, JSON fields, or generated-surface compatibility. |
+| D8 Pattern Governance, D10 Protected Zone Authority, and G-HOST | no D14 ownership transfer | D14 records non-claims only. D8/D10/G-HOST facts cannot open Authoring Topology support unless a later accepted authoring packet consumes them through explicit owner contracts. |
+| Habitat authoring docs (`GAPS.md`, `AUTHORING-NEXT.md`, `SCENARIOS.md`, `IMPLEMENTED-SURFACE.md`) | current-state input and later realignment surface | Existing docs remain evidence for the current authoring gap. Later source implementation may update them only to clarify the D14 refusal/current-state boundary or a future accepted Authoring Topology contract. |
+| Tests and command fixtures | later implementation gate | Add or update only after source implementation is authorized. Required later fixtures must falsify authoring requests routing to generic scaffolds and must assert empty write sets, D14 refusal fields, and no-write behavior. |
+| Packet index | accepted design/specification status recorded | Mark D14 accepted for design/specification only, not implementation-complete, with source work blocked behind concrete D0 rows, D13 refusal-envelope source work, and live D4/D12 examples where consumed. |
+| D15 Execution Provenance Trigger | not triggered by D14 | D14 records no impossible local execution state requiring D15. |

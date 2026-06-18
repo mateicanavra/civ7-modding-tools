@@ -12,7 +12,7 @@ Evidence:
 
 - D14 frame and acceptance threshold define the product boundary and explicitly prevent current Habitat generators/classify/verify/guardrails from being overread as authoring capability: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:5`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:15`.
 - Ownership is split cleanly: D14 owns blocked-action language, future criteria, recovery semantics, and non-claims; future Authoring Topology owns any accepted MapGen authoring generator/topology/product loop; D13/D4/D12/D8/G-HOST relations are consumers or adjacent owners, not substitute authorities: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:17`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:28`.
-- D14-specific accepted/rejected language is present and rejects inherited/lazy terms such as `topology scaffold`, `generator proof` as target code/type language, `authoring-ready classify result`, and `verify proves authoring`: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:29`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:42`.
+- D14-specific accepted/rejected language is present and rejects inherited/lazy terms such as `topology scaffold`, broad generator acceptance nouns as target code/type language, `authoring-ready classify result`, and `verify proves authoring`: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:29`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:42`.
 - Unsupported authoring action inventory is explicit and closed enough for implementation: recipe, domain, operation, stage, step, contract/default/schema bundle, registry/public-surface update, Studio artifact update, and broad topology migration all refuse through the D13 envelope with D14 owner: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:44`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:65`.
 - D14 prevents MapGen/Civ authoring concepts from becoming generic Habitat taxonomy by scoping the inventory to authoring-specific requests and leaving generic unsupported project kinds to D13/D0/D2/G-HOST unless the request also asks for MapGen authoring topology: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:62`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:65`.
 - State-space model collapses the prose gap into `not-authoring`, `authoring-request`, `ambiguous-authoring-request`, and `future-authoring-opened`, with explicit invariants and empty write sets for refusals: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:67`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:93`.
@@ -50,14 +50,14 @@ That matches `tasks.md`, which explicitly leaves first-wave import, accepted P1/
 
 Required repair: import this review as the D14 domain/ontology first-wave result, record "no open P1 domain/ontology blocker; P2 control-record repairs required", and keep final rereview pending until all first-wave lanes and validation pass.
 
-### P3: `generator proof` rejection should not obscure the source packet's proof-class intent
+### P3: Broad generator acceptance noun rejection should not obscure the source packet's gate intent
 
-D14 correctly rejects `generator proof` as target code/type language:
+D14 correctly rejects broad generator acceptance nouns as target code/type language:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:39`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:40`
 
-The source packet, however, uses "generator proof" as one future acceptance proof class:
+The source packet, however, uses broad generator acceptance language as one future acceptance gate family:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D14-authoring-topology-fence.md:61`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D14-authoring-topology-fence.md:62`
@@ -67,7 +67,7 @@ This is not blocking because D14 replaces the broad phrase with concrete accepta
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:131`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d14-authoring-topology-fence/design.md:134`
 
-Recommended cleanup: if the wording audit flags the phrase, document that D14 rejects `generator proof` only as implementation-facing target language while preserving the source packet's intended proof class through concrete gate names.
+Recommended cleanup: if the wording audit flags the phrase, document that D14 rejects broad generator acceptance nouns only as implementation-facing target language while preserving the source packet's intended gate family through concrete gate names.
 
 ## Accepted Terminology Recommendations
 
@@ -93,7 +93,7 @@ Reject:
 - `topology scaffold`
 - `authoring-ready classify result`
 - `verify proves authoring`
-- `generator proof` as target code/type language
+- broad generator acceptance nouns as target code/type language
 - Civ/MapGen authoring nouns as generic Habitat authority
 - using G-HOST, D10, D4, D12, D8, or D13 to redefine Authoring Topology support
 

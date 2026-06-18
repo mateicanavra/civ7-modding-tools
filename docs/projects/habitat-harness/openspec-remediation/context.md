@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d13-scaffolding-refusal-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d14-authoring-topology-fence-packet` |
 
 ## Path Variables
 
@@ -265,6 +265,27 @@ variables below.
 | `$D13_PHASE_RECORD` | `$D13_CHANGE/workstream/phase-record.md`. |
 | `$D13_DOWNSTREAM_LEDGER` | `$D13_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D13_CLOSURE_CHECKLIST` | `$D13_CHANGE/workstream/closure-checklist.md`. |
+
+## D14 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D14_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d14-authoring-topology-fence`. |
+| `$D14_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D14-authoring-topology-fence.md`. |
+| `$D14_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D14-domain-ontology-investigation.md`. |
+| `$D14_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D14-typescript-state-investigation.md`. |
+| `$D14_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D14-code-vendor-topology-investigation.md`. |
+| `$D14_INFORMATION_TESTING_REVIEW` | `$AGENT_SCRATCH/domino-D14-openspec-information-testing-investigation.md`. |
+| `$D14_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D14-cross-domino-product-investigation.md`. |
+| `$D14_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D14-final-domain-ontology-review.md`. |
+| `$D14_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D14-final-typescript-validation-review.md`. |
+| `$D14_FINAL_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D14-final-openspec-information-review.md`. |
+| `$D14_FINAL_CODE_VENDOR_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D14-final-code-vendor-topology-review.md`. |
+| `$D14_FINAL_CROSS_DOMINO_PRODUCT_REVIEW` | `$AGENT_SCRATCH/domino-D14-final-cross-domino-product-review.md`. |
+| `$D14_REVIEW_LEDGER` | `$D14_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D14_PHASE_RECORD` | `$D14_CHANGE/workstream/phase-record.md`. |
+| `$D14_DOWNSTREAM_LEDGER` | `$D14_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D14_CLOSURE_CHECKLIST` | `$D14_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 
