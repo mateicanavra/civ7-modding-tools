@@ -1,81 +1,121 @@
-# Proposal: D10 Protected Zone Authority
+# Proposal: D10 Generated/Protected Zone Authority
 
 ## Summary
 
-Open the D10 Protected Zone Authority OpenSpec packet for Deep Habitat Phase 2 remediation. This
-change converts the existing D10 domino packet into a review-gated
-OpenSpec packet scaffold. It resolves scope, owner, public surface impact,
-validation gates, downstream realignment, and stop conditions before any
-TypeScript implementation resumes.
+Specify D10 as the Generated/Protected Zone Authority for Deep Habitat. This change converts `$D10_SOURCE_PACKET` into a concrete OpenSpec design/specification packet for protected mutation decisions, generated-surface declarations, host-owned zone consumption, forbidden-artifact handling, generated drift relation, and downstream path-authority projections.
+
+Status after final rereview is accepted for design/specification only. Fresh final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews read the repaired disk state and recorded no unresolved P1/P2 findings. Source implementation remains blocked behind concrete D0 rows, D1 output-family handling, live D2 generated-zone projections, accepted/live G-HOST host declarations, and accepted/live D10 projections for touched surfaces.
 
 ## Authority
 
-- Current user decision to restart OpenSpec packet preparation from square one.
-- Remediation frame: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation-frame.md.
-- Phase 2 packet suite: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets.
-- Root AGENTS.md Graphite/OpenSpec workflow guidance.
-- Domain Design and Information Design skills as mandatory language and artifact gates.
-- Current Habitat Toolkit code and tests as present-behavior evidence only.
-- Source domino packet: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D10-generated-protected-zone-authority.md.
+- User remediation direction: one packet at a time, design/specify the complete packet, and do not implement source code while packet design is still open.
+- `$REMEDIATION_DIR/openspec-remediation-frame.md` and `$REMEDIATION_DIR/context.md`.
+- `$D10_SOURCE_PACKET`, treated as controlling input rather than finished output.
+- Accepted D0-D9 OpenSpec contracts, especially D0 compatibility handling, D1 output/refusal boundaries, D2 registry projections, D7 structural enforcement consumption, D8 path/admission boundaries, and D9 transaction path-authority consumption.
+- G-HOST source packet and current packet status as required upstream host-policy input, not as a resolved implementation dependency.
+- Current Habitat code and tests as present-behavior observations only.
+- Domain Design, Information Design, Ontology Design, Solution Design, TypeScript Refactoring, and Civ7 OpenSpec Workstream skills.
 
 ## Product Scenario
 
-Habitat prevents accidental edits to generated or protected regions while still allowing declared generators and host policies to own those files.
+When an agent or human stages or plans a mutation to a generated, protected, host-owned, or forbidden repo surface, Habitat must answer one product question before any workflow blesses or performs the write: is this mutation allowed by a declared owner lane, refused with owner and recovery instruction, blocked because authority is missing or contradictory, or outside D10 authority? The answer must be structured enough for checks, hooks, and transactions to consume without re-deciding path policy.
+
+D10 does not prove generated freshness, runtime behavior, product correctness, CI status, or apply transaction success. It produces mutation decisions, recovery instructions, drift-check inputs, and consumer projections.
 
 ## What Changes
 
-- Define protected-zone declaration, generated-zone relation, and guard decisions.
-- Consume G-HOST policy and D2 registry facts.
-- Expose refusal/recovery paths to check, hooks, and apply using D1 `RefusalRecord` and non-claim semantics.
+- Defines the D10 owner boundary as a generic repo-maintenance authority for protected mutation surfaces.
+- Defines `ZoneDeclaration`, `GeneratedSurface`, `ProtectedSurface`, `HostOwnedSurface`, `ForbiddenArtifact`, `ProtectedMutationGuard`, `ProtectedMutationDecision`, `DeclarationConflict`, and recovery instruction semantics.
+- Requires D10 to consume D2 generated-zone facets through typed projections rather than whole registry rows or prose metadata.
+- Requires D10 to consume host-specific path, owner, and recovery declarations from G-HOST rather than hard-coding Civ7, MapGen, or resource paths in generic Habitat truth.
+- Separates staged protected mutation guards from generated drift/freshness checks.
+- Publishes narrow D7, D9, D11, scan-root, and generated-drift projections.
+- Defines later implementation write set, protected paths, validation gates, and stop conditions.
 
 ## What Does Not Change
 
-- No host-policy ownership.
-- No transformation transaction ownership.
-- No generated output hand edits.
+- D10 does not own host policy, host declaration schema, or host-specific regeneration semantics; G-HOST owns those.
+- D10 does not own D2 registry metadata, rule identity, or malformed registry parsing.
+- D10 does not own D7 check/report construction, rendering, selector behavior, baseline behavior, or exit semantics.
+- D10 does not own D8 pattern lifecycle, candidate admission, or apply admission.
+- D10 does not own D9 dry-run/live transaction state, rollback, formatter handoff, or write execution.
+- D10 does not own D11 hook sequencing, staged-file workflow, or local feedback labeling.
+- D10 does not own Grit, Biome, Git, or Nx native behavior.
+- D10 does not authorize direct edits to generated outputs.
 
 ## Requires
 
-- D0
-- D1
-- D2
-- G-HOST
+- D0 compatibility rows before source implementation changes command JSON, human output, hook output, package exports, script/Nx target behavior, generated/help surfaces, or public docs/examples.
+- D1 output-family mapping for check diagnostics/refusals, local feedback, apply transaction handoff, recovery instructions, and non-claims.
+- D2 live projection for rule-generated-zone relations, file-layer rule variants, and malformed/unknown metadata refusal states.
+- G-HOST accepted/live declarations for host-owned generated/protected surfaces, host owners, regeneration/remediation actions, and missing-host-policy refusals.
+- Resolved native tool contracts from Git, Grit, Biome, and Nx; D10 must compose them rather than reimplement them.
 
 ## Enables
 
-- D7
-- D9
-- D11
+- D7 can render D10 guard decisions without owning protected-zone policy.
+- D9 can require D10 path-authority decisions before approving writes into protected/generated surfaces.
+- D11 can report hook-safe local feedback for staged protected mutation refusals.
+- D8 can cite D10 path authority where scan/probe/apply paths touch protected surfaces, without transferring D8 admission ownership to D10.
+- Generated drift checks can consume declared generated surfaces without being mistaken for mutation authorization.
 
-## Affected Owners
+## Affected Public And Durable Surfaces
 
-- Domain owner: Generated/Protected Zone Authority.
-- OpenSpec change path: `openspec/changes/deep-habitat-d10-protected-zone-authority/**`.
-- Expected Habitat implementation write set named in `design.md`; no code is
-  authorized by this remediation packet itself.
+Source implementation is not authorized by this packet, but later implementation may affect:
 
-## Forbidden Owners
+- `habitat check --staged --tool file-layer --json` behavior and human output.
+- `habitat check --json` D7-projected rule reports and diagnostics.
+- `habitat hook pre-commit` local feedback when file-layer checks refuse staged paths.
+- D2 rule metadata facets such as `generatedZone` and file-layer rule variants.
+- `generated:check` target metadata, dependency relation, and generated drift script output where D10 changes generated-surface projection.
+- Package exports only if D10 declaration/decision/projection types become public.
+- `.gritignore`, `biome.json`, and scan-root validation only as consumer projections or drift-checked mirrors, not as owner truth.
+- Docs/examples/help text that describe generated/protected refusal or recovery behavior.
 
-- Adjacent dominoes may not redefine Generated/Protected Zone Authority authority.
-- Current code names may not become target-domain language without this packet
-  accepting the term.
-- Implementation agents may not add shims, fallbacks, dual paths, silent skips,
-  optional target shape, or generated-output hand edits.
+## Later Implementation Write Set
 
-## Consumer Impact
+Later source implementation may touch only the reviewed D10 surfaces unless the phase record is amended and rereviewed:
 
-Check/apply/hook output may report protected-zone refusals under D0 compatibility rules.
+- `$HABITAT_TOOL/src/lib/generated-zones.ts` or a replacement D10 module under `$HABITAT_TOOL/src/lib/`.
+- `$HABITAT_TOOL/src/rules/architecture.ts` for file-layer routing through D10 projections.
+- `$HABITAT_TOOL/src/rules/rules.json` only for D2-projected generated-zone facets or command-facing message/recovery projection changes.
+- `$HABITAT_TOOL/src/lib/command-engine.ts` only for staged guard consumption and injectable staged-path/state seams.
+- `$HABITAT_TOOL/src/lib/grit.ts` only to consume D10 scan-root projections.
+- `$HABITAT_TOOL/src/lib/grit-apply.ts` only to consume D10 path-authority decisions, not to define protected-zone policy.
+- `$HABITAT_TOOL/src/lib/hooks.ts` only as a D11 consumer of D10/D7 local-feedback-safe results.
+- `$HABITAT_TOOL/src/plugin.js` and `$HABITAT_TOOL/scripts/verify-generated-zones.mjs` only for generated-drift projection wiring.
+- Focused tests under `$HABITAT_TOOL/test/lib/` and `$HABITAT_TOOL/test/**` that exercise D10 declarations, staged guard decisions, scan-root projection, drift separation, hook consumption, and D9 transaction consumption.
+
+Protected paths for later implementation include generated outputs, host resource outputs, generated artifacts, lockfiles, dist/mod outputs, adjacent D7/D8/D9/D11/G-HOST redesign files, and any public/generated artifacts not explicitly owned by D10.
 
 ## Stop Conditions
 
-- Host-specific zones are hard-coded as generic Habitat truth.
-- Protected-zone violations are warnings only.
-- Allowed generator paths cannot name their authority.
+Stop source implementation or packet acceptance if:
 
-## Verification Gates
+- Host-specific Civ7, MapGen, or resource paths remain generic D10 truth rather than G-HOST declarations.
+- A protected/generated/forbidden mutation can produce a warning-only or silent-pass outcome.
+- A D2-generated-zone reference can be unknown or malformed and still run as a normal pass/fail rule.
+- A refusal or blocked decision can reach a consumer without owner, path, zone id where applicable, decision kind, and recovery instruction.
+- Generated drift checks are used as mutation authorization, or staged guards are used as generated freshness claims.
+- D7, D9, or D11 reimplements D10 path matching instead of consuming a projection.
+- Public command output, hook output, exports, script/Nx target behavior, or examples change without concrete D0 compatibility handling.
+- The implementation preserves optional-field bags, raw path strings, boolean guard policy, duplicated zone arrays, or host literals as the target model.
 
-- bun run --cwd tools/habitat-harness test -- test/lib/generated-zones.test.ts
-- bun run habitat check --json
-- bun run openspec -- validate deep-habitat-d10-protected-zone-authority --strict
-- `bun run openspec:validate`
-- `git diff --check`
+## Validation
+
+Design-time repair gates:
+
+- `bun run openspec -- validate deep-habitat-d10-protected-zone-authority --strict`.
+- `bun run openspec:validate`.
+- `git diff --check`.
+- D10 wording audit over `$D10_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, and `$AGENT_SCRATCH/domino-D10-*.md`, with remaining active guidance hits repaired or explicitly classified.
+- Fresh final rereviews across domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product lanes.
+
+Later implementation gates:
+
+- Focused D10 declaration/guard tests for generated, protected, host-owned, forbidden, unknown, conflict, and D0-missing states.
+- `bun run habitat check --staged --tool file-layer --json` for clean staged state and injected protected/generated/forbidden staged mutations.
+- Hook tests proving file-layer refusal stops before Biome, Grit, generated publish, or resource publish.
+- Grit scan-root tests proving protected/generated roots are refused through D10 projection.
+- Generated drift target result through the accepted Nx target or successor, with no claim that drift success authorizes hand edits.
+- D9 transaction tests proving protected/generated writes require D10 path-authority decisions.

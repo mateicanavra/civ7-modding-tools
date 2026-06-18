@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d9-transformation-transaction-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d10-protected-zone-authority-packet` |
 
 ## Path Variables
 
@@ -168,6 +168,28 @@ variables below.
 | `$D9_PHASE_RECORD` | `$D9_CHANGE/workstream/phase-record.md`. |
 | `$D9_DOWNSTREAM_LEDGER` | `$D9_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D9_CLOSURE_CHECKLIST` | `$D9_CHANGE/workstream/closure-checklist.md`. |
+
+## D10 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D10_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d10-protected-zone-authority`. |
+| `$D10_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D10-generated-protected-zone-authority.md`. |
+| `$D10_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D10-domain-ontology-investigation.md`. |
+| `$D10_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D10-typescript-state-investigation.md`. |
+| `$D10_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D10-code-topology-investigation.md`. |
+| `$D10_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D10-openspec-information-investigation.md`. |
+| `$D10_VENDOR_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D10-vendor-validation-investigation.md`. |
+| `$D10_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D10-cross-domino-investigation.md`. |
+| `$D10_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D10-final-domain-ontology-review.md`. |
+| `$D10_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D10-final-typescript-validation-review.md`. |
+| `$D10_FINAL_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D10-final-openspec-information-review.md`. |
+| `$D10_FINAL_CODE_VENDOR_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D10-final-code-vendor-topology-review.md`. |
+| `$D10_FINAL_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D10-final-cross-domino-review.md`. |
+| `$D10_REVIEW_LEDGER` | `$D10_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D10_PHASE_RECORD` | `$D10_CHANGE/workstream/phase-record.md`. |
+| `$D10_DOWNSTREAM_LEDGER` | `$D10_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D10_CLOSURE_CHECKLIST` | `$D10_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 
