@@ -1,5 +1,9 @@
 # D4 Domain/Ontology Investigation
 
+## Supervisor Vocabulary Correction
+
+D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scratch wording inherited from the source packet that used a D4-owned graph state name is superseded by the active D4 packet language: D4 consumes and renders D3 graph refusals, with D3-owned reason categories for malformed graph JSON, Nx read failure, Nx daemon failure, missing project, missing target, and unresolved alias dependency.
+
 ## Verdict
 
 D4 is not acceptable as an execution authority yet.
@@ -73,7 +77,7 @@ Habitat-specific terms for real Habitat invariants:
 | `RuleRouting` | Rule applicability projection for classify. Prefer this over `RuleRoute` because it names a fact set, not an imperative route. | Must be derived from D2 `ruleRoutingFacts`; may not parse legacy `scope`. | D4 consumes D2; D2 owns projection schema. |
 | `TargetGuidance` | Command-facing guidance over graph-backed targets. Accept only as guidance, not permission or execution. | Split into `runnableTargets`, `unavailableTargets`, and `recoveryInstructions`; runnable targets require D3 available/aggregate target facts. | D4 renders; D3 owns target truth. |
 | `UnavailableTarget` | Command target known not to be runnable in current graph state. | No runnable command string; must include reason from D3 target state. | D4 renders; D3 owns reason vocabulary. |
-| `GraphRefusal` | D3 graph refusal consumed by classify. Prefer D3's existing term over `GraphUnavailable`. | Closed reasons from D3: missing project, missing target, unresolved alias dependency, malformed graph JSON, Nx read failure, Nx daemon failure. | D3 owns; D4 renders classify state. |
+| `GraphRefusal` | D3 graph refusal consumed by classify. | Closed reasons from D3: missing project, missing target, unresolved alias dependency, malformed graph JSON, Nx read failure, Nx daemon failure. | D3 owns; D4 renders classify state. |
 | `MalformedDiff` | Diff-like or diff-declared input that cannot produce classified changed paths. | Stable refusal reason; no owner inference; no graph-backed target commands. | D4. |
 | `RecoveryInstruction` | Bounded next step after refusal/unresolved state. | Must be actionable and non-executing unless backed by D3 graph target facts. | D4 text contract; D7/D12 may consume later. |
 | `NonClaim` | Explicit statement of what classify did not prove. | Required on states where overclaim risk exists: targets not run, rules not proven correct, safety not applied, ownership not inferred. | D4; D0 controls public wording compatibility. |
@@ -95,10 +99,10 @@ The packet should require one closed `ClassifyResult.kind` union:
 - `unsupported-path`: the input is outside supported Habitat scenarios.
 
 The source packet's "workspace path, project path, diff with classified paths,
-malformed/pathless diff, unresolved owner, graph error" is directionally right
-but should be normalized to the terms above. `graph-refusal` is better than
-`graph-error` or `GraphUnavailable` because D3 already owns refusal semantics
-and because not every graph refusal is infrastructure unavailability.
+malformed/pathless diff, unresolved owner, graph refusal" is directionally right
+but should be normalized to the terms above. `graph-refusal` is the current D3
+state family, and D4 renders that family without renaming it or treating every
+graph refusal as infrastructure unavailability.
 
 ### Accepted Semantic Commitments
 
@@ -124,12 +128,12 @@ and because not every graph refusal is infrastructure unavailability.
 | `PathOrientation` | Avoid; too abstract for command JSON. | Use `PathClassification`. |
 | `DiffOrientation` | Avoid; current public behavior already says classify/diff. | Use `DiffClassification`. |
 | `RuleRoute` | Avoid if it suggests D4 creates route truth. | Use `RuleRouting` or `RuleRoutingProjection`. |
-| `GraphUnavailable` | Avoid as top-level D4 invention. | Consume D3 `GraphRefusal`; render as `graph-refusal`. |
+| D4-owned graph state names | Avoid as top-level D4 inventions. | Consume D3 `GraphRefusal`; render as `graph-refusal`. |
 | `supported actions` | Too broad; could imply generation, enforcement, or mutation. | Split into `runnableTargets`, `unavailableTargets`, and `recoveryInstructions`. |
 | `next safe commands` | Too strong unless backed by graph facts and non-claims. | Use `target guidance` plus non-claims; reserve "safe" for D7/D10/D13 where safety is actually decided. |
 | `proof`, `evidence`, `artifact` | Compatibility-only unless a packet explicitly owns a proof/receipt scenario. | Prefer result, receipt, diagnostic, target fact, command outcome, non-claim. |
 | `scope` | Compatibility-only legacy prose. | Consume D2 path coverage/routing facts. |
-| `graph error` | Under-specified; mixes read failure, missing target, and unresolved alias. | Use D3 `graph-refusal` reasons. |
+| `graph refusal` | Under-specified; mixes read failure, missing target, and unresolved alias. | Use D3 `graph-refusal` reasons. |
 
 ## Owner Boundaries
 
@@ -167,7 +171,7 @@ and because not every graph refusal is infrastructure unavailability.
 The current spec has only "supported path" and "unsupported path" scenarios.
 That does not constrain the source packet's real state space: project path,
 workspace path, diff with classified paths, malformed/pathless diff, unresolved
-owner, and graph error/refusal. It also does not name the top-level result type,
+owner, and graph refusal/refusal. It also does not name the top-level result type,
 required fields, forbidden fields, or per-state non-claims.
 
 Repair demand: add a normative `ClassifyResult` union to `design.md` and
@@ -273,12 +277,12 @@ reviewable.
 | Rule applicability | `RuleRouting` / `RuleRoutingProjection` | `RuleRoute`, `scope` | D2 |
 | Runnable command guidance | `runnableTargets` | `supported actions`, "safe commands" | D4 renders D3 |
 | Non-runnable target | `UnavailableTarget` | target with command string and warning | D3 fact rendered by D4 |
-| Graph failure/refusal | `GraphRefusal` / `graph-refusal` | `GraphUnavailable`, generic `graph error` | D3 |
+| Graph refusal | `GraphRefusal` / `graph-refusal` | D4-owned graph state names | D3 |
 | Bad diff input | `MalformedDiff` / `malformed-diff` | successful empty diff | D4 |
 | Next step after refusal | `RecoveryInstruction` | broad remediation/proof guidance | D4 |
 | Explicit overclaim guard | `NonClaim` | buried prose note | D4 + D0 wording |
 
-## Minimum Acceptable Repair Shape
+## Complete Contract Repair Shape
 
 D4 can become acceptable only after the OpenSpec packet, not implementation
 code, contains:

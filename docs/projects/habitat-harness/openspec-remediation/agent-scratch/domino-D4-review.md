@@ -1,5 +1,9 @@
 # D4 Orientation And Routing Per-Domino Review
 
+## Supervisor Vocabulary Correction
+
+D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scratch wording inherited from the source packet that used a D4-owned graph state name is superseded by the active D4 packet language: D4 consumes and renders D3 graph refusals, with D3-owned reason categories for malformed graph JSON, Nx read failure, Nx daemon failure, missing project, missing target, and unresolved alias dependency.
+
 ## Skills Read
 
 - `/Users/mateicanavra/.codex/plugins/cache/rawr-hq/cognition/1.0.0/skills/domain-design/SKILL.md`
@@ -58,7 +62,7 @@ The generated OpenSpec scaffold is valid OpenSpec shape, but it is not a packet-
 
 ### P1: The scaffold omits the required classification state model
 
-The source D4 packet requires a versioned classification DTO with explicit variants for workspace path, project path, diff with classified paths, malformed/pathless diff, unresolved owner, and graph error. The generated OpenSpec spec only contains two scenarios: supported path and unsupported path. It does not require top-level input variants, variant names, required fields per variant, or non-claims per variant.
+The source D4 packet requires a versioned classification DTO with explicit variants for workspace path, project path, diff with classified paths, malformed/pathless diff, unresolved owner, and graph refusal. The generated OpenSpec spec only contains two scenarios: supported path and unsupported path. It does not require top-level input variants, variant names, required fields per variant, or non-claims per variant.
 
 Evidence:
 
@@ -68,9 +72,9 @@ Evidence:
 
 Why this blocks: the packet asks implementation to "define path/diff orientation contracts" instead of defining the contract. An execution agent could preserve the current optional-heavy `Classification`, add a shallow `kind?: string`, or invent incompatible variants and still plausibly claim to satisfy the generated scaffold.
 
-### P1: Malformed/pathless diff and graph-error behavior remain black-ice ambiguity
+### P1: Malformed/pathless diff and graph-refusal behavior remain black-ice ambiguity
 
-D4's source packet explicitly calls malformed/pathless diff and graph error states into the contract. The generated scaffold does not name either as required scenarios, task cases, or validation gates. Present behavior confirms the risk: a newline string that is not a diff is treated as a successful diff with an empty `paths` array, and graph metadata reader failures are not modeled as a classification variant in the public contract.
+D4's source packet explicitly calls malformed/pathless diff and graph refusal states into the contract. The generated scaffold does not name either as required scenarios, task cases, or validation gates. Present behavior confirms the risk: a newline string that is not a diff is treated as a successful diff with an empty `paths` array, and graph metadata reader failures are not modeled as a classification variant in the public contract.
 
 Evidence:
 
@@ -104,7 +108,7 @@ The design says a concrete write set and protected path list are required before
 
 ### P2: Validation gates are confirmation checks, not falsifying checks
 
-The generated validation gates include two classify commands, OpenSpec validation, global OpenSpec validation, and `git diff --check`. They omit the source packet's required unit test gate, malformed/pathless diff refusal, graph error fixture, unavailable-target assertions, diff with multiple paths, unresolved-owner/workspace fallback expectations, and exact expected JSON/human output. They also do not record expected output beyond exit status.
+The generated validation gates include two classify commands, OpenSpec validation, global OpenSpec validation, and `git diff --check`. They omit the source packet's required unit test gate, malformed/pathless diff refusal, graph refusal fixture, unavailable-target assertions, diff with multiple paths, unresolved-owner/workspace fallback expectations, and exact expected JSON/human output. They also do not record expected output beyond exit status.
 
 ### P2: Domain boundary is named but not operationally owned
 
@@ -112,7 +116,7 @@ The generated validation gates include two classify commands, OpenSpec validatio
 
 ### P2: Spec scenarios are too coarse to constrain downstream D14
 
-D4 enables D14 authoring topology examples, but the generated D4 spec does not define the example corpus D14 can rely on. It should provide path, diff, workspace fallback, unresolved owner, malformed/pathless diff, graph error, and unavailable-target examples with non-claims. Without those, D14 will either invent classify examples or weaken its fence/refusal contract.
+D4 enables D14 authoring topology examples, but the generated D4 spec does not define the example corpus D14 can rely on. It should provide path, diff, workspace fallback, unresolved owner, malformed/pathless diff, graph refusal, and unavailable-target examples with non-claims. Without those, D14 will either invent classify examples or weaken its fence/refusal contract.
 
 ## P3 Findings
 
@@ -130,11 +134,11 @@ The source packet says classify does not run targets and does not prove rule cor
 
 ## Required Repairs
 
-1. Add the explicit D4 top-level state model to `design.md` and `specs/habitat-harness/spec.md`: workspace path, project path, diff with classified paths, malformed/pathless diff, unresolved owner, graph error.
+1. Add the explicit D4 top-level state model to `design.md` and `specs/habitat-harness/spec.md`: workspace path, project path, diff with classified paths, malformed/pathless diff, unresolved owner, graph refusal.
 2. For each variant, define required fields, forbidden fields, refusal/recovery shape, non-claims, and whether graph-backed targets may appear.
 3. Record the D0 compatibility disposition for `habitat classify` JSON/human output, `Classification`, `DiffClassification`, and package exports before accepting D4.
 4. Replace generic implementation tasks with file- and behavior-specific steps, including the DTO migration, command adapter behavior, public export handling, tests, docs/examples, and downstream D14 example handoff.
-5. Add falsifying validation gates: classify unit tests for every variant, malformed/pathless diff refusal, graph error fixture, unavailable-target fixture, multi-path diff ordering, workspace fallback, and exact expected command output or JSON snapshots.
+5. Add falsifying validation gates: classify unit tests for every variant, malformed/pathless diff refusal, graph refusal fixture, unavailable-target fixture, multi-path diff ordering, workspace fallback, and exact expected command output or JSON snapshots.
 6. Add a concrete write set and protected path list. Protected paths should explicitly exclude D2 registry schema ownership, D3 graph metadata authority, D7 enforcement execution, D13 scaffolding/refusal implementation, and D14 topology fence implementation unless a repair updates sequencing.
 7. Update downstream realignment to name D14's dependency on D4 example states and to require updates if the state model changes during repair.
 
@@ -147,7 +151,7 @@ Replace the current broad requirement with a more constraining set:
 
 Habitat classify SHALL return a versioned orientation result whose top-level
 state is exactly one of: project-path, workspace-path, diff, malformed-or-pathless-diff,
-unresolved-owner, or graph-error.
+unresolved-owner, or graph-refusal.
 
 #### Scenario: Project path is classified
 - WHEN a repo path resolves to a project through D3 graph metadata
@@ -163,7 +167,7 @@ unresolved-owner, or graph-error.
 
 #### Scenario: Workspace graph cannot be read
 - WHEN D3 graph metadata cannot be resolved
-- THEN the result state is graph-error and includes the bounded error class,
+- THEN the result state is graph-refusal and includes the bounded error class,
   recovery instruction, no project-local target commands, and no rule execution claim.
 ```
 
@@ -180,7 +184,7 @@ Rewrite validation tasks to include exact oracles, for example:
 ```text
 - [ ] Run `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`
       and verify coverage for project-path, workspace-path, diff, malformed-or-pathless-diff,
-      unresolved-owner, graph-error, unavailable targets, and unresolved rule metadata.
+      unresolved-owner, graph-refusal, unavailable targets, and unresolved rule metadata.
 - [ ] Run `bun run habitat classify <malformed newline input>` and verify it returns
       the malformed-or-pathless-diff refusal state, not an empty successful diff.
 ```

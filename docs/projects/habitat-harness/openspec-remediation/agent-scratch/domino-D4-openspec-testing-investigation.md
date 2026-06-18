@@ -1,5 +1,9 @@
 # D4 OpenSpec And Testing Investigation
 
+## Supervisor Vocabulary Correction
+
+D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scratch wording inherited from the source packet that used a D4-owned graph state name is superseded by the active D4 packet language: D4 consumes and renders D3 graph refusals, with D3-owned reason categories for malformed graph JSON, Nx read failure, Nx daemon failure, missing project, missing target, and unresolved alias dependency.
+
 ## Scope
 
 Lane: D4 Orientation and Routing OpenSpec/testing review.
@@ -30,13 +34,13 @@ Command run:
 
 D4 is not implementation-ready. The current OpenSpec scaffold is syntactically valid but still proposal-shaped: it leaves the classification state model, public JSON compatibility, D2/D3 dependency consumption, write set, stop conditions, and falsifying validation gates for the implementation agent to invent.
 
-The source D4 packet requires a versioned discriminated orientation result for workspace path, project path, diff with classified paths, malformed/pathless diff, unresolved owner, and graph error. The current spec has only "Supported path is classified" and "Unsupported path is classified." That is too coarse to remove invalid states or prevent false confidence in `habitat classify`.
+The source D4 packet requires a versioned discriminated orientation result for workspace path, project path, diff with classified paths, malformed/pathless diff, unresolved owner, and graph refusal. The current spec has only "Supported path is classified" and "Unsupported path is classified." That is too coarse to remove invalid states or prevent false confidence in `habitat classify`.
 
 ## P1 Findings
 
 ### P1: D4 does not define the required orientation state model
 
-The source packet requires a versioned DTO with explicit variants for project path, workspace path, diff with classified paths, malformed/pathless diff, unresolved owner, and graph error. The current D4 spec defines one broad requirement and two scenarios, neither of which names the top-level states, their required fields, forbidden fields, or non-claims.
+The source packet requires a versioned DTO with explicit variants for project path, workspace path, diff with classified paths, malformed/pathless diff, unresolved owner, and graph refusal. The current D4 spec defines one broad requirement and two scenarios, neither of which names the top-level states, their required fields, forbidden fields, or non-claims.
 
 Why this blocks: an implementation agent could preserve the current optional-heavy `Classification` shape, add a shallow `kind` field, or treat workspace paths and unresolved owners as the same state while still satisfying the current scaffold language. That fails the D4 objective: reduce state space before agents rely on classify for editing orientation.
 
@@ -46,21 +50,27 @@ Repair demand:
 - Add normative state-family requirements and scenario names to `specs/habitat-harness/spec.md`.
 - State that each command invocation returns exactly one top-level state, except `diff` which contains per-path orientation items with their own state.
 
-### P1: Malformed/pathless diff, graph error, and unresolved owner are not falsifiable states
+### P1: Malformed/pathless diff, graph refusal, and unresolved owner are not falsifiable states
 
-Current `classifyTarget()` treats any newline-containing input as diff-like and returns `DiffClassification` with `paths: extractDiffPaths(diff)`. A malformed/pathless diff can therefore become a successful empty diff. Current graph read failures also escape the orientation DTO path rather than becoming a user-facing graph-error state.
+Current `classifyTarget()` treats any newline-containing input as diff-like and returns `DiffClassification` with `paths: extractDiffPaths(diff)`. A malformed/pathless diff can therefore become a successful empty diff. Current graph read failures also escape the orientation DTO path rather than becoming a user-facing graph-refusal state.
 
 Why this blocks: D4's product scenario is to prevent humans and agents from acting under false orientation. A pathless diff, unresolved owner, or graph failure must not look like a supported workspace path, an empty successful diff, or a runnable target list.
 
 Repair demand:
 
-- Add separate normative states for `malformed-or-pathless-diff`, `unresolved-owner`, and `graph-error`.
+- Add separate normative states for `malformed-or-pathless-diff`, `unresolved-owner`, and `graph-refusal`.
 - Require refusal/recovery text and non-claims for each state.
 - Forbid runnable graph-backed commands in those states.
 
 ### P1: D0 compatibility disposition is required but not recorded
 
-D4 changes `habitat classify` JSON/human output and likely touches `Classification`, `DiffClassification`, and package exports. D0 requires each later packet to cite concrete `surface_id` rows and follow row compatibility handling before changing public or durable surfaces. The current D4 proposal says JSON may change only through D0 decisions, but tasks merely say to "confirm" D0 records later.
+D4 changes `habitat classify` JSON/human output and touches the compatibility
+shape for `Classification`, `DiffClassification`, and package exports when
+source implementation reaches those surfaces. D0 requires each later packet to
+cite concrete `surface_id` rows and follow row compatibility handling before
+changing public or durable surfaces. The current D4 proposal says JSON may
+change only through D0 decisions, while the tasks defer concrete D0 row
+citation and compatibility-handling proof to implementation.
 
 Why this blocks: D4's core change is a public command DTO migration. Without exact D0 row citations and handling, implementation can either silently break consumers or preserve invalid current states to avoid breakage.
 
@@ -72,7 +82,7 @@ Repair demand:
 
 ### P1: D4 does not bind its dependencies to accepted D2 and D3 contracts
 
-D2 owns `ruleRoutingFacts`, unresolved routing metadata, and the prohibition on parsing prose `scope` as authority. D3 owns project ownership, target availability, unavailable targets, graph refusals, and graph error classification. The D4 packet says it consumes D2/D3, but it does not name which D2 projections and D3 graph states D4 may consume, nor which facts it may not recreate.
+D2 owns `ruleRoutingFacts`, unresolved routing metadata, and the prohibition on parsing prose `scope` as authority. D3 owns project ownership, target availability, unavailable targets, graph refusals, and graph refusal classification. The D4 packet says it consumes D2/D3, but it does not name which D2 projections and D3 graph states D4 may consume, nor which facts it may not recreate.
 
 Why this blocks: Orientation and Routing can accidentally become a second Rule Registry Metadata owner or Workspace Graph owner. That violates the accepted D2/D3 boundary and leaves two domains able to claim target/routing truth.
 
@@ -92,7 +102,7 @@ Repair demand: replace implementation tasks with ordered slices: D0 grounding, o
 
 ### P2: The write set and protected paths are deferred
 
-The current D4 packet says the executor must record a concrete write set later. For D4, the likely implementation write set is already narrow enough to bound in the packet.
+The current D4 packet says the executor must record a concrete write set later. For D4, the likely implementation write set is already bounded enough to bound in the packet.
 
 Suggested write set:
 
@@ -129,7 +139,7 @@ Repair demand: the spec must require that machine output is state-complete and h
 
 ### P2: Downstream D14 dependency is under-specified
 
-D4 enables D14, but the current downstream ledger only says later packets are pending. D14 needs stable classify examples for project path, workspace path, multi-path diff, malformed/pathless diff, unresolved owner, graph error, unavailable targets, D2 unresolved metadata, and D3 graph refusal.
+D4 enables D14, but the current downstream ledger only says later packets are pending. D14 needs stable classify examples for project path, workspace path, multi-path diff, malformed/pathless diff, unresolved owner, graph refusal, unavailable targets, D2 unresolved metadata, and D3 graph refusal.
 
 Repair demand: D4 should hand off a named example corpus or table that D14 can cite. D14 must not invent states or weaken D4 refusals.
 
@@ -157,7 +167,7 @@ Use these requirement families in `/Users/mateicanavra/Documents/.nosync/DEV/wor
 
 ### Requirement: Classify Returns Exactly One Orientation State
 
-Habitat classify SHALL return a versioned orientation result whose top-level `state` is exactly one of `project-path`, `workspace-path`, `diff`, `malformed-or-pathless-diff`, `unresolved-owner`, or `graph-error`.
+Habitat classify SHALL return a versioned orientation result whose top-level `state` is exactly one of `project-path`, `workspace-path`, `diff`, `malformed-or-pathless-diff`, `unresolved-owner`, or `graph-refusal`.
 
 Scenario names:
 
@@ -222,14 +232,14 @@ Scenario names:
 
 ### Requirement: Graph Error Withholds Graph-Backed Claims
 
-For `graph-error`, Habitat SHALL render the D3 graph read/refusal state, recovery instruction, no project-local runnable target commands, no unavailable-target inference beyond the graph error, and a non-claim that classify did not prove target availability.
+For `graph-refusal`, Habitat SHALL render the D3 graph read/refusal state, recovery instruction, no project-local runnable target commands, no unavailable-target inference beyond the graph refusal, and a non-claim that classify did not prove target availability.
 
 Scenario names:
 
-- `Scenario: Nx graph read failure returns graph-error`
-- `Scenario: Malformed graph JSON returns graph-error`
-- `Scenario: Nx daemon failure returns graph-error`
-- `Scenario: Graph error does not emit runnable target commands`
+- `Scenario: Nx graph read failure returns graph-refusal`
+- `Scenario: Malformed graph JSON returns graph-refusal`
+- `Scenario: Nx daemon failure returns graph-refusal`
+- `Scenario: Graph refusal does not emit runnable target commands`
 
 ### Requirement: D3 Graph Refusal Facts Remain Visible In Orientation
 
@@ -261,7 +271,7 @@ Scenario names:
 | Multi-path diff classify using one project path and one workspace path | exit 0 | Top-level `state: "diff"`; deterministic sorted paths; each changed path has its own path-level state; targets/rules are per-path, not collapsed. | Does not prove patch applies or that changed files exist. |
 | Malformed/pathless diff: literal newline text or empty patch input | nonzero or exit 0 with explicit refusal, per D0/D1 compatibility decision | Top-level `state: "malformed-or-pathless-diff"`; stable refusal reason; recovery instruction; zero runnable targets; no empty successful `paths: []` diff. | Does not infer ownership, target availability, or safety. |
 | Unresolved owner path fixture | exit 0 with explicit unresolved state, unless D1/D0 requires nonzero refusal | Top-level `state: "unresolved-owner"`; input path preserved; no project-local target commands; recovery instruction names the next safe action. | Does not claim workspace ownership, project ownership, or runnable project targets. |
-| Graph error fixture with injected `NxProjectMetadataReader` failure | exit 0 with explicit graph-error state, unless D1/D0 requires nonzero refusal | Top-level `state: "graph-error"`; graph error category is preserved; no project-local runnable commands; recovery instruction present. | Does not prove target availability, unavailable-target completeness, or rule applicability. |
+| Graph refusal fixture with injected `NxProjectMetadataReader` failure | exit 0 with explicit graph-refusal state, unless D1/D0 requires nonzero refusal | Top-level `state: "graph-refusal"`; graph refusal category is preserved; no project-local runnable commands; recovery instruction present. | Does not prove target availability, unavailable-target completeness, or rule applicability. |
 | Unavailable target unit fixture | test exit 0 | `project-path` state includes unavailable target rows for missing project targets and does not include those targets in runnable command lists. | Does not prove absent targets should be created or run. |
 | D2 unresolved routing metadata unit fixture | test exit 0 | Path-level orientation includes scoped rule with unresolved routing metadata and does not guess from legacy `scope` prose. | Does not prove D2 registry correctness beyond supplied projection facts. |
 | D3 graph refusal facts unit fixture | test exit 0 | Orientation preserves D3 graph refusal categories such as missing-project alias, missing-target alias, and unresolved alias dependency as non-runnable facts. | Does not prove D3 dependency declarations are complete. |
@@ -283,7 +293,7 @@ owner-root maps, parse colon-delimited graph targets, or convert graph refusals
 into runnable commands.
 
 The top-level orientation states are: `project-path`, `workspace-path`, `diff`,
-`malformed-or-pathless-diff`, `unresolved-owner`, and `graph-error`. Every state
+`malformed-or-pathless-diff`, `unresolved-owner`, and `graph-refusal`. Every state
 includes `schemaVersion`, `state`, `input`, `nonClaims`, and either classified
 facts or refusal/recovery facts. A state that lacks graph/project certainty must
 withhold runnable project target commands.
@@ -308,7 +318,7 @@ Replace the current broad requirement with:
 
 Habitat classify SHALL return a versioned orientation result whose top-level
 `state` is exactly one of `project-path`, `workspace-path`, `diff`,
-`malformed-or-pathless-diff`, `unresolved-owner`, or `graph-error`.
+`malformed-or-pathless-diff`, `unresolved-owner`, or `graph-refusal`.
 
 Each orientation result SHALL include classify non-claims. A result SHALL NOT
 include runnable project target commands unless those commands are backed by D3
@@ -336,8 +346,8 @@ graph target facts for the current graph read. A result SHALL NOT use D2 legacy
 
 #### Scenario: Workspace graph cannot be read
 - **WHEN** D3 graph metadata cannot be resolved
-- **THEN** the result state is `graph-error`
-- **AND** the result preserves the graph error category
+- **THEN** the result state is `graph-refusal`
+- **AND** the result preserves the graph refusal category
 - **AND** the result does not emit project-local runnable target commands
 ```
 
@@ -360,7 +370,7 @@ Replace `tasks.md` with implementation-ready slices like:
 
 - [ ] 2.1 Add the versioned orientation result state model for `project-path`,
       `workspace-path`, `diff`, `malformed-or-pathless-diff`, `unresolved-owner`,
-      and `graph-error`.
+      and `graph-refusal`.
 - [ ] 2.2 Define required fields, forbidden fields, refusal/recovery fields, and
       non-claims for each state.
 - [ ] 2.3 Preserve D0-required legacy DTO fields only through an explicit
@@ -387,7 +397,7 @@ Replace `tasks.md` with implementation-ready slices like:
 ## 5. Tests And Fixtures
 
 - [ ] 5.1 Add unit tests for project path, workspace path, multi-path diff,
-      malformed/pathless diff, unresolved owner, graph error, unavailable target,
+      malformed/pathless diff, unresolved owner, graph refusal, unavailable target,
       D2 unresolved routing metadata, and D3 graph refusal facts.
 - [ ] 5.2 Add command behavior tests or snapshots for representative JSON/human
       output, with exact state and non-claim assertions.
@@ -399,7 +409,7 @@ Replace `tasks.md` with implementation-ready slices like:
 - [ ] 6.1 Run `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`.
 - [ ] 6.2 Run project path, workspace path, multi-path diff, and malformed/pathless
       diff classify commands and record exact expected states.
-- [ ] 6.3 Run graph error and unresolved owner fixtures and record exact expected
+- [ ] 6.3 Run graph refusal and unresolved owner fixtures and record exact expected
       states.
 - [ ] 6.4 Run `bun run openspec -- validate deep-habitat-d4-orientation-routing --strict`.
 - [ ] 6.5 Run `bun run openspec:validate`.
@@ -424,7 +434,7 @@ D4 must stop before implementation or closure if any of these are true:
 - The orientation result does not use a closed top-level state.
 - Malformed/pathless diff can still return a successful empty diff.
 - Workspace path and unresolved owner are indistinguishable.
-- Graph error can emit project-local runnable commands.
+- Graph refusal can emit project-local runnable commands.
 - Unavailable targets are listed as runnable commands.
 - D2 unresolved routing metadata is hidden, guessed from prose, or silently dropped.
 - D3 graph refusals are converted into runnable aliases, generic notes, or target success.

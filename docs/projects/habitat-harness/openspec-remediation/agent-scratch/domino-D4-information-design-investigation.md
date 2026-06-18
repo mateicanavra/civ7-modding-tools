@@ -1,5 +1,9 @@
 # D4 Information Design Investigation
 
+## Supervisor Vocabulary Correction
+
+D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scratch wording inherited from the source packet that used a D4-owned graph state name is superseded by the active D4 packet language: D4 consumes and renders D3 graph refusals, with D3-owned reason categories for malformed graph JSON, Nx read failure, Nx daemon failure, missing project, missing target, and unresolved alias dependency.
+
 ## Reviewer Frame
 
 This review treats D4 as an execution-authority packet, not a status report or
@@ -32,10 +36,10 @@ skimmable by state, surface, and gate.
 
 The source D4 packet requires explicit variants for workspace path, project
 path, diff with classified paths, malformed/pathless diff, unresolved owner, and
-graph error. The OpenSpec spec currently has only "supported path" and
+graph refusal. The OpenSpec spec currently has only "supported path" and
 "unsupported path" scenarios. That collapses six product states into two vague
 examples and leaves implementers to infer whether D4 wants a discriminated union,
-an optional-heavy DTO with better prose, or a minimal refusal patch.
+an optional-heavy DTO with better prose, or a complete refusal-state contract.
 
 Repair requirement: the explicit state model belongs in both `design.md` and
 `specs/habitat-harness/spec.md`. `design.md` should explain the state taxonomy,
@@ -60,7 +64,7 @@ ledger should carry that blocker.
 
 The current validation gates prove only command exit status for two sampled
 paths, OpenSpec shape, and diff hygiene. They do not falsify malformed/pathless
-diff handling, graph-error behavior, unavailable target reporting, multi-path
+diff handling, graph-refusal behavior, unavailable target reporting, multi-path
 diff ordering, workspace fallback, unresolved owner, or exact JSON/human output.
 
 Repair requirement: validation must be organized by D4 state, not by generic
@@ -200,10 +204,10 @@ Required task groups:
 - Ground D0/D2/D3 prerequisites and record exact compatibility rows.
 - Define or migrate the classify orientation DTO and public export handling.
 - Update command adapter behavior for path, diff, malformed/pathless diff,
-  unresolved owner, and graph-error states.
+  unresolved owner, and graph-refusal states.
 - Wire D2 rule projections and D3 graph target facts without redefining those
   domains.
-- Add tests by state, including malformed/pathless diff refusal and graph-error
+- Add tests by state, including malformed/pathless diff refusal and graph-refusal
   fixture.
 - Update docs/examples and hand off the D4 example corpus to D14.
 - Run falsifying validation with exact output or snapshot expectations.
@@ -213,7 +217,7 @@ Suggested task wording:
 ```text
 - [ ] Replace the optional-heavy classify result with a mutually exclusive
       orientation result covering project-path, workspace-path, diff,
-      malformed-or-pathless-diff, unresolved-owner, and graph-error states.
+      malformed-or-pathless-diff, unresolved-owner, and graph-refusal states.
 - [ ] Add classify tests that fail when a newline-containing non-diff input is
       returned as a successful empty diff.
 - [ ] Record the D0 compatibility disposition for `habitat classify` JSON,
@@ -292,7 +296,7 @@ Ambiguous phrases to remove or define:
   basis for each command.
 - "current metadata": replace with D2 rule projections and D3 graph facts.
 - "unsupported surfaces": split into unsupported path, unresolved owner,
-  malformed/pathless diff, and graph error where those are different states.
+  malformed/pathless diff, and graph refusal where those are different states.
 - "Confirm ... before implementation": replace with "record disposition in this
   packet before source edits."
 
@@ -309,7 +313,7 @@ D4 can be rereviewed as an execution authority when:
   evidence.
 - The downstream ledger names D14's dependency on the D4 example corpus.
 - Validation gates include falsifying oracles for malformed/pathless diff,
-  graph error, unresolved owner, unavailable targets, multi-path diff, and exact
+  graph refusal, unresolved owner, unavailable targets, multi-path diff, and exact
   output expectations.
 - Durable artifacts use `$REMEDIATION_DIR/context.md` variables/templates rather
   than active local worktree paths.

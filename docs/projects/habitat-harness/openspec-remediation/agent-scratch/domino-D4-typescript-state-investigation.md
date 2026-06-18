@@ -1,5 +1,9 @@
 # D4 TypeScript State-Space Investigation
 
+## Supervisor Vocabulary Correction
+
+D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scratch wording inherited from the source packet that used a D4-owned graph state name is superseded by the active D4 packet language: D4 consumes and renders D3 graph refusals, with D3-owned reason categories for malformed graph JSON, Nx read failure, Nx daemon failure, missing project, missing target, and unresolved alias dependency.
+
 ## Verdict
 
 Blocked. D4 currently describes a desired orientation/routing improvement but does not specify the TypeScript state-space collapse needed to make invalid classify states unrepresentable.
@@ -54,21 +58,21 @@ type ClassifyOrientationResult =
   | DiffOrientation
   | MalformedOrPathlessDiffOrientation
   | UnresolvedOwnerOrientation
-  | GraphErrorOrientation;
+  | GraphRefusalOrientation;
 ```
 
 Required variant rules:
 
 | Variant | Discriminant | Required fields | Forbidden fields |
 | --- | --- | --- | --- |
-| Project path | `kind: "project-path"` | `schemaVersion`, `inputKind: "path"`, `path`, `owner.project`, `owner.projectRoot`, `owner.tags`, D2-backed scoped rule projections, graph-backed runnable targets, unavailable targets, non-claims | `paths`, `refusal`, graph error payload, workspace-only note |
+| Project path | `kind: "project-path"` | `schemaVersion`, `inputKind: "path"`, `path`, `owner.project`, `owner.projectRoot`, `owner.tags`, D2-backed scoped rule projections, graph-backed runnable targets, unavailable targets, non-claims | `paths`, `refusal`, graph refusal payload, workspace-only note |
 | Workspace path | `kind: "workspace-path"` | `schemaVersion`, `inputKind: "path"`, `path`, explicit workspace owner/fallback fact, workspace gates, non-claims | project owner/root/tags, project-local targets, unavailable project targets, diff paths |
 | Diff with paths | `kind: "diff"` | `schemaVersion`, `inputKind: "diff"`, non-empty `paths` array of path-orientation variants that can be classified from changed paths, aggregate non-claims | direct single-path owner fields on the wrapper, empty `paths`, runnable targets not owned by child path variants |
 | Malformed/pathless diff | `kind: "malformed-or-pathless-diff"` | `schemaVersion`, `inputKind: "diff"`, stable refusal reason, recovery instruction, non-claim that ownership was not inferred | `paths`, project owner/root/tags, runnable targets, unavailable project targets |
 | Unresolved owner | `kind: "unresolved-owner"` | `schemaVersion`, `inputKind: "path"`, `path`, unresolved owner fact, recovery instruction, workspace-safe non-claims | project owner/root/tags, project-local runnable targets, rule scopes that require owner certainty |
-| Graph error | `kind: "graph-error"` | `schemaVersion`, bounded graph error class, recovery instruction, non-claim that graph facts/targets were unavailable | project owner/root/tags, graph-backed runnable targets, unavailable target facts pretending to come from a loaded graph |
+| Graph refusal | `kind: "graph-refusal"` | `schemaVersion`, bounded graph refusal class, recovery instruction, non-claim that graph facts/targets were unavailable | project owner/root/tags, graph-backed runnable targets, unavailable target facts pretending to come from a loaded graph |
 
-State-space delta required: current `Classification` admits the cross-product of all optionals. The target model admits exactly one top-level state at a time, and fields such as `paths`, `owner.projectRoot`, runnable targets, unavailable targets, refusal reasons, and graph errors are present only in the variant that owns them.
+State-space delta required: current `Classification` admits the cross-product of all optionals. The target model admits exactly one top-level state at a time, and fields such as `paths`, `owner.projectRoot`, runnable targets, unavailable targets, refusal reasons, and graph refusals are present only in the variant that owns them.
 
 ## Forbidden Current Field Combinations
 
@@ -82,7 +86,7 @@ D4 must name these combinations as impossible in the target model:
 - `unavailableTargets` presented beside a runnable command for the same project/target.
 - top-level diff result with direct single-path fields such as `project`, `projectRoot`, `tags`, `rulesInScope`, or `targets`.
 - diff result with `paths: []` treated as a successful classification.
-- graph metadata failure represented by a thrown exception or a successful workspace fallback instead of a `graph-error` state.
+- graph metadata failure represented by a thrown exception or a successful workspace fallback instead of a `graph-refusal` state.
 - unresolved owner represented as ordinary workspace path without saying whether the path is truly workspace-owned, outside supported surfaces, or blocked by missing graph facts.
 - `rulesInScope` diverging from `scopedRules.map(rule => rule.ruleId)`.
 - scoped rule facts derived from prose `scope` heuristics instead of D2 registry projections.
@@ -99,7 +103,7 @@ Required D0 rows or equivalent citations before source implementation:
 | --- | --- | --- |
 | `habitat classify` CLI invocation | Public command verb with a required path/diff argument | `preserve` invocation unless D0 records a different explicit command change |
 | `habitat classify` command JSON | Current path shape is unversioned `Classification`; diff shape is `schemaVersion: 1` `DiffClassification` | Prefer `version` for the new discriminated result. If D0 instead chooses `preserve`, D4 must provide a compatibility wrapper/facade and expose the union separately. |
-| `Classification` package export | Exported from `tools/habitat-harness/src/index.ts`; optional-heavy DTO currently used as command output | `facade` or `deprecate` if retained for compatibility; `version` if replaced in public JSON; do not silently narrow/remove. |
+| `Classification` package export | Exported from `tools/habitat-harness/src/index.ts`; optional-heavy DTO currently used as command output | Changes must cite D0 rows and keep the compatibility shape explicit through facade, deprecation, or versioning. |
 | `DiffClassification` package export | Exported from `src/index.ts`; versioned wrapper but contains optional-heavy child records | `version` or `facade`; `preserve` only if an adapter keeps old shape while target union lives behind a new surface. |
 | `ClassifiedTarget`, `UnavailableClassifiedTarget`, `ScopedRule` exports | Public supporting DTOs used by classify output | `preserve` as supporting fact types unless D2/D3 explicitly version/facade them. D4 should consume them; it must not redefine D2/D3 authority locally. |
 | Docs examples showing classify JSON/human output | Docs-only examples of current behavior | `document-only`; update examples only after citing command JSON/source rows. |
@@ -119,7 +123,7 @@ D4's implementation plan must be ordered by state-space reduction, not file move
    - Introduce closed variant types, `schemaVersion`, `kind`, `inputKind`, variant-owned fields, and an exhaustiveness helper.
    - No new `any`, `as any`, open `Record<string, any>`, or optional catch-all `note` channel.
 3. Add creation adapters at boundaries.
-   - Convert project path, workspace path, malformed/pathless diff, unresolved owner, and graph error into explicit variants at creation sites.
+   - Convert project path, workspace path, malformed/pathless diff, unresolved owner, and graph refusal into explicit variants at creation sites.
    - If D0 requires compatibility, add an old-shape adapter/facade from the new union to current `Classification`/`DiffClassification`; do not build the new model by mutating the old optional interface.
 4. Migrate consumers to switch on the discriminant.
    - Command JSON, tests, docs examples, and any package consumers must consume the union through exhaustive switches or typed projection helpers.
@@ -142,7 +146,7 @@ D4's implementation plan must be ordered by state-space reduction, not file move
 2. Add an explicit "Forbidden Field Combinations" section to `design.md` or the normative spec so implementers cannot preserve optional-heavy `Classification` with a cosmetic discriminant.
 3. Record D0 compatibility handling for `habitat classify` JSON, `Classification`, `DiffClassification`, package exports, docs examples, and generated surfaces before source implementation.
 4. Require malformed/pathless diff to be a refusal state, not a successful diff with `paths: []`.
-5. Require graph metadata failure to be a `graph-error` orientation state with no graph-backed target commands.
+5. Require graph metadata failure to be a `graph-refusal` orientation state with no graph-backed target commands.
 6. Require unresolved owner to be distinct from workspace path unless D3 graph facts prove the path is workspace-owned.
 7. Replace generic implementation tasks with the safe refactor sequence above, including characterize -> introduce target types -> adapters/facades if D0 requires -> migrate consumers -> delete invalid optionals/prose routing -> validate after each move.
 8. Add falsifying tests for every variant and every forbidden combination that previously compiled or serialized.

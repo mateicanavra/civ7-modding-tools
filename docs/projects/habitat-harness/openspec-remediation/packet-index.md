@@ -5,10 +5,10 @@ change packets. It is part of the remediation frame, not an implementation
 commitment. Most rows remain draft scaffolding: global review findings have
 been converted into shared constraints, but each domino remains blocking until
 its own per-domino adversarial review has run and all accepted P1/P2 findings
-are repaired. D0, D1, D2, and D3 are the current exceptions: they are accepted
-for design/specification after their per-domino final reviews found no
-unresolved P1/P2 blockers. D0/D1/D2/D3 are not implementation-complete, and
-D4-D15/G-HOST remain blocking unless their own status rows say otherwise.
+are repaired. D0, D1, D2, D3, and D4 are the current exceptions: they are
+accepted for design/specification after their per-domino final reviews found no
+unresolved P1/P2 blockers. D0-D4 are not implementation-complete, and
+D5-D15/G-HOST remain blocking unless their own status rows say otherwise.
 
 Path variables and operational checkout fixtures are defined in
 `$REMEDIATION_DIR/context.md`. This index records packet identity and sequencing;
@@ -20,7 +20,7 @@ it does not repeat local worktree paths or branch names.
 | D1 | D1 Receipt Contract Boundary | `deep-habitat-d1-receipt-contract-boundary` | D0 command surface inventory; concrete D0 matrix rows required before source implementation | D6, D7, D8, D9, D10, D11, D12, D13, D14 | accepted for design/specification; final review and re-review found no unresolved P1/P2 blockers; not implementation-complete |
 | D2 | D2 Rule Registry Metadata Contract | `deep-habitat-d2-rule-registry-metadata-contract` | D0, D1; concrete D0 matrix rows and D1 malformed-metadata output-family citations required before source implementation | D3, D4, D5, D6, D7, D8, D10, D13 | accepted for design/specification; final review and code/topology recheck found no unresolved P1/P2 blockers; not implementation-complete |
 | D3 | D3 Workspace Graph Boundary | `deep-habitat-d3-workspace-graph-boundary` | D0, D2; concrete D0 public-surface rows and live D2 `ruleGraphFacts` implementation required before source implementation | D4, D7, D12 | accepted for design/specification; final rereview found no unresolved P1/P2 blockers; not implementation-complete |
-| D4 | D4 Orientation And Routing | `deep-habitat-d4-orientation-routing` | D0, D2, D3 | D14 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
+| D4 | D4 Classify Orientation And Routing | `deep-habitat-d4-orientation-routing` | D0, D1 vocabulary, D2, D3; concrete D0 rows plus live D2/D3 implementation facts required before source implementation | D14 | accepted for design/specification; final domain/ontology, OpenSpec/testing, and topology/cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D5 | D5 Baseline Authority | `deep-habitat-d5-baseline-authority` | D0, D2 | D7, D8 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
 | D6 | D6 Diagnostic Pattern Catalog | `deep-habitat-d6-diagnostic-pattern-catalog` | D0, D1, D2 | D7, D8, D9, D15 evaluation | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
 | D7 | D7 Structural Enforcement Pipeline | `deep-habitat-d7-structural-enforcement-pipeline` | D0, D1, D2, D3, D5, D6, D10 | D11, D12 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |

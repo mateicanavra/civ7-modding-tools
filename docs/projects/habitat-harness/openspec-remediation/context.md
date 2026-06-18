@@ -39,6 +39,24 @@ variables below.
 | `$D3_DOWNSTREAM_LEDGER` | `$D3_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D3_CLOSURE_CHECKLIST` | `$D3_CHANGE/workstream/closure-checklist.md`. |
 
+## D4 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D4_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d4-orientation-routing`. |
+| `$D4_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D4-orientation-and-routing.md`. |
+| `$D4_NEGATIVE_REVIEW` | `$AGENT_SCRATCH/domino-D4-review.md`. |
+| `$D4_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D4-domain-ontology-investigation.md`. |
+| `$D4_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D4-code-topology-investigation.md`. |
+| `$D4_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D4-typescript-state-investigation.md`. |
+| `$D4_OPENSPEC_TESTING_REVIEW` | `$AGENT_SCRATCH/domino-D4-openspec-testing-investigation.md`. |
+| `$D4_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D4-information-design-investigation.md`. |
+| `$D4_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D4-cross-domino-investigation.md`. |
+| `$D4_REVIEW_LEDGER` | `$D4_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D4_PHASE_RECORD` | `$D4_CHANGE/workstream/phase-record.md`. |
+| `$D4_DOWNSTREAM_LEDGER` | `$D4_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D4_CLOSURE_CHECKLIST` | `$D4_CHANGE/workstream/closure-checklist.md`. |
+
 ## Path Templates
 
 Use these templates instead of copying full paths through packet artifacts:

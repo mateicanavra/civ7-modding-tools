@@ -1,5 +1,9 @@
 # D4 Cross-Domino Investigation
 
+## Supervisor Vocabulary Correction
+
+D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scratch wording inherited from the source packet that used a D4-owned graph state name is superseded by the active D4 packet language: D4 consumes and renders D3 graph refusals, with D3-owned reason categories for malformed graph JSON, Nx read failure, Nx daemon failure, missing project, missing target, and unresolved alias dependency.
+
 ## Scope
 
 This is a fresh D4 Orientation and Routing cross-domino/downstream review for
@@ -46,7 +50,7 @@ until their implementation prerequisites are satisfied.
 | Upstream | D4 may consume at design/spec time | Source implementation blocker |
 | --- | --- | --- |
 | D0 Public Surface Compatibility | Closed compatibility action vocabulary; plane-separated row model; requirement that command JSON, human output, package exports, docs examples, scripts, targets, generators, and hooks cite concrete `surface_id` rows before change. | Concrete D0 matrix rows for `habitat classify`, `Classification`, `DiffClassification`, classify human output, package exports, docs examples, and any D3/D4 graph-target output shape touched by source edits. |
-| D1 Receipt Contract Boundary | Refusal, diagnostic, command outcome, recovery instruction, typed relationship, and non-claim vocabulary. D1 protects `ClassifiedTarget.proof` for D3/D4 and treats it as downstream-owned compatibility output, not D1 target language. | D1 implementation is not needed for D4 design, but D4 source changes that introduce refusals/non-claims must align with D1 output-family semantics and concrete D0 rows. D4 may not invent a separate refusal/output family for malformed/pathless diff, unsupported path, unresolved owner, or graph error. |
+| D1 Receipt Contract Boundary | Refusal, diagnostic, command outcome, recovery instruction, typed relationship, and non-claim vocabulary. D1 protects `ClassifiedTarget.proof` for D3/D4 and treats it as downstream-owned compatibility output, not D1 target language. | D1 implementation is not needed for D4 design, but D4 source changes that introduce refusals/non-claims must align with D1 output-family semantics and concrete D0 rows. D4 may not invent a separate refusal/output family for malformed/pathless diff, unsupported path, unresolved owner, or graph refusal. |
 | D2 Rule Registry Metadata Contract | `ruleRoutingFacts` as the D4 projection: path coverage state, matched glob/source, unresolved reason, and no raw `scope` prose. D4 may also account for `ruleSelectorFacts` only where classify needs selector identity, without taking whole registry rows. | D2 live implementation must provide routing projections before D4 source code relies on them. D4 source implementation is blocked while routing still depends on prose `scope` authority or while malformed metadata can silently disable, skip, or overclaim a rule. |
 | D3 Workspace Graph Boundary | Project ownership, project root, target availability, unavailable target, aggregate/workspace target, and `GraphRefusal` states for classify/orientation. D4 may present these facts and combine them with D2 routing facts. | D3 live implementation must provide graph facts before D4 source code relies on them. D4 may not infer project ownership, target existence, alias validity, graph-read status, or dependency resolution locally. |
 
@@ -72,7 +76,7 @@ D4 must hand D14 an example corpus with these exact states:
 | `diff` with classified paths | Per-path classification, aggregate unresolved facts, and ordering/aggregation rules for multiple changed paths. | Does not prove all changed paths are safe to edit, does not run checks, and does not replace D12 verify handoff. |
 | `malformed-or-pathless-diff` | Stable refusal reason, recovery instruction, no inferred owner, and no runnable graph-backed targets. | Does not infer ownership from text shape and must not become a successful empty diff example. |
 | `unresolved-owner` | Stable unresolved-owner state, unresolved facts, recovery path, and no project-local runnable targets. | Does not permit D14 to classify the path as future authoring topology or generic scaffolding support. |
-| `graph-error` | D3 graph refusal/read-failure state, bounded error class, recovery instruction, and no target commands. | Does not let D14 or D13 reconstruct graph truth locally. |
+| `graph-refusal` | D3 graph refusal/read-failure state, bounded error class, recovery instruction, and no target commands. | Does not let D14 or D13 reconstruct graph truth locally. |
 | `unsupported authoring-looking path/request` where classify can orient but not author | Orientation facts may show the path is in a MapGen or docs area and may name supported structural commands. | Does not add MapGen domain/op/stage/step/recipe authoring support; D14 owns the fence and D13 owns command refusal shape. |
 
 D14 may use the D4 examples to say: "classify can orient this path/diff and
@@ -168,7 +172,7 @@ Required realignment text:
 ```text
 D4 hands D14 a classify/orientation example corpus containing project-path,
 workspace-path, diff, malformed-or-pathless-diff, unresolved-owner,
-graph-error, unavailable-target, and unsupported authoring-looking path/request
+graph-refusal, unavailable-target, and unsupported authoring-looking path/request
 states. Each example records owner/routing facts, recovery guidance, and
 non-claims. D14 may rely on these examples only to fence authoring requests and
 to show that classify orientation is not authoring support; D14 may not derive
@@ -222,7 +226,7 @@ be coordinated through D0 rows.
 
 The packet index lists D4 as requiring D0/D2/D3, not D1. That is acceptable for
 primary dependency order. However, D4's malformed/pathless diff, unsupported
-path, unresolved owner, and graph-error states are refusal or command-outcome
+path, unresolved owner, and graph-refusal states are refusal or command-outcome
 families. D1 is the accepted design/specification source for refusal,
 recovery-instruction, non-claim, and command-record vocabulary.
 
@@ -246,7 +250,7 @@ Recommended replacement substance for the D4 downstream ledger:
 ```text
 | Downstream Surface | Disposition | Required Action |
 | --- | --- | --- |
-| D14 Authoring Topology Fence | blocked on D4 example corpus | D4 must hand D14 project-path, workspace-path, diff, malformed-or-pathless-diff, unresolved-owner, graph-error, unavailable-target, and unsupported authoring-looking examples with recovery guidance and non-claims. D14 may use them only to fence authoring requests and must not infer authoring/generator support. |
+| D14 Authoring Topology Fence | blocked on D4 example corpus | D4 must hand D14 project-path, workspace-path, diff, malformed-or-pathless-diff, unresolved-owner, graph-refusal, unavailable-target, and unsupported authoring-looking examples with recovery guidance and non-claims. D14 may use them only to fence authoring requests and must not infer authoring/generator support. |
 | D0 compatibility matrix | blocking before D4 source implementation | Cite concrete D0 rows and one closed compatibility action for classify command JSON, human output, DTOs, docs examples, package exports, and graph-target projection output. |
 | D2 routing projections | design-consumable; source-blocking until live | D4 design may use `ruleRoutingFacts`; source waits until prose `scope` is no longer routing authority. |
 | D3 graph facts | design-consumable; source-blocking until live | D4 design may use project ownership, target availability, unavailable target, aggregate/workspace target, and `GraphRefusal`; source waits for live D3 graph facts. |

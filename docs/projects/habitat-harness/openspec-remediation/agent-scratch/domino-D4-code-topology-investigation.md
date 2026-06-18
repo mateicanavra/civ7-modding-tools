@@ -1,5 +1,9 @@
 # D4 Code Topology Investigation
 
+## Supervisor Vocabulary Correction
+
+D3 owns this state family as `GraphRefusal` / `graph-refusal`. Any earlier scratch wording inherited from the source packet that used a D4-owned graph state name is superseded by the active D4 packet language: D4 consumes and renders D3 graph refusals, with D3-owned reason categories for malformed graph JSON, Nx read failure, Nx daemon failure, missing project, missing target, and unresolved alias dependency.
+
 ## Verdict
 
 D4 is not implementation-ready from the current OpenSpec packet. The source topology is clear enough to repair the packet, but source implementation must stay blocked until D4 records the explicit orientation state model, D0 public-surface rows, and the D2/D3 projection dependencies it will consume.
@@ -72,7 +76,7 @@ Observed command state:
 - Required fields: `path`, `project`.
 - Optional fields: `projectRoot`, `tags`, `rulesInScope`, `scopedRules`, `requiredTargets`, `targets`, `unavailableTargets`, `note`.
 - Current use: path and workspace fallback result shape. It is also nested inside diff output.
-- State-space problem: a single interface can represent project-owned path, workspace path, unresolved owner, graph-error-like missing facts, and partially populated target/rule state. `project: null` plus optional `targets`, optional `rulesInScope`, and optional `note` is a convention, not a type-level scenario.
+- State-space problem: a single interface can represent project-owned path, workspace path, unresolved owner, graph-refusal-like missing facts, and invalidly combined target/rule state. `project: null` plus optional `targets`, optional `rulesInScope`, and optional `note` is a convention, not a type-level scenario.
 
 `ScopedRule` and `RuleScopeKind` are declared in lines 182-194:
 
@@ -109,7 +113,10 @@ Observed command state:
 - Function exports lines 29-44: `classifyPath`, `classifyTarget`, plus other broad command-engine functions.
 - Package export path: `/tools/habitat-harness/package.json` exports `"."` as `./src/index.ts`, so these names are package-export public-surface candidates until D0 classifies them.
 
-This means D4 cannot silently rename, remove, narrow, or replace these types/functions in source. It needs D0 rows for package exports and command JSON before code changes.
+This means any D4 source change to these types or functions must cite D0 rows
+for package exports and command JSON, then follow the recorded compatibility
+shape explicitly through preservation, versioning, facade, deprecation, refusal,
+document-only handling, or generated-only handling as applicable.
 
 ### Command Behavior
 
@@ -118,7 +125,7 @@ This means D4 cannot silently rename, remove, narrow, or replace these types/fun
 - Args lines 11-17 define one required `path` argument described as path, absolute path, literal diff, or `.diff/.patch`.
 - Runtime lines 19-22 logs `JSON.stringify(await classifyTarget(args.path), null, 2)`.
 - There is no `--json` flag because JSON is the only current output.
-- There is no human output branch, exit-code distinction, malformed diff refusal, or graph-error catch in the adapter.
+- There is no human output branch, exit-code distinction, malformed diff refusal, or graph-refusal catch in the adapter.
 
 Current path output from `tools/habitat-harness/src/plugin.js` includes:
 
@@ -197,7 +204,7 @@ That is the negative-control bug: a malformed/pathless input is indistinguishabl
 `readNxProjects()` lines 1073-1075:
 
 - Lets `NxProjectGraphMetadataReader.readProjects()` errors escape.
-- There is no `graph-error` orientation variant.
+- There is no `graph-refusal` orientation variant.
 
 ### Test Consumers
 
@@ -228,8 +235,8 @@ Missing test consumers that D4 must add:
 
 1. Optional-property soup in `Classification`.
    - `projectRoot`, `tags`, `rulesInScope`, `scopedRules`, `requiredTargets`, `targets`, `unavailableTargets`, and `note` can be omitted or combined independently.
-   - A workspace path, project path, unresolved owner, and graph-error-ish partial result all share one interface.
-   - Repair demand: replace target orientation with a closed union. Project path, workspace path, diff, malformed/pathless diff, unresolved owner, and graph error must be distinct variants with required and forbidden fields.
+   - A workspace path, project path, unresolved owner, and graph-refusal-like invalid combined result all share one interface.
+   - Repair demand: replace target orientation with a closed union. Project path, workspace path, diff, malformed/pathless diff, unresolved owner, and graph refusal must be distinct variants with required and forbidden fields.
 
 2. Diff detection is stringly and over-broad.
    - `diffText()` treats any newline as diff.
@@ -249,9 +256,9 @@ Missing test consumers that D4 must add:
    - D3 says classify must consume `ClassifyTargetProjection` from `WorkspaceTargetState[]`.
    - Repair demand: D4 must depend on D3 graph facts for owner project, target availability, unavailable targets, aggregate/workspace targets, and graph refusals. It must not infer alias validity or target truth locally.
 
-5. Graph errors are not modeled.
+5. Graph refusals are not modeled.
    - `readNxProjects()` returns or throws; throws escape instead of becoming a result.
-   - Repair demand: add `graph-error` orientation variant with bounded reason vocabulary inherited from D3, recovery instruction, no runnable target commands, and explicit non-claims.
+   - Repair demand: add `graph-refusal` orientation variant with bounded reason vocabulary inherited from D3, recovery instruction, no runnable target commands, and explicit non-claims.
 
 6. Current output has split versioning.
    - `DiffClassification` has `schemaVersion: 1`; `Classification` does not.
@@ -350,7 +357,7 @@ D4 repair and implementation should not touch these without an amended packet an
    - `diff`
    - `malformed-or-pathless-diff`
    - `unresolved-owner`
-   - `graph-error`
+   - `graph-refusal`
 
    For each variant, specify required fields, forbidden fields, whether target facts may appear, recovery instruction shape, non-claims, and D2/D3 projection source.
 
@@ -372,7 +379,7 @@ D4 repair and implementation should not touch these without an amended packet an
    - unit tests for every orientation variant;
    - malformed newline text refuses instead of empty successful diff;
    - pathless valid diff or empty patch file gets explicit refusal/recovery;
-   - graph reader failure produces `graph-error`;
+   - graph reader failure produces `graph-refusal`;
    - multi-path diff keeps stable ordering and per-path orientation states;
    - unavailable targets are reported as non-runnable;
    - workspace fallback does not overclaim owner/project targets;
@@ -384,7 +391,7 @@ D4 repair and implementation should not touch these without an amended packet an
 
 7. Update downstream realignment for D14.
 
-   D14 authoring topology examples should depend on D4's example corpus: project path, workspace path, multi-path diff, malformed/pathless diff, unresolved owner, graph error, unavailable target, and non-claim examples.
+   D14 authoring topology examples should depend on D4's example corpus: project path, workspace path, multi-path diff, malformed/pathless diff, unresolved owner, graph refusal, unavailable target, and non-claim examples.
 
 ## Implementation Readiness Checklist
 
@@ -394,7 +401,7 @@ D4 is ready for source implementation only when all are true:
 - D0 matrix rows with `surface_id` values exist for every classify command/export/docs surface D4 changes.
 - D2 live implementation exposes `ruleRoutingFacts` or D4 explicitly remains on a compatibility facade with no target-authority claim.
 - D3 live implementation exposes classify-safe graph target/refusal projections or D4 explicitly remains on a compatibility facade with no target-authority claim.
-- Tests name all target variants and include malformed/pathless diff and graph-error failures.
+- Tests name all target variants and include malformed/pathless diff and graph-refusal failures.
 - Tasks identify source files, compatibility facades, tests, docs, and protected paths.
 
 Skills used: domain-design, information-design, typescript-refactoring.
