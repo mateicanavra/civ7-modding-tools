@@ -44,13 +44,13 @@
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/architecture.ts`
 
-Command check: `bun run openspec -- validate deep-habitat-d5-baseline-authority --strict` passed. This proves OpenSpec shape validity only, not packet acceptance.
+Command check: `bun run openspec -- validate deep-habitat-d5-baseline-authority --strict` passed. This validates OpenSpec shape validity only, not packet acceptance.
 
 ## Acceptance Verdict
 
 Not accepted. D5 remains blocked.
 
-The packet is a syntactically valid OpenSpec scaffold, but it is not yet an implementation-ready Baseline Authority contract. The generated scaffold collapses the D5 source packet's concrete state model into broad prose, leaves a D5/D8 ownership and sequencing ambiguity, and does not give validation gates precise enough to prove the baseline authority behavior. An implementation agent would still need to decide product/domain terms, baseline state variants, rule-introduction manifest shape, current-tree integrity semantics, and downstream consumer projection shape.
+The packet is a syntactically valid OpenSpec scaffold, but it is not yet an implementation-ready Baseline Authority contract. The generated scaffold collapses the D5 source packet's concrete state model into broad prose, leaves a D5/D8 ownership and sequencing ambiguity, and does not give validation gates precise enough to validate the baseline authority behavior. An implementation agent would still need to decide product/domain terms, baseline state variants, rule-introduction manifest shape, current-tree integrity semantics, and downstream consumer projection shape.
 
 ## P1 Findings
 
@@ -64,11 +64,11 @@ This blocks acceptance because D7 and D8 depend on D5 as a contract. A later exe
 
 ### P1-2: D5/D8 ownership is ambiguous and can create a dependency cycle or authority leak
 
-The packet index says D5 requires D0 and D2 and enables D7/D8. The source D5 packet says D5 adds a baseline contract projection consumed by Pattern Governance, while Pattern Governance must not bypass baseline contracts. The generated D5 artifacts instead say D5 will "Connect baselines to D2 registry facets and D8 governance admission" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:27` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:24`.
+The packet index says D5 requires D0 and D2 and enables D7/D8. The source D5 packet says D5 adds a baseline contract projection consumed by Pattern Governance, while Pattern Governance must not bypass baseline contracts. The generated D5 artifacts instead say D5 will "D5 publishes baseline authority projection/refusal results for D7 and D8" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:27` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:24`.
 
-That phrasing has two unsafe interpretations: D5 edits or defines D8 admission behavior, which violates Pattern Governance ownership, or D5 depends on D8 admission being defined, which contradicts the D5 -> D8 ordering. The intended contract should be one-way: D5 owns baseline debt states and exposes the minimal baseline projection/refusal result that D8 later consumes. D8 owns pattern lifecycle/admission.
+That phrasing has two unsafe interpretations: D5 edits or defines D8 lifecycle/admission behavior, which violates Pattern Governance ownership, or D5 depends on D8 lifecycle/admission being defined, which contradicts the D5 -> D8 ordering. The intended contract should be one-way: D5 owns baseline debt states and exposes the D5-published baseline authority projection/refusal result that D8 later consumes. D8 owns pattern lifecycle/admission.
 
-This blocks acceptance because the packet currently leaves two possible owners for "baseline relation to governance admission" and does not state the consumer projection D8 receives.
+This blocks acceptance because the packet currently leaves two possible owners for "baseline relation to Pattern Governance lifecycle/admission" and does not state the consumer projection D8 receives.
 
 ## P2 Findings
 
@@ -76,7 +76,7 @@ This blocks acceptance because the packet currently leaves two possible owners f
 
 The source packet's D5 command gate is `bun run habitat check --rule baseline-integrity --json`, with injected bad cases for missing, malformed, orphaned, and expanded baseline rows. The generated proposal, tasks, and phase record use `bun run habitat check --json` instead at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:74`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/tasks.md:20`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md:24`.
 
-The broad check can be noisy for unrelated structural rules and does not force the implementation to prove the built-in baseline-integrity contract in isolation. The generated tasks also omit the injected bad-case matrix and the rule-introduction manifest positive/negative cases that current tests already exercise at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:66`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:102`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:116`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:187`.
+The broad check can be noisy for unrelated structural rules and does not force the implementation to validate the built-in baseline-integrity contract in isolation. The generated tasks also omit the injected bad-case matrix and the rule-introduction manifest positive/negative cases that current tests already exercise at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:66`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:102`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:116`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts:187`.
 
 ### P2-2: The promised write set and protected paths are not actually named
 
@@ -92,7 +92,7 @@ The packet does not enumerate which of these surfaces are stable, internal, comm
 
 ### P2-4: Key terms remain inherited or vague enough for black-ice implementation
 
-The packet uses "stale-row handling", "debt row lifecycle", "baseline decision", "owner/rule/governance relation", "accepted baseline row", and "owning remediation path" without definitions or allowed/refused states. These appear in the proposal and design at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:21`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:27`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/specs/habitat-harness/spec.md:7`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/specs/habitat-harness/spec.md:11`.
+The packet uses "orphan and removed-entry handling", "baseline state lifecycle", "baseline decision", "owner/rule/governance relation", "matched baseline entry", and "owning remediation path" without definitions or allowed/refused states. These appear in the proposal and design at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:21`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:27`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/specs/habitat-harness/spec.md:7`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/specs/habitat-harness/spec.md:11`.
 
 These terms are exactly where an implementation agent would fall through the ice: is a stale row a shrink opportunity, an orphan, a removed diagnostic, a missing registry relation, or a governance-retired pattern? Is the remediation path a rule owner, a project owner, a Pattern Governance status, or a command message? D5 must answer those questions before source work starts.
 
@@ -106,7 +106,7 @@ The closure checklist treats "Spec delta uses normative SHALL language with scen
 
 The downstream ledger only says "Later domino packets" and "D0 compatibility matrix" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/downstream-realignment-ledger.md:5`. It should name D7 Structural Enforcement Pipeline and D8 Pattern Governance separately, with the exact baseline projection/refusal contract each consumes.
 
-### P3-3: The packet does not separate design validation from later implementation proof cleanly enough
+### P3-3: The packet does not separate design validation from later implementation validation cleanly enough
 
 The phase record correctly says the remediation packet does not implement source changes at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md:30`, but the validation gates are listed as if they are ready execution commands. Add design-time validation gates separately from later implementation gates so the packet can say which commands were run now (`openspec validate`) and which commands must be run after source edits.
 
@@ -114,7 +114,7 @@ The phase record correctly says the remediation packet does not implement source
 
 - Expand `specs/habitat-harness/spec.md` with normative D5 scenarios for every source state: explicit empty, explicit debt, external exception source, malformed baseline, missing baseline, orphan baseline, parser-owned baseline mismatch, introduced-rule baseline expansion, rule-introduction manifest mismatch, comparison-source failure, and shrink-only failure.
 - Rewrite `design.md` to include the D5 state union in product terms, the exact rule-introduction manifest fields and comparison-base rule, and the external exception allowed source variants with projection equality requirements.
-- Replace the D5/D8 wording with a one-way contract: D5 publishes a minimal baseline authority projection/refusal result; D8 consumes it and owns pattern lifecycle/admission.
+- Replace the D5/D8 wording with a one-way contract: D5 publishes the D5-published baseline authority projection/refusal result; D8 consumes it and owns pattern lifecycle/admission.
 - Add concrete implementation write set and protected paths, including baseline source module(s), command report projection surface, tests/fixtures, baseline JSON paths, D2 projection touchpoints, and D8 consumer tests. Mark generated artifacts and unrelated D7/D8 implementation as protected unless explicitly moved into their packets.
 - Replace broad validation with the source-packet gates: `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`, `bun run habitat check --rule baseline-integrity --json`, `bun run openspec -- validate deep-habitat-d5-baseline-authority --strict`, `bun run openspec:validate`, `git diff --check`, and `git status --short --branch`. Add required injected bad-case fixtures and expected refusal results.
 - Enumerate D0 compatibility surfaces for D5: baseline JSON files, baseline-related command JSON fields/messages, exported baseline types/functions, `--expand-baseline` behavior, Pattern Governance generator/registration baseline contract messages, and docs/examples that show baseline failures.
@@ -128,8 +128,8 @@ The phase record correctly says the remediation packet does not implement source
   - `Requirement: Baseline Integrity Is Shrink-Only`
   - `Requirement: Rule Introduction Manifests Authorize Seeded Debt Only For New Rules`
   - `Requirement: Baseline Authority Projection Is The Only D7/D8 Consumer Contract`
-- Replace "Connect baselines to D2 registry facets and D8 governance admission" with: "Consume D2 baseline facets and expose `BaselineAuthorityDecision`/`BaselineRefusal` projections for D7 and D8. D5 does not decide Pattern Governance lifecycle or admission."
-- Replace "accepted baseline row" with explicit row states: "matched explicit debt key", "matched external exception projection", "unmatched new violation", "orphan baseline key", or "stale baseline key removed by shrink-only update."
+- Replace "D5 publishes baseline authority projection/refusal results for D7 and D8" with: "Consume D2 baseline facets and expose `BaselineAuthorityDecision`/`BaselineRefusal` projections for D7 and D8. D5 does not decide Pattern Governance lifecycle or admission."
+- Replace "matched baseline entry" with explicit row states: "matched explicit debt key", "matched external exception projection", "unmatched new violation", "orphan baseline key", or "stale baseline key removed by shrink-only update."
 - Replace "owning remediation path" with fields: `ruleId`, `ownerProject`, `ownerTool`, `baselinePath`, `remediationHint`, and, when relevant, `governanceManifestPath`.
 - Replace "external exception baseline" with allowed variants, such as "script allowlist projection" and "native-rule external baseline projection", each with required owner, migration owner, source path, projection function or fixed projected keys, and validation behavior.
 
@@ -137,7 +137,7 @@ The phase record correctly says the remediation packet does not implement source
 
 - This review does not accept D5 for implementation.
 - This review does not edit OpenSpec artifacts or Habitat source.
-- The passing `openspec validate` command proves only OpenSpec shape validity.
-- This review does not prove current baseline code is correct; it uses current code/tests to identify the packet contract that must be explicit.
+- The passing `openspec validate` command validates only OpenSpec shape validity.
+- This review does not validate current baseline code is correct; it uses current code/tests to identify the packet contract that must be explicit.
 - This review does not accept D0, D2, D7, or D8.
-- This review does not claim broad `habitat check --json` is an adequate D5 closure proof.
+- This review does not claim broad `habitat check --json` is an adequate D5 closure validation.

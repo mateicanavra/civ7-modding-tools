@@ -57,6 +57,24 @@ variables below.
 | `$D4_DOWNSTREAM_LEDGER` | `$D4_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D4_CLOSURE_CHECKLIST` | `$D4_CHANGE/workstream/closure-checklist.md`. |
 
+## D5 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D5_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d5-baseline-authority`. |
+| `$D5_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D5-baseline-authority.md`. |
+| `$D5_NEGATIVE_REVIEW` | `$AGENT_SCRATCH/domino-D5-review.md`. |
+| `$D5_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D5-domain-ontology-investigation.md`. |
+| `$D5_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D5-code-topology-investigation.md`. |
+| `$D5_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D5-typescript-state-investigation.md`. |
+| `$D5_OPENSPEC_TESTING_REVIEW` | `$AGENT_SCRATCH/domino-D5-openspec-testing-investigation.md`. |
+| `$D5_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D5-information-design-investigation.md`. |
+| `$D5_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D5-cross-domino-investigation.md`. |
+| `$D5_REVIEW_LEDGER` | `$D5_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D5_PHASE_RECORD` | `$D5_CHANGE/workstream/phase-record.md`. |
+| `$D5_DOWNSTREAM_LEDGER` | `$D5_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D5_CLOSURE_CHECKLIST` | `$D5_CHANGE/workstream/closure-checklist.md`. |
+
 ## Path Templates
 
 Use these templates instead of copying full paths through packet artifacts:

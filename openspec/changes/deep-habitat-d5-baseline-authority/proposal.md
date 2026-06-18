@@ -2,77 +2,128 @@
 
 ## Summary
 
-Open the D5 Baseline Authority OpenSpec packet for Deep Habitat Phase 2 remediation. This
-change converts the existing D5 domino packet into a review-gated
-OpenSpec packet scaffold. It resolves scope, owner, public surface impact,
-validation gates, downstream realignment, and stop conditions before any
-TypeScript implementation resumes.
+Specify the D5 Baseline Authority packet for Deep Habitat Phase 2 remediation.
+This change turns `$D5_SOURCE_PACKET` into an execution-ready OpenSpec change
+packet for structural-debt baselines. It defines the complete baseline authority
+state contract, the D5-owned command outcomes, the D5-published consumer
+projection/refusal result, public-surface compatibility requirements, exact
+write/protected sets, validation gates, and downstream D7/D8 handoffs.
+
+This packet is design/specification only. It does not authorize source edits
+until D5 final review accepts the packet and later implementation cites concrete
+D0 rows for every touched public or durable surface.
 
 ## Authority
 
-- Current user decision to restart OpenSpec packet preparation from square one.
-- Remediation frame: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation-frame.md.
-- Phase 2 packet suite: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets.
-- Root AGENTS.md Graphite/OpenSpec workflow guidance.
-- Domain Design and Information Design skills as mandatory language and artifact gates.
-- Current Habitat Toolkit code and tests as present-behavior evidence only.
-- Source domino packet: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md.
+- Current user direction to restart OpenSpec packet preparation one packet at a
+  time and design the packet, not backfill documentation.
+- `$REMEDIATION_DIR/openspec-remediation-frame.md`.
+- `$REMEDIATION_DIR/context.md` for path variables and operational fixtures.
+- `$D5_SOURCE_PACKET`.
+- `$D5_NEGATIVE_REVIEW` as negative-control input.
+- Accepted-design D0 and D2 packets as prerequisites.
+- D7 and D8 source packets for downstream ownership boundaries.
+- Domain Design, Information Design, Ontology Design, Solution Design,
+  OpenSpec Workstream, Testing Design, System Design, and TypeScript
+  refactoring skill guidance.
+- Current Habitat source and tests as present-behavior input only.
 
 ## Product Scenario
 
-A repo maintainer manages structural debt and needs Habitat baselines to shrink intentionally, reject accidental expansion, and connect each debt row to owning rules and governance.
+A repo maintainer or agent runs Habitat checks while a repository already has
+structural debt. Habitat must distinguish debt that is intentionally recorded,
+debt that is newly introduced, debt represented by a modeled external exception
+source, and baseline contract failures. It must reject accidental debt growth,
+accept seeded debt only for rule-introduction changes with a matching manifest,
+and publish one baseline authority result that Structural Enforcement and
+Pattern Governance can consume without redefining baseline truth.
 
 ## What Changes
 
-- Define baseline ownership, shrink-only behavior, introduction manifest relation, and stale-row handling.
-- Connect baselines to D2 registry facets and D8 governance admission.
-- Specify debt row lifecycle and refusal cases.
+- Define D5 as the sole owner of baseline debt authority, shrink-only
+  integrity, rule-introduction manifest acceptance/refusal, external exception
+  projection, and the D5-published baseline authority projection/refusal result.
+- Replace boolean/optional baseline authority shapes in the implementation plan
+  with closed result states and explicit refusal reasons.
+- Specify every baseline state and refusal in the normative spec, including
+  malformed file shapes, external-source failure, parser-owned bypass,
+  comparison-base failure, existing-rule growth, and manifest mismatch.
+- Enumerate D0 compatibility surfaces before implementation can touch baseline
+  JSON, command JSON, `--expand-baseline`, package exports, Pattern Authority
+  baseline contract surfaces, docs/examples, or command report projection.
+- Define D7 and D8 handoffs as consumer contracts: D7 consumes baseline
+  application/integrity results during enforcement/report construction; D8
+  consumes the D5-published projection/refusal result and owns Pattern
+  Governance lifecycle/admission.
 
 ## What Does Not Change
 
-- No rule execution redesign.
-- No automatic baseline expansion.
-- No Pattern Governance ownership collapse.
+- D5 does not redesign rule selection, rule execution, report construction, or
+  rendering. Those remain D7.
+- D5 does not define Pattern Governance lifecycle, pattern admission, or
+  generator behavior. Those remain D8/D13.
+- D5 does not register rules, infer D2 rule metadata, or define graph facts.
+- D5 does not hand-edit generated artifacts, lockfiles, or live baseline JSON
+  files except later implementation fixtures/current-tree checks explicitly
+  justified by this packet.
+- D5 does not permit automatic baseline expansion. `--expand-baseline` remains
+  an authoring-only command path guarded by D5 decisions and D0 compatibility.
 
 ## Requires
 
-- D0
-- D2
+- D0 accepted-design command surface inventory. Source implementation still
+  requires concrete D0 rows for every touched public/durable surface.
+- D2 accepted-design rule registry metadata contract. Source implementation
+  still requires live D2 rule identity/facet projections where D5 consumes them.
 
 ## Enables
 
-- D7
-- D8
+- D7 Structural Enforcement Pipeline: may consume D5 baseline application and
+  integrity results while owning report construction.
+- D8 Pattern Governance: may consume the D5-published baseline authority
+  projection/refusal result while owning pattern lifecycle/admission.
 
 ## Affected Owners
 
 - Domain owner: Baseline Authority.
-- OpenSpec change path: `openspec/changes/deep-habitat-d5-baseline-authority/**`.
-- Expected Habitat implementation write set named in `design.md`; no code is
-  authorized by this remediation packet itself.
-
-## Forbidden Owners
-
-- Adjacent dominoes may not redefine Baseline Authority authority.
-- Current code names may not become target-domain language without this packet
-  accepting the term.
-- Implementation agents may not add shims, fallbacks, dual paths, silent skips,
-  optional target shape, or generated-output hand edits.
+- OpenSpec change path: `$D5_CHANGE/**`.
+- Expected source write set is named in `design.md`. No TypeScript source edits
+  are part of this remediation packet.
 
 ## Consumer Impact
 
-Check output may report baseline decisions more precisely within D0 compatibility rules.
+Later implementation may make baseline-related command JSON, command messages,
+and package exports more explicit. Any public compatibility change must follow a
+concrete D0 row using only D0's closed compatibility handling vocabulary:
+`preserve`, `version`, `facade`, `deprecate`, `refuse`, `document-only`, or
+`generated-only`.
 
 ## Stop Conditions
 
-- Baseline file presence is treated as admission authority.
-- New violations are silently added.
-- Debt rows lack owner/rule/governance relation.
+- A baseline authority result can still represent success and refusal at the
+  same time.
+- External exception source models can still omit both projection and projector
+  or mix incompatible projection strategies.
+- `--expand-baseline` can write entries for an existing rule or a new rule
+  without a matching rule-introduction manifest.
+- D7 or D8 is asked to decide baseline authority, shrink-only integrity, or
+  external exception projection.
+- A touched public surface lacks a concrete D0 row before source implementation.
 
 ## Verification Gates
 
-- bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts
-- bun run habitat check --json
-- bun run openspec -- validate deep-habitat-d5-baseline-authority --strict
+Design-time structural gates:
+
+- `bun run openspec -- validate deep-habitat-d5-baseline-authority --strict`
 - `bun run openspec:validate`
 - `git diff --check`
+
+Later implementation gates:
+
+- `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`
+- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts`
+- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-commands.test.ts`
+- `bun run --cwd tools/habitat-harness test -- test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`
+- `bun run habitat check --rule baseline-integrity --json`
+- Injected or fixture matrix checks for every D5 baseline state/refusal named in
+  `specs/habitat-harness/spec.md`.
