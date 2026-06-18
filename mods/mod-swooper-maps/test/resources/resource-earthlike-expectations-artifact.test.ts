@@ -7,13 +7,15 @@ import {
   resourceEarthlikeExpectationsArtifact,
 } from "../../src/domain/resources/artifacts/contract/earthlike-expectations.contract.js";
 import {
-  DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   EARTHLIKE_RESOURCE_EXPECTATIONS_ARTIFACT,
-  INITIAL_MAP_RESOURCE_TYPES,
   OFFICIAL_RESOURCE_BY_TYPE,
   OFFICIAL_RESOURCE_TYPE_ORDER,
 } from "../../src/domain/resources/index.js";
+import {
+  DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
+  INITIAL_MAP_RESOURCE_TYPES,
+} from "../../src/domain/resources/policy/initial-map-authoring.js";
 
 const blockedResources = [
   "RESOURCE_CLOVES",

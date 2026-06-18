@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "bun:test";
 
+import { OFFICIAL_RESOURCE_CORPUS } from "../../src/domain/resources/index.js";
 import {
   DEFERRED_INITIAL_MAP_RESOURCE_TYPE_IDS,
   DEFERRED_INITIAL_MAP_RESOURCE_TYPES,
@@ -11,9 +12,8 @@ import {
   INITIAL_MAP_RESOURCE_AUTHORING_POLICY,
   INITIAL_MAP_RESOURCE_TYPE_IDS,
   INITIAL_MAP_RESOURCE_TYPES,
-  OFFICIAL_RESOURCE_CORPUS,
   resolveActiveResourceAge,
-} from "../../src/domain/resources/index.js";
+} from "../../src/domain/resources/policy/initial-map-authoring.js";
 
 type RuntimeGlobals = typeof globalThis & {
   Game?: { age?: unknown };

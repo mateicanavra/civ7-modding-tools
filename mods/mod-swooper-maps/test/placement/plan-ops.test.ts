@@ -5,12 +5,14 @@ import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 import placementDomain from "../../src/domain/placement/ops.js";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
-  getInitialMapResourcePolicyForType,
-  RESOURCE_HABITAT_SIGNALS,
-  type ResourceLegalitySurface,
-  resolveActiveResourceAge,
   resolveResourceRuntimeIds,
 } from "../../src/domain/resources/index.js";
+import { RESOURCE_HABITAT_SIGNALS } from "../../src/domain/resources/policy/habitat-eligibility.js";
+import {
+  getInitialMapResourcePolicyForType,
+  resolveActiveResourceAge,
+} from "../../src/domain/resources/policy/initial-map-authoring.js";
+import type { ResourceLegalitySurface } from "../../src/domain/resources/policy/resource-legality.js";
 import {
   buildResourceDemands,
   buildRiverResourceExclusionMask,
