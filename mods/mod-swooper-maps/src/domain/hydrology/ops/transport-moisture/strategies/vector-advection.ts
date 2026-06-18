@@ -1,45 +1,24 @@
 import { idx } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
-import { projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
+import {
+  bestHexNeighborDirectionIndexOddQ,
+  forEachHexNeighborOddQWithDirection,
+  getHexNeighborDirectionVectorsOddQ,
+  wrapX,
+} from "@swooper/mapgen-core/lib/grid";
 
 import TransportMoistureContract from "../contract.js";
 import { clamp01 } from "../rules/index.js";
 
-type Vec2 = Readonly<{ x: number; y: number }>;
-
-const OFFSETS_ODD: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, 1],
-  [1, 1],
-];
-
-const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, -1],
-  [1, -1],
-];
-
-function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Vec2 {
-  const base = projectOddqToHexSpace(baseX, 0);
-  const p = projectOddqToHexSpace(baseX + dx, dy);
-  return { x: p.x - base.x, y: p.y - base.y };
-}
-
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(1, dx, dy)
-);
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(0, dx, dy)
-);
-
 type Upwind = Readonly<{ i0: number; w0: number; i1: number; w1: number }>;
 
+// Upwind moisture donor selection over the engine's odd-R hex neighborhood. Uses
+// the shared neighbor iterator + hex-space direction vectors (parity keyed on the
+// ROW, `y & 1`) so this matches the live engine adjacency exactly. The previous
+// inlined odd-Q tables + row-0 delta builder keyed parity on the COLUMN (`x & 1`)
+// and projected the base at row 0, producing a geometrically degenerate neighbor
+// under the odd-R projection; routing through the shared primitive removes that
+// whole class of drift.
 function selectUpwind(
   x: number,
   y: number,
@@ -50,38 +29,47 @@ function selectUpwind(
   absLatDeg: number,
   secondaryWeightMin: number
 ): Upwind {
-  const isOdd = (x & 1) === 1;
-  const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
-  const deltas = isOdd ? HEX_DELTAS_ODD : HEX_DELTAS_EVEN;
+  const isOddRow = (y & 1) === 1;
+  const dirs = getHexNeighborDirectionVectorsOddQ(isOddRow);
 
   // Upwind direction is opposite the wind.
   const ux = -windX;
   const uy = -windY;
 
-  let best0 = -1;
-  let best1 = -1;
-  let s0 = 0;
-  let s1 = 0;
+  // Primary donor: the neighbor direction best aligned with the upwind (negated
+  // wind) vector. Resolve the chosen direction index to a bounds-checked neighbor.
+  const best0 = bestHexNeighborDirectionIndexOddQ({ x: ux, y: uy }, isOddRow);
 
-  for (let k = 0; k < offsets.length; k++) {
-    const [dx, dy] = offsets[k];
-    const ny = y + dy;
-    if (ny < 0 || ny >= height) continue;
-    const d = deltas[k];
+  let nx0 = -1;
+  let ny0 = -1;
+  let s0 = 0;
+  let best1 = -1;
+  let nx1 = -1;
+  let ny1 = -1;
+  let s1 = 0;
+  forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, k) => {
+    const d = dirs[k];
     const score = ux * d.x + uy * d.y;
-    if (score <= 0) continue;
-    if (score > s0) {
-      s1 = s0;
-      best1 = best0;
-      s0 = score;
-      best0 = k;
-    } else if (score > s1) {
+    if (k === best0) {
+      // Anchor the primary donor to the shared selection; only adopt it when its
+      // upwind alignment is positive (matching the original `score > 0` gate).
+      if (score > 0) {
+        nx0 = nx;
+        ny0 = ny;
+        s0 = score;
+      }
+      return;
+    }
+    if (score <= 0) return;
+    if (score > s1) {
       s1 = score;
       best1 = k;
+      nx1 = nx;
+      ny1 = ny;
     }
-  }
+  });
 
-  if (best0 < 0) {
+  if (nx0 < 0) {
     // Fallback to coarse lat-based zonal.
     const dx = absLatDeg < 30 || absLatDeg >= 60 ? -1 : 1;
     const ny = y;
@@ -90,9 +78,6 @@ function selectUpwind(
     return { i0, w0: 1, i1: i0, w1: 0 };
   }
 
-  const [dx0, dy0] = offsets[best0];
-  const nx0 = wrapX(x + dx0, width);
-  const ny0 = y + dy0;
   const i0 = idx(nx0, ny0, width);
 
   if (best1 < 0 || s1 <= 0) {
@@ -106,9 +91,6 @@ function selectUpwind(
     return { i0, w0: 1, i1: i0, w1: 0 };
   }
 
-  const [dx1, dy1] = offsets[best1];
-  const nx1 = wrapX(x + dx1, width);
-  const ny1 = y + dy1;
   const i1 = idx(nx1, ny1, width);
 
   return { i0, w0, i1, w1 };

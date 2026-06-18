@@ -33,7 +33,6 @@ export default defineConfig({
     "src/compiler/recipe-compile.ts",
     "src/lib/math/index.ts",
     "src/lib/grid/index.ts",
-    "src/lib/heightfield/index.ts",
     "src/lib/plates/index.ts",
     "src/lib/rng/index.ts",
     "src/lib/noise/index.ts",

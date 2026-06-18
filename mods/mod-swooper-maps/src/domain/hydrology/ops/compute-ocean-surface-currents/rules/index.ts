@@ -1,8 +1,8 @@
 import { clampInt, idx } from "@swooper/mapgen-core";
 import {
   estimateDivergenceOddQ,
-  projectOddqToHexSpace,
-  wrapX,
+  forEachHexNeighborOddQWithDirection,
+  getHexNeighborDirectionVectorsOddQ,
 } from "@swooper/mapgen-core/lib/grid";
 
 export function computeCurrents(
@@ -49,38 +49,7 @@ export function computeCurrents(
   return { currentU, currentV };
 }
 
-const OFFSETS_ODD: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, 1],
-  [1, 1],
-];
-
-const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, -1],
-  [1, -1],
-];
-
 type Vec2 = Readonly<{ x: number; y: number }>;
-
-function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Vec2 {
-  const base = projectOddqToHexSpace(baseX, 0);
-  const p = projectOddqToHexSpace(baseX + dx, dy);
-  return { x: p.x - base.x, y: p.y - base.y };
-}
-
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(1, dx, dy)
-);
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(0, dx, dy)
-);
 
 function vec2(x: number, y: number): Vec2 {
   return { x, y };
@@ -139,22 +108,16 @@ function smoothFieldWaterOddQ(
           continue;
         }
 
-        const isOdd = (x & 1) === 1;
-        const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
         let sx = 0;
         let sy = 0;
         let w = 0;
-        for (let k = 0; k < offsets.length; k++) {
-          const [dx, dy] = offsets[k];
-          const ny = y + dy;
-          if (ny < 0 || ny >= height) continue;
-          const nx = wrapX(x + dx, width);
+        forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny) => {
           const j = idx(nx, ny, width);
-          if (isWaterMask[j] !== 1) continue;
+          if (isWaterMask[j] !== 1) return;
           sx += fx[j] ?? 0;
           sy += fy[j] ?? 0;
           w += 1;
-        }
+        });
         if (w <= 0) {
           tmpX[i] = fx[i] ?? 0;
           tmpY[i] = fy[i] ?? 0;
@@ -196,20 +159,14 @@ function projectDivergenceFreeOddQ(
           continue;
         }
 
-        const isOdd = (x & 1) === 1;
-        const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
         let sum = 0;
         let w = 0;
-        for (let k = 0; k < offsets.length; k++) {
-          const [dx, dy] = offsets[k];
-          const ny = y + dy;
-          if (ny < 0 || ny >= height) continue;
-          const nx = wrapX(x + dx, width);
+        forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny) => {
           const j = idx(nx, ny, width);
-          if (isWaterMask[j] !== 1) continue;
+          if (isWaterMask[j] !== 1) return;
           sum += phi[j] ?? 0;
           w += 1;
-        }
+        });
         const rhs = div[i] ?? 0;
         phiNext[i] = w > 0 ? (sum - rhs) / w : 0;
       }
@@ -222,27 +179,21 @@ function projectDivergenceFreeOddQ(
     for (let x = 0; x < width; x++) {
       const i = idx(x, y, width);
       if (isWaterMask[i] !== 1) continue;
-      const isOdd = (x & 1) === 1;
-      const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
-      const deltas = isOdd ? HEX_DELTAS_ODD : HEX_DELTAS_EVEN;
+      const deltas = getHexNeighborDirectionVectorsOddQ((y & 1) === 1);
       const p0 = phi[i] ?? 0;
       let gx = 0;
       let gy = 0;
       let w = 0;
-      for (let k = 0; k < offsets.length; k++) {
-        const [dx, dy] = offsets[k];
-        const ny = y + dy;
-        if (ny < 0 || ny >= height) continue;
-        const nx = wrapX(x + dx, width);
+      forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, k) => {
         const j = idx(nx, ny, width);
-        if (isWaterMask[j] !== 1) continue;
+        if (isWaterMask[j] !== 1) return;
         const dp = (phi[j] ?? 0) - p0;
         const d = deltas[k];
         const denom = Math.max(1e-6, vec2LengthSquared(d));
         gx += (dp * d.x) / denom;
         gy += (dp * d.y) / denom;
         w += 1;
-      }
+      });
       if (w > 0) {
         gx /= w;
         gy /= w;

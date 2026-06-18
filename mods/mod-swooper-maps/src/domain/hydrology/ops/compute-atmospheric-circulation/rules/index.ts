@@ -1,5 +1,9 @@
 import { clampInt, createLabelRng, idx } from "@swooper/mapgen-core";
-import { projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
+import {
+  forEachHexNeighborOddQWithDirection,
+  getHexNeighborDirectionVectorsOddQ,
+  getHexNeighborIndicesOddQ,
+} from "@swooper/mapgen-core/lib/grid";
 
 export function computeWinds(
   width: number,
@@ -50,24 +54,6 @@ export function computeWinds(
 
   return { windU, windV };
 }
-
-const OFFSETS_ODD: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, 1],
-  [1, 1],
-];
-
-const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, -1],
-  [1, -1],
-];
 
 type Vec2 = Readonly<{ x: number; y: number }>;
 
@@ -148,19 +134,6 @@ function seasonalSignal01(seasonPhase01: number): number {
   return Math.sin(p * Math.PI * 2);
 }
 
-function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Vec2 {
-  const base = projectOddqToHexSpace(baseX, 0);
-  const p = projectOddqToHexSpace(baseX + dx, dy);
-  return { x: p.x - base.x, y: p.y - base.y };
-}
-
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(1, dx, dy)
-);
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(0, dx, dy)
-);
-
 function smoothFieldOddQ(
   width: number,
   height: number,
@@ -178,17 +151,12 @@ function smoothFieldOddQ(
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const i = idx(x, y, width);
-        const isOdd = (x & 1) === 1;
-        const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
         let sx = 0;
         let sy = 0;
         let w = 0;
-        for (let k = 0; k < offsets.length; k++) {
-          const [dx, dy] = offsets[k];
-          const ny = y + dy;
-          if (ny < 0 || ny >= height) continue;
-          const nx = wrapX(x + dx, width);
-          const j = idx(nx, ny, width);
+        const neighbors = getHexNeighborIndicesOddQ(x, y, width, height);
+        for (let k = 0; k < neighbors.length; k++) {
+          const j = neighbors[k];
           sx += fx[j] ?? 0;
           sy += fy[j] ?? 0;
           w += 1;
@@ -310,26 +278,20 @@ export function computeWindsEarthlike(
 
     for (let x = 0; x < width; x++) {
       const i = idx(x, y, width);
-      const isOdd = (x & 1) === 1;
-      const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
-      const deltas = isOdd ? HEX_DELTAS_ODD : HEX_DELTAS_EVEN;
+      const dirs = getHexNeighborDirectionVectorsOddQ((y & 1) === 1);
 
       const p0 = pressure[i] ?? 0;
       let grad = vec2(0, 0);
       let w = 0;
 
-      for (let k = 0; k < offsets.length; k++) {
-        const [dx, dy] = offsets[k];
-        const ny = y + dy;
-        if (ny < 0 || ny >= height) continue;
-        const nx = wrapX(x + dx, width);
+      forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, k) => {
         const j = idx(nx, ny, width);
         const dp = (pressure[j] ?? 0) - p0;
-        const d = deltas[k];
+        const d = dirs[k];
         const denom = Math.max(1e-6, vec2LengthSquared(d));
         grad = vec2Add(grad, vec2Scale(d, dp / denom));
         w += 1;
-      }
+      });
 
       if (w > 0) grad = vec2Scale(grad, 1 / w);
 

@@ -2,8 +2,8 @@ import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
   estimateDivergenceOddQ,
-  projectOddqToHexSpace,
-  wrapX,
+  forEachHexNeighborOddQWithDirection,
+  getHexNeighborDirectionVectorsOddQ,
 } from "@swooper/mapgen-core/lib/grid";
 import { PerlinNoise } from "@swooper/mapgen-core/lib/noise";
 
@@ -12,37 +12,12 @@ import { clampRainfall, computeDistanceToWater, rainfallToHumidityU8 } from "../
 
 type Vec2 = Readonly<{ x: number; y: number }>;
 
-const OFFSETS_ODD: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, 1],
-  [1, 1],
-];
-
-const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, -1],
-  [1, -1],
-];
-
-function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Vec2 {
-  const base = projectOddqToHexSpace(baseX, 0);
-  const p = projectOddqToHexSpace(baseX + dx, dy);
-  return { x: p.x - base.x, y: p.y - base.y };
-}
-
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(1, dx, dy)
-);
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(0, dx, dy)
-);
-
+// Orographic uplift gradient over the engine's odd-R hex neighborhood. Uses the
+// shared neighbor iterator + hex-space direction vectors (parity keyed on the
+// ROW, `y & 1`) so this matches the live engine adjacency exactly. The previous
+// inlined odd-Q tables + row-0 delta builder produced a geometrically degenerate
+// neighbor under the odd-R projection; routing through the shared primitive
+// removes that whole class of drift.
 function elevationGradientOddQ(
   x: number,
   y: number,
@@ -52,26 +27,20 @@ function elevationGradientOddQ(
 ): Vec2 {
   const i = y * width + x;
   const e0 = elevation[i] ?? 0;
-  const isOdd = (x & 1) === 1;
-  const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
-  const deltas = isOdd ? HEX_DELTAS_ODD : HEX_DELTAS_EVEN;
+  const dirs = getHexNeighborDirectionVectorsOddQ((y & 1) === 1);
 
   let gx = 0;
   let gy = 0;
   let w = 0;
-  for (let k = 0; k < offsets.length; k++) {
-    const [dx, dy] = offsets[k];
-    const ny = y + dy;
-    if (ny < 0 || ny >= height) continue;
-    const nx = wrapX(x + dx, width);
+  forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, k) => {
     const j = ny * width + nx;
     const de = (elevation[j] ?? 0) - e0;
-    const d = deltas[k];
+    const d = dirs[k];
     const denom = Math.max(1e-6, d.x * d.x + d.y * d.y);
     gx += (de * d.x) / denom;
     gy += (de * d.y) / denom;
     w += 1;
-  }
+  });
   if (w <= 0) return { x: 0, y: 0 };
   return { x: gx / w, y: gy / w };
 }

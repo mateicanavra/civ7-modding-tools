@@ -508,22 +508,25 @@ const WATER_TERRAINS = new Set([
   CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_OCEAN,
 ]);
 
-const ODD_Q_NEIGHBORS_EVEN = [
-  [1, 0],
-  [0, 1],
+// Engine odd-R (row-offset) hex neighbors, parity keyed on the ROW (`y & 1`):
+// even rows take the WEST diagonals, odd rows the EAST diagonals; the four
+// orthogonal-ish neighbors are common. Matches the live engine adjacency.
+const ODD_R_NEIGHBORS_EVEN_ROW = [
   [-1, 0],
-  [-1, -1],
+  [1, 0],
   [0, -1],
-  [1, -1],
+  [0, 1],
+  [-1, -1],
+  [-1, 1],
 ] as const;
 
-const ODD_Q_NEIGHBORS_ODD = [
-  [1, 1],
-  [0, 1],
-  [-1, 1],
+const ODD_R_NEIGHBORS_ODD_ROW = [
   [-1, 0],
-  [0, -1],
   [1, 0],
+  [0, -1],
+  [0, 1],
+  [1, -1],
+  [1, 1],
 ] as const;
 
 export function buildSurfaceDeltaContexts(
@@ -1570,7 +1573,7 @@ function isWithinMinSpacing(
 }
 
 function hasAdjacentLand(snapshot: SnapshotLike, x: number, y: number): boolean {
-  const offsets = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+  const offsets = (y & 1) === 1 ? ODD_R_NEIGHBORS_ODD_ROW : ODD_R_NEIGHBORS_EVEN_ROW;
   for (const [dx, dy] of offsets) {
     const ny = y + dy;
     if (ny < 0 || ny >= snapshot.height) continue;
@@ -1587,7 +1590,7 @@ function terrainDeltaNeighborhood(
   x: number,
   y: number
 ): TerrainDeltaNeighborhoodContext {
-  const offsets = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+  const offsets = (y & 1) === 1 ? ODD_R_NEIGHBORS_ODD_ROW : ODD_R_NEIGHBORS_EVEN_ROW;
   const neighbors = offsets.flatMap(
     ([dx, dy], direction): ReadonlyArray<TerrainDeltaNeighborContext> => {
       const ny = y + dy;

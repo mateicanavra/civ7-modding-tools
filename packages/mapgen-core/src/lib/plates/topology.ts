@@ -6,6 +6,8 @@
  * tile-level boundary noise.
  */
 
+import { getHexNeighborIndicesOddQ } from "@mapgen/lib/grid/neighborhood/hex-oddq.js";
+
 export interface PlateNode {
   id: number;
   /** Number of tiles belonging to the plate */
@@ -27,42 +29,6 @@ function assertValidDimensions(plateIds: PlateIdArray, width: number, height: nu
       `[plates/topology] plateIds length (${plateIds.length}) below expected size (${expected})`
     );
   }
-}
-
-function getHexNeighborIndices(x: number, y: number, width: number, height: number): number[] {
-  const isOddCol = (x & 1) === 1;
-  const offsets = isOddCol
-    ? [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-        [-1, 1],
-        [1, 1],
-      ]
-    : [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-        [-1, -1],
-        [1, -1],
-      ];
-
-  const indices: number[] = [];
-
-  for (const [dx, dy] of offsets) {
-    const nx = x + dx;
-    const ny = y + dy;
-
-    if (ny < 0 || ny >= height) continue;
-
-    // Cylindrical wrap on X; clamp on Y
-    const wrappedX = ((nx % width) + width) % width;
-    indices.push(ny * width + wrappedX);
-  }
-
-  return indices;
 }
 
 /**
@@ -106,7 +72,7 @@ export function buildPlateTopology(
       node.centroid.x += x;
       node.centroid.y += y;
 
-      const neighbors = getHexNeighborIndices(x, y, width, height);
+      const neighbors = getHexNeighborIndicesOddQ(x, y, width, height);
       for (const ni of neighbors) {
         const neighborId = plateIds[ni];
         if (typeof neighborId !== "number" || !Number.isFinite(neighborId)) continue;

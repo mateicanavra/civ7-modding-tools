@@ -1,38 +1,7 @@
-import { idx } from "@swooper/mapgen-core";
-import { projectOddqToHexSpace, wrapX } from "@swooper/mapgen-core/lib/grid";
-
-type Vec2 = Readonly<{ x: number; y: number }>;
-
-const OFFSETS_ODD: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, 1],
-  [1, 1],
-];
-
-const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, -1],
-  [1, -1],
-];
-
-function getNeighborDeltaHexSpaceFrom(baseX: number, dx: number, dy: number): Vec2 {
-  const base = projectOddqToHexSpace(baseX, 0);
-  const p = projectOddqToHexSpace(baseX + dx, dy);
-  return { x: p.x - base.x, y: p.y - base.y };
-}
-
-const HEX_DELTAS_ODD: readonly Vec2[] = OFFSETS_ODD.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(1, dx, dy)
-);
-const HEX_DELTAS_EVEN: readonly Vec2[] = OFFSETS_EVEN.map(([dx, dy]) =>
-  getNeighborDeltaHexSpaceFrom(0, dx, dy)
-);
+import {
+  forEachHexNeighborOddQWithDirection,
+  getHexNeighborDirectionVectorsOddQ,
+} from "@swooper/mapgen-core/lib/grid";
 
 type Upcurrent = Readonly<{ i0: number; w0: number; i1: number; w1: number }>;
 
@@ -46,9 +15,11 @@ function selectUpcurrent(
   flowY: number,
   secondaryWeightMin: number
 ): Upcurrent {
-  const isOdd = (x & 1) === 1;
-  const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
-  const deltas = isOdd ? HEX_DELTAS_ODD : HEX_DELTAS_EVEN;
+  // Neighbor geometry comes from the shared odd-R primitive (parity keyed on the
+  // ROW, `y & 1`), so the donor selection matches the live engine adjacency. The
+  // previous inlined odd-Q tables keyed on the COLUMN (`x & 1`) and the row-0
+  // delta builder were geometrically degenerate under the odd-R projection.
+  const dirs = getHexNeighborDirectionVectorsOddQ((y & 1) === 1);
 
   // Upcurrent is opposite direction of the flow.
   const ux = -flowX;
@@ -59,16 +30,12 @@ function selectUpcurrent(
   let s0 = 0;
   let s1 = 0;
 
-  for (let k = 0; k < offsets.length; k++) {
-    const [dx, dy] = offsets[k];
-    const ny = y + dy;
-    if (ny < 0 || ny >= height) continue;
-    const nx = wrapX(x + dx, width);
-    const ni = idx(nx, ny, width);
-    if ((isWaterMask[ni] ?? 0) !== 1) continue;
-    const d = deltas[k];
+  forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny, k) => {
+    const ni = ny * width + nx;
+    if ((isWaterMask[ni] ?? 0) !== 1) return;
+    const d = dirs[k];
     const score = ux * d.x + uy * d.y;
-    if (score <= 0) continue;
+    if (score <= 0) return;
     if (score > s0) {
       s1 = s0;
       bestI1 = bestI0;
@@ -78,10 +45,10 @@ function selectUpcurrent(
       s1 = score;
       bestI1 = ni;
     }
-  }
+  });
 
   if (bestI0 < 0) {
-    const i0 = idx(x, y, width);
+    const i0 = y * width + x;
     return { i0, w0: 1, i1: i0, w1: 0 };
   }
 
@@ -179,21 +146,17 @@ export function computeOceanThermalState(
         );
         const advected = (sst[up.i0] ?? 0) * up.w0 + (sst[up.i1] ?? 0) * up.w1;
 
-        // Simple diffusion: average neighbor SST over water and mix in.
-        const isOdd = (x & 1) === 1;
-        const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
+        // Simple diffusion: average neighbor SST over water and mix in. Uses the
+        // shared odd-R neighbor iterator (parity keyed on the ROW) so the stencil
+        // matches the live engine adjacency.
         let sum = 0;
         let w = 0;
-        for (let k = 0; k < offsets.length; k++) {
-          const [dx, dy] = offsets[k];
-          const ny = y + dy;
-          if (ny < 0 || ny >= height) continue;
-          const nx = wrapX(x + dx, width);
-          const j = idx(nx, ny, width);
-          if (isWaterMask[j] !== 1) continue;
+        forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny) => {
+          const j = ny * width + nx;
+          if (isWaterMask[j] !== 1) return;
           sum += sst[j] ?? 0;
           w += 1;
-        }
+        });
         const neighborAvg = w > 0 ? sum / w : advected;
         const tileDiffusion =
           shelfMask[i] === 1 ? Math.min(1, diffusion * shelfDiffusionScale) : diffusion;

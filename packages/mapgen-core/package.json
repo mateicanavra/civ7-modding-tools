@@ -63,10 +63,6 @@
       "types": "./dist/lib/grid/index.d.ts",
       "import": "./dist/lib/grid/index.js"
     },
-    "./lib/heightfield": {
-      "types": "./dist/lib/heightfield/index.d.ts",
-      "import": "./dist/lib/heightfield/index.js"
-    },
     "./lib/rng": {
       "types": "./dist/lib/rng/index.d.ts",
       "import": "./dist/lib/rng/index.js"
