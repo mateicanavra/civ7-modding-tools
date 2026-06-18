@@ -61,15 +61,15 @@ These are treated as *decisions*, not open questions:
 ## Inputs (Existing Artifacts We Will Treat As Canonical For This Hardening)
 
 Primary Ecology spike+feasibility package (branch `agent-ORCH-feasibility-ecology-arch-alignment`, commit `15ea01ba0`):
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/FEASIBILITY.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACT-MATRIX.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/PHASE-3-SKELETON.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/GREENFIELD.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/DECISIONS/README.md`
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/FEASIBILITY.md`
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACT-MATRIX.md`
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/CONTRACTS.md`
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/PHASE-3-SKELETON.md`
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/GREENFIELD.md`
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/DECISIONS/README.md`
 
 Pipeline-realism style anchor (for how M2 should read):
-- `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
+- `docs/projects/pipeline-realism/milestones/M1-foundation-maximal-cutover.md`
 
 Hardening workflow (must be followed/adapted as the backbone):
 - `/Users/mateicanavra/.codex-rawr/prompts/dev-harden-milestone.md`
@@ -77,7 +77,7 @@ Hardening workflow (must be followed/adapted as the backbone):
 ## Output (Phase 3 Deliverable)
 
 ### 1) One hardened milestone-equivalent doc (single file)
-- Path: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
+- Path: `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
 - Status: “Planned” (this is plan-only, not execution)
 
 ### 2) Scratch pads (working, not canonical)
@@ -128,7 +128,7 @@ Edge case handling:
 
 ### H2) Mandatory first step (before any other work in the worktree)
 Create scratch dir and record the agreed Phase 3 plan verbatim:
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/phase-3-hardening/00-plan.md`
+- `docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/_scratch/phase-3-hardening/00-plan.md`
 
 `00-plan.md` contents must include:
 - base branch + commit SHA used
@@ -284,7 +284,7 @@ M2 must enumerate scenarios that will be used later to validate behavior preserv
 
 ## Phase 3 Acceptance Criteria (This Stage Is Done When…)
 
-- The single M2 doc exists at `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`.
+- The single M2 doc exists at `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`.
 - M2 is decision/spec-ready:
   - Every issue has acceptance criteria, scope, verification, implementation guidance, and paper trail references.
   - Open questions are explicit and minimized.
@@ -302,7 +302,7 @@ M2 must enumerate scenarios that will be used later to validate behavior preserv
 
 ## Assumptions (Defaults Chosen So The Plan Is Decision-Complete)
 
-- We will name the hardened doc “M2” and place it under pipeline-realism milestones: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`.
+- We will name the hardened doc “M2” and place it under pipeline-realism milestones: `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`.
 - We will run Phase 3 doc hardening on a new worktree branch based on `agent-ORCH-feasibility-ecology-arch-alignment`.
 - Stage posture remains two-stage (`ecology` truth, `map-ecology` gameplay).
 - We preserve external artifact ids and viz keys as compatibility surfaces unless M2 explicitly defines a migration table and gates for them.

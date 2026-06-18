@@ -20,8 +20,8 @@ implementation gates pass.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
 - Branch: `codex/deep-habitat-openspec-remediation`
 - OpenSpec change: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`
-- Source packet: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
-- Prior negative review: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`
+- Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
+- Prior negative review: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`
 - Fresh D2 investigations read: code topology, cross-domino, domain/ontology, information-design, OpenSpec/testing, and TypeScript state-space notes under `agent-scratch/domino-D2-*-investigation.md`.
 
 I did not implement source code and did not edit the D2 packet files.

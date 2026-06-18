@@ -12,7 +12,7 @@ Source implementation remains blocked behind concrete D0 rows for every D2-touch
 
 Reviewed:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-final-code-topology-review.md`
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-final-code-topology-review.md`
 - D2 `proposal.md`, `design.md`, `tasks.md`, `workstream/phase-record.md`, `workstream/review-disposition-ledger.md`, and `workstream/closure-checklist.md`
 - Current code evidence in `tools/habitat-harness/src/lib/grit-injected-probe.ts`, `tools/habitat-harness/src/lib/hooks.ts`, and focused hook-test evidence
 
@@ -84,7 +84,7 @@ Commands run from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-
 
 The packet index can mark D2 accepted for design/specification only. The row should still say D2 is not implementation-complete and source implementation is blocked until concrete D0 public/durable-surface rows and D1 malformed-metadata output-family citations exist.
 
-The current packet index still says D2 is repaired pending final rereview at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md:17`. This focused recheck closes the final code/topology recheck portion for the two accepted P2 blockers.
+The current packet index still says D2 is repaired pending final rereview at `docs/projects/habitat-harness/openspec-remediation/packet-index.md:17`. This focused recheck closes the final code/topology recheck portion for the two accepted P2 blockers.
 
 ## Skills Used
 

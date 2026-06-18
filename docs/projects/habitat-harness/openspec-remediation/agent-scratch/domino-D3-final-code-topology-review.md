@@ -19,9 +19,9 @@ exist.
 
 ## Evidence Read
 
-- Re-read the active negative-control note in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D3-review.md:1`, which supersedes any historical wording that lowered D3 to a `biome-ci`-only fix.
+- Re-read the active negative-control note in `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D3-review.md:1`, which supersedes any historical wording that lowered D3 to a `biome-ci`-only fix.
 - Re-read the D3 proposal, design, spec, tasks, and all workstream files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary`.
-- Re-read `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md` and the packet index.
+- Re-read `docs/projects/habitat-harness/openspec-remediation/context.md` and the packet index.
 - Re-checked current graph-related source topology in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`.
 
 Commands run:

@@ -1,8 +1,8 @@
 ---
 docs_anchor:
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/reference/STANDARD-RECIPE.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md
+  - docs/system/libs/mapgen/reference/STANDARD-RECIPE.md
+  - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
   - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/packages/mapgen-core/src/authoring/stage.ts
 audited_file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts
 branch: codex/prr-m4-s06-test-rewrite-architecture-scans
@@ -24,7 +24,7 @@ audit_type: hotspot-architecture
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts:646`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts:17`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.ts:17`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:283`
+  - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md:283`
 - Why this is a hotspot:
   - Stage compile applies `plateCount` knob transforms and clamps, but the same transform is also applied in `step.normalize` for both `mesh` and `plate-graph`.
   - This creates split ownership for one policy and increases drift risk whenever ranges or knob semantics change.
@@ -125,7 +125,7 @@ nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/*/contract.ts | sed -n '1
 ## Changes Landed
 
 - Added this audit report:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/hotspot-foundation-stage-index-audit.md`
+  - `docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/hotspot-foundation-stage-index-audit.md`
 - No source code edits were made.
 
 ## Open Risks

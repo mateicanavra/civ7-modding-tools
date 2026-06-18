@@ -704,7 +704,7 @@ docs_anchor:
   gate: mandatory_docs_first
   status: complete_before_code_edits
   docs_read:
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+    - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
       line_span: "1-383"
       evidence_lines:
         - "24-27"
@@ -712,13 +712,13 @@ docs_anchor:
         - "136-139"
         - "283-287"
         - "312-315"
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+    - path: docs/system/mods/swooper-maps/architecture.md
       line_span: "1-73"
       evidence_lines:
         - "15"
         - "19-20"
         - "56-64"
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+    - path: docs/system/libs/mapgen/architecture.md
       line_span: "1-22"
       evidence_lines:
         - "11-18"

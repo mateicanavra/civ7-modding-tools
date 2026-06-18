@@ -118,7 +118,7 @@ Update:
 - `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/lib/classify.test.ts`:
   expected exit 0; refusal and orientation proof for out-of-scope authoring
   topology requests.
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`:
+- `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`:
   expected exit 0; docs orientation proof for future-trigger records.
 - `git status --short --branch`: expected exit 0; fence records must be docs or
   explicit OpenSpec changes only.

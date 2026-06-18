@@ -7,6 +7,7 @@ import {
   readdirSync,
   readFileSync,
   rmSync,
+  statSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -25,10 +26,12 @@ import {
   HabitatProcessLive,
   type HabitatProcessRequest,
 } from "./habitat-process.js";
-import { repoRoot } from "./paths.js";
+import { repoRoot, toRepoRelative } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 
-const gritApplyPatterns = [".grit/patterns/habitat/apply/deep_import_to_public_surface.md"];
+const sourceGritApplyPattern = ".grit/patterns/habitat/apply/deep_import_to_public_surface.md";
+const docsGritApplyPattern = ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md";
+const gritApplyPatterns = [sourceGritApplyPattern, docsGritApplyPattern];
 const gritBin = "grit";
 
 export interface GritApplyTransactionOptions {
@@ -114,7 +117,9 @@ export async function runGritApplyTransaction(
 ): Promise<GritApplyTransactionResult> {
   const gitStateReader = options.gitStateReader ?? (() => readGitState(repoRoot));
   const beforeGitState = gitStateReader();
-  const roots = discoverApplySourceRoots();
+  const sourceRoots = discoverApplySourceRoots();
+  const docsRoots = discoverDocsApplyRoots();
+  const roots = sortedUnique([...sourceRoots, ...docsRoots]);
   if (beforeGitState.dirty && !options.dryRun && !options.allowDirtyWorktree) {
     return transactionFailure({
       tag: "GritApplyDirtyWorktree",
@@ -126,7 +131,14 @@ export async function runGritApplyTransaction(
     });
   }
 
-  const dryRunCommand = await runProcess(gritApplyRequest({ roots, dryRun: true }), options);
+  const dryRunCommand = await runProcess(
+    gritApplyRequest({
+      roots: sourceRoots,
+      patternPath: sourceGritApplyPattern,
+      dryRun: true,
+    }),
+    options
+  );
   if (dryRunCommand.exit.code !== 0 || dryRunCommand.exit.interrupted) {
     return transactionFailure({
       tag: dryRunCommand.failureTag ?? "GritCommandFailed",
@@ -145,9 +157,14 @@ export async function runGritApplyTransaction(
   let approvalFileDigests: GritApplyFileDigest[] = [];
   let approvalCopyCommand: HabitatCommandResult | null = null;
   let approvalAppliedDiff = "";
+  let docsDryRunCommand: HabitatCommandResult | null = null;
 
   if (!parsedInventory.ok) {
-    const copyProof = await runIsolatedCopyApplyProof(roots, options);
+    const copyProof = await runIsolatedCopyApplyProof(
+      sourceRoots,
+      [sourceGritApplyPattern],
+      options
+    );
     if (!copyProof.ok) {
       return transactionFailure({
         tag: copyProof.failureTag,
@@ -200,7 +217,7 @@ export async function runGritApplyTransaction(
       });
     }
   } else {
-    inventory = classifyApplyRewriteInventory(parsedInventory.entries, roots);
+    inventory = classifyApplyRewriteInventory(parsedInventory.entries, sourceRoots);
     const blocked = inventory.find((entry) => entry.classification === "blocked");
     if (blocked) {
       return transactionFailure({
@@ -216,6 +233,60 @@ export async function runGritApplyTransaction(
     approvedApplyPaths = inventory.map((entry) => entry.file);
   }
 
+  if (docsRoots.length > 0) {
+    docsDryRunCommand = await runProcess(
+      gritApplyRequest({
+        roots: docsRoots,
+        patternPath: docsGritApplyPattern,
+        dryRun: true,
+        output: "standard",
+      }),
+      options
+    );
+    if (docsDryRunCommand.exit.code !== 0 || docsDryRunCommand.exit.interrupted) {
+      return transactionFailure({
+        tag: docsDryRunCommand.failureTag ?? "GritCommandFailed",
+        message: "Docs Grit apply dry-run command failed before producing an approved inventory.",
+        roots,
+        beforeGitState,
+        afterGitState: gitStateReader(),
+        dryRunCommand,
+        gateCommands: [docsDryRunCommand],
+      });
+    }
+    const docsChangedPaths = parseStandardApplyChangedPaths(docsDryRunCommand.stdout.text);
+    if (docsChangedPaths.length > 0) {
+      const docsCopyProof = await runIsolatedCopyApplyProof(
+        docsChangedPaths,
+        [docsGritApplyPattern],
+        options
+      );
+      if (!docsCopyProof.ok) {
+        return transactionFailure({
+          tag: docsCopyProof.failureTag,
+          message: docsCopyProof.message,
+          roots,
+          beforeGitState,
+          afterGitState: gitStateReader(),
+          dryRunCommand,
+          gateCommands: [docsDryRunCommand],
+          transactionCopyCommand: docsCopyProof.command,
+          diffEvidence: docsCopyProof.diffEvidence,
+          changedPaths: docsCopyProof.changedPaths,
+          fileDigests: docsCopyProof.fileDigests,
+          appliedDiff: docsCopyProof.normalizedDiff,
+        });
+      }
+      approvedApplyPaths = sortedUnique([...approvedApplyPaths, ...docsCopyProof.changedPaths]);
+      approvalDiffEvidence = [...approvalDiffEvidence, ...docsCopyProof.diffEvidence];
+      approvalFileDigests = [...approvalFileDigests, ...docsCopyProof.fileDigests];
+      approvalAppliedDiff = [approvalAppliedDiff, docsCopyProof.normalizedDiff]
+        .filter((part) => part.trim().length > 0)
+        .join("\n");
+      approvalCopyCommand = docsCopyProof.command;
+    }
+  }
+
   if (options.dryRun || approvedApplyPaths.length === 0) {
     const afterGitState = gitStateReader();
     return transactionSuccess({
@@ -225,6 +296,7 @@ export async function runGritApplyTransaction(
       beforeGitState,
       afterGitState,
       dryRunCommand,
+      gateCommands: docsDryRunCommand ? [docsDryRunCommand] : [],
       transactionCopyCommand: approvalCopyCommand,
       inventory,
       diffEvidence: approvalDiffEvidence,
@@ -235,7 +307,14 @@ export async function runGritApplyTransaction(
   }
 
   const beforeFileDigestMap = captureFileDigestMap(approvedApplyPaths);
-  const applyCommand = await runProcess(gritApplyRequest({ roots, dryRun: false }), options);
+  const applyCommand = await runProcess(
+    gritApplyRequest({
+      roots: sourceRoots,
+      patternPath: sourceGritApplyPattern,
+      dryRun: false,
+    }),
+    options
+  );
   if (applyCommand.exit.code !== 0 || applyCommand.exit.interrupted) {
     const rollback = await rollbackApplyTransaction(gitStateReader(), options);
     return transactionFailure({
@@ -246,6 +325,42 @@ export async function runGritApplyTransaction(
       afterGitState: gitStateReader(),
       dryRunCommand,
       applyCommand,
+      transactionCopyCommand: approvalCopyCommand,
+      rollbackCommand: rollback.command,
+      inventory,
+      diffEvidence: approvalDiffEvidence,
+      changedPaths: approvedApplyPaths,
+      fileDigests: fileDigests(beforeFileDigestMap, statusPaths(gitStateReader().statusShort)),
+      appliedDiff: approvalAppliedDiff,
+    });
+  }
+
+  const docsGritApplyCommand =
+    docsRoots.length > 0 && approvedApplyPaths.some((changedPath) => isDocsApplyPath(changedPath))
+      ? await runProcess(
+          gritApplyRequest({
+            roots: approvedApplyPaths.filter(isDocsApplyPath),
+            patternPath: docsGritApplyPattern,
+            dryRun: false,
+            output: "standard",
+          }),
+          options
+        )
+      : null;
+  if (
+    docsGritApplyCommand &&
+    (docsGritApplyCommand.exit.code !== 0 || docsGritApplyCommand.exit.interrupted)
+  ) {
+    const rollback = await rollbackApplyTransaction(gitStateReader(), options);
+    return transactionFailure({
+      tag: rollback.failureTag ?? docsGritApplyCommand.failureTag ?? "GritCommandFailed",
+      message: rollback.message ?? "Docs Grit apply command failed after dry-run approval.",
+      roots,
+      beforeGitState,
+      afterGitState: gitStateReader(),
+      dryRunCommand,
+      applyCommand,
+      gateCommands: [docsGritApplyCommand],
       transactionCopyCommand: approvalCopyCommand,
       rollbackCommand: rollback.command,
       inventory,
@@ -358,15 +473,15 @@ export async function runGritApplyTransaction(
   }
 
   return transactionSuccess({
-    stdout: `${dryRunCommand.stdout.text}${applyCommand.stdout.text}${biomeCommand?.stdout.text ?? ""}`,
-    stderr: `${dryRunCommand.stderr.text}${applyCommand.stderr.text}${biomeCommand?.stderr.text ?? ""}`,
+    stdout: `${dryRunCommand.stdout.text}${applyCommand.stdout.text}${docsGritApplyCommand?.stdout.text ?? ""}${biomeCommand?.stdout.text ?? ""}`,
+    stderr: `${dryRunCommand.stderr.text}${applyCommand.stderr.text}${docsGritApplyCommand?.stderr.text ?? ""}${biomeCommand?.stderr.text ?? ""}`,
     roots,
     beforeGitState,
     afterGitState: gitStateReader(),
     dryRunCommand,
     applyCommand,
     biomeCommand,
-    gateCommands,
+    gateCommands: docsGritApplyCommand ? [docsGritApplyCommand, ...gateCommands] : gateCommands,
     transactionCopyCommand: approvalCopyCommand,
     rollbackCommand: rollback.command,
     inventory,
@@ -533,14 +648,17 @@ function blockDiffEvidence(
 
 function gritApplyRequest(options: {
   roots: readonly string[];
+  patternPath: string;
   dryRun: boolean;
+  output?: "compact" | "standard";
 }): HabitatProcessRequest {
   return makeGritApplyRequest({
     commandId: options.dryRun ? "grit-apply-dry-run" : "grit-apply-live",
     roots: options.roots,
-    patternPaths: gritApplyPatterns,
+    patternPaths: [options.patternPath],
     dryRun: options.dryRun,
     cacheDir: path.join(repoRoot, ".grit", "cache"),
+    output: options.output,
   });
 }
 
@@ -550,6 +668,7 @@ function makeGritApplyRequest(options: {
   patternPaths: readonly string[];
   dryRun: boolean;
   cacheDir: string;
+  output?: "compact" | "standard";
 }): HabitatProcessRequest {
   return {
     commandId: options.commandId,
@@ -561,7 +680,7 @@ function makeGritApplyRequest(options: {
       ...options.roots,
       "--force",
       "--output",
-      "compact",
+      options.output ?? "compact",
       ...(options.dryRun ? ["--dry-run"] : []),
     ],
     cwd: repoRoot,
@@ -606,6 +725,7 @@ type IsolatedCopyApplyProof =
 
 async function runIsolatedCopyApplyProof(
   roots: readonly string[],
+  patternPaths: readonly string[],
   options: Pick<GritApplyTransactionOptions, "processLayer">
 ): Promise<IsolatedCopyApplyProof> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "habitat-grit-apply-"));
@@ -626,7 +746,7 @@ async function runIsolatedCopyApplyProof(
       makeGritApplyRequest({
         commandId: "grit-apply-isolated-copy",
         roots: copyRoots,
-        patternPaths: gritApplyPatterns.map((patternPath) => path.join(repoRoot, patternPath)),
+        patternPaths: patternPaths.map((patternPath) => path.join(repoRoot, patternPath)),
         dryRun: false,
         cacheDir: path.join(tempRoot, ".grit-cache"),
       }),
@@ -1007,6 +1127,15 @@ function discoverApplySourceRoots(): string[] {
   );
 }
 
+function discoverDocsApplyRoots(): string[] {
+  return collectMarkdownFiles("docs").filter(hasDocsApplyCandidateText);
+}
+
+function isDocsApplyPath(changedPath: string): boolean {
+  const relative = toRepoRelative(changedPath);
+  return relative === "docs" || relative.startsWith("docs/");
+}
+
 function discoverSourceRoots(workspaceRoots: string[]): string[] {
   return workspaceRoots.flatMap((workspaceRoot) => {
     const fullRoot = path.join(repoRoot, workspaceRoot);
@@ -1016,6 +1145,64 @@ function discoverSourceRoots(workspaceRoots: string[]): string[] {
       .map((entry) => `${workspaceRoot}/${entry.name}/src`)
       .filter((sourceRoot) => existsSync(path.join(repoRoot, sourceRoot)));
   });
+}
+
+function collectMarkdownFiles(root: string): string[] {
+  const absoluteRoot = path.join(repoRoot, root);
+  if (!existsSync(absoluteRoot)) return [];
+  const stats = statSync(absoluteRoot);
+  if (stats.isFile()) return path.extname(root) === ".md" ? [toRepoRelative(root)] : [];
+  if (!stats.isDirectory()) return [];
+
+  const files: string[] = [];
+  for (const entry of readdirSync(absoluteRoot, { withFileTypes: true })) {
+    const child = `${root}/${entry.name}`;
+    if (entry.isDirectory()) {
+      if (entry.name === ".git" || entry.name === "dist" || entry.name === "node_modules") {
+        continue;
+      }
+      files.push(...collectMarkdownFiles(child));
+      continue;
+    }
+    if (entry.isFile() && path.extname(entry.name) === ".md") files.push(toRepoRelative(child));
+  }
+  return sortedUnique(files);
+}
+
+function hasDocsApplyCandidateText(filePath: string): boolean {
+  const text = readFileSync(path.join(repoRoot, filePath), "utf8");
+  return (
+    text.includes("/docs/") &&
+    text.includes(".md") &&
+    (text.includes("/Users/") || text.includes("/home/") || text.includes("/Volumes/"))
+  );
+}
+
+function sortedUnique(values: readonly string[]): string[] {
+  return [...new Set(values.map(toRepoRelative))].sort((a, b) => a.localeCompare(b));
+}
+
+function parseStandardApplyChangedPaths(stdout: string): string[] {
+  const changedPaths: string[] = [];
+  let currentPath: string | null = null;
+  let sawRewriteLine = false;
+
+  for (const line of stdout.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    if (trimmed.startsWith("Processed ") || trimmed.startsWith("Skipped ")) continue;
+    if (trimmed.endsWith(".md") && !trimmed.includes(": ERROR ")) {
+      if (currentPath && sawRewriteLine) changedPaths.push(toRepoRelative(currentPath));
+      currentPath = trimmed;
+      sawRewriteLine = false;
+      continue;
+    }
+    if (currentPath && (trimmed.startsWith("-") || trimmed.startsWith("+"))) {
+      sawRewriteLine = true;
+    }
+  }
+  if (currentPath && sawRewriteLine) changedPaths.push(toRepoRelative(currentPath));
+  return sortedUnique(changedPaths);
 }
 
 function statusPaths(statusShort: string): string[] {

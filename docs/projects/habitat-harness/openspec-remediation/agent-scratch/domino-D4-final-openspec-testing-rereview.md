@@ -19,9 +19,9 @@
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/downstream-realignment-ledger.md`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/closure-checklist.md`
 - Remediation control:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
+  - `docs/projects/habitat-harness/openspec-remediation/context.md`
+  - `docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+  - `docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
 - Accepted upstream D0/D1/D2/D3 designs and specs:
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/design.md`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/specs/habitat-harness/spec.md`
@@ -32,13 +32,13 @@
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/design.md`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/specs/habitat-harness/spec.md`
 - D4 scratch reviews:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-review.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-domain-ontology-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-code-topology-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-typescript-state-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-openspec-testing-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-information-design-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-cross-domino-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-review.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-domain-ontology-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-code-topology-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-typescript-state-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-openspec-testing-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-information-design-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-cross-domino-investigation.md`
 
 ## Commands Run
 

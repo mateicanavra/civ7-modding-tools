@@ -124,7 +124,7 @@ Update:
 
 - `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js`:
   expected exit 0; representative supported-path classification proof.
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/phase2-workstream-packets/README.md`:
+- `bun run habitat classify docs/projects/habitat-harness/phase2-workstream-packets/README.md`:
   expected exit 0; representative docs-path classification proof.
 - `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`:
   expected exit 0; JSON and refusal contract proof.

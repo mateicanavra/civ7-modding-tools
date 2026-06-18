@@ -284,9 +284,9 @@ future_worker_startup_discipline_decisions:
   - id: M4-D-037
     decision: require_docs_anchor_and_canonical_example_evidence_before_any_worker_code_edits
     required_docs:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      - docs/system/mods/swooper-maps/architecture.md
+      - docs/system/libs/mapgen/architecture.md
+      - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
   - id: M4-D-038
     decision: enforce_antipattern_denylist_no_stage_compile_runtime_merge_no_manual_public_internal_translation_no_runtime_stage_defaulting
   - id: M4-D-039
@@ -325,14 +325,14 @@ anchoring_governance_decisions:
   - id: M4-D-043
     decision: require_docs_first_attestation_with_absolute_paths_in_every_new_anchor_thread
     required_docs:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+      - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      - docs/system/mods/swooper-maps/architecture.md
+      - docs/system/libs/mapgen/architecture.md
   - id: M4-D-044
     decision: promote_reanchored_plan_and_successor_handoff_as_blocking_pre_IG1_artifacts
     artifacts:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
 ```
 
 ## 2026-02-15 — Anchor triage disposition decisions
@@ -360,5 +360,5 @@ handoff_quality_decision:
   - id: M4-D-051
     decision: rewrite_successor_handoff_as_contextual_operator_prompt_not_checklist_only
     rationale: improve successor ramp_quality_and_reduce_repeated_misinterpretation
-    file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+    file: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
 ```

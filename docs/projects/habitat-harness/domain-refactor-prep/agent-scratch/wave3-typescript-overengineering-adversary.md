@@ -12,7 +12,7 @@ Review question: will this corpus drive TypeScript state-space reduction for pro
 
 The corpus is directionally strong: it repeatedly rejects implementation, MapGen-specific leakage, proof-class collapse, generic proof frameworks, and file-move refactors. The risk is subtler. The packet suite can still overbuild because it treats every named responsibility as a separate domino, and because several TypeScript state-space findings are stated as type-shape repairs without an explicit product-state elimination test.
 
-I would block Phase 2 goal attachment on the P2 findings below until they are dispositioned in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`. I do not see a P1 from this lane.
+I would block Phase 2 goal attachment on the P2 findings below until they are dispositioned in `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`. I do not see a P1 from this lane.
 
 ## Findings
 
@@ -20,10 +20,10 @@ I would block Phase 2 goal attachment on the P2 findings below until they are di
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md:40` says Phase 2 should produce a separate packet for every valid domino.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` repeats that every domino gets a packet.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:43` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:58` define sixteen dominoes.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:7` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:18` require owner, consumer, contract, state-space problem, dependency order, unblock, proof class, and records, but do not require justification that a separate packet reduces more state than it adds.
+- `docs/projects/habitat-harness/domain-refactor-prep/README.md:40` says Phase 2 should produce a separate packet for every valid domino.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` repeats that every domino gets a packet.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:43` through `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:58` define sixteen dominoes.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:7` through `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:18` require owner, consumer, contract, state-space problem, dependency order, unblock, proof class, and records, but do not require justification that a separate packet reduces more state than it adds.
 
 Why this matters:
 
@@ -31,13 +31,13 @@ The valid-domino standard rejects cosmetic cleanup, but it does not reject organ
 
 Concrete risk examples:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:44` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:55` split Proof Contract and Verify Command. That may be correct, but the corpus does not require the DRA to prove why the verify packet cannot be a consumer-scenario packet inside the proof boundary.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:46` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:47` split Workspace Graph Integration and Orientation/Routing. That may be a good dependency, but Phase 2 should prove the split removes impossible states instead of simply mirroring current `plugin.js` plus `nx-projects.ts`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:56` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:57` split Scaffolding/Refusal and Authoring Topology Fence even though `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:46` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:56` already express the refusal and future-work boundary.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:44` and `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:55` split Proof Contract and Verify Command. That may be correct, but the corpus does not require the DRA to prove why the verify packet cannot be a consumer-scenario packet inside the proof boundary.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:46` and `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:47` split Workspace Graph Integration and Orientation/Routing. That may be a good dependency, but Phase 2 should prove the split removes impossible states instead of simply mirroring current `plugin.js` plus `nx-projects.ts`.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:56` and `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:57` split Scaffolding/Refusal and Authoring Topology Fence even though `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:46` and `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:56` already express the refusal and future-work boundary.
 
 Required fix before goal attachment:
 
-Add a packet-minimization gate to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md` and/or `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`: every domino must justify why it is a separate packet rather than a section, stop condition, or acceptance criterion inside an adjacent scenario packet. The proof should name the product state it eliminates and the new coordination states it introduces.
+Add a packet-minimization gate to `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md` and/or `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`: every domino must justify why it is a separate packet rather than a section, stop condition, or acceptance criterion inside an adjacent scenario packet. The proof should name the product state it eliminates and the new coordination states it introduces.
 
 Goal attachment:
 
@@ -47,10 +47,10 @@ Block as P2 until dispositioned.
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:37` says D15 activates only inside packets where typed failures/provenance require it.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:58` gives D15 its own owner, consumer, contract, unblocks, proof class, and downstream record.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:85` explicitly rejects moving all Habitat internals to Effect.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md:40` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` imply D15 would still become one of the packets if every domino is packetized.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:37` says D15 activates only inside packets where typed failures/provenance require it.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:58` gives D15 its own owner, consumer, contract, unblocks, proof class, and downstream record.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:85` explicitly rejects moving all Habitat internals to Effect.
+- `docs/projects/habitat-harness/domain-refactor-prep/README.md:40` and `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` imply D15 would still become one of the packets if every domino is packetized.
 
 Why this matters:
 
@@ -74,9 +74,9 @@ Block as P2 until D15 is dispositioned or rewritten as a trigger.
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:141` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:149` list option bags, optional-heavy shapes, correlated status fields, discriminated-union candidates, constructor constraints, and centralized construction opportunities.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:61` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:75` require a TypeScript state-space problem but do not require a product-contract value test.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:100` says a future packet must name state-space reduction, but not how to prove the type design earns its cost.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:141` through `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:149` list option bags, optional-heavy shapes, correlated status fields, discriminated-union candidates, constructor constraints, and centralized construction opportunities.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:61` through `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:75` require a TypeScript state-space problem but do not require a product-contract value test.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:100` says a future packet must name state-space reduction, but not how to prove the type design earns its cost.
 
 Why this matters:
 
@@ -94,9 +94,9 @@ Block as P2 until this gate is added or converted into a packet stop condition.
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:45` gives D2 one typed metadata contract covering id, owner, tool, lane, scope, hook scope, manifest, and generated-zone relation.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:23` gives Rule Registry Metadata consumers across check, classify, Nx plugin, baseline, and Pattern Governance.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:28` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:38` separate orientation, selector validation, checks, baselines, diagnostic Grit, and pattern admission as distinct scenarios.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:45` gives D2 one typed metadata contract covering id, owner, tool, lane, scope, hook scope, manifest, and generated-zone relation.
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:23` gives Rule Registry Metadata consumers across check, classify, Nx plugin, baseline, and Pattern Governance.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:28` through `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:38` separate orientation, selector validation, checks, baselines, diagnostic Grit, and pattern admission as distinct scenarios.
 
 Why this matters:
 
@@ -114,10 +114,10 @@ Block as P2 until dispositioned.
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:46` already says MapGen domain/op/stage/step/recipe topology should be refused or deferred.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:56` records Authoring Topology as future work.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:57` gives Authoring Topology Fence a full D14 row.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:22` says not to generate MapGen Authoring Topology.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:46` already says MapGen domain/op/stage/step/recipe topology should be refused or deferred.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:56` records Authoring Topology as future work.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:57` gives Authoring Topology Fence a full D14 row.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:22` says not to generate MapGen Authoring Topology.
 
 Why this matters:
 
@@ -137,7 +137,7 @@ Does not block unless the owner accepts it as P2.
 2. Convert D15 into a packet-local trigger unless concrete scenario evidence justifies a standalone execution/provenance substrate packet.
 3. Add a TypeScript proportionality gate for ADTs, Result types, constructors, branded types, and option-object splits.
 4. Add Rule Registry facet/projection discipline so D2 cannot become a broad metadata facade.
-5. Record all accepted P2 dispositions in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md` before attaching the Phase 2 goal.
+5. Record all accepted P2 dispositions in `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md` before attaching the Phase 2 goal.
 
 ## Optional Improvements
 

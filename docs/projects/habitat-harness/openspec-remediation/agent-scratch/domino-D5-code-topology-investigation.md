@@ -35,18 +35,18 @@ manifest missing/mismatch.
 - `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/validation-checks.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/civ7-open-spec-workstream/references/artifact-contracts.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D0-scenario-public-contract-inventory.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D0-scenario-public-contract-inventory.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/proposal.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/design.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/specs/habitat-harness/spec.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
 - Current code/tests/docs listed in the topology sections below.
 
 ## Current Topology Map
@@ -351,18 +351,18 @@ truth, and D7 owns command validation interpretation.
 
 ### Docs And Current Record Surfaces
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`
+- `docs/IMPLEMENTED-SURFACE.md`
   lines 11-14, 86-93, 123-129, and 146-162 describe shrink-only baseline
   contracts, locked/debt baselines, pattern promotion baseline contracts, and
   baseline validation coverage.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/docs/SCENARIOS.md`
+- `docs/SCENARIOS.md`
   lines 44-60 describe `habitat:check`, baseline application, baseline
   integrity, and JSON output.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md`
   lines 30-32 defines Manage Baselines as D5-owned.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md`
   lines 26-29 identifies Baseline Authority and Pattern Governance boundaries.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/recovery-claim-ledger.md`
+- `docs/projects/habitat-harness/recovery-claim-ledger.md`
   line 171 records current P1 baseline claim and non-claims.
 
 D5 packet should list docs/examples as downstream realignment surfaces, but
@@ -466,10 +466,10 @@ This investigator did not edit those packet files.
 Future implementation may update docs only when behavior or accepted target
 language changes, and must cite D0 docs-example rows:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/docs/SCENARIOS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/recovery-claim-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
+- `docs/IMPLEMENTED-SURFACE.md`
+- `docs/SCENARIOS.md`
+- `docs/projects/habitat-harness/recovery-claim-ledger.md`
+- `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
 
 ## Protected Set
 

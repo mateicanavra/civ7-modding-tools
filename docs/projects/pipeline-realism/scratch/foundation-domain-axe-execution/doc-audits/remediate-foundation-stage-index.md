@@ -9,7 +9,7 @@
 
 ### Evidence
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
 observations:
   - Steps are orchestration boundaries; compile-time normalization belongs in stage/step/op normalize hooks, not runtime merge shims.
   - Strategies must keep stable IO contracts; stage config should select/shape config, not duplicate algorithm internals.
@@ -17,7 +17,7 @@ observations:
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+path: docs/system/libs/mapgen/architecture.md
 observations:
   - File is a router; canonical architecture points to explanation/reference docs.
   - Architecture layering confirms stage role is config compilation boundary, not algorithmic implementation surface.
@@ -109,7 +109,7 @@ compatibility_reason:
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
 alignment:
   - steps/ops own normalization behavior
   - stage compile performs compile-time routing/lowering only
@@ -151,7 +151,7 @@ alignment:
 - Single-file rewrite at:
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
 - Scratch audit updated with rationale/evidence at:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/remediate-foundation-stage-index.md`
+  - `docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/remediate-foundation-stage-index.md`
 
 ### Open risks
 - Legacy selectors (`potentialAmplitude01`, `lengthScale01`) are now routed directly without stage-range remapping; behavioral scaling differs from previous clamp+lerp implementation.

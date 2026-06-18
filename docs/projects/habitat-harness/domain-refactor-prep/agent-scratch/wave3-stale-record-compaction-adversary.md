@@ -13,7 +13,7 @@
 - `/bin/pwd` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 - `/usr/bin/git -C /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame branch --show-current` returned `codex/habitat-fast-lint-checks`.
 - `/usr/bin/git -C /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame status --short --branch` returned `## codex/habitat-fast-lint-checks` plus only `?? docs/projects/habitat-harness/domain-refactor-prep/`.
-- `/bin/test -f /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md` passed.
+- `/bin/test -f docs/projects/habitat-harness/domain-refactor-prep/README.md` passed.
 
 ## Required Reads
 
@@ -31,15 +31,15 @@ Read in full before review:
 
 Read in full before findings:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/README.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`.
 
 ## Findings
 
@@ -47,11 +47,11 @@ Read in full before findings:
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:37` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:46` lists Wave 3 lanes as expected, not actual, and includes no scratch path or status rows.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:25` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:27` leaves Wave 3 findings pending.
-- `/bin/ls -la /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch` showed `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md` exists on disk.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md:1` identifies the unindexed file as `# Wave 3 Product Adversary Review`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:14` requires adversarial review before attachment, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:15` requires accepted P1/P2 findings to be dispositioned.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:37` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:46` lists Wave 3 lanes as expected, not actual, and includes no scratch path or status rows.
+- `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:25` through `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:27` leaves Wave 3 findings pending.
+- `/bin/ls -la /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch` showed `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md` exists on disk.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md:1` identifies the unindexed file as `# Wave 3 Product Adversary Review`.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:14` requires adversarial review before attachment, and `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:15` requires accepted P1/P2 findings to be dispositioned.
 
 Why this matters:
 
@@ -59,8 +59,8 @@ Why this matters:
 
 Required fix before goal attachment:
 
-- Add actual Wave 3 rows to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md` with scratch path, lane, status, and synthesis use for every Wave 3 scratch file on disk.
-- Add Wave 3 findings and dispositions to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
+- Add actual Wave 3 rows to `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md` with scratch path, lane, status, and synthesis use for every Wave 3 scratch file on disk.
+- Add Wave 3 findings and dispositions to `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
 - Reconcile the text that currently says Wave 3 is pending with the actual review state.
 
 Attachment impact:
@@ -71,9 +71,9 @@ Attachment impact:
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:16` requires `validation command results are recorded in the final handoff`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:151` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:161` lists current proof commands to rerun, but not where their outputs, exit codes, timestamps, commit, branch, cwd, or failure interpretation should be recorded.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:163` records a known full-suite reliability risk, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:100` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:101` list proof risks, but the corpus has no result ledger to bind future validation runs to those known risks.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:16` requires `validation command results are recorded in the final handoff`.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:151` through `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:161` lists current proof commands to rerun, but not where their outputs, exit codes, timestamps, commit, branch, cwd, or failure interpretation should be recorded.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:163` records a known full-suite reliability risk, and `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:100` and `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:101` list proof risks, but the corpus has no result ledger to bind future validation runs to those known risks.
 
 Why this matters:
 
@@ -83,7 +83,7 @@ Required fix before goal attachment:
 
 - Add a named validation-results location under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`, or add a required section to an existing corpus file.
 - Define the minimum row schema: command, cwd, branch, commit, timestamp, exit code, result summary, log/output path or bounded excerpt, proof class, non-claims, and disposition against known risks.
-- Update `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md` so the attachment condition names that durable location instead of only `final handoff`.
+- Update `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md` so the attachment condition names that durable location instead of only `final handoff`.
 
 Attachment impact:
 
@@ -93,9 +93,9 @@ Attachment impact:
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:14` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:24` accepts five Wave 1 agents but provides only truncated IDs, lane names, and synthesis use. It gives no scratch path, prompt path, output path, preflight evidence, or rejection/disposition record.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:25` says `The main DRA owner and fresh agents used the following skills`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:75` says `The owner and agents read current Habitat source and tests under`, but those claims are not connected to per-agent records.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:18` says each Wave 2 scratch has preflight. A targeted scan found explicit preflight evidence in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:10` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:14`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md:8` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md:13`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-simplification-reviewer.md:5`; no comparable explicit preflight record was found for `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md` by searching for `## Preflight`, `Preflight Evidence`, `/bin/pwd`, `git branch`, or `git status`.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:14` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md:24` accepts five Wave 1 agents but provides only truncated IDs, lane names, and synthesis use. It gives no scratch path, prompt path, output path, preflight evidence, or rejection/disposition record.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:25` says `The main DRA owner and fresh agents used the following skills`, and `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:75` says `The owner and agents read current Habitat source and tests under`, but those claims are not connected to per-agent records.
+- `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:18` says each Wave 2 scratch has preflight. A targeted scan found explicit preflight evidence in `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:10` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:14`, `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md:8` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md:13`, and `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-simplification-reviewer.md:5`; no comparable explicit preflight record was found for `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md` by searching for `## Preflight`, `Preflight Evidence`, `/bin/pwd`, `git branch`, or `git status`.
 
 Why this matters:
 
@@ -105,7 +105,7 @@ Required fix before goal attachment:
 
 - Either add durable Wave 1 source records with paths and preflight evidence, or explicitly mark Wave 1 as owner-synthesized summary evidence that is not independently auditable after compaction.
 - Replace broad `owner and agents` read claims with an evidence matrix keyed by agent/lane or by synthesized corpus file.
-- Repair or qualify the Wave 2 preflight claim for `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md`.
+- Repair or qualify the Wave 2 preflight claim for `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md`.
 
 Attachment impact:
 
@@ -115,9 +115,9 @@ Attachment impact:
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:20` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:21` demotes active OpenSpec/project ledgers and historical archives unless they match the frame and packet.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:65` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:71` names project records used as bounded evidence.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:96` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:100` gives conflict rules, but no table records whether the named project records matched, conflicted, were ignored, or were converted into downstream realignment.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:20` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:21` demotes active OpenSpec/project ledgers and historical archives unless they match the frame and packet.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:65` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:71` names project records used as bounded evidence.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:96` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:100` gives conflict rules, but no table records whether the named project records matched, conflicted, were ignored, or were converted into downstream realignment.
 
 Why this matters:
 
@@ -125,7 +125,7 @@ Why this matters:
 
 Optional improvement:
 
-- Add a compact conflict-disposition table for every project record listed in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:65` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:71`, with `matched`, `conflicted`, `bounded-use`, `downstream-record-to-update`, and `do-not-use-for` columns.
+- Add a compact conflict-disposition table for every project record listed in `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:65` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:71`, with `matched`, `conflicted`, `bounded-use`, `downstream-record-to-update`, and `do-not-use-for` columns.
 
 Attachment impact:
 
@@ -133,14 +133,14 @@ Attachment impact:
 
 ## Required Fixes Before Goal Attachment
 
-- Fix and disposition the unindexed Wave 3 review state in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
+- Fix and disposition the unindexed Wave 3 review state in `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md` and `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
 - Define a durable validation-results location and minimum result schema under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`.
 - Repair or explicitly disposition the summary-only provenance gaps for Wave 1 and the missing explicit Wave 2 domino-sequencer preflight record.
 
 ## Optional Improvements
 
-- Add a conflict-disposition table for bounded project records listed in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md`.
-- Add a short `compaction handoff checklist` to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md` that names the authoritative index, review ledger, validation-results file, and Phase 2 attachment gate.
+- Add a conflict-disposition table for bounded project records listed in `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md`.
+- Add a short `compaction handoff checklist` to `docs/projects/habitat-harness/domain-refactor-prep/README.md` that names the authoritative index, review ledger, validation-results file, and Phase 2 attachment gate.
 
 ## Attachment Recommendation
 

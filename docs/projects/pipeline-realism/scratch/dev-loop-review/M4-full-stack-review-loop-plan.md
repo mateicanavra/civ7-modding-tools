@@ -1,7 +1,7 @@
 # M4 Full-Stack Review Loop Plan (Agent IGNEZ)
 
 ## Canonical Context
-- Milestone intent anchor: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
+- Milestone intent anchor: `docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
 - Parsed milestone tasks: `7` (`LOCAL-TBD-PR-M4-001..007`)
 - Full stack review scope: PRs `#1201` through `#1348` in current Graphite chain (42 PR branches).
 

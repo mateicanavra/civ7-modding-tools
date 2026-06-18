@@ -3,12 +3,12 @@ docs_anchor:
   audited_at: 2026-02-15
   target_file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts
   required_docs:
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+    - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
       anchors:
         - "Steps own dependency keys; ops own contracts."
         - "Compile-first: config canonicalization belongs in compile-time normalization."
         - "Favor focused ops over mega-ops; steps orchestrate multiple ops."
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md
+    - path: docs/system/libs/mapgen/reference/STAGE-AND-STEP-AUTHORING.md
       anchors:
         - "Step contract ops declarations are schema-enveloped strategy configs."
         - "Step modules execute run(context, config, ops, deps) using declared contract surfaces."
@@ -92,7 +92,7 @@ cd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guard
 ## Changes landed
 
 - Added audit report only:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/hotspot-tectonics-contract-audit.md`
+  - `docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/hotspot-tectonics-contract-audit.md`
 - No source code edits were made.
 
 ## Open risks

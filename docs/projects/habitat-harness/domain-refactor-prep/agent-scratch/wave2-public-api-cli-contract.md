@@ -12,9 +12,9 @@ and does not authorize implementation.
 - Branch confirmed: `codex/habitat-fast-lint-checks`.
 - Initial status confirmed clean: `## codex/habitat-fast-lint-checks`.
 - Required domain files confirmed present:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-frame.md`
+  `docs/projects/habitat-harness/domain-refactor-frame.md`
   and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
+  `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 
 ## Source Surfaces Read
 
@@ -29,16 +29,16 @@ and does not authorize implementation.
   `/Users/mateicanavra/.agents/skills/typescript/SKILL.md`,
   `/Users/mateicanavra/.agents/skills/team-design/SKILL.md`.
 - Domain inputs:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-frame.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
+  `docs/projects/habitat-harness/domain-refactor-frame.md`,
+  `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 - Habitat docs:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/README.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/CAPABILITIES.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/SCENARIOS.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/GAPS.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/AUTHORING-NEXT.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/DOMAIN-MAPPING.md`.
+  `docs/CAPABILITIES.md`,
+  `docs/IMPLEMENTED-SURFACE.md`,
+  `docs/SCENARIOS.md`,
+  `docs/GAPS.md`,
+  `docs/AUTHORING-NEXT.md`,
+  `docs/DOMAIN-MAPPING.md`.
 - Public surface sources:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`,
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`,

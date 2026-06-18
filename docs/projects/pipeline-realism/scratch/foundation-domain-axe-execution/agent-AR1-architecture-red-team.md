@@ -11,9 +11,9 @@ worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s0
 branch_expected: codex/prr-m4-s06d-foundation-scratch-audit-ledger
 absolute_paths_only: true
 docs_read_required:
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+  - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - docs/system/mods/swooper-maps/architecture.md
+  - docs/system/libs/mapgen/architecture.md
 hard_invariants:
   - no_stage_runtime_merge_or_defaulting
   - no_manual_public_to_internal_schema_translation
@@ -63,9 +63,9 @@ required_output:
 ## Docs-first attestation
 ```yaml
 docs_read:
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+  - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - path: docs/system/mods/swooper-maps/architecture.md
+  - path: docs/system/libs/mapgen/architecture.md
 read_at: 2026-02-15T00:00:00Z
 ``` 
 ## Findings log (pass 1)

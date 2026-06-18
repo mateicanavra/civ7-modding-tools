@@ -26,7 +26,7 @@ Repo state observed at start:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
 - Branch: `codex/deep-habitat-openspec-remediation`.
 - Existing dirty files before this report:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
+  `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
   and
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md`.
 - This review did not edit packet files or source files.
@@ -48,10 +48,10 @@ Mandatory skills and workstream references read:
 Project and packet grounding read:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation-frame.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`.
+- `docs/projects/habitat-harness/openspec-remediation-frame.md`.
+- `docs/projects/habitat-harness/openspec-remediation/packet-index.md`.
+- `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`.
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`.
 - All current files under
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority`.
 - Grounding code/tests named in the request:
@@ -80,7 +80,7 @@ Gaps:
 - Line 64 delegates baseline check output changes to D0 compatibility rules, but
   no D5-specific D0 rows or surfaces are identified. The D0 compatibility matrix
   artifact is not present at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/public-surface-compatibility-matrix.md`.
+  `docs/projects/habitat-harness/public-surface-compatibility-matrix.md`.
 - Lines 74-78 use `bun run habitat check --json`. The D5 source packet requires
   `bun run habitat check --rule baseline-integrity --json`; broad check output
   is not an adequate D5 command oracle.

@@ -29,10 +29,10 @@ Wave 2 agents wrote scratch documents under this directory.
 
 | Agent | Lane | Scratch | Status | Synthesis Use |
 | --- | --- | --- | --- | --- |
-| `019ed7ea-63ed-7093-b202-0542cff14e7a` | Domino sequencer | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md` | Accepted | Domino ledger, dependency graph, anti-dominoes, stop conditions. |
-| `019ed7ea-a16f-7ee3-a158-41e0176bf11d` | Public API/CLI contract analyst | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md` | Accepted | Public surface inventory, contract ambiguities, stabilization order. |
-| `019ed7ea-dbf5-72b2-aeb7-4721d0614e5f` | Build/Nx/tooling analyst | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md` | Accepted | Build/tooling map, proof command risks, Nx alias risk, performance simplification. |
-| `019ed7eb-174a-73b2-936a-4fa92117d35c` | Simplification reviewer | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-simplification-reviewer.md` | Accepted | Decomplexification constraints, rejected refactors, sequencing constraints. |
+| `019ed7ea-63ed-7093-b202-0542cff14e7a` | Domino sequencer | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md` | Accepted | Domino ledger, dependency graph, anti-dominoes, stop conditions. |
+| `019ed7ea-a16f-7ee3-a158-41e0176bf11d` | Public API/CLI contract analyst | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md` | Accepted | Public surface inventory, contract ambiguities, stabilization order. |
+| `019ed7ea-dbf5-72b2-aeb7-4721d0614e5f` | Build/Nx/tooling analyst | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md` | Accepted | Build/tooling map, proof command risks, Nx alias risk, performance simplification. |
+| `019ed7eb-174a-73b2-936a-4fa92117d35c` | Simplification reviewer | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-simplification-reviewer.md` | Accepted | Decomplexification constraints, rejected refactors, sequencing constraints. |
 
 ## Wave 3: Adversarial Review
 
@@ -40,10 +40,10 @@ Wave 3 ran after the consolidated corpus existed. The review disposition is reco
 
 | Agent | Lane | Scratch | Status | Synthesis Use |
 | --- | --- | --- | --- | --- |
-| `019ed7f3-52ab-7391-a2d4-0216510499c7` | Product adversary | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md` | Accepted | Host policy gate, workflow matrix, refusal contract, ergonomics standard. |
-| `019ed7f3-9990-7c20-b673-08187becb65e` | Operations/proof adversary | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-operations-proof-adversary.md` | Accepted | Validation record, proof-risk disposition, Graphite state, per-domino proof gates. |
-| `019ed7f4-56d4-7693-9151-d30d33e686ed` | TypeScript overengineering adversary | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-typescript-overengineering-adversary.md` | Accepted | Packet-minimization gate, D15 trigger downgrade, type-state value gate, metadata facet gate. |
-| `019ed7f4-9cc0-7d41-9843-a006050fc38a` | Stale-record/compaction adversary | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-stale-record-compaction-adversary.md` | Accepted | Wave 3 indexing, validation-results file, Wave 1 provenance qualification, project-record disposition. |
+| `019ed7f3-52ab-7391-a2d4-0216510499c7` | Product adversary | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-product-adversary.md` | Accepted | Host policy gate, workflow matrix, refusal contract, ergonomics standard. |
+| `019ed7f3-9990-7c20-b673-08187becb65e` | Operations/proof adversary | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-operations-proof-adversary.md` | Accepted | Validation record, proof-risk disposition, Graphite state, per-domino proof gates. |
+| `019ed7f4-56d4-7693-9151-d30d33e686ed` | TypeScript overengineering adversary | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-typescript-overengineering-adversary.md` | Accepted | Packet-minimization gate, D15 trigger downgrade, type-state value gate, metadata facet gate. |
+| `019ed7f4-9cc0-7d41-9843-a006050fc38a` | Stale-record/compaction adversary | `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave3-stale-record-compaction-adversary.md` | Accepted | Wave 3 indexing, validation-results file, Wave 1 provenance qualification, project-record disposition. |
 
 ## Owner Synthesis Responsibility
 

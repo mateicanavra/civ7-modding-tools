@@ -6,7 +6,7 @@ Reduce excessive lake count/density in current runtime behavior while preserving
 ## Scope
 - Worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 - Branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
-- Scratch (append-only): /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RS4-lake-density-unfuck.md
+- Scratch (append-only): docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RS4-lake-density-unfuck.md
 
 ## Objective details
 Address user-reported overproduction of lakes (not just crash). Focus on hydrology lake planning/config defaults/preset interaction.

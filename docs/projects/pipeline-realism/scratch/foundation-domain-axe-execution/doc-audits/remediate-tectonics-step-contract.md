@@ -9,7 +9,7 @@
 
 ### Evidence
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
 observations:
   - Steps orchestrate ops; they should not import/call op internals.
   - Strategy selection belongs in op config envelopes surfaced through step contracts.
@@ -17,7 +17,7 @@ observations:
 ```
 
 ```yaml
-path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-002-foundation-ops-boundaries.md
+path: docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-002-foundation-ops-boundaries.md
 observations:
   - Deliverable calls for step-owned orchestration and decomposed-op boundary clarity.
   - Contract surfaces should remove drift/dead config paths and reflect real decomposed usage.

@@ -591,9 +591,9 @@ checkpoint_13:
     requires_absolute_paths: true
     requires_docs_attestation: true
     required_docs:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+      - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+      - docs/system/mods/swooper-maps/architecture.md
+      - docs/system/libs/mapgen/architecture.md
   planned_outputs:
     - ranked_findings_pack
     - p0_p1_fix_queue_before_IG1
@@ -631,7 +631,7 @@ checkpoint_14_anchor_complete:
 handoff_rewrite:
   trigger: user_feedback_handoff_too_checklist_like_and_low_context
   file:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
   changes:
     - replaced_checklist_only_structure_with_contextual_operator_briefing
     - added_strategy_and_decision_posture_sections
