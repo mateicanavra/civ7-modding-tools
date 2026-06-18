@@ -28,7 +28,7 @@ Scope: design/specification only; no source implementation
 
 ## Core Judgment
 
-The current D10 packet is a scaffold, not a production-quality OpenSpec packet. It names the right area but does not yet make the semantic commitments a later implementation agent needs. The accepted D8 and D9 packets set the standard: explicit owner boundary, state model, refusal taxonomy, consumed projections, published projections, write set, public surface blockers, source blockers, downstream handoffs, validation non-claims, and wording audit. D10 currently lacks most of that.
+The current D10 packet is a incomplete packet, not a production-quality OpenSpec packet. It names the right area but does not yet make the semantic commitments a later implementation agent needs. The accepted D8 and D9 packets set the standard: explicit owner boundary, state model, refusal taxonomy, consumed projections, published projections, write set, public surface blockers, source blockers, downstream handoffs, validation non-claims, and wording audit. D10 currently lacks most of that.
 
 D10 should be repaired as the single authority for generic protected mutation decisions. It must not become a host-policy packet, a generator runner, a drift verifier, a file-layer check implementation packet, a hook packet, or an apply transaction packet.
 
@@ -252,7 +252,7 @@ Do not allow these patterns into accepted D10 artifacts.
 
 ### Reduced-Standard Or Placeholder Wording
 
-- "OpenSpec packet scaffold" if the packet is being advanced toward acceptance. Accepted D10 must be a complete packet, not a scaffold.
+- "OpenSpec packet incomplete packet" if the packet is being advanced toward acceptance. Accepted D10 must be a complete packet, not a incomplete packet.
 - "Define protected-zone declaration..." without the actual definition.
 - "Consume G-HOST policy and D2 registry facts" without naming consumed projections and failure states.
 - "May change" without D0 compatibility rows or explicit source blocker.
@@ -269,7 +269,7 @@ Do not allow these patterns into accepted D10 artifacts.
 
 ### Escape-Hatch Phrasing
 
-- No "optional target shape", "fallback", "shim", "dual path", "silent skip", "where practical", or "best effort".
+- No optional target shape, generic substitute path, shim, dual path, silent skip, where-practical language, or best-effort closure.
 - No "missing host policy means pass". Missing host policy is a blocking/refusal state when a host-owned surface is required.
 - No hook success as D10 acceptance evidence. Hooks are local feedback consumers only.
 - No D9 apply success as D10 policy proof. D9 consumes D10 and proves transaction behavior only.
@@ -287,6 +287,6 @@ D10 can be accepted for design/specification only after it contains:
 - Source blockers and write-set/protected-set boundaries.
 - Public-surface/D0 blockers.
 - Validation gates with injected bad cases and non-claims.
-- Wording audit completed against `proof`, `evidence`, `artifact`, scaffold language, and escape hatches.
+- Wording audit completed against `proof`, `evidence`, `artifact`, incomplete packet language, and escape hatches.
 
 Until then, D10 remains blocking for D7/D9/D11 implementation that touches generated/protected/host-owned surfaces.

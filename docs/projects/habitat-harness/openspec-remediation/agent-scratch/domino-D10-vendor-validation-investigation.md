@@ -105,7 +105,7 @@ Current repo facts:
   exclusions and the single Biome rule-registry row.
 - `tools/habitat-harness/src/lib/hooks.ts` does not use Biome's native `--staged`; it passes
   explicit staged file paths to `biome format --write --no-errors-on-unmatched` after a Habitat
-  partial-staging refusal and file-layer check.
+  index-worktree split refusal and file-layer check.
 
 **D10 implication:** Biome should remain the formatter/linter/import-organizer owner. D10 should
 not model generated/protected zones as a Biome concept. D10 should specify that protected/generated
@@ -225,11 +225,11 @@ commands. Do not cite a nonexistent test as a required gate.
 ### P2: Biome Staged Formatting Constraints Are Under-Specified
 
 Biome has native `--staged`, but current hook code manually derives staged paths and invokes
-Biome on explicit paths after refusing partially staged files. The packet does not decide whether
+Biome on explicit paths after refusing index-worktree split files. The packet does not decide whether
 D11/D10 should preserve that integration, switch to native `--staged`, or add a pinned behavior
 test proving excluded generated files stay excluded when passed explicitly.
 
-**Repair demand:** D10 should not own partial-staging behavior, but it must require D11/local
+**Repair demand:** D10 should not own index-worktree split behavior, but it must require D11/local
 feedback to prove protected/generated exclusions survive the chosen Biome invocation mode. If the
 hook passes explicit paths, add a test for a generated/protected path that is both staged and
 Biome-supported.
@@ -300,7 +300,7 @@ Expected current-code outcomes:
 
 - Biome generated/protected exclusions remain in `biome.json`;
 - pre-commit file-layer refusal runs before Biome/Grit formatting/checking;
-- partial-staging refusal runs before Biome writes;
+- index-worktree split refusal runs before Biome writes;
 - Grit scan-root protection remains a Habitat adapter guard;
 - generated-zone and file-layer rule registry rows remain visible to classification and target
   inference.
@@ -356,7 +356,7 @@ Injected bad cases required for implementation:
 
 ## Bottom Line
 
-D10 should become smaller and sharper. Native tools already provide most of the mechanics:
+D10 should become more focused and sharper. Native tools already provide most of the mechanics:
 Grit scans and applies patterns, Biome formats/checks selected files, Git identifies staged paths,
 and Nx resolves/caches/orchestrates targets. The missing D10 design is not a new harness over
 those harnesses; it is a declarative protected/generated-zone decision layer that fails closed,

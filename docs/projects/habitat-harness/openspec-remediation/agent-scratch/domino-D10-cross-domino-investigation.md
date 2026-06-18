@@ -7,7 +7,7 @@ Scope: design/specification only. No source implementation reviewed as target au
 
 ## Executive Finding
 
-D10 is correctly positioned as the Generated/Protected Zone Authority in the source domino suite, but the current OpenSpec packet is still a scaffold and is not repair-complete. The target product scenario is narrow:
+D10 is correctly positioned as the Generated/Protected Zone Authority in the source domino suite, but the current OpenSpec packet is still a incomplete packet and is not repair-complete. The target product scenario is narrow:
 
 Habitat refuses accidental user/agent edits to generated or protected zones, names the owning zone authority, and gives a next safe regeneration or recovery action. D10 must not own host regeneration semantics, host-specific apply gates, D9 transaction sequencing, D7 check outcome construction, D11 hook sequencing, or generated-output freshness proof.
 
@@ -87,9 +87,9 @@ D10 may rely on those downstream contracts as consumers, not as upstream authori
 
 ### G-HOST facts D10 may consume
 
-The source G-HOST packet correctly owns host-specific zone data, host-specific regeneration commands, pattern-specific apply gates, unsupported host-owned scaffold kinds, and missing-host-policy refusal.
+The source G-HOST packet correctly owns host-specific zone data, host-specific regeneration commands, pattern-specific apply gates, unsupported host-owned incomplete packet kinds, and missing-host-policy refusal.
 
-The current G-HOST OpenSpec packet is only a scaffold. It does not yet define the host declaration/refusal shape that D10 needs. Therefore D10 remains source-blocked and probably final-review-blocked on G-HOST unless G-HOST is repaired first or D10 explicitly records that exact G-HOST facts are absent.
+The current G-HOST OpenSpec packet is only a incomplete packet. It does not yet define the host declaration/refusal shape that D10 needs. Therefore D10 remains source-blocked and probably final-review-blocked on G-HOST unless G-HOST is repaired first or D10 explicitly records that exact G-HOST facts are absent.
 
 D10 may consume from G-HOST only:
 
@@ -156,7 +156,7 @@ D11 may not rely on D10 for:
 
 - hook sequencing;
 - resource-submodule state;
-- partial staging policy;
+- index-worktree split policy;
 - Biome/Grit/check orchestration;
 - pre-push affected-target truth;
 - CI, review, or product proof.
@@ -174,13 +174,13 @@ D12 may not rely on D10 for:
 
 ### Facts D13 may rely on
 
-D13 currently depends on G-HOST, not D10. It may rely on D10 only if a later accepted packet explicitly routes supported scaffolding outputs through D10 protected/generated path decisions.
+D13 currently depends on G-HOST, not D10. It may rely on D10 only if a later accepted packet explicitly routes supported project creation outputs through D10 protected/generated path decisions.
 
 D13 may not rely on D10 for:
 
 - supported project kind decisions;
 - unsupported-kind refusal taxonomy;
-- host-specific scaffold semantics;
+- host-specific incomplete packet semantics;
 - candidate pattern creation;
 - Pattern Governance admission;
 - Authoring Topology implementation.
@@ -229,7 +229,7 @@ Prefer not to use conditional acceptance if the final D10 design needs exact G-H
 
 ### D0 public surface blockers
 
-D10 must name the touched public surfaces before implementation. At minimum:
+D10 must name the touched public surfaces before implementation. Required base set:
 
 - `habitat check --staged --tool file-layer --json`.
 - `habitat check --json` when D7 projects D10 refusals into check output.
@@ -269,7 +269,7 @@ G-HOST owns:
 - host owner identity for Civ7/MapGen/resource workflows;
 - host-specific regeneration/remediation command or external workflow;
 - host-specific apply gate declarations, including current MapGen public-ops validation currently embedded in `grit-apply.ts`;
-- unsupported host-owned scaffold kinds and missing-host-policy refusal.
+- unsupported host-owned incomplete packet kinds and missing-host-policy refusal.
 
 ### D10 owns
 
@@ -297,8 +297,8 @@ D10 is forbidden from:
 
 ### P1 blockers
 
-1. Current D10 OpenSpec packet is still a scaffold.
-   - Repair demand: replace generic scaffold language with a full D10 domain model, target state matrix, consumed contract matrix, public-surface matrix, write/protected set, validation matrix, and downstream consumer contracts.
+1. Current D10 OpenSpec packet is still a incomplete packet.
+   - Repair demand: replace generic incomplete packet language with a full D10 domain model, target state matrix, consumed contract matrix, public-surface matrix, write/protected set, validation matrix, and downstream consumer contracts.
 
 2. G-HOST dependency is underspecified.
    - Repair demand: either wait for G-HOST repair/acceptance or record exact D10 source-blockers caused by missing host declaration/refusal fields. D10 must not define host declaration shape itself.
@@ -312,7 +312,7 @@ D10 is forbidden from:
 5. D10 lacks D0/D1 blocker specificity.
    - Repair demand: enumerate the public surfaces and D1 output families listed above. Tasks must require concrete D0 rows and D1 output-family citations before source implementation.
 
-6. Current spec delta is too thin.
+6. Current spec delta is under-specified.
    - Repair demand: expand `specs/habitat-harness/spec.md` beyond two scenarios. Required scenarios should include unknown generated-zone facet, missing host declaration, authorized generator update, unauthorized staged user edit, generated drift check, D9 planned write intersects protected zone, D7 check projection, D11 hook projection, and non-claim preservation.
 
 ### P2 blockers
@@ -336,4 +336,4 @@ D10 is forbidden from:
 
 D10 should be repaired as a narrow guard-authority packet: it consumes D2 generated-zone metadata and G-HOST host declarations, emits guard/path/refusal projections for D7/D9/D11, and leaves regeneration, transaction execution, hook orchestration, and public output compatibility to their owners.
 
-The current packet should not advance to accepted state until the scaffold is replaced and the G-HOST boundary is either accepted or explicitly recorded as the remaining blocker.
+The current packet should not advance to accepted state until the incomplete packet is replaced and the G-HOST boundary is either accepted or explicitly recorded as the remaining blocker.
