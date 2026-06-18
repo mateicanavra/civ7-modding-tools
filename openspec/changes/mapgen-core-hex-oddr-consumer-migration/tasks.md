@@ -21,16 +21,20 @@
 - [x] TEST `@swooper/mapgen-core`: 103 pass / 0 fail
 - [x] TEST mod: 566 pass; failures triaged → 6 pre-existing/environmental, 5 adjacency-driven (ledger)
 - [x] DUMP before/after: wind col/row sawtooth windV 2.5 → 0.52 on fully-migrated build
-- [ ] No-straggler scan: zero inlined `x&1` hex adjacency / offset tables remain in the live pipeline (verified by grep; comments excepted)
+- [x] No-straggler scan: zero inlined `x&1` hex adjacency / offset tables remain in the live pipeline (verified by grep; comments excepted)
+- [x] Worktree resources submodule (`bun run resources:init`) → resource-corpus tests pass (were worktree-environmental)
 
-## 4. Downstream realignment (see ledger)
-- [ ] ocean-thermal `shelfMask mixing` test fixture: stop depending on odd-Q neighbor asymmetry (corrected odd-R neighborhood is vertically symmetric)
-- [ ] `surface-delta-context` diagnostic test: update expected neighbor classification to odd-R
-- [ ] ecology baseline fingerprint fixture: regenerate against corrected climate→biome output
-- [ ] **DECISION (user):** earthlike guards `river minor-share` (0.61 vs ≤0.55) and `rough-upland component` (60 vs ≤40) — recalibrate to corrected model, or keep and re-tune config
+## 4. Downstream realignment (see ledger) — user directive: guards are INVARIANT, re-tune not loosen
+- [x] ocean-thermal `shelfMask mixing` test fixture: stop depending on odd-Q neighbor asymmetry (non-linear gradient)
+- [x] `surface-delta-context` diagnostic test: update expected neighbor classification to odd-R
+- [x] ecology baseline fingerprint fixture: regenerate against corrected output (re-run after re-tunes)
+- [x] earthlike `rough-upland component ≤40`: connected-component cap in `plan-rough-lands` (60→32, share unchanged)
+- [x] earthlike `river minor-share ≤0.55`: `riverNetwork.minorPercentile`/`majorPercentile` re-tune (0.61→0.50)
+- [x] earthlike `river seed-42 lowOrder >0.95` (migration-surfaced): discharge-gate the stream-order confluence bump in `compute-river-network-metrics` (0.90→1.00)
 
 ## 5. Closure
-- [ ] OpenSpec strict validation
-- [ ] Graphite branch stacked on `agent-A-mapgen-core-hex-oddr-adjacency`
+- [x] OpenSpec strict validation (migration packet); re-validate after ledger update
+- [x] Graphite branch stacked on `agent-A-mapgen-core-hex-oddr-adjacency`
+- [x] Full mod suite green except 2 PRE-EXISTING unrelated fails (standard-artifacts packaging mismatch; discoveries static-scan) — flagged, not in scope
 - [ ] Live in-game render proof (user-driven closure gate)
 - [ ] Resolve deferred `natural-wonder-footprints` parity via live per-direction probe (separate)

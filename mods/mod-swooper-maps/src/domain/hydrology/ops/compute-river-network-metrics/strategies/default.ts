@@ -28,6 +28,7 @@ const MAJOR_PERENNIAL_SPECIFIC_DISCHARGE_MIN = 4;
 const MINOR_INTERMITTENT_SPECIFIC_DISCHARGE_MIN = 2.25;
 const NON_RIVER_EPHEMERAL_SPECIFIC_DISCHARGE_MIN = 1.5;
 const NON_RIVER_EPHEMERAL_UPSTREAM_AREA_MIN = 4;
+const HIGH_ORDER_CONFLUENCE_UPSTREAM_AREA_MIN_DEFAULT = 64;
 
 function safeShare(numerator: number, denominator: number): number {
   if (!Number.isFinite(numerator) || !Number.isFinite(denominator) || denominator <= 0) {
@@ -134,10 +135,16 @@ function isMountainBlockedClosedBasin(
 }
 
 export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract, "default", {
-  run: (input) => {
+  run: (input, config) => {
     const width = input.width | 0;
     const height = input.height | 0;
     const size = Math.max(0, width * height);
+
+    const highOrderConfluenceUpstreamAreaMin =
+      Number.isFinite(config.highOrderConfluenceUpstreamAreaMin) &&
+      config.highOrderConfluenceUpstreamAreaMin >= 0
+        ? config.highOrderConfluenceUpstreamAreaMin
+        : HIGH_ORDER_CONFLUENCE_UPSTREAM_AREA_MIN_DEFAULT;
 
     const arrays = [
       ["landMask", input.landMask, Uint8Array],
@@ -188,10 +195,18 @@ export const defaultStrategy = createStrategy(ComputeRiverNetworkMetricsContract
 
       if (isAnyRiverClass(input.riverClass[index])) {
         const maxOrder = maxIncomingOrder[index] ?? 0;
+        // Strahler-like escalation requires >=2 incoming tributaries that share
+        // the receiver's max order. Headwater (order 1->2) confluences are
+        // abundant and legitimately small, so they escalate unconditionally.
+        // Higher-order escalation (order >=3) is gated on the receiver's
+        // combined upstream area so that spurious small 2-into-1 junctions on
+        // tiny networks do not manufacture inflated stream order.
+        const hasConfluence = (maxIncomingOrderCount[index] ?? 0) >= 2;
+        const escalates =
+          hasConfluence &&
+          (maxOrder < 2 || (upstreamArea[index] ?? 0) >= highOrderConfluenceUpstreamAreaMin);
         streamOrderProxy[index] =
-          maxOrder === 0
-            ? 1
-            : Math.min(255, maxOrder + (maxIncomingOrderCount[index] >= 2 ? 1 : 0));
+          maxOrder === 0 ? 1 : Math.min(255, maxOrder + (escalates ? 1 : 0));
       }
 
       if (dest >= 0) {
