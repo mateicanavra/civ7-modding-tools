@@ -1,0 +1,10 @@
+# Review Disposition Ledger: deep-habitat-host-policy-boundary-gate
+
+| Finding | Severity | Disposition | Repair Evidence |
+| --- | --- | --- | --- |
+| Global domain-language concern catalog applied to draft scaffold. | Global constraint | applied, not acceptance evidence | See docs/projects/habitat-harness/openspec-remediation/agent-scratch/global-domain-adversary.md and docs/projects/habitat-harness/openspec-remediation/review-disposition-ledger.md. Per-domino domain-language review remains blocking. |
+| Global OpenSpec artifact-shape constraints applied to draft scaffold. | Global constraint | applied, not acceptance evidence | See docs/projects/habitat-harness/openspec-remediation/agent-scratch/global-openspec-architect.md and packet traceability index. Per-domino OpenSpec review remains blocking. |
+| Global information-design constraints applied to draft scaffold. | Global constraint | applied, not acceptance evidence | See docs/projects/habitat-harness/openspec-remediation/agent-scratch/global-information-design-reviewer.md and traceability/evidence policy repairs. Per-domino information-design review remains blocking. |
+| Global validation-design constraints applied to draft scaffold. | Global constraint | applied, not acceptance evidence | See docs/projects/habitat-harness/openspec-remediation/agent-scratch/global-testing-validation-designer.md and packet validation gates. Per-domino validation review remains blocking. |
+| Global cross-domino sequencing constraints applied to draft scaffold. | Global constraint | applied, not acceptance evidence | See docs/projects/habitat-harness/openspec-remediation/agent-scratch/global-cross-domino-sequencer.md and dependency/trigger repairs. Per-domino sequencing compatibility review remains blocking. |
+| Per-domino adversarial review gate required before packet acceptance or source edits. | P1 | blocking, pending design-time review | Fresh per-domino domain, OpenSpec, topology, validation, information-design, and cross-domino reviewers must disposition findings before this packet can be accepted or used for implementation. |

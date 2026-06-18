@@ -10,6 +10,9 @@ This repo uses nested `AGENTS.md` files as lightweight domain routers: short, en
 ## Hygiene & Maintenance
 
 - Before editing, skim `git status` for existing work and avoid undoing unrelated changes.
+- When using `apply_patch`, always use absolute file paths. Do not use relative
+  paths in patch headers; agents often run from different working directories,
+  and absolute paths prevent accidental edits in the wrong checkout or worktree.
 - When changing behavior or public contracts, update adjacent docs and tests in the same change; use templates in `docs/_templates/` when adding new docs.
 - Record significant architectural decisions in `docs/system/ADR.md` and intentional deferrals with triggers in `docs/system/DEFERRALS.md`.
 - Treat generated artifacts (e.g., `dist/`, `mod/`) and lockfiles as read‑only; regenerate them via scripts instead of hand‑editing.
