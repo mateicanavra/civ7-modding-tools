@@ -508,7 +508,8 @@
           "tempWarmEndC": 30,
           "shallowDepthM": 0,
           "deepDepthM": 100,
-          "minDistanceToCoast": 4
+          "minDistanceToCoast": 4,
+          "maxDistanceToCoast": 8
         },
         "lotus": {
           "tempWarmStartC": 16,
@@ -631,7 +632,21 @@
       "naturalWonders": {
         "minSpacingTiles": 6
       },
-      "resources": {}
+      "resources": {
+        "density": 1,
+        "sparsity": 0,
+        "rarityFidelity": 1,
+        "siteSpacingTiles": 3,
+        "perTypeSpacingFloorScale": 1,
+        "equityMaxDensityRatio": 1.8,
+        "familyDensity": {
+          "aquatic": 1,
+          "cultivated": 1,
+          "terrestrial": 1,
+          "geological": 1
+        },
+        "affinityRules": []
+      }
     }
   }
 }

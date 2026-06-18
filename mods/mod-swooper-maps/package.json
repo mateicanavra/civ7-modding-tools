@@ -113,8 +113,24 @@
         ],
         "cache": true
       },
+      "migrate:configs:check": {
+        "dependsOn": [
+          {
+            "projects": [
+              "@swooper/mapgen-core"
+            ],
+            "target": "build"
+          }
+        ],
+        "inputs": [
+          "default",
+          "^default"
+        ],
+        "cache": true
+      },
       "gen:maps": {
         "dependsOn": [
+          "migrate:configs:check",
           {
             "projects": [
               "@swooper/mapgen-core"
@@ -165,6 +181,7 @@
       },
       "build:studio-recipes:maps": {
         "dependsOn": [
+          "migrate:configs:check",
           "gen:studio-recipes-types"
         ],
         "cache": true,
@@ -206,6 +223,8 @@
     "build:studio-deploy": "tsup",
     "build:studio-recipes": "node -e \"\"",
     "gen:maps": "bun ./scripts/generate-map-artifacts.ts",
+    "migrate:configs": "bun ./scripts/migrate-config-shapes.ts && biome format --write src/maps/configs && bun run gen:maps",
+    "migrate:configs:check": "bun ./scripts/migrate-config-shapes.ts --dry",
     "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
     "lint": "biome check .",
     "check": "tsc --noEmit",
