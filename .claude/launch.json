@@ -7,6 +7,21 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "apps/mapgen-studio",
       "port": 5173
+    },
+    {
+      "name": "mapgen-studio-probe",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "dev:frontend", "--", "--port", "5199", "--strictPort"],
+      "cwd": "apps/mapgen-studio",
+      "port": 5199,
+      "autoPort": false
+    },
+    {
+      "name": "slides-viewer",
+      "runtimeExecutable": "/Users/mateicanavra/.local/share/slides/slides",
+      "runtimeArgs": ["--data-dir", "docs/slides", "--port", "4173"],
+      "port": 4173,
+      "autoPort": false
     }
   ]
 }

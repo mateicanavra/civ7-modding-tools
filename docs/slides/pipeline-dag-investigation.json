@@ -1,0 +1,500 @@
+{
+  "id": "pipeline-dag-investigation",
+  "title": "Pipeline as DAG: Cycles, Iteration, and the Loop Region Verdict",
+  "concepts": {
+    "verdict": {
+      "label": "The Recommendation",
+      "description": "What we decided and why",
+      "color": "green"
+    },
+    "current": {
+      "label": "Current State",
+      "description": "What the code actually does today",
+      "color": "blue"
+    },
+    "evidence": {
+      "label": "Evidence",
+      "description": "Feedback pressures and prior art",
+      "color": "orange"
+    },
+    "design": {
+      "label": "Design Decisions",
+      "description": "The chosen constructs and semantics",
+      "color": "purple"
+    },
+    "plan": {
+      "label": "Plan & Risk",
+      "description": "Sequencing, falsifier, escape ramp",
+      "color": "rose"
+    }
+  },
+  "slides": [
+    {
+      "id": "the-answer",
+      "order": 1,
+      "concept": "verdict",
+      "explanation": "Should the mapgen pipeline allow dependency cycles with iteration caps, or iterate whole recipes? **Both — but neither in raw form.** Three layered constructs, each answering a different question. Industry convergence (Blender ships exactly this pair as Repeat Zones vs Simulation Zones) says bounded intra-graph feedback and whole-world evolution are two different problems with two different answers.",
+      "blocks": [
+        {
+          "layers": {
+            "title": "The three-layer answer",
+            "caption": "Outer layer is pure discipline, middle layer is the invariant, inner layer is the new construct",
+            "layout": "stack",
+            "layers": [
+              {
+                "label": "Recipe as run",
+                "value": "(seed, params, priorWorld) → world",
+                "description": "Pure outer layer: epochs (feed the world back in), parameter search, future evolutionary loop. Zero engine changes — only purity discipline.",
+                "color": "emerald"
+              },
+              {
+                "label": "Acyclic stage DAG",
+                "value": "never admits cycles",
+                "description": "The executor schedules stages by artifact dependency. Schedulability, termination, and addressable state are non-negotiable.",
+                "color": "blue"
+              },
+              {
+                "label": "Loop regions",
+                "value": "bounded feedback, unrolled at runtime",
+                "description": "A composite node wrapping an inner acyclic subgraph — the only place feedback lives. Declares carried artifacts, an iteration cap (the contract), and an optional convergence predicate (early exit only).",
+                "color": "violet"
+              }
+            ]
+          }
+        },
+        {
+          "kpiGrid": {
+            "layout": "uniform",
+            "items": [
+              {
+                "label": "Cycles in the executed graph",
+                "value": 0,
+                "status": "positive",
+                "subtitle": "ever — loop regions unroll to a DAG"
+              },
+              {
+                "label": "Loop termination",
+                "value": "cap",
+                "status": "neutral",
+                "subtitle": "fixed count is the contract"
+              },
+              {
+                "label": "Engine changes for evolution",
+                "value": 0,
+                "status": "positive",
+                "subtitle": "recipe-as-run is pure discipline"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "executor-today",
+      "order": 2,
+      "concept": "current",
+      "explanation": "Ground truth first: today's `PipelineExecutor` is **order-preserving and dependency-validating, not order-computing**. It walks steps in recipe-authored order and throws if a required tag is not yet satisfied. \"Turn this into an actual DAG executor\" mostly means: make the executor consume the contract that already exists.",
+      "blocks": [
+        {
+          "kpiGrid": {
+            "layout": "hero",
+            "items": [
+              {
+                "label": "Topological sorts in the executor",
+                "value": 0,
+                "status": "negative",
+                "subtitle": "the graph is never computed at runtime"
+              },
+              {
+                "label": "Schedule source",
+                "value": "authored order",
+                "status": "neutral",
+                "subtitle": "the recipe's step sequence IS the schedule"
+              },
+              {
+                "label": "Dependency tags",
+                "value": "validate-only",
+                "status": "neutral",
+                "subtitle": "checked, never used to reorder"
+              }
+            ]
+          }
+        },
+        {
+          "codeBlock": {
+            "file": "packages/mapgen-core/src/engine/PipelineExecutor.ts",
+            "language": "typescript",
+            "startLine": 107,
+            "endLine": 118,
+            "highlight": [
+              113,
+              114,
+              115
+            ],
+            "code": "for (let index = 0; index < total; index++) {\n  const node = nodes[index];\n  const step = node.step;\n  validateDependencyTags(step.requires, tagRegistry);\n  validateDependencyTags(step.provides, tagRegistry);\n\n  const missing = step.requires.filter(\n    (tag) => !isDependencyTagSatisfied(tag, context, satisfactionState, tagRegistry)\n  );\n  if (missing.length > 0) {\n    throw new MissingDependencyError({\n      stepId: step.id,"
+          }
+        },
+        {
+          "explanation": "The highlighted check is the entire \"DAG\" behavior at runtime: validate, never schedule."
+        }
+      ]
+    },
+    {
+      "id": "decorative-dag",
+      "order": 3,
+      "concept": "current",
+      "explanation": "The artifact contracts (`requires`/`provides`) are real and typed — but the graph they imply is only consumed by the studio's pipeline view via `buildRecipeDag()`. The executor never consults it. The studio renders a DAG the runtime ignores.",
+      "blocks": [
+        {
+          "diagram": {
+            "content": "flowchart LR\n  contracts[\"Artifact contracts<br/>requires / provides\"] --> dag[\"buildRecipeDag()\"]\n  dag --> studio[\"Studio pipeline view\"]\n  contracts --> exec[\"PipelineExecutor\"]\n  exec --> order[\"Authored order,<br/>validate-only\"]",
+            "caption": "Two consumers of the same contracts: one draws a graph, the other ignores it"
+          }
+        },
+        {
+          "table": {
+            "rows": [
+              "Artifact, Competing writers, Today's behavior",
+              "artifact:map.elevation, map-morphology + map-elevation, first writer wins silently",
+              "artifact:map.rivers, map-hydrology + map-rivers, first writer wins silently"
+            ],
+            "caption": "Known mud: duplicate providers — flagged by DAG diagnostics, fatal to any real DAG executor"
+          }
+        }
+      ]
+    },
+    {
+      "id": "feedback-pressures",
+      "order": 4,
+      "concept": "evidence",
+      "explanation": "The rivers workstream changed ~3 lines of pipeline core — but it produced the best evidence for *why* iteration matters: five couplings the hydrology work wants to express and the current one-pass pipeline cannot. The fifth is not a physics loop at all — it's reactive invalidation, and conflating the two would contaminate both designs.",
+      "blocks": [
+        {
+          "kpiGrid": {
+            "layout": "spotlight",
+            "items": [
+              {
+                "label": "Couplings expressible today",
+                "value": 0,
+                "status": "negative",
+                "subtitle": "one-pass pipeline; rivers finalize before lakes exist"
+              },
+              {
+                "label": "Physics feedback loops",
+                "value": 4,
+                "status": "neutral",
+                "subtitle": "belong in loop regions"
+              },
+              {
+                "label": "Invalidation needs",
+                "value": 1,
+                "status": "neutral",
+                "subtitle": "belongs in studio re-run machinery, not loops"
+              }
+            ]
+          }
+        },
+        {
+          "table": {
+            "rows": [
+              "Coupling, What physics wants, Today",
+              "Elevation ↔ discharge ↔ lake level, Re-accumulate flow after depressions fill, One-pass routing; lakes stamped after rivers finalize",
+              "Discharge ↔ rainfall budget, Calibrate runoff against precipitation and re-solve, Computed independently; refinement explicitly banned",
+              "Rivers ↔ floodplains, Validate outlet coherence after feature placement, No re-validation; conflicts go undetected",
+              "SST ↔ ice albedo, Bounded albedo feedback passes, Already spec'd as fixed-iteration — needs executor support",
+              "Knob change → selective re-run, Re-run only affected stages in the studio, Full fresh generation on any config change"
+            ],
+            "caption": "Five pressures from the rivers/hydrology evidence — four physics, one invalidation"
+          }
+        }
+      ]
+    },
+    {
+      "id": "prior-art",
+      "order": 5,
+      "concept": "evidence",
+      "explanation": "Every mature system that sells graph execution refuses *unstructured* cycles, because they destroy the three properties a graph engine exists to provide: **schedulability** (a topological order exists), **termination** (\"is this run done?\" is decidable), and **addressable intermediate state** (every value has a name). Every successful re-admission of iteration restores all three by structuring the loop: a delimited region, explicit carried state, and a monotone counter with a cap.",
+      "blocks": [
+        {
+          "table": {
+            "rows": [
+              "System, Construct, Lesson for us",
+              "Houdini, For-each blocks with feedback mode, Loop = delimited region; iteration index is a first-class input",
+              "Blender geometry nodes, Repeat Zones vs Simulation Zones, Bounded intra-graph iteration and whole-graph temporal evolution are TWO constructs",
+              "Naiad / timely dataflow, Loop counters inside timestamps, Cyclic syntax with acyclic (node × iteration) execution space — the artifact@k trick",
+              "Temporal / Argo, Continue-As-New / recursive templates, Recipe-as-run with carried state is production-proven",
+              "Datalog / Salsa, Fixed-point only over monotone lattices, Non-monotone physics disqualifies converge-until-stable evaluators",
+              "TensorFlow v1, General in-graph cycles, Shipped it; walked it back — the cautionary tale"
+            ],
+            "caption": "Survey verdicts across workflow engines and procedural tools"
+          }
+        }
+      ]
+    },
+    {
+      "id": "taxonomy-verdict",
+      "order": 6,
+      "concept": "design",
+      "explanation": "Seven patterns exist in the space, scored for a deterministic, seeded, in-process TypeScript generator with a studio whose killer feature is inspection. Three compose into the recommendation; the dangerous one is T5 — evaluator-level fixed points need monotonicity that erosion physics simply does not have.",
+      "blocks": [
+        {
+          "radialMetric": {
+            "title": "Patterns adopted",
+            "value": 3,
+            "total": 7,
+            "label": "T3 + T4 + T6",
+            "subtitle": "loop regions + iteration-indexed artifacts + outer pass loop",
+            "caption": "The three adopted patterns compose into one architecture; the other four are rejected, deferred, or absorbed"
+          }
+        },
+        {
+          "table": {
+            "rows": [
+              "Pattern, Fit, Why",
+              "T1 — unroll at compile time, Strong (v1), Every iteration is an addressable node; zero executor changes",
+              "T2 — recursion above the graph, Weak, Recipes are declarative data; imperative control flow does not fit",
+              "T3 — delimited loop region, CHOSEN, Houdini-class per-iteration inspection; bounded engine cost",
+              "T4 — iteration-indexed artifacts, Adopted as technique, artifact@k keeps the executed graph formally acyclic",
+              "T5 — evaluator fixed-point, REJECTED, Physics is not monotone; no termination guarantee available",
+              "T6 — outer loop over pass list, Kept as outer layer, Matches simulation practice (operator splitting); = recipe-as-run",
+              "T7 — generate-evaluate-mutate, Deferred, Right for parameter search later; wrong grain for state feedback"
+            ],
+            "caption": "T3 + T4 + T6 compose; T5 is the trap"
+          }
+        }
+      ]
+    },
+    {
+      "id": "loop-region-anatomy",
+      "order": 7,
+      "concept": "design",
+      "explanation": "The chosen construct. The cycle exists only in the authoring view — at runtime the region **unrolls** into ordinary DAG nodes, so scheduling, caching, and provenance need zero special cases. The studio gets an iteration scrubber for free: every iteration's artifacts exist, addressable, in the artifact store.",
+      "blocks": [
+        {
+          "diagram": {
+            "content": "flowchart LR\n  climate[\"climate baseline\"] --> erode\n  subgraph loop [\"loop region: hydrology relax — cap 8, carries elevation@k\"]\n    erode[\"erode\"] --> fill[\"fill lakes\"]\n    fill --> route[\"re-route rivers\"]\n    route -. \"elevation@k+1\" .-> erode\n  end\n  route --> eco[\"ecology\"]",
+            "caption": "Authoring view shows a feedback edge; execution view is an unrolled acyclic chain"
+          }
+        },
+        {
+          "table": {
+            "rows": [
+              "Declaration, Meaning, Rule",
+              "carried artifacts, What crosses iterations (elevation; discharge), Explicit list — everything else re-reads outer scope",
+              "iteration cap, Maximum passes, The contract: determinism by construction",
+              "convergence predicate, Pure function of seeded state, Optional; may exit EARLY — never run longer",
+              "artifact@k, Iteration-stamped artifact identity, Keeps the executed graph formally acyclic",
+              "seed derivation, hash(seed; stepPath; k), Same seed → same map; per-iteration reproducibility"
+            ],
+            "caption": "The loop region contract — five declarations, no hidden state"
+          }
+        },
+        {
+          "explanation": "Fixed counts are what procedural systems near-universally choose (erosion is \"N passes\", not \"until stable\") because data-dependent exit plus float drift is the classic same-seed-different-map bug."
+        },
+        {
+          "html": {
+            "content": "<style>\n.lr{padding:18px;font-family:var(--font-sans);color:var(--color-text-primary)}\n.lr h5{margin:0 0 10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-secondary);font-weight:600}\n.lr .region{border:1.5px dashed #7F77DD;border-radius:12px;padding:14px 16px;display:inline-block}\n.lr .rt{font-size:12px;color:#7F77DD;font-weight:600;margin-bottom:10px}\n.lr .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}\n.lr .node{border:1px solid #1D9E75;background:rgba(29,158,117,.14);border-radius:8px;padding:7px 14px;font-size:13px;font-weight:500}\n.lr .arr{color:var(--color-text-tertiary);font-size:15px}\n.lr .fb{margin-top:10px;font-size:12px;color:#7F77DD}\n.lr .exec{margin-top:22px}\n.lr .card{border:1px solid #1D9E75;background:rgba(29,158,117,.14);border-radius:10px;padding:8px 14px;font-size:13px;text-align:center}\n.lr .card.last{border-color:#BA7517;background:rgba(239,159,39,.16)}\n.lr .card .sub{font-size:11px;color:var(--color-text-secondary);font-family:var(--font-mono);margin-top:2px}\n.lr .ctl{display:flex;align-items:center;gap:12px;margin-top:18px;font-size:13px;color:var(--color-text-secondary)}\n.lr input[type=range]{flex:1;max-width:280px;accent-color:#7F77DD}\n.lr .note{margin-top:10px;font-size:12px;color:var(--color-text-tertiary);font-family:var(--font-mono)}\n</style>\n<div class=\"lr\">\n  <h5>Authoring view — what you write</h5>\n  <div class=\"region\">\n    <div class=\"rt\">loop region: hydrology relax — cap <span id=\"capLabel\">3</span></div>\n    <div class=\"row\">\n      <span class=\"node\">erode</span><span class=\"arr\">→</span>\n      <span class=\"node\">fill lakes</span><span class=\"arr\">→</span>\n      <span class=\"node\">re-route rivers</span>\n    </div>\n    <div class=\"fb\">↻ feedback edge carries elevation@k, discharge@k</div>\n  </div>\n  <div class=\"exec\">\n    <h5>Execution view — what actually runs (a plain DAG)</h5>\n    <div class=\"row\" id=\"unroll\"></div>\n  </div>\n  <div class=\"ctl\">\n    <span>iteration cap</span>\n    <input type=\"range\" id=\"cap\" min=\"1\" max=\"4\" value=\"3\">\n    <span id=\"capVal\">3</span>\n  </div>\n  <div class=\"note\">seed@k = hash(seed, stepPath, k) — same seed, same map, every iteration addressable</div>\n</div>\n<script>\n(function(){\n  var unroll = document.getElementById('unroll');\n  var cap = document.getElementById('cap');\n  function render(k){\n    document.getElementById('capVal').textContent = k;\n    document.getElementById('capLabel').textContent = k;\n    var html = '';\n    for (var i = 1; i <= k; i++) {\n      html += '<span class=\"card' + (i === k ? ' last' : '') + '\">iteration ' + i +\n        '<div class=\"sub\">elevation@' + i + '</div></span>';\n      if (i < k) html += '<span class=\"arr\">→</span>';\n    }\n    unroll.innerHTML = html;\n  }\n  cap.addEventListener('input', function(){ render(parseInt(cap.value, 10)); });\n  render(3);\n})();\n</script>",
+            "title": "Interactive: drag the cap — the loop unrolls into a DAG",
+            "caption": "Live html block: the authored feedback edge becomes an acyclic chain of iteration-stamped artifacts"
+          }
+        }
+      ]
+    },
+    {
+      "id": "recipe-as-run",
+      "order": 8,
+      "concept": "design",
+      "explanation": "The whole recipe stays a pure function. That single discipline buys epochs (\"the world a thousand years later\" — feed the world back in as `priorWorld`) and the future evolutionary layer, with zero engine changes. The honest insight from the leverage analysis: **cycles provide none of variation, selection, or retention.**",
+      "blocks": [
+        {
+          "diagram": {
+            "content": "flowchart LR\n  inputs[\"seed + params<br/>+ prior world\"] --> recipe[\"recipe run<br/>(pure function)\"]\n  recipe --> world[\"world\"]\n  world --> metrics[\"quality metrics<br/>(the missing piece)\"]\n  metrics -. \"select / mutate params\" .-> inputs",
+            "caption": "The evolutionary loop never looks inside the DAG"
+          }
+        },
+        {
+          "objectivesDisplay": {
+            "layout": "default",
+            "objectives": [
+              {
+                "title": "Make generation evolutionary",
+                "description": "Evolution requires variation, selection, and retention — graph topology provides none of them. The missing piece is the selection signal.",
+                "keyResults": [
+                  {
+                    "category": "add",
+                    "text": "Map-quality metrics the outer loop can select on"
+                  },
+                  {
+                    "category": "increase",
+                    "text": "Per-iteration observability in the studio (highest-leverage, cheapest intervention)"
+                  },
+                  {
+                    "category": "remove",
+                    "text": "Nothing from the engine — the outer loop is a pure layer over the recipe function"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "phase-vs-domain",
+      "order": 9,
+      "concept": "design",
+      "explanation": "The naming question dissolves once you see the conflation: the current `GenerationPhase` enum values *are* domain names. These are two orthogonal facets. Author the **domain** tag (ownership, vocabulary, who decides). Don't author phase at all — **derive it from DAG rank**, exactly how the studio already positions nodes. The waterfall-progress feeling survives, computed instead of asserted, and it can never drift out of sync with the graph.",
+      "blocks": [
+        {
+          "codeBlock": {
+            "file": "packages/mapgen-core/src/engine/types.ts",
+            "language": "typescript",
+            "startLine": 8,
+            "endLine": 15,
+            "highlight": [
+              11,
+              13,
+              14
+            ],
+            "code": "export type GenerationPhase =\n  | \"setup\"\n  | \"foundation\"\n  | \"morphology\"\n  | \"gameplay\"\n  | \"hydrology\"\n  | \"ecology\"\n  | \"placement\";"
+          }
+        },
+        {
+          "explanation": "The highlighted values are domain names wearing a phase costume — `morphology`, `hydrology`, `ecology` are bounded contexts with owners and vocabularies, not positions in a sequence."
+        },
+        {
+          "table": {
+            "rows": [
+              "Facet, What it means, Where it comes from",
+              "Domain, Ownership + vocabulary: morphology owns its ops and strategies, Authored tag on the stage",
+              "Phase, Position in the waterfall — progress sense for UI and scheduling lanes, Derived from dependency rank — never authored",
+              "Gate, A tag earns existence only if a consumer uses it, Scheduler behavior / validation / studio query — else drop it"
+            ],
+            "caption": "Two facets, two sources — never one enum"
+          }
+        }
+      ]
+    },
+    {
+      "id": "steps-orpc-strategies",
+      "order": 10,
+      "concept": "design",
+      "explanation": "Three semantic decisions, all following the same rule: fix the concepts first, choose the encoding second. A step's identity is its place in an authored sequence; a procedure's identity is its callable contract — equating them is a modeling claim with no competency question behind it today.",
+      "blocks": [
+        {
+          "table": {
+            "rows": [
+              "Question, Decision, Reasoning",
+              "Steps as oRPC procedures?, Adopt the discipline; not the transport, Contract-first typed I/O schemas: yes. Marshaling the context across a network boundary with no consumer: no",
+              "Stage-level authored run()?, Yes, Explicit step sequence — transparent and scriptable. Executor schedules stages; the stage runs its steps",
+              "Strategies via oRPC middleware?, No — compile-time pure-function binding, Strategy selection is a compile-time configuration decision visible in the plan; middleware is runtime indirection"
+            ],
+            "caption": "Concepts before encoding, every time"
+          }
+        },
+        {
+          "explanation": "This split is also the pace-layering the system-design mandate requires: a heavily-contracted slow core (the executor), and fast replaceable layers (stage internals, strategy bindings) that can churn without destabilizing it."
+        }
+      ]
+    },
+    {
+      "id": "sequencing",
+      "order": 11,
+      "concept": "plan",
+      "explanation": "Reversibility-calibrated sequencing: each step is independently shippable, and the loop construct can be deleted back to unrolling at any point. The executor contract is the irreversible piece, so it moves last and smallest.",
+      "blocks": [
+        {
+          "objectivesDisplay": {
+            "layout": "default",
+            "objectives": [
+              {
+                "title": "v0 — clean the graph",
+                "description": "Pure cleanup, do now: any DAG-consuming executor chokes on duplicate providers.",
+                "rank": 1,
+                "keyResults": [
+                  {
+                    "category": "remove",
+                    "text": "Duplicate artifact providers for map.elevation and map.rivers"
+                  }
+                ]
+              },
+              {
+                "title": "v1 — compile-time unrolling",
+                "description": "The cheapest honest step: fixed-count loops expand into explicit step instances at recipe compile time. Zero executor changes.",
+                "rank": 2,
+                "keyResults": [
+                  {
+                    "category": "add",
+                    "text": "Unrolling pass in recipe compilation"
+                  },
+                  {
+                    "category": "increase",
+                    "text": "Addressable, cacheable, studio-renderable iteration nodes"
+                  }
+                ]
+              },
+              {
+                "title": "v2 — loop regions as sugar",
+                "description": "First-class authoring construct that compiles down to v1 unrolling — fully deletable.",
+                "rank": 3,
+                "keyResults": [
+                  {
+                    "category": "add",
+                    "text": "Loop region declaration: carried artifacts + cap + optional predicate"
+                  },
+                  {
+                    "category": "add",
+                    "text": "Runtime exit predicates only when a real recipe demands one"
+                  }
+                ]
+              },
+              {
+                "title": "v3 — selection layer (separate track)",
+                "description": "Pure layer over the recipe function; never touches the engine.",
+                "rank": 4,
+                "keyResults": [
+                  {
+                    "category": "add",
+                    "text": "Map-quality metrics (the selection signal)"
+                  },
+                  {
+                    "category": "add",
+                    "text": "Evolutionary outer loop over (seed, params, priorWorld)"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "falsifier",
+      "order": 12,
+      "concept": "plan",
+      "explanation": "Every frame needs its kill-switch. The probe: author the first real feedback recipe — **depression-fill → re-accumulate discharge → re-project rivers** is the best candidate from the rivers evidence — against the loop-region design *before* freezing the contract.",
+      "blocks": [
+        {
+          "table": {
+            "rows": [
+              "Risk control, Statement",
+              "Falsifier, If the first real feedback recipe requires the executor to special-case any stage — or state must escape the region — the seam is wrong; promote the structural alternative (field-level dataflow with fixpoint semantics)",
+              "Escape ramp, Loop regions compile to unrolling — the construct can be deleted without stranding any recipe",
+              "Accepted trade-off, We give up generality (no dynamic topology; no unbounded cycles; no distributed execution) for debuggability and deterministic replay",
+              "Watch items, Cap-tuning culture replacing operator fixes; per-iteration snapshot memory cost in the studio; authors retreating to linear recipes if authoring gets noisy"
+            ],
+            "caption": "The recommendation carries its own refutation conditions"
+          }
+        },
+        {
+          "explainer": {
+            "content": "**Full investigation record** — workstream frame, four evidence lanes (design-branch architecture map, rivers-lineage deltas, cognition-skill mandates, prior-art survey), the 28-point mandate checklist, deferred items, and the zero-context Next Packet.",
+            "source": "docs/projects/pipeline-realism/workstreams/ws-dag-executor-investigation.md",
+            "lastUpdated": "2026-06-12"
+          }
+        }
+      ]
+    }
+  ]
+}
