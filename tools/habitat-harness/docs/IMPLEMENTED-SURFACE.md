@@ -54,6 +54,12 @@ Implemented command qualities:
   runtime artifacts;
 - command tests cover command argument forwarding and output behavior.
 
+Deep Habitat Phase 3 compatibility is recorded in
+`docs/projects/habitat-harness/deep-refactor/D0-public-contract-inventory.md`.
+Later refactor packets must consult that ledger before moving or narrowing
+command, DTO, package export, root script, Nx target, generator, or hook
+surfaces.
+
 ## Nx Graph Ownership
 
 Implemented graph integration:

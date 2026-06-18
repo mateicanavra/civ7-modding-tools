@@ -1,0 +1,25 @@
+# Review Disposition Ledger
+
+**Change:** `deep-habitat-d0-public-contract-inventory`
+**Status:** accepted P1/P2 findings dispositioned and final validation complete;
+awaiting supervisor/product approval before D1
+**Owner:** directly responsible implementation agent
+
+Accepted P1/P2 findings block D0 closure until repaired, rejected with source
+records, invalidated with later records, or superseded by explicit authority.
+
+## Findings
+
+| ID | Lane | Severity | Finding | Disposition | Required repair | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| D0-SUP-P2-001 | scope/product-language control | P2 | Supervisor noted that D0 must remain the public contract inventory/compatibility gate unless an explicit packet authority supersedes the no-public-behavior-change constraint. The command-entrypoint failure must be recorded as current command-surface state, not automatically repaired in D0. Product contract naming should prefer receipt vocabulary for new names, while broad existing docs should not be churned. | accepted; later invalidated as current source failure | The apparent command failure was invalidated by dependency/build grounding, not source repair: `bun install --frozen-lockfile` plus `bun run --cwd tools/habitat-harness build` restored coherent generated command artifacts and the command-entrypoint test passed. D0 now records the generated-artifact grounding requirement and retains the no-public-behavior-change boundary. | patched |
+| D0-REV-P1-001 | workstream closure | P1 | Required command-entrypoint validation failed and was not recorded in closure artifacts. | accepted; later invalidated as current source failure | Phase record and tasks now record the final passing command-entrypoint test after dependency/build grounding, plus the artifact-state issue that caused false failures. | patched |
+| D0-REV-P2-001 | TypeScript public surface | P2 | `classifyPath`/`classifyTarget` were classified as public versioned command APIs, accidentally hardening direct helper exports. | accepted | Reclassified callable classify helpers as package-internal and left the classify JSON DTOs as the versioned command contract. | patched |
+| D0-REV-P2-002 | TypeScript public surface | P2 | Several export rows mixed public DTOs with package-internal options/helpers, making individual dispositions ambiguous. | accepted | Split `ClassifyOptions`, `GritApplyTransactionProof`, Grit transaction internals, Pattern Authority schema/validation, and Pattern Authority path helpers into separate rows. | patched |
+| D0-REV-P2-003 | package export surface | P2 | Package `main`, package-local scripts, package Nx targets, and package files allowlist were omitted from the package export inventory. | accepted | Added those package-level surfaces with generated/build or package-internal dispositions. | patched |
+| D0-REV-P2-004 | product/domain contract | P2 | Spec treated `HookTrace` and `GritApplyTransactionProof` as current agent-consumed CLI DTOs, risking hardening internal/future surfaces. | accepted | Spec now separates current command JSON DTOs from future/internal receipt shapes and requires matrix ownership before public CLI treatment. | patched |
+| D0-REV-P2-005 | workstream closure | P2 | Tasks, phase status, review ledger, downstream ledger, and all-record OpenSpec validation were not closure-ready. | accepted | Tasks and ledgers now record review dispositions, validation status, all-record OpenSpec validation, and remaining final validation/Graphite/approval gates. | patched |
+| D0-REV-P2-006 | API/CLI contract | P2 | Root alias forwarding (`bun run habitat:check -- --json`) was not distinguished from non-canonical nested forwarding (`bun run habitat check -- --json`). | accepted | Matrix and phase record now distinguish root alias forwarding as a separate public script surface. | patched |
+| D0-REV-P2-007 | root script inventory | P2 | Root `biome:format`, `biome:check`, and `biome:ci` scripts were missing from the root script inventory. | accepted | Added root Biome scripts to the root script table. | patched |
+| D0-REV-P2-008 | generator contract | P2 | Pattern generator row underclassified implemented registered advisory/enforced modes as candidate-only. | accepted | Pattern generator row now records candidate and registered lifecycle modes and their governance gates. | patched |
+| D0-SUP-P2-002 | product/domain control | P2 | Supervisor clarified that proof/evidence-shaped Habitat code and artifact logic are likely a code smell unless they directly serve repo-design, construction, maintenance, evolution, linting, guarding, refusal, or recovery workflows. D0 must not rename current code, but also must not bless proof/artifact concepts as target-domain authority. | accepted | D0 now records `VerifyProof`, `GritApplyTransactionProof`, and `ProofArtifact*` surfaces as current compatibility facts requiring downstream reassessment and simplification into minimal command receipts only where product scenarios justify them. | patched |

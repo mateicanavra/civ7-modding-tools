@@ -16,6 +16,8 @@ Current toolkit reference:
 - `docs/GAPS.md` names unsupported product and authoring gaps.
 - `docs/SCENARIOS.md` separates supported and unsupported usage scenarios.
 - `docs/AUTHORING-NEXT.md` frames the next generator/apply product loop.
+- `../../docs/projects/habitat-harness/deep-refactor/D0-public-contract-inventory.md`
+  records the Deep Habitat command/API compatibility ledger.
 
 The command shell is oclif, matching the repo's `@mateicanavra/civ7-cli`
 pattern: command classes live under `src/commands/**`, local repo scripts run
