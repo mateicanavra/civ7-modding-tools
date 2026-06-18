@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d11-local-feedback-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d12-verify-handoff-packet` |
 
 ## Path Variables
 
@@ -26,6 +26,18 @@ variables below.
 | `$PHASE2_PACKET_DIR` | `$HABITAT_PROJECT/phase2-workstream-packets`. |
 | `$OPENSPEC_CHANGES` | `$REPO_ROOT/openspec/changes`. |
 | `$HABITAT_TOOL` | `$REPO_ROOT/tools/habitat-harness`. |
+
+## D0 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D0_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d0-command-surface-inventory`. |
+
+## D1 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D1_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d1-receipt-contract-boundary`. |
 
 ## D3 Variables
 
@@ -211,6 +223,27 @@ variables below.
 | `$D11_PHASE_RECORD` | `$D11_CHANGE/workstream/phase-record.md`. |
 | `$D11_DOWNSTREAM_LEDGER` | `$D11_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D11_CLOSURE_CHECKLIST` | `$D11_CHANGE/workstream/closure-checklist.md`. |
+
+## D12 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D12_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d12-verify-handoff-receipt`. |
+| `$D12_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D12-proof-handoff-verify-command.md`. |
+| `$D12_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D12-domain-ontology-investigation.md`. |
+| `$D12_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D12-typescript-state-investigation.md`. |
+| `$D12_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D12-code-vendor-topology-investigation.md`. |
+| `$D12_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D12-openspec-information-testing-investigation.md`. |
+| `$D12_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D12-cross-domino-product-investigation.md`. |
+| `$D12_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D12-final-domain-ontology-review.md`. |
+| `$D12_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D12-final-typescript-validation-review.md`. |
+| `$D12_FINAL_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D12-final-openspec-information-review.md`. |
+| `$D12_FINAL_CODE_VENDOR_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D12-final-code-vendor-topology-review.md`. |
+| `$D12_FINAL_CROSS_DOMINO_PRODUCT_REVIEW` | `$AGENT_SCRATCH/domino-D12-final-cross-domino-product-review.md`. |
+| `$D12_REVIEW_LEDGER` | `$D12_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D12_PHASE_RECORD` | `$D12_CHANGE/workstream/phase-record.md`. |
+| `$D12_DOWNSTREAM_LEDGER` | `$D12_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D12_CLOSURE_CHECKLIST` | `$D12_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 
