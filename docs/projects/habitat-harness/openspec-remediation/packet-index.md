@@ -2,13 +2,13 @@
 
 This index tracks the conversion of the Phase 2 domino suite into OpenSpec
 change packets. It is part of the remediation frame, not an implementation
-commitment. Most rows remain draft scaffolding: global review findings have
+commitment. Most rows remain incomplete packets: global review findings have
 been converted into shared constraints, but each domino remains blocking until
 its own per-domino adversarial review has run and all accepted P1/P2 findings
-are repaired. D0, D1, D2, D3, D4, D5, D6, and D7 are the current exceptions: they are
+are repaired. D0, D1, D2, D3, D4, D5, D6, D7, and D8 are the current exceptions: they are
 accepted for design/specification after their per-domino final reviews found no
-unresolved P1/P2 blockers. D0-D7 are not implementation-complete, and
-D8-D15/G-HOST remain blocking unless their own status rows say otherwise.
+unresolved P1/P2 blockers. D0-D8 are not implementation-complete, and
+D9-D15/G-HOST remain blocking unless their own status rows say otherwise.
 
 Path variables and operational checkout fixtures are defined in
 `$REMEDIATION_DIR/context.md`. This index records packet identity and sequencing;
@@ -24,15 +24,15 @@ it does not repeat local worktree paths or branch names.
 | D5 | D5 Baseline Authority | `deep-habitat-d5-baseline-authority` | D0, D2; concrete D0 rows and live D2 `ruleBaselineFacts`/baseline projections required before source implementation | D7, D8 | accepted for design/specification; final domain/ontology, OpenSpec/testing, and topology/TypeScript/cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D6 | D6 Diagnostic Pattern Catalog | `deep-habitat-d6-diagnostic-pattern-catalog` | D0, D1, D2; concrete D0 rows, D1 output-family decisions where touched, and live D2 `ruleGritFacts` required before source implementation | D7, D8, D9, D11, D15 evaluation | accepted for design/specification; final after-observed-identity domain/ontology, TypeScript/validation, OpenSpec/information, and code/vendor topology rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D7 | D7 Structural Enforcement Pipeline | `deep-habitat-d7-structural-enforcement-pipeline` | D0, D1, D2, D3, D5, D6, D10; concrete D0 rows, D1 output-family handling, live D2/D3/D5/D6 projections, and accepted D10 guard contract required before source implementation where touched | D11, D12 | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, and code/topology/cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
-| D8 | D8 Pattern Governance | `deep-habitat-d8-pattern-governance` | D0, D2, D5, D6 | D9, D13 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| G-HOST | Host Policy Boundary Gate | `deep-habitat-host-policy-boundary-gate` | D0, D1 | D10, D13 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| D9 | D9 Transformation Transaction | `deep-habitat-d9-transformation-transaction` | D0, D1, D6, D8, D10 | D11 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| D10 | D10 Protected Zone Authority | `deep-habitat-d10-protected-zone-authority` | D0, D1, D2, G-HOST | D7, D9, D11 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| D11 | D11 Local Feedback | `deep-habitat-d11-local-feedback` | D0, D1, D7, D9, D10 | none | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| D12 | D12 Verify Handoff Receipt | `deep-habitat-d12-verify-handoff-receipt` | D0, D1, D3, D7 | D14 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| D13 | D13 Scaffolding And Refusal Contracts | `deep-habitat-d13-scaffolding-refusal-contracts` | D0, D2, D8, G-HOST | D14 | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| D14 | D14 Authoring Topology Fence | `deep-habitat-d14-authoring-topology-fence` | D0, D4, D12, D13 | none | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
-| D15 | D15 Execution Provenance Trigger | `deep-habitat-d15-execution-provenance-trigger` | D6, D7, D9, or D11 consuming packet identifies impossible local states | A future packet-local substrate decision only when triggered | draft scaffold; global constraints applied; per-domino adversarial gate BLOCKING |
+| D8 | D8 Pattern Governance | `deep-habitat-d8-pattern-governance` | D0, D1, D2, D5, D6; D7 where current-tree/check admission input is consumed; D10/G-HOST where protected/generated-zone or host-policy paths/gates are touched; concrete D0 rows, D1 output-family citations, live D2 `ruleGovernanceFacts`/`ruleGritFacts`/`ruleBaselineFacts`, D5 `BaselineAuthorityProjection`, and D6 diagnostic projections required before source implementation | D9, D13; D11 through local-feedback eligibility/recovery projections | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
+| G-HOST | Host Policy Boundary Gate | `deep-habitat-host-policy-boundary-gate` | D0, D1 | D10, D13 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D9 | D9 Transformation Transaction | `deep-habitat-d9-transformation-transaction` | D0, D1, D6, D8, D10 | D11 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D10 | D10 Protected Zone Authority | `deep-habitat-d10-protected-zone-authority` | D0, D1, D2, G-HOST | D7, D9, D11 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D11 | D11 Local Feedback | `deep-habitat-d11-local-feedback` | D0, D1, D7, D9, D10 | none | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D12 | D12 Verify Handoff Receipt | `deep-habitat-d12-verify-handoff-receipt` | D0, D1, D3, D7 | D14 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D13 | D13 Scaffolding And Refusal Contracts | `deep-habitat-d13-scaffolding-refusal-contracts` | D0, D2, D8, G-HOST | D14 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D14 | D14 Authoring Topology Fence | `deep-habitat-d14-authoring-topology-fence` | D0, D4, D12, D13 | none | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D15 | D15 Execution Provenance Trigger | `deep-habitat-d15-execution-provenance-trigger` | D6, D7, D9, or D11 consuming packet identifies impossible local states | A future packet-local substrate decision only when triggered | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
 
 ## Review Gate Semantics
 
@@ -40,7 +40,7 @@ it does not repeat local worktree paths or branch names.
   They are not packet-specific acceptance evidence.
 - Each domino must still run its own adversarial domain-language, OpenSpec,
   topology, validation, information-design, and cross-domino review before the
-  packet can advance from draft scaffold to accepted execution authority.
+  packet can advance from blocking packet status to accepted execution authority.
 - Per-domino review is a design-time gate, not an implementation-time cleanup
   task. Implementation cannot start from a packet whose review ledger still
   marks that gate as blocking.
