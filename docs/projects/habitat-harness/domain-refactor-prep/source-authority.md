@@ -5,9 +5,16 @@ This register records the authority order for Phase 2 Deep Habitat Toolkit packe
 ## Worktree
 
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`
-- Branch: `codex/habitat-fast-lint-checks`
+- Preparation validation branch: `codex/habitat-fast-lint-checks`
+- Phase 2 packet-suite branch: `codex/deep-habitat-phase2-prep`
 - Original checkout excluded as repo evidence: `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools`
 - Allowed non-worktree inputs: skill files under `/Users/mateicanavra/.codex/skills`, `/Users/mateicanavra/.agents/skills`, `/Users/mateicanavra/.codex/plugins/cache`, and `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills`.
+
+Phase 2 packet-suite drafting occurs on `codex/deep-habitat-phase2-prep`, which
+is a Graphite child of the preparation commit. Validation rows captured on
+`codex/habitat-fast-lint-checks` remain preparation evidence only. Packet-suite
+closure must record fresh current-state commands from
+`codex/deep-habitat-phase2-prep` before claiming completion.
 
 ## Authority Order
 
@@ -110,6 +117,9 @@ Agent read claims are accepted only where a scratch file or final report records
 - If current docs conflict with source, source and commands define current behavior while docs become downstream realignment candidates.
 - If an OpenSpec or archive record conflicts with the frame, it is historical evidence only.
 - If an agent finding came from a bad checkout, it is invalid. Only findings from the mandated worktree and branch can be used.
+- If validation evidence names `codex/habitat-fast-lint-checks`, treat it as
+  preparation baseline evidence and rerun or relabel it before using it as
+  packet-suite completion proof on `codex/deep-habitat-phase2-prep`.
 - If a future packet cannot name owner, consumer, contract, state-space reduction, dependency order, proof class, and downstream record, it must stop and reframe.
 - If a future packet cites Wave 1, cite the consolidated corpus rather than the raw agent claim unless an auditable Wave 1 scratch file is later produced.
 
