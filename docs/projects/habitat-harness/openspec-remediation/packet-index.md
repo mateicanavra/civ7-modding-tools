@@ -5,10 +5,10 @@ change packets. It is part of the remediation frame, not an implementation
 commitment. Most rows remain incomplete packets: global review findings have
 been converted into shared constraints, but each domino remains blocking until
 its own per-domino adversarial review has run and all accepted P1/P2 findings
-are repaired. D0, D1, D2, D3, D4, D5, D6, D7, and D8 are the current exceptions: they are
+are repaired. D0, D1, D2, D3, D4, D5, D6, D7, D8, and D9 are the current exceptions: they are
 accepted for design/specification after their per-domino final reviews found no
-unresolved P1/P2 blockers. D0-D8 are not implementation-complete, and
-D9-D15/G-HOST remain blocking unless their own status rows say otherwise.
+unresolved P1/P2 blockers. D0-D9 are not implementation-complete, and
+D10-D15/G-HOST remain blocking unless their own status rows say otherwise.
 
 Path variables and operational checkout fixtures are defined in
 `$REMEDIATION_DIR/context.md`. This index records packet identity and sequencing;
@@ -26,7 +26,7 @@ it does not repeat local worktree paths or branch names.
 | D7 | D7 Structural Enforcement Pipeline | `deep-habitat-d7-structural-enforcement-pipeline` | D0, D1, D2, D3, D5, D6, D10; concrete D0 rows, D1 output-family handling, live D2/D3/D5/D6 projections, and accepted D10 guard contract required before source implementation where touched | D11, D12 | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, and code/topology/cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D8 | D8 Pattern Governance | `deep-habitat-d8-pattern-governance` | D0, D1, D2, D5, D6; D7 where current-tree/check admission input is consumed; D10/G-HOST where protected/generated-zone or host-policy paths/gates are touched; concrete D0 rows, D1 output-family citations, live D2 `ruleGovernanceFacts`/`ruleGritFacts`/`ruleBaselineFacts`, D5 `BaselineAuthorityProjection`, and D6 diagnostic projections required before source implementation | D9, D13; D11 through local-feedback eligibility/recovery projections | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | G-HOST | Host Policy Boundary Gate | `deep-habitat-host-policy-boundary-gate` | D0, D1 | D10, D13 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
-| D9 | D9 Transformation Transaction | `deep-habitat-d9-transformation-transaction` | D0, D1, D6, D8, D10 | D11 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| D9 | D9 Transformation Transaction | `deep-habitat-d9-transformation-transaction` | D0, D1, D6, D8, D10, G-HOST where host-specific gates are touched; concrete D0 rows, D8 apply-admission projections, D10 path/zone decisions, and G-HOST host-gate declarations required before source implementation where touched | D11, D13; D15 only if D9 records an impossible local state | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D10 | D10 Protected Zone Authority | `deep-habitat-d10-protected-zone-authority` | D0, D1, D2, G-HOST | D7, D9, D11 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
 | D11 | D11 Local Feedback | `deep-habitat-d11-local-feedback` | D0, D1, D7, D9, D10 | none | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
 | D12 | D12 Verify Handoff Receipt | `deep-habitat-d12-verify-handoff-receipt` | D0, D1, D3, D7 | D14 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
