@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d8-pattern-governance-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d9-transformation-transaction-packet` |
 
 ## Path Variables
 
@@ -147,6 +147,27 @@ variables below.
 | `$D8_PHASE_RECORD` | `$D8_CHANGE/workstream/phase-record.md`. |
 | `$D8_DOWNSTREAM_LEDGER` | `$D8_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D8_CLOSURE_CHECKLIST` | `$D8_CHANGE/workstream/closure-checklist.md`. |
+
+## D9 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D9_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d9-transformation-transaction`. |
+| `$D9_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D9-transformation-transaction.md`. |
+| `$D9_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D9-domain-ontology-investigation.md`. |
+| `$D9_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D9-typescript-state-investigation.md`. |
+| `$D9_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D9-code-vendor-topology-investigation.md`. |
+| `$D9_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D9-openspec-information-testing-investigation.md`. |
+| `$D9_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D9-cross-domino-investigation.md`. |
+| `$D9_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D9-final-domain-ontology-review.md`. |
+| `$D9_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D9-final-typescript-validation-review.md`. |
+| `$D9_FINAL_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D9-final-openspec-information-review.md`. |
+| `$D9_FINAL_CODE_VENDOR_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D9-final-code-vendor-topology-review.md`. |
+| `$D9_FINAL_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D9-final-cross-domino-review.md`. |
+| `$D9_REVIEW_LEDGER` | `$D9_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D9_PHASE_RECORD` | `$D9_CHANGE/workstream/phase-record.md`. |
+| `$D9_DOWNSTREAM_LEDGER` | `$D9_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D9_CLOSURE_CHECKLIST` | `$D9_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 
