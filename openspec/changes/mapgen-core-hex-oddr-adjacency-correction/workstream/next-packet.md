@@ -11,9 +11,28 @@
   (hex-oddq, hex-space, vector-field, policy-grid); coast ring consolidated
   (odd-R, no Moore-8). Proof: tsc/biome clean; mapgen-core 103/0; mod 51/0;
   dump exposed-land = 0 under odd-R (46 under legacy odd-Q).
-- OPEN: (1) live in-game render (closure gate); (2) mechanical `OddQ`->`OddR`
-  rename (Task 2; behavioral fix carries legacy names with inline odd-R docs);
-  (3) optional multi-seed delta sweep (Task 5.4).
+- OPEN: (1) live in-game render (closure gate; user relaunches with their
+  latest-juicy configs); (2) `OddQ`->`OddR` rename (Task 2); (3) optional
+  multi-seed delta sweep (Task 5.4).
+
+## Rename scope (Task 2) — read before attempting
+
+NOT a blind sed. ~25 distinct `*OddQ`/`*Oddq` identifiers span the grid lib AND
+the mod domain (`forEachHexNeighborOddQ`, `getHexNeighborIndicesOddQ`,
+`getHexRadiusIndicesOddQ`, `forEachHexNeighborOddQWithDirection`,
+`projectOddqToHexSpace`, `oddqToCube`, `hexDistanceOddQPeriodicX`,
+`getHexNeighborDirectionVectorsOddQ`, `bestHexNeighborDirectionIndexOddQ`,
+`estimateDivergenceOddQ`, `estimateCurlZOddQ`, `computeHexNeighborDirectionVectorsOddQ`,
+`collectMaskComponentsOddQ`, `computeMaskDistanceFieldOddQ`, `MaskComponentOddQ`,
+`connectedComponentsLandOddQ`, `buildCoarseAverageHexOddQ`, `smoothFieldOddQ`,
+`smoothFieldWaterOddQ`, `projectDivergenceFreeOddQ`, `elevationGradientOddQ`,
+`computeDistanceFieldOddQ`, ...). **Do NOT rename the `hexOddQ` spaceId string
+(`"tile.hexOddQ"`, 41 occurrences) — it is a studio renderer/viz-manifest
+contract.** Rename per-identifier with word boundaries (longest-first to avoid
+prefix collisions), update the `@swooper/mapgen-core/lib/grid` barrel + tests,
+rebuild dists, and re-run mapgen-core + mod suites. Use the
+`typescript-refactoring` skill. Optionally rename the file `hex-oddq.ts` ->
+`hex-oddr.ts` and its import paths.
 
 ## The fix in one paragraph
 
