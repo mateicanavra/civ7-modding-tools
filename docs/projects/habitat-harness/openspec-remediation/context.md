@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d7-structural-enforcement-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d8-pattern-governance-packet` |
 
 ## Path Variables
 
@@ -126,6 +126,27 @@ variables below.
 | `$D7_PHASE_RECORD` | `$D7_CHANGE/workstream/phase-record.md`. |
 | `$D7_DOWNSTREAM_LEDGER` | `$D7_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D7_CLOSURE_CHECKLIST` | `$D7_CHANGE/workstream/closure-checklist.md`. |
+
+## D8 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D8_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d8-pattern-governance`. |
+| `$D8_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D8-pattern-governance.md`. |
+| `$D8_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D8-domain-ontology-investigation.md`. |
+| `$D8_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D8-typescript-state-investigation.md`. |
+| `$D8_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D8-code-vendor-topology-investigation.md`. |
+| `$D8_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D8-openspec-information-testing-investigation.md`. |
+| `$D8_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D8-cross-domino-investigation.md`. |
+| `$D8_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D8-final-domain-ontology-review.md`. |
+| `$D8_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D8-final-typescript-validation-review.md`. |
+| `$D8_FINAL_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D8-final-openspec-information-review.md`. |
+| `$D8_FINAL_CODE_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D8-final-code-vendor-topology-review.md`. |
+| `$D8_FINAL_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D8-final-cross-domino-review.md`. |
+| `$D8_REVIEW_LEDGER` | `$D8_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D8_PHASE_RECORD` | `$D8_CHANGE/workstream/phase-record.md`. |
+| `$D8_DOWNSTREAM_LEDGER` | `$D8_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D8_CLOSURE_CHECKLIST` | `$D8_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 

@@ -4,8 +4,8 @@ Status: BLOCKING
 
 ## Blocking Reason
 
-The current D8 disk packet is a draft scaffold, not a complete executable
-Pattern Governance topology contract. The current source tree contains partial
+The current D8 disk packet is an incomplete packet, not a complete executable
+Pattern Governance topology contract. The current source tree contains incomplete
 Pattern Authority implementation facts, but those facts are present-behavior
 evidence only. They do not satisfy the Phase 2 D8 source packet as a complete
 OpenSpec target.
@@ -167,10 +167,10 @@ Current registered promotion:
 
 D8 gap:
 
-- The generator currently performs both candidate scaffolding and registered
+- The generator currently performs both candidate starter packeting and registered
   promotion. D8 must decide whether this remains one generator surface with
-  lifecycle states or becomes separated by D13 scaffolding/refusal and D8
-  Pattern Governance. D13 consumes D8 and explicitly says project scaffolding
+  lifecycle states or becomes separated by D13 generator/refusal and D8
+  Pattern Governance. D13 consumes D8 and explicitly says project starter packeting
   must be separated from Pattern Governance candidate generation.
 
 ### Rule Registry And Active Grit Catalog
@@ -294,8 +294,8 @@ compatibility rows and compatibility handling before source edits.
 - D11 Local Feedback consumes D7/D9/D10 decisions and hook-scoped rule facts. It
   will observe D8 hook-scope admission through enforcement outputs, but it must
   not decide pattern lifecycle locally.
-- D13 Scaffolding And Refusal consumes D8 candidate semantics. It must keep
-  scaffolding/refusal separate from Pattern Governance and must not register
+- D13 Generator And Refusal consumes D8 candidate semantics. It must keep
+  generator/refusal separate from Pattern Governance and must not register
   generated pattern candidates automatically.
 
 ## D8 Write Set
@@ -392,7 +392,7 @@ Stale/generated-output concerns:
 
 ## Validation Gates
 
-Current D8 scaffold gates:
+Current D8 validation gates:
 
 - `bun run --cwd tools/habitat-harness test -- test/rules/pattern-authority-manifest.test.ts`
 - `bun run habitat classify tools/habitat-harness/src/rules/rules.json`
@@ -436,14 +436,13 @@ Required non-claims:
 | --- | --- | --- | --- |
 | D8-P1-001 | P1 | The D8 OpenSpec spec has only broad candidate/registered scenarios and does not encode the full Phase 2 lifecycle state set. | Add normative lifecycle requirements and scenarios for candidate draft, manifest-invalid candidate, registered diagnostic pattern, registered hook-scoped pattern, registered apply-approved pattern, refused pattern, and retired pattern. |
 | D8-P1-002 | P1 | The current packet does not declare a concrete D8 write set and protected path list. | Move the write/protected set from investigation into `design.md` and `phase-record.md`, including conditional owners for `rules.json`, `.grit` patterns, baselines, and generator schema changes. |
-| D8-P1-003 | P1 | Current implementation topology has partial Pattern Authority code, but the packet does not classify which parts are target contract versus compatibility facts. | Add current topology inventory to the packet and explicitly mark existing three-state lifecycle, current generated messages, and legacy rule rows as present behavior until accepted as target. |
+| D8-P1-003 | P1 | Current implementation topology has incomplete Pattern Authority code, but the packet does not classify which parts are target contract versus compatibility facts. | Add current topology inventory to the packet and explicitly mark existing three-state lifecycle, current generated messages, and legacy rule rows as present behavior until accepted as target. |
 | D8-P1-004 | P1 | The packet does not name the vendor ownership split. | Record Grit, Biome, and Nx ownership boundaries with exact official URLs and state what D8 owns around those vendor tools. |
 | D8-P1-005 | P1 | Validation gates omit `pattern-generator.test.ts`, the D5 `baseline-integrity` focused gate, native Grit fixture proof, and bad-case refusal coverage required by the source packet. | Repair proposal/tasks/phase record gates and require exact command expectations plus non-claims. |
 | D8-P1-006 | P1 | Existing active Grit rules generally have no `manifestPath`, while current code can require one for registered promotion. The packet does not define legacy registered-rule disposition. | Specify legacy active pattern disposition: grandfathered compatibility, migration, refused, retired, or accepted manifest path. Do not let file presence imply lifecycle. |
 | D8-P1-007 | P1 | D8 dependencies are underspecified. The source packet says blocked by D1, D2, D5, and D6, while current OpenSpec proposal says D0, D2, D5, and D6. | Reconcile consumed upstream contracts explicitly: D0 for public surfaces, D1 for receipt/output language, D2 for registry facts, D5 for baseline contracts, D6 for diagnostic pattern facts, and D7 as enforcement consumer boundary. |
 | D8-P1-008 | P1 | The D8 phase record records branch `codex/deep-habitat-openspec-remediation`, but the active requested branch is `codex/d8-pattern-governance-packet`. | Update phase record state before claiming review/implementation readiness. |
 | D8-P2-001 | P2 | Docs guidance appears stale against current inventory counts: current disk has 32 `grit-check` rules and 3 apply pattern files, while `CAPABILITIES.md` records 31 and 2. | Decide whether D8 or a docs realignment pass repairs the counts; until then, treat docs counts as stale guidance, not topology truth. |
-| D8-P2-002 | P2 | The current generator description says it scaffolds a Grit pattern and matching rule-pack entry, but candidate behavior does not write `rules.json`. | Repair public docs/schema/description through D0/D13 compatibility so candidate generation is described as non-registering unless promotion is explicitly requested and accepted. |
+| D8-P2-002 | P2 | The current generator description says it starter packets a Grit pattern and matching rule-pack entry, but candidate behavior does not write `rules.json`. | Repair public docs/schema/description through D0/D13 compatibility so candidate generation is described as non-registering unless promotion is explicitly requested and accepted. |
 | D8-P2-003 | P2 | The packet does not yet name D9, D11, and D13 consumer non-claims in one place. | Add downstream consumer section: D9 consumes apply-safety only, D11 consumes hook-scoped enforcement facts only through D7/D9/D10, and D13 consumes candidate/refusal semantics without automatic registration. |
 | D8-P2-004 | P2 | Refusal reasons exist as validator issues but not as durable lifecycle/output states. | Decide target shape for refused states and require tests that prove missing manifest, malformed manifest, placeholder manifest, missing baseline, missing hook-scope decision, missing fixtures, and apply-safety absence fail closed before writes. |
-

@@ -145,7 +145,7 @@ Replace `baseline policy` in D8 target language with `D5 baseline authority proj
 
 Replace `reviewed` as a standalone lifecycle state unless the packet defines who reviewed what, which input set was reviewed, what decision was produced, and what consumers may infer. Use `candidate-under-review` for pre-decision work and `admitted` or `refused` for decisions.
 
-Current disk uses the historical phrase "OpenSpec packet scaffold" in D8 proposal and phase record. That wording is superseded for this pass. D8 must be described as a complete OpenSpec packet or incomplete OpenSpec packet; the historical phrase must not become acceptance language.
+Current disk uses the historical phrase "incomplete OpenSpec packet" in D8 proposal and phase record. That wording is superseded for this pass. D8 must be described as a complete OpenSpec packet or incomplete OpenSpec packet; the historical phrase must not become acceptance language.
 
 ## P1/P2 Blockers
 

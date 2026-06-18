@@ -2,9 +2,9 @@
 
 Status: BLOCKING
 
-D8 is not acceptable implementation input yet. The source packet correctly requires Pattern Authority lifecycle separation, but the current OpenSpec scaffold does not yet specify the complete type model, consumer projections, exact write set, protected paths, or falsifying TypeScript gates required to prevent candidate/registered/apply-safe conflation.
+D8 is not acceptable implementation input yet. The source packet correctly requires Pattern Authority lifecycle separation, but the current OpenSpec packet does not yet specify the complete type model, consumer projections, exact write set, protected paths, or falsifying TypeScript gates required to prevent candidate/registered/apply-safe conflation.
 
-The current disk state partially prevents bad promotion by runtime tests and manifest validation. It does not fully prevent conflation at the packet level: the scaffold still leaves the concrete state model and implementation boundaries for a later agent to invent, and the live rule registry contains optional Pattern Authority fields without any checked-in `manifestPath` entries proving active Pattern Authority admission.
+The current disk state incompletely prevents bad promotion by runtime tests and manifest validation. It does not fully prevent conflation at the packet level: the current packet still leaves the concrete state model and implementation boundaries for a later agent to invent, and the live rule registry contains optional Pattern Authority fields without any checked-in `manifestPath` entries proving active Pattern Authority admission.
 
 ## Sources Read
 
@@ -330,13 +330,13 @@ Suggested exact later command set:
 
 ### P1: Packet does not yet specify the complete Pattern Authority state model
 
-The OpenSpec scaffold says lifecycle states must exist, but the spec requirement only names "candidate, reviewed, registered, refused, and retired" at `openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:3-13`. It does not specify diagnostic registered versus hook-scoped versus apply-approved variants, nor the required fields/projections per state.
+The OpenSpec starter packet says lifecycle states must exist, but the spec requirement only names "candidate, reviewed, registered, refused, and retired" at `openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:3-13`. It does not specify diagnostic registered versus hook-scoped versus apply-approved variants, nor the required fields/projections per state.
 
 Required repair: add normative requirements for `PatternAuthorityState`, lifecycle-specific admission inputs, typed refusal results, and consumer projections.
 
 ### P1: Packet does not yet prevent diagnostic/apply-safe conflation
 
-The source packet explicitly says registered diagnostic pattern is not apply-safe at `D8-pattern-governance.md:105-109`, and current manifest validation rejects `grit-check` plus `applySafety.kind === "apply"` at `manifest.ts:628-645`. The OpenSpec scaffold does not carry that into a complete spec requirement. A later implementation agent could preserve the runtime check but still expose a registered manifest projection that implies apply safety by whole-record leakage.
+The source packet explicitly says registered diagnostic pattern is not apply-safe at `D8-pattern-governance.md:105-109`, and current manifest validation rejects `grit-check` plus `applySafety.kind === "apply"` at `manifest.ts:628-645`. The OpenSpec starter packet does not carry that into a complete spec requirement. A later implementation agent could preserve the runtime check but still expose a registered manifest projection that implies apply safety by whole-record leakage.
 
 Required repair: add a distinct `RegisteredApplyApprovedPattern` state and state that diagnostic consumers never receive apply safety fields.
 
@@ -354,7 +354,7 @@ Required repair: state that current rule-pack metadata is present-behavior evide
 
 ### P2: Validation gates are too generic
 
-The current D8 scaffold validation gates include the manifest test, classify, OpenSpec validation, and `git diff --check`, but they do not include negative type-state gates, whole-record leakage gates, apply safety separation gates, or protected write-set tests.
+The current D8 starter packet validation gates include the manifest test, classify, OpenSpec validation, and `git diff --check`, but they do not include negative type-state gates, whole-record leakage gates, apply safety separation gates, or protected write-set tests.
 
 Required repair: add a validation matrix tied to TypeScript state collapse, not only runtime smoke tests.
 
