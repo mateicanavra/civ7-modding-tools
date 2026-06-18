@@ -14,6 +14,7 @@ import {
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
 import { mapMorphologyArtifacts } from "../artifacts.js";
 import PlotCoastsStepContract from "./plotCoasts.contract.js";
@@ -61,6 +62,42 @@ export default createStep(PlotCoastsStepContract, {
       waterClass: baseWaterClass,
     });
     const waterClass = coastPolicy.waterClass;
+    const policyCoastMask = coastPolicy.policyCoastMask;
+    let promotedOceanToCoast = coastPolicy.promotedOceanToCoast;
+
+    // Guarantee a coast ring around every land tile. The Civ7 coast policy seeds
+    // its buffer expansion from tiles already classified as coast, so land
+    // introduced after the coastline metrics were computed — e.g. island peaks
+    // stamped by the morphology-features/islands step — can be left ringed
+    // entirely by deep ocean. Civ7's validateAndFixTerrain repairs that to coast,
+    // but the no-water-drift projection (restoreProjectedCoastTerrain) reverts it
+    // back to ocean, leaving land sitting directly on deep ocean that the engine
+    // renders as floating cliff plateaus. Promoting any ocean tile adjacent to
+    // land to coast keeps the authored surface consistent with the Civ7 invariant
+    // that land never borders deep ocean, independent of how the land was added.
+    let landAdjacentCoastRingPromotions = 0;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const idx = y * width + x;
+        if ((waterClass[idx] | 0) !== WATER_CLASS_OCEAN) continue;
+        let adjacentToLand = false;
+        forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+          if ((waterClass[ny * width + nx] | 0) === WATER_CLASS_LAND) adjacentToLand = true;
+        });
+        if (!adjacentToLand) continue;
+        waterClass[idx] = WATER_CLASS_COAST;
+        policyCoastMask[idx] = 1;
+        landAdjacentCoastRingPromotions += 1;
+      }
+    }
+    promotedOceanToCoast += landAdjacentCoastRingPromotions;
+
+    if (landAdjacentCoastRingPromotions > 0) {
+      context.trace.event(() => ({
+        type: "map.morphology.coasts.landAdjacentCoastRing",
+        promoted: landAdjacentCoastRingPromotions,
+      }));
+    }
 
     deps.artifacts.coastClassification.publish(context, {
       width,
@@ -68,9 +105,9 @@ export default createStep(PlotCoastsStepContract, {
       baseWaterClass,
       sourceCoastMask,
       waterClass,
-      policyCoastMask: coastPolicy.policyCoastMask,
+      policyCoastMask,
       coastBufferTiles: coastPolicy.coastBufferTiles,
-      promotedOceanToCoast: coastPolicy.promotedOceanToCoast,
+      promotedOceanToCoast,
     });
 
     context.trace.event(() => ({
