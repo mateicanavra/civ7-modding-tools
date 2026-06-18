@@ -19,10 +19,6 @@
       "types": "./dist/civ7-adapter.d.ts",
       "import": "./dist/civ7-adapter.js"
     },
-    "./manual-catalogs/discoveries": {
-      "types": "./dist/manual-catalogs/discoveries.d.ts",
-      "import": "./dist/manual-catalogs/discoveries.js"
-    },
     "./mock": {
       "types": "./dist/mock-adapter.d.ts",
       "import": "./dist/mock-adapter.js"

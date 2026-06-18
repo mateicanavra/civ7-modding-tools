@@ -1,4 +1,3 @@
-import type { DiscoveryCatalogEntry } from "@civ7/adapter";
 import {
   CIV7_BROWSER_TABLES_V0,
   getNaturalWonderFootprintOffsets,
@@ -17,7 +16,6 @@ type DerivePlacementInputsOps = StepRuntimeOps<
   NonNullable<typeof DerivePlacementInputsContract.ops>
 >;
 type PlanNaturalWondersOutput = Static<(typeof placement.ops.planNaturalWonders)["output"]>;
-type PlanDiscoveriesOutput = Static<(typeof placement.ops.planDiscoveries)["output"]>;
 
 const FEATURE_VALID_TERRAIN_TYPE_INDICES =
   CIV7_BROWSER_TABLES_V0.featureValidTerrainTypeIndices as Record<
@@ -48,31 +46,7 @@ const FEATURE_TAGS_BY_FEATURE_TYPE = CIV7_BROWSER_TABLES_V0.featureTagsByFeature
 export type PlacementInputsBuildResult = {
   inputs: PlacementInputsV1;
   naturalWonderPlan: PlanNaturalWondersOutput;
-  discoveryPlan: PlanDiscoveriesOutput;
 };
-
-function sanitizeDiscoveryCandidates(values: DiscoveryCatalogEntry[]): DiscoveryCatalogEntry[] {
-  const unique = new Set<string>();
-  const candidates: DiscoveryCatalogEntry[] = [];
-  for (const raw of values) {
-    if (
-      !Number.isFinite(raw?.discoveryVisualType) ||
-      !Number.isFinite(raw?.discoveryActivationType)
-    ) {
-      continue;
-    }
-    const discoveryVisualType = Math.trunc(raw.discoveryVisualType as number);
-    const discoveryActivationType = Math.trunc(raw.discoveryActivationType as number);
-    const key = `${discoveryVisualType}:${discoveryActivationType}`;
-    if (unique.has(key)) continue;
-    unique.add(key);
-    candidates.push({
-      discoveryVisualType,
-      discoveryActivationType,
-    });
-  }
-  return candidates;
-}
 
 /**
  * DECLARED engine-surface read (ADR-009): per-tile terrain for natural-wonder
@@ -206,7 +180,6 @@ export function buildPlacementInputs(
       },
     ];
   });
-  const discoveryCatalog = sanitizeDiscoveryCandidates(context.adapter.getDiscoveryCatalog());
   const terrainType = readDeclaredEngineTerrainSurface(context);
   const biomeType = buildEngineBiomeSurface(
     physical.biomeBindings.engineBiomeId as Uint16Array,
@@ -236,19 +209,6 @@ export function buildPlacementInputs(
     },
     config.naturalWonders
   );
-  const discoveryPlan = ops.discoveries(
-    {
-      width,
-      height,
-      landMask: physical.topography.landMask,
-      elevation: physical.topography.elevation,
-      aridityIndex: physical.biomeClassification.aridityIndex,
-      riverClass: physical.hydrography.riverClass,
-      lakeMask: physical.lakePlan.lakeMask,
-      candidateDiscoveries: discoveryCatalog,
-    },
-    config.discoveries
-  );
   return {
     inputs: {
       mapInfo: runtime.mapInfo,
@@ -257,6 +217,5 @@ export function buildPlacementInputs(
       placementConfig: config,
     },
     naturalWonderPlan,
-    discoveryPlan,
   };
 }

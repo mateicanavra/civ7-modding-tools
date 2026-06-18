@@ -55,33 +55,10 @@ export const PlacementNaturalWondersSchema = Type.Object(
   }
 );
 
-export const PlacementDiscoveriesSchema = Type.Object(
-  {
-    densityPer100Tiles: Type.Optional(
-      Type.Number({
-        default: 3,
-        minimum: 0,
-        maximum: 50,
-        description:
-          "Sets target discovery density per 100 land tiles; higher values plan more discovery opportunities before typed placement reconciliation.",
-      })
-    ),
-    minSpacingTiles: Type.Optional(
-      Type.Integer({
-        default: 3,
-        minimum: 0,
-        maximum: 12,
-        description:
-          "Sets the minimum hex spacing between planned discoveries; higher values spread discoveries farther apart and can reduce final discovery count.",
-      })
-    ),
-  },
-  {
-    additionalProperties: false,
-    description:
-      "Discovery placement controls for target density and spacing before Civ7 discovery materialization.",
-  }
-);
+// Discoveries are placed by Civ7's official discovery generator (run through the
+// adapter at the place-discoveries step), whose density, spacing, type, and
+// availability are live narrative-system properties — there is no map-authored
+// discovery knob to expose. See docs/projects/discoveries-live-placement.
 
 export const PlacementResourcesSchema = defaultStrategyConfigSchema(
   resources.ops.selectResourceSites.config,
@@ -101,7 +78,6 @@ export const PlacementSupportSchema = defaultStrategyConfigSchema(
 export const PlacementPublicSchema = Type.Object(
   {
     naturalWonders: Type.Optional(PlacementNaturalWondersSchema),
-    discoveries: Type.Optional(PlacementDiscoveriesSchema),
     resources: Type.Optional(PlacementResourcesSchema),
     starts: Type.Optional(PlacementStartsSchema),
     support: Type.Optional(PlacementSupportSchema),
@@ -109,7 +85,7 @@ export const PlacementPublicSchema = Type.Object(
   {
     additionalProperties: false,
     description:
-      "Placement authoring controls for late gameplay products: natural wonders, discoveries, resources, first-age viable starts, and the resource-to-start support pass. Runtime map-size start counts and adapter catalogs are supplied by the run environment rather than authored here.",
+      "Placement authoring controls for late gameplay products: natural wonders, resources, first-age viable starts, and the resource-to-start support pass. Discoveries are placed by Civ7's official generator and are not authored here. Runtime map-size start counts and adapter catalogs are supplied by the run environment rather than authored here.",
   }
 );
 
@@ -118,7 +94,6 @@ export function compilePlacementPublicConfig(config: Record<string, unknown>) {
     "derive-placement-inputs": {
       wonders: defaultEnvelope({}),
       naturalWonders: defaultEnvelope(config.naturalWonders),
-      discoveries: defaultEnvelope(config.discoveries),
     },
     "plot-landmass-regions": {},
     "place-natural-wonders": {},

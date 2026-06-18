@@ -1,4 +1,3 @@
-export { DISCOVERY_CATALOG } from "./catalogs/discoveries.js";
 export { NATURAL_WONDER_CATALOG } from "./catalogs/natural-wonders.js";
 export type {
   Civ7BrowserTablesV0,
@@ -44,7 +43,6 @@ export {
 } from "./river-constants.js";
 export { CIV7_RIVER_TYPE_METADATA_SOURCE } from "./river-type-metadata.source.js";
 export type {
-  DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   DiscoveryPlacementRejectionReason,

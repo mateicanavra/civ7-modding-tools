@@ -1,135 +1,47 @@
-import type { DiscoveryPlacementIntent, DiscoveryPlacementOutcome } from "@civ7/adapter";
-import placement from "@mapgen/domain/placement";
 import type { ExtendedMapContext } from "@swooper/mapgen-core";
-import type { DeepReadonly, Static } from "@swooper/mapgen-core/authoring";
+import type { Static } from "@swooper/mapgen-core/authoring";
 
-type PlanDiscoveriesOutput = Static<(typeof placement.ops.planDiscoveries)["output"]>;
 type DiscoveryPlacementOutcomes = Static<
   typeof import("../../artifacts.js").placementArtifacts["discoveryPlacementOutcomes"]["schema"]
 >;
 
-type PlaceDiscoveriesWithTypedOutcomesArgs = {
+type PlaceOfficialDiscoveriesArgs = {
   adapter: ExtendedMapContext["adapter"];
   width: number;
   height: number;
-  discoveries: DeepReadonly<PlanDiscoveriesOutput>;
+  startPositions: readonly number[];
+  polarMargin: number;
 };
 
-const DISCOVERY_REJECTION_REASONS = new Set<string>([
-  "out-of-bounds",
-  "invalid-discovery-type",
-  "adapter-rejected",
-]);
-
-function expectedTileForIntent(
-  width: number,
-  plotIndex: number
-): { plotIndex: number; x: number; y: number } {
-  const resolvedPlotIndex = Number.isFinite(plotIndex) ? Math.trunc(plotIndex) : -1;
-  const y = width > 0 ? Math.trunc(resolvedPlotIndex / width) : -1;
-  const x = width > 0 ? resolvedPlotIndex - y * width : -1;
-  return { plotIndex: resolvedPlotIndex, x, y };
-}
-
-function summarizeDiscoveryOutcomes(
-  outcomes: readonly DiscoveryPlacementOutcome[]
-): DiscoveryPlacementOutcomes["summary"] {
-  let placedCount = 0;
-  let rejectedCount = 0;
-  for (const outcome of outcomes) {
-    if (outcome.status === "placed") placedCount += 1;
-    else rejectedCount += 1;
-  }
-  return {
-    plannedCount: outcomes.length,
-    placedCount,
-    rejectedCount,
-    mismatchCount: 0,
-  };
-}
-
-function assertDiscoveryOutcomeMatchesIntent(
-  outcome: DiscoveryPlacementOutcome,
-  intent: DiscoveryPlacementIntent,
-  width: number
-): void {
-  const expected = expectedTileForIntent(width, intent.plotIndex);
-  const expectedVisualType = Number.isFinite(intent.discoveryVisualType)
-    ? Math.trunc(intent.discoveryVisualType)
-    : -1;
-  const expectedActivationType = Number.isFinite(intent.discoveryActivationType)
-    ? Math.trunc(intent.discoveryActivationType)
-    : -1;
-  const status = (outcome as { status?: unknown }).status;
-
-  if (status !== "placed" && status !== "rejected") {
-    throw new Error(
-      `[Placement] Discovery placement returned untyped outcome status (${String(status)}).`
-    );
-  }
-  if (
-    outcome.plotIndex !== expected.plotIndex ||
-    outcome.x !== expected.x ||
-    outcome.y !== expected.y ||
-    outcome.discoveryVisualType !== expectedVisualType ||
-    outcome.discoveryActivationType !== expectedActivationType
-  ) {
-    throw new Error(
-      `[Placement] Discovery placement outcome location/type drifted from intent (intent=${expected.plotIndex}:${expectedVisualType}/${expectedActivationType}, outcome=${outcome.plotIndex}:${outcome.discoveryVisualType}/${outcome.discoveryActivationType}).`
-    );
-  }
-  if (outcome.status === "rejected" && !DISCOVERY_REJECTION_REASONS.has(outcome.reason)) {
-    throw new Error(
-      `[Placement] Discovery placement returned an untyped rejection reason (${String(outcome.reason)}).`
-    );
-  }
-}
-
 /**
- * Materializes deterministic discovery intent through the adapter and records
- * typed per-tile outcomes.
+ * Places discoveries by running Civ7's official discovery generator through the
+ * adapter and recording the observed counts.
  *
- * Discoveries are adapter-visible engine products. This step-local owner keeps
- * adapter outcome policy beside the effect that uses it, while final placement
- * only consumes the typed artifact for summary evidence.
+ * Discovery type and availability are a LIVE narrative-system product
+ * (`GameInfo.DiscoverySiftingImprovements` x `GameInfo.NarrativeStories`,
+ * age-conditional with a per-queue budget the generator decrements). Engine
+ * visual ids come from `Database.makeHash(ConstructibleType)` and activation
+ * ids from the native `DiscoveryActivationTypes` enum — neither is reproducible
+ * from a static map-side catalog. Deferring to the official generator is
+ * therefore correct-by-construction and patch-proof; the mod only observes how
+ * many sites the engine accepted (the official generator also handles the coast
+ * and deep-ocean shipwreck populations the prior land-only plan dropped).
  */
-export function placeDiscoveriesWithTypedOutcomes({
+export function placeOfficialDiscoveries({
   adapter,
   width,
   height,
-  discoveries,
-}: PlaceDiscoveriesWithTypedOutcomesArgs): DiscoveryPlacementOutcomes {
-  if ((discoveries.width | 0) !== (width | 0) || (discoveries.height | 0) !== (height | 0)) {
-    throw new Error(
-      `[Placement] Discovery plan dimensions ${discoveries.width}x${discoveries.height} do not match map ${width}x${height}.`
-    );
-  }
-
-  const plannedCount = discoveries.placements.length;
-  const declaredPlannedCount = Math.max(0, discoveries.plannedCount | 0);
-  const targetCount = Math.max(0, discoveries.targetCount | 0);
-  if (declaredPlannedCount !== plannedCount) {
-    throw new Error(
-      `[Placement] Discovery plan metadata mismatch (plannedCount=${declaredPlannedCount}, placements=${plannedCount}).`
-    );
-  }
-  if (plannedCount < targetCount) {
-    throw new Error(
-      `[Placement] Discovery plan cannot satisfy target count (target=${targetCount}, planned=${plannedCount}).`
-    );
-  }
-
-  const outcomes: DiscoveryPlacementOutcome[] = [];
-  for (const placementPlan of discoveries.placements) {
-    const intent = {
-      plotIndex: placementPlan.plotIndex,
-      discoveryVisualType: placementPlan.preferredDiscoveryVisualType,
-      discoveryActivationType: placementPlan.preferredDiscoveryActivationType,
-    };
-    const outcome = adapter.placeDiscoveryIntent(width, height, intent);
-    assertDiscoveryOutcomeMatchesIntent(outcome, intent, width);
-    outcomes.push(outcome);
-  }
-
-  return { summary: summarizeDiscoveryOutcomes(outcomes), outcomes };
+  startPositions,
+  polarMargin,
+}: PlaceOfficialDiscoveriesArgs): DiscoveryPlacementOutcomes {
+  const result = adapter.generateOfficialDiscoveries(width, height, startPositions, polarMargin);
+  const plannedCount = Math.max(0, result.attemptedCount | 0);
+  const placedCount = Math.max(0, Math.min(plannedCount, result.placedCount | 0));
+  return {
+    summary: {
+      plannedCount,
+      placedCount,
+      rejectedCount: Math.max(0, plannedCount - placedCount),
+    },
+  };
 }

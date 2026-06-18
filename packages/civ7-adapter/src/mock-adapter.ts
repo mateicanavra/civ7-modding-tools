@@ -20,9 +20,9 @@ import {
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
 import { getCiv7RowLatitude } from "./map-metadata.js";
 import type {
-  DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
+  OfficialDiscoveryGenerationResult,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -230,10 +230,6 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
 
 const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;
 
-const DEFAULT_DISCOVERY_CATALOG: DiscoveryCatalogEntry[] = [
-  { discoveryVisualType: 0, discoveryActivationType: 0 },
-];
-
 const DEFAULT_NO_RESOURCE = ADAPTER_NO_RESOURCE;
 const DEFAULT_RESOURCE_TYPE_CATALOG: number[] = [...PLACEABLE_RESOURCE_TYPE_IDS];
 const STANDARD_OCEAN_WATER_COLUMNS = 4;
@@ -249,30 +245,6 @@ function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: nu
     unique.add(normalized);
   }
   return Array.from(unique).sort((a, b) => a - b);
-}
-
-function sanitizeDiscoveryCatalog(
-  input: DiscoveryCatalogEntry[] | undefined
-): DiscoveryCatalogEntry[] {
-  const source = Array.isArray(input) ? input : DEFAULT_DISCOVERY_CATALOG;
-  const unique = new Set<string>();
-  const catalog: DiscoveryCatalogEntry[] = [];
-  for (const entry of source) {
-    const discoveryVisualType = entry?.discoveryVisualType;
-    const discoveryActivationType = entry?.discoveryActivationType;
-    if (!Number.isFinite(discoveryVisualType) || !Number.isFinite(discoveryActivationType))
-      continue;
-    const visual = Math.trunc(discoveryVisualType as number) >>> 0;
-    const activation = Math.trunc(discoveryActivationType as number) >>> 0;
-    const key = `${visual}:${activation}`;
-    if (unique.has(key)) continue;
-    unique.add(key);
-    catalog.push({
-      discoveryVisualType: visual,
-      discoveryActivationType: activation,
-    });
-  }
-  return catalog;
 }
 
 const ODD_Q_NEIGHBORS_EVEN: readonly (readonly [number, number])[] = [
@@ -354,8 +326,6 @@ export interface MockAdapterConfig {
   resourceTypeCatalog?: number[];
   /** Natural wonder feature catalog used by deterministic planners. */
   naturalWonderCatalog?: NaturalWonderCatalogEntry[];
-  /** Discovery visual/activation candidate catalog used by deterministic planners. */
-  discoveryCatalog?: DiscoveryCatalogEntry[];
   /** Plot effect types and tag sets for getPlotEffectTypesContainingTags. */
   plotEffectTypes?: MockPlotEffectType[];
   /**
@@ -406,7 +376,6 @@ export class MockAdapter implements EngineAdapter {
   private noResourceSentinel: number;
   private resourceTypeCatalog: number[];
   private naturalWonderCatalog: NaturalWonderCatalogEntry[];
-  private discoveryCatalog: DiscoveryCatalogEntry[];
   private plotEffectTypes: Array<{ id: number; name: string; tags: Set<string> }>;
   private plotEffectsByIndex: Map<number, Set<number>>;
   private readonly effectEvidence = new Set<string>();
@@ -509,7 +478,6 @@ export class MockAdapter implements EngineAdapter {
         direction: entry.direction,
       })
     );
-    this.discoveryCatalog = sanitizeDiscoveryCatalog(config.discoveryCatalog);
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,
@@ -1552,7 +1520,7 @@ export class MockAdapter implements EngineAdapter {
     height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
-  ): number {
+  ): OfficialDiscoveryGenerationResult {
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
       .filter((value) => Number.isFinite(value) && value >= 0)
       .map((value) => Math.trunc(value));
@@ -1567,7 +1535,12 @@ export class MockAdapter implements EngineAdapter {
       polarMargin: resolvedPolarMargin,
     });
     this.recordPlacementEffect();
-    return this.officialDiscoveriesPlacedCount;
+    // The mock does not run the real generator; it reports the configured count
+    // as both attempted and placed (no engine-side rejection in the mock).
+    return {
+      attemptedCount: this.officialDiscoveriesPlacedCount,
+      placedCount: this.officialDiscoveriesPlacedCount,
+    };
   }
 
   generateOfficialResources(
@@ -1593,13 +1566,6 @@ export class MockAdapter implements EngineAdapter {
     return this.naturalWonderCatalog.map((entry) => ({
       featureType: entry.featureType,
       direction: entry.direction,
-    }));
-  }
-
-  getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
-    return this.discoveryCatalog.map((entry) => ({
-      discoveryVisualType: entry.discoveryVisualType,
-      discoveryActivationType: entry.discoveryActivationType,
     }));
   }
 
@@ -1763,9 +1729,6 @@ export class MockAdapter implements EngineAdapter {
       featureType: entry.featureType,
       direction: entry.direction,
     }));
-    this.discoveryCatalog = sanitizeDiscoveryCatalog(
-      config.discoveryCatalog ?? this.discoveryCatalog ?? DEFAULT_DISCOVERY_CATALOG
-    );
     this.plotEffectTypes = (config.plotEffectTypes ?? DEFAULT_PLOT_EFFECT_TYPES).map((entry) => ({
       id: entry.id,
       name: entry.name,

@@ -3,11 +3,6 @@ export interface NaturalWonderCatalogEntry {
   direction: number;
 }
 
-export interface DiscoveryCatalogEntry {
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-}
-
 export type ResourcePlacementRejectionReason =
   | "out-of-bounds"
   | "invalid-resource-type"

@@ -16,12 +16,11 @@ import {
   RIVER_TYPE_NAVIGABLE,
 } from "@civ7/map-policy";
 import { ENGINE_EFFECT_TAGS } from "./effects.js";
-import { DISCOVERY_CATALOG } from "./manual-catalogs/discoveries.js";
 import { NO_RESOURCE, PLACEABLE_RESOURCE_TYPE_IDS } from "./resource-constants.js";
 import type {
-  DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
+  OfficialDiscoveryGenerationResult,
   EngineAdapter,
   FeatureData,
   LakeProjectionResult,
@@ -1207,7 +1206,7 @@ export class Civ7Adapter implements EngineAdapter {
     height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
-  ): number {
+  ): OfficialDiscoveryGenerationResult {
     const resolvedWidth = Math.max(0, Math.trunc(width));
     const resolvedHeight = Math.max(0, Math.trunc(height));
     const resolvedStartPositions = (Array.isArray(startPositions) ? startPositions : [])
@@ -1235,6 +1234,7 @@ export class Civ7Adapter implements EngineAdapter {
       );
     }
 
+    let attemptedCount = 0;
     let placedCount = 0;
     const originalAddDiscovery = mapConstructibles.addDiscovery;
     mapConstructibles.addDiscovery = (
@@ -1243,6 +1243,7 @@ export class Civ7Adapter implements EngineAdapter {
       discoveryVisualType: number,
       discoveryActivationType: number
     ): boolean => {
+      attemptedCount += 1;
       const placed = Boolean(
         originalAddDiscovery.call(
           mapConstructibles,
@@ -1273,15 +1274,11 @@ export class Civ7Adapter implements EngineAdapter {
     }
 
     this.recordPlacementEffect();
-    return placedCount;
+    return { attemptedCount, placedCount };
   }
 
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[] {
     return NATURAL_WONDER_CATALOG;
-  }
-
-  getDiscoveryCatalog(): DiscoveryCatalogEntry[] {
-    return DISCOVERY_CATALOG;
   }
 
   generateSnow(width: number, height: number): void {

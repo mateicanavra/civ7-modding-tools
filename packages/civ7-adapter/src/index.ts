@@ -22,7 +22,6 @@ export type {
 } from "@civ7/map-policy";
 export {
   CIV7_BROWSER_TABLES_V0,
-  DISCOVERY_CATALOG,
   getNaturalWonderFootprintIndices,
   getNaturalWonderFootprintOffsets,
   hasUnsupportedNaturalWonderPolicyTags,
@@ -56,7 +55,6 @@ export { createMockAdapter, MockAdapter } from "./mock-adapter.js";
 // Re-export types
 export type {
   ContinentBounds,
-  DiscoveryCatalogEntry,
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
   DiscoveryPlacementRejectionReason,
@@ -73,6 +71,7 @@ export type {
   NaturalWonderFootprintReadbackStatus,
   NaturalWonderPlacementOutcome,
   NaturalWonderPlacementRejectionReason,
+  OfficialDiscoveryGenerationResult,
   PlotTagName,
   ResourceCatalogEntry,
   ResourcePlacementIntent,

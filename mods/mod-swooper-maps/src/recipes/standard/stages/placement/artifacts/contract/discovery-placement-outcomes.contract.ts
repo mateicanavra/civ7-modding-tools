@@ -1,44 +1,33 @@
 import { defineArtifact, Type } from "@swooper/mapgen-core/authoring/contracts";
 
-/** Discovery stamping outcomes (`artifact:placement.discoveryPlacementOutcomes`). One artifact per file by repo convention. */
-const DiscoveryPlacementOutcomeSchema = Type.Object(
-  {
-    status: Type.Union([Type.Literal("placed"), Type.Literal("rejected")]),
-    plotIndex: Type.Integer(),
-    x: Type.Integer(),
-    y: Type.Integer(),
-    discoveryVisualType: Type.Integer(),
-    discoveryActivationType: Type.Integer(),
-    reason: Type.Optional(
-      Type.Union([
-        Type.Literal("out-of-bounds"),
-        Type.Literal("invalid-discovery-type"),
-        Type.Literal("adapter-rejected"),
-      ])
-    ),
-  },
-  { additionalProperties: false }
-);
-
-const PlacementOutcomeSummarySchema = Type.Object(
+/**
+ * Discovery placement summary (`artifact:placement.discoveryPlacementOutcomes`).
+ *
+ * Discoveries are placed by Civ7's official discovery generator (run through the
+ * adapter), whose type/site selection is a live narrative-system product. The
+ * mod therefore records observed COUNTS rather than per-tile intent
+ * reconciliation: `plannedCount` is the number of `addDiscovery` attempts the
+ * generator made, `placedCount` is how many the engine accepted, and
+ * `rejectedCount = plannedCount - placedCount` is the engine-side shortfall
+ * (commonly narrative-budget exhaustion). One artifact per file by repo convention.
+ */
+const DiscoveryPlacementSummarySchema = Type.Object(
   {
     plannedCount: Type.Integer({ minimum: 0 }),
     placedCount: Type.Integer({ minimum: 0 }),
     rejectedCount: Type.Integer({ minimum: 0 }),
-    mismatchCount: Type.Integer({ minimum: 0 }),
   },
   { additionalProperties: false }
 );
 
 const DiscoveryPlacementOutcomesArtifactSchema = Type.Object(
   {
-    summary: PlacementOutcomeSummarySchema,
-    outcomes: Type.Array(DiscoveryPlacementOutcomeSchema),
+    summary: DiscoveryPlacementSummarySchema,
   },
   {
     additionalProperties: false,
     description:
-      "Typed discovery intent reconciliation. Rejections are allowed only with named reasons.",
+      "Observed discovery placement counts from the official generator: attempts (plannedCount), engine-accepted placements (placedCount), and the rejected shortfall.",
   }
 );
 

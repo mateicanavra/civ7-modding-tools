@@ -14,16 +14,14 @@ import { standardConfig } from "../support/standard-config.js";
  * cannot silently drift (the cheap version of the emitted-key registry
  * stretch goal — see the S7 OpenSpec decision log).
  *
- * assign-advanced-starts is the recorded exception: its only product is two
- * engine-side effect booleans (fertility recalc + advanced start regions)
- * with no per-plot readback surface, so it has no visual content to emit
- * (decision-logged in openspec/changes/placement-realignment-s7-viz).
+ * assign-advanced-starts and place-discoveries are the recorded exceptions:
+ * advanced-starts' only product is two engine-side effect booleans (fertility
+ * recalc + advanced start regions), and place-discoveries defers to Civ7's
+ * official discovery generator in the live engine (no headless per-plot plan or
+ * readback to visualize) — both verified in-game, not in Studio.
  */
 const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
-  "derive-placement-inputs": [
-    "placement.wonders.plannedSites",
-    "placement.discoveries.plannedSites",
-  ],
+  "derive-placement-inputs": ["placement.wonders.plannedSites"],
   "plot-landmass-regions": ["placement.landmassRegions.regionSlot"],
   "place-natural-wonders": ["placement.wonders.outcome"],
   "prepare-placement-surface": [
@@ -53,7 +51,6 @@ const EXPECTED_KEYS_BY_STEP: Record<string, readonly string[]> = {
   ],
   "adjust-resources": ["placement.resources.supportAdjustment", "placement.starts.supportRadius"],
   "place-resources": ["placement.resources.outcome"],
-  "place-discoveries": ["placement.discoveries.outcome"],
   placement: ["map.placement.engine.landMask", "map.placement.engine.waterDrift"],
 };
 

@@ -11,27 +11,19 @@ import {
 } from "./natural-wonder-plan-input-telemetry.js";
 import { logNaturalWonderPlanRuntimeTelemetry } from "./natural-wonder-plan-telemetry.js";
 import {
-  validateDiscoveryPlanArtifact,
   validateNaturalWonderPlanArtifact,
   validatePlacementInputsArtifact,
 } from "./validate.js";
 
 export default createStep(DerivePlacementInputsContract, {
   artifacts: implementArtifacts(
-    [
-      placementArtifacts.placementInputs,
-      placementArtifacts.naturalWonderPlan,
-      placementArtifacts.discoveryPlan,
-    ],
+    [placementArtifacts.placementInputs, placementArtifacts.naturalWonderPlan],
     {
       placementInputs: {
         validate: (value) => validatePlacementInputsArtifact(value),
       },
       naturalWonderPlan: {
         validate: (value) => validateNaturalWonderPlanArtifact(value),
-      },
-      discoveryPlan: {
-        validate: (value) => validateDiscoveryPlanArtifact(value),
       },
     }
   ),
@@ -46,7 +38,7 @@ export default createStep(DerivePlacementInputsContract, {
     const biomeBindings = deps.artifacts.biomeBindings.read(context);
     const pedology = deps.artifacts.pedology.read(context);
 
-    const { inputs, naturalWonderPlan, discoveryPlan } = buildPlacementInputs(
+    const { inputs, naturalWonderPlan } = buildPlacementInputs(
       context,
       config,
       ops,
@@ -86,24 +78,18 @@ export default createStep(DerivePlacementInputsContract, {
     logNaturalWonderPlanRuntimeTelemetry(naturalWonderPlan);
     logNaturalWonderPlanInputRuntimeTelemetry(naturalWonderPlanInputTelemetry);
     traceNaturalWonderPlanInputRuntimeTelemetry(context, naturalWonderPlanInputTelemetry);
-    deps.artifacts.discoveryPlan.publish(context, discoveryPlan);
 
-    // S7 (E4.2/E4.3): this step's decision products are the wonder and
-    // discovery PLANS; emit their anchor sites with planning priority so the
-    // step is inspectable in studio before any stamping happens.
+    // S7 (E4.2): this step's decision product is the natural-wonder PLAN; emit
+    // its anchor sites with planning priority so the step is inspectable in
+    // studio before any stamping happens. (Discoveries are placed by Civ7's
+    // official generator in the live engine, so they have no headless plan to
+    // visualize here — they are verified in-game, not in Studio.)
     emitPlannedSitesViz(context, {
       dataTypeKey: "placement.wonders.plannedSites",
       label: "Planned Natural Wonder Sites",
       description:
         "Anchor plots the natural-wonder plan selected, colored by planning priority (0..1). Stamping outcomes appear on the place-natural-wonders step.",
       placements: naturalWonderPlan.placements,
-    });
-    emitPlannedSitesViz(context, {
-      dataTypeKey: "placement.discoveries.plannedSites",
-      label: "Planned Discovery Sites",
-      description:
-        "Plots the discovery plan selected, colored by planning priority (0..1). Stamping outcomes appear on the place-discoveries step.",
-      placements: discoveryPlan.placements,
     });
   },
 });

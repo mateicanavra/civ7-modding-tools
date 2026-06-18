@@ -21,11 +21,6 @@ export interface NaturalWonderCatalogEntry {
   direction: number;
 }
 
-export interface DiscoveryCatalogEntry {
-  discoveryVisualType: number;
-  discoveryActivationType: number;
-}
-
 /**
  * Runtime resource catalog row used to enrich placement telemetry with
  * symbolic resource names. The live adapter reads GameInfo.Resources; the
@@ -111,6 +106,19 @@ export interface DiscoveryPlacementIntent {
   plotIndex: number;
   discoveryVisualType: number;
   discoveryActivationType: number;
+}
+
+/**
+ * Counts observed while running Civ7's official discovery generator.
+ * `attemptedCount` = `MapConstructibles.addDiscovery` calls the generator made;
+ * `placedCount` = calls the engine accepted. `attempted - placed` is the
+ * engine-side rejection count (commonly narrative-budget exhaustion). Discovery
+ * type/availability is a live narrative-system product, so unlike resources the
+ * mod observes counts rather than re-deriving engine ids.
+ */
+export interface OfficialDiscoveryGenerationResult {
+  attemptedCount: number;
+  placedCount: number;
 }
 
 /**
@@ -775,20 +783,18 @@ export interface EngineAdapter {
    * Run Civ7's official discovery generator.
    * Wraps /base-standard/maps/discovery-generator.js generateDiscoveries().
    *
-   * Returns the number of successful discovery placements observed during generation.
+   * Returns the attempted/placed counts observed during generation (see
+   * {@link OfficialDiscoveryGenerationResult}).
    */
   generateOfficialDiscoveries(
     width: number,
     height: number,
     startPositions: ReadonlyArray<number>,
     polarMargin: number
-  ): number;
+  ): OfficialDiscoveryGenerationResult;
 
   /** Engine catalog of natural wonder feature definitions. */
   getNaturalWonderCatalog(): NaturalWonderCatalogEntry[];
-
-  /** Adapter-owned discovery visual/activation catalog for deterministic planners. */
-  getDiscoveryCatalog(): DiscoveryCatalogEntry[];
 
   /**
    * Generate snow terrain

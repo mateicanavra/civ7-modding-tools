@@ -678,10 +678,6 @@
       "naturalWonders": {
         "minSpacingTiles": 6
       },
-      "discoveries": {
-        "densityPer100Tiles": 3,
-        "minSpacingTiles": 5
-      },
       "resources": {
         "density": 1.3,
         "sparsity": 0.1,
