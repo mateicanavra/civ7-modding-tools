@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/host-policy-boundary-gate-packet` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d15-execution-provenance-trigger-packet` |
 
 ## Path Variables
 
@@ -26,6 +26,7 @@ variables below.
 | `$PHASE2_PACKET_DIR` | `$HABITAT_PROJECT/phase2-workstream-packets`. |
 | `$OPENSPEC_CHANGES` | `$REPO_ROOT/openspec/changes`. |
 | `$HABITAT_TOOL` | `$REPO_ROOT/tools/habitat-harness`. |
+| `$REMEDIATION_FRAME` | `$HABITAT_PROJECT/openspec-remediation-frame.md`. |
 
 ## D0 Variables
 
@@ -307,6 +308,27 @@ variables below.
 | `$GHOST_PHASE_RECORD` | `$GHOST_CHANGE/workstream/phase-record.md`. |
 | `$GHOST_DOWNSTREAM_LEDGER` | `$GHOST_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$GHOST_CLOSURE_CHECKLIST` | `$GHOST_CHANGE/workstream/closure-checklist.md`. |
+
+## D15 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D15_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d15-execution-provenance-trigger`. |
+| `$D15_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D15-execution-provenance-substrate-trigger.md`. |
+| `$D15_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D15-domain-ontology-investigation.md`. |
+| `$D15_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D15-typescript-state-investigation.md`. |
+| `$D15_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D15-code-vendor-topology-investigation.md`. |
+| `$D15_INFORMATION_TESTING_REVIEW` | `$AGENT_SCRATCH/domino-D15-openspec-information-testing-investigation.md`. |
+| `$D15_CROSS_DOMINO_REVIEW` | `$AGENT_SCRATCH/domino-D15-cross-domino-product-investigation.md`. |
+| `$D15_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D15-final-domain-ontology-review.md`. |
+| `$D15_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | `$AGENT_SCRATCH/domino-D15-final-typescript-validation-review.md`. |
+| `$D15_FINAL_OPENSPEC_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D15-final-openspec-information-review.md`. |
+| `$D15_FINAL_CODE_VENDOR_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D15-final-code-vendor-topology-review.md`. |
+| `$D15_FINAL_CROSS_DOMINO_PRODUCT_REVIEW` | `$AGENT_SCRATCH/domino-D15-final-cross-domino-product-review.md`. |
+| `$D15_REVIEW_LEDGER` | `$D15_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D15_PHASE_RECORD` | `$D15_CHANGE/workstream/phase-record.md`. |
+| `$D15_DOWNSTREAM_LEDGER` | `$D15_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D15_CLOSURE_CHECKLIST` | `$D15_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 
