@@ -9,6 +9,14 @@ Authority: `docs/projects/habitat-harness/FRAME.md` (five-layer ownership,
 ratchet invariant, settled decisions). Migration map:
 `docs/projects/habitat-harness/invariant-corpus.md`.
 
+Current toolkit reference:
+
+- `docs/CAPABILITIES.md` maps what Habitat can actually do today.
+- `docs/IMPLEMENTED-SURFACE.md` records the durable implemented surface.
+- `docs/GAPS.md` names unsupported product and authoring gaps.
+- `docs/SCENARIOS.md` separates supported and unsupported usage scenarios.
+- `docs/AUTHORING-NEXT.md` frames the next generator/apply product loop.
+
 The command shell is oclif, matching the repo's `@mateicanavra/civ7-cli`
 pattern: command classes live under `src/commands/**`, local repo scripts run
 `bin/dev.ts`, and `bin/run.js` is the built production runner. Build output
