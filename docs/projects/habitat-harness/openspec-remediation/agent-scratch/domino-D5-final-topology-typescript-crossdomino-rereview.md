@@ -23,12 +23,12 @@ Implementation remains blocked behind concrete D0 rows for every touched public 
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
+  - `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
+  - `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
 - Negative-control inputs:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-code-topology-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-typescript-state-investigation.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-cross-domino-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-code-topology-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-typescript-state-investigation.md`
+  - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-cross-domino-investigation.md`
 
 ## Findings
 
@@ -66,7 +66,7 @@ D0/D2 are correctly split between design-time consumption and source-time blocke
 
 ### D7 and D8 handoffs are exact and one-way
 
-D7 source expects to consume baseline application while owning report construction and forbids baseline internals leaking into enforcement stages at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:51` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:151`. D8 source expects Pattern Authority to consume D5 baseline contract while not letting baseline/file presence imply lifecycle at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:56` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:146`.
+D7 source expects to consume baseline application while owning report construction and forbids baseline internals leaking into enforcement stages at `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:51` and `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:151`. D8 source expects Pattern Authority to consume D5 baseline contract while not letting baseline/file presence imply lifecycle at `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:56` and `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:146`.
 
 The D5 packet now publishes exactly that. D7 consumes `BaselineApplicationResult`, `BaselineIntegrityResult`, and D5 command diagnostics, while D7 may not decide shrink-only policy, manifest acceptance, or external projection at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:164`. D8 consumes `BaselineAuthorityProjection` / refusal state and may not decide acceptance, external projection validity, seeded debt, or existing-rule growth at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:174`. The downstream ledger states the same allowed facts and non-claims separately for D7 and D8 at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/downstream-realignment-ledger.md:7`.
 

@@ -13,17 +13,17 @@ does not authorize implementation.
 - `/usr/bin/git branch --show-current` returned `codex/habitat-fast-lint-checks`.
 - `/usr/bin/git status --short --branch` initially returned only `## codex/habitat-fast-lint-checks`.
 - Required domain docs existed:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-frame.md`
+  `docs/projects/habitat-harness/domain-refactor-frame.md`
   and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
+  `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 
 ## Surfaces Read
 
 - Required skill files listed in the task, in full.
 - Domain inputs:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-frame.md`
+  `docs/projects/habitat-harness/domain-refactor-frame.md`
   and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
+  `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 - Root integration:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/package.json`,
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`,
@@ -32,12 +32,12 @@ does not authorize implementation.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/eslint.boundaries.config.mjs`.
 - Habitat docs:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/README.md`
-  plus `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/CAPABILITIES.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/SCENARIOS.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/GAPS.md`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/DOMAIN-MAPPING.md`,
-  and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/AUTHORING-NEXT.md`.
+  plus `docs/CAPABILITIES.md`,
+  `docs/IMPLEMENTED-SURFACE.md`,
+  `docs/SCENARIOS.md`,
+  `docs/GAPS.md`,
+  `docs/DOMAIN-MAPPING.md`,
+  and `docs/AUTHORING-NEXT.md`.
 - Habitat source:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/package.json`,
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js`,

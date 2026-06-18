@@ -131,7 +131,7 @@ The repaired D1 packet is durable for broad design context: a future agent can r
 
 This scratch review is durable at:
 
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-final-information-design-review.md`
+`docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D1-final-information-design-review.md`
 
 Before D1 status changes, import this review's accepted P1/P2 findings into the D1 review disposition ledger with repair evidence. Otherwise acceptance state will again depend on chat memory or scratch discovery rather than the packet's own control records.
 

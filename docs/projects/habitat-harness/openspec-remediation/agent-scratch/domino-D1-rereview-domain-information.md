@@ -53,7 +53,7 @@ None.
 | Validation result recording location | Yes | `tasks.md` directs every validation result to `workstream/phase-record.md` under `Validation Results Recording Contract` at line 55. `phase-record.md` defines that results table and its columns at lines 71-90. |
 | Phase-record closed action set | Yes | `phase-record.md` uses the D0 closed handling set without the prior stray `remove` action at lines 34-39. |
 | Target-suspect evidence wording | Yes | `spec.md` now says "apply change observation" in the unsupported apply change scenario at lines 172-174, matching D1's evidence-vs-observation distinction. |
-| D1 source implementation still blocks on actual D0 matrix rows | Yes | D0's matrix file is absent in this worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/public-surface-compatibility-matrix.md` does not exist. D1 correctly keeps implementation blocked until affected rows exist in `proposal.md` lines 43-60, `tasks.md` lines 12-14, `phase-record.md` lines 15-17 and 34-39, and `closure-checklist.md` implementation prerequisites. |
+| D1 source implementation still blocks on actual D0 matrix rows | Yes | D0's matrix file is absent in this worktree: `docs/projects/habitat-harness/public-surface-compatibility-matrix.md` does not exist. D1 correctly keeps implementation blocked until affected rows exist in `proposal.md` lines 43-60, `tasks.md` lines 12-14, `phase-record.md` lines 15-17 and 34-39, and `closure-checklist.md` implementation prerequisites. |
 
 ## Dependency And Index Checks
 

@@ -6,11 +6,11 @@ Fresh D5 cross-domino review for the Deep Habitat OpenSpec remediation pass.
 
 Reviewed D5 against:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
 - accepted-design D0-D4 OpenSpec packets under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/`
 - D7 and D8 source packets and current OpenSpec scaffolds
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
-- prior negative-control review at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
+- `docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+- prior negative-control review at `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
 
 Verdict: D5 does not advance. The current D5 packet is still a scaffold, not a complete Baseline Authority OpenSpec packet. The cross-domino boundary is not safe enough for D7 or D8 to consume without inventing D5 facts locally or letting D5 leak into their domains.
 

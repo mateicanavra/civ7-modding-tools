@@ -20,14 +20,14 @@ Skills read in full:
 Primary sources read:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/**`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
 
 ## Verdict
 
@@ -55,7 +55,7 @@ If any question is answered only by prose such as "baseline state lifecycle", "o
 
 ### P1-1: The packet does not define D5's accepted/refused ontology
 
-The source D5 packet requires explicit empty, explicit debt, external exception, malformed, missing, orphan, introduced-rule expansion, and shrink-only failure states at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:31`. It also calls out contradictory guard states and incomplete external exception projection/validation as the core state-space problem at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:52`.
+The source D5 packet requires explicit empty, explicit debt, external exception, malformed, missing, orphan, introduced-rule expansion, and shrink-only failure states at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:31`. It also calls out contradictory guard states and incomplete external exception projection/validation as the core state-space problem at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:52`.
 
 The OpenSpec delta collapses that into one requirement and two scenarios at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/specs/habitat-harness/spec.md:3`. "Existing debt is checked" and "New debt appears" do not encode the source state model, refusal states, external projection states, or rule-introduction states.
 
@@ -85,7 +85,7 @@ Target repair: replace "structural-debt record" and "matched baseline entry" wit
 
 The current proposal and design say D5 will "D5 publishes baseline authority projection/refusal results for D7 and D8" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:28` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:25`.
 
-That phrase fails the authority test. D8 explicitly owns Pattern Authority lifecycle/admission, and says Baseline Authority does not decide pattern lifecycle at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:15`. D5 should publish the baseline authority projection/refusal that D8 consumes. It should not "connect to Pattern Governance lifecycle/admission" as if D5 is a co-owner of admission.
+That phrase fails the authority test. D8 explicitly owns Pattern Authority lifecycle/admission, and says Baseline Authority does not decide pattern lifecycle at `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:15`. D5 should publish the baseline authority projection/refusal that D8 consumes. It should not "connect to Pattern Governance lifecycle/admission" as if D5 is a co-owner of admission.
 
 Target repair: replace all D5/D8 wording with a one-way consumer contract:
 
@@ -93,7 +93,7 @@ Target repair: replace all D5/D8 wording with a one-way consumer contract:
 
 ### P1-4: External exception language does not distinguish source, projection, and baseline authority
 
-The source packet asks D5 to define external exception source variants so incomplete projection/validation combinations cannot exist at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:64`. Current code shows why: `ExternalExceptionSourceModel` allows optional `projectedKeys`, optional `projectKeys`, and optional `validate` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:109`. The packet does not repair this ontology.
+The source packet asks D5 to define external exception source variants so incomplete projection/validation combinations cannot exist at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:64`. Current code shows why: `ExternalExceptionSourceModel` allows optional `projectedKeys`, optional `projectKeys`, and optional `validate` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:109`. The packet does not repair this ontology.
 
 "External exception baseline" should be rejected. The external artifact is not a Habitat baseline file. It is an external exception source. D5's accepted authority is the projection from that source into diagnostic keys, plus validation/validatenance. The authoritative object for consumers is the projection result, not the source file.
 
@@ -107,7 +107,7 @@ The accepted projection must include validatenance and owner/migration owner. D7
 
 ### P1-5: Rule-introduction manifest acceptance/refusal is not specified as authority
 
-The source D5 packet says baseline expansion must stay behind a typed introduction guard at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:71`. Current code has the relevant manifest fields at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:90` and still has boolean guard output at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:223`.
+The source D5 packet says baseline expansion must stay behind a typed introduction guard at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:71`. Current code has the relevant manifest fields at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:90` and still has boolean guard output at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:223`.
 
 The OpenSpec packet only says "introduction manifest relation" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/tasks.md:14`. That is not an authority model. The manifest either authorizes exactly one seeded baseline projection for a rule that is new relative to the comparison base, or it refuses.
 
@@ -117,7 +117,7 @@ Target repair: define `RuleIntroductionBaselineManifest` as a D5 authority input
 
 ### P2-1: D5 has no published consumer result for D7/D8
 
-D7 says it consumes baseline application/integrity results and must not leak baseline internals into enforcement stages at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:31`. D8 says registration consumes the D5 baseline contract at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:48`.
+D7 says it consumes baseline application/integrity results and must not leak baseline internals into enforcement stages at `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md:31`. D8 says registration consumes the D5 baseline contract at `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md:48`.
 
 D5 currently names "baseline authority projection/refusal result" in `design.md` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:42`, but does not define it. Without that result, D7 and D8 either re-derive D5 semantics or import internal baseline state.
 
@@ -147,7 +147,7 @@ These are not RDF requirements. They are semantic commitments that TypeScript un
 
 ### P2-3: Public compatibility surfaces are delegated to D0 but not enumerated
 
-The proposal says check output may change within D0 compatibility rules at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:62`, and the source packet says D0 must classify baseline error JSON stability at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:82`.
+The proposal says check output may change within D0 compatibility rules at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:62`, and the source packet says D0 must classify baseline error JSON stability at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:82`.
 
 That is not enough. D5 cannot ask D0 to classify "everything" after the fact. The packet must enumerate the D5 compatibility surface before implementation:
 
@@ -162,7 +162,7 @@ That is not enough. D5 cannot ask D0 to classify "everything" after the fact. Th
 
 ### P2-4: Verification gates do not validate the D5 authority claim
 
-The source packet requires `bun run habitat check --rule baseline-integrity --json` as the current-tree baseline integrity validation at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:126`. The OpenSpec proposal and phase record use broad `bun run habitat check --json` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:74` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md:20`.
+The source packet requires `bun run habitat check --rule baseline-integrity --json` as the current-tree baseline integrity validation at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:126`. The OpenSpec proposal and phase record use broad `bun run habitat check --json` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:74` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md:20`.
 
 For D5, broad check output is not the authority validation. It can be a D7 consumer validation later. D5 must require focused validation for baseline state, expansion guard, external projection, and integrity refusal cases.
 

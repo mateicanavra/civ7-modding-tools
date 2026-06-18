@@ -3,7 +3,7 @@
 Date: 2026-06-02
 Parent frame: `output-contract.md`
 Scope: tactical + strategic planning support for the active Civ7 AI play thread.
-Frame anchor: [output-contract.md](/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/docs/projects/civ7-direct-control/workstream/play-agent/output-contract.md)
+Frame anchor: [output-contract.md](docs/projects/civ7-direct-control/workstream/play-agent/output-contract.md)
 
 Status: **Live thread data captured, turn-window baseline established.**
 

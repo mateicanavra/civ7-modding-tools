@@ -84,7 +84,7 @@ dependency_map:
     prereqs:
       - branches_committed: [codex/prr-m4-s02-contract-freeze-dead-knobs, codex/prr-m4-s03-tectonics-op-decomposition, codex/prr-m4-s05-ci-strict-core-gates, codex/prr-m4-s06-test-rewrite-architecture-scans]
       - ecology_guardrail_debt_resolved: true
-      - checkpoint_packet: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/ig-1-checkpoint-packet-template.md
+      - checkpoint_packet: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/ig-1-checkpoint-packet-template.md
   S04:
     branch: codex/prr-m4-s04-stage-split-compile-cutover
     requires:

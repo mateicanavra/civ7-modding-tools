@@ -7,8 +7,8 @@ implementation.
 The suite is grounded in:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-frame.md`
+- `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
+- `docs/projects/habitat-harness/domain-refactor-frame.md`
 - current source under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/`
 
 ## Suite Objective

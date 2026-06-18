@@ -20,8 +20,8 @@ closure must record fresh current-state commands from
 
 1. Current user instruction in this session.
 2. Root repo instructions in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/AGENTS.md`.
-3. Phase frame in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-frame.md`.
-4. Domain design packet in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
+3. Phase frame in `docs/projects/habitat-harness/domain-refactor-frame.md`.
+4. Domain design packet in `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 5. Current Habitat docs under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/`.
 6. Current source, tests, root scripts, and Nx metadata in the mandated worktree as present-behavior evidence.
 7. Active OpenSpec records and project ledgers as downstream records, not target-domain authority unless they match the frame and packet.
@@ -56,26 +56,26 @@ The applied principles are:
 
 Primary:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-frame.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
+- `docs/projects/habitat-harness/domain-refactor-frame.md`
+- `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
 
 Current Habitat docs:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/README.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/CAPABILITIES.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/SCENARIOS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/DOMAIN-MAPPING.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/GAPS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/docs/AUTHORING-NEXT.md`
+- `docs/CAPABILITIES.md`
+- `docs/IMPLEMENTED-SURFACE.md`
+- `docs/SCENARIOS.md`
+- `docs/DOMAIN-MAPPING.md`
+- `docs/GAPS.md`
+- `docs/AUTHORING-NEXT.md`
 
 Project records used as bounded evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/FRAME.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/workstream-record.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/recovery-claim-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/review-disposition-ledger.md`
+- `docs/projects/habitat-harness/FRAME.md`
+- `docs/projects/habitat-harness/workstream-record.md`
+- `docs/projects/habitat-harness/recovery-claim-ledger.md`
+- `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
+- `docs/projects/habitat-harness/review-disposition-ledger.md`
 
 ## Source Surfaces Read
 
@@ -104,12 +104,12 @@ Agent read claims are accepted only where a scratch file or final report records
 
 | Record | Status | Use | Conflict Rule |
 | --- | --- | --- | --- |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/FRAME.md` | Bounded historical/project frame | Earlier hard-core and proof discipline evidence | Superseded by `domain-refactor-frame.md` where they conflict. |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/dra-takeover-frame.md` | Historical recovery context | Recovery discipline and older DRA framing | Not target domain model authority. |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/workstream-record.md` | Project execution record | Audit trail only | Current corpus governs Phase 2 preparation. |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/recovery-claim-ledger.md` | Bounded proof/debt evidence | Use for downstream realignment checks | Do not treat row status as current target truth without command/source verification. |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Stale-risk evidence | Use for count drift and proof-class risks | Refresh counts from current source before Phase 2 packets cite them. |
-| `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/review-disposition-ledger.md` | Prior project review ledger | Historical/adversarial evidence | This prep corpus has its own review disposition ledger. |
+| `docs/projects/habitat-harness/FRAME.md` | Bounded historical/project frame | Earlier hard-core and proof discipline evidence | Superseded by `domain-refactor-frame.md` where they conflict. |
+| `docs/projects/habitat-harness/dra-takeover-frame.md` | Historical recovery context | Recovery discipline and older DRA framing | Not target domain model authority. |
+| `docs/projects/habitat-harness/workstream-record.md` | Project execution record | Audit trail only | Current corpus governs Phase 2 preparation. |
+| `docs/projects/habitat-harness/recovery-claim-ledger.md` | Bounded proof/debt evidence | Use for downstream realignment checks | Do not treat row status as current target truth without command/source verification. |
+| `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md` | Stale-risk evidence | Use for count drift and proof-class risks | Refresh counts from current source before Phase 2 packets cite them. |
+| `docs/projects/habitat-harness/review-disposition-ledger.md` | Prior project review ledger | Historical/adversarial evidence | This prep corpus has its own review disposition ledger. |
 
 ## Conflict Rules
 

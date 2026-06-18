@@ -6,9 +6,9 @@ Framed objective: deep Habitat D3 information-design review before acceptance.
 
 Packet reviewed:
 
-- Source packet: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D3-workspace-graph-integration-boundary.md`
+- Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D3-workspace-graph-integration-boundary.md`
 - OpenSpec change: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary`
-- Negative control review: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D3-review.md`
+- Negative control review: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D3-review.md`
 
 Mandatory skills read in full before artifact review:
 

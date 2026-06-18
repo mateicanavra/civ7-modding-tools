@@ -39,18 +39,18 @@ We will run a **research-only** spike to understand:
 ## Grounded Facts (From Repo Inspection)
 - Repo uses **Graphite** (`gt` is installed; stacked branches are in use).
 - Target-architecture docs and “ops/steps/stages” specs are already present and should be treated as canonical anchors:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
+  - `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+  - `docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md`
+  - `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
+  - `docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md`
+  - `docs/projects/engine-refactor-v1/resources/spec/SPEC-step-domain-operation-modules.md`
+  - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
 - Ecology “domain + recipe” reality to investigate is centered in:
   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/domain/ecology/**`
   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/ecology/**`
   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology/**`
 - Deck.gl visualization posture is documented (and is a hard compatibility surface for refactors that touch `dataTypeKey`s):
-  - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
+  - `docs/system/libs/mapgen/pipeline-visualization-deckgl.md`
 - Narsil MCP repo id for code intelligence queries:
   - `civ7-modding-tools#25fd7575`
 
@@ -122,8 +122,8 @@ Goal: build the initial **mental map** and identify the high-leverage threads.
    - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/AGENTS.md`
    - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-core/AGENTS.md`
    - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/packages/mapgen-viz/AGENTS.md`
-   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
-   - `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
+   - `docs/system/libs/mapgen/explanation/ARCHITECTURE.md`
+   - `docs/system/libs/mapgen/reference/domains/ECOLOGY.md`
 
 2. Create and start updating:
    - `.../ecology-arch-alignment/_scratch/01-mental-map.md`

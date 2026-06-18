@@ -20,10 +20,10 @@ D6 can become acceptable without source implementation if the packet is repaired
 - `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/assets/refactor-plan-template.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/civ7/civ7-modding-tools/.agents/skills/typescript-refactoring/assets/refactor-findings-template.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/process/GRAPHITE.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D6-diagnostic-pattern-catalog.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+- `docs/process/GRAPHITE.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D6-diagnostic-pattern-catalog.md`
+- `docs/projects/habitat-harness/openspec-remediation/context.md`
+- `docs/projects/habitat-harness/openspec-remediation/packet-index.md`
 - D6 OpenSpec scaffold under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/`
 - D0, D1, and D2 OpenSpec packets and ledgers where D6 depends on public compatibility, command-record vocabulary, and rule metadata projections.
 - Code grounding set:
@@ -295,7 +295,7 @@ Every slice must keep TypeScript and focused tests green before the next slice. 
 
 ## Public Type Compatibility Blockers
 
-D0 matrix file is currently missing at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/public-surface-compatibility-matrix.md`. Therefore D6 source implementation is blocked.
+D0 matrix file is currently missing at `docs/projects/habitat-harness/public-surface-compatibility-matrix.md`. Therefore D6 source implementation is blocked.
 
 D6 packet must require concrete D0 rows for at least:
 

@@ -178,9 +178,9 @@ worker_startup_packet:
 ```yaml
 docs_anchor_contract:
   required_docs:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+    - docs/system/mods/swooper-maps/architecture.md
+    - docs/system/libs/mapgen/architecture.md
+    - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
   required_canonical_example:
     minimum_examples: 1
     example_sources:
@@ -263,9 +263,9 @@ anchoring_pass_activation:
     - codex/prr-m4-s02-contract-freeze-dead-knobs
   active_thread_cap: 3
   startup_packet_required_docs:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+    - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+    - docs/system/mods/swooper-maps/architecture.md
+    - docs/system/libs/mapgen/architecture.md
   hard_invariants:
     - no_stage_runtime_merge_or_defaulting
     - no_manual_public_to_internal_schema_translation
@@ -281,11 +281,11 @@ anchoring_pass_activation:
 ```yaml
 anchoring_deliverables:
   required_new_docs:
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR1-architecture-red-team.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR2-architecture-docs-red-team.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/orchestrator-anchor-triage.md
-    - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR1-architecture-red-team.md
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR2-architecture-docs-red-team.md
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/orchestrator-anchor-triage.md
+    - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
   milestone_sync_required: true
   issue_pack_sync_required: true
 ```
@@ -332,9 +332,9 @@ The outcome is:
 ### 3. Mandatory Startup Packet for Every New Agent
 1. Absolute paths only (worktree + file references).
 2. Required docs-first read with attestation evidence:
-   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
-   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md`
-   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md`
+   - `docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md`
+   - `docs/system/mods/swooper-maps/architecture.md`
+   - `docs/system/libs/mapgen/architecture.md`
 3. Hard invariants to enforce:
    - no stage runtime merge/defaulting,
    - no manual public->internal schema translation,
@@ -392,7 +392,7 @@ The outcome is:
 
 ### 7. Milestone + Issue Doc Sync (after anchor triage)
 1. Update milestone:
-   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
+   - `docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
 2. Update impacted local issue docs under:
    - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues/`
 3. Required updates:

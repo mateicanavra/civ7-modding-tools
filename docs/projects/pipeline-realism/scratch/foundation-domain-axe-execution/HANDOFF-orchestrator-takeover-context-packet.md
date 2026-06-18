@@ -28,7 +28,7 @@ session_source:
 ## What we are doing (architecture-first)
 
 **Milestone canonical source:**
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
+- `docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md`
 
 Mission summary:
 - Execute the Foundation “domain axe” cutover: **clean boundaries** (stage/step/op/strategy/rules), **locked 3-stage topology**, and a **phased lane split** to `artifact:map.*` with **no final dual paths**.
@@ -60,10 +60,10 @@ This milestone is intentionally willing to **break contracts** if required to pr
 
 ```yaml
 required_docs:
-  - /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/system/libs/mapgen/reference/domains/FOUNDATION.md
+  - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md
+  - docs/system/libs/mapgen/reference/OPS-MODULE-CONTRACT.md
+  - docs/system/libs/mapgen/reference/domains/FOUNDATION.md
 core_invariants:
   - steps_call_ops_ops_do_not_call_peer_ops: true
   - strategies_rules_are_op_internal_only: true

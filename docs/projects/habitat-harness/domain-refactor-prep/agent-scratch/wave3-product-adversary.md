@@ -16,12 +16,12 @@ The corpus correctly says Habitat must remain generic, but the Phase 2 domino mo
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:56` says Authoring Topology is future work, but `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:57` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:58` also name host-owned generated-zone configuration and product-specific apply gates as gaps.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:135` says generic transaction currently contains pattern-specific and MapGen-specific validation.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:137` says host-specific generated/protected zones live in the generic library.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:149` says generated-zone and MapGen-specific checks appear in generic modules without an explicit host policy boundary.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:61` says host-specific generated-zone and MapGen gates must not become generic Habitat core claims without a host policy boundary.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:52` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:53` place the issue inside D9 and D10, but no separate host-policy owner/contract appears in the domino list.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:56` says Authoring Topology is future work, but `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:57` and `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:58` also name host-owned generated-zone configuration and product-specific apply gates as gaps.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:135` says generic transaction currently contains pattern-specific and MapGen-specific validation.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:137` says host-specific generated/protected zones live in the generic library.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:149` says generated-zone and MapGen-specific checks appear in generic modules without an explicit host policy boundary.
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:61` says host-specific generated-zone and MapGen gates must not become generic Habitat core claims without a host policy boundary.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:52` and `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:53` place the issue inside D9 and D10, but no separate host-policy owner/contract appears in the domino list.
 
 Required fix before goal attachment:
 
@@ -37,11 +37,11 @@ The product frame says Habitat helps agents and humans classify, check, verify, 
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md:5` defines the product as classify, check, verify, guard, scaffold, apply, refuse, and recover.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:24` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:40` list supported scenarios primarily by command/capability rows.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:63` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:73` require per-packet scenario, owner, consumer, contract, proof, and stop conditions, but not workflow traces, recovery paths, or user-visible success/failure semantics.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:43` defines D0 around public surfaces and compatibility artifacts, not scenario journeys or recovery contracts.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` asks every domino packet to state product scenario and contract, but does not require end-to-end workflows or recovery/refusal examples.
+- `docs/projects/habitat-harness/domain-refactor-prep/README.md:5` defines the product as classify, check, verify, guard, scaffold, apply, refuse, and recover.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:24` through `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:40` list supported scenarios primarily by command/capability rows.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:63` through `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:73` require per-packet scenario, owner, consumer, contract, proof, and stop conditions, but not workflow traces, recovery paths, or user-visible success/failure semantics.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:43` defines D0 around public surfaces and compatibility artifacts, not scenario journeys or recovery contracts.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` asks every domino packet to state product scenario and contract, but does not require end-to-end workflows or recovery/refusal examples.
 
 Required fix before goal attachment:
 
@@ -49,7 +49,7 @@ Required fix before goal attachment:
 
 Attachment impact:
 
-- Blocks goal attachment if accepted as P2 under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:7`.
+- Blocks goal attachment if accepted as P2 under `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:7`.
 
 ### P2: Refusal is treated as a non-claim theme, but not as a product contract.
 
@@ -57,10 +57,10 @@ Refusal is one of Habitat's core product promises for agents: the tool should re
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md:5` includes refuse and recover in the product frame.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:42` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:52` list unsupported requests with response and reason only.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:56` limits explicit unsupported-kind refusal to scaffolding.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:57` gives D14 non-claim/refusal proof for Authoring Topology, but not a general refusal contract across Habitat.
+- `docs/projects/habitat-harness/domain-refactor-prep/README.md:5` includes refuse and recover in the product frame.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:42` through `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:52` list unsupported requests with response and reason only.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:56` limits explicit unsupported-kind refusal to scaffolding.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:57` gives D14 non-claim/refusal proof for Authoring Topology, but not a general refusal contract across Habitat.
 
 Required fix before goal attachment:
 
@@ -68,7 +68,7 @@ Required fix before goal attachment:
 
 Attachment impact:
 
-- Blocks goal attachment if accepted as P2 under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:7`.
+- Blocks goal attachment if accepted as P2 under `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:7`.
 
 ### P3: Human operator ergonomics are thinner than agent/DRA proof ergonomics.
 
@@ -76,9 +76,9 @@ The corpus repeatedly names agents and humans, but the concrete acceptance mater
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:7` says Habitat reduces ambiguity for agents and humans.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:21` names agents, humans, tests, and package consumers for Command/API Contract.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:36` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:52` thoroughly enumerate proof classes, but there is no matching human-facing ergonomics standard.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:7` says Habitat reduces ambiguity for agents and humans.
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:21` names agents, humans, tests, and package consumers for Command/API Contract.
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:36` through `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:52` thoroughly enumerate proof classes, but there is no matching human-facing ergonomics standard.
 
 Optional improvement:
 
@@ -94,9 +94,9 @@ The source-authority register is strong, but the Phase 2 objective can be read a
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:12` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:21` define the authority order.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:94` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:100` define conflict rules.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` says to design from the prepared register and maps, but does not explicitly say every packet must apply the authority order and conflict rules.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:12` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:21` define the authority order.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:94` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:100` define conflict rules.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:7` says to design from the prepared register and maps, but does not explicitly say every packet must apply the authority order and conflict rules.
 
 Optional improvement:
 

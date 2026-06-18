@@ -211,16 +211,16 @@ checkpoint_readiness:
 ### Required docs (read before code edits)
 ```yaml
 required_docs_read_pre_edit:
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
     anchors:
       - "Steps call ops; ops never call steps."
       - "Strategies/rules are op-internal; steps select through op config envelopes only."
       - "Compile-first posture: normalization/defaulting belongs to normalize surfaces, not runtime cast/merge hacks."
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
+  - path: docs/system/mods/swooper-maps/architecture.md
     anchors:
       - "Swooper mod architecture doc is the mod router/context surface."
       - "Canonical MapGen architecture docs are under docs/system/libs/mapgen/* replacements."
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+  - path: docs/system/libs/mapgen/architecture.md
     anchors:
       - "Legacy router only; canonical replacements are explanation/reference docs."
       - "Boundary decisions should follow explanation/ARCHITECTURE.md and explanation/DOMAIN-MODELING.md."

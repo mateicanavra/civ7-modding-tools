@@ -11,7 +11,7 @@ This is adversarial review scratch only. It does not author Phase 2 packets and 
 - `/bin/pwd` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame`.
 - `/usr/bin/git branch --show-current` returned `codex/habitat-fast-lint-checks`.
 - `/usr/bin/git status --short --branch` before review returned only `## codex/habitat-fast-lint-checks` and `?? docs/projects/habitat-harness/domain-refactor-prep/`.
-- `/bin/test -f /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md && /bin/echo README_EXISTS` returned `README_EXISTS`.
+- `/bin/test -f docs/projects/habitat-harness/domain-refactor-prep/README.md && /bin/echo README_EXISTS` returned `README_EXISTS`.
 
 ## Required Skill Reads
 
@@ -38,22 +38,22 @@ Relevant supporting proof references also read:
 
 Read in full:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/README.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/README.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`
 
 Accepted Wave 2 scratch read as bounded evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-simplification-reviewer.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-simplification-reviewer.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-domino-sequencer.md`
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-public-api-cli-contract.md`
 
 ## Commands Run During Review
 
@@ -73,17 +73,17 @@ The review ledger says accepted P1/P2 findings block goal attachment until fixed
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:5` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:12` defines the disposition standard and blocking rule.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:21` marks full-suite Habitat test reliability as "Tracked" rather than fixed, deferred with trigger and owner, rejected, or converted into an explicit consolidated stop condition.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:22` does the same for the `habitat:rule:biome-ci` false-green alias risk.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:94` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:102` lists both as known P1 risks.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:111` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:120` omits both from the actual consolidated stop conditions.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:13` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:17` requires accepted P1/P2 findings to be dispositioned before attaching the goal.
+- `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:5` through `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:12` defines the disposition standard and blocking rule.
+- `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:21` marks full-suite Habitat test reliability as "Tracked" rather than fixed, deferred with trigger and owner, rejected, or converted into an explicit consolidated stop condition.
+- `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md:22` does the same for the `habitat:rule:biome-ci` false-green alias risk.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:94` through `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:102` lists both as known P1 risks.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:111` through `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:120` omits both from the actual consolidated stop conditions.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:13` through `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:17` requires accepted P1/P2 findings to be dispositioned before attaching the goal.
 
 Required fix before goal attachment:
 
 - Update the consolidated corpus so the full-suite test reliability risk and false-green alias risk have one valid disposition each.
-- If converted into stop conditions, add explicit stop-condition text with owner and trigger to `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md` and mirror the disposition in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
+- If converted into stop conditions, add explicit stop-condition text with owner and trigger to `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md` and mirror the disposition in `docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md`.
 - Do not attach the Phase 2 goal while these P1s are only "Tracked."
 
 Goal attachment impact: blocks.
@@ -94,18 +94,18 @@ The Phase 2 goal requires validation command results in the final handoff before
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:16` requires validation command results in the final handoff before goal attachment.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:151` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:162` provides a command list, but frames it as commands that should be rerun during packet design, not attachment proof.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:158` uses `--cwd tools/habitat-harness`, which is not an absolute path argument.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:163` records full-suite reliability as a proof concern but does not add a blocking validation gate.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:78` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:79` reports `@internal/habitat-harness:check` passed but `@internal/habitat-harness:test` failed twice.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:94` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:97` gives the concrete failure and false-green alias evidence.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:114` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124` contains a stronger future packet proof command set than the consolidated corpus, including `@internal/habitat-harness:test` and `@internal/habitat-harness:habitat:rule:biome-ci`.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:16` requires validation command results in the final handoff before goal attachment.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:151` through `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:162` provides a command list, but frames it as commands that should be rerun during packet design, not attachment proof.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:158` uses `--cwd tools/habitat-harness`, which is not an absolute path argument.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:163` records full-suite reliability as a proof concern but does not add a blocking validation gate.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:78` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:79` reports `@internal/habitat-harness:check` passed but `@internal/habitat-harness:test` failed twice.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:94` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:97` gives the concrete failure and false-green alias evidence.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:114` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124` contains a stronger future packet proof command set than the consolidated corpus, including `@internal/habitat-harness:test` and `@internal/habitat-harness:habitat:rule:biome-ci`.
 
 Required fix before goal attachment:
 
 - Add a goal-attachment validation record or final handoff section that records exact command, branch, commit, result, proof class, cache/freshness caveat, and non-claims.
-- Include at minimum the full Nx harness test target and the false-green alias proof commands from `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:118` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124`.
+- Include at minimum the full Nx harness test target and the false-green alias proof commands from `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:118` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124`.
 - Do not let `/Users/mateicanavra/.bun/bin/bun run --cwd tools/habitat-harness test` substitute for `/Users/mateicanavra/.bun/bin/nx run @internal/habitat-harness:test --outputStyle=static`; those prove different things.
 
 Goal attachment impact: blocks until validation results are recorded or explicitly marked unresolved with owner and trigger.
@@ -116,8 +116,8 @@ The corpus records the worktree and branch, but the attachment condition require
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:5` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:10` records worktree and branch, but not Graphite stack health.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:17` requires the worktree to be on the expected Graphite branch and clean after commit.
+- `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:5` through `docs/projects/habitat-harness/domain-refactor-prep/source-authority.md:10` records worktree and branch, but not Graphite stack health.
+- `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:17` requires the worktree to be on the expected Graphite branch and clean after commit.
 - `/opt/homebrew/bin/gt log --no-interactive` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` showed `06-13-keep_things (needs restack)` above current branch `codex/habitat-fast-lint-checks`.
 - `/usr/bin/git log -1 --oneline` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame` returned `ca4db1e86 build(habitat): make root lint fast Route root lint to the repo-wide Biome CI hygiene target instead of fanning out full Habitat owner checks. Add a single aggregate Habitat graph target for explicit full structural proof, update the command-surface docs, and keep the enforcement-surface tests aligned with the separated proof classes.`
 
@@ -134,25 +134,25 @@ The scenario corpus correctly requires every future packet to name proof classes
 
 Evidence:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:61` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:73` requires proof classes, non-claims, downstream records, and stop conditions for every later packet.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:36` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:52` lists separate proof classes that must not substitute for one another.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:41` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:58` contains the domino proof cells, but most are proof-family names rather than exact proof gates.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:126` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:132` shows the sharper stop-condition shape needed for operations-safe proof gates.
+- `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:61` through `docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md:73` requires proof classes, non-claims, downstream records, and stop conditions for every later packet.
+- `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:36` through `docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md:52` lists separate proof classes that must not substitute for one another.
+- `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:41` through `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md:58` contains the domino proof cells, but most are proof-family names rather than exact proof gates.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:126` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:132` shows the sharper stop-condition shape needed for operations-safe proof gates.
 
 Required fix before Phase 2 packet writing:
 
 - Add a per-domino proof-gate checklist or packet template requirement: exact commands, expected fresh/cached behavior, injected violation requirements where relevant, clean sample proof where relevant, safe-write rollback requirements where relevant, and explicit non-claims.
 - Keep this as a prep-to-packet requirement; the consolidated corpus does not need to run all per-domino commands now.
 
-Goal attachment impact: does not need to block if `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md` or the review ledger makes this a required Phase 2 packet-template condition.
+Goal attachment impact: does not need to block if `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md` or the review ledger makes this a required Phase 2 packet-template condition.
 
 ## Optional Improvements
 
 - Add a final handoff template under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/` that records preflight, validation commands, `git status`, `git log -1`, `/opt/homebrew/bin/gt log --no-interactive`, commit hash, and proof-class labels.
 - Normalize command examples so every path argument is absolute, including `--cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness`.
-- In `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`, split "Proof Class" into "Minimum proof gates" and "Non-claims" so packet authors cannot read broad proof names as closure.
+- In `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`, split "Proof Class" into "Minimum proof gates" and "Non-claims" so packet authors cannot read broad proof names as closure.
 - Add a short "cached Nx result is not fresh command behavior" reminder next to any Nx proof command list.
 
 ## Attachment Recommendation
 
-Do not attach the Phase 2 goal yet. `P1-OPS-001` and `P1-OPS-002` block because the corpus currently has accepted P1 proof risks without valid consolidated disposition and lacks the validation command result record required by `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`.
+Do not attach the Phase 2 goal yet. `P1-OPS-001` and `P1-OPS-002` block because the corpus currently has accepted P1 proof risks without valid consolidated disposition and lacks the validation command result record required by `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md`.

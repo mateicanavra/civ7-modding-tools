@@ -28,16 +28,16 @@ PLEASE IMPLEMENT THIS PLAN:
 
 ## Inputs (Authoritative)
 - Hardened milestone (Phase 3):  
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
+  `docs/projects/pipeline-realism/milestones/M2-ecology-architecture-alignment.md`
 - Canonical spike/feasibility package (paper trail):  
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/projects/engine-refactor-v1/resources/spike/ecology-arch-alignment/`
 - Required workflows (execute, do not treat as “guidance”):
   - `/Users/mateicanavra/.codex-rawr/prompts/dev-milestone-to-issues.md`
   - `/Users/mateicanavra/.codex-rawr/prompts/dev-prework-sweep.md`
 - Repo conventions/templates:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/_templates/issue.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/process/LINEAR.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-harden-M2-ecology-architecture-alignment/docs/process/GRAPHITE.md`
+  - `docs/_templates/issue.md`
+  - `docs/process/LINEAR.md`
+  - `docs/process/GRAPHITE.md`
 
 ## Locked Directives (Used as Decisions)
 - Maximal greenfield refactor shape (compute substrate + atomic per-feature ops), behavior-preserving.
@@ -188,7 +188,7 @@ Also create per-agent scratch files (empty placeholders upfront):
 Create a committed handoff doc for the next orchestrator agent:
 
 **Path (locked):**
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-ORCH-phase4-m2-ecology-issues-prework-handoff/docs/projects/pipeline-realism/resources/runbooks/HANDOFF-M2-ECOLOGY-IMPLEMENTATION.md`
+- `docs/projects/pipeline-realism/resources/runbooks/HANDOFF-M2-ECOLOGY-IMPLEMENTATION.md`
 
 **Content requirements:**
 - Origin story and “why”: Ecology drift → refactor-only alignment to enable safe future behavior work

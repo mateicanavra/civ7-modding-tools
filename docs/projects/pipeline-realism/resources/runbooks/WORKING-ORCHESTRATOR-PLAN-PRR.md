@@ -20,7 +20,7 @@ PLEASE IMPLEMENT THIS PLAN:
 - **Evidence bundle every slice** (fingerprints + stats + dumps), attached in PRs/threads as required by the plan doc.
 - Willing to **break contracts** to achieve the single causal spine, as long as the end state is correct and green.
 
-Canonical execution source: `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/plans/PLAN-no-legacy-foundation-morphology-refactor-2026-02-05.md`  
+Canonical execution source: `docs/projects/pipeline-realism/plans/PLAN-no-legacy-foundation-morphology-refactor-2026-02-05.md`
 Workflow contract to follow: `/Users/mateicanavra/.claude/plugins/local/plugins/dev/commands/dev-loop-parallel.md` (single worktree + Graphite stack)
 
 ---
@@ -66,7 +66,7 @@ We will maintain three “planning surfaces” during execution:
 
 **Scratchpad file (worker-owned, not committed):**
 - Location (in-repo so I can monitor):  
-  `/Users/mateicanavra/Documents/.nosync/DEV/civ7-modding-tools/docs/projects/pipeline-realism/issues/GOBI.scratch.md`
+  `docs/projects/pipeline-realism/issues/GOBI.scratch.md`
 - Rules:
   - Write thinking/notes first; code second.
   - Update continuously while working.

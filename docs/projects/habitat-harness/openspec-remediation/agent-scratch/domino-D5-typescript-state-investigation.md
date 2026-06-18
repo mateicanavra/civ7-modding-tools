@@ -50,7 +50,7 @@ This is the TypeScript refactoring smell "flag/boolean soup" plus optional
 property soup. The type permits `ok: true` with `reason`, `ok: false` without
 `reason`, and a generic success message that lacks the accepted write facts.
 D5's source packet explicitly says this must be tightened into discriminated
-states at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:54`.
+states at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:54`.
 
 The current OpenSpec design only says "guard decisions" and "refusals" in prose
 at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:36`. It does not define the union. Execution would still choose the discriminant, variants, and fields.
@@ -77,7 +77,7 @@ Reachable invalid states:
   external source is valid.
 
 The source packet requires external source variants so incomplete
-projection/validation combinations cannot exist at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:68`. The OpenSpec packet does not encode those variants.
+projection/validation combinations cannot exist at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:68`. The OpenSpec packet does not encode those variants.
 
 ### 3. Baseline authority leaks whole records and raw mutable diagnostics
 
@@ -458,7 +458,7 @@ records unless a D0 row explicitly preserves that as a public/package surface.
 ### P1-1: D5 does not specify the target TypeScript state model
 
 The D5 source packet requires collapsing boolean guard results and optional
-external exception models into unions at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:73`. The current OpenSpec design does not define those unions. It says later execution must have no model decision to invent at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:5`, but then leaves the actual model unspecified.
+external exception models into unions at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:73`. The current OpenSpec design does not define those unions. It says later execution must have no model decision to invent at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/design.md:5`, but then leaves the actual model unspecified.
 
 This blocks D5 because execution can still choose:
 
@@ -543,7 +543,7 @@ This leaves behavior-preserving slice design to implementation.
 
 ### P2-2: Validation gate is too broad for baseline-integrity validation
 
-The source packet requires `bun run habitat check --rule baseline-integrity --json` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:130`. The current proposal/tasks/phase record use broad `bun run habitat check --json` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:74`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/tasks.md:21`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md:24`.
+The source packet requires `bun run habitat check --rule baseline-integrity --json` at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:130`. The current proposal/tasks/phase record use broad `bun run habitat check --json` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/proposal.md:74`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/tasks.md:21`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/workstream/phase-record.md:24`.
 
 The broad command can fail or pass for unrelated structural reasons. D5 needs
 the focused built-in rule validation plus injected bad cases.

@@ -1,8 +1,8 @@
 ---
 docs_anchor:
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
+  - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - docs/system/libs/mapgen/architecture.md
+  - docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
 audited_file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/lib/pipeline-core.ts
 branch: codex/prr-m4-s06-test-rewrite-architecture-scans
 audit_date: 2026-02-15
@@ -125,7 +125,7 @@ nl -ba mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/
 ## Changes Landed
 
 - Added this audit report:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/hotspot-pipeline-core-audit.md`
+  - `docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/doc-audits/hotspot-pipeline-core-audit.md`
 - No source code edits were made.
 
 ## Open Risks

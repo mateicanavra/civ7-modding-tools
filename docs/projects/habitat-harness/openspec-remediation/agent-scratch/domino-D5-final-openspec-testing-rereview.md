@@ -45,15 +45,15 @@ Current packet/control surfaces read:
 
 Negative-control inputs read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-openspec-testing-investigation.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-information-design-investigation.md`
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-openspec-testing-investigation.md`
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-information-design-investigation.md`
 
 Additional grounding read:
 
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
+- `docs/projects/habitat-harness/openspec-remediation/context.md`
 
 ## Command Evidence
 

@@ -23,8 +23,8 @@ The repair must define a real discriminated union orientation result, field rule
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/classify.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-review.md`
+- `docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
+- `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-review.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/proposal.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/design.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/specs/habitat-harness/spec.md`
@@ -110,7 +110,7 @@ Required D0 rows or equivalent citations before source implementation:
 | Generated/derived command manifests, if classify help/manifests change later | Derived from oclif/source command definitions | `generated-only`; change source command definitions, not generated output by hand. |
 | Malformed/pathless diff current acceptance | Current behavior accepts newline non-diff as empty successful diff | D0 should record whether this unsupported invocation becomes `refuse`; D4 must not preserve the false-success behavior as target behavior. |
 
-Because `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/public-surface-compatibility-matrix.md` is absent in the current worktree, D4 is blocked from claiming concrete D0 compatibility closure.
+Because `docs/projects/habitat-harness/public-surface-compatibility-matrix.md` is absent in the current worktree, D4 is blocked from claiming concrete D0 compatibility closure.
 
 ## Safe Refactor Sequence
 

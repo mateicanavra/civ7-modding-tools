@@ -65,7 +65,7 @@ A clean, correctly-anchored Graphite stack in the integration worktree, ready fo
   - /Users/mateicanavra/.codex-rawr/skills/git-worktrees/SKILL.md
 - Repo/router docs read:
   - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/AGENTS.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/docs/process/GRAPHITE.md
+  - docs/process/GRAPHITE.md
 - Baseline Graphite stack (◉  codex/prr-m4-s06d-foundation-scratch-audit-ledger
 ◯  codex/prr-m4-s06c-foundation-guardrails-hardening
 ◯  codex/prr-m4-s06b-foundation-tectonics-local-rules
@@ -119,7 +119,7 @@ required_skills_read:
   - /Users/mateicanavra/.codex-rawr/skills/git-worktrees/SKILL.md
 repo_router_docs_read:
   - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/AGENTS.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/docs/process/GRAPHITE.md
+  - docs/process/GRAPHITE.md
 baseline_refs:
   head: 8462f9532a21ce83e4bb76d5046531ace74b3e12
   upstream: origin/codex/prr-m4-s06d-foundation-scratch-audit-ledger

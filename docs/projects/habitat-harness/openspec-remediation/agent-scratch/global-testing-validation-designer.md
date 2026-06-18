@@ -170,7 +170,7 @@ Validation gates:
   `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
   must exit `0`.
 - CLI docs path:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/README.md`
+  `bun run habitat classify docs/projects/habitat-harness/phase2-workstream-packets/README.md`
   must exit `0`.
 - Injected bad case: one unsupported path or malformed/pathless diff must refuse
   with a stable reason and next safe action.
@@ -449,7 +449,7 @@ Validation gates:
   `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/lib/classify.test.ts`
   must exit `0` and cover refusal plus orientation examples.
 - CLI:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
+  `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
   must exit `0` for future-trigger record orientation.
 - Git:
   `git status --short --branch` must show only docs or explicit OpenSpec change

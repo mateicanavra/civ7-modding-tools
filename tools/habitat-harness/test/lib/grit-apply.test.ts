@@ -70,12 +70,21 @@ describe("Grit apply transaction", () => {
   });
 
   test("runs Grit apply requests with machine-output color disabled", async () => {
-    let observedRequest: HabitatProcessRequest | undefined;
+    const observedRequests: HabitatProcessRequest[] = [];
     const result = await runGritApplyTransaction({
       dryRun: true,
       gitStateReader: () => gitState(""),
       processLayer: makeFakeHabitatProcessLayer((request) => {
-        observedRequest = request;
+        observedRequests.push(request);
+        if (
+          request.patternPaths?.includes(
+            ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md"
+          )
+        ) {
+          return makeHabitatCommandResult(request, {
+            stdout: output("docs/FALSE-POSITIVE.md\n\nProcessed 1 files and found 1 matches\n"),
+          });
+        }
         return makeHabitatCommandResult(request, {
           stdout: output("Processed 1 files and found 0 matches\n"),
         });
@@ -83,11 +92,51 @@ describe("Grit apply transaction", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(observedRequest?.env).toMatchObject({
+    expect(observedRequests[0]?.env).toMatchObject({
       CLICOLOR: "0",
       FORCE_COLOR: "0",
       NO_COLOR: "1",
     });
+    expect(observedRequests[0]?.argv).toEqual([
+      "apply",
+      ".grit/patterns/habitat/apply/deep_import_to_public_surface.md",
+      "mods/mod-swooper-maps/src/recipes",
+      "mods/mod-swooper-maps/src/maps",
+      "--force",
+      "--output",
+      "compact",
+      "--dry-run",
+    ]);
+    expect(observedRequests[1]?.argv.slice(0, 2)).toEqual([
+      "apply",
+      ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md",
+    ]);
+    const docsApplyRoots = observedRequests[1]?.argv.slice(2, -4) ?? [];
+    expect(docsApplyRoots.length).toBeGreaterThan(0);
+    expect(docsApplyRoots.every((root) => root.startsWith("docs/") && root.endsWith(".md"))).toBe(
+      true
+    );
+    expect(docsApplyRoots).not.toContain("docs");
+    expect(observedRequests[1]?.argv.slice(-4)).toEqual([
+      "--force",
+      "--output",
+      "standard",
+      "--dry-run",
+    ]);
+    expect(result.proof.patternPaths).toEqual([
+      ".grit/patterns/habitat/apply/deep_import_to_public_surface.md",
+      ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md",
+    ]);
+    expect(result.proof.roots.some((root) => root.startsWith("docs/") && root.endsWith(".md"))).toBe(
+      true
+    );
+    expect(result.proof.roots).not.toContain("docs");
+    expect(result.proof.roots).toContain("mods/mod-swooper-maps/src/maps");
+    expect(result.proof.roots).toContain("mods/mod-swooper-maps/src/recipes");
+    expect(result.proof.gateCommands.map((command) => command.commandId)).toContain(
+      "grit-apply-dry-run"
+    );
+    expect(result.stdout).not.toContain("docs/FALSE-POSITIVE.md");
   });
 
   test("fails closed when dry-run output is not structured inventory or zero matches", () => {

@@ -3,14 +3,14 @@ audit_date: 2026-02-15
 audit_type: orchestrator-startup-discipline-hardening
 worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails
 docs_anchor:
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/mods/swooper-maps/architecture.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+  - docs/system/mods/swooper-maps/architecture.md
+  - docs/system/libs/mapgen/architecture.md
+  - docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
 scratch_targets:
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
-  - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
+  - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
+  - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
+  - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
+  - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
 ---
 
 ## Plan
@@ -42,21 +42,21 @@ baseline_findings:
 
 ```yaml
 doc_updates:
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
+  - path: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
     additions:
       - future_worker_startup_packet_with_absolute_path_reject_rules
       - docs_anchor_contract_with_required_docs_and_canonical_examples
       - anti_pattern_denylist
       - pre_handoff_verification_gates
       - orchestrator_oversight_checklist
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
+  - path: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
     additions:
       - checkpoint_12_startup_discipline_lock
       - acceptance_rule_for_handoff_rejection
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
+  - path: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
     additions:
       - M4-D-036_to_M4-D-040_governance_decisions
-  - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
+  - path: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
     additions:
       - WG-STARTUP_and_WG-HANDOFF_governance_gates
       - oversight_checklist_snapshot

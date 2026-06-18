@@ -26,15 +26,15 @@ Out of scope:
 
 ## Artifacts
 
-- [source-authority.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/source-authority.md)
-- [scenario-corpus.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md)
-- [code-topology-map.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md)
-- [domain-responsibility-map.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md)
-- [domino-candidate-ledger.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md)
-- [agent-scratch-index.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md)
-- [review-disposition-ledger.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md)
-- [validation-results.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/validation-results.md)
-- [phase2-goal.md](/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md)
+- [source-authority.md](docs/projects/habitat-harness/domain-refactor-prep/source-authority.md)
+- [scenario-corpus.md](docs/projects/habitat-harness/domain-refactor-prep/scenario-corpus.md)
+- [code-topology-map.md](docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md)
+- [domain-responsibility-map.md](docs/projects/habitat-harness/domain-refactor-prep/domain-responsibility-map.md)
+- [domino-candidate-ledger.md](docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md)
+- [agent-scratch-index.md](docs/projects/habitat-harness/domain-refactor-prep/agent-scratch-index.md)
+- [review-disposition-ledger.md](docs/projects/habitat-harness/domain-refactor-prep/review-disposition-ledger.md)
+- [validation-results.md](docs/projects/habitat-harness/domain-refactor-prep/validation-results.md)
+- [phase2-goal.md](docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md)
 
 ## Use
 

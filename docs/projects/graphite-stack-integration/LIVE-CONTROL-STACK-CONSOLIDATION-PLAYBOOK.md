@@ -53,9 +53,9 @@ current instance of that pattern.
 This frame is grounded in four inputs:
 
 - RAWR HQ stack drain runbook:
-  `/Users/mateicanavra/Documents/.nosync/DEV/habitat/rawr-hq/docs/process/runbooks/STACK_DRAIN_LOOP.md`
+  `docs/process/runbooks/STACK_DRAIN_LOOP.md`
 - RAWR HQ template stack drain runbook:
-  `/Users/mateicanavra/Documents/.nosync/DEV/habitat/rawr-hq-template/docs/process/runbooks/STACK_DRAIN_LOOP.md`
+  `docs/process/runbooks/STACK_DRAIN_LOOP.md`
 - local Graphite CLI help from Graphite `1.7.4`
 - deterministic Civ7 stack snapshots and branch metadata captured during the
   Graphite cleanup workstream

@@ -17,9 +17,9 @@
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/tasks.md`
   - all requested files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/workstream/`
 - Cross-domino context, read as review inputs:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/context.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
+  - `docs/projects/habitat-harness/openspec-remediation/context.md`
+  - `docs/projects/habitat-harness/openspec-remediation/packet-index.md`
+  - `docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
   - accepted D0, D1, D2, and D3 proposal/design/spec/downstream-ledger materials
   - D14 phase packet and D14 OpenSpec scaffold enough to judge the handoff contract
   - current classify source, tests, public exports, command adapter, and adjacent classify docs
@@ -51,7 +51,7 @@ The prior P1/P2 blockers are repaired at design/spec level:
 
 ## P3 Findings
 
-- P3: Acceptance bookkeeping remains open. `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md` still marks D4 as a draft scaffold/blocking packet, and the D4 closure checklist still has final review/index/validation boxes open. This is post-rereview bookkeeping, not a remaining design blocker.
+- P3: Acceptance bookkeeping remains open. `docs/projects/habitat-harness/openspec-remediation/packet-index.md` still marks D4 as a draft scaffold/blocking packet, and the D4 closure checklist still has final review/index/validation boxes open. This is post-rereview bookkeeping, not a remaining design blocker.
 - P3: The D0 public-surface compatibility table still uses `blocked-pending-d0-row` placeholders. That is acceptable for design/specification acceptance because D4 repeatedly treats concrete D0 rows as a source implementation precondition, but those placeholders must be resolved before source work starts.
 
 ## Acceptance Conditions

@@ -3,6 +3,7 @@ import {
   discoverGritScanRoots,
   effectiveGritScanRoots,
   parseGritCheckOutput,
+  parseGritCheckTextOutput,
   projectGritResults,
   runGritRules,
   validateScanRoots,
@@ -228,6 +229,7 @@ describe("Grit check adapter parser and projection", () => {
     );
     expect(validateScanRoots([".civ7"])).toContain("protected");
     expect(validateScanRoots(["docs"])).toContain("not approved");
+    expect(validateScanRoots(["docs"], { allowDocsRoot: true })).toBeNull();
   });
 
   test("runs selected Grit rules through one argument-array command request", async () => {
@@ -301,6 +303,186 @@ describe("Grit check adapter parser and projection", () => {
     expect(observedRequest?.cachePolicy?.cacheDir).toContain("habitat-grit-check-");
     expect(observedRequest?.env?.GRIT_CACHE_DIR).toBe(observedRequest?.cachePolicy?.cacheDir);
     expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
+  });
+
+  test("activates docs roots only for Grit rules that declare docs scope", () => {
+    const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
+      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+    });
+    const docsRule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
+      lane: "advisory",
+      scope: "docs/**/*.md",
+    });
+
+    expect(discoverGritScanRoots([sourceRule])).not.toContain("docs");
+    const docsRoots = discoverGritScanRoots([docsRule]);
+    expect(docsRoots.length).toBeGreaterThan(0);
+    expect(docsRoots.every((root) => root.startsWith("docs/") && root.endsWith(".md"))).toBe(true);
+    expect(docsRoots).toContain("docs/PROCESS.md");
+    expect(discoverGritScanRoots([sourceRule, docsRule])).toContain("docs/PROCESS.md");
+    expect(discoverGritScanRoots([sourceRule, docsRule])).toContain(
+      "mods/mod-swooper-maps/src/maps"
+    );
+  });
+
+  test("projects selected docs local-path findings from Grit rewrite dry-run output", async () => {
+    const rule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
+      lane: "advisory",
+      scope: "docs/**/*.md",
+    });
+    let observedRequest: HabitatProcessRequest | undefined;
+    const fakeLayer = makeFakeHabitatProcessLayer((request) => {
+      observedRequest = request;
+      return makeHabitatCommandResult(request, {
+        stdout: output(`docs/PROCESS.md
+    -See \`/Users/alice/dev/repo/docs/PROCESS.md\`.
+    +See \`docs/PROCESS.md\`.
+
+docs/NOOP.md
+
+Processed 1 files and found 1 matches
+`),
+      });
+    });
+
+    const results = await runGritRules([rule], { processLayer: fakeLayer });
+
+    expect(observedRequest?.argv.slice(0, 2)).toEqual([
+      "apply",
+      ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md",
+    ]);
+    expect(observedRequest?.argv).toContain("docs/PROCESS.md");
+    expect(observedRequest?.argv.slice(-4)).toEqual([
+      "--dry-run",
+      "--force",
+      "--output",
+      "standard",
+    ]);
+    expect(results.get(rule.id)?.diagnostics).toEqual([
+      {
+        ruleId: rule.id,
+        path: "docs/PROCESS.md",
+        message: rule.message,
+        severity: "advisory",
+        baselined: false,
+      },
+    ]);
+  });
+
+  test("ignores docs dry-run files with host paths but no rewrite hunk", async () => {
+    const rule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
+      lane: "advisory",
+      scope: "docs/**/*.md",
+    });
+    const fakeLayer = makeFakeHabitatProcessLayer((request) =>
+      makeHabitatCommandResult(request, {
+        stdout: output(`docs/FALSE-POSITIVE.md
+
+Processed 1 files and found 1 matches
+`),
+      })
+    );
+
+    const results = await runGritRules([rule], { processLayer: fakeLayer });
+
+    expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
+  });
+
+  test("splits mixed source and docs Grit selections by output contract", async () => {
+    const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
+      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+    });
+    const docsRule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
+      lane: "advisory",
+      scope: "docs/**/*.md",
+    });
+    const observedRequests: HabitatProcessRequest[] = [];
+    const fakeLayer = makeFakeHabitatProcessLayer((request) => {
+      observedRequests.push(request);
+      if (request.argv[0] === "--json") {
+        return makeHabitatCommandResult(request, {
+          stderr: output(
+            JSON.stringify({
+              paths: ["mods/mod-swooper-maps/src/maps/demo.ts"],
+              results: [
+                {
+                  local_name: "domain_deep_import",
+                  path: "mods/mod-swooper-maps/src/maps/demo.ts",
+                  start: { line: 4 },
+                  extra: { message: "source finding" },
+                },
+              ],
+            })
+          ),
+        });
+      }
+      return makeHabitatCommandResult(request, {
+        stdout: output(`docs/PROCESS.md
+    -See \`/Users/alice/dev/repo/docs/PROCESS.md\`.
+    +See \`docs/PROCESS.md\`.
+
+docs/NOOP.md
+
+Processed 2 files and found 1 matches
+`),
+      });
+    });
+
+    const results = await runGritRules([sourceRule, docsRule], { processLayer: fakeLayer });
+
+    expect(observedRequests[0]?.argv).toEqual([
+      "--json",
+      "check",
+      "--level",
+      "error",
+      "packages",
+      "apps/mapgen-studio/src",
+      "mods/mod-swooper-maps/src/recipes",
+      "mods/mod-swooper-maps/src/maps",
+      "mods/mod-swooper-maps/src/domain",
+    ]);
+    expect(observedRequests[1]?.argv.slice(0, 2)).toEqual([
+      "apply",
+      ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md",
+    ]);
+    expect(observedRequests[1]?.argv).toContain("docs/PROCESS.md");
+    expect(observedRequests[1]?.argv.slice(-4)).toEqual([
+      "--dry-run",
+      "--force",
+      "--output",
+      "standard",
+    ]);
+    expect(results.get(sourceRule.id)?.diagnostics[0]).toMatchObject({
+      ruleId: sourceRule.id,
+      path: "mods/mod-swooper-maps/src/maps/demo.ts",
+      message: "source finding",
+    });
+    expect(results.get(docsRule.id)?.diagnostics[0]).toMatchObject({
+      ruleId: docsRule.id,
+      path: "docs/PROCESS.md",
+      severity: "advisory",
+    });
+  });
+
+  test("parses Grit text output by reported path, position, and pattern id", () => {
+    const parsed = parseGritCheckTextOutput(
+      commandResult({
+        exitCode: 1,
+        stdout: `docs/PROCESS.md
+  3:2    match    Replace local absolute docs paths with durable repo-relative docs paths.    docs_local_checkout_paths
+`,
+      })
+    );
+
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.report.results).toEqual([
+      {
+        local_name: "docs_local_checkout_paths",
+        path: "docs/PROCESS.md",
+        start: { line: 3, col: 2 },
+      },
+    ]);
   });
 
   test("fails proof paths that require observable cache provenance when status is unknown", async () => {

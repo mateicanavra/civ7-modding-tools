@@ -6,9 +6,9 @@
 ## Inputs
 ```yaml
 inputs:
-  ar1_doc: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR1-architecture-red-team.md
-  ar2_doc: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR2-architecture-docs-red-team.md
-  rp1_doc: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
+  ar1_doc: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR1-architecture-red-team.md
+  ar2_doc: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR2-architecture-docs-red-team.md
+  rp1_doc: docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
 ```
 
 ## Triage rubric
@@ -73,16 +73,16 @@ baseline_snapshot:
     - 4def49fbe  # S02 contract freeze/dead knobs
   pending_working_tree:
     modified:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/00-plan.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/master-scratch.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/decision-log.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/stack-ledger.md
     untracked:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR1-architecture-red-team.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR2-architecture-docs-red-team.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/orchestrator-anchor-triage.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR1-architecture-red-team.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-AR2-architecture-docs-red-team.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RP1-reanchor-plan.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/orchestrator-anchor-triage.md
+      - docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/HANDOFF-successor-orchestrator-m4-foundation.md
 ```
 
 ## Consolidated findings (AR1 + AR2 deduplicated)
@@ -104,7 +104,7 @@ consolidated_findings:
     severity: P1
     title: issue_pack_describes_stage_split_as_landed_while_recipe_still_single_foundation_stage
     evidence:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md
+      - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md
       - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/recipe.ts
     disposition: fix_now_docs_sync
     owner: AR2
@@ -113,7 +113,7 @@ consolidated_findings:
     severity: P1
     title: lane_split_artifact_map_star_not_landed_yet
     evidence:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-004-lane-split-downstream-rewire.md
+      - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-004-lane-split-downstream-rewire.md
       - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts
       - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts
     disposition: keep_for_S07_with_explicit_rationale
@@ -123,7 +123,7 @@ consolidated_findings:
     severity: P2
     title: foundation_reference_doc_still_mentions_removed_compute_tectonic_history_export
     evidence:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/reference/domains/FOUNDATION.md
+      - docs/system/libs/mapgen/reference/domains/FOUNDATION.md
       - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/index.ts
     disposition: fix_now_low_risk
     owner: AR2
@@ -182,15 +182,15 @@ resolution_execution:
   ANCHOR-F002:
     status: resolved
     implementation:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md
+      - docs/projects/pipeline-realism/milestones/M4-foundation-domain-axe-cutover.md
+      - docs/projects/pipeline-realism/issues/LOCAL-TBD-PR-M4-003-stage-topology-compile-surface.md
   ANCHOR-F003:
     status: keep_for_S07
     rationale: preserve locked sequencing; lane split remains post-S04 work
   ANCHOR-F004:
     status: resolved
     implementation:
-      - /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/reference/domains/FOUNDATION.md
+      - docs/system/libs/mapgen/reference/domains/FOUNDATION.md
   ANCHOR-F005:
     status: keep_temporarily
     deletion_trigger: remove legacy stub once migration is complete and IG1+S04 stabilization confirms no call sites

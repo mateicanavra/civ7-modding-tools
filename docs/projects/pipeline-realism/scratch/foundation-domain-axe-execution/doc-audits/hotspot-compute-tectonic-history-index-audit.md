@@ -3,16 +3,16 @@ docs_anchor:
   audited_at: 2026-02-15
   target_file: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history/index.ts
   required_docs:
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
+    - path: docs/projects/engine-refactor-v1/resources/spec/SPEC-DOMAIN-MODELING-GUIDELINES.md
       anchors:
         - "Steps orchestrate; ops are stable pure contracts."
         - "Favor focused ops over mega-ops; split divergent responsibilities."
         - "Compile-first: move canonicalization/normalization out of runtime run()."
         - "Avoid shims/dual paths for the same guarantee."
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/architecture.md
+    - path: docs/system/libs/mapgen/architecture.md
       anchors:
         - "Legacy router; canonical architecture lives in explanation/reference docs."
-    - path: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-s05-guardrails/docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
+    - path: docs/system/libs/mapgen/explanation/DOMAIN-MODELING.md
       anchors:
         - "Ops are algorithm units; steps are orchestration boundaries."
         - "Dependency direction should remain stage/step -> domain ops."

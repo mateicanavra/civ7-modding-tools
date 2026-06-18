@@ -7,7 +7,7 @@ Fix runtime failure:
 ## Scope
 - Worktree: /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack
 - Branch: codex/prr-m4-s06d-foundation-scratch-audit-ledger
-- Scratch (append-only): /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RS3-lakes-parity-drift-fix.md
+- Scratch (append-only): docs/projects/pipeline-realism/scratch/foundation-domain-axe-execution/agent-RS3-lakes-parity-drift-fix.md
 
 ## Expected workflow
 1. Reproduce with map-hydrology build/runtime path and targeted tests.
@@ -64,7 +64,7 @@ No parity drift error in lakes step for current dev mapgen-studio startup path.
   - kept parity telemetry and added inline rationale comment.
 - Added regression coverage in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/mods/mod-swooper-maps/test/map-hydrology/lakes-store-water-data.test.ts`:
   - new test asserts sink mismatch is recorded as diagnostics and does not throw.
-- Synced behavior spec in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-prr-m4-integration-restack/docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md`:
+- Synced behavior spec in `docs/projects/pipeline-realism/resources/spec/sections/validation-and-observability.md`:
   - lakes sink mismatch documented as telemetry (non-gating).
 
 ### Verification after patch
