@@ -4,7 +4,7 @@
 
 **Lane verdict: blocked.**
 
-The OpenSpec packet does not yet define the concrete host-policy state model, write set, owner modules, public compatibility disposition, typed projections, or refusal matrix. That leaves the implementation agent free to choose whether host declarations are optional config, hard-coded data moved to a new file, a broad DTO, a fallback path table, or a real discriminated model. Under the stop condition, this lane cannot accept the packet.
+The OpenSpec packet does not yet define the concrete host-policy state model, write set, owner modules, public compatibility disposition, typed projections, or refusal matrix. That leaves the implementation agent free to choose whether host declarations are optional config, hard-coded data moved to a new file, an unbounded DTO, a fallback path table, or a real discriminated model. Under the stop condition, this lane cannot accept the packet.
 
 The closed target model: Host Policy Boundary owns one declared host-policy source and exports only typed projections to generic Habitat consumers. Generic modules may enforce a declared projection or emit a typed refusal; they may not infer host semantics, silently skip missing policy, or retain Civ7/MapGen literals as source truth.
 
@@ -18,7 +18,7 @@ The closed target model: Host Policy Boundary owns one declared host-policy sour
 - `tools/habitat-harness/src/lib/grit-apply.ts:32` through `grit-apply.ts:34` hard-code the apply patterns, while `discoverApplySourceRoots` at lines 1122-1127 infers `mods/*/src/{recipes,maps}`. This is a host-specific write surface encoded as generic discovery.
 - `tools/habitat-harness/src/lib/grit-apply.ts:866` through `grit-apply.ts:916` validates MapGen public ops through regex parsing of `@mapgen/domain/.../ops` and a hard-coded `mods/mod-swooper-maps/src/domain/...` target. This is a pattern-specific apply gate inside the generic transaction.
 - `tools/habitat-harness/src/lib/grit-apply.ts:37` exposes `gateCommands?: readonly HabitatProcessRequest[]`, and the transaction executes them at lines 423-448. A gate is any process request with any `commandId`; there is no host declaration, gate owner, applies-to projection, or typed refusal for an undeclared gate.
-- `tools/habitat-harness/src/lib/command-engine.ts:169` through `command-engine.ts:180` expose a broad `Classification` DTO with many optional fields. Host policy facts can leak as another optional projection instead of an exhaustive state. `RuleScopeKind` at lines 182-187 is stronger, but the containing DTO still allows partial states.
+- `tools/habitat-harness/src/lib/command-engine.ts:169` through `command-engine.ts:180` expose an unbounded `Classification` DTO with many optional fields. Host policy facts can leak as another optional projection instead of an exhaustive state. `RuleScopeKind` at lines 182-187 is stronger, but the containing DTO still allows partial states.
 - `tools/habitat-harness/src/lib/command-engine.ts:955` through `command-engine.ts:989` parses natural-language `rule.scope` strings into path patterns. That makes path ownership stringly and heuristic, which is the wrong substrate for host policy.
 - `tools/habitat-harness/src/index.ts:56` through `index.ts:66` exports Grit apply transaction types, but no host-policy types. If the packet does not classify this public surface through D0 before implementation, public compatibility will be decided during coding.
 
@@ -28,7 +28,7 @@ The closed target model: Host Policy Boundary owns one declared host-policy sour
 
 Evidence: `openspec/changes/deep-habitat-host-policy-boundary-gate/design.md:22` through `design.md:26` says to define the declaration/refusal boundary and move assumptions out of generic authority. The spec delta only says Habitat shall use an explicit host boundary and refuse absent declarations at `specs/habitat-harness/spec.md:3` through `spec.md:13`. The source packet required concrete variants at `G-HOST-host-policy-boundary-gate.md:74` through `G-HOST-host-policy-boundary-gate.md:82`, but the OpenSpec output does not define those variants.
 
-Why this blocks: Implementation can still choose the state count. It can preserve `id: string`, `path: string`, optional host config, fallback disabled policy, or broad DTOs. The packet must instead require a closed union where the only reachable states are declared policy, unsupported host shape, missing host declaration, unavailable host policy, and undeclared host gate refusal.
+Why this blocks: Implementation can still choose the state count. It can preserve `id: string`, `path: string`, optional host config, fallback disabled policy, or unbounded DTOs. The packet must instead require a closed union where the only reachable states are declared policy, unsupported host shape, missing host declaration, unavailable host policy, and undeclared host gate refusal.
 
 Repair requirement: Add a normative target model with named discriminants, owned by Host Policy Boundary. At design/spec level, require shapes equivalent to:
 
@@ -145,7 +145,7 @@ Before this packet can authorize implementation, it must require all of the foll
 - Typed consumer projections for D9, D10, D13, and Grit scan validation.
 - A fail-closed rule: missing declaration, unavailable declaration, unknown host id, unknown zone id, unknown gate id, and unsupported shape are all typed refusals, not empty arrays, undefined fields, or skipped checks.
 - A ban on generic Habitat source truth for Civ7/MapGen paths after the implementation slice.
-- A ban on broad optional DTO extensions for host facts.
+- A ban on unbounded optional DTO extensions for host facts.
 - D0 public compatibility disposition for any exported type, JSON report, command message, CLI output, script, target, generator, or hook behavior that changes.
 - Exact write set and protected path list in the phase record before source edits.
 - Test expectations that falsify host-policy absence, undeclared gates, unsupported host shape, and accidental generic host constants.

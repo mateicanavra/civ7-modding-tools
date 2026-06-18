@@ -7,7 +7,7 @@ Blocked for design/specification acceptance.
 G-HOST is the right owner boundary, but the OpenSpec packet does not yet own the
 host declaration/refusal contract that D9, D10, D13, and D14 need. Those packets
 can still infer host policy differently: D10 already defines host-owned surface
-fields, D9 defines host apply-gate behavior, D13 defines host-owned scaffold
+fields, D9 defines host apply-gate behavior, D13 defines host-owned project support
 refusals, and D14 defines the authoring fence. Accepting G-HOST as written would
 turn a named owner into a pointer, not an authority.
 
@@ -32,14 +32,14 @@ recovery instruction, and non-claims
 `openspec/changes/deep-habitat-d10-protected-zone-authority/specs/habitat-harness/spec.md:22-34`).
 D9 defines host apply-gate blocking and MapGen public-ops consumption
 (`openspec/changes/deep-habitat-d9-transformation-transaction/specs/habitat-harness/spec.md:138-158`).
-D13 defines `host-policy-missing` scaffold refusals
+D13 defines `host-policy-missing` project creation refusals
 (`openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/specs/habitat-harness/spec.md:62-81`).
 
 Repair:
 
 - Add G-HOST-owned closed declaration families before acceptance:
   `host-generated-surface-declaration`, `host-protected-surface-declaration`,
-  `host-apply-gate-declaration`, `host-scaffold-policy-declaration`,
+  `host-apply-gate-declaration`, `host-project-support-declaration`,
   `host-policy-unavailable`, `host-policy-missing`, `host-policy-malformed`,
   and `host-policy-conflict`.
 - Define required fields per family: host declaration id, host owner, matcher or
@@ -91,14 +91,14 @@ MapGen authoring support unless a later accepted authoring contract consumes it
 `openspec/changes/deep-habitat-d14-authoring-topology-fence/specs/habitat-harness/spec.md:38-62`).
 
 The G-HOST OpenSpec packet does not define this split. As a result, D13 could
-interpret a host-owned scaffold request through G-HOST while D14 interprets an
+interpret a host-owned project creation request through G-HOST while D14 interprets an
 authoring-looking request through the authoring fence. That is exactly the stop
 condition in the user frame: D14 remains a fence unless G-HOST explicitly
 defines a host declaration needed by later owner packets.
 
 Repair:
 
-- Add a G-HOST/D14 boundary section: G-HOST may declare host-owned scaffold
+- Add a G-HOST/D14 boundary section: G-HOST may declare host-owned project support
   policy for non-authoring host shapes; D14 owns authoring-looking request
   classification, blocked action, future criteria, and authoring non-claims.
 - Add a G-HOST non-claim: a host declaration never implies MapGen recipe,
@@ -181,7 +181,7 @@ Repair:
 - Add later implementation gates: host declaration schema tests,
   missing/malformed/conflicting declaration tests, unregistered host policy bad
   case, D10 generated/protected consumer tests, D9 apply-gate missing/declaration
-  tests, D13 host-owned scaffold refusal tests, and D14 authoring non-claim
+  tests, D13 host-owned project creation refusal tests, and D14 authoring non-claim
   tests.
 - Preserve the classify command only as orientation evidence; it does not prove
   host policy correctness.
@@ -214,7 +214,7 @@ Repair:
 - D9: consume G-HOST apply-gate declarations directly and D10 path-authority
   projections for generated/protected/host-owned paths. Add missing-gate refusal
   and MapGen public-ops declaration scenarios.
-- D13: consume G-HOST only for host-owned, non-authoring scaffold policy and
+- D13: consume G-HOST only for host-owned, non-authoring project support policy and
   `host-policy-missing` refusals. Consume D14 for authoring-specific refusal
   facts.
 - D14: record that G-HOST declarations cannot open authoring support. Future

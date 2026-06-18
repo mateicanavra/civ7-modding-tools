@@ -35,7 +35,7 @@ Define host declaration/refusal contract for:
 - generated/protected zones;
 - host-specific regeneration commands;
 - pattern-specific apply gates;
-- unsupported host-owned scaffold kinds;
+- unsupported host-owned project, generator, or authoring kinds;
 - future authoring topology triggers;
 - non-claims when host policy is missing.
 
@@ -61,8 +61,8 @@ host-specific checks as universal toolkit behavior.
 
 ## Solution Design
 
-1. Define a minimal host declaration shape for generated/protected zones and
-   apply gates.
+1. Define the complete host declaration contract for the bounded current
+   host-policy surface: generated/protected zones and apply gates.
 2. Move host-specific path/gate data behind declarations consumed by generic
    Habitat modules.
 3. Add explicit refusal when required host policy is absent.
@@ -87,8 +87,11 @@ Without declarations, the generic core still carries host-specific state.
 ## Public Surface Impact
 
 May affect command messages for generated-zone and apply refusals. Should not
-change generic command verbs. Host declaration file location becomes a new
-internal or public config surface; D0 must classify it.
+change generic command verbs. The first implementation declaration source is an
+internal Habitat TypeScript module at
+`$HABITAT_TOOL/src/lib/host-policy.ts`, not a user-authored config file. D0 must
+classify any command output, exported type, documented location, or later public
+configuration surface before source work touches it.
 
 ## Proof Classes
 
@@ -100,7 +103,7 @@ Required design proof:
 
 Later implementation proof:
 
-- host declaration schema tests;
+- host declaration module schema tests;
 - missing declaration refusal tests;
 - generated-zone command behavior;
 - apply gate behavior;
@@ -126,14 +129,15 @@ Update:
 - host policy boundary record;
 - generated-zone docs;
 - apply safety matrix;
-- scaffolding matrix;
+- D13 host-policy consumer matrix;
 - Authoring Topology deferral.
 
 ## Validation Commands / Proof Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/generated-zones.test.ts test/lib/grit-apply.test.ts`:
-  expected exit 0 after the packet creates or updates the host-policy fixtures.
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/mods/mod-swooper-maps/src/maps/generated/swooper-earthlike.ts`:
+- `bun run --cwd tools/habitat-harness test -- test/lib/host-policy.test.ts test/lib/grit-apply.test.ts`:
+  expected exit 0 after the implementation creates the internal host-policy
+  module fixtures and apply-gate consumer fixtures.
+- `bun run habitat classify $REPO_ROOT/mods/mod-swooper-maps/src/maps/generated/swooper-earthlike.ts`:
   expected exit 0; representative host-owned generated path classification.
 - `git status --short --branch`: expected exit 0; proves host declarations are
   tracked data, not hidden generated state.
@@ -145,8 +149,8 @@ Update:
 
 ## Graphite/OpenSpec Closure
 
-Use OpenSpec if host declaration location or command behavior is public. Commit
-before D9/D10/D13 claim closure.
+Use OpenSpec if a later packet makes host declaration location, exported types,
+or command behavior public. Commit before D9/D10/D13 claim closure.
 
 ## Stop Conditions
 

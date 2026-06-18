@@ -5,10 +5,10 @@ change packets. It is part of the remediation frame, not an implementation
 commitment. Most rows remain incomplete packets: global review findings have
 been converted into shared constraints, but each domino remains blocking until
 its own per-domino adversarial review has run and all accepted P1/P2 findings
-are repaired. D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, and D14 are the current exceptions: they are
+are repaired. D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, D14, and G-HOST are the current exceptions: they are
 accepted for design/specification after their per-domino final reviews found no
-unresolved P1/P2 blockers. D0-D14 are not implementation-complete, and
-D15/G-HOST remain blocking unless their own status rows say otherwise.
+unresolved P1/P2 blockers. D0-D14 and G-HOST are not implementation-complete,
+and D15 remains blocking unless its own status row says otherwise.
 
 Path variables and operational checkout fixtures are defined in
 `$REMEDIATION_DIR/context.md`. This index records packet identity and sequencing;
@@ -25,7 +25,7 @@ it does not repeat local worktree paths or branch names.
 | D6 | D6 Diagnostic Pattern Catalog | `deep-habitat-d6-diagnostic-pattern-catalog` | D0, D1, D2; concrete D0 rows, D1 output-family decisions where touched, and live D2 `ruleGritFacts` required before source implementation | D7, D8, D9, D11, D15 evaluation | accepted for design/specification; final after-observed-identity domain/ontology, TypeScript/validation, OpenSpec/information, and code/vendor topology rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D7 | D7 Structural Enforcement Pipeline | `deep-habitat-d7-structural-enforcement-pipeline` | D0, D1, D2, D3, D5, D6, D10; concrete D0 rows, D1 output-family handling, live D2/D3/D5/D6 projections, and accepted D10 guard contract required before source implementation where touched | D11, D12 | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, and code/topology/cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D8 | D8 Pattern Governance | `deep-habitat-d8-pattern-governance` | D0, D1, D2, D5, D6; D7 where current-tree/check admission input is consumed; D10/G-HOST where protected/generated-zone or host-policy paths/gates are touched; concrete D0 rows, D1 output-family citations, live D2 `ruleGovernanceFacts`/`ruleGritFacts`/`ruleBaselineFacts`, D5 `BaselineAuthorityProjection`, and D6 diagnostic projections required before source implementation | D9, D13; D11 through local-feedback eligibility/recovery projections | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino rereviews found no unresolved P1/P2 blockers; not implementation-complete |
-| G-HOST | Host Policy Boundary Gate | `deep-habitat-host-policy-boundary-gate` | D0, D1 | D10, D13 | incomplete packet; global constraints applied; per-domino adversarial gate BLOCKING |
+| G-HOST | Host Policy Boundary Gate | `deep-habitat-host-policy-boundary-gate` | D0, D1 | D10, D13, D9 host-gate consumption | accepted for design/specification; after-repair final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete; source implementation blocked behind concrete D0 rows, D1 output-family handling, internal `$HABITAT_TOOL/src/lib/host-policy.ts` preserve/document-only handling, and accepted/live G-HOST projections |
 | D9 | D9 Transformation Transaction | `deep-habitat-d9-transformation-transaction` | D0, D1, D6, D8, D10, G-HOST where host-specific gates are touched; concrete D0 rows, D8 apply-admission projections, D10 path/zone decisions, and G-HOST host-gate declarations required before source implementation where touched | D11, D13; D15 only if D9 records an impossible local state | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete |
 | D10 | D10 Protected Zone Authority | `deep-habitat-d10-protected-zone-authority` | D0, D1, D2, G-HOST | D7, D8 where protected/generated paths are touched, D9, D11 | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete; source implementation blocked behind concrete D0 rows, D1 output-family handling, live D2 generated-zone projections, accepted/live G-HOST host declarations, and accepted/live D10 projections |
 | D11 | D11 Local Feedback | `deep-habitat-d11-local-feedback` | D0, D1, D3 for pre-push graph/affected facts, D6 staged diagnostic projections, D7 local-feedback check projection, D9 local-feedback-safe transaction projection where surfaced, D10 protected mutation projection; D8 conditional for hook eligibility/admission; G-HOST only through D9/D10 projections unless D11 touches host-owned surfaces | D12, D15 only when D11 records an impossible local state | accepted for design/specification; final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews found no unresolved P1/P2 blockers; not implementation-complete; source implementation blocked behind concrete D0 rows, D1 output-family handling, live D3/D6/D7/D9/D10 projections where consumed, conditional D8 projection where consumed, and G-HOST only through accepted D9/D10 projections unless D11 touches host-owned surfaces |
@@ -57,8 +57,9 @@ it does not repeat local worktree paths or branch names.
 - D15 is a trigger protocol, not a default substrate migration.
 - D14 is a fence/refusal packet unless a later accepted authority opens
   authoring implementation.
-- G-HOST must resolve host-policy boundaries before D10 or D13 claim generic
-  closure.
+- G-HOST must resolve host-policy boundaries before D9 claims host-gate
+  consumption, D10 claims generated/protected host-surface closure, or D13
+  claims host-owned project support/refusal closure.
 
 ## Traceability Convention
 
