@@ -21,6 +21,7 @@ discipline; they should not duplicate the packet as a parallel spec.
 | `civ7-orpc-control-architecture` | Designing or reviewing oRPC/Effect procedure, router, middleware, and context surfaces for Civ7 direct-control, CLI game/play commands, Studio endpoints, and live-play support refactors (`@civ7/control-orpc`). |
 | `dra-structural-watcher` | Running or setting up a separate watcher DRA for OpenSpec workstreams: heartbeat/cron monitoring, NOTE-TO-DRA scans, correction logs, closure-drift checks, and branch/stack watcher passes without owning implementation. |
 | `graphite-stack-drain` | Managing complex Graphite stack/worktree cleanup: deterministic stack census, source/sink accounting, folding over-atomized stacks, targeted restacks, submit/merge drains, and safe branch/worktree retirement. |
+| `typescript-refactoring` | Refactoring or reducing complexity in TypeScript/JavaScript anywhere in the repo: detecting code smells, executing safe compiler-gated refactors, collapsing the reachable-state space, choosing functions vs classes, judging over-/under-engineering, and cleaning up LLM-generated slop. |
 
 ## Operating Rules
 
