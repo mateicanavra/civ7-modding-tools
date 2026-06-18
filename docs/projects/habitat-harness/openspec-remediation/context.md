@@ -13,7 +13,7 @@ variables below.
 | Variable | Value |
 | --- | --- |
 | `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/deep-habitat-openspec-remediation` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d6-diagnostic-pattern-packet-repair` |
 
 ## Path Variables
 
@@ -74,6 +74,37 @@ variables below.
 | `$D5_PHASE_RECORD` | `$D5_CHANGE/workstream/phase-record.md`. |
 | `$D5_DOWNSTREAM_LEDGER` | `$D5_CHANGE/workstream/downstream-realignment-ledger.md`. |
 | `$D5_CLOSURE_CHECKLIST` | `$D5_CHANGE/workstream/closure-checklist.md`. |
+
+## D6 Variables
+
+| Variable | Meaning |
+| --- | --- |
+| `$D6_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d6-diagnostic-pattern-catalog`. |
+| `$D6_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D6-diagnostic-pattern-catalog.md`. |
+| `$D6_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D6-domain-ontology-investigation.md`. |
+| `$D6_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D6-typescript-state-investigation.md`. |
+| `$D6_FINAL_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D6-final-domain-ontology-review.md`. |
+| `$D6_FINAL_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D6-typescript-validation-final-review.md`. |
+| `$D6_FINAL_INFORMATION_REVIEW` | `$AGENT_SCRATCH/domino-D6-openspec-information-final-review.md`. |
+| `$D6_FINAL_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D6-code-vendor-topology-investigation.md`. |
+| `$D6_FINAL_REREVIEW_DOMAIN_ONTOLOGY` | `$AGENT_SCRATCH/domino-D6-final-rereview-domain-ontology.md`. |
+| `$D6_FINAL_REREVIEW_TYPESCRIPT_VALIDATION` | `$AGENT_SCRATCH/domino-D6-final-rereview-typescript-validation.md`. |
+| `$D6_FINAL_REREVIEW_OPENSPEC_INFORMATION` | `$AGENT_SCRATCH/domino-D6-final-rereview-openspec-information.md`. |
+| `$D6_FINAL_REREVIEW_CODE_VENDOR_TOPOLOGY` | `$AGENT_SCRATCH/domino-D6-final-rereview-code-vendor-topology.md`. |
+| `$D6_FINAL_REREVIEW_TYPESCRIPT_VALIDATION_AFTER_REPAIR` | `$AGENT_SCRATCH/domino-D6-final-rereview-typescript-validation-after-repair.md`. |
+| `$D6_FINAL_REREVIEW_OPENSPEC_INFORMATION_AFTER_REPAIR` | `$AGENT_SCRATCH/domino-D6-final-rereview-openspec-information-after-repair.md`. |
+| `$D6_FINAL_REREVIEW_DOMAIN_ONTOLOGY_LATEST` | `$AGENT_SCRATCH/domino-D6-final-rereview-domain-ontology-latest.md`. |
+| `$D6_FINAL_REREVIEW_TYPESCRIPT_VALIDATION_LATEST` | `$AGENT_SCRATCH/domino-D6-final-rereview-typescript-validation-latest.md`. |
+| `$D6_FINAL_REREVIEW_OPENSPEC_INFORMATION_LATEST` | `$AGENT_SCRATCH/domino-D6-final-rereview-openspec-information-latest.md`. |
+| `$D6_FINAL_REREVIEW_CODE_VENDOR_TOPOLOGY_LATEST` | `$AGENT_SCRATCH/domino-D6-final-rereview-code-vendor-topology-latest.md`. |
+| `$D6_FINAL_REREVIEW_DOMAIN_ONTOLOGY_AFTER_OBSERVED_IDENTITY` | `$AGENT_SCRATCH/domino-D6-final-rereview-domain-ontology-after-observed-identity.md`. |
+| `$D6_FINAL_REREVIEW_TYPESCRIPT_VALIDATION_AFTER_OBSERVED_IDENTITY` | `$AGENT_SCRATCH/domino-D6-final-rereview-typescript-validation-after-observed-identity.md`. |
+| `$D6_FINAL_REREVIEW_OPENSPEC_INFORMATION_AFTER_OBSERVED_IDENTITY` | `$AGENT_SCRATCH/domino-D6-final-rereview-openspec-information-after-observed-identity.md`. |
+| `$D6_FINAL_REREVIEW_CODE_VENDOR_TOPOLOGY_AFTER_OBSERVED_IDENTITY` | `$AGENT_SCRATCH/domino-D6-final-rereview-code-vendor-topology-after-observed-identity.md`. |
+| `$D6_REVIEW_LEDGER` | `$D6_CHANGE/workstream/review-disposition-ledger.md`. |
+| `$D6_PHASE_RECORD` | `$D6_CHANGE/workstream/phase-record.md`. |
+| `$D6_DOWNSTREAM_LEDGER` | `$D6_CHANGE/workstream/downstream-realignment-ledger.md`. |
+| `$D6_CLOSURE_CHECKLIST` | `$D6_CHANGE/workstream/closure-checklist.md`. |
 
 ## Path Templates
 
