@@ -3,32 +3,42 @@ import { wrapDeltaPeriodic } from "@mapgen/lib/math/wrap.js";
 export const HEX_WIDTH = Math.sqrt(3);
 export const HEX_HEIGHT = 1.5;
 export const HALF_HEX_HEIGHT = HEX_HEIGHT / 2;
+export const HALF_HEX_WIDTH = HEX_WIDTH / 2;
 
 /**
- * Convert odd-q offset coordinates (tile space) to "hex space" coordinates.
+ * Convert pointy-top, row-offset (odd-R) tile coordinates to "hex space".
  *
- * This is the canonical coordinate system for mesh-first computations:
- * - X scaled by `HEX_WIDTH`
- * - Y scaled by `HEX_HEIGHT` and offset by `HALF_HEX_HEIGHT` for odd columns
+ * The Civ7 plot grid is odd-R: ODD ROWS are shifted half a tile east. This is
+ * the canonical coordinate system for mesh-first computations:
+ * - X scaled by `HEX_WIDTH` and offset by `HALF_HEX_WIDTH` for odd rows
+ * - Y scaled by `HEX_HEIGHT`
+ *
+ * NOTE: the `Oddq` symbol name is legacy (the grid was historically and
+ * incorrectly modeled as odd-Q); the math below is odd-R.
  */
 export function projectOddqToHexSpace(x: number, y: number): { x: number; y: number } {
-  const hx = x * HEX_WIDTH;
-  const hy = y * HEX_HEIGHT + (Math.floor(x) & 1 ? HALF_HEX_HEIGHT : 0);
+  const hx = x * HEX_WIDTH + (Math.floor(y) & 1 ? HALF_HEX_WIDTH : 0);
+  const hy = y * HEX_HEIGHT;
   return { x: hx, y: hy };
 }
 
 export type CubeCoord = Readonly<{ x: number; y: number; z: number }>;
 
+/**
+ * Convert odd-R offset coordinates to cube coordinates.
+ *
+ * NOTE: legacy `oddqToCube` name; the math is odd-R (`q = x - (y - (y&1))/2`).
+ */
 export function oddqToCube(x: number, y: number): CubeCoord {
-  const z = y - (x - (x & 1)) / 2;
-  const xCube = x;
-  const zCube = z;
+  const q = x - (y - (y & 1)) / 2;
+  const xCube = q;
+  const zCube = y;
   const yCube = -xCube - zCube;
   return { x: xCube, y: yCube, z: zCube };
 }
 
 /**
- * Hex distance for odd-q row-major indices on a map with periodic X wrapping.
+ * Hex distance for odd-R row-major indices on a map with periodic X wrapping.
  */
 export function hexDistanceOddQPeriodicX(aIndex: number, bIndex: number, width: number): number {
   const ay = (aIndex / width) | 0;

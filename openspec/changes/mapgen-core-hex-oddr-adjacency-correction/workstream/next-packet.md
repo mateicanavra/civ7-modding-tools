@@ -2,11 +2,18 @@
 
 ## Where this is
 
-- Change: `mapgen-core-hex-oddr-adjacency-correction` (draft). The full packet
-  (proposal/design/tasks/spec + workstream records) is authored. **No behavioral
-  code has been changed.**
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-core-hex-oddr-adjacency`
-  on branch `agent-A-mapgen-core-hex-oddr-adjacency` (parent `main` b8387e3c2).
+- Change: `mapgen-core-hex-oddr-adjacency-correction` (draft, PR #1812). Packet
+  authored AND the behavioral fix is implemented, committed, and locally proven.
+- Branch `agent-A-mapgen-core-hex-oddr-adjacency` (parent `main` b8387e3c2),
+  2 commits: `fca702846` (packet) + `aa97c85c8` (fix).
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-A-mapgen-core-hex-oddr-adjacency`.
+- DONE: live probe (odd-R confirmed exactly); four primitives corrected
+  (hex-oddq, hex-space, vector-field, policy-grid); coast ring consolidated
+  (odd-R, no Moore-8). Proof: tsc/biome clean; mapgen-core 103/0; mod 51/0;
+  dump exposed-land = 0 under odd-R (46 under legacy odd-Q).
+- OPEN: (1) live in-game render (closure gate); (2) mechanical `OddQ`->`OddR`
+  rename (Task 2; behavioral fix carries legacy names with inline odd-R docs);
+  (3) optional multi-seed delta sweep (Task 5.4).
 
 ## The fix in one paragraph
 

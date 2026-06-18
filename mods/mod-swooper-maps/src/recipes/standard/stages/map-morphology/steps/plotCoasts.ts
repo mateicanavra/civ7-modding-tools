@@ -14,27 +14,13 @@ import {
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
+import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
 import { mapMorphologyArtifacts } from "../artifacts.js";
 import PlotCoastsStepContract from "./plotCoasts.contract.js";
 
 const GROUP_MAP_MORPHOLOGY = "Map / Morphology (Engine)";
 const TILE_SPACE_ID = "tile.hexOddQ" as const;
-
-// Union of both odd-q neighbor parities — the full eight-offset neighborhood.
-// This is a convention-agnostic superset of the live engine's six hex neighbors
-// (see the coast-ring rationale in run()), so the guaranteed coast ring cannot
-// miss a land-adjacent ocean tile regardless of the engine's offset parity.
-const COAST_RING_OFFSETS: ReadonlyArray<readonly [number, number]> = [
-  [-1, 0],
-  [1, 0],
-  [0, -1],
-  [0, 1],
-  [-1, -1],
-  [1, -1],
-  [-1, 1],
-  [1, 1],
-];
 
 export default createStep(PlotCoastsStepContract, {
   artifacts: implementArtifacts(
@@ -79,35 +65,23 @@ export default createStep(PlotCoastsStepContract, {
     const policyCoastMask = coastPolicy.policyCoastMask;
     let promotedOceanToCoast = coastPolicy.promotedOceanToCoast;
 
-    // Guarantee a coast ring around every land tile. The Civ7 coast policy seeds
-    // its buffer expansion from tiles already classified as coast, so land
-    // introduced after the coastline metrics were computed — e.g. island peaks
-    // stamped by the morphology-features/islands step — can be left ringed
-    // entirely by deep ocean. Civ7's validateAndFixTerrain repairs that to coast,
-    // but the no-water-drift projection (restoreProjectedCoastTerrain) reverts it
-    // back to ocean, leaving land sitting directly on deep ocean that the engine
-    // renders as floating cliff plateaus. Promoting every ocean tile adjacent to
-    // land to coast keeps the authored surface consistent with the Civ7 invariant
-    // that land never borders deep ocean, independent of how the land was added.
-    //
-    // The adjacency check uses COAST_RING_OFFSETS (the union of both odd-q
-    // parities) rather than the strict six odd-q neighbors: the live engine's hex
-    // adjacency disagrees with the mod's odd-q parity on one diagonal, so a strict
-    // six-neighbor ring leaves a single deep-ocean tile touching land on isolated
-    // islands (a cliff "notch"). The eight-offset neighborhood is a superset of
-    // the engine's true neighbors under any offset convention, so no land-adjacent
-    // ocean tile is missed.
+    // Coast-ring invariant: every land tile must have a coast ring — no land may
+    // border deep ocean, or the live engine renders floating cliff plateaus.
+    // The Civ7 coast policy seeds expansion from existing COAST tiles (not land),
+    // so land injected after coastline metrics (e.g. island peaks) gets no ring.
+    // Promote any deep-ocean tile adjacent to land to coast, using the canonical
+    // engine adjacency (odd-R). This is source-agnostic — it heals islands and
+    // any future late land injection — so the no-water-drift policy stops
+    // fighting the engine's coast repair. The earlier eight-offset superset
+    // workaround is unnecessary now that the adjacency model matches the engine.
     let landAdjacentCoastRingPromotions = 0;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
         if ((waterClass[idx] | 0) !== WATER_CLASS_OCEAN) continue;
         let adjacentToLand = false;
-        for (const [dx, dy] of COAST_RING_OFFSETS) {
-          const ny = y + dy;
-          if (ny < 0 || ny >= height) continue;
-          const nx = (((x + dx) % width) + width) % width;
-          if ((waterClass[ny * width + nx] | 0) === WATER_CLASS_LAND) {
+        for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
+          if ((waterClass[neighbor] | 0) === WATER_CLASS_LAND) {
             adjacentToLand = true;
             break;
           }
@@ -119,13 +93,6 @@ export default createStep(PlotCoastsStepContract, {
       }
     }
     promotedOceanToCoast += landAdjacentCoastRingPromotions;
-
-    if (landAdjacentCoastRingPromotions > 0) {
-      context.trace.event(() => ({
-        type: "map.morphology.coasts.landAdjacentCoastRing",
-        promoted: landAdjacentCoastRingPromotions,
-      }));
-    }
 
     deps.artifacts.coastClassification.publish(context, {
       width,
@@ -142,9 +109,16 @@ export default createStep(PlotCoastsStepContract, {
       type: "map.morphology.coasts.policy",
       policy: "civ7.coastClassification.v0",
       coastBufferTiles: coastPolicy.coastBufferTiles,
-      promotedOceanToCoast: coastPolicy.promotedOceanToCoast,
+      promotedOceanToCoast,
       source: CIV7_COAST_CLASSIFICATION_POLICY_V0.source,
     }));
+
+    if (landAdjacentCoastRingPromotions > 0) {
+      context.trace.event(() => ({
+        type: "map.morphology.coasts.landAdjacentCoastRing",
+        promoted: landAdjacentCoastRingPromotions,
+      }));
+    }
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {

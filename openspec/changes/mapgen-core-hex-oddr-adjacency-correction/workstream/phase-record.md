@@ -20,15 +20,18 @@
 ## Status
 
 - Last updated: 2026-06-18.
-- Current gate: Gate 8 (this is the spec/change-definition slice). Packet
-  authored; pre-code review pending; behavioral migration not yet started.
-- Next gate: Gate 1 (live `getAdjacentPlotLocation` probe) once the packet is
-  reviewed — the probe is the audit-grade gate before any behavioral commit.
-- Remaining proof boundary: nothing behavioral is implemented in this slice. All
-  proof classes (unit, dump stats, golden delta, live probe, live render) are
-  open. Closure requires the live in-game render.
-- Stop condition: do not migrate to a guessed offset table; the live probe must
-  pin it first. Do not retune configs to mask the adjacency delta.
+- Current gate: Gate 10 (runtime proof). Live probe PASSED (Gate 1); behavioral
+  migration implemented and locally proven (Gates 3/4/9). The only open proof
+  class is the live in-game render.
+- Next gate: Gate 6 — deploy the corrected mod and render a generated swooper map
+  live to confirm island coastlines with no notch / no floating plateaus. Then
+  the mechanical `OddQ`->`OddR` rename (Task 2), then closure.
+- Proof status: live probe PASSED (odd-R confirmed exactly). Local: tsc/biome
+  clean; mapgen-core 103/0; mod suites 51/0; dump exposed-land=0 under odd-R (46
+  under legacy odd-Q). Live in-game render: PENDING (closure-blocking).
+- Stop condition: do not retune configs to mask the adjacency delta; the live
+  render is the closure proof (the mock shares neither the bug nor the full
+  engine fix path).
 
 ## Repo State
 

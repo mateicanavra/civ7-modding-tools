@@ -9,19 +9,23 @@ export function forEachHexNeighborOddQ(
   height: number,
   callback: (nx: number, ny: number) => void
 ): void {
-  const odd = x & 1;
+  // Civ7 engine grid is odd-R (row-offset): neighbor parity keyed on the ROW.
+  // Must match the canonical table in @swooper/mapgen-core hex-oddq. Even rows
+  // take the west diagonals; odd rows take the east diagonals. (Legacy `OddQ`
+  // name retained pending a mechanical rename.)
+  const oddRow = y & 1;
   const deltas =
-    odd === 1
+    oddRow === 1
       ? [
           [1, 0],
           [1, 1],
           [0, 1],
-          [-1, 1],
+          [1, -1],
           [-1, 0],
           [0, -1],
         ]
       : [
-          [1, -1],
+          [-1, 1],
           [1, 0],
           [0, 1],
           [-1, 0],

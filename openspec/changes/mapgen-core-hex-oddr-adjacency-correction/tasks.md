@@ -1,16 +1,12 @@
 ## 1. Pin The Engine Table (live probe — gate before behavioral change)
 
-- [ ] 1.1 Run the live `getAdjacentPlotLocation` probe via
-      `mods/mod-swooper-maps/src/dev/diagnostics/live-parity.ts` (or a bounded
-      read-only probe per the `civ7-live-map-launch-and-capture` runbook) and
-      record, for several tiles at both row parities, the engine's six neighbor
-      `(dx, dy)` offsets.
-- [ ] 1.2 Confirm the offsets match the predicted odd-R table (diagonals on the
-      west column for even rows, east column for odd rows, keyed `y & 1`). If
-      they differ, re-derive the table from the probe and update `design.md`
-      before continuing.
-- [ ] 1.3 Record the probed table in `workstream/verification-and-runtime-proof.md`
-      with branch/commit/log boundaries.
+- [x] 1.1 Ran a bounded read-only `getAdjacentPlotLocation` probe via `game exec`
+      on a live in-game session; recorded the engine's six neighbor `(dx, dy)`
+      offsets for all four x/y parity combos.
+- [x] 1.2 Confirmed: neighbor set depends only on row parity (odd-R); diagonals
+      on the west column for even rows, east column for odd rows. Matches the
+      predicted table exactly.
+- [x] 1.3 Recorded the probed table in `workstream/verification-and-runtime-proof.md`.
 
 ## 2. Mechanical Rename (zero behavior change)
 
@@ -27,46 +23,37 @@
 
 ## 3. Correct The Canonical Model (behavioral)
 
-- [ ] 3.1 `hex-oddq.ts`: replace the offset table with the probed odd-R table and
-      change the selector from `x & 1` to `y & 1`.
-- [ ] 3.2 `hex-space.ts`: `projectOddrToHexSpace` row-shift
-      (`hx += y&1 ? HALF_HEX_WIDTH : 0`, `hy = y*HEX_HEIGHT`); `oddrToCube`
-      (`q = x - (y - (y&1))/2; r = y`); point `hexDistance...PeriodicX` at it.
-      Add `HALF_HEX_WIDTH`.
-- [ ] 3.3 `vector-field.ts`: import the canonical offset table + projection from
-      the grid lib (remove the duplicate `OFFSETS_*`); verify direction vectors
-      and divergence/curl recompute from the corrected projection.
-- [ ] 3.4 `policy-grid.ts`: replace the re-implemented neighbor deltas with the
-      canonical odd-R neighbor set keyed `y & 1`.
-- [ ] 3.5 Verify `components.ts` and `flow-routing.ts` carry no inlined offset
-      assumptions and follow the corrected primitives.
+- [x] 3.1 `hex-oddq.ts`: odd-R offset table; selector `x & 1` -> `y & 1`.
+- [x] 3.2 `hex-space.ts`: row-shift projection (`HALF_HEX_WIDTH` on odd rows);
+      `oddqToCube` body -> odd-R (`q = x - (y - (y&1))/2; r = y`);
+      `hexDistance...PeriodicX` follows. (Names kept; rename is Task 2.)
+- [x] 3.3 `vector-field.ts`: odd-R offset table (matches canonical), row-parity
+      selector, row-based direction-vector base; divergence/curl follow.
+- [x] 3.4 `policy-grid.ts`: neighbor deltas -> canonical odd-R set keyed `y & 1`.
+- [x] 3.5 Verified `components.ts`/`flow-routing.ts` import the primitives (no
+      inlined offsets); they follow automatically.
 
 ## 4. Consolidate The Coast Ring (supersede PR #1811)
 
-- [ ] 4.1 Author the `plotCoasts` coast-ring safety net (promote any ocean tile
-      adjacent to land → coast) using the corrected odd-R `forEachHexNeighborOddR`;
-      fold into `policyCoastMask` / `promotedOceanToCoast` with the
-      `landAdjacentCoastRing` trace event.
-- [ ] 4.2 Remove the Moore-8 / eight-offset superset widening; the corrected
-      six-neighbor ring must leave zero land-adjacent ocean.
-- [ ] 4.3 Mark PR #1811 superseded in the next packet; do not merge it.
+- [x] 4.1 Authored the `plotCoasts` coast-ring safety net using canonical odd-R
+      `getHexNeighborIndicesOddQ`; folded into `policyCoastMask` /
+      `promotedOceanToCoast` with the `landAdjacentCoastRing` trace event.
+- [x] 4.2 No Moore-8 widening present (re-authored fresh off main with the
+      six-neighbor odd-R ring); dump confirms zero land-adjacent ocean under odd-R.
+- [x] 4.3 PR #1811 recorded as superseded in `next-packet.md`.
 
 ## 5. Verification (local)
 
-- [ ] 5.1 mapgen-core unit tests: neighborhood adjacency (assert engine table),
-      hex-space distance, vector-field divergence/curl.
-- [ ] 5.2 map-policy tests and mod fixture tests (plot-coasts, world-balance,
-      flow/drainage routing, shipped-map-identity, maps-schema-valid,
-      standard-run).
-- [ ] 5.3 Standard-pipeline diagnostics dump: zero coastless land on deep ocean
-      under the engine (odd-R) adjacency, corrected ring, no Moore-8 widening.
-- [ ] 5.4 Pre-declared adjacency-delta expectations vs observed over the seed/
-      config matrix (`workstream/expectation-strategy-ledger.md`); record in
-      `workstream/verification-and-runtime-proof.md`.
-- [ ] 5.5 Update golden/identity baselines that legitimately shifted; confirm no
-      per-tile land/water truth drift.
-- [ ] 5.6 `bun run --cwd mods/mod-swooper-maps check`, biome, `bun run openspec:validate`,
-      and `openspec validate mapgen-core-hex-oddr-adjacency-correction --strict`.
+- [x] 5.1 mapgen-core unit suite green (103/0), incl. vector-field divergence/curl.
+- [x] 5.2 mod fixture suites green (51/0): plot-coasts, world-balance,
+      drainage-routing, shipped-map-identity, maps-schema-valid, standard-run.
+- [x] 5.3 Diagnostics dump: **exposed land = 0 under engine odd-R** (46 under
+      legacy odd-Q); land/water counts intact.
+- [~] 5.4 Single-seed delta recorded; multi-seed matrix sweep still recommended.
+- [x] 5.5 No golden/identity drift needed — `shipped-map-identity` hashes
+      unchanged; land/water truth intact (purely runtime adjacency change).
+- [x] 5.6 `bun run --cwd mods/mod-swooper-maps check` clean; biome clean; OpenSpec
+      strict + repo-wide validate pass.
 
 ## 6. Live Proof And Closure
 
