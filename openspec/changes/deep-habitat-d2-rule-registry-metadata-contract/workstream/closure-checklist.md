@@ -15,10 +15,10 @@
 
 ## Implementation Prerequisites Later
 
-- [ ] Concrete D0 matrix rows exist for every D2-touched public or durable surface.
-- [ ] D1 output family is cited for every malformed metadata failure family.
-- [ ] Implementation branch starts from the approved implementation stack and is clean before source edits.
-- [ ] Source changes stay inside the approved D2 write set.
+- [x] Concrete D0 matrix rows exist for every D2-touched public or durable surface and are cited in `workstream/implementation-start-inventory.md`.
+- [x] D1 output family is cited for every malformed metadata failure family in `workstream/implementation-start-inventory.md`.
+- [x] Implementation branch starts from the approved implementation stack and was clean before D2 implementation-start edits.
+- [x] Source changes stay inside the approved D2 write set.
 - [ ] Protected paths are untouched or the packet is amended and re-reviewed.
 
 ## Implementation Closure Later
@@ -33,6 +33,6 @@
 
 ## Non-Claims
 
-- D2 design repair does not implement TypeScript source.
-- D2 design/specification acceptance does not authorize source implementation.
+- D2 design repair did not implement TypeScript source.
+- D2 implementation-start grounding authorizes D2 source work only through the cited D0/D1 gates and TypeBox-first registry boundary.
 - D2 design/specification acceptance does not prove public compatibility, downstream safety, runtime behavior, Graphite readiness, or product completion.
