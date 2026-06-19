@@ -1,5 +1,11 @@
 import type { RuleRunResult } from "../../rules/architecture.js";
 import type { RuleGritFacts } from "../../rules/registry/index.js";
+import {
+  gritDiagnosticIdentity,
+  observedGritDiagnosticIdentity,
+  observedGritIdentityMatches,
+  renderUnexpectedObservedGritIdentity,
+} from "../../lib/diagnostic-catalog/index.js";
 import { infrastructureFailure } from "./failure.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
 import type { GritProjectionOptions, GritReport, GritResult } from "./types.js";
@@ -10,29 +16,36 @@ export function projectGritResults(
   options: GritProjectionOptions = {}
 ): Map<string, RuleRunResult> {
   const selectedPatterns = new Set(selectedRules.map((rule) => rule.gritPattern));
-  if (options.rejectUnexpectedPatternIdentity) {
-    const unexpected = report.results
-      .map(resultPatternIdentity)
-      .find((identity): identity is string => Boolean(identity && !selectedPatterns.has(identity)));
-    if (unexpected) {
-      return new Map(
-        selectedRules.map((rule) => [
-          rule.id,
-          infrastructureFailure(
-            rule,
-            "GritUnexpectedDiagnosticIdentity",
-            `Grit output included unexpected pattern identity: ${unexpected}.`
-          ),
-        ])
-      );
-    }
+  const unexpected = report.results
+    .map(observedGritDiagnosticIdentity)
+    .find(
+      (observed) =>
+        observed?.kind === "observed-identity-mismatch" ||
+        (options.rejectUnexpectedPatternIdentity &&
+          observed?.kind === "observed-grit-pattern" &&
+          !selectedPatterns.has(observed.observedPatternIdentity))
+    );
+  if (unexpected) {
+    return new Map(
+      selectedRules.map((rule) => [
+        rule.id,
+        infrastructureFailure(
+          rule,
+          "GritUnexpectedDiagnosticIdentity",
+          renderUnexpectedObservedGritIdentity(unexpected)
+        ),
+      ])
+    );
   }
 
   return new Map(
     selectedRules.map((rule) => {
       const pattern = rule.gritPattern;
+      const diagnosticIdentity = gritDiagnosticIdentity(pattern);
       const diagnostics = report.results
-        .filter((result) => matchesPattern(result, pattern))
+        .filter((result) =>
+          observedGritIdentityMatches(observedGritDiagnosticIdentity(result), diagnosticIdentity)
+        )
         .map((result) => ({
           ruleId: rule.id,
           path: normalizeGritPath(result.path),
@@ -54,14 +67,4 @@ export function projectGritResults(
       return [rule.id, { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics }];
     })
   );
-}
-
-function matchesPattern(result: GritResult, pattern: string): boolean {
-  return result.local_name === pattern || result.check_id?.includes(`#${pattern}/`) === true;
-}
-
-function resultPatternIdentity(result: GritResult): string | undefined {
-  if (result.local_name) return result.local_name;
-  const match = result.check_id?.match(/#([^/]+)\//);
-  return match?.[1];
 }

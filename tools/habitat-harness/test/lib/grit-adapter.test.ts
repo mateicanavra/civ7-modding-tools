@@ -210,6 +210,30 @@ describe("Grit check adapter parser and projection", () => {
     expect(unexpected.get(other.id)).toBeUndefined();
   });
 
+  test("rejects conflicting observed Grit identity fields", () => {
+    const rule = fakeGritRule("grit-domain-deep-import", "domain_deep_import");
+    const projected = projectGritResults([rule], {
+      paths: ["mods/mod-swooper-maps/src/recipes/demo.ts"],
+      results: [
+        {
+          local_name: "domain_deep_import",
+          check_id: "github.com/mateicanavra/civ7-modding-tools#different_pattern/js",
+          path: "mods/mod-swooper-maps/src/recipes/demo.ts",
+          start: { line: 1 },
+          extra: { message: "conflicting identity" },
+        },
+      ],
+    });
+
+    expect(projected.get(rule.id)?.exitCode).toBe(1);
+    expect(projected.get(rule.id)?.diagnostics[0]?.message).toContain(
+      "GritUnexpectedDiagnosticIdentity"
+    );
+    expect(projected.get(rule.id)?.diagnostics[0]?.message).toContain(
+      "local_name=domain_deep_import"
+    );
+  });
+
   test("rejects empty scan roots before command execution", async () => {
     const rule = fakeGritRule("grit-domain-deep-import", "domain_deep_import");
     const results = await runGritRules([rule], { scanRoots: [] });
