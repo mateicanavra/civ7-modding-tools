@@ -20,7 +20,7 @@ module or DTO names.
   Habitat needs an explicit trigger before adopting shared command-observation
   substrate work.
 - Adjacent domains consume this packet through explicit contracts and may not
-  recreate its authority locally.
+  recreate its decisions locally.
 
 ## Target Contract
 
@@ -33,21 +33,21 @@ module or DTO names.
 
 - No unbounded Effect migration.
 - No standalone substrate unless a consuming packet proves necessity.
-- No generic artifact expansion.
+- No generic record expansion.
 
 ## Naming And Language Decisions
 
 - Use standard engineering terms that name the actual workflow object:
   receipts, checks, diagnostics, guard decisions, transactions, refusals,
-  recovery instructions, metadata projections, command outcomes, and handoff
+  recovery instructions, metadata, command outcomes, and handoff
   records.
-- Treat legacy verification-artifact-shaped code names as compatibility facts
+- Treat inherited verification-record-shaped code names as compatibility facts
   unless this packet explicitly accepts them as target language.
 - Treat `Execution Provenance` and `substrate` as inherited packet labels or
   implementation-control shorthand. Target domain language is command
   observation; shared substrate means only a future accepted typed
   command-observation contract after `trigger-accepted`.
-- Do not create generic artifact machinery when a command result,
+- Do not create generic record machinery when a command result,
   receipt, or diagnostic contract serves the scenario.
 
 ## Trigger State Model
@@ -62,18 +62,18 @@ D15 has four allowed design states:
 - `trigger-accepted`: a separate accepted OpenSpec change owns the bounded
   command-observation substrate for the named command family.
 - `trigger-rejected`: final review accepts that the request is complete but the
-  named state is representable by local DTOs/projections; the consuming packet
+  named state is representable by local DTOs/contracts; the consuming packet
   records the rejection and D15 returns to `dormant`.
 
 The accepted upstream packets currently leave D15 dormant:
 
 | Consumer | Current D15 status | Reason |
 | --- | --- | --- |
-| D6 Diagnostic Pattern Catalog | dormant | D6 records D15 only if diagnostic command observations cannot be represented by D6-local projections. Its accepted design does not trigger shared substrate work. |
+| D6 Diagnostic Pattern Catalog | dormant | D6 records D15 only if diagnostic command observations cannot be represented by D6-local contracts. Its accepted design does not trigger shared substrate work. |
 | D7 Structural Enforcement Pipeline | dormant | D7 records D15 only if check pipeline command/cache/cwd/env/output states cannot be represented locally. Its accepted design does not trigger shared substrate work. |
 | D9 Transformation Transaction | dormant | D9 records D15 only if transaction records cannot represent dry-run/apply/rollback command observations locally. Its accepted design does not trigger shared substrate work. |
-| D11 Local Feedback | dormant | D11 records D15 only if hook/local-feedback observations cannot be represented by D1/D3/D6/D7/D9/D10 projections. Its accepted design does not trigger shared substrate work. |
-| G-HOST Host Policy Boundary Gate | dormant | G-HOST records D15 only if host-policy implementation discovers a local command/projection observation contradiction. Its accepted design does not trigger shared substrate work. |
+| D11 Hook Runtime | dormant | D11 records D15 only if hook-runtime observations cannot be represented by D1/D3/D6/D7/D9/D10 contracts. Its accepted design does not trigger shared substrate work. |
+| G-HOST Host Policy Boundary Gate | dormant | G-HOST records D15 only if host-policy implementation discovers a local command-observation contradiction. Its accepted design does not trigger shared substrate work. |
 
 ## Trigger Request Contract
 
@@ -81,21 +81,21 @@ A consuming packet may request D15 only by recording all of:
 
 - command family and owner packet;
 - concrete contradictory state reachable with local DTOs;
-- exact local DTO/projection alternative attempted or rejected;
-- local DTO sufficiency artifact containing the attempted discriminated union,
-  typestate, or projection shape; the contradiction that remains representable;
+- exact local DTO or contract alternative attempted or rejected;
+- local DTO sufficiency record containing the attempted discriminated union,
+  typestate, or contract shape; the contradiction that remains representable;
   a negative fixture or typed example; the safe TypeScript alternatives rejected
   such as discriminated-union input, exhaustive tagged result handling,
-  DTO/domain separation, boundary parsing, or typed error projection; and the
+  DTO/domain separation, boundary parsing, or typed error values; and the
   proposed shared discriminants that make the contradiction unrepresentable;
 - required command observation fields: argv, cwd, env subset, git state, cache
   status, output bounds, duration, and command family failure states, limited to
   the fields the scenario actually needs;
-- field-level ownership map for each requested command-observation field,
-  naming the owner packet/projection or explaining why the future shared
+- field-level owner map for each requested command-observation field,
+  naming the owner packet or explaining why the future shared
   contract owns that field only because local ownership failed;
 - public/durable surface impact, concrete D0 compatibility rows, and D1
-  output-family/non-claim handling for every touched public command, JSON,
+  output-family/support-boundary handling for every touched public command, JSON,
   export, script, target, generator, hook, doc, or example;
 - write/protected set for any source change;
 - validation gates that falsify the contradiction;
@@ -113,7 +113,7 @@ implementation starts, the executor must have:
 - D0 compatibility disposition for every public command, JSON, package export,
   script, target, generator, hook, doc, and example surface touched by this
   packet.
-- D1 output-family and non-claim handling for every public receipt, diagnostic,
+- D1 output-family and support-boundary handling for every public receipt, diagnostic,
   transaction, handoff, hook, or command-observation field.
 - A concrete write set and protected path list.
 - A protected-set decision covering generated outputs, lockfiles unless
@@ -125,7 +125,7 @@ implementation starts, the executor must have:
 
 ## Review Lanes
 
-- Domain-language adversary: names, owner, authority, and inherited terminology.
+- Domain-language adversary: names, owner, responsibility, and inherited terminology.
 - OpenSpec packet review: proposal/design/tasks/spec consistency and shortcut
   language.
 - TypeScript state-space review: invalid states removed without type machinery
