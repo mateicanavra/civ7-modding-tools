@@ -116,7 +116,7 @@ describe("Habitat pattern generator", () => {
       lifecycle: "registered-enforced",
       hookScope: {
         decision: "pre-commit",
-        rationale: "staged-scope proof accepted for this enforced rule",
+        rationale: "staged-scope evidence accepted for this enforced rule",
         costAndScopeEvidence:
           "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
       },
@@ -206,7 +206,7 @@ describe("Habitat pattern generator", () => {
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
-  test("writes registered enforced pre-commit hook-scoped output after accepted hook proof", async () => {
+  test("writes registered enforced pre-commit hook-scoped output after accepted hook evidence", async () => {
     const tree = createPatternTree({
       $comment: "preserve rule-pack metadata",
       rules: [],
@@ -216,7 +216,7 @@ describe("Habitat pattern generator", () => {
       lifecycle: "registered-enforced",
       hookScope: {
         decision: "pre-commit",
-        rationale: "staged-scope proof accepted for this enforced rule",
+        rationale: "staged-scope evidence accepted for this enforced rule",
         costAndScopeEvidence:
           "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
       },

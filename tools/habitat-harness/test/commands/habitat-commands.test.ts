@@ -8,7 +8,14 @@ const mockReport = vi.hoisted(() => ({
   rules: [],
 }));
 
-vi.mock("../../src/lib/command-engine.js", () => ({
+vi.mock("../../src/lib/check-report.js", () => ({
+  createCheckReport: vi.fn(() => mockReport),
+  describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
+  expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
+  renderCheckReport: vi.fn(() => '{"ok":true}'),
+}));
+
+vi.mock("../../src/lib/classify.js", () => ({
   classifyTarget: vi.fn((target: string) => ({
     path: target,
     project: "@internal/habitat-harness",
@@ -17,8 +24,22 @@ vi.mock("../../src/lib/command-engine.js", () => ({
     rulesInScope: ["biome-ci"],
     requiredTargets: ["bun run habitat:check"],
   })),
-  createCheckReport: vi.fn(() => mockReport),
-  createVerifyProof: vi.fn(() => ({
+}));
+
+vi.mock("../../src/lib/fix.js", () => ({
+  runFix: vi.fn(() => ({ exitCode: 0, stdout: "biome ok\n", stderr: "" })),
+}));
+
+vi.mock("../../src/lib/graph.js", () => ({
+  runGraph: vi.fn(() => ({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" })),
+}));
+
+vi.mock("../../src/lib/hooks.js", () => ({
+  runHook: vi.fn(() => ({ exitCode: 0, stdout: "hook ok\n", stderr: "" })),
+}));
+
+vi.mock("../../src/lib/verify-receipt.js", () => ({
+  createVerifyReceipt: vi.fn(() => ({
     schemaVersion: 1,
     command: { argv: ["habitat", "verify", "--json"], exitCode: 0 },
     habitatCheck: { selectedRealRuleIds: ["workspace-entrypoints"] },
@@ -28,21 +49,18 @@ vi.mock("../../src/lib/command-engine.js", () => ({
       projects: [],
       cacheStateByTask: [],
       exitCode: 0,
-      stdout: "affected ok\n",
-      stderr: "",
+      stdoutLength: 12,
+      stderrLength: 0,
+      stdoutPreview: "affected ok\n",
+      stderrPreview: "",
       stdoutTruncated: false,
       stderrTruncated: false,
     },
-    nonClaims: ["CI execution proof"],
+    nonClaims: ["does-not-prove-ci"],
   })),
-  describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
-  expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
-  renderCheckReport: vi.fn(() => '{"ok":true}'),
   resolveVerifyBase: vi.fn((base?: string) => base ?? "merge-base"),
-  runHook: vi.fn(() => ({ exitCode: 0, stdout: "hook ok\n", stderr: "" })),
   runAffectedVerification: vi.fn(() => ({ exitCode: 0, stdout: "affected ok\n", stderr: "" })),
-  runFix: vi.fn(() => ({ exitCode: 0, stdout: "biome ok\n", stderr: "" })),
-  runGraph: vi.fn(() => ({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" })),
+  stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
 }));
 
 import Check from "../../src/commands/check.js";
@@ -51,7 +69,12 @@ import Fix from "../../src/commands/fix.js";
 import Graph from "../../src/commands/graph.js";
 import Hook from "../../src/commands/hook.js";
 import Verify from "../../src/commands/verify.js";
-import * as engine from "../../src/lib/command-engine.js";
+import * as checkReport from "../../src/lib/check-report.js";
+import * as classify from "../../src/lib/classify.js";
+import * as fix from "../../src/lib/fix.js";
+import * as graph from "../../src/lib/graph.js";
+import * as hooks from "../../src/lib/hooks.js";
+import * as verifyReceipt from "../../src/lib/verify-receipt.js";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];
@@ -101,7 +124,7 @@ describe("Habitat oclif commands", () => {
       "HEAD",
     ]);
 
-    expect(engine.createCheckReport).toHaveBeenCalledWith(
+    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD",
         owner: "@internal/habitat-harness",
@@ -111,7 +134,7 @@ describe("Habitat oclif commands", () => {
         commandArgs: expect.arrayContaining(["--json", "--rule", "doc-ambiguity"]),
       })
     );
-    expect(engine.renderCheckReport).toHaveBeenCalledWith(mockReport, {
+    expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport, {
       json: true,
       output: "/tmp/report.json",
     });
@@ -121,7 +144,7 @@ describe("Habitat oclif commands", () => {
   test("check expand-baseline uses the authoring path instead of report emission", async () => {
     await Check.run(["--expand-baseline", "--rule", "demo-rule"]);
 
-    expect(engine.expandBaselines).toHaveBeenCalledWith(
+    expect(checkReport.expandBaselines).toHaveBeenCalledWith(
       {
         owner: undefined,
         rule: "demo-rule",
@@ -131,14 +154,14 @@ describe("Habitat oclif commands", () => {
         base: "main",
       }
     );
-    expect(engine.createCheckReport).not.toHaveBeenCalled();
+    expect(checkReport.createCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
   });
 
-  test("fix forwards dry-run to the Biome runner", async () => {
+  test("fix forwards dry-run to the hygiene runner", async () => {
     await Fix.run(["--dry-run"]);
 
-    expect(engine.runFix).toHaveBeenCalledWith({ dryRun: true });
+    expect(fix.runFix).toHaveBeenCalledWith({ dryRun: true });
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
   });
@@ -146,21 +169,21 @@ describe("Habitat oclif commands", () => {
   test("verify awaits check and affected target execution", async () => {
     await Verify.run(["--base", "HEAD~1"]);
 
-    expect(engine.createCheckReport).toHaveBeenCalledWith(
+    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({ base: "HEAD~1", commandArgs: ["--base", "HEAD~1"] })
     );
-    expect(engine.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
+    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
     expect(stdout.join("")).toContain("affected ok");
   });
 
-  test("verify can emit structured proof JSON", async () => {
+  test("verify can emit structured receipt JSON", async () => {
     await Verify.run(["--base", "HEAD~1", "--json"]);
 
-    expect(engine.createCheckReport).toHaveBeenCalledWith(
+    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({ base: "HEAD~1", commandArgs: ["--base", "HEAD~1", "--json"] })
     );
-    expect(engine.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
-    expect(engine.createVerifyProof).toHaveBeenCalledWith(
+    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
+    expect(verifyReceipt.createVerifyReceipt).toHaveBeenCalledWith(
       expect.objectContaining({
         requestedBase: "HEAD~1",
         resolvedBase: "HEAD~1",
@@ -171,13 +194,13 @@ describe("Habitat oclif commands", () => {
     );
     const payload = JSON.parse(capturedOutput()) as { schemaVersion: number; nonClaims: string[] };
     expect(payload.schemaVersion).toBe(1);
-    expect(payload.nonClaims).toContain("CI execution proof");
+    expect(payload.nonClaims).toContain("does-not-prove-ci");
   });
 
   test("graph forwards compact JSON output", async () => {
     await Graph.run(["--json"]);
 
-    expect(engine.runGraph).toHaveBeenCalledWith({ json: true });
+    expect(graph.runGraph).toHaveBeenCalledWith({ json: true });
     expect(stdout.join("")).toContain('{"nodes":{}}');
   });
 
@@ -187,7 +210,7 @@ describe("Habitat oclif commands", () => {
     const payload = JSON.parse(capturedOutput()) as { project: string; tags: string[] };
     expect(payload.project).toBe("@internal/habitat-harness");
     expect(payload.tags).toEqual(["kind:tooling"]);
-    expect(engine.classifyTarget).toHaveBeenCalledWith(
+    expect(classify.classifyTarget).toHaveBeenCalledWith(
       "tools/habitat-harness/src/commands/check.ts"
     );
   });
@@ -195,7 +218,7 @@ describe("Habitat oclif commands", () => {
   test("hook dispatches to the Habitat hook runner", async () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
-    expect(engine.runHook).toHaveBeenCalledWith("pre-push", { base: "HEAD~1" });
+    expect(hooks.runHook).toHaveBeenCalledWith("pre-push", { base: "HEAD~1" });
     expect(stdout.join("")).toContain("hook ok");
   });
 

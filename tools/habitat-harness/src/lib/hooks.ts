@@ -151,7 +151,7 @@ export function createHookTrace(): HookTrace {
 
 const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"];
 const resourcesSubmodulePath = ".civ7/outputs/resources";
-const localHookProofNotice = "hook proof: local feedback only; CI remains authoritative.\n";
+const localHookNotice = "hook result: local feedback only; CI remains authoritative.\n";
 const defaultResourcePublishCommands: ResourcePublishCommands = {
   publish: "bun run resources:publish",
   status: "bun run resources:status",
@@ -211,7 +211,7 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   const startedAtMs = hookNow(runtime);
   const output = createHookOutput(runtime.reporter);
   output.writeStdout("habitat hook pre-commit\n");
-  output.writeStdout(localHookProofNotice);
+  output.writeStdout(localHookNotice);
 
   const resources = classifyResourcesState(runtime);
   if (runtime.trace) {
@@ -402,7 +402,7 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
 
 export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {}): SpawnResult {
   const output = createHookOutput(runtime.reporter);
-  output.writeStdout(localHookProofNotice);
+  output.writeStdout(localHookNotice);
   if (runtime.trace) {
     runtime.trace.prePush = { outcome: "started", startedAtMs: hookNow(runtime) };
     runtime.trace.prePush.preState = captureRepoSnapshot(runtime);

@@ -2,7 +2,7 @@
 
 ## Status
 
-D1 downstream dependencies are accepted for design/specification only after final per-domino review and re-review found no unresolved P1/P2 blockers. D1 is not implementation-complete. Concrete D0 matrix rows now exist; D1 source implementation remains blocked until the D1 execution inventory, output-family citations, inherited D0 evidence baseline, and implementation-start review dispositions are complete.
+D1 source implementation is submitted in the Habitat stack. Concrete D0 matrix rows exist, D1 implementation-start gates cleared, the command-engine monolith was deleted, and focused command modules now provide D1 command/report/receipt behavior. Downstream packets should consume D1 source behavior without reintroducing broad proof/evidence artifact surfaces.
 
 | Downstream | D1 handoff | Required downstream behavior |
 | --- | --- | --- |
@@ -28,11 +28,11 @@ D1 downstream dependencies are accepted for design/specification only after fina
 | `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md` | Classify proof/evidence language as current-state prose, compatibility example, or target replacement after D0 docs-example rows exist. |
 | `tools/habitat-harness/docs/SCENARIOS.md` | Update only where D1 changes target user guidance; do not rewrite historical/current-state examples merely to hide compatibility facts. |
 | Hook human-output examples | D11 consumes D1 local-feedback target meaning and D0 human-output handling. |
-| Test filenames such as `proof-artifact.test.ts` and `verify-proof.test.ts` | Compatibility organization only unless D0 and D1 choose rename; reviewers must not infer target language from legacy filenames. |
+| Deleted test filenames `proof-artifact.test.ts` and `verify-proof.test.ts` | These are no longer compatibility organization targets; retained receipt behavior is tested through `verify-receipt.test.ts` and command/hook/apply focused tests. |
 
 ## Index Update Rule
 
-The remediation packet index records D1 as accepted for design/specification only, with `Enables` set to D6, D7, D8, D9, D10, D11, D12, D13, and D14. D10's `Requires` cell includes D1 before D10 review. D13 must cite D1 directly, or explicitly state why its D1 dependency is transitive. D1 is not implementation-complete and remains source-edit blocked until D1 execution inventory and review gates are complete.
+The remediation packet index records D1 as implemented/submitted in the Habitat stack, with `Enables` set to D6, D7, D8, D9, D10, D11, D12, D13, and D14. D10's `Requires` cell includes D1 before D10 review. D13 must cite D1 directly, or explicitly state why its D1 dependency is transitive.
 
 ## D10 Metadata Edit Allowance
 

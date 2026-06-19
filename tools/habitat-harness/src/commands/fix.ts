@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runFix } from "../lib/command-engine.js";
+import { runFix } from "../lib/fix.js";
 
 export default class Fix extends HabitatCommand {
   static override summary = "Apply Habitat-owned safe fixes";

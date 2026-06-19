@@ -1,6 +1,6 @@
 import { Args, Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runHook } from "../lib/command-engine.js";
+import { runHook } from "../lib/hooks.js";
 
 export default class Hook extends HabitatCommand {
   static override summary = "Run a Habitat git-hook entrypoint";

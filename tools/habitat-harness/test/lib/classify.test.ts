@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { classifyPath, classifyTarget } from "../../src/lib/command-engine.js";
+import { classifyPath, classifyTarget } from "../../src/lib/classify.js";
 import type { NxProjectMetadataReader } from "../../src/lib/nx-projects.js";
 
 const fixtureNxProjects: NxProjectMetadataReader = {
@@ -125,7 +125,7 @@ describe("Habitat classify", () => {
           owner: "project",
           project,
           target: "check",
-          proof: { kind: "nx-project-graph", project, target: "check" },
+          source: { kind: "nx-project-graph", project, target: "check" },
         }),
       ])
     );
@@ -246,7 +246,7 @@ describe("Habitat classify", () => {
     ]);
   });
 
-  test("missing paths are classified by path ownership without filesystem proof", async () => {
+  test("missing paths are classified by path ownership without filesystem checks", async () => {
     const projectPath = await classifyPath("packages/config/src/not-yet-created.ts", {
       nxProjects: fixtureNxProjects,
     });

@@ -1,12 +1,12 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
+import { createCheckReport, renderCheckReport } from "../lib/check-report.js";
 import {
-  createCheckReport,
-  createVerifyProof,
-  renderCheckReport,
+  createVerifyReceipt,
   resolveVerifyBase,
   runAffectedVerification,
-} from "../lib/command-engine.js";
+  stringifyVerifyReceipt,
+} from "../lib/verify-receipt.js";
 
 export default class Verify extends HabitatCommand {
   static override summary = "Run Habitat check plus affected verification targets";
@@ -22,7 +22,7 @@ export default class Verify extends HabitatCommand {
       description: "Git base ref for affected targets and baseline integrity.",
     }),
     json: Flags.boolean({
-      description: "Emit a structured VerifyProof artifact instead of human output.",
+      description: "Emit a structured verify receipt instead of human output.",
     }),
   };
 
@@ -39,7 +39,7 @@ export default class Verify extends HabitatCommand {
     if (affectedResult) exitCode = affectedResult.exitCode;
 
     if (flags.json) {
-      const proof = createVerifyProof({
+      const receipt = createVerifyReceipt({
         requestedBase: flags.base,
         resolvedBase: base,
         commandArgs: this.rawArgv(),
@@ -49,7 +49,7 @@ export default class Verify extends HabitatCommand {
         checkReport: report,
         affectedResult,
       });
-      this.log(JSON.stringify(proof, null, 2));
+      this.log(stringifyVerifyReceipt(receipt));
       if (exitCode !== 0) this.exitWith(exitCode);
       return;
     }
