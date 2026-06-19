@@ -26,7 +26,7 @@ describe("Pattern Authority Manifest validator", () => {
     expect(result).toMatchObject({
       ok: true,
       state: "registered-advisory",
-      authorityAccepted: true,
+      authorityAccepted: false,
     });
   });
 
@@ -79,7 +79,7 @@ describe("Pattern Authority Manifest validator", () => {
     expect(issueReasons(result)).toContain("malformed-manifest");
   });
 
-  test("rejects placeholder authority and proof fields", () => {
+  test("rejects placeholder authority text", () => {
     const manifest = registeredManifest({
       normativeSources: [
         {
@@ -100,9 +100,9 @@ describe("Pattern Authority Manifest validator", () => {
       lifecycle: "registered-advisory",
       hookScope: {
         decision: "pre-commit",
-        rationale: "staged-scope proof accepted in packet",
+        rationale: "staged scope is accepted for this rule",
         costAndScopeEvidence:
-          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/proof.md",
+          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
       },
     });
 
@@ -225,7 +225,7 @@ describe("Pattern Authority Manifest validator", () => {
       registeredManifest({
         baselineContract: {
           baselinePath: "tools/habitat-harness/baselines/grit-authority-probe.json",
-          ruleIntroductionManifest: "TODO replace with baseline manifest proof",
+          ruleIntroductionManifest: "TODO replace with baseline manifest path",
           baselineAction: "committed-empty",
         },
       })
@@ -294,7 +294,7 @@ function registeredManifest(
       command: "bun run habitat:check -- --json --rule grit-authority-probe",
       resultClass: "zero-findings",
       evidencePath:
-        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/command-proof-log.md",
+        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/command-log.md",
     },
     baselineContract: {
       baselinePath: "tools/habitat-harness/baselines/grit-authority-probe.json",

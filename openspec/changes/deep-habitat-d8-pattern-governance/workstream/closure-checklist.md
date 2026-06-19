@@ -33,27 +33,31 @@
 - [x] Fresh final D8 cross-domino rereview records no unresolved P1/P2.
 - [x] Packet index updated after final rereviews and validation passed.
 
-## Source Implementation Closure (Later)
+## Source Implementation Closure
 
-- [ ] Source implementation starts only after D8 accepted design/specification
+- [x] Source implementation starts only after D8 accepted design/specification
   and concrete blockers in `$D8_PHASE_RECORD` are satisfied.
-- [ ] Source changes stay inside the approved write set.
-- [ ] Protected paths remain untouched unless their owner packet authorizes the
+- [x] Source changes stay inside the approved write set.
+- [x] Protected paths remain untouched unless their owner packet authorizes the
   change.
-- [ ] Public-surface changes cite concrete D0 rows.
-- [ ] Command-facing output changes cite D1 output-family decisions.
-- [ ] D8 consumes live D2/D5/D6 projections instead of local whole-record or
-  file-presence authority.
-- [ ] D9/D11/D13 handoffs consume D8 projections and do not recreate lifecycle
+- [x] Public-surface changes cite concrete D0 rows.
+- [x] Command-facing output changes cite D1 output-family decisions. No command
+  output family changes were introduced by this source slice.
+- [x] D8 consumes live D2/D5/D6 projections instead of local whole-record or
+  file-presence authority. Current source publishes the D8 projection boundary
+  and does not infer active admission from registry, baseline, or Grit files.
+- [x] D9/D11/D13 handoffs consume D8 projections and do not recreate lifecycle
   semantics.
-- [ ] Implementation validation gates in `$D8_CHANGE/tasks.md` pass with exact
+- [x] Implementation validation gates in `$D8_CHANGE/tasks.md` pass with exact
   results recorded.
-- [ ] Graphite layer is clean and reviewable.
+- [x] Graphite layer is clean and reviewable.
 
 ## Non-Closure Notes
 
-- D8 is not implementation-complete after design/specification acceptance.
 - Existing active Grit rules without complete Pattern Authority manifests remain
-  compatibility facts, not complete D8 admissions.
+  registry facts, not complete D8 admissions.
 - Native Grit samples, baseline checks, and clean git status do not replace D8
   lifecycle/admission validation.
+- D8 source submission does not implement D9 apply transactions, D11 local
+  feedback hooks, D13 generator rewiring, D10 protected zones, or G-HOST host
+  policy.
