@@ -76,7 +76,7 @@ Every `row_relationships` cell is a typed list of `{"relation":"<row_relationshi
 | human-output | 12 |
 | migration | 4 |
 | nx-target | 68 |
-| package-export | 162 |
+| package-export | 163 |
 | root-script | 25 |
 
 ## Compatibility Matrix
@@ -330,6 +330,7 @@ Every `row_relationships` cell is a typed list of `{"relation":"<row_relationshi
 | D0-package-export-symbol-patternauthoritycandidateroot | package-export | tools/habitat-harness/src/rules/pattern-authority/manifest.ts | patternAuthorityCandidateRoot | Pattern Authority Manifest path helper. | Package importers, internal command modules, future D packets | package-internal | [] | facade | D8 | D8,D13,D14 | tsc export check plus adjacent unit tests | Symbol export does not imply field-level DTO stability unless state is command-only-dto or public-versioned. | One physical row per src/index.ts export symbol. |
 | D0-package-export-symbol-patternauthoritymanifestpath | package-export | tools/habitat-harness/src/rules/pattern-authority/manifest.ts | patternAuthorityManifestPath | Pattern Authority Manifest path helper. | Package importers, internal command modules, future D packets | package-internal | [] | facade | D8 | D8,D13,D14 | tsc export check plus adjacent unit tests | Symbol export does not imply field-level DTO stability unless state is command-only-dto or public-versioned. | One physical row per src/index.ts export symbol. |
 | D0-package-export-symbol-patternauthoritymanifestroot | package-export | tools/habitat-harness/src/rules/pattern-authority/manifest.ts | patternAuthorityManifestRoot | Pattern Authority Manifest path helper. | Package importers, internal command modules, future D packets | package-internal | [] | facade | D8 | D8,D13,D14 | tsc export check plus adjacent unit tests | Symbol export does not imply field-level DTO stability unless state is command-only-dto or public-versioned. | One physical row per src/index.ts export symbol. |
+| D0-package-export-source-host-policy-internal | package-export | tools/habitat-harness/src/lib/host-policy.ts | internal host-policy facade | Internal G-HOST source location for TypeBox host declarations, state parsing, and projection modules; not exported from the root package barrel. | D9, D10, D13, D14 internal consumers | package-internal | [] | document-only | G-HOST | G-HOST,D9,D10,D13,D14 | bun run --cwd tools/habitat-harness check plus host-policy unit tests | Does not create a public declaration export, user-authored config file, or host-policy command output surface. | Source-start row for the accepted G-HOST internal owner module. |
 
 ### Root Script Rows
 
@@ -565,7 +566,7 @@ Every `row_relationships` cell is a typed list of `{"relation":"<row_relationshi
 | Gate | Expected status | Actual status | Cache or freshness stance | Sample location | Non-claims |
 | --- | --- | --- | --- | --- | --- |
 | `bun install --frozen-lockfile` | pass | pass | Fresh install in active D0 worktree; no lockfile edit expected | terminal output; dependencies installed from lockfile | Dependency presence does not prove command correctness. |
-| Matrix structural validation | pass | pass, 359 rows | Local script parsed row count, closed enums, typed relationship JSON, duplicate IDs, and dangling references | current D5 row-count parse | Structural validity does not prove source behavior beyond cited rows. |
+| Matrix structural validation | pass | pass, 363 rows | Local script parsed row count, closed enums, typed relationship JSON, duplicate IDs, and dangling references | current G-HOST row-count parse | Structural validity does not prove source behavior beyond cited rows. |
 | `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` | record actual | fail: 7 pass, 2 fail; both failures are `check --help` exit 2 through root and dev runners | Fresh test run after dependency install | terminal output | Failure is D0 evidence for current help-surface drift; D0 does not repair command source. |
 | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` | pass | pass: 28 tests | Fresh test run after dependency install | terminal output | Hook unit pass is not CI, product proof, or live hook execution. |
 | `bun run habitat check --json` | record actual | timed out/interrupted after validation window; no stdout, 52-byte stderr wrapper | Fresh broad current-tree command; interrupted to avoid lingering process | `/tmp/d0-validation-habitat-check-json.out`, `/tmp/d0-validation-habitat-check-json.err` | Timeout does not prove command absence or current-tree cleanliness. |

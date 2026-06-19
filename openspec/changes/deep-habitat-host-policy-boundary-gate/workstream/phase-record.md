@@ -2,27 +2,35 @@
 
 ## State
 
-- Status: accepted for design/specification only after after-repair final rereview; not implementation-complete.
+- Status: source implementation ready for Graphite submission on the inserted G-HOST Graphite branch; host-policy projections are implemented and validated for this layer.
 - Worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
-- Branch: `$ACTIVE_REMEDIATION_BRANCH`.
+- Branch: `agent-DRA-host-policy-boundary-gate`.
 - Source packet: `$PHASE2_PACKET_DIR/G-HOST-host-policy-boundary-gate.md`.
 - OpenSpec change: `$OPENSPEC_CHANGES/deep-habitat-host-policy-boundary-gate/`.
 
 ## Objective
 
-Specify G-HOST as the Host Policy Boundary packet that separates generic Habitat
-behavior from host-owned repo policy facts for generated/protected surfaces,
-external-resource surfaces, host-specific apply gates, and host-owned creation
-support/refusal.
+Implement G-HOST as the Host Policy Boundary packet that separates generic
+Habitat behavior from host-owned repo policy facts for generated/protected
+surfaces, external-resource surfaces, host-specific apply gates, and host-owned
+creation support/refusal.
 
 ## Current Gate
 
 Design/specification acceptance gate closed after first-wave findings and the
-first final OpenSpec/information P2 findings were repaired. After-repair final
-rereview lanes read the repaired disk state and recorded no unresolved P1/P2
-findings. Source implementation remains blocked behind concrete D0 rows, D1
-output-family handling, internal `$HABITAT_TOOL/src/lib/host-policy.ts`
-preserve/document-only handling, and accepted/live G-HOST projections.
+first final OpenSpec/information P2 findings were repaired. Source implementation
+is now unblocked for G-HOST itself by concrete D0 row
+`D0-package-export-source-host-policy-internal`, unchanged D1 output-family
+handling, and the internal `$HABITAT_TOOL/src/lib/host-policy.ts` facade.
+
+The current source layer implements TypeBox-first host policy schemas, bundled
+host declarations, declaration state parsing, structured recovery instructions,
+and named projections for host surfaces, scan roots, apply gates, project
+support, and authoring-boundary relations. Existing generated-zone and Grit
+scan-root consumers now consume host projections instead of a local generated
+zone catalog. D9, D13, and D14 source implementation remains packet-local
+downstream work; G-HOST provides the projections and does not claim those packets
+are closed.
 
 ## First-Wave Review Inputs
 
@@ -49,27 +57,24 @@ preserve/document-only handling, and accepted/live G-HOST projections.
 | `bun run openspec:validate` | exit 0 | Validates the full OpenSpec corpus. | Does not prove implementation readiness. |
 | `git diff --check` | exit 0 | Checks diff hygiene. | Does not prove semantic correctness. |
 
-## Later Implementation Gates
+## Source Validation Gates
 
-These gates are required only when a source implementation packet consumes this
-design:
-
-- focused host declaration parser/validator tests covering declared, missing,
-  unavailable, malformed, conflicting, and not-applicable source states plus
-  unsupported declaration/refusal outcomes;
-- staged file-layer command tests for clean and injected host-owned surface
-  mutations;
-- D9 apply-gate tests for declared, missing, and invalid host apply gates;
-- D10 generated/protected/external-resource consumer tests;
-- D13 host-owned project support/refusal tests with no-write assertions;
-- D14 authoring non-claim tests where host policy is mentioned;
-- native-tool mirror checks for Nx/Biome/Grit/Git boundaries where touched;
-- `git status --short --branch` after fixture-heavy tests.
+| Gate | Actual status | Purpose | Non-claims |
+| --- | --- | --- | --- |
+| `bun run --cwd tools/habitat-harness check` | pass | Type-checks the G-HOST source modules and consumers. | Does not prove every command path. |
+| `bun run --cwd tools/habitat-harness build` | pass | Proves package build after the host-policy module split. | Does not generate or validate Oclif manifest behavior. |
+| `bun run --cwd tools/habitat-harness test -- test/lib/host-policy.test.ts test/lib/generated-zones.test.ts test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts` | pass, 55 tests | Proves host declarations/projections, semantic conflict refusal, generated-zone consumption, scan-root refusal, and injected-probe generated-path refusal. | Does not close D9/D13/D14 source packets. |
+| `bun run --cwd tools/habitat-harness test` | fail in this thread's latest full run: 27 files pass, 254 tests pass; `test/generators/pattern-generator.test.ts` fails importing `src/rules/registry/schema.js` from TS source. A temporary reviewer also observed an intermittent injected-probe full-suite failure, while the focused injected-probe suite passes. | Records broad package state after G-HOST repairs. | Failure is not a G-HOST host-policy regression; full package test is not used as the closure proof for this layer. |
+| `bun run openspec -- validate deep-habitat-host-policy-boundary-gate --strict` | pass | Validates G-HOST OpenSpec structure. | Does not prove downstream consumer packet closure. |
+| `bun run openspec:validate` | pass, 249 items | Validates the full OpenSpec corpus after G-HOST record updates. | Does not prove full package tests pass. |
+| `git diff --check` | pass | Checks whitespace/diff hygiene. | Does not prove semantic correctness. |
+| `git status --short --branch` | intended dirty files only after fixture-heavy tests | Confirms no generated output, lockfile, temporary probe, or external-resource output remains. | Dirty state remains until the G-HOST layer is committed. |
 
 ## Non-Claims
 
-- This packet does not implement Habitat source changes.
+- This packet implements G-HOST source changes only.
 - This packet does not prove generated files are current.
 - This packet does not prove MapGen runtime/product behavior.
 - This packet does not make authoring topology supported.
+- This packet does not close D9, D13, or D14 source implementation.
 - This packet does not authorize unbounded provenance/process-substrate migration.

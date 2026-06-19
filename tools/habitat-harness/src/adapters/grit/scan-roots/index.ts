@@ -4,7 +4,7 @@ import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
 } from "../../../lib/diagnostic-catalog/index.js";
-import { isGeneratedZoneRoot } from "../../../lib/generated-zone-catalog.js";
+import { hostSurfaceProjectionForScanRoot } from "../../../lib/host-policy.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
 import type { RuleGritFacts } from "../../../rules/registry/index.js";
 import {
@@ -91,7 +91,7 @@ export function decideGritScanRoots(
       return { kind: "refused", reason: "outside-repo", root: scanRoot };
     if (requireExisting && !existsSync(absolute))
       return { kind: "refused", reason: "missing", root: scanRoot };
-    if (isGeneratedZoneRoot(relative))
+    if (hostSurfaceProjectionForScanRoot(relative).declarationState === "declared")
       return { kind: "refused", reason: "generated-output", root: relative };
     if (isProtectedRoot(relative))
       return { kind: "refused", reason: "protected-root", root: relative };
