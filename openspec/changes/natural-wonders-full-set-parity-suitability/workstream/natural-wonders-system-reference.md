@@ -37,11 +37,13 @@ types*, not from randomness ([§7](#7-tradeoffs-explicit) explains why).
 
 ## 2. The requirement-group model (A–I)
 
-Every wonder is assigned to one of nine **requirement groups** by feature id
-(`WONDER_GROUP_BY_FEATURE` in
-[`plan-natural-wonders/strategies/default.ts`](../../../../mods/mod-swooper-maps/src/domain/placement/ops/plan-natural-wonders/strategies/default.ts)).
-A group captures *what physical situation the wonder wants*, and drives both the
-per-tile suitability score and the cross-wonder variety decay
+Every wonder is assigned to one of nine **requirement groups** by feature id.
+The `WONDER_GROUPS` registry in
+[`plan-natural-wonders/strategies/default.ts`](../../../../mods/mod-swooper-maps/src/domain/placement/ops/plan-natural-wonders/strategies/default.ts)
+is the single source of truth for BOTH group membership and the per-group
+suitability formula (the feature→group map is derived from it, so the two cannot
+drift). A group captures *what physical situation the wonder wants*, and drives
+both the per-tile suitability score and the cross-wonder variety decay
 ([§5](#5-suitability-and-cross-wonder-selection)).
 
 | Group | Theme | Wonders (feature id) |
@@ -462,4 +464,27 @@ docs/wonders/refactor phase are noted.)
 | materialize + retry + telemetry | `mods/mod-swooper-maps/.../steps/place-natural-wonders/materialize.ts` |
 | reconcile invariant | `mods/mod-swooper-maps/.../steps/place-natural-wonders/validate.ts` |
 | engine stamp + readback | `packages/civ7-adapter/src/civ7-adapter.ts` (`placeNaturalWonder`) |
-| live evidence (source of truth for proven claims) | `openspec/changes/natural-wonders-full-set-parity-suitability/workstream/live-proof-ledger.md` §D |
+| live evidence (source of truth for proven claims) | `openspec/changes/natural-wonders-full-set-parity-suitability/workstream/live-proof-ledger.md` §D + §E |
+
+## 13. Refactor evaluation (2026-06-19)
+
+Evaluated per the `typescript-refactoring` + `civ7-architecture-authority` skills.
+
+- **Wonder groups → single registry — IMPLEMENTED.** The split
+  `WONDER_GROUP_BY_FEATURE` map + `suitabilityAt` switch became one `WONDER_GROUPS`
+  registry that owns membership *and* the per-group formula; the feature→group map
+  is derived from it (no membership/formula drift) and the dead `default` switch
+  branch is gone (the group is always A–I). Formulas are now pure module-level
+  functions over an explicit `GroupSuitabilitySignals` vector, directly
+  unit-tested by a characterization test. Behavior-preserving (verbatim weights;
+  determinism + variety-flip tests green). This is primarily a cohesion /
+  single-source-of-truth / testability win, not a large state-space collapse —
+  recorded honestly per the skill's mandate.
+- **Op / stage / step responsibility split — NO CHANGE (already correct).** The
+  pure `kind:plan` op owns planning *truth* (suitability, selection, fallbacks);
+  `derive-placement-inputs` is the boundary step that forwards policy/signals so
+  the op stays engine-/policy-free; `place-natural-wonders` owns
+  materialization/retry/telemetry. This already satisfies the architecture
+  invariants (`core-stays-pure`, `truth-and-projection-separate`,
+  `steps-have-explicit-contracts`); moving logic either way would violate a
+  boundary or lose testability, so no refactor earns its diff.
