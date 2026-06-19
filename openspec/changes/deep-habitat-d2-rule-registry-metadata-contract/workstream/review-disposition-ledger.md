@@ -2,7 +2,7 @@
 
 ## Status
 
-D2 is accepted for design/specification after final D2 rereview and focused code/topology recheck found no unresolved P1/P2 blockers. D2 is not implementation-complete. Its implementation-start blockers are now resolved by the concrete D0 and D1 citations in `workstream/implementation-start-inventory.md`; global findings are applied constraints only, not acceptance evidence.
+D2 is accepted for design/specification after final D2 rereview and focused code/topology recheck found no unresolved P1/P2 blockers. D2 source implementation is submitted in PR #1837 and approved for D3 advancement through user-delegated temporary-supervisor review after the accepted P2 command-context carry-forward repair. Its implementation-start blockers are resolved by the concrete D0 and D1 citations in `workstream/implementation-start-inventory.md`; global findings are applied constraints only, not acceptance evidence.
 
 ## Imported Negative Control Review
 
@@ -35,6 +35,7 @@ Source: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino
 | --- | --- | --- | --- |
 | Final code/topology rereview: `grit-injected-probe.ts` is a current registry consumer and D2 validation target, but was missing from the approved implementation write set and migration tasks. | P2 | accepted; repaired; focused code/topology recheck closed | `design.md` now includes `/tools/habitat-harness/src/lib/grit-injected-probe.ts` in the D2 implementation write set and safe refactor sequence. `tasks.md` now requires migrating `grit-injected-probe.ts` to `ruleGritFacts`/registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`. `domino-D2-final-code-topology-recheck.md` accepts the repair. |
 | Final code/topology rereview: hook/local-feedback is a D2-impacted surface and `ruleLocalFeedbackFacts` consumer, but D2 lacked a hook-specific validation oracle. | P2 | accepted; repaired; focused code/topology recheck closed | `proposal.md`, `tasks.md`, and `phase-record.md` now include `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts`. The phase-record non-claim states this proves hook-facing D2 metadata compatibility only, not D11 hook behavior closure. `domino-D2-final-code-topology-recheck.md` accepts the repair. |
+| Temporary product/domain packet-boundary review: manual `CheckReport.command` string construction remains in current source and was not concretely carried into downstream execution records. | P2 | accepted; repaired as downstream handoff, not D2 source work | D2 downstream and closure records state D7 owns replacing manual check command string construction with Oclif command context / `StructuralCheckRequest` normalization, and D12 owns verify affected-target argv construction. D7 `design.md` and `tasks.md` now require removing `buildHabitatCommand`-style command/argv joins from check report construction while preserving D0/D1-compatible output. No D2 P1/P2 blockers remain. |
 
 ## Global Constraints
 
@@ -53,4 +54,4 @@ Source: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino
 - [x] Fresh final D2 information-design review accepts artifact readability and no hidden design holes: `domino-D2-final-information-design-review.md`.
 - [x] Fresh final D2 cross-domino review accepts projection handoffs, G-HOST alignment, and downstream rows: `domino-D2-final-cross-domino-review.md`.
 
-D2 is accepted for design/specification. D2 is not implementation-complete. Source implementation may proceed only through the D0/D1 citations and TypeBox-first registry boundary recorded in `workstream/implementation-start-inventory.md`.
+D2 is accepted for design/specification and source implementation. User-delegated temporary-supervisor reviews found no unresolved D2 P1/P2 blockers after the D7 command-context carry-forward repair, so D3 may open from this D2 stack layer under the current review model.

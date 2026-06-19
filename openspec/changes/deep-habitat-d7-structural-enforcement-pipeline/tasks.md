@@ -46,6 +46,10 @@
   `StructuralRuleOutcome`, and `CheckOutcome`.
 - [ ] 3.4 Preserve public `CheckReport`/`RuleReport` compatibility through
   D0/D1-approved facades while the internal state model becomes authoritative.
+- [ ] 3.5 Replace manual `CheckReport.command` string construction
+  (`buildHabitatCommand` or equivalent command/argv joins) with Oclif-derived
+  command context in `StructuralCheckRequest`, preserving D0/D1-compatible
+  serialized command output.
 
 ## 4. Pipeline Migration
 
