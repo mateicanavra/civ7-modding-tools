@@ -41,4 +41,5 @@
 
 - D2 implementation does not close D3 resolved graph truth, D5 baseline authority, D8 governance admission, D11 hook behavior, D12 verify workflow, or D13 scaffold/refusal behavior.
 - D2 implementation does not make broad `habitat check --json` pass; existing non-D2 findings remain separately owned.
-- D2 is not approved for D3 advancement until external packet approval accepts PR #1837 or an explicit user/authority decision changes the gate.
+- D2 is approved for D3 advancement through user-delegated temporary-supervisor review after the D7 command-context carry-forward repair. This approval does not publish PR #1837 or merge the stack.
+- Manual check command string construction remains outside D2 source scope and is recorded as a D7/D12 handoff: D7 owns replacing `CheckReport.command` helper construction with Oclif command context / request normalization; D12 owns verify affected argv construction.

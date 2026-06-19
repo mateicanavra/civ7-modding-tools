@@ -50,7 +50,7 @@ Accepted D7 target terms:
 
 | Term | Meaning |
 | --- | --- |
-| `StructuralCheckRequest` | Normalized check operation: command context, selector request, check mode, base request, staged request when present. |
+| `StructuralCheckRequest` | Normalized check operation: Oclif-derived command context, selector request, check mode, base request, staged request when present. |
 | `SelectorRequest` | User selector intent over owner, rule, tool, and command scope. |
 | `RuleSelectionOutcome` | Accepted selected rule set or selector refusal. |
 | `SelectorRefusal` | Unknown selector, wrong selector namespace, or empty selector intersection. |
@@ -204,6 +204,7 @@ implementation cannot start while touched public rows remain placeholders.
 | --- | --- | --- | --- |
 | `habitat check` flags and selector behavior | command-behavior | `blocked-pending-d0-row` | Preserve, facade, version, or refuse explicitly. |
 | `habitat check --json` schemaVersion 1 `CheckReport` | command-json | `blocked-pending-d0-row` | Preserve unless D0 versions; semantic consistency may tighten through facade/validator decision. |
+| `CheckReport.command` | command-json/package-export | `blocked-pending-d0-row` | Preserve serialized compatibility while replacing manual command/argv string construction with Oclif-derived command context. |
 | `habitat check` human output | human-output | `blocked-pending-d0-row` | Preserve/facade/version summary and refusal wording. |
 | `habitat check --output` | command-behavior | `blocked-pending-d0-row` | Preserve write semantics or version through D0. |
 | `habitat check --staged` | command-behavior/hook | `blocked-pending-d0-row` | Preserve staged behavior while adding explicit not-applicable/refusal states. |
@@ -271,7 +272,7 @@ Later source implementation may edit only after D7 acceptance and prerequisites:
 | New `$HABITAT_TOOL/src/lib/check/**` or equivalent | D7-owned state model, report construction, selector projection, execution aggregation, consumer projections. |
 | `$HABITAT_TOOL/src/lib/diagnostics.ts` | Semantic `CheckReport` construction/validation while preserving public compatibility. |
 | `$HABITAT_TOOL/src/rules/messages.ts` | Truth-preserving human rendering only from finalized outcome. |
-| `$HABITAT_TOOL/src/commands/check.ts` | Request normalization/exit handling only if public flags stay D0-compatible. |
+| `$HABITAT_TOOL/src/commands/check.ts` | Oclif command context, request normalization, and exit handling only if public flags stay D0-compatible. |
 | `$HABITAT_TOOL/src/commands/verify.ts` and verify summary helpers | Consume D7 verify summary projection without owning check semantics. |
 | `$HABITAT_TOOL/src/lib/hooks.ts` | Only compatibility bridge until D11 consumes D7 projection. |
 | `$HABITAT_TOOL/src/index.ts` | Export facades or versioned public symbols only with D0 rows. |

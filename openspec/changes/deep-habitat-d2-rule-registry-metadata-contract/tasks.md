@@ -82,10 +82,10 @@
 ## 8. Review And Realignment
 
 - [x] 8.1 Run fresh final D2 domain/ontology, OpenSpec/testing, code topology, TypeScript state-space, information-design, and cross-domino reviews.
-  - Completed: final implementation review lanes checked TypeBox/schema registry boundaries, Grit adapter/GritQL enforcement, and product/domain record truth before D2 submit.
+  - Completed: final implementation review lanes checked TypeBox/schema registry boundaries, Grit adapter/GritQL enforcement, and product/domain record truth before D2 submit. User-delegated temporary-supervisor review then rechecked D2 boundary closure before D3.
 - [x] 8.2 Repair every accepted P1/P2 finding with exact artifact or source evidence before acceptance.
-  - Completed: repaired record-count truth, governance overclaim language, D12 verify scope wording, and widened the adapter-domain GritQL rule to cover generic `packages`, `apps/`, `mods/`, and `.civ7` hard-coded scan roots.
+  - Completed: repaired record-count truth, governance overclaim language, D12 verify scope wording, widened the adapter-domain GritQL rule to cover generic `packages`, `apps/`, `mods/`, and `.civ7` hard-coded scan roots, and recorded the accepted P2 manual check command-builder concern as a D7 Oclif command-context implementation obligation.
 - [x] 8.3 Update the D2 downstream ledger rows for D3, D4, D5, D6, D7, D8, G-HOST, D10, D13, D9, D11, D12, D14, and D15.
 - [x] 8.4 Update the packet index after D2 implementation-active records changed.
 - [x] 8.5 Do not proceed to D3 until D2 is accepted for implementation closure or an explicit user/authority decision changes the gate.
-  - Current boundary: D2 is submitted as draft PR #1837 and D3 has not started. External packet approval remains required before opening D3.
+  - Completed: delegated temporary-supervisor review accepted D2 implementation closure for advancement after the D7 command-context carry-forward repair. D3 may open through the user-approved temporary-supervisor path.
