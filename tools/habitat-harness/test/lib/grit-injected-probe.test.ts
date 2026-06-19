@@ -66,6 +66,8 @@ describe("injected Grit probe harness", () => {
       baselined: false,
     });
     expect(result.cleanupRestoredStatus).toBe(true);
+    expect(result.validationClass).toBe("injected-violation-diagnostic");
+    expect(result.limitations).toContain("not-apply-transaction");
     expect(existsSync(path.join(repoRoot, probePath))).toBe(false);
     expect(existsSync(path.join(repoRoot, controlPath))).toBe(false);
   });

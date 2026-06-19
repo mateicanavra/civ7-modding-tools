@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
+import type { DiagnosticAdapterFailureKind } from "../../lib/diagnostic-catalog/index.js";
 import type {
-  GritAdapterFailureTag,
   GritParseStatus,
   HabitatCommandResult,
 } from "../../lib/habitat-process.js";
@@ -60,7 +60,7 @@ export type GritCheckParseResult =
     }
   | {
       ok: false;
-      failureTag: GritAdapterFailureTag;
+      failureTag: DiagnosticAdapterFailureKind;
       parseStatus: Exclude<GritParseStatus, "parsed">;
       message: string;
       commandResult?: HabitatCommandResult;

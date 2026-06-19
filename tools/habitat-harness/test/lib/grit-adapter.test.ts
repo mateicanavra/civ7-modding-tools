@@ -9,10 +9,9 @@ import {
   validateScanRoots,
 } from "../../src/lib/grit.js";
 import {
-  createGritAdapterFailure,
-  gritAdapterFailureTags,
-  renderGritAdapterFailure,
-} from "../../src/lib/grit-failures.js";
+  diagnosticAdapterFailureKinds,
+  renderDiagnosticAdapterFailure,
+} from "../../src/lib/diagnostic-catalog/index.js";
 import {
   type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
@@ -205,7 +204,7 @@ describe("Grit check adapter parser and projection", () => {
       { rejectUnexpectedPatternIdentity: true }
     );
     expect(unexpected.get(requested.id)?.diagnostics[0]?.message).toContain(
-      "GritUnexpectedPatternIdentity"
+      "GritUnexpectedDiagnosticIdentity"
     );
     expect(unexpected.get(other.id)).toBeUndefined();
   });
@@ -581,20 +580,16 @@ Processed 2 files and found 1 matches
     ]);
   });
 
-  test("implements and renders every accepted adapter failure tag", () => {
-    for (const tag of gritAdapterFailureTags) {
-      const failure = createGritAdapterFailure(tag, {
-        detail: "adapter failure test",
-        commandId: "failure-tag-test",
-        executable: "grit",
-        argv: ["--version"],
-        cwd: repoRoot,
-        cause: "missing executable",
-      });
+  test("renders the D6 diagnostic adapter failure subset without D9 apply tags", () => {
+    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyDirtyWorktree");
+    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyDryRunMismatch");
+    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyUnexpectedFile");
+    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyMissingTargetExport");
+    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyRollbackFailed");
 
-      expect(failure._tag).toBe(tag);
-      expect(renderGritAdapterFailure(tag, "adapter failure test")).toBe(
-        `--- grit adapter failure (${tag}) ---\nadapter failure test`
+    for (const kind of diagnosticAdapterFailureKinds) {
+      expect(renderDiagnosticAdapterFailure(kind, "adapter failure test")).toBe(
+        `--- grit adapter failure (${kind}) ---\nadapter failure test`
       );
     }
   });

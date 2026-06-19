@@ -3,11 +3,14 @@ import path from "node:path";
 import { Effect, Layer } from "effect";
 import { activeRuleGritFacts } from "../rules/facts.js";
 import type { RuleGritFacts } from "../rules/registry/index.js";
+import {
+  type DiagnosticAdapterFailureKind,
+  diagnosticAdapterFailureFromText,
+} from "./diagnostic-catalog/index.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
 import { type HabitatGitState, readGitState } from "./git-state.js";
 import { runGritRules, validateScanRoots } from "../adapters/grit/index.js";
-import { type GritAdapterFailureTag, isGritAdapterFailureTag } from "./grit-failures.js";
 import type { HabitatProcess } from "./habitat-process.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
 import { run } from "./spawn.js";
@@ -48,14 +51,14 @@ export type InjectedGritProbeResult =
       afterGitState: HabitatGitState;
       cleanupRestoredStatus: boolean;
       finalStatusClean: boolean;
-      proofClass: "injected-violation";
-      nonClaims: readonly string[];
+      validationClass: "injected-violation-diagnostic";
+      limitations: readonly string[];
     }
   | InjectedGritProbeFailure;
 
 export interface InjectedGritProbeFailure {
   ok: false;
-  failureTag: GritAdapterFailureTag;
+  failureTag: DiagnosticAdapterFailureKind;
   message: string;
   ruleId: string;
   patternIdentity: string;
@@ -85,7 +88,7 @@ export function injectedGritProbeProgram(
       return failure(
         input,
         "GritAdapterInternalContractViolation",
-        "Injected proof requires a registered Grit check rule.",
+        "Injected diagnostic probe requires a registered Grit check rule.",
         beforeGitState
       );
     }
@@ -159,7 +162,7 @@ function assertInjectedProbeResult(
     return failure(
       input,
       adapterFailure,
-      "Adapter failure surfaced during injected proof.",
+      "Adapter failure surfaced during injected diagnostic probe.",
       beforeGitState,
       afterGitState
     );
@@ -190,7 +193,7 @@ function assertInjectedProbeResult(
   if (controlDiagnostic) {
     return failure(
       input,
-      "GritUnexpectedPatternIdentity",
+      "GritUnexpectedDiagnosticIdentity",
       `Outside-scope control probe produced ${rule.id} at ${controlRel}.`,
       beforeGitState,
       afterGitState
@@ -202,7 +205,7 @@ function assertInjectedProbeResult(
     return failure(
       input,
       "GritAdapterInternalContractViolation",
-      "Injected proof final status is dirty.",
+      "Injected diagnostic probe final status is dirty.",
       beforeGitState,
       afterGitState
     );
@@ -219,12 +222,12 @@ function assertInjectedProbeResult(
     afterGitState,
     cleanupRestoredStatus,
     finalStatusClean: !afterGitState.dirty,
-    proofClass: "injected-violation",
-    nonClaims: [
-      "does-not-prove-all-grit-rows",
-      "does-not-prove-baseline-shrink",
-      "does-not-prove-apply-transaction",
-      "does-not-prove-product-runtime",
+    validationClass: "injected-violation-diagnostic",
+    limitations: [
+      "not-all-grit-rows-validation",
+      "not-baseline-authority",
+      "not-apply-transaction",
+      "not-product-runtime",
     ],
   };
 }
@@ -369,17 +372,17 @@ function hasProbeOwnershipMarker(relative: string): boolean {
 
 function findAdapterFailure(
   diagnostics: readonly HabitatDiagnostic[]
-): GritAdapterFailureTag | null {
+): DiagnosticAdapterFailureKind | null {
   for (const diagnostic of diagnostics) {
-    const match = diagnostic.message.match(/grit adapter failure \(([^)]+)\)/);
-    if (match && isGritAdapterFailureTag(match[1])) return match[1];
+    const failureKind = diagnosticAdapterFailureFromText(diagnostic.message);
+    if (failureKind) return failureKind;
   }
   return null;
 }
 
 function failure(
   input: Pick<InjectedGritProbeInput, "ruleId" | "patternIdentity" | "probePath" | "controlPath">,
-  failureTag: GritAdapterFailureTag,
+  failureTag: DiagnosticAdapterFailureKind,
   message: string,
   beforeGitState?: HabitatGitState,
   afterGitState?: HabitatGitState
