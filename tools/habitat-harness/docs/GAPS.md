@@ -37,7 +37,7 @@ The missing controlling test is:
 ```text
 Starting from a clean repo, use Habitat to generate a new MapGen domain with
 one operation, wire it into a new or existing recipe stage/step, run the
-generated structure through Nx, Habitat, and recipe compilation, and show the
+generated structure through Habitat, graph verification, and recipe compilation, and show the
 generated code is correct enough for an agent to continue from it without
 hand-inventing topology.
 ```
@@ -123,7 +123,7 @@ The current toolkit does not claim to:
 - infer recipe semantics from intent;
 - author domain behavior;
 - generate Civ7 resource data;
-- make arbitrary Grit changes safe;
+- make arbitrary structural rewrites safe;
 - guarantee runtime game behavior;
 - make hooks authoritative over CI or explicit graph verification.
 
