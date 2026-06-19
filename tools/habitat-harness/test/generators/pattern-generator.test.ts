@@ -109,35 +109,6 @@ describe("Habitat pattern generator", () => {
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
-  test("refuses registered hook scope unless the invocation and manifest agree", async () => {
-    const tree = createPatternTree();
-    const beforeRules = tree.read(rulesPath, "utf8");
-    const manifest = registeredManifest({
-      lifecycle: "registered-enforced",
-      hookScope: {
-        decision: "pre-commit",
-        rationale: "staged-scope evidence accepted for this enforced rule",
-        costAndScopeEvidence:
-          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
-      },
-    });
-    const manifestPath = writeRegisteredManifest(tree, manifest);
-    const beforeManifest = tree.read(manifestPath, "utf8");
-
-    await expect(
-      patternGenerator(tree, {
-        ruleId: manifest.ruleId,
-        patternName: manifest.patternName,
-        lifecycle: "registered-enforced",
-        manifestPath,
-      })
-    ).rejects.toThrow(
-      "Manifest pre-commit hook scope requires matching rule-pack local feedback eligibility"
-    );
-
-    assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
-  });
-
   test("writes registered advisory output after accepted manifest and explicit baseline contract", async () => {
     const tree = createPatternTree({
       $comment: "preserve rule-pack metadata",
@@ -208,7 +179,7 @@ describe("Habitat pattern generator", () => {
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
-  test("writes registered enforced pre-commit hook-scoped output after accepted hook evidence", async () => {
+  test("writes registered enforced output when the manifest includes hook evidence", async () => {
     const tree = createPatternTree({
       $comment: "preserve rule-pack metadata",
       rules: [],
@@ -232,7 +203,6 @@ describe("Habitat pattern generator", () => {
       patternName: manifest.patternName,
       lifecycle: "registered-enforced",
       manifestPath,
-      hookScope: "pre-commit",
     });
 
     assertRegisteredWrites(tree, manifest, beforeRules, manifestPath, beforeManifest, "enforced");
@@ -380,13 +350,8 @@ function assertRegisteredWrites(
     scanRoots: manifest.scanRoots.include,
     manifestPath,
   });
-  if (manifest.hookScope.decision === "pre-commit") {
-    expect(rules.rules.at(-1)).toMatchObject({ localFeedback: true });
-    expect(rules.rules.at(-1)).not.toHaveProperty("hookScope");
-  } else {
-    expect(rules.rules.at(-1)).not.toHaveProperty("localFeedback");
-    expect(rules.rules.at(-1)).not.toHaveProperty("hookScope");
-  }
+  expect(rules.rules.at(-1)).not.toHaveProperty("localFeedback");
+  expect(rules.rules.at(-1)).not.toHaveProperty("hookScope");
 }
 
 function writeRegisteredManifest(

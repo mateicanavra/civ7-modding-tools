@@ -43,18 +43,26 @@ const RequiredRuleMetadataSchema = Type.Interface(
   { additionalProperties: false }
 );
 const RequiredCommandRuleMetadataSchema = Type.Omit(RequiredRuleMetadataSchema, ["ownerTool"]);
+const DirectCommandOwnerToolSchema = Type.Union([
+  Type.Literal("habitat-native"),
+  Type.Literal("wrapped-script"),
+  Type.Literal("biome"),
+  Type.Literal("nx-boundaries"),
+]);
+const CommandOwnerToolSchema = Type.Union([
+  Type.Literal("habitat-native"),
+  Type.Literal("wrapped-script"),
+  Type.Literal("biome"),
+  Type.Literal("nx-boundaries"),
+  Type.Literal("wrapped-test"),
+]);
 const LocalFeedbackSchema = Type.Literal(true);
 const GritScanRootSchema = Type.String({ minLength: 1 });
 
 const CommandRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
-    ownerTool: Type.Union([
-      Type.Literal("habitat-native"),
-      Type.Literal("wrapped-script"),
-      Type.Literal("biome"),
-      Type.Literal("nx-boundaries"),
-    ]),
+    ownerTool: DirectCommandOwnerToolSchema,
   },
   { additionalProperties: false }
 );
@@ -135,6 +143,18 @@ export const RuleReportFactsSchema = Type.Interface(
 );
 export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
 
+export const RuleCommandExecutionFactsSchema = Type.Interface(
+  [
+    Type.Pick(RuleIdentitySchema, ["id", "lane"]),
+    Type.Pick(RuleReportSchema, ["detect", "message"]),
+  ],
+  {
+    ownerTool: CommandOwnerToolSchema,
+  },
+  { additionalProperties: false }
+);
+export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
+
 export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema, [
   "id",
   "lane",
@@ -145,23 +165,21 @@ export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema
 ]);
 export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
 
-const RuleExecutionMessageSchema = Type.Pick(RequiredRuleMetadataSchema, ["id", "lane", "message"]);
-
 export const RuleFileLayerFactsSchema = Type.Union([
-  Type.Interface(
-    [RuleExecutionMessageSchema],
-    {
-      generatedZone: Type.String({ minLength: 1 }),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Interface(
-    [RuleExecutionMessageSchema],
-    {
-      forbiddenFileNames: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
-    },
-    { additionalProperties: false }
-  ),
+  Type.Pick(GeneratedZoneFileLayerRuleRegistryRecordV1Schema, [
+    "id",
+    "ownerTool",
+    "lane",
+    "message",
+    "generatedZone",
+  ]),
+  Type.Pick(ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema, [
+    "id",
+    "ownerTool",
+    "lane",
+    "message",
+    "forbiddenFileNames",
+  ]),
 ]);
 export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
 

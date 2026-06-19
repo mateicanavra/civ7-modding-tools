@@ -24,8 +24,8 @@
 
 ## 4. Projection Slice
 
-- [ ] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, `ruleExecutionFacts`, `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGritFacts`, `ruleFileLayerFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
-  - Progress: selector/report, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Execution, routing, graph, baseline, and governance projections remain open and should be added only with their consumer migrations.
+- [ ] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, consumer-specific execution projections (`ruleCommandExecutionFacts`, `ruleGritFacts`, `ruleFileLayerFacts`), `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
+  - Progress: selector/report, command execution, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Routing, graph, baseline, and governance projections remain open and should be added only with their consumer migrations.
 - [ ] 4.2 Add projection tests that assert each consumer receives only permitted fields.
 - [ ] 4.3 Add whole-row leakage tests or compile-time checks for consumers with D2 projections.
 - [ ] 4.4 Add malformed projection tests for identity, routing, graph, baseline, Grit, generated-zone, governance, and local-feedback failures.
@@ -33,16 +33,17 @@
 ## 5. Consumer Migration Slice
 
 - [x] 5.1 Migrate selector and check report code in `rule-selection.ts` and `check-report.ts` to `ruleSelectorFacts` and `ruleReportFacts`.
-- [ ] 5.2 Migrate execution dispatch in `architecture.ts` to `ruleExecutionFacts`.
+- [x] 5.2 Migrate execution dispatch to consumer-specific command, Grit, and file-layer projections instead of whole registry rows or a synthetic execution DTO.
 - [ ] 5.3 Migrate classify routing to `ruleRoutingFacts` and remove prose `scope` parsing as authority.
 - [ ] 5.4 Migrate `plugin.js` to `ruleGraphFacts`, removing independent `OWNER_ROOTS` authority, silent owner skips, and colon-string target parsing.
 - [ ] 5.5 Migrate baseline consumers to `ruleBaselineFacts` without moving D5-owned shrink/growth/debt decisions into D2.
 - [x] 5.6 Migrate Grit consumers to `ruleGritFacts`, removing missing-pattern fallback to rule id and prose-scope scan inference.
 - [x] 5.6.1 Migrate `tools/habitat-harness/src/lib/grit-injected-probe.ts` to consume `ruleGritFacts` and registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`.
 - [x] 5.7 Migrate generated-zone/file-layer consumers to `ruleFileLayerFacts`, failing unknown zone references before silent pass.
-- [ ] 5.8 Migrate Pattern Authority and pattern generator registry writes to D2 canonical state or a D2 compatibility writer.
+- [x] 5.8 Migrate Pattern Authority and pattern generator registry writes to D2 canonical state or a D2 compatibility writer.
+  - Completed: registered pattern generation writes canonical Grit registry metadata without deriving registry `localFeedback` from manifest hook-scope decisions; Pattern Authority rule references no longer carry registry local-feedback or hook-scope coupling.
 - [x] 5.9 Migrate hook/local-feedback selection without owning D11 hook behavior.
-  - Active registry rows use hook-neutral `localFeedback: true`; staged check filtering consumes `ruleLocalFeedbackFacts` instead of raw `hookScope`, hook-name strings, or broad rule-row eligibility. Pattern Authority manifest wording and generator option compatibility remain in their owning governance/generator surfaces.
+  - Active registry rows use hook-neutral `localFeedback: true`; staged check filtering consumes `ruleLocalFeedbackFacts` instead of raw `hookScope`, hook-name strings, or broad rule-row eligibility. Pattern Authority rule references and pattern generator registry writes no longer derive registry local-feedback metadata from manifest hook-scope decisions.
 
 ## 6. Deletion And Compatibility Slice
 

@@ -146,7 +146,6 @@ export interface PatternAuthorityRuleReference {
   manifestPath: string;
   ownerTool: string;
   lifecycle: "advisory" | "enforced";
-  hookScope?: "pre-commit";
 }
 
 export interface PatternAuthorityRuleReferenceInput {
@@ -155,7 +154,6 @@ export interface PatternAuthorityRuleReferenceInput {
   manifestPath?: string;
   ownerTool?: string;
   lifecycle?: "advisory" | "enforced";
-  hookScope?: "pre-commit";
 }
 
 export interface PatternAuthorityRulePackReferenceInput {
@@ -164,7 +162,6 @@ export interface PatternAuthorityRulePackReferenceInput {
   manifestPath?: string;
   ownerTool?: string;
   lane?: "advisory" | "enforced";
-  localFeedback?: true;
 }
 
 export interface PatternAuthorityValidationOptions {
@@ -214,7 +211,6 @@ export function patternAuthorityRuleReferenceFromRule(
     manifestPath: rule.manifestPath,
     ownerTool: rule.ownerTool,
     lifecycle: rule.lane,
-    hookScope: rule.localFeedback === true ? "pre-commit" : undefined,
   };
 }
 
@@ -736,23 +732,6 @@ function validateRuleReference(
       "contradicted-manifest",
       "lifecycle",
       `Manifest lifecycle '${value.lifecycle}' does not match rule-pack lane '${reference.lifecycle}'.`
-    );
-  }
-  const manifestHookDecision = objectAtNoIssue(value, "hookScope")?.decision;
-  if (manifestHookDecision === "pre-commit" && reference.hookScope !== "pre-commit") {
-    addIssue(
-      issues,
-      "contradicted-manifest",
-      "hookScope.decision",
-      "Manifest pre-commit hook scope requires matching rule-pack local feedback eligibility."
-    );
-  }
-  if (manifestHookDecision === "none" && reference.hookScope === "pre-commit") {
-    addIssue(
-      issues,
-      "contradicted-manifest",
-      "ruleReferences.localFeedback",
-      "Rule-pack local feedback eligibility contradicts a manifest hookScope decision of none."
     );
   }
 }

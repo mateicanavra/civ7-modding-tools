@@ -5,6 +5,8 @@ import {
   parseRuleRegistryText,
   type RuleRegistryDocumentV1,
   type RuleRegistryRecordV1,
+  ruleCommandExecutionFacts,
+  ruleFileLayerFacts,
   ruleGritFacts,
   ruleLocalFeedbackFacts,
 } from "../../src/rules/registry.js";
@@ -157,6 +159,50 @@ describe("rule registry contract", () => {
       {
         id: "sample-rule",
         localFeedback: true,
+      },
+    ]);
+  });
+
+  test("projects consumer facts without routing or baseline fields", () => {
+    const commandRule = baseRule();
+    const gritRule = baseRule({
+      id: "grit-rule",
+      ownerTool: "grit-check",
+      gritPattern: "sample_pattern",
+      scanRoots: ["packages"],
+      localFeedback: true,
+    });
+    const fileLayerRule = baseRule({
+      id: "file-layer-rule",
+      ownerTool: "file-layer",
+      generatedZone: "swooper-map-generated",
+    });
+
+    expect(ruleCommandExecutionFacts([commandRule, gritRule, fileLayerRule])).toEqual([
+      {
+        id: "sample-rule",
+        ownerTool: "habitat-native",
+        lane: "enforced",
+        detect: ["habitat", "check", "--rule", "sample-rule"],
+        message: "Fix the structural issue.",
+      },
+    ]);
+    expect(ruleGritFacts([commandRule, gritRule, fileLayerRule])).toEqual([
+      {
+        id: "grit-rule",
+        lane: "enforced",
+        message: "Fix the structural issue.",
+        gritPattern: "sample_pattern",
+        scanRoots: ["packages"],
+      },
+    ]);
+    expect(ruleFileLayerFacts([commandRule, gritRule, fileLayerRule])).toEqual([
+      {
+        id: "file-layer-rule",
+        ownerTool: "file-layer",
+        lane: "enforced",
+        message: "Fix the structural issue.",
+        generatedZone: "swooper-map-generated",
       },
     ]);
   });
