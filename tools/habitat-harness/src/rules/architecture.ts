@@ -2,7 +2,7 @@ import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 import { type FileLayerContext, runGeneratedZoneRule } from "../lib/generated-zones.js";
 import { repoRoot } from "../lib/paths.js";
 import { run, type SpawnResult } from "../lib/spawn.js";
-import { loadRuleRegistryDocument, type RuleRegistryRecordV1 } from "./registry.js";
+import { activeRuleRegistryDocument, type RuleRegistryRecordV1 } from "./registry.js";
 
 /**
  * The rule pack. Data lives in rules.json (shared with the Nx plugin); this
@@ -31,7 +31,7 @@ export interface HarnessRule {
   hookScope?: "pre-commit";
 }
 
-export const rules: HarnessRule[] = loadRuleRegistryDocument().rules.map(toHarnessRule);
+export const rules: HarnessRule[] = activeRuleRegistryDocument.rules.map(toHarnessRule);
 
 export function ruleById(id: string): HarnessRule | undefined {
   return rules.find((r) => r.id === id);
