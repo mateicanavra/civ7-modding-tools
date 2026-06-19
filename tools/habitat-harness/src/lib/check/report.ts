@@ -1,3 +1,4 @@
+import { Value } from "typebox/value";
 import { activeRuleReportFacts, factsForRuleIds } from "../../rules/facts.js";
 import type { RuleReportFacts } from "../../rules/registry/index.js";
 import {
@@ -10,15 +11,27 @@ import {
 } from "../baseline.js";
 import { selectRules } from "../rule-selection.js";
 import { baselineContractInputs } from "./baseline.js";
-import { executeSelectedRules, rulesForExecution } from "./execution.js";
+import { executeSelectedRules, type RuleExecutionRecord, rulesForExecution } from "./execution.js";
 import { type CheckOptions, structuralCheckRequest } from "./request.js";
-import type { CheckReport, RuleReport } from "./schema.js";
+import type { CheckReport, RuleExecutionDisposition, RuleReport } from "./schema.js";
 import { constructCheckReport, selectorRefusalReport } from "./selection.js";
+import {
+  BaselineApplicationOutcomeSchema,
+  DiagnosticConsumptionOutcomeSchema,
+  RuleExecutionPlanSchema,
+  RuleSelectionOutcomeSchema,
+  StructuralRuleOutcomeSchema,
+} from "./state.js";
 
 export async function createCheckReport(options: CheckOptions = {}): Promise<CheckReport> {
   const request = structuralCheckRequest(options);
   const selection = selectRules(request.selectors);
   if (!selection.ok) return selectorRefusalReport(selection, request);
+  Value.Parse(RuleSelectionOutcomeSchema, {
+    kind: "selected",
+    selector: request.selectors,
+    selectedRuleIds: selection.rules.map((rule) => rule.id),
+  });
 
   const selectedRules = rulesForExecution(selection.rules, options);
   const selectedRuleIds = selectedRules.map((rule) => rule.id);
@@ -36,24 +49,84 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
     const baseline = loadBaselineState(baselineFacts);
     const execution = ruleResults.get(rule.id);
     if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
-    const { diagnostics } = execution.result;
-    const baselineResult = applyBaseline(diagnostics, baseline);
-    diagnostics.push(
-      ...baselineResult.refusals.map((failure) => baselineFailureDiagnostic(rule.id, failure))
-    );
-    reports.push(
-      ruleReportFromDiagnostics({
-        ruleId: rule.id,
-        reportFacts,
-        locked: isBaselineLocked(baseline),
-        durationMs: execution.durationMs,
-        diagnostics,
-      })
-    );
+    Value.Parse(RuleExecutionPlanSchema, {
+      ruleId: rule.id,
+      ownerTool: rule.ownerTool,
+      lane: reportFacts.lane,
+      disposition: execution.disposition,
+    });
+    const executionDiagnostics = execution.result.diagnostics;
+    diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
+    const baselineResult = applyBaseline(executionDiagnostics, baseline);
+    const locked = isBaselineLocked(baseline);
+    baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
+    const diagnostics = [
+      ...executionDiagnostics,
+      ...baselineResult.refusals.map((failure) => baselineFailureDiagnostic(rule.id, failure)),
+    ];
+    const report = ruleReportFromDiagnostics({
+      ruleId: rule.id,
+      reportFacts,
+      locked,
+      durationMs: execution.durationMs,
+      diagnostics,
+    });
+    structuralRuleOutcome(report, execution.disposition);
+    reports.push(report);
   }
 
   reports.push(baselineIntegrityReport(options.base ?? "main"));
   return constructCheckReport({ command: request.command.serialized, reports });
+}
+
+function diagnosticConsumptionOutcome(
+  disposition: RuleExecutionDisposition,
+  diagnostics: RuleReport["diagnostics"]
+) {
+  return Value.Parse(
+    DiagnosticConsumptionOutcomeSchema,
+    disposition.kind === "dependency-refused" || disposition.kind === "execution-failed"
+      ? { kind: "diagnostic-refused", diagnostic: diagnostics[0] }
+      : diagnostics.length === 0
+        ? { kind: "clean", diagnostics: [] }
+        : { kind: "findings", diagnostics }
+  );
+}
+
+function baselineApplicationOutcome(
+  ruleId: string,
+  baselineResult: ReturnType<typeof applyBaseline>,
+  locked: boolean,
+  diagnostics: RuleReport["diagnostics"]
+) {
+  return Value.Parse(
+    BaselineApplicationOutcomeSchema,
+    baselineResult.refusals.length > 0
+      ? {
+          kind: "baseline-refused",
+          diagnostic: baselineFailureDiagnostic(ruleId, baselineResult.refusals[0]),
+        }
+      : {
+          kind: "baseline-applied",
+          locked,
+          diagnostics,
+        }
+  );
+}
+
+function structuralRuleOutcome(report: RuleReport, disposition: RuleExecutionDisposition) {
+  return Value.Parse(
+    StructuralRuleOutcomeSchema,
+    disposition.kind === "not-applicable"
+      ? { kind: "rule-not-applicable", lane: report.lane, report }
+      : disposition.kind === "dependency-refused" || disposition.kind === "execution-failed"
+        ? { kind: "rule-refused", lane: report.lane, report }
+        : report.status === "advisory-findings"
+          ? { kind: "rule-advisory-findings", lane: "advisory", report }
+          : report.status === "fail"
+            ? { kind: "rule-failed", lane: report.lane, report }
+            : { kind: "rule-passed", lane: report.lane, report }
+  );
 }
 
 function ruleReportFromDiagnostics(input: {

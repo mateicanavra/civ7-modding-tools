@@ -2,7 +2,12 @@ import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { activeRuleGraphFacts } from "../rules/facts.js";
 import { mergeBase } from "./baseline.js";
-import type { CheckReport, RuleReport } from "./diagnostics.js";
+import {
+  type VerifyCheckSummaryProjection,
+  VerifyCheckSummaryProjectionSchema,
+  verifyCheckSummaryProjection,
+} from "./check-report.js";
+import type { CheckReport } from "./diagnostics.js";
 import { repoRoot } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 import {
@@ -48,18 +53,15 @@ export const VerifyBaseSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const VerifyHabitatCheckSummarySchema = Type.Object(
-  {
-    reportSchemaVersion: Type.Literal(1),
-    selectedRuleIds: Type.Array(Type.String()),
-    selectedRealRuleIds: Type.Array(Type.String()),
-    builtInRuleIds: Type.Array(Type.String()),
-    statusCounts: Type.Record(Type.String(), Type.Number({ minimum: 0 })),
-    advisoryCount: Type.Number({ minimum: 0 }),
-    failingCount: Type.Number({ minimum: 0 }),
-  },
-  { additionalProperties: false }
-);
+export const VerifyHabitatCheckSummarySchema = Type.Pick(VerifyCheckSummaryProjectionSchema, [
+  "reportSchemaVersion",
+  "selectedRuleIds",
+  "selectedRealRuleIds",
+  "builtInRuleIds",
+  "statusCounts",
+  "advisoryCount",
+  "failingCount",
+]);
 
 export const VerifyNxCacheTaskSchema = Type.Object(
   {
@@ -202,10 +204,14 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
   const nxArgv = affectedVerificationArgv(input.resolvedBase, targetPlan);
   const gitStatus = run(["git", "status", "--short"], { cwd: repoRoot });
   const resourcesStatus = run(["bun", "run", "resources:status"], { cwd: repoRoot });
+  const habitatCheckProjection = verifyCheckSummaryProjection(input.checkReport);
   const nxAffected =
-    input.checkReport.ok && input.affectedResult
+    habitatCheckProjection.allowsAffectedExecution && input.affectedResult
       ? completedNxAffected(nxArgv, input.affectedResult)
-      : skippedNxAffected(nxArgv, input.checkReport.ok ? targetPlan : undefined);
+      : skippedNxAffected(
+          nxArgv,
+          habitatCheckProjection.allowsAffectedExecution ? targetPlan : undefined
+        );
   return {
     schemaVersion: 1,
     command: {
@@ -221,7 +227,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
       resolved: input.resolvedBase,
       source: input.requestedBase ? "flag" : "default",
     },
-    habitatCheck: summarizeVerifyCheckReport(input.checkReport),
+    habitatCheck: summarizeVerifyCheckReport(habitatCheckProjection),
     nxAffected,
     postState: {
       gitStatusShort: gitStatus.stdout.trim(),
@@ -304,29 +310,10 @@ function targetsFromArgv(argv: readonly string[]): string[] {
   return (argv[targetFlagIndex + 1] ?? "").split(",").filter((target) => target.length > 0);
 }
 
-function summarizeVerifyCheckReport(report: CheckReport): VerifyReceipt["habitatCheck"] {
-  const builtInRuleIds = report.rules
-    .filter((rule) => rule.ownerTool === "habitat-native" && rule.detect.includes("(built-in)"))
-    .map((rule) => rule.ruleId);
-  const selectedRuleIds = report.rules.map((rule) => rule.ruleId);
-  const selectedRealRuleIds = selectedRuleIds.filter((ruleId) => !builtInRuleIds.includes(ruleId));
-  return {
-    reportSchemaVersion: report.schemaVersion,
-    selectedRuleIds,
-    selectedRealRuleIds,
-    builtInRuleIds,
-    statusCounts: countRuleStatuses(report.rules),
-    advisoryCount: report.rules.filter((rule) => rule.status === "advisory-findings").length,
-    failingCount: report.rules.filter((rule) => rule.status === "fail").length,
-  };
-}
-
-function countRuleStatuses(reports: readonly RuleReport[]): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const report of reports) {
-    counts[report.status] = (counts[report.status] ?? 0) + 1;
-  }
-  return counts;
+function summarizeVerifyCheckReport(
+  projection: VerifyCheckSummaryProjection
+): VerifyReceipt["habitatCheck"] {
+  return Value.Parse(VerifyHabitatCheckSummarySchema, projection);
 }
 
 function selectedVerifyEnv(): Record<string, string> {

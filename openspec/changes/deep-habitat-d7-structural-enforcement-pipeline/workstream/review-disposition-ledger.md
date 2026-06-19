@@ -47,11 +47,22 @@ until D10 lands.
 
 ## Source Slice Review Notes
 
-- Live source no longer contains `legacyScopedRule`, `ScopedRule`, or a
-  classify fallback adapter; classify output uses the canonical `RuleRouting`
-  shape with `coverageKind`.
+- Classify output uses the canonical `RuleRouting` shape with `coverageKind`;
+  there is no alternate scoped-rule adapter or secondary public shape.
 - The D7 check-report API no longer accepts raw `commandArgs`; Oclif callers
   pass `CheckCommandContext`, and package default construction uses an empty
   `habitat check` context.
 - TypeBox schemas in `src/lib/check/schema.ts` are the source of truth for
   check report DTO validation and derived TypeScript types.
+- The source-closure layer adds TypeBox-backed D7 state/projection schemas,
+  routes hook/verify consumers through D7 projections, consumes D3 graph refusal
+  state before direct command execution, and treats generated-output-gated
+  wrapped-test direct failures as diagnostics rather than false-green proof.
+- Adversarial source-closure rereview blocked silent staged Grit rule drops,
+  broad diagnostic-message refusal inference, unused closed-state schemas, D12
+  affected-gate non-consumption, and D10 protected-zone overclaim. Repairs keep
+  selected staged rules in the report as explicit D7 not-applicable outcomes,
+  classify refusals only from D7-owned disposition diagnostics, exact D6 adapter
+  failure tags, or baseline-integrity failure, parse D7 closed-state schemas
+  during report construction, route verify affected-target gating through
+  `VerifyCheckSummaryProjection`, and leave protected-zone labels out until D10.

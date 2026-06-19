@@ -137,7 +137,7 @@ describe("rule registry contract", () => {
           {
             ...baseRule(),
             ownerTool: "wrapped-test",
-            nxTarget: "@internal/habitat-harness:test:legacy",
+            nxTarget: "@internal/habitat-harness:test:wrapped",
           },
         ]),
         "inline-registry.json"

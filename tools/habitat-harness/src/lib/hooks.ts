@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { mergeBase } from "./baseline.js";
-import { stagedGritScanRoots } from "./check-report.js";
+import {
+  isDiagnosticUnavailableProjection,
+  localFeedbackCheckProjection,
+  stagedGritScanRoots,
+} from "./check-report.js";
 import type { CheckReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
 import { baselinesDir, repoRoot, toRepoRelative } from "./paths.js";
@@ -371,8 +375,9 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
         ...output.result(),
       });
     }
-    if (!report.ok) {
-      if (hasGritAdapterParseFailure(report)) {
+    const projection = localFeedbackCheckProjection(report);
+    if (projection.kind !== "pass" && projection.kind !== "advisory-only") {
+      if (isDiagnosticUnavailableProjection(projection)) {
         output.writeStderr("habitat hook pre-commit: could not parse Grit JSON output.\n");
         return finalizePreCommit(runtime, "grit-parse-failed", {
           exitCode: 1,
@@ -796,18 +801,6 @@ function parseCheckReportJson(output: string): CheckReport | undefined {
   } catch {
     return undefined;
   }
-}
-
-function hasGritAdapterParseFailure(report: CheckReport): boolean {
-  return report.rules.some(
-    (rule) =>
-      rule.ownerTool === "grit-check" &&
-      rule.diagnostics.some((diagnostic) =>
-        /grit adapter failure \((GritMalformedJson|GritNoJson|GritSchemaDrift|GritUnexpectedResultShape|GritAdapterInternalContractViolation)\)/i.test(
-          diagnostic.message
-        )
-      )
-  );
 }
 
 function createHookOutput(reporter?: HookReporter): {
