@@ -86,3 +86,35 @@ openspec strict-valid.
 
 Fix 1 + Fix 2 are review-clean. Remaining: Fix 3 (FOUR*/FOURL gen-pin) + the
 live closure gate (§6), which require the live session.
+
+---
+
+# Closure Review — Fix 3 + live evidence (2026-06-19)
+
+Adversarial 3-lane review (fix3-correctness, live-evidence-integrity,
+closure-honesty) + per-finding refutation, run AFTER the live closure gate.
+
+**Outcome: 0 code defects, 0 false closure claims.** Fix 3 is correct (no
+false-placement risk — `setFeatureType` returns `false` → rejected BEFORE the
+anchor readback, so a `placed` FOUR* genuinely got engine-stamped; no regression;
+boundary-clean). The live telemetry was independently re-derived and matches the
+ledger (Barrier Reef + Everest placed at `Direction:-1` on desert-mtn 1337;
+Zhangjiajie/Redwood land wonders on earthlike). All confirmed findings are
+evidence-precision / wording — the claims were TRUE but stated slightly stronger
+than the telemetry strictly proves.
+
+| id | sev | verdict | disposition |
+|---|---|---|---|
+| NWLIVE-01 | P2 | **real** | **FIXED (wording)** — placed coords are hashed in telemetry (per-row coords only for REJECTED rows), so the even-row Bermuda (4,2) is the PLANNED anchor, not a telemetry-proven PLACED anchor. §D O3 + corpus O3 reworded: even-row GEOMETRY proven offline (§A1 + unit); live placed-anchor parity not telemetry-exposed. |
+| CLOS-D-CLOSURE-MATRIX-CONJUNCTION | P2 | **real** | **FIXED (evidence)** — ran a 4th gen, **desert-mountains seed 2024**: Barrier Reef (FOURADJACENT) placed AGAIN + Kilimanjaro/Zhangjiajie. FOUR*/volcano now a 2-seed sample on desert-mountains; §D is a full 2×2 matrix. Closure claim reworded to "substantially met" with the precise matrix. |
+| CLOS-O4-FOURL-OVERCLAIM | P2 | refuted | **TIGHTENED anyway** — verifier ruled the existing hedge accurate, but §D O4 was relabeled "met for FOURADJACENT + FOURPARALLELAGRM; FOURL unproven" and Hoerikwaggo moved to Known limits (never selected → engine acceptance not observed). |
+| NWLIVE-02 | P3 | — | **FIXED (wording)** — §D O2 now states the earthlike-1337 plan differs between the Fix-1+2 and Fix-1+2+3 binaries in TWO slots (Thera dir 0→-1 + Barrier Reef→Great Blue Hole swap). |
+| CLOS-O2-DETERMINISM-WORDING | P3 | — | **FIXED (wording)** — determinism re-scoped to the offline no-RNG unit tests; the cross-binary live comparison is explicitly NOT determinism evidence. |
+| CLOS-O4-READBACK-GATE-DEVIATION | P3 | — | **FIXED (wording)** — §D O4 explicitly flags that anchor-level FOUR* readback NARROWS the original "strict (full-footprint) readback" gate (3 cells engine-owned, mod-unverified; engine is legality authority). |
+| FIX3-001 | P3 | — | **DOCUMENTED** — latent class-vs-direction edge (unreachable: all 4-tile wonders carry Direction:-1). Added an INVARIANT comment in `resolveNaturalWonderMaterializationDirection`. |
+| FIX3-002 | P3 | — | **FIXED (test)** — added concrete-direction 4-cell assertions for FOURADJACENT + FOURL (+ FOURL sentinel/anchor-only) in `map-policy.test.ts`. |
+
+**Post-closure-review gate state:** map-policy 19 pass; mod 582 pass (only FOREIGN
+`no-fudging` fails); adapter 19 pass (only FOREIGN `mock-terrain-policy` fails);
+openspec strict-valid. Live closure §D substantially met (variety = primary goal
+fully met; documented scoped-out items remain).

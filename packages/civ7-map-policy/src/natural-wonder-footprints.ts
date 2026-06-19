@@ -121,7 +121,13 @@ export function resolveNaturalWonderMaterializationDirection(
   direction = resolveNaturalWonderPlacementDirection(policy)
 ): number {
   // Self-orienting 4-tile wonders keep the engine sentinel (-1); forcing 0 makes
-  // setFeatureType refuse them (see SELF_ORIENTING_FOUR_TILE_CLASSES).
+  // setFeatureType refuse them (see SELF_ORIENTING_FOUR_TILE_CLASSES). The guard
+  // is also keyed on Direction < 0 so a CONCRETE direction still resolves the
+  // geometric model for diagnostics/tests. INVARIANT: every 4-tile wonder in the
+  // corpus carries Direction:-1 (the only concrete-direction wonders — Fuji=2,
+  // Vihren=1 — are 3-tile), so production always takes the self-orient branch; a
+  // future 4-tile wonder with a concrete direction would hit the engine-refused
+  // concrete path and should be added here.
   if (
     isSelfOrientingFourTileClass(policy?.placementClass) &&
     isEngineSelfOrientDirection(direction)

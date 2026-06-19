@@ -340,10 +340,22 @@ describe("@civ7/map-policy", () => {
     expect(reefSelf?.odd).toEqual([{ dx: 0, dy: 0 }]);
 
     // A CONCRETE direction still resolves the geometric model (diagnostics/tests):
-    // FOURPARALLELAGRM at direction 0 keeps its 4-cell parallelogram.
+    // all three self-orienting 4-tile classes keep their 4-cell offline shape at
+    // a concrete direction (the engine-self-orient anchor-only collapse is gated
+    // on Direction < 0 only).
     const theraConcrete = getNaturalWonderFootprintOffsetsByParity(theraPolicy, 0);
     expect(theraConcrete?.even.length).toBe(4);
     expect(theraConcrete?.odd.length).toBe(4);
+    expect(getNaturalWonderFootprintOffsetsByParity(reefPolicy, 0)?.even.length).toBe(4);
+    expect(getNaturalWonderFootprintOffsetsByParity(reefPolicy, 0)?.odd.length).toBe(4);
+    const hoerikwaggoPolicy = policies[String(featureTypes.FEATURE_HOERIKWAGGO)]!; // FOURL
+    expect(getNaturalWonderFootprintOffsetsByParity(hoerikwaggoPolicy, 0)?.even.length).toBe(4);
+    expect(getNaturalWonderFootprintOffsetsByParity(hoerikwaggoPolicy, 0)?.odd.length).toBe(4);
+    // FOURL keeps the engine sentinel + anchor-only at self-orient too.
+    expect(resolveNaturalWonderMaterializationDirection(hoerikwaggoPolicy)).toBe(-1);
+    expect(getNaturalWonderFootprintOffsetsByParity(hoerikwaggoPolicy, -1)?.even).toEqual([
+      { dx: 0, dy: 0 },
+    ]);
 
     // Non-self-orienting classes are unaffected (Redwood THREETRIANGLE -> 0).
     expect(

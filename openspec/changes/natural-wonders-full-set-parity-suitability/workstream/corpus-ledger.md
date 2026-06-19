@@ -70,8 +70,28 @@ tiles only.
 
 ## Observed (filled at verification)
 
-- O1 (catalog eligibility): _pending_
-- O2 (cross-seed variety / determinism): _pending_
-- O3 (even-row footprint readback match): _pending_
-- O4 (effects manifest): _pending_
-- O5 (previously-dropped wonders placed): _pending_
+Live closure 2026-06-19 (Fix 1+2+3); full evidence in `live-proof-ledger.md` §D.
+
+- O1 (catalog eligibility): **met** — all 20 catalog-eligible (unit +
+  verify-manual-catalogs; no silent drops, catalog length == NW row count).
+- O2 (cross-type variety / determinism): **variety met; determinism offline.**
+  Earthlike places a land wonder every seed (1337 Zhangjiajie/mountain, 2024
+  Redwood/forest) vs the pre-fix all-water set; desert-mountains (both seeds)
+  selects volcano (Kilimanjaro) + mountain (Everest/Zhangjiajie) + reef FOUR*
+  (Barrier Reef). Determinism is proven OFFLINE (no-RNG code + unit tests); the
+  live runs are variety/placement evidence, not a same-binary determinism proof.
+- O3 (even-row footprint readback match): **geometry met offline; live placed-
+  anchor parity not telemetry-proven.** Even-row geometry proven by §A1 (both-
+  parity live calibration) + unit tests; Bermuda 3-tile PLANNED at (4,2) y=2 EVEN
+  (placeFirst, not rejected, zero readback-mismatch) is consistent but placed
+  coords are hashed in telemetry; odd-anchor live strict-readback match in §A/C.
+- O4 (effects manifest): **placement-path met; in-game yields deferred** —
+  wonders placed via the `setFeatureType` effect-bearing path (engine-automatic,
+  data-gated); full yield/acquisition verification is post-map-gen, out of scope.
+- O5 (previously-dropped wonders placed): **met** — Bermuda(0) every run; Barrier
+  Reef(29) + Great Blue Hole(44) placed (recovered via new predicates + Fix 3
+  self-orientation).
+- (Known limits, not closed by the 3 fixes): Thera(37) caldera-coast terrain;
+  Valley of Flowers(28) odd-Q vs odd-R ADJACENTMOUNTAIN predicate; FOURL
+  (Hoerikwaggo) not selected in sampled seeds (same self-orient path as the
+  proven FOUR* classes).
