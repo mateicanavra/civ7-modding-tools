@@ -60,7 +60,7 @@ Supported outcome:
 - advisory findings report without failing;
 - JSON output is available with `bun run habitat check -- --json`.
 
-### Run Graph-Owned Repo Proof
+### Run Graph-Owned Repo Checks
 
 Use:
 
@@ -99,9 +99,7 @@ graph checks.
 Use:
 
 ```bash
-nx g @internal/habitat-harness:project map-tools --kind=foundation
 nx g @internal/habitat-harness:project graph --kind=plugin
-nx g @internal/habitat-harness:project map-console --kind=app
 ```
 
 Supported outcome:
@@ -113,6 +111,8 @@ Supported outcome:
 
 Not supported by this scenario:
 
+- `kind=app`;
+- `kind=foundation`;
 - `kind=mod`;
 - `kind=engine`;
 - `kind=control`;
@@ -121,12 +121,12 @@ Not supported by this scenario:
 - `kind=tooling`;
 - MapGen recipe/domain/stage/step authoring.
 
-### Draft A New Grit Rule Candidate
+### Draft A New Habitat Pattern Candidate
 
 Use:
 
 ```bash
-nx g @internal/habitat-harness:pattern grit-my-rule
+nx g @internal/habitat-harness:pattern my-rule
 ```
 
 Supported outcome:
@@ -138,10 +138,10 @@ Supported outcome:
 
 This is the correct first move for a new rule idea.
 
-### Promote A Grit Rule After Authority Is Accepted
+### Promote A Habitat Pattern After Review
 
-Use the same generator with registered lifecycle flags only after a Pattern
-Authority Manifest and baseline contract exist.
+Use the same generator with registered lifecycle flags only after an accepted
+pattern manifest and baseline contract exist.
 
 Supported outcome:
 
@@ -150,8 +150,8 @@ Supported outcome:
 - active check pattern is written;
 - `rules.json` is updated;
 
-This supports disciplined rule admission. It does not decide whether the rule is
-useful; the manifest and review must establish that.
+This supports disciplined rule admission. It does not decide whether the pattern
+is useful; the manifest and review must establish that.
 
 ### Apply The Approved Deep Import Repair
 
@@ -164,11 +164,11 @@ bun run habitat:fix
 
 Supported outcome:
 
-- Habitat runs the wired Grit apply pattern for domain ops deep imports;
+- Habitat runs the wired apply pattern for domain ops deep imports;
 - live writes require clean worktree state;
 - unapproved writes are blocked;
-- changed files are handed to Biome;
-- transaction records capture changed paths and diff evidence.
+- changed files are handed to the formatter;
+- transaction records capture changed paths and diffs.
 
 This is the only generic `habitat fix` codemod path that should be assumed
 available in the current toolkit.
@@ -249,7 +249,7 @@ Unsupported outcome:
 - inserting the step into a stage;
 - binding a domain operation to the step.
 
-### Automatically Fix Every Grit Finding
+### Automatically Fix Every Pattern Finding
 
 Unsupported outcome:
 
@@ -258,7 +258,7 @@ Unsupported outcome:
 - repairing architecture violations that require semantic decisions;
 - applying rewrites without per-pattern validation.
 
-### Prove A Generated MapGen Authoring Flow
+### Validate A Generated MapGen Authoring Flow
 
 Unsupported outcome:
 

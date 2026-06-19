@@ -2,7 +2,7 @@
 
 ## Design Readiness
 
-- [x] Proposal cites controlling authority and source packet.
+- [x] Proposal cites controlling inputs and source packet.
 - [x] Design resolves naming, domain owner, forbidden owners, and non-goals.
 - [x] Tasks separate completed packet repair from later source implementation gates.
 - [x] Spec delta uses normative SHALL language with scenarios.
@@ -17,11 +17,23 @@
 - [x] `git diff --check` passes.
 - [x] Packet index status agrees with the final D14 acceptance state.
 
-## Implementation Closure (Later)
+## Implementation Closure
 
-- [ ] Source changes stay inside the approved write set.
-- [ ] Validation gates pass with exact command output recorded.
-- [ ] Public-surface changes are dispositioned through D0 compatibility.
-- [ ] Downstream docs/tests/specs are realigned.
-- [ ] Graphite layer is clean, reviewable, and does not proceed past unresolved
+- [x] Source-neutral boundary is preserved: no product-specific parser, DTO, or
+  authoring data file is added.
+- [x] Validation gates pass with exact command output recorded.
+- [x] Public-surface changes are dispositioned through D0 compatibility.
+- [x] Downstream docs/specs are realigned.
+- [x] Graphite layer is clean, reviewable, and does not proceed past unresolved
   packet approval.
+
+## Validation Evidence
+
+- `bun run --cwd tools/habitat-harness test --run test/generators/project-generator.test.ts`: passed, 16 tests.
+- `bun run --cwd tools/habitat-harness check`: passed.
+- `nx g @internal/habitat-harness:project d14-smoke --kind=plugin --dry-run`: passed, listed only `packages/plugins/plugin-d14-smoke/**` creates and made no writes.
+- `nx g @internal/habitat-harness:project mapgen-recipe --kind=mod --dry-run`: exited 1 with `unsupported-project-kind` refusal before writes.
+- `bun run --cwd tools/habitat-harness validate:cli-smoke`: passed.
+- `bun run openspec -- validate deep-habitat-d14-authoring-topology-fence --strict`: passed.
+- `bun run openspec:validate`: passed, 250 items.
+- `git diff --check`: passed.

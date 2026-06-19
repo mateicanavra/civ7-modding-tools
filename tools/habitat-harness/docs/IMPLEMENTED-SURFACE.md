@@ -13,12 +13,12 @@ working in this Civ7 codebase:
 - shrink-only baseline contracts;
 - graph-owned Nx target integration;
 - project-plane boundary enforcement;
-- Biome hygiene routing;
-- GritQL source-shape checks;
-- guarded Grit apply transactions for approved codemods;
+- formatter hygiene routing;
+- Habitat pattern source-shape checks;
+- guarded Habitat apply transactions for approved codemods;
 - staged file-layer protection for generated/protected zones;
 - classification of paths and diffs into owning projects, rules, and targets;
-- two Nx generators for supported uniform projects and Grit rule lifecycle
+- two Nx generators for supported uniform projects and pattern lifecycle
   scaffolding.
 
 This is meaningful platform-substrate work. It makes many architecture and
@@ -92,16 +92,16 @@ Implemented rule state:
 - selector validation for unknown, wrong-namespace, and empty-intersection
   rule selections.
 
-## Grit Pattern Work
+## Pattern Work
 
 Implemented diagnostic/check state:
 
 - 31 active Habitat check patterns;
-- matching 31 registered `grit-check` rules;
-- fixture tests for Grit pattern validity;
-- Grit adapter normalization over machine JSON output;
+- matching 31 registered pattern-backed rules;
+- fixture tests for pattern validity;
+- adapter normalization over machine JSON output;
 - cache/failure handling tests;
-- Effect-backed process boundary for the Grit adapter.
+- Effect-backed process boundary for the pattern adapter.
 
 Implemented apply state:
 
@@ -115,17 +115,17 @@ Implemented apply state:
 
 Implemented `project` generator:
 
-- supported kinds: `foundation`, `plugin`, `app`;
+- supported kinds: `plugin`;
 - canonical roots and package names enforced;
 - root collision and package-name collision checks;
-- generated scratch projects are covered by Nx discovery tests.
+- unsupported project kinds refuse before writes.
 
 Implemented `pattern` generator:
 
 - candidate-only generation by default;
-- active registration requires pattern manifest Manifest acceptance;
+- active registration requires accepted pattern manifest state;
 - registered promotion validates baseline and rule-introduction contracts;
-- registered promotion writes active Grit pattern plus rule-pack entry;
+- registered promotion writes active Habitat pattern plus rule-pack entry;
 
 ## Hooks and Hook Check
 
@@ -135,12 +135,12 @@ Implemented:
 - resource submodule state checks;
 - staged generated-zone checks;
 - partial-staging refusal before formatting;
-- staged Biome formatting and restaging for formatter-touched files;
-- staged Grit checks;
+- staged formatting and restaging for formatter-touched files;
+- staged pattern checks;
 - affected pre-push verification.
 
 Hooks are workstation checks. CI and explicit graph checks remain the
-authority for review and merge confidence.
+review and merge confidence.
 
 ## Test Coverage
 
@@ -150,8 +150,8 @@ Current tests cover:
 - rule selection;
 - baselines and baseline integrity;
 - classification;
-- Grit adapter behavior;
-- Grit apply transaction behavior;
+- pattern adapter behavior;
+- Habitat apply transaction behavior;
 - generated/protected zones;
 - hooks;
 - project generator behavior;

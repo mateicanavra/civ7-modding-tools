@@ -27,7 +27,7 @@ Habitat does not yet generate these MapGen authoring structures:
 - a Studio recipe artifact update.
 
 The existing `project` generator is a workspace package scaffold for uniform
-project kinds. The existing `pattern` generator is a Grit rule lifecycle
+project kinds. The existing `pattern` generator is a Habitat pattern lifecycle
 scaffold. Neither is a MapGen authoring generator.
 
 ## Missing Product Acceptance Loop
@@ -54,21 +54,21 @@ Required acceptance properties for future authoring generators:
 - generated structures pass `habitat classify`;
 - generated structures pass owning package `check`, `test`, and relevant
   Habitat rules;
-- generated output does not weaken boundary, Grit, or baseline contracts;
+- generated output does not weaken boundary, pattern, or baseline contracts;
 - generator tests validate both writes and refusals.
 
 ## Diagnostic Patterns Are Not Broad Fixes
 
-Most Habitat Grit patterns are diagnostics. They detect structural violations
+Most Habitat patterns are diagnostics. They detect structural violations
 and fail through Habitat, but they do not apply repairs.
 
 Current apply state:
 
-- `.habitat/patterns/active/apply/deep_import_to_public_surface.md` is wired into
+- `.habitat/patterns/apply/deep_import_to_public_surface.md` is wired into
   `habitat fix`.
-- `.habitat/patterns/active/apply/helper_redeclarations_to_imports.md` exists but
+- `.habitat/patterns/apply/helper_redeclarations_to_imports.md` exists but
   is not wired into `habitat fix`.
-- No general mapping exists from each diagnostic Grit rule to a safe apply
+- No general mapping exists from each diagnostic Habitat rule to a safe apply
   pattern.
 
 This is partly deliberate and partly unfinished. It is deliberate that unsafe
@@ -95,7 +95,7 @@ by itself.
 
 ## pattern manifest Can Overpower Product Focus
 
-The pattern manifest machinery is useful for preventing weak Grit rules from
+The pattern manifest machinery is useful for preventing weak Habitat rules from
 quietly becoming enforcement law. Its risk is that it can become the center of
 gravity. The next phase should not confuse "well-governed rule admission" with
 "the toolkit helps agents author useful MapGen structures."
