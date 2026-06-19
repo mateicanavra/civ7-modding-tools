@@ -107,7 +107,7 @@ Habitat SHALL expose `ruleBaselineFacts` for D5 and baseline consumers. D2 SHALL
 
 ### Requirement: Grit Facts Own Pattern Identity And Scan Metadata
 
-Habitat SHALL expose `ruleGritFacts` for Grit, diagnostic, governance, and hook consumers. Grit facts SHALL include pattern identity, scan metadata, exclusions, hook eligibility metadata, and Pattern Authority reference when present. Grit consumers SHALL NOT fall back from missing pattern identity to rule id, parse Grit markdown prose/frontmatter as registry authority, or infer scan roots from legacy `scope` prose.
+Habitat SHALL expose `ruleGritFacts` for Grit, diagnostic, and governance consumers. Grit facts SHALL include pattern identity, scan metadata, exclusions, and Pattern Authority reference when present. Local feedback eligibility SHALL be exposed through `ruleLocalFeedbackFacts`, not through Grit execution facts. Grit consumers SHALL NOT fall back from missing pattern identity to rule id, parse Grit markdown prose/frontmatter as registry authority, or infer scan roots from legacy `scope` prose.
 
 #### Scenario: Grit pattern identity is missing
 - **WHEN** a `grit-check` rule lacks a Grit pattern identity
@@ -141,7 +141,7 @@ Habitat SHALL expose `ruleGovernanceFacts` for Pattern Governance and scaffoldin
 - **AND** D8 still owns whether the manifest is admitted
 
 #### Scenario: Manifest reference is contradicted
-- **WHEN** registry metadata and Pattern Authority manifest metadata disagree on rule id, pattern name, lifecycle, or hook eligibility
+- **WHEN** registry metadata and Pattern Authority manifest metadata disagree on rule id, pattern name, or lifecycle
 - **THEN** Habitat reports a Pattern Authority contract failure
 - **AND** the rule is not treated as admitted by file presence alone
 

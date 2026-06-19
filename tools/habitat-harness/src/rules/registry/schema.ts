@@ -37,12 +37,57 @@ const LegacyRuleCompatibilitySchema = Type.Object(
   { additionalProperties: false }
 );
 
+const RulePathCoverageSchema = Type.Array(
+  Type.Union([
+    Type.Object(
+      {
+        kind: Type.Literal("exact-path"),
+        patterns: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        kind: Type.Literal("project-owner"),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        kind: Type.Literal("workspace-gate"),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object(
+      {
+        kind: Type.Literal("unresolved-metadata"),
+        reason: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+  ]),
+  { minItems: 1 }
+);
+
 const RequiredRuleMetadataSchema = Type.Interface(
   [RuleIdentitySchema, RuleReportSchema, LegacyRuleCompatibilitySchema],
-  {},
+  {
+    pathCoverage: RulePathCoverageSchema,
+  },
   { additionalProperties: false }
 );
+
 const RequiredCommandRuleMetadataSchema = Type.Omit(RequiredRuleMetadataSchema, ["ownerTool"]);
+export const RuleRoutingFactsSchema = Type.Interface(
+  [Type.Pick(RuleIdentitySchema, ["id", "ownerTool", "ownerProject"])],
+  {
+    pathCoverage: RulePathCoverageSchema,
+  },
+  { additionalProperties: false }
+);
+export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
+
+// TODO: I don't know what this is all about, but if we're trying to do direct passthrough to the underlying tools, that's just bad. An owned interface exists to simplify development and devX, not pass through the internal complexity. If this is what we're doing, we need to completely undo this and, again, design from the domain downward and define + specify the exact command hierarchy (fundamentally assumed to be habitat, to the point where habitat doesn't need a "native"); then we build the modules from there. That was always supposed to be the goal. The user should absolutely never care about the command owner. They should know "habitat" and that's it. Nothing more. All other interactions must be the agnostic, abstracted versions that purely compose the habitat domain -- which is the entity/surface
 const DirectCommandOwnerToolSchema = Type.Union([
   Type.Literal("habitat-native"),
   Type.Literal("wrapped-script"),
