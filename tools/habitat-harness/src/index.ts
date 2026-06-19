@@ -106,10 +106,11 @@ export type {
   RuleSelectorKind,
 } from "./lib/rule-selection.js";
 export { describeRuleSelectionFailure, selectRules } from "./lib/rule-selection.js";
-export type { VerifyBaseResolution, VerifyOptions, VerifyReceipt } from "./lib/verify-receipt.js";
+export type { VerifyBaseResolution, VerifyOptions, VerifyReceipt } from "./lib/verify/index.js";
 export {
   createVerifyReceipt,
   isVerifyReceipt,
+  readVerifyTargetPlan,
   resolveVerifyBase,
   runAffectedVerification,
   stringifyVerifyReceipt,
@@ -123,7 +124,7 @@ export {
   VerifyReceiptSchema,
   validateVerifyReceipt,
   verifyAffectedTargets,
-} from "./lib/verify-receipt.js";
+} from "./lib/verify/index.js";
 export type {
   HabitatToolExecutionPlane,
   MaterializedHabitatCommand,

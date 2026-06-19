@@ -1,0 +1,40 @@
+import { repoRoot } from "../paths.js";
+import { run, type SpawnResult } from "../spawn.js";
+import type { VerifyReceipt } from "./schema.js";
+import { boundedPreview } from "./command-output.js";
+
+/**
+ * Reads the current repository status for verify handoff.
+ *
+ * @returns Spawn result for `git status --short --branch`.
+ */
+export function observeGitStatus(): SpawnResult {
+  return run(["git", "status", "--short", "--branch"], { cwd: repoRoot });
+}
+
+/**
+ * Converts git status output into the receipt post-state contract.
+ *
+ * @param result - Completed git status command.
+ * @returns Clean, dirty, or unavailable post-state with bounded stream metadata.
+ */
+export function postStateObservation(result: SpawnResult): VerifyReceipt["postState"] {
+  const stdout = boundedPreview(result.stdout);
+  const stderr = boundedPreview(result.stderr);
+  const command = {
+    argv: ["git", "status", "--short", "--branch"],
+    cwd: repoRoot,
+    exitCode: result.exitCode,
+    stdoutLength: result.stdout.length,
+    stderrLength: result.stderr.length,
+    stdoutPreview: stdout.text,
+    stderrPreview: stderr.text,
+    stdoutTruncated: stdout.truncated,
+    stderrTruncated: stderr.truncated,
+  };
+  if (result.exitCode !== 0) return { kind: "unavailable", gitStatus: command };
+  return {
+    kind: result.stdout.trim() ? "observed-dirty" : "observed-clean",
+    gitStatus: command,
+  };
+}

@@ -12,7 +12,7 @@ import {
   resolveVerifyBase,
   runAffectedVerification,
   stringifyVerifyReceipt,
-} from "../lib/verify-receipt.js";
+} from "../lib/verify/index.js";
 
 export default class Verify extends HabitatCommand {
   static override summary = "Run Habitat check plus affected verification targets";
@@ -55,6 +55,7 @@ export default class Verify extends HabitatCommand {
       const receipt = createVerifyReceipt({
         requestedBase: flags.base,
         resolvedBase: base,
+        baseSource: baseDecision.source,
         commandArgs: this.rawArgv(),
         startedAt,
         durationMs: Date.now() - startedMs,
