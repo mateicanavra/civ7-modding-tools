@@ -6,14 +6,14 @@ specific local worktree path, branch name, or shared path segment.
 
 ## Operational Fixture
 
-These values describe the active remediation checkout. Update this section when
-the remediation work moves, then keep durable packet artifacts pointed at the
-variables below.
+These values describe the active Deep Habitat packet checkout. Update this
+section when the remediation or implementation work moves, then keep durable
+packet artifacts pointed at the variables below.
 
 | Variable | Value |
 | --- | --- |
-| `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation` |
-| `$ACTIVE_REMEDIATION_BRANCH` | `codex/d15-execution-provenance-trigger-packet` |
+| `$ACTIVE_REMEDIATION_WORKTREE` | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame` |
+| `$ACTIVE_REMEDIATION_BRANCH` | `agent-DRA-d0-command-surface-inventory` |
 
 ## Path Variables
 
