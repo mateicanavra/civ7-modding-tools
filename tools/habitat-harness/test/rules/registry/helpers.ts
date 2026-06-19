@@ -26,7 +26,7 @@ export function expectInvalid(
 export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryRecordV1 {
   const rule = {
     id: "sample-rule",
-    ownerTool: "habitat-native",
+    ownerTool: "command-check",
     ownerProject: "@internal/habitat-harness",
     lane: "enforced",
     scope: "workspace",

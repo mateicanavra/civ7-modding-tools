@@ -300,7 +300,7 @@ Protected set for D13 implementation:
 - `mods/mod-swooper-maps/src/**/domains/**`
 - recipe, domain, operation, stage, step, Studio artifact, and registry files
   outside Habitat Harness
-- `.grit/patterns/habitat/checks/**` except paths produced by an accepted
+- `.habitat/patterns/active/checks/**` except paths produced by an accepted
   registered-pattern promotion decision
 - `tools/habitat-harness/src/rules/rules.json` except through the accepted
   registered-pattern promotion decision

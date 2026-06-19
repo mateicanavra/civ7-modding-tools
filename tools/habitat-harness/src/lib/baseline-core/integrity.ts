@@ -15,13 +15,28 @@ import {
   type BaselineRefusal,
 } from "./schema.js";
 import { parseRuleRegistryDocument } from "../../rules/registry/index.js";
+import { baselineRepoPath, ruleRegistryRepoPath } from "../artifact-paths.ts";
 import { parseBaselineArray, validateBaselineContract } from "./state.js";
 import { sortedUnique } from "./utils.js";
 
-export function writeBaseline(ruleId: string, keys: string[], options: BaselineContractContext = {}): void {
+const preD14aAuthoredArtifactPaths = {
+  ruleRegistry: "tools/habitat-harness/src/rules/rules.json",
+  baseline(ruleId: string): string {
+    return `tools/habitat-harness/baselines/${ruleId}.json`;
+  },
+};
+
+export function writeBaseline(
+  ruleId: string,
+  keys: string[],
+  options: BaselineContractContext = {}
+): void {
   const context = resolveBaselineContext(options);
   mkdirSync(context.baselinesDir, { recursive: true });
-  writeFileSync(baselinePathForRule(ruleId, context), `${JSON.stringify([...keys].sort(), null, 2)}\n`);
+  writeFileSync(
+    baselinePathForRule(ruleId, context),
+    `${JSON.stringify([...keys].sort(), null, 2)}\n`
+  );
 }
 
 export function checkBaselineIntegrity(
@@ -50,7 +65,6 @@ export function checkBaselineIntegrity(
   const contract = validateBaselineContract(options);
   for (const [ruleId, state] of contract.states) {
     if (state.kind !== "explicit-empty" && state.kind !== "explicit-debt") continue;
-    const file = `${ruleId}.json`;
     const before = loadBaseBaselineKeys(mb, ruleId, context);
     if (!before.ok) {
       refusals.push(before.refusal);
@@ -63,7 +77,7 @@ export function checkBaselineIntegrity(
       refusals.push({
         kind: "baseline-refusal",
         ruleId,
-        path: `tools/habitat-harness/baselines/${file}`,
+        path: baselineRepoPath(ruleId),
         reason: "baseline-growth-existing-rule",
         addedKeys: added,
         message:
@@ -95,7 +109,7 @@ export function guardBaselineExpansion(
   const context = resolveBaselineContext(options);
   const uniqueKeys = sortedUnique(keys);
   const mb = mergeBase(base, context);
-  const baselinePath = `tools/habitat-harness/baselines/${ruleId}.json`;
+  const baselinePath = baselineRepoPath(ruleId);
   if (!mb) {
     return expansionRefusal({
       kind: "baseline-refusal",
@@ -146,9 +160,16 @@ function loadBaseRuleIds(
   mb: string,
   context: RequiredBaselineContext
 ): { ok: true; ruleIds: Set<string> } | { ok: false; refusal: BaselineRefusal } {
-  const registryPath = "tools/habitat-harness/src/rules/rules.json";
-  const rulePackAtBase = gitShow(mb, registryPath, context);
+  const registryPath = ruleRegistryRepoPath;
+  const rulePackAtBase = gitShowMovedAuthoredArtifact(
+    mb,
+    `${registryPath}/rules.json`,
+    preD14aAuthoredArtifactPaths.ruleRegistry,
+    context
+  );
   if (rulePackAtBase === null) {
+    const ruleIds = loadBaseRuleIdsFromDirectory(mb, registryPath, context);
+    if (ruleIds) return { ok: true, ruleIds };
     return {
       ok: false,
       refusal: {
@@ -160,8 +181,11 @@ function loadBaseRuleIds(
     };
   }
   try {
-    const parsed = parseRuleRegistryDocument(JSON.parse(rulePackAtBase), registryPath);
+    const parsedRaw = JSON.parse(rulePackAtBase.contents);
+    const parsed = parseRuleRegistryDocument(parsedRaw, registryPath);
     if (!parsed.ok) {
+      const baseRuleIds = baseRuleIdsFromHistoricalRegistry(parsedRaw);
+      if (baseRuleIds) return { ok: true, ruleIds: baseRuleIds };
       throw new Error(parsed.issues.map((issue) => `${issue.path}: ${issue.message}`).join("; "));
     }
     return { ok: true, ruleIds: new Set(parsed.document.rules.map((rule) => rule.id)) };
@@ -178,17 +202,44 @@ function loadBaseRuleIds(
   }
 }
 
+function loadBaseRuleIdsFromDirectory(
+  mb: string,
+  registryPath: string,
+  context: RequiredBaselineContext
+): Set<string> | null {
+  const res = context.runCommand(
+    ["git", "ls-tree", "-r", "--name-only", mb, registryPath],
+    { cwd: context.repoRoot }
+  );
+  if (res.exitCode !== 0) return null;
+  const ids = res.stdout
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith(`${registryPath}/`) && line.endsWith("/rule.json"))
+    .map((line) => line.slice(`${registryPath}/`.length, -"/rule.json".length))
+    .filter(Boolean)
+    .sort();
+  return ids.length === 0 ? null : new Set(ids);
+}
+
 function loadBaseBaselineKeys(
   mb: string,
   ruleId: string,
   context: RequiredBaselineContext
 ): { ok: true; keys: string[] } | { ok: false; refusal: BaselineRefusal } {
-  const baselinePath = `tools/habitat-harness/baselines/${ruleId}.json`;
-  const beforeRaw = gitShow(mb, baselinePath, context);
+  const baselinePath = baselineRepoPath(ruleId);
+  const beforeRaw = gitShowMovedAuthoredArtifact(
+    mb,
+    baselinePath,
+    preD14aAuthoredArtifactPaths.baseline(ruleId),
+    context
+  );
   if (beforeRaw === null) return { ok: true, keys: [] };
   try {
-    const parsed = parseBaselineArray(JSON.parse(beforeRaw), baselinePath, ruleId);
-    return parsed.ok ? { ok: true, keys: parsed.keys } : { ok: false, refusal: { ...parsed.refusal, reason: "base-baseline-unreadable" } };
+    const parsed = parseBaselineArray(JSON.parse(beforeRaw.contents), baselinePath, ruleId);
+    return parsed.ok
+      ? { ok: true, keys: parsed.keys }
+      : { ok: false, refusal: { ...parsed.refusal, reason: "base-baseline-unreadable" } };
   } catch (error) {
     return {
       ok: false,
@@ -203,6 +254,34 @@ function loadBaseBaselineKeys(
   }
 }
 
+function gitShowMovedAuthoredArtifact(
+  ref: string,
+  currentRepoPath: string,
+  previousRepoPath: string,
+  context: RequiredBaselineContext
+): { contents: string } | null {
+  const current = gitShow(ref, currentRepoPath, context);
+  if (current !== null) return { contents: current };
+
+  const previous = gitShow(ref, previousRepoPath, context);
+  return previous === null ? null : { contents: previous };
+}
+
+function baseRuleIdsFromHistoricalRegistry(value: unknown): Set<string> | null {
+  if (!value || typeof value !== "object" || !("rules" in value)) return null;
+  const rules = (value as { rules: unknown }).rules;
+  if (!Array.isArray(rules)) return null;
+
+  const ruleIds: string[] = [];
+  for (const rule of rules) {
+    if (!rule || typeof rule !== "object" || !("id" in rule)) return null;
+    const id = (rule as { id: unknown }).id;
+    if (typeof id !== "string" || id.length === 0) return null;
+    ruleIds.push(id);
+  }
+  return new Set(ruleIds);
+}
+
 function acceptedRuleIntroductionManifest(
   ruleId: string,
   keys: readonly string[],
@@ -212,7 +291,7 @@ function acceptedRuleIntroductionManifest(
   const manifest = context.ruleIntroductionManifests.find(
     (candidate) => candidate.ruleId === ruleId
   );
-  const baselinePath = `tools/habitat-harness/baselines/${ruleId}.json`;
+  const baselinePath = baselineRepoPath(ruleId);
   if (!manifest) {
     return {
       ok: false,

@@ -4,8 +4,8 @@ import {
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
   ruleGraphFacts,
-  ruleGritFacts,
-  ruleLocalFeedbackFacts,
+  rulePatternFacts,
+  ruleHookCheckFacts,
   ruleReportFacts,
   ruleRoutingFacts,
   ruleSelectorFacts,
@@ -18,9 +18,9 @@ export const activeRuleSelectorFacts = ruleSelectorFacts(records);
 export const activeRuleReportFacts = ruleReportFacts(records);
 export const activeRuleBaselineFacts = ruleBaselineFacts(records);
 export const activeRuleCommandExecutionFacts = ruleCommandExecutionFacts(records);
-export const activeRuleGritFacts = ruleGritFacts(records);
+export const activeRulePatternFacts = rulePatternFacts(records);
 export const activeRuleFileLayerFacts = ruleFileLayerFacts(records);
-export const activeRuleLocalFeedbackFacts = ruleLocalFeedbackFacts(records);
+export const activeRuleHookCheckFacts = ruleHookCheckFacts(records);
 export const activeRuleRoutingFacts = ruleRoutingFacts(records);
 export const activeRuleGraphFacts = ruleGraphFacts(
   records,

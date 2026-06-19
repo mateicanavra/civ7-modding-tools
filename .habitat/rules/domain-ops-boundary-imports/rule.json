@@ -1,0 +1,35 @@
+{
+  "id": "domain-ops-boundary-imports",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+  "forbids": "ops using adapter/context crossing constructs",
+  "why": "Domain ops stay pure and composable; adapter/context belongs outside domain implementation.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Remove adapter/context crossing from domain ops.",
+  "exceptionPath": "none",
+  "patternName": "domain_ops_boundary_imports",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
+      ]
+    }
+  ]
+}

@@ -18,7 +18,7 @@ Scaffolding owner.
 
 Forbidden owners:
 
-- Pattern Governance owns registration, not candidate file writing.
+- Patterns owns registration, not candidate file writing.
 - Host Policy Boundary owns future host-specific scaffold inputs.
 - Authoring Topology owns future domain/op/stage/step/recipe generation.
 
@@ -34,7 +34,7 @@ Define:
 - supported plugin project kind;
 - project generator preflight/refusal states;
 - candidate pattern generator output state;
-- active pattern registration refusal through Pattern Governance;
+- active pattern registration refusal through Patterns;
 - unsupported-kind refusal;
 
 ## Dependency Order
@@ -86,7 +86,7 @@ Required design validation:
 
 - generator schema inventory;
 - supported/unsupported scenario inventory;
-- Pattern Governance handoff contract.
+- Patterns handoff contract.
 
 Implementation validation:
 
@@ -105,7 +105,7 @@ Scope limits:
 
 - Product/scenario review.
 - Refusal contract review.
-- Pattern Governance review.
+- Patterns review.
 - Host boundary review.
 - API/generator compatibility review.
 

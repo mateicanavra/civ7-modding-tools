@@ -3,9 +3,9 @@ import { Value } from "typebox/value";
 
 export const GritDiagnosticIdentitySchema = Type.Object(
   {
-    kind: Type.Literal("grit-pattern"),
+    kind: Type.Literal("pattern"),
     patternIdentity: Type.String({ minLength: 1 }),
-    source: Type.Literal("d2-rule-grit-facts"),
+    source: Type.Literal("rule-registry-facts"),
   },
   { additionalProperties: false }
 );
@@ -38,7 +38,7 @@ export const ObservedNativeDiagnosticIdentitySchema = Type.Object(
 export const ObservedGritDiagnosticIdentitySchema = Type.Union([
   Type.Object(
     {
-      kind: Type.Literal("observed-grit-pattern"),
+      kind: Type.Literal("observed-pattern"),
       observedPatternIdentity: Type.String({ minLength: 1 }),
       source: Type.Union([
         Type.Literal("local_name"),
@@ -81,9 +81,9 @@ export function isObservedGritDiagnosticIdentity(
 
 export function gritDiagnosticIdentity(patternIdentity: string): GritDiagnosticIdentity {
   return {
-    kind: "grit-pattern",
+    kind: "pattern",
     patternIdentity,
-    source: "d2-rule-grit-facts",
+    source: "rule-registry-facts",
   };
 }
 
@@ -118,21 +118,21 @@ export function observedGritDiagnosticIdentity(input: {
   }
   if (localName && parsedCheckId) {
     return {
-      kind: "observed-grit-pattern",
+      kind: "observed-pattern",
       observedPatternIdentity: localName,
       source: "local-name-and-check-id",
     };
   }
   if (localName) {
     return {
-      kind: "observed-grit-pattern",
+      kind: "observed-pattern",
       observedPatternIdentity: localName,
       source: "local_name",
     };
   }
   if (parsedCheckId) {
     return {
-      kind: "observed-grit-pattern",
+      kind: "observed-pattern",
       observedPatternIdentity: parsedCheckId,
       source: "parsed-check-id",
     };
@@ -145,7 +145,7 @@ export function observedGritIdentityMatches(
   identity: GritDiagnosticIdentity
 ): boolean {
   return (
-    observed?.kind === "observed-grit-pattern" &&
+    observed?.kind === "observed-pattern" &&
     observed.observedPatternIdentity === identity.patternIdentity
   );
 }

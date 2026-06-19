@@ -156,7 +156,7 @@ Official repo docs/source URLs, all retrieved 2026-06-14:
 
 ### Pattern Definitions And Fixtures
 
-- Confirmed public behavior: `.grit/grit.yaml` config can define inline
+- Confirmed public behavior: `.habitat/grit.yaml` config can define inline
   patterns with `name`, `tags`, `level`, `body`, `description`, and `samples`.
   `level: none` disables a pattern in the example. (source:
   https://docs.grit.io/guides/config; repo lines: `config.mdoc` lines 21-67)
@@ -174,7 +174,7 @@ Official repo docs/source URLs, all retrieved 2026-06-14:
   can group multiple input/output files. (source:
   https://docs.grit.io/guides/testing; repo lines:
   `docs/src/markdoc/partials/markdown_rules.md` lines 1-11)
-- Confirmed public behavior: YAML `samples` under `.grit/grit.yaml` require
+- Confirmed public behavior: YAML `samples` under `.habitat/grit.yaml` require
   both `input` and `output`. (source: https://docs.grit.io/guides/testing;
   repo lines: `testing.mdoc` lines 27-54)
 - Confirmed public behavior: `grit patterns test` runs all defined patterns;

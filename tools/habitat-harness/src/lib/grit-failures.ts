@@ -8,7 +8,7 @@ export const gritAdapterFailureTags = [
   "GritSchemaDrift",
   "GritUnexpectedResultShape",
   "GritEmptyScanRoots",
-  "GritPatternProjectionMiss",
+  "GritPatternMatchMissing",
   "GritUnexpectedDiagnosticIdentity",
   "GritCacheProvenanceMissing",
   "GritAdapterInternalContractViolation",
@@ -34,7 +34,7 @@ export type GritAdapterFailure =
   | GritSchemaDrift
   | GritUnexpectedResultShape
   | GritEmptyScanRoots
-  | GritPatternProjectionMiss
+  | GritPatternMatchMissing
   | GritUnexpectedDiagnosticIdentity
   | GritCacheProvenanceMissing
   | GritAdapterInternalContractViolation;
@@ -63,8 +63,8 @@ export class GritUnexpectedResultShape extends Data.TaggedError(
 export class GritEmptyScanRoots extends Data.TaggedError(
   "GritEmptyScanRoots"
 )<GritAdapterFailureFields> {}
-export class GritPatternProjectionMiss extends Data.TaggedError(
-  "GritPatternProjectionMiss"
+export class GritPatternMatchMissing extends Data.TaggedError(
+  "GritPatternMatchMissing"
 )<GritAdapterFailureFields> {}
 export class GritUnexpectedDiagnosticIdentity extends Data.TaggedError(
   "GritUnexpectedDiagnosticIdentity"
@@ -101,8 +101,8 @@ export function createGritAdapterFailure(
       return new GritUnexpectedResultShape(fields);
     case "GritEmptyScanRoots":
       return new GritEmptyScanRoots(fields);
-    case "GritPatternProjectionMiss":
-      return new GritPatternProjectionMiss(fields);
+    case "GritPatternMatchMissing":
+      return new GritPatternMatchMissing(fields);
     case "GritUnexpectedDiagnosticIdentity":
       return new GritUnexpectedDiagnosticIdentity(fields);
     case "GritCacheProvenanceMissing":

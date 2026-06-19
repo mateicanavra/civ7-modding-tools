@@ -36,8 +36,8 @@ paths before any live write.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/fix.ts`
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-apply.test.ts`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.grit/patterns/habitat/apply/deep_import_to_public_surface.md`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/deep_import_to_public_surface.md`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/docs_local_checkout_paths_rewrite.md`
 - Related owner packets:
   D0, D6, D8, D10, and G-HOST source packets.
 - Official vendor docs:
@@ -69,7 +69,7 @@ Current source transaction stages in `grit-apply.ts`:
 4. Refuse live apply when the worktree is dirty unless `allowDirtyWorktree` is
    set. Dirty dry-runs are allowed.
 5. Run source Grit dry-run:
-   `grit apply .grit/patterns/habitat/apply/deep_import_to_public_surface.md <source roots> --force --output compact --dry-run`.
+   `grit apply .habitat/patterns/active/apply/deep_import_to_public_surface.md <source roots> --force --output compact --dry-run`.
 6. Parse dry-run output as `HABITAT_REWRITE ...` structured inventory, zero
    matches, or failure.
 7. If source dry-run output is not structured/zero-match, run an isolated-copy
@@ -79,7 +79,7 @@ Current source transaction stages in `grit-apply.ts`:
    authority path.
 8. Classify structured inventory by approved roots and `approvedByPattern`.
 9. Run docs Grit dry-run when docs roots exist:
-   `grit apply .grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md <exact docs md files> --dry-run --force --output standard`.
+   `grit apply .habitat/patterns/active/apply/docs_local_checkout_paths_rewrite.md <exact docs md files> --dry-run --force --output standard`.
 10. Parse docs standard output for changed Markdown paths and run isolated-copy
     proof for those exact paths.
 11. If `dryRun` or no approved paths, return success with no live source writes.
@@ -292,7 +292,7 @@ accepted, D9 must name the current observed protected/refused set and mark it
 as dependency-bound:
 
 - Repo/VCS/tooling protected prefixes already modeled in Grit scan validation:
-  `.civ7/**`, `.git/**`, `.grit/cache/**`, `dist/**`, `node_modules/**`,
+  `.civ7/**`, `.git/**`, `.habitat/cache/patterns/**`, `dist/**`, `node_modules/**`,
   `tools/habitat-harness/dist/**`.
 - Generated zones currently modeled in `generated-zones.ts`:
   `mods/mod-swooper-maps/src/maps/generated/**`,

@@ -1,6 +1,6 @@
 export type {
   BaselineApplicationResult,
-  BaselineAuthorityProjection,
+  BaselineAuthorityResult,
   BaselineAuthorityState,
   BaselineContractValidation,
   BaselineExpansionDecision,
@@ -9,13 +9,12 @@ export type {
   BaselineRefusal,
   BaselineRefusalReason,
   BaselineRuleContractInput,
-  ExternalExceptionSource,
   RuleIntroductionBaselineManifest,
 } from "./lib/baseline.js";
 export {
   applyBaseline,
   BaselineApplicationResultSchema,
-  BaselineAuthorityProjectionSchema,
+  BaselineAuthorityResultSchema,
   BaselineAuthorityStateSchema,
   BaselineExpansionDecisionSchema,
   BaselineIntegrityFindingSchema,
@@ -25,7 +24,6 @@ export {
   BaselineRuleContractInputSchema,
   baselineFailureDiagnostic,
   checkBaselineIntegrity,
-  ExternalExceptionSourceSchema,
   guardBaselineExpansion,
   isBaselineLocked,
   loadBaseline,
@@ -128,23 +126,29 @@ export {
 export type {
   HabitatToolExecutionPlane,
   MaterializedHabitatCommand,
+  WorkspaceToolProviderService,
 } from "./lib/workspace-tools.js";
-export { materializeHabitatCommand } from "./lib/workspace-tools.js";
+export {
+  materializeHabitatCommand,
+  materializeWorkspaceToolCommand,
+  WorkspaceToolProvider,
+  WorkspaceToolProviderLive,
+} from "./lib/workspace-tools.js";
 export { executeRule, type HarnessRule, ruleById, rules } from "./rules/architecture.js";
 export type {
-  CandidatePatternAuthorityManifest,
-  PatternAuthorityManifest,
-  PatternAuthorityRuleReference,
-  PatternAuthorityValidationFailureReason,
-  PatternAuthorityValidationIssue,
-  PatternAuthorityValidationOptions,
-  PatternAuthorityValidationResult,
-  RegisteredPatternAuthorityManifest,
-} from "./rules/pattern-authority/manifest.js";
+  CandidatePatternManifest,
+  PatternManifest,
+  PatternRuleReference,
+  PatternValidationFailureReason,
+  PatternValidationIssue,
+  PatternValidationOptions,
+  PatternValidationResult,
+  RegisteredPatternManifest,
+} from "./rules/patterns/index.js";
 export {
-  patternAuthorityCandidateRoot,
-  patternAuthorityManifestPath,
-  patternAuthorityManifestRoot,
-  patternAuthorityManifestSchemaVersion,
-  validatePatternAuthorityManifest,
-} from "./rules/pattern-authority/manifest.js";
+  patternCandidateRoot,
+  patternManifestPath,
+  patternManifestRoot,
+  patternManifestSchemaVersion,
+  validatePatternManifest,
+} from "./rules/patterns/index.js";

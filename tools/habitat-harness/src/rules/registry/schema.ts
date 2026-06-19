@@ -5,13 +5,12 @@ const RuleIdentitySchema = Type.Object(
     id: Type.String({ minLength: 1 }),
     ownerProject: Type.String({ minLength: 1 }),
     ownerTool: Type.Union([
-      Type.Literal("biome"),
+      Type.Literal("format-check"),
       Type.Literal("file-layer"),
-      Type.Literal("grit-check"),
-      Type.Literal("habitat-native"),
-      Type.Literal("nx-boundaries"),
-      Type.Literal("wrapped-script"),
-      Type.Literal("wrapped-test"),
+      Type.Literal("pattern-check"),
+      Type.Literal("import-boundaries"),
+      Type.Literal("command-check"),
+      Type.Literal("target-check"),
     ]),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
   },
@@ -87,20 +86,18 @@ export const RuleRoutingFactsSchema = Type.Interface(
 );
 
 const DirectCommandOwnerToolSchema = Type.Union([
-  Type.Literal("habitat-native"),
-  Type.Literal("wrapped-script"),
-  Type.Literal("biome"),
-  Type.Literal("nx-boundaries"),
+  Type.Literal("command-check"),
+  Type.Literal("format-check"),
+  Type.Literal("import-boundaries"),
 ]);
 const CommandOwnerToolSchema = Type.Union([
-  Type.Literal("habitat-native"),
-  Type.Literal("wrapped-script"),
-  Type.Literal("biome"),
-  Type.Literal("nx-boundaries"),
-  Type.Literal("wrapped-test"),
+  Type.Literal("command-check"),
+  Type.Literal("format-check"),
+  Type.Literal("import-boundaries"),
+  Type.Literal("target-check"),
 ]);
-const LocalFeedbackSchema = Type.Literal(true);
-const GritScanRootSchema = Type.String({ minLength: 1 });
+const HookCheckSchema = Type.Literal(true);
+const PatternScanRootSchema = Type.String({ minLength: 1 });
 const GraphTargetSchema = Type.Object(
   {
     project: Type.String({ minLength: 1 }),
@@ -120,20 +117,20 @@ const CommandRuleRegistryRecordV1Schema = Type.Interface(
 const WrappedTestRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
-    ownerTool: Type.Literal("wrapped-test"),
+    ownerTool: Type.Literal("target-check"),
     graphTarget: GraphTargetSchema,
   },
   { additionalProperties: false }
 );
 
-export const GritCheckRuleRegistryRecordV1Schema = Type.Interface(
+export const PatternCheckRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
-    ownerTool: Type.Literal("grit-check"),
-    gritPattern: Type.String({ minLength: 1 }),
-    scanRoots: Type.Array(GritScanRootSchema, { minItems: 1 }),
+    ownerTool: Type.Literal("pattern-check"),
+    patternName: Type.String({ minLength: 1 }),
+    scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
     expandIgnoredTestDirectories: Type.Optional(Type.Literal(true)),
-    localFeedback: Type.Optional(LocalFeedbackSchema),
+    hookCheck: Type.Optional(HookCheckSchema),
     manifestPath: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
@@ -169,7 +166,7 @@ const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
 export const RuleRegistryRecordV1Schema = Type.Union([
   CommandRuleRegistryRecordV1Schema,
   WrappedTestRuleRegistryRecordV1Schema,
-  GritCheckRuleRegistryRecordV1Schema,
+  PatternCheckRuleRegistryRecordV1Schema,
   GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
   ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,
   HostSurfaceFileLayerRuleRegistryRecordV1Schema,
@@ -183,6 +180,17 @@ export const RuleRegistryDocumentV1Schema = Type.Object(
       minProperties: 1,
     }),
     rules: Type.Array(RuleRegistryRecordV1Schema),
+  },
+  { additionalProperties: false }
+);
+
+export const RuleRegistryIndexV1Schema = Type.Object(
+  {
+    $comment: Type.Optional(Type.String()),
+    schemaVersion: Type.Literal(1),
+    ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
+      minProperties: 1,
+    }),
   },
   { additionalProperties: false }
 );
@@ -246,17 +254,17 @@ export const RuleCommandExecutionFactsSchema = Type.Interface(
   { additionalProperties: false }
 );
 
-export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema, [
+export const RulePatternFactsSchema = Type.Pick(PatternCheckRuleRegistryRecordV1Schema, [
   "id",
   "lane",
   "message",
-  "gritPattern",
+  "patternName",
   "scanRoots",
   "expandIgnoredTestDirectories",
 ]);
 
-export const RuleGovernanceFactsSchema = Type.Interface(
-  [Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id", "lane", "gritPattern"])],
+export const RuleManifestFactsSchema = Type.Interface(
+  [Type.Pick(PatternCheckRuleRegistryRecordV1Schema, ["id", "lane", "patternName"])],
   {
     manifestPath: Type.String({ minLength: 1 }),
   },
@@ -287,23 +295,24 @@ export const RuleFileLayerFactsSchema = Type.Union([
   ]),
 ]);
 
-export const RuleLocalFeedbackFactsSchema = Type.Interface(
-  [Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id"])],
+export const RuleHookCheckFactsSchema = Type.Interface(
+  [Type.Pick(PatternCheckRuleRegistryRecordV1Schema, ["id"])],
   {
-    localFeedback: LocalFeedbackSchema,
+    hookCheck: HookCheckSchema,
   },
   { additionalProperties: false }
 );
 
 export type RuleRegistryRecordV1 = Static<typeof RuleRegistryRecordV1Schema>;
 export type RuleRegistryDocumentV1 = Static<typeof RuleRegistryDocumentV1Schema>;
+export type RuleRegistryIndexV1 = Static<typeof RuleRegistryIndexV1Schema>;
 export type RuleSelectorFacts = Static<typeof RuleSelectorFactsSchema>;
 export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
 export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;
 export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
 export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
 export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
-export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
-export type RuleGovernanceFacts = Static<typeof RuleGovernanceFactsSchema>;
+export type RulePatternFacts = Static<typeof RulePatternFactsSchema>;
+export type RuleManifestFacts = Static<typeof RuleManifestFactsSchema>;
 export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
-export type RuleLocalFeedbackFacts = Static<typeof RuleLocalFeedbackFactsSchema>;
+export type RuleHookCheckFacts = Static<typeof RuleHookCheckFactsSchema>;

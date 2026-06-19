@@ -1,0 +1,35 @@
+{
+  "id": "domain-ops-projection-effects",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+  "forbids": "ops depending on map projection/effect artifact keys",
+  "why": "Domain ops should not encode runtime map artifact/effect dependencies.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Remove map projection/effect dependency keys from domain ops.",
+  "exceptionPath": "none",
+  "patternName": "domain_ops_projection_effects",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
+      ]
+    }
+  ]
+}

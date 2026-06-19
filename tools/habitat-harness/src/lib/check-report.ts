@@ -2,7 +2,7 @@ export type {
   BaselineExpansionResult,
   CheckOptions,
   EmitCheckOptions,
-  VerifyCheckSummaryProjection,
+  VerifyCheckSummary,
 } from "./check/index.js";
 export {
   CheckOutcomeSchema,
@@ -10,14 +10,14 @@ export {
   checkOutcomeFromReport,
   createCheckReport,
   expandBaselines,
-  isDiagnosticUnavailableProjection,
-  LocalFeedbackCheckProjectionSchema,
-  localFeedbackCheckProjection,
+  isDiagnosticUnavailableSummary,
+  HookCheckSummarySchema,
+  hookCheckSummary,
   renderCheckReport,
   rulesForExecution,
-  stagedGritScanRoots,
+  stagedPatternScanRoots,
   stringifyCheckReport,
-  VerifyCheckSummaryProjectionSchema,
-  verifyCheckSummaryProjection,
+  VerifyCheckSummarySchema,
+  verifyCheckSummary,
 } from "./check/index.js";
 export { describeRuleSelectionFailure } from "./rule-selection.js";

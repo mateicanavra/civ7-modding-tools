@@ -26,7 +26,7 @@ export const PatternGeneratorOptionsSchema = Type.Object(
     patternName: Type.Optional(
       Type.String({
         minLength: 1,
-        description: "Optional Grit pattern name; defaults to the rule id without a grit- prefix.",
+        description: "Optional Habitat pattern name; defaults to the rule id.",
       })
     ),
     lifecycle: Type.Optional(
@@ -38,7 +38,7 @@ export const PatternGeneratorOptionsSchema = Type.Object(
         ],
         {
           description:
-            "Pattern lifecycle to generate. Registered lifecycles are fail-closed until the Pattern Authority Manifest is accepted.",
+            "Pattern lifecycle to generate. Registered lifecycles are fail-closed until the pattern manifest Manifest is accepted.",
           default: "candidate",
         }
       )
@@ -54,14 +54,14 @@ export const PatternGeneratorOptionsSchema = Type.Object(
       Type.String({
         minLength: 1,
         description:
-          "Canonical Pattern Authority Manifest path required for registered lifecycles.",
+          "Canonical pattern manifest Manifest path required for registered lifecycles.",
       })
     ),
   },
   {
     $schema: "https://json-schema.org/schema",
     $id: "HabitatPatternGenerator",
-    title: "Habitat Grit pattern generator",
+    title: "Habitat pattern generator",
     additionalProperties: true,
   }
 );

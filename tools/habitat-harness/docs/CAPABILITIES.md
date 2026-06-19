@@ -20,7 +20,7 @@ Use Habitat in its current state to answer:
 - Can an approved structural codemod be applied safely?
 - Can a supported uniform workspace project be scaffolded?
 - Can a Grit rule candidate or registered rule promotion be scaffolded under the
-  Pattern Authority contract?
+  pattern manifest contract?
 
 Do not assume Habitat can yet answer:
 
@@ -78,7 +78,7 @@ cross-project dependency ordering that belongs in Nx `dependsOn`.
 
 ## Rule Pack
 
-The rule registry is `tools/habitat-harness/src/rules/rules.json`. At this
+The rule registry is `.habitat/rules/index.json and .habitat/rules/<rule-id>/rule.json`. At this
 state it contains 51 registered rules:
 
 | Owner tool | Count | Role |
@@ -107,7 +107,7 @@ Owner state:
 
 ## Baselines
 
-Baselines live under `tools/habitat-harness/baselines/<rule-id>.json`.
+Baselines live under `.habitat/baselines/<rule-id>.json`.
 They are contract artifacts, not ordinary snapshots.
 
 The baseline model is:
@@ -128,8 +128,8 @@ Habitat runs Grit through `tools/habitat-harness/src/lib/grit.ts`.
 
 Current active Grit state:
 
-- 31 check patterns under `.grit/patterns/habitat/checks`.
-- 31 registered `ownerTool: "grit-check"` rules in `rules.json`.
+- 31 check patterns under `.habitat/patterns/active/checks`.
+- 31 registered `ownerTool: "grit-check"` rules in the rule registry.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
 - Habitat projects Grit JSON results back to Habitat rule IDs and normalized
@@ -164,11 +164,11 @@ small.
 
 Apply state:
 
-- Apply patterns under `.grit/patterns/habitat/apply`: 2 files.
+- Apply patterns under `.habitat/patterns/active/apply`: 2 files.
 - Wired into `habitat fix`: only
-  `.grit/patterns/habitat/apply/deep_import_to_public_surface.md`.
+  `.habitat/patterns/active/apply/deep_import_to_public_surface.md`.
 - Not wired into `habitat fix`:
-  `.grit/patterns/habitat/apply/helper_redeclarations_to_imports.md`.
+  `.habitat/patterns/active/apply/helper_redeclarations_to_imports.md`.
 
 The apply transaction:
 
@@ -221,21 +221,19 @@ Refused before writes:
 Candidate lifecycle:
 
 - writes non-enforcing candidate artifacts under
-  `tools/habitat-harness/src/rules/pattern-authority/candidates`;
+  `.habitat/patterns/candidates`;
 - does not write an active `.grit` check;
-- does not write a `rules.json` entry;
+- does not write a the rule registry entry;
 - does not write a baseline;
-- does not make the candidate hook-scoped.
 
 Registered advisory/enforced lifecycle:
 
 - requires `--manifestPath`;
-- validates an accepted Pattern Authority Manifest;
+- validates an accepted pattern manifest Manifest;
 - validates an explicit baseline contract and rule-introduction manifest;
 - refuses collisions;
-- writes the active `.grit/patterns/habitat/checks/<pattern>.md` file;
-- appends the rule-pack entry to `rules.json`;
-- only records `hookScope: "pre-commit"` when the manifest and invocation agree.
+- writes the active `.habitat/patterns/active/checks/<pattern>.md` file;
+- appends the rule-pack entry to the rule registry;
 
 ## Hooks
 
@@ -244,7 +242,7 @@ Husky delegates directly to Habitat:
 - `.husky/pre-commit` -> `bun run habitat hook pre-commit`
 - `.husky/pre-push` -> `bun run habitat hook pre-push`
 
-Pre-commit is staged-scope local feedback. It checks resources state, staged
+Pre-commit is a workstation hook check. It checks resources state, staged
 file-layer protections, partial-staging risk, Biome staged formatting/checks,
 and staged Grit paths.
 

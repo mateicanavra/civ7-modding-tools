@@ -6,7 +6,7 @@ and the few remaining wrapped compatibility checks) behind one CLI with
 normalized JSON diagnostics and shrink-only ratchet baselines.
 
 Authority: `docs/projects/habitat-harness/FRAME.md` (five-layer ownership,
-ratchet invariant, settled decisions). Migration map:
+ratchet invariant, settled decisions). Invariant map:
 `docs/projects/habitat-harness/invariant-corpus.md`.
 
 Current toolkit reference:
@@ -43,13 +43,13 @@ bun run habitat hook pre-push       # local affected pre-push path
 Notes:
 
 - `habitat check` assumes a built tree for the bundle-output test rules
-  (`bun run build` first, or use graph proof through `bun run verify` /
+  (`bun run build` first, or use graph verification through `bun run verify` /
   `bun run check`).
 - `bun run lint` includes Habitat checks through Nx. A lint failure can be a
   locked Habitat/Grit architecture finding, not only Biome or style hygiene.
 - Advisory-lane rules (`adr-lint`, `doc-ambiguity`) report but never fail —
   matching their pre-harness enforcement reality.
-- Baselines (`baselines/<rule-id>.json`) are explicit contract artifacts and
+- Baselines (`.habitat/baselines/<rule-id>.json`) are explicit contract artifacts and
   shrink-only. A registered rule with no baseline file is a contract failure
   unless the rule is modeled as an external exception source. An empty baseline
   file means the rule is locked: any violation fails. A non-empty baseline file
@@ -74,13 +74,12 @@ Notes:
 - H2 wrapped existing mechanisms verbatim (zero new rules, zero semantic
   change). H3 added Nx boundaries; H4 makes Biome the hygiene owner. H4.5
   moved the command shell to oclif. H5 added the GritQL/file-layer catalog.
-  H6 retires duplicated scripts, root ESLint, and structural test copies where
-  parity is proven. H7 adds Husky hook delegators to the same Habitat command
-  surface; hooks are local friction reduction, not verification truth. H8 added
-  classify-first orientation, generators for supported structure, and migration
-  wiring; current classify/generator contracts are resolved by Nx metadata,
-  candidate-only Pattern Authority generation, and explicit migration proof
-  boundaries.
+  H6 retired duplicated scripts, root ESLint, and structural test copies once
+  Habitat owned those checks. H7 adds Husky hook delegators to the same Habitat
+  command surface; hooks are local friction reduction, not verification truth.
+  H8 added classify-first orientation and generators for supported structure;
+  current classify/generator contracts are resolved by Nx metadata and
+  candidate-only Pattern Authority generation.
 
 ## Agent Operating Loop
 
@@ -123,26 +122,15 @@ nx g @internal/habitat-harness:pattern grit-my-rule
 ```
 
 Candidate output lives under
-`tools/habitat-harness/src/rules/pattern-authority/candidates/`. It is not an
+`.habitat/pattern-authority/candidates/`. It is not an
 active `.grit` check, not a `rules.json` entry, not a baseline file, and not
 hook-scoped. Registered advisory or enforced Grit rules require an accepted
-Pattern Authority Manifest, baseline contract, current-tree proof, fixture
-strategy, false-positive model, and hook-scope decision before they can enter
-the rule pack. Native Grit samples remain one proof class only:
+Pattern Authority Manifest, baseline contract, current-tree validation,
+fixture strategy, false-positive model, and hook-scope decision before they can
+enter the rule pack. Native Grit samples remain one validation class:
 
 ```bash
 GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose
-```
-
-Harness migrations are declared in `migrations.json`. The current no-op
-migration proves wiring only; a convention migration additionally needs a named
-source shape, target shape, file-operation plan, and idempotence proof. Because
-this package is repo-local and unpublished, migration proof uses a hand-authored
-run file whose `package` field points at `./tools/habitat-harness`, then
-executes:
-
-```bash
-nx migrate --run-migrations=<run-file>.json --skip-install
 ```
 
 ## Git Hooks
@@ -165,7 +153,7 @@ stack it uses the Graphite parent branch as the affected base; outside
 Graphite it falls back to the merge-base with `main`. The hook pins
 `--head=HEAD` so uncommitted or untracked worktree files do not change the
 push scope, and Nx expands task dependencies from the declared graph.
-CI and explicit verification remain authoritative proof.
+CI and explicit verification remain authoritative.
 
 `--no-verify` remains a local escape hatch. CI remains authoritative.
 

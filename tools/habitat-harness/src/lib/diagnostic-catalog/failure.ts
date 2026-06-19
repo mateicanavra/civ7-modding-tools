@@ -9,7 +9,7 @@ const DiagnosticAdapterFailureKindLiteralSchemas = [
   Type.Literal("GritSchemaDrift"),
   Type.Literal("GritUnexpectedResultShape"),
   Type.Literal("GritEmptyScanRoots"),
-  Type.Literal("GritPatternProjectionMiss"),
+  Type.Literal("GritPatternMatchMissing"),
   Type.Literal("GritUnexpectedDiagnosticIdentity"),
   Type.Literal("GritCacheProvenanceMissing"),
   Type.Literal("GritAdapterInternalContractViolation"),

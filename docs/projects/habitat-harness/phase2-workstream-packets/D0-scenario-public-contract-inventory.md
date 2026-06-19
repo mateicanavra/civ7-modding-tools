@@ -23,7 +23,7 @@ Forbidden owners:
   refactoring `createCheckReport`.
 - Workspace Graph Integration may not define root script compatibility while
   fixing target aliases.
-- Local Feedback may not define hook proof language outside the public hook
+- Hook Runtime may not define hook receipt language outside the public hook
   contract.
 
 ## Consumers
@@ -39,7 +39,7 @@ Inventory and classify:
 - CLI flags and argument forwarding, including the observed mismatch between
   `bun run habitat check -- --json` and `bun run habitat check --json`.
 - JSON schemas and human output for `CheckReport`, `Classification`,
-  `DiffClassification`, `VerifyProof`, `GritApplyTransactionProof`, and
+  `DiffClassification`, `VerifyReceipt`, `GritApplyTransactionReceipt`, and
   `HookTrace`.
 - package exports from `/tools/habitat-harness/src/index.ts` and
   `/tools/habitat-harness/package.json`.
@@ -71,7 +71,7 @@ Parallelism: none. D0 is the suite entrance.
 
 Public and internal surfaces are mixed. `/tools/habitat-harness/src/index.ts`
 exports broad internals from `command-engine.ts`, `baseline.ts`, `grit-apply.ts`,
-`hooks.ts`, and pattern authority. The TypeScript state space is too large
+`hooks.ts`, and patterns. The TypeScript state space is too large
 because every exported inferred type can become an accidental public contract.
 
 D0 reduces state by producing a contract matrix with explicit states:
@@ -116,9 +116,9 @@ No public behavior changes in this packet. It may identify future intentional
 changes, but it must not implement them. Any future public change must name
 compatibility, versioning, migration, or refusal behavior.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - command inventory from source and tests;
 - package export inventory;
@@ -126,7 +126,7 @@ Required design proof:
 - generator schema inventory;
 - hook command inventory.
 
-Later implementation proof:
+Later implementation receipt:
 
 - command behavior tests for every stable CLI shape;
 - package export compatibility check or declaration diff;
@@ -160,15 +160,15 @@ Update or create:
 - root script documentation;
 - OpenSpec packet prerequisites for D1-D14.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `git status --short --branch`: expected exit 0; records clean Graphite state
   before and after packet implementation.
 - `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts`:
-  expected exit 0; command behavior proof for public CLI compatibility.
+  expected exit 0; command behavior receipt for public CLI compatibility.
 - `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js`:
-  expected exit 0; command behavior proof for a stable representative path.
-- `bun run lint`: expected exit 0; hygiene proof, cache acceptable only if Nx
+  expected exit 0; command behavior receipt for a stable representative path.
+- `bun run lint`: expected exit 0; hygiene receipt, cache acceptable only if Nx
   reports matching inputs.
 - Cache stance: `git status`, command entrypoint tests, and `classify` must run
   fresh from the current worktree; `bun run lint` may use Nx cache only when the

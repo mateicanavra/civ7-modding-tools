@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import {
   defaultHostPolicyDocument,
-  hostApplyGateProjection,
-  hostProjectSupportProjection,
-  hostAuthoringBoundaryProjection,
-  hostSurfaceProjectionForGeneratedZone,
-  hostSurfaceProjectionForPath,
-  hostSurfaceProjectionForScanRoot,
+  hostApplyGateDecision,
+  hostProjectSupportDecision,
+  hostAuthoringBoundaryState,
+  hostSurfaceDecisionForGeneratedZone,
+  hostSurfaceDecisionForPath,
+  hostSurfaceDecisionForScanRoot,
   missingHostPolicyState,
   readHostPolicyState,
   unavailableHostPolicyState,
@@ -15,7 +15,7 @@ import {
 describe("host policy boundary", () => {
   test("projects declared generated surfaces from host declarations", () => {
     expect(
-      hostSurfaceProjectionForPath("mods/mod-swooper-maps/src/maps/generated/demo.ts")
+      hostSurfaceDecisionForPath("mods/mod-swooper-maps/src/maps/generated/demo.ts")
     ).toMatchObject({
       declarationState: "declared",
       surfaceKind: "generated",
@@ -25,7 +25,7 @@ describe("host policy boundary", () => {
   });
 
   test("projects external resource surfaces from host declarations", () => {
-    expect(hostSurfaceProjectionForPath("packages/civ7-types/generated/data.ts")).toMatchObject({
+    expect(hostSurfaceDecisionForPath("packages/civ7-types/generated/data.ts")).toMatchObject({
       declarationState: "declared",
       surfaceKind: "external-resource",
       mutationLane: "blocked",
@@ -55,7 +55,7 @@ describe("host policy boundary", () => {
       ],
     });
 
-    expect(hostSurfaceProjectionForPath("packages/demo/protected.ts", state)).toMatchObject({
+    expect(hostSurfaceDecisionForPath("packages/demo/protected.ts", state)).toMatchObject({
       declarationState: "declared",
       surfaceKind: "protected",
       mutationLane: "blocked",
@@ -65,7 +65,7 @@ describe("host policy boundary", () => {
 
   test("matches generated scan roots through host declarations", () => {
     expect(
-      hostSurfaceProjectionForScanRoot("mods/mod-swooper-maps/src/maps/generated")
+      hostSurfaceDecisionForScanRoot("mods/mod-swooper-maps/src/maps/generated")
     ).toMatchObject({
       declarationState: "declared",
       surfaceKind: "generated",
@@ -74,7 +74,7 @@ describe("host policy boundary", () => {
   });
 
   test("reports not-applicable instead of inventing host ownership", () => {
-    expect(hostSurfaceProjectionForPath("packages/sdk/src/index.ts")).toMatchObject({
+    expect(hostSurfaceDecisionForPath("packages/sdk/src/index.ts")).toMatchObject({
       declarationState: "not-applicable",
       surfaceKind: "not-host-owned",
       mutationLane: "allowed",
@@ -82,7 +82,7 @@ describe("host policy boundary", () => {
   });
 
   test("keeps unknown generated-zone ids as missing host declarations", () => {
-    expect(hostSurfaceProjectionForGeneratedZone("unknown-zone")).toMatchObject({
+    expect(hostSurfaceDecisionForGeneratedZone("unknown-zone")).toMatchObject({
       declarationState: "missing",
       mutationLane: "blocked",
     });
@@ -90,7 +90,7 @@ describe("host policy boundary", () => {
 
   test("does not collapse unavailable host policy into not-applicable", () => {
     expect(
-      hostSurfaceProjectionForPath(
+      hostSurfaceDecisionForPath(
         "mods/mod-swooper-maps/src/maps/generated/demo.ts",
         unavailableHostPolicyState("civ7-repo-host-policy", "host policy source unavailable")
       )
@@ -102,7 +102,7 @@ describe("host policy boundary", () => {
 
   test("does not collapse missing host policy into not-applicable", () => {
     expect(
-      hostApplyGateProjection(
+      hostApplyGateDecision(
         "mapgen-public-ops",
         missingHostPolicyState("civ7-repo-host-policy", "missing apply-gate declaration")
       )
@@ -134,7 +134,7 @@ describe("host policy boundary", () => {
     });
   });
 
-  test("reports host policy conflicts before projections can declare authority", () => {
+  test("reports host policy conflicts before decisions can allow writes", () => {
     const state = readHostPolicyState({
       ...defaultHostPolicyDocument,
       declarations: [
@@ -176,7 +176,7 @@ describe("host policy boundary", () => {
   });
 
   test("projects host apply gates without exposing host semantics to D9", () => {
-    expect(hostApplyGateProjection("mapgen-public-ops")).toMatchObject({
+    expect(hostApplyGateDecision("mapgen-public-ops")).toMatchObject({
       declarationState: "declared",
       triggerClass: "import-pattern",
       gateContract: "@mapgen/domain public ops validation",
@@ -184,7 +184,7 @@ describe("host policy boundary", () => {
   });
 
   test("projects unsupported host-owned project requests as no-write refusals", () => {
-    expect(hostProjectSupportProjection("project-kind:mod")).toMatchObject({
+    expect(hostProjectSupportDecision("project-kind:mod")).toMatchObject({
       declarationState: "declared",
       supportState: "refused",
       noWrite: true,
@@ -192,7 +192,7 @@ describe("host policy boundary", () => {
   });
 
   test("projects host authoring references as non-authority", () => {
-    expect(hostAuthoringBoundaryProjection("mapgen-authoring-topology")).toMatchObject({
+    expect(hostAuthoringBoundaryState("mapgen-authoring-topology")).toMatchObject({
       declarationState: "not-applicable",
       relation: "not-public-authority",
     });

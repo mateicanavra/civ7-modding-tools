@@ -5,21 +5,21 @@ import {
   renderDiagnosticScanRootRefusal,
 } from "../../../lib/diagnostic-catalog/index.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
-import { decideScanRootProtection } from "../../../lib/protected-zone-authority/index.js";
-import type { RuleGritFacts } from "../../../rules/registry/index.js";
+import { decideScanRootProtection } from "../../../lib/protected-zones/index.js";
+import type { RulePatternFacts } from "../../../rules/registry/index.js";
 import { gritCandidateExtensions, protectedScanRootPrefixes } from "../constants.js";
 
-export interface GritScanRootValidationOptions {
+export interface PatternScanRootValidationOptions {
   requireExisting?: boolean;
   allowDocsRoot?: boolean;
   approvedScanRoots?: readonly string[];
 }
 
 export function selectedScanRootsForRules(
-  selectedRules: readonly RuleGritFacts[],
+  selectedRules: readonly RulePatternFacts[],
   scanRoots: readonly string[] | undefined
 ): string[] {
-  if (!scanRoots) return discoverGritScanRoots(selectedRules);
+  if (!scanRoots) return discoverPatternScanRoots(selectedRules);
   const declaredRoots = selectedRules.flatMap((rule) => rule.scanRoots);
   if (declaredRoots.length === 0) return [...scanRoots];
   const matchingRoots = scanRoots.filter((scanRoot) =>
@@ -28,15 +28,15 @@ export function selectedScanRootsForRules(
   return matchingRoots.length > 0 ? matchingRoots : [...scanRoots];
 }
 
-export function discoverGritScanRoots(selectedRules: readonly RuleGritFacts[] = []): string[] {
+export function discoverPatternScanRoots(selectedRules: readonly RulePatternFacts[] = []): string[] {
   const declaredRoots = selectedRules.flatMap(declaredScanRootsForRule);
   return uniqueRepoRelative(declaredRoots).filter((scanPath) =>
     existsSync(path.join(repoRoot, scanPath))
   );
 }
 
-export function effectiveGritScanRoots(
-  selectedRules: readonly RuleGritFacts[],
+export function effectivePatternScanRoots(
+  selectedRules: readonly RulePatternFacts[],
   scanRoots: readonly string[]
 ): string[] {
   if (!selectedRules.some(ruleIncludesIgnoredTestFiles)) return [...scanRoots];
@@ -48,13 +48,13 @@ export function effectiveGritScanRoots(
   ]);
 }
 
-export function decideEffectiveGritScanRoots(
-  selectedRules: readonly RuleGritFacts[],
+export function decideEffectivePatternScanRoots(
+  selectedRules: readonly RulePatternFacts[],
   requestedRoots: readonly string[],
-  options: GritScanRootValidationOptions = {}
+  options: PatternScanRootValidationOptions = {}
 ): DiagnosticScanRootDecision {
-  const effectiveRoots = effectiveGritScanRoots(selectedRules, requestedRoots);
-  const decision = decideGritScanRoots(effectiveRoots, options);
+  const effectiveRoots = effectivePatternScanRoots(selectedRules, requestedRoots);
+  const decision = decidePatternScanRoots(effectiveRoots, options);
   if (decision.kind !== "accepted") return decision;
   if (sameRoots(requestedRoots, effectiveRoots)) return decision;
   return {
@@ -66,15 +66,15 @@ export function decideEffectiveGritScanRoots(
 
 export function validateScanRoots(
   scanRoots: readonly string[],
-  options: GritScanRootValidationOptions = {}
+  options: PatternScanRootValidationOptions = {}
 ): string | null {
-  const decision = decideGritScanRoots(scanRoots, options);
+  const decision = decidePatternScanRoots(scanRoots, options);
   return decision.kind === "refused" ? renderDiagnosticScanRootRefusal(decision) : null;
 }
 
-export function decideGritScanRoots(
+export function decidePatternScanRoots(
   scanRoots: readonly string[],
-  options: GritScanRootValidationOptions = {}
+  options: PatternScanRootValidationOptions = {}
 ): DiagnosticScanRootDecision {
   const requireExisting = options.requireExisting ?? true;
   if (scanRoots.length === 0) return { kind: "refused", reason: "empty" };
@@ -101,15 +101,15 @@ export function decideGritScanRoots(
       return { kind: "refused", reason: "not-approved", root: relative };
     }
   }
-  return { kind: "accepted", roots: [...scanRoots], source: "d2-rule-grit-facts" };
+  return { kind: "accepted", roots: [...scanRoots], source: "rule-registry-facts" };
 }
 
-export function ruleHasDocsScanRoot(rule: RuleGritFacts): boolean {
+export function ruleHasDocsScanRoot(rule: RulePatternFacts): boolean {
   return declaredScanRootsForRule(rule).some(isDocsScanRoot);
 }
 
-export function ruleUsesDocsApplyDryRun(rule: RuleGritFacts): boolean {
-  return rule.gritPattern === "docs_local_checkout_paths";
+export function ruleUsesDocsApplyDryRun(rule: RulePatternFacts): boolean {
+  return rule.patternName === "docs_local_checkout_paths";
 }
 
 export function isDocsScanRoot(scanRoot: string): boolean {
@@ -134,7 +134,7 @@ function uniqueRepoRelative(values: readonly string[]): string[] {
   return [...new Set(values.map(toRepoRelative))];
 }
 
-function declaredScanRootsForRule(rule: RuleGritFacts): string[] {
+function declaredScanRootsForRule(rule: RulePatternFacts): string[] {
   if (!ruleUsesDocsApplyDryRun(rule)) return [...rule.scanRoots];
   return rule.scanRoots.flatMap(collectMarkdownScanRoots);
 }
@@ -163,7 +163,7 @@ function collectMarkdownFiles(absoluteRoot: string, files: string[]): void {
   }
 }
 
-function ruleIncludesIgnoredTestFiles(rule: RuleGritFacts): boolean {
+function ruleIncludesIgnoredTestFiles(rule: RulePatternFacts): boolean {
   return rule.expandIgnoredTestDirectories === true;
 }
 
@@ -206,7 +206,7 @@ function isIgnoredTestCandidate(relative: string): boolean {
 
 function isApprovedScanRoot(
   relative: string,
-  options: Pick<GritScanRootValidationOptions, "allowDocsRoot" | "approvedScanRoots"> = {}
+  options: Pick<PatternScanRootValidationOptions, "allowDocsRoot" | "approvedScanRoots"> = {}
 ): boolean {
   if (options.approvedScanRoots && options.approvedScanRoots.length > 0) {
     return options.approvedScanRoots.some((approvedRoot) => pathsOverlap(relative, approvedRoot));

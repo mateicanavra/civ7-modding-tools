@@ -16,18 +16,18 @@ import {
 } from "../../lib/habitat-process.js";
 import { repoRoot } from "../../lib/paths.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RuleGritFacts } from "../../rules/registry/index.js";
+import type { RulePatternFacts } from "../../rules/registry/index.js";
 import { docsLocalCheckoutPathsRewritePattern, gritBin } from "./constants.js";
 import { infrastructureFailure } from "./failure.js";
 import {
-  decideGritScanRoots,
+  decidePatternScanRoots,
   normalizeGritPath,
   selectedScanRootsForRules,
   sortedUnique,
 } from "./scan-roots/index.js";
 
 export async function runDocsApplyBackedGritRules(
-  selectedRules: readonly RuleGritFacts[],
+  selectedRules: readonly RulePatternFacts[],
   options: {
     scanRoots?: readonly string[];
     processLayer?: Layer.Layer<HabitatProcess>;
@@ -37,7 +37,7 @@ export async function runDocsApplyBackedGritRules(
   return new Map(
     selectedRules.map((rule) => {
       const outcome = outcomes.get(rule.id);
-      if (!outcome) return [rule.id, infrastructureFailure(rule, "GritPatternProjectionMiss")];
+      if (!outcome) return [rule.id, infrastructureFailure(rule, "GritPatternMatchMissing")];
       switch (outcome.kind) {
         case "clean":
           return [rule.id, { exitCode: 0, diagnostics: [] }];
@@ -62,8 +62,8 @@ export async function runDocsApplyBackedGritRules(
           return [rule.id, infrastructureFailure(rule, outcome.failure, outcome.detail)];
         case "cache-observation-missing":
           return [rule.id, infrastructureFailure(rule, outcome.failure, outcome.detail)];
-        case "projection-missed":
-          return [rule.id, infrastructureFailure(rule, "GritPatternProjectionMiss")];
+        case "identity-missing":
+          return [rule.id, infrastructureFailure(rule, "GritPatternMatchMissing")];
         case "unexpected-diagnostic-identity":
           return [rule.id, infrastructureFailure(rule, "GritUnexpectedDiagnosticIdentity")];
       }
@@ -72,7 +72,7 @@ export async function runDocsApplyBackedGritRules(
 }
 
 export async function runDocsApplyBackedDiagnosticOutcomes(
-  selectedRules: readonly RuleGritFacts[],
+  selectedRules: readonly RulePatternFacts[],
   options: {
     scanRoots?: readonly string[];
     processLayer?: Layer.Layer<HabitatProcess>;
@@ -80,7 +80,7 @@ export async function runDocsApplyBackedDiagnosticOutcomes(
 ): Promise<Map<string, DiagnosticRunOutcome>> {
   if (selectedRules.length === 0) return new Map();
   const scanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
-  const scanRootDecision = decideGritScanRoots(scanRoots, {
+  const scanRootDecision = decidePatternScanRoots(scanRoots, {
     allowDocsRoot: true,
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
@@ -158,7 +158,7 @@ export async function runDocsApplyBackedDiagnosticOutcomes(
   );
 }
 
-function nativeDiagnosticEntry(rule: RuleGritFacts) {
+function nativeDiagnosticEntry(rule: RulePatternFacts) {
   return diagnosticCatalogEntryFromNativeRule({
     ruleId: rule.id,
     nativeDiagnosticIdentity: "docs-local-checkout-paths",
@@ -175,11 +175,11 @@ function docsApplyDryRunProgram(scanRoots: readonly string[]) {
 }
 
 function docsApplyDryRunRequest(scanRoots: readonly string[]): HabitatProcessRequest {
-  const cacheDir = path.join(repoRoot, ".grit", "cache");
+  const cacheDir = path.join(repoRoot, ".habitat", "cache", "patterns");
   mkdirSync(cacheDir, { recursive: true });
   return {
-    commandId: "grit-docs-apply-dry-run",
-    kind: "grit-apply",
+    commandId: "docs-apply-dry-run",
+    kind: "pattern-apply",
     executable: gritBin,
     argv: [
       "apply",

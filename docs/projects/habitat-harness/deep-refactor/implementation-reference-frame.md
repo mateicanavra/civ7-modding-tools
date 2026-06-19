@@ -25,7 +25,7 @@ The product outcome is a structural operating surface that reduces ambiguity
 before, during, and after code changes:
 
 - classify paths and diffs before editing;
-- expose owners, scoped rules, targets, unavailable targets, and non-claims;
+- expose owners, scoped rules, targets, unavailable targets, and non-goals;
 - run structural checks with truthful selector, diagnostic, baseline, and
   dependency behavior;
 - verify handoffs without claiming CI, product, runtime, apply, OpenSpec, or
@@ -36,13 +36,13 @@ before, during, and after code changes:
 - preserve the human pattern-authoring direction: examples/counterexamples,
   normative sources, proving sources, scan roots, fixture strategy,
   false-positive model, check/apply/generator disposition, refusal, baseline
-  contract, hook-scope decision, apply safety, proof class, and non-claims
+  contract, hook-scope decision, apply safety, receipt class, and non-goals
   before any pattern becomes agent-usable;
 - admit, refuse, retire, and recover structural patterns through governed
-  Pattern Authority;
+  Patterns;
 - apply only approved structural rewrites through a safe transaction envelope;
 - guard generated, protected, host-owned, and forbidden surfaces;
-- provide local hook feedback without turning hooks into proof authority;
+- provide local hook feedback without turning hooks into receipt authority;
 - scaffold supported generic shapes and refuse unsupported, host-specific, or
   future authoring shapes before writes.
 
@@ -59,7 +59,7 @@ For implementation, authority is resolved in this order:
 2. `docs/projects/habitat-harness/FRAME.md`,
    `docs/projects/habitat-harness/dra-takeover-frame.md`, recovery claim
    ledgers, and adversarial recovery records where they define product,
-   proof-discipline, or control authority.
+   receipt-discipline, or control authority.
 3. `docs/projects/habitat-harness/domain-refactor-frame.md`.
 4. `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 5. `docs/projects/habitat-harness/openspec-remediation/packet-index.md` and
@@ -77,7 +77,7 @@ For implementation, authority is resolved in this order:
 Accepted OpenSpec packets are bounded implementation-control records downstream
 of the Habitat product frame, takeover frame, recovery claim ledger, and
 accepted domain design. They define the bounded source work for each packet only
-when they do not soften higher product/domain/proof authority. If an OpenSpec
+when they do not soften higher product/domain/receipt authority. If an OpenSpec
 packet, packet index row, task file, phase record, or current frame conflicts
 with current user direction, `AGENTS.md`, `FRAME.md`, the DRA takeover frame,
 the recovery claim ledger, the domain design packet, or fresh command/source
@@ -85,7 +85,7 @@ evidence, pause dependent implementation and repair the authority record before
 proceeding.
 
 Older Phase 2 packets and scratch/review files remain provenance unless they
-state product/proof authority accepted by the current control set. Historical
+state product/receipt authority accepted by the current control set. Historical
 words such as "remediation", "recovery", "takeover", or "repair chain" are not
 my operating frame by themselves. I translate them into implementation
 workstreams, preconditions, closure evidence, control gates, and authority
@@ -107,7 +107,7 @@ Hard constraints:
   generic Habitat constants.
 - Public command/API/export/generator/hook/documented surfaces must cite D0
   compatibility rows before source changes.
-- D1 output-family and non-claim handling is required wherever public command
+- D1 output-family and non-goal handling is required wherever public command
   records, receipts, diagnostics, traces, transactions, or refusals are touched.
 - D0 public-surface compatibility comes first. The D0 matrix is absent on
   current `main`, so D1/D2 source work must not begin until concrete D0 rows
@@ -140,28 +140,28 @@ work unless a later Habitat packet touches that change.
 
 ## 3. Target Domain Model
 
-Domain boundaries follow scenario responsibility, language, proof class,
+Domain boundaries follow scenario responsibility, language, receipt class,
 consumer, and authority, not current file layout. Every invariant needs one
 owner.
 
 | Domain | Single Authority | Owns | Consumes | Does Not Own |
 | --- | --- | --- | --- | --- |
 | Public Surface Compatibility | D0 | Current surface inventory, row completeness, compatibility state, `surface_id` stability, citation mechanics, current-behavior samples, and validation gates. | Current source, command output, package metadata, root scripts, docs examples, generated/derived surfaces. | Target redesign of command/API behavior. |
-| Command/API Contract | D0 plus packet-specific command owners after D0 rows exist | CLI verbs, flags, JSON schemas, human renderer families, stdout/stderr/file-output contracts, exit codes, root scripts, package exports, generator/hook public surfaces, and D0 citations. | D0 compatibility rows and D1 output-family records. | Proof meaning, rule metadata, graph truth, baseline decisions, host policy, or mutation safety. |
-| Proof Contract | D1 | Receipt/record/output-family vocabulary, `ClaimId`/`NonClaimId`, bounded streams, post-state, refusal links, legacy proof-shaped compatibility, and forbidden substitutions. | D0 surface rows and owner-published command facts. | Command execution, check pass/fail decisions, graph truth, apply write safety, or runtime product claims outside named proof classes. |
-| Rule Registry Metadata | D2 | Versioned rule metadata and consumer-specific projections. | Current `rules.json`, Pattern Authority sources, D0/D1 contract decisions. | Consumer interpretation of whole registry rows or prose fields. |
+| Command/API Contract | D0 plus packet-specific command owners after D0 rows exist | CLI verbs, flags, JSON schemas, human renderer families, stdout/stderr/file-output contracts, exit codes, root scripts, package exports, generator/hook public surfaces, and D0 citations. | D0 compatibility rows and D1 output-family records. | Receipt meaning, rule metadata, graph truth, baseline decisions, host policy, or mutation safety. |
+| Receipt Contract | D1 | Receipt/record/output-family vocabulary, `ClaimId`/`NonClaimId`, bounded streams, post-state, refusal links, legacy receipt-shaped compatibility, and forbidden substitutions. | D0 surface rows and owner-published command facts. | Command execution, check pass/fail decisions, graph truth, apply write safety, or runtime product claims outside named receipt classes. |
+| Rule Registry Metadata | D2 | Versioned rule metadata and consumer-specific projections. | Current `rules.json`, Patterns sources, D0/D1 contract decisions. | Consumer interpretation of whole registry rows or prose fields. |
 | Workspace Graph Integration | D3 | Nx project/target/dependency facts, graph refusals, inferred Habitat target declarations, graph read behavior, alias and aggregate truth. | D2 graph facts and Nx workspace metadata. | Check outcome, verify receipt, or command compatibility. |
-| Orientation And Routing | D4 | `habitat classify` path/diff states, owner/rule/target guidance, refusals, recovery, and non-claims. | D2 routing facts and D3 graph projections. | Graph truth, rule metadata ownership, or verification proof. |
+| Orientation And Routing | D4 | `habitat classify` path/diff states, owner/rule/target guidance, refusals, recovery, and non-goals. | D2 routing facts and D3 graph projections. | Graph truth, rule metadata ownership, or verification receipt. |
 | Baseline Authority | D5 | Explicit empty/debt/external exception states, shrink-only guard, introduction manifest decisions, and baseline authority projections. | D2 baseline facts and current baselines. | Diagnostic acquisition, check execution, or pattern admission. |
-| Diagnostic Pattern Catalog | D6 | Grit/native diagnostic capability identity, scan-root decisions, native command observations, adapter outcomes, diagnostic projections, injected probes, and diagnostic non-claims. | D2 Grit facts, D1 records, native tool outputs. | Pattern governance, baseline authority, final check outcome, or apply admission. |
+| Diagnostic Pattern Catalog | D6 | Grit/native diagnostic capability identity, scan-root decisions, native command observations, adapter outcomes, diagnostic projections, injected probes, and diagnostic non-goals. | D2 Grit facts, D1 records, native tool outputs. | Pattern governance, baseline authority, final check outcome, or apply admission. |
 | Structural Enforcement | D7 | `habitat check` request normalization, selector outcome, rule execution disposition, check outcome, report construction, rendering, exit decision, and D11/D12 projections. | Live D2, D3, D5, D6, and D10 projections. | Rule metadata, graph truth, baseline decisions, diagnostics, protected-zone decisions, hook policy, or verify receipt assembly. |
-| Pattern Governance | D8 | Pattern Authority lifecycle/admission/refusal/retirement and projections for diagnostics, local feedback, apply, scaffolding, and recovery. | Live D2 governance facts, D5 baseline projections, D6 diagnostic projections. | Diagnostic execution, transaction sequencing, or generated/protected path safety. |
-| Transformation Transaction | D9 | Approved structural rewrite transactions: dry-run, isolated copy, candidate write-set approval, live write, formatter/gate handoff, rollback, recovery, and transaction non-claims. | D8 apply admission, D10 mutation decisions for every candidate write path, G-HOST projections when host policy is relevant, D6 diagnostics. | Pattern admission, generic path policy, host declarations, formatter authority, CI/product proof. |
-| Generated/Protected Zone Authority | D10 | Generic mutation/protection decisions after consuming D2 and HostSurfaceProjection, plus D7/D9/D11 projections. | D2 zone facts and G-HOST host-surface projections. | Host declarations, host owners, host path lists, host recovery instructions, transaction sequencing, or authoring readiness. |
+| Patterns | D8 | Patterns lifecycle/admission/refusal/retirement and projections for diagnostics, hook runtime, apply, scaffolding, and recovery. | Live D2 governance facts, D5 baseline projections, D6 diagnostic projections. | Diagnostic execution, transaction sequencing, or generated/protected path safety. |
+| Pattern Apply | D9 | Approved structural rewrite transactions: dry-run, isolated copy, candidate write-set approval, live write, formatter/gate handoff, rollback, recovery, and transaction non-goals. | D8 apply admission, D10 mutation decisions for every candidate write path, G-HOST projections when host policy is relevant, D6 diagnostics. | Pattern admission, generic path policy, host declarations, formatter authority, CI/product receipt. |
+| Protected Zones | D10 | Generic mutation/protection decisions after consuming D2 and HostSurfaceProjection, plus D7/D9/D11 projections. | D2 zone facts and G-HOST host-surface projections. | Host declarations, host owners, host path lists, host recovery instructions, transaction sequencing, or authoring readiness. |
 | Host Policy Boundary | G-HOST | Host declarations, host owners, host recovery, host apply/project/authoring projections, declaration failures, and host policy refusals. | D0/D1 public-surface handling and host-authored declaration sources. | Generic mutation decisions, transaction sequencing, rule metadata, baseline authority, or authoring implementation. |
-| Local Feedback | D11 | Hook sequencing, staged-file workflow, resource-state local handling, formatter restage policy, pre-push affected invocation, local trace output, and local-only non-claims. | D3, D6, D7, D8, D9, D10, and D1 projections. | CI, review, Graphite, product proof, check ownership, transaction authority, or protected-zone decisions. |
-| Verify Handoff | D12 | Verify handoff receipt assembly, affected target run/skip/failure records, bounded streams, post-state, and handoff non-claims. | D1, D3, D7, and conditional D11 projections. | Root `bun run verify`, CI, review approval, or product acceptance. |
-| Scaffolding | D13 | Supported uniform project creation, Pattern Authority candidate creation, registered promotion handoff/refusal, unsupported-kind refusal, host-policy refusal, and no-write recovery. | D0, D2, D8, G-HOST, D10 where touched, and D14 fence facts. | Pattern admission, host policy declaration, authoring topology implementation, or current-tree proof. |
+| Hook Runtime | D11 | Hook sequencing, staged-file workflow, resource-state local handling, formatter restage policy, pre-push affected invocation, local trace output, and local-only non-goals. | D3, D6, D7, D8, D9, D10, and D1 projections. | CI, review, Graphite, product receipt, check ownership, transaction authority, or protected-zone decisions. |
+| Verify Handoff | D12 | Verify handoff receipt assembly, affected target run/skip/failure records, bounded streams, post-state, and handoff non-goals. | D1, D3, D7, and conditional D11 projections. | Root `bun run verify`, CI, review approval, or product acceptance. |
+| Scaffolding | D13 | Supported uniform project creation, Patterns candidate creation, registered promotion handoff/refusal, unsupported-kind refusal, host-policy refusal, and no-write recovery. | D0, D2, D8, G-HOST, D10 where touched, and D14 fence facts. | Pattern admission, host policy declaration, authoring topology implementation, or current-tree receipt. |
 | Authoring Topology Fence | D14 | Current refusal boundary for MapGen authoring topology and future authoring acceptance criteria. | D0, D4, D12, D13, and G-HOST authoring projections. | Authoring generator/source topology implementation. |
 | Execution Provenance Trigger | D15 | Trigger protocol for future shared command-observation substrate work when local DTOs cannot model a concrete contradiction. | Trigger request artifacts from consuming packets. | Any source implementation unless a separate accepted owner packet authorizes `trigger-accepted` work. |
 
@@ -176,7 +176,7 @@ Current code is evidence, not target authority. Important current surfaces:
 `tools/habitat-harness/src/commands/*`, `src/index.ts`, `src/lib/command-engine.ts`,
 `src/lib/baseline.ts`, `src/lib/grit.ts`, `src/lib/grit-apply.ts`,
 `src/lib/generated-zones.ts`, `src/lib/hooks.ts`, `src/lib/nx-projects.ts`,
-`src/plugin.js`, `src/rules/rules.json`, Pattern Authority modules,
+`src/plugin.js`, `src/rules/rules.json`, Patterns modules,
 generators, `.grit/patterns/habitat/**`, baselines, root package scripts,
 Nx/Biome/Grit/Husky configuration, and focused tests under
 `tools/habitat-harness/test/**`.
@@ -184,7 +184,7 @@ Nx/Biome/Grit/Husky configuration, and focused tests under
 Known current execution precondition: the prep worktree did not have dependency
 install state when source topology was inspected. Commands that depend on local
 packages, Nx, or Effect must be rerun after `bun install` in the active
-implementation worktree before they are used as proof.
+implementation worktree before they are used as receipt.
 
 ## 4. Packet Sequence And Product Closure
 
@@ -204,21 +204,21 @@ record before source, matrix, or command work.
 
 | Packet | Product Implementation Obligation | Closure Standard |
 | --- | --- | --- |
-| D0 `deep-habitat-d0-command-surface-inventory` | Build the public surface compatibility matrix covering CLI, per-command stdout/stderr/file-output/exit-code/help/example/JSON-schema/human-renderer/parser-stability rows, every exported symbol from `$HABITAT_TOOL/src/index.ts`, package subpath exports, root scripts, Nx inferred targets, generators, migrations, hooks, docs examples, and generated/derived surfaces. No source behavior change. | Every surface has deterministic `surface_id`, plane, type/value kind where relevant, import path or command path, current consumer evidence, contract state, compatibility handling (`preserve`, `version`, `deprecate`, `internalize`, `document-only`, `generated-only`), target owner, relationship links, validation gate, and non-claims. Later packets may not add, remove, rename, narrow, or reinterpret public surfaces unless they cite rows. JSON output is machine-only with no human log interleaving; human output is non-parseable unless a row explicitly declares it stable. |
-| D1 `deep-habitat-d1-receipt-contract-boundary` | Separate bounded command records from legacy proof/evidence-shaped compatibility surfaces. Define check report, verify receipt, hook trace/local feedback, apply transaction, adapter command artifact, refusal, handoff link, canonical output families, `ClaimId`, and `NonClaimId`. | Contradictory records are unrepresentable or rejected; public output family changes cite D0; each output family maps allowed claim ids, observed boundary, producer command, and forbidden substitutions. Public target names use `record`, `receipt`, `trace`, `decision`, or `result`; `Proof` remains only as a D0 compatibility alias with explicit deprecation/retention handling. No generic proof framework or broad artifact substrate is introduced. |
-| D2 `deep-habitat-d2-rule-registry-metadata-contract` | Replace optional/prose rule rows with a versioned registry contract and typed consumer projections for selection, routing, graph, baseline, Grit, governance, generated zone, and local feedback eligibility. | Consumers receive named projections, not whole registry rows; malformed metadata fails through D1-aligned output families; D3-D8/D10/D13 can consume stable facets. |
+| D0 `deep-habitat-d0-command-surface-inventory` | Build the public surface compatibility matrix covering CLI, per-command stdout/stderr/file-output/exit-code/help/example/JSON-schema/human-renderer/parser-stability rows, every exported symbol from `$HABITAT_TOOL/src/index.ts`, package subpath exports, root scripts, Nx inferred targets, generators, migrations, hooks, docs examples, and generated/derived surfaces. No source behavior change. | Every surface has deterministic `surface_id`, plane, type/value kind where relevant, import path or command path, current consumer evidence, contract state, compatibility handling (`preserve`, `version`, `deprecate`, `internalize`, `document-only`, `generated-only`), target owner, relationship links, validation gate, and non-goals. Later packets may not add, remove, rename, narrow, or reinterpret public surfaces unless they cite rows. JSON output is machine-only with no human log interleaving; human output is non-parseable unless a row explicitly declares it stable. |
+| D1 `deep-habitat-d1-receipt-contract-boundary` | Separate bounded command records from legacy receipt/evidence-shaped compatibility surfaces. Define check report, verify receipt, hook trace/hook runtime, apply transaction, adapter command artifact, refusal, handoff link, canonical output families, `ClaimId`, and `NonClaimId`. | Contradictory records are unrepresentable or rejected; public output family changes cite D0; each output family maps allowed claim ids, observed boundary, producer command, and forbidden substitutions. Public target names use `record`, `receipt`, `trace`, `decision`, or `result`; `Receipt` remains only as a D0 compatibility alias with explicit deprecation/retention handling. No generic receipt framework or broad artifact substrate is introduced. |
+| D2 `deep-habitat-d2-rule-registry-metadata-contract` | Replace optional/prose rule rows with a versioned registry contract and typed consumer projections for selection, routing, graph, baseline, Grit, governance, generated zone, and hook runtime eligibility. | Consumers receive named projections, not whole registry rows; malformed metadata fails through D1-aligned output families; D3-D8/D10/D13 can consume stable facets. |
 | D3 `deep-habitat-d3-workspace-graph-boundary` | Make Workspace Graph Integration the sole owner of Nx project, target, dependency, alias, aggregate, and graph-refusal truth. | Alias false-greens are impossible, especially `habitat:rule:biome-ci`; graph errors and unresolved dependencies cannot become normal pass states; classify/verify/check consumers receive graph projections. |
-| D4 `deep-habitat-d4-orientation-routing` | Implement command-facing `ClassifyResult` states for path and diff orientation using D2 routing facts and D3 graph facts. | Project path, workspace path, diff, malformed/pathless diff, unresolved owner, and graph refusal are distinct; unsupported or unresolved states include refusal, recovery, and non-claims. |
+| D4 `deep-habitat-d4-orientation-routing` | Implement command-facing `ClassifyResult` states for path and diff orientation using D2 routing facts and D3 graph facts. | Project path, workspace path, diff, malformed/pathless diff, unresolved owner, and graph refusal are distinct; unsupported or unresolved states include refusal, recovery, and non-goals. |
 | D5 `deep-habitat-d5-baseline-authority` | Make Baseline Authority the single owner of explicit debt state, shrink-only integrity, external exception projection, introduction manifests, and baseline projection/refusal results. | Existing-rule growth is refused; introduced-rule baseline seeding requires manifest authority; D7/D8 consume baseline projections rather than deciding debt locally. |
 | D6 `deep-habitat-d6-diagnostic-pattern-catalog` | Implement diagnostic catalog entries, scan-root decisions, bounded native Grit/native command observations, adapter failure states, diagnostic projection, cache/freshness observations, and injected probe outcomes. | No fallback from missing pattern identity to rule id; no raw `HarnessRule`/`GritReport` leakage; adapter/projection failures cannot become pass; D8/D9/D11 consume bounded projections only. |
 | D7 `deep-habitat-d7-structural-enforcement-pipeline` | Assemble `habitat check` from selector, rule execution, diagnostics, baseline, graph, and protected-zone inputs into one final check outcome/report/render/exit decision. | Selector and dependency refusals cannot become executed-rule passes; advisory and enforced lanes are distinct; covered debt remains visible; public report `ok` is derived, not set independently. |
-| D8 `deep-habitat-d8-pattern-governance` | Implement Pattern Governance lifecycle and admission states: candidate draft, under review, invalid candidate, diagnostic admitted, local-feedback admitted, apply admitted, refused, retired. | File presence, Grit frontmatter, generator options, `rules.json`, baseline file, or hook field cannot imply admission. Diagnostic admission and apply admission are separate. |
+| D8 `deep-habitat-d8-pattern-governance` | Implement Patterns lifecycle and admission states: candidate draft, under review, invalid candidate, diagnostic admitted, local-feedback admitted, apply admitted, refused, retired. | File presence, Grit frontmatter, generator options, `rules.json`, baseline file, or hook field cannot imply admission. Diagnostic admission and apply admission are separate. |
 | G-HOST `deep-habitat-host-policy-boundary-gate` | Introduce host policy declarations and projections for host-owned generated/protected/external surfaces, apply gates, project support/refusal, authoring relation, recovery, and declaration failure states. | Generic Habitat no longer embeds Civ7/MapGen path or public-ops truth. D9/D10/D13/D14 consume projections; missing, malformed, unavailable, conflicting, or unsupported host policy does not pass silently. |
-| D9 `deep-habitat-d9-transformation-transaction` | Implement Transformation Transaction around D8-admitted apply: dry-run intent, live-write planning, approved write set, path approval, isolated copy, live write, formatter/gate handoff, rollback, recovery, non-claims. | Live writes require D8 apply admission and D10 protected-zone decisions for every candidate write path before live writes, plus G-HOST projections where host policy is relevant. No live apply transaction may proceed until D10 and G-HOST can return allow/refuse decisions for all approved paths. No `ok` plus nullable proof bag as target model; formatter/gate success is not product/runtime/current-tree proof. |
-| D10 `deep-habitat-d10-protected-zone-authority` | Implement generic protected/generated/host-owned/forbidden mutation decisions, declarations, recovery instructions, drift inputs, and D7/D9/D11 projections by consuming D2 and G-HOST. | Protected/generated mutations cannot warn-only or silently pass; generated drift is not mutation authorization; D7/D9/D11 do not reimplement path policy. |
-| D11 `deep-habitat-d11-local-feedback` | Implement hook-local feedback sequencing, staged-file policy, resource decision, formatter restage, partial-staging refusal, staged diagnostics/checks, pre-push affected invocation, local trace, and recovery rendering. | Hook output consumes upstream projections and preserves local-only non-claims. Formatter restage touches only formatter-touched files. Hook success is never CI/review/product/apply/Graphite/OpenSpec proof. |
-| D12 `deep-habitat-d12-verify-handoff-receipt` | Implement `habitat verify` as Verify Handoff assembler using D7 check summary, D3 target plan, affected Nx execution/skip/failure, bounded streams, post-state, and canonical non-claims. | Failed/refused check does not run affected targets as pass; missing graph/check projection is not success; `habitat verify` remains distinct from root `bun run verify` and from CI/review approval. |
-| D13 `deep-habitat-d13-scaffolding-refusal-contracts` | Implement supported uniform project creation, Pattern Authority candidate drafts, registered promotion handoff/refusal through D8, unsupported-kind refusal, host-policy refusal, and authoring-topology refusal envelope. | Unsupported project/host/authoring requests write nothing and return typed recovery. Candidate output is not active rule/baseline/hook/apply/current-tree proof. |
+| D9 `deep-habitat-d9-pattern-apply` | Implement Pattern Apply around D8-admitted apply: dry-run intent, live-write planning, approved write set, path approval, isolated copy, live write, formatter/gate handoff, rollback, recovery, non-goals. | Live writes require D8 apply admission and D10 protected-zone decisions for every candidate write path before live writes, plus G-HOST projections where host policy is relevant. No live apply transaction may proceed until D10 and G-HOST can return allow/refuse decisions for all approved paths. No `ok` plus nullable receipt bag as target model; formatter/gate success is not product/runtime/current-tree receipt. |
+| D10 `deep-habitat-d10-protected-zones` | Implement generic protected/generated/host-owned/forbidden mutation decisions, declarations, recovery instructions, drift inputs, and D7/D9/D11 projections by consuming D2 and G-HOST. | Protected/generated mutations cannot warn-only or silently pass; generated drift is not mutation authorization; D7/D9/D11 do not reimplement path policy. |
+| D11 `deep-habitat-d11-local-feedback` | Implement hook-hook runtime sequencing, staged-file policy, resource decision, formatter restage, partial-staging refusal, staged diagnostics/checks, pre-push affected invocation, local trace, and recovery rendering. | Hook output consumes upstream projections and preserves local-only non-goals. Formatter restage touches only formatter-touched files. Hook success is never CI/review/product/apply/Graphite/OpenSpec receipt. |
+| D12 `deep-habitat-d12-verify-handoff-receipt` | Implement `habitat verify` as Verify Handoff assembler using D7 check summary, D3 target plan, affected Nx execution/skip/failure, bounded streams, post-state, and canonical non-goals. | Failed/refused check does not run affected targets as pass; missing graph/check projection is not success; `habitat verify` remains distinct from root `bun run verify` and from CI/review approval. |
+| D13 `deep-habitat-d13-scaffolding-refusal-contracts` | Implement supported uniform project creation, Patterns candidate drafts, registered promotion handoff/refusal through D8, unsupported-kind refusal, host-policy refusal, and authoring-topology refusal envelope. | Unsupported project/host/authoring requests write nothing and return typed recovery. Candidate output is not active rule/baseline/hook/apply/current-tree receipt. |
 | D14 `deep-habitat-d14-authoring-topology-fence` | Implement or preserve the authoring fence facts that D13 uses to refuse MapGen authoring topology requests and publish future acceptance criteria. | No current Habitat signal can imply MapGen authoring support. D14 adds no authoring generator/source topology implementation in this suite. |
 | D15 `deep-habitat-d15-execution-provenance-trigger` | Keep the trigger protocol dormant unless a consuming packet records a complete `trigger-requested` artifact proving local DTO insufficiency. | No D15 source work or shared command-observation substrate is implemented unless a separate accepted owner packet moves the bounded command family to `trigger-accepted` with command family, contradiction, attempted local shape, field owners, D0/D1 handling, write/protected set, validation, serialization plan, and rollback plan. |
 
@@ -271,17 +271,17 @@ Every packet is a real workstream, not a code sprint. The owner loop is:
 4. Extract packet-specific corpus: public surfaces, DTOs, registry facets, graph
    facts, baselines, diagnostic rows, host declarations, transaction states,
    hook surfaces, generator requests, or authoring refusals.
-5. Predeclare expected behavior, proof classes, and non-claims before using
+5. Predeclare expected behavior, receipt classes, and non-goals before using
    observed results to justify closure.
 6. Translate into the owning domain boundary and TypeScript state-space change.
 7. Implement within the packet write set only.
-8. Verify focused behavior first; broaden only when focused proof is coherent.
+8. Verify focused behavior first; broaden only when focused receipt is coherent.
 9. Run review lanes, disposition findings, repair accepted P1/P2 findings, and
    rerun affected lanes.
 10. Realign downstream docs, OpenSpec tasks, tests, ledgers, command examples,
     compatibility matrix rows, and future packet assumptions.
-11. Close with Graphite commit, clean worktree, proof labels, residual
-    non-claims, and explicit product approval before advancing.
+11. Close with Graphite commit, clean worktree, receipt labels, residual
+    non-goals, and explicit product approval before advancing.
 
 Global stop conditions:
 
@@ -293,8 +293,8 @@ Global stop conditions:
 - D15 state is only `trigger-requested` or prose-justified;
 - implementation diff leaves the packet write set or touches
   protected/generated paths outside the active packet authority;
-- proof claim depends on cached output, stale generated output, hook success,
-  OpenSpec validation, or native fixture proof as a substitute proof class;
+- receipt claim depends on cached output, stale generated output, hook success,
+  OpenSpec validation, or native fixture receipt as a substitute receipt class;
 - product approval or supervisor-blocking correction is absent;
 - Graphite/worktree state would force unrelated conflict resolution or create a
   hidden side stack.
@@ -309,7 +309,7 @@ Minimum review lanes for every implementation packet:
 - TypeScript state-space and public API compatibility;
 - validation/falsifier adequacy;
 - command/DTO/human-output contract;
-- proof-class and non-claim adequacy;
+- receipt-class and non-goal adequacy;
 - information design and human-operability;
 - source topology/write-set/protected-path hygiene;
 - cross-domino sequencing;
@@ -322,7 +322,7 @@ shared substrate questions.
 
 I may use agents for focused investigation, implementation slices with disjoint
 write sets, and review lanes. Delegation does not transfer ownership. I remain
-accountable for synthesis, proof claims, review disposition, repo state, and
+accountable for synthesis, receipt claims, review disposition, repo state, and
 packet closure.
 
 ## 6. TypeScript Implementation Discipline
@@ -352,7 +352,7 @@ Required discipline:
   transaction records.
 - Use proportional type complexity. A type-state model must name the product
   state it prevents and the consumer it simplifies.
-- Keep legacy proof/evidence-shaped names as D0/D1 compatibility facts unless a
+- Keep legacy receipt/evidence-shaped names as D0/D1 compatibility facts unless a
   packet earns them for a concrete scenario.
 - Do not add shims, fallbacks, dual paths, silent skips, or compatibility lanes
   unless explicitly authorized by the active packet and recorded in D0/D1.
@@ -362,7 +362,7 @@ Current state-space hotspots to treat carefully:
 - `tools/habitat-harness/src/index.ts` exports many internals and compatibility
   DTOs.
 - `command-engine.ts` mixes check, classify, verify, graph, fix, baseline,
-  selector, report, and proof helpers.
+  selector, report, and receipt helpers.
 - `rules.json` mixes prose scope, tool ownership, graph target hints, Grit
   identity, baseline relation, hook scope, governance, and generated-zone facts.
 - `plugin.js` and `nx-projects.ts` share graph knowledge.
@@ -371,42 +371,42 @@ Current state-space hotspots to treat carefully:
 - `grit-apply.ts` currently mixes generic transaction sequencing with
   pattern-specific and host-specific validation.
 - `generated-zones.ts` carries host-specific truth inside generic Habitat.
-- `hooks.ts` orchestrates multiple proof owners but owns only local feedback.
+- `hooks.ts` orchestrates multiple receipt owners but owns only hook runtime.
 
-## 7. Verification And Proof Language
+## 7. Verification And Receipt Language
 
-Use exact proof labels and state non-claims:
+Use exact receipt labels and state non-goals:
 
 - Spec validation.
 - Unit behavior.
 - Native tool behavior.
 - Habitat wrapper behavior.
-- Injected violation proof.
-- Clean sample proof.
-- Baseline proof.
-- Apply safety proof.
-- Runtime/product proof.
-- Record truth proof.
+- Injected violation receipt.
+- Clean sample receipt.
+- Baseline receipt.
+- Apply safety receipt.
+- Runtime/product receipt.
+- Record truth receipt.
 - Graphite/worktree state.
 
-No proof class substitutes for another. OpenSpec validation does not prove
+No receipt class substitutes for another. OpenSpec validation does not prove
 command behavior. Native Grit samples do not prove Habitat wrapper scans. Hook
 success does not prove CI. A local command sample proves only the named path and
-proof class. It becomes runtime/product proof only when it is an end-to-end
+receipt class. It becomes runtime/product receipt only when it is an end-to-end
 Habitat command path that protects the stated product outcome, records current
 tree/worktree state, expected and actual status, post-state, and explicit
-non-claims. Generated manifests do not prove source truth. Cached Nx output is
-not fresh proof unless cache stance is explicitly part of the claim.
+non-goals. Generated manifests do not prove source truth. Cached Nx output is
+not fresh receipt unless cache stance is explicitly part of the claim.
 
 Packet closure summaries must name commands run, exact scope, expected status,
-actual status, proof class, skipped gates, non-claims, dirty/worktree state, and
+actual status, receipt class, skipped gates, non-goals, dirty/worktree state, and
 downstream records updated or intentionally unchanged.
 
 ## 8. Supervisor Relationship
 
 The supervisor is product/domain steward, not implementer. Their guidance is a
 control input when it flags product thinning, domain drift, over-engineering,
-under-engineering, skipped packet authority, ignored control notes, proof-class
+under-engineering, skipped packet authority, ignored control notes, receipt-class
 substitution, stale records, or premature closure.
 
 My responsibilities:
@@ -422,7 +422,7 @@ My responsibilities:
 
 Product approval means explicit supervisor/user acceptance recorded in the
 packet phase record or review-disposition ledger after implementation evidence,
-review dispositions, downstream realignment, proof labels, Graphite state, and
+review dispositions, downstream realignment, receipt labels, Graphite state, and
 clean worktree state are available. Silence, green tests, OpenSpec validation,
 local command success, or lack of new supervisor notes is not product approval.
 No next packet may begin source implementation until this approval is recorded

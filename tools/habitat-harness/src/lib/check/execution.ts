@@ -5,13 +5,13 @@ import {
   activeRuleCommandExecutionFacts,
   activeRuleFileLayerFacts,
   activeRuleGraphFacts,
-  activeRuleGritFacts,
+  activeRulePatternFacts,
   factsForRuleIds,
 } from "../../rules/facts.js";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
-  RuleGritFacts,
+  RulePatternFacts,
   RuleSelectorFacts,
 } from "../../rules/registry/index.js";
 import type { HabitatDiagnostic } from "../diagnostics.js";
@@ -21,7 +21,7 @@ import {
   runFileLayerProtectedMutationRule,
   stagedPathsFromNameStatus,
   type StagedMutationPath,
-} from "../protected-zone-authority/index.js";
+} from "../protected-zones/index.js";
 import { run } from "../spawn.js";
 import { readWorkspaceGraph, ruleAliasTargetState } from "../workspace-graph/index.js";
 import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
@@ -37,7 +37,7 @@ export interface RuleExecutionRecord {
 export function rulesForExecution(
   selectedRules: readonly RuleSelectorFacts[],
   _options: {
-    gritFacts?: readonly RuleGritFacts[];
+    gritFacts?: readonly RulePatternFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
   } = {}
@@ -45,9 +45,9 @@ export function rulesForExecution(
   return [...selectedRules];
 }
 
-export function stagedGritScanRoots(
+export function stagedPatternScanRoots(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleGritFacts)
+  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRulePatternFacts)
 ): string[] {
   const candidates = sortedUnique(
     stagedPaths
@@ -69,10 +69,10 @@ export async function executeSelectedRules(
 ): Promise<Map<string, RuleExecutionRecord>> {
   const results = new Map<string, RuleExecutionRecord>();
   const selectedRuleIds = selectedRules.map((rule) => rule.id);
-  const gritRules = factsForRuleIds(activeRuleGritFacts, selectedRuleIds);
+  const gritRules = factsForRuleIds(activeRulePatternFacts, selectedRuleIds);
   if (gritRules.length > 0) {
     const scanRoots = options.staged
-      ? stagedGritScanRoots(
+      ? stagedPatternScanRoots(
           options.stagedPaths ?? currentStagedPaths(),
           approvedScanRootsForRules(gritRules)
         )
@@ -156,7 +156,7 @@ async function graphDependencyRefusals(
   return refusals;
 }
 
-function approvedScanRootsForRules(rules: readonly RuleGritFacts[]): string[] {
+function approvedScanRootsForRules(rules: readonly RulePatternFacts[]): string[] {
   return [...new Set(rules.flatMap((rule) => rule.scanRoots).map(toRepoRelative))];
 }
 

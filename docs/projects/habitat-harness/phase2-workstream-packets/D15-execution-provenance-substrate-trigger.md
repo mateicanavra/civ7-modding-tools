@@ -54,7 +54,7 @@ after the consuming packet passes its local DTO sufficiency review.
 ## Current State-Space Problem
 
 Habitat already has command/process-related code (`habitat-process.ts`,
-`effect-runtime.ts`, `effect-parity.ts`, and Grit/apply command records), but an
+`effect-runtime.ts`, `effect-runtime.ts`, and Grit/apply command records), but an
 unbounded substrate migration would add state before identifying which reachable
 contradictory state it removes.
 
@@ -89,7 +89,7 @@ command observation state and that Effect removes the named contradiction.
 
 Should be internal unless receipt, diagnostic, transaction, hook, package export,
 or handoff outputs expose command-observation fields. D0/D1 classify and version
-any public fields, output-family handling, and non-claim language before source
+any public fields, output-family handling, and non-goal language before source
 implementation.
 
 ## Validation Classes
@@ -109,7 +109,7 @@ Later implementation validation if triggered:
 - failure injection tests;
 - command behavior;
 - performance/build sanity;
-- parity tests if replacing existing execution path.
+- compatibility tests if replacing existing execution path.
 
 Non-claims:
 
@@ -132,7 +132,7 @@ the exact trigger and dependency impact.
 
 ## Validation Commands / Trigger Check Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/habitat-process.test.ts test/lib/effect-parity.test.ts`:
+- `bun run --cwd tools/habitat-harness test -- test/lib/habitat-process.test.ts test/lib/effect-runtime.test.ts`:
   expected exit 0 only if a later accepted packet changes command-result or
   execution-runtime behavior.
 - `git status --short --branch`: expected exit 0; command-observation capture must not
@@ -147,7 +147,7 @@ the exact trigger and dependency impact.
   handoff, and git state.
 - `bun run habitat hook pre-commit --dry-run`: expected status follows D11; when
   used as a D15 trigger, record staged paths, Graphite base, and local-only
-  non-claim.
+  non-goal.
 - Consuming-packet note: D6, D7, D9, D11, and G-HOST still own whether these
   commands are required for their closure; D15 only defines the substrate
   trigger record shape when one of those exact commands exposes

@@ -5,14 +5,14 @@ import { runFix } from "../lib/fix.js";
 export default class Fix extends HabitatCommand {
   static override summary = "Apply Habitat-owned safe fixes";
   static override description =
-    "Runs Habitat transformation transactions. With --dry-run, plans without writing.";
+    "Runs Habitat pattern applys. With --dry-run, plans without writing.";
   static override examples = [
     "<%= config.bin %> <%= command.id %> --dry-run",
     "<%= config.bin %> <%= command.id %>",
   ];
 
   static override flags = {
-    "dry-run": Flags.boolean({ description: "Plan the transformation transaction without writing." }),
+    "dry-run": Flags.boolean({ description: "Plan the pattern apply without writing." }),
   };
 
   async run(): Promise<void> {

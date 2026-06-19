@@ -103,7 +103,7 @@ Prefer:
 Avoid:
 
 - adding new documentation layers without generator validation;
-- expanding Pattern Authority process for its own sake;
+- expanding pattern manifest process for its own sake;
 - treating rule-pack health as authoring capability;
 - accepting "Habitat has generators" unless the generator serves the MapGen
   authoring loop being claimed.

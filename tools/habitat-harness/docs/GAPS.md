@@ -64,9 +64,9 @@ and fail through Habitat, but they do not apply repairs.
 
 Current apply state:
 
-- `.grit/patterns/habitat/apply/deep_import_to_public_surface.md` is wired into
+- `.habitat/patterns/active/apply/deep_import_to_public_surface.md` is wired into
   `habitat fix`.
-- `.grit/patterns/habitat/apply/helper_redeclarations_to_imports.md` exists but
+- `.habitat/patterns/active/apply/helper_redeclarations_to_imports.md` exists but
   is not wired into `habitat fix`.
 - No general mapping exists from each diagnostic Grit rule to a safe apply
   pattern.
@@ -93,9 +93,9 @@ still needs its own validation:
 The transaction substrate cannot establish the semantic correctness of a pattern
 by itself.
 
-## Pattern Authority Can Overpower Product Focus
+## pattern manifest Can Overpower Product Focus
 
-The Pattern Authority machinery is useful for preventing weak Grit rules from
+The pattern manifest machinery is useful for preventing weak Grit rules from
 quietly becoming enforcement law. Its risk is that it can become the center of
 gravity. The next phase should not confuse "well-governed rule admission" with
 "the toolkit helps agents author useful MapGen structures."

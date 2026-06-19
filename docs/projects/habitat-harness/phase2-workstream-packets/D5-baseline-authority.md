@@ -3,7 +3,7 @@
 ## Intent
 
 Separate baseline debt authority from structural enforcement execution and
-Pattern Governance admission so baselines remain explicit, shrink-only, and
+Patterns admission so baselines remain explicit, shrink-only, and
 reviewable.
 
 ## Product Scenario
@@ -20,12 +20,12 @@ Forbidden owners:
 
 - Structural Enforcement consumes baseline states but does not define debt
   authority.
-- Pattern Governance consumes baseline contracts but does not bypass them.
+- Patterns consumes baseline contracts but does not bypass them.
 - Grit diagnostics reports findings but does not decide baseline growth.
 
 ## Consumers
 
-`habitat check`, Pattern Governance, rule introduction workflows, baseline JSON
+`habitat check`, Patterns, rule introduction workflows, baseline JSON
 files, tests, review ledgers.
 
 ## Contract
@@ -67,7 +67,7 @@ construction can drift.
 2. Separate baseline state loading/validation from enforcement report assembly.
 3. Define external exception source variants so incomplete projection/validation
    combinations cannot exist.
-4. Add a baseline contract projection consumed by Pattern Governance.
+4. Add a baseline contract projection consumed by Patterns.
 5. Keep `--expand-baseline` behavior behind a typed introduction guard.
 
 ## TypeScript State-Space Reduction
@@ -85,21 +85,21 @@ Baseline JSON contract and command failure messages may become more explicit.
 D0 must classify whether baseline error JSON is stable. No arbitrary baseline
 growth is permitted.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - baseline file inventory;
 - current baseline contract tests;
 - external exception models.
 
-Later implementation proof:
+Later implementation receipt:
 
 - baseline contract tests;
 - baseline expansion guard tests;
 - malformed/orphan/missing baseline tests;
 - current-tree baseline integrity check;
-- Pattern Governance baseline-consumer tests.
+- Patterns baseline-consumer tests.
 
 Non-claims:
 
@@ -111,8 +111,8 @@ Non-claims:
 
 - Baseline authority review.
 - TypeScript state-space review.
-- Pattern Governance consumer review.
-- Proof/non-claim review.
+- Patterns consumer review.
+- Receipt/non-goal review.
 
 ## Downstream Realignment
 
@@ -120,18 +120,18 @@ Update:
 
 - baseline contract record;
 - `recovery-claim-ledger.md` rows that cite baseline state;
-- Pattern Authority docs;
+- Patterns docs;
 - check command examples that show baseline failures.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`:
-  expected exit 0; baseline state-machine proof.
+  expected exit 0; baseline state-machine receipt.
 - `bun run habitat check --rule baseline-integrity --json`: expected exit 0;
-  current-tree baseline-integrity command proof.
+  current-tree baseline-integrity command receipt.
 - `git status --short --branch`: expected exit 0; proves baseline edits are
   intentional tracked changes only.
-- Cache stance: baseline tests are uncached Vitest proof; command proof must
+- Cache stance: baseline tests are uncached Vitest receipt; command receipt must
   record whether the Habitat check used any wrapped target cache.
 - Injected bad case: include missing, malformed, orphaned, and expanded
   baseline rows; prove additions are rejected unless the rule itself is new.
@@ -148,6 +148,6 @@ D7 and D8 implementation.
 Stop if:
 
 - baseline guard can represent contradictory ok/failure states;
-- baseline expansion can run without introduction manifest proof;
-- Pattern Governance has a second baseline contract;
-- current-tree baseline integrity is unverified or non-claimed incorrectly.
+- baseline expansion can run without introduction manifest receipt;
+- Patterns has a second baseline contract;
+- current-tree baseline integrity is unverified or non-goaled incorrectly.

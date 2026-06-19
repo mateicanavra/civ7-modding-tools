@@ -1,0 +1,34 @@
+{
+  "id": "file-layer-civ7-map-policy-tables",
+  "ownerTool": "file-layer",
+  "ownerProject": "@internal/habitat-harness",
+  "lane": "enforced",
+  "scope": "staged changes to packages/civ7-map-policy/src/civ7-tables.gen.ts",
+  "forbids": "staged hand-edits to generated Civ7 map-policy tables",
+  "why": "Map-policy tables must be regenerated from official resources.",
+  "detect": [
+    "habitat",
+    "check",
+    "--staged",
+    "--tool",
+    "file-layer"
+  ],
+  "remediate": "Run owning workspace target: @civ7/map-policy:verify -- --write",
+  "message": "Generated Civ7 map-policy tables are protected from hand edit.",
+  "exceptionPath": "none",
+  "generatedZone": "civ7-map-policy-tables",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/civ7-map-policy/src/civ7-tables.gen.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    },
+    {
+      "kind": "workspace-gate"
+    }
+  ]
+}

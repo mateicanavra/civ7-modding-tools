@@ -169,7 +169,7 @@ function baselineIntegrityReport(base: string): RuleReport {
   const integrityFindings = baselineIntegrityFindings(integrity);
   return {
     ruleId: "baseline-integrity",
-    ownerTool: "habitat-native",
+    ownerTool: "habitat-builtin",
     lane: "enforced",
     status: integrity.status === "refused" ? "fail" : "pass",
     locked: true,

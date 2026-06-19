@@ -2,14 +2,14 @@
 
 ## Intent
 
-Separate Grit diagnostic acquisition and projection from Pattern Governance and
-Transformation Transaction so diagnostics are trustworthy without implying rule
+Separate Grit diagnostic acquisition and projection from Patterns and
+Pattern Apply so diagnostics are trustworthy without implying rule
 admission or apply safety.
 
 ## Product Scenario
 
 An agent runs `habitat check --tool grit-check` and receives normalized Grit
-findings, scan-root facts, adapter failures, and injected-violation proof
+findings, scan-root facts, adapter failures, and injected-violation receipt
 without assuming the pattern is registered for governance or safe to apply.
 
 ## Domain Owner
@@ -18,14 +18,14 @@ Diagnostic Pattern Catalog owner.
 
 Forbidden owners:
 
-- Pattern Governance owns candidate/registered lifecycle.
-- Transformation Transaction owns writes.
+- Patterns owns candidate/registered lifecycle.
+- Pattern Apply owns writes.
 - Structural Enforcement owns report assembly after diagnostics are projected.
 
 ## Consumers
 
-Structural Enforcement, Pattern Governance, Local Feedback, Transformation
-Transaction, Grit tests, DRA proof matrices.
+Structural Enforcement, Patterns, Hook Runtime, Transformation
+Transaction, Grit tests, DRA receipt matrices.
 
 ## Contract
 
@@ -50,18 +50,18 @@ Parallelism: can run in parallel with D5 after D2.
 ## Current State-Space Problem
 
 `grit.ts` owns Grit acquisition, output parsing, scan-root validation, result
-projection, and cache observations. Pattern Authority, apply, and hooks also use
+projection, and cache observations. Patterns, apply, and hooks also use
 Grit terms. The same pattern can be a diagnostic, a governed candidate, a
 registered rule, a hook-scoped rule, or an apply candidate.
 
 ## Solution Design
 
 1. Define diagnostic catalog states separate from governance and apply states.
-2. Make Grit adapter failures a first-class proof class and command output
+2. Make Grit adapter failures a first-class receipt class and command output
    projection.
 3. Separate scan-root derivation from selected-rule execution.
-4. Preserve native sample proof, current-tree wrapper proof, and injected
-   violation proof as separate rows.
+4. Preserve native sample receipt, current-tree wrapper receipt, and injected
+   violation receipt as separate rows.
 5. Evaluate D15 only if command cache/freshness/provenance cannot be represented
    locally in the D6 DTOs.
 
@@ -80,7 +80,7 @@ Model Grit diagnostic states as a union:
 Do not use a generic `ok: boolean` plus optional error fields where the variant
 can own the necessary fields.
 
-The rejected alternative is to let Pattern Governance own all Grit metadata. It
+The rejected alternative is to let Patterns own all Grit metadata. It
 would make diagnostics depend on human admission workflow.
 
 ## Public Surface Impact
@@ -89,19 +89,19 @@ May affect Grit failure messages and `CheckReport` diagnostic details. Must
 preserve D0-classified JSON fields or version them. Native Grit fixture output
 is not Habitat public API.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - current Grit rule inventory;
 - scan-root validation scenarios;
 - adapter failure scenarios;
 - injected probe coverage.
 
-Later implementation proof:
+Later implementation receipt:
 
-- native Grit sample proof;
-- current-tree wrapper proof;
+- native Grit sample receipt;
+- current-tree wrapper receipt;
 - injected violation tests;
 - adapter failure tests;
 - command behavior for selected Grit checks;
@@ -116,28 +116,28 @@ Non-claims:
 ## Review Lanes
 
 - Grit diagnostic review.
-- Proof-class review.
-- Pattern Governance boundary review.
+- Receipt-class review.
+- Patterns boundary review.
 - TypeScript state-space review.
 
 ## Downstream Realignment
 
 Update:
 
-- Grit proof matrix;
-- Pattern Authority ledger references to diagnostic proof;
+- Grit receipt matrix;
+- Patterns ledger references to diagnostic receipt;
 - hook contract docs;
 - `tools/habitat-harness/docs/CAPABILITIES.md`.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`:
-  expected exit 0; adapter, injected-probe, and native Grit sample proof.
+  expected exit 0; adapter, injected-probe, and native Grit sample receipt.
 - `bun run habitat check --tool grit-check --json`: expected exit 0 after the
-  current `GritMalformedJson` projection risk is fixed or explicitly non-claimed.
+  current `GritMalformedJson` projection risk is fixed or explicitly non-goaled.
 - `git status --short --branch`: expected exit 0; proves probe cleanup leaves no
   source-tree residue.
-- Cache stance: injected probes must run fresh; native Grit sample proof may
+- Cache stance: injected probes must run fresh; native Grit sample receipt may
   record tool cache only if output includes exact pattern provenance.
 - Injected bad case: include one scoped probe that should match exactly one row
   and one malformed wrapper output that must be projected as adapter failure.
@@ -152,7 +152,7 @@ OpenSpec if command JSON changes.
 
 Stop if:
 
-- native Grit proof is reported as Habitat wrapper proof;
+- native Grit receipt is reported as Habitat wrapper receipt;
 - a diagnostic rule is treated as an apply pattern;
 - scan-root failures become generic command failures;
-- D15 broad Effect/provenance migration is introduced without trigger proof.
+- D15 broad Effect/provenance migration is introduced without trigger receipt.

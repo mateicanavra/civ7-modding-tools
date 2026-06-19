@@ -1,0 +1,33 @@
+{
+  "id": "runtime-run-validated",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "runtime recipe steps and domain strategies",
+  "forbids": "runtime layers calling runValidated",
+  "why": "Validation belongs to authoring/compile time, not runtime op execution.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Runtime layers must not call runValidated.",
+  "exceptionPath": "none",
+  "patternName": "runtime_run_validated",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "unresolved-metadata",
+      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+    }
+  ]
+}

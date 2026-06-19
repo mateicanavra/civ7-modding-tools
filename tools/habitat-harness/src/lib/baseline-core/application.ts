@@ -26,29 +26,6 @@ export function applyBaseline(
     .map(violationKey)
     .sort();
 
-  if (baseline.kind === "external-exception") {
-    const expected = [...baseline.projectedKeys].sort();
-    if (!sameStringList(preBaselinedKeys, expected)) {
-      return {
-        status: "refused",
-        diagnosticsCovered: 0,
-        refusals: [
-          {
-            kind: "baseline-refusal",
-            ruleId: baseline.ruleId,
-            path: baseline.sourcePath,
-            reason: "external-exception-projection-mismatch",
-            message:
-              `External exception source for '${baseline.ruleId}' projected ${expected.length} ` +
-              `baseline key${expected.length === 1 ? "" : "s"}, but the rule reported ` +
-              `${preBaselinedKeys.length} pre-baselined diagnostic${preBaselinedKeys.length === 1 ? "" : "s"}.`,
-          },
-        ],
-      };
-    }
-    return { status: "applied", diagnosticsCovered: preBaselinedKeys.length, refusals: [] };
-  }
-
   if (preBaselinedKeys.length > 0) {
     return {
       status: "refused",

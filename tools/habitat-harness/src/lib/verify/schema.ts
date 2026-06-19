@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { VerifyCheckSummaryProjectionSchema } from "../check-report.js";
+import { VerifyCheckSummarySchema } from "../check-report.js";
 
 /** Result of choosing the Git base that `habitat verify` will use for affected targets. */
 export const VerifyBaseResolutionSchema = Type.Union(
@@ -70,7 +70,7 @@ export const VerifySelectorStateSchema = Type.Union(
     Type.Object(
       {
         kind: Type.Literal("requested", { description: "At least one selector narrowed the check." }),
-        selectors: VerifyCheckSummaryProjectionSchema.properties.requestedSelectors,
+        selectors: VerifyCheckSummarySchema.properties.requestedSelectors,
       },
       { additionalProperties: false, description: "Requested check selectors." }
     ),
@@ -85,7 +85,7 @@ export const VerifySelectorStateSchema = Type.Union(
   { description: "Check selector state embedded in the verify receipt." }
 );
 
-const VerifyHabitatCheckSummaryFieldsSchema = Type.Pick(VerifyCheckSummaryProjectionSchema, [
+const VerifyHabitatCheckSummaryFieldsSchema = Type.Pick(VerifyCheckSummarySchema, [
   "reportSchemaVersion",
   "selectedRuleIds",
   "selectedRealRuleIds",
@@ -111,10 +111,10 @@ export const VerifyHabitatCheckSummarySchema = Type.Object(
       Type.String({ minLength: 1, description: "Reason affected execution was skipped." })
     ),
   },
-  { additionalProperties: false, description: "D7 check projection consumed by verify." }
+  { additionalProperties: false, description: "Structural check summary consumed by verify." }
 );
 
-/** D3 target-plan state reduced to the fields that the verify receipt owns. */
+/** Workspace target-plan state reduced to the fields that the verify receipt owns. */
 export const VerifyTargetPlanConsumptionSchema = Type.Union(
   [
     Type.Object(
@@ -131,7 +131,7 @@ export const VerifyTargetPlanConsumptionSchema = Type.Union(
       {
         kind: Type.Literal("target-plan-refused", { description: "Workspace graph refused planning." }),
         targets: Type.Array(Type.String({ minLength: 1 }), {
-          description: "Fallback target names associated with the refusal.",
+          description: "Requested target names associated with the refusal.",
         }),
         reason: Type.String({ minLength: 1, description: "Machine-readable refusal reason." }),
         message: Type.String({ minLength: 1, description: "Human-readable refusal message." }),

@@ -15,7 +15,7 @@ export default class Check extends HabitatCommand {
   static override examples = [
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --json",
-    "<%= config.bin %> <%= command.id %> --rule biome-ci --json",
+    "<%= config.bin %> <%= command.id %> --rule format-ci --json",
   ];
 
   static override flags = {

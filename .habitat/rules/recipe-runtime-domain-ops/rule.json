@@ -1,0 +1,35 @@
+{
+  "id": "recipe-runtime-domain-ops",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/*/src/recipes/**/recipe.ts",
+  "forbids": "recipe compilation importing domain contract roots instead of runtime ops",
+  "why": "Compiled recipes use runtime op bundles; contracts are for step/domain boundaries.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Recipe runtime files must import @mapgen/domain/<domain>/ops for runtime domains.",
+  "exceptionPath": "none",
+  "patternName": "recipe_runtime_domain_ops",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/**/recipe.ts"
+      ]
+    }
+  ]
+}

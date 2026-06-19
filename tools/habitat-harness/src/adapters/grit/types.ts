@@ -122,7 +122,7 @@ export interface GritCheckRequestOptions {
   outputFormat?: GritCheckOutputFormat;
 }
 
-export interface GritProjectionOptions {
+export interface GritDiagnosticOptions {
   requirePatternFinding?: boolean;
   rejectUnexpectedPatternIdentity?: boolean;
 }

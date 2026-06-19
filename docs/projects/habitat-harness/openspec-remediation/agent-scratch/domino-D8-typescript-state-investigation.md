@@ -108,7 +108,7 @@ Current tests prove important behavior but not the full D8 packet target.
 ## State-Space Smells
 
 1. File-presence lifecycle.
-   Candidate/registered distinction is partly enforced by path collisions: candidate artifacts under `tools/habitat-harness/src/rules/pattern-authority/candidates/**`, active patterns under `.grit/patterns/habitat/checks/**`, baseline files under `tools/habitat-harness/baselines/**`, and rule-pack entries in `rules.json`. The checks are important, but they are symptoms of state, not the state model. D8 must make file presence a projection of `PatternAuthorityState`, never the authority source.
+   Candidate/registered distinction is partly enforced by path collisions: candidate artifacts under `tools/habitat-harness/src/rules/pattern-authority/candidates/**`, active patterns under `.habitat/patterns/active/checks/**`, baseline files under `tools/habitat-harness/baselines/**`, and rule-pack entries in `rules.json`. The checks are important, but they are symptoms of state, not the state model. D8 must make file presence a projection of `PatternAuthorityState`, never the authority source.
 
 2. Optional/flag soup in generator input.
    One broad options object carries `lifecycle`, `manifestPath?`, and `hookScope?`. Invalid combinations are representable: registered lifecycle without manifest path, hook scope without enforced lifecycle, candidate with manifest path, candidate with hook scope, or registered apply semantics through a check-owned generator path.
@@ -279,7 +279,7 @@ Allowed runtime write projections for the generator:
   - `tools/habitat-harness/src/rules/pattern-authority/candidates/<rule-id>.json`
   - `tools/habitat-harness/src/rules/pattern-authority/candidates/<pattern-name>.md`
 - Registered diagnostic/hook admission may write:
-  - `.grit/patterns/habitat/checks/<pattern-name>.md`
+  - `.habitat/patterns/active/checks/<pattern-name>.md`
   - `tools/habitat-harness/src/rules/rules.json`
 - Registered diagnostic/hook admission may require existing, prewritten:
   - `tools/habitat-harness/src/rules/pattern-authority/<rule-id>.json`
@@ -289,8 +289,8 @@ Allowed runtime write projections for the generator:
 Protected paths:
 
 - `tools/habitat-harness/baselines/**` must not be created, expanded, or edited as a side effect of Pattern Authority admission. Baseline files are D5-owned inputs to D8 admission.
-- `.grit/patterns/habitat/apply/**` must not be edited by diagnostic registration. Apply patterns require a separate apply-approved state.
-- `.grit/grit.yaml`, `.gritignore`, `.gitignore`, and Grit acquisition configuration must not be changed by D8 admission.
+- `.habitat/patterns/active/apply/**` must not be edited by diagnostic registration. Apply patterns require a separate apply-approved state.
+- `.habitat/grit.yaml`, `.gritignore`, `.gitignore`, and Grit acquisition configuration must not be changed by D8 admission.
 - `tools/habitat-harness/src/lib/grit-apply.ts` and Grit apply transaction tests are protected from D8 implementation unless the packet explicitly invokes the D9/apply workstream.
 - `tools/habitat-harness/src/lib/baseline.ts` is protected from D8 implementation unless D5 contract changes are explicitly accepted.
 - Product source roots (`apps/**`, `packages/**`, `mods/**`) are protected from D8 implementation except for test fixtures explicitly approved by the packet.

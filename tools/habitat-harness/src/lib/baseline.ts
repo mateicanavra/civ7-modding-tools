@@ -1,6 +1,6 @@
 export type {
   BaselineApplicationResult,
-  BaselineAuthorityProjection,
+  BaselineAuthorityResult,
   BaselineAuthorityState,
   BaselineContractContext,
   BaselineContractValidation,
@@ -10,13 +10,12 @@ export type {
   BaselineRefusal,
   BaselineRefusalReason,
   BaselineRuleContractInput,
-  ExternalExceptionSource,
   RuleIntroductionBaselineManifest,
 } from "./baseline-core/index.js";
 
 export {
   applyBaseline,
-  baselineAuthorityProjection,
+  baselineAuthorityResult,
   baselineFailureDiagnostic,
   baselineIntegrityFindings,
   baselinePath,
@@ -33,7 +32,7 @@ export {
 
 export {
   BaselineApplicationResultSchema,
-  BaselineAuthorityProjectionSchema,
+  BaselineAuthorityResultSchema,
   BaselineAuthorityStateSchema,
   BaselineExpansionDecisionSchema,
   BaselineIntegrityFindingSchema,
@@ -41,6 +40,5 @@ export {
   BaselineRuleContractInputSchema,
   BaselineRefusalReasonSchema,
   BaselineRefusalSchema,
-  ExternalExceptionSourceSchema,
   RuleIntroductionBaselineManifestSchema,
 } from "./baseline-core/index.js";

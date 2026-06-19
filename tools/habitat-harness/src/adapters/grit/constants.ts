@@ -2,14 +2,14 @@ export const gritBin = "grit";
 
 export const protectedScanRootPrefixes = [
   ".git/",
-  ".grit/cache/",
+  ".habitat/cache/patterns/",
   "dist/",
   "node_modules/",
   "tools/habitat-harness/dist/",
 ];
 
 export const docsLocalCheckoutPathsRewritePattern =
-  ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md";
+  ".habitat/patterns/apply/docs_local_checkout_paths_rewrite.md";
 
 export const gritCandidateExtensions = new Set([
   ".cjs",
