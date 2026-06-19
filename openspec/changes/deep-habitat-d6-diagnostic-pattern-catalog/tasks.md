@@ -46,8 +46,11 @@
 - [ ] 3.5 Define `DiagnosticCacheRequirement` and
   `DiagnosticCacheObservation`; make injected probes freshness-required by
   type.
-- [ ] 3.6 Split `DiagnosticAdapterFailureKind` from D9 apply transaction
+- [x] 3.6 Split `DiagnosticAdapterFailureKind` from D9 apply transaction
   failures; update consumers to the D6 diagnostic failure contract.
+  - Source slice adds the TypeBox-backed D6 diagnostic failure subset under
+    `src/lib/diagnostic-catalog/`, moves Grit check/probe consumers to that
+    subset, and leaves D9 apply transaction failures outside D6 diagnostics.
 - [ ] 3.7 Replace `GritCheckParseResult` boolean/optional state with closed
   acquisition outcomes.
 - [ ] 3.8 Replace adapter failure message parsing with structured failure

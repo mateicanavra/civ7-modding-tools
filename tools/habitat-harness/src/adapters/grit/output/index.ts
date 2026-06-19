@@ -1,9 +1,6 @@
 import { Value } from "typebox/value";
-import type {
-  GritAdapterFailureTag,
-  GritParseStatus,
-  HabitatCommandResult,
-} from "../../../lib/habitat-process.js";
+import type { DiagnosticAdapterFailureKind } from "../../../lib/diagnostic-catalog/index.js";
+import type { GritParseStatus, HabitatCommandResult } from "../../../lib/habitat-process.js";
 import { normalizeGritPath } from "../scan-roots/index.js";
 import {
   type GritCheckParseResult,
@@ -18,7 +15,7 @@ export function parseGritCheckTextOutput(
   if (commandResult.exit.interrupted) {
     return parseFailure(
       commandResult,
-      commandResult.failureTag ?? "GritCommandFailed",
+      "GritCommandFailed",
       "unparsed",
       "Grit command was interrupted."
     );
@@ -29,7 +26,7 @@ export function parseGritCheckTextOutput(
   if (commandResult.exit.code !== 0 && results.length === 0) {
     return parseFailure(
       commandResult,
-      commandResult.failureTag ?? "GritCommandFailed",
+      "GritCommandFailed",
       "unparsed",
       `Grit command exited ${commandResult.exit.code}.`
     );
@@ -50,7 +47,7 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
   if (commandResult.exit.code !== 0 || commandResult.exit.interrupted) {
     return parseFailure(
       commandResult,
-      commandResult.failureTag ?? "GritCommandFailed",
+      "GritCommandFailed",
       "unparsed",
       `Grit command exited ${commandResult.exit.code}.`
     );
@@ -176,7 +173,7 @@ function parseGritTextResults(text: string): GritResult[] {
 
 function parseFailure(
   commandResult: HabitatCommandResult,
-  failureTag: GritAdapterFailureTag,
+  failureTag: DiagnosticAdapterFailureKind,
   parseStatus: Exclude<GritParseStatus, "parsed">,
   message: string
 ): GritCheckParseResult {

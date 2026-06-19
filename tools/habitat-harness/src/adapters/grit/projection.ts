@@ -20,7 +20,7 @@ export function projectGritResults(
           rule.id,
           infrastructureFailure(
             rule,
-            "GritUnexpectedPatternIdentity",
+            "GritUnexpectedDiagnosticIdentity",
             `Grit output included unexpected pattern identity: ${unexpected}.`
           ),
         ])
