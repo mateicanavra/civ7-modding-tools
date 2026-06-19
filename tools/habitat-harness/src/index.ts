@@ -99,10 +99,13 @@ export {
 } from "./lib/grit-failures.js";
 export type {
   InjectedGritProbeInput,
+  InjectedGritProbeRequest,
   InjectedProbeOutcome,
   InjectedProbeScope,
 } from "./lib/grit-injected-probe.js";
 export {
+  InjectedGritProbeRequestSchema,
+  InjectedProbeScopeSchema,
   injectedGritProbeProgram,
   runInjectedGritProbe,
 } from "./lib/grit-injected-probe.js";

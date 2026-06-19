@@ -53,6 +53,22 @@ export function effectiveGritScanRoots(
   ]);
 }
 
+export function decideEffectiveGritScanRoots(
+  selectedRules: readonly RuleGritFacts[],
+  requestedRoots: readonly string[],
+  options: GritScanRootValidationOptions = {}
+): DiagnosticScanRootDecision {
+  const effectiveRoots = effectiveGritScanRoots(selectedRules, requestedRoots);
+  const decision = decideGritScanRoots(effectiveRoots, options);
+  if (decision.kind !== "accepted") return decision;
+  if (sameRoots(requestedRoots, effectiveRoots)) return decision;
+  return {
+    kind: "expanded-test-files",
+    requestedRoots: [...requestedRoots],
+    effectiveRoots,
+  };
+}
+
 export function validateScanRoots(
   scanRoots: readonly string[],
   options: GritScanRootValidationOptions = {}
@@ -77,7 +93,8 @@ export function decideGritScanRoots(
       return { kind: "refused", reason: "missing", root: scanRoot };
     if (isGeneratedZoneRoot(relative))
       return { kind: "refused", reason: "generated-output", root: relative };
-    if (isProtectedRoot(relative)) return { kind: "refused", reason: "protected-root", root: relative };
+    if (isProtectedRoot(relative))
+      return { kind: "refused", reason: "protected-root", root: relative };
     if (!isApprovedScanRoot(relative, options)) {
       return {
         kind: "refused",
@@ -113,6 +130,11 @@ export function normalizeGritPath(gritPath: string | undefined): string {
 
 export function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values.map(toRepoRelative))].sort((a, b) => a.localeCompare(b));
+}
+
+function sameRoots(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length !== right.length) return false;
+  return left.every((value, index) => value === right[index]);
 }
 
 function uniqueRepoRelative(values: readonly string[]): string[] {

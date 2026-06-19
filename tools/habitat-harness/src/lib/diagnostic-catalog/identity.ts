@@ -10,6 +10,31 @@ export const GritDiagnosticIdentitySchema = Type.Object(
   { additionalProperties: false }
 );
 
+export const NativeDiagnosticIdentityValueSchema = Type.Literal("docs-local-checkout-paths");
+
+export const NativeDiagnosticIdentitySchema = Type.Object(
+  {
+    kind: Type.Literal("native-rule"),
+    nativeDiagnosticIdentity: NativeDiagnosticIdentityValueSchema,
+    source: Type.Literal("native-habitat-rule"),
+  },
+  { additionalProperties: false }
+);
+
+export const DiagnosticIdentitySchema = Type.Union([
+  GritDiagnosticIdentitySchema,
+  NativeDiagnosticIdentitySchema,
+]);
+
+export const ObservedNativeDiagnosticIdentitySchema = Type.Object(
+  {
+    kind: Type.Literal("observed-native-rule"),
+    observedNativeDiagnosticIdentity: NativeDiagnosticIdentityValueSchema,
+    source: Type.Literal("native-habitat-rule"),
+  },
+  { additionalProperties: false }
+);
+
 export const ObservedGritDiagnosticIdentitySchema = Type.Union([
   Type.Object(
     {
@@ -33,10 +58,20 @@ export const ObservedGritDiagnosticIdentitySchema = Type.Union([
   ),
 ]);
 
+export const ObservedDiagnosticIdentitySchema = Type.Union([
+  ObservedGritDiagnosticIdentitySchema,
+  ObservedNativeDiagnosticIdentitySchema,
+]);
+
 export type GritDiagnosticIdentity = Static<typeof GritDiagnosticIdentitySchema>;
-export type ObservedGritDiagnosticIdentity = Static<
-  typeof ObservedGritDiagnosticIdentitySchema
+export type NativeDiagnosticIdentityValue = Static<typeof NativeDiagnosticIdentityValueSchema>;
+export type NativeDiagnosticIdentity = Static<typeof NativeDiagnosticIdentitySchema>;
+export type DiagnosticIdentity = Static<typeof DiagnosticIdentitySchema>;
+export type ObservedGritDiagnosticIdentity = Static<typeof ObservedGritDiagnosticIdentitySchema>;
+export type ObservedNativeDiagnosticIdentity = Static<
+  typeof ObservedNativeDiagnosticIdentitySchema
 >;
+export type ObservedDiagnosticIdentity = Static<typeof ObservedDiagnosticIdentitySchema>;
 
 export function isObservedGritDiagnosticIdentity(
   value: unknown
@@ -49,6 +84,26 @@ export function gritDiagnosticIdentity(patternIdentity: string): GritDiagnosticI
     kind: "grit-pattern",
     patternIdentity,
     source: "d2-rule-grit-facts",
+  };
+}
+
+export function nativeDiagnosticIdentity(
+  nativeDiagnostic: NativeDiagnosticIdentityValue
+): NativeDiagnosticIdentity {
+  return {
+    kind: "native-rule",
+    nativeDiagnosticIdentity: nativeDiagnostic,
+    source: "native-habitat-rule",
+  };
+}
+
+export function observedNativeDiagnosticIdentity(
+  nativeDiagnostic: NativeDiagnosticIdentityValue
+): ObservedDiagnosticIdentity {
+  return {
+    kind: "observed-native-rule",
+    observedNativeDiagnosticIdentity: nativeDiagnostic,
+    source: "native-habitat-rule",
   };
 }
 
@@ -69,7 +124,11 @@ export function observedGritDiagnosticIdentity(input: {
     };
   }
   if (localName) {
-    return { kind: "observed-grit-pattern", observedPatternIdentity: localName, source: "local_name" };
+    return {
+      kind: "observed-grit-pattern",
+      observedPatternIdentity: localName,
+      source: "local_name",
+    };
   }
   if (parsedCheckId) {
     return {
@@ -104,4 +163,3 @@ function parsePatternIdentityFromCheckId(checkId: string | undefined): string | 
   const match = checkId?.match(/#([^/]+)\//);
   return match?.[1] ?? null;
 }
-
