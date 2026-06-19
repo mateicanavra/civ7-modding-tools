@@ -7,7 +7,30 @@
 - Owner: agent-A
 - Branch/Graphite stack: new slice stacked on `agent-A-mapgen-oddr-consumer-migration`
 - Started: 2026-06-18
-- Status: design authored; pre-code review next; implementation not started
+- Status: implementation complete + live-closed (the 3 fixes, ledger §D); DRAFT, awaiting publish approval.
+
+## Latest status (2026-06-19, docs/JSDoc/refactor phase)
+
+The 3 §D fixes (diminishing-returns variety, materialize retry, 4-tile
+self-orient) are implemented + live-proven. This phase added, on top:
+- **Documentation**: `workstream/natural-wonders-system-reference.md` (normative +
+  reference + tradeoffs) and JSDoc across the NW surfaces.
+- **Live re-diagnosis of the 3 remaining wonders** (ledger §E, full machine
+  access): the odd-Q/odd-R AND `Direction:-1` self-orient hypotheses for Valley
+  of Flowers are DISPROVEN live (Zhangjiajie, same 2-tile class, places at forced
+  dir 0). VoF/Hoerikwaggo are terrain-limited (often no legal tile); Thera fails
+  self-oriented (volcano∧coast rarity). FOURADJACENT + FOURPARALLELAGRM
+  self-orient re-confirmed; FOURL stays code-path-proven only. No code fix shipped
+  for the 3 wonders (the leading hypothesis was falsified, not papered over).
+- **Refactor**: wonder groups unified into one `WONDER_GROUPS` registry
+  (behavior-preserving); op/stage/step split assessed as already-correct and left
+  unchanged (system-reference §13).
+- Corrected the earlier wrong "odd-Q predicate is the VoF bug" claim across docs,
+  JSDoc, ledger §D, and memory (the op's adjacency was already odd-R).
+
+Gates: build green; map-policy 19 / mod 583 (the 1 fail is the pre-existing
+FOREIGN `no-fudging` place-discoveries finding) / adapter 19; openspec strict-valid.
+The original DESIGN-phase content below is retained for the record.
 
 ## Objective
 
