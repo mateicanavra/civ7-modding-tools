@@ -110,10 +110,10 @@ export function gritCheckRequest(
       observableStatus: options.observableCacheStatus ?? "unknown",
     },
     nonClaims: [
-      "does-not-prove-injected-violation",
-      "does-not-prove-baseline-shrink",
-      "does-not-prove-apply-transaction",
-      "does-not-prove-product-runtime",
+      "not-injected-probe-validation",
+      "not-baseline-authority",
+      "not-apply-transaction",
+      "not-product-runtime",
     ],
   };
 }

@@ -68,7 +68,7 @@ export async function runDocsApplyBackedGritRules(
         rule.id,
         infrastructureFailure(
           rule,
-          commandResult.failureTag ?? "GritCommandFailed",
+          "GritCommandFailed",
           `Grit docs rewrite dry-run exited ${commandResult.exit.code}.`
         ),
       ])
@@ -130,7 +130,7 @@ function docsApplyDryRunRequest(scanRoots: readonly string[]): HabitatProcessReq
       cacheDir,
       observableStatus: "unknown",
     },
-    nonClaims: ["does-not-prove-apply-transaction", "does-not-prove-product-runtime"],
+    nonClaims: ["not-apply-transaction", "not-product-runtime"],
   };
 }
 
