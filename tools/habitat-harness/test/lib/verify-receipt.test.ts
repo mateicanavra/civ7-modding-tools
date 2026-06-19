@@ -17,8 +17,8 @@ import {
   createVerifyReceipt,
   VerifyReceiptSchema,
   validateVerifyReceipt,
-} from "../../src/lib/verify-receipt.js";
-import { verifyTargetPlan } from "../../src/lib/workspace-graph/index.js";
+} from "../../src/lib/verify/index.js";
+import { verifyTargetPlan, type VerifyTargetPlan } from "../../src/lib/workspace-graph/index.js";
 
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {
@@ -30,6 +30,7 @@ describe("verify receipt", () => {
       durationMs: 12,
       exitCode: 0,
       checkReport: checkReport(),
+      verifyTargetPlan: verifyTargetPlanFixture(),
       affectedResult: {
         exitCode: 0,
         stdout:
@@ -40,10 +41,16 @@ describe("verify receipt", () => {
       },
     });
 
-    expect(receipt.nxAffected.status).toBe("executed");
+    expect(receipt.outcome).toBe("succeeded");
+    expect(receipt.base).toEqual({ requested: "HEAD", resolved: "HEAD", source: "flag" });
+    expect(receipt.habitatCheck.consumption).toBe("allows-affected-execution");
+    expect(receipt.habitatCheck.selectorState).toEqual({ kind: "none" });
+    expect(receipt.targetPlan.kind).toBe("target-plan-ready");
+    expect(receipt.postState.kind).toBe("observed-clean");
+    expect(receipt.nxAffected.kind).toBe("executed");
     expect(receipt.nxAffected).not.toHaveProperty("stdout");
     expect(receipt.nxAffected).not.toHaveProperty("stderr");
-    if (receipt.nxAffected.status !== "executed") throw new Error("expected executed receipt");
+    if (receipt.nxAffected.kind !== "executed") throw new Error("expected executed receipt");
     expect(receipt.nxAffected.stdoutLength).toBeGreaterThan(0);
     expect(receipt.nxAffected.stderrLength).toBe("warning stream\n".length);
     expect(receipt.nxAffected.stdoutPreview).toContain("@internal/habitat-harness:boundaries");
@@ -60,7 +67,7 @@ describe("verify receipt", () => {
         taskId: "@internal/habitat-harness:check",
         project: "@internal/habitat-harness",
         target: "check",
-        cacheState: "unknown",
+        cacheState: "not-observed",
       },
     ]);
     expect(Value.Check(VerifyReceiptSchema, receipt)).toBe(true);
@@ -77,6 +84,7 @@ describe("verify receipt", () => {
       durationMs: 12,
       exitCode: 0,
       checkReport: checkReport(),
+      verifyTargetPlan: verifyTargetPlanFixture(),
       affectedResult: {
         exitCode: 0,
         stdout,
@@ -84,7 +92,7 @@ describe("verify receipt", () => {
       },
     });
 
-    if (receipt.nxAffected.status !== "executed") throw new Error("expected executed receipt");
+    if (receipt.nxAffected.kind !== "executed") throw new Error("expected executed receipt");
     expect(receipt.nxAffected.stdoutLength).toBe(stdout.length);
     expect(receipt.nxAffected.stdoutPreview.length).toBeLessThan(stdout.length);
     expect(receipt.nxAffected.stdoutTruncated).toBe(true);
@@ -102,8 +110,10 @@ describe("verify receipt", () => {
       verifyTargetPlan: verifyTargetPlanFixture(),
     });
 
+    expect(receipt.outcome).toBe("blocked");
+    expect(receipt.habitatCheck.consumption).toBe("blocks-affected-execution");
     expect(receipt.nxAffected).toEqual({
-      status: "skipped",
+      kind: "skipped",
       skipReason: "habitat-check-failed",
       argv: [
         "nx",
@@ -112,6 +122,9 @@ describe("verify receipt", () => {
         "build,check,test,boundaries,biome:ci,grit:check,generated:check",
         "--base",
         "HEAD",
+        "--head",
+        "HEAD",
+        "--outputStyle=static",
       ],
       targets: [
         "build",
@@ -143,6 +156,7 @@ describe("verify receipt", () => {
       durationMs: 12,
       exitCode: 1,
       checkReport: checkReport({ ok: false }),
+      verifyTargetPlan: verifyTargetPlanFixture(),
       affectedResult: {
         exitCode: 0,
         stdout: "should not be serialized",
@@ -150,7 +164,8 @@ describe("verify receipt", () => {
       },
     });
 
-    expect(receipt.nxAffected.status).toBe("skipped");
+    expect(receipt.nxAffected.kind).toBe("skipped");
+    expect(receipt.nxAffected.stdoutLength).toBe(0);
   });
 
   test("records failed Nx execution as a distinct receipt state", () => {
@@ -162,6 +177,7 @@ describe("verify receipt", () => {
       durationMs: 12,
       exitCode: 1,
       checkReport: checkReport(),
+      verifyTargetPlan: verifyTargetPlanFixture(),
       affectedResult: {
         exitCode: 1,
         stdout: "affected failed\n",
@@ -169,16 +185,47 @@ describe("verify receipt", () => {
       },
     });
 
-    expect(receipt.nxAffected.status).toBe("failed");
-    if (receipt.nxAffected.status !== "failed") throw new Error("expected failed receipt");
+    expect(receipt.outcome).toBe("failed");
+    expect(receipt.nxAffected.kind).toBe("failed");
+    if (receipt.nxAffected.kind !== "failed") throw new Error("expected failed receipt");
     expect(receipt.nxAffected.exitCode).toBe(1);
     expect(receipt.nxAffected.stdoutPreview).toBe("affected failed\n");
     expect(receipt.nxAffected.stderrPreview).toBe("boom\n");
     expect(validateVerifyReceipt(receipt)).toEqual([]);
   });
 
+  test("records refused workspace target planning as a blocked receipt", () => {
+    const receipt = createVerifyReceipt({
+      requestedBase: undefined,
+      resolvedBase: "merge-base-sha",
+      baseSource: "merge-base",
+      commandArgs: ["--json"],
+      startedAt: "2026-06-15T00:00:00.000Z",
+      durationMs: 12,
+      exitCode: 1,
+      checkReport: checkReport(),
+      verifyTargetPlan: refusedVerifyTargetPlanFixture(),
+    });
+
+    expect(receipt.outcome).toBe("blocked");
+    expect(receipt.base).toEqual({
+      requested: null,
+      resolved: "merge-base-sha",
+      source: "merge-base",
+    });
+    expect(receipt.targetPlan).toEqual({
+      kind: "target-plan-refused",
+      targets: ["build"],
+      reason: "nx-read-failure",
+      message: "graph unavailable",
+    });
+    expect(receipt.nxAffected.kind).toBe("skipped");
+    expect(receipt.nxAffected.skipReason).toBe("workspace-graph-refused");
+    expect(validateVerifyReceipt(receipt)).toEqual([]);
+  });
+
   test("rejects structurally invalid verify receipts with TypeBox validation", () => {
-    const invalid = createVerifyReceipt({
+    const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       commandArgs: ["--base", "HEAD", "--json"],
@@ -186,13 +233,17 @@ describe("verify receipt", () => {
       durationMs: 12,
       exitCode: 0,
       checkReport: checkReport(),
+      verifyTargetPlan: verifyTargetPlanFixture(),
       affectedResult: {
         exitCode: 0,
         stdout: "affected ok\n",
         stderr: "",
       },
-    }) as unknown as { nxAffected: { stdout?: string } };
-    invalid.nxAffected.stdout = "raw output body";
+    });
+    const invalid = {
+      ...receipt,
+      nxAffected: { ...receipt.nxAffected, stdout: "raw output body" },
+    };
 
     expect(validateVerifyReceipt(invalid)).not.toEqual([]);
   });
@@ -216,6 +267,18 @@ function verifyTargetPlanFixture() {
       ],
     },
   ]);
+}
+
+function refusedVerifyTargetPlanFixture(): VerifyTargetPlan {
+  return {
+    kind: "verify-target-plan-refused",
+    targets: ["build"],
+    refusal: {
+      kind: "graph-refusal",
+      reason: "nx-read-failure",
+      message: "graph unavailable",
+    },
+  };
 }
 
 function checkReport(options: { ok?: boolean } = {}): CheckReport {

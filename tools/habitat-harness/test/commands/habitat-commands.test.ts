@@ -83,13 +83,36 @@ vi.mock("../../src/lib/hooks.js", () => ({
   runHook: vi.fn(() => ({ exitCode: 0, stdout: "hook ok\n", stderr: "" })),
 }));
 
-vi.mock("../../src/lib/verify-receipt.js", () => ({
+vi.mock("../../src/lib/verify/index.js", () => ({
   createVerifyReceipt: vi.fn(() => ({
     schemaVersion: 1,
-    command: { argv: ["habitat", "verify", "--json"], exitCode: 0 },
-    habitatCheck: { selectedRealRuleIds: ["workspace-entrypoints"] },
+    outcome: "succeeded",
+    command: {
+      argv: ["habitat", "verify", "--json"],
+      cwd: "/repo",
+      env: {},
+      startedAt: "2026-06-13T00:00:00.000Z",
+      durationMs: 1,
+      exitCode: 0,
+    },
+    base: { requested: "HEAD~1", resolved: "HEAD~1", source: "flag" },
+    habitatCheck: {
+      reportSchemaVersion: 1,
+      selectedRuleIds: [],
+      selectedRealRuleIds: ["workspace-entrypoints"],
+      builtInRuleIds: [],
+      statusCounts: {},
+      advisoryCount: 0,
+      failingCount: 0,
+      refusedCount: 0,
+      notApplicableCount: 0,
+      consumption: "allows-affected-execution",
+      selectorState: { kind: "none" },
+    },
+    targetPlan: { kind: "target-plan-ready", targets: ["build"] },
     nxAffected: {
-      status: "executed",
+      kind: "executed",
+      argv: ["nx", "affected", "-t", "build", "--base", "HEAD~1"],
       targets: ["build"],
       projects: [],
       cacheStateByTask: [],
@@ -100,6 +123,20 @@ vi.mock("../../src/lib/verify-receipt.js", () => ({
       stderrPreview: "",
       stdoutTruncated: false,
       stderrTruncated: false,
+    },
+    postState: {
+      kind: "observed-clean",
+      gitStatus: {
+        argv: ["git", "status", "--short", "--branch"],
+        cwd: "/repo",
+        exitCode: 0,
+        stdoutLength: 0,
+        stderrLength: 0,
+        stdoutPreview: "",
+        stderrPreview: "",
+        stdoutTruncated: false,
+        stderrTruncated: false,
+      },
     },
   })),
   readVerifyTargetPlan: vi.fn(() => mockVerifyTargetPlan),
@@ -123,7 +160,7 @@ import * as classify from "../../src/lib/classify.js";
 import * as fix from "../../src/lib/fix.js";
 import * as graph from "../../src/lib/graph.js";
 import * as hooks from "../../src/lib/hooks.js";
-import * as verifyReceipt from "../../src/lib/verify-receipt.js";
+import * as verifyReceipt from "../../src/lib/verify/index.js";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];
@@ -266,6 +303,7 @@ describe("Habitat oclif commands", () => {
         exitCode: 0,
         checkReport: mockReport,
         verifyTargetPlan: mockVerifyTargetPlan,
+        baseSource: "flag",
       })
     );
     const payload = JSON.parse(capturedOutput()) as { schemaVersion: number };

@@ -230,7 +230,7 @@ packet artifacts pointed at the variables below.
 | Variable | Meaning |
 | --- | --- |
 | `$D12_CHANGE` | `$OPENSPEC_CHANGES/deep-habitat-d12-verify-handoff-receipt`. |
-| `$D12_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D12-proof-handoff-verify-command.md`. |
+| `$D12_SOURCE_PACKET` | `$PHASE2_PACKET_DIR/D12-verify-handoff-command.md`. |
 | `$D12_DOMAIN_REVIEW` | `$AGENT_SCRATCH/domino-D12-domain-ontology-investigation.md`. |
 | `$D12_TYPESCRIPT_REVIEW` | `$AGENT_SCRATCH/domino-D12-typescript-state-investigation.md`. |
 | `$D12_TOPOLOGY_REVIEW` | `$AGENT_SCRATCH/domino-D12-code-vendor-topology-investigation.md`. |
