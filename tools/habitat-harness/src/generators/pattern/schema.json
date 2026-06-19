@@ -1,11 +1,10 @@
 {
-  "$schema": "https://json-schema.org/schema",
-  "$id": "HabitatPatternGenerator",
-  "title": "Habitat Grit pattern generator",
   "type": "object",
+  "required": ["ruleId"],
   "properties": {
     "ruleId": {
       "type": "string",
+      "minLength": 1,
       "description": "Habitat pattern candidate id. Candidate generation does not register a Habitat rule.",
       "$default": {
         "$source": "argv",
@@ -14,28 +13,47 @@
     },
     "ownerProject": {
       "type": "string",
+      "minLength": 1,
       "description": "Owning Nx project for the Habitat rule.",
       "default": "@internal/habitat-harness"
     },
     "patternName": {
       "type": "string",
+      "minLength": 1,
       "description": "Optional Grit pattern name; defaults to the rule id without a grit- prefix."
     },
     "lifecycle": {
-      "type": "string",
+      "anyOf": [
+        {
+          "type": "string",
+          "const": "candidate"
+        },
+        {
+          "type": "string",
+          "const": "registered-advisory"
+        },
+        {
+          "type": "string",
+          "const": "registered-enforced"
+        }
+      ],
       "description": "Pattern lifecycle to generate. Registered lifecycles are fail-closed until the Pattern Authority Manifest is accepted.",
-      "enum": ["candidate", "registered-advisory", "registered-enforced"],
       "default": "candidate"
     },
     "openspecChangeId": {
       "type": "string",
+      "minLength": 1,
       "description": "OpenSpec change id that owns the candidate draft, when known.",
       "default": "habitat-pattern-generator-metadata-repair"
     },
     "manifestPath": {
       "type": "string",
+      "minLength": 1,
       "description": "Canonical Pattern Authority Manifest path required for registered lifecycles."
     }
   },
-  "required": ["ruleId"]
+  "$schema": "https://json-schema.org/schema",
+  "$id": "HabitatPatternGenerator",
+  "title": "Habitat Grit pattern generator",
+  "additionalProperties": true
 }
