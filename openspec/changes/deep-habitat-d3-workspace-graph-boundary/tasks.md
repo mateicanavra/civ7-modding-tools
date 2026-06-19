@@ -2,10 +2,14 @@
 
 ## 1. Source Preconditions
 
-- [ ] 1.1 Confirm the implementation worktree starts from the approved implementation stack and is clean before source edits.
-- [ ] 1.2 Cite concrete D0 rows for every D3-touched public/durable surface: classify JSON, verify output/target plan, Nx inferred targets, root scripts, package exports, and docs/examples.
-- [ ] 1.3 Cite D2 implementation facts for rule graph projections before relying on live registry graph declarations.
-- [ ] 1.4 Stop before source edits if D0 rows or D2 graph projection facts are missing.
+- [x] 1.1 Confirm the implementation worktree starts from the approved implementation stack and is clean before source edits.
+  - Completed: `agent-DRA-d3-workspace-graph-boundary` is a clean layer above submitted D2.
+- [x] 1.2 Cite concrete D0 rows for every D3-touched public/durable surface: classify JSON, verify output/target plan, Nx inferred targets, root scripts, package exports, and docs/examples.
+  - Completed: see `workstream/implementation-start-inventory.md`.
+- [x] 1.3 Cite D2 implementation facts for rule graph projections before relying on live registry graph declarations.
+  - Completed: see `workstream/implementation-start-inventory.md`.
+- [x] 1.4 Stop before source edits if D0 rows or D2 graph projection facts are missing.
+  - Completed: live prerequisites are present; D3 source implementation may begin.
 
 ## 2. Workspace Graph Contract Slice
 
