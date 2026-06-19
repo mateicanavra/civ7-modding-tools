@@ -5,6 +5,7 @@ import type {
   RuleLocalFeedbackFacts,
   RuleRegistryRecordV1,
   RuleReportFacts,
+  RuleRoutingFacts,
   RuleSelectorFacts,
 } from "./schema.js";
 
@@ -12,6 +13,10 @@ type SelectorProjectionInput = Pick<RuleRegistryRecordV1, "id" | "ownerProject" 
 type ReportProjectionInput = Pick<
   RuleRegistryRecordV1,
   "id" | "ownerTool" | "lane" | "detect" | "message" | "remediate"
+>;
+type RoutingProjectionInput = Pick<
+  RuleRegistryRecordV1,
+  "id" | "ownerTool" | "ownerProject" | "pathCoverage"
 >;
 type GritProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
 type FileLayerProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
@@ -41,6 +46,19 @@ export function ruleReportFacts(records: readonly ReportProjectionInput[]): Rule
     detect: [...rule.detect],
     message: rule.message,
     remediate: rule.remediate,
+  }));
+}
+
+export function ruleRoutingFacts(records: readonly RoutingProjectionInput[]): RuleRoutingFacts[] {
+  return records.map((rule) => ({
+    id: rule.id,
+    ownerTool: rule.ownerTool,
+    ownerProject: rule.ownerProject,
+    pathCoverage: rule.pathCoverage.map((coverage) =>
+      coverage.kind === "exact-path"
+        ? { kind: coverage.kind, patterns: [...coverage.patterns] }
+        : { ...coverage }
+    ),
   }));
 }
 
