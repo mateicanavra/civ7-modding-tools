@@ -2,6 +2,15 @@ import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
+import {
+  diagnosticAdapterFailureForCacheObservation,
+  diagnosticCacheObservationFromCommand,
+  diagnosticCacheRequirementForGritCheck,
+  diagnosticCacheRequirementSatisfied,
+  diagnosticCommandObservationFromResult,
+  diagnosticToolUnavailableObservation,
+  renderDiagnosticScanRootRefusal,
+} from "../../lib/diagnostic-catalog/index.js";
 import { gritMachineOutputEnv } from "../../lib/grit-env.js";
 import {
   GritToolUnavailable,
@@ -11,25 +20,29 @@ import {
 import { repoRoot } from "../../lib/paths.js";
 import { gritBin } from "./constants.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output/index.js";
-import { validateScanRoots } from "./scan-roots/index.js";
+import { decideGritScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
   return Effect.scoped(
     Effect.gen(function* () {
-      const emptyRootFailure = validateScanRoots(scanRoots, {
+      const scanRootDecision = decideGritScanRoots(scanRoots, {
         allowInjectedProbeRoot: options.allowInjectedProbeRoot,
         allowDocsRoot: options.allowDocsRoot,
       });
-      if (emptyRootFailure) {
+      if (scanRootDecision.kind === "refused") {
         return {
-          ok: false as const,
-          failureTag: "GritEmptyScanRoots" as const,
-          parseStatus: "unsupported-mode" as const,
-          message: emptyRootFailure,
+          kind: "scan-root-refused" as const,
+          decision: scanRootDecision,
+          message: renderDiagnosticScanRootRefusal(scanRootDecision),
+          command: { kind: "not-run" as const, reason: "scan-root-refused" as const },
         };
       }
       const process = yield* HabitatProcess;
+      const cacheRequirement = diagnosticCacheRequirementForGritCheck({
+        cacheMode: options.cacheMode,
+        requireObservableCacheStatus: options.requireObservableCacheStatus,
+      });
       const requestOptions =
         options.cacheMode === "fresh"
           ? {
@@ -53,30 +66,45 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
       );
       if (
         options.requireObservableCacheStatus &&
-        result.cachePolicy.observableStatus === "unknown"
+        !diagnosticCacheRequirementSatisfied(
+          cacheRequirement,
+          diagnosticCacheObservationFromCommand(result, cacheRequirement)
+        )
       ) {
+        const cacheObservation = diagnosticCacheObservationFromCommand(result, cacheRequirement);
+        const cacheFailure = diagnosticAdapterFailureForCacheObservation(cacheObservation);
         return {
-          ok: false as const,
-          failureTag: "GritCacheProvenanceMissing" as const,
+          kind: "adapter-failed" as const,
+          failure: cacheFailure ?? "GritCacheProvenanceMissing",
           parseStatus: "unsupported-mode" as const,
           message: "Grit cache/fresh status is not observable for this command result.",
-          commandResult: {
-            ...result,
-            parseStatus: "unsupported-mode" as const,
-            failureTag: "GritCacheProvenanceMissing" as const,
-          },
+          command: diagnosticCommandObservationFromResult(
+            {
+              ...result,
+              parseStatus: "unsupported-mode",
+              failureTag: "GritCacheProvenanceMissing",
+            },
+            cacheRequirement
+          ),
         };
       }
       return options.outputFormat === "text"
-        ? parseGritCheckTextOutput(result)
-        : parseGritCheckOutput(result);
+        ? parseGritCheckTextOutput(result, cacheRequirement)
+        : parseGritCheckOutput(result, cacheRequirement);
     }).pipe(
       Effect.catchTag("GritToolUnavailable", (error) =>
         Effect.succeed({
-          ok: false as const,
-          failureTag: "GritToolUnavailable" as const,
+          kind: "adapter-failed" as const,
+          failure: "GritToolUnavailable" as const,
           parseStatus: "unparsed" as const,
           message: `Grit executable unavailable: ${error.executable}.`,
+          command: diagnosticToolUnavailableObservation({
+            commandId: error.commandId,
+            executable: error.executable,
+            argv: error.argv,
+            scanRoots,
+            cause: error.cause,
+          }),
         })
       )
     )
