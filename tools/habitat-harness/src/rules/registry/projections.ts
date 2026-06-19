@@ -1,4 +1,5 @@
 import type {
+  RuleBaselineFacts,
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RuleGritFacts,
@@ -18,6 +19,7 @@ type RoutingProjectionInput = Pick<
   RuleRegistryRecordV1,
   "id" | "ownerTool" | "ownerProject" | "pathCoverage"
 >;
+type BaselineProjectionInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath">;
 type GritProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
 type FileLayerProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
 type CommandProjectionInput = Extract<
@@ -59,6 +61,15 @@ export function ruleRoutingFacts(records: readonly RoutingProjectionInput[]): Ru
         ? { kind: coverage.kind, patterns: [...coverage.patterns] }
         : { ...coverage }
     ),
+  }));
+}
+
+export function ruleBaselineFacts(
+  records: readonly BaselineProjectionInput[]
+): RuleBaselineFacts[] {
+  return records.map((rule) => ({
+    id: rule.id,
+    exceptionPath: rule.exceptionPath,
   }));
 }
 

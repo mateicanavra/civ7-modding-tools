@@ -7,6 +7,7 @@ import {
   type RuleFileLayerFacts,
   type RuleLocalFeedbackFacts,
   type RuleReportFacts,
+  ruleBaselineFacts,
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
   ruleGritFacts,
@@ -70,13 +71,17 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
 
   const selectedRules = rulesForExecution(selection.rules, options);
   const reportsByRuleId = factsByRuleId(ruleReportFacts(selectedRules));
+  const baselinesByRuleId = factsByRuleId(ruleBaselineFacts(selectedRules));
   const reports: RuleReport[] = [];
   const ruleResults = await executeSelectedRules(selectedRules, options);
   for (const rule of selectedRules) {
     const reportFacts = reportsByRuleId.get(rule.id);
     if (!reportFacts)
       throw new Error(`habitat internal error: missing report facts for ${rule.id}`);
-    const baseline = loadBaselineState(rule);
+    const baselineFacts = baselinesByRuleId.get(rule.id);
+    if (!baselineFacts)
+      throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
+    const baseline = loadBaselineState(baselineFacts);
     const execution = ruleResults.get(rule.id);
     if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
     const { diagnostics } = execution.result;
@@ -110,7 +115,9 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
   }
 
   const integrityStarted = Date.now();
-  const integrity = checkBaselineIntegrity(options.base ?? "main", { registry: rules });
+  const integrity = checkBaselineIntegrity(options.base ?? "main", {
+    registry: ruleBaselineFacts(rules),
+  });
   reports.push({
     ruleId: "baseline-integrity",
     ownerTool: "habitat-native",
@@ -149,8 +156,12 @@ export async function expandBaselines(
 
   const messages: string[] = [];
   const ruleResults = await executeSelectedRules(selected.rules);
+  const baselinesByRuleId = factsByRuleId(ruleBaselineFacts(selected.rules));
   for (const rule of selected.rules) {
-    const baseline = loadBaselineState(rule);
+    const baselineFacts = baselinesByRuleId.get(rule.id);
+    if (!baselineFacts)
+      throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
+    const baseline = loadBaselineState(baselineFacts);
     if (baseline.kind === "contract-failure") {
       return {
         ok: false,
@@ -176,7 +187,7 @@ export async function expandBaselines(
       .map(violationKey);
     if (keys.length > 0) {
       const guard = guardBaselineExpansion(rule.id, keys, options.base ?? "main", {
-        registry: rules,
+        registry: ruleBaselineFacts(rules),
       });
       if (!guard.ok) {
         return {
@@ -328,7 +339,7 @@ function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values)].sort();
 }
 
-function factsByRuleId(facts: readonly RuleReportFacts[]): Map<string, RuleReportFacts> {
+function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {
   return new Map(facts.map((fact) => [fact.id, fact]));
 }
 
