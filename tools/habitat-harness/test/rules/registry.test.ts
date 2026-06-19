@@ -5,6 +5,7 @@ import {
   parseRuleRegistryText,
   type RuleRegistryDocumentV1,
   type RuleRegistryRecordV1,
+  ruleBaselineFacts,
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
   ruleGritFacts,
@@ -254,6 +255,26 @@ describe("rule registry contract", () => {
     const [coverage] = projected[0]?.pathCoverage ?? [];
     if (coverage?.kind === "exact-path") coverage.patterns.push("apps/**");
     expect(sourceRule.pathCoverage).toEqual([{ kind: "exact-path", patterns: ["packages/**"] }]);
+  });
+
+  test("projects baseline facts without owner, routing, execution, or report fields", () => {
+    expect(
+      ruleBaselineFacts([
+        baseRule({
+          exceptionPath: "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST",
+          ownerTool: "grit-check",
+          gritPattern: "sample_pattern",
+          scanRoots: ["packages"],
+          localFeedback: true,
+          manifestPath: "tools/habitat-harness/src/rules/pattern-authority/sample-rule.json",
+        }),
+      ])
+    ).toEqual([
+      {
+        id: "sample-rule",
+        exceptionPath: "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST",
+      },
+    ]);
   });
 });
 

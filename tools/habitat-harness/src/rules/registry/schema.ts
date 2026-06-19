@@ -188,6 +188,12 @@ export const RuleReportFactsSchema = Type.Interface(
 );
 export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
 
+export const RuleBaselineFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
+  "id",
+  "exceptionPath",
+]);
+export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;
+
 export const RuleCommandExecutionFactsSchema = Type.Interface(
   [
     Type.Pick(RuleIdentitySchema, ["id", "lane"]),
