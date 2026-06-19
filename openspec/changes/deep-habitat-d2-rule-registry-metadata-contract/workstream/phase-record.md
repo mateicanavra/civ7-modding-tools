@@ -2,11 +2,11 @@
 
 ## State
 
-- Status: accepted for design/specification after final D2 rereview and focused code/topology recheck; not implementation-complete.
-- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`.
-- Branch: `codex/deep-habitat-openspec-remediation`.
-- Source packet: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`.
-- OpenSpec change: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`.
+- Status: accepted for design/specification after final D2 rereview and focused code/topology recheck; implementation-start grounding is active on the Habitat stack.
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Branch: `agent-DRA-d2-rule-registry-metadata-contract`.
+- Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`.
+- OpenSpec change: `openspec/changes/deep-habitat-d2-rule-registry-metadata-contract`.
 
 ## Objective
 
@@ -14,15 +14,24 @@ Convert D2 into a complete OpenSpec design/specification packet for Rule Registr
 
 ## Current Gate
 
-Design/specification gate is closed for D2. D2 cannot authorize source implementation until concrete D0 matrix rows exist for every D2-touched public/durable surface and D1 malformed-metadata output-family citations exist.
+Design/specification gate is closed for D2. D2 source implementation may start only from the current Habitat stack after concrete D0 matrix rows exist for every D2-touched public/durable surface, D1 malformed-metadata output-family citations exist, and the TypeBox-first registry boundary is recorded.
 
 ## Dependency State
 
 | Dependency | Status | D2 handling |
 | --- | --- | --- |
-| D0 command surface inventory | accepted for design/specification, not implementation-complete | Source implementation blocked until concrete D0 rows exist for every D2 public/durable surface. |
-| D1 receipt/command boundary | accepted for design/specification, not implementation-complete | Malformed metadata uses D1 command/report/refusal families. |
+| D0 command surface inventory | concrete public-surface matrix submitted in PR #1832 | D2 implementation-start inventory cites concrete rows for every public/durable surface class D2 may touch. |
+| D1 receipt/command boundary | source implementation submitted through PR #1836 | D2 implementation-start inventory cites the D1 command/report/refusal family for malformed metadata and preserves D1 non-claims. |
 | G-HOST host policy boundary | draft scaffold | Parallel host-policy prerequisite for D10, not a D2-enabled packet. Final D2 cross-domino review confirmed index/G-HOST metadata alignment. |
+
+## D2 Implementation Start Gates
+
+- [x] Current branch is on the linear Habitat implementation stack.
+- [x] Concrete D0 `surface_id` citations are recorded in `workstream/implementation-start-inventory.md`.
+- [x] D1 malformed-metadata output-family citations are recorded in `workstream/implementation-start-inventory.md`.
+- [x] Current registry counts are refreshed from source: 52 rules, 32 Grit checks, 3 advisory rules, and 49 enforced rules.
+- [x] The source boundary is TypeBox-first: `RuleRegistryDocumentV1` schemas, derived TypeScript types, TypeBox validation for serialized registry data, and named consumer projections under `tools/habitat-harness/src/rules/`.
+- [x] Current D1 source topology is reflected: `rule-selection.ts`, `check-report.ts`, `classify.ts`, and `verify-receipt.ts` replace the deleted `command-engine.ts` as touched D2 consumer surfaces.
 
 ## D2 Inventory Completion Gates
 
@@ -56,8 +65,8 @@ Implementation validation results must use this shape:
 
 ## Non-Claims
 
-- D2 design repair does not implement Habitat source changes.
-- D2 design/specification acceptance does not make D2 implementation-ready.
+- D2 design repair did not implement Habitat source changes.
+- D2 implementation-start grounding does not by itself close D2 source implementation.
 - D2 design repair does not prove runtime behavior, current-tree cleanliness, Graphite readiness, public compatibility, downstream safety, or OpenSpec closure.
-- D0 and D1 are consumed as accepted design/specification records only; their source implementation prerequisites remain real.
+- D0 and D1 are consumed as submitted implementation-stack layers with D2-relevant source prerequisites cited, not as permission to change their packet-owned artifacts from the D2 layer.
 - Legacy code names remain compatibility facts unless `design.md` accepts and narrows them.

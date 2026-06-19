@@ -2,11 +2,11 @@
 
 ## Status
 
-D2 is accepted for design/specification only after final D2 rereview and focused code/topology recheck found no unresolved P1/P2 blockers. D2 is not implementation-complete; source implementation remains blocked until concrete D0 matrix rows exist for every D2-touched public/durable surface and D1 malformed-metadata output-family citations exist. Global findings are applied constraints only, not acceptance evidence.
+D2 is accepted for design/specification after final D2 rereview and focused code/topology recheck found no unresolved P1/P2 blockers. D2 is not implementation-complete. Its implementation-start blockers are now resolved by the concrete D0 and D1 citations in `workstream/implementation-start-inventory.md`; global findings are applied constraints only, not acceptance evidence.
 
 ## Imported Negative Control Review
 
-Source: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`.
+Source: `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`.
 
 | Finding | Severity | Disposition | Repair Evidence |
 | --- | --- | --- | --- |
@@ -53,4 +53,4 @@ Source: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habit
 - [x] Fresh final D2 information-design review accepts artifact readability and no hidden design holes: `domino-D2-final-information-design-review.md`.
 - [x] Fresh final D2 cross-domino review accepts projection handoffs, G-HOST alignment, and downstream rows: `domino-D2-final-cross-domino-review.md`.
 
-D2 is accepted for design/specification only. D2 is not implementation-complete, and source implementation remains blocked until concrete D0 matrix rows and D1 malformed-metadata output-family citations exist.
+D2 is accepted for design/specification. D2 is not implementation-complete. Source implementation may proceed only through the D0/D1 citations and TypeBox-first registry boundary recorded in `workstream/implementation-start-inventory.md`.
