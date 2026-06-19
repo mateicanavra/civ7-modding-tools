@@ -63,16 +63,23 @@
   - Source slice replaces the parser `ok`/optional command-result DTO with the
     TypeBox-backed `GritDiagnosticAcquisition` union: parsed, adapter-failed,
     and scan-root-refused.
-- [ ] 3.8 Replace adapter failure message parsing with structured failure
+- [x] 3.8 Replace adapter failure message parsing with structured failure
   projection plus diagnostic rendering.
+- Source slice removes text-to-failure recovery from injected probe handling,
+  routes injected probe execution through `DiagnosticRunOutcome`, and drops the
+  diagnostic-catalog text parser export.
 - [x] 3.9 Define `DiagnosticRunOutcome` and project native results only through
   explicit `DiagnosticIdentity`; findings outcomes must carry non-empty
   diagnostic collections.
   - Grit projection now builds `DiagnosticRunOutcome` variants before converting
     to the current `RuleRunResult` boundary, with findings outcomes constructed
     only from non-empty diagnostic finding projections.
-- [ ] 3.10 Define `InjectedProbeOutcome`; replace proof-shaped probe fields in
+- [x] 3.10 Define `InjectedProbeOutcome`; replace proof-shaped probe fields in
   source callers and tests with D6 diagnostic/probe outcome language.
+- Source slice adds the TypeBox-backed injected probe outcome schema, moves
+  probe input/path/file lifecycle code into focused TypeScript modules, and
+  replaces `ok`/`failureTag` probe result DTO assertions with closed outcome
+  variants.
 - [x] 3.11 Define `DiagnosticConsumerProjection` as a discriminated projection
   derived from `DiagnosticRunOutcome` for D7/D8/D9/D11/D15, with non-empty
   diagnostics on findings projections.

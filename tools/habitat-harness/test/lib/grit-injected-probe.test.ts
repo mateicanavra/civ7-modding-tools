@@ -57,17 +57,17 @@ describe("injected Grit probe harness", () => {
       processLayer: fakeLayer,
     });
 
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
+    expect(result.kind).toBe("probe-diagnostic-observed");
+    if (result.kind !== "probe-diagnostic-observed") return;
     expect(observedRequest?.scanRoots).toEqual(["packages/config/src"]);
-    expect(result.diagnostics[0]).toMatchObject({
+    expect(result.observedFinding).toMatchObject({
       ruleId: rule.id,
       path: probePath,
-      baselined: false,
+      baselineState: "unbaselined",
     });
-    expect(result.cleanupRestoredStatus).toBe(true);
+    expect(result.cleanup).toBe("restored");
     expect(result.validationClass).toBe("injected-violation-diagnostic");
-    expect(result.limitations).toContain("not-apply-transaction");
+    expect(result.limitations).toContain("not-apply-safety");
     expect(existsSync(path.join(repoRoot, probePath))).toBe(false);
     expect(existsSync(path.join(repoRoot, controlPath))).toBe(false);
   });
@@ -90,9 +90,9 @@ describe("injected Grit probe harness", () => {
       processLayer: makeFakeHabitatProcessLayer((request) => makeHabitatCommandResult(request)),
     });
 
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    expect(result.failureTag).toBe("GritAdapterInternalContractViolation");
+    expect(result.kind).toBe("probe-refused");
+    if (result.kind !== "probe-refused") return;
+    expect(result.reason).toBe("probe-path-generated");
     expect(existsSync(path.join(repoRoot, generatedProbe))).toBe(false);
   });
 
@@ -110,8 +110,8 @@ describe("injected Grit probe harness", () => {
       processLayer: makeFakeHabitatProcessLayer((request) => makeHabitatCommandResult(request)),
     });
 
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
+    expect(result.kind).toBe("probe-refused");
+    if (result.kind !== "probe-refused") return;
     expect(result.message).toContain("__habitat");
     expect(existsSync(path.join(repoRoot, sourceShapedProbe))).toBe(false);
   });
@@ -154,7 +154,7 @@ describe("injected Grit probe harness", () => {
       processLayer: fakeLayer,
     });
 
-    expect(result.ok).toBe(true);
+    expect(result.kind).toBe("probe-diagnostic-observed");
     expect(existsSync(path.join(repoRoot, nestedProbe))).toBe(false);
     expect(existsSync(path.join(repoRoot, nestedControl))).toBe(false);
     expect(existsSync(path.join(repoRoot, "packages/config/src/__habitat_probe_nested__"))).toBe(
@@ -207,7 +207,7 @@ describe("injected Grit probe harness", () => {
         processLayer: fakeLayer,
       });
 
-      expect(result.ok).toBe(true);
+      expect(result.kind).toBe("probe-diagnostic-observed");
       expect(existsSync(path.join(repoRoot, nestedProbe))).toBe(false);
       expect(existsSync(path.join(repoRoot, nestedControl))).toBe(false);
       expect(existsSync(path.join(repoRoot, sibling))).toBe(true);
@@ -267,7 +267,7 @@ describe("injected Grit probe harness", () => {
         processLayer: fakeLayer,
       });
 
-      expect(result.ok).toBe(true);
+      expect(result.kind).toBe("probe-diagnostic-observed");
       expect(existsSync(path.join(repoRoot, matchingPath))).toBe(false);
       expect(existsSync(path.join(repoRoot, controlPath))).toBe(false);
       expect(existsSync(absoluteRoot)).toBe(true);
@@ -334,11 +334,13 @@ describe("injected Grit probe harness", () => {
         processLayer: fakeLayer,
       });
 
-      expect(result.ok).toBe(true);
+      expect(result.kind).toBe("probe-diagnostic-observed");
       expect(observedRequest?.scanRoots).toContain(mirrorRoot);
       expect(observedRequest?.scanRoots).toContain(matchingPath);
       expect(observedRequest?.scanRoots).toContain(controlPath);
-      expect(result.ok && result.diagnostics[0]?.path).toBe(matchingPath);
+      expect(result.kind === "probe-diagnostic-observed" && result.observedFinding.path).toBe(
+        matchingPath
+      );
     } finally {
       rmSync(absoluteRoot, { recursive: true, force: true });
       removeEmptyInjectedProbeRoot();
@@ -384,9 +386,9 @@ describe("injected Grit probe harness", () => {
       processLayer: fakeLayer,
     });
 
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    expect(result.failureTag).toBe("GritMalformedJson");
+    expect(result.kind).toBe("probe-adapter-failed");
+    if (result.kind !== "probe-adapter-failed") return;
+    expect(result.failure).toBe("GritMalformedJson");
     expect(existsSync(path.join(repoRoot, probePath))).toBe(false);
     expect(existsSync(path.join(repoRoot, controlPath))).toBe(false);
   });

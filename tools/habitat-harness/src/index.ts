@@ -14,18 +14,6 @@ export type {
 } from "./lib/baseline.js";
 export {
   applyBaseline,
-  baselineFailureDiagnostic,
-  checkBaselineIntegrity,
-  guardBaselineExpansion,
-  isBaselineLocked,
-  loadBaseline,
-  loadBaselineState,
-  mergeBase,
-  validateBaselineContract,
-  violationKey,
-  writeBaseline,
-} from "./lib/baseline.js";
-export {
   BaselineApplicationResultSchema,
   BaselineAuthorityProjectionSchema,
   BaselineAuthorityStateSchema,
@@ -35,8 +23,18 @@ export {
   BaselineRefusalReasonSchema,
   BaselineRefusalSchema,
   BaselineRuleContractInputSchema,
+  baselineFailureDiagnostic,
+  checkBaselineIntegrity,
   ExternalExceptionSourceSchema,
+  guardBaselineExpansion,
+  isBaselineLocked,
+  loadBaseline,
+  loadBaselineState,
+  mergeBase,
   RuleIntroductionBaselineManifestSchema,
+  validateBaselineContract,
+  violationKey,
+  writeBaseline,
 } from "./lib/baseline.js";
 export type {
   BaselineExpansionResult,
@@ -100,9 +98,8 @@ export {
   renderGritAdapterFailure,
 } from "./lib/grit-failures.js";
 export type {
-  InjectedGritProbeFailure,
   InjectedGritProbeInput,
-  InjectedGritProbeResult,
+  InjectedProbeOutcome,
   InjectedProbeScope,
 } from "./lib/grit-injected-probe.js";
 export {
@@ -139,7 +136,6 @@ export {
   resolveVerifyBase,
   runAffectedVerification,
   stringifyVerifyReceipt,
-  validateVerifyReceipt,
   VerifyBaseSchema,
   VerifyCommandRecordSchema,
   VerifyHabitatCheckSummarySchema,
@@ -148,6 +144,7 @@ export {
   VerifyNxCacheTaskSchema,
   VerifyPostStateSchema,
   VerifyReceiptSchema,
+  validateVerifyReceipt,
   verifyAffectedTargets,
 } from "./lib/verify-receipt.js";
 export type {

@@ -15,9 +15,9 @@ const DiagnosticAdapterFailureKindLiteralSchemas = [
   Type.Literal("GritAdapterInternalContractViolation"),
 ] as const;
 
-export const DiagnosticAdapterFailureKindSchema = Type.Union(
-  [...DiagnosticAdapterFailureKindLiteralSchemas]
-);
+export const DiagnosticAdapterFailureKindSchema = Type.Union([
+  ...DiagnosticAdapterFailureKindLiteralSchemas,
+]);
 
 export type DiagnosticAdapterFailureKind = Static<typeof DiagnosticAdapterFailureKindSchema>;
 
@@ -37,12 +37,4 @@ export function renderDiagnosticAdapterFailure(
   detail = "Grit adapter failed before producing rule findings."
 ): string {
   return `--- grit adapter failure (${kind}) ---\n${detail}`;
-}
-
-export function diagnosticAdapterFailureFromText(
-  text: string
-): DiagnosticAdapterFailureKind | null {
-  const match = text.match(/grit adapter failure \(([^)]+)\)/);
-  if (!match) return null;
-  return isDiagnosticAdapterFailureKind(match[1]) ? match[1] : null;
 }
