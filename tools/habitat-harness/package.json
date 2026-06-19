@@ -17,9 +17,12 @@
     "migrations.json",
     "oclif.manifest.json",
     "src/generators",
+    "src/lib/workspace-graph",
+    "src/lib/workspace-graph-contract.ts",
     "src/migrations",
     "src/plugin",
     "src/plugin.js",
+    "src/rules/registry",
     "src/rules/rules.json",
     "baselines"
   ],

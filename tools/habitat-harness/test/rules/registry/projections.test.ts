@@ -9,6 +9,7 @@ import {
   ruleLocalFeedbackFacts,
   ruleRoutingFacts,
 } from "../../../src/rules/registry/index.js";
+import { workspaceGraphTargetNames } from "../../../src/lib/workspace-graph/target-names.js";
 import { baseRule } from "./helpers.js";
 
 describe("rule registry projections", () => {
@@ -173,7 +174,8 @@ describe("rule registry projections", () => {
           }),
           baseRule({ id: "direct-rule" }),
         ],
-        ownerRoots
+        ownerRoots,
+        workspaceGraphTargetNames()
       )
     ).toEqual([
       {
@@ -202,8 +204,12 @@ describe("rule registry projections", () => {
       },
     ]);
 
-    expect(() => ruleGraphFacts([baseRule({ ownerProject: "unknown-owner" })], ownerRoots)).toThrow(
-      "unknown ownerProject"
-    );
+    expect(() =>
+      ruleGraphFacts(
+        [baseRule({ ownerProject: "unknown-owner" })],
+        ownerRoots,
+        workspaceGraphTargetNames()
+      )
+    ).toThrow("unknown ownerProject");
   });
 });

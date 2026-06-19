@@ -3,12 +3,14 @@ import {
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
+  ruleGraphFacts,
   ruleGritFacts,
   ruleLocalFeedbackFacts,
   ruleReportFacts,
   ruleRoutingFacts,
   ruleSelectorFacts,
 } from "./registry/index.js";
+import { workspaceGraphTargetNames } from "../lib/workspace-graph/target-names.js";
 
 const records = activeRuleRegistryDocument.rules;
 
@@ -20,6 +22,11 @@ export const activeRuleGritFacts = ruleGritFacts(records);
 export const activeRuleFileLayerFacts = ruleFileLayerFacts(records);
 export const activeRuleLocalFeedbackFacts = ruleLocalFeedbackFacts(records);
 export const activeRuleRoutingFacts = ruleRoutingFacts(records);
+export const activeRuleGraphFacts = ruleGraphFacts(
+  records,
+  new Map(Object.entries(activeRuleRegistryDocument.ownerRoots)),
+  workspaceGraphTargetNames()
+);
 
 export function factsForRuleIds<T extends { id: string }>(
   facts: readonly T[],
