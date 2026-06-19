@@ -7,7 +7,7 @@ type ReportProjectionInput = Pick<
   "id" | "ownerProject" | "ownerTool" | "lane" | "detect" | "message" | "remediate"
 >;
 type StagedEligibilityInput = Pick<RuleRegistryRecordV1, "id" | "ownerTool"> & {
-  hookScope?: "pre-commit";
+  localFeedback?: { preCommit: true };
 };
 
 export function ruleSelectorFacts(
@@ -37,7 +37,7 @@ export function ruleReportFacts(
 export function stagedEligibleRuleIds(records: readonly StagedEligibilityInput[]): Set<string> {
   return new Set(
     records
-      .filter((rule) => rule.ownerTool === "grit-check" && rule.hookScope === "pre-commit")
+      .filter((rule) => rule.ownerTool === "grit-check" && rule.localFeedback?.preCommit === true)
       .map((rule) => rule.id)
   );
 }
