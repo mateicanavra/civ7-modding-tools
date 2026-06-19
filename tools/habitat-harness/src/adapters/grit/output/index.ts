@@ -195,10 +195,7 @@ function parsedAcquisition(
       results: [...results],
     },
     parseStatus: "parsed",
-    command: diagnosticCompletedCommandObservationFromResult(
-      { ...commandResult, parseStatus: "parsed", failureTag: null },
-      cacheRequirement
-    ),
+    command: diagnosticCompletedCommandObservationFromResult(commandResult, cacheRequirement),
   };
 }
 
@@ -250,10 +247,7 @@ function parseFailure(
     failure,
     parseStatus,
     message,
-    command: diagnosticCommandObservationFromResult(
-      { ...commandResult, parseStatus, failureTag: failure },
-      cacheRequirement
-    ),
+    command: diagnosticCommandObservationFromResult(commandResult, cacheRequirement),
   };
 }
 

@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type { Layer } from "effect";
+import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
 import { decideGritScanRoots } from "../../adapters/grit/scan-roots/index.js";
 import { activeRuleGritFacts } from "../../rules/facts.js";
 import type { RuleGritFacts } from "../../rules/registry/index.js";
@@ -14,43 +16,52 @@ import { repoRoot, toRepoRelative } from "../paths.js";
 import { run } from "../spawn.js";
 import { probeRefused } from "./outcome.js";
 
-export interface InjectedProbeScope {
-  adapterRoot: string;
-  rulesJsonScope: string;
-  sourcePredicate: string;
-  scanRoots: readonly string[];
-  exclusions: readonly string[];
-  matchingProbePath: string;
-  outsideScopeControlPath: string;
-}
+const NonEmptyStringSchema = Type.String({ minLength: 1 });
 
-export interface InjectedGritProbeInput {
-  ruleId: string;
-  patternIdentity: string;
-  probePath: string;
-  probeBody: string;
-  controlPath: string;
-  controlBody: string;
-  expectedDiagnostic?: string;
-  scope: InjectedProbeScope;
+export const InjectedProbeScopeSchema = Type.Object(
+  {
+    scanRoots: Type.Array(NonEmptyStringSchema),
+    matchingProbePath: NonEmptyStringSchema,
+    outsideScopeControlPath: NonEmptyStringSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const InjectedGritProbeRequestSchema = Type.Object(
+  {
+    ruleId: NonEmptyStringSchema,
+    patternIdentity: NonEmptyStringSchema,
+    probePath: NonEmptyStringSchema,
+    probeBody: Type.String(),
+    controlPath: NonEmptyStringSchema,
+    controlBody: Type.String(),
+    expectedDiagnostic: Type.Optional(Type.String()),
+    scope: InjectedProbeScopeSchema,
+    requireCleanFinalStatus: Type.Optional(Type.Boolean()),
+  },
+  { additionalProperties: false }
+);
+
+export type InjectedProbeScope = Static<typeof InjectedProbeScopeSchema>;
+export type InjectedGritProbeRequest = Static<typeof InjectedGritProbeRequestSchema>;
+export type InjectedGritProbeInput = InjectedGritProbeRequest & {
   processLayer?: Layer.Layer<HabitatProcess>;
   registry?: readonly RuleGritFacts[];
-  requireCleanFinalStatus?: boolean;
-}
+};
 
 export function validateInjectedGritProbeInput(
   input: InjectedGritProbeInput
 ): InjectedProbeOutcome | null {
-  for (const [field, value] of [
-    ["adapterRoot", input.scope.adapterRoot],
-    ["rulesJsonScope", input.scope.rulesJsonScope],
-    ["sourcePredicate", input.scope.sourcePredicate],
-    ["matchingProbePath", input.scope.matchingProbePath],
-    ["outsideScopeControlPath", input.scope.outsideScopeControlPath],
-  ] as const) {
-    if (value.trim().length === 0) {
-      return probeRefused("metadata-missing", `Injected probe metadata is missing ${field}.`);
-    }
+  const request = injectedGritProbeRequest(input);
+  const shapeIssues = [...Value.Errors(InjectedGritProbeRequestSchema, request)];
+  if (shapeIssues.length > 0) {
+    const firstIssue = shapeIssues[0];
+    return probeRefused(
+      "metadata-missing",
+      `Injected probe metadata is malformed at ${firstIssue.instancePath || "/"}: ${
+        firstIssue.message
+      }.`
+    );
   }
   if (
     input.scope.matchingProbePath !== input.probePath ||
@@ -85,6 +96,23 @@ export function validateInjectedGritProbeInput(
     return probeRefused("same-probe-and-control-path", "Probe and control paths must be distinct.");
   }
   return null;
+}
+
+function injectedGritProbeRequest(input: InjectedGritProbeInput): InjectedGritProbeRequest {
+  const request: InjectedGritProbeRequest = {
+    ruleId: input.ruleId,
+    patternIdentity: input.patternIdentity,
+    probePath: input.probePath,
+    probeBody: input.probeBody,
+    controlPath: input.controlPath,
+    controlBody: input.controlBody,
+    scope: input.scope,
+  };
+  if (input.expectedDiagnostic !== undefined) request.expectedDiagnostic = input.expectedDiagnostic;
+  if (input.requireCleanFinalStatus !== undefined) {
+    request.requireCleanFinalStatus = input.requireCleanFinalStatus;
+  }
+  return request;
 }
 
 export function normalizeProbePath(probePath: string): string {

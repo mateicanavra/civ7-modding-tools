@@ -2,13 +2,13 @@
 
 ## State
 
-- Status: accepted for design/specification and unblocked for D6 source
-  implementation inside the D6 implementation-start inventory boundary.
+- Status: source implementation complete inside the D6 implementation-start
+  inventory boundary; temporary-supervisor packet-boundary review complete.
 - Active worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
 - Active branch: `$ACTIVE_REMEDIATION_BRANCH`.
 - Source packet: `$D6_SOURCE_PACKET`.
 - OpenSpec change: `$D6_CHANGE`.
-- Source implementation: authorized only for the D6 surfaces enumerated in
+- Source implementation: completed for the D6 surfaces enumerated in
   `workstream/implementation-start-inventory.md`.
 
 ## Objective
@@ -28,9 +28,9 @@ final rereview blockers, focused after-repair rereview, the non-empty
 findings-state correction, and the observed-identity correction. Final
 after-observed-identity rereview lanes recorded no unresolved P1/P2 findings.
 
-Design/specification acceptance does not make D6 implementation-complete. The
-D6 source-start gate is now satisfied for the surfaces enumerated in
-`workstream/implementation-start-inventory.md`:
+The D6 source-start gate was satisfied for the surfaces enumerated in
+`workstream/implementation-start-inventory.md`, and source implementation has
+now completed inside that boundary:
 
 - concrete D0 rows exist for D6-touched public/durable surfaces, including
   Grit registry metadata, registered native Grit check pattern files, and native
@@ -40,9 +40,14 @@ D6 source-start gate is now satisfied for the surfaces enumerated in
 - live D2 projections are cited for Grit identity/scan facts, local-feedback
   facts, governance references, and malformed metadata output families.
 
-Source implementation must stay inside that inventory boundary and must replace
-obsolete proof-shaped probe fields or alternate identity paths directly rather
-than preserving parallel obsolete surfaces.
+Source implementation stayed inside that inventory boundary and replaced
+obsolete proof-shaped probe fields, boolean parser states, alternate identity
+paths, and text-parsed adapter failure recovery directly rather than preserving
+parallel obsolete surfaces.
+
+Temporary-supervisor final rereview of the latest implementation disk found no
+unresolved source P1/P2 blockers. A stale design snippet was accepted as P2 and
+repaired so the D6 record model matches the TypeBox implementation.
 
 ## Current Repair Inputs
 
@@ -80,7 +85,7 @@ than preserving parallel obsolete surfaces.
 | Final after-observed-identity D6 rereview lanes | exit with no unresolved P1/P2 | Packet accepted for design/specification | Does not make D6 implementation-complete |
 | D6 implementation-start inventory | D0/D1/D2 citations complete for touched surfaces | Source work may begin for enumerated D6 surfaces | Does not make D6 implementation-complete |
 
-## Later Implementation Validation Matrix
+## Implementation Validation Matrix
 
 | Gate | Expected Oracle | Required Bad Case |
 | --- | --- | --- |
@@ -94,10 +99,23 @@ than preserving parallel obsolete surfaces.
 | `bun run habitat check --tool grit-check --json` | D0/D1-compatible command JSON exposes diagnostic findings/refusals without adapter failure becoming pass. | New public fields require D0 rows and D1 decisions. |
 | `git status --short --branch` before/after injected probe validation | no probe residue | Probe cleanup state is observable | Does not prove apply transaction safety. |
 
+## Implementation Validation Results
+
+| Gate | Result | Disposition |
+| --- | --- | --- |
+| `bun run --cwd tools/habitat-harness check` | exit 0 | TypeScript contracts compile. |
+| `bun run --cwd tools/habitat-harness build` | exit 0 | Package build succeeds. |
+| `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts` | exit 0, 41 tests | Focused D6 adapter, injected probe, native catalog, native docs-local diagnostic outcome, TypeBox catalog-branch validation, mixed source/docs diagnostic outcome, scan-root refusal outcome, cache-observation-missing outcome, cleanup-failure, expanded scan-root, and native Grit fixture tests pass. |
+| `bun run habitat check --tool grit-check --json` | exit 1, valid JSON | Residuals are scoped outside D6: `docs-local-checkout-paths` advisory findings in historical scratch docs and `baseline-integrity` old-base registry parsing at `fbf77fe9e`; native Grit adapter output no longer fails as malformed JSON. |
+| `bun run openspec -- validate deep-habitat-d6-diagnostic-pattern-catalog --strict` | exit 0 | D6 OpenSpec remains valid. |
+| `bun run openspec:validate` | exit 0, 249 passed | Full OpenSpec corpus remains valid. |
+| `git diff --check` | exit 0 | Diff hygiene is clean. |
+| Temporary-supervisor final source rereview | no unresolved P1/P2 | Source implementation accepted for D7 advancement after Graphite cleanup. |
+| Temporary-supervisor final record rereview | P2 repaired, no unresolved P1/P2 after repair | D6 closure records match the implemented contract. |
+
 ## Non-Claims
 
-- This packet does not implement Habitat source changes.
-- This packet does not make D6 implementation-complete.
+- This packet does not make D7/D8/D9/D11/D15 implementation-complete.
 - OpenSpec validation is shape validation, not packet acceptance.
 - Native Grit fixture results are not current-tree Habitat diagnostic outcomes.
 - Diagnostic success is not Pattern Governance admission.

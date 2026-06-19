@@ -87,14 +87,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
           parseStatus: "unsupported-mode" as const,
           message: "Grit cache/fresh status is not observable for this command result.",
           request: nativeRequest,
-          command: diagnosticCommandObservationFromResult(
-            {
-              ...result,
-              parseStatus: "unsupported-mode",
-              failureTag: "GritCacheProvenanceMissing",
-            },
-            cacheRequirement
-          ),
+          command: diagnosticCommandObservationFromResult(result, cacheRequirement),
         };
       }
       return options.outputFormat === "text"

@@ -111,8 +111,8 @@ type DiagnosticCatalogEntry =
       ruleId: string;
       diagnosticIdentity: Extract<DiagnosticIdentity, { kind: "grit-pattern" }>;
       source: "d2-rule-grit-facts";
-      scanContract: DiagnosticScanContract;
-      projectionContract: DiagnosticProjectionContract;
+      scanContract: Extract<DiagnosticScanContract, { kind: "d2-grit-scan-roots" }>;
+      projectionContract: Extract<DiagnosticProjectionContract, { kind: "grit-pattern-projection" }>;
       limitations: readonly DiagnosticNonClaim[];
     }
   | {
@@ -121,8 +121,9 @@ type DiagnosticCatalogEntry =
       ruleId: string;
       diagnosticIdentity: Extract<DiagnosticIdentity, { kind: "native-rule" }>;
       source: "native-habitat-rule";
+      scanContract: Extract<DiagnosticScanContract, { kind: "native-docs-scan-roots" }>;
       acquisitionContract: NativeDiagnosticAcquisitionContract;
-      projectionContract: DiagnosticProjectionContract;
+      projectionContract: Extract<DiagnosticProjectionContract, { kind: "native-rule-projection" }>;
       limitations: readonly DiagnosticNonClaim[];
     };
 ```
@@ -139,7 +140,7 @@ type DiagnosticIdentity =
     }
   | {
       kind: "native-rule";
-      nativeDiagnosticIdentity: "docs-local-checkout-paths" | "docs-proof-evidence-vocabulary";
+      nativeDiagnosticIdentity: "docs-local-checkout-paths";
       source: "native-habitat-rule";
     };
 
@@ -151,7 +152,7 @@ type ObservedDiagnosticIdentity =
     }
   | {
       kind: "observed-native-rule";
-      observedNativeDiagnosticIdentity: "docs-local-checkout-paths" | "docs-proof-evidence-vocabulary";
+      observedNativeDiagnosticIdentity: "docs-local-checkout-paths";
       source: "native-habitat-rule";
     }
   | {
@@ -324,8 +325,6 @@ instead of keeping the broad tag set as a parallel diagnostic path.
 type DiagnosticFindingProjection = {
   kind: "diagnostic-finding";
   ruleId: string;
-  diagnosticCatalogEntryId: string;
-  diagnosticIdentity: DiagnosticIdentity;
   path: string;
   line?: number;
   message: string;
@@ -336,11 +335,11 @@ type DiagnosticFindingProjection = {
 type DiagnosticRunOutcome =
   | { kind: "clean"; entry: DiagnosticCatalogEntry; diagnostics: readonly [] }
   | { kind: "findings"; entry: DiagnosticCatalogEntry; diagnostics: NonEmptyReadonlyArray<DiagnosticFindingProjection> }
-  | { kind: "scan-root-refused"; entry: DiagnosticCatalogEntry; decision: Extract<DiagnosticScanRootDecision, { kind: "refused" }> }
-  | { kind: "adapter-failed"; entry: DiagnosticCatalogEntry; failure: DiagnosticAdapterFailureKind }
+  | { kind: "scan-root-refused"; entry: DiagnosticCatalogEntry; decision: Extract<DiagnosticScanRootDecision, { kind: "refused" }>; detail: string }
+  | { kind: "adapter-failed"; entry: DiagnosticCatalogEntry; failure: DiagnosticAdapterFailureKind; detail: string }
   | { kind: "projection-missed"; entry: DiagnosticCatalogEntry; expectedIdentity: DiagnosticIdentity }
   | { kind: "unexpected-diagnostic-identity"; entry: DiagnosticCatalogEntry; unexpectedIdentity: ObservedDiagnosticIdentity }
-  | { kind: "cache-observation-missing"; entry: DiagnosticCatalogEntry; observation: Extract<DiagnosticCacheObservation, { kind: "missing-required-observation" }> };
+  | { kind: "cache-observation-missing"; entry: DiagnosticCatalogEntry; cache: Extract<DiagnosticCacheObservation, { kind: "missing-required-observation" }>; failure: "GritCacheProvenanceMissing"; detail: string };
 ```
 
 `clean`, `findings`, and `adapter-failed` are mutually exclusive. Adapter failure
@@ -419,6 +418,7 @@ type DiagnosticConsumerProjection =
       diagnosticCatalogEntryId: string;
       diagnosticIdentity: DiagnosticIdentity;
       decision: Extract<DiagnosticScanRootDecision, { kind: "refused" }>;
+      detail: string;
       limitations: readonly DiagnosticNonClaim[];
     }
   | {
@@ -427,21 +427,42 @@ type DiagnosticConsumerProjection =
       diagnosticCatalogEntryId: string;
       diagnosticIdentity: DiagnosticIdentity;
       failure: DiagnosticAdapterFailureKind;
+      detail: string;
       limitations: readonly DiagnosticNonClaim[];
     }
   | {
-      kind: "projection-missed" | "unexpected-diagnostic-identity" | "cache-observation-missing";
+      kind: "cache-observation-missing";
       ruleId: string;
       diagnosticCatalogEntryId: string;
       diagnosticIdentity: DiagnosticIdentity;
-      limitation: DiagnosticNonClaim;
+      cache: Extract<DiagnosticCacheObservation, { kind: "missing-required-observation" }>;
+      failure: "GritCacheProvenanceMissing";
+      detail: string;
+      limitations: readonly DiagnosticNonClaim[];
+    }
+  | {
+      kind: "projection-missed";
+      ruleId: string;
+      diagnosticCatalogEntryId: string;
+      diagnosticIdentity: DiagnosticIdentity;
+      expectedIdentity: DiagnosticIdentity;
+      limitations: readonly DiagnosticNonClaim[];
+    }
+  | {
+      kind: "unexpected-diagnostic-identity";
+      ruleId: string;
+      diagnosticCatalogEntryId: string;
+      diagnosticIdentity: DiagnosticIdentity;
+      unexpectedIdentity: ObservedDiagnosticIdentity;
+      limitations: readonly DiagnosticNonClaim[];
     };
 ```
 
 Consumer projection is derived from `DiagnosticRunOutcome`; it must not flatten
-failure fields into optional properties. Clean projections carry no diagnostics,
-findings projections carry at least one diagnostic finding, and adapter-failed
-projections carry adapter failure only on that variant.
+failure fields into optional properties or limitation-only rows. Clean
+projections carry no diagnostics, findings projections carry at least one
+diagnostic finding, and adapter-failed/cache/refusal/projection outcomes keep
+their own machine fields only on their variants.
 
 Consumer rules:
 

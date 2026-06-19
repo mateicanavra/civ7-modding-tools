@@ -4,14 +4,27 @@ export type {
   DiagnosticProjectionContract,
   DiagnosticScanContract,
   GritDiagnosticCatalogEntry,
+  GritDiagnosticProjectionContract,
+  GritDiagnosticScanContract,
+  NativeDiagnosticAcquisitionContract,
+  NativeDiagnosticCatalogEntry,
+  NativeDiagnosticProjectionContract,
+  NativeDiagnosticScanContract,
 } from "./catalog.js";
 export {
   DiagnosticCatalogEntrySchema,
   DiagnosticNonClaimSchema,
   DiagnosticProjectionContractSchema,
   DiagnosticScanContractSchema,
+  diagnosticCatalogEntryFromNativeRule,
   diagnosticCatalogEntryFromRuleGritFacts,
   GritDiagnosticCatalogEntrySchema,
+  GritDiagnosticProjectionContractSchema,
+  GritDiagnosticScanContractSchema,
+  NativeDiagnosticAcquisitionContractSchema,
+  NativeDiagnosticCatalogEntrySchema,
+  NativeDiagnosticProjectionContractSchema,
+  NativeDiagnosticScanContractSchema,
 } from "./catalog.js";
 export type {
   DiagnosticCacheObservation,
@@ -52,16 +65,28 @@ export {
   renderDiagnosticAdapterFailure,
 } from "./failure.js";
 export type {
+  DiagnosticIdentity,
   GritDiagnosticIdentity,
+  NativeDiagnosticIdentity,
+  NativeDiagnosticIdentityValue,
+  ObservedDiagnosticIdentity,
   ObservedGritDiagnosticIdentity,
+  ObservedNativeDiagnosticIdentity,
 } from "./identity.js";
 export {
+  DiagnosticIdentitySchema,
   GritDiagnosticIdentitySchema,
   gritDiagnosticIdentity,
   isObservedGritDiagnosticIdentity,
+  NativeDiagnosticIdentitySchema,
+  NativeDiagnosticIdentityValueSchema,
+  nativeDiagnosticIdentity,
+  ObservedDiagnosticIdentitySchema,
   ObservedGritDiagnosticIdentitySchema,
+  ObservedNativeDiagnosticIdentitySchema,
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
+  observedNativeDiagnosticIdentity,
   renderUnexpectedObservedGritIdentity,
 } from "./identity.js";
 export type {

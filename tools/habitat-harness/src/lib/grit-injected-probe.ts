@@ -11,9 +11,14 @@ import {
 import { runHabitatEffect } from "./effect-runtime.js";
 import type { HabitatGitState } from "./git-state.js";
 import { readGitState } from "./git-state.js";
-import { acquireProbeFile } from "./injected-probe/file-lifecycle.js";
+import {
+  cleanupProbeFiles,
+  createProbeFile,
+  type InjectedProbeFile,
+} from "./injected-probe/file-lifecycle.js";
 import {
   type InjectedGritProbeInput,
+  type InjectedGritProbeRequest,
   type InjectedProbeScope,
   normalizeProbePath,
   validateInjectedGritProbeInput,
@@ -27,7 +32,15 @@ import {
 import { repoRoot } from "./paths.js";
 
 export type { InjectedProbeOutcome } from "./diagnostic-catalog/index.js";
-export type { InjectedGritProbeInput, InjectedProbeScope } from "./injected-probe/input.js";
+export type {
+  InjectedGritProbeInput,
+  InjectedGritProbeRequest,
+  InjectedProbeScope,
+} from "./injected-probe/input.js";
+export {
+  InjectedGritProbeRequestSchema,
+  InjectedProbeScopeSchema,
+} from "./injected-probe/input.js";
 
 export async function runInjectedGritProbe(
   input: InjectedGritProbeInput
@@ -52,28 +65,36 @@ export function injectedGritProbeProgram(
       );
     }
 
-    const runResult = yield* Effect.scoped(
-      Effect.gen(function* () {
-        yield* acquireProbeFile(input.probePath, input.probeBody);
-        yield* acquireProbeFile(input.controlPath, input.controlBody);
-        return yield* Effect.tryPromise({
-          try: () =>
-            runGritDiagnosticOutcomes([rule], {
-              scanRoots: input.scope.scanRoots,
-              processLayer: input.processLayer,
-              cacheMode: "fresh",
-              requireObservableCacheStatus: true,
-              allowInjectedProbeRoot: true,
-              projection: { rejectUnexpectedPatternIdentity: true },
-            }),
-          catch: (error) =>
-            probeAdapterFailed(
-              "GritAdapterInternalContractViolation",
-              `Injected probe adapter execution threw: ${String(error)}.`
-            ),
-        });
-      }).pipe(Effect.catchAll((error: InjectedProbeOutcome) => Effect.succeed(error)))
-    );
+    const createdFiles: InjectedProbeFile[] = [];
+    const probeFile = createProbeFile(input.probePath, input.probeBody);
+    if (!probeFile.ok) return probeFile.outcome;
+    createdFiles.push(probeFile.file);
+
+    const controlFile = createProbeFile(input.controlPath, input.controlBody);
+    if (!controlFile.ok) {
+      return cleanupProbeFiles(createdFiles) ?? controlFile.outcome;
+    }
+    createdFiles.push(controlFile.file);
+
+    const runResult = yield* Effect.tryPromise({
+      try: () =>
+        runGritDiagnosticOutcomes([rule], {
+          scanRoots: injectedProbeScanRoots(input, rule),
+          processLayer: input.processLayer,
+          cacheMode: "fresh",
+          requireObservableCacheStatus: true,
+          allowInjectedProbeRoot: true,
+          projection: { rejectUnexpectedPatternIdentity: true },
+        }),
+      catch: (error) =>
+        probeAdapterFailed(
+          "GritAdapterInternalContractViolation",
+          `Injected probe adapter execution threw: ${String(error)}.`
+        ),
+    }).pipe(Effect.catchAll((outcome: InjectedProbeOutcome) => Effect.succeed(outcome)));
+
+    const cleanupFailure = cleanupProbeFiles(createdFiles);
+    if (cleanupFailure) return cleanupFailure;
 
     if (!(runResult instanceof Map)) return runResult;
     return assertInjectedProbeOutcome(
@@ -84,6 +105,20 @@ export function injectedGritProbeProgram(
       readGitState(repoRoot)
     );
   });
+}
+
+function injectedProbeScanRoots(
+  input: InjectedGritProbeInput,
+  rule: RuleGritFacts
+): readonly string[] {
+  if (rule.expandIgnoredTestDirectories !== true) return input.scope.scanRoots;
+  return [
+    ...new Set([
+      ...input.scope.scanRoots,
+      normalizeProbePath(input.probePath),
+      normalizeProbePath(input.controlPath),
+    ]),
+  ];
 }
 
 function assertInjectedProbeOutcome(
@@ -102,7 +137,17 @@ function assertInjectedProbeOutcome(
   switch (outcome.kind) {
     case "adapter-failed":
       return probeAdapterFailed(outcome.failure, outcome.detail);
+    case "scan-root-refused":
+      return probeAdapterFailed("GritEmptyScanRoots", outcome.detail);
+    case "cache-observation-missing":
+      return probeAdapterFailed(outcome.failure, outcome.detail);
     case "projection-missed":
+      if (outcome.expectedIdentity.kind !== "grit-pattern") {
+        return probeAdapterFailed(
+          "GritAdapterInternalContractViolation",
+          "Injected Grit probe received a non-Grit diagnostic identity."
+        );
+      }
       return probeProjectionMissed(
         outcome.expectedIdentity,
         `Expected unbaselined finding for ${rule.id}.`
@@ -137,6 +182,12 @@ function injectedFindingOutcome(
       (!input.expectedDiagnostic || diagnostic.message.includes(input.expectedDiagnostic))
   );
   if (!observedFinding) {
+    if (outcome.entry.diagnosticIdentity.kind !== "grit-pattern") {
+      return probeAdapterFailed(
+        "GritAdapterInternalContractViolation",
+        "Injected Grit probe received a non-Grit diagnostic identity."
+      );
+    }
     return probeProjectionMissed(
       outcome.entry.diagnosticIdentity,
       `Expected unbaselined finding for ${outcome.entry.ruleId} at ${probeRel}.`
@@ -166,6 +217,13 @@ function injectedFindingOutcome(
       "dirty",
       observedFinding,
       "Injected diagnostic probe final status is dirty."
+    );
+  }
+
+  if (outcome.entry.diagnosticIdentity.kind !== "grit-pattern") {
+    return probeAdapterFailed(
+      "GritAdapterInternalContractViolation",
+      "Injected Grit probe received a non-Grit diagnostic identity."
     );
   }
 

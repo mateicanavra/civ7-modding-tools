@@ -98,17 +98,35 @@ export function ruleRunResultFromDiagnosticOutcome(
       return infrastructureFailure(
         rule,
         "GritPatternProjectionMiss",
-        `Expected Grit pattern identity was not projected: ${outcome.expectedIdentity.patternIdentity}.`
+        `Expected diagnostic identity was not projected: ${renderExpectedIdentity(outcome.expectedIdentity)}.`
       );
     case "unexpected-diagnostic-identity":
+      if (outcome.unexpectedIdentity.kind === "observed-native-rule") {
+        return infrastructureFailure(
+          rule,
+          "GritUnexpectedDiagnosticIdentity",
+          `Unexpected native diagnostic identity: ${outcome.unexpectedIdentity.observedNativeDiagnosticIdentity}.`
+        );
+      }
       return infrastructureFailure(
         rule,
         "GritUnexpectedDiagnosticIdentity",
         renderUnexpectedObservedGritIdentity(outcome.unexpectedIdentity)
       );
+    case "scan-root-refused":
+      return infrastructureFailure(rule, "GritEmptyScanRoots", outcome.detail);
+    case "cache-observation-missing":
+      return infrastructureFailure(rule, outcome.failure, outcome.detail);
     case "adapter-failed":
       return infrastructureFailure(rule, outcome.failure, outcome.detail);
   }
+}
+
+function renderExpectedIdentity(
+  identity: DiagnosticRunOutcome["entry"]["diagnosticIdentity"]
+): string {
+  if (identity.kind === "grit-pattern") return identity.patternIdentity;
+  return identity.nativeDiagnosticIdentity;
 }
 
 function projectGritRuleOutcome(
@@ -143,8 +161,6 @@ function diagnosticFindingProjection(
   return {
     kind: "diagnostic-finding",
     ruleId: rule.id,
-    diagnosticCatalogEntryId: entry.diagnosticCatalogEntryId,
-    diagnosticIdentity: entry.diagnosticIdentity,
     path: normalizeGritPath(result.path),
     line: result.start?.line,
     message: result.extra?.message ?? rule.message,
