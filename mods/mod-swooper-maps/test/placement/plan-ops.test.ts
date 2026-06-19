@@ -3,6 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
 
 import placementDomain from "../../src/domain/placement/ops.js";
+import { WONDER_GROUPS } from "../../src/domain/placement/ops/plan-natural-wonders/strategies/default.js";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   resolveResourceRuntimeIds,
@@ -22,6 +23,56 @@ import { runOpValidated } from "../support/compiler-helpers.js";
 const { planNaturalWonders, planResources, planStarts, planWonders } = placementDomain.ops;
 
 describe("placement plan operations", () => {
+  it("wonder-group registry: membership and suitability formulas match the pinned definitions", () => {
+    // Membership is the single source of truth (the feature->group map is derived).
+    const membership = Object.fromEntries(
+      Object.entries(WONDER_GROUPS).map(([group, def]) => [group, [...def.features].sort((a, b) => a - b)])
+    );
+    expect(membership).toEqual({
+      A: [35, 41],
+      B: [37],
+      C: [29, 44, 45],
+      D: [0],
+      E: [32, 34],
+      F: [1, 33, 36, 38, 40, 42, 43],
+      G: [28],
+      H: [31, 39],
+      I: [30],
+    });
+    // All 20 wonders, each in exactly one group (no missing/duplicate membership).
+    const allFeatures = Object.values(WONDER_GROUPS).flatMap((def) => def.features);
+    expect(allFeatures.length).toBe(20);
+    expect(new Set(allFeatures).size).toBe(20);
+
+    // Characterization: pin each group's formula for a fixed signal vector — guards
+    // the load-bearing weights through the registry refactor (all results <= 1, so
+    // clamp01 is identity here).
+    const s = {
+      relief: 0.5,
+      elevN: 0.4,
+      arid: 0.6,
+      warm: 0.7,
+      temperate: 0.8,
+      vegN: 0.3,
+      fertN: 0.2,
+      dischN: 0.9,
+      slopeN: 0.1,
+      shelfN: 1,
+      deepN: 0,
+      moist: 0.45,
+    };
+    const suit = (g: keyof typeof WONDER_GROUPS) => WONDER_GROUPS[g].suitability(s);
+    expect(suit("A")).toBeCloseTo(0.55 * 0.5 + 0.35 * 0.4 + 0.1 * 0.7, 9);
+    expect(suit("B")).toBeCloseTo(0.5 * 1 + 0.3 * 0.5 + 0.2 * 0.7, 9);
+    expect(suit("C")).toBeCloseTo(0.55 * 1 + 0.3 * 0.7 + 0.15 * (1 - 0.6), 9);
+    expect(suit("D")).toBeCloseTo(0.7 * 0 + 0.3 * (1 - 0.6), 9);
+    expect(suit("E")).toBeCloseTo(0.45 * 0.9 + 0.3 * 0.1 + 0.25 * 0.5, 9);
+    expect(suit("F")).toBeCloseTo(0.5 * 0.4 + 0.4 * 0.5 + 0.1 * (1 - 0.3), 9);
+    expect(suit("G")).toBeCloseTo(0.45 * 0.2 + 0.3 * 0.45 + 0.25 * (1 - 0.5), 9);
+    expect(suit("H")).toBeCloseTo(0.5 * 0.6 + 0.3 * 0.4 + 0.2 * 0.5, 9);
+    expect(suit("I")).toBeCloseTo(0.55 * 0.3 + 0.3 * 0.45 + 0.15 * 0.8, 9);
+  });
+
   it("materializes plan-starts tier bias from property defaults", () => {
     expect(planStarts.defaultConfig.config.tierBias).toEqual({
       primary: 0.08,
