@@ -2,8 +2,8 @@
 
 ## State
 
-- Status: accepted for design/specification; final D3 rereview found no
-  unresolved P1/P2 blockers; not implementation-complete.
+- Status: implementation-start preconditions closed; source implementation in
+  progress; not implementation-complete.
 - Worktree: `$REPO_ROOT` from `$REMEDIATION_DIR/context.md`.
 - Branch: `$ACTIVE_REMEDIATION_BRANCH` from `$REMEDIATION_DIR/context.md`.
 - Source packet: `$D3_SOURCE_PACKET`.
@@ -20,15 +20,16 @@ downstream D4/D7/D12 handoffs.
 
 ## Current Gate
 
-Design/specification gate closed. Source implementation remains blocked until
-concrete D0 rows and D2 graph projection implementation facts exist.
+Design/specification gate closed. Source implementation is now unblocked by
+`workstream/implementation-start-inventory.md`, which cites concrete D0 rows and
+live D2 graph projection facts.
 
 ## Dependency State
 
 | Dependency | Status | D3 handling |
 | --- | --- | --- |
-| D0 command surface inventory | accepted for design/specification, not implementation-complete | D3 design names affected public surfaces; source implementation waits for concrete D0 rows. |
-| D2 rule registry metadata contract | accepted for design/specification, not implementation-complete | D3 design consumes accepted `ruleGraphFacts`/graph projection terms; source implementation waits for live D2 graph projection facts. |
+| D0 command surface inventory | concrete matrix submitted in PR #1832 | D3 cites stable `surface_id` rows in `workstream/implementation-start-inventory.md`; D3 does not reopen D0 from this layer. |
+| D2 rule registry metadata contract | source implementation submitted in PR #1837 | D3 consumes live `ruleGraphFacts`/graph projection implementation facts recorded in `workstream/implementation-start-inventory.md`. |
 
 ## Completion Gates
 
@@ -42,6 +43,8 @@ concrete D0 rows and D2 graph projection implementation facts exist.
 - [x] D0/D2 design-vs-implementation dependency handling recorded.
 - [x] D4/D7/D12 graph facts and non-claims recorded in downstream ledger.
 - [x] Fresh D3 rereview accepts the repaired packet for design/specification.
+- [x] Implementation-start inventory cites D0 public-surface rows and D2 live
+      graph projection facts before source edits.
 
 ## Validation Results Recording Contract
 
@@ -62,8 +65,8 @@ Implementation validation results must use this shape:
 
 ## Non-Claims
 
-- D3 design/specification does not implement Habitat source changes.
-- D3 design/specification does not make D3 implementation-ready without D0 rows
-  and D2 live projection facts.
+- D3 implementation-start records do not implement Habitat source changes.
+- D3 does not reopen D0 matrix rows; D3 cites stable `surface_id`s and preserves
+  current runtime behavior unless this packet explicitly changes it.
 - D3 does not own D7 check diagnostics or D12 receipt schema.
 - D3 graph target availability does not prove target success.

@@ -17,9 +17,9 @@
 
 ## Implementation Prerequisites Later
 
-- [ ] Concrete D0 matrix rows exist for every D3-touched public or durable surface.
-- [ ] D2 graph projection implementation facts exist where D3 consumes live registry graph declarations.
-- [ ] Implementation branch starts from the approved implementation stack and is clean before source edits.
+- [x] Concrete D0 matrix rows exist for every D3-touched public or durable surface.
+- [x] D2 graph projection implementation facts exist where D3 consumes live registry graph declarations.
+- [x] Implementation branch starts from the approved implementation stack and is clean before source edits.
 - [ ] Source changes stay inside the approved D3 write set.
 - [ ] Protected paths are untouched or the packet is amended and rereviewed.
 
@@ -38,7 +38,7 @@
 
 ## Non-Claims
 
-- D3 design repair does not implement TypeScript or JavaScript source.
-- D3 design/specification is accepted; source implementation remains blocked
-  until concrete D0 rows and D2 live graph projection facts exist.
+- D3 implementation-start records do not implement TypeScript or JavaScript source.
+- D3 source implementation is unblocked by `workstream/implementation-start-inventory.md`;
+  implementation closure remains open until source, validation, review, and repair complete.
 - D3 design repair does not prove public compatibility, downstream safety, runtime behavior, Graphite readiness, or product completion.
