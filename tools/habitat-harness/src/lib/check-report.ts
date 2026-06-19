@@ -3,6 +3,11 @@ import path from "node:path";
 import { executeRule, type HarnessRule, rules } from "../rules/architecture.js";
 import { renderReport } from "../rules/messages.js";
 import {
+  ruleLocalFeedbackFacts,
+  ruleReportFacts,
+  type RuleReportFacts,
+} from "../rules/registry.js";
+import {
   applyBaseline,
   baselineFailureDiagnostic,
   checkBaselineIntegrity,
@@ -58,9 +63,12 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
   if (!selection.ok) return createRuleSelectionFailureReport(selection, options);
 
   const selectedRules = rulesForExecution(selection.rules, options);
+  const reportsByRuleId = factsByRuleId(ruleReportFacts(selectedRules));
   const reports: RuleReport[] = [];
   const ruleResults = await executeSelectedRules(selectedRules, options);
   for (const rule of selectedRules) {
+    const reportFacts = reportsByRuleId.get(rule.id);
+    if (!reportFacts) throw new Error(`habitat internal error: missing report facts for ${rule.id}`);
     const baseline = loadBaselineState(rule);
     const execution = ruleResults.get(rule.id);
     if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
@@ -82,15 +90,15 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
           : "pass";
     reports.push({
       ruleId: rule.id,
-      ownerTool: rule.ownerTool,
-      lane: rule.lane,
+      ownerTool: reportFacts.ownerTool,
+      lane: reportFacts.lane,
       status,
       locked: isBaselineLocked(baseline),
       durationMs: execution.durationMs,
       diagnostics,
-      detect: rule.detect,
-      message: rule.message,
-      remediate: rule.remediate,
+      detect: reportFacts.detect,
+      message: reportFacts.message,
+      remediate: reportFacts.remediate,
     });
   }
 
@@ -186,9 +194,13 @@ export function rulesForExecution(
   if (!selectedRules.some((rule) => rule.ownerTool === "grit-check")) return [...selectedRules];
   const hasStagedGritRoots =
     stagedGritScanRoots(options.stagedPaths ?? currentStagedPaths()).length > 0;
+  const localFeedbackByRuleId = new Map(
+    ruleLocalFeedbackFacts(selectedRules).map((fact) => [fact.ruleId, fact])
+  );
   return selectedRules.filter(
     (rule) =>
-      rule.ownerTool !== "grit-check" || (rule.hookScope === "pre-commit" && hasStagedGritRoots)
+      rule.ownerTool !== "grit-check" ||
+      (localFeedbackByRuleId.get(rule.id)?.preCommitEligible === true && hasStagedGritRoots)
   );
 }
 
@@ -297,6 +309,10 @@ function createRuleSelectionFailureReport(
 
 function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values)].sort();
+}
+
+function factsByRuleId(facts: readonly RuleReportFacts[]): Map<string, RuleReportFacts> {
+  return new Map(facts.map((fact) => [fact.ruleId, fact]));
 }
 
 const gritCandidateExtensions = new Set([

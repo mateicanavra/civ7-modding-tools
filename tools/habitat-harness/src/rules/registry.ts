@@ -205,6 +205,15 @@ export interface RuleRoutingFacts extends RuleSelectorFacts {
   scopeText: string;
 }
 
+type RuleReportFactInput = Pick<
+  RuleRegistryRecordV1,
+  "id" | "ownerProject" | "ownerTool" | "lane" | "detect" | "message" | "remediate"
+>;
+
+type RuleLocalFeedbackFactInput = Pick<RuleRegistryRecordV1, "id" | "ownerTool"> & {
+  hookScope?: "pre-commit";
+};
+
 export function ruleSelectorFacts(
   records: readonly Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "ownerTool">[] =
     activeRuleRegistryDocument.rules
@@ -217,7 +226,7 @@ export function ruleSelectorFacts(
 }
 
 export function ruleReportFacts(
-  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+  records: readonly RuleReportFactInput[] = activeRuleRegistryDocument.rules
 ): RuleReportFacts[] {
   return records.map((rule) => ({
     ...selectorProjection(rule),
@@ -266,7 +275,7 @@ export function ruleGritFacts(
 }
 
 export function ruleLocalFeedbackFacts(
-  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+  records: readonly RuleLocalFeedbackFactInput[] = activeRuleRegistryDocument.rules
 ): RuleLocalFeedbackFacts[] {
   return records.map((rule) => ({
     ruleId: rule.id,
@@ -304,7 +313,9 @@ export function defaultRuleRegistryPath(): string {
   return path.join(path.dirname(fileURLToPath(import.meta.url)), "rules.json");
 }
 
-function selectorProjection(rule: RuleRegistryRecordV1): RuleSelectorFacts {
+function selectorProjection(
+  rule: Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "ownerTool">
+): RuleSelectorFacts {
   return {
     ruleId: rule.id,
     ownerProject: rule.ownerProject,
@@ -312,7 +323,7 @@ function selectorProjection(rule: RuleRegistryRecordV1): RuleSelectorFacts {
   };
 }
 
-function reportProjection(rule: RuleRegistryRecordV1): RuleReportFacts {
+function reportProjection(rule: RuleReportFactInput): RuleReportFacts {
   return {
     ...selectorProjection(rule),
     lane: rule.lane,
