@@ -209,8 +209,15 @@ export const CheckOutcomeSchema = Type.Union([
   ),
   Type.Object(
     {
+      kind: Type.Literal("dependency-refused"),
+      reports: Type.Array(RuleReportSchema, { minItems: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
       kind: Type.Literal("no-applicable-rules"),
-      report: RuleReportSchema,
+      reports: Type.Array(RuleReportSchema),
     },
     { additionalProperties: false }
   ),
@@ -238,7 +245,6 @@ export const LocalFeedbackCheckProjectionSchema = Type.Object(
       Type.Literal("dependency-refused"),
       Type.Literal("diagnostic-unavailable"),
       Type.Literal("baseline-refused"),
-      Type.Literal("protected-zone-refused"),
       Type.Literal("not-applicable"),
     ]),
     selectedRuleIds: Type.Array(Type.String()),
@@ -252,6 +258,7 @@ export type LocalFeedbackCheckProjection = Static<typeof LocalFeedbackCheckProje
 
 export const VerifyCheckSummaryProjectionSchema = Type.Object(
   {
+    reportSchemaVersion: Type.Literal(1),
     requestedSelectors: SelectorRequestSchema,
     selectedRuleIds: Type.Array(Type.String()),
     selectedRealRuleIds: Type.Array(Type.String()),

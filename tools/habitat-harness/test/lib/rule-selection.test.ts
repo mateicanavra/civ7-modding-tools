@@ -153,7 +153,7 @@ describe("rule selector boundary", () => {
     expect(() => renderCheckReport(invalid, { json: true })).toThrow(/ok must be false/);
   });
 
-  test("staged execution keeps only local-feedback Grit rules when approved staged roots exist", () => {
+  test("staged execution preserves selected rules for explicit D7 disposition", () => {
     const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
       localFeedback: true,
     });
@@ -171,10 +171,10 @@ describe("rule selector boundary", () => {
         staged: true,
         stagedPaths: ["packages/mapgen-core/src/core/index.ts"],
       }).map((rule) => rule.id)
-    ).toEqual(["grit-hook", "file-layer-rule"]);
+    ).toEqual(["grit-hook", "grit-current-tree", "file-layer-rule"]);
   });
 
-  test("staged execution excludes Grit rules when staged paths are outside approved roots", () => {
+  test("staged execution does not drop Grit rules when staged paths are outside approved roots", () => {
     const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
       localFeedback: true,
     });
@@ -186,7 +186,27 @@ describe("rule selector boundary", () => {
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
       }).map((rule) => rule.id)
-    ).toEqual([]);
+    ).toEqual(["grit-hook"]);
+  });
+
+  test("staged Grit checks with no approved roots report not-applicable instead of baseline-only pass", async () => {
+    const report = await createCheckReport({
+      tool: "grit-check",
+      staged: true,
+      stagedPaths: ["README.md"],
+    });
+
+    const gritReports = report.rules.filter((rule) => rule.ownerTool === "grit-check");
+    expect(gritReports.length).toBeGreaterThan(0);
+    expect(gritReports.every((rule) => rule.status !== "pass")).toBe(true);
+    expect(
+      gritReports.every((rule) =>
+        rule.diagnostics.some((diagnostic) =>
+          diagnostic.message.startsWith("D7 not applicable: staged scope")
+        )
+      )
+    ).toBe(true);
+    expect(report.ok).toBe(false);
   });
 
   test("staged Grit scan roots preserve exact approved file paths", () => {
