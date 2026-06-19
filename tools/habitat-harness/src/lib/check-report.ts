@@ -2,11 +2,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { executeRule, type HarnessRule, rules } from "../rules/architecture.js";
 import { renderReport } from "../rules/messages.js";
-import {
-  ruleLocalFeedbackFacts,
-  ruleReportFacts,
-  type RuleReportFacts,
-} from "../rules/registry.js";
+import { ruleReportFacts, stagedEligibleRuleIds, type RuleReportFacts } from "../rules/registry.js";
 import {
   applyBaseline,
   baselineFailureDiagnostic,
@@ -194,13 +190,11 @@ export function rulesForExecution(
   if (!selectedRules.some((rule) => rule.ownerTool === "grit-check")) return [...selectedRules];
   const hasStagedGritRoots =
     stagedGritScanRoots(options.stagedPaths ?? currentStagedPaths()).length > 0;
-  const localFeedbackByRuleId = new Map(
-    ruleLocalFeedbackFacts(selectedRules).map((fact) => [fact.ruleId, fact])
-  );
+  const stagedEligible = stagedEligibleRuleIds(selectedRules);
   return selectedRules.filter(
     (rule) =>
       rule.ownerTool !== "grit-check" ||
-      (localFeedbackByRuleId.get(rule.id)?.preCommitEligible === true && hasStagedGritRoots)
+      (stagedEligible.has(rule.id) && hasStagedGritRoots)
   );
 }
 
@@ -312,7 +306,7 @@ function sortedUnique(values: readonly string[]): string[] {
 }
 
 function factsByRuleId(facts: readonly RuleReportFacts[]): Map<string, RuleReportFacts> {
-  return new Map(facts.map((fact) => [fact.ruleId, fact]));
+  return new Map(facts.map((fact) => [fact.id, fact]));
 }
 
 const gritCandidateExtensions = new Set([
