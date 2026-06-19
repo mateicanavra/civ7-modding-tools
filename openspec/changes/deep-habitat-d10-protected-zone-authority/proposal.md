@@ -4,7 +4,7 @@
 
 Specify D10 as the Generated/Protected Zone Authority for Deep Habitat. This change converts `$D10_SOURCE_PACKET` into a concrete OpenSpec design/specification packet for protected mutation decisions, generated-surface declarations, host-owned zone consumption, forbidden-artifact handling, generated drift relation, and downstream path-authority projections.
 
-Status after final rereview is accepted for design/specification only. Fresh final domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product rereviews read the repaired disk state and recorded no unresolved P1/P2 findings. Source implementation remains blocked behind concrete D0 rows, D1 output-family handling, live D2 generated-zone projections, accepted/live G-HOST host declarations, and accepted/live D10 projections for touched surfaces.
+Status after final design rereview was accepted for design/specification. Current stack status: D10 source implementation is active on top of live D0/D1/D2/G-HOST/D7/D9 prerequisites, with protected-zone source changes pending final implementation review, Graphite submission, and packet-boundary closure.
 
 ## Authority
 
@@ -30,7 +30,7 @@ D10 does not prove generated freshness, runtime behavior, product correctness, C
 - Requires D10 to consume host-specific path, owner, and recovery declarations from G-HOST rather than hard-coding Civ7, MapGen, or resource paths in generic Habitat truth.
 - Separates staged protected mutation guards from generated drift/freshness checks.
 - Publishes narrow D7, D9, D11, scan-root, and generated-drift projections.
-- Defines later implementation write set, protected paths, validation gates, and stop conditions.
+- Defines source implementation write set, protected paths, validation gates, and stop conditions.
 
 ## What Does Not Change
 
@@ -61,7 +61,7 @@ D10 does not prove generated freshness, runtime behavior, product correctness, C
 
 ## Affected Public And Durable Surfaces
 
-Source implementation is not authorized by this packet, but later implementation may affect:
+Current source implementation affects:
 
 - `habitat check --staged --tool file-layer --json` behavior and human output.
 - `habitat check --json` D7-projected rule reports and diagnostics.
@@ -72,21 +72,11 @@ Source implementation is not authorized by this packet, but later implementation
 - `.gritignore`, `biome.json`, and scan-root validation only as consumer projections or drift-checked mirrors, not as owner truth.
 - Docs/examples/help text that describe generated/protected refusal or recovery behavior.
 
-## Later Implementation Write Set
+## Source Implementation Write Set
 
-Later source implementation may touch only the reviewed D10 surfaces unless the phase record is amended and rereviewed:
+Current source implementation is bounded by the concrete write set in `workstream/phase-record.md`. That write set is the source closure authority for this layer and includes only D10 authority modules, the D7/Grit/D9/D2/G-HOST consumer seams required to consume D10 projections, D0 matrix/packet-index records for the new public target row, removal of the old generated-zone helper/script/test, and focused tests that exercise D10 declarations, staged guard decisions, scan-root projection, drift separation, hook consumption, and D9 transaction consumption.
 
-- `$HABITAT_TOOL/src/lib/generated-zones.ts` or a replacement D10 module under `$HABITAT_TOOL/src/lib/`.
-- `$HABITAT_TOOL/src/rules/architecture.ts` for file-layer routing through D10 projections.
-- `$HABITAT_TOOL/src/rules/rules.json` only for D2-projected generated-zone facets or command-facing message/recovery projection changes.
-- `$HABITAT_TOOL/src/lib/command-engine.ts` only for staged guard consumption and injectable staged-path/state seams.
-- `$HABITAT_TOOL/src/lib/grit.ts` only to consume D10 scan-root projections.
-- `$HABITAT_TOOL/src/lib/grit-apply.ts` only to consume D10 path-authority decisions, not to define protected-zone policy.
-- `$HABITAT_TOOL/src/lib/hooks.ts` only as a D11 consumer of D10/D7 local-feedback-safe results.
-- `$HABITAT_TOOL/src/plugin.js` and `$HABITAT_TOOL/scripts/verify-generated-zones.mjs` only for generated-drift projection wiring.
-- Focused tests under `$HABITAT_TOOL/test/lib/` and `$HABITAT_TOOL/test/**` that exercise D10 declarations, staged guard decisions, scan-root projection, drift separation, hook consumption, and D9 transaction consumption.
-
-Protected paths for later implementation include generated outputs, host resource outputs, generated artifacts, lockfiles, dist/mod outputs, adjacent D7/D8/D9/D11/G-HOST redesign files, and any public/generated artifacts not explicitly owned by D10.
+Protected paths for source implementation include generated outputs, host resource outputs, generated artifacts, lockfiles, dist/mod outputs, adjacent D7/D8/D9/D11/G-HOST redesign files, and any public/generated artifacts not explicitly owned by D10.
 
 ## Stop Conditions
 
@@ -111,7 +101,7 @@ Design-time repair gates:
 - D10 wording audit over `$D10_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, and `$AGENT_SCRATCH/domino-D10-*.md`, with remaining active guidance hits repaired or explicitly classified.
 - Fresh final rereviews across domain/ontology, TypeScript/validation, OpenSpec/information, code/vendor topology, and cross-domino/product lanes.
 
-Later implementation gates:
+Source implementation gates:
 
 - Focused D10 declaration/guard tests for generated, protected, host-owned, forbidden, unknown, conflict, and D0-missing states.
 - `bun run habitat check --staged --tool file-layer --json` for clean staged state and injected protected/generated/forbidden staged mutations.

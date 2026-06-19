@@ -48,7 +48,7 @@ export async function runTransformationTransaction(
     });
   }
 
-  if (request.kind === "live-write-intent" && !request.admission.protectedZoneRef) {
+  if (request.kind === "live-write-intent" && !request.pathAuthority) {
     return refusalRecord(request, {
       reason: "missing-protected-zone-decision",
       message: "live fix requires a protected-zone decision for the admitted write set.",
@@ -62,7 +62,31 @@ export async function runTransformationTransaction(
     });
   }
 
-  if (request.kind === "live-write-intent" && !request.admission.hostPolicyRef) {
+  const pathAuthority =
+    request.kind === "live-write-intent" ? request.pathAuthority : undefined;
+  if (
+    request.kind === "live-write-intent" &&
+    pathAuthority &&
+    pathAuthority.decision !== "allowed"
+  ) {
+    return refusalRecord(request, {
+      reason: "protected-zone-refused",
+      message: `live fix path authority ${pathAuthority.decision} ${pathAuthority.path}.`,
+      recovery: [
+        {
+          kind: "provide-protected-zone-decision",
+          message: "Provide an allowed D10 transaction path authority projection before writing.",
+        },
+      ],
+      nonClaims: ["does-not-run-grit", "does-not-write-files"],
+    });
+  }
+
+  if (
+    request.kind === "live-write-intent" &&
+    pathAuthority?.decision === "allowed" &&
+    !pathAuthority.hostPolicyRef
+  ) {
     return refusalRecord(request, {
       reason: "missing-host-policy-decision",
       message: "live fix requires a host-policy decision for the admitted write set.",
@@ -122,6 +146,24 @@ export async function runTransformationTransaction(
     });
   }
 
+  if (
+    request.kind === "live-write-intent" &&
+    pathAuthority?.decision === "allowed" &&
+    !pathAuthorityCoversTransactionInput(pathAuthority.path, transactionInput)
+  ) {
+    return refusalRecord(request, {
+      reason: "write-path-outside-approved-set",
+      message: `D10 path authority ${pathAuthority.path} is outside the admitted transaction input roots.`,
+      recovery: [
+        {
+          kind: "provide-protected-zone-decision",
+          message: "Provide D10 path authority for a path covered by the admitted transaction input.",
+        },
+      ],
+      nonClaims: ["does-not-run-grit", "does-not-write-files"],
+    });
+  }
+
   if (request.kind === "dry-run-intent") {
     const commandResults = await runDryRunCommands(transactionInput.dryRunCommands, options);
     const failed = commandResults.find((result) => result.exit.code !== 0 || result.exit.interrupted);
@@ -158,16 +200,30 @@ export async function runTransformationTransaction(
   }
 
   return refusalRecord(request, {
-    reason: "missing-protected-zone-decision",
-    message: "live fix requires a protected-zone decision for the admitted write set.",
+    reason: "invalid-request-mode",
+    message: "live fix has D10 path authority but live write execution is not implemented.",
     recovery: [
       {
-        kind: "provide-protected-zone-decision",
-        message: "Route the admitted transaction through protected-zone authority before writing.",
+        kind: "inspect-dry-run-output",
+        message: "Use dry-run mode until D9 live write execution is implemented.",
       },
     ],
-    nonClaims: ["does-not-run-grit", "does-not-write-files"],
+    nonClaims: ["does-not-write-files"],
   });
+}
+
+function pathAuthorityCoversTransactionInput(
+  authorityPath: string,
+  input: { dryRunCommands: readonly GritDryRunCommandInput[] }
+): boolean {
+  return input.dryRunCommands.some((command) =>
+    command.roots.some((root) => pathInRoot(authorityPath, root))
+  );
+}
+
+function pathInRoot(candidate: string, root: string): boolean {
+  const normalizedRoot = root.endsWith("/") ? root : `${root}/`;
+  return candidate === root || candidate.startsWith(normalizedRoot);
 }
 
 async function runDryRunCommands(

@@ -29,7 +29,7 @@ const RuleReportSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const LegacyRuleCompatibilitySchema = Type.Object(
+const RuleExceptionMetadataSchema = Type.Object(
   {
     scope: Type.String({ minLength: 1 }),
     exceptionPath: Type.String({ minLength: 1 }),
@@ -70,7 +70,7 @@ const RulePathCoverageSchema = Type.Array(
 );
 
 const RequiredRuleMetadataSchema = Type.Interface(
-  [RuleIdentitySchema, RuleReportSchema, LegacyRuleCompatibilitySchema],
+  [RuleIdentitySchema, RuleReportSchema, RuleExceptionMetadataSchema],
   {
     pathCoverage: RulePathCoverageSchema,
   },
@@ -157,12 +157,22 @@ const ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataSchema],
+  {
+    ownerTool: Type.Literal("file-layer"),
+    hostSurfaceGuard: Type.Literal(true),
+  },
+  { additionalProperties: false }
+);
+
 export const RuleRegistryRecordV1Schema = Type.Union([
   CommandRuleRegistryRecordV1Schema,
   WrappedTestRuleRegistryRecordV1Schema,
   GritCheckRuleRegistryRecordV1Schema,
   GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
   ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,
+  HostSurfaceFileLayerRuleRegistryRecordV1Schema,
 ]);
 
 export const RuleRegistryDocumentV1Schema = Type.Object(
@@ -267,6 +277,13 @@ export const RuleFileLayerFactsSchema = Type.Union([
     "lane",
     "message",
     "forbiddenFileNames",
+  ]),
+  Type.Pick(HostSurfaceFileLayerRuleRegistryRecordV1Schema, [
+    "id",
+    "ownerTool",
+    "lane",
+    "message",
+    "hostSurfaceGuard",
   ]),
 ]);
 

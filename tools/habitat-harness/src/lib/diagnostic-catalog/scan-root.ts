@@ -1,5 +1,9 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
+import {
+  ProtectedZoneOwnerSchema,
+  ProtectedZoneRecoveryInstructionSchema,
+} from "../protected-zone-authority/schema.js";
 
 export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("empty"),
@@ -11,14 +15,37 @@ export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("injected-probe-root-without-probe-mode"),
 ]);
 
-export const DiagnosticScanRootRefusalSchema = Type.Object(
+const DiagnosticUnownedScanRootRefusalSchema = Type.Object(
   {
     kind: Type.Literal("refused"),
-    reason: DiagnosticScanRootRefusalReasonSchema,
+    reason: Type.Union([
+      Type.Literal("empty"),
+      Type.Literal("outside-repo"),
+      Type.Literal("missing"),
+      Type.Literal("not-approved"),
+      Type.Literal("injected-probe-root-without-probe-mode"),
+    ]),
     root: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
+
+const DiagnosticProtectedScanRootRefusalSchema = Type.Object(
+  {
+    kind: Type.Literal("refused"),
+    reason: Type.Union([Type.Literal("generated-output"), Type.Literal("protected-root")]),
+    root: Type.String({ minLength: 1 }),
+    owner: ProtectedZoneOwnerSchema,
+    recovery: ProtectedZoneRecoveryInstructionSchema,
+    nonClaims: Type.Array(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
+export const DiagnosticScanRootRefusalSchema = Type.Union([
+  DiagnosticUnownedScanRootRefusalSchema,
+  DiagnosticProtectedScanRootRefusalSchema,
+]);
 
 export const DiagnosticScanRootDecisionSchema = Type.Union([
   Type.Object(

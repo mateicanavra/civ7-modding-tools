@@ -14,8 +14,14 @@ import type {
   RuleGritFacts,
   RuleSelectorFacts,
 } from "../../rules/registry/index.js";
-import { runGeneratedZoneRule } from "../generated-zones.js";
+import type { HabitatDiagnostic } from "../diagnostics.js";
 import { repoRoot, toRepoRelative } from "../paths.js";
+import {
+  modifiedStagedPaths,
+  runFileLayerProtectedMutationRule,
+  stagedPathsFromNameStatus,
+  type StagedMutationPath,
+} from "../protected-zone-authority/index.js";
 import { run } from "../spawn.js";
 import { readWorkspaceGraph, ruleAliasTargetState } from "../workspace-graph/index.js";
 import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
@@ -169,14 +175,73 @@ async function executeCommandRules(
 function executeFileLayerRules(
   fileLayerRules: readonly RuleFileLayerFacts[],
   results: Map<string, RuleExecutionRecord>,
-  options: Pick<CheckOptions, "staged">
+  options: Pick<CheckOptions, "staged" | "stagedPaths">
 ): void {
+  const stagedPathsResult =
+    options.staged && options.stagedPaths
+      ? modifiedStagedPaths(options.stagedPaths)
+      : options.staged
+        ? currentStagedPathActions()
+        : undefined;
   for (const rule of fileLayerRules) {
     const started = Date.now();
-    const result = runGeneratedZoneRule(rule, { staged: options.staged });
+    if (isStagedPathReadFailure(stagedPathsResult)) {
+      const durationMs = Date.now() - started;
+      results.set(rule.id, {
+        result: {
+          exitCode: 1,
+          diagnostics: [stagedPathReadFailureDiagnostic(rule, stagedPathsResult.message)],
+        },
+        durationMs,
+        disposition: { kind: "executed", durationMs },
+      });
+      continue;
+    }
+    const stagedPaths = stagedPathsResult ? stagedPathsResult : undefined;
+    const result = runFileLayerProtectedMutationRule(rule, {
+      staged: options.staged,
+      ...(stagedPaths ? { stagedPaths } : {}),
+    });
     const durationMs = Date.now() - started;
     results.set(rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } });
   }
+}
+
+type StagedPathActionReadResult =
+  | StagedMutationPath[]
+  | { ok: false; message: string };
+
+function isStagedPathReadFailure(
+  result: StagedPathActionReadResult | undefined
+): result is { ok: false; message: string } {
+  return Boolean(result && "ok" in result && !result.ok);
+}
+
+function currentStagedPathActions(): StagedPathActionReadResult {
+  const result = run(["git", "diff", "--cached", "--name-status", "-z"], { cwd: repoRoot });
+  if (result.exitCode !== 0) {
+    return {
+      ok: false,
+      message:
+        result.stderr.trim() ||
+        `Unable to read staged path actions with git diff --cached --name-status -z (exit ${result.exitCode}).`,
+    };
+  }
+  if (!result.stdout) return [];
+  return stagedPathsFromNameStatus(result.stdout);
+}
+
+function stagedPathReadFailureDiagnostic(
+  rule: RuleFileLayerFacts,
+  detail: string
+): HabitatDiagnostic {
+  return {
+    ruleId: rule.id,
+    path: ".",
+    message: `Unable to read staged path actions for protected-zone checks. ${detail}`,
+    severity: "error",
+    baselined: false,
+  };
 }
 
 function currentStagedPaths(): string[] {
