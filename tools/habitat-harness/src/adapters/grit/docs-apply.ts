@@ -202,7 +202,6 @@ function docsApplyDryRunRequest(scanRoots: readonly string[]): HabitatProcessReq
       cacheDir,
       observableStatus: "unknown",
     },
-    nonClaims: ["not-apply-transaction", "not-product-runtime"],
   };
 }
 

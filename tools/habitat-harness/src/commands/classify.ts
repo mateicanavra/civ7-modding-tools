@@ -5,7 +5,7 @@ import { classifyTargetResult, stringifyClassifyResult } from "../lib/classify.j
 export default class Classify extends HabitatCommand {
   static override summary = "Classify a repo path or diff into Habitat orientation";
   static override description =
-    "Reports owner state, D2 rule-routing facts, graph-backed target guidance, recovery instructions, and non-claims.";
+    "Reports owner state, rule routing facts, graph-backed target guidance, and recovery instructions.";
   static override examples = ["<%= config.bin %> <%= command.id %> tools/habitat-harness/src"];
 
   static override args = {

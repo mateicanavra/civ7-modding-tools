@@ -14,26 +14,14 @@
     },
     "kind": {
       "type": "string",
-      "description": "Project kind. Uniform kinds are scaffolded; non-uniform kinds are refused with rationale.",
+      "description": "Supported uniform project kind.",
       "enum": [
-        "adapter",
         "app",
-        "control",
-        "engine",
         "foundation",
-        "mod",
         "plugin",
-        "sdk",
-        "tooling",
-        "kind:adapter",
         "kind:app",
-        "kind:control",
-        "kind:engine",
         "kind:foundation",
-        "kind:mod",
-        "kind:plugin",
-        "kind:sdk",
-        "kind:tooling"
+        "kind:plugin"
       ]
     },
     "packageName": {

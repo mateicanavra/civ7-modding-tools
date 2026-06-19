@@ -36,7 +36,6 @@ interface GritRunOptions {
   processLayer?: Layer.Layer<HabitatProcess>;
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
-  allowInjectedProbeRoot?: boolean;
   projection?: GritProjectionOptions;
 }
 
@@ -109,7 +108,6 @@ async function runGritRuleOutcomeGroup(
 ): Promise<Map<string, DiagnosticRunOutcome>> {
   const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
   const scanRootDecision = decideEffectiveGritScanRoots(selectedRules, requestedScanRoots, {
-    allowInjectedProbeRoot: options.allowInjectedProbeRoot,
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
@@ -134,7 +132,6 @@ async function runGritRuleOutcomeGroup(
     gritCheckProgram(scanRoots, {
       cacheMode: options.cacheMode,
       requireObservableCacheStatus: options.requireObservableCacheStatus,
-      allowInjectedProbeRoot: options.allowInjectedProbeRoot,
       allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
       outputFormat,
     }).pipe(Effect.provide(options.processLayer ?? HabitatProcessLive))

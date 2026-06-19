@@ -62,7 +62,6 @@ describe("Grit check adapter parser and projection", () => {
       commandFamily: "current-tree-json-check",
       outputContract: "json-report",
       cacheRequirement: { kind: "workspace-cache-allowed", observable: false },
-      limitations: ["workspace-cache-not-fresh-observation"],
     });
     expect("stdout" in parsed.request).toBe(false);
     expect("stderr" in parsed.request).toBe(false);
@@ -83,7 +82,6 @@ describe("Grit check adapter parser and projection", () => {
     expect(parsed.kind).toBe("parsed");
     if (parsed.kind !== "parsed") return;
     expect(parsed.request.cacheRequirement).toEqual({ kind: "fresh-required", observable: true });
-    expect(parsed.request.limitations).toEqual([]);
   });
 
   test("fails closed for no JSON, malformed JSON, and wrapper text", () => {

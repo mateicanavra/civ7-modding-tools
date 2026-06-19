@@ -7,15 +7,10 @@ import {
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
 import { decideScanRootProtection } from "../../../lib/protected-zone-authority/index.js";
 import type { RuleGritFacts } from "../../../rules/registry/index.js";
-import {
-  gritCandidateExtensions,
-  injectedProbeRoot,
-  protectedScanRootPrefixes,
-} from "../constants.js";
+import { gritCandidateExtensions, protectedScanRootPrefixes } from "../constants.js";
 
 export interface GritScanRootValidationOptions {
   requireExisting?: boolean;
-  allowInjectedProbeRoot?: boolean;
   allowDocsRoot?: boolean;
   approvedScanRoots?: readonly string[];
 }
@@ -83,7 +78,6 @@ export function decideGritScanRoots(
 ): DiagnosticScanRootDecision {
   const requireExisting = options.requireExisting ?? true;
   if (scanRoots.length === 0) return { kind: "refused", reason: "empty" };
-  const acceptedInjectedProbeRoots = scanRoots.every(isInjectedProbeRoot);
   for (const scanRoot of scanRoots) {
     const absolute = path.resolve(repoRoot, scanRoot);
     const relative = toRepoRelative(absolute);
@@ -101,21 +95,11 @@ export function decideGritScanRoots(
         root: relative,
         owner: protection.owner,
         recovery: protection.recovery,
-        nonClaims: protection.nonClaims,
       };
     }
     if (!isApprovedScanRoot(relative, options)) {
-      return {
-        kind: "refused",
-        reason: isInjectedProbeRoot(relative)
-          ? "injected-probe-root-without-probe-mode"
-          : "not-approved",
-        root: relative,
-      };
+      return { kind: "refused", reason: "not-approved", root: relative };
     }
-  }
-  if (options.allowInjectedProbeRoot && acceptedInjectedProbeRoots) {
-    return { kind: "accepted-injected-probe-root", roots: [...scanRoots], probeOnly: true };
   }
   return { kind: "accepted", roots: [...scanRoots], source: "d2-rule-grit-facts" };
 }
@@ -220,23 +204,10 @@ function isIgnoredTestCandidate(relative: string): boolean {
   return relative.includes("/test/") || /\.test\.[cm]?[jt]sx?$/.test(relative);
 }
 
-function isInjectedProbeRoot(relative: string): boolean {
-  return relative === injectedProbeRoot || relative.startsWith(`${injectedProbeRoot}/`);
-}
-
 function isApprovedScanRoot(
   relative: string,
-  options: Pick<
-    GritScanRootValidationOptions,
-    "allowInjectedProbeRoot" | "allowDocsRoot" | "approvedScanRoots"
-  > = {}
+  options: Pick<GritScanRootValidationOptions, "allowDocsRoot" | "approvedScanRoots"> = {}
 ): boolean {
-  if (
-    options.allowInjectedProbeRoot &&
-    (relative === injectedProbeRoot || relative.startsWith(`${injectedProbeRoot}/`))
-  ) {
-    return true;
-  }
   if (options.approvedScanRoots && options.approvedScanRoots.length > 0) {
     return options.approvedScanRoots.some((approvedRoot) => pathsOverlap(relative, approvedRoot));
   }

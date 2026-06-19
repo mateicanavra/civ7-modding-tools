@@ -1,19 +1,63 @@
-const { readJson, writeJson } = require("@nx/devkit");
-const { Context, Data, Effect, Layer } = require("effect");
-const {
+import { readJson, writeJson, type Tree } from "@nx/devkit";
+import { Context, Data, Effect, Layer } from "effect";
+import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
+import {
+  type PatternAuthorityManifest,
   patternAuthorityManifestPath,
   patternAuthorityRuleReferenceFromRule,
   validatePatternAuthorityManifest,
-} = require("../../rules/pattern-authority/manifest.ts");
-const { parseRuleRegistryDocument } = require("../../rules/registry/load.ts");
+} from "../../rules/pattern-authority/manifest.js";
+import {
+  parseRuleRegistryDocument,
+  type RuleRegistryIssue,
+} from "../../rules/registry/load.js";
+
+export interface PatternPromotionInput {
+  ruleId: string;
+  patternName: string;
+  lifecycle: "registered-advisory" | "registered-enforced";
+  manifestPath?: string;
+}
+
+interface PatternPromotionStoreService {
+  exists: (path: string) => Effect.Effect<boolean>;
+  readJson: (path: string) => Effect.Effect<unknown, PatternPromotionFailure>;
+  writeText: (path: string, text: string) => Effect.Effect<void>;
+  writeJson: (path: string, value: unknown) => Effect.Effect<void>;
+}
+
+const RuleIntroductionBaselineManifestSchema = Type.Object(
+  {
+    ruleId: Type.String({ minLength: 1 }),
+    ownerProject: Type.String({ minLength: 1 }),
+    ownerTool: Type.String({ minLength: 1 }),
+    baselinePath: Type.String({ minLength: 1 }),
+    initialBaselineKeys: Type.Array(Type.String()),
+    changeId: Type.String({ minLength: 1 }),
+    comparisonBase: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const BaselineKeyArraySchema = Type.Array(Type.String());
+
+type RuleIntroductionBaselineManifest = Static<
+  typeof RuleIntroductionBaselineManifestSchema
+>;
 
 class PatternPromotionStore extends Context.Tag(
   "@internal/habitat-harness/PatternPromotionStore"
-)() {}
+)<PatternPromotionStore, PatternPromotionStoreService>() {}
 
-class PatternPromotionFailure extends Data.TaggedError("PatternPromotionFailure") {}
+export class PatternPromotionFailure extends Data.TaggedError("PatternPromotionFailure")<{
+  reason: string;
+  message: string;
+}> {}
 
-function makeNxTreePatternPromotionStoreLayer(tree) {
+export function makeNxTreePatternPromotionStoreLayer(
+  tree: Tree
+): Layer.Layer<PatternPromotionStore> {
   return Layer.succeed(PatternPromotionStore, {
     exists: (path) => Effect.sync(() => tree.exists(path)),
     readJson: (path) =>
@@ -26,26 +70,27 @@ function makeNxTreePatternPromotionStoreLayer(tree) {
           }),
       }),
     writeText: (path, text) => Effect.sync(() => tree.write(path, text)),
-    writeJson: (path, value) => Effect.sync(() => writeJson(tree, path, value)),
+    writeJson: (path, value) => Effect.sync(() => writeJson(tree, path, value as object)),
   });
 }
 
-function registeredPatternPromotionProgram(input) {
+export function registeredPatternPromotionProgram(input: PatternPromotionInput) {
   return Effect.gen(function* () {
     const store = yield* PatternPromotionStore;
     if (!input.manifestPath) {
       return yield* fail("missing-manifest-path", input.ruleId, "requires --manifestPath");
     }
+    const inputWithManifest = { ...input, manifestPath: input.manifestPath };
 
-    const manifestValue = yield* store.readJson(input.manifestPath);
+    const manifestValue = yield* store.readJson(inputWithManifest.manifestPath);
     const validation = validatePatternAuthorityManifest(manifestValue, {
-      manifestPath: input.manifestPath,
+      manifestPath: inputWithManifest.manifestPath,
       requireRuleReference: true,
       ruleReferences: [
         patternAuthorityRuleReferenceFromRule({
           id: input.ruleId,
           gritPattern: input.patternName,
-          manifestPath: input.manifestPath,
+          manifestPath: inputWithManifest.manifestPath,
           ownerTool: "grit-check",
           lane: input.lifecycle === "registered-enforced" ? "enforced" : "advisory",
         }),
@@ -62,6 +107,13 @@ function registeredPatternPromotionProgram(input) {
     }
 
     const manifest = validation.manifest;
+    if (manifest.lifecycle === "candidate") {
+      return yield* fail(
+        "manifest-rejected",
+        input.ruleId,
+        "requires a registered manifest lifecycle"
+      );
+    }
     yield* validateRegisteredBaselineContract(store, manifest);
 
     const activePatternPath = `.grit/patterns/habitat/checks/${input.patternName}.md`;
@@ -87,8 +139,8 @@ function registeredPatternPromotionProgram(input) {
     const rulesPath = "tools/habitat-harness/src/rules/rules.json";
     const rulesFile = yield* store.readJson(rulesPath);
     const rulesJson = normalizeRulesJson(rulesFile, input.ruleId);
-    const ruleEntry = registeredRuleEntry(input, manifest);
-    yield* store.writeText(activePatternPath, registeredPatternMarkdown(input, manifest));
+    const ruleEntry = registeredRuleEntry(inputWithManifest, manifest);
+    yield* store.writeText(activePatternPath, registeredPatternMarkdown(inputWithManifest, manifest));
     yield* store.writeJson(rulesPath, {
       ...rulesJson,
       rules: [...rulesJson.rules, ruleEntry],
@@ -103,7 +155,12 @@ function registeredPatternPromotionProgram(input) {
   });
 }
 
-function registeredRuleEntry(input, manifest) {
+function registeredRuleEntry(
+  input: PatternPromotionInput & { manifestPath: string },
+  manifest: PatternAuthorityManifest & {
+    lifecycle: "registered-advisory" | "registered-enforced";
+  }
+) {
   const lane = input.lifecycle === "registered-enforced" ? "enforced" : "advisory";
   return {
     id: input.ruleId,
@@ -112,7 +169,7 @@ function registeredRuleEntry(input, manifest) {
     lane,
     scope: `include: ${manifest.scanRoots.include.join(", ")}; exclude: ${manifest.scanRoots.exclude.join(", ")}`,
     forbids: `Matches generated Grit pattern '${input.patternName}' under the accepted Pattern Authority Manifest.`,
-    why: manifest.normativeSources.map((source) => source.claim).join(" "),
+    why: manifest.normativeSources.map((source) => source.summary).join(" "),
     detect: ["habitat", "check", "--tool", "grit-check"],
     remediate: null,
     message: `Review Pattern Authority Manifest ${input.manifestPath}.`,
@@ -127,19 +184,24 @@ function registeredRuleEntry(input, manifest) {
   };
 }
 
-function registeredPatternMarkdown(input, manifest) {
+function registeredPatternMarkdown(
+  input: PatternPromotionInput & { manifestPath: string },
+  manifest: PatternAuthorityManifest & {
+    lifecycle: "registered-advisory" | "registered-enforced";
+  }
+): string {
   const identifier = `__habitat_forbidden_${input.patternName}`.replace(/[^a-zA-Z0-9_]/g, "_");
   const lane = input.lifecycle === "registered-enforced" ? "enforced" : "advisory";
   return `---\nlevel: error\ntags:\n  - habitat-generated\n  - habitat-${lane}\n---\n# ${titleize(input.ruleId)}\n\nGenerated registered ${lane} pattern. Habitat authority is stored in \`${manifest.baselineContract.ruleIntroductionManifest}\` and \`${input.manifestPath}\`; Grit prose is not the authority source.\n\n\`\`\`grit\nlanguage ${manifest.language.gritLanguage}\n\n\`${identifier}($value)\`\n\`\`\`\n\n## Matches fixture\n\n\`\`\`typescript\n${identifier}(\"violation\");\n\`\`\`\n\n\`\`\`typescript\n${identifier}(\"violation\");\n\`\`\`\n\n## Ignores fixture\n\n\`\`\`typescript\nconst allowed = \"${identifier}\";\n\`\`\`\n`;
 }
 
-function normalizeRulesJson(value, ruleId) {
+function normalizeRulesJson(value: unknown, ruleId: string) {
   const rulesParse = parseRuleRegistryDocument(value, "tools/habitat-harness/src/rules/rules.json");
   if (!rulesParse.ok) {
     throw new PatternPromotionFailure({
       reason: "manifest-unreadable",
       message: `tools/habitat-harness/src/rules/rules.json is invalid: ${rulesParse.issues
-        .map((issue) => issue.message)
+        .map((issue: RuleRegistryIssue) => issue.message)
         .join("; ")}`,
     });
   }
@@ -153,7 +215,12 @@ function normalizeRulesJson(value, ruleId) {
   return rulesJson;
 }
 
-function validateRegisteredBaselineContract(store, manifest) {
+function validateRegisteredBaselineContract(
+  store: PatternPromotionStoreService,
+  manifest: PatternAuthorityManifest & {
+    lifecycle: "registered-advisory" | "registered-enforced";
+  }
+) {
   return Effect.gen(function* () {
     const baseline = manifest.baselineContract;
     const expectedBaselinePath = `tools/habitat-harness/baselines/${manifest.ruleId}.json`;
@@ -195,13 +262,25 @@ function validateRegisteredBaselineContract(store, manifest) {
       store.readJson(baseline.baselinePath),
       store.readJson(baseline.ruleIntroductionManifest),
     ]);
-    if (!Array.isArray(baselineJson) || baselineJson.some((key) => typeof key !== "string")) {
+    if (!Value.Check(BaselineKeyArraySchema, baselineJson)) {
       return yield* fail(
         "baseline-contract-rejected",
         manifest.ruleId,
         `baseline file '${baseline.baselinePath}' must contain a JSON string array`
       );
     }
+    if (!Value.Check(RuleIntroductionBaselineManifestSchema, introductionManifest)) {
+      return yield* fail(
+        "baseline-contract-rejected",
+        manifest.ruleId,
+        `rule-introduction baseline manifest '${baseline.ruleIntroductionManifest}' must be a structured JSON object`
+      );
+    }
+    const baselineKeys = Value.Parse(BaselineKeyArraySchema, baselineJson);
+    const typedIntroductionManifest = Value.Parse(
+      RuleIntroductionBaselineManifestSchema,
+      introductionManifest
+    );
     if (baseline.baselineAction === "committed-empty" && baselineJson.length > 0) {
       return yield* fail(
         "baseline-contract-rejected",
@@ -209,18 +288,17 @@ function validateRegisteredBaselineContract(store, manifest) {
         "committed-empty baseline action requires an explicit empty baseline file"
       );
     }
-    const sortedBaselineKeys = [...baselineJson].sort();
-    const sortedManifestKeys = [...(introductionManifest.initialBaselineKeys ?? [])].sort();
+    const sortedBaselineKeys = [...baselineKeys].sort();
+    const sortedManifestKeys = [...typedIntroductionManifest.initialBaselineKeys].sort();
     if (
-      introductionManifest.ruleId !== manifest.ruleId ||
-      introductionManifest.ownerProject !== manifest.ownerProject ||
-      introductionManifest.ownerTool !== manifest.ownerTool ||
-      introductionManifest.baselinePath !== baseline.baselinePath ||
-      !Array.isArray(introductionManifest.initialBaselineKeys) ||
+      typedIntroductionManifest.ruleId !== manifest.ruleId ||
+      typedIntroductionManifest.ownerProject !== manifest.ownerProject ||
+      typedIntroductionManifest.ownerTool !== manifest.ownerTool ||
+      typedIntroductionManifest.baselinePath !== baseline.baselinePath ||
       sortedBaselineKeys.length !== sortedManifestKeys.length ||
       sortedBaselineKeys.some((key, index) => key !== sortedManifestKeys[index]) ||
-      typeof introductionManifest.changeId !== "string" ||
-      typeof introductionManifest.comparisonBase !== "string"
+      typedIntroductionManifest.changeId.length === 0 ||
+      typedIntroductionManifest.comparisonBase.length === 0
     ) {
       return yield* fail(
         "baseline-contract-rejected",
@@ -231,7 +309,12 @@ function validateRegisteredBaselineContract(store, manifest) {
   });
 }
 
-function failIfExists(store, path, ruleId, message) {
+function failIfExists(
+  store: PatternPromotionStoreService,
+  path: string,
+  ruleId: string,
+  message: string
+) {
   return store
     .exists(path)
     .pipe(
@@ -241,7 +324,7 @@ function failIfExists(store, path, ruleId, message) {
     );
 }
 
-function fail(reason, ruleId, message) {
+function fail(reason: string, ruleId: string, message: string) {
   return Effect.fail(
     new PatternPromotionFailure({
       reason,
@@ -250,19 +333,13 @@ function fail(reason, ruleId, message) {
   );
 }
 
-function titleize(value) {
+function titleize(value: string): string {
   return value
     .split("-")
     .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
     .join(" ");
 }
 
-function errorMessage(error) {
+function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
-
-module.exports = {
-  makeNxTreePatternPromotionStoreLayer,
-  PatternPromotionFailure,
-  registeredPatternPromotionProgram,
-};

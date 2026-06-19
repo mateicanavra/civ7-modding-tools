@@ -153,7 +153,7 @@ describe("rule selector boundary", () => {
     expect(() => renderCheckReport(invalid, { json: true })).toThrow(/ok must be false/);
   });
 
-  test("staged execution preserves selected rules for explicit D7 disposition", () => {
+  test("staged execution preserves selected rules for explicit not-applicable disposition", () => {
     const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
       localFeedback: true,
     });
@@ -202,7 +202,7 @@ describe("rule selector boundary", () => {
     expect(
       gritReports.every((rule) =>
         rule.diagnostics.some((diagnostic) =>
-          diagnostic.message.startsWith("D7 not applicable: staged scope")
+          diagnostic.message.startsWith("Rule not applicable: staged scope")
         )
       )
     ).toBe(true);

@@ -85,7 +85,7 @@ function missingAdmissionRefusal(): SpawnResult {
     stdout: "",
     stderr: [
       "habitat fix refused: missing-apply-admission",
-      "habitat fix requires a D8 apply admission before it can plan or write changes.",
+      "habitat fix requires an apply admission before it can plan or write changes.",
       "recovery: Admit an apply-capable pattern through Pattern Authority before invoking fix.",
       "",
     ].join("\n"),

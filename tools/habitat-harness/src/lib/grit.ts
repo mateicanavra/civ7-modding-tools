@@ -1,4 +1,3 @@
-export { injectedProbeRoot } from "../adapters/grit/constants.js";
 export {
   gritCheckProgram,
   gritCheckRequest,

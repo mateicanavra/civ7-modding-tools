@@ -22,10 +22,11 @@ CI status, review approval, or product/runtime correctness. It consumes bounded
 upstream projections and turns them into local feedback that helps a human or
 agent recover quickly before commit or push.
 
-This packet remains blocking until fresh D11 review lanes read the repaired disk
-state and record no unresolved P1/P2 findings. Acceptance, when reached, is
-design/specification only; source implementation remains blocked behind the
-live dependency and D0/D1 compatibility gates named below.
+This packet now includes the bounded D11 source implementation layer. Hook-local
+feedback is product-shaped, generic resource policy is optional/configured, and
+process-only refactor scaffolding is removed from the active Habitat runtime and
+package docs. Future D11 slices remain gated by the live dependency and D0/D1
+compatibility rules named below.
 
 ## Authority
 
@@ -78,40 +79,40 @@ checks at that moment.
   - D10/D7 protected-zone refusal projection for staged generated/protected
     mutation feedback.
   - D3 graph target/base facts for pre-push affected-target behavior.
-  - D1 non-claim and local feedback trace vocabulary.
+  - D1 command/output boundary and local feedback trace vocabulary.
   - D0 compatibility rows for every touched hook, human-output, command,
     package export, generated help, script, docs, or example surface.
 - Replaces current `ResourceState.kind` plus `allowPreCommit` boolean
   correlation with a discriminated resource decision where allowed behavior is
   derived from the variant.
-- Treats current legacy hook human output as a D0/D1 compatibility surface, not
-  D11 target language.
+- Treats current hook human output as a D0/D1 compatibility surface, not D11
+  target language.
 - Defines later implementation write set, protected paths, validation gates, and
   false-green stop conditions.
 
 ## What Does Not Change
 
-- D11 does not implement source changes during this remediation pass.
 - D11 does not redefine check report semantics, rule status, diagnostic
   identity, baseline authority, protected/generated-zone policy, apply
   transaction safety, workspace graph authority, or Graphite stack semantics.
 - D11 does not add a broad command-record or artifact substrate.
 - D11 does not authorize hidden stash behavior, unstaged hunk rewriting, broad
   restaging, direct generated-output edits, or hook bypass policy changes.
-- D11 does not claim CI, review approval, product/runtime correctness, safe
-  apply completion, Graphite readiness, OpenSpec acceptance, or current-tree
-  cleanliness.
+- D11 hook pass remains local feedback. CI, review approval,
+  product/runtime correctness, safe apply completion, Graphite readiness,
+  OpenSpec acceptance, and current-tree cleanliness each remain owned by their
+  explicit command or workflow.
 
 ## Required Upstream Edges
 
 | Upstream | D11 consumes | Prohibited inference |
 | --- | --- | --- |
 | D0 | Closed compatibility rows for hook command behavior, hook human output, generated help, `.husky` delegators, docs/examples, `runHook` export, and any trace/schema surface. | D11 cannot change or rename public surfaces without row citation and closed D0 handling. |
-| D1 | `HookTrace` / `LocalFeedbackTrace`, non-claim identifiers, local feedback family, command record boundaries, and legacy wording compatibility handling. | D11 cannot keep legacy authority vocabulary as target language unless D0/D1 explicitly preserve it for a concrete surface. |
+| D1 | `HookTrace` / `LocalFeedbackTrace`, local feedback family, command record boundaries, and public output compatibility handling. | D11 cannot keep authority-shaped wording as target language unless D0/D1 explicitly preserve it for a concrete surface. |
 | D3 | Workspace graph/affected-target facts and graph-refusal states needed by pre-push affected behavior. | D11 cannot treat a no-op `nx affected` wrapper, missing graph facts, or unresolved target as hook success. |
 | D6 | Staged diagnostic projections, diagnostic identity, adapter/projection/refusal outcomes, and D15 trigger conditions for unrepresentable diagnostic command observations. | D11 cannot parse raw Grit output, invent diagnostic meanings, or collapse D6 diagnostic feedback into D7 check projection. |
-| D7 | `LocalFeedbackCheckProjection` for structural check outcomes, including selected rule summaries, failure/advisory counts, dependency/refusal labels, recovery text, and local-only non-claims. | D11 cannot parse D7 human output or reinterpret `CheckReport` internals as hook truth. |
-| D9 | Local-feedback-safe transaction projection: unavailable/refused/dry-run/applied/rolled-back/rollback-failed plus recovery and non-claims. | D11 cannot assert apply/write safety, rollback correctness, or transaction readiness from hook state alone. |
+| D7 | `LocalFeedbackCheckProjection` for structural check outcomes, including selected rule summaries, failure/advisory counts, dependency/refusal labels, and recovery text. | D11 cannot parse D7 human output or reinterpret `CheckReport` internals as hook truth. |
+| D9 | Local-feedback-safe transaction state when hook output references apply/fix behavior. | D11 cannot assert apply/write safety, rollback correctness, or transaction readiness from hook state alone. |
 | D10 | Staged protected/generated/forbidden mutation decisions and recovery guidance, either directly through D10 consumer projection or carried through D7. | D11 cannot define path policy, downgrade refusal to warning-only, or equate staged guard refusal with generated freshness. |
 | G-HOST | Host declarations only through D10/D9 projections where host-owned paths or host gates are touched. | D11 cannot hard-code host-specific path semantics into generic Local Feedback. |
 
@@ -130,13 +131,13 @@ diagnostic/Grit results:
 
 ## Public And Durable Surfaces
 
-D11 source implementation is blocked until D0 rows classify every touched
-surface from this list:
+This D11 source layer relies on D0 rows for every touched surface from this
+list, and future D11 changes must preserve that row-citation discipline:
 
 - `.husky/pre-commit` and `.husky/pre-push` delegator behavior.
 - `habitat hook [NAME]` command behavior, unsupported hook behavior, `--base`,
   Oclif help/generated help, and any new dry-run flag.
-- Hook human stdout/stderr, including the current legacy local feedback
+- Hook human stdout/stderr, including the current local feedback
   notice.
 - `runHook` package export through `$HABITAT_TOOL/src/index.ts` and
   `$HABITAT_TOOL/src/lib/command-engine.ts`.
@@ -148,10 +149,10 @@ surface from this list:
 - Script/Nx target output if hook behavior changes target invocation or
   reporting.
 
-## Expected Later Write Set
+## Source Write Set
 
-Later D11 implementation may touch only these paths, after the dependency gates
-above are live where needed:
+This D11 source layer may touch only these paths, with future changes still
+gated by the dependency rules above where needed:
 
 - `$HABITAT_TOOL/src/lib/hooks.ts` or D11-owned extracted hook modules under
   `$HABITAT_TOOL/src/lib/`.
@@ -186,7 +187,7 @@ Design-time gates before D11 acceptance:
 - Fresh final D11 rereview lanes for domain/ontology, TypeScript/validation,
   OpenSpec/information, code/vendor topology, and cross-domino/product.
 
-Later implementation gates:
+Source implementation gates:
 
 - `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` plus any
   D11-owned split tests introduced by implementation.
@@ -197,8 +198,8 @@ Later implementation gates:
   through D10/D7, partial staging refusal, formatter touched-path restage only,
   formatter failure, restage failure, Biome check failure, D6 diagnostic finding,
   D6 diagnostic unavailable/refused/adapter failure, and clean pass.
-- Pre-push tests: explicit base, Graphite parent, merge-base fallback, literal
-  main fallback, D3 graph/target unavailable, Nx affected failure, and bounded
+- Pre-push tests: explicit base, Graphite parent, merge-base resolution, refused
+  unresolved base, graph/target unavailable, Nx affected failure, and bounded
   command timeout/oracle.
 - Command-surface checks for unsupported hook and any D0-backed help/dry-run
   behavior. Current behavior input shows `hook --help`, `hook pre-commit
@@ -216,7 +217,7 @@ Later implementation gates:
 - Resource decision state can represent both allowed and refused behavior.
 - Formatter restage can include paths not touched by the formatter.
 - Partial staging is stashed, rewritten, silently skipped, or formatted.
-- Hook output, trace, docs, or tests describe hook success as CI, review,
-  OpenSpec, Graphite, apply-safety, runtime/product, or current-tree completion.
+- Hook output, trace, docs, or tests route CI, review, OpenSpec, Graphite,
+  apply-safety, runtime/product, or current-tree completion through hook pass.
 - Public hook output/help/export behavior changes without concrete D0 row
   citation and D1 output-family handling.

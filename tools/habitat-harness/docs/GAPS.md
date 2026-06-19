@@ -4,9 +4,9 @@ This document names the gaps that matter for the next Habitat product phase.
 The distinction is central:
 
 - Platform-substrate health means Habitat can classify, check, enforce, route,
-  prove, and guard structural change.
+  verify, and guard structural change.
 - Authoring-workflow capability means Habitat can create useful MapGen
-  structures directly and prove those generated structures build, check, and fit
+  structures directly and verify those generated structures build, check, and fit
   the recipe/domain topology.
 
 The current toolkit is much stronger on platform-substrate health than on
@@ -55,7 +55,7 @@ Required acceptance properties for future authoring generators:
 - generated structures pass owning package `check`, `test`, and relevant
   Habitat rules;
 - generated output does not weaken boundary, Grit, or baseline contracts;
-- generator tests prove both writes and refusals.
+- generator tests validate both writes and refusals.
 
 ## Diagnostic Patterns Are Not Broad Fixes
 
@@ -76,10 +76,10 @@ or ambiguous rewrites are not automatically applied. It is unfinished wherever a
 diagnostic pattern has a mechanical, locally provable repair that Habitat still
 does not expose.
 
-## Apply Safety Still Needs Per-Pattern Product Proof
+## Apply Safety Still Needs Per-Pattern Product Validation
 
 The apply transaction has strong generic guardrails, but each new apply pattern
-still needs its own proof:
+still needs its own validation:
 
 - exact rewrite inventory;
 - allowed roots;
@@ -90,8 +90,8 @@ still needs its own proof:
 - current-tree dry-run result;
 - rollback and dirty-worktree behavior.
 
-The transaction substrate cannot prove the semantic correctness of a pattern by
-itself.
+The transaction substrate cannot establish the semantic correctness of a pattern
+by itself.
 
 ## Pattern Authority Can Overpower Product Focus
 
@@ -103,17 +103,17 @@ gravity. The next phase should not confuse "well-governed rule admission" with
 Pattern work should be judged by whether it protects or repairs real authoring
 flows.
 
-## Docs Are Reference, Not Product Proof
+## Docs Are Reference, Not Product Behavior
 
 Habitat has a deep documentation and ledger trail. That trail is useful for
-handoff and audit, but it is not product proof.
+handoff and audit, but it is not product behavior.
 
 A future agent should prefer:
 
 - generator acceptance tests over prose claims;
 - current-tree command output over historical ledgers;
 - path-grounded code inspection over broad summaries;
-- applied diffs and rollback proof over "pattern exists" claims.
+- applied diffs and rollback evidence over "pattern exists" claims.
 
 ## Known Non-Goals For The Existing Surface
 
@@ -128,4 +128,4 @@ The current toolkit does not claim to:
 - make hooks authoritative over CI or explicit graph verification.
 
 Any future work that wants Habitat to own one of these must add a concrete
-interface, proof path, and acceptance test.
+interface, validation path, and acceptance test.

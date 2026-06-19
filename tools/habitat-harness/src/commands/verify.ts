@@ -36,7 +36,11 @@ export default class Verify extends HabitatCommand {
     const { flags } = await this.parse(Verify);
     const startedAt = new Date().toISOString();
     const startedMs = Date.now();
-    const base = resolveVerifyBase(flags.base);
+    const baseDecision = resolveVerifyBase(flags.base);
+    if (baseDecision.kind === "refused") {
+      this.error(baseDecision.message, { exit: 1 });
+    }
+    const base = baseDecision.base;
     const report = await createCheckReport({ base, command: checkCommandContext(this.rawArgv()) });
     const checkProjection = verifyCheckSummaryProjection(report);
     const targetPlan = await readVerifyTargetPlan();

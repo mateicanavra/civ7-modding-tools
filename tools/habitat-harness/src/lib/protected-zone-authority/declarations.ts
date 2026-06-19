@@ -56,7 +56,6 @@ export function declarationForHostSurfacePath(candidate: string): DeclarationRea
       matcher: projection.matcher,
       owner: ownerProjection(projection.owner),
       recovery: projection.recovery,
-      nonClaims: projection.nonClaims,
     }),
   });
 }
@@ -114,7 +113,6 @@ function generatedSurfaceDeclaration(rule: GeneratedZoneRule): DeclarationReadin
       matcher: projection.matcher,
       owner: ownerProjection(projection.owner),
       recovery: projection.recovery,
-      nonClaims: projection.nonClaims,
     }),
   });
 }
@@ -135,9 +133,7 @@ function forbiddenArtifactDeclaration(rule: ForbiddenFileNameRule): DeclarationR
         ownerId: "habitat-repo-policy",
         actionKind: "remove-artifact",
         instruction: `Remove ${rule.forbiddenFileNames.join(", ")} and use the repository's declared package manager.`,
-        nonClaims: ["does-not-prove-dependency-freshness"],
       },
-      nonClaims: ["does-not-prove-dependency-freshness"],
     }),
   });
 }
@@ -165,9 +161,11 @@ function blockedDeclaration(
   return Value.Parse(DeclarationReadinessSchema, {
     kind,
     zoneId,
-    ownerId: kind === "blocked-missing-host-declaration" ? "G-HOST" : "D10",
+    ownerId:
+      kind === "blocked-missing-host-declaration"
+        ? "host-policy"
+        : "protected-zone-policy",
     recovery: declarationRepairRecovery(kind),
-    nonClaims: [`does-not-authorize-generated-zone:${zoneId}`],
   });
 }
 
@@ -175,14 +173,16 @@ function declarationRepairRecovery(
   kind: "blocked-missing-host-declaration" | "blocked-declaration-conflict"
 ): ProtectedZoneRecoveryInstruction {
   return {
-    ownerId: kind === "blocked-missing-host-declaration" ? "G-HOST" : "D10",
+    ownerId:
+      kind === "blocked-missing-host-declaration"
+        ? "host-policy"
+        : "protected-zone-policy",
     actionKind: "documented-workflow",
     documentRef: "openspec/changes/deep-habitat-host-policy-boundary-gate",
     retryCondition:
       kind === "blocked-missing-host-declaration"
         ? "Retry after the host policy declaration exists and validates."
         : "Retry after the conflicting protected-zone declarations are repaired.",
-    nonClaims: ["does-not-authorize-generated-zone"],
   };
 }
 

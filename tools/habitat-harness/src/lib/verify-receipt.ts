@@ -1,7 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { activeRuleGraphFacts } from "../rules/facts.js";
-import { mergeBase } from "./baseline.js";
 import {
   type VerifyCheckSummaryProjection,
   VerifyCheckSummaryProjectionSchema,
@@ -23,14 +22,24 @@ export interface VerifyOptions {
   commandArgs?: readonly string[];
 }
 
-export const VerifyNonClaimIdSchema = Type.Union([
-  Type.Literal("does-not-prove-ci"),
-  Type.Literal("does-not-prove-apply-safety"),
-  Type.Literal("does-not-prove-graphite-readiness"),
-  Type.Literal("does-not-prove-runtime"),
-  Type.Literal("does-not-prove-rule-correctness"),
+export const VerifyBaseResolutionSchema = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal("resolved"),
+      base: Type.String({ minLength: 1 }),
+      source: Type.Union([Type.Literal("flag"), Type.Literal("merge-base")]),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("refused"),
+      message: Type.String({ minLength: 1 }),
+    },
+    { additionalProperties: false }
+  ),
 ]);
-export type VerifyNonClaimId = Static<typeof VerifyNonClaimIdSchema>;
+export type VerifyBaseResolution = Static<typeof VerifyBaseResolutionSchema>;
 
 export const VerifyCommandRecordSchema = Type.Object(
   {
@@ -128,7 +137,6 @@ export const VerifyNxAffectedSchema = Type.Union([
 export const VerifyPostStateSchema = Type.Object(
   {
     gitStatusShort: Type.String(),
-    resourcesStatus: Type.String(),
   },
   { additionalProperties: false }
 );
@@ -141,7 +149,6 @@ export const VerifyReceiptSchema = Type.Object(
     habitatCheck: VerifyHabitatCheckSummarySchema,
     nxAffected: VerifyNxAffectedSchema,
     postState: VerifyPostStateSchema,
-    nonClaims: Type.Array(VerifyNonClaimIdSchema),
   },
   { additionalProperties: false }
 );
@@ -179,8 +186,37 @@ export interface VerifyReceiptInput {
 
 export const verifyAffectedTargets = [...verifyTargetNames()];
 
-export function resolveVerifyBase(base?: string): string {
-  return base ?? mergeBase("main") ?? "main";
+export function resolveVerifyBase(base?: string): VerifyBaseResolution {
+  if (base) return Value.Parse(VerifyBaseResolutionSchema, { kind: "resolved", base, source: "flag" });
+  const defaultBranch = remoteDefaultBranch();
+  const resolved = defaultBranch ? mergeBaseForRef(defaultBranch) : null;
+  if (resolved) {
+    return Value.Parse(VerifyBaseResolutionSchema, {
+      kind: "resolved",
+      base: resolved,
+      source: "merge-base",
+    });
+  }
+  return Value.Parse(VerifyBaseResolutionSchema, {
+    kind: "refused",
+    message:
+      "could not resolve verify base from the remote default branch; pass --base explicitly.",
+  });
+}
+
+function remoteDefaultBranch(): string | null {
+  const result = run(["git", "symbolic-ref", "--quiet", "--short", "refs/remotes/origin/HEAD"], {
+    cwd: repoRoot,
+  });
+  if (result.exitCode !== 0) return null;
+  const ref = result.stdout.trim();
+  return ref || null;
+}
+
+function mergeBaseForRef(ref: string): string | null {
+  const result = run(["git", "merge-base", "HEAD", ref], { cwd: repoRoot });
+  if (result.exitCode !== 0) return null;
+  return result.stdout.trim() || null;
 }
 
 export async function readVerifyTargetPlan(): Promise<VerifyTargetPlan> {
@@ -203,7 +239,6 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
   const targetPlan = input.verifyTargetPlan ?? verifyTargetPlan();
   const nxArgv = affectedVerificationArgv(input.resolvedBase, targetPlan);
   const gitStatus = run(["git", "status", "--short"], { cwd: repoRoot });
-  const resourcesStatus = run(["bun", "run", "resources:status"], { cwd: repoRoot });
   const habitatCheckProjection = verifyCheckSummaryProjection(input.checkReport);
   const nxAffected =
     habitatCheckProjection.allowsAffectedExecution && input.affectedResult
@@ -231,15 +266,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
     nxAffected,
     postState: {
       gitStatusShort: gitStatus.stdout.trim(),
-      resourcesStatus: `${resourcesStatus.stdout}${resourcesStatus.stderr}`.trim(),
     },
-    nonClaims: [
-      "does-not-prove-ci",
-      "does-not-prove-apply-safety",
-      "does-not-prove-graphite-readiness",
-      "does-not-prove-runtime",
-      "does-not-prove-rule-correctness",
-    ],
   };
 }
 

@@ -72,12 +72,10 @@ export type {
   RuleReport,
 } from "./lib/diagnostics.js";
 export { validateCheckReport } from "./lib/diagnostics.js";
-export { effectParityProbeProgram, runEffectParityProbe } from "./lib/effect-parity.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
 export { runFix } from "./lib/fix.js";
 export { readGitState } from "./lib/git-state.js";
 export { runGraph } from "./lib/graph.js";
-export { injectedProbeRoot } from "./lib/grit.js";
 export type { GritAdapterFailure, GritAdapterFailureTag } from "./lib/grit-failures.js";
 export {
   createGritAdapterFailure,
@@ -85,18 +83,6 @@ export {
   isGritAdapterFailureTag,
   renderGritAdapterFailure,
 } from "./lib/grit-failures.js";
-export type {
-  InjectedGritProbeInput,
-  InjectedGritProbeRequest,
-  InjectedProbeOutcome,
-  InjectedProbeScope,
-} from "./lib/grit-injected-probe.js";
-export {
-  InjectedGritProbeRequestSchema,
-  InjectedProbeScopeSchema,
-  injectedGritProbeProgram,
-  runInjectedGritProbe,
-} from "./lib/grit-injected-probe.js";
 export type {
   CommandCachePolicy,
   GritParseStatus,
@@ -120,7 +106,7 @@ export type {
   RuleSelectorKind,
 } from "./lib/rule-selection.js";
 export { describeRuleSelectionFailure, selectRules } from "./lib/rule-selection.js";
-export type { VerifyNonClaimId, VerifyOptions, VerifyReceipt } from "./lib/verify-receipt.js";
+export type { VerifyBaseResolution, VerifyOptions, VerifyReceipt } from "./lib/verify-receipt.js";
 export {
   createVerifyReceipt,
   isVerifyReceipt,
@@ -128,9 +114,9 @@ export {
   runAffectedVerification,
   stringifyVerifyReceipt,
   VerifyBaseSchema,
+  VerifyBaseResolutionSchema,
   VerifyCommandRecordSchema,
   VerifyHabitatCheckSummarySchema,
-  VerifyNonClaimIdSchema,
   VerifyNxAffectedSchema,
   VerifyNxCacheTaskSchema,
   VerifyPostStateSchema,

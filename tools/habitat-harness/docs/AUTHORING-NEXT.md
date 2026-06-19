@@ -9,7 +9,7 @@ generators and apply loops.
 Habitat should let an agent create correct MapGen structures faster than hand
 authoring them from memory.
 
-The next product milestone should be proven by an executable loop:
+The next product milestone should be validated by an executable loop:
 
 ```text
 Use Habitat to generate a new MapGen domain with one operation, wire it into a
@@ -51,15 +51,15 @@ Preferred slice:
    - owning package `check`;
    - owning package `test` where relevant;
    - `bun run habitat:check`;
-   - recipe compilation or the closest current recipe proof.
+   - recipe compilation or the closest current recipe validation.
 
 If current conventions make this slice wrong, choose the smallest complete
-authoring loop that crosses generation, wiring, and proof. Do not stop at files
+authoring loop that crosses generation, wiring, and validation. Do not stop at files
 that compile only because they are unused.
 
 ## Generator Acceptance Contract
 
-Every authoring generator should prove:
+Every authoring generator should demonstrate:
 
 - it writes all required files;
 - it updates all required registries;
@@ -72,12 +72,12 @@ Every authoring generator should prove:
 
 ## Apply Pattern Acceptance Contract
 
-Every new apply pattern should prove:
+Every new apply pattern should demonstrate:
 
 - exact diagnostic rule or source shape it repairs;
 - exact allowed roots;
 - exact file-operation policy;
-- structured rewrite inventory or isolated-copy proof;
+- structured rewrite inventory or isolated-copy diff evidence;
 - target export existence when import paths are rewritten;
 - no unapproved creates or deletes;
 - package-local typecheck/test gate;
@@ -86,11 +86,11 @@ Every new apply pattern should prove:
 - rollback behavior.
 
 Do not wire a pattern into `habitat fix` just because it has Grit fixtures.
-Fixture proof is necessary, but not sufficient.
+Fixture validation is necessary, but not sufficient.
 
 ## Work Discipline
 
-For this phase, product proof outranks control-plane polish.
+For this phase, product behavior outranks control-plane polish.
 
 Prefer:
 
@@ -102,7 +102,7 @@ Prefer:
 
 Avoid:
 
-- adding new documentation layers without generator proof;
+- adding new documentation layers without generator validation;
 - expanding Pattern Authority process for its own sake;
 - treating rule-pack health as authoring capability;
 - accepting "Habitat has generators" unless the generator serves the MapGen

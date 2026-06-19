@@ -75,7 +75,7 @@ Supported outcome:
 - package checks run through owning targets;
 - Habitat checks participate through `habitat:check` where configured.
 
-Use root Nx scripts for review-grade proof.
+Use root Nx scripts for review-grade verification.
 
 ### Run Diagnostic Habitat Verify
 
@@ -89,10 +89,10 @@ Supported outcome:
 
 - Habitat check runs first;
 - affected Nx verification runs only if Habitat check passes;
-- JSON mode can emit a structured proof artifact.
+- JSON mode can emit a structured verification receipt.
 
-This is useful for diagnostic proof slices, not as a replacement for root graph
-proof.
+This is useful for local verification receipts, not as a replacement for root
+graph checks.
 
 ### Scaffold A Uniform Workspace Project
 
@@ -169,7 +169,7 @@ Supported outcome:
 - live writes require clean worktree state;
 - unapproved writes are blocked;
 - changed files are handed to Biome;
-- transaction proof captures changed paths and diff evidence.
+- transaction records capture changed paths and diff evidence.
 
 This is the only generic `habitat fix` codemod path that should be assumed
 available in the current toolkit.
@@ -186,10 +186,10 @@ bun run habitat hook pre-push
 Supported outcome:
 
 - local staged feedback runs through Habitat;
-- Graphite-aware pre-push affected proof can run;
+- Graphite-aware pre-push affected verification can run;
 - hooks reduce friction before CI/review.
 
-Hooks are not authoritative product proof.
+Hooks are not authoritative product verification.
 
 ## Not Supported Yet
 
@@ -257,7 +257,7 @@ Unsupported outcome:
 - mapping every diagnostic rule to an apply pattern;
 - applying helper-redeclaration fixes through `habitat fix`;
 - repairing architecture violations that require semantic decisions;
-- applying rewrites without per-pattern proof.
+- applying rewrites without per-pattern validation.
 
 ### Prove A Generated MapGen Authoring Flow
 
@@ -266,7 +266,7 @@ Unsupported outcome:
 - generate domain + op + stage + step;
 - wire it into recipe topology;
 - run Habitat, Nx, package tests, and recipe compilation as one accepted product
-  proof.
+  validation.
 
 This is the next major product loop to build.
 

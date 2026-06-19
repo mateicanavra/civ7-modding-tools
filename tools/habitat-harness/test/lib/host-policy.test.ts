@@ -50,9 +50,7 @@ describe("host policy boundary", () => {
             actionKind: "documented-workflow",
             documentRef: "docs/system/libs/mapgen/",
             retryCondition: "Retry after owner approval.",
-            nonClaims: ["does-not-prove-protected-write-safety"],
           },
-          nonClaims: ["does-not-prove-protected-write-safety"],
         },
       ],
     });
@@ -87,7 +85,6 @@ describe("host policy boundary", () => {
     expect(hostSurfaceProjectionForGeneratedZone("unknown-zone")).toMatchObject({
       declarationState: "missing",
       mutationLane: "blocked",
-      nonClaims: ["does-not-authorize-generated-zone:unknown-zone"],
     });
   });
 
@@ -111,7 +108,6 @@ describe("host policy boundary", () => {
       )
     ).toMatchObject({
       declarationState: "missing",
-      nonClaims: ["does-not-authorize-host-gate"],
     });
   });
 
@@ -192,7 +188,6 @@ describe("host policy boundary", () => {
       declarationState: "declared",
       supportState: "refused",
       noWrite: true,
-      nonClaims: ["does-not-prove-authoring-support"],
     });
   });
 
@@ -200,7 +195,6 @@ describe("host policy boundary", () => {
     expect(hostAuthoringBoundaryProjection("mapgen-authoring-topology")).toMatchObject({
       declarationState: "not-applicable",
       relation: "not-public-authority",
-      nonClaims: ["does-not-authorize-host-owned-authoring-topology"],
     });
   });
 });

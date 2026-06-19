@@ -1,13 +1,10 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, rmSync } from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
-
-const require = createRequire(import.meta.url);
-const { projectGenerator } = require("../../src/generators/project/generator.cjs");
+import { projectGenerator } from "../../src/generators/project/generator.js";
 const repoRoot = path.resolve(import.meta.dirname, "../../../..");
 
 const scratchDiscoveryProjects = [
@@ -83,6 +80,17 @@ describe("Habitat project generator", () => {
 
     expect(readJson(tree, "packages/runtime-kit/package.json")).toMatchObject({
       name: "@civ7/runtime-kit",
+      nx: { tags: ["kind:foundation"] },
+    });
+  });
+
+  test("uses unscoped package names when the workspace has no package scope", async () => {
+    const tree = createProjectTree({ packageScope: null });
+
+    await projectGenerator(tree, { name: "runtime-kit", kind: "foundation" });
+
+    expect(readJson(tree, "packages/runtime-kit/package.json")).toMatchObject({
+      name: "runtime-kit",
       nx: { tags: ["kind:foundation"] },
     });
   });
@@ -192,12 +200,18 @@ describe("Habitat project generator", () => {
   }, 60_000);
 });
 
-function createProjectTree() {
+function createProjectTree(options: { packageScope: string | null } = { packageScope: "civ7" }) {
   const tree = createTreeWithEmptyWorkspace();
   tree.write("apps/.keep", "");
   tree.write("mods/.keep", "");
   tree.write("packages/.keep", "");
   tree.write("tools/.keep", "");
+  if (options.packageScope) {
+    tree.write(
+      "packages/existing-scope/package.json",
+      `${JSON.stringify({ name: `@${options.packageScope}/existing-scope` })}\n`
+    );
+  }
   return tree;
 }
 
@@ -210,7 +224,7 @@ function cleanupScratchDiscoveryProjects(): void {
 function runNx(args: string[]): { stdout: string; stderr: string } {
   const result = spawnSync("bun", ["run", "nx", ...args], {
     cwd: repoRoot,
-    env: process.env,
+    env: { ...process.env, NX_DAEMON: "false" },
     encoding: "utf8",
     maxBuffer: 32 * 1024 * 1024,
   });

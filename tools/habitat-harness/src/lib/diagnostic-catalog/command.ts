@@ -1,7 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import type { HabitatCommandResult, HabitatProcessRequest } from "../habitat-process.js";
-import { type DiagnosticNonClaim, DiagnosticNonClaimSchema } from "./catalog.js";
 import type { DiagnosticAdapterFailureKind } from "./failure.js";
 
 const DiagnosticCommandRequestMetadataSchema = Type.Object(
@@ -28,7 +27,6 @@ export const NativeGritCommandFamilySchema = Type.Union([
   Type.Literal("selected-rule-json-check"),
   Type.Literal("docs-text-check"),
   Type.Literal("docs-apply-dry-run-observation"),
-  Type.Literal("injected-probe-json-check"),
 ]);
 
 export const NativeGritOutputContractSchema = Type.Union([
@@ -63,7 +61,6 @@ export const NativeGritCheckRequestSchema = Type.Interface(
     cwd: Type.String({ minLength: 1 }),
     outputContract: NativeGritOutputContractSchema,
     cacheRequirement: DiagnosticCacheRequirementSchema,
-    limitations: Type.Array(DiagnosticNonClaimSchema),
   },
   { additionalProperties: false }
 );
@@ -194,7 +191,6 @@ export function nativeGritCheckRequestFromProcessRequest(input: {
   commandFamily: NativeGritCommandFamily;
   outputContract: NativeGritOutputContract;
   cacheRequirement: DiagnosticCacheRequirement;
-  limitations?: readonly DiagnosticNonClaim[];
 }): NativeGritCheckRequest {
   return Value.Parse(NativeGritCheckRequestSchema, {
     commandFamily: input.commandFamily,
@@ -205,7 +201,6 @@ export function nativeGritCheckRequestFromProcessRequest(input: {
     scanRoots: [...(input.request.scanRoots ?? [])],
     outputContract: input.outputContract,
     cacheRequirement: input.cacheRequirement,
-    limitations: [...(input.limitations ?? diagnosticLimitationsForCache(input.cacheRequirement))],
   });
 }
 
@@ -225,7 +220,6 @@ export function nativeGritCheckRequestFromCommandResult(
     scanRoots: [...commandResult.scanRoots],
     outputContract,
     cacheRequirement,
-    limitations: diagnosticLimitationsForCache(cacheRequirement),
   });
 }
 
@@ -314,14 +308,6 @@ export function diagnosticAdapterFailureForCacheObservation(
   observation: DiagnosticCacheObservation
 ): DiagnosticAdapterFailureKind | null {
   return observation.kind === "missing-required-observation" ? observation.failure : null;
-}
-
-function diagnosticLimitationsForCache(
-  requirement: DiagnosticCacheRequirement
-): readonly DiagnosticNonClaim[] {
-  return requirement.kind === "workspace-cache-allowed"
-    ? ["workspace-cache-not-fresh-observation"]
-    : [];
 }
 
 function outputMetadata(output: HabitatCommandResult["stdout"]): DiagnosticOutputMetadata {

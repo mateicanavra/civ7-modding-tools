@@ -9,19 +9,16 @@
     "habitat": "./bin/run.js"
   },
   "generators": "./generators.json",
-  "migrations": "./migrations.json",
   "files": [
     "bin",
     "dist",
     "generators.json",
-    "migrations.json",
     "oclif.manifest.json",
     "src/generators",
     "src/lib/workspace-graph",
     "src/lib/workspace-graph-contract.ts",
-    "src/migrations",
     "src/plugin",
-    "src/plugin.js",
+    "src/plugin.ts",
     "src/rules/registry",
     "src/rules/rules.json",
     "baselines"
@@ -82,7 +79,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./plugin": "./src/plugin.js",
+    "./plugin": "./src/plugin.ts",
     "./rules": "./src/rules/rules.json"
   },
   "dependencies": {

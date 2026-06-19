@@ -109,7 +109,6 @@ export type GritDiagnosticAcquisition = Static<typeof GritDiagnosticAcquisitionS
 export interface GritCheckOptions {
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
-  allowInjectedProbeRoot?: boolean;
   allowDocsRoot?: boolean;
   outputFormat?: GritCheckOutputFormat;
 }

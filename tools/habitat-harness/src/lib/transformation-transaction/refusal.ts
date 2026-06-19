@@ -1,5 +1,5 @@
 import { type Static, Type } from "typebox";
-import { NonEmptyStringSchema, TransactionNonClaimIdArraySchema } from "./primitives.js";
+import { NonEmptyStringSchema } from "./primitives.js";
 
 export const TransformationRefusalReasonSchema = Type.Union([
   Type.Literal("missing-apply-admission"),
@@ -42,7 +42,6 @@ export const TransactionRefusalSchema = Type.Object(
     reason: TransformationRefusalReasonSchema,
     message: NonEmptyStringSchema,
     recovery: Type.Array(RecoveryInstructionSchema, { minItems: 1 }),
-    nonClaims: TransactionNonClaimIdArraySchema,
   },
   { additionalProperties: false }
 );

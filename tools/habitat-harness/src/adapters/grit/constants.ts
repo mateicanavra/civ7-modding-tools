@@ -1,7 +1,5 @@
 export const gritBin = "grit";
 
-export const injectedProbeRoot = "tools/habitat-harness/injected-probe-roots";
-
 export const protectedScanRootPrefixes = [
   ".git/",
   ".grit/cache/",

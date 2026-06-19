@@ -37,7 +37,6 @@ vi.mock("../../src/lib/check-report.js", () => ({
     refusedCount: 0,
     notApplicableCount: 0,
     allowsAffectedExecution: true,
-    nonClaims: ["does-not-prove-ci"],
   })),
 }));
 
@@ -67,7 +66,6 @@ vi.mock("../../src/lib/classify.js", async (importOriginal) => {
       runnableTargets: [],
       unavailableTargets: [],
       recoveryInstructions: [],
-      nonClaims: ["does-not-run-targets"],
     })),
     stringifyClassifyResult: vi.fn(actual.stringifyClassifyResult),
   };
@@ -103,10 +101,13 @@ vi.mock("../../src/lib/verify-receipt.js", () => ({
       stdoutTruncated: false,
       stderrTruncated: false,
     },
-    nonClaims: ["does-not-prove-ci"],
   })),
   readVerifyTargetPlan: vi.fn(() => mockVerifyTargetPlan),
-  resolveVerifyBase: vi.fn((base?: string) => base ?? "merge-base"),
+  resolveVerifyBase: vi.fn((base?: string) => ({
+    kind: "resolved",
+    base: base ?? "merge-base",
+    source: base ? "flag" : "merge-base",
+  })),
   runAffectedVerification: vi.fn(() => ({ exitCode: 0, stdout: "affected ok\n", stderr: "" })),
   stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
 }));
@@ -267,9 +268,8 @@ describe("Habitat oclif commands", () => {
         verifyTargetPlan: mockVerifyTargetPlan,
       })
     );
-    const payload = JSON.parse(capturedOutput()) as { schemaVersion: number; nonClaims: string[] };
+    const payload = JSON.parse(capturedOutput()) as { schemaVersion: number };
     expect(payload.schemaVersion).toBe(1);
-    expect(payload.nonClaims).toContain("does-not-prove-ci");
   });
 
   test("graph forwards compact JSON output", async () => {

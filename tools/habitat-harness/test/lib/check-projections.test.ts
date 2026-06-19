@@ -8,7 +8,7 @@ import {
 } from "../../src/lib/check-report.js";
 import type { CheckReport, RuleReport } from "../../src/lib/diagnostics.js";
 
-describe("D7 check projections", () => {
+describe("check projections", () => {
   test("projects Grit adapter failures as local diagnostic unavailability", () => {
     const projection = localFeedbackCheckProjection(
       report({
@@ -29,7 +29,6 @@ describe("D7 check projections", () => {
 
     expect(projection.kind).toBe("diagnostic-unavailable");
     expect(projection.failedRuleIds).toEqual(["demo-rule"]);
-    expect(projection.nonClaims).toContain("does-not-prove-ci");
     expect(Value.Check(LocalFeedbackCheckProjectionSchema, projection)).toBe(true);
   });
 
@@ -91,7 +90,7 @@ describe("D7 check projections", () => {
     expect(projection.skippedAffectedReason).toBe("habitat-check-failed");
   });
 
-  test("projects D7 not-applicable diagnostics explicitly", () => {
+  test("projects not-applicable diagnostics explicitly", () => {
     const projection = localFeedbackCheckProjection(
       report({
         ok: false,
@@ -100,7 +99,7 @@ describe("D7 check projections", () => {
             status: "fail",
             diagnostics: [
               diagnostic(
-                "D7 not applicable: staged scope contains no approved roots for this rule."
+                "Rule not applicable: staged scope contains no approved roots for this rule."
               ),
             ],
           }),

@@ -1,7 +1,7 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { ApplyAdmissionProjectionSchema } from "../../rules/pattern-governance/index.js";
-import { NonEmptyStringSchema, TransactionNonClaimIdArraySchema } from "./primitives.js";
+import { NonEmptyStringSchema } from "./primitives.js";
 import { TransformationTransactionRequestSchema } from "./request.js";
 import { TransactionRefusalSchema } from "./refusal.js";
 
@@ -29,7 +29,6 @@ export const TransformationDryRunCompletedOutcomeSchema = Type.Object(
     kind: Type.Literal("dry-run-completed"),
     admission: ApplyAdmissionProjectionSchema,
     commandResults: Type.Array(DryRunCommandResultSchema),
-    nonClaims: TransactionNonClaimIdArraySchema,
   },
   { additionalProperties: false }
 );
