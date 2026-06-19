@@ -5,7 +5,7 @@ import {
   activeRuleRegistryDocument,
   type RuleCommandExecutionFacts,
   type RuleRegistryRecordV1,
-} from "./registry.js";
+} from "./registry/index.js";
 
 /**
  * The rule pack. Data lives in rules.json (shared with the Nx plugin); this

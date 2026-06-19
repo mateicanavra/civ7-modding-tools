@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { rules } from "../rules/architecture.js";
-import { type RuleRoutingFacts, ruleRoutingFacts } from "../rules/registry.js";
+import { type RuleRoutingFacts, ruleRoutingFacts } from "../rules/registry/index.js";
 import {
   findOwningProject,
   NxProjectGraphMetadataReader,

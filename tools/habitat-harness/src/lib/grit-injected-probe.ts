@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "node:fs
 import path from "node:path";
 import { Effect, Layer } from "effect";
 import { rules } from "../rules/architecture.js";
-import { type RuleGritFacts, ruleGritFacts } from "../rules/registry.js";
+import { type RuleGritFacts, ruleGritFacts } from "../rules/registry/index.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
 import { type HabitatGitState, readGitState } from "./git-state.js";

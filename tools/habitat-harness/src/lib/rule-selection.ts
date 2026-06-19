@@ -3,7 +3,7 @@ import { rules } from "../rules/architecture.js";
 import {
   ruleSelectorFacts as projectRuleSelectorFacts,
   type RuleSelectorFacts as RegistryRuleSelectorFacts,
-} from "../rules/registry.js";
+} from "../rules/registry/index.js";
 
 export interface RuleSelection {
   owner?: string;
