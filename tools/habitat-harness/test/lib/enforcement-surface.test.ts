@@ -249,7 +249,7 @@ describe("enforcement surface inventory", () => {
     expect(ownerToolCounts()).toEqual({
       biome: 1,
       "file-layer": 4,
-      "grit-check": 32,
+      "grit-check": 33,
       "habitat-native": 4,
       "nx-boundaries": 1,
       "wrapped-script": 3,

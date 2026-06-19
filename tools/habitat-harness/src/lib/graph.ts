@@ -4,6 +4,10 @@ import path from "node:path";
 import { repoRoot } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 
+/**
+ * Command adapter for `habitat graph`: delegates to Nx graph export and returns
+ * the serialized graph without making Workspace Graph classification claims.
+ */
 export function runGraph(options: { json?: boolean } = {}): SpawnResult {
   const dir = mkdtempSync(path.join(tmpdir(), "habitat-graph-"));
   const graphPath = path.join(dir, "graph.json");

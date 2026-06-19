@@ -1,24 +1,18 @@
-import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../rules/registry/schema.js";
-
-interface GraphTargetNames {
-  boundaries: string;
-  biomeCi: string;
-  generatedCheck: string;
-  gritCheck: string;
-}
-
-const DEFAULT_TARGET_NAMES: GraphTargetNames = {
-  boundaries: "boundaries",
-  biomeCi: "biome:ci",
-  generatedCheck: "generated:check",
-  gritCheck: "grit:check",
-};
+import type { Static } from "typebox";
+import { Value } from "typebox/value";
+import type { WorkspaceGraphTargetNames } from "../../lib/workspace-graph/schema.js";
+import { RuleGraphTargetNamesSchema } from "../../lib/workspace-graph/schema.ts";
+import type { RuleGraphFacts, RuleRegistryRecordV1 } from "./schema.js";
 
 export function ruleGraphFacts(
   records: readonly RuleRegistryRecordV1[],
   ownerRoots: ReadonlyMap<string, string>,
-  targetNames: GraphTargetNames = DEFAULT_TARGET_NAMES
+  targetNames: RuleGraphTargetNames | WorkspaceGraphTargetNames
 ): RuleGraphFacts[] {
+  const graphTargetNames = Value.Parse(
+    RuleGraphTargetNamesSchema,
+    Value.Clean(RuleGraphTargetNamesSchema, { ...targetNames })
+  );
   return records.map((rule) => {
     const root = ownerRoots.get(rule.ownerProject);
     if (!root) {
@@ -30,14 +24,16 @@ export function ruleGraphFacts(
       id: rule.id,
       ownerProject: rule.ownerProject,
       ownerRoot: root,
-      alias: ruleGraphAlias(rule, targetNames),
+      alias: ruleGraphAlias(rule, graphTargetNames),
     };
   });
 }
 
+type RuleGraphTargetNames = Static<typeof RuleGraphTargetNamesSchema>;
+
 function ruleGraphAlias(
   rule: RuleRegistryRecordV1,
-  targetNames: GraphTargetNames
+  targetNames: RuleGraphTargetNames
 ): RuleGraphFacts["alias"] {
   if (rule.id === "biome-ci") {
     return {
