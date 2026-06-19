@@ -2,16 +2,17 @@
 
 ## Summary
 
-Specify the D5 Baseline Authority packet for Deep Habitat Phase 2 remediation.
-This change turns `$D5_SOURCE_PACKET` into an execution-ready OpenSpec change
-packet for structural-debt baselines. It defines the complete baseline authority
-state contract, the D5-owned command outcomes, the D5-published consumer
-projection/refusal result, public-surface compatibility requirements, exact
-write/protected sets, validation gates, and downstream D7/D8 handoffs.
+Implement the D5 Baseline Authority packet for the Deep Habitat Toolkit. This
+change turns `$D5_SOURCE_PACKET` into the source contract for structural-debt
+baselines: closed baseline authority state, D5-owned command outcomes,
+D5-published consumer projection/refusal results, public-surface compatibility
+requirements, exact write/protected sets, validation gates, and downstream
+D7/D8 handoffs.
 
-This packet is design/specification only. It does not authorize source edits
-until D5 final review accepts the packet and later implementation cites concrete
-D0 rows for every touched public or durable surface.
+The D5 design/specification packet is accepted. Source implementation is
+authorized only after the D5 implementation-start gate cites concrete D0 rows
+for every touched public or durable surface and confirms the live D2 baseline
+facts/projections D5 consumes.
 
 ## Authority
 
@@ -71,10 +72,11 @@ Pattern Governance can consume without redefining baseline truth.
 
 ## Requires
 
-- D0 accepted-design command surface inventory. Source implementation still
-  requires concrete D0 rows for every touched public/durable surface.
-- D2 accepted-design rule registry metadata contract. Source implementation
-  still requires live D2 rule identity/facet projections where D5 consumes them.
+- D0 command surface inventory, including concrete rows for every touched D5
+  public/durable surface.
+- D2 rule registry metadata contract, including live `ruleBaselineFacts` /
+  `activeRuleBaselineFacts` projections where D5 consumes rule baseline
+  metadata.
 
 ## Enables
 
@@ -87,8 +89,8 @@ Pattern Governance can consume without redefining baseline truth.
 
 - Domain owner: Baseline Authority.
 - OpenSpec change path: `$D5_CHANGE/**`.
-- Expected source write set is named in `design.md`. No TypeScript source edits
-  are part of this remediation packet.
+- Expected source write set is named in `design.md`; D5 source implementation
+  stays inside that boundary.
 
 ## Consumer Impact
 
@@ -124,6 +126,7 @@ Later implementation gates:
 - `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts`
 - `bun run --cwd tools/habitat-harness test -- test/commands/habitat-commands.test.ts`
 - `bun run --cwd tools/habitat-harness test -- test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`
-- `bun run habitat check --rule baseline-integrity --json`
+- `bun run habitat check --json` with the D0-approved built-in
+  `baseline-integrity` report present in `CheckReport.rules`
 - Injected or fixture matrix checks for every D5 baseline state/refusal named in
   `specs/habitat-harness/spec.md`.

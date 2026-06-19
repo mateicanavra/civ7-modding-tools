@@ -8,6 +8,7 @@ import {
   activeRuleGritFacts,
   activeRuleLocalFeedbackFacts,
   activeRuleReportFacts,
+  activeRuleSelectorFacts,
   factsForRuleIds,
 } from "../rules/facts.js";
 import { renderReport } from "../rules/messages.js";
@@ -21,6 +22,7 @@ import {
 } from "../rules/registry/index.js";
 import {
   applyBaseline,
+  baselineIntegrityFindings,
   baselineFailureDiagnostic,
   checkBaselineIntegrity,
   guardBaselineExpansion,
@@ -65,11 +67,6 @@ export type BaselineExpansionResult =
       message: string;
     };
 
-export function buildHabitatCommand(command: string, argv: readonly string[] = []): string {
-  const tail = argv.length > 0 ? ` ${argv.join(" ")}` : "";
-  return `habitat ${command}${tail}`;
-}
-
 export async function createCheckReport(options: CheckOptions = {}): Promise<CheckReport> {
   const selection = selectRules(options);
   if (!selection.ok) return createRuleSelectionFailureReport(selection, options);
@@ -77,25 +74,23 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
   const selectedRules = rulesForExecution(selection.rules, options);
   const selectedRuleIds = selectedRules.map((rule) => rule.id);
   const reportsByRuleId = factsByRuleId(factsForRuleIds(activeRuleReportFacts, selectedRuleIds));
-  const baselinesByRuleId = factsByRuleId(
-    factsForRuleIds(activeRuleBaselineFacts, selectedRuleIds)
-  );
+  const baselineInputsByRuleId = factsByRuleId(baselineContractInputs(selectedRuleIds));
   const reports: RuleReport[] = [];
   const ruleResults = await executeSelectedRules(selectedRules, options);
   for (const rule of selectedRules) {
     const reportFacts = reportsByRuleId.get(rule.id);
     if (!reportFacts)
       throw new Error(`habitat internal error: missing report facts for ${rule.id}`);
-    const baselineFacts = baselinesByRuleId.get(rule.id);
+    const baselineFacts = baselineInputsByRuleId.get(rule.id);
     if (!baselineFacts)
       throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
     const baseline = loadBaselineState(baselineFacts);
     const execution = ruleResults.get(rule.id);
     if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
     const { diagnostics } = execution.result;
-    const baselineFailures = applyBaseline(diagnostics, baseline);
+    const baselineResult = applyBaseline(diagnostics, baseline);
     diagnostics.push(
-      ...baselineFailures.map((failure) => baselineFailureDiagnostic(rule.id, failure))
+      ...baselineResult.refusals.map((failure) => baselineFailureDiagnostic(rule.id, failure))
     );
     const newViolations = diagnostics.filter(
       (diagnostic) => !diagnostic.baselined && diagnostic.severity === "error"
@@ -124,16 +119,17 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
 
   const integrityStarted = Date.now();
   const integrity = checkBaselineIntegrity(options.base ?? "main", {
-    registry: activeRuleBaselineFacts,
+    registry: baselineContractInputs(),
   });
+  const integrityFindings = baselineIntegrityFindings(integrity);
   reports.push({
     ruleId: "baseline-integrity",
     ownerTool: "habitat-native",
     lane: "enforced",
-    status: integrity.length > 0 ? "fail" : "pass",
+    status: integrity.status === "refused" ? "fail" : "pass",
     locked: true,
     durationMs: Date.now() - integrityStarted,
-    diagnostics: integrity.map((finding) => ({
+    diagnostics: integrityFindings.map((finding) => ({
       ruleId: "baseline-integrity",
       path: finding.file,
       message: finding.reason,
@@ -148,7 +144,7 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
 
   return {
     schemaVersion: 1,
-    command: buildHabitatCommand("check", options.commandArgs),
+    command: ["habitat", "check", ...(options.commandArgs ?? [])].join(" "),
     startedAt: new Date().toISOString(),
     ok: reports.every((report) => report.status !== "fail"),
     rules: reports,
@@ -165,17 +161,14 @@ export async function expandBaselines(
   const messages: string[] = [];
   const ruleResults = await executeSelectedRules(selected.rules);
   const baselinesByRuleId = factsByRuleId(
-    factsForRuleIds(
-      activeRuleBaselineFacts,
-      selected.rules.map((rule) => rule.id)
-    )
+    baselineContractInputs(selected.rules.map((rule) => rule.id))
   );
   for (const rule of selected.rules) {
     const baselineFacts = baselinesByRuleId.get(rule.id);
     if (!baselineFacts)
       throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
     const baseline = loadBaselineState(baselineFacts);
-    if (baseline.kind === "contract-failure") {
+    if (baseline.kind === "baseline-refusal") {
       return {
         ok: false,
         requested: selection,
@@ -186,13 +179,13 @@ export async function expandBaselines(
     const execution = ruleResults.get(rule.id);
     if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
     const { diagnostics } = execution.result;
-    const baselineFailures = applyBaseline(diagnostics, baseline);
-    if (baselineFailures.length > 0) {
+    const baselineResult = applyBaseline(diagnostics, baseline);
+    if (baselineResult.status === "refused") {
       return {
         ok: false,
         requested: selection,
         reason: "baseline-contract",
-        message: baselineFailures.map((failure) => failure.message).join(" "),
+        message: baselineResult.refusals.map((failure) => failure.message).join(" "),
       };
     }
     const keys = diagnostics
@@ -200,9 +193,9 @@ export async function expandBaselines(
       .map(violationKey);
     if (keys.length > 0) {
       const guard = guardBaselineExpansion(rule.id, keys, options.base ?? "main", {
-        registry: activeRuleBaselineFacts,
+        registry: baselineContractInputs(),
       });
-      if (!guard.ok) {
+      if (guard.status === "refused") {
         return {
           ok: false,
           requested: selection,
@@ -210,7 +203,7 @@ export async function expandBaselines(
           message: guard.message,
         };
       }
-      writeBaseline(rule.id, keys);
+      writeBaseline(rule.id, guard.keys);
       messages.push(`baseline written: ${rule.id} (${keys.length} entries)`);
     }
   }
@@ -350,7 +343,7 @@ function createRuleSelectionFailureReport(
   const started = Date.now();
   return {
     schemaVersion: 1,
-    command: buildHabitatCommand("check", options.commandArgs),
+    command: ["habitat", "check", ...(options.commandArgs ?? [])].join(" "),
     startedAt: new Date().toISOString(),
     ok: false,
     rules: [
@@ -386,6 +379,27 @@ function sortedUnique(values: readonly string[]): string[] {
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {
   return new Map(facts.map((fact) => [fact.id, fact]));
+}
+
+function baselineContractInputs(ruleIds?: readonly string[]) {
+  const baselineFacts = ruleIds
+    ? factsForRuleIds(activeRuleBaselineFacts, ruleIds)
+    : activeRuleBaselineFacts;
+  const selectorsByRuleId = factsByRuleId(
+    ruleIds ? factsForRuleIds(activeRuleSelectorFacts, ruleIds) : activeRuleSelectorFacts
+  );
+  return baselineFacts.map((fact) => {
+    const selector = selectorsByRuleId.get(fact.id);
+    return {
+      ...fact,
+      ...(selector
+        ? {
+            ownerProject: selector.ownerProject,
+            ownerTool: selector.ownerTool,
+          }
+        : {}),
+    };
+  });
 }
 
 function localFeedbackEligibleRuleIds(facts: readonly RuleLocalFeedbackFacts[]): Set<string> {
