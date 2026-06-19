@@ -8,8 +8,8 @@ owner may consume. They do not authorize D6 source implementation.
 
 | Downstream Surface | Disposition | Required Action |
 | --- | --- | --- |
-| D0 Command Surface Inventory | source-blocking prerequisite | Add concrete D0 rows before D6 source implementation touches command JSON, package exports, human adapter-failure messages, docs/examples, test-facing exports, injected-probe fields, or retained compatibility names. |
-| D1 Receipt Contract Boundary | source-blocking prerequisite where touched | D6 may use D1 target command-outcome and limitation vocabulary in design. Source changes that alter command outcome families, limitations, retained verification-artifact-shaped compatibility fields, or adapter artifacts must cite D1 decisions. |
+| D0 Command Surface Inventory | source-start prerequisite | Concrete D0 rows now gate the D6 source surfaces enumerated in `workstream/implementation-start-inventory.md`; add rows before touching any new command JSON, package export, human adapter-failure message, docs/example, fixture, or test-facing surface. |
+| D1 Receipt Contract Boundary | source-start prerequisite where touched | D6 may use D1 target command-outcome and limitation vocabulary in design. Source changes that alter command outcome families, limitations, refusals, or adapter artifacts must cite D1 decisions. |
 | D2 Rule Registry Metadata Contract | source-blocking prerequisite | D6 design consumes accepted D2 `ruleGritFacts`. Source implementation must wait for live projections covering `ruleId`, `patternIdentity`, scan metadata, exclusions, hook eligibility where relevant, and malformed Grit facet output families. |
 | D5 Baseline Authority | protected owner | D6 normalized diagnostics may carry baseline-owned fields only as D5-owned projections. D6 must not decide baseline growth, shrink, debt acceptance, or baseline application. |
 | D7 Structural Enforcement Pipeline | downstream consumer | D7 consumes D6 `DiagnosticRunOutcome` and normalized diagnostic projections to assemble final `CheckReport`/enforcement reports. D7 must not infer Pattern Governance admission, baseline authority, or apply safety from D6. |
