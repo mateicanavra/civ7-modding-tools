@@ -97,14 +97,22 @@ async function runGritRuleGroup(
       outputFormat,
     }).pipe(Effect.provide(options.processLayer ?? HabitatProcessLive))
   );
-  if (!parseResult.ok) {
-    return new Map(
-      selectedRules.map((rule) => [
-        rule.id,
-        infrastructureFailure(rule, parseResult.failureTag, parseResult.message),
-      ])
-    );
+  switch (parseResult.kind) {
+    case "parsed":
+      return projectGritResults(selectedRules, parseResult.report, options.projection);
+    case "adapter-failed":
+      return new Map(
+        selectedRules.map((rule) => [
+          rule.id,
+          infrastructureFailure(rule, parseResult.failure, parseResult.message),
+        ])
+      );
+    case "scan-root-refused":
+      return new Map(
+        selectedRules.map((rule) => [
+          rule.id,
+          infrastructureFailure(rule, "GritEmptyScanRoots", parseResult.message),
+        ])
+      );
   }
-
-  return projectGritResults(selectedRules, parseResult.report, options.projection);
 }

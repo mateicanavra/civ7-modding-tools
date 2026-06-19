@@ -1,20 +1,31 @@
 import { Value } from "typebox/value";
-import type { DiagnosticAdapterFailureKind } from "../../../lib/diagnostic-catalog/index.js";
-import type { GritParseStatus, HabitatCommandResult } from "../../../lib/habitat-process.js";
+import {
+  type DiagnosticAdapterFailureKind,
+  type DiagnosticCacheRequirement,
+  diagnosticCacheRequirementForGritCheck,
+  diagnosticCommandObservationFromResult,
+  diagnosticCompletedCommandObservationFromResult,
+} from "../../../lib/diagnostic-catalog/index.js";
+import type { HabitatCommandResult } from "../../../lib/habitat-process.js";
 import { normalizeGritPath } from "../scan-roots/index.js";
 import {
-  type GritCheckParseResult,
+  type GritDiagnosticAcquisition,
+  type GritParseFailureStatus,
   type GritResult,
   type GritWireReport,
   GritWireReportSchema,
 } from "../types.js";
 
+const defaultCacheRequirement = diagnosticCacheRequirementForGritCheck({});
+
 export function parseGritCheckTextOutput(
-  commandResult: HabitatCommandResult
-): GritCheckParseResult {
+  commandResult: HabitatCommandResult,
+  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement
+): GritDiagnosticAcquisition {
   if (commandResult.exit.interrupted) {
     return parseFailure(
       commandResult,
+      cacheRequirement,
       "GritCommandFailed",
       "unparsed",
       "Grit command was interrupted."
@@ -26,27 +37,29 @@ export function parseGritCheckTextOutput(
   if (commandResult.exit.code !== 0 && results.length === 0) {
     return parseFailure(
       commandResult,
+      cacheRequirement,
       "GritCommandFailed",
       "unparsed",
       `Grit command exited ${commandResult.exit.code}.`
     );
   }
 
-  return {
-    ok: true,
-    report: {
-      paths: [...new Set(results.map((result) => result.path).filter(isString))],
-      results,
-    },
-    parseStatus: "parsed",
-    commandResult: { ...commandResult, parseStatus: "parsed", failureTag: null },
-  };
+  return parsedAcquisition(
+    commandResult,
+    cacheRequirement,
+    [...new Set(results.map((result) => result.path).filter(isString))],
+    results
+  );
 }
 
-export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritCheckParseResult {
+export function parseGritCheckOutput(
+  commandResult: HabitatCommandResult,
+  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement
+): GritDiagnosticAcquisition {
   if (commandResult.exit.code !== 0 || commandResult.exit.interrupted) {
     return parseFailure(
       commandResult,
+      cacheRequirement,
       "GritCommandFailed",
       "unparsed",
       `Grit command exited ${commandResult.exit.code}.`
@@ -67,12 +80,19 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
   ];
   const nonEmpty = candidates.filter((candidate) => candidate.text.trim().length > 0);
   if (nonEmpty.length === 0) {
-    return parseFailure(commandResult, "GritNoJson", "no-json", "Grit emitted no JSON output.");
+    return parseFailure(
+      commandResult,
+      cacheRequirement,
+      "GritNoJson",
+      "no-json",
+      "Grit emitted no JSON output."
+    );
   }
   const truncated = nonEmpty.find((candidate) => candidate.truncated);
   if (truncated) {
     return parseFailure(
       commandResult,
+      cacheRequirement,
       "GritAdapterInternalContractViolation",
       "unsupported-mode",
       `Grit ${truncated.stream} output exceeded the parser capture limit.`
@@ -84,10 +104,11 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
     if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) continue;
     try {
       const parsed: unknown = JSON.parse(trimmed);
-      return validateGritReport(commandResult, parsed);
+      return validateGritReport(commandResult, cacheRequirement, parsed);
     } catch {
       return parseFailure(
         commandResult,
+        cacheRequirement,
         "GritMalformedJson",
         "malformed",
         `Grit ${candidate.stream} is not valid JSON.`
@@ -100,6 +121,7 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
   );
   return parseFailure(
     commandResult,
+    cacheRequirement,
     containsJsonLikeText ? "GritMalformedJson" : "GritNoJson",
     containsJsonLikeText ? "malformed" : "no-json",
     containsJsonLikeText
@@ -110,31 +132,45 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
 
 function validateGritReport(
   commandResult: HabitatCommandResult,
+  cacheRequirement: DiagnosticCacheRequirement,
   value: unknown
-): GritCheckParseResult {
+): GritDiagnosticAcquisition {
   const issues = [...Value.Errors(GritWireReportSchema, value)];
   if (issues.length > 0) {
     const first = issues[0];
-    const tag =
+    const failure =
       first?.instancePath === "" || first?.instancePath === "/results"
         ? "GritSchemaDrift"
         : "GritUnexpectedResultShape";
     return parseFailure(
       commandResult,
-      tag,
+      cacheRequirement,
+      failure,
       "schema-drift",
       first?.message ?? "Grit JSON does not match the expected report schema."
     );
   }
-  const report = value as GritWireReport;
+  const report: GritWireReport = Value.Parse(GritWireReportSchema, value);
+  return parsedAcquisition(commandResult, cacheRequirement, report.paths ?? [], report.results);
+}
+
+function parsedAcquisition(
+  commandResult: HabitatCommandResult,
+  cacheRequirement: DiagnosticCacheRequirement,
+  paths: readonly string[],
+  results: readonly GritResult[]
+): GritDiagnosticAcquisition {
   return {
-    ok: true,
+    kind: "parsed",
     report: {
-      paths: report.paths ?? [],
-      results: report.results,
+      paths: [...paths],
+      results: [...results],
     },
     parseStatus: "parsed",
-    commandResult: { ...commandResult, parseStatus: "parsed", failureTag: null },
+    command: diagnosticCompletedCommandObservationFromResult(
+      { ...commandResult, parseStatus: "parsed", failureTag: null },
+      cacheRequirement
+    ),
   };
 }
 
@@ -174,16 +210,20 @@ function parseGritTextResults(text: string): GritResult[] {
 
 function parseFailure(
   commandResult: HabitatCommandResult,
-  failureTag: DiagnosticAdapterFailureKind,
-  parseStatus: Exclude<GritParseStatus, "parsed">,
+  cacheRequirement: DiagnosticCacheRequirement,
+  failure: DiagnosticAdapterFailureKind,
+  parseStatus: GritParseFailureStatus,
   message: string
-): GritCheckParseResult {
+): GritDiagnosticAcquisition {
   return {
-    ok: false,
-    failureTag,
+    kind: "adapter-failed",
+    failure,
     parseStatus,
     message,
-    commandResult: { ...commandResult, parseStatus, failureTag },
+    command: diagnosticCommandObservationFromResult(
+      { ...commandResult, parseStatus, failureTag: failure },
+      cacheRequirement
+    ),
   };
 }
 

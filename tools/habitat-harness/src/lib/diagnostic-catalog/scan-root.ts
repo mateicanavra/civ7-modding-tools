@@ -11,6 +11,15 @@ export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("injected-probe-root-without-probe-mode"),
 ]);
 
+export const DiagnosticScanRootRefusalSchema = Type.Object(
+  {
+    kind: Type.Literal("refused"),
+    reason: DiagnosticScanRootRefusalReasonSchema,
+    root: Type.Optional(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
 export const DiagnosticScanRootDecisionSchema = Type.Union([
   Type.Object(
     {
@@ -36,24 +45,14 @@ export const DiagnosticScanRootDecisionSchema = Type.Union([
     },
     { additionalProperties: false }
   ),
-  Type.Object(
-    {
-      kind: Type.Literal("refused"),
-      reason: DiagnosticScanRootRefusalReasonSchema,
-      root: Type.Optional(Type.String({ minLength: 1 })),
-    },
-    { additionalProperties: false }
-  ),
+  DiagnosticScanRootRefusalSchema,
 ]);
 
-export type DiagnosticScanRootRefusalReason = Static<
-  typeof DiagnosticScanRootRefusalReasonSchema
->;
+export type DiagnosticScanRootRefusalReason = Static<typeof DiagnosticScanRootRefusalReasonSchema>;
 export type DiagnosticScanRootDecision = Static<typeof DiagnosticScanRootDecisionSchema>;
+export type DiagnosticScanRootRefusal = Static<typeof DiagnosticScanRootRefusalSchema>;
 
-export function isDiagnosticScanRootDecision(
-  value: unknown
-): value is DiagnosticScanRootDecision {
+export function isDiagnosticScanRootDecision(value: unknown): value is DiagnosticScanRootDecision {
   return Value.Check(DiagnosticScanRootDecisionSchema, value);
 }
 
@@ -77,4 +76,3 @@ export function renderDiagnosticScanRootRefusal(
       return `Grit scan root is an injected probe root outside probe mode: ${decision.root}.`;
   }
 }
-

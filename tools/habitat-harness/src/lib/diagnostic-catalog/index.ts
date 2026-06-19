@@ -1,11 +1,3 @@
-export {
-  DiagnosticCatalogEntrySchema,
-  DiagnosticNonClaimSchema,
-  DiagnosticProjectionContractSchema,
-  DiagnosticScanContractSchema,
-  GritDiagnosticCatalogEntrySchema,
-  diagnosticCatalogEntryFromRuleGritFacts,
-} from "./catalog.js";
 export type {
   DiagnosticCatalogEntry,
   DiagnosticNonClaim,
@@ -14,26 +6,62 @@ export type {
   GritDiagnosticCatalogEntry,
 } from "./catalog.js";
 export {
+  DiagnosticCatalogEntrySchema,
+  DiagnosticNonClaimSchema,
+  DiagnosticProjectionContractSchema,
+  DiagnosticScanContractSchema,
+  diagnosticCatalogEntryFromRuleGritFacts,
+  GritDiagnosticCatalogEntrySchema,
+} from "./catalog.js";
+export type {
+  DiagnosticCacheObservation,
+  DiagnosticCacheRequirement,
+  DiagnosticCommandObservation,
+  DiagnosticCompletedCommandObservation,
+  DiagnosticInterruptedCommandObservation,
+  DiagnosticOutputMetadata,
+} from "./command.js";
+export {
+  DiagnosticCacheObservationSchema,
+  DiagnosticCacheRequirementSchema,
+  DiagnosticCommandObservationSchema,
+  DiagnosticCompletedCommandObservationSchema,
+  DiagnosticInterruptedCommandObservationSchema,
+  DiagnosticOutputMetadataSchema,
+  diagnosticAdapterFailureForCacheObservation,
+  diagnosticCacheObservationFromCommand,
+  diagnosticCacheRequirementForGritCheck,
+  diagnosticCacheRequirementSatisfied,
+  diagnosticCommandObservationFromResult,
+  diagnosticCompletedCommandObservationFromResult,
+  diagnosticToolUnavailableObservation,
+} from "./command.js";
+export type { DiagnosticAdapterFailureKind } from "./failure.js";
+export {
   DiagnosticAdapterFailureKindSchema,
   diagnosticAdapterFailureFromText,
   diagnosticAdapterFailureKinds,
   isDiagnosticAdapterFailureKind,
   renderDiagnosticAdapterFailure,
 } from "./failure.js";
-export type { DiagnosticAdapterFailureKind } from "./failure.js";
+export type {
+  GritDiagnosticIdentity,
+  ObservedGritDiagnosticIdentity,
+} from "./identity.js";
 export {
   GritDiagnosticIdentitySchema,
-  ObservedGritDiagnosticIdentitySchema,
   gritDiagnosticIdentity,
   isObservedGritDiagnosticIdentity,
+  ObservedGritDiagnosticIdentitySchema,
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
 } from "./identity.js";
 export type {
-  GritDiagnosticIdentity,
-  ObservedGritDiagnosticIdentity,
-} from "./identity.js";
+  DiagnosticConsumerProjection,
+  DiagnosticFindingProjection,
+  DiagnosticRunOutcome,
+} from "./outcome.js";
 export {
   DiagnosticConsumerProjectionSchema,
   DiagnosticFindingProjectionSchema,
@@ -41,17 +69,14 @@ export {
   diagnosticConsumerProjectionFromOutcome,
 } from "./outcome.js";
 export type {
-  DiagnosticConsumerProjection,
-  DiagnosticFindingProjection,
-  DiagnosticRunOutcome,
-} from "./outcome.js";
+  DiagnosticScanRootDecision,
+  DiagnosticScanRootRefusal,
+  DiagnosticScanRootRefusalReason,
+} from "./scan-root.js";
 export {
   DiagnosticScanRootDecisionSchema,
   DiagnosticScanRootRefusalReasonSchema,
+  DiagnosticScanRootRefusalSchema,
   isDiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
-} from "./scan-root.js";
-export type {
-  DiagnosticScanRootDecision,
-  DiagnosticScanRootRefusalReason,
 } from "./scan-root.js";

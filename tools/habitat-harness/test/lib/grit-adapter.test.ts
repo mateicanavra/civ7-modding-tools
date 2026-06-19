@@ -1,18 +1,20 @@
 import { describe, expect, test } from "vitest";
 import {
-  discoverGritScanRoots,
-  effectiveGritScanRoots,
   parseGritCheckOutput,
   parseGritCheckTextOutput,
-  projectGritResults,
-  runGritRules,
-  validateScanRoots,
-} from "../../src/lib/grit.js";
+} from "../../src/adapters/grit/output/index.js";
+import { projectGritResults } from "../../src/adapters/grit/projection.js";
 import { decideGritScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
 import {
   diagnosticAdapterFailureKinds,
   renderDiagnosticAdapterFailure,
 } from "../../src/lib/diagnostic-catalog/index.js";
+import {
+  discoverGritScanRoots,
+  effectiveGritScanRoots,
+  runGritRules,
+  validateScanRoots,
+} from "../../src/lib/grit.js";
 import {
   type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
@@ -42,23 +44,28 @@ describe("Grit check adapter parser and projection", () => {
       })
     );
 
-    expect(parsed.ok).toBe(true);
-    if (!parsed.ok) return;
+    expect(parsed.kind).toBe("parsed");
+    if (parsed.kind !== "parsed") return;
     expect(parsed.parseStatus).toBe("parsed");
     expect(parsed.report.results[0]?.local_name).toBe("adapter_base_standard_import");
   });
 
   test("fails closed for no JSON, malformed JSON, and wrapper text", () => {
-    expect(parseGritCheckOutput(commandResult()).ok && "unexpected").toBe(false);
-    expect(parseGritCheckOutput(commandResult()).failureTag).toBe("GritNoJson");
+    const noJson = parseGritCheckOutput(commandResult());
+    expect(noJson.kind).toBe("adapter-failed");
+    expect(noJson.kind === "adapter-failed" ? noJson.failure : "unexpected").toBe("GritNoJson");
 
     const malformed = parseGritCheckOutput(commandResult({ stderr: '{"results":' }));
-    expect(malformed.ok && "unexpected").toBe(false);
-    expect(malformed.failureTag).toBe("GritMalformedJson");
+    expect(malformed.kind).toBe("adapter-failed");
+    expect(malformed.kind === "adapter-failed" ? malformed.failure : "unexpected").toBe(
+      "GritMalformedJson"
+    );
 
     const wrapped = parseGritCheckOutput(commandResult({ stderr: 'prefix {"results":[]} suffix' }));
-    expect(wrapped.ok && "unexpected").toBe(false);
-    expect(wrapped.failureTag).toBe("GritMalformedJson");
+    expect(wrapped.kind).toBe("adapter-failed");
+    expect(wrapped.kind === "adapter-failed" ? wrapped.failure : "unexpected").toBe(
+      "GritMalformedJson"
+    );
   });
 
   test("treats nonzero Grit exits as command failures before projection", () => {
@@ -69,8 +76,10 @@ describe("Grit check adapter parser and projection", () => {
       })
     );
 
-    expect(failed.ok && "unexpected").toBe(false);
-    expect(failed.failureTag).toBe("GritCommandFailed");
+    expect(failed.kind).toBe("adapter-failed");
+    expect(failed.kind === "adapter-failed" ? failed.failure : "unexpected").toBe(
+      "GritCommandFailed"
+    );
     expect(failed.parseStatus).toBe("unparsed");
   });
 
@@ -90,20 +99,26 @@ describe("Grit check adapter parser and projection", () => {
       )
     );
 
-    expect(truncated.ok && "unexpected").toBe(false);
-    expect(truncated.failureTag).toBe("GritAdapterInternalContractViolation");
+    expect(truncated.kind).toBe("adapter-failed");
+    expect(truncated.kind === "adapter-failed" ? truncated.failure : "unexpected").toBe(
+      "GritAdapterInternalContractViolation"
+    );
   });
 
   test("distinguishes missing results from unexpected result shape", () => {
     const missingResults = parseGritCheckOutput(commandResult({ stderr: '{"paths":[]}' }));
-    expect(missingResults.ok && "unexpected").toBe(false);
-    expect(missingResults.failureTag).toBe("GritSchemaDrift");
+    expect(missingResults.kind).toBe("adapter-failed");
+    expect(missingResults.kind === "adapter-failed" ? missingResults.failure : "unexpected").toBe(
+      "GritSchemaDrift"
+    );
 
     const wrongShape = parseGritCheckOutput(
       commandResult({ stderr: '{"paths":[],"results":[{"local_name":5}]}' })
     );
-    expect(wrongShape.ok && "unexpected").toBe(false);
-    expect(wrongShape.failureTag).toBe("GritUnexpectedResultShape");
+    expect(wrongShape.kind).toBe("adapter-failed");
+    expect(wrongShape.kind === "adapter-failed" ? wrongShape.failure : "unexpected").toBe(
+      "GritUnexpectedResultShape"
+    );
   });
 
   test("projects exact Grit pattern identities to Habitat rule ids", () => {
@@ -523,8 +538,8 @@ Processed 2 files and found 1 matches
       })
     );
 
-    expect(parsed.ok).toBe(true);
-    if (!parsed.ok) return;
+    expect(parsed.kind).toBe("parsed");
+    if (parsed.kind !== "parsed") return;
     expect(parsed.report.results).toEqual([
       {
         local_name: "docs_local_checkout_paths",
