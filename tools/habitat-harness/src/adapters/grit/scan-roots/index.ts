@@ -1,5 +1,9 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
+import {
+  type DiagnosticScanRootDecision,
+  renderDiagnosticScanRootRefusal,
+} from "../../../lib/diagnostic-catalog/index.js";
 import { isGeneratedZoneRoot } from "../../../lib/generated-zone-catalog.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
 import type { RuleGritFacts } from "../../../rules/registry/index.js";
@@ -53,21 +57,41 @@ export function validateScanRoots(
   scanRoots: readonly string[],
   options: GritScanRootValidationOptions = {}
 ): string | null {
+  const decision = decideGritScanRoots(scanRoots, options);
+  return decision.kind === "refused" ? renderDiagnosticScanRootRefusal(decision) : null;
+}
+
+export function decideGritScanRoots(
+  scanRoots: readonly string[],
+  options: GritScanRootValidationOptions = {}
+): DiagnosticScanRootDecision {
   const requireExisting = options.requireExisting ?? true;
-  if (scanRoots.length === 0) return "Grit scan roots are empty.";
+  if (scanRoots.length === 0) return { kind: "refused", reason: "empty" };
+  const acceptedInjectedProbeRoots = scanRoots.every(isInjectedProbeRoot);
   for (const scanRoot of scanRoots) {
     const absolute = path.resolve(repoRoot, scanRoot);
     const relative = toRepoRelative(absolute);
     if (relative === ".." || relative.startsWith("../"))
-      return `Grit scan root is outside the repo: ${scanRoot}.`;
+      return { kind: "refused", reason: "outside-repo", root: scanRoot };
     if (requireExisting && !existsSync(absolute))
-      return `Grit scan root does not exist: ${scanRoot}.`;
-    if (isGeneratedZoneRoot(relative)) return `Grit scan root is generated output: ${relative}.`;
-    if (isProtectedRoot(relative)) return `Grit scan root is protected: ${relative}.`;
-    if (!isApprovedScanRoot(relative, options))
-      return `Grit scan root is not approved: ${relative}.`;
+      return { kind: "refused", reason: "missing", root: scanRoot };
+    if (isGeneratedZoneRoot(relative))
+      return { kind: "refused", reason: "generated-output", root: relative };
+    if (isProtectedRoot(relative)) return { kind: "refused", reason: "protected-root", root: relative };
+    if (!isApprovedScanRoot(relative, options)) {
+      return {
+        kind: "refused",
+        reason: isInjectedProbeRoot(relative)
+          ? "injected-probe-root-without-probe-mode"
+          : "not-approved",
+        root: relative,
+      };
+    }
   }
-  return null;
+  if (options.allowInjectedProbeRoot && acceptedInjectedProbeRoots) {
+    return { kind: "accepted-injected-probe-root", roots: [...scanRoots], probeOnly: true };
+  }
+  return { kind: "accepted", roots: [...scanRoots], source: "d2-rule-grit-facts" };
 }
 
 export function ruleHasDocsScanRoot(rule: RuleGritFacts): boolean {
@@ -170,6 +194,10 @@ function isProtectedRoot(relative: string): boolean {
   return protectedScanRootPrefixes.some(
     (prefix) => normalized === prefix || normalized.startsWith(prefix)
   );
+}
+
+function isInjectedProbeRoot(relative: string): boolean {
+  return relative === injectedProbeRoot || relative.startsWith(`${injectedProbeRoot}/`);
 }
 
 function isApprovedScanRoot(

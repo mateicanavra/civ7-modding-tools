@@ -38,8 +38,11 @@
 - [ ] 3.1 Add D6-owned diagnostic model types in a canonical owner module.
 - [ ] 3.2 Define `DiagnosticCatalogEntry` and consume D2 `ruleGritFacts`; delete
   alternate identity lookup from missing `patternIdentity` to `ruleId`.
-- [ ] 3.3 Define `DiagnosticScanRootDecision` and replace string/null scan-root
+- [x] 3.3 Define `DiagnosticScanRootDecision` and replace string/null scan-root
   authority with closed accepted/refused decisions.
+  - Source slice adds the TypeBox-backed scan-root decision schema and routes
+    existing Grit validation through closed accepted/refused decisions before
+    rendering boundary messages.
 - [ ] 3.4 Define `NativeGritCheckRequest` and bounded
   `DiagnosticCommandObservation` projections with closed command families and
   parsed acquisition limited to completed command observations.

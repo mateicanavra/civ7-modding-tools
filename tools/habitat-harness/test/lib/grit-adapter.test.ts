@@ -8,6 +8,7 @@ import {
   runGritRules,
   validateScanRoots,
 } from "../../src/lib/grit.js";
+import { decideGritScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
 import {
   diagnosticAdapterFailureKinds,
   renderDiagnosticAdapterFailure,
@@ -229,6 +230,25 @@ describe("Grit check adapter parser and projection", () => {
     expect(validateScanRoots([".git"])).toContain("protected");
     expect(validateScanRoots(["docs/PROCESS.md"])).toContain("not approved");
     expect(validateScanRoots(["docs/PROCESS.md"], { allowDocsRoot: true })).toBeNull();
+  });
+
+  test("keeps scan-root refusal reasons as closed decisions", () => {
+    expect(decideGritScanRoots([])).toEqual({ kind: "refused", reason: "empty" });
+    expect(decideGritScanRoots(["../outside"])).toEqual({
+      kind: "refused",
+      reason: "outside-repo",
+      root: "../outside",
+    });
+    expect(decideGritScanRoots(["missing-root"])).toEqual({
+      kind: "refused",
+      reason: "missing",
+      root: "missing-root",
+    });
+    expect(decideGritScanRoots(["packages"])).toEqual({
+      kind: "accepted",
+      roots: ["packages"],
+      source: "d2-rule-grit-facts",
+    });
   });
 
   test("runs selected Grit rules through one argument-array command request", async () => {
