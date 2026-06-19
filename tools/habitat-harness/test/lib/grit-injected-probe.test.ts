@@ -117,6 +117,10 @@ describe("injected Grit probe harness", () => {
   });
 
   test("creates and removes probe-owned nested parent directories", async () => {
+    rmSync(path.join(repoRoot, "packages/config/src/__habitat_probe_nested__"), {
+      recursive: true,
+      force: true,
+    });
     const nestedProbe = "packages/config/src/__habitat_probe_nested__/matching/probe.ts";
     const nestedControl = "packages/config/src/__habitat_probe_nested__/control/probe.ts";
     const fakeLayer = makeFakeHabitatProcessLayer((request) =>
@@ -255,11 +259,7 @@ describe("injected Grit probe harness", () => {
           'import { createCiv7Adapter } from "@civ7/adapter/civ7";\nexport const adapter = createCiv7Adapter;\n',
         expectedDiagnostic: "sdk mapgen entrypoint probe",
         scope: {
-          adapterRoot: mirrorRoot,
-          rulesJsonScope: "packages/sdk/src/**/*.ts and packages/mapgen-core/src/**/*.ts",
-          sourcePredicate: "SDK root mapgen export outside mapgen subpath",
           scanRoots: [mirrorRoot],
-          exclusions: [],
           matchingProbePath: matchingPath,
           outsideScopeControlPath: controlPath,
         },
@@ -322,11 +322,7 @@ describe("injected Grit probe harness", () => {
           'import ecology from "@mapgen/domain/ecology/ops";\n\nexport const value = ecology;\n',
         expectedDiagnostic: "test deep import",
         scope: {
-          adapterRoot: mirrorRoot,
-          rulesJsonScope: "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
-          sourcePredicate: "test imports or re-exports domain deep internals",
           scanRoots: [mirrorRoot],
-          exclusions: [],
           matchingProbePath: matchingPath,
           outsideScopeControlPath: controlPath,
         },
@@ -392,15 +388,65 @@ describe("injected Grit probe harness", () => {
     expect(existsSync(path.join(repoRoot, probePath))).toBe(false);
     expect(existsSync(path.join(repoRoot, controlPath))).toBe(false);
   });
+
+  test("returns a cleanup failure outcome when probe cleanup cannot complete", async () => {
+    const cleanupRoot = "packages/config/src/__habitat_probe_cleanup_failure__";
+    const cleanupProbePath = `${cleanupRoot}/matching.ts`;
+    const cleanupControlPath = `${cleanupRoot}/control.ts`;
+    const fakeLayer = makeFakeHabitatProcessLayer((request) => {
+      rmSync(path.join(repoRoot, cleanupProbePath), { force: true });
+      mkdirSync(path.join(repoRoot, cleanupProbePath), { recursive: true });
+      writeFileSync(
+        path.join(repoRoot, cleanupProbePath, "blocker.ts"),
+        "export const x = true;\n"
+      );
+      return makeHabitatCommandResult(request, {
+        stderr: output(
+          JSON.stringify({
+            paths: [cleanupProbePath],
+            results: [
+              {
+                local_name: "adapter_base_standard_import",
+                path: cleanupProbePath,
+                start: { line: 1 },
+                extra: { message: "base-standard probe" },
+              },
+            ],
+          })
+        ),
+      });
+    });
+
+    try {
+      const result = await runInjectedGritProbe({
+        ruleId: rule.id,
+        patternIdentity: "adapter_base_standard_import",
+        probePath: cleanupProbePath,
+        probeBody: 'import "@civ7/adapter/base-standard/probe";\n',
+        controlPath: cleanupControlPath,
+        controlBody: "export const control = true;\n",
+        scope: {
+          ...scope(),
+          scanRoots: ["packages/config/src"],
+          matchingProbePath: cleanupProbePath,
+          outsideScopeControlPath: cleanupControlPath,
+        },
+        registry: [rule],
+        processLayer: fakeLayer,
+      });
+
+      expect(result.kind).toBe("probe-cleanup-failed");
+      if (result.kind !== "probe-cleanup-failed") return;
+      expect(result.finalStatus).toBe("not-restored");
+    } finally {
+      rmSync(path.join(repoRoot, cleanupRoot), { recursive: true, force: true });
+    }
+  });
 });
 
 function scope(): InjectedProbeScope {
   return {
-    adapterRoot: "tools/habitat-harness/src/lib/grit.ts",
-    rulesJsonScope: "packages/**/*.ts",
-    sourcePredicate: "$filename outside packages/civ7-adapter",
     scanRoots: ["packages/config/src"],
-    exclusions: ["packages/civ7-adapter/**"],
     matchingProbePath: probePath,
     outsideScopeControlPath: controlPath,
   };

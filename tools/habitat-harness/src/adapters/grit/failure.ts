@@ -1,13 +1,13 @@
-import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RuleGritFacts } from "../../rules/registry/index.js";
 import {
   type DiagnosticAdapterFailureKind,
   renderDiagnosticAdapterFailure,
 } from "../../lib/diagnostic-catalog/index.js";
+import type { RuleRunResult } from "../../rules/architecture.js";
+import type { RuleGritFacts } from "../../rules/registry/index.js";
 
 export function infrastructureFailure(
   rule: RuleGritFacts,
-  failureTag: DiagnosticAdapterFailureKind,
+  failure: DiagnosticAdapterFailureKind,
   detail = "Grit adapter failed before producing rule findings."
 ): RuleRunResult {
   return {
@@ -16,7 +16,7 @@ export function infrastructureFailure(
       {
         ruleId: rule.id,
         path: ".",
-        message: `${rule.message}\n${renderDiagnosticAdapterFailure(failureTag, detail)}`,
+        message: `${rule.message}\n${renderDiagnosticAdapterFailure(failure, detail)}`,
         severity: rule.lane === "advisory" ? "advisory" : "error",
         baselined: false,
       },

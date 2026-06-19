@@ -1,6 +1,11 @@
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { Effect, type Layer } from "effect";
+import {
+  type DiagnosticRunOutcome,
+  diagnosticCatalogEntryFromNativeRule,
+  renderDiagnosticScanRootRefusal,
+} from "../../lib/diagnostic-catalog/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import { gritMachineOutputEnv } from "../../lib/grit-env.js";
 import {
@@ -15,10 +20,10 @@ import type { RuleGritFacts } from "../../rules/registry/index.js";
 import { docsLocalCheckoutPathsRewritePattern, gritBin } from "./constants.js";
 import { infrastructureFailure } from "./failure.js";
 import {
+  decideGritScanRoots,
   normalizeGritPath,
   selectedScanRootsForRules,
   sortedUnique,
-  validateScanRoots,
 } from "./scan-roots/index.js";
 
 export async function runDocsApplyBackedGritRules(
@@ -28,17 +33,67 @@ export async function runDocsApplyBackedGritRules(
     processLayer?: Layer.Layer<HabitatProcess>;
   }
 ): Promise<Map<string, RuleRunResult>> {
+  const outcomes = await runDocsApplyBackedDiagnosticOutcomes(selectedRules, options);
+  return new Map(
+    selectedRules.map((rule) => {
+      const outcome = outcomes.get(rule.id);
+      if (!outcome) return [rule.id, infrastructureFailure(rule, "GritPatternProjectionMiss")];
+      switch (outcome.kind) {
+        case "clean":
+          return [rule.id, { exitCode: 0, diagnostics: [] }];
+        case "findings":
+          return [
+            rule.id,
+            {
+              exitCode: 1,
+              diagnostics: outcome.diagnostics.map((diagnostic) => ({
+                ruleId: diagnostic.ruleId,
+                path: diagnostic.path,
+                line: diagnostic.line,
+                message: diagnostic.message,
+                severity: diagnostic.severity,
+                baselined: diagnostic.baselineState !== "unbaselined",
+              })),
+            },
+          ];
+        case "scan-root-refused":
+          return [rule.id, infrastructureFailure(rule, "GritEmptyScanRoots", outcome.detail)];
+        case "adapter-failed":
+          return [rule.id, infrastructureFailure(rule, outcome.failure, outcome.detail)];
+        case "cache-observation-missing":
+          return [rule.id, infrastructureFailure(rule, outcome.failure, outcome.detail)];
+        case "projection-missed":
+          return [rule.id, infrastructureFailure(rule, "GritPatternProjectionMiss")];
+        case "unexpected-diagnostic-identity":
+          return [rule.id, infrastructureFailure(rule, "GritUnexpectedDiagnosticIdentity")];
+      }
+    })
+  );
+}
+
+export async function runDocsApplyBackedDiagnosticOutcomes(
+  selectedRules: readonly RuleGritFacts[],
+  options: {
+    scanRoots?: readonly string[];
+    processLayer?: Layer.Layer<HabitatProcess>;
+  }
+): Promise<Map<string, DiagnosticRunOutcome>> {
   if (selectedRules.length === 0) return new Map();
   const scanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
-  const emptyRootFailure = validateScanRoots(scanRoots, {
+  const scanRootDecision = decideGritScanRoots(scanRoots, {
     allowDocsRoot: true,
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
-  if (emptyRootFailure) {
+  if (scanRootDecision.kind === "refused") {
     return new Map(
       selectedRules.map((rule) => [
         rule.id,
-        infrastructureFailure(rule, "GritEmptyScanRoots", emptyRootFailure),
+        {
+          kind: "scan-root-refused",
+          entry: nativeDiagnosticEntry(rule),
+          decision: scanRootDecision,
+          detail: renderDiagnosticScanRootRefusal(scanRootDecision),
+        },
       ])
     );
   }
@@ -54,11 +109,12 @@ export async function runDocsApplyBackedGritRules(
     return new Map(
       selectedRules.map((rule) => [
         rule.id,
-        infrastructureFailure(
-          rule,
-          "GritToolUnavailable",
-          error instanceof Error ? error.message : "Grit executable unavailable."
-        ),
+        {
+          kind: "adapter-failed",
+          entry: nativeDiagnosticEntry(rule),
+          failure: "GritToolUnavailable",
+          detail: error instanceof Error ? error.message : "Grit executable unavailable.",
+        },
       ])
     );
   }
@@ -66,11 +122,12 @@ export async function runDocsApplyBackedGritRules(
     return new Map(
       selectedRules.map((rule) => [
         rule.id,
-        infrastructureFailure(
-          rule,
-          "GritCommandFailed",
-          `Grit docs rewrite dry-run exited ${commandResult.exit.code}.`
-        ),
+        {
+          kind: "adapter-failed",
+          entry: nativeDiagnosticEntry(rule),
+          failure: "GritCommandFailed",
+          detail: `Grit docs rewrite dry-run exited ${commandResult.exit.code}.`,
+        },
       ])
     );
   }
@@ -79,18 +136,33 @@ export async function runDocsApplyBackedGritRules(
   return new Map(
     selectedRules.map((rule) => [
       rule.id,
-      {
-        exitCode: findingPaths.length > 0 ? 1 : 0,
-        diagnostics: findingPaths.map((filePath) => ({
-          ruleId: rule.id,
-          path: filePath,
-          message: rule.message,
-          severity: rule.lane === "advisory" ? ("advisory" as const) : ("error" as const),
-          baselined: false,
-        })),
-      },
+      findingPaths.length > 0
+        ? {
+            kind: "findings",
+            entry: nativeDiagnosticEntry(rule),
+            diagnostics: findingPaths.map((filePath) => ({
+              kind: "diagnostic-finding",
+              ruleId: rule.id,
+              path: filePath,
+              message: rule.message,
+              severity: rule.lane === "advisory" ? ("advisory" as const) : ("error" as const),
+              baselineState: "unbaselined",
+            })),
+          }
+        : {
+            kind: "clean",
+            entry: nativeDiagnosticEntry(rule),
+            diagnostics: [],
+          },
     ])
   );
+}
+
+function nativeDiagnosticEntry(rule: RuleGritFacts) {
+  return diagnosticCatalogEntryFromNativeRule({
+    ruleId: rule.id,
+    nativeDiagnosticIdentity: "docs-local-checkout-paths",
+  });
 }
 
 function docsApplyDryRunProgram(scanRoots: readonly string[]) {

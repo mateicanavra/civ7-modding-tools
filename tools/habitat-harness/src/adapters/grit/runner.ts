@@ -1,14 +1,17 @@
 import { Effect, type Layer } from "effect";
 import {
   type DiagnosticAdapterFailureKind,
+  type DiagnosticCacheObservation,
   type DiagnosticRunOutcome,
+  type DiagnosticScanRootRefusal,
   diagnosticCatalogEntryFromRuleGritFacts,
+  renderDiagnosticScanRootRefusal,
 } from "../../lib/diagnostic-catalog/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import { HabitatProcess, HabitatProcessLive } from "../../lib/habitat-process.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import type { RuleGritFacts } from "../../rules/registry/index.js";
-import { runDocsApplyBackedGritRules } from "./docs-apply.js";
+import { runDocsApplyBackedDiagnosticOutcomes, runDocsApplyBackedGritRules } from "./docs-apply.js";
 import { infrastructureFailure } from "./failure.js";
 import {
   projectGritDiagnosticOutcomes,
@@ -16,13 +19,17 @@ import {
 } from "./projection.js";
 import { gritCheckProgram } from "./request.js";
 import {
-  effectiveGritScanRoots,
+  decideEffectiveGritScanRoots,
   ruleHasDocsScanRoot,
   ruleUsesDocsApplyDryRun,
   selectedScanRootsForRules,
-  validateScanRoots,
 } from "./scan-roots/index.js";
-import type { GritCheckCacheMode, GritCheckOutputFormat, GritProjectionOptions } from "./types.js";
+import type {
+  GritCheckCacheMode,
+  GritCheckOutputFormat,
+  GritDiagnosticAcquisition,
+  GritProjectionOptions,
+} from "./types.js";
 
 interface GritRunOptions {
   scanRoots?: readonly string[];
@@ -73,27 +80,14 @@ export async function runGritDiagnosticOutcomes(
   options: GritRunOptions = {}
 ): Promise<Map<string, DiagnosticRunOutcome>> {
   if (selectedRules.length === 0) return new Map();
-  const docsApplyBackedRules = selectedRules.filter(
-    (rule) => ruleHasDocsScanRoot(rule) && ruleUsesDocsApplyDryRun(rule)
-  );
-  const nativeRules = selectedRules.filter((rule) => !docsApplyBackedRules.includes(rule));
+  const docsRules = selectedRules.filter(ruleHasDocsScanRoot);
+  const docsApplyBackedRules = docsRules.filter(ruleUsesDocsApplyDryRun);
+  const docsCheckRules = docsRules.filter((rule) => !ruleUsesDocsApplyDryRun(rule));
+  const sourceRules = selectedRules.filter((rule) => !ruleHasDocsScanRoot(rule));
   return new Map([
-    ...docsApplyBackedRules.map(
-      (rule) =>
-        [
-          rule.id,
-          adapterFailedOutcome(
-            rule,
-            "GritAdapterInternalContractViolation",
-            "Docs-apply backed diagnostics do not publish D6 native outcome details."
-          ),
-        ] as const
-    ),
-    ...(await runGritRuleOutcomeGroup(
-      nativeRules,
-      options,
-      nativeRules.some(ruleHasDocsScanRoot) ? "text" : "json"
-    )),
+    ...(await runDocsApplyBackedDiagnosticOutcomes(docsApplyBackedRules, options)),
+    ...(await runGritRuleOutcomeGroup(sourceRules, options, "json")),
+    ...(await runGritRuleOutcomeGroup(docsCheckRules, options, "text")),
   ]);
 }
 
@@ -113,23 +107,28 @@ async function runGritRuleOutcomeGroup(
   options: GritRunOptions,
   outputFormat: GritCheckOutputFormat
 ): Promise<Map<string, DiagnosticRunOutcome>> {
-  const scanRoots = effectiveGritScanRoots(
-    selectedRules,
-    selectedScanRootsForRules(selectedRules, options.scanRoots)
-  );
-  const emptyRootFailure = validateScanRoots(scanRoots, {
+  const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
+  const scanRootDecision = decideEffectiveGritScanRoots(selectedRules, requestedScanRoots, {
     allowInjectedProbeRoot: options.allowInjectedProbeRoot,
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
-  if (emptyRootFailure) {
+  if (scanRootDecision.kind === "refused") {
     return new Map(
       selectedRules.map((rule) => [
         rule.id,
-        adapterFailedOutcome(rule, "GritEmptyScanRoots", emptyRootFailure),
+        scanRootRefusedOutcome(
+          rule,
+          scanRootDecision,
+          renderDiagnosticScanRootRefusal(scanRootDecision)
+        ),
       ])
     );
   }
+  const scanRoots =
+    scanRootDecision.kind === "expanded-test-files"
+      ? scanRootDecision.effectiveRoots
+      : scanRootDecision.roots;
 
   const acquisition = await runHabitatEffect(
     gritCheckProgram(scanRoots, {
@@ -144,6 +143,17 @@ async function runGritRuleOutcomeGroup(
     case "parsed":
       return projectGritDiagnosticOutcomes(selectedRules, acquisition.report, options.projection);
     case "adapter-failed":
+      if (acquisition.failure === "GritCacheProvenanceMissing") {
+        const cache = missingCacheObservation(acquisition);
+        if (cache) {
+          return new Map(
+            selectedRules.map((rule) => [
+              rule.id,
+              cacheObservationMissingOutcome(rule, cache, acquisition.message),
+            ])
+          );
+        }
+      }
       return new Map(
         selectedRules.map((rule) => [
           rule.id,
@@ -154,10 +164,22 @@ async function runGritRuleOutcomeGroup(
       return new Map(
         selectedRules.map((rule) => [
           rule.id,
-          adapterFailedOutcome(rule, "GritEmptyScanRoots", acquisition.message),
+          scanRootRefusedOutcome(rule, acquisition.decision, acquisition.message),
         ])
       );
   }
+}
+
+function missingCacheObservation(
+  acquisition: Extract<GritDiagnosticAcquisition, { kind: "adapter-failed" }>
+): DiagnosticCacheObservation | null {
+  if (
+    (acquisition.command.kind === "completed" || acquisition.command.kind === "interrupted") &&
+    acquisition.command.cache.kind === "missing-required-observation"
+  ) {
+    return acquisition.command.cache;
+  }
+  return null;
 }
 
 function adapterFailedOutcome(
@@ -169,6 +191,33 @@ function adapterFailedOutcome(
     kind: "adapter-failed",
     entry: diagnosticCatalogEntryFromRuleGritFacts(rule),
     failure,
+    detail,
+  };
+}
+
+function scanRootRefusedOutcome(
+  rule: RuleGritFacts,
+  decision: DiagnosticScanRootRefusal,
+  detail: string
+): DiagnosticRunOutcome {
+  return {
+    kind: "scan-root-refused",
+    entry: diagnosticCatalogEntryFromRuleGritFacts(rule),
+    decision,
+    detail,
+  };
+}
+
+function cacheObservationMissingOutcome(
+  rule: RuleGritFacts,
+  cache: DiagnosticCacheObservation,
+  detail: string
+): DiagnosticRunOutcome {
+  return {
+    kind: "cache-observation-missing",
+    entry: diagnosticCatalogEntryFromRuleGritFacts(rule),
+    cache,
+    failure: "GritCacheProvenanceMissing",
     detail,
   };
 }
