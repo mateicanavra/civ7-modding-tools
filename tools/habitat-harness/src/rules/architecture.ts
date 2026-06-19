@@ -1,10 +1,8 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 import { type FileLayerContext, runGeneratedZoneRule } from "../lib/generated-zones.js";
 import { repoRoot } from "../lib/paths.js";
 import { run, type SpawnResult } from "../lib/spawn.js";
+import { loadRuleRegistryDocument, type RuleRegistryRecordV1 } from "./registry.js";
 
 /**
  * The rule pack. Data lives in rules.json (shared with the Nx plugin); this
@@ -15,7 +13,7 @@ import { run, type SpawnResult } from "../lib/spawn.js";
 
 export interface HarnessRule {
   id: string;
-  ownerTool: string;
+  ownerTool: RuleRegistryRecordV1["ownerTool"];
   ownerProject: string;
   lane: "enforced" | "advisory";
   scope: string;
@@ -33,14 +31,14 @@ export interface HarnessRule {
   hookScope?: "pre-commit";
 }
 
-const rulesJsonPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "rules.json");
-
-export const rules: HarnessRule[] = (
-  JSON.parse(readFileSync(rulesJsonPath, "utf8")) as { rules: HarnessRule[] }
-).rules;
+export const rules: HarnessRule[] = loadRuleRegistryDocument().rules.map(toHarnessRule);
 
 export function ruleById(id: string): HarnessRule | undefined {
   return rules.find((r) => r.id === id);
+}
+
+function toHarnessRule(rule: RuleRegistryRecordV1): HarnessRule {
+  return { ...rule };
 }
 
 function coarse(rule: HarnessRule, res: SpawnResult): HabitatDiagnostic[] {
