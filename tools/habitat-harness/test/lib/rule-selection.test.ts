@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
+  checkCommandContext,
   createCheckReport,
   renderCheckReport,
   rulesForExecution,
@@ -100,7 +101,7 @@ describe("rule selector boundary", () => {
 
   test("renders invalid selectors as schemaVersion 1 failing CheckReports", async () => {
     const report = await createCheckReport({
-      commandArgs: ["--json", "--rule", "definitely-not-a-rule"],
+      command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
       rule: "definitely-not-a-rule",
     });
 

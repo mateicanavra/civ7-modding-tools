@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { createCheckReport, renderCheckReport } from "../lib/check-report.js";
+import { checkCommandContext, createCheckReport, renderCheckReport } from "../lib/check-report.js";
 import {
   createVerifyReceipt,
   readVerifyTargetPlan,
@@ -32,7 +32,7 @@ export default class Verify extends HabitatCommand {
     const startedAt = new Date().toISOString();
     const startedMs = Date.now();
     const base = resolveVerifyBase(flags.base);
-    const report = await createCheckReport({ base, commandArgs: this.rawArgv() });
+    const report = await createCheckReport({ base, command: checkCommandContext(this.rawArgv()) });
     const targetPlan = await readVerifyTargetPlan();
     let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;
     let exitCode = 0;
