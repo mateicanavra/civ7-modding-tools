@@ -104,9 +104,9 @@ function filterRuleIds(
 ): string[] {
   let selected = [...registry];
   if (selection.owner) selected = selected.filter((rule) => rule.ownerProject === selection.owner);
-  if (selection.rule) selected = selected.filter((rule) => rule.ruleId === selection.rule);
+  if (selection.rule) selected = selected.filter((rule) => rule.id === selection.rule);
   if (selection.tool) selected = selected.filter((rule) => rule.ownerTool === selection.tool);
-  return selected.map((rule) => rule.ruleId);
+  return selected.map((rule) => rule.id);
 }
 
 function selectorFacts(
@@ -126,7 +126,7 @@ function selectorFact(
   registry: readonly RegistryRuleSelectorFacts[]
 ): RuleSelectorFact {
   const matchingRuleIds = matchingRulesForKind(kind, requestedValue, registry).map(
-    (rule) => rule.ruleId
+    (rule) => rule.id
   );
   const matchedNamespace =
     matchingRuleIds.length > 0 ? undefined : firstMatchingNamespace(kind, requestedValue, registry);
@@ -148,7 +148,7 @@ function matchingRulesForKind(
     case "owner":
       return registry.filter((rule) => rule.ownerProject === value);
     case "rule":
-      return registry.filter((rule) => rule.ruleId === value);
+      return registry.filter((rule) => rule.id === value);
     case "tool":
       return registry.filter((rule) => rule.ownerTool === value);
   }
