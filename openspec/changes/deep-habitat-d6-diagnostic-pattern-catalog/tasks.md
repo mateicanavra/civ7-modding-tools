@@ -58,8 +58,11 @@
   - Source slice adds the TypeBox-backed D6 diagnostic failure subset under
     `src/lib/diagnostic-catalog/`, moves Grit check/probe consumers to that
     subset, and leaves D9 apply transaction failures outside D6 diagnostics.
-- [ ] 3.7 Replace `GritCheckParseResult` boolean/optional state with closed
+- [x] 3.7 Replace `GritCheckParseResult` boolean/optional state with closed
   acquisition outcomes.
+  - Source slice replaces the parser `ok`/optional command-result DTO with the
+    TypeBox-backed `GritDiagnosticAcquisition` union: parsed, adapter-failed,
+    and scan-root-refused.
 - [ ] 3.8 Replace adapter failure message parsing with structured failure
   projection plus diagnostic rendering.
 - [x] 3.9 Define `DiagnosticRunOutcome` and project native results only through

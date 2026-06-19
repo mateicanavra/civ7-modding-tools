@@ -1,18 +1,9 @@
-export {
-  injectedProbeRoot,
-} from "./constants.js";
-export {
-  discoverGritScanRoots,
-  effectiveGritScanRoots,
-  validateScanRoots,
-} from "./scan-roots/index.js";
+export { injectedProbeRoot } from "./constants.js";
 export {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
 } from "./output/index.js";
-export {
-  projectGritResults,
-} from "./projection.js";
+export { projectGritResults } from "./projection.js";
 export {
   gritCheckProgram,
   gritCheckRequest,
@@ -21,14 +12,19 @@ export {
   runGritRule,
   runGritRules,
 } from "./runner.js";
+export type { GritScanRootValidationOptions } from "./scan-roots/index.js";
+export {
+  discoverGritScanRoots,
+  effectiveGritScanRoots,
+  validateScanRoots,
+} from "./scan-roots/index.js";
 export type {
   GritCheckCacheMode,
   GritCheckOptions,
   GritCheckOutputFormat,
-  GritCheckParseResult,
   GritCheckRequestOptions,
+  GritDiagnosticAcquisition,
   GritProjectionOptions,
   GritReport,
   GritResult,
 } from "./types.js";
-export type { GritScanRootValidationOptions } from "./scan-roots/index.js";
