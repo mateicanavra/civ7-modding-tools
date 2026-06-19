@@ -131,7 +131,9 @@ describe("Habitat pattern generator", () => {
         lifecycle: "registered-enforced",
         manifestPath,
       })
-    ).rejects.toThrow("Manifest pre-commit hook scope requires a matching rule-pack hookScope");
+    ).rejects.toThrow(
+      "Manifest pre-commit hook scope requires matching rule-pack local feedback eligibility"
+    );
 
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
@@ -379,7 +381,7 @@ function assertRegisteredWrites(
     manifestPath,
   });
   if (manifest.hookScope.decision === "pre-commit") {
-    expect(rules.rules.at(-1)).toMatchObject({ localFeedback: { preCommit: true } });
+    expect(rules.rules.at(-1)).toMatchObject({ localFeedback: true });
     expect(rules.rules.at(-1)).not.toHaveProperty("hookScope");
   } else {
     expect(rules.rules.at(-1)).not.toHaveProperty("localFeedback");

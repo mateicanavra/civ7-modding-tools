@@ -55,7 +55,7 @@ An agent classifies a path, selects rules, runs `habitat check`, inspects inferr
 - D6 through `ruleGritFacts`.
 - D7 through selector, routing, execution, baseline, Grit, and generated-zone projections.
 - D8 through `ruleGovernanceFacts`.
-- D10 through `ruleGeneratedZoneFacts` plus G-HOST policy ownership.
+- D10 through `ruleFileLayerFacts` plus G-HOST policy ownership.
 - D13 through governance/scaffold relation facts.
 
 ## Affected Owners

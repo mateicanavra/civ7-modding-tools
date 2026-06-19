@@ -1,51 +1,21 @@
-import type { HarnessRule } from "../rules/architecture.js";
+import type { RuleFileLayerFacts } from "../rules/registry.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
+import { generatedZoneById, matchesGeneratedZone } from "./generated-zone-catalog.js";
 import { repoRoot } from "./paths.js";
 import { run } from "./spawn.js";
 
-type FileLayerRule = Extract<HarnessRule, { ownerTool: "file-layer" }>;
-type ForbiddenFileNameRule = Extract<FileLayerRule, { forbiddenFileNames: readonly string[] }>;
+type ForbiddenFileNameRule = Extract<RuleFileLayerFacts, { forbiddenFileNames: readonly string[] }>;
 
 export interface FileLayerContext {
   staged?: boolean;
 }
 
-interface GeneratedZone {
-  id: string;
-  kind: "prefix" | "exact";
-  path: string;
-  remediation: string;
-}
-
-export const generatedZones: GeneratedZone[] = [
-  {
-    id: "swooper-map-generated",
-    kind: "prefix",
-    path: "mods/mod-swooper-maps/src/maps/generated/",
-    remediation: "Run `nx run mod-swooper-maps:gen:maps` and commit the generated output.",
-  },
-  {
-    id: "civ7-types-generated",
-    kind: "prefix",
-    path: "packages/civ7-types/generated/",
-    remediation:
-      "Regenerate through the external Civ7 resources workflow; this repo cannot regenerate those types in CI.",
-  },
-  {
-    id: "civ7-map-policy-tables",
-    kind: "exact",
-    path: "packages/civ7-map-policy/src/civ7-tables.gen.ts",
-    remediation: "Run `nx run @civ7/map-policy:verify -- --write` and commit the generated table.",
-  },
-];
-
 export function runGeneratedZoneRule(
-  rule: FileLayerRule,
+  rule: RuleFileLayerFacts,
   context: FileLayerContext = {}
 ): { exitCode: number; diagnostics: HabitatDiagnostic[] } {
-  if (!context.staged) return { exitCode: 0, diagnostics: [] };
   if ("forbiddenFileNames" in rule) return runForbiddenFileNameRule(rule);
-  const zone = generatedZones.find((candidate) => candidate.id === rule.generatedZone);
+  const zone = generatedZoneById(rule.generatedZone);
   if (!zone) {
     return {
       exitCode: 1,
@@ -53,15 +23,16 @@ export function runGeneratedZoneRule(
         {
           ruleId: rule.id,
           path: ".",
-          message: `Unknown generated zone '${rule.generatedZone ?? "(missing)"}'.`,
+          message: `Unknown generated zone '${rule.generatedZone}'.`,
           severity: "error",
           baselined: false,
         },
       ],
     };
   }
+  if (!context.staged) return { exitCode: 0, diagnostics: [] };
 
-  const staged = stagedPaths().filter((candidate) => matchesZone(zone, candidate));
+  const staged = stagedPaths().filter((candidate) => matchesGeneratedZone(zone, candidate));
   const diagnostics = staged.map((stagedPath) => ({
     ruleId: rule.id,
     path: stagedPath,
@@ -76,7 +47,7 @@ function runForbiddenFileNameRule(rule: ForbiddenFileNameRule): {
   exitCode: number;
   diagnostics: HabitatDiagnostic[];
 } {
-  const forbidden = new Set(rule.forbiddenFileNames ?? []);
+  const forbidden = new Set(rule.forbiddenFileNames);
   const staged = stagedPaths().filter((candidate) =>
     forbidden.has(candidate.split("/").at(-1) ?? "")
   );
@@ -108,9 +79,4 @@ function stagedPaths(): string[] {
     if (file) out.push(file);
   }
   return [...new Set(out)];
-}
-
-function matchesZone(zone: GeneratedZone, candidate: string): boolean {
-  if (zone.kind === "exact") return candidate === zone.path;
-  return candidate.startsWith(zone.path);
 }

@@ -6,7 +6,7 @@ import type { RuleRunResult } from "../rules/architecture.js";
 import type { RuleGritFacts } from "../rules/registry.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
-import { generatedZones } from "./generated-zones.js";
+import { isGeneratedZoneRoot } from "./generated-zone-catalog.js";
 import { gritMachineOutputEnv } from "./grit-env.js";
 import { renderGritAdapterFailure } from "./grit-failures.js";
 import {
@@ -938,10 +938,7 @@ function sortedUnique(values: readonly string[]): string[] {
 }
 
 function isGeneratedRoot(relative: string): boolean {
-  return generatedZones.some((zone) => {
-    if (zone.kind === "exact") return relative === zone.path;
-    return relative === zone.path.slice(0, -1) || relative.startsWith(zone.path);
-  });
+  return isGeneratedZoneRoot(relative);
 }
 
 function isProtectedRoot(relative: string): boolean {
