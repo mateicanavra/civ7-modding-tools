@@ -36,3 +36,53 @@ All findings **accepted**; the packet was repaired pre-code. No finding rejected
 
 All P1/P2/P3 dispositioned and repaired in the packet. Re-validate strict, then
 implementation may begin at Task 1 (live probes).
+
+---
+
+# Implementation-diff Review — Fix 1 + Fix 2 (2026-06-19)
+
+Adversarial multi-lane review of the implemented diff `430a93aae..HEAD` (Fix 1 =
+`843891be5` variety selection; Fix 2 = `50a7ba844` retry). 3 lanes
+(variety-determinism, retry-telemetry-purity, boundaries-contracts-tests) +
+per-finding adversarial verification (each P1/P2 handed to an independent
+refuter).
+
+**Outcome: 0 P1, 0 confirmed-real P2 correctness defects.** Fix 1 and Fix 2 were
+found correct, reproducible (no RNG/clock), contract-clean, boundary-safe; the
+no-fallback materialize path is byte-identical (existing hashes/telemetry
+unchanged). All confirmed findings are TEST-QUALITY gaps.
+
+Lane highlights:
+- **Fix 1**: argmax over a deterministically-sorted `remaining`; total ordering
+  (effectiveScore → bestSuitability → featureType-asc; featureType unique);
+  `0.5**n` exact; placeFirst (bonus 1000) dominates; 2nd same-group pick
+  (1.0·0.5) loses to a fresh land wonder (~0.7); placeFirst-with-no-legal-tile
+  filtered (`bestSuitability=-1`); loop terminates; priority preserved.
+- **Fix 2**: no-fallback parity field-for-field; digest reads fields by name so
+  spread order can't drift the hash; reconcile invariant holds (one counter +
+  one row per placement; all-fail records PRIMARY once); op stays
+  mapgen-core-only; `firstRejection!` provably non-null; fallbacks sanitized.
+- **Boundaries**: `fallbackPlotIndices` (Type.Optional) flows through the
+  artifact (schema = op output) with no strip; `collectFallbacks` excludes
+  primary + its footprint + other placed footprints, dedupes, caps 6, prefers
+  spacing, deterministic; map-policy boundary intact; no truth-stage edits.
+
+| id | sev | verdict | disposition |
+|---|---|---|---|
+| TQ-1 | P2 | **real** | **FIXED** — strengthened the fallback test (multi-tile TWO footprint + 2 wonders) to assert no fallback footprint overlaps the wonder's own footprint or any earlier placement's footprint (`plan-ops.test.ts` "excludes overlapping footprints from fallback anchors"). |
+| FIX1-001 | P3 | judgment | **FIXED** — added a deterministic variety-flip test proving the decay changes the 2nd selection from same-group to a fresh group (`plan-ops.test.ts` "diminishing-returns decay flips the second pick to a fresh group"); closes the "mechanism only proven live" gap offline. |
+| FIX2-01 | P3 | judgment | **DOCUMENTED, no behavior change** — stray terrain mutation on a superseded primary anchor; bounded to inert (planner only emits anchors whose footprint already passed `validTerrainTypes`, so `ensureFeatureValidTerrain` returns "unchanged"); per-anchor pre-check is the packet §4 Fix-2 spec; clarifying comment added in `materialize.ts`. |
+| FIX2-02 | P3 | judgment | **ACCEPTED, no change** — `collectFallbacks` worst-case O(selected·size) ≈ 7·7000, negligible. |
+| TQ-2 | P2 | **refuted** | **DISMISSED** — claim that retry tests miss the partial-fail/pre-check path was refuted; the new materialize tests cover primary-refused→fallback-placed and all-fail single-rejection. |
+| TQ-3 | P3 | judgment | **SKIPPED (covered indirectly)** — `runOpValidated` doesn't strict-check op OUTPUT, but recipe smoke tests publish the plan through the `naturalWonderPlan` artifact (schema = op output) at runtime; strengthened TQ-1 test also asserts the field shape. |
+
+**Out of scope:** a pre-existing `slopeClass` typecheck note in
+`derive-placement-inputs/index.ts` (outside the 5-file diff; tsup build +
+`bun test` green; predates Fix 1/Fix 2) — not fixed (§7).
+
+**Post-fix gate state:** `plan-ops.test.ts` 15 pass (+2); `natural-wonder-placement.test.ts`
+8 pass; mod suite NW-green (only FOREIGN `no-fudging` fails); map-policy 18 pass;
+openspec strict-valid.
+
+Fix 1 + Fix 2 are review-clean. Remaining: Fix 3 (FOUR*/FOURL gen-pin) + the
+live closure gate (§6), which require the live session.

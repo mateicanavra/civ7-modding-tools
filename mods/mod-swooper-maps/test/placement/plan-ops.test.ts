@@ -259,6 +259,122 @@ describe("placement plan operations", () => {
     }
   });
 
+  it("excludes overlapping footprints from fallback anchors (multi-tile + used plots)", () => {
+    const width = 6;
+    const height = 6;
+    const size = width * height;
+    // TWO-tile footprint so fallbacks must avoid MULTI-tile overlaps, not just
+    // the single anchor plot. Two wonders in distinct groups so both place and
+    // the second wonder's fallbacks must also avoid the first wonder's footprint.
+    const twoTile = { even: [{ dx: 0, dy: 0 }, { dx: 1, dy: 0 }], odd: [{ dx: 0, dy: 0 }, { dx: 1, dy: 0 }] };
+    const result = runOpValidated(
+      planNaturalWonders,
+      {
+        width,
+        height,
+        wondersCount: 2,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i * 53) % 300)),
+        aridityIndex: new Float32Array(size).fill(0.3),
+        riverClass: new Uint8Array(size),
+        lakeMask: new Uint8Array(size),
+        coastTerrainType: 2,
+        mountainTerrainType: 3,
+        iceFeatureType: 4,
+        terrainType: new Uint8Array(size).fill(1),
+        biomeType: new Uint8Array(size).fill(1),
+        featureType: new Int16Array(size).fill(-1),
+        noFeatureType: -1,
+        naturalWonderBlockedMask: new Uint8Array(size),
+        featureCatalog: [
+          { featureType: 35, direction: 0, footprintOffsetsByParity: twoTile }, // group A
+          { featureType: 30, direction: 0, footprintOffsetsByParity: twoTile }, // group I
+        ],
+      },
+      { strategy: "default", config: { minSpacingTiles: 0 } }
+    );
+
+    expect(result.placements.length).toBe(2);
+    // Reconstruct the parity-resolved footprint for an anchor (TWO is parity-
+    // symmetric here, so even/odd agree).
+    const footprintOf = (plotIndex: number): number[] => {
+      const y = (plotIndex / width) | 0;
+      const x = plotIndex - y * width;
+      return [
+        { dx: 0, dy: 0 },
+        { dx: 1, dy: 0 },
+      ].map((o) => {
+        const fy = y + o.dy;
+        const fx = ((x + o.dx) % width + width) % width;
+        return fy * width + fx;
+      });
+    };
+    // Fallbacks for placement i must avoid its OWN footprint and the footprints
+    // of every EARLIER placement (the usedPlots state when it was selected).
+    for (let i = 0; i < result.placements.length; i++) {
+      const placement = result.placements[i]!;
+      const fallbacks = placement.fallbackPlotIndices ?? [];
+      expect(fallbacks.length).toBeGreaterThan(0);
+      expect(fallbacks.length).toBeLessThanOrEqual(6);
+      const forbidden = new Set<number>(footprintOf(placement.plotIndex));
+      for (let j = 0; j < i; j++) {
+        for (const cell of footprintOf(result.placements[j]!.plotIndex)) forbidden.add(cell);
+      }
+      for (const fallbackAnchor of fallbacks) {
+        for (const cell of footprintOf(fallbackAnchor)) {
+          expect(forbidden.has(cell)).toBe(false);
+        }
+      }
+    }
+  });
+
+  it("diminishing-returns decay flips the second pick to a fresh group (variety)", () => {
+    const width = 4;
+    const height = 3;
+    const size = width * height;
+    const anchorOnly = { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] };
+    // Uniform map tuned so two arid wonders (group H) each score ~0.8 and one
+    // forest wonder (group I) scores ~0.48. WITHOUT the per-group decay the two
+    // highest scores are both group H -> {31,39}. WITH decay the 2nd H drops to
+    // 0.8*0.5=0.4 < 0.48, so the forest wonder wins the 2nd slot -> {30,31}.
+    const result = runOpValidated(
+      planNaturalWonders,
+      {
+        width,
+        height,
+        wondersCount: 2,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: new Int16Array(size).fill(100),
+        aridityIndex: new Float32Array(size).fill(1), // group H: 0.5*1 + 0.3*elevN(1) = 0.8
+        riverClass: new Uint8Array(size),
+        lakeMask: new Uint8Array(size),
+        vegetationDensity: new Float32Array(size).fill(0.6), // group I: 0.55*0.6 = 0.33
+        effectiveMoisture: new Float32Array(size).fill(0.5), //          + 0.3*0.5 = 0.15
+        surfaceTemperature: new Float32Array(size).fill(35), // temperate term -> 0
+        coastTerrainType: 2,
+        mountainTerrainType: 3,
+        iceFeatureType: 4,
+        terrainType: new Uint8Array(size).fill(1),
+        biomeType: new Uint8Array(size).fill(1),
+        featureType: new Int16Array(size).fill(-1),
+        noFeatureType: -1,
+        naturalWonderBlockedMask: new Uint8Array(size),
+        featureCatalog: [
+          { featureType: 31, direction: 0, footprintOffsetsByParity: anchorOnly }, // Grand Canyon (H)
+          { featureType: 39, direction: 0, footprintOffsetsByParity: anchorOnly }, // Uluru (H)
+          { featureType: 30, direction: 0, footprintOffsetsByParity: anchorOnly }, // Redwood (I)
+        ],
+      },
+      { strategy: "default", config: { minSpacingTiles: 0 } }
+    );
+
+    expect(result.plannedCount).toBe(2);
+    const placed = result.placements.map((p) => p.featureType).sort((a, b) => a - b);
+    // Cross-group MIX: one arid (31) + one forest (30); the 2nd arid (39) is NOT
+    // selected because the decay made it lose to the fresh forest group.
+    expect(placed).toEqual([30, 31]);
+  });
+
   // The generic plan-resources op was deleted in placement-realignment S3;
   // resource planning is covered by the domain/resources op-contract tests
   // (derive-habitat-fields, select-resource-sites) and the recipe smoke tests.

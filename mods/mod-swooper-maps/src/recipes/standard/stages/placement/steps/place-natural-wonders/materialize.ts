@@ -561,6 +561,15 @@ export function stampNaturalWondersFromPlan({
     // engine remains the final legality authority. Every attempt recomputes its
     // own parity-aware footprint + occupancy/terrain pre-check; if all fail, the
     // PRIMARY anchor's failure is recorded (one outcome row per placement).
+    //
+    // ensureFeatureValidTerrain may stamp valid terrain on an attempted anchor
+    // before placement, so a failed primary followed by a placed fallback can
+    // leave the primary's terrain adjusted. In practice this is inert: the
+    // planner only emits anchors whose footprint already passed validTerrainTypes
+    // (the same Feature_ValidTerrains source), so the pre-check returns
+    // "unchanged" and performs no mutation. terrainAdjustedCount counts every
+    // real mutation honestly (placed or superseded), matching the prior
+    // single-anchor accounting on the no-fallback path.
     const rawElevation = Number.isFinite(placementPlan.elevation)
       ? (placementPlan.elevation as number)
       : undefined;
