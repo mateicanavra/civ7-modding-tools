@@ -5,6 +5,8 @@ import {
   diagnosticCacheRequirementForGritCheck,
   diagnosticCommandObservationFromResult,
   diagnosticCompletedCommandObservationFromResult,
+  type NativeGritCheckRequest,
+  nativeGritCheckRequestFromCommandResult,
 } from "../../../lib/diagnostic-catalog/index.js";
 import type { HabitatCommandResult } from "../../../lib/habitat-process.js";
 import { normalizeGritPath } from "../scan-roots/index.js";
@@ -20,12 +22,17 @@ const defaultCacheRequirement = diagnosticCacheRequirementForGritCheck({});
 
 export function parseGritCheckTextOutput(
   commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement
+  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement,
+  request: NativeGritCheckRequest = nativeGritCheckRequestFromCommandResult(
+    commandResult,
+    cacheRequirement
+  )
 ): GritDiagnosticAcquisition {
   if (commandResult.exit.interrupted) {
     return parseFailure(
       commandResult,
       cacheRequirement,
+      request,
       "GritCommandFailed",
       "unparsed",
       "Grit command was interrupted."
@@ -38,6 +45,7 @@ export function parseGritCheckTextOutput(
     return parseFailure(
       commandResult,
       cacheRequirement,
+      request,
       "GritCommandFailed",
       "unparsed",
       `Grit command exited ${commandResult.exit.code}.`
@@ -47,6 +55,7 @@ export function parseGritCheckTextOutput(
   return parsedAcquisition(
     commandResult,
     cacheRequirement,
+    request,
     [...new Set(results.map((result) => result.path).filter(isString))],
     results
   );
@@ -54,12 +63,17 @@ export function parseGritCheckTextOutput(
 
 export function parseGritCheckOutput(
   commandResult: HabitatCommandResult,
-  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement
+  cacheRequirement: DiagnosticCacheRequirement = defaultCacheRequirement,
+  request: NativeGritCheckRequest = nativeGritCheckRequestFromCommandResult(
+    commandResult,
+    cacheRequirement
+  )
 ): GritDiagnosticAcquisition {
   if (commandResult.exit.code !== 0 || commandResult.exit.interrupted) {
     return parseFailure(
       commandResult,
       cacheRequirement,
+      request,
       "GritCommandFailed",
       "unparsed",
       `Grit command exited ${commandResult.exit.code}.`
@@ -83,6 +97,7 @@ export function parseGritCheckOutput(
     return parseFailure(
       commandResult,
       cacheRequirement,
+      request,
       "GritNoJson",
       "no-json",
       "Grit emitted no JSON output."
@@ -93,6 +108,7 @@ export function parseGritCheckOutput(
     return parseFailure(
       commandResult,
       cacheRequirement,
+      request,
       "GritAdapterInternalContractViolation",
       "unsupported-mode",
       `Grit ${truncated.stream} output exceeded the parser capture limit.`
@@ -104,11 +120,12 @@ export function parseGritCheckOutput(
     if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) continue;
     try {
       const parsed: unknown = JSON.parse(trimmed);
-      return validateGritReport(commandResult, cacheRequirement, parsed);
+      return validateGritReport(commandResult, cacheRequirement, request, parsed);
     } catch {
       return parseFailure(
         commandResult,
         cacheRequirement,
+        request,
         "GritMalformedJson",
         "malformed",
         `Grit ${candidate.stream} is not valid JSON.`
@@ -122,6 +139,7 @@ export function parseGritCheckOutput(
   return parseFailure(
     commandResult,
     cacheRequirement,
+    request,
     containsJsonLikeText ? "GritMalformedJson" : "GritNoJson",
     containsJsonLikeText ? "malformed" : "no-json",
     containsJsonLikeText
@@ -133,6 +151,7 @@ export function parseGritCheckOutput(
 function validateGritReport(
   commandResult: HabitatCommandResult,
   cacheRequirement: DiagnosticCacheRequirement,
+  request: NativeGritCheckRequest,
   value: unknown
 ): GritDiagnosticAcquisition {
   const issues = [...Value.Errors(GritWireReportSchema, value)];
@@ -145,23 +164,32 @@ function validateGritReport(
     return parseFailure(
       commandResult,
       cacheRequirement,
+      request,
       failure,
       "schema-drift",
       first?.message ?? "Grit JSON does not match the expected report schema."
     );
   }
   const report: GritWireReport = Value.Parse(GritWireReportSchema, value);
-  return parsedAcquisition(commandResult, cacheRequirement, report.paths ?? [], report.results);
+  return parsedAcquisition(
+    commandResult,
+    cacheRequirement,
+    request,
+    report.paths ?? [],
+    report.results
+  );
 }
 
 function parsedAcquisition(
   commandResult: HabitatCommandResult,
   cacheRequirement: DiagnosticCacheRequirement,
+  request: NativeGritCheckRequest,
   paths: readonly string[],
   results: readonly GritResult[]
 ): GritDiagnosticAcquisition {
   return {
     kind: "parsed",
+    request,
     report: {
       paths: [...paths],
       results: [...results],
@@ -211,12 +239,14 @@ function parseGritTextResults(text: string): GritResult[] {
 function parseFailure(
   commandResult: HabitatCommandResult,
   cacheRequirement: DiagnosticCacheRequirement,
+  request: NativeGritCheckRequest,
   failure: DiagnosticAdapterFailureKind,
   parseStatus: GritParseFailureStatus,
   message: string
 ): GritDiagnosticAcquisition {
   return {
     kind: "adapter-failed",
+    request,
     failure,
     parseStatus,
     message,

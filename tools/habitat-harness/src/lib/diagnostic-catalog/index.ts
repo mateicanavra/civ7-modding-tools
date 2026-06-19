@@ -20,6 +20,9 @@ export type {
   DiagnosticCompletedCommandObservation,
   DiagnosticInterruptedCommandObservation,
   DiagnosticOutputMetadata,
+  NativeGritCheckRequest,
+  NativeGritCommandFamily,
+  NativeGritOutputContract,
 } from "./command.js";
 export {
   DiagnosticCacheObservationSchema,
@@ -35,6 +38,11 @@ export {
   diagnosticCommandObservationFromResult,
   diagnosticCompletedCommandObservationFromResult,
   diagnosticToolUnavailableObservation,
+  NativeGritCheckRequestSchema,
+  NativeGritCommandFamilySchema,
+  NativeGritOutputContractSchema,
+  nativeGritCheckRequestFromCommandResult,
+  nativeGritCheckRequestFromProcessRequest,
 } from "./command.js";
 export type { DiagnosticAdapterFailureKind } from "./failure.js";
 export {
