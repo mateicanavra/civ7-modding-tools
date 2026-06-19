@@ -28,7 +28,7 @@ export interface HarnessRule {
   manifestPath?: string;
   generatedZone?: string;
   forbiddenFileNames?: string[];
-  hookScope?: "pre-commit";
+  localFeedback?: { preCommit: true };
 }
 
 export const rules: HarnessRule[] = activeRuleRegistryDocument.rules.map(toHarnessRule);

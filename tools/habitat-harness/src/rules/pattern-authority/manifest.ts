@@ -164,7 +164,7 @@ export interface PatternAuthorityRulePackReferenceInput {
   manifestPath?: string;
   ownerTool?: string;
   lane?: "advisory" | "enforced";
-  hookScope?: "pre-commit";
+  localFeedback?: { preCommit: true };
 }
 
 export interface PatternAuthorityValidationOptions {
@@ -214,7 +214,7 @@ export function patternAuthorityRuleReferenceFromRule(
     manifestPath: rule.manifestPath,
     ownerTool: rule.ownerTool,
     lifecycle: rule.lane,
-    hookScope: rule.hookScope,
+    hookScope: rule.localFeedback?.preCommit ? "pre-commit" : undefined,
   };
 }
 

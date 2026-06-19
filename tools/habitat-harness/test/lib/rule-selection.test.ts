@@ -152,8 +152,8 @@ describe("rule selector boundary", () => {
   });
 
   test("staged execution keeps only hook-scoped Grit rules when approved staged roots exist", () => {
-    const hookScoped = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
-      hookScope: "pre-commit",
+    const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
+      localFeedback: { preCommit: true },
     });
     const currentTreeOnly = fakeRule(
       "grit-current-tree",
@@ -163,7 +163,7 @@ describe("rule selector boundary", () => {
     const nativeRule = fakeRule("file-layer-rule", "file-layer", "@internal/habitat-harness");
 
     expect(
-      rulesForExecution([hookScoped, currentTreeOnly, nativeRule], {
+      rulesForExecution([stagedEligible, currentTreeOnly, nativeRule], {
         staged: true,
         stagedPaths: ["packages/mapgen-core/src/core/index.ts"],
       }).map((rule) => rule.id)
@@ -171,12 +171,12 @@ describe("rule selector boundary", () => {
   });
 
   test("staged execution excludes Grit rules when staged paths are outside approved roots", () => {
-    const hookScoped = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
-      hookScope: "pre-commit",
+    const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
+      localFeedback: { preCommit: true },
     });
 
     expect(
-      rulesForExecution([hookScoped], {
+      rulesForExecution([stagedEligible], {
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
       }).map((rule) => rule.id)

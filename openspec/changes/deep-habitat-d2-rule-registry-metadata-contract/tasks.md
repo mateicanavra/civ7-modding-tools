@@ -43,7 +43,7 @@
 - [ ] 5.7 Migrate generated-zone/file-layer consumers to `ruleGeneratedZoneFacts`, failing unknown zone references before silent pass.
 - [ ] 5.8 Migrate Pattern Authority and pattern generator registry writes to D2 canonical state or a D2 compatibility writer.
 - [ ] 5.9 Migrate hook/local-feedback selection without owning D11 hook behavior.
-  - Progress: staged check filtering uses a narrow registry helper instead of exposing hook-scope facts. Broader D11 hook behavior remains open.
+  - Progress: active registry rows and staged check filtering use explicit `localFeedback.preCommit` metadata instead of a raw `hookScope` string. Pattern Authority manifest wording and generator option compatibility remain in their owning governance/generator surfaces.
 
 ## 6. Deletion And Compatibility Slice
 
