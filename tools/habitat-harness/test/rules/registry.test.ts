@@ -8,6 +8,7 @@ import {
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
+  ruleGraphFacts,
   ruleGritFacts,
   ruleLocalFeedbackFacts,
   ruleRoutingFacts,
@@ -127,7 +128,26 @@ describe("rule registry contract", () => {
   test("rejects contradicted variant fields", () => {
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule(), ownerTool: "wrapped-test" }]),
+        registryDocument([
+          {
+            ...baseRule(),
+            ownerTool: "wrapped-test",
+          },
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          {
+            ...baseRule(),
+            ownerTool: "wrapped-test",
+            nxTarget: "@internal/habitat-harness:test:legacy",
+          },
+        ]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"
@@ -276,12 +296,71 @@ describe("rule registry contract", () => {
       },
     ]);
   });
+
+  test("projects graph facts from owner roots and structured targets", () => {
+    const ownerRoots = new Map([
+      ["@internal/habitat-harness", "tools/habitat-harness"],
+      ["mod-swooper-maps", "mods/mod-swooper-maps"],
+    ]);
+
+    expect(
+      ruleGraphFacts(
+        [
+          baseRule({ id: "biome-ci" }),
+          baseRule({
+            id: "wrapped-test-rule",
+            ownerProject: "mod-swooper-maps",
+            ownerTool: "wrapped-test",
+            graphTarget: {
+              project: "mod-swooper-maps",
+              target: "test:architecture-core-purity",
+            },
+          }),
+          baseRule({ id: "direct-rule" }),
+        ],
+        ownerRoots
+      )
+    ).toEqual([
+      {
+        id: "biome-ci",
+        ownerProject: "@internal/habitat-harness",
+        ownerRoot: "tools/habitat-harness",
+        alias: {
+          kind: "depends-on",
+          target: { project: "@internal/habitat-harness", target: "biome:ci" },
+        },
+      },
+      {
+        id: "wrapped-test-rule",
+        ownerProject: "mod-swooper-maps",
+        ownerRoot: "mods/mod-swooper-maps",
+        alias: {
+          kind: "depends-on",
+          target: { project: "mod-swooper-maps", target: "test:architecture-core-purity" },
+        },
+      },
+      {
+        id: "direct-rule",
+        ownerProject: "@internal/habitat-harness",
+        ownerRoot: "tools/habitat-harness",
+        alias: { kind: "direct-rule-check" },
+      },
+    ]);
+
+    expect(() => ruleGraphFacts([baseRule({ ownerProject: "unknown-owner" })], ownerRoots)).toThrow(
+      "unknown ownerProject"
+    );
+  });
 });
 
-function registryDocument(rules: unknown[]): RuleRegistryDocumentV1 {
+function registryDocument(rules: unknown[]): unknown {
   return {
     schemaVersion: 1,
-    rules: rules as RuleRegistryRecordV1[],
+    ownerRoots: {
+      "@internal/habitat-harness": "tools/habitat-harness",
+      "mod-swooper-maps": "mods/mod-swooper-maps",
+    },
+    rules,
   };
 }
 
@@ -293,8 +372,8 @@ function expectInvalid(
   if (!result.ok) expect(result.issues.some((issue) => issue.code === code)).toBe(true);
 }
 
-function baseRule(overrides: Partial<RuleRegistryRecordV1> = {}): RuleRegistryRecordV1 {
-  return {
+function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryRecordV1 {
+  const rule = {
     id: "sample-rule",
     ownerTool: "habitat-native",
     ownerProject: "@internal/habitat-harness",
@@ -307,6 +386,6 @@ function baseRule(overrides: Partial<RuleRegistryRecordV1> = {}): RuleRegistryRe
     message: "Fix the structural issue.",
     exceptionPath: "none",
     pathCoverage: [{ kind: "project-owner" }],
-    ...overrides,
-  } as RuleRegistryRecordV1;
+  } satisfies RuleRegistryRecordV1;
+  return { ...rule, ...overrides } as RuleRegistryRecordV1;
 }

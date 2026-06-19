@@ -18,6 +18,7 @@
     "oclif.manifest.json",
     "src/generators",
     "src/migrations",
+    "src/plugin",
     "src/plugin.js",
     "src/rules/rules.json",
     "baselines"
