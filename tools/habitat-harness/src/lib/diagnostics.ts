@@ -12,7 +12,7 @@ export interface HabitatDiagnostic {
   line?: number;
   message: string;
   severity: HabitatSeverity;
-  /** True when the finding is covered by the rule's ratchet baseline (or legacy allowlist). */
+  /** True when the finding is covered by the rule's baseline authority state. */
   baselined: boolean;
 }
 

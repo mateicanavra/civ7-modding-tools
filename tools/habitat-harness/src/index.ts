@@ -1,8 +1,15 @@
 export type {
-  BaselineContractFailure,
-  BaselineContractFailureReason,
+  BaselineApplicationResult,
+  BaselineAuthorityProjection,
+  BaselineAuthorityState,
   BaselineContractValidation,
-  BaselineState,
+  BaselineExpansionDecision,
+  BaselineIntegrityFinding,
+  BaselineIntegrityResult,
+  BaselineRefusal,
+  BaselineRefusalReason,
+  BaselineRuleContractInput,
+  ExternalExceptionSource,
   RuleIntroductionBaselineManifest,
 } from "./lib/baseline.js";
 export {
@@ -16,6 +23,20 @@ export {
   mergeBase,
   validateBaselineContract,
   violationKey,
+  writeBaseline,
+} from "./lib/baseline.js";
+export {
+  BaselineApplicationResultSchema,
+  BaselineAuthorityProjectionSchema,
+  BaselineAuthorityStateSchema,
+  BaselineExpansionDecisionSchema,
+  BaselineIntegrityFindingSchema,
+  BaselineIntegrityResultSchema,
+  BaselineRefusalReasonSchema,
+  BaselineRefusalSchema,
+  BaselineRuleContractInputSchema,
+  ExternalExceptionSourceSchema,
+  RuleIntroductionBaselineManifestSchema,
 } from "./lib/baseline.js";
 export type {
   BaselineExpansionResult,
@@ -23,7 +44,6 @@ export type {
   EmitCheckOptions,
 } from "./lib/check-report.js";
 export {
-  buildHabitatCommand,
   createCheckReport,
   expandBaselines,
   renderCheckReport,

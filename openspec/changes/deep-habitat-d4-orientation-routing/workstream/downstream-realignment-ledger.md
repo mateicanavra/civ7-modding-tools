@@ -8,7 +8,7 @@
 | D3 graph facts | design-consumable; source-blocking until live | D4 design uses project ownership, target availability, unavailable target, aggregate/workspace target, and `GraphRefusal`; D4 source waits for live D3 facts and does not reconstruct graph truth locally. |
 | D14 Authoring Topology Fence | example corpus ready for D14 source implementation | D4 hands D14 examples for `project-path`, `workspace-path`, `diff`, `malformed-or-pathless-diff`, `unresolved-owner`, `graph-refusal`, unavailable targets, D2 unresolved routing, and authoring-looking unsupported requests. D14 may use them only to fence authoring requests and must not infer generator support, MapGen authoring support, rule correctness, target freshness, apply safety, or verify closure. |
 | D5/D6/D8 parallel packets | parallel-safe with non-owned facts | D4 must not define baseline authority, diagnostic catalog semantics, or Pattern Authority governance. Those facts may appear only as non-owned/unresolved until owning packets accept and implement their contracts. |
-| Packet index | pending final rereview | Update D4 status only after final D4 rereview finds no unresolved accepted P1/P2 blockers. |
+| Packet index | updated after final rereview | D4 status is recorded in the packet index after final D4 rereview found no unresolved accepted P1/P2 blockers. |
 
 ## D14 Example Corpus
 
