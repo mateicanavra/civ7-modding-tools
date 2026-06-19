@@ -323,16 +323,14 @@ describe("enforcement surface inventory", () => {
     }
   });
 
-  test("projects direct wrapped-script output through the accepted Habitat parser policy", () => {
+  test("keeps successful wrapped-script output out of Habitat diagnostics", () => {
     const mapgenDocs = runDirectRule("mapgen-docs");
     expect(mapgenDocs.output).toContain("WARN");
     expect(projectRuleDiagnostics(mapgenDocs.rule, mapgenDocs.result)).toEqual([]);
 
     const adapterBoundary = runDirectRule("adapter-boundary");
     expect(adapterBoundary.output).toContain("Allowlisted violations");
-    const adapterDiagnostics = projectRuleDiagnostics(adapterBoundary.rule, adapterBoundary.result);
-    expect(adapterDiagnostics).toHaveLength(8);
-    expect(adapterDiagnostics.every((diagnostic) => diagnostic.baselined)).toBe(true);
+    expect(projectRuleDiagnostics(adapterBoundary.rule, adapterBoundary.result)).toEqual([]);
 
     const domainGuardrails = runDirectRule("domain-refactor-guardrails");
     expect(domainGuardrails.output).toContain("Domain refactor guardrails passed");

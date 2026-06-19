@@ -183,11 +183,11 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | --- | --- | --- | --- | --- | --- |
 | `ruleSelectorFacts` | check, classify selector paths, rule selection tests | ids, owner ids, adapter ids, selector namespace, matched ids | `scope`, `detect`, prose | D1-aligned selector failure; not zero executed rules | D7 |
 | `ruleReportFacts` | check report, diagnostics, docs examples | id, owner adapter, enforcement disposition, detect/report text | routing, graph, baseline decisions | D1 check report diagnostic/failure | D1, D7 |
-| `ruleExecutionFacts` | `executeRule`, D7 pipeline | execution kind and required command/Grit/file-layer target facts | whole rule row, graph-only fields | D1 command outcome/refusal before execution | D7 |
+| `ruleCommandExecutionFacts` / `ruleGritFacts` / `ruleFileLayerFacts` | command execution, Grit adapter, file-layer adapter, D7 pipeline | consumer-specific execution facts for command, Grit, and file-layer rules | synthetic execution DTOs, whole rule row, graph-only fields | D1 command outcome/refusal or adapter-specific metadata failure before execution | D7 |
 | `ruleRoutingFacts` | classify, D4 | path coverage state, matched glob/source, unresolved reason | raw `scope` prose, report text | `unresolved-routing-metadata` | D4 |
 | `ruleGraphFacts` | Nx plugin, D3, classify target list | owner/root relation, alias policy, structured dependency target | `OWNER_ROOTS`, `nxTarget` string parsing | `graph-metadata-contract-failure` | D3 |
 | `ruleBaselineFacts` | baseline, D5, D7 | rule id, baseline state, exception source, introduction manifest relation | whole row, file presence alone | D5/D1 baseline contract failure | D5 |
-| `ruleGritFacts` | Grit adapter, D6, D8, hooks | pattern name, scan roots, exclusions, hook eligibility, manifest reference if registered | pattern id fallback, Grit prose | `grit-metadata-contract-failure` | D6, D8 |
+| `ruleGritFacts` | Grit adapter, D6, D8 | pattern name, scan roots, exclusions, manifest reference if registered | pattern id fallback, Grit prose, local feedback eligibility | `grit-metadata-contract-failure` | D6, D8 |
 | `ruleFileLayerFacts` | file-layer, G-HOST, D10, D13 | zone id, host declaration link, forbidden-file policy | generated-zone policy decisions | `generated-zone-metadata-contract-failure` | G-HOST, D10, D13 |
 | `ruleGovernanceFacts` | Pattern Authority, generator, D8, D13 | Pattern Authority reference, lifecycle expectation, accepted-state projection | admission decision, fixture sufficiency | `pattern-authority-contract-failure` | D8, D13 |
 | `ruleLocalFeedbackFacts` | hooks, D11 | pre-commit eligibility and staged-scope metadata | hook output behavior | `local-feedback-metadata-failure` | D11 |

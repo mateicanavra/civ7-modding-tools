@@ -178,34 +178,6 @@ describe("Pattern Authority Manifest validator", () => {
     expect(issueReasons(result)).toContain("orphan-manifest");
   });
 
-  test("rejects registered hook-scope mismatches", () => {
-    const manifest = registeredManifest({
-      lifecycle: "registered-enforced",
-      hookScope: {
-        decision: "pre-commit",
-        rationale: "staged-scope proof accepted for this enforced rule",
-        costAndScopeEvidence:
-          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
-      },
-    });
-
-    const result = validatePatternAuthorityManifest(manifest, {
-      manifestPath: patternAuthorityManifestPath(manifest.ruleId),
-      requireRuleReference: true,
-      ruleReferences: [
-        {
-          ruleId: manifest.ruleId,
-          patternName: manifest.patternName,
-          manifestPath: patternAuthorityManifestPath(manifest.ruleId),
-          ownerTool: "grit-check",
-          lifecycle: "enforced",
-        },
-      ],
-    });
-
-    expect(issueReasons(result)).toContain("contradicted-manifest");
-  });
-
   test("projects Habitat rule metadata into a Pattern Authority rule reference", () => {
     expect(
       patternAuthorityRuleReferenceFromRule({

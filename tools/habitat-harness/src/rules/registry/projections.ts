@@ -1,4 +1,5 @@
 import type {
+  RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RuleGritFacts,
   RuleLocalFeedbackFacts,
@@ -14,6 +15,12 @@ type ReportProjectionInput = Pick<
 >;
 type GritProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
 type FileLayerProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
+type CommandProjectionInput = Extract<
+  RuleRegistryRecordV1,
+  {
+    ownerTool: "habitat-native" | "wrapped-script" | "biome" | "nx-boundaries" | "wrapped-test";
+  }
+>;
 type LocalFeedbackProjectionInput = GritProjectionInput & { localFeedback: true };
 
 export function ruleSelectorFacts(
@@ -50,17 +57,44 @@ export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGri
     }));
 }
 
+export function ruleCommandExecutionFacts(
+  records: readonly RuleRegistryRecordV1[]
+): RuleCommandExecutionFacts[] {
+  return records
+    .filter((rule): rule is CommandProjectionInput => isCommandRule(rule))
+    .map((commandRule) => ({
+      id: commandRule.id,
+      ownerTool: commandRule.ownerTool,
+      lane: commandRule.lane,
+      detect: [...commandRule.detect],
+      message: commandRule.message,
+    }));
+}
+
+function isCommandRule(rule: RuleRegistryRecordV1): rule is CommandProjectionInput {
+  return (
+    rule.ownerTool === "habitat-native" ||
+    rule.ownerTool === "wrapped-script" ||
+    rule.ownerTool === "biome" ||
+    rule.ownerTool === "nx-boundaries" ||
+    rule.ownerTool === "wrapped-test"
+  );
+}
+
 export function ruleFileLayerFacts(records: readonly RuleRegistryRecordV1[]): RuleFileLayerFacts[] {
   return records
     .filter((rule): rule is FileLayerProjectionInput => rule.ownerTool === "file-layer")
-    .map((rule) => ({
-      id: rule.id,
-      lane: rule.lane,
-      message: rule.message,
-      ...("generatedZone" in rule
-        ? { generatedZone: rule.generatedZone }
-        : { forbiddenFileNames: [...rule.forbiddenFileNames] }),
-    }));
+    .map((rule) => {
+      const base = {
+        id: rule.id,
+        ownerTool: rule.ownerTool,
+        lane: rule.lane,
+        message: rule.message,
+      };
+      return "generatedZone" in rule
+        ? { ...base, generatedZone: rule.generatedZone }
+        : { ...base, forbiddenFileNames: [...rule.forbiddenFileNames] };
+    });
 }
 
 export function ruleLocalFeedbackFacts(
