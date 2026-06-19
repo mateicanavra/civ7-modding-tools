@@ -57,12 +57,15 @@ describe("natural wonder placement materialization", () => {
       requestedCount: 1,
     });
 
+    // Anchor (1,2) is an EVEN row: the parity-correct THREETRIANGLE footprint is
+    // anchor + even.d0(0,1) + even.d1(1,0) = (1,2),(1,3),(2,2). (Pre-parity-fix this
+    // stamped the odd-row cells (1,2),(2,3),(2,2) on the even anchor.)
     expect(adapter.getTerrainType(1, 2)).toBe(FLAT_TERRAIN);
     expect(adapter.getTerrainType(2, 2)).toBe(FLAT_TERRAIN);
-    expect(adapter.getTerrainType(2, 3)).toBe(FLAT_TERRAIN);
+    expect(adapter.getTerrainType(1, 3)).toBe(FLAT_TERRAIN);
     expect(adapter.getFeatureType(1, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(adapter.getFeatureType(2, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
-    expect(adapter.getFeatureType(2, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
+    expect(adapter.getFeatureType(1, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(stats).toEqual({
       coordinateProof: {
         version: 1,

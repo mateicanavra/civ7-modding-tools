@@ -184,8 +184,9 @@ function footprintOffsetsForParity(
 /**
  * Anchor-independent footprint shape for a wonder. Parity-AGNOSTIC: it reports
  * the placement-class shape (and `null` for unsupported classes) using a
- * representative (even-row) parity, for catalog support/null checks and tile-count
- * shape only. It is NOT correct for placement at a concrete anchor — use
+ * representative (odd-row) parity — the historical `CIV7_DIRECTION_OFFSETS`
+ * orientation — for catalog support/null checks, tile-count, and diagnostic shape
+ * display only. It is NOT correct for placement at a concrete anchor — use
  * {@link getNaturalWonderFootprintIndices} (parity-aware by `y & 1`) or
  * {@link getNaturalWonderFootprintOffsetsByParity} for stamping/spacing.
  */
@@ -193,7 +194,7 @@ export function getNaturalWonderFootprintOffsets(
   policy: OptionalNaturalWonderPlacementPolicy,
   direction = resolveNaturalWonderPlacementDirection(policy)
 ): readonly NaturalWonderFootprintOffset[] | null {
-  return footprintOffsetsForParity(policy, direction, 0);
+  return footprintOffsetsForParity(policy, direction, 1);
 }
 
 /**
