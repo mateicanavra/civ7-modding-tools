@@ -2,9 +2,9 @@
 
 ## State
 
-- Status: implementation-start preparation active; D1 source implementation has not started.
+- Status: D1 source implementation submitted; closure records aligned with the D1 command-module replacement layer.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
-- Branch: `agent-DRA-d1-receipt-contract-boundary`.
+- Branch: `agent-DRA-d1-command-modules`.
 - Stack base at preparation snapshot: `agent-DRA-graphite-commit-message-format` / `61d40e640`.
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D1-proof-contract-boundary.md`.
 - OpenSpec change: `openspec/changes/deep-habitat-d1-receipt-contract-boundary/`.
@@ -15,7 +15,7 @@ Resolve the D1 receipt/command-record boundary before implementation so executio
 
 ## Current Gate
 
-D0 now provides the concrete public-surface compatibility matrix. D1 source implementation remains blocked until the D1 execution inventory cites concrete D0 rows, assigns handling/owner/downstream responsibility for every affected public/durable surface, records inherited D0 evidence, and passes implementation-start review disposition.
+D0 provides the concrete public-surface compatibility matrix. D1 implementation-start gates cleared in PR #1834, the command-engine monolith was deleted in PR #1835, and the D1 command modules were implemented in PR #1836. The next packet must treat D1 command/report/receipt behavior as implemented source, while respecting that D12 still owns the broader verify workflow handoff.
 
 ## Solution Frame
 
@@ -44,10 +44,10 @@ Protected paths are exactly the list in `proposal.md`. D1 may cite D0 but may no
 | Item | Value | Interpretation |
 | --- | --- | --- |
 | Active worktree | `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame` | Dedicated Habitat implementation stack worktree. |
-| Active branch | `agent-DRA-d1-receipt-contract-boundary` | Current D1 layer on the one linear Habitat Graphite stack. |
-| Downstack | prep frame -> D0 matrix -> Graphite process-doc layer | D1 builds on completed prep/D0 artifacts and stack-maintenance process doc. |
+| Active branch | `agent-DRA-d1-command-modules` | Current D1 source layer on the one linear Habitat Graphite stack. |
+| Downstack | prep frame -> D0 matrix -> Graphite process-doc layer -> D1 prep -> D1 monolith deletion | D1 builds on completed prep/D0 artifacts and stack-maintenance process doc. |
 | D0 matrix | `docs/projects/habitat-harness/public-surface-compatibility-matrix.md` | Concrete D0 rows exist; D1 must cite them instead of placeholders. |
-| D1 source status | not started | Current work is D1 implementation-start preparation only. |
+| D1 source status | submitted | `command-engine.ts` is deleted and replaced by focused command modules. |
 | Gate | systematic workstream gates 2, 4, 7, 8, 11 | Repo state, D0 corpus mapping, owner translation, implementation slice framing, and review repairs. |
 
 ## Implementation-Start Preparation Evidence
@@ -56,16 +56,16 @@ Protected paths are exactly the list in `proposal.md`. D1 may cite D0 but may no
 | --- | --- | --- |
 | D1 execution-inventory structural validation | Passed: 34 rows; every row has 17 cells, an accepted D0 plane, and a concrete `surface_id` found in `docs/projects/habitat-harness/public-surface-compatibility-matrix.md`. | D1 no longer has execution-inventory `blocked-pending-d0-row` placeholders for implementation-start surfaces. |
 | D1 write-set check | D0 matrix removed from the D1 diff; dirty files are D1 OpenSpec/workstream records plus the allowed packet-index update. | D1 may cite D0 but does not mutate D0 authority in this layer. |
-| D0 inherited evidence baseline | Recorded below. | D1 source work must repair, disposition, or route inherited command failures/timeouts instead of silently treating them as passing gates. |
+| D0 inherited evidence baseline | Recorded below. | Historical D0 command evidence is context for D1 scoping; the D1 closure gates are the recorded validation rows below. |
 
 ## Inherited D0 Evidence Baseline
 
-| D0 evidence | D1 gate | Observed status | Interpretation | Source-fix obligation | Closure requirement |
+| D0 evidence | Historical gate | Observed status | Interpretation | D1 closure disposition | Residual owner / next action |
 | --- | --- | --- | --- | --- | --- |
-| `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` | D1-V1 | D0 observed 7 pass, 2 fail; both failures are `check --help` exit 2 through root/dev runners. | Current command help drift is source behavior inherited by D1. | If D1 keeps D1-V1 as a required source gate, D1 implementation must repair or explicitly disposition the failure. | Focused test passes or an accepted amended deferral records why D1 cannot own the repair. |
-| `bun run habitat hook --help` | D1-V10 | D0 observed exit 2 with Oclif `Nonexistent flag: --help` while printing usage. | Hook help behavior is D0 evidence and likely D11-owned local-feedback surface drift, not a D1 receipt repair by default. | D1 must not silently repair hook help unless D0/D11 explicitly authorize it. | D1 records a D0/D11-approved hook surface gate or amends the gate before closure. |
-| `bun run habitat check --json` | D1-V7 | D0 broad command timed out/interrupted; targeted check emitted valid schemaVersion 1 diagnostic JSON. | Timeout is blocker evidence, not a passing D1 validation result. | D1 must make the broad gate produce valid JSON or record an accepted blocker. | Valid CheckReport output or explicit blocked disposition with owner and next action. |
-| `bun run habitat verify --json` | D1-V8 | D0 broad command timed out/interrupted with no stdout. | Timeout is blocker evidence, not a valid verify receipt. | D1/D12 boundary work must not claim verify handoff closure from this result. | Valid verify receipt output or explicit blocked disposition with owner and next action. |
+| `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` | D1-V1 | D0 observed 7 pass, 2 fail; both failures were `check --help` exit 2 through root/dev runners. | Historical command-help drift inherited from D0. | Resolved for D1 by `HabitatCommand` help handling and the focused D1 suite recorded below. | No residual D1 blocker. |
+| `bun run habitat hook --help` | D1-V10 | D0 observed exit 2 with Oclif `Nonexistent flag: --help` while printing usage. | Hook help behavior is historical D0 evidence and likely D11-owned local-feedback surface drift, not a D1 receipt repair. | D1 does not claim hook help closure; D1 validates hook local-feedback boundaries through `test/lib/hooks.test.ts`. | D11 owns hook help/local-feedback command-surface closure if it chooses to change this behavior. |
+| `bun run habitat check --json` | D1-V7 | D0 broad command timed out/interrupted; targeted check emitted valid schemaVersion 1 diagnostic JSON. | Historical broad-command timeout context, not D1 closure evidence. | D1 closure uses the package/focused check-report gates below and does not claim current-tree `habitat check --json` cleanliness. | D7/D12 or later command-workflow packets own broad command performance/current-tree closure if needed. |
+| `bun run habitat verify --json` | D1-V8 | D0 broad command timed out/interrupted with no stdout. | Historical broad verify workflow context, not a valid receipt and not a D1 closure gate. | D1 validates the receipt boundary and skipped/executed/failed Nx state model through `test/lib/verify-receipt.test.ts`; it does not claim full verify workflow handoff. | D12 owns full `habitat verify --json` workflow composition and handoff closure. |
 
 ## Contract-Family Sequence
 
@@ -83,11 +83,11 @@ Protected paths are exactly the list in `proposal.md`. D1 may cite D0 but may no
 | Gate | Expected status | Oracle | Bad case | Cache/freshness stance | Non-claims |
 | --- | --- | --- | --- | --- | --- |
 | `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` | 0 | Entrypoint forwarding and invalid selector JSON/human behavior remain correct. | Unknown selector produces `rule-selection-integrity`, `ok: false`, exit 1. | Vitest local execution. | Not rule correctness or current-tree cleanliness. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/proof-artifact.test.ts` | 0 | Adapter command artifact compatibility is path-safe, redacted, retention-bounded, bounded in raw-output metadata, and non-claiming. | Unsafe artifact id throws; unknown retention is rejected; oversized or sensitive raw stream content cannot serialize an unbounded artifact body. | Temp paths/fake command records. | Not command semantic correctness. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/verify-proof.test.ts` | 0 | Verify receipt/compat wrapper bounds streams, records task-local cache state, and skips Nx after failed check. | Failed check cannot report executed Nx. | Fixture-derived cache text only. | Not CI, apply safety, Graphite readiness, product completion, runtime, OpenSpec acceptance, or rule correctness. |
+| deleted adapter proof/evidence artifact gate | n/a | Adapter proof/evidence artifact runtime surfaces are not retained as D1 product behavior. | Reintroducing artifact output or compatibility claims would fail D1 closure. | n/a | No artifact compatibility claim. |
+| `bun run --cwd tools/habitat-harness test -- test/lib/verify-receipt.test.ts` | 0 | Verify receipt bounds streams, records task-local cache state, skips Nx after failed check, and models failed Nx execution separately. | Failed Nx execution cannot be reported as successful executed state. | Fixture-derived cache text only. | Not CI, apply safety, Graphite readiness, product completion, runtime, OpenSpec acceptance, or rule correctness. |
 | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` | 0 | Hooks remain local feedback with explicit refusal/failure states. | Dirty resources/partial staging/malformed Grit JSON stop later commands. | Fake runtime; no live hook execution. | Not CI or review readiness. |
 | `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts` | 0 | Apply states distinguish dry-run, live apply, rollback, formatter handoff, gate failure, and refusal. | Success with failure tag is impossible/rejected. | Fake Grit/temp copy. | Not all-pattern safety. |
-| `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts` | 0 | Cross-family compatibility remains coherent. | Any bad case above fails. | Vitest local execution. | Not OpenSpec or CI. |
+| `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/lib/classify.test.ts test/lib/verify-receipt.test.ts test/commands/habitat-commands.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts test/lib/habitat-process.test.ts test/lib/grit-adapter.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | Cross-family compatibility remains coherent without deleted proof artifact surfaces. | Any retained D1 bad case above fails. | Vitest local execution. | Not OpenSpec or CI. |
 | `bun run habitat check --json` | 0 for implementation closure, or recorded nonzero current-tree diagnostic state | Valid schemaVersion 1 check report; `ok` matches rules; timeout/interruption is a blocker. | Contradictory report rejected by unit test. | Fresh command. | Not rule correctness or runtime behavior. |
 | `bun run habitat verify --json` | 0 for closure if check/Nx pass, or valid nonzero skipped-Nx receipt if check fails | D0-approved verify wrapper/receipt with non-claims; timeout/interruption is a blocker. | Check failed cannot execute Nx affected. | Fresh command; task-local cache only. | Not CI, apply safety, Graphite readiness, product completion, runtime, OpenSpec acceptance, or rule correctness. |
 | `bun run habitat fix --dry-run` | 0 no-op/approved dry-run or explicit refusal | Dry-run and live apply not conflated. | Ambiguous dry-run fails closed. | Fresh command. | Not live apply safety. |
@@ -103,16 +103,16 @@ Implementation must record actual validation results in this phase record as gat
 
 | gate | command | expected_status | actual_status | evidence_path_or_summary | cache_freshness_observed | non_claims_confirmed | blocker_disposition |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| D1-V1 | `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` | 0 | pending | pending | Vitest local execution | pending | pending |
-| D1-V2 | `bun run --cwd tools/habitat-harness test -- test/lib/proof-artifact.test.ts` | 0 | pending | pending | Vitest temp paths/fake command records | pending | pending |
-| D1-V3 | `bun run --cwd tools/habitat-harness test -- test/lib/verify-proof.test.ts` | 0 | pending | pending | fixture-derived cache text only | canonical verify non-claim set pending | pending |
-| D1-V4 | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` | 0 | pending | pending | fake runtime; no live hook execution | pending | pending |
-| D1-V5 | `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts` | 0 | pending | pending | fake Grit/temp copy | pending | pending |
-| D1-V6 | `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts` | 0 | pending | pending | Vitest local execution | pending | pending |
-| D1-V7 | `bun run habitat check --json` | 0 or recorded current-tree diagnostic nonzero; timeout is blocker | pending | pending | fresh command | pending | pending |
-| D1-V8 | `bun run habitat verify --json` | 0 or valid nonzero skipped-Nx receipt if check fails; timeout is blocker | pending | pending | fresh command; task-local cache only | pending | pending |
-| D1-V9 | `bun run habitat fix --dry-run` | 0 no-op/approved dry-run or explicit refusal | pending | pending | fresh command | pending | pending |
-| D1-V10 | D0/D11-approved hook surface gate | follows cited authority | pending | pending | fresh command or focused hook test, as authorized | pending | pending |
+| D1-V1 | `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` | 0 | 0 | Included in focused D1 suite: 9 files, 128 tests passed. | Vitest local execution | Does not prove rule correctness or current-tree cleanliness. | passed |
+| D1-V2 | deleted adapter proof/evidence artifact gate | n/a | n/a | Runtime artifact surface and `test/lib/proof-artifact.test.ts` were deleted as product-inappropriate. | n/a | No adapter proof/evidence artifact compatibility claim is retained. | superseded by deletion |
+| D1-V3 | `bun run --cwd tools/habitat-harness test -- test/lib/verify-receipt.test.ts` | 0 | 0 | Included in focused D1 suite; failed Nx execution is represented as `nxAffected.status: "failed"`. | fixture-derived cache text only | Does not prove CI, apply safety, Graphite readiness, product completion, runtime, OpenSpec acceptance, or rule correctness. | passed |
+| D1-V4 | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` | 0 | 0 | Included in focused D1 suite. | fake runtime; no live hook execution | Does not prove CI or review readiness. | passed |
+| D1-V5 | `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts` | 0 | 0 | Included in focused D1 suite. | fake Grit/temp copy | Does not prove all patterns safe. | passed |
+| D1-V6 | `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/lib/classify.test.ts test/lib/verify-receipt.test.ts test/commands/habitat-commands.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts test/lib/habitat-process.test.ts test/lib/grit-adapter.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | 0 | 9 files, 128 tests passed. | Vitest local execution | Does not prove OpenSpec acceptance or CI. | passed |
+| D1-V7 | `bun run --cwd tools/habitat-harness check` | 0 | 0 | Habitat package check passed. | package-local check | Does not prove current-tree Habitat `check --json` cleanliness. | passed |
+| D1-V8 | verify receipt failed-state focused gate | 0 | 0 | `test/lib/verify-receipt.test.ts` covers skipped, executed, and failed Nx states. | fixture-derived cache text only | Full `habitat verify --json` workflow remains D12 ownership. | passed for D1 boundary |
+| D1-V9 | `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts` | 0 | 0 | Included in focused D1 suite. | fake Grit/temp copy | Does not prove live apply safety. | passed |
+| D1-V10 | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` | 0 | 0 | Included in focused D1 suite. | fake runtime; no live hook execution | Does not claim D11 hook behavior closure. | passed |
 | D1-V11 | `bun run openspec -- validate deep-habitat-d1-receipt-contract-boundary --strict` | 0 | 0 | Change `deep-habitat-d1-receipt-contract-boundary` is valid. | fresh command | Does not prove TypeScript implementation. | passed for implementation-start artifact prep |
 | D1-V12 | `bun run openspec:validate` | 0 | 0 | 249 passed, 0 failed. | fresh command | Does not prove Habitat source behavior. | passed for implementation-start artifact prep |
 | D1-V13 | `git diff --check` | 0 | 0 | no output | fresh git command | Diff hygiene is not semantic correctness. | passed for implementation-start artifact prep |
@@ -129,7 +129,7 @@ Implementation must record actual validation results in this phase record as gat
 
 ## Non-Claims
 
-- This packet does not implement D1.
-- D0 matrix implementation exists, but D1 implementation-start preparation does not implement D1 source behavior.
-- D1 design acceptance does not prove CI, runtime behavior, Graphite readiness, OpenSpec closure, apply safety, current-tree cleanliness, or rule correctness.
-- Legacy names remain compatibility facts until D0 rows and D1 implementation tasks change them.
+- D1 source implementation does not prove CI, runtime behavior, Graphite readiness, OpenSpec closure for later packets, apply safety, current-tree cleanliness, or rule correctness.
+- D1 does not retain adapter proof/evidence artifact runtime surfaces as compatibility targets.
+- D12 still owns the full verify workflow handoff; D1 owns the receipt boundary and skipped/executed/failed Nx state model.
+- D15 remains untriggered by D1; no shared execution-provenance substrate was introduced.

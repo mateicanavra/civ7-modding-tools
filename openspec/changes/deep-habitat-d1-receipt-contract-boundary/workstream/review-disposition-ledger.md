@@ -2,7 +2,7 @@
 
 ## Status
 
-D1 is accepted for design/specification only. Final per-domino review and re-review found no accepted unresolved P1/P2 findings after repair. D1 is not implementation-complete. Concrete D0 matrix rows now exist; source edits remain blocked until D1 execution-inventory, output-family, inherited-evidence, and implementation-start review gates are complete.
+D1 source implementation is submitted after final per-domino design/specification review, implementation-start preparation, source replacement, and repair of the verify receipt failed-state blocker. No accepted unresolved P1/P2 finding is recorded for D1 closure.
 
 | Finding | Severity | Disposition | Repair Evidence |
 | --- | --- | --- | --- |
@@ -43,6 +43,9 @@ D1 is accepted for design/specification only. Final per-domino review and re-rev
 | Implementation-start review: inherited D0 failures/timeouts were not pre-recorded. | P2 | accepted, repaired | `phase-record.md` records D0 `check --help`, `hook --help`, broad `check --json`, and broad `verify --json` evidence as D1 implementation-start baselines. |
 | Implementation-start review: downstream ledger and index omitted D2/D3/D4/D5/D13 dependency implications. | P2 | accepted, repaired | `downstream-realignment-ledger.md` adds D2, D3/D4, D5, and D13 handoffs; `packet-index.md` adds D1 to D13 requirements and updates D0/D1 state. |
 | Supervisor D1 write-set control: D1 layer mutated the D0 public-surface matrix. | P1 | accepted, repaired | The D0 matrix edits were removed from the D1 diff; D1 handoff truth remains in D1-owned records and the allowed packet-index update. |
+| Source replacement review: `command-engine.ts` remained the accumulating implementation surface. | P1 | accepted, repaired | PR #1835 deletes the monolith and PR #1836 replaces it with focused modules for rule selection, check reporting, classify, fix, graph, and verify receipt behavior. |
+| Source replacement review: process-coded proof/evidence artifact surfaces were retained as runtime product behavior. | P1 | accepted, repaired | `proof-artifact.ts`, `proof-artifact.test.ts`, and `verify-proof.test.ts` were deleted; retained D1 behavior is modeled as receipts and records. |
+| Source replacement review: failed Nx affected execution was represented as successful execution with a nonzero exit code. | P1 | accepted, repaired | `verify-receipt.ts` now has a distinct `nxAffected.status: "failed"` variant and `verify-receipt.test.ts` covers the failed Nx case. |
 
 ## Final Review Requirement
 

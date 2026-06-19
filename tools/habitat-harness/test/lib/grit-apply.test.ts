@@ -22,11 +22,11 @@ const approvedFile = "mods/mod-swooper-maps/src/recipes/standard/stages/demo.ts"
 const existingApprovedFile =
   "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/plan-floodplains/index.ts";
 const isolatedCopyProbeFile =
-  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/matching.ts";
+  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-validation/matching.ts";
 const isolatedTypeProbeFile =
-  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/type-only.ts";
+  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-validation/type-only.ts";
 const isolatedMissingExportProbeFile =
-  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/missing-export.ts";
+  "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-validation/missing-export.ts";
 
 beforeEach(() => {
   cleanupIsolatedCopyProbe();
@@ -65,8 +65,8 @@ describe("Grit apply transaction", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.proof.beforeGitState.dirty).toBe(true);
-    expect(result.proof.inventory).toEqual([]);
+    expect(result.record.beforeGitState.dirty).toBe(true);
+    expect(result.record.inventory).toEqual([]);
   });
 
   test("runs Grit apply requests with machine-output color disabled", async () => {
@@ -123,17 +123,17 @@ describe("Grit apply transaction", () => {
       "standard",
       "--dry-run",
     ]);
-    expect(result.proof.patternPaths).toEqual([
+    expect(result.record.patternPaths).toEqual([
       ".grit/patterns/habitat/apply/deep_import_to_public_surface.md",
       ".grit/patterns/habitat/apply/docs_local_checkout_paths_rewrite.md",
     ]);
-    expect(result.proof.roots.some((root) => root.startsWith("docs/") && root.endsWith(".md"))).toBe(
-      true
-    );
-    expect(result.proof.roots).not.toContain("docs");
-    expect(result.proof.roots).toContain("mods/mod-swooper-maps/src/maps");
-    expect(result.proof.roots).toContain("mods/mod-swooper-maps/src/recipes");
-    expect(result.proof.gateCommands.map((command) => command.commandId)).toContain(
+    expect(
+      result.record.roots.some((root) => root.startsWith("docs/") && root.endsWith(".md"))
+    ).toBe(true);
+    expect(result.record.roots).not.toContain("docs");
+    expect(result.record.roots).toContain("mods/mod-swooper-maps/src/maps");
+    expect(result.record.roots).toContain("mods/mod-swooper-maps/src/recipes");
+    expect(result.record.gateCommands.map((command) => command.commandId)).toContain(
       "grit-apply-dry-run"
     );
     expect(result.stdout).not.toContain("docs/FALSE-POSITIVE.md");
@@ -167,7 +167,7 @@ describe("Grit apply transaction", () => {
 
     expect(result.ok).toBe(false);
     expect(result.failureTag).toBe("GritApplyDryRunMismatch");
-    expect(result.proof.transactionCopyCommand?.commandId).toBe("grit-apply-isolated-copy");
+    expect(result.record.transactionCopyCommand?.commandId).toBe("grit-apply-isolated-copy");
   });
 
   test("classifies pattern-approved rewrites and blocks unapproved inventory", () => {
@@ -333,11 +333,11 @@ describe("Grit apply transaction", () => {
     expect(seenCommands).toContain("grit-apply-rollback");
     expect(result.ok).toBe(false);
     expect(result.failureTag).toBe("GritApplyRollbackFailed");
-    expect(result.proof.rollbackCommand?.exit.code).toBe(2);
-    expect(result.proof.fileDigests).toHaveLength(1);
-    expect(result.proof.fileDigests[0]?.path).toBe(existingApprovedFile);
-    expect(result.proof.fileDigests[0]?.beforeSha256).toMatch(/^[a-f0-9]{64}$/);
-    expect(result.proof.fileDigests[0]?.afterSha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(result.record.rollbackCommand?.exit.code).toBe(2);
+    expect(result.record.fileDigests).toHaveLength(1);
+    expect(result.record.fileDigests[0]?.path).toBe(existingApprovedFile);
+    expect(result.record.fileDigests[0]?.beforeSha256).toMatch(/^[a-f0-9]{64}$/);
+    expect(result.record.fileDigests[0]?.afterSha256).toMatch(/^[a-f0-9]{64}$/);
   });
 
   test("records rollback and clean final status after an approved apply", async () => {
@@ -364,9 +364,9 @@ describe("Grit apply transaction", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.proof.changedPaths).toEqual([existingApprovedFile]);
-    expect(result.proof.rollbackCommand?.commandId).toBe("grit-apply-rollback");
-    expect(result.proof.afterGitState.dirty).toBe(false);
+    expect(result.record.changedPaths).toEqual([existingApprovedFile]);
+    expect(result.record.rollbackCommand?.commandId).toBe("grit-apply-rollback");
+    expect(result.record.afterGitState.dirty).toBe(false);
   });
 
   test("rolls back when live apply fails after an approved dry-run", async () => {
@@ -378,9 +378,9 @@ describe("Grit apply transaction", () => {
 
     expect(result.ok).toBe(false);
     expect(result.failureTag).toBe("GritCommandFailed");
-    expect(result.proof.applyCommand?.exit.code).toBe(2);
-    expect(result.proof.rollbackCommand?.commandId).toBe("grit-apply-rollback");
-    expect(result.proof.afterGitState.dirty).toBe(false);
+    expect(result.record.applyCommand?.exit.code).toBe(2);
+    expect(result.record.rollbackCommand?.commandId).toBe("grit-apply-rollback");
+    expect(result.record.afterGitState.dirty).toBe(false);
   });
 
   test("rolls back when live apply is interrupted after an approved dry-run", async () => {
@@ -394,10 +394,10 @@ describe("Grit apply transaction", () => {
 
     expect(result.ok).toBe(false);
     expect(result.failureTag).toBe("GritCommandFailed");
-    expect(result.proof.applyCommand?.exit.interrupted).toBe(true);
-    expect(result.proof.applyCommand?.exit.signal).toBe("SIGINT");
-    expect(result.proof.rollbackCommand?.commandId).toBe("grit-apply-rollback");
-    expect(result.proof.afterGitState.dirty).toBe(false);
+    expect(result.record.applyCommand?.exit.interrupted).toBe(true);
+    expect(result.record.applyCommand?.exit.signal).toBe("SIGINT");
+    expect(result.record.rollbackCommand?.commandId).toBe("grit-apply-rollback");
+    expect(result.record.afterGitState.dirty).toBe(false);
   });
 
   test("rolls back when Biome handoff fails after an approved apply", async () => {
@@ -409,9 +409,9 @@ describe("Grit apply transaction", () => {
 
     expect(result.ok).toBe(false);
     expect(result.failureTag).toBe("GritCommandFailed");
-    expect(result.proof.biomeCommand?.exit.code).toBe(1);
-    expect(result.proof.rollbackCommand?.commandId).toBe("grit-apply-rollback");
-    expect(result.proof.afterGitState.dirty).toBe(false);
+    expect(result.record.biomeCommand?.exit.code).toBe(1);
+    expect(result.record.rollbackCommand?.commandId).toBe("grit-apply-rollback");
+    expect(result.record.afterGitState.dirty).toBe(false);
   });
 
   test("rolls back when a selected gate fails after an approved apply", async () => {
@@ -432,13 +432,13 @@ describe("Grit apply transaction", () => {
 
     expect(result.ok).toBe(false);
     expect(result.failureTag).toBe("GritCommandFailed");
-    expect(result.proof.gateCommands).toHaveLength(1);
-    expect(result.proof.gateCommands[0]?.commandId).toBe("selected-type-gate");
-    expect(result.proof.rollbackCommand?.commandId).toBe("grit-apply-rollback");
-    expect(result.proof.afterGitState.dirty).toBe(false);
+    expect(result.record.gateCommands).toHaveLength(1);
+    expect(result.record.gateCommands[0]?.commandId).toBe("selected-type-gate");
+    expect(result.record.rollbackCommand?.commandId).toBe("grit-apply-rollback");
+    expect(result.record.afterGitState.dirty).toBe(false);
   });
 
-  test("proves a matching apply through an isolated copy without writing the source tree", async () => {
+  test("validates a matching apply through an isolated copy without writing the source tree", async () => {
     const absoluteProbeFile = path.join(repoRoot, isolatedCopyProbeFile);
     const absoluteProbeDir = path.dirname(absoluteProbeFile);
     const sourceText =
@@ -452,22 +452,22 @@ describe("Grit apply transaction", () => {
       });
 
       expect(result.ok).toBe(true);
-      expect(result.proof.transactionCopyCommand?.commandId).toBe("grit-apply-isolated-copy");
-      expect(result.proof.changedPaths).toContain(isolatedCopyProbeFile);
-      expect(result.proof.diffEvidence).toContainEqual(
+      expect(result.record.transactionCopyCommand?.commandId).toBe("grit-apply-isolated-copy");
+      expect(result.record.changedPaths).toContain(isolatedCopyProbeFile);
+      expect(result.record.diffEvidence).toContainEqual(
         expect.objectContaining({
           path: isolatedCopyProbeFile,
           classification: "pre-approved",
         })
       );
-      expect(result.proof.appliedDiff).toContain("@mapgen/domain/morphology/ops");
+      expect(result.record.appliedDiff).toContain("@mapgen/domain/morphology/ops");
       expect(readFileSync(absoluteProbeFile, "utf8")).toBe(sourceText);
     } finally {
       cleanupIsolatedCopyProbe();
     }
   });
 
-  test("preserves type-only imports through isolated copy apply proof", async () => {
+  test("preserves type-only imports through isolated copy apply validation", async () => {
     const absoluteProbeFile = path.join(repoRoot, isolatedTypeProbeFile);
     const absoluteProbeDir = path.dirname(absoluteProbeFile);
     const sourceText =
@@ -481,8 +481,8 @@ describe("Grit apply transaction", () => {
       });
 
       expect(result.ok).toBe(true);
-      expect(result.proof.changedPaths).toContain(isolatedTypeProbeFile);
-      expect(result.proof.appliedDiff).toContain(
+      expect(result.record.changedPaths).toContain(isolatedTypeProbeFile);
+      expect(result.record.appliedDiff).toContain(
         'import type { MountainsConfig } from "@mapgen/domain/morphology/ops"'
       );
       expect(readFileSync(absoluteProbeFile, "utf8")).toBe(sourceText);
@@ -491,7 +491,7 @@ describe("Grit apply transaction", () => {
     }
   });
 
-  test("blocks isolated copy apply proof when the public ops target lacks a named export", async () => {
+  test("blocks isolated copy apply validation when the public ops target lacks a named export", async () => {
     const absoluteProbeFile = path.join(repoRoot, isolatedMissingExportProbeFile);
     const absoluteProbeDir = path.dirname(absoluteProbeFile);
     const sourceText =
@@ -506,8 +506,8 @@ describe("Grit apply transaction", () => {
 
       expect(result.ok).toBe(false);
       expect(result.failureTag).toBe("GritApplyMissingTargetExport");
-      expect(result.proof.changedPaths).toContain(isolatedMissingExportProbeFile);
-      expect(result.proof.appliedDiff).toContain("@mapgen/domain/ecology/ops");
+      expect(result.record.changedPaths).toContain(isolatedMissingExportProbeFile);
+      expect(result.record.appliedDiff).toContain("@mapgen/domain/ecology/ops");
       expect(result.stderr).toContain("Missing public export planFloodplains");
       expect(readFileSync(absoluteProbeFile, "utf8")).toBe(sourceText);
     } finally {
@@ -625,7 +625,7 @@ function cleanupIsolatedCopyProbe(): void {
   rmSync(
     path.join(
       repoRoot,
-      "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof"
+      "mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-validation"
     ),
     {
       recursive: true,

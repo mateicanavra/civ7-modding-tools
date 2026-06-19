@@ -49,10 +49,23 @@ export function validateCheckReport(value: unknown): string[] {
   if (r.schemaVersion !== 1) errors.push("schemaVersion must be 1");
   if (typeof r.ok !== "boolean") errors.push("ok must be boolean");
   if (!Array.isArray(r.rules)) return [...errors, "rules must be an array"];
+  let hasFailingRule = false;
   for (const rule of r.rules) {
     if (typeof rule.ruleId !== "string") errors.push("rule.ruleId must be string");
     if (!["pass", "fail", "advisory-findings"].includes(rule.status))
       errors.push(`rule ${rule.ruleId}: bad status ${rule.status}`);
+    else if (rule.status === "fail") hasFailingRule = true;
+    if (!["enforced", "advisory"].includes(rule.lane))
+      errors.push(`rule ${rule.ruleId}: bad lane ${rule.lane}`);
+    if (typeof rule.ownerTool !== "string")
+      errors.push(`rule ${rule.ruleId}: ownerTool must be string`);
+    if (typeof rule.locked !== "boolean")
+      errors.push(`rule ${rule.ruleId}: locked must be boolean`);
+    if (typeof rule.durationMs !== "number")
+      errors.push(`rule ${rule.ruleId}: durationMs must be number`);
+    if (!Array.isArray(rule.detect)) errors.push(`rule ${rule.ruleId}: detect must be an array`);
+    if (!Array.isArray(rule.diagnostics))
+      errors.push(`rule ${rule.ruleId}: diagnostics must be an array`);
     for (const d of rule.diagnostics ?? []) {
       if (typeof d.ruleId !== "string") errors.push("diagnostic.ruleId must be string");
       if (typeof d.path !== "string") errors.push("diagnostic.path must be string");
@@ -62,5 +75,7 @@ export function validateCheckReport(value: unknown): string[] {
       if (typeof d.baselined !== "boolean") errors.push("diagnostic.baselined must be boolean");
     }
   }
+  if (r.ok && hasFailingRule) errors.push("ok must be false when any rule status is fail");
+  if (!r.ok && !hasFailingRule) errors.push("ok must be true when no rule status is fail");
   return errors;
 }

@@ -13,7 +13,7 @@ export type HabitatCommandKind =
   | "grit-apply"
   | "grit-pattern-test"
   | "biome-handoff"
-  | "git-proof"
+  | "git-state"
   | "platform-parity";
 
 export type GritParseStatus =
