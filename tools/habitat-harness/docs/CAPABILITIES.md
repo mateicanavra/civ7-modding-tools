@@ -40,33 +40,33 @@ The root script `bun run habitat` dispatches to
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
 | `check` | `bun run habitat check`, `bun run habitat:check` | Runs the Habitat rule pack, supports `--owner`, `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. |
-| `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then `nx affected` over `build`, `check`, `test`, `boundaries`, `biome:ci`, `grit:check`, and `generated:check`. JSON mode emits a structured verification receipt. |
-| `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning Nx project metadata, tags, D2 rule-routing facts, D3 graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
+| `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
+| `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun run habitat fix`, `bun run habitat:fix` | Runs the approved Habitat apply transaction, then hands changed files to the formatter. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
-| `graph` | `bun run habitat graph --json` | Runs Nx graph generation and prints the project graph JSON. |
+| `graph` | `bun run habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
 | `hook` | `bun run habitat hook pre-commit`, `bun run habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
 
 Root scripts also expose graph-owned entrypoints:
 
-- `bun run lint` runs the canonical repo-wide Biome CI hygiene target.
+- `bun run lint` runs the canonical repo-wide formatter hygiene target.
 - Full Habitat structural verification lives in `bun run habitat:check`,
   `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
   `bun run check`; it is not hidden inside root lint.
-- `bun run verify` runs `nx run-many --targets=verify`.
-- `bun run check` runs `nx run-many --targets=build,check,lint,test,verify`.
+- `bun run verify` runs the repo-wide verification aggregate.
+- `bun run check` runs the repo-wide build, check, lint, test, and verify aggregate.
 - `bun run habitat:fix` runs `bun run habitat fix`.
 
-Important distinction: root `bun run verify` is an Nx aggregate. It is not the
-same command as diagnostic `bun run habitat verify`.
+Important distinction: root `bun run verify` is a workspace aggregate. It is not
+the same command as diagnostic `bun run habitat verify`.
 
-## Nx Integration
+## Workspace Graph Integration
 
-Nx loads the Habitat inference plugin from
+The workspace graph loads the Habitat inference plugin from
 `tools/habitat-harness/src/plugin.ts`. The plugin gives the workspace graph
 these Habitat-owned targets:
 
 - Repo-wide `boundaries`
-- Repo-wide `biome:format`, `biome:check`, and `biome:ci`
+- Repo-wide formatter targets
 - Repo-wide pattern checks
 - Repo-wide `generated:check`
 - Aggregate `habitat:check:all` for one-pass full Habitat graph checks
@@ -74,22 +74,23 @@ these Habitat-owned targets:
 - Per-owner `habitat:check` targets for projects that own Habitat rules
 
 The graph is the intended orchestration layer. Package scripts should not hide
-cross-project dependency ordering that belongs in Nx `dependsOn`.
+cross-project dependency ordering that belongs in graph target dependencies.
 
 ## Rule Pack
 
-The rule registry is `.habitat/rules/index.json and .habitat/rules/<rule-id>/rule.json`. At this
+The rule registry is `.habitat/rules/index.json` and
+`.habitat/rules/<rule-id>/rule.json`. At this
 state it contains 51 registered rules:
 
-| Owner tool | Count | Role |
+| Habitat lane | Count | Role |
 | --- | ---: | --- |
-| `grit-check` | 31 | Pattern-backed source-shape diagnostics over registered scan roots. |
-| `wrapped-test` | 7 | Existing package test or verification targets wrapped as Habitat rules. |
-| `file-layer` | 4 | Generated-zone and forbidden-file staged checks. |
-| `habitat-native` | 4 | Native structural rules and built-in checks. |
-| `wrapped-script` | 3 | Existing scripts wrapped without changing their semantics. |
-| `biome` | 1 | Hygiene-layer CI gate. |
-| `nx-boundaries` | 1 | Project-plane import boundary enforcement. |
+| Pattern checks | 31 | Source-shape diagnostics over registered scan roots. |
+| Wrapped tests | 7 | Existing package test or verification targets wrapped as Habitat rules. |
+| File protection | 4 | Generated-zone and forbidden-file staged checks. |
+| Native checks | 4 | Habitat structural rules and built-in checks. |
+| Wrapped scripts | 3 | Existing scripts wrapped without changing their semantics. |
+| Formatter hygiene | 1 | Hygiene-layer CI gate. |
+| Project boundaries | 1 | Project-plane import boundary enforcement. |
 
 Lane state:
 
@@ -124,13 +125,13 @@ The baseline model is:
 
 ## Pattern Diagnostics
 
-Habitat owns the pattern contract. The current adapter runs the checked-in
-patterns through the GritQL engine behind that contract.
+Habitat owns the pattern contract. The current adapter runs checked-in patterns
+through a structural pattern engine behind that contract.
 
 Current active pattern state:
 
 - 31 check patterns under `.habitat/patterns/checks`.
-- 31 registered `ownerTool: "grit-check"` rules in the rule registry.
+- 31 registered pattern-check rules in the rule registry.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
 - Habitat normalizes adapter JSON results back to Habitat rule IDs and
@@ -189,7 +190,7 @@ as a general-purpose "fix all Habitat findings" engine.
 
 ## Generators
 
-Habitat exposes exactly two Nx generators in
+Habitat exposes exactly two workspace generators in
 `tools/habitat-harness/generators.json`.
 
 ### `@internal/habitat-harness:project`
