@@ -118,6 +118,7 @@ function registeredRuleEntry(input, manifest) {
     message: `Review Pattern Authority Manifest ${input.manifestPath}.`,
     exceptionPath: "none",
     gritPattern: input.patternName,
+    scanRoots: [...manifest.scanRoots.include],
     manifestPath: input.manifestPath,
     ...(manifest.hookScope.decision === "pre-commit"
       ? { localFeedback: { preCommit: true } }

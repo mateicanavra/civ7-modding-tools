@@ -1,17 +1,20 @@
-import { activeRuleRegistryDocument } from "./load.js";
-import type { RuleRegistryRecordV1, RuleReportFacts, RuleSelectorFacts } from "./schema.js";
+import type {
+  RuleGritFacts,
+  RuleLocalFeedbackFacts,
+  RuleRegistryRecordV1,
+  RuleReportFacts,
+  RuleSelectorFacts,
+} from "./schema.js";
 
 type SelectorProjectionInput = Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "ownerTool">;
 type ReportProjectionInput = Pick<
   RuleRegistryRecordV1,
-  "id" | "ownerProject" | "ownerTool" | "lane" | "detect" | "message" | "remediate"
+  "id" | "ownerTool" | "lane" | "detect" | "message" | "remediate"
 >;
-type StagedEligibilityInput = Pick<RuleRegistryRecordV1, "id" | "ownerTool"> & {
-  localFeedback?: { preCommit: true };
-};
+type GritProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
 
 export function ruleSelectorFacts(
-  records: readonly SelectorProjectionInput[] = activeRuleRegistryDocument.rules
+  records: readonly SelectorProjectionInput[]
 ): RuleSelectorFacts[] {
   return records.map((rule) => ({
     id: rule.id,
@@ -20,12 +23,9 @@ export function ruleSelectorFacts(
   }));
 }
 
-export function ruleReportFacts(
-  records: readonly ReportProjectionInput[] = activeRuleRegistryDocument.rules
-): RuleReportFacts[] {
+export function ruleReportFacts(records: readonly ReportProjectionInput[]): RuleReportFacts[] {
   return records.map((rule) => ({
     id: rule.id,
-    ownerProject: rule.ownerProject,
     ownerTool: rule.ownerTool,
     lane: rule.lane,
     detect: [...rule.detect],
@@ -34,10 +34,27 @@ export function ruleReportFacts(
   }));
 }
 
-export function stagedEligibleRuleIds(records: readonly StagedEligibilityInput[]): Set<string> {
-  return new Set(
-    records
-      .filter((rule) => rule.ownerTool === "grit-check" && rule.localFeedback?.preCommit === true)
-      .map((rule) => rule.id)
-  );
+export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGritFacts[] {
+  return records
+    .filter((rule): rule is GritProjectionInput => rule.ownerTool === "grit-check")
+    .map((rule) => ({
+      id: rule.id,
+      lane: rule.lane,
+      message: rule.message,
+      gritPattern: rule.gritPattern,
+      scanRoots: [...rule.scanRoots],
+      ...(rule.expandIgnoredTestDirectories ? { expandIgnoredTestDirectories: true as const } : {}),
+    }));
+}
+
+export function ruleLocalFeedbackFacts(
+  records: readonly RuleRegistryRecordV1[]
+): RuleLocalFeedbackFacts[] {
+  return records.map((rule) => ({
+    id: rule.id,
+    state:
+      rule.ownerTool === "grit-check" && rule.localFeedback?.preCommit === true
+        ? ("pre-commit" as const)
+        : ("not-eligible" as const),
+  }));
 }

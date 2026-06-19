@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
 
-const RequiredRuleMetadataSchema = Type.Object(
+const RuleIdentitySchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
     ownerProject: Type.String({ minLength: 1 }),
@@ -14,17 +14,34 @@ const RequiredRuleMetadataSchema = Type.Object(
       Type.Literal("wrapped-test"),
     ]),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
-    scope: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const RuleReportSchema = Type.Object(
+  {
     forbids: Type.String({ minLength: 1 }),
     why: Type.String({ minLength: 1 }),
     detect: Type.Array(Type.String(), { minItems: 1 }),
     remediate: Type.Union([Type.String(), Type.Null()]),
     message: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const LegacyRuleCompatibilitySchema = Type.Object(
+  {
+    scope: Type.String({ minLength: 1 }),
     exceptionPath: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
 );
 
+const RequiredRuleMetadataSchema = Type.Interface(
+  [RuleIdentitySchema, RuleReportSchema, LegacyRuleCompatibilitySchema],
+  {},
+  { additionalProperties: false }
+);
 const RequiredCommandRuleMetadataSchema = Type.Omit(RequiredRuleMetadataSchema, ["ownerTool"]);
 const LocalFeedbackSchema = Type.Object(
   {
@@ -32,6 +49,7 @@ const LocalFeedbackSchema = Type.Object(
   },
   { additionalProperties: false }
 );
+const GritScanRootSchema = Type.String({ minLength: 1 });
 
 const CommandRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
@@ -55,11 +73,13 @@ const WrappedTestRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
-const GritCheckRuleRegistryRecordV1Schema = Type.Interface(
+export const GritCheckRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
     ownerTool: Type.Literal("grit-check"),
     gritPattern: Type.String({ minLength: 1 }),
+    scanRoots: Type.Array(GritScanRootSchema, { minItems: 1 }),
+    expandIgnoredTestDirectories: Type.Optional(Type.Literal(true)),
     localFeedback: Type.Optional(LocalFeedbackSchema),
     manifestPath: Type.Optional(Type.String({ minLength: 1 })),
   },
@@ -110,13 +130,40 @@ export const RuleSelectorFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
 ]);
 export type RuleSelectorFacts = Static<typeof RuleSelectorFactsSchema>;
 
-export const RuleReportFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
-  "id",
-  "ownerProject",
-  "ownerTool",
-  "lane",
-  "detect",
-  "message",
-  "remediate",
-]);
+export const RuleReportFactsSchema = Type.Interface(
+  [
+    Type.Pick(RuleIdentitySchema, ["id", "ownerTool", "lane"]),
+    Type.Pick(RuleReportSchema, ["detect", "message", "remediate"]),
+  ],
+  {},
+  { additionalProperties: false }
+);
 export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
+
+export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema, [
+  "id",
+  "lane",
+  "message",
+  "gritPattern",
+  "scanRoots",
+  "expandIgnoredTestDirectories",
+]);
+export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
+
+export const RuleLocalFeedbackFactsSchema = Type.Union([
+  Type.Object(
+    {
+      id: Type.String({ minLength: 1 }),
+      state: Type.Literal("pre-commit"),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      id: Type.String({ minLength: 1 }),
+      state: Type.Literal("not-eligible"),
+    },
+    { additionalProperties: false }
+  ),
+]);
+export type RuleLocalFeedbackFacts = Static<typeof RuleLocalFeedbackFactsSchema>;

@@ -13,7 +13,7 @@ import {
   type OutputCapture,
 } from "../../src/lib/habitat-process.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import type { HarnessRule } from "../../src/rules/architecture.js";
+import type { RuleGritFacts } from "../../src/rules/registry.js";
 
 const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
 const probePath = "packages/config/src/__habitat_probe__/matching.ts";
@@ -281,9 +281,9 @@ describe("injected Grit probe harness", () => {
     const controlPath = `${mirrorRoot}/mods/mod-swooper-maps/test/domain/public-surface-control.test.ts`;
     const absoluteRoot = path.join(repoRoot, mirrorRoot);
     const testRule = fakeGritRule("grit-domain-deep-import-tests", "domain_deep_import_tests", {
-      ownerProject: "mod-swooper-maps",
-      scope: "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
       message: "test files must use public domain surfaces",
+      scanRoots: [mirrorRoot],
+      expandIgnoredTestDirectories: true,
     });
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
@@ -412,21 +412,14 @@ function output(text: string): OutputCapture {
 function fakeGritRule(
   id: string,
   pattern: string,
-  overrides: Partial<HarnessRule> = {}
-): HarnessRule {
+  overrides: Partial<RuleGritFacts> = {}
+): RuleGritFacts {
   return {
     id,
     gritPattern: pattern,
-    ownerTool: "grit-check",
-    ownerProject: "@internal/habitat-harness",
     lane: "enforced",
-    scope: "test",
-    forbids: "test",
-    why: "test",
-    detect: ["habitat", "check", "--tool", "grit-check"],
-    remediate: null,
     message: "test rule",
-    exceptionPath: "none",
+    scanRoots: ["packages/config/src"],
     ...overrides,
   };
 }
