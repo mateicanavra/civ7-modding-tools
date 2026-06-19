@@ -13,7 +13,6 @@ import {
 import { rulesForPath } from "./routing.js";
 import {
   parsePathClassification,
-  type ClassifyNonClaimId,
   type PathClassification,
 } from "./schema.js";
 import { projectTargets, workspaceTargets } from "./targets.js";
@@ -39,7 +38,6 @@ export function graphRefusalResult(input: string, refusal: GraphRefusalState): P
     input,
     refusal,
     recoveryInstructions: ["Resolve the workspace graph refusal before using target guidance."],
-    nonClaims: [...baseNonClaims(), "does-not-prove-target-availability"],
   });
 }
 
@@ -74,7 +72,6 @@ function projectPathResult(
     runnableTargets: [...targetGuidance.targets, ...workspaceTargets(projects)],
     unavailableTargets: targetGuidance.unavailableTargets,
     recoveryInstructions: [],
-    nonClaims: baseNonClaims(),
   });
 }
 
@@ -92,7 +89,6 @@ function workspacePathResult(
     ruleRouting: rulesForPath(rel),
     runnableTargets: workspaceTargets(projects),
     recoveryInstructions: [],
-    nonClaims: [...baseNonClaims(), "does-not-infer-project-owner"],
   });
 }
 
@@ -105,11 +101,6 @@ function unresolvedOwnerResult(input: string, rel: string): PathClassification {
     reason: "no-project-or-workspace-owner",
     recoveryInstructions: [
       "Classify a path under a resolved Nx project root or an intentional workspace-level file.",
-    ],
-    nonClaims: [
-      ...baseNonClaims(),
-      "does-not-infer-project-owner",
-      "does-not-prove-target-availability",
     ],
   });
 }
@@ -131,13 +122,4 @@ function isWorkspaceSurface(pathInRepo: string): boolean {
   const rootSurface = statSync(rootSurfacePath);
   if (pathInRepo === rootSegment) return rootSurface.isFile() || rootSurface.isDirectory();
   return rootSurface.isDirectory();
-}
-
-function baseNonClaims(): ClassifyNonClaimId[] {
-  return [
-    "does-not-run-targets",
-    "does-not-prove-rule-correctness",
-    "does-not-prove-safety",
-    "does-not-prove-authoring-support",
-  ];
 }

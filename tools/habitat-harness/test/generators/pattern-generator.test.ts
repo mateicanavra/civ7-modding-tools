@@ -1,18 +1,15 @@
-import { createRequire } from "node:module";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
+import {
+  candidateArtifactPaths,
+  patternGenerator,
+} from "../../src/generators/pattern/generator.js";
 import {
   patternAuthorityManifestPath,
   type RegisteredPatternAuthorityManifest,
   validatePatternAuthorityManifest,
 } from "../../src/rules/pattern-authority/manifest.js";
-
-const require = createRequire(import.meta.url);
-const {
-  candidateArtifactPaths,
-  patternGenerator,
-} = require("../../src/generators/pattern/generator.cjs");
 
 const rulesPath = "tools/habitat-harness/src/rules/rules.json";
 
@@ -90,7 +87,7 @@ describe("Habitat pattern generator", () => {
         {
           kind: "accepted-spec",
           pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
-          claim: "TODO replace with accepted authority claim",
+          summary: "TODO replace with accepted authority summary",
         },
       ],
     });
@@ -141,8 +138,7 @@ describe("Habitat pattern generator", () => {
       hookScope: {
         decision: "none",
         rationale: "This enforced checkpoint is not hook-scoped.",
-        costAndScopeEvidence:
-          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+        costAndScopeRationale: "This enforced checkpoint is not hook-scoped.",
       },
     });
     const manifestPath = writeRegisteredManifest(tree, manifest);
@@ -179,7 +175,7 @@ describe("Habitat pattern generator", () => {
     assertNoPromotionWrites(tree, manifest, beforeRules, manifestPath, beforeManifest);
   });
 
-  test("writes registered enforced output when the manifest includes hook evidence", async () => {
+  test("writes registered enforced output when the manifest includes hook scope", async () => {
     const tree = createPatternTree({
       $comment: "preserve rule-pack metadata",
       ...emptyRuleRegistryDocument(),
@@ -189,9 +185,8 @@ describe("Habitat pattern generator", () => {
       lifecycle: "registered-enforced",
       hookScope: {
         decision: "pre-commit",
-        rationale: "staged-scope evidence accepted for this enforced rule",
-        costAndScopeEvidence:
-          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+        rationale: "staged scope accepted for this enforced rule",
+        costAndScopeRationale: "staged scope is bounded enough for local hooks",
       },
     });
     const manifestPath = writeRegisteredManifest(tree, manifest);
@@ -429,23 +424,14 @@ function registeredManifest(
       {
         kind: "accepted-spec",
         pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
-        claim:
+        summary:
           "Generated Grit-backed rules require structured Habitat authority before registration.",
-      },
-    ],
-    provingSources: [
-      {
-        kind: "test",
-        pathOrCommand: "bun run --cwd tools/habitat-harness test -- pattern-generator.test.ts",
-        claim: "The generator validates registered manifests before promotion writes.",
       },
     ],
     language: {
       gritLanguage: "js(typescript)",
       parserVariant: "typescript",
       officialDocsSource: "docs/projects/habitat-harness/research/official-docs-gritql.md",
-      localProofCommand:
-        "GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose",
     },
     scanRoots: {
       include: ["tools/habitat-harness/src"],
@@ -466,8 +452,6 @@ function registeredManifest(
     currentTreeScan: {
       command: "bun run habitat:check -- --json --rule grit-authority-probe",
       resultClass: "zero-findings",
-      evidencePath:
-        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/command-proof-log.md",
     },
     baselineContract: {
       baselinePath: "tools/habitat-harness/baselines/grit-authority-probe.json",
@@ -478,8 +462,7 @@ function registeredManifest(
     hookScope: {
       decision: "none",
       rationale: "This advisory checkpoint is not hook-scoped.",
-      costAndScopeEvidence:
-        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+      costAndScopeRationale: "This advisory checkpoint is not hook-scoped.",
     },
     applySafety: {
       kind: "not-apply",

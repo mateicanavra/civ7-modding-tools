@@ -5,7 +5,6 @@ import {
   isNotApplicableDiagnostic,
 } from "./disposition-diagnostics.js";
 import {
-  type CheckNonClaim,
   type CheckOutcome,
   CheckOutcomeSchema,
   type CheckReport,
@@ -16,16 +15,6 @@ import {
   type VerifyCheckSummaryProjection,
   VerifyCheckSummaryProjectionSchema,
 } from "./schema.js";
-
-const projectionNonClaims: CheckNonClaim[] = [
-  "does-not-prove-ci",
-  "does-not-prove-apply-safety",
-  "does-not-prove-graphite-readiness",
-  "does-not-prove-open-spec-acceptance",
-  "does-not-prove-runtime",
-  "does-not-prove-product-behavior",
-  "does-not-prove-rule-correctness",
-];
 
 export function checkOutcomeFromReport(report: CheckReport): CheckOutcome {
   const failingReports = report.rules.filter((rule) => rule.status === "fail");
@@ -72,7 +61,6 @@ export function localFeedbackCheckProjection(report: CheckReport): LocalFeedback
     selectedRuleIds: selectedRuleIds(report),
     failedRuleIds,
     advisoryRuleIds,
-    nonClaims: projectionNonClaims,
   });
 }
 
@@ -101,7 +89,6 @@ export function verifyCheckSummaryProjection(
     notApplicableCount,
     allowsAffectedExecution: report.ok,
     ...(!report.ok ? { skippedAffectedReason: skippedAffectedReason(outcome) } : {}),
-    nonClaims: projectionNonClaims,
   });
 }
 

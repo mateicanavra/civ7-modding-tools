@@ -14,7 +14,7 @@ export type HabitatCommandKind =
   | "grit-pattern-test"
   | "biome-handoff"
   | "git-state"
-  | "platform-parity";
+  | "workspace-tool";
 
 export type GritParseStatus =
   | "unparsed"
@@ -33,7 +33,6 @@ export interface HabitatProcessRequest {
   env?: Readonly<Record<string, string | undefined>>;
   scanRoots?: readonly string[];
   cachePolicy?: CommandCachePolicy;
-  nonClaims?: readonly string[];
 }
 
 export interface CommandCachePolicy {
@@ -69,7 +68,6 @@ export interface HabitatCommandResult {
   stderr: OutputCapture;
   parseStatus: GritParseStatus;
   failureTag: GritAdapterFailureTag | null;
-  nonClaims: readonly string[];
 }
 
 export interface RedactedEnvValue {
@@ -142,7 +140,6 @@ export function makeHabitatCommandResult(
     stderr: captureOutput(overrides.stderr?.text ?? ""),
     parseStatus: "unparsed",
     failureTag: exit.code === 0 && !exit.interrupted ? null : "GritCommandFailed",
-    nonClaims: [...(request.nonClaims ?? [])],
     ...overrides,
   };
 }

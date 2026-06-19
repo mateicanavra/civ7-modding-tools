@@ -1,4 +1,3 @@
-export { injectedProbeRoot } from "./constants.js";
 export {
   parseGritCheckOutput,
   parseGritCheckTextOutput,

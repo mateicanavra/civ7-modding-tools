@@ -44,7 +44,6 @@ export async function runTransformationTransaction(
           message: "Run git status --short --branch and clean or stash local changes before live fix.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -58,7 +57,6 @@ export async function runTransformationTransaction(
           message: "Route the admitted transaction through protected-zone authority before writing.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -75,10 +73,9 @@ export async function runTransformationTransaction(
       recovery: [
         {
           kind: "provide-protected-zone-decision",
-          message: "Provide an allowed D10 transaction path authority projection before writing.",
+          message: "Provide an allowed protected-zone write decision before writing.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -96,7 +93,6 @@ export async function runTransformationTransaction(
           message: "Route the admitted transaction through host policy before writing.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -111,7 +107,6 @@ export async function runTransformationTransaction(
           message: "Provide the transaction input referenced by the apply admission.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -124,10 +119,9 @@ export async function runTransformationTransaction(
         {
           kind: "provide-transaction-input",
           message:
-            "Provide a D8 transaction input projection with matching pattern id, manifest path, and transaction input ref.",
+            "Provide transaction input with matching pattern id, manifest path, and transaction input ref.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -139,10 +133,9 @@ export async function runTransformationTransaction(
         {
           kind: "provide-transaction-input",
           message:
-            "Provide a TypeBox-valid D8 transaction input projection with repo-relative apply pattern and roots.",
+            "Provide TypeBox-valid transaction input with repo-relative apply pattern and roots.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -153,14 +146,13 @@ export async function runTransformationTransaction(
   ) {
     return refusalRecord(request, {
       reason: "write-path-outside-approved-set",
-      message: `D10 path authority ${pathAuthority.path} is outside the admitted transaction input roots.`,
+      message: `Protected-zone write decision ${pathAuthority.path} is outside the admitted transaction input roots.`,
       recovery: [
         {
           kind: "provide-protected-zone-decision",
-          message: "Provide D10 path authority for a path covered by the admitted transaction input.",
+          message: "Provide a protected-zone write decision for a path covered by the admitted transaction input.",
         },
       ],
-      nonClaims: ["does-not-run-grit", "does-not-write-files"],
     });
   }
 
@@ -177,7 +169,6 @@ export async function runTransformationTransaction(
             message: "Inspect the dry-run command stdout/stderr and repair the admitted input.",
           },
         ],
-        nonClaims: ["does-not-write-files"],
       });
     }
 
@@ -194,21 +185,20 @@ export async function runTransformationTransaction(
           stdout: result.stdout.text,
           stderr: result.stderr.text,
         })),
-        nonClaims: ["does-not-write-files", "does-not-authorize-live-write"],
       },
     });
   }
 
   return refusalRecord(request, {
     reason: "invalid-request-mode",
-    message: "live fix has D10 path authority but live write execution is not implemented.",
+    message:
+      "live fix has protected-zone write authorization but live write execution is not implemented.",
     recovery: [
       {
         kind: "inspect-dry-run-output",
-        message: "Use dry-run mode until D9 live write execution is implemented.",
+        message: "Use dry-run mode until live write execution is implemented.",
       },
     ],
-    nonClaims: ["does-not-write-files"],
   });
 }
 
@@ -275,7 +265,6 @@ function gritDryRunRequest(input: GritDryRunCommandInput): HabitatProcessRequest
     env: gritMachineOutputEnv,
     scanRoots: input.roots,
     cachePolicy: { mode: "disabled", observableStatus: "unknown" },
-    nonClaims: ["does-not-write-files"],
   };
 }
 
@@ -287,7 +276,6 @@ function refusalRecord(
     reason: refusal.reason,
     message: refusal.message,
     recovery: refusal.recovery,
-    nonClaims: refusal.nonClaims,
   };
   return Value.Parse(TransformationTransactionRecordSchema, {
     schemaVersion: 1,
@@ -303,5 +291,4 @@ interface TransactionRefusalInput {
   reason: TransformationRefusalReason;
   message: string;
   recovery: RecoveryInstruction[];
-  nonClaims: TransactionRefusal["nonClaims"];
 }

@@ -117,7 +117,7 @@ export async function executeSelectedRules(
           diagnostics: [dependencyRefusalDiagnostic(rule, refusal)],
         },
         durationMs: 0,
-        disposition: { kind: "dependency-refused", owner: "D3", reason: refusal },
+        disposition: { kind: "dependency-refused", owner: "workspace-graph", reason: refusal },
       });
     }
   }

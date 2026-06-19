@@ -19,7 +19,6 @@ const BUILT_IN_APPLY_ADMISSIONS = [
       "pattern-authority:deep-import-to-public-surface:transaction-input",
     transactionInputRuleIds: ["grit-domain-deep-import"],
     dryRunOutput: "compact",
-    nonClaims: ["does-not-authorize-live-write"],
   },
   {
     kind: "apply-admission",
@@ -29,7 +28,6 @@ const BUILT_IN_APPLY_ADMISSIONS = [
       "pattern-authority:docs-local-checkout-paths:transaction-input",
     transactionInputRuleIds: ["docs-local-checkout-paths"],
     dryRunOutput: "standard",
-    nonClaims: ["does-not-authorize-live-write"],
   },
 ] as const;
 
@@ -38,7 +36,7 @@ export function defaultApplyAdmissions(): ApplyAdmissionProjection[] {
     const projection = applyAdmissionProjection(
       applyAdmittedState(Value.Parse(ApplyAdmissionProjectionSchema, admission))
     );
-    if (!projection) throw new Error("internal error: D8 apply admission did not project");
+    if (!projection) throw new Error("internal error: apply admission did not project");
     return projection;
   });
 }
@@ -74,7 +72,6 @@ export function applyTransactionInputsFromRuleFacts(
             output: admission.dryRunOutput,
           },
         ],
-        nonClaims: ["does-not-write-files", "does-not-authorize-live-write"],
       }),
     ];
   });

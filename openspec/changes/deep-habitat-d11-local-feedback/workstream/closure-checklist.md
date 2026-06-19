@@ -2,16 +2,19 @@
 
 ## Current State
 
-D11 is accepted for design/specification only after final rereview. It remains
-not implementation-complete, and no source implementation is authorized by this
-checklist.
+D11 source implementation is complete on the Graphite D11 layer for the bounded
+local-feedback cleanup. The source slice removes process-only runtime metadata,
+keeps hook local feedback product-shaped, makes resource policy generic and
+optional, removes refactor-only runtime scaffolding, deletes brittle structural
+test files, and converts generator/plugin entrypoints from CJS/JS to TypeScript
+where they are not tool-required executable scripts.
 
 ## Design Readiness
 
 - [x] Proposal cites controlling authority and source packet.
 - [x] Proposal names D6 staged diagnostic projections, D7 local-feedback check
   projection, D9 transaction projection, D10 protected mutation projection, D3
-  graph/affected facts, D0 compatibility rows, and D1 non-claims.
+  graph/affected facts, D0 compatibility rows, and D1 output boundaries.
 - [x] Design resolves Local Feedback ownership, forbidden owners, target terms,
   compatibility terms, resource decision model, pre-commit/pre-push stage
   models, TypeScript refactor moves, and public compatibility gates.
@@ -20,8 +23,9 @@ checklist.
   consumption, public compatibility, trace records, and false-green refusal.
 - [x] Tasks are ordered implementation slices with source blockers, write-set
   guardrails, and validation gates.
-- [x] Downstream realignment records D0/D1/D3/D6/D7/D8/D9/D10/G-HOST/D12/D15
-  relationships.
+- [x] Downstream realignment records D0/D1 and the product dependency
+  relationships for graph, diagnostics/checks, transactions, protected-zone
+  feedback, host policy, D12, and D15.
 - [x] First-wave D11 negative findings are imported into the review ledger and
   dispositioned as repaired and accepted after final rereview.
 - [x] Complete-standard wording audit passes over `$D11_CHANGE/**`,
@@ -33,28 +37,28 @@ checklist.
 - [x] `bun run openspec:validate` passes on the repaired corpus.
 - [x] `git diff --check` passes.
 - [x] Fresh final D11 rereview lanes record no unresolved P1/P2 findings.
-- [x] Packet index marks D11 accepted for design/specification only after the
-  final gate closes.
+- [x] Packet index marks D11 source implementation complete for this bounded
+  local-feedback layer after final validation and rereview repair.
 - [x] Post-closure reduced-standard and stale-status scan over
   `$D11_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, and
   `$AGENT_SCRATCH/domino-D11-*.md` returns only canonical D13 packet-index
   traceability rows outside active D11 guidance.
 
-## Implementation Closure (Later)
+## Implementation Closure
 
-- [ ] Source changes stay inside the approved D11 write set.
-- [ ] Every touched public surface cites a concrete D0 row and D1 output-family
+- [x] Source changes stay inside the corrected D11 source slice and adjacent
+  dependency surfaces needed to remove process-only runtime metadata.
+- [x] Every touched public surface cites a concrete D0 row and D1 output-family
   handling.
-- [ ] Live D3/D6/D7/D9/D10 projections exist wherever source code consumes them.
-- [ ] Resource decision tests prove contradictory allowance cannot compile or
-  cannot be constructed.
-- [ ] Hook tests cover staged generated/protected refusals, partial staging,
-  formatter-touched restage only, D6 diagnostic findings/unavailable states, D7
-  projection refusals, D9 transaction projection handling where consumed, D3
-  pre-push unavailable states, and unsupported hook behavior.
-- [ ] Any command that can write/stage has before/after `git status --short
-  --branch` checks in its validation record.
-- [ ] Downstream docs/tests/specs are realigned only after implementation facts
+- [x] Live product check/protected-zone/transaction/pattern governance surfaces
+  validate after process-only fields are removed.
+- [x] Resource decision and hook tests cover refused resource states, partial
+  staging, formatter-touched restage only, check failures, pre-push base
+  refusal, affected command failure, and unsupported hook behavior.
+- [x] No validation command in this slice writes or stages the active worktree.
+- [x] Downstream docs/tests/specs are realigned only after implementation facts
   justify the change.
-- [ ] Graphite layer is clean, reviewable, and separate from adjacent packet
-  layers.
+- [x] Final TODO/control-artifact triage, adversarial review, full build, and
+  full package validation are complete.
+- [x] Graphite submission is complete as draft PR #1848 on
+  `agent-DRA-d11-local-feedback`.

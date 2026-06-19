@@ -1,8 +1,4 @@
-export {
-  NonEmptyStringSchema,
-  TransactionNonClaimIdArraySchema,
-  TransactionNonClaimIdSchema,
-} from "./primitives.js";
+export { NonEmptyStringSchema } from "./primitives.js";
 export {
   DryRunIntentSchema,
   LiveWriteIntentSchema,

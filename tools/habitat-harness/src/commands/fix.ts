@@ -5,7 +5,7 @@ import { runFix } from "../lib/fix.js";
 export default class Fix extends HabitatCommand {
   static override summary = "Apply Habitat-owned safe fixes";
   static override description =
-    "Runs D9-governed transformation transactions. With --dry-run, plans without writing.";
+    "Runs Habitat transformation transactions. With --dry-run, plans without writing.";
   static override examples = [
     "<%= config.bin %> <%= command.id %> --dry-run",
     "<%= config.bin %> <%= command.id %>",

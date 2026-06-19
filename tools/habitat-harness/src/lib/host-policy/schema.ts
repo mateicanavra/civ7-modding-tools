@@ -14,7 +14,6 @@ export const HostRecoveryInstructionSchema = Type.Object(
     command: Type.Optional(NonEmptyStringSchema),
     documentRef: Type.Optional(NonEmptyStringSchema),
     retryCondition: NonEmptyStringSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -43,7 +42,6 @@ const hostDeclarationFields = {
   declarationId: NonEmptyStringSchema,
   ownerId: NonEmptyStringSchema,
   recovery: HostRecoveryInstructionSchema,
-  nonClaims: Type.Array(NonEmptyStringSchema),
 };
 
 const hostSurfaceFields = {
@@ -192,7 +190,6 @@ export const HostSurfaceProjectionSchema = Type.Object(
     ]),
     recovery: Type.Optional(HostRecoveryInstructionSchema),
     declarationState: HostPolicySourceStateSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -207,7 +204,6 @@ export const HostApplyGateProjectionSchema = Type.Object(
     gateContract: Type.Optional(NonEmptyStringSchema),
     recovery: Type.Optional(HostRecoveryInstructionSchema),
     declarationState: HostPolicySourceStateSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -222,7 +218,6 @@ export const HostProjectSupportProjectionSchema = Type.Object(
     noWrite: Type.Literal(true),
     recovery: Type.Optional(HostRecoveryInstructionSchema),
     declarationState: HostPolicySourceStateSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -234,7 +229,6 @@ export const HostAuthoringBoundaryProjectionSchema = Type.Object(
     relation: NonEmptyStringSchema,
     futureOwner: Type.Optional(NonEmptyStringSchema),
     declarationState: HostPolicySourceStateSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );

@@ -79,7 +79,6 @@ export function hostApplyGateProjection(
       gateId,
       policyId: state.policyId,
       declarationState: state.kind,
-      nonClaims: ["does-not-authorize-host-gate"],
     });
   }
   const declaration = state.document.declarations.find(
@@ -95,7 +94,6 @@ export function hostApplyGateProjection(
     gateContract: declaration?.gateContract,
     recovery: declaration?.recovery,
     declarationState: declaration ? "declared" : "missing",
-    nonClaims: declaration?.nonClaims ?? ["does-not-authorize-host-gate"],
   });
 }
 
@@ -122,7 +120,6 @@ export function hostProjectSupportProjection(
     noWrite: true,
     recovery: declaration.recovery,
     declarationState: "declared",
-    nonClaims: declaration.nonClaims,
   });
 }
 
@@ -135,7 +132,6 @@ export function hostAuthoringBoundaryProjection(
     scenario,
     relation: "not-public-authority",
     declarationState: state.kind === "declared" ? "not-applicable" : state.kind,
-    nonClaims: ["does-not-authorize-host-owned-authoring-topology"],
   });
 }
 
@@ -210,7 +206,6 @@ function declaredSurfaceProjection(
     mutationLane: declaration.mutationLane,
     recovery: declaration.recovery,
     declarationState: "declared",
-    nonClaims: declaration.nonClaims,
   });
 }
 
@@ -221,7 +216,6 @@ function notHostOwnedSurfaceProjection(policyId: string): HostSurfaceProjection 
     surfaceKind: "not-host-owned",
     mutationLane: "allowed",
     declarationState: "not-applicable",
-    nonClaims: ["does-not-prove-path-safety"],
   });
 }
 
@@ -238,7 +232,6 @@ function blockedSurfaceProjection(
     surfaceKind: "not-host-owned",
     mutationLane: "blocked",
     declarationState: state.kind,
-    nonClaims: [`does-not-authorize-host-surface:${candidate}`],
   });
 }
 
@@ -252,7 +245,6 @@ function missingGeneratedZoneProjection(
     surfaceKind: "not-host-owned",
     mutationLane: "blocked",
     declarationState: "missing",
-    nonClaims: [`does-not-authorize-generated-zone:${generatedZoneId}`],
   });
 }
 
@@ -267,7 +259,6 @@ function projectSupportProjection(
     supportState,
     noWrite: true,
     declarationState,
-    nonClaims: ["does-not-prove-authoring-support"],
   });
 }
 

@@ -202,7 +202,7 @@ function checkRegisteredContradictions(
       issue(
         "apply-safety-contradicted",
         "applySafety.kind",
-        "grit-check manifests must not claim apply admission."
+        "grit-check manifests must not request apply admission."
       )
     );
   }
@@ -338,7 +338,7 @@ function isPlaceholderText(value: string): boolean {
 function looksLikeGritOnlyAuthority(value: Record<string, unknown>): boolean {
   const hasGritMetadata =
     "frontmatter" in value || "gritFrontmatter" in value || "markdown" in value;
-  return hasGritMetadata && !("normativeSources" in value) && !("provingSources" in value);
+  return hasGritMetadata && !("normativeSources" in value);
 }
 
 function looksLikeNxOptionsOnlyAuthority(value: Record<string, unknown>): boolean {
@@ -346,7 +346,6 @@ function looksLikeNxOptionsOnlyAuthority(value: Record<string, unknown>): boolea
     "ruleId" in value &&
     "patternName" in value &&
     ("scope" in value || "forbids" in value || "why" in value || "message" in value) &&
-    !("normativeSources" in value) &&
-    !("provingSources" in value)
+    !("normativeSources" in value)
   );
 }

@@ -43,7 +43,6 @@ export const ProtectedZoneRecoveryInstructionSchema = Type.Union([
       ownerId: NonEmptyStringSchema,
       actionKind: Type.Literal("remove-artifact"),
       instruction: NonEmptyStringSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -52,7 +51,6 @@ export const ProtectedZoneRecoveryInstructionSchema = Type.Union([
       ownerId: NonEmptyStringSchema,
       actionKind: Type.Literal("select-approved-scan-root"),
       instruction: NonEmptyStringSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -75,7 +73,6 @@ export const GeneratedSurfaceDeclarationSchema = Type.Object(
     matcher: HostMatcherSchema,
     owner: ProtectedZoneOwnerSchema,
     recovery: ProtectedZoneRecoveryInstructionSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -87,7 +84,6 @@ export const ForbiddenArtifactDeclarationSchema = Type.Object(
     owner: ProtectedZoneOwnerSchema,
     fileNames: Type.Array(NonEmptyStringSchema, { minItems: 1 }),
     recovery: ProtectedZoneRecoveryInstructionSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -100,7 +96,6 @@ export const ProtectedSurfaceDeclarationSchema = Type.Object(
     matcher: HostMatcherSchema,
     owner: ProtectedZoneOwnerSchema,
     recovery: ProtectedZoneRecoveryInstructionSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -121,9 +116,8 @@ export const DeclarationReadinessSchema = Type.Union([
     {
       kind: Type.Literal("blocked-missing-host-declaration"),
       zoneId: NonEmptyStringSchema,
-      ownerId: Type.Literal("G-HOST"),
+      ownerId: Type.Literal("host-policy"),
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -131,9 +125,8 @@ export const DeclarationReadinessSchema = Type.Union([
     {
       kind: Type.Literal("blocked-declaration-conflict"),
       zoneId: NonEmptyStringSchema,
-      ownerId: Type.Literal("D10"),
+      ownerId: Type.Literal("protected-zone-policy"),
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -145,7 +138,6 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       kind: Type.Literal("not-applicable"),
       path: RepoRelativePathSchema,
       action: MutationPathActionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -158,7 +150,6 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       surfaceKind: Type.Union([Type.Literal("generated"), Type.Literal("external-resource")]),
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -170,7 +161,6 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       surfaceKind: Type.Literal("protected"),
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -181,7 +171,6 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       action: MutationPathActionSchema,
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -194,7 +183,6 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       surfaceKind: Type.Union([Type.Literal("generated"), Type.Literal("external-resource")]),
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -206,7 +194,6 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       surfaceKind: Type.Literal("protected"),
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -217,7 +204,6 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       action: MutationPathActionSchema,
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -227,9 +213,8 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       path: RepoRelativePathSchema,
       action: MutationPathActionSchema,
       zoneId: NonEmptyStringSchema,
-      ownerId: Type.Literal("G-HOST"),
+      ownerId: Type.Literal("host-policy"),
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -239,9 +224,8 @@ export const ProtectedMutationDecisionSchema = Type.Union([
       path: RepoRelativePathSchema,
       action: MutationPathActionSchema,
       zoneId: NonEmptyStringSchema,
-      ownerId: Type.Literal("D10"),
+      ownerId: Type.Literal("protected-zone-policy"),
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -252,7 +236,6 @@ export const ScanRootProtectionDecisionSchema = Type.Union([
     {
       kind: Type.Literal("accepted"),
       root: RepoRelativePathSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -263,7 +246,6 @@ export const ScanRootProtectionDecisionSchema = Type.Union([
       root: RepoRelativePathSchema,
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -274,7 +256,6 @@ export const ScanRootProtectionDecisionSchema = Type.Union([
       root: RepoRelativePathSchema,
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -284,7 +265,6 @@ export const ProtectedMutationGuardProjectionSchema = Type.Object(
   {
     kind: Type.Literal("protected-mutation-guard-projection"),
     decisions: Type.Array(ProtectedMutationDecisionSchema),
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -299,7 +279,6 @@ export const TransactionPathAuthorityProjectionSchema = Type.Union([
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
       hostPolicyRef: NonEmptyStringSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),
@@ -311,7 +290,6 @@ export const TransactionPathAuthorityProjectionSchema = Type.Union([
       action: MutationPathActionSchema,
       owner: ProtectedZoneOwnerSchema,
       recovery: ProtectedZoneRecoveryInstructionSchema,
-      nonClaims: Type.Array(NonEmptyStringSchema),
     },
     { additionalProperties: false }
   ),

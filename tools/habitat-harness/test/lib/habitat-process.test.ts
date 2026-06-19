@@ -17,7 +17,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-live-nonzero",
-          kind: "platform-parity",
+          kind: "workspace-tool",
           executable: "node",
           argv: ["-e", "console.log('out'); console.error('err'); process.exit(7)"],
           cwd: repoRoot,
@@ -25,7 +25,6 @@ describe("HabitatProcess", () => {
             HABITAT_VISIBLE_ENV: "visible",
             HABITAT_SECRET_TOKEN: "should-not-appear",
           },
-          nonClaims: ["does-not-prove-grit-pattern-semantics"],
         });
       }).pipe(Effect.provide(HabitatProcessLive))
     );
@@ -42,7 +41,6 @@ describe("HabitatProcess", () => {
       redacted: true,
     });
     expect(JSON.stringify(result)).not.toContain("should-not-appear");
-    expect(result.nonClaims).toEqual(["does-not-prove-grit-pattern-semantics"]);
   });
 
   test("keeps broad Grit-sized JSON captures available to parser code", async () => {
@@ -51,7 +49,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-large-json",
-          kind: "platform-parity",
+          kind: "workspace-tool",
           executable: "node",
           argv: [
             "-e",
@@ -96,7 +94,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-workspace-openspec",
-          kind: "platform-parity",
+          kind: "workspace-tool",
           executable: "openspec",
           argv: ["--version"],
           cwd: "/tmp",

@@ -35,7 +35,7 @@ describe("protected zone authority file-layer execution", () => {
     ]);
   });
 
-  test("refuses staged generated surface edits through a D10 decision", () => {
+  test("refuses staged generated surface edits through a protected-zone decision", () => {
     const result = runFileLayerProtectedMutationRule(
       {
         id: "file-layer-generated-zone",
@@ -144,7 +144,6 @@ describe("protected zone authority file-layer execution", () => {
         kind: "not-applicable",
         path: "packages/example/src/index.ts",
         action: "modified",
-        nonClaims: ["does-not-prove-path-safety"],
       },
     ]);
   });
@@ -168,9 +167,7 @@ describe("protected zone authority file-layer execution", () => {
             actionKind: "documented-workflow",
             documentRef: "docs/host.md",
             retryCondition: "Retry through the host workflow.",
-            nonClaims: ["does-not-prove-host-policy"],
           },
-          nonClaims: ["does-not-prove-host-policy"],
         },
       },
       [{ path: "protected/configuration.ts", action: "modified" }]
@@ -181,7 +178,6 @@ describe("protected zone authority file-layer execution", () => {
         kind: "not-applicable",
         path: "protected/configuration.ts",
         action: "modified",
-        nonClaims: ["does-not-prove-path-safety"],
       },
     ]);
   });
@@ -205,9 +201,7 @@ describe("protected zone authority file-layer execution", () => {
             actionKind: "documented-workflow",
             documentRef: "docs/host.md",
             retryCondition: "Retry through the host workflow.",
-            nonClaims: ["does-not-prove-host-policy"],
           },
-          nonClaims: ["does-not-prove-host-policy"],
         },
       },
       [{ path: "protected/config.json", action: "modified" }]
@@ -229,21 +223,18 @@ describe("protected zone authority file-layer execution", () => {
           actionKind: "documented-workflow",
           documentRef: "docs/host.md",
           retryCondition: "Retry through the host workflow.",
-          nonClaims: ["does-not-prove-host-policy"],
         },
-        nonClaims: ["does-not-prove-host-policy"],
       },
     ]);
   });
 
-  test("scan-root refusals carry owner, recovery, and non-claims", () => {
+  test("scan-root refusals carry owner and recovery", () => {
     const generated = decideScanRootProtection("mods/mod-swooper-maps/src/maps/generated");
     expect(generated).toMatchObject({
       kind: "refused-generated-output",
       reason: "generated-output",
       owner: { ownerId: "swooper-maps-workflow" },
       recovery: { actionKind: "command" },
-      nonClaims: ["does-not-prove-map-runtime-behavior"],
     });
 
     const unavailable = decideScanRootProtection("packages", {
@@ -255,7 +246,7 @@ describe("protected zone authority file-layer execution", () => {
     expect(unavailable).toMatchObject({
       kind: "refused-protected-root",
       reason: "protected-root",
-      owner: { ownerId: "G-HOST" },
+      owner: { ownerId: "host-policy" },
       recovery: { actionKind: "documented-workflow" },
     });
   });
@@ -277,9 +268,7 @@ describe("protected zone authority file-layer execution", () => {
             actionKind: "documented-workflow",
             documentRef: "docs/protected.md",
             retryCondition: "Use the host-owned protected-surface workflow.",
-            nonClaims: ["does-not-prove-host-policy"],
           },
-          nonClaims: ["does-not-prove-host-policy"],
         },
       ],
     });

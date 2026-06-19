@@ -22,7 +22,6 @@ export {
 } from "./request.js";
 export type {
   CheckCommandContext,
-  CheckNonClaim,
   CheckOutcome,
   CheckReport,
   HabitatDiagnostic,

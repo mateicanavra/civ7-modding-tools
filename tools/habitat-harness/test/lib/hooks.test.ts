@@ -1,9 +1,9 @@
 import { describe, expect, test } from "vitest";
-import type { HookReportEvent, ResourcePublisher } from "../../src/lib/hooks.js";
+import type { HookReportEvent } from "../../src/lib/hooks.js";
 import {
+  classifyResourcePreCommitDecision,
   classifyResourcesState,
   createHookTrace,
-  createResourcePublisher,
   runPreCommit,
   runPrePush,
 } from "../../src/lib/hooks.js";
@@ -15,7 +15,7 @@ type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 
 describe("Habitat hook resource policy", () => {
   test("passes clean resources without invoking the publish script", () => {
-    const fake = makeFakeRuntime();
+    const fake = makeFakeRuntime({ resourcePolicy: true });
 
     const result = runPreCommit(fake.runtime);
 
@@ -26,19 +26,17 @@ describe("Habitat hook resource policy", () => {
     expect(fake.calls).toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
   });
 
   test("fails dirty resources before file-layer, Biome, Grit, or publish commands", () => {
-    const fake = makeFakeRuntime({ submoduleStatus: " M resources.xml\n" });
+    const fake = makeFakeRuntime({ resourcePolicy: true, submoduleStatus: " M resources.xml\n" });
 
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: dirty-submodule");
-    expect(result.stderr).toContain("bun run resources:publish");
-    expect(result.stderr).toContain("bun run resources:status");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(result.stderr).toContain("resource publish");
+    expect(result.stderr).toContain("resource status");
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
@@ -47,66 +45,62 @@ describe("Habitat hook resource policy", () => {
   });
 
   test("fails uninitialized resources with init and status remediation", () => {
-    const fake = makeFakeRuntime({ resourcesRootExists: false });
+    const fake = makeFakeRuntime({ resourcePolicy: true, resourcesRootExists: false });
 
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: uninitialized");
-    expect(result.stderr).toContain("bun run resources:init");
-    expect(result.stderr).toContain("bun run resources:status");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(result.stderr).toContain("resource init");
+    expect(result.stderr).toContain("resource status");
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
   });
 
   test("fails a present resources directory that resolves to the monorepo Git root", () => {
-    const fake = makeFakeRuntime({ resourcesTopLevel: "/repo" });
+    const fake = makeFakeRuntime({ resourcePolicy: true, resourcesTopLevel: "/repo" });
 
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: uninitialized");
-    expect(result.stderr).toContain("exists but is not an initialized submodule Git worktree");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(result.stderr).toContain("exists but is not an initialized resource Git worktree");
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
   });
 
   test("fails locked resources with unlock and status remediation", () => {
-    const fake = makeFakeRuntime({ indexLockExists: true });
+    const fake = makeFakeRuntime({ resourcePolicy: true, indexLockExists: true });
 
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: locked");
-    expect(result.stderr).toContain("bun run resources:unlock");
-    expect(result.stderr).toContain("bun run resources:status");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(result.stderr).toContain("resource unlock");
+    expect(result.stderr).toContain("resource status");
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
   });
 
   test("fails an unstaged resources gitlink before file-layer checks", () => {
-    const fake = makeFakeRuntime({ unstagedGitlink: true });
+    const fake = makeFakeRuntime({ resourcePolicy: true, unstagedGitlink: true });
 
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: unstaged-gitlink");
-    expect(result.stderr).toContain("git add .civ7/outputs/resources");
-    expect(result.stderr).toContain("bun run resources:status");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(result.stderr).toContain("git add vendor/resources");
+    expect(result.stderr).toContain("resource status");
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
   });
 
   test("allows a staged clean resources gitlink as an explicit pointer update", () => {
-    const fake = makeFakeRuntime({ stagedGitlink: true });
+    const fake = makeFakeRuntime({ resourcePolicy: true, stagedGitlink: true });
 
     const result = runPreCommit(fake.runtime);
 
@@ -115,24 +109,29 @@ describe("Habitat hook resource policy", () => {
     expect(fake.calls).toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
   });
 
   test("prefers dirty-submodule refusal over staged-gitlink allowance", () => {
     const fake = makeFakeRuntime({
+      resourcePolicy: true,
       stagedGitlink: true,
       submoduleStatus: " M resources.xml\n",
     });
 
+    const decision = classifyResourcePreCommitDecision(fake.runtime);
     const state = classifyResourcesState(fake.runtime);
 
+    expect(decision).toMatchObject({
+      kind: "dirty-submodule",
+      commit: "refused",
+    });
     expect(state.kind).toBe("dirty-submodule");
     expect(state.allowPreCommit).toBe(false);
-    expect(fake.calls).not.toContain("git diff --cached --quiet -- .civ7/outputs/resources");
+    expect(fake.calls).not.toContain("git diff --cached --quiet -- vendor/resources");
   });
 
-  test("treats missing resources configuration as a non-claiming pass", () => {
-    const fake = makeFakeRuntime({ gitmodulesExists: false });
+  test("treats missing resource policy as a pass", () => {
+    const fake = makeFakeRuntime();
 
     const state = classifyResourcesState(fake.runtime);
 
@@ -143,57 +142,18 @@ describe("Habitat hook resource policy", () => {
     expect(fake.calls).toEqual([]);
   });
 
-  test("renders resource remediation through an injected publisher service without publishing", () => {
-    let publishCalls = 0;
-    const publisher: ResourcePublisher = {
-      commands: () => ({
-        publish: "custom resources publish",
-        status: "custom resources status",
-        init: "custom resources init",
-        unlock: "custom resources unlock",
-      }),
-      publish: () => {
-        publishCalls += 1;
-        return ok("published\n");
-      },
-    };
-    const fake = makeFakeRuntime({ submoduleStatus: " M resources.xml\n" });
+  test("renders resource remediation through the configured policy commands", () => {
+    const fake = makeFakeRuntime({ resourcePolicy: true, submoduleStatus: " M resources.xml\n" });
 
-    const result = runPreCommit({ ...fake.runtime, resourcePublisher: publisher });
+    const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("resources: dirty-submodule");
-    expect(result.stderr).toContain("- custom resources publish");
-    expect(result.stderr).toContain("- custom resources status");
-    expect(publishCalls).toBe(0);
-    expect(fake.calls).not.toContain("bun run resources:publish");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
+    expect(result.stderr).toContain("- resource publish");
+    expect(result.stderr).toContain("- resource status");
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
     );
-  });
-
-  test("records explicit resource publisher command provenance only when directly invoked", () => {
-    const trace = createHookTrace();
-    const fake = makeFakeRuntime();
-    const publisher = createResourcePublisher({ ...fake.runtime, trace });
-
-    expect(publisher.commands()).toEqual({
-      publish: "bun run resources:publish",
-      status: "bun run resources:status",
-      init: "bun run resources:init",
-      unlock: "bun run resources:unlock",
-    });
-
-    const result = publisher.publish();
-
-    expect(result.exitCode).toBe(0);
-    expect(fake.calls).toContain("bun run resources:publish");
-    expect(trace.commands.find((command) => command.phase === "resource-publish")).toMatchObject({
-      argv: ["bun", "run", "resources:publish"],
-      cwd: repoRoot,
-      exitCode: 0,
-    });
   });
 });
 
@@ -210,7 +170,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[file-layer staged check]");
     expect(result.stdout).toContain("generated zone");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
     expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
@@ -227,7 +186,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("[file-layer staged check]");
     expect(result.stdout).toContain("package manager artifact");
-    expect(fake.calls).not.toContain("bash scripts/civ7-resources/publish-submodule.sh");
     expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
     expect(fake.calls.some((call) => call.startsWith("grit "))).toBe(false);
   });
@@ -350,16 +308,16 @@ describe("Habitat pre-commit staged mutation policy", () => {
         head: "abc123head",
         stagedPaths: ["packages/example/src/index.ts", "README.md"],
         unstagedPaths: [],
-        resourceState: "clean",
+        resourceState: "not-configured",
       },
       postState: {
         branch: "agent-HR-test",
         head: "abc123head",
         stagedPaths: ["packages/example/src/index.ts", "README.md"],
         unstagedPaths: [],
-        resourceState: "clean",
+        resourceState: "not-configured",
       },
-      resourceState: "clean",
+      resourceState: "not-configured",
       stagedPaths: ["packages/example/src/index.ts", "README.md"],
       biomePaths: ["packages/example/src/index.ts"],
       gritPaths: ["packages/example/src/index.ts"],
@@ -374,7 +332,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(trace.commands.map((command) => command.phase)).toContain("repo-state");
     expect(trace.commands.map((command) => command.phase)).toEqual(
       expect.arrayContaining([
-        "resource-state",
         "staged-paths",
         "file-layer",
         "partial-staging",
@@ -423,7 +380,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       postState: {
         branch: "agent-HR-test",
         head: "abc123head",
-        resourceState: "clean",
+        resourceState: "not-configured",
       },
     });
   });
@@ -490,7 +447,7 @@ describe("Habitat pre-push base policy", () => {
     expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
   });
 
-  test("falls back to the main merge-base when Graphite parent is unavailable", () => {
+  test("falls back to the remote default branch merge-base when Graphite parent is unavailable", () => {
     const fake = makeFakeRuntime({ mergeBase: "abc123mergebase" });
 
     const result = runPrePush({}, fake.runtime);
@@ -498,24 +455,23 @@ describe("Habitat pre-push base policy", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=abc123mergebase");
     expect(fake.calls).toContain("gt branch info --no-interactive");
-    expect(fake.calls).toContain("git merge-base HEAD main");
+    expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
+    expect(fake.calls).toContain("git merge-base HEAD origin/main");
     expect(fake.calls).toContain(
       "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base abc123mergebase --head HEAD --outputStyle=static"
     );
   });
 
-  test("falls back to literal main when Graphite and merge-base probes fail", () => {
-    const fake = makeFakeRuntime({ mergeBaseExitCode: 1, originMergeBaseExitCode: 1 });
+  test("refuses pre-push when no affected base can be resolved", () => {
+    const fake = makeFakeRuntime({ mergeBaseExitCode: 1 });
 
     const result = runPrePush({}, fake.runtime);
 
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=main");
-    expect(fake.calls).toContain("git merge-base HEAD main");
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("could not resolve an affected base");
+    expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
     expect(fake.calls).toContain("git merge-base HEAD origin/main");
-    expect(fake.calls).toContain(
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base main --head HEAD --outputStyle=static"
-    );
+    expect(fake.calls.some((call) => call.startsWith("nx affected "))).toBe(false);
   });
 
   test("propagates Nx affected failures with base provenance", () => {
@@ -543,17 +499,18 @@ describe("Habitat pre-push base policy", () => {
     expect(result.exitCode).toBe(0);
     expect(trace.prePush).toMatchObject({
       base: "agent-HR-parent",
+      baseSource: "graphite-parent",
       outcome: "pass",
       exitCode: 0,
       preState: {
         branch: "agent-HR-test",
         head: "abc123head",
-        resourceState: "clean",
+        resourceState: "not-configured",
       },
       postState: {
         branch: "agent-HR-test",
         head: "abc123head",
-        resourceState: "clean",
+        resourceState: "not-configured",
       },
     });
     expect(trace.prePush?.durationMs).toBeGreaterThan(0);
@@ -613,7 +570,7 @@ describe("Habitat pre-push base policy", () => {
 });
 
 interface FakeRuntimeOptions {
-  gitmodulesExists?: boolean;
+  resourcePolicy?: boolean;
   resourcesRootExists?: boolean;
   indexLockExists?: boolean;
   submoduleStatus?: string;
@@ -633,7 +590,8 @@ interface FakeRuntimeOptions {
   graphiteParent?: string;
   mergeBase?: string;
   mergeBaseExitCode?: number;
-  originMergeBaseExitCode?: number;
+  remoteDefaultBranch?: string;
+  remoteDefaultBranchExitCode?: number;
   nxAffectedExitCode?: number;
   nxAffectedStdout?: string;
   nxAffectedStderr?: string;
@@ -664,14 +622,11 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call === "git diff --name-only -z") {
       return ok(renderPathList(options.allUnstagedPaths ?? []));
     }
-    if (call === "git config -f .gitmodules --get submodule..civ7/outputs/resources.path") {
-      return ok(".civ7/outputs/resources\n");
-    }
     if (call.endsWith("rev-parse --is-inside-work-tree")) {
       return ok("true\n");
     }
     if (call.endsWith("rev-parse --show-toplevel")) {
-      return ok(`${options.resourcesTopLevel ?? `${repoRoot}/.civ7/outputs/resources`}\n`);
+      return ok(`${options.resourcesTopLevel ?? `${repoRoot}/vendor/resources`}\n`);
     }
     if (call.endsWith("rev-parse --git-dir")) {
       return ok(".git\n");
@@ -679,10 +634,10 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call.endsWith("status --porcelain")) {
       return ok(options.submoduleStatus ?? "");
     }
-    if (call === "git diff --quiet -- .civ7/outputs/resources") {
+    if (call === "git diff --quiet -- vendor/resources") {
       return options.unstagedGitlink ? failure(1) : ok();
     }
-    if (call === "git diff --cached --quiet -- .civ7/outputs/resources") {
+    if (call === "git diff --cached --quiet -- vendor/resources") {
       return options.stagedGitlink ? failure(1) : ok();
     }
     if (call === "git diff --cached --name-status -z") {
@@ -691,12 +646,9 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json") {
       return {
         exitCode: options.fileLayerExitCode ?? 0,
-        stdout: options.fileLayerStdout ?? '{"ok":true}\n',
+        stdout: options.fileLayerStdout ?? fileLayerCheckReport({ ok: true, status: "pass" }),
         stderr: "",
       };
-    }
-    if (call === "bun run resources:publish") {
-      return ok("resources published\n");
     }
     if (call.startsWith("git diff --name-only -z --")) {
       return ok(renderPathList(options.unstagedPaths ?? []));
@@ -722,14 +674,14 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
         ? ok(`Parent: ${options.graphiteParent}\n`)
         : failure(1, "", "no graphite parent\n");
     }
-    if (call === "git merge-base HEAD main") {
-      return options.mergeBaseExitCode
-        ? failure(options.mergeBaseExitCode)
-        : ok(`${options.mergeBase ?? "mainmergebase"}\n`);
+    if (call === "git symbolic-ref --quiet --short refs/remotes/origin/HEAD") {
+      return options.remoteDefaultBranchExitCode
+        ? failure(options.remoteDefaultBranchExitCode)
+        : ok(`${options.remoteDefaultBranch ?? "origin/main"}\n`);
     }
     if (call === "git merge-base HEAD origin/main") {
-      return options.originMergeBaseExitCode
-        ? failure(options.originMergeBaseExitCode)
+      return options.mergeBaseExitCode
+        ? failure(options.mergeBaseExitCode)
         : ok(`${options.mergeBase ?? "originmainmergebase"}\n`);
     }
     if (call.startsWith("nx affected ")) {
@@ -747,8 +699,7 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     runtime: {
       runCommand,
       pathExists: (target) => {
-        if (target.endsWith(".gitmodules")) return options.gitmodulesExists ?? true;
-        if (target.endsWith(".civ7/outputs/resources")) {
+        if (target.endsWith("vendor/resources")) {
           return options.resourcesRootExists ?? true;
         }
         if (target.endsWith("index.lock")) return options.indexLockExists ?? false;
@@ -765,6 +716,17 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
         return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
       },
       nowMs: () => nowMs++,
+      resourcePolicy: options.resourcePolicy
+        ? {
+            path: "vendor/resources",
+            commands: {
+              publish: "resource publish",
+              status: "resource status",
+              init: "resource init",
+              unlock: "resource unlock",
+            },
+          }
+        : undefined,
     },
   };
 }
@@ -789,16 +751,51 @@ function gritCheckReport(options: {
   status: "pass" | "fail" | "advisory-findings";
   diagnosticMessage?: string;
 }): string {
+  return checkReport({
+    ...options,
+    command: "habitat check --staged --tool grit-check --json",
+    ruleId: "grit-hook-scope-probe",
+    ownerTool: "grit-check",
+    message: "Grit hook scope probe",
+    detect: ["habitat", "check", "--tool", "grit-check"],
+  });
+}
+
+function fileLayerCheckReport(options: {
+  ok: boolean;
+  status: "pass" | "fail" | "advisory-findings";
+  diagnosticMessage?: string;
+}): string {
+  return checkReport({
+    ...options,
+    command: "habitat check --staged --tool file-layer --json",
+    ruleId: "file-layer-hook-scope-probe",
+    ownerTool: "file-layer",
+    message: "File-layer hook scope probe",
+    detect: ["habitat", "check", "--tool", "file-layer"],
+  });
+}
+
+function checkReport(options: {
+  ok: boolean;
+  status: "pass" | "fail" | "advisory-findings";
+  command: string;
+  ruleId: string;
+  ownerTool: string;
+  message: string;
+  detect: string[];
+  diagnosticMessage?: string;
+}): string {
   return `${JSON.stringify(
     {
       schemaVersion: 1,
-      command: "habitat check --staged --tool grit-check --json",
+      command: options.command,
       startedAt: "2026-06-15T00:00:00.000Z",
       ok: options.ok,
       rules: [
         {
-          ruleId: "grit-hook-scope-probe",
-          ownerTool: "grit-check",
+          ruleId: options.ruleId,
+          ownerTool: options.ownerTool,
           lane: "enforced",
           status: options.status,
           locked: true,
@@ -806,7 +803,7 @@ function gritCheckReport(options: {
           diagnostics: options.diagnosticMessage
             ? [
                 {
-                  ruleId: "grit-hook-scope-probe",
+                  ruleId: options.ruleId,
                   path: "packages/example/src/index.ts",
                   message: options.diagnosticMessage,
                   severity: "error",
@@ -814,8 +811,8 @@ function gritCheckReport(options: {
                 },
               ]
             : [],
-          detect: ["habitat", "check", "--tool", "grit-check"],
-          message: "Grit hook scope probe",
+          detect: options.detect,
+          message: options.message,
           remediate: null,
         },
       ],

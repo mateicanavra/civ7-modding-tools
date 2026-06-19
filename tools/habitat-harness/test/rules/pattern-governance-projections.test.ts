@@ -52,8 +52,7 @@ describe("Pattern Governance projections", () => {
       diagnosticIdentity: "grit-diagnostic-probe",
       fixtureStrategyRef: "fixtures/grit-diagnostic-probe",
       falsePositiveAssessment: "false-positive model accepted",
-      currentTreeDisposition: "current tree accepted by D7 projection",
-      nonClaims: ["Diagnostic admission is not apply admission."],
+      currentTreeDisposition: "current tree accepted by structural check",
     });
 
     expect(diagnosticAdmissionProjection(diagnosticState)).toMatchObject({
@@ -97,10 +96,8 @@ describe("Pattern Governance projections", () => {
       recovery: {
         kind: "pattern-recovery",
         patternId: "grit-retired-probe",
-        owner: "D8",
         reason: "retired-pattern-referenced",
         nextAction: "Create a new admission decision before reuse.",
-        nonClaims: ["Retirement recovery does not reactivate a pattern."],
       },
     });
 
@@ -112,7 +109,7 @@ describe("Pattern Governance projections", () => {
     expect(applyAdmissionProjection(state)).toBeUndefined();
   });
 
-  test("default apply admissions project through D8 admitted state", () => {
+  test("default apply admissions project through admitted state", () => {
     const admissions = defaultApplyAdmissions();
     const transactionInputs = activeApplyTransactionInputs();
 
@@ -171,6 +168,10 @@ function candidateManifest() {
       accepted: false as const,
       reason: "candidate-only generation",
     },
-    requiredForRegistration: ["D2 governance facts", "D5 baseline authority", "D6 diagnostics"],
+    requiredForRegistration: [
+      "rule registry facts",
+      "baseline authority",
+      "diagnostics",
+    ],
   };
 }

@@ -2,15 +2,6 @@ import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { GraphRefusalStateSchema } from "../workspace-graph/schema.js";
 
-const NonClaimSchema = Type.Union([
-  Type.Literal("does-not-run-targets"),
-  Type.Literal("does-not-prove-rule-correctness"),
-  Type.Literal("does-not-prove-safety"),
-  Type.Literal("does-not-infer-project-owner"),
-  Type.Literal("does-not-prove-target-availability"),
-  Type.Literal("does-not-prove-authoring-support"),
-]);
-
 const RecoveryInstructionSchema = Type.String({ minLength: 1 });
 
 const OwnerSchema = Type.Object(
@@ -95,7 +86,6 @@ const CommonResultFields = {
   schemaVersion: Type.Literal(1),
   input: Type.String({ minLength: 1 }),
   recoveryInstructions: Type.Array(RecoveryInstructionSchema),
-  nonClaims: Type.Array(NonClaimSchema, { minItems: 1 }),
 };
 
 export const ProjectPathClassificationSchema = Type.Object(
@@ -176,7 +166,6 @@ export const ClassifyResultSchema = Type.Union([
   GraphRefusalClassificationSchema,
 ]);
 
-export type ClassifyNonClaimId = Static<typeof NonClaimSchema>;
 export type RuleCoverageKind = Static<typeof RuleCoverageKindSchema>;
 export type RuleRouting = Static<typeof RuleRoutingSchema>;
 export type ClassifiedTargetSource = Static<typeof ClassifiedTargetSchema>["source"];

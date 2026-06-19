@@ -14,7 +14,7 @@ export default class Hook extends HabitatCommand {
 
   static override flags = {
     base: Flags.string({
-      description: "Override the pre-push affected base. Intended for probes and CI diagnostics.",
+      description: "Override the pre-push affected base.",
     }),
   };
 

@@ -85,7 +85,7 @@ describe("Pattern Authority Manifest validator", () => {
         {
           kind: "accepted-spec",
           pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
-          claim: "TODO replace with architectural rationale",
+          summary: "TODO replace with architectural rationale",
         },
       ],
     });
@@ -101,8 +101,7 @@ describe("Pattern Authority Manifest validator", () => {
       hookScope: {
         decision: "pre-commit",
         rationale: "staged scope is accepted for this rule",
-        costAndScopeEvidence:
-          "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+        costAndScopeRationale: "staged scope is bounded and low cost for this rule",
       },
     });
 
@@ -255,24 +254,14 @@ function registeredManifest(
       {
         kind: "accepted-spec",
         pathOrUrl: "openspec/changes/habitat-pattern-generator-metadata-repair/design.md",
-        claim:
+        summary:
           "Generated Grit-backed rules require structured Habitat authority before registration.",
-      },
-    ],
-    provingSources: [
-      {
-        kind: "test",
-        pathOrCommand:
-          "bun run --cwd tools/habitat-harness test -- pattern-authority-manifest.test.ts",
-        claim: "Validator accepts only structured Pattern Authority Manifest fields.",
       },
     ],
     language: {
       gritLanguage: "js(typescript)",
       parserVariant: "typescript",
       officialDocsSource: "docs/projects/habitat-harness/research/official-docs-gritql.md",
-      localProofCommand:
-        "GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose",
     },
     scanRoots: {
       include: ["tools/habitat-harness/src"],
@@ -293,8 +282,6 @@ function registeredManifest(
     currentTreeScan: {
       command: "bun run habitat:check -- --json --rule grit-authority-probe",
       resultClass: "zero-findings",
-      evidencePath:
-        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/command-log.md",
     },
     baselineContract: {
       baselinePath: "tools/habitat-harness/baselines/grit-authority-probe.json",
@@ -305,8 +292,7 @@ function registeredManifest(
     hookScope: {
       decision: "none",
       rationale: "This advisory checkpoint is not hook-scoped.",
-      costAndScopeEvidence:
-        "openspec/changes/habitat-pattern-generator-metadata-repair/workstream/phase-record.md",
+      costAndScopeRationale: "This advisory checkpoint is not hook-scoped.",
     },
     applySafety: {
       kind: "not-apply",

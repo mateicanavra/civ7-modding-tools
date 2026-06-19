@@ -1,6 +1,5 @@
 export type {
   DiagnosticCatalogEntry,
-  DiagnosticNonClaim,
   DiagnosticProjectionContract,
   DiagnosticScanContract,
   GritDiagnosticCatalogEntry,
@@ -13,7 +12,6 @@ export type {
 } from "./catalog.js";
 export {
   DiagnosticCatalogEntrySchema,
-  DiagnosticNonClaimSchema,
   DiagnosticProjectionContractSchema,
   DiagnosticScanContractSchema,
   diagnosticCatalogEntryFromNativeRule,
@@ -100,14 +98,6 @@ export {
   DiagnosticRunOutcomeSchema,
   diagnosticConsumerProjectionFromOutcome,
 } from "./outcome.js";
-export type {
-  InjectedProbeOutcome,
-  InjectedProbeRefusalReason,
-} from "./probe.js";
-export {
-  InjectedProbeOutcomeSchema,
-  InjectedProbeRefusalReasonSchema,
-} from "./probe.js";
 export type {
   DiagnosticScanRootDecision,
   DiagnosticScanRootRefusal,

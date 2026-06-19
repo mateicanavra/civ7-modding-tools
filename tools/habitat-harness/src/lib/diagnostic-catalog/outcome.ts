@@ -1,5 +1,5 @@
 import { type Static, Type } from "typebox";
-import { DiagnosticCatalogEntrySchema, DiagnosticNonClaimSchema } from "./catalog.js";
+import { DiagnosticCatalogEntrySchema } from "./catalog.js";
 import { DiagnosticCacheObservationSchema } from "./command.js";
 import { DiagnosticAdapterFailureKindSchema } from "./failure.js";
 import { DiagnosticIdentitySchema, ObservedDiagnosticIdentitySchema } from "./identity.js";
@@ -96,7 +96,6 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
       diagnostics: Type.Tuple([]),
-      limitations: Type.Array(DiagnosticNonClaimSchema),
     },
     { additionalProperties: false }
   ),
@@ -107,7 +106,6 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
       diagnostics: Type.Array(DiagnosticFindingProjectionSchema, { minItems: 1 }),
-      limitations: Type.Array(DiagnosticNonClaimSchema),
     },
     { additionalProperties: false }
   ),
@@ -119,7 +117,6 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       diagnosticIdentity: DiagnosticIdentitySchema,
       failure: DiagnosticAdapterFailureKindSchema,
       detail: Type.String({ minLength: 1 }),
-      limitations: Type.Array(DiagnosticNonClaimSchema),
     },
     { additionalProperties: false }
   ),
@@ -131,7 +128,6 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       diagnosticIdentity: DiagnosticIdentitySchema,
       decision: DiagnosticScanRootRefusalSchema,
       detail: Type.String({ minLength: 1 }),
-      limitations: Type.Array(DiagnosticNonClaimSchema),
     },
     { additionalProperties: false }
   ),
@@ -144,7 +140,6 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       cache: DiagnosticCacheObservationSchema,
       failure: Type.Literal("GritCacheProvenanceMissing"),
       detail: Type.String({ minLength: 1 }),
-      limitations: Type.Array(DiagnosticNonClaimSchema),
     },
     { additionalProperties: false }
   ),
@@ -155,7 +150,6 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
       expectedIdentity: DiagnosticIdentitySchema,
-      limitations: Type.Array(DiagnosticNonClaimSchema),
     },
     { additionalProperties: false }
   ),
@@ -166,7 +160,6 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
       unexpectedIdentity: ObservedDiagnosticIdentitySchema,
-      limitations: Type.Array(DiagnosticNonClaimSchema),
     },
     { additionalProperties: false }
   ),
@@ -185,14 +178,13 @@ export function diagnosticConsumerProjectionFromOutcome(
     diagnosticIdentity: outcome.entry.diagnosticIdentity,
   };
   if (outcome.kind === "clean") {
-    return { kind: "clean", ...base, diagnostics: [], limitations: outcome.entry.limitations };
+    return { kind: "clean", ...base, diagnostics: [] };
   }
   if (outcome.kind === "findings") {
     return {
       kind: "findings",
       ...base,
       diagnostics: outcome.diagnostics,
-      limitations: outcome.entry.limitations,
     };
   }
   switch (outcome.kind) {
@@ -202,7 +194,6 @@ export function diagnosticConsumerProjectionFromOutcome(
         ...base,
         failure: outcome.failure,
         detail: outcome.detail,
-        limitations: outcome.entry.limitations,
       };
     case "scan-root-refused":
       return {
@@ -210,7 +201,6 @@ export function diagnosticConsumerProjectionFromOutcome(
         ...base,
         decision: outcome.decision,
         detail: outcome.detail,
-        limitations: outcome.entry.limitations,
       };
     case "cache-observation-missing":
       return {
@@ -219,21 +209,18 @@ export function diagnosticConsumerProjectionFromOutcome(
         cache: outcome.cache,
         failure: outcome.failure,
         detail: outcome.detail,
-        limitations: outcome.entry.limitations,
       };
     case "projection-missed":
       return {
         kind: "projection-missed",
         ...base,
         expectedIdentity: outcome.expectedIdentity,
-        limitations: outcome.entry.limitations,
       };
     case "unexpected-diagnostic-identity":
       return {
         kind: "unexpected-diagnostic-identity",
         ...base,
         unexpectedIdentity: outcome.unexpectedIdentity,
-        limitations: outcome.entry.limitations,
       };
   }
 }

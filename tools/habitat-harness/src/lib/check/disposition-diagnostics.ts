@@ -2,14 +2,14 @@ import type { HabitatDiagnostic, RuleExecutionDisposition } from "./schema.js";
 
 export const notApplicableDiagnosticMessages = {
   "staged-scope-no-approved-roots":
-    "D7 not applicable: staged scope contains no approved roots for this rule.",
-  "rule-not-in-requested-scope": "D7 not applicable: rule is not in the requested scope.",
+    "Rule not applicable: staged scope contains no approved roots for this rule.",
+  "rule-not-in-requested-scope": "Rule not applicable: rule is not in the requested scope.",
 } as const satisfies Record<
   Extract<RuleExecutionDisposition, { kind: "not-applicable" }>["reason"],
   string
 >;
 
-export const dependencyRefusalMessagePrefix = "D7 dependency refused: ";
+export const dependencyRefusalMessagePrefix = "Dependency refused: ";
 
 export function notApplicableDiagnostic(
   rule: { id: string },
