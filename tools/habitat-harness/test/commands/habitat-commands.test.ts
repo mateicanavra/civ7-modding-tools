@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Value } from "typebox/value";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const mockReport = vi.hoisted(() => ({
   schemaVersion: 1,
@@ -15,6 +15,12 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
 }));
 
 vi.mock("../../src/lib/check-report.js", () => ({
+  checkCommandContext: vi.fn((argv: string[]) => ({
+    bin: "habitat",
+    id: "check",
+    argv,
+    serialized: ["habitat", "check", ...argv].join(" "),
+  })),
   createCheckReport: vi.fn(() => mockReport),
   describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
   expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
@@ -159,7 +165,11 @@ describe("Habitat oclif commands", () => {
         rule: "doc-ambiguity",
         tool: "grit-check",
         staged: true,
-        commandArgs: expect.arrayContaining(["--json", "--rule", "doc-ambiguity"]),
+        command: expect.objectContaining({
+          argv: expect.arrayContaining(["--json", "--rule", "doc-ambiguity"]),
+          bin: "habitat",
+          id: "check",
+        }),
       })
     );
     expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport, {
@@ -198,7 +208,14 @@ describe("Habitat oclif commands", () => {
     await Verify.run(["--base", "HEAD~1"]);
 
     expect(checkReport.createCheckReport).toHaveBeenCalledWith(
-      expect.objectContaining({ base: "HEAD~1", commandArgs: ["--base", "HEAD~1"] })
+      expect.objectContaining({
+        base: "HEAD~1",
+        command: expect.objectContaining({
+          argv: ["--base", "HEAD~1"],
+          bin: "habitat",
+          id: "check",
+        }),
+      })
     );
     expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
       "HEAD~1",
@@ -211,7 +228,14 @@ describe("Habitat oclif commands", () => {
     await Verify.run(["--base", "HEAD~1", "--json"]);
 
     expect(checkReport.createCheckReport).toHaveBeenCalledWith(
-      expect.objectContaining({ base: "HEAD~1", commandArgs: ["--base", "HEAD~1", "--json"] })
+      expect.objectContaining({
+        base: "HEAD~1",
+        command: expect.objectContaining({
+          argv: ["--base", "HEAD~1", "--json"],
+          bin: "habitat",
+          id: "check",
+        }),
+      })
     );
     expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
       "HEAD~1",
