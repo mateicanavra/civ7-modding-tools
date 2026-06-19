@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
+import { rules } from "../../src/rules/architecture.js";
 import {
   parseRuleRegistryDocument,
   parseRuleRegistryText,
   type RuleRegistryDocumentV1,
   type RuleRegistryRecordV1,
 } from "../../src/rules/registry.js";
-import { rules } from "../../src/rules/architecture.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
@@ -13,6 +13,11 @@ describe("rule registry contract", () => {
     expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(32);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(3);
     expect(rules.some((rule) => "hookScope" in rule)).toBe(false);
+    expect(
+      rules
+        .filter((rule) => rule.ownerTool === "grit-check")
+        .every((rule) => rule.scanRoots.length > 0)
+    ).toBe(true);
   });
 
   test("rejects invalid JSON before schema validation", () => {
@@ -105,6 +110,19 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
+            ...baseRule({ ownerTool: "grit-check" }),
+            gritPattern: "sample_pattern",
+          },
+        ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          {
             ...baseRule({ ownerTool: "file-layer" }),
             generatedZone: "generated-zone",
             forbiddenFileNames: ["pnpm-lock.yaml"],
@@ -132,9 +150,7 @@ function expectInvalid(
   if (!result.ok) expect(result.issues.some((issue) => issue.code === code)).toBe(true);
 }
 
-function baseRule(
-  overrides: Partial<RuleRegistryRecordV1> = {}
-): RuleRegistryRecordV1 {
+function baseRule(overrides: Partial<RuleRegistryRecordV1> = {}): RuleRegistryRecordV1 {
   return {
     id: "sample-rule",
     ownerTool: "habitat-native",

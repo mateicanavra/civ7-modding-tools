@@ -375,6 +375,7 @@ function assertRegisteredWrites(
     lane,
     detect: ["habitat", "check", "--tool", "grit-check"],
     gritPattern: manifest.patternName,
+    scanRoots: manifest.scanRoots.include,
     manifestPath,
   });
   if (manifest.hookScope.decision === "pre-commit") {

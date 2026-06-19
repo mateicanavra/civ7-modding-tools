@@ -2,7 +2,11 @@ import type { HabitatDiagnostic } from "../lib/diagnostics.js";
 import { type FileLayerContext, runGeneratedZoneRule } from "../lib/generated-zones.js";
 import { repoRoot } from "../lib/paths.js";
 import { run, type SpawnResult } from "../lib/spawn.js";
-import { activeRuleRegistryDocument, type RuleRegistryRecordV1 } from "./registry.js";
+import {
+  activeRuleRegistryDocument,
+  type RuleRegistryRecordV1,
+  ruleGritFacts,
+} from "./registry.js";
 
 /**
  * The rule pack. Data lives in rules.json (shared with the Nx plugin); this
@@ -11,25 +15,7 @@ import { activeRuleRegistryDocument, type RuleRegistryRecordV1 } from "./registr
  * nx-boundaries and H4 Biome hygiene.
  */
 
-export interface HarnessRule {
-  id: string;
-  ownerTool: RuleRegistryRecordV1["ownerTool"];
-  ownerProject: string;
-  lane: "enforced" | "advisory";
-  scope: string;
-  forbids: string;
-  why: string;
-  detect: string[];
-  nxTarget?: string;
-  remediate: string | null;
-  message: string;
-  exceptionPath: string;
-  gritPattern?: string;
-  manifestPath?: string;
-  generatedZone?: string;
-  forbiddenFileNames?: string[];
-  localFeedback?: { preCommit: true };
-}
+export type HarnessRule = RuleRegistryRecordV1;
 
 export const rules: HarnessRule[] = activeRuleRegistryDocument.rules.map(toHarnessRule);
 
@@ -111,7 +97,8 @@ export async function executeRule(
 ): Promise<RuleRunResult> {
   if (rule.ownerTool === "grit-check") {
     const { runGritRule } = await import("../lib/grit.js");
-    return runGritRule(rule);
+    const [gritRule] = ruleGritFacts([rule]);
+    return runGritRule(gritRule);
   }
   if (rule.ownerTool === "file-layer") return runGeneratedZoneRule(rule, context);
   const res = run(rule.detect, { cwd: repoRoot });

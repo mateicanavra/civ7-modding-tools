@@ -3,6 +3,9 @@ import type { HabitatDiagnostic } from "./diagnostics.js";
 import { repoRoot } from "./paths.js";
 import { run } from "./spawn.js";
 
+type FileLayerRule = Extract<HarnessRule, { ownerTool: "file-layer" }>;
+type ForbiddenFileNameRule = Extract<FileLayerRule, { forbiddenFileNames: readonly string[] }>;
+
 export interface FileLayerContext {
   staged?: boolean;
 }
@@ -37,11 +40,11 @@ export const generatedZones: GeneratedZone[] = [
 ];
 
 export function runGeneratedZoneRule(
-  rule: HarnessRule,
+  rule: FileLayerRule,
   context: FileLayerContext = {}
 ): { exitCode: number; diagnostics: HabitatDiagnostic[] } {
   if (!context.staged) return { exitCode: 0, diagnostics: [] };
-  if (rule.forbiddenFileNames) return runForbiddenFileNameRule(rule);
+  if ("forbiddenFileNames" in rule) return runForbiddenFileNameRule(rule);
   const zone = generatedZones.find((candidate) => candidate.id === rule.generatedZone);
   if (!zone) {
     return {
@@ -69,7 +72,7 @@ export function runGeneratedZoneRule(
   return { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics };
 }
 
-function runForbiddenFileNameRule(rule: HarnessRule): {
+function runForbiddenFileNameRule(rule: ForbiddenFileNameRule): {
   exitCode: number;
   diagnostics: HabitatDiagnostic[];
 } {

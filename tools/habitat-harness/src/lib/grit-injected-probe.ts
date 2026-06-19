@@ -1,7 +1,8 @@
 import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Effect, Layer } from "effect";
-import { type HarnessRule, ruleById, rules } from "../rules/architecture.js";
+import { rules } from "../rules/architecture.js";
+import { type RuleGritFacts, ruleGritFacts } from "../rules/registry.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
 import { type HabitatGitState, readGitState } from "./git-state.js";
@@ -31,7 +32,7 @@ export interface InjectedGritProbeInput {
   expectedDiagnostic?: string;
   scope: InjectedProbeScope;
   processLayer?: Layer.Layer<HabitatProcess>;
-  registry?: readonly HarnessRule[];
+  registry?: readonly RuleGritFacts[];
   requireCleanFinalStatus?: boolean;
 }
 
@@ -78,10 +79,9 @@ export function injectedGritProbeProgram(
     const validationFailure = validateInjectedGritProbeInput(input);
     if (validationFailure) return { ...validationFailure, beforeGitState };
 
-    const registry = input.registry ?? rules;
-    const rule =
-      registry.find((candidate) => candidate.id === input.ruleId) ?? ruleById(input.ruleId);
-    if (!rule || rule.ownerTool !== "grit-check") {
+    const registry = input.registry ?? ruleGritFacts(rules);
+    const rule = registry.find((candidate) => candidate.id === input.ruleId);
+    if (!rule) {
       return failure(
         input,
         "GritAdapterInternalContractViolation",
@@ -138,7 +138,7 @@ export function injectedGritProbeProgram(
 
 function assertInjectedProbeResult(
   input: InjectedGritProbeInput,
-  rule: HarnessRule,
+  rule: RuleGritFacts,
   results: Map<string, { exitCode: number; diagnostics: HabitatDiagnostic[] }>,
   beforeGitState: HabitatGitState,
   afterGitState: HabitatGitState
@@ -258,8 +258,8 @@ function validateInjectedGritProbeInput(
     );
   }
   if (
-    (input.registry ?? rules).find((rule) => rule.id === input.ruleId)?.gritPattern !==
-    input.patternIdentity
+    (input.registry ?? ruleGritFacts(rules)).find((rule) => rule.id === input.ruleId)
+      ?.gritPattern !== input.patternIdentity
   ) {
     return failure(
       input,
