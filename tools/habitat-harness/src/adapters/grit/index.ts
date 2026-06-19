@@ -9,6 +9,7 @@ export {
   gritCheckRequest,
 } from "./request.js";
 export {
+  runGritDiagnosticOutcomes,
   runGritRule,
   runGritRules,
 } from "./runner.js";

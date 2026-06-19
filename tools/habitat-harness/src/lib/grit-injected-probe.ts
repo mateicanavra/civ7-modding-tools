@@ -1,105 +1,64 @@
-import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
-import path from "node:path";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
+import { runGritDiagnosticOutcomes } from "../adapters/grit/index.js";
 import { activeRuleGritFacts } from "../rules/facts.js";
 import type { RuleGritFacts } from "../rules/registry/index.js";
 import {
-  type DiagnosticAdapterFailureKind,
-  diagnosticAdapterFailureFromText,
+  type DiagnosticRunOutcome,
+  diagnosticCatalogEntryFromRuleGritFacts,
+  type GritDiagnosticIdentity,
+  type InjectedProbeOutcome,
 } from "./diagnostic-catalog/index.js";
-import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
-import { type HabitatGitState, readGitState } from "./git-state.js";
-import { runGritRules, validateScanRoots } from "../adapters/grit/index.js";
-import type { HabitatProcess } from "./habitat-process.js";
-import { repoRoot, toRepoRelative } from "./paths.js";
-import { run } from "./spawn.js";
+import type { HabitatGitState } from "./git-state.js";
+import { readGitState } from "./git-state.js";
+import { acquireProbeFile } from "./injected-probe/file-lifecycle.js";
+import {
+  type InjectedGritProbeInput,
+  type InjectedProbeScope,
+  normalizeProbePath,
+  validateInjectedGritProbeInput,
+} from "./injected-probe/input.js";
+import {
+  probeAdapterFailed,
+  probeCleanupFailed,
+  probeProjectionMissed,
+  probeRefused,
+} from "./injected-probe/outcome.js";
+import { repoRoot } from "./paths.js";
 
-export interface InjectedProbeScope {
-  adapterRoot: string;
-  rulesJsonScope: string;
-  sourcePredicate: string;
-  scanRoots: readonly string[];
-  exclusions: readonly string[];
-  matchingProbePath: string;
-  outsideScopeControlPath: string;
-}
-
-export interface InjectedGritProbeInput {
-  ruleId: string;
-  patternIdentity: string;
-  probePath: string;
-  probeBody: string;
-  controlPath: string;
-  controlBody: string;
-  expectedDiagnostic?: string;
-  scope: InjectedProbeScope;
-  processLayer?: Layer.Layer<HabitatProcess>;
-  registry?: readonly RuleGritFacts[];
-  requireCleanFinalStatus?: boolean;
-}
-
-export type InjectedGritProbeResult =
-  | {
-      ok: true;
-      ruleId: string;
-      patternIdentity: string;
-      probePath: string;
-      controlPath: string;
-      diagnostics: HabitatDiagnostic[];
-      beforeGitState: HabitatGitState;
-      afterGitState: HabitatGitState;
-      cleanupRestoredStatus: boolean;
-      finalStatusClean: boolean;
-      validationClass: "injected-violation-diagnostic";
-      limitations: readonly string[];
-    }
-  | InjectedGritProbeFailure;
-
-export interface InjectedGritProbeFailure {
-  ok: false;
-  failureTag: DiagnosticAdapterFailureKind;
-  message: string;
-  ruleId: string;
-  patternIdentity: string;
-  probePath: string;
-  controlPath: string;
-  beforeGitState?: HabitatGitState;
-  afterGitState?: HabitatGitState;
-}
+export type { InjectedProbeOutcome } from "./diagnostic-catalog/index.js";
+export type { InjectedGritProbeInput, InjectedProbeScope } from "./injected-probe/input.js";
 
 export async function runInjectedGritProbe(
   input: InjectedGritProbeInput
-): Promise<InjectedGritProbeResult> {
+): Promise<InjectedProbeOutcome> {
   return runHabitatEffect(injectedGritProbeProgram(input));
 }
 
 export function injectedGritProbeProgram(
   input: InjectedGritProbeInput
-): Effect.Effect<InjectedGritProbeResult> {
+): Effect.Effect<InjectedProbeOutcome> {
   return Effect.gen(function* () {
     const beforeGitState = readGitState(repoRoot);
     const validationFailure = validateInjectedGritProbeInput(input);
-    if (validationFailure) return { ...validationFailure, beforeGitState };
+    if (validationFailure) return validationFailure;
 
     const registry = input.registry ?? activeRuleGritFacts;
     const rule = registry.find((candidate) => candidate.id === input.ruleId);
     if (!rule) {
-      return failure(
-        input,
-        "GritAdapterInternalContractViolation",
-        "Injected diagnostic probe requires a registered Grit check rule.",
-        beforeGitState
+      return probeRefused(
+        "unregistered-rule",
+        "Injected diagnostic probe requires a registered Grit check rule."
       );
     }
 
     const runResult = yield* Effect.scoped(
       Effect.gen(function* () {
-        yield* acquireProbeFile(input.probePath, input.probeBody, input);
-        yield* acquireProbeFile(input.controlPath, input.controlBody, input);
+        yield* acquireProbeFile(input.probePath, input.probeBody);
+        yield* acquireProbeFile(input.controlPath, input.controlBody);
         return yield* Effect.tryPromise({
           try: () =>
-            runGritRules([rule], {
+            runGritDiagnosticOutcomes([rule], {
               scanRoots: input.scope.scanRoots,
               processLayer: input.processLayer,
               cacheMode: "fresh",
@@ -108,298 +67,118 @@ export function injectedGritProbeProgram(
               projection: { rejectUnexpectedPatternIdentity: true },
             }),
           catch: (error) =>
-            failure(
-              input,
+            probeAdapterFailed(
               "GritAdapterInternalContractViolation",
-              `Injected probe adapter execution threw: ${String(error)}.`,
-              beforeGitState
+              `Injected probe adapter execution threw: ${String(error)}.`
             ),
         });
-      }).pipe(
-        Effect.catchAll((error) =>
-          Effect.succeed(
-            error.ok === false
-              ? error
-              : failure(
-                  input,
-                  "GritAdapterInternalContractViolation",
-                  String(error),
-                  beforeGitState
-                )
-          )
-        )
-      )
+      }).pipe(Effect.catchAll((error: InjectedProbeOutcome) => Effect.succeed(error)))
     );
 
-    const afterGitState = readGitState(repoRoot);
-    if (runResult instanceof Map) {
-      return assertInjectedProbeResult(input, rule, runResult, beforeGitState, afterGitState);
-    }
-    return { ...runResult, afterGitState };
+    if (!(runResult instanceof Map)) return runResult;
+    return assertInjectedProbeOutcome(
+      input,
+      rule,
+      runResult,
+      beforeGitState,
+      readGitState(repoRoot)
+    );
   });
 }
 
-function assertInjectedProbeResult(
+function assertInjectedProbeOutcome(
   input: InjectedGritProbeInput,
   rule: RuleGritFacts,
-  results: Map<string, { exitCode: number; diagnostics: HabitatDiagnostic[] }>,
+  outcomes: Map<string, DiagnosticRunOutcome>,
   beforeGitState: HabitatGitState,
   afterGitState: HabitatGitState
-): InjectedGritProbeResult {
-  const result = results.get(rule.id);
-  if (!result) {
-    return failure(
-      input,
-      "GritPatternProjectionMiss",
-      `No result was returned for ${rule.id}.`,
-      beforeGitState,
-      afterGitState
-    );
+): InjectedProbeOutcome {
+  const outcome = outcomes.get(rule.id);
+  const expectedIdentity = diagnosticCatalogEntryFromRuleGritFacts(rule).diagnosticIdentity;
+  if (!outcome) {
+    return probeProjectionMissed(expectedIdentity, `No result was returned for ${rule.id}.`);
   }
 
-  const adapterFailure = findAdapterFailure(result.diagnostics);
-  if (adapterFailure) {
-    return failure(
-      input,
-      adapterFailure,
-      "Adapter failure surfaced during injected diagnostic probe.",
-      beforeGitState,
-      afterGitState
-    );
+  switch (outcome.kind) {
+    case "adapter-failed":
+      return probeAdapterFailed(outcome.failure, outcome.detail);
+    case "projection-missed":
+      return probeProjectionMissed(
+        outcome.expectedIdentity,
+        `Expected unbaselined finding for ${rule.id}.`
+      );
+    case "unexpected-diagnostic-identity":
+      return probeAdapterFailed(
+        "GritUnexpectedDiagnosticIdentity",
+        "Unexpected diagnostic identity surfaced during injected diagnostic probe."
+      );
+    case "clean":
+      return probeProjectionMissed(
+        expectedIdentity,
+        `Expected unbaselined finding for ${rule.id}.`
+      );
+    case "findings":
+      return injectedFindingOutcome(input, outcome, beforeGitState, afterGitState);
   }
+}
 
+function injectedFindingOutcome(
+  input: InjectedGritProbeInput,
+  outcome: Extract<DiagnosticRunOutcome, { kind: "findings" }>,
+  beforeGitState: HabitatGitState,
+  afterGitState: HabitatGitState
+): InjectedProbeOutcome {
   const probeRel = normalizeProbePath(input.probePath);
   const controlRel = normalizeProbePath(input.controlPath);
-  const matchingDiagnostic = result.diagnostics.find(
+  const observedFinding = outcome.diagnostics.find(
     (diagnostic) =>
-      diagnostic.ruleId === rule.id &&
       normalizeProbePath(diagnostic.path) === probeRel &&
-      !diagnostic.baselined &&
+      diagnostic.baselineState === "unbaselined" &&
       (!input.expectedDiagnostic || diagnostic.message.includes(input.expectedDiagnostic))
   );
-  if (!matchingDiagnostic) {
-    return failure(
-      input,
-      "GritPatternProjectionMiss",
-      `Expected unbaselined finding for ${rule.id} at ${probeRel}.`,
-      beforeGitState,
-      afterGitState
+  if (!observedFinding) {
+    return probeProjectionMissed(
+      outcome.entry.diagnosticIdentity,
+      `Expected unbaselined finding for ${outcome.entry.ruleId} at ${probeRel}.`
     );
   }
 
-  const controlDiagnostic = result.diagnostics.find(
+  const controlFinding = outcome.diagnostics.find(
     (diagnostic) => normalizeProbePath(diagnostic.path) === controlRel
   );
-  if (controlDiagnostic) {
-    return failure(
-      input,
-      "GritUnexpectedDiagnosticIdentity",
-      `Outside-scope control probe produced ${rule.id} at ${controlRel}.`,
-      beforeGitState,
-      afterGitState
-    );
+  if (controlFinding) {
+    return {
+      kind: "probe-control-matched",
+      controlPath: controlRel,
+      message: `Outside-scope control probe produced ${outcome.entry.ruleId} at ${controlRel}.`,
+    };
   }
 
-  const cleanupRestoredStatus = beforeGitState.statusDigest === afterGitState.statusDigest;
+  if (beforeGitState.statusDigest !== afterGitState.statusDigest) {
+    return probeCleanupFailed(
+      "not-restored",
+      observedFinding,
+      "Injected diagnostic probe cleanup did not restore the previous Git status."
+    );
+  }
   if (input.requireCleanFinalStatus && afterGitState.dirty) {
-    return failure(
-      input,
-      "GritAdapterInternalContractViolation",
-      "Injected diagnostic probe final status is dirty.",
-      beforeGitState,
-      afterGitState
+    return probeCleanupFailed(
+      "dirty",
+      observedFinding,
+      "Injected diagnostic probe final status is dirty."
     );
   }
 
   return {
-    ok: true,
-    ruleId: rule.id,
-    patternIdentity: input.patternIdentity,
-    probePath: probeRel,
-    controlPath: controlRel,
-    diagnostics: result.diagnostics,
-    beforeGitState,
-    afterGitState,
-    cleanupRestoredStatus,
-    finalStatusClean: !afterGitState.dirty,
+    kind: "probe-diagnostic-observed",
+    ruleId: outcome.entry.ruleId,
+    diagnosticCatalogEntryId: outcome.entry.diagnosticCatalogEntryId,
+    diagnosticIdentity: outcome.entry.diagnosticIdentity,
+    matchingProbePath: probeRel,
+    outsideScopeControlPath: controlRel,
+    observedFinding,
+    cleanup: "restored",
     validationClass: "injected-violation-diagnostic",
-    limitations: [
-      "not-all-grit-rows-validation",
-      "not-baseline-authority",
-      "not-apply-transaction",
-      "not-product-runtime",
-    ],
+    limitations: outcome.entry.limitations,
   };
-}
-
-function validateInjectedGritProbeInput(
-  input: InjectedGritProbeInput
-): InjectedGritProbeFailure | null {
-  for (const [field, value] of [
-    ["adapterRoot", input.scope.adapterRoot],
-    ["rulesJsonScope", input.scope.rulesJsonScope],
-    ["sourcePredicate", input.scope.sourcePredicate],
-    ["matchingProbePath", input.scope.matchingProbePath],
-    ["outsideScopeControlPath", input.scope.outsideScopeControlPath],
-  ] as const) {
-    if (value.trim().length === 0) {
-      return failure(
-        input,
-        "GritAdapterInternalContractViolation",
-        `Injected probe metadata is missing ${field}.`
-      );
-    }
-  }
-  if (
-    input.scope.matchingProbePath !== input.probePath ||
-    input.scope.outsideScopeControlPath !== input.controlPath
-  ) {
-    return failure(
-      input,
-      "GritAdapterInternalContractViolation",
-      "Injected probe metadata paths do not match requested probe paths."
-    );
-  }
-  if (
-    (input.registry ?? activeRuleGritFacts).find((rule) => rule.id === input.ruleId)
-      ?.gritPattern !== input.patternIdentity
-  ) {
-    return failure(
-      input,
-      "GritAdapterInternalContractViolation",
-      "Injected probe pattern identity does not match rules.json."
-    );
-  }
-  const scanRootFailure = validateScanRoots(input.scope.scanRoots, {
-    allowInjectedProbeRoot: true,
-  });
-  if (scanRootFailure) return failure(input, "GritEmptyScanRoots", scanRootFailure);
-  for (const probePath of [input.probePath, input.controlPath]) {
-    const pathFailure = validateProbePath(probePath, input.scope.scanRoots);
-    if (pathFailure) return failure(input, "GritAdapterInternalContractViolation", pathFailure);
-  }
-  if (normalizeProbePath(input.probePath) === normalizeProbePath(input.controlPath)) {
-    return failure(
-      input,
-      "GritAdapterInternalContractViolation",
-      "Probe and control paths must be distinct."
-    );
-  }
-  return null;
-}
-
-function validateProbePath(probePath: string, scanRoots: readonly string[]): string | null {
-  const relative = normalizeProbePath(probePath);
-  if (relative === ".." || relative.startsWith("../")) {
-    return `Injected probe path is outside the repo: ${probePath}.`;
-  }
-  if (!scanRoots.some((scanRoot) => relative === scanRoot || relative.startsWith(`${scanRoot}/`))) {
-    return `Injected probe path is outside the effective scan roots: ${relative}.`;
-  }
-  if (!hasProbeOwnershipMarker(relative)) {
-    return `Injected probe path must include a probe-owned __habitat path segment: ${relative}.`;
-  }
-  const parent = path.dirname(relative);
-  const scanRootFailure = validateScanRoots([parent], {
-    requireExisting: false,
-    allowInjectedProbeRoot: true,
-  });
-  if (scanRootFailure) return scanRootFailure.replace("Grit scan root", "Injected probe parent");
-  if (existsSync(path.join(repoRoot, relative))) {
-    return `Injected probe path already exists: ${relative}.`;
-  }
-  const ignored = run(["git", "check-ignore", "--quiet", relative], { cwd: repoRoot });
-  if (ignored.exitCode === 0) return `Injected probe path is ignored by Git: ${relative}.`;
-  return null;
-}
-
-function acquireProbeFile(probePath: string, body: string, input: InjectedGritProbeInput) {
-  return Effect.acquireRelease(
-    Effect.try({
-      try: () => {
-        const relative = normalizeProbePath(probePath);
-        const absolute = path.join(repoRoot, relative);
-        const createdDirs = ensureProbeParentDirs(path.dirname(absolute));
-        writeFileSync(absolute, body);
-        return { relative, createdDirs };
-      },
-      catch: (error) =>
-        failure(
-          input,
-          "GritAdapterInternalContractViolation",
-          `Failed to create injected probe ${probePath}: ${String(error)}.`
-        ),
-    }),
-    ({ relative, createdDirs }) =>
-      Effect.sync(() => {
-        rmSync(path.join(repoRoot, relative), { force: true });
-        for (const dir of createdDirs) {
-          try {
-            rmdirSync(dir);
-          } catch (error) {
-            if (!isIgnorableDirectoryCleanupError(error)) throw error;
-          }
-        }
-      })
-  );
-}
-
-function ensureProbeParentDirs(parentDir: string): string[] {
-  const createdDirs: string[] = [];
-  let current = parentDir;
-  while (!existsSync(current)) {
-    createdDirs.push(current);
-    const next = path.dirname(current);
-    if (next === current) break;
-    current = next;
-  }
-  mkdirSync(parentDir, { recursive: true });
-  return createdDirs;
-}
-
-function isIgnorableDirectoryCleanupError(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error.code === "ENOENT" || error.code === "ENOTEMPTY")
-  );
-}
-
-function hasProbeOwnershipMarker(relative: string): boolean {
-  return relative.split(/[\\/]+/).some((segment) => segment.startsWith("__habitat"));
-}
-
-function findAdapterFailure(
-  diagnostics: readonly HabitatDiagnostic[]
-): DiagnosticAdapterFailureKind | null {
-  for (const diagnostic of diagnostics) {
-    const failureKind = diagnosticAdapterFailureFromText(diagnostic.message);
-    if (failureKind) return failureKind;
-  }
-  return null;
-}
-
-function failure(
-  input: Pick<InjectedGritProbeInput, "ruleId" | "patternIdentity" | "probePath" | "controlPath">,
-  failureTag: DiagnosticAdapterFailureKind,
-  message: string,
-  beforeGitState?: HabitatGitState,
-  afterGitState?: HabitatGitState
-): InjectedGritProbeFailure {
-  return {
-    ok: false,
-    failureTag,
-    message,
-    ruleId: input.ruleId,
-    patternIdentity: input.patternIdentity,
-    probePath: normalizeProbePath(input.probePath),
-    controlPath: normalizeProbePath(input.controlPath),
-    beforeGitState,
-    afterGitState,
-  };
-}
-
-function normalizeProbePath(probePath: string): string {
-  return toRepoRelative(probePath).replace(/^\.\//, "");
 }
