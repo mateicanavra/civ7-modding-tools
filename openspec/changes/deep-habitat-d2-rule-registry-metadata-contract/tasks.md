@@ -25,7 +25,7 @@
 ## 4. Projection Slice
 
 - [ ] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, consumer-specific execution projections (`ruleCommandExecutionFacts`, `ruleGritFacts`, `ruleFileLayerFacts`), `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
-  - Progress: selector/report, command execution, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Routing, graph, baseline, and governance projections remain open and should be added only with their consumer migrations.
+  - Progress: selector/report, command execution, routing, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Graph, baseline, and governance projections remain open and should be added only with their consumer migrations.
 - [ ] 4.2 Add projection tests that assert each consumer receives only permitted fields.
 - [ ] 4.3 Add whole-row leakage tests or compile-time checks for consumers with D2 projections.
 - [ ] 4.4 Add malformed projection tests for identity, routing, graph, baseline, Grit, generated-zone, governance, and local-feedback failures.
@@ -34,7 +34,7 @@
 
 - [x] 5.1 Migrate selector and check report code in `rule-selection.ts` and `check-report.ts` to `ruleSelectorFacts` and `ruleReportFacts`.
 - [x] 5.2 Migrate execution dispatch to consumer-specific command, Grit, and file-layer projections instead of whole registry rows or a synthetic execution DTO.
-- [ ] 5.3 Migrate classify routing to `ruleRoutingFacts` and remove prose `scope` parsing as authority.
+- [x] 5.3 Migrate classify routing to `ruleRoutingFacts` and remove prose `scope` parsing as authority.
 - [ ] 5.4 Migrate `plugin.js` to `ruleGraphFacts`, removing independent `OWNER_ROOTS` authority, silent owner skips, and colon-string target parsing.
 - [ ] 5.5 Migrate baseline consumers to `ruleBaselineFacts` without moving D5-owned shrink/growth/debt decisions into D2.
 - [x] 5.6 Migrate Grit consumers to `ruleGritFacts`, removing missing-pattern fallback to rule id and prose-scope scan inference.
@@ -48,8 +48,8 @@
 ## 6. Deletion And Compatibility Slice
 
 - [ ] 6.1 Delete consumer-local registry parsers where D2 projections replace them.
-- [ ] 6.2 Delete prose `scope` routing authority and tests that preserve prose parsing as a positive behavior.
-  - Progress: Grit scan-root selection no longer parses prose `scope`; classify routing still parses compatibility `scope` and remains open for the routing slice.
+- [x] 6.2 Delete prose `scope` routing authority and tests that preserve prose parsing as a positive behavior.
+  - Completed: Grit scan-root selection and classify routing consume typed registry fields (`scanRoots` and `pathCoverage`) instead of parsing compatibility `scope` prose.
 - [ ] 6.3 Delete graph owner-root fallback/silent skip paths after graph projection coverage exists.
 - [x] 6.4 Delete optional-field fallback behavior such as `gritPattern ?? id`.
 - [ ] 6.5 Keep public legacy output only through D0-cited compatibility facades.

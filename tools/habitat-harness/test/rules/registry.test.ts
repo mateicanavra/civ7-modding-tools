@@ -9,6 +9,7 @@ import {
   ruleFileLayerFacts,
   ruleGritFacts,
   ruleLocalFeedbackFacts,
+  ruleRoutingFacts,
 } from "../../src/rules/registry.js";
 
 describe("rule registry contract", () => {
@@ -22,6 +23,7 @@ describe("rule registry contract", () => {
         .filter((rule) => rule.ownerTool === "grit-check")
         .every((rule) => rule.scanRoots.length > 0)
     ).toBe(true);
+    expect(rules.every((rule) => rule.pathCoverage.length > 0)).toBe(true);
   });
 
   test("rejects invalid JSON before schema validation", () => {
@@ -91,6 +93,34 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(registryDocument([missingId]), "inline-registry.json"),
       "registry-schema-invalid"
     );
+  });
+
+  test("rejects missing routing facts", () => {
+    const { pathCoverage: _pathCoverage, ...missingRouting } = baseRule();
+
+    expectInvalid(
+      parseRuleRegistryDocument(registryDocument([missingRouting]), "inline-registry.json"),
+      "registry-schema-invalid"
+    );
+  });
+
+  test("rejects malformed routing facts", () => {
+    for (const pathCoverage of [
+      [{ kind: "exact-path" }],
+      [{ kind: "exact-path", patterns: [] }],
+      [{ kind: "project-owner", patterns: ["packages/**"] }],
+      [{ kind: "workspace-gate", reason: "extra state" }],
+      [{ kind: "unresolved-metadata" }],
+      [{ kind: "unknown-routing-state" }],
+    ]) {
+      expectInvalid(
+        parseRuleRegistryDocument(
+          registryDocument([{ ...baseRule(), pathCoverage }]),
+          "inline-registry.json"
+        ),
+        "registry-schema-invalid"
+      );
+    }
   });
 
   test("rejects contradicted variant fields", () => {
@@ -206,6 +236,25 @@ describe("rule registry contract", () => {
       },
     ]);
   });
+
+  test("projects routing facts without prose scope", () => {
+    const sourceRule = baseRule({
+      pathCoverage: [{ kind: "exact-path", patterns: ["packages/**"] }],
+    });
+    const projected = ruleRoutingFacts([sourceRule]);
+
+    expect(projected).toEqual([
+      {
+        id: "sample-rule",
+        ownerTool: "habitat-native",
+        ownerProject: "@internal/habitat-harness",
+        pathCoverage: [{ kind: "exact-path", patterns: ["packages/**"] }],
+      },
+    ]);
+    const [coverage] = projected[0]?.pathCoverage ?? [];
+    if (coverage?.kind === "exact-path") coverage.patterns.push("apps/**");
+    expect(sourceRule.pathCoverage).toEqual([{ kind: "exact-path", patterns: ["packages/**"] }]);
+  });
 });
 
 function registryDocument(rules: unknown[]): RuleRegistryDocumentV1 {
@@ -236,6 +285,7 @@ function baseRule(overrides: Partial<RuleRegistryRecordV1> = {}): RuleRegistryRe
     remediate: null,
     message: "Fix the structural issue.",
     exceptionPath: "none",
+    pathCoverage: [{ kind: "project-owner" }],
     ...overrides,
   } as RuleRegistryRecordV1;
 }

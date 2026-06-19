@@ -209,7 +209,7 @@ describe("Habitat classify", () => {
     expect(result.rulesInScope).not.toContain("grit-studio-recipe-artifacts");
   });
 
-  test("does not scrape excluded prose scopes into exact matches", async () => {
+  test("does not treat unresolved routing metadata as an exact path match", async () => {
     const result = await classifyPath("packages/civ7-adapter/src/index.ts", {
       nxProjects: fixtureNxProjects,
     });
@@ -223,7 +223,7 @@ describe("Habitat classify", () => {
     );
   });
 
-  test("preserves exact matches for pure machine-readable glob scopes", async () => {
+  test("reports exact matches from typed path coverage", async () => {
     const result = await classifyPath("packages/mapgen-core/src/core/index.ts", {
       nxProjects: fixtureNxProjects,
     });

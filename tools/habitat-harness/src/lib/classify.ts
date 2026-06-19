@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { type HarnessRule, rules } from "../rules/architecture.js";
+import { rules } from "../rules/architecture.js";
+import { type RuleRoutingFacts, ruleRoutingFacts } from "../rules/registry.js";
 import {
   findOwningProject,
   NxProjectGraphMetadataReader,
@@ -126,115 +127,63 @@ function classifyPathWithProjects(
 }
 
 function rulesInScopeForPath(pathInRepo: string, owner: NxProjectMetadata): ScopedRule[] {
-  return rules
+  return ruleRoutingFacts(rules)
     .map((rule) => classifyRuleScope(rule, pathInRepo, owner))
     .filter((rule): rule is ScopedRule => Boolean(rule))
     .sort((a, b) => a.ruleId.localeCompare(b.ruleId));
 }
 
 function classifyRuleScope(
-  rule: HarnessRule,
+  rule: RuleRoutingFacts,
   pathInRepo: string,
   owner: NxProjectMetadata
 ): ScopedRule | undefined {
-  const matchedPattern = scopePathPatterns(rule).find((pattern) =>
-    scopePatternMatches(pattern, pathInRepo)
-  );
-  if (matchedPattern) {
-    return {
-      ruleId: rule.id,
-      ownerTool: rule.ownerTool,
-      ownerProject: rule.ownerProject,
-      scope: "exact-path",
-      reason: `Path matches rule scope pattern ${matchedPattern}.`,
-    };
-  }
-
-  if (rule.ownerProject === owner.name) {
-    if (requiresExplicitScanRoot(rule)) {
+  for (const coverage of rule.pathCoverage) {
+    if (coverage.kind === "exact-path") {
+      const matchedPattern = coverage.patterns.find((pattern) =>
+        scopePatternMatches(pattern, pathInRepo)
+      );
+      if (matchedPattern) {
+        return {
+          ruleId: rule.id,
+          ownerTool: rule.ownerTool,
+          ownerProject: rule.ownerProject,
+          scope: "exact-path",
+          reason: `Path matches rule pathCoverage pattern ${matchedPattern}.`,
+        };
+      }
+      continue;
+    }
+    if (coverage.kind === "project-owner" && rule.ownerProject === owner.name) {
+      return {
+        ruleId: rule.id,
+        ownerTool: rule.ownerTool,
+        ownerProject: rule.ownerProject,
+        scope: "project-owner",
+        reason: `Rule owner project matches ${owner.name}.`,
+      };
+    }
+    if (coverage.kind === "workspace-gate") {
+      return {
+        ruleId: rule.id,
+        ownerTool: rule.ownerTool,
+        ownerProject: rule.ownerProject,
+        scope: "workspace-gate",
+        reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
+      };
+    }
+    if (coverage.kind === "unresolved-metadata" && rule.ownerProject === owner.name) {
       return {
         ruleId: rule.id,
         ownerTool: rule.ownerTool,
         ownerProject: rule.ownerProject,
         scope: "unresolved-metadata",
-        reason:
-          "Rule is owned by the project, but current metadata is not precise enough for exact path scope.",
+        reason: coverage.reason,
       };
     }
-    return {
-      ruleId: rule.id,
-      ownerTool: rule.ownerTool,
-      ownerProject: rule.ownerProject,
-      scope: "project-owner",
-      reason: `Rule owner project matches ${owner.name}.`,
-    };
-  }
-
-  if (isWorkspaceGate(rule)) {
-    return {
-      ruleId: rule.id,
-      ownerTool: rule.ownerTool,
-      ownerProject: rule.ownerProject,
-      scope: "workspace-gate",
-      reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
-    };
   }
 
   return undefined;
-}
-
-function requiresExplicitScanRoot(rule: HarnessRule): boolean {
-  return rule.ownerTool === "grit-check" || rule.ownerTool === "wrapped-test";
-}
-
-function isWorkspaceGate(rule: HarnessRule): boolean {
-  if (rule.ownerProject !== "@internal/habitat-harness") return false;
-  const scope = rule.scope.toLowerCase();
-  return (
-    scope.includes("all ") ||
-    scope.includes("live repo") ||
-    scope.includes("workspace") ||
-    scope.includes("staged ") ||
-    scope.includes("package.json") ||
-    scope.includes("docs/") ||
-    scope.includes("package-manager")
-  );
-}
-
-function scopePathPatterns(rule: HarnessRule): string[] {
-  if (!scopeIsMachineParseable(rule.scope)) return [];
-  const patterns: string[] = [];
-  const matches = rule.scope.matchAll(/\b(apps|docs|mods|packages|scripts|tools)\/[^\s;)]+/g);
-  for (const match of matches) {
-    const pattern = trimScopePattern(match[0]);
-    if (pattern) patterns.push(...expandScopePattern(pattern));
-  }
-  return [...new Set(patterns)];
-}
-
-function scopeIsMachineParseable(scope: string): boolean {
-  const normalized = scope.toLowerCase();
-  const unmodeledQualifiers = [
-    " outside ",
-    " except ",
-    " excluding ",
-    " and root ",
-    " or root ",
-    " and ",
-    " or ",
-  ];
-  return !unmodeledQualifiers.some((qualifier) => normalized.includes(qualifier));
-}
-
-function trimScopePattern(pattern: string): string {
-  return pattern.replace(/[,.]+$/g, "").replace(/^`|`$/g, "");
-}
-
-function expandScopePattern(pattern: string): string[] {
-  const brace = pattern.match(/^(.*)\{([^{}]+)\}(.*)$/);
-  if (!brace) return [pattern];
-  const [, prefix, values, suffix] = brace;
-  return values.split(",").flatMap((value) => expandScopePattern(`${prefix}${value}${suffix}`));
 }
 
 function scopePatternMatches(pattern: string, pathInRepo: string): boolean {

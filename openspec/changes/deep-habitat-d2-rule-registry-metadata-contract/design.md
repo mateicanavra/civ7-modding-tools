@@ -134,7 +134,7 @@ Variant constraints:
 | `habitat-native` | command execution facts, routing, graph, baseline state | built-in/native rule without an execution/report contract |
 | `wrapped-script` | command execution facts, routing, graph, baseline state | shell rule with missing command metadata |
 | `wrapped-test` | structured `GraphTargetReference`/execution target | wrapped test with missing or colon-parsed `nxTarget` |
-| `grit-check` | `GritPatternReference`, scan metadata, local-feedback eligibility, governance relation | Grit rule without `gritPattern`, hidden id fallback, global optional `hookScope` |
+| `grit-check` | `GritPatternReference`, scan metadata, governance relation, optional local-feedback eligibility | Grit rule without `gritPattern`, hidden id fallback, global optional `hookScope` |
 | `file-layer` | exactly one of `ProtectedZoneReference` or forbidden-file-name policy | file-layer rule with neither or both generated-zone and file-name policy |
 | `biome` | workspace target execution, graph alias facts | special-case alias outside registry facts |
 | `nx-boundaries` | workspace target execution, graph alias facts | special-case alias outside registry facts |
@@ -172,7 +172,7 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | PathCoverage | machine applicability | path globs, project-owner, workspace-gate, or explicit unresolved state | raw `scope` as authority | `unresolved-routing-metadata` | classify, D4, D7 |
 | GraphTargetReference | declared graph target metadata | owner project/root relation, alias policy, structured dependency target | `OWNER_ROOTS`, colon parsing | `graph-metadata-contract-failure` | D3, plugin, classify target listing |
 | BaselineReference | registry relation to baseline authority | baseline file/external/no-baseline state, introduction reference where required | file-presence-only admission | baseline contract failure through D5/D1 | D5, D7, D8 |
-| GritPatternReference | Grit pattern and scan metadata | pattern name, scan roots/exclusions, hook eligibility | pattern id fallback, Grit prose/frontmatter | `grit-metadata-contract-failure` | D6, D7, D8 |
+| GritPatternReference | Grit pattern and scan metadata | pattern name, scan roots/exclusions | pattern id fallback, Grit prose/frontmatter, local-feedback eligibility | `grit-metadata-contract-failure` | D6, D7, D8 |
 | ProtectedZoneReference | generated/protected-zone or file-name policy relation | zone id plus host declaration link, or forbidden filename policy | local protected-zone policy | `generated-zone-metadata-contract-failure` | G-HOST, D10, D7, D13 |
 | PatternAuthorityReference | registry-to-governance relation | manifest path/status projection when registered | governance admission decision | `pattern-authority-contract-failure` | D8, D13 |
 | LocalFeedbackEligibility | local staged feedback eligibility declaration | not eligible, pre-commit eligible, or refused staged scope | hook execution behavior | `local-feedback-metadata-failure` | D11, hooks |

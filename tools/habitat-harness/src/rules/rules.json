@@ -13,7 +13,15 @@
       "detect": ["bun", "tools/habitat-harness/src/rules/native/workspace-entrypoints.mjs"],
       "remediate": null,
       "message": "Move workspace orchestration into root Nx scripts; keep package-local scripts leaf-local.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "mapgen-docs",
@@ -26,7 +34,19 @@
       "detect": ["python3", "./scripts/lint/lint-mapgen-docs.py"],
       "remediate": null,
       "message": "Fix the reported doc anchors/toc; see docs/system/libs/mapgen/MAPGEN.md conventions.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["docs/system/libs/mapgen/**"]
+        },
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "adapter-boundary",
@@ -39,7 +59,16 @@
       "detect": ["./scripts/lint/lint-adapter-boundary.sh"],
       "remediate": null,
       "message": "Move the /base-standard/ import into @civ7/adapter, or (with a tracking issue) extend the allowlist in scripts/lint/lint-adapter-boundary.sh.",
-      "exceptionPath": "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST (transitional; migrates to baselines/ in H5)"
+      "exceptionPath": "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST (transitional; migrates to baselines/ in H5)",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["packages/**"]
+        },
+        {
+          "kind": "project-owner"
+        }
+      ]
     },
     {
       "id": "domain-refactor-guardrails",
@@ -52,7 +81,16 @@
       "detect": ["./scripts/lint/lint-domain-refactor-guardrails.sh"],
       "remediate": null,
       "message": "Route the import through the domain public surface (@mapgen/domain/<d>, /ops, /config.js).",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**"]
+        },
+        {
+          "kind": "project-owner"
+        }
+      ]
     },
     {
       "id": "normalization-guardrails",
@@ -65,7 +103,12 @@
       "detect": ["bun", "tools/habitat-harness/src/rules/native/normalization-guardrails.mjs"],
       "remediate": null,
       "message": "The failing normalization guard names its own remediation.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "project-owner"
+        }
+      ]
     },
     {
       "id": "grit-contract-export-all",
@@ -87,6 +130,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -109,7 +158,15 @@
       ],
       "remediate": null,
       "message": "Fix the import edge or revise taxonomy.md and eslint.boundaries.config.mjs together with recorded provenance; do not weaken the boundary config ad hoc.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "biome-ci",
@@ -122,7 +179,15 @@
       "detect": ["biome", "ci", "."],
       "remediate": "bun run habitat:fix",
       "message": "Run `bun run habitat:fix` or `biome check --write .`; keep generated/protected zones excluded in biome.json.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "grit-domain-deep-import",
@@ -144,6 +209,17 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": [
+            "mods/*/src/recipes/**/*.ts",
+            "mods/*/src/maps/**/*.ts",
+            "mods/*/src/recipes/**/*.tsx",
+            "mods/*/src/maps/**/*.tsx"
+          ]
+        }
       ]
     },
     {
@@ -166,6 +242,17 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": [
+            "mods/*/src/recipes/**/*.ts",
+            "mods/*/src/maps/**/*.ts",
+            "mods/*/src/recipes/**/*.tsx",
+            "mods/*/src/maps/**/*.tsx"
+          ]
+        }
       ]
     },
     {
@@ -190,7 +277,18 @@
         "mods/mod-swooper-maps/src/domain",
         "mods/mod-swooper-maps/test"
       ],
-      "expandIgnoredTestDirectories": true
+      "expandIgnoredTestDirectories": true,
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": [
+            "mods/mod-swooper-maps/test/**/*.ts",
+            "mods/mod-swooper-maps/test/**/*.tsx",
+            "packages/*/test/**/*.ts",
+            "packages/*/test/**/*.tsx"
+          ]
+        }
+      ]
     },
     {
       "id": "grit-recipe-domain-surface",
@@ -212,6 +310,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/recipes/**/*.ts"]
+        }
       ]
     },
     {
@@ -234,6 +338,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["apps/mapgen-studio/src/**/*.ts", "apps/mapgen-studio/src/**/*.tsx"]
+        }
       ]
     },
     {
@@ -256,6 +366,15 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": [
+            "mods/*/src/recipes/**/stages/**/steps/**/contract.ts",
+            "mods/*/src/recipes/**/stages/**/steps/**/*.contract.ts"
+          ]
+        }
       ]
     },
     {
@@ -278,6 +397,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/*/src/recipes/**/recipe.ts"]
+        }
       ]
     },
     {
@@ -300,6 +425,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -322,6 +453,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -344,6 +481,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -366,6 +509,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"]
+        }
       ]
     },
     {
@@ -388,6 +537,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**/*.ts"]
+        }
       ]
     },
     {
@@ -410,6 +565,15 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": [
+            "mods/mod-swooper-maps/src/recipes/standard/stages/**/contract.ts",
+            "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.contract.ts"
+          ]
+        }
       ]
     },
     {
@@ -432,6 +596,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -454,6 +624,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -476,6 +652,15 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": [
+            "packages/mapgen-core/src/core/**/*.ts",
+            "packages/mapgen-core/src/engine/**/*.ts"
+          ]
+        }
       ]
     },
     {
@@ -498,6 +683,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+        }
       ]
     },
     {
@@ -520,6 +711,15 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": [
+            "mods/mod-swooper-maps/src/domain/**/tags.ts",
+            "mods/mod-swooper-maps/src/domain/**/artifacts.ts"
+          ]
+        }
       ]
     },
     {
@@ -542,6 +742,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -564,6 +770,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -586,6 +798,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -608,6 +826,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -630,6 +854,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["apps/**/*.ts", "apps/**/*.tsx", "packages/**/*.ts", "packages/**/*.tsx"]
+        }
       ]
     },
     {
@@ -652,6 +882,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -674,6 +910,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
       ]
     },
     {
@@ -696,6 +938,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
+        }
       ]
     },
     {
@@ -718,6 +966,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
+        }
       ]
     },
     {
@@ -740,6 +994,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
+        }
       ]
     },
     {
@@ -762,6 +1022,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
+        }
       ]
     },
     {
@@ -784,6 +1050,12 @@
         "mods/mod-swooper-maps/src/recipes",
         "mods/mod-swooper-maps/src/maps",
         "mods/mod-swooper-maps/src/domain"
+      ],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"]
+        }
       ]
     },
     {
@@ -798,7 +1070,19 @@
       "remediate": "bun run --cwd mods/mod-swooper-maps gen:maps",
       "message": "Generated Swooper map entrypoints are protected from hand edit.",
       "exceptionPath": "none",
-      "generatedZone": "swooper-map-generated"
+      "generatedZone": "swooper-map-generated",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/src/maps/generated/**"]
+        },
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "file-layer-civ7-types-generated",
@@ -812,7 +1096,19 @@
       "remediate": "Use the resources workflow documented in docs/process/resources-submodule.md.",
       "message": "Generated Civ7 declaration files are protected from hand edit.",
       "exceptionPath": "none",
-      "generatedZone": "civ7-types-generated"
+      "generatedZone": "civ7-types-generated",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["packages/civ7-types/generated/**"]
+        },
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "file-layer-civ7-map-policy-tables",
@@ -826,7 +1122,19 @@
       "remediate": "nx run @civ7/map-policy:verify -- --write",
       "message": "Generated Civ7 map-policy tables are protected from hand edit.",
       "exceptionPath": "none",
-      "generatedZone": "civ7-map-policy-tables"
+      "generatedZone": "civ7-map-policy-tables",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["packages/civ7-map-policy/src/civ7-tables.gen.ts"]
+        },
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "file-layer-pnpm-artifacts",
@@ -840,7 +1148,15 @@
       "remediate": "Remove pnpm artifacts and use `bun install` so bun.lock remains the only package-manager lockfile.",
       "message": "pnpm artifacts are forbidden in this Bun-only repo.",
       "exceptionPath": "none",
-      "forbiddenFileNames": ["pnpm-lock.yaml", "pnpm-workspace.yaml"]
+      "forbiddenFileNames": ["pnpm-lock.yaml", "pnpm-workspace.yaml"],
+      "pathCoverage": [
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "arch-test-core-purity",
@@ -859,7 +1175,13 @@
       "nxTarget": "@swooper/mapgen-core:test:architecture-core-purity",
       "remediate": null,
       "message": "Remove the Civ7 runtime reference; use adapter types only.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["packages/mapgen-core"]
+        }
+      ]
     },
     {
       "id": "arch-test-rng-authority",
@@ -878,7 +1200,13 @@
       "nxTarget": "mod-swooper-maps:test:architecture-rng-authority",
       "remediate": null,
       "message": "Use the recipe RNG authority, never engine RNG.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
+      ]
     },
     {
       "id": "arch-test-ecology-step-imports",
@@ -897,7 +1225,13 @@
       "nxTarget": "mod-swooper-maps:test:architecture-ecology-step-imports",
       "remediate": null,
       "message": "Compose via the recipe layer; do not resurrect retired stage directories.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps"]
+        }
+      ]
     },
     {
       "id": "arch-test-m11-projection-band",
@@ -916,7 +1250,13 @@
       "nxTarget": "mod-swooper-maps:test:architecture-m11-projection-band",
       "remediate": null,
       "message": "Projection algorithm regression; see the test for the expected band.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "unresolved-metadata",
+          "reason": "Rule requires explicit typed path coverage before exact classify routing."
+        }
+      ]
     },
     {
       "id": "arch-test-map-bundle-runtime-imports",
@@ -935,7 +1275,13 @@
       "nxTarget": "mod-swooper-maps:test:architecture-map-bundle-runtime-imports",
       "remediate": "nx run mod-swooper-maps:build",
       "message": "Rebuild mod-swooper-maps; if it persists, the bundling config regressed.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps/mod/**"]
+        }
+      ]
     },
     {
       "id": "arch-test-intelligence-bridge-bundle-runtime-imports",
@@ -954,7 +1300,13 @@
       "nxTarget": "mod-civ7-intelligence-bridge:test:architecture-bundle-runtime-imports",
       "remediate": "nx run mod-civ7-intelligence-bridge:build",
       "message": "Rebuild or narrow the Civ7 intelligence bridge UI bundle so it stays game-runtime safe.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js"]
+        }
+      ]
     },
     {
       "id": "arch-test-cutover",
@@ -968,7 +1320,13 @@
       "nxTarget": "mod-swooper-maps:test:architecture-cutover",
       "remediate": null,
       "message": "See the failing cutover test output for the violated invariant.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["mods/mod-swooper-maps"]
+        }
+      ]
     },
     {
       "id": "docs-local-checkout-paths",
@@ -983,7 +1341,16 @@
       "message": "Replace local absolute docs paths with durable repo-relative docs paths.",
       "exceptionPath": "none",
       "gritPattern": "docs_local_checkout_paths",
-      "scanRoots": ["docs"]
+      "scanRoots": ["docs"],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["docs/**/*.md"]
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "adr-lint",
@@ -996,7 +1363,19 @@
       "detect": ["bun", "tools/habitat-harness/src/rules/native/doc-adrs.mjs", "--json"],
       "remediate": null,
       "message": "Fix the ADR frontmatter/heading shape.",
-      "exceptionPath": "none"
+      "exceptionPath": "none",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["docs/projects/*/resources/spec/adr/"]
+        },
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     },
     {
       "id": "doc-ambiguity",
@@ -1009,7 +1388,19 @@
       "detect": ["bun", "tools/habitat-harness/src/rules/native/doc-ambiguity.mjs"],
       "remediate": null,
       "message": "Reduce flagged ambiguity or update docs/.doc-ambiguity-lint-baseline.json per that tool's workflow.",
-      "exceptionPath": "docs/.doc-ambiguity-lint-baseline.json"
+      "exceptionPath": "docs/.doc-ambiguity-lint-baseline.json",
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["docs/**"]
+        },
+        {
+          "kind": "project-owner"
+        },
+        {
+          "kind": "workspace-gate"
+        }
+      ]
     }
   ]
 }
