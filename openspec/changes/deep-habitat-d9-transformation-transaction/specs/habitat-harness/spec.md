@@ -6,16 +6,16 @@ Habitat SHALL model `habitat fix` structural rewrites as a closed
 `Transformation Transaction` state family rather than as `ok: boolean` plus
 nullable command/proof fields.
 
-#### Scenario: Transaction result is projected for compatibility
-- **WHEN** legacy `GritApplyTransactionResult` or `GritApplyTransactionProof`
-  surfaces remain exported or rendered
-- **THEN** they SHALL be D0/D1 compatibility projections from
-  `ApplyTransactionRecord`
-- **AND** they SHALL NOT be the authoritative target state.
+#### Scenario: Old transaction exports are removed
+- **WHEN** D9 replaces the previous `GritApplyTransactionResult` or
+  `GritApplyTransactionProof` surfaces
+- **THEN** it SHALL remove those exports instead of preserving wrappers
+- **AND** it SHALL keep the authoritative target state inside the D9
+  Transformation Transaction model.
 
 #### Scenario: Terminal outcome is rendered
-- **WHEN** command rendering, package export projection, or legacy compatibility
-  wrapping consumes a transaction outcome
+- **WHEN** command rendering or downstream projection consumes a transaction
+  outcome
 - **THEN** the implementation SHALL use exhaustive discriminated-state handling
   that fails compilation when a new terminal outcome is not rendered.
 
@@ -261,19 +261,19 @@ write-set approval.
 - **THEN** D9 SHALL approve it only through the source lane and any required
   host/pattern gate.
 
-### Requirement: Public Fix Output Is Compatibility-Controlled
+### Requirement: Public Fix Output Is D0-Controlled
 
 Habitat SHALL expose `habitat fix` transaction output only through D0-backed
-compatibility decisions.
+public contract decisions.
 
 #### Scenario: Existing fix command is used
 - **WHEN** `habitat fix` or `habitat fix --dry-run` behavior is preserved
 - **THEN** D9 SHALL cite D0 rows for the command surface and output/exit
-  compatibility before source implementation changes it.
+  public contract handling before source implementation changes it.
 
 #### Scenario: JSON output is added
 - **WHEN** D9 adds a `--json` flag or JSON output
-- **THEN** D9 SHALL require D0 compatibility disposition, schema version, stable
+- **THEN** D9 SHALL require D0 public contract disposition, schema version, stable
   terminal `kind`, non-claim identifiers, recovery shape, and bad-case JSON
   tests.
 
@@ -284,7 +284,7 @@ compatibility decisions.
 ### Requirement: Downstream Consumers Receive Projections
 
 Habitat SHALL publish D9 downstream projections instead of requiring downstream
-domains to parse legacy proof/result objects.
+domains to parse process-shaped proof/result objects.
 
 #### Scenario: D11 consumes transaction state
 - **WHEN** D11 needs local feedback about apply/fix state

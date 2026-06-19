@@ -2,29 +2,38 @@
 
 ## State
 
-- Status: Accepted for design/specification after fresh final rereview. Not
-  implementation-complete and not source-ready.
-- Worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
-- Branch: `$ACTIVE_REMEDIATION_BRANCH`.
+- Status: Source implementation slice under D9 repair. D9 now owns the
+  Transformation Transaction boundary for admitted dry-runs and fail-closed
+  live writes, but it is not implementation-complete.
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Branch: `agent-DRA-d9-transformation-transaction`.
 - Source packet: `$D9_SOURCE_PACKET`.
 - OpenSpec change: `$D9_CHANGE`.
 
 ## Objective
 
-Specify D9 as the complete Transformation Transaction design/specification
-authority: a closed transaction state model for D8-admitted structural rewrites,
-with explicit upstream projections, vendor/tool boundaries, write-set approval,
-handoffs, rollback, recovery, public compatibility blockers, and downstream
-projections.
+Implement D9 as the Transformation Transaction owner for `habitat fix`: a
+TypeBox-first request/record boundary that consumes D8 apply admission, requires
+typed transaction input before running non-writing dry-runs through the Habitat
+process port, fails closed before native writes, and keeps D10/G-HOST authority
+blocking live protected or host-specific writes.
 
 ## Current Gate
 
-Design/specification accepted. Fresh final D9 review lanes read the repaired
-disk state and recorded no unresolved P1/P2 findings.
+Current source slice deletes the previous hard-coded `grit-apply` transaction
+module and routes `habitat fix` through `transformation-transaction/*`.
+The command now enters D9 with explicit dry-run/live-write intent variants,
+D9 resolves registered D8 apply admissions and derives D8 transaction-input
+projections from typed rule facts before native dry-run execution, records a
+TypeBox-validated worktree observation, and preserves the D0 `habitat fix
+--dry-run` public surface as a non-writing native Grit dry-run.
+Missing D8 admission is refused at the command/admission boundary, not accepted
+as a valid transaction request.
 
-Source implementation remains blocked where concrete D0 rows, live D8 apply
-admission projections, live D10 protected/generated-zone decisions, or live
-G-HOST host-gate declarations are required and absent.
+Live implementation remains blocked where D10 protected/generated-zone
+decisions are required and absent. G-HOST projections are live downstack, but
+the current D9 slice does not yet consume host apply-gate projections for live
+write approval.
 
 ## First-Wave Investigation Inputs
 
@@ -56,24 +65,42 @@ G-HOST host-gate declarations are required and absent.
 | `git diff --check` | Pass before acceptance | Diff hygiene is clean. |
 | Fresh final D9 rereviews | Passed | D9 is accepted for design/specification only. |
 
-## Later Implementation Gates
+## Source Validation Gates
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`
-  plus D9-owned split tests introduced during implementation.
-- `bun run --cwd tools/habitat-harness test -- test/grit/grit-patterns.test.ts`
-  when apply pattern invocation or fixtures change.
-- `bun tools/habitat-harness/bin/dev.ts fix --dry-run`.
-- `bun tools/habitat-harness/bin/dev.ts fix --help` or equivalent Oclif help
-  command.
-- `git status --short --branch` before and after live-write/rollback fixtures.
-- Injected bad-case tests listed in `$D9_CHANGE/tasks.md`.
+- Passed: `bun run --cwd tools/habitat-harness check`.
+- Passed: `bun run --cwd tools/habitat-harness build`.
+- Passed: `bun run --cwd tools/habitat-harness test -- test/lib/transformation-transaction.test.ts test/commands/habitat-commands.test.ts test/rules/pattern-governance-projections.test.ts`.
+- Passed: `wc -l tools/habitat-harness/src/lib/transformation-transaction/*.ts`;
+  largest D9 transaction module is under 250 lines.
+- Passed: `bun tools/habitat-harness/bin/dev.ts fix --help`.
+- Passed: `bun tools/habitat-harness/bin/dev.ts fix --dry-run` exits 0, runs
+  registry-derived non-writing Grit dry-run inputs, reports source-lane
+  `Processed 1751 files and found 0 matches`, docs-lane `Processed 1582 files
+  and found 87 matches`, plus current parser diagnostics, and leaves
+  `git status --short --branch` unchanged.
+- Passed: temporary implementation boundary review repaired accepted P2s for
+  D8 transaction-input projection ownership, repo-relative path validation, and
+  admission identity matching.
+- Passed: `bun run openspec -- validate deep-habitat-d9-transformation-transaction --strict`.
+- Passed: `bun run openspec:validate`.
+- Passed: `git diff --check`.
+- Passed: `git status --short --branch` reports a clean D9 worktree after
+  Graphite submission.
+- Full package test limitation: `test/lib/grit-injected-probe.test.ts` passes
+  focused, but one concurrent full-suite run produced a transient probe cleanup
+  failure. `test/generators/pattern-generator.test.ts` persistently fails before
+  tests run because existing CJS generator code requires a TS registry loader
+  that imports sibling `.js` ESM specifiers.
 
 ## Non-Claims
 
-- This phase does not implement TypeScript source changes.
-- This phase does not make D9 implementation-complete.
+- This source slice does not make D9 implementation-complete.
 - This phase does not authorize `habitat fix --json`; that requires D0-backed
   public contract design and implementation.
-- This phase does not complete D10/G-HOST path or host policy authority.
-- This phase does not make D6 diagnostics, D8 admission, Biome, Grit, Git, Nx,
-  hooks, generators, or product runtime behavior D9-owned.
+- This phase does not complete D10 path authority, dry-run inventory, approved
+  write sets, live write, formatter/gate handoffs, rollback, or downstream
+  D11/D13 projections.
+- This phase runs native Grit only when D9 has an admitted dry-run transaction
+  input projection from typed rule facts or an explicit caller-provided
+  projection. It does not run native Grit live writes, Biome, Git rollback, Nx,
+  hooks, or generators through D9 transaction authority.
