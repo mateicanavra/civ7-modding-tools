@@ -35,9 +35,13 @@
 
 ## 3. Later Implementation Slices
 
-- [ ] 3.1 Add D6-owned diagnostic model types in a canonical owner module.
-- [ ] 3.2 Define `DiagnosticCatalogEntry` and consume D2 `ruleGritFacts`; delete
+- [x] 3.1 Add D6-owned diagnostic model types in a canonical owner module.
+  - Source slices add TypeBox-backed catalog, identity, scan-root, and failure
+    schemas under `src/lib/diagnostic-catalog/`.
+- [x] 3.2 Define `DiagnosticCatalogEntry` and consume D2 `ruleGritFacts`; delete
   alternate identity lookup from missing `patternIdentity` to `ruleId`.
+  - Grit projection now builds a D6 catalog entry from D2 `RuleGritFacts`
+    before matching observed native identity.
 - [x] 3.3 Define `DiagnosticScanRootDecision` and replace string/null scan-root
   authority with closed accepted/refused decisions.
   - Source slice adds the TypeBox-backed scan-root decision schema and routes
