@@ -316,6 +316,43 @@ describe("@civ7/map-policy", () => {
     expect(isSupportedNaturalWonder(featureTypes.FEATURE_BARRIER_REEF)).toBe(true);
   });
 
+  it("self-orients 4-tile wonders (engine sentinel -1, anchor-only offline footprint)", () => {
+    const { featureTypes } = CIV7_BROWSER_TABLES_V0;
+    const policies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+      string,
+      { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number }
+    >;
+    const theraPolicy = policies[String(featureTypes.FEATURE_THERA)]!; // FOURPARALLELAGRM
+    const reefPolicy = policies[String(featureTypes.FEATURE_BARRIER_REEF)]!; // FOURADJACENT
+
+    // 4-tile classes keep the engine self-orient sentinel (-1); the engine refuses
+    // a forced concrete direction for them (live set-feature-false at Direction 0).
+    expect(resolveNaturalWonderMaterializationDirection(theraPolicy)).toBe(-1);
+    expect(resolveNaturalWonderMaterializationDirection(reefPolicy)).toBe(-1);
+
+    // At the self-orient sentinel the offline footprint is anchor-only (engine
+    // owns the remaining cells); both parities collapse to the anchor.
+    const theraSelf = getNaturalWonderFootprintOffsetsByParity(theraPolicy, -1);
+    expect(theraSelf?.even).toEqual([{ dx: 0, dy: 0 }]);
+    expect(theraSelf?.odd).toEqual([{ dx: 0, dy: 0 }]);
+    const reefSelf = getNaturalWonderFootprintOffsetsByParity(reefPolicy, -1);
+    expect(reefSelf?.even).toEqual([{ dx: 0, dy: 0 }]);
+    expect(reefSelf?.odd).toEqual([{ dx: 0, dy: 0 }]);
+
+    // A CONCRETE direction still resolves the geometric model (diagnostics/tests):
+    // FOURPARALLELAGRM at direction 0 keeps its 4-cell parallelogram.
+    const theraConcrete = getNaturalWonderFootprintOffsetsByParity(theraPolicy, 0);
+    expect(theraConcrete?.even.length).toBe(4);
+    expect(theraConcrete?.odd.length).toBe(4);
+
+    // Non-self-orienting classes are unaffected (Redwood THREETRIANGLE -> 0).
+    expect(
+      resolveNaturalWonderMaterializationDirection(
+        policies[String(featureTypes.FEATURE_REDWOOD_FOREST)]!
+      )
+    ).toBe(0);
+  });
+
   it("records the live-observed adjacent-land resource exception narrowly", () => {
     const { resourceTypes } = CIV7_BROWSER_TABLES_V0;
 

@@ -223,24 +223,18 @@ describe("derive placement inputs", () => {
       pedology: { fertility: new Float32Array(size).fill(0.5) },
     });
 
-    // Barrier Reef (FOURADJACENT) was previously dropped (null footprint); it is
-    // now placement-eligible with a parity-keyed 4-tile footprint.
+    // Barrier Reef (FOURADJACENT) was previously dropped (null footprint). It is
+    // now placement-eligible, but as a self-orienting 4-tile class it keeps the
+    // engine sentinel direction (-1) and an ANCHOR-ONLY offline footprint: the
+    // engine stamps the remaining 3 cells by self-orientation (forcing a concrete
+    // Direction 0 is refused live — set-feature-false).
     expect(capturedNaturalWonderInput?.featureCatalog).toHaveLength(1);
     expect(capturedNaturalWonderInput?.featureCatalog?.[0]).toMatchObject({
       featureType: featureTypes.FEATURE_BARRIER_REEF,
+      direction: -1,
       footprintOffsetsByParity: {
-        even: [
-          { dx: 0, dy: 0 },
-          { dx: 1, dy: 0 },
-          { dx: 2, dy: 0 },
-          { dx: 3, dy: 0 },
-        ],
-        odd: [
-          { dx: 0, dy: 0 },
-          { dx: 1, dy: 0 },
-          { dx: 2, dy: 0 },
-          { dx: 3, dy: 0 },
-        ],
+        even: [{ dx: 0, dy: 0 }],
+        odd: [{ dx: 0, dy: 0 }],
       },
     });
   });

@@ -52,6 +52,31 @@ const EVEN_DIRECTION_OFFSETS: readonly NaturalWonderFootprintOffset[] = [
   { dx: -1, dy: 1 },
 ];
 
+/**
+ * 4-tile placement classes that the engine stamps by SELF-ORIENTATION. Live
+ * `setFeatureType` refuses these at a forced concrete `Direction` (0): Thera
+ * (FOURPARALLELAGRM) and Barrier Reef (FOURADJACENT) both returned
+ * `set-feature-false` at Direction 0 on the earthlike closure gen, while every
+ * 1/2/3-tile class placed. The base game places them with `Direction:-1` and
+ * lets the engine choose a legal orientation. So for these classes the mod keeps
+ * the `-1` sentinel and treats the footprint as engine-owned: the offline model
+ * reserves/reads back the ANCHOR only and the engine stamps the remaining cells.
+ * A concrete direction still resolves the geometric model (diagnostics/tests).
+ */
+const SELF_ORIENTING_FOUR_TILE_CLASSES = new Set([
+  "FOURPARALLELAGRM",
+  "FOURADJACENT",
+  "FOURL",
+]);
+
+function isSelfOrientingFourTileClass(placementClass: string | undefined): boolean {
+  return placementClass !== undefined && SELF_ORIENTING_FOUR_TILE_CLASSES.has(placementClass);
+}
+
+function isEngineSelfOrientDirection(direction: number | undefined): boolean {
+  return !(Number.isFinite(direction) && (direction as number) >= 0);
+}
+
 const SUPPORTED_POLICY_TAGS = new Set([
   "ADJACENTCLIFF",
   "ADJACENTMOUNTAIN",
@@ -95,6 +120,14 @@ export function resolveNaturalWonderMaterializationDirection(
   policy: OptionalNaturalWonderPlacementPolicy,
   direction = resolveNaturalWonderPlacementDirection(policy)
 ): number {
+  // Self-orienting 4-tile wonders keep the engine sentinel (-1); forcing 0 makes
+  // setFeatureType refuse them (see SELF_ORIENTING_FOUR_TILE_CLASSES).
+  if (
+    isSelfOrientingFourTileClass(policy?.placementClass) &&
+    isEngineSelfOrientDirection(direction)
+  ) {
+    return -1;
+  }
   return normalizeFootprintDirection(direction);
 }
 
@@ -152,6 +185,14 @@ function footprintOffsetsForParity(
   const placementClass = policy?.placementClass ?? "ONE";
   const tiles = Math.max(1, policy?.naturalWonderTiles ?? 1);
   if (tiles <= 1 || placementClass === "ONE") return [ANCHOR];
+
+  // Self-orienting 4-tile classes at the engine sentinel (Direction < 0): the
+  // footprint is engine-owned and unknown offline, so reserve/read back the
+  // ANCHOR only and let the engine stamp the rest. A concrete direction falls
+  // through to the geometric model below (diagnostics/tests).
+  if (isSelfOrientingFourTileClass(placementClass) && isEngineSelfOrientDirection(direction)) {
+    return [ANCHOR];
+  }
 
   const d = normalizeFootprintDirection(direction);
   const primary = offsetAt(anchorParity, d);
