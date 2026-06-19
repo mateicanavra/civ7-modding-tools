@@ -300,6 +300,7 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
       direction: number;
       elevation: number;
       priority: number;
+      fallbackPlotIndices?: number[];
     }> = [];
     const usedPlots = new Set<number>();
 
@@ -326,6 +327,48 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
         return candidate;
       }
       return null;
+    };
+
+    // Next-best anchors for a wonder after its primary is chosen (Fix 2): the
+    // materialize step retries these in order when the engine refuses the
+    // primary, since canHaveFeatureParam-true does not guarantee
+    // setFeatureType-success. Fallbacks are ALTERNATIVES to the primary (only one
+    // is ever stamped), so they may sit near the primary; they must avoid OTHER
+    // placed wonders' footprints and the primary's own footprint, and prefer the
+    // spacing floor. Suitability-descending (plan.sorted), capped.
+    const FALLBACK_CAP = 6;
+    const collectFallbacks = (
+      plan: WonderPlan,
+      primaryPlotIndex: number,
+      primaryFootprint: readonly number[]
+    ): number[] => {
+      const excluded = new Set(primaryFootprint);
+      const spaced: number[] = [];
+      const unspaced: number[] = [];
+      for (const candidate of plan.sorted) {
+        if (candidate.plotIndex === primaryPlotIndex) continue;
+        if (usedPlots.has(candidate.plotIndex) || excluded.has(candidate.plotIndex)) continue;
+        const footprint = getFootprintIndices({
+          plotIndex: candidate.plotIndex,
+          width,
+          height,
+          footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
+        });
+        if (!footprint) continue;
+        if (footprint.some((p) => usedPlots.has(p) || excluded.has(p))) continue;
+        let tooClose = false;
+        if (minSpacingTiles > 0) {
+          for (const placed of selected) {
+            if (hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacingTiles) {
+              tooClose = true;
+              break;
+            }
+          }
+        }
+        (tooClose ? unspaced : spaced).push(candidate.plotIndex);
+        if (spaced.length >= FALLBACK_CAP) break;
+      }
+      return [...spaced, ...unspaced].slice(0, FALLBACK_CAP);
     };
 
     // Cross-wonder selection: diminishing-returns greedy. Each iteration places
@@ -374,14 +417,17 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
         remaining.splice(bestIdx, 1);
         continue;
       }
-      for (const plotIndex of getFootprintIndices({
+      const primaryFootprint = getFootprintIndices({
         plotIndex: candidate.plotIndex,
         width,
         height,
         footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
-      }) ?? [candidate.plotIndex]) {
-        usedPlots.add(plotIndex);
-      }
+      }) ?? [candidate.plotIndex];
+      // Collect fallbacks BEFORE the primary footprint is marked used, so they
+      // are scored as alternatives to the primary (excluding the primary's own
+      // footprint), not as tiles forbidden by it.
+      const fallbackPlotIndices = collectFallbacks(plan, candidate.plotIndex, primaryFootprint);
+      for (const plotIndex of primaryFootprint) usedPlots.add(plotIndex);
       const group = wonderGroup(plan.feature.featureType);
       groupSelectedCount.set(group, (groupSelectedCount.get(group) ?? 0) + 1);
       selected.push({
@@ -390,6 +436,7 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
         direction: plan.feature.direction,
         elevation: candidate.elevation,
         priority: clamp01(plan.suitByPlot.get(candidate.plotIndex) ?? 0),
+        ...(fallbackPlotIndices.length > 0 ? { fallbackPlotIndices } : {}),
       });
       remaining.splice(bestIdx, 1);
     }

@@ -85,6 +85,12 @@ const PlanNaturalWondersContract = defineOp({
         direction: Type.Integer(),
         elevation: Type.Number(),
         priority: Type.Number({ minimum: 0, maximum: 1 }),
+        // Next-best anchor candidates for this wonder (suitability-descending),
+        // for the materialize step to retry when the engine refuses the primary
+        // anchor (canHaveFeatureParam-true does NOT guarantee setFeatureType-
+        // success). Excludes the primary + other placements' footprints; the
+        // engine remains the final legality authority.
+        fallbackPlotIndices: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
       })
     ),
   }),

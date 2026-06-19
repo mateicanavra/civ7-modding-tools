@@ -211,6 +211,54 @@ describe("placement plan operations", () => {
     }
   });
 
+  it("emits next-best fallback anchors for materialize retry", () => {
+    const width = 4;
+    const height = 3;
+    const size = width * height;
+    const result = runOpValidated(
+      planNaturalWonders,
+      {
+        width,
+        height,
+        wondersCount: 1,
+        landMask: new Uint8Array(size).fill(1),
+        elevation: Int16Array.from([5, 20, 30, 40, 10, 100, 70, 20, 0, 10, 15, 60]),
+        aridityIndex: new Float32Array(size).fill(0.3),
+        riverClass: new Uint8Array(size),
+        lakeMask: new Uint8Array(size),
+        coastTerrainType: 2,
+        mountainTerrainType: 3,
+        iceFeatureType: 4,
+        terrainType: new Uint8Array(size).fill(1),
+        biomeType: new Uint8Array(size).fill(1),
+        featureType: new Int16Array(size).fill(-1),
+        noFeatureType: -1,
+        naturalWonderBlockedMask: new Uint8Array(size),
+        featureCatalog: [
+          {
+            featureType: 35, // Kilimanjaro (group A); anchor-only here
+            direction: 0,
+            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
+          },
+        ],
+      },
+      { strategy: "default", config: { minSpacingTiles: 0 } }
+    );
+
+    expect(result.placements.length).toBe(1);
+    const placement = result.placements[0]!;
+    const fallbacks = placement.fallbackPlotIndices ?? [];
+    // Fallbacks exist, are capped, distinct, exclude the primary, and are valid.
+    expect(fallbacks.length).toBeGreaterThan(0);
+    expect(fallbacks.length).toBeLessThanOrEqual(6);
+    expect(new Set(fallbacks).size).toBe(fallbacks.length);
+    expect(fallbacks).not.toContain(placement.plotIndex);
+    for (const idx of fallbacks) {
+      expect(idx).toBeGreaterThanOrEqual(0);
+      expect(idx).toBeLessThan(size);
+    }
+  });
+
   // The generic plan-resources op was deleted in placement-realignment S3;
   // resource planning is covered by the domain/resources op-contract tests
   // (derive-habitat-fields, select-resource-sites) and the recipe smoke tests.
