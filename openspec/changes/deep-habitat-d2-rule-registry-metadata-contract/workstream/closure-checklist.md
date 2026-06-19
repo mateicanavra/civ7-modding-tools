@@ -19,20 +19,25 @@
 - [x] D1 output family is cited for every malformed metadata failure family in `workstream/implementation-start-inventory.md`.
 - [x] Implementation branch starts from the approved implementation stack and was clean before D2 implementation-start edits.
 - [x] Source changes stay inside the approved D2 write set.
-- [ ] Protected paths are untouched or the packet is amended and re-reviewed.
+- [x] Protected paths are untouched or the packet is amended and re-reviewed.
+  - `verify-receipt.ts` was removed from the D2 write set; D2 does not own D12 verify receipt behavior.
 
 ## Implementation Closure Later
 
-- [ ] Registry parser/projection tests pass with malformed-row bad cases.
-- [ ] Selector, classify, baseline, Grit, injected-probe, hook, enforcement, generator, and Pattern Authority focused tests pass.
-- [ ] `habitat classify tools/habitat-harness/src/rules/rules.json`, `habitat check -- --json`, and `nx show project @internal/habitat-harness` results are recorded with expected/actual status and non-claims.
-- [ ] Public-surface changes are dispositioned through D0 compatibility.
-- [ ] Downstream docs/tests/specs are realigned only where D2 changed accepted contract facts.
-- [ ] Fallback inference is deleted where D2 projections replace it.
+- [x] Registry parser/projection tests pass with malformed-row bad cases.
+- [x] Selector, classify, baseline, Grit, injected-probe, hook, generator, Pattern Authority, registry, and Biome/plugin focused tests pass.
+  - Focused suite: `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/lib/hooks.test.ts test/lib/rule-selection.test.ts test/lib/classify.test.ts test/lib/baseline.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts test/rules/registry/contract.test.ts test/rules/registry/projections.test.ts test/lib/biome-closure.test.ts` exits 0 with 149 tests passing.
+- [x] Structural adapter-domain invariant is enforced through Habitat-owned GritQL, not a manual architecture test.
+  - `grit-habitat-adapter-domain-paths` is registered in `rules.json` with exact adapter path coverage and an empty baseline; `bun tools/habitat-harness/bin/dev.ts check --rule grit-habitat-adapter-domain-paths --json` exits 0.
+- [x] `habitat classify tools/habitat-harness/src/rules/rules.json`, `habitat check -- --json`, and `nx show project @internal/habitat-harness` results are recorded with expected/actual status and non-claims.
+  - `nx show project @internal/habitat-harness` passes through the canonical parser-backed plugin. The documented `habitat check -- --json` shape is a historical command-shape mismatch because Oclif rejects the extra `--`; the D0-cited command shape `habitat check --json` emits valid CheckReport JSON and exits 1 with existing non-D2 findings.
+- [x] Public-surface changes are dispositioned through D0 compatibility.
+- [x] Downstream docs/tests/specs are realigned only where D2 changed accepted contract facts.
+- [x] Fallback inference is deleted where D2 projections replace it.
 - [ ] Graphite layer is clean, reviewable, and does not proceed past unresolved packet approval.
 
 ## Non-Claims
 
-- D2 design repair did not implement TypeScript source.
-- D2 implementation-start grounding authorizes D2 source work only through the cited D0/D1 gates and TypeBox-first registry boundary.
-- D2 design/specification acceptance does not prove public compatibility, downstream safety, runtime behavior, Graphite readiness, or product completion.
+- D2 implementation does not close D3 resolved graph truth, D5 baseline authority, D8 governance admission, D11 hook behavior, D12 verify workflow, or D13 scaffold/refusal behavior.
+- D2 implementation does not make broad `habitat check --json` pass; existing non-D2 findings remain separately owned.
+- D2 is not packet-closure complete until final review and Graphite closure are resolved or explicitly accepted.

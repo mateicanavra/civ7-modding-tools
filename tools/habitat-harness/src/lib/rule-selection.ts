@@ -1,9 +1,5 @@
-import type { HarnessRule } from "../rules/architecture.js";
-import { rules } from "../rules/architecture.js";
-import {
-  ruleSelectorFacts as projectRuleSelectorFacts,
-  type RuleSelectorFacts as RegistryRuleSelectorFacts,
-} from "../rules/registry/index.js";
+import { activeRuleSelectorFacts } from "../rules/facts.js";
+import type { RuleSelectorFacts as RegistryRuleSelectorFacts } from "../rules/registry/index.js";
 
 export interface RuleSelection {
   owner?: string;
@@ -31,7 +27,7 @@ export interface RuleSelectionEmptyIntersection {
 }
 
 export type RuleSelectionResult =
-  | { ok: true; rules: HarnessRule[]; requested: RuleSelection }
+  | { ok: true; rules: RegistryRuleSelectorFacts[]; requested: RuleSelection }
   | {
       ok: false;
       requested: RuleSelection;
@@ -43,10 +39,9 @@ export type RuleSelectionResult =
 
 export function selectRules(
   selection: RuleSelection = {},
-  registry: readonly HarnessRule[] = rules
+  registry: readonly RegistryRuleSelectorFacts[] = activeRuleSelectorFacts
 ): RuleSelectionResult {
-  const registryFacts = projectRuleSelectorFacts(registry);
-  const facts = selectorFacts(selection, registryFacts);
+  const facts = selectorFacts(selection, registry);
   const wrongNamespace = facts.find((fact) => !fact.known && fact.matchedNamespace);
   if (wrongNamespace) {
     return {
@@ -69,10 +64,10 @@ export function selectRules(
     };
   }
 
-  const selectedRuleIds = filterRuleIds(selection, registryFacts);
+  const selectedRuleIds = filterRuleIds(selection, registry);
   const selected = selectedRuleIds
     .map((ruleId) => registry.find((rule) => rule.id === ruleId))
-    .filter((rule): rule is HarnessRule => Boolean(rule));
+    .filter((rule): rule is RegistryRuleSelectorFacts => Boolean(rule));
   if (facts.length > 0 && selected.length === 0) {
     return {
       ok: false,

@@ -5,6 +5,7 @@ const {
   patternAuthorityRuleReferenceFromRule,
   validatePatternAuthorityManifest,
 } = require("../../rules/pattern-authority/manifest.ts");
+const { parseRuleRegistryDocument } = require("../../rules/registry/load.ts");
 
 class PatternPromotionStore extends Context.Tag(
   "@internal/habitat-harness/PatternPromotionStore"
@@ -116,6 +117,10 @@ function registeredRuleEntry(input, manifest) {
     remediate: null,
     message: `Review Pattern Authority Manifest ${input.manifestPath}.`,
     exceptionPath: "none",
+    pathCoverage: manifest.scanRoots.include.map((pattern) => ({
+      kind: "exact-path",
+      patterns: [pattern],
+    })),
     gritPattern: input.patternName,
     scanRoots: [...manifest.scanRoots.include],
     manifestPath: input.manifestPath,
@@ -129,19 +134,23 @@ function registeredPatternMarkdown(input, manifest) {
 }
 
 function normalizeRulesJson(value, ruleId) {
-  if (!value || typeof value !== "object" || !Array.isArray(value.rules)) {
+  const rulesParse = parseRuleRegistryDocument(value, "tools/habitat-harness/src/rules/rules.json");
+  if (!rulesParse.ok) {
     throw new PatternPromotionFailure({
       reason: "manifest-unreadable",
-      message: "tools/habitat-harness/src/rules/rules.json must contain a rules array.",
+      message: `tools/habitat-harness/src/rules/rules.json is invalid: ${rulesParse.issues
+        .map((issue) => issue.message)
+        .join("; ")}`,
     });
   }
-  if (value.rules.some((rule) => rule && typeof rule === "object" && rule.id === ruleId)) {
+  const rulesJson = rulesParse.document;
+  if (rulesJson.rules.some((rule) => rule.id === ruleId)) {
     throw new PatternPromotionFailure({
       reason: "unexpected-collision",
       message: `Habitat rule already exists: ${ruleId}`,
     });
   }
-  return value;
+  return rulesJson;
 }
 
 function validateRegisteredBaselineContract(store, manifest) {

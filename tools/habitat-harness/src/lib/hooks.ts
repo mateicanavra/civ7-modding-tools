@@ -2,9 +2,9 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { mergeBase } from "./baseline.js";
+import { stagedGritScanRoots } from "./check-report.js";
 import type { CheckReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
-import { validateScanRoots } from "./grit.js";
 import { baselinesDir, repoRoot, toRepoRelative } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
 
@@ -178,17 +178,6 @@ const biomeCandidateExtensions = new Set([
   ".js",
   ".json",
   ".jsonc",
-  ".jsx",
-  ".mjs",
-  ".mts",
-  ".ts",
-  ".tsx",
-]);
-
-const gritCandidateExtensions = new Set([
-  ".cjs",
-  ".cts",
-  ".js",
   ".jsx",
   ".mjs",
   ".mts",
@@ -794,9 +783,7 @@ function fileHash(repoRelativePath: string): string | null {
 }
 
 function hookGritScanRoots(stagedPaths: readonly string[]): string[] {
-  return stagedPaths
-    .filter((candidate) => gritCandidateExtensions.has(path.extname(candidate)))
-    .filter((candidate) => validateScanRoots([candidate], { requireExisting: false }) === null);
+  return stagedGritScanRoots(stagedPaths);
 }
 
 function parseCheckReportJson(output: string): CheckReport | undefined {

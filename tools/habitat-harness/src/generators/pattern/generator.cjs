@@ -1,4 +1,5 @@
 const { writeJson } = require("@nx/devkit");
+const { parseRuleRegistryText } = require("../../rules/registry/load.ts");
 
 async function patternGenerator(tree, rawOptions) {
   const options = normalizeOptions(rawOptions);
@@ -77,7 +78,15 @@ function validateNoActiveRegistrationCollision(tree, options) {
     throw new Error(`Baseline already exists: ${baselinePath}`);
 
   const rulesText = tree.read(rulesPath, "utf8");
-  const rulesJson = JSON.parse(rulesText);
+  const rulesParse = parseRuleRegistryText(rulesText, rulesPath);
+  if (!rulesParse.ok) {
+    throw new Error(
+      `Habitat rule registry is invalid:\n${rulesParse.issues
+        .map((issue) => `- ${issue.path}: ${issue.message}`)
+        .join("\n")}`
+    );
+  }
+  const rulesJson = rulesParse.document;
   if (rulesJson.rules.some((rule) => rule.id === options.ruleId)) {
     throw new Error(`Habitat rule already exists: ${options.ruleId}`);
   }

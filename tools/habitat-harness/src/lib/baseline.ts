@@ -3,6 +3,7 @@ import path from "node:path";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { baselinesDir, repoRoot } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
+import { loadRuleRegistryDocument, ruleBaselineFacts } from "../rules/registry/index.js";
 
 /**
  * Ratchet baselines (FRAME hard core #3).
@@ -742,12 +743,7 @@ function adapterBoundaryProjectedKeys(
 
 function readCurrentRuleRegistry(root: string): BaselineRuleContractInput[] {
   const p = path.join(root, "tools/habitat-harness/src/rules/rules.json");
-  const parsed = parseRuleRegistry(
-    readFileSync(p, "utf8"),
-    "tools/habitat-harness/src/rules/rules.json"
-  );
-  if (parsed.kind === "contract-failure") throw new Error(parsed.message);
-  return parsed.rules;
+  return ruleBaselineFacts(loadRuleRegistryDocument(p).rules);
 }
 
 function parseRuleRegistry(

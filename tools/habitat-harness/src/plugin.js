@@ -10,10 +10,20 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ruleGraphFacts } from "./plugin/rule-graph.js";
+import { ruleGraphFacts } from "./plugin/rule-graph.ts";
+import { parseRuleRegistryText } from "./rules/registry/load.ts";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const rulesJson = JSON.parse(readFileSync(path.join(here, "rules", "rules.json"), "utf8"));
+const rulesPath = path.join(here, "rules", "rules.json");
+const rulesParse = parseRuleRegistryText(readFileSync(rulesPath, "utf8"), rulesPath);
+if (!rulesParse.ok) {
+  throw new Error(
+    `Habitat rule registry is invalid:\n${rulesParse.issues
+      .map((issue) => `- ${issue.path}: ${issue.message}`)
+      .join("\n")}`
+  );
+}
+const rulesJson = rulesParse.document;
 
 export const createNodesV2 = [
   "tools/habitat-harness/src/rules/rules.json",

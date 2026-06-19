@@ -8,8 +8,8 @@ import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
-    expect(rules).toHaveLength(52);
-    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(32);
+    expect(rules).toHaveLength(53);
+    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(33);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(3);
     expect(rules.some((rule) => "hookScope" in rule)).toBe(false);
     expect(
@@ -175,6 +175,40 @@ describe("rule registry contract", () => {
             forbiddenFileNames: ["pnpm-lock.yaml"],
           },
         ]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+  });
+
+  test("rejects malformed downstream metadata ownership", () => {
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([{ ...baseRule(), exceptionPath: "" }]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([{ ...baseRule(), generatedZone: "swooper-map-generated" }]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([{ ...baseRule(), manifestPath: "tools/habitat-harness/rule.json" }]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([{ ...baseRule(), localFeedback: true }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"

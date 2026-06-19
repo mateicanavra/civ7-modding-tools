@@ -815,6 +815,31 @@
       ]
     },
     {
+      "id": "grit-habitat-adapter-domain-paths",
+      "ownerTool": "grit-check",
+      "ownerProject": "@internal/habitat-harness",
+      "lane": "enforced",
+      "scope": "tools/habitat-harness/src/adapters/grit/**",
+      "forbids": "product/domain scan roots hard-coded inside the generic Grit adapter",
+      "why": "The adapter is a generic tool boundary; repo-specific scan roots are rule registry metadata.",
+      "detect": ["habitat", "check", "--tool", "grit-check"],
+      "remediate": null,
+      "message": "Move product-specific scan roots out of the Grit adapter and into rule registry metadata.",
+      "exceptionPath": "none",
+      "gritPattern": "habitat_grit_adapter_domain_paths",
+      "localFeedback": true,
+      "scanRoots": ["tools/habitat-harness/src/adapters/grit"],
+      "pathCoverage": [
+        {
+          "kind": "exact-path",
+          "patterns": ["tools/habitat-harness/src/adapters/grit/**"]
+        },
+        {
+          "kind": "project-owner"
+        }
+      ]
+    },
+    {
       "id": "grit-control-orpc-contract-ownership",
       "ownerTool": "grit-check",
       "ownerProject": "@civ7/control-orpc",
