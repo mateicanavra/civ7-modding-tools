@@ -39,7 +39,6 @@ export {
 export type { DiagnosticAdapterFailureKind } from "./failure.js";
 export {
   DiagnosticAdapterFailureKindSchema,
-  diagnosticAdapterFailureFromText,
   diagnosticAdapterFailureKinds,
   isDiagnosticAdapterFailureKind,
   renderDiagnosticAdapterFailure,
@@ -68,6 +67,14 @@ export {
   DiagnosticRunOutcomeSchema,
   diagnosticConsumerProjectionFromOutcome,
 } from "./outcome.js";
+export type {
+  InjectedProbeOutcome,
+  InjectedProbeRefusalReason,
+} from "./probe.js";
+export {
+  InjectedProbeOutcomeSchema,
+  InjectedProbeRefusalReasonSchema,
+} from "./probe.js";
 export type {
   DiagnosticScanRootDecision,
   DiagnosticScanRootRefusal,
