@@ -3,6 +3,7 @@ import { HabitatCommand } from "../base/HabitatCommand.js";
 import { createCheckReport, renderCheckReport } from "../lib/check-report.js";
 import {
   createVerifyReceipt,
+  readVerifyTargetPlan,
   resolveVerifyBase,
   runAffectedVerification,
   stringifyVerifyReceipt,
@@ -32,10 +33,12 @@ export default class Verify extends HabitatCommand {
     const startedMs = Date.now();
     const base = resolveVerifyBase(flags.base);
     const report = await createCheckReport({ base, commandArgs: this.rawArgv() });
+    const targetPlan = await readVerifyTargetPlan();
     let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;
     let exitCode = 0;
     if (!report.ok) exitCode = 1;
-    else affectedResult = runAffectedVerification(base);
+    else if (targetPlan.kind === "verify-target-plan-refused") exitCode = 1;
+    else affectedResult = runAffectedVerification(base, targetPlan);
     if (affectedResult) exitCode = affectedResult.exitCode;
 
     if (flags.json) {
@@ -47,6 +50,7 @@ export default class Verify extends HabitatCommand {
         durationMs: Date.now() - startedMs,
         exitCode,
         checkReport: report,
+        verifyTargetPlan: targetPlan,
         affectedResult,
       });
       this.log(stringifyVerifyReceipt(receipt));
@@ -56,9 +60,16 @@ export default class Verify extends HabitatCommand {
 
     this.log(renderCheckReport(report));
     if (!report.ok) this.exit(1);
+    if (targetPlan.kind === "verify-target-plan-refused") {
+      const message =
+        targetPlan.refusal.kind === "graph-refusal"
+          ? targetPlan.refusal.message
+          : "Workspace graph refused verify target planning.";
+      this.error(message, { exit: 1 });
+    }
 
     this.log(`\nhabitat verify: running repo Nx affected (base=${base}) ...`);
-    const result = affectedResult ?? runAffectedVerification(base);
+    const result = affectedResult ?? runAffectedVerification(base, targetPlan);
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);

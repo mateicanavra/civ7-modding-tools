@@ -7,6 +7,11 @@ const mockReport = vi.hoisted(() => ({
   ok: true,
   rules: [],
 }));
+const mockVerifyTargetPlan = vi.hoisted(() => ({
+  kind: "verify-target-plan",
+  targets: ["build"],
+  states: [],
+}));
 
 vi.mock("../../src/lib/check-report.js", () => ({
   createCheckReport: vi.fn(() => mockReport),
@@ -58,6 +63,7 @@ vi.mock("../../src/lib/verify-receipt.js", () => ({
     },
     nonClaims: ["does-not-prove-ci"],
   })),
+  readVerifyTargetPlan: vi.fn(() => mockVerifyTargetPlan),
   resolveVerifyBase: vi.fn((base?: string) => base ?? "merge-base"),
   runAffectedVerification: vi.fn(() => ({ exitCode: 0, stdout: "affected ok\n", stderr: "" })),
   stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
@@ -172,7 +178,10 @@ describe("Habitat oclif commands", () => {
     expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({ base: "HEAD~1", commandArgs: ["--base", "HEAD~1"] })
     );
-    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
+    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
+      "HEAD~1",
+      mockVerifyTargetPlan
+    );
     expect(stdout.join("")).toContain("affected ok");
   });
 
@@ -182,7 +191,10 @@ describe("Habitat oclif commands", () => {
     expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({ base: "HEAD~1", commandArgs: ["--base", "HEAD~1", "--json"] })
     );
-    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith("HEAD~1");
+    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
+      "HEAD~1",
+      mockVerifyTargetPlan
+    );
     expect(verifyReceipt.createVerifyReceipt).toHaveBeenCalledWith(
       expect.objectContaining({
         requestedBase: "HEAD~1",
@@ -190,6 +202,7 @@ describe("Habitat oclif commands", () => {
         commandArgs: ["--base", "HEAD~1", "--json"],
         exitCode: 0,
         checkReport: mockReport,
+        verifyTargetPlan: mockVerifyTargetPlan,
       })
     );
     const payload = JSON.parse(capturedOutput()) as { schemaVersion: number; nonClaims: string[] };

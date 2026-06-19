@@ -1,9 +1,17 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
+import { activeRuleGraphFacts } from "../rules/facts.js";
 import { mergeBase } from "./baseline.js";
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { repoRoot } from "./paths.js";
 import { run, type SpawnResult } from "./spawn.js";
+import {
+  readWorkspaceGraph,
+  type VerifyTargetPlan,
+  VerifyTargetPlanSchema,
+  verifyTargetNames,
+  verifyTargetPlan,
+} from "./workspace-graph/index.js";
 
 export interface VerifyOptions {
   base?: string;
@@ -95,7 +103,10 @@ export const VerifyNxAffectedSchema = Type.Union([
   Type.Object(
     {
       status: Type.Literal("skipped"),
-      skipReason: Type.Literal("habitat-check-failed"),
+      skipReason: Type.Union([
+        Type.Literal("habitat-check-failed"),
+        Type.Literal("workspace-graph-refused"),
+      ]),
       argv: Type.Array(Type.String()),
       targets: Type.Array(Type.String()),
       projects: Type.Array(Type.String(), { maxItems: 0 }),
@@ -160,37 +171,41 @@ export interface VerifyReceiptInput {
   durationMs: number;
   exitCode: number;
   checkReport: CheckReport;
+  verifyTargetPlan?: VerifyTargetPlan;
   affectedResult?: SpawnResult;
 }
 
-export const verifyAffectedTargets = [
-  "build",
-  "check",
-  "test",
-  "boundaries",
-  "biome:ci",
-  "grit:check",
-  "generated:check",
-];
+export const verifyAffectedTargets = [...verifyTargetNames()];
 
 export function resolveVerifyBase(base?: string): string {
   return base ?? mergeBase("main") ?? "main";
 }
 
-export function runAffectedVerification(base: string): SpawnResult {
-  return run(affectedVerificationArgv(base), {
+export async function readVerifyTargetPlan(): Promise<VerifyTargetPlan> {
+  const graph = await readWorkspaceGraph();
+  if (graph.kind === "graph-ready")
+    return verifyTargetPlan(graph.snapshot.projects, undefined, undefined, activeRuleGraphFacts);
+  return graphRefusedVerifyTargetPlan(graph.kind, graph.message);
+}
+
+export function runAffectedVerification(
+  base: string,
+  targetPlan: VerifyTargetPlan = verifyTargetPlan()
+): SpawnResult {
+  return run(affectedVerificationArgv(base, targetPlan), {
     cwd: repoRoot,
   });
 }
 
 export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
-  const nxArgv = affectedVerificationArgv(input.resolvedBase);
+  const targetPlan = input.verifyTargetPlan ?? verifyTargetPlan();
+  const nxArgv = affectedVerificationArgv(input.resolvedBase, targetPlan);
   const gitStatus = run(["git", "status", "--short"], { cwd: repoRoot });
   const resourcesStatus = run(["bun", "run", "resources:status"], { cwd: repoRoot });
   const nxAffected =
     input.checkReport.ok && input.affectedResult
       ? completedNxAffected(nxArgv, input.affectedResult)
-      : skippedNxAffected(nxArgv);
+      : skippedNxAffected(nxArgv, input.checkReport.ok ? targetPlan : undefined);
   return {
     schemaVersion: 1,
     command: {
@@ -222,8 +237,8 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
   };
 }
 
-function affectedVerificationArgv(base: string): string[] {
-  return ["nx", "affected", "-t", verifyAffectedTargets.join(","), "--base", base];
+function affectedVerificationArgv(base: string, targetPlan: VerifyTargetPlan): string[] {
+  return ["nx", "affected", "-t", targetPlan.targets.join(","), "--base", base];
 }
 
 function completedNxAffected(
@@ -235,7 +250,7 @@ function completedNxAffected(
   return {
     status: affected.exitCode === 0 ? "executed" : "failed",
     argv,
-    targets: verifyAffectedTargets,
+    targets: targetsFromArgv(argv),
     projects: parseNxAffectedProjects(affected.stdout),
     cacheStateByTask: parseNxTaskCacheStates(affected.stdout),
     exitCode: affected.exitCode,
@@ -249,13 +264,17 @@ function completedNxAffected(
 }
 
 function skippedNxAffected(
-  argv: string[]
+  argv: string[],
+  targetPlan?: VerifyTargetPlan
 ): Extract<VerifyReceipt["nxAffected"], { status: "skipped" }> {
   return {
     status: "skipped",
-    skipReason: "habitat-check-failed",
+    skipReason:
+      targetPlan?.kind === "verify-target-plan-refused"
+        ? "workspace-graph-refused"
+        : "habitat-check-failed",
     argv,
-    targets: verifyAffectedTargets,
+    targets: targetsFromArgv(argv),
     projects: [],
     cacheStateByTask: [],
     exitCode: null,
@@ -266,6 +285,23 @@ function skippedNxAffected(
     stdoutTruncated: false,
     stderrTruncated: false,
   };
+}
+
+function graphRefusedVerifyTargetPlan(
+  reason: "malformed-graph-json" | "nx-read-failure" | "nx-daemon-failure",
+  message: string
+): VerifyTargetPlan {
+  return Value.Parse(VerifyTargetPlanSchema, {
+    kind: "verify-target-plan-refused",
+    targets: verifyAffectedTargets,
+    refusal: { kind: "graph-refusal", reason, message },
+  });
+}
+
+function targetsFromArgv(argv: readonly string[]): string[] {
+  const targetFlagIndex = argv.indexOf("-t");
+  if (targetFlagIndex === -1) return [];
+  return (argv[targetFlagIndex + 1] ?? "").split(",").filter((target) => target.length > 0);
 }
 
 function summarizeVerifyCheckReport(report: CheckReport): VerifyReceipt["habitatCheck"] {
@@ -296,8 +332,11 @@ function countRuleStatuses(reports: readonly RuleReport[]): Record<string, numbe
 function selectedVerifyEnv(): Record<string, string> {
   return Object.fromEntries(
     ["CI", "FORCE_COLOR", "NX_DAEMON", "NX_CACHE_PROJECT_GRAPH", "NX_PROJECT_GRAPH_CACHE"]
-      .filter((key) => process.env[key] !== undefined)
-      .map((key) => [key, process.env[key] as string])
+      .map((key): [string, string] | undefined => {
+        const value = process.env[key];
+        return value === undefined ? undefined : [key, value];
+      })
+      .filter((entry): entry is [string, string] => entry !== undefined)
   );
 }
 

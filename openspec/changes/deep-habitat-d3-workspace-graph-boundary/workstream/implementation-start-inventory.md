@@ -47,9 +47,9 @@ runtime behavior; it does not reopen D0 from this layer.
 
 | Fact | Current implementation evidence | D3 use |
 | --- | --- | --- |
-| Canonical registry parse before graph projection | `tools/habitat-harness/src/plugin.js` calls `parseRuleRegistryText` before graph target inference. | D3 can rely on registry rows being TypeBox-validated before graph projection. |
-| Graph projection exists | `tools/habitat-harness/src/plugin/rule-graph.ts` exports `ruleGraphFacts`. | D3 consumes rule graph intent from the D2 projection boundary rather than raw registry rows. |
-| Owner-root fallback removed from plugin authority | `plugin.js` builds owner roots from `rulesJson.ownerRoots` and graph facts. | D3 owns graph-read resolution and target availability; it does not recreate D2 owner/root fallback. |
+| Canonical registry parse before graph projection | `tools/habitat-harness/src/plugin/nx-plugin.ts` parses the registry through the TypeBox-backed registry schema before graph target inference; `src/plugin.js` is only the D0 path adapter. | D3 can rely on registry rows being TypeBox-validated before graph projection. |
+| Graph projection exists | `tools/habitat-harness/src/rules/registry/graph.ts` exports `ruleGraphFacts`. | D3 consumes rule graph intent from the D2 projection boundary rather than raw registry rows. |
+| Owner-root fallback removed from plugin authority | `src/plugin/nx-plugin.ts` builds owner roots from `rulesJson.ownerRoots` and graph facts. | D3 owns graph-read resolution and target availability; it does not recreate D2 owner/root fallback. |
 | Biome alias points at the real Habitat project | `ruleGraphFacts` maps `biome-ci` to `@internal/habitat-harness:biome:ci`. | D3 still must prove Nx resolved dependency execution and no false-green wrapper path. |
 | Wrapped-test graph targets stay structured | `ruleGraphFacts` requires `graphTarget` for wrapped-test rows. | D3 normalizes/validates those dependencies against current Nx graph state. |
 

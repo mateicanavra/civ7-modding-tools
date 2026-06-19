@@ -1,15 +1,24 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { activeRuleRoutingFacts, activeRuleSelectorFacts } from "../rules/facts.js";
+import {
+  activeRuleGraphFacts,
+  activeRuleRoutingFacts,
+  activeRuleSelectorFacts,
+} from "../rules/facts.js";
 import type { RuleRoutingFacts } from "../rules/registry/index.js";
 import {
   findOwningProject,
   NxProjectGraphMetadataReader,
   type NxProjectMetadata,
   type NxProjectMetadataReader,
-  projectHasTarget,
 } from "./nx-projects.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
+import {
+  type GraphRefusalState,
+  projectTargetStates,
+  ruleGraphTargetStates,
+  workspaceTargetStates,
+} from "./workspace-graph/index.js";
 
 export interface Classification {
   path: string;
@@ -21,6 +30,7 @@ export interface Classification {
   requiredTargets?: string[];
   targets?: ClassifiedTarget[];
   unavailableTargets?: UnavailableClassifiedTarget[];
+  graphRefusals?: ClassifiedGraphRefusal[];
   note?: string;
 }
 
@@ -54,6 +64,8 @@ export interface UnavailableClassifiedTarget {
   target: string;
   reason: "missing-nx-target";
 }
+
+export type ClassifiedGraphRefusal = Omit<GraphRefusalState, "kind">;
 
 export interface DiffClassification {
   schemaVersion: 1;
@@ -99,7 +111,8 @@ function classifyPathWithProjects(
 ): Classification {
   const rel = toRepoRelative(target);
   const owner = findOwningProject(rel, projects);
-  const workspace = workspaceTargets();
+  const workspace = workspaceTargets(projects);
+  const graphRefusals = workspaceGraphRefusals(projects);
   if (!owner) {
     return {
       path: rel,
@@ -107,6 +120,7 @@ function classifyPathWithProjects(
       note: "workspace-level path",
       requiredTargets: workspace.map((target) => target.command),
       targets: workspace,
+      graphRefusals,
     };
   }
   const scopedRules = rulesInScopeForPath(rel, owner);
@@ -123,6 +137,7 @@ function classifyPathWithProjects(
     ),
     targets: [...resolvedProjectTargets.targets, ...workspace],
     unavailableTargets: resolvedProjectTargets.unavailableTargets,
+    graphRefusals,
   };
 }
 
@@ -231,41 +246,52 @@ function projectTargets(project: NxProjectMetadata): {
   targets: ClassifiedTarget[];
   unavailableTargets: UnavailableClassifiedTarget[];
 } {
-  const targetNames = ["check", "test"];
+  const states = projectTargetStates(project);
   return {
-    targets: targetNames
-      .filter((targetName) => projectHasTarget(project, targetName))
-      .map((targetName) => ({
-        command: `nx run ${project.name}:${targetName}`,
+    targets: states
+      .filter((state) => state.kind === "available-project-target")
+      .map((state) => ({
+        command: state.command,
         owner: "project" as const,
         project: project.name,
-        target: targetName,
-        source: { kind: "nx-project-graph" as const, project: project.name, target: targetName },
+        target: state.target,
+        source: { kind: "nx-project-graph" as const, project: project.name, target: state.target },
       })),
-    unavailableTargets: targetNames
-      .filter((targetName) => !projectHasTarget(project, targetName))
-      .map((targetName) => ({
+    unavailableTargets: states
+      .filter((state) => state.kind === "unavailable-project-target")
+      .map((state) => ({
         owner: "project" as const,
-        project: project.name,
-        target: targetName,
+        project: state.project,
+        target: state.target,
         reason: "missing-nx-target" as const,
       })),
   };
 }
 
-function workspaceTargets(): ClassifiedTarget[] {
-  return [
-    {
-      command: "bun run lint",
-      owner: "workspace",
+function workspaceTargets(projects: readonly NxProjectMetadata[]): ClassifiedTarget[] {
+  return workspaceTargetStates(projects)
+    .filter((state) => state.kind === "aggregate-workspace-target")
+    .map((state) => ({
+      command: state.command,
+      owner: "workspace" as const,
       project: null,
-      target: "lint",
-      source: {
-        kind: "habitat-owned",
-        reason: "workspace-level structural gate from root package scripts",
-      },
-    },
-  ];
+      target: state.target,
+      source: { kind: "habitat-owned" as const, reason: "workspace graph aggregate target" },
+    }));
+}
+
+function workspaceGraphRefusals(projects: readonly NxProjectMetadata[]): ClassifiedGraphRefusal[] {
+  return [
+    ...workspaceTargetStates(projects),
+    ...ruleGraphTargetStates({ projects, rules: activeRuleGraphFacts }),
+  ]
+    .filter((state) => state.kind === "graph-refusal")
+    .map((state) => ({
+      reason: state.reason,
+      message: state.message,
+      project: state.project,
+      target: state.target,
+    }));
 }
 
 async function readNxProjects(options: ClassifyOptions): Promise<NxProjectMetadata[]> {

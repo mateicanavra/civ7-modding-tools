@@ -19,12 +19,13 @@ vi.mock("../../src/lib/spawn.js", () => ({
   run: runMock,
 }));
 
+import { Value } from "typebox/value";
 import {
   createVerifyReceipt,
-  validateVerifyReceipt,
   VerifyReceiptSchema,
+  validateVerifyReceipt,
 } from "../../src/lib/verify-receipt.js";
-import { Value } from "typebox/value";
+import { verifyTargetPlan } from "../../src/lib/workspace-graph/index.js";
 
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {
@@ -105,6 +106,7 @@ describe("verify receipt", () => {
       durationMs: 12,
       exitCode: 1,
       checkReport: checkReport({ ok: false }),
+      verifyTargetPlan: verifyTargetPlanFixture(),
     });
 
     expect(receipt.nxAffected).toEqual({
@@ -209,6 +211,26 @@ describe("verify receipt", () => {
     expect(validateVerifyReceipt(invalid)).not.toEqual([]);
   });
 });
+
+function verifyTargetPlanFixture() {
+  return verifyTargetPlan([
+    {
+      name: "@internal/habitat-harness",
+      root: "tools/habitat-harness",
+      sourceRoot: null,
+      tags: ["kind:tooling"],
+      targets: [
+        { name: "build" },
+        { name: "check" },
+        { name: "test" },
+        { name: "boundaries" },
+        { name: "biome:ci" },
+        { name: "grit:check" },
+        { name: "generated:check" },
+      ],
+    },
+  ]);
+}
 
 function checkReport(options: { ok?: boolean } = {}): CheckReport {
   const ok = options.ok ?? true;
