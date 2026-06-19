@@ -228,14 +228,22 @@ fallback was consumed). Claims below are scoped to what telemetry actually prove
   `setFeatureType` then refuses the 4-tile neighborhood. Fix 2 retry exhausted
   its fallbacks. Would need terrain-aware (volcano∧coast) anchor pre-filtering —
   a suitability refinement beyond the 3-fix scope.
-- **Valley of Flowers (28, ADJACENTMOUNTAIN)** — rejected `set-feature-false` on
-  both earthlike seeds. The mod's ADJACENTMOUNTAIN pre-filter uses odd-Q neighbor
-  math while the engine adjacency is odd-R (differs by 1 of 6 neighbors), so the
-  planner's "has adjacent mountain" candidates systematically miss the engine's
-  odd-R check; Fix 2 retry can't recover because the whole candidate set is
-  mis-filtered. Fixing needs the plan op's predicate neighborhood on odd-R (the
-  op is mapgen-core-only and uses odd-Q grid helpers) — a separate boundary-aware
-  change, not one of the 3 fixes.
+- **Valley of Flowers (28)** — rejected `set-feature-false` on both earthlike
+  seeds. **CORRECTION (post-§D, verified by source + git + a live-shape probe):
+  the original odd-Q/odd-R diagnosis below is WRONG.** The op's ADJACENTMOUNTAIN
+  neighbor walk uses `getHexNeighborIndicesOddQ`, which is already odd-R in this
+  branch (the `OddQ` name is legacy; the hex-adjacency migration `c77749249`
+  predates the Fix commits), and it returns the engine-calibrated odd-R neighbor
+  set — so the predicate was engine-correct at these runs and ADJACENTMOUNTAIN was
+  never the gate. Forwarding an odd-R table to the op is a behavioral no-op
+  (implemented, then reverted). Real cause under diagnosis: VoF is `TWOADJACENT`
+  (2-tile) with data `Direction:-1` forced to `0` by the mod, plus tight
+  constraints (validTerrain=FLAT-only; tags ADJACENTMOUNTAIN + NOTNEARCOAST);
+  leading hypothesis is the engine needs `Direction:-1` self-orient (like the
+  4-tile classes) — UNCONFIRMED, needs a live diagnostic.
+  - _Original (incorrect) diagnosis, retained for the record:_ "the mod's
+    ADJACENTMOUNTAIN pre-filter uses odd-Q neighbor math while the engine
+    adjacency is odd-R, so the candidate set is systematically mis-filtered."
 - **Hoerikwaggo (33, FOURL)** — never selected in the 4 sampled seeds, so its
   self-orientation is UNPROVEN live (the FOURL geometry is engine-evaluated
   independently; sharing the FOURADJACENT/FOURPARALLELAGRM code path is

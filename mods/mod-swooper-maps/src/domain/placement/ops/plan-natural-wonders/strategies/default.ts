@@ -22,10 +22,11 @@
  * (`footprintOffsetsByParity`, computed in derive-placement-inputs); the op
  * resolves odd-R parity at each concrete anchor via that data.
  *
- * Note: the predicate neighborhood here still uses mapgen-core's odd-Q grid
- * helpers, which differ from the engine's odd-R adjacency by 1 of 6 neighbors —
- * the source of the Valley-of-Flowers ADJACENTMOUNTAIN gap. See the system
- * reference (§6, §11) for the planned odd-R-table-as-contract-data fix.
+ * Adjacency: the predicate neighborhood uses mapgen-core's
+ * `getHexNeighborIndicesOddQ`, whose `OddQ` name is LEGACY — the implementation
+ * is odd-R (keyed on `y & 1`) and live-calibrated to the engine, so hard
+ * adjacency tags (ADJACENTMOUNTAIN) already match stamp-time legality. See the
+ * system reference (§6).
  *
  * @see openspec/changes/natural-wonders-full-set-parity-suitability/workstream/natural-wonders-system-reference.md
  */
@@ -683,10 +684,10 @@ function hasTerrainWithinHexDistance(args: {
  * An UNKNOWN tag returns false (fail-closed) — a wonder with a tag this op does
  * not understand is dropped rather than placed on an unvalidated neighborhood.
  *
- * CAVEAT: the neighbor walk uses mapgen-core's odd-Q adjacency, which differs
- * from the engine's odd-R by 1 of 6 neighbors per tile — so hard adjacency tags
- * (notably ADJACENTMOUNTAIN) can systematically disagree with the engine. This
- * is the Valley-of-Flowers gap (system reference §11).
+ * Adjacency: the neighbor walk uses mapgen-core's `getHexNeighborIndicesOddQ`,
+ * whose `OddQ` name is LEGACY — it is odd-R (keyed on `y & 1`), live-calibrated to
+ * the engine — so hard adjacency tags (notably ADJACENTMOUNTAIN) agree with the
+ * engine's stamp-time adjacency.
  */
 function satisfiesFeatureTags(args: {
   feature: NaturalWonderFeatureCandidate;

@@ -318,12 +318,12 @@ footprint truth.
 
 Two consequences worth stating explicitly:
 
-1. **The pure op cannot see map-policy geometry.** Footprint offsets *and* (after
-   the Valley-of-Flowers fix) odd-R neighbor offsets cross the boundary as plain
-   `{even, odd}` data in the op input contract. The op resolves parity at each
-   concrete anchor. This is why the op currently uses mapgen-core's odd-Q grid
-   helpers for its predicate neighborhood — and why that is the
-   [Valley-of-Flowers bug](#11-known-limitations-honest).
+1. **The pure op cannot see map-policy geometry.** Footprint offsets cross the
+   boundary as plain `{even, odd}` data in the op input contract; the op resolves
+   parity at each concrete anchor. For its adjacency predicates the op uses
+   mapgen-core's `getHexNeighborIndicesOddQ` — whose `OddQ` name is **legacy**:
+   the implementation is odd-R (keyed on `y & 1`) and live-calibrated to the
+   engine, so `ADJACENTMOUNTAIN` already matches stamp-time legality.
 2. **Signals are forwarded, never recomputed.** The planner consumes
    already-computed ecology/hydrology/pedology truth artifacts. It must not
    recompute them; doing so would create a second, drifting source of truth.
@@ -344,7 +344,7 @@ occupies. There is deliberately **no second offline legality model**.
 | 4-tile footprint reservation | Anchor-only (engine owns the other 3 cells) | Reserve a concrete/bounding 4-cell footprint offline | The engine refuses forced orientations and owns the true cells; a forced offline footprint is wrong. Cost: weaker offline spacing/occupancy reservation around 4-tile wonders, and readback verifies only the anchor (§4.2). |
 | Legality model | Single engine authority (`setFeatureType` + readback) | Full offline legality re-implementation | No JS legality code exists in shipped resources; re-implementing it would drift from the C++ truth. Cost: the planner can pick tiles the engine then refuses → handled by the fallback retry (§5.3). |
 | Pre-check vs stamp | `canHaveFeatureParam` pre-check is advisory | Trust the pre-check as final | Pre-check ≠ stamp success (esp. multi-tile). Treating it as final would silently drop placeable wonders. Cost: extra stamp attempts. |
-| Predicate neighborhood (op) | Currently odd-Q (mapgen-core grid helpers) | odd-R, matching the engine | The pure op may not import map-policy; odd-Q is what mapgen-core ships. This is *wrong* for hard adjacency predicates and is the Valley-of-Flowers gap; the fix forwards an odd-R table as contract data (§11). |
+| Predicate neighborhood (op) | mapgen-core's `getHexNeighborIndicesOddQ` (already odd-R — `OddQ` is a legacy name) | a map-policy odd-R table forwarded as contract data | Both are odd-R, so forwarding adds no correctness, only a redundant boundary surface. The op stays mapgen-core-only and its adjacency already matches the engine. |
 | Shortfall handling | Measure shortfall as an outcome | Force `targetCount` wonders in | Forcing physically-unsuited wonders breaks the "lands where suited" goal. Cost: a map may place fewer than requested when terrain is poor. |
 
 ---
@@ -417,13 +417,18 @@ These mirror [`live-proof-ledger.md`](./live-proof-ledger.md) §D and are **not*
 closed as of the 3-fix DRAFT. (Items being addressed in the current
 docs/wonders/refactor phase are noted.)
 
-- **Valley of Flowers (28, ADJACENTMOUNTAIN)** — rejected `set-feature-false` on
-  both earthlike seeds. The op's `ADJACENTMOUNTAIN` pre-filter uses odd-Q
-  neighbor math while the engine adjacency is odd-R (differs by 1 of 6 neighbors
-  per tile), so the planner's "has adjacent mountain" candidates systematically
-  miss the engine's check; the fallback retry can't recover a uniformly
-  mis-filtered set. **Fix (in progress):** forward an odd-R neighbor table as
-  contract data into the pure op, mirroring `footprintOffsetsByParity`.
+- **Valley of Flowers (28)** — rejected `set-feature-false` on both earthlike
+  seeds. **Root cause re-diagnosed: the earlier "odd-Q vs odd-R predicate"
+  attribution was wrong** — the op's adjacency (`getHexNeighborIndicesOddQ`) is
+  already odd-R and engine-calibrated, so `ADJACENTMOUNTAIN` was never the gate.
+  VoF is a `TWOADJACENT` 2-tile wonder carrying data `Direction:-1` (engine
+  self-orient, like every base wonder) which the mod normalizes to `Direction:0`,
+  plus tight constraints (FLAT-only terrain; `ADJACENTMOUNTAIN` + `NOTNEARCOAST`).
+  Leading hypothesis (UNCONFIRMED — needs a live diagnostic): like the 4-tile
+  classes, the engine refuses the forced single orientation and needs
+  `Direction:-1` to self-orient the 2-tile footprint into a legal pair. (Some
+  2/3-tile wonders DO place at the forced `Direction:0`, so any self-orient need
+  is specific to tightly-constrained wonders.)
 - **Thera (37, FOURPARALLELAGRM caldera-coast)** — rejected on all runs at
   `Direction:-1`. The CLASS works (Everest, same class, places); Thera needs a
   volcano-adjacent-to-coast neighborhood rarely present at suitability-top
