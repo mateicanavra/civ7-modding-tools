@@ -155,8 +155,171 @@ export function loadRuleRegistryDocument(
   return result.document;
 }
 
+export const activeRuleRegistryDocument = loadRuleRegistryDocument();
+
+export interface RuleSelectorFacts {
+  ruleId: string;
+  ownerProject: string;
+  ownerTool: RuleRegistryRecordV1["ownerTool"];
+}
+
+export interface RuleReportFacts extends RuleSelectorFacts {
+  lane: RuleRegistryRecordV1["lane"];
+  detect: string[];
+  message: string;
+  remediate: string | null;
+}
+
+export interface RuleExecutionFacts extends RuleReportFacts {
+  exceptionPath: string;
+  generatedZone?: string;
+  forbiddenFileNames?: string[];
+  gritPattern?: string;
+  hookScope?: "pre-commit";
+}
+
+export interface RuleBaselineFacts {
+  ruleId: string;
+  exceptionPath: string;
+}
+
+export interface RuleGritFacts extends RuleReportFacts {
+  gritPattern: string;
+  hookScope?: "pre-commit";
+  scope: string;
+  manifestPath?: string;
+}
+
+export interface RuleLocalFeedbackFacts {
+  ruleId: string;
+  ownerTool: RuleRegistryRecordV1["ownerTool"];
+  preCommitEligible: boolean;
+}
+
+export interface RuleGeneratedZoneFacts extends RuleReportFacts {
+  generatedZone?: string;
+  forbiddenFileNames?: string[];
+}
+
+export interface RuleRoutingFacts extends RuleSelectorFacts {
+  scopeText: string;
+}
+
+export function ruleSelectorFacts(
+  records: readonly Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "ownerTool">[] =
+    activeRuleRegistryDocument.rules
+): RuleSelectorFacts[] {
+  return records.map((rule) => ({
+    ruleId: rule.id,
+    ownerProject: rule.ownerProject,
+    ownerTool: rule.ownerTool,
+  }));
+}
+
+export function ruleReportFacts(
+  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+): RuleReportFacts[] {
+  return records.map((rule) => ({
+    ...selectorProjection(rule),
+    lane: rule.lane,
+    detect: [...rule.detect],
+    message: rule.message,
+    remediate: rule.remediate,
+  }));
+}
+
+export function ruleExecutionFacts(
+  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+): RuleExecutionFacts[] {
+  return records.map((rule) => ({
+    ...reportProjection(rule),
+    exceptionPath: rule.exceptionPath,
+    ...("generatedZone" in rule ? { generatedZone: rule.generatedZone } : {}),
+    ...("forbiddenFileNames" in rule
+      ? { forbiddenFileNames: [...rule.forbiddenFileNames] }
+      : {}),
+    ...("gritPattern" in rule ? { gritPattern: rule.gritPattern } : {}),
+    ...("hookScope" in rule && rule.hookScope ? { hookScope: rule.hookScope } : {}),
+  }));
+}
+
+export function ruleBaselineFacts(
+  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+): RuleBaselineFacts[] {
+  return records.map((rule) => ({ ruleId: rule.id, exceptionPath: rule.exceptionPath }));
+}
+
+export function ruleGritFacts(
+  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+): RuleGritFacts[] {
+  return records
+    .filter((rule): rule is Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }> => {
+      return rule.ownerTool === "grit-check";
+    })
+    .map((rule) => ({
+      ...reportProjection(rule),
+      gritPattern: rule.gritPattern,
+      scope: rule.scope,
+      ...("hookScope" in rule && rule.hookScope ? { hookScope: rule.hookScope } : {}),
+      ...("manifestPath" in rule && rule.manifestPath ? { manifestPath: rule.manifestPath } : {}),
+    }));
+}
+
+export function ruleLocalFeedbackFacts(
+  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+): RuleLocalFeedbackFacts[] {
+  return records.map((rule) => ({
+    ruleId: rule.id,
+    ownerTool: rule.ownerTool,
+    preCommitEligible: "hookScope" in rule && rule.hookScope === "pre-commit",
+  }));
+}
+
+export function ruleGeneratedZoneFacts(
+  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+): RuleGeneratedZoneFacts[] {
+  return records
+    .filter((rule): rule is Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }> => {
+      return rule.ownerTool === "file-layer";
+    })
+    .map((rule) => ({
+      ...reportProjection(rule),
+      ...("generatedZone" in rule ? { generatedZone: rule.generatedZone } : {}),
+      ...("forbiddenFileNames" in rule
+        ? { forbiddenFileNames: [...rule.forbiddenFileNames] }
+        : {}),
+    }));
+}
+
+export function ruleRoutingFacts(
+  records: readonly RuleRegistryRecordV1[] = activeRuleRegistryDocument.rules
+): RuleRoutingFacts[] {
+  return records.map((rule) => ({
+    ...selectorProjection(rule),
+    scopeText: rule.scope,
+  }));
+}
+
 export function defaultRuleRegistryPath(): string {
   return path.join(path.dirname(fileURLToPath(import.meta.url)), "rules.json");
+}
+
+function selectorProjection(rule: RuleRegistryRecordV1): RuleSelectorFacts {
+  return {
+    ruleId: rule.id,
+    ownerProject: rule.ownerProject,
+    ownerTool: rule.ownerTool,
+  };
+}
+
+function reportProjection(rule: RuleRegistryRecordV1): RuleReportFacts {
+  return {
+    ...selectorProjection(rule),
+    lane: rule.lane,
+    detect: [...rule.detect],
+    message: rule.message,
+    remediate: rule.remediate,
+  };
 }
 
 function duplicateRuleIdIssues(

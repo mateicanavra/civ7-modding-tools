@@ -1,5 +1,9 @@
 import type { HarnessRule } from "../rules/architecture.js";
 import { rules } from "../rules/architecture.js";
+import {
+  ruleSelectorFacts as projectRuleSelectorFacts,
+  type RuleSelectorFacts as RegistryRuleSelectorFacts,
+} from "../rules/registry.js";
 
 export interface RuleSelection {
   owner?: string;
@@ -41,7 +45,8 @@ export function selectRules(
   selection: RuleSelection = {},
   registry: readonly HarnessRule[] = rules
 ): RuleSelectionResult {
-  const facts = selectorFacts(selection, registry);
+  const registryFacts = projectRuleSelectorFacts(registry);
+  const facts = selectorFacts(selection, registryFacts);
   const wrongNamespace = facts.find((fact) => !fact.known && fact.matchedNamespace);
   if (wrongNamespace) {
     return {
@@ -64,7 +69,10 @@ export function selectRules(
     };
   }
 
-  const selected = filterRules(selection, registry);
+  const selectedRuleIds = filterRuleIds(selection, registryFacts);
+  const selected = selectedRuleIds
+    .map((ruleId) => registry.find((rule) => rule.id === ruleId))
+    .filter((rule): rule is HarnessRule => Boolean(rule));
   if (facts.length > 0 && selected.length === 0) {
     return {
       ok: false,
@@ -90,17 +98,20 @@ export function describeRuleSelectionFailure(failure: { message: string }): stri
   return failure.message;
 }
 
-function filterRules(selection: RuleSelection, registry: readonly HarnessRule[]): HarnessRule[] {
+function filterRuleIds(
+  selection: RuleSelection,
+  registry: readonly RegistryRuleSelectorFacts[]
+): string[] {
   let selected = [...registry];
   if (selection.owner) selected = selected.filter((rule) => rule.ownerProject === selection.owner);
-  if (selection.rule) selected = selected.filter((rule) => rule.id === selection.rule);
+  if (selection.rule) selected = selected.filter((rule) => rule.ruleId === selection.rule);
   if (selection.tool) selected = selected.filter((rule) => rule.ownerTool === selection.tool);
-  return selected;
+  return selected.map((rule) => rule.ruleId);
 }
 
 function selectorFacts(
   selection: RuleSelection,
-  registry: readonly HarnessRule[]
+  registry: readonly RegistryRuleSelectorFacts[]
 ): RuleSelectorFact[] {
   const facts: RuleSelectorFact[] = [];
   if (selection.owner) facts.push(selectorFact("owner", selection.owner, registry));
@@ -112,10 +123,10 @@ function selectorFacts(
 function selectorFact(
   kind: RuleSelectorKind,
   requestedValue: string,
-  registry: readonly HarnessRule[]
+  registry: readonly RegistryRuleSelectorFacts[]
 ): RuleSelectorFact {
   const matchingRuleIds = matchingRulesForKind(kind, requestedValue, registry).map(
-    (rule) => rule.id
+    (rule) => rule.ruleId
   );
   const matchedNamespace =
     matchingRuleIds.length > 0 ? undefined : firstMatchingNamespace(kind, requestedValue, registry);
@@ -131,13 +142,13 @@ function selectorFact(
 function matchingRulesForKind(
   kind: RuleSelectorKind,
   value: string,
-  registry: readonly HarnessRule[]
-): HarnessRule[] {
+  registry: readonly RegistryRuleSelectorFacts[]
+): RegistryRuleSelectorFacts[] {
   switch (kind) {
     case "owner":
       return registry.filter((rule) => rule.ownerProject === value);
     case "rule":
-      return registry.filter((rule) => rule.id === value);
+      return registry.filter((rule) => rule.ruleId === value);
     case "tool":
       return registry.filter((rule) => rule.ownerTool === value);
   }
@@ -146,7 +157,7 @@ function matchingRulesForKind(
 function firstMatchingNamespace(
   requestedKind: RuleSelectorKind,
   value: string,
-  registry: readonly HarnessRule[]
+  registry: readonly RegistryRuleSelectorFacts[]
 ): RuleSelectorKind | undefined {
   return (["owner", "rule", "tool"] as const).find(
     (kind) => kind !== requestedKind && matchingRulesForKind(kind, value, registry).length > 0
