@@ -2,25 +2,25 @@
 
 ## 1. Design Acceptance Prerequisites
 
-- [ ] 1.1 Read the D2 source packet, this OpenSpec packet, the remediation frame, D0 accepted design/specification records, and D1 accepted design/specification records.
-- [ ] 1.2 Import D2 negative review findings from `domino-D2-review.md` and fresh D2 investigations into the D2 review ledger.
-- [ ] 1.3 Confirm D2 remains design/specification only until final D2 rereview finds no unresolved accepted P1/P2 findings.
-- [ ] 1.4 Confirm source implementation remains blocked until concrete D0 matrix rows exist for every D2-touched public/durable surface.
+- [x] 1.1 Read the D2 source packet, this OpenSpec packet, the implementation frame, D0 concrete matrix records, and D1 submitted source/contract records.
+- [x] 1.2 Import D2 negative review findings from `domino-D2-review.md` and fresh D2 investigations into the D2 review ledger.
+- [x] 1.3 Confirm D2 remained design/specification only until final D2 rereview found no unresolved accepted P1/P2 findings.
+- [x] 1.4 Confirm source implementation remains blocked until concrete D0 matrix rows exist for every D2-touched public/durable surface; concrete rows are now cited in `workstream/implementation-start-inventory.md`.
 
 ## 2. Implementation Grounding Later
 
-- [ ] 2.1 Start implementation from the approved implementation stack with a clean worktree.
-- [ ] 2.2 Cite concrete D0 `surface_id` rows for CLI JSON/human output, package exports, Nx target metadata, generator output, hook output, and docs examples touched by D2.
-- [ ] 2.3 Cite the D1 command/report/refusal family used by each malformed metadata failure.
-- [ ] 2.4 Record the approved write set and protected paths from `design.md` in the implementation phase record before source edits.
+- [x] 2.1 Start implementation from the approved implementation stack with a clean worktree.
+- [x] 2.2 Cite concrete D0 `surface_id` rows for CLI JSON/human output, package exports, Nx target metadata, generator output, hook output, and docs examples touched by D2.
+- [x] 2.3 Cite the D1 command/report/refusal family used by each malformed metadata failure.
+- [x] 2.4 Record the approved write set and protected paths from `design.md` in the implementation phase record before source edits.
 
 ## 3. Registry Model Slice
 
-- [ ] 3.1 Introduce a canonical registry owner module that is the only TypeScript owner of raw `rules.json` parsing.
-- [ ] 3.2 Add `RuleRegistryDocumentV1` with `schemaVersion: 1`, closed `ownerTool` vocabulary, closed `lane` vocabulary, and discriminated `RuleRegistryRecord` variants.
-- [ ] 3.3 Add parser failures for duplicate ids, unknown adapters, unsupported enforcement dispositions, missing identity facts, and contradicted variant fields.
+- [ ] 3.1 Introduce a canonical registry owner module under `tools/habitat-harness/src/rules/` that is the only TypeScript owner of raw `rules.json` parsing.
+- [ ] 3.2 Add TypeBox-first `RuleRegistryDocumentV1` schemas with `schemaVersion: 1`, closed `ownerTool` vocabulary, closed `lane` vocabulary, and discriminated `RuleRegistryRecord` variants; derive TypeScript types from the schemas.
+- [ ] 3.3 Add TypeBox-backed parser failures for duplicate ids, unknown adapters, unsupported enforcement dispositions, missing identity facts, and contradicted variant fields.
 - [ ] 3.4 Preserve any D0-required `HarnessRule`, `rules`, or `ruleById` public compatibility facade from canonical state, not from raw JSON authority.
-- [ ] 3.5 Add registry parser tests using current 51 rules and malformed fixture rows.
+- [ ] 3.5 Add registry parser tests using current 52 rules and malformed fixture rows.
 
 ## 4. Projection Slice
 
@@ -31,7 +31,7 @@
 
 ## 5. Consumer Migration Slice
 
-- [ ] 5.1 Migrate selector and check report code in `command-engine.ts` to `ruleSelectorFacts` and `ruleReportFacts`.
+- [ ] 5.1 Migrate selector and check report code in `rule-selection.ts` and `check-report.ts` to `ruleSelectorFacts` and `ruleReportFacts`.
 - [ ] 5.2 Migrate execution dispatch in `architecture.ts` to `ruleExecutionFacts`.
 - [ ] 5.3 Migrate classify routing to `ruleRoutingFacts` and remove prose `scope` parsing as authority.
 - [ ] 5.4 Migrate `plugin.js` to `ruleGraphFacts`, removing independent `OWNER_ROOTS` authority, silent owner skips, and colon-string target parsing.

@@ -42,8 +42,8 @@ D2 downstream handoffs are accepted for design/specification after final D2 rere
 
 ## Required Index Alignment
 
-- Keep D2 status as `accepted for design/specification; final review and code/topology recheck found no unresolved P1/P2 blockers; not implementation-complete`.
-- D2 implementation remains blocked until concrete D0 matrix rows exist.
+- Keep D2 status as `accepted for design/specification; final review and code/topology recheck found no unresolved P1/P2 blockers; implementation active; not implementation-complete`.
+- D2 source implementation requires concrete D0 matrix rows and D1 malformed-metadata citations; those implementation-start citations now live in `workstream/implementation-start-inventory.md`.
 - G-HOST is not listed as D2-enabled. G-HOST is parallel host-policy work requiring D0 and D1; D10 consumes both D2 and G-HOST.
 - D10 remains the packet where D2 generated-zone facts and G-HOST host-policy declarations meet.
 
@@ -52,4 +52,4 @@ D2 downstream handoffs are accepted for design/specification after final D2 rere
 - This ledger accepts only D2 design/specification handoffs.
 - This ledger does not implement projections.
 - This ledger does not accept, repair, or close any downstream packet.
-- This ledger does not authorize source implementation from D2 design alone.
+- This ledger does not authorize source implementation from D2 design alone; implementation proceeds through the implementation-start inventory and TypeBox-first registry boundary.

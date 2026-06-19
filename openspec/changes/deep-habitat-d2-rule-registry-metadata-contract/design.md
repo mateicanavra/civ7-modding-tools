@@ -8,7 +8,7 @@ Current code is evidence, not authority. The target product scenario is repo mai
 
 ## Current Diagnosis
 
-Current `rules.json` has 51 rules and 16 observed fields:
+Current `rules.json` has 52 rules and 16 observed fields:
 
 `detect`, `exceptionPath`, `forbiddenFileNames`, `forbids`, `generatedZone`, `gritPattern`, `hookScope`, `id`, `lane`, `message`, `nxTarget`, `ownerProject`, `ownerTool`, `remediate`, `scope`, and `why`.
 
@@ -18,7 +18,7 @@ Observed `ownerTool` counts:
 | --- | ---: |
 | `biome` | 1 |
 | `file-layer` | 4 |
-| `grit-check` | 31 |
+| `grit-check` | 32 |
 | `habitat-native` | 4 |
 | `nx-boundaries` | 1 |
 | `wrapped-script` | 3 |
@@ -28,7 +28,7 @@ Observed `lane` counts:
 
 | `lane` | Count |
 | --- | ---: |
-| `advisory` | 2 |
+| `advisory` | 3 |
 | `enforced` | 49 |
 
 The current `HarnessRule` shape mixes identity, reporting prose, execution strategy, path applicability, graph target hints, baseline state, Grit pattern identity, generated-zone references, hook participation, and future Pattern Authority references in one optional-field object. This creates invalid reachable states: Grit rows without patterns, non-Grit rows with Grit fields, file-layer rows without a generated-zone or file-name policy, wrapped tests without structured target references, graph targets parsed from colon strings, and path routing inferred from prose.
@@ -36,7 +36,7 @@ The current `HarnessRule` shape mixes identity, reporting prose, execution strat
 Current consumers duplicate authority:
 
 - `architecture.ts` casts raw JSON to `HarnessRule[]` and dispatches execution by `ownerTool`.
-- `command-engine.ts` returns whole rules from selector logic, filters staged Grit rules by `hookScope`, emits report rows from the whole record, and parses `scope` for classify routing.
+- `rule-selection.ts` returns whole rules from selector logic, `check-report.ts` filters staged Grit rules by `hookScope` and emits report rows from the whole record, and `classify.ts` parses `scope` for classify routing.
 - `plugin.js` reads `rules.json` independently, hard-codes `OWNER_ROOTS`, silently skips unknown owners, and parses `nxTarget` colon strings.
 - `baseline.ts` separately parses rule ids and `exceptionPath` while external exception rules live in code.
 - `grit.ts` accepts whole rules, falls back from missing `gritPattern` to `id`, owns scan roots in code, and parses `scope` for ignored tests.
@@ -92,7 +92,7 @@ Use standard engineering terms first. Attach special terms only where Habitat ow
 
 ## Target Type Model
 
-D2 chooses a versioned registry document parsed into closed rule states:
+D2 chooses a versioned registry document parsed into closed rule states. Implementation uses TypeBox schemas as the source of truth for this serialized registry contract, derives TypeScript types from those schemas, and validates external/serialized registry data through TypeBox validation before any consumer receives projections:
 
 ```ts
 interface RuleRegistryDocumentV1 {
@@ -227,7 +227,7 @@ Before D2 source implementation starts, the implementation packet must cite conc
 | Hook/local feedback output | staged Grit selection and file-layer checks | hook eligibility and malformed metadata wording |
 | Docs/examples | Habitat scenarios and implemented-surface docs | public guidance for supported registry behavior |
 
-Until concrete D0 rows exist, D2 may be accepted for design/specification only and source implementation remains blocked. D2 rows may use `blocked-pending-d0-row` placeholders only in design artifacts, never as implementation closure evidence.
+Concrete implementation-start citations are recorded in `workstream/implementation-start-inventory.md`. D2 rows may use `blocked-pending-d0-row` placeholders only in historical design artifacts, never as implementation closure evidence.
 
 Malformed metadata must use D1 output families:
 
@@ -246,20 +246,23 @@ D2 must not invent a separate `proof`, `evidence`, or generic artifact result sh
 
 Later D2 implementation may touch these paths after D0 rows exist:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/architecture.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
-- New registry owner modules under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-injected-probe.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/generated-zones.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
-- Focused tests under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/`
+- `tools/habitat-harness/src/rules/architecture.ts`
+- `tools/habitat-harness/src/rules/rules.json`
+- New registry owner modules under `tools/habitat-harness/src/rules/`
+- `tools/habitat-harness/src/lib/rule-selection.ts`
+- `tools/habitat-harness/src/lib/check-report.ts`
+- `tools/habitat-harness/src/lib/classify.ts`
+- `tools/habitat-harness/src/lib/verify-receipt.ts`
+- `tools/habitat-harness/src/plugin.js`
+- `tools/habitat-harness/src/lib/baseline.ts`
+- `tools/habitat-harness/src/lib/grit.ts`
+- `tools/habitat-harness/src/lib/grit-injected-probe.ts`
+- `tools/habitat-harness/src/lib/generated-zones.ts`
+- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
+- `tools/habitat-harness/src/generators/pattern/generator.cjs`
+- `tools/habitat-harness/src/generators/pattern/registration.cjs`
+- `tools/habitat-harness/src/index.ts`
+- Focused tests under `tools/habitat-harness/test/`
 
 Protected during D2 source implementation unless an amended packet re-reviews them:
 
@@ -299,4 +302,4 @@ D2 can be accepted for design/specification only when:
 - Fresh final D2 review finds no unresolved accepted P1/P2 findings.
 - OpenSpec validation passes.
 
-D2 is not implementation-complete until source code is refactored in a later implementation phase and all D0/D1/D2 validation gates pass.
+D2 is not implementation-complete until source code is refactored in implementation and all D0/D1/D2 validation gates pass.
