@@ -1,6 +1,7 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { ApplyAdmissionProjectionSchema } from "../../rules/pattern-governance/index.js";
+import { TransactionPathAuthorityProjectionSchema } from "../protected-zone-authority/index.js";
 import { NonEmptyStringSchema } from "./primitives.js";
 
 export const WorktreeObservationSchema = Type.Object(
@@ -31,7 +32,10 @@ export const DryRunIntentSchema = Type.Interface(
 
 export const LiveWriteIntentSchema = Type.Interface(
   [TransactionIntentFieldsSchema],
-  { kind: Type.Literal("live-write-intent") },
+  {
+    kind: Type.Literal("live-write-intent"),
+    pathAuthority: Type.Optional(TransactionPathAuthorityProjectionSchema),
+  },
   { additionalProperties: false }
 );
 

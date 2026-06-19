@@ -8,7 +8,7 @@ import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
-    expect(rules).toHaveLength(53);
+    expect(rules).toHaveLength(54);
     expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(33);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(3);
     expect(rules.some((rule) => "hookScope" in rule)).toBe(false);

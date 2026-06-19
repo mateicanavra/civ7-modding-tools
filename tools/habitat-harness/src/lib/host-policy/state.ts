@@ -181,13 +181,19 @@ function matchersOverlap(left: HostMatcher, right: HostMatcher): boolean {
   }
   const prefix = left.kind === "prefix" ? left.value : right.value;
   const exact = left.kind === "exact" ? left.value : right.value;
-  return exact === prefixRoot(prefix) || exact.startsWith(prefix);
+  return exact === prefixRoot(prefix) || exact.startsWith(normalizedPrefix(prefix));
 }
 
 function pathPrefixesOverlap(left: string, right: string): boolean {
-  return left === right || left.startsWith(right) || right.startsWith(left);
+  const leftPrefix = normalizedPrefix(left);
+  const rightPrefix = normalizedPrefix(right);
+  return left === right || leftPrefix.startsWith(rightPrefix) || rightPrefix.startsWith(leftPrefix);
 }
 
 function prefixRoot(prefix: string): string {
   return prefix.replace(/\/$/, "");
+}
+
+function normalizedPrefix(prefix: string): string {
+  return prefix.endsWith("/") ? prefix : `${prefix}/`;
 }

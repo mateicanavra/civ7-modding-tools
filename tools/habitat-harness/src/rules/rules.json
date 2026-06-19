@@ -1192,6 +1192,25 @@
       ]
     },
     {
+      "id": "file-layer-host-protected-surfaces",
+      "ownerTool": "file-layer",
+      "ownerProject": "@internal/habitat-harness",
+      "lane": "enforced",
+      "scope": "staged changes touching host-declared protected surfaces",
+      "forbids": "staged hand-edits to host-declared protected surfaces",
+      "why": "Host-owned protected surfaces must be changed through their declared owner workflow.",
+      "detect": ["habitat", "check", "--staged", "--tool", "file-layer"],
+      "remediate": "Use the recovery instruction from the host policy declaration.",
+      "message": "Host-declared protected surfaces are protected from hand edit.",
+      "exceptionPath": "none",
+      "hostSurfaceGuard": true,
+      "pathCoverage": [
+        {
+          "kind": "workspace-gate"
+        }
+      ]
+    },
+    {
       "id": "arch-test-core-purity",
       "ownerTool": "wrapped-test",
       "ownerProject": "@swooper/mapgen-core",
