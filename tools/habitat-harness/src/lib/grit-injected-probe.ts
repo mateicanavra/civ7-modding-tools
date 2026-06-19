@@ -1,12 +1,12 @@
 import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Effect, Layer } from "effect";
-import { rules } from "../rules/architecture.js";
-import { type RuleGritFacts, ruleGritFacts } from "../rules/registry/index.js";
+import { activeRuleGritFacts } from "../rules/facts.js";
+import type { RuleGritFacts } from "../rules/registry/index.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
 import { type HabitatGitState, readGitState } from "./git-state.js";
-import { runGritRules, validateScanRoots } from "./grit.js";
+import { runGritRules, validateScanRoots } from "../adapters/grit/index.js";
 import { type GritAdapterFailureTag, isGritAdapterFailureTag } from "./grit-failures.js";
 import type { HabitatProcess } from "./habitat-process.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
@@ -79,7 +79,7 @@ export function injectedGritProbeProgram(
     const validationFailure = validateInjectedGritProbeInput(input);
     if (validationFailure) return { ...validationFailure, beforeGitState };
 
-    const registry = input.registry ?? ruleGritFacts(rules);
+    const registry = input.registry ?? activeRuleGritFacts;
     const rule = registry.find((candidate) => candidate.id === input.ruleId);
     if (!rule) {
       return failure(
@@ -258,7 +258,7 @@ function validateInjectedGritProbeInput(
     );
   }
   if (
-    (input.registry ?? ruleGritFacts(rules)).find((rule) => rule.id === input.ruleId)
+    (input.registry ?? activeRuleGritFacts).find((rule) => rule.id === input.ruleId)
       ?.gritPattern !== input.patternIdentity
   ) {
     return failure(

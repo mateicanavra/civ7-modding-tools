@@ -8,6 +8,7 @@ import {
 import { validateCheckReport } from "../../src/lib/diagnostics.js";
 import { type RuleSelection, selectRules } from "../../src/lib/rule-selection.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
+import type { RuleGritFacts } from "../../src/rules/registry/index.js";
 
 const fakeRules: HarnessRule[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
@@ -164,6 +165,8 @@ describe("rule selector boundary", () => {
 
     expect(
       rulesForExecution([stagedEligible, currentTreeOnly, nativeRule], {
+        gritFacts: [fakeGritFact("grit-hook", ["packages"])],
+        localFeedbackFacts: [{ id: "grit-hook", localFeedback: true }],
         staged: true,
         stagedPaths: ["packages/mapgen-core/src/core/index.ts"],
       }).map((rule) => rule.id)
@@ -177,6 +180,8 @@ describe("rule selector boundary", () => {
 
     expect(
       rulesForExecution([stagedEligible], {
+        gritFacts: [fakeGritFact("grit-hook", ["packages"])],
+        localFeedbackFacts: [{ id: "grit-hook", localFeedback: true }],
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
       }).map((rule) => rule.id)
@@ -227,5 +232,15 @@ function fakeRule(
     message: "test fixture",
     exceptionPath: "none",
     ...overrides,
+  };
+}
+
+function fakeGritFact(id: string, scanRoots: readonly string[]): RuleGritFacts {
+  return {
+    id,
+    gritPattern: "fixture_pattern",
+    lane: "enforced",
+    message: "test fixture",
+    scanRoots: [...scanRoots],
   };
 }

@@ -129,11 +129,11 @@ Habitat SHALL expose `ruleFileLayerFacts` for file-layer/generated-zone consumer
 
 ### Requirement: Pattern Authority Facts Project Manifest Relations
 
-Habitat SHALL expose `ruleGovernanceFacts` for Pattern Governance and scaffolding consumers. D2 SHALL record registry-to-Pattern-Authority references and manifest status projections where present. D8 owns lifecycle admission, fixture sufficiency, false-positive model, and governance approval.
+Habitat SHALL expose `ruleGovernanceFacts` for Pattern Governance and scaffolding consumers. D2 SHALL record registry-to-Pattern-Authority references where present. D8 owns lifecycle admission, fixture sufficiency, false-positive model, and governance approval.
 
 #### Scenario: Registered Pattern Authority reference is consistent
 - **WHEN** a Grit rule references a registered Pattern Authority manifest
-- **THEN** `ruleGovernanceFacts` includes the rule id, pattern name, manifest path, expected lifecycle, and authority-accepted projection
+- **THEN** `ruleGovernanceFacts` includes only the D2-owned registry relation facts: rule id, lane, pattern name, and manifest path
 - **AND** D8 still owns whether the manifest is admitted
 
 #### Scenario: Manifest reference is contradicted
@@ -148,6 +148,15 @@ Habitat SHALL route malformed registry metadata through D1 command/report/refusa
 #### Scenario: Malformed metadata blocks execution
 - **WHEN** a consumer requires a D2 projection and the registry row is malformed for that projection
 - **THEN** Habitat reports the appropriate metadata failure before executing that rule
+
+### Requirement: Registry Metadata Is Allowlist-Only
+
+Habitat SHALL define the allowed rule registry document shape and reject anything outside that shape. D2 SHALL NOT rely on enumerating known bad structures as the primary registry guard; TypeBox schemas and downstream structural enforcement SHALL encode the accepted shape and deny everything else by default.
+
+#### Scenario: Unknown registry field is present
+- **WHEN** a rule registry document includes a field outside the accepted D2 schema
+- **THEN** Habitat rejects the registry document before consumers infer behavior from that field
+- **AND** future exceptions require changing the allowed shape, not adding ad hoc blocklist checks
 - **AND** the result is distinguishable from an ordinary structural rule violation
 
 ### Requirement: Downstream Dominoes Consume Named D2 Projections

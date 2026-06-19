@@ -1,24 +1,24 @@
-/**
- * @typedef {import("../rules/registry/schema.js").RuleGraphFacts} RuleGraphFacts
- * @typedef {import("../rules/registry/schema.js").RuleRegistryRecordV1} RuleRegistryRecordV1
- * @typedef {{ project: string, target: string }} GraphTarget
- * @typedef {{ boundaries: string, biomeCi: string, generatedCheck: string, gritCheck: string }} GraphTargetNames
- */
+import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../rules/registry/schema.js";
 
-const DEFAULT_TARGET_NAMES = {
+interface GraphTargetNames {
+  boundaries: string;
+  biomeCi: string;
+  generatedCheck: string;
+  gritCheck: string;
+}
+
+const DEFAULT_TARGET_NAMES: GraphTargetNames = {
   boundaries: "boundaries",
   biomeCi: "biome:ci",
   generatedCheck: "generated:check",
   gritCheck: "grit:check",
 };
 
-/**
- * @param {readonly RuleRegistryRecordV1[]} records
- * @param {ReadonlyMap<string, string>} ownerRoots
- * @param {GraphTargetNames} [targetNames]
- * @returns {RuleGraphFacts[]}
- */
-export function ruleGraphFacts(records, ownerRoots, targetNames = DEFAULT_TARGET_NAMES) {
+export function ruleGraphFacts(
+  records: readonly RuleRegistryRecordV1[],
+  ownerRoots: ReadonlyMap<string, string>,
+  targetNames: GraphTargetNames = DEFAULT_TARGET_NAMES
+): RuleGraphFacts[] {
   return records.map((rule) => {
     const root = ownerRoots.get(rule.ownerProject);
     if (!root) {
@@ -35,12 +35,10 @@ export function ruleGraphFacts(records, ownerRoots, targetNames = DEFAULT_TARGET
   });
 }
 
-/**
- * @param {RuleRegistryRecordV1} rule
- * @param {GraphTargetNames} targetNames
- * @returns {RuleGraphFacts["alias"]}
- */
-function ruleGraphAlias(rule, targetNames) {
+function ruleGraphAlias(
+  rule: RuleRegistryRecordV1,
+  targetNames: GraphTargetNames
+): RuleGraphFacts["alias"] {
   if (rule.id === "biome-ci") {
     return {
       kind: "depends-on",

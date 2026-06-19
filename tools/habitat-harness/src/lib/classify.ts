@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { rules } from "../rules/architecture.js";
-import { type RuleRoutingFacts, ruleRoutingFacts } from "../rules/registry/index.js";
+import { activeRuleRoutingFacts, activeRuleSelectorFacts } from "../rules/facts.js";
+import type { RuleRoutingFacts } from "../rules/registry/index.js";
 import {
   findOwningProject,
   NxProjectGraphMetadataReader,
@@ -90,7 +90,7 @@ export async function classifyPath(
 }
 
 export function commandSummary(): string {
-  return `rule pack: ${rules.length} rules (+ baseline-integrity built-in)`;
+  return `rule pack: ${activeRuleSelectorFacts.length} rules (+ baseline-integrity built-in)`;
 }
 
 function classifyPathWithProjects(
@@ -127,7 +127,7 @@ function classifyPathWithProjects(
 }
 
 function rulesInScopeForPath(pathInRepo: string, owner: NxProjectMetadata): ScopedRule[] {
-  return ruleRoutingFacts(rules)
+  return activeRuleRoutingFacts
     .map((rule) => classifyRuleScope(rule, pathInRepo, owner))
     .filter((rule): rule is ScopedRule => Boolean(rule))
     .sort((a, b) => a.ruleId.localeCompare(b.ruleId));

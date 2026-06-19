@@ -2,11 +2,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Value } from "typebox/value";
-import {
-  RuleRegistryDocumentV1Schema,
-  type RuleRegistryDocumentV1,
-  type RuleRegistryRecordV1,
-} from "./schema.js";
+import { RuleRegistryDocumentV1Schema } from "./schema.js";
+import type { RuleRegistryDocumentV1, RuleRegistryRecordV1 } from "./schema.js";
 
 export type RuleRegistryIssueCode =
   | "registry-json-invalid"

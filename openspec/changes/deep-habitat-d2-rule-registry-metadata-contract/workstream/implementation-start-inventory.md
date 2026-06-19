@@ -18,20 +18,20 @@ schemas.
 
 ## Current Source Grounding
 
-Current `tools/habitat-harness/src/rules/rules.json` contains 52 rules and 16
-observed fields. Current counts:
+Current `tools/habitat-harness/src/rules/rules.json` contains 53 rules and 19
+observed rule fields. Current counts:
 
 | Field | Value |
 | --- | ---: |
-| Total rules | 52 |
-| `grit-check` rules | 32 |
+| Total rules | 53 |
+| `grit-check` rules | 33 |
 | `wrapped-test` rules | 7 |
 | `wrapped-script` rules | 3 |
 | `habitat-native` rules | 4 |
 | `file-layer` rules | 4 |
 | `biome` rules | 1 |
 | `nx-boundaries` rules | 1 |
-| `enforced` rules | 49 |
+| `enforced` rules | 50 |
 | `advisory` rules | 3 |
 
 D1 has split the former command-engine responsibilities:
@@ -41,7 +41,7 @@ D1 has split the former command-engine responsibilities:
 | `tools/habitat-harness/src/lib/rule-selection.ts` | selector logic currently returns selected whole `HarnessRule` rows |
 | `tools/habitat-harness/src/lib/check-report.ts` | report construction, staged Grit filtering by `hookScope`, rule execution aggregation |
 | `tools/habitat-harness/src/lib/classify.ts` | classify routing currently derives scoped rules from registry rows and prose `scope` |
-| `tools/habitat-harness/src/lib/verify-receipt.ts` | D1 receipt boundary; D2 must not redefine verify claims |
+| `tools/habitat-harness/src/lib/verify-receipt.ts` | D1/D12 receipt boundary; D2 must not touch or redefine verify claims |
 
 ## D0 Public-Surface Citations
 
@@ -105,7 +105,7 @@ D2 implementation starts with these product constraints:
 ## Immediate Source Slices
 
 1. Introduce TypeBox registry schema/parser and compatibility facade.
-2. Add parser/projection tests for all 52 current rules plus malformed fixtures.
+2. Add parser/projection tests for all 53 current rules plus malformed fixtures.
 3. Migrate selector/report consumers to projections.
 4. Migrate classify routing away from prose `scope`.
 5. Migrate plugin graph facts and remove owner-root / colon-string authority.
