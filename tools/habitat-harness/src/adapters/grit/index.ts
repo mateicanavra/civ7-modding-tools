@@ -18,7 +18,6 @@ export {
   gritCheckRequest,
 } from "./request.js";
 export {
-  resetGritCacheForTests,
   runGritRule,
   runGritRules,
 } from "./runner.js";

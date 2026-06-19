@@ -16,11 +16,6 @@ import {
 } from "./scan-roots/index.js";
 import type { GritCheckCacheMode, GritCheckOutputFormat, GritProjectionOptions } from "./types.js";
 
-export function resetGritCacheForTests(): void {
-  // Historical test helper retained for compatibility; the Effect adapter no
-  // longer stores a module-level Grit report cache.
-}
-
 export async function runGritRule(rule: RuleGritFacts): Promise<RuleRunResult> {
   const results = await runGritRules([rule]);
   return (
