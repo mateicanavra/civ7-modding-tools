@@ -118,7 +118,26 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
   return mask;
 }
 
-/** Builds placement inputs from map info, authored config, adapter-owned catalogs, and pipeline artifacts. */
+/**
+ * Builds placement inputs from map info, authored config, adapter-owned catalogs,
+ * and pipeline artifacts — and runs the natural-wonder planner.
+ *
+ * This is the boundary step (`kind:mod`) that lets the pure planner stay
+ * engine-/policy-free: it resolves each catalog wonder's MATERIALIZATION
+ * direction and parity-keyed footprint offsets from `@civ7/map-policy`
+ * (`resolveNaturalWonderMaterializationDirection` /
+ * `getNaturalWonderFootprintOffsetsByParity`) and passes them across as plain
+ * contract DATA in `featureCatalog`. Wonders whose placement class has no
+ * footprint are dropped here (the `if (!footprintOffsetsByParity) return []`),
+ * so the op never sees an unstampable shape.
+ *
+ * It also forwards already-computed physical signals (vegetation, moisture,
+ * temperature, fertility, discharge, slope) — never recomputed — and the engine
+ * terrain/biome/feature surfaces (terrain is a DECLARED readback, biome/feature
+ * are artifact-reconstructed; see the per-helper docs above) plus the polar-water
+ * `naturalWonderBlockedMask`. Returns the assembled inputs and the planner's
+ * `naturalWonderPlan` (the intent that `place-natural-wonders` later stamps).
+ */
 export function buildPlacementInputs(
   context: ExtendedMapContext,
   config: DerivePlacementInputsConfig,

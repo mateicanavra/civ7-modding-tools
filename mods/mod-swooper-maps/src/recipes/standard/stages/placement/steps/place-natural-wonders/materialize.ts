@@ -624,6 +624,14 @@ export function stampNaturalWondersFromPlan({
   };
 }
 
+/**
+ * Coerces a (possibly partial or cross-boundary) stats object back into a sound
+ * `NaturalWonderStampingStats`: clamps every count to a non-negative integer,
+ * enforces `targetCount >= plannedCount` and derives a `shortfallCount` when
+ * absent, caps `rejectionExamples`, and re-validates the coordinate proof/rows.
+ * Used when reading stats published across a step boundary (where the typed
+ * shape is not guaranteed) before telemetry or reconciliation consume them.
+ */
 export function normalizeNaturalWonderStampingStats(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): NaturalWonderStampingStats {
@@ -805,6 +813,18 @@ function buildNaturalWonderRuntimeRejectedRows(
     ]);
 }
 
+/**
+ * Projects stamping stats into the emitted `NATURAL_WONDER_PLACEMENT_V1`
+ * telemetry payload.
+ *
+ * PRECISION CAVEAT (load-bearing for evidence claims): the payload exposes
+ * per-row coordinates ONLY for REJECTED rows (`rejectedRows`). Placed wonders are
+ * summarized as an opaque `coordinateProof.placedHash32` (FNV-1a 32) plus a
+ * count — no individual placed coordinate. So a wonder's placed status is derived
+ * as `planned − rejected`, and a specific placed coordinate or its row parity is
+ * NOT directly provable from telemetry. The rejected-digest fields are omitted
+ * entirely when there are no rejected rows (keeps clean-run hashes stable).
+ */
 export function buildNaturalWonderPlacementRuntimeTelemetry(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): NaturalWonderPlacementRuntimeTelemetry {
@@ -835,6 +855,13 @@ export function buildNaturalWonderPlacementRuntimeTelemetry(
   };
 }
 
+/**
+ * Emits the `NATURAL_WONDER_PLACEMENT_V1` line to the engine log (the
+ * `[SWOOPER_MOD]`-prefixed channel that live-proof tooling scrapes). The single
+ * runtime sink for placement evidence; see
+ * {@link buildNaturalWonderPlacementRuntimeTelemetry} for the payload's
+ * placed-vs-rejected precision caveat.
+ */
 export function logNaturalWonderPlacementRuntimeTelemetry(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): void {

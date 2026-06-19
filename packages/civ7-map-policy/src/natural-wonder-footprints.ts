@@ -69,10 +69,14 @@ const SELF_ORIENTING_FOUR_TILE_CLASSES = new Set([
   "FOURL",
 ]);
 
+/** True for the 4-tile classes the engine refuses to stamp at a forced concrete
+ * direction (see {@link SELF_ORIENTING_FOUR_TILE_CLASSES}). */
 function isSelfOrientingFourTileClass(placementClass: string | undefined): boolean {
   return placementClass !== undefined && SELF_ORIENTING_FOUR_TILE_CLASSES.has(placementClass);
 }
 
+/** True when `direction` is the self-orient sentinel (`-1`, or any non-finite/
+ * negative value): the engine, not the offline model, chooses the orientation. */
 function isEngineSelfOrientDirection(direction: number | undefined): boolean {
   return !(Number.isFinite(direction) && (direction as number) >= 0);
 }
@@ -108,6 +112,14 @@ export function hasUnsupportedNaturalWonderPolicyTags(
   return tags.some((tag) => !SUPPORTED_POLICY_TAGS.has(tag));
 }
 
+/**
+ * The wonder's authored placement direction from policy, or `-1` (the engine
+ * self-orient sentinel) when none is declared. This is the RAW corpus direction —
+ * it is not yet specialized for the 4-tile self-orient rule; pass it through
+ * {@link resolveNaturalWonderMaterializationDirection} to get the value the engine
+ * is actually called with. Used as the default `direction` argument across the
+ * footprint helpers.
+ */
 export function resolveNaturalWonderPlacementDirection(
   policy: OptionalNaturalWonderPlacementPolicy
 ): number {
@@ -260,6 +272,23 @@ export function getNaturalWonderFootprintOffsetsByParity(
   return { even, odd };
 }
 
+/**
+ * Concrete plot indices of a wonder's footprint at anchor `(x, y)` — the
+ * parity-AWARE, stamp-time resolver. Selects the offset table for the anchor
+ * row's parity (`y & 1`, odd-R), walks it from the anchor, wraps in X (cylinder),
+ * and rejects any footprint running off the top/bottom edge (returns `null`).
+ *
+ * This is the placement-correct counterpart to the parity-agnostic
+ * {@link getNaturalWonderFootprintOffsets}: the materialize step recomputes the
+ * footprint per candidate anchor with this before its occupancy/terrain pre-check
+ * and post-place readback. For a self-orienting 4-tile wonder at the `-1`
+ * sentinel the offsets are anchor-only, so this returns `[anchorIndex]` and the
+ * engine owns/verifies the other three cells. `direction` defaults to the policy
+ * direction; callers normally pass the resolved materialization direction.
+ *
+ * @returns footprint plot indices, or `null` if the class is unsupported or the
+ *   footprint falls outside the map.
+ */
 export function getNaturalWonderFootprintIndices(args: {
   x: number;
   y: number;

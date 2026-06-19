@@ -1,3 +1,34 @@
+/**
+ * plan-natural-wonders / default strategy — the pure natural-wonder PLANNER.
+ *
+ * Selects a subset of the catalog's natural wonders for one map and assigns each
+ * a primary anchor (plus fallback anchors), deterministically and with NO RNG.
+ * It emits intent only; `place-natural-wonders/materialize.ts` stamps it and the
+ * engine is the final legality authority. The three passes:
+ *
+ *   1. per-tile suitability  — `suitabilityAt` scores each (requirement-group,
+ *      tile) pair in [0,1] from forwarded physical signals (never recomputed).
+ *   2. per-wonder ranking     — `isCandidateCompatibleWithFeature` keeps each
+ *      wonder's constraint-passing tiles, sorted by suitability; the top score
+ *      is the wonder's `bestSuitability`.
+ *   3. cross-wonder selection — a diminishing-returns greedy (`effectiveScore` /
+ *      `isBetterPick`) that decays repeat picks from the same requirement group,
+ *      so the chosen set is a physically-grounded cross-TYPE mix that tracks the
+ *      map's terrain instead of collapsing onto the most abundant group.
+ *
+ * BOUNDARY (load-bearing, `kind:plan`): this op imports only
+ * `@swooper/mapgen-core`. It MUST NOT import `@civ7/map-policy` or the engine.
+ * Footprint geometry crosses the boundary as contract DATA
+ * (`footprintOffsetsByParity`, computed in derive-placement-inputs); the op
+ * resolves odd-R parity at each concrete anchor via that data.
+ *
+ * Note: the predicate neighborhood here still uses mapgen-core's odd-Q grid
+ * helpers, which differ from the engine's odd-R adjacency by 1 of 6 neighbors —
+ * the source of the Valley-of-Flowers ADJACENTMOUNTAIN gap. See the system
+ * reference (§6, §11) for the planned odd-R-table-as-contract-data fix.
+ *
+ * @see openspec/changes/natural-wonders-full-set-parity-suitability/workstream/natural-wonders-system-reference.md
+ */
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import { getHexNeighborIndicesOddQ, hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
@@ -193,10 +224,21 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
     }
     const coastTerrainType = input.coastTerrainType | 0;
 
-    // Per-(group, tile) physical suitability in [0,1]. Hard constraints stay
-    // pass/fail (isCandidateCompatibleWithFeature); this only RANKS passing tiles
-    // and ranks WHICH wonders place (best-suitability), so different terrain →
-    // different selected wonder sets. Deterministic, no RNG.
+    /**
+     * Physical suitability of `candidate` for a wonder's requirement `group`, in
+     * [0,1], as a weighted blend of normalized forwarded signals (relief, elev,
+     * aridity, discharge/river, moisture, temperature bands, vegetation,
+     * fertility, slope, coastal shelf vs deep water). Each group's weights encode
+     * what that wonder class physically wants (the formulas are load-bearing —
+     * retune deliberately, never loosen to admit a tile).
+     *
+     * This only RANKS tiles that already pass the hard constraints
+     * (`isCandidateCompatibleWithFeature`); it never overrides legality. Its
+     * outputs feed two decisions: the per-wonder tile sort and `bestSuitability`,
+     * which ranks WHICH wonders are selected — so the selected set tracks terrain
+     * (a mountainous map surfaces mountain wonders). Deterministic, no RNG: signal
+     * values are seed-derived but the scoring is a pure function of them.
+     */
     const suitabilityAt = (group: WonderGroup, candidate: Candidate): number => {
       const i = candidate.plotIndex;
       const relief = candidate.relief;
@@ -304,6 +346,14 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
     }> = [];
     const usedPlots = new Set<number>();
 
+    /**
+     * Highest-suitability anchor still available for `plan`, or `null` if none
+     * fits. Walks the wonder's suitability-descending tile list and returns the
+     * first whose entire parity-aware footprint is free (no cell in `usedPlots`)
+     * and which sits at least `minSpacing` hexes from every already-placed wonder.
+     * Callers retry with `minSpacing = 0` to relax the spacing floor when the
+     * spaced pass finds nothing (the floor is a preference, not a hard rule).
+     */
     const pickTile = (plan: WonderPlan, minSpacing: number): Candidate | null => {
       for (const candidate of plan.sorted) {
         if (usedPlots.has(candidate.plotIndex)) continue;
@@ -329,13 +379,23 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
       return null;
     };
 
-    // Next-best anchors for a wonder after its primary is chosen (Fix 2): the
-    // materialize step retries these in order when the engine refuses the
-    // primary, since canHaveFeatureParam-true does not guarantee
-    // setFeatureType-success. Fallbacks are ALTERNATIVES to the primary (only one
-    // is ever stamped), so they may sit near the primary; they must avoid OTHER
-    // placed wonders' footprints and the primary's own footprint, and prefer the
-    // spacing floor. Suitability-descending (plan.sorted), capped.
+    /**
+     * Next-best anchors for a wonder after its primary is chosen — the recovery
+     * list the materialize step retries in order when the engine refuses the
+     * primary anchor (`canHaveFeatureParam`-true does NOT guarantee
+     * `setFeatureType`-success, especially for multi-tile wonders).
+     *
+     * Fallbacks are ALTERNATIVES to the primary (only one is ever stamped), so
+     * they may sit near it; each must have a free parity-aware footprint that
+     * avoids every already-placed wonder AND the primary's own footprint
+     * (`excluded`). Spaced candidates (>= `minSpacingTiles` from placed wonders)
+     * are preferred and returned first, then unspaced ones fill up to
+     * `FALLBACK_CAP`. Suitability-descending (walks `plan.sorted`).
+     *
+     * MUST be called BEFORE the primary footprint is added to `usedPlots`, so
+     * fallbacks are scored as alternatives to the primary rather than as tiles
+     * forbidden by it.
+     */
     const FALLBACK_CAP = 6;
     const collectFallbacks = (
       plan: WonderPlan,
@@ -388,15 +448,27 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
     const groupSelectedCount = new Map<WonderGroup, number>();
     const remaining = plans.filter((plan) => plan.bestSuitability >= 0);
 
+    /**
+     * The greedy's per-iteration ranking key for a wonder: its `bestSuitability`
+     * decayed by `GROUP_DISCOUNT` once per wonder already placed from the same
+     * requirement group, plus a large additive `PLACE_FIRST_BONUS` for
+     * base-generator `placeFirst` wonders. The decay is the variety mechanism — it
+     * lets a fresh group's wonder out-rank a second wonder from an already-served
+     * group even at lower raw suitability. Recomputed each iteration because
+     * `groupSelectedCount` changes as wonders are placed.
+     */
     const effectiveScore = (plan: WonderPlan): number => {
       const alreadyFromGroup =
         groupSelectedCount.get(wonderGroup(plan.feature.featureType)) ?? 0;
       const bonus = plan.feature.placeFirst ? PLACE_FIRST_BONUS : 0;
       return bonus + plan.bestSuitability * GROUP_DISCOUNT ** alreadyFromGroup;
     };
-    // Strict "is a a better pick than b?" ordering: higher effective score, then
-    // higher best suitability, then lower featureType (a stable last resort —
-    // featureType is unique per catalog entry, so ties always resolve).
+    /**
+     * Total ordering for the greedy's argmax: is `a` a strictly better pick than
+     * `b`? Compares `effectiveScore`, then `bestSuitability`, then LOWER
+     * `featureType` as a stable last resort. featureType is unique per catalog
+     * entry, so every tie resolves deterministically — there is no RNG fallback.
+     */
     const isBetterPick = (a: WonderPlan, b: WonderPlan): boolean => {
       const sa = effectiveScore(a);
       const sb = effectiveScore(b);
@@ -503,6 +575,21 @@ function wrappedX(x: number, width: number): number {
   return ((x % width) + width) % width;
 }
 
+/**
+ * Resolves a wonder's footprint to concrete plot indices at one anchor. Picks the
+ * offset list for the ANCHOR row's parity (`y & 1`) — odd and even rows carry
+ * distinct offsets because the engine grid is odd-R (the byParity data forwarded
+ * by derive-placement-inputs from map-policy) — then walks it from the anchor,
+ * wrapping in X (cylinder) and rejecting any footprint that runs off the top/
+ * bottom edge.
+ *
+ * Returns `null` when the footprint is out of bounds in Y or collapses to empty;
+ * callers treat `null` as "this anchor cannot host the wonder". The op's single
+ * source of footprint geometry — used by candidate compatibility, the primary
+ * pick, and fallback collection so all three reserve the same cells. For a
+ * self-orienting 4-tile wonder the forwarded offsets are anchor-only, so this
+ * returns just `[anchor]` (the engine owns the other three cells).
+ */
 function getFootprintIndices(args: {
   plotIndex: number;
   width: number;
@@ -578,6 +665,29 @@ function hasTerrainWithinHexDistance(args: {
   return false;
 }
 
+/**
+ * Conservative offline check of a wonder's `Feature_Placement` predicate tags
+ * against the tile/footprint neighborhood. Returns true only if EVERY tag the
+ * wonder declares is satisfied (a hard AND); a single failing tag drops the
+ * candidate. Called by `isCandidateCompatibleWithFeature` as part of the
+ * pass/fail constraint gate, before suitability ranking.
+ *
+ * Two tag categories:
+ *  - Adjacency/distance predicates resolvable offline (ADJACENTTOCOAST,
+ *    NOTADJACENTTOLAND, ADJACENTMOUNTAIN, WATERFALL, NOTNEARCOAST, …) are
+ *    evaluated against the footprint and its neighbors.
+ *  - Engine-deferred tags with no offline signal (FEATURE_FOREST/REEF,
+ *    SHALLOWWATER, VOLCANO, ADJACENTCLIFF, NOLANDOPPOSITECLIFF) pass through
+ *    here; the engine's stamp-time `canHaveFeatureParam` is their authority.
+ *
+ * An UNKNOWN tag returns false (fail-closed) — a wonder with a tag this op does
+ * not understand is dropped rather than placed on an unvalidated neighborhood.
+ *
+ * CAVEAT: the neighbor walk uses mapgen-core's odd-Q adjacency, which differs
+ * from the engine's odd-R by 1 of 6 neighbors per tile — so hard adjacency tags
+ * (notably ADJACENTMOUNTAIN) can systematically disagree with the engine. This
+ * is the Valley-of-Flowers gap (system reference §11).
+ */
 function satisfiesFeatureTags(args: {
   feature: NaturalWonderFeatureCandidate;
   candidate: Candidate;
@@ -771,6 +881,20 @@ function satisfiesFeatureTags(args: {
   return true;
 }
 
+/**
+ * The hard-constraint gate: can this wonder legally be reserved at this anchor,
+ * offline? Returns true only when EVERY footprint cell clears all checks —
+ * in-bounds footprint, not in `naturalWonderBlockedMask` (polar water rows), no
+ * existing feature, valid terrain/biome (when the wonder restricts them), no lake
+ * (when `noLake`) — AND the predicate tags pass (`satisfiesFeatureTags`) AND the
+ * anchor meets `minimumElevation`.
+ *
+ * This is pass/fail and is the filter the planner runs before any suitability
+ * ranking: tiles that fail are never scored or selected. It is a CONSERVATIVE
+ * pre-filter, not the final word — the engine's `canHaveFeatureParam` + readback
+ * at stamp time is the legality authority, so a tile that passes here can still
+ * be refused later (recovered via the materialize fallback retry).
+ */
 function isCandidateCompatibleWithFeature(args: {
   feature: NaturalWonderFeatureCandidate;
   candidate: Candidate;
