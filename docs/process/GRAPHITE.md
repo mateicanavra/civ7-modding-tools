@@ -514,6 +514,7 @@ Follow Conventional Commits format, with an optional ticket prefix when a tracka
 - Scope: internal area of concern (package/app/subsystem), not the repo/project name
 - Body: explain intent + user-visible behavior and any operational/testing notes
 - Footer references: include the project/package being worked on and the ticket ID from the title (plus any other durable references)
+- Graphite commit messages must be one-line subject, blank line, then body. Use the editor for bodies; do not script escaped `\n` sequences or rely on multiple `-m` flags.
 
 Example (with Linear ticket):
 
