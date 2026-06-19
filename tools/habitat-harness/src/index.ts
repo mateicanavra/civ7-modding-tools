@@ -30,15 +30,23 @@ export {
   stringifyCheckReport,
 } from "./lib/check-report.js";
 export type {
-  Classification,
   ClassifiedTarget,
   ClassifyOptions,
-  DiffClassification,
-  RuleScopeKind,
-  ScopedRule,
+  ClassifyResult,
+  PathClassification,
+  RuleCoverageKind,
+  RuleRouting,
   UnavailableClassifiedTarget,
 } from "./lib/classify.js";
-export { classifyPath, classifyTarget, commandSummary } from "./lib/classify.js";
+export {
+  classifyPath,
+  classifyPathResult,
+  classifyTarget,
+  classifyTargetResult,
+  commandSummary,
+  stringifyClassifyResult,
+  validateClassifyResult,
+} from "./lib/classify.js";
 export type {
   CheckReport,
   HabitatDiagnostic,

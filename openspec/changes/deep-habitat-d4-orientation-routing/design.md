@@ -19,10 +19,9 @@ or whether rule routing can still parse prose `scope`.
 - Frame: `habitat classify` should answer "what does this path or diff mean
   for repo maintenance?" without overclaiming execution, safety, or authoring
   support.
-- Aspiration threshold: a future TypeScript implementation can introduce a
-  closed discriminated union, migrate consumers through compatibility facades
-  when D0 requires them, and delete invalid optional combinations without
-  reopening domain decisions.
+- Aspiration threshold: a TypeScript implementation can introduce a closed
+  discriminated union, version public consumers to that model, and delete
+  invalid optional combinations without reopening domain decisions.
 - Constraint reality: D4 may consume D0/D1/D2/D3 accepted design/specification
   state now, but source implementation remains blocked behind concrete D0 rows,
   live D2 rule-routing projections, and live D3 graph facts.
@@ -43,7 +42,7 @@ D4 does not own:
 - D0 compatibility actions or public-surface row completeness;
 - D1 command outcome, refusal, recovery, or non-claim vocabulary;
 - D2 rule registry identity, `PathCoverage`, `ruleRoutingFacts`, malformed rule
-  metadata, or legacy `scope` compatibility;
+  metadata, or old `scope` text;
 - D3 project identity, graph read status, target availability, alias validity,
   dependency resolution, aggregate/workspace target truth, or `GraphRefusal`;
 - D7 structural enforcement;
@@ -59,7 +58,7 @@ phrases are kept only where they name a real Habitat invariant.
 | --- | --- |
 | `ClassifyResult` | Target top-level versioned DTO returned by `habitat classify`. It has exactly one `state`. |
 | `PathClassification` | Target path-level classification. It may be project-owned, workspace-owned, unresolved, graph-blocked, or unsupported. |
-| `DiffClassification` | Target diff state when the diff has one or more classified changed paths. Existing public `DiffClassification` remains D0-controlled compatibility surface until source implementation. |
+| `ClassifyDiffResult` | Target diff state when the diff has one or more classified changed paths. |
 | `RuleRouting` | D4's command-facing view of D2 `ruleRoutingFacts`; D4 may render it but may not create route truth. |
 | `TargetGuidance` | D4's command-facing view of D3 available/unavailable/aggregate target facts. It is guidance, not execution. |
 | `RecoveryInstruction` | Bounded next step for malformed, unresolved, graph-refusal, or unsupported states. |
@@ -67,14 +66,14 @@ phrases are kept only where they name a real Habitat invariant.
 
 Forbidden target language:
 
-- `proof` and `evidence` are compatibility terms only for legacy output fields;
-  D4 target code should use result, fact, guidance, diagnostic, refusal,
-  recovery instruction, command outcome, receipt, and non-claim terminology.
+- `proof` and `evidence` are not classify-result terminology. D4 target code
+  should use result, fact, guidance, diagnostic, refusal, recovery instruction,
+  command outcome, receipt, and non-claim terminology.
 - `supported actions` is too broad. Use `runnableTargets`,
   `unavailableTargets`, `recoveryInstructions`, and `nonClaims`.
 - `next safe commands` is too strong for classify. Use graph-backed target
   guidance plus non-claims.
-- `scope` is compatibility prose only; D4 target routing consumes D2
+- `scope` is not D4 route authority; D4 target routing consumes D2
   `ruleRoutingFacts`.
 
 ## Classify Result State Model
@@ -97,8 +96,7 @@ D0-cited before becoming public JSON.
 
 ## Forbidden Field Combinations
 
-The target TypeScript model must make these combinations impossible or confine
-them to an explicitly D0-cited legacy facade:
+The target TypeScript model must make these combinations impossible:
 
 - `project: null` with `projectRoot`, `tags`, project-owned `targets`,
   `unavailableTargets`, `rulesInScope`, or `scopedRules`.
@@ -110,7 +108,7 @@ them to an explicitly D0-cited legacy facade:
 - wrapper-level diff owner, tags, rule list, or target list.
 - unavailable target reported beside a runnable command for the same
   project/target.
-- graph metadata failure represented by thrown exception or workspace fallback.
+- graph metadata failure represented by thrown exception or workspace catch-all.
 - rule routing derived from raw `scope` prose.
 - open `note?: string` as a semantic routing/refusal channel.
 - `rulesInScope` diverging from the target rule-routing projection.
@@ -122,19 +120,19 @@ implementation must stop until the concrete D0 matrix rows exist and are cited.
 
 | Surface | Plane | Required D0 row before source edits | Target handling |
 | --- | --- | --- | --- |
-| `habitat classify` command invocation | command | `blocked-pending-d0-row` | Preserve verb/argument unless D0 records a public command change. |
-| `habitat classify` path JSON | command-json | `blocked-pending-d0-row` | Version to `ClassifyResult` or facade legacy `Classification`; no silent shape change. |
-| `habitat classify` diff JSON | command-json | `blocked-pending-d0-row` | Version to `diff` state or facade legacy `DiffClassification`; no successful empty malformed diff. |
-| `habitat classify` human output | human-output | `blocked-pending-d0-row` | If JSON-only remains current behavior, state that; human guidance must not claim more than JSON. |
-| `Classification` export | package-export | `blocked-pending-d0-row` | Changes must cite D0 rows and keep the compatibility shape explicit through facade, deprecation, or versioning. |
-| `DiffClassification` export | package-export | `blocked-pending-d0-row` | Changes must cite D0 rows and keep the compatibility shape explicit through facade, deprecation, or versioning. |
-| `ClassifiedTarget`, `UnavailableClassifiedTarget`, `ScopedRule`, `RuleScopeKind` exports | package-export | `blocked-pending-d0-row` | Preserve as supporting compatibility types unless D0 and owning packets version them. |
-| `classifyPath`, `classifyTarget` exports | package-export | `blocked-pending-d0-row` | Preserve or facade public functions; target model may live behind new internal module first. |
-| Classify docs/examples | docs-example | `blocked-pending-d0-row` | Document-only update after behavior and public rows are aligned. |
-| Generated help/manifests, if affected | generated | `blocked-pending-d0-row` | Generated-only; regenerate from source, never hand-edit generated output. |
+| `habitat classify` command invocation | command | `D0-cli-cmd-classify`, `D0-cli-cmd-classify-arg-path` | Preserve verb/argument unless D0 records a public command change. |
+| `habitat classify` path JSON | command-json | `D0-command-json-type-classifyresult` | Version to `ClassifyResult`; no silent shape change. |
+| `habitat classify` diff JSON | command-json | `D0-command-json-type-classifydiffresult` | Version to `ClassifyDiffResult`; no successful empty malformed diff. |
+| `habitat classify` human output | human-output | `D0-human-output-cmd-classify-help-orientation-guidance` | Help guidance must not claim more than JSON and non-claims. |
+| Old classify DTO exports | package-export | `D0-package-export-symbol-classification`, `D0-package-export-symbol-diffclassification`, `D0-package-export-symbol-scopedrule`, `D0-package-export-symbol-rulescopekind` | Version to `ClassifyResult`, `PathClassification`, `RuleRouting`, and `RuleCoverageKind`. |
+| `classifyPath`, `classifyTarget` exports | package-export | `D0-package-export-symbol-classifypath`, `D0-package-export-symbol-classifytarget` | Preserve public function names while returning the target model. |
+| Classify docs/examples | docs-example | `D0-docs-example-doc-tools-habitat-harness-docs-scenarios-classify-a-path-before-editing-path-classify-command`, `D0-docs-example-doc-tools-habitat-harness-docs-scenarios-classify-a-diff-or-patch-patch-classify-command` | Document-only update after behavior and public rows are aligned. |
+| Generated help/manifests, if affected | generated | `D0-package-export-file-oclif-manifest-json`, `D0-package-export-subpath-oclif-commands` | Generated-only; regenerate from source, never hand-edit generated output. |
 
 Allowed D0 compatibility actions remain only: `preserve`, `version`, `facade`,
-`deprecate`, `refuse`, `document-only`, and `generated-only`.
+`deprecate`, `refuse`, `document-only`, and `generated-only`. D4 uses `version`
+for old classify DTOs and does not use `facade` to preserve a parallel classify
+DTO path.
 
 ## D2 And D3 Consumption Rules
 
@@ -162,10 +160,10 @@ Later source implementation may edit only after D4 acceptance and prerequisites:
 
 | Area | Allowed purpose |
 | --- | --- |
-| `$HABITAT_TOOL/src/lib/command-engine.ts` | Preserve/facade current classify entrypoints and route to target classification model. |
+| `$HABITAT_TOOL/src/lib/classify.ts` and `$HABITAT_TOOL/src/lib/classify-core/**` | Implement current classify entrypoints and target classify result model. |
 | `$HABITAT_TOOL/src/lib/classify-result.ts` or equivalent new module | Define target `ClassifyResult` union and typed projections. |
 | `$HABITAT_TOOL/src/commands/classify.ts` | Render command JSON/human output and exit status according to D0/D1. |
-| `$HABITAT_TOOL/src/index.ts` | Add/facade public exports only with D0 rows. |
+| `$HABITAT_TOOL/src/index.ts` | Version classify public exports only with D0 rows. |
 | `$HABITAT_TOOL/test/lib/classify.test.ts` and focused classify fixtures | Cover every D4 state and forbidden combination. |
 | `$HABITAT_TOOL/test/commands/habitat-commands.test.ts` | Cover command adapter output/status behavior. |
 | `$HABITAT_TOOL/docs/SCENARIOS.md`, `$HABITAT_TOOL/docs/CAPABILITIES.md` | Update examples only after D0 docs rows and source behavior exist. |
@@ -188,12 +186,12 @@ D4 implementation must follow state-space collapse before rearrangement:
    unavailable target, unresolved routing, and graph-refusal behavior.
 2. Introduce the target `ClassifyResult` discriminated union and exhaustiveness
    checks without replacing public exports.
-3. Add D0-required legacy facades/adapters from the target union to current
-   `Classification`/`DiffClassification` surfaces when preservation is required.
+3. Version D0-cited predecessor DTO surfaces to the target union; do not add a
+   second compatibility DTO path.
 4. Migrate command adapter, tests, docs examples, and public consumers through
    exhaustive `state` switches or typed projection helpers.
 5. Delete or deprecate invalid optionals, raw prose routing, and open note
-   channels after all consumers use the target model or compatibility facade.
+   channels after consumers use the target model.
 6. Validate after each logical move; keep Graphite layers small and reviewable.
 
 ## D14 Example Handoff
@@ -228,9 +226,9 @@ freshness, or verify closure.
 
 ## Structural Alternative Rejected
 
-The rejected alternative is to keep the current optional-heavy `Classification`
+The rejected alternative is to keep the prior optional-heavy classify DTO
 shape and add more prose or a shallow `kind?: string`. That preserves the exact
 state-space smell D4 exists to remove: a single object that can represent
-project path, workspace fallback, diff, unresolved owner, unavailable target,
+project path, workspace catch-all, diff, unresolved owner, unavailable target,
 and graph failure in invalid combinations. D4 requires a closed state model,
 owned field rules, D0 compatibility rows, and D2/D3 projection boundaries.

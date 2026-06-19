@@ -1,11 +1,11 @@
 import { Args } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { classifyTarget } from "../lib/classify.js";
+import { classifyTargetResult, stringifyClassifyResult } from "../lib/classify.js";
 
 export default class Classify extends HabitatCommand {
-  static override summary = "Classify a repo path into Habitat project ownership";
+  static override summary = "Classify a repo path or diff into Habitat orientation";
   static override description =
-    "Reports the owning workspace project, tags, in-scope Habitat rules, and expected verification targets.";
+    "Reports owner state, D2 rule-routing facts, graph-backed target guidance, recovery instructions, and non-claims.";
   static override examples = ["<%= config.bin %> <%= command.id %> tools/habitat-harness/src"];
 
   static override args = {
@@ -18,6 +18,6 @@ export default class Classify extends HabitatCommand {
 
   async run(): Promise<void> {
     const { args } = await this.parse(Classify);
-    this.log(JSON.stringify(await classifyTarget(args.path), null, 2));
+    this.log(stringifyClassifyResult(await classifyTargetResult(args.path)));
   }
 }
