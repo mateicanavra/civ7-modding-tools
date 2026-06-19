@@ -130,9 +130,10 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
           .map((entry) => [entry.featureType, entry] as const)
       ).values()
     ).sort((a, b) => {
-      // placeFirst wonders are placed ahead of the rest (engine base-generator
-      // order); stable by featureType within each group. Task 5 replaces this
-      // with a per-map best-suitability ranking.
+      // Deterministic, stable catalog order (placeFirst first, then by
+      // featureType). This only fixes iteration/dedup order; WHICH wonders place
+      // and in what order is decided by the diminishing-returns greedy below
+      // (argmax over effectiveScore), not by this sort.
       if (a.placeFirst !== b.placeFirst) return a.placeFirst ? -1 : 1;
       return a.featureType - b.featureType;
     });
@@ -291,16 +292,6 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
       };
     });
 
-    // Rank wonders: placeFirst pinned ahead (among those with a legal tile), then
-    // by best achievable suitability descending; stable tie-break by featureType.
-    plans.sort((a, b) => {
-      const aPinned = a.feature.placeFirst && a.bestSuitability >= 0;
-      const bPinned = b.feature.placeFirst && b.bestSuitability >= 0;
-      if (aPinned !== bPinned) return aPinned ? -1 : 1;
-      if (b.bestSuitability !== a.bestSuitability) return b.bestSuitability - a.bestSuitability;
-      return a.feature.featureType - b.feature.featureType;
-    });
-
     const minSpacingTiles = Math.max(0, config.minSpacingTiles | 0);
     const targetCount = Math.min(wondersCount, featureCatalog.length, size);
     const selected: Array<{
@@ -337,11 +328,52 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
       return null;
     };
 
-    for (const plan of plans) {
-      if (selected.length >= targetCount) break;
-      if (plan.bestSuitability < 0) continue; // physically unsuited: no legal tile
+    // Cross-wonder selection: diminishing-returns greedy. Each iteration places
+    // the remaining wonder with the highest effective score, where a wonder's
+    // best-achievable suitability decays by GROUP_DISCOUNT for every wonder
+    // already placed from its requirement group:
+    //   effectiveScore = placeFirstBonus + bestSuitability * GROUP_DISCOUNT^groupCount
+    // placeFirst wonders carry a large additive bonus so the engine
+    // base-generator ordering is preserved, but the per-group decay still
+    // applies. The decay makes a 2nd water wonder (1.0 * 0.5 = 0.5) lose to a
+    // fresh land wonder (~0.7), so the selected set is a cross-type MIX whose
+    // composition tracks the map's terrain (more mountains → more mountain
+    // wonders) instead of collapsing to the abundant-water groups. Fully
+    // deterministic — argmax with a stable tie-break, no RNG.
+    const PLACE_FIRST_BONUS = 1000;
+    const GROUP_DISCOUNT = 0.5;
+    const groupSelectedCount = new Map<WonderGroup, number>();
+    const remaining = plans.filter((plan) => plan.bestSuitability >= 0);
+
+    const effectiveScore = (plan: WonderPlan): number => {
+      const alreadyFromGroup =
+        groupSelectedCount.get(wonderGroup(plan.feature.featureType)) ?? 0;
+      const bonus = plan.feature.placeFirst ? PLACE_FIRST_BONUS : 0;
+      return bonus + plan.bestSuitability * GROUP_DISCOUNT ** alreadyFromGroup;
+    };
+    // Strict "is a a better pick than b?" ordering: higher effective score, then
+    // higher best suitability, then lower featureType (a stable last resort —
+    // featureType is unique per catalog entry, so ties always resolve).
+    const isBetterPick = (a: WonderPlan, b: WonderPlan): boolean => {
+      const sa = effectiveScore(a);
+      const sb = effectiveScore(b);
+      if (sa !== sb) return sa > sb;
+      if (a.bestSuitability !== b.bestSuitability) return a.bestSuitability > b.bestSuitability;
+      return a.feature.featureType < b.feature.featureType;
+    };
+
+    while (selected.length < targetCount && remaining.length > 0) {
+      let bestIdx = 0;
+      for (let i = 1; i < remaining.length; i++) {
+        if (isBetterPick(remaining[i]!, remaining[bestIdx]!)) bestIdx = i;
+      }
+      const plan = remaining[bestIdx]!;
       const candidate = pickTile(plan, minSpacingTiles) ?? pickTile(plan, 0);
-      if (!candidate) continue;
+      if (!candidate) {
+        // No free, in-bounds footprint remains for this wonder: drop it.
+        remaining.splice(bestIdx, 1);
+        continue;
+      }
       for (const plotIndex of getFootprintIndices({
         plotIndex: candidate.plotIndex,
         width,
@@ -350,6 +382,8 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
       }) ?? [candidate.plotIndex]) {
         usedPlots.add(plotIndex);
       }
+      const group = wonderGroup(plan.feature.featureType);
+      groupSelectedCount.set(group, (groupSelectedCount.get(group) ?? 0) + 1);
       selected.push({
         plotIndex: candidate.plotIndex,
         featureType: plan.feature.featureType,
@@ -357,6 +391,7 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
         elevation: candidate.elevation,
         priority: clamp01(plan.suitByPlot.get(candidate.plotIndex) ?? 0),
       });
+      remaining.splice(bestIdx, 1);
     }
 
     return {
