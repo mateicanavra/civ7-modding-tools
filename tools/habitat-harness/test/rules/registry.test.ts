@@ -5,6 +5,8 @@ import {
   parseRuleRegistryText,
   type RuleRegistryDocumentV1,
   type RuleRegistryRecordV1,
+  ruleGritFacts,
+  ruleLocalFeedbackFacts,
 } from "../../src/rules/registry.js";
 
 describe("rule registry contract", () => {
@@ -132,6 +134,31 @@ describe("rule registry contract", () => {
       ),
       "registry-schema-invalid"
     );
+  });
+
+  test("keeps local feedback out of Grit execution facts", () => {
+    const rule = baseRule({
+      ownerTool: "grit-check",
+      gritPattern: "sample_pattern",
+      scanRoots: ["packages"],
+      localFeedback: true,
+    });
+
+    expect(ruleGritFacts([rule])).toEqual([
+      {
+        id: "sample-rule",
+        lane: "enforced",
+        message: "Fix the structural issue.",
+        gritPattern: "sample_pattern",
+        scanRoots: ["packages"],
+      },
+    ]);
+    expect(ruleLocalFeedbackFacts([rule])).toEqual([
+      {
+        id: "sample-rule",
+        localFeedback: true,
+      },
+    ]);
   });
 });
 

@@ -1,4 +1,5 @@
 import type {
+  RuleFileLayerFacts,
   RuleGritFacts,
   RuleLocalFeedbackFacts,
   RuleRegistryRecordV1,
@@ -12,6 +13,8 @@ type ReportProjectionInput = Pick<
   "id" | "ownerTool" | "lane" | "detect" | "message" | "remediate"
 >;
 type GritProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
+type FileLayerProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
+type LocalFeedbackProjectionInput = GritProjectionInput & { localFeedback: true };
 
 export function ruleSelectorFacts(
   records: readonly SelectorProjectionInput[]
@@ -47,14 +50,29 @@ export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGri
     }));
 }
 
+export function ruleFileLayerFacts(records: readonly RuleRegistryRecordV1[]): RuleFileLayerFacts[] {
+  return records
+    .filter((rule): rule is FileLayerProjectionInput => rule.ownerTool === "file-layer")
+    .map((rule) => ({
+      id: rule.id,
+      lane: rule.lane,
+      message: rule.message,
+      ...("generatedZone" in rule
+        ? { generatedZone: rule.generatedZone }
+        : { forbiddenFileNames: [...rule.forbiddenFileNames] }),
+    }));
+}
+
 export function ruleLocalFeedbackFacts(
   records: readonly RuleRegistryRecordV1[]
 ): RuleLocalFeedbackFacts[] {
-  return records.map((rule) => ({
-    id: rule.id,
-    state:
-      rule.ownerTool === "grit-check" && rule.localFeedback?.preCommit === true
-        ? ("pre-commit" as const)
-        : ("not-eligible" as const),
-  }));
+  return records
+    .filter(
+      (rule): rule is LocalFeedbackProjectionInput =>
+        rule.ownerTool === "grit-check" && rule.localFeedback === true
+    )
+    .map((rule) => ({
+      id: rule.id,
+      localFeedback: true as const,
+    }));
 }
