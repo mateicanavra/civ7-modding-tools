@@ -2,7 +2,7 @@
 
 Status: investigation reference frame and implementation-input backlog.
 Created: 2026-06-19.
-Branch: `agent-DRA-habitat-domain-language-cleanup`.
+Branch: `agent-DRA-effect-first-repair-backlog`.
 Session takeover target: Codex session `019edd19-0cc0-7093-afc0-450ab853fe20`.
 
 This document consolidates recovered session control notes, current stack
@@ -10,8 +10,16 @@ records, source-contract findings, and the Effect-first/domain-design repair
 frame required before continuing the Habitat refactor.
 
 It is not a closure record and does not approve new source implementation. It
-is the next controlling input for design repair, packet cleanup, and any
+is the controlling backlog input for design repair, packet cleanup, and any
 follow-up implementation work.
+
+Hardened implementation-input packet:
+`docs/projects/habitat-harness/deep-refactor/effect-first-refactor-domino-plan.md`.
+Systematic workstream control record:
+`docs/projects/habitat-harness/deep-refactor/effect-first-systematic-workstream.md`.
+Use that packet and the `deep-habitat-effect-*` OpenSpec dominoes for source
+planning and execution order; use this backlog as the recovered violation
+ledger.
 
 ## Evidence Frame
 
