@@ -1,5 +1,6 @@
 {
   "$comment": "Single source of truth for the habitat rule pack. H2 wrapped existing rules; later slices add owning-tool gates such as H3 nx-boundaries and H4 Biome hygiene. Consumed by src/rules/architecture.ts (CLI, typed) and src/plugin.js (Nx target inference). Field semantics: docs/projects/habitat-harness/ + openspec/changes/habitat-harness-scaffold/design.md. ownerProject = the Nx project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only (matching pre-harness enforcement reality). detect runs from the repo root unless cwd is set.",
+  "schemaVersion": 1,
   "rules": [
     {
       "id": "workspace-entrypoints",
