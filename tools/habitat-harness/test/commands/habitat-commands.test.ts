@@ -25,6 +25,20 @@ vi.mock("../../src/lib/check-report.js", () => ({
   describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
   expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
   renderCheckReport: vi.fn(() => '{"ok":true}'),
+  verifyCheckSummaryProjection: vi.fn(() => ({
+    reportSchemaVersion: 1,
+    requestedSelectors: {},
+    selectedRuleIds: [],
+    selectedRealRuleIds: [],
+    builtInRuleIds: [],
+    statusCounts: {},
+    advisoryCount: 0,
+    failingCount: 0,
+    refusedCount: 0,
+    notApplicableCount: 0,
+    allowsAffectedExecution: true,
+    nonClaims: ["does-not-prove-ci"],
+  })),
 }));
 
 vi.mock("../../src/lib/classify.js", async (importOriginal) => {
@@ -221,6 +235,7 @@ describe("Habitat oclif commands", () => {
       "HEAD~1",
       mockVerifyTargetPlan
     );
+    expect(checkReport.verifyCheckSummaryProjection).toHaveBeenCalledWith(mockReport);
     expect(stdout.join("")).toContain("affected ok");
   });
 
@@ -241,6 +256,7 @@ describe("Habitat oclif commands", () => {
       "HEAD~1",
       mockVerifyTargetPlan
     );
+    expect(checkReport.verifyCheckSummaryProjection).toHaveBeenCalledWith(mockReport);
     expect(verifyReceipt.createVerifyReceipt).toHaveBeenCalledWith(
       expect.objectContaining({
         requestedBase: "HEAD~1",

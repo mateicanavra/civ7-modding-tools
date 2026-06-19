@@ -2,8 +2,9 @@
 
 ## State
 
-- Status: check/report source slice implemented and under review. D11/D12
-  projection consumption and D10 protected-zone authority remain open.
+- Status: D7 source-closure layer submitted as PR #1843 from
+  `agent-DRA-d7-structural-enforcement-closure`. D11/D12 check projections are
+  implemented; D10 protected-zone authority remains out of scope.
 - Worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
 - Branch: `$ACTIVE_REMEDIATION_BRANCH`.
 - Source packet: `$D7_SOURCE_PACKET`.
@@ -25,8 +26,11 @@ Final D7 rereview gate is closed for design/specification acceptance. The
 source-start inventory authorizes the current check/report source slice. The
 source slice splits the check-report monolith into D7 check modules, keeps the
 public facade, uses TypeBox-backed report validation, removes the old
-`commandArgs` check-report input, and derives command context from Oclif
-callers.
+`commandArgs` check-report input, derives command context from Oclif callers,
+adds TypeBox-backed D7 state/projection schemas, keeps selected staged rules as
+explicit not-applicable outcomes instead of dropping them, routes hook/verify
+consumers through D7 projections, and consumes D3 graph refusal state before
+direct command execution.
 
 ## First Investigation Inputs
 
@@ -72,8 +76,12 @@ Design-time validation after this repair:
 | D7-WORDING | complete-standard wording audit over `$D7_CHANGE/**` and D7 scratch/final review records | no active reduced-standard guidance | passed |
 | D7-TSC | `bun run --cwd tools/habitat-harness check` | exit 0 | passed |
 | D7-BUILD | `bun run --cwd tools/habitat-harness build` | exit 0 | passed |
-| D7-FOCUSED | `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/commands/habitat-entrypoints.test.ts test/lib/baseline.test.ts test/lib/hooks.test.ts test/lib/verify-receipt.test.ts test/lib/classify.test.ts test/commands/habitat-commands.test.ts` | exit 0 | passed; 89 tests |
-| D7-ENFORCEMENT-SURFACE | `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts` | exit 0 or recorded blocker | failed on existing direct wrapped-test generated-output freshness assertion: expected exit 0, got 130 |
+| D7-FOCUSED | `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/commands/habitat-entrypoints.test.ts test/lib/baseline.test.ts test/lib/hooks.test.ts test/lib/verify-receipt.test.ts test/lib/classify.test.ts test/commands/habitat-commands.test.ts test/lib/check-projections.test.ts test/lib/enforcement-surface.test.ts` | exit 0 | passed; 103 tests |
+| D7-PROJECTIONS | `bun run --cwd tools/habitat-harness test -- test/lib/check-projections.test.ts test/lib/verify-receipt.test.ts test/lib/hooks.test.ts test/lib/enforcement-surface.test.ts` | exit 0 | passed as part of focused suite; 47 projection/verify/hook/enforcement tests covered |
+| D7-ENFORCEMENT-SURFACE | `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts` | exit 0 | passed after generated-output-gated wrapped-test direct execution is dispositioned as diagnostic output rather than false-green proof |
+| D7-COMMAND-INVALID-SELECTOR | `bun run habitat check --json --rule definitely-not-a-rule` | exit 1, schemaVersion 1 JSON, selector refusal | passed; one `rule-selection-integrity` failure, stdout 1000 bytes, stderr 124 bytes |
+| D7-COMMAND-STAGED-FILE-LAYER | `bun run habitat check --staged --tool file-layer --json` | valid schemaVersion 1 JSON with staged rule statuses | passed; four file-layer rules pass and dirty-worktree `baseline-integrity` fails, stdout 3766 bytes, stderr 122 bytes |
+| D7-COMMAND-STAGED-GRIT-NO-ROOTS | `bun run habitat check --staged --tool grit-check --json` | exit 1 with explicit not-applicable reports, not baseline-only pass | passed; 33 Grit reports carry `D7 not applicable: staged scope contains no approved roots for this rule.`, stdout 24951 bytes, stderr 122 bytes |
 
 Later implementation gates are listed in `design.md` and `tasks.md`.
 
@@ -91,10 +99,12 @@ slice is inside that write set.
 
 ## Non-Claims
 
-- D7 source slice does not complete D11/D12 consumer projection adoption.
+- D7 source slice does not claim D11/D12 packet closure beyond the D7-owned
+  check projections they consume.
 - D7 repair does not prove current-tree structural cleanliness.
 - D7 repair does not prove CI, runtime/product behavior, apply safety, Graphite
   readiness, OpenSpec acceptance for later packets, or D10 protected-zone
   closure.
-- The broad enforcement-surface wrapped-test freshness failure remains a
-  residual gate; this slice does not change that behavior.
+- D10 protected-zone policy and guard authority remain out of scope; D7 only
+  preserves current file-layer behavior and does not emit protected-zone
+  projection labels in this source slice.

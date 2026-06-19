@@ -9,7 +9,7 @@ import { type HarnessRule, projectRuleDiagnostics, rules } from "../../src/rules
 type SurfaceClass =
   | "direct-habitat-cli"
   | "direct-habitat-mutation"
-  | "direct-legacy-diagnostic"
+  | "direct-script-diagnostic"
   | "graph-owned-full-aggregate"
   | "graph-owned-habitat-lint"
   | "graph-owned-project-diagnostic"
@@ -39,7 +39,7 @@ const rootScriptPolicy: Record<string, { command: string; surface: SurfaceClass 
   },
   "ci:architecture-strict-core": {
     command: "bun run lint:domain-refactor-guardrails:strict-core",
-    surface: "direct-legacy-diagnostic",
+    surface: "direct-script-diagnostic",
   },
   habitat: {
     command: "bun tools/habitat-harness/bin/dev.ts",
@@ -80,7 +80,7 @@ const rootScriptPolicy: Record<string, { command: string; surface: SurfaceClass 
   "lint:domain-refactor-guardrails:strict-core": {
     command:
       'REFRACTOR_DOMAINS="foundation,morphology,hydrology,ecology,placement,narrative" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 ./scripts/lint/lint-domain-refactor-guardrails.sh',
-    surface: "direct-legacy-diagnostic",
+    surface: "direct-script-diagnostic",
   },
   "lint:mapgen-docs": {
     command: "nx run --project=@internal/habitat-harness --target=habitat:rule:mapgen-docs",
@@ -111,7 +111,7 @@ const rootScriptPolicy: Record<string, { command: string; surface: SurfaceClass 
 
 type WrapperDisposition = {
   ownerTool: "wrapped-script" | "wrapped-test";
-  proofClass: "legacy-script" | "architecture-test";
+  sourceClass: "script" | "architecture-test";
   parserPolicy: "coarse-exit" | "allowlist-baseline-parser";
   directOutputPolicy:
     | "zero-exit-output-outside-claim"
@@ -123,7 +123,7 @@ type WrapperDisposition = {
 const wrapperDisposition: Record<string, WrapperDisposition> = {
   "mapgen-docs": {
     ownerTool: "wrapped-script",
-    proofClass: "legacy-script",
+    sourceClass: "script",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
     retirementTrigger:
@@ -131,7 +131,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "adapter-boundary": {
     ownerTool: "wrapped-script",
-    proofClass: "legacy-script",
+    sourceClass: "script",
     parserPolicy: "allowlist-baseline-parser",
     directOutputPolicy: "baselined-debt",
     retirementTrigger:
@@ -139,7 +139,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "domain-refactor-guardrails": {
     ownerTool: "wrapped-script",
-    proofClass: "legacy-script",
+    sourceClass: "script",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
     retirementTrigger:
@@ -147,7 +147,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "arch-test-core-purity": {
     ownerTool: "wrapped-test",
-    proofClass: "architecture-test",
+    sourceClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
     retirementTrigger:
@@ -155,7 +155,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "arch-test-rng-authority": {
     ownerTool: "wrapped-test",
-    proofClass: "architecture-test",
+    sourceClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
     retirementTrigger:
@@ -163,7 +163,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "arch-test-ecology-step-imports": {
     ownerTool: "wrapped-test",
-    proofClass: "architecture-test",
+    sourceClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
     retirementTrigger:
@@ -171,7 +171,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "arch-test-m11-projection-band": {
     ownerTool: "wrapped-test",
-    proofClass: "architecture-test",
+    sourceClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
     retirementTrigger:
@@ -179,7 +179,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "arch-test-map-bundle-runtime-imports": {
     ownerTool: "wrapped-test",
-    proofClass: "architecture-test",
+    sourceClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "generated-output-gated",
     retirementTrigger:
@@ -187,7 +187,7 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "arch-test-intelligence-bridge-bundle-runtime-imports": {
     ownerTool: "wrapped-test",
-    proofClass: "architecture-test",
+    sourceClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "generated-output-gated",
     retirementTrigger:
@@ -195,15 +195,15 @@ const wrapperDisposition: Record<string, WrapperDisposition> = {
   },
   "arch-test-cutover": {
     ownerTool: "wrapped-test",
-    proofClass: "architecture-test",
+    sourceClass: "architecture-test",
     parserPolicy: "coarse-exit",
     directOutputPolicy: "zero-exit-output-outside-claim",
     retirementTrigger: "Retain while package architecture test is the owner of cutover semantics.",
   },
 };
 
-const legacyLintWrapperFiles: Record<string, "compat-forwarder" | "wrapped-rule-detect"> = {
-  "scripts/lint-adapter-boundary.sh": "compat-forwarder",
+const lintWrapperFiles: Record<string, "root-script-entrypoint" | "wrapped-rule-detect"> = {
+  "scripts/lint-adapter-boundary.sh": "root-script-entrypoint",
   "scripts/lint/lint-adapter-boundary.sh": "wrapped-rule-detect",
   "scripts/lint/lint-domain-refactor-guardrails.sh": "wrapped-rule-detect",
   "scripts/lint/lint-mapgen-docs.py": "wrapped-rule-detect",
@@ -227,7 +227,7 @@ describe("enforcement surface inventory", () => {
         "graph-owned-verifier-aggregate",
         "direct-habitat-cli",
         "direct-habitat-mutation",
-        "direct-legacy-diagnostic",
+        "direct-script-diagnostic",
         "habitat-rule-alias",
       ])
     );
@@ -329,16 +329,16 @@ describe("enforcement surface inventory", () => {
     }
   });
 
-  test("classifies surviving legacy lint wrapper files", () => {
-    const lintWrapperFiles = [
+  test("classifies current lint wrapper files", () => {
+    const expectedLintWrapperFiles = [
       "scripts/lint-adapter-boundary.sh",
       "scripts/lint/lint-adapter-boundary.sh",
       "scripts/lint/lint-domain-refactor-guardrails.sh",
       "scripts/lint/lint-mapgen-docs.py",
     ].sort();
 
-    expect(Object.keys(legacyLintWrapperFiles).sort()).toEqual(lintWrapperFiles);
-    for (const file of lintWrapperFiles) {
+    expect(Object.keys(lintWrapperFiles).sort()).toEqual(expectedLintWrapperFiles);
+    for (const file of expectedLintWrapperFiles) {
       expect(readFileSync(path.join(repoRoot, file), "utf8").trim()).not.toHaveLength(0);
     }
   });
@@ -365,7 +365,13 @@ describe("enforcement surface inventory", () => {
     for (const rule of wrappedTests) {
       const result = run(rule.detect, { cwd: repoRoot });
       const diagnostics = projectRuleDiagnostics(rule, result);
+      const disposition = wrapperDisposition[rule.id];
 
+      if (disposition.directOutputPolicy === "generated-output-gated" && result.exitCode !== 0) {
+        expect(diagnostics).not.toEqual([]);
+        expect(diagnostics[0]?.message).toContain(rule.message);
+        continue;
+      }
       expect(result.exitCode).toBe(0);
       expect(diagnostics).toEqual([]);
     }

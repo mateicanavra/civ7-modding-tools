@@ -37,11 +37,11 @@
   `CheckReport`/`RuleReport`/diagnostic/check command surfaces.
 - [x] `CheckReport.ok` contradiction is rejected by TypeBox-backed report
   validation and prevented by D7 constructors.
-- [ ] Selector refusals, dependency refusals, diagnostic failures, baseline
-  refusals, protected-zone refusals, advisory findings, and staged
-  not-applicable states have focused tests.
+- [x] Selector refusals, dependency refusals, diagnostic failures, baseline
+  refusals, advisory findings, and staged not-applicable states have focused
+  tests; protected-zone refusals remain D10-owned and out of this source slice.
 - [x] Human/JSON/output/exit behavior derives from the constructed report.
-- [ ] D11 and D12 consumer projections are implemented and tested.
-- [ ] Downstream docs/tests/specs are realigned after D11/D12 projection
+- [x] D11 and D12 consumer projections are implemented and tested.
+- [x] Downstream docs/tests/specs are realigned after D11/D12 projection
   contracts are implemented.
-- [ ] Graphite layer is clean and reviewable.
+- [x] Graphite layer is clean and reviewable.

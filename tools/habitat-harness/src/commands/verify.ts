@@ -1,6 +1,11 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { checkCommandContext, createCheckReport, renderCheckReport } from "../lib/check-report.js";
+import {
+  checkCommandContext,
+  createCheckReport,
+  renderCheckReport,
+  verifyCheckSummaryProjection,
+} from "../lib/check-report.js";
 import {
   createVerifyReceipt,
   readVerifyTargetPlan,
@@ -33,10 +38,11 @@ export default class Verify extends HabitatCommand {
     const startedMs = Date.now();
     const base = resolveVerifyBase(flags.base);
     const report = await createCheckReport({ base, command: checkCommandContext(this.rawArgv()) });
+    const checkProjection = verifyCheckSummaryProjection(report);
     const targetPlan = await readVerifyTargetPlan();
     let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;
     let exitCode = 0;
-    if (!report.ok) exitCode = 1;
+    if (!checkProjection.allowsAffectedExecution) exitCode = 1;
     else if (targetPlan.kind === "verify-target-plan-refused") exitCode = 1;
     else affectedResult = runAffectedVerification(base, targetPlan);
     if (affectedResult) exitCode = affectedResult.exitCode;
@@ -59,7 +65,7 @@ export default class Verify extends HabitatCommand {
     }
 
     this.log(renderCheckReport(report));
-    if (!report.ok) this.exit(1);
+    if (!checkProjection.allowsAffectedExecution) this.exit(1);
     if (targetPlan.kind === "verify-target-plan-refused") {
       const message =
         targetPlan.refusal.kind === "graph-refusal"
