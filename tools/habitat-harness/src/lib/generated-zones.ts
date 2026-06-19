@@ -1,6 +1,10 @@
 import type { RuleFileLayerFacts } from "../rules/registry/index.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
-import { generatedZoneById, matchesGeneratedZone } from "./generated-zone-catalog.js";
+import {
+  hostSurfaceProjectionForGeneratedZone,
+  hostSurfaceProjectionForPath,
+  renderHostRecoveryInstruction,
+} from "./host-policy.js";
 import { repoRoot } from "./paths.js";
 import { run } from "./spawn.js";
 
@@ -15,8 +19,8 @@ export function runGeneratedZoneRule(
   context: FileLayerContext = {}
 ): { exitCode: number; diagnostics: HabitatDiagnostic[] } {
   if ("forbiddenFileNames" in rule) return runForbiddenFileNameRule(rule);
-  const zone = generatedZoneById(rule.generatedZone);
-  if (!zone) {
+  const zone = hostSurfaceProjectionForGeneratedZone(rule.generatedZone);
+  if (zone.declarationState !== "declared" || !zone.recovery) {
     return {
       exitCode: 1,
       diagnostics: [
@@ -32,11 +36,15 @@ export function runGeneratedZoneRule(
   }
   if (!context.staged) return { exitCode: 0, diagnostics: [] };
 
-  const staged = stagedPaths().filter((candidate) => matchesGeneratedZone(zone, candidate));
+  const recovery = zone.recovery;
+  const staged = stagedPaths().filter(
+    (candidate) =>
+      hostSurfaceProjectionForPath(candidate).declarationId === zone.declarationId
+  );
   const diagnostics = staged.map((stagedPath) => ({
     ruleId: rule.id,
     path: stagedPath,
-    message: `${rule.message} ${zone.remediation}`,
+    message: `${rule.message} ${renderHostRecoveryInstruction(recovery)}`,
     severity: rule.lane === "advisory" ? ("advisory" as const) : ("error" as const),
     baselined: false,
   }));
