@@ -169,12 +169,17 @@ export function renderHostRecoveryInstruction(
 export function matchesHostMatcher(matcher: HostMatcher, candidate: string): boolean {
   return matcher.kind === "exact"
     ? candidate === matcher.value
-    : candidate.startsWith(matcher.value);
+    : matchesPathPrefix(matcher.value, candidate);
 }
 
 function matchesHostScanRoot(matcher: HostMatcher, candidate: string): boolean {
   if (matchesHostMatcher(matcher, candidate)) return true;
   return matcher.kind === "prefix" && candidate === matcher.value.replace(/\/$/, "");
+}
+
+function matchesPathPrefix(prefix: string, candidate: string): boolean {
+  const normalizedPrefix = prefix.endsWith("/") ? prefix : `${prefix}/`;
+  return candidate === prefix || candidate.startsWith(normalizedPrefix);
 }
 
 function surfaceDeclarations(document: HostPolicyDocument): SurfaceDeclaration[] {

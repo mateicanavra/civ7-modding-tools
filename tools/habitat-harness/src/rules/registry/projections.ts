@@ -138,9 +138,11 @@ export function ruleFileLayerFacts(records: readonly RuleRegistryRecordV1[]): Ru
         lane: rule.lane,
         message: rule.message,
       };
-      return "generatedZone" in rule
-        ? { ...base, generatedZone: rule.generatedZone }
-        : { ...base, forbiddenFileNames: [...rule.forbiddenFileNames] };
+      if ("generatedZone" in rule) return { ...base, generatedZone: rule.generatedZone };
+      if ("forbiddenFileNames" in rule) {
+        return { ...base, forbiddenFileNames: [...rule.forbiddenFileNames] };
+      }
+      return { ...base, hostSurfaceGuard: true as const };
     });
 }
 

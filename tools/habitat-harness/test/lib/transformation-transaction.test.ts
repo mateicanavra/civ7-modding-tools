@@ -227,12 +227,47 @@ describe("transformation transaction", () => {
     const record = await runTransformationTransaction({
       kind: "live-write-intent",
       worktree: cleanWorktree(),
-      admission: applyAdmission({ protectedZoneRef: "D10:path-decision" }),
+      admission: applyAdmission(),
+      pathAuthority: refusedPathAuthority(),
     } satisfies TransformationTransactionRequest);
 
     expect(record.outcome).toMatchObject({
       kind: "refused",
-      refusal: { reason: "missing-host-policy-decision" },
+      refusal: { reason: "protected-zone-refused" },
+    });
+  });
+
+  test("consumes an allowed D10 transaction path authority projection before live execution", async () => {
+    const record = await runTransformationTransaction({
+      kind: "live-write-intent",
+      worktree: cleanWorktree(),
+      admission: applyAdmission(),
+      pathAuthority: allowedPathAuthority(),
+    } satisfies TransformationTransactionRequest, {
+      transactionInputs: [transactionInput()],
+    });
+
+    expect(record.outcome).toMatchObject({
+      kind: "refused",
+      refusal: { reason: "invalid-request-mode" },
+    });
+  });
+
+  test("binds D10 path authority to the admitted transaction roots", async () => {
+    const record = await runTransformationTransaction({
+      kind: "live-write-intent",
+      worktree: cleanWorktree(),
+      admission: applyAdmission(),
+      pathAuthority: allowedPathAuthority({
+        path: "packages/outside-admitted-root/example.ts",
+      }),
+    } satisfies TransformationTransactionRequest, {
+      transactionInputs: [transactionInput()],
+    });
+
+    expect(record.outcome).toMatchObject({
+      kind: "refused",
+      refusal: { reason: "write-path-outside-approved-set" },
     });
   });
 });
@@ -290,4 +325,49 @@ function transactionInput(
     nonClaims: ["does-not-write-files", "does-not-authorize-live-write"],
     ...overrides,
   };
+}
+
+function allowedPathAuthority(overrides: { path?: string } = {}) {
+  return {
+    kind: "transaction-path-authority",
+    decision: "allowed",
+    path: overrides.path ?? "tools/habitat-harness/test/fixtures/example.ts",
+    action: "modified",
+    owner: {
+      ownerId: "habitat-repo-policy",
+      displayName: "Habitat repo policy",
+      recoveryContact: "docs/process/CONTRIBUTING.md",
+    },
+    recovery: {
+      ownerId: "habitat-repo-policy",
+      actionKind: "documented-workflow",
+      documentRef: "docs/process/CONTRIBUTING.md",
+      retryCondition: "Retry after D10 path authority is accepted.",
+      nonClaims: ["does-not-prove-apply-transaction-safety"],
+    },
+    hostPolicyRef: "G-HOST:apply-gate",
+    nonClaims: ["does-not-prove-apply-transaction-safety"],
+  } as const;
+}
+
+function refusedPathAuthority() {
+  return {
+    kind: "transaction-path-authority",
+    decision: "refused",
+    path: "packages/civ7-types/generated/index.ts",
+    action: "modified",
+    owner: {
+      ownerId: "civ7-resources-workflow",
+      displayName: "Civ7 resources workflow",
+      recoveryContact: "docs/process/resources-submodule.md",
+    },
+    recovery: {
+      ownerId: "civ7-resources-workflow",
+      actionKind: "documented-workflow",
+      documentRef: "docs/process/resources-submodule.md",
+      retryCondition: "Retry after the documented workflow has been completed.",
+      nonClaims: ["does-not-prove-resource-submodule-freshness"],
+    },
+    nonClaims: ["does-not-prove-resource-submodule-freshness"],
+  } as const;
 }

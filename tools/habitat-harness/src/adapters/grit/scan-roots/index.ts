@@ -4,8 +4,8 @@ import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
 } from "../../../lib/diagnostic-catalog/index.js";
-import { hostSurfaceProjectionForScanRoot } from "../../../lib/host-policy.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
+import { decideScanRootProtection } from "../../../lib/protected-zone-authority/index.js";
 import type { RuleGritFacts } from "../../../rules/registry/index.js";
 import {
   gritCandidateExtensions,
@@ -91,10 +91,19 @@ export function decideGritScanRoots(
       return { kind: "refused", reason: "outside-repo", root: scanRoot };
     if (requireExisting && !existsSync(absolute))
       return { kind: "refused", reason: "missing", root: scanRoot };
-    if (hostSurfaceProjectionForScanRoot(relative).declarationState === "declared")
-      return { kind: "refused", reason: "generated-output", root: relative };
-    if (isProtectedRoot(relative))
-      return { kind: "refused", reason: "protected-root", root: relative };
+    const protection = decideScanRootProtection(relative, {
+      protectedPrefixes: protectedScanRootPrefixes,
+    });
+    if (protection.kind !== "accepted") {
+      return {
+        kind: "refused",
+        reason: protection.reason,
+        root: relative,
+        owner: protection.owner,
+        recovery: protection.recovery,
+        nonClaims: protection.nonClaims,
+      };
+    }
     if (!isApprovedScanRoot(relative, options)) {
       return {
         kind: "refused",
@@ -209,13 +218,6 @@ function collectFiles(absoluteRoot: string, files: string[]): void {
 function isIgnoredTestCandidate(relative: string): boolean {
   if (!gritCandidateExtensions.has(path.extname(relative))) return false;
   return relative.includes("/test/") || /\.test\.[cm]?[jt]sx?$/.test(relative);
-}
-
-function isProtectedRoot(relative: string): boolean {
-  const normalized = relative.endsWith("/") ? relative : `${relative}/`;
-  return protectedScanRootPrefixes.some(
-    (prefix) => normalized === prefix || normalized.startsWith(prefix)
-  );
 }
 
 function isInjectedProbeRoot(relative: string): boolean {
