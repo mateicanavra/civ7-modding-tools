@@ -41,7 +41,7 @@ The root script `bun run habitat` dispatches to
 | --- | --- | --- |
 | `check` | `bun run habitat check`, `bun run habitat:check` | Runs the Habitat rule pack, supports `--owner`, `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. |
 | `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then `nx affected` over `build`, `check`, `test`, `boundaries`, `biome:ci`, `grit:check`, and `generated:check`. JSON mode emits a structured proof artifact with non-claims. |
-| `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning Nx project metadata, tags, in-scope rules, resolved verification targets, and unavailable target facts. |
+| `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning Nx project metadata, tags, D2 rule-routing facts, D3 graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun run habitat fix`, `bun run habitat:fix` | Runs the approved Grit apply transaction, then hands changed files to Biome. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
 | `graph` | `bun run habitat graph --json` | Runs Nx graph generation and prints the project graph JSON. |
 | `hook` | `bun run habitat hook pre-commit`, `bun run habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
