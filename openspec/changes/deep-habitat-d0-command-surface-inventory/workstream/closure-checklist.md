@@ -18,12 +18,12 @@
 
 ## Implementation Closure Later
 
-- [ ] `docs/projects/habitat-harness/public-surface-compatibility-matrix.md`
+- [x] `docs/projects/habitat-harness/public-surface-compatibility-matrix.md`
       exists.
-- [ ] Every required plane has rows and stable `surface_id` values.
-- [ ] Every package export and command file has a row.
-- [ ] Validation commands record expected status, actual status, cache stance,
+- [x] Every required plane has rows and stable `surface_id` values.
+- [x] Every package export and command file has a row.
+- [x] Validation commands record expected status, actual status, cache stance,
       and non-claims.
-- [ ] Source changes stay inside the D0 approved write set.
-- [ ] Later packet index rows cite D0 as the compatibility authority.
-- [ ] `git status --short --branch` is clean after the D0 implementation layer.
+- [x] Source changes stay inside the D0 approved write set.
+- [x] Later packet index rows cite D0 as the compatibility authority.
+- [x] `git status --short --branch` is clean after the D0 implementation layer.
