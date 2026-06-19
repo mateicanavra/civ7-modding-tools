@@ -7,6 +7,7 @@ import { projectGritResults } from "../../src/adapters/grit/projection.js";
 import { decideGritScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
 import {
   diagnosticAdapterFailureKinds,
+  diagnosticCacheRequirementForGritCheck,
   renderDiagnosticAdapterFailure,
 } from "../../src/lib/diagnostic-catalog/index.js";
 import {
@@ -47,7 +48,32 @@ describe("Grit check adapter parser and projection", () => {
     expect(parsed.kind).toBe("parsed");
     if (parsed.kind !== "parsed") return;
     expect(parsed.parseStatus).toBe("parsed");
+    expect(parsed.request).toMatchObject({
+      commandFamily: "current-tree-json-check",
+      outputContract: "json-report",
+      cacheRequirement: { kind: "workspace-cache-allowed", observable: false },
+      limitations: ["workspace-cache-not-fresh-observation"],
+    });
+    expect("stdout" in parsed.request).toBe(false);
+    expect("stderr" in parsed.request).toBe(false);
     expect(parsed.report.results[0]?.local_name).toBe("adapter_base_standard_import");
+  });
+
+  test("records freshness-required native request state", () => {
+    const parsed = parseGritCheckOutput(
+      commandResult({
+        stderr: JSON.stringify({ paths: [], results: [] }),
+      }),
+      diagnosticCacheRequirementForGritCheck({
+        cacheMode: "fresh",
+        requireObservableCacheStatus: true,
+      })
+    );
+
+    expect(parsed.kind).toBe("parsed");
+    if (parsed.kind !== "parsed") return;
+    expect(parsed.request.cacheRequirement).toEqual({ kind: "fresh-required", observable: true });
+    expect(parsed.request.limitations).toEqual([]);
   });
 
   test("fails closed for no JSON, malformed JSON, and wrapper text", () => {

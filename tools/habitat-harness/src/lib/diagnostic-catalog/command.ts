@@ -1,5 +1,7 @@
 import { type Static, Type } from "typebox";
-import type { HabitatCommandResult } from "../habitat-process.js";
+import { Value } from "typebox/value";
+import type { HabitatCommandResult, HabitatProcessRequest } from "../habitat-process.js";
+import { type DiagnosticNonClaim, DiagnosticNonClaimSchema } from "./catalog.js";
 import type { DiagnosticAdapterFailureKind } from "./failure.js";
 
 const DiagnosticCommandRequestMetadataSchema = Type.Object(
@@ -21,6 +23,20 @@ export const DiagnosticOutputMetadataSchema = Type.Object(
   { additionalProperties: false }
 );
 
+export const NativeGritCommandFamilySchema = Type.Union([
+  Type.Literal("current-tree-json-check"),
+  Type.Literal("selected-rule-json-check"),
+  Type.Literal("docs-text-check"),
+  Type.Literal("docs-apply-dry-run-observation"),
+  Type.Literal("injected-probe-json-check"),
+]);
+
+export const NativeGritOutputContractSchema = Type.Union([
+  Type.Literal("json-report"),
+  Type.Literal("standard-text-report"),
+  Type.Literal("standard-apply-dry-run"),
+]);
+
 export const DiagnosticCacheRequirementSchema = Type.Union([
   Type.Object(
     {
@@ -37,6 +53,20 @@ export const DiagnosticCacheRequirementSchema = Type.Union([
     { additionalProperties: false }
   ),
 ]);
+
+export const NativeGritCheckRequestSchema = Type.Interface(
+  [Type.Pick(DiagnosticCommandRequestMetadataSchema, ["argv", "scanRoots"])],
+  {
+    commandFamily: NativeGritCommandFamilySchema,
+    commandInvocationId: Type.String({ minLength: 1 }),
+    executable: Type.Literal("grit"),
+    cwd: Type.String({ minLength: 1 }),
+    outputContract: NativeGritOutputContractSchema,
+    cacheRequirement: DiagnosticCacheRequirementSchema,
+    limitations: Type.Array(DiagnosticNonClaimSchema),
+  },
+  { additionalProperties: false }
+);
 
 export const DiagnosticCacheObservationSchema = Type.Union([
   Type.Object(
@@ -136,7 +166,10 @@ export const DiagnosticCommandObservationSchema = Type.Union([
 ]);
 
 export type DiagnosticOutputMetadata = Static<typeof DiagnosticOutputMetadataSchema>;
+export type NativeGritCommandFamily = Static<typeof NativeGritCommandFamilySchema>;
+export type NativeGritOutputContract = Static<typeof NativeGritOutputContractSchema>;
 export type DiagnosticCacheRequirement = Static<typeof DiagnosticCacheRequirementSchema>;
+export type NativeGritCheckRequest = Static<typeof NativeGritCheckRequestSchema>;
 export type DiagnosticCacheObservation = Static<typeof DiagnosticCacheObservationSchema>;
 export type DiagnosticCompletedCommandObservation = Static<
   typeof DiagnosticCompletedCommandObservationSchema
@@ -154,6 +187,46 @@ export function diagnosticCacheRequirementForGritCheck(options: {
     return { kind: "fresh-required", observable: true };
   }
   return { kind: "workspace-cache-allowed", observable: false };
+}
+
+export function nativeGritCheckRequestFromProcessRequest(input: {
+  request: HabitatProcessRequest;
+  commandFamily: NativeGritCommandFamily;
+  outputContract: NativeGritOutputContract;
+  cacheRequirement: DiagnosticCacheRequirement;
+  limitations?: readonly DiagnosticNonClaim[];
+}): NativeGritCheckRequest {
+  return Value.Parse(NativeGritCheckRequestSchema, {
+    commandFamily: input.commandFamily,
+    commandInvocationId: input.request.commandId,
+    executable: input.request.executable,
+    argv: [...input.request.argv],
+    cwd: input.request.cwd,
+    scanRoots: [...(input.request.scanRoots ?? [])],
+    outputContract: input.outputContract,
+    cacheRequirement: input.cacheRequirement,
+    limitations: [...(input.limitations ?? diagnosticLimitationsForCache(input.cacheRequirement))],
+  });
+}
+
+export function nativeGritCheckRequestFromCommandResult(
+  commandResult: HabitatCommandResult,
+  cacheRequirement: DiagnosticCacheRequirement
+): NativeGritCheckRequest {
+  const outputContract = commandResult.argv.includes("--json")
+    ? "json-report"
+    : "standard-text-report";
+  return Value.Parse(NativeGritCheckRequestSchema, {
+    commandFamily: outputContract === "json-report" ? "current-tree-json-check" : "docs-text-check",
+    commandInvocationId: commandResult.commandId,
+    executable: commandResult.executable,
+    argv: [...commandResult.argv],
+    cwd: commandResult.cwd,
+    scanRoots: [...commandResult.scanRoots],
+    outputContract,
+    cacheRequirement,
+    limitations: diagnosticLimitationsForCache(cacheRequirement),
+  });
 }
 
 export function diagnosticCacheObservationFromCommand(
@@ -241,6 +314,14 @@ export function diagnosticAdapterFailureForCacheObservation(
   observation: DiagnosticCacheObservation
 ): DiagnosticAdapterFailureKind | null {
   return observation.kind === "missing-required-observation" ? observation.failure : null;
+}
+
+function diagnosticLimitationsForCache(
+  requirement: DiagnosticCacheRequirement
+): readonly DiagnosticNonClaim[] {
+  return requirement.kind === "workspace-cache-allowed"
+    ? ["workspace-cache-not-fresh-observation"]
+    : [];
 }
 
 function outputMetadata(output: HabitatCommandResult["stdout"]): DiagnosticOutputMetadata {

@@ -9,6 +9,7 @@ import {
   diagnosticCacheRequirementSatisfied,
   diagnosticCommandObservationFromResult,
   diagnosticToolUnavailableObservation,
+  nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
 } from "../../lib/diagnostic-catalog/index.js";
 import { gritMachineOutputEnv } from "../../lib/grit-env.js";
@@ -51,7 +52,14 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
               outputFormat: options.outputFormat,
             }
           : { outputFormat: options.outputFormat };
-      const result = yield* process.run(gritCheckRequest(scanRoots, requestOptions)).pipe(
+      const processRequest = gritCheckRequest(scanRoots, requestOptions);
+      const nativeRequest = nativeGritCheckRequestFromProcessRequest({
+        request: processRequest,
+        commandFamily: nativeCommandFamilyForGritCheck(options),
+        outputContract: nativeOutputContractForGritCheck(options),
+        cacheRequirement,
+      });
+      const result = yield* process.run(processRequest).pipe(
         Effect.catchTag("GritToolUnavailable", (error) =>
           Effect.fail(
             new GritToolUnavailable({
@@ -78,6 +86,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
           failure: cacheFailure ?? "GritCacheProvenanceMissing",
           parseStatus: "unsupported-mode" as const,
           message: "Grit cache/fresh status is not observable for this command result.",
+          request: nativeRequest,
           command: diagnosticCommandObservationFromResult(
             {
               ...result,
@@ -89,8 +98,8 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
         };
       }
       return options.outputFormat === "text"
-        ? parseGritCheckTextOutput(result, cacheRequirement)
-        : parseGritCheckOutput(result, cacheRequirement);
+        ? parseGritCheckTextOutput(result, cacheRequirement, nativeRequest)
+        : parseGritCheckOutput(result, cacheRequirement, nativeRequest);
     }).pipe(
       Effect.catchTag("GritToolUnavailable", (error) =>
         Effect.succeed({
@@ -98,6 +107,22 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
           failure: "GritToolUnavailable" as const,
           parseStatus: "unparsed" as const,
           message: `Grit executable unavailable: ${error.executable}.`,
+          request: nativeGritCheckRequestFromProcessRequest({
+            request: {
+              commandId: error.commandId,
+              kind: "grit-check",
+              executable: error.executable,
+              argv: error.argv,
+              cwd: error.cwd,
+              scanRoots,
+            },
+            commandFamily: nativeCommandFamilyForGritCheck(options),
+            outputContract: nativeOutputContractForGritCheck(options),
+            cacheRequirement: diagnosticCacheRequirementForGritCheck({
+              cacheMode: options.cacheMode,
+              requireObservableCacheStatus: options.requireObservableCacheStatus,
+            }),
+          }),
           command: diagnosticToolUnavailableObservation({
             commandId: error.commandId,
             executable: error.executable,
@@ -109,6 +134,20 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
       )
     )
   );
+}
+
+function nativeCommandFamilyForGritCheck(
+  options: GritCheckOptions
+): "current-tree-json-check" | "docs-text-check" | "injected-probe-json-check" {
+  if (options.allowInjectedProbeRoot) return "injected-probe-json-check";
+  if (options.outputFormat === "text") return "docs-text-check";
+  return "current-tree-json-check";
+}
+
+function nativeOutputContractForGritCheck(
+  options: GritCheckOptions
+): "json-report" | "standard-text-report" {
+  return options.outputFormat === "text" ? "standard-text-report" : "json-report";
 }
 
 export function gritCheckRequest(

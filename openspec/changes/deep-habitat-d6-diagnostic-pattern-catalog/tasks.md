@@ -47,12 +47,19 @@
   - Source slice adds the TypeBox-backed scan-root decision schema and routes
     existing Grit validation through closed accepted/refused decisions before
     rendering boundary messages.
-- [ ] 3.4 Define `NativeGritCheckRequest` and bounded
+- [x] 3.4 Define `NativeGritCheckRequest` and bounded
   `DiagnosticCommandObservation` projections with closed command families and
   parsed acquisition limited to completed command observations.
-- [ ] 3.5 Define `DiagnosticCacheRequirement` and
+- Source slice adds a TypeBox-backed native Grit request schema with closed
+  command families and output contracts, threads that request through parsed
+  and adapter-failed acquisitions, and keeps parsed acquisitions limited to
+  completed command observations.
+- [x] 3.5 Define `DiagnosticCacheRequirement` and
   `DiagnosticCacheObservation`; make injected probes freshness-required by
   type.
+- Source slice records workspace-cache-allowed versus fresh-required
+  requirements in native request state, keeps cache observations bounded, and
+  makes injected probe execution pass a fresh-required request contract.
 - [x] 3.6 Split `DiagnosticAdapterFailureKind` from D9 apply transaction
   failures; update consumers to the D6 diagnostic failure contract.
   - Source slice adds the TypeBox-backed D6 diagnostic failure subset under
@@ -85,8 +92,11 @@
   diagnostics on findings projections.
   - The D6 outcome module defines the consumer projection schema and derivation
     function; downstream packets still own their packet-specific consumption.
-- [ ] 3.12 Delete obsolete paths and update imports/callers according to the D0
+- [x] 3.12 Delete obsolete paths and update imports/callers according to the D0
   matrix.
+- Obsolete `GritCheckParseResult`, injected probe `ok`/`failureTag` DTOs,
+  text-to-failure recovery, and proof-shaped probe fields are no longer
+  referenced in the touched D6 source/test surfaces.
 
 ## 4. Later Implementation Validation
 

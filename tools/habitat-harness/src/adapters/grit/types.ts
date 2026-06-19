@@ -4,6 +4,7 @@ import {
   DiagnosticCommandObservationSchema,
   DiagnosticCompletedCommandObservationSchema,
   DiagnosticScanRootRefusalSchema,
+  NativeGritCheckRequestSchema,
 } from "../../lib/diagnostic-catalog/index.js";
 
 export const GritPositionSchema = Type.Object(
@@ -63,6 +64,7 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("parsed"),
+      request: NativeGritCheckRequestSchema,
       report: GritReportSchema,
       parseStatus: Type.Literal("parsed"),
       command: DiagnosticCompletedCommandObservationSchema,
@@ -72,6 +74,7 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("adapter-failed"),
+      request: NativeGritCheckRequestSchema,
       failure: DiagnosticAdapterFailureKindSchema,
       parseStatus: GritParseFailureStatusSchema,
       message: Type.String(),
