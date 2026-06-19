@@ -357,7 +357,9 @@ describe("injected Grit probe harness", () => {
         processLayer: makeFakeHabitatProcessLayer((request) => makeHabitatCommandResult(request)),
       });
 
-      expect(result.get(rule.id)?.diagnostics[0]?.message).toContain("not approved");
+      expect(result.get(rule.id)?.diagnostics[0]?.message).toContain(
+        "injected probe root outside probe mode"
+      );
     } finally {
       rmSync(absoluteRoot, { recursive: true, force: true });
     }
