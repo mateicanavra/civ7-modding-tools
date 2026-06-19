@@ -1,5 +1,22 @@
 # Natural Wonders — Remaining-Work Packet (NORMATIVE)
 
+> **STATUS: COMPLETE (2026-06-19).** All three §4 fixes are now IMPLEMENTED,
+> committed, and live-closed:
+> - **Fix 1 (variety)** — `843891be5`. Cross-type variety live-proven: earthlike
+>   places a land wonder every seed (mountain/forest); desert-mountains adds
+>   volcano + mountain + reef FOUR*.
+> - **Fix 2 (retry)** — `50a7ba844` (+ test hardening `3655a5feb`).
+> - **Fix 3 (FOUR* self-orient)** — `1a917a27c`. Resolved differently than §4
+>   anticipated: the engine refuses a forced `Direction:0` for ALL 4-tile classes,
+>   so the fix passes `Direction:-1` (self-orient) + anchor-only offline footprint
+>   — NOT gen-time geometry pinning. Barrier Reef (FOURADJACENT) + Everest
+>   (FOURPARALLELAGRM) place live.
+> - Closure evidence: `live-proof-ledger.md` §D (2 seeds × 2 map types); closure
+>   review dispositioned in `review-disposition-ledger.md`. Scoped-out (documented):
+>   Thera terrain, Valley of Flowers odd-Q/odd-R predicate, FOURL (Hoerikwaggo)
+>   never selected, in-game effect-yields. The §4 text below is preserved as the
+>   original normative spec for historical reference.
+
 Strong reference for the remaining implementation. The infrastructure (parity,
 full-set eligibility, predicates, selection framework, effects-by-placement) is
 DONE, committed, and live-proven (§2). **Three fixes in §4 are REQUIRED and
