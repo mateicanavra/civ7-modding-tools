@@ -91,9 +91,57 @@ Boot map per seed, reveal (`game map visibility --player-id 0 --explore
 --disposable`), foreground, `game view appshot`. Read placed wonders via tuner
 (`GameplayMap.getFeatureType` sweep) and `Scripting.log`.
 
-| Seed | distinct wonders placed | incl. previously-dropped? | even-row multi-tile readback match | effects spot-check |
-|---|---|---|---|---|
-| _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
-| _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+Live runs (2026-06-19, swooper-earthlike, MAPSIZE_HUGE 106×66, mod recipe via
+`studio-run-in-game-live`; both reached `[mapgen-complete]` + `"seed":<N>`, no
+rejectPattern). Placed wonders read live via full-map `getFeatureType` scan
+(`output/nw-live-scan-result.json`); plan/rejection from `NATURAL_WONDER_*_V1`
+telemetry.
 
-**Closure claim:** _not yet met — pending live evidence above._
+| Seed | planned | placed | distinct placed | incl. previously-dropped? | rejected (set-feature-false) |
+|---|---|---|---|---|---|
+| 1337 | 7 | 4 | Bermuda(0), Gullfoss(32), Iguazu(34), Great Blue Hole(44) | **yes** — Bermuda(0)+Great Blue Hole(44) | Valley of Flowers(28), Barrier Reef(29), Mapu'a Vaea(45) |
+| 2024 | 7 | 4 | Bermuda(0), Gullfoss(32), Iguazu(34), Great Blue Hole(44) | **yes** — same two | Valley of Flowers(28), Mapu'a Vaea(45), Barrier Reef(29) |
+
+**Observed (corpus-ledger O1-O5):**
+- O1 catalog eligibility: **met** — all 20 catalog-eligible (unit + verify-manual-catalogs).
+- O2 cross-seed variety / determinism: **NOT met (gap).** Both earthlike seeds select
+  the IDENTICAL 7-wonder plan and place the IDENTICAL 4. All selected are
+  water/waterfall/lowland; **no mountain/forest/volcano/arid wonder is selected**.
+  Determinism holds (same seed → same plan, unit-tested). Root cause: water groups
+  (C/D) saturate suitability at 1.0 (shelf/deep tiles are abundant) while land
+  wonders have scarce legal footprints (rare volcano/mountain triangles) → lower
+  `bestSuitability` → excluded; `placeFirst` consumes 3 of 7 slots. **Needs a
+  suitability re-balance so groups are comparable (fit-quality, not legal-tile
+  abundance) and land wonders compete.**
+- O3 even-row multi-tile readback match: **partial.** The multi-tile placement that
+  landed (Bermuda, THREETRIANGLEDEEPOCEAN, 3 tiles) anchored on an ODD row both
+  seeds and the adapter's strict readback PASSED (offline footprint == engine stamp).
+  No EVEN-anchored multi-tile placed yet (the FOUR*/even cases were among the
+  rejected) → explicit even-row live proof still pending; even-row geometry is
+  unit-tested + probe-confirmed (§A1).
+- O4 effects: **pending spot-check** (placed wonders use the `setFeatureType` path;
+  effects are engine-automatic — to be confirmed on-tile).
+- O5 previously-dropped placed: **met** — Bermuda(0) and Great Blue Hole(44)
+  (both previously dropped for unsupported tags) place live, proving the new
+  predicates (ADJACENTTOCOAST, NOTADJACENTTOLAND, ADJACENTTOSAMETERRAIN) +
+  engine-confirmation path.
+
+**`set-feature-false` (3 hardest wonders).** `canHaveFeatureParam` passed but the
+engine's `setFeatureType` refused the single planner-chosen tile: Valley of Flowers
+(ADJACENTMOUNTAIN — odd-Q vs odd-R neighbor mismatch), Mapu'a Vaea (ADJACENTCLIFF —
+engine-deferred, planner can't pre-filter cliffs), Barrier Reef (FOURADJACENT dir-0
+geometry / reef — not gen-pinned). The base generator collects MANY
+canHaveFeatureParam-true tiles and picks one; the mod picks one best tile and does
+not retry. Fix: retry across the wonder's next-best candidates at materialize time
+(engine is the final authority).
+
+**FOUR*/FOURL geometry.** Not yet engine-pinned: Barrier Reef (FOURADJACENT) failed
+`setFeatureType` at Direction 0; Hoerikwaggo (FOURL) was not selected. Pinning needs
+a gen-time observation of the engine stamp (anchor-only bootstrap + neighborhood
+scan, or Direction=-1 self-orient + derive-from-readback).
+
+**Closure claim:** **partially met.** Proven live: parity (multi-tile readback match),
+full-set eligibility, predicates, and previously-dropped wonders placing across ≥2
+seeds. **NOT yet met:** genuine cross-type/cross-seed variety (suitability balance),
+the 3 hardest wonders placing (retry), FOUR*/FOURL geometry pinning, even-row
+multi-tile live readback, and effects spot-check.
