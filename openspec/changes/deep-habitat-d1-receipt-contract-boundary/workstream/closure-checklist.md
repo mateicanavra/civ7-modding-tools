@@ -14,8 +14,8 @@
 
 ## Implementation Prerequisites
 
-- [ ] Concrete D0 matrix rows exist for every affected D1 surface.
-- [ ] Every D1 inventory row cites a D0 `surface_id` or is explicitly internal/protected.
+- [x] Concrete D0 matrix rows exist for every affected D1 surface.
+- [x] Every D1 inventory row cites a D0 `surface_id` or is explicitly internal/protected.
 - [ ] Implementation branch starts from the approved implementation stack and is clean before source edits.
 - [ ] Source changes stay inside the approved write set.
 - [ ] Protected paths are untouched or packet is amended and re-reviewed.
@@ -23,7 +23,7 @@
 ## Implementation Closure Later
 
 - [ ] Focused Habitat tests pass with bad cases.
-- [ ] `habitat check --json`, `habitat verify --json`, `habitat fix --dry-run`, and `habitat hook --help` results are recorded with expected/actual status and non-claims.
+- [ ] `habitat check --json`, `habitat verify --json`, `habitat fix --dry-run`, and the D0/D11-approved hook surface gate results are recorded with expected/actual status and non-claims.
 - [ ] Public-surface changes are dispositioned through D0 compatibility.
 - [ ] Downstream docs/tests/specs are realigned only where D1 changed accepted contract facts.
 - [ ] Graphite layer is clean, reviewable, and does not proceed past unresolved packet approval.
