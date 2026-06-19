@@ -1,4 +1,10 @@
 export {
+  patternAuthorityCandidateRoot,
+  patternAuthorityManifestPath,
+  patternAuthorityManifestRoot,
+  patternAuthorityManifestSchemaVersion,
+} from "./paths.js";
+export {
   PatternAdmissionRefusalReasonSchema,
   PatternAdmissionRefusalSchema,
   PatternAuthorityApplySafetySchema,
@@ -23,28 +29,6 @@ export {
   ApplyAdmissionProjectionSchema,
   PatternRecoveryProjectionSchema,
   RegisteredPatternAuthorityManifestSchema,
-  applyAdmittedState,
-  applyAdmissionProjection,
-  candidateDraftState,
-  candidateHandoffProjection,
-  candidateUnderReviewState,
-  diagnosticAdmittedState,
-  diagnosticAdmissionProjection,
-  invalidCandidateState,
-  isAdmittedPatternState,
-  localFeedbackAdmittedState,
-  localFeedbackAdmissionProjection,
-  patternAdmissionRefusal,
-  patternAuthorityCandidateRoot,
-  patternAuthorityManifestPath,
-  patternAuthorityManifestRoot,
-  patternAuthorityManifestSchemaVersion,
-  patternAuthorityProjection,
-  patternAuthorityRuleReferenceFromRule,
-  patternRecoveryProjection,
-  refusedPatternState,
-  retiredPatternState,
-  validatePatternAuthorityManifest,
   type ApplyAdmissionProjection,
   type CandidateHandoffProjection,
   type CandidatePatternAuthorityManifest,
@@ -62,7 +46,6 @@ export {
   type PatternAuthorityProjection,
   type PatternAuthorityProvingSource,
   type PatternAuthorityProvingSourceKind,
-  type PatternAuthorityRulePackReferenceInput,
   type PatternAuthorityRuleReference,
   type PatternAuthorityRuleReferenceInput,
   type PatternAuthoritySource,
@@ -70,9 +53,36 @@ export {
   type PatternAuthorityState,
   type PatternAuthorityValidationFailureReason,
   type PatternAuthorityValidationIssue,
-  type PatternAuthorityValidationOptions,
-  type PatternAuthorityValidationResult,
   type PatternRecoveryProjection,
   type PatternRetirementDecision,
   type RegisteredPatternAuthorityManifest,
-} from "../pattern-governance/index.js";
+} from "./schema.js";
+export { patternAdmissionRefusal } from "./refusal.js";
+export {
+  applyAdmittedState,
+  diagnosticAdmittedState,
+  localFeedbackAdmittedState,
+} from "./admission.js";
+export {
+  candidateDraftState,
+  candidateUnderReviewState,
+  invalidCandidateState,
+  isAdmittedPatternState,
+  refusedPatternState,
+  retiredPatternState,
+} from "./state.js";
+export {
+  applyAdmissionProjection,
+  candidateHandoffProjection,
+  diagnosticAdmissionProjection,
+  localFeedbackAdmissionProjection,
+  patternAuthorityProjection,
+  patternRecoveryProjection,
+} from "./projections.js";
+export { patternAuthorityRuleReferenceFromRule } from "./rule-reference.js";
+export {
+  validatePatternAuthorityManifest,
+  type PatternAuthorityRulePackReferenceInput,
+  type PatternAuthorityValidationOptions,
+  type PatternAuthorityValidationResult,
+} from "./validation.js";
