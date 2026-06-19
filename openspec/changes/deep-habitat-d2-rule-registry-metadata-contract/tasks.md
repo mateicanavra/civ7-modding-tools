@@ -24,8 +24,8 @@
 
 ## 4. Projection Slice
 
-- [ ] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, `ruleExecutionFacts`, `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGritFacts`, `ruleGeneratedZoneFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
-  - Progress: selector/report, Grit, and local-feedback projections exist because current source consumers use them. Execution, routing, graph, baseline, generated-zone, and governance projections remain open and should be added only with their consumer migrations.
+- [ ] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, `ruleExecutionFacts`, `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGritFacts`, `ruleFileLayerFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
+  - Progress: selector/report, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Execution, routing, graph, baseline, and governance projections remain open and should be added only with their consumer migrations.
 - [ ] 4.2 Add projection tests that assert each consumer receives only permitted fields.
 - [ ] 4.3 Add whole-row leakage tests or compile-time checks for consumers with D2 projections.
 - [ ] 4.4 Add malformed projection tests for identity, routing, graph, baseline, Grit, generated-zone, governance, and local-feedback failures.
@@ -39,10 +39,10 @@
 - [ ] 5.5 Migrate baseline consumers to `ruleBaselineFacts` without moving D5-owned shrink/growth/debt decisions into D2.
 - [x] 5.6 Migrate Grit consumers to `ruleGritFacts`, removing missing-pattern fallback to rule id and prose-scope scan inference.
 - [x] 5.6.1 Migrate `tools/habitat-harness/src/lib/grit-injected-probe.ts` to consume `ruleGritFacts` and registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`.
-- [ ] 5.7 Migrate generated-zone/file-layer consumers to `ruleGeneratedZoneFacts`, failing unknown zone references before silent pass.
+- [x] 5.7 Migrate generated-zone/file-layer consumers to `ruleFileLayerFacts`, failing unknown zone references before silent pass.
 - [ ] 5.8 Migrate Pattern Authority and pattern generator registry writes to D2 canonical state or a D2 compatibility writer.
 - [x] 5.9 Migrate hook/local-feedback selection without owning D11 hook behavior.
-  - Active registry rows and staged check filtering use explicit local-feedback projection state instead of raw `hookScope` or broad rule-row eligibility. Pattern Authority manifest wording and generator option compatibility remain in their owning governance/generator surfaces.
+  - Active registry rows use hook-neutral `localFeedback: true`; staged check filtering consumes `ruleLocalFeedbackFacts` instead of raw `hookScope`, hook-name strings, or broad rule-row eligibility. Pattern Authority manifest wording and generator option compatibility remain in their owning governance/generator surfaces.
 
 ## 6. Deletion And Compatibility Slice
 

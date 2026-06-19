@@ -120,7 +120,7 @@ Habitat SHALL expose `ruleGritFacts` for Grit, diagnostic, governance, and hook 
 
 ### Requirement: Generated-Zone Facts Link To Host Declarations
 
-Habitat SHALL expose `ruleGeneratedZoneFacts` for file-layer/generated-zone consumers. D2 SHALL record a rule's generated/protected-zone reference or forbidden-file-name policy. G-HOST and D10 own the host policy and protected-zone decision semantics.
+Habitat SHALL expose `ruleFileLayerFacts` for file-layer/generated-zone consumers. D2 SHALL record a rule's generated/protected-zone reference or forbidden-file-name policy. G-HOST and D10 own the host policy and protected-zone decision semantics.
 
 #### Scenario: Known protected-zone reference
 - **WHEN** a file-layer rule references a generated/protected-zone declaration
@@ -165,5 +165,5 @@ Downstream packets SHALL consume D2 through named projections. D2 SHALL NOT clai
 
 #### Scenario: D10 consumes generated-zone facts
 - **WHEN** D10 designs protected-zone guard behavior
-- **THEN** it consumes `ruleGeneratedZoneFacts` plus G-HOST policy declarations
+- **THEN** it consumes `ruleFileLayerFacts` plus G-HOST policy declarations
 - **AND** it owns guard/refusal behavior rather than D2

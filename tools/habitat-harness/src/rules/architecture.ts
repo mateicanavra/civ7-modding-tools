@@ -5,6 +5,7 @@ import { run, type SpawnResult } from "../lib/spawn.js";
 import {
   activeRuleRegistryDocument,
   type RuleRegistryRecordV1,
+  ruleFileLayerFacts,
   ruleGritFacts,
 } from "./registry.js";
 
@@ -100,7 +101,10 @@ export async function executeRule(
     const [gritRule] = ruleGritFacts([rule]);
     return runGritRule(gritRule);
   }
-  if (rule.ownerTool === "file-layer") return runGeneratedZoneRule(rule, context);
+  if (rule.ownerTool === "file-layer") {
+    const [fileLayerRule] = ruleFileLayerFacts([rule]);
+    return runGeneratedZoneRule(fileLayerRule, context);
+  }
   const res = run(rule.detect, { cwd: repoRoot });
   const diagnostics = projectRuleDiagnostics(rule, res);
   return { exitCode: res.exitCode, diagnostics };

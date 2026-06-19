@@ -151,9 +151,9 @@ describe("rule selector boundary", () => {
     expect(() => renderCheckReport(invalid, { json: true })).toThrow(/ok must be false/);
   });
 
-  test("staged execution keeps only hook-scoped Grit rules when approved staged roots exist", () => {
+  test("staged execution keeps only local-feedback Grit rules when approved staged roots exist", () => {
     const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
-      localFeedback: { preCommit: true },
+      localFeedback: true,
     });
     const currentTreeOnly = fakeRule(
       "grit-current-tree",
@@ -172,7 +172,7 @@ describe("rule selector boundary", () => {
 
   test("staged execution excludes Grit rules when staged paths are outside approved roots", () => {
     const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
-      localFeedback: { preCommit: true },
+      localFeedback: true,
     });
 
     expect(

@@ -68,7 +68,7 @@ Current consumers duplicate authority:
 | D6 Diagnostic Pattern Catalog | `ruleGritFacts` and diagnostic identifiers | D6 owns diagnostic normalization and adapter failure taxonomy. |
 | D7 Structural Enforcement Pipeline | selector/routing/execution/baseline/Grit/generated-zone inputs | D7 owns check aggregation, enforcement status, and false-green prevention. |
 | D8 Pattern Governance | `ruleGovernanceFacts` | D8 owns Pattern Authority lifecycle, admission, fixtures, false-positive model, and governance acceptance. |
-| G-HOST and D10 | `ruleGeneratedZoneFacts` references | G-HOST/D10 own host policy, protected-zone authority, regeneration authority, and guard/refusal behavior. |
+| G-HOST and D10 | `ruleFileLayerFacts` references | G-HOST/D10 own host policy, protected-zone authority, regeneration authority, and guard/refusal behavior. |
 | D11 Local Feedback | local-feedback eligibility facts | D11 owns hook behavior, staged feedback, and local-output semantics. |
 | D13 Scaffolding And Refusal | scaffold/governance relation facts | D13 owns generator support and unsupported-shape refusals. |
 
@@ -188,7 +188,7 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | `ruleGraphFacts` | Nx plugin, D3, classify target list | owner/root relation, alias policy, structured dependency target | `OWNER_ROOTS`, `nxTarget` string parsing | `graph-metadata-contract-failure` | D3 |
 | `ruleBaselineFacts` | baseline, D5, D7 | rule id, baseline state, exception source, introduction manifest relation | whole row, file presence alone | D5/D1 baseline contract failure | D5 |
 | `ruleGritFacts` | Grit adapter, D6, D8, hooks | pattern name, scan roots, exclusions, hook eligibility, manifest reference if registered | pattern id fallback, Grit prose | `grit-metadata-contract-failure` | D6, D8 |
-| `ruleGeneratedZoneFacts` | file-layer, G-HOST, D10, D13 | zone id, host declaration link, forbidden-file policy | generated-zone policy decisions | `generated-zone-metadata-contract-failure` | G-HOST, D10, D13 |
+| `ruleFileLayerFacts` | file-layer, G-HOST, D10, D13 | zone id, host declaration link, forbidden-file policy | generated-zone policy decisions | `generated-zone-metadata-contract-failure` | G-HOST, D10, D13 |
 | `ruleGovernanceFacts` | Pattern Authority, generator, D8, D13 | Pattern Authority reference, lifecycle expectation, accepted-state projection | admission decision, fixture sufficiency | `pattern-authority-contract-failure` | D8, D13 |
 | `ruleLocalFeedbackFacts` | hooks, D11 | pre-commit eligibility and staged-scope metadata | hook output behavior | `local-feedback-metadata-failure` | D11 |
 

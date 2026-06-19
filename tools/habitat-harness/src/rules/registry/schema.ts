@@ -43,12 +43,7 @@ const RequiredRuleMetadataSchema = Type.Interface(
   { additionalProperties: false }
 );
 const RequiredCommandRuleMetadataSchema = Type.Omit(RequiredRuleMetadataSchema, ["ownerTool"]);
-const LocalFeedbackSchema = Type.Object(
-  {
-    preCommit: Type.Literal(true),
-  },
-  { additionalProperties: false }
-);
+const LocalFeedbackSchema = Type.Literal(true);
 const GritScanRootSchema = Type.String({ minLength: 1 });
 
 const CommandRuleRegistryRecordV1Schema = Type.Interface(
@@ -150,20 +145,31 @@ export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema
 ]);
 export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
 
-export const RuleLocalFeedbackFactsSchema = Type.Union([
-  Type.Object(
+const RuleExecutionMessageSchema = Type.Pick(RequiredRuleMetadataSchema, ["id", "lane", "message"]);
+
+export const RuleFileLayerFactsSchema = Type.Union([
+  Type.Interface(
+    [RuleExecutionMessageSchema],
     {
-      id: Type.String({ minLength: 1 }),
-      state: Type.Literal("pre-commit"),
+      generatedZone: Type.String({ minLength: 1 }),
     },
     { additionalProperties: false }
   ),
-  Type.Object(
+  Type.Interface(
+    [RuleExecutionMessageSchema],
     {
-      id: Type.String({ minLength: 1 }),
-      state: Type.Literal("not-eligible"),
+      forbiddenFileNames: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
     },
     { additionalProperties: false }
   ),
 ]);
+export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
+
+export const RuleLocalFeedbackFactsSchema = Type.Interface(
+  [Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id"])],
+  {
+    localFeedback: LocalFeedbackSchema,
+  },
+  { additionalProperties: false }
+);
 export type RuleLocalFeedbackFacts = Static<typeof RuleLocalFeedbackFactsSchema>;

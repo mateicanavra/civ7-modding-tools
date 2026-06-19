@@ -315,7 +315,7 @@ function factsByRuleId(facts: readonly RuleReportFacts[]): Map<string, RuleRepor
 }
 
 function localFeedbackEligibleRuleIds(facts: readonly RuleLocalFeedbackFacts[]): Set<string> {
-  return new Set(facts.flatMap((fact) => (fact.state === "pre-commit" ? [fact.id] : [])));
+  return new Set(facts.map((fact) => fact.id));
 }
 
 const gritCandidateExtensions = new Set([
