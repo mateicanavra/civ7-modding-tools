@@ -1,4 +1,19 @@
 export {
+  DiagnosticCatalogEntrySchema,
+  DiagnosticNonClaimSchema,
+  DiagnosticProjectionContractSchema,
+  DiagnosticScanContractSchema,
+  GritDiagnosticCatalogEntrySchema,
+  diagnosticCatalogEntryFromRuleGritFacts,
+} from "./catalog.js";
+export type {
+  DiagnosticCatalogEntry,
+  DiagnosticNonClaim,
+  DiagnosticProjectionContract,
+  DiagnosticScanContract,
+  GritDiagnosticCatalogEntry,
+} from "./catalog.js";
+export {
   DiagnosticAdapterFailureKindSchema,
   diagnosticAdapterFailureFromText,
   diagnosticAdapterFailureKinds,
