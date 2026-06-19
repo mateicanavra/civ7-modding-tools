@@ -1,6 +1,6 @@
 import { Args } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { classifyTarget } from "../lib/command-engine.js";
+import { classifyTarget } from "../lib/classify.js";
 
 export default class Classify extends HabitatCommand {
   static override summary = "Classify a repo path into Habitat project ownership";

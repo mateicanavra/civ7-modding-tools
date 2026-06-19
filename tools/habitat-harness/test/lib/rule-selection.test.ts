@@ -1,13 +1,12 @@
 import { describe, expect, test } from "vitest";
 import {
   createCheckReport,
-  type RuleSelection,
   renderCheckReport,
   rulesForExecution,
-  selectRules,
   stagedGritScanRoots,
-} from "../../src/lib/command-engine.js";
+} from "../../src/lib/check-report.js";
 import { validateCheckReport } from "../../src/lib/diagnostics.js";
+import { type RuleSelection, selectRules } from "../../src/lib/rule-selection.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
 
 const fakeRules: HarnessRule[] = [
@@ -116,6 +115,40 @@ describe("rule selector boundary", () => {
 
     const json = renderCheckReport(report, { json: true });
     expect(JSON.parse(json)).toMatchObject({ schemaVersion: 1, ok: false });
+  });
+
+  test("rejects check reports whose ok flag contradicts failed rules", () => {
+    const invalid = {
+      schemaVersion: 1,
+      command: "habitat check --json",
+      startedAt: "2026-06-13T00:00:00.000Z",
+      ok: true,
+      rules: [
+        {
+          ruleId: "demo-rule",
+          ownerTool: "habitat-native",
+          lane: "enforced",
+          status: "fail",
+          locked: true,
+          durationMs: 1,
+          diagnostics: [
+            {
+              ruleId: "demo-rule",
+              path: ".",
+              message: "broken",
+              severity: "error",
+              baselined: false,
+            },
+          ],
+          detect: ["demo"],
+          message: "demo",
+          remediate: null,
+        },
+      ],
+    };
+
+    expect(validateCheckReport(invalid)).toContain("ok must be false when any rule status is fail");
+    expect(() => renderCheckReport(invalid, { json: true })).toThrow(/ok must be false/);
   });
 
   test("staged execution keeps only hook-scoped Grit rules when approved staged roots exist", () => {

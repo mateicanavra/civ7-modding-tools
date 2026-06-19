@@ -71,7 +71,7 @@ export interface GritApplyDiffEvidenceInput extends GritApplyFileDigest {
   diffSha256: string;
 }
 
-export interface GritApplyTransactionProof {
+export interface GritApplyTransactionRecord {
   patternPaths: readonly string[];
   roots: readonly string[];
   beforeGitState: HabitatGitState;
@@ -99,7 +99,7 @@ export interface GritApplyFileDigest {
 export interface GritApplyTransactionResult extends SpawnResult {
   ok: boolean;
   failureTag: GritAdapterFailureTag | null;
-  proof: GritApplyTransactionProof;
+  record: GritApplyTransactionRecord;
 }
 
 type ParsedInventory =
@@ -160,27 +160,27 @@ export async function runGritApplyTransaction(
   let docsDryRunCommand: HabitatCommandResult | null = null;
 
   if (!parsedInventory.ok) {
-    const copyProof = await runIsolatedCopyApplyProof(
+    const copyCheck = await runIsolatedCopyApplyCheck(
       sourceRoots,
       [sourceGritApplyPattern],
       options
     );
-    if (!copyProof.ok) {
+    if (!copyCheck.ok) {
       return transactionFailure({
-        tag: copyProof.failureTag,
-        message: copyProof.message,
+        tag: copyCheck.failureTag,
+        message: copyCheck.message,
         roots,
         beforeGitState,
         afterGitState: gitStateReader(),
         dryRunCommand,
-        transactionCopyCommand: copyProof.command,
-        diffEvidence: copyProof.diffEvidence,
-        changedPaths: copyProof.changedPaths,
-        fileDigests: copyProof.fileDigests,
-        appliedDiff: copyProof.normalizedDiff,
+        transactionCopyCommand: copyCheck.command,
+        diffEvidence: copyCheck.diffEvidence,
+        changedPaths: copyCheck.changedPaths,
+        fileDigests: copyCheck.fileDigests,
+        appliedDiff: copyCheck.normalizedDiff,
       });
     }
-    if (reportedMatchCount(dryRunCommand) > 0 && copyProof.changedPaths.length === 0) {
+    if (reportedMatchCount(dryRunCommand) > 0 && copyCheck.changedPaths.length === 0) {
       return transactionFailure({
         tag: "GritApplyDryRunMismatch",
         message: "Grit dry-run reported matches, but isolated apply copy produced no diff.",
@@ -188,18 +188,18 @@ export async function runGritApplyTransaction(
         beforeGitState,
         afterGitState: gitStateReader(),
         dryRunCommand,
-        transactionCopyCommand: copyProof.command,
-        diffEvidence: copyProof.diffEvidence,
-        changedPaths: copyProof.changedPaths,
-        fileDigests: copyProof.fileDigests,
-        appliedDiff: copyProof.normalizedDiff,
+        transactionCopyCommand: copyCheck.command,
+        diffEvidence: copyCheck.diffEvidence,
+        changedPaths: copyCheck.changedPaths,
+        fileDigests: copyCheck.fileDigests,
+        appliedDiff: copyCheck.normalizedDiff,
       });
     }
-    approvalCopyCommand = copyProof.command;
-    approvedApplyPaths = [...copyProof.changedPaths];
-    approvalDiffEvidence = [...copyProof.diffEvidence];
-    approvalFileDigests = [...copyProof.fileDigests];
-    approvalAppliedDiff = copyProof.normalizedDiff;
+    approvalCopyCommand = copyCheck.command;
+    approvedApplyPaths = [...copyCheck.changedPaths];
+    approvalDiffEvidence = [...copyCheck.diffEvidence];
+    approvalFileDigests = [...copyCheck.fileDigests];
+    approvalAppliedDiff = copyCheck.normalizedDiff;
     if (options.dryRun) {
       return transactionSuccess({
         stdout: dryRunCommand.stdout.text,
@@ -208,12 +208,12 @@ export async function runGritApplyTransaction(
         beforeGitState,
         afterGitState: gitStateReader(),
         dryRunCommand,
-        transactionCopyCommand: copyProof.command,
+        transactionCopyCommand: copyCheck.command,
         inventory: [],
-        diffEvidence: copyProof.diffEvidence,
-        changedPaths: copyProof.changedPaths,
-        fileDigests: copyProof.fileDigests,
-        appliedDiff: copyProof.normalizedDiff,
+        diffEvidence: copyCheck.diffEvidence,
+        changedPaths: copyCheck.changedPaths,
+        fileDigests: copyCheck.fileDigests,
+        appliedDiff: copyCheck.normalizedDiff,
       });
     }
   } else {
@@ -256,34 +256,34 @@ export async function runGritApplyTransaction(
     }
     const docsChangedPaths = parseStandardApplyChangedPaths(docsDryRunCommand.stdout.text);
     if (docsChangedPaths.length > 0) {
-      const docsCopyProof = await runIsolatedCopyApplyProof(
+      const docsCopyCheck = await runIsolatedCopyApplyCheck(
         docsChangedPaths,
         [docsGritApplyPattern],
         options
       );
-      if (!docsCopyProof.ok) {
+      if (!docsCopyCheck.ok) {
         return transactionFailure({
-          tag: docsCopyProof.failureTag,
-          message: docsCopyProof.message,
+          tag: docsCopyCheck.failureTag,
+          message: docsCopyCheck.message,
           roots,
           beforeGitState,
           afterGitState: gitStateReader(),
           dryRunCommand,
           gateCommands: [docsDryRunCommand],
-          transactionCopyCommand: docsCopyProof.command,
-          diffEvidence: docsCopyProof.diffEvidence,
-          changedPaths: docsCopyProof.changedPaths,
-          fileDigests: docsCopyProof.fileDigests,
-          appliedDiff: docsCopyProof.normalizedDiff,
+          transactionCopyCommand: docsCopyCheck.command,
+          diffEvidence: docsCopyCheck.diffEvidence,
+          changedPaths: docsCopyCheck.changedPaths,
+          fileDigests: docsCopyCheck.fileDigests,
+          appliedDiff: docsCopyCheck.normalizedDiff,
         });
       }
-      approvedApplyPaths = sortedUnique([...approvedApplyPaths, ...docsCopyProof.changedPaths]);
-      approvalDiffEvidence = [...approvalDiffEvidence, ...docsCopyProof.diffEvidence];
-      approvalFileDigests = [...approvalFileDigests, ...docsCopyProof.fileDigests];
-      approvalAppliedDiff = [approvalAppliedDiff, docsCopyProof.normalizedDiff]
+      approvedApplyPaths = sortedUnique([...approvedApplyPaths, ...docsCopyCheck.changedPaths]);
+      approvalDiffEvidence = [...approvalDiffEvidence, ...docsCopyCheck.diffEvidence];
+      approvalFileDigests = [...approvalFileDigests, ...docsCopyCheck.fileDigests];
+      approvalAppliedDiff = [approvalAppliedDiff, docsCopyCheck.normalizedDiff]
         .filter((part) => part.trim().length > 0)
         .join("\n");
-      approvalCopyCommand = docsCopyProof.command;
+      approvalCopyCommand = docsCopyCheck.command;
     }
   }
 
@@ -703,7 +703,7 @@ function makeGritApplyRequest(options: {
   };
 }
 
-type IsolatedCopyApplyProof =
+type IsolatedCopyApplyCheck =
   | {
       ok: true;
       command: HabitatCommandResult;
@@ -723,11 +723,11 @@ type IsolatedCopyApplyProof =
       normalizedDiff: string;
     };
 
-async function runIsolatedCopyApplyProof(
+async function runIsolatedCopyApplyCheck(
   roots: readonly string[],
   patternPaths: readonly string[],
   options: Pick<GritApplyTransactionOptions, "processLayer">
-): Promise<IsolatedCopyApplyProof> {
+): Promise<IsolatedCopyApplyCheck> {
   const tempRoot = mkdtempSync(path.join(tmpdir(), "habitat-grit-apply-"));
   const beforeRoot = path.join(tempRoot, "before");
   const afterRoot = path.join(tempRoot, "after");
@@ -964,7 +964,7 @@ function biomeHandoffRequest(changedPaths: readonly string[]): HabitatProcessReq
 function rollbackRequest(changedPaths: readonly string[]): HabitatProcessRequest {
   return {
     commandId: "grit-apply-rollback",
-    kind: "git-proof",
+    kind: "git-state",
     executable: "git",
     argv: ["checkout", "--", ...changedPaths],
     cwd: repoRoot,
@@ -1031,7 +1031,7 @@ function transactionSuccess(input: {
     stdout: input.stdout,
     stderr: input.stderr,
     failureTag: null,
-    proof: proof(input),
+    record: transactionRecord(input),
   };
 }
 
@@ -1059,7 +1059,7 @@ function transactionFailure(input: {
     stdout: "",
     stderr: `${renderGritAdapterFailure(input.tag, input.message)}\n`,
     failureTag: input.tag,
-    proof: proof({
+    record: transactionRecord({
       roots: input.roots,
       beforeGitState: input.beforeGitState,
       afterGitState: input.afterGitState,
@@ -1078,7 +1078,7 @@ function transactionFailure(input: {
   };
 }
 
-function proof(input: {
+function transactionRecord(input: {
   roots: readonly string[];
   beforeGitState: HabitatGitState;
   afterGitState: HabitatGitState;
@@ -1093,7 +1093,7 @@ function proof(input: {
   changedPaths?: readonly string[];
   fileDigests?: readonly GritApplyFileDigest[];
   appliedDiff?: string;
-}): GritApplyTransactionProof {
+}): GritApplyTransactionRecord {
   return {
     patternPaths: gritApplyPatterns,
     roots: input.roots,

@@ -18,6 +18,18 @@ export {
   violationKey,
 } from "./lib/baseline.js";
 export type {
+  BaselineExpansionResult,
+  CheckOptions,
+  EmitCheckOptions,
+} from "./lib/check-report.js";
+export {
+  buildHabitatCommand,
+  createCheckReport,
+  expandBaselines,
+  renderCheckReport,
+  stringifyCheckReport,
+} from "./lib/check-report.js";
+export type {
   Classification,
   ClassifiedTarget,
   ClassifyOptions,
@@ -25,23 +37,8 @@ export type {
   RuleScopeKind,
   ScopedRule,
   UnavailableClassifiedTarget,
-} from "./lib/command-engine.js";
-export {
-  buildHabitatCommand,
-  classifyPath,
-  classifyTarget,
-  commandSummary,
-  createCheckReport,
-  expandBaselines,
-  renderCheckReport,
-  resolveVerifyBase,
-  runAffectedVerification,
-  runFix,
-  runGraph,
-  runHook,
-  selectRules,
-  stringifyCheckReport,
-} from "./lib/command-engine.js";
+} from "./lib/classify.js";
+export { classifyPath, classifyTarget, commandSummary } from "./lib/classify.js";
 export type {
   CheckReport,
   HabitatDiagnostic,
@@ -51,12 +48,15 @@ export type {
 export { validateCheckReport } from "./lib/diagnostics.js";
 export { effectParityProbeProgram, runEffectParityProbe } from "./lib/effect-parity.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
+export type { FixOptions } from "./lib/fix.js";
+export { runFix } from "./lib/fix.js";
 export { readGitState } from "./lib/git-state.js";
+export { runGraph } from "./lib/graph.js";
 export { injectedProbeRoot } from "./lib/grit.js";
 export type {
   GritApplyRewriteInventoryEntry,
   GritApplyTransactionOptions,
-  GritApplyTransactionProof,
+  GritApplyTransactionRecord,
   GritApplyTransactionResult,
 } from "./lib/grit-apply.js";
 export {
@@ -96,18 +96,32 @@ export {
   makeHabitatCommandResult,
 } from "./lib/habitat-process.js";
 export type {
-  AdapterProofArtifact,
-  AdapterProofClass,
-  WriteAdapterProofArtifactInput,
-} from "./lib/proof-artifact.js";
+  RuleSelection,
+  RuleSelectionEmptyIntersection,
+  RuleSelectionFailureReason,
+  RuleSelectionResult,
+  RuleSelectorFact,
+  RuleSelectorKind,
+} from "./lib/rule-selection.js";
+export { describeRuleSelectionFailure, selectRules } from "./lib/rule-selection.js";
+export type { VerifyNonClaimId, VerifyOptions, VerifyReceipt } from "./lib/verify-receipt.js";
 export {
-  adapterProofArtifactPath,
-  buildAdapterProofArtifact,
-  ProofArtifactWriteFailure,
-  ProofArtifactWriter,
-  ProofArtifactWriterLive,
-  writeAdapterProofArtifact,
-} from "./lib/proof-artifact.js";
+  createVerifyReceipt,
+  isVerifyReceipt,
+  resolveVerifyBase,
+  runAffectedVerification,
+  stringifyVerifyReceipt,
+  validateVerifyReceipt,
+  VerifyBaseSchema,
+  VerifyCommandRecordSchema,
+  VerifyHabitatCheckSummarySchema,
+  VerifyNonClaimIdSchema,
+  VerifyNxAffectedSchema,
+  VerifyNxCacheTaskSchema,
+  VerifyPostStateSchema,
+  VerifyReceiptSchema,
+  verifyAffectedTargets,
+} from "./lib/verify-receipt.js";
 export type {
   HabitatToolExecutionPlane,
   MaterializedHabitatCommand,

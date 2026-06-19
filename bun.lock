@@ -345,6 +345,7 @@
         "@oclif/core": "^4.11.4",
         "@oclif/plugin-help": "^6.2.50",
         "effect": "3.21.3",
+        "typebox": "^1.0.80",
       },
     },
   },

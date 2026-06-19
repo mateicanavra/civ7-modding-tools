@@ -5,7 +5,7 @@ import {
   describeRuleSelectionFailure,
   expandBaselines,
   renderCheckReport,
-} from "../lib/command-engine.js";
+} from "../lib/check-report.js";
 
 export default class Check extends HabitatCommand {
   static override summary = "Run Habitat structural checks";
