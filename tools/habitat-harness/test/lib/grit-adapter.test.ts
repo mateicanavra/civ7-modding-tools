@@ -180,7 +180,7 @@ describe("Grit check adapter parser and projection", () => {
     expect(result).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
-  test("proof projection mode distinguishes missing and unexpected pattern identities", () => {
+  test("strict projection distinguishes missing and unexpected pattern identities", () => {
     const requested = fakeGritRule("grit-domain-deep-import", "domain_deep_import");
     const other = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
 
@@ -227,9 +227,9 @@ describe("Grit check adapter parser and projection", () => {
     expect(validateScanRoots(["mods/mod-swooper-maps/src/maps/generated"])).toContain(
       "generated output"
     );
-    expect(validateScanRoots([".civ7"])).toContain("protected");
-    expect(validateScanRoots(["docs"])).toContain("not approved");
-    expect(validateScanRoots(["docs"], { allowDocsRoot: true })).toBeNull();
+    expect(validateScanRoots([".git"])).toContain("protected");
+    expect(validateScanRoots(["docs/PROCESS.md"])).toContain("not approved");
+    expect(validateScanRoots(["docs/PROCESS.md"], { allowDocsRoot: true })).toBeNull();
   });
 
   test("runs selected Grit rules through one argument-array command request", async () => {
@@ -279,7 +279,7 @@ describe("Grit check adapter parser and projection", () => {
     expect(results.get(rule.id)?.diagnostics[0]?.message).toBe("adapter finding");
   });
 
-  test("fresh proof mode uses a scoped isolated cache with observable freshness", async () => {
+  test("fresh cache mode uses a scoped isolated cache with observable freshness", async () => {
     const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
@@ -491,7 +491,7 @@ Processed 2 files and found 1 matches
     ]);
   });
 
-  test("fails proof paths that require observable cache provenance when status is unknown", async () => {
+  test("fails paths that require observable cache provenance when status is unknown", async () => {
     const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
     const fakeLayer = makeFakeHabitatProcessLayer((request) =>
       makeHabitatCommandResult(request, {

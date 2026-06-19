@@ -30,7 +30,7 @@ describe("Habitat pattern generator", () => {
     expect(tree.exists(candidatePaths.manifestPath)).toBe(true);
     expect(tree.exists(".grit/patterns/habitat/checks/dra_metadata_probe.md")).toBe(false);
     expect(tree.exists("tools/habitat-harness/baselines/grit-dra-metadata-probe.json")).toBe(false);
-    expect(readJson(tree, rulesPath)).toEqual({ rules: [] });
+    expect(readJson(tree, rulesPath)).toMatchObject({ schemaVersion: 1, rules: [] });
 
     const manifest = readJson(tree, candidatePaths.manifestPath);
     expect(manifest).toMatchObject({
@@ -112,7 +112,7 @@ describe("Habitat pattern generator", () => {
   test("writes registered advisory output after accepted manifest and explicit baseline contract", async () => {
     const tree = createPatternTree({
       $comment: "preserve rule-pack metadata",
-      rules: [],
+      ...emptyRuleRegistryDocument(),
     });
     const beforeRules = tree.read(rulesPath, "utf8");
     const manifest = registeredManifest();
@@ -133,7 +133,7 @@ describe("Habitat pattern generator", () => {
   test("writes registered enforced output after accepted non-hook manifest and explicit baseline contract", async () => {
     const tree = createPatternTree({
       $comment: "preserve rule-pack metadata",
-      rules: [],
+      ...emptyRuleRegistryDocument(),
     });
     const beforeRules = tree.read(rulesPath, "utf8");
     const manifest = registeredManifest({
@@ -182,7 +182,7 @@ describe("Habitat pattern generator", () => {
   test("writes registered enforced output when the manifest includes hook evidence", async () => {
     const tree = createPatternTree({
       $comment: "preserve rule-pack metadata",
-      rules: [],
+      ...emptyRuleRegistryDocument(),
     });
     const beforeRules = tree.read(rulesPath, "utf8");
     const manifest = registeredManifest({
@@ -210,7 +210,7 @@ describe("Habitat pattern generator", () => {
 
   test("refuses candidate generation when the rule already exists", async () => {
     const tree = createPatternTree({
-      rules: [{ id: "grit-existing-probe" }],
+      ...emptyRuleRegistryDocument([existingRegistryRule("grit-existing-probe")]),
     });
     const beforeRules = tree.read(rulesPath, "utf8");
 
@@ -273,10 +273,37 @@ describe("Habitat pattern generator", () => {
   });
 });
 
-function createPatternTree(rulesJson: { rules: unknown[] } = { rules: [] }) {
+function createPatternTree(rulesJson: { rules: unknown[] } = emptyRuleRegistryDocument()) {
   const tree = createTreeWithEmptyWorkspace();
   tree.write(rulesPath, `${JSON.stringify(rulesJson, null, 2)}\n`);
   return tree;
+}
+
+function emptyRuleRegistryDocument(rules: unknown[] = []) {
+  return {
+    schemaVersion: 1,
+    ownerRoots: {
+      "@internal/habitat-harness": "tools/habitat-harness",
+    },
+    rules,
+  };
+}
+
+function existingRegistryRule(ruleId: string) {
+  return {
+    id: ruleId,
+    ownerTool: "habitat-native",
+    ownerProject: "@internal/habitat-harness",
+    lane: "enforced",
+    scope: "workspace",
+    forbids: "test fixture",
+    why: "test fixture",
+    detect: ["habitat", "check", "--rule", ruleId],
+    remediate: null,
+    message: "test fixture",
+    exceptionPath: "none",
+    pathCoverage: [{ kind: "project-owner" }],
+  };
 }
 
 function assertNoGeneratedArtifacts(

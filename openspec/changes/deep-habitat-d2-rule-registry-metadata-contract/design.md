@@ -8,9 +8,9 @@ Current code is evidence, not authority. The target product scenario is repo mai
 
 ## Current Diagnosis
 
-Current `rules.json` has 52 rules and 16 observed fields:
+Current `rules.json` has 53 rules and 19 observed rule fields:
 
-`detect`, `exceptionPath`, `forbiddenFileNames`, `forbids`, `generatedZone`, `gritPattern`, `hookScope`, `id`, `lane`, `message`, `nxTarget`, `ownerProject`, `ownerTool`, `remediate`, `scope`, and `why`.
+`detect`, `exceptionPath`, `expandIgnoredTestDirectories`, `forbiddenFileNames`, `forbids`, `generatedZone`, `graphTarget`, `gritPattern`, `id`, `lane`, `localFeedback`, `message`, `ownerProject`, `ownerTool`, `pathCoverage`, `remediate`, `scanRoots`, `scope`, and `why`.
 
 Observed `ownerTool` counts:
 
@@ -18,7 +18,7 @@ Observed `ownerTool` counts:
 | --- | ---: |
 | `biome` | 1 |
 | `file-layer` | 4 |
-| `grit-check` | 32 |
+| `grit-check` | 33 |
 | `habitat-native` | 4 |
 | `nx-boundaries` | 1 |
 | `wrapped-script` | 3 |
@@ -29,7 +29,7 @@ Observed `lane` counts:
 | `lane` | Count |
 | --- | ---: |
 | `advisory` | 3 |
-| `enforced` | 49 |
+| `enforced` | 50 |
 
 The current `HarnessRule` shape mixes identity, reporting prose, execution strategy, path applicability, graph target hints, baseline state, Grit pattern identity, generated-zone references, hook participation, and future Pattern Authority references in one optional-field object. This creates invalid reachable states: Grit rows without patterns, non-Grit rows with Grit fields, file-layer rows without a generated-zone or file-name policy, wrapped tests without structured target references, graph targets parsed from colon strings, and path routing inferred from prose.
 
@@ -175,7 +175,7 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | BaselineReference | registry relation to baseline authority | rule id and registry baseline relation currently represented by `exceptionPath` | D5 state machine, debt lifecycle, manifest admission, file-presence-only admission | baseline contract failure through D5/D1 | D5, D7, D8 |
 | GritPatternReference | Grit pattern and scan metadata | pattern name, scan roots/exclusions | pattern id fallback, Grit prose/frontmatter, local-feedback eligibility | `grit-metadata-contract-failure` | D6, D7, D8 |
 | ProtectedZoneReference | generated/protected-zone or file-name policy relation | zone id plus host declaration link, or forbidden filename policy | local protected-zone policy | `generated-zone-metadata-contract-failure` | G-HOST, D10, D7, D13 |
-| PatternAuthorityReference | registry-to-governance relation | manifest path/status projection when registered | governance admission decision | `pattern-authority-contract-failure` | D8, D13 |
+| PatternAuthorityReference | registry-to-governance relation | manifest path relation when registered | governance admission decision, lifecycle acceptance, fixture sufficiency | `pattern-authority-contract-failure` | D8, D13 |
 | LocalFeedbackEligibility | local staged feedback eligibility declaration | not eligible, pre-commit eligible, or refused staged scope | hook execution behavior | `local-feedback-metadata-failure` | D11, hooks |
 
 ## Consumer Projection Matrix
@@ -190,7 +190,7 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | `ruleBaselineFacts` | baseline, D5, D7 | rule id, `exceptionPath` relation | whole row, file presence alone, D5 state machine | D5/D1 baseline contract failure | D5 |
 | `ruleGritFacts` | Grit adapter, D6, D8 | pattern name, scan roots, exclusions, manifest reference if registered | pattern id fallback, Grit prose, local feedback eligibility | `grit-metadata-contract-failure` | D6, D8 |
 | `ruleFileLayerFacts` | file-layer, G-HOST, D10, D13 | zone id, host declaration link, forbidden-file policy | generated-zone policy decisions | `generated-zone-metadata-contract-failure` | G-HOST, D10, D13 |
-| `ruleGovernanceFacts` | Pattern Authority, generator, D8, D13 | Pattern Authority reference, lifecycle expectation, accepted-state projection | admission decision, fixture sufficiency | `pattern-authority-contract-failure` | D8, D13 |
+| `ruleGovernanceFacts` | Pattern Authority, generator, D8, D13 | D2-owned Pattern Authority relation facts: rule id, lane, pattern name, and manifest path | admission decision, lifecycle acceptance, fixture sufficiency | `pattern-authority-contract-failure` | D8, D13 |
 | `ruleLocalFeedbackFacts` | hooks, D11 | pre-commit eligibility and staged-scope metadata | hook output behavior | `local-feedback-metadata-failure` | D11 |
 
 No consumer may receive `RuleRegistryRecord` directly unless D2 amends this matrix with a named exception and reason. Current `HarnessRule` exports are compatibility facade candidates, not internal authority.
@@ -253,7 +253,6 @@ Later D2 implementation may touch these paths after D0 rows exist:
 - `tools/habitat-harness/src/lib/rule-selection.ts`
 - `tools/habitat-harness/src/lib/check-report.ts`
 - `tools/habitat-harness/src/lib/classify.ts`
-- `tools/habitat-harness/src/lib/verify-receipt.ts`
 - `tools/habitat-harness/src/plugin.js`
 - `tools/habitat-harness/src/lib/baseline.ts`
 - `tools/habitat-harness/src/lib/grit.ts`

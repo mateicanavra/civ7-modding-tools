@@ -1,18 +1,23 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { executeRule, type HarnessRule, type RuleRunResult, rules } from "../rules/architecture.js";
+import { executeRule, type RuleRunResult } from "../rules/architecture.js";
+import {
+  activeRuleBaselineFacts,
+  activeRuleCommandExecutionFacts,
+  activeRuleFileLayerFacts,
+  activeRuleGritFacts,
+  activeRuleLocalFeedbackFacts,
+  activeRuleReportFacts,
+  factsForRuleIds,
+} from "../rules/facts.js";
 import { renderReport } from "../rules/messages.js";
 import {
   type RuleCommandExecutionFacts,
   type RuleFileLayerFacts,
+  type RuleGritFacts,
   type RuleLocalFeedbackFacts,
   type RuleReportFacts,
-  ruleBaselineFacts,
-  ruleCommandExecutionFacts,
-  ruleFileLayerFacts,
-  ruleGritFacts,
-  ruleLocalFeedbackFacts,
-  ruleReportFacts,
+  type RuleSelectorFacts,
 } from "../rules/registry/index.js";
 import {
   applyBaseline,
@@ -27,7 +32,7 @@ import {
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
 import { runGeneratedZoneRule } from "./generated-zones.js";
-import { validateScanRoots } from "./grit.js";
+import { validateScanRoots } from "../adapters/grit/index.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
 import {
   describeRuleSelectionFailure,
@@ -70,8 +75,11 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
   if (!selection.ok) return createRuleSelectionFailureReport(selection, options);
 
   const selectedRules = rulesForExecution(selection.rules, options);
-  const reportsByRuleId = factsByRuleId(ruleReportFacts(selectedRules));
-  const baselinesByRuleId = factsByRuleId(ruleBaselineFacts(selectedRules));
+  const selectedRuleIds = selectedRules.map((rule) => rule.id);
+  const reportsByRuleId = factsByRuleId(factsForRuleIds(activeRuleReportFacts, selectedRuleIds));
+  const baselinesByRuleId = factsByRuleId(
+    factsForRuleIds(activeRuleBaselineFacts, selectedRuleIds)
+  );
   const reports: RuleReport[] = [];
   const ruleResults = await executeSelectedRules(selectedRules, options);
   for (const rule of selectedRules) {
@@ -93,7 +101,7 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
       (diagnostic) => !diagnostic.baselined && diagnostic.severity === "error"
     );
     const status: RuleReport["status"] =
-      rule.lane === "advisory"
+      reportFacts.lane === "advisory"
         ? diagnostics.length > 0
           ? "advisory-findings"
           : "pass"
@@ -116,7 +124,7 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
 
   const integrityStarted = Date.now();
   const integrity = checkBaselineIntegrity(options.base ?? "main", {
-    registry: ruleBaselineFacts(rules),
+    registry: activeRuleBaselineFacts,
   });
   reports.push({
     ruleId: "baseline-integrity",
@@ -156,7 +164,12 @@ export async function expandBaselines(
 
   const messages: string[] = [];
   const ruleResults = await executeSelectedRules(selected.rules);
-  const baselinesByRuleId = factsByRuleId(ruleBaselineFacts(selected.rules));
+  const baselinesByRuleId = factsByRuleId(
+    factsForRuleIds(
+      activeRuleBaselineFacts,
+      selected.rules.map((rule) => rule.id)
+    )
+  );
   for (const rule of selected.rules) {
     const baselineFacts = baselinesByRuleId.get(rule.id);
     if (!baselineFacts)
@@ -187,7 +200,7 @@ export async function expandBaselines(
       .map(violationKey);
     if (keys.length > 0) {
       const guard = guardBaselineExpansion(rule.id, keys, options.base ?? "main", {
-        registry: ruleBaselineFacts(rules),
+        registry: activeRuleBaselineFacts,
       });
       if (!guard.ok) {
         return {
@@ -205,27 +218,52 @@ export async function expandBaselines(
 }
 
 export function rulesForExecution(
-  selectedRules: readonly HarnessRule[],
-  options: { staged?: boolean; stagedPaths?: readonly string[] } = {}
-): HarnessRule[] {
+  selectedRules: readonly RuleSelectorFacts[],
+  options: {
+    gritFacts?: readonly RuleGritFacts[];
+    localFeedbackFacts?: readonly RuleLocalFeedbackFacts[];
+    staged?: boolean;
+    stagedPaths?: readonly string[];
+  } = {}
+): RuleSelectorFacts[] {
   if (!options.staged) return [...selectedRules];
   if (!selectedRules.some((rule) => rule.ownerTool === "grit-check")) return [...selectedRules];
+  const selectedGritFacts = factsForRuleIds(
+    options.gritFacts ?? activeRuleGritFacts,
+    selectedRules.map((rule) => rule.id)
+  );
   const hasStagedGritRoots =
-    stagedGritScanRoots(options.stagedPaths ?? currentStagedPaths()).length > 0;
-  const stagedEligible = localFeedbackEligibleRuleIds(ruleLocalFeedbackFacts(selectedRules));
+    selectedGritFacts.length > 0 &&
+    stagedGritScanRoots(
+      options.stagedPaths ?? currentStagedPaths(),
+      approvedScanRootsForRules(selectedGritFacts)
+    ).length > 0;
+  const stagedEligible = localFeedbackEligibleRuleIds(
+    factsForRuleIds(
+      options.localFeedbackFacts ?? activeRuleLocalFeedbackFacts,
+      selectedRules.map((rule) => rule.id)
+    )
+  );
   return selectedRules.filter(
     (rule) => rule.ownerTool !== "grit-check" || (stagedEligible.has(rule.id) && hasStagedGritRoots)
   );
 }
 
-export function stagedGritScanRoots(stagedPaths: readonly string[]): string[] {
+export function stagedGritScanRoots(
+  stagedPaths: readonly string[],
+  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleGritFacts)
+): string[] {
   const candidates = sortedUnique(
     stagedPaths
       .map((candidate) => toRepoRelative(candidate))
       .filter((candidate) => gritCandidateExtensions.has(path.extname(candidate)))
   );
   return candidates.filter(
-    (candidate) => validateScanRoots([candidate], { requireExisting: false }) === null
+    (candidate) =>
+      validateScanRoots([candidate], {
+        requireExisting: false,
+        approvedScanRoots,
+      }) === null
   );
 }
 
@@ -246,15 +284,18 @@ export function stringifyCheckReport(report: CheckReport): string {
 }
 
 async function executeSelectedRules(
-  selectedRules: readonly HarnessRule[],
+  selectedRules: readonly RuleSelectorFacts[],
   options: Pick<CheckOptions, "staged"> = {}
 ): Promise<Map<string, { result: RuleRunResult; durationMs: number }>> {
   const results = new Map<string, { result: RuleRunResult; durationMs: number }>();
-  const gritRules = ruleGritFacts(selectedRules);
+  const selectedRuleIds = selectedRules.map((rule) => rule.id);
+  const gritRules = factsForRuleIds(activeRuleGritFacts, selectedRuleIds);
   if (gritRules.length > 0) {
-    const { runGritRules } = await import("./grit.js");
+    const { runGritRules } = await import("../adapters/grit/index.js");
     const started = Date.now();
-    const scanRoots = options.staged ? stagedGritScanRoots(currentStagedPaths()) : undefined;
+    const scanRoots = options.staged
+      ? stagedGritScanRoots(currentStagedPaths(), approvedScanRootsForRules(gritRules))
+      : undefined;
     const gritResults = await runGritRules(gritRules, scanRoots ? { scanRoots } : {});
     const durationMs = Date.now() - started;
     for (const rule of gritRules) {
@@ -263,10 +304,14 @@ async function executeSelectedRules(
     }
   }
 
-  await executeCommandRules(ruleCommandExecutionFacts(selectedRules), results);
-  executeFileLayerRules(ruleFileLayerFacts(selectedRules), results, options);
+  await executeCommandRules(factsForRuleIds(activeRuleCommandExecutionFacts, selectedRuleIds), results);
+  executeFileLayerRules(factsForRuleIds(activeRuleFileLayerFacts, selectedRuleIds), results, options);
 
   return results;
+}
+
+function approvedScanRootsForRules(rules: readonly RuleGritFacts[]): string[] {
+  return [...new Set(rules.flatMap((rule) => rule.scanRoots).map(toRepoRelative))];
 }
 
 async function executeCommandRules(

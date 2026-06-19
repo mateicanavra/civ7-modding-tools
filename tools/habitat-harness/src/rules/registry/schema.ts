@@ -85,7 +85,6 @@ export const RuleRoutingFactsSchema = Type.Interface(
   },
   { additionalProperties: false }
 );
-export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
 
 const DirectCommandOwnerToolSchema = Type.Union([
   Type.Literal("habitat-native"),
@@ -165,7 +164,6 @@ export const RuleRegistryRecordV1Schema = Type.Union([
   GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
   ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,
 ]);
-export type RuleRegistryRecordV1 = Static<typeof RuleRegistryRecordV1Schema>;
 
 export const RuleRegistryDocumentV1Schema = Type.Object(
   {
@@ -178,14 +176,12 @@ export const RuleRegistryDocumentV1Schema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type RuleRegistryDocumentV1 = Static<typeof RuleRegistryDocumentV1Schema>;
 
 export const RuleSelectorFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
   "id",
   "ownerProject",
   "ownerTool",
 ]);
-export type RuleSelectorFacts = Static<typeof RuleSelectorFactsSchema>;
 
 export const RuleReportFactsSchema = Type.Interface(
   [
@@ -195,13 +191,11 @@ export const RuleReportFactsSchema = Type.Interface(
   {},
   { additionalProperties: false }
 );
-export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
 
 export const RuleBaselineFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
   "id",
   "exceptionPath",
 ]);
-export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;
 
 const RuleGraphOwnerSchema = Type.Object(
   {
@@ -230,7 +224,6 @@ export const RuleGraphFactsSchema = Type.Interface(
   },
   { additionalProperties: false }
 );
-export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
 
 export const RuleCommandExecutionFactsSchema = Type.Interface(
   [
@@ -242,7 +235,6 @@ export const RuleCommandExecutionFactsSchema = Type.Interface(
   },
   { additionalProperties: false }
 );
-export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
 
 export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema, [
   "id",
@@ -252,7 +244,6 @@ export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema
   "scanRoots",
   "expandIgnoredTestDirectories",
 ]);
-export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
 
 export const RuleGovernanceFactsSchema = Type.Interface(
   [Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id", "lane", "gritPattern"])],
@@ -261,7 +252,6 @@ export const RuleGovernanceFactsSchema = Type.Interface(
   },
   { additionalProperties: false }
 );
-export type RuleGovernanceFacts = Static<typeof RuleGovernanceFactsSchema>;
 
 export const RuleFileLayerFactsSchema = Type.Union([
   Type.Pick(GeneratedZoneFileLayerRuleRegistryRecordV1Schema, [
@@ -279,7 +269,6 @@ export const RuleFileLayerFactsSchema = Type.Union([
     "forbiddenFileNames",
   ]),
 ]);
-export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
 
 export const RuleLocalFeedbackFactsSchema = Type.Interface(
   [Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id"])],
@@ -288,4 +277,16 @@ export const RuleLocalFeedbackFactsSchema = Type.Interface(
   },
   { additionalProperties: false }
 );
+
+export type RuleRegistryRecordV1 = Static<typeof RuleRegistryRecordV1Schema>;
+export type RuleRegistryDocumentV1 = Static<typeof RuleRegistryDocumentV1Schema>;
+export type RuleSelectorFacts = Static<typeof RuleSelectorFactsSchema>;
+export type RuleReportFacts = Static<typeof RuleReportFactsSchema>;
+export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;
+export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
+export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
+export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
+export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
+export type RuleGovernanceFacts = Static<typeof RuleGovernanceFactsSchema>;
+export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
 export type RuleLocalFeedbackFacts = Static<typeof RuleLocalFeedbackFactsSchema>;

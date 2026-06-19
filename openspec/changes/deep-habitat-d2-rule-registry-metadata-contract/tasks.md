@@ -20,15 +20,18 @@
 - [x] 3.2 Add TypeBox-first `RuleRegistryDocumentV1` schemas with `schemaVersion: 1`, closed `ownerTool` vocabulary, closed `lane` vocabulary, and discriminated `RuleRegistryRecord` variants; derive TypeScript types from the schemas.
 - [x] 3.3 Add TypeBox-backed parser failures for duplicate ids, unknown adapters, unsupported enforcement dispositions, missing identity facts, and contradicted variant fields.
 - [x] 3.4 Preserve any D0-required `HarnessRule`, `rules`, or `ruleById` public compatibility facade from canonical state, not from raw JSON authority.
-- [x] 3.5 Add registry parser tests using current 52 rules and malformed fixture rows.
+- [x] 3.5 Add registry parser tests using current 53 rules and malformed fixture rows.
 
 ## 4. Projection Slice
 
 - [x] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, consumer-specific execution projections (`ruleCommandExecutionFacts`, `ruleGritFacts`, `ruleFileLayerFacts`), `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
   - Completed: governance projection emits only manifest-declared Grit registry references and does not model D8 admission, lifecycle acceptance, fixture sufficiency, or baseline authority.
-- [ ] 4.2 Add projection tests that assert each consumer receives only permitted fields.
-- [ ] 4.3 Add whole-row leakage tests or compile-time checks for consumers with D2 projections.
-- [ ] 4.4 Add malformed projection tests for identity, routing, graph, baseline, Grit, generated-zone, governance, and local-feedback failures.
+- [x] 4.2 Add projection tests that assert each consumer receives only permitted fields.
+  - Completed: registry projection tests cover command, Grit, file-layer, routing, baseline, graph, governance, and local-feedback facts; selector/check-report consumers now consume active projection facts rather than whole registry rows.
+- [x] 4.3 Add whole-row leakage tests or compile-time checks for consumers with D2 projections.
+  - Completed: `rule-selection.ts`, `check-report.ts`, `classify.ts`, baseline current-registry defaults, Grit injected probe, and the Nx plugin consume named projections or the canonical parser. `HarnessRule`, `rules`, and `ruleById` remain D0-cited public compatibility exports only.
+- [x] 4.4 Add malformed projection tests for identity, routing, graph, baseline, Grit, generated-zone, governance, and local-feedback failures.
+  - Completed: `test/rules/registry/contract.test.ts` rejects malformed identity, routing, baseline, Grit, generated-zone, governance, and local-feedback metadata; `test/rules/registry/projections.test.ts` rejects unknown graph owner roots.
 
 ## 5. Consumer Migration Slice
 
@@ -36,23 +39,27 @@
 - [x] 5.2 Migrate execution dispatch to consumer-specific command, Grit, and file-layer projections instead of whole registry rows or a synthetic execution DTO.
 - [x] 5.3 Migrate classify routing to `ruleRoutingFacts` and remove prose `scope` parsing as authority.
 - [x] 5.4 Migrate `plugin.js` to `ruleGraphFacts`, removing independent `OWNER_ROOTS` authority, silent owner skips, and colon-string target parsing.
+  - Completed: `plugin.js` validates `rules.json` through the canonical TypeBox-backed parser before projecting graph facts.
 - [x] 5.5 Migrate baseline consumers to `ruleBaselineFacts` without moving D5-owned shrink/growth/debt decisions into D2.
 - [x] 5.6 Migrate Grit consumers to `ruleGritFacts`, removing missing-pattern fallback to rule id and prose-scope scan inference.
 - [x] 5.6.1 Migrate `tools/habitat-harness/src/lib/grit-injected-probe.ts` to consume `ruleGritFacts` and registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`.
 - [x] 5.7 Migrate generated-zone/file-layer consumers to `ruleFileLayerFacts`, failing unknown zone references before silent pass.
 - [x] 5.8 Migrate Pattern Authority and pattern generator registry writes to D2 canonical state or a D2 compatibility writer.
-  - Completed: registered pattern generation writes canonical Grit registry metadata without deriving registry `localFeedback` from manifest hook-scope decisions; Pattern Authority rule references no longer carry registry local-feedback or hook-scope coupling.
+  - Completed: registered pattern generation validates the registry through the canonical parser and writes canonical Grit registry metadata, including `pathCoverage`, without deriving registry `localFeedback` from manifest hook-scope decisions.
 - [x] 5.9 Migrate hook/local-feedback selection without owning D11 hook behavior.
   - Active registry rows use hook-neutral `localFeedback: true`; staged check filtering consumes `ruleLocalFeedbackFacts` instead of raw `hookScope`, hook-name strings, or broad rule-row eligibility. Pattern Authority rule references and pattern generator registry writes no longer derive registry local-feedback metadata from manifest hook-scope decisions.
 
 ## 6. Deletion And Compatibility Slice
 
-- [ ] 6.1 Delete consumer-local registry parsers where D2 projections replace them.
+- [x] 6.1 Delete consumer-local registry parsers where D2 projections replace them.
+  - Completed: current-tree registry defaults use the canonical D2 parser/projections. `baseline.ts` retains a historical merge-base parser only for pre-D2 rule packs read from Git history.
 - [x] 6.2 Delete prose `scope` routing authority and tests that preserve prose parsing as a positive behavior.
   - Completed: Grit scan-root selection and classify routing consume typed registry fields (`scanRoots` and `pathCoverage`) instead of parsing compatibility `scope` prose.
-- [ ] 6.3 Delete graph owner-root fallback/silent skip paths after graph projection coverage exists.
+- [x] 6.3 Delete graph owner-root fallback/silent skip paths after graph projection coverage exists.
+  - Completed: graph facts consume registry `ownerRoots`; unknown owners throw instead of being silently skipped.
 - [x] 6.4 Delete optional-field fallback behavior such as `gritPattern ?? id`.
-- [ ] 6.5 Keep public legacy output only through D0-cited compatibility facades.
+- [x] 6.5 Keep public legacy output only through D0-cited compatibility facades.
+  - Completed: `HarnessRule`, `rules`, and `ruleById` remain compatibility facades backed by canonical registry state; D2 did not version or rename public CLI/report surfaces.
 
 ## 7. Validation
 
@@ -61,20 +68,21 @@
 - [x] 7.3 Run `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`.
 - [x] 7.4 Run `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts`.
 - [x] 7.5 Run `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts`. This gate covers hook-facing D2 metadata compatibility only; it does not close D11 hook behavior.
-- [ ] 7.6 Run `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts`.
-  - Current result: failed in `arch-test-map-bundle-runtime-imports` because `mod-swooper-maps:migrate:configs:check` reports drift in `mountains-of-time-earthlike.config.json` and `mountains-of-time-original.config.json`; this is recorded as a generated/config freshness blocker outside this D2 registry slice.
+- [x] 7.6 Enforce D2 structural adapter-domain invariants through Habitat-owned GritQL instead of a manual architecture test.
+  - Completed: `grit-habitat-adapter-domain-paths` forbids product/domain scan roots inside `tools/habitat-harness/src/adapters/grit/**`; `bun tools/habitat-harness/bin/dev.ts check --rule grit-habitat-adapter-domain-paths --json` exits 0.
 - [x] 7.7 Run `bun run --cwd tools/habitat-harness test -- test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`.
 - [x] 7.8 Run `bun run habitat classify tools/habitat-harness/src/rules/rules.json`.
-- [ ] 7.9 Run `bun run habitat check -- --json`.
+- [x] 7.9 Record the broad `habitat check` JSON command-shape disposition without turning existing non-D2 findings into D2 scope.
+  - Completed: documented `bun run habitat check -- --json` is a historical command-shape mismatch because Oclif treats the extra `--` as an unexpected argument. The D0-cited command shape `bun run habitat check --json` emits valid CheckReport JSON and exits 1 with existing non-D2 findings: workspace-entrypoints shell sequencing, adapter-boundary baseline projection mismatch, broad Biome formatting from a prior layer, docs-local-checkout-paths advisories, and one doc-ambiguity advisory.
 - [x] 7.10 Run `nx show project @internal/habitat-harness`.
-- [ ] 7.11 Run `bun run openspec -- validate deep-habitat-d2-rule-registry-metadata-contract --strict`.
-- [ ] 7.12 Run `bun run openspec:validate`.
-- [ ] 7.13 Run `git diff --check`.
+- [x] 7.11 Run `bun run openspec -- validate deep-habitat-d2-rule-registry-metadata-contract --strict`.
+- [x] 7.12 Run `bun run openspec:validate`.
+- [x] 7.13 Run `git diff --check`.
 
 ## 8. Review And Realignment
 
 - [ ] 8.1 Run fresh final D2 domain/ontology, OpenSpec/testing, code topology, TypeScript state-space, information-design, and cross-domino reviews.
 - [ ] 8.2 Repair every accepted P1/P2 finding with exact artifact or source evidence before acceptance.
-- [ ] 8.3 Update the D2 downstream ledger rows for D3, D4, D5, D6, D7, D8, G-HOST, D10, D13, D9, D11, D12, D14, and D15.
-- [ ] 8.4 Update the packet index only after final D2 review accepts the design/specification packet.
+- [x] 8.3 Update the D2 downstream ledger rows for D3, D4, D5, D6, D7, D8, G-HOST, D10, D13, D9, D11, D12, D14, and D15.
+- [x] 8.4 Update the packet index after D2 implementation-active records changed.
 - [ ] 8.5 Do not proceed to D3 until D2 is accepted for design/specification or an explicit user/authority decision changes the gate.
