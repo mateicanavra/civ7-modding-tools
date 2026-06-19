@@ -16,6 +16,26 @@ const PlanNaturalWondersContract = defineOp({
     lakeMask: TypedArraySchemas.u8({
       description: "Hydrology lake mask per tile (1=lake, 0=non-lake).",
     }),
+    // Forwarded physical suitability signals (already-computed truth artifacts;
+    // not recomputed). Optional so the op tolerates inputs that omit them.
+    vegetationDensity: Type.Optional(
+      TypedArraySchemas.f32({ description: "Ecology vegetation density per tile (0..1)." })
+    ),
+    effectiveMoisture: Type.Optional(
+      TypedArraySchemas.f32({ description: "Ecology effective moisture per tile." })
+    ),
+    surfaceTemperature: Type.Optional(
+      TypedArraySchemas.f32({ description: "Ecology surface temperature per tile (C)." })
+    ),
+    fertility: Type.Optional(
+      TypedArraySchemas.f32({ description: "Pedology fertility per tile (0..1)." })
+    ),
+    discharge: Type.Optional(
+      TypedArraySchemas.f32({ description: "Hydrology accumulated discharge proxy per tile." })
+    ),
+    slopeClass: Type.Optional(
+      TypedArraySchemas.u8({ description: "Hydrology slope class per tile." })
+    ),
     coastTerrainType: Type.Integer({ minimum: 0 }),
     mountainTerrainType: Type.Integer({ minimum: 0 }),
     iceFeatureType: Type.Integer({ minimum: 0 }),

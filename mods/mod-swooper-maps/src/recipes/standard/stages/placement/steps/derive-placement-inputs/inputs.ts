@@ -130,6 +130,8 @@ export function buildPlacementInputs(
     };
     hydrography: {
       riverClass: Uint8Array;
+      discharge: Float32Array;
+      slopeClass: Uint8Array;
     };
     lakePlan: {
       lakeMask: Uint8Array;
@@ -138,6 +140,7 @@ export function buildPlacementInputs(
       effectiveMoisture: Float32Array;
       surfaceTemperature: Float32Array;
       aridityIndex: Float32Array;
+      vegetationDensity: Float32Array;
     };
     biomeBindings: {
       engineBiomeId: Uint16Array;
@@ -205,6 +208,13 @@ export function buildPlacementInputs(
       aridityIndex: physical.biomeClassification.aridityIndex,
       riverClass: physical.hydrography.riverClass,
       lakeMask: physical.lakePlan.lakeMask,
+      // Forwarded physical suitability signals (already-computed; not recomputed).
+      vegetationDensity: physical.biomeClassification.vegetationDensity,
+      effectiveMoisture: physical.biomeClassification.effectiveMoisture,
+      surfaceTemperature: physical.biomeClassification.surfaceTemperature,
+      fertility: physical.pedology.fertility,
+      discharge: physical.hydrography.discharge,
+      slopeClass: physical.hydrography.slopeClass,
       coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
       mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
       iceFeatureType: CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_ICE,

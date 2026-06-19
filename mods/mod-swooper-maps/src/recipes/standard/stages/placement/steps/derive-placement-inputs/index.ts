@@ -40,12 +40,17 @@ export default createStep(DerivePlacementInputsContract, {
         landMask: topography.landMask as Uint8Array,
         elevation: topography.elevation as Int16Array,
       },
-      hydrography: { riverClass: hydrography.riverClass as Uint8Array },
+      hydrography: {
+        riverClass: hydrography.riverClass as Uint8Array,
+        discharge: hydrography.discharge as Float32Array,
+        slopeClass: hydrography.slopeClass as Uint8Array,
+      },
       lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
       biomeClassification: {
         effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,
         surfaceTemperature: biomeClassification.surfaceTemperature as Float32Array,
         aridityIndex: biomeClassification.aridityIndex as Float32Array,
+        vegetationDensity: biomeClassification.vegetationDensity as Float32Array,
       },
       biomeBindings: { engineBiomeId: biomeBindings.engineBiomeId as Uint16Array },
       pedology: { fertility: pedology.fertility as Float32Array },

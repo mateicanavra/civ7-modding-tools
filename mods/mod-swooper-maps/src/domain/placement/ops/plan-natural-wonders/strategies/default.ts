@@ -11,10 +11,42 @@ import PlanNaturalWondersContract from "../contract.js";
 
 type Candidate = {
   plotIndex: number;
-  priority: number;
   relief: number;
   elevation: number;
 };
+
+/**
+ * Requirement groups (A-I) for natural-wonder suitability, keyed by
+ * `Feature_NaturalWonders` row id (stable corpus). Each group scores the physical
+ * signals relevant to that wonder class; see `suitabilityAt`. Unknown ids fall
+ * back to the mountain-monolith profile.
+ */
+type WonderGroup = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I";
+const WONDER_GROUP_BY_FEATURE: Readonly<Record<number, WonderGroup>> = {
+  35: "A", // Kilimanjaro
+  41: "A", // Mount Fuji
+  37: "B", // Thera
+  29: "C", // Barrier Reef
+  44: "C", // Great Blue Hole
+  45: "C", // Mapu'a Vaea
+  0: "D", // Bermuda Triangle
+  32: "E", // Gullfoss
+  34: "E", // Iguazu Falls
+  1: "F", // Mount Everest
+  33: "F", // Hoerikwaggo
+  36: "F", // Zhangjiajie
+  38: "F", // Torres del Paine
+  40: "F", // Machapuchare
+  42: "F", // Vihren
+  43: "F", // Vinicunca
+  28: "G", // Valley of Flowers
+  31: "H", // Grand Canyon
+  39: "H", // Uluru
+  30: "I", // Redwood Forest
+};
+function wonderGroup(featureType: number): WonderGroup {
+  return WONDER_GROUP_BY_FEATURE[featureType] ?? "F";
+}
 
 type FootprintOffset = { dx: number; dy: number };
 type FootprintOffsetsByParity = { even: readonly FootprintOffset[]; odd: readonly FootprintOffset[] };
@@ -134,28 +166,143 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
     }
 
     const reliefScale = Math.max(1, maxRelief);
-    const candidates: Candidate[] = [];
+
+    // Forwarded physical suitability signals (optional — fall back to neutral when
+    // an input omits them, e.g. minimal unit tests). Never recomputed here.
+    const optionalF32 = (value: unknown): Float32Array | null =>
+      value instanceof Float32Array && value.length === size ? value : null;
+    const optionalU8 = (value: unknown): Uint8Array | null =>
+      value instanceof Uint8Array && value.length === size ? value : null;
+    const vegetationDensity = optionalF32(input.vegetationDensity);
+    const effectiveMoisture = optionalF32(input.effectiveMoisture);
+    const surfaceTemperature = optionalF32(input.surfaceTemperature);
+    const fertility = optionalF32(input.fertility);
+    const discharge = optionalF32(input.discharge);
+    const slopeClass = optionalU8(input.slopeClass);
+
+    let maxElevAbs = 1;
+    let maxDischarge = 0;
     for (let i = 0; i < size; i++) {
-      const reliefN = clamp01((reliefByTile[i] ?? 0) / reliefScale);
-      const aridity = clamp01(input.aridityIndex[i] ?? 0);
-      const river = clamp01((input.riverClass[i] ?? RIVER_CLASS_NONE) / RIVER_CLASS_MAJOR);
-      const priority = clamp01(reliefN * 0.75 + (1 - aridity) * 0.15 + river * 0.1);
-      candidates.push({
+      const e = Math.abs(input.elevation[i] ?? 0);
+      if (e > maxElevAbs) maxElevAbs = e;
+      if (discharge) {
+        const d = discharge[i] ?? 0;
+        if (d > maxDischarge) maxDischarge = d;
+      }
+    }
+    const coastTerrainType = input.coastTerrainType | 0;
+
+    // Per-(group, tile) physical suitability in [0,1]. Hard constraints stay
+    // pass/fail (isCandidateCompatibleWithFeature); this only RANKS passing tiles
+    // and ranks WHICH wonders place (best-suitability), so different terrain →
+    // different selected wonder sets. Deterministic, no RNG.
+    const suitabilityAt = (group: WonderGroup, candidate: Candidate): number => {
+      const i = candidate.plotIndex;
+      const relief = candidate.relief;
+      const elevN = clamp01((input.elevation[i] ?? 0) / maxElevAbs);
+      const arid = clamp01(input.aridityIndex[i] ?? 0);
+      const riverN = clamp01((input.riverClass[i] ?? RIVER_CLASS_NONE) / RIVER_CLASS_MAJOR);
+      const moist = effectiveMoisture ? clamp01(effectiveMoisture[i] ?? 0) : 0;
+      const temp = surfaceTemperature ? (surfaceTemperature[i] ?? 15) : 15;
+      const warm = clamp01(temp / 35);
+      const temperate = clamp01(1 - Math.abs(temp - 15) / 20);
+      const vegN = vegetationDensity ? clamp01(vegetationDensity[i] ?? 0) : 0;
+      const fertN = fertility ? clamp01(fertility[i] ?? 0) : 0;
+      const dischN =
+        discharge && maxDischarge > 0 ? clamp01((discharge[i] ?? 0) / maxDischarge) : riverN;
+      const slopeN = slopeClass ? clamp01((slopeClass[i] ?? 0) / 4) : relief;
+      const isWater = (input.landMask[i] ?? 0) === 0;
+      const isCoast = (input.terrainType[i] ?? -1) === coastTerrainType;
+      const shelfN = isWater && isCoast ? 1 : 0;
+      const deepN = isWater && !isCoast ? 1 : 0;
+      switch (group) {
+        case "A": // volcano subaerial (Kilimanjaro, Fuji)
+          return clamp01(0.55 * relief + 0.35 * elevN + 0.1 * warm);
+        case "B": // volcano caldera coast (Thera)
+          return clamp01(0.5 * shelfN + 0.3 * relief + 0.2 * warm);
+        case "C": // reef / shallow marine (Barrier Reef, Great Blue Hole, Mapu'a Vaea)
+          return clamp01(0.55 * shelfN + 0.3 * warm + 0.15 * (1 - arid));
+        case "D": // deep ocean (Bermuda)
+          return clamp01(0.7 * deepN + 0.3 * (1 - arid));
+        case "E": // waterfall / river-fed (Gullfoss, Iguazu)
+          return clamp01(0.45 * dischN + 0.3 * slopeN + 0.25 * relief);
+        case "F": // mountain monolith (Everest, Hoerikwaggo, Zhangjiajie, Torres, Machapuchare, Vihren, Vinicunca)
+          return clamp01(0.5 * elevN + 0.4 * relief + 0.1 * (1 - vegN));
+        case "G": // mountain-adjacent lowland (Valley of Flowers)
+          return clamp01(0.45 * fertN + 0.3 * moist + 0.25 * (1 - relief));
+        case "H": // arid relief — canyon / inselberg (Grand Canyon, Uluru)
+          return clamp01(0.5 * arid + 0.3 * elevN + 0.2 * relief);
+        case "I": // forest (Redwood)
+          return clamp01(0.55 * vegN + 0.3 * moist + 0.15 * temperate);
+        default:
+          return clamp01(0.6 * relief + 0.4 * elevN);
+      }
+    };
+
+    const allTiles: Candidate[] = new Array(size);
+    for (let i = 0; i < size; i++) {
+      allTiles[i] = {
         plotIndex: i,
-        priority,
-        relief: reliefN,
+        relief: clamp01((reliefByTile[i] ?? 0) / reliefScale),
         elevation: input.elevation[i] ?? 0,
-      });
+      };
     }
 
-    candidates.sort((a, b) => {
-      if (b.priority !== a.priority) return b.priority - a.priority;
-      if (b.relief !== a.relief) return b.relief - a.relief;
-      return a.plotIndex - b.plotIndex;
+    const compatibilityContext = {
+      width,
+      height,
+      terrainType: input.terrainType,
+      biomeType: input.biomeType,
+      featureType: input.featureType,
+      landMask: input.landMask,
+      riverClass: input.riverClass,
+      coastTerrainType,
+      mountainTerrainType: input.mountainTerrainType | 0,
+      iceFeatureType: input.iceFeatureType | 0,
+      noFeatureType,
+      naturalWonderBlockedMask: input.naturalWonderBlockedMask,
+      lakeMask: input.lakeMask,
+    };
+
+    // Per-wonder candidate ranking: each wonder's constraint-passing tiles sorted
+    // by its own suitability. `bestSuitability` (the top tile's score) ranks WHICH
+    // wonders are placed.
+    type WonderPlan = {
+      feature: NaturalWonderFeatureCandidate;
+      sorted: Candidate[];
+      suitByPlot: Map<number, number>;
+      bestSuitability: number;
+    };
+    const plans: WonderPlan[] = featureCatalog.map((feature) => {
+      const group = wonderGroup(feature.featureType);
+      const scored: Array<{ candidate: Candidate; suit: number }> = [];
+      for (const candidate of allTiles) {
+        if (!isCandidateCompatibleWithFeature({ feature, candidate, ...compatibilityContext })) {
+          continue;
+        }
+        scored.push({ candidate, suit: suitabilityAt(group, candidate) });
+      }
+      scored.sort((a, b) => b.suit - a.suit || a.candidate.plotIndex - b.candidate.plotIndex);
+      return {
+        feature,
+        sorted: scored.map((s) => s.candidate),
+        suitByPlot: new Map(scored.map((s) => [s.candidate.plotIndex, s.suit])),
+        bestSuitability: scored.length > 0 ? scored[0]!.suit : -1,
+      };
+    });
+
+    // Rank wonders: placeFirst pinned ahead (among those with a legal tile), then
+    // by best achievable suitability descending; stable tie-break by featureType.
+    plans.sort((a, b) => {
+      const aPinned = a.feature.placeFirst && a.bestSuitability >= 0;
+      const bPinned = b.feature.placeFirst && b.bestSuitability >= 0;
+      if (aPinned !== bPinned) return aPinned ? -1 : 1;
+      if (b.bestSuitability !== a.bestSuitability) return b.bestSuitability - a.bestSuitability;
+      return a.feature.featureType - b.feature.featureType;
     });
 
     const minSpacingTiles = Math.max(0, config.minSpacingTiles | 0);
-    const targetCount = Math.min(wondersCount, featureCatalog.length, candidates.length);
+    const targetCount = Math.min(wondersCount, featureCatalog.length, size);
     const selected: Array<{
       plotIndex: number;
       featureType: number;
@@ -163,70 +310,52 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
       elevation: number;
       priority: number;
     }> = [];
-
     const usedPlots = new Set<number>();
-    for (const feature of featureCatalog) {
-      if (selected.length >= targetCount) break;
 
-      const candidate =
-        chooseFeatureCandidate({
-          feature,
-          candidates,
+    const pickTile = (plan: WonderPlan, minSpacing: number): Candidate | null => {
+      for (const candidate of plan.sorted) {
+        if (usedPlots.has(candidate.plotIndex)) continue;
+        const footprint = getFootprintIndices({
+          plotIndex: candidate.plotIndex,
           width,
           height,
-          terrainType: input.terrainType,
-          biomeType: input.biomeType,
-          featureType: input.featureType,
-          landMask: input.landMask,
-          riverClass: input.riverClass,
-          coastTerrainType: input.coastTerrainType | 0,
-          mountainTerrainType: input.mountainTerrainType | 0,
-          iceFeatureType: input.iceFeatureType | 0,
-          noFeatureType,
-          naturalWonderBlockedMask: input.naturalWonderBlockedMask,
-          lakeMask: input.lakeMask,
-          selected,
-          usedPlots,
-          minSpacingTiles,
-          relaxSpacing: false,
-        }) ??
-        chooseFeatureCandidate({
-          feature,
-          candidates,
-          width,
-          height,
-          terrainType: input.terrainType,
-          biomeType: input.biomeType,
-          featureType: input.featureType,
-          landMask: input.landMask,
-          riverClass: input.riverClass,
-          coastTerrainType: input.coastTerrainType | 0,
-          mountainTerrainType: input.mountainTerrainType | 0,
-          iceFeatureType: input.iceFeatureType | 0,
-          noFeatureType,
-          naturalWonderBlockedMask: input.naturalWonderBlockedMask,
-          lakeMask: input.lakeMask,
-          selected,
-          usedPlots,
-          minSpacingTiles,
-          relaxSpacing: true,
+          footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
         });
+        if (!footprint || footprint.some((p) => usedPlots.has(p))) continue;
+        if (minSpacing > 0) {
+          let tooClose = false;
+          for (const placed of selected) {
+            if (hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, width) < minSpacing) {
+              tooClose = true;
+              break;
+            }
+          }
+          if (tooClose) continue;
+        }
+        return candidate;
+      }
+      return null;
+    };
+
+    for (const plan of plans) {
+      if (selected.length >= targetCount) break;
+      if (plan.bestSuitability < 0) continue; // physically unsuited: no legal tile
+      const candidate = pickTile(plan, minSpacingTiles) ?? pickTile(plan, 0);
       if (!candidate) continue;
       for (const plotIndex of getFootprintIndices({
         plotIndex: candidate.plotIndex,
         width,
         height,
-        footprintOffsetsByParity: feature.footprintOffsetsByParity,
+        footprintOffsetsByParity: plan.feature.footprintOffsetsByParity,
       }) ?? [candidate.plotIndex]) {
         usedPlots.add(plotIndex);
       }
-
       selected.push({
         plotIndex: candidate.plotIndex,
-        featureType: feature.featureType,
-        direction: feature.direction,
+        featureType: plan.feature.featureType,
+        direction: plan.feature.direction,
         elevation: candidate.elevation,
-        priority: candidate.priority,
+        priority: clamp01(plan.suitByPlot.get(candidate.plotIndex) ?? 0),
       });
     }
 
@@ -628,67 +757,4 @@ function isCandidateCompatibleWithFeature(args: {
     return false;
   }
   return true;
-}
-
-function chooseFeatureCandidate(args: {
-  feature: NaturalWonderFeatureCandidate;
-  candidates: readonly Candidate[];
-  width: number;
-  height: number;
-  landMask: Uint8Array;
-  terrainType: Uint8Array;
-  biomeType: Uint8Array;
-  featureType: Int16Array;
-  riverClass: Uint8Array;
-  coastTerrainType: number;
-  mountainTerrainType: number;
-  iceFeatureType: number;
-  noFeatureType: number;
-  naturalWonderBlockedMask: Uint8Array;
-  lakeMask: Uint8Array;
-  selected: readonly { plotIndex: number }[];
-  usedPlots: ReadonlySet<number>;
-  minSpacingTiles: number;
-  relaxSpacing: boolean;
-}): Candidate | null {
-  for (const candidate of args.candidates) {
-    if (args.usedPlots.has(candidate.plotIndex)) continue;
-    if (
-      !isCandidateCompatibleWithFeature({
-        feature: args.feature,
-        candidate,
-        width: args.width,
-        height: args.height,
-        landMask: args.landMask,
-        terrainType: args.terrainType,
-        biomeType: args.biomeType,
-        featureType: args.featureType,
-        riverClass: args.riverClass,
-        coastTerrainType: args.coastTerrainType,
-        mountainTerrainType: args.mountainTerrainType,
-        iceFeatureType: args.iceFeatureType,
-        noFeatureType: args.noFeatureType,
-        naturalWonderBlockedMask: args.naturalWonderBlockedMask,
-        lakeMask: args.lakeMask,
-      })
-    ) {
-      continue;
-    }
-    if (!args.relaxSpacing && args.minSpacingTiles > 0) {
-      let tooClose = false;
-      for (const placed of args.selected) {
-        if (
-          hexDistanceOddQPeriodicX(candidate.plotIndex, placed.plotIndex, args.width) <
-          args.minSpacingTiles
-        ) {
-          tooClose = true;
-          break;
-        }
-      }
-      if (tooClose) continue;
-    }
-    void args.height;
-    return candidate;
-  }
-  return null;
 }

@@ -159,6 +159,58 @@ describe("placement plan operations", () => {
     expect(result.placements).toEqual([expect.objectContaining({ featureType: 1002 })]);
   });
 
+  it("produces identical natural-wonder placements on repeated runs (deterministic, no RNG)", () => {
+    const width = 6;
+    const height = 6;
+    const size = width * height;
+    const f32 = (fn: (i: number) => number) =>
+      Float32Array.from(Array.from({ length: size }, (_, i) => fn(i)));
+    const anchorOnly = {
+      even: [{ dx: 0, dy: 0 }],
+      odd: [{ dx: 0, dy: 0 }],
+    };
+    const input = {
+      width,
+      height,
+      wondersCount: 3,
+      landMask: new Uint8Array(size).fill(1),
+      elevation: Int16Array.from(Array.from({ length: size }, (_, i) => (i * 137) % 400)),
+      aridityIndex: f32((i) => ((i * 7) % 100) / 100),
+      riverClass: new Uint8Array(size),
+      lakeMask: new Uint8Array(size),
+      coastTerrainType: 2,
+      mountainTerrainType: 3,
+      iceFeatureType: 4,
+      terrainType: new Uint8Array(size).fill(1),
+      biomeType: new Uint8Array(size).fill(1),
+      featureType: new Int16Array(size).fill(-1),
+      noFeatureType: -1,
+      naturalWonderBlockedMask: new Uint8Array(size),
+      vegetationDensity: f32((i) => ((i * 11) % 100) / 100),
+      effectiveMoisture: f32((i) => ((i * 13) % 100) / 100),
+      surfaceTemperature: f32((i) => (i * 17) % 30),
+      fertility: f32((i) => ((i * 19) % 100) / 100),
+      discharge: f32((i) => (i * 23) % 50),
+      slopeClass: new Uint8Array(size),
+      // Distinct requirement groups (Redwood=I, Kilimanjaro=A, Uluru=H) so the
+      // per-wonder suitability — and hence the cross-wonder ranking — differs.
+      featureCatalog: [
+        { featureType: 30, direction: 0, footprintOffsetsByParity: anchorOnly },
+        { featureType: 35, direction: 0, footprintOffsetsByParity: anchorOnly },
+        { featureType: 39, direction: 0, footprintOffsetsByParity: anchorOnly },
+      ],
+    };
+    const cfg = { strategy: "default" as const, config: { minSpacingTiles: 1 } };
+    const first = runOpValidated(planNaturalWonders, input, cfg);
+    const second = runOpValidated(planNaturalWonders, input, cfg);
+    expect(first.placements.length).toBeGreaterThan(0);
+    expect(second.placements).toEqual(first.placements);
+    for (const placement of first.placements) {
+      expect(placement.priority).toBeGreaterThanOrEqual(0);
+      expect(placement.priority).toBeLessThanOrEqual(1);
+    }
+  });
+
   // The generic plan-resources op was deleted in placement-realignment S3;
   // resource planning is covered by the domain/resources op-contract tests
   // (derive-habitat-fields, select-resource-sites) and the recipe smoke tests.
