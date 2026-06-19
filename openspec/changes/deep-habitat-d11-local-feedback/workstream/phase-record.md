@@ -11,28 +11,32 @@
 
 ## State
 
-- Status: accepted for design/specification after final D11 rereview; not
-  implementation-complete.
+- Status: bounded source implementation complete on
+  `agent-DRA-d11-local-feedback` after final validation and rereview repair.
 - Worktree fixture: `$ACTIVE_REMEDIATION_WORKTREE` from
   `$REMEDIATION_DIR/context.md`.
-- Branch: `codex/d11-local-feedback-packet`.
+- Branch: `agent-DRA-d11-local-feedback`.
 - Source packet: `$D11_SOURCE_PACKET`.
 - OpenSpec change: `$D11_CHANGE`.
-- Implementation: not started and not authorized by this state.
+- Implementation: started after live D0/D1/D3/D6/D7/D10 readiness checks. D9
+  and D8 are not consumed by this source slice because D11 does not surface
+  apply/fix, transaction recovery, hook eligibility, pattern admission, or
+  local-feedback admission state in this layer.
 
 ## Objective
 
 Specify D11 as the complete Local Feedback OpenSpec packet: hook command
 semantics, staged-file workflow, resource pre-commit decisions, D6/D7/D9/D10/D3
-projection consumption, local feedback trace/non-claims, public compatibility
+product dependency consumption, local feedback trace data, public compatibility
 gates, and validation oracles. D11 must remain generic Habitat repo-maintenance
 infrastructure and must not own diagnostic, graph, protected-zone, transaction,
 CI, review, Graphite, or runtime/product truth.
 
 ## Current Gate
 
-D11's design/specification gate is closed. Fresh final rereview lanes read the
-repaired disk state and recorded no unresolved P1/P2 findings:
+D11's design/specification gate is closed, and the bounded source layer is
+implemented. Fresh final rereview lanes read the current source/doc disk and
+recorded no unresolved P1/P2 findings after repair:
 
 - `$AGENT_SCRATCH/domino-D11-final-domain-ontology-review.md`;
 - `$AGENT_SCRATCH/domino-D11-final-typescript-validation-review.md`;
@@ -41,7 +45,7 @@ repaired disk state and recorded no unresolved P1/P2 findings:
 - `$AGENT_SCRATCH/domino-D11-final-cross-domino-product-review.md`.
 
 The first-wave investigation files remain negative repair input. The final
-rereview files are the acceptance input for design/specification only.
+rereview files are the acceptance input for this bounded source layer.
 
 ## Incorporated First-Wave Inputs
 
@@ -57,7 +61,7 @@ rereview files are the acceptance input for design/specification only.
 
 | Gate | Required current result | Scope |
 | --- | --- | --- |
-| D11 wording audit | No active reduced-standard guidance in `$D11_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, or `$AGENT_SCRATCH/domino-D11-*.md` except explicitly classified legacy compatibility terms. | Artifact language control only. |
+| D11 wording audit | No active reduced-standard guidance in `$D11_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, or `$AGENT_SCRATCH/domino-D11-*.md` except explicitly historical compatibility terms. | Artifact language control only. |
 | `bun run openspec -- validate deep-habitat-d11-local-feedback --strict` | Pass before final rereview and before any acceptance movement. | OpenSpec shape only. |
 | `bun run openspec:validate` | Pass before final rereview and before any acceptance movement. | Full OpenSpec corpus shape only. |
 | `git diff --check` | Pass before final rereview and before commit. | Whitespace/diff hygiene. |
@@ -65,29 +69,59 @@ rereview files are the acceptance input for design/specification only.
 
 ## Current Validation Record
 
-Run from `$REPO_ROOT` after the first-wave D11 packet/control repair and final
-rereview integration:
+Run from `$REPO_ROOT` after final D11 source cleanup and rereview repair:
 
 | Check | Result | Notes |
 | --- | --- | --- |
-| D11 complete-standard wording audit | passed for active D11 artifacts and D11 scratch | Remaining scan hits are packet-index canonical D13 traceability rows and global packet-index wording/status policy rows, not active D11 guidance. |
-| `bun run openspec -- validate deep-habitat-d11-local-feedback --strict` | passed | OpenSpec shape only. |
-| `bun run openspec:validate` | passed | Full OpenSpec corpus shape only. |
-| `git diff --check` | passed | Diff hygiene only. |
-| Final D11 rereview set | passed | All five final lanes record no unresolved P1/P2. |
-| Post-closure reduced-standard and stale-status scan | passed for active D11 artifacts and all D11 scratch | Exact scan over `$D11_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, and `$AGENT_SCRATCH/domino-D11-*.md` returns only canonical D13 packet-index traceability rows outside active D11 guidance. |
-| Post-closure strict D11 validation | passed | `bun run openspec -- validate deep-habitat-d11-local-feedback --strict`. |
-| Post-closure full OpenSpec validation | passed | `bun run openspec:validate`. |
-| Post-closure diff hygiene | passed | `git diff --check`. |
+| D11 active wording audit | passed | Targeted scan over active source/tests/package docs/D11 records found no remaining process-scaffold vocabulary in the D11 cleanup scope. Remaining host resource references are explicit host-policy/rule data, not generic hook defaults. |
+| Final status/TODO/control triage | passed | No scratch discovery projects remain; TODO hits are intentional pattern-authority fixture strings; no `NOTE-TO-DRA`, `NEW.md`, `UPDATED.md`, or conflict markers are active in the D11 write set. |
+| Fresh final D11 rereview set | passed after repair | Product/domain reviewer P2 findings were repaired: project generator no longer embeds host unsupported-kind taxonomy, public hook help no longer says probes, and active docs/records were cleaned. TypeScript/TypeBox reviewer reported no P1/P2 findings. |
+| Source TypeScript check | passed | `bun run --cwd tools/habitat-harness check`. |
+| Focused source behavior tests | passed | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts test/lib/verify-receipt.test.ts test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/lib/grit-adapter.test.ts` passed 85 tests. `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/commands/habitat-entrypoints.test.ts` passed 20 tests after daemon-isolated Nx discovery repair. |
+| Package build | passed | `bun run --cwd tools/habitat-harness build`. |
+| Full package test | passed | `bun run --cwd tools/habitat-harness test -- --maxWorkers=1` passed 23 files / 247 tests. |
+| Strict D11 OpenSpec validation | passed | `bun run openspec -- validate deep-habitat-d11-local-feedback --strict`. |
+| Full OpenSpec validation | passed | `bun run openspec:validate` passed 249 items. |
+| Diff hygiene | passed | `git diff --check`. |
+| Graphite submission | passed | Commit `11632ea57` submitted as draft PR #1848 for `agent-DRA-d11-local-feedback`; Graphite AI PR text generation reported the diff was too large, but the branch push and PR creation succeeded. |
 
-## Later Implementation Gates
+## Source-Start Gate
 
-These gates are not design-time acceptance claims:
+| Gate | Current disposition |
+| --- | --- |
+| Stack branch | `agent-DRA-d11-local-feedback` opened as the top Graphite layer above submitted D10 PR #1847; worktree was clean before source edits. |
+| D0 rows | Concrete rows exist for touched hook command, hook name refusal, pre-push base flag/output, local-feedback notice, partial-staging refusal, HookTrace package-internal surface, Husky delegators, and resource helper script surfaces. No hook dry-run behavior is added. |
+| D1 output boundary | D11 preserves hook human output as local feedback only. Hook trace additions remain package-internal compatibility data, not command JSON. |
+| Workspace graph | Current source slice preserves native pre-push base/affected local feedback and records base provenance; it does not assert graph completeness. |
+| Diagnostics/checks | Current source slice consumes product check summaries for staged Grit/local feedback; D11 does not parse raw Grit output as authority. |
+| Protected-zone feedback | Protected/generated/forbidden mutation refusals are consumed as product guard decisions; D11 does not own path policy. |
+| Transactions/pattern governance | D11 does not render apply/fix or transaction recovery local feedback in this slice. |
+| Host policy | Host-owned policy remains outside D11; hook code consumes only product guard/check outcomes. |
+
+## Source Implementation Write Set
+
+- `tools/habitat-harness/src/lib/hooks.ts` for hook orchestration and product
+  local-feedback behavior.
+- `tools/habitat-harness/src/lib/local-feedback/**` for D11-owned TypeBox
+  schemas, resource decisions, and check-command parsing.
+- `tools/habitat-harness/test/lib/hooks.test.ts` for D11-focused behavior tests.
+- D11 OpenSpec workstream records, tasks, downstream ledger, closure checklist,
+  and `$REMEDIATION_DIR/packet-index.md` after implementation facts are known.
+
+Protected from this D11 source slice: workspace graph authority, diagnostic
+acquisition internals, check report construction, pattern governance semantics,
+transaction write behavior, protected-zone/host path policy, Husky delegator
+scripts, generated outputs, lockfiles, baselines, and resource submodule
+contents.
+
+## Source Validation Gates
+
+These gates validate the current source slice:
 
 - `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` plus
-  D11-owned focused tests for resource decisions, staged path workflow, D6/D7
-  projections, D9 transaction projection where consumed, D10 refusals, pre-push
-  D3/Nx behavior, unsupported hook behavior, and trace compatibility.
+  focused product tests for resource decisions, staged path workflow, protected
+  mutation refusals, pre-push/Nx behavior, unsupported hook behavior, and trace
+  compatibility.
 - Controlled hook command probes only when they cannot mutate the active
   checkout or have explicit before/after `git status --short --branch` checks.
 - D0 row validation for every touched command, output, help, trace, export,
@@ -95,24 +129,17 @@ These gates are not design-time acceptance claims:
 
 ## Source Blockers
 
-Source implementation remains blocked wherever any of these are absent:
+Future D11 source work remains blocked wherever any of
+these are absent:
 
 - concrete D0 rows for touched hook public/durable surfaces;
-- D1 output-family and non-claim decisions for hook output and trace records;
-- live D3 graph/target/base facts required by pre-push affected feedback;
-- live D6 staged diagnostic projections for hook diagnostic local feedback;
-- live D7 `LocalFeedbackCheckProjection` for structural check local feedback;
-- live D9 transaction projection where hook feedback surfaces apply/fix state;
-- live D10 protected/generated/forbidden mutation projection;
-- D8 local-feedback eligibility projection if hook eligibility/admission is
-  consumed directly.
+- D1 output-family decisions for hook output and trace records;
+- live workspace graph/base facts required by changed pre-push affected behavior;
+- live product diagnostic/check summaries for hook diagnostic local feedback;
+- live transaction state where hook feedback surfaces apply/fix state;
+- live protected/generated/forbidden mutation decisions.
 
-## Non-Claims
+## Runtime Boundary
 
-- This packet does not implement Habitat source changes.
-- This packet does not establish runtime behavior.
-- This packet does not authorize D11 source implementation until the source
-  blockers above are live for the touched implementation slice.
-- D11 hook pass is local feedback only; it is not CI, review, Graphite,
-  OpenSpec, apply-safety, generated freshness, graph completeness, or
-  product/runtime readiness.
+D11 hook pass is local feedback only. Runtime records must not encode packet ids,
+review state, refactor-management data, or compatibility shims.

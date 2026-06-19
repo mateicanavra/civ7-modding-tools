@@ -158,11 +158,11 @@ export const RuleExecutionDispositionSchema = Type.Union([
     {
       kind: Type.Literal("dependency-refused"),
       owner: Type.Union([
-        Type.Literal("D2"),
-        Type.Literal("D3"),
-        Type.Literal("D5"),
-        Type.Literal("D6"),
-        Type.Literal("D10"),
+        Type.Literal("rule-registry"),
+        Type.Literal("workspace-graph"),
+        Type.Literal("baseline-authority"),
+        Type.Literal("diagnostic-catalog"),
+        Type.Literal("protected-zone-authority"),
       ]),
       reason: Type.String({ minLength: 1 }),
     },
@@ -224,17 +224,6 @@ export const CheckOutcomeSchema = Type.Union([
 ]);
 export type CheckOutcome = Static<typeof CheckOutcomeSchema>;
 
-export const CheckNonClaimSchema = Type.Union([
-  Type.Literal("does-not-prove-ci"),
-  Type.Literal("does-not-prove-apply-safety"),
-  Type.Literal("does-not-prove-graphite-readiness"),
-  Type.Literal("does-not-prove-open-spec-acceptance"),
-  Type.Literal("does-not-prove-runtime"),
-  Type.Literal("does-not-prove-product-behavior"),
-  Type.Literal("does-not-prove-rule-correctness"),
-]);
-export type CheckNonClaim = Static<typeof CheckNonClaimSchema>;
-
 export const LocalFeedbackCheckProjectionSchema = Type.Object(
   {
     kind: Type.Union([
@@ -250,7 +239,6 @@ export const LocalFeedbackCheckProjectionSchema = Type.Object(
     selectedRuleIds: Type.Array(Type.String()),
     failedRuleIds: Type.Array(Type.String()),
     advisoryRuleIds: Type.Array(Type.String()),
-    nonClaims: Type.Array(CheckNonClaimSchema),
   },
   { additionalProperties: false }
 );
@@ -270,7 +258,6 @@ export const VerifyCheckSummaryProjectionSchema = Type.Object(
     notApplicableCount: Type.Number({ minimum: 0 }),
     allowsAffectedExecution: Type.Boolean(),
     skippedAffectedReason: Type.Optional(Type.String({ minLength: 1 })),
-    nonClaims: Type.Array(CheckNonClaimSchema),
   },
   { additionalProperties: false }
 );

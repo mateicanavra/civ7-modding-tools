@@ -12,7 +12,6 @@ export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("generated-output"),
   Type.Literal("protected-root"),
   Type.Literal("not-approved"),
-  Type.Literal("injected-probe-root-without-probe-mode"),
 ]);
 
 const DiagnosticUnownedScanRootRefusalSchema = Type.Object(
@@ -23,7 +22,6 @@ const DiagnosticUnownedScanRootRefusalSchema = Type.Object(
       Type.Literal("outside-repo"),
       Type.Literal("missing"),
       Type.Literal("not-approved"),
-      Type.Literal("injected-probe-root-without-probe-mode"),
     ]),
     root: Type.Optional(Type.String({ minLength: 1 })),
   },
@@ -37,7 +35,6 @@ const DiagnosticProtectedScanRootRefusalSchema = Type.Object(
     root: Type.String({ minLength: 1 }),
     owner: ProtectedZoneOwnerSchema,
     recovery: ProtectedZoneRecoveryInstructionSchema,
-    nonClaims: Type.Array(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
@@ -61,14 +58,6 @@ export const DiagnosticScanRootDecisionSchema = Type.Union([
       kind: Type.Literal("expanded-test-files"),
       requestedRoots: Type.Array(Type.String({ minLength: 1 })),
       effectiveRoots: Type.Array(Type.String({ minLength: 1 })),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("accepted-injected-probe-root"),
-      roots: Type.Array(Type.String({ minLength: 1 })),
-      probeOnly: Type.Literal(true),
     },
     { additionalProperties: false }
   ),
@@ -99,7 +88,5 @@ export function renderDiagnosticScanRootRefusal(
       return `Grit scan root is protected: ${decision.root}.`;
     case "not-approved":
       return `Grit scan root is not approved: ${decision.root}.`;
-    case "injected-probe-root-without-probe-mode":
-      return `Grit scan root is an injected probe root outside probe mode: ${decision.root}.`;
   }
 }

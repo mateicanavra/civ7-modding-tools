@@ -28,7 +28,6 @@ function decisionForMutation(
       zoneId: state.zoneId,
       ownerId: state.ownerId,
       recovery: state.recovery,
-      nonClaims: state.nonClaims,
     });
   }
 
@@ -38,7 +37,6 @@ function decisionForMutation(
       kind: "not-applicable",
       path: mutation.path,
       action: mutation.action,
-      nonClaims: ["does-not-prove-path-safety"],
     });
   }
 
@@ -49,7 +47,6 @@ function decisionForMutation(
       action: mutation.action,
       owner: declaration.owner,
       recovery: declaration.recovery,
-      nonClaims: declaration.nonClaims,
     });
   }
 
@@ -61,7 +58,6 @@ function decisionForMutation(
       surfaceKind: "protected",
       owner: declaration.owner,
       recovery: declaration.recovery,
-      nonClaims: declaration.nonClaims,
     });
   }
 
@@ -73,6 +69,5 @@ function decisionForMutation(
     surfaceKind: declaration.surfaceKind,
     owner: declaration.owner,
     recovery: declaration.recovery,
-    nonClaims: declaration.nonClaims,
   });
 }

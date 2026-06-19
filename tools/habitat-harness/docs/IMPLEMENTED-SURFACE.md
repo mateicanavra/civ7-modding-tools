@@ -100,7 +100,7 @@ Implemented diagnostic/check state:
 - matching 31 registered `grit-check` rules;
 - fixture tests for Grit pattern validity;
 - Grit adapter normalization over machine JSON output;
-- injected-probe and cache/failure handling tests;
+- cache/failure handling tests;
 - Effect-backed process boundary for the Grit adapter.
 
 Implemented apply state:
@@ -108,7 +108,7 @@ Implemented apply state:
 - two apply pattern files exist;
 - one apply pattern is wired into `habitat fix`;
 - apply transactions have clean-worktree protection for live writes;
-- apply transactions produce proof artifacts and fail closed on ambiguous
+- apply transactions produce transaction records and fail closed on ambiguous
   output, unapproved paths, creates, deletes, and unexpected file changes.
 
 ## Generators
@@ -140,10 +140,10 @@ Implemented:
 - staged Grit checks;
 - affected pre-push verification.
 
-Hooks are intentionally local feedback. CI and explicit graph proof remain the
+Hooks are intentionally local feedback. CI and explicit graph checks remain the
 authority for review and merge confidence.
 
-## Proof Coverage
+## Test Coverage
 
 Current tests cover:
 
@@ -158,8 +158,8 @@ Current tests cover:
 - project generator behavior;
 - pattern generator behavior;
 - Pattern Authority Manifest validation;
-- Effect parity and process boundary behavior;
-- workspace tool discovery and proof artifact construction.
+- process boundary behavior;
+- workspace tool discovery and verification receipt construction.
 
-These proofs establish Habitat as an enforcement and orchestration substrate.
-They do not prove broad MapGen authoring generation.
+These tests cover Habitat's enforcement and orchestration behavior. They do not
+cover broad MapGen authoring generation.

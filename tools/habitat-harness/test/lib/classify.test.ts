@@ -55,7 +55,7 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
 
 describe("Habitat classify D4 result model", () => {
   test("classifies project paths with D2 routing and D3 target guidance", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.ts", {
       nxProjects: fixtureNxProjects,
     });
 
@@ -90,8 +90,6 @@ describe("Habitat classify D4 result model", () => {
         },
       })
     );
-    expect(result.nonClaims).toContain("does-not-run-targets");
-    expect(result.nonClaims).toContain("does-not-prove-rule-correctness");
     expect(validateClassifyResult(result)).toEqual([]);
     expect("project" in result).toBe(false);
     expect("requiredTargets" in result).toBe(false);
@@ -155,8 +153,6 @@ describe("Habitat classify D4 result model", () => {
     expect(workspace.runnableTargets).toContainEqual(
       expect.objectContaining({ command: "bun run lint" })
     );
-    expect(workspace.nonClaims).toContain("does-not-infer-project-owner");
-
     expect(structuralWorkspace.state).toBe("workspace-path");
     if (structuralWorkspace.state !== "workspace-path") {
       throw new Error("expected workspace-path for existing structural root");
@@ -222,7 +218,6 @@ index 3333333..4444444 100644
     }
     expect(result.reason).toBe("no-classifiable-diff-paths");
     expect(result.recoveryInstructions).toHaveLength(1);
-    expect(result.nonClaims).toContain("does-not-prove-target-availability");
     expect("paths" in result).toBe(false);
   });
 
@@ -239,7 +234,7 @@ index 3333333..4444444 100644
   });
 
   test("renders malformed graph metadata as a D3-owned graph-refusal state", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.ts", {
       nxProjects: {
         async readProjects() {
           return [
@@ -261,14 +256,14 @@ index 3333333..4444444 100644
   });
 
   test("renders Nx graph read failures as D3-owned graph-refusal states", async () => {
-    const readFailure = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+    const readFailure = await classifyPathResult("tools/habitat-harness/src/plugin.ts", {
       nxProjects: {
         async readProjects() {
           throw new Error("cannot read project graph");
         },
       },
     });
-    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.ts", {
       nxProjects: {
         async readProjects() {
           throw new Error("Nx daemon unavailable");
@@ -287,11 +282,10 @@ index 3333333..4444444 100644
       reason: "nx-daemon-failure",
       message: "Nx daemon unavailable",
     });
-    expect(result.nonClaims).toContain("does-not-prove-target-availability");
   });
 
   test("renders missing-project graph aliases as graph-refusal states", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.ts", {
       nxProjects: {
         async readProjects() {
           return [
@@ -309,7 +303,7 @@ index 3333333..4444444 100644
   });
 
   test("renders missing-target graph aliases as graph-refusal states", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.ts", {
       nxProjects: {
         async readProjects() {
           return [
@@ -331,7 +325,7 @@ index 3333333..4444444 100644
 
 describe("Habitat classify public API", () => {
   test("classifyPath returns the owned D4 path model directly", async () => {
-    const result = await classifyPath("tools/habitat-harness/src/plugin.js", {
+    const result = await classifyPath("tools/habitat-harness/src/plugin.ts", {
       nxProjects: fixtureNxProjects,
     });
 

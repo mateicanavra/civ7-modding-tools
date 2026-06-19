@@ -56,8 +56,7 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(
         },
         commandRecovery(
           "swooper-maps-workflow",
-          "nx run mod-swooper-maps:gen:maps",
-          ["does-not-prove-map-runtime-behavior"]
+          "nx run mod-swooper-maps:gen:maps"
         )
       ),
       externalResourceSurface(
@@ -69,8 +68,7 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(
         },
         documentedRecovery(
           "civ7-resources-workflow",
-          "docs/process/resources-submodule.md",
-          ["does-not-prove-resource-submodule-freshness"]
+          "docs/process/resources-submodule.md"
         )
       ),
       generatedSurface(
@@ -82,8 +80,7 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(
         },
         commandRecovery(
           "map-policy-workflow",
-          "nx run @civ7/map-policy:verify -- --write",
-          ["does-not-prove-map-policy-semantics"]
+          "nx run @civ7/map-policy:verify -- --write"
         )
       ),
       {
@@ -96,10 +93,8 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(
         gateContract: "@mapgen/domain public ops validation",
         recovery: documentedRecovery(
           "mapgen-domain-workflow",
-          "docs/system/libs/mapgen/",
-          ["does-not-prove-apply-transaction-safety"]
+          "docs/system/libs/mapgen/"
         ),
-        nonClaims: ["does-not-prove-apply-transaction-safety"],
       },
       unsupportedHostShape(
         "unsupported-project-kind-mod",
@@ -150,7 +145,6 @@ function generatedSurface(
     matcher,
     mutationLane: "blocked",
     recovery,
-    nonClaims: recovery.nonClaims,
   });
 }
 
@@ -169,7 +163,6 @@ function externalResourceSurface(
     matcher,
     mutationLane: "blocked",
     recovery,
-    nonClaims: recovery.nonClaims,
   });
 }
 
@@ -189,36 +182,24 @@ function unsupportedHostShape(
       actionKind: "unsupported",
       retryCondition:
         "Retry only after the owning domain defines a uniform generator shape.",
-      nonClaims: ["does-not-prove-authoring-support"],
     },
-    nonClaims: ["does-not-prove-authoring-support"],
   });
 }
 
-function commandRecovery(
-  ownerId: string,
-  command: string,
-  nonClaims: string[]
-): HostRecoveryInstruction {
+function commandRecovery(ownerId: string, command: string): HostRecoveryInstruction {
   return {
     ownerId,
     actionKind: "command",
     command,
     retryCondition: "Retry after the command succeeds and generated output is committed.",
-    nonClaims,
   };
 }
 
-function documentedRecovery(
-  ownerId: string,
-  documentRef: string,
-  nonClaims: string[]
-): HostRecoveryInstruction {
+function documentedRecovery(ownerId: string, documentRef: string): HostRecoveryInstruction {
   return {
     ownerId,
     actionKind: "documented-workflow",
     documentRef,
     retryCondition: "Retry after the documented workflow has been completed.",
-    nonClaims,
   };
 }

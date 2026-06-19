@@ -74,7 +74,7 @@ describe("Habitat real command entrypoints", () => {
     }
   });
 
-  test("stale wrapped-eslint selector cannot pass as baseline-only proof", () => {
+  test("unknown tool selector cannot pass as baseline-only output", () => {
     const result = runCommand([
       "bun",
       "run",

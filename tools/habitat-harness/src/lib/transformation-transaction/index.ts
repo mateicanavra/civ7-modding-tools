@@ -10,8 +10,6 @@ export {
   TransformationRefusedOutcomeSchema,
   TransformationRefusalReasonSchema,
   TransactionInputResolutionSchema,
-  TransactionNonClaimIdArraySchema,
-  TransactionNonClaimIdSchema,
   TransactionRefusalSchema,
   TransformationTransactionRecordSchema,
   TransformationTransactionRequestSchema,

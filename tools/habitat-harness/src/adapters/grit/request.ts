@@ -28,7 +28,6 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
   return Effect.scoped(
     Effect.gen(function* () {
       const scanRootDecision = decideGritScanRoots(scanRoots, {
-        allowInjectedProbeRoot: options.allowInjectedProbeRoot,
         allowDocsRoot: options.allowDocsRoot,
       });
       if (scanRootDecision.kind === "refused") {
@@ -131,8 +130,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
 
 function nativeCommandFamilyForGritCheck(
   options: GritCheckOptions
-): "current-tree-json-check" | "docs-text-check" | "injected-probe-json-check" {
-  if (options.allowInjectedProbeRoot) return "injected-probe-json-check";
+): "current-tree-json-check" | "docs-text-check" {
   if (options.outputFormat === "text") return "docs-text-check";
   return "current-tree-json-check";
 }
@@ -169,12 +167,6 @@ export function gritCheckRequest(
       cacheDir,
       observableStatus: options.observableCacheStatus ?? "unknown",
     },
-    nonClaims: [
-      "not-injected-probe-validation",
-      "not-baseline-authority",
-      "not-apply-transaction",
-      "not-product-runtime",
-    ],
   };
 }
 

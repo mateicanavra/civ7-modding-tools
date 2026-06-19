@@ -4,12 +4,12 @@
   "version": "0.1",
   "generators": {
     "project": {
-      "factory": "./src/generators/project/generator.cjs#projectGenerator",
+      "factory": "./src/generators/project/generator.ts#projectGenerator",
       "schema": "./src/generators/project/schema.json",
       "description": "Scaffold a Habitat-conformant workspace project for supported uniform kinds."
     },
     "pattern": {
-      "factory": "./src/generators/pattern/generator.cjs#patternGenerator",
+      "factory": "./src/generators/pattern/generator.ts#patternGenerator",
       "schema": "./src/generators/pattern/schema.json",
       "description": "Scaffold a Habitat Grit pattern and matching rule-pack entry."
     }

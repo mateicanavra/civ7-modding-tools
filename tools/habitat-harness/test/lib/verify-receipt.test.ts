@@ -4,13 +4,6 @@ import type { CheckReport } from "../../src/lib/diagnostics.js";
 const runMock = vi.hoisted(() =>
   vi.fn((argv: string[]) => {
     if (argv[0] === "git") return { exitCode: 0, stdout: "", stderr: "" };
-    if (argv[0] === "bun") {
-      return {
-        exitCode: 0,
-        stdout: "resources-submodule: clean\n",
-        stderr: "",
-      };
-    }
     return { exitCode: 0, stdout: "", stderr: "" };
   })
 );
@@ -181,13 +174,6 @@ describe("verify receipt", () => {
     expect(receipt.nxAffected.exitCode).toBe(1);
     expect(receipt.nxAffected.stdoutPreview).toBe("affected failed\n");
     expect(receipt.nxAffected.stderrPreview).toBe("boom\n");
-    expect(receipt.nonClaims).toEqual([
-      "does-not-prove-ci",
-      "does-not-prove-apply-safety",
-      "does-not-prove-graphite-readiness",
-      "does-not-prove-runtime",
-      "does-not-prove-rule-correctness",
-    ]);
     expect(validateVerifyReceipt(receipt)).toEqual([]);
   });
 

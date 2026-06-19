@@ -40,7 +40,7 @@ The root script `bun run habitat` dispatches to
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
 | `check` | `bun run habitat check`, `bun run habitat:check` | Runs the Habitat rule pack, supports `--owner`, `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. |
-| `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then `nx affected` over `build`, `check`, `test`, `boundaries`, `biome:ci`, `grit:check`, and `generated:check`. JSON mode emits a structured proof artifact with non-claims. |
+| `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then `nx affected` over `build`, `check`, `test`, `boundaries`, `biome:ci`, `grit:check`, and `generated:check`. JSON mode emits a structured verification receipt. |
 | `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning Nx project metadata, tags, D2 rule-routing facts, D3 graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun run habitat fix`, `bun run habitat:fix` | Runs the approved Grit apply transaction, then hands changed files to Biome. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
 | `graph` | `bun run habitat graph --json` | Runs Nx graph generation and prints the project graph JSON. |
@@ -49,7 +49,7 @@ The root script `bun run habitat` dispatches to
 Root scripts also expose graph-owned entrypoints:
 
 - `bun run lint` runs the canonical repo-wide Biome CI hygiene target.
-- Full Habitat structural proof lives in `bun run habitat:check`,
+- Full Habitat structural verification lives in `bun run habitat:check`,
   `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
   `bun run check`; it is not hidden inside root lint.
 - `bun run verify` runs `nx run-many --targets=verify`.
@@ -62,7 +62,7 @@ same command as diagnostic `bun run habitat verify`.
 ## Nx Integration
 
 Nx loads the Habitat inference plugin from
-`tools/habitat-harness/src/plugin.js`. The plugin gives the workspace graph
+`tools/habitat-harness/src/plugin.ts`. The plugin gives the workspace graph
 these Habitat-owned targets:
 
 - Repo-wide `boundaries`
@@ -174,14 +174,14 @@ The apply transaction:
 
 - runs a Grit dry-run first;
 - parses a Habitat-owned structured rewrite inventory when available;
-- falls back to isolated-copy diff proof when dry-run output is not structured;
+- compares an isolated working copy when dry-run output is not structured;
 - blocks unapproved creates, deletes, and outside-root rewrites;
 - rejects unexpected changed paths;
 - hands changed files to Biome;
 - can run optional gate commands;
-- can roll back failed or proof-only writes;
-- records proof data including changed paths, file digests, diff evidence, and
-  explicit non-claims.
+- can roll back failed or preview-only writes;
+- records transaction data including changed paths, file digests, and diff
+  summaries.
 
 `habitat fix` should be treated as a guarded structural repair entrypoint, not
 as a general-purpose "fix all Habitat findings" engine.
@@ -249,8 +249,9 @@ file-layer protections, partial-staging risk, Biome staged formatting/checks,
 and staged Grit paths.
 
 Pre-push runs affected verification for local branch scope. In Graphite stacks,
-it uses the Graphite parent branch as the affected base; otherwise it falls back
-to the merge-base with `main`.
+it uses the Graphite parent branch as the affected base; otherwise it resolves
+the remote default branch merge-base or refuses with instructions to pass an
+explicit base.
 
 ## What Habitat Does Not Own
 

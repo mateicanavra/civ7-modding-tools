@@ -20,7 +20,6 @@ export function decideScanRootProtection(
       root,
       owner: hostPolicyBoundaryOwner(),
       recovery: declarationRecovery(hostSurface.declarationState),
-      nonClaims: hostSurface.nonClaims,
     });
   }
   if (hostSurface.declarationState === "declared") {
@@ -29,7 +28,6 @@ export function decideScanRootProtection(
         root,
         owner: hostPolicyBoundaryOwner(),
         recovery: declarationRecovery("malformed"),
-        nonClaims: hostSurface.nonClaims,
       });
     }
     if (
@@ -40,14 +38,12 @@ export function decideScanRootProtection(
         root,
         owner: ownerProjection(hostSurface.owner),
         recovery: hostSurface.recovery,
-        nonClaims: hostSurface.nonClaims,
       });
     }
     return protectedRootRefusal({
       root,
       owner: ownerProjection(hostSurface.owner),
       recovery: hostSurface.recovery,
-      nonClaims: hostSurface.nonClaims,
     });
   }
   if (isProtectedRoot(root, options.protectedPrefixes ?? [])) {
@@ -55,13 +51,11 @@ export function decideScanRootProtection(
       root,
       owner: habitatRepoPolicyOwner(),
       recovery: selectApprovedScanRootRecovery(),
-      nonClaims: ["does-not-prove-scan-root-safety"],
     });
   }
   return Value.Parse(ScanRootProtectionDecisionSchema, {
     kind: "accepted",
     root,
-    nonClaims: ["does-not-prove-scan-root-safety"],
   });
 }
 
@@ -69,7 +63,6 @@ function protectedRootRefusal(input: {
   root: string;
   owner: ProtectedZoneOwner;
   recovery: ProtectedZoneRecoveryInstruction;
-  nonClaims: readonly string[];
 }): ScanRootProtectionDecision {
   return Value.Parse(ScanRootProtectionDecisionSchema, {
     kind: "refused-protected-root",
@@ -77,7 +70,6 @@ function protectedRootRefusal(input: {
     root: input.root,
     owner: input.owner,
     recovery: input.recovery,
-    nonClaims: [...input.nonClaims],
   });
 }
 
@@ -85,7 +77,6 @@ function generatedOutputRefusal(input: {
   root: string;
   owner: ProtectedZoneOwner;
   recovery: ProtectedZoneRecoveryInstruction;
-  nonClaims: readonly string[];
 }): ScanRootProtectionDecision {
   return Value.Parse(ScanRootProtectionDecisionSchema, {
     kind: "refused-generated-output",
@@ -93,7 +84,6 @@ function generatedOutputRefusal(input: {
     root: input.root,
     owner: input.owner,
     recovery: input.recovery,
-    nonClaims: [...input.nonClaims],
   });
 }
 
@@ -116,7 +106,7 @@ function ownerProjection(input: {
 
 function hostPolicyBoundaryOwner(): ProtectedZoneOwner {
   return {
-    ownerId: "G-HOST",
+    ownerId: "host-policy",
     displayName: "Host Policy Boundary",
     recoveryContact: "openspec/changes/deep-habitat-host-policy-boundary-gate",
   };
@@ -132,11 +122,10 @@ function habitatRepoPolicyOwner(): ProtectedZoneOwner {
 
 function declarationRecovery(state: string): ProtectedZoneRecoveryInstruction {
   return {
-    ownerId: "G-HOST",
+    ownerId: "host-policy",
     actionKind: "documented-workflow",
     documentRef: "openspec/changes/deep-habitat-host-policy-boundary-gate",
     retryCondition: `Retry after the host policy declaration state is repaired from '${state}'.`,
-    nonClaims: ["does-not-authorize-host-surface"],
   };
 }
 
@@ -144,7 +133,6 @@ function selectApprovedScanRootRecovery(): ProtectedZoneRecoveryInstruction {
   return {
     ownerId: "habitat-repo-policy",
     actionKind: "select-approved-scan-root",
-    instruction: "Select a D2-approved source scan root outside protected tool output roots.",
-    nonClaims: ["does-not-prove-scan-root-safety"],
+    instruction: "Select an approved source scan root outside protected tool output roots.",
   };
 }

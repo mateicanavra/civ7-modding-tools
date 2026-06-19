@@ -8,16 +8,6 @@ import {
   nativeDiagnosticIdentity,
 } from "./identity.js";
 
-export const DiagnosticNonClaimSchema = Type.Union([
-  Type.Literal("not-pattern-governance-admission"),
-  Type.Literal("not-baseline-authority"),
-  Type.Literal("not-apply-safety"),
-  Type.Literal("not-hook-sequencing"),
-  Type.Literal("not-full-current-tree-cleanliness"),
-  Type.Literal("native-fixture-not-current-tree-outcome"),
-  Type.Literal("workspace-cache-not-fresh-observation"),
-]);
-
 export const GritDiagnosticScanContractSchema = Type.Object(
   {
     kind: Type.Literal("d2-grit-scan-roots"),
@@ -77,7 +67,6 @@ export const GritDiagnosticCatalogEntrySchema = Type.Object(
     source: Type.Literal("d2-rule-grit-facts"),
     scanContract: GritDiagnosticScanContractSchema,
     projectionContract: GritDiagnosticProjectionContractSchema,
-    limitations: Type.Array(DiagnosticNonClaimSchema),
   },
   { additionalProperties: false }
 );
@@ -92,7 +81,6 @@ export const NativeDiagnosticCatalogEntrySchema = Type.Object(
     scanContract: NativeDiagnosticScanContractSchema,
     acquisitionContract: NativeDiagnosticAcquisitionContractSchema,
     projectionContract: NativeDiagnosticProjectionContractSchema,
-    limitations: Type.Array(DiagnosticNonClaimSchema),
   },
   { additionalProperties: false }
 );
@@ -102,7 +90,6 @@ export const DiagnosticCatalogEntrySchema = Type.Union([
   NativeDiagnosticCatalogEntrySchema,
 ]);
 
-export type DiagnosticNonClaim = Static<typeof DiagnosticNonClaimSchema>;
 export type GritDiagnosticScanContract = Static<typeof GritDiagnosticScanContractSchema>;
 export type NativeDiagnosticScanContract = Static<typeof NativeDiagnosticScanContractSchema>;
 export type DiagnosticScanContract = Static<typeof DiagnosticScanContractSchema>;
@@ -132,13 +119,6 @@ export function diagnosticCatalogEntryFromRuleGritFacts(
     source: "d2-rule-grit-facts",
     scanContract: { kind: "d2-grit-scan-roots", requiredFacet: "ruleGritFacts" },
     projectionContract: { kind: "grit-pattern-projection", identity: diagnosticIdentity },
-    limitations: [
-      "not-pattern-governance-admission",
-      "not-baseline-authority",
-      "not-apply-safety",
-      "not-hook-sequencing",
-      "workspace-cache-not-fresh-observation",
-    ],
   };
 }
 
@@ -159,13 +139,5 @@ export function diagnosticCatalogEntryFromNativeRule(input: {
       outputContract: "standard-text-report",
     },
     projectionContract: { kind: "native-rule-projection", identity: diagnosticIdentity },
-    limitations: [
-      "not-pattern-governance-admission",
-      "not-baseline-authority",
-      "not-apply-safety",
-      "not-hook-sequencing",
-      "not-full-current-tree-cleanliness",
-      "native-fixture-not-current-tree-outcome",
-    ],
   };
 }

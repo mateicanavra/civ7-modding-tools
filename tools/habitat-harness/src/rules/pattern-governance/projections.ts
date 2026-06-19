@@ -129,10 +129,8 @@ export function patternRecoveryProjection(
     return Value.Parse(PatternRecoveryProjectionSchema, {
       kind: "pattern-recovery",
       patternId: state.refusal.patternId ?? state.refusal.path,
-      owner: "D8",
       reason: state.refusal.reason,
       nextAction: state.refusal.message,
-      nonClaims: ["Recovery guidance does not create pattern admission."],
     });
   }
   if (state.kind === "retired") return state.retirement.recovery;

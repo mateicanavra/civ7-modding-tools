@@ -23,7 +23,7 @@
     },
     "lifecycle": {
       "type": "string",
-      "description": "Pattern lifecycle to generate. Registered lifecycles are fail-closed until the Pattern Authority Manifest and proof gates are accepted.",
+      "description": "Pattern lifecycle to generate. Registered lifecycles are fail-closed until the Pattern Authority Manifest is accepted.",
       "enum": ["candidate", "registered-advisory", "registered-enforced"],
       "default": "candidate"
     },

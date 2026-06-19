@@ -18,7 +18,7 @@ import type {
 } from "../../src/rules/pattern-governance/index.js";
 
 describe("transformation transaction", () => {
-  test("requires D8 apply admission before a transaction request is valid", () => {
+  test("requires apply admission before a transaction request is valid", () => {
     expect(
       Value.Check(TransformationTransactionRequestSchema, {
         kind: "dry-run-intent",
@@ -27,7 +27,7 @@ describe("transformation transaction", () => {
     ).toBe(false);
   });
 
-  test("refuses fix at the command boundary before D8 apply admission", async () => {
+  test("refuses fix at the command boundary before apply admission", async () => {
     const result = await runFix(
       { kind: "dry-run-intent" },
       {
@@ -115,7 +115,6 @@ describe("transformation transaction", () => {
       kind: "refused",
       refusal: {
         reason: "transaction-input-command-failed",
-        nonClaims: ["does-not-write-files"],
       },
     });
   });
@@ -171,7 +170,6 @@ describe("transformation transaction", () => {
       kind: "refused",
       refusal: {
         reason: "invalid-transaction-input",
-        nonClaims: ["does-not-run-grit", "does-not-write-files"],
       },
     });
     expect(requests).toHaveLength(0);
@@ -237,7 +235,7 @@ describe("transformation transaction", () => {
     });
   });
 
-  test("consumes an allowed D10 transaction path authority projection before live execution", async () => {
+  test("consumes an allowed protected-zone write decision before live execution", async () => {
     const record = await runTransformationTransaction({
       kind: "live-write-intent",
       worktree: cleanWorktree(),
@@ -253,7 +251,7 @@ describe("transformation transaction", () => {
     });
   });
 
-  test("binds D10 path authority to the admitted transaction roots", async () => {
+  test("binds protected-zone write decisions to the admitted transaction roots", async () => {
     const record = await runTransformationTransaction({
       kind: "live-write-intent",
       worktree: cleanWorktree(),
@@ -300,7 +298,6 @@ function applyAdmission(
     transactionInputRef: "pattern-authority:deep-import-to-public-surface:transaction-input",
     transactionInputRuleIds: ["grit-domain-deep-import"],
     dryRunOutput: "compact",
-    nonClaims: ["does-not-authorize-host-policy"],
     ...overrides,
   };
 }
@@ -322,7 +319,6 @@ function transactionInput(
         output: "compact",
       },
     ],
-    nonClaims: ["does-not-write-files", "does-not-authorize-live-write"],
     ...overrides,
   };
 }
@@ -342,11 +338,9 @@ function allowedPathAuthority(overrides: { path?: string } = {}) {
       ownerId: "habitat-repo-policy",
       actionKind: "documented-workflow",
       documentRef: "docs/process/CONTRIBUTING.md",
-      retryCondition: "Retry after D10 path authority is accepted.",
-      nonClaims: ["does-not-prove-apply-transaction-safety"],
+      retryCondition: "Retry after protected-zone write authorization is accepted.",
     },
-    hostPolicyRef: "G-HOST:apply-gate",
-    nonClaims: ["does-not-prove-apply-transaction-safety"],
+    hostPolicyRef: "host-policy:apply-gate",
   } as const;
 }
 
@@ -366,8 +360,6 @@ function refusedPathAuthority() {
       actionKind: "documented-workflow",
       documentRef: "docs/process/resources-submodule.md",
       retryCondition: "Retry after the documented workflow has been completed.",
-      nonClaims: ["does-not-prove-resource-submodule-freshness"],
     },
-    nonClaims: ["does-not-prove-resource-submodule-freshness"],
   } as const;
 }

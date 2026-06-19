@@ -40,7 +40,7 @@ working in this Civ7 modding repository. Its practical job is to make repo
 structure queryable, enforceable, routable, and partially repairable through a
 single command surface.
 
-The implemented surface proves a structural substrate:
+The implemented surface provides a structural substrate:
 
 - classify a path, diff, or patch into owning project metadata, in-scope
   Habitat rules, runnable targets, and unavailable target facts;
@@ -51,7 +51,7 @@ The implemented surface proves a structural substrate:
   generated-zone checks, wrapped scripts, wrapped tests, and Habitat-native
   checks through one rule registry;
 - delegate local Git hooks through Habitat while keeping CI and explicit graph
-  proof authoritative;
+  verification authoritative;
 - run a small guarded Grit apply transaction for approved structural repairs;
 - scaffold supported uniform workspace projects and Pattern Authority
   lifecycle artifacts.
@@ -64,7 +64,7 @@ through graph-owned commands.
 Habitat is not yet the broader MapGen authoring toolkit described by the next
 product gap. It cannot yet generate a MapGen recipe, MapGen domain, domain
 operation, recipe stage, recipe step, step contract/default/schema bundle, or
-the full wiring and proof loop those structures require.
+the full wiring and validation loop those structures require.
 
 The current north-star product gap is:
 
@@ -89,18 +89,18 @@ clear owner layers and explicit baselines.
 
 That origin matters. Much of the current implementation exists because the
 project had to recover trust in command behavior, selector truth, baseline
-semantics, Grit proof, hook side effects, pattern admission, and classify/generator
+semantics, Grit diagnostics, hook side effects, pattern admission, and classify/generator
 claims. The implementation therefore contains recovery-era adaptations and
-wrappers that solved immediate proof problems.
+wrappers that solved immediate validation problems.
 
 The latest reference docs settle the current posture:
 
 - Habitat is a strong platform substrate for classification, enforcement,
-  routing, proof, hooks, Grit diagnostics, baseline integrity, and limited safe
+  routing, verification, hooks, Grit diagnostics, baseline integrity, and limited safe
   transformations.
 - Habitat is not yet a product-authoring system for MapGen topology.
 - Docs and ledgers are useful reference, but current code, tests, command
-  behavior, and generated diffs are stronger proof for behavior claims.
+  behavior, and generated diffs are stronger evidence for behavior claims.
 - Future authoring work should be driven by scenario acceptance loops, not by
   adding more rule machinery for its own sake.
 
@@ -113,7 +113,7 @@ First, the implementation is organized around technical placement and recovery
 sequence. Command classes under `src/commands` are thin oclif adapters. The
 large `src/lib/command-engine.ts` file contains rule selection, check report
 construction, baseline expansion, staged Grit selection, fix dispatch, verify
-proof construction, graph export, path/diff classification, rule-scope
+verification receipt construction, graph export, path/diff classification, rule-scope
 projection, target discovery, and command summaries. That is a working
 composition point, not a coherent bounded context.
 
@@ -127,13 +127,13 @@ Second, distinct authorities are currently adjacent or interleaved:
 - guarded structural transformation in `grit-apply`;
 - hook-local feedback in `hooks`;
 - generated/protected file zones in `generated-zones`;
-- proof artifact construction and process provenance in `proof-artifact` and
-  `habitat-process`;
+- verification receipt construction and process execution records in
+  `verify-receipt` and `habitat-process`;
 - project and pattern scaffolding in Nx generators;
 - Pattern Authority admission in `pattern-authority` and pattern generator
   registration.
 
-These authorities have different users, failure modes, proof needs, and reasons
+These authorities have different users, failure modes, validation needs, and reasons
 to change. Their current proximity is implementation evidence, not a domain
 decision.
 
@@ -145,7 +145,7 @@ model that simply preserves mechanism names will reproduce the current muddle.
 
 Fourth, current code answers "how Habitat happens to run today." The domain
 mapping must answer "what Habitat is responsible for, what it refuses, who owns
-each invariant, and what scenarios prove those responsibilities."
+each invariant, and what scenarios validate those responsibilities."
 
 ## Investigation Frame
 
@@ -154,14 +154,14 @@ each invariant, and what scenarios prove those responsibilities."
 - Current Habitat reference docs and project frames.
 - Current Habitat code, tests, rules, baselines, generators, Grit patterns,
   hook behavior, and Nx integration.
-- Supported scenarios: classify path/diff, run check, run graph proof, run
+- Supported scenarios: classify path/diff, run check, run graph verification, run
   diagnostic verify, scaffold supported project, draft and promote Grit rules,
   apply approved deep-import repair, run local hooks.
-- Unsupported scenarios: generate MapGen recipe/domain/op/stage/step, prove a
+- Unsupported scenarios: generate MapGen recipe/domain/op/stage/step, validate a
   generated MapGen authoring flow, automatically fix every Grit finding.
 - Product distinction between platform-substrate health and
   authoring-workflow capability.
-- Vocabulary, authority, proof classes, ownership, handoff flows, and change
+- Vocabulary, authority, validation classes, ownership, handoff flows, and change
   patterns.
 
 ### Foreground
@@ -169,7 +169,7 @@ each invariant, and what scenarios prove those responsibilities."
 - Scenarios and flows before files and modules.
 - Ubiquitous language used by agents, docs, commands, tests, and code.
 - One owner per invariant or decision.
-- The difference between query/classify, enforce/check, prove/verify,
+- The difference between query/classify, enforce/check, verify,
   repair/apply, scaffold/generate, admit/promote, and author MapGen topology.
 - Evidence quality: docs for intent, code/tests for implemented behavior,
   command output for current runtime truth, generated diffs for authoring
@@ -192,13 +192,13 @@ Violating any of these requires reframing the investigation:
 1. Current code is evidence, not domain authority.
 2. Scenarios are the primary unit of discovery.
 3. A domain boundary must explain language, authority, change pattern, and
-   proof needs better than the current technical layout.
+   validation needs better than the current technical layout.
 4. Each invariant has one owner. Duplicated ownership must be modeled as debt,
    transitional compatibility, or an explicit handoff.
 5. Platform-substrate health and authoring-workflow capability are distinct
    product outcomes.
-6. Proof classes stay explicit. Passing docs, tests, hooks, OpenSpec validation,
-   and current command behavior do not prove the same thing.
+6. Validation classes stay explicit. Passing docs, tests, hooks, OpenSpec
+   validation, and current command behavior establish different facts.
 
 ### Falsifiers
 
@@ -208,7 +208,7 @@ The investigation must stop and reframe if:
   implemented behavior;
 - proposed domain boundaries cannot explain supported and unsupported scenarios
   better than the current technical directories;
-- a proposed boundary hides multiple authorities with different proof needs;
+- a proposed boundary hides multiple authorities with different validation needs;
 - authoring-workflow scenarios require MapGen product decisions that Habitat
   cannot own;
 - the work collapses into documenting `src/lib` modules rather than mapping
@@ -220,7 +220,7 @@ The obvious alternative is to document Habitat by current code areas:
 commands, libs, rules, generators, tests, and docs.
 
 Reject that as the domain mapping method. It would preserve the accidental
-shape produced by enforcement migration and recovery work. It may be useful as
+shape produced by enforcement recovery work. It may be useful as
 an implementation inventory, but it cannot answer what Habitat is actually
 about or what future agents should depend on.
 
@@ -240,16 +240,16 @@ Use sources in this order when claims disagree:
 8. Older phase records, closure checklists, and chat summaries as historical
    discovery only.
 
-Record every important claim as one of:
+Record every important finding as one of:
 
 - verified current behavior;
 - reference intent;
 - architecture target;
-- historical claim;
+- historical observation;
 - hypothesis;
-- explicit non-claim.
+- out-of-scope note.
 
-For this investigation, current implementation facts are allowed to disprove
+For this investigation, current implementation facts are allowed to contradict
 reference claims. They are not allowed to define the target domain by default.
 
 ## Required Investigation Inputs
@@ -262,7 +262,7 @@ inputs:
 - A scenario inventory from `SCENARIOS.md`, `GAPS.md`, and
   `AUTHORING-NEXT.md`.
 - Code flow traces for each supported Habitat scenario.
-- Test flow traces that show which behavior is currently proven.
+- Test flow traces that show which behavior is currently validated.
 - Rule-pack and baseline inventory.
 - Grit diagnostic and apply inventory.
 - Generator inventory and refusal contracts.
@@ -281,7 +281,7 @@ minimum, trace these flows end to end:
 1. Classify a path before editing.
 2. Classify a diff or patch for handoff.
 3. Run the full Habitat rule pack.
-4. Run graph-owned repo proof.
+4. Run graph-owned repo verification.
 5. Run diagnostic Habitat verify.
 6. Scaffold a supported uniform workspace project.
 7. Draft a new Grit rule candidate.
@@ -310,7 +310,7 @@ The next investigation should produce these artifacts before implementation:
 
 - Scenario corpus: supported, unsupported, and desired authoring scenarios with
   evidence links.
-- Flow maps: classify, check, verify, graph proof, hook, Grit diagnostic,
+- Flow maps: classify, check, verify, graph verification, hook, Grit diagnostic,
   Grit apply, project generation, pattern admission, and future MapGen
   authoring.
 - Ubiquitous language glossary: terms grouped by scenario and authority, with
@@ -319,12 +319,12 @@ The next investigation should produce these artifacts before implementation:
   diagnostic normalization, graph integration, hook feedback, transformation
   transactions, generated/protected zones, and authoring topology.
 - Context map: candidate bounded contexts and relationships, including which
-  contexts are substrate, authoring, proof, governance, or adapter concerns.
+  contexts are substrate, authoring, validation, governance, or adapter concerns.
 - Evidence ledger: every domain claim tied to docs, code, tests, command
   behavior, or explicit hypothesis.
 - Current-code critique: places where implementation composition conflicts with
   the emerging domain model.
-- Acceptance and falsifier tests: checks that would disprove the proposed
+- Acceptance and falsifier tests: checks that would invalidate the proposed
   domain boundaries or show that a boundary is merely a technical layer.
 
 ## Initial Domain Hypotheses
@@ -342,13 +342,13 @@ These are hypotheses to test, not final boundaries:
 - Diagnostic pattern catalog: acquires Grit findings and projects them into
   Habitat rules.
 - Transformation transaction: applies only approved mechanical rewrites with
-  dry-run, path approval, Biome handoff, rollback, and proof.
+  dry-run, path approval, Biome handoff, rollback, and transaction records.
 - Local feedback: runs hooks as bounded pre-commit/pre-push assistance without
   becoming merge authority.
 - Scaffolding and admission: generates supported uniform project structure and
   Pattern Authority artifacts while refusing unsupported topology.
 - Future MapGen authoring: creates recipe/domain/op/stage/step topology and
-  proves it through the product acceptance loop. This is currently a gap, not
+  validates it through the product acceptance loop. This is currently a gap, not
   an implemented Habitat context.
 
 Each hypothesis must survive scenario tracing and authority analysis before it
@@ -362,7 +362,7 @@ should run narrow read-only lanes:
 - Reference synthesis lane: extracts product outcomes, supported scenarios,
   unsupported states, and source-order conflicts from current docs.
 - Code-flow lane: traces implementation paths for each scenario and records
-  behavior/proof evidence without treating modules as target boundaries.
+  behavior evidence without treating modules as target boundaries.
 - Domain critique lane: applies domain-design pressure, especially language
   changes, authority overlaps, duplicated ownership, and technical-layer
   decomposition traps.

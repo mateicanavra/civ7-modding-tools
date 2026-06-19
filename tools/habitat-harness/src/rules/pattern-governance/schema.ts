@@ -20,15 +20,6 @@ export const PatternAuthoritySourceKindSchema = Type.Union([
   Type.Literal("agent-router"),
 ]);
 
-export const PatternAuthorityProvingSourceKindSchema = Type.Union([
-  Type.Literal("native-grit-sample"),
-  Type.Literal("current-tree-scan"),
-  Type.Literal("injected-violation"),
-  Type.Literal("retired-mechanism"),
-  Type.Literal("test"),
-  Type.Literal("manual-review"),
-]);
-
 export const PatternAuthorityCurrentTreeResultClassSchema = Type.Union([
   Type.Literal("zero-findings"),
   Type.Literal("accepted-baseline"),
@@ -68,10 +59,6 @@ export const PatternAuthorityApplySafetySchema = Type.Union([
     {
       kind: Type.Literal("apply"),
       dryRunCommand: NonEmptyStringSchema,
-      noWriteProof: NonEmptyStringSchema,
-      appliedDiffProof: NonEmptyStringSchema,
-      rollbackProof: NonEmptyStringSchema,
-      typeAndTestProof: NonEmptyStringSchema,
     },
     { additionalProperties: false }
   ),
@@ -81,16 +68,7 @@ export const PatternAuthoritySourceSchema = Type.Object(
   {
     kind: PatternAuthoritySourceKindSchema,
     pathOrUrl: NonEmptyStringSchema,
-    claim: NonEmptyStringSchema,
-  },
-  { additionalProperties: false }
-);
-
-export const PatternAuthorityProvingSourceSchema = Type.Object(
-  {
-    kind: PatternAuthorityProvingSourceKindSchema,
-    pathOrCommand: NonEmptyStringSchema,
-    claim: NonEmptyStringSchema,
+    summary: NonEmptyStringSchema,
   },
   { additionalProperties: false }
 );
@@ -137,13 +115,11 @@ const RegisteredPatternAuthorityManifestFieldsSchema = Type.Object(
       Type.Literal("registered-enforced"),
     ]),
     normativeSources: Type.Array(PatternAuthoritySourceSchema, { minItems: 1 }),
-    provingSources: Type.Array(PatternAuthorityProvingSourceSchema, { minItems: 1 }),
     language: Type.Object(
       {
         gritLanguage: NonEmptyStringSchema,
         parserVariant: NonEmptyStringSchema,
         officialDocsSource: NonEmptyStringSchema,
-        localProofCommand: NonEmptyStringSchema,
       },
       { additionalProperties: false }
     ),
@@ -176,7 +152,6 @@ const RegisteredPatternAuthorityManifestFieldsSchema = Type.Object(
       {
         command: NonEmptyStringSchema,
         resultClass: PatternAuthorityCurrentTreeResultClassSchema,
-        evidencePath: NonEmptyStringSchema,
       },
       { additionalProperties: false }
     ),
@@ -192,7 +167,7 @@ const RegisteredPatternAuthorityManifestFieldsSchema = Type.Object(
       {
         decision: PatternAuthorityHookDecisionSchema,
         rationale: NonEmptyStringSchema,
-        costAndScopeEvidence: NonEmptyStringSchema,
+        costAndScopeRationale: NonEmptyStringSchema,
       },
       { additionalProperties: false }
     ),
@@ -311,7 +286,6 @@ export const DiagnosticAdmissionProjectionSchema = Type.Object(
     fixtureStrategyRef: NonEmptyStringSchema,
     falsePositiveAssessment: NonEmptyStringSchema,
     currentTreeDisposition: NonEmptyStringSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -322,8 +296,6 @@ export const LocalFeedbackAdmissionProjectionSchema = Type.Object(
     patternId: NonEmptyStringSchema,
     manifestPath: NonEmptyStringSchema,
     eligibility: Type.Literal("eligible"),
-    nextOwner: Type.Literal("D11"),
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -343,7 +315,6 @@ export const ApplyAdmissionProjectionSchema = Type.Object(
     protectedZoneRef: Type.Optional(NonEmptyStringSchema),
     hostPolicyRef: Type.Optional(NonEmptyStringSchema),
     dryRunOutput: ApplyDryRunOutputModeSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -366,7 +337,6 @@ export const ApplyTransactionInputProjectionSchema = Type.Object(
     manifestPath: ApplyPatternPathSchema,
     transactionInputRef: NonEmptyStringSchema,
     dryRunCommands: Type.Array(ApplyDryRunCommandProjectionSchema),
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -392,10 +362,8 @@ export const PatternRecoveryProjectionSchema = Type.Object(
   {
     kind: Type.Literal("pattern-recovery"),
     patternId: NonEmptyStringSchema,
-    owner: NonEmptyStringSchema,
     reason: PatternAdmissionRefusalReasonSchema,
     nextAction: NonEmptyStringSchema,
-    nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
 );
@@ -474,9 +442,6 @@ export const PatternAuthorityStateSchema = Type.Union([
 export type PatternAuthorityLifecycle = Static<typeof PatternAuthorityLifecycleSchema>;
 export type PatternAuthorityOwnerTool = Static<typeof PatternAuthorityOwnerToolSchema>;
 export type PatternAuthoritySourceKind = Static<typeof PatternAuthoritySourceKindSchema>;
-export type PatternAuthorityProvingSourceKind = Static<
-  typeof PatternAuthorityProvingSourceKindSchema
->;
 export type PatternAuthorityCurrentTreeResultClass = Static<
   typeof PatternAuthorityCurrentTreeResultClassSchema
 >;
@@ -484,7 +449,6 @@ export type PatternAuthorityBaselineAction = Static<typeof PatternAuthorityBasel
 export type PatternAuthorityHookDecision = Static<typeof PatternAuthorityHookDecisionSchema>;
 export type PatternAuthorityApplySafety = Static<typeof PatternAuthorityApplySafetySchema>;
 export type PatternAuthoritySource = Static<typeof PatternAuthoritySourceSchema>;
-export type PatternAuthorityProvingSource = Static<typeof PatternAuthorityProvingSourceSchema>;
 export type CandidatePatternAuthorityManifest = Static<
   typeof CandidatePatternAuthorityManifestSchema
 >;

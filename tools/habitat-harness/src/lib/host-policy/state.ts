@@ -104,11 +104,6 @@ function hostPolicyConflicts(document: HostPolicyDocument): string[] {
         `Host declaration '${declaration.declarationId}' recovery owner '${declaration.recovery.ownerId}' does not match declaration owner '${declaration.ownerId}'.`
       );
     }
-    if (!sameStrings(declaration.nonClaims, declaration.recovery.nonClaims)) {
-      issues.push(
-        `Host declaration '${declaration.declarationId}' non-claims do not match recovery non-claims.`
-      );
-    }
     if (isGeneratedSurfaceDeclaration(declaration)) {
       if (generatedZoneIds.has(declaration.generatedZoneId)) {
         issues.push(`Duplicate generated zone '${declaration.generatedZoneId}'.`);
@@ -168,10 +163,6 @@ function isProjectSupportDeclaration(
   declaration: HostPolicyDeclaration
 ): declaration is ProjectSupportDeclaration {
   return declaration.kind === "project-support" || declaration.kind === "unsupported-host-shape";
-}
-
-function sameStrings(left: readonly string[], right: readonly string[]): boolean {
-  return left.length === right.length && left.every((value, index) => value === right[index]);
 }
 
 function matchersOverlap(left: HostMatcher, right: HostMatcher): boolean {

@@ -4,7 +4,6 @@ import { graphReadRefusal, classifyPathFromProjects, graphRefusalResult } from "
 import {
   parseClassifyResult,
   stringifyClassifyResult,
-  type ClassifyNonClaimId,
   type ClassifyResult,
   type PathClassification,
 } from "./schema.js";
@@ -16,7 +15,6 @@ import {
 export type {
   ClassifiedTarget,
   ClassifyDiffResult,
-  ClassifyNonClaimId,
   ClassifyResult,
   GraphRefusalClassification,
   MalformedOrPathlessDiffResult,
@@ -63,7 +61,6 @@ export async function classifyTargetResult(
       input: target,
       paths: paths.map((path) => classifyPathFromProjects(path, graph.snapshot.projects)),
       recoveryInstructions: [],
-      nonClaims: baseNonClaims(),
     });
   }
 
@@ -108,19 +105,5 @@ function malformedOrPathlessDiffResult(input: string): ClassifyResult {
     recoveryInstructions: [
       "Provide a repo path or a unified diff with diff --git or +++ b/ changed-file headers.",
     ],
-    nonClaims: [
-      ...baseNonClaims(),
-      "does-not-infer-project-owner",
-      "does-not-prove-target-availability",
-    ],
   });
-}
-
-function baseNonClaims(): ClassifyNonClaimId[] {
-  return [
-    "does-not-run-targets",
-    "does-not-prove-rule-correctness",
-    "does-not-prove-safety",
-    "does-not-prove-authoring-support",
-  ];
 }
