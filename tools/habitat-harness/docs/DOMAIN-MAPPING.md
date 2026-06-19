@@ -152,13 +152,13 @@ each invariant, and what scenarios validate those responsibilities."
 ### In Scope
 
 - Current Habitat reference docs and project frames.
-- Current Habitat code, tests, rules, baselines, generators, Grit patterns,
+- Current Habitat code, tests, rules, baselines, generators, patterns,
   hook behavior, and Nx integration.
 - Supported scenarios: classify path/diff, run check, run graph verification, run
-  diagnostic verify, scaffold supported project, draft and promote Grit rules,
+  diagnostic verify, scaffold supported project, draft and promote Habitat patterns,
   apply approved deep-import repair, run local hooks.
 - Unsupported scenarios: generate MapGen recipe/domain/op/stage/step, validate a
-  generated MapGen authoring flow, automatically fix every Grit finding.
+  generated MapGen authoring flow, automatically fix every Habitat finding.
 - Product distinction between platform-substrate health and
   authoring-workflow capability.
 - Vocabulary, authority, validation classes, ownership, handoff flows, and change
@@ -179,7 +179,7 @@ each invariant, and what scenarios validate those responsibilities."
 
 - Refactoring Habitat internals.
 - Implementing MapGen authoring generators.
-- Adding new Grit rules or apply patterns.
+- Adding new Habitat patterns or apply patterns.
 - Declaring the final domain model.
 - Redesigning MapGen runtime/product architecture.
 - Treating hooks as authoritative verification.
@@ -284,8 +284,8 @@ minimum, trace these flows end to end:
 4. Run graph-owned repo verification.
 5. Run diagnostic Habitat verify.
 6. Scaffold a supported uniform workspace project.
-7. Draft a new Grit rule candidate.
-8. Promote a Grit rule after pattern manifest acceptance.
+7. Draft a new Habitat pattern candidate.
+8. Promote a Habitat pattern after pattern manifest acceptance.
 9. Apply the approved deep-import repair.
 10. Run pre-commit and pre-push hooks.
 11. Attempt to generate MapGen recipe/domain/op/stage/step and record the
@@ -310,8 +310,8 @@ The next investigation should produce these artifacts before implementation:
 
 - Scenario corpus: supported, unsupported, and desired authoring scenarios with
   evidence links.
-- Flow maps: classify, check, verify, graph verification, hook, Grit diagnostic,
-  Grit apply, project generation, pattern admission, and future MapGen
+- Flow maps: classify, check, verify, graph verification, hook, pattern diagnostics,
+  pattern apply, project generation, pattern admission, and future MapGen
   authoring.
 - Ubiquitous language glossary: terms grouped by scenario and authority, with
   ambiguous or overloaded terms called out.
@@ -339,7 +339,7 @@ These are hypotheses to test, not final boundaries:
   integrity, and rule-introduction expansion.
 - Workspace graph integration: projects Habitat checks into Nx targets and
   consumes Nx project metadata as target truth.
-- Diagnostic pattern catalog: acquires Grit findings and projects them into
+- Diagnostic pattern catalog: acquires pattern findings and maps them into
   Habitat rules.
 - Transformation transaction: applies only approved mechanical rewrites with
   dry-run, path approval, Biome handoff, rollback, and transaction records.

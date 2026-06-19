@@ -4,8 +4,8 @@
 
 D14 is the product fence between Habitat's current repo-local structural
 substrate and future MapGen Authoring Topology. The solution space is rugged:
-Habitat already has generators, classification, verification, Pattern
-Governance, and guardrails, so it is easy for implementation to overread those
+Habitat already has generators, classification, verification, pattern
+registration, and guardrails, so it is easy for implementation to overread those
 tools as authoring capability. D14 prevents that local optimum by making the
 unsupported authoring state explicit, closed, and command-facing.
 
@@ -23,7 +23,7 @@ validation gates are authoring readiness versus non-support context.
 | D13 relation | D13 owns the generic scaffold request/refusal envelope; D13 consumes D14's authoring-specific fields. |
 | D4 relation | D4 owns classify/orientation states and may provide examples; D4 does not own authoring capability. |
 | D12 relation | D12 owns verify handoff receipt states; D12 success does not imply authoring readiness. |
-| D8 relation | D8 owns Pattern Governance admission; registered rule health is not authoring workflow support. |
+| D8 relation | D8 owns pattern registration; registered rule health is not authoring workflow support. |
 | G-HOST relation | G-HOST owns host policy declarations; host policy does not imply MapGen authoring support unless a later accepted authoring contract consumes it. |
 
 ## Accepted And Rejected Language
@@ -66,74 +66,40 @@ MapGen authoring topology.
 
 ## Closed D13 Authoring Fence State Model
 
-Later implementation must collapse the current prose gap inside D13's generic
-scaffold/refusal envelope. D14 does not introduce an independent command request
-model. D14 supplies the authoring-specific vocabulary and refusal facts that
-D13 uses when it parses authoring-looking creation requests.
+Later implementation must not turn D14 into a repo-specific parser inside the
+generic Habitat toolkit. D14 does not introduce an independent command request
+model, natural-language request parser, or MapGen/Civ-specific runtime branch.
+D14 supplies future authoring-topology vocabulary for later product work; the
+current D13 generator remains a generic scaffold surface that refuses unsupported
+project kinds before writes.
 
-```ts
-type D14BlockedAuthoringAction =
-  | "create-mapgen-recipe"
-  | "create-mapgen-domain"
-  | "create-domain-operation"
-  | "create-recipe-stage"
-  | "create-recipe-step"
-  | "create-step-contract-default-schema"
-  | "update-authoring-registry-or-public-surface"
-  | "update-studio-recipe-artifact"
-  | "migrate-mapgen-authoring-topology";
+Current implementation model:
 
-type D14AuthoringRequestSurface =
-  | "project-generator"
-  | "pattern-generator"
-  | "classify"
-  | "verify"
-  | "docs-or-example"
-  | "ambiguous-user-request";
-
-type D14AuthoringSignal =
-  | "recipe"
-  | "domain"
-  | "operation"
-  | "stage"
-  | "step"
-  | "contract"
-  | "default"
-  | "schema"
-  | "registry"
-  | "studio-artifact"
-  | "mapgen-authoring-flow";
-
-type D14AuthoringFenceFact =
-  | {
-      kind: "d14-authoring-refusal-fact";
-      requestClass: "authoring-topology-request";
-      blockedAction: D14BlockedAuthoringAction;
-      sourceSurface: D14AuthoringRequestSurface;
-    }
-  | {
-      kind: "d14-ambiguous-authoring-refusal-fact";
-      requestClass: "ambiguous-authoring-topology-request";
-      matchedSignals: readonly [D14AuthoringSignal, ...D14AuthoringSignal[]];
-      sourceSurface: D14AuthoringRequestSurface;
-    };
-```
+- `tools/habitat-harness/src/generators/scaffolding/schema.ts` owns the generic
+  TypeBox scaffold refusal envelope;
+- `@internal/habitat-harness:project` supports only the current uniform
+  `plugin` project contract;
+- unsupported project kinds refuse before writes through D13's existing
+  `unsupported-project-kind` refusal;
+- no current command/API surface accepts structured recipe/domain/operation/
+  stage/step authoring requests, so D14 must not infer those requests from
+  project names, path strings, prose, or arbitrary kind values.
 
 Required invariants:
 
-- D13 parses authoring-looking creation requests into its accepted
-  `AuthoringTopologyRequest` or malformed/ambiguous scaffold request state using
-  D14's closed vocabulary above.
-- D14's `d14-ambiguous-authoring-refusal-fact` is a terminal refusal fact with
-  an empty write set; it cannot route to supported project or pattern scaffolds
-  through local heuristic fallback.
-- Non-authoring requests remain in D13's supported scaffold, pattern candidate,
-  classify, or verify flows and cannot carry D14 blocked authoring actions.
+- D13 refuses unsupported project kinds through its existing generic scaffold
+  refusal with an empty write set; it must not infer MapGen recipe/domain/
+  operation/stage/step topology from generator inputs.
+- D14's authoring vocabulary is future product vocabulary, not a current
+  generator DTO, hidden parser, or runtime branch in generic Habitat code.
+- Supported plugin scaffolds, pattern candidate generation, classify, and verify
+  flows cannot carry D14 blocked authoring actions.
 - Future Authoring Topology support is an upstream acceptance condition, not a
-  Phase 3 runtime variant. It is unreachable until a later accepted authority
+  Phase 3 runtime variant. It is unreachable until a later accepted packet
   supplies the change id, topology model, generator write contract, D0 rows, and
   validation gates.
-- Dispatch over the D14 blocked action and signal vocabulary is exhaustive.
+- Dispatch over the D14 blocked action and signal vocabulary belongs to the later
+  accepted authoring surface, not to current project scaffolding.
 
 This is a TypeScript state-space reduction: "maybe this scaffold can author
 MapGen topology" becomes either a D13-supported non-authoring flow or a
@@ -145,16 +111,14 @@ boolean, thrown string, or second request parser.
 D14 provides the authoring-specific values that D13 inserts into the generic
 `scaffold refusal` shape:
 
-| D13 field | D14 value contract |
+| D13/source concern | D14 value contract |
 | --- | --- |
-| `blocked_action` | One `D14BlockedAuthoringAction` from the inventory above. |
-| `request_class` | `authoring-topology-request` or `ambiguous-authoring-topology-request`. |
-| `reason` | `authoring-topology-owned` until a later accepted authoring project opens implementation. |
-| `owning_authority` | `D14` for the fence; `future Authoring Topology` for implementation. |
-| `recovery_instruction` | Use supported Habitat structural tools, or open a future Authoring Topology investigation against the criteria below. |
-| `retry_condition` | Accepted future Authoring Topology packet with topology model, generator write contract, D0 compatibility rows, and executable acceptance loop. |
-| `write_set` | Empty. |
-| `non_claims` | Refusal does not implement authoring, certify MapGen behavior, certify runtime game behavior, certify verify readiness, or register generated artifacts. |
+| Current project generator | Refuse unsupported project kinds before writes through the D13 scaffold refusal envelope. |
+| Current runtime vocabulary | Stay generic: no MapGen/Civ-specific parser, signal list, authoring DTO, or hidden alternate branch. |
+| Current recovery text | Use supported Habitat structural scaffolds or open a future product-specific authoring topology contract. |
+| Current retry condition | Retry only after future authoring support exists with a topology model, generator write contract, D0 compatibility rows, and executable validation loop. |
+| Current write set | Empty for refused unsupported project kinds. |
+| Future authoring surface | May use D14's blocked-action inventory after a later accepted authoring contract owns the command/API surface. |
 
 ## Future Authoring Topology Acceptance Criteria
 
@@ -180,31 +144,26 @@ A later authoring project may start only when it defines and accepts:
    `habitat classify` over generated diff/paths, owning package `check`, owning
    package `test` where relevant, `habitat:check`, recipe compilation or closest
    current recipe gate, and refusal tests for invalid topology choices.
-7. Non-claims for runtime game behavior, CI/Graphite readiness, and host policy
-   unless those are separately owned and accepted.
+7. Explicit support boundaries for runtime game behavior, CI/Graphite readiness,
+   and host policy unless those are separately owned and accepted.
 
-## Write Set For Later Source Implementation
+## Implementation Write Set
 
-This remediation packet authorizes no source edits. If Phase 3 later implements
-D14/D13 refusal behavior, the allowed write set is limited to:
+This layer records the current refusal fence and keeps product docs aligned with
+the implemented surface. The allowed write set is limited to:
 
-- `$HABITAT_TOOL/src/generators/project/generator.cjs`;
-- `$HABITAT_TOOL/src/generators/project/schema.json` only if D0 rows accept
-  public schema/help wording changes;
-- `$HABITAT_TOOL/test/generators/project-generator.test.ts`;
-- `$HABITAT_TOOL/docs/GAPS.md`;
-- `$HABITAT_TOOL/docs/AUTHORING-NEXT.md`;
 - `$HABITAT_TOOL/docs/SCENARIOS.md`;
 - `$HABITAT_TOOL/docs/IMPLEMENTED-SURFACE.md`;
-- `$D13_CHANGE/**` only for downstream D13 citation/realignment, not redesign;
-- `$D14_CHANGE/**` and D14 scratch/final review records.
+- `$HABITAT_TOOL/docs/CAPABILITIES.md`;
+- `$D0_MATRIX` for documentation or script-name compatibility corrections only;
+- `$D14_CHANGE/**` workstream and spec records.
 
 Protected paths:
 
 - MapGen source under `$REPO_ROOT/mods/**` and `$REPO_ROOT/packages/mapgen-core/**`;
 - active generated artifacts;
 - lockfiles;
-- D8 Pattern Governance implementation;
+- D8 pattern registration implementation;
 - D9 apply transactions;
 - D10 protected-zone implementation;
 - D12 verify implementation;
@@ -229,7 +188,7 @@ Later implementation gates:
 | --- | --- | --- |
 | `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts` | covers supported scaffolds plus unsupported authoring refusals and no-write behavior | Generator unit tests do not prove MapGen authoring support. |
 | Supported uniform project dry-run | exits 0 and lists only supported project shell paths | Does not create recipe/domain/op/stage/step topology. |
-| D13 authoring refusal fixture | request text such as `generate a MapGen recipe with a new domain operation and recipe stage` parses to D13 authoring refusal populated with D14 blocked action, owner, recovery, retry, empty write set, and support boundary | Does not implement future Authoring Topology. |
+| D13 unsupported scaffold fixture | unsupported project kinds refuse before writes with an empty write set and recovery that does not claim authoring support | Does not implement future Authoring Topology. |
 | `bun run habitat classify mods/mod-swooper-maps/src/recipes/standard` | orients existing recipe paths and reports bounded D4 facts | Does not prove authoring readiness. |
 | D13 refusal tests | authoring request cannot route to generic project or pattern scaffold | Does not prove D13 source implementation unless D0 rows and live D13 work exist. |
 
@@ -242,9 +201,9 @@ Later implementation gates:
 - Existing Habitat docs (`GAPS.md`, `AUTHORING-NEXT.md`, `SCENARIOS.md`,
   `IMPLEMENTED-SURFACE.md`) are current-state evidence and later source
   realignment surfaces.
-- Packet index must keep D14 blocking until first-wave findings are repaired,
-  final rereviews pass, and validation records agree. After acceptance, D14 is
-  design/specification only, not implementation-complete.
+- Packet index must keep D14 blocking until findings are repaired, validation
+  records agree, and the current source-neutral boundary is verified. After
+  acceptance, D14 still does not implement MapGen authoring.
 
 ## Non-Claims
 
@@ -252,8 +211,8 @@ Later implementation gates:
 - D14 does not create or authorize MapGen domain/op/stage/step/recipe
   generators.
 - D14 does not make generic Habitat depend on Civ or MapGen authoring semantics.
-- D14 does not make D4 classify, D12 verify, D13 scaffolding, D8 Pattern
-  Governance, G-HOST, or D10 protected-zone facts sufficient for authoring
+- D14 does not make D4 classify, D12 verify, D13 scaffolding, D8 pattern
+  registration, G-HOST, or D10 protected-zone facts sufficient for authoring
   readiness.
 - D14 does not authorize source implementation without concrete D0 rows and the
   live upstream facts named in this packet.
