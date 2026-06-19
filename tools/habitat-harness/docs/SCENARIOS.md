@@ -16,7 +16,7 @@ bun run habitat classify mods/mod-swooper-maps/src/recipes/standard/recipe.ts
 
 Supported outcome:
 
-- owning Nx project is identified;
+- owning workspace project is identified;
 - project root and tags are reported;
 - D2-backed rule-routing facts are reported;
 - graph-backed target guidance is reported;
@@ -71,11 +71,11 @@ bun run check
 
 Supported outcome:
 
-- Nx expands task dependencies from the graph;
+- the workspace graph expands task dependencies;
 - package checks run through owning targets;
 - Habitat checks participate through `habitat:check` where configured.
 
-Use root Nx scripts for review-grade verification.
+Use root graph-owned scripts for review-grade verification.
 
 ### Run Diagnostic Habitat Verify
 
@@ -88,7 +88,7 @@ bun run habitat verify -- --base <ref>
 Supported outcome:
 
 - Habitat check runs first;
-- affected Nx verification runs only if Habitat check passes;
+- affected workspace verification runs only if Habitat check passes;
 - JSON mode can emit a structured verification receipt.
 
 This is useful for local verification receipts, not as a replacement for root
@@ -107,7 +107,7 @@ Supported outcome:
 - canonical root and package name are enforced;
 - package metadata and `kind:*` tag are written;
 - TypeScript config, source stub, test stub, and README are written;
-- Nx can discover the generated project.
+- the workspace graph can discover the generated project.
 
 Not supported by this scenario:
 
@@ -264,7 +264,8 @@ Unsupported outcome:
 
 - generate domain + op + stage + step;
 - wire it into recipe topology;
-- run Habitat, Nx, package tests, and recipe compilation as one accepted product
+- run Habitat, graph verification, package tests, and recipe compilation as one
+  accepted product
   validation.
 
 This is the next major product loop to build.

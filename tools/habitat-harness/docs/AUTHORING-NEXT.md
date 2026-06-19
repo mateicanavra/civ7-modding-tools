@@ -13,8 +13,8 @@ The next product milestone should be validated by an executable loop:
 
 ```text
 Use Habitat to generate a new MapGen domain with one operation, wire it into a
-new or existing recipe stage/step, run the generated structure through Nx,
-Habitat, and recipe compilation, and show the generated code is correct enough
+new or existing recipe stage/step, run the generated structure through Habitat,
+graph verification, and recipe compilation, and show the generated code is correct enough
 for an agent to continue from it without hand-inventing topology.
 ```
 

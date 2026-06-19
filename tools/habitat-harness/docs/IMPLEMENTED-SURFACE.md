@@ -11,14 +11,14 @@ working in this Civ7 codebase:
 - one CLI entrypoint for structural checks and local hook delegation;
 - normalized Habitat diagnostics over heterogeneous tools;
 - shrink-only baseline contracts;
-- graph-owned Nx target integration;
+- graph-owned target integration;
 - project-plane boundary enforcement;
 - formatter hygiene routing;
 - Habitat pattern source-shape checks;
 - guarded Habitat apply transactions for approved codemods;
 - staged file-layer protection for generated/protected zones;
 - classification of paths and diffs into owning projects, rules, and targets;
-- two Nx generators for supported uniform projects and pattern lifecycle
+- two workspace generators for supported uniform projects and pattern lifecycle
   scaffolding.
 
 This is meaningful platform-substrate work. It makes many architecture and
@@ -54,34 +54,33 @@ Implemented command qualities:
   runtime artifacts;
 - command tests cover command argument forwarding and output behavior.
 
-## Nx Graph Ownership
+## Workspace Graph Ownership
 
 Implemented graph integration:
 
-- Habitat inference plugin loaded from `nx.json`;
+- Habitat inference plugin loaded by the workspace graph;
 - inferred aggregate `habitat:check:all` for one-pass full Habitat graph checks;
 - inferred `habitat:check` per rule owner;
 - inferred `habitat:rule:<rule-id>` aliases;
-- inferred repo-wide `boundaries`, `biome:*`, `grit:check`, and
-  `generated:check`;
-- root scripts normalized onto Nx graph entrypoints instead of manual task
+- inferred repo-wide boundary, formatter, pattern, and generated-zone checks;
+- root scripts normalized onto workspace graph entrypoints instead of manual task
   chaining;
 - package-local scripts kept leaf-local where possible.
 
-The key result is that Habitat checks participate in the Nx DAG instead of
+The key result is that Habitat checks participate in the workspace DAG instead of
 living as loose repo scripts.
 
 ## Enforcement Layers
 
 Implemented owner tools:
 
-- `habitat-native`
-- `wrapped-script`
-- `grit-check`
-- `nx-boundaries`
-- `biome`
-- `file-layer`
-- `wrapped-test`
+- native checks
+- wrapped scripts
+- pattern checks
+- project boundaries
+- formatter hygiene
+- file protection
+- wrapped tests
 
 Implemented rule state:
 
