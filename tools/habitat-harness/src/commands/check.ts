@@ -1,6 +1,7 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
 import {
+  checkCommandContext,
   createCheckReport,
   describeRuleSelectionFailure,
   expandBaselines,
@@ -46,7 +47,7 @@ export default class Check extends HabitatCommand {
     const report = await createCheckReport({
       ...selection,
       base: flags.base,
-      commandArgs: this.rawArgv(),
+      command: checkCommandContext(this.rawArgv()),
       staged: flags.staged,
     });
     this.log(renderCheckReport(report, { json: flags.json, output: flags.output }));

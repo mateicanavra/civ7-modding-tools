@@ -3,8 +3,11 @@
 ## Status
 
 D7 is accepted for design/specification after fresh final rereview found no
-unresolved P1/P2 blockers. It is not implementation-complete. All first-wave
-P1/P2 findings were accepted as repair input and repaired in the packet.
+unresolved P1/P2 blockers. The current D7 branch implements the authorized
+check/report source slice; D11/D12 projection consumption, D10 protected-zone
+authority, and the broad enforcement-surface freshness gate remain outside this
+slice. All first-wave P1/P2 findings were accepted as repair input and repaired
+in the packet.
 
 ## Findings
 
@@ -20,7 +23,7 @@ P1/P2 findings were accepted as repair input and repaired in the packet.
 | `CheckReport`, rendering, and exit status were not one truth-preserving contract. | P2 | accepted and repaired | `design.md` defines `CheckOutcome`, `CheckReportConstructionResult`, rendering/exit derivation, and semantic validation; `spec.md` adds contradiction rejection and rendering truth requirements; final TypeScript/validation review accepted with no unresolved P1/P2. |
 | Selector request/result/refusal identity was underspecified. | P2 | accepted and repaired | `design.md` and `spec.md` now define `SelectorRequest`, `RuleSelectionOutcome`, `SelectorRefusal`, and selected-set rules; final domain/ontology and TypeScript/validation reviews accepted with no unresolved P1/P2. |
 | Validation gates were broad and cited invalid current command for `--rule baseline-integrity`. | P2 | accepted and repaired | `design.md`, `proposal.md`, `tasks.md`, and phase record now state `baseline-integrity` is currently a built-in row, not a selectable rule, and require D0/D7 decision before citing a selectable command gate; final validation review accepted with no unresolved P1/P2. |
-| Public compatibility blockers were generic. | P1 | accepted and repaired | `design.md` now lists D7 public-surface inventory with `blocked-pending-d0-row` placeholders and closed D0 handling values; source implementation remains blocked while touched rows are placeholders. |
+| Public compatibility blockers were generic. | P1 | accepted and repaired | `design.md` and `workstream/implementation-start-inventory.md` now cite concrete D0 rows and closed D0 handling values for the D7 source slice; source implementation remains blocked only for surfaces outside that inventory. |
 | D11/D12 consumer contracts were missing. | P1 | accepted and repaired | `design.md`, `spec.md`, and downstream ledger now define `LocalFeedbackCheckProjection` and `VerifyCheckSummaryProjection` contracts; final domain/ontology and cross-domino reviews accepted with no unresolved P1/P2. |
 | Tasks were unresolved design questions. | P2 | accepted and repaired | `tasks.md` now separates packet readiness, prerequisites, characterization, state model, pipeline migration, consumer projections, validation, and downstream closure; final OpenSpec/information review accepted with no unresolved P1/P2. |
 | Workstream ledgers were generic and could not support closure. | P2 | accepted and repaired | Phase record, review ledger, downstream ledger, and closure checklist now record D7-specific state, blockers, validations, and acceptance gates; final OpenSpec/information review accepted with no unresolved P1/P2. |
@@ -38,5 +41,17 @@ P1/P2 across:
 | OpenSpec/information design | `$D7_FINAL_OPENSPEC_INFORMATION_REVIEW` | ACCEPTED; no unresolved P1/P2 |
 | Code/topology and cross-domino sequencing | `$D7_FINAL_TOPOLOGY_CROSS_DOMINO_REVIEW` | ACCEPTED; no unresolved P1/P2 |
 
-Accepted design/specification will not authorize source implementation until the
-source blockers in `phase-record.md` are satisfied.
+Accepted design/specification plus the source-start inventory authorizes the D7
+structural check/report source slice. Protected-zone authority remains blocked
+until D10 lands.
+
+## Source Slice Review Notes
+
+- Live source no longer contains `legacyScopedRule`, `ScopedRule`, or a
+  classify fallback adapter; classify output uses the canonical `RuleRouting`
+  shape with `coverageKind`.
+- The D7 check-report API no longer accepts raw `commandArgs`; Oclif callers
+  pass `CheckCommandContext`, and package default construction uses an empty
+  `habitat check` context.
+- TypeBox schemas in `src/lib/check/schema.ts` are the source of truth for
+  check report DTO validation and derived TypeScript types.
