@@ -2,6 +2,7 @@ import type {
   RuleBaselineFacts,
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
+  RuleGovernanceFacts,
   RuleGritFacts,
   RuleLocalFeedbackFacts,
   RuleRegistryRecordV1,
@@ -21,6 +22,7 @@ type RoutingProjectionInput = Pick<
 >;
 type BaselineProjectionInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath">;
 type GritProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
+type GovernanceProjectionInput = GritProjectionInput & { manifestPath: string };
 type FileLayerProjectionInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
 type CommandProjectionInput = Extract<
   RuleRegistryRecordV1,
@@ -83,6 +85,22 @@ export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGri
       gritPattern: rule.gritPattern,
       scanRoots: [...rule.scanRoots],
       ...(rule.expandIgnoredTestDirectories ? { expandIgnoredTestDirectories: true as const } : {}),
+    }));
+}
+
+export function ruleGovernanceFacts(
+  records: readonly RuleRegistryRecordV1[]
+): RuleGovernanceFacts[] {
+  return records
+    .filter(
+      (rule): rule is GovernanceProjectionInput =>
+        rule.ownerTool === "grit-check" && typeof rule.manifestPath === "string"
+    )
+    .map((rule) => ({
+      id: rule.id,
+      lane: rule.lane,
+      gritPattern: rule.gritPattern,
+      manifestPath: rule.manifestPath,
     }));
 }
 

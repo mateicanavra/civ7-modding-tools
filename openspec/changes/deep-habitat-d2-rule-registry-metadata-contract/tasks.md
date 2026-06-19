@@ -24,8 +24,8 @@
 
 ## 4. Projection Slice
 
-- [ ] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, consumer-specific execution projections (`ruleCommandExecutionFacts`, `ruleGritFacts`, `ruleFileLayerFacts`), `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
-  - Progress: selector/report, command execution, routing, graph, baseline, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Governance remains open and should be added only with its consumer migration.
+- [x] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, consumer-specific execution projections (`ruleCommandExecutionFacts`, `ruleGritFacts`, `ruleFileLayerFacts`), `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
+  - Completed: governance projection emits only manifest-declared Grit registry references and does not model D8 admission, lifecycle acceptance, fixture sufficiency, or baseline authority.
 - [ ] 4.2 Add projection tests that assert each consumer receives only permitted fields.
 - [ ] 4.3 Add whole-row leakage tests or compile-time checks for consumers with D2 projections.
 - [ ] 4.4 Add malformed projection tests for identity, routing, graph, baseline, Grit, generated-zone, governance, and local-feedback failures.

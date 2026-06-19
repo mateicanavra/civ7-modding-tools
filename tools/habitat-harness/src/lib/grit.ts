@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { Effect, Layer } from "effect";
 import type { RuleRunResult } from "../rules/architecture.js";
-import type { RuleGritFacts } from "../rules/registry.js";
+import type { RuleGritFacts } from "../rules/registry/index.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
 import { isGeneratedZoneRoot } from "./generated-zone-catalog.js";

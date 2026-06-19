@@ -13,7 +13,7 @@ import {
   ruleGritFacts,
   ruleLocalFeedbackFacts,
   ruleReportFacts,
-} from "../rules/registry.js";
+} from "../rules/registry/index.js";
 import {
   applyBaseline,
   baselineFailureDiagnostic,
