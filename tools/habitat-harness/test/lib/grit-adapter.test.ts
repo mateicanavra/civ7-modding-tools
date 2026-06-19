@@ -883,13 +883,7 @@ Processed 2 files and found 1 matches
     ]);
   });
 
-  test("renders the D6 diagnostic adapter failure subset without D9 apply tags", () => {
-    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyDirtyWorktree");
-    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyDryRunMismatch");
-    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyUnexpectedFile");
-    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyMissingTargetExport");
-    expect(diagnosticAdapterFailureKinds).not.toContain("GritApplyRollbackFailed");
-
+  test("renders diagnostic adapter failures", () => {
     for (const kind of diagnosticAdapterFailureKinds) {
       expect(renderDiagnosticAdapterFailure(kind, "adapter failure test")).toBe(
         `--- grit adapter failure (${kind}) ---\nadapter failure test`

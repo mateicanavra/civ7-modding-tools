@@ -22,14 +22,21 @@ export {
   PatternAuthoritySourceKindSchema,
   PatternAuthoritySourceSchema,
   PatternAuthorityStateSchema,
+  ApplyPatternPathSchema,
+  ApplyDryRunCommandProjectionSchema,
+  ApplyDryRunOutputModeSchema,
+  ApplyTransactionInputProjectionSchema,
   CandidateHandoffProjectionSchema,
   CandidatePatternAuthorityManifestSchema,
   DiagnosticAdmissionProjectionSchema,
   LocalFeedbackAdmissionProjectionSchema,
   ApplyAdmissionProjectionSchema,
   PatternRecoveryProjectionSchema,
+  RepoRelativePathSchema,
   RegisteredPatternAuthorityManifestSchema,
   type ApplyAdmissionProjection,
+  type ApplyDryRunCommandProjection,
+  type ApplyTransactionInputProjection,
   type CandidateHandoffProjection,
   type CandidatePatternAuthorityManifest,
   type DiagnosticAdmissionProjection,
@@ -63,6 +70,11 @@ export {
   diagnosticAdmittedState,
   localFeedbackAdmittedState,
 } from "./admission.js";
+export {
+  activeApplyTransactionInputs,
+  applyTransactionInputsFromRuleFacts,
+  defaultApplyAdmissions,
+} from "./apply-admissions.js";
 export {
   candidateDraftState,
   candidateUnderReviewState,

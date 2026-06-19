@@ -11,11 +11,6 @@ export const gritAdapterFailureTags = [
   "GritPatternProjectionMiss",
   "GritUnexpectedDiagnosticIdentity",
   "GritCacheProvenanceMissing",
-  "GritApplyDirtyWorktree",
-  "GritApplyDryRunMismatch",
-  "GritApplyUnexpectedFile",
-  "GritApplyMissingTargetExport",
-  "GritApplyRollbackFailed",
   "GritAdapterInternalContractViolation",
 ] as const;
 
@@ -42,11 +37,6 @@ export type GritAdapterFailure =
   | GritPatternProjectionMiss
   | GritUnexpectedDiagnosticIdentity
   | GritCacheProvenanceMissing
-  | GritApplyDirtyWorktree
-  | GritApplyDryRunMismatch
-  | GritApplyUnexpectedFile
-  | GritApplyMissingTargetExport
-  | GritApplyRollbackFailed
   | GritAdapterInternalContractViolation;
 
 export class GritToolUnavailable extends Data.TaggedError("GritToolUnavailable")<{
@@ -81,21 +71,6 @@ export class GritUnexpectedDiagnosticIdentity extends Data.TaggedError(
 )<GritAdapterFailureFields> {}
 export class GritCacheProvenanceMissing extends Data.TaggedError(
   "GritCacheProvenanceMissing"
-)<GritAdapterFailureFields> {}
-export class GritApplyDirtyWorktree extends Data.TaggedError(
-  "GritApplyDirtyWorktree"
-)<GritAdapterFailureFields> {}
-export class GritApplyDryRunMismatch extends Data.TaggedError(
-  "GritApplyDryRunMismatch"
-)<GritAdapterFailureFields> {}
-export class GritApplyUnexpectedFile extends Data.TaggedError(
-  "GritApplyUnexpectedFile"
-)<GritAdapterFailureFields> {}
-export class GritApplyMissingTargetExport extends Data.TaggedError(
-  "GritApplyMissingTargetExport"
-)<GritAdapterFailureFields> {}
-export class GritApplyRollbackFailed extends Data.TaggedError(
-  "GritApplyRollbackFailed"
 )<GritAdapterFailureFields> {}
 export class GritAdapterInternalContractViolation extends Data.TaggedError(
   "GritAdapterInternalContractViolation"
@@ -132,16 +107,6 @@ export function createGritAdapterFailure(
       return new GritUnexpectedDiagnosticIdentity(fields);
     case "GritCacheProvenanceMissing":
       return new GritCacheProvenanceMissing(fields);
-    case "GritApplyDirtyWorktree":
-      return new GritApplyDirtyWorktree(fields);
-    case "GritApplyDryRunMismatch":
-      return new GritApplyDryRunMismatch(fields);
-    case "GritApplyUnexpectedFile":
-      return new GritApplyUnexpectedFile(fields);
-    case "GritApplyMissingTargetExport":
-      return new GritApplyMissingTargetExport(fields);
-    case "GritApplyRollbackFailed":
-      return new GritApplyRollbackFailed(fields);
     case "GritAdapterInternalContractViolation":
       return new GritAdapterInternalContractViolation(fields);
   }

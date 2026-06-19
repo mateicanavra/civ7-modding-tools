@@ -210,10 +210,10 @@ describe("Habitat oclif commands", () => {
     expect(capturedOutput()).toContain("baseline written: demo-rule");
   });
 
-  test("fix forwards dry-run to the hygiene runner", async () => {
+  test("fix forwards dry-run intent to the transaction runner", async () => {
     await Fix.run(["--dry-run"]);
 
-    expect(fix.runFix).toHaveBeenCalledWith({ dryRun: true });
+    expect(fix.runFix).toHaveBeenCalledWith({ kind: "dry-run-intent" });
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
   });

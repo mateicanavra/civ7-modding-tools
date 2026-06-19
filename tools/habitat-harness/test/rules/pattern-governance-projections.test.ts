@@ -1,6 +1,8 @@
+import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import {
   applyAdmissionProjection,
+  applyAdmittedState,
   diagnosticAdmittedState,
   candidateDraftState,
   candidateHandoffProjection,
@@ -11,6 +13,13 @@ import {
   patternRecoveryProjection,
   retiredPatternState,
 } from "../../src/rules/pattern-authority/manifest.js";
+import {
+  ApplyPatternPathSchema,
+  RepoRelativePathSchema,
+  activeApplyTransactionInputs,
+  applyTransactionInputsFromRuleFacts,
+  defaultApplyAdmissions,
+} from "../../src/rules/pattern-governance/index.js";
 
 describe("Pattern Governance projections", () => {
   test("projects candidate drafts as candidate-only handoff state", () => {
@@ -101,6 +110,45 @@ describe("Pattern Governance projections", () => {
     });
     expect(diagnosticAdmissionProjection(state)).toBeUndefined();
     expect(applyAdmissionProjection(state)).toBeUndefined();
+  });
+
+  test("default apply admissions project through D8 admitted state", () => {
+    const admissions = defaultApplyAdmissions();
+    const transactionInputs = activeApplyTransactionInputs();
+
+    expect(admissions.length).toBeGreaterThan(0);
+    for (const admission of admissions) {
+      expect(applyAdmissionProjection(applyAdmittedState(admission))).toEqual(admission);
+      expect(
+        transactionInputs.some(
+          (input) =>
+            input.patternId === admission.patternId &&
+            input.manifestPath === admission.manifestPath &&
+            input.transactionInputRef === admission.transactionInputRef &&
+            input.dryRunCommands.every((command) => command.roots.length > 0)
+        )
+      ).toBe(true);
+    }
+  });
+
+  test("missing rule facts do not synthesize transaction inputs", () => {
+    expect(applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), [])).toEqual([]);
+  });
+
+  test("apply transaction paths stay repo-relative and non-traversing", () => {
+    expect(Value.Check(RepoRelativePathSchema, "mods/mod-swooper-maps/src/maps")).toBe(true);
+    expect(Value.Check(RepoRelativePathSchema, "/tmp/repo")).toBe(false);
+    expect(Value.Check(RepoRelativePathSchema, "C:/Users/me/repo")).toBe(false);
+    expect(Value.Check(RepoRelativePathSchema, "mods/../secrets")).toBe(false);
+    expect(
+      Value.Check(
+        ApplyPatternPathSchema,
+        ".grit/patterns/habitat/apply/deep_import_to_public_surface.md"
+      )
+    ).toBe(true);
+    expect(Value.Check(ApplyPatternPathSchema, ".grit/patterns/habitat/apply/../x.md")).toBe(
+      false
+    );
   });
 });
 
