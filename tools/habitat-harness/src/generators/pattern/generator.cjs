@@ -34,7 +34,6 @@ function normalizeOptions(rawOptions) {
     ownerProject: rawOptions.ownerProject ?? "@internal/habitat-harness",
     openspecChangeId: rawOptions.openspecChangeId ?? "habitat-pattern-generator-metadata-repair",
     manifestPath: rawOptions.manifestPath,
-    hookScope: normalizeHookScope(rawOptions.hookScope),
   };
 }
 
@@ -48,12 +47,6 @@ function normalizeLifecycle(value) {
     throw new Error(`Unsupported pattern lifecycle '${lifecycle}'.`);
   }
   return lifecycle;
-}
-
-function normalizeHookScope(value) {
-  if (value == null || value === "" || value === "none") return undefined;
-  if (value === "pre-commit") return "pre-commit";
-  throw new Error(`Unsupported pattern hookScope '${String(value)}'.`);
 }
 
 async function promoteRegisteredPattern(tree, options) {

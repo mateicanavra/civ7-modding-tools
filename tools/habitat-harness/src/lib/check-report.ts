@@ -1,10 +1,14 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
-import { executeRule, type HarnessRule, rules } from "../rules/architecture.js";
+import { executeRule, type HarnessRule, type RuleRunResult, rules } from "../rules/architecture.js";
 import { renderReport } from "../rules/messages.js";
 import {
+  type RuleCommandExecutionFacts,
+  type RuleFileLayerFacts,
   type RuleLocalFeedbackFacts,
   type RuleReportFacts,
+  ruleCommandExecutionFacts,
+  ruleFileLayerFacts,
   ruleGritFacts,
   ruleLocalFeedbackFacts,
   ruleReportFacts,
@@ -21,6 +25,7 @@ import {
 } from "./baseline.js";
 import type { CheckReport, RuleReport } from "./diagnostics.js";
 import { validateCheckReport } from "./diagnostics.js";
+import { runGeneratedZoneRule } from "./generated-zones.js";
 import { validateScanRoots } from "./grit.js";
 import { repoRoot, toRepoRelative } from "./paths.js";
 import {
@@ -232,20 +237,14 @@ export function stringifyCheckReport(report: CheckReport): string {
 async function executeSelectedRules(
   selectedRules: readonly HarnessRule[],
   options: Pick<CheckOptions, "staged"> = {}
-): Promise<Map<string, { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }>> {
-  const results = new Map<
-    string,
-    { result: Awaited<ReturnType<typeof executeRule>>; durationMs: number }
-  >();
-  const gritRules = selectedRules.filter((rule) => rule.ownerTool === "grit-check");
+): Promise<Map<string, { result: RuleRunResult; durationMs: number }>> {
+  const results = new Map<string, { result: RuleRunResult; durationMs: number }>();
+  const gritRules = ruleGritFacts(selectedRules);
   if (gritRules.length > 0) {
     const { runGritRules } = await import("./grit.js");
     const started = Date.now();
     const scanRoots = options.staged ? stagedGritScanRoots(currentStagedPaths()) : undefined;
-    const gritResults = await runGritRules(
-      ruleGritFacts(gritRules),
-      scanRoots ? { scanRoots } : {}
-    );
+    const gritResults = await runGritRules(gritRules, scanRoots ? { scanRoots } : {});
     const durationMs = Date.now() - started;
     for (const rule of gritRules) {
       const result = gritResults.get(rule.id);
@@ -253,14 +252,33 @@ async function executeSelectedRules(
     }
   }
 
-  for (const rule of selectedRules) {
-    if (rule.ownerTool === "grit-check") continue;
-    const started = Date.now();
-    const result = await executeRule(rule, { staged: options.staged });
-    results.set(rule.id, { result, durationMs: Date.now() - started });
-  }
+  await executeCommandRules(ruleCommandExecutionFacts(selectedRules), results);
+  executeFileLayerRules(ruleFileLayerFacts(selectedRules), results, options);
 
   return results;
+}
+
+async function executeCommandRules(
+  commandRules: readonly RuleCommandExecutionFacts[],
+  results: Map<string, { result: RuleRunResult; durationMs: number }>
+): Promise<void> {
+  for (const rule of commandRules) {
+    const started = Date.now();
+    const result = await executeRule(rule);
+    results.set(rule.id, { result, durationMs: Date.now() - started });
+  }
+}
+
+function executeFileLayerRules(
+  fileLayerRules: readonly RuleFileLayerFacts[],
+  results: Map<string, { result: RuleRunResult; durationMs: number }>,
+  options: Pick<CheckOptions, "staged">
+): void {
+  for (const rule of fileLayerRules) {
+    const started = Date.now();
+    const result = runGeneratedZoneRule(rule, { staged: options.staged });
+    results.set(rule.id, { result, durationMs: Date.now() - started });
+  }
 }
 
 function currentStagedPaths(): string[] {

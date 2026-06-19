@@ -47,7 +47,6 @@ function registeredPatternPromotionProgram(input) {
           manifestPath: input.manifestPath,
           ownerTool: "grit-check",
           lane: input.lifecycle === "registered-enforced" ? "enforced" : "advisory",
-          localFeedback: input.hookScope === "pre-commit" ? true : undefined,
         }),
       ],
     });
@@ -120,7 +119,6 @@ function registeredRuleEntry(input, manifest) {
     gritPattern: input.patternName,
     scanRoots: [...manifest.scanRoots.include],
     manifestPath: input.manifestPath,
-    ...(manifest.hookScope.decision === "pre-commit" ? { localFeedback: true } : {}),
   };
 }
 
