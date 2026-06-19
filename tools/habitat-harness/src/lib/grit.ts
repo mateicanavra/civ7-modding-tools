@@ -602,7 +602,7 @@ export function projectGritResults(
   report: GritReport,
   options: GritProjectionOptions = {}
 ): Map<string, RuleRunResult> {
-  const selectedPatterns = new Set(selectedRules.map((rule) => rule.gritPattern ?? rule.id));
+  const selectedPatterns = new Set(selectedRules.map(gritPatternForRule));
   if (options.rejectUnexpectedPatternIdentity) {
     const unexpected = report.results
       .map(resultPatternIdentity)
@@ -623,7 +623,7 @@ export function projectGritResults(
 
   return new Map(
     selectedRules.map((rule) => {
-      const pattern = rule.gritPattern ?? rule.id;
+      const pattern = gritPatternForRule(rule);
       const diagnostics = report.results
         .filter((result) => matchesPattern(result, pattern))
         .map((result) => ({
@@ -852,6 +852,11 @@ function ruleOwnsDocsScope(rule: HarnessRule): boolean {
 
 function ruleUsesDocsApplyDryRun(rule: HarnessRule): boolean {
   return rule.gritPattern === "docs_local_checkout_paths";
+}
+
+function gritPatternForRule(rule: HarnessRule): string {
+  if (rule.ownerTool === "grit-check" && rule.gritPattern) return rule.gritPattern;
+  throw new Error(`Habitat Grit rule ${JSON.stringify(rule.id)} is missing gritPattern metadata.`);
 }
 
 function isDocsScanRoot(scanRoot: string): boolean {
