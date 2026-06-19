@@ -2,7 +2,7 @@
 
 ## State
 
-- Status: accepted for design/specification after final D2 rereview; source implementation is active on the Habitat stack and focused D2 projection/parser/consumer gates pass. Structural adapter-domain enforcement is a Habitat-owned GritQL rule, not a manual architecture test.
+- Status: source implementation submitted as draft PR #1837 after final internal review and repair; focused D2 projection/parser/consumer gates pass. Structural adapter-domain enforcement is a Habitat-owned GritQL rule, not a manual architecture test. External packet approval remains the boundary before D3.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d2-rule-registry-metadata-contract`.
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`.
@@ -14,7 +14,7 @@ Implement the D2 Rule Registry Metadata Contract: a versioned TypeBox-backed reg
 
 ## Current Gate
 
-D2 source implementation is in progress after the D0/D1 implementation-start gates were satisfied. D2 may close only after source, records, validation, and final review agree; D3 must not begin until D2 closure is coherent and accepted.
+D2 source implementation is submitted after the D0/D1 implementation-start gates were satisfied. D3 must not begin until D2 closure is externally approved or an explicit user/authority decision changes the gate.
 
 ## Dependency State
 
