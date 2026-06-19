@@ -1,4 +1,4 @@
-import type { RuleFileLayerFacts } from "../rules/registry.js";
+import type { RuleFileLayerFacts } from "../rules/registry/index.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { generatedZoneById, matchesGeneratedZone } from "./generated-zone-catalog.js";
 import { repoRoot } from "./paths.js";

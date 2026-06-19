@@ -254,6 +254,15 @@ export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema
 ]);
 export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
 
+export const RuleGovernanceFactsSchema = Type.Interface(
+  [Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id", "lane", "gritPattern"])],
+  {
+    manifestPath: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+export type RuleGovernanceFacts = Static<typeof RuleGovernanceFactsSchema>;
+
 export const RuleFileLayerFactsSchema = Type.Union([
   Type.Pick(GeneratedZoneFileLayerRuleRegistryRecordV1Schema, [
     "id",

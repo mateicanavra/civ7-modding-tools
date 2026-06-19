@@ -20,7 +20,7 @@ import {
   type OutputCapture,
 } from "../../src/lib/habitat-process.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import type { RuleGritFacts } from "../../src/rules/registry.js";
+import type { RuleGritFacts } from "../../src/rules/registry/index.js";
 
 describe("Grit check adapter parser and projection", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {

@@ -13,7 +13,7 @@ import {
   type OutputCapture,
 } from "../../src/lib/habitat-process.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import type { RuleGritFacts } from "../../src/rules/registry.js";
+import type { RuleGritFacts } from "../../src/rules/registry/index.js";
 
 const rule = fakeGritRule("grit-adapter-base-standard-import", "adapter_base_standard_import");
 const probePath = "packages/config/src/__habitat_probe__/matching.ts";
