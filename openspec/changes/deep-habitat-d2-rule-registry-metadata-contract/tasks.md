@@ -25,7 +25,7 @@
 ## 4. Projection Slice
 
 - [ ] 4.1 Implement `ruleSelectorFacts`, `ruleReportFacts`, consumer-specific execution projections (`ruleCommandExecutionFacts`, `ruleGritFacts`, `ruleFileLayerFacts`), `ruleRoutingFacts`, `ruleGraphFacts`, `ruleBaselineFacts`, `ruleGovernanceFacts`, and `ruleLocalFeedbackFacts`.
-  - Progress: selector/report, command execution, routing, baseline, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Graph and governance projections remain open and should be added only with their consumer migrations.
+  - Progress: selector/report, command execution, routing, graph, baseline, Grit, file-layer, and local-feedback projections exist because current source consumers use them. Governance remains open and should be added only with its consumer migration.
 - [ ] 4.2 Add projection tests that assert each consumer receives only permitted fields.
 - [ ] 4.3 Add whole-row leakage tests or compile-time checks for consumers with D2 projections.
 - [ ] 4.4 Add malformed projection tests for identity, routing, graph, baseline, Grit, generated-zone, governance, and local-feedback failures.
@@ -35,7 +35,7 @@
 - [x] 5.1 Migrate selector and check report code in `rule-selection.ts` and `check-report.ts` to `ruleSelectorFacts` and `ruleReportFacts`.
 - [x] 5.2 Migrate execution dispatch to consumer-specific command, Grit, and file-layer projections instead of whole registry rows or a synthetic execution DTO.
 - [x] 5.3 Migrate classify routing to `ruleRoutingFacts` and remove prose `scope` parsing as authority.
-- [ ] 5.4 Migrate `plugin.js` to `ruleGraphFacts`, removing independent `OWNER_ROOTS` authority, silent owner skips, and colon-string target parsing.
+- [x] 5.4 Migrate `plugin.js` to `ruleGraphFacts`, removing independent `OWNER_ROOTS` authority, silent owner skips, and colon-string target parsing.
 - [x] 5.5 Migrate baseline consumers to `ruleBaselineFacts` without moving D5-owned shrink/growth/debt decisions into D2.
 - [x] 5.6 Migrate Grit consumers to `ruleGritFacts`, removing missing-pattern fallback to rule id and prose-scope scan inference.
 - [x] 5.6.1 Migrate `tools/habitat-harness/src/lib/grit-injected-probe.ts` to consume `ruleGritFacts` and registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`.

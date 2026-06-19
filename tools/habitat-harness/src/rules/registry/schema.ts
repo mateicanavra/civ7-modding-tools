@@ -87,7 +87,6 @@ export const RuleRoutingFactsSchema = Type.Interface(
 );
 export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
 
-// TODO: I don't know what this is all about, but if we're trying to do direct passthrough to the underlying tools, that's just bad. An owned interface exists to simplify development and devX, not pass through the internal complexity. If this is what we're doing, we need to completely undo this and, again, design from the domain downward and define + specify the exact command hierarchy (fundamentally assumed to be habitat, to the point where habitat doesn't need a "native"); then we build the modules from there. That was always supposed to be the goal. The user should absolutely never care about the command owner. They should know "habitat" and that's it. Nothing more. All other interactions must be the agnostic, abstracted versions that purely compose the habitat domain -- which is the entity/surface
 const DirectCommandOwnerToolSchema = Type.Union([
   Type.Literal("habitat-native"),
   Type.Literal("wrapped-script"),
@@ -103,6 +102,13 @@ const CommandOwnerToolSchema = Type.Union([
 ]);
 const LocalFeedbackSchema = Type.Literal(true);
 const GritScanRootSchema = Type.String({ minLength: 1 });
+const GraphTargetSchema = Type.Object(
+  {
+    project: Type.String({ minLength: 1 }),
+    target: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
 
 const CommandRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
@@ -116,7 +122,7 @@ const WrappedTestRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
     ownerTool: Type.Literal("wrapped-test"),
-    nxTarget: Type.String({ minLength: 1 }),
+    graphTarget: GraphTargetSchema,
   },
   { additionalProperties: false }
 );
@@ -165,6 +171,9 @@ export const RuleRegistryDocumentV1Schema = Type.Object(
   {
     $comment: Type.Optional(Type.String()),
     schemaVersion: Type.Literal(1),
+    ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
+      minProperties: 1,
+    }),
     rules: Type.Array(RuleRegistryRecordV1Schema),
   },
   { additionalProperties: false }
@@ -193,6 +202,35 @@ export const RuleBaselineFactsSchema = Type.Pick(RequiredRuleMetadataSchema, [
   "exceptionPath",
 ]);
 export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;
+
+const RuleGraphOwnerSchema = Type.Object(
+  {
+    ownerRoot: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+export const RuleGraphFactsSchema = Type.Interface(
+  [Type.Pick(RuleIdentitySchema, ["id", "ownerProject"]), RuleGraphOwnerSchema],
+  {
+    alias: Type.Union([
+      Type.Object(
+        {
+          kind: Type.Literal("direct-rule-check"),
+        },
+        { additionalProperties: false }
+      ),
+      Type.Object(
+        {
+          kind: Type.Literal("depends-on"),
+          target: GraphTargetSchema,
+        },
+        { additionalProperties: false }
+      ),
+    ]),
+  },
+  { additionalProperties: false }
+);
+export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
 
 export const RuleCommandExecutionFactsSchema = Type.Interface(
   [

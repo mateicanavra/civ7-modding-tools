@@ -258,9 +258,10 @@ describe("enforcement surface inventory", () => {
   });
 
   test("proves Habitat-owned Nx target inference from the plugin", () => {
-    const projects = inferPluginProjects();
+    const { projects, targetsByRoot } = inferPluginProjects();
 
     expect(Object.keys(projects).sort()).toEqual([
+      "mods/mod-civ7-intelligence-bridge",
       "mods/mod-swooper-maps",
       "packages/civ7-control-orpc",
       "packages/mapgen-core",
@@ -287,6 +288,12 @@ describe("enforcement surface inventory", () => {
         "habitat:rule:arch-test-map-bundle-runtime-imports",
       ])
     );
+    expect(projects["mods/mod-civ7-intelligence-bridge"]).toEqual(
+      expect.arrayContaining([
+        "habitat:check",
+        "habitat:rule:arch-test-intelligence-bridge-bundle-runtime-imports",
+      ])
+    );
     expect(projects["packages/mapgen-core"]).toEqual(
       expect.arrayContaining([
         "habitat:check",
@@ -294,6 +301,19 @@ describe("enforcement surface inventory", () => {
         "habitat:rule:grit-mapgen-core-runtime-civ7",
       ])
     );
+    expect(targetsByRoot["tools/habitat-harness"]?.["habitat:rule:biome-ci"]?.dependsOn).toEqual([
+      { projects: ["@internal/habitat-harness"], target: "biome:ci" },
+    ]);
+    expect(
+      targetsByRoot["mods/mod-civ7-intelligence-bridge"]?.[
+        "habitat:rule:arch-test-intelligence-bridge-bundle-runtime-imports"
+      ]?.dependsOn
+    ).toEqual([
+      {
+        projects: ["mod-civ7-intelligence-bridge"],
+        target: "test:architecture-bundle-runtime-imports",
+      },
+    ]);
   });
 
   test("records disposition for every surviving wrapped rule", () => {
@@ -370,20 +390,30 @@ function ownerToolCounts(): Record<string, number> {
   );
 }
 
-function inferPluginProjects(): Record<string, string[]> {
+type InferredDependency = { projects?: string[]; target: string };
+type InferredTarget = { dependsOn?: InferredDependency[] };
+
+function inferPluginProjects(): {
+  projects: Record<string, string[]>;
+  targetsByRoot: Record<string, Record<string, InferredTarget>>;
+} {
   const [, createNodes] = createNodesV2;
   const result = createNodes(["tools/habitat-harness/src/rules/rules.json"], {}, {});
   const [, data] = result[0] as [
     string,
     {
-      projects: Record<string, { targets: Record<string, unknown> }>;
+      projects: Record<string, { targets: Record<string, InferredTarget> }>;
     },
   ];
-  return Object.fromEntries(
+  const projects = Object.fromEntries(
     Object.entries(data.projects)
       .map(([root, project]) => [root, Object.keys(project.targets).sort()])
       .sort(([left], [right]) => left.localeCompare(right))
   );
+  const targetsByRoot = Object.fromEntries(
+    Object.entries(data.projects).map(([root, project]) => [root, project.targets])
+  );
+  return { projects, targetsByRoot };
 }
 
 function runDirectRule(ruleId: string): {
