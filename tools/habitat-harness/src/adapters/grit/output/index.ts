@@ -83,7 +83,8 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
     const trimmed = candidate.text.trim();
     if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) continue;
     try {
-      return validateGritReport(commandResult, JSON.parse(trimmed) as unknown);
+      const parsed: unknown = JSON.parse(trimmed);
+      return validateGritReport(commandResult, parsed);
     } catch {
       return parseFailure(
         commandResult,

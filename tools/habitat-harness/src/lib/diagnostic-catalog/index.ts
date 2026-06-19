@@ -35,6 +35,17 @@ export type {
   ObservedGritDiagnosticIdentity,
 } from "./identity.js";
 export {
+  DiagnosticConsumerProjectionSchema,
+  DiagnosticFindingProjectionSchema,
+  DiagnosticRunOutcomeSchema,
+  diagnosticConsumerProjectionFromOutcome,
+} from "./outcome.js";
+export type {
+  DiagnosticConsumerProjection,
+  DiagnosticFindingProjection,
+  DiagnosticRunOutcome,
+} from "./outcome.js";
+export {
   DiagnosticScanRootDecisionSchema,
   DiagnosticScanRootRefusalReasonSchema,
   isDiagnosticScanRootDecision,
