@@ -275,8 +275,7 @@ whole rule rows, or full process records.
 ### Requirement: Public Surface Compatibility Blocks Source Implementation
 
 Habitat SHALL NOT start D6 source implementation that changes public or durable
-surfaces until D0 rows exist for every touched surface with closed compatibility
-handling.
+surfaces until D0 rows exist for every touched surface.
 
 #### Scenario: Exported adapter types change
 

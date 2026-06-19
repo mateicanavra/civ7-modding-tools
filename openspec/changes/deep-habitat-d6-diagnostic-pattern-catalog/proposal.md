@@ -53,8 +53,8 @@ substrate limit.
   diagnostic projections, cache/freshness observations, injected diagnostic probe
   outcomes, and consumer projections.
 - Splits D6 diagnostic adapter failures from D9 apply transaction failures.
-- Enumerates D0 public/durable surfaces that block source implementation until
-  concrete compatibility rows exist.
+- Enumerates D0 public/durable surfaces that gate source implementation until
+  concrete rows exist.
 - Defines validation gates for the later implementation slice, including
   current bad cases.
 
@@ -74,7 +74,7 @@ substrate limit.
 
 ## Requires
 
-- D0 accepted design/specification and concrete D0 compatibility rows before any
+- D0 accepted design/specification and concrete D0 rows before any
   D6 source implementation touching public command, JSON, export, message,
   script, docs/example, fixture, or test-facing surfaces.
 - D1 accepted design/specification for command outcome and receipt terminology;
@@ -110,23 +110,22 @@ substrate limit.
 - D6 must not keep D9 apply failures inside diagnostic acquisition/projection
   state.
 - D6 must not consume whole `HarnessRule` rows as its target contract.
-- D6 must not use fallback pattern identity such as `gritPattern ?? ruleId` as a
-  target model.
+- D6 must not use alternate pattern identity such as `gritPattern ?? ruleId` as
+  a target model.
 - D6 must not encode adapter machine state only in human message strings.
 
 ## Consumer Impact
 
 D6 may change future command JSON, human messages, package exports, and docs
-examples when source implementation begins. Every touched surface requires a D0
-row with one of the closed compatibility actions: `preserve`, `version`,
-`facade`, `deprecate`, `refuse`, `document-only`, or `generated-only`.
+examples when source implementation begins. Every newly touched public/durable
+surface requires a concrete D0 row before source edits.
 
 ## Stop Conditions
 
 - A diagnostic catalog entry can be read as Pattern Governance admission.
 - A Grit diagnostic result can be read as apply safety.
 - A command failure or adapter failure can be projected as a structural pass.
-- A missing Grit pattern identity falls back silently to `ruleId`.
+- A missing Grit pattern identity uses `ruleId` as an alternate identity.
 - D6 exposes whole `HarnessRule`, raw `GritReport`, or full
   `HabitatCommandResult` records to downstream consumers without a named bounded
   projection.
