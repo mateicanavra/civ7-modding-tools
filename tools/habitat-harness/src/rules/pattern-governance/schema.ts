@@ -47,6 +47,14 @@ export const PatternAuthorityHookDecisionSchema = Type.Union([
 ]);
 
 const NonEmptyStringSchema = Type.String({ minLength: 1 });
+export const RepoRelativePathSchema = Type.String({
+  minLength: 1,
+  pattern: "^[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*(?:/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*)*$",
+});
+export const ApplyPatternPathSchema = Type.String({
+  minLength: 1,
+  pattern: "^\\.grit/patterns/habitat/apply/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*\\.md$",
+});
 
 export const PatternAuthorityApplySafetySchema = Type.Union([
   Type.Object(
@@ -320,14 +328,44 @@ export const LocalFeedbackAdmissionProjectionSchema = Type.Object(
   { additionalProperties: false }
 );
 
+export const ApplyDryRunOutputModeSchema = Type.Union([
+  Type.Literal("compact"),
+  Type.Literal("standard"),
+]);
+
 export const ApplyAdmissionProjectionSchema = Type.Object(
   {
     kind: Type.Literal("apply-admission"),
     patternId: NonEmptyStringSchema,
-    manifestPath: NonEmptyStringSchema,
+    manifestPath: ApplyPatternPathSchema,
     transactionInputRef: NonEmptyStringSchema,
+    transactionInputRuleIds: Type.Array(NonEmptyStringSchema, { minItems: 1 }),
     protectedZoneRef: Type.Optional(NonEmptyStringSchema),
     hostPolicyRef: Type.Optional(NonEmptyStringSchema),
+    dryRunOutput: ApplyDryRunOutputModeSchema,
+    nonClaims: Type.Array(NonEmptyStringSchema),
+  },
+  { additionalProperties: false }
+);
+
+export const ApplyDryRunCommandProjectionSchema = Type.Object(
+  {
+    kind: Type.Literal("grit-dry-run-command"),
+    commandId: NonEmptyStringSchema,
+    patternPath: ApplyPatternPathSchema,
+    roots: Type.Array(RepoRelativePathSchema, { minItems: 1 }),
+    output: ApplyDryRunOutputModeSchema,
+  },
+  { additionalProperties: false }
+);
+
+export const ApplyTransactionInputProjectionSchema = Type.Object(
+  {
+    kind: Type.Literal("apply-transaction-input"),
+    patternId: NonEmptyStringSchema,
+    manifestPath: ApplyPatternPathSchema,
+    transactionInputRef: NonEmptyStringSchema,
+    dryRunCommands: Type.Array(ApplyDryRunCommandProjectionSchema),
     nonClaims: Type.Array(NonEmptyStringSchema),
   },
   { additionalProperties: false }
@@ -474,6 +512,8 @@ export type LocalFeedbackAdmissionProjection = Static<
   typeof LocalFeedbackAdmissionProjectionSchema
 >;
 export type ApplyAdmissionProjection = Static<typeof ApplyAdmissionProjectionSchema>;
+export type ApplyDryRunCommandProjection = Static<typeof ApplyDryRunCommandProjectionSchema>;
+export type ApplyTransactionInputProjection = Static<typeof ApplyTransactionInputProjectionSchema>;
 export type CandidateHandoffProjection = Static<typeof CandidateHandoffProjectionSchema>;
 export type PatternRecoveryProjection = Static<typeof PatternRecoveryProjectionSchema>;
 export type PatternRetirementDecision = Static<typeof PatternRetirementDecisionSchema>;
