@@ -7,13 +7,14 @@ command-observation trigger protocol for Deep Habitat Phase 2 remediation. This
 change specifies when a consuming packet may ask for shared command-observation
 substrate work, and when D15 remains non-implementing.
 
-## Authority
+## Controlling Inputs
 
 - Current user decision to restart OpenSpec packet preparation from square one.
 - Remediation frame: `$REMEDIATION_FRAME`.
 - Phase 2 packet suite: `$PHASE2_PACKET_DIR`.
 - Root AGENTS.md Graphite/OpenSpec workflow guidance.
-- Domain Design and Information Design skills as mandatory language and artifact gates.
+- Domain Design and Information Design skills as mandatory language and record
+  gates.
 - Current Habitat Toolkit code and tests as present-behavior records only.
 - Source domino packet: `$D15_SOURCE_PACKET`.
 
@@ -35,16 +36,16 @@ explicit trigger before introducing shared command-observation substrate work.
 
 - No unbounded Effect migration.
 - No standalone substrate unless a consuming packet proves necessity.
-- No generic artifact expansion.
+- No generic record expansion.
 
 ## Requires
 
 - D6, D7, D9, D11, or G-HOST identifies a concrete command-observation state
-  that its accepted local DTOs/projections cannot represent.
-- The requesting packet provides the local DTO sufficiency artifact required by
+  that its accepted local DTOs/contracts cannot represent.
+- The requesting packet provides the local DTO sufficiency record required by
   `design.md`, including the attempted local type shape, contradiction fixture,
   required fields, field owners, proposed shared discriminants, D0 compatibility
-  rows, and D1 output-family/non-claim handling for public surfaces.
+  rows, and D1 output-family/support-boundary handling for public surfaces.
 
 ## Enables
 
@@ -61,16 +62,17 @@ explicit trigger before introducing shared command-observation substrate work.
 
 ## Forbidden Owners
 
-- Adjacent dominoes may not redefine Execution Provenance Trigger authority.
+- Adjacent dominoes may not redefine the Command Observation Trigger contract.
 - Current code names may not become target-domain language without this packet
   accepting the term.
-- Implementation agents may not add shims, fallbacks, dual paths, unreported bypass states,
-  optional target shape, or generated-output hand edits.
+- Implementation agents may not add shims, silent alternate paths, dual paths,
+  unreported bypass states, optional target shape, or generated-output hand
+  edits.
 
 ## Consumer Impact
 
 No public impact unless a later triggered packet designs command-observation
-output through concrete D0 compatibility rows and D1 output-family/non-claim
+output through concrete D0 compatibility rows and D1 output-family/support-boundary
 handling.
 
 ## Stop Conditions
