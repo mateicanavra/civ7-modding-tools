@@ -18,8 +18,8 @@ Supported outcome:
 
 - owning Nx project is identified;
 - project root and tags are reported;
-- in-scope Habitat rules are listed;
-- required target commands are reported;
+- D2-backed rule-routing facts are reported;
+- graph-backed target guidance is reported;
 - unavailable target facts are separated from runnable commands.
 
 Use this before touching unfamiliar code.
@@ -36,7 +36,9 @@ Supported outcome:
 
 - each changed path gets a separate classification;
 - workspace-level paths get workspace gates;
-- project-owned paths get project and Habitat gates.
+- project-owned paths get project guidance and Habitat gates;
+- malformed or pathless diffs are refused instead of reported as successful
+  empty classifications.
 
 This supports handoff after broad edits, especially when a patch crosses package
 or mod boundaries.

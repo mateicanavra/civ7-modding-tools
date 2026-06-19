@@ -1,143 +1,131 @@
 import { describe, expect, test } from "vitest";
-import { classifyPath, classifyTarget } from "../../src/lib/classify.js";
-import type { NxProjectMetadataReader } from "../../src/lib/nx-projects.js";
+import {
+  classifyPath,
+  classifyPathResult,
+  classifyTarget,
+  classifyTargetResult,
+  validateClassifyResult,
+} from "../../src/lib/classify.js";
+import type { WorkspaceGraphProjectReader } from "../../src/lib/workspace-graph/index.js";
+import type { WorkspaceProject } from "../../src/lib/workspace-graph/schema.js";
 
-const fixtureNxProjects: NxProjectMetadataReader = {
+const fixtureNxProjects: WorkspaceGraphProjectReader = {
   async readProjects() {
     return [
-      {
-        name: "@civ7/adapter",
-        root: "packages/civ7-adapter",
-        sourceRoot: null,
-        tags: ["kind:adapter"],
-        targets: [{ name: "build" }, { name: "check" }],
-      },
-      {
-        name: "@civ7/config",
-        root: "packages/config",
-        sourceRoot: null,
-        tags: ["kind:foundation"],
-        targets: [{ name: "build" }, { name: "check" }, { name: "test" }],
-      },
-      {
-        name: "mapgen-studio",
-        root: "apps/mapgen-studio",
-        sourceRoot: null,
-        tags: ["kind:app"],
-        targets: [{ name: "check" }, { name: "test" }],
-      },
-      {
-        name: "mod-swooper-maps",
-        root: "mods/mod-swooper-maps",
-        sourceRoot: null,
-        tags: ["kind:mod"],
-        targets: [{ name: "check" }, { name: "test" }],
-      },
-      {
-        name: "@internal/habitat-harness",
-        root: "tools/habitat-harness",
-        sourceRoot: null,
-        tags: ["kind:tooling"],
-        targets: [{ name: "check" }, { name: "test" }],
-      },
-      {
-        name: "@civ7/plugin-graph",
-        root: "packages/plugins/plugin-graph",
-        sourceRoot: null,
-        tags: ["kind:plugin"],
-        targets: [{ name: "check" }, { name: "test" }],
-      },
-      {
-        name: "@civ7/types",
-        root: "packages/civ7-types",
-        sourceRoot: null,
-        tags: ["kind:foundation"],
-        targets: [{ name: "check" }, { name: "test" }],
-      },
-      {
-        name: "@swooper/mapgen-core",
-        root: "packages/mapgen-core",
-        sourceRoot: null,
-        tags: ["kind:foundation"],
-        targets: [{ name: "check" }, { name: "test" }],
-      },
+      project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
+        "biome:ci",
+        "boundaries",
+        "check",
+        "generated:check",
+        "grit:check",
+        "test",
+      ]),
+      project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
+      project("@civ7/config", "packages/config", "kind:foundation", [
+        "build",
+        "check",
+        "test",
+      ]),
+      project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", [
+        "check",
+        "test",
+      ]),
+      project("@civ7/types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
+      project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", [
+        "check",
+        "test",
+        "test:architecture-core-purity",
+      ]),
+      project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
+      project("mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
+        "test:architecture-bundle-runtime-imports",
+      ]),
+      project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
+        "check",
+        "test",
+        "test:architecture-cutover",
+        "test:architecture-ecology-step-imports",
+        "test:architecture-m11-projection-band",
+        "test:architecture-map-bundle-runtime-imports",
+        "test:architecture-rng-authority",
+      ]),
     ];
   },
 };
 
-describe("Habitat classify", () => {
-  test.each([
-    {
-      path: "packages/civ7-adapter/src/index.ts",
-      project: "@civ7/adapter",
-      tag: "kind:adapter",
-      rule: "adapter-boundary",
-    },
-    {
-      path: "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
-      project: "mod-swooper-maps",
-      tag: "kind:mod",
-      rule: "grit-recipe-domain-surface",
-    },
-    {
-      path: "packages/config/src/index.ts",
-      project: "@civ7/config",
-      tag: "kind:foundation",
-      rule: "workspace-entrypoints",
-    },
-    {
-      path: "apps/mapgen-studio/src/main.tsx",
-      project: "mapgen-studio",
-      tag: "kind:app",
-      rule: "grit-studio-recipe-artifacts",
-    },
-    {
-      path: "tools/habitat-harness/src/plugin.js",
-      project: "@internal/habitat-harness",
-      tag: "kind:tooling",
-      rule: "workspace-entrypoints",
-    },
-    {
-      path: "packages/plugins/plugin-graph/src/index.ts",
-      project: "@civ7/plugin-graph",
-      tag: "kind:plugin",
-      rule: "workspace-entrypoints",
-    },
-    {
-      path: "packages/civ7-types/generated/foo.d.ts",
-      project: "@civ7/types",
-      tag: "kind:foundation",
-      rule: "file-layer-civ7-types-generated",
-    },
-  ])("classifies $path with resolved targets", async ({ path, project, tag, rule }) => {
-    const result = await classifyPath(path, { nxProjects: fixtureNxProjects });
-
-    expect(result.project).toBe(project);
-    expect(result.tags).toContain(tag);
-    expect(result.rulesInScope).toContain(rule);
-    expect(result.requiredTargets).toContain(`nx run ${project}:check`);
-    expect(result.requiredTargets).toContain("bun run lint");
-    expect(result.rulesInScope).toEqual(result.scopedRules?.map((scopedRule) => scopedRule.ruleId));
-    expect(result.targets).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          command: `nx run ${project}:check`,
-          owner: "project",
-          project,
-          target: "check",
-          source: { kind: "nx-project-graph", project, target: "check" },
-        }),
-      ])
-    );
-  });
-
-  test("does not emit project targets that Nx metadata does not resolve", async () => {
-    const result = await classifyPath("packages/civ7-adapter/src/index.ts", {
+describe("Habitat classify D4 result model", () => {
+  test("classifies project paths with D2 routing and D3 target guidance", async () => {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
       nxProjects: fixtureNxProjects,
     });
 
-    expect(result.requiredTargets).toContain("nx run @civ7/adapter:check");
-    expect(result.requiredTargets).not.toContain("nx run @civ7/adapter:test");
+    expect(result.state).toBe("project-path");
+    if (result.state !== "project-path") throw new Error("expected project-path");
+    expect(result.owner).toEqual({
+      project: "@internal/habitat-harness",
+      projectRoot: "tools/habitat-harness",
+      tags: ["kind:tooling"],
+    });
+    expect(result.ruleRouting.map((rule) => rule.ruleId)).toContain("workspace-entrypoints");
+    expect(result.runnableTargets).toContainEqual(
+      expect.objectContaining({
+        command: "nx run @internal/habitat-harness:check",
+        source: {
+          kind: "nx-project-graph",
+          project: "@internal/habitat-harness",
+          target: "check",
+        },
+      })
+    );
+    expect(result.runnableTargets).toContainEqual(
+      expect.objectContaining({ command: "bun run lint", owner: "workspace" })
+    );
+    expect(result.runnableTargets).toContainEqual(
+      expect.objectContaining({
+        command: "bun run lint",
+        source: {
+          kind: "workspace-graph",
+          target: "lint",
+          reason: "aggregate target from workspace graph",
+        },
+      })
+    );
+    expect(result.nonClaims).toContain("does-not-run-targets");
+    expect(result.nonClaims).toContain("does-not-prove-rule-correctness");
+    expect(validateClassifyResult(result)).toEqual([]);
+    expect("project" in result).toBe(false);
+    expect("requiredTargets" in result).toBe(false);
+  });
+
+  test("keeps D2 unresolved routing metadata visible without prose scope inference", async () => {
+    const result = await classifyPathResult(
+      "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts",
+      { nxProjects: fixtureNxProjects }
+    );
+
+    expect(result.state).toBe("project-path");
+    if (result.state !== "project-path") throw new Error("expected project-path");
+    expect(result.ruleRouting).toContainEqual(
+      expect.objectContaining({
+        ruleId: "grit-runtime-validation-imports",
+        coverageKind: "unresolved-metadata",
+      })
+    );
+  });
+
+  test("separates unavailable targets from runnable target guidance", async () => {
+    const result = await classifyPathResult("packages/civ7-adapter/src/index.ts", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.state).toBe("project-path");
+    if (result.state !== "project-path") throw new Error("expected project-path");
+    expect(result.runnableTargets.map((target) => target.command)).toContain(
+      "nx run @civ7/adapter:check"
+    );
+    expect(result.runnableTargets.map((target) => target.command)).not.toContain(
+      "nx run @civ7/adapter:test"
+    );
     expect(result.unavailableTargets).toEqual([
       {
         owner: "project",
@@ -148,145 +136,47 @@ describe("Habitat classify", () => {
     ]);
   });
 
-  test("reports exact path scope when rule metadata matches the path", async () => {
-    const result = await classifyPath("mods/mod-swooper-maps/src/recipes/standard/recipe.ts", {
-      nxProjects: fixtureNxProjects,
-    });
-
-    expect(result.scopedRules).toContainEqual(
-      expect.objectContaining({
-        ruleId: "grit-recipe-domain-surface",
-        scope: "exact-path",
-      })
-    );
-  });
-
-  test("reports project-owner scope for owned rules without exact path metadata", async () => {
-    const result = await classifyPath("mods/mod-swooper-maps/src/recipes/standard/recipe.ts", {
-      nxProjects: fixtureNxProjects,
-    });
-
-    expect(result.scopedRules).toContainEqual(
-      expect.objectContaining({
-        ruleId: "normalization-guardrails",
-        scope: "project-owner",
-      })
-    );
-  });
-
-  test("reports workspace gates separately from exact path rules", async () => {
-    const result = await classifyPath("packages/config/src/index.ts", {
-      nxProjects: fixtureNxProjects,
-    });
-
-    expect(result.scopedRules).toContainEqual(
-      expect.objectContaining({
-        ruleId: "workspace-entrypoints",
-        scope: "workspace-gate",
-      })
-    );
-  });
-
-  test("marks Grit rows with insufficient path metadata as unresolved", async () => {
-    const result = await classifyPath(
-      "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts",
+  test("distinguishes intentional workspace paths from unresolved owners", async () => {
+    const workspace = await classifyPathResult("package.json", { nxProjects: fixtureNxProjects });
+    const structuralWorkspace = await classifyPathResult(
+      "openspec/changes/deep-habitat-d4-orientation-routing/tasks.md",
       { nxProjects: fixtureNxProjects }
     );
+    const unresolved = await classifyPathResult("notes/not-yet-created.md", {
+      nxProjects: fixtureNxProjects,
+    });
+    const unknownRoot = await classifyPathResult("whatever.md", {
+      nxProjects: fixtureNxProjects,
+    });
 
-    expect(result.scopedRules).toContainEqual(
-      expect.objectContaining({
-        ruleId: "grit-runtime-validation-imports",
-        scope: "unresolved-metadata",
-      })
+    expect(workspace.state).toBe("workspace-path");
+    if (workspace.state !== "workspace-path") throw new Error("expected workspace-path");
+    expect(workspace.workspaceOwner).toBe("workspace");
+    expect(workspace.runnableTargets).toContainEqual(
+      expect.objectContaining({ command: "bun run lint" })
     );
+    expect(workspace.nonClaims).toContain("does-not-infer-project-owner");
+
+    expect(structuralWorkspace.state).toBe("workspace-path");
+    if (structuralWorkspace.state !== "workspace-path") {
+      throw new Error("expected workspace-path for existing structural root");
+    }
+    expect(structuralWorkspace.workspaceOwner).toBe("workspace");
+
+    expect(unresolved.state).toBe("unresolved-owner");
+    if (unresolved.state !== "unresolved-owner") throw new Error("expected unresolved-owner");
+    expect(unresolved.recoveryInstructions).toHaveLength(1);
+    expect("runnableTargets" in unresolved).toBe(false);
+
+    expect(unknownRoot.state).toBe("unresolved-owner");
+    if (unknownRoot.state !== "unresolved-owner") {
+      throw new Error("expected unresolved-owner for unknown root file");
+    }
+    expect("runnableTargets" in unknownRoot).toBe(false);
   });
 
-  test("does not include exact internal rules for unrelated paths", async () => {
-    const result = await classifyPath("packages/civ7-adapter/src/index.ts", {
-      nxProjects: fixtureNxProjects,
-    });
-
-    expect(result.rulesInScope).not.toContain("grit-studio-recipe-artifacts");
-  });
-
-  test("does not treat unresolved routing metadata as an exact path match", async () => {
-    const result = await classifyPath("packages/civ7-adapter/src/index.ts", {
-      nxProjects: fixtureNxProjects,
-    });
-
-    expect(result.rulesInScope).not.toContain("grit-adapter-base-standard-import");
-    expect(result.scopedRules).not.toContainEqual(
-      expect.objectContaining({
-        ruleId: "grit-adapter-base-standard-import",
-        scope: "exact-path",
-      })
-    );
-  });
-
-  test("reports exact matches from typed path coverage", async () => {
-    const result = await classifyPath("packages/mapgen-core/src/core/index.ts", {
-      nxProjects: fixtureNxProjects,
-    });
-
-    expect(result.scopedRules).toContainEqual(
-      expect.objectContaining({
-        ruleId: "grit-mapgen-core-runtime-civ7",
-        scope: "exact-path",
-      })
-    );
-  });
-
-  test("workspace-level paths report only workspace gates", async () => {
-    const result = await classifyPath("package.json", { nxProjects: fixtureNxProjects });
-
-    expect(result.project).toBeNull();
-    expect(result.requiredTargets).toEqual(["bun run lint"]);
-    expect(result.targets).toEqual([
-      expect.objectContaining({ command: "bun run lint", owner: "workspace", project: null }),
-    ]);
-  });
-
-  test("missing paths are classified by path ownership without filesystem checks", async () => {
-    const projectPath = await classifyPath("packages/config/src/not-yet-created.ts", {
-      nxProjects: fixtureNxProjects,
-    });
-    const workspacePath = await classifyPath("notes/not-yet-created.md", {
-      nxProjects: fixtureNxProjects,
-    });
-
-    expect(projectPath.project).toBe("@civ7/config");
-    expect(projectPath.requiredTargets).toEqual([
-      "nx run @civ7/config:check",
-      "nx run @civ7/config:test",
-      "bun run lint",
-    ]);
-    expect(workspacePath.project).toBeNull();
-    expect(workspacePath.note).toBe("workspace-level path");
-    expect(workspacePath.requiredTargets).toEqual(["bun run lint"]);
-  });
-
-  test("classifies literal diffs by changed path", async () => {
-    const result = await classifyTarget(
-      `diff --git a/packages/config/src/index.ts b/packages/config/src/index.ts
-index 1111111..2222222 100644
---- a/packages/config/src/index.ts
-+++ b/packages/config/src/index.ts
-@@ -1 +1 @@
--export const a = 1;
-+export const a = 2;
-`,
-      { nxProjects: fixtureNxProjects }
-    );
-
-    expect("inputKind" in result && result.inputKind).toBe("diff");
-    if (!("inputKind" in result)) throw new Error("expected diff classification");
-    expect(result.paths).toHaveLength(1);
-    expect(result.paths[0]?.project).toBe("@civ7/config");
-    expect(result.paths[0]?.requiredTargets).toContain("nx run @civ7/config:test");
-  });
-
-  test("classifies multi-path diffs independently and in stable path order", async () => {
-    const result = await classifyTarget(
+  test("classifies multi-path diffs independently and in stable order", async () => {
+    const result = await classifyTargetResult(
       `diff --git a/apps/mapgen-studio/src/main.tsx b/apps/mapgen-studio/src/main.tsx
 index 1111111..2222222 100644
 --- a/apps/mapgen-studio/src/main.tsx
@@ -305,32 +195,183 @@ index 3333333..4444444 100644
       { nxProjects: fixtureNxProjects }
     );
 
-    expect("inputKind" in result && result.inputKind).toBe("diff");
-    if (!("inputKind" in result)) throw new Error("expected diff classification");
+    expect(result.state).toBe("diff");
+    if (result.state !== "diff") throw new Error("expected diff");
     expect(result.paths.map((classification) => classification.path)).toEqual([
       "apps/mapgen-studio/src/main.tsx",
       "packages/plugins/plugin-graph/src/index.ts",
     ]);
-    expect(result.paths.map((classification) => classification.project)).toEqual([
-      "mapgen-studio",
-      "@civ7/plugin-graph",
+    expect(result.paths.map((classification) => classification.state)).toEqual([
+      "project-path",
+      "project-path",
     ]);
-    expect(result.paths[0]?.requiredTargets).toContain("nx run mapgen-studio:test");
-    expect(result.paths[1]?.requiredTargets).toContain("nx run @civ7/plugin-graph:test");
+    const owners = result.paths.map((classification) =>
+      classification.state === "project-path" ? classification.owner.project : null
+    );
+    expect(owners).toEqual(["mapgen-studio", "@civ7/plugin-graph"]);
   });
 
-  test("real Nx graph omits missing adapter test target", async () => {
-    const result = await classifyPath("packages/civ7-adapter/src/index.ts");
+  test("refuses malformed or pathless diff-like input", async () => {
+    const result = await classifyTargetResult("not a diff\njust text", {
+      nxProjects: fixtureNxProjects,
+    });
 
-    expect(result.project).toBe("@civ7/adapter");
-    expect(result.requiredTargets).toContain("nx run @civ7/adapter:check");
-    expect(result.requiredTargets).not.toContain("nx run @civ7/adapter:test");
-    expect(result.unavailableTargets).toContainEqual(
-      expect.objectContaining({
-        project: "@civ7/adapter",
-        target: "test",
-        reason: "missing-nx-target",
-      })
-    );
+    expect(result.state).toBe("malformed-or-pathless-diff");
+    if (result.state !== "malformed-or-pathless-diff") {
+      throw new Error("expected malformed-or-pathless-diff");
+    }
+    expect(result.reason).toBe("no-classifiable-diff-paths");
+    expect(result.recoveryInstructions).toHaveLength(1);
+    expect(result.nonClaims).toContain("does-not-prove-target-availability");
+    expect("paths" in result).toBe(false);
+  });
+
+  test("refuses malformed or pathless diff-like input before reading the graph", async () => {
+    const result = await classifyTargetResult("not a diff\njust text", {
+      nxProjects: {
+        async readProjects() {
+          throw new Error("Nx daemon unavailable");
+        },
+      },
+    });
+
+    expect(result.state).toBe("malformed-or-pathless-diff");
+  });
+
+  test("renders malformed graph metadata as a D3-owned graph-refusal state", async () => {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+      nxProjects: {
+        async readProjects() {
+          return [
+            {
+              name: "",
+              root: "",
+              sourceRoot: null,
+              tags: [],
+              targets: [],
+            },
+          ];
+        },
+      },
+    });
+
+    expect(result.state).toBe("graph-refusal");
+    if (result.state !== "graph-refusal") throw new Error("expected graph-refusal");
+    expect(result.refusal.reason).toBe("malformed-graph-json");
+  });
+
+  test("renders Nx graph read failures as D3-owned graph-refusal states", async () => {
+    const readFailure = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+      nxProjects: {
+        async readProjects() {
+          throw new Error("cannot read project graph");
+        },
+      },
+    });
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+      nxProjects: {
+        async readProjects() {
+          throw new Error("Nx daemon unavailable");
+        },
+      },
+    });
+
+    expect(readFailure.state).toBe("graph-refusal");
+    if (readFailure.state !== "graph-refusal") throw new Error("expected graph-refusal");
+    expect(readFailure.refusal.reason).toBe("nx-read-failure");
+
+    expect(result.state).toBe("graph-refusal");
+    if (result.state !== "graph-refusal") throw new Error("expected graph-refusal");
+    expect(result.refusal).toEqual({
+      kind: "graph-refusal",
+      reason: "nx-daemon-failure",
+      message: "Nx daemon unavailable",
+    });
+    expect(result.nonClaims).toContain("does-not-prove-target-availability");
+  });
+
+  test("renders missing-project graph aliases as graph-refusal states", async () => {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+      nxProjects: {
+        async readProjects() {
+          return [
+            project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"]),
+          ];
+        },
+      },
+    });
+
+    expect(result.state).toBe("graph-refusal");
+    if (result.state !== "graph-refusal") throw new Error("expected graph-refusal");
+    expect(result.refusal.reason).toBe("unresolved-alias-dependency");
+    expect(result.refusal.message).toContain("is not visible");
+    expect(result.runnableTargets).toBeUndefined();
+  });
+
+  test("renders missing-target graph aliases as graph-refusal states", async () => {
+    const result = await classifyPathResult("tools/habitat-harness/src/plugin.js", {
+      nxProjects: {
+        async readProjects() {
+          return [
+            project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
+              "check",
+            ]),
+          ];
+        },
+      },
+    });
+
+    expect(result.state).toBe("graph-refusal");
+    if (result.state !== "graph-refusal") throw new Error("expected graph-refusal");
+    expect(result.refusal.reason).toBe("unresolved-alias-dependency");
+    expect(result.refusal.message).toContain("does not expose target");
+    expect(result.runnableTargets).toBeUndefined();
   });
 });
+
+describe("Habitat classify public API", () => {
+  test("classifyPath returns the owned D4 path model directly", async () => {
+    const result = await classifyPath("tools/habitat-harness/src/plugin.js", {
+      nxProjects: fixtureNxProjects,
+    });
+
+    expect(result.state).toBe("project-path");
+    if (result.state !== "project-path") throw new Error("expected project-path");
+    expect(result.owner.project).toBe("@internal/habitat-harness");
+    expect(result.ruleRouting).toContainEqual(
+      expect.objectContaining({ ruleId: "workspace-entrypoints", coverageKind: "project-owner" })
+    );
+    expect(result.ruleRouting).toContainEqual(
+      expect.objectContaining({ coverageKind: "workspace-gate" })
+    );
+    expect(result.runnableTargets.map((target) => target.command)).toContain(
+      "nx run @internal/habitat-harness:check"
+    );
+  });
+
+  test("classifyTarget returns malformed diff refusal without an old diff wrapper", async () => {
+    const result = await classifyTarget("not a diff\njust text", { nxProjects: fixtureNxProjects });
+
+    expect(result.state).toBe("malformed-or-pathless-diff");
+    if (result.state !== "malformed-or-pathless-diff") {
+      throw new Error("expected malformed-or-pathless-diff");
+    }
+    expect("inputKind" in result).toBe(false);
+    expect("paths" in result).toBe(false);
+  });
+});
+
+function project(
+  name: string,
+  root: string,
+  tag: string,
+  targets: readonly string[]
+): WorkspaceProject {
+  return {
+    name,
+    root,
+    sourceRoot: null,
+    tags: [tag],
+    targets: targets.map((targetName) => ({ name: targetName })),
+  };
+}

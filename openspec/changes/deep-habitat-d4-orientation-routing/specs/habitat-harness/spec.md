@@ -8,7 +8,7 @@ Habitat classify SHALL return a versioned `ClassifyResult` whose top-level
 
 Each `ClassifyResult` SHALL include classify non-claims. A result SHALL NOT
 include runnable project target commands unless those commands are backed by D3
-graph target facts for the current graph read. A result SHALL NOT use D2 legacy
+graph target facts for the current graph read. A result SHALL NOT use old
 `scope` prose as routing authority.
 
 #### Scenario: Project path resolves to an owning project
@@ -25,6 +25,12 @@ graph target facts for the current graph read. A result SHALL NOT use D2 legacy
 - **AND** the result does not include a project owner, project root, project tags, or project-local targets
 - **AND** any workspace target guidance is backed by D3 aggregate/workspace target facts or a D0-cited compatibility surface
 - **AND** the result states that classify did not infer a project owner
+
+#### Scenario: Unknown root path is not automatically workspace-scoped
+- **WHEN** a repo path is neither D3 project-owned nor in the intentional workspace path set
+- **THEN** the result state is `unresolved-owner`
+- **AND** the result includes a recovery instruction
+- **AND** the result includes no runnable target guidance
 
 #### Scenario: Diff contains classified changed paths
 - **WHEN** the input is a valid diff with one or more changed paths
@@ -69,13 +75,14 @@ facts into classify-facing guidance without recreating rule or graph truth.
 #### Scenario: D2 routing metadata is unresolved
 - **WHEN** D2 reports unresolved routing metadata for an otherwise classified path
 - **THEN** D4 preserves the unresolved routing fact in classify output
-- **AND** D4 does not guess applicability from raw legacy `scope` prose
+- **AND** target `ruleRouting` uses D2 coverage terminology rather than `scope`
+- **AND** D4 does not guess applicability from raw `scope` prose
 - **AND** D4 does not silently drop the rule as if no metadata problem exists
 
 #### Scenario: Project path does not parse prose scope as authority
-- **WHEN** a rule registry row contains legacy `scope` prose
-- **THEN** D4 may render compatibility prose only through a D0-cited surface
-- **AND** D4 SHALL use D2 `ruleRoutingFacts` as the route authority
+- **WHEN** a rule registry row contains `scope` prose
+- **THEN** D4 SHALL use D2 `ruleRoutingFacts` as the route authority
+- **AND** D4 does not emit a classify compatibility projection that maps that prose back into a `scope` DTO field
 
 ### Requirement: Diff Orientation Preserves Per-Path States
 
@@ -118,8 +125,8 @@ the classify consequence without owning graph truth.
 ### Requirement: Public Compatibility Is Cited Before Source Edits
 
 Habitat SHALL require concrete D0 `surface_id` rows before D4 implementation
-changes `habitat classify` JSON, human output, `Classification`,
-`DiffClassification`, supporting classify DTO exports, `classifyPath`,
+changes `habitat classify` JSON, human output, old classify DTO exports,
+supporting classify DTO exports, `classifyPath`,
 `classifyTarget`, docs examples, or generated help/manifests. D4 SHALL follow
 each cited row's `compatibility_handling`.
 
@@ -131,7 +138,7 @@ each cited row's `compatibility_handling`.
 #### Scenario: Package export change cites D0 row
 - **WHEN** D4 implementation would change the compatibility shape of a classify package export
 - **THEN** implementation cites the concrete D0 package-export row
-- **AND** existing exports are preserved, facaded, versioned, or deprecated only as D0 records
+- **AND** existing exports are preserved, facaded, versioned, deprecated, or removed only as D0 records
 
 #### Scenario: Missing D0 row blocks source implementation
 - **WHEN** a D4-touched public surface lacks a concrete D0 row

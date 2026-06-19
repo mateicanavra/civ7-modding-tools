@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { Value } from "typebox/value";
 
 const mockReport = vi.hoisted(() => ({
   schemaVersion: 1,
@@ -20,16 +21,37 @@ vi.mock("../../src/lib/check-report.js", () => ({
   renderCheckReport: vi.fn(() => '{"ok":true}'),
 }));
 
-vi.mock("../../src/lib/classify.js", () => ({
-  classifyTarget: vi.fn((target: string) => ({
-    path: target,
-    project: "@internal/habitat-harness",
-    projectRoot: "tools/habitat-harness",
-    tags: ["kind:tooling"],
-    rulesInScope: ["biome-ci"],
-    requiredTargets: ["bun run habitat:check"],
-  })),
-}));
+vi.mock("../../src/lib/classify.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/lib/classify.js")>();
+  return {
+    ...actual,
+    classifyTargetResult: vi.fn((target: string) => ({
+      schemaVersion: 1,
+      state: "project-path",
+      input: target,
+      path: target,
+      owner: {
+        project: "@internal/habitat-harness",
+        projectRoot: "tools/habitat-harness",
+        tags: ["kind:tooling"],
+      },
+      ruleRouting: [
+        {
+          ruleId: "workspace-entrypoints",
+          ownerTool: "habitat-native",
+          ownerProject: "@internal/habitat-harness",
+          coverageKind: "workspace-gate",
+          reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
+        },
+      ],
+      runnableTargets: [],
+      unavailableTargets: [],
+      recoveryInstructions: [],
+      nonClaims: ["does-not-run-targets"],
+    })),
+    stringifyClassifyResult: vi.fn(actual.stringifyClassifyResult),
+  };
+});
 
 vi.mock("../../src/lib/fix.js", () => ({
   runFix: vi.fn(() => ({ exitCode: 0, stdout: "biome ok\n", stderr: "" })),
@@ -220,10 +242,14 @@ describe("Habitat oclif commands", () => {
   test("classify emits ownership JSON", async () => {
     await Classify.run(["tools/habitat-harness/src/commands/check.ts"]);
 
-    const payload = JSON.parse(capturedOutput()) as { project: string; tags: string[] };
-    expect(payload.project).toBe("@internal/habitat-harness");
-    expect(payload.tags).toEqual(["kind:tooling"]);
-    expect(classify.classifyTarget).toHaveBeenCalledWith(
+    const payload: unknown = JSON.parse(capturedOutput());
+    expect(Value.Check(classify.ClassifyResultSchema, payload)).toBe(true);
+    const result = Value.Parse(classify.ClassifyResultSchema, payload);
+    expect(result.state).toBe("project-path");
+    if (result.state !== "project-path") throw new Error("expected project-path");
+    expect(result.owner.project).toBe("@internal/habitat-harness");
+    expect(result.owner.tags).toEqual(["kind:tooling"]);
+    expect(classify.classifyTargetResult).toHaveBeenCalledWith(
       "tools/habitat-harness/src/commands/check.ts"
     );
   });
