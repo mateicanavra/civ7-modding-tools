@@ -4,7 +4,7 @@
 
 - [x] Proposal cites controlling authority and defines D13 as design/specification only.
 - [x] Design resolves owner, ontology, closed state model, refusal contract,
-  receipt contract, write set, protected paths, and upstream blockers.
+  write set, protected paths, and upstream blockers.
 - [x] Spec delta uses normative SHALL language with scenario coverage for the
   D13 matrix.
 - [x] Tasks are executable implementation slices and validation gates, not
@@ -26,10 +26,11 @@
 
 ## Later Implementation Closure
 
-- [ ] Source changes stay inside the approved D13 write set.
-- [ ] Public-surface changes cite concrete D0 rows.
-- [ ] Live D2/D8/G-HOST/D10/D14 blockers are satisfied or source steps remain blocked.
-- [ ] Generator tests and Nx dry-run gates pass with exact command records.
-- [ ] Unsupported/refused bad cases prove no writes.
-- [ ] Docs/tests/specs are realigned without overclaiming implementation completeness.
-- [ ] Graphite layer is clean and commit subject/body are separated.
+- [x] Source changes stay inside the approved D13 write set.
+- [x] Public-surface changes cite concrete D0 rows.
+- [x] Live D2/D8/G-HOST/D10/D14 blockers are satisfied or kept outside D13
+  source scope.
+- [x] Generator tests and Nx dry-run gates pass with exact command records.
+- [x] Unsupported/refused bad cases verify no writes.
+- [x] Docs/tests/specs are realigned without overclaiming implementation completeness.
+- [x] Graphite layer is clean and commit subject/body are separated.

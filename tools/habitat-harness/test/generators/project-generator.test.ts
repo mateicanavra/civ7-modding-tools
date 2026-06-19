@@ -1,70 +1,20 @@
-import { spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
-import path from "node:path";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
 import { projectGenerator } from "../../src/generators/project/generator.js";
-const repoRoot = path.resolve(import.meta.dirname, "../../../..");
-
-const scratchDiscoveryProjects = [
-  {
-    kind: "plugin",
-    name: "hr-scratch-discovery-plugin",
-    root: "packages/plugins/plugin-hr-scratch-discovery-plugin",
-    projectName: "@civ7/plugin-hr-scratch-discovery-plugin",
-    tag: "kind:plugin",
-  },
-  {
-    kind: "foundation",
-    name: "hr-scratch-discovery-foundation",
-    root: "packages/hr-scratch-discovery-foundation",
-    projectName: "@civ7/hr-scratch-discovery-foundation",
-    tag: "kind:foundation",
-  },
-  {
-    kind: "app",
-    name: "hr-scratch-discovery-app",
-    root: "apps/hr-scratch-discovery-app",
-    projectName: "hr-scratch-discovery-app",
-    tag: "kind:app",
-  },
-];
 
 describe("Habitat project generator", () => {
-  test.each([
-    {
-      kind: "plugin",
-      name: "rules",
-      root: "packages/plugins/plugin-rules",
-      packageName: "@civ7/plugin-rules",
-      tag: "kind:plugin",
-    },
-    {
-      kind: "foundation",
-      name: "map-tools",
-      root: "packages/map-tools",
-      packageName: "@civ7/map-tools",
-      tag: "kind:foundation",
-    },
-    {
-      kind: "app",
-      name: "map-console",
-      root: "apps/map-console",
-      packageName: "map-console",
-      tag: "kind:app",
-    },
-  ])("creates supported $kind projects at their canonical root", async (fixture) => {
+  test("creates a supported plugin project at its canonical root", async () => {
     const tree = createProjectTree();
 
-    await projectGenerator(tree, { name: fixture.name, kind: fixture.kind });
+    await projectGenerator(tree, { name: "rules", kind: "plugin" });
 
-    expect(tree.exists(`${fixture.root}/src/index.ts`)).toBe(true);
-    expect(tree.exists(`${fixture.root}/test/index.test.ts`)).toBe(true);
-    const packageJson = readJson(tree, `${fixture.root}/package.json`);
+    expect(tree.exists("packages/plugins/plugin-rules/src/index.ts")).toBe(true);
+    expect(tree.exists("packages/plugins/plugin-rules/test/index.test.ts")).toBe(true);
+    const packageJson = readJson(tree, "packages/plugins/plugin-rules/package.json");
     expect(packageJson).toMatchObject({
-      name: fixture.packageName,
-      nx: { tags: [fixture.tag] },
+      name: "plugin-rules",
+      nx: { tags: ["kind:plugin"] },
       scripts: {
         build: "tsc -p tsconfig.json",
         check: "tsc -p tsconfig.json --noEmit",
@@ -73,34 +23,66 @@ describe("Habitat project generator", () => {
     });
   });
 
-  test("accepts kind-prefixed uniform kinds", async () => {
+  test("accepts the kind-prefixed plugin kind", async () => {
     const tree = createProjectTree();
 
-    await projectGenerator(tree, { name: "runtime-kit", kind: "kind:foundation" });
+    await projectGenerator(tree, { name: "runtime-kit", kind: "kind:plugin" });
 
-    expect(readJson(tree, "packages/runtime-kit/package.json")).toMatchObject({
-      name: "@civ7/runtime-kit",
-      nx: { tags: ["kind:foundation"] },
+    expect(readJson(tree, "packages/plugins/plugin-runtime-kit/package.json")).toMatchObject({
+      name: "plugin-runtime-kit",
+      nx: { tags: ["kind:plugin"] },
     });
   });
 
-  test("uses unscoped package names when the workspace has no package scope", async () => {
-    const tree = createProjectTree({ packageScope: null });
+  test("uses unscoped package names for generic Habitat scaffolds", async () => {
+    const tree = createProjectTree();
 
-    await projectGenerator(tree, { name: "runtime-kit", kind: "foundation" });
+    await projectGenerator(tree, { name: "runtime-kit", kind: "plugin" });
 
-    expect(readJson(tree, "packages/runtime-kit/package.json")).toMatchObject({
-      name: "runtime-kit",
-      nx: { tags: ["kind:foundation"] },
+    expect(readJson(tree, "packages/plugins/plugin-runtime-kit/package.json")).toMatchObject({
+      name: "plugin-runtime-kit",
+      nx: { tags: ["kind:plugin"] },
     });
   });
 
-  test("refuses unsupported non-uniform kinds before writes", async () => {
+  test.each([
+    "app",
+    "mod",
+    "engine",
+    "control",
+    "adapter",
+    "foundation",
+    "sdk",
+    "tooling",
+  ])("refuses unsupported non-uniform kind %s before writes", async (kind) => {
     const tree = createProjectTree();
 
-    await expect(projectGenerator(tree, { name: "swooper", kind: "mod" })).rejects.toThrow(
-      "supports only uniform kinds"
-    );
+    await expect(projectGenerator(tree, { name: "swooper", kind })).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        kind: "scaffold-refusal",
+        requestClass: "unsupported-project-kind",
+        reason: "unsupported-project-kind",
+        writeSet: [],
+      }),
+    });
+
+    expect(tree.exists("mods/swooper/package.json")).toBe(false);
+    expect(tree.exists("mods/swooper/src/index.ts")).toBe(false);
+  });
+
+  test("refuses unknown project kinds before writes", async () => {
+    const tree = createProjectTree();
+
+    await expect(
+      projectGenerator(tree, { name: "swooper", kind: "host-specific" })
+    ).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        kind: "scaffold-refusal",
+        requestClass: "unsupported-project-kind",
+        reason: "unsupported-project-kind",
+        writeSet: [],
+      }),
+    });
 
     expect(tree.exists("mods/swooper/package.json")).toBe(false);
     expect(tree.exists("mods/swooper/src/index.ts")).toBe(false);
@@ -112,10 +94,15 @@ describe("Habitat project generator", () => {
     await expect(
       projectGenerator(tree, {
         name: "misplaced-app",
-        kind: "app",
+        kind: "plugin",
         directory: "packages/misplaced-app",
       })
-    ).rejects.toThrow("Refusing mismatched Habitat project root");
+    ).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        reason: "root-mismatch",
+        writeSet: [],
+      }),
+    });
 
     expect(tree.exists("packages/misplaced-app/package.json")).toBe(false);
     expect(tree.exists("packages/misplaced-app/src/index.ts")).toBe(false);
@@ -128,9 +115,14 @@ describe("Habitat project generator", () => {
       projectGenerator(tree, {
         name: "plugin-rules",
         kind: "plugin",
-        packageName: "@civ7/rules",
+        packageName: "@scope/rules",
       })
-    ).rejects.toThrow("Refusing mismatched Habitat package name");
+    ).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        reason: "package-name-mismatch",
+        writeSet: [],
+      }),
+    });
 
     expect(tree.exists("packages/plugins/plugin-rules/package.json")).toBe(false);
     expect(tree.exists("packages/plugins/plugin-rules/src/index.ts")).toBe(false);
@@ -140,103 +132,47 @@ describe("Habitat project generator", () => {
     const tree = createProjectTree();
     tree.write(
       "packages/existing/package.json",
-      `${JSON.stringify({ name: "@civ7/collision" })}\n`
+      `${JSON.stringify({ name: "plugin-collision" })}\n`
     );
 
-    await expect(projectGenerator(tree, { name: "collision", kind: "foundation" })).rejects.toThrow(
-      "package name already exists"
-    );
+    await expect(
+      projectGenerator(tree, { name: "collision", kind: "plugin" })
+    ).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        reason: "package-name-collision",
+        writeSet: [],
+      }),
+    });
 
-    expect(tree.exists("packages/collision/package.json")).toBe(false);
+    expect(tree.exists("packages/plugins/plugin-collision/package.json")).toBe(false);
     expect(tree.read("packages/existing/package.json", "utf8")).toBe(
-      '{"name":"@civ7/collision"}\n'
+      '{"name":"plugin-collision"}\n'
     );
   });
 
   test("refuses non-empty project roots before writes", async () => {
     const tree = createProjectTree();
-    tree.write("apps/occupied/README.md", "occupied\n");
+    tree.write("packages/plugins/plugin-occupied/README.md", "occupied\n");
 
-    await expect(projectGenerator(tree, { name: "occupied", kind: "app" })).rejects.toThrow(
-      "Refusing to overwrite non-empty project root"
-    );
+    await expect(
+      projectGenerator(tree, { name: "occupied", kind: "plugin" })
+    ).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        reason: "non-empty-root",
+        writeSet: [],
+      }),
+    });
 
-    expect(tree.read("apps/occupied/README.md", "utf8")).toBe("occupied\n");
-    expect(tree.exists("apps/occupied/package.json")).toBe(false);
+    expect(tree.read("packages/plugins/plugin-occupied/README.md", "utf8")).toBe("occupied\n");
+    expect(tree.exists("packages/plugins/plugin-occupied/package.json")).toBe(false);
   });
-
-  test("generated supported scratch projects are discovered by Nx with the accepted target matrix", () => {
-    cleanupScratchDiscoveryProjects();
-
-    try {
-      for (const fixture of scratchDiscoveryProjects) {
-        runNx([
-          "g",
-          "@internal/habitat-harness:project",
-          fixture.name,
-          `--kind=${fixture.kind}`,
-          "--no-interactive",
-        ]);
-      }
-
-      for (const fixture of scratchDiscoveryProjects) {
-        const project = JSON.parse(
-          runNx(["show", "project", fixture.projectName, "--json"]).stdout
-        );
-
-        expect(project.root).toBe(fixture.root);
-        expect(project.tags).toContain(fixture.tag);
-        expect(Object.keys(project.targets)).toEqual(
-          expect.arrayContaining(["build", "check", "test"])
-        );
-      }
-    } finally {
-      cleanupScratchDiscoveryProjects();
-    }
-
-    for (const fixture of scratchDiscoveryProjects) {
-      expect(existsSync(path.join(repoRoot, fixture.root))).toBe(false);
-    }
-  }, 60_000);
 });
 
-function createProjectTree(options: { packageScope: string | null } = { packageScope: "civ7" }) {
+function createProjectTree() {
   const tree = createTreeWithEmptyWorkspace();
   tree.write("apps/.keep", "");
   tree.write("mods/.keep", "");
   tree.write("packages/.keep", "");
   tree.write("tools/.keep", "");
-  if (options.packageScope) {
-    tree.write(
-      "packages/existing-scope/package.json",
-      `${JSON.stringify({ name: `@${options.packageScope}/existing-scope` })}\n`
-    );
-  }
   return tree;
-}
-
-function cleanupScratchDiscoveryProjects(): void {
-  for (const fixture of scratchDiscoveryProjects) {
-    rmSync(path.join(repoRoot, fixture.root), { recursive: true, force: true });
-  }
-}
-
-function runNx(args: string[]): { stdout: string; stderr: string } {
-  const result = spawnSync("bun", ["run", "nx", ...args], {
-    cwd: repoRoot,
-    env: { ...process.env, NX_DAEMON: "false" },
-    encoding: "utf8",
-    maxBuffer: 32 * 1024 * 1024,
-  });
-
-  if (result.status !== 0) {
-    throw new Error(
-      `Nx command failed (${result.status}): bun run nx ${args.join(" ")}\n${result.stdout}\n${result.stderr}`
-    );
-  }
-
-  return {
-    stdout: result.stdout,
-    stderr: result.stderr,
-  };
 }

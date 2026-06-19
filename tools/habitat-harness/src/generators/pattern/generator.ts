@@ -1,43 +1,20 @@
-import { writeJson, type Tree } from "@nx/devkit";
-import { Effect } from "effect";
-import { type Static, Type } from "typebox";
+import { type Tree, writeJson } from "@nx/devkit";
 import { Value } from "typebox/value";
-import { runHabitatEffect } from "../../lib/effect-runtime.js";
-import { parseRuleRegistryText } from "../../rules/registry/load.js";
 import {
-  makeNxTreePatternPromotionStoreLayer,
-  registeredPatternPromotionProgram,
-} from "./registration.js";
+  type RuleRegistryDocumentV1,
+  RuleRegistryDocumentV1Schema,
+} from "../../rules/registry/schema.ts";
+import { throwScaffoldRefusal } from "../scaffolding/refusal.ts";
+import { type ScaffoldRefusal } from "../scaffolding/schema.ts";
+import { candidateArtifactPaths } from "./paths.ts";
+import {
+  type NormalizedPatternGeneratorOptions,
+  NormalizedPatternGeneratorOptionsSchema,
+  type PatternGeneratorOptions,
+  PatternGeneratorOptionsSchema,
+} from "./schema.ts";
 
-const PatternLifecycleSchema = Type.Union([
-  Type.Literal("candidate"),
-  Type.Literal("registered-advisory"),
-  Type.Literal("registered-enforced"),
-]);
-type PatternLifecycle = Static<typeof PatternLifecycleSchema>;
-
-const PatternGeneratorOptionsSchema = Type.Object(
-  {
-    ruleId: Type.String({ minLength: 1 }),
-    ownerProject: Type.Optional(Type.String({ minLength: 1 })),
-    patternName: Type.Optional(Type.String({ minLength: 1 })),
-    lifecycle: Type.Optional(PatternLifecycleSchema),
-    openspecChangeId: Type.Optional(Type.String({ minLength: 1 })),
-    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
-  },
-  { additionalProperties: true }
-);
-type PatternGeneratorOptions = Static<typeof PatternGeneratorOptionsSchema>;
-
-interface NormalizedPatternGeneratorOptions {
-  ruleId: string;
-  patternName: string;
-  lifecycle: PatternLifecycle;
-  identifier: string;
-  ownerProject: string;
-  openspecChangeId: string;
-  manifestPath?: string;
-}
+const rulesPath = "tools/habitat-harness/src/rules/rules.json";
 
 export async function patternGenerator(
   tree: Tree,
@@ -47,34 +24,27 @@ export async function patternGenerator(
   validateNoActiveRegistrationCollision(tree, options);
 
   if (options.lifecycle !== "candidate") {
-    const registeredOptions: NormalizedPatternGeneratorOptions & {
-      lifecycle: "registered-advisory" | "registered-enforced";
-    } = { ...options, lifecycle: options.lifecycle };
-    await promoteRegisteredPattern(tree, registeredOptions);
+    throwScaffoldRefusal(registeredPromotionRefusal({ ...options, lifecycle: options.lifecycle }));
     return;
   }
 
   const candidatePaths = candidateArtifactPaths(options);
   if (tree.exists(candidatePaths.patternPath)) {
-    throw new Error(`Pattern candidate already exists: ${candidatePaths.patternPath}`);
+    throwScaffoldRefusal(candidateCollision(candidatePaths.patternPath));
   }
   if (tree.exists(candidatePaths.manifestPath)) {
-    throw new Error(
-      `Pattern Authority Manifest candidate already exists: ${candidatePaths.manifestPath}`
-    );
+    throwScaffoldRefusal(candidateCollision(candidatePaths.manifestPath));
   }
 
   tree.write(candidatePaths.patternPath, candidatePatternMarkdown(options));
   writeJson(tree, candidatePaths.manifestPath, candidateManifest(options, candidatePaths));
 }
 
-function normalizeOptions(
-  rawOptions: PatternGeneratorOptions
-): NormalizedPatternGeneratorOptions {
+function normalizeOptions(rawOptions: PatternGeneratorOptions): NormalizedPatternGeneratorOptions {
   const parsed = Value.Parse(PatternGeneratorOptionsSchema, rawOptions);
   const ruleId = kebabLike(parsed.ruleId);
   const patternName = snakeLike(parsed.patternName ?? ruleId.replace(/^grit-/, ""));
-  return {
+  return Value.Parse(NormalizedPatternGeneratorOptionsSchema, {
     ruleId,
     patternName,
     lifecycle: parsed.lifecycle ?? "candidate",
@@ -82,23 +52,7 @@ function normalizeOptions(
     ownerProject: parsed.ownerProject ?? "@internal/habitat-harness",
     openspecChangeId: parsed.openspecChangeId ?? "habitat-pattern-generator-metadata-repair",
     manifestPath: parsed.manifestPath,
-  };
-}
-
-async function promoteRegisteredPattern(
-  tree: Tree,
-  options: NormalizedPatternGeneratorOptions & {
-    lifecycle: "registered-advisory" | "registered-enforced";
-  }
-): Promise<void> {
-  const program = registeredPatternPromotionProgram(options).pipe(
-    Effect.provide(makeNxTreePatternPromotionStoreLayer(tree))
-  );
-  try {
-    await runHabitatEffect(program);
-  } catch (error) {
-    throw new Error(error instanceof Error ? error.message : String(error));
-  }
+  });
 }
 
 function validateNoActiveRegistrationCollision(
@@ -107,36 +61,64 @@ function validateNoActiveRegistrationCollision(
 ): void {
   const activePatternPath = `.grit/patterns/habitat/checks/${options.patternName}.md`;
   const baselinePath = `tools/habitat-harness/baselines/${options.ruleId}.json`;
-  const rulesPath = "tools/habitat-harness/src/rules/rules.json";
 
-  if (tree.exists(activePatternPath))
-    throw new Error(`Grit pattern already exists: ${activePatternPath}`);
-  if (options.lifecycle === "candidate" && tree.exists(baselinePath))
-    throw new Error(`Baseline already exists: ${baselinePath}`);
+  if (tree.exists(activePatternPath)) throwScaffoldRefusal(candidateCollision(activePatternPath));
+  if (options.lifecycle === "candidate" && tree.exists(baselinePath)) {
+    throwScaffoldRefusal(candidateCollision(baselinePath));
+  }
 
   const rulesText = tree.read(rulesPath, "utf8");
-  if (rulesText === null) throw new Error(`Habitat rule registry is missing: ${rulesPath}`);
-  const rulesParse = parseRuleRegistryText(rulesText, rulesPath);
-  if (!rulesParse.ok) {
-    throw new Error(
-      `Habitat rule registry is invalid:\n${rulesParse.issues
-        .map((issue) => `- ${issue.path}: ${issue.message}`)
-        .join("\n")}`
-    );
+  if (rulesText === null) {
+    throwScaffoldRefusal({
+      blockedAction: `draft pattern candidate '${options.ruleId}'`,
+      requestClass: "pattern-candidate-draft",
+      reason: "upstream-prerequisite-unavailable",
+      recovery: `Restore ${rulesPath}.`,
+      retryCondition: "Retry after the rule registry can be parsed.",
+    });
   }
-  const rulesJson = rulesParse.document;
-  if (rulesJson.rules.some((rule) => rule.id === options.ruleId)) {
-    throw new Error(`Habitat rule already exists: ${options.ruleId}`);
+  const rulesParse = parseRuleRegistryText(rulesText);
+  if (rulesParse === null) {
+    throwScaffoldRefusal({
+      blockedAction: `draft pattern candidate '${options.ruleId}'`,
+      requestClass: "pattern-candidate-draft",
+      reason: "upstream-prerequisite-unavailable",
+      recovery: `Repair ${rulesPath}.`,
+      retryCondition: "Retry after the rule registry validates.",
+    });
+  }
+  if (rulesParse.rules.some((rule) => rule.id === options.ruleId)) {
+    throwScaffoldRefusal(candidateCollision(`registered rule ${options.ruleId}`));
   }
 }
 
-export function candidateArtifactPaths(
-  options: Pick<NormalizedPatternGeneratorOptions, "ruleId" | "patternName">
-) {
-  const root = "tools/habitat-harness/src/rules/pattern-authority/candidates";
+export { candidateArtifactPaths } from "./paths.ts";
+
+function candidateCollision(pathOrRule: string): Omit<ScaffoldRefusal, "kind" | "writeSet"> {
   return {
-    patternPath: `${root}/${options.patternName}.md`,
-    manifestPath: `${root}/${options.ruleId}.json`,
+    blockedAction: `draft pattern candidate '${pathOrRule}'`,
+    requestClass: "pattern-candidate-draft",
+    reason: "candidate-collision",
+    recovery: `Choose a rule id or pattern name that does not collide with ${pathOrRule}.`,
+    retryCondition: "Retry after choosing a non-colliding candidate identity.",
+  };
+}
+
+function registeredPromotionRefusal(
+  options: NormalizedPatternGeneratorOptions & {
+    lifecycle: "registered-advisory" | "registered-enforced";
+  }
+): Omit<ScaffoldRefusal, "kind" | "writeSet"> {
+  const hasManifest = Boolean(options.manifestPath);
+  return {
+    blockedAction: `register pattern '${options.ruleId}'`,
+    requestClass: "active-pattern-registration",
+    reason: hasManifest ? "registered-manifest-rejected" : "registered-manifest-missing",
+    recovery: hasManifest
+      ? `Pattern registration for '${options.ruleId}' must run through Pattern Governance, not the candidate generator.`
+      : `Pattern registration for '${options.ruleId}' requires an accepted Pattern Authority Manifest and a Pattern Governance promotion surface.`,
+    retryCondition:
+      "Retry after Pattern Governance accepts the required manifest and baseline inputs.",
   };
 }
 
@@ -202,6 +184,14 @@ function titleize(value: unknown): string {
     .split("-")
     .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function parseRuleRegistryText(text: string): RuleRegistryDocumentV1 | null {
+  try {
+    return Value.Parse(RuleRegistryDocumentV1Schema, JSON.parse(text) as unknown);
+  } catch {
+    return null;
+  }
 }
 
 export default patternGenerator;
