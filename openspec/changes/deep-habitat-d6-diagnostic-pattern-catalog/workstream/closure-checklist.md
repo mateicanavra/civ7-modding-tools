@@ -41,14 +41,14 @@
 ## Source Implementation Closure (Later)
 
 - [ ] Concrete D0 rows exist for every touched D6 public/durable surface.
-- [ ] D1 output-family/compatibility decisions are cited where D6 touches command
-  outcomes, limitations, adapter artifacts, or retained compatibility names.
+- [ ] D1 output-family decisions are cited where D6 touches command outcomes,
+  limitations, adapter artifacts, or refusals.
 - [ ] Live D2 `ruleGritFacts` projections exist and D6 source consumes them.
 - [ ] Source changes stay inside the approved D6 write set or the phase record is
   amended before edits.
 - [ ] D6 failure-subset tests prevent `GritApply*` transaction states from
   appearing in diagnostic acquisition/projection/probe outcomes.
-- [ ] Adapter tests cover structured failure projection before compatibility
+- [ ] Adapter tests cover structured failure projection before diagnostic
   rendering.
 - [ ] Scan-root decision tests cover accepted, expanded-test-files, probe-only,
   empty, outside, missing, generated, protected, and unapproved roots.

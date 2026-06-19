@@ -2,13 +2,14 @@
 
 ## State
 
-- Status: accepted for design/specification only after final
-  after-observed-identity rereview found no unresolved P1/P2.
+- Status: accepted for design/specification and unblocked for D6 source
+  implementation inside the D6 implementation-start inventory boundary.
 - Active worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
 - Active branch: `$ACTIVE_REMEDIATION_BRANCH`.
 - Source packet: `$D6_SOURCE_PACKET`.
 - OpenSpec change: `$D6_CHANGE`.
-- Source implementation: not authorized.
+- Source implementation: authorized only for the D6 surfaces enumerated in
+  `workstream/implementation-start-inventory.md`.
 
 ## Objective
 
@@ -27,17 +28,21 @@ final rereview blockers, focused after-repair rereview, the non-empty
 findings-state correction, and the observed-identity correction. Final
 after-observed-identity rereview lanes recorded no unresolved P1/P2 findings.
 
-Design/specification acceptance does not make D6 implementation-complete. Source
-implementation remains blocked until:
+Design/specification acceptance does not make D6 implementation-complete. The
+D6 source-start gate is now satisfied for the surfaces enumerated in
+`workstream/implementation-start-inventory.md`:
 
-- concrete D0 compatibility rows exist for every D6-touched public/durable
-  surface;
-- D1 output-family and compatibility decisions are available wherever D6 touches
-  command outcomes, diagnostics, limitations, or retained proof-shaped
-  compatibility fields;
-- live D2 `ruleGritFacts` projections exist for Grit identity, scan metadata,
-  exclusions, hook eligibility where relevant, and malformed metadata output
-  families.
+- concrete D0 rows exist for D6-touched public/durable surfaces, including
+  Grit registry metadata, registered native Grit check pattern files, and native
+  Grit fixtures;
+- D1 output-family and non-claim decisions are cited for command outcomes,
+  diagnostics, limitations, malformed metadata, and refusals;
+- live D2 projections are cited for Grit identity/scan facts, local-feedback
+  facts, governance references, and malformed metadata output families.
+
+Source implementation must stay inside that inventory boundary and must replace
+obsolete proof-shaped probe fields or alternate identity paths directly rather
+than preserving parallel obsolete surfaces.
 
 ## Current Repair Inputs
 
@@ -72,7 +77,8 @@ implementation remains blocked until:
 | `bun run openspec -- validate deep-habitat-d6-diagnostic-pattern-catalog --strict` | exit 0 | D6 OpenSpec change is structurally valid | Does not prove packet acceptance |
 | `bun run openspec:validate` | exit 0 | Full OpenSpec corpus remains valid | Does not prove runtime behavior |
 | `git diff --check` | exit 0 | Diff hygiene is clean | Does not prove semantic correctness |
-| Final after-observed-identity D6 rereview lanes | exit with no unresolved P1/P2 | Packet accepted for design/specification | Does not authorize source implementation |
+| Final after-observed-identity D6 rereview lanes | exit with no unresolved P1/P2 | Packet accepted for design/specification | Does not make D6 implementation-complete |
+| D6 implementation-start inventory | D0/D1/D2 citations complete for touched surfaces | Source work may begin for enumerated D6 surfaces | Does not make D6 implementation-complete |
 
 ## Later Implementation Validation Matrix
 
@@ -82,7 +88,7 @@ implementation remains blocked until:
 | `bun run --cwd tools/habitat-harness test -- test/lib/grit-injected-probe.test.ts` | Injected probes require fresh observable execution, exact matching probe, outside-scope control, cleanup state, and diagnostic-only validation class. | Control path matching, dirty final status, or missing freshness observation fails. |
 | `bun run --cwd tools/habitat-harness test -- test/grit/grit-patterns.test.ts` | Native Grit fixture results pass and remain distinct from current-tree Habitat diagnostics. | Native fixture success cannot be claimed as current-tree diagnostic cleanliness. |
 | New D6 failure-subset tests | D6 diagnostic acquisition/projection/probe states exclude D9 `GritApply*` tags. | Any apply transaction tag accepted inside D6 fails. |
-| New D2 projection integration tests | D6 consumes live `ruleGritFacts`; missing Grit `patternIdentity` refuses before native command execution. | `gritPattern ?? ruleId` fallback fails. |
+| New D2 projection integration tests | D6 consumes live `ruleGritFacts`; missing Grit `patternIdentity` refuses before native command execution. | Alternate `ruleId` identity lookup fails. |
 | New scan-root decision tests | Every accepted/refused scan-root family is a closed state. | Empty/outside/missing/generated/protected/unapproved/injected-probe roots cannot collapse into generic command failure. |
 | New structured adapter projection tests | Machine failure state is structured before text rendering. | Regex over rendered diagnostic text is not required for downstream machine behavior. |
 | `bun run habitat check --tool grit-check --json` | D0/D1-compatible command JSON exposes diagnostic findings/refusals without adapter failure becoming pass. | New public fields require D0 rows and D1 decisions. |

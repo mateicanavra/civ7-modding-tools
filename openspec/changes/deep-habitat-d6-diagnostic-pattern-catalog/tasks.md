@@ -13,21 +13,31 @@
 
 ## 2. Source Implementation Prerequisites
 
-- [ ] 2.1 Create or cite concrete D0 rows for every D6-touched public/durable
+- [x] 2.1 Create or cite concrete D0 rows for every D6-touched public/durable
   surface listed in `design.md`.
-- [ ] 2.2 Cite D1 output-family decisions for command outcomes, diagnostics,
-  limitations, receipt-shaped compatibility fields, and retained proof-shaped
-  compatibility fields.
-- [ ] 2.3 Confirm live D2 `ruleGritFacts` implementation for Grit identity, scan
-  metadata, exclusions, hook eligibility, and malformed metadata output
+  - Source-start inventory:
+    `workstream/implementation-start-inventory.md`.
+  - Matrix rows include D6 durable rows for `rules.json` Grit metadata,
+    registered native Grit check patterns, and native Grit fixtures.
+- [x] 2.2 Cite D1 output-family decisions for command outcomes, diagnostics,
+  limitations, and refusals.
+  - Source-start inventory cites D1 CheckReport/RuleReport/HabitatDiagnostic,
+    bounded command observation, malformed metadata, and non-claim decisions.
+- [x] 2.3 Confirm live D2 projections for Grit identity, scan metadata,
+  local-feedback facts, governance references, and malformed metadata output
   families.
-- [ ] 2.4 Keep source implementation blocked until 2.1-2.3 are complete.
+  - D6 consumes `RuleGritFacts`; D11-owned local feedback and D8-owned
+    governance remain separate D2 projections.
+- [x] 2.4 Keep source implementation blocked until 2.1-2.3 are complete.
+  - Complete for the source surfaces enumerated in
+    `workstream/implementation-start-inventory.md`; D6 source work may begin
+    only inside that boundary.
 
 ## 3. Later Implementation Slices
 
 - [ ] 3.1 Add D6-owned diagnostic model types in a canonical owner module.
 - [ ] 3.2 Define `DiagnosticCatalogEntry` and consume D2 `ruleGritFacts`; delete
-  target fallback from missing `patternIdentity` to `ruleId`.
+  alternate identity lookup from missing `patternIdentity` to `ruleId`.
 - [ ] 3.3 Define `DiagnosticScanRootDecision` and replace string/null scan-root
   authority with closed accepted/refused decisions.
 - [ ] 3.4 Define `NativeGritCheckRequest` and bounded
@@ -37,21 +47,21 @@
   `DiagnosticCacheObservation`; make injected probes freshness-required by
   type.
 - [ ] 3.6 Split `DiagnosticAdapterFailureKind` from D9 apply transaction
-  failures and keep any broad exported failure type only as a D0-backed
-  compatibility facade.
+  failures; update consumers to the D6 diagnostic failure contract.
 - [ ] 3.7 Replace `GritCheckParseResult` boolean/optional state with closed
   acquisition outcomes.
 - [ ] 3.8 Replace adapter failure message parsing with structured failure
-  projection plus compatibility rendering.
+  projection plus diagnostic rendering.
 - [ ] 3.9 Define `DiagnosticRunOutcome` and project native results only through
   explicit `DiagnosticIdentity`; findings outcomes must carry non-empty
   diagnostic collections.
-- [ ] 3.10 Define `InjectedProbeOutcome`; map retained compatibility
-  `proofClass` fields from `validationClass` only if D0/D1 require them.
+- [ ] 3.10 Define `InjectedProbeOutcome`; replace proof-shaped probe fields in
+  source callers and tests with D6 diagnostic/probe outcome language.
 - [ ] 3.11 Define `DiagnosticConsumerProjection` as a discriminated projection
   derived from `DiagnosticRunOutcome` for D7/D8/D9/D11/D15, with non-empty
   diagnostics on findings projections.
-- [ ] 3.12 Delete or facade compatibility paths according to the D0 matrix.
+- [ ] 3.12 Delete obsolete paths and update imports/callers according to the D0
+  matrix.
 
 ## 4. Later Implementation Validation
 

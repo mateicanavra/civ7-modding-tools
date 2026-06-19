@@ -2,13 +2,14 @@
 
 ## Status
 
-D6 is accepted for design/specification only after final after-observed-identity
+D6 is accepted for design/specification after final after-observed-identity
 rereview found no unresolved P1/P2 blockers across domain/ontology,
 TypeScript/validation, OpenSpec/information, and code/vendor topology lanes. The
 rows below record accepted findings and repair evidence across the full D6
-review sequence. D6 is not implementation-complete; source implementation
-remains blocked behind concrete D0 rows, D1 output-family decisions where
-touched, and live D2 `ruleGritFacts`.
+review sequence. D6 is not implementation-complete. Source implementation is
+unblocked only inside the D6 implementation-start inventory boundary, with D0
+rows, D1 output-family decisions, and live D2 projections cited for touched
+surfaces.
 
 ## Findings
 
@@ -18,19 +19,19 @@ touched, and live D2 `ruleGritFacts`.
 | Global OpenSpec artifact-shape constraints apply to D6 but are not acceptance evidence. | Global constraint | applied | Proposal/design/spec/tasks/control records are expanded; final rereview still required. |
 | Global information-design constraints apply to D6 but are not acceptance evidence. | Global constraint | applied | Packet headings and sections now expose identity, state families, blockers, and consumer projections. |
 | Global validation-design constraints apply to D6 but are not acceptance evidence. | Global constraint | applied | Phase record and tasks now define D6-specific design-time and later implementation validation matrices. |
-| Global cross-domino sequencing constraints apply to D6 but are not acceptance evidence. | Global constraint | applied | D6 remains source-blocked behind D0 rows, D1 decisions where touched, and live D2 `ruleGritFacts`. |
+| Global cross-domino sequencing constraints apply to D6 but are not acceptance evidence. | Global constraint | applied | D6 source-start prerequisites are tracked through D0 rows, D1 decisions where touched, and live D2 projections. |
 | D6 spec did not define diagnostic catalog entry identity or the D6 domain contract. | P1 | accepted, repaired pending rereview | `design.md` now defines identity model and target state models; `spec.md` adds catalog entry, identity, and D2 consumption scenarios. |
-| Missing Grit pattern identity could fall back to `ruleId`. | P1 | accepted, repaired pending rereview | `proposal.md`, `design.md`, `spec.md`, and `tasks.md` forbid fallback identity and require D2 `ruleGritFacts`. |
+| Missing Grit pattern identity could use `ruleId` as an alternate identity. | P1 | accepted, repaired pending rereview | `proposal.md`, `design.md`, `spec.md`, and `tasks.md` forbid alternate identity lookup and require D2 `ruleGritFacts`. |
 | D6 risked absorbing D8 Pattern Governance and D9 Transformation Transaction authority. | P1 | accepted, repaired pending rereview | `proposal.md` and `design.md` define forbidden owners; `downstream-realignment-ledger.md` isolates D8/D9 handoffs. |
 | Diagnostic adapter failures and D9 apply transaction failures were one broad family. | P1 | accepted, repaired pending rereview | `design.md` defines `DiagnosticAdapterFailureKind` and explicitly forbids `GritApply*` states in D6 target outcomes. |
 | D6 had no published downstream consumer projection for D7/D8/D9/D11/D15. | P1 | accepted, repaired pending rereview | `design.md` defines `DiagnosticConsumerProjection`; `spec.md` and downstream ledger define consumer-specific contracts. |
-| Injected probe semantics overclaimed through proof-shaped target language. | P1 | accepted, repaired pending rereview | `design.md` and `spec.md` define `InjectedProbeOutcome` and `validationClass`; retained `proofClass` is compatibility-only behind D0/D1. |
+| Injected probe semantics overclaimed through proof-shaped target language. | P1 | accepted, repaired pending rereview | `design.md` and `spec.md` define `InjectedProbeOutcome` and `validationClass`; D6 implementation must replace proof-shaped source fields directly. |
 | D0 public compatibility blockers were hand-waved. | P1 | accepted, repaired pending rereview | `design.md`, `proposal.md`, `tasks.md`, and phase record enumerate D6 public/durable surface blockers. |
 | D6 depended on D2 facts absent in current code. | P1 | accepted, repaired pending rereview | `proposal.md`, `tasks.md`, and phase record block source implementation until live D2 `ruleGritFacts` exist. |
 | Scan-root decisions were under-modeled. | P2 | accepted, repaired pending rereview | `design.md` and `spec.md` define accepted, expanded, probe-only, and refused scan-root states. |
 | Native Grit command acquisition was not a first-class bounded outcome. | P2 | accepted, repaired pending rereview | `design.md` and `spec.md` define native command request, output contracts, and bounded command observations. |
 | Cache/freshness was optional language instead of state. | P2 | accepted, repaired pending rereview | `design.md` and `spec.md` define cache requirements and observations, including fresh-required probe behavior. |
-| Adapter failure state was encoded in rendered text. | P2 | accepted, repaired pending rereview | `design.md`, `tasks.md`, and phase record require structured adapter projection before compatibility rendering. |
+| Adapter failure state was encoded in rendered text. | P2 | accepted, repaired pending rereview | `design.md`, `tasks.md`, and phase record require structured adapter projection before diagnostic rendering. |
 | Validation gates were incomplete and stale, including absent `test/lib/diagnostics.test.ts`. | P2 | accepted, repaired pending rereview | `tasks.md` and phase record replace stale gates with adapter, injected-probe, native Grit fixture, D2 integration, scan-root, cache, and command gates. |
 | Downstream realignment was generic. | P2 | accepted, repaired pending rereview | Downstream ledger now records owner-specific D7/D8/D9/D11/D15 handoffs and prohibited inferences. |
 | Tasks were placeholder headings rather than semantic implementation slices. | P2 | accepted, repaired pending rereview | `tasks.md` now sequences packet readiness, implementation blockers, semantic source slices, validation, and downstream realignment. |
@@ -53,11 +54,15 @@ touched, and live D2 `ruleGritFacts`.
 | Fresh after-observed-identity TypeScript/validation rereview found no unresolved P1/P2. | Final rereview lane | accepted | `$D6_FINAL_REREVIEW_TYPESCRIPT_VALIDATION_AFTER_OBSERVED_IDENTITY` accepts the observed identity split, non-empty findings states, completed-only parsed acquisition, restored-only probe success, closed command/failure unions, and discriminated consumer projections. |
 | Fresh after-observed-identity OpenSpec/information rereview found no unresolved P1/P2. | Final rereview lane | accepted | `$D6_FINAL_REREVIEW_OPENSPEC_INFORMATION_AFTER_OBSERVED_IDENTITY` accepts D6 for design/specification only and preserves D0/D1/D2 source blockers. |
 | Fresh after-observed-identity code/vendor topology rereview found no unresolved P1/P2. | Final rereview lane | accepted | `$D6_FINAL_REREVIEW_CODE_VENDOR_TOPOLOGY_AFTER_OBSERVED_IDENTITY` accepts D6 for design/specification only and records P3 notes separately. |
-| Final D6 acceptance gate. | Gate | accepted for design/specification only | All four after-observed-identity final lanes record no unresolved P1/P2. D6 remains not implementation-complete and source-blocked behind D0/D1/D2. |
+| Final D6 acceptance gate. | Gate | accepted for design/specification only | All four after-observed-identity final lanes record no unresolved P1/P2. D6 remains not implementation-complete; implementation-start prerequisites are recorded separately below. |
+| Implementation-start prerequisite gate lacked concrete D0/D1/D2 citations for D6 source surfaces. | P1 | accepted, repaired | `workstream/implementation-start-inventory.md` cites D0 rows, D1 output families, and live D2 projections for each D6 surface; `docs/projects/habitat-harness/public-surface-compatibility-matrix.md` adds durable-data rows for Grit registry metadata, native Grit check pattern files, and native Grit fixtures. |
+| D2 prerequisite wording conflated Grit execution, local feedback, and governance facts into `ruleGritFacts`. | P2 | accepted, repaired | Tasks and implementation-start inventory now cite `RuleGritFacts`, `RuleLocalFeedbackFacts`, and `RuleGovernanceFacts` as separate D2 projections with separate downstream owners. |
+| D6 readiness language risked preserving proof-shaped probe fields as target surfaces. | P1 | accepted, repaired | The implementation-start inventory and tasks now require D6 to replace proof-shaped probe fields and update source callers/tests directly. No D6 field-level matrix row is added for the old probe field. |
 
 ## Acceptance Rule
 
 D6 is accepted for design/specification only. It is not implementation-complete.
-Source implementation remains blocked until concrete D0 rows, D1 output-family
-decisions where touched, and live D2 `ruleGritFacts` are available and cited in
-the implementation layer.
+Source implementation may begin only for the surfaces listed in
+`workstream/implementation-start-inventory.md`; D6 closure still requires source
+implementation, validation, review repair, downstream realignment, and Graphite
+closure.
