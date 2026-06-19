@@ -20,7 +20,7 @@ import {
   type OutputCapture,
 } from "../../src/lib/habitat-process.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import type { HarnessRule } from "../../src/rules/architecture.js";
+import type { RuleGritFacts } from "../../src/rules/registry.js";
 
 describe("Grit check adapter parser and projection", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {
@@ -305,13 +305,13 @@ describe("Grit check adapter parser and projection", () => {
     expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
-  test("activates docs roots only for Grit rules that declare docs scope", () => {
+  test("activates docs roots only for Grit rules that declare docs scan roots", () => {
     const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
-      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+      scanRoots: ["mods/mod-swooper-maps/src/maps"],
     });
     const docsRule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
 
     expect(discoverGritScanRoots([sourceRule])).not.toContain("docs");
@@ -328,7 +328,7 @@ describe("Grit check adapter parser and projection", () => {
   test("projects selected docs local-path findings from Grit rewrite dry-run output", async () => {
     const rule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
     let observedRequest: HabitatProcessRequest | undefined;
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
@@ -372,7 +372,7 @@ Processed 1 files and found 1 matches
   test("ignores docs dry-run files with host paths but no rewrite hunk", async () => {
     const rule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
     const fakeLayer = makeFakeHabitatProcessLayer((request) =>
       makeHabitatCommandResult(request, {
@@ -390,11 +390,17 @@ Processed 1 files and found 1 matches
 
   test("splits mixed source and docs Grit selections by output contract", async () => {
     const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
-      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+      scanRoots: [
+        "packages",
+        "apps/mapgen-studio/src",
+        "mods/mod-swooper-maps/src/recipes",
+        "mods/mod-swooper-maps/src/maps",
+        "mods/mod-swooper-maps/src/domain",
+      ],
     });
     const docsRule = fakeGritRule("docs-local-checkout-paths", "docs_local_checkout_paths", {
       lane: "advisory",
-      scope: "docs/**/*.md",
+      scanRoots: ["docs"],
     });
     const observedRequests: HabitatProcessRequest[] = [];
     const fakeLayer = makeFakeHabitatProcessLayer((request) => {
@@ -508,12 +514,13 @@ Processed 2 files and found 1 matches
     expect(results.get(rule.id)?.diagnostics[0]?.message).toContain("GritCacheProvenanceMissing");
   });
 
-  test("activates ignored test roots only for rules that declare test scope", async () => {
+  test("activates ignored test roots only for rules that declare test expansion", async () => {
     const sourceRule = fakeGritRule("grit-domain-deep-import", "domain_deep_import", {
-      scope: "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+      scanRoots: ["mods/mod-swooper-maps/src/recipes"],
     });
     const testRule = fakeGritRule("grit-domain-deep-import-tests", "domain_deep_import_tests", {
-      scope: "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+      scanRoots: ["packages", "mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/test"],
+      expandIgnoredTestDirectories: true,
     });
 
     expect(discoverGritScanRoots([sourceRule])).not.toContain("mods/mod-swooper-maps/test");
@@ -624,21 +631,14 @@ function output(text: string): OutputCapture {
 function fakeGritRule(
   id: string,
   pattern: string,
-  overrides: Partial<HarnessRule> = {}
-): HarnessRule {
+  overrides: Partial<RuleGritFacts> = {}
+): RuleGritFacts {
   return {
     id,
     gritPattern: pattern,
-    ownerTool: "grit-check",
-    ownerProject: "@internal/habitat-harness",
     lane: "enforced",
-    scope: "test",
-    forbids: "test",
-    why: "test",
-    detect: ["habitat", "check", "--tool", "grit-check"],
-    remediate: null,
     message: "test rule",
-    exceptionPath: "none",
+    scanRoots: ["packages"],
     ...overrides,
   };
 }

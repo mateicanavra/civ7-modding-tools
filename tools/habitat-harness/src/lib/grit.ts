@@ -2,7 +2,8 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, statSync } fro
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Effect, Layer } from "effect";
-import type { HarnessRule, RuleRunResult } from "../rules/architecture.js";
+import type { RuleRunResult } from "../rules/architecture.js";
+import type { RuleGritFacts } from "../rules/registry.js";
 import type { HabitatDiagnostic } from "./diagnostics.js";
 import { runHabitatEffect } from "./effect-runtime.js";
 import { generatedZones } from "./generated-zones.js";
@@ -116,7 +117,7 @@ export function resetGritCacheForTests(): void {
   // longer stores a module-level Grit report cache.
 }
 
-export async function runGritRule(rule: HarnessRule): Promise<RuleRunResult> {
+export async function runGritRule(rule: RuleGritFacts): Promise<RuleRunResult> {
   const results = await runGritRules([rule]);
   return (
     results.get(rule.id) ?? infrastructureFailure(rule, "GritAdapterInternalContractViolation")
@@ -124,7 +125,7 @@ export async function runGritRule(rule: HarnessRule): Promise<RuleRunResult> {
 }
 
 export async function runGritRules(
-  selectedRules: readonly HarnessRule[],
+  selectedRules: readonly RuleGritFacts[],
   options: {
     scanRoots?: readonly string[];
     processLayer?: Layer.Layer<HabitatProcess>;
@@ -135,10 +136,10 @@ export async function runGritRules(
   } = {}
 ): Promise<Map<string, RuleRunResult>> {
   if (selectedRules.length === 0) return new Map();
-  const docsRules = selectedRules.filter(ruleOwnsDocsScope);
+  const docsRules = selectedRules.filter(ruleHasDocsScanRoot);
   const docsApplyBackedRules = docsRules.filter(ruleUsesDocsApplyDryRun);
   const docsCheckRules = docsRules.filter((rule) => !ruleUsesDocsApplyDryRun(rule));
-  const sourceRules = selectedRules.filter((rule) => !ruleOwnsDocsScope(rule));
+  const sourceRules = selectedRules.filter((rule) => !ruleHasDocsScanRoot(rule));
   if (docsRules.length > 0 && sourceRules.length > 0) {
     return new Map([
       ...(await runGritRuleGroup(sourceRules, options, "json")),
@@ -155,15 +156,11 @@ export async function runGritRules(
   if (docsApplyBackedRules.length > 0) {
     return runDocsApplyBackedGritRules(docsApplyBackedRules, options);
   }
-  return runGritRuleGroup(
-    selectedRules,
-    options,
-    docsRules.length > 0 ? "text" : "json"
-  );
+  return runGritRuleGroup(selectedRules, options, docsRules.length > 0 ? "text" : "json");
 }
 
 async function runGritRuleGroup(
-  selectedRules: readonly HarnessRule[],
+  selectedRules: readonly RuleGritFacts[],
   options: {
     scanRoots?: readonly string[];
     processLayer?: Layer.Layer<HabitatProcess>;
@@ -180,7 +177,7 @@ async function runGritRuleGroup(
   );
   const emptyRootFailure = validateScanRoots(scanRoots, {
     allowInjectedProbeRoot: options.allowInjectedProbeRoot,
-    allowDocsRoot: selectedRules.some(ruleOwnsDocsScope),
+    allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
   });
   if (emptyRootFailure) {
     return new Map(
@@ -196,7 +193,7 @@ async function runGritRuleGroup(
       cacheMode: options.cacheMode,
       requireObservableCacheStatus: options.requireObservableCacheStatus,
       allowInjectedProbeRoot: options.allowInjectedProbeRoot,
-      allowDocsRoot: selectedRules.some(ruleOwnsDocsScope),
+      allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
       outputFormat,
     }).pipe(Effect.provide(options.processLayer ?? HabitatProcessLive))
   );
@@ -213,7 +210,7 @@ async function runGritRuleGroup(
 }
 
 async function runDocsApplyBackedGritRules(
-  selectedRules: readonly HarnessRule[],
+  selectedRules: readonly RuleGritFacts[],
   options: {
     scanRoots?: readonly string[];
     processLayer?: Layer.Layer<HabitatProcess>;
@@ -346,11 +343,11 @@ function parseGritApplyDryRunPaths(stdout: string): string[] {
 }
 
 function selectedScanRootsForRules(
-  selectedRules: readonly HarnessRule[],
+  selectedRules: readonly RuleGritFacts[],
   scanRoots: readonly string[] | undefined
 ): string[] {
   if (!scanRoots) return discoverGritScanRoots(selectedRules);
-  const wantsDocs = selectedRules.some(ruleOwnsDocsScope);
+  const wantsDocs = selectedRules.some(ruleHasDocsScanRoot);
   return scanRoots.filter((scanRoot) =>
     wantsDocs ? isDocsScanRoot(scanRoot) : !isDocsScanRoot(scanRoot)
   );
@@ -467,7 +464,9 @@ function acquireGritCheckCacheDir() {
   );
 }
 
-export function parseGritCheckTextOutput(commandResult: HabitatCommandResult): GritCheckParseResult {
+export function parseGritCheckTextOutput(
+  commandResult: HabitatCommandResult
+): GritCheckParseResult {
   if (commandResult.exit.interrupted) {
     return parseFailure(
       commandResult,
@@ -598,11 +597,11 @@ export function parseGritCheckOutput(commandResult: HabitatCommandResult): GritC
 }
 
 export function projectGritResults(
-  selectedRules: readonly HarnessRule[],
+  selectedRules: readonly RuleGritFacts[],
   report: GritReport,
   options: GritProjectionOptions = {}
 ): Map<string, RuleRunResult> {
-  const selectedPatterns = new Set(selectedRules.map(gritPatternForRule));
+  const selectedPatterns = new Set(selectedRules.map((rule) => rule.gritPattern));
   if (options.rejectUnexpectedPatternIdentity) {
     const unexpected = report.results
       .map(resultPatternIdentity)
@@ -623,7 +622,7 @@ export function projectGritResults(
 
   return new Map(
     selectedRules.map((rule) => {
-      const pattern = gritPatternForRule(rule);
+      const pattern = rule.gritPattern;
       const diagnostics = report.results
         .filter((result) => matchesPattern(result, pattern))
         .map((result) => ({
@@ -649,22 +648,24 @@ export function projectGritResults(
   );
 }
 
-export function discoverGritScanRoots(selectedRules: readonly HarnessRule[] = []): string[] {
+export function discoverGritScanRoots(selectedRules: readonly RuleGritFacts[] = []): string[] {
+  const declaredRoots = selectedRules.flatMap(declaredScanRootsForRule);
   const needsSourceRoots =
-    selectedRules.length === 0 || selectedRules.some((rule) => !ruleOwnsDocsScope(rule));
+    selectedRules.length === 0 ||
+    selectedRules.some((rule) => !ruleHasDocsScanRoot(rule) && rule.scanRoots.length === 0);
   const candidates = [
     ...(needsSourceRoots ? gritScanRootCandidates : []),
-    ...(selectedRules.some(ruleOwnsDocsScope) ? discoverDocsGritScanRoots(selectedRules) : []),
-    ...(selectedRules.some(ruleOwnsIgnoredTestScope) ? ignoredTestScanRootCandidates : []),
+    ...declaredRoots,
+    ...(selectedRules.some(ruleIncludesIgnoredTestFiles) ? ignoredTestScanRootCandidates : []),
   ];
   return candidates.filter((scanPath) => existsSync(path.join(repoRoot, scanPath)));
 }
 
 export function effectiveGritScanRoots(
-  selectedRules: readonly HarnessRule[],
+  selectedRules: readonly RuleGritFacts[],
   scanRoots: readonly string[]
 ): string[] {
-  if (!selectedRules.some(ruleOwnsIgnoredTestScope)) return [...scanRoots];
+  if (!selectedRules.some(ruleIncludesIgnoredTestFiles)) return [...scanRoots];
   const exactTestFiles = scanRoots.flatMap(collectIgnoredTestFiles);
   if (exactTestFiles.length === 0) return [...scanRoots];
   return sortedUnique([
@@ -785,7 +786,7 @@ function parseFailure(
 }
 
 function infrastructureFailure(
-  rule: HarnessRule,
+  rule: RuleGritFacts,
   failureTag: GritAdapterFailureTag,
   detail = "Grit adapter failed before producing rule findings."
 ): RuleRunResult {
@@ -846,17 +847,12 @@ function isApprovedScanRoot(
   );
 }
 
-function ruleOwnsDocsScope(rule: HarnessRule): boolean {
-  return rule.scope.includes("docs/");
+function ruleHasDocsScanRoot(rule: RuleGritFacts): boolean {
+  return declaredScanRootsForRule(rule).some(isDocsScanRoot);
 }
 
-function ruleUsesDocsApplyDryRun(rule: HarnessRule): boolean {
+function ruleUsesDocsApplyDryRun(rule: RuleGritFacts): boolean {
   return rule.gritPattern === "docs_local_checkout_paths";
-}
-
-function gritPatternForRule(rule: HarnessRule): string {
-  if (rule.ownerTool === "grit-check" && rule.gritPattern) return rule.gritPattern;
-  throw new Error(`Habitat Grit rule ${JSON.stringify(rule.id)} is missing gritPattern metadata.`);
 }
 
 function isDocsScanRoot(scanRoot: string): boolean {
@@ -866,20 +862,10 @@ function isDocsScanRoot(scanRoot: string): boolean {
   );
 }
 
-function discoverDocsGritScanRoots(selectedRules: readonly HarnessRule[]): string[] {
-  const scopeRoots = selectedRules.flatMap(docsScopeRootsForRule);
-  const roots = scopeRoots.length > 0 ? scopeRoots : docsGritScanRootCandidates;
-  return sortedUnique(roots.flatMap(collectMarkdownScanRoots));
-}
-
-function docsScopeRootsForRule(rule: HarnessRule): string[] {
-  return [...rule.scope.matchAll(/\bdocs\/[^\s,;)]+/g)]
-    .map((match) => match[0])
-    .map((scope) => scope.replace(/\*\*\/\*\.md$/, ""))
-    .map((scope) => scope.replace(/\*\*\/\*$/, ""))
-    .map((scope) => scope.replace(/\*\.md$/, ""))
-    .map((scope) => scope.replace(/\/+$/, ""))
-    .filter((scope) => scope.length > 0);
+function declaredScanRootsForRule(rule: RuleGritFacts): string[] {
+  return rule.scanRoots.flatMap((root) =>
+    isDocsScanRoot(root) ? collectMarkdownScanRoots(root) : root
+  );
 }
 
 function collectMarkdownScanRoots(scanRoot: string): string[] {
@@ -906,8 +892,8 @@ function collectMarkdownFiles(absoluteRoot: string, files: string[]): void {
   }
 }
 
-function ruleOwnsIgnoredTestScope(rule: HarnessRule): boolean {
-  return /(^|[,{]\s*)[^,\s]*\/test\/\*\*/.test(rule.scope) || /\btest\/\*\*/.test(rule.scope);
+function ruleIncludesIgnoredTestFiles(rule: RuleGritFacts): boolean {
+  return rule.expandIgnoredTestDirectories === true;
 }
 
 function collectIgnoredTestFiles(scanRoot: string): string[] {
