@@ -7,6 +7,12 @@ shape, or compatibility lane. **Revised after pre-code review**
 (`output/nw-precode-review.md`); the dispositioned findings (NW-1..NW-16) are
 folded in and tracked in `workstream/review-disposition-ledger.md`.
 
+> **See also:** this file is the *decision* record (why each choice was made).
+> For the *as-built operating model* — the end-to-end pipeline, the requirement-
+> group/suitability model, the odd-R + 4-tile self-orient geometry, the explicit
+> tradeoffs, and the honest known-limitations list — read
+> [`workstream/natural-wonders-system-reference.md`](./workstream/natural-wonders-system-reference.md).
+
 ## 1. Surfaces and owners
 
 | Surface | Owner package/path (kind) | Role in this change |
