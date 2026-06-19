@@ -42,7 +42,7 @@ D2 downstream handoffs are accepted for design/specification after final D2 rere
 
 ## Required Index Alignment
 
-- Keep D2 status as `source implementation active; focused D2 projection/parser gates pass; structural adapter-domain enforcement is covered by a registered GritQL rule; final review/Graphite closure still open`.
+- Keep D2 status as `source implementation submitted as draft PR #1837; focused D2 projection/parser gates pass; structural adapter-domain enforcement is covered by a registered GritQL rule; external packet approval remains open before D3`.
 - D2 source implementation requires concrete D0 matrix rows and D1 malformed-metadata citations; those implementation-start citations now live in `workstream/implementation-start-inventory.md`.
 - G-HOST is not listed as D2-enabled. G-HOST is parallel host-policy work requiring D0 and D1; D10 consumes both D2 and G-HOST.
 - D10 remains the packet where D2 generated-zone facts and G-HOST host-policy declarations meet.
