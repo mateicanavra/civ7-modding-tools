@@ -133,7 +133,7 @@ Variant constraints:
 | --- | --- | --- |
 | `habitat-native` | command execution facts, routing, graph, baseline state | built-in/native rule without an execution/report contract |
 | `wrapped-script` | command execution facts, routing, graph, baseline state | shell rule with missing command metadata |
-| `wrapped-test` | structured `GraphTargetReference`/execution target | wrapped test with missing or colon-parsed `nxTarget` |
+| `wrapped-test` | structured `GraphTargetReference`/execution target | wrapped test with missing `graphTarget` or legacy colon-parsed `nxTarget` |
 | `grit-check` | `GritPatternReference`, scan metadata, governance relation, optional local-feedback eligibility | Grit rule without `gritPattern`, hidden id fallback, global optional `hookScope` |
 | `file-layer` | exactly one of `ProtectedZoneReference` or forbidden-file-name policy | file-layer rule with neither or both generated-zone and file-name policy |
 | `biome` | workspace target execution, graph alias facts | special-case alias outside registry facts |
@@ -147,20 +147,21 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | --- | --- | --- | --- | --- | --- |
 | `id` | all consumers | only string-checked in some paths | target-retained `RuleDefinition.id` | D0 rows if public row shape changes | duplicate, empty, or non-string id fails registry load |
 | `ownerProject` | selector, classify, plugin, reports | conflates maintainer, graph owner, and project root | target-retained `RuleOwner.id`; graph root separately declared | D0 rows for command JSON/export compatibility | unknown owner without graph relation refuses graph projection |
+| `ownerRoots` | plugin, graph projection | owner/root relation lived in plugin code | explicit registry document graph relation table consumed by `ruleGraphFacts` | D0 rows for Nx metadata/export changes | missing owner root fails graph projection |
 | `ownerTool` | selector, execution, graph aliases, hooks | names adapter, not owner | target-retained compatibility discriminant as `ExecutionAdapter` | D0 rows if name/output changes | unknown adapter fails before execution |
 | `lane` | reports, Pattern Authority projection | conflates enforcement disposition and governance lifecycle | target-renamed internally to `enforcementDisposition`; public `lane` compatibility only | D0 rows if output/export changes | unsupported lane fails registry load |
 | `scope` | classify, Grit ignored tests, human docs | prose used as machine authority | compatibility-only prose; replaced by `PathCoverage` and `GritScanFacet` | D0 rows for classify output/docs examples | routing consumer cannot read `scope` |
 | `detect` | execution, reports | command string mixed with registry state | execution/report facet; may be legacy facade | D0 rows for check JSON/report compatibility | command execution variant without command facts fails |
 | `forbids`, `why`, `message`, `remediate` | reports/docs | human prose can leak into authority | report/human-output facts only | D0 rows for human/JSON output | projection rejects these as routing/graph/baseline authority |
-| `exceptionPath` | baseline | sentinel and hidden external exceptions | `BaselineReference` state | D1 check-report/diagnostic family for malformed state | external exception without declared source fails baseline projection |
-| `nxTarget` | plugin, wrapped tests | colon-string graph authority | structured `GraphTargetReference`; compatibility-only input during migration | D0 rows for Nx metadata/export changes | malformed target ref fails graph projection |
+| `exceptionPath` | baseline | sentinel and hidden external exceptions | registry baseline relation currently represented by `exceptionPath` | D1 check-report/diagnostic family for malformed state | missing or empty relation fails registry load |
+| `graphTarget` | plugin, wrapped tests | structured graph authority | `GraphTargetReference` with `{ project, target }` | D0 rows for Nx metadata/export changes | missing/malformed target ref fails graph projection |
 | `gritPattern` | Grit, Pattern Authority | optional on broad row; fallback to id exists | required `GritPatternReference.pattern` for `grit-check` | D1 metadata failure if missing | missing pattern fails before Grit execution |
 | `hookScope` | staged execution, Pattern Authority | global optional field | `LocalFeedbackEligibility` on Grit state | D1/D11 boundary for hook output | hook-eligible non-Grit rule fails registry load |
 | `manifestPath` | Pattern Authority/generator | optional future field; ambiguous manifest term | qualified `PatternAuthorityReference.manifestPath` | D8 owns admission; D1 failure output if contradicted | registered reference without manifest path fails governance projection |
 | `generatedZone` | file-layer, generated-zone table | string link to code table discovered at execution | `ProtectedZoneReference` to G-HOST/D10 declaration | D1 refusal/recovery family for unknown zone | unknown zone refuses before silent pass |
 | `forbiddenFileNames` | file-layer | optional peer to generated zone | file-layer policy variant | D1 diagnostic/refusal family | file-layer with both generated zone and forbidden names fails |
 | `generatedZones` code table | file-layer | zone authority split from registry | downstream-owned declaration consumed by D2 reference | G-HOST/D10 own policy | D2 cannot define protected-zone policy locally |
-| `OWNER_ROOTS` in `plugin.js` | Nx plugin | duplicate graph owner/root authority | replaced by `ruleGraphFacts`/D3 graph truth | D0 rows for Nx target metadata | unknown owner cannot be silently skipped |
+| `OWNER_ROOTS` in `plugin.js` | Nx plugin | duplicate graph owner/root authority | replaced by registry `ownerRoots` plus `ruleGraphFacts` | D0 rows for Nx target metadata | unknown owner cannot be silently skipped |
 
 ## Facet Contract
 
@@ -170,8 +171,8 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | Report | human/report copy only | `forbids`, `why`, `message`, `remediate` | routing/graph/baseline authority | `registry-report-metadata-invalid` | D1/D7 reports |
 | Selector | selector namespace facts | `id`, `ownerProject`, `ownerTool` | `scope`, prose, command strings | `rule-selection-integrity` or unknown selector result | check/classify selectors |
 | PathCoverage | machine applicability | path globs, project-owner, workspace-gate, or explicit unresolved state | raw `scope` as authority | `unresolved-routing-metadata` | classify, D4, D7 |
-| GraphTargetReference | declared graph target metadata | owner project/root relation, alias policy, structured dependency target | `OWNER_ROOTS`, colon parsing | `graph-metadata-contract-failure` | D3, plugin, classify target listing |
-| BaselineReference | registry relation to baseline authority | baseline file/external/no-baseline state, introduction reference where required | file-presence-only admission | baseline contract failure through D5/D1 | D5, D7, D8 |
+| GraphTargetReference | declared graph target metadata | owner project/root relation from `ownerRoots`, alias policy, structured dependency target | `OWNER_ROOTS`, colon parsing | `graph-metadata-contract-failure` | D3, plugin, classify target listing |
+| BaselineReference | registry relation to baseline authority | rule id and registry baseline relation currently represented by `exceptionPath` | D5 state machine, debt lifecycle, manifest admission, file-presence-only admission | baseline contract failure through D5/D1 | D5, D7, D8 |
 | GritPatternReference | Grit pattern and scan metadata | pattern name, scan roots/exclusions | pattern id fallback, Grit prose/frontmatter, local-feedback eligibility | `grit-metadata-contract-failure` | D6, D7, D8 |
 | ProtectedZoneReference | generated/protected-zone or file-name policy relation | zone id plus host declaration link, or forbidden filename policy | local protected-zone policy | `generated-zone-metadata-contract-failure` | G-HOST, D10, D7, D13 |
 | PatternAuthorityReference | registry-to-governance relation | manifest path/status projection when registered | governance admission decision | `pattern-authority-contract-failure` | D8, D13 |
@@ -185,8 +186,8 @@ Raw `scope` is not a target authority field. It may survive only as D0-classifie
 | `ruleReportFacts` | check report, diagnostics, docs examples | id, owner adapter, enforcement disposition, detect/report text | routing, graph, baseline decisions | D1 check report diagnostic/failure | D1, D7 |
 | `ruleCommandExecutionFacts` / `ruleGritFacts` / `ruleFileLayerFacts` | command execution, Grit adapter, file-layer adapter, D7 pipeline | consumer-specific execution facts for command, Grit, and file-layer rules | synthetic execution DTOs, whole rule row, graph-only fields | D1 command outcome/refusal or adapter-specific metadata failure before execution | D7 |
 | `ruleRoutingFacts` | classify, D4 | path coverage state, matched glob/source, unresolved reason | raw `scope` prose, report text | `unresolved-routing-metadata` | D4 |
-| `ruleGraphFacts` | Nx plugin, D3, classify target list | owner/root relation, alias policy, structured dependency target | `OWNER_ROOTS`, `nxTarget` string parsing | `graph-metadata-contract-failure` | D3 |
-| `ruleBaselineFacts` | baseline, D5, D7 | rule id, baseline state, exception source, introduction manifest relation | whole row, file presence alone | D5/D1 baseline contract failure | D5 |
+| `ruleGraphFacts` | Nx plugin, D3, classify target list | ownerProject, ownerRoot, alias policy, structured dependency target | `OWNER_ROOTS`, `nxTarget` string parsing | `graph-metadata-contract-failure` | D3 |
+| `ruleBaselineFacts` | baseline, D5, D7 | rule id, `exceptionPath` relation | whole row, file presence alone, D5 state machine | D5/D1 baseline contract failure | D5 |
 | `ruleGritFacts` | Grit adapter, D6, D8 | pattern name, scan roots, exclusions, manifest reference if registered | pattern id fallback, Grit prose, local feedback eligibility | `grit-metadata-contract-failure` | D6, D8 |
 | `ruleFileLayerFacts` | file-layer, G-HOST, D10, D13 | zone id, host declaration link, forbidden-file policy | generated-zone policy decisions | `generated-zone-metadata-contract-failure` | G-HOST, D10, D13 |
 | `ruleGovernanceFacts` | Pattern Authority, generator, D8, D13 | Pattern Authority reference, lifecycle expectation, accepted-state projection | admission decision, fixture sufficiency | `pattern-authority-contract-failure` | D8, D13 |
@@ -202,9 +203,9 @@ No consumer may receive `RuleRegistryRecord` directly unless D2 amends this matr
 | `ownerProject` | `RuleOwner.id` | retained but narrowed | graph root or downstream authority |
 | `lane` | `enforcementDisposition` | compatibility-only public name unless D0 preserves | Pattern Authority lifecycle |
 | `scope` | `PathCoverage` plus report prose | rejected as target authority | routing, Grit scan, graph, baseline, governance authority |
-| `nxTarget` | `GraphTargetReference` | target-renamed internally; compatibility-only migration input | colon-string graph truth |
+| `nxTarget` | `graphTarget` / `GraphTargetReference` | rejected legacy input | colon-string graph truth |
 | `gritPattern` | `GritPatternReference.pattern` | retained for Grit state | optional fallback to id |
-| `manifestPath` | `PatternAuthorityReference.manifestPath` or `BaselineReference.introductionManifestPath` when qualified | unqualified term rejected | generic manifest authority |
+| `manifestPath` | `PatternAuthorityReference.manifestPath` when qualified | unqualified term rejected | generic manifest authority or D5 baseline admission |
 | `generatedZone` | `ProtectedZoneReference.zoneId` | compatibility-only field name unless D0 preserves | D2-owned protected-zone policy |
 | `hookScope` | `LocalFeedbackEligibility` | target-renamed internally; compatibility-only public name | D11 hook behavior |
 | `file-layer` | `ExecutionAdapter.file-layer` | retained as adapter id | protected-zone authority |

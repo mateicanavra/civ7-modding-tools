@@ -79,7 +79,7 @@ Habitat SHALL replace prose `scope` routing with `ruleRoutingFacts` derived from
 
 ### Requirement: Graph Facts Own Rule Graph Declarations
 
-Habitat SHALL expose `ruleGraphFacts` for graph/Nx consumers. Graph facts SHALL declare owner/root relation, rule target alias policy, and structured dependency targets. `plugin.js` SHALL NOT use an independent owner-root table as authority, silently skip unknown owner roots, or parse colon strings as graph truth after D2 implementation.
+Habitat SHALL expose `ruleGraphFacts` for graph/Nx consumers. Graph facts SHALL declare owner/root relation from the registry document `ownerRoots` table, rule target alias policy, and structured dependency targets. `plugin.js` SHALL NOT use an independent owner-root table as authority, silently skip unknown owner roots, or parse colon strings as graph truth after D2 implementation.
 
 #### Scenario: Nx target alias uses structured graph facts
 - **WHEN** the Nx plugin creates `habitat:rule:<id>` targets
@@ -98,12 +98,8 @@ Habitat SHALL expose `ruleBaselineFacts` for D5 and baseline consumers. D2 SHALL
 #### Scenario: Baseline relation is explicit
 - **WHEN** baseline integrity reads a rule
 - **THEN** it receives only `ruleBaselineFacts`
-- **AND** it does not parse whole registry rows or infer admission from file presence alone
-
-#### Scenario: Introduced baseline lacks manifest relation
-- **WHEN** a new baseline relation requires a rule-introduction manifest and the relation is missing or contradicted
-- **THEN** D5 receives a D2 malformed baseline relation
-- **AND** the check/report output follows D1 boundaries
+- **AND** the D2 facts contain the rule id and registry baseline relation currently represented by `exceptionPath`
+- **AND** it does not parse whole registry rows, infer admission from file presence alone, or receive D5-owned baseline lifecycle state from D2
 
 ### Requirement: Grit Facts Own Pattern Identity And Scan Metadata
 

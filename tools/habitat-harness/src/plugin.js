@@ -10,18 +10,10 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ruleGraphFacts } from "./plugin/rule-graph.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const rulesJson = JSON.parse(readFileSync(path.join(here, "rules", "rules.json"), "utf8"));
-
-/** ownerProject -> repo-relative project root (only projects that own rules). */
-const OWNER_ROOTS = {
-  "@internal/habitat-harness": "tools/habitat-harness",
-  "mod-swooper-maps": "mods/mod-swooper-maps",
-  "@swooper/mapgen-core": "packages/mapgen-core",
-  "@civ7/control-orpc": "packages/civ7-control-orpc",
-  "@mateicanavra/civ7-sdk": "packages/sdk",
-};
 
 export const createNodesV2 = [
   "tools/habitat-harness/src/rules/rules.json",
@@ -35,14 +27,27 @@ export const createNodesV2 = [
     const gritCheckTargetName = options?.gritCheckTargetName ?? "grit:check";
     const generatedCheckTargetName = options?.generatedCheckTargetName ?? "generated:check";
     const ruleTargetPrefix = options?.ruleTargetPrefix ?? "habitat:rule:";
-    const owners = new Set(rulesJson.rules.map((r) => r.ownerProject));
+    const ownerRoots = new Map(Object.entries(rulesJson.ownerRoots ?? {}));
+    const graphFacts = ruleGraphFacts(rulesJson.rules, ownerRoots, {
+      boundaries: boundariesTargetName,
+      biomeCi: biomeCiTargetName,
+      generatedCheck: generatedCheckTargetName,
+      gritCheck: gritCheckTargetName,
+    });
+    const owners = new Map(graphFacts.map((rule) => [rule.ownerProject, rule.ownerRoot]));
     return configFiles.map((configFile) => {
       const projects = {};
       const ensureProject = (root) => {
         projects[root] ??= { targets: {} };
         return projects[root];
       };
-      const harnessProject = ensureProject(OWNER_ROOTS["@internal/habitat-harness"]);
+      const harnessRoot = ownerRoots.get("@internal/habitat-harness");
+      if (!harnessRoot) {
+        throw new Error(
+          "Habitat graph metadata contract failure: unknown ownerProject '@internal/habitat-harness'."
+        );
+      }
+      const harnessProject = ensureProject(harnessRoot);
       const biomeInputs = [
         "{workspaceRoot}/biome.json",
         "{workspaceRoot}/bun.lock",
@@ -179,51 +184,21 @@ export const createNodesV2 = [
           description: "aggregate Habitat rule check; runs broad native-tool checks once",
         },
       };
-      const dependencyForTarget = (targetName) => {
-        const separator = targetName.indexOf(":");
-        if (separator === -1) return { target: targetName };
-        return {
-          projects: [targetName.slice(0, separator)],
-          target: targetName.slice(separator + 1),
-        };
-      };
       const aliasRuleTarget = (dependency, description) => ({
         command: 'node -e ""',
         options: { cwd: "{workspaceRoot}" },
         cache: false,
         outputs: [],
-        dependsOn: [typeof dependency === "string" ? dependencyForTarget(dependency) : dependency],
+        dependsOn: [dependency],
         metadata: { description },
       });
-      for (const rule of rulesJson.rules) {
-        const root = OWNER_ROOTS[rule.ownerProject];
-        if (!root) continue;
-        const project = ensureProject(root);
+      for (const rule of graphFacts) {
+        const project = ensureProject(rule.ownerRoot);
         const targetName = `${ruleTargetPrefix}${rule.id}`;
-        if (rule.id === "nx-boundaries") {
+        if (rule.alias.kind === "depends-on") {
           project.targets[targetName] = aliasRuleTarget(
-            boundariesTargetName,
-            "Alias for the canonical Habitat project-boundary target"
-          );
-        } else if (rule.id === "biome-ci") {
-          project.targets[targetName] = aliasRuleTarget(
-            biomeCiTargetName,
-            "Alias for the canonical Habitat Biome CI target"
-          );
-        } else if (rule.ownerTool === "grit-check") {
-          project.targets[targetName] = aliasRuleTarget(
-            { projects: ["@internal/habitat-harness"], target: gritCheckTargetName },
-            `Alias for the canonical Habitat Grit catalog target (${rule.id})`
-          );
-        } else if (rule.ownerTool === "file-layer") {
-          project.targets[targetName] = aliasRuleTarget(
-            { projects: ["@internal/habitat-harness"], target: generatedCheckTargetName },
-            `Alias for the canonical generated-zone target (${rule.id})`
-          );
-        } else if (rule.nxTarget) {
-          project.targets[targetName] = aliasRuleTarget(
-            rule.nxTarget,
-            `Alias for the owning Nx target ${rule.nxTarget} (${rule.id})`
+            { projects: [rule.alias.target.project], target: rule.alias.target.target },
+            `Alias for ${rule.alias.target.project}:${rule.alias.target.target} (${rule.id})`
           );
         } else {
           project.targets[targetName] = {
@@ -237,9 +212,7 @@ export const createNodesV2 = [
           };
         }
       }
-      for (const owner of owners) {
-        const root = OWNER_ROOTS[owner];
-        if (!root) continue;
+      for (const [owner, root] of owners) {
         const project = ensureProject(root);
         project.targets[checkTargetName] = {
           command: `bun tools/habitat-harness/bin/dev.ts check --owner ${owner}`,

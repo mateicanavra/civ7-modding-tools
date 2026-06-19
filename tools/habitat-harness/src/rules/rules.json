@@ -1,6 +1,14 @@
 {
   "$comment": "Single source of truth for the habitat rule pack. H2 wrapped existing rules; later slices add owning-tool gates such as H3 nx-boundaries and H4 Biome hygiene. Consumed by src/rules/architecture.ts (CLI, typed) and src/plugin.js (Nx target inference). Field semantics: docs/projects/habitat-harness/ + openspec/changes/habitat-harness-scaffold/design.md. ownerProject = the Nx project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only (matching pre-harness enforcement reality). detect runs from the repo root unless cwd is set.",
   "schemaVersion": 1,
+  "ownerRoots": {
+    "@civ7/control-orpc": "packages/civ7-control-orpc",
+    "@internal/habitat-harness": "tools/habitat-harness",
+    "@mateicanavra/civ7-sdk": "packages/sdk",
+    "@swooper/mapgen-core": "packages/mapgen-core",
+    "mod-civ7-intelligence-bridge": "mods/mod-civ7-intelligence-bridge",
+    "mod-swooper-maps": "mods/mod-swooper-maps"
+  },
   "rules": [
     {
       "id": "workspace-entrypoints",
@@ -1172,7 +1180,6 @@
         "@swooper/mapgen-core:test:architecture-core-purity",
         "--outputStyle=static"
       ],
-      "nxTarget": "@swooper/mapgen-core:test:architecture-core-purity",
       "remediate": null,
       "message": "Remove the Civ7 runtime reference; use adapter types only.",
       "exceptionPath": "none",
@@ -1181,7 +1188,11 @@
           "kind": "exact-path",
           "patterns": ["packages/mapgen-core"]
         }
-      ]
+      ],
+      "graphTarget": {
+        "project": "@swooper/mapgen-core",
+        "target": "test:architecture-core-purity"
+      }
     },
     {
       "id": "arch-test-rng-authority",
@@ -1197,7 +1208,6 @@
         "mod-swooper-maps:test:architecture-rng-authority",
         "--outputStyle=static"
       ],
-      "nxTarget": "mod-swooper-maps:test:architecture-rng-authority",
       "remediate": null,
       "message": "Use the recipe RNG authority, never engine RNG.",
       "exceptionPath": "none",
@@ -1206,7 +1216,11 @@
           "kind": "unresolved-metadata",
           "reason": "Rule requires explicit typed path coverage before exact classify routing."
         }
-      ]
+      ],
+      "graphTarget": {
+        "project": "mod-swooper-maps",
+        "target": "test:architecture-rng-authority"
+      }
     },
     {
       "id": "arch-test-ecology-step-imports",
@@ -1222,7 +1236,6 @@
         "mod-swooper-maps:test:architecture-ecology-step-imports",
         "--outputStyle=static"
       ],
-      "nxTarget": "mod-swooper-maps:test:architecture-ecology-step-imports",
       "remediate": null,
       "message": "Compose via the recipe layer; do not resurrect retired stage directories.",
       "exceptionPath": "none",
@@ -1231,7 +1244,11 @@
           "kind": "exact-path",
           "patterns": ["mods/mod-swooper-maps"]
         }
-      ]
+      ],
+      "graphTarget": {
+        "project": "mod-swooper-maps",
+        "target": "test:architecture-ecology-step-imports"
+      }
     },
     {
       "id": "arch-test-m11-projection-band",
@@ -1247,7 +1264,6 @@
         "mod-swooper-maps:test:architecture-m11-projection-band",
         "--outputStyle=static"
       ],
-      "nxTarget": "mod-swooper-maps:test:architecture-m11-projection-band",
       "remediate": null,
       "message": "Projection algorithm regression; see the test for the expected band.",
       "exceptionPath": "none",
@@ -1256,7 +1272,11 @@
           "kind": "unresolved-metadata",
           "reason": "Rule requires explicit typed path coverage before exact classify routing."
         }
-      ]
+      ],
+      "graphTarget": {
+        "project": "mod-swooper-maps",
+        "target": "test:architecture-m11-projection-band"
+      }
     },
     {
       "id": "arch-test-map-bundle-runtime-imports",
@@ -1272,7 +1292,6 @@
         "mod-swooper-maps:test:architecture-map-bundle-runtime-imports",
         "--outputStyle=static"
       ],
-      "nxTarget": "mod-swooper-maps:test:architecture-map-bundle-runtime-imports",
       "remediate": "nx run mod-swooper-maps:build",
       "message": "Rebuild mod-swooper-maps; if it persists, the bundling config regressed.",
       "exceptionPath": "none",
@@ -1281,7 +1300,11 @@
           "kind": "exact-path",
           "patterns": ["mods/mod-swooper-maps/mod/**"]
         }
-      ]
+      ],
+      "graphTarget": {
+        "project": "mod-swooper-maps",
+        "target": "test:architecture-map-bundle-runtime-imports"
+      }
     },
     {
       "id": "arch-test-intelligence-bridge-bundle-runtime-imports",
@@ -1297,7 +1320,6 @@
         "mod-civ7-intelligence-bridge:test:architecture-bundle-runtime-imports",
         "--outputStyle=static"
       ],
-      "nxTarget": "mod-civ7-intelligence-bridge:test:architecture-bundle-runtime-imports",
       "remediate": "nx run mod-civ7-intelligence-bridge:build",
       "message": "Rebuild or narrow the Civ7 intelligence bridge UI bundle so it stays game-runtime safe.",
       "exceptionPath": "none",
@@ -1306,7 +1328,11 @@
           "kind": "exact-path",
           "patterns": ["mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js"]
         }
-      ]
+      ],
+      "graphTarget": {
+        "project": "mod-civ7-intelligence-bridge",
+        "target": "test:architecture-bundle-runtime-imports"
+      }
     },
     {
       "id": "arch-test-cutover",
@@ -1317,7 +1343,6 @@
       "forbids": "op-calls-op in tectonics, dual contract paths, shim surfaces, foundation topology drift",
       "why": "M-cutover structural invariants (coarse wrap of test:architecture-cutover).",
       "detect": ["nx", "run", "mod-swooper-maps:test:architecture-cutover", "--outputStyle=static"],
-      "nxTarget": "mod-swooper-maps:test:architecture-cutover",
       "remediate": null,
       "message": "See the failing cutover test output for the violated invariant.",
       "exceptionPath": "none",
@@ -1326,7 +1351,11 @@
           "kind": "exact-path",
           "patterns": ["mods/mod-swooper-maps"]
         }
-      ]
+      ],
+      "graphTarget": {
+        "project": "mod-swooper-maps",
+        "target": "test:architecture-cutover"
+      }
     },
     {
       "id": "docs-local-checkout-paths",
