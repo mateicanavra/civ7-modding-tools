@@ -1,16 +1,16 @@
 import {
-  hookCheckCommandProjection,
+  hookCheckCommandResult,
   renderResourceDecisionFailure,
   resourceDecisionToFacade,
-} from "./local-feedback/index.js";
-import { runHookCommand } from "./local-feedback/command-runner.js";
-import { finalizePreCommit, finalizePrePush } from "./local-feedback/lifecycle.js";
-import { resolvePrePushBase } from "./local-feedback/pre-push-base.js";
-import { captureRepoSnapshot } from "./local-feedback/repo-snapshot.js";
+} from "./hook-runtime/index.js";
+import { runHookCommand } from "./hook-runtime/command-runner.js";
+import { finalizePreCommit, finalizePrePush } from "./hook-runtime/lifecycle.js";
+import { resolvePrePushBase } from "./hook-runtime/pre-push-base.js";
+import { captureRepoSnapshot } from "./hook-runtime/repo-snapshot.js";
 import {
   classifyResourcePreCommitDecision,
   classifyResourcesState,
-} from "./local-feedback/resource-inspection.js";
+} from "./hook-runtime/resource-inspection.js";
 import {
   createHookOutput,
   createHookTrace,
@@ -22,15 +22,15 @@ import {
   type HookResourcePolicy,
   type HookRuntime,
   type ResourceRecoveryCommands,
-} from "./local-feedback/runtime.js";
+} from "./hook-runtime/runtime.js";
 import {
   biomeHookPaths,
   existingStagedPaths,
   fileHash,
   gitAdd,
-  hookGritScanRoots,
+  hookPatternScanRoots,
   unstagedAmong,
-} from "./local-feedback/staged-worktree.js";
+} from "./hook-runtime/staged-worktree.js";
 import { repoRoot } from "./paths.js";
 import type { SpawnResult } from "./spawn.js";
 
@@ -47,7 +47,7 @@ export type {
   ResourcePreCommitDecision,
   ResourceStateFacade as ResourceState,
   ResourceStateKind,
-} from "./local-feedback/index.js";
+} from "./hook-runtime/index.js";
 export { classifyResourcePreCommitDecision, classifyResourcesState, createHookTrace };
 export type {
   HookOptions,
@@ -59,7 +59,7 @@ export type {
 };
 
 const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"];
-const localHookNotice = "hook result: local feedback only; CI remains authoritative.\n";
+const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export function runHook(name: string | undefined, options: HookOptions = {}): SpawnResult {
   if (!isHookName(name)) {
@@ -123,9 +123,9 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   );
   output.writeStdout(section("file-layer staged check", fileLayer.stdout));
   output.writeStderr(fileLayer.stderr);
-  const fileLayerProjection = hookCheckCommandProjection(fileLayer);
-  if (!checkProjectionAllowsNextStage(fileLayerProjection)) {
-    if (fileLayerProjection.kind !== "projected") {
+  const fileLayerCheck = hookCheckCommandResult(fileLayer);
+  if (!checkSummaryAllowsNextStage(fileLayerCheck)) {
+    if (fileLayerCheck.kind !== "parsed") {
       output.writeStderr("habitat hook pre-commit: could not parse file-layer check JSON.\n");
     }
     return finalizePreCommit(runtime, "file-layer-failed", {
@@ -211,53 +211,53 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
     output.writeStdout("biome: no staged supported files\n");
   }
 
-  const gritPaths = hookGritScanRoots(staged);
+  const gritPaths = hookPatternScanRoots(staged);
   if (runtime.trace?.preCommit) runtime.trace.preCommit.gritPaths = gritPaths;
   if (gritPaths.length > 0) {
     const grit = runHookCommand(
       runtime,
-      "grit-check",
+      "pattern-check",
       [
         "bun",
         "tools/habitat-harness/bin/dev.ts",
         "check",
         "--staged",
         "--tool",
-        "grit-check",
+        "pattern-check",
         "--json",
       ],
       {
         cwd: repoRoot,
       }
     );
-    output.writeStdout(section("grit check", grit.stdout));
+    output.writeStdout(section("pattern check", grit.stdout));
     output.writeStderr(grit.stderr);
-    const gritProjection = hookCheckCommandProjection(grit);
-    if (gritProjection.kind !== "projected") {
-      if (grit.exitCode !== 0 && gritProjection.kind === "missing-json") {
-        return finalizePreCommit(runtime, "grit-command-failed", {
+    const gritCheck = hookCheckCommandResult(grit);
+    if (gritCheck.kind !== "parsed") {
+      if (grit.exitCode !== 0 && gritCheck.kind === "missing-json") {
+        return finalizePreCommit(runtime, "command-failed", {
           exitCode: grit.exitCode,
           ...output.result(),
         });
       }
-      output.writeStderr("habitat hook pre-commit: could not parse Habitat Grit check JSON.\n");
-      return finalizePreCommit(runtime, "grit-parse-failed", {
+      output.writeStderr("habitat hook pre-commit: could not parse Habitat pattern check JSON.\n");
+      return finalizePreCommit(runtime, "parse-failed", {
         exitCode: 1,
         ...output.result(),
       });
     }
-    if (!checkProjectionAllowsNextStage(gritProjection)) {
-      if (gritProjection.projection.kind === "diagnostic-unavailable") {
-        output.writeStderr("habitat hook pre-commit: could not parse Grit JSON output.\n");
-        return finalizePreCommit(runtime, "grit-parse-failed", {
+    if (!checkSummaryAllowsNextStage(gritCheck)) {
+      if (gritCheck.summary.kind === "diagnostic-unavailable") {
+        output.writeStderr("habitat hook pre-commit: could not parse pattern check JSON output.\n");
+        return finalizePreCommit(runtime, "parse-failed", {
           exitCode: 1,
           ...output.result(),
         });
       }
-      return finalizePreCommit(runtime, "grit-finding", { exitCode: 1, ...output.result() });
+      return finalizePreCommit(runtime, "finding", { exitCode: 1, ...output.result() });
     }
   } else {
-    output.writeStdout("grit: no staged TypeScript/JavaScript files in approved scan roots\n");
+    output.writeStdout("patterns: no staged TypeScript/JavaScript files in approved scan roots\n");
   }
 
   output.writeStdout("habitat hook pre-commit: PASS\n");
@@ -308,14 +308,14 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
   });
 }
 
-function checkProjectionAllowsNextStage(
-  result: ReturnType<typeof hookCheckCommandProjection>
+function checkSummaryAllowsNextStage(
+  result: ReturnType<typeof hookCheckCommandResult>
 ): boolean {
   return (
-    result.kind === "projected" &&
-    (result.projection.kind === "pass" ||
-      result.projection.kind === "advisory-only" ||
-      result.projection.kind === "not-applicable")
+    result.kind === "parsed" &&
+    (result.summary.kind === "pass" ||
+      result.summary.kind === "advisory-only" ||
+      result.summary.kind === "not-applicable")
   );
 }
 

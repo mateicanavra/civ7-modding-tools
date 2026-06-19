@@ -2,7 +2,7 @@ export {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
 } from "./output/index.js";
-export { projectGritResults } from "./projection.js";
+export { gritRuleResultsFromReport } from "./diagnostics.js";
 export {
   gritCheckProgram,
   gritCheckRequest,
@@ -12,10 +12,10 @@ export {
   runGritRule,
   runGritRules,
 } from "./runner.js";
-export type { GritScanRootValidationOptions } from "./scan-roots/index.js";
+export type { PatternScanRootValidationOptions } from "./scan-roots/index.js";
 export {
-  discoverGritScanRoots,
-  effectiveGritScanRoots,
+  discoverPatternScanRoots,
+  effectivePatternScanRoots,
   validateScanRoots,
 } from "./scan-roots/index.js";
 export type {
@@ -24,7 +24,7 @@ export type {
   GritCheckOutputFormat,
   GritCheckRequestOptions,
   GritDiagnosticAcquisition,
-  GritProjectionOptions,
+  GritDiagnosticOptions,
   GritReport,
   GritResult,
 } from "./types.js";

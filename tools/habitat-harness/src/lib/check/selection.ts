@@ -11,7 +11,7 @@ export function selectorRefusalReport(
     reports: [
       {
         ruleId: "rule-selection-integrity",
-        ownerTool: "habitat-native",
+        ownerTool: "habitat-builtin",
         lane: "enforced",
         status: "fail",
         locked: true,

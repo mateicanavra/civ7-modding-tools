@@ -2,20 +2,20 @@ import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import type { Layer } from "effect";
 import {
-  type ApplyAdmissionProjection,
-  type ApplyTransactionInputProjection,
-  ApplyAdmissionProjectionSchema,
+  type ApplyAdmission,
+  type ApplyTransactionInput,
+  ApplyAdmissionSchema,
   activeApplyTransactionInputs,
   defaultApplyAdmissions,
-} from "../rules/pattern-governance/index.js";
+} from "../rules/patterns/index.js";
 import type { HabitatProcess } from "./habitat-process.js";
 import type { SpawnResult } from "./spawn.js";
 import {
   observeWorktree,
-  renderTransformationTransaction,
-  runTransformationTransaction,
-  type TransformationTransactionRequest,
-} from "./transformation-transaction/index.js";
+  renderPatternApply,
+  runPatternApply,
+  type PatternApplyRequest,
+} from "./pattern-apply/index.js";
 
 export const FixCommandIntentSchema = Type.Object(
   {
@@ -26,11 +26,11 @@ export const FixCommandIntentSchema = Type.Object(
 
 export type FixCommandIntent = Static<typeof FixCommandIntentSchema>;
 
-const FixAdmissionSetSchema = Type.Array(ApplyAdmissionProjectionSchema);
+const FixAdmissionSetSchema = Type.Array(ApplyAdmissionSchema);
 
 export interface FixOptions {
-  admissions?: readonly ApplyAdmissionProjection[];
-  transactionInputs?: readonly ApplyTransactionInputProjection[];
+  admissions?: readonly ApplyAdmission[];
+  transactionInputs?: readonly ApplyTransactionInput[];
   processLayer?: Layer.Layer<HabitatProcess>;
 }
 
@@ -51,13 +51,13 @@ export async function runFix(
   const transactionInputs = options.transactionInputs ?? activeApplyTransactionInputs();
   const results = await Promise.all(
     admissions.map((admission) =>
-      runTransformationTransaction(transactionRequest(parsed, admission), {
+      runPatternApply(transactionRequest(parsed, admission), {
         processLayer: options.processLayer,
         transactionInputs,
       })
     )
   );
-  const rendered = results.map(renderTransformationTransaction);
+  const rendered = results.map(renderPatternApply);
   const failed = rendered.find((result) => result.exitCode !== 0);
   if (failed) return failed;
 
@@ -70,8 +70,8 @@ export async function runFix(
 
 function transactionRequest(
   intent: FixCommandIntent,
-  admission: ApplyAdmissionProjection
-): TransformationTransactionRequest {
+  admission: ApplyAdmission
+): PatternApplyRequest {
   return {
     kind: intent.kind,
     worktree: observeWorktree(),
@@ -86,7 +86,7 @@ function missingAdmissionRefusal(): SpawnResult {
     stderr: [
       "habitat fix refused: missing-apply-admission",
       "habitat fix requires an apply admission before it can plan or write changes.",
-      "recovery: Admit an apply-capable pattern through Pattern Authority before invoking fix.",
+      "recovery: Admit an apply-capable pattern through pattern manifest before invoking fix.",
       "",
     ].join("\n"),
   };

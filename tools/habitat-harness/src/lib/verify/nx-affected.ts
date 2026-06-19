@@ -8,7 +8,7 @@ import { boundedPreview } from "./command-output.js";
  * Builds the Nx affected argv used by verify.
  *
  * @param base - Git base for the affected calculation.
- * @param targetPlan - D3 target plan that owns which targets verify may request.
+ * @param targetPlan - Target plan that owns which targets verify may request.
  * @returns Argument vector passed to the repository-local Nx entrypoint.
  */
 export function affectedVerificationArgv(base: string, targetPlan: VerifyTargetPlan): string[] {
@@ -29,8 +29,8 @@ export function affectedVerificationArgv(base: string, targetPlan: VerifyTargetP
  * Runs the affected target plan.
  *
  * @param base - Git base for the affected calculation.
- * @param targetPlan - Runnable D3 verify target plan.
- * @returns Spawn result with raw streams for immediate command output and bounded receipt projection.
+ * @param targetPlan - Runnable verify target plan.
+ * @returns Spawn result with raw streams for immediate command output and bounded receipt summary.
  */
 export function runAffectedVerification(
   base: string,

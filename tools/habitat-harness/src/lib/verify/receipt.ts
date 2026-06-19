@@ -1,8 +1,8 @@
 import { Value } from "typebox/value";
 import { activeRuleGraphFacts } from "../../rules/facts.js";
 import {
-  type VerifyCheckSummaryProjection,
-  verifyCheckSummaryProjection,
+  type VerifyCheckSummary,
+  verifyCheckSummary,
 } from "../check-report.js";
 import type { CheckReport } from "../diagnostics.js";
 import { repoRoot } from "../paths.js";
@@ -42,7 +42,7 @@ export interface VerifyReceiptInput {
   durationMs: number;
   /** Verify command exit code. */
   exitCode: number;
-  /** D7 check report consumed before affected execution. */
+  /** Structural check report consumed before affected execution. */
   checkReport: CheckReport;
   /** Optional target plan supplied by tests or the command after reading the graph. */
   verifyTargetPlan?: VerifyTargetPlan;
@@ -54,7 +54,7 @@ export interface VerifyReceiptInput {
 export const verifyAffectedTargets = [...verifyTargetNames()];
 
 /**
- * Reads the workspace graph and returns the verify target plan owned by D3.
+ * Reads the workspace graph and returns the verify target plan.
  *
  * @returns Runnable target plan or graph-refusal plan for the verify receipt.
  */
@@ -75,21 +75,21 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
   const targetPlan = input.verifyTargetPlan ?? verifyTargetPlan();
   const nxArgv = affectedVerificationArgv(input.resolvedBase, targetPlan);
   const gitStatus = observeGitStatus();
-  const habitatCheckProjection = verifyCheckSummaryProjection(input.checkReport);
+  const habitatCheckSummary = verifyCheckSummary(input.checkReport);
   const nxAffected =
-    habitatCheckProjection.allowsAffectedExecution &&
+    habitatCheckSummary.allowsAffectedExecution &&
     targetPlan.kind === "verify-target-plan" &&
     input.affectedResult
       ? completedNxAffected(nxArgv, input.affectedResult)
       : skippedNxAffected(
           nxArgv,
-          habitatCheckProjection.allowsAffectedExecution ? targetPlan : undefined
+          habitatCheckSummary.allowsAffectedExecution ? targetPlan : undefined
         );
   const postState = postStateObservation(gitStatus);
   return Value.Parse(VerifyReceiptSchema, {
     schemaVersion: 1,
     outcome: receiptOutcome({
-      check: habitatCheckProjection,
+      check: habitatCheckSummary,
       targetPlan,
       nxAffected,
       postState,
@@ -107,7 +107,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
       resolved: input.resolvedBase,
       source: input.baseSource ?? (input.requestedBase ? "flag" : "merge-base"),
     },
-    habitatCheck: summarizeVerifyCheckReport(habitatCheckProjection),
+    habitatCheck: summarizeVerifyCheckReport(habitatCheckSummary),
     targetPlan: consumeVerifyTargetPlan(targetPlan),
     nxAffected,
     postState,
@@ -141,21 +141,21 @@ function consumeVerifyTargetPlan(targetPlan: VerifyTargetPlan): VerifyReceipt["t
 }
 
 function summarizeVerifyCheckReport(
-  projection: VerifyCheckSummaryProjection
+  summary: VerifyCheckSummary
 ): VerifyReceipt["habitatCheck"] {
   return Value.Parse(VerifyHabitatCheckSummarySchema, {
-    ...projection,
-    consumption: projection.allowsAffectedExecution
+    ...summary,
+    consumption: summary.allowsAffectedExecution
       ? "allows-affected-execution"
       : "blocks-affected-execution",
-    selectorState: selectorState(projection),
+    selectorState: selectorState(summary),
   });
 }
 
 function selectorState(
-  projection: VerifyCheckSummaryProjection
+  summary: VerifyCheckSummary
 ): VerifyReceipt["habitatCheck"]["selectorState"] {
-  const selectors = projection.requestedSelectors;
+  const selectors = summary.requestedSelectors;
   if (!selectors.owner && !selectors.rule && !selectors.tool) {
     return Value.Parse(VerifySelectorStateSchema, { kind: "none" });
   }
@@ -166,7 +166,7 @@ function selectorState(
 }
 
 function receiptOutcome(input: {
-  check: VerifyCheckSummaryProjection;
+  check: VerifyCheckSummary;
   targetPlan: VerifyTargetPlan;
   nxAffected: VerifyReceipt["nxAffected"];
   postState: VerifyReceipt["postState"];

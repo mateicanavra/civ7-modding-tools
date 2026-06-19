@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const mockReport = vi.hoisted(() => ({
   schemaVersion: 1,
-  command: "habitat check --json --rule doc-ambiguity",
+  command: "habitat check --json --rule adapter-boundary",
   startedAt: "2026-06-13T00:00:00.000Z",
   ok: true,
   rules: [],
@@ -25,7 +25,7 @@ vi.mock("../../src/lib/check-report.js", () => ({
   describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
   expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
   renderCheckReport: vi.fn(() => '{"ok":true}'),
-  verifyCheckSummaryProjection: vi.fn(() => ({
+  verifyCheckSummary: vi.fn(() => ({
     reportSchemaVersion: 1,
     requestedSelectors: {},
     selectedRuleIds: [],
@@ -56,8 +56,8 @@ vi.mock("../../src/lib/classify.js", async (importOriginal) => {
       },
       ruleRouting: [
         {
-          ruleId: "workspace-entrypoints",
-          ownerTool: "habitat-native",
+          ruleId: "adapter-boundary",
+          ownerTool: "command-check",
           ownerProject: "@internal/habitat-harness",
           coverageKind: "workspace-gate",
           reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
@@ -99,7 +99,7 @@ vi.mock("../../src/lib/verify/index.js", () => ({
     habitatCheck: {
       reportSchemaVersion: 1,
       selectedRuleIds: [],
-      selectedRealRuleIds: ["workspace-entrypoints"],
+      selectedRealRuleIds: ["adapter-boundary"],
       builtInRuleIds: [],
       statusCounts: {},
       advisoryCount: 0,
@@ -200,11 +200,11 @@ describe("Habitat oclif commands", () => {
       "--output",
       "/tmp/report.json",
       "--rule",
-      "doc-ambiguity",
+      "adapter-boundary",
       "--owner",
       "@internal/habitat-harness",
       "--tool",
-      "grit-check",
+      "pattern-check",
       "--staged",
       "--base",
       "HEAD",
@@ -214,11 +214,11 @@ describe("Habitat oclif commands", () => {
       expect.objectContaining({
         base: "HEAD",
         owner: "@internal/habitat-harness",
-        rule: "doc-ambiguity",
-        tool: "grit-check",
+        rule: "adapter-boundary",
+        tool: "pattern-check",
         staged: true,
         command: expect.objectContaining({
-          argv: expect.arrayContaining(["--json", "--rule", "doc-ambiguity"]),
+          argv: expect.arrayContaining(["--json", "--rule", "adapter-boundary"]),
           bin: "habitat",
           id: "check",
         }),
@@ -273,7 +273,7 @@ describe("Habitat oclif commands", () => {
       "HEAD~1",
       mockVerifyTargetPlan
     );
-    expect(checkReport.verifyCheckSummaryProjection).toHaveBeenCalledWith(mockReport);
+    expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
     expect(stdout.join("")).toContain("affected ok");
   });
 
@@ -294,7 +294,7 @@ describe("Habitat oclif commands", () => {
       "HEAD~1",
       mockVerifyTargetPlan
     );
-    expect(checkReport.verifyCheckSummaryProjection).toHaveBeenCalledWith(mockReport);
+    expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
     expect(verifyReceipt.createVerifyReceipt).toHaveBeenCalledWith(
       expect.objectContaining({
         requestedBase: "HEAD~1",

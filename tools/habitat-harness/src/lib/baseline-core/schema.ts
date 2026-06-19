@@ -8,15 +8,12 @@ export const BaselineRefusalReasonSchema = Type.Union([
   Type.Literal("duplicate-baseline-key"),
   Type.Literal("non-string-baseline-key"),
   Type.Literal("orphan-baseline"),
-  Type.Literal("unmodeled-external-exception"),
+  Type.Literal("external-baseline-without-contract"),
   Type.Literal("baseline-growth-existing-rule"),
   Type.Literal("comparison-base-unavailable"),
   Type.Literal("base-rule-registry-missing"),
   Type.Literal("base-rule-registry-malformed"),
   Type.Literal("base-baseline-unreadable"),
-  Type.Literal("external-exception-source-unreadable"),
-  Type.Literal("external-exception-source-malformed"),
-  Type.Literal("external-exception-projection-mismatch"),
   Type.Literal("parser-owned-baseline-without-contract"),
   Type.Literal("rule-introduction-manifest-missing"),
   Type.Literal("rule-introduction-manifest-mismatch"),
@@ -58,22 +55,9 @@ export const ExplicitDebtBaselineStateSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const ExternalExceptionBaselineStateSchema = Type.Object(
-  {
-    kind: Type.Literal("external-exception"),
-    ruleId: Type.String({ minLength: 1 }),
-    sourcePath: Type.String({ minLength: 1 }),
-    owner: Type.String({ minLength: 1 }),
-    projectedKeys: Type.Array(Type.String()),
-    locked: Type.Literal(false),
-  },
-  { additionalProperties: false }
-);
-
 export const AcceptedBaselineAuthorityStateSchema = Type.Union([
   ExplicitEmptyBaselineStateSchema,
   ExplicitDebtBaselineStateSchema,
-  ExternalExceptionBaselineStateSchema,
 ]);
 
 export const BaselineAuthorityStateSchema = Type.Union([
@@ -103,36 +87,6 @@ export const RuleIntroductionBaselineManifestSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-
-const ExternalExceptionSourceBaseSchema = Type.Object(
-  {
-    sourcePath: Type.String({ minLength: 1 }),
-    owner: Type.String({ minLength: 1 }),
-  },
-  { additionalProperties: false }
-);
-
-export const ExternalExceptionSourceSchema = Type.Union([
-  Type.Interface(
-    [ExternalExceptionSourceBaseSchema],
-    {
-      kind: Type.Literal("fixed"),
-      projectedKeys: Type.Array(Type.String()),
-    },
-    { additionalProperties: false }
-  ),
-  Type.Interface(
-    [ExternalExceptionSourceBaseSchema],
-    {
-      kind: Type.Literal("derived"),
-      projector: Type.Union([
-        Type.Literal("adapter-boundary-allowlist"),
-        Type.Literal("doc-ambiguity-baseline"),
-      ]),
-    },
-    { additionalProperties: false }
-  ),
-]);
 
 export const BaselineIntegrityFindingSchema = Type.Object(
   {
@@ -202,7 +156,7 @@ export const BaselineApplicationResultSchema = Type.Union([
   ),
 ]);
 
-export const BaselineAuthorityProjectionSchema = Type.Union([
+export const BaselineAuthorityResultSchema = Type.Union([
   Type.Object(
     {
       status: Type.Literal("accepted"),
@@ -219,39 +173,21 @@ export const BaselineAuthorityProjectionSchema = Type.Union([
   ),
 ]);
 
-const DocAmbiguityBaselineItemSchema = Type.Object(
-  {
-    id: Type.String({ minLength: 1 }),
-    filePath: Type.String({ minLength: 1 }),
-  },
-  { additionalProperties: true }
-);
-
-export const DocAmbiguityBaselineSourceSchema = Type.Object(
-  {
-    schemaVersion: Type.Literal(1),
-    items: Type.Array(DocAmbiguityBaselineItemSchema),
-  },
-  { additionalProperties: true }
-);
-
 export type BaselineRefusalReason = Static<typeof BaselineRefusalReasonSchema>;
 export type BaselineRefusal = Static<typeof BaselineRefusalSchema>;
 export type ExplicitEmptyBaselineState = Static<typeof ExplicitEmptyBaselineStateSchema>;
 export type ExplicitDebtBaselineState = Static<typeof ExplicitDebtBaselineStateSchema>;
-export type ExternalExceptionBaselineState = Static<typeof ExternalExceptionBaselineStateSchema>;
 export type AcceptedBaselineAuthorityState = Static<typeof AcceptedBaselineAuthorityStateSchema>;
 export type BaselineAuthorityState = Static<typeof BaselineAuthorityStateSchema>;
 export type BaselineRuleContractInput = Static<typeof BaselineRuleContractInputSchema>;
 export type RuleIntroductionBaselineManifest = Static<
   typeof RuleIntroductionBaselineManifestSchema
 >;
-export type ExternalExceptionSource = Static<typeof ExternalExceptionSourceSchema>;
 export type BaselineIntegrityFinding = Static<typeof BaselineIntegrityFindingSchema>;
 export type BaselineIntegrityResult = Static<typeof BaselineIntegrityResultSchema>;
 export type BaselineExpansionDecision = Static<typeof BaselineExpansionDecisionSchema>;
 export type BaselineApplicationResult = Static<typeof BaselineApplicationResultSchema>;
-export type BaselineAuthorityProjection = Static<typeof BaselineAuthorityProjectionSchema>;
+export type BaselineAuthorityResult = Static<typeof BaselineAuthorityResultSchema>;
 
 export interface BaselineContractValidation {
   states: Map<string, BaselineAuthorityState>;
@@ -260,10 +196,4 @@ export interface BaselineContractValidation {
 
 export function parseBaselineKeys(value: unknown): string[] {
   return Value.Parse(BaselineKeyArraySchema, value);
-}
-
-export function parseDocAmbiguityBaselineSource(
-  value: unknown
-): Static<typeof DocAmbiguityBaselineSourceSchema> {
-  return Value.Parse(DocAmbiguityBaselineSourceSchema, value);
 }

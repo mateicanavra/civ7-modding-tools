@@ -336,7 +336,7 @@ command surface.
 **Suggested change id:** `habitat-grit-proof-repair`
 
 **Source trace:** `openspec/changes/habitat-grit-catalog/**`,
-`.grit/grit.yaml`, `.gritignore`, `.grit/patterns/habitat/**`,
+`.habitat/grit.yaml`, `.gritignore`, `.grit/patterns/habitat/**`,
 `tools/habitat-harness/src/lib/grit.ts`,
 `tools/habitat-harness/src/rules/rules.json`, and Grit tests.
 

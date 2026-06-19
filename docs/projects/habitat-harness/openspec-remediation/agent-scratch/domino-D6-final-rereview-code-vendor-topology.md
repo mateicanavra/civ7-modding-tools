@@ -80,9 +80,9 @@ Vendor docs used:
 - `rg -n "DiagnosticCapabilityProjection|NativeGritFixture|fixture result|native fixture|DiagnosticConsumerProjection|DiagnosticCatalogEntry" openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog`
   - Result: found one undefined `DiagnosticCapabilityProjection` reference in
     `proposal.md`; recorded as P3 below.
-- `find .grit/patterns/habitat/checks -maxdepth 1 -type f -name '*.md' | wc -l`
+- `find .habitat/patterns/active/checks -maxdepth 1 -type f -name '*.md' | wc -l`
   - Result: 32 current check pattern files.
-- `find .grit/patterns/habitat/apply -maxdepth 1 -type f -name '*.md' | wc -l`
+- `find .habitat/patterns/active/apply -maxdepth 1 -type f -name '*.md' | wc -l`
   - Result: 3 current apply pattern files.
 - `node -e "const r=require('./tools/habitat-harness/src/rules/rules.json').rules; console.log('grit-check rules', r.filter(x=>x.ownerTool==='grit-check').length); console.log('missing gritPattern', r.filter(x=>x.ownerTool==='grit-check'&&!x.gritPattern).map(x=>x.id));"`
   - Result: 32 `grit-check` rules; no current `grit-check` rule is missing

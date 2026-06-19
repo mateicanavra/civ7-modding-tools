@@ -170,9 +170,9 @@ export const HostPolicyStateSchema = Type.Union([
   ),
 ]);
 
-export const HostSurfaceProjectionSchema = Type.Object(
+export const HostSurfaceDecisionSchema = Type.Object(
   {
-    kind: Type.Literal("host-surface-projection"),
+    kind: Type.Literal("host-surface-decision"),
     policyId: NonEmptyStringSchema,
     declarationId: Type.Optional(NonEmptyStringSchema),
     owner: Type.Optional(HostPolicyOwnerSchema),
@@ -194,9 +194,9 @@ export const HostSurfaceProjectionSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const HostApplyGateProjectionSchema = Type.Object(
+export const HostApplyGateDecisionSchema = Type.Object(
   {
-    kind: Type.Literal("host-apply-gate-projection"),
+    kind: Type.Literal("host-apply-gate-decision"),
     gateId: NonEmptyStringSchema,
     policyId: NonEmptyStringSchema,
     declarationId: Type.Optional(NonEmptyStringSchema),
@@ -208,9 +208,9 @@ export const HostApplyGateProjectionSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const HostProjectSupportProjectionSchema = Type.Object(
+export const HostProjectSupportDecisionSchema = Type.Object(
   {
-    kind: Type.Literal("host-project-support-projection"),
+    kind: Type.Literal("host-project-support-decision"),
     requestClass: NonEmptyStringSchema,
     supportState: HostProjectSupportStateSchema,
     declarationId: Type.Optional(NonEmptyStringSchema),
@@ -222,9 +222,9 @@ export const HostProjectSupportProjectionSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const HostAuthoringBoundaryProjectionSchema = Type.Object(
+export const HostAuthoringBoundaryStateSchema = Type.Object(
   {
-    kind: Type.Literal("host-authoring-boundary-projection"),
+    kind: Type.Literal("host-authoring-boundary-state"),
     scenario: NonEmptyStringSchema,
     relation: NonEmptyStringSchema,
     futureOwner: Type.Optional(NonEmptyStringSchema),
@@ -240,11 +240,11 @@ export type HostPolicyDeclaration = Static<typeof HostPolicyDeclarationSchema>;
 export type HostPolicyDocument = Static<typeof HostPolicyDocumentSchema>;
 export type HostPolicySourceState = Static<typeof HostPolicySourceStateSchema>;
 export type HostPolicyState = Static<typeof HostPolicyStateSchema>;
-export type HostSurfaceProjection = Static<typeof HostSurfaceProjectionSchema>;
-export type HostApplyGateProjection = Static<typeof HostApplyGateProjectionSchema>;
-export type HostProjectSupportProjection = Static<
-  typeof HostProjectSupportProjectionSchema
+export type HostSurfaceDecision = Static<typeof HostSurfaceDecisionSchema>;
+export type HostApplyGateDecision = Static<typeof HostApplyGateDecisionSchema>;
+export type HostProjectSupportDecision = Static<
+  typeof HostProjectSupportDecisionSchema
 >;
-export type HostAuthoringBoundaryProjection = Static<
-  typeof HostAuthoringBoundaryProjectionSchema
+export type HostAuthoringBoundaryState = Static<
+  typeof HostAuthoringBoundaryStateSchema
 >;

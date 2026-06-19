@@ -162,7 +162,7 @@ export const RuleExecutionDispositionSchema = Type.Union([
         Type.Literal("workspace-graph"),
         Type.Literal("baseline-authority"),
         Type.Literal("diagnostic-catalog"),
-        Type.Literal("protected-zone-authority"),
+        Type.Literal("protected-zones"),
       ]),
       reason: Type.String({ minLength: 1 }),
     },
@@ -224,7 +224,7 @@ export const CheckOutcomeSchema = Type.Union([
 ]);
 export type CheckOutcome = Static<typeof CheckOutcomeSchema>;
 
-export const LocalFeedbackCheckProjectionSchema = Type.Object(
+export const HookCheckSummarySchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("pass"),
@@ -242,9 +242,9 @@ export const LocalFeedbackCheckProjectionSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type LocalFeedbackCheckProjection = Static<typeof LocalFeedbackCheckProjectionSchema>;
+export type HookCheckSummary = Static<typeof HookCheckSummarySchema>;
 
-export const VerifyCheckSummaryProjectionSchema = Type.Object(
+export const VerifyCheckSummarySchema = Type.Object(
   {
     reportSchemaVersion: Type.Literal(1),
     requestedSelectors: SelectorRequestSchema,
@@ -261,7 +261,7 @@ export const VerifyCheckSummaryProjectionSchema = Type.Object(
   },
   { additionalProperties: false }
 );
-export type VerifyCheckSummaryProjection = Static<typeof VerifyCheckSummaryProjectionSchema>;
+export type VerifyCheckSummary = Static<typeof VerifyCheckSummarySchema>;
 
 export function validateCheckReport(value: unknown): string[] {
   const schemaErrors = Value.Errors(CheckReportSchema, value).map((error) =>

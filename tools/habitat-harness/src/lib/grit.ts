@@ -7,11 +7,11 @@ export {
   runGritRule,
   runGritRules,
 } from "../adapters/grit/runner.js";
-export type { GritScanRootValidationOptions } from "../adapters/grit/scan-roots/index.js";
+export type { PatternScanRootValidationOptions } from "../adapters/grit/scan-roots/index.js";
 export {
-  decideEffectiveGritScanRoots,
-  discoverGritScanRoots,
-  effectiveGritScanRoots,
+  decideEffectivePatternScanRoots,
+  discoverPatternScanRoots,
+  effectivePatternScanRoots,
   validateScanRoots,
 } from "../adapters/grit/scan-roots/index.js";
 export type {
@@ -19,5 +19,5 @@ export type {
   GritCheckOptions,
   GritCheckOutputFormat,
   GritCheckRequestOptions,
-  GritProjectionOptions,
+  GritDiagnosticOptions,
 } from "../adapters/grit/types.js";

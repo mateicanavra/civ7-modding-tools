@@ -1,14 +1,14 @@
-import { readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { Value } from "typebox/value";
+import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
+import { repoRoot } from "../lib/paths.ts";
 import { workspaceGraphTargetNames } from "../lib/workspace-graph-contract.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
 } from "../lib/workspace-graph/schema.ts";
 import { ruleGraphFacts } from "../rules/registry/graph.ts";
-import { RuleRegistryDocumentV1Schema } from "../rules/registry/schema.ts";
+import { loadRuleRegistryDocument } from "../rules/registry/load.ts";
 import {
   InferredProjectsSchema,
   NxTargetDefinitionSchema,
@@ -27,12 +27,11 @@ import {
   ownerCheckTarget,
 } from "./target-definitions.ts";
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const rulesPath = path.join(here, "..", "rules", "rules.json");
-const rules = readRules(rulesPath);
+const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
+const rules = loadRuleRegistryDocument(rulesPath);
 
 export const createNodesV2 = [
-  "tools/habitat-harness/src/rules/rules.json",
+  `${ruleRegistryRepoPath}/**/*.json`,
   (configFiles: string[], options: unknown) => {
     const projects = buildInferredProjects({
       registry: rules,
@@ -42,10 +41,15 @@ export const createNodesV2 = [
   },
 ];
 
-function buildInferredProjects(input: { registry: typeof rules; options: unknown }): InferredProjects {
+function buildInferredProjects(input: {
+  registry: typeof rules;
+  options: unknown;
+}): InferredProjects {
   const targetNames = Value.Parse(
     WorkspaceGraphTargetNamesSchema,
-    workspaceGraphTargetNames(Value.Parse(WorkspaceGraphTargetNameOptionsSchema, input.options ?? {}))
+    workspaceGraphTargetNames(
+      Value.Parse(WorkspaceGraphTargetNameOptionsSchema, input.options ?? {})
+    )
   );
   const ownerRoots = new Map(Object.entries(input.registry.ownerRoots));
   const projects: InferredProjects = {};
@@ -145,22 +149,4 @@ function ownerRootsForRules(rules: ReturnType<typeof ruleGraphFacts>): Map<strin
 
 function targetDefinition(value: NxTargetDefinition): NxTargetDefinition {
   return Value.Parse(NxTargetDefinitionSchema, value);
-}
-
-function readRules(filePath: string) {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(readFileSync(filePath, "utf8"));
-  } catch (error) {
-    throw new Error(error instanceof Error ? error.message : "Invalid Habitat rule registry JSON.");
-  }
-  const issues = [...Value.Errors(RuleRegistryDocumentV1Schema, parsed)];
-  if (issues.length > 0) {
-    throw new Error(
-      `Habitat rule registry is invalid:\n${issues
-        .map((issue) => `- ${issue.instancePath || filePath}: ${issue.message}`)
-        .join("\n")}`
-    );
-  }
-  return Value.Parse(RuleRegistryDocumentV1Schema, parsed);
 }

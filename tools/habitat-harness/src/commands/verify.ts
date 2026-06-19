@@ -4,7 +4,7 @@ import {
   checkCommandContext,
   createCheckReport,
   renderCheckReport,
-  verifyCheckSummaryProjection,
+  verifyCheckSummary,
 } from "../lib/check-report.js";
 import {
   createVerifyReceipt,
@@ -42,11 +42,11 @@ export default class Verify extends HabitatCommand {
     }
     const base = baseDecision.base;
     const report = await createCheckReport({ base, command: checkCommandContext(this.rawArgv()) });
-    const checkProjection = verifyCheckSummaryProjection(report);
+    const checkSummary = verifyCheckSummary(report);
     const targetPlan = await readVerifyTargetPlan();
     let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;
     let exitCode = 0;
-    if (!checkProjection.allowsAffectedExecution) exitCode = 1;
+    if (!checkSummary.allowsAffectedExecution) exitCode = 1;
     else if (targetPlan.kind === "verify-target-plan-refused") exitCode = 1;
     else affectedResult = runAffectedVerification(base, targetPlan);
     if (affectedResult) exitCode = affectedResult.exitCode;
@@ -70,7 +70,7 @@ export default class Verify extends HabitatCommand {
     }
 
     this.log(renderCheckReport(report));
-    if (!checkProjection.allowsAffectedExecution) this.exit(1);
+    if (!checkSummary.allowsAffectedExecution) this.exit(1);
     if (targetPlan.kind === "verify-target-plan-refused") {
       const message =
         targetPlan.refusal.kind === "graph-refusal"

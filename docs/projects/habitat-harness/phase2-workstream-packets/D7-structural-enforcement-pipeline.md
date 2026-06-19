@@ -10,7 +10,7 @@ without changing public check behavior accidentally.
 
 An agent runs `habitat check` or a selector such as `--owner`, `--rule`, or
 `--tool` and receives a trustworthy structural report with selector failures,
-baseline state, enforced/advisory separation, and explicit non-claims.
+baseline state, enforced/advisory separation, and explicit non-goals.
 
 ## Domain Owner
 
@@ -21,11 +21,11 @@ Forbidden owners:
 - Baseline Authority owns baseline state and growth rules.
 - Diagnostic Pattern Catalog owns Grit acquisition.
 - Rule Registry Metadata owns selector and scope facts.
-- Proof Contract owns proof labels.
+- Receipt Contract owns receipt labels.
 
 ## Consumers
 
-`habitat check`, `habitat verify`, hooks, Nx targets, tests, DRA handoff proof.
+`habitat check`, `habitat verify`, hooks, Nx targets, tests, DRA handoff receipt.
 
 ## Contract
 
@@ -79,7 +79,7 @@ and prevent selector failure reports from being treated as successful rule
 execution.
 
 The rejected alternative is "split command-engine.ts by file size." The split
-must follow pipeline authority and proof boundaries.
+must follow pipeline authority and receipt boundaries.
 
 ## Public Surface Impact
 
@@ -87,21 +87,21 @@ must follow pipeline authority and proof boundaries.
 schema changes. Report field ordering can change only if tests and docs treat it
 as non-contractual.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - current `CheckReport` field inventory;
 - selector scenarios;
 - baseline and Grit consumer boundaries.
 
-Later implementation proof:
+Later implementation receipt:
 
 - rule selection tests;
 - CheckReport schema tests;
 - command behavior for clean, failing, advisory, selector failure, staged modes;
 - baseline integrity current-tree check;
-- injected violation proof for representative rule paths.
+- injected violation receipt for representative rule paths.
 
 Non-claims:
 
@@ -115,7 +115,7 @@ Non-claims:
 - API/JSON compatibility review.
 - Baseline consumer review.
 - Grit consumer review.
-- Proof/non-claim review.
+- Receipt/non-goal review.
 
 ## Downstream Realignment
 
@@ -127,18 +127,18 @@ Update:
 - hook packet assumptions;
 - recovery claim ledger rows that cite check behavior.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts test/lib/enforcement-surface.test.ts test/lib/rule-selection.test.ts`:
-  expected exit 0; command, report-shape, and selector proof.
-- `bun run habitat check --json`: expected exit 0 after current-tree proof risks
-  are fixed or explicitly non-claimed.
+  expected exit 0; command, report-shape, and selector receipt.
+- `bun run habitat check --json`: expected exit 0 after current-tree receipt risks
+  are fixed or explicitly non-goaled.
 - `bun run habitat check --rule workspace-entrypoints --json`: expected exit 0;
-  exact single-rule command behavior proof.
-- Cache stance: command proof must record whether wrapped Nx targets were
+  exact single-rule command behavior receipt.
+- Cache stance: command receipt must record whether wrapped Nx targets were
   cached and whether current-tree checks ran fresh.
 - Injected bad case: include invalid selector JSON and a staged generated-zone
-  violation from D10; prove neither can pass as baseline-only proof.
+  violation from D10; prove neither can pass as baseline-only receipt.
 - Non-claim: this packet does not own baselines, diagnostics, or generated-zone
   policy; it consumes D5, D6, and D10.
 

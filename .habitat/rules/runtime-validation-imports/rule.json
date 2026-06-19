@@ -1,0 +1,33 @@
+{
+  "id": "runtime-validation-imports",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "runtime recipe steps and domain strategies",
+  "forbids": "runtime layers importing TypeBox Value/TypeCompiler or mapgen compiler validation helpers",
+  "why": "Runtime layers rely on compile-time normalization, not live schema/default mutation.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Runtime layers must not import TypeBox runtime validation or compiler normalization helpers.",
+  "exceptionPath": "none",
+  "patternName": "runtime_validation_imports",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "unresolved-metadata",
+      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+    }
+  ]
+}

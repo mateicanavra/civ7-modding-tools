@@ -2,14 +2,14 @@ export { type BaselineExpansionResult, expandBaselines } from "./baseline.js";
 export {
   executeSelectedRules,
   rulesForExecution,
-  stagedGritScanRoots,
+  stagedPatternScanRoots,
 } from "./execution.js";
 export {
   checkOutcomeFromReport,
-  isDiagnosticUnavailableProjection,
-  localFeedbackCheckProjection,
-  verifyCheckSummaryProjection,
-} from "./projections.js";
+  isDiagnosticUnavailableSummary,
+  hookCheckSummary,
+  verifyCheckSummary,
+} from "./summaries.js";
 export { renderCheckReport, stringifyCheckReport } from "./render.js";
 export { createCheckReport } from "./report.js";
 export {
@@ -26,7 +26,7 @@ export type {
   CheckReport,
   HabitatDiagnostic,
   HabitatSeverity,
-  LocalFeedbackCheckProjection,
+  HookCheckSummary,
   RuleExecutionDisposition,
   RuleLane,
   RuleReport,
@@ -34,12 +34,12 @@ export type {
   SelectorRefusal,
   SelectorRequest,
   StructuralCheckRequest,
-  VerifyCheckSummaryProjection,
+  VerifyCheckSummary,
 } from "./schema.js";
 export {
   CheckOutcomeSchema,
-  LocalFeedbackCheckProjectionSchema,
-  VerifyCheckSummaryProjectionSchema,
+  HookCheckSummarySchema,
+  VerifyCheckSummarySchema,
 } from "./schema.js";
 export type {
   BaselineApplicationOutcome,

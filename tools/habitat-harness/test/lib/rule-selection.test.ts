@@ -4,12 +4,12 @@ import {
   createCheckReport,
   renderCheckReport,
   rulesForExecution,
-  stagedGritScanRoots,
+  stagedPatternScanRoots,
 } from "../../src/lib/check-report.js";
 import { validateCheckReport } from "../../src/lib/diagnostics.js";
 import { type RuleSelection, selectRules } from "../../src/lib/rule-selection.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
-import type { RuleGritFacts } from "../../src/rules/registry/index.js";
+import type { RulePatternFacts } from "../../src/rules/registry/index.js";
 
 const fakeRules: HarnessRule[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
@@ -110,7 +110,7 @@ describe("rule selector boundary", () => {
     expect(report.rules).toHaveLength(1);
     expect(report.rules[0]).toMatchObject({
       ruleId: "rule-selection-integrity",
-      ownerTool: "habitat-native",
+      ownerTool: "habitat-builtin",
       status: "fail",
     });
     expect(report.rules[0].diagnostics[0].message).toContain("Unknown Habitat rule id");
@@ -128,7 +128,7 @@ describe("rule selector boundary", () => {
       rules: [
         {
           ruleId: "demo-rule",
-          ownerTool: "habitat-native",
+          ownerTool: "command-check",
           lane: "enforced",
           status: "fail",
           locked: true,
@@ -154,49 +154,49 @@ describe("rule selector boundary", () => {
   });
 
   test("staged execution preserves selected rules for explicit not-applicable disposition", () => {
-    const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
-      localFeedback: true,
+    const stagedEligible = fakeRule("hook", "pattern-check", "@internal/habitat-harness", {
+      hookCheck: true,
     });
     const currentTreeOnly = fakeRule(
-      "grit-current-tree",
-      "grit-check",
+      "current-tree",
+      "pattern-check",
       "@internal/habitat-harness"
     );
     const nativeRule = fakeRule("file-layer-rule", "file-layer", "@internal/habitat-harness");
 
     expect(
       rulesForExecution([stagedEligible, currentTreeOnly, nativeRule], {
-        gritFacts: [fakeGritFact("grit-hook", ["packages"])],
-        localFeedbackFacts: [{ id: "grit-hook", localFeedback: true }],
+        gritFacts: [fakeGritFact("hook", ["packages"])],
+        hookCheckFacts: [{ id: "hook", hookCheck: true }],
         staged: true,
         stagedPaths: ["packages/mapgen-core/src/core/index.ts"],
       }).map((rule) => rule.id)
-    ).toEqual(["grit-hook", "grit-current-tree", "file-layer-rule"]);
+    ).toEqual(["hook", "current-tree", "file-layer-rule"]);
   });
 
   test("staged execution does not drop Grit rules when staged paths are outside approved roots", () => {
-    const stagedEligible = fakeRule("grit-hook", "grit-check", "@internal/habitat-harness", {
-      localFeedback: true,
+    const stagedEligible = fakeRule("hook", "pattern-check", "@internal/habitat-harness", {
+      hookCheck: true,
     });
 
     expect(
       rulesForExecution([stagedEligible], {
-        gritFacts: [fakeGritFact("grit-hook", ["packages"])],
-        localFeedbackFacts: [{ id: "grit-hook", localFeedback: true }],
+        gritFacts: [fakeGritFact("hook", ["packages"])],
+        hookCheckFacts: [{ id: "hook", hookCheck: true }],
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
       }).map((rule) => rule.id)
-    ).toEqual(["grit-hook"]);
+    ).toEqual(["hook"]);
   });
 
   test("staged Grit checks with no approved roots report not-applicable instead of baseline-only pass", async () => {
     const report = await createCheckReport({
-      tool: "grit-check",
+      tool: "pattern-check",
       staged: true,
       stagedPaths: ["README.md"],
     });
 
-    const gritReports = report.rules.filter((rule) => rule.ownerTool === "grit-check");
+    const gritReports = report.rules.filter((rule) => rule.ownerTool === "pattern-check");
     expect(gritReports.length).toBeGreaterThan(0);
     expect(gritReports.every((rule) => rule.status !== "pass")).toBe(true);
     expect(
@@ -211,7 +211,7 @@ describe("rule selector boundary", () => {
 
   test("staged Grit scan roots preserve exact approved file paths", () => {
     expect(
-      stagedGritScanRoots([
+      stagedPatternScanRoots([
         "packages/mapgen-core/src/core/index.ts",
         "tools/habitat-harness/src/lib/hooks.ts",
         "README.md",
@@ -256,10 +256,10 @@ function fakeRule(
   };
 }
 
-function fakeGritFact(id: string, scanRoots: readonly string[]): RuleGritFacts {
+function fakeGritFact(id: string, scanRoots: readonly string[]): RulePatternFacts {
   return {
     id,
-    gritPattern: "fixture_pattern",
+    patternName: "fixture_pattern",
     lane: "enforced",
     message: "test fixture",
     scanRoots: [...scanRoots],

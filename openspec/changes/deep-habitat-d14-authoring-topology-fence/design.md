@@ -18,11 +18,11 @@ validation gates are authoring readiness versus non-support context.
 
 | Boundary | D14 decision |
 | --- | --- |
-| Owner | D14 owns authoring-specific blocked-action language, future acceptance criteria, recovery semantics, and non-claims. |
+| Owner | D14 owns authoring-specific blocked-action language, future acceptance criteria, recovery semantics, and current support boundaries. |
 | Future owner | Future Authoring Topology owns any accepted MapGen authoring generator, topology model, and product acceptance loop. |
 | D13 relation | D13 owns the generic scaffold request/refusal envelope; D13 consumes D14's authoring-specific fields. |
 | D4 relation | D4 owns classify/orientation states and may provide examples; D4 does not own authoring capability. |
-| D12 relation | D12 owns verify handoff receipt states and non-claims; D12 success does not imply authoring readiness. |
+| D12 relation | D12 owns verify handoff receipt states; D12 success does not imply authoring readiness. |
 | D8 relation | D8 owns Pattern Governance admission; registered rule health is not authoring workflow support. |
 | G-HOST relation | G-HOST owns host policy declarations; host policy does not imply MapGen authoring support unless a later accepted authoring contract consumes it. |
 
@@ -34,7 +34,7 @@ validation gates are authoring readiness versus non-support context.
 | `future Authoring Topology` | accepted | Future product layer that may design and implement MapGen authoring generators after D14's criteria are satisfied. |
 | `authoring request` | accepted | Request to create or modify MapGen recipe/domain/operation/stage/step topology or adjacent authoring registries/artifacts. |
 | `blocked authoring action` | accepted | A write/routing action D14 declares unsupported in the current Habitat substrate. |
-| `authoring refusal` | accepted | D13 generic scaffold refusal populated with D14-owned blocked action, recovery, retry condition, and non-claim language. |
+| `authoring refusal` | accepted | D13 generic scaffold refusal populated with D14-owned blocked action, recovery, retry condition, and support-boundary language. |
 | `future acceptance criteria` | accepted | Conditions a later project must meet before authoring implementation starts. |
 | `topology scaffold` | rejected | Ambiguous blend of D13 scaffold and future Authoring Topology. Use `supported scaffold contract` or `authoring request`. |
 | broad generator acceptance noun | rejected as target code/type language | Use generator dry-run record, generated diff, command result, compile/test result, or acceptance gate. |
@@ -229,7 +229,7 @@ Later implementation gates:
 | --- | --- | --- |
 | `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts` | covers supported scaffolds plus unsupported authoring refusals and no-write behavior | Generator unit tests do not prove MapGen authoring support. |
 | Supported uniform project dry-run | exits 0 and lists only supported project shell paths | Does not create recipe/domain/op/stage/step topology. |
-| D13 authoring refusal fixture | request text such as `generate a MapGen recipe with a new domain operation and recipe stage` parses to D13 authoring refusal populated with D14 blocked action, owner, recovery, retry, empty write set, and non-claims | Does not implement future Authoring Topology. |
+| D13 authoring refusal fixture | request text such as `generate a MapGen recipe with a new domain operation and recipe stage` parses to D13 authoring refusal populated with D14 blocked action, owner, recovery, retry, empty write set, and support boundary | Does not implement future Authoring Topology. |
 | `bun run habitat classify mods/mod-swooper-maps/src/recipes/standard` | orients existing recipe paths and reports bounded D4 facts | Does not prove authoring readiness. |
 | D13 refusal tests | authoring request cannot route to generic project or pattern scaffold | Does not prove D13 source implementation unless D0 rows and live D13 work exist. |
 
@@ -238,7 +238,7 @@ Later implementation gates:
 - D13 consumes D14 authoring-specific blocked action language and future
   criteria; D13 remains the generic refusal-envelope owner.
 - D4's example corpus is consumed only as orientation/non-support context.
-- D12's examples are consumed only as verify handoff limits and non-claims.
+- D12's examples are consumed only as verify handoff limits.
 - Existing Habitat docs (`GAPS.md`, `AUTHORING-NEXT.md`, `SCENARIOS.md`,
   `IMPLEMENTED-SURFACE.md`) are current-state evidence and later source
   realignment surfaces.

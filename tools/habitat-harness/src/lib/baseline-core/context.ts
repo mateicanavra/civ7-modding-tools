@@ -5,11 +5,11 @@ import {
   ruleBaselineFacts,
   ruleSelectorFacts,
 } from "../../rules/registry/index.js";
+import { ruleRegistryRepoPath } from "../artifact-paths.ts";
 import { baselinesDir, repoRoot } from "../paths.js";
 import { run, type SpawnResult } from "../spawn.js";
 import type {
   BaselineRuleContractInput,
-  ExternalExceptionSource,
   RuleIntroductionBaselineManifest,
 } from "./schema.js";
 
@@ -18,7 +18,6 @@ export interface BaselineContractContext {
   baselinesDir?: string;
   registry?: readonly BaselineRuleContractInput[];
   runCommand?: (argv: string[], options?: { cwd?: string }) => SpawnResult;
-  externalSources?: Record<string, ExternalExceptionSource>;
   ruleIntroductionManifests?: readonly RuleIntroductionBaselineManifest[];
 }
 
@@ -27,7 +26,6 @@ export interface RequiredBaselineContext {
   baselinesDir: string;
   registry: readonly BaselineRuleContractInput[];
   runCommand: (argv: string[], options?: { cwd?: string }) => SpawnResult;
-  externalSources: Record<string, ExternalExceptionSource>;
   ruleIntroductionManifests: readonly RuleIntroductionBaselineManifest[];
 }
 
@@ -39,14 +37,14 @@ export function resolveBaselineContext(
     repoRoot: root,
     baselinesDir: options.baselinesDir ?? baselinesDir,
     registry: options.registry ?? readCurrentRuleRegistry(root),
-    runCommand: options.runCommand ?? ((argv, runOptions) => run(argv, { cwd: runOptions?.cwd ?? root })),
-    externalSources: options.externalSources ?? defaultExternalExceptionSources(),
+    runCommand:
+      options.runCommand ?? ((argv, runOptions) => run(argv, { cwd: runOptions?.cwd ?? root })),
     ruleIntroductionManifests: options.ruleIntroductionManifests ?? [],
   };
 }
 
 export function readCurrentRuleRegistry(root: string): BaselineRuleContractInput[] {
-  const p = path.join(root, "tools/habitat-harness/src/rules/rules.json");
+  const p = path.join(root, ruleRegistryRepoPath);
   const records = loadRuleRegistryDocument(p).rules;
   const selectorsByRuleId = new Map(ruleSelectorFacts(records).map((fact) => [fact.id, fact]));
   return ruleBaselineFacts(records).map((fact) => {
@@ -61,23 +59,6 @@ export function readCurrentRuleRegistry(root: string): BaselineRuleContractInput
         : {}),
     };
   });
-}
-
-export function defaultExternalExceptionSources(): Record<string, ExternalExceptionSource> {
-  return {
-    "adapter-boundary": {
-      kind: "derived",
-      sourcePath: "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST",
-      owner: "scripts/lint/lint-adapter-boundary.sh",
-      projector: "adapter-boundary-allowlist",
-    },
-    "doc-ambiguity": {
-      kind: "derived",
-      sourcePath: "docs/.doc-ambiguity-lint-baseline.json",
-      owner: "tools/habitat-harness/src/rules/native/doc-ambiguity.mjs",
-      projector: "doc-ambiguity-baseline",
-    },
-  };
 }
 
 export function gitShow(

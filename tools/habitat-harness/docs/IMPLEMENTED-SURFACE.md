@@ -123,12 +123,11 @@ Implemented `project` generator:
 Implemented `pattern` generator:
 
 - candidate-only generation by default;
-- active registration requires Pattern Authority Manifest acceptance;
+- active registration requires pattern manifest Manifest acceptance;
 - registered promotion validates baseline and rule-introduction contracts;
 - registered promotion writes active Grit pattern plus rule-pack entry;
-- hook-scoped rules require manifest/invocation agreement.
 
-## Hooks and Local Feedback
+## Hooks and Hook Check
 
 Implemented:
 
@@ -140,7 +139,7 @@ Implemented:
 - staged Grit checks;
 - affected pre-push verification.
 
-Hooks are intentionally local feedback. CI and explicit graph checks remain the
+Hooks are workstation checks. CI and explicit graph checks remain the
 authority for review and merge confidence.
 
 ## Test Coverage
@@ -157,7 +156,7 @@ Current tests cover:
 - hooks;
 - project generator behavior;
 - pattern generator behavior;
-- Pattern Authority Manifest validation;
+- pattern manifest Manifest validation;
 - process boundary behavior;
 - workspace tool discovery and verification receipt construction.
 

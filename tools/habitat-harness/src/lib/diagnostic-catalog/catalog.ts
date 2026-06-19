@@ -1,5 +1,5 @@
 import { type Static, Type } from "typebox";
-import type { RuleGritFacts } from "../../rules/registry/index.js";
+import type { RulePatternFacts } from "../../rules/registry/index.js";
 import {
   GritDiagnosticIdentitySchema,
   gritDiagnosticIdentity,
@@ -10,8 +10,8 @@ import {
 
 export const GritDiagnosticScanContractSchema = Type.Object(
   {
-    kind: Type.Literal("d2-grit-scan-roots"),
-    requiredFacet: Type.Literal("ruleGritFacts"),
+    kind: Type.Literal("rule-registry-scan-roots"),
+    requiredFacet: Type.Literal("rulePatternFacts"),
   },
   { additionalProperties: false }
 );
@@ -29,25 +29,25 @@ export const DiagnosticScanContractSchema = Type.Union([
   NativeDiagnosticScanContractSchema,
 ]);
 
-export const GritDiagnosticProjectionContractSchema = Type.Object(
+export const GritDiagnosticMatchContractSchema = Type.Object(
   {
-    kind: Type.Literal("grit-pattern-projection"),
+    kind: Type.Literal("pattern-match"),
     identity: GritDiagnosticIdentitySchema,
   },
   { additionalProperties: false }
 );
 
-export const NativeDiagnosticProjectionContractSchema = Type.Object(
+export const NativeDiagnosticMatchContractSchema = Type.Object(
   {
-    kind: Type.Literal("native-rule-projection"),
+    kind: Type.Literal("native-rule-match"),
     identity: NativeDiagnosticIdentitySchema,
   },
   { additionalProperties: false }
 );
 
-export const DiagnosticProjectionContractSchema = Type.Union([
-  GritDiagnosticProjectionContractSchema,
-  NativeDiagnosticProjectionContractSchema,
+export const DiagnosticMatchContractSchema = Type.Union([
+  GritDiagnosticMatchContractSchema,
+  NativeDiagnosticMatchContractSchema,
 ]);
 
 export const NativeDiagnosticAcquisitionContractSchema = Type.Object(
@@ -60,13 +60,13 @@ export const NativeDiagnosticAcquisitionContractSchema = Type.Object(
 
 export const GritDiagnosticCatalogEntrySchema = Type.Object(
   {
-    kind: Type.Literal("grit-diagnostic"),
+    kind: Type.Literal("diagnostic"),
     diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
     ruleId: Type.String({ minLength: 1 }),
     diagnosticIdentity: GritDiagnosticIdentitySchema,
-    source: Type.Literal("d2-rule-grit-facts"),
+    source: Type.Literal("rule-registry-facts"),
     scanContract: GritDiagnosticScanContractSchema,
-    projectionContract: GritDiagnosticProjectionContractSchema,
+    matchContract: GritDiagnosticMatchContractSchema,
   },
   { additionalProperties: false }
 );
@@ -80,7 +80,7 @@ export const NativeDiagnosticCatalogEntrySchema = Type.Object(
     source: Type.Literal("native-habitat-rule"),
     scanContract: NativeDiagnosticScanContractSchema,
     acquisitionContract: NativeDiagnosticAcquisitionContractSchema,
-    projectionContract: NativeDiagnosticProjectionContractSchema,
+    matchContract: NativeDiagnosticMatchContractSchema,
   },
   { additionalProperties: false }
 );
@@ -93,13 +93,13 @@ export const DiagnosticCatalogEntrySchema = Type.Union([
 export type GritDiagnosticScanContract = Static<typeof GritDiagnosticScanContractSchema>;
 export type NativeDiagnosticScanContract = Static<typeof NativeDiagnosticScanContractSchema>;
 export type DiagnosticScanContract = Static<typeof DiagnosticScanContractSchema>;
-export type GritDiagnosticProjectionContract = Static<
-  typeof GritDiagnosticProjectionContractSchema
+export type GritDiagnosticMatchContract = Static<
+  typeof GritDiagnosticMatchContractSchema
 >;
-export type NativeDiagnosticProjectionContract = Static<
-  typeof NativeDiagnosticProjectionContractSchema
+export type NativeDiagnosticMatchContract = Static<
+  typeof NativeDiagnosticMatchContractSchema
 >;
-export type DiagnosticProjectionContract = Static<typeof DiagnosticProjectionContractSchema>;
+export type DiagnosticMatchContract = Static<typeof DiagnosticMatchContractSchema>;
 export type NativeDiagnosticAcquisitionContract = Static<
   typeof NativeDiagnosticAcquisitionContractSchema
 >;
@@ -107,18 +107,18 @@ export type GritDiagnosticCatalogEntry = Static<typeof GritDiagnosticCatalogEntr
 export type NativeDiagnosticCatalogEntry = Static<typeof NativeDiagnosticCatalogEntrySchema>;
 export type DiagnosticCatalogEntry = Static<typeof DiagnosticCatalogEntrySchema>;
 
-export function diagnosticCatalogEntryFromRuleGritFacts(
-  rule: Pick<RuleGritFacts, "id" | "gritPattern">
+export function diagnosticCatalogEntryFromRulePatternFacts(
+  rule: Pick<RulePatternFacts, "id" | "patternName">
 ): GritDiagnosticCatalogEntry {
-  const diagnosticIdentity = gritDiagnosticIdentity(rule.gritPattern);
+  const diagnosticIdentity = gritDiagnosticIdentity(rule.patternName);
   return {
-    kind: "grit-diagnostic",
-    diagnosticCatalogEntryId: `${rule.id}:${rule.gritPattern}`,
+    kind: "diagnostic",
+    diagnosticCatalogEntryId: `${rule.id}:${rule.patternName}`,
     ruleId: rule.id,
     diagnosticIdentity,
-    source: "d2-rule-grit-facts",
-    scanContract: { kind: "d2-grit-scan-roots", requiredFacet: "ruleGritFacts" },
-    projectionContract: { kind: "grit-pattern-projection", identity: diagnosticIdentity },
+    source: "rule-registry-facts",
+    scanContract: { kind: "rule-registry-scan-roots", requiredFacet: "rulePatternFacts" },
+    matchContract: { kind: "pattern-match", identity: diagnosticIdentity },
   };
 }
 
@@ -138,6 +138,6 @@ export function diagnosticCatalogEntryFromNativeRule(input: {
       kind: "docs-text-diagnostic",
       outputContract: "standard-text-report",
     },
-    projectionContract: { kind: "native-rule-projection", identity: diagnosticIdentity },
+    matchContract: { kind: "native-rule-match", identity: diagnosticIdentity },
   };
 }

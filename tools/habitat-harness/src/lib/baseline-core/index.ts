@@ -1,6 +1,6 @@
 export type {
   BaselineApplicationResult,
-  BaselineAuthorityProjection,
+  BaselineAuthorityResult,
   BaselineAuthorityState,
   BaselineContractValidation,
   BaselineExpansionDecision,
@@ -11,13 +11,11 @@ export type {
   BaselineRuleContractInput,
   ExplicitDebtBaselineState,
   ExplicitEmptyBaselineState,
-  ExternalExceptionBaselineState,
-  ExternalExceptionSource,
   RuleIntroductionBaselineManifest,
 } from "./schema.js";
 export {
   BaselineApplicationResultSchema,
-  BaselineAuthorityProjectionSchema,
+  BaselineAuthorityResultSchema,
   BaselineAuthorityStateSchema,
   BaselineExpansionDecisionSchema,
   BaselineIntegrityFindingSchema,
@@ -25,13 +23,12 @@ export {
   BaselineRefusalReasonSchema,
   BaselineRefusalSchema,
   BaselineRuleContractInputSchema,
-  ExternalExceptionSourceSchema,
   RuleIntroductionBaselineManifestSchema,
 } from "./schema.js";
 export type { BaselineContractContext, RequiredBaselineContext } from "./context.js";
 export { mergeBase, resolveBaselineContext } from "./context.js";
 export {
-  baselineAuthorityProjection,
+  baselineAuthorityResult,
   baselinePath,
   isBaselineLocked,
   loadBaseline,

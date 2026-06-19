@@ -35,19 +35,19 @@ function ruleGraphAlias(
   rule: RuleRegistryRecordV1,
   targetNames: RuleGraphTargetNames
 ): RuleGraphFacts["alias"] {
-  if (rule.id === "biome-ci") {
+  if (rule.id === "format-ci") {
     return {
       kind: "depends-on",
       target: { project: "@internal/habitat-harness", target: targetNames.biomeCi },
     };
   }
-  if (rule.id === "nx-boundaries") {
+  if (rule.id === "import-boundaries") {
     return {
       kind: "depends-on",
       target: { project: "@internal/habitat-harness", target: targetNames.boundaries },
     };
   }
-  if (rule.ownerTool === "grit-check") {
+  if (rule.ownerTool === "pattern-check") {
     return {
       kind: "depends-on",
       target: { project: "@internal/habitat-harness", target: targetNames.gritCheck },
@@ -59,10 +59,10 @@ function ruleGraphAlias(
       target: { project: "@internal/habitat-harness", target: targetNames.generatedCheck },
     };
   }
-  if (rule.ownerTool === "wrapped-test") {
+  if (rule.ownerTool === "target-check") {
     if (!rule.graphTarget) {
       throw new Error(
-        `Habitat graph metadata contract failure: missing graphTarget for wrapped-test rule '${rule.id}'.`
+        `Habitat graph metadata contract failure: missing graphTarget for target-check rule '${rule.id}'.`
       );
     }
     return {

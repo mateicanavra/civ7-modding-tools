@@ -1,9 +1,19 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
-import { RuleRegistryDocumentV1Schema } from "./schema.js";
-import type { RuleRegistryDocumentV1, RuleRegistryRecordV1 } from "./schema.js";
+import { ruleRegistryRepoPath } from "../../lib/artifact-paths.ts";
+import { repoRoot } from "../../lib/paths.ts";
+import {
+  RuleRegistryDocumentV1Schema,
+  RuleRegistryIndexV1Schema,
+  RuleRegistryRecordV1Schema,
+} from "./schema.ts";
+import type {
+  RuleRegistryDocumentV1,
+  RuleRegistryIndexV1,
+  RuleRegistryRecordV1,
+} from "./schema.ts";
 
 export type RuleRegistryIssueCode =
   | "registry-json-invalid"
@@ -64,6 +74,8 @@ export function parseRuleRegistryDocument(
 export function loadRuleRegistryDocument(
   registryPath = defaultRuleRegistryPath()
 ): RuleRegistryDocumentV1 {
+  if (statSync(registryPath).isDirectory()) return loadRuleRegistryDirectory(registryPath);
+
   const result = parseRuleRegistryText(readFileSync(registryPath, "utf8"), registryPath);
   if (!result.ok) {
     throw new Error(
@@ -76,7 +88,66 @@ export function loadRuleRegistryDocument(
 }
 
 export function defaultRuleRegistryPath(): string {
-  return path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "rules.json");
+  return path.join(repoRoot, ruleRegistryRepoPath);
+}
+
+function loadRuleRegistryDirectory(registryDir: string): RuleRegistryDocumentV1 {
+  const indexPath = path.join(registryDir, "index.json");
+  const index = parseRegistryJson<RuleRegistryIndexV1>(
+    indexPath,
+    RuleRegistryIndexV1Schema,
+    "Habitat rule registry index is invalid"
+  );
+  const rules = ruleFilePaths(registryDir).map((rulePath) =>
+    parseRegistryJson<RuleRegistryRecordV1>(
+      rulePath,
+      RuleRegistryRecordV1Schema,
+      "Habitat rule file is invalid"
+    )
+  );
+  const result = parseRuleRegistryDocument(
+    {
+      schemaVersion: index.schemaVersion,
+      ownerRoots: index.ownerRoots,
+      rules,
+    },
+    registryDir
+  );
+  if (!result.ok) {
+    throw new Error(
+      `Habitat rule registry is invalid:\n${result.issues
+        .map((issue) => `- ${issue.path}: ${issue.message}`)
+        .join("\n")}`
+    );
+  }
+  return result.document;
+}
+
+function parseRegistryJson<T>(filePath: string, schema: TSchema, heading: string): T {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(readFileSync(filePath, "utf8")) as unknown;
+  } catch (error) {
+    throw new Error(
+      `${heading}:\n- ${filePath}: ${error instanceof Error ? error.message : "Invalid JSON."}`
+    );
+  }
+  const issues = [...Value.Errors(schema, parsed)];
+  if (issues.length > 0) {
+    throw new Error(
+      `${heading}:\n${issues
+        .map((issue) => `- ${issue.instancePath ? `${filePath}${issue.instancePath}` : filePath}: ${issue.message}`)
+        .join("\n")}`
+    );
+  }
+  return Value.Parse(schema, parsed) as T;
+}
+
+function ruleFilePaths(registryDir: string): string[] {
+  return readdirSync(registryDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(registryDir, entry.name, "rule.json"))
+    .sort();
 }
 
 function duplicateRuleIdIssues(

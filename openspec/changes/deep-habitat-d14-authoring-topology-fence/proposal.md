@@ -68,8 +68,9 @@ handoff, pattern candidates, and supported uniform project scaffolds.
 - D0 for public command, generator, docs, export, script, and JSON
   compatibility rows before source behavior changes.
 - D4 for orientation example limits and non-support messaging.
-- D12 for verify handoff non-claims and receipt examples.
+- D12 for verify handoff boundaries and receipt examples.
 - D13 for the generic scaffold refusal envelope and source-blocked D14 citation.
+- D14A for the authored-artifact root and SDK/authored-data separation.
 
 ## Enables
 
@@ -141,6 +142,6 @@ Later source implementation gates include:
 - A D13 authoring refusal fixture for request text such as
   `generate a MapGen recipe with a new domain operation and recipe stage`,
   asserting D14 blocked action, owner, recovery, retry condition, empty write
-  set, and non-claims.
+  set, and support boundary.
 - `bun run habitat classify mods/mod-swooper-maps/src/recipes/standard`
   only as orientation/non-support context, not as authoring readiness.
