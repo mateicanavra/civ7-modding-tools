@@ -417,27 +417,28 @@ These mirror [`live-proof-ledger.md`](./live-proof-ledger.md) §D and are **not*
 closed as of the 3-fix DRAFT. (Items being addressed in the current
 docs/wonders/refactor phase are noted.)
 
-- **Valley of Flowers (28)** — rejected `set-feature-false` on both earthlike
-  seeds. **Root cause re-diagnosed: the earlier "odd-Q vs odd-R predicate"
-  attribution was wrong** — the op's adjacency (`getHexNeighborIndicesOddQ`) is
-  already odd-R and engine-calibrated, so `ADJACENTMOUNTAIN` was never the gate.
-  VoF is a `TWOADJACENT` 2-tile wonder carrying data `Direction:-1` (engine
-  self-orient, like every base wonder) which the mod normalizes to `Direction:0`,
-  plus tight constraints (FLAT-only terrain; `ADJACENTMOUNTAIN` + `NOTNEARCOAST`).
-  Leading hypothesis (UNCONFIRMED — needs a live diagnostic): like the 4-tile
-  classes, the engine refuses the forced single orientation and needs
-  `Direction:-1` to self-orient the 2-tile footprint into a legal pair. (Some
-  2/3-tile wonders DO place at the forced `Direction:0`, so any self-orient need
-  is specific to tightly-constrained wonders.)
+- **Valley of Flowers (28)** — rejected `set-feature-false`. **Both the
+  odd-Q/odd-R predicate AND the `Direction:-1` self-orient hypotheses are DISPROVEN
+  by live runs** (ledger §E): the op's adjacency is already odd-R, and a
+  `Direction:-1` retry still failed while Zhangjiajie — the same `TWOADJACENT`
+  2-tile class — places at the forced `Direction:0`. So VoF's failure is its tight
+  constraint combination (`validTerrain=[FLAT]` + `ADJACENTMOUNTAIN` +
+  `NOTNEARCOAST`): `canHaveFeatureParam` passes but the engine's `setFeatureType`
+  refuses every mod-selected candidate, and on mountain-heavy maps VoF often has
+  no legal tile at all (terrain-limited). Not a quick code bug — would need
+  engine-exact candidate matching or the base NW placement flow (out of scope).
 - **Thera (37, FOURPARALLELAGRM caldera-coast)** — rejected on all runs at
   `Direction:-1`. The CLASS works (Everest, same class, places); Thera needs a
   volcano-adjacent-to-coast neighborhood rarely present at suitability-top
   anchors. **Fix (planned):** terrain-aware group-B anchor pre-filter favouring
   anchors adjacent to both a volcano and a coast.
-- **Hoerikwaggo (33, FOURL)** — never *selected* in sampled seeds (loses its
-  F-mtn group), so its live self-orientation is unproven; it shares the proven
-  FOURADJACENT/FOURPARALLELAGRM code path. **Plan:** find/seed a map where FOURL
-  wins, or document as code-path-proven-only.
+- **Hoerikwaggo (33, FOURL)** — terrain-limited: it needs a `MOUNTAIN`+`biome 1`
+  tile, which the sampled maps lack, so it has no legal footprint and is never
+  selected. A forced-`placeFirst` probe (ledger §E3) still could not select it —
+  `placeFirst` only adds a ranking bonus and cannot force a wonder whose
+  `bestSuitability` is `-1`. FOURL engine-acceptance is therefore code-path-proven
+  only (identical `Direction:-1` + anchor-only path to the live-proven
+  FOURADJACENT/FOURPARALLELAGRM); proving it needs a `MOUNTAIN`+`biome 1` map.
 - **Even-row PLACED anchor** — even-row *geometry* is proven (live calibration +
   unit tests), but no *placed* even-row multi-tile anchor is telemetry-proven
   (placed coords are hashed; §8).

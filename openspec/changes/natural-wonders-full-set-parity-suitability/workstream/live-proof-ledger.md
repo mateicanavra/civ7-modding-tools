@@ -267,3 +267,53 @@ geometry is proven offline; FOUR* readback is anchor-level by design.
 placement, Valley of Flowers odd-Q/odd-R predicate, FOURL (Hoerikwaggo) live
 self-orientation (never selected), a same-seed/same-binary live determinism
 re-run, a telemetry-proven even-row PLACED anchor, and in-game effect-yields.
+
+## E. Post-documentation live re-diagnosis of the 3 remaining wonders (2026-06-19)
+
+Run during the docs/JSDoc/refactor phase with full machine access, to re-diagnose
+VoF/Thera/Hoerikwaggo from live evidence (after correcting the wrong odd-Q
+attribution). Same `studio-run-in-game-live --mutate` flow; build→deploy→verify
+through the nx cache (hash-confirmed); telemetry from `NATURAL_WONDER_*_V1`.
+
+**E1 — Valley of Flowers: the Direction:-1 self-orient hypothesis is DISPROVEN.**
+A self-orient retry (on a multi-tile `set-feature-false`, retry the anchor at
+`Direction:-1` + anchor-only readback) was implemented and live-tested on
+earthlike 1337. Result: **5/7 placed — VoF(28) STILL `set-feature-false`** (no
+change vs the §D baseline). The decisive control: **Zhangjiajie(36), the SAME
+`TWOADJACENT` 2-tile class, placed at the forced `Direction:0`** while VoF failed.
+So VoF's failure is NOT a direction/orientation problem — it is VoF's tight
+constraint combination (`validTerrain=[FLAT]` + `ADJACENTMOUNTAIN` +
+`NOTNEARCOAST`): `canHaveFeatureParam` passes but the engine's `setFeatureType`
+refuses every mod-selected candidate. The self-orient retry was a confirmed
+no-op and was reverted (it also broke the existing `-1`-means-concrete contract
+for 1/2/3-tile footprints).
+
+**E2 — VoF and Hoerikwaggo are TERRAIN-LIMITED (often no legal tile at all).** On
+desert-mountains 1337, neither VoF(28) nor Hoerikwaggo(33) appears in the plan —
+each has `bestSuitability = -1` (no constraint-passing footprint): VoF lacks
+FLAT-adjacent-mountain-not-near-coast terrain there; Hoerikwaggo lacks a
+`MOUNTAIN`+`biome 1` tile (desert-mountains' mountains are Everest's biome 3).
+
+**E3 — Hoerikwaggo (FOURL) could NOT be force-selected.** A throwaway probe
+forcing `placeFirst` on feature 33 did NOT select it on desert-mountains 1337,
+because `placeFirst` only adds a ranking bonus — it cannot force a wonder whose
+`bestSuitability` is `-1` (no legal footprint). So FOURL engine-acceptance is
+still NOT independently observed; it remains code-path-proven only (identical
+`Direction:-1` + anchor-only path to the live-proven FOURADJACENT/FOURPARALLELAGRM).
+Proving it needs a map with `MOUNTAIN`+`biome 1` terrain.
+
+**E4 — RE-CONFIRMED: FOURADJACENT + FOURPARALLELAGRM self-orient.** desert-mountains
+1337 placed Barrier Reef(29, FOURADJACENT) and Everest(1, FOURPARALLELAGRM) at
+`Direction:-1` (6/7 placed; only Thera rejected) — consistent with §D O4.
+
+**E5 — Thera (37):** still `set-feature-false` at `Direction:-1` on desert-mountains
+1337. The CLASS works (Everest, same FOURPARALLELAGRM, placed same run), so this is
+Thera-specific: its caldera needs a volcano∧coast 4-tile neighborhood rare even on
+desert-mountains. A volcano-adjacency pre-filter would need a volcano signal
+forwarded to the pure op (not currently available); deferred.
+
+**Net (Section E):** none of the 3 remaining wonders is a quick code bug. VoF is
+engine-strict + terrain-limited; Hoerikwaggo is terrain-limited (blocks even
+forced selection); Thera is terrain-limited. The §D 3-fix scope (variety, retry,
+4-tile self-orient) stands unchanged. No code fix was shipped for the 3 wonders;
+the leading VoF hypothesis was decisively falsified rather than papered over.
