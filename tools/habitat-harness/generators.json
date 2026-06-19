@@ -11,7 +11,7 @@
     "pattern": {
       "factory": "./src/generators/pattern/generator.ts#patternGenerator",
       "schema": "./src/generators/pattern/schema.json",
-      "description": "Scaffold a Habitat Grit pattern and matching rule-pack entry."
+      "description": "Scaffold a Habitat Grit pattern candidate draft. Registered pattern promotion is governed by Pattern Governance."
     }
   }
 }
