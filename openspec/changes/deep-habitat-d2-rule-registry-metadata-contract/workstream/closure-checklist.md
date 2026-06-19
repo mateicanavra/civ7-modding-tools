@@ -34,10 +34,11 @@
 - [x] Public-surface changes are dispositioned through D0 compatibility.
 - [x] Downstream docs/tests/specs are realigned only where D2 changed accepted contract facts.
 - [x] Fallback inference is deleted where D2 projections replace it.
-- [ ] Graphite layer is clean, reviewable, and does not proceed past unresolved packet approval.
+- [x] Graphite layer is clean, reviewable, and does not proceed past unresolved packet approval.
+  - D2 is submitted as draft PR #1837 on `agent-DRA-d2-rule-registry-metadata-contract`; worktree is clean and no D3 branch/source work has started.
 
 ## Non-Claims
 
 - D2 implementation does not close D3 resolved graph truth, D5 baseline authority, D8 governance admission, D11 hook behavior, D12 verify workflow, or D13 scaffold/refusal behavior.
 - D2 implementation does not make broad `habitat check --json` pass; existing non-D2 findings remain separately owned.
-- D2 is not packet-closure complete until final review and Graphite closure are resolved or explicitly accepted.
+- D2 is not approved for D3 advancement until external packet approval accepts PR #1837 or an explicit user/authority decision changes the gate.
