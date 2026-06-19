@@ -2,8 +2,8 @@
 
 ## State
 
-- Status: source implementation submitted as draft PR #1839 pending
-  packet-boundary approval.
+- Status: source implementation submitted as draft PR #1839; packet-boundary
+  review accepted for D5 advancement.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d4-orientation-routing`.
 - OpenSpec change: `openspec/changes/deep-habitat-d4-orientation-routing`.
@@ -24,7 +24,6 @@ Concrete D0 rows exist for the D4-touched public/durable classify surfaces:
 - `D0-cli-cmd-classify-arg-path`
 - `D0-command-json-type-classification`
 - `D0-command-json-type-diffclassification`
-- `D0-command-json-type-scopedrule`
 - `D0-command-json-type-classifiedtarget`
 - `D0-command-json-type-unavailableclassifiedtarget`
 - `D0-command-json-type-classifyresult`
@@ -35,7 +34,6 @@ Concrete D0 rows exist for the D4-touched public/durable classify surfaces:
 - `D0-package-export-symbol-classification`
 - `D0-package-export-symbol-diffclassification`
 - `D0-package-export-symbol-rulescopekind`
-- `D0-package-export-symbol-scopedrule`
 - `D0-package-export-symbol-classifiedtarget`
 - `D0-package-export-symbol-unavailableclassifiedtarget`
 - `D0-package-export-symbol-classifyoptions`
@@ -80,8 +78,8 @@ D15 remains dormant. No D4 work triggered the D15 accepted trigger condition.
   `ClassifyResult` / `PathClassification` model.
 - `classifyTarget` and `classifyPath` remain public function names but now
   return `ClassifyResult` and `PathClassification` directly. The old
-  `Classification`, `DiffClassification`, `ScopedRule`, and `RuleScopeKind`
-  exports are removed instead of preserved through a second DTO path.
+  old classify DTO exports are removed instead of preserved through a second
+  DTO path.
 - `habitat classify` now serializes the D4 result model through
   `stringifyClassifyResult`.
 - `project-path`, `workspace-path`, `diff`, `malformed-or-pathless-diff`,
@@ -146,8 +144,8 @@ DTO exports instead of adding a parallel DTO path, exporting the D4 result model
 from the existing classify module, and passing focused classify/command
 validation.
 
-Final adversarial source and record review remains pending before Graphite
-submission.
+Final adversarial source and record review found no unresolved accepted P1/P2
+blockers before D5 advancement.
 
 ## Non-Claims
 

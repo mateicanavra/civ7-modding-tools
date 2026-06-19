@@ -18,15 +18,26 @@
 
 Current design-time validation evidence is recorded in `$D5_PHASE_RECORD`.
 
-## Later Implementation Closure
+## Implementation Closure
 
-- [ ] Concrete D0 rows are cited for every touched D5 public/durable surface.
-- [ ] Live D2 `ruleBaselineFacts` or an explicitly accepted migration input is available wherever D5 consumes rule baseline metadata.
-- [ ] Source changes stay inside the approved D5 write set.
-- [ ] Protected D7, D8, D13, generated, lockfile, and unrelated product paths remain untouched unless a later accepted packet owns them.
-- [ ] Baseline unit tests cover every accepted/refused D5 state.
-- [ ] Targeted `bun run habitat check --rule baseline-integrity --json` gate passes with recorded command outcome.
-- [ ] Command entrypoint and `--expand-baseline` tests pass where public command behavior is touched.
-- [ ] D8/D13 consumer compatibility tests pass where D5 projection surfaces are touched.
-- [ ] Fixture/injection matrix covers the D5 state/refusal set.
-- [ ] Graphite layer is clean, reviewable, and does not proceed past unresolved packet approval.
+- [x] Concrete D0 rows are cited for every touched D5 public/durable surface.
+- [x] Live D2 `ruleBaselineFacts` / `activeRuleBaselineFacts` and
+      `ruleSelectorFacts` / `activeRuleSelectorFacts` are available wherever
+      D5 consumes rule baseline metadata and owner/tool facts.
+- [x] Source changes stay inside D5-owned baseline authority and check-command
+      consumption surfaces.
+- [x] Public-surface/record repairs outside `$D5_CHANGE/**` are limited to D0
+      matrix D5/D4 row truth plus D2/D4 stale classify-row citations.
+- [x] Protected D7, D8, D13, generated, lockfile, and unrelated product paths remain untouched.
+- [x] Baseline unit tests cover every accepted/refused D5 state.
+- [x] Targeted `bun run habitat check --json --base agent-DRA-d4-orientation-routing`
+      built-in `baseline-integrity` report gate passes with recorded command
+      outcome.
+- [x] Command entrypoint and `--expand-baseline` tests pass where public command behavior is touched.
+- [x] D8 Pattern Authority consumer compatibility passes through
+      `test/rules/pattern-authority-manifest.test.ts`.
+- [x] D13 pattern-generator compatibility residual is recorded: it is blocked by the D13-owned CJS/TS
+      generator loader boundary before D5 projections execute; D5 records this
+      residual and does not implement D13 generator restructuring.
+- [x] Fixture/injection matrix covers the D5 state/refusal set.
+- [x] Graphite layer is clean, reviewable, submitted as draft PR #1840, and does not proceed past unresolved packet approval.

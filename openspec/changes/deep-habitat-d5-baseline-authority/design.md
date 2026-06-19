@@ -21,9 +21,9 @@ or ownership decisions.
   authority state, expansion guard decisions, external exception source models,
   and consumer projections while preserving or facading public surfaces through
   D0.
-- Constraint reality: D5 may consume D0/D2 accepted design/specification state
-  now, but source implementation remains blocked behind concrete D0 rows and
-  live D2 rule identity/facet projections.
+- Constraint reality: D5 may implement after citing concrete D0 rows and
+  consuming the live D2 `ruleBaselineFacts` / `activeRuleBaselineFacts`
+  projections.
 
 ## Domain Boundary
 
@@ -68,7 +68,7 @@ D5 does not own:
 | `BaselineApplicationResult` | D5 result consumed by D7 after rule execution. It marks covered diagnostics, returns new diagnostics unchanged, and returns baseline refusals as command diagnostics. |
 | `BaselineIntegrityResult` | D5 shrink-only integrity result for current tree vs comparison base. It reports accepted integrity or one or more refusals. |
 | `BaselineExpansionDecision` | Target replacement for boolean `BaselineExpansionGuardResult`; it is either accepted for an introduced rule or refused with one stable reason. |
-| `ExternalExceptionSource` | Target discriminated model for legacy sources outside `tools/habitat-harness/baselines/*.json`. Each variant has exactly one projection strategy and required validation behavior. |
+| `ExternalExceptionSource` | Target discriminated model for exception sources outside `tools/habitat-harness/baselines/*.json`. Each variant has exactly one projection strategy and required validation behavior. |
 | `RuleIntroductionBaselineManifest` | D5-owned manifest for accepting seeded baseline rows only when the rule is absent from the comparison base and manifest fields match the requested write. |
 | `BaselineAuthorityProjection` | D5-published consumer projection for D8. It states whether baseline authority is explicit-empty, explicit-debt, external-exception, or refused. D8 consumes it; D8 owns lifecycle/admission. |
 
@@ -95,7 +95,7 @@ Rejected target language:
 | --- | --- | --- | --- |
 | `explicit-empty` | Registered rule has a sorted empty JSON array baseline file. | `ruleId`, `baselinePath`, `keys: []`, `locked: true`. | D7 treats every reported error as new. D8 sees explicit empty baseline authority. |
 | `explicit-debt` | Registered rule has a sorted non-empty JSON array baseline file. | `ruleId`, `baselinePath`, sorted `keys`, `locked: false`. | D7 marks matching diagnostics as covered debt. D8 sees explicit debt baseline authority. |
-| `external-exception` | Registered rule has a modeled external source and no explicit baseline file. | `ruleId`, `sourcePath`, `owner`, `migrationOwner`, sorted `projectedKeys`, `locked: false`. | D7 accepts only diagnostics pre-marked to exactly match projected keys. D8 sees external exception baseline authority. |
+| `external-exception` | Registered rule has a modeled external source and no explicit baseline file. | `ruleId`, `sourcePath`, `owner`, sorted `projectedKeys`, `locked: false`. | D7 accepts only diagnostics pre-marked to exactly match projected keys. D8 sees external exception baseline authority. |
 | `missing-baseline` | Registered rule has neither explicit baseline nor modeled external source. | `ruleId`, expected `baselinePath`, reason. | D7 emits baseline contract diagnostic; D8 sees refusal. |
 | `malformed-baseline` | Baseline file cannot be read, is invalid JSON, or is not an array. | `ruleId`, `baselinePath`, reason detail. | D7 emits diagnostic; integrity fails. |
 | `non-string-baseline-key` | Baseline array includes non-string entry. | `ruleId`, `baselinePath`, index. | D7 emits diagnostic; integrity fails. |
@@ -123,13 +123,13 @@ The later implementation must collapse these current state-space smells:
 | --- | --- |
 | `BaselineExpansionGuardResult` uses `ok: boolean` plus optional `reason`. | Replace with a `BaselineExpansionDecision` union: accepted introduced-rule baseline or refused baseline expansion with a stable reason. |
 | `ExternalExceptionSourceModel` allows `projectedKeys?`, `projectKeys?`, and `validate?` in optional combinations. | Replace with a discriminated `ExternalExceptionSource` union where each variant has one projection strategy and required validation semantics. |
-| `BaselineContractFailure` doubles as rule-level state, integrity finding source, and command diagnostic payload. | Keep or facade for D0 compatibility, but target code should use `BaselineRefusal`, `BaselineIntegrityResult`, and `BaselineApplicationResult` projections at boundaries. |
+| Old contract-failure payloads double as rule-level state, integrity finding source, and command diagnostic payload. | Remove those names from the target API and publish `BaselineRefusal`, `BaselineIntegrityResult`, and `BaselineApplicationResult` projections at boundaries. |
 | `createCheckReport` loads/applies baseline state inline. | D5 may provide the baseline application/integrity result; D7 owns when and how those results become `CheckReport` rows. |
 | Pattern Authority manifest validation reads baseline contract fields directly. | D5 publishes `BaselineAuthorityProjection`; D8 consumes it and decides lifecycle/admission. |
 | Parser-owned `baselined` flags can appear before D5 chooses authority state. | D5 treats pre-covered diagnostics as valid only for modeled external exception projection equality; explicit baseline states refuse parser-owned bypass. |
 
 Implementation sequence must be characterization -> closed states -> public
-facade decisions -> consumer migration -> deletion of invalid states. Do not
+versioning decisions -> consumer migration -> deletion of invalid states. Do not
 split or rename files when the move only reduces file length and leaves the
 state model unchanged.
 
@@ -140,26 +140,27 @@ row and the implementation cites that row.
 
 | Surface | Plane | Required D0 row before source edits | Target handling |
 | --- | --- | --- | --- |
-| `$HABITAT_TOOL/baselines/*.json` | durable data | `blocked-pending-d0-row` | Preserve sorted JSON array contract or version through D0; never silently rewrite live baselines. |
-| `habitat check --json` baseline diagnostics | command-json | `blocked-pending-d0-row` | Preserve/facade or version baseline failure messages, `baselined`, `locked`, and `baseline-integrity` report fields. |
-| `habitat check --rule baseline-integrity --json` | command-json | `blocked-pending-d0-row` | Required D5 command outcome; no broad all-rule check can substitute for it. |
-| `habitat check --expand-baseline` behavior and messages | command | `blocked-pending-d0-row` | Guarded by `BaselineExpansionDecision`; refusal happens before file writes. |
-| Baseline exports from `$HABITAT_TOOL/src/index.ts` | package-export | `blocked-pending-d0-row` | Preserve/facade/version exported types/functions while adding target state model. |
-| Pattern Authority `baselineContract` manifest fields | durable schema | `blocked-pending-d0-row` | D5 publishes projection; D8 owns lifecycle/admission semantics. |
-| Pattern generator baseline contract messages | command/human-output | `blocked-pending-d0-row` | Keep as D8/D13 consumer surface; D5 may define baseline authority input only. |
-| Docs/examples showing baseline failures | docs-example | `blocked-pending-d0-row` | Document-only after source behavior and D0 row alignment. |
-| Generated help/manifests if command metadata changes | generated | `blocked-pending-d0-row` | Generated-only; regenerate from source. |
+| `$HABITAT_TOOL/baselines/*.json` | durable data | `D0-durable-data-baselines-json-array`, with package allowlist row `D0-package-export-file-baselines` as a related non-contract publication fact | Preserve sorted JSON array contract or version through D0; never silently rewrite live baselines. |
+| `habitat check --json` baseline diagnostics | command-json/human-output | `D0-cli-cmd-check-flag-json`, `D0-command-json-type-checkreport`, `D0-command-json-type-rulereport`, `D0-command-json-type-habitatdiagnostic`, `D0-human-output-cmd-check-line-human-report` | Preserve or version baseline failure messages, `baselined`, `locked`, and built-in `baseline-integrity` report fields. D5 does not intentionally change human rendering in this packet. |
+| Built-in baseline-integrity check report row | command-json | `D0-command-json-type-checkreport`, `D0-command-json-type-rulereport`, `D0-cli-cmd-check-rule-baseline-integrity-refused` | D5 validates the built-in report in `habitat check --json`; it does not make `baseline-integrity` a selectable registered rule. |
+| `habitat check --expand-baseline` behavior and messages | cli/package-export | `D0-cli-cmd-check-flag-expand-baseline`, `D0-package-export-symbol-guardbaselineexpansion`, `D0-package-export-symbol-expandbaselines` | Guarded by `BaselineExpansionDecision`; refusal happens before file writes. |
+| Baseline exports from `$HABITAT_TOOL/src/index.ts` | package-export | `D0-package-export-symbol-baselineapplicationresult`, `D0-package-export-symbol-baselineauthorityprojection`, `D0-package-export-symbol-baselineauthoritystate`, `D0-package-export-symbol-baselinecontractvalidation`, `D0-package-export-symbol-baselineexpansiondecision`, `D0-package-export-symbol-baselineintegrityfinding`, `D0-package-export-symbol-baselineintegrityresult`, `D0-package-export-symbol-baselinerefusal`, `D0-package-export-symbol-baselinerefusalreason`, `D0-package-export-symbol-baselinerulecontractinput`, `D0-package-export-symbol-externalexceptionsource`, `D0-package-export-symbol-ruleintroductionbaselinemanifest`, `D0-package-export-symbol-applybaseline`, `D0-package-export-symbol-baselinefailurediagnostic`, `D0-package-export-symbol-baselineintegrityfindings`, `D0-package-export-symbol-checkbaselineintegrity`, `D0-package-export-symbol-guardbaselineexpansion`, `D0-package-export-symbol-isbaselinelocked`, `D0-package-export-symbol-loadbaseline`, `D0-package-export-symbol-loadbaselinestate`, `D0-package-export-symbol-mergebase`, `D0-package-export-symbol-validatebaselinecontract`, `D0-package-export-symbol-violationkey`, `D0-package-export-symbol-writebaseline`, and the D5 TypeBox schema rows for those exported contracts | Version exported types/functions to the D5 names and publish schema artifacts with derived types. |
+| Pattern Authority `baselineContract` manifest fields | durable schema/package-export | `D0-package-export-symbol-patternauthoritymanifest`, `D0-package-export-symbol-validatepatternauthoritymanifest`, `D0-package-export-symbol-patternauthorityvalidationresult`, `D0-package-export-symbol-patternauthorityvalidationissue`, `D0-package-export-symbol-patternauthorityvalidationfailurereason` | D5 publishes projection; D8 owns lifecycle/admission semantics. |
+| Pattern generator baseline contract messages | generator | `D0-generator-generator-pattern-name`, `D0-generator-generator-pattern-schema`, `D0-generator-generator-pattern-factory`, `D0-generator-generator-pattern-refusal` | Keep as D8/D13 consumer surface; D5 may define baseline authority input only. |
+| Docs/examples showing baseline failures | docs-example | `D0-docs-example-doc-phase2-d5-baseline-authority-baseline-integrity-rule-refused` | Historical `--rule baseline-integrity` examples remain document-only refused examples; D5 current docs/examples must cite active command/JSON rows. |
+| Generated help/manifests if command metadata changes | generated/package-export | `D0-package-export-subpath-oclif-commands`, `D0-package-export-file-oclif-manifest-json`, `D0-package-export-package-script-build-manifest`, `D0-package-export-package-nx-target-build-manifest` | Generated-only; regenerate from source. |
 
 Allowed D0 compatibility actions remain only `preserve`, `version`, `facade`,
 `deprecate`, `refuse`, `document-only`, and `generated-only`.
 
 ## D7 And D8 Consumption Rules
 
-D5 consumes D2 through rule baseline facts only: rule id, baseline source
-declaration, external exception relation, rule owner/tool facts required for
-messages/projections, and `RuleIntroductionBaselineManifest` acceptance input.
-D5 must not parse whole registry rows, prose `exceptionPath` text, or file
-presence as a second registry authority once D2 projections exist.
+D5 consumes D2 through named projections only: `ruleBaselineFacts` /
+`activeRuleBaselineFacts` for rule id and baseline source declaration, and
+`ruleSelectorFacts` / `activeRuleSelectorFacts` for owner project/tool facts
+needed by `RuleIntroductionBaselineManifest` matching. D5 must not parse whole
+registry rows, prose `exceptionPath` text, or file presence as a second
+registry authority once D2 projections exist.
 
 D7 consumes:
 
@@ -193,9 +194,9 @@ Later source implementation may edit only after D5 acceptance and prerequisites:
 | Area | Allowed purpose |
 | --- | --- |
 | `$HABITAT_TOOL/src/lib/baseline.ts` | Define D5 state/result/projection unions, external source variants, integrity and expansion decisions. |
-| `$HABITAT_TOOL/src/lib/command-engine.ts` | Consume D5 application/integrity results without redesigning D7 report construction. |
-| `$HABITAT_TOOL/src/commands/check.ts` | Preserve or facade `--expand-baseline` command behavior through D0-cited decisions. |
-| `$HABITAT_TOOL/src/index.ts` | Preserve/facade/version baseline exports only with D0 rows. |
+| `$HABITAT_TOOL/src/lib/check-report.ts` | Consume D5 application/integrity results without redesigning D7 report construction. |
+| `$HABITAT_TOOL/src/commands/check.ts` | Preserve or version `--expand-baseline` command behavior through D0-cited decisions. |
+| `$HABITAT_TOOL/src/index.ts` | Version baseline exports only with D0 rows. |
 | `$HABITAT_TOOL/test/lib/baseline.test.ts` | Cover the full D5 state/refusal matrix and invalid state combinations. |
 | `$HABITAT_TOOL/test/commands/habitat-entrypoints.test.ts` | Cover baseline command JSON/status for D5 public outcomes. |
 | `$HABITAT_TOOL/test/commands/habitat-commands.test.ts` | Cover command adapter behavior for `--expand-baseline`. |
@@ -231,12 +232,17 @@ Later implementation validation:
   refusal before writes;
 - Pattern Authority/generator tests only for consuming D5 projection/refusal
   result;
-- `bun run habitat check --rule baseline-integrity --json` as the command
-  outcome for current-tree baseline integrity.
+- `bun run habitat check --json --base <trusted-comparison-ref>` with a built-in
+  `baseline-integrity` report in `CheckReport.rules` as the command outcome for
+  current-tree baseline integrity. In the unmerged Graphite stack, the trusted
+  comparison ref is the accepted D4 parent layer because bare `main` predates
+  the live D2 registry schema. D0 refuses `habitat check --rule
+  baseline-integrity --json` as a registered-rule selector unless a later packet
+  explicitly versions that public surface.
 
-`bun run habitat check --json` may be useful for broad current-tree health but
-is not the D5 command outcome and cannot replace the baseline-integrity rule
-gate.
+Bare `bun run habitat check --json` may be useful for broad current-tree health
+but is not the D5 command outcome in this stack and cannot replace the
+baseline-integrity rule gate.
 
 ## Non-Goals
 
