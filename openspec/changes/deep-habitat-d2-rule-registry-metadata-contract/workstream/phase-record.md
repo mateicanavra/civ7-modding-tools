@@ -2,7 +2,7 @@
 
 ## State
 
-- Status: source implementation submitted as draft PR #1837 after final internal review and repair; focused D2 projection/parser/consumer gates pass. Structural adapter-domain enforcement is a Habitat-owned GritQL rule, not a manual architecture test. External packet approval remains the boundary before D3.
+- Status: source implementation submitted as draft PR #1837 after final internal review and repair; focused D2 projection/parser/consumer gates pass. Structural adapter-domain enforcement is a Habitat-owned GritQL rule, not a manual architecture test. User-delegated temporary-supervisor review accepted D2 for D3 advancement after the D7 command-context carry-forward repair.
 - Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
 - Branch: `agent-DRA-d2-rule-registry-metadata-contract`.
 - Source packet: `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`.
@@ -14,7 +14,7 @@ Implement the D2 Rule Registry Metadata Contract: a versioned TypeBox-backed reg
 
 ## Current Gate
 
-D2 source implementation is submitted after the D0/D1 implementation-start gates were satisfied. D3 must not begin until D2 closure is externally approved or an explicit user/authority decision changes the gate.
+D2 source implementation is submitted after the D0/D1 implementation-start gates were satisfied. The user-approved temporary-supervisor review path accepted D2 closure for D3 advancement after the D7 command-context carry-forward repair; D3 still starts under its own D0/D2 readiness gates.
 
 ## Dependency State
 
@@ -70,3 +70,4 @@ Implementation validation results must use this shape:
 - D2 implementation does not make broad `habitat check --json` pass; existing non-D2 findings remain separately owned.
 - D0 and D1 are consumed as submitted implementation-stack layers with D2-relevant source prerequisites cited, not as permission to change their packet-owned artifacts from the D2 layer.
 - Legacy code names remain compatibility facts unless `design.md` accepts and narrows them.
+- Current `check-report.ts` manual `CheckReport.command` construction is not D2-owned. The handoff is captured for D7/D12: D7 owns Oclif command context / request normalization for `habitat check`, and D12 owns verify affected-target argv construction after D3/D7 projections are live.
