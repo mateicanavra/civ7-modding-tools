@@ -14,7 +14,7 @@ authoring-specific scaffold refusals. It does not implement authoring topology
 and does not authorize Phase 3 source work beyond preserving the refusal/fence
 contract.
 
-## Authority
+## Controlling Inputs
 
 - Current user decision to restart OpenSpec packet preparation from square one.
 - Remediation frame: `$HABITAT_PROJECT/openspec-remediation-frame.md`.
@@ -60,7 +60,7 @@ handoff, pattern candidates, and supported uniform project scaffolds.
 - No new authoring command, generator, or source authoring domain model in
   Phase 3.
 - No generic Habitat coupling to Civ or MapGen authoring concepts.
-- No claim that D4 classify, D12 verify, D13 scaffolding, Pattern Governance, or
+- No claim that D4 classify, D12 verify, D13 scaffolding, pattern registration, or
   G-HOST makes authoring supported.
 
 ## Requires
@@ -92,11 +92,11 @@ handoff, pattern candidates, and supported uniform project scaffolds.
   capability.
 - D12 may not treat verify success, hook traces, CI status, or post-state
   observation as authoring readiness.
-- D8 Pattern Governance may not treat rule admission as authoring workflow
+- D8 pattern registration may not treat rule admission as authoring workflow
   support.
 - G-HOST may not make host declarations imply MapGen authoring topology unless
   a later accepted host/authoring contract says so.
-- Implementation agents may not add shims, fallback behavior, dual paths,
+- Implementation agents may not add shims, silent alternate behavior, dual paths,
   silent skips, optional target shape, or generated-output hand edits.
 
 ## Consumer Impact
@@ -139,9 +139,7 @@ Later source implementation gates include:
 
 - `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts`
 - Nx generator dry-runs for supported uniform kinds.
-- A D13 authoring refusal fixture for request text such as
-  `generate a MapGen recipe with a new domain operation and recipe stage`,
-  asserting D14 blocked action, owner, recovery, retry condition, empty write
-  set, and support boundary.
+- A D13 unsupported scaffold fixture asserting unsupported project kinds refuse
+  before writes with an empty write set and no authoring-support claim.
 - `bun run habitat classify mods/mod-swooper-maps/src/recipes/standard`
   only as orientation/non-support context, not as authoring readiness.

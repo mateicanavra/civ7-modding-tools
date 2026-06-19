@@ -65,7 +65,7 @@ Every authoring generator should demonstrate:
 - it updates all required registries;
 - it refuses collisions before writes;
 - it refuses invalid topology choices before writes;
-- generated imports satisfy Habitat Grit rules;
+- generated imports satisfy Habitat rules;
 - generated files are classified to the expected owner and checks;
 - generated structure builds and passes relevant tests;
 - generated structure is understandable enough for a later agent to extend.
@@ -85,7 +85,7 @@ Every new apply pattern should demonstrate:
 - live clean-worktree behavior;
 - rollback behavior.
 
-Do not wire a pattern into `habitat fix` just because it has Grit fixtures.
+Do not wire a pattern into `habitat fix` just because it has adapter fixtures.
 Fixture validation is necessary, but not sufficient.
 
 ## Work Discipline

@@ -57,7 +57,7 @@ entire external Grit corpus as a unit test.
 Live toolchain checks are explicit validation scripts:
 
 - `bun run --cwd tools/habitat-harness validate:cli-smoke`
-- `bun run --cwd tools/habitat-harness validate:patterns`
+- `bun run --cwd tools/habitat-harness validate:grit-patterns`
 
 ## Stop Conditions
 
