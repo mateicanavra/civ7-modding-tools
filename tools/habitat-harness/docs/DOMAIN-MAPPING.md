@@ -53,7 +53,7 @@ The implemented surface provides a structural substrate:
 - delegate local Git hooks through Habitat while keeping CI and explicit graph
   verification authoritative;
 - run a small guarded Grit apply transaction for approved structural repairs;
-- scaffold supported uniform workspace projects and Pattern Authority
+- scaffold supported uniform workspace projects and pattern manifest
   lifecycle artifacts.
 
 That is meaningful product progress. It gives future agents a structural
@@ -125,12 +125,12 @@ Second, distinct authorities are currently adjacent or interleaved:
 - workspace graph/project metadata in `nx-projects` and the Nx plugin;
 - Grit diagnostic acquisition and projection in `grit`;
 - guarded structural transformation in `grit-apply`;
-- hook-local feedback in `hooks`;
+- workstation hook checks in `hooks`;
 - generated/protected file zones in `generated-zones`;
 - verification receipt construction and process execution records in
   `verify-receipt` and `habitat-process`;
 - project and pattern scaffolding in Nx generators;
-- Pattern Authority admission in `pattern-authority` and pattern generator
+- pattern manifest admission in `patterns` and pattern generator
   registration.
 
 These authorities have different users, failure modes, validation needs, and reasons
@@ -285,7 +285,7 @@ minimum, trace these flows end to end:
 5. Run diagnostic Habitat verify.
 6. Scaffold a supported uniform workspace project.
 7. Draft a new Grit rule candidate.
-8. Promote a Grit rule after Pattern Authority acceptance.
+8. Promote a Grit rule after pattern manifest acceptance.
 9. Apply the approved deep-import repair.
 10. Run pre-commit and pre-push hooks.
 11. Attempt to generate MapGen recipe/domain/op/stage/step and record the
@@ -343,10 +343,10 @@ These are hypotheses to test, not final boundaries:
   Habitat rules.
 - Transformation transaction: applies only approved mechanical rewrites with
   dry-run, path approval, Biome handoff, rollback, and transaction records.
-- Local feedback: runs hooks as bounded pre-commit/pre-push assistance without
+- Hook check: runs hooks as bounded pre-commit/pre-push assistance without
   becoming merge authority.
 - Scaffolding and admission: generates supported uniform project structure and
-  Pattern Authority artifacts while refusing unsupported topology.
+  pattern manifest artifacts while refusing unsupported topology.
 - Future MapGen authoring: creates recipe/domain/op/stage/step topology and
   validates it through the product acceptance loop. This is currently a gap, not
   an implemented Habitat context.

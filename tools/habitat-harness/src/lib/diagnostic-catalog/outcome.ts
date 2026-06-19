@@ -12,7 +12,7 @@ const BaselineStateSchema = Type.Union([
   Type.Literal("baseline-owned-by-d5"),
 ]);
 
-export const DiagnosticFindingProjectionSchema = Type.Object(
+export const DiagnosticFindingSchema = Type.Object(
   {
     kind: Type.Literal("diagnostic-finding"),
     ruleId: Type.String({ minLength: 1 }),
@@ -38,7 +38,7 @@ export const DiagnosticRunOutcomeSchema = Type.Union([
     {
       kind: Type.Literal("findings"),
       entry: DiagnosticCatalogEntrySchema,
-      diagnostics: Type.Array(DiagnosticFindingProjectionSchema, { minItems: 1 }),
+      diagnostics: Type.Array(DiagnosticFindingSchema, { minItems: 1 }),
     },
     { additionalProperties: false }
   ),
@@ -72,7 +72,7 @@ export const DiagnosticRunOutcomeSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("projection-missed"),
+      kind: Type.Literal("identity-missing"),
       entry: DiagnosticCatalogEntrySchema,
       expectedIdentity: DiagnosticIdentitySchema,
     },
@@ -88,7 +88,7 @@ export const DiagnosticRunOutcomeSchema = Type.Union([
   ),
 ]);
 
-export const DiagnosticConsumerProjectionSchema = Type.Union([
+export const DiagnosticConsumerResultSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("clean"),
@@ -105,7 +105,7 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
       ruleId: Type.String({ minLength: 1 }),
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
-      diagnostics: Type.Array(DiagnosticFindingProjectionSchema, { minItems: 1 }),
+      diagnostics: Type.Array(DiagnosticFindingSchema, { minItems: 1 }),
     },
     { additionalProperties: false }
   ),
@@ -145,7 +145,7 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("projection-missed"),
+      kind: Type.Literal("identity-missing"),
       ruleId: Type.String({ minLength: 1 }),
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
@@ -165,13 +165,13 @@ export const DiagnosticConsumerProjectionSchema = Type.Union([
   ),
 ]);
 
-export type DiagnosticFindingProjection = Static<typeof DiagnosticFindingProjectionSchema>;
+export type DiagnosticFinding = Static<typeof DiagnosticFindingSchema>;
 export type DiagnosticRunOutcome = Static<typeof DiagnosticRunOutcomeSchema>;
-export type DiagnosticConsumerProjection = Static<typeof DiagnosticConsumerProjectionSchema>;
+export type DiagnosticConsumerResult = Static<typeof DiagnosticConsumerResultSchema>;
 
-export function diagnosticConsumerProjectionFromOutcome(
+export function diagnosticConsumerResultFromOutcome(
   outcome: DiagnosticRunOutcome
-): DiagnosticConsumerProjection {
+): DiagnosticConsumerResult {
   const base = {
     ruleId: outcome.entry.ruleId,
     diagnosticCatalogEntryId: outcome.entry.diagnosticCatalogEntryId,
@@ -210,9 +210,9 @@ export function diagnosticConsumerProjectionFromOutcome(
         failure: outcome.failure,
         detail: outcome.detail,
       };
-    case "projection-missed":
+    case "identity-missing":
       return {
-        kind: "projection-missed",
+        kind: "identity-missing",
         ...base,
         expectedIdentity: outcome.expectedIdentity,
       };

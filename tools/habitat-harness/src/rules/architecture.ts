@@ -8,10 +8,8 @@ import {
 } from "./registry/index.js";
 
 /**
- * The rule pack. Data lives in rules.json (shared with the Nx plugin); this
- * module types it and supplies per-rule output parsers. H2 wrapped existing
- * mechanisms unchanged; later slices add owning-tool gates such as H3
- * nx-boundaries and H4 Biome hygiene.
+ * The rule pack is authored in .habitat and consumed through the registry
+ * schema boundary. This module supplies per-rule output parsers.
  */
 
 export type HarnessRule = RuleRegistryRecordV1;
@@ -45,7 +43,7 @@ export interface RuleRunResult {
   diagnostics: HabitatDiagnostic[];
 }
 
-export function projectRuleDiagnostics(
+export function ruleDiagnosticsFromCommandResult(
   rule: RuleCommandExecutionFacts,
   res: SpawnResult
 ): HabitatDiagnostic[] {
@@ -55,6 +53,6 @@ export function projectRuleDiagnostics(
 /** Execute a rule's detect command and parse its output into diagnostics. */
 export async function executeRule(rule: RuleCommandExecutionFacts): Promise<RuleRunResult> {
   const res = run(rule.detect, { cwd: repoRoot });
-  const diagnostics = projectRuleDiagnostics(rule, res);
+  const diagnostics = ruleDiagnosticsFromCommandResult(rule, res);
   return { exitCode: res.exitCode, diagnostics };
 }

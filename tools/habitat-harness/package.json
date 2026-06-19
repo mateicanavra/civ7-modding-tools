@@ -15,13 +15,13 @@
     "generators.json",
     "oclif.manifest.json",
     "src/generators",
+    "src/lib/artifact-paths.ts",
+    "src/lib/paths.ts",
     "src/lib/workspace-graph",
     "src/lib/workspace-graph-contract.ts",
     "src/plugin",
     "src/plugin.ts",
-    "src/rules/registry",
-    "src/rules/rules.json",
-    "baselines"
+    "src/rules/registry"
   ],
   "nx": {
     "tags": [
@@ -71,6 +71,8 @@
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat-harness --testTimeout=30000",
+    "validate:cli-smoke": "bun run scripts/validate-cli-smoke.ts",
+    "validate:grit-patterns": "bun run --cwd ../.. grit patterns test --json >/dev/null",
     "generate:schemas": "bun run scripts/write-generator-schemas.ts",
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist oclif.manifest.json",
@@ -80,8 +82,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./plugin": "./src/plugin.ts",
-    "./rules": "./src/rules/rules.json"
+    "./plugin": "./src/plugin.ts"
   },
   "dependencies": {
     "@effect/platform": "0.96.1",

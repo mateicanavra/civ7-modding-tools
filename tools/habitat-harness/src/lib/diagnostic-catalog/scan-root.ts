@@ -3,7 +3,7 @@ import { Value } from "typebox/value";
 import {
   ProtectedZoneOwnerSchema,
   ProtectedZoneRecoveryInstructionSchema,
-} from "../protected-zone-authority/schema.js";
+} from "../protected-zones/schema.js";
 
 export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("empty"),
@@ -49,7 +49,7 @@ export const DiagnosticScanRootDecisionSchema = Type.Union([
     {
       kind: Type.Literal("accepted"),
       roots: Type.Array(Type.String({ minLength: 1 })),
-      source: Type.Literal("d2-rule-grit-facts"),
+      source: Type.Literal("rule-registry-facts"),
     },
     { additionalProperties: false }
   ),

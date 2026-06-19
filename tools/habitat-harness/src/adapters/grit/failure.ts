@@ -3,10 +3,10 @@ import {
   renderDiagnosticAdapterFailure,
 } from "../../lib/diagnostic-catalog/index.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RuleGritFacts } from "../../rules/registry/index.js";
+import type { RulePatternFacts } from "../../rules/registry/index.js";
 
 export function infrastructureFailure(
-  rule: RuleGritFacts,
+  rule: RulePatternFacts,
   failure: DiagnosticAdapterFailureKind,
   detail = "Grit adapter failed before producing rule findings."
 ): RuleRunResult {

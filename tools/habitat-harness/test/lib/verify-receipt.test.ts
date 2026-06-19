@@ -290,8 +290,8 @@ function checkReport(options: { ok?: boolean } = {}): CheckReport {
     ok,
     rules: [
       {
-        ruleId: "workspace-entrypoints",
-        ownerTool: "habitat-native",
+        ruleId: "adapter-boundary",
+        ownerTool: "command-check",
         lane: "enforced",
         status: ok ? "pass" : "fail",
         locked: true,
@@ -300,7 +300,7 @@ function checkReport(options: { ok?: boolean } = {}): CheckReport {
           ? []
           : [
               {
-                ruleId: "workspace-entrypoints",
+                ruleId: "adapter-boundary",
                 path: ".",
                 message: "failed",
                 severity: "error",
@@ -313,7 +313,7 @@ function checkReport(options: { ok?: boolean } = {}): CheckReport {
       },
       {
         ruleId: "baseline-integrity",
-        ownerTool: "habitat-native",
+        ownerTool: "command-check",
         lane: "enforced",
         status: "pass",
         locked: true,

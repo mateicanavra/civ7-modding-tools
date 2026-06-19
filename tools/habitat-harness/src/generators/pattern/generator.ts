@@ -1,9 +1,10 @@
 import { type Tree, writeJson } from "@nx/devkit";
 import { Value } from "typebox/value";
 import {
-  type RuleRegistryDocumentV1,
-  RuleRegistryDocumentV1Schema,
-} from "../../rules/registry/schema.ts";
+  baselineRepoPath,
+  checkPatternRoot,
+  ruleRegistryRepoPath,
+} from "../../lib/artifact-paths.ts";
 import { throwScaffoldRefusal } from "../scaffolding/refusal.ts";
 import { type ScaffoldRefusal } from "../scaffolding/schema.ts";
 import { candidateArtifactPaths } from "./paths.ts";
@@ -14,7 +15,7 @@ import {
   PatternGeneratorOptionsSchema,
 } from "./schema.ts";
 
-const rulesPath = "tools/habitat-harness/src/rules/rules.json";
+const rulesPath = ruleRegistryRepoPath;
 
 export async function patternGenerator(
   tree: Tree,
@@ -43,7 +44,7 @@ export async function patternGenerator(
 function normalizeOptions(rawOptions: PatternGeneratorOptions): NormalizedPatternGeneratorOptions {
   const parsed = Value.Parse(PatternGeneratorOptionsSchema, rawOptions);
   const ruleId = kebabLike(parsed.ruleId);
-  const patternName = snakeLike(parsed.patternName ?? ruleId.replace(/^grit-/, ""));
+  const patternName = snakeLike(parsed.patternName ?? ruleId);
   return Value.Parse(NormalizedPatternGeneratorOptionsSchema, {
     ruleId,
     patternName,
@@ -59,35 +60,15 @@ function validateNoActiveRegistrationCollision(
   tree: Tree,
   options: NormalizedPatternGeneratorOptions
 ): void {
-  const activePatternPath = `.grit/patterns/habitat/checks/${options.patternName}.md`;
-  const baselinePath = `tools/habitat-harness/baselines/${options.ruleId}.json`;
+  const activePatternPath = `${checkPatternRoot}/${options.patternName}.md`;
+  const baselinePath = baselineRepoPath(options.ruleId);
 
   if (tree.exists(activePatternPath)) throwScaffoldRefusal(candidateCollision(activePatternPath));
   if (options.lifecycle === "candidate" && tree.exists(baselinePath)) {
     throwScaffoldRefusal(candidateCollision(baselinePath));
   }
 
-  const rulesText = tree.read(rulesPath, "utf8");
-  if (rulesText === null) {
-    throwScaffoldRefusal({
-      blockedAction: `draft pattern candidate '${options.ruleId}'`,
-      requestClass: "pattern-candidate-draft",
-      reason: "upstream-prerequisite-unavailable",
-      recovery: `Restore ${rulesPath}.`,
-      retryCondition: "Retry after the rule registry can be parsed.",
-    });
-  }
-  const rulesParse = parseRuleRegistryText(rulesText);
-  if (rulesParse === null) {
-    throwScaffoldRefusal({
-      blockedAction: `draft pattern candidate '${options.ruleId}'`,
-      requestClass: "pattern-candidate-draft",
-      reason: "upstream-prerequisite-unavailable",
-      recovery: `Repair ${rulesPath}.`,
-      retryCondition: "Retry after the rule registry validates.",
-    });
-  }
-  if (rulesParse.rules.some((rule) => rule.id === options.ruleId)) {
+  if (tree.exists(`${rulesPath}/${options.ruleId}/rule.json`)) {
     throwScaffoldRefusal(candidateCollision(`registered rule ${options.ruleId}`));
   }
 }
@@ -115,10 +96,10 @@ function registeredPromotionRefusal(
     requestClass: "active-pattern-registration",
     reason: hasManifest ? "registered-manifest-rejected" : "registered-manifest-missing",
     recovery: hasManifest
-      ? `Pattern registration for '${options.ruleId}' must run through Pattern Governance, not the candidate generator.`
-      : `Pattern registration for '${options.ruleId}' requires an accepted Pattern Authority Manifest and a Pattern Governance promotion surface.`,
+      ? `Pattern registration for '${options.ruleId}' must run through pattern management, not the candidate generator.`
+      : `Pattern registration for '${options.ruleId}' requires an accepted pattern manifest and a pattern management promotion surface.`,
     retryCondition:
-      "Retry after Pattern Governance accepts the required manifest and baseline inputs.",
+      "Retry after pattern management accepts the required manifest and baseline inputs.",
   };
 }
 
@@ -133,7 +114,7 @@ function candidateManifest(
     lifecycle: "candidate",
     openspecChangeId: options.openspecChangeId,
     ownerProject: options.ownerProject,
-    ownerTool: "grit-check",
+    ownerTool: "pattern-check",
     candidateArtifacts: {
       patternPath: paths.patternPath,
       manifestPath: paths.manifestPath,
@@ -141,23 +122,22 @@ function candidateManifest(
     registration: {
       accepted: false,
       reason:
-        "candidate-only generation: not a Habitat rule, not an active Grit check, not hook-scoped, and not baselined",
+        "candidate-only generation: not a Habitat rule, not an active Grit check, and not baselined",
     },
     requiredForRegistration: [
-      "accepted authority source",
+      "accepted source",
       "concrete scan roots and exclusions",
       "fixture strategy",
       "false-positive model",
       "current-tree scan result",
       "baseline rule-introduction manifest",
       "apply-safety disposition",
-      "hook-scope decision",
     ],
   };
 }
 
 function candidatePatternMarkdown(options: NormalizedPatternGeneratorOptions): string {
-  return `---\nlevel: info\ntags:\n  - habitat-candidate\n---\n# ${titleize(options.ruleId)} Candidate\n\nThis file is a non-enforcing Habitat candidate pattern draft. It is not loaded by the active Habitat Grit check catalog, is not registered in \`rules.json\`, and has no baseline or hook scope.\n\n\`\`\`grit\nlanguage js(typescript)\n\n\`${options.identifier}($value)\`\n\`\`\`\n\n## Matches fixture draft\n\n\`\`\`typescript\n${options.identifier}(\"violation\");\n\`\`\`\n\n\`\`\`typescript\n${options.identifier}(\"violation\");\n\`\`\`\n\n## Ignores fixture draft\n\n\`\`\`typescript\nconst allowed = \"${options.identifier}\";\n\`\`\`\n`;
+  return `---\nlevel: info\ntags:\n  - habitat-candidate\n---\n# ${titleize(options.ruleId)} Candidate\n\nThis file is a non-enforcing Habitat candidate pattern draft. It is not loaded by the active Habitat pattern catalog, is not registered as a rule, and is not baselined.\n\n\`\`\`grit\nlanguage js(typescript)\n\n\`${options.identifier}($value)\`\n\`\`\`\n\n## Matches fixture draft\n\n\`\`\`typescript\n${options.identifier}(\"violation\");\n\`\`\`\n\n\`\`\`typescript\n${options.identifier}(\"violation\");\n\`\`\`\n\n## Ignores fixture draft\n\n\`\`\`typescript\nconst allowed = \"${options.identifier}\";\n\`\`\`\n`;
 }
 
 function kebabLike(value: unknown): string {
@@ -184,14 +164,6 @@ function titleize(value: unknown): string {
     .split("-")
     .map((part) => part.slice(0, 1).toUpperCase() + part.slice(1))
     .join(" ");
-}
-
-function parseRuleRegistryText(text: string): RuleRegistryDocumentV1 | null {
-  try {
-    return Value.Parse(RuleRegistryDocumentV1Schema, JSON.parse(text) as unknown);
-  } catch {
-    return null;
-  }
 }
 
 export default patternGenerator;

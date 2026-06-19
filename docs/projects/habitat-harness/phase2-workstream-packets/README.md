@@ -40,17 +40,17 @@ toolkit. Implementation waits until this suite is reviewed.
 ## Critical Sequence
 
 1. D0 Scenario/Public Contract Inventory.
-2. D1 Proof Contract Boundary.
+2. D1 Receipt Contract Boundary.
 3. D2 Rule Registry Metadata Contract.
 4. Parallel lanes after D0/D1: G-HOST Host Policy Boundary can start while D2
    proceeds. After D2, D3 Workspace Graph Integration Boundary, D5 Baseline
    Authority, and D6 Diagnostic Pattern Catalog can proceed.
 5. D4 Orientation and Routing after D3.
-6. D10 Generated/Protected Zone Authority after G-HOST and D2.
+6. D10 Protected Zones after G-HOST and D2.
 7. D7 Structural Enforcement Pipeline after D5, D6, and D10.
-8. D8 Pattern Governance after D5 and D6.
-9. D9 Transformation Transaction after D8, D6, and D10.
-10. D11 Local Feedback after D7, D9, and D10.
+8. D8 Patterns after D5 and D6.
+9. D9 Pattern Apply after D8, D6, and D10.
+10. D11 Hook Runtime after D7, D9, and D10.
 11. D12 Verify Handoff Command after D1, D3, and D7.
 12. D13 Scaffolding and Refusal Contracts after D0, D2, D8, and G-HOST.
 13. D14 Authoring Topology Fence after D4, D12, and D13.
@@ -60,18 +60,18 @@ toolkit. Implementation waits until this suite is reviewed.
 ## Packets
 
 - [D0 Scenario/Public Contract Inventory](./D0-scenario-public-contract-inventory.md)
-- [D1 Proof Contract Boundary](./D1-proof-contract-boundary.md)
+- [D1 Receipt Contract Boundary](./D1-receipt-contract-boundary.md)
 - [D2 Rule Registry Metadata Contract](./D2-rule-registry-metadata-contract.md)
 - [D3 Workspace Graph Integration Boundary](./D3-workspace-graph-integration-boundary.md)
 - [D4 Orientation and Routing](./D4-orientation-and-routing.md)
 - [D5 Baseline Authority](./D5-baseline-authority.md)
 - [D6 Diagnostic Pattern Catalog](./D6-diagnostic-pattern-catalog.md)
 - [D7 Structural Enforcement Pipeline](./D7-structural-enforcement-pipeline.md)
-- [D8 Pattern Governance](./D8-pattern-governance.md)
+- [D8 Patterns](./D8-patterns.md)
 - [G-HOST Host Policy Boundary Gate](./G-HOST-host-policy-boundary-gate.md)
-- [D9 Transformation Transaction](./D9-transformation-transaction.md)
-- [D10 Generated/Protected Zone Authority](./D10-generated-protected-zone-authority.md)
-- [D11 Local Feedback](./D11-local-feedback.md)
+- [D9 Pattern Apply](./D9-pattern-apply.md)
+- [D10 Protected Zones](./D10-generated-protected-zones.md)
+- [D11 Hook Runtime](./D11-hook-runtime.md)
 - [D12 Verify Handoff Command](./D12-verify-handoff-command.md)
 - [D13 Scaffolding and Refusal Contracts](./D13-scaffolding-and-refusal-contracts.md)
 - [D14 Authoring Topology Fence](./D14-authoring-topology-fence.md)
@@ -88,16 +88,16 @@ toolkit. Implementation waits until this suite is reviewed.
 | D2 | Standalone packet | Registry metadata is the typed source for graph, classify, baseline, diagnostics, governance, zones, and scaffolding; a section in one consumer would recreate duplicated interpretations. |
 | D3 | Standalone packet | Workspace graph truth has separate Nx/plugin validation and fixes the false-green target-alias risk before classify/verify consume targets. |
 | D4 | Standalone packet | Orientation is the primary user/agent entry scenario and needs its own public JSON/refusal contract. |
-| D5 | Standalone packet | Baseline debt authority has shrink-only behavior and Pattern Governance dependency separate from enforcement execution. |
+| D5 | Standalone packet | Baseline debt authority has shrink-only behavior and Patterns dependency separate from enforcement execution. |
 | D6 | Standalone packet | Grit diagnostic acquisition/projection must stay separate from governance and apply. |
 | D7 | Standalone packet | Structural enforcement is the main check pipeline and must consume D5/D6 rather than owning them. |
 | D8 | Standalone packet | Pattern lifecycle admission is a product gate distinct from diagnostics and scaffolding. |
 | G-HOST | Standalone gate packet | Host-specific paths and gates currently exist in generic code; D9/D10/D13 cannot close generic behavior without this boundary. |
 | D9 | Standalone packet | Safe write/apply transaction has rollback and validation obligations that cannot be a Grit or governance subsection. |
 | D10 | Standalone packet | Generated/protected zone authority is a structural guard consumed by hooks/apply/check and blocked by host policy. |
-| D11 | Standalone packet | Hooks orchestrate many owners but own only local feedback, requiring explicit scope limits. |
+| D11 | Standalone packet | Hooks orchestrate many owners but own only hook runtime, requiring explicit scope limits. |
 | D12 | Standalone packet | Verify is a handoff receipt command with public receipt JSON and graph/check dependencies. |
-| D13 | Standalone packet | Scaffolding/refusal is a generator-facing product contract distinct from Pattern Governance registration. |
+| D13 | Standalone packet | Scaffolding/refusal is a generator-facing product contract distinct from Patterns registration. |
 | D14 | Standalone fence packet | Kept separate because it is a scope-control and future-trigger artifact; implementation remains outside Phase 3 unless D13 refusal tests require a small variant. |
 | D15 | Trigger packet, not default implementation | Kept as a decision record so packet-local provenance needs are governed. It does not authorize a standalone substrate migration unless a consuming packet passes minimization. |
 

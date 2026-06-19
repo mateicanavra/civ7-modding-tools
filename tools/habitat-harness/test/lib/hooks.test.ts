@@ -21,7 +21,7 @@ describe("Habitat hook resource policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: clean");
-    expect(result.stdout).toContain("hook result: local feedback only; CI remains authoritative.");
+    expect(result.stdout).toContain("hook result: workstation check only; CI remains authoritative.");
     expect(result.stdout).toContain("habitat hook pre-commit: PASS");
     expect(fake.calls).toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
@@ -231,11 +231,11 @@ describe("Habitat pre-commit staged mutation policy", () => {
       "biome check --no-errors-on-unmatched packages/example/src/index.ts packages/example/src/unchanged.ts"
     );
     expect(fake.calls).toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool grit-check --json"
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
     );
   });
 
-  test("fails closed when Grit emits malformed JSON", () => {
+  test("fails closed when pattern checks emit malformed JSON", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
       gritExitCode: 1,
@@ -250,10 +250,10 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("could not parse Grit JSON output");
+    expect(result.stderr).toContain("could not parse pattern check JSON output");
   });
 
-  test("fails closed when Grit reports findings", () => {
+  test("fails closed when pattern checks report findings", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
       gritExitCode: 1,
@@ -267,10 +267,10 @@ describe("Habitat pre-commit staged mutation policy", () => {
     const result = runPreCommit(fake.runtime);
 
     expect(result.exitCode).toBe(1);
-    expect(result.stdout).toContain("[grit check]");
+    expect(result.stdout).toContain("[pattern check]");
   });
 
-  test("does not run staged Grit for JavaScript files outside approved Grit scan roots", () => {
+  test("does not run staged pattern checks for JavaScript files outside approved scan roots", () => {
     const fake = makeFakeRuntime({
       stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
     });
@@ -279,13 +279,13 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain(
-      "grit: no staged TypeScript/JavaScript files in approved scan roots"
+      "patterns: no staged TypeScript/JavaScript files in approved scan roots"
     );
     expect(fake.calls).toContain(
       "biome check --no-errors-on-unmatched tools/habitat-harness/src/lib/hooks.ts"
     );
     expect(fake.calls).not.toContain(
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool grit-check --json"
+      "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
     );
   });
 
@@ -338,17 +338,17 @@ describe("Habitat pre-commit staged mutation policy", () => {
         "biome-format",
         "formatter-restage",
         "biome-check",
-        "grit-check",
+        "pattern-check",
       ])
     );
-    expect(trace.commands.find((command) => command.phase === "grit-check")).toMatchObject({
+    expect(trace.commands.find((command) => command.phase === "pattern-check")).toMatchObject({
       argv: [
         "bun",
         "tools/habitat-harness/bin/dev.ts",
         "check",
         "--staged",
         "--tool",
-        "grit-check",
+        "pattern-check",
         "--json",
       ],
       cwd: repoRoot,
@@ -375,7 +375,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(result.exitCode).toBe(1);
     expect(trace.preCommit).toMatchObject({
       gritPaths: ["packages/example/src/index.ts"],
-      outcome: "grit-parse-failed",
+      outcome: "parse-failed",
       exitCode: 1,
       postState: {
         branch: "agent-HR-test",
@@ -408,11 +408,11 @@ describe("Habitat pre-commit staged mutation policy", () => {
     expect(renderReported(events, "stderr")).toBe(result.stderr);
     expect(events).toContainEqual({
       channel: "stdout",
-      text: "hook result: local feedback only; CI remains authoritative.\n",
+      text: "hook result: workstation check only; CI remains authoritative.\n",
     });
     expect(events).toContainEqual({
       channel: "stderr",
-      text: "habitat hook pre-commit: could not parse Grit JSON output.\n",
+      text: "habitat hook pre-commit: could not parse pattern check JSON output.\n",
     });
   });
 });
@@ -425,7 +425,7 @@ describe("Habitat pre-push base policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
-    expect(result.stdout).toContain("hook result: local feedback only; CI remains authoritative.");
+    expect(result.stdout).toContain("hook result: workstation check only; CI remains authoritative.");
     expect(fake.calls).toContain(
       "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base HEAD~1 --head HEAD --outputStyle=static"
     );
@@ -560,7 +560,7 @@ describe("Habitat pre-push base policy", () => {
     expect(renderReported(events, "stderr")).toBe(result.stderr);
     expect(events).toContainEqual({
       channel: "stdout",
-      text: "hook result: local feedback only; CI remains authoritative.\n",
+      text: "hook result: workstation check only; CI remains authoritative.\n",
     });
     expect(events).toContainEqual({
       channel: "stderr",
@@ -662,7 +662,7 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call.startsWith("biome check --no-errors-on-unmatched")) {
       return options.biomeCheckExitCode ? failure(options.biomeCheckExitCode) : ok();
     }
-    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool grit-check --json") {
+    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json") {
       return {
         exitCode: options.gritExitCode ?? 0,
         stdout: options.gritStdout ?? gritCheckReport({ ok: true, status: "pass" }),
@@ -753,11 +753,11 @@ function gritCheckReport(options: {
 }): string {
   return checkReport({
     ...options,
-    command: "habitat check --staged --tool grit-check --json",
-    ruleId: "grit-hook-scope-probe",
-    ownerTool: "grit-check",
-    message: "Grit hook scope probe",
-    detect: ["habitat", "check", "--tool", "grit-check"],
+    command: "habitat check --staged --tool pattern-check --json",
+    ruleId: "hook-runtime-probe",
+    ownerTool: "pattern-check",
+    message: "Grit hook check probe",
+    detect: ["habitat", "check", "--tool", "pattern-check"],
   });
 }
 
@@ -769,9 +769,9 @@ function fileLayerCheckReport(options: {
   return checkReport({
     ...options,
     command: "habitat check --staged --tool file-layer --json",
-    ruleId: "file-layer-hook-scope-probe",
+    ruleId: "file-layer-hook-runtime-probe",
     ownerTool: "file-layer",
-    message: "File-layer hook scope probe",
+    message: "File-layer hook check probe",
     detect: ["habitat", "check", "--tool", "file-layer"],
   });
 }

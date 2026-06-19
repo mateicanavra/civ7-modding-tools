@@ -8,13 +8,12 @@ import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
-    expect(rules).toHaveLength(54);
-    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(33);
-    expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(3);
-    expect(rules.some((rule) => "hookScope" in rule)).toBe(false);
+    expect(rules).toHaveLength(50);
+    expect(rules.filter((rule) => rule.ownerTool === "pattern-check")).toHaveLength(33);
+    expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
     expect(
       rules
-        .filter((rule) => rule.ownerTool === "grit-check")
+        .filter((rule) => rule.ownerTool === "pattern-check")
         .every((rule) => rule.scanRoots.length > 0)
     ).toBe(true);
     expect(rules.every((rule) => rule.pathCoverage.length > 0)).toBe(true);
@@ -123,7 +122,7 @@ describe("rule registry contract", () => {
         registryDocument([
           {
             ...baseRule(),
-            ownerTool: "wrapped-test",
+            ownerTool: "target-check",
           },
         ]),
         "inline-registry.json"
@@ -136,7 +135,7 @@ describe("rule registry contract", () => {
         registryDocument([
           {
             ...baseRule(),
-            ownerTool: "wrapped-test",
+            ownerTool: "target-check",
             nxTarget: "@internal/habitat-harness:test:wrapped",
           },
         ]),
@@ -147,7 +146,7 @@ describe("rule registry contract", () => {
 
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule({ ownerTool: "grit-check" }) }]),
+        registryDocument([{ ...baseRule({ ownerTool: "pattern-check" }) }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"
@@ -157,8 +156,8 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "grit-check" }),
-            gritPattern: "sample_pattern",
+            ...baseRule({ ownerTool: "pattern-check" }),
+            patternName: "sample_pattern",
           },
         ]),
         "inline-registry.json"
@@ -208,7 +207,7 @@ describe("rule registry contract", () => {
 
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule(), localFeedback: true }]),
+        registryDocument([{ ...baseRule(), hookCheck: true }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"

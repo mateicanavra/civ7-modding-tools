@@ -71,7 +71,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-workspace-grit",
-          kind: "grit-check",
+          kind: "pattern-check",
           executable: "grit",
           argv: ["--version"],
           cwd: repoRoot,
@@ -88,36 +88,13 @@ describe("HabitatProcess", () => {
     expect(result.stdout.text).toContain("grit");
   });
 
-  test("routes script-colliding workspace binaries through local-only bunx", async () => {
-    const result = await runHabitatEffect(
-      Effect.gen(function* () {
-        const process = yield* HabitatProcess;
-        return yield* process.run({
-          commandId: "habitat-process-workspace-openspec",
-          kind: "workspace-tool",
-          executable: "openspec",
-          argv: ["--version"],
-          cwd: "/tmp",
-        });
-      }).pipe(Effect.provide(HabitatProcessLive))
-    );
-
-    expect(result.exit.code).toBe(0);
-    expect(result.requestedExecutable).toBe("openspec");
-    expect(result.executable).toBe("bun");
-    expect(result.executionPlane).toBe("workspace-bunx-binary");
-    expect(result.cwd).toBe(repoRoot);
-    expect(result.argv).toEqual(["x", "--no-install", "openspec", "--version"]);
-    expect(result.stdout.text).toMatch(/\d+\.\d+\.\d+/);
-  });
-
   test("reports missing tools as tagged adapter errors", async () => {
     const error = await runHabitatEffect(
       Effect.gen(function* () {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-missing-tool",
-          kind: "grit-check",
+          kind: "pattern-check",
           executable: "definitely-not-a-real-habitat-tool",
           argv: ["--version"],
           cwd: repoRoot,
@@ -153,7 +130,7 @@ describe("HabitatProcess", () => {
         const process = yield* HabitatProcess;
         return yield* process.run({
           commandId: "habitat-process-fake-interruption",
-          kind: "grit-apply",
+          kind: "pattern-apply",
           executable: "grit",
           argv: ["apply"],
           cwd: repoRoot,

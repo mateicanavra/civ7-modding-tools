@@ -1,0 +1,30 @@
+{
+  "id": "arch-test-ecology-step-imports",
+  "ownerTool": "target-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps ecology steps",
+  "forbids": "ecology steps deep-importing ops/rules; presence of retired stage dirs",
+  "why": "Stage isolation + retired-structure absence.",
+  "detect": [
+    "target-check",
+    "run",
+    "mod-swooper-maps:test:architecture-ecology-step-imports",
+    "--outputStyle=static"
+  ],
+  "remediate": null,
+  "message": "Compose via the recipe layer; do not resurrect retired stage directories.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps"
+      ]
+    }
+  ],
+  "graphTarget": {
+    "project": "mod-swooper-maps",
+    "target": "test:architecture-ecology-step-imports"
+  }
+}

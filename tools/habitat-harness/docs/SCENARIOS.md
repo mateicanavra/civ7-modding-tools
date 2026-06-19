@@ -132,7 +132,7 @@ nx g @internal/habitat-harness:pattern grit-my-rule
 Supported outcome:
 
 - candidate manifest and candidate pattern draft are written under
-  `tools/habitat-harness/src/rules/pattern-authority/candidates`;
+  `.habitat/patterns/candidates`;
 - no active enforcement state is created;
 - the candidate remains outside the rule pack until promoted.
 
@@ -149,7 +149,6 @@ Supported outcome:
 - baseline contract is validated;
 - active check pattern is written;
 - `rules.json` is updated;
-- hook scope is recorded only when the manifest and invocation agree.
 
 This supports disciplined rule admission. It does not decide whether the rule is
 useful; the manifest and review must establish that.

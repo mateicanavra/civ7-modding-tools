@@ -33,10 +33,10 @@ Fresh command proof captured in this pass:
 
 Current implemented count:
 
-- Check corpus: 22 markdown patterns under `.grit/patterns/habitat/checks/`.
-- Apply corpus: 1 markdown pattern under `.grit/patterns/habitat/apply/`.
-- `.grit/grit.yaml` currently contains only `version: 0.0.2` and
-  `patterns: []` at `.grit/grit.yaml:1`, yet native `grit patterns test` still
+- Check corpus: 22 markdown patterns under `.habitat/patterns/checks/`.
+- Apply corpus: 1 markdown pattern under `.habitat/patterns/apply/`.
+- `.habitat/grit.yaml` currently contains only `version: 0.0.2` and
+  `patterns: []` at `.habitat/grit.yaml:1`, yet native `grit patterns test` still
   discovers `.grit/patterns/habitat/**`.
 - The pattern layout expected by H5 is documented at
   `openspec/changes/habitat-grit-catalog/design.md:3`.
@@ -49,28 +49,28 @@ Current check patterns and rule-pack registrations:
 
 | Group | Pattern file | Habitat rule / registry evidence | Owner project and scan intent | Ledger seed |
 | --- | --- | --- | --- | --- |
-| Domain surface | `.grit/patterns/habitat/checks/domain_deep_import.md:4` | `grit-domain-deep-import`, `rules.json:120` | `mod-swooper-maps`; recipes/maps deep domain imports | `habitat-grit-proof-domain-deep-import` |
-| Domain surface | `.grit/patterns/habitat/checks/recipe_domain_surface.md:4` | `grit-recipe-domain-surface`, `rules.json:135` | `mod-swooper-maps`; recipes import approved domain surfaces | `habitat-grit-proof-recipe-domain-surface` |
-| Domain surface | `.grit/patterns/habitat/checks/studio_recipe_artifacts.md:4` | `grit-studio-recipe-artifacts`, `rules.json:150` | `@internal/habitat-harness`; Studio UI recipe artifact imports | `habitat-grit-proof-studio-recipe-artifacts` |
-| Domain surface | `.grit/patterns/habitat/checks/step_contract_domain_surface.md:4` | `grit-step-contract-domain-surface`, `rules.json:165` | `mod-swooper-maps`; step contract imports | `habitat-grit-proof-step-contract-domain-surface` |
-| Domain surface | `.grit/patterns/habitat/checks/recipe_runtime_domain_ops.md:4` | `grit-recipe-runtime-domain-ops`, `rules.json:180` | `mod-swooper-maps`; recipe runtime domain ops imports | `habitat-grit-proof-recipe-runtime-domain-ops` |
-| Domain surface | `.grit/patterns/habitat/checks/contract_export_all.md:4` | `grit-contract-export-all`, `rules.json:70` | `mod-swooper-maps`; contract/public-surface value export stars | `habitat-grit-proof-contract-export-all` |
-| Runtime purity | `.grit/patterns/habitat/checks/runtime_validation_imports.md:4` | `grit-runtime-validation-imports`, `rules.json:195` | `mod-swooper-maps`; runtime validation imports | `habitat-grit-proof-runtime-validation-imports` |
-| Runtime purity | `.grit/patterns/habitat/checks/runtime_run_validated.md:4` | `grit-runtime-run-validated`, `rules.json:210` | `mod-swooper-maps`; runtime `runValidated` calls | `habitat-grit-proof-runtime-run-validated` |
-| Runtime purity | `.grit/patterns/habitat/checks/runtime_helper_redeclarations.md:4` | `grit-runtime-helper-redeclarations`, `rules.json:225` | `mod-swooper-maps`; helper redeclarations | `habitat-grit-proof-runtime-helper-redeclarations` |
-| Runtime purity | `.grit/patterns/habitat/checks/empty_schema_default.md:4` | `grit-empty-schema-default`, `rules.json:240` | `mod-swooper-maps`; empty object defaults in schemas | `habitat-grit-proof-empty-schema-default` |
-| Runtime purity | `.grit/patterns/habitat/checks/mapgen_core_runtime_civ7.md:4` | `grit-mapgen-core-runtime-civ7`, `rules.json:255` | `@swooper/mapgen-core`; Civ7 runtime coupling in core/engine | `habitat-grit-proof-mapgen-core-runtime-civ7` |
-| Stage isolation | `.grit/patterns/habitat/checks/sibling_stage_step_imports.md:4` | `grit-sibling-stage-step-imports`, `rules.json:270` | `mod-swooper-maps`; sibling stage step imports | `habitat-grit-proof-sibling-stage-step-imports` |
-| Stage isolation | `.grit/patterns/habitat/checks/domain_root_catalogs.md:4` | `grit-domain-root-catalogs`, `rules.json:285` | `mod-swooper-maps`; domain-root tag/artifact catalogs | `habitat-grit-proof-domain-root-catalogs` |
-| Stage isolation | `.grit/patterns/habitat/checks/wrapper_advanced_stage_config.md:4` | `grit-wrapper-advanced-stage-config`, `rules.json:300` | `mod-swooper-maps`; wrapper-only advanced config | `habitat-grit-proof-wrapper-advanced-stage-config` |
-| Stage isolation | `.grit/patterns/habitat/checks/placement_outcome_boundary.md:4` | `grit-placement-outcome-boundary`, `rules.json:315` | `mod-swooper-maps`; placement outcome boundary | `habitat-grit-proof-placement-outcome-boundary` |
-| Ownership | `.grit/patterns/habitat/checks/adapter_base_standard_import.md:4` | `grit-adapter-base-standard-import`, `rules.json:330` | `@internal/habitat-harness`; `/base-standard/` imports outside adapter | `habitat-grit-proof-adapter-base-standard-import` |
-| Ownership | `.grit/patterns/habitat/checks/control_orpc_contract_ownership.md:4` | `grit-control-orpc-contract-ownership`, `rules.json:345` | `@civ7/control-orpc`; transport-pure contracts | `habitat-grit-proof-control-orpc-contract-ownership` |
-| Ownership | `.grit/patterns/habitat/checks/viz_contract_ownership.md:4` | `grit-viz-contract-ownership`, `rules.json:360` | `mod-swooper-maps`; stage visualization ownership | `habitat-grit-proof-viz-contract-ownership` |
-| Ownership | `.grit/patterns/habitat/checks/sdk_mapgen_entrypoint.md:4` | `grit-sdk-mapgen-entrypoint`, `rules.json:375` | `@mateicanavra/civ7-sdk`; SDK mapgen subpath isolation | `habitat-grit-proof-sdk-mapgen-entrypoint` |
-| Domain ops boundary | `.grit/patterns/habitat/checks/domain_ops_boundary_imports.md:4` | `grit-domain-ops-boundary-imports`, `rules.json:390` | `mod-swooper-maps`; ops adapter/context crossing | `habitat-grit-proof-domain-ops-boundary-imports` |
-| Domain ops boundary | `.grit/patterns/habitat/checks/domain_ops_projection_effects.md:4` | `grit-domain-ops-projection-effects`, `rules.json:405` | `mod-swooper-maps`; ops map artifact/effect deps | `habitat-grit-proof-domain-ops-projection-effects` |
-| Domain ops boundary | `.grit/patterns/habitat/checks/domain_ops_root_config.md:4` | `grit-domain-ops-root-config`, `rules.json:420` | `mod-swooper-maps`; ops importing domain-root config facades | `habitat-grit-proof-domain-ops-root-config` |
+| Domain surface | `.habitat/patterns/checks/domain_deep_import.md:4` | `grit-domain-deep-import`, `rules.json:120` | `mod-swooper-maps`; recipes/maps deep domain imports | `habitat-grit-proof-domain-deep-import` |
+| Domain surface | `.habitat/patterns/checks/recipe_domain_surface.md:4` | `grit-recipe-domain-surface`, `rules.json:135` | `mod-swooper-maps`; recipes import approved domain surfaces | `habitat-grit-proof-recipe-domain-surface` |
+| Domain surface | `.habitat/patterns/checks/studio_recipe_artifacts.md:4` | `grit-studio-recipe-artifacts`, `rules.json:150` | `@internal/habitat-harness`; Studio UI recipe artifact imports | `habitat-grit-proof-studio-recipe-artifacts` |
+| Domain surface | `.habitat/patterns/checks/step_contract_domain_surface.md:4` | `grit-step-contract-domain-surface`, `rules.json:165` | `mod-swooper-maps`; step contract imports | `habitat-grit-proof-step-contract-domain-surface` |
+| Domain surface | `.habitat/patterns/checks/recipe_runtime_domain_ops.md:4` | `grit-recipe-runtime-domain-ops`, `rules.json:180` | `mod-swooper-maps`; recipe runtime domain ops imports | `habitat-grit-proof-recipe-runtime-domain-ops` |
+| Domain surface | `.habitat/patterns/checks/contract_export_all.md:4` | `grit-contract-export-all`, `rules.json:70` | `mod-swooper-maps`; contract/public-surface value export stars | `habitat-grit-proof-contract-export-all` |
+| Runtime purity | `.habitat/patterns/checks/runtime_validation_imports.md:4` | `grit-runtime-validation-imports`, `rules.json:195` | `mod-swooper-maps`; runtime validation imports | `habitat-grit-proof-runtime-validation-imports` |
+| Runtime purity | `.habitat/patterns/checks/runtime_run_validated.md:4` | `grit-runtime-run-validated`, `rules.json:210` | `mod-swooper-maps`; runtime `runValidated` calls | `habitat-grit-proof-runtime-run-validated` |
+| Runtime purity | `.habitat/patterns/checks/runtime_helper_redeclarations.md:4` | `grit-runtime-helper-redeclarations`, `rules.json:225` | `mod-swooper-maps`; helper redeclarations | `habitat-grit-proof-runtime-helper-redeclarations` |
+| Runtime purity | `.habitat/patterns/checks/empty_schema_default.md:4` | `grit-empty-schema-default`, `rules.json:240` | `mod-swooper-maps`; empty object defaults in schemas | `habitat-grit-proof-empty-schema-default` |
+| Runtime purity | `.habitat/patterns/checks/mapgen_core_runtime_civ7.md:4` | `grit-mapgen-core-runtime-civ7`, `rules.json:255` | `@swooper/mapgen-core`; Civ7 runtime coupling in core/engine | `habitat-grit-proof-mapgen-core-runtime-civ7` |
+| Stage isolation | `.habitat/patterns/checks/sibling_stage_step_imports.md:4` | `grit-sibling-stage-step-imports`, `rules.json:270` | `mod-swooper-maps`; sibling stage step imports | `habitat-grit-proof-sibling-stage-step-imports` |
+| Stage isolation | `.habitat/patterns/checks/domain_root_catalogs.md:4` | `grit-domain-root-catalogs`, `rules.json:285` | `mod-swooper-maps`; domain-root tag/artifact catalogs | `habitat-grit-proof-domain-root-catalogs` |
+| Stage isolation | `.habitat/patterns/checks/wrapper_advanced_stage_config.md:4` | `grit-wrapper-advanced-stage-config`, `rules.json:300` | `mod-swooper-maps`; wrapper-only advanced config | `habitat-grit-proof-wrapper-advanced-stage-config` |
+| Stage isolation | `.habitat/patterns/checks/placement_outcome_boundary.md:4` | `grit-placement-outcome-boundary`, `rules.json:315` | `mod-swooper-maps`; placement outcome boundary | `habitat-grit-proof-placement-outcome-boundary` |
+| Ownership | `.habitat/patterns/checks/adapter_base_standard_import.md:4` | `grit-adapter-base-standard-import`, `rules.json:330` | `@internal/habitat-harness`; `/base-standard/` imports outside adapter | `habitat-grit-proof-adapter-base-standard-import` |
+| Ownership | `.habitat/patterns/checks/control_orpc_contract_ownership.md:4` | `grit-control-orpc-contract-ownership`, `rules.json:345` | `@civ7/control-orpc`; transport-pure contracts | `habitat-grit-proof-control-orpc-contract-ownership` |
+| Ownership | `.habitat/patterns/checks/viz_contract_ownership.md:4` | `grit-viz-contract-ownership`, `rules.json:360` | `mod-swooper-maps`; stage visualization ownership | `habitat-grit-proof-viz-contract-ownership` |
+| Ownership | `.habitat/patterns/checks/sdk_mapgen_entrypoint.md:4` | `grit-sdk-mapgen-entrypoint`, `rules.json:375` | `@mateicanavra/civ7-sdk`; SDK mapgen subpath isolation | `habitat-grit-proof-sdk-mapgen-entrypoint` |
+| Domain ops boundary | `.habitat/patterns/checks/domain_ops_boundary_imports.md:4` | `grit-domain-ops-boundary-imports`, `rules.json:390` | `mod-swooper-maps`; ops adapter/context crossing | `habitat-grit-proof-domain-ops-boundary-imports` |
+| Domain ops boundary | `.habitat/patterns/checks/domain_ops_projection_effects.md:4` | `grit-domain-ops-projection-effects`, `rules.json:405` | `mod-swooper-maps`; ops map artifact/effect deps | `habitat-grit-proof-domain-ops-projection-effects` |
+| Domain ops boundary | `.habitat/patterns/checks/domain_ops_root_config.md:4` | `grit-domain-ops-root-config`, `rules.json:420` | `mod-swooper-maps`; ops importing domain-root config facades | `habitat-grit-proof-domain-ops-root-config` |
 
 All current check patterns have native markdown samples. The test harness reads
 check and apply pattern names from the filesystem at
@@ -86,12 +86,12 @@ Current apply corpus:
 
 | Pattern | File | Current allowlist | Apply roots | Safety status |
 | --- | --- | --- | --- | --- |
-| `deep_import_to_public_surface` | `.grit/patterns/habitat/apply/deep_import_to_public_surface.md:4` | hardcoded at `tools/habitat-harness/src/lib/grit.ts:35` | discovered `mods/*/src/{recipes,maps}` via `tools/habitat-harness/src/lib/grit.ts:136` | implemented, under-proof |
+| `deep_import_to_public_surface` | `.habitat/patterns/apply/deep_import_to_public_surface.md:4` | hardcoded at `tools/habitat-harness/src/lib/grit.ts:35` | discovered `mods/*/src/{recipes,maps}` via `tools/habitat-harness/src/lib/grit.ts:136` | implemented, under-proof |
 
 Apply execution details:
 
 - The hardcoded apply list contains only
-  `.grit/patterns/habitat/apply/deep_import_to_public_surface.md` at
+  `.habitat/patterns/apply/deep_import_to_public_surface.md` at
   `tools/habitat-harness/src/lib/grit.ts:35`.
 - `runGritApplyPatterns` loops that allowlist and invokes
   `grit apply <pattern> ... --force --output compact` with optional `--dry-run`
@@ -310,9 +310,9 @@ Grouping boundaries to preserve:
 - Current-tree zero-finding proof is unresolved in this extraction. Native
   pattern samples passed now, but the broad current-tree Grit scan was not
   completed in this pass.
-- `.grit/grit.yaml` currently has `patterns: []`, while native discovery still
+- `.habitat/grit.yaml` currently has `patterns: []`, while native discovery still
   finds 23 patterns. This may be normal Grit convention, but the H5 language
-  saying `.grit/grit.yaml` "loads" patterns should be made precise.
+  saying `.habitat/grit.yaml` "loads" patterns should be made precise.
 - Baseline semantics are implemented as missing file equals empty locked
   baseline. The DRA frame flags this as a current contradiction/repair target at
   `docs/projects/habitat-harness/dra-takeover-frame.md:191`.

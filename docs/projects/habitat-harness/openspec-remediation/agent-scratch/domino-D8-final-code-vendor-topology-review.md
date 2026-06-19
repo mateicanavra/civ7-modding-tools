@@ -31,8 +31,8 @@ Reviewed:
   - `tools/habitat-harness/src/lib/command-engine.ts`
   - `tools/habitat-harness/src/lib/hooks.ts`
   - `tools/habitat-harness/src/lib/grit-apply.ts`
-  - `.grit/patterns/habitat/checks/**`
-  - `.grit/patterns/habitat/apply/**`
+  - `.habitat/patterns/active/checks/**`
+  - `.habitat/patterns/active/apply/**`
   - `tools/habitat-harness/baselines/**`
   - `tools/habitat-harness/README.md`
   - `tools/habitat-harness/docs/CAPABILITIES.md`
@@ -103,8 +103,8 @@ Current disk inventory observed during rereview:
 - 32 `ownerTool: "grit-check"` rules, 31 enforced and one advisory.
 - 31 `grit-check` rules with `hookScope: "pre-commit"`.
 - 0 active rules with `manifestPath`.
-- 32 check patterns under `.grit/patterns/habitat/checks`.
-- 3 apply patterns under `.grit/patterns/habitat/apply`.
+- 32 check patterns under `.habitat/patterns/active/checks`.
+- 3 apply patterns under `.habitat/patterns/active/apply`.
 - 0 committed candidate files under
   `tools/habitat-harness/src/rules/pattern-authority/candidates`.
 - 0 committed registered Pattern Authority JSON manifests under

@@ -24,7 +24,7 @@ export {
   verifyTargetPlan,
   workspaceProjectHasTarget,
   workspaceTargetStates,
-} from "./projections.js";
+} from "./states.js";
 export {
   NxWorkspaceGraphProjectReader,
   readWorkspaceGraph,

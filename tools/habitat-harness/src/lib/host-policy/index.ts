@@ -7,14 +7,14 @@ export {
   unavailableHostPolicyState,
 } from "./state.js";
 export {
-  hostApplyGateProjection,
-  hostAuthoringBoundaryProjection,
+  hostApplyGateDecision,
+  hostAuthoringBoundaryState,
   hostGeneratedSurfaceDeclarations,
-  hostProjectSupportProjection,
-  hostSurfaceProjectionForScanRoot,
-  hostSurfaceProjectionForGeneratedZone,
-  hostSurfaceProjectionForPath,
+  hostProjectSupportDecision,
+  hostSurfaceDecisionForScanRoot,
+  hostSurfaceDecisionForGeneratedZone,
+  hostSurfaceDecisionForPath,
   matchesHostMatcher,
   renderHostRecoveryInstruction,
-} from "./projections.js";
+} from "./decisions.js";
 export * from "./schema.js";

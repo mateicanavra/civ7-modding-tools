@@ -4,11 +4,10 @@ const workspaceCwd = { cwd: "{workspaceRoot}" };
 
 export function habitatInputs(): string[] {
   return [
+    "{workspaceRoot}/.habitat/**",
     "{workspaceRoot}/tools/habitat-harness/src/**",
-    "{workspaceRoot}/tools/habitat-harness/baselines/**",
-    "{workspaceRoot}/.grit/patterns/habitat/**",
     "{workspaceRoot}/.grit/grit.yaml",
-    "{workspaceRoot}/.gritignore",
+    "{workspaceRoot}/.grit/patterns",
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
     "{workspaceRoot}/scripts/lint/**",
@@ -77,12 +76,12 @@ export function boundariesTarget(): NxTargetDefinition {
 
 export function gritCheckTarget(): NxTargetDefinition {
   return {
-    command: "bun tools/habitat-harness/bin/dev.ts check --tool grit-check",
+    command: "bun tools/habitat-harness/bin/dev.ts check --tool pattern-check",
     options: workspaceCwd,
     cache: true,
     inputs: habitatInputs(),
     metadata: {
-      description: "Habitat-owned GritQL source-shape catalog (habitat-grit-catalog/H5)",
+      description: "Habitat-owned GritQL source-shape catalog (habitat-catalog/H5)",
     },
   };
 }

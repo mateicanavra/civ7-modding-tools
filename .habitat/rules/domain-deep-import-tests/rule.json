@@ -1,0 +1,40 @@
+{
+  "id": "domain-deep-import-tests",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+  "forbids": "test files deep-importing domain internals instead of public domain surfaces",
+  "why": "Tests should exercise domain contracts through the same public surfaces as product code unless an explicit architecture decision owns a deeper reach.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Use @mapgen/domain/<domain>, /ops, or /config.js from tests instead of domain internals.",
+  "exceptionPath": "none",
+  "patternName": "domain_deep_import_tests",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain",
+    "mods/mod-swooper-maps/test"
+  ],
+  "expandIgnoredTestDirectories": true,
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/test/**/*.ts",
+        "mods/mod-swooper-maps/test/**/*.tsx",
+        "packages/*/test/**/*.ts",
+        "packages/*/test/**/*.tsx"
+      ]
+    }
+  ]
+}

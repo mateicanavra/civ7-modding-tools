@@ -49,7 +49,7 @@ Branch: `codex/d10-protected-zone-authority-packet`
   - `tools/habitat-harness/test/lib/grit-adapter.test.ts`
   - `biome.json`
   - `.gritignore`
-  - `.grit/grit.yaml`
+  - `.habitat/grit.yaml`
 - Official/native docs:
   - Grit config: `https://docs.grit.io/guides/config`
   - Grit CLI reference: `https://docs.grit.io/cli/reference`

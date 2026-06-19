@@ -1,27 +1,27 @@
 export type {
   DiagnosticCatalogEntry,
-  DiagnosticProjectionContract,
+  DiagnosticMatchContract,
   DiagnosticScanContract,
   GritDiagnosticCatalogEntry,
-  GritDiagnosticProjectionContract,
+  GritDiagnosticMatchContract,
   GritDiagnosticScanContract,
   NativeDiagnosticAcquisitionContract,
   NativeDiagnosticCatalogEntry,
-  NativeDiagnosticProjectionContract,
+  NativeDiagnosticMatchContract,
   NativeDiagnosticScanContract,
 } from "./catalog.js";
 export {
   DiagnosticCatalogEntrySchema,
-  DiagnosticProjectionContractSchema,
+  DiagnosticMatchContractSchema,
   DiagnosticScanContractSchema,
   diagnosticCatalogEntryFromNativeRule,
-  diagnosticCatalogEntryFromRuleGritFacts,
+  diagnosticCatalogEntryFromRulePatternFacts,
   GritDiagnosticCatalogEntrySchema,
-  GritDiagnosticProjectionContractSchema,
+  GritDiagnosticMatchContractSchema,
   GritDiagnosticScanContractSchema,
   NativeDiagnosticAcquisitionContractSchema,
   NativeDiagnosticCatalogEntrySchema,
-  NativeDiagnosticProjectionContractSchema,
+  NativeDiagnosticMatchContractSchema,
   NativeDiagnosticScanContractSchema,
 } from "./catalog.js";
 export type {
@@ -88,15 +88,15 @@ export {
   renderUnexpectedObservedGritIdentity,
 } from "./identity.js";
 export type {
-  DiagnosticConsumerProjection,
-  DiagnosticFindingProjection,
+  DiagnosticConsumerResult,
+  DiagnosticFinding,
   DiagnosticRunOutcome,
 } from "./outcome.js";
 export {
-  DiagnosticConsumerProjectionSchema,
-  DiagnosticFindingProjectionSchema,
+  DiagnosticConsumerResultSchema,
+  DiagnosticFindingSchema,
   DiagnosticRunOutcomeSchema,
-  diagnosticConsumerProjectionFromOutcome,
+  diagnosticConsumerResultFromOutcome,
 } from "./outcome.js";
 export type {
   DiagnosticScanRootDecision,

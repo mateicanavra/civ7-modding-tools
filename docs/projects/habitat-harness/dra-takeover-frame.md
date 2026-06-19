@@ -278,8 +278,8 @@ Required row contract:
 
 Observed current corpus:
 
-- 22 check patterns under `.grit/patterns/habitat/checks/`.
-- 1 apply pattern under `.grit/patterns/habitat/apply/`.
+- 22 check patterns under `.habitat/patterns/checks/`.
+- 1 apply pattern under `.habitat/patterns/apply/`.
 - `habitat fix` runs that allowlisted apply pattern, then Biome.
 - The apply list is hardcoded in `tools/habitat-harness/src/lib/grit.ts`.
 

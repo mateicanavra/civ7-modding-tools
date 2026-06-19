@@ -9,10 +9,9 @@ import {
   type BaselineContractContext,
   type RequiredBaselineContext,
 } from "./context.js";
-import { projectExternalExceptionKeys } from "./sources.js";
 import {
   parseBaselineKeys,
-  type BaselineAuthorityProjection,
+  type BaselineAuthorityResult,
   type BaselineAuthorityState,
   type BaselineContractValidation,
   type BaselineRefusal,
@@ -32,27 +31,13 @@ export function loadBaselineState(
   const p = baselinePathForRule(rule.id, context);
   if (existsSync(p)) return parseBaselineFile(p, rule.id, context);
 
-  const external = context.externalSources[rule.id];
-  if (external) {
-    const projected = projectExternalExceptionKeys(rule.id, external, context);
-    if (!projected.ok) return projected.refusal;
-    return {
-      kind: "external-exception",
-      ruleId: rule.id,
-      sourcePath: external.sourcePath,
-      owner: external.owner,
-      projectedKeys: projected.keys,
-      locked: false,
-    };
-  }
-
   if (rule.exceptionPath && rule.exceptionPath !== "none") {
     return {
       kind: "baseline-refusal",
       ruleId: rule.id,
       path: rule.exceptionPath,
-      reason: "unmodeled-external-exception",
-      message: `Rule '${rule.id}' declares external exception source '${rule.exceptionPath}' but no modeled baseline contract exists.`,
+      reason: "external-baseline-without-contract",
+      message: `Rule '${rule.id}' declares external baseline source '${rule.exceptionPath}' but no Habitat baseline contract exists.`,
     };
   }
 
@@ -98,9 +83,9 @@ export function validateBaselineContract(
   return { states, refusals };
 }
 
-export function baselineAuthorityProjection(
+export function baselineAuthorityResult(
   state: BaselineAuthorityState
-): BaselineAuthorityProjection {
+): BaselineAuthorityResult {
   return state.kind === "baseline-refusal"
     ? { status: "refused", refusal: state }
     : { status: "accepted", state };
@@ -111,7 +96,7 @@ export function loadBaseline(ruleId: string): Set<string> {
   if (state.kind === "baseline-refusal") {
     throw new Error(state.message);
   }
-  return new Set(state.kind === "external-exception" ? state.projectedKeys : state.keys);
+  return new Set(state.keys);
 }
 
 export function isBaselineLocked(state: BaselineAuthorityState): boolean {

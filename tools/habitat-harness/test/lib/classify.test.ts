@@ -66,7 +66,7 @@ describe("Habitat classify D4 result model", () => {
       projectRoot: "tools/habitat-harness",
       tags: ["kind:tooling"],
     });
-    expect(result.ruleRouting.map((rule) => rule.ruleId)).toContain("workspace-entrypoints");
+    expect(result.ruleRouting.map((rule) => rule.ruleId)).toContain("adapter-boundary");
     expect(result.runnableTargets).toContainEqual(
       expect.objectContaining({
         command: "nx run @internal/habitat-harness:check",
@@ -105,7 +105,7 @@ describe("Habitat classify D4 result model", () => {
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.ruleRouting).toContainEqual(
       expect.objectContaining({
-        ruleId: "grit-runtime-validation-imports",
+        ruleId: "runtime-validation-imports",
         coverageKind: "unresolved-metadata",
       })
     );
@@ -310,6 +310,7 @@ index 3333333..4444444 100644
             project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
               "check",
             ]),
+            project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", []),
           ];
         },
       },
@@ -333,7 +334,7 @@ describe("Habitat classify public API", () => {
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.owner.project).toBe("@internal/habitat-harness");
     expect(result.ruleRouting).toContainEqual(
-      expect.objectContaining({ ruleId: "workspace-entrypoints", coverageKind: "project-owner" })
+      expect.objectContaining({ ruleId: "adapter-boundary", coverageKind: "project-owner" })
     );
     expect(result.ruleRouting).toContainEqual(
       expect.objectContaining({ coverageKind: "workspace-gate" })

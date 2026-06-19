@@ -17,15 +17,15 @@ Host Policy Boundary owner.
 
 Forbidden owners:
 
-- Generated/Protected Zone Authority may consume host declarations but not bake
+- Protected Zones may consume host declarations but not bake
   Civ7/MapGen paths into generic code.
-- Transformation Transaction may run pattern-specific gates but not own host
+- Pattern Apply may run pattern-specific gates but not own host
   policy.
 - Scaffolding may refuse unsupported host shapes but not infer host semantics.
 
 ## Consumers
 
-D9 Transformation Transaction, D10 Generated/Protected Zone Authority, D13
+D9 Pattern Apply, D10 Protected Zones, D13
 Scaffolding and Refusal Contracts, D14 Authoring Topology Fence.
 
 ## Contract
@@ -37,14 +37,14 @@ Define host declaration/refusal contract for:
 - pattern-specific apply gates;
 - unsupported host-owned project, generator, or authoring kinds;
 - future authoring topology triggers;
-- non-claims when host policy is missing.
+- non-goals when host policy is missing.
 
 ## Dependency Order
 
 Blocked by: D0 and D1.
 
 Unblocks: D10, D13, and D9 host-policy consumption. D9 still depends on D10
-for generated/protected-zone authority before generic apply closure.
+for generated/protected authority before generic apply closure.
 
 Parallelism: can run after D0/D1 while D2-D6 proceed, but D10/D9/D13 cannot
 claim generic closure until this gate is satisfied.
@@ -93,21 +93,21 @@ internal Habitat TypeScript module at
 classify any command output, exported type, documented location, or later public
 configuration surface before source work touches it.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - current host-specific path/gate inventory;
 - declaration/refusal shape;
 - D9/D10/D13 consumer matrix.
 
-Later implementation proof:
+Later implementation receipt:
 
 - host declaration module schema tests;
 - missing declaration refusal tests;
 - generated-zone command behavior;
 - apply gate behavior;
-- non-claim tests for unsupported host shapes.
+- non-goal tests for unsupported host shapes.
 
 Non-claims:
 
@@ -132,7 +132,7 @@ Update:
 - D13 host-policy consumer matrix;
 - Authoring Topology deferral.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `bun run --cwd tools/habitat-harness test -- test/lib/host-policy.test.ts test/lib/grit-apply.test.ts`:
   expected exit 0 after the implementation creates the internal host-policy

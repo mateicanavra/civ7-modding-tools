@@ -21,13 +21,13 @@ import {
 import { repoRoot } from "../../lib/paths.js";
 import { gritBin } from "./constants.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output/index.js";
-import { decideGritScanRoots } from "./scan-roots/index.js";
+import { decidePatternScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
   return Effect.scoped(
     Effect.gen(function* () {
-      const scanRootDecision = decideGritScanRoots(scanRoots, {
+      const scanRootDecision = decidePatternScanRoots(scanRoots, {
         allowDocsRoot: options.allowDocsRoot,
       });
       if (scanRootDecision.kind === "refused") {
@@ -102,7 +102,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
           request: nativeGritCheckRequestFromProcessRequest({
             request: {
               commandId: error.commandId,
-              kind: "grit-check",
+              kind: "pattern-check",
               executable: error.executable,
               argv: error.argv,
               cwd: error.cwd,
@@ -145,11 +145,11 @@ export function gritCheckRequest(
   scanRoots: readonly string[],
   options: GritCheckRequestOptions = {}
 ): HabitatProcessRequest {
-  const cacheDir = options.cacheDir ?? path.join(repoRoot, ".grit", "cache");
+  const cacheDir = options.cacheDir ?? path.join(repoRoot, ".habitat", "cache", "patterns");
   mkdirSync(cacheDir, { recursive: true });
   return {
-    commandId: "grit-check-current-tree",
-    kind: "grit-check",
+    commandId: "pattern-check-current-tree",
+    kind: "pattern-check",
     executable: gritBin,
     argv:
       options.outputFormat === "text"
@@ -172,7 +172,7 @@ export function gritCheckRequest(
 
 function acquireGritCheckCacheDir() {
   return Effect.acquireRelease(
-    Effect.sync(() => mkdtempSync(path.join(tmpdir(), "habitat-grit-check-"))),
+    Effect.sync(() => mkdtempSync(path.join(tmpdir(), "habitat-pattern-check-"))),
     (cacheDir) => Effect.sync(() => rmSync(cacheDir, { recursive: true, force: true }))
   );
 }
