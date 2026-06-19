@@ -4,18 +4,18 @@ Revised after pre-code review (`output/nw-precode-review.md`); findings folded i
 
 ## 1. Live probes (pin uncertain geometry/semantics)
 
-- [ ] 1.1 Boot a live single-player map (`runCiv7SinglePlayerFromSetup`); via
-  `civ7 game exec`, run per-parity direction calibration
-  (`getAdjacentPlotLocation` for dirs 0–5 on one even and one odd row). This is
-  the **authority** for the full 6-index offset order on both parities.
-- [ ] 1.2 Place-then-readback each 4-tile class (`FOURPARALLELAGRM`,
-  `FOURADJACENT`, `FOURL`) on both parities, ≥3 anchors/class; determine whether
-  orientation is deterministic per parity or terrain-resolved.
-- [ ] 1.3 Run predicate calibration for the 5 new tags; pin `NOTADJACENTTOLAND`
-  land definition, cliff direction-index order, and the `NOLANDOPPOSITECLIFF`
-  opposite pairing.
-- [ ] 1.4 Record probe outputs and the encoding decision (design §4/§5) in
-  `workstream/live-proof-ledger.md` before Tasks 3.1/3.2 close.
+- [x] 1.1 Direction calibration DONE & AUTHORITATIVE (probe harness, base map
+  LARGE 96×60). Parity is purely `y&1`; EVEN/ODD 6-index tables exactly match the
+  design; cross-validated by 5 base-placed wonder clusters. See ledger §A1.
+- [x] 1.2 FOUR\* geometry: started-tuner CANNOT place (setFeatureType→false post-gen),
+  so geometry pinned by reading base-placed clusters. FOURPARALLELAGRM rule
+  **confirmed** (Thera). FOURADJACENT/FOURL dir-0 cells deferred to gen-time engine
+  readback (design §5 "engine readback authoritative"). See ledger §A2.
+- [x] 1.3 Predicate calibration: `isCliffCrossing` works as a post-start read (cliff
+  dir order pinned); `canHaveFeatureParam` unreliable post-start → legality is
+  engine-authoritative at gen-time, mod uses conservative odd-R pre-filters. Bermuda
+  placed by base game → its tags satisfiable. See ledger §B.
+- [x] 1.4 Probe outputs + encoding decision recorded in `workstream/live-proof-ledger.md`.
 
 ## 2. Footprint parity fix (map-policy)
 

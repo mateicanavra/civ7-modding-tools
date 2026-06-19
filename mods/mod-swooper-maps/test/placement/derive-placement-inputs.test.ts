@@ -51,7 +51,7 @@ describe("derive placement inputs", () => {
     initializeStandardRuntime(context, { mapInfo });
 
     let capturedNaturalWonderInput:
-      | { featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsets?: unknown }> }
+      | { featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsetsByParity?: unknown }> }
       | undefined;
     const ops = {
       wonders: () => ({ wondersCount: 1 }),
@@ -109,15 +109,24 @@ describe("derive placement inputs", () => {
     expect(capturedNaturalWonderInput?.featureCatalog).toHaveLength(1);
     expect(capturedNaturalWonderInput?.featureCatalog?.[0]).toMatchObject({
       direction: 0,
-      footprintOffsets: [
-        { dx: 0, dy: 0 },
-        { dx: 1, dy: 1 },
-        { dx: 1, dy: 0 },
-      ],
+      // Parity-keyed odd-R footprint (THREETRIANGLE, dir 0): even and odd rows
+      // differ in the parity-dependent diagonals (indices 0,2,3,5).
+      footprintOffsetsByParity: {
+        even: [
+          { dx: 0, dy: 0 },
+          { dx: 0, dy: 1 },
+          { dx: 1, dy: 0 },
+        ],
+        odd: [
+          { dx: 0, dy: 0 },
+          { dx: 1, dy: 1 },
+          { dx: 1, dy: 0 },
+        ],
+      },
     });
   });
 
-  it("filters unsupported natural-wonder catalog entries before planning", () => {
+  it("includes the recovered 4-tile natural wonders (Barrier Reef) in the plan catalog", () => {
     const width = 6;
     const height = 6;
     const size = width * height;
@@ -157,7 +166,9 @@ describe("derive placement inputs", () => {
     initializeStandardRuntime(context, { mapInfo });
 
     let capturedNaturalWonderInput:
-      | { featureCatalog?: ReadonlyArray<{ featureType: number }> }
+      | {
+          featureCatalog?: ReadonlyArray<{ featureType: number; footprintOffsetsByParity?: unknown }>;
+        }
       | undefined;
     const ops = {
       wonders: () => ({ wondersCount: 1 }),
@@ -212,7 +223,26 @@ describe("derive placement inputs", () => {
       pedology: { fertility: new Float32Array(size).fill(0.5) },
     });
 
-    expect(capturedNaturalWonderInput?.featureCatalog).toEqual([]);
+    // Barrier Reef (FOURADJACENT) was previously dropped (null footprint); it is
+    // now placement-eligible with a parity-keyed 4-tile footprint.
+    expect(capturedNaturalWonderInput?.featureCatalog).toHaveLength(1);
+    expect(capturedNaturalWonderInput?.featureCatalog?.[0]).toMatchObject({
+      featureType: featureTypes.FEATURE_BARRIER_REEF,
+      footprintOffsetsByParity: {
+        even: [
+          { dx: 0, dy: 0 },
+          { dx: 1, dy: 0 },
+          { dx: 2, dy: 0 },
+          { dx: 3, dy: 0 },
+        ],
+        odd: [
+          { dx: 0, dy: 0 },
+          { dx: 1, dy: 0 },
+          { dx: 2, dy: 0 },
+          { dx: 3, dy: 0 },
+        ],
+      },
+    });
   });
 
   it("builds compact natural-wonder plan telemetry for exact runtime proof", () => {

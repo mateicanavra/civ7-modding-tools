@@ -16,15 +16,19 @@ type Candidate = {
   elevation: number;
 };
 
+type FootprintOffset = { dx: number; dy: number };
+type FootprintOffsetsByParity = { even: readonly FootprintOffset[]; odd: readonly FootprintOffset[] };
+
 type NaturalWonderFeatureCandidate = {
   featureType: number;
   direction: number;
+  placeFirst: boolean;
   validTerrainTypes: readonly number[];
   validBiomeTypes: readonly number[];
   minimumElevation: number | null;
   noLake: boolean;
   featureTags: readonly string[];
-  footprintOffsets: readonly { dx: number; dy: number }[];
+  footprintOffsetsByParity: FootprintOffsetsByParity;
 };
 
 export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "default", {
@@ -75,6 +79,7 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
           .map((entry) => ({
             featureType: entry.featureType | 0,
             direction: entry.direction | 0,
+            placeFirst: entry.placeFirst === true,
             validTerrainTypes: sanitizeIdArray(entry.validTerrainTypes),
             validBiomeTypes: sanitizeIdArray(entry.validBiomeTypes),
             minimumElevation: Number.isFinite(entry.minimumElevation)
@@ -82,13 +87,23 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
               : null,
             noLake: entry.noLake === true,
             featureTags: sanitizeStringArray(entry.featureTags),
-            footprintOffsets: sanitizeFootprintOffsets(entry.footprintOffsets),
+            footprintOffsetsByParity: sanitizeFootprintOffsetsByParity(entry.footprintOffsetsByParity),
           }))
           .filter((entry) => entry.featureType >= 0)
-          .filter((entry) => entry.footprintOffsets.length > 0)
+          .filter(
+            (entry) =>
+              entry.footprintOffsetsByParity.even.length > 0 &&
+              entry.footprintOffsetsByParity.odd.length > 0
+          )
           .map((entry) => [entry.featureType, entry] as const)
       ).values()
-    ).sort((a, b) => a.featureType - b.featureType);
+    ).sort((a, b) => {
+      // placeFirst wonders are placed ahead of the rest (engine base-generator
+      // order); stable by featureType within each group. Task 5 replaces this
+      // with a per-map best-suitability ranking.
+      if (a.placeFirst !== b.placeFirst) return a.placeFirst ? -1 : 1;
+      return a.featureType - b.featureType;
+    });
 
     if (wondersCount <= 0 || featureCatalog.length === 0) {
       return {
@@ -201,7 +216,7 @@ export const defaultStrategy = createStrategy(PlanNaturalWondersContract, "defau
         plotIndex: candidate.plotIndex,
         width,
         height,
-        footprintOffsets: feature.footprintOffsets,
+        footprintOffsetsByParity: feature.footprintOffsetsByParity,
       }) ?? [candidate.plotIndex]) {
         usedPlots.add(plotIndex);
       }
@@ -237,11 +252,11 @@ function sanitizeIdArray(values: readonly number[] | undefined): number[] {
   ).sort((a, b) => a - b);
 }
 
-function sanitizeFootprintOffsets(
+function sanitizeFootprintOffsetList(
   values: readonly { dx?: number; dy?: number }[] | undefined
-): Array<{ dx: number; dy: number }> {
+): FootprintOffset[] {
   if (!Array.isArray(values)) return [{ dx: 0, dy: 0 }];
-  const offsets: Array<{ dx: number; dy: number }> = [];
+  const offsets: FootprintOffset[] = [];
   const seen = new Set<string>();
   for (const value of values) {
     const dx = Math.trunc(value.dx ?? Number.NaN);
@@ -253,6 +268,15 @@ function sanitizeFootprintOffsets(
     offsets.push({ dx, dy });
   }
   return offsets;
+}
+
+function sanitizeFootprintOffsetsByParity(
+  value: { even?: readonly { dx?: number; dy?: number }[]; odd?: readonly { dx?: number; dy?: number }[] } | undefined
+): FootprintOffsetsByParity {
+  return {
+    even: sanitizeFootprintOffsetList(value?.even),
+    odd: sanitizeFootprintOffsetList(value?.odd),
+  };
 }
 
 function sanitizeStringArray(values: readonly string[] | undefined): string[] {
@@ -272,13 +296,16 @@ function getFootprintIndices(args: {
   plotIndex: number;
   width: number;
   height: number;
-  footprintOffsets: readonly { dx: number; dy: number }[];
+  footprintOffsetsByParity: FootprintOffsetsByParity;
 }): number[] | null {
   const y = (args.plotIndex / args.width) | 0;
   const x = args.plotIndex - y * args.width;
+  // Resolve parity at the concrete anchor (odd-R): odd rows and even rows use
+  // distinct offset sets (map-policy byParity helper).
+  const offsets = (y & 1) === 1 ? args.footprintOffsetsByParity.odd : args.footprintOffsetsByParity.even;
   const indices: number[] = [];
   const seen = new Set<number>();
-  for (const offset of args.footprintOffsets) {
+  for (const offset of offsets) {
     const fy = y + offset.dy;
     if (fy < 0 || fy >= args.height) return null;
     const fx = wrappedX(x + offset.dx, args.width);
@@ -357,11 +384,60 @@ function satisfiesFeatureTags(args: {
 }): boolean {
   for (const tag of args.feature.featureTags) {
     switch (tag) {
+      // Engine-deferred tags: the pure op has no shelf/reef/forest signal and no
+      // cliff oracle (cliffs are engine edge state, unavailable offline), so these
+      // are pass-through pre-filters; the engine `canHaveFeatureParam` at stamp
+      // time is the legality authority. FEATURE_FOREST/SHALLOWWATER/VOLCANO are
+      // wired to real physical signals in the suitability pass (Task 5).
       case "FEATURE_FOREST":
       case "FEATURE_REEF":
       case "SHALLOWWATER":
       case "VOLCANO":
+      case "ADJACENTCLIFF":
+      case "NOLANDOPPOSITECLIFF":
         break;
+      case "ADJACENTTOCOAST": {
+        let adjacentToCoast = false;
+        forEachFootprintNeighbor({
+          footprint: args.footprint,
+          width: args.width,
+          height: args.height,
+          fn: (plotIndex) => {
+            if ((args.terrainType[plotIndex] ?? -1) === args.coastTerrainType) {
+              adjacentToCoast = true;
+            }
+          },
+        });
+        if (!adjacentToCoast) return false;
+        break;
+      }
+      case "NOTADJACENTTOLAND": {
+        let adjacentToLand = false;
+        forEachFootprintNeighbor({
+          footprint: args.footprint,
+          width: args.width,
+          height: args.height,
+          fn: (plotIndex) => {
+            if (args.landMask[plotIndex] === 1) adjacentToLand = true;
+          },
+        });
+        if (adjacentToLand) return false;
+        break;
+      }
+      case "ADJACENTTOSAMETERRAIN": {
+        const terrain = args.terrainType[args.candidate.plotIndex] ?? -1;
+        let adjacentSameTerrain = false;
+        forEachFootprintNeighbor({
+          footprint: args.footprint,
+          width: args.width,
+          height: args.height,
+          fn: (plotIndex) => {
+            if ((args.terrainType[plotIndex] ?? -2) === terrain) adjacentSameTerrain = true;
+          },
+        });
+        if (!adjacentSameTerrain) return false;
+        break;
+      }
       case "ADJACENTTOLAND": {
         let adjacentToLand = false;
         forEachFootprintNeighbor({
@@ -505,7 +581,7 @@ function isCandidateCompatibleWithFeature(args: {
     plotIndex: args.candidate.plotIndex,
     width: args.width,
     height: args.height,
-    footprintOffsets: args.feature.footprintOffsets,
+    footprintOffsetsByParity: args.feature.footprintOffsetsByParity,
   });
   if (!footprint) return false;
   for (const plotIndex of footprint) {

@@ -91,8 +91,16 @@ describe("placement plan operations", () => {
         noFeatureType: -1,
         naturalWonderBlockedMask: new Uint8Array(size),
         featureCatalog: [
-          { featureType: 1001, direction: 0, footprintOffsets: [{ dx: 0, dy: 0 }] },
-          { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
+          {
+            featureType: 1001,
+            direction: 0,
+            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
+          },
+          {
+            featureType: 1002,
+            direction: 1,
+            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
+          },
         ],
       },
       {
@@ -132,8 +140,12 @@ describe("placement plan operations", () => {
         noFeatureType: -1,
         naturalWonderBlockedMask: new Uint8Array(size),
         featureCatalog: [
-          { featureType: 1001, direction: 0, footprintOffsets: [] },
-          { featureType: 1002, direction: 1, footprintOffsets: [{ dx: 0, dy: 0 }] },
+          { featureType: 1001, direction: 0, footprintOffsetsByParity: { even: [], odd: [] } },
+          {
+            featureType: 1002,
+            direction: 1,
+            footprintOffsetsByParity: { even: [{ dx: 0, dy: 0 }], odd: [{ dx: 0, dy: 0 }] },
+          },
         ],
       },
       {

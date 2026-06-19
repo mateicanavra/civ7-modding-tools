@@ -35,16 +35,19 @@ const PlanNaturalWondersContract = defineOp({
         validBiomeTypes: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
         minimumElevation: Type.Optional(Type.Number()),
         noLake: Type.Optional(Type.Boolean()),
+        placeFirst: Type.Optional(Type.Boolean()),
         placementClass: Type.Optional(Type.String()),
         naturalWonderTiles: Type.Optional(Type.Integer({ minimum: 1 })),
         featureTags: Type.Optional(Type.Array(Type.String())),
-        footprintOffsets: Type.Optional(
-          Type.Array(
-            Type.Object({
-              dx: Type.Integer(),
-              dy: Type.Integer(),
-            })
-          )
+        // Parity-keyed footprint offsets (odd-R): the even-row and odd-row offset
+        // lists for this wonder's class/direction. The op applies `(anchorY & 1)`
+        // at the concrete anchor. Computed in derive-placement-inputs via the
+        // map-policy byParity helper; the op stays mapgen-core-only.
+        footprintOffsetsByParity: Type.Optional(
+          Type.Object({
+            even: Type.Array(Type.Object({ dx: Type.Integer(), dy: Type.Integer() })),
+            odd: Type.Array(Type.Object({ dx: Type.Integer(), dy: Type.Integer() })),
+          })
         ),
       })
     ),

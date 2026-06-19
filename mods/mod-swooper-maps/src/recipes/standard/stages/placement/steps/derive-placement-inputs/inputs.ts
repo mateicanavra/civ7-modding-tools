@@ -1,6 +1,6 @@
 import {
   CIV7_BROWSER_TABLES_V0,
-  getNaturalWonderFootprintOffsets,
+  getNaturalWonderFootprintOffsetsByParity,
   resolveNaturalWonderMaterializationDirection,
 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
@@ -35,6 +35,7 @@ const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
       placementClass?: string;
       naturalWonderTiles?: number;
       naturalWonderDirection?: number;
+      naturalWonderPlaceFirst?: boolean;
     }
   | undefined
 >;
@@ -161,8 +162,11 @@ export function buildPlacementInputs(
       policy,
       entry.direction | 0
     );
-    const footprintOffsets = getNaturalWonderFootprintOffsets(policy, materializationDirection);
-    if (!footprintOffsets) return [];
+    const footprintOffsetsByParity = getNaturalWonderFootprintOffsetsByParity(
+      policy,
+      materializationDirection
+    );
+    if (!footprintOffsetsByParity) return [];
     return [
       {
         featureType,
@@ -173,10 +177,14 @@ export function buildPlacementInputs(
           ? { minimumElevation: policy.minimumElevation }
           : {}),
         ...(policy?.noLake ? { noLake: true } : {}),
+        ...(policy?.naturalWonderPlaceFirst ? { placeFirst: true } : {}),
         ...(policy?.placementClass ? { placementClass: policy.placementClass } : {}),
         ...(policy?.naturalWonderTiles ? { naturalWonderTiles: policy.naturalWonderTiles } : {}),
         featureTags: [...(FEATURE_TAGS_BY_FEATURE_TYPE[String(featureType)] ?? [])],
-        footprintOffsets: [...footprintOffsets],
+        footprintOffsetsByParity: {
+          even: [...footprintOffsetsByParity.even],
+          odd: [...footprintOffsetsByParity.odd],
+        },
       },
     ];
   });
