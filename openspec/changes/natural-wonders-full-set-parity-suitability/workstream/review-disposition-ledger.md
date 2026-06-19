@@ -118,3 +118,29 @@ than the telemetry strictly proves.
 `no-fudging` fails); adapter 19 pass (only FOREIGN `mock-terrain-policy` fails);
 openspec strict-valid. Live closure §D substantially met (variety = primary goal
 fully met; documented scoped-out items remain).
+
+---
+
+# Docs/Refactor-phase Review — registry refactor + doc honesty (2026-06-19)
+
+Adversarial 2-lane Workflow (refactor behavior-preservation/boundaries +
+doc/ledger honesty vs live evidence) over the turn diff `57d999e79..edb84f6de`.
+
+**Outcome: 0 P1, 0 P2.** Lane 1 confirmed the `WONDER_GROUPS` registry refactor is
+behavior-preserving and verbatim — all 9 formulas, the 13-field signals vector,
+and 20-id membership byte-identical to BASE; the dead-default drop is provably
+sound; `kind:plan` import boundary intact. Lane 2 confirmed the normative docs are
+honest (no overclaim; FOURL correctly "code-path-proven only"; refactor-eval
+honestly scoped; refs resolve). All 5 confirmed findings are P3.
+
+| id | sev | verdict | disposition |
+|---|---|---|---|
+| REV-1 | P3 | real | **FIXED** — characterization test left group D's `deepN` coefficient unguarded (`deepN=0`); set `deepN=0.55` + updated D's expected RHS so a coefficient typo is now caught. |
+| REV-2 | P3 | real | **FIXED** — ledger §C line 131 stated the wrong odd-Q VoF cause inline; added an inline §D/§E correction marker. |
+| REV-3 | P3 | real | **FIXED** — ledger §A2 stated the superseded `-1→0`-for-all normalization as current; added an inline correction (4-tile classes keep `-1`/self-orient; `-1→0` is 1/2/3-tile only). |
+| REV-4 | P3 | real | **FIXED** — system-reference §11 intro said "mirror §D" but cites §E entries; now "§D + §E". |
+| REV-5 | P3 | real | **FIXED** — `corpus-ledger` + `remaining-work-packet` still listed the odd-Q diagnosis as a current limit; added inline §D/§E correction markers. |
+
+**Post-fix gate state:** build green; map-policy 19 / mod 583 (the +1 is the new
+wonder-group registry characterization test; only the FOREIGN `no-fudging` fails) /
+adapter 19; openspec strict-valid.

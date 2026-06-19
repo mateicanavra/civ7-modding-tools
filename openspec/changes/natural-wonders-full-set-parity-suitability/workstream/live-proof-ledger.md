@@ -45,6 +45,13 @@ under these tables. **Decision: encode ODD=current, EVEN=above; select by `(y&1)
 (`resolveNaturalWonderMaterializationDirection`) and passes that **concrete** direction
 to *both* the offline footprint and `setFeatureType`; the engine stamps that exact
 orientation (the base game's `Direction:-1` self-orientation is **not** the mod path).
+> **CORRECTION (superseded by §D Fix 3 + system-reference §4.2):** the `-1→0`
+> normalization holds for **1/2/3-tile classes only**. The 4-tile classes
+> (FOURPARALLELAGRM/FOURADJACENT/FOURL) KEEP `Direction:-1` and self-orient like
+> the base game — the original "not the mod path" assumption here was wrong. The
+> table below is the concrete-direction geometric model (used for 1/2/3-tile
+> placement, and for the 4-tile shape only at a concrete direction in
+> diagnostics/tests).
 So footprints are deterministic per (class, direction, parity):
 
 | Class | model (off(d) from the parity table) | status |
@@ -128,7 +135,9 @@ telemetry.
 
 **`set-feature-false` (3 hardest wonders).** `canHaveFeatureParam` passed but the
 engine's `setFeatureType` refused the single planner-chosen tile: Valley of Flowers
-(ADJACENTMOUNTAIN — odd-Q vs odd-R neighbor mismatch), Mapu'a Vaea (ADJACENTCLIFF —
+(ADJACENTMOUNTAIN — **diagnosis CORRECTED in §D + §E: NOT an odd-Q/odd-R mismatch;
+the op's adjacency is already odd-R, so this was never the gate — VoF is
+constraint/terrain-limited**), Mapu'a Vaea (ADJACENTCLIFF —
 engine-deferred, planner can't pre-filter cliffs), Barrier Reef (FOURADJACENT dir-0
 geometry / reef — not gen-pinned). The base generator collects MANY
 canHaveFeatureParam-true tiles and picks one; the mod picks one best tile and does

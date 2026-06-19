@@ -415,8 +415,8 @@ data-side change cannot silently re-truncate the set.
 
 ## 11. Known limitations (honest)
 
-These mirror [`live-proof-ledger.md`](./live-proof-ledger.md) §D and are **not**
-closed as of the 3-fix DRAFT. (Items being addressed in the current
+These mirror [`live-proof-ledger.md`](./live-proof-ledger.md) §D + §E and are
+**not** closed as of the 3-fix DRAFT. (Items being addressed in the current
 docs/wonders/refactor phase are noted.)
 
 - **Valley of Flowers (28)** — rejected `set-feature-false`. **Both the

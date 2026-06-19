@@ -92,6 +92,8 @@ Live closure 2026-06-19 (Fix 1+2+3); full evidence in `live-proof-ledger.md` §D
   Reef(29) + Great Blue Hole(44) placed (recovered via new predicates + Fix 3
   self-orientation).
 - (Known limits, not closed by the 3 fixes): Thera(37) caldera-coast terrain;
-  Valley of Flowers(28) odd-Q vs odd-R ADJACENTMOUNTAIN predicate; FOURL
+  Valley of Flowers(28) **constraint/terrain-limited** (the earlier "odd-Q vs
+  odd-R ADJACENTMOUNTAIN predicate" diagnosis was DISPROVEN live — see live-proof
+  §D/§E; the op's adjacency is already odd-R, so that was never the gate); FOURL
   (Hoerikwaggo) not selected in sampled seeds (same self-orient path as the
   proven FOUR* classes).

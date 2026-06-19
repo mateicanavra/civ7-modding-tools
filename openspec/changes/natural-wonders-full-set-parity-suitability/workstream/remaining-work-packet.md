@@ -13,9 +13,10 @@
 >   (FOURPARALLELAGRM) place live.
 > - Closure evidence: `live-proof-ledger.md` §D (2 seeds × 2 map types); closure
 >   review dispositioned in `review-disposition-ledger.md`. Scoped-out (documented):
->   Thera terrain, Valley of Flowers odd-Q/odd-R predicate, FOURL (Hoerikwaggo)
->   never selected, in-game effect-yields. The §4 text below is preserved as the
->   original normative spec for historical reference.
+>   Thera terrain, Valley of Flowers (constraint/terrain-limited — the
+>   odd-Q/odd-R predicate diagnosis was later DISPROVEN live, see §E), FOURL
+>   (Hoerikwaggo) never selected, in-game effect-yields. The §4 text below is
+>   preserved as the original normative spec for historical reference.
 
 Strong reference for the remaining implementation. The infrastructure (parity,
 full-set eligibility, predicates, selection framework, effects-by-placement) is
@@ -176,9 +177,10 @@ MUST:
 
 ROOT CAUSE: `canHaveFeatureParam`-true ≠ `setFeatureType`-success. The base generator
 collects MANY valid tiles and picks one; the mod picks ONE best tile and does not
-retry, so the 3 hardest wonders (Valley of Flowers ADJACENTMOUNTAIN odd-Q/odd-R
-near-miss; Mapu'a Vaea ADJACENTCLIFF engine-deferred; Barrier Reef FOURADJACENT) get
-`set-feature-false` and drop.
+retry, so the 3 hardest wonders (Valley of Flowers ADJACENTMOUNTAIN [stated here as
+an odd-Q/odd-R near-miss — DISPROVEN live, see live-proof §D/§E: constraint/
+terrain-limited, not a predicate bug]; Mapu'a Vaea ADJACENTCLIFF engine-deferred;
+Barrier Reef FOURADJACENT) get `set-feature-false` and drop.
 
 MUST:
 - Plan op output: add `fallbackPlotIndices?: number[]` per placement = the wonder's

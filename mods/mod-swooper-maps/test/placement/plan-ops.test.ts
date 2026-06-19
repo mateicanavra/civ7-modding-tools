@@ -58,14 +58,14 @@ describe("placement plan operations", () => {
       dischN: 0.9,
       slopeN: 0.1,
       shelfN: 1,
-      deepN: 0,
+      deepN: 0.55,
       moist: 0.45,
     };
     const suit = (g: keyof typeof WONDER_GROUPS) => WONDER_GROUPS[g].suitability(s);
     expect(suit("A")).toBeCloseTo(0.55 * 0.5 + 0.35 * 0.4 + 0.1 * 0.7, 9);
     expect(suit("B")).toBeCloseTo(0.5 * 1 + 0.3 * 0.5 + 0.2 * 0.7, 9);
     expect(suit("C")).toBeCloseTo(0.55 * 1 + 0.3 * 0.7 + 0.15 * (1 - 0.6), 9);
-    expect(suit("D")).toBeCloseTo(0.7 * 0 + 0.3 * (1 - 0.6), 9);
+    expect(suit("D")).toBeCloseTo(0.7 * 0.55 + 0.3 * (1 - 0.6), 9);
     expect(suit("E")).toBeCloseTo(0.45 * 0.9 + 0.3 * 0.1 + 0.25 * 0.5, 9);
     expect(suit("F")).toBeCloseTo(0.5 * 0.4 + 0.4 * 0.5 + 0.1 * (1 - 0.3), 9);
     expect(suit("G")).toBeCloseTo(0.45 * 0.2 + 0.3 * 0.45 + 0.25 * (1 - 0.5), 9);
