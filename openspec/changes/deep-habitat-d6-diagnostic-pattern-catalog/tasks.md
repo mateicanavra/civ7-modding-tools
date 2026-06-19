@@ -62,14 +62,19 @@
   acquisition outcomes.
 - [ ] 3.8 Replace adapter failure message parsing with structured failure
   projection plus diagnostic rendering.
-- [ ] 3.9 Define `DiagnosticRunOutcome` and project native results only through
+- [x] 3.9 Define `DiagnosticRunOutcome` and project native results only through
   explicit `DiagnosticIdentity`; findings outcomes must carry non-empty
   diagnostic collections.
+  - Grit projection now builds `DiagnosticRunOutcome` variants before converting
+    to the current `RuleRunResult` boundary, with findings outcomes constructed
+    only from non-empty diagnostic finding projections.
 - [ ] 3.10 Define `InjectedProbeOutcome`; replace proof-shaped probe fields in
   source callers and tests with D6 diagnostic/probe outcome language.
-- [ ] 3.11 Define `DiagnosticConsumerProjection` as a discriminated projection
+- [x] 3.11 Define `DiagnosticConsumerProjection` as a discriminated projection
   derived from `DiagnosticRunOutcome` for D7/D8/D9/D11/D15, with non-empty
   diagnostics on findings projections.
+  - The D6 outcome module defines the consumer projection schema and derivation
+    function; downstream packets still own their packet-specific consumption.
 - [ ] 3.12 Delete obsolete paths and update imports/callers according to the D0
   matrix.
 
