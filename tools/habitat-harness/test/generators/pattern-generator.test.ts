@@ -378,8 +378,10 @@ function assertRegisteredWrites(
     manifestPath,
   });
   if (manifest.hookScope.decision === "pre-commit") {
-    expect(rules.rules.at(-1)).toMatchObject({ hookScope: "pre-commit" });
+    expect(rules.rules.at(-1)).toMatchObject({ localFeedback: { preCommit: true } });
+    expect(rules.rules.at(-1)).not.toHaveProperty("hookScope");
   } else {
+    expect(rules.rules.at(-1)).not.toHaveProperty("localFeedback");
     expect(rules.rules.at(-1)).not.toHaveProperty("hookScope");
   }
 }

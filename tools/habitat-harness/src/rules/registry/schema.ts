@@ -26,6 +26,12 @@ const RequiredRuleMetadataSchema = Type.Object(
 );
 
 const RequiredCommandRuleMetadataSchema = Type.Omit(RequiredRuleMetadataSchema, ["ownerTool"]);
+const LocalFeedbackSchema = Type.Object(
+  {
+    preCommit: Type.Literal(true),
+  },
+  { additionalProperties: false }
+);
 
 const CommandRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
@@ -54,7 +60,7 @@ const GritCheckRuleRegistryRecordV1Schema = Type.Interface(
   {
     ownerTool: Type.Literal("grit-check"),
     gritPattern: Type.String({ minLength: 1 }),
-    hookScope: Type.Optional(Type.Literal("pre-commit")),
+    localFeedback: Type.Optional(LocalFeedbackSchema),
     manifestPath: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }

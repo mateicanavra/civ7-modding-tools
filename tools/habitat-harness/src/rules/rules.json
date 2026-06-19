@@ -80,7 +80,7 @@
       "message": "Replace value export * with named exports, or use export type * for type-only surfaces.",
       "exceptionPath": "none",
       "gritPattern": "contract_export_all",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "nx-boundaries",
@@ -130,7 +130,7 @@
       "message": "Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather than deep internals.",
       "exceptionPath": "none",
       "gritPattern": "domain_deep_import",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-relative-domain-imports",
@@ -145,7 +145,7 @@
       "message": "Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather than relative ../domain paths.",
       "exceptionPath": "none",
       "gritPattern": "relative_domain_imports",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-domain-deep-import-tests",
@@ -160,7 +160,7 @@
       "message": "Use @mapgen/domain/<domain>, /ops, or /config.js from tests instead of domain internals.",
       "exceptionPath": "none",
       "gritPattern": "domain_deep_import_tests",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-recipe-domain-surface",
@@ -175,7 +175,7 @@
       "message": "Recipes may import @mapgen/domain/<domain>, @mapgen/domain/<domain>/ops, or /config.js only.",
       "exceptionPath": "none",
       "gritPattern": "recipe_domain_surface",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-studio-recipe-artifacts",
@@ -190,7 +190,7 @@
       "message": "MapGen Studio UI must import recipe artifacts, not runtime recipe modules.",
       "exceptionPath": "none",
       "gritPattern": "studio_recipe_artifacts",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-step-contract-domain-surface",
@@ -205,7 +205,7 @@
       "message": "Step contracts must import only from @mapgen/domain/<domain>.",
       "exceptionPath": "none",
       "gritPattern": "step_contract_domain_surface",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-recipe-runtime-domain-ops",
@@ -220,7 +220,7 @@
       "message": "Recipe runtime files must import @mapgen/domain/<domain>/ops for runtime domains.",
       "exceptionPath": "none",
       "gritPattern": "recipe_runtime_domain_ops",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-runtime-validation-imports",
@@ -235,7 +235,7 @@
       "message": "Runtime layers must not import TypeBox runtime validation or compiler normalization helpers.",
       "exceptionPath": "none",
       "gritPattern": "runtime_validation_imports",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-runtime-run-validated",
@@ -250,7 +250,7 @@
       "message": "Runtime layers must not call runValidated.",
       "exceptionPath": "none",
       "gritPattern": "runtime_run_validated",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-runtime-config-merge",
@@ -265,7 +265,7 @@
       "message": "Move empty-object config fallback to the owning compile/policy boundary instead of runtime step/op code.",
       "exceptionPath": "none",
       "gritPattern": "runtime_config_merge",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-ops-bind-runvalidated",
@@ -280,7 +280,7 @@
       "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
       "exceptionPath": "none",
       "gritPattern": "ops_bind_runvalidated",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-recipe-imports-in-domain",
@@ -295,7 +295,7 @@
       "message": "Domain source must not import recipe modules; move composition to recipes or expose a domain surface.",
       "exceptionPath": "none",
       "gritPattern": "recipe_imports_in_domain",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-stage-contract-dependencies",
@@ -310,7 +310,7 @@
       "message": "Use typed dependency tag constants or artifact contract references instead of string literal dependency keys.",
       "exceptionPath": "none",
       "gritPattern": "stage_contract_dependencies",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-runtime-helper-redeclarations",
@@ -325,7 +325,7 @@
       "message": "Use shared helpers from @swooper/mapgen-core instead of redeclaring them.",
       "exceptionPath": "none",
       "gritPattern": "runtime_helper_redeclarations",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-empty-schema-default",
@@ -340,7 +340,7 @@
       "message": "Do not use empty object defaults in schema definitions; rely on property defaults.",
       "exceptionPath": "none",
       "gritPattern": "empty_schema_default",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-mapgen-core-runtime-civ7",
@@ -355,7 +355,7 @@
       "message": "Remove Civ7 runtime coupling from mapgen-core core/engine source.",
       "exceptionPath": "none",
       "gritPattern": "mapgen_core_runtime_civ7",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-sibling-stage-step-imports",
@@ -370,7 +370,7 @@
       "message": "Do not import sibling stage steps; promote a contract or domain surface.",
       "exceptionPath": "none",
       "gritPattern": "sibling_stage_step_imports",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-domain-root-catalogs",
@@ -385,7 +385,7 @@
       "message": "Move domain-root catalogs to the owning public surface.",
       "exceptionPath": "none",
       "gritPattern": "domain_root_catalogs",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-wrapper-advanced-stage-config",
@@ -400,7 +400,7 @@
       "message": "Do not reintroduce wrapper-only `advanced` stage config surfaces.",
       "exceptionPath": "none",
       "gritPattern": "wrapper_advanced_stage_config",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-placement-outcome-boundary",
@@ -415,7 +415,7 @@
       "message": "Use typed placement outcomes instead of direct official generator calls.",
       "exceptionPath": "none",
       "gritPattern": "placement_outcome_boundary",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-adapter-base-standard-import",
@@ -430,7 +430,7 @@
       "message": "Move /base-standard/ runtime imports into @civ7/adapter.",
       "exceptionPath": "none",
       "gritPattern": "adapter_base_standard_import",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-control-orpc-contract-ownership",
@@ -445,7 +445,7 @@
       "message": "Keep control-oRPC contracts transport-pure and keep module-local schemas private.",
       "exceptionPath": "none",
       "gritPattern": "control_orpc_contract_ownership",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-control-app-surface",
@@ -460,7 +460,7 @@
       "message": "Use Civ7TunerSession or withCiv7DirectControlSession instead of constructing Civ7DirectControlSession locally.",
       "exceptionPath": "none",
       "gritPattern": "control_app_surface",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-viz-contract-ownership",
@@ -475,7 +475,7 @@
       "message": "Use stages/<stage>/viz.ts for shared visualization contracts.",
       "exceptionPath": "none",
       "gritPattern": "viz_contract_ownership",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-sdk-mapgen-entrypoint",
@@ -490,7 +490,7 @@
       "message": "Keep Civ7 map runtime bindings behind @mateicanavra/civ7-sdk/mapgen.",
       "exceptionPath": "none",
       "gritPattern": "sdk_mapgen_entrypoint",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-domain-ops-boundary-imports",
@@ -505,7 +505,7 @@
       "message": "Remove adapter/context crossing from domain ops.",
       "exceptionPath": "none",
       "gritPattern": "domain_ops_boundary_imports",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-domain-ops-projection-effects",
@@ -520,7 +520,7 @@
       "message": "Remove map projection/effect dependency keys from domain ops.",
       "exceptionPath": "none",
       "gritPattern": "domain_ops_projection_effects",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-domain-ops-root-config",
@@ -535,7 +535,7 @@
       "message": "Do not import domain-root config facades from ops.",
       "exceptionPath": "none",
       "gritPattern": "domain_ops_root_config",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-domain-engine-imports",
@@ -550,7 +550,7 @@
       "message": "Do not import engine runtime entrypoints from domain ops.",
       "exceptionPath": "none",
       "gritPattern": "domain_engine_imports",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "grit-op-calls-op",
@@ -565,7 +565,7 @@
       "message": "Move op composition into the owning step/stage or public domain surface.",
       "exceptionPath": "none",
       "gritPattern": "op_calls_op",
-      "hookScope": "pre-commit"
+      "localFeedback": { "preCommit": true }
     },
     {
       "id": "file-layer-swooper-map-generated",

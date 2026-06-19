@@ -12,6 +12,7 @@ describe("rule registry contract", () => {
     expect(rules).toHaveLength(52);
     expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(32);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(3);
+    expect(rules.some((rule) => "hookScope" in rule)).toBe(false);
   });
 
   test("rejects invalid JSON before schema validation", () => {
