@@ -40,3 +40,6 @@ implementation starts.
 - `bun run openspec -- validate deep-habitat-effect-substrate-architecture --strict`
 - `bun run openspec:validate`
 - `git diff --check`
+- Review disposition ledger with no unresolved P1/P2 findings.
+- Public surface ledger bound to D0 `surface_id` rows.
+- Dedicated Graphite layer before closure.
