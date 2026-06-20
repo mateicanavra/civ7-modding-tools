@@ -1,10 +1,11 @@
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 import type { HookRuntime } from "../../src/lib/hook-runtime/runtime.js";
+import { createHabitatServiceClient } from "../../src/service/client.js";
+import { runHookService } from "../../src/service/modules/hook/run.js";
 
 describe("Habitat hook service", () => {
   test("runs owned hook orchestration from service input", async () => {
-    const { runHookService } = await import("../../src/service/modules/hook/run.js");
     const fake = makePrePushRuntime();
 
     const result = await Effect.runPromise(
@@ -23,8 +24,6 @@ describe("Habitat hook service", () => {
   });
 
   test("preserves unknown hook stream behavior", async () => {
-    const { runHookService } = await import("../../src/service/modules/hook/run.js");
-
     const result = await Effect.runPromise(runHookService({}));
 
     expect(result).toEqual({
@@ -35,7 +34,6 @@ describe("Habitat hook service", () => {
   });
 
   test("preserves empty base as hook runtime input", async () => {
-    const { runHookService } = await import("../../src/service/modules/hook/run.js");
     const fake = makePrePushRuntime({ graphiteParent: "agent-parent" });
 
     const result = await Effect.runPromise(
@@ -50,7 +48,6 @@ describe("Habitat hook service", () => {
   });
 
   test("runs through the in-process Habitat service client", async () => {
-    const { createHabitatServiceClient } = await import("../../src/service/client.js");
     const fake = makePrePushRuntime();
 
     const result = await createHabitatServiceClient({
@@ -65,7 +62,6 @@ describe("Habitat hook service", () => {
   });
 
   test("runs pre-commit through the in-process Habitat service client", async () => {
-    const { createHabitatServiceClient } = await import("../../src/service/client.js");
     const fake = makePreCommitRuntime();
 
     const result = await createHabitatServiceClient({

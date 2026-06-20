@@ -6,10 +6,11 @@ import {
   makeHabitatCommandResult,
 } from "../../src/lib/habitat-process.js";
 import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
+import { createHabitatServiceClient } from "../../src/service/client.js";
+import { runFixService } from "../../src/service/modules/fix/run.js";
 
 describe("Habitat fix service", () => {
   test("runs dry-run intent through admitted pattern transactions", async () => {
-    const { runFixService } = await import("../../src/service/modules/fix/run.js");
     const requests: HabitatProcessRequest[] = [];
     const processLayer = makeFakeHabitatProcessLayer((request) => {
       requests.push(request);
@@ -45,8 +46,6 @@ describe("Habitat fix service", () => {
   });
 
   test("runs live-write intent into protected-zone refusal", async () => {
-    const { runFixService } = await import("../../src/service/modules/fix/run.js");
-
     const result = await Effect.runPromise(
       runFixService(
         { kind: "live-write-intent" },
@@ -66,8 +65,6 @@ describe("Habitat fix service", () => {
   });
 
   test("refuses before planning when no apply admissions are present", async () => {
-    const { runFixService } = await import("../../src/service/modules/fix/run.js");
-
     const result = await Effect.runPromise(
       runFixService({ kind: "dry-run-intent" }, { admissions: [] })
     );
@@ -80,7 +77,6 @@ describe("Habitat fix service", () => {
   });
 
   test("runs through the in-process Habitat service client", async () => {
-    const { createHabitatServiceClient } = await import("../../src/service/client.js");
     const requests: HabitatProcessRequest[] = [];
     const processLayer = makeFakeHabitatProcessLayer((request) => {
       requests.push(request);

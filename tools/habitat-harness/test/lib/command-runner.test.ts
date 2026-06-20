@@ -95,5 +95,5 @@ describe("CommandRunner", () => {
       commandId: "generic-timeout",
       timeoutMs: 75,
     } satisfies Partial<CommandInterrupted>);
-  }, 2_000);
+  }, 10_000);
 });

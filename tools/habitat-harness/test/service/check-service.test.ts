@@ -28,11 +28,14 @@ vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
   };
 });
 
+import * as checkReport from "../../src/lib/check-report.js";
+import {
+  expandCheckBaselinesService,
+  runCheckService,
+} from "../../src/service/modules/check/run.js";
+
 describe("Habitat check service", () => {
   test("runs owned check orchestration from service input", async () => {
-    const checkReport = await import("../../src/lib/check-report.js");
-    const { runCheckService } = await import("../../src/service/modules/check/run.js");
-
     const result = await Effect.runPromise(
       runCheckService({
         selectors: { rule: "format-ci", tool: "biome" },
@@ -62,9 +65,6 @@ describe("Habitat check service", () => {
   });
 
   test("projects baseline expansion into service output states", async () => {
-    const checkReport = await import("../../src/lib/check-report.js");
-    const { expandCheckBaselinesService } = await import("../../src/service/modules/check/run.js");
-
     const expanded = await Effect.runPromise(
       expandCheckBaselinesService({
         selectors: { owner: "tools-habitat-harness" },
