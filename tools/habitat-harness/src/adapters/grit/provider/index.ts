@@ -1,16 +1,19 @@
 import path from "node:path";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
-import type { HabitatConfig } from "../../config/index.js";
-import type { CommandProviderError, FileWriteFailed } from "../../errors/index.js";
-import { repoRoot } from "../../lib/paths.js";
+import type { HabitatConfig } from "../../../config/index.js";
+import type { CommandProviderError, FileWriteFailed } from "../../../errors/index.js";
+import { repoRoot } from "../../../lib/paths.js";
+import { CommandRunner } from "../../../providers/command/index.js";
+import type {
+  HabitatCommandResult,
+  HabitatProcessRequest,
+} from "../../../providers/command/types.js";
 import {
   ensurePatternCacheRoot,
   type HabitatClock,
   HabitatFileSystem,
-} from "../../resources/index.js";
-import { CommandRunner } from "../command/index.js";
-import type { HabitatCommandResult, HabitatProcessRequest } from "../command/types.js";
+} from "../../../resources/index.js";
 import {
   defaultGritCommandTimeoutMs,
   docsLocalCheckoutPathsRewritePattern,

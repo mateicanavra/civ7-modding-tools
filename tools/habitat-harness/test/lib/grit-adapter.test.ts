@@ -8,6 +8,8 @@ import {
   validateScanRoots,
 } from "../../src/adapters/grit/index.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "../../src/adapters/grit/output.js";
+import { defaultGritCommandTimeoutMs } from "../../src/adapters/grit/provider/constants.js";
+import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
 import { decidePatternScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
 import {
   DiagnosticCatalogEntrySchema,
@@ -28,8 +30,6 @@ import {
   makeHabitatCommandResult,
   type OutputCapture,
 } from "../../src/providers/command/index.js";
-import { defaultGritCommandTimeoutMs } from "../../src/providers/grit/constants.js";
-import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 
 describe("Grit check adapter parser and diagnostics", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {

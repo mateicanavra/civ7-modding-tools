@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { Value } from "typebox/value";
+import { GritProvider } from "../../../adapters/grit/provider/index.js";
 import {
   type GritDryRunCommandInput,
   type PatternApplyRecord,
@@ -17,7 +18,6 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "../../../providers/command/index.js";
-import { GritProvider } from "../../../providers/grit/index.js";
 import type { TransactionsServiceOptions } from "./context.js";
 import { module as transactionsModule } from "./module.js";
 
