@@ -9,7 +9,8 @@ and testable.
 
 ## What Changes
 
-- Promote the existing Grit Effect island into `providers/grit`.
+- Promote the existing Grit Effect island into the enclosed
+  `adapters/grit/provider` surface.
 - Add `GitProvider`, `BiomeProvider`, `NxProvider`, and `HuskyProvider`.
 - Define provider contracts for version/config discovery, command
   construction, resource/cache policy, typed failure tags, output parsing, and

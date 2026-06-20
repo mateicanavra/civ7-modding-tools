@@ -9,12 +9,6 @@ import {
 } from "../../domains/diagnostic-pattern-catalog/index.js";
 import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
-import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
-import type {
-  GritCheckCacheMode,
-  GritCheckOutputFormat,
-  GritDiagnosticOptions,
-} from "../../providers/grit/types.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import {
   gritDiagnosticOutcomesFromReport,
@@ -23,6 +17,12 @@ import {
 import { runDocsApplyBackedDiagnosticOutcomesEffect } from "./docs-apply.js";
 import { infrastructureFailure } from "./failure.js";
 import type { GritDiagnosticAcquisition } from "./output.js";
+import { GritProvider, type GritProviderRequirements } from "./provider/index.js";
+import type {
+  GritCheckCacheMode,
+  GritCheckOutputFormat,
+  GritDiagnosticOptions,
+} from "./provider/types.js";
 import { gritCheckProgram } from "./request.js";
 import {
   decidePatternScanRoots,

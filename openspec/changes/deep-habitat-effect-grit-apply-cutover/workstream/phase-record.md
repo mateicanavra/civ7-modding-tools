@@ -45,9 +45,10 @@
 
 ## Implementation Notes
 
-- `GritProvider` now owns check and apply dry-run command construction.
+- `GritProvider` now owns check and apply dry-run command construction inside
+  the enclosed Grit adapter module.
 - Grit check output parsing and Grit wire/acquisition types moved under
-  `src/providers/grit/**`.
+  `src/adapters/grit/provider/**`.
 - Docs apply-backed diagnostics and transaction apply dry-runs consume
   `GritProvider` instead of `HabitatProcessLive`.
 - Grit cache setup now uses `ensurePatternCacheRoot()` and
@@ -56,7 +57,10 @@
 - Loose Grit-owned files no longer live at `src/lib/grit.ts`,
   `src/lib/grit-env.ts`, or `src/lib/grit-failures.ts`. Grit failures,
   machine-output environment, and command constants now live under
-  `src/providers/grit/**`.
+  `src/adapters/grit/provider/**`.
+- The loose `src/providers/grit/**` tree is deleted. Grit provider resources,
+  failure ADTs, constants, environment, and wire types are enclosed by the Grit
+  adapter.
 - The old `src/lib/habitat-process.ts` process facade and
   `src/lib/spawn.ts` sync command wrapper are deleted. Command request/result
   contracts, fake layers, and spawn-shaped projections are exported from
