@@ -1,5 +1,5 @@
+import { runSyncSpawnCommand, type SpawnResult } from "../../providers/command/index.js";
 import { repoRoot } from "../paths.js";
-import { run, type SpawnResult } from "../spawn.js";
 import { type HookRuntime, hookNow } from "./runtime.js";
 import type { HookCommandPhase } from "./schema.js";
 
@@ -11,7 +11,7 @@ export function runHookCommand(
 ): SpawnResult {
   const commandOptions = { cwd: options.cwd ?? repoRoot, env: options.env };
   const startedAtMs = hookNow(runtime);
-  const result = (runtime.runCommand ?? run)(argv, commandOptions);
+  const result = (runtime.runCommand ?? runSyncSpawnCommand)(argv, commandOptions);
   const endedAtMs = hookNow(runtime);
   runtime.trace?.commands.push({
     phase,

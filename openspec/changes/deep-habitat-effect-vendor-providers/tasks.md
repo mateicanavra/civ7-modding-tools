@@ -8,11 +8,9 @@
 - [x] 1.4 Add Biome provider.
 - [x] 1.5 Add Nx provider.
 - [x] 1.6 Add Husky delegator provider.
-- [ ] 1.7 Remove the temporary `HabitatProcess` migration bridge from
-  `src/lib/habitat-process.ts`; Grit, Biome, Nx, Git, and Husky callsites must
-  consume provider services directly before this train is done.
-  Remaining bridge owner: follow-on cutover packets. Current branch keeps the
-  bridge only where older callsites still need adjacent-domino migration.
+- [x] 1.7 Remove `src/lib/habitat-process.ts`; command execution contracts now
+  export from `src/providers/command`, and Grit callsites consume
+  `GritProvider`/`CommandRunner` instead of the old process facade.
 
 ## 2. Migration
 
@@ -22,9 +20,9 @@
   cutover packets.
 - [ ] 2.2 Replace `WorkspaceToolProvider` command-name map with provider command builders.
 - [x] 2.3 Keep provider outputs mapped to existing public command/report shapes.
-- [x] 2.4 Reject any new shim, fallback, or duplicate process path; bridges may
-  exist only between adjacent dominos and must be deleted by their assigned
-  cutover packet.
+- [x] 2.4 Reject any new duplicate process path. The old process facade is
+  deleted; remaining raw command callsites are tracked to their owning service
+  module or provider packets.
   Current branch removes provider exports from the root public surface and
   restores the bounded Grit live-source batch refusal until provider-owned
   scheduling exists.

@@ -28,10 +28,9 @@ migrated.
 ## Affected Owners
 
 - `tools/habitat-harness/src/lib/effect-runtime.ts`
-- `tools/habitat-harness/src/lib/habitat-process.ts`
 - `tools/habitat-harness/src/lib/workspace-tools.ts`
-- `tools/habitat-harness/src/lib/spawn.ts`
 - New `tools/habitat-harness/src/runtime/**`
+- New `tools/habitat-harness/src/providers/command/**`
 - Habitat tests for runtime/fake layers.
 
 ## Stop Conditions

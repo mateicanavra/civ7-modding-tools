@@ -1,5 +1,5 @@
+import type { SpawnResult } from "../../providers/command/index.js";
 import { repoRoot, toRepoRelative } from "../paths.js";
-import type { SpawnResult } from "../spawn.js";
 import { runHookCommand } from "./command-runner.js";
 import { classifyResourcesState } from "./resource-inspection.js";
 import type { HookRuntime } from "./runtime.js";

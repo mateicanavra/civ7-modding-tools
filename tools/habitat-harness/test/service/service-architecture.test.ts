@@ -84,12 +84,27 @@ describe("Habitat service architecture", () => {
 
   test("routes check CLI orchestration through the service client", () => {
     const checkCommand = source("src/commands/check.ts");
+    const checkRun = source("src/service/modules/check/run.ts");
+    const checkReport = source("src/service/modules/check/report.ts");
+    const checkBaseline = source("src/service/modules/check/baseline.ts");
+    const checkExecution = source("src/service/modules/check/execution.ts");
 
     expect(checkCommand).toContain("createHabitatServiceClient");
     expect(checkCommand).toContain("client.check.run");
     expect(checkCommand).toContain("client.check.expandBaseline");
     expect(checkCommand).not.toContain("createCheckReport");
     expect(checkCommand).not.toContain("expandBaselines");
+    expect(checkRun).toContain('from "./report.js"');
+    expect(checkRun).toContain('from "./baseline.js"');
+    expect(checkRun).not.toContain("../../../lib/check-report.js");
+    expect(checkReport).toContain("createCheckReport");
+    expect(checkBaseline).toContain("expandBaselines");
+    expect(checkExecution).toContain("executeSelectedRules");
+    expect(checkExecution).not.toContain("runHabitatEffect");
+    expect(checkExecution).not.toContain("executeRule(");
+    expect(existsSync(join(packageRoot, "src/lib/check/report.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/check/baseline.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/check/execution.ts"))).toBe(false);
   });
 
   test("routes classify CLI orchestration through the service client", () => {

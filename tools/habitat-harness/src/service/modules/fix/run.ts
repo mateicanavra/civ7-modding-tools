@@ -7,7 +7,7 @@ import {
   renderPatternApply,
   type WorktreeObservation,
 } from "../../../lib/pattern-apply/index.js";
-import type { SpawnResult } from "../../../lib/spawn.js";
+import type { SpawnResult } from "../../../providers/command/index.js";
 import {
   type ApplyAdmission,
   ApplyAdmissionSchema,
@@ -43,7 +43,7 @@ export function runFixService(input: FixServiceRunInput, options: FixServiceOpti
       admissions,
       (admission) =>
         runTransactionApplyService(transactionRequest(parsed, admission, options.worktree), {
-          processLayer: options.processLayer,
+          providerLayer: options.providerLayer,
           transactionInputs,
         }),
       { concurrency: 1 }

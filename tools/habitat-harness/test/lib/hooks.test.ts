@@ -9,7 +9,7 @@ import {
   type HookRuntime,
 } from "../../src/lib/hook-runtime/runtime.js";
 import { repoRoot } from "../../src/lib/paths.js";
-import type { SpawnResult } from "../../src/lib/spawn.js";
+import type { SpawnResult } from "../../src/providers/command/index.js";
 import { runPreCommit, runPrePush } from "../../src/service/modules/hook/run.js";
 
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;

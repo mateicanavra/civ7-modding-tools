@@ -53,14 +53,6 @@ export const DiagnosticScanRootDecisionSchema = Type.Union([
     },
     { additionalProperties: false }
   ),
-  Type.Object(
-    {
-      kind: Type.Literal("expanded-test-files"),
-      requestedRoots: Type.Array(Type.String({ minLength: 1 })),
-      effectiveRoots: Type.Array(Type.String({ minLength: 1 })),
-    },
-    { additionalProperties: false }
-  ),
   DiagnosticScanRootRefusalSchema,
 ]);
 

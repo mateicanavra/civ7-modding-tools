@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { stagedPatternScanRoots } from "../check-report.js";
+import type { SpawnResult } from "../../providers/command/index.js";
+import { stagedPatternScanRoots } from "../check/staged-scan-roots.js";
 import { repoRoot, toRepoRelative } from "../paths.js";
-import { type SpawnResult } from "../spawn.js";
 import { runHookCommand } from "./command-runner.js";
 import type { HookRuntime } from "./runtime.js";
 

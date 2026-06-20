@@ -1,11 +1,11 @@
 import { Effect } from "effect";
+import type { SpawnResult } from "../../providers/command/index.js";
 import {
   affectedArgv,
   NxProvider,
   spawnResultFromCommandResult,
 } from "../../providers/nx/index.js";
 import { runHabitatEffect } from "../../runtime/index.js";
-import type { SpawnResult } from "../spawn.js";
 import type { VerifyTargetPlan } from "../workspace-graph/index.js";
 import { boundedPreview } from "./command-output.js";
 import type { VerifyReceipt } from "./schema.js";
