@@ -1,24 +1,33 @@
 # Tasks
 
-## 1. Move And Replace Seams
+## 1. Hook Service Module
 
-- [ ] 1.1 Move hook runtime source to `src/domains/local-feedback/**`.
-- [ ] 1.2 Replace `runCommand`, `nowMs`, `pathExists`, and `fileHash` options with service requirements.
-- [ ] 1.3 Route staged Git reads through `GitProvider`.
-- [ ] 1.4 Route Biome and pattern checks through providers.
+- [x] 1.1 Add hook service contract, module binding, router, and run function.
+- [x] 1.2 Compose `hook` into the root Habitat service contract and router.
+- [x] 1.3 Route `habitat hook` CLI through the Habitat service client.
 
 ## 2. Preserve Behavior
 
-- [ ] 2.1 Keep local hook notice in human output.
-- [ ] 2.2 Preserve partial-staging refusal.
-- [ ] 2.3 Preserve formatter restage-only behavior.
-- [ ] 2.4 Preserve pre-push target sequence unless changed by verify/Nx packet.
+- [x] 2.1 Keep local hook notice in human output.
+- [x] 2.2 Preserve partial-staging refusal.
+- [x] 2.3 Preserve formatter restage-only behavior.
+- [x] 2.4 Preserve pre-push target sequence unless changed by verify/Nx packet.
+- [x] 2.5 Preserve unknown hook name exit and stderr behavior.
 
-## 3. Verification
+## 3. Explicit Remaining Drain
 
-- [ ] 3.1 Run `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts`.
-- [ ] 3.2 Run `bun run habitat hook pre-commit`.
-- [ ] 3.3 Run `bun run --cwd tools/habitat-harness check`.
-- [ ] 3.4 Run `bun run openspec -- validate deep-habitat-effect-hook-runtime-cutover --strict`.
-- [ ] 3.5 Run `bun run openspec:validate`.
-- [ ] 3.6 Run `git diff --check`.
+- [x] 3.1 Record that Git, Biome, Grit, filesystem, clock, and command execution
+      are still inside hook runtime internals after this service-module slice.
+- [x] 3.2 Keep hook runtime provider drainage as the next hook implementation unit.
+
+## 4. Verification
+
+- [x] 4.1 Run `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts`.
+- [x] 4.2 Run focused hook service/command/architecture tests.
+- [x] 4.3 Run `bun run habitat hook pre-commit`.
+- [x] 4.4 Run `bun run --cwd tools/habitat-harness check`.
+- [x] 4.5 Run `bun run --cwd tools/habitat-harness test`.
+- [x] 4.6 Run `bun run biome:ci`.
+- [x] 4.7 Run `bun run openspec -- validate deep-habitat-effect-hook-runtime-cutover --strict`.
+- [x] 4.8 Run `bun run openspec:validate`.
+- [x] 4.9 Run `git diff --check`.
