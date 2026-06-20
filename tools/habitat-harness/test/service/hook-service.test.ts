@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
-import type { HookRuntime } from "../../src/lib/hook-runtime/runtime.js";
+import type { HookRuntime } from "../../src/domains/hook-runtime/runtime.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runHookService } from "../../src/service/modules/hook/router.js";
 

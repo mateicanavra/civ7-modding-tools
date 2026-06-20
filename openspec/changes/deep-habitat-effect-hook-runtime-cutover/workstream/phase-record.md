@@ -3,27 +3,28 @@
 ## Phase
 
 - Project: Habitat Harness deep refactor
-- Phase: Hook service ownership
+- Phase: Hook runtime domain drain
 - Owner: Effect-first implementation lane
-- Branch/Graphite stack: `agent-DRA-effect-hook-service-ownership` stacked on `agent-DRA-effect-fix-service-module`
+- Branch/Graphite stack: `agent-DRA-effect-hook-runtime-cutover` stacked on `agent-DRA-effect-transformation-transaction-domain`
 - Started: 2026-06-19
 - Last updated: 2026-06-20
-- Status: implementation complete; review repairs and Graphite submit pending
+- Status: implementation complete; Graphite submit pending
 
 ## Objective
 
-- Target movement: make `habitat hook` an owned Effect-oRPC service module so
-  Husky and the CLI call Habitat’s service surface and hook orchestration lives
-  in the service module instead of direct lib orchestration.
+- Target movement: make hook runtime contracts, staged-worktree policy,
+  resource decisions, pre-push base resolution, lifecycle capture, and command
+  tracing a named domain under `src/domains/hook-runtime/**`.
 - Non-goals: making hooks authoritative proof.
-- Done condition: hook CLI routes through the service client, hook service
-  owns command-level orchestration, the obsolete `lib/hooks` wrapper is
-  removed, current stream/exit behavior is preserved, and tests pin local-only
-  hook output plus architecture boundaries.
+- Done condition: `src/lib/hook-runtime/**` is deleted with no wrapper or
+  facade, hook service consumes the domain directly, current stream/exit
+  behavior is preserved, and tests pin local-only hook output plus architecture
+  boundaries.
 
 ## Verification
 
 - `bun run --cwd tools/habitat-harness check` - passed.
+- `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts test/service/hook-service.test.ts test/service/service-architecture.test.ts test/commands/habitat-commands.test.ts` - passed.
 - `bun run --cwd tools/habitat-harness test -- test/service/hook-service.test.ts test/service/service-architecture.test.ts test/commands/habitat-commands.test.ts test/lib/hooks.test.ts` - passed.
 - `bun run --cwd tools/habitat-harness test -- test/service/hook-service.test.ts test/service/service-architecture.test.ts test/commands/habitat-commands.test.ts test/lib/hooks.test.ts test/lib/rule-selection.test.ts` - passed; 63 tests.
 - `bun run --cwd tools/habitat-harness test` - passed.
@@ -41,5 +42,6 @@
   does not leave its old helper/type exports under-dispositioned.
 - Review repair: hook service tests now cover both pre-push and pre-commit
   through the in-process Habitat service client.
-- Evidence boundary: service-module slice; hook provider/resource drainage
-  remains the next hook runtime implementation unit.
+- Evidence boundary: hook runtime is now domain-owned; provider/resource
+  substitutions for Git, Biome, Grit, filesystem, clock, and command execution
+  remain later drains.

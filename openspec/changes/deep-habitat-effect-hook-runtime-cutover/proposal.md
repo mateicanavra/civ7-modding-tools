@@ -1,10 +1,10 @@
-# Proposal: Deep Habitat Effect Hook Service Module
+# Proposal: Deep Habitat Effect Hook Service And Runtime Domain
 
 ## Summary
 
-Make `habitat hook` an owned Habitat service capability. Husky remains a thin
-delegator, the CLI becomes a thin service client, and hook results remain local
-workstation feedback only.
+Make `habitat hook` an owned Habitat service capability backed by a named hook
+runtime domain. Husky remains a thin delegator, the CLI becomes a thin service
+client, and hook results remain local workstation feedback only.
 
 ## What Changes
 
@@ -13,6 +13,11 @@ workstation feedback only.
 - Route `src/commands/hook.ts` through the in-process Habitat service client.
 - Move hook name dispatch, pre-commit orchestration, and pre-push orchestration
   into the hook service module and delete the old `src/lib/hooks.ts` wrapper.
+- Move active hook runtime contracts, staged worktree helpers, resource
+  decisions, pre-push base selection, lifecycle capture, and command tracing
+  into `src/domains/hook-runtime/**`.
+- Delete the active `src/lib/hook-runtime/**` feature module instead of keeping
+  a compatibility wrapper or fallback path.
 - Handle D0 public-surface row `D0-package-export-symbol-runhook` as `refuse`:
   no replacement package helper export is introduced.
 - Handle D0 source row `D0-package-export-source-hooks-internal` as `refuse`:
@@ -27,9 +32,9 @@ workstation feedback only.
   `bun run habitat hook`.
 - Pre-commit may restage formatter-touched files only.
 - CI remains authoritative.
-- Full hook runtime provider/resource drainage is the next hook implementation
-  unit: Git, Biome, Grit, filesystem, clock, and command execution remain in
-  lower-level hook runtime material until that unit lands.
+- Hook runtime behavior is domain-owned in this change; deeper provider/resource
+  substitutions for Git, Biome, Grit, filesystem, clock, and command execution
+  remain later drains.
 
 ## Verification Gates
 

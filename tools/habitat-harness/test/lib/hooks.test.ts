@@ -2,12 +2,12 @@ import { describe, expect, test } from "vitest";
 import {
   classifyResourcePreCommitDecision,
   classifyResourcesState,
-} from "../../src/lib/hook-runtime/resource-inspection.js";
+} from "../../src/domains/hook-runtime/resource-inspection.js";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "../../src/lib/hook-runtime/runtime.js";
+} from "../../src/domains/hook-runtime/runtime.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/providers/command/index.js";
 import { runPreCommit, runPrePush } from "../../src/service/modules/hook/router.js";
