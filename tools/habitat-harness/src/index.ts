@@ -10,6 +10,23 @@ export {
   makeHabitatConfig,
   makeHabitatConfigLayer,
 } from "./config/index.js";
+export type {
+  CandidatePatternManifest,
+  PatternManifest,
+  PatternRuleReference,
+  PatternValidationFailureReason,
+  PatternValidationIssue,
+  PatternValidationOptions,
+  PatternValidationResult,
+  RegisteredPatternManifest,
+} from "./domains/pattern-governance/index.js";
+export {
+  patternCandidateRoot,
+  patternManifestPath,
+  patternManifestRoot,
+  patternManifestSchemaVersion,
+  validatePatternManifest,
+} from "./domains/pattern-governance/index.js";
 export {
   CommandInterrupted,
   CommandUnavailable,
@@ -149,21 +166,4 @@ export {
   renderGritAdapterFailure,
 } from "./providers/grit/failures.js";
 export { type HarnessRule, ruleById, rules } from "./rules/architecture.js";
-export type {
-  CandidatePatternManifest,
-  PatternManifest,
-  PatternRuleReference,
-  PatternValidationFailureReason,
-  PatternValidationIssue,
-  PatternValidationOptions,
-  PatternValidationResult,
-  RegisteredPatternManifest,
-} from "./rules/patterns/index.js";
-export {
-  patternCandidateRoot,
-  patternManifestPath,
-  patternManifestRoot,
-  patternManifestSchemaVersion,
-  validatePatternManifest,
-} from "./rules/patterns/index.js";
 export { HabitatRuntimeLive } from "./runtime/index.js";

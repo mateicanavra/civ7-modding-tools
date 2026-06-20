@@ -3,7 +3,7 @@ import {
   type DiagnosticRunOutcome,
   diagnosticCatalogEntryFromNativeRule,
   renderDiagnosticScanRootRefusal,
-} from "../../lib/diagnostic-catalog/index.js";
+} from "../../domains/diagnostic-pattern-catalog/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import { docsLocalCheckoutPathsRewritePattern } from "../../providers/grit/constants.js";
 import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";

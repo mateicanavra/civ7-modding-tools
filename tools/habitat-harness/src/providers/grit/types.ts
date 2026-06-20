@@ -1,11 +1,4 @@
 import { type Static, Type } from "typebox";
-import {
-  DiagnosticAdapterFailureKindSchema,
-  DiagnosticCommandObservationSchema,
-  DiagnosticCompletedCommandObservationSchema,
-  DiagnosticScanRootRefusalSchema,
-  NativeGritCheckRequestSchema,
-} from "../../lib/diagnostic-catalog/index.js";
 
 export const GritPositionSchema = Type.Object(
   {
@@ -60,51 +53,11 @@ export const GritParseFailureStatusSchema = Type.Union([
   Type.Literal("unsupported-mode"),
 ]);
 
-export const GritDiagnosticAcquisitionSchema = Type.Union([
-  Type.Object(
-    {
-      kind: Type.Literal("parsed"),
-      request: NativeGritCheckRequestSchema,
-      report: GritReportSchema,
-      parseStatus: Type.Literal("parsed"),
-      command: DiagnosticCompletedCommandObservationSchema,
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("adapter-failed"),
-      request: NativeGritCheckRequestSchema,
-      failure: DiagnosticAdapterFailureKindSchema,
-      parseStatus: GritParseFailureStatusSchema,
-      message: Type.String(),
-      command: DiagnosticCommandObservationSchema,
-    },
-    { additionalProperties: false }
-  ),
-  Type.Object(
-    {
-      kind: Type.Literal("scan-root-refused"),
-      decision: DiagnosticScanRootRefusalSchema,
-      message: Type.String(),
-      command: Type.Object(
-        {
-          kind: Type.Literal("not-run"),
-          reason: Type.Literal("scan-root-refused"),
-        },
-        { additionalProperties: false }
-      ),
-    },
-    { additionalProperties: false }
-  ),
-]);
-
 export type GritPosition = Static<typeof GritPositionSchema>;
 export type GritResult = Static<typeof GritResultSchema>;
 export type GritWireReport = Static<typeof GritWireReportSchema>;
 export type GritReport = Static<typeof GritReportSchema>;
 export type GritParseFailureStatus = Static<typeof GritParseFailureStatusSchema>;
-export type GritDiagnosticAcquisition = Static<typeof GritDiagnosticAcquisitionSchema>;
 
 export interface GritCheckOptions {
   cacheMode?: GritCheckCacheMode;

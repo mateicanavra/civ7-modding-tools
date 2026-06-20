@@ -2,14 +2,14 @@ import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
 import {
-  candidateArtifactPaths,
-  patternGenerator,
-} from "../../src/generators/pattern/generator.js";
-import {
   patternManifestPath,
   type RegisteredPatternManifest,
   validatePatternManifest,
-} from "../../src/rules/patterns/index.js";
+} from "../../src/domains/pattern-governance/index.js";
+import {
+  candidateArtifactPaths,
+  patternGenerator,
+} from "../../src/generators/pattern/generator.js";
 
 const rulesPath = ".habitat/rules";
 const indexPath = `${rulesPath}/index.json`;

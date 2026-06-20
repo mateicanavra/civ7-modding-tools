@@ -3,12 +3,17 @@ export type {
   GritCheckOptions,
   GritCheckOutputFormat,
   GritCheckRequestOptions,
-  GritDiagnosticAcquisition,
   GritDiagnosticOptions,
   GritReport,
   GritResult,
 } from "../../providers/grit/types.js";
 export { gritRuleResultsFromReport } from "./diagnostics.js";
+export type { GritDiagnosticAcquisition } from "./output.js";
+export {
+  GritDiagnosticAcquisitionSchema,
+  parseGritCheckOutput,
+  parseGritCheckTextOutput,
+} from "./output.js";
 export {
   gritCheckProgram,
   gritCheckRequest,

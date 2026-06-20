@@ -3,7 +3,7 @@ import path from "node:path";
 import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
-} from "../../../lib/diagnostic-catalog/index.js";
+} from "../../../domains/diagnostic-pattern-catalog/index.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
 import { decideScanRootProtection } from "../../../lib/protected-zones/index.js";
 import { protectedScanRootPrefixes } from "../../../providers/grit/constants.js";

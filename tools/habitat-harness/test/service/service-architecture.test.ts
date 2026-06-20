@@ -84,6 +84,22 @@ describe("Habitat service architecture", () => {
     }
   });
 
+  test("keeps diagnostic and pattern governance in domain ownership", () => {
+    const publicIndex = source("src/index.ts");
+
+    expect(existsSync(join(packageRoot, "src/lib/diagnostic-catalog"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/rules/patterns"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/diagnostic-pattern-catalog"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/domains/pattern-governance"))).toBe(true);
+    expect(publicIndex).toContain("./domains/pattern-governance/index.js");
+
+    for (const file of sourceFiles(sourceRoot)) {
+      const text = source(file);
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/diagnostic-catalog/);
+      expect(text).not.toMatch(/from\s+["'][^"']*rules\/patterns/);
+    }
+  });
+
   test("routes check CLI orchestration through the service client", () => {
     const checkCommand = source("src/commands/check.ts");
     const checkRouter = source("src/service/modules/check/router.ts");
