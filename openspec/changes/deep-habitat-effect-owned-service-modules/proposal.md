@@ -16,6 +16,8 @@ transformation orchestration.
   modules, not as product modules.
 - Add the `check` service module and route `habitat check` through the
   in-process Habitat service client.
+- Add the `transactions` service module and move pattern-apply execution out of
+  `src/lib` into the owned service-module layer.
 - Add service architecture tests that keep runtime construction, module
   bindings, and provider imports in their assigned homes.
 
@@ -32,6 +34,7 @@ transformation orchestration.
 - `tools/habitat-harness/src/service/**`
 - `tools/habitat-harness/src/commands/check.ts`
 - `tools/habitat-harness/src/lib/check/**` as implementation material only
+- `tools/habitat-harness/src/lib/pattern-apply/**` as DTO/render material only
 - `tools/habitat-harness/test/service/**`
 
 ## Stop Conditions

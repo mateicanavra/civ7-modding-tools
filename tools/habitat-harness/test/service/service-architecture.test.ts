@@ -6,7 +6,15 @@ const packageRoot = new URL("../..", import.meta.url).pathname;
 const sourceRoot = join(packageRoot, "src");
 const serviceRoot = join(sourceRoot, "service");
 const providerRoot = join(sourceRoot, "providers");
-const serviceModuleNames = ["check", "classify", "fix", "graph", "hook", "verify"] as const;
+const serviceModuleNames = [
+  "check",
+  "classify",
+  "fix",
+  "graph",
+  "hook",
+  "transactions",
+  "verify",
+] as const;
 
 describe("Habitat service architecture", () => {
   test("keeps Effect-oRPC runtime construction in the root service seam", () => {
@@ -33,6 +41,7 @@ describe("Habitat service architecture", () => {
     expect(router).toContain("fix: fixRouter");
     expect(router).toContain("graph: graphRouter");
     expect(router).toContain("hook: hookRouter");
+    expect(router).toContain("transactions: transactionsRouter");
     expect(router).toContain("verify: verifyRouter");
     expect(router).not.toContain(".effect(");
     expect(router).not.toContain("createCheckReport");
@@ -40,6 +49,7 @@ describe("Habitat service architecture", () => {
     expect(router).not.toContain("runFixService");
     expect(router).not.toContain("runGraphService");
     expect(router).not.toContain("runHookService");
+    expect(router).not.toContain("runTransactionApplyService");
     expect(router).not.toContain("runVerifyService");
     expect(router).not.toContain("process.env");
   });
@@ -113,8 +123,20 @@ describe("Habitat service architecture", () => {
     expect(fixCommand).not.toContain("runFix");
     expect(fixCommand).not.toContain("../lib/fix.js");
     expect(fixRun).not.toMatch(/from\s+["'][^"']*lib\/fix\.js["']/);
+    expect(fixRun).not.toContain("runPatternApply");
+    expect(fixRun).not.toMatch(/from\s+["'][^"']*lib\/pattern-apply\/run/);
     expect(publicIndex).not.toContain("runFix");
     expect(existsSync(join(packageRoot, "src/lib/fix.ts"))).toBe(false);
+  });
+
+  test("keeps transaction execution in the transactions service module", () => {
+    const transactionRun = source("src/service/modules/transactions/run.ts");
+    const patternApplyIndex = source("src/lib/pattern-apply/index.ts");
+
+    expect(transactionRun).toContain("runTransactionApplyService");
+    expect(transactionRun).toContain("PatternApplyRecordSchema");
+    expect(patternApplyIndex).not.toContain("runPatternApply");
+    expect(existsSync(join(packageRoot, "src/lib/pattern-apply/run.ts"))).toBe(false);
   });
 
   test("routes hook CLI orchestration through the service client", () => {

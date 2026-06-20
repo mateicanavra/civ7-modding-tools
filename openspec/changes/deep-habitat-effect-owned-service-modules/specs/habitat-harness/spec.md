@@ -34,3 +34,12 @@ Effect-oRPC service modules rather than provider-shaped APIs or incidental
 - **AND** its procedure bindings live under a module router or procedure files
 - **AND** root service files compose module contracts and routers without
   handler logic
+
+#### Scenario: Transformation application runs as an owned service module
+
+- **WHEN** `habitat fix` applies an admitted transformation transaction
+- **THEN** the apply lifecycle runs through the `transactions.apply` service
+  module capability
+- **AND** `fix` does not call a `src/lib/pattern-apply` execution runner
+- **AND** `src/lib/pattern-apply` may only retain DTO, parser, presenter, or
+  observation material until the transformation-domain split moves it
