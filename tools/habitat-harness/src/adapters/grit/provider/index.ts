@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../../config/index.js";
@@ -9,11 +10,7 @@ import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "../../../providers/command/types.js";
-import {
-  ensurePatternCacheRoot,
-  type HabitatClock,
-  HabitatFileSystem,
-} from "../../../resources/index.js";
+import { ensurePatternCacheRoot } from "../../../resources/index.js";
 import {
   defaultGritCommandTimeoutMs,
   docsLocalCheckoutPathsRewritePattern,
@@ -24,8 +21,7 @@ import { gritMachineOutputEnv } from "./env.js";
 export type GritProviderRequirements =
   | CommandExecutor
   | HabitatConfig
-  | HabitatClock
-  | HabitatFileSystem
+  | FileSystem.FileSystem
   | CommandRunner;
 
 export interface GritCheckProviderRequest {

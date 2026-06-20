@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { Effect } from "effect";
+import { Clock, Effect } from "effect";
 import {
   createVerifyReceipt,
   observeGitStatusEffect,
@@ -13,16 +13,15 @@ import {
   verifyCheckSummary,
 } from "../../../domains/structural-check/index.js";
 import type { SpawnResult } from "../../../providers/command/index.js";
-import { HabitatClock } from "../../../resources/index.js";
+import { epochMillisToIsoString } from "../../../resources/index.js";
 import { module as verifyModule } from "./module.js";
 
 export const verifyRouter = {
   run: verifyModule.run.effect(({ input }) =>
     Effect.gen(function* () {
-      const clock = yield* HabitatClock;
       const structuralCheck = yield* StructuralCheck;
-      const startedAt = (yield* clock.currentDate).toISOString();
-      const startedMs = yield* clock.currentTimeMillis;
+      const startedMs = yield* Clock.currentTimeMillis;
+      const startedAt = epochMillisToIsoString(startedMs);
       const baseDecision = yield* resolveVerifyBaseEffect(input.base);
       if (baseDecision.kind === "refused") {
         return { kind: "base-refused" as const, message: baseDecision.message };
@@ -46,7 +45,7 @@ export const verifyRouter = {
         );
         exitCode = affectedResult.exitCode;
       }
-      const endedMs = yield* clock.currentTimeMillis;
+      const endedMs = yield* Clock.currentTimeMillis;
       const receipt = createVerifyReceipt({
         requestedBase: input.base,
         resolvedBase: base,

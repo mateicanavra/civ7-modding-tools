@@ -1,5 +1,5 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import { Effect } from "effect";
+import { Clock, Effect } from "effect";
 import { runGritRulesEffect, validateScanRoots } from "../../adapters/grit/index.js";
 import { GritProvider, type GritProviderRequirements } from "../../adapters/grit/provider/index.js";
 import type { HabitatConfig } from "../../config/index.js";
@@ -14,7 +14,6 @@ import {
 import { CommandRunner, type HabitatCommandResult } from "../../providers/command/index.js";
 import { GitProvider, type GitProviderRequirements } from "../../providers/git/index.js";
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
-import { HabitatClock } from "../../resources/index.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
 import {
   activeRuleCommandExecutionFacts,
@@ -84,7 +83,6 @@ export function executeSelectedRulesEffect(
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
-  | HabitatClock
   | GitProvider
   | GitProviderRequirements
 > {
@@ -111,10 +109,9 @@ export function executeSelectedRulesEffect(
           });
         }
       } else {
-        const clock = yield* HabitatClock;
-        const started = yield* clock.currentTimeMillis;
+        const started = yield* Clock.currentTimeMillis;
         const gritResults = yield* runGritRulesEffect(gritRules, scanRoots ? { scanRoots } : {});
-        const durationMs = Math.max(0, (yield* clock.currentTimeMillis) - started);
+        const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
         for (const rule of gritRules) {
           const result = gritResults.get(rule.id);
           if (result) {
@@ -182,7 +179,7 @@ async function graphDependencyRefusals(
 function executeCommandRulesEffect(
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>
-): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | HabitatClock> {
+): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig> {
   return Effect.gen(function* () {
     const records = yield* Effect.all(commandRules.map(executeCommandRuleEffect), {
       concurrency: "unbounded",
@@ -196,12 +193,11 @@ function executeCommandRuleEffect(
 ): Effect.Effect<
   [string, RuleExecutionRecord],
   never,
-  CommandRunner | CommandExecutor | HabitatConfig | HabitatClock
+  CommandRunner | CommandExecutor | HabitatConfig
 > {
   return Effect.gen(function* () {
-    const clock = yield* HabitatClock;
     const runner = yield* CommandRunner;
-    const started = yield* clock.currentTimeMillis;
+    const started = yield* Clock.currentTimeMillis;
     const result = yield* runner
       .run({
         commandId: rule.id,
@@ -217,7 +213,7 @@ function executeCommandRuleEffect(
           onSuccess: (commandResult) => commandRuleResult(rule, commandResult),
         })
       );
-    const durationMs = Math.max(0, (yield* clock.currentTimeMillis) - started);
+    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
     return [rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } }];
   });
 }
@@ -270,9 +266,8 @@ function executeFileLayerRulesEffect(
   fileLayerRules: readonly RuleFileLayerFacts[],
   results: Map<string, RuleExecutionRecord>,
   options: Pick<CheckOptions, "staged" | "stagedPaths">
-): Effect.Effect<void, never, HabitatClock | GitProvider | GitProviderRequirements> {
+): Effect.Effect<void, never, GitProvider | GitProviderRequirements> {
   return Effect.gen(function* () {
-    const clock = yield* HabitatClock;
     const stagedPathsResult =
       options.staged && options.stagedPaths
         ? modifiedStagedPaths(options.stagedPaths)
@@ -280,9 +275,9 @@ function executeFileLayerRulesEffect(
           ? yield* currentStagedPathActionsEffect()
           : undefined;
     for (const rule of fileLayerRules) {
-      const started = yield* clock.currentTimeMillis;
+      const started = yield* Clock.currentTimeMillis;
       if (isStagedPathReadFailure(stagedPathsResult)) {
-        const durationMs = Math.max(0, (yield* clock.currentTimeMillis) - started);
+        const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
         results.set(rule.id, {
           result: {
             exitCode: 1,
@@ -298,7 +293,7 @@ function executeFileLayerRulesEffect(
         staged: options.staged,
         ...(stagedPaths ? { stagedPaths } : {}),
       });
-      const durationMs = Math.max(0, (yield* clock.currentTimeMillis) - started);
+      const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
       results.set(rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } });
     }
   });

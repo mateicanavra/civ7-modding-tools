@@ -7,7 +7,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "../../../providers/nx/index.js";
-import { acquireTempDirectory, HabitatFileSystem } from "../../../resources/index.js";
+import { acquireTempDirectory, readText } from "../../../resources/index.js";
 import type { GraphServiceRunInput } from "./contract.js";
 import { module as graphModule } from "./module.js";
 
@@ -33,10 +33,7 @@ export function runGraphService(input: GraphServiceRunInput = {}) {
       );
       if (spawnResult.exitCode !== 0) return spawnResult;
 
-      const fs = yield* HabitatFileSystem;
-      const graphText = yield* fs
-        .readText(graphPath)
-        .pipe(Effect.mapError(graphServiceInternalError));
+      const graphText = yield* readText(graphPath).pipe(Effect.mapError(graphServiceInternalError));
       const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
         Effect.mapError(graphServiceInternalError)
       );

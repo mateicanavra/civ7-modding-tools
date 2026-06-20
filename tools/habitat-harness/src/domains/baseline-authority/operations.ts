@@ -1,10 +1,18 @@
 import path from "node:path";
+import type { FileSystem } from "@effect/platform";
 import { Effect } from "effect";
 import { type FileWriteFailed, renderHabitatError } from "../../errors/index.js";
 import { baselineRepoPath, ruleRegistryRepoPath } from "../../lib/artifact-paths.ts";
 import { baselinesDir, repoRoot } from "../../lib/paths.js";
 import { GitProvider, type GitProviderRequirements } from "../../providers/git/index.js";
-import { HabitatFileSystem } from "../../resources/index.js";
+import {
+  isDirectory,
+  isFile,
+  makeDirectory,
+  readDirectory,
+  readText,
+  writeText,
+} from "../../resources/index.js";
 import {
   parseRuleRegistryDocument,
   ruleBaselineFacts,
@@ -76,10 +84,9 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
     const registered = new Set(context.registry.map((rule) => rule.id));
 
     if (yield* directoryExists(context.baselinesDir)) {
-      const fs = yield* HabitatFileSystem;
-      const entries = yield* fs
-        .readDirectory(context.baselinesDir)
-        .pipe(Effect.catchAll(() => Effect.succeed([])));
+      const entries = yield* readDirectory(context.baselinesDir).pipe(
+        Effect.catchAll(() => Effect.succeed([]))
+      );
       for (const entry of entries) {
         if (entry.kind !== "file" || !entry.name.endsWith(".json")) continue;
         const ruleId = entry.name.replace(/\.json$/, "");
@@ -111,7 +118,7 @@ export function checkBaselineIntegrityEffect(
 ): Effect.Effect<
   BaselineIntegrityResult,
   never,
-  HabitatFileSystem | GitProvider | GitProviderRequirements
+  FileSystem.FileSystem | GitProvider | GitProviderRequirements
 > {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
@@ -180,7 +187,7 @@ export function guardBaselineExpansionEffect(
 ): Effect.Effect<
   BaselineExpansionDecision,
   never,
-  HabitatFileSystem | GitProvider | GitProviderRequirements
+  FileSystem.FileSystem | GitProvider | GitProviderRequirements
 > {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
@@ -238,12 +245,11 @@ export function writeBaselineEffect(
   ruleId: string,
   keys: readonly string[],
   options: BaselineAuthorityContext = {}
-): Effect.Effect<void, FileWriteFailed, HabitatFileSystem> {
+): Effect.Effect<void, FileWriteFailed, FileSystem.FileSystem> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
-    const fs = yield* HabitatFileSystem;
-    yield* fs.makeDirectory(context.baselinesDir);
-    yield* fs.writeText(
+    yield* makeDirectory(context.baselinesDir);
+    yield* writeText(
       baselinePathForRule(ruleId, context),
       `${JSON.stringify([...keys].sort(), null, 2)}\n`
     );
@@ -252,7 +258,7 @@ export function writeBaselineEffect(
 
 function resolveBaselineAuthorityContext(
   options: BaselineAuthorityContext = {}
-): Effect.Effect<RequiredBaselineAuthorityContext, never, HabitatFileSystem> {
+): Effect.Effect<RequiredBaselineAuthorityContext, never, FileSystem.FileSystem> {
   const root = options.repoRoot ?? repoRoot;
   return Effect.gen(function* () {
     return {
@@ -266,11 +272,10 @@ function resolveBaselineAuthorityContext(
 
 function readCurrentRuleRegistryEffect(
   root: string
-): Effect.Effect<BaselineRuleContractInput[], never, HabitatFileSystem> {
+): Effect.Effect<BaselineRuleContractInput[], never, FileSystem.FileSystem> {
   return Effect.gen(function* () {
-    const fs = yield* HabitatFileSystem;
     const registryPath = path.join(root, ruleRegistryRepoPath, "rules.json");
-    const raw = yield* fs.readText(registryPath).pipe(Effect.catchAll(() => Effect.succeed(null)));
+    const raw = yield* readText(registryPath).pipe(Effect.catchAll(() => Effect.succeed(null)));
     if (raw === null) return [];
     try {
       const parsed = parseRuleRegistryDocument(JSON.parse(raw), registryPath);
@@ -302,8 +307,7 @@ function parseBaselineFileEffect(
   context: RequiredBaselineAuthorityContext
 ) {
   return Effect.gen(function* () {
-    const fs = yield* HabitatFileSystem;
-    const raw = yield* fs.readText(filePath).pipe(Effect.either);
+    const raw = yield* readText(filePath).pipe(Effect.either);
     if (raw._tag === "Left") {
       return {
         kind: "baseline-refusal" as const,
@@ -347,18 +351,14 @@ function parseBaselineFileEffect(
   });
 }
 
-function fileExists(filePath: string): Effect.Effect<boolean, never, HabitatFileSystem> {
-  return HabitatFileSystem.pipe(
-    Effect.flatMap((fs) => fs.isFile(filePath)),
-    Effect.catchAll(() => Effect.succeed(false))
-  );
+function fileExists(filePath: string): Effect.Effect<boolean, never, FileSystem.FileSystem> {
+  return isFile(filePath).pipe(Effect.catchAll(() => Effect.succeed(false)));
 }
 
-function directoryExists(directoryPath: string): Effect.Effect<boolean, never, HabitatFileSystem> {
-  return HabitatFileSystem.pipe(
-    Effect.flatMap((fs) => fs.isDirectory(directoryPath)),
-    Effect.catchAll(() => Effect.succeed(false))
-  );
+function directoryExists(
+  directoryPath: string
+): Effect.Effect<boolean, never, FileSystem.FileSystem> {
+  return isDirectory(directoryPath).pipe(Effect.catchAll(() => Effect.succeed(false)));
 }
 
 function mergeBaseEffect(

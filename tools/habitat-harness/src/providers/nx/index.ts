@@ -3,7 +3,6 @@ import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../config/index.js";
 import type { CommandProviderError } from "../../errors/index.js";
 import { repoRoot } from "../../lib/paths.js";
-import type { HabitatClock } from "../../resources/index.js";
 import {
   CommandRunner,
   spawnResultFromCommandProviderError,
@@ -11,7 +10,7 @@ import {
 } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
 
-type NxProviderRequirements = CommandExecutor | HabitatConfig | HabitatClock | CommandRunner;
+type NxProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner;
 
 export interface NxAffectedRequest {
   base: string;

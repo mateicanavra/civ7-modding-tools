@@ -1,3 +1,4 @@
+import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
 import type {
@@ -13,7 +14,6 @@ import {
 } from "../../../domains/structural-check/index.js";
 import type { CommandRunner } from "../../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../../providers/git/index.js";
-import type { HabitatClock, HabitatFileSystem } from "../../../resources/index.js";
 import type {
   CheckServiceExpandBaselineInput,
   CheckServiceExpandBaselineOutput,
@@ -55,10 +55,9 @@ export function expandCheckBaselinesService(
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
-  | HabitatFileSystem
+  | FileSystem.FileSystem
   | GitProvider
   | GitProviderRequirements
-  | HabitatClock
   | StructuralCheck
 > {
   return Effect.gen(function* () {

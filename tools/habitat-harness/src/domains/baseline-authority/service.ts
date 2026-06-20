@@ -1,7 +1,7 @@
+import type { FileSystem } from "@effect/platform";
 import { Context, Effect, Layer } from "effect";
 import type { FileWriteFailed } from "../../errors/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
-import type { HabitatFileSystem } from "../../resources/index.js";
 import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import { applyBaseline, baselineFailureDiagnostic } from "./application.js";
 import type { BaselineAuthorityContext } from "./context.js";
@@ -27,7 +27,7 @@ export interface BaselineAuthorityService {
   readonly loadState: (
     rule: BaselineRuleContractInput,
     options?: BaselineAuthorityContext
-  ) => Effect.Effect<BaselineAuthorityState, never, HabitatFileSystem>;
+  ) => Effect.Effect<BaselineAuthorityState, never, FileSystem.FileSystem>;
   readonly apply: (
     diagnostics: HabitatDiagnostic[],
     baseline: Set<string> | BaselineAuthorityState
@@ -43,7 +43,7 @@ export interface BaselineAuthorityService {
   ) => Effect.Effect<
     BaselineIntegrityResult,
     never,
-    HabitatFileSystem | GitProvider | GitProviderRequirements
+    FileSystem.FileSystem | GitProvider | GitProviderRequirements
   >;
   readonly integrityFindings: (
     result: BaselineIntegrityResult
@@ -56,13 +56,13 @@ export interface BaselineAuthorityService {
   ) => Effect.Effect<
     BaselineExpansionDecision,
     never,
-    HabitatFileSystem | GitProvider | GitProviderRequirements
+    FileSystem.FileSystem | GitProvider | GitProviderRequirements
   >;
   readonly write: (
     ruleId: string,
     keys: string[],
     options?: BaselineAuthorityContext
-  ) => Effect.Effect<void, FileWriteFailed, HabitatFileSystem>;
+  ) => Effect.Effect<void, FileWriteFailed, FileSystem.FileSystem>;
 }
 
 export class BaselineAuthority extends Context.Tag("@internal/habitat-harness/BaselineAuthority")<

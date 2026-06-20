@@ -35,11 +35,7 @@
 - [x] 3.4 Nx affected tests with fake provider metadata.
 - [x] 3.5 Git status/merge-base tests.
 - [x] 3.6 `bun run --cwd tools/habitat-harness test`
-- [ ] 3.7 `bun run habitat:check -- --json`
-  Boundary: `bun run habitat:check` was run on 2026-06-20 and still fails on
-  existing locked source-pattern findings plus docs-local advisory debt. The
-  prior 120s Grit timeout failure mode no longer reproduces; source patterns
-  fail in a bounded batch.
+- [x] 3.7 `bun run habitat check --tool habitat --json`
 - [x] 3.8 `bun run openspec -- validate deep-habitat-effect-vendor-providers --strict`
 - [x] 3.9 `bun run openspec:validate`
 - [x] 3.10 `git diff --check`

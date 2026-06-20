@@ -1,13 +1,12 @@
 import path from "node:path";
-import { Effect } from "effect";
 import { repoRoot } from "../../lib/paths.js";
-import { HabitatFileSystem, HabitatFileSystemLive } from "../../resources/filesystem.ts";
+import { isFileSync, readTextSync } from "../../resources/filesystem.ts";
 
 export function diffText(target: string): string | undefined {
   if (target.includes("\n") || target.startsWith("diff --git ")) return target;
   const candidate = path.resolve(repoRoot, target);
-  if (isDiffPath(candidate) && readFileSystemBoolean((fs) => fs.isFile(candidate))) {
-    const text = readFileSystemText(candidate);
+  if (isDiffPath(candidate) && isFileSync(candidate)) {
+    const text = readTextSync(candidate);
     if (text.includes("diff --git ") || text.includes("\n+++ b/")) return text;
   }
   return undefined;
@@ -29,21 +28,4 @@ export function extractDiffPaths(diff: string): string[] {
 
 function isDiffPath(candidate: string): boolean {
   return candidate.endsWith(".diff") || candidate.endsWith(".patch");
-}
-
-function readFileSystemBoolean(
-  operation: (fs: typeof HabitatFileSystem.Service) => Effect.Effect<boolean, unknown>
-): boolean {
-  return Effect.runSync(
-    HabitatFileSystem.pipe(Effect.flatMap(operation), Effect.provide(HabitatFileSystemLive))
-  );
-}
-
-function readFileSystemText(candidate: string): string {
-  return Effect.runSync(
-    HabitatFileSystem.pipe(
-      Effect.flatMap((fs) => fs.readText(candidate)),
-      Effect.provide(HabitatFileSystemLive)
-    )
-  );
 }

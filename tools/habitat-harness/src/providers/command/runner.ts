@@ -3,11 +3,11 @@ import path from "node:path";
 import { Command } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { PlatformError } from "@effect/platform/Error";
-import { Chunk, Context, Duration, Effect, Layer, Stream } from "effect";
+import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
 import { HabitatConfig, makeHabitatConfig } from "../../config/index.js";
 import { CommandInterrupted, CommandUnavailable } from "../../errors/index.js";
 import { readGitState, unknownGitState } from "../../lib/git-state.js";
-import { HabitatClock } from "../../resources/index.js";
+import { currentTimeMillis, epochMillisToIsoString } from "../../resources/index.js";
 import { materializeHabitatCommandWithConfig } from "./materialize.js";
 import { makeCommandResultFromObservation } from "./output.js";
 import type { CommandRunnerService, HabitatCommandResult, HabitatProcessRequest } from "./types.js";
@@ -27,7 +27,7 @@ function runLiveCommand(
 ): Effect.Effect<
   HabitatCommandResult,
   CommandUnavailable | CommandInterrupted,
-  CommandExecutor | HabitatConfig | HabitatClock
+  CommandExecutor | HabitatConfig
 > {
   return Effect.gen(function* () {
     const configService = yield* HabitatConfig;
@@ -53,12 +53,11 @@ function executeLiveCommand(
   originalRequest: HabitatProcessRequest,
   effectiveRequest: HabitatProcessRequest,
   executionPlane: HabitatCommandResult["executionPlane"]
-): Effect.Effect<HabitatCommandResult, CommandUnavailable, CommandExecutor | HabitatClock> {
+): Effect.Effect<HabitatCommandResult, CommandUnavailable, CommandExecutor> {
   return Effect.scoped(
     Effect.gen(function* () {
-      const clock = yield* HabitatClock;
-      const startedMs = yield* clock.currentTimeMillis;
-      const startedAt = new Date(startedMs).toISOString();
+      const startedMs = yield* Clock.currentTimeMillis;
+      const startedAt = epochMillisToIsoString(startedMs);
       const beforeGitState =
         effectiveRequest.captureGitState === false
           ? unknownGitState().before
@@ -78,7 +77,7 @@ function executeLiveCommand(
         [collectStream(process.stdout), collectStream(process.stderr), process.exitCode],
         { concurrency: "unbounded" }
       );
-      const endedMs = yield* clock.currentTimeMillis;
+      const endedMs = yield* Clock.currentTimeMillis;
       const afterGitState =
         effectiveRequest.captureGitState === false
           ? unknownGitState().after
@@ -88,7 +87,7 @@ function executeLiveCommand(
         executionPlane,
         gitState: { before: beforeGitState, after: afterGitState },
         startedAt,
-        endedAt: new Date(endedMs).toISOString(),
+        endedAt: epochMillisToIsoString(endedMs),
         durationMs: Math.max(0, endedMs - startedMs),
         exitCode: Number(exitCode),
         stdout,
@@ -131,8 +130,8 @@ export function runSyncHabitatCommand(request: HabitatProcessRequest): HabitatCo
     argv: command.argv,
     cwd: command.cwd ?? request.cwd,
   };
-  const startedMs = Date.now();
-  const startedAt = new Date(startedMs).toISOString();
+  const startedMs = currentTimeMillis();
+  const startedAt = epochMillisToIsoString(startedMs);
   const beforeGitState =
     effectiveRequest.captureGitState === false
       ? unknownGitState().before
@@ -145,7 +144,7 @@ export function runSyncHabitatCommand(request: HabitatProcessRequest): HabitatCo
     timeout: request.timeoutMs ?? config.timeoutPolicy.commandTimeoutMs,
     killSignal: "SIGTERM",
   });
-  const endedMs = Date.now();
+  const endedMs = currentTimeMillis();
   const afterGitState =
     effectiveRequest.captureGitState === false
       ? unknownGitState().after
@@ -156,7 +155,7 @@ export function runSyncHabitatCommand(request: HabitatProcessRequest): HabitatCo
     executionPlane: command.executionPlane,
     gitState: { before: beforeGitState, after: afterGitState },
     startedAt,
-    endedAt: new Date(endedMs).toISOString(),
+    endedAt: epochMillisToIsoString(endedMs),
     durationMs: Math.max(0, endedMs - startedMs),
     exitCode: result.status ?? (result.error ? 127 : 0),
     signal: result.signal,

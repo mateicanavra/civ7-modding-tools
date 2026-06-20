@@ -10,22 +10,10 @@ import { GitProviderLive } from "../providers/git/index.js";
 import { HuskyProviderLive } from "../providers/husky/index.js";
 import { NxProviderLive } from "../providers/nx/index.js";
 import { HabitatReporterLive } from "../providers/reporter/index.js";
-import {
-  HabitatClockLive,
-  HabitatFileSystemLive,
-  HabitatWriteSetLive,
-  ResourceScopeLive,
-  WorkspaceLockLive,
-} from "../resources/index.js";
 
 export const HabitatRuntimeLive = Layer.mergeAll(
   NodeContext.layer,
   HabitatConfigLive,
-  HabitatClockLive,
-  HabitatFileSystemLive,
-  ResourceScopeLive,
-  HabitatWriteSetLive,
-  WorkspaceLockLive,
   CommandRunnerLive,
   GitProviderLive,
   GritProviderLive,

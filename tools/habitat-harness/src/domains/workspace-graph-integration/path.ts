@@ -1,12 +1,11 @@
 import path from "node:path";
-import { Effect } from "effect";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import type {
   GraphRefusalState,
   WorkspaceGraphReadState,
   WorkspaceProject,
 } from "../../providers/nx/schema.js";
-import { HabitatFileSystem, HabitatFileSystemLive } from "../../resources/filesystem.ts";
+import { statKindSync } from "../../resources/filesystem.ts";
 import { activeRuleGraphFacts } from "../rule-registry/active-facts.js";
 import { rulesForPath } from "./routing.js";
 import { type PathClassification, parsePathClassification } from "./schema.js";
@@ -117,16 +116,9 @@ function isWorkspaceSurface(pathInRepo: string): boolean {
   if (!rootSegment || rootSegment === "." || rootSegment === "..") return false;
 
   const rootSurfacePath = path.join(repoRoot, rootSegment);
-  const isFile = readFileSystemBoolean((fs) => fs.isFile(rootSurfacePath));
-  const isDirectory = readFileSystemBoolean((fs) => fs.isDirectory(rootSurfacePath));
-  if (pathInRepo === rootSegment) return isFile || isDirectory;
-  return isDirectory;
-}
-
-function readFileSystemBoolean(
-  operation: (fs: typeof HabitatFileSystem.Service) => Effect.Effect<boolean, unknown>
-): boolean {
-  return Effect.runSync(
-    HabitatFileSystem.pipe(Effect.flatMap(operation), Effect.provide(HabitatFileSystemLive))
-  );
+  const rootKind = statKindSync(rootSurfacePath);
+  const rootIsFile = rootKind === "File";
+  const rootIsDirectory = rootKind === "Directory";
+  if (pathInRepo === rootSegment) return rootIsFile || rootIsDirectory;
+  return rootIsDirectory;
 }
