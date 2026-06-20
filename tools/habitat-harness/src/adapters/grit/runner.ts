@@ -7,6 +7,7 @@ import {
   diagnosticCatalogEntryFromRulePatternFacts,
   renderDiagnosticScanRootRefusal,
 } from "../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
 import type {
@@ -15,7 +16,6 @@ import type {
   GritDiagnosticOptions,
 } from "../../providers/grit/types.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../../rules/registry/index.js";
 import {
   gritDiagnosticOutcomesFromReport,
   ruleRunResultsFromDiagnosticOutcomes,

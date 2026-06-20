@@ -5,9 +5,9 @@
 - Project: Habitat Harness deep refactor
 - Phase: rule registry domain
 - Owner: rule-registry lane
-- Branch/Graphite stack: `agent-DRA-effect-first-openspec-domino-plan` stacked on `agent-DRA-effect-first-repair-backlog`
+- Branch/Graphite stack: `agent-DRA-effect-rule-registry-domain` stacked on `agent-DRA-effect-diagnostic-pattern-governance`
 - Started: 2026-06-19
-- Status: design packet opened
+- Status: implementation complete
 
 ## Objective
 
@@ -15,5 +15,11 @@ Move rule registry and selection authority into named domains.
 
 ## Verification
 
-- Commands run: pending packet validation.
-- Evidence boundary: design-only.
+- `bun run --cwd tools/habitat-harness check`
+- `bun run --cwd tools/habitat-harness test -- test/rules/registry/contract.test.ts test/rules/registry/facts.test.ts test/lib/rule-selection.test.ts test/lib/classify.test.ts test/service/check-service.test.ts test/service/service-architecture.test.ts`
+- `bun run biome:ci`
+- `bun run build` passed; Nx reported the existing `@civ7/adapter:build` flaky-task notice.
+- `bun run openspec -- validate deep-habitat-effect-rule-registry-domain --strict`
+- `bun run openspec:validate`
+- `git diff --check`
+- `bun run habitat:check -- --owner @internal/habitat-harness --json` reached existing current-tree Grit pattern failures after format cleanup. The original packet command `--tool habitat` is stale and rejected by the Habitat selector.

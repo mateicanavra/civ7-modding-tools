@@ -1,16 +1,16 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
 import type { HabitatConfig } from "../../config/index.js";
-import type { RuleSelection } from "../../lib/rule-selection.js";
-import { type RuleSelectionResult, selectRules } from "../../lib/rule-selection.js";
-import { CommandRunner } from "../../providers/command/index.js";
-import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
-import type { HabitatClock } from "../../resources/index.js";
 import {
   activeRuleBaselineFacts,
   activeRuleSelectorFacts,
   factsForRuleIds,
-} from "../../rules/facts.js";
+} from "../../domains/rule-registry/active-facts.js";
+import type { RuleSelection } from "../../domains/rule-selection/index.js";
+import { type RuleSelectionResult, selectRules } from "../../domains/rule-selection/index.js";
+import { CommandRunner } from "../../providers/command/index.js";
+import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
+import type { HabitatClock } from "../../resources/index.js";
 import { BaselineAuthority, violationKey } from "../baseline-authority/index.js";
 import { executeSelectedRulesEffect } from "./execution.js";
 

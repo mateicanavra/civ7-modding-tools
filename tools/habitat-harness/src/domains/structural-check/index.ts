@@ -1,4 +1,4 @@
-export { describeRuleSelectionFailure } from "../../lib/rule-selection.js";
+export { describeRuleSelectionFailure } from "../../domains/rule-selection/index.js";
 export { type BaselineExpansionResult, expandBaselinesEffect } from "./baseline-expansion.js";
 export {
   approvedScanRootsForRules,

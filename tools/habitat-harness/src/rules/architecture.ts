@@ -1,10 +1,10 @@
-import type { HabitatDiagnostic } from "../lib/diagnostics.js";
-import type { SpawnResult } from "../providers/command/index.js";
 import {
   activeRuleRegistryDocument,
   type RuleCommandExecutionFacts,
   type RuleRegistryRecordV1,
-} from "./registry/index.js";
+} from "../domains/rule-registry/index.js";
+import type { HabitatDiagnostic } from "../lib/diagnostics.js";
+import type { SpawnResult } from "../providers/command/index.js";
 
 /**
  * The rule pack is authored in .habitat and consumed through the registry

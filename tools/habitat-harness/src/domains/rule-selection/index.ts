@@ -1,5 +1,5 @@
-import { activeRuleSelectorFacts } from "../rules/facts.js";
-import type { RuleSelectorFacts as RegistryRuleSelectorFacts } from "../rules/registry/index.js";
+import { activeRuleSelectorFacts } from "../rule-registry/active-facts.js";
+import type { RuleSelectorFacts as RegistryRuleSelectorFacts } from "../rule-registry/index.js";
 
 export interface RuleSelection {
   owner?: string;

@@ -1,12 +1,21 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Context, Effect, Layer } from "effect";
-import { FileReadFailed, FileWriteFailed } from "../errors/index.js";
+import { FileReadFailed, FileWriteFailed } from "../errors/index.ts";
+
+export interface HabitatDirectoryEntry {
+  readonly name: string;
+  readonly kind: "directory" | "file" | "other";
+}
 
 export interface HabitatFileSystemService {
+  readonly isDirectory: (targetPath: string) => Effect.Effect<boolean, FileReadFailed>;
   readonly makeDirectory: (targetPath: string) => Effect.Effect<void, FileWriteFailed>;
   readonly makeTempDirectory: (prefix: string) => Effect.Effect<string, FileWriteFailed>;
+  readonly readDirectory: (
+    targetPath: string
+  ) => Effect.Effect<readonly HabitatDirectoryEntry[], FileReadFailed>;
   readonly readText: (targetPath: string) => Effect.Effect<string, FileReadFailed>;
   readonly remove: (targetPath: string) => Effect.Effect<void, FileWriteFailed>;
 }
@@ -17,6 +26,15 @@ export class HabitatFileSystem extends Context.Tag("@internal/habitat-harness/Ha
 >() {}
 
 export const HabitatFileSystemLive = Layer.succeed(HabitatFileSystem, {
+  isDirectory: (targetPath) =>
+    Effect.try({
+      try: () => statSync(targetPath).isDirectory(),
+      catch: (cause) =>
+        new FileReadFailed({
+          path: targetPath,
+          cause: cause instanceof Error ? cause.message : String(cause),
+        }),
+    }),
   makeDirectory: (targetPath) =>
     Effect.try({
       try: () => mkdirSync(targetPath, { recursive: true }),
@@ -32,6 +50,19 @@ export const HabitatFileSystemLive = Layer.succeed(HabitatFileSystem, {
       catch: (cause) =>
         new FileWriteFailed({
           path: path.join(tmpdir(), prefix),
+          cause: cause instanceof Error ? cause.message : String(cause),
+        }),
+    }),
+  readDirectory: (targetPath) =>
+    Effect.try({
+      try: () =>
+        readdirSync(targetPath, { withFileTypes: true }).map((entry) => ({
+          name: entry.name,
+          kind: entry.isDirectory() ? ("directory" as const) : entry.isFile() ? "file" : "other",
+        })),
+      catch: (cause) =>
+        new FileReadFailed({
+          path: targetPath,
           cause: cause instanceof Error ? cause.message : String(cause),
         }),
     }),
@@ -57,9 +88,15 @@ export const HabitatFileSystemLive = Layer.succeed(HabitatFileSystem, {
 
 export function makeFakeHabitatFileSystemLayer(
   events: string[] = [],
-  files: ReadonlyMap<string, string> = new Map()
+  files: ReadonlyMap<string, string> = new Map(),
+  directories: ReadonlyMap<string, readonly HabitatDirectoryEntry[]> = new Map()
 ) {
   return Layer.succeed(HabitatFileSystem, {
+    isDirectory: (targetPath) =>
+      Effect.sync(() => {
+        events.push(`isDirectory:${targetPath}`);
+        return directories.has(targetPath);
+      }),
     makeDirectory: (targetPath) =>
       Effect.sync(() => {
         events.push(`mkdir:${targetPath}`);
@@ -69,6 +106,18 @@ export function makeFakeHabitatFileSystemLayer(
         const targetPath = `/tmp/${prefix}fake`;
         events.push(`mkdtemp:${targetPath}`);
         return targetPath;
+      }),
+    readDirectory: (targetPath) =>
+      Effect.gen(function* () {
+        events.push(`readdir:${targetPath}`);
+        const entries = directories.get(targetPath);
+        if (entries !== undefined) return entries;
+        return yield* Effect.fail(
+          new FileReadFailed({
+            path: targetPath,
+            cause: "Fake Habitat filesystem has no directory fixture for path.",
+          })
+        );
       }),
     readText: (targetPath) =>
       Effect.gen(function* () {

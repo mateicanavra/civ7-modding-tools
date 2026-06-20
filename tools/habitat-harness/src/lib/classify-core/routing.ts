@@ -1,5 +1,5 @@
-import { activeRuleRoutingFacts } from "../../rules/facts.js";
-import type { RuleRoutingFacts } from "../../rules/registry/index.js";
+import { activeRuleRoutingFacts } from "../../domains/rule-registry/active-facts.js";
+import type { RuleRoutingFacts } from "../../domains/rule-registry/index.js";
 import type { WorkspaceProject } from "../workspace-graph/index.js";
 import type { RuleCoverageKind, RuleRouting } from "./schema.js";
 

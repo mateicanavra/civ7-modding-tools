@@ -1,6 +1,6 @@
 import path from "node:path";
 import { Value } from "typebox/value";
-import type { RuleFileLayerFacts } from "../../rules/registry/index.js";
+import type { RuleFileLayerFacts } from "../../domains/rule-registry/index.js";
 import {
   type HostSurfaceDecision,
   hostSurfaceDecisionForGeneratedZone,

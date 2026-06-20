@@ -1,5 +1,5 @@
 import { Value } from "typebox/value";
-import type { RuleGraphFacts } from "../../rules/registry/schema.js";
+import type { RuleGraphFacts } from "../../domains/rule-registry/schema.js";
 import {
   explicitProjectTargetDependency,
   graphRefusalMessage,

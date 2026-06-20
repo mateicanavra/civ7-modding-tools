@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "node:fs";
 import path from "node:path";
-import { activeRuleGraphFacts } from "../../rules/facts.js";
+import { activeRuleGraphFacts } from "../../domains/rule-registry/active-facts.js";
 import { repoRoot, toRepoRelative } from "../paths.js";
 import {
   findWorkspaceOwningProject,

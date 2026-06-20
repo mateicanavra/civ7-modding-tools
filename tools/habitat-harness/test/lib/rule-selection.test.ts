@@ -1,4 +1,6 @@
 import { describe, expect, test } from "vitest";
+import type { RulePatternFacts } from "../../src/domains/rule-registry/index.js";
+import { type RuleSelection, selectRules } from "../../src/domains/rule-selection/index.js";
 import {
   checkCommandContext,
   createCheckReportEffect,
@@ -7,9 +9,7 @@ import {
   stagedPatternScanRoots,
 } from "../../src/domains/structural-check/index.js";
 import { validateCheckReport } from "../../src/lib/diagnostics.js";
-import { type RuleSelection, selectRules } from "../../src/lib/rule-selection.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
-import type { RulePatternFacts } from "../../src/rules/registry/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 
 const fakeRules: HarnessRule[] = [

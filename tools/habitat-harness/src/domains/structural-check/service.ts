@@ -1,7 +1,7 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../config/index.js";
-import type { RuleSelection } from "../../lib/rule-selection.js";
+import type { RuleSelection } from "../../domains/rule-selection/index.js";
 import type { CommandRunner } from "../../providers/command/index.js";
 import type { GritProvider, GritProviderRequirements } from "../../providers/grit/index.js";
 import type { HabitatClock } from "../../resources/index.js";
