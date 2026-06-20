@@ -99,7 +99,7 @@ The one real unknown from §6 is **resolved: yes.** A permanent, non-decaying pl
 **Live proof (latest-juicy, driven via the `civ7` CLI):** `PLOTEFFECT_DESERT_HEAT` (`Damage=11, TimeDecay=false, UnoccupiedDecay=false, AllowOnWater=false`) loads with **no rollback**, registers at runtime, and was **placed on 36 deepest-desert tiles** (24% sand coverage). A stationary unit on a DESERT_HEAT tile lost **exactly 11 HP across one turn** (0 → 11, turn 1 → 2). This is the genuine ocean-damage twin.
 
 **What shipped (simpler than the §5 plan):**
-- `mod/data/desert-hazard.xml` — ROOT `<Database>` with `Types` + `PlotEffects` rows for `PLOTEFFECT_DESERT_HEAT`. Loaded via a game-scope `UpdateDatabase`. LOC name in `MapText.xml`.
+- `mod/data/biome-hazards.xml` (originally `desert-hazard.xml`; renamed when frostbite/jungle joined) — ROOT `<Database>` with `Types` + `PlotEffects` rows for `PLOTEFFECT_DESERT_HEAT`. Loaded via a game-scope `UpdateDatabase`. LOC name in `MapText.xml`.
 - `plan-plot-effects` — the sand channel gained an **optional `hazard` companion selector** (`sand.hazard`) that co-places the hazard on the same top-coverage deep-desert tiles the cosmetic sand selects. (Lighter than the full multi-tier + connected-mass/interior-distance gate of §4–5; coverage % already constrains it to the deepest tiles. The mass/interior gate remains available as a future refinement.) Wired via `ecology-public-config.ts` `PLOT_EFFECT_SELECTORS.sandHazard`; viz category added; tests in `test/ecology/plot-effects-sand-hazard.test.ts`.
 - The global `EFFECT_UNIT_ADJUST_DAMAGE` modifier path (§3 Path B) was **dropped**: it is one-shot in 100% of base usage (`run-once="true"`) and a biome modifier hits *all* desert, contradicting the "deep parts only" design.
 
@@ -127,11 +127,42 @@ Permanence is governed by two flags: **`TimeDecay`** (counts down `TimeValue` tu
 
 ## 9. Future directions (documented, not pursued now)
 
-**World-visual marker** (the hazard currently surfaces via the plot tooltip only). Three avenues, in rough order of effort/reliability:
+**Sibling hazards — DELIVERED.** Frostbite (deep cold) and Jungle Fever (deep rainforest) shipped as siblings of desert heat; see **§10**.
+
+**World-visual marker** (custom-type hazards surface via the plot tooltip only; frostbite reads naturally via snow terrain). Three avenues, in rough order of effort/reliability:
 1. **Persistent-art Feature.** Place a feature with real, persistent 3-D art on hazard tiles as the marker. Most reliable on-map signal, but features affect movement/yields and a thematically-fitting art-backed feature must be found per biome.
 2. **JS override of `world-vfx.js`.** A mod can replace the UI script and, for our types, call the *persistent* `WorldUI.addVFXAtPlot(...)` (as `PLOTEFFECT_FLOODED` does) instead of the one-shot `triggerVFXAtPlot`. Speculative — base "appears" assets aren't authored to loop/persist — and it would also need a re-add on game-start since mapgen placements don't fire the add-event.
 3. **Custom VFX/decal asset.** Author a real ground decal through the art pipeline and point `VFX_ADDED_TO_MAP_<TYPE>` at it. Cleanest visually, but outside data-only modding.
 
-**Placement refinement.** Replace the score-based top-coverage selection with a deterministic **interior-depth gate**: a tile gets the hazard only if it is deep interior (every tile within a 3-tile hex radius is the same hazard biome/feature). This makes "only massive interiors are dangerous" geometric and explicit, and generalizes cleanly to other biomes.
+**Placement philosophy — physically grounded, not geometric.** A strict geometric "interior-depth gate" (hazard only if every tile within a 3-hex radius is the same biome) was considered and **deliberately set aside**: placement is driven by the **existing climate-stress scorers** (aridity+heat for desert, cold+freeze for frostbite, heat+humidity+vegetation for jungle), which already concentrate on the deepest/most-extreme interiors. A radius/contiguous-mass term remains available as a *secondary* input if a future map shows the climate signal placing hazards too shallow, but it should not be the primary driver. Intensity-scaled damage (more extreme stress → higher `Damage`) is a natural extension of the same scores.
 
-**Sibling hazards (same pattern).** `PLOTEFFECT_FROSTBITE` on deep snow/cold (rides the snow channel; anchor `BIOME_TUNDRA`) and `PLOTEFFECT_JUNGLE_FEVER` on deep rainforest (anchor `FEATURE_RAINFOREST`). Each is the same permanent-damaging-PlotEffect mechanism gated by the interior-depth rule above.
+---
+
+## 10. The three-biome hazard family (DELIVERED + live-proven)
+
+The desert mechanism generalized to **three biome attrition hazards**, each a permanent, damaging `PlotEffect` (`Damage=11`, `TimeDecay=false`, `UnoccupiedDecay=false`, `AllowOnWater=false`) placed by its biome channel on the most climate-**extreme** tiles. Placement is **physically grounded** in the existing climate-stress scorers — not a geometric radius (see §9). All three are authored in one multi-hazard data file `mod/data/biome-hazards.xml` (renamed from `desert-hazard.xml`).
+
+Shipped as a Graphite stack:
+
+| Hazard | LOC name | Channel / stress signal | Branch |
+|---|---|---|---|
+| `PLOTEFFECT_DESERT_HEAT` | Deep Desert Heat | sand — aridity + heat | `desert-ocean-attrition-feasibility` (`018e60230`, docs `faf573675`) |
+| `PLOTEFFECT_FROSTBITE` | Killing Frost | snow — cold + freeze (coldest only, `hazardThreshold` 0.85) | `snow-frostbite` (`140d28e4e`) |
+| `PLOTEFFECT_JUNGLE_FEVER` | Jungle Fever | jungle — heat + humidity + vegetation density | `rainforest-jungle-fever` (`fad906943`) |
+
+**Live proof — one map, all three (latest-juicy, seed 12345, 84×54, 1,645 land tiles):** no rollback; all three register (`Damage=11`); each inflicts **exactly 11 HP across one turn** on a stationary unit (0 → 11). Placement counts and density:
+
+| Hazard | Damage tiles | Biome | Biome total | Share of biome | Ratio (hazard : normal) |
+|---|---|---|---|---|---|
+| DESERT_HEAT | 36 | desert | 364 | 9.9 % | ~1 : 9 |
+| FROSTBITE | 8 | tundra | 581 | 1.4 % | ~1 : 72 |
+| JUNGLE_FEVER | 22 | tropical | 288 | 7.6 % | ~1 : 12 |
+
+Total 66 hazard tiles = 4.0 % of land. The per-biome share is lower than the configured `coveragePct` because coverage applies to the *eligible* (climate-extreme) subset, not the whole biome. Frostbite is deliberately rarest — gated to the very coldest tundra. All tunable via `plotEffectCoverage.{sand,jungle}.coveragePct` and the snow `hazardThreshold`.
+
+**Channel patterns (how the three differ):**
+- **sand** → co-places cosmetic `PLOTEFFECT_SAND` (flavor) **+** the hazard, on the same arid-stress top-coverage tiles.
+- **snow** → co-places cosmetic permanent-snow tiers **+** the hazard, but the hazard only on tiles with `snowScore01 ≥ hazardThreshold` (deepest cold). Snow renders via the terrain material, so frostbite reads naturally in-world.
+- **jungle** → a **new** scoring channel (`plot-effects-score-jungle`): places the hazard **alone** (no cosmetic — the rainforest feature is the visual) on heat+humidity+vegetation top-coverage.
+
+**Engineering note — adding a new scoring channel** (jungle) touches, in order: the op (`contract` + `strategies/default` + `index`), the ecology registries (`ops/index.ts` implementations + named exports, `ops/contracts.ts`), the domain `plan-plot-effects` (new `*Score01`/`*EligibleMask` inputs + a plan block in `contract.ts`, candidate-collection + placement in `strategies/default.ts`), the recipe step (`steps/plan-plot-effects/contract.ts` op + `index.ts` compute/feed), the **strict** public schemas (`PlotEffectScoringPublicSchema` + `PlotEffectCoveragePublicSchema`, `additionalProperties:false` — the key must be added or configs fail validation) + the compile mapping, the data file + `MapText` LOC, the mock-adapter registry, the viz categories, and the per-map config. Reusing an existing channel (frostbite on snow) is far lighter — just the optional `hazard` selector + threshold.
