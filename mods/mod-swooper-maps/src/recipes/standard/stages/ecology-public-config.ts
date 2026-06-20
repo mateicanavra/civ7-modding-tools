@@ -574,7 +574,11 @@ const PLOT_EFFECT_SELECTORS = {
     medium: { typeName: "PLOTEFFECT_SNOW_MEDIUM_PERMANENT" },
     heavy: { typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT" },
   },
-  sand: { typeName: "PLOTEFFECT_SAND" },
+  // Deep-desert hazard (Path A slice): sand placements project the permanent,
+  // damaging PLOTEFFECT_DESERT_HEAT (authored in mod/data/desert-hazard.xml) rather
+  // than the cosmetic, decaying PLOTEFFECT_SAND. The sand coverage % (public config)
+  // keeps it to the deepest-scoring desert tiles. Cosmetic/tiered split is future work.
+  sand: { typeName: "PLOTEFFECT_DESERT_HEAT" },
   burned: { typeName: "PLOTEFFECT_BURNED" },
 } as const;
 

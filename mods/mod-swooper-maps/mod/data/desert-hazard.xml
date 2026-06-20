@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <Types>
+    <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
+  </Types>
+  <PlotEffects>
+    <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" Damage="11" Defense="0" TimeDecay="false" UnoccupiedDecay="false" TriggerOnEnter="false" AllowOnWater="false" AllowConstructWhileDamaged="false"/>
+  </PlotEffects>
+  <EnglishText>
+    <Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
+      <Text>Deep Desert Heat</Text>
+    </Row>
+  </EnglishText>
+</Database>

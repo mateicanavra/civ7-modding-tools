@@ -21,6 +21,7 @@ const configsDir = resolve(pkgRoot, "src/maps/configs");
 const generatedEntriesDir = resolve(pkgRoot, "src/maps/generated");
 const modConfigDir = resolve(pkgRoot, "mod/config");
 const modTextDir = resolve(pkgRoot, "mod/text/en_us");
+const modDataDir = resolve(pkgRoot, "mod/data");
 const distRecipesDir = resolve(pkgRoot, "dist/recipes");
 const transientStudioCurrentConfig = "studio-current.config.json";
 const includeTransientStudioCurrent = process.env.SWOOPER_INCLUDE_STUDIO_CURRENT === "1";
@@ -175,6 +176,28 @@ ${rows}
 `;
 }
 
+// Deep-desert hazard (Path A de-risk slice): a permanent, non-decaying plot effect
+// that damages occupying units each turn (the structural analog of ocean damage).
+// Placed on the deepest-scoring desert tiles by the ecology plot-effects planner.
+// Loaded via a gameplay-scope UpdateDatabase action in the modinfo.
+function renderDesertHazardData(): string {
+  return `<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <Types>
+    <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
+  </Types>
+  <PlotEffects>
+    <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" Damage="11" Defense="0" TimeDecay="false" UnoccupiedDecay="false" TriggerOnEnter="false" AllowOnWater="false" AllowConstructWhileDamaged="false"/>
+  </PlotEffects>
+  <EnglishText>
+    <Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
+      <Text>Deep Desert Heat</Text>
+    </Row>
+  </EnglishText>
+</Database>
+`;
+}
+
 function renderModInfo(configs: readonly ValidatedMapConfig[]): string {
   const imports = configs
     .map((config) => `\t\t\t\t\t<Item>maps/${config.outputFile}</Item>`)
@@ -201,6 +224,9 @@ function renderModInfo(configs: readonly ValidatedMapConfig[]): string {
 \t\t\t\t<UpdateText>
 \t\t\t\t\t<Item>text/en_us/MapText.xml</Item>
 \t\t\t\t</UpdateText>
+\t\t\t\t<UpdateDatabase>
+\t\t\t\t\t<Item>data/desert-hazard.xml</Item>
+\t\t\t\t</UpdateDatabase>
 \t\t\t\t<ImportFiles>
 ${imports}
 \t\t\t\t</ImportFiles>
@@ -278,6 +304,7 @@ async function main(): Promise<void> {
   await mkdir(generatedEntriesDir, { recursive: true });
   await mkdir(modConfigDir, { recursive: true });
   await mkdir(modTextDir, { recursive: true });
+  await mkdir(modDataDir, { recursive: true });
   await mkdir(distRecipesDir, { recursive: true });
 
   for (const entry of await readdir(generatedEntriesDir, { withFileTypes: true }).catch(() => [])) {
@@ -292,6 +319,7 @@ async function main(): Promise<void> {
 
   await writeFile(resolve(modConfigDir, "config.xml"), renderConfigXml(configs));
   await writeFile(resolve(pkgRoot, "mod/swooper-maps.modinfo"), renderModInfo(configs));
+  await writeFile(resolve(modDataDir, "desert-hazard.xml"), renderDesertHazardData());
   await writeFile(resolve(modTextDir, "MapText.xml"), renderMapText(configs));
   await writeFile(
     resolve(distRecipesDir, "standard-map-config.schema.json"),
