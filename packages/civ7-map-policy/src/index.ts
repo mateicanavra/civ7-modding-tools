@@ -44,6 +44,18 @@ export {
   RIVER_TYPE_NAVIGABLE,
 } from "./river-constants.js";
 export { CIV7_RIVER_TYPE_METADATA_SOURCE } from "./river-type-metadata.source.js";
+export type { HomelandRegionSlot, StartApportionmentInput } from "./starts.js";
+export {
+  apportionStartsByCapacity,
+  balancedHemisphereMeridian,
+  CIV7_START_PLACEMENT_POLICY_V0,
+  dispersionTerm,
+  feasibleStartCeiling,
+  HOMELAND_REGION_EAST,
+  HOMELAND_REGION_WEST,
+  hemisphereSlotForColumn,
+  startFootprintTiles,
+} from "./starts.js";
 export type {
   DiscoveryPlacementIntent,
   DiscoveryPlacementOutcome,
