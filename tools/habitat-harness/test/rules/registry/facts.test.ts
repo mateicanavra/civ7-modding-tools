@@ -9,7 +9,7 @@ import {
   rulePatternFacts,
   ruleRoutingFacts,
 } from "../../../src/domains/rule-registry/index.js";
-import { workspaceGraphTargetNames } from "../../../src/lib/workspace-graph/target-names.js";
+import { workspaceGraphTargetNames } from "../../../src/providers/nx/targets.js";
 import { baseRule } from "./helpers.js";
 
 describe("rule registry facts", () => {

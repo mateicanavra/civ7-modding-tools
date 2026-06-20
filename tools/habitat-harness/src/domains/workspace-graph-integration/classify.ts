@@ -1,5 +1,5 @@
-import { activeRuleSelectorFacts } from "../../domains/rule-registry/active-facts.js";
-import { readWorkspaceGraph, type WorkspaceGraphProjectReader } from "../workspace-graph/index.js";
+import { readWorkspaceGraph, type WorkspaceGraphProjectReader } from "../../providers/nx/graph.js";
+import { activeRuleSelectorFacts } from "../rule-registry/active-facts.js";
 import { diffText, extractDiffPaths } from "./diff.js";
 import { classifyPathFromProjects, graphReadRefusal, graphRefusalResult } from "./path.js";
 import {

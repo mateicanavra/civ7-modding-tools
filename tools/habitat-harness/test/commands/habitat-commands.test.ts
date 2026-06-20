@@ -73,8 +73,8 @@ import Fix from "../../src/commands/fix.js";
 import Graph from "../../src/commands/graph.js";
 import Hook from "../../src/commands/hook.js";
 import Verify from "../../src/commands/verify.js";
+import * as classify from "../../src/domains/workspace-graph-integration/index.js";
 import * as checkReport from "../../src/lib/check-report.js";
-import * as classify from "../../src/lib/classify.js";
 import * as verifyReceipt from "../../src/lib/verify/index.js";
 import * as serviceClient from "../../src/service/client.js";
 

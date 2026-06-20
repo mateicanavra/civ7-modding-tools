@@ -1,9 +1,9 @@
 import {
   findWorkspaceOwningProject,
-  NxWorkspaceGraphProjectReader,
   type WorkspaceProject,
   workspaceProjectHasTarget,
-} from "./workspace-graph/index.js";
+} from "../domains/workspace-graph-integration/index.js";
+import { NxWorkspaceGraphProjectReader } from "../providers/nx/graph.js";
 
 export type NxProjectMetadata = WorkspaceProject;
 

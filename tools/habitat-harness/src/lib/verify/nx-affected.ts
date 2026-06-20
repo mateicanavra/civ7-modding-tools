@@ -1,4 +1,5 @@
 import { Effect } from "effect";
+import type { VerifyTargetPlan } from "../../domains/workspace-graph-integration/index.js";
 import type { SpawnResult } from "../../providers/command/index.js";
 import {
   affectedArgv,
@@ -6,7 +7,6 @@ import {
   spawnResultFromCommandResult,
 } from "../../providers/nx/index.js";
 import { runHabitatEffect } from "../../runtime/index.js";
-import type { VerifyTargetPlan } from "../workspace-graph/index.js";
 import { boundedPreview } from "./command-output.js";
 import type { VerifyReceipt } from "./schema.js";
 

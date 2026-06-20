@@ -1,4 +1,4 @@
-import { workspaceGraphTargetNames } from "../../lib/workspace-graph/target-names.js";
+import { workspaceGraphTargetNames } from "../../providers/nx/targets.js";
 import {
   activeRuleRegistryDocument,
   ruleBaselineFacts,
