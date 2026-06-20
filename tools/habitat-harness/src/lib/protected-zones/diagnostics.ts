@@ -1,5 +1,5 @@
 import type { RuleFileLayerFacts } from "../../domains/rule-registry/index.js";
-import type { HabitatDiagnostic } from "../diagnostics.js";
+import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
 import { renderRecoveryInstruction } from "./recovery.js";
 import type { DeclarationReadiness, ProtectedMutationDecision } from "./schema.js";
 

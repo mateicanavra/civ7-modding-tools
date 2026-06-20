@@ -48,8 +48,8 @@ vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
   };
 });
 
-vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/lib/verify/index.js")>();
+vi.mock("../../src/domains/proof-contract/index.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/domains/proof-contract/index.js")>();
   return {
     ...actual,
     stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
@@ -73,9 +73,9 @@ import Fix from "../../src/commands/fix.js";
 import Graph from "../../src/commands/graph.js";
 import Hook from "../../src/commands/hook.js";
 import Verify from "../../src/commands/verify.js";
+import * as verifyReceipt from "../../src/domains/proof-contract/index.js";
 import * as classify from "../../src/domains/workspace-graph-integration/index.js";
 import * as checkReport from "../../src/lib/check-report.js";
-import * as verifyReceipt from "../../src/lib/verify/index.js";
 import * as serviceClient from "../../src/service/client.js";
 
 describe("Habitat oclif commands", () => {

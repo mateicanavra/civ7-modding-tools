@@ -1,15 +1,15 @@
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import {
+  createVerifyReceipt,
+  VerifyReceiptSchema,
+  validateVerifyReceipt,
+} from "../../src/domains/proof-contract/index.js";
+import {
   type VerifyTargetPlan,
   verifyTargetPlan,
 } from "../../src/domains/workspace-graph-integration/index.js";
 import type { CheckReport } from "../../src/lib/diagnostics.js";
-import {
-  createVerifyReceipt,
-  VerifyReceiptSchema,
-  validateVerifyReceipt,
-} from "../../src/lib/verify/index.js";
 
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {

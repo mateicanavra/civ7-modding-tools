@@ -1,6 +1,6 @@
 import { Value } from "typebox/value";
-import { activeRulePatternFacts } from "../../domains/rule-registry/active-facts.js";
-import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
+import { activeRulePatternFacts } from "../rule-registry/active-facts.js";
+import type { RulePatternFacts } from "../rule-registry/index.js";
 import { applyAdmittedState } from "./admission.js";
 import {
   type ApplyAdmission,

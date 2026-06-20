@@ -1,8 +1,8 @@
 import { Effect } from "effect";
+import { repoRoot } from "../../lib/paths.js";
 import type { SpawnResult } from "../../providers/command/index.js";
 import { GitProvider, spawnResultFromCommandResult } from "../../providers/git/index.js";
 import { runHabitatEffect } from "../../runtime/index.js";
-import { repoRoot } from "../paths.js";
 import { boundedPreview } from "./command-output.js";
 import type { VerifyReceipt } from "./schema.js";
 

@@ -1,16 +1,16 @@
 import { Value } from "typebox/value";
-import { activeRuleGraphFacts } from "../../domains/rule-registry/active-facts.js";
+import { type VerifyCheckSummary, verifyCheckSummary } from "../../lib/check-report.js";
+import type { CheckReport } from "../../lib/diagnostics.js";
+import { repoRoot } from "../../lib/paths.js";
+import type { SpawnResult } from "../../providers/command/index.js";
+import { readWorkspaceGraph } from "../../providers/nx/graph.js";
+import { verifyTargetNames } from "../../providers/nx/targets.js";
+import { activeRuleGraphFacts } from "../rule-registry/active-facts.js";
 import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
   verifyTargetPlan,
-} from "../../domains/workspace-graph-integration/index.js";
-import type { SpawnResult } from "../../providers/command/index.js";
-import { readWorkspaceGraph } from "../../providers/nx/graph.js";
-import { verifyTargetNames } from "../../providers/nx/targets.js";
-import { type VerifyCheckSummary, verifyCheckSummary } from "../check-report.js";
-import type { CheckReport } from "../diagnostics.js";
-import { repoRoot } from "../paths.js";
+} from "../workspace-graph-integration/index.js";
 import { selectedVerifyEnv } from "./command-output.js";
 import { affectedVerificationArgv, completedNxAffected, skippedNxAffected } from "./nx-affected.js";
 import { postStateObservation } from "./post-state.js";
