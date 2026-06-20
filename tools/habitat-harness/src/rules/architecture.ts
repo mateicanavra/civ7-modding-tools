@@ -3,7 +3,7 @@ import {
   type RuleCommandExecutionFacts,
   type RuleRegistryRecordV1,
 } from "../domains/rule-registry/index.js";
-import type { HabitatDiagnostic } from "../lib/diagnostics.js";
+import type { HabitatDiagnostic } from "../domains/structural-check/schema.js";
 import type { SpawnResult } from "../providers/command/index.js";
 
 /**

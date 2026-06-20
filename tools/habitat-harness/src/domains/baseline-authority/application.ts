@@ -1,4 +1,4 @@
-import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
+import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import {
   type BaselineApplicationResult,
   type BaselineAuthorityState,

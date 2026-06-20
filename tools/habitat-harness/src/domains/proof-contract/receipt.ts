@@ -1,11 +1,14 @@
 import { Value } from "typebox/value";
-import { type VerifyCheckSummary, verifyCheckSummary } from "../../lib/check-report.js";
-import type { CheckReport } from "../../lib/diagnostics.js";
 import { repoRoot } from "../../lib/paths.js";
 import type { SpawnResult } from "../../providers/command/index.js";
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
 import { verifyTargetNames } from "../../providers/nx/targets.js";
 import { activeRuleGraphFacts } from "../rule-registry/active-facts.js";
+import {
+  type CheckReport,
+  type VerifyCheckSummary,
+  verifyCheckSummary,
+} from "../structural-check/index.js";
 import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,

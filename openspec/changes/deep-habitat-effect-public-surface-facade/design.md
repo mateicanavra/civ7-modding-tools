@@ -36,9 +36,29 @@ Every export in `src/index.ts` SHALL be classified before source movement:
 
 ## Known Adapter Closure Actions
 
-- `src/lib/baseline.ts` currently re-exports the legacy sync baseline adapter
-  for public compatibility while `BaselineAuthorityLive` owns the active
-  provider-backed service path. This packet must classify each baseline export
-  as `public-contract` or `dead-code-remove`; anything kept must move behind
-  `src/public/**`, and the old sync adapter path must not remain as active
-  implementation ownership.
+- Closed in this packet: `src/lib/baseline.ts`, `src/lib/check-report.ts`, and
+  `src/lib/diagnostics.ts` were removed. Internal callsites now import owning
+  domains directly, and package consumers receive only the `src/public/**`
+  facade.
+
+## Implemented Export Classification
+
+- `public-contract`: structural check report DTOs/schemas/rendering,
+  classify DTOs/schemas/rendering, verify receipt/base DTOs/schemas/rendering,
+  and generator option DTOs exposed through `src/public/**`.
+- `internal-callsite`: command orchestration, proof-contract assembly,
+  baseline authority, structural execution, rule rendering, and protected-zone
+  helpers import owning domains or internal support paths directly.
+- `dead-code-remove`: package-root exports for adapter failures, config layers,
+  typed Habitat errors, baseline sync helpers, root runtime runner, Git graph
+  helpers, verify execution helpers, workspace-tool materialization, provider
+  command fakes/results, rule registry helpers, and `HabitatRuntimeLive`.
+
+## Package Metadata
+
+- `exports["."]` remains `./src/index.ts`, which is now a one-line facade over
+  `./src/public/index.js`.
+- `exports["./public/*"]` exposes intentional public submodules.
+- `files` now includes `src` as the source closure for exported TypeScript
+  entrypoints instead of enumerating stale internal workspace-graph or
+  rule-registry paths.

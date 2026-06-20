@@ -98,13 +98,10 @@ describe("Habitat service architecture", () => {
   });
 
   test("keeps diagnostic and pattern governance in domain ownership", () => {
-    const publicIndex = source("src/index.ts");
-
     expect(existsSync(join(packageRoot, "src/lib/diagnostic-catalog"))).toBe(false);
     expect(existsSync(join(packageRoot, "src/rules/patterns"))).toBe(false);
     expect(existsSync(join(packageRoot, "src/domains/diagnostic-pattern-catalog"))).toBe(true);
     expect(existsSync(join(packageRoot, "src/domains/pattern-governance"))).toBe(true);
-    expect(publicIndex).toContain("./domains/pattern-governance/index.js");
 
     for (const file of sourceFiles(sourceRoot)) {
       const text = source(file);
@@ -114,14 +111,11 @@ describe("Habitat service architecture", () => {
   });
 
   test("keeps rule registry and selection in domain ownership", () => {
-    const publicIndex = source("src/index.ts");
-
     expect(existsSync(join(packageRoot, "src/rules/registry"))).toBe(false);
     expect(existsSync(join(packageRoot, "src/rules/facts.ts"))).toBe(false);
     expect(existsSync(join(packageRoot, "src/lib/rule-selection.ts"))).toBe(false);
     expect(existsSync(join(packageRoot, "src/domains/rule-registry"))).toBe(true);
     expect(existsSync(join(packageRoot, "src/domains/rule-selection"))).toBe(true);
-    expect(publicIndex).toContain("./domains/rule-selection/index.js");
 
     for (const file of sourceFiles(sourceRoot)) {
       const text = source(file);
@@ -195,7 +189,7 @@ describe("Habitat service architecture", () => {
     expect(existsSync(join(packageRoot, "src/domains/workspace-graph-integration"))).toBe(true);
     expect(existsSync(join(packageRoot, "src/providers/nx/graph.ts"))).toBe(true);
     expect(existsSync(join(packageRoot, "src/providers/nx/targets.ts"))).toBe(true);
-    expect(publicIndex).toContain("./domains/workspace-graph-integration/index.js");
+    expect(publicIndex).not.toContain("./domains/workspace-graph-integration/index.js");
     expect(classifyRouter).toContain("classifyModule.run.effect");
     expect(classifyRouter).not.toContain("runClassifyService");
     for (const text of sourceTexts) {
@@ -226,7 +220,7 @@ describe("Habitat service architecture", () => {
     expect(verifyCommand).toContain("../domains/proof-contract/index.js");
     expect(verifyRouter).toContain("../../../domains/proof-contract/index.js");
     expect(verifyContract).toContain("../../../domains/proof-contract/schema.js");
-    expect(publicIndex).toContain("./domains/proof-contract/index.js");
+    expect(publicIndex).not.toContain("./domains/proof-contract/index.js");
     for (const text of sourceTexts) {
       expect(text).not.toMatch(/from\s+["'][^"']*lib\/verify/);
     }
@@ -281,6 +275,60 @@ describe("Habitat service architecture", () => {
     expect(existsSync(join(packageRoot, "src/lib/hooks.ts"))).toBe(false);
     expect(existsSync(join(packageRoot, "src/lib/hook-runtime"))).toBe(false);
     expect(existsSync(join(packageRoot, "src/domains/hook-runtime"))).toBe(true);
+  });
+
+  test("keeps the package root as a public facade only", () => {
+    const packageManifest = JSON.parse(source("package.json")) as {
+      exports: Record<string, string>;
+    };
+    const rootIndex = source("src/index.ts");
+    const publicIndex = source("src/public/index.ts");
+    const publicVerify = source("src/public/verify.ts");
+
+    expect(Object.keys(packageManifest.exports).sort()).toEqual([".", "./plugin", "./public/*"]);
+    expect(rootIndex.trim()).toBe('export * from "./public/index.js";');
+    expect(publicIndex).toContain("./check-report.js");
+    expect(publicIndex).toContain("./classify.js");
+    expect(publicIndex).toContain("./generators.js");
+    expect(publicIndex).toContain("./verify.js");
+    expect(existsSync(join(packageRoot, "src/public/check-report.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/public/classify.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/public/verify.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/public/generators.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/lib/baseline.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/check-report.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/diagnostics.ts"))).toBe(false);
+
+    for (const forbidden of [
+      "./adapters/",
+      "./config/",
+      "./domains/",
+      "./errors/",
+      "./lib/",
+      "./providers/",
+      "./runtime/",
+      "./rules/",
+    ]) {
+      expect(rootIndex).not.toContain(forbidden);
+      expect(Object.keys(packageManifest.exports).join("\n")).not.toContain(forbidden);
+    }
+
+    for (const internalExport of [
+      "HabitatRuntimeLive",
+      "makeFakeCommandRunnerLayer",
+      "WorkspaceToolProviderLive",
+      "GritToolUnavailable",
+      "checkBaselineIntegrity",
+      "readVerifyTargetPlan",
+      "resolveVerifyBase",
+      "runAffectedVerification",
+      "runHabitatEffect",
+      "runGraph",
+    ]) {
+      expect(rootIndex).not.toContain(internalExport);
+      expect(publicIndex).not.toContain(internalExport);
+      expect(publicVerify).not.toContain(internalExport);
+    }
   });
 });
 
