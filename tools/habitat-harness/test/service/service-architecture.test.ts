@@ -254,8 +254,11 @@ describe("Habitat service architecture", () => {
     expect(hookCommand).not.toContain("../lib/hooks.js");
     expect(hookRouter).toContain("hookModule.run.effect");
     expect(hookRouter).not.toMatch(/from\s+["'][^"']*lib\/hooks\.js["']/);
+    expect(hookRouter).toContain("../../../domains/hook-runtime/");
     expect(publicIndex).not.toContain("runHook");
     expect(existsSync(join(packageRoot, "src/lib/hooks.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/hook-runtime"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/hook-runtime"))).toBe(true);
   });
 });
 

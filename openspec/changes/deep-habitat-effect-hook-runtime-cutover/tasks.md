@@ -20,12 +20,16 @@
 - [x] 2.4 Preserve pre-push target sequence unless changed by verify/Nx packet.
 - [x] 2.5 Preserve unknown hook name exit and stderr behavior.
 
-## 3. Explicit Remaining Drain
+## 3. Hook Runtime Domain Drain
 
-- [x] 3.1 Record that Git, Biome, Grit, filesystem, clock, and command execution
-      are still in lower-level hook runtime material after this service-module
-      ownership slice.
-- [x] 3.2 Keep hook runtime provider drainage as the next hook implementation unit.
+- [x] 3.1 Move hook runtime contracts, resource decisions, staged worktree
+      helpers, pre-push base resolution, lifecycle capture, and hook command
+      tracing into `src/domains/hook-runtime/**`.
+- [x] 3.2 Remove the active `src/lib/hook-runtime/**` feature module instead
+      of preserving a wrapper or compatibility facade.
+- [x] 3.3 Update hook service and hook tests to consume the domain directly.
+- [x] 3.4 Keep deeper provider substitutions for Git, Biome, Grit, filesystem,
+      clock, and command execution as later resource/provider drains.
 
 ## 4. Verification
 
