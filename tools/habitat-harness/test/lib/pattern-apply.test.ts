@@ -10,9 +10,10 @@ import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-  runPatternApply,
 } from "../../src/lib/pattern-apply/index.js";
 import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
+import type { TransactionsServiceOptions } from "../../src/service/modules/transactions/context.js";
+import { runTransactionApplyService } from "../../src/service/modules/transactions/run.js";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -63,7 +64,7 @@ describe("pattern apply", () => {
       });
     });
 
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "dry-run-intent",
         worktree: cleanWorktree(),
@@ -98,7 +99,7 @@ describe("pattern apply", () => {
       })
     );
 
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "dry-run-intent",
         worktree: cleanWorktree(),
@@ -116,7 +117,7 @@ describe("pattern apply", () => {
   });
 
   test("missing transaction input stays a refusal after admission", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "dry-run-intent",
       worktree: cleanWorktree(),
       admission: applyAdmission({
@@ -153,7 +154,7 @@ describe("pattern apply", () => {
       ],
     } as Partial<ApplyTransactionInput>);
 
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "dry-run-intent",
         worktree: cleanWorktree(),
@@ -172,7 +173,7 @@ describe("pattern apply", () => {
   });
 
   test("refuses transaction input whose identity does not match the admission", async () => {
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "dry-run-intent",
         worktree: cleanWorktree(),
@@ -195,7 +196,7 @@ describe("pattern apply", () => {
   });
 
   test("blocks live writes without protected-zone authority", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "live-write-intent",
       worktree: cleanWorktree(),
       admission: applyAdmission(),
@@ -208,7 +209,7 @@ describe("pattern apply", () => {
   });
 
   test("blocks live writes on dirty worktrees before zone or host decisions", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "live-write-intent",
       worktree: dirtyWorktree(),
       admission: applyAdmission(),
@@ -221,7 +222,7 @@ describe("pattern apply", () => {
   });
 
   test("blocks live writes without host-policy authority", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "live-write-intent",
       worktree: cleanWorktree(),
       admission: applyAdmission(),
@@ -235,7 +236,7 @@ describe("pattern apply", () => {
   });
 
   test("consumes an allowed protected-zone write decision before live execution", async () => {
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "live-write-intent",
         worktree: cleanWorktree(),
@@ -254,7 +255,7 @@ describe("pattern apply", () => {
   });
 
   test("binds protected-zone write decisions to the admitted transaction roots", async () => {
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "live-write-intent",
         worktree: cleanWorktree(),
@@ -274,6 +275,10 @@ describe("pattern apply", () => {
     });
   });
 });
+
+function applyTransaction(input: unknown, options?: TransactionsServiceOptions) {
+  return Effect.runPromise(runTransactionApplyService(input, options));
+}
 
 function cleanWorktree() {
   return {

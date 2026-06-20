@@ -2,11 +2,13 @@ import { Context } from "effect";
 import type { ClassifyServiceContext } from "./modules/classify/context.js";
 import type { FixServiceContext } from "./modules/fix/context.js";
 import type { HookServiceContext } from "./modules/hook/context.js";
+import type { TransactionsServiceContext } from "./modules/transactions/context.js";
 
 export interface HabitatServiceContext
   extends ClassifyServiceContext,
     FixServiceContext,
-    HookServiceContext {
+    HookServiceContext,
+    TransactionsServiceContext {
   readonly correlationId?: string;
 }
 
