@@ -120,6 +120,7 @@ export interface GritCheckRequestOptions {
   cacheDir?: string;
   observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
   outputFormat?: GritCheckOutputFormat;
+  timeoutMs?: number;
 }
 
 export interface GritDiagnosticOptions {

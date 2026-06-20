@@ -6,12 +6,7 @@
   "scope": "runtime recipe steps and domain strategies",
   "forbids": "runtime layers importing TypeBox Value/TypeCompiler or mapgen compiler validation helpers",
   "why": "Runtime layers rely on compile-time normalization, not live schema/default mutation.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Runtime layers must not import TypeBox runtime validation or compiler normalization helpers.",
   "exceptionPath": "none",

@@ -93,12 +93,8 @@ export const DiagnosticCatalogEntrySchema = Type.Union([
 export type GritDiagnosticScanContract = Static<typeof GritDiagnosticScanContractSchema>;
 export type NativeDiagnosticScanContract = Static<typeof NativeDiagnosticScanContractSchema>;
 export type DiagnosticScanContract = Static<typeof DiagnosticScanContractSchema>;
-export type GritDiagnosticMatchContract = Static<
-  typeof GritDiagnosticMatchContractSchema
->;
-export type NativeDiagnosticMatchContract = Static<
-  typeof NativeDiagnosticMatchContractSchema
->;
+export type GritDiagnosticMatchContract = Static<typeof GritDiagnosticMatchContractSchema>;
+export type NativeDiagnosticMatchContract = Static<typeof NativeDiagnosticMatchContractSchema>;
 export type DiagnosticMatchContract = Static<typeof DiagnosticMatchContractSchema>;
 export type NativeDiagnosticAcquisitionContract = Static<
   typeof NativeDiagnosticAcquisitionContractSchema

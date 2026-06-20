@@ -75,7 +75,7 @@ export async function createCheckReport(options: CheckOptions = {}): Promise<Che
     reports.push(report);
   }
 
-  reports.push(baselineIntegrityReport(options.base ?? "main"));
+  if (options.baselineIntegrity) reports.push(baselineIntegrityReport(options.base ?? "main"));
   return constructCheckReport({ command: request.command.serialized, reports });
 }
 

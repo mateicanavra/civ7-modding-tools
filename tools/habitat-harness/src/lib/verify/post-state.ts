@@ -1,7 +1,7 @@
 import { repoRoot } from "../paths.js";
 import { run, type SpawnResult } from "../spawn.js";
-import type { VerifyReceipt } from "./schema.js";
 import { boundedPreview } from "./command-output.js";
+import type { VerifyReceipt } from "./schema.js";
 
 /**
  * Reads the current repository status for verify handoff.

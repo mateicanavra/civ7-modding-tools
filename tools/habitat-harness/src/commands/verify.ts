@@ -41,7 +41,11 @@ export default class Verify extends HabitatCommand {
       this.error(baseDecision.message, { exit: 1 });
     }
     const base = baseDecision.base;
-    const report = await createCheckReport({ base, command: checkCommandContext(this.rawArgv()) });
+    const report = await createCheckReport({
+      base,
+      baselineIntegrity: true,
+      command: checkCommandContext(this.rawArgv()),
+    });
     const checkSummary = verifyCheckSummary(report);
     const targetPlan = await readVerifyTargetPlan();
     let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;

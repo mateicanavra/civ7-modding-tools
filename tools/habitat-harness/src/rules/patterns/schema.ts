@@ -191,10 +191,9 @@ export const PatternRuleReferenceSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const PatternRuleReferenceInputSchema = Type.Partial(
-  PatternRuleReferenceSchema,
-  { additionalProperties: false }
-);
+export const PatternRuleReferenceInputSchema = Type.Partial(PatternRuleReferenceSchema, {
+  additionalProperties: false,
+});
 
 export const PatternAdmissionRefusalReasonSchema = Type.Union([
   Type.Literal("missing-manifest"),
@@ -253,7 +252,9 @@ export const PatternViewSchema = Type.Object(
       Type.Literal("refused"),
       Type.Literal("retired"),
     ]),
-    admittedCapabilities: Type.Array(Type.Union([Type.Literal("diagnostic"), Type.Literal("apply")])),
+    admittedCapabilities: Type.Array(
+      Type.Union([Type.Literal("diagnostic"), Type.Literal("apply")])
+    ),
     refusalReason: Type.Optional(PatternAdmissionRefusalReasonSchema),
     supersededBy: Type.Optional(NonEmptyStringSchema),
   },
@@ -408,26 +409,16 @@ export const PatternStateSchema = Type.Union([
 export type PatternLifecycle = Static<typeof PatternLifecycleSchema>;
 export type PatternOwnerTool = Static<typeof PatternOwnerToolSchema>;
 export type PatternSourceKind = Static<typeof PatternSourceKindSchema>;
-export type PatternCurrentTreeResultClass = Static<
-  typeof PatternCurrentTreeResultClassSchema
->;
+export type PatternCurrentTreeResultClass = Static<typeof PatternCurrentTreeResultClassSchema>;
 export type PatternBaselineAction = Static<typeof PatternBaselineActionSchema>;
 export type PatternApplySafety = Static<typeof PatternApplySafetySchema>;
 export type PatternSource = Static<typeof PatternSourceSchema>;
-export type CandidatePatternManifest = Static<
-  typeof CandidatePatternManifestSchema
->;
-export type RegisteredPatternManifest = Static<
-  typeof RegisteredPatternManifestSchema
->;
+export type CandidatePatternManifest = Static<typeof CandidatePatternManifestSchema>;
+export type RegisteredPatternManifest = Static<typeof RegisteredPatternManifestSchema>;
 export type PatternManifest = Static<typeof PatternManifestSchema>;
 export type PatternRuleReference = Static<typeof PatternRuleReferenceSchema>;
-export type PatternRuleReferenceInput = Static<
-  typeof PatternRuleReferenceInputSchema
->;
-export type PatternValidationFailureReason = Static<
-  typeof PatternAdmissionRefusalReasonSchema
->;
+export type PatternRuleReferenceInput = Static<typeof PatternRuleReferenceInputSchema>;
+export type PatternValidationFailureReason = Static<typeof PatternAdmissionRefusalReasonSchema>;
 export type PatternValidationIssue = {
   reason: PatternValidationFailureReason;
   path: string;

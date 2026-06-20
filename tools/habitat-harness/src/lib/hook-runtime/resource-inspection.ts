@@ -1,18 +1,18 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { repoRoot, toRepoRelative } from "../paths.js";
+import { runHookCommand } from "./command-runner.js";
 import {
   allowedResourceDecision,
   refusedResourceDecision,
   resourceDecisionToFacade,
 } from "./resource.js";
-import { runHookCommand } from "./command-runner.js";
+import type { HookRuntime } from "./runtime.js";
 import type {
   ResourcePreCommitDecision,
   ResourceStateFacade,
   ResourceStateKind,
 } from "./schema.js";
-import type { HookRuntime } from "./runtime.js";
 
 export function classifyResourcesState(runtime: HookRuntime = {}): ResourceStateFacade {
   return resourceDecisionToFacade(classifyResourcePreCommitDecision(runtime));
@@ -48,11 +48,10 @@ export function classifyResourcePreCommitDecision(
     { cwd: repoRoot }
   );
   if (insideWorktree.exitCode !== 0) {
-    return resourceFailure(
-      "uninitialized",
-      `${resourcePath} is not an initialized Git worktree.`,
-      [resourceCommands.init, resourceCommands.status]
-    );
+    return resourceFailure("uninitialized", `${resourcePath} is not an initialized Git worktree.`, [
+      resourceCommands.init,
+      resourceCommands.status,
+    ]);
   }
 
   const submoduleTopLevel = runHookCommand(
@@ -111,11 +110,10 @@ export function classifyResourcePreCommitDecision(
     ]);
   }
   if (submoduleStatus.stdout.trim()) {
-    return resourceFailure(
-      "dirty-submodule",
-      `${resourcePath} has uncommitted resource changes.`,
-      [resourceCommands.publish, resourceCommands.status]
-    );
+    return resourceFailure("dirty-submodule", `${resourcePath} has uncommitted resource changes.`, [
+      resourceCommands.publish,
+      resourceCommands.status,
+    ]);
   }
 
   const unstagedGitlink = runHookCommand(
@@ -166,9 +164,7 @@ export function classifyResourcePreCommitDecision(
 }
 
 function normalizeResourcePath(resourcePath: string): string {
-  const absolute = path.isAbsolute(resourcePath)
-    ? resourcePath
-    : path.join(repoRoot, resourcePath);
+  const absolute = path.isAbsolute(resourcePath) ? resourcePath : path.join(repoRoot, resourcePath);
   return toRepoRelative(absolute);
 }
 

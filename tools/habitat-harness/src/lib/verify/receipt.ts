@@ -1,9 +1,6 @@
 import { Value } from "typebox/value";
 import { activeRuleGraphFacts } from "../../rules/facts.js";
-import {
-  type VerifyCheckSummary,
-  verifyCheckSummary,
-} from "../check-report.js";
+import { type VerifyCheckSummary, verifyCheckSummary } from "../check-report.js";
 import type { CheckReport } from "../diagnostics.js";
 import { repoRoot } from "../paths.js";
 import type { SpawnResult } from "../spawn.js";
@@ -18,12 +15,12 @@ import { selectedVerifyEnv } from "./command-output.js";
 import { affectedVerificationArgv, completedNxAffected, skippedNxAffected } from "./nx-affected.js";
 import { observeGitStatus, postStateObservation } from "./post-state.js";
 import {
-  VerifyHabitatCheckSummarySchema,
   type VerifyBaseResolution,
+  VerifyHabitatCheckSummarySchema,
+  type VerifyReceipt,
   VerifyReceiptSchema,
   VerifySelectorStateSchema,
   VerifyTargetPlanConsumptionSchema,
-  type VerifyReceipt,
 } from "./schema.js";
 
 /** Inputs needed to assemble a verify handoff receipt after command execution. */
@@ -140,9 +137,7 @@ function consumeVerifyTargetPlan(targetPlan: VerifyTargetPlan): VerifyReceipt["t
   });
 }
 
-function summarizeVerifyCheckReport(
-  summary: VerifyCheckSummary
-): VerifyReceipt["habitatCheck"] {
+function summarizeVerifyCheckReport(summary: VerifyCheckSummary): VerifyReceipt["habitatCheck"] {
   return Value.Parse(VerifyHabitatCheckSummarySchema, {
     ...summary,
     consumption: summary.allowsAffectedExecution
@@ -171,7 +166,10 @@ function receiptOutcome(input: {
   nxAffected: VerifyReceipt["nxAffected"];
   postState: VerifyReceipt["postState"];
 }): VerifyReceipt["outcome"] {
-  if (!input.check.allowsAffectedExecution || input.targetPlan.kind === "verify-target-plan-refused")
+  if (
+    !input.check.allowsAffectedExecution ||
+    input.targetPlan.kind === "verify-target-plan-refused"
+  )
     return "blocked";
   if (input.nxAffected.kind === "failed" || input.postState.kind === "unavailable") return "failed";
   return "succeeded";

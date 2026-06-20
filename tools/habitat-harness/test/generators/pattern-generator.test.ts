@@ -260,9 +260,7 @@ describe("Habitat pattern generator", () => {
     tree.write(".habitat/baselines/existing-baseline.json", "[]\n");
     const beforeIndex = tree.read(indexPath, "utf8");
 
-    await expect(
-      patternGenerator(tree, { ruleId: "existing-baseline" })
-    ).rejects.toMatchObject({
+    await expect(patternGenerator(tree, { ruleId: "existing-baseline" })).rejects.toMatchObject({
       refusal: expect.objectContaining({
         reason: "candidate-collision",
         writeSet: [],
@@ -275,9 +273,7 @@ describe("Habitat pattern generator", () => {
     });
     expect(tree.exists(candidatePaths.patternPath)).toBe(false);
     expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
-    expect(tree.exists(".habitat/patterns/manifests/existing-baseline.json")).toBe(
-      false
-    );
+    expect(tree.exists(".habitat/patterns/manifests/existing-baseline.json")).toBe(false);
     expect(tree.read(".habitat/baselines/existing-baseline.json", "utf8")).toBe("[]\n");
     expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
   });

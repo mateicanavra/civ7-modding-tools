@@ -1,26 +1,27 @@
-import { Value } from "typebox/value";
 import { Effect, Layer } from "effect";
+import { Value } from "typebox/value";
+import { defaultGritCommandTimeoutMs } from "../../adapters/grit/constants.js";
 import type { ApplyTransactionInput } from "../../rules/patterns/index.js";
+import { runHabitatEffect } from "../effect-runtime.js";
 import { gritMachineOutputEnv } from "../grit-env.js";
 import {
+  type HabitatCommandResult,
   HabitatProcess,
   HabitatProcessLive,
-  type HabitatCommandResult,
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "../habitat-process.js";
 import { repoRoot } from "../paths.js";
-import { runHabitatEffect } from "../effect-runtime.js";
 import {
-  type RecoveryInstruction,
-  type TransactionRefusal,
-  type PatternApplyRefusalReason,
-  PatternApplyRecordSchema,
-  type PatternApplyRecord,
-  type PatternApplyRequest,
   type GritDryRunCommandInput,
+  type PatternApplyRecord,
+  PatternApplyRecordSchema,
+  type PatternApplyRefusalReason,
+  type PatternApplyRequest,
   parsePatternApplyRequest,
+  type RecoveryInstruction,
   resolveTransactionInput,
+  type TransactionRefusal,
 } from "./schema.js";
 
 export interface PatternApplyOptions {
@@ -41,7 +42,8 @@ export async function runPatternApply(
       recovery: [
         {
           kind: "inspect-worktree",
-          message: "Run git status --short --branch and clean or stash local changes before live fix.",
+          message:
+            "Run git status --short --branch and clean or stash local changes before live fix.",
         },
       ],
     });
@@ -54,19 +56,15 @@ export async function runPatternApply(
       recovery: [
         {
           kind: "provide-protected-zone-decision",
-          message: "Route the admitted transaction through protected-zone authority before writing.",
+          message:
+            "Route the admitted transaction through protected-zone authority before writing.",
         },
       ],
     });
   }
 
-  const pathDecision =
-    request.kind === "live-write-intent" ? request.pathDecision : undefined;
-  if (
-    request.kind === "live-write-intent" &&
-    pathDecision &&
-    pathDecision.decision !== "allowed"
-  ) {
+  const pathDecision = request.kind === "live-write-intent" ? request.pathDecision : undefined;
+  if (request.kind === "live-write-intent" && pathDecision && pathDecision.decision !== "allowed") {
     return refusalRecord(request, {
       reason: "protected-zone-refused",
       message: `live fix path authority ${pathDecision.decision} ${pathDecision.path}.`,
@@ -96,7 +94,10 @@ export async function runPatternApply(
     });
   }
 
-  const transactionInput = resolveTransactionInput(request.admission, options.transactionInputs ?? []);
+  const transactionInput = resolveTransactionInput(
+    request.admission,
+    options.transactionInputs ?? []
+  );
   if (transactionInput.kind === "unresolved-transaction-input") {
     return refusalRecord(request, {
       reason: "missing-transaction-input",
@@ -113,8 +114,7 @@ export async function runPatternApply(
   if (transactionInput.kind === "mismatched-transaction-input") {
     return refusalRecord(request, {
       reason: "transaction-input-admission-mismatch",
-      message:
-        "the admitted pattern identity does not match the declared transaction contract.",
+      message: "the admitted pattern identity does not match the declared transaction contract.",
       recovery: [
         {
           kind: "provide-transaction-input",
@@ -150,7 +150,8 @@ export async function runPatternApply(
       recovery: [
         {
           kind: "provide-protected-zone-decision",
-          message: "Provide a protected-zone write decision for a path covered by the admitted transaction input.",
+          message:
+            "Provide a protected-zone write decision for a path covered by the admitted transaction input.",
         },
       ],
     });
@@ -158,7 +159,9 @@ export async function runPatternApply(
 
   if (request.kind === "dry-run-intent") {
     const commandResults = await runDryRunCommands(transactionInput.dryRunCommands, options);
-    const failed = commandResults.find((result) => result.exit.code !== 0 || result.exit.interrupted);
+    const failed = commandResults.find(
+      (result) => result.exit.code !== 0 || result.exit.interrupted
+    );
     if (failed) {
       return refusalRecord(request, {
         reason: "transaction-input-command-failed",
@@ -262,6 +265,7 @@ function gritDryRunRequest(input: GritDryRunCommandInput): HabitatProcessRequest
       "--dry-run",
     ],
     cwd: repoRoot,
+    timeoutMs: defaultGritCommandTimeoutMs,
     env: gritMachineOutputEnv,
     scanRoots: input.roots,
     cachePolicy: { mode: "disabled", observableStatus: "unknown" },

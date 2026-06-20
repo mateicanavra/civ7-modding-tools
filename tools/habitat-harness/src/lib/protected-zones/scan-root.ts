@@ -1,10 +1,10 @@
 import { Value } from "typebox/value";
-import { hostSurfaceDecisionForScanRoot, type HostPolicyState } from "../host-policy.js";
+import { type HostPolicyState, hostSurfaceDecisionForScanRoot } from "../host-policy.js";
 import {
-  ScanRootProtectionDecisionSchema,
   type ProtectedZoneOwner,
   type ProtectedZoneRecoveryInstruction,
   type ScanRootProtectionDecision,
+  ScanRootProtectionDecisionSchema,
 } from "./schema.js";
 
 export function decideScanRootProtection(

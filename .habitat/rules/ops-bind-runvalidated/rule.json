@@ -6,12 +6,7 @@
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
   "forbids": "domain op runtime entrypoints calling ops.bind or runValidated",
   "why": "Domain ops are atomic runtime units; orchestration belongs in step/stage composition, not inside op entrypoints.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
   "exceptionPath": "none",
@@ -27,9 +22,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"]
     }
   ]
 }

@@ -1,7 +1,4 @@
-import {
-  patternCandidateRoot,
-  patternManifestRoot,
-} from "../../lib/artifact-paths.ts";
+import { patternCandidateRoot, patternManifestRoot } from "../../lib/artifact-paths.ts";
 
 export { patternCandidateRoot, patternManifestRoot };
 

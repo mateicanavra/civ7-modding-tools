@@ -111,6 +111,26 @@ describe("HabitatProcess", () => {
     } satisfies Partial<GritToolUnavailable>);
   });
 
+  test("returns interrupted command observations for timed out adapter commands", async () => {
+    const result = await runHabitatEffect(
+      Effect.gen(function* () {
+        const process = yield* HabitatProcess;
+        return yield* process.run({
+          commandId: "habitat-process-live-timeout",
+          kind: "workspace-tool",
+          executable: "node",
+          argv: ["-e", "setInterval(() => {}, 1000)"],
+          cwd: repoRoot,
+          timeoutMs: 75,
+        });
+      }).pipe(Effect.provide(HabitatProcessLive))
+    );
+
+    expect(result.exit).toEqual({ code: 130, signal: "SIGTERM", interrupted: true });
+    expect(result.failureTag).toBe("GritCommandFailed");
+    expect(result.stderr.text).toContain("command exceeded timeout policy");
+  });
+
   test("fake service can model signal and interruption outcomes without spawning", async () => {
     const fakeLayer = makeFakeHabitatProcessLayer((request) =>
       makeHabitatCommandResult(request, {

@@ -18,9 +18,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/mapgen-core"
-      ]
+      "patterns": ["packages/mapgen-core"]
     }
   ],
   "graphTarget": {

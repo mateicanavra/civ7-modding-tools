@@ -6,11 +6,7 @@
   "scope": "live repo files included by the formatter configuration",
   "forbids": "formatter drift, ordinary lint hygiene violations, and import-organization drift",
   "why": "The Habitat format-check lane owns formatter and ordinary hygiene checks; other rule lanes must not duplicate that responsibility.",
-  "detect": [
-    "format-check",
-    "ci",
-    "."
-  ],
+  "detect": ["format-check", "ci", "."],
   "remediate": "bun run habitat:fix",
   "message": "Run `bun run habitat:fix`; keep generated and protected zones excluded from formatter coverage.",
   "exceptionPath": "none",

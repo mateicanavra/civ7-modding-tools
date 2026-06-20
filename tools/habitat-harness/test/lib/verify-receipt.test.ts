@@ -18,7 +18,7 @@ import {
   VerifyReceiptSchema,
   validateVerifyReceipt,
 } from "../../src/lib/verify/index.js";
-import { verifyTargetPlan, type VerifyTargetPlan } from "../../src/lib/workspace-graph/index.js";
+import { type VerifyTargetPlan, verifyTargetPlan } from "../../src/lib/workspace-graph/index.js";
 
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {

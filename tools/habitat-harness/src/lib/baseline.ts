@@ -12,9 +12,17 @@ export type {
   BaselineRuleContractInput,
   RuleIntroductionBaselineManifest,
 } from "./baseline-core/index.js";
-
 export {
   applyBaseline,
+  BaselineApplicationResultSchema,
+  BaselineAuthorityResultSchema,
+  BaselineAuthorityStateSchema,
+  BaselineExpansionDecisionSchema,
+  BaselineIntegrityFindingSchema,
+  BaselineIntegrityResultSchema,
+  BaselineRefusalReasonSchema,
+  BaselineRefusalSchema,
+  BaselineRuleContractInputSchema,
   baselineAuthorityResult,
   baselineFailureDiagnostic,
   baselineIntegrityFindings,
@@ -25,20 +33,8 @@ export {
   loadBaseline,
   loadBaselineState,
   mergeBase,
+  RuleIntroductionBaselineManifestSchema,
   validateBaselineContract,
   violationKey,
   writeBaseline,
-} from "./baseline-core/index.js";
-
-export {
-  BaselineApplicationResultSchema,
-  BaselineAuthorityResultSchema,
-  BaselineAuthorityStateSchema,
-  BaselineExpansionDecisionSchema,
-  BaselineIntegrityFindingSchema,
-  BaselineIntegrityResultSchema,
-  BaselineRuleContractInputSchema,
-  BaselineRefusalReasonSchema,
-  BaselineRefusalSchema,
-  RuleIntroductionBaselineManifestSchema,
 } from "./baseline-core/index.js";

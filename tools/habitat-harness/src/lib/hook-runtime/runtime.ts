@@ -1,4 +1,4 @@
-import type { SpawnResult, run } from "../spawn.js";
+import type { run, SpawnResult } from "../spawn.js";
 import type { HookReportChannel, HookTrace } from "./schema.js";
 
 export interface HookOptions {

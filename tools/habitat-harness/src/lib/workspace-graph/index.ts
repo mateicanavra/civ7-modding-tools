@@ -17,15 +17,6 @@ export {
   readPackageTargetInventory,
 } from "./inventory.js";
 export {
-  findWorkspaceOwningProject,
-  projectTargetStates,
-  ruleAliasTargetState,
-  ruleGraphTargetStates,
-  verifyTargetPlan,
-  workspaceProjectHasTarget,
-  workspaceTargetStates,
-} from "./states.js";
-export {
   NxWorkspaceGraphProjectReader,
   readWorkspaceGraph,
   type WorkspaceGraphProjectReader,
@@ -45,6 +36,15 @@ export type {
   WorkspaceTargetState,
 } from "./schema.js";
 export { RuleGraphTargetNamesSchema, VerifyTargetPlanSchema } from "./schema.js";
+export {
+  findWorkspaceOwningProject,
+  projectTargetStates,
+  ruleAliasTargetState,
+  ruleGraphTargetStates,
+  verifyTargetPlan,
+  workspaceProjectHasTarget,
+  workspaceTargetStates,
+} from "./states.js";
 export {
   classifyTargetNames,
   verifyTargetNames,

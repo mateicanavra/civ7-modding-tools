@@ -1,6 +1,6 @@
 import type { SpawnResult } from "../spawn.js";
 import { captureRepoSnapshot } from "./repo-snapshot.js";
-import { hookNow, type HookRuntime } from "./runtime.js";
+import { type HookRuntime, hookNow } from "./runtime.js";
 import type { HookTrace, PreCommitOutcome } from "./schema.js";
 
 export function finalizePreCommit(
