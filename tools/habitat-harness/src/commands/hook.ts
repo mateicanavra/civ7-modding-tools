@@ -1,6 +1,6 @@
 import { Args, Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runHook } from "../lib/hooks.js";
+import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Hook extends HabitatCommand {
   static override summary = "Run a Habitat git-hook entrypoint";
@@ -20,7 +20,8 @@ export default class Hook extends HabitatCommand {
 
   async run(): Promise<void> {
     const { args, flags } = await this.parse(Hook);
-    const result = runHook(args.name, { base: flags.base });
+    const client = createHabitatServiceClient();
+    const result = await client.hook.run({ name: args.name, base: flags.base });
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);

@@ -6,7 +6,7 @@ const packageRoot = new URL("../..", import.meta.url).pathname;
 const sourceRoot = join(packageRoot, "src");
 const serviceRoot = join(sourceRoot, "service");
 const providerRoot = join(sourceRoot, "providers");
-const serviceModuleNames = ["check", "graph", "verify"] as const;
+const serviceModuleNames = ["check", "graph", "hook", "verify"] as const;
 
 describe("Habitat service architecture", () => {
   test("keeps Effect-oRPC runtime construction in the root service seam", () => {
@@ -30,10 +30,12 @@ describe("Habitat service architecture", () => {
     expect(router).toContain("habitatServiceImplementer.router");
     expect(router).toContain("check: checkRouter");
     expect(router).toContain("graph: graphRouter");
+    expect(router).toContain("hook: hookRouter");
     expect(router).toContain("verify: verifyRouter");
     expect(router).not.toContain(".effect(");
     expect(router).not.toContain("createCheckReport");
     expect(router).not.toContain("runGraphService");
+    expect(router).not.toContain("runHookService");
     expect(router).not.toContain("runVerifyService");
     expect(router).not.toContain("process.env");
   });
@@ -83,6 +85,15 @@ describe("Habitat service architecture", () => {
     expect(graphCommand).toContain("client.graph.run");
     expect(graphCommand).not.toContain("runGraph");
     expect(graphCommand).not.toContain("../lib/graph.js");
+  });
+
+  test("routes hook CLI orchestration through the service client", () => {
+    const hookCommand = source("src/commands/hook.ts");
+
+    expect(hookCommand).toContain("createHabitatServiceClient");
+    expect(hookCommand).toContain("client.hook.run");
+    expect(hookCommand).not.toContain("runHook");
+    expect(hookCommand).not.toContain("../lib/hooks.js");
   });
 });
 
