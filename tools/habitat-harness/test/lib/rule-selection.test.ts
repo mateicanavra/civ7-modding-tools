@@ -180,7 +180,7 @@ describe("rule selector boundary", () => {
         gritFacts: [fakeGritFact("hook", ["packages"])],
         hookCheckFacts: [{ id: "hook", hookCheck: true }],
         staged: true,
-        stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
+        stagedPaths: ["tools/habitat-harness/src/service/modules/hook/run.ts"],
       }).map((rule) => rule.id)
     ).toEqual(["hook"]);
   });
@@ -209,7 +209,7 @@ describe("rule selector boundary", () => {
     expect(
       stagedPatternScanRoots([
         "packages/mapgen-core/src/core/index.ts",
-        "tools/habitat-harness/src/lib/hooks.ts",
+        "tools/habitat-harness/src/service/modules/hook/run.ts",
         "README.md",
       ])
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);
