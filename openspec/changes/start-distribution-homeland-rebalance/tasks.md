@@ -1,7 +1,8 @@
 # Tasks
 
 Grouped by domino = Graphite slice on `start-dist-homeland-rebalance`. Status as
-of 2026-06-20: D0–D3 implemented + locally verified; in-game closure pending.
+of 2026-06-20: D0–D3 implemented, locally verified, and **in-game closure
+PASSED** (`in-game observed`, Huge/earthlike/10p/seed 1337).
 
 ## S1 — Design + OpenSpec (branch `start-dist-homeland-rebalance`)
 - [x] Four-lane systematic diagnosis (planner, inputs, policy/engine, gameplay)
@@ -42,13 +43,14 @@ of 2026-06-20: D0–D3 implemented + locally verified; in-game closure pending.
 - [x] Full gate run (5 seeds): ER1–ER4 pass; E1.1/E1.3/E1.4/E1.5/E1.6/E1.8 no regression
   → `evidence/results-2026-06-20.md`
 - [x] `nx run mod-swooper-maps:build` (schema-compile gate) passes
-- [x] `bun run --cwd mods/mod-swooper-maps check` clean except the pre-existing
-  base error (`hydrography.slopeClass`, flagged as a separate task)
+- [x] `bun run --cwd mods/mod-swooper-maps check` **fully green (0 errors)** —
+  the pre-existing `hydrography.slopeClass` base error is fixed in
+  `fix-hydrography-slopeclass-typeerror` at the stack base
 - [x] Calibration note for `balanceBias` / `spacingFootprintFactor` / dispersion cap
-- [ ] **In-game live verification (closure test)** — run the standard recipe on
-  the live engine and confirm starts seat correctly + no SIGSEGV, per
-  `.agents/skills/civ7-mapgen-workstream/assets/live-verification-runbook.md`
-  and the `civ7-live-map-launch-and-capture` routine. Local-stats are proven;
-  this is the remaining gate before declaring closure.
-- [ ] Final OpenSpec validate + handoff to `civ7-open-spec-workstream` closure
-  once in-game proof lands.
+- [x] **In-game live verification (closure test)** — `studio-run-in-game-live
+  --mutate`, `swooper-earthlike` @ `MAPSIZE_HUGE` (106×66), 10 players, seed
+  1337: full 53-step recipe → `[mapgen-complete]` + `"seed":1337`, all placement
+  steps `ok`, no rejectPattern. Label `in-game observed`. See
+  `evidence/results-2026-06-20.md` (Proof labels).
+- [x] Final OpenSpec validate (`--strict`) re-run after closure; handoff to
+  `civ7-open-spec-workstream` closure.
