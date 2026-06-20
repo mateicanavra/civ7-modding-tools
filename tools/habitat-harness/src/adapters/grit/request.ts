@@ -136,7 +136,6 @@ function interruptedGritResult(request: HabitatProcessRequest, error: CommandInt
     requestedExecutable: request.executable,
     exit: { code: 130, signal: error.signal, interrupted: true },
     stderr: captureOutput(`${error.cause}\n`),
-    failureTag: "GritCommandFailed",
   });
 }
 

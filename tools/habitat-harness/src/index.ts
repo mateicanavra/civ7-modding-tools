@@ -163,7 +163,6 @@ export {
 } from "./lib/workspace-tools.js";
 export type {
   CommandCachePolicy,
-  GritParseStatus,
   HabitatCommandKind,
   HabitatCommandResult,
   HabitatProcessRequest,

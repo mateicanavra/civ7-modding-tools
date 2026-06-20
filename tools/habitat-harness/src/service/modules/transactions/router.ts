@@ -254,7 +254,7 @@ function runDryRunCommand(input: GritDryRunCommandInput) {
             requestedExecutable: error.executable,
             exit: { code: 1, signal: null, interrupted: false },
             stderr: captureOutput(`${error.cause}\n`),
-            failureTag: "GritToolUnavailable",
+            observation: { kind: "tool-unavailable", detail: error.cause },
           })
         )
       ),
@@ -264,7 +264,6 @@ function runDryRunCommand(input: GritDryRunCommandInput) {
             requestedExecutable: error.executable,
             exit: { code: error.exitCode, signal: null, interrupted: false },
             stderr: captureOutput(`${error.stderr}\n`),
-            failureTag: "GritCommandFailed",
           })
         )
       ),
@@ -274,7 +273,6 @@ function runDryRunCommand(input: GritDryRunCommandInput) {
             requestedExecutable: error.executable,
             exit: { code: 130, signal: error.signal, interrupted: true },
             stderr: captureOutput(`${error.cause}\n`),
-            failureTag: "GritCommandFailed",
           })
         )
       ),
@@ -284,7 +282,7 @@ function runDryRunCommand(input: GritDryRunCommandInput) {
             requestedExecutable: commandRequest.executable,
             exit: { code: 1, signal: null, interrupted: false },
             stderr: captureOutput(`cache resource unavailable at ${error.path}: ${error.cause}\n`),
-            failureTag: "GritToolUnavailable",
+            observation: { kind: "tool-unavailable", detail: error.cause },
           })
         )
       )

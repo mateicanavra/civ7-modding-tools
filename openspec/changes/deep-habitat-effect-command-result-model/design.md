@@ -15,10 +15,7 @@ tools/habitat-harness/src/providers/command/request.ts
 tools/habitat-harness/src/providers/command/result.ts
 tools/habitat-harness/src/providers/command/observation.ts
 tools/habitat-harness/src/providers/command/errors.ts
-tools/habitat-harness/src/domains/command-contract/schema.ts
-tools/habitat-harness/src/domains/command-contract/render.ts
 tools/habitat-harness/src/errors/provider-errors.ts
-tools/habitat-harness/src/providers/git/provider.ts
 ```
 
 ## Required Model
@@ -53,3 +50,11 @@ optional soup on one interface.
 - Generic command model includes Grit-specific names.
 - A command result has mutually exclusive optional fields instead of variants.
 - Feature code string-matches stderr to classify expected failures.
+
+## Follow-On Boundary
+
+`CommandRunner` still captures before/after Git snapshots through the existing
+`readGitState` helper. Moving that snapshot acquisition fully behind
+`GitProvider` must be a separate branch because the current `GitProvider` is
+itself command-runner-backed for live Git commands; doing both in one step would
+create a provider cycle instead of a cleaner command model.
