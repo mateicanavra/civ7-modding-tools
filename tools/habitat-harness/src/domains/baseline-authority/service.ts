@@ -1,13 +1,17 @@
 import { Context, Effect, Layer } from "effect";
+import type { FileWriteFailed } from "../../errors/index.js";
 import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
+import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
+import type { HabitatFileSystem } from "../../resources/index.js";
 import { applyBaseline, baselineFailureDiagnostic } from "./application.js";
-import type { BaselineContractContext } from "./context.js";
+import type { BaselineAuthorityContext } from "./context.js";
 import {
-  baselineIntegrityFindings,
-  checkBaselineIntegrity,
-  guardBaselineExpansion,
-  writeBaseline,
-} from "./integrity.js";
+  baselineIntegrityFindingsEffect,
+  checkBaselineIntegrityEffect,
+  guardBaselineExpansionEffect,
+  loadBaselineStateEffect,
+  writeBaselineEffect,
+} from "./operations.js";
 import type {
   BaselineApplicationResult,
   BaselineAuthorityState,
@@ -17,13 +21,13 @@ import type {
   BaselineRefusal,
   BaselineRuleContractInput,
 } from "./schema.js";
-import { isBaselineLocked, loadBaselineState } from "./state.js";
+import { isBaselineLocked } from "./state.js";
 
 export interface BaselineAuthorityService {
   readonly loadState: (
     rule: BaselineRuleContractInput,
-    options?: BaselineContractContext
-  ) => Effect.Effect<BaselineAuthorityState>;
+    options?: BaselineAuthorityContext
+  ) => Effect.Effect<BaselineAuthorityState, never, HabitatFileSystem>;
   readonly apply: (
     diagnostics: HabitatDiagnostic[],
     baseline: Set<string> | BaselineAuthorityState
@@ -35,8 +39,12 @@ export interface BaselineAuthorityService {
   ) => Effect.Effect<HabitatDiagnostic>;
   readonly checkIntegrity: (
     base?: string,
-    options?: BaselineContractContext
-  ) => Effect.Effect<BaselineIntegrityResult>;
+    options?: BaselineAuthorityContext
+  ) => Effect.Effect<
+    BaselineIntegrityResult,
+    never,
+    HabitatFileSystem | GitProvider | GitProviderRequirements
+  >;
   readonly integrityFindings: (
     result: BaselineIntegrityResult
   ) => Effect.Effect<BaselineIntegrityFinding[]>;
@@ -44,13 +52,17 @@ export interface BaselineAuthorityService {
     ruleId: string,
     keys: readonly string[],
     base?: string,
-    options?: BaselineContractContext
-  ) => Effect.Effect<BaselineExpansionDecision>;
+    options?: BaselineAuthorityContext
+  ) => Effect.Effect<
+    BaselineExpansionDecision,
+    never,
+    HabitatFileSystem | GitProvider | GitProviderRequirements
+  >;
   readonly write: (
     ruleId: string,
     keys: string[],
-    options?: BaselineContractContext
-  ) => Effect.Effect<void>;
+    options?: BaselineAuthorityContext
+  ) => Effect.Effect<void, FileWriteFailed, HabitatFileSystem>;
 }
 
 export class BaselineAuthority extends Context.Tag("@internal/habitat-harness/BaselineAuthority")<
@@ -59,16 +71,16 @@ export class BaselineAuthority extends Context.Tag("@internal/habitat-harness/Ba
 >() {}
 
 export const BaselineAuthorityLive = Layer.succeed(BaselineAuthority, {
-  loadState: (rule, options) => Effect.sync(() => loadBaselineState(rule, options)),
+  loadState: (rule, options) => loadBaselineStateEffect(rule, options),
   apply: (diagnostics, baseline) => Effect.sync(() => applyBaseline(diagnostics, baseline)),
   isLocked: (state) => Effect.sync(() => isBaselineLocked(state)),
   failureDiagnostic: (ruleId, refusal) =>
     Effect.sync(() => baselineFailureDiagnostic(ruleId, refusal)),
-  checkIntegrity: (base, options) => Effect.sync(() => checkBaselineIntegrity(base, options)),
-  integrityFindings: (result) => Effect.sync(() => baselineIntegrityFindings(result)),
+  checkIntegrity: (base, options) => checkBaselineIntegrityEffect(base, options),
+  integrityFindings: baselineIntegrityFindingsEffect,
   guardExpansion: (ruleId, keys, base, options) =>
-    Effect.sync(() => guardBaselineExpansion(ruleId, keys, base, options)),
-  write: (ruleId, keys, options) => Effect.sync(() => writeBaseline(ruleId, keys, options)),
+    guardBaselineExpansionEffect(ruleId, keys, base, options),
+  write: (ruleId, keys, options) => writeBaselineEffect(ruleId, keys, options),
 });
 
 export function makeFakeBaselineAuthorityLayer(service: BaselineAuthorityService) {

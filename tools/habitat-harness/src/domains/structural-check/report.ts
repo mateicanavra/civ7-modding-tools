@@ -5,7 +5,8 @@ import { GritProvider, type GritProviderRequirements } from "../../adapters/grit
 import type { HabitatConfig } from "../../config/index.js";
 import { selectRules } from "../../domains/rule-selection/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
-import { HabitatClock } from "../../resources/index.js";
+import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
+import { HabitatClock, type HabitatFileSystem } from "../../resources/index.js";
 import { type BaselineApplicationResult, BaselineAuthority } from "../baseline-authority/index.js";
 import { activeRuleReportFacts, factsForRuleIds } from "../rule-registry/active-facts.js";
 import type { RuleReportFacts } from "../rule-registry/index.js";
@@ -37,6 +38,9 @@ export function createCheckReportEffect(
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
+  | HabitatFileSystem
+  | GitProvider
+  | GitProviderRequirements
   | HabitatClock
 > {
   return Effect.gen(function* () {
@@ -192,7 +196,11 @@ function ruleReportFromDiagnostics(input: {
 
 function baselineIntegrityReportEffect(
   base: string
-): Effect.Effect<RuleReport, never, BaselineAuthority | HabitatClock> {
+): Effect.Effect<
+  RuleReport,
+  never,
+  BaselineAuthority | HabitatClock | HabitatFileSystem | GitProvider | GitProviderRequirements
+> {
   return Effect.gen(function* () {
     const baselineAuthority = yield* BaselineAuthority;
     const clock = yield* HabitatClock;
