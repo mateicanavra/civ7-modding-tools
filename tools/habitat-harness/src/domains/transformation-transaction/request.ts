@@ -1,7 +1,7 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { ApplyAdmissionSchema } from "../../domains/pattern-governance/index.js";
-import { TransactionPathDecisionSchema } from "../protected-zones/index.js";
+import { TransactionPathDecisionSchema } from "../../lib/protected-zones/index.js";
+import { ApplyAdmissionSchema } from "../pattern-governance/index.js";
 import { NonEmptyStringSchema } from "./primitives.js";
 
 export const WorktreeObservationSchema = Type.Object(

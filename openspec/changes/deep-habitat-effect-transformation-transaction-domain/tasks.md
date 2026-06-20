@@ -16,12 +16,18 @@
 - [x] 2.2 Preserve live-write intent projection.
 - [x] 2.3 Preserve missing-admission refusal behavior.
 
-## 3. Explicit Remaining Drain
+## 3. Transformation Transaction Domain Drain
 
-- [x] 3.1 Record that lower-level pattern apply and protected-zone internals
-      remain in existing modules after this service-module slice.
-- [x] 3.2 Keep transformation transaction/protected-zone domain drainage as the
-      next implementation unit.
+- [x] 3.1 Move lower-level pattern apply contracts, refusal records, renderers,
+      transaction input resolution, and worktree observation into
+      `src/domains/transformation-transaction/**`.
+- [x] 3.2 Remove the active `src/lib/pattern-apply/**` feature module instead
+      of preserving a wrapper or compatibility facade.
+- [x] 3.3 Update fix and transactions service modules to consume the domain
+      directly.
+- [x] 3.4 Keep protected-zone authority in its existing module until the
+      protected-zone domain drain, with typed decisions still consumed by the
+      transaction domain.
 
 ## 4. Verification
 

@@ -35,6 +35,7 @@ export type {
   WorkspacePathClassification,
 } from "./classify.js";
 export {
+  ClassifyResultSchema,
   classifyPath,
   classifyPathResult,
   classifyTarget,
