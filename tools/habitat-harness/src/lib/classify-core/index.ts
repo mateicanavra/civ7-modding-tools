@@ -1,4 +1,4 @@
-import { activeRuleSelectorFacts } from "../../rules/facts.js";
+import { activeRuleSelectorFacts } from "../../domains/rule-registry/active-facts.js";
 import { readWorkspaceGraph, type WorkspaceGraphProjectReader } from "../workspace-graph/index.js";
 import { diffText, extractDiffPaths } from "./diff.js";
 import { classifyPathFromProjects, graphReadRefusal, graphRefusalResult } from "./path.js";

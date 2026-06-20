@@ -7,9 +7,9 @@ import {
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
 } from "../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
 import type { GritDiagnosticOptions, GritReport, GritResult } from "../../providers/grit/types.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../../rules/registry/index.js";
 import { infrastructureFailure } from "./failure.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
 

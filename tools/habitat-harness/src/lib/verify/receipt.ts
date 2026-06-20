@@ -1,6 +1,6 @@
 import { Value } from "typebox/value";
+import { activeRuleGraphFacts } from "../../domains/rule-registry/active-facts.js";
 import type { SpawnResult } from "../../providers/command/index.js";
-import { activeRuleGraphFacts } from "../../rules/facts.js";
 import { type VerifyCheckSummary, verifyCheckSummary } from "../check-report.js";
 import type { CheckReport } from "../diagnostics.js";
 import { repoRoot } from "../paths.js";

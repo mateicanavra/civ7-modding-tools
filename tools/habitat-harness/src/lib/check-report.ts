@@ -1,3 +1,4 @@
+export { describeRuleSelectionFailure } from "../domains/rule-selection/index.js";
 export type {
   CheckOptions,
   EmitCheckOptions,
@@ -15,4 +16,3 @@ export {
   VerifyCheckSummarySchema,
   verifyCheckSummary,
 } from "../domains/structural-check/index.js";
-export { describeRuleSelectionFailure } from "./rule-selection.js";

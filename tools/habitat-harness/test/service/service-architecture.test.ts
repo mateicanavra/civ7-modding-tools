@@ -100,6 +100,24 @@ describe("Habitat service architecture", () => {
     }
   });
 
+  test("keeps rule registry and selection in domain ownership", () => {
+    const publicIndex = source("src/index.ts");
+
+    expect(existsSync(join(packageRoot, "src/rules/registry"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/rules/facts.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/rule-selection.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/rule-registry"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/domains/rule-selection"))).toBe(true);
+    expect(publicIndex).toContain("./domains/rule-selection/index.js");
+
+    for (const file of sourceFiles(sourceRoot)) {
+      const text = source(file);
+      expect(text).not.toMatch(/from\s+["'][^"']*rules\/registry/);
+      expect(text).not.toMatch(/from\s+["'][^"']*rules\/facts/);
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/rule-selection/);
+    }
+  });
+
   test("routes check CLI orchestration through the service client", () => {
     const checkCommand = source("src/commands/check.ts");
     const checkRouter = source("src/service/modules/check/router.ts");

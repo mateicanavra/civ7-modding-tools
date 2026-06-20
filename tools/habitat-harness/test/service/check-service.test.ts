@@ -1,8 +1,8 @@
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
+import type { RuleSelection } from "../../src/domains/rule-selection/index.js";
 import { makeFakeStructuralCheckLayer } from "../../src/domains/structural-check/index.js";
 import type { CheckOptions } from "../../src/domains/structural-check/request.js";
-import type { RuleSelection } from "../../src/lib/rule-selection.js";
 import {
   expandCheckBaselinesService,
   runCheckService,

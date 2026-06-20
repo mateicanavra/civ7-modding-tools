@@ -4,10 +4,10 @@ import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
 } from "../../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../../domains/rule-registry/index.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
 import { decideScanRootProtection } from "../../../lib/protected-zones/index.js";
 import { protectedScanRootPrefixes } from "../../../providers/grit/constants.js";
-import type { RulePatternFacts } from "../../../rules/registry/index.js";
 
 export interface PatternScanRootValidationOptions {
   requireExisting?: boolean;

@@ -1,4 +1,4 @@
-import type { HabitatError } from "./habitat-error.js";
+import type { HabitatError } from "./habitat-error.ts";
 
 export function renderHabitatError(error: HabitatError): string {
   switch (error._tag) {
