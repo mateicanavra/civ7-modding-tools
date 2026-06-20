@@ -43,6 +43,10 @@ const EXPECTED_METRIC_IDS = [
   "E4.2",
   "E4.3",
   "E4.4",
+  "E5.1",
+  "E5.2",
+  "E5.3",
+  "E5.4",
 ] as const;
 
 const VALID_STATUSES: ReadonlySet<PlacementMetricStatus> = new Set([

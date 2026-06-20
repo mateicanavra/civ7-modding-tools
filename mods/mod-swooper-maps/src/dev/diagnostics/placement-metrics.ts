@@ -32,6 +32,7 @@ import {
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
+import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../recipes/standard/stages/hydrology-climate-refine/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";
@@ -116,6 +117,7 @@ type StartAssignmentArtifact = {
     seatIndex: number;
     playerId: number;
     playerIdSource: "alive-majors" | "slot-index";
+    regionSlot: number;
     plotIndex: number;
     rung: "regional" | "open-pool" | "quality-relaxed" | "spacing-relaxed";
     status: "full" | "degraded";
@@ -751,6 +753,161 @@ export function computePlacementMetricsFromRun(
         aridityP90,
         temperatureP10,
         temperatureP90,
+      }
+    );
+  }
+
+  // --- E5.1–E5.4 start distribution (homeland rebalance) ------------------------------------------
+  // WHY: the pairwise-spacing gate (E1.5) passes even when half the civs clump
+  // into one small landmass — it has no notion of region balance or spread.
+  // These metrics make the reported clustering measurable and give the D1–D4
+  // slices a before/after signal (docs/projects/start-distribution-homeland-rebalance).
+  {
+    const regionSlotByTile = (
+      context.artifacts.get(mapArtifacts.landmassRegionSlotByTile.id) as
+        | { slotByTile?: Uint8Array }
+        | undefined
+    )?.slotByTile;
+    const landmassIdByTile = landmasses?.landmassIdByTile;
+    const landmassRows = landmasses?.landmasses ?? [];
+
+    // Settleable proxy for the baseline = land tiles. The exact feasibility
+    // ceiling arrives with the S3 capacity primitive; region/landmass capacity
+    // shares here use land tiles as the denominator.
+    let totalLand = 0;
+    for (let i = 0; i < size; i++) if (landMask[i] === 1) totalLand += 1;
+
+    // E5.1 — region balance: seated starts per slot vs that slot's land share.
+    const regionLand: Record<number, number> = { 1: 0, 2: 0 };
+    if (regionSlotByTile instanceof Uint8Array && regionSlotByTile.length === size) {
+      for (let i = 0; i < size; i++) {
+        const slot = regionSlotByTile[i] ?? 0;
+        if (slot === 1 || slot === 2) regionLand[slot] += 1;
+      }
+    }
+    const regionStarts: Record<number, number> = { 1: 0, 2: 0 };
+    for (const seat of startAssignment.seats) {
+      if (seat.plotIndex < 0) continue;
+      if (seat.regionSlot === 1 || seat.regionSlot === 2) regionStarts[seat.regionSlot] += 1;
+    }
+    const seatedTotal = startPlots.length;
+    const regionLandTotal = regionLand[1] + regionLand[2];
+    const westLandShare = regionLandTotal ? regionLand[1] / regionLandTotal : null;
+    const westStartShare = seatedTotal ? regionStarts[1] / seatedTotal : null;
+    const eastStartShare = seatedTotal ? regionStarts[2] / seatedTotal : null;
+    const allocationGap =
+      westLandShare != null && westStartShare != null && eastStartShare != null
+        ? Math.max(
+            Math.abs(westStartShare - westLandShare),
+            Math.abs(eastStartShare - (1 - westLandShare))
+          )
+        : null;
+    metrics["E5.1"] = metric(
+      "E5.1",
+      "Region start share tracks region settleable (land) share (ER1)",
+      "computed",
+      {
+        westLandShare,
+        eastLandShare: westLandShare != null ? 1 - westLandShare : null,
+        westStartShare,
+        eastStartShare,
+        westStarts: regionStarts[1],
+        eastStarts: regionStarts[2],
+        allocationCapacityGap: allocationGap,
+      }
+    );
+
+    // E5.2 — the headline: does one landmass hoard a disproportionate start share?
+    const startsByLandmass = new Map<number, number>();
+    if (landmassIdByTile instanceof Int32Array && landmassIdByTile.length === size) {
+      for (const plotIndex of startPlots) {
+        const lm = landmassIdByTile[plotIndex] ?? -1;
+        if (lm >= 0) startsByLandmass.set(lm, (startsByLandmass.get(lm) ?? 0) + 1);
+      }
+    }
+    let maxStartShare: number | null = null;
+    let capacityShareOfMax: number | null = null;
+    let maxLandmassId = -1;
+    for (const [lm, count] of startsByLandmass) {
+      const share = seatedTotal ? count / seatedTotal : 0;
+      if (maxStartShare == null || share > maxStartShare) {
+        maxStartShare = share;
+        maxLandmassId = lm;
+        const tiles = landmassRows[lm]?.tileCount ?? 0;
+        capacityShareOfMax = totalLand ? tiles / totalLand : null;
+      }
+    }
+    // The reported failure pattern: >=50% of civs on a landmass holding <25% of capacity.
+    const clusteredHalfInSmallLandmass =
+      maxStartShare != null &&
+      capacityShareOfMax != null &&
+      maxStartShare >= 0.5 &&
+      capacityShareOfMax < 0.25;
+    metrics["E5.2"] = metric(
+      "E5.2",
+      "No landmass holds start share far above its settleable share; not >=50% on a <25%-capacity landmass (ER2)",
+      "computed",
+      {
+        maxSingleLandmassStartShare: maxStartShare,
+        capacityShareOfMaxLandmass: capacityShareOfMax,
+        startShareExcess:
+          maxStartShare != null && capacityShareOfMax != null
+            ? maxStartShare - capacityShareOfMax
+            : null,
+        clusteredHalfInSmallLandmass,
+        distinctLandmassesWithStarts: startsByLandmass.size,
+      },
+      { detail: { maxLandmassId } }
+    );
+
+    // E5.3 — spatial spread: mean nearest-neighbor spacing vs even-dispersion ideal.
+    // Even dispersion of N points over land area A on a hex grid: spacing ~ sqrt(A/N).
+    let nnSum = 0;
+    let nnCount = 0;
+    let minNN: number | null = null;
+    for (let i = 0; i < startPlots.length; i++) {
+      let best: number | null = null;
+      for (let j = 0; j < startPlots.length; j++) {
+        if (i === j) continue;
+        const d = hexDistanceOddQPeriodicX(startPlots[i]!, startPlots[j]!, width);
+        if (best == null || d < best) best = d;
+      }
+      if (best != null) {
+        nnSum += best;
+        nnCount += 1;
+        if (minNN == null || best < minNN) minNN = best;
+      }
+    }
+    const meanNN = nnCount ? nnSum / nnCount : null;
+    const idealNN = seatedTotal > 0 && totalLand > 0 ? Math.sqrt(totalLand / seatedTotal) : null;
+    const spreadIndex = meanNN != null && idealNN ? meanNN / idealNN : null;
+    metrics["E5.3"] = metric(
+      "E5.3",
+      "Starts spatially dispersed: mean nearest-neighbor spacing near/above even-dispersion ideal (ER3)",
+      "computed",
+      {
+        meanNearestNeighborSpacing: meanNN,
+        minNearestNeighborSpacing: minNN,
+        idealEvenSpacing: idealNN,
+        spreadIndex,
+      }
+    );
+
+    // E5.4 — region reassignment rate: capacity reconciliation should be rare and loud.
+    const regionReassigned = startAssignment.seats.filter((seat) =>
+      seat.imputedFlags.includes("region-reassigned")
+    ).length;
+    const recordedRegionRelaxations = startAssignment.fairnessReport.relaxations.filter(
+      (relaxation) => relaxation.kind === "region"
+    ).length;
+    metrics["E5.4"] = metric(
+      "E5.4",
+      "Region reassignment rare (<=5% of seats) and recorded as relaxations (ER4)",
+      "computed",
+      {
+        regionReassignedCount: regionReassigned,
+        regionReassignedRate: seatedTotal ? regionReassigned / seatedTotal : null,
+        recordedRegionRelaxations,
       }
     );
   }
