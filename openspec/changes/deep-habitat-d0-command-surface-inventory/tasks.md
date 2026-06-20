@@ -2,9 +2,10 @@
 
 ## 1. Ground D0 From Current Worktree
 
-- [ ] 1.1 Confirm the worktree is
+- [ ] 1.1 Confirm the historical D0 source-prep worktree was
       `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation`
-      on branch `codex/deep-habitat-openspec-remediation`.
+      on branch `codex/deep-habitat-openspec-remediation`; do not treat that
+      path or branch as current execution authority.
 - [ ] 1.2 Run `git status --short --branch` and record the initial state.
 - [ ] 1.3 Read the source D0 packet, this OpenSpec packet, and the D0 review
       scratch document before authoring the matrix.
