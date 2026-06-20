@@ -27,6 +27,11 @@ Implementation SHALL converge on these top-level source domains:
 Existing `src/lib/**`, `src/base/**`, and `src/adapters/**` files remain only
 until their logic is moved or their public adapter role is made explicit.
 
+The current-to-target movement map for this packet is
+`workstream/source-movement-map.md`. That file is controlling for later source
+packets when deciding whether code is carried forward, split, facaded, or
+deleted.
+
 ## State-Space Collapse
 
 - Replace process helpers with `CommandRunner`.
@@ -40,6 +45,26 @@ until their logic is moved or their public adapter role is made explicit.
 - Replace `src/lib`, `src/base`, and old `src/adapters` ownership with named
   runtime, provider, domain, command, and public homes.
 
+## Ownership Model
+
+The provider/domain/resource ownership catalog is
+`workstream/domain-provider-ownership.md`. Later source packets must assign
+each migrated capability to exactly one primary owner and obey the runtime edge
+contract in that artifact:
+
+- Runtime: Effect program execution and live/test layer assembly.
+- Config: repo roots, harness roots, cache roots, vendor command policy, mode,
+  and timeout policy.
+- Resources: scoped filesystem, clock, temp/cache/write-set/lock lifecycle.
+- Providers: external vendor/tool facts and command construction/execution.
+- Domains: Habitat policy and state transitions.
+- Public contracts: stable exports, command output, receipt/report schemas,
+  and compatibility facades.
+
+Expected failures use the `HabitatError` families named in the ownership
+catalog. Generic thrown errors are not acceptable for user/tool/config/refusal
+states after the relevant domain or provider packet migrates a module.
+
 ## Public Contract Risks
 
 - `CheckReport` schema version 1.
@@ -48,7 +73,24 @@ until their logic is moved or their public adapter role is made explicit.
 - `@internal/habitat-harness` package exports.
 - D14A `.habitat` authored artifact paths.
 
+`workstream/public-contract-risk-register.md` is the required risk register for
+later source packets. `workstream/public-surface-ledger.md` binds those risks to
+concrete D0 matrix `surface_id` rows. A source packet that touches one of those
+surfaces must cite the exact rows and record whether it preserves, facades,
+versions, deprecates, or refuses the affected surface before closure.
+
 ## Implementation Gate
 
 This design must be accepted before source implementation packets create or
 move runtime/provider/domain modules.
+
+Source implementation packets SHALL NOT:
+
+- add new feature ownership under `src/lib/**`, `src/base/**`, or
+  `src/adapters/**`;
+- create `src/domain/**` instead of `src/domains/**`;
+- add a provider that also owns Habitat domain policy;
+- add a domain service that reconstructs vendor command semantics locally;
+- retain two active implementations for the same behavior after cutover;
+- change command output, package exports, hook behavior, or authored artifact
+  paths without a named public-contract handling decision.
