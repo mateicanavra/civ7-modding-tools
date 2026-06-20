@@ -12,6 +12,8 @@ export {
 } from "./output.js";
 export { CommandRunner, CommandRunnerLive, runSyncHabitatCommand } from "./runner.js";
 export {
+  runSyncSpawnCommand,
+  type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "./spawn-result.js";

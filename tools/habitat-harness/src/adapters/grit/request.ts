@@ -1,8 +1,10 @@
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
 import { Effect } from "effect";
-import { CommandFailed, CommandInterrupted, CommandUnavailable } from "../../errors/index.js";
+import {
+  CommandFailed,
+  CommandInterrupted,
+  CommandUnavailable,
+  FileWriteFailed,
+} from "../../errors/index.js";
 import {
   diagnosticAdapterFailureForCacheObservation,
   diagnosticCacheObservationFromCommand,
@@ -13,12 +15,20 @@ import {
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
 } from "../../lib/diagnostic-catalog/index.js";
-import { GritToolUnavailable, type HabitatProcessRequest } from "../../lib/habitat-process.js";
-import { captureOutput, makeHabitatCommandResult } from "../../providers/command/index.js";
+import {
+  captureOutput,
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+} from "../../providers/command/index.js";
+import { GritToolUnavailable } from "../../providers/grit/failures.js";
 import { GritProvider, gritCheckRequest } from "../../providers/grit/index.js";
-import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output/index.js";
+import {
+  parseGritCheckOutput,
+  parseGritCheckTextOutput,
+} from "../../providers/grit/output/index.js";
+import type { GritCheckOptions, GritCheckRequestOptions } from "../../providers/grit/types.js";
+import { acquireTempDirectory } from "../../resources/index.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
-import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
   return Effect.scoped(
@@ -135,8 +145,17 @@ function interruptedGritResult(request: HabitatProcessRequest, error: CommandInt
 
 function gritToolUnavailable(
   request: HabitatProcessRequest,
-  error: CommandUnavailable | CommandFailed
+  error: CommandUnavailable | CommandFailed | FileWriteFailed
 ) {
+  if (error._tag === "FileWriteFailed") {
+    return new GritToolUnavailable({
+      commandId: request.commandId,
+      executable: request.executable,
+      argv: request.argv,
+      cwd: request.cwd,
+      cause: `cache resource unavailable at ${error.path}: ${error.cause}`,
+    });
+  }
   if (error._tag === "CommandFailed") {
     return new GritToolUnavailable({
       commandId: error.commandId,
@@ -171,8 +190,5 @@ function nativeOutputContractForGritCheck(
 export { gritCheckRequest };
 
 function acquireGritCheckCacheDir() {
-  return Effect.acquireRelease(
-    Effect.sync(() => mkdtempSync(path.join(tmpdir(), "habitat-pattern-check-"))),
-    (cacheDir) => Effect.sync(() => rmSync(cacheDir, { recursive: true, force: true }))
-  );
+  return acquireTempDirectory("habitat-pattern-check-");
 }

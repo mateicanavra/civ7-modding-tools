@@ -13,22 +13,16 @@ const expandBaselineResult = vi.hoisted(() => ({
   current: { ok: true as const, messages: ["baseline written: rule-a (1 entries)"] },
 }));
 
-vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/lib/check-report.js")>();
-  return {
-    ...actual,
-    checkCommandContext: vi.fn((argv: string[]) => ({
-      bin: "habitat",
-      id: "check",
-      argv,
-      serialized: ["habitat", "check", ...argv].join(" "),
-    })),
-    createCheckReport: vi.fn(async () => mockReport),
-    expandBaselines: vi.fn(async () => expandBaselineResult.current),
-  };
-});
+vi.mock("../../src/service/modules/check/report.js", () => ({
+  createCheckReportEffect: vi.fn(() => Effect.succeed(mockReport)),
+}));
 
-import * as checkReport from "../../src/lib/check-report.js";
+vi.mock("../../src/service/modules/check/baseline.js", () => ({
+  expandBaselinesEffect: vi.fn(() => Effect.succeed(expandBaselineResult.current)),
+}));
+
+import * as checkBaseline from "../../src/service/modules/check/baseline.js";
+import * as checkReport from "../../src/service/modules/check/report.js";
 import {
   expandCheckBaselinesService,
   runCheckService,
@@ -48,7 +42,7 @@ describe("Habitat check service", () => {
     );
 
     expect(result).toBe(mockReport);
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith({
+    expect(checkReport.createCheckReportEffect).toHaveBeenCalledWith({
       rule: "format-ci",
       tool: "biome",
       base: "origin/main",
@@ -76,7 +70,7 @@ describe("Habitat check service", () => {
       kind: "expanded",
       messages: ["baseline written: rule-a (1 entries)"],
     });
-    expect(checkReport.expandBaselines).toHaveBeenCalledWith(
+    expect(checkBaseline.expandBaselinesEffect).toHaveBeenCalledWith(
       { owner: "tools-habitat-harness" },
       { base: "main" }
     );

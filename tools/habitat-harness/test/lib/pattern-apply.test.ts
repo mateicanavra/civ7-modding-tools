@@ -2,15 +2,15 @@ import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import {
-  type HabitatProcessRequest,
-  makeFakeHabitatProcessLayer,
-  makeHabitatCommandResult,
-} from "../../src/lib/habitat-process.js";
-import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
 } from "../../src/lib/pattern-apply/index.js";
+import {
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+} from "../../src/providers/command/index.js";
+import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
 import type { TransactionsServiceOptions } from "../../src/service/modules/transactions/context.js";
 import { runTransactionApplyService } from "../../src/service/modules/transactions/run.js";
@@ -50,9 +50,9 @@ describe("pattern apply", () => {
     ).toBe(false);
   });
 
-  test("runs admitted dry-run commands through HabitatProcess", async () => {
+  test("runs admitted dry-run commands through GritProvider", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const processLayer = makeFakeHabitatProcessLayer((request) => {
+    const providerLayer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -70,7 +70,7 @@ describe("pattern apply", () => {
         worktree: cleanWorktree(),
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
-      { processLayer, transactionInputs: [transactionInput()] }
+      { providerLayer, transactionInputs: [transactionInput()] }
     );
 
     expect(record.outcome).toMatchObject({
@@ -92,7 +92,7 @@ describe("pattern apply", () => {
   });
 
   test("refuses failed dry-run commands without writing", async () => {
-    const processLayer = makeFakeHabitatProcessLayer((request) =>
+    const providerLayer = makeFakeGritProviderLayer((request) =>
       makeHabitatCommandResult(request, {
         exit: { code: 2, signal: null, interrupted: false },
         stderr: { text: "grit failed\n", truncated: false, sha256: "", bytes: 12 },
@@ -105,7 +105,7 @@ describe("pattern apply", () => {
         worktree: cleanWorktree(),
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
-      { processLayer, transactionInputs: [transactionInput()] }
+      { providerLayer, transactionInputs: [transactionInput()] }
     );
 
     expect(record.outcome).toMatchObject({
@@ -136,9 +136,9 @@ describe("pattern apply", () => {
     });
   });
 
-  test("invalid transaction input paths refuse before HabitatProcess", async () => {
+  test("invalid transaction input paths refuse before GritProvider", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const processLayer = makeFakeHabitatProcessLayer((request) => {
+    const providerLayer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request);
     });
@@ -160,7 +160,7 @@ describe("pattern apply", () => {
         worktree: cleanWorktree(),
         admission: applyAdmission(),
       } satisfies PatternApplyRequest,
-      { processLayer, transactionInputs: [unsafeInput] }
+      { providerLayer, transactionInputs: [unsafeInput] }
     );
 
     expect(record.outcome).toMatchObject({

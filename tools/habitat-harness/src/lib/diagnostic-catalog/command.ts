@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import type { HabitatCommandResult, HabitatProcessRequest } from "../habitat-process.js";
+import type { HabitatCommandResult, HabitatProcessRequest } from "../../providers/command/index.js";
 import type { DiagnosticAdapterFailureKind } from "./failure.js";
 
 const DiagnosticCommandRequestMetadataSchema = Type.Object(

@@ -31,12 +31,6 @@ vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
       argv,
       serialized: ["habitat", "check", ...argv].join(" "),
     })),
-    createCheckReport: vi.fn(() => mockReport),
-    describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
-    expandBaselines: vi.fn(() => ({
-      ok: true,
-      messages: ["baseline written: demo-rule (1 entry)"],
-    })),
     renderCheckReport: vi.fn(() => '{"ok":true}'),
     verifyCheckSummary: vi.fn(() => ({
       reportSchemaVersion: 1,
@@ -218,7 +212,6 @@ describe("Habitat oclif commands", () => {
       })
     );
     expect(mockCheckRun).not.toHaveBeenCalled();
-    expect(checkReport.createCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
   });
 

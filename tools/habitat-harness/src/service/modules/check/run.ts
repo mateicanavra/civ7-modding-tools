@@ -1,36 +1,32 @@
 import { Effect } from "effect";
-import {
-  checkCommandContext,
-  createCheckReport,
-  describeRuleSelectionFailure,
-  expandBaselines,
-} from "../../../lib/check-report.js";
+import { checkCommandContext } from "../../../lib/check/request.js";
+import { describeRuleSelectionFailure } from "../../../lib/rule-selection.js";
+import { expandBaselinesEffect } from "./baseline.js";
 import type {
   CheckServiceExpandBaselineInput,
   CheckServiceExpandBaselineOutput,
   CheckServiceRunInput,
 } from "./contract.js";
+import { createCheckReportEffect } from "./report.js";
 
 export function runCheckService(input: CheckServiceRunInput) {
-  return Effect.promise(() =>
-    createCheckReport({
-      ...selectorsFromInput(input),
-      ...(input.base ? { base: input.base } : {}),
-      baselineIntegrity: input.baselineIntegrity ?? false,
-      command: input.command ?? checkCommandContext(input.commandArgs ?? []),
-      staged: input.staged ?? false,
-      ...(input.stagedPaths ? { stagedPaths: input.stagedPaths } : {}),
-    })
-  );
+  return createCheckReportEffect({
+    ...selectorsFromInput(input),
+    ...(input.base ? { base: input.base } : {}),
+    baselineIntegrity: input.baselineIntegrity ?? false,
+    command: input.command ?? checkCommandContext(input.commandArgs ?? []),
+    staged: input.staged ?? false,
+    ...(input.stagedPaths ? { stagedPaths: input.stagedPaths } : {}),
+  });
 }
 
 export function expandCheckBaselinesService(input: CheckServiceExpandBaselineInput) {
-  return Effect.promise(async (): Promise<CheckServiceExpandBaselineOutput> => {
-    const expansion = await expandBaselines(selectorsFromInput(input), {
+  return Effect.gen(function* () {
+    const expansion = yield* expandBaselinesEffect(selectorsFromInput(input), {
       base: input.base ?? "main",
     });
-    if (expansion.ok) return { kind: "expanded", messages: expansion.messages };
-    return { kind: "refused", message: describeRuleSelectionFailure(expansion) };
+    if (expansion.ok) return { kind: "expanded" as const, messages: expansion.messages };
+    return { kind: "refused" as const, message: describeRuleSelectionFailure(expansion) };
   });
 }
 

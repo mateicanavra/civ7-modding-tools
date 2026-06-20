@@ -55,13 +55,10 @@ export {
   writeBaseline,
 } from "./lib/baseline.js";
 export type {
-  BaselineExpansionResult,
   CheckOptions,
   EmitCheckOptions,
 } from "./lib/check-report.js";
 export {
-  createCheckReport,
-  expandBaselines,
   renderCheckReport,
   stringifyCheckReport,
 } from "./lib/check-report.js";
@@ -93,27 +90,6 @@ export { validateCheckReport } from "./lib/diagnostics.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
 export { readGitState } from "./lib/git-state.js";
 export { runGraph } from "./lib/graph.js";
-export type { GritAdapterFailure, GritAdapterFailureTag } from "./lib/grit-failures.js";
-export {
-  createGritAdapterFailure,
-  gritAdapterFailureTags,
-  isGritAdapterFailureTag,
-  renderGritAdapterFailure,
-} from "./lib/grit-failures.js";
-export type {
-  CommandCachePolicy,
-  GritParseStatus,
-  HabitatCommandKind,
-  HabitatCommandResult,
-  HabitatProcessRequest,
-} from "./lib/habitat-process.js";
-export {
-  GritToolUnavailable,
-  HabitatProcess,
-  HabitatProcessLive,
-  makeFakeHabitatProcessLayer,
-  makeHabitatCommandResult,
-} from "./lib/habitat-process.js";
 export type {
   RuleSelection,
   RuleSelectionEmptyIntersection,
@@ -153,7 +129,26 @@ export {
   WorkspaceToolProvider,
   WorkspaceToolProviderLive,
 } from "./lib/workspace-tools.js";
-export { executeRule, type HarnessRule, ruleById, rules } from "./rules/architecture.js";
+export type {
+  CommandCachePolicy,
+  GritParseStatus,
+  HabitatCommandKind,
+  HabitatCommandResult,
+  HabitatProcessRequest,
+} from "./providers/command/index.js";
+export {
+  makeFakeCommandRunnerLayer,
+  makeHabitatCommandResult,
+} from "./providers/command/index.js";
+export type { GritAdapterFailure, GritAdapterFailureTag } from "./providers/grit/failures.js";
+export {
+  createGritAdapterFailure,
+  GritToolUnavailable,
+  gritAdapterFailureTags,
+  isGritAdapterFailureTag,
+  renderGritAdapterFailure,
+} from "./providers/grit/failures.js";
+export { type HarnessRule, ruleById, rules } from "./rules/architecture.js";
 export type {
   CandidatePatternManifest,
   PatternManifest,

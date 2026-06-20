@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { runSyncSpawnCommand, type SpawnResult } from "../../providers/command/index.js";
 import {
   loadRuleRegistryDocument,
   ruleBaselineFacts,
@@ -7,7 +8,6 @@ import {
 } from "../../rules/registry/index.js";
 import { ruleRegistryRepoPath } from "../artifact-paths.ts";
 import { baselinesDir, repoRoot } from "../paths.js";
-import { run, type SpawnResult } from "../spawn.js";
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
 export interface BaselineContractContext {
@@ -35,7 +35,8 @@ export function resolveBaselineContext(
     baselinesDir: options.baselinesDir ?? baselinesDir,
     registry: options.registry ?? readCurrentRuleRegistry(root),
     runCommand:
-      options.runCommand ?? ((argv, runOptions) => run(argv, { cwd: runOptions?.cwd ?? root })),
+      options.runCommand ??
+      ((argv, runOptions) => runSyncSpawnCommand(argv, { cwd: runOptions?.cwd ?? root })),
     ruleIntroductionManifests: options.ruleIntroductionManifests ?? [],
   };
 }

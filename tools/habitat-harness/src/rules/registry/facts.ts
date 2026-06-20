@@ -80,7 +80,6 @@ export function rulePatternFacts(records: readonly RuleRegistryRecordV1[]): Rule
       message: rule.message,
       patternName: rule.patternName,
       scanRoots: [...rule.scanRoots],
-      ...(rule.expandIgnoredTestDirectories ? { expandIgnoredTestDirectories: true as const } : {}),
     }));
 }
 

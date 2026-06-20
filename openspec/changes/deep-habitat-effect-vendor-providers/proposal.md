@@ -26,7 +26,6 @@ and testable.
 ## Affected Owners
 
 - `tools/habitat-harness/src/adapters/grit/**`
-- `tools/habitat-harness/src/lib/habitat-process.ts`
 - `tools/habitat-harness/src/lib/workspace-tools.ts`
 - `tools/habitat-harness/src/lib/git-state.ts`
 - `tools/habitat-harness/src/lib/workspace-graph/**`
