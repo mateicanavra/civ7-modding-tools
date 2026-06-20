@@ -122,3 +122,16 @@ Permanence is governed by two flags: **`TimeDecay`** (counts down `TimeValue` tu
 - **`BURNED` is NOT permanent** — it is fully transient (both decay flags true, like `SAND`). The explicit permanence signal in the data is the **`_PERMANENT` vs `_TRANSIENT` name suffix** on the snow effects.
 - The permanent **damaging** effects (`STONE_TRAP`, `DIGSITE`) are **one-shot traps** (`RemoveOnEnter`), not continuous attrition.
 - ⇒ **No base plot effect is permanent AND deals continuous per-turn damage to occupants.** That niche was empty — which is exactly what `PLOTEFFECT_DESERT_HEAT` (permanent, `Damage=11`, no `TriggerOnEnter`) was created to fill, and is now proven to work.
+
+---
+
+## 9. Future directions (documented, not pursued now)
+
+**World-visual marker** (the hazard currently surfaces via the plot tooltip only). Three avenues, in rough order of effort/reliability:
+1. **Persistent-art Feature.** Place a feature with real, persistent 3-D art on hazard tiles as the marker. Most reliable on-map signal, but features affect movement/yields and a thematically-fitting art-backed feature must be found per biome.
+2. **JS override of `world-vfx.js`.** A mod can replace the UI script and, for our types, call the *persistent* `WorldUI.addVFXAtPlot(...)` (as `PLOTEFFECT_FLOODED` does) instead of the one-shot `triggerVFXAtPlot`. Speculative — base "appears" assets aren't authored to loop/persist — and it would also need a re-add on game-start since mapgen placements don't fire the add-event.
+3. **Custom VFX/decal asset.** Author a real ground decal through the art pipeline and point `VFX_ADDED_TO_MAP_<TYPE>` at it. Cleanest visually, but outside data-only modding.
+
+**Placement refinement.** Replace the score-based top-coverage selection with a deterministic **interior-depth gate**: a tile gets the hazard only if it is deep interior (every tile within a 3-tile hex radius is the same hazard biome/feature). This makes "only massive interiors are dangerous" geometric and explicit, and generalizes cleanly to other biomes.
+
+**Sibling hazards (same pattern).** `PLOTEFFECT_FROSTBITE` on deep snow/cold (rides the snow channel; anchor `BIOME_TUNDRA`) and `PLOTEFFECT_JUNGLE_FEVER` on deep rainforest (anchor `FEATURE_RAINFOREST`). Each is the same permanent-damaging-PlotEffect mechanism gated by the interior-depth rule above.
