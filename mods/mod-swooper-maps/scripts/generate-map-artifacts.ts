@@ -171,6 +171,9 @@ function renderMapText(configs: readonly ValidatedMapConfig[]): string {
 <Database>
 \t<EnglishText>
 ${rows}
+\t\t<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
+\t\t\t<Text>Deep Desert Heat</Text>
+\t\t</Row>
 \t</EnglishText>
 </Database>
 `;
@@ -189,11 +192,6 @@ function renderDesertHazardData(): string {
   <PlotEffects>
     <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" Damage="11" Defense="0" TimeDecay="false" UnoccupiedDecay="false" TriggerOnEnter="false" AllowOnWater="false" AllowConstructWhileDamaged="false"/>
   </PlotEffects>
-  <EnglishText>
-    <Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
-      <Text>Deep Desert Heat</Text>
-    </Row>
-  </EnglishText>
 </Database>
 `;
 }
