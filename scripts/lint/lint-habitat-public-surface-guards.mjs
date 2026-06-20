@@ -47,7 +47,6 @@ const allowedFsEdges = new Set([
   "tools/habitat-harness/src/adapters/grit/scan-roots/index.ts",
   "tools/habitat-harness/src/bin/habitat.ts",
   "tools/habitat-harness/src/domains/baseline-authority/context.ts",
-  "tools/habitat-harness/src/domains/baseline-authority/integrity.ts",
   "tools/habitat-harness/src/domains/baseline-authority/state.ts",
   "tools/habitat-harness/src/domains/hook-runtime/resource-inspection.ts",
   "tools/habitat-harness/src/domains/hook-runtime/staged-worktree.ts",
@@ -90,7 +89,6 @@ const allowedArtifactSemantics = new Set([
   "tools/habitat-harness/src/adapters/grit/provider/index.ts",
   "tools/habitat-harness/src/config/habitat-config.ts",
   "tools/habitat-harness/src/domains/baseline-authority/context.ts",
-  "tools/habitat-harness/src/domains/baseline-authority/integrity.ts",
   "tools/habitat-harness/src/domains/baseline-authority/operations.ts",
   "tools/habitat-harness/src/domains/pattern-governance/apply-admissions.ts",
   "tools/habitat-harness/src/domains/pattern-governance/index.ts",
@@ -271,8 +269,9 @@ function checkDeletedAdapters() {
     "tools/habitat-harness/src/lib/baseline.ts",
     "tools/habitat-harness/src/lib/check-report.ts",
     "tools/habitat-harness/src/lib/diagnostics.ts",
+    "tools/habitat-harness/src/domains/baseline-authority/integrity.ts",
   ]) {
-    if (existsSync(path.join(repoRoot, file))) {
+    if (fileExists(file)) {
       fail("Removed public compatibility adapter returned.", [file]);
     }
   }
@@ -454,6 +453,10 @@ function lineForIndex(text, index) {
 function read(file) {
   if (injectedFiles.has(file)) return injectedFiles.get(file);
   return readFileSync(path.join(repoRoot, file), "utf8");
+}
+
+function fileExists(file) {
+  return injectedFiles.has(file) || existsSync(path.join(repoRoot, file));
 }
 
 function fail(title, details) {
