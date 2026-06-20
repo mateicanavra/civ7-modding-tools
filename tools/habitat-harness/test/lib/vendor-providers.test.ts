@@ -10,7 +10,12 @@ import { captureOutput, makeHabitatCommandResult } from "../../src/providers/com
 import { GitProvider, makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
 import { GritProvider, makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 import { huskyDelegator } from "../../src/providers/husky/index.js";
-import { affectedArgv, makeFakeNxProviderLayer, NxProvider } from "../../src/providers/nx/index.js";
+import {
+  affectedArgv,
+  graphArgv,
+  makeFakeNxProviderLayer,
+  NxProvider,
+} from "../../src/providers/nx/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 
 describe("vendor providers", () => {
@@ -86,6 +91,15 @@ describe("vendor providers", () => {
 
     expect(result.commandId).toBe("workspace-tool-nx");
     expect(result.stdout.text).toBe("ok\n");
+  });
+
+  test("NxProvider owns graph argv construction", () => {
+    expect(graphArgv({ outputPath: "/tmp/habitat-graph-fake/graph.json" })).toEqual([
+      "target-check",
+      "graph",
+      "--file",
+      "/tmp/habitat-graph-fake/graph.json",
+    ]);
   });
 
   test("BiomeProvider owns safe command-vector construction", async () => {

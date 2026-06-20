@@ -1,6 +1,6 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runGraph } from "../lib/graph.js";
+import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Graph extends HabitatCommand {
   static override summary = "Emit the current Nx project graph";
@@ -14,7 +14,8 @@ export default class Graph extends HabitatCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Graph);
-    const result = runGraph({ json: flags.json });
+    const client = createHabitatServiceClient();
+    const result = await client.graph.run({ json: flags.json });
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);
