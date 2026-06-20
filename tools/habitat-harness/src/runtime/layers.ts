@@ -1,6 +1,8 @@
 import { NodeContext } from "@effect/platform-node";
 import { Layer } from "effect";
 import { HabitatConfigLive } from "../config/index.js";
+import { BaselineAuthorityLive } from "../domains/baseline-authority/service.js";
+import { StructuralCheckLive } from "../domains/structural-check/service.js";
 import { BiomeProviderLive } from "../providers/biome/index.js";
 import { CommandRunnerLive } from "../providers/command/index.js";
 import { GitProviderLive } from "../providers/git/index.js";
@@ -30,5 +32,7 @@ export const HabitatRuntimeLive = Layer.mergeAll(
   BiomeProviderLive,
   NxProviderLive,
   HuskyProviderLive,
-  HabitatReporterLive
+  HabitatReporterLive,
+  BaselineAuthorityLive,
+  StructuralCheckLive
 );

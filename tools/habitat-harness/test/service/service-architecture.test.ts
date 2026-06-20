@@ -66,9 +66,11 @@ describe("Habitat service architecture", () => {
       expect(moduleFile).not.toContain("Layer.succeed");
 
       expect(routerFile).toContain(".effect(");
+      expect(routerFile).not.toContain('from "./run.js"');
       expect(routerFile).not.toContain(".router(");
       expect(routerFile).not.toContain("ManagedRuntime");
       expect(routerFile).not.toContain("Layer.succeed");
+      expect(existsSync(join(packageRoot, `src/service/modules/${moduleName}/run.ts`))).toBe(false);
     }
   });
 
@@ -84,27 +86,32 @@ describe("Habitat service architecture", () => {
 
   test("routes check CLI orchestration through the service client", () => {
     const checkCommand = source("src/commands/check.ts");
-    const checkRun = source("src/service/modules/check/run.ts");
-    const checkReport = source("src/service/modules/check/report.ts");
-    const checkBaseline = source("src/service/modules/check/baseline.ts");
-    const checkExecution = source("src/service/modules/check/execution.ts");
+    const checkRouter = source("src/service/modules/check/router.ts");
+    const serviceImpl = source("src/service/impl.ts");
 
     expect(checkCommand).toContain("createHabitatServiceClient");
     expect(checkCommand).toContain("client.check.run");
     expect(checkCommand).toContain("client.check.expandBaseline");
     expect(checkCommand).not.toContain("createCheckReport");
     expect(checkCommand).not.toContain("expandBaselines");
-    expect(checkRun).toContain('from "./report.js"');
-    expect(checkRun).toContain('from "./baseline.js"');
-    expect(checkRun).not.toContain("../../../lib/check-report.js");
-    expect(checkReport).toContain("createCheckReport");
-    expect(checkBaseline).toContain("expandBaselines");
-    expect(checkExecution).toContain("executeSelectedRules");
-    expect(checkExecution).not.toContain("runHabitatEffect");
-    expect(checkExecution).not.toContain("executeRule(");
-    expect(existsSync(join(packageRoot, "src/lib/check/report.ts"))).toBe(false);
-    expect(existsSync(join(packageRoot, "src/lib/check/baseline.ts"))).toBe(false);
-    expect(existsSync(join(packageRoot, "src/lib/check/execution.ts"))).toBe(false);
+    expect(checkRouter).toContain("checkModule.run.effect");
+    expect(checkRouter).toContain("checkModule.expandBaseline.effect");
+    expect(checkRouter).toContain("StructuralCheck");
+    expect(checkRouter).not.toContain('from "./run.js"');
+    expect(checkRouter).not.toContain("lib/check-report");
+    expect(source("src/domains/structural-check/report.ts")).toContain("BaselineAuthority");
+    expect(source("src/domains/structural-check/execution.ts")).toContain(
+      "executeSelectedRulesEffect"
+    );
+    expect(serviceImpl).toContain("StructuralCheckLive");
+    expect(serviceImpl).toContain("BaselineAuthorityLive");
+    expect(existsSync(join(packageRoot, "src/service/modules/check/report.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/check/baseline.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/check/execution.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/check/run.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/service/modules/verify/run.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/check"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/baseline-core"))).toBe(false);
   });
 
   test("routes classify CLI orchestration through the service client", () => {
@@ -130,40 +137,43 @@ describe("Habitat service architecture", () => {
 
   test("routes fix CLI orchestration through the service client", () => {
     const fixCommand = source("src/commands/fix.ts");
-    const fixRun = source("src/service/modules/fix/run.ts");
+    const fixRouter = source("src/service/modules/fix/router.ts");
     const publicIndex = source("src/index.ts");
 
     expect(fixCommand).toContain("createHabitatServiceClient");
     expect(fixCommand).toContain("client.fix.run");
     expect(fixCommand).not.toContain("runFix");
     expect(fixCommand).not.toContain("../lib/fix.js");
-    expect(fixRun).not.toMatch(/from\s+["'][^"']*lib\/fix\.js["']/);
-    expect(fixRun).not.toContain("runPatternApply");
-    expect(fixRun).not.toMatch(/from\s+["'][^"']*lib\/pattern-apply\/run/);
+    expect(fixRouter).toContain("fixModule.run.effect");
+    expect(fixRouter).not.toMatch(/from\s+["'][^"']*lib\/fix\.js["']/);
+    expect(fixRouter).not.toContain("runPatternApply");
+    expect(fixRouter).not.toMatch(/from\s+["'][^"']*lib\/pattern-apply\/run/);
     expect(publicIndex).not.toContain("runFix");
     expect(existsSync(join(packageRoot, "src/lib/fix.ts"))).toBe(false);
   });
 
   test("keeps transaction execution in the transactions service module", () => {
-    const transactionRun = source("src/service/modules/transactions/run.ts");
+    const transactionRouter = source("src/service/modules/transactions/router.ts");
     const patternApplyIndex = source("src/lib/pattern-apply/index.ts");
 
-    expect(transactionRun).toContain("runTransactionApplyService");
-    expect(transactionRun).toContain("PatternApplyRecordSchema");
+    expect(transactionRouter).toContain("transactionsModule.apply.effect");
+    expect(transactionRouter).toContain("runTransactionApplyService");
+    expect(transactionRouter).toContain("PatternApplyRecordSchema");
     expect(patternApplyIndex).not.toContain("runPatternApply");
     expect(existsSync(join(packageRoot, "src/lib/pattern-apply/run.ts"))).toBe(false);
   });
 
   test("routes hook CLI orchestration through the service client", () => {
     const hookCommand = source("src/commands/hook.ts");
-    const hookRun = source("src/service/modules/hook/run.ts");
+    const hookRouter = source("src/service/modules/hook/router.ts");
     const publicIndex = source("src/index.ts");
 
     expect(hookCommand).toContain("createHabitatServiceClient");
     expect(hookCommand).toContain("client.hook.run");
     expect(hookCommand).not.toContain("runHook");
     expect(hookCommand).not.toContain("../lib/hooks.js");
-    expect(hookRun).not.toMatch(/from\s+["'][^"']*lib\/hooks\.js["']/);
+    expect(hookRouter).toContain("hookModule.run.effect");
+    expect(hookRouter).not.toMatch(/from\s+["'][^"']*lib\/hooks\.js["']/);
     expect(publicIndex).not.toContain("runHook");
     expect(existsSync(join(packageRoot, "src/lib/hooks.ts"))).toBe(false);
   });

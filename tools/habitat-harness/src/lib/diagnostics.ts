@@ -4,5 +4,5 @@ export type {
   HabitatSeverity,
   RuleReport,
   RuleStatus,
-} from "./check/schema.js";
-export { validateCheckReport } from "./check/schema.js";
+} from "../domains/structural-check/schema.js";
+export { validateCheckReport } from "../domains/structural-check/schema.js";

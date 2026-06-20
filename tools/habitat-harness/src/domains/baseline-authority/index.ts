@@ -35,6 +35,12 @@ export {
   RuleIntroductionBaselineManifestSchema,
 } from "./schema.js";
 export {
+  BaselineAuthority,
+  BaselineAuthorityLive,
+  type BaselineAuthorityService,
+  makeFakeBaselineAuthorityLayer,
+} from "./service.js";
+export {
   baselineAuthorityResult,
   baselinePath,
   isBaselineLocked,

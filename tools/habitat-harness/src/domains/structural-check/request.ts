@@ -1,4 +1,4 @@
-import type { RuleSelection } from "../rule-selection.js";
+import type { RuleSelection } from "../../lib/rule-selection.js";
 import type { CheckCommandContext, SelectorRequest, StructuralCheckRequest } from "./schema.js";
 
 export interface CheckOptions extends RuleSelection {

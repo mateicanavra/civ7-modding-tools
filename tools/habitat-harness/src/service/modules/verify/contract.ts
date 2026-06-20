@@ -1,7 +1,7 @@
 import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { CheckReportSchema } from "../../../lib/check/schema.js";
+import { CheckReportSchema } from "../../../domains/structural-check/schema.js";
 import { VerifyReceiptSchema } from "../../../lib/verify/schema.js";
 import { VerifyTargetPlanSchema } from "../../../lib/workspace-graph/index.js";
 import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";

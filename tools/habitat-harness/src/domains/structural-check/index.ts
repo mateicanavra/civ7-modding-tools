@@ -1,4 +1,13 @@
+export { describeRuleSelectionFailure } from "../../lib/rule-selection.js";
+export { type BaselineExpansionResult, expandBaselinesEffect } from "./baseline-expansion.js";
+export {
+  approvedScanRootsForRules,
+  executeSelectedRulesEffect,
+  rulesForExecution,
+  stagedPatternScanRoots,
+} from "./execution.js";
 export { renderCheckReport, stringifyCheckReport } from "./render.js";
+export { createCheckReportEffect } from "./report.js";
 export {
   baselineAuthoringRequest,
   type CheckOptions,
@@ -28,7 +37,12 @@ export {
   HookCheckSummarySchema,
   VerifyCheckSummarySchema,
 } from "./schema.js";
-export { stagedPatternScanRoots } from "./staged-scan-roots.js";
+export {
+  makeFakeStructuralCheckLayer,
+  StructuralCheck,
+  StructuralCheckLive,
+  type StructuralCheckService,
+} from "./service.js";
 export type {
   BaselineApplicationOutcome,
   DiagnosticConsumptionOutcome,
