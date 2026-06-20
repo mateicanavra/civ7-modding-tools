@@ -43,13 +43,13 @@ Initial owned service modules:
 - `verify`: verification orchestration and receipt creation.
 - `check`: structural check report orchestration and baseline expansion command
   behavior.
-
-Required follow-on service modules:
-
+- `classify`: orientation/classification procedure boundary and command route.
 - `fix`: repair/codemod orchestration.
 - `graph`: workspace graph/orientation views.
 - `hook`: hook runtime orchestration.
-- `classify`: routing/classification views.
+
+Required follow-on service modules:
+
 - `patterns`: pattern/generator/scaffolding authoring surfaces.
 - `transactions`: transformation transaction lifecycle.
 

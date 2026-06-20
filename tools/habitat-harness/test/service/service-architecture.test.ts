@@ -6,7 +6,7 @@ const packageRoot = new URL("../..", import.meta.url).pathname;
 const sourceRoot = join(packageRoot, "src");
 const serviceRoot = join(sourceRoot, "service");
 const providerRoot = join(sourceRoot, "providers");
-const serviceModuleNames = ["check", "fix", "graph", "hook", "verify"] as const;
+const serviceModuleNames = ["check", "classify", "fix", "graph", "hook", "verify"] as const;
 
 describe("Habitat service architecture", () => {
   test("keeps Effect-oRPC runtime construction in the root service seam", () => {
@@ -29,12 +29,14 @@ describe("Habitat service architecture", () => {
 
     expect(router).toContain("habitatServiceImplementer.router");
     expect(router).toContain("check: checkRouter");
+    expect(router).toContain("classify: classifyRouter");
     expect(router).toContain("fix: fixRouter");
     expect(router).toContain("graph: graphRouter");
     expect(router).toContain("hook: hookRouter");
     expect(router).toContain("verify: verifyRouter");
     expect(router).not.toContain(".effect(");
     expect(router).not.toContain("createCheckReport");
+    expect(router).not.toContain("runClassifyService");
     expect(router).not.toContain("runFixService");
     expect(router).not.toContain("runGraphService");
     expect(router).not.toContain("runHookService");
@@ -78,6 +80,18 @@ describe("Habitat service architecture", () => {
     expect(checkCommand).toContain("client.check.expandBaseline");
     expect(checkCommand).not.toContain("createCheckReport");
     expect(checkCommand).not.toContain("expandBaselines");
+  });
+
+  test("routes classify CLI orchestration through the service client", () => {
+    const classifyCommand = source("src/commands/classify.ts");
+
+    expect(classifyCommand).toContain("createHabitatServiceClient");
+    expect(classifyCommand).toContain("client.classify.run");
+    expect(classifyCommand).not.toContain("classifyTargetResult");
+    expect(classifyCommand).not.toContain("classifyTarget(");
+    expect(classifyCommand).not.toContain("classifyPathResult");
+    expect(classifyCommand).not.toContain("classifyPath(");
+    expect(classifyCommand).not.toContain("../lib/classify.js");
   });
 
   test("routes graph CLI orchestration through the service client", () => {

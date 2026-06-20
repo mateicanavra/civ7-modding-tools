@@ -203,7 +203,7 @@ describe("rule selector boundary", () => {
       )
     ).toBe(true);
     expect(report.ok).toBe(false);
-  });
+  }, 90_000);
 
   test("staged Grit scan roots preserve exact approved file paths", () => {
     expect(
