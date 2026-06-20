@@ -27,6 +27,15 @@ export {
   patternManifestSchemaVersion,
   validatePatternManifest,
 } from "./domains/pattern-governance/index.js";
+export type {
+  RuleSelection,
+  RuleSelectionEmptyIntersection,
+  RuleSelectionFailureReason,
+  RuleSelectionResult,
+  RuleSelectorFact,
+  RuleSelectorKind,
+} from "./domains/rule-selection/index.js";
+export { describeRuleSelectionFailure, selectRules } from "./domains/rule-selection/index.js";
 export {
   CommandInterrupted,
   CommandUnavailable,
@@ -107,15 +116,6 @@ export { validateCheckReport } from "./lib/diagnostics.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
 export { readGitState } from "./lib/git-state.js";
 export { runGraph } from "./lib/graph.js";
-export type {
-  RuleSelection,
-  RuleSelectionEmptyIntersection,
-  RuleSelectionFailureReason,
-  RuleSelectionResult,
-  RuleSelectorFact,
-  RuleSelectorKind,
-} from "./lib/rule-selection.js";
-export { describeRuleSelectionFailure, selectRules } from "./lib/rule-selection.js";
 export type { VerifyBaseResolution, VerifyOptions, VerifyReceipt } from "./lib/verify/index.js";
 export {
   createVerifyReceipt,

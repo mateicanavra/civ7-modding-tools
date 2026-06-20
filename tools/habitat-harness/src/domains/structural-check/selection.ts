@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import {
   describeRuleSelectionFailure,
   type RuleSelectionResult,
-} from "../../lib/rule-selection.js";
+} from "../../domains/rule-selection/index.js";
 import { HabitatClock } from "../../resources/index.js";
 import type { CheckReport, RuleReport, StructuralCheckRequest } from "./schema.js";
 

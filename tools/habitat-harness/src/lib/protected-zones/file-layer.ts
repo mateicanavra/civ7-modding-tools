@@ -1,4 +1,4 @@
-import type { RuleFileLayerFacts } from "../../rules/registry/index.js";
+import type { RuleFileLayerFacts } from "../../domains/rule-registry/index.js";
 import type { HabitatDiagnostic } from "../diagnostics.js";
 import { declarationForFileLayerRule, declarationForHostSurfacePath } from "./declarations.js";
 import { decisionDiagnostic, declarationReadinessDiagnostic } from "./diagnostics.js";

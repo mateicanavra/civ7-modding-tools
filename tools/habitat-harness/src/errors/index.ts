@@ -7,8 +7,8 @@ export {
   SchemaValidationFailed,
   UnsafeStagedState,
   WorkspaceGraphUnavailable,
-} from "./domain-errors.js";
-export type { HabitatError } from "./habitat-error.js";
+} from "./domain-errors.ts";
+export type { HabitatError } from "./habitat-error.ts";
 export {
   CommandFailed,
   CommandInterrupted,
@@ -17,5 +17,5 @@ export {
   FileReadFailed,
   FileWriteFailed,
   type HabitatProviderError,
-} from "./provider-errors.js";
-export { renderHabitatError } from "./render.js";
+} from "./provider-errors.ts";
+export { renderHabitatError } from "./render.ts";

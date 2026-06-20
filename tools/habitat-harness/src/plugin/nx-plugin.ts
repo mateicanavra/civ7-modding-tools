@@ -1,5 +1,7 @@
 import path from "node:path";
 import { Value } from "typebox/value";
+import { ruleGraphFacts } from "../domains/rule-registry/graph.ts";
+import { loadRuleRegistryDocument } from "../domains/rule-registry/load.ts";
 import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
 import {
@@ -7,8 +9,6 @@ import {
   WorkspaceGraphTargetNamesSchema,
 } from "../lib/workspace-graph/schema.ts";
 import { workspaceGraphTargetNames } from "../lib/workspace-graph-contract.ts";
-import { ruleGraphFacts } from "../rules/registry/graph.ts";
-import { loadRuleRegistryDocument } from "../rules/registry/load.ts";
 import {
   type InferredProjects,
   InferredProjectsSchema,

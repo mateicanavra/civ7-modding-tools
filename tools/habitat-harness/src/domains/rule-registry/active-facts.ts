@@ -1,4 +1,4 @@
-import { workspaceGraphTargetNames } from "../lib/workspace-graph/target-names.js";
+import { workspaceGraphTargetNames } from "../../lib/workspace-graph/target-names.js";
 import {
   activeRuleRegistryDocument,
   ruleBaselineFacts,
@@ -10,7 +10,7 @@ import {
   ruleReportFacts,
   ruleRoutingFacts,
   ruleSelectorFacts,
-} from "./registry/index.js";
+} from "./index.js";
 
 const records = activeRuleRegistryDocument.rules;
 

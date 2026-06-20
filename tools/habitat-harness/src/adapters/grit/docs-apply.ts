@@ -4,11 +4,11 @@ import {
   diagnosticCatalogEntryFromNativeRule,
   renderDiagnosticScanRootRefusal,
 } from "../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import { docsLocalCheckoutPathsRewritePattern } from "../../providers/grit/constants.js";
 import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../../rules/registry/index.js";
 import { infrastructureFailure } from "./failure.js";
 import {
   decidePatternScanRoots,

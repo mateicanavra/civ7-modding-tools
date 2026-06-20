@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import type { RuleGraphFacts } from "../../src/domains/rule-registry/schema.js";
 import {
   aggregateWorkspaceDependency,
   explicitProjectTarget,
@@ -10,7 +11,6 @@ import {
   workspaceGraphTargetNames,
 } from "../../src/lib/workspace-graph/index.js";
 import type { WorkspaceProject } from "../../src/lib/workspace-graph/schema.js";
-import type { RuleGraphFacts } from "../../src/rules/registry/schema.js";
 
 const projects: WorkspaceProject[] = [
   {

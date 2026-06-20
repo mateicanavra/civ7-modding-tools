@@ -21,6 +21,7 @@ import {
   observedNativeDiagnosticIdentity,
   renderDiagnosticAdapterFailure,
 } from "../../src/domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../src/domains/rule-registry/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import {
   type HabitatProcessRequest,
@@ -29,7 +30,6 @@ import {
 } from "../../src/providers/command/index.js";
 import { defaultGritCommandTimeoutMs } from "../../src/providers/grit/constants.js";
 import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
-import type { RulePatternFacts } from "../../src/rules/registry/index.js";
 
 describe("Grit check adapter parser and diagnostics", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {

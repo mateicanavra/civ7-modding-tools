@@ -6,6 +6,7 @@ export {
   makeFakeHabitatClockLayer,
 } from "./clock.js";
 export {
+  type HabitatDirectoryEntry,
   HabitatFileSystem,
   HabitatFileSystemLive,
   type HabitatFileSystemService,
