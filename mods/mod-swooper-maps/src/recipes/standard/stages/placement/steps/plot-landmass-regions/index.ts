@@ -1,3 +1,4 @@
+import { balancedHemisphereMeridian, hemisphereSlotForColumn } from "@civ7/map-policy";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { mapArtifacts } from "../../../../map-artifacts.js";
@@ -21,6 +22,28 @@ function computeWrappedIntervalCenter(west: number, east: number, width: number)
   return (w + Math.floor(length / 2)) % width;
 }
 
+/**
+ * Area-weighted circular mean column of a landmass (robust across the X seam).
+ * Uses accumulated cos/sin of each land tile's column angle; falls back to the
+ * bbox interval center when the circular mean is undefined (e.g. a landmass
+ * spread evenly around the cylinder).
+ */
+function circularCentroidColumn(
+  cosSum: number | undefined,
+  sinSum: number | undefined,
+  bbox: { west: number; east: number },
+  width: number
+): number {
+  const c = cosSum ?? 0;
+  const s = sinSum ?? 0;
+  if (Math.abs(c) < 1e-9 && Math.abs(s) < 1e-9) {
+    return computeWrappedIntervalCenter(bbox.west, bbox.east, width);
+  }
+  let angle = Math.atan2(s, c);
+  if (angle < 0) angle += 2 * Math.PI;
+  return width > 0 ? Math.round((angle / (2 * Math.PI)) * width) % width : 0;
+}
+
 function resolveSlotByTile(input: {
   width: number;
   height: number;
@@ -39,10 +62,40 @@ function resolveSlotByTile(input: {
     );
   }
 
+  // Pass 1: per-column settleable-land histogram (drives the balanced meridian)
+  // plus per-landmass circular column accumulators (drive whole-landmass
+  // assignment). WHY: the legacy `bbox-center < width/2` midline ignored land
+  // area, so an asymmetric map (one dominant continent, or land massed on one
+  // side of the seam) put most settleable land in one region while the player
+  // split stayed a fixed 4/4 — crowding half the civs into a sliver. We instead
+  // pick the meridian that halves real land and assign each landmass whole.
+  const columnLand = new Float64Array(width);
+  const cosSum = new Float64Array(landmasses.length);
+  const sinSum = new Float64Array(landmasses.length);
+  const radiansPerColumn = width > 0 ? (2 * Math.PI) / width : 0;
+  for (let i = 0; i < size; i++) {
+    if ((landMask[i] | 0) !== 1) continue;
+    const y = (i / width) | 0;
+    const x = i - y * width;
+    columnLand[x] = (columnLand[x] ?? 0) + 1;
+    const landmassId = landmassIdByTile[i] ?? -1;
+    if (landmassId >= 0 && landmassId < landmasses.length) {
+      cosSum[landmassId] = (cosSum[landmassId] ?? 0) + Math.cos(x * radiansPerColumn);
+      sinSum[landmassId] = (sinSum[landmassId] ?? 0) + Math.sin(x * radiansPerColumn);
+    }
+  }
+
+  const { meridianOffset } = balancedHemisphereMeridian(columnLand, width);
+
+  // Assign each landmass WHOLE by its circular column centroid relative to the
+  // balanced meridian. Keeping continents intact preserves the
+  // Homelands/Distant-Lands semantic (a homeland is a continent; distant lands
+  // are across the ocean). Residual imbalance when one continent exceeds half
+  // the land is absorbed by capacity-proportional player allocation (D2).
   const slotByLandmass = new Uint8Array(landmasses.length);
   for (const mass of landmasses) {
-    const centerX = computeWrappedIntervalCenter(mass.bbox.west, mass.bbox.east, width);
-    slotByLandmass[mass.id] = centerX < width / 2 ? 1 : 2;
+    const centroidX = circularCentroidColumn(cosSum[mass.id], sinSum[mass.id], mass.bbox, width);
+    slotByLandmass[mass.id] = hemisphereSlotForColumn(centroidX, meridianOffset, width);
   }
 
   const out = new Uint8Array(size);
