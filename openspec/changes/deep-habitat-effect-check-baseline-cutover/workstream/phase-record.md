@@ -5,9 +5,9 @@
 - Project: Habitat Harness deep refactor
 - Phase: Check and baseline cutover
 - Owner: Effect-first implementation lane
-- Branch/Graphite stack: `agent-DRA-effect-check-baseline-cutover` stacked on `agent-DRA-effect-grit-apply-cutover`
+- Branch/Graphite stack: `agent-DRA-effect-check-baseline-provider-drain` stacked on `agent-DRA-effect-command-result-model`
 - Started: 2026-06-19
-- Status: implementation in progress
+- Status: provider-drain implementation in progress
 
 ## Objective
 
@@ -37,6 +37,10 @@
   - `bun run habitat check --rule arch-test-core-purity --json`
   - `bun run habitat check --tool target-check --json`
   - `bun run habitat check --json`
+  - `bun run --cwd tools/habitat-harness test -- test/lib/check-baseline-provider-boundary.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- test/lib/check-baseline-provider-boundary.test.ts test/service/service-architecture.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run --cwd tools/habitat-harness test -- test/lib/check-baseline-provider-boundary.test.ts test/lib/baseline.test.ts test/lib/check-summaries.test.ts test/service/check-service.test.ts test/service/service-architecture.test.ts`
 - Evidence boundary:
   - Baseline and structural-check source ownership moved from `src/lib/**` to
     `src/domains/**`.
@@ -45,6 +49,16 @@
     `lib/check-report` adapter.
   - `StructuralCheck` now consumes a named `BaselineAuthority` Effect domain
     service for the active check/baseline service path.
+  - `BaselineAuthorityLive` now uses provider-backed Effect operations for
+    baseline state, integrity, expansion admission, and writes instead of
+    delegating to the legacy sync baseline context. The legacy sync functions
+    remain only behind the current public `src/lib/baseline.ts` adapter until
+    the public-surface cleanup packet narrows or removes that export surface.
+  - Staged structural-check path reads staged Git facts through `GitProvider`
+    and measures file-layer rule execution through `HabitatClock`.
+  - `test/lib/check-baseline-provider-boundary.test.ts` proves baseline
+    integrity/writes with fake filesystem/Git providers and staged Git refusal
+    rendering through the structural-check Effect path.
   - Existing baseline and summary behavior is covered by the focused tests.
   - CLI service-path smokes passed for `file-layer`, `command-check`,
     `format-check`, `import-boundaries`, and `target-check`.
@@ -54,6 +68,5 @@
   - The full `bun run habitat check --json` command now completes. It exits 1
     because Grit-backed `pattern-check` reports `GritCommandFailed` / exit 130
     after the Grit command window; that is the remaining aggregate blocker.
-  - Remaining implementation work: replace baseline context side-effect options
-    and direct Git/fs/time calls with Effect providers/resources; repair the
-    Grit-backed pattern-check aggregate failure.
+  - Remaining aggregate blocker outside this provider-drain slice:
+    repair the Grit-backed pattern-check aggregate failure.

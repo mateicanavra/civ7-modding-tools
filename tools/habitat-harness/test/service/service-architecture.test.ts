@@ -135,6 +135,8 @@ describe("Habitat service architecture", () => {
     const checkCommand = source("src/commands/check.ts");
     const checkRouter = source("src/service/modules/check/router.ts");
     const serviceImpl = source("src/service/impl.ts");
+    const baselineService = source("src/domains/baseline-authority/service.ts");
+    const structuralExecution = source("src/domains/structural-check/execution.ts");
 
     expect(checkCommand).toContain("createHabitatServiceClient");
     expect(checkCommand).toContain("client.check.run");
@@ -147,9 +149,16 @@ describe("Habitat service architecture", () => {
     expect(checkRouter).not.toContain('from "./run.js"');
     expect(checkRouter).not.toContain("lib/check-report");
     expect(source("src/domains/structural-check/report.ts")).toContain("BaselineAuthority");
-    expect(source("src/domains/structural-check/execution.ts")).toContain(
-      "executeSelectedRulesEffect"
-    );
+    expect(structuralExecution).toContain("executeSelectedRulesEffect");
+    expect(structuralExecution).toContain("GitProvider");
+    expect(structuralExecution).not.toContain("runSyncSpawnCommand");
+    expect(baselineService).toContain("loadBaselineStateEffect");
+    expect(baselineService).toContain("checkBaselineIntegrityEffect");
+    expect(baselineService).toContain("writeBaselineEffect");
+    expect(baselineService).not.toContain("loadBaselineState(");
+    expect(baselineService).not.toContain("checkBaselineIntegrity(");
+    expect(baselineService).not.toContain("guardBaselineExpansion(");
+    expect(baselineService).not.toContain("writeBaseline(");
     expect(serviceImpl).toContain("StructuralCheckLive");
     expect(serviceImpl).toContain("BaselineAuthorityLive");
     expect(existsSync(join(packageRoot, "src/service/modules/check/report.ts"))).toBe(false);

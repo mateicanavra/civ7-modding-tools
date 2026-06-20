@@ -10,12 +10,15 @@ import {
 } from "../rule-registry/index.js";
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
-export interface BaselineContractContext {
+export interface BaselineAuthorityContext {
   repoRoot?: string;
   baselinesDir?: string;
   registry?: readonly BaselineRuleContractInput[];
-  runCommand?: (argv: string[], options?: { cwd?: string }) => SpawnResult;
   ruleIntroductionManifests?: readonly RuleIntroductionBaselineManifest[];
+}
+
+export interface BaselineContractContext extends BaselineAuthorityContext {
+  runCommand?: (argv: string[], options?: { cwd?: string }) => SpawnResult;
 }
 
 export interface RequiredBaselineContext {

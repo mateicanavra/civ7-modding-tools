@@ -4,8 +4,10 @@ import { GritProvider, type GritProviderRequirements } from "../../adapters/grit
 import type { HabitatConfig } from "../../config/index.js";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
 import { type RuleSelectionResult, selectRules } from "../../domains/rule-selection/index.js";
+import { renderHabitatError } from "../../errors/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
-import type { HabitatClock } from "../../resources/index.js";
+import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
+import type { HabitatClock, HabitatFileSystem } from "../../resources/index.js";
 import { BaselineAuthority, violationKey } from "../baseline-authority/index.js";
 import {
   activeRuleBaselineFacts,
@@ -36,6 +38,9 @@ export function expandBaselinesEffect(
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
+  | HabitatFileSystem
+  | GitProvider
+  | GitProviderRequirements
   | HabitatClock
 > {
   return Effect.gen(function* () {
@@ -93,7 +98,18 @@ export function expandBaselinesEffect(
             message: guard.message,
           };
         }
-        yield* baselineAuthority.write(rule.id, guard.keys);
+        const writeFailure = yield* baselineAuthority.write(rule.id, guard.keys).pipe(
+          Effect.as(null),
+          Effect.catchAll((error) => Effect.succeed(error))
+        );
+        if (writeFailure) {
+          return {
+            ok: false,
+            requested: selection,
+            reason: "baseline-contract",
+            message: `Unable to write baseline for '${rule.id}': ${renderHabitatError(writeFailure)}`,
+          };
+        }
         messages.push(`baseline written: ${rule.id} (${keys.length} entries)`);
       }
     }

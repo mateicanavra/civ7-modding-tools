@@ -1,4 +1,12 @@
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from "node:fs";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Context, Effect, Layer } from "effect";
@@ -18,6 +26,10 @@ export interface HabitatFileSystemService {
     targetPath: string
   ) => Effect.Effect<readonly HabitatDirectoryEntry[], FileReadFailed>;
   readonly readText: (targetPath: string) => Effect.Effect<string, FileReadFailed>;
+  readonly writeText: (
+    targetPath: string,
+    contents: string
+  ) => Effect.Effect<void, FileWriteFailed>;
   readonly remove: (targetPath: string) => Effect.Effect<void, FileWriteFailed>;
 }
 
@@ -91,6 +103,15 @@ export const HabitatFileSystemLive = Layer.succeed(HabitatFileSystem, {
           cause: cause instanceof Error ? cause.message : String(cause),
         }),
     }),
+  writeText: (targetPath, contents) =>
+    Effect.try({
+      try: () => writeFileSync(targetPath, contents),
+      catch: (cause) =>
+        new FileWriteFailed({
+          path: targetPath,
+          cause: cause instanceof Error ? cause.message : String(cause),
+        }),
+    }).pipe(Effect.asVoid),
   remove: (targetPath) =>
     Effect.try({
       try: () => rmSync(targetPath, { recursive: true, force: true }),
@@ -151,6 +172,10 @@ export function makeFakeHabitatFileSystemLayer(
             cause: "Fake Habitat filesystem has no text fixture for path.",
           })
         );
+      }),
+    writeText: (targetPath, contents) =>
+      Effect.sync(() => {
+        events.push(`write:${targetPath}:${contents}`);
       }),
     remove: (targetPath) =>
       Effect.sync(() => {
