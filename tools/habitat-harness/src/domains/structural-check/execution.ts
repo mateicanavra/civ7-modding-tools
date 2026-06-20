@@ -4,7 +4,6 @@ import { runGritRulesEffect, validateScanRoots } from "../../adapters/grit/index
 import { GritProvider, type GritProviderRequirements } from "../../adapters/grit/provider/index.js";
 import type { HabitatConfig } from "../../config/index.js";
 import { type HabitatError, renderHabitatError } from "../../errors/index.js";
-import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import {
   modifiedStagedPaths,
@@ -33,7 +32,7 @@ import type {
 import { ruleAliasTargetState } from "../workspace-graph-integration/index.js";
 import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
 import type { CheckOptions } from "./request.js";
-import type { RuleExecutionDisposition } from "./schema.js";
+import type { HabitatDiagnostic, RuleExecutionDisposition } from "./schema.js";
 
 export interface RuleExecutionRecord {
   result: RuleRunResult;

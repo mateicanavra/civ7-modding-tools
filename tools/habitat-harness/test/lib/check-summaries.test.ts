@@ -5,8 +5,8 @@ import {
   hookCheckSummary,
   VerifyCheckSummarySchema,
   verifyCheckSummary,
-} from "../../src/lib/check-report.js";
-import type { CheckReport, RuleReport } from "../../src/lib/diagnostics.js";
+} from "../../src/domains/structural-check/index.js";
+import type { CheckReport, RuleReport } from "../../src/domains/structural-check/schema.js";
 
 describe("check summaries", () => {
   test("projects Grit adapter failures as hook diagnostic unavailability", () => {

@@ -14,14 +14,7 @@
     "dist",
     "generators.json",
     "oclif.manifest.json",
-    "src/generators",
-    "src/lib/artifact-paths.ts",
-    "src/lib/paths.ts",
-    "src/lib/workspace-graph",
-    "src/lib/workspace-graph-contract.ts",
-    "src/plugin",
-    "src/plugin.ts",
-    "src/rules/registry"
+    "src"
   ],
   "nx": {
     "tags": [
@@ -82,7 +75,8 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./plugin": "./src/plugin.ts"
+    "./plugin": "./src/plugin.ts",
+    "./public/*": "./src/public/*.ts"
   },
   "dependencies": {
     "@effect/platform": "0.96.1",

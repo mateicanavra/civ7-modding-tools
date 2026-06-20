@@ -36,6 +36,7 @@ export {
   CheckOutcomeSchema,
   HookCheckSummarySchema,
   VerifyCheckSummarySchema,
+  validateCheckReport,
 } from "./schema.js";
 export {
   makeFakeStructuralCheckLayer,
