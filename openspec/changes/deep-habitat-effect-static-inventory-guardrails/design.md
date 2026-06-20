@@ -15,6 +15,10 @@
 - Language: process/workstream vocabulary and host/product vocabulary outside
   allowlisted scopes.
 
+The controlling current inventory is `workstream/static-inventory.md`.
+Implementation packets must update or cite that inventory for every file they
+touch in the blocker scope.
+
 ## Disposition Model
 
 Each occurrence SHALL be recorded as one of:
@@ -36,6 +40,11 @@ No occurrence can remain unlabeled when an implementation packet starts.
 - Habitat file-layer/rules: `.habitat` file-kind and protected-zone policy.
 - Tests: behavior and fixtures for the guardrails, not sole structural owners.
 
+The owner and intended artifact path for each guardrail class is recorded in
+`workstream/guardrail-owner-map.md`. This packet does not enable new blocking
+guardrails; each later enabling packet must add the guard, injected violation
+fixture, baseline decision, and current-tree proof together.
+
 ## Non-Overlap With Enforcement Packets
 
 This packet owns inventory, disposition, owner assignment, and any explicit
@@ -50,3 +59,10 @@ surface narrowing. Those ratchets are owned by
 Before removing an export, implementation must audit repo callsites and
 external package exports. Public removal requires a separate public-contract
 decision or a recorded proof that the export is internal-only in this repo.
+
+## Test Scope Rule
+
+Tests and fixtures are `test-helper` by default for direct process/fs/env/time
+and generic throw patterns. This does not exempt them from review: a later
+packet that edits a test file must classify direct-use occurrences in that
+write set.

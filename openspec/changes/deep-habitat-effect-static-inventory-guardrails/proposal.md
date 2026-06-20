@@ -17,6 +17,8 @@ source migration.
   recurring violations.
 - Assign each future guardrail to the correct enforcement owner: GritQL,
   Biome, Nx, Habitat file-layer, or TypeScript tests.
+- Record that this packet enables no new blocking guardrail; later guardrail
+  enabling packets must add injected fixtures and current-tree proof together.
 
 ## What Does Not Change
 
@@ -43,4 +45,6 @@ source migration.
 - Static inventory scans from the domino plan.
 - Inventory and owner-assignment evidence for every proposed guard.
 - `bun run habitat:check -- --json`
+- `bun run openspec -- validate deep-habitat-effect-static-inventory-guardrails --strict`
 - `bun run openspec:validate`
+- `git diff --check`

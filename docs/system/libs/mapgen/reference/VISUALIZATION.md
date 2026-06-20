@@ -64,4 +64,4 @@ Forbidden shapes:
 - Viz dump sink (mod-owned): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
 - Standard-recipe stage/step ownership guard:
   Habitat `grit-viz-contract-ownership` in
-  `tools/habitat-harness/src/rules/rules.json`
+  `.habitat/rules/viz-contract-ownership/rule.json`

@@ -44,8 +44,8 @@ must stay on a named domain surface.
 | Importing code                          | Allowed domain surface                                                         | Enforcement         |
 | --------------------------------------- | ------------------------------------------------------------------------------ | ------------------- |
 | Standard recipe assembly                | `@mapgen/domain/<domain>`                                                      | Policy only         |
-| Standard recipe op registry             | `@mapgen/domain/<domain>/ops`                                                  | Habitat `grit-check` |
-| Standard recipe config/knob compilation | `@mapgen/domain/<domain>/config.js`                                            | Habitat `grit-check` |
+| Standard recipe op registry             | `@mapgen/domain/<domain>/ops`                                                  | Habitat `pattern-check` |
+| Standard recipe config/knob compilation | `@mapgen/domain/<domain>/config.js`                                            | Habitat `pattern-check` |
 | Cross-domain source code                | Domain-root contracts first; domain-internal imports only with a named owner   | Policy only         |
 | Domain internals                        | Relative imports within the same domain owner                                  | Policy only         |
 | Tests                                   | Public surfaces by default; deep imports only for focused internals under test | Policy only         |
@@ -101,4 +101,5 @@ This policy is the simplest guardrail that keeps the ecosystem coherent: use the
 - Target posture for packaging and boundaries: `docs/projects/engine-refactor-v1/resources/spec/SPEC-packaging-and-file-structure.md`
 - Recipe import guard: Habitat `grit-recipe-domain-surface` and
   `grit-domain-deep-import` rules in
-  `tools/habitat-harness/src/rules/rules.json`
+  `.habitat/rules/recipe-domain-surface/rule.json` and
+  `.habitat/rules/domain-deep-import/rule.json`
