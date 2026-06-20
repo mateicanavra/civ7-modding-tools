@@ -2,24 +2,26 @@
 
 ## Domain Boundary
 
-Owner: hook service module, with lower-level hook runtime material still owning
-the current local feedback helpers until provider/resource drainage lands.
+Owner: hook service module and hook runtime domain. Provider/resource drainage
+for Git, Biome, Grit, filesystem, clock, and command execution remains a later
+step.
 
 Hook owns staged-worktree policy, local-only feedback labels, hook trace, and
-stage ordering. Providers own tool and Git execution once the next hook runtime
-drain lands. This service-ownership slice moves command-level hook orchestration
-behind the Effect-oRPC module without changing user-facing hook behavior.
+stage ordering. This slice moves hook runtime material out of generic `lib`
+ownership and keeps command-level hook orchestration behind the Effect-oRPC
+module without changing user-facing hook behavior.
 
 ## Target Flow
 
 ```text
-Husky -> habitat hook CLI -> Habitat service client -> hook service module -> hook runtime helpers
+Husky -> habitat hook CLI -> Habitat service client -> hook service module -> hook runtime domain
 ```
 
 ## Write Set
 
 ```text
 tools/habitat-harness/src/service/modules/hook/**
+tools/habitat-harness/src/domains/hook-runtime/**
 tools/habitat-harness/src/service/contract.ts
 tools/habitat-harness/src/service/router.ts
 tools/habitat-harness/src/commands/hook.ts
@@ -33,6 +35,7 @@ Deleted path:
 
 ```text
 tools/habitat-harness/src/lib/hooks.ts
+tools/habitat-harness/src/lib/hook-runtime/**
 ```
 
 ## Required Cutover In This Slice
@@ -48,11 +51,16 @@ tools/habitat-harness/src/lib/hooks.ts
   `createHookTrace`, resource-state helper, reporter/runtime type, or trace type
   exports.
 - Route the CLI through `client.hook.run`.
+- Move hook runtime contracts, staged worktree helpers, resource decisions,
+  pre-push base resolution, lifecycle capture, and command tracing into
+  `src/domains/hook-runtime/**`.
 - Keep unknown hook name, pre-commit, and pre-push stream/exit behavior stable.
 - Add tests that fail if the CLI or hook service imports a `lib/hooks` path
   directly.
+  Add tests that fail if active hook runtime feature logic remains under
+  `src/lib/hook-runtime/**`.
 
-## Follow-On Hook Runtime Drain
+## Follow-On Provider Drain
 
 - `HookRuntime.runCommand` becomes provider Layer substitution.
 - `HookRuntime.nowMs` becomes `HabitatClock`.

@@ -1,21 +1,21 @@
 import { Effect } from "effect";
-import { runHookCommand } from "../../../lib/hook-runtime/command-runner.js";
+import { runHookCommand } from "../../../domains/hook-runtime/command-runner.js";
 import {
   hookCheckCommandResult,
   renderResourceDecisionFailure,
   resourceDecisionToFacade,
-} from "../../../lib/hook-runtime/index.js";
-import { finalizePreCommit, finalizePrePush } from "../../../lib/hook-runtime/lifecycle.js";
-import { resolvePrePushBase } from "../../../lib/hook-runtime/pre-push-base.js";
-import { captureRepoSnapshot } from "../../../lib/hook-runtime/repo-snapshot.js";
-import { classifyResourcePreCommitDecision } from "../../../lib/hook-runtime/resource-inspection.js";
+} from "../../../domains/hook-runtime/index.js";
+import { finalizePreCommit, finalizePrePush } from "../../../domains/hook-runtime/lifecycle.js";
+import { resolvePrePushBase } from "../../../domains/hook-runtime/pre-push-base.js";
+import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
+import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
 import {
   createHookOutput,
   type HookOptions,
   type HookRuntime,
   hookNow,
   section,
-} from "../../../lib/hook-runtime/runtime.js";
+} from "../../../domains/hook-runtime/runtime.js";
 import {
   biomeHookPaths,
   existingStagedPaths,
@@ -23,7 +23,7 @@ import {
   gitAdd,
   hookPatternScanRoots,
   unstagedAmong,
-} from "../../../lib/hook-runtime/staged-worktree.js";
+} from "../../../domains/hook-runtime/staged-worktree.js";
 import { repoRoot } from "../../../lib/paths.js";
 import type { SpawnResult } from "../../../providers/command/index.js";
 import type { HookServiceOptions } from "./context.js";
