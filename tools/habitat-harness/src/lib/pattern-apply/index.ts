@@ -1,5 +1,4 @@
 export { renderPatternApply } from "./render.js";
-export { runPatternApply } from "./run.js";
 export {
   type DryRunIntent,
   DryRunIntentSchema,

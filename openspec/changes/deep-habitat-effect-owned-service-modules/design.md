@@ -47,14 +47,21 @@ Initial owned service modules:
 - `fix`: repair/codemod orchestration.
 - `graph`: workspace graph/orientation views.
 - `hook`: hook runtime orchestration.
+- `transactions`: admitted transformation transaction lifecycle.
 
 Required follow-on service modules:
 
 - `patterns`: pattern/generator/scaffolding authoring surfaces.
-- `transactions`: transformation transaction lifecycle.
 
 `src/lib/**` remains implementation material only while it is drained into
 named modules/domains. New owned orchestration must not be added there.
+
+Pattern-apply schema, rendering, and worktree observation may remain under
+`src/lib/pattern-apply/**` until the transformation-domain split moves those
+DTOs and presenters into their final homes. Pattern-apply execution must not
+live there: transaction application is owned by
+`src/service/modules/transactions/run.ts` and exposed through the
+`transactions.apply` Effect-oRPC procedure.
 
 ## Provider Relationship
 
@@ -80,3 +87,5 @@ inside service modules.
 - Root service router must contain composition only, with no handler logic.
 - CLI command handlers should call `createHabitatServiceClient()` for any
   capability that has a service module.
+- `src/lib/pattern-apply/run.ts` must not exist; `fix` must call the
+  transactions service module instead of a lib runner.

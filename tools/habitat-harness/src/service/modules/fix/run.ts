@@ -5,7 +5,6 @@ import {
   observeWorktree,
   type PatternApplyRequest,
   renderPatternApply,
-  runPatternApply,
   type WorktreeObservation,
 } from "../../../lib/pattern-apply/index.js";
 import type { SpawnResult } from "../../../lib/spawn.js";
@@ -16,6 +15,7 @@ import {
   activeApplyTransactionInputs,
   defaultApplyAdmissions,
 } from "../../../rules/patterns/index.js";
+import { runTransactionApplyService } from "../transactions/run.js";
 import type { FixServiceOptions } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";
 import { FixCommandIntentSchema } from "./contract.js";
@@ -39,15 +39,14 @@ export function runFixService(input: FixServiceRunInput, options: FixServiceOpti
     }
 
     const transactionInputs = options.transactionInputs ?? activeApplyTransactionInputs();
-    const records = yield* Effect.promise(() =>
-      Promise.all(
-        admissions.map((admission) =>
-          runPatternApply(transactionRequest(parsed, admission, options.worktree), {
-            processLayer: options.processLayer,
-            transactionInputs,
-          })
-        )
-      )
+    const records = yield* Effect.forEach(
+      admissions,
+      (admission) =>
+        runTransactionApplyService(transactionRequest(parsed, admission, options.worktree), {
+          processLayer: options.processLayer,
+          transactionInputs,
+        }),
+      { concurrency: 1 }
     );
     const rendered = records.map(renderPatternApply);
     const failed = rendered.find((result) => result.exitCode !== 0);

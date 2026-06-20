@@ -1,17 +1,15 @@
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { Value } from "typebox/value";
-import { defaultGritCommandTimeoutMs } from "../../adapters/grit/constants.js";
-import type { ApplyTransactionInput } from "../../rules/patterns/index.js";
-import { runHabitatEffect } from "../effect-runtime.js";
-import { gritMachineOutputEnv } from "../grit-env.js";
+import { defaultGritCommandTimeoutMs } from "../../../adapters/grit/constants.js";
+import { gritMachineOutputEnv } from "../../../lib/grit-env.js";
 import {
   type HabitatCommandResult,
   HabitatProcess,
   HabitatProcessLive,
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "../habitat-process.js";
-import { repoRoot } from "../paths.js";
+} from "../../../lib/habitat-process.js";
+import { repoRoot } from "../../../lib/paths.js";
 import {
   type GritDryRunCommandInput,
   type PatternApplyRecord,
@@ -22,16 +20,25 @@ import {
   type RecoveryInstruction,
   resolveTransactionInput,
   type TransactionRefusal,
-} from "./schema.js";
+} from "../../../lib/pattern-apply/schema.js";
+import { runHabitatEffect } from "../../../runtime/index.js";
+import type { TransactionsServiceOptions } from "./context.js";
 
-export interface PatternApplyOptions {
-  processLayer?: Layer.Layer<HabitatProcess>;
-  transactionInputs?: readonly ApplyTransactionInput[];
+/**
+ * Runs an admitted Habitat transformation transaction from the owned service
+ * module. This is the service boundary for pattern application; vendor command
+ * execution is still provided by HabitatProcess until the Grit provider cutover.
+ */
+export function runTransactionApplyService(
+  input: unknown,
+  options: TransactionsServiceOptions = {}
+) {
+  return Effect.promise(() => runTransactionApply(input, options));
 }
 
-export async function runPatternApply(
+async function runTransactionApply(
   input: unknown,
-  options: PatternApplyOptions = {}
+  options: TransactionsServiceOptions
 ): Promise<PatternApplyRecord> {
   const request = parsePatternApplyRequest(input);
 
@@ -221,7 +228,7 @@ function pathInRoot(candidate: string, root: string): boolean {
 
 async function runDryRunCommands(
   commands: readonly GritDryRunCommandInput[],
-  options: PatternApplyOptions
+  options: TransactionsServiceOptions
 ): Promise<HabitatCommandResult[]> {
   const processLayer = options.processLayer ?? HabitatProcessLive;
   const program = Effect.forEach(commands, (command) => runDryRunCommand(command), {
