@@ -8,10 +8,7 @@ import { activeRuleSelectorFacts } from "../../src/domains/rule-registry/active-
 import { executeSelectedRulesEffect } from "../../src/domains/structural-check/execution.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
 import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
-import {
-  makeFakeHabitatClockLayer,
-  makeFakeHabitatFileSystemLayer,
-} from "../../src/resources/index.js";
+import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
 describe("check and baseline provider boundaries", () => {
   test("BaselineAuthorityLive reads integrity state through filesystem and git providers", async () => {
@@ -22,7 +19,7 @@ describe("check and baseline provider boundaries", () => {
     const registry = [baselineRule("existing-rule")];
     const layer = Layer.mergeAll(
       BaselineAuthorityLive,
-      makeFakeHabitatFileSystemLayer(
+      makeFakePlatformFileSystemLayer(
         events,
         new Map([[`${baselinesDir}/existing-rule.json`, "[]\n"]]),
         new Map([[baselinesDir, [{ name: "existing-rule.json", kind: "file" }]]])
@@ -58,9 +55,10 @@ describe("check and baseline provider boundaries", () => {
 
     expect(result).toEqual({ status: "accepted", refusals: [] });
     expect(events).toEqual([
-      `isDirectory:${baselinesDir}`,
+      `stat:${baselinesDir}`,
       `readdir:${baselinesDir}`,
-      `isFile:${baselinesDir}/existing-rule.json`,
+      `stat:${baselinesDir}/existing-rule.json`,
+      `stat:${baselinesDir}/existing-rule.json`,
       `read:${baselinesDir}/existing-rule.json`,
     ]);
     expect(gitCalls).toEqual([
@@ -70,10 +68,10 @@ describe("check and baseline provider boundaries", () => {
     ]);
   });
 
-  test("BaselineAuthorityLive writes baselines through HabitatFileSystem", async () => {
+  test("BaselineAuthorityLive writes baselines through the platform filesystem", async () => {
     const baselinesDir = "/repo/.habitat/baselines";
     const events: string[] = [];
-    const layer = Layer.mergeAll(BaselineAuthorityLive, makeFakeHabitatFileSystemLayer(events));
+    const layer = Layer.mergeAll(BaselineAuthorityLive, makeFakePlatformFileSystemLayer(events));
 
     await Effect.runPromise(
       Effect.gen(function* () {
@@ -97,7 +95,6 @@ describe("check and baseline provider boundaries", () => {
     expect(fileLayerRule).toBeDefined();
     const gitCalls: string[][] = [];
     const layer = Layer.mergeAll(
-      makeFakeHabitatClockLayer(10),
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push([...argv]);
         return commandResult(argv, options.cwd, "", 1, "fake staged diff failure\n");

@@ -3,15 +3,10 @@ import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../config/index.js";
 import type { CommandProviderError } from "../../errors/index.js";
 import { repoRoot } from "../../lib/paths.js";
-import type { HabitatClock } from "../../resources/index.js";
 import { CommandRunner, spawnResultFromCommandResult } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
 
-export type GitProviderRequirements =
-  | CommandExecutor
-  | HabitatConfig
-  | HabitatClock
-  | CommandRunner;
+export type GitProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner;
 type GitCommandEffect = Effect.Effect<
   HabitatCommandResult,
   CommandProviderError,

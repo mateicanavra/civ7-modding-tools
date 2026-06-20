@@ -1,3 +1,4 @@
+import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
 import { GritProvider, type GritProviderRequirements } from "../../adapters/grit/provider/index.js";
@@ -7,7 +8,6 @@ import { type RuleSelectionResult, selectRules } from "../../domains/rule-select
 import { renderHabitatError } from "../../errors/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
-import type { HabitatClock, HabitatFileSystem } from "../../resources/index.js";
 import { BaselineAuthority, violationKey } from "../baseline-authority/index.js";
 import {
   activeRuleBaselineFacts,
@@ -38,10 +38,9 @@ export function expandBaselinesEffect(
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
-  | HabitatFileSystem
+  | FileSystem.FileSystem
   | GitProvider
   | GitProviderRequirements
-  | HabitatClock
 > {
   return Effect.gen(function* () {
     const baselineAuthority = yield* BaselineAuthority;

@@ -1,12 +1,12 @@
+import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import { Effect } from "effect";
+import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
 import { GritProvider, type GritProviderRequirements } from "../../adapters/grit/provider/index.js";
 import type { HabitatConfig } from "../../config/index.js";
 import { selectRules } from "../../domains/rule-selection/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
-import { HabitatClock, type HabitatFileSystem } from "../../resources/index.js";
 import { type BaselineApplicationResult, BaselineAuthority } from "../baseline-authority/index.js";
 import { activeRuleReportFacts, factsForRuleIds } from "../rule-registry/active-facts.js";
 import type { RuleReportFacts } from "../rule-registry/index.js";
@@ -38,10 +38,9 @@ export function createCheckReportEffect(
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
-  | HabitatFileSystem
+  | FileSystem.FileSystem
   | GitProvider
   | GitProviderRequirements
-  | HabitatClock
 > {
   return Effect.gen(function* () {
     const baselineAuthority = yield* BaselineAuthority;
@@ -199,12 +198,11 @@ function baselineIntegrityReportEffect(
 ): Effect.Effect<
   RuleReport,
   never,
-  BaselineAuthority | HabitatClock | HabitatFileSystem | GitProvider | GitProviderRequirements
+  BaselineAuthority | FileSystem.FileSystem | GitProvider | GitProviderRequirements
 > {
   return Effect.gen(function* () {
     const baselineAuthority = yield* BaselineAuthority;
-    const clock = yield* HabitatClock;
-    const integrityStarted = yield* clock.currentTimeMillis;
+    const integrityStarted = yield* Clock.currentTimeMillis;
     const integrity = yield* baselineAuthority.checkIntegrity(base, {
       registry: baselineContractInputs(),
     });
@@ -215,7 +213,7 @@ function baselineIntegrityReportEffect(
       lane: "enforced",
       status: integrity.status === "refused" ? "fail" : "pass",
       locked: true,
-      durationMs: Math.max(0, (yield* clock.currentTimeMillis) - integrityStarted),
+      durationMs: Math.max(0, (yield* Clock.currentTimeMillis) - integrityStarted),
       diagnostics: integrityFindings.map((finding) => ({
         ruleId: "baseline-integrity",
         path: finding.file,

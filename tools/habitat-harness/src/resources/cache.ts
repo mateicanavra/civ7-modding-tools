@@ -1,14 +1,13 @@
 import path from "node:path";
 import { Effect } from "effect";
 import { HabitatConfig } from "../config/index.js";
-import { HabitatFileSystem } from "./filesystem.js";
+import { makeDirectory } from "./filesystem.js";
 
 export function ensurePatternCacheRoot() {
   return Effect.gen(function* () {
     const configService = yield* HabitatConfig;
     const config = yield* configService.get;
-    const fs = yield* HabitatFileSystem;
-    yield* fs.makeDirectory(config.patternCacheRoot);
+    yield* makeDirectory(config.patternCacheRoot);
     return config.patternCacheRoot;
   });
 }

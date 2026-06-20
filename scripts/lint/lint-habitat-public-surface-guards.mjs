@@ -57,12 +57,26 @@ const allowedFsEdges = new Set([
   "tools/habitat-harness/src/resources/filesystem.ts",
 ]);
 
+const allowedSyncResourceHelperEdges = new Set([
+  "tools/habitat-harness/src/domains/rule-registry/load.ts",
+  "tools/habitat-harness/src/domains/workspace-graph-integration/diff.ts",
+  "tools/habitat-harness/src/domains/workspace-graph-integration/path.ts",
+]);
+
 const allowedTimeEdges = new Set([
   "tools/habitat-harness/src/domains/hook-runtime/runtime.ts",
   "tools/habitat-harness/src/domains/structural-check/selection.ts",
   "tools/habitat-harness/src/providers/command/output.ts",
   "tools/habitat-harness/src/providers/command/runner.ts",
-  "tools/habitat-harness/src/resources/clock.ts",
+  "tools/habitat-harness/src/resources/time.ts",
+]);
+
+const allowedNativeClockEdges = new Set([
+  "tools/habitat-harness/src/domains/structural-check/execution.ts",
+  "tools/habitat-harness/src/domains/structural-check/report.ts",
+  "tools/habitat-harness/src/domains/structural-check/selection.ts",
+  "tools/habitat-harness/src/providers/command/runner.ts",
+  "tools/habitat-harness/src/service/modules/verify/router.ts",
 ]);
 
 const allowedEnvEdges = new Set([
@@ -225,9 +239,23 @@ function checkSourceEdges() {
     checkAllowed(
       file,
       text,
+      /import\s+\{[^}]*\b(?:isDirectorySync|isFileSync|readDirectorySync|readTextSync|statKindSync)\b[^}]*\}\s+from\s+["'][^"']*resources\/filesystem(?:\.ts|\.js)?["']/g,
+      allowedSyncResourceHelperEdges,
+      "Sync filesystem helper imports must stay in approved sync public/import-time edges."
+    );
+    checkAllowed(
+      file,
+      text,
       /\bDate\.now\s*\(|new\s+Date\s*\(/g,
       allowedTimeEdges,
-      "Direct time access must stay in clock/provider legacy edges."
+      "Direct Date access must stay in approved resource/provider legacy edges."
+    );
+    checkAllowed(
+      file,
+      text,
+      /import\s+\{[^}]*\bClock\b[^}]*\}\s+from\s+["']effect["']|\bClock\.currentTimeMillis\b/g,
+      allowedNativeClockEdges,
+      "Native Effect Clock usage must stay in approved Effect runtime/domain edges."
     );
     checkAllowed(
       file,

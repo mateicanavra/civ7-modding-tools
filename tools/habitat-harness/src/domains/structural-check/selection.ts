@@ -1,16 +1,16 @@
-import { Effect } from "effect";
+import { Clock, Effect } from "effect";
 import {
   describeRuleSelectionFailure,
   type RuleSelectionResult,
 } from "../../domains/rule-selection/index.js";
-import { HabitatClock } from "../../resources/index.js";
+import { currentTimeMillis, epochMillisToIsoString } from "../../resources/index.js";
 import type { CheckReport, RuleReport, StructuralCheckRequest } from "./schema.js";
 
 export function selectorRefusalReport(
   failure: Extract<RuleSelectionResult, { ok: false }>,
   request: StructuralCheckRequest
 ): CheckReport {
-  const started = Date.now();
+  const started = currentTimeMillis();
   return constructCheckReport({
     command: request.command.serialized,
     reports: [
@@ -20,7 +20,7 @@ export function selectorRefusalReport(
         lane: "enforced",
         status: "fail",
         locked: true,
-        durationMs: Date.now() - started,
+        durationMs: currentTimeMillis() - started,
         diagnostics: [
           {
             ruleId: "rule-selection-integrity",
@@ -43,11 +43,10 @@ export function selectorRefusalReport(
 export function selectorRefusalReportEffect(
   failure: Extract<RuleSelectionResult, { ok: false }>,
   request: StructuralCheckRequest
-): Effect.Effect<CheckReport, never, HabitatClock> {
+): Effect.Effect<CheckReport> {
   return Effect.gen(function* () {
-    const clock = yield* HabitatClock;
-    const started = yield* clock.currentTimeMillis;
-    const ended = yield* clock.currentTimeMillis;
+    const started = yield* Clock.currentTimeMillis;
+    const ended = yield* Clock.currentTimeMillis;
     return yield* constructCheckReportEffect({
       command: request.command.serialized,
       reports: [
@@ -85,7 +84,7 @@ export function constructCheckReport(input: {
   return {
     schemaVersion: 1,
     command: input.command,
-    startedAt: new Date().toISOString(),
+    startedAt: epochMillisToIsoString(currentTimeMillis()),
     ok: input.reports.every((report) => report.status !== "fail"),
     rules: [...input.reports],
   };
@@ -94,13 +93,13 @@ export function constructCheckReport(input: {
 export function constructCheckReportEffect(input: {
   command: string;
   reports: readonly RuleReport[];
-}): Effect.Effect<CheckReport, never, HabitatClock> {
+}): Effect.Effect<CheckReport> {
   return Effect.gen(function* () {
-    const clock = yield* HabitatClock;
+    const startedMs = yield* Clock.currentTimeMillis;
     return {
       schemaVersion: 1,
       command: input.command,
-      startedAt: (yield* clock.currentDate).toISOString(),
+      startedAt: epochMillisToIsoString(startedMs),
       ok: input.reports.every((report) => report.status !== "fail"),
       rules: [...input.reports],
     };

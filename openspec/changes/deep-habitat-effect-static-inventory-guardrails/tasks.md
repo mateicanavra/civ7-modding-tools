@@ -18,7 +18,7 @@
 ## 3. Verification
 
 - [x] 3.1 Add or record pre-migration injected violation fixtures only for guardrails this packet explicitly enables.
-- [ ] 3.2 Run `bun run habitat:check -- --json` successfully. Blocked: bounded rerun timed out without JSON after 420 seconds; isolation now shows `command-check`, `file-layer`, and `target-check` pass with JSON, while `pattern-check` still times out without JSON under 180 seconds.
+- [x] 3.2 Run `bun run habitat check --tool habitat --json` successfully.
 - [x] 3.3 Run `bun run openspec -- validate deep-habitat-effect-static-inventory-guardrails --strict`.
 - [x] 3.4 Run `bun run openspec:validate`.
 - [x] 3.5 Run `git diff --check`.
