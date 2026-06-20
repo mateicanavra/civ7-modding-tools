@@ -1,47 +1,37 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
-import type { HabitatConfig } from "../../../config/index.js";
+import type { HabitatConfig } from "../../config/index.js";
+import { selectRules } from "../../lib/rule-selection.js";
+import { CommandRunner } from "../../providers/command/index.js";
+import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
+import { HabitatClock } from "../../resources/index.js";
+import { activeRuleReportFacts, factsForRuleIds } from "../../rules/facts.js";
+import type { RuleReportFacts } from "../../rules/registry/index.js";
+import { type BaselineApplicationResult, BaselineAuthority } from "../baseline-authority/index.js";
+import { baselineContractInputs } from "./baseline-expansion.js";
 import {
-  applyBaseline,
-  baselineFailureDiagnostic,
-  baselineIntegrityFindings,
-  checkBaselineIntegrity,
-  isBaselineLocked,
-  loadBaselineState,
-} from "../../../lib/baseline.js";
-import { type CheckOptions, structuralCheckRequest } from "../../../lib/check/request.js";
-import type {
-  CheckReport,
-  RuleExecutionDisposition,
-  RuleReport,
-} from "../../../lib/check/schema.js";
-import { constructCheckReport, selectorRefusalReport } from "../../../lib/check/selection.js";
+  executeSelectedRulesEffect,
+  type RuleExecutionRecord,
+  rulesForExecution,
+} from "./execution.js";
+import { type CheckOptions, structuralCheckRequest } from "./request.js";
+import type { CheckReport, RuleExecutionDisposition, RuleReport } from "./schema.js";
+import { constructCheckReportEffect, selectorRefusalReportEffect } from "./selection.js";
 import {
   BaselineApplicationOutcomeSchema,
   DiagnosticConsumptionOutcomeSchema,
   RuleExecutionPlanSchema,
   RuleSelectionOutcomeSchema,
   StructuralRuleOutcomeSchema,
-} from "../../../lib/check/state.js";
-import { selectRules } from "../../../lib/rule-selection.js";
-import { CommandRunner } from "../../../providers/command/index.js";
-import { GritProvider, type GritProviderRequirements } from "../../../providers/grit/index.js";
-import { HabitatClock } from "../../../resources/index.js";
-import { activeRuleReportFacts, factsForRuleIds } from "../../../rules/facts.js";
-import type { RuleReportFacts } from "../../../rules/registry/index.js";
-import { baselineContractInputs } from "./baseline.js";
-import {
-  executeSelectedRulesEffect,
-  type RuleExecutionRecord,
-  rulesForExecution,
-} from "./execution.js";
+} from "./state.js";
 
 export function createCheckReportEffect(
   options: CheckOptions = {}
 ): Effect.Effect<
   CheckReport,
   never,
+  | BaselineAuthority
   | CommandRunner
   | CommandExecutor
   | GritProvider
@@ -50,9 +40,10 @@ export function createCheckReportEffect(
   | HabitatClock
 > {
   return Effect.gen(function* () {
+    const baselineAuthority = yield* BaselineAuthority;
     const request = structuralCheckRequest(options);
     const selection = selectRules(request.selectors);
-    if (!selection.ok) return selectorRefusalReport(selection, request);
+    if (!selection.ok) return yield* selectorRefusalReportEffect(selection, request);
     Value.Parse(RuleSelectionOutcomeSchema, {
       kind: "selected",
       selector: request.selectors,
@@ -72,7 +63,7 @@ export function createCheckReportEffect(
       const baselineFacts = baselineInputsByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = loadBaselineState(baselineFacts);
+      const baseline = yield* baselineAuthority.loadState(baselineFacts);
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       Value.Parse(RuleExecutionPlanSchema, {
@@ -83,12 +74,16 @@ export function createCheckReportEffect(
       });
       const executionDiagnostics = execution.result.diagnostics;
       diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
-      const baselineResult = applyBaseline(executionDiagnostics, baseline);
-      const locked = isBaselineLocked(baseline);
+      const baselineResult = yield* baselineAuthority.apply(executionDiagnostics, baseline);
+      const locked = yield* baselineAuthority.isLocked(baseline);
       baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
       const diagnostics = [
         ...executionDiagnostics,
-        ...baselineResult.refusals.map((failure) => baselineFailureDiagnostic(rule.id, failure)),
+        ...(yield* Effect.all(
+          baselineResult.refusals.map((failure) =>
+            baselineAuthority.failureDiagnostic(rule.id, failure)
+          )
+        )),
       ];
       const report = ruleReportFromDiagnostics({
         ruleId: rule.id,
@@ -101,8 +96,9 @@ export function createCheckReportEffect(
       reports.push(report);
     }
 
-    if (options.baselineIntegrity) reports.push(baselineIntegrityReport(options.base ?? "main"));
-    return constructCheckReport({ command: request.command.serialized, reports });
+    if (options.baselineIntegrity)
+      reports.push(yield* baselineIntegrityReportEffect(options.base ?? "main"));
+    return yield* constructCheckReportEffect({ command: request.command.serialized, reports });
   });
 }
 
@@ -122,7 +118,7 @@ function diagnosticConsumptionOutcome(
 
 function baselineApplicationOutcome(
   ruleId: string,
-  baselineResult: ReturnType<typeof applyBaseline>,
+  baselineResult: BaselineApplicationResult,
   locked: boolean,
   diagnostics: RuleReport["diagnostics"]
 ) {
@@ -131,7 +127,13 @@ function baselineApplicationOutcome(
     baselineResult.refusals.length > 0
       ? {
           kind: "baseline-refused",
-          diagnostic: baselineFailureDiagnostic(ruleId, baselineResult.refusals[0]),
+          diagnostic: {
+            ruleId,
+            path: ".",
+            message: baselineResult.refusals[0]?.message ?? "Baseline application refused.",
+            severity: "error",
+            baselined: false,
+          },
         }
       : {
           kind: "baseline-applied",
@@ -188,31 +190,37 @@ function ruleReportFromDiagnostics(input: {
   };
 }
 
-function baselineIntegrityReport(base: string): RuleReport {
-  const integrityStarted = Date.now();
-  const integrity = checkBaselineIntegrity(base, {
-    registry: baselineContractInputs(),
-  });
-  const integrityFindings = baselineIntegrityFindings(integrity);
-  return {
-    ruleId: "baseline-integrity",
-    ownerTool: "habitat-builtin",
-    lane: "enforced",
-    status: integrity.status === "refused" ? "fail" : "pass",
-    locked: true,
-    durationMs: Date.now() - integrityStarted,
-    diagnostics: integrityFindings.map((finding) => ({
+function baselineIntegrityReportEffect(
+  base: string
+): Effect.Effect<RuleReport, never, BaselineAuthority | HabitatClock> {
+  return Effect.gen(function* () {
+    const baselineAuthority = yield* BaselineAuthority;
+    const clock = yield* HabitatClock;
+    const integrityStarted = yield* clock.currentTimeMillis;
+    const integrity = yield* baselineAuthority.checkIntegrity(base, {
+      registry: baselineContractInputs(),
+    });
+    const integrityFindings = yield* baselineAuthority.integrityFindings(integrity);
+    return {
       ruleId: "baseline-integrity",
-      path: finding.file,
-      message: finding.reason,
-      severity: "error" as const,
-      baselined: false,
-    })),
-    detect: ["habitat", "check", "(built-in)"],
-    message:
-      "Baselines are shrink-only; additions are valid only in the change that introduces the rule itself.",
-    remediate: null,
-  };
+      ownerTool: "habitat-builtin",
+      lane: "enforced",
+      status: integrity.status === "refused" ? "fail" : "pass",
+      locked: true,
+      durationMs: Math.max(0, (yield* clock.currentTimeMillis) - integrityStarted),
+      diagnostics: integrityFindings.map((finding) => ({
+        ruleId: "baseline-integrity",
+        path: finding.file,
+        message: finding.reason,
+        severity: "error" as const,
+        baselined: false,
+      })),
+      detect: ["habitat", "check", "(built-in)"],
+      message:
+        "Baselines are shrink-only; additions are valid only in the change that introduces the rule itself.",
+      remediate: null,
+    };
+  });
 }
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {

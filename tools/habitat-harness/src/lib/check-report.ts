@@ -2,7 +2,7 @@ export type {
   CheckOptions,
   EmitCheckOptions,
   VerifyCheckSummary,
-} from "./check/index.js";
+} from "../domains/structural-check/index.js";
 export {
   CheckOutcomeSchema,
   checkCommandContext,
@@ -14,5 +14,5 @@ export {
   stringifyCheckReport,
   VerifyCheckSummarySchema,
   verifyCheckSummary,
-} from "./check/index.js";
+} from "../domains/structural-check/index.js";
 export { describeRuleSelectionFailure } from "./rule-selection.js";

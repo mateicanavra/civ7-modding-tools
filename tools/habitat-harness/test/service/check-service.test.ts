@@ -1,35 +1,24 @@
 import { Effect } from "effect";
-import { describe, expect, test, vi } from "vitest";
+import { describe, expect, test } from "vitest";
+import { makeFakeStructuralCheckLayer } from "../../src/domains/structural-check/index.js";
+import type { CheckOptions } from "../../src/domains/structural-check/request.js";
+import type { RuleSelection } from "../../src/lib/rule-selection.js";
+import {
+  expandCheckBaselinesService,
+  runCheckService,
+} from "../../src/service/modules/check/router.js";
 
-const mockReport = vi.hoisted(() => ({
+const mockReport = {
   schemaVersion: 1,
   command: "habitat check --json",
   startedAt: "2026-06-20T00:00:00.000Z",
   ok: true,
   rules: [],
-}));
-
-const expandBaselineResult = vi.hoisted(() => ({
-  current: { ok: true as const, messages: ["baseline written: rule-a (1 entries)"] },
-}));
-
-vi.mock("../../src/service/modules/check/report.js", () => ({
-  createCheckReportEffect: vi.fn(() => Effect.succeed(mockReport)),
-}));
-
-vi.mock("../../src/service/modules/check/baseline.js", () => ({
-  expandBaselinesEffect: vi.fn(() => Effect.succeed(expandBaselineResult.current)),
-}));
-
-import * as checkBaseline from "../../src/service/modules/check/baseline.js";
-import * as checkReport from "../../src/service/modules/check/report.js";
-import {
-  expandCheckBaselinesService,
-  runCheckService,
-} from "../../src/service/modules/check/run.js";
+} as const;
 
 describe("Habitat check service", () => {
   test("runs owned check orchestration from service input", async () => {
+    const observed: CheckOptions[] = [];
     const result = await Effect.runPromise(
       runCheckService({
         selectors: { rule: "format-ci", tool: "biome" },
@@ -38,44 +27,67 @@ describe("Habitat check service", () => {
         commandArgs: ["--json"],
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/commands/check.ts"],
-      })
+      }).pipe(
+        Effect.provide(
+          makeFakeStructuralCheckLayer({
+            createReport: (options) =>
+              Effect.sync(() => {
+                observed.push(options ?? {});
+                return mockReport;
+              }),
+            expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
+          })
+        )
+      )
     );
 
     expect(result).toBe(mockReport);
-    expect(checkReport.createCheckReportEffect).toHaveBeenCalledWith({
-      rule: "format-ci",
-      tool: "biome",
-      base: "origin/main",
-      baselineIntegrity: true,
-      command: {
-        bin: "habitat",
-        id: "check",
-        argv: ["--json"],
-        serialized: "habitat check --json",
+    expect(observed).toEqual([
+      {
+        rule: "format-ci",
+        tool: "biome",
+        base: "origin/main",
+        baselineIntegrity: true,
+        command: {
+          bin: "habitat",
+          id: "check",
+          argv: ["--json"],
+          serialized: "habitat check --json",
+        },
+        staged: true,
+        stagedPaths: ["tools/habitat-harness/src/commands/check.ts"],
       },
-      staged: true,
-      stagedPaths: ["tools/habitat-harness/src/commands/check.ts"],
-    });
+    ]);
   });
 
   test("projects baseline expansion into service output states", async () => {
+    const observed: Array<{ selection: RuleSelection; options: { base?: string } }> = [];
+    let expansion = { ok: true as const, messages: ["baseline written: rule-a (1 entries)"] };
+    const layer = makeFakeStructuralCheckLayer({
+      createReport: () => Effect.succeed(mockReport),
+      expandBaselines: (selection = {}, options = {}) =>
+        Effect.sync(() => {
+          observed.push({ selection, options });
+          return expansion;
+        }),
+    });
+
     const expanded = await Effect.runPromise(
       expandCheckBaselinesService({
         selectors: { owner: "tools-habitat-harness" },
         base: "main",
-      })
+      }).pipe(Effect.provide(layer))
     );
 
     expect(expanded).toEqual({
       kind: "expanded",
       messages: ["baseline written: rule-a (1 entries)"],
     });
-    expect(checkBaseline.expandBaselinesEffect).toHaveBeenCalledWith(
-      { owner: "tools-habitat-harness" },
-      { base: "main" }
-    );
+    expect(observed).toEqual([
+      { selection: { owner: "tools-habitat-harness" }, options: { base: "main" } },
+    ]);
 
-    expandBaselineResult.current = {
+    expansion = {
       ok: false,
       requested: { rule: "missing-rule" },
       reason: "unknown-selector",
@@ -86,7 +98,7 @@ describe("Habitat check service", () => {
     const refused = await Effect.runPromise(
       expandCheckBaselinesService({
         selectors: { rule: "missing-rule" },
-      })
+      }).pipe(Effect.provide(layer))
     );
 
     expect(refused).toEqual({

@@ -10,7 +10,7 @@ import {
 } from "../../src/lib/hook-runtime/runtime.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/providers/command/index.js";
-import { runPreCommit, runPrePush } from "../../src/service/modules/hook/run.js";
+import { runPreCommit, runPrePush } from "../../src/service/modules/hook/router.js";
 
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 
@@ -275,7 +275,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
   test("does not run staged pattern checks for JavaScript files outside approved scan roots", () => {
     const fake = makeFakeRuntime({
-      stagedPaths: ["tools/habitat-harness/src/service/modules/hook/run.ts"],
+      stagedPaths: ["tools/habitat-harness/src/service/modules/hook/router.ts"],
     });
 
     const result = runPreCommit(fake.runtime);
@@ -285,7 +285,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       "patterns: no staged TypeScript/JavaScript files in approved scan roots"
     );
     expect(fake.calls).toContain(
-      "biome check --no-errors-on-unmatched tools/habitat-harness/src/service/modules/hook/run.ts"
+      "biome check --no-errors-on-unmatched tools/habitat-harness/src/service/modules/hook/router.ts"
     );
     expect(fake.calls).not.toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"

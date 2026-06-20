@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
+import { repoRoot } from "../../lib/paths.js";
 import { renderReport } from "../../rules/messages.js";
-import { repoRoot } from "../paths.js";
 import type { EmitCheckOptions } from "./request.js";
 import type { CheckReport } from "./schema.js";
 import { validateCheckReport } from "./schema.js";

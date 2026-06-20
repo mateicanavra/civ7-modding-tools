@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { baselineRepoPath, ruleRegistryRepoPath } from "../../lib/artifact-paths.ts";
 import { parseRuleRegistryDocument } from "../../rules/registry/index.js";
-import { baselineRepoPath, ruleRegistryRepoPath } from "../artifact-paths.ts";
 import {
   type BaselineContractContext,
   baselinePathForRule,

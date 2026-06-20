@@ -11,7 +11,7 @@ export type {
   BaselineRefusalReason,
   BaselineRuleContractInput,
   RuleIntroductionBaselineManifest,
-} from "./baseline-core/index.js";
+} from "../domains/baseline-authority/index.js";
 export {
   applyBaseline,
   BaselineApplicationResultSchema,
@@ -37,4 +37,4 @@ export {
   validateBaselineContract,
   violationKey,
   writeBaseline,
-} from "./baseline-core/index.js";
+} from "../domains/baseline-authority/index.js";
