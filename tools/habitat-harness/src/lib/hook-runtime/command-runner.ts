@@ -1,5 +1,5 @@
+import { repoRoot } from "../../lib/paths.js";
 import { runSyncSpawnCommand, type SpawnResult } from "../../providers/command/index.js";
-import { repoRoot } from "../paths.js";
 import { type HookRuntime, hookNow } from "./runtime.js";
 import type { HookCommandPhase } from "./schema.js";
 

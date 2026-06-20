@@ -28,6 +28,29 @@ export {
   validatePatternManifest,
 } from "./domains/pattern-governance/index.js";
 export type {
+  VerifyBaseResolution,
+  VerifyOptions,
+  VerifyReceipt,
+} from "./domains/proof-contract/index.js";
+export {
+  createVerifyReceipt,
+  isVerifyReceipt,
+  readVerifyTargetPlan,
+  resolveVerifyBase,
+  runAffectedVerification,
+  stringifyVerifyReceipt,
+  VerifyBaseResolutionSchema,
+  VerifyBaseSchema,
+  VerifyCommandRecordSchema,
+  VerifyHabitatCheckSummarySchema,
+  VerifyNxAffectedSchema,
+  VerifyNxCacheTaskSchema,
+  VerifyPostStateSchema,
+  VerifyReceiptSchema,
+  validateVerifyReceipt,
+  verifyAffectedTargets,
+} from "./domains/proof-contract/index.js";
+export type {
   RuleSelection,
   RuleSelectionEmptyIntersection,
   RuleSelectionFailureReason,
@@ -116,25 +139,6 @@ export { validateCheckReport } from "./lib/diagnostics.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
 export { readGitState } from "./lib/git-state.js";
 export { runGraph } from "./lib/graph.js";
-export type { VerifyBaseResolution, VerifyOptions, VerifyReceipt } from "./lib/verify/index.js";
-export {
-  createVerifyReceipt,
-  isVerifyReceipt,
-  readVerifyTargetPlan,
-  resolveVerifyBase,
-  runAffectedVerification,
-  stringifyVerifyReceipt,
-  VerifyBaseResolutionSchema,
-  VerifyBaseSchema,
-  VerifyCommandRecordSchema,
-  VerifyHabitatCheckSummarySchema,
-  VerifyNxAffectedSchema,
-  VerifyNxCacheTaskSchema,
-  VerifyPostStateSchema,
-  VerifyReceiptSchema,
-  validateVerifyReceipt,
-  verifyAffectedTargets,
-} from "./lib/verify/index.js";
 export type {
   HabitatToolExecutionPlane,
   MaterializedHabitatCommand,

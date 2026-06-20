@@ -1,4 +1,4 @@
-import { repoRoot } from "../paths.js";
+import { repoRoot } from "../../lib/paths.js";
 import { runHookCommand } from "./command-runner.js";
 import type { HookRuntime } from "./runtime.js";
 

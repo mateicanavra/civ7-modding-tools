@@ -2,20 +2,6 @@ import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
 import { runGritRulesEffect, validateScanRoots } from "../../adapters/grit/index.js";
 import type { HabitatConfig } from "../../config/index.js";
-import {
-  activeRuleCommandExecutionFacts,
-  activeRuleFileLayerFacts,
-  activeRuleGraphFacts,
-  activeRulePatternFacts,
-  factsForRuleIds,
-} from "../../domains/rule-registry/active-facts.js";
-import type {
-  RuleCommandExecutionFacts,
-  RuleFileLayerFacts,
-  RulePatternFacts,
-  RuleSelectorFacts,
-} from "../../domains/rule-registry/index.js";
-import { ruleAliasTargetState } from "../../domains/workspace-graph-integration/index.js";
 import { type HabitatError, renderHabitatError } from "../../errors/index.js";
 import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
@@ -34,6 +20,20 @@ import { GritProvider, type GritProviderRequirements } from "../../providers/gri
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
 import { HabitatClock } from "../../resources/index.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
+import {
+  activeRuleCommandExecutionFacts,
+  activeRuleFileLayerFacts,
+  activeRuleGraphFacts,
+  activeRulePatternFacts,
+  factsForRuleIds,
+} from "../rule-registry/active-facts.js";
+import type {
+  RuleCommandExecutionFacts,
+  RuleFileLayerFacts,
+  RulePatternFacts,
+  RuleSelectorFacts,
+} from "../rule-registry/index.js";
+import { ruleAliasTargetState } from "../workspace-graph-integration/index.js";
 import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
 import type { CheckOptions } from "./request.js";
 import type { RuleExecutionDisposition } from "./schema.js";

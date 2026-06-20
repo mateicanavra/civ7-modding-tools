@@ -1,5 +1,5 @@
 import type { RuleFileLayerFacts } from "../../domains/rule-registry/index.js";
-import type { HabitatDiagnostic } from "../diagnostics.js";
+import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
 import { declarationForFileLayerRule, declarationForHostSurfacePath } from "./declarations.js";
 import { decisionDiagnostic, declarationReadinessDiagnostic } from "./diagnostics.js";
 import { evaluateProtectedMutationGuard } from "./guard.js";

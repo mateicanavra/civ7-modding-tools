@@ -1,5 +1,5 @@
 import { type Static, Type } from "typebox";
-import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
+import type { RulePatternFacts } from "../rule-registry/index.js";
 import {
   GritDiagnosticIdentitySchema,
   gritDiagnosticIdentity,

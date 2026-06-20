@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import { repoRoot, toRepoRelative } from "../paths.js";
+import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import { runHookCommand } from "./command-runner.js";
 import {
   allowedResourceDecision,
