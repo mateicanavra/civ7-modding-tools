@@ -4,7 +4,11 @@ import type { HabitatConfig } from "../../config/index.js";
 import type { CommandProviderError } from "../../errors/index.js";
 import { repoRoot } from "../../lib/paths.js";
 import type { HabitatClock } from "../../resources/index.js";
-import { CommandRunner, spawnResultFromCommandResult } from "../command/index.js";
+import {
+  CommandRunner,
+  spawnResultFromCommandProviderError,
+  spawnResultFromCommandResult,
+} from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
 
 type NxProviderRequirements = CommandExecutor | HabitatConfig | HabitatClock | CommandRunner;
@@ -15,11 +19,19 @@ export interface NxAffectedRequest {
   head?: string;
 }
 
+export interface NxGraphRequest {
+  outputPath: string;
+}
+
 export interface NxProviderService {
   readonly affected: (
     request: NxAffectedRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
   readonly affectedArgv: (request: NxAffectedRequest) => string[];
+  readonly graph: (
+    request: NxGraphRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
+  readonly graphArgv: (request: NxGraphRequest) => string[];
 }
 
 export class NxProvider extends Context.Tag("@internal/habitat-harness/NxProvider")<
@@ -29,12 +41,22 @@ export class NxProvider extends Context.Tag("@internal/habitat-harness/NxProvide
 
 export const NxProviderLive = Layer.succeed(NxProvider, makeLiveNxProvider());
 
+export interface FakeNxProviderHandlers {
+  readonly affected?: (request: NxAffectedRequest) => HabitatCommandResult;
+  readonly graph?: (request: NxGraphRequest) => HabitatCommandResult;
+}
+
 export function makeFakeNxProviderLayer(
-  handler: (request: NxAffectedRequest) => HabitatCommandResult
+  handlerOrHandlers: ((request: NxAffectedRequest) => HabitatCommandResult) | FakeNxProviderHandlers
 ) {
+  const handlers =
+    typeof handlerOrHandlers === "function" ? { affected: handlerOrHandlers } : handlerOrHandlers;
   return Layer.succeed(NxProvider, {
-    affected: (request) => Effect.sync(() => handler(request)),
+    affected: (request) =>
+      Effect.sync(() => requireFakeResult("affected", handlers.affected, request)),
     affectedArgv,
+    graph: (request) => Effect.sync(() => requireFakeResult("graph", handlers.graph, request)),
+    graphArgv,
   });
 }
 
@@ -54,6 +76,20 @@ function makeLiveNxProvider(): NxProviderService {
         )
       ),
     affectedArgv,
+    graph: (request) =>
+      CommandRunner.pipe(
+        Effect.flatMap((runner) =>
+          runner.run({
+            commandId: "nx-project-graph",
+            kind: "workspace-tool",
+            executable: "target-check",
+            argv: graphArgv(request).slice(1),
+            cwd: repoRoot,
+            captureGitState: false,
+          })
+        )
+      ),
+    graphArgv,
   };
 }
 
@@ -71,4 +107,17 @@ export function affectedArgv(request: NxAffectedRequest): string[] {
   ];
 }
 
-export { spawnResultFromCommandResult };
+export function graphArgv(request: NxGraphRequest): string[] {
+  return ["target-check", "graph", "--file", request.outputPath];
+}
+
+function requireFakeResult<Request>(
+  name: keyof FakeNxProviderHandlers,
+  handler: ((request: Request) => HabitatCommandResult) | undefined,
+  request: Request
+): HabitatCommandResult {
+  if (!handler) throw new Error(`Fake Nx provider missing ${name} handler.`);
+  return handler(request);
+}
+
+export { spawnResultFromCommandProviderError, spawnResultFromCommandResult };

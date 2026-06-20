@@ -11,7 +11,10 @@ export {
   redactEnvDelta,
 } from "./output.js";
 export { CommandRunner, CommandRunnerLive, runSyncHabitatCommand } from "./runner.js";
-export { spawnResultFromCommandResult } from "./spawn-result.js";
+export {
+  spawnResultFromCommandProviderError,
+  spawnResultFromCommandResult,
+} from "./spawn-result.js";
 export type {
   CommandCachePolicy,
   CommandRunnerService,
