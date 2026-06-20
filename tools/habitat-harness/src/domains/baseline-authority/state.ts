@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import {
-  type BaselineContractContext,
+  type BaselineAuthorityContext,
   baselinePathForRule,
   errorMessage,
   type RequiredBaselineContext,
@@ -25,7 +25,7 @@ export function baselinePath(ruleId: string): string {
 
 export function loadBaselineState(
   rule: BaselineRuleContractInput,
-  options: BaselineContractContext = {}
+  options: BaselineAuthorityContext = {}
 ): BaselineAuthorityState {
   const context = resolveBaselineContext(options);
   const p = baselinePathForRule(rule.id, context);
@@ -51,7 +51,7 @@ export function loadBaselineState(
 }
 
 export function validateBaselineContract(
-  options: BaselineContractContext = {}
+  options: BaselineAuthorityContext = {}
 ): BaselineContractValidation {
   const context = resolveBaselineContext(options);
   const states = new Map<string, BaselineAuthorityState>();

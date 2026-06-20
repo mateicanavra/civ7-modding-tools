@@ -43,6 +43,19 @@ describe("Habitat public surface guards", () => {
     expect(result.stderr).toContain("Public facade imports from an internal implementation owner");
     expect(result.stderr).toContain("Public facade imports an unapproved domain surface");
   });
+
+  test("rejects removed sync baseline integrity adapter return", () => {
+    const result = runGuardWithInjectedFiles({
+      "tools/habitat-harness/src/domains/baseline-authority/integrity.ts":
+        "export function checkBaselineIntegrity() {}\n",
+    });
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("Removed public compatibility adapter returned.");
+    expect(result.stderr).toContain(
+      "tools/habitat-harness/src/domains/baseline-authority/integrity.ts"
+    );
+  });
 });
 
 function runGuardWithInjectedFiles(files: Record<string, string>) {
