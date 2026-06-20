@@ -192,6 +192,24 @@ describe("Habitat service architecture", () => {
     expect(graphCommand).not.toContain("../lib/graph.js");
   });
 
+  test("keeps verify proof contracts in domain ownership", () => {
+    const verifyCommand = source("src/commands/verify.ts");
+    const verifyRouter = source("src/service/modules/verify/router.ts");
+    const verifyContract = source("src/service/modules/verify/contract.ts");
+    const publicIndex = source("src/index.ts");
+    const sourceTexts = sourceFiles(sourceRoot).map(source);
+
+    expect(existsSync(join(packageRoot, "src/lib/verify"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/proof-contract"))).toBe(true);
+    expect(verifyCommand).toContain("../domains/proof-contract/index.js");
+    expect(verifyRouter).toContain("../../../domains/proof-contract/index.js");
+    expect(verifyContract).toContain("../../../domains/proof-contract/schema.js");
+    expect(publicIndex).toContain("./domains/proof-contract/index.js");
+    for (const text of sourceTexts) {
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/verify/);
+    }
+  });
+
   test("routes fix CLI orchestration through the service client", () => {
     const fixCommand = source("src/commands/fix.ts");
     const fixRouter = source("src/service/modules/fix/router.ts");
