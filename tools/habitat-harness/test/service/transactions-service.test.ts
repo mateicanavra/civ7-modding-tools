@@ -3,7 +3,7 @@ import type {
   ApplyAdmission,
   ApplyTransactionInput,
 } from "../../src/domains/pattern-governance/index.js";
-import { renderPatternApply } from "../../src/lib/pattern-apply/index.js";
+import { renderPatternApply } from "../../src/domains/transformation-transaction/index.js";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,

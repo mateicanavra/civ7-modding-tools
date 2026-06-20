@@ -12,7 +12,7 @@ import {
   type PatternApplyRequest,
   renderPatternApply,
   type WorktreeObservation,
-} from "../../../lib/pattern-apply/index.js";
+} from "../../../domains/transformation-transaction/index.js";
 import type { SpawnResult } from "../../../providers/command/index.js";
 import { runTransactionApplyService } from "../transactions/router.js";
 import type { FixServiceOptions } from "./context.js";
