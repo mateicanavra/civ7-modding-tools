@@ -1,18 +1,8 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import {
-  checkCommandContext,
-  createCheckReport,
-  renderCheckReport,
-  verifyCheckSummary,
-} from "../lib/check-report.js";
-import {
-  createVerifyReceipt,
-  readVerifyTargetPlan,
-  resolveVerifyBase,
-  runAffectedVerification,
-  stringifyVerifyReceipt,
-} from "../lib/verify/index.js";
+import { renderCheckReport, verifyCheckSummary } from "../lib/check-report.js";
+import { stringifyVerifyReceipt } from "../lib/verify/index.js";
+import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Verify extends HabitatCommand {
   static override summary = "Run Habitat check plus affected verification targets";
@@ -34,59 +24,40 @@ export default class Verify extends HabitatCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Verify);
-    const startedAt = new Date().toISOString();
-    const startedMs = Date.now();
-    const baseDecision = resolveVerifyBase(flags.base);
-    if (baseDecision.kind === "refused") {
-      this.error(baseDecision.message, { exit: 1 });
-    }
-    const base = baseDecision.base;
-    const report = await createCheckReport({
-      base,
-      baselineIntegrity: true,
-      command: checkCommandContext(this.rawArgv()),
+    const service = createHabitatServiceClient();
+    const result = await service.verify.run({
+      base: flags.base,
+      commandArgs: this.rawArgv(),
     });
-    const checkSummary = verifyCheckSummary(report);
-    const targetPlan = await readVerifyTargetPlan();
-    let affectedResult: ReturnType<typeof runAffectedVerification> | undefined;
-    let exitCode = 0;
-    if (!checkSummary.allowsAffectedExecution) exitCode = 1;
-    else if (targetPlan.kind === "verify-target-plan-refused") exitCode = 1;
-    else affectedResult = runAffectedVerification(base, targetPlan);
-    if (affectedResult) exitCode = affectedResult.exitCode;
+    if (result.kind === "base-refused") this.error(result.message, { exit: 1 });
+    const checkSummary = verifyCheckSummary(result.checkReport);
+    const exitCode = result.receipt.command.exitCode;
 
     if (flags.json) {
-      const receipt = createVerifyReceipt({
-        requestedBase: flags.base,
-        resolvedBase: base,
-        baseSource: baseDecision.source,
-        commandArgs: this.rawArgv(),
-        startedAt,
-        durationMs: Date.now() - startedMs,
-        exitCode,
-        checkReport: report,
-        verifyTargetPlan: targetPlan,
-        affectedResult,
-      });
-      this.log(stringifyVerifyReceipt(receipt));
+      this.log(stringifyVerifyReceipt(result.receipt));
       if (exitCode !== 0) this.exitWith(exitCode);
       return;
     }
 
-    this.log(renderCheckReport(report));
+    this.log(renderCheckReport(result.checkReport));
     if (!checkSummary.allowsAffectedExecution) this.exit(1);
-    if (targetPlan.kind === "verify-target-plan-refused") {
+    if (result.targetPlan.kind === "verify-target-plan-refused") {
       const message =
-        targetPlan.refusal.kind === "graph-refusal"
-          ? targetPlan.refusal.message
+        result.targetPlan.refusal.kind === "graph-refusal"
+          ? result.targetPlan.refusal.message
           : "Workspace graph refused verify target planning.";
       this.error(message, { exit: 1 });
     }
 
-    this.log(`\nhabitat verify: running repo Nx affected (base=${base}) ...`);
-    const result = affectedResult ?? runAffectedVerification(base, targetPlan);
-    process.stdout.write(result.stdout);
-    process.stderr.write(result.stderr);
-    this.exitWith(result.exitCode);
+    this.log(`\nhabitat verify: running repo Nx affected (base=${result.base}) ...`);
+    if (!result.affectedResult) {
+      this.error("Habitat verify service did not return affected verification output.", {
+        exit: 1,
+      });
+    }
+    const affectedResult = result.affectedResult;
+    process.stdout.write(affectedResult.stdout);
+    process.stderr.write(affectedResult.stderr);
+    this.exitWith(affectedResult.exitCode);
   }
 }

@@ -1,4 +1,5 @@
-import { Effect, type Layer } from "effect";
+import { Effect, Layer } from "effect";
+import { CommandUnavailable } from "../../errors/index.js";
 import {
   type DiagnosticAdapterFailureKind,
   type DiagnosticCacheObservation,
@@ -8,7 +9,12 @@ import {
   renderDiagnosticScanRootRefusal,
 } from "../../lib/diagnostic-catalog/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
-import { HabitatProcess, HabitatProcessLive } from "../../lib/habitat-process.js";
+import { HabitatProcess } from "../../lib/habitat-process.js";
+import {
+  GritProvider,
+  type GritProviderService,
+  gritCheckRequest,
+} from "../../providers/grit/index.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import type { RulePatternFacts } from "../../rules/registry/index.js";
 import {
@@ -34,6 +40,7 @@ import type {
 interface GritRunOptions {
   scanRoots?: readonly string[];
   processLayer?: Layer.Layer<HabitatProcess>;
+  providerLayer?: Layer.Layer<GritProvider>;
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
   diagnostics?: GritDiagnosticOptions;
@@ -138,14 +145,17 @@ async function runGritRuleOutcomeGroup(
       ])
     );
   }
-
+  const program = gritCheckProgram(scanRoots, {
+    cacheMode: options.cacheMode,
+    requireObservableCacheStatus: options.requireObservableCacheStatus,
+    allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
+    outputFormat,
+  });
+  const providerLayer = options.processLayer
+    ? gritProviderLayerForOptions(options)
+    : options.providerLayer;
   const acquisition = await runHabitatEffect(
-    gritCheckProgram(scanRoots, {
-      cacheMode: options.cacheMode,
-      requireObservableCacheStatus: options.requireObservableCacheStatus,
-      allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
-      outputFormat,
-    }).pipe(Effect.provide(options.processLayer ?? HabitatProcessLive))
+    providerLayer ? program.pipe(Effect.provide(providerLayer)) : program
   );
   switch (acquisition.kind) {
     case "parsed":
@@ -195,6 +205,50 @@ function liveSourceBatchSchedulingFailure(
     "This Habitat adapter cannot schedule broad source-wide Grit execution safely yet.",
     "Move this lane to GritProvider batching/resource scheduling before enabling aggregate execution.",
   ].join(" ");
+}
+
+function gritProviderLayerForOptions(options: GritRunOptions): Layer.Layer<GritProvider> {
+  const processLayer = options.processLayer;
+  if (!processLayer) throw new Error("processLayer is required for test-backed Grit provider");
+  return Layer.effect(
+    GritProvider,
+    HabitatProcess.pipe(
+      Effect.map(
+        (process): GritProviderService => ({
+          check: (request) =>
+            process
+              .run(
+                gritCheckRequest(request.scanRoots, {
+                  cacheDir: request.cacheDir,
+                  observableCacheStatus: request.observableCacheStatus,
+                  outputFormat: request.outputFormat,
+                  timeoutMs: request.timeoutMs,
+                })
+              )
+              .pipe(
+                Effect.mapError((error) =>
+                  error._tag === "GritToolUnavailable"
+                    ? new CommandUnavailable({
+                        commandId: error.commandId,
+                        executable: error.executable,
+                        argv: error.argv,
+                        cwd: error.cwd,
+                        cause: error.cause,
+                      })
+                    : error
+                )
+              ),
+          checkRequest: (request) =>
+            gritCheckRequest(request.scanRoots, {
+              cacheDir: request.cacheDir,
+              observableCacheStatus: request.observableCacheStatus,
+              outputFormat: request.outputFormat,
+              timeoutMs: request.timeoutMs,
+            }),
+        })
+      )
+    )
+  ).pipe(Layer.provide(processLayer));
 }
 
 function missingCacheObservation(

@@ -154,19 +154,6 @@ export {
   WorkspaceToolProvider,
   WorkspaceToolProviderLive,
 } from "./lib/workspace-tools.js";
-export type { CommandRunnerService } from "./providers/command/index.js";
-export {
-  CommandRunner,
-  CommandRunnerLive,
-  makeFakeCommandRunnerLayer,
-  runSyncHabitatCommand,
-} from "./providers/command/index.js";
-export type { HabitatReportEvent, HabitatReporterService } from "./providers/reporter/index.js";
-export {
-  HabitatReporter,
-  HabitatReporterLive,
-  makeFakeHabitatReporterLayer,
-} from "./providers/reporter/index.js";
 export { executeRule, type HarnessRule, ruleById, rules } from "./rules/architecture.js";
 export type {
   CandidatePatternManifest,
