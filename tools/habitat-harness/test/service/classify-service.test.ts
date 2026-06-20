@@ -1,9 +1,7 @@
-import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
-import type { WorkspaceGraphProjectReader } from "../../src/lib/workspace-graph/index.js";
-import type { WorkspaceProject } from "../../src/lib/workspace-graph/schema.js";
+import type { WorkspaceGraphProjectReader } from "../../src/domains/workspace-graph-integration/index.js";
+import type { WorkspaceProject } from "../../src/providers/nx/schema.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
-import { runClassifyService } from "../../src/service/modules/classify/router.js";
 
 const nxProjects: WorkspaceGraphProjectReader = {
   async readProjects() {
@@ -46,13 +44,10 @@ const nxProjects: WorkspaceGraphProjectReader = {
 };
 
 describe("Habitat classify service", () => {
-  test("classifies targets through the owned service run function", async () => {
-    const result = await Effect.runPromise(
-      runClassifyService(
-        { target: "tools/habitat-harness/src/commands/classify.ts" },
-        { options: { nxProjects } }
-      )
-    );
+  test("classifies targets through the in-process Habitat service client", async () => {
+    const result = await createHabitatServiceClient({
+      classify: { options: { nxProjects } },
+    }).classify.run({ target: "tools/habitat-harness/src/commands/classify.ts" });
 
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");

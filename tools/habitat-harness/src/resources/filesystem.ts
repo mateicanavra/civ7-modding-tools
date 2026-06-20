@@ -11,6 +11,7 @@ export interface HabitatDirectoryEntry {
 
 export interface HabitatFileSystemService {
   readonly isDirectory: (targetPath: string) => Effect.Effect<boolean, FileReadFailed>;
+  readonly isFile: (targetPath: string) => Effect.Effect<boolean, FileReadFailed>;
   readonly makeDirectory: (targetPath: string) => Effect.Effect<void, FileWriteFailed>;
   readonly makeTempDirectory: (prefix: string) => Effect.Effect<string, FileWriteFailed>;
   readonly readDirectory: (
@@ -27,13 +28,28 @@ export class HabitatFileSystem extends Context.Tag("@internal/habitat-harness/Ha
 
 export const HabitatFileSystemLive = Layer.succeed(HabitatFileSystem, {
   isDirectory: (targetPath) =>
-    Effect.try({
-      try: () => statSync(targetPath).isDirectory(),
-      catch: (cause) =>
-        new FileReadFailed({
+    Effect.sync(() => {
+      try {
+        return statSync(targetPath).isDirectory();
+      } catch (cause) {
+        if (isMissingPath(cause)) return false;
+        throw new FileReadFailed({
           path: targetPath,
           cause: cause instanceof Error ? cause.message : String(cause),
-        }),
+        });
+      }
+    }),
+  isFile: (targetPath) =>
+    Effect.sync(() => {
+      try {
+        return statSync(targetPath).isFile();
+      } catch (cause) {
+        if (isMissingPath(cause)) return false;
+        throw new FileReadFailed({
+          path: targetPath,
+          cause: cause instanceof Error ? cause.message : String(cause),
+        });
+      }
     }),
   makeDirectory: (targetPath) =>
     Effect.try({
@@ -97,6 +113,11 @@ export function makeFakeHabitatFileSystemLayer(
         events.push(`isDirectory:${targetPath}`);
         return directories.has(targetPath);
       }),
+    isFile: (targetPath) =>
+      Effect.sync(() => {
+        events.push(`isFile:${targetPath}`);
+        return files.has(targetPath);
+      }),
     makeDirectory: (targetPath) =>
       Effect.sync(() => {
         events.push(`mkdir:${targetPath}`);
@@ -136,4 +157,8 @@ export function makeFakeHabitatFileSystemLayer(
         events.push(`remove:${targetPath}`);
       }),
   });
+}
+
+function isMissingPath(cause: unknown): boolean {
+  return typeof cause === "object" && cause !== null && "code" in cause && cause.code === "ENOENT";
 }

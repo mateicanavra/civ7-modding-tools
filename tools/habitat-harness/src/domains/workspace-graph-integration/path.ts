@@ -1,18 +1,21 @@
-import { existsSync, statSync } from "node:fs";
 import path from "node:path";
-import { activeRuleGraphFacts } from "../../domains/rule-registry/active-facts.js";
-import { repoRoot, toRepoRelative } from "../paths.js";
-import {
-  findWorkspaceOwningProject,
-  type GraphRefusalState,
-  ruleGraphTargetStates,
-  type WorkspaceGraphReadState,
-  type WorkspaceProject,
-  workspaceTargetStates,
-} from "../workspace-graph/index.js";
+import { Effect } from "effect";
+import { repoRoot, toRepoRelative } from "../../lib/paths.js";
+import type {
+  GraphRefusalState,
+  WorkspaceGraphReadState,
+  WorkspaceProject,
+} from "../../providers/nx/schema.js";
+import { HabitatFileSystem, HabitatFileSystemLive } from "../../resources/filesystem.ts";
+import { activeRuleGraphFacts } from "../rule-registry/active-facts.js";
 import { rulesForPath } from "./routing.js";
 import { type PathClassification, parsePathClassification } from "./schema.js";
-import { projectTargets, workspaceTargets } from "./targets.js";
+import {
+  findWorkspaceOwningProject,
+  ruleGraphTargetStates,
+  workspaceTargetStates,
+} from "./states.js";
+import { projectTargets, workspaceTargets } from "./target-plan.js";
 
 export function classifyPathFromProjects(
   target: string,
@@ -114,9 +117,16 @@ function isWorkspaceSurface(pathInRepo: string): boolean {
   if (!rootSegment || rootSegment === "." || rootSegment === "..") return false;
 
   const rootSurfacePath = path.join(repoRoot, rootSegment);
-  if (!existsSync(rootSurfacePath)) return false;
+  const isFile = readFileSystemBoolean((fs) => fs.isFile(rootSurfacePath));
+  const isDirectory = readFileSystemBoolean((fs) => fs.isDirectory(rootSurfacePath));
+  if (pathInRepo === rootSegment) return isFile || isDirectory;
+  return isDirectory;
+}
 
-  const rootSurface = statSync(rootSurfacePath);
-  if (pathInRepo === rootSegment) return rootSurface.isFile() || rootSurface.isDirectory();
-  return rootSurface.isDirectory();
+function readFileSystemBoolean(
+  operation: (fs: typeof HabitatFileSystem.Service) => Effect.Effect<boolean, unknown>
+): boolean {
+  return Effect.runSync(
+    HabitatFileSystem.pipe(Effect.flatMap(operation), Effect.provide(HabitatFileSystemLive))
+  );
 }

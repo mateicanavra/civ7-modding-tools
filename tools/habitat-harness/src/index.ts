@@ -36,6 +36,24 @@ export type {
   RuleSelectorKind,
 } from "./domains/rule-selection/index.js";
 export { describeRuleSelectionFailure, selectRules } from "./domains/rule-selection/index.js";
+export type {
+  ClassifiedTarget,
+  ClassifyOptions,
+  ClassifyResult,
+  PathClassification,
+  RuleCoverageKind,
+  RuleRouting,
+  UnavailableClassifiedTarget,
+} from "./domains/workspace-graph-integration/index.js";
+export {
+  classifyPath,
+  classifyPathResult,
+  classifyTarget,
+  classifyTargetResult,
+  commandSummary,
+  stringifyClassifyResult,
+  validateClassifyResult,
+} from "./domains/workspace-graph-integration/index.js";
 export {
   CommandInterrupted,
   CommandUnavailable,
@@ -88,24 +106,6 @@ export {
   renderCheckReport,
   stringifyCheckReport,
 } from "./lib/check-report.js";
-export type {
-  ClassifiedTarget,
-  ClassifyOptions,
-  ClassifyResult,
-  PathClassification,
-  RuleCoverageKind,
-  RuleRouting,
-  UnavailableClassifiedTarget,
-} from "./lib/classify.js";
-export {
-  classifyPath,
-  classifyPathResult,
-  classifyTarget,
-  classifyTargetResult,
-  commandSummary,
-  stringifyClassifyResult,
-  validateClassifyResult,
-} from "./lib/classify.js";
 export type {
   CheckReport,
   HabitatDiagnostic,

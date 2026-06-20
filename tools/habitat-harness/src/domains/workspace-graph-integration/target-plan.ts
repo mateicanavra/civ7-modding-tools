@@ -1,9 +1,6 @@
-import {
-  projectTargetStates,
-  type WorkspaceProject,
-  workspaceTargetStates,
-} from "../workspace-graph/index.js";
+import type { WorkspaceProject } from "../../providers/nx/schema.js";
 import type { ClassifiedTarget, UnavailableClassifiedTarget } from "./schema.js";
+import { projectTargetStates, workspaceTargetStates } from "./states.js";
 
 export function projectTargets(project: WorkspaceProject): {
   targets: ClassifiedTarget[];

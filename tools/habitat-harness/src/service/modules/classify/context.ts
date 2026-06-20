@@ -1,4 +1,4 @@
-import type { ClassifyOptions } from "../../../lib/classify-core/index.js";
+import type { ClassifyOptions } from "../../../domains/workspace-graph-integration/index.js";
 
 export interface ClassifyServiceContext {
   readonly classify?: ClassifyServiceOptions;

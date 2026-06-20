@@ -4,13 +4,13 @@ import {
   aggregateWorkspaceDependency,
   explicitProjectTarget,
   multiDependencyTargetRelationship,
-  readWorkspaceGraph,
   resolveDependencyDeclaration,
   ruleAliasTargetState,
   sameProjectTarget,
-  workspaceGraphTargetNames,
-} from "../../src/lib/workspace-graph/index.js";
-import type { WorkspaceProject } from "../../src/lib/workspace-graph/schema.js";
+} from "../../src/domains/workspace-graph-integration/index.js";
+import { readWorkspaceGraph } from "../../src/providers/nx/graph.js";
+import type { WorkspaceProject } from "../../src/providers/nx/schema.js";
+import { workspaceGraphTargetNames } from "../../src/providers/nx/targets.js";
 
 const projects: WorkspaceProject[] = [
   {
