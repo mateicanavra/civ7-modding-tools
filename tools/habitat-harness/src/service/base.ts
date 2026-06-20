@@ -1,7 +1,8 @@
 import { Context } from "effect";
 import type { FixServiceContext } from "./modules/fix/context.js";
+import type { HookServiceContext } from "./modules/hook/context.js";
 
-export interface HabitatServiceContext extends FixServiceContext {
+export interface HabitatServiceContext extends FixServiceContext, HookServiceContext {
   readonly correlationId?: string;
 }
 

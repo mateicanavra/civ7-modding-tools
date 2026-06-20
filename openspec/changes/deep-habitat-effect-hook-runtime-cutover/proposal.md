@@ -11,6 +11,13 @@ workstation feedback only.
 - Add a `hook` Habitat service module under `src/service/modules/hook/**`.
 - Compose `hook` into the root Habitat service contract and router.
 - Route `src/commands/hook.ts` through the in-process Habitat service client.
+- Move hook name dispatch, pre-commit orchestration, and pre-push orchestration
+  into the hook service module and delete the old `src/lib/hooks.ts` wrapper.
+- Handle D0 public-surface row `D0-package-export-symbol-runhook` as `refuse`:
+  no replacement package helper export is introduced.
+- Handle D0 source row `D0-package-export-source-hooks-internal` as `refuse`:
+  no aggregate compatibility wrapper is introduced for old hook helper/type
+  exports.
 - Preserve the current hook result contract: `{ exitCode, stdout, stderr }`.
 - Update architecture tests so hook joins the owned service-module surface.
 
@@ -21,8 +28,8 @@ workstation feedback only.
 - Pre-commit may restage formatter-touched files only.
 - CI remains authoritative.
 - Full hook runtime provider/resource drainage is the next hook implementation
-  unit: Git, Biome, Grit, filesystem, clock, and command execution remain owned
-  by the hook runtime internals until that unit lands.
+  unit: Git, Biome, Grit, filesystem, clock, and command execution remain in
+  lower-level hook runtime material until that unit lands.
 
 ## Verification Gates
 
