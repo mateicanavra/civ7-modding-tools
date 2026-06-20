@@ -58,5 +58,8 @@
 		<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
 			<Text>Deep Desert Heat</Text>
 		</Row>
+		<Row Tag="LOC_PLOTEFFECT_FROSTBITE_NAME">
+			<Text>Killing Frost</Text>
+		</Row>
 	</EnglishText>
 </Database>

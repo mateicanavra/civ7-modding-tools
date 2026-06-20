@@ -574,14 +574,16 @@ const PLOT_EFFECT_SELECTORS = {
     medium: { typeName: "PLOTEFFECT_SNOW_MEDIUM_PERMANENT" },
     heavy: { typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT" },
   },
-  // Deep-desert hazard. The sand channel places the cosmetic, art-backed PLOTEFFECT_SAND
-  // (visible marker) AND co-places the permanent, damaging PLOTEFFECT_DESERT_HEAT
-  // (authored in mod/data/desert-hazard.xml; Damage=11/turn, no decay) on the SAME
-  // deepest-scoring desert tiles. DESERT_HEAT has no world-VFX of its own (custom type),
-  // so the SAND provides the visual while DESERT_HEAT provides the attrition. The sand
-  // coverage % (public config) keeps the hazard to the deepest desert only.
+  // Biome attrition hazards (authored in mod/data/biome-hazards.xml; permanent, Damage=11/turn,
+  // no decay). Each is co-placed by its biome channel on the most climate-extreme tiles, where
+  // the channel's physical stress score peaks — NOT by geometry:
+  //   - sand channel (aridity+heat stress) → PLOTEFFECT_DESERT_HEAT on the hottest/driest desert;
+  //     the cosmetic, art-backed PLOTEFFECT_SAND provides flavor (the hazard has no world-VFX).
+  //   - snow channel (cold/freeze stress) → PLOTEFFECT_FROSTBITE on the coldest tiles
+  //     (snowScore01 >= hazardThreshold); the permanent snow renders via terrain material.
   sand: { typeName: "PLOTEFFECT_SAND" },
   sandHazard: { typeName: "PLOTEFFECT_DESERT_HEAT" },
+  snowHazard: { typeName: "PLOTEFFECT_FROSTBITE" },
   burned: { typeName: "PLOTEFFECT_BURNED" },
 } as const;
 
@@ -594,6 +596,7 @@ function plotEffectCoverageConfig(value: unknown) {
     snow: {
       ...snow,
       selectors: PLOT_EFFECT_SELECTORS.snow,
+      hazard: PLOT_EFFECT_SELECTORS.snowHazard,
     },
     sand: {
       ...sand,

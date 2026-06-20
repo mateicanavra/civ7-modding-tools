@@ -40,6 +40,7 @@ function normalizeConfig(config: Config): Config {
         medium: normalizeSelector(config.snow.selectors.medium),
         heavy: normalizeSelector(config.snow.selectors.heavy),
       },
+      hazard: config.snow.hazard ? normalizeSelector(config.snow.hazard) : config.snow.hazard,
     },
     sand: {
       ...config.sand,
@@ -147,13 +148,16 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
       }
     }
 
-    placements.push(
-      ...selectTopCoverage(snowCandidates, snow.coveragePct).map(({ x, y, plotEffect }) => ({
-        x,
-        y,
-        plotEffect,
-      }))
-    );
+    // Snow: place the cosmetic tier selector, and CO-PLACE the optional hazard (e.g.
+    // FROSTBITE) on the COLDEST selected tiles — score >= snow.hazardThreshold. Cosmetic
+    // snow renders via terrain material; the hazard carries the per-turn Damage.
+    const snowHazardType = snow.hazard?.typeName;
+    for (const c of selectTopCoverage(snowCandidates, snow.coveragePct)) {
+      placements.push({ x: c.x, y: c.y, plotEffect: c.plotEffect });
+      if (snowHazardType && c.score >= snow.hazardThreshold) {
+        placements.push({ x: c.x, y: c.y, plotEffect: snowHazardType });
+      }
+    }
     // Sand: place the cosmetic selector, and CO-PLACE the optional hazard effect on the
     // SAME tile (visible sand marker + per-turn damage). Multiple plot effects per plot
     // are supported by the engine.
