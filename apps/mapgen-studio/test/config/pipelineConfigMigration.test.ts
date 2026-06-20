@@ -64,6 +64,41 @@ describe("migratePipelineConfigUnknown", () => {
       })
     ).toThrow(PipelineConfigMigrationError);
   });
+
+  it("drops retired placement.discoveries while preserving sibling placement keys", () => {
+    const input = {
+      placement: {
+        knobs: {},
+        naturalWonders: { minSpacingTiles: 6 },
+        discoveries: { densityPer100Tiles: 3, minSpacingTiles: 3 },
+        resources: { density: 1 },
+        starts: { fertilityWeight: 3 },
+      },
+    };
+
+    const migrated = migratePipelineConfigUnknown(input) as any;
+
+    expect(migrated.placement).toEqual({
+      knobs: {},
+      naturalWonders: { minSpacingTiles: 6 },
+      resources: { density: 1 },
+      starts: { fertilityWeight: 3 },
+    });
+    expect("discoveries" in migrated.placement).toBe(false);
+    // input is cloned, not mutated in place
+    expect("discoveries" in input.placement).toBe(true);
+  });
+
+  it("leaves placement untouched when it carries no retired discoveries block", () => {
+    const migrated = migratePipelineConfigUnknown({
+      placement: { resources: { density: 1 }, starts: { fertilityWeight: 3 } },
+    }) as any;
+
+    expect(migrated.placement).toEqual({
+      resources: { density: 1 },
+      starts: { fertilityWeight: 3 },
+    });
+  });
 });
 
 describe("resolveImportedPreset migration conflicts", () => {

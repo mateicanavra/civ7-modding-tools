@@ -506,7 +506,7 @@ describe("Studio default config", () => {
   });
 
   it("exposes semantic Placement authoring keys instead of runtime step/op envelopes", () => {
-    const expected = ["knobs", "naturalWonders", "discoveries", "resources", "starts", "support"];
+    const expected = ["knobs", "naturalWonders", "resources", "starts", "support"];
     const schemaProps =
       (
         getSchemaAtPath(STANDARD_RECIPE_CONFIG_SCHEMA, ["placement"]) as {
@@ -557,7 +557,9 @@ describe("Studio default config", () => {
   it("exposes documented and bounded Placement public controls to Studio", () => {
     // S7 knob surface: the S3 resources, S4 starts, and S5 support groups all
     // reach Studio through the generated schema (no hand-maintained shadow).
-    const publicKeys = ["knobs", "naturalWonders", "discoveries", "resources", "starts", "support"];
+    // Discoveries were retired from the public surface in #1796 (placed by the
+    // official generator), so they are not part of the authored placement keys.
+    const publicKeys = ["knobs", "naturalWonders", "resources", "starts", "support"];
 
     expectPublicStageDescription(STANDARD_RECIPE_CONFIG_SCHEMA, "placement");
     for (const key of publicKeys) {

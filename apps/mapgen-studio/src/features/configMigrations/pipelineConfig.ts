@@ -54,6 +54,23 @@ function migrateMapRiversKnobs(root: unknown): void {
   delete knobs.riverDensity;
 }
 
+function migratePlacementDiscoveries(root: unknown): void {
+  if (!isPlainObject(root)) return;
+  const placement = root.placement;
+  if (!isPlainObject(placement)) return;
+  if (!hasOwn(placement, "discoveries")) return;
+
+  // `placement.discoveries` was retired: discoveries are placed by Civ7's official
+  // discovery generator (run through the adapter at the place-discoveries step), which
+  // owns density/spacing/type — there is no authored knob anymore. Old presets and
+  // persisted authoring state still carry the block, and because the recipe placement
+  // schema is `additionalProperties: false`, it surfaces as an unknown-key validation
+  // failure (the preset silently fails to apply). Drop it so legacy configs heal to the
+  // current shape instead of falling back to a disconnected config. There is no
+  // replacement key, so this is a straight removal (unlike the map-rivers density alias).
+  delete placement.discoveries;
+}
+
 export function migratePipelineConfig(value: PipelineConfig): PipelineConfig {
   return migratePipelineConfigUnknown(value) as PipelineConfig;
 }
@@ -61,5 +78,6 @@ export function migratePipelineConfig(value: PipelineConfig): PipelineConfig {
 export function migratePipelineConfigUnknown(value: unknown): unknown {
   const next = cloneConfigValue(value);
   migrateMapRiversKnobs(next);
+  migratePlacementDiscoveries(next);
   return next;
 }
