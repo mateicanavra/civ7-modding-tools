@@ -4,12 +4,29 @@ export {
   materializeDefaultHabitatCommand,
   materializeHabitatCommandWithConfig,
 } from "./materialize.js";
+export type {
+  CommandCompletedObservation,
+  CommandFailedObservation,
+  CommandInterruptedObservation,
+  CommandNotRunObservation,
+  CommandObservation,
+  CommandOutputParseFailedObservation,
+  CommandSchemaDriftObservation,
+  CommandToolUnavailableObservation,
+} from "./observation.js";
+export {
+  assertNeverCommandObservation,
+  commandObservationFromExit,
+  renderCommandObservation,
+} from "./observation.js";
 export {
   captureOutput,
   makeCommandResultFromObservation,
   makeHabitatCommandResult,
   redactEnvDelta,
 } from "./output.js";
+export type { CommandCachePolicy, HabitatCommandKind, HabitatProcessRequest } from "./request.js";
+export type { HabitatCommandResult, OutputCapture, RedactedEnvValue } from "./result.js";
 export { CommandRunner, CommandRunnerLive, runSyncHabitatCommand } from "./runner.js";
 export {
   runSyncSpawnCommand,
@@ -17,13 +34,4 @@ export {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "./spawn-result.js";
-export type {
-  CommandCachePolicy,
-  CommandRunnerService,
-  GritParseStatus,
-  HabitatCommandKind,
-  HabitatCommandResult,
-  HabitatProcessRequest,
-  OutputCapture,
-  RedactedEnvValue,
-} from "./types.js";
+export type { CommandRunnerService } from "./types.js";
