@@ -261,11 +261,11 @@ describe("start selection ladder (op-owned, S4)", () => {
     }
   });
 
-  it("region-reassigns seats whose configured region has zero candidates, recording the reassignment", () => {
+  it("allocates zero players to a homeland with no candidates (capacity allocation pre-empts reassignment)", () => {
     const input = makeInput(16, 10, 1, 1);
-    // All land sits in the west region; the east region does not exist on this
-    // map, so its seat is reassigned (map-shape reconciliation, not a quality
-    // fallback) — recorded as a region relaxation + per-seat flag.
+    // All land sits in the west homeland; the east homeland has no land at all.
+    // D2 apportions players by capacity, so east receives 0 players up front —
+    // both civs seat cleanly in the west with no zero-candidate reassignment.
     addLandmass(
       input,
       0,
@@ -275,29 +275,27 @@ describe("start selection ladder (op-owned, S4)", () => {
 
     const result = plan(input, { spacingFloorTiles: 2, desiredSpacingTiles: 4 });
 
-    const westSeat = result.seats[0]!;
-    const eastSeat = result.seats[1]!;
-    expect(westSeat.rung).toBe("regional");
-    expect(westSeat.status).toBe("full");
-    expect(eastSeat.rung).toBe("regional");
-    expect(eastSeat.regionSlot).toBe(1);
-    expect(eastSeat.status).toBe("degraded");
-    expect(eastSeat.imputedFlags).toContain("region-reassigned");
-    expect(result.status).toBe("degraded");
-    expect(
-      result.fairnessReport.relaxations.some(
-        (entry) =>
-          entry.seatIndex === 1 && entry.kind === "region" && entry.from === 2 && entry.to === 1
-      )
-    ).toBe(true);
+    expect(result.seats.length).toBe(2);
+    for (const seat of result.seats) {
+      expect(seat.regionSlot).toBe(1);
+      expect(seat.rung).toBe("regional");
+      expect(seat.status).toBe("full");
+      expect(seat.imputedFlags).not.toContain("region-reassigned");
+    }
+    expect(result.status).toBe("full");
+    // Allocation pre-empts the zero-candidate reassignment → no region relaxation.
+    expect(result.fairnessReport.relaxations.some((entry) => entry.kind === "region")).toBe(false);
+    // The op reports the ACTUAL allocation (both players west).
+    expect(result.playersLandmass1).toBe(2);
+    expect(result.playersLandmass2).toBe(0);
   });
 
-  it("falls back to the open-pool rung when a region has candidates but no spaced capacity left", () => {
+  it("apportions each homeland a spaceable share by feasibility instead of overloading one (D2)", () => {
     const input = makeInput(20, 10, 0, 2);
-    // East region: one compact 3x4 block — admits candidates but cannot hold
-    // two seats at a 6-tile floor. West region: a distant block. The second
-    // east seat must cross regions on the open-pool rung (a real quality
-    // ladder degradation, unlike the zero-candidate reassignment above).
+    // East homeland: a compact 3x4 block (12 tiles). West homeland: a larger
+    // distant block (36 tiles). The legacy fixed 0/2 split forced both seats
+    // into the cramped east block (an open-pool degradation); D2 apportions by
+    // feasibility so each homeland gets one spaceable, regional seat.
     addLandmass(
       input,
       0,
@@ -317,18 +315,40 @@ describe("start selection ladder (op-owned, S4)", () => {
       desiredSpacingTiles: 6,
     });
 
-    const first = result.seats[0]!;
-    const second = result.seats[1]!;
-    expect(first.rung).toBe("regional");
-    expect(first.imputedFlags).not.toContain("region-reassigned");
-    expect(second.rung).toBe("open-pool");
-    expect(second.status).toBe("degraded");
+    expect(result.seats.length).toBe(2);
+    expect(result.seats.filter((seat) => seat.regionSlot === 1).length).toBe(1);
+    expect(result.seats.filter((seat) => seat.regionSlot === 2).length).toBe(1);
+    for (const seat of result.seats) {
+      expect(seat.rung).toBe("regional");
+      expect(seat.status).toBe("full");
+    }
+    expect(result.status).toBe("full");
+  });
+
+  it("degrades over-subscribed seats when a homeland cannot space its forced allocation (degrade-as-data)", () => {
+    const input = makeInput(16, 10, 3, 0);
+    // One small 12-tile west homeland, 3 players, 6-tile floor: feasibility caps
+    // the homeland near 1 well-spaced start, but every player must still seat
+    // (never dropped) — the surplus seats degrade through the ladder.
+    addLandmass(
+      input,
+      0,
+      1,
+      Array.from({ length: 12 }, (_value, i) => [1 + (i % 3), 1 + Math.floor(i / 3)] as const)
+    );
+
+    const result = plan(input, {
+      minContiguousLandTiles: 12,
+      spacingFloorTiles: 6,
+      desiredSpacingTiles: 6,
+    });
+
+    expect(result.seats.length).toBe(3);
+    // Degrade-as-data: every player is seated, none dropped.
+    expect(result.seats.every((seat) => seat.plotIndex >= 0)).toBe(true);
+    // 12 tiles cannot hold 3 starts 6 apart → at least one seat degrades.
+    expect(result.seats.some((seat) => seat.status === "degraded")).toBe(true);
     expect(result.status).toBe("degraded");
-    expect(
-      result.fairnessReport.relaxations.some(
-        (entry) => entry.seatIndex === second.seatIndex && entry.kind === "region"
-      )
-    ).toBe(true);
   });
 
   it("uses the scored quality-relaxed rung before relaxing spacing below the floor", () => {

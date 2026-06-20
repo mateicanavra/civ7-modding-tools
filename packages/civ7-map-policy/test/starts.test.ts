@@ -32,6 +32,13 @@ describe("feasibleStartCeiling", () => {
     // Larger floor → larger footprint → fewer feasible starts for the same area.
     expect(feasibleStartCeiling(1000, 12)).toBeLessThan(feasibleStartCeiling(1000, 6));
   });
+
+  it("yields at least one start for a small but non-empty region", () => {
+    // A single start needs no mutual spacing, so a sub-footprint region still
+    // hosts one (must not zero out a small-but-real homeland).
+    expect(feasibleStartCeiling(12, 6)).toBe(1);
+    expect(feasibleStartCeiling(1, 6)).toBe(1);
+  });
 });
 
 describe("balancedHemisphereMeridian", () => {
