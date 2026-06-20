@@ -1,6 +1,7 @@
 import { Args } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { classifyTargetResult, stringifyClassifyResult } from "../lib/classify.js";
+import { stringifyClassifyResult } from "../lib/classify-core/schema.js";
+import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Classify extends HabitatCommand {
   static override summary = "Classify a repo path or diff into Habitat orientation";
@@ -18,6 +19,7 @@ export default class Classify extends HabitatCommand {
 
   async run(): Promise<void> {
     const { args } = await this.parse(Classify);
-    this.log(stringifyClassifyResult(await classifyTargetResult(args.path)));
+    const client = createHabitatServiceClient();
+    this.log(stringifyClassifyResult(await client.classify.run({ target: args.path })));
   }
 }

@@ -15,6 +15,7 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
 }));
 const mockCheckRun = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
+const mockClassifyRun = vi.hoisted(() => vi.fn());
 const mockFixRun = vi.hoisted(() => vi.fn());
 const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
@@ -53,37 +54,6 @@ vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
   };
 });
 
-vi.mock("../../src/lib/classify.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/lib/classify.js")>();
-  return {
-    ...actual,
-    classifyTargetResult: vi.fn((target: string) => ({
-      schemaVersion: 1,
-      state: "project-path",
-      input: target,
-      path: target,
-      owner: {
-        project: "@internal/habitat-harness",
-        projectRoot: "tools/habitat-harness",
-        tags: ["kind:tooling"],
-      },
-      ruleRouting: [
-        {
-          ruleId: "adapter-boundary",
-          ownerTool: "command-check",
-          ownerProject: "@internal/habitat-harness",
-          coverageKind: "workspace-gate",
-          reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
-        },
-      ],
-      runnableTargets: [],
-      unavailableTargets: [],
-      recoveryInstructions: [],
-    })),
-    stringifyClassifyResult: vi.fn(actual.stringifyClassifyResult),
-  };
-});
-
 vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../src/lib/verify/index.js")>();
   return {
@@ -95,6 +65,7 @@ vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
 vi.mock("../../src/service/client.js", () => ({
   createHabitatServiceClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
+    classify: { run: mockClassifyRun },
     fix: { run: mockFixRun },
     graph: { run: mockGraphRun },
     hook: { run: mockHookRun },
@@ -131,6 +102,29 @@ describe("Habitat oclif commands", () => {
       kind: "expanded",
       messages: ["baseline written: demo-rule (1 entry)"],
     });
+    mockClassifyRun.mockImplementation(async (input: { target: string }) => ({
+      schemaVersion: 1,
+      state: "project-path",
+      input: input.target,
+      path: input.target,
+      owner: {
+        project: "@internal/habitat-harness",
+        projectRoot: "tools/habitat-harness",
+        tags: ["kind:tooling"],
+      },
+      ruleRouting: [
+        {
+          ruleId: "adapter-boundary",
+          ownerTool: "command-check",
+          ownerProject: "@internal/habitat-harness",
+          coverageKind: "workspace-gate",
+          reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
+        },
+      ],
+      runnableTargets: [],
+      unavailableTargets: [],
+      recoveryInstructions: [],
+    }));
     mockFixRun.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
     mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
@@ -317,9 +311,10 @@ describe("Habitat oclif commands", () => {
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.owner.project).toBe("@internal/habitat-harness");
     expect(result.owner.tags).toEqual(["kind:tooling"]);
-    expect(classify.classifyTargetResult).toHaveBeenCalledWith(
-      "tools/habitat-harness/src/commands/check.ts"
-    );
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockClassifyRun).toHaveBeenCalledWith({
+      target: "tools/habitat-harness/src/commands/check.ts",
+    });
   });
 
   test("hook dispatches through the Habitat service client", async () => {
