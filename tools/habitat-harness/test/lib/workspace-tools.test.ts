@@ -1,30 +1,32 @@
 import { describe, expect, test } from "vitest";
 import { repoRoot } from "../../src/lib/paths.js";
-import { materializeHabitatCommand } from "../../src/lib/workspace-tools.js";
-import { runSyncSpawnCommand } from "../../src/providers/command/index.js";
+import {
+  materializeDefaultHabitatCommand,
+  runSyncSpawnCommand,
+} from "../../src/providers/command/index.js";
 
 describe("workspace tool command materialization", () => {
   test("routes repo-local tools through Bun's workspace command plane", () => {
-    expect(materializeHabitatCommand("grit", ["--version"])).toEqual({
+    expect(materializeDefaultHabitatCommand("grit", ["--version"])).toEqual({
       requestedExecutable: "grit",
       executable: "bun",
       cwd: repoRoot,
       argv: ["run", "--cwd", repoRoot, "grit", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeHabitatCommand("format-check", ["--version"])).toMatchObject({
+    expect(materializeDefaultHabitatCommand("format-check", ["--version"])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
       argv: ["run", "--cwd", repoRoot, "biome", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeHabitatCommand("target-check", ["--version"])).toMatchObject({
+    expect(materializeDefaultHabitatCommand("target-check", ["--version"])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
       argv: ["run", "--cwd", repoRoot, "nx", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeHabitatCommand("import-boundaries", ["."])).toMatchObject({
+    expect(materializeDefaultHabitatCommand("import-boundaries", ["."])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
       argv: [
@@ -43,7 +45,7 @@ describe("workspace tool command materialization", () => {
   });
 
   test("keeps system prerequisites direct", () => {
-    expect(materializeHabitatCommand("git", ["status", "--short"])).toEqual({
+    expect(materializeDefaultHabitatCommand("git", ["status", "--short"])).toEqual({
       requestedExecutable: "git",
       executable: "git",
       argv: ["status", "--short"],

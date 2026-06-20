@@ -18,7 +18,7 @@
   Current branch moves verify base/status and affected execution to
   `GitProvider`/`NxProvider`; baseline/check/hook remain with their owning
   cutover packets.
-- [ ] 2.2 Replace `WorkspaceToolProvider` command-name map with provider command builders.
+- [x] 2.2 Replace `WorkspaceToolProvider` command-name map with provider command builders.
 - [x] 2.3 Keep provider outputs mapped to existing public command/report shapes.
 - [x] 2.4 Reject any new duplicate process path. The old process facade is
   deleted; remaining raw command callsites are tracked to their owning service
