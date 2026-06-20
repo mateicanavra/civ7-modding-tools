@@ -1,12 +1,7 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import {
-  checkCommandContext,
-  createCheckReport,
-  describeRuleSelectionFailure,
-  expandBaselines,
-  renderCheckReport,
-} from "../lib/check-report.js";
+import { checkCommandContext, renderCheckReport } from "../lib/check-report.js";
+import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Check extends HabitatCommand {
   static override summary = "Run Habitat structural checks";
@@ -39,16 +34,21 @@ export default class Check extends HabitatCommand {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
     const base = flags.base ?? "main";
+    const client = createHabitatServiceClient();
     if (flags["expand-baseline"]) {
-      const expansion = await expandBaselines(selection, { base });
-      if (!expansion.ok) this.error(describeRuleSelectionFailure(expansion), { exit: 1 });
+      const expansion = await client.check.expandBaseline({
+        selectors: selection,
+        base,
+        command: checkCommandContext(this.rawArgv()),
+      });
+      if (expansion.kind === "refused") this.error(expansion.message, { exit: 1 });
       for (const message of expansion.messages) this.log(message);
       return;
     }
 
     const baselineIntegrity = flags["baseline-integrity"] || Boolean(flags.base);
-    const report = await createCheckReport({
-      ...selection,
+    const report = await client.check.run({
+      selectors: selection,
       ...(baselineIntegrity ? { base } : {}),
       baselineIntegrity,
       command: checkCommandContext(this.rawArgv()),

@@ -13,6 +13,8 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
   targets: ["build"],
   states: [],
 }));
+const mockCheckRun = vi.hoisted(() => vi.fn());
+const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
 vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
@@ -100,7 +102,10 @@ vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
 });
 
 vi.mock("../../src/service/client.js", () => ({
-  createHabitatServiceClient: vi.fn(() => ({ verify: { run: mockVerifyRun } })),
+  createHabitatServiceClient: vi.fn(() => ({
+    check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
+    verify: { run: mockVerifyRun },
+  })),
 }));
 
 import Check from "../../src/commands/check.js";
@@ -130,6 +135,11 @@ describe("Habitat oclif commands", () => {
     stdout = [];
     stderr = [];
     logs = [];
+    mockCheckRun.mockResolvedValue(mockReport);
+    mockCheckExpandBaseline.mockResolvedValue({
+      kind: "expanded",
+      messages: ["baseline written: demo-rule (1 entry)"],
+    });
     mockVerifyRun.mockImplementation(async (input: { base?: string; commandArgs?: string[] }) => {
       const base = input.base ?? "merge-base";
       return {
@@ -176,13 +186,16 @@ describe("Habitat oclif commands", () => {
       "HEAD",
     ]);
 
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockCheckRun).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD",
         baselineIntegrity: true,
-        owner: "@internal/habitat-harness",
-        rule: "adapter-boundary",
-        tool: "pattern-check",
+        selectors: {
+          owner: "@internal/habitat-harness",
+          rule: "adapter-boundary",
+          tool: "pattern-check",
+        },
         staged: true,
         command: expect.objectContaining({
           argv: expect.arrayContaining(["--json", "--rule", "adapter-boundary"]),
@@ -201,18 +214,36 @@ describe("Habitat oclif commands", () => {
   test("check expand-baseline uses the authoring path instead of report emission", async () => {
     await Check.run(["--expand-baseline", "--rule", "demo-rule"]);
 
-    expect(checkReport.expandBaselines).toHaveBeenCalledWith(
-      {
-        owner: undefined,
-        rule: "demo-rule",
-        tool: undefined,
-      },
-      {
+    expect(mockCheckExpandBaseline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selectors: {
+          owner: undefined,
+          rule: "demo-rule",
+          tool: undefined,
+        },
         base: "main",
-      }
+        command: expect.objectContaining({
+          argv: ["--expand-baseline", "--rule", "demo-rule"],
+          bin: "habitat",
+          id: "check",
+        }),
+      })
     );
+    expect(mockCheckRun).not.toHaveBeenCalled();
     expect(checkReport.createCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
+  });
+
+  test("check expand-baseline exits on service refusal", async () => {
+    mockCheckExpandBaseline.mockResolvedValueOnce({
+      kind: "refused",
+      message: "invalid selector",
+    });
+
+    await expect(Check.run(["--expand-baseline", "--rule", "missing-rule"])).rejects.toMatchObject({
+      oclif: { exit: 1 },
+    });
+    expect(mockCheckRun).not.toHaveBeenCalled();
   });
 
   test("fix forwards dry-run intent to the transaction runner", async () => {
