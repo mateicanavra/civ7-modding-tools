@@ -31,7 +31,6 @@ vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
       argv,
       serialized: ["habitat", "check", ...argv].join(" "),
     })),
-    createCheckReport: vi.fn(() => mockReport),
     verifyCheckSummary: vi.fn(() => ({
       reportSchemaVersion: 1,
       requestedSelectors: {},
@@ -48,6 +47,10 @@ vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
   };
 });
 
+vi.mock("../../src/service/modules/check/report.js", () => ({
+  createCheckReportEffect: vi.fn(() => Effect.succeed(mockReport)),
+}));
+
 vi.mock("../../src/lib/workspace-graph/index.js", async () => {
   const schema = await import("../../src/lib/workspace-graph/schema.js");
   return {
@@ -63,7 +66,8 @@ vi.mock("../../src/lib/workspace-graph/index.js", async () => {
 
 describe("Habitat verify service", () => {
   test("uses provided Git and Nx layers for owned verify orchestration", async () => {
-    expect(vi.isMockFunction(checkReport.createCheckReport)).toBe(true);
+    const checkServiceReport = await import("../../src/service/modules/check/report.js");
+    expect(vi.isMockFunction(checkServiceReport.createCheckReportEffect)).toBe(true);
     const { runVerifyService } = await import("../../src/service/modules/verify/run.js");
     const gitCalls: string[][] = [];
     const nxRequests: Array<{ base: string; targets: readonly string[] }> = [];
@@ -110,7 +114,7 @@ describe("Habitat verify service", () => {
       ["merge-base", "HEAD", "origin/main"],
       ["status", "--short", "--branch"],
     ]);
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
+    expect(checkServiceReport.createCheckReportEffect).toHaveBeenCalledWith(
       expect.objectContaining({ base: "fake-merge-base" })
     );
   });

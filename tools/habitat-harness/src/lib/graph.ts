@@ -1,15 +1,15 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { runSyncSpawnCommand, type SpawnResult } from "../providers/command/index.js";
 import { repoRoot } from "./paths.js";
-import { run, type SpawnResult } from "./spawn.js";
 
 /** Command adapter for `habitat graph`: exports the workspace graph as JSON. */
 export function runGraph(options: { json?: boolean } = {}): SpawnResult {
   const dir = mkdtempSync(path.join(tmpdir(), "habitat-graph-"));
   const graphPath = path.join(dir, "graph.json");
   try {
-    const graphResult = run(["target-check", "graph", "--file", graphPath], {
+    const graphResult = runSyncSpawnCommand(["target-check", "graph", "--file", graphPath], {
       cwd: repoRoot,
     });
     if (graphResult.exitCode !== 0) return graphResult;

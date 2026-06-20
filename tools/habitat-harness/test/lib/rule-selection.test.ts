@@ -1,15 +1,13 @@
 import { describe, expect, test } from "vitest";
-import {
-  checkCommandContext,
-  createCheckReport,
-  renderCheckReport,
-  rulesForExecution,
-  stagedPatternScanRoots,
-} from "../../src/lib/check-report.js";
+import { stagedPatternScanRoots } from "../../src/lib/check/staged-scan-roots.js";
+import { checkCommandContext, renderCheckReport } from "../../src/lib/check-report.js";
 import { validateCheckReport } from "../../src/lib/diagnostics.js";
 import { type RuleSelection, selectRules } from "../../src/lib/rule-selection.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
 import type { RulePatternFacts } from "../../src/rules/registry/index.js";
+import { runHabitatEffect } from "../../src/runtime/index.js";
+import { rulesForExecution } from "../../src/service/modules/check/execution.js";
+import { createCheckReportEffect } from "../../src/service/modules/check/report.js";
 
 const fakeRules: HarnessRule[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
@@ -100,10 +98,12 @@ describe("rule selector boundary", () => {
   });
 
   test("renders invalid selectors as schemaVersion 1 failing CheckReports", async () => {
-    const report = await createCheckReport({
-      command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
-      rule: "definitely-not-a-rule",
-    });
+    const report = await runHabitatEffect(
+      createCheckReportEffect({
+        command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
+        rule: "definitely-not-a-rule",
+      })
+    );
 
     expect(validateCheckReport(report)).toEqual([]);
     expect(report.ok).toBe(false);
@@ -186,11 +186,13 @@ describe("rule selector boundary", () => {
   });
 
   test("staged Grit checks with no approved roots report not-applicable instead of baseline-only pass", async () => {
-    const report = await createCheckReport({
-      tool: "pattern-check",
-      staged: true,
-      stagedPaths: ["README.md"],
-    });
+    const report = await runHabitatEffect(
+      createCheckReportEffect({
+        tool: "pattern-check",
+        staged: true,
+        stagedPaths: ["README.md"],
+      })
+    );
 
     const gritReports = report.rules.filter((rule) => rule.ownerTool === "pattern-check");
     expect(gritReports.length).toBeGreaterThan(0);

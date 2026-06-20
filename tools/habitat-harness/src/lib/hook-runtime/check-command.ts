@@ -1,7 +1,7 @@
 import { Value } from "typebox/value";
+import type { SpawnResult } from "../../providers/command/index.js";
 import { type CheckReport, type HookCheckSummary, hookCheckSummary } from "../check/index.js";
 import { CheckReportSchema, validateCheckReport } from "../check/schema.js";
-import type { SpawnResult } from "../spawn.js";
 
 export type HookCheckCommandResult =
   | {

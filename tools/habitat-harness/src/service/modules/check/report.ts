@@ -1,6 +1,7 @@
+import type { CommandExecutor } from "@effect/platform/CommandExecutor";
+import { Effect } from "effect";
 import { Value } from "typebox/value";
-import { activeRuleReportFacts, factsForRuleIds } from "../../rules/facts.js";
-import type { RuleReportFacts } from "../../rules/registry/index.js";
+import type { HabitatConfig } from "../../../config/index.js";
 import {
   applyBaseline,
   baselineFailureDiagnostic,
@@ -8,75 +9,101 @@ import {
   checkBaselineIntegrity,
   isBaselineLocked,
   loadBaselineState,
-} from "../baseline.js";
-import { selectRules } from "../rule-selection.js";
-import { baselineContractInputs } from "./baseline.js";
-import { executeSelectedRules, type RuleExecutionRecord, rulesForExecution } from "./execution.js";
-import { type CheckOptions, structuralCheckRequest } from "./request.js";
-import type { CheckReport, RuleExecutionDisposition, RuleReport } from "./schema.js";
-import { constructCheckReport, selectorRefusalReport } from "./selection.js";
+} from "../../../lib/baseline.js";
+import { type CheckOptions, structuralCheckRequest } from "../../../lib/check/request.js";
+import type {
+  CheckReport,
+  RuleExecutionDisposition,
+  RuleReport,
+} from "../../../lib/check/schema.js";
+import { constructCheckReport, selectorRefusalReport } from "../../../lib/check/selection.js";
 import {
   BaselineApplicationOutcomeSchema,
   DiagnosticConsumptionOutcomeSchema,
   RuleExecutionPlanSchema,
   RuleSelectionOutcomeSchema,
   StructuralRuleOutcomeSchema,
-} from "./state.js";
+} from "../../../lib/check/state.js";
+import { selectRules } from "../../../lib/rule-selection.js";
+import { CommandRunner } from "../../../providers/command/index.js";
+import { GritProvider, type GritProviderRequirements } from "../../../providers/grit/index.js";
+import { HabitatClock } from "../../../resources/index.js";
+import { activeRuleReportFacts, factsForRuleIds } from "../../../rules/facts.js";
+import type { RuleReportFacts } from "../../../rules/registry/index.js";
+import { baselineContractInputs } from "./baseline.js";
+import {
+  executeSelectedRulesEffect,
+  type RuleExecutionRecord,
+  rulesForExecution,
+} from "./execution.js";
 
-export async function createCheckReport(options: CheckOptions = {}): Promise<CheckReport> {
-  const request = structuralCheckRequest(options);
-  const selection = selectRules(request.selectors);
-  if (!selection.ok) return selectorRefusalReport(selection, request);
-  Value.Parse(RuleSelectionOutcomeSchema, {
-    kind: "selected",
-    selector: request.selectors,
-    selectedRuleIds: selection.rules.map((rule) => rule.id),
+export function createCheckReportEffect(
+  options: CheckOptions = {}
+): Effect.Effect<
+  CheckReport,
+  never,
+  | CommandRunner
+  | CommandExecutor
+  | GritProvider
+  | GritProviderRequirements
+  | HabitatConfig
+  | HabitatClock
+> {
+  return Effect.gen(function* () {
+    const request = structuralCheckRequest(options);
+    const selection = selectRules(request.selectors);
+    if (!selection.ok) return selectorRefusalReport(selection, request);
+    Value.Parse(RuleSelectionOutcomeSchema, {
+      kind: "selected",
+      selector: request.selectors,
+      selectedRuleIds: selection.rules.map((rule) => rule.id),
+    });
+
+    const selectedRules = rulesForExecution(selection.rules, options);
+    const selectedRuleIds = selectedRules.map((rule) => rule.id);
+    const reportsByRuleId = factsByRuleId(factsForRuleIds(activeRuleReportFacts, selectedRuleIds));
+    const baselineInputsByRuleId = factsByRuleId(baselineContractInputs(selectedRuleIds));
+    const reports: RuleReport[] = [];
+    const ruleResults = yield* executeSelectedRulesEffect(selectedRules, options);
+    for (const rule of selectedRules) {
+      const reportFacts = reportsByRuleId.get(rule.id);
+      if (!reportFacts)
+        throw new Error(`habitat internal error: missing report facts for ${rule.id}`);
+      const baselineFacts = baselineInputsByRuleId.get(rule.id);
+      if (!baselineFacts)
+        throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
+      const baseline = loadBaselineState(baselineFacts);
+      const execution = ruleResults.get(rule.id);
+      if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
+      Value.Parse(RuleExecutionPlanSchema, {
+        ruleId: rule.id,
+        ownerTool: rule.ownerTool,
+        lane: reportFacts.lane,
+        disposition: execution.disposition,
+      });
+      const executionDiagnostics = execution.result.diagnostics;
+      diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
+      const baselineResult = applyBaseline(executionDiagnostics, baseline);
+      const locked = isBaselineLocked(baseline);
+      baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
+      const diagnostics = [
+        ...executionDiagnostics,
+        ...baselineResult.refusals.map((failure) => baselineFailureDiagnostic(rule.id, failure)),
+      ];
+      const report = ruleReportFromDiagnostics({
+        ruleId: rule.id,
+        reportFacts,
+        locked,
+        durationMs: execution.durationMs,
+        diagnostics,
+      });
+      structuralRuleOutcome(report, execution.disposition);
+      reports.push(report);
+    }
+
+    if (options.baselineIntegrity) reports.push(baselineIntegrityReport(options.base ?? "main"));
+    return constructCheckReport({ command: request.command.serialized, reports });
   });
-
-  const selectedRules = rulesForExecution(selection.rules, options);
-  const selectedRuleIds = selectedRules.map((rule) => rule.id);
-  const reportsByRuleId = factsByRuleId(factsForRuleIds(activeRuleReportFacts, selectedRuleIds));
-  const baselineInputsByRuleId = factsByRuleId(baselineContractInputs(selectedRuleIds));
-  const reports: RuleReport[] = [];
-  const ruleResults = await executeSelectedRules(selectedRules, options);
-  for (const rule of selectedRules) {
-    const reportFacts = reportsByRuleId.get(rule.id);
-    if (!reportFacts)
-      throw new Error(`habitat internal error: missing report facts for ${rule.id}`);
-    const baselineFacts = baselineInputsByRuleId.get(rule.id);
-    if (!baselineFacts)
-      throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-    const baseline = loadBaselineState(baselineFacts);
-    const execution = ruleResults.get(rule.id);
-    if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
-    Value.Parse(RuleExecutionPlanSchema, {
-      ruleId: rule.id,
-      ownerTool: rule.ownerTool,
-      lane: reportFacts.lane,
-      disposition: execution.disposition,
-    });
-    const executionDiagnostics = execution.result.diagnostics;
-    diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
-    const baselineResult = applyBaseline(executionDiagnostics, baseline);
-    const locked = isBaselineLocked(baseline);
-    baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
-    const diagnostics = [
-      ...executionDiagnostics,
-      ...baselineResult.refusals.map((failure) => baselineFailureDiagnostic(rule.id, failure)),
-    ];
-    const report = ruleReportFromDiagnostics({
-      ruleId: rule.id,
-      reportFacts,
-      locked,
-      durationMs: execution.durationMs,
-      diagnostics,
-    });
-    structuralRuleOutcome(report, execution.disposition);
-    reports.push(report);
-  }
-
-  if (options.baselineIntegrity) reports.push(baselineIntegrityReport(options.base ?? "main"));
-  return constructCheckReport({ command: request.command.serialized, reports });
 }
 
 function diagnosticConsumptionOutcome(

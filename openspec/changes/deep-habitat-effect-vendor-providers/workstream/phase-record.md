@@ -13,8 +13,8 @@
 ## Objective
 
 - Target movement: turn external tools into typed Effect providers.
-- Non-goals: full check/baseline/hook/graph domain cutover, Grit apply
-  transaction cutover, and final deletion of migration bridges.
+- Non-goals: full check/baseline/hook/graph domain cutover and Grit apply
+  transaction cutover.
 - Done condition: providers have live/fake layers and vendor non-claims.
 
 ## Verification

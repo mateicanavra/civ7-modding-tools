@@ -1,5 +1,5 @@
 import type { Layer } from "effect";
-import type { HabitatProcess } from "../../../lib/habitat-process.js";
+import type { GritProvider } from "../../../providers/grit/index.js";
 import type { ApplyTransactionInput } from "../../../rules/patterns/index.js";
 
 export interface TransactionsServiceContext {
@@ -7,6 +7,6 @@ export interface TransactionsServiceContext {
 }
 
 export interface TransactionsServiceOptions {
-  readonly processLayer?: Layer.Layer<HabitatProcess>;
+  readonly providerLayer?: Layer.Layer<GritProvider>;
   readonly transactionInputs?: readonly ApplyTransactionInput[];
 }

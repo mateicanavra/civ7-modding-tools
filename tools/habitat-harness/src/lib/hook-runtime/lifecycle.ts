@@ -1,4 +1,4 @@
-import type { SpawnResult } from "../spawn.js";
+import type { SpawnResult } from "../../providers/command/index.js";
 import { captureRepoSnapshot } from "./repo-snapshot.js";
 import { type HookRuntime, hookNow } from "./runtime.js";
 import type { HookTrace, PreCommitOutcome } from "./schema.js";

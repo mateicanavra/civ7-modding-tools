@@ -1,23 +1,3 @@
-export { gritRuleResultsFromReport } from "./diagnostics.js";
-export {
-  parseGritCheckOutput,
-  parseGritCheckTextOutput,
-} from "./output/index.js";
-export {
-  gritCheckProgram,
-  gritCheckRequest,
-} from "./request.js";
-export {
-  runGritDiagnosticOutcomes,
-  runGritRule,
-  runGritRules,
-} from "./runner.js";
-export type { PatternScanRootValidationOptions } from "./scan-roots/index.js";
-export {
-  discoverPatternScanRoots,
-  effectivePatternScanRoots,
-  validateScanRoots,
-} from "./scan-roots/index.js";
 export type {
   GritCheckCacheMode,
   GritCheckOptions,
@@ -27,4 +7,21 @@ export type {
   GritDiagnosticOptions,
   GritReport,
   GritResult,
-} from "./types.js";
+} from "../../providers/grit/types.js";
+export { gritRuleResultsFromReport } from "./diagnostics.js";
+export {
+  gritCheckProgram,
+  gritCheckRequest,
+} from "./request.js";
+export {
+  runGritDiagnosticOutcomes,
+  runGritDiagnosticOutcomesEffect,
+  runGritRule,
+  runGritRules,
+  runGritRulesEffect,
+} from "./runner.js";
+export type { PatternScanRootValidationOptions } from "./scan-roots/index.js";
+export {
+  discoverPatternScanRoots,
+  validateScanRoots,
+} from "./scan-roots/index.js";

@@ -25,7 +25,7 @@ import {
   unstagedAmong,
 } from "../../../lib/hook-runtime/staged-worktree.js";
 import { repoRoot } from "../../../lib/paths.js";
-import type { SpawnResult } from "../../../lib/spawn.js";
+import type { SpawnResult } from "../../../providers/command/index.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 

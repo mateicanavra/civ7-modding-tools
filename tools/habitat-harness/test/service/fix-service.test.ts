@@ -2,9 +2,9 @@ import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 import {
   type HabitatProcessRequest,
-  makeFakeHabitatProcessLayer,
   makeHabitatCommandResult,
-} from "../../src/lib/habitat-process.js";
+} from "../../src/providers/command/index.js";
+import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runFixService } from "../../src/service/modules/fix/run.js";
@@ -12,7 +12,7 @@ import { runFixService } from "../../src/service/modules/fix/run.js";
 describe("Habitat fix service", () => {
   test("runs dry-run intent through admitted pattern transactions", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const processLayer = makeFakeHabitatProcessLayer((request) => {
+    const providerLayer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -31,7 +31,7 @@ describe("Habitat fix service", () => {
           admissions: [applyAdmission()],
           transactionInputs: [transactionInput()],
           worktree: cleanWorktree(),
-          processLayer,
+          providerLayer,
         }
       )
     );
@@ -78,7 +78,7 @@ describe("Habitat fix service", () => {
 
   test("runs through the in-process Habitat service client", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const processLayer = makeFakeHabitatProcessLayer((request) => {
+    const providerLayer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -95,7 +95,7 @@ describe("Habitat fix service", () => {
         admissions: [applyAdmission()],
         transactionInputs: [transactionInput()],
         worktree: cleanWorktree(),
-        processLayer,
+        providerLayer,
       },
     }).fix.run({ kind: "dry-run-intent" });
 

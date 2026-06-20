@@ -1,11 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { Effect } from "effect";
-import {
-  checkCommandContext,
-  createCheckReport,
-  verifyCheckSummary,
-} from "../../../lib/check-report.js";
-import type { SpawnResult } from "../../../lib/spawn.js";
+import { checkCommandContext, verifyCheckSummary } from "../../../lib/check-report.js";
 import {
   createVerifyReceipt,
   observeGitStatusEffect,
@@ -13,7 +8,9 @@ import {
   resolveVerifyBaseEffect,
   runAffectedVerificationEffect,
 } from "../../../lib/verify/index.js";
+import type { SpawnResult } from "../../../providers/command/index.js";
 import { HabitatClock } from "../../../resources/index.js";
+import { createCheckReportEffect } from "../check/report.js";
 import type { VerifyServiceRunInput } from "./contract.js";
 
 export function runVerifyService(input: VerifyServiceRunInput) {
@@ -27,15 +24,11 @@ export function runVerifyService(input: VerifyServiceRunInput) {
     }
 
     const base = baseDecision.base;
-    const checkReport = yield* Effect.promise(() =>
-      Promise.resolve(
-        createCheckReport({
-          base,
-          baselineIntegrity: true,
-          command: checkCommandContext(input.commandArgs ?? []),
-        })
-      )
-    );
+    const checkReport = yield* createCheckReportEffect({
+      base,
+      baselineIntegrity: true,
+      command: checkCommandContext(input.commandArgs ?? []),
+    });
     const checkSummary = verifyCheckSummary(checkReport);
     const targetPlan = yield* Effect.promise(() => Promise.resolve(readVerifyTargetPlan()));
     let affectedResult: SpawnResult | undefined;

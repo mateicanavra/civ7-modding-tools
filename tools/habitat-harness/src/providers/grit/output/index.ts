@@ -8,8 +8,8 @@ import {
   type NativeGritCheckRequest,
   nativeGritCheckRequestFromCommandResult,
 } from "../../../lib/diagnostic-catalog/index.js";
-import type { HabitatCommandResult } from "../../../lib/habitat-process.js";
-import { normalizeGritPath } from "../scan-roots/index.js";
+import { toRepoRelative } from "../../../lib/paths.js";
+import type { HabitatCommandResult } from "../../command/index.js";
 import {
   type GritDiagnosticAcquisition,
   type GritParseFailureStatus,
@@ -231,6 +231,11 @@ function parseGritTextResults(text: string): GritResult[] {
   }
 
   return results;
+}
+
+function normalizeGritPath(gritPath: string | undefined): string {
+  if (!gritPath) return ".";
+  return toRepoRelative(gritPath.replace(/^\.\//, ""));
 }
 
 function parseFailure(

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
+import { runSyncSpawnCommand } from "../providers/command/index.js";
 import { repoRoot } from "./paths.js";
-import { run } from "./spawn.js";
 
 export interface HabitatGitState {
   branch: string | null;
@@ -18,7 +18,10 @@ export interface HabitatCommandGitState {
 export function readGitState(cwd = repoRoot): HabitatGitState {
   const branch = gitValue(["git", "branch", "--show-current"], cwd);
   const head = gitValue(["git", "rev-parse", "HEAD"], cwd);
-  const status = run(["git", "status", "--short"], { cwd, captureGitState: false });
+  const status = runSyncSpawnCommand(["git", "status", "--short"], {
+    cwd,
+    captureGitState: false,
+  });
   const statusShort = status.exitCode === 0 ? status.stdout : `${status.stdout}${status.stderr}`;
   return {
     branch: branch || null,
@@ -41,6 +44,6 @@ export function unknownGitState(): HabitatCommandGitState {
 }
 
 function gitValue(argv: string[], cwd: string): string {
-  const result = run(argv, { cwd, captureGitState: false });
+  const result = runSyncSpawnCommand(argv, { cwd, captureGitState: false });
   return result.exitCode === 0 ? result.stdout.trim() : "";
 }

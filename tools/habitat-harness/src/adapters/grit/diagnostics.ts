@@ -7,11 +7,11 @@ import {
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
 } from "../../lib/diagnostic-catalog/index.js";
+import type { GritDiagnosticOptions, GritReport, GritResult } from "../../providers/grit/types.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import type { RulePatternFacts } from "../../rules/registry/index.js";
 import { infrastructureFailure } from "./failure.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
-import type { GritDiagnosticOptions, GritReport, GritResult } from "./types.js";
 
 export function gritDiagnosticOutcomesFromReport(
   selectedRules: readonly RulePatternFacts[],

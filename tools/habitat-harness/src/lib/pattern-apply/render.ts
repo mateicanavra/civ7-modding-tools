@@ -1,4 +1,4 @@
-import type { SpawnResult } from "../spawn.js";
+import type { SpawnResult } from "../../providers/command/index.js";
 import type { PatternApplyRecord } from "./schema.js";
 
 export function renderPatternApply(record: PatternApplyRecord): SpawnResult {

@@ -1,11 +1,4 @@
-export { type BaselineExpansionResult, expandBaselines } from "./baseline.js";
-export {
-  executeSelectedRules,
-  rulesForExecution,
-  stagedPatternScanRoots,
-} from "./execution.js";
 export { renderCheckReport, stringifyCheckReport } from "./render.js";
-export { createCheckReport } from "./report.js";
 export {
   baselineAuthoringRequest,
   type CheckOptions,
@@ -35,6 +28,7 @@ export {
   HookCheckSummarySchema,
   VerifyCheckSummarySchema,
 } from "./schema.js";
+export { stagedPatternScanRoots } from "./staged-scan-roots.js";
 export type {
   BaselineApplicationOutcome,
   DiagnosticConsumptionOutcome,

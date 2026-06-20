@@ -1,11 +1,14 @@
-import type { run, SpawnResult } from "../spawn.js";
+import type { SpawnResult } from "../../providers/command/index.js";
 import type { HookReportChannel, HookTrace } from "./schema.js";
 
 export interface HookOptions {
   base?: string;
 }
 
-export type RunCommand = typeof run;
+export type RunCommand = (
+  argv: string[],
+  opts: { cwd: string; env?: Record<string, string>; captureGitState?: boolean }
+) => SpawnResult;
 
 export interface HookReportEvent {
   channel: HookReportChannel;

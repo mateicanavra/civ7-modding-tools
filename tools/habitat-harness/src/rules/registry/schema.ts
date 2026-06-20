@@ -129,7 +129,6 @@ export const PatternCheckRuleRegistryRecordV1Schema = Type.Interface(
     ownerTool: Type.Literal("pattern-check"),
     patternName: Type.String({ minLength: 1 }),
     scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
-    expandIgnoredTestDirectories: Type.Optional(Type.Literal(true)),
     hookCheck: Type.Optional(HookCheckSchema),
     manifestPath: Type.Optional(Type.String({ minLength: 1 })),
   },
@@ -260,7 +259,6 @@ export const RulePatternFactsSchema = Type.Pick(PatternCheckRuleRegistryRecordV1
   "message",
   "patternName",
   "scanRoots",
-  "expandIgnoredTestDirectories",
 ]);
 
 export const RuleManifestFactsSchema = Type.Interface(
