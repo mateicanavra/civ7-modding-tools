@@ -299,10 +299,19 @@
         "@nx/devkit": "22.7.5",
         "@oclif/core": "^4.11.4",
         "@oclif/plugin-help": "^6.2.50",
+        "@orpc/client": "1.14.6",
+        "@orpc/contract": "1.14.6",
+        "@orpc/server": "1.14.6",
+        "@orpc/shared": "^1.14.4",
+        "@standard-schema/spec": "^1.1.0",
         "effect": "3.21.3",
+        "effect-orpc": "0.5.0",
         "typebox": "^1.0.80",
       },
     },
+  },
+  "patchedDependencies": {
+    "effect-orpc@0.5.0": "patches/effect-orpc@0.5.0.patch",
   },
   "overrides": {
     "@types/node": "^22.19.21",
@@ -3674,6 +3683,8 @@
     "@inquirer/select/@inquirer/core": ["@inquirer/core@9.2.1", "", { "dependencies": { "@inquirer/figures": "^1.0.6", "@inquirer/type": "^2.0.0", "@types/mute-stream": "^0.0.4", "@types/node": "^22.5.5", "@types/wrap-ansi": "^3.0.0", "ansi-escapes": "^4.3.2", "cli-width": "^4.1.0", "mute-stream": "^1.0.0", "signal-exit": "^4.1.0", "strip-ansi": "^6.0.1", "wrap-ansi": "^6.2.0", "yoctocolors-cjs": "^2.1.2" } }, "sha512-F2VBt7W/mwqEU4bL0RnHNZmC/OxzNx9cOYxHqnXX3MP6ruYvZUZAW9imgN9+h/uBT/oP8Gh888J2OZSbjSeWcg=="],
 
     "@inquirer/select/@inquirer/type": ["@inquirer/type@1.5.5", "", { "dependencies": { "mute-stream": "^1.0.0" } }, "sha512-MzICLu4yS7V8AA61sANROZ9vT1H3ooca5dSmI1FjZkzq7o/koMsRfQSzRtFo+F3Ao4Sf1C0bpLKejpKB/+j6MA=="],
+
+    "@internal/habitat-harness/effect-orpc": ["effect-orpc@0.5.0", "", { "peerDependencies": { "@orpc/client": ">=1.13.0", "@orpc/contract": ">=1.13.0", "@orpc/server": ">=1.13.0", "@orpc/shared": ">=1.13.0", "effect": ">=3.18.0", "typescript": "^5" } }, "sha512-cnRcrz9L4GXp1IrMNlOV29YzF5cxDEK2XDypcy8i2ohOY2UDhwZ1BuG/jiTIpPZV2p1Vw1+D9ScWsIl46JHj9A=="],
 
     "@mintlify/cli/@inquirer/prompts": ["@inquirer/prompts@7.9.0", "", { "dependencies": { "@inquirer/checkbox": "^4.3.0", "@inquirer/confirm": "^5.1.19", "@inquirer/editor": "^4.2.21", "@inquirer/expand": "^4.0.21", "@inquirer/input": "^4.2.5", "@inquirer/number": "^3.0.21", "@inquirer/password": "^4.0.21", "@inquirer/rawlist": "^4.1.9", "@inquirer/search": "^3.2.0", "@inquirer/select": "^4.4.0" }, "peerDependencies": { "@types/node": ">=18" }, "optionalPeers": ["@types/node"] }, "sha512-X7/+dG9SLpSzRkwgG5/xiIzW0oMrV3C0HOa7YHG1WnrLK+vCQHfte4k/T80059YBdei29RBC3s+pSMvPJDU9/A=="],
 

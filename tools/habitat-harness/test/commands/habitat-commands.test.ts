@@ -13,32 +13,40 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
   targets: ["build"],
   states: [],
 }));
+const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/lib/check-report.js", () => ({
-  checkCommandContext: vi.fn((argv: string[]) => ({
-    bin: "habitat",
-    id: "check",
-    argv,
-    serialized: ["habitat", "check", ...argv].join(" "),
-  })),
-  createCheckReport: vi.fn(() => mockReport),
-  describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
-  expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
-  renderCheckReport: vi.fn(() => '{"ok":true}'),
-  verifyCheckSummary: vi.fn(() => ({
-    reportSchemaVersion: 1,
-    requestedSelectors: {},
-    selectedRuleIds: [],
-    selectedRealRuleIds: [],
-    builtInRuleIds: [],
-    statusCounts: {},
-    advisoryCount: 0,
-    failingCount: 0,
-    refusedCount: 0,
-    notApplicableCount: 0,
-    allowsAffectedExecution: true,
-  })),
-}));
+vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/lib/check-report.js")>();
+  return {
+    ...actual,
+    checkCommandContext: vi.fn((argv: string[]) => ({
+      bin: "habitat",
+      id: "check",
+      argv,
+      serialized: ["habitat", "check", ...argv].join(" "),
+    })),
+    createCheckReport: vi.fn(() => mockReport),
+    describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
+    expandBaselines: vi.fn(() => ({
+      ok: true,
+      messages: ["baseline written: demo-rule (1 entry)"],
+    })),
+    renderCheckReport: vi.fn(() => '{"ok":true}'),
+    verifyCheckSummary: vi.fn(() => ({
+      reportSchemaVersion: 1,
+      requestedSelectors: {},
+      selectedRuleIds: [],
+      selectedRealRuleIds: [],
+      builtInRuleIds: [],
+      statusCounts: {},
+      advisoryCount: 0,
+      failingCount: 0,
+      refusedCount: 0,
+      notApplicableCount: 0,
+      allowsAffectedExecution: true,
+    })),
+  };
+});
 
 vi.mock("../../src/lib/classify.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../src/lib/classify.js")>();
@@ -83,70 +91,16 @@ vi.mock("../../src/lib/hooks.js", () => ({
   runHook: vi.fn(() => ({ exitCode: 0, stdout: "hook ok\n", stderr: "" })),
 }));
 
-vi.mock("../../src/lib/verify/index.js", () => ({
-  createVerifyReceipt: vi.fn(() => ({
-    schemaVersion: 1,
-    outcome: "succeeded",
-    command: {
-      argv: ["habitat", "verify", "--json"],
-      cwd: "/repo",
-      env: {},
-      startedAt: "2026-06-13T00:00:00.000Z",
-      durationMs: 1,
-      exitCode: 0,
-    },
-    base: { requested: "HEAD~1", resolved: "HEAD~1", source: "flag" },
-    habitatCheck: {
-      reportSchemaVersion: 1,
-      selectedRuleIds: [],
-      selectedRealRuleIds: ["adapter-boundary"],
-      builtInRuleIds: [],
-      statusCounts: {},
-      advisoryCount: 0,
-      failingCount: 0,
-      refusedCount: 0,
-      notApplicableCount: 0,
-      consumption: "allows-affected-execution",
-      selectorState: { kind: "none" },
-    },
-    targetPlan: { kind: "target-plan-ready", targets: ["build"] },
-    nxAffected: {
-      kind: "executed",
-      argv: ["nx", "affected", "-t", "build", "--base", "HEAD~1"],
-      targets: ["build"],
-      projects: [],
-      cacheStateByTask: [],
-      exitCode: 0,
-      stdoutLength: 12,
-      stderrLength: 0,
-      stdoutPreview: "affected ok\n",
-      stderrPreview: "",
-      stdoutTruncated: false,
-      stderrTruncated: false,
-    },
-    postState: {
-      kind: "observed-clean",
-      gitStatus: {
-        argv: ["git", "status", "--short", "--branch"],
-        cwd: "/repo",
-        exitCode: 0,
-        stdoutLength: 0,
-        stderrLength: 0,
-        stdoutPreview: "",
-        stderrPreview: "",
-        stdoutTruncated: false,
-        stderrTruncated: false,
-      },
-    },
-  })),
-  readVerifyTargetPlan: vi.fn(() => mockVerifyTargetPlan),
-  resolveVerifyBase: vi.fn((base?: string) => ({
-    kind: "resolved",
-    base: base ?? "merge-base",
-    source: base ? "flag" : "merge-base",
-  })),
-  runAffectedVerification: vi.fn(() => ({ exitCode: 0, stdout: "affected ok\n", stderr: "" })),
-  stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
+vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/lib/verify/index.js")>();
+  return {
+    ...actual,
+    stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
+  };
+});
+
+vi.mock("../../src/service/client.js", () => ({
+  createHabitatServiceClient: vi.fn(() => ({ verify: { run: mockVerifyRun } })),
 }));
 
 import Check from "../../src/commands/check.js";
@@ -161,6 +115,7 @@ import * as fix from "../../src/lib/fix.js";
 import * as graph from "../../src/lib/graph.js";
 import * as hooks from "../../src/lib/hooks.js";
 import * as verifyReceipt from "../../src/lib/verify/index.js";
+import * as serviceClient from "../../src/service/client.js";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];
@@ -175,6 +130,17 @@ describe("Habitat oclif commands", () => {
     stdout = [];
     stderr = [];
     logs = [];
+    mockVerifyRun.mockImplementation(async (input: { base?: string; commandArgs?: string[] }) => {
+      const base = input.base ?? "merge-base";
+      return {
+        kind: "completed",
+        base,
+        checkReport: mockReport,
+        targetPlan: mockVerifyTargetPlan,
+        affectedResult: { exitCode: 0, stdout: "affected ok\n", stderr: "" },
+        receipt: verifyReceiptPayload(base, input),
+      };
+    });
     stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation((chunk) => {
       stdout.push(String(chunk));
       return true;
@@ -260,54 +226,26 @@ describe("Habitat oclif commands", () => {
   test("verify awaits check and affected target execution", async () => {
     await Verify.run(["--base", "HEAD~1"]);
 
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
-      expect.objectContaining({
-        base: "HEAD~1",
-        baselineIntegrity: true,
-        command: expect.objectContaining({
-          argv: ["--base", "HEAD~1"],
-          bin: "habitat",
-          id: "check",
-        }),
-      })
-    );
-    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
-      "HEAD~1",
-      mockVerifyTargetPlan
-    );
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockVerifyRun).toHaveBeenCalledWith({
+      base: "HEAD~1",
+      commandArgs: ["--base", "HEAD~1"],
+    });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
+    expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport);
     expect(stdout.join("")).toContain("affected ok");
   });
 
   test("verify can emit structured receipt JSON", async () => {
     await Verify.run(["--base", "HEAD~1", "--json"]);
 
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
-      expect.objectContaining({
-        base: "HEAD~1",
-        baselineIntegrity: true,
-        command: expect.objectContaining({
-          argv: ["--base", "HEAD~1", "--json"],
-          bin: "habitat",
-          id: "check",
-        }),
-      })
-    );
-    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
-      "HEAD~1",
-      mockVerifyTargetPlan
-    );
+    expect(mockVerifyRun).toHaveBeenCalledWith({
+      base: "HEAD~1",
+      commandArgs: ["--base", "HEAD~1", "--json"],
+    });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
-    expect(verifyReceipt.createVerifyReceipt).toHaveBeenCalledWith(
-      expect.objectContaining({
-        requestedBase: "HEAD~1",
-        resolvedBase: "HEAD~1",
-        commandArgs: ["--base", "HEAD~1", "--json"],
-        exitCode: 0,
-        checkReport: mockReport,
-        verifyTargetPlan: mockVerifyTargetPlan,
-        baseSource: "flag",
-      })
+    expect(verifyReceipt.stringifyVerifyReceipt).toHaveBeenCalledWith(
+      expect.objectContaining({ schemaVersion: 1 })
     );
     const payload = JSON.parse(capturedOutput()) as { schemaVersion: number };
     expect(payload.schemaVersion).toBe(1);
@@ -350,3 +288,65 @@ describe("Habitat oclif commands", () => {
     return `${stdout.join("")}${logs.join("\n")}`;
   }
 });
+
+function verifyReceiptPayload(base: string, input: { base?: string; commandArgs?: string[] }) {
+  return {
+    schemaVersion: 1,
+    outcome: "succeeded",
+    command: {
+      argv: ["habitat", "verify", ...(input.commandArgs ?? [])],
+      cwd: "/repo",
+      env: {},
+      startedAt: "2026-06-13T00:00:00.000Z",
+      durationMs: 1,
+      exitCode: 0,
+    },
+    base: {
+      requested: input.base ?? null,
+      resolved: base,
+      source: input.base ? "flag" : "merge-base",
+    },
+    habitatCheck: {
+      reportSchemaVersion: 1,
+      selectedRuleIds: [],
+      selectedRealRuleIds: ["adapter-boundary"],
+      builtInRuleIds: [],
+      statusCounts: {},
+      advisoryCount: 0,
+      failingCount: 0,
+      refusedCount: 0,
+      notApplicableCount: 0,
+      consumption: "allows-affected-execution",
+      selectorState: { kind: "none" },
+    },
+    targetPlan: { kind: "target-plan-ready", targets: ["build"] },
+    nxAffected: {
+      kind: "executed",
+      argv: ["nx", "affected", "-t", "build", "--base", base],
+      targets: ["build"],
+      projects: [],
+      cacheStateByTask: [],
+      exitCode: 0,
+      stdoutLength: 12,
+      stderrLength: 0,
+      stdoutPreview: "affected ok\n",
+      stderrPreview: "",
+      stdoutTruncated: false,
+      stderrTruncated: false,
+    },
+    postState: {
+      kind: "observed-clean",
+      gitStatus: {
+        argv: ["git", "status", "--short", "--branch"],
+        cwd: "/repo",
+        exitCode: 0,
+        stdoutLength: 0,
+        stderrLength: 0,
+        stdoutPreview: "",
+        stderrPreview: "",
+        stdoutTruncated: false,
+        stderrTruncated: false,
+      },
+    },
+  };
+}

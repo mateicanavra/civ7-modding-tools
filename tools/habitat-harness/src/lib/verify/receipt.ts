@@ -13,7 +13,7 @@ import {
 } from "../workspace-graph/index.js";
 import { selectedVerifyEnv } from "./command-output.js";
 import { affectedVerificationArgv, completedNxAffected, skippedNxAffected } from "./nx-affected.js";
-import { observeGitStatus, postStateObservation } from "./post-state.js";
+import { postStateObservation } from "./post-state.js";
 import {
   type VerifyBaseResolution,
   VerifyHabitatCheckSummarySchema,
@@ -45,6 +45,8 @@ export interface VerifyReceiptInput {
   verifyTargetPlan?: VerifyTargetPlan;
   /** Optional affected command result; absent means verify skipped affected execution. */
   affectedResult?: SpawnResult;
+  /** Git status observation captured through the Git provider before receipt assembly. */
+  gitStatus: SpawnResult;
 }
 
 /** Verify target names currently owned by the workspace graph boundary. */
@@ -71,7 +73,6 @@ export async function readVerifyTargetPlan(): Promise<VerifyTargetPlan> {
 export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
   const targetPlan = input.verifyTargetPlan ?? verifyTargetPlan();
   const nxArgv = affectedVerificationArgv(input.resolvedBase, targetPlan);
-  const gitStatus = observeGitStatus();
   const habitatCheckSummary = verifyCheckSummary(input.checkReport);
   const nxAffected =
     habitatCheckSummary.allowsAffectedExecution &&
@@ -82,7 +83,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
           nxArgv,
           habitatCheckSummary.allowsAffectedExecution ? targetPlan : undefined
         );
-  const postState = postStateObservation(gitStatus);
+  const postState = postStateObservation(input.gitStatus);
   return Value.Parse(VerifyReceiptSchema, {
     schemaVersion: 1,
     outcome: receiptOutcome({

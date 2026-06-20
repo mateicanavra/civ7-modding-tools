@@ -1,7 +1,8 @@
-import { mkdirSync, mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { Effect } from "effect";
+import { CommandFailed, CommandInterrupted, CommandUnavailable } from "../../errors/index.js";
 import {
   diagnosticAdapterFailureForCacheObservation,
   diagnosticCacheObservationFromCommand,
@@ -12,14 +13,9 @@ import {
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
 } from "../../lib/diagnostic-catalog/index.js";
-import { gritMachineOutputEnv } from "../../lib/grit-env.js";
-import {
-  GritToolUnavailable,
-  HabitatProcess,
-  type HabitatProcessRequest,
-} from "../../lib/habitat-process.js";
-import { repoRoot } from "../../lib/paths.js";
-import { defaultGritCommandTimeoutMs, gritBin } from "./constants.js";
+import { GritToolUnavailable, type HabitatProcessRequest } from "../../lib/habitat-process.js";
+import { captureOutput, makeHabitatCommandResult } from "../../providers/command/index.js";
+import { GritProvider, gritCheckRequest } from "../../providers/grit/index.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output/index.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
@@ -38,7 +34,6 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
           command: { kind: "not-run" as const, reason: "scan-root-refused" as const },
         };
       }
-      const process = yield* HabitatProcess;
       const cacheRequirement = diagnosticCacheRequirementForGritCheck({
         cacheMode: options.cacheMode,
         requireObservableCacheStatus: options.requireObservableCacheStatus,
@@ -52,25 +47,26 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
             }
           : { outputFormat: options.outputFormat };
       const processRequest = gritCheckRequest(scanRoots, requestOptions);
+      const grit = yield* GritProvider;
       const nativeRequest = nativeGritCheckRequestFromProcessRequest({
         request: processRequest,
         commandFamily: nativeCommandFamilyForGritCheck(options),
         outputContract: nativeOutputContractForGritCheck(options),
         cacheRequirement,
       });
-      const result = yield* process.run(processRequest).pipe(
-        Effect.catchTag("GritToolUnavailable", (error) =>
-          Effect.fail(
-            new GritToolUnavailable({
-              commandId: error.commandId,
-              executable: error.executable,
-              argv: error.argv,
-              cwd: error.cwd,
-              cause: error.cause,
-            })
-          )
-        )
-      );
+      const result = yield* grit
+        .check({
+          scanRoots,
+          cacheDir: requestOptions.cacheDir,
+          observableCacheStatus: requestOptions.observableCacheStatus,
+          outputFormat: requestOptions.outputFormat,
+        })
+        .pipe(
+          Effect.catchTag("CommandInterrupted", (error) =>
+            Effect.succeed(interruptedGritResult(processRequest, error))
+          ),
+          Effect.mapError((error) => gritToolUnavailable(processRequest, error))
+        );
       if (
         options.requireObservableCacheStatus &&
         !diagnosticCacheRequirementSatisfied(
@@ -128,6 +124,37 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
   );
 }
 
+function interruptedGritResult(request: HabitatProcessRequest, error: CommandInterrupted) {
+  return makeHabitatCommandResult(request, {
+    requestedExecutable: request.executable,
+    exit: { code: 130, signal: error.signal, interrupted: true },
+    stderr: captureOutput(`${error.cause}\n`),
+    failureTag: "GritCommandFailed",
+  });
+}
+
+function gritToolUnavailable(
+  request: HabitatProcessRequest,
+  error: CommandUnavailable | CommandFailed
+) {
+  if (error._tag === "CommandFailed") {
+    return new GritToolUnavailable({
+      commandId: error.commandId,
+      executable: error.executable,
+      argv: error.argv,
+      cwd: error.cwd,
+      cause: `command exited ${error.exitCode}: ${error.stderr}`,
+    });
+  }
+  return new GritToolUnavailable({
+    commandId: error.commandId,
+    executable: error.executable || request.executable,
+    argv: error.argv.length > 0 ? error.argv : request.argv,
+    cwd: error.cwd || request.cwd,
+    cause: error.cause,
+  });
+}
+
 function nativeCommandFamilyForGritCheck(
   options: GritCheckOptions
 ): "current-tree-json-check" | "docs-text-check" {
@@ -141,35 +168,7 @@ function nativeOutputContractForGritCheck(
   return options.outputFormat === "text" ? "standard-text-report" : "json-report";
 }
 
-export function gritCheckRequest(
-  scanRoots: readonly string[],
-  options: GritCheckRequestOptions = {}
-): HabitatProcessRequest {
-  const cacheDir = options.cacheDir ?? path.join(repoRoot, ".habitat", "cache", "patterns");
-  mkdirSync(cacheDir, { recursive: true });
-  return {
-    commandId: "pattern-check-current-tree",
-    kind: "pattern-check",
-    executable: gritBin,
-    argv:
-      options.outputFormat === "text"
-        ? ["check", "--level", "error", ...scanRoots]
-        : ["--json", "check", "--level", "error", ...scanRoots],
-    cwd: repoRoot,
-    env: {
-      ...gritMachineOutputEnv,
-      GRIT_CACHE_DIR: cacheDir,
-      GRIT_TELEMETRY_DISABLED: "true",
-    },
-    scanRoots,
-    timeoutMs: options.timeoutMs ?? defaultGritCommandTimeoutMs,
-    cachePolicy: {
-      mode: "isolated",
-      cacheDir,
-      observableStatus: options.observableCacheStatus ?? "unknown",
-    },
-  };
-}
+export { gritCheckRequest };
 
 function acquireGritCheckCacheDir() {
   return Effect.acquireRelease(
