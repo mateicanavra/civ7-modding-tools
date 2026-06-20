@@ -1,34 +1,70 @@
-# Design: Transformation Transaction Domain
+# Design: Fix Service Module
 
 ## Owner
 
-Transformation transaction and protected-zone authority domains.
+Fix service module, with lower-level pattern apply, transformation transaction,
+and protected-zone internals still owning the current apply behavior.
 
-## Target Files
+`fix` is the command surface for Habitat-owned transformations. This slice
+moves command-level fix orchestration into that owned service module. The
+follow-on domain drain moves write-set, protected-zone, rollback, cleanup, and
+resource ownership into named domains.
+
+## Target Flow
 
 ```text
-tools/habitat-harness/src/domains/transformation-transaction/index.ts
-tools/habitat-harness/src/domains/transformation-transaction/worktree.ts
-tools/habitat-harness/src/domains/transformation-transaction/apply.ts
-tools/habitat-harness/src/domains/transformation-transaction/rollback.ts
-tools/habitat-harness/src/domains/protected-zone-authority/index.ts
-tools/habitat-harness/src/domains/protected-zone-authority/guard.ts
-tools/habitat-harness/src/domains/protected-zone-authority/scan-root.ts
-tools/habitat-harness/src/domains/protected-zone-authority/recovery.ts
-tools/habitat-harness/src/lib/pattern-apply/**       # drained
-tools/habitat-harness/src/lib/protected-zones/**     # drained
+Fix CLI -> Habitat service client -> fix service module -> pattern apply domain
 ```
 
-## Required State-Space Reductions
+## Write Set
+
+```text
+tools/habitat-harness/src/service/modules/fix/**
+tools/habitat-harness/src/service/contract.ts
+tools/habitat-harness/src/service/router.ts
+tools/habitat-harness/src/commands/fix.ts
+tools/habitat-harness/test/service/fix-service.test.ts
+tools/habitat-harness/test/service/service-architecture.test.ts
+tools/habitat-harness/test/commands/habitat-commands.test.ts
+tools/habitat-harness/test/lib/pattern-apply.test.ts
+```
+
+Deleted path:
+
+```text
+tools/habitat-harness/src/lib/fix.ts
+```
+
+## Required Cutover In This Slice
+
+- Define a contract for `fix.run`.
+- Bind the procedure through `effect-orpc` in `src/service/modules/fix`.
+- Own fix intent parsing, apply admission lookup, worktree observation,
+  transaction request construction, and result rendering in the fix service
+  module.
+- Refuse `D0-package-export-symbol-runfix`; this slice does not add a
+  replacement package helper export or a compatibility wrapper.
+- Route the CLI through `client.fix.run`.
+- Keep dry-run and live-write intent projection stable.
+- Add tests that fail if the CLI imports or calls a `lib/fix` path directly.
+
+## Follow-On Transformation Domain Drain
 
 - A write transaction has explicit requested writes, admitted writes, blocked
   protected zones, rollback data, and final disposition.
 - Grit dry-run output is not treated as write proof without local verification.
 - Temp/cache/write-set resources are scoped through Effect.
+- Pattern apply and protected-zone source move into named domains.
 
 ## Stop Conditions
 
+- `src/commands/fix.ts` calls a `src/lib/fix.ts` wrapper directly.
+- `src/service/modules/fix/run.ts` delegates command orchestration to a `lib/fix`
+  wrapper.
+- This slice changes dry-run or live-write intent behavior.
+- The packet presents this service-module slice as the complete transaction
+  domain migration.
 - `grit apply --force` becomes a live-write path without a new packet.
 - Protected-zone refusals degrade to strings.
-- Transaction code performs direct filesystem mutations outside resource
+- Future transaction code performs direct filesystem mutations outside resource
   providers.

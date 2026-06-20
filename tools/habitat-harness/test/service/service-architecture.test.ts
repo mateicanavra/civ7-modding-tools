@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, test } from "vitest";
 
@@ -6,7 +6,7 @@ const packageRoot = new URL("../..", import.meta.url).pathname;
 const sourceRoot = join(packageRoot, "src");
 const serviceRoot = join(sourceRoot, "service");
 const providerRoot = join(sourceRoot, "providers");
-const serviceModuleNames = ["check", "graph", "hook", "verify"] as const;
+const serviceModuleNames = ["check", "fix", "graph", "hook", "verify"] as const;
 
 describe("Habitat service architecture", () => {
   test("keeps Effect-oRPC runtime construction in the root service seam", () => {
@@ -29,11 +29,13 @@ describe("Habitat service architecture", () => {
 
     expect(router).toContain("habitatServiceImplementer.router");
     expect(router).toContain("check: checkRouter");
+    expect(router).toContain("fix: fixRouter");
     expect(router).toContain("graph: graphRouter");
     expect(router).toContain("hook: hookRouter");
     expect(router).toContain("verify: verifyRouter");
     expect(router).not.toContain(".effect(");
     expect(router).not.toContain("createCheckReport");
+    expect(router).not.toContain("runFixService");
     expect(router).not.toContain("runGraphService");
     expect(router).not.toContain("runHookService");
     expect(router).not.toContain("runVerifyService");
@@ -85,6 +87,20 @@ describe("Habitat service architecture", () => {
     expect(graphCommand).toContain("client.graph.run");
     expect(graphCommand).not.toContain("runGraph");
     expect(graphCommand).not.toContain("../lib/graph.js");
+  });
+
+  test("routes fix CLI orchestration through the service client", () => {
+    const fixCommand = source("src/commands/fix.ts");
+    const fixRun = source("src/service/modules/fix/run.ts");
+    const publicIndex = source("src/index.ts");
+
+    expect(fixCommand).toContain("createHabitatServiceClient");
+    expect(fixCommand).toContain("client.fix.run");
+    expect(fixCommand).not.toContain("runFix");
+    expect(fixCommand).not.toContain("../lib/fix.js");
+    expect(fixRun).not.toMatch(/from\s+["'][^"']*lib\/fix\.js["']/);
+    expect(publicIndex).not.toContain("runFix");
+    expect(existsSync(join(packageRoot, "src/lib/fix.ts"))).toBe(false);
   });
 
   test("routes hook CLI orchestration through the service client", () => {

@@ -91,7 +91,6 @@ export type {
 } from "./lib/diagnostics.js";
 export { validateCheckReport } from "./lib/diagnostics.js";
 export { runHabitatEffect } from "./lib/effect-runtime.js";
-export { runFix } from "./lib/fix.js";
 export { readGitState } from "./lib/git-state.js";
 export { runGraph } from "./lib/graph.js";
 export type { GritAdapterFailure, GritAdapterFailureTag } from "./lib/grit-failures.js";

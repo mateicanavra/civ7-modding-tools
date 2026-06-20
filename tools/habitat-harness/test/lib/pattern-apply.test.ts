@@ -1,6 +1,6 @@
+import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
-import { runFix } from "../../src/lib/fix.js";
 import {
   type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
@@ -25,11 +25,10 @@ describe("pattern apply", () => {
   });
 
   test("refuses fix at the command boundary before apply admission", async () => {
-    const result = await runFix(
-      { kind: "dry-run-intent" },
-      {
-        admissions: [],
-      }
+    const { runFixService } = await import("../../src/service/modules/fix/run.js");
+
+    const result = await Effect.runPromise(
+      runFixService({ kind: "dry-run-intent" }, { admissions: [] })
     );
 
     expect(result).toMatchObject({
