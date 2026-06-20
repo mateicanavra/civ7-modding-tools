@@ -5,6 +5,8 @@ import path from "node:path";
 const repoRoot = path.resolve(new URL("../..", import.meta.url).pathname);
 const sourceRoot = "tools/habitat-harness/src";
 const packagePath = "tools/habitat-harness/package.json";
+const injectedRoot = process.env.HABITAT_PUBLIC_SURFACE_GUARD_INJECTED_ROOT;
+const injectedFiles = injectedRoot ? injectedRepoFiles(injectedRoot) : new Map();
 
 const allowedLibFiles = new Set([
   "tools/habitat-harness/src/lib/artifact-paths.ts",
@@ -110,6 +112,15 @@ const allowedArtifactSemantics = new Set([
   "tools/habitat-harness/src/rules/architecture.ts",
 ]);
 
+const allowedPublicDomainFacadeImports = new Map([
+  ["tools/habitat-harness/src/public/check-report.ts", "../domains/structural-check/index.js"],
+  [
+    "tools/habitat-harness/src/public/classify.ts",
+    "../domains/workspace-graph-integration/index.js",
+  ],
+  ["tools/habitat-harness/src/public/verify.ts", "../domains/proof-contract/index.js"],
+]);
+
 const forbiddenPublicSymbols = [
   "BaselineAuthorityLive",
   "CommandRunnerLive",
@@ -129,13 +140,20 @@ const forbiddenPublicSymbols = [
 ];
 
 const failures = [];
-const sourceFiles = tsFiles(path.join(repoRoot, sourceRoot));
+const sourceFiles = [
+  ...tsFiles(path.join(repoRoot, sourceRoot)),
+  ...[...injectedFiles.keys()].filter(
+    (file) => file.startsWith(`${sourceRoot}/`) && isTsSource(file)
+  ),
+].sort();
 
 checkPackageExports();
+checkHabitatArtifacts();
 checkPublicFacade();
 checkDeletedAdapters();
 checkLibRatchet();
 checkSourceEdges();
+checkSourceLanguage();
 
 if (failures.length > 0) {
   console.error("=== Habitat Public Surface Guards ===");
@@ -185,6 +203,66 @@ function checkPublicFacade() {
     if (/from\s+["']\.\.\/(?:adapters|config|errors|lib|providers|runtime|rules)\//.test(text)) {
       fail("Public facade imports from an internal implementation owner.", [file]);
     }
+    const domainImports = [...text.matchAll(/from\s+["'](\.\.\/domains\/[^"']+)["']/g)].map(
+      (match) => ({
+        line: lineForIndex(text, match.index ?? 0),
+        source: match[1],
+      })
+    );
+    const allowedDomainImport = allowedPublicDomainFacadeImports.get(file);
+    const disallowedDomainImports = domainImports.filter(
+      (entry) => entry.source !== allowedDomainImport
+    );
+    if (disallowedDomainImports.length > 0) {
+      fail(
+        "Public facade imports an unapproved domain surface.",
+        disallowedDomainImports.map((entry) => `${file}:${entry.line}`)
+      );
+    }
+  }
+}
+
+function checkHabitatArtifacts() {
+  const artifactFiles = filesUnder(".habitat");
+  const executableArtifactFiles = artifactFiles.filter(
+    (file) =>
+      /^\.habitat\/(?:rules|patterns|baselines)\//.test(file) &&
+      /\.(?:[cm]?js|jsx|[cm]?ts|tsx)$/.test(file)
+  );
+  if (executableArtifactFiles.length > 0) {
+    fail(
+      "Authored Habitat artifacts must stay declarative.",
+      executableArtifactFiles.map(
+        (file) => `${file}: executable managing code belongs in Habitat source`
+      )
+    );
+  }
+
+  const topologyDirs = [
+    "adapters",
+    "domains",
+    "dist",
+    "lib",
+    "node_modules",
+    "providers",
+    "runtime",
+    "services",
+    "src",
+  ];
+  const topologySegments = new Set(topologyDirs);
+  const vendorTopologyFiles = artifactFiles.filter((file) =>
+    file
+      .split("/")
+      .slice(1)
+      .some((segment) => topologySegments.has(segment))
+  );
+  if (vendorTopologyFiles.length > 0) {
+    fail(
+      "Authored Habitat artifacts must not grow source/vendor topology.",
+      vendorTopologyFiles.map(
+        (file) => `${file}: move implementation structure into its owning adapter/domain`
+      )
+    );
   }
 }
 
@@ -273,6 +351,29 @@ function checkSourceEdges() {
   }
 }
 
+function checkSourceLanguage() {
+  for (const file of sourceFiles) {
+    const text = read(file);
+    if (file.startsWith(`${sourceRoot}/domains/`)) {
+      checkAllowed(
+        file,
+        text,
+        /from\s+["'][^"']*(?:\.\.\/)+providers\/[^/]+\/(?:(?:errors|fake|materialize|observation|output|request|result|runner|spawn-result|types)\.js|(?:internal|live|private)\/[^"']+)["']/g,
+        new Set(),
+        "Domain modules must import provider public modules, not provider internals."
+      );
+    }
+
+    if (!isGenericHabitatSurface(file)) continue;
+    const matches = [
+      ...text.matchAll(/\b(?:Civ7|MapGen|Swooper|recipe|placement|terrain)\b|product parser/g),
+    ].map((match) => `${file}:${lineForIndex(text, match.index ?? 0)}`);
+    if (matches.length > 0) {
+      fail("Generic Habitat surfaces must not hard-code product vocabulary.", matches);
+    }
+  }
+}
+
 function checkAllowed(file, text, pattern, allowedFiles, title) {
   const matches = [...text.matchAll(pattern)].map((match) => lineForIndex(text, match.index ?? 0));
   if (matches.length === 0 || allowedFiles.has(file)) return;
@@ -287,9 +388,63 @@ function tsFiles(root) {
   return entries.flatMap((entry) => {
     const fullPath = path.join(root, entry.name);
     if (entry.isDirectory()) return tsFiles(fullPath);
-    if (!entry.name.endsWith(".ts")) return [];
+    if (!isTsSource(entry.name)) return [];
     return [toRepoRelative(fullPath)];
   });
+}
+
+function filesUnder(repoRelativeRoot) {
+  const root = path.join(repoRoot, repoRelativeRoot);
+  const actual = existsSync(root) ? repoFiles(root) : [];
+  const injected = [...injectedFiles.keys()].filter((file) =>
+    file.startsWith(`${repoRelativeRoot}/`)
+  );
+  return [...new Set([...actual, ...injected])].sort();
+}
+
+function repoFiles(root) {
+  const entries = readdirSync(root, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const fullPath = path.join(root, entry.name);
+    if (entry.isDirectory()) return repoFiles(fullPath);
+    return [toRepoRelative(fullPath)];
+  });
+}
+
+function injectedRepoFiles(root) {
+  const absoluteRoot = path.resolve(root);
+  const files = new Map();
+  for (const file of repoFilesFromRoot(absoluteRoot)) {
+    files.set(
+      path.relative(absoluteRoot, file).replaceAll(path.sep, "/"),
+      readFileSync(file, "utf8")
+    );
+  }
+  return files;
+}
+
+function repoFilesFromRoot(root) {
+  const entries = readdirSync(root, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const fullPath = path.join(root, entry.name);
+    if (entry.isDirectory()) return repoFilesFromRoot(fullPath);
+    return [fullPath];
+  });
+}
+
+function isTsSource(file) {
+  return /\.(?:[cm]?ts|tsx)$/.test(file);
+}
+
+function isGenericHabitatSurface(file) {
+  return [
+    `${sourceRoot}/config/`,
+    `${sourceRoot}/providers/`,
+    `${sourceRoot}/public/`,
+    `${sourceRoot}/resources/`,
+    `${sourceRoot}/runtime/`,
+    `${sourceRoot}/service/`,
+  ].some((prefix) => file.startsWith(prefix));
 }
 
 function lineForIndex(text, index) {
@@ -297,6 +452,7 @@ function lineForIndex(text, index) {
 }
 
 function read(file) {
+  if (injectedFiles.has(file)) return injectedFiles.get(file);
   return readFileSync(path.join(repoRoot, file), "utf8");
 }
 
