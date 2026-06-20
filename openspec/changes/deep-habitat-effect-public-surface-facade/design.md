@@ -33,3 +33,12 @@ Every export in `src/index.ts` SHALL be classified before source movement:
   exported from the package facade.
 - An export remains because an internal module imports through `src/index.ts`.
 - A public adapter has no closure action.
+
+## Known Adapter Closure Actions
+
+- `src/lib/baseline.ts` currently re-exports the legacy sync baseline adapter
+  for public compatibility while `BaselineAuthorityLive` owns the active
+  provider-backed service path. This packet must classify each baseline export
+  as `public-contract` or `dead-code-remove`; anything kept must move behind
+  `src/public/**`, and the old sync adapter path must not remain as active
+  implementation ownership.

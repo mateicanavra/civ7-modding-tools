@@ -4,7 +4,8 @@ import type { GritProvider, GritProviderRequirements } from "../../adapters/grit
 import type { HabitatConfig } from "../../config/index.js";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
 import type { CommandRunner } from "../../providers/command/index.js";
-import type { HabitatClock } from "../../resources/index.js";
+import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
+import type { HabitatClock, HabitatFileSystem } from "../../resources/index.js";
 import type { BaselineAuthority } from "../baseline-authority/index.js";
 import type { BaselineExpansionResult } from "./baseline-expansion.js";
 import { expandBaselinesEffect } from "./baseline-expansion.js";
@@ -24,6 +25,9 @@ export interface StructuralCheckService {
     | GritProvider
     | GritProviderRequirements
     | HabitatConfig
+    | HabitatFileSystem
+    | GitProvider
+    | GitProviderRequirements
     | HabitatClock
   >;
   readonly expandBaselines: (
@@ -38,6 +42,9 @@ export interface StructuralCheckService {
     | GritProvider
     | GritProviderRequirements
     | HabitatConfig
+    | HabitatFileSystem
+    | GitProvider
+    | GitProviderRequirements
     | HabitatClock
   >;
 }

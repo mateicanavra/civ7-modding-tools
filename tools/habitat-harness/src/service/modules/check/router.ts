@@ -12,7 +12,8 @@ import {
   StructuralCheck,
 } from "../../../domains/structural-check/index.js";
 import type { CommandRunner } from "../../../providers/command/index.js";
-import type { HabitatClock } from "../../../resources/index.js";
+import type { GitProvider, GitProviderRequirements } from "../../../providers/git/index.js";
+import type { HabitatClock, HabitatFileSystem } from "../../../resources/index.js";
 import type {
   CheckServiceExpandBaselineInput,
   CheckServiceExpandBaselineOutput,
@@ -54,6 +55,9 @@ export function expandCheckBaselinesService(
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
+  | HabitatFileSystem
+  | GitProvider
+  | GitProviderRequirements
   | HabitatClock
   | StructuralCheck
 > {

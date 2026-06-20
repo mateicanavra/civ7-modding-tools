@@ -1,5 +1,9 @@
 export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.js";
-export type { BaselineContractContext, RequiredBaselineContext } from "./context.js";
+export type {
+  BaselineAuthorityContext,
+  BaselineContractContext,
+  RequiredBaselineContext,
+} from "./context.js";
 export { mergeBase, resolveBaselineContext } from "./context.js";
 export {
   baselineIntegrityFindings,

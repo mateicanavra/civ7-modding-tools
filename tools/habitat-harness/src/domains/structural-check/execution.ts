@@ -12,11 +12,8 @@ import {
   type StagedMutationPath,
   stagedPathsFromNameStatus,
 } from "../../lib/protected-zones/index.js";
-import {
-  CommandRunner,
-  type HabitatCommandResult,
-  runSyncSpawnCommand,
-} from "../../providers/command/index.js";
+import { CommandRunner, type HabitatCommandResult } from "../../providers/command/index.js";
+import { GitProvider, type GitProviderRequirements } from "../../providers/git/index.js";
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
 import { HabitatClock } from "../../resources/index.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
@@ -89,6 +86,8 @@ export function executeSelectedRulesEffect(
   | GritProviderRequirements
   | HabitatConfig
   | HabitatClock
+  | GitProvider
+  | GitProviderRequirements
 > {
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
@@ -97,7 +96,7 @@ export function executeSelectedRulesEffect(
     if (gritRules.length > 0) {
       const scanRoots = options.staged
         ? stagedPatternScanRoots(
-            options.stagedPaths ?? currentStagedPaths(),
+            options.stagedPaths ?? (yield* currentStagedPathsEffect()),
             approvedScanRootsForRules(gritRules)
           )
         : undefined;
@@ -149,7 +148,7 @@ export function executeSelectedRulesEffect(
       commandRules.filter((rule) => !graphRefusals.has(rule.id)),
       results
     );
-    executeFileLayerRules(
+    yield* executeFileLayerRulesEffect(
       factsForRuleIds(activeRuleFileLayerFacts, selectedRuleIds),
       results,
       options
@@ -268,39 +267,42 @@ function isHabitatError(error: unknown): error is HabitatError {
   return Boolean(error && typeof error === "object" && "_tag" in error);
 }
 
-function executeFileLayerRules(
+function executeFileLayerRulesEffect(
   fileLayerRules: readonly RuleFileLayerFacts[],
   results: Map<string, RuleExecutionRecord>,
   options: Pick<CheckOptions, "staged" | "stagedPaths">
-): void {
-  const stagedPathsResult =
-    options.staged && options.stagedPaths
-      ? modifiedStagedPaths(options.stagedPaths)
-      : options.staged
-        ? currentStagedPathActions()
-        : undefined;
-  for (const rule of fileLayerRules) {
-    const started = Date.now();
-    if (isStagedPathReadFailure(stagedPathsResult)) {
-      const durationMs = Date.now() - started;
-      results.set(rule.id, {
-        result: {
-          exitCode: 1,
-          diagnostics: [stagedPathReadFailureDiagnostic(rule, stagedPathsResult.message)],
-        },
-        durationMs,
-        disposition: { kind: "executed", durationMs },
+): Effect.Effect<void, never, HabitatClock | GitProvider | GitProviderRequirements> {
+  return Effect.gen(function* () {
+    const clock = yield* HabitatClock;
+    const stagedPathsResult =
+      options.staged && options.stagedPaths
+        ? modifiedStagedPaths(options.stagedPaths)
+        : options.staged
+          ? yield* currentStagedPathActionsEffect()
+          : undefined;
+    for (const rule of fileLayerRules) {
+      const started = yield* clock.currentTimeMillis;
+      if (isStagedPathReadFailure(stagedPathsResult)) {
+        const durationMs = Math.max(0, (yield* clock.currentTimeMillis) - started);
+        results.set(rule.id, {
+          result: {
+            exitCode: 1,
+            diagnostics: [stagedPathReadFailureDiagnostic(rule, stagedPathsResult.message)],
+          },
+          durationMs,
+          disposition: { kind: "executed", durationMs },
+        });
+        continue;
+      }
+      const stagedPaths = stagedPathsResult ? stagedPathsResult : undefined;
+      const result = runFileLayerProtectedMutationRule(rule, {
+        staged: options.staged,
+        ...(stagedPaths ? { stagedPaths } : {}),
       });
-      continue;
+      const durationMs = Math.max(0, (yield* clock.currentTimeMillis) - started);
+      results.set(rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } });
     }
-    const stagedPaths = stagedPathsResult ? stagedPathsResult : undefined;
-    const result = runFileLayerProtectedMutationRule(rule, {
-      staged: options.staged,
-      ...(stagedPaths ? { stagedPaths } : {}),
-    });
-    const durationMs = Date.now() - started;
-    results.set(rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } });
-  }
+  });
 }
 
 type StagedPathActionReadResult = StagedMutationPath[] | { ok: false; message: string };
@@ -311,20 +313,31 @@ function isStagedPathReadFailure(
   return Boolean(result && "ok" in result && !result.ok);
 }
 
-function currentStagedPathActions(): StagedPathActionReadResult {
-  const result = runSyncSpawnCommand(["git", "diff", "--cached", "--name-status", "-z"], {
-    cwd: repoRoot,
+function currentStagedPathActionsEffect(): Effect.Effect<
+  StagedPathActionReadResult,
+  never,
+  GitProvider | GitProviderRequirements
+> {
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    const result = yield* git.diffNameStatus({ cached: true, cwd: repoRoot }).pipe(Effect.either);
+    if (result._tag === "Left") {
+      return {
+        ok: false,
+        message: renderHabitatError(result.left),
+      };
+    }
+    if (result.right.exit.code !== 0) {
+      return {
+        ok: false,
+        message:
+          result.right.stderr.text.trim() ||
+          `Unable to read staged path actions with git diff --cached --name-status -z (exit ${result.right.exit.code}).`,
+      };
+    }
+    if (!result.right.stdout.text) return [];
+    return stagedPathsFromNameStatus(result.right.stdout.text);
   });
-  if (result.exitCode !== 0) {
-    return {
-      ok: false,
-      message:
-        result.stderr.trim() ||
-        `Unable to read staged path actions with git diff --cached --name-status -z (exit ${result.exitCode}).`,
-    };
-  }
-  if (!result.stdout) return [];
-  return stagedPathsFromNameStatus(result.stdout);
 }
 
 function stagedPathReadFailureDiagnostic(
@@ -340,12 +353,19 @@ function stagedPathReadFailureDiagnostic(
   };
 }
 
-function currentStagedPaths(): string[] {
-  const result = runSyncSpawnCommand(["git", "diff", "--cached", "--name-only", "-z"], {
-    cwd: repoRoot,
+function currentStagedPathsEffect(): Effect.Effect<
+  string[],
+  never,
+  GitProvider | GitProviderRequirements
+> {
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    const result = yield* git.diffNameOnly({ cached: true, cwd: repoRoot }).pipe(Effect.either);
+    if (result._tag === "Left" || result.right.exit.code !== 0 || !result.right.stdout.text) {
+      return [];
+    }
+    return result.right.stdout.text.split("\0").filter(Boolean).map(toRepoRelative);
   });
-  if (result.exitCode !== 0 || !result.stdout) return [];
-  return result.stdout.split("\0").filter(Boolean).map(toRepoRelative);
 }
 
 function sortedUnique(values: readonly string[]): string[] {
