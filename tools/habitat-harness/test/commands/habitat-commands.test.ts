@@ -15,6 +15,7 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
 }));
 const mockCheckRun = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
+const mockFixRun = vi.hoisted(() => vi.fn());
 const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
@@ -83,10 +84,6 @@ vi.mock("../../src/lib/classify.js", async (importOriginal) => {
   };
 });
 
-vi.mock("../../src/lib/fix.js", () => ({
-  runFix: vi.fn(() => ({ exitCode: 0, stdout: "biome ok\n", stderr: "" })),
-}));
-
 vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../src/lib/verify/index.js")>();
   return {
@@ -98,6 +95,7 @@ vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
 vi.mock("../../src/service/client.js", () => ({
   createHabitatServiceClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
+    fix: { run: mockFixRun },
     graph: { run: mockGraphRun },
     hook: { run: mockHookRun },
     verify: { run: mockVerifyRun },
@@ -112,7 +110,6 @@ import Hook from "../../src/commands/hook.js";
 import Verify from "../../src/commands/verify.js";
 import * as checkReport from "../../src/lib/check-report.js";
 import * as classify from "../../src/lib/classify.js";
-import * as fix from "../../src/lib/fix.js";
 import * as verifyReceipt from "../../src/lib/verify/index.js";
 import * as serviceClient from "../../src/service/client.js";
 
@@ -134,6 +131,7 @@ describe("Habitat oclif commands", () => {
       kind: "expanded",
       messages: ["baseline written: demo-rule (1 entry)"],
     });
+    mockFixRun.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
     mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockVerifyRun.mockImplementation(async (input: { base?: string; commandArgs?: string[] }) => {
@@ -242,12 +240,35 @@ describe("Habitat oclif commands", () => {
     expect(mockCheckRun).not.toHaveBeenCalled();
   });
 
-  test("fix forwards dry-run intent to the transaction runner", async () => {
+  test("fix forwards dry-run intent through the Habitat service client", async () => {
     await Fix.run(["--dry-run"]);
 
-    expect(fix.runFix).toHaveBeenCalledWith({ kind: "dry-run-intent" });
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockFixRun).toHaveBeenCalledWith({ kind: "dry-run-intent" });
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
+  });
+
+  test("fix forwards live-write intent by default", async () => {
+    await Fix.run([]);
+
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockFixRun).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(stdout.join("")).toContain("biome ok");
+  });
+
+  test("fix forwards refusal streams and exit code", async () => {
+    mockFixRun.mockResolvedValueOnce({
+      exitCode: 1,
+      stdout: "",
+      stderr: "habitat fix refused: missing-apply-admission\n",
+    });
+
+    await expect(Fix.run([])).rejects.toMatchObject({ oclif: { exit: 1 } });
+
+    expect(mockFixRun).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(stdout.join("")).toBe("");
+    expect(stderr.join("")).toContain("missing-apply-admission");
   });
 
   test("verify awaits check and affected target execution", async () => {
