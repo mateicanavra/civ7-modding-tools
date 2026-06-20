@@ -229,12 +229,17 @@ describe("Habitat service architecture", () => {
 
   test("keeps transaction execution in the transactions service module", () => {
     const transactionRouter = source("src/service/modules/transactions/router.ts");
-    const patternApplyIndex = source("src/lib/pattern-apply/index.ts");
+    const transformationTransactionIndex = source(
+      "src/domains/transformation-transaction/index.ts"
+    );
 
     expect(transactionRouter).toContain("transactionsModule.apply.effect");
     expect(transactionRouter).toContain("runTransactionApplyService");
     expect(transactionRouter).toContain("PatternApplyRecordSchema");
-    expect(patternApplyIndex).not.toContain("runPatternApply");
+    expect(transactionRouter).toContain("../../../domains/transformation-transaction/schema.js");
+    expect(transformationTransactionIndex).not.toContain("runPatternApply");
+    expect(existsSync(join(packageRoot, "src/lib/pattern-apply"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/transformation-transaction"))).toBe(true);
     expect(existsSync(join(packageRoot, "src/lib/pattern-apply/run.ts"))).toBe(false);
   });
 

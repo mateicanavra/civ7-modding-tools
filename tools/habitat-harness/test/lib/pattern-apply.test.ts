@@ -9,7 +9,7 @@ import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "../../src/lib/pattern-apply/index.js";
+} from "../../src/domains/transformation-transaction/index.js";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,

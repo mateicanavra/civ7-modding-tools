@@ -10,7 +10,7 @@ import {
   type RecoveryInstruction,
   resolveTransactionInput,
   type TransactionRefusal,
-} from "../../../lib/pattern-apply/schema.js";
+} from "../../../domains/transformation-transaction/schema.js";
 import {
   captureOutput,
   type HabitatCommandResult,

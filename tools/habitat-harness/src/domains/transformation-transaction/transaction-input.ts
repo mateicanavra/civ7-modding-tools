@@ -6,7 +6,7 @@ import {
   ApplyDryRunCommandSchema,
   type ApplyTransactionInput,
   ApplyTransactionInputSchema,
-} from "../../domains/pattern-governance/index.js";
+} from "../pattern-governance/index.js";
 import { NonEmptyStringSchema } from "./primitives.js";
 
 export const GritDryRunCommandInputSchema = ApplyDryRunCommandSchema;
