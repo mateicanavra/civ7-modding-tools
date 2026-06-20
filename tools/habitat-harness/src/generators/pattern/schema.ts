@@ -53,8 +53,7 @@ export const PatternGeneratorOptionsSchema = Type.Object(
     manifestPath: Type.Optional(
       Type.String({
         minLength: 1,
-        description:
-          "Canonical pattern manifest Manifest path required for registered lifecycles.",
+        description: "Canonical pattern manifest Manifest path required for registered lifecycles.",
       })
     ),
   },

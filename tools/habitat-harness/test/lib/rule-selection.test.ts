@@ -157,11 +157,7 @@ describe("rule selector boundary", () => {
     const stagedEligible = fakeRule("hook", "pattern-check", "@internal/habitat-harness", {
       hookCheck: true,
     });
-    const currentTreeOnly = fakeRule(
-      "current-tree",
-      "pattern-check",
-      "@internal/habitat-harness"
-    );
+    const currentTreeOnly = fakeRule("current-tree", "pattern-check", "@internal/habitat-harness");
     const nativeRule = fakeRule("file-layer-rule", "file-layer", "@internal/habitat-harness");
 
     expect(

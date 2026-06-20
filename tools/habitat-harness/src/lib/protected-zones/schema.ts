@@ -9,8 +9,7 @@ const NonEmptyStringSchema = Type.String({ minLength: 1 });
 
 export const RepoRelativePathSchema = Type.String({
   minLength: 1,
-  pattern:
-    "^[A-Za-z0-9_@.+-][A-Za-z0-9._@+-]*(?:/[A-Za-z0-9_@.+-][A-Za-z0-9._@+-]*)*$",
+  pattern: "^[A-Za-z0-9_@.+-][A-Za-z0-9._@+-]*(?:/[A-Za-z0-9_@.+-][A-Za-z0-9._@+-]*)*$",
 });
 
 export const ProtectedZoneOwnerSchema = Type.Pick(HostPolicyOwnerSchema, [
@@ -307,9 +306,5 @@ export type ProtectedSurfaceDeclaration = Static<typeof ProtectedSurfaceDeclarat
 export type DeclarationReadiness = Static<typeof DeclarationReadinessSchema>;
 export type ProtectedMutationDecision = Static<typeof ProtectedMutationDecisionSchema>;
 export type ScanRootProtectionDecision = Static<typeof ScanRootProtectionDecisionSchema>;
-export type ProtectedMutationGuard = Static<
-  typeof ProtectedMutationGuardSchema
->;
-export type TransactionPathDecision = Static<
-  typeof TransactionPathDecisionSchema
->;
+export type ProtectedMutationGuard = Static<typeof ProtectedMutationGuardSchema>;
+export type TransactionPathDecision = Static<typeof TransactionPathDecisionSchema>;

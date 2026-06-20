@@ -8,12 +8,18 @@
 - [ ] 1.4 Add Biome provider.
 - [ ] 1.5 Add Nx provider.
 - [ ] 1.6 Add Husky delegator provider.
+- [ ] 1.7 Remove the temporary `HabitatProcess` migration bridge from
+  `src/lib/habitat-process.ts`; Grit, Biome, Nx, Git, and Husky callsites must
+  consume provider services directly before this train is done.
 
 ## 2. Migration
 
 - [ ] 2.1 Replace raw Git calls in baseline/check/hook/verify write sets through follow-on domain packets; this packet only creates provider contracts and first callsites required for parity tests.
 - [ ] 2.2 Replace `WorkspaceToolProvider` command-name map with provider command builders.
 - [ ] 2.3 Keep provider outputs mapped to existing public command/report shapes.
+- [ ] 2.4 Reject any new shim, fallback, or duplicate process path; bridges may
+  exist only between adjacent dominos and must be deleted by their assigned
+  cutover packet.
 
 ## 3. Proof
 

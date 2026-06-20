@@ -39,7 +39,10 @@ export const VerifyCommandRecordSchema = Type.Object(
     env: Type.Record(Type.String(), Type.String(), {
       description: "Small allowlisted environment snapshot relevant to verify execution.",
     }),
-    startedAt: Type.String({ minLength: 1, description: "ISO timestamp captured at command start." }),
+    startedAt: Type.String({
+      minLength: 1,
+      description: "ISO timestamp captured at command start.",
+    }),
     durationMs: Type.Number({ minimum: 0, description: "Elapsed verify command time." }),
     exitCode: Type.Integer({ description: "Exit code returned by the verify command." }),
   },
@@ -69,15 +72,22 @@ export const VerifySelectorStateSchema = Type.Union(
     ),
     Type.Object(
       {
-        kind: Type.Literal("requested", { description: "At least one selector narrowed the check." }),
+        kind: Type.Literal("requested", {
+          description: "At least one selector narrowed the check.",
+        }),
         selectors: VerifyCheckSummarySchema.properties.requestedSelectors,
       },
       { additionalProperties: false, description: "Requested check selectors." }
     ),
     Type.Object(
       {
-        kind: Type.Literal("unsupported", { description: "The selector state could not be consumed." }),
-        reason: Type.String({ minLength: 1, description: "Reason selectors could not be consumed." }),
+        kind: Type.Literal("unsupported", {
+          description: "The selector state could not be consumed.",
+        }),
+        reason: Type.String({
+          minLength: 1,
+          description: "Reason selectors could not be consumed.",
+        }),
       },
       { additionalProperties: false, description: "Unsupported selector state." }
     ),
@@ -100,12 +110,12 @@ const VerifyHabitatCheckSummaryFieldsSchema = Type.Pick(VerifyCheckSummarySchema
 export const VerifyHabitatCheckSummarySchema = Type.Object(
   {
     ...VerifyHabitatCheckSummaryFieldsSchema.properties,
-    consumption: Type.Union([
-      Type.Literal("allows-affected-execution"),
-      Type.Literal("blocks-affected-execution"),
-    ], {
-      description: "Whether Habitat check results allowed the Nx affected step to run.",
-    }),
+    consumption: Type.Union(
+      [Type.Literal("allows-affected-execution"), Type.Literal("blocks-affected-execution")],
+      {
+        description: "Whether Habitat check results allowed the Nx affected step to run.",
+      }
+    ),
     selectorState: VerifySelectorStateSchema,
     skippedAffectedReason: Type.Optional(
       Type.String({ minLength: 1, description: "Reason affected execution was skipped." })
@@ -119,7 +129,9 @@ export const VerifyTargetPlanConsumptionSchema = Type.Union(
   [
     Type.Object(
       {
-        kind: Type.Literal("target-plan-ready", { description: "Workspace graph produced targets." }),
+        kind: Type.Literal("target-plan-ready", {
+          description: "Workspace graph produced targets.",
+        }),
         targets: Type.Array(Type.String({ minLength: 1 }), {
           minItems: 1,
           description: "Nx targets verify will request through affected execution.",
@@ -129,7 +141,9 @@ export const VerifyTargetPlanConsumptionSchema = Type.Union(
     ),
     Type.Object(
       {
-        kind: Type.Literal("target-plan-refused", { description: "Workspace graph refused planning." }),
+        kind: Type.Literal("target-plan-refused", {
+          description: "Workspace graph refused planning.",
+        }),
         targets: Type.Array(Type.String({ minLength: 1 }), {
           description: "Requested target names associated with the refusal.",
         }),
@@ -189,13 +203,15 @@ export const VerifyNxAffectedSchema = Type.Union(
     Type.Object(
       {
         kind: Type.Literal("skipped", { description: "Nx affected did not run." }),
-        skipReason: Type.Union([
-          Type.Literal("habitat-check-failed"),
-          Type.Literal("workspace-graph-refused"),
-        ], {
-          description: "Upstream condition that blocked affected execution.",
+        skipReason: Type.Union(
+          [Type.Literal("habitat-check-failed"), Type.Literal("workspace-graph-refused")],
+          {
+            description: "Upstream condition that blocked affected execution.",
+          }
+        ),
+        argv: Type.Array(Type.String(), {
+          description: "Affected command argv that would have run.",
         }),
-        argv: Type.Array(Type.String(), { description: "Affected command argv that would have run." }),
         targets: Type.Array(Type.String({ minLength: 1 }), {
           description: "Targets associated with the skipped affected step.",
         }),
@@ -212,8 +228,12 @@ export const VerifyNxAffectedSchema = Type.Union(
         stderrLength: Type.Literal(0, { description: "No stderr body exists when skipped." }),
         stdoutPreview: Type.Literal("", { description: "No stdout preview exists when skipped." }),
         stderrPreview: Type.Literal("", { description: "No stderr preview exists when skipped." }),
-        stdoutTruncated: Type.Literal(false, { description: "No stdout truncation occurs when skipped." }),
-        stderrTruncated: Type.Literal(false, { description: "No stderr truncation occurs when skipped." }),
+        stdoutTruncated: Type.Literal(false, {
+          description: "No stdout truncation occurs when skipped.",
+        }),
+        stderrTruncated: Type.Literal(false, {
+          description: "No stderr truncation occurs when skipped.",
+        }),
       },
       { additionalProperties: false, description: "Skipped Nx affected execution." }
     ),
@@ -242,7 +262,9 @@ export const VerifyPostStateSchema = Type.Union(
   [
     Type.Object(
       {
-        kind: Type.Literal("observed-clean", { description: "Git status succeeded with no output." }),
+        kind: Type.Literal("observed-clean", {
+          description: "Git status succeeded with no output.",
+        }),
         gitStatus: VerifyPostStateCommandSchema,
       },
       { additionalProperties: false, description: "Clean worktree observation." }

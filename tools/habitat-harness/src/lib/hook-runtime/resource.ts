@@ -38,9 +38,7 @@ export function resourceAllowsPreCommit(decision: ResourcePreCommitDecision): bo
   return decision.commit === "allowed";
 }
 
-export function resourceDecisionToFacade(
-  decision: ResourcePreCommitDecision
-): ResourceStateFacade {
+export function resourceDecisionToFacade(decision: ResourcePreCommitDecision): ResourceStateFacade {
   return Value.Parse(ResourceStateFacadeSchema, {
     kind: decision.kind,
     allowPreCommit: resourceAllowsPreCommit(decision),

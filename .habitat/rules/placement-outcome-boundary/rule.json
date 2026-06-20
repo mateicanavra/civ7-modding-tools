@@ -6,12 +6,7 @@
   "scope": "placement apply implementation",
   "forbids": "direct official resource/discovery generation calls in placement apply",
   "why": "Placement outcomes are typed at the contract boundary before apply.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Use typed placement outcomes instead of direct official generator calls.",
   "exceptionPath": "none",

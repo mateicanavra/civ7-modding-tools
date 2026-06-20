@@ -1,8 +1,8 @@
+export { gritRuleResultsFromReport } from "./diagnostics.js";
 export {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
 } from "./output/index.js";
-export { gritRuleResultsFromReport } from "./diagnostics.js";
 export {
   gritCheckProgram,
   gritCheckRequest,

@@ -1,5 +1,5 @@
-import { type NormalizedPatternGeneratorOptions } from "./schema.ts";
 import { patternCandidateRoot } from "../../lib/artifact-paths.ts";
+import { type NormalizedPatternGeneratorOptions } from "./schema.ts";
 
 export function candidateArtifactPaths(
   options: Pick<NormalizedPatternGeneratorOptions, "ruleId" | "patternName">

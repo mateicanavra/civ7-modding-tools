@@ -6,12 +6,7 @@
   "scope": "mods/mod-swooper-maps/src/recipes/**/*.ts",
   "forbids": "recipes importing non-public domain subpaths",
   "why": "Recipes compose domains only through stable public surfaces.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Recipes may import @mapgen/domain/<domain>, @mapgen/domain/<domain>/ops, or /config.js only.",
   "exceptionPath": "none",
@@ -27,9 +22,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/**/*.ts"]
     }
   ]
 }

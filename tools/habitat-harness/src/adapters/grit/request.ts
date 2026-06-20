@@ -19,7 +19,7 @@ import {
   type HabitatProcessRequest,
 } from "../../lib/habitat-process.js";
 import { repoRoot } from "../../lib/paths.js";
-import { gritBin } from "./constants.js";
+import { defaultGritCommandTimeoutMs, gritBin } from "./constants.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output/index.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
@@ -162,6 +162,7 @@ export function gritCheckRequest(
       GRIT_TELEMETRY_DISABLED: "true",
     },
     scanRoots,
+    timeoutMs: options.timeoutMs ?? defaultGritCommandTimeoutMs,
     cachePolicy: {
       mode: "isolated",
       cacheDir,

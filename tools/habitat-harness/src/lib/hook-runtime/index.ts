@@ -1,5 +1,5 @@
-export { hookCheckCommandResult } from "./check-command.js";
 export type { HookCheckCommandResult } from "./check-command.js";
+export { hookCheckCommandResult } from "./check-command.js";
 export {
   allowedResourceDecision,
   refusedResourceDecision,
@@ -7,17 +7,12 @@ export {
   resourceAllowsPreCommit,
   resourceDecisionToFacade,
 } from "./resource.js";
-export {
-  HookTraceSchema,
-  ResourcePreCommitDecisionSchema,
-  ResourceStateFacadeSchema,
-} from "./schema.js";
 export type {
   HookCommandPhase,
   HookCommandRecord,
   HookName,
-  HookRepoSnapshot,
   HookReportChannel,
+  HookRepoSnapshot,
   HookTrace,
   PreCommitOutcome,
   PreCommitTrace,
@@ -26,4 +21,9 @@ export type {
   ResourcePreCommitDecision,
   ResourceStateFacade,
   ResourceStateKind,
+} from "./schema.js";
+export {
+  HookTraceSchema,
+  ResourcePreCommitDecisionSchema,
+  ResourceStateFacadeSchema,
 } from "./schema.js";

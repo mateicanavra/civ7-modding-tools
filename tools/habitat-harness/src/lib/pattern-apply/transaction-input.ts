@@ -1,19 +1,17 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import {
-  ApplyDryRunCommandSchema,
-  ApplyTransactionInputSchema,
   type ApplyAdmission,
   type ApplyDryRunCommand,
+  ApplyDryRunCommandSchema,
   type ApplyTransactionInput,
+  ApplyTransactionInputSchema,
 } from "../../rules/patterns/index.js";
 import { NonEmptyStringSchema } from "./primitives.js";
 
 export const GritDryRunCommandInputSchema = ApplyDryRunCommandSchema;
 
-const ApplyTransactionInputFieldsSchema = Type.Omit(ApplyTransactionInputSchema, [
-  "kind",
-]);
+const ApplyTransactionInputFieldsSchema = Type.Omit(ApplyTransactionInputSchema, ["kind"]);
 
 export const ResolvedTransactionInputSchema = Type.Object(
   {
@@ -81,7 +79,8 @@ export function resolveTransactionInput(
     (input) => input.transactionInputRef === admission.transactionInputRef
   );
   const matched = refMatches.find(
-    (input) => input.patternId === admission.patternId && input.manifestPath === admission.manifestPath
+    (input) =>
+      input.patternId === admission.patternId && input.manifestPath === admission.manifestPath
   );
 
   if (matched) {

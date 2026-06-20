@@ -6,13 +6,7 @@
   "scope": "staged changes touching host-declared protected surfaces",
   "forbids": "staged hand-edits to host-declared protected surfaces",
   "why": "Host-owned protected surfaces must be changed through their declared owner workflow.",
-  "detect": [
-    "habitat",
-    "check",
-    "--staged",
-    "--tool",
-    "file-layer"
-  ],
+  "detect": ["habitat", "check", "--staged", "--tool", "file-layer"],
   "remediate": "Use the recovery instruction from the host policy declaration.",
   "message": "Host-declared protected surfaces are protected from hand edit.",
   "exceptionPath": "none",

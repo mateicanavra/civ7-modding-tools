@@ -21,7 +21,9 @@ describe("Habitat hook resource policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("resources: clean");
-    expect(result.stdout).toContain("hook result: workstation check only; CI remains authoritative.");
+    expect(result.stdout).toContain(
+      "hook result: workstation check only; CI remains authoritative."
+    );
     expect(result.stdout).toContain("habitat hook pre-commit: PASS");
     expect(fake.calls).toContain(
       "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
@@ -425,7 +427,9 @@ describe("Habitat pre-push base policy", () => {
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
-    expect(result.stdout).toContain("hook result: workstation check only; CI remains authoritative.");
+    expect(result.stdout).toContain(
+      "hook result: workstation check only; CI remains authoritative."
+    );
     expect(fake.calls).toContain(
       "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base HEAD~1 --head HEAD --outputStyle=static"
     );
@@ -662,7 +666,9 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
     if (call.startsWith("biome check --no-errors-on-unmatched")) {
       return options.biomeCheckExitCode ? failure(options.biomeCheckExitCode) : ok();
     }
-    if (call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json") {
+    if (
+      call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool pattern-check --json"
+    ) {
       return {
         exitCode: options.gritExitCode ?? 0,
         stdout: options.gritStdout ?? gritCheckReport({ ok: true, status: "pass" }),

@@ -1,9 +1,9 @@
+import { runHookCommand } from "./hook-runtime/command-runner.js";
 import {
   hookCheckCommandResult,
   renderResourceDecisionFailure,
   resourceDecisionToFacade,
 } from "./hook-runtime/index.js";
-import { runHookCommand } from "./hook-runtime/command-runner.js";
 import { finalizePreCommit, finalizePrePush } from "./hook-runtime/lifecycle.js";
 import { resolvePrePushBase } from "./hook-runtime/pre-push-base.js";
 import { captureRepoSnapshot } from "./hook-runtime/repo-snapshot.js";
@@ -14,14 +14,14 @@ import {
 import {
   createHookOutput,
   createHookTrace,
-  hookNow,
-  section,
   type HookOptions,
   type HookReportEvent,
   type HookReporter,
   type HookResourcePolicy,
   type HookRuntime,
+  hookNow,
   type ResourceRecoveryCommands,
+  section,
 } from "./hook-runtime/runtime.js";
 import {
   biomeHookPaths,
@@ -48,7 +48,6 @@ export type {
   ResourceStateFacade as ResourceState,
   ResourceStateKind,
 } from "./hook-runtime/index.js";
-export { classifyResourcePreCommitDecision, classifyResourcesState, createHookTrace };
 export type {
   HookOptions,
   HookReportEvent,
@@ -57,6 +56,7 @@ export type {
   HookRuntime,
   ResourceRecoveryCommands,
 };
+export { classifyResourcePreCommitDecision, classifyResourcesState, createHookTrace };
 
 const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"];
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
@@ -308,9 +308,7 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
   });
 }
 
-function checkSummaryAllowsNextStage(
-  result: ReturnType<typeof hookCheckCommandResult>
-): boolean {
+function checkSummaryAllowsNextStage(result: ReturnType<typeof hookCheckCommandResult>): boolean {
   return (
     result.kind === "parsed" &&
     (result.summary.kind === "pass" ||

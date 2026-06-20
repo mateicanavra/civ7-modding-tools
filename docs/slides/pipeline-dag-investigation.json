@@ -126,11 +126,7 @@
             "language": "typescript",
             "startLine": 107,
             "endLine": 118,
-            "highlight": [
-              113,
-              114,
-              115
-            ],
+            "highlight": [113, 114, 115],
             "code": "for (let index = 0; index < total; index++) {\n  const node = nodes[index];\n  const step = node.step;\n  validateDependencyTags(step.requires, tagRegistry);\n  validateDependencyTags(step.provides, tagRegistry);\n\n  const missing = step.requires.filter(\n    (tag) => !isDependencyTagSatisfied(tag, context, satisfactionState, tagRegistry)\n  );\n  if (missing.length > 0) {\n    throw new MissingDependencyError({\n      stepId: step.id,"
           }
         },
@@ -352,11 +348,7 @@
             "language": "typescript",
             "startLine": 8,
             "endLine": 15,
-            "highlight": [
-              11,
-              13,
-              14
-            ],
+            "highlight": [11, 13, 14],
             "code": "export type GenerationPhase =\n  | \"setup\"\n  | \"foundation\"\n  | \"morphology\"\n  | \"gameplay\"\n  | \"hydrology\"\n  | \"ecology\"\n  | \"placement\";"
           }
         },

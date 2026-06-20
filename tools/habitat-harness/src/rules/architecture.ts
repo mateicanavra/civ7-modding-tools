@@ -1,6 +1,10 @@
+import { Effect } from "effect";
+import { type HabitatError, renderHabitatError } from "../errors/index.js";
 import type { HabitatDiagnostic } from "../lib/diagnostics.js";
+import { runHabitatEffect } from "../lib/effect-runtime.js";
 import { repoRoot } from "../lib/paths.js";
-import { run, type SpawnResult } from "../lib/spawn.js";
+import type { SpawnResult } from "../lib/spawn.js";
+import { CommandRunner } from "../providers/command/index.js";
 import {
   activeRuleRegistryDocument,
   type RuleCommandExecutionFacts,
@@ -52,7 +56,47 @@ export function ruleDiagnosticsFromCommandResult(
 
 /** Execute a rule's detect command and parse its output into diagnostics. */
 export async function executeRule(rule: RuleCommandExecutionFacts): Promise<RuleRunResult> {
-  const res = run(rule.detect, { cwd: repoRoot });
-  const diagnostics = ruleDiagnosticsFromCommandResult(rule, res);
-  return { exitCode: res.exitCode, diagnostics };
+  try {
+    const res = await runHabitatEffect(
+      CommandRunner.pipe(
+        Effect.flatMap((runner) =>
+          runner.run({
+            commandId: rule.id,
+            kind: "workspace-tool",
+            executable: rule.detect[0] ?? "",
+            argv: rule.detect.slice(1),
+            cwd: repoRoot,
+            captureGitState: false,
+          })
+        )
+      )
+    );
+    const diagnostics = ruleDiagnosticsFromCommandResult(rule, {
+      exitCode: res.exit.code,
+      stdout: res.stdout.text,
+      stderr: res.stderr.text,
+    });
+    return { exitCode: res.exit.code, diagnostics };
+  } catch (error) {
+    const diagnostic: HabitatDiagnostic = {
+      ruleId: rule.id,
+      path: ".",
+      message: `${rule.message}\n--- command provider failure ---\n${renderRuleExecutionError(error)}`,
+      severity: rule.lane === "advisory" ? "advisory" : "error",
+      baselined: false,
+    };
+    return { exitCode: 1, diagnostics: [diagnostic] };
+  }
+}
+
+function renderRuleExecutionError(error: unknown): string {
+  return isHabitatError(error)
+    ? renderHabitatError(error)
+    : error instanceof Error
+      ? error.message
+      : String(error);
+}
+
+function isHabitatError(error: unknown): error is HabitatError {
+  return Boolean(error && typeof error === "object" && "_tag" in error);
 }

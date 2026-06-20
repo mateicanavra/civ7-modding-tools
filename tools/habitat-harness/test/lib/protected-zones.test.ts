@@ -1,16 +1,16 @@
 import { describe, expect, test } from "vitest";
 import {
+  defaultHostPolicyDocument,
+  readHostPolicyState,
+  unavailableHostPolicyState,
+} from "../../src/lib/host-policy.js";
+import {
   decideScanRootProtection,
   declarationForFileLayerRule,
   evaluateProtectedMutationGuard,
   runFileLayerProtectedMutationRule,
   stagedPathsFromNameStatus,
 } from "../../src/lib/protected-zones/index.js";
-import {
-  defaultHostPolicyDocument,
-  readHostPolicyState,
-  unavailableHostPolicyState,
-} from "../../src/lib/host-policy.js";
 
 describe("protected zone file-layer execution", () => {
   test("rejects an unknown generated zone before staged no-op behavior", () => {
@@ -273,9 +273,7 @@ describe("protected zone file-layer execution", () => {
       ],
     });
 
-    expect(
-      decideScanRootProtection("protected/root", { hostPolicyState: state })
-    ).toMatchObject({
+    expect(decideScanRootProtection("protected/root", { hostPolicyState: state })).toMatchObject({
       kind: "refused-protected-root",
       reason: "protected-root",
       owner: { ownerId: "swooper-maps-workflow" },

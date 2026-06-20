@@ -4,15 +4,15 @@ import type { TSchema } from "typebox";
 import { Value } from "typebox/value";
 import { ruleRegistryRepoPath } from "../../lib/artifact-paths.ts";
 import { repoRoot } from "../../lib/paths.ts";
-import {
-  RuleRegistryDocumentV1Schema,
-  RuleRegistryIndexV1Schema,
-  RuleRegistryRecordV1Schema,
-} from "./schema.ts";
 import type {
   RuleRegistryDocumentV1,
   RuleRegistryIndexV1,
   RuleRegistryRecordV1,
+} from "./schema.ts";
+import {
+  RuleRegistryDocumentV1Schema,
+  RuleRegistryIndexV1Schema,
+  RuleRegistryRecordV1Schema,
 } from "./schema.ts";
 
 export type RuleRegistryIssueCode =
@@ -136,7 +136,10 @@ function parseRegistryJson<T>(filePath: string, schema: TSchema, heading: string
   if (issues.length > 0) {
     throw new Error(
       `${heading}:\n${issues
-        .map((issue) => `- ${issue.instancePath ? `${filePath}${issue.instancePath}` : filePath}: ${issue.message}`)
+        .map(
+          (issue) =>
+            `- ${issue.instancePath ? `${filePath}${issue.instancePath}` : filePath}: ${issue.message}`
+        )
         .join("\n")}`
     );
   }

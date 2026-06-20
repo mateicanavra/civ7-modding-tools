@@ -8,7 +8,6 @@ export type { VerifyBaseResolution, VerifyReceipt } from "./schema.js";
 export {
   isVerifyReceipt,
   stringifyVerifyReceipt,
-  validateVerifyReceipt,
   VerifyBaseResolutionSchema,
   VerifyBaseSchema,
   VerifyCommandRecordSchema,
@@ -17,4 +16,5 @@ export {
   VerifyNxCacheTaskSchema,
   VerifyPostStateSchema,
   VerifyReceiptSchema,
+  validateVerifyReceipt,
 } from "./schema.js";

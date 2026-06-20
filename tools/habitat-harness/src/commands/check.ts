@@ -10,8 +10,7 @@ import {
 
 export default class Check extends HabitatCommand {
   static override summary = "Run Habitat structural checks";
-  static override description =
-    "Runs the Habitat rule pack with shrink-only baseline integrity and normalized diagnostics.";
+  static override description = "Runs the Habitat rule pack and emits normalized diagnostics.";
   static override examples = [
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --json",
@@ -28,25 +27,30 @@ export default class Check extends HabitatCommand {
     "expand-baseline": Flags.boolean({
       description: "Authoring-only: write current uncovered errors into selected rule baselines.",
     }),
+    "baseline-integrity": Flags.boolean({
+      description: "Also check shrink-only baseline integrity against the selected base ref.",
+    }),
     base: Flags.string({
-      description: "Git base ref for shrink-only baseline integrity comparison.",
-      default: "main",
+      description: "Git base ref for baseline authoring or explicit baseline integrity comparison.",
     }),
   };
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
+    const base = flags.base ?? "main";
     if (flags["expand-baseline"]) {
-      const expansion = await expandBaselines(selection, { base: flags.base });
+      const expansion = await expandBaselines(selection, { base });
       if (!expansion.ok) this.error(describeRuleSelectionFailure(expansion), { exit: 1 });
       for (const message of expansion.messages) this.log(message);
       return;
     }
 
+    const baselineIntegrity = flags["baseline-integrity"] || Boolean(flags.base);
     const report = await createCheckReport({
       ...selection,
-      base: flags.base,
+      ...(baselineIntegrity ? { base } : {}),
+      baselineIntegrity,
       command: checkCommandContext(this.rawArgv()),
       staged: flags.staged,
     });

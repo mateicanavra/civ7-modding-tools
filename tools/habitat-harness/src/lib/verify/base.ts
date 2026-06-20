@@ -1,7 +1,7 @@
 import { Value } from "typebox/value";
 import { repoRoot } from "../paths.js";
 import { run } from "../spawn.js";
-import { VerifyBaseResolutionSchema, type VerifyBaseResolution } from "./schema.js";
+import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "./schema.js";
 
 /** Options accepted by the verify orchestration layer after Oclif parses CLI flags. */
 export interface VerifyOptions {
@@ -35,7 +35,8 @@ export function resolveVerifyBase(base?: string): VerifyBaseResolution {
   }
   return Value.Parse(VerifyBaseResolutionSchema, {
     kind: "refused",
-    message: "could not resolve verify base from the remote default branch; pass --base explicitly.",
+    message:
+      "could not resolve verify base from the remote default branch; pass --base explicitly.",
   });
 }
 

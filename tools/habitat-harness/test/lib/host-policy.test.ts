@@ -2,8 +2,8 @@ import { describe, expect, test } from "vitest";
 import {
   defaultHostPolicyDocument,
   hostApplyGateDecision,
-  hostProjectSupportDecision,
   hostAuthoringBoundaryState,
+  hostProjectSupportDecision,
   hostSurfaceDecisionForGeneratedZone,
   hostSurfaceDecisionForPath,
   hostSurfaceDecisionForScanRoot,
@@ -112,7 +112,9 @@ describe("host policy boundary", () => {
   });
 
   test("reports malformed host policy source through TypeBox validation", () => {
-    expect(readHostPolicyState({ schemaVersion: 1, policyId: "bad", declarations: [] })).toMatchObject({
+    expect(
+      readHostPolicyState({ schemaVersion: 1, policyId: "bad", declarations: [] })
+    ).toMatchObject({
       kind: "malformed",
     });
   });
@@ -128,9 +130,7 @@ describe("host policy boundary", () => {
       })
     ).toMatchObject({
       kind: "conflicting",
-      issues: expect.arrayContaining([
-        "Duplicate host declaration 'swooper-map-generated'.",
-      ]),
+      issues: expect.arrayContaining(["Duplicate host declaration 'swooper-map-generated'."]),
     });
   });
 

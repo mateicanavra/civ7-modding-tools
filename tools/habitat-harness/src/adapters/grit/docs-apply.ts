@@ -17,7 +17,11 @@ import {
 import { repoRoot } from "../../lib/paths.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import type { RulePatternFacts } from "../../rules/registry/index.js";
-import { docsLocalCheckoutPathsRewritePattern, gritBin } from "./constants.js";
+import {
+  defaultGritCommandTimeoutMs,
+  docsLocalCheckoutPathsRewritePattern,
+  gritBin,
+} from "./constants.js";
 import { infrastructureFailure } from "./failure.js";
 import {
   decidePatternScanRoots,
@@ -191,6 +195,7 @@ function docsApplyDryRunRequest(scanRoots: readonly string[]): HabitatProcessReq
       "standard",
     ],
     cwd: repoRoot,
+    timeoutMs: defaultGritCommandTimeoutMs,
     env: {
       ...gritMachineOutputEnv,
       GRIT_CACHE_DIR: cacheDir,

@@ -2,21 +2,20 @@ import { Value } from "typebox/value";
 import { activeRulePatternFacts } from "../facts.js";
 import type { RulePatternFacts } from "../registry/index.js";
 import { applyAdmittedState } from "./admission.js";
-import { applyAdmission } from "./views.js";
 import {
   type ApplyAdmission,
   ApplyAdmissionSchema,
   type ApplyTransactionInput,
   ApplyTransactionInputSchema,
 } from "./schema.js";
+import { applyAdmission } from "./views.js";
 
 const BUILT_IN_APPLY_ADMISSIONS = [
   {
     kind: "apply-admission",
     patternId: "deep-import-to-public-surface",
     manifestPath: ".habitat/patterns/apply/deep_import_to_public_surface.md",
-    transactionInputRef:
-      "patterns:deep-import-to-public-surface:transaction-input",
+    transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
     transactionInputRuleIds: ["domain-deep-import"],
     dryRunOutput: "compact",
   },
@@ -24,8 +23,7 @@ const BUILT_IN_APPLY_ADMISSIONS = [
     kind: "apply-admission",
     patternId: "docs-local-checkout-paths",
     manifestPath: ".habitat/patterns/apply/docs_local_checkout_paths_rewrite.md",
-    transactionInputRef:
-      "patterns:docs-local-checkout-paths:transaction-input",
+    transactionInputRef: "patterns:docs-local-checkout-paths:transaction-input",
     transactionInputRuleIds: ["docs-local-checkout-paths"],
     dryRunOutput: "standard",
   },
@@ -33,9 +31,7 @@ const BUILT_IN_APPLY_ADMISSIONS = [
 
 export function defaultApplyAdmissions(): ApplyAdmission[] {
   return BUILT_IN_APPLY_ADMISSIONS.map((admission) => {
-    const input = applyAdmission(
-      applyAdmittedState(Value.Parse(ApplyAdmissionSchema, admission))
-    );
+    const input = applyAdmission(applyAdmittedState(Value.Parse(ApplyAdmissionSchema, admission)));
     if (!input) throw new Error("internal error: apply admission did not resolve");
     return input;
   });

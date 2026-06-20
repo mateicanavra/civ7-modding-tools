@@ -4,12 +4,6 @@ export {
   rulesForExecution,
   stagedPatternScanRoots,
 } from "./execution.js";
-export {
-  checkOutcomeFromReport,
-  isDiagnosticUnavailableSummary,
-  hookCheckSummary,
-  verifyCheckSummary,
-} from "./summaries.js";
 export { renderCheckReport, stringifyCheckReport } from "./render.js";
 export { createCheckReport } from "./report.js";
 export {
@@ -55,3 +49,9 @@ export {
   RuleSelectionOutcomeSchema,
   StructuralRuleOutcomeSchema,
 } from "./state.js";
+export {
+  checkOutcomeFromReport,
+  hookCheckSummary,
+  isDiagnosticUnavailableSummary,
+  verifyCheckSummary,
+} from "./summaries.js";

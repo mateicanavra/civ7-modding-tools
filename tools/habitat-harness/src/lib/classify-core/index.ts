@@ -1,16 +1,13 @@
 import { activeRuleSelectorFacts } from "../../rules/facts.js";
+import { readWorkspaceGraph, type WorkspaceGraphProjectReader } from "../workspace-graph/index.js";
 import { diffText, extractDiffPaths } from "./diff.js";
-import { graphReadRefusal, classifyPathFromProjects, graphRefusalResult } from "./path.js";
+import { classifyPathFromProjects, graphReadRefusal, graphRefusalResult } from "./path.js";
 import {
-  parseClassifyResult,
-  stringifyClassifyResult,
   type ClassifyResult,
   type PathClassification,
+  parseClassifyResult,
+  stringifyClassifyResult,
 } from "./schema.js";
-import {
-  readWorkspaceGraph,
-  type WorkspaceGraphProjectReader,
-} from "../workspace-graph/index.js";
 
 export type {
   ClassifiedTarget,
@@ -18,12 +15,12 @@ export type {
   ClassifyResult,
   GraphRefusalClassification,
   MalformedOrPathlessDiffResult,
+  PathClassification,
   ProjectPathClassification,
   RuleCoverageKind,
   RuleRouting,
-  UnresolvedOwnerClassification,
   UnavailableClassifiedTarget,
-  PathClassification,
+  UnresolvedOwnerClassification,
   WorkspacePathClassification,
 } from "./schema.js";
 export {
@@ -33,10 +30,10 @@ export {
   MalformedOrPathlessDiffResultSchema,
   PathClassificationSchema,
   ProjectPathClassificationSchema,
-  UnresolvedOwnerClassificationSchema,
-  WorkspacePathClassificationSchema,
   stringifyClassifyResult,
+  UnresolvedOwnerClassificationSchema,
   validateClassifyResult,
+  WorkspacePathClassificationSchema,
 } from "./schema.js";
 
 export interface ClassifyOptions {

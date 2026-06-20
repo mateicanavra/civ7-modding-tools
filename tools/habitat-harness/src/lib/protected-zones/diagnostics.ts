@@ -9,7 +9,8 @@ export function declarationReadinessDiagnostic(
 ): HabitatDiagnostic | null {
   if (state.kind === "ready") return null;
   const subject = "zoneId" in state ? state.zoneId : rule.id;
-  const subjectKind = "hostSurfaceGuard" in rule ? "protected surface declaration" : "generated zone";
+  const subjectKind =
+    "hostSurfaceGuard" in rule ? "protected surface declaration" : "generated zone";
   return {
     ruleId: rule.id,
     path: ".",

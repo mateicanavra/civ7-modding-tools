@@ -4,6 +4,9 @@
 
 - [ ] 1.1 Move Grit command construction and parsing to `src/providers/grit/**`.
 - [ ] 1.2 Route docs apply and apply dry-run command construction through `GritProvider`.
+- [ ] 1.3 Delete `src/lib/habitat-process.ts` or reduce it to a type-free
+  tombstone removal in the same change; no Grit callsite may depend on the
+  temporary `HabitatProcess` migration bridge after this cutover.
 - [ ] 1.3 Move cache acquisition to scoped filesystem resources.
 - [ ] 1.4 Preserve existing scan-root refusal and output parsing contracts.
 
@@ -11,6 +14,9 @@
 
 - [ ] 2.1 Consume the already-migrated `TransformationTransaction` and `ProtectedZoneAuthority` services.
 - [ ] 2.2 Replace process-layer option with provider Layers in Grit adapter callsites.
+- [ ] 2.3 Remove `makeFakeHabitatProcessLayer`, `HabitatProcessLive`, and
+  `GritToolUnavailable` re-export usage from tests/callsites; use
+  `GritProvider` fake/live Layers and provider errors instead.
 - [ ] 2.3 Preserve D9 refusal reasons and recovery instructions.
 
 ## 3. Tests And Proof
