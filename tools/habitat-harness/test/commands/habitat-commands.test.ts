@@ -16,6 +16,7 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
 const mockCheckRun = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
 const mockGraphRun = vi.hoisted(() => vi.fn());
+const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
 vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
@@ -86,10 +87,6 @@ vi.mock("../../src/lib/fix.js", () => ({
   runFix: vi.fn(() => ({ exitCode: 0, stdout: "biome ok\n", stderr: "" })),
 }));
 
-vi.mock("../../src/lib/hooks.js", () => ({
-  runHook: vi.fn(() => ({ exitCode: 0, stdout: "hook ok\n", stderr: "" })),
-}));
-
 vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../src/lib/verify/index.js")>();
   return {
@@ -102,6 +99,7 @@ vi.mock("../../src/service/client.js", () => ({
   createHabitatServiceClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
     graph: { run: mockGraphRun },
+    hook: { run: mockHookRun },
     verify: { run: mockVerifyRun },
   })),
 }));
@@ -115,7 +113,6 @@ import Verify from "../../src/commands/verify.js";
 import * as checkReport from "../../src/lib/check-report.js";
 import * as classify from "../../src/lib/classify.js";
 import * as fix from "../../src/lib/fix.js";
-import * as hooks from "../../src/lib/hooks.js";
 import * as verifyReceipt from "../../src/lib/verify/index.js";
 import * as serviceClient from "../../src/service/client.js";
 
@@ -138,6 +135,7 @@ describe("Habitat oclif commands", () => {
       messages: ["baseline written: demo-rule (1 entry)"],
     });
     mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
+    mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockVerifyRun.mockImplementation(async (input: { base?: string; commandArgs?: string[] }) => {
       const base = input.base ?? "merge-base";
       return {
@@ -303,10 +301,11 @@ describe("Habitat oclif commands", () => {
     );
   });
 
-  test("hook dispatches to the Habitat hook runner", async () => {
+  test("hook dispatches through the Habitat service client", async () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
-    expect(hooks.runHook).toHaveBeenCalledWith("pre-push", { base: "HEAD~1" });
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockHookRun).toHaveBeenCalledWith({ name: "pre-push", base: "HEAD~1" });
     expect(stdout.join("")).toContain("hook ok");
   });
 
