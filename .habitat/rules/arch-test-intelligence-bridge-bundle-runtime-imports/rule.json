@@ -18,9 +18,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js"
-      ]
+      "patterns": ["mods/mod-civ7-intelligence-bridge/mod/ui/civ7-intelligence-bridge.js"]
     }
   ],
   "graphTarget": {

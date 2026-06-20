@@ -6,12 +6,7 @@
   "scope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
   "forbids": "test files deep-importing domain internals instead of public domain surfaces",
   "why": "Tests should exercise domain contracts through the same public surfaces as product code unless an explicit architecture decision owns a deeper reach.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Use @mapgen/domain/<domain>, /ops, or /config.js from tests instead of domain internals.",
   "exceptionPath": "none",

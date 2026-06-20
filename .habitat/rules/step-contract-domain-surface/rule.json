@@ -6,12 +6,7 @@
   "scope": "mods/*/src/recipes/**/stages/**/steps/**/{contract.ts,*.contract.ts}",
   "forbids": "step contracts deep-importing domain internals or runtime ops",
   "why": "Step contracts bind to domain contracts, not runtime implementation surfaces.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Step contracts must import only from @mapgen/domain/<domain>.",
   "exceptionPath": "none",

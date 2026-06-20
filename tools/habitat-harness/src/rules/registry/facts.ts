@@ -2,9 +2,9 @@ import type {
   RuleBaselineFacts,
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
+  RuleHookCheckFacts,
   RuleManifestFacts,
   RulePatternFacts,
-  RuleHookCheckFacts,
   RuleRegistryRecordV1,
   RuleReportFacts,
   RuleRoutingFacts,
@@ -32,9 +32,7 @@ type CommandRecordInput = Extract<
 >;
 type HookCheckRecordInput = PatternRecordInput & { hookCheck: true };
 
-export function ruleSelectorFacts(
-  records: readonly SelectorRecordInput[]
-): RuleSelectorFacts[] {
+export function ruleSelectorFacts(records: readonly SelectorRecordInput[]): RuleSelectorFacts[] {
   return records.map((rule) => ({
     id: rule.id,
     ownerProject: rule.ownerProject,
@@ -66,9 +64,7 @@ export function ruleRoutingFacts(records: readonly RoutingRecordInput[]): RuleRo
   }));
 }
 
-export function ruleBaselineFacts(
-  records: readonly BaselineRecordInput[]
-): RuleBaselineFacts[] {
+export function ruleBaselineFacts(records: readonly BaselineRecordInput[]): RuleBaselineFacts[] {
   return records.map((rule) => ({
     id: rule.id,
     exceptionPath: rule.exceptionPath,
@@ -88,9 +84,7 @@ export function rulePatternFacts(records: readonly RuleRegistryRecordV1[]): Rule
     }));
 }
 
-export function ruleManifestFacts(
-  records: readonly RuleRegistryRecordV1[]
-): RuleManifestFacts[] {
+export function ruleManifestFacts(records: readonly RuleRegistryRecordV1[]): RuleManifestFacts[] {
   return records
     .filter(
       (rule): rule is ManifestRecordInput =>
@@ -145,9 +139,7 @@ export function ruleFileLayerFacts(records: readonly RuleRegistryRecordV1[]): Ru
     });
 }
 
-export function ruleHookCheckFacts(
-  records: readonly RuleRegistryRecordV1[]
-): RuleHookCheckFacts[] {
+export function ruleHookCheckFacts(records: readonly RuleRegistryRecordV1[]): RuleHookCheckFacts[] {
   return records
     .filter(
       (rule): rule is HookCheckRecordInput =>

@@ -213,6 +213,7 @@ describe("Habitat oclif commands", () => {
     expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD",
+        baselineIntegrity: true,
         owner: "@internal/habitat-harness",
         rule: "adapter-boundary",
         tool: "pattern-check",
@@ -262,6 +263,7 @@ describe("Habitat oclif commands", () => {
     expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD~1",
+        baselineIntegrity: true,
         command: expect.objectContaining({
           argv: ["--base", "HEAD~1"],
           bin: "habitat",
@@ -283,6 +285,7 @@ describe("Habitat oclif commands", () => {
     expect(checkReport.createCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD~1",
+        baselineIntegrity: true,
         command: expect.objectContaining({
           argv: ["--base", "HEAD~1", "--json"],
           bin: "habitat",

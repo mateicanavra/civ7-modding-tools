@@ -1,8 +1,8 @@
 import { repoRoot } from "../paths.js";
 import { run, type SpawnResult } from "../spawn.js";
 import type { VerifyTargetPlan } from "../workspace-graph/index.js";
-import type { VerifyReceipt } from "./schema.js";
 import { boundedPreview } from "./command-output.js";
+import type { VerifyReceipt } from "./schema.js";
 
 /**
  * Builds the Nx affected argv used by verify.
@@ -128,7 +128,9 @@ function parseNxTaskCacheStates(
       taskId: `${project}:${target}`,
       project,
       target,
-      cacheState: taskLine.includes("existing outputs match the cache") ? "cache-hit" : "not-observed",
+      cacheState: taskLine.includes("existing outputs match the cache")
+        ? "cache-hit"
+        : "not-observed",
     };
   });
 }

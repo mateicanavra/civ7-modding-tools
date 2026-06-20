@@ -11,12 +11,12 @@ import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import { HabitatProcess, HabitatProcessLive } from "../../lib/habitat-process.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import type { RulePatternFacts } from "../../rules/registry/index.js";
-import { runDocsApplyBackedDiagnosticOutcomes, runDocsApplyBackedGritRules } from "./docs-apply.js";
-import { infrastructureFailure } from "./failure.js";
 import {
   gritDiagnosticOutcomesFromReport,
   ruleRunResultsFromDiagnosticOutcomes,
 } from "./diagnostics.js";
+import { runDocsApplyBackedDiagnosticOutcomes, runDocsApplyBackedGritRules } from "./docs-apply.js";
+import { infrastructureFailure } from "./failure.js";
 import { gritCheckProgram } from "./request.js";
 import {
   decideEffectivePatternScanRoots,
@@ -38,6 +38,8 @@ interface GritRunOptions {
   requireObservableCacheStatus?: boolean;
   diagnostics?: GritDiagnosticOptions;
 }
+
+const LIVE_SOURCE_BATCH_RULE_LIMIT = 1;
 
 export async function runGritRule(rule: RulePatternFacts): Promise<RuleRunResult> {
   const results = await runGritRules([rule]);
@@ -127,6 +129,15 @@ async function runGritRuleOutcomeGroup(
     scanRootDecision.kind === "expanded-test-files"
       ? scanRootDecision.effectiveRoots
       : scanRootDecision.roots;
+  const schedulingFailure = liveSourceBatchSchedulingFailure(selectedRules, options, outputFormat);
+  if (schedulingFailure) {
+    return new Map(
+      selectedRules.map((rule) => [
+        rule.id,
+        adapterFailedOutcome(rule, "GritAdapterInternalContractViolation", schedulingFailure),
+      ])
+    );
+  }
 
   const acquisition = await runHabitatEffect(
     gritCheckProgram(scanRoots, {
@@ -138,7 +149,11 @@ async function runGritRuleOutcomeGroup(
   );
   switch (acquisition.kind) {
     case "parsed":
-      return gritDiagnosticOutcomesFromReport(selectedRules, acquisition.report, options.diagnostics);
+      return gritDiagnosticOutcomesFromReport(
+        selectedRules,
+        acquisition.report,
+        options.diagnostics
+      );
     case "adapter-failed":
       if (acquisition.failure === "GritCacheProvenanceMissing") {
         const cache = missingCacheObservation(acquisition);
@@ -165,6 +180,21 @@ async function runGritRuleOutcomeGroup(
         ])
       );
   }
+}
+
+function liveSourceBatchSchedulingFailure(
+  selectedRules: readonly RulePatternFacts[],
+  options: GritRunOptions,
+  outputFormat: GritCheckOutputFormat
+): string | null {
+  if (options.processLayer) return null;
+  if (outputFormat !== "json") return null;
+  if (selectedRules.length <= LIVE_SOURCE_BATCH_RULE_LIMIT) return null;
+  return [
+    `Refusing to run ${selectedRules.length} source-backed Grit rules as one live batch.`,
+    "This Habitat adapter cannot schedule broad source-wide Grit execution safely yet.",
+    "Move this lane to GritProvider batching/resource scheduling before enabling aggregate execution.",
+  ].join(" ");
 }
 
 function missingCacheObservation(

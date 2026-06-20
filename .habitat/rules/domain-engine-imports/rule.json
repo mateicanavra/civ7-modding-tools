@@ -6,12 +6,7 @@
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
   "forbids": "domain ops importing engine runtime entrypoints as values",
   "why": "Domain ops stay portable domain logic; engine runtime entrypoints belong behind approved domain/runtime surfaces.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Do not import engine runtime entrypoints from domain ops.",
   "exceptionPath": "none",
@@ -27,9 +22,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
     }
   ]
 }

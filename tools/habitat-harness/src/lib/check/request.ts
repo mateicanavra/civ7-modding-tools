@@ -3,6 +3,7 @@ import type { CheckCommandContext, SelectorRequest, StructuralCheckRequest } fro
 
 export interface CheckOptions extends RuleSelection {
   base?: string;
+  baselineIntegrity?: boolean;
   command?: CheckCommandContext;
   staged?: boolean;
   stagedPaths?: readonly string[];

@@ -6,16 +6,14 @@ import {
   CandidateHandoffSchema,
   type DiagnosticAdmission,
   DiagnosticAdmissionSchema,
-  type PatternView,
-  PatternViewSchema,
-  type PatternState,
   type PatternRecovery,
   PatternRecoverySchema,
+  type PatternState,
+  type PatternView,
+  PatternViewSchema,
 } from "./schema.js";
 
-export function patternView(
-  state: PatternState
-): PatternView {
+export function patternView(state: PatternState): PatternView {
   switch (state.kind) {
     case "candidate-draft":
       return parsePatternView({
@@ -63,25 +61,19 @@ export function patternView(
   }
 }
 
-export function diagnosticAdmission(
-  state: PatternState
-): DiagnosticAdmission | undefined {
+export function diagnosticAdmission(state: PatternState): DiagnosticAdmission | undefined {
   return state.kind === "diagnostic-admitted"
     ? Value.Parse(DiagnosticAdmissionSchema, state.admission)
     : undefined;
 }
 
-export function applyAdmission(
-  state: PatternState
-): ApplyAdmission | undefined {
+export function applyAdmission(state: PatternState): ApplyAdmission | undefined {
   return state.kind === "apply-admitted"
     ? Value.Parse(ApplyAdmissionSchema, state.admission)
     : undefined;
 }
 
-export function candidateHandoff(
-  state: PatternState
-): CandidateHandoff | undefined {
+export function candidateHandoff(state: PatternState): CandidateHandoff | undefined {
   if (state.kind === "candidate-draft") {
     return Value.Parse(CandidateHandoffSchema, {
       kind: "candidate-handoff",
@@ -105,9 +97,7 @@ export function candidateHandoff(
   return undefined;
 }
 
-export function patternRecovery(
-  state: PatternState
-): PatternRecovery | undefined {
+export function patternRecovery(state: PatternState): PatternRecovery | undefined {
   if (state.kind === "refused" || state.kind === "manifest-invalid-candidate") {
     return Value.Parse(PatternRecoverySchema, {
       kind: "pattern-recovery",

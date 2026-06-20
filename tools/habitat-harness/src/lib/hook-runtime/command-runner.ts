@@ -1,7 +1,7 @@
 import { repoRoot } from "../paths.js";
 import { run, type SpawnResult } from "../spawn.js";
+import { type HookRuntime, hookNow } from "./runtime.js";
 import type { HookCommandPhase } from "./schema.js";
-import { hookNow, type HookRuntime } from "./runtime.js";
 
 export function runHookCommand(
   runtime: HookRuntime,

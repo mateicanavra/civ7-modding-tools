@@ -1,11 +1,9 @@
 import { Value } from "typebox/value";
 import {
-  HostApplyGateDecisionSchema,
-  HostAuthoringBoundaryStateSchema,
-  HostProjectSupportDecisionSchema,
-  HostSurfaceDecisionSchema,
   type HostApplyGateDecision,
+  HostApplyGateDecisionSchema,
   type HostAuthoringBoundaryState,
+  HostAuthoringBoundaryStateSchema,
   type HostMatcher,
   type HostPolicyDeclaration,
   type HostPolicyDocument,
@@ -13,8 +11,10 @@ import {
   type HostPolicySourceState,
   type HostPolicyState,
   type HostProjectSupportDecision,
+  HostProjectSupportDecisionSchema,
   type HostRecoveryInstruction,
   type HostSurfaceDecision,
+  HostSurfaceDecisionSchema,
 } from "./schema.js";
 import { defaultHostPolicyState } from "./state.js";
 
@@ -82,8 +82,7 @@ export function hostApplyGateDecision(
     });
   }
   const declaration = state.document.declarations.find(
-    (item): item is ApplyGateDeclaration =>
-      item.kind === "apply-gate" && item.gateId === gateId
+    (item): item is ApplyGateDeclaration => item.kind === "apply-gate" && item.gateId === gateId
   );
   return Value.Parse(HostApplyGateDecisionSchema, {
     kind: "host-apply-gate-decision",
@@ -106,8 +105,7 @@ export function hostProjectSupportDecision(
   }
   const declaration = state.document.declarations.find(
     (item): item is ProjectSupportDeclaration =>
-      (item.kind === "project-support" ||
-        item.kind === "unsupported-host-shape") &&
+      (item.kind === "project-support" || item.kind === "unsupported-host-shape") &&
       item.requestClass === requestClass
   );
   if (!declaration) return projectSupportDecision(requestClass, "missing", "blocked");
@@ -135,9 +133,7 @@ export function hostAuthoringBoundaryState(
   });
 }
 
-export function hostGeneratedSurfaceDeclarations(
-  state: HostPolicyState = defaultHostPolicyState
-): {
+export function hostGeneratedSurfaceDeclarations(state: HostPolicyState = defaultHostPolicyState): {
   generatedZoneId: string;
   matcher: HostMatcher;
   recovery: HostRecoveryInstruction;
@@ -150,9 +146,7 @@ export function hostGeneratedSurfaceDeclarations(
   }));
 }
 
-export function renderHostRecoveryInstruction(
-  recovery: HostRecoveryInstruction
-): string {
+export function renderHostRecoveryInstruction(recovery: HostRecoveryInstruction): string {
   if (recovery.actionKind === "command" && recovery.command) {
     return `Run \`${recovery.command}\` and commit the generated output.`;
   }
@@ -179,14 +173,10 @@ function matchesPathPrefix(prefix: string, candidate: string): boolean {
 }
 
 function surfaceDeclarations(document: HostPolicyDocument): SurfaceDeclaration[] {
-  return document.declarations.filter(
-    (item): item is SurfaceDeclaration => "matcher" in item
-  );
+  return document.declarations.filter((item): item is SurfaceDeclaration => "matcher" in item);
 }
 
-function generatedSurfaceDeclarations(
-  document: HostPolicyDocument
-): GeneratedSurfaceDeclaration[] {
+function generatedSurfaceDeclarations(document: HostPolicyDocument): GeneratedSurfaceDeclaration[] {
   return document.declarations.filter(
     (item): item is GeneratedSurfaceDeclaration => "generatedZoneId" in item
   );
@@ -221,10 +211,7 @@ function notHostOwnedSurfaceDecision(policyId: string): HostSurfaceDecision {
 
 function blockedSurfaceDecision(
   candidate: string,
-  state: Extract<
-    HostPolicyState,
-    { kind: "missing" | "unavailable" | "malformed" | "conflicting" }
-  >
+  state: Extract<HostPolicyState, { kind: "missing" | "unavailable" | "malformed" | "conflicting" }>
 ): HostSurfaceDecision {
   return Value.Parse(HostSurfaceDecisionSchema, {
     kind: "host-surface-decision",

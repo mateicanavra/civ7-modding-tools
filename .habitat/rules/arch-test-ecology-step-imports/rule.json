@@ -18,9 +18,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps"
-      ]
+      "patterns": ["mods/mod-swooper-maps"]
     }
   ],
   "graphTarget": {

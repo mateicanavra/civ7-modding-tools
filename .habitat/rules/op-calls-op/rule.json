@@ -6,12 +6,7 @@
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
   "forbids": "domain op runtime entrypoints importing sibling op runtimes or the domain ops barrel",
   "why": "Domain ops stay atomic; step and stage composition owns cross-op orchestration.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Move op composition into the owning step/stage or public domain surface.",
   "exceptionPath": "none",
@@ -27,9 +22,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"]
     }
   ]
 }

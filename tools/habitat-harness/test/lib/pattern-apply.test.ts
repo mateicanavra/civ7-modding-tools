@@ -2,20 +2,17 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import { runFix } from "../../src/lib/fix.js";
 import {
+  type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
   makeHabitatCommandResult,
-  type HabitatProcessRequest,
 } from "../../src/lib/habitat-process.js";
 import {
+  type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
   runPatternApply,
-  type PatternApplyRequest,
 } from "../../src/lib/pattern-apply/index.js";
-import type {
-  ApplyAdmission,
-  ApplyTransactionInput,
-} from "../../src/rules/patterns/index.js";
+import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -176,15 +173,18 @@ describe("pattern apply", () => {
   });
 
   test("refuses transaction input whose identity does not match the admission", async () => {
-    const record = await runPatternApply({
-      kind: "dry-run-intent",
-      worktree: cleanWorktree(),
-      admission: applyAdmission({
-        patternId: "other-apply-pattern",
-      }),
-    } satisfies PatternApplyRequest, {
-      transactionInputs: [transactionInput()],
-    });
+    const record = await runPatternApply(
+      {
+        kind: "dry-run-intent",
+        worktree: cleanWorktree(),
+        admission: applyAdmission({
+          patternId: "other-apply-pattern",
+        }),
+      } satisfies PatternApplyRequest,
+      {
+        transactionInputs: [transactionInput()],
+      }
+    );
 
     expect(record.outcome).toMatchObject({
       kind: "refused",
@@ -236,14 +236,17 @@ describe("pattern apply", () => {
   });
 
   test("consumes an allowed protected-zone write decision before live execution", async () => {
-    const record = await runPatternApply({
-      kind: "live-write-intent",
-      worktree: cleanWorktree(),
-      admission: applyAdmission(),
-      pathDecision: allowedPathDecision(),
-    } satisfies PatternApplyRequest, {
-      transactionInputs: [transactionInput()],
-    });
+    const record = await runPatternApply(
+      {
+        kind: "live-write-intent",
+        worktree: cleanWorktree(),
+        admission: applyAdmission(),
+        pathDecision: allowedPathDecision(),
+      } satisfies PatternApplyRequest,
+      {
+        transactionInputs: [transactionInput()],
+      }
+    );
 
     expect(record.outcome).toMatchObject({
       kind: "refused",
@@ -252,16 +255,19 @@ describe("pattern apply", () => {
   });
 
   test("binds protected-zone write decisions to the admitted transaction roots", async () => {
-    const record = await runPatternApply({
-      kind: "live-write-intent",
-      worktree: cleanWorktree(),
-      admission: applyAdmission(),
-      pathDecision: allowedPathDecision({
-        path: "packages/outside-admitted-root/example.ts",
-      }),
-    } satisfies PatternApplyRequest, {
-      transactionInputs: [transactionInput()],
-    });
+    const record = await runPatternApply(
+      {
+        kind: "live-write-intent",
+        worktree: cleanWorktree(),
+        admission: applyAdmission(),
+        pathDecision: allowedPathDecision({
+          path: "packages/outside-admitted-root/example.ts",
+        }),
+      } satisfies PatternApplyRequest,
+      {
+        transactionInputs: [transactionInput()],
+      }
+    );
 
     expect(record.outcome).toMatchObject({
       kind: "refused",
@@ -288,9 +294,7 @@ function dirtyWorktree() {
   } as const;
 }
 
-function applyAdmission(
-  overrides: Partial<ApplyAdmission> = {}
-): ApplyAdmission {
+function applyAdmission(overrides: Partial<ApplyAdmission> = {}): ApplyAdmission {
   return {
     kind: "apply-admission",
     patternId: "deep-import-to-public-surface",
@@ -302,9 +306,7 @@ function applyAdmission(
   };
 }
 
-function transactionInput(
-  overrides: Partial<ApplyTransactionInput> = {}
-): ApplyTransactionInput {
+function transactionInput(overrides: Partial<ApplyTransactionInput> = {}): ApplyTransactionInput {
   return {
     kind: "apply-transaction-input",
     patternId: "deep-import-to-public-surface",

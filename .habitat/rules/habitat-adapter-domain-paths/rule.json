@@ -6,26 +6,17 @@
   "scope": "tools/habitat-harness/src/adapters/grit/**",
   "forbids": "product/domain scan roots hard-coded inside the pattern adapter",
   "why": "The adapter is a generic tool boundary; repo-specific scan roots are rule registry metadata.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Move product-specific scan roots out of the pattern adapter and into rule registry metadata.",
   "exceptionPath": "none",
   "patternName": "habitat_adapter_domain_paths",
   "hookCheck": true,
-  "scanRoots": [
-    "tools/habitat-harness/src/adapters/grit"
-  ],
+  "scanRoots": ["tools/habitat-harness/src/adapters/grit"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "tools/habitat-harness/src/adapters/grit/**"
-      ]
+      "patterns": ["tools/habitat-harness/src/adapters/grit/**"]
     },
     {
       "kind": "project-owner"

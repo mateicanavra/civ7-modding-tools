@@ -4,17 +4,14 @@ import { activeRuleGraphFacts } from "../../rules/facts.js";
 import { repoRoot, toRepoRelative } from "../paths.js";
 import {
   findWorkspaceOwningProject,
-  ruleGraphTargetStates,
-  workspaceTargetStates,
   type GraphRefusalState,
+  ruleGraphTargetStates,
   type WorkspaceGraphReadState,
   type WorkspaceProject,
+  workspaceTargetStates,
 } from "../workspace-graph/index.js";
 import { rulesForPath } from "./routing.js";
-import {
-  parsePathClassification,
-  type PathClassification,
-} from "./schema.js";
+import { type PathClassification, parsePathClassification } from "./schema.js";
 import { projectTargets, workspaceTargets } from "./targets.js";
 
 export function classifyPathFromProjects(

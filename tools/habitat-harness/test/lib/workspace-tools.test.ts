@@ -57,5 +57,4 @@ describe("workspace tool command materialization", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("grit");
   });
-
 });

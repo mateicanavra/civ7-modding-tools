@@ -1,13 +1,13 @@
 import { Value } from "typebox/value";
 import { defaultHostPolicyDocument } from "./declarations.js";
 import {
-  HostPolicyDocumentSchema,
-  HostPolicyStateSchema,
+  type HostMatcher,
   type HostPolicyDeclaration,
   type HostPolicyDocument,
-  type HostMatcher,
+  HostPolicyDocumentSchema,
   type HostPolicySourceState,
   type HostPolicyState,
+  HostPolicyStateSchema,
 } from "./schema.js";
 
 type SurfaceDeclaration = Extract<HostPolicyDeclaration, { matcher: HostMatcher }>;
@@ -18,9 +18,8 @@ type ProjectSupportDeclaration = Extract<
   { kind: "project-support" | "unsupported-host-shape" }
 >;
 
-export const defaultHostPolicyState: HostPolicyState = declaredHostPolicyState(
-  defaultHostPolicyDocument
-);
+export const defaultHostPolicyState: HostPolicyState =
+  declaredHostPolicyState(defaultHostPolicyDocument);
 
 export function parseHostPolicyDocument(value: unknown): HostPolicyDocument {
   return Value.Parse(HostPolicyDocumentSchema, value);
@@ -44,17 +43,11 @@ export function readHostPolicyState(value: unknown): HostPolicyState {
   return declaredHostPolicyState(document);
 }
 
-export function missingHostPolicyState(
-  policyId: string,
-  issue: string
-): HostPolicyState {
+export function missingHostPolicyState(policyId: string, issue: string): HostPolicyState {
   return policyIssueState("missing", policyId, [issue]);
 }
 
-export function unavailableHostPolicyState(
-  policyId: string,
-  issue: string
-): HostPolicyState {
+export function unavailableHostPolicyState(policyId: string, issue: string): HostPolicyState {
   return policyIssueState("unavailable", policyId, [issue]);
 }
 
@@ -143,7 +136,9 @@ function hasOwner(
   return document.owners.some((owner) => owner.ownerId === declaration.ownerId);
 }
 
-function isSurfaceDeclaration(declaration: HostPolicyDeclaration): declaration is SurfaceDeclaration {
+function isSurfaceDeclaration(
+  declaration: HostPolicyDeclaration
+): declaration is SurfaceDeclaration {
   return "matcher" in declaration;
 }
 

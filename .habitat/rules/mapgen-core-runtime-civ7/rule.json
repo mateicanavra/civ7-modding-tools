@@ -6,12 +6,7 @@
   "scope": "packages/mapgen-core/src/{core,engine}/**/*.ts",
   "forbids": "Civ7 adapter value imports, /base-standard paths, or runtime globals in mapgen-core",
   "why": "mapgen-core is a pure TypeScript engine; Civ7 coupling belongs in adapters.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Remove Civ7 runtime coupling from mapgen-core core/engine source.",
   "exceptionPath": "none",
