@@ -51,6 +51,10 @@ function normalizeConfig(config: Config): Config {
       ...config.burned,
       selector: normalizeSelector(config.burned.selector),
     },
+    jungle: {
+      ...config.jungle,
+      selector: normalizeSelector(config.jungle.selector),
+    },
   };
 }
 
@@ -85,18 +89,22 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
     const snow = config.snow;
     const sand = config.sand;
     const burned = config.burned;
+    const jungle = config.jungle;
 
     const snowSelectors = snow.selectors;
     const sandSelector = sand.selector;
     const burnedSelector = burned.selector;
+    const jungleSelector = jungle.selector;
 
     const snowEnabled = snow.enabled;
     const sandEnabled = sand.enabled;
     const burnedEnabled = burned.enabled;
+    const jungleEnabled = jungle.enabled;
 
     const snowCandidates: Candidate[] = [];
     const sandCandidates: Candidate[] = [];
     const burnedCandidates: Candidate[] = [];
+    const jungleCandidates: Candidate[] = [];
 
     const tileCount = width * height;
     for (let idx = 0; idx < tileCount; idx++) {
@@ -146,6 +154,18 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
           tie: rng(0x7fffffff, `plot-effects:burned:${idx}`),
         });
       }
+
+      if (jungleEnabled && input.jungleEligibleMask[idx] === 1) {
+        const score = input.jungleScore01[idx]!;
+        jungleCandidates.push({
+          idx,
+          x,
+          y,
+          plotEffect: jungleSelector.typeName,
+          score,
+          tie: rng(0x7fffffff, `plot-effects:jungle:${idx}`),
+        });
+      }
     }
 
     // Snow: place the cosmetic tier selector, and CO-PLACE the optional hazard (e.g.
@@ -170,6 +190,14 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
     }
     placements.push(
       ...selectTopCoverage(burnedCandidates, burned.coveragePct).map(({ x, y, plotEffect }) => ({
+        x,
+        y,
+        plotEffect,
+      }))
+    );
+    // Jungle: place ONLY the hazard selector (no cosmetic) on the deepest-stress rainforest.
+    placements.push(
+      ...selectTopCoverage(jungleCandidates, jungle.coveragePct).map(({ x, y, plotEffect }) => ({
         x,
         y,
         plotEffect,

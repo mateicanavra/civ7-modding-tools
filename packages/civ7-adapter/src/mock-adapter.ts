@@ -232,6 +232,7 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
   // the map-ecology apply step.
   { id: 5, name: "PLOTEFFECT_DESERT_HEAT", tags: ["DESERT", "HEAT", "HAZARD"] },
   { id: 6, name: "PLOTEFFECT_FROSTBITE", tags: ["COLD", "FROST", "HAZARD"] },
+  { id: 7, name: "PLOTEFFECT_JUNGLE_FEVER", tags: ["JUNGLE", "FEVER", "HAZARD"] },
 ];
 
 const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;

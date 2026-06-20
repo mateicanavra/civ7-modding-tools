@@ -107,6 +107,22 @@ const PlotEffectsBurnedPlanSchema = Type.Object({
   }),
 });
 
+// Jungle hazard channel. Unlike sand (cosmetic + companion hazard), jungle places ONLY the
+// hazard (e.g. PLOTEFFECT_JUNGLE_FEVER) — the rainforest FEATURE is the visual, so no cosmetic
+// co-placement is needed. The `selector` IS the damaging effect, placed on the hottest/wettest/
+// densest rainforest tiles (jungle stress top-coverage).
+const PlotEffectsJunglePlanSchema = Type.Object({
+  enabled: Type.Boolean({ default: false, description: "Enable planning of jungle plot effects." }),
+  selector: createPlotEffectSelectorSchema({ typeName: "PLOTEFFECT_JUNGLE_FEVER" }),
+  coveragePct: Type.Number({
+    default: 12,
+    minimum: 0,
+    maximum: 100,
+    description:
+      "Percent of eligible jungle tiles to place (deterministic top-coverage selection).",
+  }),
+});
+
 const PlotEffectKeySchema = Type.Unsafe<PlotEffectKey>(
   Type.String({
     description: "Plot effect key (PLOTEFFECT_*).",
@@ -145,6 +161,12 @@ const PlanPlotEffectsContract = defineOp({
     burnedEligibleMask: TypedArraySchemas.u8({
       description: "Burned eligibility mask per tile (1=eligible, 0=ineligible).",
     }),
+    jungleScore01: TypedArraySchemas.f32({
+      description: "Jungle stress score per tile (0..1).",
+    }),
+    jungleEligibleMask: TypedArraySchemas.u8({
+      description: "Jungle eligibility mask per tile (1=eligible, 0=ineligible).",
+    }),
   }),
   output: Type.Object({
     placements: Type.Array(PlotEffectPlacementSchema),
@@ -154,6 +176,7 @@ const PlanPlotEffectsContract = defineOp({
       snow: PlotEffectsSnowPlanSchema,
       sand: PlotEffectsSandPlanSchema,
       burned: PlotEffectsBurnedPlanSchema,
+      jungle: PlotEffectsJunglePlanSchema,
     }),
   },
 });

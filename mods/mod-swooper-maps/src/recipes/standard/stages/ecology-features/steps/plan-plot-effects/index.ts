@@ -56,6 +56,18 @@ export default createStep(PlanPlotEffectsStepContract, {
       },
       config.scoreBurned
     );
+    const scoreJungle = ops.scoreJungle(
+      {
+        width: input.width,
+        height: input.height,
+        landMask: input.landMask,
+        biomeIndex: input.biomeIndex,
+        vegetationDensity: input.vegetationDensity,
+        effectiveMoisture: input.effectiveMoisture,
+        surfaceTemperature: input.surfaceTemperature,
+      },
+      config.scoreJungle
+    );
 
     const result = ops.plotEffects(
       {
@@ -68,6 +80,8 @@ export default createStep(PlanPlotEffectsStepContract, {
         sandEligibleMask: scoreSand.eligibleMask,
         burnedScore01: scoreBurned.score01,
         burnedEligibleMask: scoreBurned.eligibleMask,
+        jungleScore01: scoreJungle.score01,
+        jungleEligibleMask: scoreJungle.eligibleMask,
       },
       config.plotEffects
     );

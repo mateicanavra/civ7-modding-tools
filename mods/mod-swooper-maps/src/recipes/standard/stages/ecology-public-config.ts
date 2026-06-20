@@ -486,11 +486,12 @@ const PlotEffectCoveragePublicSchema = Type.Object(
     snow: Type.Optional(PlotEffectSnowCoveragePublicSchema),
     sand: Type.Optional(PlotEffectSimpleCoveragePublicSchema("sand", false, 18)),
     burned: Type.Optional(PlotEffectSimpleCoveragePublicSchema("burned", false, 8)),
+    jungle: Type.Optional(PlotEffectSimpleCoveragePublicSchema("jungle", false, 12)),
   },
   {
     additionalProperties: false,
     description:
-      "Controls plot-effect coverage for snow, sand, and burned effects without exposing engine selector identifiers.",
+      "Controls plot-effect coverage for snow, sand, burned, and jungle effects without exposing engine selector identifiers.",
   }
 );
 
@@ -508,11 +509,15 @@ const PlotEffectScoringPublicSchema = Type.Object(
       ecologyOps.scorePlotEffectsBurned.strategies.default,
       "burned effect scoring"
     ),
+    jungle: optionalAuthorSchema(
+      ecologyOps.scorePlotEffectsJungle.strategies.default,
+      "jungle effect scoring"
+    ),
   },
   {
     additionalProperties: false,
     description:
-      "Controls snow, sand, and burned plot-effect suitability scoring before coverage selection.",
+      "Controls snow, sand, burned, and jungle plot-effect suitability scoring before coverage selection.",
   }
 );
 
@@ -581,9 +586,12 @@ const PLOT_EFFECT_SELECTORS = {
   //     the cosmetic, art-backed PLOTEFFECT_SAND provides flavor (the hazard has no world-VFX).
   //   - snow channel (cold/freeze stress) → PLOTEFFECT_FROSTBITE on the coldest tiles
   //     (snowScore01 >= hazardThreshold); the permanent snow renders via terrain material.
+  //   - jungle channel (heat+humidity stress) → PLOTEFFECT_JUNGLE_FEVER on the hottest/wettest/
+  //     densest rainforest; no cosmetic — the rainforest FEATURE is the visual.
   sand: { typeName: "PLOTEFFECT_SAND" },
   sandHazard: { typeName: "PLOTEFFECT_DESERT_HEAT" },
   snowHazard: { typeName: "PLOTEFFECT_FROSTBITE" },
+  jungle: { typeName: "PLOTEFFECT_JUNGLE_FEVER" },
   burned: { typeName: "PLOTEFFECT_BURNED" },
 } as const;
 
@@ -592,6 +600,7 @@ function plotEffectCoverageConfig(value: unknown) {
   const snow = publicObject(config.snow);
   const sand = publicObject(config.sand);
   const burned = publicObject(config.burned);
+  const jungle = publicObject(config.jungle);
   return {
     snow: {
       ...snow,
@@ -602,6 +611,10 @@ function plotEffectCoverageConfig(value: unknown) {
       ...sand,
       selector: PLOT_EFFECT_SELECTORS.sand,
       hazard: PLOT_EFFECT_SELECTORS.sandHazard,
+    },
+    jungle: {
+      ...jungle,
+      selector: PLOT_EFFECT_SELECTORS.jungle,
     },
     burned: {
       ...burned,
@@ -680,6 +693,7 @@ export function compileEcologyFeaturesPublicConfig(config: Record<string, unknow
       scoreSnow: defaultEnvelope(plotEffectScoring.snow),
       scoreSand: defaultEnvelope(plotEffectScoring.sand),
       scoreBurned: defaultEnvelope(plotEffectScoring.burned),
+      scoreJungle: defaultEnvelope(plotEffectScoring.jungle),
       plotEffects: defaultEnvelope(plotEffectCoverageConfig(config.plotEffectCoverage)),
     },
   };

@@ -653,6 +653,10 @@
           "enabled": true,
           "coveragePct": 24
         },
+        "jungle": {
+          "enabled": true,
+          "coveragePct": 14
+        },
         "burned": {
           "enabled": true,
           "coveragePct": 6

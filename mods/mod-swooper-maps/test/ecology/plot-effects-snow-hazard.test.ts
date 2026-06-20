@@ -37,6 +37,8 @@ const runSnowPlan = (snowConfig: Record<string, unknown>) => {
       sandEligibleMask: new Uint8Array(SIZE),
       burnedScore01: new Float32Array(SIZE),
       burnedEligibleMask: new Uint8Array(SIZE),
+      jungleScore01: new Float32Array(SIZE),
+      jungleEligibleMask: new Uint8Array(SIZE),
     },
     planSelection
   );
