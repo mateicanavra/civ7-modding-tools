@@ -105,11 +105,16 @@ describe("Habitat service architecture", () => {
 
   test("routes hook CLI orchestration through the service client", () => {
     const hookCommand = source("src/commands/hook.ts");
+    const hookRun = source("src/service/modules/hook/run.ts");
+    const publicIndex = source("src/index.ts");
 
     expect(hookCommand).toContain("createHabitatServiceClient");
     expect(hookCommand).toContain("client.hook.run");
     expect(hookCommand).not.toContain("runHook");
     expect(hookCommand).not.toContain("../lib/hooks.js");
+    expect(hookRun).not.toMatch(/from\s+["'][^"']*lib\/hooks\.js["']/);
+    expect(publicIndex).not.toContain("runHook");
+    expect(existsSync(join(packageRoot, "src/lib/hooks.ts"))).toBe(false);
   });
 });
 

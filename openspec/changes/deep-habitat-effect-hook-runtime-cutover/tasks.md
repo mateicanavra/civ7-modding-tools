@@ -5,6 +5,12 @@
 - [x] 1.1 Add hook service contract, module binding, router, and run function.
 - [x] 1.2 Compose `hook` into the root Habitat service contract and router.
 - [x] 1.3 Route `habitat hook` CLI through the Habitat service client.
+- [x] 1.4 Move hook command orchestration into the service module and remove the
+      obsolete `src/lib/hooks.ts` wrapper.
+- [x] 1.5 Update D0 public-surface authority to refuse the old `runHook`
+      package helper export instead of preserving a wrapper.
+- [x] 1.6 Update D0 public-surface authority to refuse the old `lib/hooks`
+      aggregate helper/type facade instead of preserving a wrapper.
 
 ## 2. Preserve Behavior
 
@@ -17,7 +23,8 @@
 ## 3. Explicit Remaining Drain
 
 - [x] 3.1 Record that Git, Biome, Grit, filesystem, clock, and command execution
-      are still inside hook runtime internals after this service-module slice.
+      are still in lower-level hook runtime material after this service-module
+      ownership slice.
 - [x] 3.2 Keep hook runtime provider drainage as the next hook implementation unit.
 
 ## 4. Verification
