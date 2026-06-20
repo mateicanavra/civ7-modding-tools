@@ -89,3 +89,36 @@ All deterministic (pure function of physical fields; RNG only as exact‑tie bre
 
 - Branch `desert-ocean-attrition-feasibility` (off `start-dist-homeland-rebalance`).
 - Evidence gathered via narsil code‑intel over the vendored base‑game dump (`.civ7/outputs/resources`) + repo SDK/mapgen source. The original background feasibility workflow stalled mid‑`Understand` on the large gameeffects XML; the findings here were produced by direct structural search and supersede it.
+
+---
+
+## 8. RESULTS — implemented & PROVEN LIVE (2026-06-20)
+
+The one real unknown from §6 is **resolved: yes.** A permanent, non-decaying plot effect **does** damage a land occupant every turn.
+
+**Live proof (latest-juicy, driven via the `civ7` CLI):** `PLOTEFFECT_DESERT_HEAT` (`Damage=11, TimeDecay=false, UnoccupiedDecay=false, AllowOnWater=false`) loads with **no rollback**, registers at runtime, and was **placed on 36 deepest-desert tiles** (24% sand coverage). A stationary unit on a DESERT_HEAT tile lost **exactly 11 HP across one turn** (0 → 11, turn 1 → 2). This is the genuine ocean-damage twin.
+
+**What shipped (simpler than the §5 plan):**
+- `mod/data/desert-hazard.xml` — ROOT `<Database>` with `Types` + `PlotEffects` rows for `PLOTEFFECT_DESERT_HEAT`. Loaded via a game-scope `UpdateDatabase`. LOC name in `MapText.xml`.
+- `plan-plot-effects` — the sand channel gained an **optional `hazard` companion selector** (`sand.hazard`) that co-places the hazard on the same top-coverage deep-desert tiles the cosmetic sand selects. (Lighter than the full multi-tier + connected-mass/interior-distance gate of §4–5; coverage % already constrains it to the deepest tiles. The mass/interior gate remains available as a future refinement.) Wired via `ecology-public-config.ts` `PLOT_EFFECT_SELECTORS.sandHazard`; viz category added; tests in `test/ecology/plot-effects-sand-hazard.test.ts`.
+- The global `EFFECT_UNIT_ADJUST_DAMAGE` modifier path (§3 Path B) was **dropped**: it is one-shot in 100% of base usage (`run-once="true"`) and a biome modifier hits *all* desert, contradicting the "deep parts only" design.
+
+**Corrected finding — the "art-gated / unplaceable" fear was wrong.** A missing world-VFX does **not** block placement: the engine builds the visual as `WorldUI.triggerVFXAtPlot("VFX_ADDED_TO_MAP_"+PlotEffectType)` in `onPlotEffectAddedToMap` (`world-vfx.js:77`) and silently no-ops when the asset is absent; the gameplay placement + `Damage` still apply. The earlier "0 placements" was a data-load rollback, not art.
+
+**Open: the world-visual.** There is **no data-only way to render a persistent ground marker.** A custom type has no art, and even base `PLOTEFFECT_SAND` has *no persistent decal* — its only visual is a one-shot "appears" animation (`triggerVFXAtPlot`, vs the persistent `addVFXAtPlot` used only by `PLOTEFFECT_FLOODED`), which mapgen placement never fires (verified: SAND added to 7 tundra tiles at runtime showed zero overlay). The hazard is surfaced via the **plot tooltip** ("Deep Desert Heat") + the terrain already reading as harsh desert. A real overlay would need the art pipeline or a persistent-art **feature** — future work.
+
+### 8.1 Plot-effect permanence survey (all 15 base effects, `plot-effects.xml` — the only definition file)
+
+Permanence is governed by two flags: **`TimeDecay`** (counts down `TimeValue` turns) and **`UnoccupiedDecay`** (vanishes when no unit occupies the tile). "Permanent" = **both false**.
+
+| Class (TimeDecay / UnoccupiedDecay) | Effects | Damage | Notes |
+|---|---|---|---|
+| **PERMANENT** (false / false) | `FLOODED` (0); `SNOW_LIGHT/MEDIUM/HEAVY_PERMANENT` (0); `STONE_TRAP` (25), `DIGSITE` (25) | 0, except traps=25 | FLOODED has the *only* persistent VFX (`addVFXAtPlot`); SNOW_*_PERMANENT render via terrain material. STONE_TRAP/DIGSITE are permanent **but** `TriggerOnEnter`+`RemoveOnEnter` → one-shot, removed when stepped on (not continuous). |
+| **OCCUPANCY-HELD** (false / true) | `UNIT_FORTIFICATIONS` (0, Defense=3) | 0 | Persists only while a unit sits on it. |
+| **TIME-DECAY** (true / false) | `IS_BURNING` (15, 2t), `PLAGUE` (25, 1t), `RADIOACTIVE_FALLOUT` (50, 10t) | 15–50 | The per-turn damagers — but all expire after `TimeValue` turns. |
+| **FULLY TRANSIENT** (true / true) | `SAND` (0), **`BURNED` (0)**, `SNOW_LIGHT/MEDIUM/HEAVY_TRANSIENT` (0) | 0 | Weather/cosmetic; decay fast. |
+
+**Key takeaways:**
+- **`BURNED` is NOT permanent** — it is fully transient (both decay flags true, like `SAND`). The explicit permanence signal in the data is the **`_PERMANENT` vs `_TRANSIENT` name suffix** on the snow effects.
+- The permanent **damaging** effects (`STONE_TRAP`, `DIGSITE`) are **one-shot traps** (`RemoveOnEnter`), not continuous attrition.
+- ⇒ **No base plot effect is permanent AND deals continuous per-turn damage to occupants.** That niche was empty — which is exactly what `PLOTEFFECT_DESERT_HEAT` (permanent, `Damage=11`, no `TriggerOnEnter`) was created to fill, and is now proven to work.

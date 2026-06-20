@@ -179,10 +179,31 @@ ${rows}
 `;
 }
 
-// Deep-desert hazard (Path A de-risk slice): a permanent, non-decaying plot effect
-// that damages occupying units each turn (the structural analog of ocean damage).
-// Placed on the deepest-scoring desert tiles by the ecology plot-effects planner.
-// Loaded via a gameplay-scope UpdateDatabase action in the modinfo.
+// Deep-desert attrition. A custom, permanent, damaging PlotEffect — the data-defined
+// twin of the engine-internal ocean damage. PROVEN LIVE (a stationary unit on a DESERT_HEAT
+// tile took exactly 11 HP across one turn): a PlotEffects row with Damage>0 and no
+// TriggerOnEnter inflicts that Damage on ANY unit occupying the tile, every turn — exactly
+// the "crossing here is dangerous" model. DESERT_HEAT is permanent (TimeDecay/
+// UnoccupiedDecay=false) so it persists for the whole game, and AllowOnWater=false so it
+// only lives on land. This fills a real gap: NO base plot effect is both permanent AND
+// damages occupants per turn (the permanent ones — FLOODED, SNOW_*_PERMANENT — deal 0;
+// STONE_TRAP/DIGSITE are permanent but RemoveOnEnter one-shots; the per-turn damagers —
+// IS_BURNING/PLAGUE/FALLOUT — all TimeDecay away).
+//
+// NO WORLD-VISUAL: a custom type has no engine art (the visual name is
+// "VFX_ADDED_TO_MAP_"+PlotEffectType, with no asset for ours), and even base PLOTEFFECT_SAND
+// has no PERSISTENT decal — its only visual is a one-shot "appears" animation
+// (WorldUI.triggerVFXAtPlot, world-vfx.js:77), which mapgen placement never fires. A missing
+// VFX does NOT gate gameplay placement, so the damage still applies; the hazard is surfaced
+// in-game via the plot TOOLTIP (the PlotEffects Name) + the terrain already reading as harsh
+// desert. The ecology plan still co-places base PLOTEFFECT_SAND on these tiles (transient,
+// flavor only); a guaranteed world-overlay would need the art pipeline / a feature, tracked
+// as future work.
+//
+// Gameplay-DB table form: a ROOT <Database> with raw <Row> entries (Types + PlotEffects).
+// Loaded via a gameplay-scope UpdateDatabase action in the modinfo. (Contrast the high-level
+// <GameEffects xmlns="GameEffects"> <Modifier> form — a DIFFERENT root that rolls back if
+// nested in <Database>. No modifier needed here: PlotEffects.Damage is the whole mechanism.)
 function renderDesertHazardData(): string {
   return `<?xml version="1.0" encoding="utf-8"?>
 <Database>
@@ -190,7 +211,7 @@ function renderDesertHazardData(): string {
     <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
   </Types>
   <PlotEffects>
-    <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" Damage="11" Defense="0" TimeDecay="false" UnoccupiedDecay="false" TriggerOnEnter="false" AllowOnWater="false" AllowConstructWhileDamaged="false"/>
+    <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
   </PlotEffects>
 </Database>
 `;

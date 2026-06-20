@@ -6,6 +6,7 @@ export const PLOT_EFFECT_VIZ_VALUE_BY_KEY: Readonly<Record<string, number>> = {
   PLOTEFFECT_SNOW_HEAVY_PERMANENT: 3,
   PLOTEFFECT_SAND: 4,
   PLOTEFFECT_BURNED: 5,
+  PLOTEFFECT_DESERT_HEAT: 6,
 } as const;
 
 export const PLOT_EFFECT_VIZ_CATEGORIES = [
@@ -31,6 +32,11 @@ export const PLOT_EFFECT_VIZ_CATEGORIES = [
   },
   { value: 4, label: "Sand", color: [245, 158, 11, 240] as [number, number, number, number] },
   { value: 5, label: "Burned", color: [71, 85, 105, 240] as [number, number, number, number] },
+  {
+    value: 6,
+    label: "Desert Heat (Hazard)",
+    color: [220, 38, 38, 240] as [number, number, number, number],
+  },
 ];
 
 export function plotEffectVizValueOrThrow(key: PlotEffectKey): number {

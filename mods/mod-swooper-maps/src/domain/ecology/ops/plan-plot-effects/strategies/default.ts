@@ -44,6 +44,7 @@ function normalizeConfig(config: Config): Config {
     sand: {
       ...config.sand,
       selector: normalizeSelector(config.sand.selector),
+      hazard: config.sand.hazard ? normalizeSelector(config.sand.hazard) : config.sand.hazard,
     },
     burned: {
       ...config.burned,
@@ -153,13 +154,16 @@ export const defaultStrategy = createStrategy(PlanPlotEffectsContract, "default"
         plotEffect,
       }))
     );
-    placements.push(
-      ...selectTopCoverage(sandCandidates, sand.coveragePct).map(({ x, y, plotEffect }) => ({
-        x,
-        y,
-        plotEffect,
-      }))
-    );
+    // Sand: place the cosmetic selector, and CO-PLACE the optional hazard effect on the
+    // SAME tile (visible sand marker + per-turn damage). Multiple plot effects per plot
+    // are supported by the engine.
+    const sandHazardType = sand.hazard?.typeName;
+    for (const { x, y, plotEffect } of selectTopCoverage(sandCandidates, sand.coveragePct)) {
+      placements.push({ x, y, plotEffect });
+      if (sandHazardType) {
+        placements.push({ x, y, plotEffect: sandHazardType });
+      }
+    }
     placements.push(
       ...selectTopCoverage(burnedCandidates, burned.coveragePct).map(({ x, y, plotEffect }) => ({
         x,
