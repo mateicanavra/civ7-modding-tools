@@ -37,6 +37,33 @@ docs/projects/habitat-harness/openspec-remediation/**
   `src/adapters` unless the packet records an explicit public adapter with a
   closure action.
 
+## Implemented Guard Shape
+
+This packet adds one Habitat-owned command rule:
+
+```text
+.habitat/rules/habitat-public-surface-guards/rule.json
+.habitat/baselines/habitat-public-surface-guards.json
+scripts/lint/lint-habitat-public-surface-guards.mjs
+```
+
+The rule introduces `ownerTool: "habitat"` for Habitat meta-architecture
+checks. It is locked with an explicit empty baseline, so any reported finding
+fails immediately.
+
+The guard script is a ratchet:
+
+- `src/index.ts` must remain a one-line facade over `src/public/index.js`.
+- `package.json` may expose only `.`, `./plugin`, and `./public/*`.
+- `src/public/**` may not expose provider/runtime/test-fake/vendor execution
+  symbols.
+- Removed compatibility adapters (`src/lib/baseline.ts`,
+  `src/lib/check-report.ts`, `src/lib/diagnostics.ts`) may not return.
+- Existing `src/lib/**`, host access, runtime execution, and authored-artifact
+  path owners are allowlisted by exact file; new occurrences fail until moved to
+  an owning domain/provider/resource or explicitly recorded with a closure
+  action.
+
 ## Public Surface Rules
 
 `src/index.ts` may export:

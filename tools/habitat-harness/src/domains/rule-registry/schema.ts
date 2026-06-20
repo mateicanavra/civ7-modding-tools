@@ -7,6 +7,7 @@ const RuleIdentitySchema = Type.Object(
     ownerTool: Type.Union([
       Type.Literal("format-check"),
       Type.Literal("file-layer"),
+      Type.Literal("habitat"),
       Type.Literal("pattern-check"),
       Type.Literal("import-boundaries"),
       Type.Literal("command-check"),
@@ -88,11 +89,13 @@ export const RuleRoutingFactsSchema = Type.Interface(
 const DirectCommandOwnerToolSchema = Type.Union([
   Type.Literal("command-check"),
   Type.Literal("format-check"),
+  Type.Literal("habitat"),
   Type.Literal("import-boundaries"),
 ]);
 const CommandOwnerToolSchema = Type.Union([
   Type.Literal("command-check"),
   Type.Literal("format-check"),
+  Type.Literal("habitat"),
   Type.Literal("import-boundaries"),
   Type.Literal("target-check"),
 ]);
