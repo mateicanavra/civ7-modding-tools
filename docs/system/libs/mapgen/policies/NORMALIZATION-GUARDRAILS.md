@@ -49,17 +49,17 @@ completed implementation record.
 ## Commands
 
 - `bun run habitat:check -- --rule normalization-guardrails`
-- `bun tools/habitat-harness/src/rules/native/normalization-guardrails.mjs --self-test`
 - `bun run habitat:check -- --rule domain-refactor-guardrails`
-- `bun run habitat:check -- --tool grit-check`
+- `bun run habitat:check -- --tool pattern-check`
 - `bun run habitat:check -- --rule adapter-boundary`
 - `bun run lint:mapgen-docs`
 
 ## Ground truth anchors
 
-- Habitat-native normalization rule:
-  `tools/habitat-harness/src/rules/native/normalization-guardrails.mjs`
-- Grit rule catalog: `.grit/patterns/habitat/checks/`
+- Habitat command guardrails:
+  `.habitat/rules/domain-refactor-guardrails/rule.json` and
+  `.habitat/rules/adapter-boundary/rule.json`
+- Pattern rule catalog: `.habitat/patterns/checks/`
 - Guard command wiring: `package.json`
 - Normalization packet source table:
   `docs/projects/engine-refactor-v1/architecture-normalization-packet.md`
