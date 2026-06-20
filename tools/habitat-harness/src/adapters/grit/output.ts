@@ -1,22 +1,70 @@
+import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import {
   type DiagnosticAdapterFailureKind,
+  DiagnosticAdapterFailureKindSchema,
   type DiagnosticCacheRequirement,
+  DiagnosticCommandObservationSchema,
+  DiagnosticCompletedCommandObservationSchema,
+  DiagnosticScanRootRefusalSchema,
   diagnosticCacheRequirementForGritCheck,
   diagnosticCommandObservationFromResult,
   diagnosticCompletedCommandObservationFromResult,
   type NativeGritCheckRequest,
+  NativeGritCheckRequestSchema,
   nativeGritCheckRequestFromCommandResult,
-} from "../../../lib/diagnostic-catalog/index.js";
-import { toRepoRelative } from "../../../lib/paths.js";
-import type { HabitatCommandResult } from "../../command/index.js";
+} from "../../domains/diagnostic-pattern-catalog/index.js";
+import { toRepoRelative } from "../../lib/paths.js";
+import type { HabitatCommandResult } from "../../providers/command/index.js";
 import {
-  type GritDiagnosticAcquisition,
   type GritParseFailureStatus,
+  GritParseFailureStatusSchema,
+  GritReportSchema,
   type GritResult,
   type GritWireReport,
   GritWireReportSchema,
-} from "../types.js";
+} from "../../providers/grit/types.js";
+
+export const GritDiagnosticAcquisitionSchema = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal("parsed"),
+      request: NativeGritCheckRequestSchema,
+      report: GritReportSchema,
+      parseStatus: Type.Literal("parsed"),
+      command: DiagnosticCompletedCommandObservationSchema,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("adapter-failed"),
+      request: NativeGritCheckRequestSchema,
+      failure: DiagnosticAdapterFailureKindSchema,
+      parseStatus: GritParseFailureStatusSchema,
+      message: Type.String(),
+      command: DiagnosticCommandObservationSchema,
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("scan-root-refused"),
+      decision: DiagnosticScanRootRefusalSchema,
+      message: Type.String(),
+      command: Type.Object(
+        {
+          kind: Type.Literal("not-run"),
+          reason: Type.Literal("scan-root-refused"),
+        },
+        { additionalProperties: false }
+      ),
+    },
+    { additionalProperties: false }
+  ),
+]);
+
+export type GritDiagnosticAcquisition = Static<typeof GritDiagnosticAcquisitionSchema>;
 
 const defaultCacheRequirement = diagnosticCacheRequirementForGritCheck({});
 

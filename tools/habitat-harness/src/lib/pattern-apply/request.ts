@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { ApplyAdmissionSchema } from "../../rules/patterns/index.js";
+import { ApplyAdmissionSchema } from "../../domains/pattern-governance/index.js";
 import { TransactionPathDecisionSchema } from "../protected-zones/index.js";
 import { NonEmptyStringSchema } from "./primitives.js";
 

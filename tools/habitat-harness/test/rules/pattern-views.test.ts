@@ -17,7 +17,7 @@ import {
   patternView,
   RepoRelativePathSchema,
   retiredPatternState,
-} from "../../src/rules/patterns/index.js";
+} from "../../src/domains/pattern-governance/index.js";
 
 describe("pattern management views", () => {
   test("returns candidate drafts as candidate-only handoff state", () => {

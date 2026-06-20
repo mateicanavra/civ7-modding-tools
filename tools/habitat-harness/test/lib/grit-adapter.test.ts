@@ -7,6 +7,7 @@ import {
   runGritRules,
   validateScanRoots,
 } from "../../src/adapters/grit/index.js";
+import { parseGritCheckOutput, parseGritCheckTextOutput } from "../../src/adapters/grit/output.js";
 import { decidePatternScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
 import {
   DiagnosticCatalogEntrySchema,
@@ -19,7 +20,7 @@ import {
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticAdapterFailure,
-} from "../../src/lib/diagnostic-catalog/index.js";
+} from "../../src/domains/diagnostic-pattern-catalog/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import {
   type HabitatProcessRequest,
@@ -28,10 +29,6 @@ import {
 } from "../../src/providers/command/index.js";
 import { defaultGritCommandTimeoutMs } from "../../src/providers/grit/constants.js";
 import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
-import {
-  parseGritCheckOutput,
-  parseGritCheckTextOutput,
-} from "../../src/providers/grit/output/index.js";
 import type { RulePatternFacts } from "../../src/rules/registry/index.js";
 
 describe("Grit check adapter parser and diagnostics", () => {

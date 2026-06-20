@@ -4,7 +4,7 @@ import {
   patternRuleReferenceFromRule,
   type RegisteredPatternManifest,
   validatePatternManifest,
-} from "../../src/rules/patterns/index.js";
+} from "../../src/domains/pattern-governance/index.js";
 
 describe("pattern manifest validator", () => {
   test("accepts a structured registered advisory manifest with a matching rule reference", () => {

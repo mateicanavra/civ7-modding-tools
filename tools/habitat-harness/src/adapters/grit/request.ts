@@ -1,11 +1,5 @@
 import { Effect } from "effect";
 import {
-  CommandFailed,
-  CommandInterrupted,
-  CommandUnavailable,
-  FileWriteFailed,
-} from "../../errors/index.js";
-import {
   diagnosticAdapterFailureForCacheObservation,
   diagnosticCacheObservationFromCommand,
   diagnosticCacheRequirementForGritCheck,
@@ -14,7 +8,13 @@ import {
   diagnosticToolUnavailableObservation,
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
-} from "../../lib/diagnostic-catalog/index.js";
+} from "../../domains/diagnostic-pattern-catalog/index.js";
+import {
+  CommandFailed,
+  CommandInterrupted,
+  CommandUnavailable,
+  FileWriteFailed,
+} from "../../errors/index.js";
 import {
   captureOutput,
   type HabitatProcessRequest,
@@ -22,12 +22,9 @@ import {
 } from "../../providers/command/index.js";
 import { GritToolUnavailable } from "../../providers/grit/failures.js";
 import { GritProvider, gritCheckRequest } from "../../providers/grit/index.js";
-import {
-  parseGritCheckOutput,
-  parseGritCheckTextOutput,
-} from "../../providers/grit/output/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "../../providers/grit/types.js";
 import { acquireTempDirectory } from "../../resources/index.js";
+import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
