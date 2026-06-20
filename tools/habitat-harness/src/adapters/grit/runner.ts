@@ -6,13 +6,12 @@ import {
   type DiagnosticScanRootRefusal,
   diagnosticCatalogEntryFromRulePatternFacts,
   renderDiagnosticScanRootRefusal,
-} from "../../lib/diagnostic-catalog/index.js";
+} from "../../domains/diagnostic-pattern-catalog/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
 import type {
   GritCheckCacheMode,
   GritCheckOutputFormat,
-  GritDiagnosticAcquisition,
   GritDiagnosticOptions,
 } from "../../providers/grit/types.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
@@ -23,6 +22,7 @@ import {
 } from "./diagnostics.js";
 import { runDocsApplyBackedDiagnosticOutcomesEffect } from "./docs-apply.js";
 import { infrastructureFailure } from "./failure.js";
+import type { GritDiagnosticAcquisition } from "./output.js";
 import { gritCheckProgram } from "./request.js";
 import {
   decidePatternScanRoots,

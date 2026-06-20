@@ -2,18 +2,18 @@ import { Effect } from "effect";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 import {
+  type ApplyAdmission,
+  ApplyAdmissionSchema,
+  activeApplyTransactionInputs,
+  defaultApplyAdmissions,
+} from "../../../domains/pattern-governance/index.js";
+import {
   observeWorktree,
   type PatternApplyRequest,
   renderPatternApply,
   type WorktreeObservation,
 } from "../../../lib/pattern-apply/index.js";
 import type { SpawnResult } from "../../../providers/command/index.js";
-import {
-  type ApplyAdmission,
-  ApplyAdmissionSchema,
-  activeApplyTransactionInputs,
-  defaultApplyAdmissions,
-} from "../../../rules/patterns/index.js";
 import { runTransactionApplyService } from "../transactions/router.js";
 import type { FixServiceOptions } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";

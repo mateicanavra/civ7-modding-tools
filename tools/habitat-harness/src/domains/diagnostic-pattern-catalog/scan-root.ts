@@ -3,7 +3,7 @@ import { Value } from "typebox/value";
 import {
   ProtectedZoneOwnerSchema,
   ProtectedZoneRecoveryInstructionSchema,
-} from "../protected-zones/schema.js";
+} from "../../lib/protected-zones/schema.js";
 
 export const DiagnosticScanRootRefusalReasonSchema = Type.Union([
   Type.Literal("empty"),

@@ -1,11 +1,14 @@
 import { describe, expect, test } from "vitest";
+import type {
+  ApplyAdmission,
+  ApplyTransactionInput,
+} from "../../src/domains/pattern-governance/index.js";
 import { renderPatternApply } from "../../src/lib/pattern-apply/index.js";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "../../src/providers/command/index.js";
 import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
-import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 
 describe("Habitat transactions service", () => {

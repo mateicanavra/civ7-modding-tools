@@ -1,5 +1,5 @@
 import { Value } from "typebox/value";
-import { isDiagnosticAdapterFailureKind } from "../../lib/diagnostic-catalog/index.js";
+import { isDiagnosticAdapterFailureKind } from "../../domains/diagnostic-pattern-catalog/index.js";
 import {
   isDependencyRefusalDiagnostic,
   isNotApplicableDiagnostic,

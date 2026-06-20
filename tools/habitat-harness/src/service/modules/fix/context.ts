@@ -1,7 +1,10 @@
 import type { Layer } from "effect";
+import type {
+  ApplyAdmission,
+  ApplyTransactionInput,
+} from "../../../domains/pattern-governance/index.js";
 import type { WorktreeObservation } from "../../../lib/pattern-apply/index.js";
 import type { GritProvider } from "../../../providers/grit/index.js";
-import type { ApplyAdmission, ApplyTransactionInput } from "../../../rules/patterns/index.js";
 
 export interface FixServiceOptions {
   admissions?: readonly ApplyAdmission[];
