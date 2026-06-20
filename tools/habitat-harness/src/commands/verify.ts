@@ -1,7 +1,7 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
 import { stringifyVerifyReceipt } from "../domains/proof-contract/index.js";
-import { renderCheckReport, verifyCheckSummary } from "../lib/check-report.js";
+import { renderCheckReport, verifyCheckSummary } from "../domains/structural-check/index.js";
 import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Verify extends HabitatCommand {

@@ -21,8 +21,9 @@ const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/lib/check-report.js")>();
+vi.mock("../../src/domains/structural-check/index.js", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../src/domains/structural-check/index.js")>();
   return {
     ...actual,
     checkCommandContext: vi.fn((argv: string[]) => ({
@@ -74,8 +75,8 @@ import Graph from "../../src/commands/graph.js";
 import Hook from "../../src/commands/hook.js";
 import Verify from "../../src/commands/verify.js";
 import * as verifyReceipt from "../../src/domains/proof-contract/index.js";
+import * as checkReport from "../../src/domains/structural-check/index.js";
 import * as classify from "../../src/domains/workspace-graph-integration/index.js";
-import * as checkReport from "../../src/lib/check-report.js";
 import * as serviceClient from "../../src/service/client.js";
 
 describe("Habitat oclif commands", () => {

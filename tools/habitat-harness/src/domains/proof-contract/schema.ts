@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { VerifyCheckSummarySchema } from "../../lib/check-report.js";
+import { VerifyCheckSummarySchema } from "../structural-check/index.js";
 
 /** Result of choosing the Git base that `habitat verify` will use for affected targets. */
 export const VerifyBaseResolutionSchema = Type.Union(

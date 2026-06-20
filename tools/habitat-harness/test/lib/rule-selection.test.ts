@@ -8,7 +8,7 @@ import {
   rulesForExecution,
   stagedPatternScanRoots,
 } from "../../src/domains/structural-check/index.js";
-import { validateCheckReport } from "../../src/lib/diagnostics.js";
+import { validateCheckReport } from "../../src/domains/structural-check/schema.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 

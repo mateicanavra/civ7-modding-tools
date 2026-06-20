@@ -1,8 +1,8 @@
 import { Context, Effect, Layer } from "effect";
 import type { FileWriteFailed } from "../../errors/index.js";
-import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
 import type { HabitatFileSystem } from "../../resources/index.js";
+import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import { applyBaseline, baselineFailureDiagnostic } from "./application.js";
 import type { BaselineAuthorityContext } from "./context.js";
 import {

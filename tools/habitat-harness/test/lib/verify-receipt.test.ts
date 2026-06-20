@@ -5,11 +5,11 @@ import {
   VerifyReceiptSchema,
   validateVerifyReceipt,
 } from "../../src/domains/proof-contract/index.js";
+import type { CheckReport } from "../../src/domains/structural-check/schema.js";
 import {
   type VerifyTargetPlan,
   verifyTargetPlan,
 } from "../../src/domains/workspace-graph-integration/index.js";
-import type { CheckReport } from "../../src/lib/diagnostics.js";
 
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {

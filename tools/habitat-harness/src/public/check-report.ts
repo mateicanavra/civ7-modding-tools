@@ -1,7 +1,11 @@
-export { describeRuleSelectionFailure } from "../domains/rule-selection/index.js";
 export type {
   CheckOptions,
+  CheckReport,
   EmitCheckOptions,
+  HabitatDiagnostic,
+  HabitatSeverity,
+  RuleReport,
+  RuleStatus,
   VerifyCheckSummary,
 } from "../domains/structural-check/index.js";
 export {
@@ -14,5 +18,6 @@ export {
   renderCheckReport,
   stringifyCheckReport,
   VerifyCheckSummarySchema,
+  validateCheckReport,
   verifyCheckSummary,
 } from "../domains/structural-check/index.js";
