@@ -1,51 +1,41 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
-import { runGritRulesEffect } from "../../../adapters/grit/index.js";
-import type { HabitatConfig } from "../../../config/index.js";
-import { type HabitatError, renderHabitatError } from "../../../errors/index.js";
-import {
-  dependencyRefusalDiagnostic,
-  notApplicableDiagnostic,
-} from "../../../lib/check/disposition-diagnostics.js";
-import type { CheckOptions } from "../../../lib/check/request.js";
-import type { RuleExecutionDisposition } from "../../../lib/check/schema.js";
-import {
-  approvedScanRootsForRules,
-  stagedPatternScanRoots,
-} from "../../../lib/check/staged-scan-roots.js";
-import type { HabitatDiagnostic } from "../../../lib/diagnostics.js";
-import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
+import { runGritRulesEffect, validateScanRoots } from "../../adapters/grit/index.js";
+import type { HabitatConfig } from "../../config/index.js";
+import { type HabitatError, renderHabitatError } from "../../errors/index.js";
+import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
+import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import {
   modifiedStagedPaths,
   runFileLayerProtectedMutationRule,
   type StagedMutationPath,
   stagedPathsFromNameStatus,
-} from "../../../lib/protected-zones/index.js";
-import { readWorkspaceGraph, ruleAliasTargetState } from "../../../lib/workspace-graph/index.js";
+} from "../../lib/protected-zones/index.js";
+import { readWorkspaceGraph, ruleAliasTargetState } from "../../lib/workspace-graph/index.js";
 import {
   CommandRunner,
   type HabitatCommandResult,
   runSyncSpawnCommand,
-} from "../../../providers/command/index.js";
-import { GritProvider, type GritProviderRequirements } from "../../../providers/grit/index.js";
-import { HabitatClock } from "../../../resources/index.js";
-import {
-  type RuleRunResult,
-  ruleDiagnosticsFromCommandResult,
-} from "../../../rules/architecture.js";
+} from "../../providers/command/index.js";
+import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
+import { HabitatClock } from "../../resources/index.js";
+import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
 import {
   activeRuleCommandExecutionFacts,
   activeRuleFileLayerFacts,
   activeRuleGraphFacts,
   activeRulePatternFacts,
   factsForRuleIds,
-} from "../../../rules/facts.js";
+} from "../../rules/facts.js";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RulePatternFacts,
   RuleSelectorFacts,
-} from "../../../rules/registry/index.js";
+} from "../../rules/registry/index.js";
+import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
+import type { CheckOptions } from "./request.js";
+import type { RuleExecutionDisposition } from "./schema.js";
 
 export interface RuleExecutionRecord {
   result: RuleRunResult;
@@ -62,6 +52,28 @@ export function rulesForExecution(
   } = {}
 ): RuleSelectorFacts[] {
   return [...selectedRules];
+}
+
+export function stagedPatternScanRoots(
+  stagedPaths: readonly string[],
+  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRulePatternFacts)
+): string[] {
+  const candidates = sortedUnique(
+    stagedPaths
+      .map((candidate) => toRepoRelative(candidate))
+      .filter((candidate) => gritCandidateExtensions.has(pathExt(candidate)))
+  );
+  return candidates.filter(
+    (candidate) =>
+      validateScanRoots([candidate], {
+        requireExisting: false,
+        approvedScanRoots,
+      }) === null
+  );
+}
+
+export function approvedScanRootsForRules(rules: readonly RulePatternFacts[]): string[] {
+  return [...new Set(rules.flatMap((rule) => rule.scanRoots).map(toRepoRelative))];
 }
 
 export function executeSelectedRulesEffect(
@@ -334,3 +346,23 @@ function currentStagedPaths(): string[] {
   if (result.exitCode !== 0 || !result.stdout) return [];
   return result.stdout.split("\0").filter(Boolean).map(toRepoRelative);
 }
+
+function sortedUnique(values: readonly string[]): string[] {
+  return [...new Set(values)].sort();
+}
+
+function pathExt(candidate: string): string {
+  const index = candidate.lastIndexOf(".");
+  return index === -1 ? "" : candidate.slice(index);
+}
+
+const gritCandidateExtensions = new Set([
+  ".cjs",
+  ".cts",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".mts",
+  ".ts",
+  ".tsx",
+]);

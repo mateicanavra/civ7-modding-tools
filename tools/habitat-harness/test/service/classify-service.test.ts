@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import type { WorkspaceGraphProjectReader } from "../../src/lib/workspace-graph/index.js";
 import type { WorkspaceProject } from "../../src/lib/workspace-graph/schema.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
-import { runClassifyService } from "../../src/service/modules/classify/run.js";
+import { runClassifyService } from "../../src/service/modules/classify/router.js";
 
 const nxProjects: WorkspaceGraphProjectReader = {
   async readProjects() {

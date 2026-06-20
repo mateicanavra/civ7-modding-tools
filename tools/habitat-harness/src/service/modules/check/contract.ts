@@ -5,7 +5,7 @@ import {
   CheckCommandContextSchema,
   CheckReportSchema,
   SelectorRequestSchema,
-} from "../../../lib/check/schema.js";
+} from "../../../domains/structural-check/schema.js";
 import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
 import type { HabitatServiceProcedureMeta } from "../../metadata.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";

@@ -1,13 +1,13 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { ruleRegistryRepoPath } from "../../lib/artifact-paths.ts";
+import { baselinesDir, repoRoot } from "../../lib/paths.js";
 import { runSyncSpawnCommand, type SpawnResult } from "../../providers/command/index.js";
 import {
   loadRuleRegistryDocument,
   ruleBaselineFacts,
   ruleSelectorFacts,
 } from "../../rules/registry/index.js";
-import { ruleRegistryRepoPath } from "../artifact-paths.ts";
-import { baselinesDir, repoRoot } from "../paths.js";
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
 export interface BaselineContractContext {

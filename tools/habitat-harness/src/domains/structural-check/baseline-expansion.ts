@@ -1,23 +1,17 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
-import type { HabitatConfig } from "../../../config/index.js";
-import {
-  applyBaseline,
-  guardBaselineExpansion,
-  loadBaselineState,
-  violationKey,
-  writeBaseline,
-} from "../../../lib/baseline.js";
-import type { RuleSelection } from "../../../lib/rule-selection.js";
-import { type RuleSelectionResult, selectRules } from "../../../lib/rule-selection.js";
-import { CommandRunner } from "../../../providers/command/index.js";
-import { GritProvider, type GritProviderRequirements } from "../../../providers/grit/index.js";
-import { HabitatClock } from "../../../resources/index.js";
+import type { HabitatConfig } from "../../config/index.js";
+import type { RuleSelection } from "../../lib/rule-selection.js";
+import { type RuleSelectionResult, selectRules } from "../../lib/rule-selection.js";
+import { CommandRunner } from "../../providers/command/index.js";
+import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
+import type { HabitatClock } from "../../resources/index.js";
 import {
   activeRuleBaselineFacts,
   activeRuleSelectorFacts,
   factsForRuleIds,
-} from "../../../rules/facts.js";
+} from "../../rules/facts.js";
+import { BaselineAuthority, violationKey } from "../baseline-authority/index.js";
 import { executeSelectedRulesEffect } from "./execution.js";
 
 export type BaselineExpansionResult =
@@ -36,6 +30,7 @@ export function expandBaselinesEffect(
 ): Effect.Effect<
   BaselineExpansionResult,
   never,
+  | BaselineAuthority
   | CommandRunner
   | CommandExecutor
   | GritProvider
@@ -44,6 +39,7 @@ export function expandBaselinesEffect(
   | HabitatClock
 > {
   return Effect.gen(function* () {
+    const baselineAuthority = yield* BaselineAuthority;
     const selected = selectRules(selection);
     if (!selected.ok) return selected;
 
@@ -56,7 +52,7 @@ export function expandBaselinesEffect(
       const baselineFacts = baselinesByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = loadBaselineState(baselineFacts);
+      const baseline = yield* baselineAuthority.loadState(baselineFacts);
       if (baseline.kind === "baseline-refusal") {
         return {
           ok: false,
@@ -68,7 +64,7 @@ export function expandBaselinesEffect(
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       const { diagnostics } = execution.result;
-      const baselineResult = applyBaseline(diagnostics, baseline);
+      const baselineResult = yield* baselineAuthority.apply(diagnostics, baseline);
       if (baselineResult.status === "refused") {
         return {
           ok: false,
@@ -81,9 +77,14 @@ export function expandBaselinesEffect(
         .filter((diagnostic) => diagnostic.severity === "error" && !diagnostic.baselined)
         .map(violationKey);
       if (keys.length > 0) {
-        const guard = guardBaselineExpansion(rule.id, keys, options.base ?? "main", {
-          registry: baselineContractInputs(),
-        });
+        const guard = yield* baselineAuthority.guardExpansion(
+          rule.id,
+          keys,
+          options.base ?? "main",
+          {
+            registry: baselineContractInputs(),
+          }
+        );
         if (guard.status === "refused") {
           return {
             ok: false,
@@ -92,7 +93,7 @@ export function expandBaselinesEffect(
             message: guard.message,
           };
         }
-        writeBaseline(rule.id, guard.keys);
+        yield* baselineAuthority.write(rule.id, guard.keys);
         messages.push(`baseline written: ${rule.id} (${keys.length} entries)`);
       }
     }

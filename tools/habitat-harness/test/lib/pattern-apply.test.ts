@@ -13,7 +13,7 @@ import {
 import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
 import type { TransactionsServiceOptions } from "../../src/service/modules/transactions/context.js";
-import { runTransactionApplyService } from "../../src/service/modules/transactions/run.js";
+import { runTransactionApplyService } from "../../src/service/modules/transactions/router.js";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -26,7 +26,7 @@ describe("pattern apply", () => {
   });
 
   test("refuses fix at the command boundary before apply admission", async () => {
-    const { runFixService } = await import("../../src/service/modules/fix/run.js");
+    const { runFixService } = await import("../../src/service/modules/fix/router.js");
 
     const result = await Effect.runPromise(
       runFixService({ kind: "dry-run-intent" }, { admissions: [] })

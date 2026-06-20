@@ -7,7 +7,7 @@ import {
 import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
-import { runFixService } from "../../src/service/modules/fix/run.js";
+import { runFixService } from "../../src/service/modules/fix/router.js";
 
 describe("Habitat fix service", () => {
   test("runs dry-run intent through admitted pattern transactions", async () => {

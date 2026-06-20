@@ -1,6 +1,6 @@
 import { Effect, Layer } from "effect";
 import { describe, expect, test, vi } from "vitest";
-import * as checkReport from "../../src/lib/check-report.js";
+import { makeFakeStructuralCheckLayer } from "../../src/domains/structural-check/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
 import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
@@ -21,36 +21,6 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
   states: [],
 }));
 
-vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/lib/check-report.js")>();
-  return {
-    ...actual,
-    checkCommandContext: vi.fn((argv: string[]) => ({
-      bin: "habitat",
-      id: "check",
-      argv,
-      serialized: ["habitat", "check", ...argv].join(" "),
-    })),
-    verifyCheckSummary: vi.fn(() => ({
-      reportSchemaVersion: 1,
-      requestedSelectors: {},
-      selectedRuleIds: [],
-      selectedRealRuleIds: [],
-      builtInRuleIds: [],
-      statusCounts: {},
-      advisoryCount: 0,
-      failingCount: 0,
-      refusedCount: 0,
-      notApplicableCount: 0,
-      allowsAffectedExecution: true,
-    })),
-  };
-});
-
-vi.mock("../../src/service/modules/check/report.js", () => ({
-  createCheckReportEffect: vi.fn(() => Effect.succeed(mockReport)),
-}));
-
 vi.mock("../../src/lib/workspace-graph/index.js", async () => {
   const schema = await import("../../src/lib/workspace-graph/schema.js");
   return {
@@ -66,13 +36,20 @@ vi.mock("../../src/lib/workspace-graph/index.js", async () => {
 
 describe("Habitat verify service", () => {
   test("uses provided Git and Nx layers for owned verify orchestration", async () => {
-    const checkServiceReport = await import("../../src/service/modules/check/report.js");
-    expect(vi.isMockFunction(checkServiceReport.createCheckReportEffect)).toBe(true);
-    const { runVerifyService } = await import("../../src/service/modules/verify/run.js");
+    const { runVerifyService } = await import("../../src/service/modules/verify/router.js");
     const gitCalls: string[][] = [];
     const nxRequests: Array<{ base: string; targets: readonly string[] }> = [];
+    const checkRequests: unknown[] = [];
     const layer = Layer.mergeAll(
       makeFakeHabitatClockLayer(Date.parse("2026-06-13T00:00:00.000Z")),
+      makeFakeStructuralCheckLayer({
+        createReport: (request) =>
+          Effect.sync(() => {
+            checkRequests.push(request);
+            return mockReport;
+          }),
+        expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
+      }),
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push([...argv]);
         const stdout =
@@ -114,9 +91,7 @@ describe("Habitat verify service", () => {
       ["merge-base", "HEAD", "origin/main"],
       ["status", "--short", "--branch"],
     ]);
-    expect(checkServiceReport.createCheckReportEffect).toHaveBeenCalledWith(
-      expect.objectContaining({ base: "fake-merge-base" })
-    );
+    expect(checkRequests).toEqual([expect.objectContaining({ base: "fake-merge-base" })]);
   });
 });
 

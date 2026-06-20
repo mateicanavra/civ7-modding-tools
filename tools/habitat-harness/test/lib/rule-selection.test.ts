@@ -1,13 +1,16 @@
 import { describe, expect, test } from "vitest";
-import { stagedPatternScanRoots } from "../../src/lib/check/staged-scan-roots.js";
-import { checkCommandContext, renderCheckReport } from "../../src/lib/check-report.js";
+import {
+  checkCommandContext,
+  createCheckReportEffect,
+  renderCheckReport,
+  rulesForExecution,
+  stagedPatternScanRoots,
+} from "../../src/domains/structural-check/index.js";
 import { validateCheckReport } from "../../src/lib/diagnostics.js";
 import { type RuleSelection, selectRules } from "../../src/lib/rule-selection.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
 import type { RulePatternFacts } from "../../src/rules/registry/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
-import { rulesForExecution } from "../../src/service/modules/check/execution.js";
-import { createCheckReportEffect } from "../../src/service/modules/check/report.js";
 
 const fakeRules: HarnessRule[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
@@ -180,7 +183,7 @@ describe("rule selector boundary", () => {
         gritFacts: [fakeGritFact("hook", ["packages"])],
         hookCheckFacts: [{ id: "hook", hookCheck: true }],
         staged: true,
-        stagedPaths: ["tools/habitat-harness/src/service/modules/hook/run.ts"],
+        stagedPaths: ["tools/habitat-harness/src/service/modules/hook/router.ts"],
       }).map((rule) => rule.id)
     ).toEqual(["hook"]);
   });
@@ -211,7 +214,7 @@ describe("rule selector boundary", () => {
     expect(
       stagedPatternScanRoots([
         "packages/mapgen-core/src/core/index.ts",
-        "tools/habitat-harness/src/service/modules/hook/run.ts",
+        "tools/habitat-harness/src/service/modules/hook/router.ts",
         "README.md",
       ])
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);
