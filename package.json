@@ -123,5 +123,8 @@
     "typescript": "^5.9.3",
     "@types/node": "^22.19.21",
     "rimraf": "^6.1.2"
+  },
+  "patchedDependencies": {
+    "effect-orpc@0.5.0": "patches/effect-orpc@0.5.0.patch"
   }
 }
