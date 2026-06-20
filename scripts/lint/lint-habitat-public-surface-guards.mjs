@@ -29,7 +29,6 @@ const allowedLibFiles = new Set([
   "tools/habitat-harness/src/lib/protected-zones/recovery.ts",
   "tools/habitat-harness/src/lib/protected-zones/scan-root.ts",
   "tools/habitat-harness/src/lib/protected-zones/schema.ts",
-  "tools/habitat-harness/src/lib/workspace-tools.ts",
 ]);
 
 const allowedRuntimeEdges = new Set([
