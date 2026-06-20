@@ -1,51 +1,43 @@
-import type {
-  TargetDependencyDeclaration,
-  TargetDependencyResolution,
-  WorkspaceGraphTargetNameOptions,
-  WorkspaceGraphTargetNames,
-  WorkspaceProject,
-} from "./workspace-graph/schema.js";
-
-export function workspaceGraphTargetNames(
-  options: WorkspaceGraphTargetNameOptions = {}
-): WorkspaceGraphTargetNames {
-  return {
-    aggregateCheck: options.aggregateCheckTargetName ?? "habitat:check:all",
-    biomeCheck: options.biomeCheckTargetName ?? "biome:check",
-    biomeCi: options.biomeCiTargetName ?? "biome:ci",
-    biomeFormat: options.biomeFormatTargetName ?? "biome:format",
-    boundaries: options.boundariesTargetName ?? "boundaries",
-    check: options.checkTargetName ?? "habitat:check",
-    generatedCheck: options.generatedCheckTargetName ?? "generated:check",
-    gritCheck: options.gritCheckTargetName ?? "grit:check",
-    lint: options.lintTargetName ?? "lint",
-    rulePrefix: options.ruleTargetPrefix ?? "habitat:rule:",
-  };
-}
+import { Value } from "typebox/value";
+import {
+  type TargetDependencyDeclaration,
+  TargetDependencyDeclarationSchema,
+  type TargetDependencyResolution,
+  TargetDependencyResolutionSchema,
+  type WorkspaceProject,
+} from "../../providers/nx/schema.js";
 
 export function sameProjectTargetDependency(target: string): TargetDependencyDeclaration {
-  return { kind: "same-project-target-dependency", target };
+  return parseDeclaration({ kind: "same-project-target-dependency", target });
 }
 
 export function explicitProjectTargetDependency(
   project: string,
   target: string
 ): TargetDependencyDeclaration {
-  return { kind: "explicit-project-target-dependency", project, target };
+  return parseDeclaration({ kind: "explicit-project-target-dependency", project, target });
 }
 
 export function aggregateWorkspaceDependency(
   target: string,
   dependencies: readonly TargetDependencyDeclaration[]
 ): TargetDependencyDeclaration {
-  return { kind: "aggregate-workspace-dependency", target, dependencies: [...dependencies] };
+  return parseDeclaration({
+    kind: "aggregate-workspace-dependency",
+    target,
+    dependencies: [...dependencies],
+  });
 }
 
 export function multiDependencyTargetRelationship(
   target: string,
   dependencies: readonly TargetDependencyDeclaration[]
 ): TargetDependencyDeclaration {
-  return { kind: "multi-dependency-target-relationship", target, dependencies: [...dependencies] };
+  return parseDeclaration({
+    kind: "multi-dependency-target-relationship",
+    target,
+    dependencies: [...dependencies],
+  });
 }
 
 export function resolveTargetDependencyDeclaration(
@@ -78,6 +70,20 @@ export function resolveTargetDependencyDeclaration(
   );
 }
 
+export const sameProjectTarget = sameProjectTargetDependency;
+export const explicitProjectTarget = explicitProjectTargetDependency;
+export const aggregateWorkspaceTarget = aggregateWorkspaceDependency;
+export const multiDependencyTarget = multiDependencyTargetRelationship;
+export const resolveDependencyDeclaration = resolveTargetDependencyDeclaration;
+
+function parseDeclaration(value: unknown): TargetDependencyDeclaration {
+  return Value.Parse(TargetDependencyDeclarationSchema, value);
+}
+
+function parseResolution(value: unknown): TargetDependencyResolution {
+  return Value.Parse(TargetDependencyResolutionSchema, value);
+}
+
 export function graphRefusalMessage(refusal: {
   reason: string;
   message?: string;
@@ -101,27 +107,27 @@ function resolveProjectTarget(
 ): TargetDependencyResolution {
   const project = context.projects.find((candidate) => candidate.name === projectName);
   if (!project) {
-    return {
+    return parseResolution({
       kind: "unresolved-target-dependency",
       reason: "missing-project",
       declaration,
       project: projectName,
       target: targetName,
-    };
+    });
   }
   if (!project.targets.some((target) => target.name === targetName)) {
-    return {
+    return parseResolution({
       kind: "unresolved-target-dependency",
       reason: "missing-target",
       declaration,
       project: projectName,
       target: targetName,
-    };
+    });
   }
-  return {
+  return parseResolution({
     kind: "resolved-target-dependency",
     declaration,
     project: projectName,
     target: targetName,
-  };
+  });
 }

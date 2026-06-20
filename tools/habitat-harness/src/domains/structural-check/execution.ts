@@ -15,6 +15,7 @@ import type {
   RulePatternFacts,
   RuleSelectorFacts,
 } from "../../domains/rule-registry/index.js";
+import { ruleAliasTargetState } from "../../domains/workspace-graph-integration/index.js";
 import { type HabitatError, renderHabitatError } from "../../errors/index.js";
 import type { HabitatDiagnostic } from "../../lib/diagnostics.js";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
@@ -24,13 +25,13 @@ import {
   type StagedMutationPath,
   stagedPathsFromNameStatus,
 } from "../../lib/protected-zones/index.js";
-import { readWorkspaceGraph, ruleAliasTargetState } from "../../lib/workspace-graph/index.js";
 import {
   CommandRunner,
   type HabitatCommandResult,
   runSyncSpawnCommand,
 } from "../../providers/command/index.js";
 import { GritProvider, type GritProviderRequirements } from "../../providers/grit/index.js";
+import { readWorkspaceGraph } from "../../providers/nx/graph.js";
 import { HabitatClock } from "../../resources/index.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
 import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";

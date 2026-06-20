@@ -1,7 +1,9 @@
 import type { Static } from "typebox";
 import { Value } from "typebox/value";
-import type { WorkspaceGraphTargetNames } from "../../lib/workspace-graph/schema.js";
-import { RuleGraphTargetNamesSchema } from "../../lib/workspace-graph/schema.ts";
+import {
+  RuleGraphTargetNamesSchema,
+  type WorkspaceGraphTargetNames,
+} from "../../providers/nx/schema.ts";
 import type { RuleGraphFacts, RuleRegistryRecordV1 } from "./schema.js";
 
 export function ruleGraphFacts(

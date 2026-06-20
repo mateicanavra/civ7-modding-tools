@@ -1,6 +1,6 @@
-import { activeRuleRoutingFacts } from "../../domains/rule-registry/active-facts.js";
-import type { RuleRoutingFacts } from "../../domains/rule-registry/index.js";
-import type { WorkspaceProject } from "../workspace-graph/index.js";
+import type { WorkspaceProject } from "../../providers/nx/schema.js";
+import { activeRuleRoutingFacts } from "../rule-registry/active-facts.js";
+import type { RuleRoutingFacts } from "../rule-registry/index.js";
 import type { RuleCoverageKind, RuleRouting } from "./schema.js";
 
 export function rulesForPath(pathInRepo: string, owner?: WorkspaceProject): RuleRouting[] {

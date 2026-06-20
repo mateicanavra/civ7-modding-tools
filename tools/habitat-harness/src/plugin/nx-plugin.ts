@@ -7,8 +7,8 @@ import { repoRoot } from "../lib/paths.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
-} from "../lib/workspace-graph/schema.ts";
-import { workspaceGraphTargetNames } from "../lib/workspace-graph-contract.ts";
+} from "../providers/nx/schema.ts";
+import { workspaceGraphTargetNames } from "../providers/nx/targets.ts";
 import {
   type InferredProjects,
   InferredProjectsSchema,

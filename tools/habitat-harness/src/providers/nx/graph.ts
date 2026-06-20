@@ -1,7 +1,7 @@
 import path from "node:path";
 import { createProjectGraphAsync } from "@nx/devkit";
 import { Value } from "typebox/value";
-import { repoRoot } from "../paths.js";
+import { repoRoot } from "../../lib/paths.js";
 import {
   type WorkspaceGraphReadState,
   WorkspaceGraphReadStateSchema,

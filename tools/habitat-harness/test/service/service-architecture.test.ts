@@ -157,7 +157,30 @@ describe("Habitat service architecture", () => {
     expect(classifyCommand).not.toContain("classifyTarget(");
     expect(classifyCommand).not.toContain("classifyPathResult");
     expect(classifyCommand).not.toContain("classifyPath(");
-    expect(classifyCommand).not.toContain("../lib/classify.js");
+    expect(classifyCommand).not.toContain("../domains/workspace-graph-integration/index.js");
+  });
+
+  test("keeps orientation and workspace graph logic in domain and provider ownership", () => {
+    const publicIndex = source("src/index.ts");
+    const classifyRouter = source("src/service/modules/classify/router.ts");
+    const sourceTexts = sourceFiles(sourceRoot).map(source);
+
+    expect(existsSync(join(packageRoot, "src/lib/classify-core"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/classify.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/workspace-graph"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/workspace-graph.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/lib/workspace-graph-contract.ts"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/domains/workspace-graph-integration"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/providers/nx/graph.ts"))).toBe(true);
+    expect(existsSync(join(packageRoot, "src/providers/nx/targets.ts"))).toBe(true);
+    expect(publicIndex).toContain("./domains/workspace-graph-integration/index.js");
+    expect(classifyRouter).toContain("classifyModule.run.effect");
+    expect(classifyRouter).not.toContain("runClassifyService");
+    for (const text of sourceTexts) {
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/classify(?:-core)?/);
+      expect(text).not.toMatch(/from\s+["'][^"']*lib\/workspace-graph/);
+      expect(text).not.toContain("workspace-graph-contract");
+    }
   });
 
   test("routes graph CLI orchestration through the service client", () => {

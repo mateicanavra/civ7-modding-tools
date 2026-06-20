@@ -1,6 +1,6 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { GraphRefusalStateSchema } from "../workspace-graph/schema.js";
+import { GraphRefusalStateSchema } from "../../providers/nx/schema.js";
 
 const RecoveryInstructionSchema = Type.String({ minLength: 1 });
 

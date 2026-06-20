@@ -1,11 +1,4 @@
 import { Value } from "typebox/value";
-import type { RuleGraphFacts } from "../../domains/rule-registry/schema.js";
-import {
-  explicitProjectTargetDependency,
-  graphRefusalMessage,
-  resolveTargetDependencyDeclaration,
-  sameProjectTargetDependency,
-} from "./dependencies.js";
 import {
   type AggregateWorkspaceTargetDeclaration,
   type GraphRefusalState,
@@ -18,12 +11,19 @@ import {
   type WorkspaceProject,
   type WorkspaceTargetState,
   WorkspaceTargetStateSchema,
-} from "./schema.js";
+} from "../../providers/nx/schema.js";
 import {
   classifyTargetNames,
   verifyTargetNames,
   workspaceGraphTargetNames,
-} from "./target-names.js";
+} from "../../providers/nx/targets.js";
+import type { RuleGraphFacts } from "../rule-registry/schema.js";
+import {
+  explicitProjectTargetDependency,
+  graphRefusalMessage,
+  resolveTargetDependencyDeclaration,
+  sameProjectTargetDependency,
+} from "./dependencies.js";
 
 export function findWorkspaceOwningProject(
   repoRelativePath: string,

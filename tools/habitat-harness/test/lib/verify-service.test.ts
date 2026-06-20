@@ -21,8 +21,8 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
   states: [],
 }));
 
-vi.mock("../../src/lib/workspace-graph/index.js", async () => {
-  const schema = await import("../../src/lib/workspace-graph/schema.js");
+vi.mock("../../src/domains/workspace-graph-integration/index.js", async () => {
+  const schema = await import("../../src/providers/nx/schema.js");
   return {
     ...schema,
     readWorkspaceGraph: vi.fn(() => ({
