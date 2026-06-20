@@ -23,7 +23,7 @@ import {
   type GritResult,
   type GritWireReport,
   GritWireReportSchema,
-} from "../../providers/grit/types.js";
+} from "./provider/types.js";
 
 export const GritDiagnosticAcquisitionSchema = Type.Union([
   Type.Object(

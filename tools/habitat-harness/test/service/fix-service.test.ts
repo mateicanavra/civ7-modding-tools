@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
+import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
@@ -8,7 +9,6 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "../../src/providers/command/index.js";
-import { makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runFixService } from "../../src/service/modules/fix/router.js";
 

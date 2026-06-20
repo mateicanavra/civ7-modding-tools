@@ -2,7 +2,8 @@
 
 ## 1. Grit Adapter
 
-- [x] 1.1 Move Grit command construction and vendor-output parsing to `src/providers/grit/**`.
+- [x] 1.1 Move Grit command construction and vendor-output parsing to
+      `src/adapters/grit/provider/**`.
 - [x] 1.2 Route docs apply and apply dry-run command construction through `GritProvider`.
 - [x] 1.3 Remove Grit adapter, docs apply, transaction apply, and Grit tests
   from the legacy `HabitatProcess` module.
@@ -24,10 +25,12 @@
   its tests; command result/request types now export from `src/providers/command`.
 - [x] 1.11 Move loose Grit-owned modules out of `src/lib`: failure ADTs,
   machine-output environment, and Grit command constants now live under
-  `src/providers/grit/**`, and the old `src/lib/grit.ts` aggregate is deleted.
+  `src/adapters/grit/provider/**`, and the old `src/lib/grit.ts` aggregate is deleted.
 - [x] 1.12 Move the loose sync spawn wrapper out of `src/lib/spawn.ts`; the
   command provider now owns the spawn-shaped projection used by remaining
   service and hook callsites.
+- [x] 1.13 Delete the loose `src/providers/grit/**` tree so the Grit vendor
+      adapter is self-contained under `src/adapters/grit/**`.
 
 ## 2. Transaction Consumption
 

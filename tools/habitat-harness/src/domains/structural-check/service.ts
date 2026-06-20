@@ -1,9 +1,9 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
+import type { GritProvider, GritProviderRequirements } from "../../adapters/grit/provider/index.js";
 import type { HabitatConfig } from "../../config/index.js";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
 import type { CommandRunner } from "../../providers/command/index.js";
-import type { GritProvider, GritProviderRequirements } from "../../providers/grit/index.js";
 import type { HabitatClock } from "../../resources/index.js";
 import type { BaselineAuthority } from "../baseline-authority/index.js";
 import type { BaselineExpansionResult } from "./baseline-expansion.js";

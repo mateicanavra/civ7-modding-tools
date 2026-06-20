@@ -1,4 +1,15 @@
 export type {
+  GritAdapterFailure,
+  GritAdapterFailureTag,
+} from "./adapters/grit/provider/failures.js";
+export {
+  createGritAdapterFailure,
+  GritToolUnavailable,
+  gritAdapterFailureTags,
+  isGritAdapterFailureTag,
+  renderGritAdapterFailure,
+} from "./adapters/grit/provider/failures.js";
+export type {
   HabitatConfigService,
   HabitatConfigValue,
   HabitatTimeoutPolicy,
@@ -161,13 +172,5 @@ export {
   makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
 } from "./providers/command/index.js";
-export type { GritAdapterFailure, GritAdapterFailureTag } from "./providers/grit/failures.js";
-export {
-  createGritAdapterFailure,
-  GritToolUnavailable,
-  gritAdapterFailureTags,
-  isGritAdapterFailureTag,
-  renderGritAdapterFailure,
-} from "./providers/grit/failures.js";
 export { type HarnessRule, ruleById, rules } from "./rules/architecture.js";
 export { HabitatRuntimeLive } from "./runtime/index.js";

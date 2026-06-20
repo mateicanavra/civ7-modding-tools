@@ -84,6 +84,19 @@ describe("Habitat service architecture", () => {
     }
   });
 
+  test("keeps grit provider enclosed inside the grit adapter", () => {
+    expect(existsSync(join(packageRoot, "src/providers/grit"))).toBe(false);
+    expect(existsSync(join(packageRoot, "src/adapters/grit/provider"))).toBe(true);
+
+    for (const file of sourceFiles(join(sourceRoot, "adapters/grit/provider"))) {
+      const text = source(file);
+      expect(text).not.toMatch(/from\s+["'][^"']*service\//);
+      expect(text).not.toMatch(/from\s+["'][^"']*domains\//);
+      expect(text).not.toContain("effect-orpc");
+      expect(text).not.toContain("implementEffect");
+    }
+  });
+
   test("keeps diagnostic and pattern governance in domain ownership", () => {
     const publicIndex = source("src/index.ts");
 

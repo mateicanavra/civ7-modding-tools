@@ -2,19 +2,19 @@
 
 ## Domain Boundary
 
-Owner: GritProvider cutover.
+Owner: enclosed Grit adapter/provider cutover.
 
-Grit provider owns command construction and resource/cache policy. Grit parsing
-that is vendor-output specific lives with `providers/grit`. This packet drains
-`src/adapters/grit/**` only after `TransformationTransaction` and
+Grit provider owns command construction and resource/cache policy, but it is
+part of the Grit adapter module rather than a loose parallel tree. Grit parsing
+that is vendor-output specific lives with `adapters/grit`. This packet encloses
+Grit under `src/adapters/grit/**` after `TransformationTransaction` and
 `ProtectedZoneAuthority` already own write admission, rollback, recovery, and
 protected-zone checks.
 
 ## Write Set
 
 ```text
-tools/habitat-harness/src/providers/grit/**
-tools/habitat-harness/src/adapters/grit/**                 # drained by this packet
+tools/habitat-harness/src/adapters/grit/**
 tools/habitat-harness/test/lib/grit-adapter.test.ts
 tools/habitat-harness/test/lib/pattern-apply.test.ts
 ```
@@ -33,6 +33,8 @@ tools/habitat-harness/test/lib/pattern-apply.test.ts
   require `GritProvider` and consume already-migrated
   `TransformationTransaction` and `ProtectedZoneAuthority` services where
   apply behavior needs transaction context.
+- Remove `src/providers/grit/**`; Grit provider resources, failures, constants,
+  environment, and wire types live under `src/adapters/grit/provider/**`.
 
 ## Stop Conditions
 

@@ -1,3 +1,10 @@
+export { gritRuleResultsFromReport } from "./diagnostics.js";
+export type { GritDiagnosticAcquisition } from "./output.js";
+export {
+  GritDiagnosticAcquisitionSchema,
+  parseGritCheckOutput,
+  parseGritCheckTextOutput,
+} from "./output.js";
 export type {
   GritCheckCacheMode,
   GritCheckOptions,
@@ -6,14 +13,7 @@ export type {
   GritDiagnosticOptions,
   GritReport,
   GritResult,
-} from "../../providers/grit/types.js";
-export { gritRuleResultsFromReport } from "./diagnostics.js";
-export type { GritDiagnosticAcquisition } from "./output.js";
-export {
-  GritDiagnosticAcquisitionSchema,
-  parseGritCheckOutput,
-  parseGritCheckTextOutput,
-} from "./output.js";
+} from "./provider/types.js";
 export {
   gritCheckProgram,
   gritCheckRequest,
