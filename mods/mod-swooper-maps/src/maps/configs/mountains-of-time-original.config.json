@@ -51,6 +51,9 @@
       }
     },
     "foundation-tectonics": {
+      "knobs": {
+        "plateActivity": 0.85
+      },
       "plateMotion": {
         "omegaFactor": 1,
         "plateRadiusMin": 1,
@@ -69,15 +72,11 @@
       },
       "tectonicFields": {
         "beltInfluenceDistance": 8,
-        "beltDecay": 0.55
+        "beltDecay": 0.55,
+        "orogenyActivityGain": 1
       },
       "tectonicRollups": {
         "activityThreshold": 1
-      }
-    },
-    "foundation-projection": {
-      "knobs": {
-        "plateActivity": 0.85
       }
     },
     "morphology-coasts": {

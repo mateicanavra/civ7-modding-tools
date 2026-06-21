@@ -12,7 +12,7 @@ const baseSettings = {
 const baseConfig = {
   "foundation-mantle": { knobs: { plateCount: 28 } },
   "foundation-lithosphere": { knobs: { plateCount: 28 } },
-  "foundation-projection": { knobs: { plateActivity: 0.5 } },
+  "foundation-tectonics": { knobs: { plateActivity: 0.5 } },
 };
 
 describe("standard recipe composition", () => {

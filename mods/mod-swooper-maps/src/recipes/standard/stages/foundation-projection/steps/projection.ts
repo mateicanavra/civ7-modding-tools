@@ -1,8 +1,3 @@
-import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
-import {
-  resolvePlateActivityBoundaryDelta,
-  resolvePlateActivityKinematicsMultiplier,
-} from "@mapgen/domain/foundation/config.js";
 import {
   computeSampleStep,
   defineVizMeta,
@@ -10,7 +5,6 @@ import {
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { clampFinite, clampInt } from "@swooper/mapgen-core/lib/math";
 import { mapArtifacts } from "../../../map-artifacts.js";
 import {
   validateCrustTilesArtifact,
@@ -65,40 +59,6 @@ export default createStep(ProjectionStepContract, {
       },
     }
   ),
-  normalize: (config, ctx) => {
-    const { plateActivity } = ctx.knobs as Readonly<{
-      plateActivity?: FoundationPlateActivityKnob;
-    }>;
-    const kinematicsMultiplier = resolvePlateActivityKinematicsMultiplier(plateActivity);
-    const boundaryDelta = resolvePlateActivityBoundaryDelta(plateActivity);
-
-    const computePlates =
-      config.computePlates.strategy === "default"
-        ? {
-            ...config.computePlates,
-            config: {
-              ...config.computePlates.config,
-              boundaryInfluenceDistance: clampInt(
-                (config.computePlates.config.boundaryInfluenceDistance ?? 0) + boundaryDelta,
-                1,
-                32
-              ),
-              movementScale: clampFinite(
-                (config.computePlates.config.movementScale ?? 0) * kinematicsMultiplier,
-                1,
-                200
-              ),
-              rotationScale: clampFinite(
-                (config.computePlates.config.rotationScale ?? 0) * kinematicsMultiplier,
-                1,
-                200
-              ),
-            },
-          }
-        : config.computePlates;
-
-    return { ...config, computePlates };
-  },
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const mesh = deps.artifacts.foundationMesh.read(context);

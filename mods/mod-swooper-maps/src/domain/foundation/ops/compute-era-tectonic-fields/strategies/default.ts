@@ -19,6 +19,7 @@ export const defaultStrategy = createStrategy(ComputeEraTectonicFieldsContract, 
       events,
       weight: input.weight,
       eraGain: input.eraGain,
+      activityGain: config.orogenyActivityGain,
       driftSteps: 0,
       emission,
     });

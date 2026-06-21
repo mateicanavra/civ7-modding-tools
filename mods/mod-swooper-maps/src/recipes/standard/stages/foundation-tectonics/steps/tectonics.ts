@@ -1,3 +1,5 @@
+import type { FoundationPlateActivityKnob } from "@mapgen/domain/foundation/config.js";
+import { resolvePlateActivityOrogenyMultiplier } from "@mapgen/domain/foundation/config.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
@@ -53,6 +55,23 @@ export default createStep(TectonicsStepContract, {
       },
     }
   ),
+  normalize: (config, ctx) => {
+    // plateActivity (foundation-tectonics knob) scales orogeny emission intensity
+    // in the per-era field op — AFTER regime classification — so the lever is smooth
+    // and monotonic (no boundary moves). 0.5 => orogenyActivityGain 1.0 (no-op).
+    const { plateActivity } = ctx.knobs as Readonly<{
+      plateActivity?: FoundationPlateActivityKnob;
+    }>;
+    if (config.computeEraTectonicFields.strategy !== "default") return config;
+    const orogenyActivityGain = resolvePlateActivityOrogenyMultiplier(plateActivity);
+    return {
+      ...config,
+      computeEraTectonicFields: {
+        ...config.computeEraTectonicFields,
+        config: { ...config.computeEraTectonicFields.config, orogenyActivityGain },
+      },
+    };
+  },
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const mantleForcing = deps.artifacts.foundationMantleForcing.read(context);

@@ -13,7 +13,7 @@ const env = {
 const foundationBaseConfig = {
   "foundation-mantle": { knobs: { plateCount: 28 } },
   "foundation-lithosphere": { knobs: { plateCount: 28 } },
-  "foundation-projection": { knobs: { plateActivity: 0.5 } },
+  "foundation-tectonics": { knobs: { plateActivity: 0.5 } },
 };
 
 const FOUNDATION_STAGE_IDS = [
@@ -29,7 +29,7 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     const compiled = standardRecipe.compileConfig(env, {
       "foundation-mantle": { knobs: { plateCount: 12 } },
       "foundation-lithosphere": { knobs: { plateCount: 12 } },
-      "foundation-projection": { knobs: { plateActivity: 0.8 } },
+      "foundation-tectonics": { knobs: { plateActivity: 0.8 } },
       "morphology-coasts": {
         knobs: { seaLevel: "water-heavy", coastRuggedness: "rugged" },
         waterCoverage: { targetWaterPercent: 60 },
@@ -85,17 +85,24 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     //   cross-stage knob, so it reaches both the mantle (mesh) and plates (graph).
     const mantle = compiled["foundation-mantle"];
     const plates = compiled["foundation-lithosphere"];
-    const projection = compiled["foundation-projection"];
+    const tectonics = compiled["foundation-tectonics"];
     expect(mantle.mesh.computeMesh.config.plateCount).toBe(12);
     expect(plates["plate-graph"].computePlateGraph.config.plateCount).toBe(12);
     expect(mantle.mesh.computeMesh.config).not.toHaveProperty("referenceArea");
     expect(mantle.mesh.computeMesh.config).not.toHaveProperty("plateScalePower");
     expect(plates["plate-graph"].computePlateGraph.config).not.toHaveProperty("referenceArea");
     expect(plates["plate-graph"].computePlateGraph.config).not.toHaveProperty("plateScalePower");
-    // - plateActivity influences projection through knob transforms (no stage profile bridge).
-    expect(projection.projection.computePlates.config.boundaryInfluenceDistance).toBeGreaterThan(0);
-    expect(projection.projection.computePlates.config.movementScale).toBeGreaterThan(0);
-    expect(projection.projection.computePlates.config.rotationScale).toBeGreaterThan(0);
+    // - plateActivity (0.8) scales orogeny emission intensity via the
+    //   orogenyActivityGain transform injected into the tectonics step's
+    //   computeEraTectonicFields op (post regime-classification). plate-motion and
+    //   projection no longer read plateActivity.
+    expect(tectonics.tectonics.computeEraTectonicFields.config.orogenyActivityGain).toBeCloseTo(
+      1.12,
+      6
+    );
+    expect(tectonics["plate-motion"].computePlateMotion.config).not.toHaveProperty(
+      "kinematicsScale"
+    );
 
     // Morphology:
     // - seaLevel=water-heavy adds +15 to targetWaterPercent.

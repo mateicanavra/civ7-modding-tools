@@ -1,9 +1,8 @@
 import { describe, expect, it } from "bun:test";
 
 import { CIV7_BROWSER_TABLES_V0 } from "@civ7/map-policy";
-
-import placementDomain from "../../src/domain/placement/ops.js";
 import { WONDER_GROUPS } from "../../src/domain/placement/ops/plan-natural-wonders/strategies/default.js";
+import placementDomain from "../../src/domain/placement/ops.js";
 import {
   EARTHLIKE_RESOURCE_EXPECTATIONS,
   resolveResourceRuntimeIds,
@@ -26,7 +25,10 @@ describe("placement plan operations", () => {
   it("wonder-group registry: membership and suitability formulas match the pinned definitions", () => {
     // Membership is the single source of truth (the feature->group map is derived).
     const membership = Object.fromEntries(
-      Object.entries(WONDER_GROUPS).map(([group, def]) => [group, [...def.features].sort((a, b) => a - b)])
+      Object.entries(WONDER_GROUPS).map(([group, def]) => [
+        group,
+        [...def.features].sort((a, b) => a - b),
+      ])
     );
     expect(membership).toEqual({
       A: [35, 41],
@@ -317,7 +319,16 @@ describe("placement plan operations", () => {
     // TWO-tile footprint so fallbacks must avoid MULTI-tile overlaps, not just
     // the single anchor plot. Two wonders in distinct groups so both place and
     // the second wonder's fallbacks must also avoid the first wonder's footprint.
-    const twoTile = { even: [{ dx: 0, dy: 0 }, { dx: 1, dy: 0 }], odd: [{ dx: 0, dy: 0 }, { dx: 1, dy: 0 }] };
+    const twoTile = {
+      even: [
+        { dx: 0, dy: 0 },
+        { dx: 1, dy: 0 },
+      ],
+      odd: [
+        { dx: 0, dy: 0 },
+        { dx: 1, dy: 0 },
+      ],
+    };
     const result = runOpValidated(
       planNaturalWonders,
       {
@@ -356,7 +367,7 @@ describe("placement plan operations", () => {
         { dx: 1, dy: 0 },
       ].map((o) => {
         const fy = y + o.dy;
-        const fx = ((x + o.dx) % width + width) % width;
+        const fx = (((x + o.dx) % width) + width) % width;
         return fy * width + fx;
       });
     };

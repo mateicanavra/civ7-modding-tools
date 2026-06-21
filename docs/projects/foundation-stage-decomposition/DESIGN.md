@@ -23,9 +23,9 @@ plates → tectonic boundary history → crustal evolution → tile projection**
 |---|---|---|---|---|---|
 | 1 | `foundation-mantle` | mesh, mantle-potential, mantle-forcing | Computational mesh + mantle convection forcing field — the deep-earth driver | `foundation.{mesh, mantlePotential, mantleForcing}` | `plateCount` (mesh sizing) |
 | 2 | `foundation-lithosphere` | crust (init), plate-graph, plate-motion | Initial lithosphere, partitioned into rigid plates with kinematics | `foundation.{crustInit, plateGraph, plateMotion}` | `plateCount` (partition) |
-| 3 | `foundation-tectonics` | tectonics | Plate-boundary dynamics + geological history (segments, era loop, events, fields, rollups, current drivers, tracers, provenance) | `foundation.{tectonicSegments, tectonicHistory, tectonicProvenance, tectonics}` | — |
+| 3 | `foundation-tectonics` | tectonics | Plate-boundary dynamics + geological history (segments, era loop, events, fields, rollups, current drivers, tracers, provenance) | `foundation.{tectonicSegments, tectonicHistory, tectonicProvenance, tectonics}` | `plateActivity` (orogeny intensity) |
 | 4 | `foundation-orogeny` | crust-evolution | **Merge:** initial crust ⊕ tectonic history → final crustal material state | `foundation.crust` | — |
-| 5 | `foundation-projection` | projection **[+ plate-topology]** | Resample mesh-space truth → Civ7 tile grid **[+ plate adjacency graph]** | `map.foundation{Plates, TileToCellIndex, CrustTiles, TectonicHistoryTiles, TectonicProvenanceTiles}` **[+ `foundation.plateTopology`]** | `plateActivity` |
+| 5 | `foundation-projection` | projection **[+ plate-topology]** | Resample mesh-space truth → Civ7 tile grid **[+ plate adjacency graph]** | `map.foundation{Plates, TileToCellIndex, CrustTiles, TectonicHistoryTiles, TectonicProvenanceTiles}` **[+ `foundation.plateTopology`]** | — |
 
 **Open fork (for the user):** `plate-topology` lands either as the **2nd step of
 `foundation-projection`** (5 stages — recommended) or as its **own
@@ -75,9 +75,9 @@ recipes/standard/stages/
     viz.ts              viz meta/colors owned by this stage (imports shared geometry from domain lib)
     steps/{index.ts, mesh.ts, mesh.contract.ts, mantlePotential.ts, …, mantleForcing.contract.ts}
   foundation-lithosphere/      … crust(init), plate-graph, plate-motion ; public:{lithosphere,platePartition,plateMotion} ; knob plateCount
-  foundation-tectonics/   … tectonics ; public:{tectonicSegmentation,tectonicEras,tectonicFields,tectonicRollups}
+  foundation-tectonics/   … plate-motion, tectonics ; public:{plateMotion,tectonicSegmentation,tectonicEras,tectonicFields,tectonicRollups} ; knob plateActivity (orogeny intensity)
   foundation-orogeny/       … crust-evolution ; public:{} ; no knob
-  foundation-projection/  … projection [+ plate-topology] ; public:{} ; knob plateActivity
+  foundation-projection/  … projection [+ plate-topology] ; public:{} ; no knob (materializes truth)
 ```
 
 **Shared primitives** (genuinely cross-stage) move to the domain's natural home so
@@ -128,8 +128,11 @@ same inputs). It stays tile-derived for this slice; going mesh-native (→ move 
   count). Identity-safe: no default; configs set it on both blocks; omission →
   both ops default to 32. (Single-source "derive from mesh artifact" = clean
   follow-on, not this slice.)
-- `plateActivity` (shared `FoundationPlateActivityKnobSchema`) → `foundation-projection`
-  only (projection `normalize`). Clean, single stage.
+- `plateActivity` (shared `FoundationPlateActivityKnobSchema`) → `foundation-tectonics`
+  only (the `tectonics` step `normalize` injects `orogenyActivityGain` into
+  `computeEraTectonicFields`, post regime-classification). Single stage, single consumer.
+  Reconditioned in Slice 6 (was projection kinematics; see FRAMING §10). Projection
+  materializes the resulting truth faithfully (config-less).
 
 ---
 

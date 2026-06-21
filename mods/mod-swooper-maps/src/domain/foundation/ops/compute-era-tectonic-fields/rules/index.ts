@@ -104,6 +104,7 @@ export function buildEraFields(params: {
   events: ReadonlyArray<TectonicEventRecord>;
   weight: number;
   eraGain: number;
+  activityGain: number;
   driftSteps: number;
   emission: EmissionParams;
 }): FoundationTectonicEraFieldsInternal {
@@ -292,7 +293,12 @@ export function buildEraFields(params: {
   };
 
   const weight = Math.max(0, params.weight);
-  const eraGain = Number.isFinite(params.eraGain) ? Math.max(0, params.eraGain) : 1;
+  // plateActivity (foundation-tectonics) gates orogeny emission intensity here —
+  // AFTER regime classification — so it scales mountain/arc-volcanism vigor without
+  // moving any boundary. activityGain === 1 multiplies exactly (byte-identical).
+  const baseEraGain = Number.isFinite(params.eraGain) ? Math.max(0, params.eraGain) : 1;
+  const activityGain = Number.isFinite(params.activityGain) ? Math.max(0, params.activityGain) : 1;
+  const eraGain = baseEraGain * activityGain;
 
   for (let e = 0; e < params.events.length; e++) {
     const event = params.events[e]!;

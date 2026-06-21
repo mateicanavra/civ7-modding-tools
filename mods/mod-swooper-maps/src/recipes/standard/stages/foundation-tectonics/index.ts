@@ -1,4 +1,5 @@
 import foundation from "@mapgen/domain/foundation";
+import { FoundationPlateActivityKnobSchema } from "@mapgen/domain/foundation/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { plateMotion, tectonics } from "./steps/index.js";
@@ -7,8 +8,12 @@ import { plateMotion, tectonics } from "./steps/index.js";
 export default createStage({
   id: "foundation-tectonics",
   knobsSchema: Type.Object(
-    {},
-    { additionalProperties: false, description: "Tectonics has no stage-level knobs." }
+    { plateActivity: Type.Optional(FoundationPlateActivityKnobSchema) },
+    {
+      additionalProperties: false,
+      description:
+        "Tectonics lever: plateActivity (scales orogeny intensity — convergent uplift + subduction volcanism — after regime classification, so the lever is smooth and never relocates land).",
+    }
   ),
   public: Type.Object(
     {
