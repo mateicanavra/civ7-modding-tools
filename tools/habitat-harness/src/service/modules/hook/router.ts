@@ -208,12 +208,12 @@ function runPreCommitEffect(
 function beginPreCommitEffect(
   runtime: HookRuntime = {}
 ): Effect.Effect<PreCommitStep<PreCommitState>, never, HookCheckRequirements> {
-  const startedAtMs = hookNow(runtime);
   const output = createHookOutput(runtime.reporter);
   output.writeStdout("habitat hook pre-commit\n");
   output.writeStdout(localHookNotice);
 
   return Effect.gen(function* () {
+    const startedAtMs = yield* hookNow(runtime);
     const resourceDecision = yield* classifyResourcePreCommitDecisionEffect(runtime);
     const resources = resourceDecisionToFacade(resourceDecision);
     if (runtime.trace) {
@@ -244,9 +244,9 @@ function beginPreCommitEffect(
     }
 
     const hashFile = runtime.fileHash ?? fileHash;
-    const stagedStartedAtMs = hookNow(runtime);
+    const stagedStartedAtMs = yield* hookNow(runtime);
     const staged = yield* existingStagedPathsEffect(runtime);
-    recordHookCommand(
+    yield* recordHookCommand(
       runtime,
       "staged-paths",
       ["git", "diff", "--cached", "--name-status", "-z"],
@@ -284,9 +284,9 @@ function continuePreCommitAfterFileLayerEffect(
   const biomePaths = biomeHookPaths(staged);
   if (runtime.trace?.preCommit) runtime.trace.preCommit.biomePaths = biomePaths;
   return Effect.gen(function* () {
-    const partialStartedAtMs = hookNow(runtime);
+    const partialStartedAtMs = yield* hookNow(runtime);
     const partials = yield* unstagedAmongEffect(biomePaths);
-    recordHookCommand(
+    yield* recordHookCommand(
       runtime,
       "partial-staging",
       ["git", "diff", "--name-only", "-z", "--", ...biomePaths],
@@ -335,14 +335,20 @@ function runPreCommitBiomeProviderEffect(
       paths: biomePaths,
     };
     const formatArgv = biome.argv(formatRequest);
-    const formatStartedAtMs = hookNow(runtime);
+    const formatStartedAtMs = yield* hookNow(runtime);
     const format = yield* biome.run(formatRequest).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
         onSuccess: spawnResultFromCommandResult,
       })
     );
-    recordHookCommand(runtime, "biome-format", formatArgv, formatStartedAtMs, format.exitCode);
+    yield* recordHookCommand(
+      runtime,
+      "biome-format",
+      formatArgv,
+      formatStartedAtMs,
+      format.exitCode
+    );
     output.writeStdout(section("biome format", format.stdout));
     output.writeStderr(format.stderr);
     if (format.exitCode !== 0) {
@@ -361,9 +367,9 @@ function runPreCommitBiomeProviderEffect(
     );
     if (runtime.trace?.preCommit) runtime.trace.preCommit.formatterTouchedPaths = touched;
     if (touched.length > 0) {
-      const restageStartedAtMs = hookNow(runtime);
+      const restageStartedAtMs = yield* hookNow(runtime);
       const restage = yield* gitAddEffect(touched);
-      recordHookCommand(
+      yield* recordHookCommand(
         runtime,
         "formatter-restage",
         ["git", "add", "--", ...touched],
@@ -394,14 +400,14 @@ function runPreCommitBiomeProviderEffect(
       paths: biomePaths,
     };
     const checkArgv = biome.argv(checkRequest);
-    const checkStartedAtMs = hookNow(runtime);
+    const checkStartedAtMs = yield* hookNow(runtime);
     const check = yield* biome.run(checkRequest).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
         onSuccess: spawnResultFromCommandResult,
       })
     );
-    recordHookCommand(runtime, "biome-check", checkArgv, checkStartedAtMs, check.exitCode);
+    yield* recordHookCommand(runtime, "biome-check", checkArgv, checkStartedAtMs, check.exitCode);
     output.writeStdout(section("biome check", check.stdout));
     output.writeStderr(check.stderr);
     if (check.exitCode !== 0) {
@@ -482,14 +488,14 @@ function runPrePushWithBaseDecisionEffect(
 ): Effect.Effect<SpawnResult, never, HookCheckRequirements> {
   const output = createHookOutput(runtime.reporter);
   output.writeStdout(localHookNotice);
-  if (runtime.trace) {
-    runtime.trace.prePush = {
-      outcome: "started",
-      startedAtMs: hookNow(runtime),
-    };
-  }
 
   return Effect.gen(function* () {
+    if (runtime.trace) {
+      runtime.trace.prePush = {
+        outcome: "started",
+        startedAtMs: yield* hookNow(runtime),
+      };
+    }
     if (runtime.trace?.prePush) {
       runtime.trace.prePush.preState = yield* captureRepoSnapshotEffect(runtime);
     }
@@ -535,14 +541,20 @@ function runPrePushWithBaseDecisionEffect(
     );
     for (const target of targetPlan.runTargets) {
       const argv = nx.runTargetArgv(target);
-      const startedAtMs = hookNow(runtime);
+      const startedAtMs = yield* hookNow(runtime);
       const targetResult = yield* nx.runTarget(target).pipe(
         Effect.match({
           onFailure: spawnResultFromCommandProviderError,
           onSuccess: spawnResultFromCommandResult,
         })
       );
-      recordHookCommand(runtime, "pre-push-target", argv, startedAtMs, targetResult.exitCode);
+      yield* recordHookCommand(
+        runtime,
+        "pre-push-target",
+        argv,
+        startedAtMs,
+        targetResult.exitCode
+      );
       output.writeStdout(
         `habitat hook pre-push: repo Nx target ${target.project}:${target.target}\n${targetResult.stdout}`
       );
@@ -568,14 +580,14 @@ function runPrePushWithBaseDecisionEffect(
       excludeTaskDependencies: true,
     };
     const argv = nx.affectedArgv(request);
-    const startedAtMs = hookNow(runtime);
+    const startedAtMs = yield* hookNow(runtime);
     const result = yield* nx.affected(request).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
         onSuccess: spawnResultFromCommandResult,
       })
     );
-    recordHookCommand(runtime, "pre-push-affected", argv, startedAtMs, result.exitCode);
+    yield* recordHookCommand(runtime, "pre-push-affected", argv, startedAtMs, result.exitCode);
     output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
     output.writeStderr(result.stderr);
     return yield* finalizePrePushEffect(
@@ -620,7 +632,7 @@ function runPrePushHookSourceCheckEffect(
   return Effect.gen(function* () {
     const structuralCheck = yield* StructuralCheck;
     const argv = ["--hook-check", "--tool", "source-check", "--json"];
-    const startedAtMs = hookNow(runtime);
+    const startedAtMs = yield* hookNow(runtime);
     const report = yield* structuralCheck.createReport({
       tool: "source-check",
       hookCheck: true,
@@ -636,7 +648,7 @@ function runPrePushHookSourceCheckEffect(
       summary,
     };
     const exitCode = checkSummaryAllowsNextStage(result) ? 0 : 1;
-    recordInProcessHookCheck(runtime, "source-check", argv, startedAtMs, exitCode);
+    yield* recordInProcessHookCheck(runtime, "source-check", argv, startedAtMs, exitCode);
     return { ...result, exitCode };
   });
 }
@@ -646,9 +658,9 @@ function resolvePrePushBaseForService(
 ): Effect.Effect<PrePushBaseDecision, never, HookCheckRequirements> {
   return Effect.gen(function* () {
     const graphite = yield* GraphiteProvider;
-    const startedAtMs = hookNow(runtime);
+    const startedAtMs = yield* hookNow(runtime);
     const parent = yield* graphite.parent({ cwd: repoRoot });
-    recordHookCommand(
+    yield* recordHookCommand(
       runtime,
       "pre-push-base",
       ["gt", "branch", "info", "--no-interactive"],
@@ -677,7 +689,7 @@ function runStagedHookCheckServiceEffect(
   return Effect.gen(function* () {
     const structuralCheck = yield* StructuralCheck;
     const argv = ["--staged", "--tool", tool, "--json"];
-    const startedAtMs = hookNow(runtime);
+    const startedAtMs = yield* hookNow(runtime);
     const report = yield* structuralCheck.createReport({
       tool,
       staged: true,
@@ -688,7 +700,7 @@ function runStagedHookCheckServiceEffect(
       ...spawnResultFromCheckReport(report),
       check: { report, summary: hookCheckSummary(report) },
     };
-    recordInProcessHookCheck(runtime, tool, argv, startedAtMs, result.exitCode);
+    yield* recordInProcessHookCheck(runtime, tool, argv, startedAtMs, result.exitCode);
     return result;
   });
 }
@@ -715,17 +727,19 @@ function recordInProcessHookCheck(
   argv: readonly string[],
   startedAtMs: number,
   exitCode: number
-) {
-  const endedAtMs = hookNow(runtime);
-  runtime.trace?.commands.push({
-    phase,
-    argv: ["habitat", "check", ...argv],
-    cwd: repoRoot,
-    env: undefined,
-    exitCode,
-    startedAtMs,
-    endedAtMs,
-    durationMs: Math.max(0, endedAtMs - startedAtMs),
+): Effect.Effect<void> {
+  return Effect.gen(function* () {
+    const endedAtMs = yield* hookNow(runtime);
+    runtime.trace?.commands.push({
+      phase,
+      argv: ["habitat", "check", ...argv],
+      cwd: repoRoot,
+      env: undefined,
+      exitCode,
+      startedAtMs,
+      endedAtMs,
+      durationMs: Math.max(0, endedAtMs - startedAtMs),
+    });
   });
 }
 
@@ -743,17 +757,19 @@ function recordHookCommand(
   argv: readonly string[],
   startedAtMs: number,
   exitCode: number
-) {
-  const endedAtMs = hookNow(runtime);
-  runtime.trace?.commands.push({
-    phase,
-    argv: [...argv],
-    cwd: repoRoot,
-    env: undefined,
-    exitCode,
-    startedAtMs,
-    endedAtMs,
-    durationMs: Math.max(0, endedAtMs - startedAtMs),
+): Effect.Effect<void> {
+  return Effect.gen(function* () {
+    const endedAtMs = yield* hookNow(runtime);
+    runtime.trace?.commands.push({
+      phase,
+      argv: [...argv],
+      cwd: repoRoot,
+      env: undefined,
+      exitCode,
+      startedAtMs,
+      endedAtMs,
+      durationMs: Math.max(0, endedAtMs - startedAtMs),
+    });
   });
 }
 

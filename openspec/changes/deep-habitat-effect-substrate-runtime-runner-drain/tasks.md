@@ -7,4 +7,4 @@
 - [x] Run focused provider/runtime tests.
 - [x] Run package validation.
 - [x] Run OpenSpec validation.
-- [ ] Commit as a local Graphite slice without submitting the stack.
+- [x] Commit as a local Graphite slice without submitting the stack.
