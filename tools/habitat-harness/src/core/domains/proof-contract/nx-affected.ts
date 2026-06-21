@@ -4,7 +4,6 @@ import {
   NxProvider,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/substrate/providers/nx/index";
-import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
 import { Effect } from "effect";
 import type { VerifyTargetPlan } from "../workspace-graph-integration/index.js";
 import { boundedPreview } from "./command-output.js";
@@ -24,20 +23,6 @@ type SkippedNxAffectedReason = Extract<
  */
 export function affectedVerificationArgv(base: string, targetPlan: VerifyTargetPlan): string[] {
   return affectedArgv({ base, targets: targetPlan.targets });
-}
-
-/**
- * Runs the affected target plan.
- *
- * @param base - Git base for the affected calculation.
- * @param targetPlan - Runnable verify target plan.
- * @returns Spawn result with raw streams for immediate command output and bounded receipt summary.
- */
-export function runAffectedVerification(
-  base: string,
-  targetPlan: Extract<VerifyTargetPlan, { kind: "verify-target-plan" }>
-): Promise<SpawnResult> {
-  return runHabitatEffect(runAffectedVerificationEffect(base, targetPlan));
 }
 
 export function runAffectedVerificationEffect(

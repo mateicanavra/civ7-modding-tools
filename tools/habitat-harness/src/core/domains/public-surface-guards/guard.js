@@ -15,7 +15,6 @@ const serviceModuleNames = ["check", "classify", "fix", "graph", "hook", "transa
 const allowedLibFiles = new Set([
   "tools/habitat-harness/src/substrate/lib/artifact-paths.ts",
   "tools/habitat-harness/src/workspace/taxonomy/boundary-taxonomy.ts",
-  "tools/habitat-harness/src/substrate/lib/effect-runtime.ts",
   "tools/habitat-harness/src/core/domains/host-policy.ts",
   "tools/habitat-harness/src/core/domains/host-policy/decisions.ts",
   "tools/habitat-harness/src/core/domains/host-policy/declarations.ts",
