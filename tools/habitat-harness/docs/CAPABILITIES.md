@@ -80,31 +80,29 @@ cross-project dependency ordering that belongs in graph target dependencies.
 
 The rule registry is `.habitat/rules/index.json` and
 `.habitat/rules/<rule-id>/rule.json`. At this
-state it contains 51 registered rules:
+state it contains 49 registered rules:
 
 | Habitat lane | Count | Role |
 | --- | ---: | --- |
-| Pattern checks | 31 | Source-shape diagnostics over registered scan roots. |
-| Wrapped tests | 7 | Existing package test or verification targets wrapped as Habitat rules. |
-| File protection | 4 | Generated-zone and forbidden-file staged checks. |
-| Native checks | 4 | Habitat structural rules and built-in checks. |
-| Wrapped scripts | 3 | Existing scripts wrapped without changing their semantics. |
+| Pattern checks | 35 | Source-shape diagnostics over registered scan roots. |
+| File protection | 5 | Generated-zone and forbidden-file staged checks. |
+| Native checks | 3 | Habitat structural rules and built-in checks. |
+| Command checks | 4 | Existing command-line gates wrapped without changing their semantics. |
 | Formatter hygiene | 1 | Hygiene-layer CI gate. |
 | Project boundaries | 1 | Project-plane import boundary enforcement. |
 
 Lane state:
 
-- 49 enforced rules fail `habitat check` on unbaselined violations.
-- 2 advisory rules report findings without failing the check.
+- 48 enforced rules fail `habitat check` on unbaselined violations.
+- 1 advisory rule reports findings without failing the check.
 
 Owner state:
 
-- `mod-swooper-maps`: 32 rules
-- `@internal/habitat-harness`: 14 rules
-- `@swooper/mapgen-core`: 2 rules
+- `mod-swooper-maps`: 29 rules
+- `@internal/habitat-harness`: 17 rules
+- `@swooper/mapgen-core`: 1 rule
 - `@civ7/control-orpc`: 1 rule
 - `@mateicanavra/civ7-sdk`: 1 rule
-- `mod-civ7-intelligence-bridge`: 1 rule
 
 ## Baselines
 
@@ -130,8 +128,8 @@ through a structural pattern engine behind that contract.
 
 Current active pattern state:
 
-- 31 check patterns under `.habitat/patterns/checks`.
-- 31 registered pattern-check rules in the rule registry.
+- 35 check patterns under `.habitat/patterns/checks`.
+- 35 registered pattern-check rules in the rule registry.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
 - Habitat normalizes adapter JSON results back to Habitat rule IDs and

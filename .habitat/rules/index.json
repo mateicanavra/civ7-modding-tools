@@ -6,7 +6,6 @@
     "@internal/habitat-harness": "tools/habitat-harness",
     "@mateicanavra/civ7-sdk": "packages/sdk",
     "@swooper/mapgen-core": "packages/mapgen-core",
-    "mod-civ7-intelligence-bridge": "mods/mod-civ7-intelligence-bridge",
     "mod-swooper-maps": "mods/mod-swooper-maps"
   }
 }
