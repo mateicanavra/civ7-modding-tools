@@ -158,11 +158,11 @@
       },
       "shelf": {
         "nearshoreDistance": 8,
-        "shallowQuantile": 0.9,
+        "shallowQuantile": 0.6,
         "activeClosenessThreshold": 0.35,
         "capTilesActive": 3,
-        "capTilesPassive": 4,
-        "capTilesMax": 1
+        "capTilesPassive": 6,
+        "capTilesMax": 8
       }
     },
     "morphology-routing": {

@@ -169,26 +169,27 @@ export default createStep(RuggedCoastsStepContract, {
 
     const shelfMaskSelection =
       config.shelfMask.strategy === "default"
-        ? {
-            ...config.shelfMask,
-            config: {
-              ...config.shelfMask.config,
-              capTilesActive: Math.max(
-                0,
-                Math.min(
-                  config.shelfMask.config.capTilesMax,
-                  Math.round(config.shelfMask.config.capTilesActive * shelfMultiplier)
-                )
-              ),
-              capTilesPassive: Math.max(
-                0,
-                Math.min(
-                  config.shelfMask.config.capTilesMax,
-                  Math.round(config.shelfMask.config.capTilesPassive * shelfMultiplier)
-                )
-              ),
-            },
-          }
+        ? (() => {
+            const { capTilesActive, capTilesPassive, capTilesMax } = config.shelfMask.config;
+            // Ceiling never sits below the configured margin caps, so a low capTilesMax
+            // cannot silently erase the passive>active distinction when the shelfWidth
+            // knob scales them (see compute-shelf-mask footgun note).
+            const capCeiling = Math.max(capTilesMax, capTilesActive, capTilesPassive);
+            return {
+              ...config.shelfMask,
+              config: {
+                ...config.shelfMask.config,
+                capTilesActive: Math.max(
+                  0,
+                  Math.min(capCeiling, Math.round(capTilesActive * shelfMultiplier))
+                ),
+                capTilesPassive: Math.max(
+                  0,
+                  Math.min(capCeiling, Math.round(capTilesPassive * shelfMultiplier))
+                ),
+              },
+            };
+          })()
         : config.shelfMask;
 
     return { ...config, coastlines: coastlinesSelection, shelfMask: shelfMaskSelection };

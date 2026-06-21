@@ -78,5 +78,13 @@ bun ./src/dev/diagnostics/run-standard-dump.ts -- 106 66 1337 --label coast-juic
 
 **Overall mock verdict:** _pending_  ·  **Live verification:** _pending_
 
+## 5a. Interim — after S1 (shelf footgun fix; uniform band STILL present)
+runId `3efbb0139ba2c71f227dbc367a2c421e479bd387ccffa0fe9c8cfa87cb770993` (latest_juicy 106×66 s1337):
+- **C1 (margin variation):** `capTilesByTile` = {4 (active, 394 tiles), 8 (passive, 4084)} — restored ✓ (was flat {1}).
+- **C2 (depth gate):** `shallowCutoff` = −7 m — restored ✓ (was 0 m).
+- shelfMask 480→1511 (3.1×); sourceCoast 760→1682; landShare 0.36 unchanged.
+- policy-band-only coast still 2356 (band intact → removed in S3); coast share inflated to 0.902 (band+wider shelf).
+- Projection for post-S3: coast ≈ sourceCoast (1682) → coast share ≈ 0.38 (within C5).
+
 ## 6. Amendments (append-only; runId + date required)
 - _(none yet)_
