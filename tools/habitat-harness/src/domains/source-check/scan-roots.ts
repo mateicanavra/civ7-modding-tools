@@ -10,7 +10,6 @@ export const sourceCheckCandidateExtensions = new Set([
   ".js",
   ".jsx",
   ".json",
-  ".md",
   ".mjs",
   ".mts",
   ".ts",
