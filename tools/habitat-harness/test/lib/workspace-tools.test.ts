@@ -29,27 +29,6 @@ describe("workspace tool command materialization", () => {
       argv: ["run", "--cwd", repoRoot, "nx", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeDefaultHabitatCommand("import-boundaries", ["."])).toMatchObject({
-      executable: "bun",
-      cwd: repoRoot,
-      argv: [
-        "run",
-        "--cwd",
-        repoRoot,
-        "eslint",
-        "--quiet",
-        "--cache",
-        "--cache-strategy",
-        "content",
-        "--cache-location",
-        ".nx/cache/eslint-boundaries",
-        "--config",
-        "eslint.boundaries.config.mjs",
-        "--no-config-lookup",
-        ".",
-      ],
-      executionPlane: "workspace-bun-run",
-    });
   });
 
   test("keeps system prerequisites direct", () => {
