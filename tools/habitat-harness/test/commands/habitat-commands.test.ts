@@ -123,17 +123,19 @@ describe("Habitat oclif commands", () => {
     mockFixRun.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
     mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
-    mockVerifyRun.mockImplementation(async (input: { base?: string; commandArgs?: string[] }) => {
-      const base = input.base ?? "merge-base";
-      return {
-        kind: "completed",
-        base,
-        checkReport: mockReport,
-        targetPlan: mockVerifyTargetPlan,
-        affectedResult: { exitCode: 0, stdout: "affected ok\n", stderr: "" },
-        receipt: verifyReceiptPayload(base, input),
-      };
-    });
+    mockVerifyRun.mockImplementation(
+      async (input: { base?: string; commandArgs?: string[]; affectedExecution?: string }) => {
+        const base = input.base ?? "merge-base";
+        return {
+          kind: "completed",
+          base,
+          checkReport: mockReport,
+          targetPlan: mockVerifyTargetPlan,
+          affectedResult: { exitCode: 0, stdout: "affected ok\n", stderr: "" },
+          receipt: verifyReceiptPayload(base, input),
+        };
+      }
+    );
     stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation((chunk) => {
       stdout.push(String(chunk));
       return true;
@@ -266,6 +268,7 @@ describe("Habitat oclif commands", () => {
     expect(mockVerifyRun).toHaveBeenCalledWith({
       base: "HEAD~1",
       commandArgs: ["--base", "HEAD~1"],
+      affectedExecution: "run",
     });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
     expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport);
@@ -278,6 +281,7 @@ describe("Habitat oclif commands", () => {
     expect(mockVerifyRun).toHaveBeenCalledWith({
       base: "HEAD~1",
       commandArgs: ["--base", "HEAD~1", "--json"],
+      affectedExecution: "plan-only",
     });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
     expect(verifyReceipt.stringifyVerifyReceipt).toHaveBeenCalledWith(
@@ -328,10 +332,14 @@ describe("Habitat oclif commands", () => {
   }
 });
 
-function verifyReceiptPayload(base: string, input: { base?: string; commandArgs?: string[] }) {
+function verifyReceiptPayload(
+  base: string,
+  input: { base?: string; commandArgs?: string[]; affectedExecution?: string }
+) {
+  const planned = input.affectedExecution === "plan-only";
   return {
     schemaVersion: 1,
-    outcome: "succeeded",
+    outcome: planned ? "planned" : "succeeded",
     command: {
       argv: ["habitat", "verify", ...(input.commandArgs ?? [])],
       cwd: "/repo",
@@ -360,15 +368,16 @@ function verifyReceiptPayload(base: string, input: { base?: string; commandArgs?
     },
     targetPlan: { kind: "target-plan-ready", targets: ["build"] },
     nxAffected: {
-      kind: "executed",
+      kind: planned ? "skipped" : "executed",
+      ...(planned ? { skipReason: "receipt-only" } : {}),
       argv: ["nx", "affected", "-t", "build", "--base", base],
       targets: ["build"],
       projects: [],
       cacheStateByTask: [],
-      exitCode: 0,
-      stdoutLength: 12,
+      exitCode: planned ? null : 0,
+      stdoutLength: planned ? 0 : 12,
       stderrLength: 0,
-      stdoutPreview: "affected ok\n",
+      stdoutPreview: planned ? "" : "affected ok\n",
       stderrPreview: "",
       stdoutTruncated: false,
       stderrTruncated: false,

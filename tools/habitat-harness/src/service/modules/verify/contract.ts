@@ -12,6 +12,12 @@ const VerifyServiceRunInputSchema = Type.Object(
   {
     base: Type.Optional(Type.String({ minLength: 1 })),
     commandArgs: Type.Optional(Type.Array(Type.String())),
+    affectedExecution: Type.Optional(
+      Type.Union([Type.Literal("run"), Type.Literal("plan-only")], {
+        description:
+          "Whether verify should execute Nx affected targets or emit a bounded receipt from the checked target plan.",
+      })
+    ),
   },
   { additionalProperties: false, description: "Habitat verify service run request." }
 );

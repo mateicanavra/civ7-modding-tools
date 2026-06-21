@@ -29,7 +29,8 @@ surfaces.
 - D7 `VerifyCheckSummaryProjection` decides affected-execution admission and selector state.
 - D3 `VerifyTargetPlan` supplies affected targets and graph-refusal state.
 - Affected execution is closed as `executed`, `failed`, or `skipped`.
-- Skipped affected execution carries either `habitat-check-failed` or `workspace-graph-refused`.
+- Skipped affected execution carries `habitat-check-failed`,
+  `workspace-graph-refused`, or `receipt-only`.
 - Nx affected argv is `nx affected -t <D3 targets> --base <resolved-base> --head HEAD --outputStyle=static`.
 - Serialized receipt output stores bounded stdout/stderr metadata, not raw command-output bodies.
 - Receipt source omits process-only fields.
@@ -41,7 +42,7 @@ surfaces.
 | `bun run --cwd tools/habitat-harness check` | pass | `tsc -p tsconfig.json --noEmit` exited 0 after the verify module split and TypeBox schema documentation pass. |
 | `bun run --cwd tools/habitat-harness test -- test/lib/verify-receipt.test.ts test/commands/habitat-commands.test.ts` | pass | 2 files, 16 tests passed. |
 | `bun run habitat verify --help` | pass | Oclif help renders verify usage, `--base`, and `--json`. |
-| `bun run habitat verify --json` | pass with blocked receipt | Exit 1 with valid `VerifyReceipt`: `outcome=blocked`, `nxAffected.kind=skipped`, `habitatCheck.consumption=blocks-affected-execution`, `targetPlan.kind=target-plan-ready`, `postState.kind=observed-dirty`; stdout stored at `/tmp/d12-habitat-verify-json.out`. |
+| `bun run habitat verify --json` | pass with planned receipt | Exit 0 with valid `VerifyReceipt`: `outcome=planned`, `nxAffected.kind=skipped`, `nxAffected.skipReason=receipt-only`, `habitatCheck.consumption=allows-affected-execution`, and `targetPlan.kind=target-plan-ready`; latest stdout stored at `/tmp/habitat-verify-json-final.json`. |
 | `bun run openspec -- validate deep-habitat-d12-verify-handoff-receipt --strict` | pass | Change is valid. |
 | `bun run openspec:validate` | pass | 249 OpenSpec items passed, 0 failed. |
 | `git diff --check` | pass | No whitespace errors. |

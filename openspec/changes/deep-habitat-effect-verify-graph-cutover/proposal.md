@@ -18,7 +18,8 @@ the Nx/Git providers while preserving verify receipt semantics.
 
 - `nx affected` remains a scope reducer, not full architecture proof.
 - Verify still runs Habitat checks before affected execution.
-- No verify receipt field change without D0 row update.
+- Receipt-only JSON may add an explicit planned/skipped state when the public
+  receipt packet is updated in the same slice.
 
 ## Verification Gates
 

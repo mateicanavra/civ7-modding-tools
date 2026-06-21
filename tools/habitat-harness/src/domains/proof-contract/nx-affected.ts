@@ -10,6 +10,11 @@ import type { VerifyTargetPlan } from "../workspace-graph-integration/index.js";
 import { boundedPreview } from "./command-output.js";
 import type { VerifyReceipt } from "./schema.js";
 
+type SkippedNxAffectedReason = Extract<
+  VerifyReceipt["nxAffected"],
+  { kind: "skipped" }
+>["skipReason"];
+
 /**
  * Builds the Nx affected argv used by verify.
  *
@@ -83,14 +88,18 @@ export function completedNxAffected(
  */
 export function skippedNxAffected(
   argv: string[],
-  targetPlan?: VerifyTargetPlan
+  options: {
+    reason?: SkippedNxAffectedReason;
+    targetPlan?: VerifyTargetPlan;
+  } = {}
 ): Extract<VerifyReceipt["nxAffected"], { kind: "skipped" }> {
   return {
     kind: "skipped",
     skipReason:
-      targetPlan?.kind === "verify-target-plan-refused"
+      options.reason ??
+      (options.targetPlan?.kind === "verify-target-plan-refused"
         ? "workspace-graph-refused"
-        : "habitat-check-failed",
+        : "habitat-check-failed"),
     argv,
     targets: targetsFromArgv(argv),
     projects: [],
