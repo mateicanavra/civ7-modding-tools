@@ -9,8 +9,9 @@ import {
   spawnResultFromCommandResult,
 } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
+import type { GitStateProvider } from "../git/index.js";
 
-type NxProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner;
+type NxProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
 
 export interface NxAffectedRequest {
   base: string;

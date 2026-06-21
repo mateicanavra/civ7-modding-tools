@@ -12,7 +12,11 @@ import {
   stagedPathsFromNameStatus,
 } from "../../lib/protected-zones/index.js";
 import { CommandRunner, type HabitatCommandResult } from "../../providers/command/index.js";
-import { GitProvider, type GitProviderRequirements } from "../../providers/git/index.js";
+import {
+  GitProvider,
+  type GitProviderRequirements,
+  type GitStateProvider,
+} from "../../providers/git/index.js";
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
 import {
@@ -179,7 +183,7 @@ async function graphDependencyRefusals(
 function executeCommandRulesEffect(
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>
-): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig> {
+): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
   return Effect.gen(function* () {
     const records = yield* Effect.all(commandRules.map(executeCommandRuleEffect), {
       concurrency: "unbounded",
@@ -193,7 +197,7 @@ function executeCommandRuleEffect(
 ): Effect.Effect<
   [string, RuleExecutionRecord],
   never,
-  CommandRunner | CommandExecutor | HabitatConfig
+  CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
 > {
   return Effect.gen(function* () {
     const runner = yield* CommandRunner;

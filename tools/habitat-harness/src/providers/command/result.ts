@@ -1,5 +1,5 @@
 import type { HabitatToolExecutionPlane } from "../../config/index.js";
-import type { HabitatCommandGitState } from "../../lib/git-state.js";
+import type { HabitatCommandGitState } from "../git/state.js";
 import type { CommandObservation } from "./observation.js";
 import type { CommandCachePolicy, HabitatCommandKind } from "./request.js";
 

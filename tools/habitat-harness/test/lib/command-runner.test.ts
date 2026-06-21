@@ -12,6 +12,7 @@ import {
   redactEnvDelta,
   renderCommandObservation,
 } from "../../src/providers/command/index.js";
+import { makeFakeGitStateProviderLayer } from "../../src/providers/git/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 
 describe("CommandRunner", () => {
@@ -109,6 +110,50 @@ describe("CommandRunner", () => {
     expect(output.text.length).toBe(4 * 1024 * 1024);
     expect(output.bytes).toBe(4 * 1024 * 1024 + 8);
     expect(output.sha256).toHaveLength(64);
+  });
+
+  test("captures command git state through the Git state provider", async () => {
+    const reads: string[] = [];
+    const states = [
+      {
+        branch: "before-branch",
+        head: "before-head",
+        dirty: false,
+        statusShort: "",
+        statusDigest: "before-digest",
+      },
+      {
+        branch: "after-branch",
+        head: "after-head",
+        dirty: true,
+        statusShort: " M tools/habitat-harness/src/providers/command/runner.ts\n",
+        statusDigest: "after-digest",
+      },
+    ];
+
+    const result = await runHabitatEffect(
+      Effect.gen(function* () {
+        const runner = yield* CommandRunner;
+        return yield* runner.run({
+          commandId: "git-state-provider-capture",
+          kind: "workspace-tool",
+          executable: "node",
+          argv: ["-e", "process.stdout.write('ok')"],
+          cwd: repoRoot,
+        });
+      }).pipe(
+        Effect.provide(
+          makeFakeGitStateProviderLayer((cwd) => {
+            reads.push(cwd);
+            return states[Math.min(reads.length - 1, states.length - 1)]!;
+          })
+        )
+      )
+    );
+
+    expect(reads).toEqual([repoRoot, repoRoot]);
+    expect(result.gitState).toEqual({ before: states[0], after: states[1] });
+    expect(result.stdout.text).toBe("ok");
   });
 
   test("reports unavailable commands as generic provider errors", async () => {

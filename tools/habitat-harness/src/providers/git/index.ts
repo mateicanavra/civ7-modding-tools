@@ -8,8 +8,24 @@ import {
   spawnResultFromCommandResult,
 } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
+import type { GitStateProvider } from "./state.js";
 
-export type GitProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner;
+export {
+  GitStateProvider,
+  GitStateProviderLive,
+  type GitStateProviderService,
+  type HabitatCommandGitState,
+  type HabitatGitState,
+  makeFakeGitStateProviderLayer,
+  readGitState,
+  unknownGitState,
+} from "./state.js";
+
+export type GitProviderRequirements =
+  | CommandExecutor
+  | HabitatConfig
+  | CommandRunner
+  | GitStateProvider;
 type GitCommandEffect = Effect.Effect<
   HabitatCommandResult,
   CommandProviderError,
