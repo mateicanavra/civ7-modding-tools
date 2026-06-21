@@ -22,7 +22,7 @@ export function finalizePreCommitEffect(
         runtime,
         resourceState ?? runtime.trace.preCommit.resourceState
       );
-      runtime.trace.preCommit.endedAtMs = hookNow(runtime);
+      runtime.trace.preCommit.endedAtMs = yield* hookNow(runtime);
       runtime.trace.preCommit.durationMs = Math.max(
         0,
         runtime.trace.preCommit.endedAtMs - runtime.trace.preCommit.startedAtMs
@@ -42,7 +42,7 @@ export function finalizePrePushEffect(
       runtime.trace.prePush.outcome = outcome;
       runtime.trace.prePush.exitCode = result.exitCode;
       runtime.trace.prePush.postState = yield* captureRepoSnapshotEffect(runtime);
-      runtime.trace.prePush.endedAtMs = hookNow(runtime);
+      runtime.trace.prePush.endedAtMs = yield* hookNow(runtime);
       runtime.trace.prePush.durationMs = Math.max(
         0,
         runtime.trace.prePush.endedAtMs - runtime.trace.prePush.startedAtMs

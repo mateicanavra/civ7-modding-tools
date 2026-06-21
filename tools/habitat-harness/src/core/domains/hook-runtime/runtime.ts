@@ -1,4 +1,5 @@
 import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
+import { Clock, Effect } from "effect";
 import type { HookReportChannel, HookTrace } from "./schema.js";
 
 export interface HookReportEvent {
@@ -35,8 +36,8 @@ export function createHookTrace(): HookTrace {
   return { commands: [] };
 }
 
-export function hookNow(runtime: HookRuntime): number {
-  return runtime.nowMs?.() ?? Date.now();
+export function hookNow(runtime: HookRuntime): Effect.Effect<number> {
+  return runtime.nowMs ? Effect.sync(runtime.nowMs) : Clock.currentTimeMillis;
 }
 
 export function createHookOutput(reporter?: HookReporter): {

@@ -67,7 +67,6 @@ const allowedSyncResourceHelperEdges = new Set([
 ]);
 
 const allowedTimeEdges = new Set([
-  "tools/habitat-harness/src/core/domains/hook-runtime/runtime.ts",
   "tools/habitat-harness/src/core/domains/structural-check/selection.ts",
   "tools/habitat-harness/src/substrate/providers/command/output.ts",
   "tools/habitat-harness/src/substrate/providers/command/runner.ts",
@@ -75,6 +74,7 @@ const allowedTimeEdges = new Set([
 ]);
 
 const allowedNativeClockEdges = new Set([
+  "tools/habitat-harness/src/core/domains/hook-runtime/runtime.ts",
   "tools/habitat-harness/src/core/domains/structural-check/execution.ts",
   "tools/habitat-harness/src/core/domains/structural-check/report.ts",
   "tools/habitat-harness/src/core/domains/structural-check/selection.ts",
