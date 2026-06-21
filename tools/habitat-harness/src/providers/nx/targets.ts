@@ -48,3 +48,34 @@ export function prePushTargetNames(targetNames = workspaceGraphTargetNames()): r
   void targetNames;
   return ["check", "validate:boundary-taxonomy", "validate:grit-patterns"];
 }
+
+export function prePushTargetNamesForChangedPaths(
+  changedPaths: readonly string[],
+  targetNames = workspaceGraphTargetNames()
+): readonly string[] {
+  const paths = changedPaths.map(normalizeRepoPath).filter(Boolean);
+  if (paths.length === 0 || !paths.every(isHabitatArtifactPath)) {
+    return prePushTargetNames(targetNames);
+  }
+
+  const targets = new Set<string>([targetNames.check]);
+  if (paths.some(isSourceCheckArtifactPath)) targets.add(targetNames.sourceCheck);
+  if (paths.some(isGritPatternArtifactPath)) targets.add("validate:grit-patterns");
+  return [...targets];
+}
+
+function normalizeRepoPath(filePath: string): string {
+  return filePath.replace(/\\/g, "/").replace(/^\.\//, "");
+}
+
+function isHabitatArtifactPath(filePath: string): boolean {
+  return filePath === ".habitat" || filePath.startsWith(".habitat/");
+}
+
+function isSourceCheckArtifactPath(filePath: string): boolean {
+  return filePath.startsWith(".habitat/source-check/") || filePath.startsWith(".habitat/rules/");
+}
+
+function isGritPatternArtifactPath(filePath: string): boolean {
+  return filePath.startsWith(".habitat/patterns/");
+}

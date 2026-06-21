@@ -14,11 +14,16 @@ import { repoRoot } from "../../src/lib/paths.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
 import type { HabitatCommandResult } from "../../src/providers/command/types.js";
 import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
-import { affectedArgv, makeFakeNxProviderLayer } from "../../src/providers/nx/index.js";
+import {
+  affectedArgv,
+  makeFakeNxProviderLayer,
+  type NxAffectedRequest,
+} from "../../src/providers/nx/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runHookService } from "../../src/service/modules/hook/router.js";
 
 const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
+const prePushArtifactTargets = "habitat:check,source:check";
 const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
@@ -287,6 +292,44 @@ describe("Habitat hook service", () => {
     ]);
   });
 
+  test("uses Habitat structural targets for rule artifact-only pre-push changes", async () => {
+    const fake = makePrePushRuntime();
+    const affectedRequests: NxAffectedRequest[] = [];
+    const changedPath = ".habitat/rules/rng-authority-static/rule.json";
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer((request) => {
+        affectedRequests.push(request);
+        return commandResult(
+          affectedArgv(request),
+          repoRootForTestCommand(),
+          "affected ok\n",
+          0,
+          "",
+          "nx"
+        );
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
+    expect(affectedRequests).toEqual([
+      {
+        base: "HEAD~1",
+        targets: prePushArtifactTargets.split(","),
+        head: "HEAD",
+        excludeTaskDependencies: true,
+      },
+    ]);
+  });
+
   test("runs pre-commit through the in-process Habitat service client", async () => {
     const fake = makePreCommitRuntime();
 
@@ -379,10 +422,10 @@ function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
   };
 }
 
-function nxLayer(handler?: () => HabitatCommandResult) {
+function nxLayer(handler?: (request: NxAffectedRequest) => HabitatCommandResult) {
   return makeFakeNxProviderLayer({
     affected: (request) =>
-      handler?.() ??
+      handler?.(request) ??
       commandResult(affectedArgv(request), repoRootForTestCommand(), "affected ok\n", 0, "", "nx"),
   });
 }
