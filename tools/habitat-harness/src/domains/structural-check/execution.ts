@@ -1,7 +1,6 @@
+import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Clock, Effect } from "effect";
-import { runGritRulesEffect, validateScanRoots } from "../../adapters/grit/index.js";
-import { GritProvider, type GritProviderRequirements } from "../../adapters/grit/provider/index.js";
 import type { HabitatConfig } from "../../config/index.js";
 import { type HabitatError, renderHabitatError } from "../../errors/index.js";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
@@ -32,6 +31,11 @@ import type {
   RulePatternFacts,
   RuleSelectorFacts,
 } from "../rule-registry/index.js";
+import {
+  approvedSourceScanRootsForRules,
+  SourceCheck,
+  stagedSourceScanRoots,
+} from "../source-check/index.js";
 import { ruleAliasTargetState } from "../workspace-graph-integration/index.js";
 import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
 import type { CheckOptions } from "./request.js";
@@ -58,22 +62,11 @@ export function stagedPatternScanRoots(
   stagedPaths: readonly string[],
   approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRulePatternFacts)
 ): string[] {
-  const candidates = sortedUnique(
-    stagedPaths
-      .map((candidate) => toRepoRelative(candidate))
-      .filter((candidate) => gritCandidateExtensions.has(pathExt(candidate)))
-  );
-  return candidates.filter(
-    (candidate) =>
-      validateScanRoots([candidate], {
-        requireExisting: false,
-        approvedScanRoots,
-      }) === null
-  );
+  return stagedSourceScanRoots(stagedPaths, approvedScanRoots);
 }
 
 export function approvedScanRootsForRules(rules: readonly RulePatternFacts[]): string[] {
-  return [...new Set(rules.flatMap((rule) => rule.scanRoots).map(toRepoRelative))];
+  return approvedSourceScanRootsForRules(rules);
 }
 
 export function executeSelectedRulesEffect(
@@ -84,9 +77,9 @@ export function executeSelectedRulesEffect(
   never,
   | CommandRunner
   | CommandExecutor
-  | GritProvider
-  | GritProviderRequirements
+  | SourceCheck
   | HabitatConfig
+  | FileSystem.FileSystem
   | GitProvider
   | GitProviderRequirements
 > {
@@ -113,11 +106,15 @@ export function executeSelectedRulesEffect(
           });
         }
       } else {
+        const sourceCheck = yield* SourceCheck;
         const started = yield* Clock.currentTimeMillis;
-        const gritResults = yield* runGritRulesEffect(gritRules, scanRoots ? { scanRoots } : {});
+        const sourceResults = yield* sourceCheck.runPatternRules(
+          gritRules,
+          scanRoots ? { scanRoots } : {}
+        );
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
         for (const rule of gritRules) {
-          const result = gritResults.get(rule.id);
+          const result = sourceResults.get(rule.id);
           if (result) {
             results.set(rule.id, {
               result,
@@ -365,23 +362,3 @@ function currentStagedPathsEffect(): Effect.Effect<
     return result.right.stdout.text.split("\0").filter(Boolean).map(toRepoRelative);
   });
 }
-
-function sortedUnique(values: readonly string[]): string[] {
-  return [...new Set(values)].sort();
-}
-
-function pathExt(candidate: string): string {
-  const index = candidate.lastIndexOf(".");
-  return index === -1 ? "" : candidate.slice(index);
-}
-
-const gritCandidateExtensions = new Set([
-  ".cjs",
-  ".cts",
-  ".js",
-  ".jsx",
-  ".mjs",
-  ".mts",
-  ".ts",
-  ".tsx",
-]);

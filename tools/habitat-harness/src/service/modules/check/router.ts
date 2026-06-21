@@ -1,12 +1,9 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
-import type {
-  GritProvider,
-  GritProviderRequirements,
-} from "../../../adapters/grit/provider/index.js";
 import type { HabitatConfig } from "../../../config/index.js";
 import type { BaselineAuthority } from "../../../domains/baseline-authority/index.js";
+import type { SourceCheck } from "../../../domains/source-check/index.js";
 import {
   checkCommandContext,
   describeRuleSelectionFailure,
@@ -52,8 +49,7 @@ export function expandCheckBaselinesService(
   | BaselineAuthority
   | CommandRunner
   | CommandExecutor
-  | GritProvider
-  | GritProviderRequirements
+  | SourceCheck
   | HabitatConfig
   | FileSystem.FileSystem
   | GitProvider

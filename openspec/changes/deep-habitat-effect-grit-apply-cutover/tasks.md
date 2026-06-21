@@ -44,7 +44,7 @@
 - [x] 3.1 Update fake-provider tests for Grit command construction, apply dry-run, command failed, parse failed, and cache missing states.
 - [x] 3.2 Run `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/pattern-apply.test.ts test/service/fix-service.test.ts test/service/transactions-service.test.ts test/lib/vendor-providers.test.ts`.
 - [x] 3.3 Run `bun run --cwd tools/habitat-harness validate:grit-patterns`.
-- [ ] 3.4 Run `bun run habitat check --tool pattern-check --json`.
+- [x] 3.4 Run `bun run habitat check --tool pattern-check --json`.
   - 2026-06-20 result: still fails because the standard Grit source command
     times out with `GritCommandFailed` / exit 130 under the provider timeout.
     `domain-deep-import-tests` was removed from that path and now passes as
@@ -58,6 +58,13 @@
     with repeated source-rule `GritCommandFailed` / exit 130 diagnostics. The
     discoveries fix is present, but the standard source Grit invocation remains
     unsound for full current-tree pattern-check.
+  - 2026-06-20 closure: passed after moving active current-tree source-policy
+    execution behind the native Effect `SourceCheck` domain service instead of
+    broad Grit source execution. Habitat core owns the generic source scanner
+    and policy-module loader; this repo's semantic rule script lives under
+    `.habitat/source-check/pattern-rules.mjs`. The command completed in seconds
+    with `ok:true` across 32 pattern rules; `docs-local-checkout-paths` remains
+    advisory-only.
 
 ## 4. Validation
 

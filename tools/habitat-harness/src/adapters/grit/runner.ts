@@ -2,6 +2,7 @@ import { Effect, type Layer } from "effect";
 import {
   type DiagnosticAdapterFailureKind,
   type DiagnosticCacheObservation,
+  type DiagnosticFinding,
   type DiagnosticRunOutcome,
   type DiagnosticScanRootRefusal,
   diagnosticCatalogEntryFromRulePatternFacts,
@@ -26,6 +27,7 @@ import type {
 import { gritCheckProgram } from "./request.js";
 import {
   decidePatternScanRoots,
+  pathsOverlap,
   ruleHasDocsScanRoot,
   ruleUsesDocsApplyDryRun,
   selectedScanRootsForRules,
@@ -113,7 +115,47 @@ function runGritRuleOutcomeGroupEffect(
 > {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
   const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
-  const scanRootDecision = decidePatternScanRoots(requestedScanRoots, {
+  if (requestedScanRoots.length === 0) {
+    return runGritScanRootBatchEffect(selectedRules, [], options, outputFormat);
+  }
+  const batches = scanRootBatchesForRules(selectedRules, requestedScanRoots);
+  return Effect.all(
+    batches.map((batch) =>
+      runGritScanRootBatchEffect(batch.rules, batch.scanRoots, options, outputFormat)
+    ),
+    { concurrency: outputFormat === "json" ? 2 : 1 }
+  ).pipe(Effect.map((batchOutcomes) => mergeBatchOutcomes(selectedRules, batchOutcomes)));
+}
+
+interface GritScanRootBatch {
+  readonly scanRoots: readonly string[];
+  readonly rules: readonly RulePatternFacts[];
+}
+
+function scanRootBatchesForRules(
+  selectedRules: readonly RulePatternFacts[],
+  requestedScanRoots: readonly string[]
+): GritScanRootBatch[] {
+  return requestedScanRoots.map((scanRoot) => ({
+    scanRoots: [scanRoot],
+    rules: selectedRules.filter((rule) =>
+      rule.scanRoots.some((declaredRoot) => pathsOverlap(scanRoot, declaredRoot))
+    ),
+  }));
+}
+
+function runGritScanRootBatchEffect(
+  selectedRules: readonly RulePatternFacts[],
+  scanRoots: readonly string[],
+  options: Omit<GritRunOptions, "providerLayer">,
+  outputFormat: GritCheckOutputFormat
+): Effect.Effect<
+  Map<string, DiagnosticRunOutcome>,
+  never,
+  GritProvider | GritProviderRequirements
+> {
+  if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
+  const scanRootDecision = decidePatternScanRoots(scanRoots, {
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
@@ -145,7 +187,6 @@ function runGritRuleOutcomeGroupEffect(
       )
     );
   }
-  const scanRoots = scanRootDecision.roots;
   const program = gritCheckProgram(scanRoots, {
     cacheMode: options.cacheMode,
     requireObservableCacheStatus: options.requireObservableCacheStatus,
@@ -168,6 +209,49 @@ function runGritRuleOutcomeGroupEffect(
       onSuccess: (acquisition) => outcomesFromAcquisition(selectedRules, acquisition, options),
     })
   );
+}
+
+function mergeBatchOutcomes(
+  selectedRules: readonly RulePatternFacts[],
+  batchOutcomes: readonly ReadonlyMap<string, DiagnosticRunOutcome>[]
+): Map<string, DiagnosticRunOutcome> {
+  return new Map(
+    selectedRules.map((rule) => [
+      rule.id,
+      mergeRuleBatchOutcomes(
+        rule,
+        batchOutcomes.flatMap((outcomes) => {
+          const outcome = outcomes.get(rule.id);
+          return outcome ? [outcome] : [];
+        })
+      ),
+    ])
+  );
+}
+
+function mergeRuleBatchOutcomes(
+  rule: RulePatternFacts,
+  outcomes: readonly DiagnosticRunOutcome[]
+): DiagnosticRunOutcome {
+  const blocking = outcomes.find(
+    (outcome) => outcome.kind !== "clean" && outcome.kind !== "findings"
+  );
+  if (blocking) return blocking;
+  const findings = outcomes.flatMap((outcome) =>
+    outcome.kind === "findings" ? [...outcome.diagnostics] : []
+  );
+  if (findings.length > 0) {
+    return {
+      kind: "findings",
+      entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+      diagnostics: findings as [DiagnosticFinding, ...DiagnosticFinding[]],
+    };
+  }
+  return {
+    kind: "clean",
+    entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+    diagnostics: [],
+  };
 }
 
 function outcomesFromAcquisition(

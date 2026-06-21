@@ -30,3 +30,7 @@
   bounded wait with no JSON output. The hang is consistent with the existing
   aggregate Habitat pattern-check boundary recorded by the static-inventory
   domino; this packet does not claim aggregate verify CLI closure.
+- 3.2 was rerun after current-tree `pattern-check` moved off broad Grit source
+  execution. It still produced no JSON within a bounded wait and was interrupted
+  after roughly 74s. Aggregate verify therefore remains open as its own runtime
+  architecture problem, not as part of the Grit current-tree pattern-check fix.

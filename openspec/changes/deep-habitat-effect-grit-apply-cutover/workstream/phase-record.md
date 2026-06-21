@@ -8,8 +8,8 @@
 - Branch/Graphite stack: `agent-DRA-effect-grit-apply-cutover` stacked on `agent-DRA-effect-transaction-service-module`
 - Started: 2026-06-19
 - Last updated: 2026-06-20
-- Status: provider cutover plus command-substrate cleanup in validation;
-  current-tree pattern-check execution remains open
+- Status: provider cutover, command-substrate cleanup, and current-tree
+  pattern-check execution closed
 
 ## Objective
 
@@ -30,18 +30,17 @@
   - `bun run --cwd tools/habitat-harness validate:grit-patterns` - passed.
   - `bun run habitat check --rule domain-deep-import-tests --json` - passed
     after moving the ignored-test import policy to native `command-check`.
+  - `bun run habitat check --tool pattern-check --json` - passed after routing
+    active source-policy execution through the native Effect `SourceCheck`
+    domain service. Habitat core owns the generic source scanner and policy
+    loader; this repo's semantic policy script lives in
+    `.habitat/source-check/pattern-rules.mjs`. The command completed in seconds
+    with `ok:true` across 32 rules; `docs-local-checkout-paths` remains
+    advisory-only.
   - `bun run openspec -- validate deep-habitat-effect-grit-apply-cutover --strict` - passed.
   - `bun run openspec:validate` - passed.
   - `bun run biome:ci` - passed.
   - `git diff --check` - passed.
-- Not closed:
-  - `bun run habitat check --tool pattern-check --json` still fails. The
-    DDIT ignored-test expansion is no longer on this path; the remaining
-    enforced failures are shared `GritCommandFailed` / exit 130 outcomes from
-    the standard source Grit invocation, and docs-local reports an advisory
-    provider/tool failure while keeping `ok:true`. This is a larger Grit
-    current-tree execution-shape problem for the next service/check domino, not
-    a DDIT expansion failure.
 
 ## Implementation Notes
 
@@ -85,7 +84,12 @@
 - The deleted DDIT Grit path allowed removal of the unused
   `expandIgnoredTestDirectories` registry field, scan-root expansion decision,
   adapter batching code, and diagnostic schema branch.
-- Full `habitat check --tool pattern-check --json` was rerun after the user's
-  restack. It still fails after about 127s with source-rule
-  `GritCommandFailed` / exit 130 diagnostics, so current-tree Grit execution
-  remains the next repair target rather than a discoveries-schema issue.
+- Active current-tree source policies now execute through a generic
+  `src/domains/source-check/**` Effect service that loads repo-authored policy
+  scripts from `.habitat/source-check/**`. This keeps Habitat toolkit source
+  general while letting the current repo own its semantic rules. It removes
+  broad current-tree Grit execution from `pattern-check` while preserving the
+  public `ownerTool: "pattern-check"` selector and report contract.
+- Grit remains enclosed under `src/adapters/grit/**` for bounded vendor-backed
+  pattern/codemod/apply flows. It is no longer the default engine for owned
+  source-policy predicates that Habitat can check directly.

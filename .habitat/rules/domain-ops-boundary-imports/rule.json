@@ -12,13 +12,7 @@
   "exceptionPath": "none",
   "patternName": "domain_ops_boundary_imports",
   "hookCheck": true,
-  "scanRoots": [
-    "packages",
-    "apps/mapgen-studio/src",
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",

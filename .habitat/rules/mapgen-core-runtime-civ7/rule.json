@@ -12,13 +12,7 @@
   "exceptionPath": "none",
   "patternName": "mapgen_core_runtime_civ7",
   "hookCheck": true,
-  "scanRoots": [
-    "packages",
-    "apps/mapgen-studio/src",
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["packages/mapgen-core/src/core", "packages/mapgen-core/src/engine"],
   "pathCoverage": [
     {
       "kind": "exact-path",
