@@ -1,7 +1,6 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
-import { GritProvider, type GritProviderRequirements } from "../../adapters/grit/provider/index.js";
 import type { HabitatConfig } from "../../config/index.js";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
 import { type RuleSelectionResult, selectRules } from "../../domains/rule-selection/index.js";
@@ -14,6 +13,7 @@ import {
   activeRuleSelectorFacts,
   factsForRuleIds,
 } from "../rule-registry/active-facts.js";
+import { SourceCheck } from "../source-check/index.js";
 import { executeSelectedRulesEffect } from "./execution.js";
 
 export type BaselineExpansionResult =
@@ -35,8 +35,7 @@ export function expandBaselinesEffect(
   | BaselineAuthority
   | CommandRunner
   | CommandExecutor
-  | GritProvider
-  | GritProviderRequirements
+  | SourceCheck
   | HabitatConfig
   | FileSystem.FileSystem
   | GitProvider

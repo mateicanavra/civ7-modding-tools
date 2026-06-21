@@ -37,3 +37,8 @@
     wait with no JSON output. This matches the current aggregate Habitat
     pattern-check boundary recorded by the static-inventory domino. This packet
     does not claim aggregate verify CLI closure until that boundary is repaired.
+  - After the current-tree `pattern-check` repair, `bun run habitat verify --json`
+    was rerun and interrupted after roughly 74s with no JSON output. The old
+    broad-Grit pattern-check failure is no longer the known cause; aggregate
+    verify still needs a focused runtime/target orchestration repair before this
+    task can close.

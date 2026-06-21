@@ -3,6 +3,7 @@ import { Layer } from "effect";
 import { GritProviderLive } from "../adapters/grit/provider/index.js";
 import { HabitatConfigLive } from "../config/index.js";
 import { BaselineAuthorityLive } from "../domains/baseline-authority/service.js";
+import { SourceCheckLive } from "../domains/source-check/index.js";
 import { StructuralCheckLive } from "../domains/structural-check/service.js";
 import { BiomeProviderLive } from "../providers/biome/index.js";
 import { CommandRunnerLive } from "../providers/command/index.js";
@@ -23,5 +24,6 @@ export const HabitatRuntimeLive = Layer.mergeAll(
   HuskyProviderLive,
   HabitatReporterLive,
   BaselineAuthorityLive,
+  SourceCheckLive,
   StructuralCheckLive
 );

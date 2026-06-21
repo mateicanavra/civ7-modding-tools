@@ -118,7 +118,7 @@ function isApprovedScanRoot(
   return true;
 }
 
-function pathsOverlap(candidate: string, declaredRoot: string): boolean {
+export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
   const normalizedCandidate = toRepoRelative(candidate);
   const normalizedRoot = toRepoRelative(declaredRoot);
   return (
