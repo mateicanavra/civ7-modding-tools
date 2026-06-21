@@ -1,6 +1,5 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { buildPlateTopology } from "@swooper/mapgen-core/lib/plates";
 
 import { foundationArtifacts } from "../artifacts.js";
 import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "../viz.js";
@@ -9,24 +8,6 @@ import { validatePlateTopologyArtifact, wrapFoundationValidateNoDims } from "./v
 
 const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 
-function validateTopologySymmetry(
-  plates: ReadonlyArray<{ id: number; neighbors: number[] }>
-): void {
-  const neighborSets = new Map<number, Set<number>>();
-  for (const p of plates) neighborSets.set(p.id, new Set(p.neighbors));
-
-  for (const p of plates) {
-    const s = neighborSets.get(p.id);
-    if (!s) continue;
-    for (const n of s) {
-      const back = neighborSets.get(n);
-      if (!back || !back.has(p.id)) {
-        throw new Error("[FoundationArtifact] Invalid foundation plateTopology neighbor symmetry.");
-      }
-    }
-  }
-}
-
 export default createStep(PlateTopologyStepContract, {
   artifacts: implementArtifacts([foundationArtifacts.plateTopology], {
     foundationPlateTopology: {
@@ -34,27 +15,19 @@ export default createStep(PlateTopologyStepContract, {
     },
   }),
   run: (context, config, ops, deps) => {
-    void config;
-    void ops;
-
+    // Plate adjacency is derived from the projected tile plate-id field via the
+    // compute-plate-topology op (tile-derived; see the op contract for the
+    // mesh-native follow-on note).
     const { width, height } = context.dimensions;
     const plates = deps.artifacts.foundationPlates.read(context);
-    const plateIds = plates.id;
 
-    let maxId = -1;
-    for (let i = 0; i < plateIds.length; i++) {
-      const v = plateIds[i] | 0;
-      if (v > maxId) maxId = v;
-    }
-    const plateCount = Math.max(0, maxId + 1);
-    if (plateCount <= 0) {
-      throw new Error("[FoundationArtifact] Invalid foundation plateTopology.plateCount.");
-    }
+    const { plateTopology } = ops.computePlateTopology(
+      { plateIds: plates.id, width, height },
+      config.computePlateTopology
+    );
+    const topologyPlates = plateTopology.plates;
 
-    const topologyPlates = buildPlateTopology(plateIds, width, height, plateCount);
-    validateTopologySymmetry(topologyPlates);
-
-    deps.artifacts.foundationPlateTopology.publish(context, { plateCount, plates: topologyPlates });
+    deps.artifacts.foundationPlateTopology.publish(context, plateTopology);
 
     const centroidPoints = pointsFromTileCentroids(topologyPlates);
     context.viz?.dumpPoints(context.trace, {
