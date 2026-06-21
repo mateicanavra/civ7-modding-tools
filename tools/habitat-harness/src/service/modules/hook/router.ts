@@ -56,7 +56,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "../../../providers/nx/index.js";
-import { prePushTargetNames } from "../../../providers/nx/targets.js";
+import { prePushTargetNamesForChangedPaths } from "../../../providers/nx/targets.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
@@ -427,7 +427,7 @@ function runPrePushWithBaseDecisionEffect(
       );
     }
     const nx = yield* NxProvider;
-    const targets = prePushTargetNames();
+    const targets = prePushTargetNamesForChangedPaths(changedPaths.paths);
     const request = { base, targets, head: "HEAD", excludeTaskDependencies: true };
     const argv = nx.affectedArgv(request);
     const startedAtMs = hookNow(runtime);

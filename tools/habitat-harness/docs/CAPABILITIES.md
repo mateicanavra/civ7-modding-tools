@@ -64,7 +64,9 @@ Root scripts also expose graph-owned entrypoints:
 - `bun run check:graph` runs affected package checks and structural validation
   without dependency build/test fanout.
 - `bun run habitat hook pre-push` runs changed-path hook source checks in
-  process, then affected package checks plus explicit validation targets.
+  process. Ordinary source changes then run affected package checks plus
+  explicit validation targets; Habitat artifact-only changes run Habitat
+  structural/source-check targets instead of generic product `check`.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
 - `bun run ci` runs the full repo-wide build, check, lint, test, and structural
   validation aggregate without re-entering `verify`.
