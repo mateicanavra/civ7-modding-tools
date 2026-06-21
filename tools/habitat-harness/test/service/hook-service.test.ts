@@ -5,6 +5,11 @@ import {
   type HookReportEvent,
   type HookRuntime,
 } from "../../src/domains/hook-runtime/runtime.js";
+import {
+  type CheckOptions,
+  type CheckReport,
+  makeFakeStructuralCheckLayer,
+} from "../../src/domains/structural-check/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
 import type { HabitatCommandResult } from "../../src/providers/command/types.js";
@@ -13,8 +18,9 @@ import { affectedArgv, makeFakeNxProviderLayer } from "../../src/providers/nx/in
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runHookService } from "../../src/service/modules/hook/router.js";
 
-const prePushAffectedTargets =
-  "check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns";
+const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
+const prePushNoChangedSourceCheck =
+  "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
 describe("Habitat hook service", () => {
   test("runs owned hook orchestration from service input", async () => {
@@ -27,8 +33,7 @@ describe("Habitat hook service", () => {
 
     expect(result).toEqual({
       exitCode: 0,
-      stdout:
-        "hook result: workstation check only; CI remains authoritative.\nhabitat hook pre-push: repo Nx affected base=HEAD~1\naffected ok\n",
+      stdout: `hook result: workstation check only; CI remains authoritative.\n${prePushNoChangedSourceCheck}habitat hook pre-push: repo Nx affected base=HEAD~1\naffected ok\n`,
       stderr: "",
     });
     expect(fake.calls).toEqual([]);
@@ -81,6 +86,7 @@ describe("Habitat hook service", () => {
     expect(gitCalls).toEqual([
       "symbolic-ref --quiet --short refs/remotes/origin/HEAD",
       "merge-base HEAD origin/main",
+      "diff --name-only -z abc123mergebase HEAD",
     ]);
   });
 
@@ -129,6 +135,7 @@ describe("Habitat hook service", () => {
 
     expect(result.exitCode).toBe(1);
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
+    expect(result.stdout).toContain(prePushNoChangedSourceCheck);
     expect(result.stdout).toContain("affected failed");
     expect(result.stderr).toContain("target failed");
   });
@@ -222,6 +229,10 @@ describe("Habitat hook service", () => {
       text: "hook result: workstation check only; CI remains authoritative.\n",
     });
     expect(events).toContainEqual({
+      channel: "stdout",
+      text: prePushNoChangedSourceCheck,
+    });
+    expect(events).toContainEqual({
       channel: "stderr",
       text: "target failed\n",
     });
@@ -238,6 +249,42 @@ describe("Habitat hook service", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("base=HEAD~1");
     expect(fake.calls).toEqual([]);
+  });
+
+  test("runs pre-push source checks over changed hook source paths", async () => {
+    const fake = makePrePushRuntime();
+    const checkRequests: CheckOptions[] = [];
+    const changedPath = "tools/habitat-harness/src/adapters/grit/runner.ts";
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer(),
+      makeFakeStructuralCheckLayer({
+        createReport: (options = {}) =>
+          Effect.sync(() => {
+            checkRequests.push(options);
+            return passingCheckReport(options.command?.serialized ?? "habitat check");
+          }),
+        expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("[source-check changed-path hook check]");
+    expect(checkRequests).toEqual([
+      expect.objectContaining({
+        tool: "source-check",
+        hookCheck: true,
+        staged: true,
+        stagedPaths: [changedPath],
+      }),
+    ]);
   });
 
   test("runs pre-commit through the in-process Habitat service client", async () => {
@@ -266,11 +313,13 @@ function runHookServiceInTest(
   input: Parameters<typeof runHookService>[0],
   options: Parameters<typeof runHookService>[1] = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
-  nx = nxLayer()
+  nx = nxLayer(),
+  structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>
 ) {
-  return Effect.runPromise(
-    runHookService(input, options).pipe(Effect.provide(Layer.merge(gitLayer, nx)))
-  );
+  const layer = structuralCheck
+    ? Layer.mergeAll(gitLayer, nx, structuralCheck)
+    : Layer.merge(gitLayer, nx);
+  return Effect.runPromise(runHookService(input, options).pipe(Effect.provide(layer)));
 }
 
 function commandResult(
@@ -384,4 +433,14 @@ function renderReported(events: HookReportEvent[], channel: HookReportEvent["cha
     .filter((event) => event.channel === channel)
     .map((event) => event.text)
     .join("");
+}
+
+function passingCheckReport(command: string): CheckReport {
+  return {
+    schemaVersion: 1,
+    command,
+    startedAt: "2026-06-21T00:00:00.000Z",
+    ok: true,
+    rules: [],
+  };
 }

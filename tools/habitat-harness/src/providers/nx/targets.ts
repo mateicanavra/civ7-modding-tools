@@ -45,5 +45,6 @@ export function verifyTargetNames(targetNames = workspaceGraphTargetNames()): re
 }
 
 export function prePushTargetNames(targetNames = workspaceGraphTargetNames()): readonly string[] {
-  return affectedCheckTargetNames(targetNames);
+  void targetNames;
+  return ["check", "validate:boundary-taxonomy", "validate:grit-patterns"];
 }

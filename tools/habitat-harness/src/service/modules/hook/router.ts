@@ -31,14 +31,21 @@ import {
   hookSourceCheckPaths,
   unstagedAmong,
 } from "../../../domains/hook-runtime/staged-worktree.js";
+import {
+  activeRuleHookCheckFacts,
+  activeRuleSourceFacts,
+  factsForRuleIds,
+} from "../../../domains/rule-registry/active-facts.js";
 import type { SourceCheck } from "../../../domains/source-check/index.js";
 import {
+  approvedScanRootsForRules,
   type CheckReport,
   checkCommandContext,
   type HookCheckSummary,
   hookCheckSummary,
   renderCheckReport,
   StructuralCheck,
+  stagedSourceCheckPaths,
 } from "../../../domains/structural-check/index.js";
 import { repoRoot } from "../../../lib/paths.js";
 import type { BiomeProvider } from "../../../providers/biome/index.js";
@@ -88,6 +95,11 @@ interface PreCommitSourceCheckState extends PreCommitState {
 type PreCommitStep<T> =
   | { readonly kind: "done"; readonly result: SpawnResult }
   | { readonly kind: "continue"; readonly state: T };
+type PrePushChangedPathsResult =
+  | { readonly kind: "available"; readonly paths: readonly string[] }
+  | { readonly kind: "unavailable"; readonly message: string };
+type ParsedHookCheckResult = Extract<HookCheckCommandResult, { readonly kind: "parsed" }>;
+type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
 
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
@@ -389,6 +401,31 @@ function runPrePushWithBaseDecisionEffect(
     const base = baseDecision.base;
     if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
     if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
+    const changedPaths = yield* prePushChangedPathsEffect(base);
+    if (changedPaths.kind === "unavailable") {
+      output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
+      return finalizePrePush(runtime, "affected-failed", {
+        exitCode: 1,
+        ...output.result(),
+      });
+    }
+    const hookSourcePaths = prePushHookSourceCheckPaths(changedPaths.paths);
+    if (hookSourcePaths.length > 0) {
+      const hookSourceCheck = yield* runPrePushHookSourceCheckEffect(runtime, hookSourcePaths);
+      output.writeStdout(
+        section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
+      );
+      if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
+        return finalizePrePush(runtime, "affected-failed", {
+          exitCode: hookSourceCheck.exitCode,
+          ...output.result(),
+        });
+      }
+    } else {
+      output.writeStdout(
+        "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n"
+      );
+    }
     const nx = yield* NxProvider;
     const targets = prePushTargetNames();
     const request = { base, targets, head: "HEAD", excludeTaskDependencies: true };
@@ -407,6 +444,58 @@ function runPrePushWithBaseDecisionEffect(
       exitCode: result.exitCode,
       ...output.result(),
     });
+  });
+}
+
+function prePushChangedPathsEffect(
+  base: string
+): Effect.Effect<PrePushChangedPathsResult, never, GitProvider | GitProviderRequirements> {
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    const result = yield* git
+      .command(["diff", "--name-only", "-z", base, "HEAD"], { cwd: repoRoot })
+      .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    if (!result || result.exit.code !== 0) {
+      return {
+        kind: "unavailable",
+        message: `could not read changed paths for base ${base}; refusing to skip hook source checks.`,
+      };
+    }
+    return { kind: "available", paths: result.stdout.text.split("\0").filter(Boolean) };
+  });
+}
+
+function prePushHookSourceCheckPaths(changedPaths: readonly string[]): readonly string[] {
+  const hookRuleIds = activeRuleHookCheckFacts.map((rule) => rule.id);
+  const hookSourceRules = factsForRuleIds(activeRuleSourceFacts, hookRuleIds);
+  return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules));
+}
+
+function runPrePushHookSourceCheckEffect(
+  runtime: HookRuntime,
+  changedPaths: readonly string[]
+): Effect.Effect<PrePushHookSourceCheckResult, never, HookCheckRequirements> {
+  return Effect.gen(function* () {
+    const structuralCheck = yield* StructuralCheck;
+    const argv = ["--hook-check", "--tool", "source-check", "--json"];
+    const startedAtMs = hookNow(runtime);
+    const report = yield* structuralCheck.createReport({
+      tool: "source-check",
+      hookCheck: true,
+      staged: true,
+      stagedPaths: changedPaths,
+      command: checkCommandContext(argv),
+    });
+    const summary = hookCheckSummary(report);
+    const result = {
+      ...spawnResultFromCheckReport(report),
+      kind: "parsed" as const,
+      report,
+      summary,
+    };
+    const exitCode = checkSummaryAllowsNextStage(result) ? 0 : 1;
+    recordInProcessHookCheck(runtime, "source-check", argv, startedAtMs, exitCode);
+    return { ...result, exitCode };
   });
 }
 

@@ -54,15 +54,17 @@ Root scripts also expose graph-owned entrypoints:
   not hidden inside root lint.
 - `@internal/habitat-harness:validate:boundary-taxonomy` runs the current
   workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
-  target. It is part of root `bun run check:graph`, CI, and Habitat
-  verify/pre-push target planning, not package unit tests.
+  target. It is part of root `bun run check:graph`, CI, Habitat verify, and
+  pre-push workstation target planning, not package unit tests.
 - `@internal/habitat-harness:validate:grit-patterns` runs checked-in Habitat
   Grit pattern fixture validation through native `grit patterns test`. It is
-  part of root `bun run check:graph`, CI, and Habitat verify/pre-push target
-  planning, not package unit tests.
+  part of root `bun run check:graph`, CI, Habitat verify, and pre-push
+  workstation target planning, not package unit tests.
 - `bun run check` runs the diagnostic Habitat structural aggregate.
 - `bun run check:graph` runs affected package checks and structural validation
   without dependency build/test fanout.
+- `bun run habitat hook pre-push` runs changed-path hook source checks in
+  process, then affected package checks plus explicit validation targets.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
 - `bun run ci` runs the full repo-wide build, check, lint, test, and structural
   validation aggregate without re-entering `verify`.
