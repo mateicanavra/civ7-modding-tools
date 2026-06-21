@@ -27,6 +27,7 @@ import {
   activeRuleCommandExecutionFacts,
   activeRuleFileLayerFacts,
   activeRuleGraphFacts,
+  activeRuleHookCheckFacts,
   activeRuleSourceFacts,
   factsForRuleIds,
 } from "../rule-registry/active-facts.js";
@@ -55,13 +56,18 @@ export interface RuleExecutionRecord {
 
 export function rulesForExecution(
   selectedRules: readonly RuleSelectorFacts[],
-  _options: {
+  options: {
+    hookCheck?: boolean;
     sourceRuleFacts?: readonly RuleSourceFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
   } = {}
 ): RuleSelectorFacts[] {
-  return [...selectedRules];
+  if (!options.hookCheck) return [...selectedRules];
+  const hookRuleIds = new Set(activeRuleHookCheckFacts.map((rule) => rule.id));
+  return selectedRules.filter(
+    (rule) => rule.ownerTool !== "source-check" || hookRuleIds.has(rule.id)
+  );
 }
 
 export function stagedSourceCheckPaths(
