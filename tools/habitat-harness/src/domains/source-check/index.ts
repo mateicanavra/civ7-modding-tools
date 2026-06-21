@@ -8,9 +8,7 @@ export {
   stagedSourceScanRoots,
 } from "./scan-roots.js";
 export {
-  makeFakeSourceCheckLayer,
   SourceCheck,
-  SourceCheckLive,
   type SourceCheckOptions,
   type SourceCheckRequirements,
   type SourceCheckService,
