@@ -99,28 +99,27 @@ function readSourceFiles(scanRoots: readonly string[]) {
       sortedUnique(paths.flat()),
       (relativePath) =>
         readText(path.join(repoRoot, relativePath)).pipe(
-          Effect.map(
-            (text): SourceFileRecord => ({
-              path: relativePath,
-              text,
-              ...(isTsLikeFile(relativePath)
-                ? {
-                    sourceFile: ts.createSourceFile(
-                      relativePath,
-                      text,
-                      ts.ScriptTarget.Latest,
-                      true
-                    ),
-                  }
-                : {}),
-            })
-          ),
+          Effect.map((text) => sourceFileRecord(relativePath, text)),
           Effect.catchAll(() => Effect.succeed(undefined))
         ),
       { concurrency: 16 }
     );
     return files.filter((file): file is SourceFileRecord => Boolean(file));
   });
+}
+
+function sourceFileRecord(relativePath: string, text: string): SourceFileRecord {
+  if (!isTsLikeFile(relativePath)) return { path: relativePath, text };
+
+  let sourceFile: ts.SourceFile | undefined;
+  return {
+    path: relativePath,
+    text,
+    get sourceFile() {
+      sourceFile ??= ts.createSourceFile(relativePath, text, ts.ScriptTarget.Latest, true);
+      return sourceFile;
+    },
+  };
 }
 
 function collectSourcePaths(
