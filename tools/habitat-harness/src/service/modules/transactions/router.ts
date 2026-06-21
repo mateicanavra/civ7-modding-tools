@@ -26,7 +26,7 @@ export const transactionsRouter = {
 
 export const router = transactionsRouter;
 
-export function runTransactionApplyService(
+function runTransactionApplyService(
   input: unknown,
   options: TransactionsServiceModuleContext = {}
 ) {

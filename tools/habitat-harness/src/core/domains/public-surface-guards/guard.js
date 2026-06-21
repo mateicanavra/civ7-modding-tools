@@ -455,7 +455,7 @@ function checkServiceArchitecture() {
 
     const routerLeaks = matchesIn(
       routerText,
-      /from\s+["']\.\/run\.js["']|\.router\s*\(|\bManagedRuntime\b|\bLayer\.succeed\b/g
+      /from\s+["']\.\/run\.js["']|\.router\s*\(|\bManagedRuntime\b|\bLayer\.succeed\b|export\s+(?:async\s+)?function\s+run[A-Z]\w*Service\b|export\s+const\s+run[A-Z]\w*Service\b/g
     ).map((line) => `${routerFile}:${line}`);
     if (!routerText.includes(".effect(")) {
       routerLeaks.push(`${routerFile}: missing procedure .effect implementation`);

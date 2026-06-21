@@ -3,13 +3,15 @@ import type {
   ApplyTransactionInput,
 } from "@internal/habitat-harness/core/domains/pattern-governance/index";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import { runFixService } from "@internal/habitat-harness/service/modules/fix/router";
+import type { FixServiceModuleContext } from "@internal/habitat-harness/service/modules/fix/context";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/substrate/providers/command/index";
 import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
 import { Effect } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 
 describe("Habitat fix service", () => {
@@ -28,14 +30,11 @@ describe("Habitat fix service", () => {
     });
 
     const result = await Effect.runPromise(
-      runFixService(
-        { kind: "dry-run-intent" },
-        {
-          admissions: [applyAdmission()],
-          transactionInputs: [transactionInput()],
-          worktree: cleanWorktree(),
-        }
-      ).pipe(Effect.provide(layer))
+      runFixProcedure({
+        admissions: [applyAdmission()],
+        transactionInputs: [transactionInput()],
+        worktree: cleanWorktree(),
+      }).pipe(Effect.provide(layer))
     );
 
     expect(result).toEqual({ exitCode: 0, stdout: "dry run ok\n", stderr: "" });
@@ -49,13 +48,13 @@ describe("Habitat fix service", () => {
 
   test("runs live-write intent into protected-zone refusal", async () => {
     const result = await Effect.runPromise(
-      runFixService(
-        { kind: "live-write-intent" },
+      runFixProcedure(
         {
           admissions: [applyAdmission()],
           transactionInputs: [transactionInput()],
           worktree: cleanWorktree(),
-        }
+        },
+        { kind: "live-write-intent" }
       )
     );
 
@@ -67,9 +66,7 @@ describe("Habitat fix service", () => {
   });
 
   test("refuses before planning when no apply admissions are present", async () => {
-    const result = await Effect.runPromise(
-      runFixService({ kind: "dry-run-intent" }, { admissions: [] })
-    );
+    const result = await Effect.runPromise(runFixProcedure({ admissions: [] }));
 
     expect(result).toMatchObject({
       exitCode: 1,
@@ -92,6 +89,16 @@ describe("Habitat fix service", () => {
     });
   });
 });
+
+function runFixProcedure(
+  context: FixServiceModuleContext,
+  input = { kind: "dry-run-intent" as const }
+) {
+  return Effect.gen(function* () {
+    const runFix = fixRouter.run.callable({ context: { fix: context } });
+    return yield* withFiberContext(() => runFix(input));
+  });
+}
 
 function applyAdmission(overrides: Partial<ApplyAdmission> = {}): ApplyAdmission {
   return {

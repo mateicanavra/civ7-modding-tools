@@ -12,9 +12,10 @@ import {
 } from "@internal/habitat-harness/core/domains/transformation-transaction/index";
 import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
 import { Effect } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
-import { runTransactionApplyService } from "../transactions/router.js";
+import { transactionsRouter } from "../transactions/router.js";
 import { type FixServiceModuleContext, module } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";
 import { FixCommandIntentSchema } from "./contract.js";
@@ -27,7 +28,7 @@ export const fixRouter = {
 
 export const router = fixRouter;
 
-export function runFixService(input: FixServiceRunInput, options: FixServiceModuleContext = {}) {
+function runFixService(input: FixServiceRunInput, options: FixServiceModuleContext = {}) {
   return Effect.gen(function* () {
     const parsed = Value.Parse(FixCommandIntentSchema, input);
     const admissions = Value.Parse(
@@ -40,12 +41,15 @@ export function runFixService(input: FixServiceRunInput, options: FixServiceModu
     }
 
     const transactionInputs = options.transactionInputs ?? activeApplyTransactionInputs();
+    const applyTransaction = transactionsRouter.apply.callable({
+      context: { transactions: { transactionInputs } },
+    });
     const records = yield* Effect.forEach(
       admissions,
       (admission) =>
-        runTransactionApplyService(transactionRequest(parsed, admission, options.worktree), {
-          transactionInputs,
-        }),
+        withFiberContext(() =>
+          applyTransaction(transactionRequest(parsed, admission, options.worktree))
+        ),
       { concurrency: 1 }
     );
     const rendered = records.map(renderPatternApply);

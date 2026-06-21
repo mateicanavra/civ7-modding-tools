@@ -9,7 +9,9 @@ import {
   makeFakeStructuralCheckLayer,
 } from "@internal/habitat-harness/core/domains/structural-check/index";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import { runHookService } from "@internal/habitat-harness/service/modules/hook/router";
+import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
+import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   type BiomeCommandRequest,
@@ -31,6 +33,7 @@ import {
   runTargetArgv,
 } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Effect, Layer } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 
 const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
@@ -681,8 +684,8 @@ describe("Habitat hook service", () => {
 });
 
 function runHookServiceInTest(
-  input: Parameters<typeof runHookService>[0],
-  options: Parameters<typeof runHookService>[1] = {},
+  input: HookServiceRunInput,
+  options: HookServiceModuleContext = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
   structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>,
@@ -692,7 +695,12 @@ function runHookServiceInTest(
   const layer = structuralCheck
     ? Layer.mergeAll(gitLayer, nx, structuralCheck, biome, graphite)
     : Layer.mergeAll(gitLayer, nx, biome, graphite);
-  return Effect.runPromise(runHookService(input, options).pipe(Effect.provide(layer)));
+  return Effect.runPromise(
+    Effect.gen(function* () {
+      const runHook = hookRouter.run.callable({ context: { hook: options } });
+      return yield* withFiberContext(() => runHook(input));
+    }).pipe(Effect.provide(layer))
+  );
 }
 
 function commandResult(

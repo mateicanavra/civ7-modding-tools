@@ -1,5 +1,6 @@
 import path from "node:path";
-import { runGraphService } from "@internal/habitat-harness/service/modules/graph/router";
+import type { GraphServiceRunInput } from "@internal/habitat-harness/service/modules/graph/contract";
+import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
 import { CommandUnavailable } from "@internal/habitat-harness/substrate/errors/index";
 import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
@@ -14,6 +15,7 @@ import {
   NxProvider,
 } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Effect, Layer } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
@@ -46,7 +48,7 @@ describe("Habitat graph service", () => {
     );
 
     const result = await Effect.runPromise(
-      runGraphService({ json: true }).pipe(Effect.provide(layer))
+      runGraphProcedure({ json: true }).pipe(Effect.provide(layer))
     );
 
     expect(result).toEqual({
@@ -83,7 +85,7 @@ describe("Habitat graph service", () => {
     );
 
     await expect(
-      Effect.runPromise(runGraphService({ json: true }).pipe(Effect.provide(layer)))
+      Effect.runPromise(runGraphProcedure({ json: true }).pipe(Effect.provide(layer)))
     ).rejects.toThrow("Habitat graph service failed.");
   });
 
@@ -110,7 +112,7 @@ describe("Habitat graph service", () => {
       makeFakePlatformFileSystemLayer(events)
     );
 
-    const result = await Effect.runPromise(runGraphService({}).pipe(Effect.provide(layer)));
+    const result = await Effect.runPromise(runGraphProcedure({}).pipe(Effect.provide(layer)));
 
     expect(result).toEqual({
       exitCode: 2,
@@ -150,7 +152,7 @@ describe("Habitat graph service", () => {
       makeFakePlatformFileSystemLayer(events)
     );
 
-    const result = await Effect.runPromise(runGraphService({}).pipe(Effect.provide(layer)));
+    const result = await Effect.runPromise(runGraphProcedure({}).pipe(Effect.provide(layer)));
 
     expect(result).toEqual({
       exitCode: 127,
@@ -160,3 +162,10 @@ describe("Habitat graph service", () => {
     expect(events).toEqual(["mkdtemp:/tmp/habitat-graph-fake", "remove:/tmp/habitat-graph-fake"]);
   });
 });
+
+function runGraphProcedure(input: GraphServiceRunInput) {
+  return Effect.gen(function* () {
+    const runGraph = graphRouter.run.callable({ context: {} });
+    return yield* withFiberContext(() => runGraph(input));
+  });
+}

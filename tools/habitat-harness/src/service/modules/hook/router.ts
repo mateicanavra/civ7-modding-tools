@@ -141,10 +141,7 @@ export const hookRouter = {
 
 export const router = hookRouter;
 
-export function runHookService(
-  input: HookServiceRunInput = {},
-  options: HookServiceModuleContext = {}
-) {
+function runHookService(input: HookServiceRunInput = {}, options: HookServiceModuleContext = {}) {
   if (input.name === "pre-push") {
     const runtime = options.runtime ?? {};
     return Effect.gen(function* () {
