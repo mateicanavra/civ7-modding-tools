@@ -39,6 +39,7 @@ const DerivePlacementInputsContract = defineStep({
     requires: [
       morphologyArtifacts.topography,
       hydrologyHydrographyArtifacts.hydrography,
+      hydrologyHydrographyArtifacts.riverNetworkMetrics,
       hydrologyHydrographyArtifacts.lakePlan,
       ecologyArtifacts.biomeClassification,
       ecologyArtifacts.biomeBindings,

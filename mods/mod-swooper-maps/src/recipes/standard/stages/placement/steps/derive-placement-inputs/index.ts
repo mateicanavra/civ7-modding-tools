@@ -27,6 +27,10 @@ export default createStep(DerivePlacementInputsContract, {
   run: (context, config, ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
+    // slopeClass is a Hydrology river-network diagnostic owned by the
+    // riverNetworkMetrics artifact, not hydrography. Read it from its canonical
+    // source (published by the upstream hydrology-hydrography `lakes` step).
+    const riverNetworkMetrics = deps.artifacts.riverNetworkMetrics.read(context);
     // Lake placement constraints use the deterministic Hydrology plan. Engine
     // projection artifacts remain diagnostics for materialization drift.
     const lakePlan = deps.artifacts.lakePlan.read(context);
@@ -43,7 +47,7 @@ export default createStep(DerivePlacementInputsContract, {
       hydrography: {
         riverClass: hydrography.riverClass as Uint8Array,
         discharge: hydrography.discharge as Float32Array,
-        slopeClass: hydrography.slopeClass as Uint8Array,
+        slopeClass: riverNetworkMetrics.slopeClass as Uint8Array,
       },
       lakePlan: { lakeMask: lakePlan.lakeMask as Uint8Array },
       biomeClassification: {
