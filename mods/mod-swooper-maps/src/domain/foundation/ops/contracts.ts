@@ -8,6 +8,7 @@ import ComputeMantlePotentialContract from "./compute-mantle-potential/contract.
 import ComputeMeshContract from "./compute-mesh/contract.js";
 import ComputePlateGraphContract from "./compute-plate-graph/contract.js";
 import ComputePlateMotionContract from "./compute-plate-motion/contract.js";
+import ComputePlateTopologyContract from "./compute-plate-topology/contract.js";
 import ComputePlatesTensorsContract from "./compute-plates-tensors/contract.js";
 import ComputeSegmentEventsContract from "./compute-segment-events/contract.js";
 import ComputeTectonicHistoryRollupsContract from "./compute-tectonic-history-rollups/contract.js";
@@ -34,6 +35,7 @@ export const contracts = {
   computeTracerAdvection: ComputeTracerAdvectionContract,
   computeTectonicProvenance: ComputeTectonicProvenanceContract,
   computePlatesTensors: ComputePlatesTensorsContract,
+  computePlateTopology: ComputePlateTopologyContract,
 } as const;
 
 export default contracts;

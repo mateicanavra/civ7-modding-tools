@@ -9,6 +9,7 @@ import computeMantlePotential from "./compute-mantle-potential/index.js";
 import computeMesh from "./compute-mesh/index.js";
 import computePlateGraph from "./compute-plate-graph/index.js";
 import computePlateMotion from "./compute-plate-motion/index.js";
+import computePlateTopology from "./compute-plate-topology/index.js";
 import computePlatesTensors from "./compute-plates-tensors/index.js";
 import computeSegmentEvents from "./compute-segment-events/index.js";
 import computeTectonicHistoryRollups from "./compute-tectonic-history-rollups/index.js";
@@ -36,6 +37,7 @@ const implementations = {
   computeTracerAdvection,
   computeTectonicProvenance,
   computePlatesTensors,
+  computePlateTopology,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
@@ -52,6 +54,7 @@ export {
   computePlateGraph,
   computePlateMotion,
   computePlatesTensors,
+  computePlateTopology,
   computeSegmentEvents,
   computeTectonicHistoryRollups,
   computeTectonicProvenance,
