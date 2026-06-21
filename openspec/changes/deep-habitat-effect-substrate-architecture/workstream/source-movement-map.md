@@ -21,7 +21,7 @@ find tools/habitat-harness/src -type f | sort
 | `src/bin/habitat.ts` | 1 | `src/bin/habitat.ts` | preserve host adapter | Oclif/bootstrap edge only; package metadata reads stay host-local. |
 | `src/base/HabitatCommand.ts` | 1 | `src/commands/base/HabitatCommand.ts` | move | Base command remains host adapter; it may call runtime runners but must not own domain policy. |
 | `src/commands/*.ts` | 6 | `src/commands/*.ts` | preserve host adapters | Commands parse flags/render output and call one runtime-backed program per command. |
-| `src/lib/effect-runtime.ts` | 1 | `src/runtime/run.ts`, `src/runtime/layers.ts` | move and narrow | `Effect.run*` remains only at named runtime edges; NodeContext-only layer grows into Habitat live layer assembly. |
+| `src/lib/effect-runtime.ts` | 1 | `src/substrate/runtime/layers.ts`, `src/service/runtime/layers.ts` | split and delete runner | NodeContext-only layer grows into Habitat live layer assembly. The generic runner is drained; execution belongs at service runtime, host/framework entrypoints, and tests with explicit fake layers. |
 | `src/lib/paths.ts` | 1 | `src/config/paths.ts` | move | Root/path derivation becomes config source, not ambient module global for domains. |
 | `src/lib/workspace-tools.ts` | 1 | `src/providers/workspace-tools/**`, `src/providers/command/**` | split and delete sync helper | Keep logical tool metadata; delete `materializeHabitatCommand()` after callers use provider effects. |
 | `src/lib/spawn.ts` | 1 | `src/providers/command/**` | collapse | General process execution becomes `CommandRunner`; direct `spawnSync` is not retained. |

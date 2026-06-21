@@ -27,6 +27,7 @@ to run a program directly may do so at the test edge with explicit fake layers.
 
 - Do not change verify receipt schemas, CLI output, affected-target execution,
   or base-resolution semantics.
-- Do not remove the substrate runtime bridge itself in this slice; live service
-  runtime assembly and generic provider tests still use explicit runtime/test
-  edges.
+- Do not remove the substrate runtime runner in this slice; that follow-on is
+  owned by `deep-habitat-effect-substrate-runtime-runner-drain`, which later
+  deletes the generic runner after provider tests move to explicit test-edge
+  execution.

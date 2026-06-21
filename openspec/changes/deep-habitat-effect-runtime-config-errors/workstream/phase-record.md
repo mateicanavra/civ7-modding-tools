@@ -31,7 +31,9 @@
 - `bun run openspec:validate` passed: 269 items.
 - `git diff --check` passed.
 - `rg "Effect\\.run(Sync|Promise|Fork|Callback)|runPromise\\(" tools/habitat-harness/src -n`
-  found only `src/runtime/run.ts`.
+  found only the then-current runtime runner. The follow-on
+  `deep-habitat-effect-substrate-runtime-runner-drain` slice later deletes that
+  runner and leaves no source `runHabitatEffect` bridge.
 - `/opt/homebrew/bin/timeout 45s bun run habitat:check -- --json --tool command-check`
   passed in about 2s with no `baseline-integrity` built-in; baseline integrity
   is now explicit via `--baseline-integrity`, `--base`, baseline authoring, or

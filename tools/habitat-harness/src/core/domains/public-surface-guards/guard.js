@@ -38,7 +38,6 @@ const allowedRuntimeEdges = new Set([
   "tools/habitat-harness/src/core/domains/rule-registry/load.ts",
   "tools/habitat-harness/src/core/domains/workspace-graph-integration/diff.ts",
   "tools/habitat-harness/src/core/domains/workspace-graph-integration/path.ts",
-  "tools/habitat-harness/src/substrate/runtime/run.ts",
   "tools/habitat-harness/src/service/impl.ts",
 ]);
 
@@ -341,6 +340,7 @@ function checkDeletedCompatibilityRoots() {
     "tools/habitat-harness/src/core/rules/patterns",
     "tools/habitat-harness/src/core/rules/registry",
     "tools/habitat-harness/src/substrate/errors/domain-errors.ts",
+    "tools/habitat-harness/src/substrate/runtime/run.ts",
     "tools/habitat-harness/src/adapters",
   ]) {
     if (fileExists(file)) {

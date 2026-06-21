@@ -127,7 +127,11 @@ Effect has been introduced, but mostly as a Grit adapter island:
 
 - `tools/habitat-harness/package.json` now depends on `effect`,
   `@effect/platform`, and `@effect/platform-node`.
-- `src/lib/effect-runtime.ts` centralizes one `runHabitatEffect` edge.
+- Historical `src/lib/effect-runtime.ts`/`src/substrate/runtime/run.ts`
+  centralized one `runHabitatEffect` edge. The current stack drains that generic
+  runner; substrate runtime exports layers only, and execution belongs at
+  service runtime, host/framework entrypoints, and tests with explicit fake
+  layers.
 - `src/lib/habitat-process.ts` defines `HabitatProcess` as a Context/Layer
   service and uses `@effect/platform/Command`.
 - `src/adapters/grit/request.ts` uses `Effect.acquireRelease` for fresh Grit
@@ -188,7 +192,8 @@ Repair demand:
 - Redesign Habitat around a single Effect runtime boundary beneath Oclif/Husky.
 - Move fallible services into Effect requirements: command runner, Git, FS,
   clock, config, reporter, workspace graph, baseline store, vendor providers.
-- Ban library-local `Effect.run*` except approved runtime adapters.
+- Ban library-local `Effect.run*` except approved service runtime,
+  host/framework, and test edges.
 
 Proof gate:
 

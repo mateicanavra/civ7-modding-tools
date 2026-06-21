@@ -13,7 +13,7 @@
 | Severity | Finding | Disposition |
 |---|---|---|
 | P1 | Packet was not implementation-ready for Effect boundaries; it lacked service contracts, error families, Layers, fake Layers, and named domain consumers. | Repaired in `workstream/domain-provider-ownership.md` with provider catalog, domain catalog, error ownership, runtime edge contract, service contract rules, config/resource rules, and direct-use zones. |
-| P1 | Runtime boundary did not explicitly ban library-local `Effect.run*` or define the single run edge. | Repaired in `workstream/domain-provider-ownership.md` and linked from `design.md`; implementation packets must keep `Effect.run*` in host adapters, tests, and `src/runtime/**` only. |
+| P1 | Runtime boundary did not explicitly ban library-local `Effect.run*` or define execution edges. | Repaired in `workstream/domain-provider-ownership.md` and linked from `design.md`; implementation packets must keep `Effect.run*` at service runtime, host/framework entrypoints, and tests only. |
 | P1 | Command, workspace-tools, and Git were entangled and needed separate provider contracts. | Repaired in `workstream/domain-provider-ownership.md`; `CommandRunner`, `WorkspaceToolProvider`, and `GitProvider` are separate services with distinct ownership. |
 | P1 | Config and resource/scope boundaries were too vague for current fs/env/time/temp/cache IO. | Repaired in `workstream/domain-provider-ownership.md`; `HabitatConfig`, `HabitatFileSystem`, `HabitatClock`, and `ResourceScope` contracts are explicit. |
 | P1 | Vendor providers needed exact ownership splits. | Repaired in `workstream/domain-provider-ownership.md`; Grit, Biome, Nx, Husky, Reporter, Git, command, fs, clock, and workspace-tools owners are specified. |

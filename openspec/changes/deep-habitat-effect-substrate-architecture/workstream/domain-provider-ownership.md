@@ -18,7 +18,7 @@ Effect.Effect<Success, HabitatError, Requirements>
 
 Allowed `Effect.run*` zones:
 
-- `src/runtime/**`
+- `src/service/impl.ts` and `src/service/runtime/**`
 - `src/commands/**`
 - `src/bin/**`
 - `src/generators/**`
@@ -36,12 +36,13 @@ Forbidden `Effect.run*` zones after migration:
 Current known runtime-edge violations that later source packets must collapse:
 
 - `src/lib/workspace-tools.ts` uses `Effect.runSync` inside a reusable helper.
-- `src/lib/effect-runtime.ts` is the current runtime helper but lives under
-  `src/lib/**`.
 
-The architecture target is one named runtime edge: host adapters call
-`src/runtime/run.ts`; domains and providers return Effect programs; tests use
-test layers.
+The architecture target is explicit execution at real edges: substrate runtime
+exports `HabitatSubstrateLive`, service runtime composes the service
+implementer over service context layers, host/framework entrypoints can execute
+service programs, and tests run programs with explicit fake layers. Domains,
+providers, and resources return Effect programs; the generic runtime runner is
+not an accepted end-state API.
 
 ## Service Contract Rules
 
