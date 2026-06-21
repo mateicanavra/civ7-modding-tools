@@ -56,7 +56,10 @@ export function createCheckReportEffect(
       selectedRuleIds: selection.rules.map((rule) => rule.id),
     });
 
-    const selectedRules = rulesForExecution(selection.rules, options);
+    const selectedRules = rulesForExecution(selection.rules, {
+      ...options,
+      selection: request.selectors,
+    });
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
     const reportsByRuleId = factsByRuleId(factsForRuleIds(activeRuleReportFacts, selectedRuleIds));
     const baselineInputsByRuleId = factsByRuleId(baselineContractInputs(selectedRuleIds));

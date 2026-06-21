@@ -38,6 +38,7 @@ import type {
   RuleSelectorFacts,
   RuleSourceFacts,
 } from "../rule-registry/index.js";
+import type { RuleSelection } from "../rule-selection/index.js";
 import {
   approvedSourceScanRootsForRules,
   SourceCheck,
@@ -57,17 +58,27 @@ export interface RuleExecutionRecord {
 export function rulesForExecution(
   selectedRules: readonly RuleSelectorFacts[],
   options: {
+    selection?: RuleSelection;
     hookCheck?: boolean;
     sourceRuleFacts?: readonly RuleSourceFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
   } = {}
 ): RuleSelectorFacts[] {
-  if (!options.hookCheck) return [...selectedRules];
+  const rules = shouldUseDefaultLocalLane(options)
+    ? selectedRules.filter((rule) => defaultLocalRuleTools.has(rule.ownerTool))
+    : [...selectedRules];
+  if (!options.hookCheck) return rules;
   const hookRuleIds = new Set(activeRuleHookCheckFacts.map((rule) => rule.id));
-  return selectedRules.filter(
-    (rule) => rule.ownerTool !== "source-check" || hookRuleIds.has(rule.id)
-  );
+  return rules.filter((rule) => rule.ownerTool !== "source-check" || hookRuleIds.has(rule.id));
+}
+
+const defaultLocalRuleTools = new Set(["command-check", "file-layer", "habitat", "source-check"]);
+
+function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?: boolean }) {
+  if (options.staged) return false;
+  const selection = options.selection ?? {};
+  return !selection.owner && !selection.rule && !selection.tool;
 }
 
 export function stagedSourceCheckPaths(
