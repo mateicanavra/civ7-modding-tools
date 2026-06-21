@@ -1,6 +1,6 @@
 import path from "node:path";
 import { type Tree, writeJson } from "@nx/devkit";
-import { type WriteProjectScaffoldDecision } from "../scaffolding/schema.ts";
+import { type WriteProjectScaffoldDecision } from "../../domains/scaffolding/index.ts";
 
 export function writeProjectScaffold(tree: Tree, decision: WriteProjectScaffoldDecision): void {
   const options = decision.request;

@@ -1,17 +1,13 @@
 import path from "node:path";
-import { type Tree } from "@nx/devkit";
 import { Value } from "typebox/value";
-import { scaffoldRefusal } from "../scaffolding/refusal.ts";
+import { productAuthoringFields, productAuthoringRefusal, scaffoldRefusal } from "./refusals.ts";
 import {
   type ProjectScaffoldDecision,
   ProjectScaffoldDecisionSchema,
+  type ProjectScaffoldInput,
+  ProjectScaffoldInputSchema,
   type SupportedProjectKind,
   SupportedProjectKindSchema,
-} from "../scaffolding/schema.ts";
-import { findPackageNameCollision } from "./package-scan.ts";
-import {
-  type HabitatProjectGeneratorOptions,
-  HabitatProjectGeneratorOptionsSchema,
 } from "./schema.ts";
 
 const PROJECT_KIND_CONTRACTS = {
@@ -22,11 +18,27 @@ const PROJECT_KIND_CONTRACTS = {
   },
 } as const;
 
+export interface ProjectScaffoldHostFacts {
+  readonly rootHasChildren: (root: string) => boolean;
+  readonly packageNameCollision: (packageName: string, root: string) => string | null;
+}
+
 export function decideProjectScaffold(
-  tree: Tree,
-  rawOptions: HabitatProjectGeneratorOptions
+  rawInput: ProjectScaffoldInput,
+  facts: ProjectScaffoldHostFacts
 ): ProjectScaffoldDecision {
-  const parsed = Value.Parse(HabitatProjectGeneratorOptionsSchema, rawOptions);
+  const authoringFields = productAuthoringFields(rawInput);
+  if (authoringFields.length > 0) {
+    return {
+      kind: "refuse-scaffold",
+      refusal: productAuthoringRefusal({
+        surface: "project",
+        fields: authoringFields,
+      }),
+    };
+  }
+
+  const parsed = Value.Parse(ProjectScaffoldInputSchema, rawInput);
   const kind = normalizeProjectKind(parsed.kind);
   if (kind === null) return unsupportedProjectKindDecision(parsed.kind);
 
@@ -53,7 +65,7 @@ export function decideProjectScaffold(
       retryCondition: "Retry with the canonical package name or omit the packageName option.",
     });
   }
-  if (tree.exists(root) && tree.children(root).length > 0) {
+  if (facts.rootHasChildren(root)) {
     return refuse("non-empty-root", {
       blockedAction: `create ${kind} project '${name}'`,
       requestClass: "supported-project-scaffold",
@@ -62,7 +74,7 @@ export function decideProjectScaffold(
     });
   }
 
-  const packageNameCollision = findPackageNameCollision(tree, packageName, root);
+  const packageNameCollision = facts.packageNameCollision(packageName, root);
   if (packageNameCollision) {
     return refuse("package-name-collision", {
       blockedAction: `create ${kind} project '${name}'`,

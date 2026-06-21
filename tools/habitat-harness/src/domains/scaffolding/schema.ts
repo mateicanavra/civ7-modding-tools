@@ -13,6 +13,7 @@ export type SupportedProjectKind = Static<typeof SupportedProjectKindSchema>;
 export const ScaffoldingRequestClassSchema = Type.Union([
   Type.Literal("supported-project-scaffold"),
   Type.Literal("unsupported-project-kind"),
+  Type.Literal("unsupported-product-authoring"),
   Type.Literal("pattern-candidate-draft"),
   Type.Literal("active-pattern-registration"),
 ]);
@@ -21,6 +22,7 @@ export type ScaffoldingRequestClass = Static<typeof ScaffoldingRequestClassSchem
 
 export const ScaffoldingRefusalReasonSchema = Type.Union([
   Type.Literal("unsupported-project-kind"),
+  Type.Literal("unsupported-product-authoring"),
   Type.Literal("candidate-collision"),
   Type.Literal("registered-manifest-missing"),
   Type.Literal("registered-manifest-rejected"),
@@ -47,6 +49,18 @@ export const ScaffoldRefusalSchema = Type.Object(
 );
 
 export type ScaffoldRefusal = Static<typeof ScaffoldRefusalSchema>;
+
+export const ProjectScaffoldInputSchema = Type.Object(
+  {
+    name: NonEmptyStringSchema,
+    kind: NonEmptyStringSchema,
+    packageName: Type.Optional(NonEmptyStringSchema),
+    directory: Type.Optional(NonEmptyStringSchema),
+  },
+  { additionalProperties: true }
+);
+
+export type ProjectScaffoldInput = Static<typeof ProjectScaffoldInputSchema>;
 
 export const ProjectScaffoldRequestSchema = Type.Object(
   {
@@ -89,3 +103,28 @@ export const ProjectScaffoldDecisionSchema = Type.Union([
 ]);
 
 export type ProjectScaffoldDecision = Static<typeof ProjectScaffoldDecisionSchema>;
+
+export const PatternLifecycleSchema = Type.Union([
+  Type.Literal("candidate"),
+  Type.Literal("registered-advisory"),
+  Type.Literal("registered-enforced"),
+]);
+
+export type PatternLifecycle = Static<typeof PatternLifecycleSchema>;
+
+export const NormalizedPatternScaffoldOptionsSchema = Type.Object(
+  {
+    ruleId: NonEmptyStringSchema,
+    patternName: NonEmptyStringSchema,
+    lifecycle: PatternLifecycleSchema,
+    identifier: NonEmptyStringSchema,
+    ownerProject: NonEmptyStringSchema,
+    openspecChangeId: NonEmptyStringSchema,
+    manifestPath: Type.Optional(NonEmptyStringSchema),
+  },
+  { additionalProperties: false }
+);
+
+export type NormalizedPatternScaffoldOptions = Static<
+  typeof NormalizedPatternScaffoldOptionsSchema
+>;
