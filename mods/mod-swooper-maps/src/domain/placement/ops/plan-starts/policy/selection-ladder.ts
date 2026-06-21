@@ -1,3 +1,4 @@
+import { dispersionTerm } from "@civ7/map-policy";
 import { clamp01 } from "@swooper/mapgen-core";
 import { hexDistanceOddQPeriodicX } from "@swooper/mapgen-core/lib/grid";
 
@@ -91,6 +92,13 @@ type LadderArgs = {
   startBiasWeight: number;
   seatBiasOf: (seatIndex: number) => SeatBias | undefined;
   biasContextOf: (plotIndex: number) => SeatBiasContext;
+  /**
+   * Settleable-land tiles per homeland region (D3). When a region has room to
+   * spread (more land per seat than the fixed desired buffer covers), the
+   * dispersion reward saturates at the even-dispersion distance rather than the
+   * fixed buffer — recovering global spread without lowering the spacing floor.
+   */
+  landByRegion?: { 1: number; 2: number };
 };
 
 export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
@@ -100,6 +108,24 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
 
   const candidates = [...args.candidates].sort(compareSelectableTiles);
   const reserve = [...args.reserve].sort(compareSelectableTiles);
+
+  // D3 dispersion target per region: the even-dispersion distance for the seats
+  // this region will hold over its land area (sqrt of area-per-seat), clamped so
+  // the reward never saturates below the desired buffer and never pushes past
+  // 1.5x it into worse land. A single-seat region keeps the fixed desired buffer.
+  const seatsPerRegion: Record<1 | 2, number> = { 1: 0, 2: 0 };
+  for (const seat of args.seats) {
+    if (seat.regionSlot === 1 || seat.regionSlot === 2) seatsPerRegion[seat.regionSlot] += 1;
+  }
+  const dispersionTargetFor = (slot: 1 | 2): number => {
+    const land = args.landByRegion?.[slot] ?? 0;
+    const seats = seatsPerRegion[slot];
+    if (land <= 0 || seats <= 1) return desired;
+    const idealEven = Math.sqrt(land / seats);
+    return Math.max(desired, Math.min(idealEven, desired * 1.5));
+  };
+  let activeDispersionTarget = desired;
+
   const used = new Set<number>();
   const seatedPlots: number[] = [];
   const relaxations: RelaxationEntry[] = [];
@@ -127,7 +153,10 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
       if (used.has(tile.plotIndex)) continue;
       const distance = minDistanceToSeated(tile.plotIndex);
       if (distance < requirement) continue;
-      const spacingScore = seatedPlots.length ? clamp01(distance / Math.max(1, desired)) : 0.75;
+      const spacingScore = dispersionTerm(
+        seatedPlots.length ? distance : null,
+        activeDispersionTarget
+      );
       const biasTerm =
         args.startBiasWeight > 0 && bias
           ? args.startBiasWeight * seatBiasTerm(bias, args.biasContextOf(tile.plotIndex))
@@ -186,6 +215,7 @@ export function runSelectionLadder(args: LadderArgs): SelectionLadderResult {
   };
 
   for (const seat of args.seats) {
+    activeDispersionTarget = dispersionTargetFor(seat.regionSlot);
     const regionPool = candidates.filter((tile) => tile.regionSlot === seat.regionSlot);
     let rung: SeatRung = "regional";
     let tile = pickTierMajor(seat, regionPool, floor);

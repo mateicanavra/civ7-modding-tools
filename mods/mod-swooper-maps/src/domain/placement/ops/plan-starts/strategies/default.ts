@@ -777,6 +777,8 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       startBiasWeight: config.startBiasWeight,
       seatBiasOf: (seatIndex) => seatBiases.get(seatIndex),
       biasContextOf,
+      // D3: let dispersion reward fuller spread where a homeland has room.
+      landByRegion: { 1: landBySlot1, 2: landBySlot2 },
     });
 
     // --- pass 4: fairness balancing on the parity frame ------------------------------------
