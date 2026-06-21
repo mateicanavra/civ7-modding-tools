@@ -14,7 +14,6 @@ import {
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { forEachHexNeighborOddQ } from "@swooper/mapgen-core/lib/grid";
 import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 
@@ -90,39 +89,6 @@ function validateCoastlineMetrics(
     size
   );
   return errors;
-}
-
-function computeDistanceToCoast(width: number, height: number, coastal: Uint8Array): Uint16Array {
-  const size = Math.max(0, (width | 0) * (height | 0));
-  const distance = new Uint16Array(size);
-  distance.fill(65535);
-
-  const queue = new Int32Array(size);
-  let head = 0;
-  let tail = 0;
-
-  for (let i = 0; i < size; i++) {
-    if ((coastal[i] | 0) !== 1) continue;
-    distance[i] = 0;
-    queue[tail++] = i;
-  }
-
-  while (head < tail) {
-    const idx = queue[head++]!;
-    const y = (idx / width) | 0;
-    const x = idx - y * width;
-    const dist = distance[idx] ?? 0;
-
-    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
-      const ni = ny * width + nx;
-      const next = (dist + 1) as number;
-      if (distance[ni] <= next) return;
-      distance[ni] = next;
-      queue[tail++] = ni;
-    });
-  }
-
-  return distance;
 }
 
 export default createStep(RuggedCoastsStepContract, {
@@ -281,7 +247,10 @@ export default createStep(RuggedCoastsStepContract, {
     for (let i = 0; i < coastal.length; i++) {
       coastal[i] = result.coastalLand[i] === 1 || result.coastalWater[i] === 1 ? 1 : 0;
     }
-    const distanceToCoast = computeDistanceToCoast(width, height, coastal);
+    const { distanceToCoast } = ops.distanceToCoast(
+      { width, height, coastal },
+      config.distanceToCoast
+    );
 
     const shelfResult = ops.shelfMask(
       {

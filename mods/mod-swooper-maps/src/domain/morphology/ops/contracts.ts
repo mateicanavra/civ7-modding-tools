@@ -1,6 +1,7 @@
 import ComputeBaseTopographyContract from "./compute-base-topography/contract.js";
 import ComputeBeltDriversContract from "./compute-belt-drivers/contract.js";
 import ComputeCoastlineMetricsContract from "./compute-coastline-metrics/contract.js";
+import ComputeDistanceToCoastContract from "./compute-distance-to-coast/contract.js";
 import ComputeFlowRoutingContract from "./compute-flow-routing/contract.js";
 import ComputeGeomorphicCycleContract from "./compute-geomorphic-cycle/contract.js";
 import ComputeLandmaskContract from "./compute-landmask/contract.js";
@@ -18,6 +19,7 @@ export const contracts = {
   computeBaseTopography: ComputeBaseTopographyContract,
   computeBeltDrivers: ComputeBeltDriversContract,
   computeCoastlineMetrics: ComputeCoastlineMetricsContract,
+  computeDistanceToCoast: ComputeDistanceToCoastContract,
   computeFlowRouting: ComputeFlowRoutingContract,
   computeGeomorphicCycle: ComputeGeomorphicCycleContract,
   computeLandmask: ComputeLandmaskContract,
