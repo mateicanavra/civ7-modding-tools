@@ -18,6 +18,9 @@
   Current branch moves verify base/status and affected execution to
   `GitProvider`/`NxProvider`; baseline/check/hook remain with their owning
   cutover packets.
+  Follow-up branch routes hook service pre-push remote-default/merge-base
+  resolution through `GitProvider`; raw staged/resource hook Git callsites
+  remain with the hook provider-drain follow-on.
 - [x] 2.2 Replace `WorkspaceToolProvider` command-name map with provider command builders.
 - [x] 2.3 Keep provider outputs mapped to existing public command/report shapes.
 - [x] 2.4 Reject any new duplicate process path. The old process facade is
@@ -26,6 +29,7 @@
   Current branch removes provider exports from the root public surface and
   restores the bounded Grit live-source batch refusal until provider-owned
   scheduling exists.
+- [x] 2.5 Route hook service pre-push remote-default/merge-base reads through `GitProvider`.
 
 ## 3. Proof
 
