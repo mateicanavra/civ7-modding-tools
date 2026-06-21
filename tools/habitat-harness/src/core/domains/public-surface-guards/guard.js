@@ -443,7 +443,7 @@ function checkServiceArchitecture() {
     if (!moduleText.includes(`habitatServiceImplementer.${moduleName}`)) {
       moduleLeaks.push(`${moduleFile}: missing habitatServiceImplementer.${moduleName} binding`);
     }
-    if (!moduleText.includes("export const module =")) {
+    if (!moduleText.includes("export const implementer =")) {
       moduleLeaks.push(`${moduleFile}: missing standard module implementer export`);
     }
     if (moduleLeaks.length > 0) {

@@ -10,7 +10,7 @@ import {
 } from "@internal/habitat-harness/substrate/resources/index";
 import { ORPCError } from "@orpc/server";
 import { Data, Effect } from "effect";
-import { module } from "./context.js";
+import { implementer } from "./context.js";
 import type { GraphServiceRunInput } from "./contract.js";
 
 class GraphJsonParseFailed extends Data.TaggedError("GraphJsonParseFailed")<{
@@ -24,7 +24,7 @@ class GraphJsonShapeInvalid extends Data.TaggedError("GraphJsonShapeInvalid")<{
 }> {}
 
 export const graphRouter = {
-  run: module.run.effect(({ input }) => runGraphService(input)),
+  run: implementer.run.effect(({ input }) => runGraphService(input)),
 };
 
 export const router = graphRouter;
