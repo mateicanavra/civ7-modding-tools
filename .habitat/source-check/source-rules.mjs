@@ -35,6 +35,8 @@ export const sourceCheckRuleIds = [
   "viz-contract-ownership",
   "wrapper-advanced-stage-config",
 ];
+const sourceCheckFactCache = Symbol.for("habitat.source-check.fact-cache");
+
 export function diagnosticsForRule(rule, file) {
   switch (rule.id) {
     case "adapter-base-standard-import":
@@ -573,94 +575,110 @@ function vizContractOwnershipDiagnostics(rule, file) {
     .map((ref) => diagnostic(rule, file, ref.node));
 }
 function importRefs(file) {
-  const sourceFile = file.sourceFile;
-  if (!sourceFile) return [];
-  const refs = [];
-  visit(sourceFile);
-  return refs;
-  function visit(node) {
-    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
-      refs.push({
-        kind: "import",
-        source: node.moduleSpecifier.text,
-        text: node.getText(sourceFile),
-        node,
-        isTypeOnly: importDeclarationIsTypeOnly(node),
-        isNamespaceExport: false,
-      });
-    } else if (
-      ts.isExportDeclaration(node) &&
-      node.moduleSpecifier &&
-      ts.isStringLiteral(node.moduleSpecifier)
-    ) {
-      refs.push({
-        kind: "export",
-        source: node.moduleSpecifier.text,
-        text: node.getText(sourceFile),
-        node,
-        isTypeOnly: node.isTypeOnly,
-        isNamespaceExport: !node.exportClause,
-      });
-    } else if (
-      ts.isCallExpression(node) &&
-      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-      node.arguments.length === 1 &&
-      ts.isStringLiteralLike(node.arguments[0])
-    ) {
-      refs.push({
-        kind: "dynamic-import",
-        source: node.arguments[0].text,
-        text: node.getText(sourceFile),
-        node,
-        isTypeOnly: false,
-        isNamespaceExport: false,
-      });
+  return cachedFact(file, "importRefs", () => {
+    const sourceFile = file.sourceFile;
+    if (!sourceFile) return [];
+    const refs = [];
+    visit(sourceFile);
+    return refs;
+    function visit(node) {
+      if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+        refs.push({
+          kind: "import",
+          source: node.moduleSpecifier.text,
+          text: node.getText(sourceFile),
+          node,
+          isTypeOnly: importDeclarationIsTypeOnly(node),
+          isNamespaceExport: false,
+        });
+      } else if (
+        ts.isExportDeclaration(node) &&
+        node.moduleSpecifier &&
+        ts.isStringLiteral(node.moduleSpecifier)
+      ) {
+        refs.push({
+          kind: "export",
+          source: node.moduleSpecifier.text,
+          text: node.getText(sourceFile),
+          node,
+          isTypeOnly: node.isTypeOnly,
+          isNamespaceExport: !node.exportClause,
+        });
+      } else if (
+        ts.isCallExpression(node) &&
+        node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+        node.arguments.length === 1 &&
+        ts.isStringLiteralLike(node.arguments[0])
+      ) {
+        refs.push({
+          kind: "dynamic-import",
+          source: node.arguments[0].text,
+          text: node.getText(sourceFile),
+          node,
+          isTypeOnly: false,
+          isNamespaceExport: false,
+        });
+      }
+      ts.forEachChild(node, visit);
     }
-    ts.forEachChild(node, visit);
-  }
+  });
 }
-function importDeclarationIsTypeOnly(node) {
-  const clause = node.importClause;
-  if (!clause) return false;
-  if (clause.isTypeOnly) return true;
-  const bindings = clause.namedBindings;
-  if (bindings && ts.isNamedImports(bindings) && bindings.elements.length > 0) {
-    return bindings.elements.every((element) => element.isTypeOnly);
-  }
-  return false;
+function cachedFact(file, key, compute) {
+  file[sourceCheckFactCache] ??= new Map();
+  const cache = file[sourceCheckFactCache];
+  if (!cache.has(key)) cache.set(key, compute());
+  return cache.get(key);
+}
+function sourceCheckNodes(file, key, predicate) {
+  return cachedFact(file, key, () => matchingNodes(file, predicate));
+}
+function propertyAccessNodes(file) {
+  return sourceCheckNodes(file, "propertyAccessNodes", ts.isPropertyAccessExpression);
+}
+function propertyAssignmentFacts(file) {
+  return cachedFact(file, "propertyAssignmentFacts", () =>
+    matchingNodes(file, ts.isPropertyAssignment).map((node) => ({
+      node,
+      name: propertyName(node.name),
+      initializer: node.initializer,
+    }))
+  );
+}
+function callExpressionNodes(file) {
+  return sourceCheckNodes(file, "callExpressionNodes", ts.isCallExpression);
+}
+function identifierNodes(file) {
+  return sourceCheckNodes(file, "identifierNodes", ts.isIdentifier);
+}
+function stringLiteralFacts(file) {
+  return cachedFact(file, "stringLiteralFacts", () =>
+    matchingNodes(file, ts.isStringLiteralLike).map((node) => ({ value: node.text, node }))
+  );
 }
 function exportedConstNames(file) {
-  const sourceFile = file.sourceFile;
-  if (!sourceFile) return [];
-  const names = [];
-  visit(sourceFile);
-  return names;
-  function visit(node) {
-    if (
-      ts.isVariableStatement(node) &&
-      node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
-    ) {
-      for (const declaration of node.declarationList.declarations) {
-        if (ts.isIdentifier(declaration.name))
-          names.push({ name: declaration.name.text, node: declaration });
+  return cachedFact(file, "exportedConstNames", () => {
+    const sourceFile = file.sourceFile;
+    if (!sourceFile) return [];
+    const names = [];
+    visit(sourceFile);
+    return names;
+    function visit(node) {
+      if (
+        ts.isVariableStatement(node) &&
+        node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
+      ) {
+        for (const declaration of node.declarationList.declarations) {
+          if (ts.isIdentifier(declaration.name))
+            names.push({ name: declaration.name.text, node: declaration });
+        }
       }
+      ts.forEachChild(node, visit);
     }
-    ts.forEachChild(node, visit);
-  }
-}
-function schemaExportsFromControlIndex(file) {
-  if (!pathMatches(file, /packages\/civ7-control-orpc\/src\/index\.ts$/)) return [];
-  return importRefs(file)
-    .filter((ref) => ref.kind === "export" && /^\.\/modules\/[^/]+\/contract$/.test(ref.source))
-    .filter((ref) =>
-      /^export\s*\{[^}]*Civ7[A-Za-z0-9]+(?:Input|Result|Output|Standard)Schema/.test(ref.text)
-    )
-    .map((ref) => ref.node);
+  });
 }
 function newExpressions(file, name) {
-  return matchingNodes(
-    file,
-    (node) => ts.isNewExpression(node) && node.expression.getText(file.sourceFile) === name
+  return sourceCheckNodes(file, "newExpressions", ts.isNewExpression).filter(
+    (node) => node.expression.getText(file.sourceFile) === name
   );
 }
 function callExpressions(file, name) {
@@ -676,36 +694,48 @@ function propertyCallExpressions(file, property, objectName) {
   });
 }
 function callNodes(file, name) {
-  return matchingNodes(file, (node) => {
-    if (!ts.isCallExpression(node)) return false;
-    return name ? ts.isIdentifier(node.expression) && node.expression.text === name : true;
-  });
+  const calls = callExpressionNodes(file);
+  return name
+    ? calls.filter((node) => ts.isIdentifier(node.expression) && node.expression.text === name)
+    : calls;
 }
 function propertyAccesses(file, property) {
-  return matchingNodes(
-    file,
-    (node) => ts.isPropertyAccessExpression(node) && node.name.text === property
-  );
+  return propertyAccessNodes(file).filter((node) => node.name.text === property);
 }
 function propertyAccessesOnObject(file, objectName) {
-  return matchingNodes(
-    file,
-    (node) =>
-      ts.isPropertyAccessExpression(node) &&
-      ts.isIdentifier(node.expression) &&
-      node.expression.text === objectName
+  return propertyAccessNodes(file).filter(
+    (node) => ts.isIdentifier(node.expression) && node.expression.text === objectName
   );
 }
 function identifierUses(file, name) {
-  return matchingNodes(file, (node) => ts.isIdentifier(node) && node.text === name);
+  return identifierNodes(file).filter((node) => node.text === name);
 }
 function stringLiterals(file) {
-  return matchingNodes(file, ts.isStringLiteralLike).map((node) => ({ value: node.text, node }));
+  return stringLiteralFacts(file);
 }
 function objectProperties(file, name) {
-  return matchingNodes(file, ts.isPropertyAssignment)
-    .filter((node) => propertyName(node.name) === name)
-    .map((node) => ({ node, initializer: node.initializer }));
+  return propertyAssignmentFacts(file)
+    .filter((property) => property.name === name)
+    .map(({ node, initializer }) => ({ node, initializer }));
+}
+function importDeclarationIsTypeOnly(node) {
+  const clause = node.importClause;
+  if (!clause) return false;
+  if (clause.isTypeOnly) return true;
+  const bindings = clause.namedBindings;
+  if (bindings && ts.isNamedImports(bindings) && bindings.elements.length > 0) {
+    return bindings.elements.every((element) => element.isTypeOnly);
+  }
+  return false;
+}
+function schemaExportsFromControlIndex(file) {
+  if (!pathMatches(file, /packages\/civ7-control-orpc\/src\/index\.ts$/)) return [];
+  return importRefs(file)
+    .filter((ref) => ref.kind === "export" && /^\.\/modules\/[^/]+\/contract$/.test(ref.source))
+    .filter((ref) =>
+      /^export\s*\{[^}]*Civ7[A-Za-z0-9]+(?:Input|Result|Output|Standard)Schema/.test(ref.text)
+    )
+    .map((ref) => ref.node);
 }
 function emptyObjectNullish(file) {
   return matchingNodes(file, (node) => {
