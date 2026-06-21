@@ -27,7 +27,7 @@ type FileLayerRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-lay
 type CommandRecordInput = Extract<
   RuleRegistryRecordV1,
   {
-    ownerTool: "command-check" | "format-check" | "habitat" | "target-check";
+    ownerTool: "command-check" | "format-check" | "habitat" | "nx";
   }
 >;
 type HookCheckRecordInput = SourceRecordInput & { hookCheck: true };
@@ -121,7 +121,7 @@ function isCommandRule(rule: RuleRegistryRecordV1): rule is CommandRecordInput {
     rule.ownerTool === "command-check" ||
     rule.ownerTool === "format-check" ||
     rule.ownerTool === "habitat" ||
-    rule.ownerTool === "target-check"
+    rule.ownerTool === "nx"
   );
 }
 
