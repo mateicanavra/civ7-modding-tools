@@ -16,14 +16,14 @@ import { withFiberContext } from "effect-orpc/node";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 import { transactionsRouter } from "../transactions/router.js";
-import { type FixServiceModuleContext, module } from "./context.js";
+import { type FixServiceModuleContext, implementer } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";
 import { FixCommandIntentSchema } from "./contract.js";
 
 const FixAdmissionSetSchema = Type.Array(ApplyAdmissionSchema);
 
 export const fixRouter = {
-  run: module.run.effect(({ context, input }) => runFixService(input, context)),
+  run: implementer.run.effect(({ context, input }) => runFixService(input, context)),
 };
 
 export const router = fixRouter;

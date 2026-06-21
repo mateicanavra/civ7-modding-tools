@@ -69,7 +69,7 @@ describe("Habitat public surface guards", () => {
       "tools/habitat-harness/src/substrate/providers/probe/index.ts":
         'import { runCheckService } from "../../service/modules/check/router.js";\nexport const value = runCheckService;\n',
       "tools/habitat-harness/src/service/modules/check/context.ts":
-        'import { Layer } from "effect";\nexport const module = Layer.succeed;\n',
+        'import { Layer } from "effect";\nexport const implementer = Layer.succeed;\n',
       "tools/habitat-harness/src/service/modules/check/router.ts":
         'import { router } from "./run.js";\nexport const checkRouter = router.router({});\nexport function runCheckService() {}\n',
       "tools/habitat-harness/src/service/modules/check/run.ts":

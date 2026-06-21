@@ -8,16 +8,17 @@ joins those requirements with the contract, each module context decorates its
 owned implementer branch, and each router authors procedure logic directly.
 
 The current service spine mostly follows that shape, but it still keeps a
-duplicate `base.ts` runtime tag and module-specific implementer export names
-such as `verifyModule` and `checkModule`. Those names make every module look
-slightly bespoke even though the role is identical.
+duplicate `base.ts` runtime tag and module-specific or overloaded implementer
+export names such as `verifyModule`, `checkModule`, or `module`. Those names
+make every module look slightly bespoke or confuse the module folder with the
+decorated implementer value even though the role is identical.
 
 ## What Changes
 
 - Move `HabitatServiceRuntime` into `service/context.ts` and delete
   `service/base.ts`.
 - Standardize every service module context file to export a single
-  `module` implementer created from `habitatServiceImplementer.<module>`.
+  `implementer` created from `habitatServiceImplementer.<module>`.
 - Update routers to import and use that module implementer directly while
   keeping procedure bodies in router files.
 - Extend the existing Habitat service architecture guard so module context

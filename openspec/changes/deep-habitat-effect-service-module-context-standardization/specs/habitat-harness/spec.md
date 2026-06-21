@@ -21,10 +21,12 @@ router files own procedure logic.
 
 - **GIVEN** a Habitat service module context file decorates its contract branch
 - **WHEN** the module exports its decorated implementer
-- **THEN** it SHALL export that implementer as `module`
+- **THEN** it SHALL export that implementer as `implementer`
 - **AND** it SHALL bind the matching `habitatServiceImplementer.<module>` branch
 - **AND** it SHALL NOT export a module-specific implementer alias such as
   `checkModule`, `verifyModule`, or `transactionsModule`
+- **AND** it SHALL NOT export the implementer as the overloaded value name
+  `module`
 
 #### Scenario: Routers author procedures directly
 
