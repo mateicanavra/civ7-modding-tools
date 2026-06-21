@@ -27,6 +27,26 @@ export type RuleStatus = Static<typeof RuleStatusSchema>;
 export const RuleLaneSchema = Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]);
 export type RuleLane = Static<typeof RuleLaneSchema>;
 
+export const RuleExecutionTimingSchema = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal("dedicated"),
+      durationMs: Type.Number({ minimum: 0 }),
+    },
+    { additionalProperties: false }
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("shared"),
+      groupId: Type.String({ minLength: 1 }),
+      durationMs: Type.Number({ minimum: 0 }),
+      ruleCount: Type.Number({ minimum: 1 }),
+    },
+    { additionalProperties: false }
+  ),
+]);
+export type RuleExecutionTiming = Static<typeof RuleExecutionTimingSchema>;
+
 export const RuleReportSchema = Type.Object(
   {
     ruleId: Type.String({ minLength: 1 }),
@@ -35,6 +55,7 @@ export const RuleReportSchema = Type.Object(
     status: RuleStatusSchema,
     locked: Type.Boolean(),
     durationMs: Type.Number({ minimum: 0 }),
+    timing: Type.Optional(RuleExecutionTimingSchema),
     diagnostics: Type.Array(HabitatDiagnosticSchema),
     detect: Type.Array(Type.String()),
     message: Type.String(),
