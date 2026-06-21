@@ -27,6 +27,7 @@ export const NxTargetDefinitionSchema = Type.Object(
 export const InferredProjectSchema = Type.Object(
   {
     name: Type.Optional(Type.String({ minLength: 1 })),
+    tags: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
     targets: Type.Record(Type.String({ minLength: 1 }), NxTargetDefinitionSchema),
   },
   { additionalProperties: false }
