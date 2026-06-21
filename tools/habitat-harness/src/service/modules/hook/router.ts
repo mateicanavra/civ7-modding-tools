@@ -49,14 +49,15 @@ import {
 } from "../../../domains/structural-check/index.js";
 import { prePushTargetPlanForChangedPaths } from "../../../domains/validation-routing/index.js";
 import { repoRoot } from "../../../lib/paths.js";
-import type { BiomeProvider } from "../../../providers/biome/index.js";
-import type { CommandRunner, SpawnResult } from "../../../providers/command/index.js";
-import { GitProvider, type GitProviderRequirements } from "../../../providers/git/index.js";
+import { type BiomeCommandRequest, BiomeProvider } from "../../../providers/biome/index.js";
 import {
-  NxProvider,
+  type CommandRunner,
+  type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "../../../providers/nx/index.js";
+} from "../../../providers/command/index.js";
+import { GitProvider, type GitProviderRequirements } from "../../../providers/git/index.js";
+import { NxProvider } from "../../../providers/nx/index.js";
 import { workspaceGraphTargetNames } from "../../../providers/nx/targets.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
@@ -87,6 +88,11 @@ interface PreCommitState {
   readonly output: HookOutput;
   readonly staged: readonly string[];
   readonly hashFile: (repoRelativePath: string) => string | null;
+}
+
+interface PreCommitBiomeState extends PreCommitState {
+  readonly biomePaths: readonly string[];
+  readonly beforeHashes: ReadonlyMap<string, string | null>;
 }
 
 interface PreCommitSourceCheckState extends PreCommitState {
@@ -139,12 +145,14 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   const fileLayer = runStagedHookCheckCommand(begun.state.runtime, "file-layer");
   const afterFileLayer = continuePreCommitAfterFileLayer(begun.state, fileLayer);
   if (afterFileLayer.kind === "done") return afterFileLayer.result;
+  const afterBiome = runPreCommitBiomeCommands(afterFileLayer.state);
+  if (afterBiome.kind === "done") return afterBiome.result;
 
   const sourceCheckResult =
-    afterFileLayer.state.sourceCheckPaths.length > 0
-      ? runStagedHookCheckCommand(afterFileLayer.state.runtime, "source-check")
+    afterBiome.state.sourceCheckPaths.length > 0
+      ? runStagedHookCheckCommand(afterBiome.state.runtime, "source-check")
       : undefined;
-  return finishPreCommit(afterFileLayer.state, sourceCheckResult);
+  return finishPreCommit(afterBiome.state, sourceCheckResult);
 }
 
 function runPreCommitEffect(
@@ -161,16 +169,18 @@ function runPreCommitEffect(
     );
     const afterFileLayer = continuePreCommitAfterFileLayer(begun.state, fileLayer);
     if (afterFileLayer.kind === "done") return afterFileLayer.result;
+    const afterBiome = yield* runPreCommitBiomeProviderEffect(afterFileLayer.state);
+    if (afterBiome.kind === "done") return afterBiome.result;
 
     const sourceCheckResult =
-      afterFileLayer.state.sourceCheckPaths.length > 0
+      afterBiome.state.sourceCheckPaths.length > 0
         ? yield* runStagedHookCheckServiceEffect(
-            afterFileLayer.state.runtime,
+            afterBiome.state.runtime,
             "source-check",
-            afterFileLayer.state.sourceCheckPaths
+            afterBiome.state.sourceCheckPaths
           )
         : undefined;
-    return finishPreCommit(afterFileLayer.state, sourceCheckResult);
+    return finishPreCommit(afterBiome.state, sourceCheckResult);
   });
 }
 
@@ -218,7 +228,7 @@ function beginPreCommit(runtime: HookRuntime = {}): PreCommitStep<PreCommitState
 function continuePreCommitAfterFileLayer(
   state: PreCommitState,
   fileLayer: StagedHookCheckResult
-): PreCommitStep<PreCommitSourceCheckState> {
+): PreCommitStep<PreCommitBiomeState> {
   const { hashFile, output, runtime, staged } = state;
   output.writeStdout(section("file-layer staged check", fileLayer.stdout));
   output.writeStderr(fileLayer.stderr);
@@ -258,6 +268,13 @@ function continuePreCommitAfterFileLayer(
     };
   }
   const beforeHashes = new Map(biomePaths.map((candidate) => [candidate, hashFile(candidate)]));
+  return { kind: "continue", state: { ...state, biomePaths, beforeHashes } };
+}
+
+function runPreCommitBiomeCommands(
+  state: PreCommitBiomeState
+): PreCommitStep<PreCommitSourceCheckState> {
+  const { beforeHashes, biomePaths, hashFile, output, runtime } = state;
   if (biomePaths.length > 0) {
     const format = runHookCommand(
       runtime,
@@ -325,6 +342,104 @@ function continuePreCommitAfterFileLayer(
     output.writeStdout("biome: no staged supported files\n");
   }
 
+  return continuePreCommitAfterBiome(state);
+}
+
+function runPreCommitBiomeProviderEffect(
+  state: PreCommitBiomeState
+): Effect.Effect<PreCommitStep<PreCommitSourceCheckState>, never, HookCheckRequirements> {
+  const { beforeHashes, biomePaths, hashFile, output, runtime } = state;
+  if (biomePaths.length === 0) {
+    output.writeStdout("biome: no staged supported files\n");
+    return Effect.succeed(continuePreCommitAfterBiome(state));
+  }
+
+  return Effect.gen(function* () {
+    const biome = yield* BiomeProvider;
+    const formatRequest: BiomeCommandRequest = {
+      kind: "format",
+      write: true,
+      noErrorsOnUnmatched: true,
+      paths: biomePaths,
+    };
+    const formatArgv = biome.argv(formatRequest);
+    const formatStartedAtMs = hookNow(runtime);
+    const format = yield* biome.run(formatRequest).pipe(
+      Effect.match({
+        onFailure: spawnResultFromCommandProviderError,
+        onSuccess: spawnResultFromCommandResult,
+      })
+    );
+    recordHookCommand(runtime, "biome-format", formatArgv, formatStartedAtMs, format.exitCode);
+    output.writeStdout(section("biome format", format.stdout));
+    output.writeStderr(format.stderr);
+    if (format.exitCode !== 0) {
+      return {
+        kind: "done",
+        result: finalizePreCommit(runtime, "biome-format-failed", {
+          exitCode: format.exitCode,
+          ...output.result(),
+        }),
+      };
+    }
+
+    const touched = biomePaths.filter(
+      (candidate) => beforeHashes.get(candidate) !== hashFile(candidate)
+    );
+    if (runtime.trace?.preCommit) runtime.trace.preCommit.formatterTouchedPaths = touched;
+    if (touched.length > 0) {
+      const restage = gitAdd(touched, runtime);
+      output.writeStdout(section("formatter restage", restage.stdout));
+      output.writeStderr(restage.stderr);
+      if (restage.exitCode !== 0) {
+        return {
+          kind: "done",
+          result: finalizePreCommit(runtime, "formatter-restage-failed", {
+            exitCode: restage.exitCode,
+            ...output.result(),
+          }),
+        };
+      }
+      if (runtime.trace?.preCommit) runtime.trace.preCommit.restagedPaths = touched;
+      output.writeStdout(`formatter restage: ${touched.length} path(s)\n`);
+    } else {
+      output.writeStdout("formatter restage: 0 paths\n");
+    }
+
+    const checkRequest: BiomeCommandRequest = {
+      kind: "check",
+      noErrorsOnUnmatched: true,
+      paths: biomePaths,
+    };
+    const checkArgv = biome.argv(checkRequest);
+    const checkStartedAtMs = hookNow(runtime);
+    const check = yield* biome.run(checkRequest).pipe(
+      Effect.match({
+        onFailure: spawnResultFromCommandProviderError,
+        onSuccess: spawnResultFromCommandResult,
+      })
+    );
+    recordHookCommand(runtime, "biome-check", checkArgv, checkStartedAtMs, check.exitCode);
+    output.writeStdout(section("biome check", check.stdout));
+    output.writeStderr(check.stderr);
+    if (check.exitCode !== 0) {
+      return {
+        kind: "done",
+        result: finalizePreCommit(runtime, "biome-check-failed", {
+          exitCode: check.exitCode,
+          ...output.result(),
+        }),
+      };
+    }
+
+    return continuePreCommitAfterBiome(state);
+  });
+}
+
+function continuePreCommitAfterBiome(
+  state: PreCommitBiomeState
+): PreCommitStep<PreCommitSourceCheckState> {
+  const { runtime, staged } = state;
   const sourceCheckPaths = hookSourceCheckPaths(staged);
   if (runtime.trace?.preCommit) runtime.trace.preCommit.sourceCheckPaths = sourceCheckPaths;
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
@@ -625,7 +740,7 @@ function recordInProcessHookCheck(
 
 function recordHookCommand(
   runtime: HookRuntime,
-  phase: "pre-push-target" | "pre-push-affected",
+  phase: "biome-format" | "biome-check" | "pre-push-target" | "pre-push-affected",
   argv: readonly string[],
   startedAtMs: number,
   exitCode: number
