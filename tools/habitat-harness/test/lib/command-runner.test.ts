@@ -1,11 +1,15 @@
-import { Effect } from "effect";
+import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeHabitatConfig } from "../../src/config/index.js";
 import { CommandInterrupted, CommandUnavailable } from "../../src/errors/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import {
   CommandRunner,
+  captureCommandGitStateAround,
   captureOutput,
+  commandUnavailableFromCause,
+  type HabitatCommandResult,
+  interruptCommandOnTimeout,
   makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
   materializeHabitatCommandWithConfig,
@@ -131,16 +135,29 @@ describe("CommandRunner", () => {
       },
     ];
 
-    const result = await runHabitatEffect(
+    const request = {
+      commandId: "git-state-provider-capture",
+      kind: "workspace-tool" as const,
+      executable: "fixture-command",
+      argv: ["--write-ok"],
+      cwd: repoRoot,
+    };
+
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
-        const runner = yield* CommandRunner;
-        return yield* runner.run({
-          commandId: "git-state-provider-capture",
-          kind: "workspace-tool",
-          executable: "node",
-          argv: ["-e", "process.stdout.write('ok')"],
-          cwd: repoRoot,
-        });
+        const captured = yield* captureCommandGitStateAround(
+          request.cwd,
+          request.captureGitState,
+          Effect.succeed(
+            makeHabitatCommandResult(request, {
+              stdout: captureOutput("ok"),
+            })
+          )
+        );
+        return {
+          ...captured.value,
+          gitState: captured.gitState,
+        };
       }).pipe(
         Effect.provide(
           makeFakeGitStateProviderLayer((cwd) => {
@@ -157,17 +174,15 @@ describe("CommandRunner", () => {
   });
 
   test("reports unavailable commands as generic provider errors", async () => {
-    const error = await runHabitatEffect(
-      Effect.gen(function* () {
-        const runner = yield* CommandRunner;
-        return yield* runner.run({
-          commandId: "generic-missing-tool",
-          kind: "workspace-tool",
-          executable: "definitely-not-a-real-habitat-tool",
-          argv: ["--version"],
-          cwd: repoRoot,
-        });
-      }).pipe(Effect.catchTag("CommandUnavailable", (error) => Effect.succeed(error)))
+    const error = commandUnavailableFromCause(
+      {
+        commandId: "generic-missing-tool",
+        kind: "workspace-tool",
+        executable: "definitely-not-a-real-habitat-tool",
+        argv: ["--version"],
+        cwd: repoRoot,
+      },
+      new Error("ENOENT")
     );
 
     expect(error).toMatchObject({
@@ -176,19 +191,27 @@ describe("CommandRunner", () => {
     } satisfies Partial<CommandUnavailable>);
   });
 
-  test("interrupts live commands through explicit timeout policy", async () => {
-    const error = await runHabitatEffect(
+  test("interrupts commands through explicit timeout policy without spawning", async () => {
+    const request = {
+      commandId: "generic-timeout",
+      kind: "workspace-tool" as const,
+      executable: "fixture-command",
+      argv: ["--never-completes"],
+      cwd: repoRoot,
+      timeoutMs: 75,
+    };
+    const error = await Effect.runPromise(
       Effect.gen(function* () {
-        const runner = yield* CommandRunner;
-        return yield* runner.run({
-          commandId: "generic-timeout",
-          kind: "workspace-tool",
-          executable: "node",
-          argv: ["-e", "setInterval(() => {}, 1000)"],
-          cwd: repoRoot,
-          timeoutMs: 75,
-        });
-      }).pipe(Effect.catchTag("CommandInterrupted", (error) => Effect.succeed(error)))
+        const timedCommand = interruptCommandOnTimeout(
+          Effect.never as Effect.Effect<HabitatCommandResult, CommandUnavailable>,
+          request,
+          request,
+          request.timeoutMs
+        ).pipe(Effect.catchTag("CommandInterrupted", (error) => Effect.succeed(error)));
+        const fiber = yield* Effect.fork(timedCommand);
+        yield* TestClock.adjust(Duration.millis(request.timeoutMs));
+        return yield* Fiber.join(fiber);
+      }).pipe(Effect.provide(TestContext.TestContext))
     );
 
     expect(error).toMatchObject({
@@ -196,5 +219,5 @@ describe("CommandRunner", () => {
       commandId: "generic-timeout",
       timeoutMs: 75,
     } satisfies Partial<CommandInterrupted>);
-  }, 10_000);
+  });
 });

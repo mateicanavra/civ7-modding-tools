@@ -33,7 +33,14 @@ export {
 } from "./output.js";
 export type { CommandCachePolicy, HabitatCommandKind, HabitatProcessRequest } from "./request.js";
 export type { HabitatCommandResult, OutputCapture, RedactedEnvValue } from "./result.js";
-export { CommandRunner, CommandRunnerLive, runSyncHabitatCommand } from "./runner.js";
+export {
+  CommandRunner,
+  CommandRunnerLive,
+  captureCommandGitStateAround,
+  commandUnavailableFromCause,
+  interruptCommandOnTimeout,
+  runSyncHabitatCommand,
+} from "./runner.js";
 export {
   runSyncSpawnCommand,
   type SpawnResult,
