@@ -3,7 +3,7 @@ import { Layer } from "effect";
 import { GritProviderLive } from "../adapters/grit/provider/index.js";
 import { HabitatConfigLive } from "../config/index.js";
 import { BaselineAuthorityLive } from "../domains/baseline-authority/service.js";
-import { SourceCheckLive } from "../domains/source-check/index.js";
+import { runSourceRulesEffect, SourceCheck } from "../domains/source-check/index.js";
 import { StructuralCheckLive } from "../domains/structural-check/service.js";
 import { BiomeProviderLive } from "../providers/biome/index.js";
 import { CommandRunnerLive } from "../providers/command/index.js";
@@ -11,6 +11,10 @@ import { GitProviderLive, GitStateProviderLive } from "../providers/git/index.js
 import { HuskyProviderLive } from "../providers/husky/index.js";
 import { NxProviderLive } from "../providers/nx/index.js";
 import { HabitatReporterLive } from "../providers/reporter/index.js";
+
+const SourceCheckLive = Layer.succeed(SourceCheck, {
+  runSourceRules: runSourceRulesEffect,
+});
 
 export const HabitatRuntimeLive = Layer.mergeAll(
   NodeContext.layer,
