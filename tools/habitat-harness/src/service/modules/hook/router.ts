@@ -475,6 +475,13 @@ function runPrePushWithBaseDecisionEffect(
         });
       }
     }
+    if (targetPlan.affectedTargets.length === 0) {
+      output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
+      return finalizePrePush(runtime, "pass", {
+        exitCode: 0,
+        ...output.result(),
+      });
+    }
     const request = {
       base,
       targets: targetPlan.affectedTargets,

@@ -33,7 +33,9 @@ const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-p
 const prePushSourceArtifactTargets = "source:check";
 const prePushNonSourceRuleArtifactTargets = "habitat:rule:import-boundaries";
 const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:import-boundaries";
-const prePushHabitatToolingTargets = "validate:boundary-taxonomy,validate:grit-patterns";
+const prePushBoundaryTaxonomyTargets = "validate:boundary-taxonomy";
+const prePushStructuralTargetDeclarationTargets =
+  "validate:boundary-taxonomy,validate:grit-patterns";
 const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
@@ -419,7 +421,7 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("uses owner-local check without duplicate Habitat targets for tooling pre-push changes", async () => {
+  test("uses owner-local check without structural affected targets for ordinary tooling changes", async () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
@@ -464,11 +466,109 @@ describe("Habitat hook service", () => {
       "habitat hook pre-push: repo Nx target @internal/habitat-harness:check"
     );
     expect(result.stdout).toContain("target ok");
+    expect(result.stdout).toContain("habitat hook pre-push: no repo Nx affected targets selected");
+    expect(runTargetRequests).toEqual([{ project: "@internal/habitat-harness", target: "check" }]);
+    expect(affectedRequests).toEqual([]);
+  });
+
+  test("uses boundary taxonomy target for boundary taxonomy tooling changes", async () => {
+    const fake = makePrePushRuntime();
+    const affectedRequests: NxAffectedRequest[] = [];
+    const runTargetRequests: NxRunTargetRequest[] = [];
+    const changedPath = "tools/habitat-harness/src/lib/boundary-taxonomy.ts";
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer({
+        affected: (request) => {
+          affectedRequests.push(request);
+          return commandResult(
+            affectedArgv(request),
+            repoRootForTestCommand(),
+            "affected ok\n",
+            0,
+            "",
+            "nx"
+          );
+        },
+        runTarget: (request) => {
+          runTargetRequests.push(request);
+          return commandResult(
+            runTargetArgv(request),
+            repoRootForTestCommand(),
+            "target ok\n",
+            0,
+            "",
+            "nx"
+          );
+        },
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
     expect(runTargetRequests).toEqual([{ project: "@internal/habitat-harness", target: "check" }]);
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
-        targets: prePushHabitatToolingTargets.split(","),
+        targets: prePushBoundaryTaxonomyTargets.split(","),
+        head: "HEAD",
+        excludeTaskDependencies: true,
+      },
+    ]);
+  });
+
+  test("uses all structural targets for structural target declaration changes", async () => {
+    const fake = makePrePushRuntime();
+    const affectedRequests: NxAffectedRequest[] = [];
+    const runTargetRequests: NxRunTargetRequest[] = [];
+    const changedPath = "tools/habitat-harness/package.json";
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer({
+        affected: (request) => {
+          affectedRequests.push(request);
+          return commandResult(
+            affectedArgv(request),
+            repoRootForTestCommand(),
+            "affected ok\n",
+            0,
+            "",
+            "nx"
+          );
+        },
+        runTarget: (request) => {
+          runTargetRequests.push(request);
+          return commandResult(
+            runTargetArgv(request),
+            repoRootForTestCommand(),
+            "target ok\n",
+            0,
+            "",
+            "nx"
+          );
+        },
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(runTargetRequests).toEqual([{ project: "@internal/habitat-harness", target: "check" }]);
+    expect(affectedRequests).toEqual([
+      {
+        base: "HEAD~1",
+        targets: prePushStructuralTargetDeclarationTargets.split(","),
         head: "HEAD",
         excludeTaskDependencies: true,
       },
