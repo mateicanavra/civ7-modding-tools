@@ -12,7 +12,6 @@ import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.js";
 import {
   collapsedSourceScanRoots,
-  pathsOverlap,
   selectedSourceScanRootsForRules,
   sortedUnique,
 } from "./scan-roots.js";
@@ -40,6 +39,17 @@ interface SourceRuleFilePlan {
   readonly matches: (filePath: string) => boolean;
 }
 
+type SourceRulePlanDecision =
+  | {
+      readonly kind: "planned";
+      readonly plan: SourceRuleFilePlan;
+    }
+  | {
+      readonly kind: "refused";
+      readonly rule: RuleSourceFacts;
+      readonly result: RuleRunResult;
+    };
+
 interface PlannedSourceFileRecord {
   readonly file: SourceFileRecord;
   readonly plans: readonly SourceRuleFilePlan[];
@@ -63,8 +73,16 @@ export function runSourceRulesEffect(
       (loaded): loaded is LoadedSourceRuleModule & { module: SourceCheckRuleModule } =>
         Boolean(loaded.module)
     );
-    const plans = executableModules.map((loaded) =>
+    const planDecisions = executableModules.map((loaded) =>
       sourceRuleFilePlan(loaded.rule, loaded.module, options)
+    );
+    const plans = planDecisions.flatMap((decision) =>
+      decision.kind === "planned" ? [decision.plan] : []
+    );
+    const planningFailures = new Map(
+      planDecisions.flatMap((decision) =>
+        decision.kind === "refused" ? [[decision.rule.id, decision.result] as const] : []
+      )
     );
     const files = yield* readPlannedSourceFiles(plans);
     const diagnosticsByRule = new Map<string, HabitatDiagnostic[]>(
@@ -84,6 +102,8 @@ export function runSourceRulesEffect(
       rules.map((rule) => {
         const loaded = modulesByRule.get(rule.id);
         if (!loaded?.module) return [rule.id, unsupportedNativeRule(rule, loaded)];
+        const planningFailure = planningFailures.get(rule.id);
+        if (planningFailure) return [rule.id, planningFailure];
         const diagnostics = diagnosticsByRule.get(rule.id) ?? [];
         return [rule.id, { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics }];
       })
@@ -152,34 +172,43 @@ function candidateExtensionsAreValid(value: unknown): value is readonly string[]
 }
 
 function sourceRuleFileMatcher(
-  rule: RuleSourceFacts,
+  exactPathPatterns: readonly string[],
   candidateExtensions: ReadonlySet<string>
 ): (filePath: string) => boolean {
-  const exactPathPatterns = rule.pathCoverage.flatMap((coverage) =>
-    coverage.kind === "exact-path" ? coverage.patterns : []
-  );
-  if (exactPathPatterns.length > 0) {
-    return (filePath) =>
-      candidateExtensions.has(path.extname(filePath)) &&
-      exactPathPatterns.some((pattern) => pathCoveragePatternMatches(pattern, filePath));
-  }
   return (filePath) =>
     candidateExtensions.has(path.extname(filePath)) &&
-    rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
+    exactPathPatterns.some((pattern) => pathCoveragePatternMatches(pattern, filePath));
 }
 
 function sourceRuleFilePlan(
   rule: RuleSourceFacts,
   module: SourceCheckRuleModule,
   options: SourceCheckOptions
-): SourceRuleFilePlan {
+): SourceRulePlanDecision {
+  const exactPathPatterns = sourceRuleExactPathPatterns(rule);
+  if (exactPathPatterns.length === 0) {
+    return {
+      kind: "refused",
+      rule,
+      result: sourceRuleExactCoverageRequired(rule),
+    };
+  }
   const candidateExtensions = new Set(module.candidateExtensions);
   return {
-    rule,
-    candidateExtensions,
-    scanRoots: selectedSourceScanRootsForRules([rule], options.scanRoots),
-    matches: sourceRuleFileMatcher(rule, candidateExtensions),
+    kind: "planned",
+    plan: {
+      rule,
+      candidateExtensions,
+      scanRoots: selectedSourceScanRootsForRules([rule], options.scanRoots),
+      matches: sourceRuleFileMatcher(exactPathPatterns, candidateExtensions),
+    },
   };
+}
+
+function sourceRuleExactPathPatterns(rule: RuleSourceFacts): string[] {
+  return rule.pathCoverage.flatMap((coverage) =>
+    coverage.kind === "exact-path" ? coverage.patterns : []
+  );
 }
 
 function readPlannedSourceFiles(
@@ -296,6 +325,22 @@ function unsupportedNativeRule(
         ruleId: rule.id,
         path: modulePath,
         message: `No repo source-check implementation is registered for ${rule.id}.${loadReason}`,
+        severity: rule.lane === "advisory" ? "advisory" : "error",
+        baselined: false,
+      },
+    ],
+  };
+}
+
+function sourceRuleExactCoverageRequired(rule: RuleSourceFacts): RuleRunResult {
+  return {
+    exitCode: 1,
+    diagnostics: [
+      {
+        ruleId: rule.id,
+        path: sourceCheckRuleModuleRepoPath(rule.id),
+        message:
+          "Source-check rules must declare exact path coverage before native source execution.",
         severity: rule.lane === "advisory" ? "advisory" : "error",
         baselined: false,
       },
