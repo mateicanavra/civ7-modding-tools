@@ -27,6 +27,7 @@ describe("rule registry facts", () => {
         lane: "enforced",
         message: "Fix the structural issue.",
         patternName: "sample_pattern",
+        pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
       },
     ]);
@@ -68,6 +69,7 @@ describe("rule registry facts", () => {
         lane: "enforced",
         message: "Fix the structural issue.",
         patternName: "sample_pattern",
+        pathCoverage: [{ kind: "project-owner" }],
         scanRoots: ["packages"],
       },
     ]);

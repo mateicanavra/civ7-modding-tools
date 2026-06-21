@@ -261,6 +261,7 @@ export const RulePatternFactsSchema = Type.Pick(PatternCheckRuleRegistryRecordV1
   "lane",
   "message",
   "patternName",
+  "pathCoverage",
   "scanRoots",
 ]);
 

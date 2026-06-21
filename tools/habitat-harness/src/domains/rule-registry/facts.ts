@@ -79,6 +79,11 @@ export function rulePatternFacts(records: readonly RuleRegistryRecordV1[]): Rule
       lane: rule.lane,
       message: rule.message,
       patternName: rule.patternName,
+      pathCoverage: rule.pathCoverage.map((coverage) =>
+        coverage.kind === "exact-path"
+          ? { kind: coverage.kind, patterns: [...coverage.patterns] }
+          : { ...coverage }
+      ),
       scanRoots: [...rule.scanRoots],
     }));
 }
