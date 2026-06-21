@@ -1,5 +1,5 @@
 import {
-  classifyResourcePreCommitDecision,
+  classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
 } from "@internal/habitat-harness/core/domains/hook-runtime/resource-inspection";
 import {
@@ -29,8 +29,6 @@ import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/pr
 import { makeFakeNxProviderLayer } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
-
-type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 
 describe("Habitat hook resource policy", () => {
   test("passes clean resources without invoking the publish script", async () => {
@@ -118,22 +116,21 @@ describe("Habitat hook resource policy", () => {
     expect(fake.checkRequests.map((request) => request.tool)).toContain("file-layer");
   });
 
-  test("prefers dirty-submodule refusal over staged-gitlink allowance", () => {
+  test("prefers dirty-submodule refusal over staged-gitlink allowance", async () => {
     const fake = makeFakeRuntime({
       resourcePolicy: true,
       stagedGitlink: true,
       submoduleStatus: " M resources.xml\n",
     });
 
-    const decision = classifyResourcePreCommitDecision(fake.runtime);
-    const state = classifyResourcesState(fake.runtime);
+    const decision = await Effect.runPromise(
+      classifyResourcePreCommitDecisionEffect(fake.runtime).pipe(Effect.provide(makeGitLayer(fake)))
+    );
 
     expect(decision).toMatchObject({
       kind: "dirty-submodule",
       commit: "refused",
     });
-    expect(state.kind).toBe("dirty-submodule");
-    expect(state.allowPreCommit).toBe(false);
     expect(fake.calls).not.toContain("git diff --cached --quiet -- vendor/resources");
   });
 
@@ -344,7 +341,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
     });
     expect(trace.preCommit?.durationMs).toBeGreaterThan(0);
     expect(trace.commands.every((command) => command.durationMs >= 0)).toBe(true);
-    expect(trace.commands.map((command) => command.phase)).toContain("repo-state");
     expect(trace.commands.map((command) => command.phase)).toEqual(
       expect.arrayContaining([
         "staged-paths",
@@ -456,7 +452,7 @@ async function runPreCommitInTest(
   runtime: HookRuntime = fake.runtime
 ): Promise<SpawnResult> {
   const layer = Layer.mergeAll(
-    makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
+    makeGitLayer(fake),
     makeFakeNxProviderLayer(),
     makeStructuralCheckLayer(fake),
     makeBiomeLayer(fake)
@@ -513,50 +509,6 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
   const biomeRequests: BiomeCommandRequest[] = [];
   const hashReads = new Map<string, number>();
   let nowMs = 1_000;
-  const runCommand: RunCommand = (argv, _opts) => {
-    const call = argv.join(" ");
-    calls.push(call);
-    if (call === "git branch --show-current") {
-      return ok(`${options.branch ?? "agent-HR-test"}\n`);
-    }
-    if (call === "git rev-parse HEAD") {
-      return ok(`${options.head ?? "abc123head"}\n`);
-    }
-    if (call === "git diff --cached --name-only -z") {
-      return ok(renderPathList(options.stagedPaths ?? []));
-    }
-    if (call === "git diff --name-only -z") {
-      return ok(renderPathList(options.allUnstagedPaths ?? []));
-    }
-    if (call.endsWith("rev-parse --is-inside-work-tree")) {
-      return ok("true\n");
-    }
-    if (call.endsWith("rev-parse --show-toplevel")) {
-      return ok(`${options.resourcesTopLevel ?? `${repoRoot}/vendor/resources`}\n`);
-    }
-    if (call.endsWith("rev-parse --git-dir")) {
-      return ok(".git\n");
-    }
-    if (call.endsWith("status --porcelain")) {
-      return ok(options.submoduleStatus ?? "");
-    }
-    if (call === "git diff --quiet -- vendor/resources") {
-      return options.unstagedGitlink ? failure(1) : ok();
-    }
-    if (call === "git diff --cached --quiet -- vendor/resources") {
-      return options.stagedGitlink ? failure(1) : ok();
-    }
-    if (call === "git diff --cached --name-status -z") {
-      return ok(renderNameStatus(options.stagedPaths ?? []));
-    }
-    if (call.startsWith("git diff --name-only -z --")) {
-      return ok(renderPathList(options.unstagedPaths ?? []));
-    }
-    if (call.startsWith("git add --")) {
-      return ok();
-    }
-    throw new Error(`Unexpected hook test command: ${call}`);
-  };
 
   return {
     calls,
@@ -564,7 +516,6 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
     biomeRequests,
     options,
     runtime: {
-      runCommand,
       pathExists: (target) => {
         if (target.endsWith("vendor/resources")) {
           return options.resourcesRootExists ?? true;
@@ -596,6 +547,61 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
         : undefined,
     },
   };
+}
+
+function makeGitLayer(fake: FakeHookRuntime) {
+  return makeFakeGitProviderLayer((argv, options) => {
+    const call = ["git", ...argv].join(" ");
+    fake.calls.push(call);
+    if (call === "git branch --show-current") {
+      return commandResult(argv, options.cwd, `${fake.options.branch ?? "agent-HR-test"}\n`);
+    }
+    if (call === "git rev-parse HEAD") {
+      return commandResult(argv, options.cwd, `${fake.options.head ?? "abc123head"}\n`);
+    }
+    if (call === "git diff --cached --name-only -z") {
+      return commandResult(argv, options.cwd, renderPathList(fake.options.stagedPaths ?? []));
+    }
+    if (call === "git diff --name-only -z") {
+      return commandResult(argv, options.cwd, renderPathList(fake.options.allUnstagedPaths ?? []));
+    }
+    if (call.endsWith("rev-parse --is-inside-work-tree")) {
+      return commandResult(argv, options.cwd, "true\n");
+    }
+    if (call.endsWith("rev-parse --show-toplevel")) {
+      return commandResult(
+        argv,
+        options.cwd,
+        `${fake.options.resourcesTopLevel ?? `${repoRoot}/vendor/resources`}\n`
+      );
+    }
+    if (call.endsWith("rev-parse --git-dir")) {
+      return commandResult(argv, options.cwd, ".git\n");
+    }
+    if (call.endsWith("status --porcelain")) {
+      return commandResult(argv, options.cwd, fake.options.submoduleStatus ?? "");
+    }
+    if (call === "git diff --quiet -- vendor/resources") {
+      return fake.options.unstagedGitlink
+        ? commandResult(argv, options.cwd, "", 1)
+        : commandResult(argv, options.cwd, "");
+    }
+    if (call === "git diff --cached --quiet -- vendor/resources") {
+      return fake.options.stagedGitlink
+        ? commandResult(argv, options.cwd, "", 1)
+        : commandResult(argv, options.cwd, "");
+    }
+    if (call === "git diff --cached --name-status -z") {
+      return commandResult(argv, options.cwd, renderNameStatus(fake.options.stagedPaths ?? []));
+    }
+    if (call.startsWith("git diff --name-only -z --")) {
+      return commandResult(argv, options.cwd, renderPathList(fake.options.unstagedPaths ?? []));
+    }
+    if (call.startsWith("git add --")) {
+      return commandResult(argv, options.cwd, "");
+    }
+    throw new Error(`Unexpected hook test command: ${call}`);
+  });
 }
 
 function renderNameStatus(paths: string[]): string {
@@ -730,12 +736,4 @@ function commandResult(
 
 function repoRootForTestCommand(): string {
   return process.cwd().replace(/\/tools\/habitat-harness$/, "");
-}
-
-function ok(stdout = ""): SpawnResult {
-  return { exitCode: 0, stdout, stderr: "" };
-}
-
-function failure(exitCode: number, stdout = "", stderr = ""): SpawnResult {
-  return { exitCode, stdout, stderr };
 }

@@ -45,12 +45,22 @@ describe("Habitat public surface guards", () => {
     const result = runGuardWithInjectedFiles({
       "tools/habitat-harness/src/core/domains/baseline-authority/integrity.ts":
         "export function checkBaselineIntegrity() {}\n",
+      "tools/habitat-harness/src/core/domains/hook-runtime/command-runner.ts":
+        "export function runHookCommand() {}\n",
+      "tools/habitat-harness/src/core/domains/hook-runtime/pre-push-base.ts":
+        "export function resolveGraphiteParent() {}\n",
     });
 
     expect(result.exitCode).toBe(1);
     expect(result.stderr).toContain("Removed public compatibility adapter returned.");
     expect(result.stderr).toContain(
       "tools/habitat-harness/src/core/domains/baseline-authority/integrity.ts"
+    );
+    expect(result.stderr).toContain(
+      "tools/habitat-harness/src/core/domains/hook-runtime/command-runner.ts"
+    );
+    expect(result.stderr).toContain(
+      "tools/habitat-harness/src/core/domains/hook-runtime/pre-push-base.ts"
     );
   });
 

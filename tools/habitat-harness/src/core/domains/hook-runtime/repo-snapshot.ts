@@ -1,40 +1,40 @@
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
-import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
-import { runHookCommand } from "./command-runner.js";
+import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/providers/command/index";
+import {
+  GitProvider,
+  type GitProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/git/index";
+import { Effect } from "effect";
 import { classifyResourcesState } from "./resource-inspection.js";
 import type { HookRuntime } from "./runtime.js";
 import type { HookRepoSnapshot, ResourceStateKind } from "./schema.js";
 
-export function captureRepoSnapshot(
+export function captureRepoSnapshotEffect(
   runtime: HookRuntime,
   resourceState?: ResourceStateKind
-): HookRepoSnapshot {
-  const branch = runHookCommand(runtime, "repo-state", ["git", "branch", "--show-current"], {
-    cwd: repoRoot,
-  });
-  const head = runHookCommand(runtime, "repo-state", ["git", "rev-parse", "HEAD"], {
-    cwd: repoRoot,
-  });
-  const staged = runHookCommand(
-    runtime,
-    "repo-state",
-    ["git", "diff", "--cached", "--name-only", "-z"],
-    { cwd: repoRoot }
-  );
-  const unstaged = runHookCommand(runtime, "repo-state", ["git", "diff", "--name-only", "-z"], {
-    cwd: repoRoot,
-  });
+): Effect.Effect<HookRepoSnapshot, never, GitProvider | GitProviderRequirements> {
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    const branch = yield* git.currentBranch({ cwd: repoRoot });
+    const head = yield* git.head({ cwd: repoRoot });
+    const staged = yield* git
+      .diffNameOnly({ cached: true, cwd: repoRoot })
+      .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    const unstaged = yield* git
+      .diffNameOnly({ cwd: repoRoot })
+      .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
 
-  return {
-    branch: branch.exitCode === 0 ? branch.stdout.trim() || null : null,
-    head: head.exitCode === 0 ? head.stdout.trim() || null : null,
-    stagedPaths: parsePathList(staged),
-    unstagedPaths: parsePathList(unstaged),
-    resourceState: resourceState ?? classifyResourcesState(runtime).kind,
-  };
+    return {
+      branch,
+      head,
+      stagedPaths: parsePathList(staged),
+      unstagedPaths: parsePathList(unstaged),
+      resourceState: resourceState ?? classifyResourcesState(runtime).kind,
+    };
+  });
 }
 
-function parsePathList(result: SpawnResult): string[] {
-  if (result.exitCode !== 0 || !result.stdout) return [];
-  return result.stdout.split("\0").filter(Boolean).map(toRepoRelative);
+function parsePathList(result: HabitatCommandResult | undefined): string[] {
+  if (!result || result.exit.code !== 0 || !result.stdout.text) return [];
+  return result.stdout.text.split("\0").filter(Boolean).map(toRepoRelative);
 }

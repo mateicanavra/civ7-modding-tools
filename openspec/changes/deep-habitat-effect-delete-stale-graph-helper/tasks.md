@@ -23,7 +23,7 @@
 
 ## 4. Follow-Up Dominoes
 
-- [ ] 4.1 Delete remaining legacy sync hook helpers after service-path tests are
+- [x] 4.1 Delete remaining legacy sync hook helpers after service-path tests are
   moved fully to provider fakes.
 - [ ] 4.2 Continue adapter enclosure cleanup for any other raw vendor helper
   surfaced by the guard.
