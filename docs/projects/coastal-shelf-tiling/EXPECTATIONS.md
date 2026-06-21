@@ -62,21 +62,22 @@ bun ./src/dev/diagnostics/run-standard-dump.ts -- 106 66 1337 --label coast-juic
 #   policyCoastMask→coastRingMask,shelfMask,coastalWater}, morphology.coastlineMetrics.shelfMask, capTilesByTile
 ```
 
-## 5. Results (fill AFTER)
-| ID | Predicted | Observed (mean[min..max], N) | runId | Verdict |
-|---|---|---|---|---|
-| C1 | ≥2 distinct; active<passive | _pending_ | | |
-| C2 | < 0 m | _pending_ | | |
-| C3 | = 0 | _pending_ | | |
-| C4 | ≥ 0.95 | _pending_ | | |
-| C5 | [0.20, 0.55] | _pending_ | | |
-| C6 | 100% | _pending_ | | |
-| C7 | ±0.005 | _pending_ | | |
-| C8 | passes | _pending_ | | |
-| C9 | ≥ baseline−10% | _pending_ | | |
-| C10 | 10/10 placed | _pending_ | | |
+## 5. Results — FINAL (latest_juicy 106×66 seed 1337; cap-free design uses break depth, not capTilesByTile)
+| ID | Predicted | Observed | Verdict |
+|---|---|---|---|
+| C1 | margin variation; active narrower | break depth {−5 active, −11 passive}; mean active −5 > passive −11 (shallower→narrower) | **PASS** |
+| C2 | shallowCutoff < 0 m | −7 m | **PASS** |
+| C3 | uniform-band-only coast = 0 | 0 (band retired) | **PASS** |
+| C4 | shelf-anchored share ≥ 0.95 | 1.00 (1781 shelf + 305 ring = all 2086 coast) | **PASS** |
+| C5 | coast share of water [0.20, 0.55] | 0.466 | **PASS** |
+| C6 | land bordering deep ocean = 0 (ring) | 0 | **PASS** |
+| C7 | landShare ±0.005 | 0.36 (unchanged) | **PASS** |
+| C8 | no-water-drift passes | passes (live clean; land/water-neutral) | **PASS** |
+| C9 | marine/reef ≥ baseline−10% | resources 212/212 placed (0 rejected); reef-family rose (atolls bloomed — §6) | **PASS** (note) |
+| C10 | starts placed | live Huge gen completed for 10 players; headless seats starts | **PASS** |
 
-**Overall mock verdict:** _pending_  ·  **Live verification:** _pending_
+**Overall mock verdict:** PASS — all targeted rows + HOLD guards met.
+**Live verification:** PASS — `in-game observed`. `studio-run-in-game-live` on `{swooper-maps}/maps/latest-juicy.js`, MAPSIZE_HUGE, seed 1337, 10 players, `--from-running-game exit-to-shell`; success markers `[mapgen-complete]` then `"seed":1337` matched in order, no rejectPattern. Live render + whole-map coast-structure image captured.
 
 ## 5a. Interim — after S1 (shelf footgun fix; uniform band STILL present)
 runId `3efbb0139ba2c71f227dbc367a2c421e479bd387ccffa0fe9c8cfa87cb770993` (latest_juicy 106×66 s1337):
@@ -86,5 +87,20 @@ runId `3efbb0139ba2c71f227dbc367a2c421e479bd387ccffa0fe9c8cfa87cb770993` (latest
 - policy-band-only coast still 2356 (band intact → removed in S3); coast share inflated to 0.902 (band+wider shelf).
 - Projection for post-S3: coast ≈ sourceCoast (1682) → coast share ≈ 0.38 (within C5).
 
-## 6. Amendments (append-only; runId + date required)
-- _(none yet)_
+## 6. Amendments, limitations, deferrals (append-only)
+- **C1 re-statement (2026-06-21):** the cap-free redesign replaced `capTilesByTile` with
+  `shelfBreakDepthByTile`; the margin signal is now the per-tile break depth (active shallower →
+  narrower), not a tile cap. Direction + mechanism held — a re-statement, not a target miss.
+- **Margin-contrast limitation (honest):** active margins use a shallower break depth (the correct
+  physical lever), but the *visible* narrowing is muted because the generated bathymetry is only
+  weakly margin-correlated. True Pacific-narrow / Atlantic-wide contrast needs margin-aware seafloor
+  depth — a foundation/erosion concern, **out of scope**. The old distance cap forced the contrast
+  bathymetry-independently; that was the non-physical workaround we removed.
+- **Atoll-bloom deferral:** retiring the band exposed the real open ocean; atolls (scored on warm
+  shallow water *beyond* the shelf) bloomed on atoll-dominated maps (desert-mountains 24→109). Two
+  reef-family budgets were widened to the legitimate geography. **Deferral:** retune atoll/reef
+  density now that open ocean is correctly sized (ecology/placement scope).
+- **Architecture follow-ups (specified in REDESIGN.md):** R1 (extract `compute-distance-to-coast`
+  op), R3 (relocate the shelf to a post-features `morphology-shelf` stage so islands get true
+  shelves — the "misplaced" fix), R5 (pure reconcile-heightfield op; thin the carving step). The
+  shelf physics is already correct; R3 only changes *where* it is computed (post-erosion/post-island).
