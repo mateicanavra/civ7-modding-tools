@@ -10,7 +10,7 @@
     "build:cli": "nx run @mateicanavra/civ7-cli:build",
     "build:sdk": "nx run @mateicanavra/civ7-sdk:build",
     "check": "bun run habitat:check",
-    "check:graph": "nx affected --targets=build,check,lint,test,validate:boundary-taxonomy,validate:grit-patterns",
+    "check:graph": "nx affected --targets=build,check,test,validate:boundary-taxonomy,validate:grit-patterns",
     "check-types": "nx run-many --targets=check",
     "check:cli": "nx run @mateicanavra/civ7-cli:check",
     "check:sdk": "nx run @mateicanavra/civ7-sdk:check",

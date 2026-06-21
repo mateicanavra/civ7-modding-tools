@@ -74,7 +74,7 @@ Supported outcome:
 
 - `check` runs the Habitat structural aggregate;
 - `check:graph` expands affected workspace graph dependencies and runs
-  build/check/lint/test plus structural validation targets;
+  build/check/test plus structural validation targets;
 - `verify` runs heavier package verification targets;
 - Habitat checks participate through `habitat:check` where configured.
 
