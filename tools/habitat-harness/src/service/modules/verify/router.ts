@@ -1,17 +1,17 @@
 import {
+  checkCommandContext,
+  StructuralCheck,
+  verifyCheckSummary,
+} from "@internal/habitat-harness/service/modules/check/structural/index";
+import {
   createVerifyReceipt,
   observeGitStatusEffect,
   readVerifyTargetPlan,
   resolveVerifyBaseEffect,
   runAffectedVerificationEffect,
-} from "@internal/habitat-harness/core/domains/proof-contract/index";
-import {
-  checkCommandContext,
-  StructuralCheck,
-  verifyCheckSummary,
-} from "@internal/habitat-harness/core/domains/structural-check/index";
-import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
-import { epochMillisToIsoString } from "@internal/habitat-harness/substrate/resources/index";
+} from "@internal/habitat-harness/service/modules/verify/proof/index";
+import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
+import { epochMillisToIsoString } from "@internal/habitat-harness/service/runtime/resources/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
 import { implementer } from "./context.js";

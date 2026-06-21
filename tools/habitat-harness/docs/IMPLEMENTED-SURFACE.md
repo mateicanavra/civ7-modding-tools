@@ -48,7 +48,7 @@ Implemented root aliases:
 
 Implemented command qualities:
 
-- command classes live under `tools/habitat-harness/src/host/commands`;
+- command classes live under `tools/habitat-harness/src/cli/commands`;
 - `bin/dev.ts` runs source commands for local development;
 - `bin/run.js`, `dist/**`, and `oclif.manifest.json` are generated/built
   runtime artifacts;
@@ -102,9 +102,9 @@ Implemented diagnostic/check state:
 
 - 34 registered source-check rules;
 - 34 source-check rule modules under
-  `tools/habitat-harness/src/core/domains/source-check/rules`;
+  `tools/habitat-harness/src/service/modules/check/source/rules`;
 - shared source-check helper runtime under
-  `tools/habitat-harness/src/core/domains/source-check/rule-runtime.mjs`;
+  `tools/habitat-harness/src/service/modules/check/source/rule-runtime.mjs`;
 - fixture tests for pattern validity;
 - Grit provider normalization over machine JSON output;
 - cache/failure handling tests;

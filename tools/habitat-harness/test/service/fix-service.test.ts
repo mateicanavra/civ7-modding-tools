@@ -1,15 +1,15 @@
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
+import type { FixServiceModuleContext } from "@internal/habitat-harness/service/modules/fix/context";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/core/domains/pattern-governance/index";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import type { FixServiceModuleContext } from "@internal/habitat-harness/service/modules/fix/context";
+} from "@internal/habitat-harness/service/modules/fix/patterns/index";
 import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/service/runtime/grit/index";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

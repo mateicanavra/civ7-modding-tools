@@ -1,4 +1,4 @@
-import { classifyTargetResult } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
+import { classifyTargetResult } from "@internal/habitat-harness/service/modules/graph/workspace/index";
 import { Effect } from "effect";
 import { implementer } from "./context.js";
 

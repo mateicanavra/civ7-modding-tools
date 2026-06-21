@@ -1,6 +1,6 @@
 import { FileSystem } from "@effect/platform";
 import type { PlatformError } from "@effect/platform/Error";
-import type { HabitatDirectoryEntry } from "@internal/habitat-harness/substrate/resources/index";
+import type { HabitatDirectoryEntry } from "@internal/habitat-harness/service/runtime/resources/index";
 import { Effect } from "effect";
 
 export function makeFakePlatformFileSystemLayer(

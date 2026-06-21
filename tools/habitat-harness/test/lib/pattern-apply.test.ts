@@ -1,20 +1,22 @@
+import type { FixServiceModuleContext } from "@internal/habitat-harness/service/modules/fix/context";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+} from "@internal/habitat-harness/service/modules/fix/patterns/index";
+import {
+  fixRouter,
+  runPatternApplyTransaction,
+} from "@internal/habitat-harness/service/modules/fix/router";
 import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "@internal/habitat-harness/core/domains/transformation-transaction/index";
-import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
-import type { TransactionsServiceModuleContext } from "@internal/habitat-harness/service/modules/transactions/context";
-import { transactionsRouter } from "@internal/habitat-harness/service/modules/transactions/router";
+} from "@internal/habitat-harness/service/modules/fix/transactions/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/service/runtime/grit/index";
 import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
@@ -287,13 +289,10 @@ describe("pattern apply", () => {
 
 function applyTransaction(
   input: PatternApplyRequest,
-  options?: TransactionsServiceModuleContext,
+  options?: Pick<FixServiceModuleContext, "transactionInputs">,
   layer?: Layer.Layer<never>
 ) {
-  const program = Effect.gen(function* () {
-    const apply = transactionsRouter.apply.callable({ context: { transactions: options ?? {} } });
-    return yield* withFiberContext(() => apply(input));
-  });
+  const program = runPatternApplyTransaction(input, options);
   return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);
 }
 

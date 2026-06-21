@@ -1,7 +1,7 @@
-import type { RuleSelection } from "@internal/habitat-harness/core/domains/rule-selection/index";
-import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/core/domains/structural-check/index";
-import type { CheckOptions } from "@internal/habitat-harness/core/domains/structural-check/request";
 import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
+import type { RuleSelection } from "@internal/habitat-harness/service/modules/check/rules/selection/index";
+import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/modules/check/structural/index";
+import type { CheckOptions } from "@internal/habitat-harness/service/modules/check/structural/request";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
@@ -27,7 +27,7 @@ describe("Habitat check service", () => {
             base: "origin/main",
             commandArgs: ["--json"],
             staged: true,
-            stagedPaths: ["tools/habitat-harness/src/host/commands/check.ts"],
+            stagedPaths: ["tools/habitat-harness/src/cli/commands/check.ts"],
           })
         );
       }).pipe(
@@ -58,7 +58,7 @@ describe("Habitat check service", () => {
           serialized: "habitat check --json",
         },
         staged: true,
-        stagedPaths: ["tools/habitat-harness/src/host/commands/check.ts"],
+        stagedPaths: ["tools/habitat-harness/src/cli/commands/check.ts"],
       },
     ]);
   });

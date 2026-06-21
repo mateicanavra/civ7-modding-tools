@@ -9,28 +9,28 @@ import {
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticProviderFailure,
-} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
-import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
+} from "@internal/habitat-harness/service/modules/check/diagnostics/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/modules/check/rules/registry/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
   type OutputCapture,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/substrate/providers/grit/constants";
-import { gritRuleResultsFromReport } from "@internal/habitat-harness/substrate/providers/grit/diagnostics";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/service/runtime/grit/constants";
+import { gritRuleResultsFromReport } from "@internal/habitat-harness/service/runtime/grit/diagnostics";
 import {
   discoverPatternScanRoots,
   makeFakeGritProviderLayer,
   runGritDiagnosticOutcomesEffect,
   runGritRulesEffect,
   validateScanRoots,
-} from "@internal/habitat-harness/substrate/providers/grit/index";
+} from "@internal/habitat-harness/service/runtime/grit/index";
 import {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
-} from "@internal/habitat-harness/substrate/providers/grit/output";
-import { decidePatternScanRoots } from "@internal/habitat-harness/substrate/providers/grit/scan-roots/index";
+} from "@internal/habitat-harness/service/runtime/grit/output";
+import { decidePatternScanRoots } from "@internal/habitat-harness/service/runtime/grit/scan-roots/index";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect, type Layer } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";

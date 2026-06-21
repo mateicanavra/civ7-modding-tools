@@ -1,6 +1,6 @@
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import type { WorkspaceProject } from "@internal/habitat-harness/substrate/providers/nx/schema";
+import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/graph/workspace/index";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/runtime/nx/schema";
 import { describe, expect, test } from "vitest";
 
 const nxProjects: WorkspaceGraphProjectReader = {
@@ -49,7 +49,7 @@ describe("Habitat classify service", () => {
   test("classifies targets through the in-process Habitat service client", async () => {
     const result = await createHabitatServiceClient({
       classify: { options: { nxProjects } },
-    }).classify.run({ target: "tools/habitat-harness/src/host/commands/classify.ts" });
+    }).classify.run({ target: "tools/habitat-harness/src/cli/commands/classify.ts" });
 
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
@@ -65,7 +65,7 @@ describe("Habitat classify service", () => {
     });
 
     const result = await client.classify.run({
-      target: "tools/habitat-harness/src/host/commands/classify.ts",
+      target: "tools/habitat-harness/src/cli/commands/classify.ts",
     });
 
     expect(result.state).toBe("project-path");
@@ -160,7 +160,7 @@ index 3333333..4444444 100644
     });
 
     const result = await client.classify.run({
-      target: "tools/habitat-harness/src/host/commands/classify.ts",
+      target: "tools/habitat-harness/src/cli/commands/classify.ts",
     });
 
     expect(result.state).toBe("graph-refusal");

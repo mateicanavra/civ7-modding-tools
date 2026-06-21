@@ -2,7 +2,7 @@ import {
   CheckCommandContextSchema,
   CheckReportSchema,
   SelectorRequestSchema,
-} from "@internal/habitat-harness/core/domains/structural-check/schema";
+} from "@internal/habitat-harness/service/modules/check/structural/schema";
 import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";

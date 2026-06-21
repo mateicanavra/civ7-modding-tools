@@ -15,7 +15,7 @@ import {
   patternView,
   RepoRelativePathSchema,
   retiredPatternState,
-} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+} from "@internal/habitat-harness/service/modules/fix/patterns/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 

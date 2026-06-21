@@ -2,7 +2,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "plugins": [
     {
-      "plugin": "./tools/habitat-harness/src/workspace/plugin.ts",
+      "plugin": "./tools/habitat-harness/src/nx-plugin.ts",
       "options": {
         "checkTargetName": "habitat:check",
         "boundariesTargetName": "boundaries",

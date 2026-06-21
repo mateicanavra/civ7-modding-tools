@@ -1,4 +1,4 @@
-import { ClassifyResultSchema } from "@internal/habitat-harness/core/domains/workspace-graph-integration/schema";
+import { ClassifyResultSchema } from "@internal/habitat-harness/service/modules/graph/workspace/schema";
 import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";

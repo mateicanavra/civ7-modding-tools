@@ -11,16 +11,16 @@ const sourcePjson = {
   ...pjson,
   oclif: {
     ...pjson.oclif,
-    commands: "./src/host/commands",
+    commands: "./src/cli/commands",
   },
 };
 const sourceCommands = {
-  check: () => import("@internal/habitat-harness/host/commands/check"),
-  classify: () => import("@internal/habitat-harness/host/commands/classify"),
-  fix: () => import("@internal/habitat-harness/host/commands/fix"),
-  graph: () => import("@internal/habitat-harness/host/commands/graph"),
-  hook: () => import("@internal/habitat-harness/host/commands/hook"),
-  verify: () => import("@internal/habitat-harness/host/commands/verify"),
+  check: () => import("@internal/habitat-harness/cli/commands/check"),
+  classify: () => import("@internal/habitat-harness/cli/commands/classify"),
+  fix: () => import("@internal/habitat-harness/cli/commands/fix"),
+  graph: () => import("@internal/habitat-harness/cli/commands/graph"),
+  hook: () => import("@internal/habitat-harness/cli/commands/hook"),
+  verify: () => import("@internal/habitat-harness/cli/commands/verify"),
 } as const;
 
 const [commandName, ...commandArgs] = process.argv.slice(2);
