@@ -10,6 +10,7 @@ import {
   type StagedMutationPath,
   stagedPathsFromNameStatus,
 } from "../../lib/protected-zones/index.js";
+import { BiomeProvider } from "../../providers/biome/index.js";
 import { CommandRunner, type HabitatCommandResult } from "../../providers/command/index.js";
 import {
   GitProvider,
@@ -77,6 +78,7 @@ export function executeSelectedRulesEffect(
 ): Effect.Effect<
   Map<string, RuleExecutionRecord>,
   never,
+  | BiomeProvider
   | CommandRunner
   | NxProvider
   | CommandExecutor
@@ -151,12 +153,19 @@ export function executeSelectedRulesEffect(
       }
     }
     const executableCommandRules = commandRules.filter((rule) => !graphRefusals.has(rule.id));
-    const graphBackedRules = executableCommandRules.filter((rule) =>
+    yield* executeFormatRulesEffect(
+      executableCommandRules.filter((rule) => rule.ownerTool === "format-check"),
+      results
+    );
+    const remainingCommandRules = executableCommandRules.filter(
+      (rule) => rule.ownerTool !== "format-check"
+    );
+    const graphBackedRules = remainingCommandRules.filter((rule) =>
       isGraphBackedCommandRule(rule, graphRulesById)
     );
     yield* executeGraphBackedCommandRulesEffect(graphBackedRules, graphRulesById, results);
     yield* executeCommandRulesEffect(
-      executableCommandRules.filter((rule) => !isGraphBackedCommandRule(rule, graphRulesById)),
+      remainingCommandRules.filter((rule) => !isGraphBackedCommandRule(rule, graphRulesById)),
       results
     );
     yield* executeFileLayerRulesEffect(
@@ -166,6 +175,43 @@ export function executeSelectedRulesEffect(
     );
 
     return results;
+  });
+}
+
+function executeFormatRulesEffect(
+  formatRules: readonly RuleCommandExecutionFacts[],
+  results: Map<string, RuleExecutionRecord>
+): Effect.Effect<
+  void,
+  never,
+  BiomeProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
+> {
+  return Effect.gen(function* () {
+    const records = yield* Effect.all(formatRules.map(executeFormatRuleEffect), {
+      concurrency: "unbounded",
+    });
+    for (const [ruleId, record] of records) results.set(ruleId, record);
+  });
+}
+
+function executeFormatRuleEffect(
+  rule: RuleCommandExecutionFacts
+): Effect.Effect<
+  [string, RuleExecutionRecord],
+  never,
+  BiomeProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
+> {
+  return Effect.gen(function* () {
+    const biome = yield* BiomeProvider;
+    const started = yield* Clock.currentTimeMillis;
+    const result = yield* biome.run({ kind: "ci" }).pipe(
+      Effect.match({
+        onFailure: (error) => commandProviderFailureResult(rule, error),
+        onSuccess: (commandResult) => commandRuleResult(rule, commandResult),
+      })
+    );
+    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+    return [rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } }];
   });
 }
 

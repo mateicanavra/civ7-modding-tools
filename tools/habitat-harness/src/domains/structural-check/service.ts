@@ -3,6 +3,7 @@ import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../config/index.js";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
+import type { BiomeProvider } from "../../providers/biome/index.js";
 import type { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
 import type { NxProvider } from "../../providers/nx/index.js";
@@ -21,6 +22,7 @@ export interface StructuralCheckService {
     CheckReport,
     never,
     | BaselineAuthority
+    | BiomeProvider
     | CommandRunner
     | NxProvider
     | CommandExecutor
@@ -37,6 +39,7 @@ export interface StructuralCheckService {
     BaselineExpansionResult,
     never,
     | BaselineAuthority
+    | BiomeProvider
     | CommandRunner
     | NxProvider
     | CommandExecutor

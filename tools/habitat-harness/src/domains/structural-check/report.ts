@@ -4,6 +4,7 @@ import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
 import type { HabitatConfig } from "../../config/index.js";
 import { selectRules } from "../../domains/rule-selection/index.js";
+import type { BiomeProvider } from "../../providers/biome/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
 import type { NxProvider } from "../../providers/nx/index.js";
@@ -34,6 +35,7 @@ export function createCheckReportEffect(
   CheckReport,
   never,
   | BaselineAuthority
+  | BiomeProvider
   | CommandRunner
   | NxProvider
   | CommandExecutor

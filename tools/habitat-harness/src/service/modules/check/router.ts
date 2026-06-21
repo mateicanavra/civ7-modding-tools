@@ -9,6 +9,7 @@ import {
   describeRuleSelectionFailure,
   StructuralCheck,
 } from "../../../domains/structural-check/index.js";
+import type { BiomeProvider } from "../../../providers/biome/index.js";
 import type { CommandRunner } from "../../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../../providers/git/index.js";
 import type { NxProvider } from "../../../providers/nx/index.js";
@@ -48,6 +49,7 @@ export function expandCheckBaselinesService(
   CheckServiceExpandBaselineOutput,
   never,
   | BaselineAuthority
+  | BiomeProvider
   | CommandRunner
   | NxProvider
   | CommandExecutor
