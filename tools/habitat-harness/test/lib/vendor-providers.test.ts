@@ -17,6 +17,10 @@ import {
   GitProvider,
   makeFakeGitProviderLayer,
 } from "@internal/habitat-harness/substrate/providers/git/index";
+import {
+  GraphiteProvider,
+  makeFakeGraphiteProviderLayer,
+} from "@internal/habitat-harness/substrate/providers/graphite/index";
 import { huskyDelegator } from "@internal/habitat-harness/substrate/providers/husky/index";
 import {
   affectedArgv,
@@ -65,6 +69,26 @@ describe("vendor providers", () => {
       ["merge-base", "HEAD", "origin/main"],
       ["status", "--short", "--branch"],
     ]);
+  });
+
+  test("GraphiteProvider owns stack parent discovery", async () => {
+    const observed: string[] = [];
+    const result = await runHabitatEffect(
+      Effect.gen(function* () {
+        const graphite = yield* GraphiteProvider;
+        return yield* graphite.parent();
+      }).pipe(
+        Effect.provide(
+          makeFakeGraphiteProviderLayer((options) => {
+            observed.push(options.cwd);
+            return "agent-parent";
+          })
+        )
+      )
+    );
+
+    expect(result).toBe("agent-parent");
+    expect(observed).toEqual([repoRoot]);
   });
 
   test("NxProvider exposes affected argv and fake execution at the provider boundary", async () => {

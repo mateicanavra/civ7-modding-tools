@@ -1,6 +1,6 @@
 import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
-import { CommandRunner } from "@internal/habitat-harness/substrate/providers/command/index";
 import { GitProvider } from "@internal/habitat-harness/substrate/providers/git/index";
+import { GraphiteProvider } from "@internal/habitat-harness/substrate/providers/graphite/index";
 import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
@@ -63,20 +63,5 @@ export async function resolveVerifyBase(base?: string): Promise<VerifyBaseResolu
 }
 
 function resolveGraphiteParentEffect() {
-  return CommandRunner.pipe(
-    Effect.flatMap((runner) =>
-      runner.run({
-        commandId: "verify-base-graphite-parent",
-        kind: "workspace-tool",
-        executable: "gt",
-        argv: ["branch", "info", "--no-interactive"],
-        cwd: repoRoot,
-        captureGitState: false,
-      })
-    ),
-    Effect.map((result) =>
-      result.exit.code === 0 ? (result.stdout.text.match(/Parent:\s*([^\s]+)/)?.[1] ?? null) : null
-    ),
-    Effect.catchAll(() => Effect.succeed(null))
-  );
+  return GraphiteProvider.pipe(Effect.flatMap((graphite) => graphite.parent({ cwd: repoRoot })));
 }

@@ -1,11 +1,6 @@
 import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
 import type { HookReportChannel, HookTrace } from "./schema.js";
 
-export type RunCommand = (
-  argv: string[],
-  opts: { cwd: string; env?: Record<string, string>; captureGitState?: boolean }
-) => SpawnResult;
-
 export interface HookReportEvent {
   channel: HookReportChannel;
   text: string;
@@ -28,7 +23,6 @@ export interface HookResourcePolicy {
 }
 
 export interface HookRuntime {
-  runCommand?: RunCommand;
   pathExists?: (target: string) => boolean;
   fileHash?: (repoRelativePath: string) => string | null;
   nowMs?: () => number;

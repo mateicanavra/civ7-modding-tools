@@ -42,7 +42,6 @@ export {
   runSyncHabitatCommand,
 } from "./runner.js";
 export {
-  runSyncSpawnCommand,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,

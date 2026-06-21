@@ -2,9 +2,17 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
-import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
+import {
+  type SpawnResult,
+  spawnResultFromCommandProviderError,
+  spawnResultFromCommandResult,
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import {
+  GitProvider,
+  type GitProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/git/index";
+import { Effect } from "effect";
 import { stagedSourceCheckPaths } from "../../domains/structural-check/index.js";
-import { runHookCommand } from "./command-runner.js";
 import type { HookRuntime } from "./runtime.js";
 
 const biomeCandidateExtensions = new Set([
@@ -23,9 +31,13 @@ const biomeCandidateExtensions = new Set([
   ".tsx",
 ]);
 
-export function existingStagedPaths(runtime: HookRuntime = {}): string[] {
+export function existingStagedPathsEffect(
+  runtime: HookRuntime = {}
+): Effect.Effect<string[], never, GitProvider | GitProviderRequirements> {
   const pathExists = runtime.pathExists ?? existsSync;
-  return stagedPaths(runtime).filter((candidate) => pathExists(path.join(repoRoot, candidate)));
+  return stagedPathsEffect().pipe(
+    Effect.map((paths) => paths.filter((candidate) => pathExists(path.join(repoRoot, candidate))))
+  );
 }
 
 export function biomeHookPaths(staged: readonly string[]): string[] {
@@ -36,22 +48,32 @@ export function hookSourceCheckPaths(stagedPaths: readonly string[]): string[] {
   return stagedSourceCheckPaths(stagedPaths);
 }
 
-export function unstagedAmong(paths: string[], runtime: HookRuntime = {}): string[] {
-  if (paths.length === 0) return [];
-  const result = runHookCommand(
-    runtime,
-    "partial-staging",
-    ["git", "diff", "--name-only", "-z", "--", ...paths],
-    { cwd: repoRoot }
-  );
-  if (result.exitCode !== 0 || !result.stdout) return [];
-  return result.stdout.split("\0").filter(Boolean).map(toRepoRelative);
+export function unstagedAmongEffect(
+  paths: string[]
+): Effect.Effect<string[], never, GitProvider | GitProviderRequirements> {
+  if (paths.length === 0) return Effect.succeed([]);
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    const result = yield* git
+      .diffNameOnly({ paths, cwd: repoRoot })
+      .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    if (!result || result.exit.code !== 0 || !result.stdout.text) return [];
+    return result.stdout.text.split("\0").filter(Boolean).map(toRepoRelative);
+  });
 }
 
-export function gitAdd(paths: string[], runtime: HookRuntime = {}): SpawnResult {
-  if (paths.length === 0) return { exitCode: 0, stdout: "", stderr: "" };
-  return runHookCommand(runtime, "formatter-restage", ["git", "add", "--", ...paths], {
-    cwd: repoRoot,
+export function gitAddEffect(
+  paths: string[]
+): Effect.Effect<SpawnResult, never, GitProvider | GitProviderRequirements> {
+  if (paths.length === 0) return Effect.succeed({ exitCode: 0, stdout: "", stderr: "" });
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    return yield* git.add(paths, { cwd: repoRoot }).pipe(
+      Effect.match({
+        onFailure: spawnResultFromCommandProviderError,
+        onSuccess: spawnResultFromCommandResult,
+      })
+    );
   });
 }
 
@@ -61,15 +83,23 @@ export function fileHash(repoRelativePath: string): string | null {
   return createHash("sha256").update(readFileSync(absolute)).digest("hex");
 }
 
-function stagedPaths(runtime: HookRuntime = {}): string[] {
-  const result = runHookCommand(
-    runtime,
-    "staged-paths",
-    ["git", "diff", "--cached", "--name-status", "-z"],
-    { cwd: repoRoot }
-  );
-  if (result.exitCode !== 0 || !result.stdout) return [];
-  const tokens = result.stdout.split("\0").filter(Boolean);
+function stagedPathsEffect(): Effect.Effect<
+  string[],
+  never,
+  GitProvider | GitProviderRequirements
+> {
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    const result = yield* git
+      .diffNameStatus({ cached: true, cwd: repoRoot })
+      .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    if (!result || result.exit.code !== 0 || !result.stdout.text) return [];
+    return parseNameStatus(result.stdout.text);
+  });
+}
+
+function parseNameStatus(stdout: string): string[] {
+  const tokens = stdout.split("\0").filter(Boolean);
   const out: string[] = [];
   for (let i = 0; i < tokens.length; ) {
     const status = tokens[i++] ?? "";

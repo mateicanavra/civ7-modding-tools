@@ -338,6 +338,8 @@ function checkDeletedAdapters() {
     "tools/habitat-harness/src/lib/workspace-graph.ts",
     "tools/habitat-harness/src/lib/workspace-graph-contract.ts",
     "tools/habitat-harness/src/core/domains/baseline-authority/integrity.ts",
+    "tools/habitat-harness/src/core/domains/hook-runtime/command-runner.ts",
+    "tools/habitat-harness/src/core/domains/hook-runtime/pre-push-base.ts",
     "tools/habitat-harness/src/core/rules/facts.ts",
     "tools/habitat-harness/src/core/rules/patterns",
     "tools/habitat-harness/src/core/rules/registry",
