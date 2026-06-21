@@ -7,7 +7,11 @@ import {
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "../../src/providers/biome/index.js";
-import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+  materializeDefaultHabitatCommand,
+} from "../../src/providers/command/index.js";
 import { GitProvider, makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
 import { huskyDelegator } from "../../src/providers/husky/index.js";
 import {
@@ -221,6 +225,16 @@ describe("vendor providers", () => {
       "tools/habitat-harness/src/index.ts",
     ]);
     expect(result.stdout.text).toBe("formatted\n");
+  });
+
+  test("BiomeProvider executable materializes through the workspace binary policy", () => {
+    expect(materializeDefaultHabitatCommand("biome", ["ci", "."])).toMatchObject({
+      requestedExecutable: "biome",
+      executable: "bun",
+      argv: ["run", "--cwd", repoRoot, "biome", "ci", "."],
+      cwd: repoRoot,
+      executionPlane: "workspace-bun-run",
+    });
   });
 
   test("GritProvider owns check request construction and cache policy", async () => {
