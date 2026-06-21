@@ -16,7 +16,9 @@ const baseSettings = {
 };
 
 const foundationConfig = {
-  knobs: { plateCount: 28, plateActivity: 0.5 },
+  "foundation-mantle": { knobs: { plateCount: 28 } },
+  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-projection": { knobs: { plateActivity: 0.5 } },
 };
 
 function expectCompileError(fn: () => void): RecipeCompileError {
@@ -33,7 +35,7 @@ describe("standard recipe compile errors (map-rivers)", () => {
   it("rejects retired map-rivers riverDensity alias", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "map-rivers": {
           knobs: { riverDensity: "dense" },
         },
@@ -53,7 +55,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("flags unknown stage public keys", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "ecology-biomes": {
           extraField: {},
         },
@@ -71,7 +73,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("points legacy top-level Ecology configs at the current split stages", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         ecology: {},
       } as any)
     );
@@ -84,7 +86,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects legacy Ecology step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "ecology-biomes": {
           biomes: {
             classify: 123,
@@ -104,7 +106,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects stale Ecology public strategy selectors", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "ecology-pedology": {
           soilClassification: {
             strategy: "coastal-shelf",
@@ -125,7 +127,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects Ecology plot-effect engine selector leakage", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "ecology-features": {
           plotEffectCoverage: {
             snow: {
@@ -160,7 +162,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects out-of-range Ecology public numeric controls", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "ecology-features": {
           wetlandPlanning: {
             minConfidence01: 2,
@@ -181,8 +183,8 @@ describe("standard recipe compile errors (ecology)", () => {
   it("flags unknown keys in Foundation authoring surface", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: {
-          ...foundationConfig,
+        "foundation-mantle": {
+          knobs: { plateCount: 28 },
           forbiddenKinematics: { velocity: [1, 2, 3] },
         },
       } as any)
@@ -192,7 +194,7 @@ describe("standard recipe compile errors (ecology)", () => {
       err.errors.some(
         (item) =>
           item.code === "config.invalid" &&
-          item.path.includes("/config/foundation/forbiddenKinematics")
+          item.path.includes("/config/foundation-mantle/forbiddenKinematics")
       )
     ).toBe(true);
   });
@@ -200,7 +202,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects legacy Foundation step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: {
+        "foundation-mantle": {
           mesh: {
             computeMesh: {
               strategy: "default",
@@ -213,7 +215,8 @@ describe("standard recipe compile errors (ecology)", () => {
 
     expect(
       err.errors.some(
-        (item) => item.code === "config.invalid" && item.path.includes("/config/foundation/mesh")
+        (item) =>
+          item.code === "config.invalid" && item.path.includes("/config/foundation-mantle/mesh")
       )
     ).toBe(true);
   });
@@ -221,7 +224,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects derived Foundation mesh cellCount on the public surface", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: {
+        "foundation-mantle": {
           meshResolution: {
             cellCount: 128,
           },
@@ -233,7 +236,7 @@ describe("standard recipe compile errors (ecology)", () => {
       err.errors.some(
         (item) =>
           item.code === "config.invalid" &&
-          item.path.includes("/config/foundation/meshResolution/cellCount")
+          item.path.includes("/config/foundation-mantle/meshResolution/cellCount")
       )
     ).toBe(true);
   });
@@ -241,11 +244,13 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects Foundation reference-area scaling fields on the public surface", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: {
+        "foundation-mantle": {
           meshResolution: {
             referenceArea: 4536,
             plateScalePower: 0.8,
           },
+        },
+        "foundation-plates": {
           platePartition: {
             referenceArea: 4536,
             plateScalePower: 0.8,
@@ -255,10 +260,10 @@ describe("standard recipe compile errors (ecology)", () => {
     );
 
     for (const path of [
-      "/config/foundation/meshResolution/referenceArea",
-      "/config/foundation/meshResolution/plateScalePower",
-      "/config/foundation/platePartition/referenceArea",
-      "/config/foundation/platePartition/plateScalePower",
+      "/config/foundation-mantle/meshResolution/referenceArea",
+      "/config/foundation-mantle/meshResolution/plateScalePower",
+      "/config/foundation-plates/platePartition/referenceArea",
+      "/config/foundation-plates/platePartition/plateScalePower",
     ]) {
       expect(
         err.errors.some((item) => item.code === "config.invalid" && item.path.includes(path))
@@ -269,7 +274,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects legacy Morphology step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "morphology-coasts": {
           "landmass-plates": {
             seaLevel: {
@@ -293,7 +298,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects out-of-range Morphology public numeric controls", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "morphology-features": {
           volcanoes: {
             baseDensity: 2,
@@ -314,7 +319,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects legacy Hydrology step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "hydrology-climate-baseline": {
           "climate-baseline": {
             computeRadiativeForcing: {
@@ -338,7 +343,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects stale Hydrology public strategy selectors", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "hydrology-climate-baseline": {
           atmosphericCirculation: {
             strategy: "latitude",
@@ -359,7 +364,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects legacy Hydrology nested hydrography op wrappers", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "hydrology-hydrography": {
           lakes: {
             planLakes: {
@@ -383,7 +388,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects out-of-range Hydrology public numeric controls", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "hydrology-climate-baseline": {
           solarForcing: {
             equatorInsolation: 3,
@@ -404,7 +409,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects legacy Projection step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "map-ecology": {
           "features-apply": {
             apply: {
@@ -427,7 +432,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects retired map-rivers projection thresholds from the public config surface", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "map-rivers": {
           riverProjection: { minLength: 0 },
         },
@@ -445,7 +450,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects unknown Projection biome globals", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "map-ecology": {
           biomeBindings: {
             tropicalSeasonal: "BIOME_NOT_REAL",
@@ -466,7 +471,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects non-marine Projection marine binding", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         "map-ecology": {
           biomeBindings: {
             marine: "BIOME_DESERT",
@@ -487,7 +492,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects legacy Placement step/op envelope config", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         placement: {
           "derive-placement-inputs": {
             resources: {
@@ -511,7 +516,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects Placement adapter catalog and runtime start leakage", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         placement: {
           resources: {
             candidateResourceTypes: [1, 2, 3],
@@ -540,7 +545,7 @@ describe("standard recipe compile errors (ecology)", () => {
   it("rejects out-of-range Placement public numeric controls", () => {
     const err = expectCompileError(() =>
       standardRecipe.compileConfig(baseSettings, {
-        foundation: foundationConfig,
+        ...foundationConfig,
         placement: {
           resources: {
             densityPer100Tiles: 75,

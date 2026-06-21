@@ -12,7 +12,6 @@ import {
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { clampFinite, clampInt } from "@swooper/mapgen-core/lib/math";
 import { mapArtifacts } from "../../../map-artifacts.js";
-import ProjectionStepContract from "./projection.contract.js";
 import {
   validateCrustTilesArtifact,
   validatePlatesArtifact,
@@ -20,7 +19,8 @@ import {
   validateTectonicProvenanceTilesArtifact,
   validateTileToCellIndexArtifact,
   wrapFoundationValidate,
-} from "./validation.js";
+} from "../../foundation/validation.js";
+import ProjectionStepContract from "./projection.contract.js";
 
 const GROUP_PLATES = "Foundation / Plates";
 const GROUP_CRUST_TILES = "Foundation / Crust Tiles";

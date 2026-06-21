@@ -13,16 +13,16 @@ import PlanWetlandsStepContract from "./stages/ecology-features/steps/plan-wetla
 import ScoreLayersStepContract from "./stages/ecology-features/steps/score-layers/contract.js";
 import PedologyStepContract from "./stages/ecology-pedology/steps/pedology/contract.js";
 import ResourceBasinsStepContract from "./stages/ecology-pedology/steps/resource-basins/contract.js";
-import CrustStepContract from "./stages/foundation/steps/crust.contract.js";
-import CrustEvolutionStepContract from "./stages/foundation/steps/crustEvolution.contract.js";
-import MantleForcingStepContract from "./stages/foundation/steps/mantleForcing.contract.js";
-import MantlePotentialStepContract from "./stages/foundation/steps/mantlePotential.contract.js";
-import MeshStepContract from "./stages/foundation/steps/mesh.contract.js";
-import PlateGraphStepContract from "./stages/foundation/steps/plateGraph.contract.js";
-import PlateMotionStepContract from "./stages/foundation/steps/plateMotion.contract.js";
-import PlateTopologyStepContract from "./stages/foundation/steps/plateTopology.contract.js";
-import ProjectionStepContract from "./stages/foundation/steps/projection.contract.js";
-import TectonicsStepContract from "./stages/foundation/steps/tectonics.contract.js";
+import CrustEvolutionStepContract from "./stages/foundation-crust/steps/crustEvolution.contract.js";
+import MantleForcingStepContract from "./stages/foundation-mantle/steps/mantleForcing.contract.js";
+import MantlePotentialStepContract from "./stages/foundation-mantle/steps/mantlePotential.contract.js";
+import MeshStepContract from "./stages/foundation-mantle/steps/mesh.contract.js";
+import CrustStepContract from "./stages/foundation-plates/steps/crust.contract.js";
+import PlateGraphStepContract from "./stages/foundation-plates/steps/plateGraph.contract.js";
+import PlateMotionStepContract from "./stages/foundation-plates/steps/plateMotion.contract.js";
+import PlateTopologyStepContract from "./stages/foundation-projection/steps/plateTopology.contract.js";
+import ProjectionStepContract from "./stages/foundation-projection/steps/projection.contract.js";
+import TectonicsStepContract from "./stages/foundation-tectonics/steps/tectonics.contract.js";
 import ClimateBaselineStepContract from "./stages/hydrology-climate-baseline/steps/climateBaseline.contract.js";
 import ClimateRefineStepContract from "./stages/hydrology-climate-refine/steps/climateRefine.contract.js";
 import HydrologyLakesStepContract from "./stages/hydrology-hydrography/steps/lakes.contract.js";
@@ -67,18 +67,15 @@ function stage(id: string, contracts: readonly RecipeDagStepContractInput[]): Re
 }
 
 export const standardStageContractManifest = [
-  stage("foundation", [
+  stage("foundation-mantle", [
     MeshStepContract,
     MantlePotentialStepContract,
     MantleForcingStepContract,
-    CrustStepContract,
-    PlateGraphStepContract,
-    PlateMotionStepContract,
-    TectonicsStepContract,
-    CrustEvolutionStepContract,
-    ProjectionStepContract,
-    PlateTopologyStepContract,
   ]),
+  stage("foundation-plates", [CrustStepContract, PlateGraphStepContract, PlateMotionStepContract]),
+  stage("foundation-tectonics", [TectonicsStepContract]),
+  stage("foundation-crust", [CrustEvolutionStepContract]),
+  stage("foundation-projection", [ProjectionStepContract, PlateTopologyStepContract]),
   stage("morphology-coasts", [LandmassPlatesStepContract, RuggedCoastsStepContract]),
   stage("morphology-routing", [RoutingStepContract]),
   stage("morphology-erosion", [GeomorphologyStepContract]),

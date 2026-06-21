@@ -14,7 +14,9 @@ const env = {
 };
 
 const foundationConfig = {
-  knobs: { plateCount: 28, plateActivity: 0.5 },
+  "foundation-mantle": { knobs: { plateCount: 28 } },
+  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-projection": { knobs: { plateActivity: 0.5 } },
 };
 
 function runHydrologyTruth(config: Record<string, unknown>) {
@@ -59,7 +61,7 @@ function runHydrologyTruth(config: Record<string, unknown>) {
 }
 
 const withFoundation = (config: Record<string, unknown>) => ({
-  foundation: foundationConfig,
+  ...foundationConfig,
   ...config,
 });
 

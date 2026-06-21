@@ -1,9 +1,12 @@
 import { ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../artifacts.js";
-import { interleaveXY } from "../viz.js";
+import { foundationArtifacts } from "../../foundation/artifacts.js";
+import {
+  validateCrustArtifact,
+  wrapFoundationValidateNoDims,
+} from "../../foundation/validation.js";
+import { interleaveXY } from "../../foundation/viz.js";
 import CrustStepContract from "./crust.contract.js";
-import { validateCrustArtifact, wrapFoundationValidateNoDims } from "./validation.js";
 
 const GROUP_CRUST = "Foundation / Crust";
 

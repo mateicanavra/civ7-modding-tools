@@ -1,7 +1,7 @@
 import foundation from "@mapgen/domain/foundation";
 import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 import { mapArtifacts } from "../../../map-artifacts.js";
-import { foundationArtifacts } from "../artifacts.js";
+import { foundationArtifacts } from "../../foundation/artifacts.js";
 
 const ProjectionStepContract = defineStep({
   id: "projection",

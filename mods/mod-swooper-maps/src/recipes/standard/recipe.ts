@@ -14,7 +14,11 @@ import { orderStandardStages } from "./contract-manifest.js";
 import ecologyBiomes from "./stages/ecology-biomes/index.js";
 import ecologyFeatures from "./stages/ecology-features/index.js";
 import ecologyPedology from "./stages/ecology-pedology/index.js";
-import foundation from "./stages/foundation/index.js";
+import foundationCrust from "./stages/foundation-crust/index.js";
+import foundationMantle from "./stages/foundation-mantle/index.js";
+import foundationPlates from "./stages/foundation-plates/index.js";
+import foundationProjection from "./stages/foundation-projection/index.js";
+import foundationTectonics from "./stages/foundation-tectonics/index.js";
 import hydrologyClimateBaseline from "./stages/hydrology-climate-baseline/index.js";
 import hydrologyClimateRefine from "./stages/hydrology-climate-refine/index.js";
 import hydrologyHydrography from "./stages/hydrology-hydrography/index.js";
@@ -32,7 +36,11 @@ import { STANDARD_TAG_DEFINITIONS } from "./tags.js";
 
 const NAMESPACE = "mod-swooper-maps";
 const stages = orderStandardStages({
-  foundation,
+  "foundation-mantle": foundationMantle,
+  "foundation-plates": foundationPlates,
+  "foundation-tectonics": foundationTectonics,
+  "foundation-crust": foundationCrust,
+  "foundation-projection": foundationProjection,
   "morphology-coasts": morphologyCoasts,
   "morphology-routing": morphologyRouting,
   "morphology-erosion": morphologyErosion,

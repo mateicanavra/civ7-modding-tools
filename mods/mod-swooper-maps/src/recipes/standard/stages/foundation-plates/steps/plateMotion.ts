@@ -2,9 +2,12 @@ import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 import { wrapDeltaPeriodic } from "@swooper/mapgen-core/lib/math";
 
-import { foundationArtifacts } from "../artifacts.js";
+import { foundationArtifacts } from "../../foundation/artifacts.js";
+import {
+  validatePlateMotionArtifact,
+  wrapFoundationValidateNoDims,
+} from "../../foundation/validation.js";
 import PlateMotionStepContract from "./plateMotion.contract.js";
-import { validatePlateMotionArtifact, wrapFoundationValidateNoDims } from "./validation.js";
 
 const GROUP_PLATE_MOTION = "Foundation / Plate Motion";
 const WORLD_SPACE_ID = "world.xy" as const;

@@ -4,9 +4,10 @@ import type { StandardRecipeConfig } from "../../../recipes/standard/recipe.js";
  * Preset: realism/old-erosion
  */
 export const realismOldErosionConfig: StandardRecipeConfig = {
-  foundation: {
-    knobs: { plateCount: 28, plateActivity: 0.25 },
-  },
+  // plateCount is a cross-stage knob: it sizes the mesh (mantle) and the plate partition (plates).
+  "foundation-mantle": { knobs: { plateCount: 28 } },
+  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-projection": { knobs: { plateActivity: 0.25 } },
   "morphology-coasts": {
     knobs: { seaLevel: "earthlike", coastRuggedness: "smooth", shelfWidth: "normal" },
   },

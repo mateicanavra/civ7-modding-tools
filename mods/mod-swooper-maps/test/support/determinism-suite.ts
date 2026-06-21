@@ -13,16 +13,26 @@ function buildConfig(overrides: {
   plateCount?: number;
   plateActivity?: number;
 }): StandardRecipeConfig {
-  const config = structuredClone(standardConfig) as StandardRecipeConfig;
-  config.foundation = {
-    ...config.foundation,
-    knobs: {
-      ...config.foundation?.knobs,
-      ...(overrides.plateCount != null ? { plateCount: overrides.plateCount } : null),
-      ...(overrides.plateActivity != null ? { plateActivity: overrides.plateActivity } : null),
-    },
-  };
-  return config;
+  const config = structuredClone(standardConfig) as Record<
+    string,
+    { knobs?: Record<string, unknown> }
+  >;
+  if (overrides.plateCount != null) {
+    // plateCount is a cross-stage knob: it sizes the mesh (mantle) and the plate partition (plates).
+    for (const stageId of ["foundation-mantle", "foundation-plates"]) {
+      config[stageId] = {
+        ...config[stageId],
+        knobs: { ...config[stageId]?.knobs, plateCount: overrides.plateCount },
+      };
+    }
+  }
+  if (overrides.plateActivity != null) {
+    config["foundation-projection"] = {
+      ...config["foundation-projection"],
+      knobs: { ...config["foundation-projection"]?.knobs, plateActivity: overrides.plateActivity },
+    };
+  }
+  return config as StandardRecipeConfig;
 }
 
 // Float policy: fingerprints are byte-level hashes of TypedArray buffers (no quantization).

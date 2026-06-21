@@ -25,6 +25,11 @@ describe("map stamping contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
       path.join(repoRoot, "src/recipes/standard/stages/foundation"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-mantle"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-plates"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-tectonics"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-crust"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-projection"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),
@@ -179,6 +184,11 @@ describe("map stamping contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const physicsRoots = [
       path.join(repoRoot, "src/recipes/standard/stages/foundation"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-mantle"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-plates"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-tectonics"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-crust"),
+      path.join(repoRoot, "src/recipes/standard/stages/foundation-projection"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-coasts"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-routing"),
       path.join(repoRoot, "src/recipes/standard/stages/morphology-erosion"),

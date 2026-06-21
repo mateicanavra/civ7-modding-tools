@@ -6,10 +6,7 @@
   "recipe": "standard",
   "sortIndex": 1900,
   "config": {
-    "foundation": {
-      "knobs": {
-        "plateActivity": 0.85
-      },
+    "foundation-mantle": {
       "meshResolution": {
         "plateCount": 28,
         "cellsPerPlate": 13,
@@ -33,7 +30,9 @@
         "curvatureWeight": 0.45,
         "upwellingThreshold": 0.25,
         "downwellingThreshold": 0.35
-      },
+      }
+    },
+    "foundation-plates": {
       "lithosphere": {
         "basalticThickness01": 0.25,
         "yieldStrength01": 0.55,
@@ -57,6 +56,16 @@
         "p90NormScale": 1,
         "histogramBins": 32,
         "smoothingSteps": 0
+      }
+    },
+    "foundation-tectonics": {
+      "plateMotion": {
+        "omegaFactor": 1,
+        "plateRadiusMin": 1,
+        "residualNormScale": 1,
+        "p90NormScale": 1,
+        "histogramBins": 32,
+        "smoothingSteps": 0
       },
       "tectonicSegmentation": {
         "intensityScale": 900,
@@ -72,6 +81,11 @@
       },
       "tectonicRollups": {
         "activityThreshold": 1
+      }
+    },
+    "foundation-projection": {
+      "knobs": {
+        "plateActivity": 0.85
       }
     },
     "morphology-coasts": {
