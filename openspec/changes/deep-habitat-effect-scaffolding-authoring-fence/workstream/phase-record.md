@@ -4,10 +4,10 @@
 
 - Project: Habitat Harness deep refactor
 - Phase: Scaffolding authoring fence
-- Owner: Effect-first planning lane
-- Branch/Graphite stack: `agent-DRA-effect-first-openspec-domino-plan` stacked on `agent-DRA-effect-first-repair-backlog`
+- Owner: Effect-first refactor lane
+- Branch/Graphite stack: `agent-DRA-effect-scaffolding-domain-fence`
 - Started: 2026-06-19
-- Status: packet completed to OpenSpec shape
+- Status: implemented and verified
 
 ## Objective
 
@@ -17,7 +17,28 @@
 - Done condition: supported scaffolds preserve H8 behavior and unsupported
   shapes refuse.
 
+## Implementation
+
+- Project scaffold decisions, refusal schemas, and candidate pattern decisions
+  now live under `tools/habitat-harness/src/domains/scaffolding/**`.
+- Nx generator files remain host adapters for tree writes, package scanning, and
+  `.habitat` artifact path facts.
+- Product authoring-shaped request fields (`recipe`, `stage`, `op`, `step`) now
+  receive typed unsupported-domain refusals before generator writes.
+
 ## Verification
 
-- Commands run: pending implementation.
-- Evidence boundary: design packet.
+- `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts`
+- `bun run --cwd tools/habitat-harness test`
+- `bun run --cwd tools/habitat-harness check`
+- `bun run biome:ci`
+- `bun run habitat -- check --tool habitat --json`
+- `bun run openspec -- validate deep-habitat-effect-scaffolding-authoring-fence --strict`
+- `bun run openspec:validate`
+- `git diff --check`
+- `bun run build`
+
+## Notes
+
+- `bun run build` completed successfully. Nx reported `@civ7/adapter:build` as a
+  flaky task after success; no build failure remained.

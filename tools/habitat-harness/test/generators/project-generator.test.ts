@@ -88,6 +88,28 @@ describe("Habitat project generator", () => {
     expect(tree.exists("mods/swooper/src/index.ts")).toBe(false);
   });
 
+  test.each([
+    "recipe",
+    "stage",
+    "op",
+    "step",
+  ])("refuses product authoring field %s before writes", async (field) => {
+    const tree = createProjectTree();
+    const options = { name: "swooper", kind: "plugin", [field]: "standard" };
+
+    await expect(projectGenerator(tree, options)).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        kind: "scaffold-refusal",
+        requestClass: "unsupported-product-authoring",
+        reason: "unsupported-product-authoring",
+        writeSet: [],
+      }),
+    });
+
+    expect(tree.exists("packages/plugins/plugin-swooper/package.json")).toBe(false);
+    expect(tree.exists("packages/plugins/plugin-swooper/src/index.ts")).toBe(false);
+  });
+
   test("refuses mismatched kind and root pairs before writes", async () => {
     const tree = createProjectTree();
 

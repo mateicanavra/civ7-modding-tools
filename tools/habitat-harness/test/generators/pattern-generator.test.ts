@@ -95,6 +95,33 @@ describe("Habitat pattern generator", () => {
     assertNoGeneratedArtifacts(tree, "enforced-probe", "enforced_probe", beforeIndex);
   });
 
+  test.each([
+    "recipe",
+    "stage",
+    "op",
+    "step",
+  ])("refuses product authoring field %s before candidate writes", async (field) => {
+    const tree = createPatternTree();
+    const beforeIndex = tree.read(indexPath, "utf8");
+    const options = { ruleId: "product-authoring-probe", [field]: "standard" };
+
+    await expect(patternGenerator(tree, options)).rejects.toMatchObject({
+      refusal: expect.objectContaining({
+        kind: "scaffold-refusal",
+        requestClass: "unsupported-product-authoring",
+        reason: "unsupported-product-authoring",
+        writeSet: [],
+      }),
+    });
+
+    assertNoGeneratedArtifacts(
+      tree,
+      "product-authoring-probe",
+      "product_authoring_probe",
+      beforeIndex
+    );
+  });
+
   test("refuses registered generation when the manifest keeps placeholder manifest", async () => {
     const tree = createPatternTree();
     const beforeIndex = tree.read(indexPath, "utf8");
