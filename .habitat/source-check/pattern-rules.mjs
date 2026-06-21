@@ -4,6 +4,7 @@ export const sourceCheckRuleIds = [
   "contract-export-all",
   "control-app-surface",
   "control-orpc-contract-ownership",
+  "cutover-source-guardrails",
   "docs-local-checkout-paths",
   "domain-deep-import",
   "domain-engine-imports",
@@ -11,6 +12,7 @@ export const sourceCheckRuleIds = [
   "domain-ops-projection-effects",
   "domain-ops-root-config",
   "domain-root-catalogs",
+  "ecology-step-imports",
   "empty-schema-default",
   "habitat-adapter-domain-paths",
   "mapgen-core-runtime-civ7",
@@ -21,6 +23,7 @@ export const sourceCheckRuleIds = [
   "recipe-imports-in-domain",
   "recipe-runtime-domain-ops",
   "relative-domain-imports",
+  "rng-authority-static",
   "runtime-config-merge",
   "runtime-helper-redeclarations",
   "runtime-run-validated",
@@ -80,6 +83,14 @@ export function diagnosticsForRule(rule, file) {
           .map(({ node }) => diagnostic(rule, file, node)),
         ...schemaExportsFromControlIndex(file).map((node) => diagnostic(rule, file, node)),
       ];
+    case "cutover-source-guardrails":
+      return isSwooperRuntimeSource(file)
+        ? [
+            ...cutoverShimSurfaceLines(file).map((line) => diagnostic(rule, file, undefined, line)),
+            ...cutoverLegacyStageLines(file).map((line) => diagnostic(rule, file, undefined, line)),
+            ...cutoverDualStageLines(file).map((line) => diagnostic(rule, file, undefined, line)),
+          ]
+        : [];
     case "docs-local-checkout-paths":
       return file.path.startsWith("docs/") &&
         file.path.endsWith(".md") &&
@@ -140,6 +151,15 @@ export function diagnosticsForRule(rule, file) {
       )
         ? [diagnostic(rule, file)]
         : [];
+    case "ecology-step-imports":
+      return [
+        ...(isRetiredEcologyPath(file) ? [diagnostic(rule, file)] : []),
+        ...importRefs(file)
+          .filter(() => isActiveEcologyStagePath(file))
+          .filter((ref) => ref.kind === "import" || ref.kind === "export")
+          .filter((ref) => /^@mapgen\/domain\/ecology\/(?:ops|rules)(?:$|\/)/.test(ref.source))
+          .map((ref) => diagnostic(rule, file, ref.node)),
+      ];
     case "empty-schema-default":
       return objectProperties(file, "default")
         .filter(() =>
@@ -168,7 +188,7 @@ export function diagnosticsForRule(rule, file) {
     case "mapgen-core-runtime-civ7":
       return [
         ...importRefs(file)
-          .filter(() => pathMatches(file, /packages\/mapgen-core\/src\/(?:core|engine)\/.*\.ts$/))
+          .filter(() => isMapgenCoreProductionSource(file))
           .filter((ref) => ref.kind === "import" && !ref.isTypeOnly)
           .filter((ref) => /^(?:@civ7\/adapter(?:\/civ7)?|\/base-standard\/.+)$/.test(ref.source))
           .map((ref) => diagnostic(rule, file, ref.node)),
@@ -181,9 +201,15 @@ export function diagnosticsForRule(rule, file) {
           "MapConstructibles",
           "GameInfo",
         ].flatMap((name) =>
-          propertyAccessesOnObject(file, name)
-            .filter(() => pathMatches(file, /packages\/mapgen-core\/src\/(?:core|engine)\/.*\.ts$/))
+          identifierUses(file, name)
+            .filter(() => isMapgenCoreProductionSource(file))
             .map((node) => diagnostic(rule, file, node))
+        ),
+        ...identifierUses(file, "createCiv7Adapter")
+          .filter(() => isMapgenCoreProductionSource(file))
+          .map((node) => diagnostic(rule, file, node)),
+        ...linesMatching(file.text, /\bengine\s+as\s+unknown\b/).flatMap((line) =>
+          isMapgenCoreProductionSource(file) ? [diagnostic(rule, file, undefined, line)] : []
         ),
       ];
     case "op-calls-op":
@@ -237,6 +263,30 @@ export function diagnosticsForRule(rule, file) {
       );
     case "relative-domain-imports":
       return relativeDomainImportDiagnostics(rule, file);
+    case "rng-authority-static":
+      return isRngAuthorityScope(file)
+        ? [
+            ...rngAuthorityLines(file).map((line) =>
+              diagnostic(
+                rule,
+                file,
+                undefined,
+                line,
+                "Keep authored generation off engine RNG and official generators."
+              )
+            ),
+            ...sourceRefsMatching(
+              rule,
+              file,
+              /mods\/mod-swooper-maps\/src\/(?:domain|recipes\/standard)\/.*\.ts$/,
+              /^@swooper\/mapgen-core\/lib\/rng$/
+            ).map((hit) => ({
+              ...hit,
+              message:
+                "Do not import internal mapgen-core RNG from authored domain or standard recipe source.",
+            })),
+          ]
+        : [];
     case "runtime-config-merge":
       return pathMatches(
         file,
@@ -329,6 +379,107 @@ function sourceRefsMatching(rule, file, filePattern, sourcePattern) {
     .filter(() => pathMatches(file, filePattern))
     .filter((ref) => sourcePattern.test(ref.source))
     .map((ref) => diagnostic(rule, file, ref.node));
+}
+function isMapgenCoreProductionSource(file) {
+  return (
+    pathMatches(file, /packages\/mapgen-core\/src\/.*\.ts$/) &&
+    !file.path.includes("packages/mapgen-core/src/dev/")
+  );
+}
+function isRngAuthorityScope(file) {
+  return pathMatches(file, /mods\/mod-swooper-maps\/src\/(?:domain|recipes\/standard)\/.*\.ts$/);
+}
+function rngAuthorityLines(file) {
+  const patterns = [
+    { name: "direct-adapter-rng", pattern: /\.\s*getRandomNumber\s*\(/ },
+    { name: "terrainbuilder-rng", pattern: /\bTerrainBuilder\s*\.\s*getRandomNumber\s*\(/ },
+    { name: "ambient-random", pattern: /\bMath\s*\.\s*random\s*\(/ },
+    { name: "official-lakes-generator", pattern: /\.\s*generateLakes\s*\(/ },
+    { name: "official-biome-generator", pattern: /\.\s*designateBiomes\s*\(/ },
+    { name: "official-feature-generator", pattern: /\.\s*addFeatures\s*\(/ },
+    { name: "official-snow-generator", pattern: /\.\s*generateSnow\s*\(/ },
+    {
+      name: "official-resource-generator",
+      pattern: /\.\s*(?:generateResources|generateOfficialResources)\s*\(/,
+    },
+    {
+      name: "official-discovery-generator",
+      pattern: /\.\s*(?:generateDiscoveries|generateOfficialDiscoveries)\s*\(/,
+    },
+    {
+      name: "official-start-generator",
+      pattern: /\.\s*(?:assignStartPositions|chooseStartSectors)\s*\(/,
+    },
+  ];
+  return file.text
+    .split("\n")
+    .flatMap((line, index) =>
+      patterns.some(
+        ({ name, pattern }) => pattern.test(line) && !isAllowedRngAuthorityHit(file, name)
+      )
+        ? [index + 1]
+        : []
+    );
+}
+function isAllowedRngAuthorityHit(file, name) {
+  return (
+    file.path ===
+      "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts" &&
+    name === "official-discovery-generator"
+  );
+}
+function isActiveEcologyStagePath(file) {
+  return pathMatches(
+    file,
+    /mods\/mod-swooper-maps\/src\/recipes\/standard\/stages\/(?:ecology-biomes|ecology-features|ecology-pedology|map-ecology)\/.*\.ts$/
+  );
+}
+function isRetiredEcologyPath(file) {
+  return pathMatches(
+    file,
+    /mods\/mod-swooper-maps\/src\/recipes\/standard\/stages\/(?:ecology\/steps|ecology-features-score|ecology-ice|ecology-reefs|ecology-wetlands|ecology-vegetation)(?:\/|$)/
+  );
+}
+function isSwooperRuntimeSource(file) {
+  return pathMatches(
+    file,
+    /mods\/mod-swooper-maps\/src\/(?:domain|recipes\/standard|maps)\/.*\.(?:ts|json)$/
+  );
+}
+function cutoverShimSurfaceLines(file) {
+  return [
+    /\bdualRead/i,
+    /\bdual[-_ ]?engine/i,
+    /\bdual[-_ ]?path/i,
+    /\bshadow(?:Path|Compute|Layer|Mode|Toggle|Bridge)/i,
+    /\bcompare(?:Layer|Layers|Mode|Toggle|Only|Path)/i,
+    /\bcomparison(?:Layer|Layers|Mode|Toggle|Only|Path)/i,
+    /\bshim(?:med|ming|s)?\b/i,
+    /\bcompat(?:ibility)?[-_ ]?(shim|bridge)\b/i,
+    /\btransitional[-_ ]?(shim|bridge)\b/i,
+  ].flatMap((pattern) => linesMatching(file.text, pattern));
+}
+function cutoverLegacyStageLines(file) {
+  return [
+    /"hydrology-pre"/,
+    /"hydrology-core"/,
+    /"hydrology-post"/,
+    /"narrative-pre"/,
+    /"narrative-mid"/,
+    /"narrative-post"/,
+  ].flatMap((pattern) => linesMatching(file.text, pattern));
+}
+function cutoverDualStageLines(file) {
+  const pairs = [
+    { legacy: '"hydrology-pre"', target: '"hydrology-climate-baseline"' },
+    { legacy: '"hydrology-core"', target: '"hydrology-hydrography"' },
+    { legacy: '"hydrology-post"', target: '"hydrology-climate-refine"' },
+  ];
+  return pairs.flatMap(({ legacy, target }) =>
+    file.text.includes(legacy) && file.text.includes(target)
+      ? [firstMatchingLine(file.text, new RegExp(escapeRegExp(legacy)))]
+      : []
+  );
 }
 function relativeDomainImportDiagnostics(rule, file) {
   const refs = importRefs(file);
@@ -641,6 +792,9 @@ function linesMatching(text, pattern) {
 }
 function pathMatches(file, pattern) {
   return pattern.test(file.path);
+}
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function isTestPath(filePath) {

@@ -55,9 +55,10 @@ They fall into three groups:
 - actual behavioral or generated-bundle tests that belong under package `test`
   or `build` targets rather than Habitat structural rows.
 
-This packet starts the target-scope repair and records the drain criteria. It
-does not replace Nx import-boundary semantics with a second graph legality
-engine.
+This packet starts the target-scope repair and records the drain criteria. The
+follow-on `deep-habitat-effect-target-check-drain` slice removes the active
+`target-check` rows from Habitat structural execution. It does not replace Nx
+import-boundary semantics with a second graph legality engine.
 
 Inventory from this slice:
 

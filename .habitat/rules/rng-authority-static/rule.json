@@ -1,0 +1,25 @@
+{
+  "id": "rng-authority-static",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/{domain,recipes/standard}/**/*.ts",
+  "forbids": "authored generation source calling engine RNG, Math.random, official generators, or internal mapgen-core RNG",
+  "why": "Swooper authored generation owns deterministic RNG policy instead of reaching through engine/runtime generator APIs.",
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
+  "remediate": null,
+  "message": "Keep authored generation off engine RNG and official generators.",
+  "exceptionPath": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts may materialize official discoveries until that generator is replaced.",
+  "patternName": "rng_authority_static",
+  "hookCheck": true,
+  "scanRoots": ["mods/mod-swooper-maps/src/domain", "mods/mod-swooper-maps/src/recipes/standard"],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts"
+      ]
+    }
+  ]
+}

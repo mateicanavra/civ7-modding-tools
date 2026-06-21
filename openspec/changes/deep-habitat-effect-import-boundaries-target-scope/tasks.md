@@ -14,10 +14,10 @@
   target in `habitat check`.
 - [x] 2.2 Inventory target-check architecture-test rows by owner and replacement
   owner.
-- [ ] 2.3 Next domino: remove any target-check row whose invariant is already enforced by
-  source-check or file-layer ownership.
-- [ ] 2.4 Next domino: keep real behavioral/generated-bundle tests under package `test` or
-  `build` targets, not Habitat structural rule rows.
+- [x] 2.3 Follow-on domino drains source-shape `target-check` rows into
+  source-check ownership.
+- [x] 2.4 Follow-on domino keeps behavioral/generated-bundle tests under
+  package `test` or `build` targets, not Habitat structural rule rows.
 
 ## 3. Verification
 

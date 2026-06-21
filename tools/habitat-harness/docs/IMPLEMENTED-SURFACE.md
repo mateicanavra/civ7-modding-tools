@@ -80,13 +80,12 @@ Implemented owner tools:
 - project boundaries
 - formatter hygiene
 - file protection
-- wrapped tests
 
 Implemented rule state:
 
-- 51 registered rules;
-- 49 enforced;
-- 2 advisory;
+- 49 registered rules;
+- 48 enforced;
+- 1 advisory;
 - locked and debt-carrying baselines modeled explicitly;
 - selector validation for unknown, wrong-namespace, and empty-intersection
   rule selections.
@@ -95,8 +94,8 @@ Implemented rule state:
 
 Implemented diagnostic/check state:
 
-- 31 active Habitat check patterns;
-- matching 31 registered pattern-backed rules;
+- 35 active Habitat check patterns;
+- matching 35 registered pattern-backed rules;
 - fixture tests for pattern validity;
 - adapter normalization over machine JSON output;
 - cache/failure handling tests;
