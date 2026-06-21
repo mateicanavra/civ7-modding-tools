@@ -1,11 +1,20 @@
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
-import type { HookRuntime } from "../../src/domains/hook-runtime/runtime.js";
+import {
+  createHookTrace,
+  type HookReportEvent,
+  type HookRuntime,
+} from "../../src/domains/hook-runtime/runtime.js";
+import { repoRoot } from "../../src/lib/paths.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
+import type { HabitatCommandResult } from "../../src/providers/command/types.js";
 import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
 import { affectedArgv, makeFakeNxProviderLayer } from "../../src/providers/nx/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runHookService } from "../../src/service/modules/hook/router.js";
+
+const prePushAffectedTargets =
+  "check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns";
 
 describe("Habitat hook service", () => {
   test("runs owned hook orchestration from service input", async () => {
@@ -75,6 +84,149 @@ describe("Habitat hook service", () => {
     ]);
   });
 
+  test("refuses pre-push when no affected base can be resolved", async () => {
+    const fake = makePrePushRuntime();
+    const gitCalls: string[] = [];
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        gitCalls.push(argv.join(" "));
+        return commandResult(argv, options.cwd, "", 1);
+      })
+    );
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain("could not resolve an affected base");
+    expect(fake.calls).toEqual(["gt branch info --no-interactive"]);
+    expect(gitCalls).toEqual(["symbolic-ref --quiet --short refs/remotes/origin/HEAD"]);
+  });
+
+  test("propagates Nx affected failures with base provenance", async () => {
+    const fake = makePrePushRuntime({ graphiteParent: "agent-HR-parent" });
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "" },
+      { runtime: fake.runtime },
+      undefined,
+      nxLayer(() =>
+        commandResult(
+          affectedArgv({
+            base: "agent-HR-parent",
+            targets: prePushAffectedTargets.split(","),
+            head: "HEAD",
+            excludeTaskDependencies: true,
+          }),
+          repoRootForTestCommand(),
+          "affected failed\n",
+          1,
+          "target failed\n",
+          "nx"
+        )
+      )
+    );
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
+    expect(result.stdout).toContain("affected failed");
+    expect(result.stderr).toContain("target failed");
+  });
+
+  test("records pre-push base and affected provenance through providers", async () => {
+    const trace = createHookTrace();
+    const fake = makePrePushRuntime({ graphiteParent: "agent-HR-parent" });
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "" },
+      { runtime: { ...fake.runtime, trace } }
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(trace.prePush).toMatchObject({
+      base: "agent-HR-parent",
+      baseSource: "graphite-parent",
+      outcome: "pass",
+      exitCode: 0,
+      preState: {
+        branch: "agent-HR-test",
+        head: "abc123head",
+        resourceState: "not-configured",
+      },
+      postState: {
+        branch: "agent-HR-test",
+        head: "abc123head",
+        resourceState: "not-configured",
+      },
+    });
+    expect(trace.commands.find((command) => command.phase === "pre-push-base")).toMatchObject({
+      argv: ["gt", "branch", "info", "--no-interactive"],
+      cwd: repoRoot,
+      env: undefined,
+      exitCode: 0,
+    });
+    expect(trace.commands.find((command) => command.phase === "pre-push-affected")).toMatchObject({
+      argv: [
+        "nx",
+        "affected",
+        "-t",
+        prePushAffectedTargets,
+        "--base",
+        "agent-HR-parent",
+        "--head",
+        "HEAD",
+        "--outputStyle=static",
+        "--excludeTaskDependencies",
+      ],
+      cwd: repoRoot,
+      env: undefined,
+      exitCode: 0,
+    });
+  });
+
+  test("reports pre-push output through an injected reporter service", async () => {
+    const events: HookReportEvent[] = [];
+    const fake = makePrePushRuntime({ graphiteParent: "agent-HR-parent" });
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "" },
+      {
+        runtime: {
+          ...fake.runtime,
+          reporter: { write: (event) => events.push(event) },
+        },
+      },
+      undefined,
+      nxLayer(() =>
+        commandResult(
+          affectedArgv({
+            base: "agent-HR-parent",
+            targets: prePushAffectedTargets.split(","),
+            head: "HEAD",
+            excludeTaskDependencies: true,
+          }),
+          repoRootForTestCommand(),
+          "affected failed\n",
+          1,
+          "target failed\n",
+          "nx"
+        )
+      )
+    );
+
+    expect(result.exitCode).toBe(1);
+    expect(renderReported(events, "stdout")).toBe(result.stdout);
+    expect(renderReported(events, "stderr")).toBe(result.stderr);
+    expect(events).toContainEqual({
+      channel: "stdout",
+      text: "hook result: workstation check only; CI remains authoritative.\n",
+    });
+    expect(events).toContainEqual({
+      channel: "stderr",
+      text: "target failed\n",
+    });
+  });
+
   test("runs pre-push through provider-backed service execution", async () => {
     const fake = makePrePushRuntime();
 
@@ -113,24 +265,36 @@ describe("Habitat hook service", () => {
 function runHookServiceInTest(
   input: Parameters<typeof runHookService>[0],
   options: Parameters<typeof runHookService>[1] = {},
-  gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, ""))
+  gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
+  nx = nxLayer()
 ) {
   return Effect.runPromise(
-    runHookService(input, options).pipe(Effect.provide(Layer.merge(gitLayer, nxLayer())))
+    runHookService(input, options).pipe(Effect.provide(Layer.merge(gitLayer, nx)))
   );
 }
 
-function commandResult(argv: readonly string[], cwd: string, stdout: string) {
+function commandResult(
+  argv: readonly string[],
+  cwd: string,
+  stdout: string,
+  exitCode = 0,
+  stderr = "",
+  executable = "git"
+): HabitatCommandResult {
   return makeHabitatCommandResult(
     {
-      commandId: `git-${argv.join("-")}`,
-      kind: "git-state",
-      executable: "git",
+      commandId: `${executable}-${argv.join("-")}`,
+      kind: executable === "git" ? "git-state" : "workspace-tool",
+      executable,
       argv,
       cwd,
       captureGitState: false,
     },
-    { stdout: captureOutput(stdout) }
+    {
+      exit: { code: exitCode, signal: null, interrupted: false },
+      stdout: captureOutput(stdout),
+      stderr: captureOutput(stderr),
+    }
   );
 }
 
@@ -150,8 +314,14 @@ function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
             ? { exitCode: 0, stdout: `Parent: ${options.graphiteParent}\n`, stderr: "" }
             : { exitCode: 1, stdout: "", stderr: "no graphite parent\n" };
         }
-        if (call.startsWith("nx affected ")) {
-          return { exitCode: 0, stdout: "affected ok\n", stderr: "" };
+        if (call === "git branch --show-current") {
+          return { exitCode: 0, stdout: "agent-HR-test\n", stderr: "" };
+        }
+        if (call === "git rev-parse HEAD") {
+          return { exitCode: 0, stdout: "abc123head\n", stderr: "" };
+        }
+        if (call === "git diff --cached --name-only -z" || call === "git diff --name-only -z") {
+          return { exitCode: 0, stdout: "", stderr: "" };
         }
         throw new Error(`Unexpected hook service test command: ${call}`);
       },
@@ -160,10 +330,11 @@ function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
   };
 }
 
-function nxLayer() {
+function nxLayer(handler?: () => HabitatCommandResult) {
   return makeFakeNxProviderLayer({
     affected: (request) =>
-      commandResult(affectedArgv(request), repoRootForTestCommand(), "affected ok\n"),
+      handler?.() ??
+      commandResult(affectedArgv(request), repoRootForTestCommand(), "affected ok\n", 0, "", "nx"),
   });
 }
 
@@ -206,4 +377,11 @@ function fileLayerCheckReport(): string {
     ok: true,
     rules: [],
   })}\n`;
+}
+
+function renderReported(events: HookReportEvent[], channel: HookReportEvent["channel"]): string {
+  return events
+    .filter((event) => event.channel === channel)
+    .map((event) => event.text)
+    .join("");
 }

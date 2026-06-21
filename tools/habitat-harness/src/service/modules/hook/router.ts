@@ -14,13 +14,11 @@ import { finalizePreCommit, finalizePrePush } from "../../../domains/hook-runtim
 import {
   type PrePushBaseDecision,
   resolveGraphiteParent,
-  resolvePrePushBase,
 } from "../../../domains/hook-runtime/pre-push-base.js";
 import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
 import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
 import {
   createHookOutput,
-  type HookOptions,
   type HookRuntime,
   hookNow,
   section,
@@ -56,7 +54,6 @@ import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
 
-type HookName = "pre-commit" | "pre-push";
 type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {
   readonly check?: {
@@ -111,22 +108,15 @@ export function runHookService(input: HookServiceRunInput = {}, options: HookSer
     });
   }
   if (input.name === "pre-commit") return runPreCommitEffect(options.runtime ?? {});
-  return Effect.sync(() => runHook(input.name, { base: input.base }, options.runtime));
+  return Effect.succeed(unknownHookResult(input.name));
 }
 
-export function runHook(
-  name: string | undefined,
-  options: HookOptions = {},
-  runtime: HookRuntime = {}
-): SpawnResult {
-  if (!isHookName(name)) {
-    return {
-      exitCode: 2,
-      stdout: "",
-      stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
-    };
-  }
-  return name === "pre-commit" ? runPreCommit(runtime) : runPrePush(options, runtime);
+function unknownHookResult(name: string | undefined): SpawnResult {
+  return {
+    exitCode: 2,
+    stdout: "",
+    stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
+  };
 }
 
 export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
@@ -375,58 +365,6 @@ function finishPreCommit(
   return finalizePreCommit(runtime, "pass", { exitCode: 0, ...output.result() });
 }
 
-export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {}): SpawnResult {
-  const baseDecision = options.base
-    ? { kind: "resolved" as const, base: options.base, source: "explicit" as const }
-    : resolvePrePushBase(runtime);
-  return runPrePushWithBaseDecision(baseDecision, runtime);
-}
-
-function runPrePushWithBaseDecision(
-  baseDecision: PrePushBaseDecision,
-  runtime: HookRuntime = {}
-): SpawnResult {
-  const output = createHookOutput(runtime.reporter);
-  output.writeStdout(localHookNotice);
-  if (runtime.trace) {
-    runtime.trace.prePush = {
-      outcome: "started",
-      startedAtMs: hookNow(runtime),
-    };
-    runtime.trace.prePush.preState = captureRepoSnapshot(runtime);
-  }
-  if (baseDecision.kind === "refused") {
-    output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
-    return finalizePrePush(runtime, "base-refused", { exitCode: 1, ...output.result() });
-  }
-  const base = baseDecision.base;
-  if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
-  if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
-  const result = runHookCommand(
-    runtime,
-    "pre-push-affected",
-    [
-      "nx",
-      "affected",
-      "-t",
-      prePushTargetNames().join(","),
-      "--base",
-      base,
-      "--head",
-      "HEAD",
-      "--outputStyle=static",
-      "--excludeTaskDependencies",
-    ],
-    { cwd: repoRoot }
-  );
-  output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
-  output.writeStderr(result.stderr);
-  return finalizePrePush(runtime, result.exitCode === 0 ? "pass" : "affected-failed", {
-    exitCode: result.exitCode,
-    ...output.result(),
-  });
-}
-
 function runPrePushWithBaseDecisionEffect(
   baseDecision: PrePushBaseDecision,
   runtime: HookRuntime = {}
@@ -593,8 +531,4 @@ function checkSummaryAllowsNextStage(result: HookCheckCommandResult): boolean {
       result.summary.kind === "advisory-only" ||
       result.summary.kind === "not-applicable")
   );
-}
-
-function isHookName(name: string | undefined): name is HookName {
-  return name === "pre-commit" || name === "pre-push";
 }
