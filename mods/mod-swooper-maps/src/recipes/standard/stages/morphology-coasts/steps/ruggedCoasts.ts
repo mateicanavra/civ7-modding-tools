@@ -169,27 +169,18 @@ export default createStep(RuggedCoastsStepContract, {
 
     const shelfMaskSelection =
       config.shelfMask.strategy === "default"
-        ? (() => {
-            const { capTilesActive, capTilesPassive, capTilesMax } = config.shelfMask.config;
-            // Ceiling never sits below the configured margin caps, so a low capTilesMax
-            // cannot silently erase the passive>active distinction when the shelfWidth
-            // knob scales them (see compute-shelf-mask footgun note).
-            const capCeiling = Math.max(capTilesMax, capTilesActive, capTilesPassive);
-            return {
-              ...config.shelfMask,
-              config: {
-                ...config.shelfMask.config,
-                capTilesActive: Math.max(
-                  0,
-                  Math.min(capCeiling, Math.round(capTilesActive * shelfMultiplier))
-                ),
-                capTilesPassive: Math.max(
-                  0,
-                  Math.min(capCeiling, Math.round(capTilesPassive * shelfMultiplier))
-                ),
-              },
-            };
-          })()
+        ? {
+            ...config.shelfMask,
+            config: {
+              ...config.shelfMask.config,
+              // The shelfWidth knob drives the cap-free break-depth scale: narrow (<1) =>
+              // shallower break => narrower shelf; wide (>1) => deeper => wider. No caps.
+              breakDepthScale: clampFinite(
+                config.shelfMask.config.breakDepthScale * shelfMultiplier,
+                0
+              ),
+            },
+          }
         : config.shelfMask;
 
     return { ...config, coastlines: coastlinesSelection, shelfMask: shelfMaskSelection };
@@ -307,14 +298,14 @@ export default createStep(RuggedCoastsStepContract, {
     const {
       shelfMask,
       activeMarginMask,
-      capTilesByTile,
+      shelfBreakDepthByTile,
       nearshoreCandidateMask,
       depthGateMask,
       shallowCutoff,
     } = shelfResult as unknown as {
       shelfMask: unknown;
       activeMarginMask: unknown;
-      capTilesByTile: unknown;
+      shelfBreakDepthByTile: unknown;
       nearshoreCandidateMask: unknown;
       depthGateMask: unknown;
       shallowCutoff: unknown;
@@ -325,8 +316,11 @@ export default createStep(RuggedCoastsStepContract, {
     if (!(activeMarginMask instanceof Uint8Array) || activeMarginMask.length !== coastal.length) {
       throw new Error("Computed activeMarginMask missing or shape-mismatched.");
     }
-    if (!(capTilesByTile instanceof Uint8Array) || capTilesByTile.length !== coastal.length) {
-      throw new Error("Computed capTilesByTile missing or shape-mismatched.");
+    if (
+      !(shelfBreakDepthByTile instanceof Int16Array) ||
+      shelfBreakDepthByTile.length !== coastal.length
+    ) {
+      throw new Error("Computed shelfBreakDepthByTile missing or shape-mismatched.");
     }
     if (
       !(nearshoreCandidateMask instanceof Uint8Array) ||
@@ -350,15 +344,15 @@ export default createStep(RuggedCoastsStepContract, {
       let shelfTilesBeyondShore = 0;
       let activeShelfTiles = 0;
       let passiveShelfTiles = 0;
-      let maxCapTiles = 0;
+      let deepestShelfBreak = 0;
 
       for (let i = 0; i < size; i++) {
         if ((activeMarginMask[i] | 0) === 1) activeMarginTiles += 1;
         if ((nearshoreCandidateMask[i] | 0) === 1) nearshoreCandidates += 1;
         if ((depthGateMask[i] | 0) === 1) depthGatedTiles += 1;
 
-        const cap = capTilesByTile[i] | 0;
-        if (cap > maxCapTiles) maxCapTiles = cap;
+        const breakDepth = shelfBreakDepthByTile[i] | 0;
+        if (breakDepth < deepestShelfBreak) deepestShelfBreak = breakDepth;
 
         if ((shelfMask[i] | 0) !== 1) continue;
         shelfTiles += 1;
@@ -374,6 +368,7 @@ export default createStep(RuggedCoastsStepContract, {
       return {
         kind: "morphology.shelf.summary",
         shallowCutoff: shallowCutoff as number,
+        deepestShelfBreak,
         nearshoreCandidates,
         depthGatedTiles,
         shelfTiles,
@@ -381,16 +376,16 @@ export default createStep(RuggedCoastsStepContract, {
         activeMarginTiles,
         activeShelfTiles,
         passiveShelfTiles,
-        maxCapTiles,
         strategy: selection.strategy,
         config: shelfConfig
           ? {
-              nearshoreDistance: shelfConfig.nearshoreDistance,
               shallowQuantile: shelfConfig.shallowQuantile,
+              breakDepthSampleRadius: shelfConfig.breakDepthSampleRadius,
               activeClosenessThreshold: shelfConfig.activeClosenessThreshold,
-              capTilesActive: shelfConfig.capTilesActive,
-              capTilesPassive: shelfConfig.capTilesPassive,
-              capTilesMax: shelfConfig.capTilesMax,
+              activeBreakDepthFactor: shelfConfig.activeBreakDepthFactor,
+              passiveBreakDepthFactor: shelfConfig.passiveBreakDepthFactor,
+              absoluteMaxShelfDepth: shelfConfig.absoluteMaxShelfDepth,
+              breakDepthScale: shelfConfig.breakDepthScale,
             }
           : undefined,
       };
@@ -471,17 +466,17 @@ export default createStep(RuggedCoastsStepContract, {
     });
 
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "morphology.shelf.capTiles",
+      dataTypeKey: "morphology.shelf.breakDepth",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
-      format: "u8",
-      values: capTilesByTile,
-      meta: defineVizMeta("morphology.shelf.capTiles", {
-        label: "Shelf Distance Cap (Tiles)",
+      format: "i16",
+      values: shelfBreakDepthByTile,
+      meta: defineVizMeta("morphology.shelf.breakDepth", {
+        label: "Shelf Break Depth (m)",
         group: GROUP_SHELF,
         description:
-          "Per-tile max distance to coast used by the shelf classifier (active margins narrower).",
-        role: "membership",
+          "Per-tile, margin-modulated shelf-break depth (metres, <=0). Active margins shallower (narrower shelf); passive deeper (wider). Water shallower than this and connected to shore becomes shelf.",
+        role: "scalar",
         palette: "continuous",
       }),
     });
@@ -497,7 +492,7 @@ export default createStep(RuggedCoastsStepContract, {
         group: GROUP_SHELF,
         visibility: "debug",
         description:
-          "Water tiles within nearshoreDistance, used to sample bathymetry for shallowCutoff.",
+          "Water tiles within breakDepthSampleRadius, used to sample bathymetry for the shelf-break cutoff.",
         role: "membership",
         palette: "categorical",
         categories: [

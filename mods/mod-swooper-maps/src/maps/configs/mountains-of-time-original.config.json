@@ -157,12 +157,13 @@
         }
       },
       "shelf": {
-        "nearshoreDistance": 8,
+        "breakDepthSampleRadius": 8,
         "shallowQuantile": 0.6,
         "activeClosenessThreshold": 0.35,
-        "capTilesActive": 3,
-        "capTilesPassive": 6,
-        "capTilesMax": 8
+        "activeBreakDepthFactor": 0.6,
+        "passiveBreakDepthFactor": 1.25,
+        "absoluteMaxShelfDepth": -30,
+        "breakDepthScale": 1
       }
     },
     "morphology-routing": {

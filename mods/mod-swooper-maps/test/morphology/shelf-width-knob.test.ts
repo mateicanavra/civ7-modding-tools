@@ -4,7 +4,7 @@ import ruggedCoasts from "../../src/recipes/standard/stages/morphology-coasts/st
 import { standardConfig } from "../support/standard-config.js";
 
 describe("morphology-coasts shelfWidth knob", () => {
-  it("scales shelfMask distance caps deterministically in rugged-coasts normalize", () => {
+  it("scales the cap-free break-depth lever (breakDepthScale) deterministically in rugged-coasts normalize", () => {
     const base = (
       standardRecipe.compileConfig(
         {
@@ -20,66 +20,34 @@ describe("morphology-coasts shelfWidth knob", () => {
     const shelfMask = {
       strategy: "default",
       config: {
-        nearshoreDistance: 3,
-        shallowQuantile: 0.7,
-        activeClosenessThreshold: 0.45,
-        capTilesActive: 2,
-        capTilesPassive: 4,
-        capTilesMax: 8,
+        shallowQuantile: 0.6,
+        breakDepthSampleRadius: 8,
+        activeClosenessThreshold: 0.35,
+        activeBreakDepthFactor: 0.6,
+        passiveBreakDepthFactor: 1.25,
+        absoluteMaxShelfDepth: -30,
+        breakDepthScale: 1,
       },
     };
 
+    // Wider shelf => deeper break => larger break-depth scale. Narrower => shallower => smaller.
     const wide = (ruggedCoasts as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "wide" } }
     );
-    expect(wide.shelfMask.config.capTilesActive).toBe(3);
-    expect(wide.shelfMask.config.capTilesPassive).toBe(5);
+    expect(wide.shelfMask.config.breakDepthScale).toBeCloseTo(1.25);
 
     const narrow = (ruggedCoasts as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "narrow" } }
     );
-    expect(narrow.shelfMask.config.capTilesActive).toBe(2);
-    expect(narrow.shelfMask.config.capTilesPassive).toBe(3);
-  });
+    expect(narrow.shelfMask.config.breakDepthScale).toBeCloseTo(0.75);
 
-  it("does not let a too-low capTilesMax silently collapse the passive>active distinction (footgun guard)", () => {
-    const base = (
-      standardRecipe.compileConfig(
-        {
-          seed: 123,
-          dimensions: { width: 80, height: 60 },
-          latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-        },
-        standardConfig
-      ) as any
-    )["morphology-coasts"]?.["rugged-coasts"];
-
-    // capTilesMax below the configured margin caps used to clamp both active and
-    // passive down to capTilesMax (the latest_juicy capTilesMax:1 footgun).
-    const shelfMask = {
-      strategy: "default",
-      config: {
-        nearshoreDistance: 8,
-        shallowQuantile: 0.6,
-        activeClosenessThreshold: 0.35,
-        capTilesActive: 3,
-        capTilesPassive: 6,
-        capTilesMax: 1,
-      },
-    };
-
-    const wide = (ruggedCoasts as any).normalize(
-      { ...base, shelfMask },
-      { knobs: { shelfWidth: "wide" } }
+    expect(wide.shelfMask.config.breakDepthScale).toBeGreaterThan(
+      narrow.shelfMask.config.breakDepthScale
     );
-    // Ceiling floors to max(capTilesMax, active, passive) = 6, so the scaled caps
-    // survive: active = min(6, round(3*1.25)) = 4, passive = min(6, round(6*1.25)) = 6.
-    expect(wide.shelfMask.config.capTilesActive).toBe(4);
-    expect(wide.shelfMask.config.capTilesPassive).toBe(6);
-    expect(wide.shelfMask.config.capTilesPassive).toBeGreaterThan(
-      wide.shelfMask.config.capTilesActive
-    );
+    // The cap-free shelf has no tile-distance caps to scale.
+    expect(wide.shelfMask.config.capTilesActive).toBeUndefined();
+    expect(wide.shelfMask.config.capTilesMax).toBeUndefined();
   });
 });
