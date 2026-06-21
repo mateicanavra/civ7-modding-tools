@@ -85,7 +85,7 @@ export function ruleAliasTargetState(input: {
   if (input.rule.alias.kind === "direct-rule-check") return undefined;
   const targetNames = input.targetNames ?? workspaceGraphTargetNames();
   const target = `${targetNames.rulePrefix}${input.rule.id}`;
-  const declaration = ruleDependencyDeclaration(input.rule, targetNames);
+  const declaration = ruleDependencyDeclaration(input.rule);
   const dependencies = resolveTargetDependencyDeclaration(declaration, {
     declaringProject: input.rule.ownerProject,
     projects: input.projects,
@@ -205,14 +205,10 @@ function verifyProjectTargetStates(
   });
 }
 
-function ruleDependencyDeclaration(
-  rule: RuleGraphFacts,
-  targetNames: WorkspaceGraphTargetNames
-): TargetDependencyDeclaration {
+function ruleDependencyDeclaration(rule: RuleGraphFacts): TargetDependencyDeclaration {
   if (rule.alias.kind === "direct-rule-check") {
     throw new Error(`Rule '${rule.id}' does not declare a graph dependency.`);
   }
-  if (rule.id === "import-boundaries") return sameProjectTargetDependency(targetNames.boundaries);
   return explicitProjectTargetDependency(rule.alias.target.project, rule.alias.target.target);
 }
 
