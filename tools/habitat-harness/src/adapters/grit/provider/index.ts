@@ -3,9 +3,9 @@ import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../../config/index.js";
-import type { CommandProviderError, FileWriteFailed } from "../../../errors/index.js";
+import type { FileWriteFailed } from "../../../errors/index.js";
 import { repoRoot } from "../../../lib/paths.js";
-import { CommandRunner } from "../../../providers/command/index.js";
+import { type CommandProviderError, CommandRunner } from "../../../providers/command/index.js";
 import type {
   HabitatCommandResult,
   HabitatProcessRequest,

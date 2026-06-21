@@ -1,3 +1,9 @@
+export {
+  CommandFailed,
+  CommandInterrupted,
+  type CommandProviderError,
+  CommandUnavailable,
+} from "./errors.js";
 export { makeFakeCommandRunnerLayer } from "./fake.js";
 export {
   type MaterializedHabitatCommand,

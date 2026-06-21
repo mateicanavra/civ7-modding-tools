@@ -1,9 +1,8 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../config/index.js";
-import type { CommandProviderError } from "../../errors/index.js";
 import { repoRoot } from "../../lib/paths.js";
-import { CommandRunner } from "../command/index.js";
+import { type CommandProviderError, CommandRunner } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
 
 type BiomeProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner;
