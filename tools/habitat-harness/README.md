@@ -26,11 +26,12 @@ pattern: command classes live under `src/commands/**`, local repo scripts run
 
 ```bash
 bun run habitat            # command help
-bun run lint               # graph-owned repo-wide Biome hygiene
 bun run habitat:check      # diagnostic full Habitat rule aggregate
+bun run check              # diagnostic full Habitat rule aggregate
+bun run lint               # graph-owned repo-wide Biome hygiene
 bun run habitat:fix        # approved Grit codemods, then Biome safe writes
-bun run verify             # graph-owned package verifier aggregate
-bun run check              # graph-owned build/check/lint/test/verify aggregate
+bun run check:graph        # affected graph build/check/lint/test structural aggregate
+bun run verify             # graph-owned heavier verification aggregate
 bun run habitat check      # diagnostic Habitat CLI loop (add --json for JSON)
 bun run habitat verify     # diagnostic Habitat CLI verify loop
 bun run habitat classify packages/config/src/index.ts
@@ -43,10 +44,9 @@ bun run habitat hook pre-push       # local affected pre-push path
 Notes:
 
 - `habitat check` assumes a built tree for the bundle-output test rules
-  (`bun run build` first, or use graph verification through `bun run verify` /
-  `bun run check`).
-- `bun run lint` includes Habitat checks through Nx. A lint failure can be a
-  locked Habitat/Grit architecture finding, not only Biome or style hygiene.
+  (`bun run build` first, or use graph validation through `bun run check:graph`).
+- `bun run lint` owns repo-wide Biome hygiene. Habitat structural findings
+  belong to `bun run check`; graph validation belongs to `bun run check:graph`.
 - Advisory-lane rules (`adr-lint`, `doc-ambiguity`) report but never fail —
   matching their pre-harness enforcement reality.
 - Baselines (`.habitat/baselines/<rule-id>.json`) are explicit contract artifacts and

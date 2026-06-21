@@ -50,18 +50,22 @@ Root scripts also expose graph-owned entrypoints:
 
 - `bun run lint` runs the canonical repo-wide formatter hygiene target.
 - Full Habitat structural verification lives in `bun run habitat:check`,
-  `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
-  `bun run check`; it is not hidden inside root lint.
+  `bun run check`, and `@internal/habitat-harness:habitat:check:all`; it is
+  not hidden inside root lint.
 - `@internal/habitat-harness:validate:boundary-taxonomy` runs the current
   workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
-  target. It is part of root `bun run check` and Habitat verify/pre-push target
-  planning, not package unit tests.
+  target. It is part of root `bun run check:graph`, CI, and Habitat
+  verify/pre-push target planning, not package unit tests.
 - `@internal/habitat-harness:validate:grit-patterns` runs checked-in Habitat
   Grit pattern fixture validation through native `grit patterns test`. It is
-  part of root `bun run check` and Habitat verify/pre-push target planning, not
-  package unit tests.
-- `bun run verify` runs the repo-wide verification aggregate.
-- `bun run check` runs the repo-wide build, check, lint, test, and verify aggregate.
+  part of root `bun run check:graph`, CI, and Habitat verify/pre-push target
+  planning, not package unit tests.
+- `bun run check` runs the diagnostic Habitat structural aggregate.
+- `bun run check:graph` runs the affected graph build, check, lint, test, and
+  structural validation aggregate.
+- `bun run verify` runs the heavier repo-wide verification aggregate.
+- `bun run ci` runs the full repo-wide build, check, lint, test, verify, and
+  structural validation aggregate.
 - `bun run habitat:fix` runs `bun run habitat fix`.
 
 Important distinction: root `bun run verify` is a workspace aggregate. It is not
