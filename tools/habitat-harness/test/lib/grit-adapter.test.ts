@@ -24,7 +24,7 @@ import {
   renderDiagnosticAdapterFailure,
 } from "../../src/domains/diagnostic-pattern-catalog/index.js";
 import type { RulePatternFacts } from "../../src/domains/rule-registry/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
+import { repoRoot, toRepoRelative } from "../../src/lib/paths.js";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
@@ -303,17 +303,28 @@ describe("Grit check adapter parser and diagnostics", () => {
   });
 
   test("validates missing, outside, generated, protected, and approved scan roots", () => {
-    expect(validateScanRoots(["packages"])).toBeNull();
-    expect(validateScanRoots(["packages/mapgen-core/src"])).toBeNull();
-    expect(validateScanRoots(["mods/mod-swooper-maps/test"])).toBeNull();
-    expect(validateScanRoots(["missing-root"])).toContain("does not exist");
-    expect(validateScanRoots(["../outside"])).toContain("outside the repo");
-    expect(validateScanRoots(["mods/mod-swooper-maps/src/maps/generated"])).toContain(
+    const options = {
+      pathExists: fakeExistingScanRoots([
+        ".git",
+        "docs/PROCESS.md",
+        "mods/mod-swooper-maps/src/maps/generated",
+        "mods/mod-swooper-maps/test",
+        "packages",
+        "packages/mapgen-core/src",
+      ]),
+    };
+
+    expect(validateScanRoots(["packages"], options)).toBeNull();
+    expect(validateScanRoots(["packages/mapgen-core/src"], options)).toBeNull();
+    expect(validateScanRoots(["mods/mod-swooper-maps/test"], options)).toBeNull();
+    expect(validateScanRoots(["missing-root"], options)).toContain("does not exist");
+    expect(validateScanRoots(["../outside"], options)).toContain("outside the repo");
+    expect(validateScanRoots(["mods/mod-swooper-maps/src/maps/generated"], options)).toContain(
       "generated output"
     );
-    expect(validateScanRoots([".git"])).toContain("protected");
-    expect(validateScanRoots(["docs/PROCESS.md"])).toContain("not approved");
-    expect(validateScanRoots(["docs/PROCESS.md"], { allowDocsRoot: true })).toBeNull();
+    expect(validateScanRoots([".git"], options)).toContain("protected");
+    expect(validateScanRoots(["docs/PROCESS.md"], options)).toContain("not approved");
+    expect(validateScanRoots(["docs/PROCESS.md"], { ...options, allowDocsRoot: true })).toBeNull();
   });
 
   test("keeps scan-root refusal reasons as closed decisions", () => {
@@ -971,6 +982,13 @@ function output(text: string): OutputCapture {
     sha256: "test",
     bytes: Buffer.byteLength(text, "utf8"),
   };
+}
+
+function fakeExistingScanRoots(
+  existingRoots: readonly string[]
+): (absolutePath: string) => boolean {
+  const roots = new Set(existingRoots.map(toRepoRelative));
+  return (absolutePath) => roots.has(toRepoRelative(absolutePath));
 }
 
 function fakeGritRule(

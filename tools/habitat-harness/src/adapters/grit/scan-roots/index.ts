@@ -13,6 +13,7 @@ export interface PatternScanRootValidationOptions {
   requireExisting?: boolean;
   allowDocsRoot?: boolean;
   approvedScanRoots?: readonly string[];
+  pathExists?: (absolutePath: string) => boolean;
 }
 
 export function selectedScanRootsForRules(
@@ -29,11 +30,13 @@ export function selectedScanRootsForRules(
 }
 
 export function discoverPatternScanRoots(
-  selectedRules: readonly RulePatternFacts[] = []
+  selectedRules: readonly RulePatternFacts[] = [],
+  options: Pick<PatternScanRootValidationOptions, "pathExists"> = {}
 ): string[] {
+  const pathExists = options.pathExists ?? existsSync;
   const declaredRoots = selectedRules.flatMap(declaredScanRootsForRule);
   return uniqueRepoRelative(declaredRoots).filter((scanPath) =>
-    existsSync(path.join(repoRoot, scanPath))
+    pathExists(path.join(repoRoot, scanPath))
   );
 }
 
@@ -50,13 +53,14 @@ export function decidePatternScanRoots(
   options: PatternScanRootValidationOptions = {}
 ): DiagnosticScanRootDecision {
   const requireExisting = options.requireExisting ?? true;
+  const pathExists = options.pathExists ?? existsSync;
   if (scanRoots.length === 0) return { kind: "refused", reason: "empty" };
   for (const scanRoot of scanRoots) {
     const absolute = path.resolve(repoRoot, scanRoot);
     const relative = toRepoRelative(absolute);
     if (relative === ".." || relative.startsWith("../"))
       return { kind: "refused", reason: "outside-repo", root: scanRoot };
-    if (requireExisting && !existsSync(absolute))
+    if (requireExisting && !pathExists(absolute))
       return { kind: "refused", reason: "missing", root: scanRoot };
     const protection = decideScanRootProtection(relative, {
       protectedPrefixes: protectedScanRootPrefixes,
