@@ -18,7 +18,11 @@ import {
   type GitStateProvider,
 } from "../../providers/git/index.js";
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
-import { NxProvider, spawnResultFromCommandResult } from "../../providers/nx/index.js";
+import {
+  NxProvider,
+  type NxProviderService,
+  spawnResultFromCommandResult,
+} from "../../providers/nx/index.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
 import {
   activeRuleCommandExecutionFacts,
@@ -305,20 +309,15 @@ function runGraphBackedCommandRuleGroup(
     const targets = graphTargetsForRules(rules, graphRulesById);
     const nx = yield* NxProvider;
     const started = yield* Clock.currentTimeMillis;
-    const execution = yield* nx
-      .runMany({
-        projects: sortedUnique(targets.map((target) => target.project)),
-        targets: sortedUnique(targets.map((target) => target.target)),
+    const execution = yield* runGraphTargetsEffect(nx, targets).pipe(
+      Effect.match({
+        onFailure: (error) => ({ kind: "provider-failure" as const, error }),
+        onSuccess: (commandResult) => ({
+          kind: "completed" as const,
+          result: spawnResultFromCommandResult(commandResult),
+        }),
       })
-      .pipe(
-        Effect.match({
-          onFailure: (error) => ({ kind: "provider-failure" as const, error }),
-          onSuccess: (commandResult) => ({
-            kind: "completed" as const,
-            result: spawnResultFromCommandResult(commandResult),
-          }),
-        })
-      );
+    );
     const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
     const records = new Map<string, RuleExecutionRecord>();
     for (const rule of rules) {
@@ -337,6 +336,35 @@ function runGraphBackedCommandRuleGroup(
     }
     return records;
   });
+}
+
+function runGraphTargetsEffect(
+  nx: NxProviderService,
+  targets: readonly { project: string; target: string }[]
+) {
+  const uniqueTargets = uniqueGraphTargets(targets);
+  if (uniqueTargets.length === 1) {
+    const [target] = uniqueTargets;
+    return nx.runTarget(target);
+  }
+  return nx.runMany({
+    projects: sortedUnique(uniqueTargets.map((target) => target.project)),
+    targets: sortedUnique(uniqueTargets.map((target) => target.target)),
+  });
+}
+
+function uniqueGraphTargets(
+  targets: readonly { project: string; target: string }[]
+): Array<{ project: string; target: string }> {
+  const seen = new Set<string>();
+  const unique: Array<{ project: string; target: string }> = [];
+  for (const target of targets) {
+    const key = `${target.project}:${target.target}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(target);
+  }
+  return unique;
 }
 
 function groupedGraphBackedCommandRules(

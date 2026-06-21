@@ -16,6 +16,7 @@ import {
   makeFakeNxProviderLayer,
   NxProvider,
   runManyArgv,
+  runTargetArgv,
 } from "../../src/providers/nx/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 
@@ -140,6 +141,42 @@ describe("vendor providers", () => {
     );
 
     expect(result.stdout.text).toBe("batched ok\n");
+  });
+
+  test("NxProvider owns single target execution without run-many", async () => {
+    const request = {
+      project: "@internal/habitat-harness",
+      target: "boundaries",
+    };
+
+    expect(runTargetArgv(request)).toEqual([
+      "target-check",
+      "run",
+      "@internal/habitat-harness:boundaries",
+      "--outputStyle=static",
+    ]);
+
+    const result = await runHabitatEffect(
+      Effect.gen(function* () {
+        const nx = yield* NxProvider;
+        return yield* nx.runTarget(request);
+      }).pipe(
+        Effect.provide(
+          makeFakeNxProviderLayer({
+            runTarget: (runTargetRequest) =>
+              commandResult(
+                "workspace-tool",
+                "target-check",
+                runTargetArgv(runTargetRequest).slice(1),
+                repoRoot,
+                "single target ok\n"
+              ),
+          })
+        )
+      )
+    );
+
+    expect(result.stdout.text).toBe("single target ok\n");
   });
 
   test("BiomeProvider owns safe command-vector construction", async () => {

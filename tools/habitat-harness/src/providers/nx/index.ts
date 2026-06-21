@@ -28,6 +28,11 @@ export interface NxRunManyRequest {
   targets: readonly string[];
 }
 
+export interface NxRunTargetRequest {
+  project: string;
+  target: string;
+}
+
 export interface NxProviderService {
   readonly affected: (
     request: NxAffectedRequest
@@ -41,6 +46,10 @@ export interface NxProviderService {
     request: NxRunManyRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
   readonly runManyArgv: (request: NxRunManyRequest) => string[];
+  readonly runTarget: (
+    request: NxRunTargetRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
+  readonly runTargetArgv: (request: NxRunTargetRequest) => string[];
 }
 
 export class NxProvider extends Context.Tag("@internal/habitat-harness/NxProvider")<
@@ -54,6 +63,7 @@ export interface FakeNxProviderHandlers {
   readonly affected?: (request: NxAffectedRequest) => HabitatCommandResult;
   readonly graph?: (request: NxGraphRequest) => HabitatCommandResult;
   readonly runMany?: (request: NxRunManyRequest) => HabitatCommandResult;
+  readonly runTarget?: (request: NxRunTargetRequest) => HabitatCommandResult;
 }
 
 export function makeFakeNxProviderLayer(
@@ -70,6 +80,9 @@ export function makeFakeNxProviderLayer(
     runMany: (request) =>
       Effect.sync(() => requireFakeResult("runMany", handlers.runMany, request)),
     runManyArgv,
+    runTarget: (request) =>
+      Effect.sync(() => requireFakeResult("runTarget", handlers.runTarget, request)),
+    runTargetArgv,
   });
 }
 
@@ -117,6 +130,20 @@ function makeLiveNxProvider(): NxProviderService {
         )
       ),
     runManyArgv,
+    runTarget: (request) =>
+      CommandRunner.pipe(
+        Effect.flatMap((runner) =>
+          runner.run({
+            commandId: "nx-run-target",
+            kind: "workspace-tool",
+            executable: "target-check",
+            argv: runTargetArgv(request).slice(1),
+            cwd: repoRoot,
+            captureGitState: false,
+          })
+        )
+      ),
+    runTargetArgv,
   };
 }
 
@@ -148,6 +175,10 @@ export function runManyArgv(request: NxRunManyRequest): string[] {
     request.projects.join(","),
     "--outputStyle=static",
   ];
+}
+
+export function runTargetArgv(request: NxRunTargetRequest): string[] {
+  return ["target-check", "run", `${request.project}:${request.target}`, "--outputStyle=static"];
 }
 
 function requireFakeResult<Request>(
