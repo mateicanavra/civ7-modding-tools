@@ -415,6 +415,7 @@ function runPrePushWithBaseDecision(
       "--head",
       "HEAD",
       "--outputStyle=static",
+      "--excludeTaskDependencies",
     ],
     { cwd: repoRoot }
   );
@@ -452,7 +453,7 @@ function runPrePushWithBaseDecisionEffect(
     if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
     const nx = yield* NxProvider;
     const targets = prePushTargetNames();
-    const request = { base, targets, head: "HEAD" };
+    const request = { base, targets, head: "HEAD", excludeTaskDependencies: true };
     const argv = nx.affectedArgv(request);
     const startedAtMs = hookNow(runtime);
     const result = yield* nx.affected(request).pipe(

@@ -25,12 +25,15 @@
 
 - [ ] 4.1 Define local staged checks as staged-file Habitat/Biome work only.
 - [ ] 4.2 Define owner checks as scoped Habitat source/structural enforcement.
-- [ ] 4.3 Define affected checks as Nx-owned project verification.
-- [ ] 4.4 Remove duplicate Biome/Grit/Habitat execution across root scripts,
+- [x] 4.3 Define affected checks as Nx-owned project verification.
+- [x] 4.4 Remove duplicate Biome/Grit/Habitat execution across root scripts,
   hooks, and verify.
-- [x] 4.5 Keep `check:graph` focused on affected build/check/test plus
-  structural validation; root `lint` and CI remain the explicit Biome hygiene
-  lanes.
+- [x] 4.5 Keep `check:graph` focused on affected package checks plus structural
+  validation; explicit build/test/verify/CI lanes own heavier fanout.
+- [x] 4.6 Stop root CI from re-entering `habitat verify`; CI owns build, check,
+  lint, test, and structural targets directly.
+- [x] 4.7 Keep local affected graph and pre-push lanes from expanding dependency
+  build/test tasks; `verify` remains the explicit heavier dependency lane.
 
 ## 5. Validation
 

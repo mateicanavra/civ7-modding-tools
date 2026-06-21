@@ -10,7 +10,7 @@
     "build:cli": "nx run @mateicanavra/civ7-cli:build",
     "build:sdk": "nx run @mateicanavra/civ7-sdk:build",
     "check": "bun run habitat:check",
-    "check:graph": "nx affected --targets=build,check,test,validate:boundary-taxonomy,validate:grit-patterns",
+    "check:graph": "nx affected --targets=check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns --excludeTaskDependencies",
     "check-types": "nx run-many --targets=check",
     "check:cli": "nx run @mateicanavra/civ7-cli:check",
     "check:sdk": "nx run @mateicanavra/civ7-sdk:check",
@@ -64,7 +64,7 @@
     "habitat": "bun tools/habitat-harness/bin/dev.ts",
     "habitat:check": "bun run habitat check",
     "habitat:fix": "bun run habitat fix",
-    "ci": "nx run-many --targets=build,check,lint,test,verify,validate:boundary-taxonomy,validate:grit-patterns",
+    "ci": "nx run-many --targets=build,check,lint,test,validate:boundary-taxonomy,validate:grit-patterns",
     "verify": "nx run-many --targets=verify"
   },
   "workspaces": [
