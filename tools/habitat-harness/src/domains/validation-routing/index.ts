@@ -1,13 +1,13 @@
-import { prePushTargetNames, workspaceGraphTargetNames } from "../../providers/nx/targets.js";
+import type { WorkspaceGraphTargetNames } from "../../providers/nx/schema.js";
 import { habitatArtifactPathPlan } from "../rule-registry/artifact-paths.js";
 
-export interface PrePushRunTarget {
+export interface ValidationRunTarget {
   readonly project: string;
   readonly target: string;
 }
 
-export interface PrePushTargetPlan {
-  readonly runTargets: readonly PrePushRunTarget[];
+export interface ValidationTargetPlan {
+  readonly runTargets: readonly ValidationRunTarget[];
   readonly affectedTargets: readonly string[];
 }
 
@@ -16,17 +16,39 @@ const packageCheckTarget = "check";
 const habitatToolingPrefix = "tools/habitat-harness/";
 const structuralTargetNames = ["validate:boundary-taxonomy", "validate:grit-patterns"] as const;
 
+export function graphCheckTargetNames(targetNames: WorkspaceGraphTargetNames): readonly string[] {
+  return [
+    "check",
+    targetNames.boundaries,
+    targetNames.generatedCheck,
+    targetNames.sourceCheck,
+    ...structuralTargetNames,
+  ];
+}
+
+export function verifyAffectedTargetNames(
+  _targetNames: WorkspaceGraphTargetNames
+): readonly string[] {
+  return ["build", "check", "test", ...structuralTargetNames];
+}
+
+export function prePushAffectedTargetNames(
+  _targetNames: WorkspaceGraphTargetNames
+): readonly string[] {
+  return ["check", ...structuralTargetNames];
+}
+
 export function prePushTargetNamesForChangedPaths(
   changedPaths: readonly string[],
-  targetNames = workspaceGraphTargetNames()
+  targetNames: WorkspaceGraphTargetNames
 ): readonly string[] {
   return prePushTargetPlanForChangedPaths(changedPaths, targetNames).affectedTargets;
 }
 
 export function prePushTargetPlanForChangedPaths(
   changedPaths: readonly string[],
-  targetNames = workspaceGraphTargetNames()
-): PrePushTargetPlan {
+  targetNames: WorkspaceGraphTargetNames
+): ValidationTargetPlan {
   const plan = habitatArtifactPathPlan(changedPaths);
   if (plan.allHabitatArtifacts) {
     return { runTargets: [], affectedTargets: artifactAffectedTargets(plan, targetNames) };
@@ -39,12 +61,12 @@ export function prePushTargetPlanForChangedPaths(
     };
   }
 
-  return { runTargets: [], affectedTargets: prePushTargetNames(targetNames) };
+  return { runTargets: [], affectedTargets: prePushAffectedTargetNames(targetNames) };
 }
 
 function artifactAffectedTargets(
   plan: ReturnType<typeof habitatArtifactPathPlan>,
-  targetNames: ReturnType<typeof workspaceGraphTargetNames>
+  targetNames: WorkspaceGraphTargetNames
 ): readonly string[] {
   const targets = new Set<string>([targetNames.check]);
   if (plan.hasSourceCheckArtifact) targets.add(targetNames.sourceCheck);
