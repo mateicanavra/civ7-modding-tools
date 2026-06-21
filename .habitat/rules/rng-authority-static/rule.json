@@ -9,7 +9,7 @@
   "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Keep authored generation off engine RNG and official generators.",
-  "exceptionPath": "mods/mod-swooper-maps/src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts may materialize official discoveries until that generator is replaced.",
+  "exceptionPath": "none",
   "patternName": "rng_authority_static",
   "hookCheck": true,
   "scanRoots": ["mods/mod-swooper-maps/src/domain", "mods/mod-swooper-maps/src/recipes/standard"],
