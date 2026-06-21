@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "wrapper-advanced-stage-config";
+export const candidateExtensions = [".ts", ".json"];
 
 export function diagnosticsForRule(rule, file) {
   return runtime.pathMatches(

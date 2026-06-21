@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "runtime-config-merge";
+export const candidateExtensions = [".ts"];
 
 export function diagnosticsForRule(rule, file) {
   return runtime.pathMatches(

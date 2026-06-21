@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "habitat-adapter-domain-paths";
+export const candidateExtensions = [".ts"];
 
 export function diagnosticsForRule(rule, file) {
   return runtime.pathMatches(file, /tools\/habitat-harness\/src\/adapters\/grit\/.*\.ts$/) &&

@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "mapgen-core-runtime-civ7";
+export const candidateExtensions = [".ts"];
 
 export function diagnosticsForRule(rule, file) {
   return [

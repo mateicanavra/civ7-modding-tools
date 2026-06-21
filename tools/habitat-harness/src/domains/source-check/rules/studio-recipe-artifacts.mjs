@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "studio-recipe-artifacts";
+export const candidateExtensions = [".ts", ".tsx"];
 
 export function diagnosticsForRule(rule, file) {
   return runtime

@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "domain-ops-projection-effects";
+export const candidateExtensions = [".ts"];
 
 export function diagnosticsForRule(rule, file) {
   return runtime

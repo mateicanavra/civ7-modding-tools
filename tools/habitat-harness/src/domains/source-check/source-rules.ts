@@ -10,12 +10,7 @@ import type { RuleRunResult } from "../../rules/architecture.js";
 import { pathCoveragePatternMatches, type RuleSourceFacts } from "../rule-registry/index.js";
 import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.js";
-import {
-  pathsOverlap,
-  selectedSourceScanRootsForRules,
-  sortedUnique,
-  sourceCheckCandidateExtensions,
-} from "./scan-roots.js";
+import { pathsOverlap, selectedSourceScanRootsForRules, sortedUnique } from "./scan-roots.js";
 import type { SourceCheckOptions } from "./service.js";
 
 interface SourceFileRecord {
@@ -26,6 +21,7 @@ interface SourceFileRecord {
 
 interface SourceCheckRuleModule {
   readonly ruleId: string;
+  readonly candidateExtensions: readonly string[];
   readonly diagnosticsForRule: (
     rule: RuleSourceFacts,
     file: SourceFileRecord
@@ -34,6 +30,7 @@ interface SourceCheckRuleModule {
 
 interface SourceRuleFilePlan {
   readonly rule: RuleSourceFacts;
+  readonly candidateExtensions: ReadonlySet<string>;
   readonly scanRoots: readonly string[];
   readonly matches: (filePath: string) => boolean;
 }
@@ -57,12 +54,13 @@ export function runSourceRulesEffect(
   return Effect.gen(function* () {
     const loadedModules = yield* loadSourceCheckRuleModulesEffect(rules);
     const modulesByRule = new Map(loadedModules.map((loaded) => [loaded.rule.id, loaded]));
-    const executableRules = loadedModules
-      .filter((loaded): loaded is LoadedSourceRuleModule & { module: SourceCheckRuleModule } =>
+    const executableModules = loadedModules.filter(
+      (loaded): loaded is LoadedSourceRuleModule & { module: SourceCheckRuleModule } =>
         Boolean(loaded.module)
-      )
-      .map((loaded) => loaded.rule);
-    const plans = executableRules.map((rule) => sourceRuleFilePlan(rule, options));
+    );
+    const plans = executableModules.map((loaded) =>
+      sourceRuleFilePlan(loaded.rule, loaded.module, options)
+    );
     const files = yield* readPlannedSourceFiles(plans);
     const diagnosticsByRule = new Map<string, HabitatDiagnostic[]>(
       rules.map((rule) => [rule.id, []])
@@ -125,34 +123,57 @@ function sourceCheckRuleModuleFromModule(ruleId: string, module: unknown): Sourc
   if (candidate.ruleId !== ruleId) {
     throw new Error(`${sourceCheckRuleModuleRepoPath(ruleId)} must export ruleId "${ruleId}".`);
   }
+  if (!candidateExtensionsAreValid(candidate.candidateExtensions)) {
+    throw new Error(
+      `${sourceCheckRuleModuleRepoPath(ruleId)} must export non-empty candidateExtensions.`
+    );
+  }
   if (typeof candidate.diagnosticsForRule !== "function") {
     throw new Error(`${sourceCheckRuleModuleRepoPath(ruleId)} must export diagnosticsForRule().`);
   }
   return {
     ruleId: candidate.ruleId,
+    candidateExtensions: candidate.candidateExtensions,
     diagnosticsForRule: candidate.diagnosticsForRule,
   };
 }
 
-function sourceRuleFileMatcher(rule: RuleSourceFacts): (filePath: string) => boolean {
+function candidateExtensionsAreValid(value: unknown): value is readonly string[] {
+  return (
+    Array.isArray(value) &&
+    value.length > 0 &&
+    value.every((extension) => typeof extension === "string" && /^\.[A-Za-z0-9]+$/.test(extension))
+  );
+}
+
+function sourceRuleFileMatcher(
+  rule: RuleSourceFacts,
+  candidateExtensions: ReadonlySet<string>
+): (filePath: string) => boolean {
   const exactPathPatterns = rule.pathCoverage.flatMap((coverage) =>
     coverage.kind === "exact-path" ? coverage.patterns : []
   );
   if (exactPathPatterns.length > 0) {
     return (filePath) =>
+      candidateExtensions.has(path.extname(filePath)) &&
       exactPathPatterns.some((pattern) => pathCoveragePatternMatches(pattern, filePath));
   }
-  return (filePath) => rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
+  return (filePath) =>
+    candidateExtensions.has(path.extname(filePath)) &&
+    rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
 }
 
 function sourceRuleFilePlan(
   rule: RuleSourceFacts,
+  module: SourceCheckRuleModule,
   options: SourceCheckOptions
 ): SourceRuleFilePlan {
+  const candidateExtensions = new Set(module.candidateExtensions);
   return {
     rule,
+    candidateExtensions,
     scanRoots: selectedSourceScanRootsForRules([rule], options.scanRoots),
-    matches: sourceRuleFileMatcher(rule),
+    matches: sourceRuleFileMatcher(rule, candidateExtensions),
   };
 }
 
@@ -162,9 +183,14 @@ function readPlannedSourceFiles(
   return Effect.gen(function* () {
     if (plans.length === 0) return [];
     const scanRoots = sortedUnique(plans.flatMap((plan) => plan.scanRoots));
-    const paths = yield* Effect.forEach(scanRoots, collectSourcePaths, {
-      concurrency: "unbounded",
-    });
+    const candidateExtensions = new Set(plans.flatMap((plan) => [...plan.candidateExtensions]));
+    const paths = yield* Effect.forEach(
+      scanRoots,
+      (scanRoot) => collectSourcePaths(scanRoot, candidateExtensions),
+      {
+        concurrency: "unbounded",
+      }
+    );
     const plannedPaths = sortedUnique(paths.flat()).flatMap((candidate) => {
       const matchingPlans = plans.filter((plan) => plan.matches(candidate));
       return matchingPlans.length > 0 ? [{ path: candidate, plans: matchingPlans }] : [];
@@ -200,14 +226,20 @@ function sourceFileRecord(relativePath: string, text: string): SourceFileRecord 
 }
 
 function collectSourcePaths(
-  scanRoot: string
+  scanRoot: string,
+  candidateExtensions: ReadonlySet<string>
 ): Effect.Effect<string[], never, FileSystem.FileSystem> {
   const absolute = path.join(repoRoot, scanRoot);
   return isFile(absolute).pipe(
     Effect.flatMap((file) => {
-      if (file) return Effect.succeed(isCandidateFile(scanRoot) ? [toRepoRelative(scanRoot)] : []);
+      if (file)
+        return Effect.succeed(
+          isCandidateFile(scanRoot, candidateExtensions) ? [toRepoRelative(scanRoot)] : []
+        );
       return isDirectory(absolute).pipe(
-        Effect.flatMap((directory) => (directory ? collectDirectory(absolute) : Effect.succeed([])))
+        Effect.flatMap((directory) =>
+          directory ? collectDirectory(absolute, candidateExtensions) : Effect.succeed([])
+        )
       );
     }),
     Effect.catchAll(() => Effect.succeed([]))
@@ -215,7 +247,8 @@ function collectSourcePaths(
 }
 
 function collectDirectory(
-  absoluteDirectory: string
+  absoluteDirectory: string,
+  candidateExtensions: ReadonlySet<string>
 ): Effect.Effect<string[], never, FileSystem.FileSystem> {
   return readDirectory(absoluteDirectory).pipe(
     Effect.flatMap((entries) =>
@@ -227,10 +260,12 @@ function collectDirectory(
           if (entry.kind === "directory") {
             return ignoredDirectory(entry.name, relative)
               ? Effect.succeed([])
-              : collectDirectory(absolute);
+              : collectDirectory(absolute, candidateExtensions);
           }
           return Effect.succeed(
-            entry.kind === "file" && isCandidateFile(relative) ? [relative] : []
+            entry.kind === "file" && isCandidateFile(relative, candidateExtensions)
+              ? [relative]
+              : []
           );
         },
         { concurrency: 8 }
@@ -267,8 +302,8 @@ function isTsLikeFile(filePath: string): boolean {
   return /\.(?:cjs|cts|js|jsx|mjs|mts|ts|tsx)$/.test(filePath);
 }
 
-function isCandidateFile(filePath: string): boolean {
-  return sourceCheckCandidateExtensions.has(path.extname(filePath));
+function isCandidateFile(filePath: string, candidateExtensions: ReadonlySet<string>): boolean {
+  return candidateExtensions.has(path.extname(filePath));
 }
 
 function ignoredDirectory(name: string, relative: string): boolean {

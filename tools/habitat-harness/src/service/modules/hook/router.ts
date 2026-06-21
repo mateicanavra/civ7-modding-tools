@@ -15,6 +15,7 @@ import {
   type PrePushBaseDecision,
   resolveGraphiteParent,
 } from "../../../domains/hook-runtime/pre-push-base.js";
+import { prePushTargetNamesForChangedPaths } from "../../../domains/hook-runtime/pre-push-targets.js";
 import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
 import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
 import {
@@ -56,7 +57,6 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "../../../providers/nx/index.js";
-import { prePushTargetNamesForChangedPaths } from "../../../providers/nx/targets.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
