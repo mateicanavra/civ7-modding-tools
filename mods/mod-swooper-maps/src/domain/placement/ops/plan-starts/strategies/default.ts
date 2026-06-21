@@ -1,3 +1,8 @@
+import {
+  apportionStartsByCapacity,
+  CIV7_START_PLACEMENT_POLICY_V0,
+  feasibleStartCeiling,
+} from "@civ7/map-policy";
 import { clamp01 } from "@swooper/mapgen-core";
 import { createStrategy } from "@swooper/mapgen-core/authoring";
 import {
@@ -684,25 +689,62 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
 
     candidates.sort(compareSelectableTiles);
 
-    // --- pass 3: seat identities + four-rung selection ladder ------------------------------
+    // --- pass 3a: capacity-proportional homeland allocation (D2) ---------------------------
+    // WHY: the legacy fixed playersLandmass1/playersLandmass2 split (default
+    // 4/4) ignored where the settleable land actually is, forcing half the civs
+    // into a land-poor homeland (the reported clustering). Apportion the SAME
+    // total across the two homelands by real capacity — admitted-candidate count
+    // (quality-aware) clamped to a spacing-feasibility ceiling from each region's
+    // land extent — then bias toward equal hemispheres when the land allows.
+    // Total seat count is preserved.
+    const candidatesBySlot = { 1: 0, 2: 0 };
+    for (const candidate of candidates) candidatesBySlot[candidate.regionSlot] += 1;
+    let landBySlot1 = 0;
+    let landBySlot2 = 0;
+    for (let i = 0; i < size; i++) {
+      if ((landMask[i] ?? 0) !== 1) continue;
+      const slot = slotByTile[i];
+      if (slot === 1) landBySlot1 += 1;
+      else if (slot === 2) landBySlot2 += 1;
+    }
+    const totalPlayers = playersLandmass1 + playersLandmass2;
+    const allocation = apportionStartsByCapacity({
+      capacities: [candidatesBySlot[1], candidatesBySlot[2]],
+      ceilings: [
+        feasibleStartCeiling(landBySlot1, spacingFloorTiles),
+        feasibleStartCeiling(landBySlot2, spacingFloorTiles),
+      ],
+      total: totalPlayers,
+      balanceBias: CIV7_START_PLACEMENT_POLICY_V0.balanceBias,
+    });
+    // Over-subscription top-up: when the map cannot feasibly hold `total`
+    // well-spaced starts, the excess still gets a seat in the homeland with the
+    // most remaining candidate headroom — degraded downstream by the ladder,
+    // never silently dropped.
+    let allocated = allocation[0]! + allocation[1]!;
+    while (allocated < totalPlayers) {
+      const headroom1 = candidatesBySlot[1] - allocation[0]!;
+      const headroom2 = candidatesBySlot[2] - allocation[1]!;
+      allocation[headroom1 >= headroom2 ? 0 : 1]! += 1;
+      allocated += 1;
+    }
+    const playersWest = allocation[0]!;
+    const playersEast = allocation[1]!;
+
+    // --- pass 3b: seat identities + four-rung selection ladder -----------------------------
     const seatIdentities = buildSeatIdentities({
-      playersWest: playersLandmass1,
-      playersEast: playersLandmass2,
+      playersWest,
+      playersEast,
       alivePlayerIds: input.alivePlayerIds,
     });
 
-    // Region reassignment (recorded, never silent): when a configured region
-    // has ZERO admitted candidates (e.g. a single-continent map whose "east"
-    // hemisphere is a few stray tiles), its seats cannot be regional by
-    // geography — they are reassigned to the other region up-front. This is a
-    // map-shape reconciliation, not a quality fallback: the seat then runs the
-    // normal ladder inside its reassigned region. Each reassignment is
-    // recorded as a region relaxation, flagged per seat, and degrades the
-    // seat's status.
+    // Region reassignment (recorded, never silent): a residual guard for any
+    // seat whose homeland still has ZERO admitted candidates after allocation
+    // (rare now that D2 allocates 0 players to a zero-capacity region). The seat
+    // is reassigned to the other region, recorded as a region relaxation, and
+    // its status degrades.
     const preLadderRelaxations: RelaxationEntry[] = [];
     const reassignedSeats = new Set<number>();
-    const candidatesBySlot = { 1: 0, 2: 0 };
-    for (const candidate of candidates) candidatesBySlot[candidate.regionSlot] += 1;
     for (const seat of seatIdentities) {
       const own = candidatesBySlot[seat.regionSlot];
       const other = (seat.regionSlot === 1 ? 2 : 1) as 1 | 2;
@@ -809,8 +851,11 @@ export const defaultStrategy = createStrategy(PlanStartsContract, "default", {
       .sort((a, b) => a.reason.localeCompare(b.reason));
 
     return {
-      playersLandmass1,
-      playersLandmass2,
+      // Report the ACTUAL capacity-proportional allocation, not the requested
+      // split (the contract defines these as "player count allocated to the
+      // west/east landmass region").
+      playersLandmass1: playersWest,
+      playersLandmass2: playersEast,
       spacingFloorTiles,
       desiredSpacingTiles,
       width,

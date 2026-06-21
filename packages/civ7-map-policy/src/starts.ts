@@ -72,7 +72,9 @@ export function startFootprintTiles(
 /**
  * Max well-spaced starts a region of `settleableTiles` can host at the floor.
  * An area/footprint approximation (region SHAPE is ignored): a soft ceiling the
- * selection ladder still validates exactly. 0 settleable tiles → 0.
+ * selection ladder still validates exactly. 0 settleable tiles → 0; any
+ * non-empty region → ≥ 1 (a single start needs no mutual spacing, so the
+ * footprint divisor must not zero out a small-but-real homeland).
  */
 export function feasibleStartCeiling(
   settleableTiles: number,
@@ -80,7 +82,8 @@ export function feasibleStartCeiling(
   footprintFactor?: number
 ): number {
   if (settleableTiles <= 0) return 0;
-  return Math.floor(settleableTiles / startFootprintTiles(spacingFloorTiles, footprintFactor));
+  const footprint = startFootprintTiles(spacingFloorTiles, footprintFactor);
+  return Math.max(1, Math.floor(settleableTiles / footprint));
 }
 
 /**
