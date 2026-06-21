@@ -11,7 +11,7 @@ import {
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import { isDirectory, isFile, readDirectory, readText } from "../../resources/filesystem.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../rule-registry/index.js";
+import { pathCoveragePatternMatches, type RulePatternFacts } from "../rule-registry/index.js";
 import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import {
   pathsOverlap,
@@ -49,7 +49,7 @@ export function runSourcePatternRulesEffect(
       rules.map((rule) => {
         if (!policyRuleIds.has(rule.id)) return [rule.id, unsupportedNativeRule(rule, policy)];
         const diagnostics = files
-          .filter((file) => rule.scanRoots.some((scanRoot) => pathsOverlap(file.path, scanRoot)))
+          .filter((file) => ruleMatchesSourceFile(rule, file.path))
           .flatMap((file) => [...policy.diagnosticsForRule(rule, file)]);
         return [rule.id, { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics }];
       })
@@ -88,6 +88,16 @@ function sourceCheckPolicyFromModule(module: unknown): SourceCheckPolicy {
     sourceCheckRuleIds: candidate.sourceCheckRuleIds,
     diagnosticsForRule: candidate.diagnosticsForRule,
   };
+}
+
+function ruleMatchesSourceFile(rule: RulePatternFacts, filePath: string): boolean {
+  const exactPathPatterns = rule.pathCoverage.flatMap((coverage) =>
+    coverage.kind === "exact-path" ? coverage.patterns : []
+  );
+  if (exactPathPatterns.length > 0) {
+    return exactPathPatterns.some((pattern) => pathCoveragePatternMatches(pattern, filePath));
+  }
+  return rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
 }
 
 function readSourceFiles(scanRoots: readonly string[]) {
