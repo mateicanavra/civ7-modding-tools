@@ -207,7 +207,7 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   if (rule.ownerTool === "source-check") {
     inputs.add(workspaceInput(sourceCheckRuleRuntimeRepoPath));
     inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
-    for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
+    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.ownerTool === "habitat" || rule.ownerTool === "command-check") {
@@ -237,10 +237,18 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
   for (const rule of rules) {
     if (rule.ownerTool !== "source-check") continue;
     inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
-    for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
+    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   return [...inputs];
+}
+
+function sourceCheckRuleScopeInputs(rule: NxRuleRegistryRecord): string[] {
+  const exactPathInputs = rule.pathCoverage.flatMap((entry) =>
+    entry.kind === "exact-path" ? entry.patterns.map(workspaceInput) : []
+  );
+  if (exactPathInputs.length > 0) return exactPathInputs;
+  return (rule.scanRoots ?? []).map(workspaceScanRootInput);
 }
 
 function pathCoverageInputs(
