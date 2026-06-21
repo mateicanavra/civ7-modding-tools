@@ -1,4 +1,5 @@
 export const habitatArtifactsRoot = ".habitat";
+export const habitatArtifactsProjectName = "@internal/habitat-artifacts";
 export const habitatCacheRepoPath = `${habitatArtifactsRoot}/cache`;
 export const habitatCacheRepoPathPrefix = `${habitatCacheRepoPath}/`;
 

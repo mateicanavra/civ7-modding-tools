@@ -37,7 +37,7 @@
 
 ## 4. Follow-Up Dominoes
 
-- [ ] 4.1 Tighten `workspace-gate` and `unresolved-metadata` rule metadata where
+- [x] 4.1 Tighten `workspace-gate` and `unresolved-metadata` rule metadata where
   rule semantics are actually scoped.
 - [ ] 4.2 Remove duplicate pre-push target composition so component checks are
   not run beside overlapping Habitat aggregate checks.

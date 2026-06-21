@@ -15,12 +15,6 @@
     {
       "kind": "exact-path",
       "patterns": ["packages/civ7-types/generated/**"]
-    },
-    {
-      "kind": "project-owner"
-    },
-    {
-      "kind": "workspace-gate"
     }
   ]
 }

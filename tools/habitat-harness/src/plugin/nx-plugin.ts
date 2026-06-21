@@ -4,7 +4,11 @@ import {
   sourceCheckRuleModuleRepoPath,
   sourceCheckRuleRuntimeRepoPath,
 } from "../domains/source-check/module-paths.ts";
-import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
+import {
+  habitatArtifactsProjectName,
+  habitatArtifactsRoot,
+  ruleRegistryRepoPath,
+} from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
 import {
   loadRuleRegistryDocumentForNxPlugin,
@@ -64,7 +68,11 @@ function buildInferredProjects(input: {
   const ownerRoots = new Map(Object.entries(input.registry.ownerRoots));
   const recordsById = new Map(input.registry.rules.map((rule) => [rule.id, rule]));
   const projects: InferredProjects = {};
-  projects[".habitat"] = { name: "@internal/habitat-artifacts", targets: {} };
+  projects[habitatArtifactsRoot] = {
+    name: habitatArtifactsProjectName,
+    tags: ["kind:tooling"],
+    targets: {},
+  };
   const addTarget = (
     root: string,
     _project: string,
