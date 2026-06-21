@@ -1,12 +1,8 @@
-import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, test } from "vitest";
-
-const repoRoot = path.resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
-const guardScript = path.join(repoRoot, "scripts/lint/lint-habitat-public-surface-guards.mjs");
+import {
+  renderPublicSurfaceGuardFailures,
+  runPublicSurfaceGuard,
+} from "../../src/domains/public-surface-guards/guard.js";
 
 describe("Habitat public surface guards", () => {
   test("rejects executable managing code inside authored artifacts", () => {
@@ -59,28 +55,9 @@ describe("Habitat public surface guards", () => {
 });
 
 function runGuardWithInjectedFiles(files: Record<string, string>) {
-  const fixtureRoot = mkdtempSync(path.join(tmpdir(), "habitat-guard-"));
-  for (const [repoPath, text] of Object.entries(files)) {
-    const absolutePath = path.join(fixtureRoot, repoPath);
-    mkdirSync(path.dirname(absolutePath), { recursive: true });
-    writeFileSync(absolutePath, text, "utf8");
-  }
-
-  try {
-    execFileSync("node", [guardScript], {
-      cwd: repoRoot,
-      env: {
-        ...process.env,
-        HABITAT_PUBLIC_SURFACE_GUARD_INJECTED_ROOT: fixtureRoot,
-      },
-      encoding: "utf8",
-      stdio: "pipe",
-    });
-    return { exitCode: 0, stderr: "" };
-  } catch (error) {
-    const failure = error as { status?: number; stderr?: string };
-    return { exitCode: failure.status ?? 1, stderr: failure.stderr ?? "" };
-  } finally {
-    rmSync(fixtureRoot, { force: true, recursive: true });
-  }
+  const result = runPublicSurfaceGuard({ injectedFiles: new Map(Object.entries(files)) });
+  return {
+    exitCode: result.ok ? 0 : 1,
+    stderr: result.ok ? "" : renderPublicSurfaceGuardFailures(result),
+  };
 }

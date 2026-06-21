@@ -67,6 +67,8 @@ Implemented graph integration:
   workspace taxonomy validation;
 - explicit package-owned `validate:grit-patterns` target for checked-in
   Habitat/Grit pattern fixture validation;
+- public-surface guard logic owned in Habitat source, with the root lint script
+  serving as the current-tree rule wrapper;
 - root scripts normalized onto workspace graph entrypoints instead of manual task
   chaining;
 - package-local scripts kept leaf-local where possible.
@@ -161,6 +163,7 @@ Current tests cover:
 - pattern manifest Manifest validation;
 - workspace-owned tool command materialization without executing native vendor
   binaries for availability checks;
+- public-surface guard model coverage through injected in-memory fixture files;
 - process boundary behavior;
 - workspace tool discovery and verification receipt construction.
 
