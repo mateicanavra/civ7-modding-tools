@@ -39,7 +39,7 @@
 
 - [x] 4.1 Tighten `workspace-gate` and `unresolved-metadata` rule metadata where
   rule semantics are actually scoped.
-- [ ] 4.2 Remove duplicate pre-push target composition so component checks are
+- [x] 4.2 Remove duplicate pre-push target composition so component checks are
   not run beside overlapping Habitat aggregate checks.
 - [x] 4.3 Investigate Nx invocation/project-graph overhead before routing root
   `check` through Nx.

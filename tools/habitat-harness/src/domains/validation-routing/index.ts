@@ -57,7 +57,7 @@ export function prePushTargetPlanForChangedPaths(
   if (plan.paths.length > 0 && plan.paths.every(isHabitatToolingPath)) {
     return {
       runTargets: [{ project: habitatHarnessProject, target: packageCheckTarget }],
-      affectedTargets: [targetNames.check, targetNames.sourceCheck, ...structuralTargetNames],
+      affectedTargets: [...structuralTargetNames],
     };
   }
 

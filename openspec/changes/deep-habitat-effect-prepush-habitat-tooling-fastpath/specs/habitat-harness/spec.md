@@ -10,8 +10,8 @@ still covers the changed path class.
 - **WHEN** pre-push changed paths are all under `tools/habitat-harness/`
 - **THEN** Habitat SHALL run `@internal/habitat-harness:check` as an owner-local
   Nx target
-- **AND** Habitat SHALL run affected structural targets for `habitat:check`,
-  `source:check`, `validate:boundary-taxonomy`, and `validate:grit-patterns`
+- **AND** Habitat SHALL run affected structural targets that do not re-enter
+  duplicate Habitat rule execution
 - **AND** Habitat SHALL NOT request generic affected `check` for that path
   class.
 

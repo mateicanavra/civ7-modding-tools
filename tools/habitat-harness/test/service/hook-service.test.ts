@@ -31,8 +31,7 @@ import { runHookService } from "../../src/service/modules/hook/router.js";
 
 const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
 const prePushArtifactTargets = "habitat:check,source:check";
-const prePushHabitatToolingTargets =
-  "habitat:check,source:check,validate:boundary-taxonomy,validate:grit-patterns";
+const prePushHabitatToolingTargets = "validate:boundary-taxonomy,validate:grit-patterns";
 const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
@@ -339,7 +338,7 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("uses owner-local check and structural targets for Habitat tooling pre-push changes", async () => {
+  test("uses owner-local check without duplicate Habitat targets for tooling pre-push changes", async () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
