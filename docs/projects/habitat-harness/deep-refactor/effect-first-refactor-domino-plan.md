@@ -74,8 +74,9 @@ Husky delegators must be modeled as:
 Effect.Effect<Success, HabitatError, Requirements>
 ```
 
-`Effect.run*` is allowed only at host adapters, tests, and the named runtime
-edge. Feature/domain code may construct Effect programs; it may not run them.
+`Effect.run*` is allowed only at service runtime, host/framework entrypoints,
+and tests. Feature/domain code may construct Effect programs; it may not run
+them.
 
 | Service | Owner | Required capability | Test requirement |
 |---|---|---|---|
@@ -86,8 +87,9 @@ edge. Feature/domain code may construct Effect programs; it may not run them.
 | `HabitatReporter` | `src/resources/**` | stdout/stderr/report events, bounded output, JSON/text rendering hooks | event-capturing fake layer |
 | `ResourceScope` | `src/resources/**` | temp dirs, caches, locks, snapshots, subprocess lifetime, cleanup finalizers | finalizer-order tests |
 
-`src/runtime/**` owns only Effect program execution, layer assembly, and
-host-edge run functions. `src/resources/**` owns scoped filesystem, clock, temp,
+`src/substrate/runtime/**` owns substrate layer assembly. `src/service/runtime/**`
+owns service implementer runtime composition. No substrate module exposes a
+generic run helper. `src/resources/**` owns scoped filesystem, clock, temp,
 cache, write-set, and lock resources. It does not own process execution.
 
 Expected failures use tagged variants under `HabitatError`:
@@ -152,7 +154,7 @@ closure.
 
 | Priority | Smell | Exact evidence | State-space defect | Collapse move | Public-contract risk | Required tests/commands |
 |---|---|---|---|---|---|---|
-| P0 | Library-local runtime execution | `tools/habitat-harness/src/lib/workspace-tools.ts` `materializeHabitatCommand()` calls `Effect.runSync`; `src/lib/effect-runtime.ts` exposes `runHabitatEffect()` | Any library can become its own runtime edge and bypass shared lifecycle/error policy | Keep `Effect.run*` only in runtime adapters; replace materialization with provider service calls | Package consumers import `materializeHabitatCommand`; hooks and spawn depend on it | Static guard for `Effect.run*`; `bun run --cwd tools/habitat-harness check`; public export audit |
+| P0 | Library-local runtime execution | `tools/habitat-harness/src/lib/workspace-tools.ts` `materializeHabitatCommand()` calls `Effect.runSync`; historical `src/lib/effect-runtime.ts`/`src/substrate/runtime/run.ts` exposed `runHabitatEffect()` | Any library can become its own runtime edge and bypass shared lifecycle/error policy | Keep `Effect.run*` only at service runtime, host/framework entrypoints, and tests; replace materialization with provider service calls; keep the generic runner deleted | Package consumers import `materializeHabitatCommand`; hooks and spawn depend on it | Static guard for `Effect.run*`; `bun run --cwd tools/habitat-harness check`; public export audit |
 | P0 | Process execution duplication | `src/lib/spawn.ts`; `src/lib/habitat-process.ts`; `src/lib/hook-runtime/command-runner.ts`; `src/lib/baseline-core/context.ts` | Multiple command result shapes hide exit, signal, env, cwd, cache, timing, and failure distinctions | One `CommandRunner` Effect service with live/fake layers; provider-specific command builders consume it | CLI, hooks, baseline integrity, verify, graph, and Grit can change stdout/stderr/exit behavior | Command parity for `check`, `fix --dry-run`, `verify`, `graph --json`, hooks; fake CommandRunner unit matrix |
 | P0 | Direct mutable IO in domain modules | `rules/registry/load.ts`; `baseline-core/state.ts`; `baseline-core/integrity.ts`; `workspace-graph/inventory.ts`; `adapters/grit/request.ts`; `adapters/grit/scan-roots/index.ts`; `hook-runtime/staged-worktree.ts`; `check/render.ts`; `graph.ts` | Domain functions can read/write current checkout or temp dirs outside resource scopes | Move fs/time/temp writes into `FileSystemProvider`, `WorkspaceProvider`, `ResourceScope`; keep pure parse functions | Baseline writes, report output, graph temp cleanup, registry load, Grit cache paths | Fake FS tests, malformed JSON tests, temp finalizer tests, final clean worktree proof |
 | P0 | Direct clock use | `habitat-process.ts`; `check/execution.ts`; `check/report.ts`; `check/selection.ts`; `commands/verify.ts`; `hook-runtime/runtime.ts` | Time becomes nondeterministic data and cannot be tested or replayed | Use Effect `Clock`/`TestClock` behind `HabitatClock` service | Duration fields in reports/receipts/hooks may change shape or precision | TestClock unit tests, golden shape checks, no direct `Date.now` outside providers |

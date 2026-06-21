@@ -18,7 +18,6 @@ import {
   renderCommandObservation,
 } from "@internal/habitat-harness/substrate/providers/command/index";
 import { makeFakeGitStateProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
-import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
 import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";
 
@@ -36,7 +35,7 @@ describe("CommandRunner", () => {
   });
 
   test("fake layer models command observations without spawning", async () => {
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const runner = yield* CommandRunner;
         return yield* runner.run({

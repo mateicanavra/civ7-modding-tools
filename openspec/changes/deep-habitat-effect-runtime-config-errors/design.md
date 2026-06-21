@@ -3,28 +3,27 @@
 ## Target Modules
 
 ```text
-tools/habitat-harness/src/runtime/index.ts
-tools/habitat-harness/src/runtime/habitat-runtime.ts
-tools/habitat-harness/src/runtime/layers.ts
-tools/habitat-harness/src/runtime/run.ts
-tools/habitat-harness/src/runtime/test-layers.ts
-tools/habitat-harness/src/config/index.ts
-tools/habitat-harness/src/config/habitat-config.ts
-tools/habitat-harness/src/config/schema.ts
-tools/habitat-harness/src/config/sources.ts
-tools/habitat-harness/src/config/paths.ts
-tools/habitat-harness/src/errors/index.ts
-tools/habitat-harness/src/errors/habitat-error.ts
-tools/habitat-harness/src/errors/domain-errors.ts
-tools/habitat-harness/src/errors/provider-errors.ts
-tools/habitat-harness/src/errors/render.ts
-tools/habitat-harness/src/resources/index.ts
-tools/habitat-harness/src/resources/filesystem.ts
-tools/habitat-harness/src/resources/temp-dir.ts
-tools/habitat-harness/src/resources/cache.ts
-tools/habitat-harness/src/resources/time.ts
-tools/habitat-harness/src/providers/command/**
-tools/habitat-harness/src/providers/reporter/**
+tools/habitat-harness/src/substrate/runtime/index.ts
+tools/habitat-harness/src/substrate/runtime/layers.ts
+tools/habitat-harness/src/service/runtime/layers.ts
+tools/habitat-harness/src/service/runtime/test-layers.ts
+tools/habitat-harness/src/substrate/config/index.ts
+tools/habitat-harness/src/substrate/config/habitat-config.ts
+tools/habitat-harness/src/substrate/config/schema.ts
+tools/habitat-harness/src/substrate/config/sources.ts
+tools/habitat-harness/src/substrate/config/paths.ts
+tools/habitat-harness/src/substrate/errors/index.ts
+tools/habitat-harness/src/substrate/errors/habitat-error.ts
+tools/habitat-harness/src/substrate/errors/domain-errors.ts
+tools/habitat-harness/src/substrate/errors/provider-errors.ts
+tools/habitat-harness/src/substrate/errors/render.ts
+tools/habitat-harness/src/substrate/resources/index.ts
+tools/habitat-harness/src/substrate/resources/filesystem.ts
+tools/habitat-harness/src/substrate/resources/temp-dir.ts
+tools/habitat-harness/src/substrate/resources/cache.ts
+tools/habitat-harness/src/substrate/resources/time.ts
+tools/habitat-harness/src/substrate/providers/command/**
+tools/habitat-harness/src/substrate/providers/reporter/**
 ```
 
 ## Services
@@ -74,3 +73,7 @@ fake Layer, and avoid library-local `Effect.runSync`.
 `deep-habitat-effect-native-platform-resource-drain` supersedes the earlier
 local clock/filesystem/scope/write-set/lock shape: Habitat does not own duplicate
 resource services where Effect already provides the capability.
+
+`deep-habitat-effect-substrate-runtime-runner-drain` later deletes the generic
+`runHabitatEffect` runner. The substrate runtime now exports layers only; the
+service runtime, host/framework entrypoints, and tests own execution edges.

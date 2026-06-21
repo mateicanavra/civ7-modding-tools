@@ -30,14 +30,13 @@ import {
   runManyArgv,
   runTargetArgv,
 } from "@internal/habitat-harness/substrate/providers/nx/index";
-import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("vendor providers", () => {
   test("GitProvider fake layer owns git command families without spawning", async () => {
     const observed: string[][] = [];
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const git = yield* GitProvider;
         return {
@@ -73,7 +72,7 @@ describe("vendor providers", () => {
 
   test("GraphiteProvider owns stack parent discovery", async () => {
     const observed: string[] = [];
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const graphite = yield* GraphiteProvider;
         return yield* graphite.parent();
@@ -106,7 +105,7 @@ describe("vendor providers", () => {
       "--outputStyle=static",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const nx = yield* NxProvider;
         return yield* nx.affected(request);
@@ -154,7 +153,7 @@ describe("vendor providers", () => {
       "--outputStyle=static",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const nx = yield* NxProvider;
         return yield* nx.runMany(request);
@@ -190,7 +189,7 @@ describe("vendor providers", () => {
       "--outputStyle=static",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const nx = yield* NxProvider;
         return yield* nx.runTarget(request);
@@ -229,7 +228,7 @@ describe("vendor providers", () => {
       "tools/habitat-harness/src/index.ts",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const biome = yield* BiomeProvider;
         return yield* biome.run(request);
@@ -268,7 +267,7 @@ describe("vendor providers", () => {
   });
 
   test("GritProvider owns check request construction and cache policy", async () => {
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const grit = yield* GritProvider;
         const request = grit.checkRequest({
