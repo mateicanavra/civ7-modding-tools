@@ -1,4 +1,3 @@
-import { FoundationPlateActivityKnobSchema } from "@mapgen/domain/foundation/config.js";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { plateTopology, projection } from "./steps/index.js";
@@ -11,11 +10,11 @@ import { plateTopology, projection } from "./steps/index.js";
 export default createStage({
   id: "foundation-projection",
   knobsSchema: Type.Object(
-    { plateActivity: Type.Optional(FoundationPlateActivityKnobSchema) },
+    {},
     {
       additionalProperties: false,
       description:
-        "Projection lever: plateActivity (scales projected plate kinematics/boundaries).",
+        "Projection has no knobs; it materializes the tectonic truth faithfully (plate activity is a foundation-tectonics knob).",
     }
   ),
   public: Type.Object(

@@ -51,7 +51,9 @@ describe("derive placement inputs", () => {
     initializeStandardRuntime(context, { mapInfo });
 
     let capturedNaturalWonderInput:
-      | { featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsetsByParity?: unknown }> }
+      | {
+          featureCatalog?: ReadonlyArray<{ direction: number; footprintOffsetsByParity?: unknown }>;
+        }
       | undefined;
     const ops = {
       wonders: () => ({ wondersCount: 1 }),
@@ -167,7 +169,10 @@ describe("derive placement inputs", () => {
 
     let capturedNaturalWonderInput:
       | {
-          featureCatalog?: ReadonlyArray<{ featureType: number; footprintOffsetsByParity?: unknown }>;
+          featureCatalog?: ReadonlyArray<{
+            featureType: number;
+            footprintOffsetsByParity?: unknown;
+          }>;
         }
       | undefined;
     const ops = {

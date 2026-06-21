@@ -60,10 +60,10 @@ type _PlateCountKnob = _FoundationMantleKnobs["plateCount"];
 type _PlateCountKnobIsNumber = Exclude<_PlateCountKnob, undefined> extends number ? true : false;
 const _plateCountKnobIsNumber: _PlateCountKnobIsNumber = true;
 
-// plateActivity is authored on the projection stage (projected kinematics).
-type _FoundationProjectionConfig = NonNullable<StandardRecipeConfig["foundation-projection"]>;
-type _FoundationProjectionKnobs = NonNullable<_FoundationProjectionConfig["knobs"]>;
-type _PlateActivityKnob = _FoundationProjectionKnobs["plateActivity"];
+// plateActivity is authored on the tectonics stage (scales the plate motion truth).
+type _FoundationTectonicsConfig = NonNullable<StandardRecipeConfig["foundation-tectonics"]>;
+type _FoundationTectonicsKnobs = NonNullable<_FoundationTectonicsConfig["knobs"]>;
+type _PlateActivityKnob = _FoundationTectonicsKnobs["plateActivity"];
 type _PlateActivityKnobIsNumber =
   Exclude<_PlateActivityKnob, undefined> extends number ? true : false;
 const _plateActivityKnobIsNumber: _PlateActivityKnobIsNumber = true;
@@ -75,7 +75,7 @@ createMap({
   config: {
     "foundation-mantle": { knobs: { plateCount: 28 } },
     "foundation-lithosphere": { knobs: { plateCount: 28 } },
-    "foundation-projection": { knobs: { plateActivity: 0.5 } },
+    "foundation-tectonics": { knobs: { plateActivity: 0.5 } },
   },
 });
 

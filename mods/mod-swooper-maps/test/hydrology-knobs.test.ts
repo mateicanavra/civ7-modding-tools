@@ -16,7 +16,7 @@ const env = {
 const foundationConfig = {
   "foundation-mantle": { knobs: { plateCount: 28 } },
   "foundation-lithosphere": { knobs: { plateCount: 28 } },
-  "foundation-projection": { knobs: { plateActivity: 0.5 } },
+  "foundation-tectonics": { knobs: { plateActivity: 0.5 } },
 };
 
 function runHydrologyTruth(config: Record<string, unknown>) {

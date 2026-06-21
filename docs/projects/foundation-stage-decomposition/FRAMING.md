@@ -201,8 +201,10 @@ Knobs are **stage-scoped** (authored at `config.<stageId>.knobs`, reach steps vi
 - `plateCount` — consumed by **mesh** (`cellCount = plateCount × cellsPerPlate`)
   AND **plate-graph** (plate partition count). These land in **different stages**
   (mantle vs plates) → cross-stage knob. Resolution is a design decision (§6).
-- `plateActivity` — consumed by **projection only** → lands cleanly in the
-  projection stage.
+- `plateActivity` — an **orogeny-intensity** lever consumed by **foundation-tectonics**
+  (the `tectonics` step injects it into `computeEraTectonicFields` as
+  `orogenyActivityGain`, post regime-classification). Originally scoped to projection;
+  relocated + reconditioned in Slice 6 (§10). Projection is now config-less.
 
 ### 4.6 Phase field
 
@@ -426,13 +428,36 @@ split). The decomposition stands; refinements below.
   plateMotion under both blocks — verified before consolidating). `plateCount`
   remains a shared **knob** (mantle mesh-density + lithosphere partition) — not
   op-config; irreducible since the mesh is sized before the partition exists.
-- Deferred follow-on (behavioral, out of identity scope): `plateActivity` is a
-  plate-kinematics lever **applied in the projection step** (scales `computePlates`
-  movement/rotation/boundary that morphology later consumes), so projection shapes
-  truth-derived motion rather than purely materializing it. Correct knob placement
-  for current behavior (its consuming step is projection), but the clean layering —
-  compute "activity" in the motion truth and let projection render faithfully — is a
-  behavioral change that breaks byte-identity. Tracked here as a follow-on slice.
-- Status: **implemented + verified green; identity proven against main** (all 9
-  shipped/dev configs byte-identical end-to-end). Remaining closure: live in-game
+- Slice 6 — `plateActivity` reconditioning (2026-06-21, behavioral): the deferred
+  follow-on. **Problem:** the knob lived on the projection step and scaled
+  `computePlates` movement/rotation/boundaryInfluence — projection *re-scaling* the
+  motion truth (a layering violation; cosmetic, byte-identity-safe only because it
+  never touched the truth). **First attempt (rejected):** move the knob to
+  foundation-tectonics and scale raw plate **velocity** (`kinematicsScale` on
+  `computePlateMotion`). This was **chaotic** — velocity feeds `computeTectonicSegments`'
+  HARD regime floor (`max(c,e,s) < regimeMinIntensity → none`), so scaling tips whole
+  boundary segments across the cutoff discretely → non-monotonic geography (earthlike
+  coastShare 0.50 pass / 0.55 fail / 0.60 pass / 0.65 fail / 0.85 fail). Era membership
+  is scale-invariant, so the chaos is purely the velocity→stress→regime threshold.
+  **Reconditioning (shipped):** scale orogeny **intensity AFTER regime classification**
+  — a new `orogenyActivityGain` op-config on `computeEraTectonicFields` multiplies the
+  per-era convergent-uplift + subduction-volcanism emission (`eraGain × activityGain`).
+  No boundary moves (topology fixed) → smooth + monotonic. Mapping `0→0.8, 0.5→1.0,
+  1→1.2`; **0.5 is an exact no-op** (byte-identical). The quantile sea-level
+  (`compute-sea-level`, targets `targetWaterPercent`) **compensates** — more relief at
+  constant land/water. **Evidence (probe, earthlike 106×66):** maxElev 52→54→58→60→61
+  →63→64 and meanLandElev 9.8→16.0 strictly monotonic across plateActivity 0.30→1.00;
+  land% stable ~36–38%; coastShare stable ±0.4%. Byte-identity A/B vs `main` tip:
+  the 3 default-0.5 maps identical; the 0.85 maps rise 58→63 maxElev as intended.
+  **Final values:** `swooper-earthlike → 0.5` (its balanced identity tripped 3
+  earthlike guardrails at 0.85 under the honest mechanism — deep-ocean/range/habitat;
+  the old cosmetic 0.85 never actually intensified orogeny); the 5 mountain-themed maps
+  (`mountains-of-time` ×2, `mountain-patch`, `mountain-rivers-patch`, `latest-juicy`)
+  **→ 0.85** (drama is their identity; now honest, taller ranges); the 3
+  archipelago/desert maps stay 0.5 (byte-identical). Re-blessed: ecology fingerprints,
+  generated map hashes, published schema (kinematicsScale dropped, orogenyActivityGain
+  added). Projection is now config-less. `bun test` 583 pass / 0 fail; tsc clean;
+  source-check boundaries ok.
+- Status (5-slice split): **implemented + verified green; identity proven against main**
+  (all 9 shipped/dev configs byte-identical end-to-end). Remaining closure: live in-game
   smoke run (the engine is the final closure test).

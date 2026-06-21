@@ -25,7 +25,11 @@ describe("plot effects (jungle / jungle fever hazard)", () => {
           snow: { enabled: false },
           sand: { enabled: false },
           burned: { enabled: false },
-          jungle: { enabled: true, coveragePct: 100, selector: { typeName: "PLOTEFFECT_JUNGLE_FEVER" } },
+          jungle: {
+            enabled: true,
+            coveragePct: 100,
+            selector: { typeName: "PLOTEFFECT_JUNGLE_FEVER" },
+          },
         },
       },
       { ctx: { env, knobs: {} }, path: "/ops/planPlotEffects" }

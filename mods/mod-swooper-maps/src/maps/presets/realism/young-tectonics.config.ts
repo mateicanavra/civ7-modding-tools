@@ -7,7 +7,7 @@ export const realismYoungTectonicsConfig: StandardRecipeConfig = {
   // plateCount is a cross-stage knob: it sizes the mesh (mantle) and the plate partition (plates).
   "foundation-mantle": { knobs: { plateCount: 28 } },
   "foundation-lithosphere": { knobs: { plateCount: 28 } },
-  "foundation-projection": { knobs: { plateActivity: 0.75 } },
+  "foundation-tectonics": { knobs: { plateActivity: 0.75 } },
   "morphology-coasts": {
     knobs: { seaLevel: "earthlike", coastRuggedness: "rugged", shelfWidth: "normal" },
   },

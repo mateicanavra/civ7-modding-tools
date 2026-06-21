@@ -9,23 +9,17 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 /**
- * Plate activity scales kinematics used to project motion tensors.
+ * Plate activity scales orogeny emission INTENSITY — convergent uplift and
+ * subduction volcanism — in foundation-tectonics, applied AFTER boundary-regime
+ * classification. Because no boundary appears or disappears (the regime topology
+ * is fixed), the lever is smooth and monotonic: higher activity = more vigorous
+ * mountain building and arc volcanism, not relocated land. Projection then
+ * materializes the resulting tectonic truth faithfully.
  *
- * Mapping: 0.0 -> 0.8, 0.5 -> 1.0, 1.0 -> 1.2 (piecewise linear).
+ * Mapping: 0.0 -> 0.8, 0.5 -> 1.0, 1.0 -> 1.2 (piecewise linear). 0.5 is an exact no-op.
  */
-export function resolvePlateActivityKinematicsMultiplier(value: number | undefined): number {
+export function resolvePlateActivityOrogenyMultiplier(value: number | undefined): number {
   const v = clampActivity01(value);
   if (v <= 0.5) return lerp(0.8, 1.0, v / 0.5);
   return lerp(1.0, 1.2, (v - 0.5) / 0.5);
-}
-
-/**
- * Plate activity shifts boundary influence distance (tiles).
- *
- * Mapping: 0.0 -> -1, 0.5 -> 0, 1.0 -> +2 (piecewise linear, rounded).
- */
-export function resolvePlateActivityBoundaryDelta(value: number | undefined): number {
-  const v = clampActivity01(value);
-  const delta = v <= 0.5 ? lerp(-1, 0, v / 0.5) : lerp(0, 2, (v - 0.5) / 0.5);
-  return Math.round(delta);
 }

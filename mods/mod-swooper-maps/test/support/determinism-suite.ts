@@ -27,9 +27,9 @@ function buildConfig(overrides: {
     }
   }
   if (overrides.plateActivity != null) {
-    config["foundation-projection"] = {
-      ...config["foundation-projection"],
-      knobs: { ...config["foundation-projection"]?.knobs, plateActivity: overrides.plateActivity },
+    config["foundation-tectonics"] = {
+      ...config["foundation-tectonics"],
+      knobs: { ...config["foundation-tectonics"]?.knobs, plateActivity: overrides.plateActivity },
     };
   }
   return config as StandardRecipeConfig;

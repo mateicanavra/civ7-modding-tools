@@ -25,20 +25,25 @@ export type FoundationPlateCountKnob = Static<typeof FoundationPlateCountKnobSch
  * Foundation plate activity knob (semantic intent).
  *
  * Meaning:
- * - Scales kinematics + boundary influence posture for projected plate driver fields.
+ * - Scales orogeny INTENSITY (convergent uplift + subduction volcanism), applied
+ *   AFTER boundary-regime classification. Higher activity = more vigorous mountain
+ *   building and arc volcanism. Because regime topology is fixed, the lever is
+ *   smooth and monotonic — it never relocates where land forms.
  *
  * Stage scope:
- * - Used by `foundation` projection step only.
+ * - Used by `foundation-tectonics` (the `tectonics` step injects it into the
+ *   per-era `computeEraTectonicFields` emission as `orogenyActivityGain`).
  *
  * Description:
- * - Plate activity scalar in [0..1]. Applies as deterministic transforms over projection kinematics and boundary influence distance.
+ * - Plate activity scalar in [0..1], mapped to an orogeny-intensity multiplier
+ *   (0.0 -> 0.8, 0.5 -> 1.0, 1.0 -> 1.2) on convergent uplift + subduction volcanism.
  */
 export const FoundationPlateActivityKnobSchema = Type.Number({
   default: 0.5,
   minimum: 0,
   maximum: 1,
   description:
-    "Plate activity scalar in [0..1]. Applies as deterministic transforms over projection kinematics and boundary influence distance.",
+    "Plate activity scalar in [0..1]. Scales orogeny intensity (convergent uplift + subduction volcanism) post regime-classification in foundation-tectonics; 0.5 is neutral. Projection materializes the resulting tectonic truth faithfully.",
 });
 
 export type FoundationPlateActivityKnob = Static<typeof FoundationPlateActivityKnobSchema>;

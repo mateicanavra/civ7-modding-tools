@@ -7,7 +7,7 @@ export const realismOldErosionConfig: StandardRecipeConfig = {
   // plateCount is a cross-stage knob: it sizes the mesh (mantle) and the plate partition (plates).
   "foundation-mantle": { knobs: { plateCount: 28 } },
   "foundation-lithosphere": { knobs: { plateCount: 28 } },
-  "foundation-projection": { knobs: { plateActivity: 0.25 } },
+  "foundation-tectonics": { knobs: { plateActivity: 0.25 } },
   "morphology-coasts": {
     knobs: { seaLevel: "earthlike", coastRuggedness: "smooth", shelfWidth: "normal" },
   },
