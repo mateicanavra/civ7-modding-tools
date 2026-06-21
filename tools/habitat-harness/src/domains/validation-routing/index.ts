@@ -68,9 +68,13 @@ function artifactAffectedTargets(
   plan: ReturnType<typeof habitatArtifactPathPlan>,
   targetNames: WorkspaceGraphTargetNames
 ): readonly string[] {
-  const targets = new Set<string>([targetNames.check]);
+  const targets = new Set<string>();
   if (plan.hasSourceCheckArtifact) targets.add(targetNames.sourceCheck);
+  for (const ruleId of plan.nonSourceCheckRuleArtifactIds) {
+    targets.add(`${targetNames.rulePrefix}${ruleId}`);
+  }
   if (plan.hasGritPatternArtifact) targets.add("validate:grit-patterns");
+  if (plan.hasUnclassifiedArtifact || targets.size === 0) targets.add(targetNames.check);
   return [...targets];
 }
 

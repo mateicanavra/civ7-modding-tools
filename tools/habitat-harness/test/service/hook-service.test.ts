@@ -30,7 +30,9 @@ import { createHabitatServiceClient } from "../../src/service/client.js";
 import { runHookService } from "../../src/service/modules/hook/router.js";
 
 const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
-const prePushArtifactTargets = "habitat:check,source:check";
+const prePushSourceArtifactTargets = "source:check";
+const prePushNonSourceRuleArtifactTargets = "habitat:rule:import-boundaries";
+const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:import-boundaries";
 const prePushHabitatToolingTargets = "validate:boundary-taxonomy,validate:grit-patterns";
 const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
@@ -300,7 +302,7 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("uses Habitat structural targets for rule artifact-only pre-push changes", async () => {
+  test("uses source-check target only for source rule artifact pre-push changes", async () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPath = ".habitat/rules/rng-authority-static/rule.json";
@@ -331,7 +333,86 @@ describe("Habitat hook service", () => {
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
-        targets: prePushArtifactTargets.split(","),
+        targets: prePushSourceArtifactTargets.split(","),
+        head: "HEAD",
+        excludeTaskDependencies: true,
+      },
+    ]);
+  });
+
+  test("uses the owning rule target for non-source rule artifact pre-push changes", async () => {
+    const fake = makePrePushRuntime();
+    const affectedRequests: NxAffectedRequest[] = [];
+    const changedPath = ".habitat/rules/import-boundaries/rule.json";
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer((request) => {
+        affectedRequests.push(request);
+        return commandResult(
+          affectedArgv(request),
+          repoRootForTestCommand(),
+          "affected ok\n",
+          0,
+          "",
+          "nx"
+        );
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(affectedRequests).toEqual([
+      {
+        base: "HEAD~1",
+        targets: prePushNonSourceRuleArtifactTargets.split(","),
+        head: "HEAD",
+        excludeTaskDependencies: true,
+      },
+    ]);
+  });
+
+  test("uses source-check plus owning rule targets for mixed rule artifact pre-push changes", async () => {
+    const fake = makePrePushRuntime();
+    const affectedRequests: NxAffectedRequest[] = [];
+    const changedPaths = [
+      ".habitat/rules/rng-authority-static/rule.json",
+      ".habitat/rules/import-boundaries/rule.json",
+    ];
+
+    const result = await runHookServiceInTest(
+      { name: "pre-push", base: "HEAD~1" },
+      { runtime: fake.runtime },
+      makeFakeGitProviderLayer((argv, options) => {
+        const stdout =
+          argv.join(" ") === "diff --name-only -z HEAD~1 HEAD"
+            ? `${changedPaths.join("\0")}\0`
+            : "";
+        return commandResult(argv, options.cwd, stdout);
+      }),
+      nxLayer((request) => {
+        affectedRequests.push(request);
+        return commandResult(
+          affectedArgv(request),
+          repoRootForTestCommand(),
+          "affected ok\n",
+          0,
+          "",
+          "nx"
+        );
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(affectedRequests).toEqual([
+      {
+        base: "HEAD~1",
+        targets: prePushMixedRuleArtifactTargets.split(","),
         head: "HEAD",
         excludeTaskDependencies: true,
       },
