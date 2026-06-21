@@ -1,10 +1,16 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { foundationArtifacts } from "../artifacts.js";
-import { pointsFromTileCentroids, segmentsFromTileTopologyNeighbors } from "../viz.js";
+import { foundationArtifacts } from "../../foundation/artifacts.js";
+import {
+  validatePlateTopologyArtifact,
+  wrapFoundationValidateNoDims,
+} from "../../foundation/validation.js";
+import {
+  pointsFromTileCentroids,
+  segmentsFromTileTopologyNeighbors,
+} from "../../foundation/viz.js";
 import PlateTopologyStepContract from "./plateTopology.contract.js";
-import { validatePlateTopologyArtifact, wrapFoundationValidateNoDims } from "./validation.js";
 
 const GROUP_PLATE_TOPOLOGY = "Foundation / Plate Topology";
 

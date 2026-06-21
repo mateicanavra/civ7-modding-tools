@@ -10,7 +10,7 @@
     "bottomLatitude": -40
   },
   "config": {
-    "foundation": {
+    "foundation-mantle": {
       "meshResolution": {
         "plateCount": 12,
         "cellsPerPlate": 2,
@@ -34,7 +34,9 @@
         "curvatureWeight": 0.35,
         "upwellingThreshold": 0.35,
         "downwellingThreshold": 0.35
-      },
+      }
+    },
+    "foundation-plates": {
       "lithosphere": {
         "basalticThickness01": 0.25,
         "yieldStrength01": 0.55,
@@ -51,6 +53,16 @@
           "microplateMinAreaCells": 8
         }
       },
+      "plateMotion": {
+        "omegaFactor": 1,
+        "plateRadiusMin": 1,
+        "residualNormScale": 1,
+        "p90NormScale": 1,
+        "histogramBins": 32,
+        "smoothingSteps": 0
+      }
+    },
+    "foundation-tectonics": {
       "plateMotion": {
         "omegaFactor": 1,
         "plateRadiusMin": 1,

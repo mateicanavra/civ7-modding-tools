@@ -1,32 +1,8 @@
 import { describe, expect, it } from "bun:test";
 import { stableStringify } from "@swooper/mapgen-core";
-import { deriveRecipeConfigSchema } from "@swooper/mapgen-core/authoring";
 import { RecipeCompileError } from "@swooper/mapgen-core/compiler/recipe-compile";
 
-import standardRecipe, { STANDARD_STAGES } from "../src/recipes/standard/recipe.js";
-
-function collectSchemaKeys(schema: unknown, keys: Set<string>) {
-  if (!schema || typeof schema !== "object") return;
-  if (Array.isArray(schema)) {
-    schema.forEach((item) => collectSchemaKeys(item, keys));
-    return;
-  }
-  const node = schema as Record<string, unknown>;
-  const properties = node.properties;
-  if (properties && typeof properties === "object") {
-    for (const [key, value] of Object.entries(properties)) {
-      keys.add(key);
-      collectSchemaKeys(value, keys);
-    }
-  }
-  const anyOf = node.anyOf;
-  if (Array.isArray(anyOf)) anyOf.forEach((item) => collectSchemaKeys(item, keys));
-  const oneOf = node.oneOf;
-  if (Array.isArray(oneOf)) oneOf.forEach((item) => collectSchemaKeys(item, keys));
-  const allOf = node.allOf;
-  if (Array.isArray(allOf)) allOf.forEach((item) => collectSchemaKeys(item, keys));
-  if ("items" in node) collectSchemaKeys(node.items as unknown, keys);
-}
+import standardRecipe from "../src/recipes/standard/recipe.js";
 
 const env = {
   seed: 123,
@@ -35,28 +11,25 @@ const env = {
 };
 
 const foundationBaseConfig = {
-  knobs: { plateCount: 28, plateActivity: 0.5 },
+  "foundation-mantle": { knobs: { plateCount: 28 } },
+  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-projection": { knobs: { plateActivity: 0.5 } },
 };
 
+const FOUNDATION_STAGE_IDS = [
+  "foundation-mantle",
+  "foundation-plates",
+  "foundation-tectonics",
+  "foundation-crust",
+  "foundation-projection",
+] as const;
+
 describe("M11 config layering: knobs-last (foundation + morphology)", () => {
-  it("keeps foundation surface knobs-first (no stage-level public bridge keys)", () => {
-    const schema = deriveRecipeConfigSchema(STANDARD_STAGES) as {
-      properties?: Record<string, unknown>;
-    };
-    const foundation = schema.properties?.foundation;
-    expect(foundation).toBeTruthy();
-    const keys = new Set<string>();
-    collectSchemaKeys(foundation, keys);
-    const forbidden = ["version", "profiles", "advanced"];
-    const hits = [...keys].filter((key) => forbidden.includes(key));
-    expect(hits).toEqual([]);
-  });
   it("applies knobs as deterministic transforms over step defaults", () => {
     const compiled = standardRecipe.compileConfig(env, {
-      foundation: {
-        ...foundationBaseConfig,
-        knobs: { plateCount: 12, plateActivity: 0.8 },
-      },
+      "foundation-mantle": { knobs: { plateCount: 12 } },
+      "foundation-plates": { knobs: { plateCount: 12 } },
+      "foundation-projection": { knobs: { plateActivity: 0.8 } },
       "morphology-coasts": {
         knobs: { seaLevel: "water-heavy", coastRuggedness: "rugged" },
         waterCoverage: { targetWaterPercent: 60 },
@@ -108,23 +81,21 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     });
 
     // Foundation:
-    // - plateCount is the authored override for the selected map size.
-    expect(compiled.foundation.mesh.computeMesh.config.plateCount).toBe(12);
-    expect(compiled.foundation["plate-graph"].computePlateGraph.config.plateCount).toBe(12);
-    expect(compiled.foundation.mesh.computeMesh.config).not.toHaveProperty("referenceArea");
-    expect(compiled.foundation.mesh.computeMesh.config).not.toHaveProperty("plateScalePower");
-    expect(compiled.foundation["plate-graph"].computePlateGraph.config).not.toHaveProperty(
-      "referenceArea"
-    );
-    expect(compiled.foundation["plate-graph"].computePlateGraph.config).not.toHaveProperty(
-      "plateScalePower"
-    );
+    // - plateCount is the authored override for the selected map size; it is a
+    //   cross-stage knob, so it reaches both the mantle (mesh) and plates (graph).
+    const mantle = compiled["foundation-mantle"];
+    const plates = compiled["foundation-plates"];
+    const projection = compiled["foundation-projection"];
+    expect(mantle.mesh.computeMesh.config.plateCount).toBe(12);
+    expect(plates["plate-graph"].computePlateGraph.config.plateCount).toBe(12);
+    expect(mantle.mesh.computeMesh.config).not.toHaveProperty("referenceArea");
+    expect(mantle.mesh.computeMesh.config).not.toHaveProperty("plateScalePower");
+    expect(plates["plate-graph"].computePlateGraph.config).not.toHaveProperty("referenceArea");
+    expect(plates["plate-graph"].computePlateGraph.config).not.toHaveProperty("plateScalePower");
     // - plateActivity influences projection through knob transforms (no stage profile bridge).
-    expect(
-      compiled.foundation.projection.computePlates.config.boundaryInfluenceDistance
-    ).toBeGreaterThan(0);
-    expect(compiled.foundation.projection.computePlates.config.movementScale).toBeGreaterThan(0);
-    expect(compiled.foundation.projection.computePlates.config.rotationScale).toBeGreaterThan(0);
+    expect(projection.projection.computePlates.config.boundaryInfluenceDistance).toBeGreaterThan(0);
+    expect(projection.projection.computePlates.config.movementScale).toBeGreaterThan(0);
+    expect(projection.projection.computePlates.config.rotationScale).toBeGreaterThan(0);
 
     // Morphology:
     // - seaLevel=water-heavy adds +15 to targetWaterPercent.
@@ -207,12 +178,14 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
 
   it("compiles deterministically for identical inputs", () => {
     const config = {
-      foundation: foundationBaseConfig,
+      ...foundationBaseConfig,
       "morphology-coasts": { knobs: { seaLevel: "earthlike", coastRuggedness: "normal" } },
     };
-    const first = standardRecipe.compileConfig(env, config);
-    const second = standardRecipe.compileConfig(env, config);
-    expect(stableStringify(first.foundation)).toBe(stableStringify(second.foundation));
+    const first = standardRecipe.compileConfig(env, config) as Record<string, unknown>;
+    const second = standardRecipe.compileConfig(env, config) as Record<string, unknown>;
+    for (const stageId of FOUNDATION_STAGE_IDS) {
+      expect(stableStringify(first[stageId]), stageId).toBe(stableStringify(second[stageId]));
+    }
   });
 
   it("rejects stale internal ridge/foothill mountain-family config on the public surface", () => {

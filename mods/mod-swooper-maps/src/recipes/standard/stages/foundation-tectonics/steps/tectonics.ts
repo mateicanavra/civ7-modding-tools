@@ -1,16 +1,16 @@
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
-import { foundationArtifacts } from "../artifacts.js";
-import { interleaveXY, segmentsFromCellPairs } from "../viz.js";
-import TectonicsStepContract from "./tectonics.contract.js";
+import { foundationArtifacts } from "../../foundation/artifacts.js";
 import {
   validateTectonicHistoryArtifact,
   validateTectonicProvenanceArtifact,
   validateTectonicSegmentsArtifact,
   validateTectonicsArtifact,
   wrapFoundationValidateNoDims,
-} from "./validation.js";
+} from "../../foundation/validation.js";
+import { interleaveXY, segmentsFromCellPairs } from "../../foundation/viz.js";
+import TectonicsStepContract from "./tectonics.contract.js";
 
 const GROUP_TECTONICS = "Foundation / Tectonics";
 const GROUP_TECTONIC_HISTORY = "Foundation / Tectonic History";

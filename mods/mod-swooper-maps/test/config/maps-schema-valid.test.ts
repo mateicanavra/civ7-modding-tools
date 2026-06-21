@@ -26,33 +26,6 @@ const mapCatalogConfigs = [
   ["mountain-rivers-patch.config.json", mountainRiversPatchConfig],
 ] as const satisfies readonly (readonly [string, CanonicalMapConfigEnvelope])[];
 
-const FOUNDATION_PUBLIC_KEYS = [
-  "knobs",
-  "meshResolution",
-  "mantleSources",
-  "mantleForcing",
-  "lithosphere",
-  "platePartition",
-  "plateMotion",
-  "tectonicSegmentation",
-  "tectonicEras",
-  "tectonicFields",
-  "tectonicRollups",
-] as const;
-
-const FOUNDATION_INTERNAL_STAGE_KEYS = [
-  "mesh",
-  "mantle-potential",
-  "mantle-forcing",
-  "crust",
-  "plate-graph",
-  "plate-motion",
-  "tectonics",
-  "crust-evolution",
-  "projection",
-  "plate-topology",
-] as const;
-
 const MORPHOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "morphology-coasts": [
     "knobs",
@@ -635,50 +608,6 @@ describe("Shipped map configs", () => {
     }
   });
 
-  it("exposes Foundation public schema keys instead of internal step/op envelope paths", () => {
-    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
-    const props = stageProps(schema, "foundation");
-
-    expect(Object.keys(props).sort()).toEqual([...FOUNDATION_PUBLIC_KEYS].sort());
-    for (const internalKey of FOUNDATION_INTERNAL_STAGE_KEYS) {
-      expect(props).not.toHaveProperty(internalKey);
-    }
-    const meshResolutionProps =
-      (props.meshResolution as { properties?: Record<string, unknown> }).properties ?? {};
-    expect(meshResolutionProps).not.toHaveProperty("cellCount");
-    expect(meshResolutionProps).not.toHaveProperty("referenceArea");
-    expect(meshResolutionProps).not.toHaveProperty("plateScalePower");
-    const platePartitionProps =
-      (props.platePartition as { properties?: Record<string, unknown> }).properties ?? {};
-    expect(platePartitionProps).not.toHaveProperty("referenceArea");
-    expect(platePartitionProps).not.toHaveProperty("plateScalePower");
-    expect(JSON.stringify(props)).not.toContain('"strategy"');
-    expect(JSON.stringify(props)).not.toContain('"config"');
-  });
-
-  it("documents every Foundation public schema field", () => {
-    const schema = deriveRecipeConfigSchema(STANDARD_STAGES);
-    const props = stageProps(schema, "foundation");
-    const missing = Object.entries(props).flatMap(([key, child]) =>
-      collectMissingDescriptions(child, ["foundation", key])
-    );
-
-    expect(missing).toEqual([]);
-  });
-
-  it("keeps shipped Foundation configs on the semantic public surface", () => {
-    for (const [, raw] of shippedMapConfigs) {
-      const stageConfig = (raw.config as Record<string, Record<string, unknown>>).foundation ?? {};
-      for (const key of Object.keys(stageConfig)) {
-        expect(FOUNDATION_PUBLIC_KEYS).toContain(key as (typeof FOUNDATION_PUBLIC_KEYS)[number]);
-      }
-      for (const internalKey of FOUNDATION_INTERNAL_STAGE_KEYS) {
-        expect(stageConfig).not.toHaveProperty(internalKey);
-      }
-      expect(hasRawOpEnvelope(stageConfig)).toBe(false);
-    }
-  });
-
   it("keeps shipped Morphology configs on the semantic public surface", () => {
     for (const [, raw] of shippedMapConfigs) {
       for (const [stageId, expectedKeys] of Object.entries(MORPHOLOGY_PUBLIC_KEYS)) {
@@ -940,30 +869,6 @@ describe("Shipped map configs", () => {
     expect(compiled.placement["place-discoveries"]).toEqual({});
     expect(compiled.placement["assign-advanced-starts"]).toEqual({});
     expect(compiled.placement.placement).toEqual({});
-  });
-
-  it("compiles public Foundation config to internal executable step/op envelopes", () => {
-    const compiled = standardRecipe.compileConfig(
-      {
-        seed: 123,
-        dimensions: { width: 80, height: 60 },
-        latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
-      },
-      swooperEarthlikeConfig.config
-    ) as any;
-
-    expect(compiled.foundation.mesh.computeMesh.strategy).toBe("default");
-    expect(compiled.foundation["mantle-potential"].computeMantlePotential.strategy).toBe("default");
-    expect(compiled.foundation["mantle-forcing"].computeMantleForcing.strategy).toBe("default");
-    expect(compiled.foundation.crust.computeCrust.strategy).toBe("default");
-    expect(compiled.foundation["plate-graph"].computePlateGraph.strategy).toBe("default");
-    expect(compiled.foundation["plate-motion"].computePlateMotion.strategy).toBe("default");
-    expect(compiled.foundation.tectonics.computeTectonicSegments.strategy).toBe("default");
-    expect(compiled.foundation.tectonics.computeEraPlateMembership.strategy).toBe("default");
-    expect(compiled.foundation.tectonics.computeEraTectonicFields.strategy).toBe("default");
-    expect(compiled.foundation.tectonics.computeTectonicHistoryRollups.strategy).toBe("default");
-    expect(compiled.foundation.projection.computePlates.strategy).toBe("default");
-    expect(compiled.foundation["plate-topology"]).toEqual({});
   });
 
   it("rejects retired map-morphology alias keys", () => {

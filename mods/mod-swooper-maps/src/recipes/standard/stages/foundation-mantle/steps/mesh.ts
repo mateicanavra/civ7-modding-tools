@@ -1,10 +1,10 @@
 import type { FoundationPlateCountKnob } from "@mapgen/domain/foundation/config.js";
 import { clampInt, ctxRandom, ctxRandomLabel, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { foundationArtifacts } from "../artifacts.js";
-import { interleaveXY, segmentsFromMeshNeighbors } from "../viz.js";
+import { foundationArtifacts } from "../../foundation/artifacts.js";
+import { validateMeshArtifact, wrapFoundationValidateNoDims } from "../../foundation/validation.js";
+import { interleaveXY, segmentsFromMeshNeighbors } from "../../foundation/viz.js";
 import MeshStepContract from "./mesh.contract.js";
-import { validateMeshArtifact, wrapFoundationValidateNoDims } from "./validation.js";
 
 const GROUP_MESH = "Foundation / Mesh";
 

@@ -6,10 +6,7 @@
   "recipe": "standard",
   "sortIndex": 900,
   "config": {
-    "foundation": {
-      "knobs": {
-        "plateActivity": 0.85
-      },
+    "foundation-mantle": {
       "meshResolution": {
         "plateCount": 28,
         "cellsPerPlate": 13,
@@ -33,7 +30,9 @@
         "curvatureWeight": 0.45,
         "upwellingThreshold": 0.25,
         "downwellingThreshold": 0.35
-      },
+      }
+    },
+    "foundation-plates": {
       "lithosphere": {
         "basalticThickness01": 0.25,
         "yieldStrength01": 0.55,
@@ -57,26 +56,24 @@
         "p90NormScale": 1,
         "histogramBins": 32,
         "smoothingSteps": 0
+      }
+    },
+    "foundation-tectonics": {
+      "plateMotion": {
+        "omegaFactor": 1,
+        "plateRadiusMin": 1,
+        "residualNormScale": 1,
+        "p90NormScale": 1,
+        "histogramBins": 32,
+        "smoothingSteps": 0
       },
       "tectonicSegmentation": {
         "intensityScale": 900,
         "regimeMinIntensity": 4
       },
       "tectonicEras": {
-        "eraWeights": [
-          0.3,
-          0.25,
-          0.2,
-          0.15,
-          0.1
-        ],
-        "driftStepsByEra": [
-          12,
-          9,
-          6,
-          3,
-          1
-        ]
+        "eraWeights": [0.3, 0.25, 0.2, 0.15, 0.1],
+        "driftStepsByEra": [12, 9, 6, 3, 1]
       },
       "tectonicFields": {
         "beltInfluenceDistance": 8,
@@ -84,6 +81,11 @@
       },
       "tectonicRollups": {
         "activityThreshold": 1
+      }
+    },
+    "foundation-projection": {
+      "knobs": {
+        "plateActivity": 0.85
       }
     },
     "morphology-coasts": {
@@ -460,12 +462,7 @@
           "tropicalThreshold": 30
         },
         "moisture": {
-          "thresholds": [
-            90,
-            188,
-            228,
-            252
-          ]
+          "thresholds": [90, 188, 228, 252]
         },
         "aridity": {
           "temperatureMin": 0,
@@ -476,10 +473,7 @@
           "rainfallWeight": 1.08,
           "bias": 2,
           "normalization": 118,
-          "moistureShiftThresholds": [
-            0.2,
-            0.66
-          ],
+          "moistureShiftThresholds": [0.2, 0.66],
           "vegetationPenalty": 0.78
         },
         "vegetation": {
@@ -650,10 +644,7 @@
           "maxFreeze": 0.3,
           "maxVegetation": 0.23,
           "maxMoisture": 90,
-          "allowedBiomes": [
-            "desert",
-            "temperateDry"
-          ]
+          "allowedBiomes": ["desert", "temperateDry"]
         },
         "burned": {
           "minAridity": 0.52,
@@ -661,10 +652,7 @@
           "maxFreeze": 0.22,
           "maxVegetation": 0.26,
           "maxMoisture": 98,
-          "allowedBiomes": [
-            "temperateDry",
-            "tropicalSeasonal"
-          ]
+          "allowedBiomes": ["temperateDry", "tropicalSeasonal"]
         }
       },
       "plotEffectCoverage": {

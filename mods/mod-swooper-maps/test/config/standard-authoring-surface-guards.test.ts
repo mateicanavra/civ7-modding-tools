@@ -16,19 +16,18 @@ import { STANDARD_STAGES } from "../../src/recipes/standard/recipe";
 const TRANSIENT_STUDIO_CONFIGS = new Set(["studio-current.config.json"]);
 
 const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
-  foundation: [
+  "foundation-mantle": ["knobs", "meshResolution", "mantleSources", "mantleForcing"],
+  "foundation-plates": ["knobs", "lithosphere", "platePartition", "plateMotion"],
+  "foundation-tectonics": [
     "knobs",
-    "meshResolution",
-    "mantleSources",
-    "mantleForcing",
-    "lithosphere",
-    "platePartition",
     "plateMotion",
     "tectonicSegmentation",
     "tectonicEras",
     "tectonicFields",
     "tectonicRollups",
   ],
+  "foundation-crust": ["knobs"],
+  "foundation-projection": ["knobs"],
   "morphology-coasts": [
     "knobs",
     "substrate",

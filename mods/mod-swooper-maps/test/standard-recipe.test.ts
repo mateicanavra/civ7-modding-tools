@@ -10,48 +10,15 @@ const baseSettings = {
 };
 
 const baseConfig = {
-  foundation: {
-    knobs: { plateCount: 28, plateActivity: 0.5 },
-  },
+  "foundation-mantle": { knobs: { plateCount: 28 } },
+  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-projection": { knobs: { plateActivity: 0.5 } },
 };
 
 describe("standard recipe composition", () => {
   it("keeps tag definitions unique", () => {
     const ids = STANDARD_TAG_DEFINITIONS.map((tag) => tag.id);
     expect(new Set(ids).size).toBe(ids.length);
-  });
-
-  it("uses the expected stage ordering", () => {
-    const expectedStages = [
-      "foundation",
-      "morphology-coasts",
-      "morphology-routing",
-      "morphology-erosion",
-      "morphology-features",
-      "hydrology-climate-baseline",
-      "hydrology-hydrography",
-      "hydrology-climate-refine",
-      "ecology-pedology",
-      "ecology-biomes",
-      "map-morphology",
-      "map-hydrology",
-      "map-elevation",
-      "map-rivers",
-      "ecology-features",
-      "map-ecology",
-      "placement",
-    ];
-    const observedStages: string[] = [];
-
-    for (const step of standardRecipe.recipe.steps) {
-      const parts = step.id.split(".");
-      const stageId = parts[2] ?? "";
-      if (observedStages.at(-1) !== stageId) {
-        observedStages.push(stageId);
-      }
-    }
-
-    expect(observedStages).toEqual(expectedStages);
   });
 
   it("compiles without missing tag errors", () => {

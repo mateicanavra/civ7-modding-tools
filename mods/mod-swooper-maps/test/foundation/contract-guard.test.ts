@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import {
   FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG,
@@ -14,8 +14,8 @@ import * as ts from "typescript";
 import foundation from "../../src/domain/foundation/index.js";
 import { mapArtifacts } from "../../src/recipes/standard/map-artifacts.js";
 import { foundationArtifacts } from "../../src/recipes/standard/stages/foundation/artifacts.js";
-import ProjectionStepContract from "../../src/recipes/standard/stages/foundation/steps/projection.contract.js";
-import TectonicsStepContract from "../../src/recipes/standard/stages/foundation/steps/tectonics.contract.js";
+import ProjectionStepContract from "../../src/recipes/standard/stages/foundation-projection/steps/projection.contract.js";
+import TectonicsStepContract from "../../src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.js";
 
 function listFilesRecursive(rootDir: string): string[] {
   const out: string[] = [];
@@ -30,6 +30,18 @@ function listFilesRecursive(rootDir: string): string[] {
     out.push(full);
   }
   return out;
+}
+
+// Foundation is authored as a family of sibling stages (foundation-mantle,
+// -plates, -tectonics, -crust, -projection) plus the shared `foundation/` hub
+// (artifacts/validation/viz). Discover them dynamically so these guards span the
+// whole family without re-encoding the stage list.
+function foundationStageDirs(repoRoot: string): string[] {
+  const stagesDir = path.join(repoRoot, "src/recipes/standard/stages");
+  return readdirSync(stagesDir)
+    .filter((entry) => entry === "foundation" || entry.startsWith("foundation-"))
+    .map((entry) => path.join(stagesDir, entry))
+    .filter((full) => statSync(full).isDirectory());
 }
 
 function listImportSources(text: string, fileName: string): string[] {
@@ -71,11 +83,10 @@ describe("foundation contract guardrails", () => {
     }
   });
 
-  it("does not import domain config bags from the foundation step contract", () => {
+  it("does not import domain config bags from the foundation step contracts", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
-    const stepsDir = path.join(repoRoot, "src/recipes/standard/stages/foundation/steps");
-    const contractFiles = listFilesRecursive(stepsDir).filter((file) =>
-      file.endsWith("contract.ts")
+    const contractFiles = foundationStageDirs(repoRoot).flatMap((dir) =>
+      listFilesRecursive(dir).filter((file) => file.endsWith("contract.ts"))
     );
 
     expect(contractFiles.length).toBeGreaterThan(0);
@@ -103,7 +114,7 @@ describe("foundation contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
       path.join(repoRoot, "src/domain/foundation"),
-      path.join(repoRoot, "src/recipes/standard/stages/foundation"),
+      ...foundationStageDirs(repoRoot),
       path.join(repoRoot, "src/maps"),
     ];
 
@@ -135,7 +146,7 @@ describe("foundation contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const roots = [
       path.join(repoRoot, "src/domain/foundation"),
-      path.join(repoRoot, "src/recipes/standard/stages/foundation"),
+      ...foundationStageDirs(repoRoot),
       path.join(repoRoot, "src/maps"),
     ];
     const files = roots.flatMap((root) =>
@@ -158,8 +169,11 @@ describe("foundation contract guardrails", () => {
 
   it("keeps foundation advanced override lowering typed (no runtime cast-merge path)", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
-    const stageFile = path.join(repoRoot, "src/recipes/standard/stages/foundation/index.ts");
-    const text = readFileSync(stageFile, "utf8");
+    const stageIndexFiles = foundationStageDirs(repoRoot)
+      .map((dir) => path.join(dir, "index.ts"))
+      .filter((file) => existsSync(file));
+
+    expect(stageIndexFiles.length).toBeGreaterThan(0);
 
     const bannedExactFragments = [
       "const mantleOverrideValues = (advanced?.mantleForcing ?? {}) as",
@@ -174,10 +188,6 @@ describe("foundation contract guardrails", () => {
       "FOUNDATION_STEP_IDS",
     ] as const;
 
-    for (const fragment of bannedExactFragments) {
-      expect(text).not.toContain(fragment);
-    }
-
     const bannedStructuralPatterns = [
       // Reintroduced cast-merge over advanced bags, e.g. `(advanced?.foo ?? {}) as ...`.
       /\(\s*advanced\?\.[^)]*\?\?\s*\{\}\s*\)\s+as\s+/,
@@ -187,8 +197,14 @@ describe("foundation contract guardrails", () => {
       /\badvancedRecord\s*\[\s*stepId\s*\]/,
     ] as const;
 
-    for (const pattern of bannedStructuralPatterns) {
-      expect(text).not.toMatch(pattern);
+    for (const stageFile of stageIndexFiles) {
+      const text = readFileSync(stageFile, "utf8");
+      for (const fragment of bannedExactFragments) {
+        expect(text, stageFile).not.toContain(fragment);
+      }
+      for (const pattern of bannedStructuralPatterns) {
+        expect(text, stageFile).not.toMatch(pattern);
+      }
     }
   });
 
@@ -290,11 +306,11 @@ describe("foundation contract guardrails", () => {
     const repoRoot = path.resolve(import.meta.dir, "../..");
     const projectionContractFile = path.join(
       repoRoot,
-      "src/recipes/standard/stages/foundation/steps/projection.contract.ts"
+      "src/recipes/standard/stages/foundation-projection/steps/projection.contract.ts"
     );
     const projectionStepFile = path.join(
       repoRoot,
-      "src/recipes/standard/stages/foundation/steps/projection.ts"
+      "src/recipes/standard/stages/foundation-projection/steps/projection.ts"
     );
 
     const projectionContractText = readFileSync(projectionContractFile, "utf8");
