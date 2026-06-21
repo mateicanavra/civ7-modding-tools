@@ -1,22 +1,22 @@
-import { Effect } from "effect";
-import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
-import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/adapters/grit/provider/index";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "../../src/domains/pattern-governance/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
 import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "../../src/domains/transformation-transaction/index.js";
+} from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+import type { TransactionsServiceOptions } from "@internal/habitat-harness/service/modules/transactions/context";
+import { runTransactionApplyService } from "@internal/habitat-harness/service/modules/transactions/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "../../src/providers/command/index.js";
-import type { TransactionsServiceOptions } from "../../src/service/modules/transactions/context.js";
-import { runTransactionApplyService } from "../../src/service/modules/transactions/router.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { Effect } from "effect";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -29,7 +29,7 @@ describe("pattern apply", () => {
   });
 
   test("refuses fix at the command boundary before apply admission", async () => {
-    const { runFixService } = await import("../../src/service/modules/fix/router.js");
+    const { runFixService } = await import("@internal/habitat-harness/service/modules/fix/router");
 
     const result = await Effect.runPromise(
       runFixService({ kind: "dry-run-intent" }, { admissions: [] })

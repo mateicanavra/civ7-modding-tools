@@ -1,15 +1,15 @@
-import { describe, expect, test } from "vitest";
-import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/adapters/grit/provider/index";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "../../src/domains/pattern-governance/index.js";
-import { renderPatternApply } from "../../src/domains/transformation-transaction/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+import { renderPatternApply } from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "../../src/providers/command/index.js";
-import { createHabitatServiceClient } from "../../src/service/client.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { describe, expect, test } from "vitest";
 
 describe("Habitat transactions service", () => {
   test("runs admitted dry-run transactions through the in-process service client", async () => {

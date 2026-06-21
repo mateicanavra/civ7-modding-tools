@@ -1,8 +1,8 @@
+import { BaselineAuthorityLive } from "@internal/habitat-harness/core/domains/baseline-authority/index";
+import { StructuralCheckLive } from "@internal/habitat-harness/core/domains/structural-check/index";
+import { HabitatRuntimeLive } from "@internal/habitat-harness/service/runtime/layers";
 import { Layer, ManagedRuntime } from "effect";
 import { type EffectImplementer, implementEffect } from "effect-orpc";
-import { BaselineAuthorityLive } from "../domains/baseline-authority/index.js";
-import { StructuralCheckLive } from "../domains/structural-check/index.js";
-import { HabitatRuntimeLive } from "../runtime/layers.js";
 import { type HabitatServiceContext, HabitatServiceRuntime } from "./base.js";
 import { habitatServiceContract } from "./contract.js";
 

@@ -1,17 +1,20 @@
 import path from "node:path";
-import { Effect, Layer } from "effect";
-import { describe, expect, test } from "vitest";
-import { CommandUnavailable } from "../../src/errors/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
-import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
+import { runGraphService } from "@internal/habitat-harness/service/modules/graph/router";
+import { CommandUnavailable } from "@internal/habitat-harness/substrate/errors/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/substrate/providers/command/index";
 import {
   affectedArgv,
   graphArgv,
   makeFakeNxProviderLayer,
   type NxGraphRequest,
   NxProvider,
-} from "../../src/providers/nx/index.js";
-import { runGraphService } from "../../src/service/modules/graph/router.js";
+} from "@internal/habitat-harness/substrate/providers/nx/index";
+import { Effect, Layer } from "effect";
+import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
 describe("Habitat graph service", () => {

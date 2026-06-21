@@ -67,6 +67,48 @@ const depConstraints = [
     ],
   },
   { sourceTag: "kind:tooling", onlyDependOnLibsWithTags: ["kind:tooling", "kind:foundation"] },
+  { sourceTag: "habitat:substrate", onlyDependOnLibsWithTags: ["habitat:substrate"] },
+  {
+    sourceTag: "habitat:adapter",
+    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core", "habitat:adapter"],
+  },
+  {
+    sourceTag: "habitat:core",
+    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core"],
+  },
+  {
+    sourceTag: "habitat:service",
+    onlyDependOnLibsWithTags: [
+      "habitat:substrate",
+      "habitat:core",
+      "habitat:adapter",
+      "habitat:service",
+    ],
+  },
+  {
+    sourceTag: "habitat:workspace",
+    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core", "habitat:workspace"],
+  },
+  {
+    sourceTag: "habitat:host",
+    onlyDependOnLibsWithTags: [
+      "habitat:core",
+      "habitat:service",
+      "habitat:workspace",
+      "habitat:host",
+    ],
+  },
+];
+
+const allow = [
+  "/base-standard/**",
+  "./workspace/plugin/nx-plugin.ts",
+  "../../core/domains/source-check/module-paths.ts",
+  "../../substrate/lib/artifact-paths.ts",
+  "../../substrate/lib/paths.ts",
+  "../../substrate/providers/nx/rule-registry-loader.ts",
+  "../../substrate/providers/nx/schema.ts",
+  "../../substrate/providers/nx/targets.ts",
 ];
 
 export default [
@@ -108,7 +150,7 @@ export default [
           // Civ7 engine virtual modules are imported by absolute path by design;
           // WHO may import them is the adapter-boundary rule's concern (grit/H5),
           // not the project-tag plane.
-          allow: ["/base-standard/**"],
+          allow,
           depConstraints,
         },
       ],
@@ -123,7 +165,7 @@ export default [
         {
           enforceBuildableLibDependency: false,
           allowCircularSelfDependency: true,
-          allow: ["/base-standard/**"],
+          allow,
           depConstraints,
         },
       ],

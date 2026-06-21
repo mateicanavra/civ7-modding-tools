@@ -1,11 +1,11 @@
-import type { ContractProcedure } from "@orpc/contract";
-import { eoc } from "effect-orpc";
-import { type Static, Type } from "typebox";
 import {
   CheckCommandContextSchema,
   CheckReportSchema,
   SelectorRequestSchema,
-} from "../../../domains/structural-check/schema.js";
+} from "@internal/habitat-harness/core/domains/structural-check/schema";
+import type { ContractProcedure } from "@orpc/contract";
+import { eoc } from "effect-orpc";
+import { type Static, Type } from "typebox";
 import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
 import type { HabitatServiceProcedureMeta } from "../../metadata.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";

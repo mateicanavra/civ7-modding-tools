@@ -1,18 +1,21 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import { Effect } from "effect";
-import type { HabitatConfig } from "../../../config/index.js";
-import type { BaselineAuthority } from "../../../domains/baseline-authority/index.js";
-import type { SourceCheck } from "../../../domains/source-check/index.js";
+import type { BaselineAuthority } from "@internal/habitat-harness/core/domains/baseline-authority/index";
+import type { SourceCheck } from "@internal/habitat-harness/core/domains/source-check/index";
 import {
   checkCommandContext,
   describeRuleSelectionFailure,
   StructuralCheck,
-} from "../../../domains/structural-check/index.js";
-import type { BiomeProvider } from "../../../providers/biome/index.js";
-import type { CommandRunner } from "../../../providers/command/index.js";
-import type { GitProvider, GitProviderRequirements } from "../../../providers/git/index.js";
-import type { NxProvider } from "../../../providers/nx/index.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import type { HabitatConfig } from "@internal/habitat-harness/substrate/config/index";
+import type { BiomeProvider } from "@internal/habitat-harness/substrate/providers/biome/index";
+import type { CommandRunner } from "@internal/habitat-harness/substrate/providers/command/index";
+import type {
+  GitProvider,
+  GitProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/git/index";
+import type { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
+import { Effect } from "effect";
 import type {
   CheckServiceExpandBaselineInput,
   CheckServiceExpandBaselineOutput,

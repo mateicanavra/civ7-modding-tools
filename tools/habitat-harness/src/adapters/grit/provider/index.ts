@@ -1,17 +1,20 @@
 import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import { Context, Effect, Layer } from "effect";
-import type { HabitatConfig } from "../../../config/index.js";
-import type { FileWriteFailed } from "../../../errors/index.js";
-import { repoRoot } from "../../../lib/paths.js";
-import { type CommandProviderError, CommandRunner } from "../../../providers/command/index.js";
+import type { HabitatConfig } from "@internal/habitat-harness/substrate/config/index";
+import type { FileWriteFailed } from "@internal/habitat-harness/substrate/errors/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+import {
+  type CommandProviderError,
+  CommandRunner,
+} from "@internal/habitat-harness/substrate/providers/command/index";
 import type {
   HabitatCommandResult,
   HabitatProcessRequest,
-} from "../../../providers/command/types.js";
-import type { GitStateProvider } from "../../../providers/git/index.js";
-import { ensurePatternCacheRoot } from "../../../resources/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/types";
+import type { GitStateProvider } from "@internal/habitat-harness/substrate/providers/git/index";
+import { ensurePatternCacheRoot } from "@internal/habitat-harness/substrate/resources/index";
+import { Context, Effect, Layer } from "effect";
 import {
   defaultGritCommandTimeoutMs,
   docsLocalCheckoutPathsRewritePattern,

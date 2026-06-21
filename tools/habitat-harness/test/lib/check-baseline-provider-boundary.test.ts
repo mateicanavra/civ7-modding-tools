@@ -1,13 +1,16 @@
-import { Effect, Layer } from "effect";
-import { describe, expect, test } from "vitest";
 import {
   BaselineAuthority,
   BaselineAuthorityLive,
-} from "../../src/domains/baseline-authority/index.js";
-import { activeRuleSelectorFacts } from "../../src/domains/rule-registry/active-facts.js";
-import { executeSelectedRulesEffect } from "../../src/domains/structural-check/execution.js";
-import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
-import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
+} from "@internal/habitat-harness/core/domains/baseline-authority/index";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/core/domains/rule-registry/active-facts";
+import { executeSelectedRulesEffect } from "@internal/habitat-harness/core/domains/structural-check/execution";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
+import { Effect, Layer } from "effect";
+import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
 describe("check and baseline provider boundaries", () => {

@@ -1,7 +1,7 @@
+import { projectGenerator } from "@internal/habitat-harness/workspace/generators/project/generator";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";
-import { projectGenerator } from "../../src/generators/project/generator.js";
 
 describe("Habitat project generator", () => {
   test("creates a supported plugin project at its canonical root", async () => {

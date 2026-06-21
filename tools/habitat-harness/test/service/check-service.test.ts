@@ -1,12 +1,12 @@
-import { Effect } from "effect";
-import { describe, expect, test } from "vitest";
-import type { RuleSelection } from "../../src/domains/rule-selection/index.js";
-import { makeFakeStructuralCheckLayer } from "../../src/domains/structural-check/index.js";
-import type { CheckOptions } from "../../src/domains/structural-check/request.js";
+import type { RuleSelection } from "@internal/habitat-harness/core/domains/rule-selection/index";
+import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/core/domains/structural-check/index";
+import type { CheckOptions } from "@internal/habitat-harness/core/domains/structural-check/request";
 import {
   expandCheckBaselinesService,
   runCheckService,
-} from "../../src/service/modules/check/router.js";
+} from "@internal/habitat-harness/service/modules/check/router";
+import { Effect } from "effect";
+import { describe, expect, test } from "vitest";
 
 const mockReport = {
   schemaVersion: 1,
@@ -26,7 +26,7 @@ describe("Habitat check service", () => {
         base: "origin/main",
         commandArgs: ["--json"],
         staged: true,
-        stagedPaths: ["tools/habitat-harness/src/commands/check.ts"],
+        stagedPaths: ["tools/habitat-harness/src/host/commands/check.ts"],
       }).pipe(
         Effect.provide(
           makeFakeStructuralCheckLayer({
@@ -55,7 +55,7 @@ describe("Habitat check service", () => {
           serialized: "habitat check --json",
         },
         staged: true,
-        stagedPaths: ["tools/habitat-harness/src/commands/check.ts"],
+        stagedPaths: ["tools/habitat-harness/src/host/commands/check.ts"],
       },
     ]);
   });

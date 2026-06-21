@@ -1,4 +1,4 @@
-import type { ClassifyOptions } from "../../../domains/workspace-graph-integration/index.js";
+import type { ClassifyOptions } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
 
 export interface ClassifyServiceContext {
   readonly classify?: ClassifyServiceOptions;

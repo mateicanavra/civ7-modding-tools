@@ -1,12 +1,12 @@
-import { Effect, type Layer } from "effect";
 import {
   type DiagnosticRunOutcome,
   diagnosticCatalogEntryFromNativeRule,
   renderDiagnosticScanRootRefusal,
-} from "../../domains/diagnostic-pattern-catalog/index.js";
-import type { RuleSourceFacts } from "../../domains/rule-registry/index.js";
-import { runHabitatEffect } from "../../lib/effect-runtime.js";
-import type { RuleRunResult } from "../../rules/architecture.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import type { RuleRunResult } from "@internal/habitat-harness/core/rules/architecture";
+import { Effect, type Layer } from "effect";
+import { runGritAdapterEffect } from "./effect.js";
 import { infrastructureFailure } from "./failure.js";
 import { docsLocalCheckoutPathsRewritePattern } from "./provider/constants.js";
 import { GritProvider, type GritProviderRequirements } from "./provider/index.js";
@@ -24,12 +24,9 @@ export async function runDocsApplyBackedGritRules(
     providerLayer?: Layer.Layer<GritProvider>;
   }
 ): Promise<Map<string, RuleRunResult>> {
-  const outcomes = await runHabitatEffect(
+  const outcomes = await runGritAdapterEffect(
+    runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options),
     options.providerLayer
-      ? runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options).pipe(
-          Effect.provide(options.providerLayer)
-        )
-      : runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options)
   );
   return new Map(
     selectedRules.map((rule) => {
@@ -75,12 +72,9 @@ export async function runDocsApplyBackedDiagnosticOutcomes(
     providerLayer?: Layer.Layer<GritProvider>;
   }
 ): Promise<Map<string, DiagnosticRunOutcome>> {
-  return runHabitatEffect(
+  return runGritAdapterEffect(
+    runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options),
     options.providerLayer
-      ? runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options).pipe(
-          Effect.provide(options.providerLayer)
-        )
-      : runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options)
   );
 }
 

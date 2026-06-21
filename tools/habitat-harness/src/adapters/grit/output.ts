@@ -1,5 +1,3 @@
-import { type Static, Type } from "typebox";
-import { Value } from "typebox/value";
 import {
   type DiagnosticAdapterFailureKind,
   DiagnosticAdapterFailureKindSchema,
@@ -13,9 +11,11 @@ import {
   type NativeGritCheckRequest,
   NativeGritCheckRequestSchema,
   nativeGritCheckRequestFromCommandResult,
-} from "../../domains/diagnostic-pattern-catalog/index.js";
-import { toRepoRelative } from "../../lib/paths.js";
-import type { HabitatCommandResult } from "../../providers/command/index.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import { toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
+import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/providers/command/index";
+import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
 import {
   type GritParseFailureStatus,
   GritParseFailureStatusSchema,

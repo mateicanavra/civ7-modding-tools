@@ -1,26 +1,27 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import { Effect } from "effect";
-import type { HabitatConfig } from "../../../config/index.js";
-import type { BaselineAuthority } from "../../../domains/baseline-authority/index.js";
+import type { BaselineAuthority } from "@internal/habitat-harness/core/domains/baseline-authority/index";
 import {
   type HookCheckCommandResult,
   renderResourceDecisionFailure,
   resourceDecisionToFacade,
-} from "../../../domains/hook-runtime/index.js";
-import { finalizePreCommit, finalizePrePush } from "../../../domains/hook-runtime/lifecycle.js";
+} from "@internal/habitat-harness/core/domains/hook-runtime/index";
+import {
+  finalizePreCommit,
+  finalizePrePush,
+} from "@internal/habitat-harness/core/domains/hook-runtime/lifecycle";
 import {
   type PrePushBaseDecision,
   resolveGraphiteParent,
-} from "../../../domains/hook-runtime/pre-push-base.js";
-import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
-import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
+} from "@internal/habitat-harness/core/domains/hook-runtime/pre-push-base";
+import { captureRepoSnapshot } from "@internal/habitat-harness/core/domains/hook-runtime/repo-snapshot";
+import { classifyResourcePreCommitDecision } from "@internal/habitat-harness/core/domains/hook-runtime/resource-inspection";
 import {
   createHookOutput,
   type HookRuntime,
   hookNow,
   section,
-} from "../../../domains/hook-runtime/runtime.js";
+} from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
 import {
   biomeHookPaths,
   existingStagedPaths,
@@ -28,13 +29,13 @@ import {
   gitAdd,
   hookSourceCheckPaths,
   unstagedAmong,
-} from "../../../domains/hook-runtime/staged-worktree.js";
+} from "@internal/habitat-harness/core/domains/hook-runtime/staged-worktree";
 import {
   activeRuleHookCheckFacts,
   activeRuleSourceFacts,
   factsForRuleIds,
-} from "../../../domains/rule-registry/active-facts.js";
-import type { SourceCheck } from "../../../domains/source-check/index.js";
+} from "@internal/habitat-harness/core/domains/rule-registry/active-facts";
+import type { SourceCheck } from "@internal/habitat-harness/core/domains/source-check/index";
 import {
   approvedScanRootsForRules,
   type CheckReport,
@@ -44,19 +45,27 @@ import {
   renderCheckReport,
   StructuralCheck,
   stagedSourceCheckPaths,
-} from "../../../domains/structural-check/index.js";
-import { prePushTargetPlanForChangedPaths } from "../../../domains/validation-routing/index.js";
-import { repoRoot } from "../../../lib/paths.js";
-import { type BiomeCommandRequest, BiomeProvider } from "../../../providers/biome/index.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/core/domains/validation-routing/index";
+import type { HabitatConfig } from "@internal/habitat-harness/substrate/config/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+import {
+  type BiomeCommandRequest,
+  BiomeProvider,
+} from "@internal/habitat-harness/substrate/providers/biome/index";
 import {
   type CommandRunner,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "../../../providers/command/index.js";
-import { GitProvider, type GitProviderRequirements } from "../../../providers/git/index.js";
-import { NxProvider } from "../../../providers/nx/index.js";
-import { workspaceGraphTargetNames } from "../../../providers/nx/targets.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import {
+  GitProvider,
+  type GitProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/git/index";
+import { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/substrate/providers/nx/targets";
+import { Effect } from "effect";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";

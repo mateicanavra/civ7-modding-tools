@@ -1,10 +1,10 @@
-import type { Layer } from "effect";
-import type { GritProvider } from "../../../adapters/grit/provider/index.js";
+import type { GritProvider } from "@internal/habitat-harness/adapters/grit/provider/index";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "../../../domains/pattern-governance/index.js";
-import type { WorktreeObservation } from "../../../domains/transformation-transaction/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+import type { WorktreeObservation } from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+import type { Layer } from "effect";
 
 export interface FixServiceOptions {
   admissions?: readonly ApplyAdmission[];

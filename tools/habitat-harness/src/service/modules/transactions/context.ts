@@ -1,6 +1,6 @@
+import type { GritProvider } from "@internal/habitat-harness/adapters/grit/provider/index";
+import type { ApplyTransactionInput } from "@internal/habitat-harness/core/domains/pattern-governance/index";
 import type { Layer } from "effect";
-import type { GritProvider } from "../../../adapters/grit/provider/index.js";
-import type { ApplyTransactionInput } from "../../../domains/pattern-governance/index.js";
 
 export interface TransactionsServiceContext {
   readonly transactions?: TransactionsServiceOptions;

@@ -1,4 +1,3 @@
-import { Effect, type Layer } from "effect";
 import {
   type DiagnosticAdapterFailureKind,
   type DiagnosticCacheObservation,
@@ -7,15 +6,16 @@ import {
   type DiagnosticScanRootRefusal,
   diagnosticCatalogEntryFromRuleSourceFacts,
   renderDiagnosticScanRootRefusal,
-} from "../../domains/diagnostic-pattern-catalog/index.js";
-import type { RuleSourceFacts } from "../../domains/rule-registry/index.js";
-import { runHabitatEffect } from "../../lib/effect-runtime.js";
-import type { RuleRunResult } from "../../rules/architecture.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import type { RuleRunResult } from "@internal/habitat-harness/core/rules/architecture";
+import { Effect, type Layer } from "effect";
 import {
   gritDiagnosticOutcomesFromReport,
   ruleRunResultsFromDiagnosticOutcomes,
 } from "./diagnostics.js";
 import { runDocsApplyBackedDiagnosticOutcomesEffect } from "./docs-apply.js";
+import { runGritAdapterEffect } from "./effect.js";
 import { infrastructureFailure } from "./failure.js";
 import type { GritDiagnosticAcquisition } from "./output.js";
 import { GritProvider, type GritProviderRequirements } from "./provider/index.js";
@@ -52,11 +52,7 @@ export async function runGritRules(
   selectedRules: readonly RuleSourceFacts[],
   options: GritRunOptions = {}
 ): Promise<Map<string, RuleRunResult>> {
-  return runHabitatEffect(
-    options.providerLayer
-      ? runGritRulesEffect(selectedRules, options).pipe(Effect.provide(options.providerLayer))
-      : runGritRulesEffect(selectedRules, options)
-  );
+  return runGritAdapterEffect(runGritRulesEffect(selectedRules, options), options.providerLayer);
 }
 
 export function runGritRulesEffect(
@@ -72,12 +68,9 @@ export async function runGritDiagnosticOutcomes(
   selectedRules: readonly RuleSourceFacts[],
   options: GritRunOptions = {}
 ): Promise<Map<string, DiagnosticRunOutcome>> {
-  return runHabitatEffect(
+  return runGritAdapterEffect(
+    runGritDiagnosticOutcomesEffect(selectedRules, options),
     options.providerLayer
-      ? runGritDiagnosticOutcomesEffect(selectedRules, options).pipe(
-          Effect.provide(options.providerLayer)
-        )
-      : runGritDiagnosticOutcomesEffect(selectedRules, options)
   );
 }
 

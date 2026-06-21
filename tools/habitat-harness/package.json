@@ -116,9 +116,54 @@
     "build:bin-mode": "chmod +x bin/run.js"
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./plugin": "./src/plugin.ts",
-    "./public/*": "./src/public/*.ts"
+    ".": {
+      "bun": "./src/index.ts",
+      "types": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./adapters/*": {
+      "bun": "./src/adapters/*.ts",
+      "types": "./src/adapters/*.ts",
+      "import": "./dist/adapters/*.js",
+      "default": "./dist/adapters/*.js"
+    },
+    "./core/*": {
+      "bun": "./src/core/*.ts",
+      "types": "./src/core/*.ts",
+      "import": "./dist/core/*.js",
+      "default": "./dist/core/*.js"
+    },
+    "./host/*": {
+      "bun": "./src/host/*.ts",
+      "types": "./src/host/*.ts",
+      "import": "./dist/host/*.js",
+      "default": "./dist/host/*.js"
+    },
+    "./service/*": {
+      "bun": "./src/service/*.ts",
+      "types": "./src/service/*.ts",
+      "import": "./dist/service/*.js",
+      "default": "./dist/service/*.js"
+    },
+    "./substrate/*": {
+      "bun": "./src/substrate/*.ts",
+      "types": "./src/substrate/*.ts",
+      "import": "./dist/substrate/*.js",
+      "default": "./dist/substrate/*.js"
+    },
+    "./workspace/plugin": {
+      "bun": "./src/workspace/plugin.ts",
+      "types": "./src/workspace/plugin.ts",
+      "import": "./dist/workspace/plugin.js",
+      "default": "./dist/workspace/plugin.js"
+    },
+    "./workspace/*": {
+      "bun": "./src/workspace/*.ts",
+      "types": "./src/workspace/*.ts",
+      "import": "./dist/workspace/*.js",
+      "default": "./dist/workspace/*.js"
+    }
   },
   "dependencies": {
     "@effect/platform": "0.96.1",
@@ -138,7 +183,7 @@
   "oclif": {
     "bin": "habitat",
     "dirname": "habitat-harness",
-    "commands": "./dist/commands",
+    "commands": "./dist/host/commands",
     "plugins": [
       "@oclif/plugin-help"
     ],
