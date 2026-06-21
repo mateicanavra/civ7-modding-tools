@@ -21,7 +21,7 @@ export default createMap({
     "bottomLatitude": -40
   },
   sourceConfigId: "swooper-desert-mountains",
-  configHash: "e3b9c82707bc857d162193afc11b8682279124390d0fda26bde675f07404934d",
-  envelopeHash: "229cc5eac89159faaa39d862b4c84d57fa83bc6cd99f227475a50d468175938c",
+  configHash: "86628facdca3b7dc38d568aa637de715d65c35687b12fd543ce2c445182c0b35",
+  envelopeHash: "43769d7e11b7a2e91489c94c5fe795f4935fe4863ae280845e0721e2fd80db55",
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });

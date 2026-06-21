@@ -2,21 +2,21 @@ import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
 import { crustEvolution } from "./steps/index.js";
 
-/** Foundation / Crust — final crust from initial crust + tectonic history (the merge stage). */
+/** Foundation / Orogeny — final crust from initial crust + tectonic history (the merge stage). */
 export default createStage({
-  id: "foundation-crust",
+  id: "foundation-orogeny",
   knobsSchema: Type.Object(
     {},
     {
       additionalProperties: false,
-      description: "Crust has no knobs; evolution follows tectonic history.",
+      description: "Orogeny has no knobs; crust evolution follows the tectonic history.",
     }
   ),
   public: Type.Object(
     {},
-    { additionalProperties: false, description: "Crust has no authored config." }
+    { additionalProperties: false, description: "Orogeny has no authored config." }
   ),
-  steps: orderStandardStageSteps("foundation-crust", {
+  steps: orderStandardStageSteps("foundation-orogeny", {
     "crust-evolution": crustEvolution,
   }),
   compile: () => ({}),

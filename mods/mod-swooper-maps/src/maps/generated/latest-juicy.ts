@@ -17,7 +17,7 @@ export default createMap({
   description: mapConfig.description,
   recipe: standardRecipe,
   sourceConfigId: "latest-juicy",
-  configHash: "f6f91195a50ceb503c5cad164c4138d6738b2e63bcb64fbb3deaa58adb70c521",
-  envelopeHash: "875c53cc6803d4b037971f5b53576fe576dbb36364db7459425138ee74f921c8",
+  configHash: "00a564f8d26272842634cfb9ba1a77c477075c35ad6631818b9cfd1c566be2ab",
+  envelopeHash: "5d6a91c2ea3366dba4186581d941b1877c0dfe1ce14786e8f94dc28621b639f7",
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });

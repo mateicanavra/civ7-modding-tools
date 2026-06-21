@@ -11,7 +11,7 @@ export default createStage({
     { plateCount: Type.Optional(FoundationPlateCountKnobSchema) },
     {
       additionalProperties: false,
-      description: "Mantle lever: plateCount (mesh density; also set on foundation-plates).",
+      description: "Mantle lever: plateCount (mesh density; also set on foundation-lithosphere).",
     }
   ),
   public: Type.Object(

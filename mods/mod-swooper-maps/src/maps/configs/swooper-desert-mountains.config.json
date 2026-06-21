@@ -36,7 +36,7 @@
         "downwellingThreshold": 0.35
       }
     },
-    "foundation-plates": {
+    "foundation-lithosphere": {
       "lithosphere": {
         "basalticThickness01": 0.25,
         "yieldStrength01": 0.55,
@@ -52,14 +52,6 @@
           "microplatesMinPlateCount": 14,
           "microplateMinAreaCells": 8
         }
-      },
-      "plateMotion": {
-        "omegaFactor": 1,
-        "plateRadiusMin": 1,
-        "residualNormScale": 1,
-        "p90NormScale": 1,
-        "histogramBins": 32,
-        "smoothingSteps": 0
       }
     },
     "foundation-tectonics": {

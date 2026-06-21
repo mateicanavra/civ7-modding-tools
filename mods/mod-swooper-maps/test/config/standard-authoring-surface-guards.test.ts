@@ -17,7 +17,7 @@ const TRANSIENT_STUDIO_CONFIGS = new Set(["studio-current.config.json"]);
 
 const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
   "foundation-mantle": ["knobs", "meshResolution", "mantleSources", "mantleForcing"],
-  "foundation-plates": ["knobs", "lithosphere", "platePartition", "plateMotion"],
+  "foundation-lithosphere": ["knobs", "lithosphere", "platePartition"],
   "foundation-tectonics": [
     "knobs",
     "plateMotion",
@@ -26,7 +26,7 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "tectonicFields",
     "tectonicRollups",
   ],
-  "foundation-crust": ["knobs"],
+  "foundation-orogeny": ["knobs"],
   "foundation-projection": ["knobs"],
   "morphology-coasts": [
     "knobs",

@@ -12,15 +12,15 @@ const env = {
 
 const foundationBaseConfig = {
   "foundation-mantle": { knobs: { plateCount: 28 } },
-  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-lithosphere": { knobs: { plateCount: 28 } },
   "foundation-projection": { knobs: { plateActivity: 0.5 } },
 };
 
 const FOUNDATION_STAGE_IDS = [
   "foundation-mantle",
-  "foundation-plates",
+  "foundation-lithosphere",
   "foundation-tectonics",
-  "foundation-crust",
+  "foundation-orogeny",
   "foundation-projection",
 ] as const;
 
@@ -28,7 +28,7 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
   it("applies knobs as deterministic transforms over step defaults", () => {
     const compiled = standardRecipe.compileConfig(env, {
       "foundation-mantle": { knobs: { plateCount: 12 } },
-      "foundation-plates": { knobs: { plateCount: 12 } },
+      "foundation-lithosphere": { knobs: { plateCount: 12 } },
       "foundation-projection": { knobs: { plateActivity: 0.8 } },
       "morphology-coasts": {
         knobs: { seaLevel: "water-heavy", coastRuggedness: "rugged" },
@@ -84,7 +84,7 @@ describe("M11 config layering: knobs-last (foundation + morphology)", () => {
     // - plateCount is the authored override for the selected map size; it is a
     //   cross-stage knob, so it reaches both the mantle (mesh) and plates (graph).
     const mantle = compiled["foundation-mantle"];
-    const plates = compiled["foundation-plates"];
+    const plates = compiled["foundation-lithosphere"];
     const projection = compiled["foundation-projection"];
     expect(mantle.mesh.computeMesh.config.plateCount).toBe(12);
     expect(plates["plate-graph"].computePlateGraph.config.plateCount).toBe(12);
