@@ -6,7 +6,11 @@ import {
   resourceDecisionToFacade,
 } from "../../../domains/hook-runtime/index.js";
 import { finalizePreCommit, finalizePrePush } from "../../../domains/hook-runtime/lifecycle.js";
-import { resolvePrePushBase } from "../../../domains/hook-runtime/pre-push-base.js";
+import {
+  type PrePushBaseDecision,
+  resolveGraphiteParent,
+  resolvePrePushBase,
+} from "../../../domains/hook-runtime/pre-push-base.js";
 import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
 import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
 import {
@@ -26,6 +30,7 @@ import {
 } from "../../../domains/hook-runtime/staged-worktree.js";
 import { repoRoot } from "../../../lib/paths.js";
 import type { SpawnResult } from "../../../providers/command/index.js";
+import { GitProvider, type GitProviderRequirements } from "../../../providers/git/index.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
@@ -42,6 +47,13 @@ export const hookRouter = {
 export const router = hookRouter;
 
 export function runHookService(input: HookServiceRunInput = {}, options: HookServiceOptions = {}) {
+  if (input.name === "pre-push" && !input.base) {
+    return Effect.gen(function* () {
+      const runtime = options.runtime ?? {};
+      const baseDecision = yield* resolvePrePushBaseForService(runtime);
+      return runPrePushWithBaseDecision(baseDecision, runtime);
+    });
+  }
   return Effect.sync(() => runHook(input.name, { base: input.base }, options.runtime));
 }
 
@@ -253,6 +265,16 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
 }
 
 export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {}): SpawnResult {
+  const baseDecision = options.base
+    ? { kind: "resolved" as const, base: options.base, source: "explicit" as const }
+    : resolvePrePushBase(runtime);
+  return runPrePushWithBaseDecision(baseDecision, runtime);
+}
+
+function runPrePushWithBaseDecision(
+  baseDecision: PrePushBaseDecision,
+  runtime: HookRuntime = {}
+): SpawnResult {
   const output = createHookOutput(runtime.reporter);
   output.writeStdout(localHookNotice);
   if (runtime.trace) {
@@ -262,9 +284,6 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
     };
     runtime.trace.prePush.preState = captureRepoSnapshot(runtime);
   }
-  const baseDecision = options.base
-    ? { kind: "resolved" as const, base: options.base, source: "explicit" as const }
-    : resolvePrePushBase(runtime);
   if (baseDecision.kind === "refused") {
     output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
     return finalizePrePush(runtime, "base-refused", { exitCode: 1, ...output.result() });
@@ -293,6 +312,25 @@ export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {})
   return finalizePrePush(runtime, result.exitCode === 0 ? "pass" : "affected-failed", {
     exitCode: result.exitCode,
     ...output.result(),
+  });
+}
+
+function resolvePrePushBaseForService(
+  runtime: HookRuntime
+): Effect.Effect<PrePushBaseDecision, never, GitProvider | GitProviderRequirements> {
+  return Effect.gen(function* () {
+    const parent = resolveGraphiteParent(runtime);
+    if (parent) return { kind: "resolved" as const, base: parent, source: "graphite-parent" };
+
+    const git = yield* GitProvider;
+    const defaultBranch = yield* git.remoteDefaultBranch({ cwd: repoRoot });
+    const base = defaultBranch ? yield* git.mergeBase(defaultBranch, { cwd: repoRoot }) : null;
+    if (base) return { kind: "resolved" as const, base, source: "merge-base" };
+    return {
+      kind: "refused" as const,
+      message:
+        "could not resolve an affected base from Graphite parent or the remote default branch; pass --base explicitly.",
+    };
   });
 }
 
