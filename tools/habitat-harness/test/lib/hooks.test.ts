@@ -10,12 +10,9 @@ import {
 } from "../../src/domains/hook-runtime/runtime.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import type { SpawnResult } from "../../src/providers/command/index.js";
-import { runPreCommit, runPrePush } from "../../src/service/modules/hook/router.js";
+import { runPreCommit } from "../../src/service/modules/hook/router.js";
 
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;
-
-const prePushAffectedTargets =
-  "check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns";
 
 describe("Habitat hook resource policy", () => {
   test("passes clean resources without invoking the publish script", () => {
@@ -423,161 +420,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
   });
 });
 
-describe("Habitat pre-push base policy", () => {
-  test("uses the explicit base override without probing Graphite or merge-base", () => {
-    const fake = makeFakeRuntime();
-
-    const result = runPrePush({ base: "HEAD~1" }, fake.runtime);
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=HEAD~1");
-    expect(result.stdout).toContain(
-      "hook result: workstation check only; CI remains authoritative."
-    );
-    expect(fake.calls).toContain(
-      `nx affected -t ${prePushAffectedTargets} --base HEAD~1 --head HEAD --outputStyle=static --excludeTaskDependencies`
-    );
-    expect(fake.calls).not.toContain("gt branch info --no-interactive");
-    expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
-  });
-
-  test("uses the Graphite parent as the default affected base when available", () => {
-    const fake = makeFakeRuntime({ graphiteParent: "agent-HR-parent" });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
-    expect(fake.calls).toContain("gt branch info --no-interactive");
-    expect(fake.calls).toContain(
-      `nx affected -t ${prePushAffectedTargets} --base agent-HR-parent --head HEAD --outputStyle=static --excludeTaskDependencies`
-    );
-    expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
-  });
-
-  test("falls back to the remote default branch merge-base when Graphite parent is unavailable", () => {
-    const fake = makeFakeRuntime({ mergeBase: "abc123mergebase" });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=abc123mergebase");
-    expect(fake.calls).toContain("gt branch info --no-interactive");
-    expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
-    expect(fake.calls).toContain("git merge-base HEAD origin/main");
-    expect(fake.calls).toContain(
-      `nx affected -t ${prePushAffectedTargets} --base abc123mergebase --head HEAD --outputStyle=static --excludeTaskDependencies`
-    );
-  });
-
-  test("refuses pre-push when no affected base can be resolved", () => {
-    const fake = makeFakeRuntime({ mergeBaseExitCode: 1 });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("could not resolve an affected base");
-    expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
-    expect(fake.calls).toContain("git merge-base HEAD origin/main");
-    expect(fake.calls.some((call) => call.startsWith("nx affected "))).toBe(false);
-  });
-
-  test("propagates Nx affected failures with base provenance", () => {
-    const fake = makeFakeRuntime({
-      graphiteParent: "agent-HR-parent",
-      nxAffectedExitCode: 1,
-      nxAffectedStdout: "affected failed\n",
-      nxAffectedStderr: "target failed\n",
-    });
-
-    const result = runPrePush({}, fake.runtime);
-
-    expect(result.exitCode).toBe(1);
-    expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
-    expect(result.stdout).toContain("affected failed");
-    expect(result.stderr).toContain("target failed");
-  });
-
-  test("records pre-push base and affected command provenance through fake services", () => {
-    const trace = createHookTrace();
-    const fake = makeFakeRuntime({ graphiteParent: "agent-HR-parent" });
-
-    const result = runPrePush({}, { ...fake.runtime, trace });
-
-    expect(result.exitCode).toBe(0);
-    expect(trace.prePush).toMatchObject({
-      base: "agent-HR-parent",
-      baseSource: "graphite-parent",
-      outcome: "pass",
-      exitCode: 0,
-      preState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        resourceState: "not-configured",
-      },
-      postState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        resourceState: "not-configured",
-      },
-    });
-    expect(trace.prePush?.durationMs).toBeGreaterThan(0);
-    expect(trace.commands.find((command) => command.phase === "pre-push-base")).toMatchObject({
-      argv: ["gt", "branch", "info", "--no-interactive"],
-      cwd: repoRoot,
-      env: undefined,
-      exitCode: 0,
-    });
-    expect(trace.commands.find((command) => command.phase === "pre-push-affected")).toMatchObject({
-      argv: [
-        "nx",
-        "affected",
-        "-t",
-        prePushAffectedTargets,
-        "--base",
-        "agent-HR-parent",
-        "--head",
-        "HEAD",
-        "--outputStyle=static",
-        "--excludeTaskDependencies",
-      ],
-      cwd: repoRoot,
-      env: undefined,
-      exitCode: 0,
-    });
-  });
-
-  test("reports pre-push output through an injected reporter service", () => {
-    const events: HookReportEvent[] = [];
-    const fake = makeFakeRuntime({
-      graphiteParent: "agent-HR-parent",
-      nxAffectedExitCode: 1,
-      nxAffectedStdout: "affected failed\n",
-      nxAffectedStderr: "target failed\n",
-    });
-
-    const result = runPrePush(
-      {},
-      {
-        ...fake.runtime,
-        reporter: { write: (event) => events.push(event) },
-      }
-    );
-
-    expect(result.exitCode).toBe(1);
-    expect(renderReported(events, "stdout")).toBe(result.stdout);
-    expect(renderReported(events, "stderr")).toBe(result.stderr);
-    expect(events).toContainEqual({
-      channel: "stdout",
-      text: "hook result: workstation check only; CI remains authoritative.\n",
-    });
-    expect(events).toContainEqual({
-      channel: "stderr",
-      text: "target failed\n",
-    });
-  });
-});
-
 interface FakeRuntimeOptions {
   resourcePolicy?: boolean;
   resourcesRootExists?: boolean;
@@ -596,14 +438,6 @@ interface FakeRuntimeOptions {
   sourceCheckExitCode?: number;
   sourceCheckStdout?: string;
   sourceCheckStderr?: string;
-  graphiteParent?: string;
-  mergeBase?: string;
-  mergeBaseExitCode?: number;
-  remoteDefaultBranch?: string;
-  remoteDefaultBranchExitCode?: number;
-  nxAffectedExitCode?: number;
-  nxAffectedStdout?: string;
-  nxAffectedStderr?: string;
   branch?: string;
   head?: string;
   allUnstagedPaths?: string[];
@@ -676,28 +510,6 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): {
         exitCode: options.sourceCheckExitCode ?? 0,
         stdout: options.sourceCheckStdout ?? sourceCheckReport({ ok: true, status: "pass" }),
         stderr: options.sourceCheckStderr ?? "",
-      };
-    }
-    if (call === "gt branch info --no-interactive") {
-      return options.graphiteParent
-        ? ok(`Parent: ${options.graphiteParent}\n`)
-        : failure(1, "", "no graphite parent\n");
-    }
-    if (call === "git symbolic-ref --quiet --short refs/remotes/origin/HEAD") {
-      return options.remoteDefaultBranchExitCode
-        ? failure(options.remoteDefaultBranchExitCode)
-        : ok(`${options.remoteDefaultBranch ?? "origin/main"}\n`);
-    }
-    if (call === "git merge-base HEAD origin/main") {
-      return options.mergeBaseExitCode
-        ? failure(options.mergeBaseExitCode)
-        : ok(`${options.mergeBase ?? "originmainmergebase"}\n`);
-    }
-    if (call.startsWith("nx affected ")) {
-      return {
-        exitCode: options.nxAffectedExitCode ?? 0,
-        stdout: options.nxAffectedStdout ?? "affected ok\n",
-        stderr: options.nxAffectedStderr ?? "",
       };
     }
     throw new Error(`Unexpected hook test command: ${call}`);
