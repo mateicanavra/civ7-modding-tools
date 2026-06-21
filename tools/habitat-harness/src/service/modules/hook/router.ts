@@ -15,7 +15,7 @@ import {
   type PrePushBaseDecision,
   resolveGraphiteParent,
 } from "../../../domains/hook-runtime/pre-push-base.js";
-import { prePushTargetNamesForChangedPaths } from "../../../domains/hook-runtime/pre-push-targets.js";
+import { prePushTargetPlanForChangedPaths } from "../../../domains/hook-runtime/pre-push-targets.js";
 import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
 import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
 import {
@@ -427,8 +427,34 @@ function runPrePushWithBaseDecisionEffect(
       );
     }
     const nx = yield* NxProvider;
-    const targets = prePushTargetNamesForChangedPaths(changedPaths.paths);
-    const request = { base, targets, head: "HEAD", excludeTaskDependencies: true };
+    const targetPlan = prePushTargetPlanForChangedPaths(changedPaths.paths);
+    for (const target of targetPlan.runTargets) {
+      const argv = nx.runTargetArgv(target);
+      const startedAtMs = hookNow(runtime);
+      const targetResult = yield* nx.runTarget(target).pipe(
+        Effect.match({
+          onFailure: spawnResultFromCommandProviderError,
+          onSuccess: spawnResultFromCommandResult,
+        })
+      );
+      recordHookCommand(runtime, "pre-push-target", argv, startedAtMs, targetResult.exitCode);
+      output.writeStdout(
+        `habitat hook pre-push: repo Nx target ${target.project}:${target.target}\n${targetResult.stdout}`
+      );
+      output.writeStderr(targetResult.stderr);
+      if (targetResult.exitCode !== 0) {
+        return finalizePrePush(runtime, "affected-failed", {
+          exitCode: targetResult.exitCode,
+          ...output.result(),
+        });
+      }
+    }
+    const request = {
+      base,
+      targets: targetPlan.affectedTargets,
+      head: "HEAD",
+      excludeTaskDependencies: true,
+    };
     const argv = nx.affectedArgv(request);
     const startedAtMs = hookNow(runtime);
     const result = yield* nx.affected(request).pipe(
@@ -595,7 +621,7 @@ function recordInProcessHookCheck(
 
 function recordHookCommand(
   runtime: HookRuntime,
-  phase: "pre-push-affected",
+  phase: "pre-push-target" | "pre-push-affected",
   argv: readonly string[],
   startedAtMs: number,
   exitCode: number
