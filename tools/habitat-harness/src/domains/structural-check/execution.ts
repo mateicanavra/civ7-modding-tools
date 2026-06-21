@@ -17,7 +17,6 @@ import {
   type GitProviderRequirements,
   type GitStateProvider,
 } from "../../providers/git/index.js";
-import { readWorkspaceGraph } from "../../providers/nx/graph.js";
 import {
   NxProvider,
   type NxProviderService,
@@ -43,8 +42,7 @@ import {
   SourceCheck,
   stagedSourceScanRoots,
 } from "../source-check/index.js";
-import { ruleAliasTargetState } from "../workspace-graph-integration/index.js";
-import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
+import { notApplicableDiagnostic } from "./disposition-diagnostics.js";
 import type { CheckOptions } from "./request.js";
 import type { HabitatDiagnostic, RuleExecutionDisposition, RuleExecutionTiming } from "./schema.js";
 
@@ -159,28 +157,11 @@ export function executeSelectedRulesEffect(
         commandRules.map((rule) => rule.id)
       )
     );
-    const graphRefusals = yield* Effect.promise(() => graphDependencyRefusals(commandRules));
-    for (const rule of commandRules) {
-      const refusal = graphRefusals.get(rule.id);
-      if (refusal) {
-        results.set(rule.id, {
-          result: {
-            exitCode: 1,
-            diagnostics: [dependencyRefusalDiagnostic(rule, refusal)],
-          },
-          durationMs: 0,
-          disposition: { kind: "dependency-refused", owner: "workspace-graph", reason: refusal },
-        });
-      }
-    }
-    const executableCommandRules = commandRules.filter((rule) => !graphRefusals.has(rule.id));
     yield* executeFormatRulesEffect(
-      executableCommandRules.filter((rule) => rule.ownerTool === "format-check"),
+      commandRules.filter((rule) => rule.ownerTool === "format-check"),
       results
     );
-    const remainingCommandRules = executableCommandRules.filter(
-      (rule) => rule.ownerTool !== "format-check"
-    );
+    const remainingCommandRules = commandRules.filter((rule) => rule.ownerTool !== "format-check");
     const graphBackedRules = remainingCommandRules.filter((rule) =>
       isGraphBackedCommandRule(rule, graphRulesById)
     );
@@ -241,28 +222,6 @@ function isGraphBackedCommandRule(
   graphRulesById: ReadonlyMap<string, RuleGraphFacts>
 ): boolean {
   return graphRulesById.get(rule.id)?.alias.kind === "depends-on";
-}
-
-async function graphDependencyRefusals(
-  commandRules: readonly RuleCommandExecutionFacts[]
-): Promise<Map<string, string>> {
-  const graphRules = factsForRuleIds(
-    activeRuleGraphFacts,
-    commandRules.map((rule) => rule.id)
-  ).filter((rule) => rule.alias.kind !== "direct-rule-check");
-  if (graphRules.length === 0) return new Map();
-
-  const graph = await readWorkspaceGraph();
-  if (graph.kind !== "graph-ready") {
-    return new Map(graphRules.map((rule) => [rule.id, graph.message]));
-  }
-
-  const refusals = new Map<string, string>();
-  for (const rule of graphRules) {
-    const state = ruleAliasTargetState({ projects: graph.snapshot.projects, rule });
-    if (state?.kind === "graph-refusal") refusals.set(rule.id, state.message);
-  }
-  return refusals;
 }
 
 function executeCommandRulesEffect(
