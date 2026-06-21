@@ -5,7 +5,6 @@ export interface ClassifyServiceModuleContext {
   readonly options?: ClassifyOptions;
 }
 
-// TODO: make all module implementer exports standard name -- just "module" -- always prioritize scale continuity and special case reduction. this should be an enforced habitat pattern
-export const classifyModule = habitatServiceImplementer.classify.use(({ context, next }) =>
+export const module = habitatServiceImplementer.classify.use(({ context, next }) =>
   next({ context: context.classify ?? {} })
 );

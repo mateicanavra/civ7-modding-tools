@@ -1,3 +1,5 @@
+import { HabitatRuntimeLive } from "@internal/habitat-harness/service/runtime/layers";
+import { Context, Layer } from "effect";
 import type { CheckServiceModuleContext } from "./modules/check/context.js";
 import type { ClassifyServiceModuleContext } from "./modules/classify/context.js";
 import type { FixServiceModuleContext } from "./modules/fix/context.js";
@@ -16,3 +18,15 @@ export interface HabitatServiceContext {
   readonly verify?: VerifyServiceModuleContext;
   readonly correlationId?: string;
 }
+
+export class HabitatServiceRuntime extends Context.Tag(
+  "@internal/habitat-harness/HabitatServiceRuntime"
+)<HabitatServiceRuntime, { readonly service: "habitat" }>() {}
+
+export const habitatServiceLayer = Layer.mergeAll(
+  HabitatRuntimeLive,
+  Layer.succeed(HabitatServiceRuntime, { service: "habitat" })
+);
+
+export type HabitatServiceRequirements = Layer.Layer.Success<typeof habitatServiceLayer>;
+export type HabitatServiceRuntimeError = Layer.Layer.Error<typeof habitatServiceLayer>;

@@ -30,7 +30,7 @@ Effect-oRPC service modules rather than provider-shaped APIs or incidental
 - **WHEN** a new Habitat capability is moved into the service layer
 - **THEN** its contract lives under `src/service/modules/<capability>/contract.ts`
 - **AND** its module implementer binding lives under
-  `src/service/modules/<capability>/module.ts`
+  `src/service/modules/<capability>/context.ts`
 - **AND** its procedure bindings live under a module router or procedure files
 - **AND** root service files compose module contracts and routers without
   handler logic

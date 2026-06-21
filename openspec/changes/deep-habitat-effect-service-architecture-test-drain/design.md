@@ -27,8 +27,8 @@ The guard receives service architecture clauses:
 - `implementEffect` / `ManagedRuntime.make` stay in approved runtime edges.
 - Root service router cannot contain procedure `.effect` implementations or
   command orchestration.
-- Service `module.ts` files bind `habitatServiceImplementer as impl` to their
-  module only.
+- Service module `context.ts` files bind `habitatServiceImplementer.<module>`
+  to their module only and export the decorated implementer as `module`.
 - Service `router.ts` files own procedure `.effect` logic directly and do not
   import `./run.js`, create nested routers, or construct runtime layers.
 - Providers cannot import service/domain code or depend on effect-oRPC.

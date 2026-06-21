@@ -5,6 +5,6 @@ export interface TransactionsServiceModuleContext {
   readonly transactionInputs?: readonly ApplyTransactionInput[];
 }
 
-export const transactionsModule = habitatServiceImplementer.transactions.use(({ context, next }) =>
+export const module = habitatServiceImplementer.transactions.use(({ context, next }) =>
   next({ context: context.transactions ?? {} })
 );
