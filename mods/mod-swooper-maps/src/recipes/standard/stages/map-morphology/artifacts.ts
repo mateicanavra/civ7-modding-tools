@@ -10,22 +10,19 @@ const MapMorphologyCoastClassificationArtifactSchema = Type.Object(
     }),
     sourceCoastMask: TypedArraySchemas.u8({
       description:
-        "Pre-policy mask of water tiles selected for coast projection from coastlineMetrics coastalWater or shelfMask.",
+        "Mask of water tiles selected for coast projection from the continental shelf (coastlineMetrics shelfMask) or the shoreline ring (coastalWater), before the coast-ring guarantee.",
     }),
     waterClass: TypedArraySchemas.u8({
       description:
-        "Post-policy water class stamped into engine terrain (0=land, 1=coast, 2=ocean).",
+        "Water class stamped into engine terrain (0=land, 1=coast, 2=ocean): the shelf plus the guaranteed land-adjacent coast ring.",
     }),
-    policyCoastMask: TypedArraySchemas.u8({
-      description: "Mask of ocean tiles promoted to coast by the Civ7 compliance policy.",
-    }),
-    coastBufferTiles: Type.Integer({
-      minimum: 0,
-      description: "Policy coast buffer distance used for deterministic coast widening.",
+    coastRingMask: TypedArraySchemas.u8({
+      description:
+        "Mask of ocean tiles promoted to coast by the land-adjacent coast-ring guarantee (residue not already covered by the shelf).",
     }),
     promotedOceanToCoast: Type.Integer({
       minimum: 0,
-      description: "Count of ocean tiles promoted to coast by the policy.",
+      description: "Count of ocean tiles promoted to coast by the coast-ring guarantee.",
     }),
   },
   {

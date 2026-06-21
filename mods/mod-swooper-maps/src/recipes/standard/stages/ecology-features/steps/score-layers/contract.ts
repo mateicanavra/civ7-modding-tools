@@ -3,6 +3,7 @@ import { defineStep, Type } from "@swooper/mapgen-core/authoring/contracts";
 
 import { ecologyArtifacts } from "../../../ecology/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../../hydrology-hydrography/artifacts.js";
+import { mapMorphologyArtifacts } from "../../../map-morphology/artifacts.js";
 import { mapRiversArtifacts } from "../../../map-rivers/artifacts.js";
 import { morphologyArtifacts } from "../../../morphology/artifacts.js";
 
@@ -20,6 +21,7 @@ const ScoreLayersStepContract = defineStep({
       mapRiversArtifacts.projectedNavigableRivers,
       morphologyArtifacts.topography,
       morphologyArtifacts.coastlineMetrics,
+      mapMorphologyArtifacts.coastClassification,
       morphologyArtifacts.mountains,
       morphologyArtifacts.volcanoes,
     ],
