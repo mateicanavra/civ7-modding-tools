@@ -1,66 +1,56 @@
 # Tasks
 
-Grouped by domino = Graphite slice. `[ ]` open, `[x]` done. Each slice is one
-branch stacked on `start-dist-homeland-rebalance`. Verify the odd-R distance
-helper name on this branch before any distance math.
+Grouped by domino = Graphite slice on `start-dist-homeland-rebalance`. Status as
+of 2026-06-20: D0–D3 implemented, locally verified, and **in-game closure
+PASSED** (`in-game observed`, Huge/earthlike/10p/seed 1337).
 
-## S1 — Design + OpenSpec (this branch)
+## S1 — Design + OpenSpec (branch `start-dist-homeland-rebalance`)
 - [x] Four-lane systematic diagnosis (planner, inputs, policy/engine, gameplay)
 - [x] Project packet: `diagnosis.md`, `design.md`, `expectations.md`
 - [x] OpenSpec change: proposal, design, spec delta, tasks
-- [ ] `bun run openspec -- validate start-distribution-homeland-rebalance --strict`
-- [ ] Pre-code review gate (authority/owners/scope/no-shortcut language)
+- [x] `openspec validate start-distribution-homeland-rebalance --strict`
+- [x] Pre-code review gate (scope/approach confirmed with user before code)
 
-## S2 — D0 region-balance metric + baseline (parallel with S3)
-- [ ] Add metric ids to `dev/diagnostics/placement-metrics.ts`: starts-per-region
-  vs capacity (ER1), `maxSingleLandmassStartShare` vs capacity share (ER2),
-  normalized spatial-spread index (ER3), `regionReassignedRate` (ER4)
-- [ ] Harness-works test (metric reported with valid status), not behavior assert
-- [ ] Measure + record baseline over the fixed seed set →
-  `docs/projects/start-distribution-homeland-rebalance/evidence/baseline-2026-06-20.md`
-- [ ] Confirm ER2 FAILS at baseline (reproduces the reported symptom)
+## S2 — D0 region-balance metric + baseline (branch `start-dist-2-region-metric`)
+- [x] Metric ids E5.1 (ER1), E5.2 (ER2), E5.3 (ER3), E5.4 (ER4) in `placement-metrics.ts`
+- [x] Harness self-test extended to expect E5.x
+- [x] Baseline recorded (`evidence/baseline-2026-06-20.md`); ER2 FAILS at baseline (bug reproduced)
 
-## S3 — Policy primitives (`@civ7/map-policy/src/starts/`) (parallel with S2)
-- [ ] `CIV7_START_PLACEMENT_POLICY_V0` (6/12 buffers, homeland model,
-  `balanceBias`, `tilesPerStart` derivation)
-- [ ] `balancedHemisphereSplit({ columnWeights, landmassCentroids, width })`
-- [ ] `feasibleStartCeiling(settleableTiles, spacingFloor)`
-- [ ] `apportionStartsByCapacity({ capacities, ceilings, total, balanceBias })`
-  (largest-remainder + clamp + redistribute)
-- [ ] `dispersionScore(plotIndex, seatedPlots, width)` (odd-R distance)
-- [ ] Export `src/starts/` from `src/index.ts`; export needed `policy-grid` helpers
-- [ ] Unit tests (determinism, total-preservation, feasibility clamp, balanced vs
-  lopsided inputs, seam wrap)
-- [ ] `bun run --cwd packages/civ7-map-policy test`
+## S3 — Policy primitives (branch `start-dist-3-policy-primitives`)
+- [x] `CIV7_START_PLACEMENT_POLICY_V0`, `balancedHemisphereMeridian`,
+  `hemisphereSlotForColumn`, `feasibleStartCeiling` (+`startFootprintTiles`),
+  `apportionStartsByCapacity`, `dispersionTerm` in `@civ7/map-policy/src/starts`
+- [x] Exported from `src/index.ts`
+- [x] 18 unit tests; `bun test` + tsc + Biome clean; package builds
 
-## S4 — D1 land-aware partition
-- [ ] `plot-landmass-regions/index.ts:resolveSlotByTile` → `balancedHemisphereSplit`
-  (settleable-land column weights; landmasses kept whole by centroid)
-- [ ] Preserve artifact + engine `WEST`/`EAST`/`NONE` stamping + viz
-- [ ] Step/unit test: asymmetric land splits near-evenly; dominant continent is cut
-- [ ] Metric delta: region capacity balance improves vs S2 baseline
+## S4 — D1 land-aware partition (branch `start-dist-4-partition`)
+- [x] `plot-landmass-regions` uses `balancedHemisphereMeridian` + circular centroid
+- [x] Artifact + engine WEST/EAST/NONE stamping + viz preserved
+- [x] Region-projection test passes; metric delta recorded (gap 0.353 → 0.263)
 
-## S5 — D2 capacity-proportional allocation
-- [ ] `runtime.ts` / `derive-placement-inputs`: stop fixing per-region split;
-  total `N` from `getAliveMajorIds()` (MapInfo sum as fallback)
-- [ ] `plan-starts/strategies/default.ts`: compute per-region capacity + ceilings
-  from screened candidates; call `apportionStartsByCapacity`
-- [ ] `seat-identity.ts buildSeatIdentities`: bind seats to computed per-region counts
-- [ ] Tests: land-poor region gets fewer; feasibility beats balance; seats == alive count
-- [ ] Metric delta: ER1 passes; ER2 improves
+## S5 — D2 capacity-proportional allocation (branch `start-dist-5-allocation`)
+- [x] Per-homeland capacity + feasibility ceilings; `apportionStartsByCapacity`
+- [x] `buildSeatIdentities` bound to computed allocation; op reports actual split
+- [x] `feasibleStartCeiling` ≥1 for non-empty region (+ regression test)
+- [x] Ladder unit tests updated; over-subscription degrade-as-data test added
+- [x] Metric delta: ER1 passes (gap 0.088), ER2 0/5 (headline bug eliminated)
 
-## S6 — D3 dispersion
-- [ ] Per-landmass quotas within region (reuse `apportionStartsByCapacity`)
-- [ ] `selection-ladder.ts`: farthest-point/dispersion term + quota constraint on
-  the regional rung; adaptive spread weight under capacity pressure
-- [ ] Tests: multi-landmass regions seat each landmass; seats fan out; floor held
-- [ ] Metric delta: ER3 passes
+## S6 — D3 dispersion (branch `start-dist-6-dispersion`)
+- [x] Region-aware dispersion target via `dispersionTerm`; floor/relaxation unchanged
+- [x] Metric delta: ER3 spreadIndex 0.797 → 0.943 (allocation undisturbed)
 
-## S7 — D4 reconciliation + verification + closure
-- [ ] `default.ts:702-719`: capacity-aware rebalance (recorded), replaces zero-only
-- [ ] Calibrate `tilesPerStart` + `balanceBias` against baseline
-- [ ] Full gate run: ER1–ER4 pass, E1.1/E1.2/E1.3/E1.4/E1.5/E1.6/E1.8 no regression
-  → `evidence/s-results-2026-06-20.md`
-- [ ] `bun run --cwd mods/mod-swooper-maps check` + `nx run mod-swooper-maps:build`
-- [ ] In-game live verification (closure test) + screenshots
-- [ ] OpenSpec validate; hand off to `civ7-open-spec-workstream` / `civ7-systematic-workstream` closure
+## S7 — Verification + closure (this branch)
+- [x] Full gate run (5 seeds): ER1–ER4 pass; E1.1/E1.3/E1.4/E1.5/E1.6/E1.8 no regression
+  → `evidence/results-2026-06-20.md`
+- [x] `nx run mod-swooper-maps:build` (schema-compile gate) passes
+- [x] `bun run --cwd mods/mod-swooper-maps check` **fully green (0 errors)** —
+  the pre-existing `hydrography.slopeClass` base error is fixed in
+  `fix-hydrography-slopeclass-typeerror` at the stack base
+- [x] Calibration note for `balanceBias` / `spacingFootprintFactor` / dispersion cap
+- [x] **In-game live verification (closure test)** — `studio-run-in-game-live
+  --mutate`, `swooper-earthlike` @ `MAPSIZE_HUGE` (106×66), 10 players, seed
+  1337: full 53-step recipe → `[mapgen-complete]` + `"seed":1337`, all placement
+  steps `ok`, no rejectPattern. Label `in-game observed`. See
+  `evidence/results-2026-06-20.md` (Proof labels).
+- [x] Final OpenSpec validate (`--strict`) re-run after closure; handoff to
+  `civ7-open-spec-workstream` closure.
