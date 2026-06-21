@@ -49,7 +49,7 @@
     "build:mapgen": "nx run @swooper/mapgen-core:build",
     "lint:adapter-boundary": "nx run --project=@internal/habitat-harness --target=habitat:rule:adapter-boundary",
     "lint:domain-refactor-guardrails": "nx run --project=mod-swooper-maps --target=habitat:rule:domain-refactor-guardrails",
-    "lint:mapgen-recipe-imports": "nx run --project=@internal/habitat-harness --target=grit:check",
+    "lint:mapgen-recipe-imports": "nx run --project=@internal/habitat-harness --target=source:check",
     "lint:domain-refactor-guardrails:strict-core": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 ./scripts/lint/lint-domain-refactor-guardrails.sh",
     "ci:architecture-strict-core": "bun run lint:domain-refactor-guardrails:strict-core",
     "lint:mapgen-docs": "nx run --project=@internal/habitat-harness --target=habitat:rule:mapgen-docs",

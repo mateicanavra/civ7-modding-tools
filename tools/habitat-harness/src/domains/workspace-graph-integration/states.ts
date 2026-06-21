@@ -178,7 +178,7 @@ function verifyProjectTargetStates(
     targetNames.boundaries,
     targetNames.biomeCi,
     targetNames.generatedCheck,
-    targetNames.gritCheck,
+    targetNames.sourceCheck,
   ]);
   return verifyTargetNames(targetNames).flatMap((target) => {
     const owners = projects.filter((project) => workspaceProjectHasTarget(project, target));

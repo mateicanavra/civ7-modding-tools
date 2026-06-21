@@ -23,9 +23,9 @@ import {
   boundariesTarget,
   directRuleTarget,
   generatedCheckTarget,
-  gritCheckTarget,
   habitatInputs,
   ownerCheckTarget,
+  sourceCheckTarget,
 } from "./target-definitions.ts";
 
 const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
@@ -110,7 +110,7 @@ function addHarnessToolTargets(input: {
   input.addTarget(harnessRoot, harnessProject, input.targetNames.biomeCheck, biome.check);
   input.addTarget(harnessRoot, harnessProject, input.targetNames.biomeCi, biome.ci);
   input.addTarget(harnessRoot, harnessProject, input.targetNames.boundaries, boundariesTarget());
-  input.addTarget(harnessRoot, harnessProject, input.targetNames.gritCheck, gritCheckTarget());
+  input.addTarget(harnessRoot, harnessProject, input.targetNames.sourceCheck, sourceCheckTarget());
   input.addTarget(
     harnessRoot,
     harnessProject,
@@ -173,8 +173,8 @@ function inputsForRuleTarget(rule: RuleRegistryRecordV1, ownerRoot: string): str
     `{workspaceRoot}/.habitat/rules/${rule.id}/**`,
     ...covered.inputs,
   ]);
-  if (rule.ownerTool === "pattern-check") {
-    inputs.add("{workspaceRoot}/.habitat/source-check/pattern-rules.mjs");
+  if (rule.ownerTool === "source-check") {
+    inputs.add("{workspaceRoot}/.habitat/source-check/source-rules.mjs");
     for (const scanRoot of rule.scanRoots) inputs.add(workspaceInput(scanRoot));
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }

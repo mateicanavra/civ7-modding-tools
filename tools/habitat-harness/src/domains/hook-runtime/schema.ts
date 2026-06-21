@@ -15,7 +15,7 @@ export const HookCommandPhaseSchema = Type.Union([
   Type.Literal("biome-format"),
   Type.Literal("formatter-restage"),
   Type.Literal("biome-check"),
-  Type.Literal("pattern-check"),
+  Type.Literal("source-check"),
   Type.Literal("pre-push-base"),
   Type.Literal("pre-push-affected"),
 ]);
@@ -140,7 +140,7 @@ const PreCommitTraceSchema = Type.Object(
     resourceState: ResourceStateKindSchema,
     stagedPaths: Type.Array(Type.String()),
     biomePaths: Type.Array(Type.String()),
-    gritPaths: Type.Array(Type.String()),
+    sourceCheckPaths: Type.Array(Type.String()),
     partialPaths: Type.Array(Type.String()),
     formatterTouchedPaths: Type.Array(Type.String()),
     restagedPaths: Type.Array(Type.String()),

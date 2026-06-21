@@ -139,19 +139,18 @@ The baseline model is:
 - Baseline expansion is an authoring-only path behind `--expand-baseline` and
   the rule-introduction contract.
 
-## Pattern Diagnostics
+## Source Diagnostics
 
-Habitat owns the pattern contract. The current adapter runs checked-in patterns
-through a structural pattern engine behind that contract.
+Habitat owns the source-check contract. The current source-check engine runs
+checked-in source rules through Habitat's structural policy surface.
 
-Current active pattern state:
+Current active source-check state:
 
 - 35 check patterns under `.habitat/patterns/checks`.
-- 35 registered pattern-check rules in the rule registry.
+- 35 registered source-check rules in the rule registry.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
-- Habitat normalizes adapter JSON results back to Habitat rule IDs and
-  diagnostics.
+- Habitat reports source-rule diagnostics back to Habitat rule IDs.
 
 The active pattern checks cover families such as:
 

@@ -17,7 +17,7 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
         "boundaries",
         "check",
         "generated:check",
-        "grit:check",
+        "source:check",
         "test",
         "validate:boundary-taxonomy",
         "validate:grit-patterns",

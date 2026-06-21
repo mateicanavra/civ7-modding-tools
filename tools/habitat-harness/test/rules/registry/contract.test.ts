@@ -9,12 +9,12 @@ import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
     expect(rules).toHaveLength(49);
-    expect(rules.filter((rule) => rule.ownerTool === "pattern-check")).toHaveLength(35);
+    expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(35);
     expect(rules.filter((rule) => rule.ownerTool === "habitat")).toHaveLength(3);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
     expect(
       rules
-        .filter((rule) => rule.ownerTool === "pattern-check")
+        .filter((rule) => rule.ownerTool === "source-check")
         .every((rule) => rule.scanRoots.length > 0)
     ).toBe(true);
     expect(rules.every((rule) => rule.pathCoverage.length > 0)).toBe(true);
@@ -147,7 +147,7 @@ describe("rule registry contract", () => {
 
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule({ ownerTool: "pattern-check" }) }]),
+        registryDocument([{ ...baseRule({ ownerTool: "source-check" }) }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"
@@ -157,7 +157,7 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "pattern-check" }),
+            ...baseRule({ ownerTool: "source-check" }),
             patternName: "sample_pattern",
           },
         ]),

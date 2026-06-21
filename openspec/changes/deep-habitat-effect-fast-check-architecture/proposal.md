@@ -2,39 +2,37 @@
 
 ## Why
 
-Habitat pre-push currently asks Nx to run Habitat's structural harness and then
-also names the vendor lanes that Habitat already wraps (`biome:ci`,
-`boundaries`, and `grit:check`). That makes the hook topology longer than the
-product boundary requires: Nx should select affected work, while Habitat should
-own the composition of structural rules and vendor-backed checks.
-
-This slice removes the duplicated pre-push target vocabulary so local hook
-checks are closer to the intended architecture: one Habitat structural harness
-entrypoint plus the project test/validation targets that remain outside that
-harness.
+Habitat is supposed to make repository structure cheap to understand and cheap
+to enforce. When routine checks take minutes, the toolkit is pushing ambiguity
+and orchestration cost back onto humans and agents instead of absorbing it.
+The current slow path is architectural: Nx graph creation loads live Habitat
+TypeScript, target inputs are broader than the work being checked, and local
+verification lanes repeat Biome, Nx, and Habitat work through different owners.
 
 ## What Changes
 
-- Move the pre-push target list into the Nx target-name provider.
-- Keep `habitat:check` as the hook's structural harness entrypoint.
-- Stop naming `biome:ci`, `boundaries`, and `grit:check` separately in
-  pre-push affected execution.
-- Route the pre-push service path through `NxProvider.affected` instead of raw
-  hook command assembly.
-- Preserve project tests and existing validation targets in pre-push.
+- Make Nx graph creation depend on cheap Habitat metadata rather than live
+  domain/runtime imports.
+- Scope source-rule and owner-check Nx inputs from rule path coverage instead
+  of broad workspace globs.
+- Give local, staged, owner, affected, and full checks distinct purposes and
+  avoid running the same vendor work through multiple lanes.
+- Keep structural enforcement in Habitat/Grit/Biome/Nx guard surfaces, not
+  topology tests.
 
 ## Non-Goals
 
-- Do not route root `check` through Nx in this slice.
-- Do not add topology tests for hook structure.
-- Do not change Biome, Grit, or boundary rule semantics.
-- Do not claim this resolves Nx daemon/project-graph startup overhead.
-- Do not delete the legacy synchronous hook helper in this slice; it remains a
-  follow-up cleanup target for callers that still import it directly.
+- Do not weaken checks to make them appear faster.
+- Do not add Vitest topology tests.
+- Do not add compatibility aliases for retired target names.
+- Do not hide slow work behind larger timeouts.
 
 ## Validation
 
-- Existing hook behavior tests should show the shorter affected target list.
-- Package TypeScript and OpenSpec validation should pass.
-- A local pre-push target-plan inspection should show no duplicate top-level
-  vendor lanes beside `habitat:check`.
+- Nx project graph inspection for Habitat should complete quickly enough for
+  ordinary local use.
+- Source-check and owner-check targets should cache against scoped inputs.
+- Root and hook scripts should have a single clear owner for each verification
+  lane.
+- Existing behavior must remain equivalent for callers of Habitat commands,
+  hooks, and checks.

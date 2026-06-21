@@ -211,7 +211,7 @@ describe("Habitat baseline contract", () => {
             changeId: "fixture-change",
             ruleId: "new-rule",
             ownerProject: "@internal/habitat-harness",
-            ownerTool: "pattern-check",
+            ownerTool: "source-check",
             baselinePath: ".habitat/baselines/new-rule.json",
             initialBaselineKeys: ["src/example.ts::diagnostic"],
             comparisonBase: "main",
@@ -223,7 +223,7 @@ describe("Habitat baseline contract", () => {
     expect(
       await checkIntegrity("main", {
         ...ctx,
-        registry: [rule("new-rule", "none", "@internal/habitat-harness", "pattern-check")],
+        registry: [rule("new-rule", "none", "@internal/habitat-harness", "source-check")],
         ruleIntroductionManifests: [
           {
             changeId: "fixture-change",
@@ -259,7 +259,7 @@ describe("Habitat baseline contract", () => {
             changeId: "fixture-change",
             ruleId: "downstack-rule",
             ownerProject: "@internal/habitat-harness",
-            ownerTool: "pattern-check",
+            ownerTool: "source-check",
             baselinePath: ".habitat/baselines/downstack-rule.json",
             initialBaselineKeys: [key],
             comparisonBase: "main",
@@ -370,7 +370,7 @@ function rule(
   id: string,
   exceptionPath = "none",
   ownerProject = "@internal/habitat-harness",
-  ownerTool = "pattern-check"
+  ownerTool = "source-check"
 ): BaselineRuleContractInput {
   return {
     id,

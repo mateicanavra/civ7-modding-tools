@@ -5,10 +5,10 @@ import {
   type DiagnosticFinding,
   type DiagnosticRunOutcome,
   type DiagnosticScanRootRefusal,
-  diagnosticCatalogEntryFromRulePatternFacts,
+  diagnosticCatalogEntryFromRuleSourceFacts,
   renderDiagnosticScanRootRefusal,
 } from "../../domains/diagnostic-pattern-catalog/index.js";
-import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
+import type { RuleSourceFacts } from "../../domains/rule-registry/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import {
@@ -41,7 +41,7 @@ interface GritRunOptions {
   diagnostics?: GritDiagnosticOptions;
 }
 
-export async function runGritRule(rule: RulePatternFacts): Promise<RuleRunResult> {
+export async function runGritRule(rule: RuleSourceFacts): Promise<RuleRunResult> {
   const results = await runGritRules([rule]);
   return (
     results.get(rule.id) ?? infrastructureFailure(rule, "GritAdapterInternalContractViolation")
@@ -49,7 +49,7 @@ export async function runGritRule(rule: RulePatternFacts): Promise<RuleRunResult
 }
 
 export async function runGritRules(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: GritRunOptions = {}
 ): Promise<Map<string, RuleRunResult>> {
   return runHabitatEffect(
@@ -60,7 +60,7 @@ export async function runGritRules(
 }
 
 export function runGritRulesEffect(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: Omit<GritRunOptions, "providerLayer"> = {}
 ): Effect.Effect<Map<string, RuleRunResult>, never, GritProvider | GritProviderRequirements> {
   return runGritDiagnosticOutcomesEffect(selectedRules, options).pipe(
@@ -69,7 +69,7 @@ export function runGritRulesEffect(
 }
 
 export async function runGritDiagnosticOutcomes(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: GritRunOptions = {}
 ): Promise<Map<string, DiagnosticRunOutcome>> {
   return runHabitatEffect(
@@ -82,7 +82,7 @@ export async function runGritDiagnosticOutcomes(
 }
 
 export function runGritDiagnosticOutcomesEffect(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: Omit<GritRunOptions, "providerLayer"> = {}
 ): Effect.Effect<
   Map<string, DiagnosticRunOutcome>,
@@ -105,7 +105,7 @@ export function runGritDiagnosticOutcomesEffect(
 }
 
 function runGritRuleOutcomeGroupEffect(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   options: Omit<GritRunOptions, "providerLayer">,
   outputFormat: GritCheckOutputFormat
 ): Effect.Effect<
@@ -129,11 +129,11 @@ function runGritRuleOutcomeGroupEffect(
 
 interface GritScanRootBatch {
   readonly scanRoots: readonly string[];
-  readonly rules: readonly RulePatternFacts[];
+  readonly rules: readonly RuleSourceFacts[];
 }
 
 function scanRootBatchesForRules(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   requestedScanRoots: readonly string[]
 ): GritScanRootBatch[] {
   return requestedScanRoots.map((scanRoot) => ({
@@ -145,7 +145,7 @@ function scanRootBatchesForRules(
 }
 
 function runGritScanRootBatchEffect(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   scanRoots: readonly string[],
   options: Omit<GritRunOptions, "providerLayer">,
   outputFormat: GritCheckOutputFormat
@@ -212,7 +212,7 @@ function runGritScanRootBatchEffect(
 }
 
 function mergeBatchOutcomes(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   batchOutcomes: readonly ReadonlyMap<string, DiagnosticRunOutcome>[]
 ): Map<string, DiagnosticRunOutcome> {
   return new Map(
@@ -230,7 +230,7 @@ function mergeBatchOutcomes(
 }
 
 function mergeRuleBatchOutcomes(
-  rule: RulePatternFacts,
+  rule: RuleSourceFacts,
   outcomes: readonly DiagnosticRunOutcome[]
 ): DiagnosticRunOutcome {
   const blocking = outcomes.find(
@@ -243,19 +243,19 @@ function mergeRuleBatchOutcomes(
   if (findings.length > 0) {
     return {
       kind: "findings",
-      entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+      entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
       diagnostics: findings as [DiagnosticFinding, ...DiagnosticFinding[]],
     };
   }
   return {
     kind: "clean",
-    entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+    entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
     diagnostics: [],
   };
 }
 
 function outcomesFromAcquisition(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   acquisition: GritDiagnosticAcquisition,
   options: GritRunOptions
 ): Map<string, DiagnosticRunOutcome> {
@@ -307,39 +307,39 @@ function missingCacheObservation(
 }
 
 function adapterFailedOutcome(
-  rule: RulePatternFacts,
+  rule: RuleSourceFacts,
   failure: DiagnosticAdapterFailureKind,
   detail: string
 ): DiagnosticRunOutcome {
   return {
     kind: "adapter-failed",
-    entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+    entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
     failure,
     detail,
   };
 }
 
 function scanRootRefusedOutcome(
-  rule: RulePatternFacts,
+  rule: RuleSourceFacts,
   decision: DiagnosticScanRootRefusal,
   detail: string
 ): DiagnosticRunOutcome {
   return {
     kind: "scan-root-refused",
-    entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+    entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
     decision,
     detail,
   };
 }
 
 function cacheObservationMissingOutcome(
-  rule: RulePatternFacts,
+  rule: RuleSourceFacts,
   cache: DiagnosticCacheObservation,
   detail: string
 ): DiagnosticRunOutcome {
   return {
     kind: "cache-observation-missing",
-    entry: diagnosticCatalogEntryFromRulePatternFacts(rule),
+    entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
     cache,
     failure: "GritCacheProvenanceMissing",
     detail,

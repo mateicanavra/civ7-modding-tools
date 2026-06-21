@@ -1,6 +1,6 @@
 import { Value } from "typebox/value";
-import { activeRulePatternFacts } from "../rule-registry/active-facts.js";
-import type { RulePatternFacts } from "../rule-registry/index.js";
+import { activeRuleSourceFacts } from "../rule-registry/active-facts.js";
+import type { RuleSourceFacts } from "../rule-registry/index.js";
 import { applyAdmittedState } from "./admission.js";
 import {
   type ApplyAdmission,
@@ -38,12 +38,12 @@ export function defaultApplyAdmissions(): ApplyAdmission[] {
 }
 
 export function activeApplyTransactionInputs(): ApplyTransactionInput[] {
-  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), activeRulePatternFacts);
+  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), activeRuleSourceFacts);
 }
 
 export function applyTransactionInputsFromRuleFacts(
   admissions: readonly ApplyAdmission[],
-  ruleFacts: readonly RulePatternFacts[]
+  ruleFacts: readonly RuleSourceFacts[]
 ): ApplyTransactionInput[] {
   const rulesById = new Map(ruleFacts.map((rule) => [rule.id, rule]));
   return admissions.flatMap((admission) => {

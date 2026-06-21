@@ -7,7 +7,7 @@ export const PatternLifecycleSchema = Type.Union([
 ]);
 
 export const PatternOwnerToolSchema = Type.Union([
-  Type.Literal("pattern-check"),
+  Type.Literal("source-check"),
   Type.Literal("pattern-apply"),
 ]);
 

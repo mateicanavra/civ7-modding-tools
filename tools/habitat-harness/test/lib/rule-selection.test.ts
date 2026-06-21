@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { RulePatternFacts } from "../../src/domains/rule-registry/index.js";
+import type { RuleSourceFacts } from "../../src/domains/rule-registry/index.js";
 import { type RuleSelection, selectRules } from "../../src/domains/rule-selection/index.js";
 import {
   approvedScanRootsForRules,
@@ -7,8 +7,8 @@ import {
   renderCheckReport,
   rulesForExecution,
   selectorRefusalReport,
-  stagedPatternNotApplicableRecords,
-  stagedPatternScanRoots,
+  stagedSourceCheckNotApplicableRecords,
+  stagedSourceCheckPaths,
   structuralCheckRequest,
 } from "../../src/domains/structural-check/index.js";
 import { validateCheckReport } from "../../src/domains/structural-check/schema.js";
@@ -162,7 +162,7 @@ describe("rule selector boundary", () => {
   test("renders shared check work once instead of per-rule fake durations", () => {
     const report = {
       schemaVersion: 1,
-      command: "habitat check --tool pattern-check",
+      command: "habitat check --tool source-check",
       startedAt: "2026-06-21T00:00:00.000Z",
       ok: true,
       rules: [
@@ -170,7 +170,7 @@ describe("rule selector boundary", () => {
           durationMs: 2500,
           timing: {
             kind: "shared",
-            groupId: "source-check:pattern-rules",
+            groupId: "source-check:source-rules",
             durationMs: 2500,
             ruleCount: 2,
           },
@@ -179,7 +179,7 @@ describe("rule selector boundary", () => {
           durationMs: 2500,
           timing: {
             kind: "shared",
-            groupId: "source-check:pattern-rules",
+            groupId: "source-check:source-rules",
             durationMs: 2500,
             ruleCount: 2,
           },
@@ -190,24 +190,24 @@ describe("rule selector boundary", () => {
     const rendered = renderCheckReport(report);
 
     expect(rendered).toContain(
-      "alpha-pattern (pattern-check, enforced) [locked] — shared:source-check:pattern-rules"
+      "alpha-pattern (source-check, enforced) [locked] — shared:source-check:source-rules"
     );
     expect(rendered).toContain(
-      "beta-pattern (pattern-check, enforced) [locked] — shared:source-check:pattern-rules"
+      "beta-pattern (source-check, enforced) [locked] — shared:source-check:source-rules"
     );
-    expect(rendered).toContain("shared work:\n  source-check:pattern-rules: 2500ms across 2 rules");
+    expect(rendered).toContain("shared work:\n  source-check:source-rules: 2500ms across 2 rules");
   });
 
   test("staged execution preserves selected rules for explicit not-applicable disposition", () => {
-    const stagedEligible = fakeRule("hook", "pattern-check", "@internal/habitat-harness", {
+    const stagedEligible = fakeRule("hook", "source-check", "@internal/habitat-harness", {
       hookCheck: true,
     });
-    const currentTreeOnly = fakeRule("current-tree", "pattern-check", "@internal/habitat-harness");
+    const currentTreeOnly = fakeRule("current-tree", "source-check", "@internal/habitat-harness");
     const nativeRule = fakeRule("file-layer-rule", "file-layer", "@internal/habitat-harness");
 
     expect(
       rulesForExecution([stagedEligible, currentTreeOnly, nativeRule], {
-        gritFacts: [fakeGritFact("hook", ["packages"])],
+        sourceRuleFacts: [fakeSourceRuleFact("hook", ["packages"])],
         hookCheckFacts: [{ id: "hook", hookCheck: true }],
         staged: true,
         stagedPaths: ["packages/mapgen-core/src/core/index.ts"],
@@ -215,14 +215,14 @@ describe("rule selector boundary", () => {
     ).toEqual(["hook", "current-tree", "file-layer-rule"]);
   });
 
-  test("staged execution does not drop Grit rules when staged paths are outside approved roots", () => {
-    const stagedEligible = fakeRule("hook", "pattern-check", "@internal/habitat-harness", {
+  test("staged execution does not drop source-check rules when staged paths are outside approved roots", () => {
+    const stagedEligible = fakeRule("hook", "source-check", "@internal/habitat-harness", {
       hookCheck: true,
     });
 
     expect(
       rulesForExecution([stagedEligible], {
-        gritFacts: [fakeGritFact("hook", ["packages"])],
+        sourceRuleFacts: [fakeSourceRuleFact("hook", ["packages"])],
         hookCheckFacts: [{ id: "hook", hookCheck: true }],
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/service/modules/hook/router.ts"],
@@ -230,10 +230,10 @@ describe("rule selector boundary", () => {
     ).toEqual(["hook"]);
   });
 
-  test("staged Grit checks with no approved roots report not-applicable instead of baseline-only pass", () => {
-    const gritRule = fakeGritFact("hook", ["packages"]);
-    const scanRoots = stagedPatternScanRoots(["README.md"], approvedScanRootsForRules([gritRule]));
-    const records = stagedPatternNotApplicableRecords([gritRule], scanRoots);
+  test("source-check staged checks with no approved roots report not-applicable instead of baseline-only pass", () => {
+    const gritRule = fakeSourceRuleFact("hook", ["packages"]);
+    const scanRoots = stagedSourceCheckPaths(["README.md"], approvedScanRootsForRules([gritRule]));
+    const records = stagedSourceCheckNotApplicableRecords([gritRule], scanRoots);
     const record = records?.get("hook");
 
     expect(scanRoots).toEqual([]);
@@ -262,9 +262,9 @@ describe("rule selector boundary", () => {
     ).toBe(true);
   });
 
-  test("staged Grit scan roots preserve exact approved file paths", () => {
+  test("source-check staged scan roots preserve exact approved file paths", () => {
     expect(
-      stagedPatternScanRoots([
+      stagedSourceCheckPaths([
         "packages/mapgen-core/src/core/index.ts",
         "tools/habitat-harness/src/service/modules/hook/router.ts",
         "README.md",
@@ -312,7 +312,7 @@ function fakeRule(
 function passingRule(id: string, overrides: Record<string, unknown> = {}) {
   return {
     ruleId: id,
-    ownerTool: "pattern-check",
+    ownerTool: "source-check",
     lane: "enforced",
     status: "pass",
     locked: true,
@@ -325,7 +325,7 @@ function passingRule(id: string, overrides: Record<string, unknown> = {}) {
   };
 }
 
-function fakeGritFact(id: string, scanRoots: readonly string[]): RulePatternFacts {
+function fakeSourceRuleFact(id: string, scanRoots: readonly string[]): RuleSourceFacts {
   return {
     id,
     patternName: "fixture_pattern",

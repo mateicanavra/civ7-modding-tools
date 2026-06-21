@@ -110,7 +110,7 @@ export function candidateManifest(
     lifecycle: "candidate",
     openspecChangeId: options.openspecChangeId,
     ownerProject: options.ownerProject,
-    ownerTool: "pattern-check",
+    ownerTool: "source-check",
     candidateArtifacts: {
       patternPath: paths.patternPath,
       manifestPath: paths.manifestPath,

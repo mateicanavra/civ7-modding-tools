@@ -16,7 +16,7 @@ export function workspaceGraphTargetNames(
     boundaries: options.boundariesTargetName ?? "boundaries",
     check: options.checkTargetName ?? "habitat:check",
     generatedCheck: options.generatedCheckTargetName ?? "generated:check",
-    gritCheck: options.gritCheckTargetName ?? "grit:check",
+    sourceCheck: options.sourceCheckTargetName ?? "source:check",
     lint: options.lintTargetName ?? "lint",
     rulePrefix: options.ruleTargetPrefix ?? "habitat:rule:",
   });

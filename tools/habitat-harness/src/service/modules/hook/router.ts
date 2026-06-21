@@ -30,7 +30,7 @@ import {
   existingStagedPaths,
   fileHash,
   gitAdd,
-  hookPatternScanRoots,
+  hookSourceCheckPaths,
   unstagedAmong,
 } from "../../../domains/hook-runtime/staged-worktree.js";
 import type { SourceCheck } from "../../../domains/source-check/index.js";
@@ -57,7 +57,7 @@ import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
 
 type HookName = "pre-commit" | "pre-push";
-type StagedHookCheckTool = "file-layer" | "pattern-check";
+type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {
   readonly check?: {
     readonly report: CheckReport;
@@ -84,8 +84,8 @@ interface PreCommitState {
   readonly hashFile: (repoRelativePath: string) => string | null;
 }
 
-interface PreCommitPatternState extends PreCommitState {
-  readonly gritPaths: readonly string[];
+interface PreCommitSourceCheckState extends PreCommitState {
+  readonly sourceCheckPaths: readonly string[];
 }
 
 type PreCommitStep<T> =
@@ -137,11 +137,11 @@ export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
   const afterFileLayer = continuePreCommitAfterFileLayer(begun.state, fileLayer);
   if (afterFileLayer.kind === "done") return afterFileLayer.result;
 
-  const grit =
-    afterFileLayer.state.gritPaths.length > 0
-      ? runStagedHookCheckCommand(afterFileLayer.state.runtime, "pattern-check")
+  const sourceCheckResult =
+    afterFileLayer.state.sourceCheckPaths.length > 0
+      ? runStagedHookCheckCommand(afterFileLayer.state.runtime, "source-check")
       : undefined;
-  return finishPreCommit(afterFileLayer.state, grit);
+  return finishPreCommit(afterFileLayer.state, sourceCheckResult);
 }
 
 function runPreCommitEffect(
@@ -159,15 +159,15 @@ function runPreCommitEffect(
     const afterFileLayer = continuePreCommitAfterFileLayer(begun.state, fileLayer);
     if (afterFileLayer.kind === "done") return afterFileLayer.result;
 
-    const grit =
-      afterFileLayer.state.gritPaths.length > 0
+    const sourceCheckResult =
+      afterFileLayer.state.sourceCheckPaths.length > 0
         ? yield* runStagedHookCheckServiceEffect(
             afterFileLayer.state.runtime,
-            "pattern-check",
-            afterFileLayer.state.gritPaths
+            "source-check",
+            afterFileLayer.state.sourceCheckPaths
           )
         : undefined;
-    return finishPreCommit(afterFileLayer.state, grit);
+    return finishPreCommit(afterFileLayer.state, sourceCheckResult);
   });
 }
 
@@ -184,7 +184,7 @@ function beginPreCommit(runtime: HookRuntime = {}): PreCommitStep<PreCommitState
       resourceState: resources.kind,
       stagedPaths: [],
       biomePaths: [],
-      gritPaths: [],
+      sourceCheckPaths: [],
       partialPaths: [],
       formatterTouchedPaths: [],
       restagedPaths: [],
@@ -215,7 +215,7 @@ function beginPreCommit(runtime: HookRuntime = {}): PreCommitStep<PreCommitState
 function continuePreCommitAfterFileLayer(
   state: PreCommitState,
   fileLayer: StagedHookCheckResult
-): PreCommitStep<PreCommitPatternState> {
+): PreCommitStep<PreCommitSourceCheckState> {
   const { hashFile, output, runtime, staged } = state;
   output.writeStdout(section("file-layer staged check", fileLayer.stdout));
   output.writeStderr(fileLayer.stderr);
@@ -322,42 +322,42 @@ function continuePreCommitAfterFileLayer(
     output.writeStdout("biome: no staged supported files\n");
   }
 
-  const gritPaths = hookPatternScanRoots(staged);
-  if (runtime.trace?.preCommit) runtime.trace.preCommit.gritPaths = gritPaths;
-  return { kind: "continue", state: { ...state, gritPaths } };
+  const sourceCheckPaths = hookSourceCheckPaths(staged);
+  if (runtime.trace?.preCommit) runtime.trace.preCommit.sourceCheckPaths = sourceCheckPaths;
+  return { kind: "continue", state: { ...state, sourceCheckPaths } };
 }
 
 function finishPreCommit(
-  state: PreCommitPatternState,
-  grit: StagedHookCheckResult | undefined
+  state: PreCommitSourceCheckState,
+  sourceCheckResult: StagedHookCheckResult | undefined
 ): SpawnResult {
   const { output, runtime } = state;
-  if (state.gritPaths.length > 0) {
-    if (!grit) {
+  if (state.sourceCheckPaths.length > 0) {
+    if (!sourceCheckResult) {
       return finalizePreCommit(runtime, "command-failed", {
         exitCode: 1,
         ...output.result(),
       });
     }
-    output.writeStdout(section("pattern check", grit.stdout));
-    output.writeStderr(grit.stderr);
-    const gritCheck = stagedHookCheckCommandResult(grit);
-    if (gritCheck.kind !== "parsed") {
-      if (grit.exitCode !== 0 && gritCheck.kind === "missing-json") {
+    output.writeStdout(section("source check", sourceCheckResult.stdout));
+    output.writeStderr(sourceCheckResult.stderr);
+    const sourceCheck = stagedHookCheckCommandResult(sourceCheckResult);
+    if (sourceCheck.kind !== "parsed") {
+      if (sourceCheckResult.exitCode !== 0 && sourceCheck.kind === "missing-json") {
         return finalizePreCommit(runtime, "command-failed", {
-          exitCode: grit.exitCode,
+          exitCode: sourceCheckResult.exitCode,
           ...output.result(),
         });
       }
-      output.writeStderr("habitat hook pre-commit: could not parse Habitat pattern check JSON.\n");
+      output.writeStderr("habitat hook pre-commit: could not parse Habitat source check JSON.\n");
       return finalizePreCommit(runtime, "parse-failed", {
         exitCode: 1,
         ...output.result(),
       });
     }
-    if (!checkSummaryAllowsNextStage(gritCheck)) {
-      if (gritCheck.summary.kind === "diagnostic-unavailable") {
-        output.writeStderr("habitat hook pre-commit: could not parse pattern check JSON output.\n");
+    if (!checkSummaryAllowsNextStage(sourceCheck)) {
+      if (sourceCheck.summary.kind === "diagnostic-unavailable") {
+        output.writeStderr("habitat hook pre-commit: could not parse source check JSON output.\n");
         return finalizePreCommit(runtime, "parse-failed", {
           exitCode: 1,
           ...output.result(),
@@ -366,7 +366,9 @@ function finishPreCommit(
       return finalizePreCommit(runtime, "finding", { exitCode: 1, ...output.result() });
     }
   } else {
-    output.writeStdout("patterns: no staged TypeScript/JavaScript files in approved scan roots\n");
+    output.writeStdout(
+      "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
+    );
   }
 
   output.writeStdout("habitat hook pre-commit: PASS\n");
