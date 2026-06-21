@@ -10,7 +10,7 @@ const MapMorphologyCoastClassificationArtifactSchema = Type.Object(
     }),
     sourceCoastMask: TypedArraySchemas.u8({
       description:
-        "Mask of water tiles selected for coast projection from the continental shelf (coastlineMetrics shelfMask) or the shoreline ring (coastalWater), before the coast-ring guarantee.",
+        "Mask of water tiles selected for coast projection from the post-island continental shelf (shelf.shelfMask) or the shoreline ring (shelf.coastalWater), before the coast-ring guarantee.",
     }),
     waterClass: TypedArraySchemas.u8({
       description:
