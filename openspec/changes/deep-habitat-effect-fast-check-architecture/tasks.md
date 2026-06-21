@@ -28,6 +28,9 @@
 - [ ] 4.3 Define affected checks as Nx-owned project verification.
 - [ ] 4.4 Remove duplicate Biome/Grit/Habitat execution across root scripts,
   hooks, and verify.
+- [x] 4.5 Keep `check:graph` focused on affected build/check/test plus
+  structural validation; root `lint` and CI remain the explicit Biome hygiene
+  lanes.
 
 ## 5. Validation
 
