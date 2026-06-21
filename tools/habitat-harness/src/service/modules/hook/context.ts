@@ -5,6 +5,6 @@ export interface HookServiceModuleContext {
   runtime?: HookRuntime;
 }
 
-export const hookModule = habitatServiceImplementer.hook.use(({ context, next }) =>
+export const module = habitatServiceImplementer.hook.use(({ context, next }) =>
   next({ context: context.hook ?? {} })
 );

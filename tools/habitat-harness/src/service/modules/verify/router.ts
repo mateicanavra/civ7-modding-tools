@@ -14,10 +14,10 @@ import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/
 import { epochMillisToIsoString } from "@internal/habitat-harness/substrate/resources/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
-import { verifyModule } from "./context.js";
+import { module } from "./context.js";
 
 export const verifyRouter = {
-  run: verifyModule.run.effect(({ input }) =>
+  run: module.run.effect(({ input }) =>
     Effect.gen(function* () {
       const structuralCheck = yield* StructuralCheck;
       const startedMs = yield* Clock.currentTimeMillis;

@@ -16,25 +16,26 @@ Each owned Habitat capability follows this shape:
 
 ```text
 tools/habitat-harness/src/service/
-  base.ts
+  context.ts
   impl.ts
   contract.ts
   router.ts
   client.ts
   modules/
     <capability>/
+      context.ts
       contract.ts
-      module.ts
       router.ts
-      run.ts
       model/**        # only when the capability owns DTOs/policy/errors
       procedures/**   # only when a module needs multiple procedure files
 ```
 
 The root service contract composes module contracts. The root router composes
-module routers. `impl.ts` owns `implementEffect` and the `ManagedRuntime`.
-Module `module.ts` files narrow the implementer to one contract subtree. Module
-routers bind procedure atoms with `.effect(...)`.
+module routers. `context.ts` owns service context, runtime requirements, and
+the service layer. `impl.ts` owns the `ManagedRuntime` and `implementEffect`
+binding. Module `context.ts` files decorate one implementer subtree and export
+it as `module`. Module routers bind procedure atoms with `.effect(...)` and own
+procedure logic directly.
 
 ## Capability Ownership
 
@@ -60,7 +61,7 @@ Pattern-apply schema, rendering, and worktree observation may remain under
 `src/lib/pattern-apply/**` until the transformation-domain split moves those
 DTOs and presenters into their final homes. Pattern-apply execution must not
 live there: transaction application is owned by
-`src/service/modules/transactions/run.ts` and exposed through the
+`src/service/modules/transactions/router.ts` and exposed through the
 `transactions.apply` Effect-oRPC procedure.
 
 ## Provider Relationship
@@ -80,8 +81,8 @@ inside service modules.
 
 ## Guardrails
 
-- Runtime construction is allowed in `src/service/impl.ts` and `src/runtime/**`
-  only.
+- Runtime construction is allowed in `src/service/context.ts`,
+  `src/service/impl.ts`, and `src/runtime/**` only.
 - `effect-orpc` contract authoring is allowed in `src/service/**` only.
 - Provider code must not import service or domain modules.
 - Root service router must contain composition only, with no handler logic.

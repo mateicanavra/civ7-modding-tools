@@ -443,6 +443,9 @@ function checkServiceArchitecture() {
     if (!moduleText.includes(`habitatServiceImplementer.${moduleName}`)) {
       moduleLeaks.push(`${moduleFile}: missing habitatServiceImplementer.${moduleName} binding`);
     }
+    if (!moduleText.includes("export const module =")) {
+      moduleLeaks.push(`${moduleFile}: missing standard module implementer export`);
+    }
     if (moduleLeaks.length > 0) {
       fail(
         "Habitat service context files must bind and decorate the owned service module only.",

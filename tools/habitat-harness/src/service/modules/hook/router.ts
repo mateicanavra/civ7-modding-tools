@@ -71,7 +71,7 @@ import type {
 import { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/substrate/providers/nx/targets";
 import { Effect } from "effect";
-import { type HookServiceModuleContext, hookModule } from "./context.js";
+import { type HookServiceModuleContext, module } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 
 type StagedHookCheckTool = "file-layer" | "source-check";
@@ -136,7 +136,7 @@ type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export const hookRouter = {
-  run: hookModule.run.effect(({ context, input }) => runHookService(input, context)),
+  run: module.run.effect(({ context, input }) => runHookService(input, context)),
 };
 
 export const router = hookRouter;

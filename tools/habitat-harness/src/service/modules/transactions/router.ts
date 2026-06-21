@@ -18,12 +18,10 @@ import {
 import { GritProvider } from "@internal/habitat-harness/substrate/providers/grit/index";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
-import { type TransactionsServiceModuleContext, transactionsModule } from "./context.js";
+import { module, type TransactionsServiceModuleContext } from "./context.js";
 
 export const transactionsRouter = {
-  apply: transactionsModule.apply.effect(({ context, input }) =>
-    runTransactionApplyService(input, context)
-  ),
+  apply: module.apply.effect(({ context, input }) => runTransactionApplyService(input, context)),
 };
 
 export const router = transactionsRouter;

@@ -20,7 +20,7 @@ import type {
 } from "@internal/habitat-harness/substrate/providers/grit/index";
 import type { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Effect } from "effect";
-import { checkModule } from "./context.js";
+import { module } from "./context.js";
 import type {
   CheckServiceExpandBaselineInput,
   CheckServiceExpandBaselineOutput,
@@ -28,10 +28,8 @@ import type {
 } from "./contract.js";
 
 export const checkRouter = {
-  run: checkModule.run.effect(({ input }) => runCheckService(input)),
-  expandBaseline: checkModule.expandBaseline.effect(({ input }) =>
-    expandCheckBaselinesService(input)
-  ),
+  run: module.run.effect(({ input }) => runCheckService(input)),
+  expandBaseline: module.expandBaseline.effect(({ input }) => expandCheckBaselinesService(input)),
 };
 
 export const router = checkRouter;

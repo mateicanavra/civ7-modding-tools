@@ -15,14 +15,14 @@ import { Effect } from "effect";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 import { runTransactionApplyService } from "../transactions/router.js";
-import { type FixServiceModuleContext, fixModule } from "./context.js";
+import { type FixServiceModuleContext, module } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";
 import { FixCommandIntentSchema } from "./contract.js";
 
 const FixAdmissionSetSchema = Type.Array(ApplyAdmissionSchema);
 
 export const fixRouter = {
-  run: fixModule.run.effect(({ context, input }) => runFixService(input, context)),
+  run: module.run.effect(({ context, input }) => runFixService(input, context)),
 };
 
 export const router = fixRouter;

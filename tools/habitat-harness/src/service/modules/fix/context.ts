@@ -11,6 +11,6 @@ export interface FixServiceModuleContext {
   worktree?: WorktreeObservation;
 }
 
-export const fixModule = habitatServiceImplementer.fix.use(({ context, next }) =>
+export const module = habitatServiceImplementer.fix.use(({ context, next }) =>
   next({ context: context.fix ?? {} })
 );
