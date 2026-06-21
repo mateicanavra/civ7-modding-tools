@@ -14,6 +14,8 @@
 - [x] 2.2 Derive owner target inputs from owned rule target inputs.
 - [x] 2.3 Fall back to broad Habitat inputs when any owned rule is broad.
 - [x] 2.4 Keep owner and all-owner checks as single-process Habitat commands.
+- [x] 2.5 Keep `tools/habitat-harness/src/**` as a Habitat-owned target input
+  instead of a universal input on every downstream owner rule target.
 
 ## 3. Verification
 
@@ -29,6 +31,9 @@
 - [x] 3.10 `bun run biome:ci`
 - [x] 3.11 `bun run check`
 - [x] 3.12 `git diff --check`
+- [x] 3.13 `nx show projects --affected --uncommitted`
+- [x] 3.14 `nx affected --targets=check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns --excludeTaskDependencies --uncommitted --graph=stdout`
+- [x] 3.15 `nx affected --targets=check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns --excludeTaskDependencies --uncommitted --outputStyle=static`
 
 ## 4. Follow-Up Dominoes
 
@@ -36,5 +41,5 @@
   rule semantics are actually scoped.
 - [ ] 4.2 Remove duplicate pre-push target composition so component checks are
   not run beside overlapping Habitat aggregate checks.
-- [ ] 4.3 Investigate Nx invocation/project-graph overhead before routing root
+- [x] 4.3 Investigate Nx invocation/project-graph overhead before routing root
   `check` through Nx.

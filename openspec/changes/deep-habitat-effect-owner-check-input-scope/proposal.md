@@ -14,6 +14,9 @@ metadata narrows invalidation; broad or unresolved metadata remains broad.
 
 - Keep owner and full Habitat check targets as single-process Habitat commands.
 - Derive owner `habitat:check` inputs from the owner's registered rules.
+- Keep Habitat implementation source inputs on Habitat-owned targets instead of
+  invalidating every downstream owner target when the tool implementation
+  changes.
 - Preserve broad inputs for an owner when any owned rule is `workspace-gate` or
   `unresolved-metadata`.
 - Leave `habitat:check:all` as the single shared Habitat check command instead

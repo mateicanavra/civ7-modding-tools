@@ -183,12 +183,14 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   if (covered.kind === "workspace-gate") return habitatInputs();
 
   const inputs = new Set<string>([
-    "{workspaceRoot}/tools/habitat-harness/src/**",
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
     `{workspaceRoot}/.habitat/rules/${rule.id}/**`,
     ...covered.inputs,
   ]);
+  if (rule.ownerProject === "@internal/habitat-harness") {
+    inputs.add("{workspaceRoot}/tools/habitat-harness/src/**");
+  }
   if (rule.ownerTool === "source-check") {
     inputs.add("{workspaceRoot}/.habitat/source-check/source-rules.mjs");
     for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
