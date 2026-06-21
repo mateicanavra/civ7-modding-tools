@@ -65,23 +65,30 @@ function buildInferredProjects(input: {
     projects[root].targets[target] = targetDefinition(definition);
   };
 
-  addHarnessTargets({ addTarget, ownerRoots, targetNames });
-  const inputs = habitatInputs();
+  addHarnessToolTargets({ addTarget, ownerRoots, targetNames });
   const graphFacts = ruleGraphFacts(input.registry.rules, ownerRoots, targetNames);
+  const recordsByOwner = new Map<string, RuleRegistryRecordV1[]>();
   for (const rule of graphFacts) {
     const record = recordsById.get(rule.id);
     if (!record) {
       throw new Error(`Habitat graph metadata contract failure: missing rule record '${rule.id}'.`);
     }
+    appendMapValue(recordsByOwner, rule.ownerProject, record);
     addRuleTarget({ addTarget, record, rule, targetNames });
   }
   for (const [owner, root] of ownerRootsForRules(graphFacts)) {
-    addTarget(root, owner, targetNames.check, ownerCheckTarget(owner, inputs));
+    const records = recordsByOwner.get(owner) ?? [];
+    addTarget(
+      root,
+      owner,
+      targetNames.check,
+      ownerCheckTarget(owner, inputsForOwner(records, root))
+    );
   }
   return Value.Parse(InferredProjectsSchema, projects);
 }
 
-function addHarnessTargets(input: {
+function addHarnessToolTargets(input: {
   addTarget: (
     root: string,
     project: string,
@@ -177,6 +184,16 @@ function inputsForRuleTarget(rule: RuleRegistryRecordV1, ownerRoot: string): str
   return [...inputs];
 }
 
+function inputsForOwner(rules: readonly RuleRegistryRecordV1[], ownerRoot: string): string[] {
+  const inputs = new Set<string>();
+  for (const rule of rules) {
+    const ruleInputs = inputsForRuleTarget(rule, ownerRoot);
+    if (sameInputSet(ruleInputs, habitatInputs())) return habitatInputs();
+    for (const input of ruleInputs) inputs.add(input);
+  }
+  return inputs.size ? [...inputs] : habitatInputs();
+}
+
 function pathCoverageInputs(
   coverage: RuleRegistryRecordV1["pathCoverage"],
   ownerRoot: string
@@ -204,6 +221,21 @@ function workspaceInput(repoRelativePath: string): string {
 
 function ownerRootsForRules(rules: ReturnType<typeof ruleGraphFacts>): Map<string, string> {
   return new Map(rules.map((rule) => [rule.ownerProject, rule.ownerRoot]));
+}
+
+function appendMapValue<T>(map: Map<string, T[]>, key: string, value: T): void {
+  const values = map.get(key);
+  if (values) {
+    values.push(value);
+    return;
+  }
+  map.set(key, [value]);
+}
+
+function sameInputSet(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length !== right.length) return false;
+  const rightSet = new Set(right);
+  return left.every((input) => rightSet.has(input));
 }
 
 function targetDefinition(value: NxTargetDefinition): NxTargetDefinition {
