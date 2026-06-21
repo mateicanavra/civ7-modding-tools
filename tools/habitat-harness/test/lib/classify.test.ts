@@ -19,6 +19,7 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
         "generated:check",
         "grit:check",
         "test",
+        "validate:boundary-taxonomy",
       ]),
       project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
       project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
@@ -303,6 +304,7 @@ index 3333333..4444444 100644
           return [
             project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
               "check",
+              "validate:boundary-taxonomy",
             ]),
             project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", []),
           ];

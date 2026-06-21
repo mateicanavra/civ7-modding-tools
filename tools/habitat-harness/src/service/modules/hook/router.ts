@@ -37,7 +37,14 @@ import { module as hookModule } from "./module.js";
 
 type HookName = "pre-commit" | "pre-push";
 
-const prePushTargets = ["biome:ci", "boundaries", "grit:check", "habitat:check", "test"];
+const prePushTargets = [
+  "biome:ci",
+  "boundaries",
+  "grit:check",
+  "habitat:check",
+  "test",
+  "validate:boundary-taxonomy",
+];
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export const hookRouter = {
