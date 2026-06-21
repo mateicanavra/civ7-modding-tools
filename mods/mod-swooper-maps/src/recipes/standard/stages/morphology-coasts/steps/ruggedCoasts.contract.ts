@@ -17,6 +17,10 @@ const RuggedCoastsStepContract = defineStep({
   },
   ops: {
     coastlines: morphology.ops.computeCoastlineMetrics,
+    reconcileHeightfield: {
+      contract: morphology.ops.reconcileHeightfieldFromCoast,
+      defaultStrategy: "default",
+    },
     distanceToCoast: {
       contract: morphology.ops.computeDistanceToCoast,
       defaultStrategy: "default",

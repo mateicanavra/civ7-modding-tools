@@ -14,7 +14,7 @@ import {
   renderAsciiGrid,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { clampFinite, clampInt16, roundHalfAwayFromZero } from "@swooper/mapgen-core/lib/math";
+import { clampFinite } from "@swooper/mapgen-core/lib/math";
 import RuggedCoastsStepContract from "./ruggedCoasts.contract.js";
 
 type ArtifactValidationIssue = Readonly<{ message: string }>;
@@ -182,30 +182,23 @@ export default createStep(RuggedCoastsStepContract, {
       throw new Error("Morphology topography bathymetry buffer missing or shape-mismatched.");
     }
 
-    const waterElevation = clampInt16(Math.floor(seaLevelValue));
-    const landElevation = clampInt16(Math.floor(seaLevelValue) + 1);
-
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const i = y * width + x;
-        const desiredLand = coastMask[i] === 1 ? 0 : updatedLandMask[i] === 1 ? 1 : 0;
-        if (coastMask[i] === 1) {
-          heightfield.landMask[i] = 0;
-        } else {
-          heightfield.landMask[i] = updatedLandMask[i] === 1 ? 1 : 0;
-        }
-
-        const elevation = heightfield.elevation[i] ?? 0;
-        if (desiredLand === 1) {
-          if (elevation <= seaLevelValue) heightfield.elevation[i] = landElevation;
-          bathymetry[i] = 0;
-        } else {
-          if (elevation > seaLevelValue) heightfield.elevation[i] = waterElevation;
-          const delta = Math.min(0, (heightfield.elevation[i] ?? 0) - seaLevelValue);
-          bathymetry[i] = clampInt16(roundHalfAwayFromZero(delta));
-        }
-      }
-    }
+    // Reconcile land/water + elevation + bathymetry with the carved coastline. The op is
+    // pure (returns fresh arrays); the step owns the only legitimate side effect: copying the
+    // result back into the shared heightfield + topography bathymetry buffers in place.
+    const reconciled = ops.reconcileHeightfield(
+      {
+        width,
+        height,
+        landMask: updatedLandMask,
+        coastMask,
+        elevation: heightfield.elevation,
+        seaLevel: seaLevelValue,
+      },
+      config.reconcileHeightfield
+    );
+    heightfield.landMask.set(reconciled.landMask);
+    heightfield.elevation.set(reconciled.elevation);
+    bathymetry.set(reconciled.bathymetry);
 
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
