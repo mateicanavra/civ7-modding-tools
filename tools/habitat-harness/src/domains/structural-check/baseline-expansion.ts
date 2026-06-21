@@ -5,6 +5,7 @@ import type { HabitatConfig } from "../../config/index.js";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
 import { type RuleSelectionResult, selectRules } from "../../domains/rule-selection/index.js";
 import { renderHabitatError } from "../../errors/index.js";
+import type { BiomeProvider } from "../../providers/biome/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
 import type { NxProvider } from "../../providers/nx/index.js";
@@ -34,6 +35,7 @@ export function expandBaselinesEffect(
   BaselineExpansionResult,
   never,
   | BaselineAuthority
+  | BiomeProvider
   | CommandRunner
   | NxProvider
   | CommandExecutor
