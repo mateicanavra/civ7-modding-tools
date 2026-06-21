@@ -4,5 +4,4 @@ export { makeFakeCommandRunnerLayer } from "@internal/habitat-harness/substrate/
 export { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
 export { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/substrate/providers/graphite/index";
 export { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
-export { makeFakeHuskyProviderLayer } from "@internal/habitat-harness/substrate/providers/husky/index";
 export { makeFakeNxProviderLayer } from "@internal/habitat-harness/substrate/providers/nx/index";

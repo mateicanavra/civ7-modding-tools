@@ -20,7 +20,7 @@ Implementation SHALL converge on these top-level source domains:
 - `src/config/**`
 - `src/errors/**`
 - `src/resources/**`
-- `src/providers/{command,fs,clock,git,grit,biome,nx,husky,reporter,workspace-tools}/**`
+- `src/providers/{command,fs,clock,git,grit,biome,nx,reporter,workspace-tools}/**`
 - `src/domains/**`
 - `src/public/**`
 
