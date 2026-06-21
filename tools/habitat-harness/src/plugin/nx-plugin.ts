@@ -1,5 +1,9 @@
 import path from "node:path";
 import { Value } from "typebox/value";
+import {
+  sourceCheckRuleModuleRepoPath,
+  sourceCheckRuleRuntimeRepoPath,
+} from "../domains/source-check/module-paths.ts";
 import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
 import {
@@ -60,6 +64,7 @@ function buildInferredProjects(input: {
   const ownerRoots = new Map(Object.entries(input.registry.ownerRoots));
   const recordsById = new Map(input.registry.rules.map((rule) => [rule.id, rule]));
   const projects: InferredProjects = {};
+  projects[".habitat"] = { name: "@internal/habitat-artifacts", targets: {} };
   const addTarget = (
     root: string,
     _project: string,
@@ -192,7 +197,8 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
     inputs.add("{workspaceRoot}/tools/habitat-harness/src/**");
   }
   if (rule.ownerTool === "source-check") {
-    inputs.add("{workspaceRoot}/.habitat/source-check/source-rules.mjs");
+    inputs.add(workspaceInput(sourceCheckRuleRuntimeRepoPath));
+    inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
     for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
@@ -218,10 +224,11 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
     "{workspaceRoot}/.habitat/rules/**",
-    "{workspaceRoot}/.habitat/source-check/source-rules.mjs",
+    workspaceInput(sourceCheckRuleRuntimeRepoPath),
   ]);
   for (const rule of rules) {
     if (rule.ownerTool !== "source-check") continue;
+    inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
     for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }

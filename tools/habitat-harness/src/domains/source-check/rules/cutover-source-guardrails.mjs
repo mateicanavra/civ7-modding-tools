@@ -1,0 +1,19 @@
+import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
+
+export const ruleId = "cutover-source-guardrails";
+
+export function diagnosticsForRule(rule, file) {
+  return runtime.isSwooperRuntimeSource(file)
+    ? [
+        ...runtime
+          .cutoverShimSurfaceLines(file)
+          .map((line) => runtime.diagnostic(rule, file, undefined, line)),
+        ...runtime
+          .cutoverLegacyStageLines(file)
+          .map((line) => runtime.diagnostic(rule, file, undefined, line)),
+        ...runtime
+          .cutoverDualStageLines(file)
+          .map((line) => runtime.diagnostic(rule, file, undefined, line)),
+      ]
+    : [];
+}

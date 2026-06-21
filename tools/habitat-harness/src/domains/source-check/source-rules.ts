@@ -3,16 +3,13 @@ import { pathToFileURL } from "node:url";
 import type { FileSystem } from "@effect/platform";
 import { Effect } from "effect";
 import ts from "typescript";
-import {
-  habitatCacheRepoPath,
-  habitatCacheRepoPathPrefix,
-  sourceCheckPolicyRepoPath,
-} from "../../lib/artifact-paths.js";
+import { habitatCacheRepoPath, habitatCacheRepoPathPrefix } from "../../lib/artifact-paths.js";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import { isDirectory, isFile, readDirectory, readText } from "../../resources/filesystem.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
 import { pathCoveragePatternMatches, type RuleSourceFacts } from "../rule-registry/index.js";
 import type { HabitatDiagnostic } from "../structural-check/schema.js";
+import { sourceCheckRuleModuleRepoPath } from "./module-paths.js";
 import {
   pathsOverlap,
   selectedSourceScanRootsForRules,
@@ -27,13 +24,12 @@ interface SourceFileRecord {
   readonly sourceFile?: ts.SourceFile;
 }
 
-interface SourceCheckPolicy {
-  readonly sourceCheckRuleIds: readonly string[];
+interface SourceCheckRuleModule {
+  readonly ruleId: string;
   readonly diagnosticsForRule: (
     rule: RuleSourceFacts,
     file: SourceFileRecord
   ) => readonly HabitatDiagnostic[];
-  readonly loadFailure?: string;
 }
 
 interface SourceRuleFilePlan {
@@ -47,28 +43,44 @@ interface PlannedSourceFileRecord {
   readonly plans: readonly SourceRuleFilePlan[];
 }
 
+interface LoadedSourceRuleModule {
+  readonly rule: RuleSourceFacts;
+  readonly modulePath: string;
+  readonly module?: SourceCheckRuleModule;
+  readonly loadFailure?: string;
+}
+
 export function runSourceRulesEffect(
   rules: readonly RuleSourceFacts[],
   options: SourceCheckOptions = {}
 ) {
   return Effect.gen(function* () {
-    const policy = yield* loadSourceCheckPolicyEffect();
-    const policyRuleIds = new Set(policy.sourceCheckRuleIds);
-    const plans = rules
-      .filter((rule) => policyRuleIds.has(rule.id))
-      .map((rule) => sourceRuleFilePlan(rule, options));
+    const loadedModules = yield* loadSourceCheckRuleModulesEffect(rules);
+    const modulesByRule = new Map(loadedModules.map((loaded) => [loaded.rule.id, loaded]));
+    const executableRules = loadedModules
+      .filter((loaded): loaded is LoadedSourceRuleModule & { module: SourceCheckRuleModule } =>
+        Boolean(loaded.module)
+      )
+      .map((loaded) => loaded.rule);
+    const plans = executableRules.map((rule) => sourceRuleFilePlan(rule, options));
     const files = yield* readPlannedSourceFiles(plans);
     const diagnosticsByRule = new Map<string, HabitatDiagnostic[]>(
       rules.map((rule) => [rule.id, []])
     );
     for (const { file, plans: matchingPlans } of files) {
       for (const plan of matchingPlans) {
-        diagnosticsByRule.get(plan.rule.id)?.push(...policy.diagnosticsForRule(plan.rule, file));
+        const loaded = modulesByRule.get(plan.rule.id);
+        if (loaded?.module) {
+          diagnosticsByRule
+            .get(plan.rule.id)
+            ?.push(...loaded.module.diagnosticsForRule(plan.rule, file));
+        }
       }
     }
     return new Map(
       rules.map((rule) => {
-        if (!policyRuleIds.has(rule.id)) return [rule.id, unsupportedNativeRule(rule, policy)];
+        const loaded = modulesByRule.get(rule.id);
+        if (!loaded?.module) return [rule.id, unsupportedNativeRule(rule, loaded)];
         const diagnostics = diagnosticsByRule.get(rule.id) ?? [];
         return [rule.id, { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics }];
       })
@@ -76,35 +88,48 @@ export function runSourceRulesEffect(
   });
 }
 
-function loadSourceCheckPolicyEffect(): Effect.Effect<SourceCheckPolicy, never> {
+function loadSourceCheckRuleModulesEffect(
+  rules: readonly RuleSourceFacts[]
+): Effect.Effect<LoadedSourceRuleModule[], never> {
+  return Effect.forEach(rules, loadSourceCheckRuleModuleEffect, { concurrency: 8 });
+}
+
+function loadSourceCheckRuleModuleEffect(
+  rule: RuleSourceFacts
+): Effect.Effect<LoadedSourceRuleModule, never> {
+  const modulePath = sourceCheckRuleModuleRepoPath(rule.id);
   return Effect.tryPromise({
-    try: async () => sourceCheckPolicyFromModule(await import(policyModuleUrl())),
+    try: async () => ({
+      rule,
+      modulePath,
+      module: sourceCheckRuleModuleFromModule(rule.id, await import(moduleUrl(modulePath))),
+    }),
     catch: (error) => error,
   }).pipe(
     Effect.catchAll((error) =>
       Effect.succeed({
-        sourceCheckRuleIds: [],
-        diagnosticsForRule: () => [],
+        rule,
+        modulePath,
         loadFailure: String(error),
       })
     )
   );
 }
 
-function policyModuleUrl(): string {
-  return pathToFileURL(path.join(repoRoot, sourceCheckPolicyRepoPath)).href;
+function moduleUrl(repoPath: string): string {
+  return pathToFileURL(path.join(repoRoot, repoPath)).href;
 }
 
-function sourceCheckPolicyFromModule(module: unknown): SourceCheckPolicy {
-  const candidate = module as Partial<SourceCheckPolicy>;
-  if (!Array.isArray(candidate.sourceCheckRuleIds)) {
-    throw new Error(`${sourceCheckPolicyRepoPath} must export sourceCheckRuleIds.`);
+function sourceCheckRuleModuleFromModule(ruleId: string, module: unknown): SourceCheckRuleModule {
+  const candidate = module as Partial<SourceCheckRuleModule>;
+  if (candidate.ruleId !== ruleId) {
+    throw new Error(`${sourceCheckRuleModuleRepoPath(ruleId)} must export ruleId "${ruleId}".`);
   }
   if (typeof candidate.diagnosticsForRule !== "function") {
-    throw new Error(`${sourceCheckPolicyRepoPath} must export diagnosticsForRule().`);
+    throw new Error(`${sourceCheckRuleModuleRepoPath(ruleId)} must export diagnosticsForRule().`);
   }
   return {
-    sourceCheckRuleIds: candidate.sourceCheckRuleIds,
+    ruleId: candidate.ruleId,
     diagnosticsForRule: candidate.diagnosticsForRule,
   };
 }
@@ -216,16 +241,20 @@ function collectDirectory(
   );
 }
 
-function unsupportedNativeRule(rule: RuleSourceFacts, policy: SourceCheckPolicy): RuleRunResult {
-  const loadReason = policy.loadFailure
-    ? ` ${sourceCheckPolicyRepoPath} failed to load: ${policy.loadFailure}`
+function unsupportedNativeRule(
+  rule: RuleSourceFacts,
+  loaded: LoadedSourceRuleModule | undefined
+): RuleRunResult {
+  const modulePath = loaded?.modulePath ?? sourceCheckRuleModuleRepoPath(rule.id);
+  const loadReason = loaded?.loadFailure
+    ? ` ${modulePath} failed to load: ${loaded.loadFailure}`
     : "";
   return {
     exitCode: 1,
     diagnostics: [
       {
         ruleId: rule.id,
-        path: sourceCheckPolicyRepoPath,
+        path: modulePath,
         message: `No repo source-check implementation is registered for ${rule.id}.${loadReason}`,
         severity: rule.lane === "advisory" ? "advisory" : "error",
         baselined: false,
