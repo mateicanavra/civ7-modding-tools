@@ -43,7 +43,17 @@ export const defaultWorkspaceToolPolicies = new Map<string, WorkspaceToolPolicy>
     {
       executable: "eslint",
       strategy: "bun-run",
-      argvPrefix: ["--quiet", "--config", "eslint.boundaries.config.mjs", "--no-config-lookup"],
+      argvPrefix: [
+        "--quiet",
+        "--cache",
+        "--cache-strategy",
+        "content",
+        "--cache-location",
+        ".nx/cache/eslint-boundaries",
+        "--config",
+        "eslint.boundaries.config.mjs",
+        "--no-config-lookup",
+      ],
     },
   ],
   ["pattern-check", { executable: "grit", strategy: "bun-run" }],
