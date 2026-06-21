@@ -53,6 +53,17 @@ export function stagedSourceScanRoots(
   return candidates.filter((candidate) => isApprovedSourceScanRoot(candidate, approvedScanRoots));
 }
 
+export function collapsedSourceScanRoots(scanRoots: readonly string[]): string[] {
+  const sortedRoots = sortedUnique(scanRoots);
+  return sortedRoots.filter(
+    (candidate, index) =>
+      !sortedRoots.some(
+        (possibleParent, parentIndex) =>
+          parentIndex !== index && sourceScanRootContains(possibleParent, candidate)
+      )
+  );
+}
+
 export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
   const normalizedCandidate = toRepoRelative(candidate);
   const normalizedRoot = toRepoRelative(declaredRoot);
@@ -65,6 +76,13 @@ export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
 
 export function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values.map(toRepoRelative))].sort((a, b) => a.localeCompare(b));
+}
+
+function sourceScanRootContains(parent: string, child: string): boolean {
+  const normalizedParent = toRepoRelative(parent);
+  const normalizedChild = toRepoRelative(child);
+  if (normalizedParent === "") return true;
+  return normalizedParent === normalizedChild || normalizedChild.startsWith(`${normalizedParent}/`);
 }
 
 function isApprovedSourceScanRoot(

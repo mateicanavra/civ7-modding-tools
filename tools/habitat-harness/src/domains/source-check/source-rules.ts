@@ -10,7 +10,12 @@ import type { RuleRunResult } from "../../rules/architecture.js";
 import { pathCoveragePatternMatches, type RuleSourceFacts } from "../rule-registry/index.js";
 import type { HabitatDiagnostic } from "../structural-check/schema.js";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.js";
-import { pathsOverlap, selectedSourceScanRootsForRules, sortedUnique } from "./scan-roots.js";
+import {
+  collapsedSourceScanRoots,
+  pathsOverlap,
+  selectedSourceScanRootsForRules,
+  sortedUnique,
+} from "./scan-roots.js";
 import type { SourceCheckOptions } from "./service.js";
 
 interface SourceFileRecord {
@@ -182,7 +187,7 @@ function readPlannedSourceFiles(
 ): Effect.Effect<PlannedSourceFileRecord[], never, FileSystem.FileSystem> {
   return Effect.gen(function* () {
     if (plans.length === 0) return [];
-    const scanRoots = sortedUnique(plans.flatMap((plan) => plan.scanRoots));
+    const scanRoots = collapsedSourceScanRoots(plans.flatMap((plan) => plan.scanRoots));
     const candidateExtensions = new Set(plans.flatMap((plan) => [...plan.candidateExtensions]));
     const paths = yield* Effect.forEach(
       scanRoots,
