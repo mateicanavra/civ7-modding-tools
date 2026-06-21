@@ -368,4 +368,46 @@ split). The decomposition stands; refinements below.
   agents' bad advice to regenerate identity snapshots.
 - Design doc written: [DESIGN.md](DESIGN.md). One fork deferred to user: 5 vs 6
   stages (plate-topology as projection step vs own stage).
-- Status: **awaiting user confirmation of the shape before implementation.**
+- Shape decided (2026-06-20): **5 stages** — `plate-topology` lives as a step in
+  `foundation-projection` (not its own stage). Stage authoring is **boring +
+  declarative**: each `index.ts` lists knobs + advanced op config and hooks ops
+  directly (no helper machinery), matching mapgen-core/ecology precedent.
+- Slice 2 committed (`agent-fnd-foundation-plate-topology-op`, 9ea480c9d):
+  extracted `compute-plate-topology` domain op (repair of the op-less step).
+- Slice 3 committed (`agent-fnd-foundation-split-stages`, b2ee13038): the split
+  into foundation-mantle/-plates/-tectonics/-crust/-projection + shared
+  `foundation/{artifacts,validation,viz}.ts` hub; configs/presets/generated/type-
+  test/tests migrated.
+- Identity **proven end-to-end for every shipped/dev config** (2026-06-21), not
+  argued: ran `run-standard-dump` (full standard pipeline, MockAdapter) for **all
+  9 `.config.json` maps** in the split worktree (migrated 5-block configs) and on
+  clean `main` (original 1-block configs), same dims/seed (106×66/1337). The
+  surface digests + resource `placedHash32` are byte-identical for all 9 — `diff`
+  of the digest sets is empty. Example (swooper-earthlike): elevation `65ca6e28`,
+  terrain `9163b556`, biome `8c599ae2`, feature `f30a074e`, resource `a0c8f110`
+  on both sides. (The config-shape change is a lossless re-grouping: ops, op
+  order, and the `foundation` phase label are unchanged, so each op gets an
+  identical compiled envelope + RNG stream. `runId` legitimately differs — it
+  fingerprints config shape, not output.) The test-config path (biomes-latcutoff)
+  matched too.
+- Verification (2026-06-21): full mod suite **581 pass / 2 skip / 0 fail** (583
+  tests); `tsc --noEmit` exit 0; 4 `test:architecture-*` targets pass;
+  `domain-refactor-guardrails` pass; biome clean. Boundaries via the active
+  habitat/DRA-stack CLI pointed at this worktree (~7.5s vs 14+ min legacy grit):
+  49 rules, all pattern-check/grit rules pass incl. `recipe-imports-in-domain`,
+  `sibling-stage-step-imports`, `viz-contract-ownership`,
+  `wrapper-advanced-stage-config`, `rng-authority-static`; eslint
+  `import-boundaries` pass. (`format-ci` fails only as a cross-worktree
+  biome-spawn artifact; biome verified clean directly.)
+- Failure triage (2026-06-21): of 8 pre-finalization fails — 1 preset-schema
+  (mine; fixed by migrating realism presets), 4 resource-corpus (environmental:
+  fresh worktree lacked extracted base-game data under `.civ7/outputs/resources`;
+  pass on seeded checkout + clean main 9/0), 1 biomes-latcutoff (full-suite
+  parallel-load timeout flake; passes isolated in 3.7s). 2 further issues found +
+  fixed: `contract-guard`/`map-stamping` guards re-pointed to scan the
+  `foundation-*` family dynamically; `standard-artifacts` dist built via
+  `build:studio-recipes`.
+- Slice 4 (docs): FOUNDATION.md stage-composition → 5-stage table + step-path
+  anchors migrated; STANDARD-RECIPE.md stage order updated.
+- Status: **implemented + verified green; identity proven against main.** Remaining
+  closure: live in-game smoke run (the engine is the final closure test).

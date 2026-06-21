@@ -49,7 +49,7 @@ FOUNDATION does not require upstream domain artifacts. It requires only:
 
 **Ground truth anchors**
 - `packages/mapgen-core/src/core/types.ts` (`ctxRandom` derives from `Env.seed`, not adapter RNG)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.ts` (`ctxRandom`, `ctxRandomLabel`, `context.dimensions`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/steps/mesh.ts` (`ctxRandom`, `ctxRandomLabel`, `context.dimensions`)
 - `mods/mod-swooper-maps/src/domain/foundation/lib/normalize.ts` (`requireEnvDimensions`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/contract.ts` (`ComputeMeshContract.input`)
 
@@ -80,12 +80,12 @@ FOUNDATION provides the following artifact dependency tags (all `artifact:*`).
 **Ground truth anchors**
 - `packages/mapgen-core/src/core/types.ts` (`FOUNDATION_MESH_ARTIFACT_TAG`, `FOUNDATION_MANTLE_POTENTIAL_ARTIFACT_TAG`, `FOUNDATION_MANTLE_FORCING_ARTIFACT_TAG`, `FOUNDATION_CRUST_ARTIFACT_TAG`, `FOUNDATION_PLATE_MOTION_ARTIFACT_TAG`, `FOUNDATION_PLATE_GRAPH_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_ARTIFACT_TAG`, `FOUNDATION_TECTONICS_ARTIFACT_TAG`, `FOUNDATION_TILE_TO_CELL_INDEX_ARTIFACT_TAG`, `FOUNDATION_CRUST_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_HISTORY_TILES_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_PROVENANCE_TILES_ARTIFACT_TAG`, `FOUNDATION_PLATES_ARTIFACT_TAG`)
 - `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts` (`FOUNDATION_TECTONIC_SEGMENTS_ARTIFACT_TAG`, `FOUNDATION_TECTONIC_HISTORY_ARTIFACT_TAG`, `FOUNDATION_PLATE_TOPOLOGY_ARTIFACT_TAG`, `foundationArtifacts`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/mesh.contract.ts` (`MeshStepContract.artifacts.provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/crust.contract.ts` (`CrustStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateGraph.contract.ts` (`PlateGraphStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.contract.ts` (`TectonicsStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.contract.ts` (`ProjectionStepContract.artifacts.requires/provides`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateTopology.contract.ts` (`PlateTopologyStepContract.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/steps/mesh.contract.ts` (`MeshStepContract.artifacts.provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-plates/steps/crust.contract.ts` (`CrustStepContract.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-plates/steps/plateGraph.contract.ts` (`PlateGraphStepContract.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.ts` (`TectonicsStepContract.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.contract.ts` (`ProjectionStepContract.artifacts.requires/provides`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/plateTopology.contract.ts` (`PlateTopologyStepContract.artifacts.requires/provides`)
 
 ### Value domains (enums / ranges)
 
@@ -226,7 +226,7 @@ Key fields:
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/contract.ts` (`FoundationTectonicHistorySchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/index.ts` (`computeTectonicHistoryRollups`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (`historyResult` publication)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.ts` (`historyResult` publication)
 
 ### `artifact:foundation.tectonicProvenance` (truth; mesh space)
 
@@ -319,7 +319,7 @@ Key fields (per tile):
 Plate adjacency + centroid/area derived from the tile-space `foundation.plates.id` field.
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateTopology.ts` (`buildPlateTopology`, `validateTopologySymmetry`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/plateTopology.ts` (`buildPlateTopology`, `validateTopologySymmetry`)
 - `packages/mapgen-core/src/lib/plates/topology.ts` (`buildPlateTopology`) (see `@swooper/mapgen-core/lib/plates` re-export)
 
 ## Operations
@@ -368,7 +368,7 @@ The standard recipe exposes two knobs that apply *after* defaulted step config, 
 **Ground truth anchors**
 - `mods/mod-swooper-maps/src/domain/foundation/shared/knobs.ts` (`FoundationPlateCountKnobSchema`, `FoundationPlateActivityKnobSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/shared/knob-multipliers.ts` (`resolvePlateActivityKinematicsMultiplier`, `resolvePlateActivityBoundaryDelta`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (`knobsSchema`, “Knobs apply last” docstrings)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts` and `…/foundation-plates/index.ts` (`plateCount` `knobsSchema`); `…/foundation-projection/index.ts` (`plateActivity` `knobsSchema`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-mesh/index.ts` (`normalize` deriving `cellCount`)
 - `mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts` (`normalize` validating selected-map-size plate count)
 
@@ -393,20 +393,32 @@ from validated runtime map dimensions:
 
 ### Stage composition
 
-In the standard recipe, the `foundation` stage runs these steps (in order):
-1. `mesh`
-2. `mantle-potential`
-3. `mantle-forcing`
-4. `crust`
-5. `plate-graph`
-6. `plate-motion`
-7. `tectonics`
-8. `crust-evolution`
-9. `projection`
-10. `plate-topology`
+In the standard recipe, FOUNDATION is authored as a **family of five sibling
+recipe stages** (not one monolithic stage). Each stage is a composable node with
+its own knobs + advanced op config; they share the `foundation/` hub for truth
+artifacts, validation, and viz contracts. The steps run in the same global order
+as before — splitting the stage boundaries does not reorder steps, so generated
+maps remain byte-identical (the RNG phase label stays `foundation`).
+
+| # | Stage | Steps (in order) | Responsibility |
+|---|-------|------------------|----------------|
+| 1 | `foundation-mantle` | `mesh`, `mantle-potential`, `mantle-forcing` | Tectonic mesh + mantle-convection forcing field |
+| 2 | `foundation-plates` | `crust`, `plate-graph`, `plate-motion` | Lithosphere crust, plate partition, plate kinematics |
+| 3 | `foundation-tectonics` | `tectonics` | Per-era tectonic history (segments + history rollups) |
+| 4 | `foundation-crust` | `crust-evolution` | Crust maturation over the tectonic history |
+| 5 | `foundation-projection` | `projection`, `plate-topology` | Resample mesh-space truth onto the tile grid + tile plate adjacency |
+
+Cross-stage knobs: `plateCount` is set on **both** `foundation-mantle` (mesh
+density) and `foundation-plates` (plate partition); `plateActivity` is a
+`foundation-projection` knob (scales projected plate kinematics/boundaries).
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts` (`createStage`, `steps`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts` (`createStage`, mantle steps + `plateCount` knob)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-plates/index.ts` (`createStage`, plate steps + `plateCount` knob)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts` (`createStage`, tectonics op contracts)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-crust/index.ts` (`createStage`, crust-evolution)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts` (`createStage`, projection + `plateActivity` knob)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/{artifacts,validation,viz}.ts` (shared hub for the five stages)
 - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts` (`STANDARD_STAGES`, `stages` ordering)
 
 ### Downstream consumption (today)
@@ -426,8 +438,8 @@ This is the minimal drift worth calling out in a domain reference:
 - **Tectonic history is not consumed cross-domain today**, even though it exists as a truth artifact.
 
 **Ground truth anchors**
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/plateTopology.ts` (`buildPlateTopology(plateIds, width, height, plateCount)`)
-- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/tectonics.ts` (publishes history; no downstream reads in standard recipe)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/plateTopology.ts` (`buildPlateTopology(plateIds, width, height, plateCount)`)
+- `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.ts` (publishes history; no downstream reads in standard recipe)
 
 ## Open Questions
 
@@ -446,8 +458,8 @@ This section is a navigation aid: concrete file paths that back the contract cla
 This page contains many inline “Ground truth anchors” callouts. This section collects the canonical entrypoints:
 
 - Domain entrypoint + op ids: `mods/mod-swooper-maps/src/domain/foundation/index.ts`
-- Standard recipe stage definition (step ordering + wiring): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
-- Stage artifact wiring (recipe-level tags, schemas, and helpers): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts`
+- Standard recipe stage definitions (five sibling stages): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-{mantle,plates,tectonics,crust,projection}/index.ts`; overall step ordering + wiring: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
+- Stage artifact wiring (recipe-level tags, schemas, and helpers; shared hub): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/artifacts.ts`
 - Core artifact tag constants (shared ids/types): `packages/mapgen-core/src/core/types.ts`
 
 - Mesh construction (truth root):
