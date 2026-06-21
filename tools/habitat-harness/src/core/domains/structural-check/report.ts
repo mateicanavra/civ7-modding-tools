@@ -7,6 +7,10 @@ import type {
   GitProvider,
   GitProviderRequirements,
 } from "@internal/habitat-harness/substrate/providers/git/index";
+import type {
+  GritProvider,
+  GritProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
 import type { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
@@ -47,6 +51,8 @@ export function createCheckReportEffect(
   | FileSystem.FileSystem
   | GitProvider
   | GitProviderRequirements
+  | GritProvider
+  | GritProviderRequirements
 > {
   return Effect.gen(function* () {
     const baselineAuthority = yield* BaselineAuthority;

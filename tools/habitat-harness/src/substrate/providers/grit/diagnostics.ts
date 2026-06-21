@@ -10,8 +10,8 @@ import {
 import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
 import type { RuleRunResult } from "@internal/habitat-harness/core/rules/architecture";
 import { infrastructureFailure } from "./failure.js";
-import type { GritDiagnosticOptions, GritReport, GritResult } from "./provider/types.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
+import type { GritDiagnosticOptions, GritReport, GritResult } from "./types.js";
 
 export function gritDiagnosticOutcomesFromReport(
   selectedRules: readonly RuleSourceFacts[],
@@ -117,7 +117,7 @@ export function ruleRunResultFromDiagnosticOutcome(
       return infrastructureFailure(rule, "GritEmptyScanRoots", outcome.detail);
     case "cache-observation-missing":
       return infrastructureFailure(rule, outcome.failure, outcome.detail);
-    case "adapter-failed":
+    case "provider-failed":
       return infrastructureFailure(rule, outcome.failure, outcome.detail);
   }
 }

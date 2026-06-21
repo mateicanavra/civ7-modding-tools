@@ -67,27 +67,35 @@ const depConstraints = [
     ],
   },
   { sourceTag: "kind:tooling", onlyDependOnLibsWithTags: ["kind:tooling", "kind:foundation"] },
-  { sourceTag: "habitat:substrate", onlyDependOnLibsWithTags: ["habitat:substrate"] },
   {
-    sourceTag: "habitat:adapter",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core", "habitat:adapter"],
+    sourceTag: "habitat:substrate",
+    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:provider"],
+  },
+  {
+    sourceTag: "habitat:provider",
+    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core", "habitat:provider"],
   },
   {
     sourceTag: "habitat:core",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core"],
+    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:provider", "habitat:core"],
   },
   {
     sourceTag: "habitat:service",
     onlyDependOnLibsWithTags: [
       "habitat:substrate",
+      "habitat:provider",
       "habitat:core",
-      "habitat:adapter",
       "habitat:service",
     ],
   },
   {
     sourceTag: "habitat:workspace",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core", "habitat:workspace"],
+    onlyDependOnLibsWithTags: [
+      "habitat:substrate",
+      "habitat:provider",
+      "habitat:core",
+      "habitat:workspace",
+    ],
   },
   {
     sourceTag: "habitat:host",

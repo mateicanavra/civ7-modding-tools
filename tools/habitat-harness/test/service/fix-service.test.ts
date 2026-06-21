@@ -1,4 +1,3 @@
-import { makeFakeGritProviderLayer } from "@internal/habitat-harness/adapters/grit/provider/index";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
@@ -9,13 +8,14 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/substrate/providers/command/index";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("Habitat fix service", () => {
   test("runs dry-run intent through admitted pattern transactions", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const providerLayer = makeFakeGritProviderLayer((request) => {
+    const layer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -34,9 +34,8 @@ describe("Habitat fix service", () => {
           admissions: [applyAdmission()],
           transactionInputs: [transactionInput()],
           worktree: cleanWorktree(),
-          providerLayer,
         }
-      )
+      ).pipe(Effect.provide(layer))
     );
 
     expect(result).toEqual({ exitCode: 0, stdout: "dry run ok\n", stderr: "" });
@@ -79,39 +78,17 @@ describe("Habitat fix service", () => {
     });
   });
 
-  test("runs through the in-process Habitat service client", async () => {
-    const requests: HabitatProcessRequest[] = [];
-    const providerLayer = makeFakeGritProviderLayer((request) => {
-      requests.push(request);
-      return makeHabitatCommandResult(request, {
-        stdout: {
-          text: "client dry run ok\n",
-          truncated: false,
-          sha256: "",
-          bytes: 18,
-        },
-      });
-    });
-
+  test("routes through the in-process Habitat service client", async () => {
     const result = await createHabitatServiceClient({
       fix: {
-        admissions: [applyAdmission()],
-        transactionInputs: [transactionInput()],
-        worktree: cleanWorktree(),
-        providerLayer,
+        admissions: [],
       },
     }).fix.run({ kind: "dry-run-intent" });
 
-    expect(result).toEqual({
-      exitCode: 0,
-      stdout: "client dry run ok\n",
-      stderr: "",
-    });
-    expect(requests).toHaveLength(1);
-    expect(requests[0]).toMatchObject({
-      commandId: "habitat-fix-deep-import-dry-run",
-      executable: "grit",
-      kind: "pattern-apply",
+    expect(result).toMatchObject({
+      exitCode: 1,
+      stdout: "",
+      stderr: expect.stringContaining("missing-apply-admission"),
     });
   });
 });

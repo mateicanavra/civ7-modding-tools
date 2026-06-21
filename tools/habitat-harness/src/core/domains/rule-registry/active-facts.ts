@@ -5,6 +5,7 @@ import {
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
   ruleGraphFacts,
+  ruleGritFacts,
   ruleHookCheckFacts,
   ruleReportFacts,
   ruleRoutingFacts,
@@ -19,6 +20,7 @@ export const activeRuleReportFacts = ruleReportFacts(records);
 export const activeRuleBaselineFacts = ruleBaselineFacts(records);
 export const activeRuleCommandExecutionFacts = ruleCommandExecutionFacts(records);
 export const activeRuleSourceFacts = ruleSourceFacts(records);
+export const activeRuleGritFacts = ruleGritFacts(records);
 export const activeRuleFileLayerFacts = ruleFileLayerFacts(records);
 export const activeRuleHookCheckFacts = ruleHookCheckFacts(records);
 export const activeRuleRoutingFacts = ruleRoutingFacts(records);

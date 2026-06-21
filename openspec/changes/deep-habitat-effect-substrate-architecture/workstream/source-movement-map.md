@@ -26,14 +26,14 @@ find tools/habitat-harness/src -type f | sort
 | `src/lib/workspace-tools.ts` | 1 | `src/providers/workspace-tools/**`, `src/providers/command/**` | split and delete sync helper | Keep logical tool metadata; delete `materializeHabitatCommand()` after callers use provider effects. |
 | `src/lib/spawn.ts` | 1 | `src/providers/command/**` | collapse | General process execution becomes `CommandRunner`; direct `spawnSync` is not retained. |
 | `src/lib/habitat-process.ts` | 1 | `src/providers/command/**`, `src/errors/**` | split | Request/result observation survives; direct clock/process execution moves into provider live layer. |
-| `src/adapters/grit/**` | 10 | `src/adapters/grit/**`, `src/adapters/grit/provider/**`, `src/domains/diagnostic-pattern-catalog/**` | enclose | Command construction, scan-root admission, diagnostics parsing, failure rendering become one self-contained Grit adapter/provider plus diagnostic domain facts. |
-| `src/lib/grit.ts` | 1 | `src/adapters/grit/provider/index.ts` | delete facade | Public/internal callsites must route through explicit adapter/provider exports, then retire broad facade. |
-| `src/lib/grit-env.ts` | 1 | `src/adapters/grit/provider/env.ts`, `src/config/**` | move | Grit environment/config is adapter-provider-owned and config-fed. |
-| `src/lib/grit-failures.ts` | 1 | `src/adapters/grit/provider/failures.ts`, `src/errors/provider-errors.ts` | move | Preserve stable failure tags while introducing tagged provider errors. |
+| `src/substrate/providers/grit/**` | 10 | `src/substrate/providers/grit/**`, `src/domains/diagnostic-pattern-catalog/**` | enclose | Command construction, scan-root admission, diagnostics parsing, failure rendering become one self-contained Grit provider plus diagnostic domain facts. |
+| `src/lib/grit.ts` | 1 | `src/substrate/providers/grit/index.ts` | delete facade | Public/internal callsites must route through explicit provider exports, then retire broad facade. |
+| `src/lib/grit-env.ts` | 1 | `src/substrate/providers/grit/env.ts`, `src/config/**` | move | Grit environment/config is provider-owned and config-fed. |
+| `src/lib/grit-failures.ts` | 1 | `src/substrate/providers/grit/failures.ts`, `src/errors/provider-errors.ts` | move | Preserve stable failure tags while introducing tagged provider errors. |
 | `src/lib/check/**` | 11 | `src/domains/structural-check/**`, `src/domains/baseline-authority/**`, `src/domains/command-contract/**` | split | Execution/report/render state moves to domains; report output remains public-contract guarded. |
 | `src/lib/check-report.ts` | 1 | `src/public/check-report.ts`, `src/domains/command-contract/**` | facade then narrow | Preserve `CheckReport` v1 behavior and exported helpers until public facade packet reclassifies exports. |
 | `src/lib/diagnostics.ts` | 1 | `src/public/check-report.ts`, `src/errors/render.ts` | split | Public report schema survives; error rendering moves to errors/public-contract boundary. |
-| `src/lib/fix.ts` | 1 | `src/service/modules/fix/**`, later `src/domains/transformation-transaction/**`, `src/domains/pattern-governance/**`, `src/adapters/grit/**` | split and delete | `runFix` package helper export is refused; fix command orchestration moves to the Effect-oRPC service module, and lower-level transaction/pattern/Grit ownership drains in follow-on packets. |
+| `src/lib/fix.ts` | 1 | `src/service/modules/fix/**`, later `src/domains/transformation-transaction/**`, `src/domains/pattern-governance/**`, `src/substrate/providers/grit/**` | split and delete | `runFix` package helper export is refused; fix command orchestration moves to the Effect-oRPC service module, and lower-level transaction/pattern/Grit ownership drains in follow-on packets. |
 | `src/lib/baseline-core/**` | 7 | `src/domains/baseline-authority/**` | move | Baseline state, integrity, expansion, and application become one domain service consuming Git/FS/rule registry providers. |
 | `src/lib/baseline.ts` | 1 | `src/domains/baseline-authority/index.ts`, `src/public/check-report.ts` | facade during cutover | Retain only compatibility exports until public surface is narrowed. |
 | `src/rules/registry/**` | 5 | `src/domains/rule-registry/**` | move | TypeBox schema and facts remain domain-owned; expected load/graph failures become tagged domain errors. |
@@ -51,7 +51,7 @@ find tools/habitat-harness/src -type f | sort
 | `src/lib/verify/**` | 7 | `src/domains/proof-contract/**`, `src/domains/workspace-graph-integration/**`, `src/providers/nx/**`, `src/providers/git/**` | split | Receipts remain public-contract guarded; affected execution becomes provider/domain composition. |
 | `src/lib/hooks.ts` | 1 | `src/service/modules/hook/**`, later `src/domains/local-feedback/**` | split and delete | `runHook` package helper export is refused; hook command orchestration moves to the Effect-oRPC service module, and lower-level staged/restage/provider ownership drains in follow-on packets. |
 | `src/lib/hook-runtime/**` | 11 | `src/domains/local-feedback/**`, `src/providers/{git,biome,grit,nx,husky}/**`, `src/resources/write-set.ts` | split | Optional runtime dependency bag is replaced by Effect requirements and fake layers. |
-| `src/lib/pattern-apply/**` | 11 | `src/domains/transformation-transaction/**`, `src/adapters/grit/**`, `src/domains/pattern-governance/**` | split | Apply admission, worktree, rollback, record, and render become transaction/domain responsibilities. |
+| `src/lib/pattern-apply/**` | 11 | `src/domains/transformation-transaction/**`, `src/substrate/providers/grit/**`, `src/domains/pattern-governance/**` | split | Apply admission, worktree, rollback, record, and render become transaction/domain responsibilities. |
 | `src/lib/protected-zones/**` | 9 | `src/domains/protected-zone-authority/**`, `src/resources/filesystem.ts` | move | Protected write decisions are domain-owned; fs mutation is resource/provider-owned. |
 | `src/lib/diagnostic-catalog/**` | 7 | `src/domains/diagnostic-pattern-catalog/**` | move | Diagnostic command/outcome identity remains a domain service; command execution goes through providers. |
 | `src/rules/patterns/**` | 10 | `src/domains/pattern-governance/**` | move | Pattern manifest schemas, validation, views, admissions, and state are pattern governance. |
@@ -67,7 +67,7 @@ find tools/habitat-harness/src -type f | sort
 
 ## Delete/Collapse Rules
 
-- `src/lib/**`, `src/base/**`, and `src/adapters/**` are staging homes only.
+- `src/lib/**`, `src/base/**`, and old adapter roots are staging homes only.
   No implementation packet may add new feature ownership there.
 - Broad barrels (`export *`) may remain only as temporary compatibility
   facades named by the public-surface packet.

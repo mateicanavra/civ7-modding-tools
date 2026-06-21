@@ -1,9 +1,9 @@
 import {
-  diagnosticAdapterFailureForCacheObservation,
   diagnosticCacheObservationFromCommand,
   diagnosticCacheRequirementForGritCheck,
   diagnosticCacheRequirementSatisfied,
   diagnosticCommandObservationFromResult,
+  diagnosticProviderFailureForCacheObservation,
   diagnosticToolUnavailableObservation,
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
@@ -17,13 +17,12 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/substrate/providers/command/index";
-import { acquireTempDirectory } from "@internal/habitat-harness/substrate/resources/index";
 import { Effect } from "effect";
+import { GritToolUnavailable } from "./failures.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";
-import { GritToolUnavailable } from "./provider/failures.js";
-import { GritProvider, gritCheckRequest } from "./provider/index.js";
-import type { GritCheckOptions, GritCheckRequestOptions } from "./provider/types.js";
+import { GritProvider, gritCheckRequest } from "./resource.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
+import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
 export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
   return Effect.scoped(
@@ -46,7 +45,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
       const requestOptions =
         options.cacheMode === "fresh"
           ? {
-              cacheDir: yield* acquireGritCheckCacheDir(),
+              cacheMode: "fresh" as const,
               observableCacheStatus: "fresh" as const,
               outputFormat: options.outputFormat,
             }
@@ -62,7 +61,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
       const result = yield* grit
         .check({
           scanRoots,
-          cacheDir: requestOptions.cacheDir,
+          cacheMode: requestOptions.cacheMode,
           observableCacheStatus: requestOptions.observableCacheStatus,
           outputFormat: requestOptions.outputFormat,
         })
@@ -80,9 +79,9 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
         )
       ) {
         const cacheObservation = diagnosticCacheObservationFromCommand(result, cacheRequirement);
-        const cacheFailure = diagnosticAdapterFailureForCacheObservation(cacheObservation);
+        const cacheFailure = diagnosticProviderFailureForCacheObservation(cacheObservation);
         return {
-          kind: "adapter-failed" as const,
+          kind: "provider-failed" as const,
           failure: cacheFailure ?? "GritCacheProvenanceMissing",
           parseStatus: "unsupported-mode" as const,
           message: "Grit cache/fresh status is not observable for this command result.",
@@ -96,7 +95,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
     }).pipe(
       Effect.catchTag("GritToolUnavailable", (error) =>
         Effect.succeed({
-          kind: "adapter-failed" as const,
+          kind: "provider-failed" as const,
           failure: "GritToolUnavailable" as const,
           parseStatus: "unparsed" as const,
           message: `Grit executable unavailable: ${error.executable}.`,
@@ -182,7 +181,3 @@ function nativeOutputContractForGritCheck(
 }
 
 export { gritCheckRequest };
-
-function acquireGritCheckCacheDir() {
-  return acquireTempDirectory("habitat-pattern-check-");
-}

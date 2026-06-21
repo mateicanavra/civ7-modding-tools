@@ -12,7 +12,7 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
 describe("check summaries", () => {
-  test("projects Grit adapter failures as hook diagnostic unavailability", () => {
+  test("projects Grit provider failures as hook diagnostic unavailability", () => {
     const summary = hookCheckSummary(
       report({
         ok: false,
@@ -22,7 +22,7 @@ describe("check summaries", () => {
             status: "fail",
             diagnostics: [
               diagnostic(
-                "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nwrapped JSON"
+                "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nwrapped JSON"
               ),
             ],
           }),

@@ -2,7 +2,7 @@ import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { HabitatConfig } from "@internal/habitat-harness/substrate/config/index";
-import type { FileWriteFailed } from "@internal/habitat-harness/substrate/errors/index";
+import { FileWriteFailed } from "@internal/habitat-harness/substrate/errors/index";
 import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   type CommandProviderError,
@@ -13,13 +13,12 @@ import type {
   HabitatProcessRequest,
 } from "@internal/habitat-harness/substrate/providers/command/types";
 import type { GitStateProvider } from "@internal/habitat-harness/substrate/providers/git/index";
-import { ensurePatternCacheRoot } from "@internal/habitat-harness/substrate/resources/index";
-import { Context, Effect, Layer } from "effect";
 import {
-  defaultGritCommandTimeoutMs,
-  docsLocalCheckoutPathsRewritePattern,
-  gritBin,
-} from "./constants.js";
+  acquireTempDirectory,
+  ensurePatternCacheRoot,
+} from "@internal/habitat-harness/substrate/resources/index";
+import { Context, Effect, Layer } from "effect";
+import { defaultGritCommandTimeoutMs, gritBin } from "./constants.js";
 import { gritMachineOutputEnv } from "./env.js";
 
 export type GritProviderRequirements =
@@ -32,6 +31,7 @@ export type GritProviderRequirements =
 export interface GritCheckProviderRequest {
   scanRoots: readonly string[];
   outputFormat?: "json" | "text";
+  cacheMode?: "fresh" | "isolated";
   cacheDir?: string;
   timeoutMs?: number;
   observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
@@ -86,31 +86,52 @@ export function makeFakeGritProviderLayer(
 ) {
   return Layer.succeed(GritProvider, {
     check: (request) =>
-      Effect.sync(() => handler(gritProviderCheckRequest(request), { kind: "check", ...request })),
+      Effect.sync(() => {
+        const prepared = fakePreparedCacheRequest(request);
+        return handler(gritProviderCheckRequest(prepared), { kind: "check", ...prepared });
+      }),
     checkRequest: gritProviderCheckRequest,
     applyDryRun: (request) =>
-      Effect.sync(() =>
-        handler(gritProviderApplyDryRunRequest(request), { kind: "apply-dry-run", ...request })
-      ),
+      Effect.sync(() => {
+        const prepared = fakePreparedCacheRequest(request);
+        return handler(gritProviderApplyDryRunRequest(prepared), {
+          kind: "apply-dry-run",
+          ...prepared,
+        });
+      }),
     applyDryRunRequest: gritProviderApplyDryRunRequest,
   });
+}
+
+function fakePreparedCacheRequest<T extends { cacheMode?: string; cacheDir?: string }>(
+  request: T
+): T {
+  if (request.cacheMode !== "fresh" || request.cacheDir) return request;
+  return {
+    ...request,
+    cacheDir: path.join(repoRoot, ".habitat", "cache", "habitat-pattern-check-fake"),
+  } as T;
 }
 
 function makeLiveGritProvider(): GritProviderService {
   return {
     check: (request) =>
-      Effect.gen(function* () {
-        const prepared = yield* prepareCacheRequest(request);
-        const runner = yield* CommandRunner;
-        return yield* runner.run(gritProviderCheckRequest(prepared));
-      }),
+      Effect.scoped(
+        Effect.gen(function* () {
+          const prepared = yield* prepareCacheRequest(request);
+          const runner = yield* CommandRunner;
+          return yield* runner.run(gritProviderCheckRequest(prepared));
+        })
+      ),
     checkRequest: gritProviderCheckRequest,
     applyDryRun: (request) =>
-      Effect.gen(function* () {
-        const prepared = yield* prepareCacheRequest(request);
-        const runner = yield* CommandRunner;
-        return yield* runner.run(gritProviderApplyDryRunRequest(prepared));
-      }),
+      Effect.scoped(
+        Effect.gen(function* () {
+          const prepared = yield* prepareCacheRequest(request);
+          const runner = yield* CommandRunner;
+          return yield* runner.run(gritProviderApplyDryRunRequest(prepared));
+        })
+      ),
     applyDryRunRequest: gritProviderApplyDryRunRequest,
   };
 }
@@ -205,11 +226,26 @@ function gritProviderApplyDryRunRequest(
   return gritApplyDryRunRequest(request);
 }
 
-function prepareCacheRequest<T extends { cacheMode?: "disabled" | "isolated"; cacheDir?: string }>(
-  request: T
-) {
+function prepareCacheRequest<
+  T extends { cacheMode?: "disabled" | "fresh" | "isolated"; cacheDir?: string },
+>(request: T) {
   if (request.cacheMode === "disabled") return Effect.succeed(request);
   if (request.cacheDir) return Effect.succeed(request);
+  if (request.cacheMode === "fresh") {
+    return acquireTempDirectory("habitat-pattern-check-").pipe(
+      Effect.map((cacheDir) => ({
+        ...request,
+        cacheDir,
+      })),
+      Effect.mapError(
+        (cause) =>
+          new FileWriteFailed({
+            path: "habitat-pattern-check-*",
+            cause: cause instanceof Error ? cause.message : String(cause),
+          })
+      )
+    );
+  }
   return ensurePatternCacheRoot().pipe(
     Effect.map((cacheDir) => ({
       ...request,

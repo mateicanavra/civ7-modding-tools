@@ -52,7 +52,7 @@ describe("Habitat public surface guards", () => {
     });
 
     expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("Removed public compatibility adapter returned.");
+    expect(result.stderr).toContain("Removed compatibility root returned.");
     expect(result.stderr).toContain(
       "tools/habitat-harness/src/core/domains/baseline-authority/integrity.ts"
     );
@@ -68,7 +68,7 @@ describe("Habitat public surface guards", () => {
     const result = runGuardWithInjectedFiles({
       "tools/habitat-harness/src/substrate/providers/probe/index.ts":
         'import { runCheckService } from "../../service/modules/check/router.js";\nexport const value = runCheckService;\n',
-      "tools/habitat-harness/src/service/modules/check/module.ts":
+      "tools/habitat-harness/src/service/modules/check/context.ts":
         'import { Layer } from "effect";\nexport const module = Layer.succeed;\n',
       "tools/habitat-harness/src/service/modules/check/router.ts":
         'import { router } from "./run.js";\nexport const checkRouter = router.router({});\n',
@@ -81,7 +81,7 @@ describe("Habitat public surface guards", () => {
       "Habitat providers must stay below service and domain ownership"
     );
     expect(result.stderr).toContain(
-      "Habitat service module files must bind the owned service module only"
+      "Habitat service context files must bind and decorate the owned service module only"
     );
     expect(result.stderr).toContain(
       "Habitat service router files must own procedure logic directly"

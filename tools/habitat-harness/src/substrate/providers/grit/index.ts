@@ -5,6 +5,17 @@ export {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
 } from "./output.js";
+export { gritCheckProgram } from "./request.js";
+export * from "./resource.js";
+export {
+  runGritDiagnosticOutcomesEffect,
+  runGritRulesEffect,
+} from "./runner.js";
+export type { PatternScanRootValidationOptions } from "./scan-roots/index.js";
+export {
+  discoverPatternScanRoots,
+  validateScanRoots,
+} from "./scan-roots/index.js";
 export type {
   GritCheckCacheMode,
   GritCheckOptions,
@@ -13,20 +24,4 @@ export type {
   GritDiagnosticOptions,
   GritReport,
   GritResult,
-} from "./provider/types.js";
-export {
-  gritCheckProgram,
-  gritCheckRequest,
-} from "./request.js";
-export {
-  runGritDiagnosticOutcomes,
-  runGritDiagnosticOutcomesEffect,
-  runGritRule,
-  runGritRules,
-  runGritRulesEffect,
-} from "./runner.js";
-export type { PatternScanRootValidationOptions } from "./scan-roots/index.js";
-export {
-  discoverPatternScanRoots,
-  validateScanRoots,
-} from "./scan-roots/index.js";
+} from "./types.js";

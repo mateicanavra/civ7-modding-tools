@@ -122,12 +122,6 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./adapters/*": {
-      "bun": "./src/adapters/*.ts",
-      "types": "./src/adapters/*.ts",
-      "import": "./dist/adapters/*.js",
-      "default": "./dist/adapters/*.js"
-    },
     "./core/*": {
       "bun": "./src/core/*.ts",
       "types": "./src/core/*.ts",

@@ -60,7 +60,9 @@ describe("Habitat classify service", () => {
   });
 
   test("routes classify through the in-process Habitat service client", async () => {
-    const client = createHabitatServiceClient({ classify: { options: { nxProjects } } });
+    const client = createHabitatServiceClient({
+      classify: { options: { nxProjects } },
+    });
 
     const result = await client.classify.run({
       target: "tools/habitat-harness/src/host/commands/classify.ts",
@@ -72,7 +74,9 @@ describe("Habitat classify service", () => {
   });
 
   test("preserves diff classification through the service contract boundary", async () => {
-    const client = createHabitatServiceClient({ classify: { options: { nxProjects } } });
+    const client = createHabitatServiceClient({
+      classify: { options: { nxProjects } },
+    });
 
     const result = await client.classify.run({
       target: `diff --git a/apps/mapgen-studio/src/main.tsx b/apps/mapgen-studio/src/main.tsx
@@ -123,7 +127,9 @@ index 3333333..4444444 100644
   });
 
   test("preserves unresolved-owner path states through the service boundary", async () => {
-    const client = createHabitatServiceClient({ classify: { options: { nxProjects } } });
+    const client = createHabitatServiceClient({
+      classify: { options: { nxProjects } },
+    });
 
     const result = await client.classify.run({ target: "notes/not-yet-created.md" });
 

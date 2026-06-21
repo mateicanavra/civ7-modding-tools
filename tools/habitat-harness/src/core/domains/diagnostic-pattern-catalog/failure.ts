@@ -1,7 +1,7 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 
-const DiagnosticAdapterFailureKindLiteralSchemas = [
+const DiagnosticProviderFailureKindLiteralSchemas = [
   Type.Literal("GritToolUnavailable"),
   Type.Literal("GritCommandFailed"),
   Type.Literal("GritNoJson"),
@@ -12,29 +12,29 @@ const DiagnosticAdapterFailureKindLiteralSchemas = [
   Type.Literal("GritPatternMatchMissing"),
   Type.Literal("GritUnexpectedDiagnosticIdentity"),
   Type.Literal("GritCacheProvenanceMissing"),
-  Type.Literal("GritAdapterInternalContractViolation"),
+  Type.Literal("GritProviderInternalContractViolation"),
 ] as const;
 
-export const DiagnosticAdapterFailureKindSchema = Type.Union([
-  ...DiagnosticAdapterFailureKindLiteralSchemas,
+export const DiagnosticProviderFailureKindSchema = Type.Union([
+  ...DiagnosticProviderFailureKindLiteralSchemas,
 ]);
 
-export type DiagnosticAdapterFailureKind = Static<typeof DiagnosticAdapterFailureKindSchema>;
+export type DiagnosticProviderFailureKind = Static<typeof DiagnosticProviderFailureKindSchema>;
 
-export const diagnosticAdapterFailureKinds: readonly DiagnosticAdapterFailureKind[] =
-  DiagnosticAdapterFailureKindLiteralSchemas.map(
-    (schema) => schema.const as DiagnosticAdapterFailureKind
+export const diagnosticProviderFailureKinds: readonly DiagnosticProviderFailureKind[] =
+  DiagnosticProviderFailureKindLiteralSchemas.map(
+    (schema) => schema.const as DiagnosticProviderFailureKind
   );
 
-export function isDiagnosticAdapterFailureKind(
+export function isDiagnosticProviderFailureKind(
   value: string
-): value is DiagnosticAdapterFailureKind {
-  return Value.Check(DiagnosticAdapterFailureKindSchema, value);
+): value is DiagnosticProviderFailureKind {
+  return Value.Check(DiagnosticProviderFailureKindSchema, value);
 }
 
-export function renderDiagnosticAdapterFailure(
-  kind: DiagnosticAdapterFailureKind,
-  detail = "Diagnostic adapter failed before producing rule findings."
+export function renderDiagnosticProviderFailure(
+  kind: DiagnosticProviderFailureKind,
+  detail = "Diagnostic provider failed before producing rule findings."
 ): string {
-  return `--- grit adapter failure (${kind}) ---\n${detail}`;
+  return `--- grit provider failure (${kind}) ---\n${detail}`;
 }

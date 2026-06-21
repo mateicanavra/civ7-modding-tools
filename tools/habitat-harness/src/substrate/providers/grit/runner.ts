@@ -1,7 +1,7 @@
 import {
-  type DiagnosticAdapterFailureKind,
   type DiagnosticCacheObservation,
   type DiagnosticFinding,
+  type DiagnosticProviderFailureKind,
   type DiagnosticRunOutcome,
   type DiagnosticScanRootRefusal,
   diagnosticCatalogEntryFromRuleSourceFacts,
@@ -9,22 +9,16 @@ import {
 } from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
 import type { RuleRunResult } from "@internal/habitat-harness/core/rules/architecture";
-import { Effect, type Layer } from "effect";
+import { Effect } from "effect";
 import {
   gritDiagnosticOutcomesFromReport,
   ruleRunResultsFromDiagnosticOutcomes,
 } from "./diagnostics.js";
 import { runDocsApplyBackedDiagnosticOutcomesEffect } from "./docs-apply.js";
-import { runGritAdapterEffect } from "./effect.js";
 import { infrastructureFailure } from "./failure.js";
 import type { GritDiagnosticAcquisition } from "./output.js";
-import { GritProvider, type GritProviderRequirements } from "./provider/index.js";
-import type {
-  GritCheckCacheMode,
-  GritCheckOutputFormat,
-  GritDiagnosticOptions,
-} from "./provider/types.js";
 import { gritCheckProgram } from "./request.js";
+import { GritProvider, type GritProviderRequirements } from "./resource.js";
 import {
   decidePatternScanRoots,
   pathsOverlap,
@@ -32,51 +26,27 @@ import {
   ruleUsesDocsApplyDryRun,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
+import type { GritCheckCacheMode, GritCheckOutputFormat, GritDiagnosticOptions } from "./types.js";
 
 interface GritRunOptions {
   scanRoots?: readonly string[];
-  providerLayer?: Layer.Layer<GritProvider>;
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
   diagnostics?: GritDiagnosticOptions;
 }
 
-export async function runGritRule(rule: RuleSourceFacts): Promise<RuleRunResult> {
-  const results = await runGritRules([rule]);
-  return (
-    results.get(rule.id) ?? infrastructureFailure(rule, "GritAdapterInternalContractViolation")
-  );
-}
-
-export async function runGritRules(
-  selectedRules: readonly RuleSourceFacts[],
-  options: GritRunOptions = {}
-): Promise<Map<string, RuleRunResult>> {
-  return runGritAdapterEffect(runGritRulesEffect(selectedRules, options), options.providerLayer);
-}
-
 export function runGritRulesEffect(
   selectedRules: readonly RuleSourceFacts[],
-  options: Omit<GritRunOptions, "providerLayer"> = {}
+  options: GritRunOptions = {}
 ): Effect.Effect<Map<string, RuleRunResult>, never, GritProvider | GritProviderRequirements> {
   return runGritDiagnosticOutcomesEffect(selectedRules, options).pipe(
     Effect.map((outcomes) => ruleRunResultsFromDiagnosticOutcomes(selectedRules, outcomes))
   );
 }
 
-export async function runGritDiagnosticOutcomes(
-  selectedRules: readonly RuleSourceFacts[],
-  options: GritRunOptions = {}
-): Promise<Map<string, DiagnosticRunOutcome>> {
-  return runGritAdapterEffect(
-    runGritDiagnosticOutcomesEffect(selectedRules, options),
-    options.providerLayer
-  );
-}
-
 export function runGritDiagnosticOutcomesEffect(
   selectedRules: readonly RuleSourceFacts[],
-  options: Omit<GritRunOptions, "providerLayer"> = {}
+  options: GritRunOptions = {}
 ): Effect.Effect<
   Map<string, DiagnosticRunOutcome>,
   never,
@@ -99,7 +69,7 @@ export function runGritDiagnosticOutcomesEffect(
 
 function runGritRuleOutcomeGroupEffect(
   selectedRules: readonly RuleSourceFacts[],
-  options: Omit<GritRunOptions, "providerLayer">,
+  options: GritRunOptions,
   outputFormat: GritCheckOutputFormat
 ): Effect.Effect<
   Map<string, DiagnosticRunOutcome>,
@@ -140,7 +110,7 @@ function scanRootBatchesForRules(
 function runGritScanRootBatchEffect(
   selectedRules: readonly RuleSourceFacts[],
   scanRoots: readonly string[],
-  options: Omit<GritRunOptions, "providerLayer">,
+  options: GritRunOptions,
   outputFormat: GritCheckOutputFormat
 ): Effect.Effect<
   Map<string, DiagnosticRunOutcome>,
@@ -171,9 +141,9 @@ function runGritScanRootBatchEffect(
       new Map(
         selectedRules.map((rule) => [
           rule.id,
-          adapterFailedOutcome(
+          providerFailedOutcome(
             rule,
-            "GritAdapterInternalContractViolation",
+            "GritProviderInternalContractViolation",
             "Unexpected scan-root expansion decision after ignored-test expansion removal."
           ),
         ])
@@ -188,14 +158,14 @@ function runGritScanRootBatchEffect(
   });
   return program.pipe(
     Effect.match({
-      onFailure: (error) =>
+      onFailure: () =>
         new Map(
           selectedRules.map((rule) => [
             rule.id,
-            adapterFailedOutcome(
+            providerFailedOutcome(
               rule,
               "GritToolUnavailable",
-              error instanceof Error ? error.message : "Grit cache or command resource unavailable."
+              "Grit cache or command resource unavailable."
             ),
           ])
         ),
@@ -259,7 +229,7 @@ function outcomesFromAcquisition(
         acquisition.report,
         options.diagnostics
       );
-    case "adapter-failed":
+    case "provider-failed":
       if (acquisition.failure === "GritCacheProvenanceMissing") {
         const cache = missingCacheObservation(acquisition);
         if (cache) {
@@ -274,7 +244,7 @@ function outcomesFromAcquisition(
       return new Map(
         selectedRules.map((rule) => [
           rule.id,
-          adapterFailedOutcome(rule, acquisition.failure, acquisition.message),
+          providerFailedOutcome(rule, acquisition.failure, acquisition.message),
         ])
       );
     case "scan-root-refused":
@@ -288,7 +258,7 @@ function outcomesFromAcquisition(
 }
 
 function missingCacheObservation(
-  acquisition: Extract<GritDiagnosticAcquisition, { kind: "adapter-failed" }>
+  acquisition: Extract<GritDiagnosticAcquisition, { kind: "provider-failed" }>
 ): DiagnosticCacheObservation | null {
   if (
     (acquisition.command.kind === "completed" || acquisition.command.kind === "interrupted") &&
@@ -299,13 +269,13 @@ function missingCacheObservation(
   return null;
 }
 
-function adapterFailedOutcome(
+function providerFailedOutcome(
   rule: RuleSourceFacts,
-  failure: DiagnosticAdapterFailureKind,
+  failure: DiagnosticProviderFailureKind,
   detail: string
 ): DiagnosticRunOutcome {
   return {
-    kind: "adapter-failed",
+    kind: "provider-failed",
     entry: diagnosticCatalogEntryFromRuleSourceFacts(rule),
     failure,
     detail,

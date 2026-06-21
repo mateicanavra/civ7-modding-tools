@@ -36,7 +36,6 @@ const allowedLibFiles = new Set([
 ]);
 
 const allowedRuntimeEdges = new Set([
-  "tools/habitat-harness/src/adapters/grit/effect.ts",
   "tools/habitat-harness/src/core/domains/rule-registry/load.ts",
   "tools/habitat-harness/src/core/domains/workspace-graph-integration/diff.ts",
   "tools/habitat-harness/src/core/domains/workspace-graph-integration/path.ts",
@@ -50,7 +49,7 @@ const allowedChildProcessEdges = new Set([
 ]);
 
 const allowedFsEdges = new Set([
-  "tools/habitat-harness/src/adapters/grit/scan-roots/index.ts",
+  "tools/habitat-harness/src/substrate/providers/grit/scan-roots/index.ts",
   "tools/habitat-harness/src/host/bin/habitat.ts",
   "tools/habitat-harness/src/core/domains/baseline-authority/context.ts",
   "tools/habitat-harness/src/core/domains/baseline-authority/state.ts",
@@ -91,8 +90,8 @@ const allowedEnvEdges = new Set([
 ]);
 
 const allowedArtifactSemantics = new Set([
-  "tools/habitat-harness/src/adapters/grit/provider/constants.ts",
-  "tools/habitat-harness/src/adapters/grit/provider/index.ts",
+  "tools/habitat-harness/src/substrate/providers/grit/constants.ts",
+  "tools/habitat-harness/src/substrate/providers/grit/index.ts",
   "tools/habitat-harness/src/substrate/config/habitat-config.ts",
   "tools/habitat-harness/src/core/domains/baseline-authority/context.ts",
   "tools/habitat-harness/src/core/domains/baseline-authority/operations.ts",
@@ -175,7 +174,7 @@ export function runPublicSurfaceGuard(options = {}) {
   checkPackageExports();
   checkHabitatArtifacts();
   checkPublicFacade();
-  checkDeletedAdapters();
+  checkDeletedCompatibilityRoots();
   checkLibRatchet();
   checkServiceArchitecture();
   checkSourceEdges();
@@ -205,7 +204,6 @@ function checkPackageExports() {
   const exportKeys = Object.keys(manifest.exports ?? {}).sort();
   const expected = [
     ".",
-    "./adapters/*",
     "./core/*",
     "./host/*",
     "./service/*",
@@ -318,7 +316,7 @@ function checkHabitatArtifacts() {
   }
 }
 
-function checkDeletedAdapters() {
+function checkDeletedCompatibilityRoots() {
   for (const file of [
     "tools/habitat-harness/src/lib/baseline.ts",
     "tools/habitat-harness/src/lib/baseline-core",
@@ -344,10 +342,10 @@ function checkDeletedAdapters() {
     "tools/habitat-harness/src/core/rules/patterns",
     "tools/habitat-harness/src/core/rules/registry",
     "tools/habitat-harness/src/substrate/errors/domain-errors.ts",
-    "tools/habitat-harness/src/substrate/providers/grit",
+    "tools/habitat-harness/src/adapters",
   ]) {
     if (fileExists(file)) {
-      fail("Removed public compatibility adapter returned.", [file]);
+      fail("Removed compatibility root returned.", [file]);
     }
   }
 }
@@ -386,10 +384,7 @@ function checkCommandErrorOwnership() {
       );
     }
 
-    if (
-      !file.startsWith(`${sourceRoot}/substrate/providers/`) &&
-      !file.startsWith(`${sourceRoot}/adapters/`)
-    ) {
+    if (!file.startsWith(`${sourceRoot}/substrate/providers/`)) {
       continue;
     }
 
@@ -428,11 +423,11 @@ function checkServiceArchitecture() {
   }
 
   for (const moduleName of serviceModuleNames) {
-    const moduleFile = `${serviceRoot}/modules/${moduleName}/module.ts`;
+    const moduleFile = `${serviceRoot}/modules/${moduleName}/context.ts`;
     const routerFile = `${serviceRoot}/modules/${moduleName}/router.ts`;
     if (!fileExists(moduleFile) || !fileExists(routerFile)) {
-      fail("Habitat service modules must keep module/router ownership files.", [
-        `${moduleName}: missing module.ts or router.ts`,
+      fail("Habitat service modules must keep context/router ownership files.", [
+        `${moduleName}: missing context.ts or router.ts`,
       ]);
       continue;
     }
@@ -443,14 +438,17 @@ function checkServiceArchitecture() {
       moduleText,
       /\.effect\s*\(|\bimplementEffect\b|\bManagedRuntime\b|\bLayer\.succeed\b/g
     ).map((line) => `${moduleFile}:${line}`);
-    if (!moduleText.includes("habitatServiceImplementer as impl")) {
-      moduleLeaks.push(`${moduleFile}: missing habitatServiceImplementer alias`);
+    if (!moduleText.includes("habitatServiceImplementer")) {
+      moduleLeaks.push(`${moduleFile}: missing habitatServiceImplementer import`);
     }
-    if (!moduleText.includes(`impl.${moduleName}`)) {
-      moduleLeaks.push(`${moduleFile}: missing impl.${moduleName} binding`);
+    if (!moduleText.includes(`habitatServiceImplementer.${moduleName}`)) {
+      moduleLeaks.push(`${moduleFile}: missing habitatServiceImplementer.${moduleName} binding`);
     }
     if (moduleLeaks.length > 0) {
-      fail("Habitat service module files must bind the owned service module only.", moduleLeaks);
+      fail(
+        "Habitat service context files must bind and decorate the owned service module only.",
+        moduleLeaks
+      );
     }
 
     const routerLeaks = matchesIn(

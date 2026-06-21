@@ -15,20 +15,19 @@ import { Effect } from "effect";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 import { runTransactionApplyService } from "../transactions/router.js";
-import type { FixServiceOptions } from "./context.js";
+import { type FixServiceModuleContext, fixModule } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";
 import { FixCommandIntentSchema } from "./contract.js";
-import { module as fixModule } from "./module.js";
 
 const FixAdmissionSetSchema = Type.Array(ApplyAdmissionSchema);
 
 export const fixRouter = {
-  run: fixModule.run.effect(({ context, input }) => runFixService(input, context.fix)),
+  run: fixModule.run.effect(({ context, input }) => runFixService(input, context)),
 };
 
 export const router = fixRouter;
 
-export function runFixService(input: FixServiceRunInput, options: FixServiceOptions = {}) {
+export function runFixService(input: FixServiceRunInput, options: FixServiceModuleContext = {}) {
   return Effect.gen(function* () {
     const parsed = Value.Parse(FixCommandIntentSchema, input);
     const admissions = Value.Parse(
@@ -45,7 +44,6 @@ export function runFixService(input: FixServiceRunInput, options: FixServiceOpti
       admissions,
       (admission) =>
         runTransactionApplyService(transactionRequest(parsed, admission, options.worktree), {
-          providerLayer: options.providerLayer,
           transactionInputs,
         }),
       { concurrency: 1 }

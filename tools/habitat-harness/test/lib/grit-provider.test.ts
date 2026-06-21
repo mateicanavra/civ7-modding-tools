@@ -1,28 +1,14 @@
-import { gritRuleResultsFromReport } from "@internal/habitat-harness/adapters/grit/diagnostics";
-import {
-  discoverPatternScanRoots,
-  runGritDiagnosticOutcomes,
-  runGritRules,
-  validateScanRoots,
-} from "@internal/habitat-harness/adapters/grit/index";
-import {
-  parseGritCheckOutput,
-  parseGritCheckTextOutput,
-} from "@internal/habitat-harness/adapters/grit/output";
-import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/adapters/grit/provider/constants";
-import { makeFakeGritProviderLayer } from "@internal/habitat-harness/adapters/grit/provider/index";
-import { decidePatternScanRoots } from "@internal/habitat-harness/adapters/grit/scan-roots/index";
 import {
   DiagnosticCatalogEntrySchema,
-  diagnosticAdapterFailureKinds,
   diagnosticCacheRequirementForGritCheck,
   diagnosticCatalogEntryFromNativeRule,
   diagnosticCatalogEntryFromRuleSourceFacts,
   diagnosticConsumerResultFromOutcome,
+  diagnosticProviderFailureKinds,
   GritDiagnosticCatalogEntrySchema,
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
-  renderDiagnosticAdapterFailure,
+  renderDiagnosticProviderFailure,
 } from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
@@ -31,10 +17,54 @@ import {
   makeHabitatCommandResult,
   type OutputCapture,
 } from "@internal/habitat-harness/substrate/providers/command/index";
+import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/substrate/providers/grit/constants";
+import { gritRuleResultsFromReport } from "@internal/habitat-harness/substrate/providers/grit/diagnostics";
+import {
+  discoverPatternScanRoots,
+  makeFakeGritProviderLayer,
+  runGritDiagnosticOutcomesEffect,
+  runGritRulesEffect,
+  validateScanRoots,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
+import {
+  parseGritCheckOutput,
+  parseGritCheckTextOutput,
+} from "@internal/habitat-harness/substrate/providers/grit/output";
+import { decidePatternScanRoots } from "@internal/habitat-harness/substrate/providers/grit/scan-roots/index";
+import { Effect, type Layer } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
-describe("Grit check adapter parser and diagnostics", () => {
+type GritProviderLayer = ReturnType<typeof makeFakeGritProviderLayer>;
+type TestGritOptions = NonNullable<Parameters<typeof runGritRulesEffect>[1]> & {
+  layer?: GritProviderLayer;
+};
+
+const unusedGritProviderLayer = makeFakeGritProviderLayer((request) => {
+  throw new Error(`Unexpected Grit provider request: ${request.argv.join(" ")}`);
+});
+
+function runGritRules(selectedRules: readonly RuleSourceFacts[], options: TestGritOptions = {}) {
+  const { layer = unusedGritProviderLayer, ...runOptions } = options;
+  return Effect.runPromise(runGritRulesEffect(selectedRules, runOptions).pipe(provide(layer)));
+}
+
+function runGritDiagnosticOutcomes(
+  selectedRules: readonly RuleSourceFacts[],
+  options: TestGritOptions = {}
+) {
+  const { layer = unusedGritProviderLayer, ...runOptions } = options;
+  return Effect.runPromise(
+    runGritDiagnosticOutcomesEffect(selectedRules, runOptions).pipe(provide(layer))
+  );
+}
+
+function provide(layer: GritProviderLayer) {
+  return <A, E, R>(program: Effect.Effect<A, E, R>) =>
+    Effect.provide(program, layer as Layer.Layer<R>);
+}
+
+describe("Grit check provider parser and diagnostics", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {
     const parsed = parseGritCheckOutput(
       commandResult({
@@ -85,18 +115,18 @@ describe("Grit check adapter parser and diagnostics", () => {
 
   test("fails closed for no JSON, malformed JSON, and wrapper text", () => {
     const noJson = parseGritCheckOutput(commandResult());
-    expect(noJson.kind).toBe("adapter-failed");
-    expect(noJson.kind === "adapter-failed" ? noJson.failure : "unexpected").toBe("GritNoJson");
+    expect(noJson.kind).toBe("provider-failed");
+    expect(noJson.kind === "provider-failed" ? noJson.failure : "unexpected").toBe("GritNoJson");
 
     const malformed = parseGritCheckOutput(commandResult({ stderr: '{"results":' }));
-    expect(malformed.kind).toBe("adapter-failed");
-    expect(malformed.kind === "adapter-failed" ? malformed.failure : "unexpected").toBe(
+    expect(malformed.kind).toBe("provider-failed");
+    expect(malformed.kind === "provider-failed" ? malformed.failure : "unexpected").toBe(
       "GritMalformedJson"
     );
 
     const wrapped = parseGritCheckOutput(commandResult({ stderr: 'prefix {"results":[]} suffix' }));
-    expect(wrapped.kind).toBe("adapter-failed");
-    expect(wrapped.kind === "adapter-failed" ? wrapped.failure : "unexpected").toBe(
+    expect(wrapped.kind).toBe("provider-failed");
+    expect(wrapped.kind === "provider-failed" ? wrapped.failure : "unexpected").toBe(
       "GritMalformedJson"
     );
   });
@@ -109,14 +139,14 @@ describe("Grit check adapter parser and diagnostics", () => {
       })
     );
 
-    expect(failed.kind).toBe("adapter-failed");
-    expect(failed.kind === "adapter-failed" ? failed.failure : "unexpected").toBe(
+    expect(failed.kind).toBe("provider-failed");
+    expect(failed.kind === "provider-failed" ? failed.failure : "unexpected").toBe(
       "GritCommandFailed"
     );
     expect(failed.parseStatus).toBe("unparsed");
   });
 
-  test("treats truncated parser input as an adapter contract failure", () => {
+  test("treats truncated parser input as a provider contract failure", () => {
     const truncated = parseGritCheckOutput(
       makeHabitatCommandResult(
         {
@@ -132,24 +162,24 @@ describe("Grit check adapter parser and diagnostics", () => {
       )
     );
 
-    expect(truncated.kind).toBe("adapter-failed");
-    expect(truncated.kind === "adapter-failed" ? truncated.failure : "unexpected").toBe(
-      "GritAdapterInternalContractViolation"
+    expect(truncated.kind).toBe("provider-failed");
+    expect(truncated.kind === "provider-failed" ? truncated.failure : "unexpected").toBe(
+      "GritProviderInternalContractViolation"
     );
   });
 
   test("distinguishes missing results from unexpected result shape", () => {
     const missingResults = parseGritCheckOutput(commandResult({ stderr: '{"paths":[]}' }));
-    expect(missingResults.kind).toBe("adapter-failed");
-    expect(missingResults.kind === "adapter-failed" ? missingResults.failure : "unexpected").toBe(
+    expect(missingResults.kind).toBe("provider-failed");
+    expect(missingResults.kind === "provider-failed" ? missingResults.failure : "unexpected").toBe(
       "GritSchemaDrift"
     );
 
     const wrongShape = parseGritCheckOutput(
       commandResult({ stderr: '{"paths":[],"results":[{"local_name":5}]}' })
     );
-    expect(wrongShape.kind).toBe("adapter-failed");
-    expect(wrongShape.kind === "adapter-failed" ? wrongShape.failure : "unexpected").toBe(
+    expect(wrongShape.kind).toBe("provider-failed");
+    expect(wrongShape.kind === "provider-failed" ? wrongShape.failure : "unexpected").toBe(
       "GritUnexpectedResultShape"
     );
   });
@@ -221,7 +251,7 @@ describe("Grit check adapter parser and diagnostics", () => {
     expect(diagnosticResults.get(other.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
 
-  test("keeps valid zero findings distinct from adapter failure", () => {
+  test("keeps valid zero findings distinct from provider failure", () => {
     const rule = fakeGritRule("domain-deep-import", "domain_deep_import");
     const result = gritRuleResultsFromReport([rule], { paths: [], results: [] }).get(rule.id);
 
@@ -424,7 +454,7 @@ describe("Grit check adapter parser and diagnostics", () => {
 
     const results = await runGritRules([rule], {
       scanRoots: ["packages"],
-      providerLayer: fakeLayer,
+      layer: fakeLayer,
     });
 
     expect(observedRequest).toMatchObject({
@@ -479,7 +509,7 @@ describe("Grit check adapter parser and diagnostics", () => {
 
     const results = await runGritRules([firstRule, secondRule], {
       scanRoots: ["packages"],
-      providerLayer: fakeLayer,
+      layer: fakeLayer,
     });
 
     expect(observedRequests).toHaveLength(1);
@@ -527,7 +557,7 @@ describe("Grit check adapter parser and diagnostics", () => {
     });
 
     const results = await runGritRules([packagesRule, domainRule], {
-      providerLayer: fakeLayer,
+      layer: fakeLayer,
     });
 
     expect(observedRequests.map((request) => request.argv).sort()).toEqual(
@@ -580,7 +610,7 @@ describe("Grit check adapter parser and diagnostics", () => {
       })
     );
 
-    const results = await runGritRules([rule], { providerLayer: fakeLayer });
+    const results = await runGritRules([rule], { layer: fakeLayer });
 
     expect(results.get(rule.id)?.diagnostics).toEqual([
       {
@@ -614,7 +644,7 @@ describe("Grit check adapter parser and diagnostics", () => {
 
     const results = await runGritRules([rule], {
       scanRoots: ["packages"],
-      providerLayer: fakeLayer,
+      layer: fakeLayer,
       cacheMode: "fresh",
       requireObservableCacheStatus: true,
     });
@@ -666,7 +696,7 @@ Processed 1 files and found 1 matches
       });
     });
 
-    const results = await runGritRules([rule], { providerLayer: fakeLayer });
+    const results = await runGritRules([rule], { layer: fakeLayer });
 
     expect(observedRequest?.argv.slice(0, 2)).toEqual([
       "apply",
@@ -706,7 +736,7 @@ Processed 1 files and found 1 matches
       })
     );
 
-    const outcomes = await runGritDiagnosticOutcomes([rule], { providerLayer: fakeLayer });
+    const outcomes = await runGritDiagnosticOutcomes([rule], { layer: fakeLayer });
 
     const outcome = outcomes.get(rule.id);
     expect(outcome?.kind).toBe("findings");
@@ -752,7 +782,7 @@ Processed 1 files and found 1 matches
       })
     );
 
-    const results = await runGritRules([rule], { providerLayer: fakeLayer });
+    const results = await runGritRules([rule], { layer: fakeLayer });
 
     expect(results.get(rule.id)).toEqual({ exitCode: 0, diagnostics: [] });
   });
@@ -797,7 +827,7 @@ Processed 2 files and found 1 matches
       });
     });
 
-    const results = await runGritRules([sourceRule, docsRule], { providerLayer: fakeLayer });
+    const results = await runGritRules([sourceRule, docsRule], { layer: fakeLayer });
 
     expect(observedRequests[0]?.argv).toEqual([
       "--json",
@@ -865,7 +895,7 @@ Processed 2 files and found 1 matches
     });
 
     const outcomes = await runGritDiagnosticOutcomes([sourceRule, docsRule], {
-      providerLayer: fakeLayer,
+      layer: fakeLayer,
     });
 
     expect(observedRequests.map((request) => request.argv[0])).toEqual(["--json", "check"]);
@@ -911,7 +941,7 @@ Processed 2 files and found 1 matches
 
     const results = await runGritRules([rule], {
       scanRoots: ["packages"],
-      providerLayer: fakeLayer,
+      layer: fakeLayer,
       requireObservableCacheStatus: true,
     });
 
@@ -934,7 +964,7 @@ Processed 2 files and found 1 matches
 
     const outcomes = await runGritDiagnosticOutcomes([rule], {
       scanRoots: ["packages"],
-      providerLayer: fakeLayer,
+      layer: fakeLayer,
       requireObservableCacheStatus: true,
     });
 
@@ -952,10 +982,10 @@ Processed 2 files and found 1 matches
     });
   });
 
-  test("renders diagnostic adapter failures", () => {
-    for (const kind of diagnosticAdapterFailureKinds) {
-      expect(renderDiagnosticAdapterFailure(kind, "adapter failure test")).toBe(
-        `--- grit adapter failure (${kind}) ---\nadapter failure test`
+  test("renders diagnostic provider failures", () => {
+    for (const kind of diagnosticProviderFailureKinds) {
+      expect(renderDiagnosticProviderFailure(kind, "provider failure test")).toBe(
+        `--- grit provider failure (${kind}) ---\nprovider failure test`
       );
     }
   });

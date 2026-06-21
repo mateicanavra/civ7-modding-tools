@@ -40,6 +40,7 @@ const NxRuleRegistryRecordSchema = Type.Object(
     ownerProject: Type.String({ minLength: 1 }),
     ownerTool: Type.String({ minLength: 1 }),
     pathCoverage: NxRulePathCoverageSchema,
+    patternName: Type.Optional(Type.String({ minLength: 1 })),
     scanRoots: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
     manifestPath: Type.Optional(Type.String({ minLength: 1 })),
     graphTarget: Type.Optional(NxGraphTargetSchema),

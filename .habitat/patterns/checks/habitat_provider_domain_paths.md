@@ -1,16 +1,16 @@
 ---
 level: error
 ---
-# Habitat Pattern Adapter Domain Paths
+# Habitat Grit Provider Domain Paths
 
-The pattern adapter is a generic tool boundary. Repo or product scan roots belong
-in registry metadata, not hard-coded adapter source.
+The Grit provider is a generic tool capability. Repo or product scan roots
+belong in registry metadata, not hard-coded provider source.
 
 ```grit
 language js(typescript)
 
 `$body` where {
-  $filename <: r".*tools/habitat-harness/src/adapters/grit/.*\.ts$",
+  $filename <: r".*tools/habitat-harness/src/substrate/providers/grit/.*\.ts$",
   $text = text($body),
   or {
     $text <: includes "packages",
@@ -26,26 +26,26 @@ language js(typescript)
 ## Matches fixture
 
 ```typescript
-// @filename: tools/habitat-harness/src/adapters/grit/constants.ts
+// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
 export const roots = ["mods/mod-swooper-maps/src/domain"];
 
-// @filename: tools/habitat-harness/src/adapters/grit/constants.ts
+// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
 export const studio = "apps/mapgen-studio/src";
 
-// @filename: tools/habitat-harness/src/adapters/grit/constants.ts
+// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
 export const packages = ["packages"];
 
-// @filename: tools/habitat-harness/src/adapters/grit/constants.ts
+// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
 export const packageRoot = "packages/civ7-adapter";
 
-// @filename: tools/habitat-harness/src/adapters/grit/constants.ts
+// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
 export const resources = ".civ7/outputs/resources";
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: tools/habitat-harness/src/adapters/grit/constants.ts
+// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
 export const injectedProbeRoot = "tools/habitat-harness/injected-probe-roots";
 
 // @filename: .habitat/rules/index.json and .habitat/rules/<rule-id>/rule.json
