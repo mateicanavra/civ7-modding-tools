@@ -113,3 +113,31 @@ Kept: **S0** (docs), **S2** (`applyCiv7CoastRingPolicy`). Superseded: **S1** (ca
 - **Uniform band:** removed (not kept) — see Pillar 4 reconciliation.
 - **Seafloor erosion** (sculpting water bathymetry) is **out of scope** — flagged; current erosion
   only re-derives water depth from clamped elevation. Relocation buys post-island geography, not eroded seafloor.
+
+## Implementation status (2026-06-21)
+All architecture slices landed as a Graphite stack off `main`:
+S0 → S2 → R0 → R2 → R4 → R4b → R6 → ledger → **R7-polish** (adversarial-review fixes) →
+**R1** (shared `compute-distance-to-coast` op) → **R5** (pure `reconcile-heightfield-from-coast` op) →
+**R3** (`morphology-shelf` post-features stage). R1/R5 are byte-identical (shipped-map-identity +
+ecology fingerprints unchanged). R3 is map-affecting and re-verified (full suite 592 pass; recipe DAG
+clean; habitat architecture green).
+
+- **R3 mechanics:** new `morphology-shelf` stage between `morphology-features` and
+  `hydrology-climate-baseline`; new pure op `compute-coastal-adjacency`; `coastlineMetrics` slimmed to
+  the carved snapshot (mountains-only) and a new `shelf` artifact carries the post-island shelf +
+  coastline + diagnostics; six consumers + two diagnostics re-pointed; `shelf`/`shelfWidth` relocated
+  in all 9 configs + 2 presets; `STANDARD-RECIPE.md` stage order updated (G6 guard).
+- **SDK-boundary cleanup (owner directive):** ops/steps now only `normalize` config — hand-written
+  input validation removed from the morphology op `run()`s and the carving/shelf steps; the artifact
+  publish `validate` hook is the single validation point. (Investigation: the SDK does not auto-validate
+  op inputs or re-validate artifacts on read; the publish-time hook is the sanctioned layer.)
+- **Reef/atoll interaction (verified, not an op bug):** atolls require warm shallow OPEN-ocean banks
+  because Civ7 rejects `FEATURE_ATOLL` on coast and the shelf projects to coast. A wider post-island
+  shelf converts nearshore shallow banks into coast, so wide-shelf continental maps yield ~0 atolls
+  (measured wide=0 / normal=2 / narrow=7 on swooper-earthlike, seed 1018). Confirmed via gate-survivor
+  probe: ~200 warm in-band candidates exist, but the shallow ones (score ≥ the 0.55 admit threshold)
+  are now shelf; placing atolls on shelf only yields apply-time rejects. This is an **explicit
+  shelfWidth tradeoff**, not a scoring defect — so `requireAtolls` was dropped from the two continental
+  earthlike maps (documented) while the 3 atoll-themed maps keep it; `desert-mountains` `reefMax`
+  raised 0.04→0.047 for the post-island atoll amplification (109→138). **Deferral (unchanged):** a
+  dedicated atoll/reef density retune for the post-island shelf surface.
