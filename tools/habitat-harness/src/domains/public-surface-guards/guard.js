@@ -4,11 +4,13 @@ import { fileURLToPath } from "node:url";
 
 const sourceRoot = "tools/habitat-harness/src";
 const packagePath = "tools/habitat-harness/package.json";
+const serviceRoot = `${sourceRoot}/service`;
 const defaultRepoRoot = path.resolve(fileURLToPath(new URL("../../../../../", import.meta.url)));
 let repoRoot = defaultRepoRoot;
 let injectedFiles = new Map();
 let failures = [];
 let sourceFiles = [];
+const serviceModuleNames = ["check", "classify", "fix", "graph", "hook", "transactions", "verify"];
 
 const allowedLibFiles = new Set([
   "tools/habitat-harness/src/lib/artifact-paths.ts",
@@ -161,6 +163,7 @@ export function runPublicSurfaceGuard(options = {}) {
   checkPublicFacade();
   checkDeletedAdapters();
   checkLibRatchet();
+  checkServiceArchitecture();
   checkSourceEdges();
   checkSourceLanguage();
   checkCommandErrorOwnership();
@@ -286,10 +289,27 @@ function checkHabitatArtifacts() {
 function checkDeletedAdapters() {
   for (const file of [
     "tools/habitat-harness/src/lib/baseline.ts",
+    "tools/habitat-harness/src/lib/baseline-core",
+    "tools/habitat-harness/src/lib/check",
     "tools/habitat-harness/src/lib/check-report.ts",
+    "tools/habitat-harness/src/lib/classify-core",
+    "tools/habitat-harness/src/lib/classify.ts",
     "tools/habitat-harness/src/lib/diagnostics.ts",
+    "tools/habitat-harness/src/lib/fix.ts",
+    "tools/habitat-harness/src/lib/hooks.ts",
+    "tools/habitat-harness/src/lib/hook-runtime",
+    "tools/habitat-harness/src/lib/pattern-apply",
+    "tools/habitat-harness/src/lib/rule-selection.ts",
+    "tools/habitat-harness/src/lib/verify",
+    "tools/habitat-harness/src/lib/workspace-graph",
+    "tools/habitat-harness/src/lib/workspace-graph.ts",
+    "tools/habitat-harness/src/lib/workspace-graph-contract.ts",
     "tools/habitat-harness/src/domains/baseline-authority/integrity.ts",
+    "tools/habitat-harness/src/rules/facts.ts",
+    "tools/habitat-harness/src/rules/patterns",
+    "tools/habitat-harness/src/rules/registry",
     "tools/habitat-harness/src/errors/domain-errors.ts",
+    "tools/habitat-harness/src/providers/grit",
   ]) {
     if (fileExists(file)) {
       fail("Removed public compatibility adapter returned.", [file]);
@@ -352,13 +372,93 @@ function checkCommandErrorOwnership() {
   }
 }
 
+function checkServiceArchitecture() {
+  checkAllowed(
+    `${sourceRoot}/service/impl.ts`,
+    read(`${sourceRoot}/service/impl.ts`),
+    /\bimplementEffect\s*\(/g,
+    allowedRuntimeEdges,
+    "Effect-oRPC implementation belongs only in the root Habitat service seam."
+  );
+
+  const router = read(`${serviceRoot}/router.ts`);
+  const rootRouterLeaks = [
+    ...matchesIn(
+      router,
+      /\.effect\s*\(|\bprocess\.env\b|run[A-Z]\w*Service\b|createCheckReport/g
+    ).map((line) => `${serviceRoot}/router.ts:${line}`),
+  ];
+  if (rootRouterLeaks.length > 0) {
+    fail("Root Habitat service router must stay module composition only.", rootRouterLeaks);
+  }
+
+  for (const moduleName of serviceModuleNames) {
+    const moduleFile = `${serviceRoot}/modules/${moduleName}/module.ts`;
+    const routerFile = `${serviceRoot}/modules/${moduleName}/router.ts`;
+    if (!fileExists(moduleFile) || !fileExists(routerFile)) {
+      fail("Habitat service modules must keep module/router ownership files.", [
+        `${moduleName}: missing module.ts or router.ts`,
+      ]);
+      continue;
+    }
+
+    const moduleText = read(moduleFile);
+    const routerText = read(routerFile);
+    const moduleLeaks = matchesIn(
+      moduleText,
+      /\.effect\s*\(|\bimplementEffect\b|\bManagedRuntime\b|\bLayer\.succeed\b/g
+    ).map((line) => `${moduleFile}:${line}`);
+    if (!moduleText.includes("habitatServiceImplementer as impl")) {
+      moduleLeaks.push(`${moduleFile}: missing habitatServiceImplementer alias`);
+    }
+    if (!moduleText.includes(`impl.${moduleName}`)) {
+      moduleLeaks.push(`${moduleFile}: missing impl.${moduleName} binding`);
+    }
+    if (moduleLeaks.length > 0) {
+      fail("Habitat service module files must bind the owned service module only.", moduleLeaks);
+    }
+
+    const routerLeaks = matchesIn(
+      routerText,
+      /from\s+["']\.\/run\.js["']|\.router\s*\(|\bManagedRuntime\b|\bLayer\.succeed\b/g
+    ).map((line) => `${routerFile}:${line}`);
+    if (!routerText.includes(".effect(")) {
+      routerLeaks.push(`${routerFile}: missing procedure .effect implementation`);
+    }
+    if (routerLeaks.length > 0) {
+      fail("Habitat service router files must own procedure logic directly.", routerLeaks);
+    }
+
+    const removedRunFile = `${serviceRoot}/modules/${moduleName}/run.ts`;
+    if (fileExists(removedRunFile)) {
+      fail("Habitat service logic must not move into separate run files.", [removedRunFile]);
+    }
+  }
+
+  for (const file of sourceFiles.filter((entry) => entry.startsWith(`${sourceRoot}/providers/`))) {
+    const text = read(file);
+    const leaks = matchesIn(text, /from\s+["'][^"']*(?:service|domains)\//g).map(
+      (line) => `${file}:${line}`
+    );
+    const serviceRuntimeLeaks = matchesIn(text, /\beffect-orpc\b|\bimplementEffect\b/g).map(
+      (line) => `${file}:${line}`
+    );
+    if (leaks.length > 0 || serviceRuntimeLeaks.length > 0) {
+      fail("Habitat providers must stay below service and domain ownership.", [
+        ...leaks,
+        ...serviceRuntimeLeaks,
+      ]);
+    }
+  }
+}
+
 function checkSourceEdges() {
   for (const file of sourceFiles) {
     const text = read(file);
     checkAllowed(
       file,
       text,
-      /\bEffect\.run(?:Promise|Sync|Fork)?\b|ManagedRuntime\.make\b/g,
+      /\bEffect\.run(?:Promise|Sync|Fork)?\b|ManagedRuntime\.make\b|\bimplementEffect\s*\(/g,
       allowedRuntimeEdges,
       "Effect runtime construction/execution must stay in approved runtime edges."
     );
@@ -447,12 +547,16 @@ function importsFrom(text, sourcePattern) {
 }
 
 function checkAllowed(file, text, pattern, allowedFiles, title) {
-  const matches = [...text.matchAll(pattern)].map((match) => lineForIndex(text, match.index ?? 0));
+  const matches = matchesIn(text, pattern);
   if (matches.length === 0 || allowedFiles.has(file)) return;
   fail(
     title,
     matches.map((line) => `${file}:${line}`)
   );
+}
+
+function matchesIn(text, pattern) {
+  return [...text.matchAll(pattern)].map((match) => lineForIndex(text, match.index ?? 0));
 }
 
 function tsFiles(root) {
