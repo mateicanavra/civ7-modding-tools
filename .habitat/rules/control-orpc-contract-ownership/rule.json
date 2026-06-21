@@ -15,8 +15,11 @@
   "scanRoots": ["packages/civ7-control-orpc/src"],
   "pathCoverage": [
     {
-      "kind": "unresolved-metadata",
-      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+      "kind": "exact-path",
+      "patterns": [
+        "packages/civ7-control-orpc/src/modules/**/contract.ts",
+        "packages/civ7-control-orpc/src/index.ts"
+      ]
     }
   ]
 }

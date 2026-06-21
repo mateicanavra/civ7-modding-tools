@@ -15,8 +15,15 @@
   "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
-      "kind": "unresolved-metadata",
-      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/**/stages/**/steps/**/*contract.ts",
+        "mods/*/src/domain/**/ops/**/contract.ts",
+        "mods/*/src/domain/**/ops/**/types.ts",
+        "mods/*/src/domain/**/ops/**/index.ts",
+        "mods/*/src/domain/**/ops/**/rules/**/*.ts",
+        "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
+      ]
     }
   ]
 }
