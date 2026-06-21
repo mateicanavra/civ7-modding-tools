@@ -65,6 +65,8 @@ Implemented graph integration:
 - inferred repo-wide boundary, formatter, pattern, and generated-zone checks;
 - explicit package-owned `validate:boundary-taxonomy` target for current
   workspace taxonomy validation;
+- explicit package-owned `validate:grit-patterns` target for checked-in
+  Habitat/Grit pattern fixture validation;
 - root scripts normalized onto workspace graph entrypoints instead of manual task
   chaining;
 - package-local scripts kept leaf-local where possible.
@@ -157,6 +159,8 @@ Current tests cover:
 - project generator behavior;
 - pattern generator behavior;
 - pattern manifest Manifest validation;
+- workspace-owned tool command materialization without executing native vendor
+  binaries for availability checks;
 - process boundary behavior;
 - workspace tool discovery and verification receipt construction.
 
