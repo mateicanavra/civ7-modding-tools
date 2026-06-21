@@ -36,6 +36,11 @@ interface SourceCheckPolicy {
   readonly loadFailure?: string;
 }
 
+interface SourceRuleFilePlan {
+  readonly rule: RuleSourceFacts;
+  readonly scanRoots: readonly string[];
+}
+
 export function runSourceRulesEffect(
   rules: readonly RuleSourceFacts[],
   options: SourceCheckOptions = {}
@@ -43,14 +48,23 @@ export function runSourceRulesEffect(
   return Effect.gen(function* () {
     const policy = yield* loadSourceCheckPolicyEffect();
     const policyRuleIds = new Set(policy.sourceCheckRuleIds);
-    const scanRoots = selectedSourceScanRootsForRules(rules, options.scanRoots);
-    const files = yield* readSourceFiles(scanRoots);
+    const plans = rules.map((rule) => sourceRuleFilePlan(rule, options));
+    const files = yield* readPlannedSourceFiles(plans);
+    const diagnosticsByRule = new Map<string, HabitatDiagnostic[]>(
+      rules.map((rule) => [rule.id, []])
+    );
+    for (const file of files) {
+      for (const plan of plans) {
+        if (!policyRuleIds.has(plan.rule.id) || !ruleMatchesSourceFile(plan.rule, file.path)) {
+          continue;
+        }
+        diagnosticsByRule.get(plan.rule.id)?.push(...policy.diagnosticsForRule(plan.rule, file));
+      }
+    }
     return new Map(
       rules.map((rule) => {
         if (!policyRuleIds.has(rule.id)) return [rule.id, unsupportedNativeRule(rule, policy)];
-        const diagnostics = files
-          .filter((file) => ruleMatchesSourceFile(rule, file.path))
-          .flatMap((file) => [...policy.diagnosticsForRule(rule, file)]);
+        const diagnostics = diagnosticsByRule.get(rule.id) ?? [];
         return [rule.id, { exitCode: diagnostics.length > 0 ? 1 : 0, diagnostics }];
       })
     );
@@ -100,13 +114,27 @@ function ruleMatchesSourceFile(rule: RuleSourceFacts, filePath: string): boolean
   return rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
 }
 
-function readSourceFiles(scanRoots: readonly string[]) {
+function sourceRuleFilePlan(
+  rule: RuleSourceFacts,
+  options: SourceCheckOptions
+): SourceRuleFilePlan {
+  return {
+    rule,
+    scanRoots: selectedSourceScanRootsForRules([rule], options.scanRoots),
+  };
+}
+
+function readPlannedSourceFiles(plans: readonly SourceRuleFilePlan[]) {
   return Effect.gen(function* () {
-    const paths = yield* Effect.forEach(sortedUnique(scanRoots), collectSourcePaths, {
+    const scanRoots = sortedUnique(plans.flatMap((plan) => plan.scanRoots));
+    const paths = yield* Effect.forEach(scanRoots, collectSourcePaths, {
       concurrency: "unbounded",
     });
+    const plannedPaths = sortedUnique(paths.flat()).filter((candidate) =>
+      plans.some((plan) => ruleMatchesSourceFile(plan.rule, candidate))
+    );
     const files = yield* Effect.forEach(
-      sortedUnique(paths.flat()),
+      plannedPaths,
       (relativePath) =>
         readText(path.join(repoRoot, relativePath)).pipe(
           Effect.map((text) => sourceFileRecord(relativePath, text)),
