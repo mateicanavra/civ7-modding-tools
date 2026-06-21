@@ -135,12 +135,12 @@ export function boundariesTarget(): NxTargetDefinition {
   };
 }
 
-export function sourceCheckTarget(): NxTargetDefinition {
+export function sourceCheckTarget(inputs = habitatInputs()): NxTargetDefinition {
   return {
     command: "bun tools/habitat-harness/bin/dev.ts check --tool source-check",
     options: workspaceCwd,
     cache: true,
-    inputs: habitatInputs(),
+    inputs,
     metadata: {
       description: "Habitat-owned GritQL source-shape catalog (habitat-catalog/H5)",
     },

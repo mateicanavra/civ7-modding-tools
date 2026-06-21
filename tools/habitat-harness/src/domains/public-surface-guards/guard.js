@@ -58,6 +58,7 @@ const allowedFsEdges = new Set([
   "tools/habitat-harness/src/domains/structural-check/render.ts",
   "tools/habitat-harness/src/lib/boundary-taxonomy.ts",
   "tools/habitat-harness/src/providers/nx/inventory.ts",
+  "tools/habitat-harness/src/providers/nx/rule-registry-loader.ts",
   "tools/habitat-harness/src/resources/filesystem.ts",
 ]);
 

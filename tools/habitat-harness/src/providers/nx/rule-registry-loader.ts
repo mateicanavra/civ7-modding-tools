@@ -1,39 +1,100 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { TSchema } from "typebox";
+import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import type {
-  RuleRegistryDocumentV1,
-  RuleRegistryIndexV1,
-  RuleRegistryRecordV1,
-} from "../domains/rule-registry/schema.ts";
-import {
-  RuleRegistryDocumentV1Schema,
-  RuleRegistryIndexV1Schema,
-  RuleRegistryRecordV1Schema,
-} from "../domains/rule-registry/schema.ts";
+
+const NxRulePathCoverageSchema = Type.Array(
+  Type.Union([
+    Type.Object(
+      {
+        kind: Type.Literal("exact-path"),
+        patterns: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+    Type.Object({ kind: Type.Literal("project-owner") }, { additionalProperties: false }),
+    Type.Object({ kind: Type.Literal("workspace-gate") }, { additionalProperties: false }),
+    Type.Object(
+      {
+        kind: Type.Literal("unresolved-metadata"),
+        reason: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
+  ]),
+  { minItems: 1 }
+);
+
+const NxGraphTargetSchema = Type.Object(
+  {
+    project: Type.String({ minLength: 1 }),
+    target: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const NxRuleRegistryRecordSchema = Type.Object(
+  {
+    id: Type.String({ minLength: 1 }),
+    ownerProject: Type.String({ minLength: 1 }),
+    ownerTool: Type.String({ minLength: 1 }),
+    pathCoverage: NxRulePathCoverageSchema,
+    scanRoots: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
+    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
+    graphTarget: Type.Optional(NxGraphTargetSchema),
+  },
+  { additionalProperties: true }
+);
+
+const NxRuleRegistryDocumentSchema = Type.Object(
+  {
+    schemaVersion: Type.Literal(1),
+    ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
+      minProperties: 1,
+    }),
+    rules: Type.Array(NxRuleRegistryRecordSchema),
+  },
+  { additionalProperties: true }
+);
+
+const NxRuleRegistryIndexSchema = Type.Object(
+  {
+    schemaVersion: Type.Literal(1),
+    ownerRoots: Type.Record(Type.String({ minLength: 1 }), Type.String({ minLength: 1 }), {
+      minProperties: 1,
+    }),
+  },
+  { additionalProperties: true }
+);
+
+export type NxRuleRegistryRecord = Static<typeof NxRuleRegistryRecordSchema>;
+export type NxRuleRegistryDocument = Static<typeof NxRuleRegistryDocumentSchema>;
 
 interface RuleRegistryIssue {
   readonly path: string;
   readonly message: string;
 }
 
-export function loadRuleRegistryDocumentForNxPlugin(registryPath: string): RuleRegistryDocumentV1 {
+export function loadRuleRegistryDocumentForNxPlugin(registryPath: string): NxRuleRegistryDocument {
   return fs.statSync(registryPath).isDirectory()
     ? loadRuleRegistryDirectory(registryPath)
     : parseRuleRegistryDocument(readJsonFile(registryPath), registryPath);
 }
 
-function loadRuleRegistryDirectory(registryDir: string): RuleRegistryDocumentV1 {
+function loadRuleRegistryDirectory(registryDir: string): NxRuleRegistryDocument {
   const indexPath = path.join(registryDir, "index.json");
-  const index = parseJsonFile<RuleRegistryIndexV1>(indexPath, RuleRegistryIndexV1Schema);
+  const index = parseJsonFile<Static<typeof NxRuleRegistryIndexSchema>>(
+    indexPath,
+    NxRuleRegistryIndexSchema
+  );
   const rules = fs
     .readdirSync(registryDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) =>
-      parseJsonFile<RuleRegistryRecordV1>(
+      parseJsonFile<NxRuleRegistryRecord>(
         path.join(registryDir, entry.name, "rule.json"),
-        RuleRegistryRecordV1Schema
+        NxRuleRegistryRecordSchema
       )
     )
     .sort((left, right) => left.id.localeCompare(right.id));
@@ -76,8 +137,8 @@ function readJsonFile(filePath: string): unknown {
   }
 }
 
-function parseRuleRegistryDocument(value: unknown, sourcePath: string): RuleRegistryDocumentV1 {
-  const schemaIssues = [...Value.Errors(RuleRegistryDocumentV1Schema, value)].map((issue) => ({
+function parseRuleRegistryDocument(value: unknown, sourcePath: string): NxRuleRegistryDocument {
+  const schemaIssues = [...Value.Errors(NxRuleRegistryDocumentSchema, value)].map((issue) => ({
     path: issue.instancePath ? `${sourcePath}${issue.instancePath}` : sourcePath,
     message: issue.message,
   }));
@@ -85,7 +146,7 @@ function parseRuleRegistryDocument(value: unknown, sourcePath: string): RuleRegi
     throw registryLoadError("Habitat rule registry is invalid", schemaIssues);
   }
 
-  const document = Value.Parse(RuleRegistryDocumentV1Schema, value) as RuleRegistryDocumentV1;
+  const document = Value.Parse(NxRuleRegistryDocumentSchema, value) as NxRuleRegistryDocument;
   const duplicateIssues = duplicateRuleIdIssues(document.rules, sourcePath);
   if (duplicateIssues.length > 0) {
     throw registryLoadError("Habitat rule registry is invalid", duplicateIssues);
@@ -94,7 +155,7 @@ function parseRuleRegistryDocument(value: unknown, sourcePath: string): RuleRegi
 }
 
 function duplicateRuleIdIssues(
-  rules: readonly RuleRegistryRecordV1[],
+  rules: readonly NxRuleRegistryRecord[],
   sourcePath: string
 ): RuleRegistryIssue[] {
   const seen = new Set<string>();

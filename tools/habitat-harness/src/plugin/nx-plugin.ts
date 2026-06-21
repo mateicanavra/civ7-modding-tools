@@ -1,18 +1,18 @@
 import path from "node:path";
 import { Value } from "typebox/value";
-import type {
-  RuleRegistryDocumentV1,
-  RuleRegistryRecordV1,
-} from "../domains/rule-registry/schema.js";
 import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
+import {
+  loadRuleRegistryDocumentForNxPlugin,
+  type NxRuleRegistryDocument,
+  type NxRuleRegistryRecord,
+} from "../providers/nx/rule-registry-loader.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
 } from "../providers/nx/schema.ts";
 import { workspaceGraphTargetNames } from "../providers/nx/targets.ts";
 import { ruleGraphFactsForNxPlugin } from "./rule-graph-facts.ts";
-import { loadRuleRegistryDocumentForNxPlugin } from "./rule-registry-loader.ts";
 import {
   type InferredProjects,
   InferredProjectsSchema,
@@ -48,7 +48,7 @@ export const createNodesV2 = [
 ];
 
 function buildInferredProjects(input: {
-  registry: RuleRegistryDocumentV1;
+  registry: NxRuleRegistryDocument;
   options: unknown;
 }): InferredProjects {
   const targetNames = Value.Parse(
@@ -70,9 +70,14 @@ function buildInferredProjects(input: {
     projects[root].targets[target] = targetDefinition(definition);
   };
 
-  addHarnessToolTargets({ addTarget, ownerRoots, targetNames });
+  addHarnessToolTargets({
+    addTarget,
+    ownerRoots,
+    records: input.registry.rules,
+    targetNames,
+  });
   const graphFacts = ruleGraphFactsForNxPlugin(input.registry.rules, ownerRoots, targetNames);
-  const recordsByOwner = new Map<string, RuleRegistryRecordV1[]>();
+  const recordsByOwner = new Map<string, NxRuleRegistryRecord[]>();
   for (const rule of graphFacts) {
     const record = recordsById.get(rule.id);
     if (!record) {
@@ -101,6 +106,7 @@ function addHarnessToolTargets(input: {
     definition: NxTargetDefinition
   ) => void;
   ownerRoots: ReadonlyMap<string, string>;
+  records: readonly NxRuleRegistryRecord[];
   targetNames: ReturnType<typeof workspaceGraphTargetNames>;
 }) {
   const harnessProject = "@internal/habitat-harness";
@@ -115,7 +121,12 @@ function addHarnessToolTargets(input: {
   input.addTarget(harnessRoot, harnessProject, input.targetNames.biomeCheck, biome.check);
   input.addTarget(harnessRoot, harnessProject, input.targetNames.biomeCi, biome.ci);
   input.addTarget(harnessRoot, harnessProject, input.targetNames.boundaries, boundariesTarget());
-  input.addTarget(harnessRoot, harnessProject, input.targetNames.sourceCheck, sourceCheckTarget());
+  input.addTarget(
+    harnessRoot,
+    harnessProject,
+    input.targetNames.sourceCheck,
+    sourceCheckTarget(inputsForSourceCheckTarget(input.records))
+  );
   input.addTarget(
     harnessRoot,
     harnessProject,
@@ -137,7 +148,7 @@ function addRuleTarget(input: {
     target: string,
     definition: NxTargetDefinition
   ) => void;
-  record: RuleRegistryRecordV1;
+  record: NxRuleRegistryRecord;
   rule: ReturnType<typeof ruleGraphFactsForNxPlugin>[number];
   targetNames: ReturnType<typeof workspaceGraphTargetNames>;
 }) {
@@ -167,8 +178,8 @@ function addRuleTarget(input: {
   );
 }
 
-function inputsForRuleTarget(rule: RuleRegistryRecordV1, ownerRoot: string): string[] {
-  const covered = pathCoverageInputs(rule.pathCoverage, ownerRoot);
+function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): string[] {
+  const covered = pathCoverageInputs(rule, ownerRoot);
   if (covered.kind === "workspace-gate") return habitatInputs();
 
   const inputs = new Set<string>([
@@ -180,7 +191,7 @@ function inputsForRuleTarget(rule: RuleRegistryRecordV1, ownerRoot: string): str
   ]);
   if (rule.ownerTool === "source-check") {
     inputs.add("{workspaceRoot}/.habitat/source-check/source-rules.mjs");
-    for (const scanRoot of rule.scanRoots) inputs.add(workspaceInput(scanRoot));
+    for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.ownerTool === "habitat" || rule.ownerTool === "command-check") {
@@ -189,7 +200,7 @@ function inputsForRuleTarget(rule: RuleRegistryRecordV1, ownerRoot: string): str
   return [...inputs];
 }
 
-function inputsForOwner(rules: readonly RuleRegistryRecordV1[], ownerRoot: string): string[] {
+function inputsForOwner(rules: readonly NxRuleRegistryRecord[], ownerRoot: string): string[] {
   const inputs = new Set<string>();
   for (const rule of rules) {
     const ruleInputs = inputsForRuleTarget(rule, ownerRoot);
@@ -199,12 +210,28 @@ function inputsForOwner(rules: readonly RuleRegistryRecordV1[], ownerRoot: strin
   return inputs.size ? [...inputs] : habitatInputs();
 }
 
+function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): string[] {
+  const inputs = new Set<string>([
+    "{workspaceRoot}/tools/habitat-harness/src/**",
+    "{workspaceRoot}/package.json",
+    "{workspaceRoot}/bun.lock",
+    "{workspaceRoot}/.habitat/rules/**",
+    "{workspaceRoot}/.habitat/source-check/source-rules.mjs",
+  ]);
+  for (const rule of rules) {
+    if (rule.ownerTool !== "source-check") continue;
+    for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
+    if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
+  }
+  return [...inputs];
+}
+
 function pathCoverageInputs(
-  coverage: RuleRegistryRecordV1["pathCoverage"],
+  rule: NxRuleRegistryRecord,
   ownerRoot: string
 ): { kind: "scoped"; inputs: string[] } | { kind: "workspace-gate" } {
   const inputs: string[] = [];
-  for (const entry of coverage) {
+  for (const entry of rule.pathCoverage) {
     switch (entry.kind) {
       case "exact-path":
         inputs.push(...entry.patterns.map(workspaceInput));
@@ -213,8 +240,10 @@ function pathCoverageInputs(
         inputs.push(workspaceInput(`${ownerRoot}/**`));
         break;
       case "workspace-gate":
-      case "unresolved-metadata":
         return { kind: "workspace-gate" };
+      case "unresolved-metadata":
+        if (rule.ownerTool !== "source-check") inputs.push(workspaceInput(`${ownerRoot}/**`));
+        break;
     }
   }
   return { kind: "scoped", inputs };
@@ -222,6 +251,13 @@ function pathCoverageInputs(
 
 function workspaceInput(repoRelativePath: string): string {
   return `{workspaceRoot}/${repoRelativePath}`;
+}
+
+function workspaceScanRootInput(repoRelativePath: string): string {
+  if (repoRelativePath.includes("*") || /\.[^/]+$/.test(repoRelativePath)) {
+    return workspaceInput(repoRelativePath);
+  }
+  return workspaceInput(`${repoRelativePath}/**`);
 }
 
 function ownerRootsForRules(
