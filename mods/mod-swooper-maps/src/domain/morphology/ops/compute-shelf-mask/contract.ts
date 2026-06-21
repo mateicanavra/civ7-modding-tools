@@ -52,7 +52,7 @@ export const ShelfMaskConfigSchema = Type.Object(
       minimum: -1000,
       maximum: 0,
       description:
-        "Deepest (most negative, metres) the shelf-break depth may reach: a physical safety floor so the depth gate cannot flood a degenerately-flat sea. A metric depth, NOT a tile-distance cap.",
+        "Deepest (most negative) the shelf-break depth may reach, in engine elevation units (elevation - seaLevel), NOT real metres. A depth floor: it bounds how DEEP the gate can reach so a steep margin/scale cannot push the break into true deep ocean. It does NOT bound a uniformly-shallow sea, where admitting the whole connected basin is the intended outcome. A metric depth, NOT a tile-distance cap.",
     }),
     breakDepthScale: Type.Number({
       default: 1,
@@ -86,7 +86,7 @@ const ComputeShelfMaskContract = defineOp({
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     bathymetry: TypedArraySchemas.i16({
       description:
-        "Bathymetry per tile (metres): 0 on land; <=0 in water; closer to 0 is shallower.",
+        "Bathymetry per tile in engine elevation units (elevation - seaLevel), not real metres: 0 on land; <=0 in water; closer to 0 is shallower.",
     }),
     distanceToCoast: TypedArraySchemas.u16({
       description:
@@ -118,11 +118,11 @@ const ComputeShelfMaskContract = defineOp({
     }),
     shelfBreakDepthByTile: TypedArraySchemas.i16({
       description:
-        "Per-tile shelf-break depth (metres, <=0) after margin modulation; deeper (more negative) => wider local shelf.",
+        "Per-tile shelf-break depth (engine elevation units, <=0) after margin modulation; deeper (more negative) => wider local shelf.",
     }),
     shallowCutoff: Type.Number({
       description:
-        "Base shelf-break depth (metres, <=0): the nearshore bathymetry quantile before margin modulation.",
+        "Base shelf-break depth (engine elevation units, <=0): the nearshore bathymetry quantile before margin modulation.",
     }),
   }),
   strategies: {

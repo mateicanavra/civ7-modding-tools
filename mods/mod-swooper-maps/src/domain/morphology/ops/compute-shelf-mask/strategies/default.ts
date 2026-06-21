@@ -79,7 +79,10 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
       if (landMask[i] === 1) continue;
       const dist = distanceToCoast[i] | 0;
       if (dist <= 0 || dist > sampleRadius) continue;
-      nearshoreSamples[sampleCount++] = bathymetry[i] ?? 0;
+      // Clamp on ingest: bathymetry is <=0 in water by contract, but a single
+      // contract-violating positive sample would skew the whole-map quantile
+      // toward shallower (narrowing every shelf), so guard the estimator here too.
+      nearshoreSamples[sampleCount++] = Math.min(0, bathymetry[i] ?? 0);
     }
     const shallowCutoff = computeQuantileCutoff(
       nearshoreSamples,
@@ -88,8 +91,10 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
     );
 
     // 2) Per-tile, margin-modulated break depth + depth gate. Active margins use a shallower
-    //    break (narrower shelf); passive margins a deeper one (wider). The absolute floor caps
-    //    how deep the gate can reach — a physical depth, not a tile-distance cap.
+    //    break (narrower shelf); passive margins a deeper one (wider). The absolute floor bounds
+    //    how DEEP the break may reach — it stops a steep margin/scale from pushing the gate into
+    //    true deep ocean. It does NOT (and cannot) bound a uniformly-shallow sea, where the gate
+    //    legitimately admits the whole connected basin. A physical depth, not a tile-distance cap.
     const activeMarginMask = new Uint8Array(size);
     const depthGateMask = new Uint8Array(size);
     const nearshoreCandidateMask = new Uint8Array(size);
