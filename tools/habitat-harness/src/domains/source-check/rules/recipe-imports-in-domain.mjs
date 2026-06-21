@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "recipe-imports-in-domain";
+export const candidateExtensions = [".ts"];
 
 export function diagnosticsForRule(rule, file) {
   return runtime.sourceRefsMatching(

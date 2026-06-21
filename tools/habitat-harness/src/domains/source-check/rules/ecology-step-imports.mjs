@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "ecology-step-imports";
+export const candidateExtensions = [".ts"];
 
 export function diagnosticsForRule(rule, file) {
   return [

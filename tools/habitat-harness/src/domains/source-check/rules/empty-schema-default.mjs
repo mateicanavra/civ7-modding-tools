@@ -1,6 +1,7 @@
 import { sourceCheckRuntime as runtime } from "../rule-runtime.mjs";
 
 export const ruleId = "empty-schema-default";
+export const candidateExtensions = [".ts"];
 
 export function diagnosticsForRule(rule, file) {
   return runtime
