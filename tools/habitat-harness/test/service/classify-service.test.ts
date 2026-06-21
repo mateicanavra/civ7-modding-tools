@@ -14,6 +14,7 @@ const nxProjects: WorkspaceGraphProjectReader = {
         "grit:check",
         "test",
         "validate:boundary-taxonomy",
+        "validate:grit-patterns",
       ]),
       project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
       project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),

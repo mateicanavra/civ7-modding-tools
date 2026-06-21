@@ -44,6 +44,7 @@ const prePushTargets = [
   "habitat:check",
   "test",
   "validate:boundary-taxonomy",
+  "validate:grit-patterns",
 ];
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 

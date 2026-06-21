@@ -22,7 +22,7 @@ describe("Habitat hook service", () => {
       stderr: "",
     });
     expect(fake.calls).toEqual([
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy --base HEAD~1 --head HEAD --outputStyle=static",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static",
     ]);
   });
 
@@ -47,7 +47,7 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain("base=agent-parent");
     expect(fake.calls).toEqual([
       "gt branch info --no-interactive",
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy --base agent-parent --head HEAD --outputStyle=static",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base agent-parent --head HEAD --outputStyle=static",
     ]);
   });
 
@@ -74,7 +74,7 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain("base=abc123mergebase");
     expect(fake.calls).toEqual([
       "gt branch info --no-interactive",
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy --base abc123mergebase --head HEAD --outputStyle=static",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base abc123mergebase --head HEAD --outputStyle=static",
     ]);
     expect(gitCalls).toEqual([
       "symbolic-ref --quiet --short refs/remotes/origin/HEAD",
@@ -92,7 +92,7 @@ describe("Habitat hook service", () => {
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("base=HEAD~1");
     expect(fake.calls).toEqual([
-      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy --base HEAD~1 --head HEAD --outputStyle=static",
+      "nx affected -t biome:ci,boundaries,grit:check,habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static",
     ]);
   });
 

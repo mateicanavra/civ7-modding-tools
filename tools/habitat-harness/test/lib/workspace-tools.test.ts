@@ -1,9 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { repoRoot } from "../../src/lib/paths.js";
-import {
-  materializeDefaultHabitatCommand,
-  runSyncSpawnCommand,
-} from "../../src/providers/command/index.js";
+import { materializeDefaultHabitatCommand } from "../../src/providers/command/index.js";
 
 describe("workspace tool command materialization", () => {
   test("routes repo-local tools through Bun's workspace command plane", () => {
@@ -53,10 +50,13 @@ describe("workspace tool command materialization", () => {
     });
   });
 
-  test("sync spawn helper executes workspace-owned Grit without node_modules PATH injection", () => {
-    const result = runSyncSpawnCommand(["grit", "--version"], { cwd: repoRoot });
-
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("grit");
+  test("materializes native Grit fixture proof without executing the vendor in unit tests", () => {
+    expect(materializeDefaultHabitatCommand("grit", ["patterns", "test"])).toEqual({
+      requestedExecutable: "grit",
+      executable: "bun",
+      cwd: repoRoot,
+      argv: ["run", "--cwd", repoRoot, "grit", "patterns", "test"],
+      executionPlane: "workspace-bun-run",
+    });
   });
 });

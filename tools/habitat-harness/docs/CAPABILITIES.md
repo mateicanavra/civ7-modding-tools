@@ -56,6 +56,10 @@ Root scripts also expose graph-owned entrypoints:
   workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
   target. It is part of root `bun run check` and Habitat verify/pre-push target
   planning, not package unit tests.
+- `@internal/habitat-harness:validate:grit-patterns` runs checked-in Habitat
+  Grit pattern fixture validation through native `grit patterns test`. It is
+  part of root `bun run check` and Habitat verify/pre-push target planning, not
+  package unit tests.
 - `bun run verify` runs the repo-wide verification aggregate.
 - `bun run check` runs the repo-wide build, check, lint, test, and verify aggregate.
 - `bun run habitat:fix` runs `bun run habitat fix`.
@@ -75,6 +79,8 @@ project manifests. Together they expose these Habitat-owned targets:
 - Repo-wide `generated:check`
 - Package-owned `validate:boundary-taxonomy` for current workspace taxonomy,
   manifest, Nx metadata, boundary config, and graph-edge validation
+- Package-owned `validate:grit-patterns` for checked-in Habitat/Grit pattern
+  fixture validation
 - Aggregate `habitat:check:all` for one-pass full Habitat graph checks
 - Per-rule `habitat:rule:<rule-id>` aliases
 - Per-owner `habitat:check` targets for projects that own Habitat rules
