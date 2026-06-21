@@ -39,6 +39,12 @@ interface SourceCheckPolicy {
 interface SourceRuleFilePlan {
   readonly rule: RuleSourceFacts;
   readonly scanRoots: readonly string[];
+  readonly matches: (filePath: string) => boolean;
+}
+
+interface PlannedSourceFileRecord {
+  readonly file: SourceFileRecord;
+  readonly plans: readonly SourceRuleFilePlan[];
 }
 
 export function runSourceRulesEffect(
@@ -48,16 +54,15 @@ export function runSourceRulesEffect(
   return Effect.gen(function* () {
     const policy = yield* loadSourceCheckPolicyEffect();
     const policyRuleIds = new Set(policy.sourceCheckRuleIds);
-    const plans = rules.map((rule) => sourceRuleFilePlan(rule, options));
+    const plans = rules
+      .filter((rule) => policyRuleIds.has(rule.id))
+      .map((rule) => sourceRuleFilePlan(rule, options));
     const files = yield* readPlannedSourceFiles(plans);
     const diagnosticsByRule = new Map<string, HabitatDiagnostic[]>(
       rules.map((rule) => [rule.id, []])
     );
-    for (const file of files) {
-      for (const plan of plans) {
-        if (!policyRuleIds.has(plan.rule.id) || !ruleMatchesSourceFile(plan.rule, file.path)) {
-          continue;
-        }
+    for (const { file, plans: matchingPlans } of files) {
+      for (const plan of matchingPlans) {
         diagnosticsByRule.get(plan.rule.id)?.push(...policy.diagnosticsForRule(plan.rule, file));
       }
     }
@@ -104,14 +109,15 @@ function sourceCheckPolicyFromModule(module: unknown): SourceCheckPolicy {
   };
 }
 
-function ruleMatchesSourceFile(rule: RuleSourceFacts, filePath: string): boolean {
+function sourceRuleFileMatcher(rule: RuleSourceFacts): (filePath: string) => boolean {
   const exactPathPatterns = rule.pathCoverage.flatMap((coverage) =>
     coverage.kind === "exact-path" ? coverage.patterns : []
   );
   if (exactPathPatterns.length > 0) {
-    return exactPathPatterns.some((pattern) => pathCoveragePatternMatches(pattern, filePath));
+    return (filePath) =>
+      exactPathPatterns.some((pattern) => pathCoveragePatternMatches(pattern, filePath));
   }
-  return rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
+  return (filePath) => rule.scanRoots.some((scanRoot) => pathsOverlap(filePath, scanRoot));
 }
 
 function sourceRuleFilePlan(
@@ -121,28 +127,36 @@ function sourceRuleFilePlan(
   return {
     rule,
     scanRoots: selectedSourceScanRootsForRules([rule], options.scanRoots),
+    matches: sourceRuleFileMatcher(rule),
   };
 }
 
-function readPlannedSourceFiles(plans: readonly SourceRuleFilePlan[]) {
+function readPlannedSourceFiles(
+  plans: readonly SourceRuleFilePlan[]
+): Effect.Effect<PlannedSourceFileRecord[], never, FileSystem.FileSystem> {
   return Effect.gen(function* () {
+    if (plans.length === 0) return [];
     const scanRoots = sortedUnique(plans.flatMap((plan) => plan.scanRoots));
     const paths = yield* Effect.forEach(scanRoots, collectSourcePaths, {
       concurrency: "unbounded",
     });
-    const plannedPaths = sortedUnique(paths.flat()).filter((candidate) =>
-      plans.some((plan) => ruleMatchesSourceFile(plan.rule, candidate))
-    );
+    const plannedPaths = sortedUnique(paths.flat()).flatMap((candidate) => {
+      const matchingPlans = plans.filter((plan) => plan.matches(candidate));
+      return matchingPlans.length > 0 ? [{ path: candidate, plans: matchingPlans }] : [];
+    });
     const files = yield* Effect.forEach(
       plannedPaths,
-      (relativePath) =>
-        readText(path.join(repoRoot, relativePath)).pipe(
-          Effect.map((text) => sourceFileRecord(relativePath, text)),
+      (plannedPath) =>
+        readText(path.join(repoRoot, plannedPath.path)).pipe(
+          Effect.map((text) => ({
+            file: sourceFileRecord(plannedPath.path, text),
+            plans: plannedPath.plans,
+          })),
           Effect.catchAll(() => Effect.succeed(undefined))
         ),
       { concurrency: 16 }
     );
-    return files.filter((file): file is SourceFileRecord => Boolean(file));
+    return files.flatMap((file) => (file ? [file] : []));
   });
 }
 
