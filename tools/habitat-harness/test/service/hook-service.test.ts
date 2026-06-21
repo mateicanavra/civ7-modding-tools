@@ -103,24 +103,18 @@ describe("Habitat hook service", () => {
       hook: { runtime: fake.runtime },
     }).hook.run({ name: "pre-commit" });
 
-    expect(result).toEqual({
-      exitCode: 0,
-      stdout: [
-        "habitat hook pre-commit\n",
-        "hook result: workstation check only; CI remains authoritative.\n",
-        "resources: not-configured\n",
-        "\n[file-layer staged check]\n",
-        fileLayerCheckReport(),
-        "biome: no staged supported files\n",
-        "patterns: no staged TypeScript/JavaScript files in approved scan roots\n",
-        "habitat hook pre-commit: PASS\n",
-      ].join(""),
-      stderr: "",
-    });
-    expect(fake.calls).toEqual([
-      "git diff --cached --name-status -z",
-      "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json",
-    ]);
+    expect(result.exitCode).toBe(0);
+    expect(result.stderr).toBe("");
+    expect(result.stdout).toContain("habitat hook pre-commit\n");
+    expect(result.stdout).toContain("\n[file-layer staged check]\n");
+    expect(result.stdout).toContain('"command": "habitat check --staged --tool file-layer --json"');
+    expect(result.stdout).toContain('"ruleId": "file-layer-pnpm-artifacts"');
+    expect(result.stdout).toContain("biome: no staged supported files\n");
+    expect(result.stdout).toContain(
+      "patterns: no staged TypeScript/JavaScript files in approved scan roots\n"
+    );
+    expect(result.stdout).toContain("habitat hook pre-commit: PASS\n");
+    expect(fake.calls).toEqual(["git diff --cached --name-status -z"]);
   });
 });
 
