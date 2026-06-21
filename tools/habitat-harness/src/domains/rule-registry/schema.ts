@@ -10,7 +10,7 @@ const RuleIdentitySchema = Type.Object(
       Type.Literal("habitat"),
       Type.Literal("source-check"),
       Type.Literal("command-check"),
-      Type.Literal("target-check"),
+      Type.Literal("nx"),
     ]),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
   },
@@ -94,7 +94,7 @@ const CommandOwnerToolSchema = Type.Union([
   Type.Literal("command-check"),
   Type.Literal("format-check"),
   Type.Literal("habitat"),
-  Type.Literal("target-check"),
+  Type.Literal("nx"),
 ]);
 const HookCheckSchema = Type.Literal(true);
 const PatternScanRootSchema = Type.String({ minLength: 1 });
@@ -114,10 +114,10 @@ const CommandRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
-const WrappedTestRuleRegistryRecordV1Schema = Type.Interface(
+const NxRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
-    ownerTool: Type.Literal("target-check"),
+    ownerTool: Type.Literal("nx"),
     graphTarget: GraphTargetSchema,
   },
   { additionalProperties: false }
@@ -164,7 +164,7 @@ const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
 
 export const RuleRegistryRecordV1Schema = Type.Union([
   CommandRuleRegistryRecordV1Schema,
-  WrappedTestRuleRegistryRecordV1Schema,
+  NxRuleRegistryRecordV1Schema,
   SourceCheckRuleRegistryRecordV1Schema,
   GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
   ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,

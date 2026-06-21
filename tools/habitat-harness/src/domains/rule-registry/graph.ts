@@ -43,10 +43,10 @@ function ruleGraphAlias(
       target: { project: "@internal/habitat-harness", target: targetNames.biomeCi },
     };
   }
-  if (rule.ownerTool === "target-check") {
+  if (rule.ownerTool === "nx") {
     if (!rule.graphTarget) {
       throw new Error(
-        `Habitat graph metadata contract failure: missing graphTarget for target-check rule '${rule.id}'.`
+        `Habitat graph metadata contract failure: missing graphTarget for nx rule '${rule.id}'.`
       );
     }
     return {

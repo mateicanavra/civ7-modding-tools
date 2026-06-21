@@ -165,9 +165,9 @@ describe("rule registry facts", () => {
         [
           baseRule({ id: "format-ci" }),
           baseRule({
-            id: "target-check-rule",
+            id: "nx-rule",
             ownerProject: "mod-swooper-maps",
-            ownerTool: "target-check",
+            ownerTool: "nx",
             graphTarget: {
               project: "mod-swooper-maps",
               target: "test:architecture-core-purity",
@@ -189,7 +189,7 @@ describe("rule registry facts", () => {
         },
       },
       {
-        id: "target-check-rule",
+        id: "nx-rule",
         ownerProject: "mod-swooper-maps",
         ownerRoot: "mods/mod-swooper-maps",
         alias: {

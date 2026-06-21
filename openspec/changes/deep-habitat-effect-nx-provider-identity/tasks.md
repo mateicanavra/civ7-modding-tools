@@ -26,6 +26,6 @@
 
 ## 4. Follow-Up Dominoes
 
-- [ ] 4.1 Rename or drain `target-check` rule ownership separately.
-- [ ] 4.2 Remove the `target-check` workspace-tool alias when no metadata or
+- [x] 4.1 Rename or drain `target-check` rule ownership separately.
+- [x] 4.2 Remove the `target-check` workspace-tool alias when no metadata or
   caller needs it.

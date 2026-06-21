@@ -123,7 +123,7 @@ describe("rule registry contract", () => {
         registryDocument([
           {
             ...baseRule(),
-            ownerTool: "target-check",
+            ownerTool: "nx",
           },
         ]),
         "inline-registry.json"
@@ -136,7 +136,7 @@ describe("rule registry contract", () => {
         registryDocument([
           {
             ...baseRule(),
-            ownerTool: "target-check",
+            ownerTool: "nx",
             nxTarget: "@internal/habitat-harness:test:wrapped",
           },
         ]),
