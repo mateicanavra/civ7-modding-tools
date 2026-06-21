@@ -12,10 +12,15 @@ repo work when the changed paths are owned by Habitat itself.
 - Plan pre-push targets as a domain hook policy instead of a flat target list.
 - Run `@internal/habitat-harness:check` directly for Habitat tooling-only
   source edits.
-- Keep structural validation on affected targets for Habitat tooling edits:
-  `habitat:check`, `source:check`, `validate:boundary-taxonomy`, and
-  `validate:grit-patterns`.
+- Keep distinct structural validation on affected targets for Habitat tooling
+  edits without re-entering affected Habitat rule execution.
 - Preserve generic affected `check` for ordinary repo/product changes.
+
+## Superseded Detail
+
+`deep-habitat-effect-prepush-duplicate-structural-drain` narrows the original
+tooling fast path by removing affected `habitat:check` and `source:check` from
+the Habitat tooling source-edit path.
 
 ## Non-Goals
 
