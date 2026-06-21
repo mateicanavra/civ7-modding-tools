@@ -7,14 +7,16 @@ import {
   PatternApplyRequestSchema,
   renderPatternApply,
 } from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import type { TransactionsServiceModuleContext } from "@internal/habitat-harness/service/modules/transactions/context";
-import { runTransactionApplyService } from "@internal/habitat-harness/service/modules/transactions/router";
+import { transactionsRouter } from "@internal/habitat-harness/service/modules/transactions/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/substrate/providers/command/index";
 import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
 import { Effect, type Layer } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
@@ -29,10 +31,11 @@ describe("pattern apply", () => {
   });
 
   test("refuses fix at the command boundary before apply admission", async () => {
-    const { runFixService } = await import("@internal/habitat-harness/service/modules/fix/router");
-
     const result = await Effect.runPromise(
-      runFixService({ kind: "dry-run-intent" }, { admissions: [] })
+      Effect.gen(function* () {
+        const runFix = fixRouter.run.callable({ context: { fix: { admissions: [] } } });
+        return yield* withFiberContext(() => runFix({ kind: "dry-run-intent" }));
+      })
     );
 
     expect(result).toMatchObject({
@@ -283,11 +286,14 @@ describe("pattern apply", () => {
 });
 
 function applyTransaction(
-  input: unknown,
+  input: PatternApplyRequest,
   options?: TransactionsServiceModuleContext,
   layer?: Layer.Layer<never>
 ) {
-  const program = runTransactionApplyService(input, options);
+  const program = Effect.gen(function* () {
+    const apply = transactionsRouter.apply.callable({ context: { transactions: options ?? {} } });
+    return yield* withFiberContext(() => apply(input));
+  });
   return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);
 }
 

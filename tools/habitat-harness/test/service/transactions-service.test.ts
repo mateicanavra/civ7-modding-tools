@@ -4,13 +4,14 @@ import type {
 } from "@internal/habitat-harness/core/domains/pattern-governance/index";
 import { renderPatternApply } from "@internal/habitat-harness/core/domains/transformation-transaction/index";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import { runTransactionApplyService } from "@internal/habitat-harness/service/modules/transactions/router";
+import { transactionsRouter } from "@internal/habitat-harness/service/modules/transactions/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/substrate/providers/command/index";
 import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
 import { Effect } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 
 describe("Habitat transactions service", () => {
@@ -29,16 +30,18 @@ describe("Habitat transactions service", () => {
     });
 
     const record = await Effect.runPromise(
-      runTransactionApplyService(
-        {
-          kind: "dry-run-intent",
-          worktree: cleanWorktree(),
-          admission: applyAdmission(),
-        },
-        {
-          transactionInputs: [transactionInput()],
-        }
-      ).pipe(Effect.provide(layer))
+      Effect.gen(function* () {
+        const applyTransaction = transactionsRouter.apply.callable({
+          context: { transactions: { transactionInputs: [transactionInput()] } },
+        });
+        return yield* withFiberContext(() =>
+          applyTransaction({
+            kind: "dry-run-intent",
+            worktree: cleanWorktree(),
+            admission: applyAdmission(),
+          })
+        );
+      }).pipe(Effect.provide(layer))
     );
 
     expect(record.outcome).toMatchObject({

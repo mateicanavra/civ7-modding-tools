@@ -1,11 +1,9 @@
 import type { RuleSelection } from "@internal/habitat-harness/core/domains/rule-selection/index";
 import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/core/domains/structural-check/index";
 import type { CheckOptions } from "@internal/habitat-harness/core/domains/structural-check/request";
-import {
-  expandCheckBaselinesService,
-  runCheckService,
-} from "@internal/habitat-harness/service/modules/check/router";
+import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
 import { Effect } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 
 const mockReport = {
@@ -20,13 +18,18 @@ describe("Habitat check service", () => {
   test("runs owned check orchestration from service input", async () => {
     const observed: CheckOptions[] = [];
     const result = await Effect.runPromise(
-      runCheckService({
-        selectors: { rule: "format-ci", tool: "biome" },
-        baselineIntegrity: true,
-        base: "origin/main",
-        commandArgs: ["--json"],
-        staged: true,
-        stagedPaths: ["tools/habitat-harness/src/host/commands/check.ts"],
+      Effect.gen(function* () {
+        const runCheck = checkRouter.run.callable({ context: {} });
+        return yield* withFiberContext(() =>
+          runCheck({
+            selectors: { rule: "format-ci", tool: "biome" },
+            baselineIntegrity: true,
+            base: "origin/main",
+            commandArgs: ["--json"],
+            staged: true,
+            stagedPaths: ["tools/habitat-harness/src/host/commands/check.ts"],
+          })
+        );
       }).pipe(
         Effect.provide(
           makeFakeStructuralCheckLayer({
@@ -73,9 +76,14 @@ describe("Habitat check service", () => {
     });
 
     const expanded = await Effect.runPromise(
-      expandCheckBaselinesService({
-        selectors: { owner: "tools-habitat-harness" },
-        base: "main",
+      Effect.gen(function* () {
+        const expandBaseline = checkRouter.expandBaseline.callable({ context: {} });
+        return yield* withFiberContext(() =>
+          expandBaseline({
+            selectors: { owner: "tools-habitat-harness" },
+            base: "main",
+          })
+        );
       }).pipe(Effect.provide(layer))
     );
 
@@ -96,8 +104,13 @@ describe("Habitat check service", () => {
     };
 
     const refused = await Effect.runPromise(
-      expandCheckBaselinesService({
-        selectors: { rule: "missing-rule" },
+      Effect.gen(function* () {
+        const expandBaseline = checkRouter.expandBaseline.callable({ context: {} });
+        return yield* withFiberContext(() =>
+          expandBaseline({
+            selectors: { rule: "missing-rule" },
+          })
+        );
       }).pipe(Effect.provide(layer))
     );
 

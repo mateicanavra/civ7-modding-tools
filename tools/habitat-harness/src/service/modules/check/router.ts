@@ -34,7 +34,7 @@ export const checkRouter = {
 
 export const router = checkRouter;
 
-export function runCheckService(input: CheckServiceRunInput) {
+function runCheckService(input: CheckServiceRunInput) {
   return Effect.gen(function* () {
     const structuralCheck = yield* StructuralCheck;
     return yield* structuralCheck.createReport({
@@ -48,7 +48,7 @@ export function runCheckService(input: CheckServiceRunInput) {
   });
 }
 
-export function expandCheckBaselinesService(
+function expandCheckBaselinesService(
   input: CheckServiceExpandBaselineInput
 ): Effect.Effect<
   CheckServiceExpandBaselineOutput,

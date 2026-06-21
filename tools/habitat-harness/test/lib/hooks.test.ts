@@ -12,7 +12,8 @@ import {
   type CheckReport,
   makeFakeStructuralCheckLayer,
 } from "@internal/habitat-harness/core/domains/structural-check/index";
-import { runHookService } from "@internal/habitat-harness/service/modules/hook/router";
+import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   type BiomeCommandRequest,
@@ -28,6 +29,7 @@ import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/p
 import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
 import { makeFakeNxProviderLayer } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Effect, Layer } from "effect";
+import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 
 describe("Habitat hook resource policy", () => {
@@ -457,9 +459,14 @@ async function runPreCommitInTest(
     makeStructuralCheckLayer(fake),
     makeBiomeLayer(fake)
   );
-  return Effect.runPromise(
-    runHookService({ name: "pre-commit" }, { runtime }).pipe(Effect.provide(layer))
-  );
+  return Effect.runPromise(runHookProcedure({ runtime }).pipe(Effect.provide(layer)));
+}
+
+function runHookProcedure(context: HookServiceModuleContext) {
+  return Effect.gen(function* () {
+    const runHook = hookRouter.run.callable({ context: { hook: context } });
+    return yield* withFiberContext(() => runHook({ name: "pre-commit" }));
+  });
 }
 
 function makeStructuralCheckLayer(fake: FakeHookRuntime) {

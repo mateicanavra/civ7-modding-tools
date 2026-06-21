@@ -29,7 +29,7 @@ export const graphRouter = {
 
 export const router = graphRouter;
 
-export function runGraphService(input: GraphServiceRunInput = {}) {
+function runGraphService(input: GraphServiceRunInput = {}) {
   return Effect.scoped(
     Effect.gen(function* () {
       const tempDir = yield* acquireTempDirectory("habitat-graph-").pipe(
