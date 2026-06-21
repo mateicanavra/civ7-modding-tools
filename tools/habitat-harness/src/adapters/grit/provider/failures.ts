@@ -1,20 +1,27 @@
 import { Data } from "effect";
+import { type Static, Type } from "typebox";
+import { Value } from "typebox/value";
 
-export const gritAdapterFailureTags = [
-  "GritToolUnavailable",
-  "GritCommandFailed",
-  "GritNoJson",
-  "GritMalformedJson",
-  "GritSchemaDrift",
-  "GritUnexpectedResultShape",
-  "GritEmptyScanRoots",
-  "GritPatternMatchMissing",
-  "GritUnexpectedDiagnosticIdentity",
-  "GritCacheProvenanceMissing",
-  "GritAdapterInternalContractViolation",
+const GritAdapterFailureTagLiteralSchemas = [
+  Type.Literal("GritToolUnavailable"),
+  Type.Literal("GritCommandFailed"),
+  Type.Literal("GritNoJson"),
+  Type.Literal("GritMalformedJson"),
+  Type.Literal("GritSchemaDrift"),
+  Type.Literal("GritUnexpectedResultShape"),
+  Type.Literal("GritEmptyScanRoots"),
+  Type.Literal("GritPatternMatchMissing"),
+  Type.Literal("GritUnexpectedDiagnosticIdentity"),
+  Type.Literal("GritCacheProvenanceMissing"),
+  Type.Literal("GritAdapterInternalContractViolation"),
 ] as const;
 
-export type GritAdapterFailureTag = (typeof gritAdapterFailureTags)[number];
+export const GritAdapterFailureTagSchema = Type.Union([...GritAdapterFailureTagLiteralSchemas]);
+
+export type GritAdapterFailureTag = Static<typeof GritAdapterFailureTagSchema>;
+
+export const gritAdapterFailureTags: readonly GritAdapterFailureTag[] =
+  GritAdapterFailureTagLiteralSchemas.map((schema) => schema.const as GritAdapterFailureTag);
 
 export interface GritAdapterFailureFields {
   readonly detail: string;
@@ -113,7 +120,7 @@ export function createGritAdapterFailure(
 }
 
 export function isGritAdapterFailureTag(value: string): value is GritAdapterFailureTag {
-  return gritAdapterFailureTags.includes(value as GritAdapterFailureTag);
+  return Value.Check(GritAdapterFailureTagSchema, value);
 }
 
 export function renderGritAdapterFailure(
