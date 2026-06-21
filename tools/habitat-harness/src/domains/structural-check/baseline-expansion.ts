@@ -7,6 +7,7 @@ import { type RuleSelectionResult, selectRules } from "../../domains/rule-select
 import { renderHabitatError } from "../../errors/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
+import type { NxProvider } from "../../providers/nx/index.js";
 import { BaselineAuthority, violationKey } from "../baseline-authority/index.js";
 import {
   activeRuleBaselineFacts,
@@ -34,6 +35,7 @@ export function expandBaselinesEffect(
   never,
   | BaselineAuthority
   | CommandRunner
+  | NxProvider
   | CommandExecutor
   | SourceCheck
   | HabitatConfig

@@ -46,7 +46,7 @@ instead of being hidden in missing fields or generic success output.
 - Implement focused verify modules under `tools/habitat-harness/src/lib/verify/`.
 - Expose the verify module through `tools/habitat-harness/src/lib/verify/index.ts`
   and the package root barrel.
-- Emit a closed `VerifyReceipt` with `succeeded`, `failed`, and `blocked`
+- Emit a closed `VerifyReceipt` with `succeeded`, `failed`, `blocked`, and `planned`
   outcomes.
 - Emit `nxAffected.kind` as `executed`, `failed`, or `skipped`.
 - Build affected argv from D3 targets, resolved base, `--head HEAD`, and

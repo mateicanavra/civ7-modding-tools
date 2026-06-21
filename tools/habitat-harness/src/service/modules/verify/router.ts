@@ -35,15 +35,19 @@ export const verifyRouter = {
       });
       const checkSummary = verifyCheckSummary(checkReport);
       const targetPlan = yield* Effect.promise(() => Promise.resolve(readVerifyTargetPlan()));
+      const affectedExecution = input.affectedExecution ?? "run";
       let affectedResult: SpawnResult | undefined;
+      let affectedSkipReason: "receipt-only" | undefined;
       let exitCode = 0;
       if (!checkSummary.allowsAffectedExecution) exitCode = 1;
       else if (targetPlan.kind === "verify-target-plan-refused") exitCode = 1;
-      else {
+      else if (affectedExecution === "run") {
         affectedResult = yield* runAffectedVerificationEffect(base, targetPlan).pipe(
           Effect.mapError(verifyServiceInternalError)
         );
         exitCode = affectedResult.exitCode;
+      } else {
+        affectedSkipReason = "receipt-only";
       }
       const endedMs = yield* Clock.currentTimeMillis;
       const receipt = createVerifyReceipt({
@@ -57,6 +61,7 @@ export const verifyRouter = {
         checkReport,
         verifyTargetPlan: targetPlan,
         affectedResult,
+        affectedSkipReason,
         gitStatus: yield* observeGitStatusEffect().pipe(
           Effect.mapError(verifyServiceInternalError)
         ),

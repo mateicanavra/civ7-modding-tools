@@ -16,7 +16,7 @@
 ## 3. Verification
 
 - [x] 3.1 Run `bun run --cwd tools/habitat-harness test -- test/lib/verify-receipt.test.ts test/lib/workspace-graph.test.ts`.
-- [ ] 3.2 Run `bun run habitat verify --json`.
+- [x] 3.2 Run `bun run habitat verify --json`.
 - [x] 3.3 Run `bun run --cwd tools/habitat-harness check`.
 - [x] 3.4 Run `bun run openspec -- validate deep-habitat-effect-verify-graph-cutover --strict`.
 - [x] 3.5 Run `bun run openspec:validate`.
@@ -30,7 +30,15 @@
   bounded wait with no JSON output. The hang is consistent with the existing
   aggregate Habitat pattern-check boundary recorded by the static-inventory
   domino; this packet does not claim aggregate verify CLI closure.
-- 3.2 was rerun after current-tree `pattern-check` moved off broad Grit source
-  execution. It still produced no JSON within a bounded wait and was interrupted
-  after roughly 74s. Aggregate verify therefore remains open as its own runtime
-  architecture problem, not as part of the Grit current-tree pattern-check fix.
+- 3.2 was repaired by splitting receipt-only JSON from affected execution and by
+  narrowing the verify target plan to graph-owned project targets
+  (`build,check,test`). Latest run:
+  `/usr/bin/time -p bun run habitat -- verify --json >
+  /tmp/habitat-verify-json-final.json` exited 0 in 19.16s with
+  `outcome=planned`, `nxAffected.skipReason=receipt-only`, and
+  `targetPlan.targets=[build,check,test]`.
+- Aggregate `habitat check --json` remains longer than desired: graph-backed
+  structural checks now batch through `NxProvider.runMany` by proof owner, but
+  the final aggregate still took 37.34s. The remaining long pole is
+  `import-boundaries` at roughly 23.9s; the target-check corpus is batched down
+  to roughly 7.8s.

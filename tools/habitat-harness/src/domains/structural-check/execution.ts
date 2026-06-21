@@ -17,6 +17,7 @@ import {
   type GitStateProvider,
 } from "../../providers/git/index.js";
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
+import { NxProvider, spawnResultFromCommandResult } from "../../providers/nx/index.js";
 import { type RuleRunResult, ruleDiagnosticsFromCommandResult } from "../../rules/architecture.js";
 import {
   activeRuleCommandExecutionFacts,
@@ -28,6 +29,7 @@ import {
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
+  RuleGraphFacts,
   RulePatternFacts,
   RuleSelectorFacts,
 } from "../rule-registry/index.js";
@@ -76,6 +78,7 @@ export function executeSelectedRulesEffect(
   Map<string, RuleExecutionRecord>,
   never,
   | CommandRunner
+  | NxProvider
   | CommandExecutor
   | SourceCheck
   | HabitatConfig
@@ -127,6 +130,12 @@ export function executeSelectedRulesEffect(
     }
 
     const commandRules = factsForRuleIds(activeRuleCommandExecutionFacts, selectedRuleIds);
+    const graphRulesById = factsByRuleId(
+      factsForRuleIds(
+        activeRuleGraphFacts,
+        commandRules.map((rule) => rule.id)
+      )
+    );
     const graphRefusals = yield* Effect.promise(() => graphDependencyRefusals(commandRules));
     for (const rule of commandRules) {
       const refusal = graphRefusals.get(rule.id);
@@ -141,8 +150,13 @@ export function executeSelectedRulesEffect(
         });
       }
     }
+    const executableCommandRules = commandRules.filter((rule) => !graphRefusals.has(rule.id));
+    const graphBackedRules = executableCommandRules.filter((rule) =>
+      isGraphBackedCommandRule(rule, graphRulesById)
+    );
+    yield* executeGraphBackedCommandRulesEffect(graphBackedRules, graphRulesById, results);
     yield* executeCommandRulesEffect(
-      commandRules.filter((rule) => !graphRefusals.has(rule.id)),
+      executableCommandRules.filter((rule) => !isGraphBackedCommandRule(rule, graphRulesById)),
       results
     );
     yield* executeFileLayerRulesEffect(
@@ -153,6 +167,13 @@ export function executeSelectedRulesEffect(
 
     return results;
   });
+}
+
+function isGraphBackedCommandRule(
+  rule: RuleCommandExecutionFacts,
+  graphRulesById: ReadonlyMap<string, RuleGraphFacts>
+): boolean {
+  return graphRulesById.get(rule.id)?.alias.kind === "depends-on";
 }
 
 async function graphDependencyRefusals(
@@ -186,6 +207,99 @@ function executeCommandRulesEffect(
       concurrency: "unbounded",
     });
     for (const [ruleId, record] of records) results.set(ruleId, record);
+  });
+}
+
+function executeGraphBackedCommandRulesEffect(
+  rules: readonly RuleCommandExecutionFacts[],
+  graphRulesById: ReadonlyMap<string, RuleGraphFacts>,
+  results: Map<string, RuleExecutionRecord>
+): Effect.Effect<
+  void,
+  never,
+  NxProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
+> {
+  if (rules.length === 0) return Effect.void;
+  const groups = groupedGraphBackedCommandRules(rules);
+  return Effect.gen(function* () {
+    const groupResults = yield* Effect.all(
+      groups.map((group) => runGraphBackedCommandRuleGroup(group, graphRulesById)),
+      { concurrency: "unbounded" }
+    );
+    for (const groupResult of groupResults) {
+      for (const [ruleId, record] of groupResult) results.set(ruleId, record);
+    }
+  });
+}
+
+function runGraphBackedCommandRuleGroup(
+  rules: readonly RuleCommandExecutionFacts[],
+  graphRulesById: ReadonlyMap<string, RuleGraphFacts>
+): Effect.Effect<
+  Map<string, RuleExecutionRecord>,
+  never,
+  NxProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
+> {
+  return Effect.gen(function* () {
+    const targets = graphTargetsForRules(rules, graphRulesById);
+    const nx = yield* NxProvider;
+    const started = yield* Clock.currentTimeMillis;
+    const execution = yield* nx
+      .runMany({
+        projects: sortedUnique(targets.map((target) => target.project)),
+        targets: sortedUnique(targets.map((target) => target.target)),
+      })
+      .pipe(
+        Effect.match({
+          onFailure: (error) => ({ kind: "provider-failure" as const, error }),
+          onSuccess: (commandResult) => ({
+            kind: "completed" as const,
+            result: spawnResultFromCommandResult(commandResult),
+          }),
+        })
+      );
+    const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+    const records = new Map<string, RuleExecutionRecord>();
+    for (const rule of rules) {
+      const ruleResult =
+        execution.kind === "provider-failure"
+          ? commandProviderFailureResult(rule, execution.error)
+          : {
+              exitCode: execution.result.exitCode,
+              diagnostics: ruleDiagnosticsFromCommandResult(rule, execution.result),
+            };
+      records.set(rule.id, {
+        result: ruleResult,
+        durationMs,
+        disposition: { kind: "executed", durationMs },
+      });
+    }
+    return records;
+  });
+}
+
+function groupedGraphBackedCommandRules(
+  rules: readonly RuleCommandExecutionFacts[]
+): RuleCommandExecutionFacts[][] {
+  const groups = new Map<string, RuleCommandExecutionFacts[]>();
+  for (const rule of rules) {
+    const group = groups.get(rule.ownerTool) ?? [];
+    group.push(rule);
+    groups.set(rule.ownerTool, group);
+  }
+  return [...groups.values()];
+}
+
+function graphTargetsForRules(
+  rules: readonly RuleCommandExecutionFacts[],
+  graphRulesById: ReadonlyMap<string, RuleGraphFacts>
+): Array<{ project: string; target: string }> {
+  return rules.map((rule) => {
+    const graphRule = graphRulesById.get(rule.id);
+    if (graphRule?.alias.kind !== "depends-on") {
+      throw new Error(`habitat internal error: missing graph target for ${rule.id}`);
+    }
+    return graphRule.alias.target;
   });
 }
 
@@ -257,6 +371,14 @@ function renderRuleExecutionError(error: unknown): string {
     : error instanceof Error
       ? error.message
       : String(error);
+}
+
+function sortedUnique(values: readonly string[]): string[] {
+  return [...new Set(values)].sort();
+}
+
+function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {
+  return new Map(facts.map((fact) => [fact.id, fact]));
 }
 
 function isHabitatError(error: unknown): error is HabitatError {

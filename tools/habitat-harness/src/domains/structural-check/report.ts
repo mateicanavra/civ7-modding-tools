@@ -6,6 +6,7 @@ import type { HabitatConfig } from "../../config/index.js";
 import { selectRules } from "../../domains/rule-selection/index.js";
 import { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
+import type { NxProvider } from "../../providers/nx/index.js";
 import { type BaselineApplicationResult, BaselineAuthority } from "../baseline-authority/index.js";
 import { activeRuleReportFacts, factsForRuleIds } from "../rule-registry/active-facts.js";
 import type { RuleReportFacts } from "../rule-registry/index.js";
@@ -34,6 +35,7 @@ export function createCheckReportEffect(
   never,
   | BaselineAuthority
   | CommandRunner
+  | NxProvider
   | CommandExecutor
   | SourceCheck
   | HabitatConfig

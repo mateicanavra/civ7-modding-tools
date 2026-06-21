@@ -7,7 +7,7 @@ import { createHabitatServiceClient } from "../service/client.js";
 export default class Verify extends HabitatCommand {
   static override summary = "Run Habitat check plus affected verification targets";
   static override description =
-    "Runs Habitat checks first, then Nx affected build/check/test/boundaries/biome:ci/grit:check/generated:check for the selected base.";
+    "Runs Habitat checks first, then Nx affected build/check/test for the selected base. JSON mode emits a bounded receipt without running the affected target lane.";
   static override examples = [
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --base HEAD~1",
@@ -28,6 +28,7 @@ export default class Verify extends HabitatCommand {
     const result = await service.verify.run({
       base: flags.base,
       commandArgs: this.rawArgv(),
+      affectedExecution: flags.json ? "plan-only" : "run",
     });
     if (result.kind === "base-refused") this.error(result.message, { exit: 1 });
     const checkSummary = verifyCheckSummary(result.checkReport);

@@ -11,6 +11,7 @@ import {
 } from "../../../domains/structural-check/index.js";
 import type { CommandRunner } from "../../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../../providers/git/index.js";
+import type { NxProvider } from "../../../providers/nx/index.js";
 import type {
   CheckServiceExpandBaselineInput,
   CheckServiceExpandBaselineOutput,
@@ -48,6 +49,7 @@ export function expandCheckBaselinesService(
   never,
   | BaselineAuthority
   | CommandRunner
+  | NxProvider
   | CommandExecutor
   | SourceCheck
   | HabitatConfig

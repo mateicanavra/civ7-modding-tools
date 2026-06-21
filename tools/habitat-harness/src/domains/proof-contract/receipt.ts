@@ -48,6 +48,8 @@ export interface VerifyReceiptInput {
   verifyTargetPlan?: VerifyTargetPlan;
   /** Optional affected command result; absent means verify skipped affected execution. */
   affectedResult?: SpawnResult;
+  /** Explicit skip reason when the caller intentionally plans affected execution without running it. */
+  affectedSkipReason?: Extract<VerifyReceipt["nxAffected"], { kind: "skipped" }>["skipReason"];
   /** Git status observation captured through the Git provider before receipt assembly. */
   gitStatus: SpawnResult;
 }
@@ -84,7 +86,9 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
       ? completedNxAffected(nxArgv, input.affectedResult)
       : skippedNxAffected(
           nxArgv,
-          habitatCheckSummary.allowsAffectedExecution ? targetPlan : undefined
+          habitatCheckSummary.allowsAffectedExecution
+            ? { targetPlan, reason: input.affectedSkipReason }
+            : {}
         );
   const postState = postStateObservation(input.gitStatus);
   return Value.Parse(VerifyReceiptSchema, {
@@ -175,6 +179,8 @@ function receiptOutcome(input: {
     input.targetPlan.kind === "verify-target-plan-refused"
   )
     return "blocked";
+  if (input.nxAffected.kind === "skipped" && input.nxAffected.skipReason === "receipt-only")
+    return "planned";
   if (input.nxAffected.kind === "failed" || input.postState.kind === "unavailable") return "failed";
   return "succeeded";
 }

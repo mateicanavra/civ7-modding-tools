@@ -5,6 +5,7 @@ import type { HabitatConfig } from "../../config/index.js";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
 import type { CommandRunner } from "../../providers/command/index.js";
 import type { GitProvider, GitProviderRequirements } from "../../providers/git/index.js";
+import type { NxProvider } from "../../providers/nx/index.js";
 import type { BaselineAuthority } from "../baseline-authority/index.js";
 import type { SourceCheck } from "../source-check/index.js";
 import type { BaselineExpansionResult } from "./baseline-expansion.js";
@@ -21,6 +22,7 @@ export interface StructuralCheckService {
     never,
     | BaselineAuthority
     | CommandRunner
+    | NxProvider
     | CommandExecutor
     | SourceCheck
     | HabitatConfig
@@ -36,6 +38,7 @@ export interface StructuralCheckService {
     never,
     | BaselineAuthority
     | CommandRunner
+    | NxProvider
     | CommandExecutor
     | SourceCheck
     | HabitatConfig

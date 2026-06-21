@@ -88,8 +88,9 @@ bun run habitat verify -- --base <ref>
 Supported outcome:
 
 - Habitat check runs first;
-- affected workspace verification runs only if Habitat check passes;
-- JSON mode can emit a structured verification receipt.
+- human mode runs affected workspace verification only if Habitat check passes;
+- JSON mode emits a structured verification receipt from the Habitat check and
+  target plan without running the affected workspace lane.
 
 This is useful for local verification receipts, not as a replacement for root
 graph checks.

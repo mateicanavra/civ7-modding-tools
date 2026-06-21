@@ -113,22 +113,14 @@ describe("verify receipt", () => {
         "nx",
         "affected",
         "-t",
-        "build,check,test,boundaries,biome:ci,grit:check,generated:check",
+        "build,check,test",
         "--base",
         "HEAD",
         "--head",
         "HEAD",
         "--outputStyle=static",
       ],
-      targets: [
-        "build",
-        "check",
-        "test",
-        "boundaries",
-        "biome:ci",
-        "grit:check",
-        "generated:check",
-      ],
+      targets: ["build", "check", "test"],
       projects: [],
       cacheStateByTask: [],
       exitCode: null,
@@ -139,6 +131,35 @@ describe("verify receipt", () => {
       stdoutTruncated: false,
       stderrTruncated: false,
     });
+  });
+
+  test("represents JSON receipt-only affected planning without executing Nx affected", () => {
+    const receipt = createVerifyReceipt({
+      requestedBase: "HEAD",
+      resolvedBase: "HEAD",
+      commandArgs: ["--base", "HEAD", "--json"],
+      startedAt: "2026-06-15T00:00:00.000Z",
+      durationMs: 12,
+      exitCode: 0,
+      checkReport: checkReport(),
+      verifyTargetPlan: verifyTargetPlanFixture(),
+      affectedSkipReason: "receipt-only",
+      gitStatus: gitStatusFixture(),
+    });
+
+    expect(receipt.outcome).toBe("planned");
+    expect(receipt.habitatCheck.consumption).toBe("allows-affected-execution");
+    expect(receipt.nxAffected).toMatchObject({
+      kind: "skipped",
+      skipReason: "receipt-only",
+      targets: ["build", "check", "test"],
+      projects: [],
+      cacheStateByTask: [],
+      exitCode: null,
+      stdoutLength: 0,
+      stderrLength: 0,
+    });
+    expect(validateVerifyReceipt(receipt)).toEqual([]);
   });
 
   test("ignores affected results when the Habitat check failed", () => {
@@ -254,15 +275,7 @@ function verifyTargetPlanFixture() {
       root: "tools/habitat-harness",
       sourceRoot: null,
       tags: ["kind:tooling"],
-      targets: [
-        { name: "build" },
-        { name: "check" },
-        { name: "test" },
-        { name: "boundaries" },
-        { name: "biome:ci" },
-        { name: "grit:check" },
-        { name: "generated:check" },
-      ],
+      targets: [{ name: "build" }, { name: "check" }, { name: "test" }],
     },
   ]);
 }
