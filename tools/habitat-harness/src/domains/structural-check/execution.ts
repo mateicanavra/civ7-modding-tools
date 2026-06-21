@@ -270,10 +270,15 @@ function executeCommandRulesEffect(
   results: Map<string, RuleExecutionRecord>
 ): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
   return Effect.gen(function* () {
-    const records = yield* Effect.all(commandRules.map(executeCommandRuleEffect), {
-      concurrency: "unbounded",
-    });
-    for (const [ruleId, record] of records) results.set(ruleId, record);
+    const groupResults = yield* Effect.all(
+      commandRuleExecutionGroups(commandRules).map(executeCommandRuleGroupEffect),
+      {
+        concurrency: "unbounded",
+      }
+    );
+    for (const groupResult of groupResults) {
+      for (const [ruleId, record] of groupResult) results.set(ruleId, record);
+    }
   });
 }
 
@@ -409,10 +414,36 @@ function graphTargetsForRules(
   });
 }
 
-function executeCommandRuleEffect(
-  rule: RuleCommandExecutionFacts
+interface CommandRuleExecutionGroup {
+  readonly executable: string;
+  readonly argv: readonly string[];
+  readonly cwd: string;
+  readonly rules: readonly RuleCommandExecutionFacts[];
+}
+
+function commandRuleExecutionGroups(
+  rules: readonly RuleCommandExecutionFacts[]
+): CommandRuleExecutionGroup[] {
+  const groups = new Map<string, CommandRuleExecutionGroup>();
+  for (const rule of rules) {
+    const executable = rule.detect[0] ?? "";
+    const argv = rule.detect.slice(1);
+    const key = JSON.stringify({ executable, argv, cwd: repoRoot });
+    const current = groups.get(key);
+    groups.set(key, {
+      executable,
+      argv,
+      cwd: repoRoot,
+      rules: current ? [...current.rules, rule] : [rule],
+    });
+  }
+  return [...groups.values()];
+}
+
+function executeCommandRuleGroupEffect(
+  group: CommandRuleExecutionGroup
 ): Effect.Effect<
-  [string, RuleExecutionRecord],
+  Map<string, RuleExecutionRecord>,
   never,
   CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
 > {
@@ -421,22 +452,43 @@ function executeCommandRuleEffect(
     const started = yield* Clock.currentTimeMillis;
     const result = yield* runner
       .run({
-        commandId: rule.id,
+        commandId: commandRuleGroupId(group),
         kind: "workspace-tool",
-        executable: rule.detect[0] ?? "",
-        argv: rule.detect.slice(1),
-        cwd: repoRoot,
+        executable: group.executable,
+        argv: group.argv,
+        cwd: group.cwd,
         captureGitState: false,
       })
       .pipe(
         Effect.match({
-          onFailure: (error) => commandProviderFailureResult(rule, error),
-          onSuccess: (commandResult) => commandRuleResult(rule, commandResult),
+          onFailure: (error) => ({ kind: "provider-failure" as const, error }),
+          onSuccess: (commandResult) => ({ kind: "completed" as const, commandResult }),
         })
       );
     const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-    return [rule.id, { result, durationMs, disposition: { kind: "executed", durationMs } }];
+    const records = new Map<string, RuleExecutionRecord>();
+    for (const rule of group.rules) {
+      records.set(rule.id, {
+        result:
+          result.kind === "provider-failure"
+            ? commandProviderFailureResult(rule, result.error)
+            : commandRuleResult(rule, result.commandResult),
+        durationMs,
+        timing: sharedExecutionTiming(commandTimingGroupId(group), durationMs, group.rules),
+        disposition: { kind: "executed", durationMs },
+      });
+    }
+    return records;
   });
+}
+
+function commandRuleGroupId(group: CommandRuleExecutionGroup): string {
+  if (group.rules.length === 1) return group.rules[0]?.id ?? "command-rule";
+  return `command-rules:${group.rules.map((rule) => rule.id).join("+")}`;
+}
+
+function commandTimingGroupId(group: CommandRuleExecutionGroup): string {
+  return `command:${[group.executable, ...group.argv].join(" ")}`;
 }
 
 function commandRuleResult(
