@@ -5,7 +5,6 @@ export const sourceCheckRuleIds = [
   "control-app-surface",
   "control-orpc-contract-ownership",
   "cutover-source-guardrails",
-  "docs-local-checkout-paths",
   "domain-deep-import",
   "domain-engine-imports",
   "domain-ops-boundary-imports",
@@ -89,21 +88,6 @@ export function diagnosticsForRule(rule, file) {
             ...cutoverShimSurfaceLines(file).map((line) => diagnostic(rule, file, undefined, line)),
             ...cutoverLegacyStageLines(file).map((line) => diagnostic(rule, file, undefined, line)),
             ...cutoverDualStageLines(file).map((line) => diagnostic(rule, file, undefined, line)),
-          ]
-        : [];
-    case "docs-local-checkout-paths":
-      return file.path.startsWith("docs/") &&
-        file.path.endsWith(".md") &&
-        file.text.includes("/docs/") &&
-        file.text.includes(".md") &&
-        /\/Users\/|\/home\/|\/Volumes\//.test(file.text)
-        ? [
-            diagnostic(
-              rule,
-              file,
-              undefined,
-              firstMatchingLine(file.text, /\/(?:Users|home|Volumes)\//)
-            ),
           ]
         : [];
     case "domain-deep-import":
