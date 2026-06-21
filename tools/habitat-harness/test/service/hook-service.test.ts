@@ -11,6 +11,11 @@ import {
   makeFakeStructuralCheckLayer,
 } from "../../src/domains/structural-check/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
+import {
+  type BiomeCommandRequest,
+  biomeArgv,
+  makeFakeBiomeProviderLayer,
+} from "../../src/providers/biome/index.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
 import type { HabitatCommandResult } from "../../src/providers/command/types.js";
 import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
@@ -410,6 +415,61 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain("habitat hook pre-commit: PASS\n");
     expect(fake.calls).toEqual(["git diff --cached --name-status -z"]);
   });
+
+  test("routes pre-commit Biome execution through the Biome provider", async () => {
+    const trace = createHookTrace();
+    const stagedPath = "tools/habitat-harness/src/service/modules/hook/router.ts";
+    const fake = makePreCommitRuntime({
+      stagedPaths: [stagedPath],
+      fileHashes: { [stagedPath]: ["before-format", "after-format"] },
+    });
+    const biomeRequests: BiomeCommandRequest[] = [];
+
+    const result = await runHookServiceInTest(
+      { name: "pre-commit" },
+      { runtime: { ...fake.runtime, trace } },
+      undefined,
+      undefined,
+      makeFakeStructuralCheckLayer({
+        createReport: (options = {}) =>
+          Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
+        expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
+      }),
+      biomeLayer((request) => {
+        biomeRequests.push(request);
+        return commandResult(
+          biomeArgv(request),
+          repoRootForTestCommand(),
+          `${request.kind} ok\n`,
+          0,
+          "",
+          "biome"
+        );
+      })
+    );
+
+    expect(result.exitCode).toBe(0);
+    expect(result.stdout).toContain("[biome format]\nformat ok\n");
+    expect(result.stdout).toContain("[biome check]\ncheck ok\n");
+    expect(fake.calls.some((call) => call.startsWith("biome "))).toBe(false);
+    expect(fake.calls).toContain(`git add -- ${stagedPath}`);
+    expect(biomeRequests).toEqual([
+      {
+        kind: "format",
+        write: true,
+        noErrorsOnUnmatched: true,
+        paths: [stagedPath],
+      },
+      {
+        kind: "check",
+        noErrorsOnUnmatched: true,
+        paths: [stagedPath],
+      },
+    ]);
+    expect(trace.commands.map((command) => command.phase)).toEqual(
+      expect.arrayContaining(["biome-format", "formatter-restage", "biome-check"])
+    );
+  });
 });
 
 function runHookServiceInTest(
@@ -417,11 +477,12 @@ function runHookServiceInTest(
   options: Parameters<typeof runHookService>[1] = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
-  structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>
+  structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>,
+  biome = biomeLayer()
 ) {
   const layer = structuralCheck
-    ? Layer.mergeAll(gitLayer, nx, structuralCheck)
-    : Layer.merge(gitLayer, nx);
+    ? Layer.mergeAll(gitLayer, nx, structuralCheck, biome)
+    : Layer.mergeAll(gitLayer, nx, biome);
   return Effect.runPromise(runHookService(input, options).pipe(Effect.provide(layer)));
 }
 
@@ -502,35 +563,84 @@ function nxLayer(
   });
 }
 
+function biomeLayer(handler?: (request: BiomeCommandRequest) => HabitatCommandResult) {
+  return makeFakeBiomeProviderLayer(
+    (request) =>
+      handler?.(request) ??
+      commandResult(biomeArgv(request), repoRootForTestCommand(), "biome ok\n", 0, "", "biome")
+  );
+}
+
 function repoRootForTestCommand(): string {
   return process.cwd().replace(/\/tools\/habitat-harness$/, "");
 }
 
-function makePreCommitRuntime(): {
+function makePreCommitRuntime(
+  options: {
+    stagedPaths?: string[];
+    unstagedPaths?: string[];
+    fileHashes?: Record<string, string[]>;
+  } = {}
+): {
   runtime: HookRuntime;
   calls: string[];
 } {
   const calls: string[] = [];
+  const hashReads = new Map<string, number>();
   return {
     calls,
     runtime: {
       runCommand: (argv) => {
         const call = argv.join(" ");
         calls.push(call);
-        if (call === "git diff --cached --name-status -z") {
+        if (call === "git branch --show-current") {
+          return { exitCode: 0, stdout: "agent-HR-test\n", stderr: "" };
+        }
+        if (call === "git rev-parse HEAD") {
+          return { exitCode: 0, stdout: "abc123head\n", stderr: "" };
+        }
+        if (call === "git diff --name-only -z") {
           return { exitCode: 0, stdout: "", stderr: "" };
+        }
+        if (call === "git diff --cached --name-only -z") {
+          return { exitCode: 0, stdout: renderPathList(options.stagedPaths ?? []), stderr: "" };
+        }
+        if (call === "git diff --cached --name-status -z") {
+          return { exitCode: 0, stdout: renderNameStatus(options.stagedPaths ?? []), stderr: "" };
+        }
+        if (call.startsWith("git diff --name-only -z --")) {
+          return { exitCode: 0, stdout: renderPathList(options.unstagedPaths ?? []), stderr: "" };
         }
         if (
           call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
         ) {
           return { exitCode: 0, stdout: fileLayerCheckReport(), stderr: "" };
         }
+        if (call.startsWith("git add --")) {
+          return { exitCode: 0, stdout: "", stderr: "" };
+        }
         throw new Error(`Unexpected hook pre-commit service test command: ${call}`);
       },
-      pathExists: () => false,
+      pathExists: (target) =>
+        (options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate)),
+      fileHash: (repoRelativePath) => {
+        const sequence = options.fileHashes?.[repoRelativePath];
+        if (!sequence) return `stable:${repoRelativePath}`;
+        const readCount = hashReads.get(repoRelativePath) ?? 0;
+        hashReads.set(repoRelativePath, readCount + 1);
+        return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
+      },
       nowMs: () => 1_000,
     },
   };
+}
+
+function renderNameStatus(paths: string[]): string {
+  return paths.map((target) => `A\0${target}\0`).join("");
+}
+
+function renderPathList(paths: string[]): string {
+  return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
 }
 
 function fileLayerCheckReport(): string {
