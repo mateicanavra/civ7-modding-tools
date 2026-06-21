@@ -26,11 +26,24 @@ export function classifyTargetNames(): readonly string[] {
   return ["check", "test"];
 }
 
+export function affectedCheckTargetNames(
+  targetNames = workspaceGraphTargetNames()
+): readonly string[] {
+  return [
+    "check",
+    targetNames.boundaries,
+    targetNames.generatedCheck,
+    targetNames.sourceCheck,
+    "validate:boundary-taxonomy",
+    "validate:grit-patterns",
+  ];
+}
+
 export function verifyTargetNames(targetNames = workspaceGraphTargetNames()): readonly string[] {
   void targetNames;
   return ["build", "check", "test", "validate:boundary-taxonomy", "validate:grit-patterns"];
 }
 
 export function prePushTargetNames(targetNames = workspaceGraphTargetNames()): readonly string[] {
-  return [targetNames.check, "test", "validate:boundary-taxonomy", "validate:grit-patterns"];
+  return affectedCheckTargetNames(targetNames);
 }

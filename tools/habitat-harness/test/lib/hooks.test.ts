@@ -14,6 +14,9 @@ import { runPreCommit, runPrePush } from "../../src/service/modules/hook/router.
 
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 
+const prePushAffectedTargets =
+  "check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns";
+
 describe("Habitat hook resource policy", () => {
   test("passes clean resources without invoking the publish script", () => {
     const fake = makeFakeRuntime({ resourcePolicy: true });
@@ -432,7 +435,7 @@ describe("Habitat pre-push base policy", () => {
       "hook result: workstation check only; CI remains authoritative."
     );
     expect(fake.calls).toContain(
-      "nx affected -t habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base HEAD~1 --head HEAD --outputStyle=static"
+      `nx affected -t ${prePushAffectedTargets} --base HEAD~1 --head HEAD --outputStyle=static --excludeTaskDependencies`
     );
     expect(fake.calls).not.toContain("gt branch info --no-interactive");
     expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
@@ -447,7 +450,7 @@ describe("Habitat pre-push base policy", () => {
     expect(result.stdout).toContain("habitat hook pre-push: repo Nx affected base=agent-HR-parent");
     expect(fake.calls).toContain("gt branch info --no-interactive");
     expect(fake.calls).toContain(
-      "nx affected -t habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base agent-HR-parent --head HEAD --outputStyle=static"
+      `nx affected -t ${prePushAffectedTargets} --base agent-HR-parent --head HEAD --outputStyle=static --excludeTaskDependencies`
     );
     expect(fake.calls.some((call) => call.startsWith("git merge-base"))).toBe(false);
   });
@@ -463,7 +466,7 @@ describe("Habitat pre-push base policy", () => {
     expect(fake.calls).toContain("git symbolic-ref --quiet --short refs/remotes/origin/HEAD");
     expect(fake.calls).toContain("git merge-base HEAD origin/main");
     expect(fake.calls).toContain(
-      "nx affected -t habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns --base abc123mergebase --head HEAD --outputStyle=static"
+      `nx affected -t ${prePushAffectedTargets} --base abc123mergebase --head HEAD --outputStyle=static --excludeTaskDependencies`
     );
   });
 
@@ -530,12 +533,13 @@ describe("Habitat pre-push base policy", () => {
         "nx",
         "affected",
         "-t",
-        "habitat:check,test,validate:boundary-taxonomy,validate:grit-patterns",
+        prePushAffectedTargets,
         "--base",
         "agent-HR-parent",
         "--head",
         "HEAD",
         "--outputStyle=static",
+        "--excludeTaskDependencies",
       ],
       cwd: repoRoot,
       env: undefined,

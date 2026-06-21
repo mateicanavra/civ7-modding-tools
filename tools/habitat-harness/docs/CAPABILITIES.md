@@ -61,11 +61,11 @@ Root scripts also expose graph-owned entrypoints:
   part of root `bun run check:graph`, CI, and Habitat verify/pre-push target
   planning, not package unit tests.
 - `bun run check` runs the diagnostic Habitat structural aggregate.
-- `bun run check:graph` runs the affected graph build, check, lint, test, and
-  structural validation aggregate.
+- `bun run check:graph` runs affected package checks and structural validation
+  without dependency build/test fanout.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
-- `bun run ci` runs the full repo-wide build, check, lint, test, verify, and
-  structural validation aggregate.
+- `bun run ci` runs the full repo-wide build, check, lint, test, and structural
+  validation aggregate without re-entering `verify`.
 - `bun run habitat:fix` runs `bun run habitat fix`.
 
 Important distinction: root `bun run verify` is a workspace aggregate. It is not

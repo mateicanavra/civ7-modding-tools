@@ -30,7 +30,7 @@ bun run habitat:check      # diagnostic full Habitat rule aggregate
 bun run check              # diagnostic full Habitat rule aggregate
 bun run lint               # graph-owned repo-wide Biome hygiene
 bun run habitat:fix        # approved Grit codemods, then Biome safe writes
-bun run check:graph        # affected graph build/check/lint/test structural aggregate
+bun run check:graph        # affected graph package-check and structural aggregate
 bun run verify             # graph-owned heavier verification aggregate
 bun run habitat check      # diagnostic Habitat CLI loop (add --json for JSON)
 bun run habitat verify     # diagnostic Habitat CLI verify loop

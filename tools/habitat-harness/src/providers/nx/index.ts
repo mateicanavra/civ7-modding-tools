@@ -17,6 +17,7 @@ export interface NxAffectedRequest {
   base: string;
   targets: readonly string[];
   head?: string;
+  excludeTaskDependencies?: boolean;
 }
 
 export interface NxGraphRequest {
@@ -158,6 +159,7 @@ export function affectedArgv(request: NxAffectedRequest): string[] {
     "--head",
     request.head ?? "HEAD",
     "--outputStyle=static",
+    ...(request.excludeTaskDependencies ? ["--excludeTaskDependencies"] : []),
   ];
 }
 

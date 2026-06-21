@@ -73,14 +73,15 @@ bun run verify
 Supported outcome:
 
 - `check` runs the Habitat structural aggregate;
-- `check:graph` expands affected workspace graph dependencies and runs
-  build/check/test plus structural validation targets;
-- `verify` runs heavier package verification targets;
+- `check:graph` expands affected projects and runs package checks plus
+  structural validation targets without dependency build/test fanout;
+- `verify` runs heavier package build/check/test verification targets;
 - Habitat checks participate through `habitat:check` where configured.
 
 Use `bun run check` for ordinary structural health, `bun run check:graph` when
-the change needs affected package build/test coverage, and `bun run verify`
-when it needs the heavier verification aggregate. CI runs the full graph.
+the change needs affected package type-check and structural coverage, and
+`bun run verify` when it needs the heavier build/check/test aggregate. CI runs
+the full graph without re-entering `verify`.
 
 ### Run Diagnostic Habitat Verify
 
