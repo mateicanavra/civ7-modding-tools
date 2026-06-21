@@ -14,7 +14,9 @@ export interface ValidationTargetPlan {
 const habitatHarnessProject = "@internal/habitat-harness";
 const packageCheckTarget = "check";
 const habitatToolingPrefix = "tools/habitat-harness/";
-const structuralTargetNames = ["validate:boundary-taxonomy", "validate:grit-patterns"] as const;
+const boundaryTaxonomyTargetName = "validate:boundary-taxonomy";
+const gritPatternsTargetName = "validate:grit-patterns";
+const structuralTargetNames = [boundaryTaxonomyTargetName, gritPatternsTargetName] as const;
 
 export function graphCheckTargetNames(targetNames: WorkspaceGraphTargetNames): readonly string[] {
   return [
@@ -57,7 +59,7 @@ export function prePushTargetPlanForChangedPaths(
   if (plan.paths.length > 0 && plan.paths.every(isHabitatToolingPath)) {
     return {
       runTargets: [{ project: habitatHarnessProject, target: packageCheckTarget }],
-      affectedTargets: [...structuralTargetNames],
+      affectedTargets: habitatToolingStructuralTargetNames(plan.paths),
     };
   }
 
@@ -73,11 +75,34 @@ function artifactAffectedTargets(
   for (const ruleId of plan.nonSourceCheckRuleArtifactIds) {
     targets.add(`${targetNames.rulePrefix}${ruleId}`);
   }
-  if (plan.hasGritPatternArtifact) targets.add("validate:grit-patterns");
+  if (plan.hasGritPatternArtifact) targets.add(gritPatternsTargetName);
   if (plan.hasUnclassifiedArtifact || targets.size === 0) targets.add(targetNames.check);
   return [...targets];
 }
 
 function isHabitatToolingPath(filePath: string): boolean {
   return filePath.startsWith(habitatToolingPrefix);
+}
+
+function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly string[] {
+  const targets = new Set<string>();
+  for (const filePath of paths) {
+    if (isBoundaryTaxonomyToolingPath(filePath)) targets.add(boundaryTaxonomyTargetName);
+    if (isStructuralTargetDeclarationPath(filePath)) {
+      targets.add(boundaryTaxonomyTargetName);
+      targets.add(gritPatternsTargetName);
+    }
+  }
+  return [...targets];
+}
+
+function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
+  return (
+    filePath === "tools/habitat-harness/scripts/validate-boundary-taxonomy.ts" ||
+    filePath === "tools/habitat-harness/src/lib/boundary-taxonomy.ts"
+  );
+}
+
+function isStructuralTargetDeclarationPath(filePath: string): boolean {
+  return filePath === "tools/habitat-harness/package.json";
 }
