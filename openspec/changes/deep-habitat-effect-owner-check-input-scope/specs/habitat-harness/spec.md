@@ -12,6 +12,13 @@ come from the owner's registered Habitat rules.
   Habitat command
 - **AND** the target inputs SHALL be the union of the owned rule inputs.
 
+#### Scenario: Habitat implementation changes stay Habitat-owned
+
+- **WHEN** a non-Habitat owner target is inferred from registered Habitat rules
+- **THEN** the target inputs SHALL NOT include Habitat implementation source
+  globs solely because Habitat executes the rule
+- **AND** Habitat-owned targets SHALL retain Habitat implementation source inputs.
+
 #### Scenario: Broad owners remain broad
 
 - **WHEN** any rule owned by a project declares `workspace-gate` or
