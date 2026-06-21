@@ -75,11 +75,11 @@ describe("standard pipeline viz emissions", () => {
       "foundation.tectonics.boundaryType",
       "morphology.topography.elevation",
       "morphology.coastlineMetrics.shelfMask",
-      "morphology.shelf.capTiles",
+      "morphology.shelf.breakDepth",
       "morphology.routing.flowAccum",
       "map.morphology.coasts.waterClass",
       "map.morphology.coasts.sourceCoastMask",
-      "map.morphology.coasts.policyCoastMask",
+      "map.morphology.coasts.coastRingMask",
       "morphology.mountains.mountainMask",
       "hydrology.climate.rainfall",
       "hydrology.hydrography.discharge",
@@ -427,9 +427,9 @@ describe("standard pipeline viz emissions", () => {
       activeMarginMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")
     ).toBe(true);
 
-    const capTilesMetas = metasByKey.get("morphology.shelf.capTiles") as any[] | undefined;
+    const breakDepthMetas = metasByKey.get("morphology.shelf.breakDepth") as any[] | undefined;
     expect(
-      capTilesMetas?.some((m) => m?.visibility === "default" && m?.palette === "continuous")
+      breakDepthMetas?.some((m) => m?.visibility === "default" && m?.palette === "continuous")
     ).toBe(true);
 
     const nearshoreMetas = metasByKey.get("morphology.shelf.nearshoreCandidateMask") as
@@ -452,12 +452,12 @@ describe("standard pipeline viz emissions", () => {
       sourceCoastMetas?.some((m) => m?.visibility === "default" && m?.role === "membership")
     ).toBe(true);
 
-    const policyCoastMetas = metasByKey.get("map.morphology.coasts.policyCoastMask") as
+    const coastRingMetas = metasByKey.get("map.morphology.coasts.coastRingMask") as
       | any[]
       | undefined;
-    expect(
-      policyCoastMetas?.some((m) => m?.visibility === "debug" && m?.role === "membership")
-    ).toBe(true);
+    expect(coastRingMetas?.some((m) => m?.visibility === "debug" && m?.role === "membership")).toBe(
+      true
+    );
 
     const projectedRiverMetas = metasByKey.get("map.rivers.projectedRiverMask") as
       | any[]

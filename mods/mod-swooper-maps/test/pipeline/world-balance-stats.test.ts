@@ -71,7 +71,16 @@ const CASES = [
     // exclusion vs 0.967 without; live-integration 2026-06-11).
     resourceHabitatFidelityMin: 0.85,
     wetlandMax: 0.12,
-    reefMax: 0.025,
+    // Cap-free shelf redesign (R2/R4): the uniform coast band is gone and coast
+    // now follows the depth-gated shelf, so coast share of water dropped (~0.88
+    // -> ~0.47) and far more water is open ocean. Reef-family features key off
+    // the shelf surface, and atolls bank specifically on warm shallow water
+    // BEYOND the shelf (reef-score-atoll skips shelfMask tiles), so the larger
+    // open-ocean expanse lifts reef-family share. Measured 0.0179 -> 0.0307 of
+    // water at seed 1018 / 106x66 (atoll 33 -> 69, cold-reef 23 -> 51, reef
+    // 37 -> 39). Raised the minimum needed to admit the new shelf-anchored
+    // geography while still gating against carpeting.
+    reefMax: 0.032,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_SAGEBRUSH_STEPPE"],
     vegetationFamiliesMin: 3,
     requireAtolls: true,
@@ -102,7 +111,17 @@ const CASES = [
     // (E2.3's 0.9 budget targets the Earth-like baseline map).
     resourceHabitatFidelityMin: 0.85,
     wetlandMax: 0.08,
-    reefMax: 0.03,
+    // Cap-free shelf redesign (R2/R4): see shattered-ring note above. This map
+    // shows the largest reef-family shift because it is atoll-dominated -- with
+    // the shelf retracted, warm shallow OPEN-ocean banks (where atolls score,
+    // beyond shelfMask) expand the most here. Measured 0.0126 -> 0.0374 of water
+    // at seed 1018 / 106x66, driven almost entirely by atolls (24 -> 109; reef
+    // 19 -> 19, cold-reef 0 -> 0). That is a ~3x move -- legitimate (it is the
+    // direct consequence of the redesigned shelf/coast surface, not a placement
+    // bug), but flagged as the most sensitive identity to the shelf change.
+    // Raised the minimum needed; a tightening of the shelf footprint here should
+    // be expected to bring this back down.
+    reefMax: 0.04,
     requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],
     vegetationFamiliesMin: 2,
     requireAtolls: true,
