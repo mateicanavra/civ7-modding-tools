@@ -611,11 +611,6 @@ function makePreCommitRuntime(
         if (call.startsWith("git diff --name-only -z --")) {
           return { exitCode: 0, stdout: renderPathList(options.unstagedPaths ?? []), stderr: "" };
         }
-        if (
-          call === "bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json"
-        ) {
-          return { exitCode: 0, stdout: fileLayerCheckReport(), stderr: "" };
-        }
         if (call.startsWith("git add --")) {
           return { exitCode: 0, stdout: "", stderr: "" };
         }
@@ -641,16 +636,6 @@ function renderNameStatus(paths: string[]): string {
 
 function renderPathList(paths: string[]): string {
   return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
-}
-
-function fileLayerCheckReport(): string {
-  return `${JSON.stringify({
-    schemaVersion: 1,
-    command: "habitat check --staged --tool file-layer --json",
-    startedAt: "2026-06-20T00:00:00.000Z",
-    ok: true,
-    rules: [],
-  })}\n`;
 }
 
 function renderReported(events: HookReportEvent[], channel: HookReportEvent["channel"]): string {
