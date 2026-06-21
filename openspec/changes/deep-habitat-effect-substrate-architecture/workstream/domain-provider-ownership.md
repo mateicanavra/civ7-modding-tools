@@ -68,7 +68,6 @@ test hooks are replaced by fake Layers or request variants.
 | `GritProvider` | `src/substrate/providers/grit/**` | Grit command construction, pattern discovery, scan-root admission facts, check/apply/test execution, cache acquisition, diagnostic/output parsing | pattern governance decisions or baseline policy | `CommandRunner`, `HabitatConfig`, `ResourceScope`, `HabitatFileSystem` | fake Grit outputs, parser fixtures, scan-root matrix |
 | `BiomeProvider` | `src/providers/biome/**` | check/format command construction, reporter parsing, safe/unsafe fix classification, file-set discovery | staged restage policy or protected-zone authority | `CommandRunner`, `HabitatConfig`, `HabitatFileSystem` | fake reporter diagnostics and write/no-write outcomes |
 | `NxProvider` | `src/providers/nx/**` | project graph, target metadata, affected scope, generator metadata, sync-check facts | Habitat classify wording or target-plan policy | Nx devkit or command-backed graph access, `HabitatConfig` | fake graph and target metadata |
-| `HuskyHookProvider` | `src/providers/husky/**` | hook name validation, hook environment facts, delegator receipt, non-claim labels | local feedback transaction policy | `HabitatConfig`, hook environment | fake hook env/delegation facts |
 | `HabitatFileSystem` | `src/resources/filesystem.ts`, `src/providers/fs/**` | read/write/mkdir/rm/stat/readdir, JSON read/write, protected path checks | domain decisions about what should be written | platform fs, path service, config roots | fake fs or temp-scoped layer |
 | `HabitatClock` | `src/resources/clock.ts`, `src/providers/clock/**` | wall-clock and monotonic duration | report semantics | Effect Clock | TestClock-backed layer |
 | `HabitatReporter` | `src/providers/reporter/**` | stdout/stderr/report events, bounded output, JSON/text rendering hooks | domain outcome construction | console/std streams | event-capturing reporter |
@@ -109,7 +108,7 @@ stderr.
 | `DiagnosticPatternCatalog` | `src/domains/diagnostic-pattern-catalog/**` | diagnostic pattern identity, command/outcome model, catalog facts | GritProvider, RuleRegistry |
 | `PatternGovernance` | `src/domains/pattern-governance/**` | manifest schema, apply safety, admission state, views, lifecycle | FileSystem, GritProvider, RuleRegistry |
 | `TransformationTransaction` | `src/domains/transformation-transaction/**` | dry-run/apply transaction planning, rollback, worktree write-set record | GritProvider, GitProvider, FileSystem, ResourceScope |
-| `LocalFeedback` | `src/domains/local-feedback/**` | pre-commit/pre-push policy, staged/unstaged/restage decisions, local-only non-claims | HuskyHookProvider, GitProvider, BiomeProvider, GritProvider, NxProvider |
+| `LocalFeedback` | `src/domains/local-feedback/**` | pre-commit/pre-push policy, staged/unstaged/restage decisions, local-only non-claims | GitProvider, BiomeProvider, GritProvider, NxProvider |
 | `ProtectedZoneAuthority` | `src/domains/protected-zone-authority/**` | protected path declarations, recovery decisions, scan-root guard output | FileSystem, Host policy config |
 | `Scaffolding` | `src/domains/scaffolding/**` | project/pattern generator decisions, refusal model, authored-artifact fence | NxProvider, FileSystem, PatternGovernance |
 
@@ -136,7 +135,7 @@ adapter/public-contract boundaries.
 | `ConfigError` | `src/config/**` | missing repo root, invalid cache root, invalid hook mode |
 | `CommandError` | `src/providers/command/**` | spawn failure, timeout, interrupted command, bounded output overflow |
 | `FileSystemError` | `src/resources/**`, `src/providers/fs/**` | read/write/stat/json parse failure, protected path write refusal |
-| `VendorError` | `src/providers/{git,grit,biome,nx,husky}/**` | vendor unavailable, unexpected reporter shape, graph unavailable |
+| `VendorError` | `src/providers/{git,grit,biome,nx}/**` | vendor unavailable, unexpected reporter shape, graph unavailable |
 | `DomainError` | `src/domains/**` | invalid selector, baseline growth refusal, malformed registry, graph dependency mismatch |
 | `PublicContractError` | `src/domains/command-contract/**`, `src/public/**` | incompatible output change, unsupported contract version |
 | `InvariantViolation` | owning domain/provider | impossible internal state after schema validation |

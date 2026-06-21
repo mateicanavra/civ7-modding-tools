@@ -4,18 +4,21 @@
 
 Habitat currently treats vendors partly as executable names, partly as command
 helpers, and partly as domain ownership labels. The refactor needs explicit
-providers for Grit, Biome, Nx, Git, and Husky so vendor semantics stay bounded
-and testable.
+providers for Grit, Biome, Nx, and Git so vendor semantics stay bounded and
+testable. Husky remains a repository hook delegator surface in `.husky`; it is
+not a consumed Habitat runtime provider.
 
 ## What Changes
 
 - Promote the existing Grit Effect island into the enclosed
   `substrate/providers/grit` provider/resource surface.
-- Add `GitProvider`, `BiomeProvider`, `NxProvider`, and `HuskyProvider`.
+- Add `GitProvider`, `BiomeProvider`, and `NxProvider`.
 - Define provider contracts for version/config discovery, command
   construction, resource/cache policy, typed failure tags, output parsing, and
   proof projection.
 - Route provider commands through the shared `CommandRunner`.
+- Delete unused provider scaffolding instead of keeping ceremonial vendor
+  providers with no runtime consumer.
 
 ## What Does Not Change
 

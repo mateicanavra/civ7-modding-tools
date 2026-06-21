@@ -7,7 +7,6 @@ import {
   GitStateProviderLive,
 } from "@internal/habitat-harness/substrate/providers/git/index";
 import { GraphiteProviderLive } from "@internal/habitat-harness/substrate/providers/graphite/index";
-import { HuskyProviderLive } from "@internal/habitat-harness/substrate/providers/husky/index";
 import { NxProviderLive } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { HabitatReporterLive } from "@internal/habitat-harness/substrate/providers/reporter/index";
 import { Layer } from "effect";
@@ -21,6 +20,5 @@ export const HabitatSubstrateLive = Layer.mergeAll(
   GraphiteProviderLive,
   BiomeProviderLive,
   NxProviderLive,
-  HuskyProviderLive,
   HabitatReporterLive
 );

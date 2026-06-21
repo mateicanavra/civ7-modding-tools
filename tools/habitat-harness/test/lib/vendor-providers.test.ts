@@ -21,7 +21,6 @@ import {
   GritProvider,
   makeFakeGritProviderLayer,
 } from "@internal/habitat-harness/substrate/providers/grit/index";
-import { huskyDelegator } from "@internal/habitat-harness/substrate/providers/husky/index";
 import {
   affectedArgv,
   graphArgv,
@@ -311,13 +310,6 @@ describe("vendor providers", () => {
     });
     expect(result.request.timeoutMs).toBe(1234);
     expect(result.checked.kind).toBe("pattern-check");
-  });
-
-  test("HuskyProvider stays limited to hook delegator facts", () => {
-    expect(huskyDelegator("pre-commit")).toEqual({
-      hook: "pre-commit",
-      argv: ["bun", "run", "habitat", "hook", "pre-commit"],
-    });
   });
 });
 

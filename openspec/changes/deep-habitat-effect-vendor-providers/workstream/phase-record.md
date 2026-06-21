@@ -37,7 +37,7 @@
 
 ## Implementation Notes
 
-- Added `src/providers/{biome,git,grit,husky,nx}` plus shared command runner
+- Added `src/providers/{biome,git,grit,nx}` plus shared command runner
   result projection.
 - Added live/fake provider layers and merged them into `HabitatRuntimeLive`.
 - Added the internal `src/service/**` Effect-oRPC spine and routed

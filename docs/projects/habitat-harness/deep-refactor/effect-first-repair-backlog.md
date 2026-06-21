@@ -216,7 +216,7 @@ Repair demand:
 
 - Define vendor providers as resources:
   `GritProvider`, `BiomeProvider`, `NxProvider`, `GitProvider`,
-  `HuskyHookProvider`, and `WorkspaceToolProvider`.
+  and `WorkspaceToolProvider`.
 - Each provider must expose typed capabilities, command construction,
   config/version discovery, resource/cache policy, failure tags, and proof
   projections.
@@ -491,8 +491,6 @@ Vendor providers:
   plugin inference proof, cache/target metadata, and Nx failure tags.
 - `GitProvider`: status, staged files, merge-base, show, add/restage, diff,
   worktree cleanliness, and Git failure tags.
-- `HuskyHookProvider`: hook name/delegation context only. It does not own staged
-  paths, Biome, Grit, Nx, or proof semantics.
 
 Capability objects:
 
@@ -566,7 +564,7 @@ Exit:
 Scope:
 
 - Promote Grit's existing Effect island into a provider shape.
-- Add Nx, Biome, Git, and Husky provider boundaries without claiming their
+- Add Nx, Biome, and Git provider boundaries without claiming their
   semantics as Habitat semantics.
 
 Exit:

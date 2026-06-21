@@ -119,7 +119,6 @@ domains decide Habitat policy.
 | `GritProvider` | `src/adapters/grit/provider/**` | pattern discovery, scan-root admission, check, dry-run apply, pattern tests, cache acquisition, diagnostics/output parsing | `GritProviderError` |
 | `BiomeProvider` | `src/providers/biome/**` | format write, check read-only, CI read-only, safe fix write, reporter parse, safe/unsafe fix classification, file-set discovery | `BiomeProviderError` |
 | `NxProvider` | `src/providers/nx/**` | project graph, target metadata, affected scope, `show project`, `show projects --with-target`, sync check, generator metadata | `NxProviderError` |
-| `HuskyHookProvider` | `src/providers/husky/**` | hook name validation, hook environment facts, delegation receipt, non-claim labeling | `HuskyProviderError` |
 
 Provider tests must compose fake Layers through Effect requirements. They must
 not patch module imports or pass loose dependency bags into feature code.
@@ -273,7 +272,6 @@ tools/habitat-harness/src/
       generators.ts
       errors.ts
       test-layer.ts
-    husky/
       index.ts
       provider.ts
       errors.ts
@@ -417,7 +415,7 @@ Delete or collapse:
 | 3 | `deep-habitat-effect-static-inventory-guardrails` | Add direct-use and language guardrails before source migration | 2 |
 | 4 | `deep-habitat-effect-runtime-config-errors` | Build shared runtime, config, error, resource, command services | 2, 3 |
 | 5 | `deep-habitat-effect-command-result-model` | Replace uneven command outcomes with typed request/result/error observations | 4 |
-| 6 | `deep-habitat-effect-vendor-providers` | Promote Grit and add Git/Biome/Nx/Husky provider boundaries | 4, 5 |
+| 6 | `deep-habitat-effect-vendor-providers` | Promote Grit and add Git/Biome/Nx provider boundaries | 4, 5 |
 | 7 | `deep-habitat-effect-public-surface-facade` | Create explicit `src/public/**` facade before moving internals | 4, 6 |
 | 8 | `deep-habitat-effect-rule-registry-domain` | Move registry, rule facts, graph facts, and selection to domains | 4, 7 |
 | 9 | `deep-habitat-effect-check-baseline-cutover` | Move structural check and baseline authority to domains | 5, 6, 8 |
