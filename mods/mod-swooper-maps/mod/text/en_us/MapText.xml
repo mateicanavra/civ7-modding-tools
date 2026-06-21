@@ -61,5 +61,8 @@
 		<Row Tag="LOC_PLOTEFFECT_FROSTBITE_NAME">
 			<Text>Killing Frost</Text>
 		</Row>
+		<Row Tag="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME">
+			<Text>Jungle Fever</Text>
+		</Row>
 	</EnglishText>
 </Database>

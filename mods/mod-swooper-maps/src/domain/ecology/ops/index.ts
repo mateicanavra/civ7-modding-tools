@@ -14,6 +14,7 @@ import aggregatePedology from "./pedology-aggregate/index.js";
 import classifyPedology from "./pedology-classify/index.js";
 import planPlotEffects from "./plan-plot-effects/index.js";
 import scorePlotEffectsBurned from "./plot-effects-score-burned/index.js";
+import scorePlotEffectsJungle from "./plot-effects-score-jungle/index.js";
 import scorePlotEffectsSand from "./plot-effects-score-sand/index.js";
 import scorePlotEffectsSnow from "./plot-effects-score-snow/index.js";
 import scoreReefAtoll from "./reef-score-atoll/index.js";
@@ -63,6 +64,7 @@ const implementations = {
   scorePlotEffectsSnow,
   scorePlotEffectsSand,
   scorePlotEffectsBurned,
+  scorePlotEffectsJungle,
   planPlotEffects,
 
   planFloodplains,
@@ -94,6 +96,7 @@ export {
   scoreColdReef,
   scoreIce,
   scorePlotEffectsBurned,
+  scorePlotEffectsJungle,
   scorePlotEffectsSand,
   scorePlotEffectsSnow,
   scoreReef,

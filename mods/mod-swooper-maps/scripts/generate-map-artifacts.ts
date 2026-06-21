@@ -177,6 +177,9 @@ ${rows}
 \t\t<Row Tag="LOC_PLOTEFFECT_FROSTBITE_NAME">
 \t\t\t<Text>Killing Frost</Text>
 \t\t</Row>
+\t\t<Row Tag="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME">
+\t\t\t<Text>Jungle Fever</Text>
+\t\t</Row>
 \t</EnglishText>
 </Database>
 `;
@@ -214,10 +217,12 @@ function renderBiomeHazardData(): string {
   <Types>
     <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
     <Row Type="PLOTEFFECT_FROSTBITE" Kind="KIND_PLOTEFFECT"/>
+    <Row Type="PLOTEFFECT_JUNGLE_FEVER" Kind="KIND_PLOTEFFECT"/>
   </Types>
   <PlotEffects>
     <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
     <Row PlotEffectType="PLOTEFFECT_FROSTBITE" Name="LOC_PLOTEFFECT_FROSTBITE_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
+    <Row PlotEffectType="PLOTEFFECT_JUNGLE_FEVER" Name="LOC_PLOTEFFECT_JUNGLE_FEVER_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
   </PlotEffects>
 </Database>
 `;

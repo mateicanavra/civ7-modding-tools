@@ -24,6 +24,7 @@ const PlanPlotEffectsStepContract = defineStep({
     scoreSnow: ecology.ops.scorePlotEffectsSnow,
     scoreSand: ecology.ops.scorePlotEffectsSand,
     scoreBurned: ecology.ops.scorePlotEffectsBurned,
+    scoreJungle: ecology.ops.scorePlotEffectsJungle,
     plotEffects: ecology.ops.planPlotEffects,
   },
   schema: Type.Object(

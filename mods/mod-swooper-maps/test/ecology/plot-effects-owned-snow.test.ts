@@ -97,6 +97,8 @@ describe("plot effects (owned)", () => {
         sandEligibleMask: new Uint8Array(input.width * input.height),
         burnedScore01: new Float32Array(input.width * input.height),
         burnedEligibleMask: new Uint8Array(input.width * input.height),
+        jungleScore01: new Float32Array(input.width * input.height),
+        jungleEligibleMask: new Uint8Array(input.width * input.height),
       },
       planSelection
     );

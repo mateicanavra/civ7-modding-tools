@@ -37,6 +37,8 @@ const runSandPlan = (config: Record<string, unknown>) => {
       sandEligibleMask,
       burnedScore01: new Float32Array(SIZE),
       burnedEligibleMask: new Uint8Array(SIZE),
+      jungleScore01: new Float32Array(SIZE),
+      jungleEligibleMask: new Uint8Array(SIZE),
     },
     planSelection
   );
