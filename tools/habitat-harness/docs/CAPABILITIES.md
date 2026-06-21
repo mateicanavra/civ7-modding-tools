@@ -144,12 +144,15 @@ The baseline model is:
 ## Source Diagnostics
 
 Habitat owns the source-check contract. The current source-check engine runs
-checked-in source rules through Habitat's structural policy surface.
+registered source rules through per-rule source-check modules.
 
 Current active source-check state:
 
-- 35 check patterns under `.habitat/patterns/checks`.
-- 35 registered source-check rules in the rule registry.
+- 34 registered source-check rules in the rule registry.
+- 34 rule implementation modules under
+  `tools/habitat-harness/src/domains/source-check/rules`.
+- Shared source-check TypeScript/text helpers live in
+  `tools/habitat-harness/src/domains/source-check/rule-runtime.mjs`.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
 - Habitat reports source-rule diagnostics back to Habitat rule IDs.
