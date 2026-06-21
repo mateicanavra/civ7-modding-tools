@@ -54,17 +54,14 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 ### Habitat internal boundary tags
 
 `@internal/habitat-harness` remains one package, but Habitat's source is
-projected into six inferred Nx boundary projects. The units are architectural,
-not a mirror of every source folder.
+projected into three inferred Nx boundary projects. The units are the actual
+product shape: command surface, owned service modules, and runtime resources.
 
 | Tag | Definition |
 |---|---|
-| `habitat:substrate` | Effect substrate primitives: config, typed errors, resources, basic path helpers, and runtime assembly over provider resources. |
-| `habitat:provider` | Explicit vendor/tool capabilities for command execution, Git, Graphite, Grit, Nx, Biome, Husky, reporting, filesystem, and time. Providers expose Effect resources/layers and translate vendor behavior without owning host entrypoints. |
-| `habitat:core` | Habitat domain model and policies: rule registry, source checks, structural checks, graph routing, transactions, and public contract guards. |
-| `habitat:service` | Effect/oRPC service routers that orchestrate core domains and provider capabilities and own the live Habitat application layer. |
-| `habitat:workspace` | Nx plugin, generators, and workspace taxonomy code that materialize Habitat structure into repository tooling. |
-| `habitat:host` | CLI commands, bin entrypoints, and public package facade at the top of Habitat's internal graph. |
+| `habitat:cli` | Thin command surface and bin-facing command classes. CLI code calls the Habitat service; it does not own domain execution. |
+| `habitat:service` | Effect/oRPC service contracts, implementers, routers, and owned modules for checking, fixing, classifying, verifying, graph routing, hooks, and scaffolding. |
+| `habitat:runtime` | Effect resources/providers for config, typed errors, filesystem/time/cache, command execution, and delegated vendor tools such as Grit, Biome, Nx, Git, Graphite, and reporters. |
 
 ## 2. Per-project assignment
 
@@ -94,12 +91,9 @@ not a mirror of every source folder.
 | civ-mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
 | @internal/habitat-artifacts | `.habitat` | `kind:tooling` |
 | @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
-| @internal/habitat-harness-substrate | `tools/habitat-harness/src/substrate` | `kind:tooling`, `habitat:substrate` |
-| @internal/habitat-harness-providers | `tools/habitat-harness/src/substrate/providers` | `kind:tooling`, `habitat:provider` |
-| @internal/habitat-harness-core | `tools/habitat-harness/src/core` | `kind:tooling`, `habitat:core` |
 | @internal/habitat-harness-service | `tools/habitat-harness/src/service` | `kind:tooling`, `habitat:service` |
-| @internal/habitat-harness-workspace | `tools/habitat-harness/src/workspace` | `kind:tooling`, `habitat:workspace` |
-| @internal/habitat-harness-host | `tools/habitat-harness/src/host` | `kind:tooling`, `habitat:host` |
+| @internal/habitat-harness-runtime | `tools/habitat-harness/src/service/runtime` | `kind:tooling`, `habitat:runtime` |
+| @internal/habitat-harness-cli | `tools/habitat-harness/src/cli` | `kind:tooling`, `habitat:cli` |
 
 ## 3. Dependency constraints (project plane, initial rule set)
 
@@ -121,12 +115,9 @@ owned by their Grit/file-layer rules.
 | `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:control`, `kind:plugin` | mods consume SDK/engine/adapter/policy/control and plugin utilities needed for mod package workflows |
 | `kind:app` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin`, `kind:control`, `kind:mod`, `kind:tooling` | apps are top of the graph; nothing imports apps or the workspace root |
 | `kind:tooling` | `kind:tooling`, `kind:foundation` | harness stays out of product graph |
-| `habitat:substrate` | `habitat:substrate`, `habitat:provider` | substrate owns Effect primitives and the low-level runtime assembly that provisions provider resources; provider modules still remain below core, service, workspace, and host |
-| `habitat:provider` | `habitat:substrate`, `habitat:core`, `habitat:provider` | providers own external tool/resource integration and may translate core rule facts into vendor-specific requests, but stay below services, workspace plugin code, and host commands |
-| `habitat:core` | `habitat:substrate`, `habitat:provider`, `habitat:core` | Habitat domains consume substrate and provider capabilities and may collaborate with peer domains, but do not depend on services, workspace plugin code, or host commands |
-| `habitat:service` | `habitat:substrate`, `habitat:provider`, `habitat:core`, `habitat:service` | service routers orchestrate core domains and provider capabilities and own the full live application layer |
-| `habitat:workspace` | `habitat:substrate`, `habitat:provider`, `habitat:core`, `habitat:workspace` | Nx plugin and generators consume domain metadata and substrate/provider facts without calling service routers or host commands |
-| `habitat:host` | `habitat:core`, `habitat:service`, `habitat:workspace`, `habitat:host` | CLI/bin/public facade is the top of Habitat's internal graph |
+| `habitat:runtime` | `habitat:runtime`, `habitat:service` | runtime owns resource/provider integration and may consume service-owned structural facts needed to translate Habitat requests into vendor calls |
+| `habitat:service` | `habitat:runtime`, `habitat:service` | service modules own Habitat logic and consume runtime resources/providers |
+| `habitat:cli` | `habitat:service`, `habitat:cli` | CLI commands call service routers and keep command parsing/output at the edge |
 
 Dual-tagged projects (`mod-civ7-intelligence-bridge`: `kind:mod` +
 `kind:control`) are constrained by the **intersection** of their rows — every

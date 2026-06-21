@@ -1,15 +1,15 @@
 import {
-  defaultHostPolicyDocument,
-  readHostPolicyState,
-  unavailableHostPolicyState,
-} from "@internal/habitat-harness/core/domains/host-policy";
-import {
   decideScanRootProtection,
   declarationForFileLayerRule,
   evaluateProtectedMutationGuard,
   runFileLayerProtectedMutationRule,
   stagedPathsFromNameStatus,
-} from "@internal/habitat-harness/core/domains/protected-zones/index";
+} from "@internal/habitat-harness/service/modules/check/protected-zones/index";
+import {
+  defaultHostPolicyDocument,
+  readHostPolicyState,
+  unavailableHostPolicyState,
+} from "@internal/habitat-harness/service/modules/check/protection-policy";
 import { describe, expect, test } from "vitest";
 
 describe("protected zone file-layer execution", () => {

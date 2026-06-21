@@ -21,9 +21,9 @@ const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/core/domains/structural-check/index.js", async (importOriginal) => {
+vi.mock("../../src/service/modules/check/structural/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../../src/core/domains/structural-check/index.js")>();
+    await importOriginal<typeof import("../../src/service/modules/check/structural/index.js")>();
   return {
     ...actual,
     checkCommandContext: vi.fn((argv: string[]) => ({
@@ -49,9 +49,9 @@ vi.mock("../../src/core/domains/structural-check/index.js", async (importOrigina
   };
 });
 
-vi.mock("../../src/core/domains/proof-contract/index.js", async (importOriginal) => {
+vi.mock("../../src/service/modules/verify/proof/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../../src/core/domains/proof-contract/index.js")>();
+    await importOriginal<typeof import("../../src/service/modules/verify/proof/index.js")>();
   return {
     ...actual,
     stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
@@ -69,16 +69,16 @@ vi.mock("../../src/service/client.js", () => ({
   })),
 }));
 
-import * as verifyReceipt from "@internal/habitat-harness/core/domains/proof-contract/index";
-import * as checkReport from "@internal/habitat-harness/core/domains/structural-check/index";
-import * as classify from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
-import Check from "@internal/habitat-harness/host/commands/check";
-import Classify from "@internal/habitat-harness/host/commands/classify";
-import Fix from "@internal/habitat-harness/host/commands/fix";
-import Graph from "@internal/habitat-harness/host/commands/graph";
-import Hook from "@internal/habitat-harness/host/commands/hook";
-import Verify from "@internal/habitat-harness/host/commands/verify";
+import Check from "@internal/habitat-harness/cli/commands/check";
+import Classify from "@internal/habitat-harness/cli/commands/classify";
+import Fix from "@internal/habitat-harness/cli/commands/fix";
+import Graph from "@internal/habitat-harness/cli/commands/graph";
+import Hook from "@internal/habitat-harness/cli/commands/hook";
+import Verify from "@internal/habitat-harness/cli/commands/verify";
 import * as serviceClient from "@internal/habitat-harness/service/client";
+import * as checkReport from "@internal/habitat-harness/service/modules/check/structural/index";
+import * as classify from "@internal/habitat-harness/service/modules/graph/workspace/index";
+import * as verifyReceipt from "@internal/habitat-harness/service/modules/verify/proof/index";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];
@@ -301,7 +301,7 @@ describe("Habitat oclif commands", () => {
   });
 
   test("classify emits ownership JSON", async () => {
-    await Classify.run(["tools/habitat-harness/src/host/commands/check.ts"]);
+    await Classify.run(["tools/habitat-harness/src/cli/commands/check.ts"]);
 
     const payload: unknown = JSON.parse(capturedOutput());
     expect(Value.Check(classify.ClassifyResultSchema, payload)).toBe(true);
@@ -312,7 +312,7 @@ describe("Habitat oclif commands", () => {
     expect(result.owner.tags).toEqual(["kind:tooling"]);
     expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
     expect(mockClassifyRun).toHaveBeenCalledWith({
-      target: "tools/habitat-harness/src/host/commands/check.ts",
+      target: "tools/habitat-harness/src/cli/commands/check.ts",
     });
   });
 

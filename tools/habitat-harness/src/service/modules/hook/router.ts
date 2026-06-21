@@ -1,38 +1,12 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { BaselineAuthority } from "@internal/habitat-harness/core/domains/baseline-authority/index";
-import {
-  type HookCheckCommandResult,
-  type PreCommitOutcome,
-  renderResourceDecisionFailure,
-  resourceDecisionToFacade,
-} from "@internal/habitat-harness/core/domains/hook-runtime/index";
-import {
-  finalizePreCommitEffect,
-  finalizePrePushEffect,
-} from "@internal/habitat-harness/core/domains/hook-runtime/lifecycle";
-import { captureRepoSnapshotEffect } from "@internal/habitat-harness/core/domains/hook-runtime/repo-snapshot";
-import { classifyResourcePreCommitDecisionEffect } from "@internal/habitat-harness/core/domains/hook-runtime/resource-inspection";
-import {
-  createHookOutput,
-  type HookRuntime,
-  hookNow,
-  section,
-} from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
-import {
-  biomeHookPaths,
-  existingStagedPathsEffect,
-  fileHash,
-  gitAddEffect,
-  hookSourceCheckPaths,
-  unstagedAmongEffect,
-} from "@internal/habitat-harness/core/domains/hook-runtime/staged-worktree";
+import type { BaselineAuthority } from "@internal/habitat-harness/service/modules/check/baseline/index";
 import {
   activeRuleHookCheckFacts,
   activeRuleSourceFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/core/domains/rule-registry/active-facts";
-import type { SourceCheck } from "@internal/habitat-harness/core/domains/source-check/index";
+} from "@internal/habitat-harness/service/modules/check/rules/registry/active-facts";
+import type { SourceCheck } from "@internal/habitat-harness/service/modules/check/source/index";
 import {
   approvedScanRootsForRules,
   type CheckReport,
@@ -42,34 +16,60 @@ import {
   renderCheckReport,
   StructuralCheck,
   stagedSourceCheckPaths,
-} from "@internal/habitat-harness/core/domains/structural-check/index";
-import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/core/domains/validation-routing/index";
-import type { HabitatConfig } from "@internal/habitat-harness/substrate/config/index";
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+} from "@internal/habitat-harness/service/modules/check/structural/index";
+import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/modules/graph/validation-routing/index";
+import {
+  type HookCheckCommandResult,
+  type PreCommitOutcome,
+  renderResourceDecisionFailure,
+  resourceDecisionToFacade,
+} from "@internal/habitat-harness/service/modules/hook/runtime/index";
+import {
+  finalizePreCommitEffect,
+  finalizePrePushEffect,
+} from "@internal/habitat-harness/service/modules/hook/runtime/lifecycle";
+import { captureRepoSnapshotEffect } from "@internal/habitat-harness/service/modules/hook/runtime/repo-snapshot";
+import { classifyResourcePreCommitDecisionEffect } from "@internal/habitat-harness/service/modules/hook/runtime/resource-inspection";
+import {
+  createHookOutput,
+  type HookRuntime,
+  hookNow,
+  section,
+} from "@internal/habitat-harness/service/modules/hook/runtime/runtime";
+import {
+  biomeHookPaths,
+  existingStagedPathsEffect,
+  fileHash,
+  gitAddEffect,
+  hookSourceCheckPaths,
+  unstagedAmongEffect,
+} from "@internal/habitat-harness/service/modules/hook/runtime/staged-worktree";
 import {
   type BiomeCommandRequest,
   BiomeProvider,
-} from "@internal/habitat-harness/substrate/providers/biome/index";
+} from "@internal/habitat-harness/service/runtime/biome/index";
 import {
   type CommandRunner,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import type { HabitatConfig } from "@internal/habitat-harness/service/runtime/config/index";
 import {
   GitProvider,
   type GitProviderRequirements,
-} from "@internal/habitat-harness/substrate/providers/git/index";
+} from "@internal/habitat-harness/service/runtime/git/index";
 import {
   GraphiteProvider,
   type GraphiteProviderRequirements,
-} from "@internal/habitat-harness/substrate/providers/graphite/index";
+} from "@internal/habitat-harness/service/runtime/graphite/index";
 import type {
   GritProvider,
   GritProviderRequirements,
-} from "@internal/habitat-harness/substrate/providers/grit/index";
-import { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/substrate/providers/nx/targets";
+} from "@internal/habitat-harness/service/runtime/grit/index";
+import { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
+import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
 import { type HookServiceModuleContext, implementer } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";

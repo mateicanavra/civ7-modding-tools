@@ -1,33 +1,33 @@
 import {
+  type CheckOptions,
+  type CheckReport,
+  makeFakeStructuralCheckLayer,
+} from "@internal/habitat-harness/service/modules/check/structural/index";
+import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
+import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
-} from "@internal/habitat-harness/core/domains/hook-runtime/resource-inspection";
+} from "@internal/habitat-harness/service/modules/hook/runtime/resource-inspection";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
-import {
-  type CheckOptions,
-  type CheckReport,
-  makeFakeStructuralCheckLayer,
-} from "@internal/habitat-harness/core/domains/structural-check/index";
-import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
-import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+} from "@internal/habitat-harness/service/modules/hook/runtime/runtime";
 import {
   type BiomeCommandRequest,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "@internal/habitat-harness/substrate/providers/biome/index";
+} from "@internal/habitat-harness/service/runtime/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
   type SpawnResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/providers/command/types";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
-import { makeFakeNxProviderLayer } from "@internal/habitat-harness/substrate/providers/nx/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/service/runtime/command/types";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
+import { makeFakeNxProviderLayer } from "@internal/habitat-harness/service/runtime/nx/index";
+import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

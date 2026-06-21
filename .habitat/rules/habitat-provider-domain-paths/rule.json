@@ -3,7 +3,7 @@
   "ownerTool": "grit-check",
   "ownerProject": "@internal/habitat-harness",
   "lane": "enforced",
-  "scope": "tools/habitat-harness/src/substrate/providers/grit/**",
+  "scope": "tools/habitat-harness/src/service/runtime/grit/**",
   "forbids": "product/domain scan roots hard-coded inside the Grit provider",
   "why": "The Grit provider is a generic tool capability; repo-specific scan roots are rule registry metadata.",
   "detect": ["habitat", "check", "--tool", "grit-check"],
@@ -12,11 +12,11 @@
   "exceptionPath": "none",
   "patternName": "habitat_provider_domain_paths",
   "hookCheck": true,
-  "scanRoots": ["tools/habitat-harness/src/substrate/providers/grit"],
+  "scanRoots": ["tools/habitat-harness/src/service/runtime/grit"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["tools/habitat-harness/src/substrate/providers/grit/**"]
+      "patterns": ["tools/habitat-harness/src/service/runtime/grit/**"]
     },
     {
       "kind": "project-owner"

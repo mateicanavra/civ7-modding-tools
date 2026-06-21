@@ -10,19 +10,19 @@ import {
   isBaselineLocked,
   loadBaselineState,
   validateBaselineContract,
-} from "@internal/habitat-harness/core/domains/baseline-authority/index";
+} from "@internal/habitat-harness/service/modules/check/baseline/index";
 import {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
   guardBaselineExpansionEffect,
-} from "@internal/habitat-harness/core/domains/baseline-authority/operations";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/core/domains/structural-check/schema";
+} from "@internal/habitat-harness/service/modules/check/baseline/operations";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/modules/check/structural/schema";
 import {
   captureOutput,
   type HabitatCommandResult,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
 import { Effect, Layer } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 
@@ -501,7 +501,7 @@ function showMock(
   const comparisonSha = options.mergeBase ?? "merge-base-sha";
   const ruleRegistryAtBase =
     options.artifactLayoutAtBase === "pre-d14a"
-      ? "tools/habitat-harness/src/core/rules/rules.json"
+      ? "tools/habitat-harness/src/service/modules/check/rule-runtime/rules.json"
       : ".habitat/rules/index.json";
   if (spec === `${comparisonSha}:${ruleRegistryAtBase}`) {
     if (options.rulePackAtBase === null)

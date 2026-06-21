@@ -1,8 +1,8 @@
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/core/domains/pattern-governance/index";
-import type { WorktreeObservation } from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+} from "@internal/habitat-harness/service/modules/fix/patterns/index";
+import type { WorktreeObservation } from "@internal/habitat-harness/service/modules/fix/transactions/index";
 import { habitatServiceImplementer } from "../../impl.js";
 
 export interface FixServiceModuleContext {

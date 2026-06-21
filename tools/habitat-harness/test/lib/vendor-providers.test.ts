@@ -1,26 +1,25 @@
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   BiomeProvider,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "@internal/habitat-harness/substrate/providers/biome/index";
+} from "@internal/habitat-harness/service/runtime/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
   materializeDefaultHabitatCommand,
-} from "@internal/habitat-harness/substrate/providers/command/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
 import {
   GitProvider,
   makeFakeGitProviderLayer,
-} from "@internal/habitat-harness/substrate/providers/git/index";
+} from "@internal/habitat-harness/service/runtime/git/index";
 import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
-} from "@internal/habitat-harness/substrate/providers/graphite/index";
+} from "@internal/habitat-harness/service/runtime/graphite/index";
 import {
   GritProvider,
   makeFakeGritProviderLayer,
-} from "@internal/habitat-harness/substrate/providers/grit/index";
+} from "@internal/habitat-harness/service/runtime/grit/index";
 import {
   affectedArgv,
   graphArgv,
@@ -28,7 +27,8 @@ import {
   NxProvider,
   runManyArgv,
   runTargetArgv,
-} from "@internal/habitat-harness/substrate/providers/nx/index";
+} from "@internal/habitat-harness/service/runtime/nx/index";
+import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 

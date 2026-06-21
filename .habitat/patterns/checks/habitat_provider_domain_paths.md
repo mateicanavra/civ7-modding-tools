@@ -10,7 +10,7 @@ belong in registry metadata, not hard-coded provider source.
 language js(typescript)
 
 `$body` where {
-  $filename <: r".*tools/habitat-harness/src/substrate/providers/grit/.*\.ts$",
+  $filename <: r".*tools/habitat-harness/src/service/runtime/grit/.*\.ts$",
   $text = text($body),
   or {
     $text <: includes "packages",
@@ -26,26 +26,26 @@ language js(typescript)
 ## Matches fixture
 
 ```typescript
-// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
+// @filename: tools/habitat-harness/src/service/runtime/grit/constants.ts
 export const roots = ["mods/mod-swooper-maps/src/domain"];
 
-// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
+// @filename: tools/habitat-harness/src/service/runtime/grit/constants.ts
 export const studio = "apps/mapgen-studio/src";
 
-// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
+// @filename: tools/habitat-harness/src/service/runtime/grit/constants.ts
 export const packages = ["packages"];
 
-// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
+// @filename: tools/habitat-harness/src/service/runtime/grit/constants.ts
 export const packageRoot = "packages/civ7-adapter";
 
-// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
+// @filename: tools/habitat-harness/src/service/runtime/grit/constants.ts
 export const resources = ".civ7/outputs/resources";
 ```
 
 ## Ignores fixture
 
 ```typescript
-// @filename: tools/habitat-harness/src/substrate/providers/grit/constants.ts
+// @filename: tools/habitat-harness/src/service/runtime/grit/constants.ts
 export const injectedProbeRoot = "tools/habitat-harness/injected-probe-roots";
 
 // @filename: .habitat/rules/index.json and .habitat/rules/<rule-id>/rule.json

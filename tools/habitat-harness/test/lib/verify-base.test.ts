@@ -1,11 +1,11 @@
-import { resolveVerifyBaseEffect } from "@internal/habitat-harness/core/domains/proof-contract/index";
+import { resolveVerifyBaseEffect } from "@internal/habitat-harness/service/modules/verify/proof/index";
 import {
   captureOutput,
   makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
-import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/substrate/providers/graphite/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
+import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/service/runtime/graphite/index";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 

@@ -1,37 +1,37 @@
-import {
-  createHookTrace,
-  type HookReportEvent,
-  type HookRuntime,
-} from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
 import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
-} from "@internal/habitat-harness/core/domains/structural-check/index";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
+} from "@internal/habitat-harness/service/modules/check/structural/index";
 import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+import {
+  createHookTrace,
+  type HookReportEvent,
+  type HookRuntime,
+} from "@internal/habitat-harness/service/modules/hook/runtime/runtime";
 import {
   type BiomeCommandRequest,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "@internal/habitat-harness/substrate/providers/biome/index";
+} from "@internal/habitat-harness/service/runtime/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/providers/command/types";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
-import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/substrate/providers/graphite/index";
+} from "@internal/habitat-harness/service/runtime/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/service/runtime/command/types";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
+import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/service/runtime/graphite/index";
 import {
   affectedArgv,
   makeFakeNxProviderLayer,
   type NxAffectedRequest,
   type NxRunTargetRequest,
   runTargetArgv,
-} from "@internal/habitat-harness/substrate/providers/nx/index";
+} from "@internal/habitat-harness/service/runtime/nx/index";
+import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
@@ -456,7 +456,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/core/domains/source-check/source-rules.ts";
+    const changedPath = "tools/habitat-harness/src/service/modules/check/source/source-rules.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -506,7 +506,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/substrate/lib/boundary-taxonomy.ts";
+    const changedPath = "tools/habitat-harness/src/service/modules/graph/boundary-taxonomy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },

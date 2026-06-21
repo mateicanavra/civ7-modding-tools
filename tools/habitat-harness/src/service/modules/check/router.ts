@@ -1,24 +1,24 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { BaselineAuthority } from "@internal/habitat-harness/core/domains/baseline-authority/index";
-import type { SourceCheck } from "@internal/habitat-harness/core/domains/source-check/index";
+import type { BaselineAuthority } from "@internal/habitat-harness/service/modules/check/baseline/index";
+import type { SourceCheck } from "@internal/habitat-harness/service/modules/check/source/index";
 import {
   checkCommandContext,
   describeRuleSelectionFailure,
   StructuralCheck,
-} from "@internal/habitat-harness/core/domains/structural-check/index";
-import type { HabitatConfig } from "@internal/habitat-harness/substrate/config/index";
-import type { BiomeProvider } from "@internal/habitat-harness/substrate/providers/biome/index";
-import type { CommandRunner } from "@internal/habitat-harness/substrate/providers/command/index";
+} from "@internal/habitat-harness/service/modules/check/structural/index";
+import type { BiomeProvider } from "@internal/habitat-harness/service/runtime/biome/index";
+import type { CommandRunner } from "@internal/habitat-harness/service/runtime/command/index";
+import type { HabitatConfig } from "@internal/habitat-harness/service/runtime/config/index";
 import type {
   GitProvider,
   GitProviderRequirements,
-} from "@internal/habitat-harness/substrate/providers/git/index";
+} from "@internal/habitat-harness/service/runtime/git/index";
 import type {
   GritProvider,
   GritProviderRequirements,
-} from "@internal/habitat-harness/substrate/providers/grit/index";
-import type { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
+} from "@internal/habitat-harness/service/runtime/grit/index";
+import type { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
 import { Effect } from "effect";
 import { implementer } from "./context.js";
 import type {

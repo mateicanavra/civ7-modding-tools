@@ -7,7 +7,6 @@ import { classifyRouter } from "./modules/classify/router.js";
 import { fixRouter } from "./modules/fix/router.js";
 import { graphRouter } from "./modules/graph/router.js";
 import { hookRouter } from "./modules/hook/router.js";
-import { transactionsRouter } from "./modules/transactions/router.js";
 import { verifyRouter } from "./modules/verify/router.js";
 
 const habitatServiceRouterDefinition = {
@@ -16,7 +15,6 @@ const habitatServiceRouterDefinition = {
   fix: fixRouter,
   graph: graphRouter,
   hook: hookRouter,
-  transactions: transactionsRouter,
   verify: verifyRouter,
 };
 

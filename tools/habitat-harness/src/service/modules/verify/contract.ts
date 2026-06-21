@@ -1,6 +1,6 @@
-import { VerifyReceiptSchema } from "@internal/habitat-harness/core/domains/proof-contract/schema";
-import { CheckReportSchema } from "@internal/habitat-harness/core/domains/structural-check/schema";
-import { VerifyTargetPlanSchema } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
+import { CheckReportSchema } from "@internal/habitat-harness/service/modules/check/structural/schema";
+import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/modules/graph/workspace/index";
+import { VerifyReceiptSchema } from "@internal/habitat-harness/service/modules/verify/proof/schema";
 import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";

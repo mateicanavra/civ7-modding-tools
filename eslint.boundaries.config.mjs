@@ -68,51 +68,24 @@ const depConstraints = [
   },
   { sourceTag: "kind:tooling", onlyDependOnLibsWithTags: ["kind:tooling", "kind:foundation"] },
   {
-    sourceTag: "habitat:substrate",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:provider"],
-  },
-  {
-    sourceTag: "habitat:provider",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core", "habitat:provider"],
-  },
-  {
-    sourceTag: "habitat:core",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:provider", "habitat:core"],
+    sourceTag: "habitat:runtime",
+    onlyDependOnLibsWithTags: ["habitat:runtime", "habitat:service"],
   },
   {
     sourceTag: "habitat:service",
-    onlyDependOnLibsWithTags: [
-      "habitat:substrate",
-      "habitat:provider",
-      "habitat:core",
-      "habitat:service",
-    ],
+    onlyDependOnLibsWithTags: ["habitat:runtime", "habitat:service"],
   },
   {
-    sourceTag: "habitat:workspace",
-    onlyDependOnLibsWithTags: [
-      "habitat:substrate",
-      "habitat:provider",
-      "habitat:core",
-      "habitat:workspace",
-    ],
-  },
-  {
-    sourceTag: "habitat:host",
-    onlyDependOnLibsWithTags: [
-      "habitat:core",
-      "habitat:service",
-      "habitat:workspace",
-      "habitat:host",
-    ],
+    sourceTag: "habitat:cli",
+    onlyDependOnLibsWithTags: ["habitat:service", "habitat:cli"],
   },
 ];
 
 const allow = [
   "/base-standard/**",
-  "./workspace/plugin/nx-plugin.ts",
-  "../../core/domains/source-check/module-paths.ts",
-  "../../substrate/lib/artifact-paths.ts",
+  "./nx-plugin.ts",
+  "../../service/modules/check/source/module-paths.ts",
+  "../../service/runtime/artifact-paths.ts",
   "../../substrate/lib/paths.ts",
   "../../substrate/providers/nx/rule-registry-loader.ts",
   "../../substrate/providers/nx/schema.ts",
