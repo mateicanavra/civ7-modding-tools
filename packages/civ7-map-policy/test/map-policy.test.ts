@@ -11,7 +11,9 @@ import {
   CIV7_RIVER_TYPE_METADATA_SOURCE,
   CIV7_RIVER_TYPES_V0,
   getNaturalWonderFootprintIndices,
+  getNaturalWonderFootprintOffsetsByParity,
   isResourceAdjacentToLandRuntimeOptional,
+  isSupportedNaturalWonder,
   NATURAL_WONDER_CATALOG,
   NO_RIVER_TYPE,
   RESOURCE_ADJACENT_TO_LAND_RUNTIME_OPTIONAL_TYPE_IDS,
@@ -189,7 +191,12 @@ describe("@civ7/map-policy", () => {
     >;
     const catalogFeatureTypes = NATURAL_WONDER_CATALOG.map((entry) => entry.featureType);
 
-    expect(catalogFeatureTypes).not.toContain(featureTypes.FEATURE_BARRIER_REEF);
+    // Full set: previously-dropped 4-tile / tagged / placeFirst wonders are eligible.
+    expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_BARRIER_REEF);
+    expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_GRAND_CANYON);
+    expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_HOERIKWAGGO);
+    expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_VALLEY_OF_FLOWERS);
+    expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_MAPU_A_VAEA_BLOWHOLES);
     expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_MACHAPUCHARE);
     expect(catalogFeatureTypes).toContain(featureTypes.FEATURE_MOUNT_FUJI);
@@ -223,6 +230,139 @@ describe("@civ7/map-policy", () => {
         direction: -1,
       })
     ).toEqual([34]);
+  });
+
+  it("resolves natural-wonder footprints per row parity and matches the odd-R neighbor set", () => {
+    const { featureTypes } = CIV7_BROWSER_TABLES_V0;
+    const policies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+      string,
+      { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number }
+    >;
+    const width = 84;
+    const cell = (plotIndex: number) => ({ x: plotIndex % width, y: Math.trunc(plotIndex / width) });
+    const footprint = (featureType: number, x: number, y: number) =>
+      getNaturalWonderFootprintIndices({
+        x,
+        y,
+        width,
+        height: 54,
+        policy: policies[String(featureType)]!,
+      })?.map(cell);
+
+    // THREETRIANGLE (Redwood, dir 0) differs by row parity — even rows take the
+    // west diagonals, odd rows the east diagonals (live getAdjacentPlotLocation
+    // calibration; ledger §A1). The pre-fix parity-agnostic table stamped the
+    // odd-row cells on both parities.
+    expect(footprint(featureTypes.FEATURE_REDWOOD_FOREST, 64, 12)).toEqual([
+      { x: 64, y: 12 },
+      { x: 64, y: 13 },
+      { x: 65, y: 12 },
+    ]);
+    expect(footprint(featureTypes.FEATURE_REDWOOD_FOREST, 64, 13)).toEqual([
+      { x: 64, y: 13 },
+      { x: 65, y: 14 },
+      { x: 65, y: 13 },
+    ]);
+
+    // Odd-row regression pins for the fixed-direction wonders.
+    expect(footprint(featureTypes.FEATURE_MOUNT_FUJI, 40, 13)).toEqual([
+      { x: 40, y: 13 },
+      { x: 41, y: 12 },
+      { x: 40, y: 12 },
+    ]);
+    expect(footprint(featureTypes.FEATURE_VIHREN, 40, 13)).toEqual([
+      { x: 40, y: 13 },
+      { x: 41, y: 13 },
+      { x: 41, y: 12 },
+    ]);
+
+    // FOURPARALLELAGRM (Thera) — live-confirmed parallelogram (anchor + dir + dir+1
+    // + corner), per parity (ledger §A2).
+    const thera = getNaturalWonderFootprintOffsetsByParity(
+      policies[String(featureTypes.FEATURE_THERA)]!,
+      0
+    );
+    expect(thera?.even).toEqual([
+      { dx: 0, dy: 0 },
+      { dx: 0, dy: 1 },
+      { dx: 1, dy: 0 },
+      { dx: 1, dy: 1 },
+    ]);
+    expect(thera?.odd).toEqual([
+      { dx: 0, dy: 0 },
+      { dx: 1, dy: 1 },
+      { dx: 1, dy: 0 },
+      { dx: 2, dy: 1 },
+    ]);
+
+    // In-package consistency: the footprint direction offsets per parity must equal
+    // the odd-R neighbor set in policy-grid.ts (guards the four odd-R copies —
+    // core, policy-grid, mock, footprint — from silent drift).
+    const twoAdjacent = { placementClass: "TWOADJACENT", naturalWonderTiles: 2 };
+    const collect = (parity: "even" | "odd") => {
+      const set = new Set<string>();
+      for (let d = 0; d < 6; d++) {
+        const off = getNaturalWonderFootprintOffsetsByParity(twoAdjacent, d)![parity][1]!;
+        set.add(`${off.dx},${off.dy}`);
+      }
+      return [...set].sort();
+    };
+    expect(collect("even")).toEqual([...["-1,1", "1,0", "0,1", "-1,0", "-1,-1", "0,-1"]].sort());
+    expect(collect("odd")).toEqual([...["1,0", "1,1", "0,1", "1,-1", "-1,0", "0,-1"]].sort());
+
+    // No silent drops: catalog size equals the count of natural-wonder rows.
+    const nwRowCount = Object.values(policies).filter((p) => p?.naturalWonderTiles).length;
+    expect(NATURAL_WONDER_CATALOG.length).toBe(nwRowCount);
+    expect(isSupportedNaturalWonder(featureTypes.FEATURE_BARRIER_REEF)).toBe(true);
+  });
+
+  it("self-orients 4-tile wonders (engine sentinel -1, anchor-only offline footprint)", () => {
+    const { featureTypes } = CIV7_BROWSER_TABLES_V0;
+    const policies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
+      string,
+      { placementClass?: string; naturalWonderTiles?: number; naturalWonderDirection?: number }
+    >;
+    const theraPolicy = policies[String(featureTypes.FEATURE_THERA)]!; // FOURPARALLELAGRM
+    const reefPolicy = policies[String(featureTypes.FEATURE_BARRIER_REEF)]!; // FOURADJACENT
+
+    // 4-tile classes keep the engine self-orient sentinel (-1); the engine refuses
+    // a forced concrete direction for them (live set-feature-false at Direction 0).
+    expect(resolveNaturalWonderMaterializationDirection(theraPolicy)).toBe(-1);
+    expect(resolveNaturalWonderMaterializationDirection(reefPolicy)).toBe(-1);
+
+    // At the self-orient sentinel the offline footprint is anchor-only (engine
+    // owns the remaining cells); both parities collapse to the anchor.
+    const theraSelf = getNaturalWonderFootprintOffsetsByParity(theraPolicy, -1);
+    expect(theraSelf?.even).toEqual([{ dx: 0, dy: 0 }]);
+    expect(theraSelf?.odd).toEqual([{ dx: 0, dy: 0 }]);
+    const reefSelf = getNaturalWonderFootprintOffsetsByParity(reefPolicy, -1);
+    expect(reefSelf?.even).toEqual([{ dx: 0, dy: 0 }]);
+    expect(reefSelf?.odd).toEqual([{ dx: 0, dy: 0 }]);
+
+    // A CONCRETE direction still resolves the geometric model (diagnostics/tests):
+    // all three self-orienting 4-tile classes keep their 4-cell offline shape at
+    // a concrete direction (the engine-self-orient anchor-only collapse is gated
+    // on Direction < 0 only).
+    const theraConcrete = getNaturalWonderFootprintOffsetsByParity(theraPolicy, 0);
+    expect(theraConcrete?.even.length).toBe(4);
+    expect(theraConcrete?.odd.length).toBe(4);
+    expect(getNaturalWonderFootprintOffsetsByParity(reefPolicy, 0)?.even.length).toBe(4);
+    expect(getNaturalWonderFootprintOffsetsByParity(reefPolicy, 0)?.odd.length).toBe(4);
+    const hoerikwaggoPolicy = policies[String(featureTypes.FEATURE_HOERIKWAGGO)]!; // FOURL
+    expect(getNaturalWonderFootprintOffsetsByParity(hoerikwaggoPolicy, 0)?.even.length).toBe(4);
+    expect(getNaturalWonderFootprintOffsetsByParity(hoerikwaggoPolicy, 0)?.odd.length).toBe(4);
+    // FOURL keeps the engine sentinel + anchor-only at self-orient too.
+    expect(resolveNaturalWonderMaterializationDirection(hoerikwaggoPolicy)).toBe(-1);
+    expect(getNaturalWonderFootprintOffsetsByParity(hoerikwaggoPolicy, -1)?.even).toEqual([
+      { dx: 0, dy: 0 },
+    ]);
+
+    // Non-self-orienting classes are unaffected (Redwood THREETRIANGLE -> 0).
+    expect(
+      resolveNaturalWonderMaterializationDirection(
+        policies[String(featureTypes.FEATURE_REDWOOD_FOREST)]!
+      )
+    ).toBe(0);
   });
 
   it("records the live-observed adjacent-land resource exception narrowly", () => {

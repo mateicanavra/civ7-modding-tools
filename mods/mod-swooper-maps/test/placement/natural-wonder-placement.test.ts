@@ -57,12 +57,15 @@ describe("natural wonder placement materialization", () => {
       requestedCount: 1,
     });
 
+    // Anchor (1,2) is an EVEN row: the parity-correct THREETRIANGLE footprint is
+    // anchor + even.d0(0,1) + even.d1(1,0) = (1,2),(1,3),(2,2). (Pre-parity-fix this
+    // stamped the odd-row cells (1,2),(2,3),(2,2) on the even anchor.)
     expect(adapter.getTerrainType(1, 2)).toBe(FLAT_TERRAIN);
     expect(adapter.getTerrainType(2, 2)).toBe(FLAT_TERRAIN);
-    expect(adapter.getTerrainType(2, 3)).toBe(FLAT_TERRAIN);
+    expect(adapter.getTerrainType(1, 3)).toBe(FLAT_TERRAIN);
     expect(adapter.getFeatureType(1, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(adapter.getFeatureType(2, 2)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
-    expect(adapter.getFeatureType(2, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
+    expect(adapter.getFeatureType(1, 3)).toBe(featureTypes.FEATURE_REDWOOD_FOREST);
     expect(stats).toEqual({
       coordinateProof: {
         version: 1,
@@ -272,6 +275,111 @@ describe("natural wonder placement materialization", () => {
         rejectedHash32: "6f806eb2",
       },
     });
+  });
+
+  it("retries a fallback anchor when the engine refuses the primary", () => {
+    const adapter = createMockAdapter({
+      width: 5,
+      height: 8,
+      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    // The engine accepts every anchor EXCEPT the planner's primary (2,3): this
+    // models canHaveFeatureParam-true-but-setFeatureType-false at the chosen tile.
+    const placeNaturalWonder = adapter.placeNaturalWonder.bind(adapter);
+    adapter.placeNaturalWonder = (x, y, featureType, direction, elevation) => {
+      if (x === 2 && y === 3) {
+        return {
+          status: "rejected",
+          plotIndex: y * adapter.width + x,
+          x,
+          y,
+          featureType,
+          direction,
+          reason: "can-have-feature-param-false",
+        };
+      }
+      return placeNaturalWonder(x, y, featureType, direction, elevation);
+    };
+
+    const stats = stampNaturalWondersFromPlan({
+      adapter,
+      width: 5,
+      height: 8,
+      wonders: {
+        width: 5,
+        height: 8,
+        targetCount: 1,
+        plannedCount: 1,
+        placements: [
+          {
+            plotIndex: 17, // (2,3) — refused by the engine
+            featureType: featureTypes.FEATURE_KILIMANJARO,
+            direction: -1,
+            elevation: 120,
+            priority: 1,
+            fallbackPlotIndices: [19], // (4,3) — accepted
+          },
+        ],
+      },
+      requestedCount: 1,
+    });
+
+    expect(stats.placedCount).toBe(1);
+    expect(stats.rejectedCount).toBe(0);
+    expect(stats.shortfallCount).toBe(0);
+    const placedRow = stats.coordinateRows.find((row) => row.status === "placed");
+    expect(placedRow?.plotIndex).toBe(19);
+    expect(adapter.getFeatureType(4, 3)).toBe(featureTypes.FEATURE_KILIMANJARO);
+  });
+
+  it("records the primary rejection once when every anchor fails", () => {
+    const adapter = createMockAdapter({
+      width: 5,
+      height: 8,
+      defaultBiomeType: biomeGlobals.BIOME_PLAINS,
+      defaultTerrainType: FLAT_TERRAIN,
+    });
+    adapter.placeNaturalWonder = (x, y, featureType, direction) => ({
+      status: "rejected",
+      plotIndex: y * adapter.width + x,
+      x,
+      y,
+      featureType,
+      direction,
+      reason: "can-have-feature-param-false",
+    });
+
+    const stats = stampNaturalWondersFromPlan({
+      adapter,
+      width: 5,
+      height: 8,
+      wonders: {
+        width: 5,
+        height: 8,
+        targetCount: 1,
+        plannedCount: 1,
+        placements: [
+          {
+            plotIndex: 17,
+            featureType: featureTypes.FEATURE_KILIMANJARO,
+            direction: -1,
+            elevation: 120,
+            priority: 1,
+            fallbackPlotIndices: [19, 21],
+          },
+        ],
+      },
+      requestedCount: 1,
+    });
+
+    // Exactly one rejection (the primary), not one per attempted anchor.
+    expect(stats.placedCount).toBe(0);
+    expect(stats.rejectedCount).toBe(1);
+    const rejectedRows = stats.coordinateRows.filter((row) => row.status === "rejected");
+    expect(rejectedRows.length).toBe(1);
+    expect(rejectedRows[0]?.plotIndex).toBe(17);
+    expect(stats.rejectionExamples[0]).toContain("plot=17");
   });
 
   it("still fails corrupt plan metadata", () => {

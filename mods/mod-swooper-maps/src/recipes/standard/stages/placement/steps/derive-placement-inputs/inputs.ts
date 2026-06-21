@@ -1,6 +1,6 @@
 import {
   CIV7_BROWSER_TABLES_V0,
-  getNaturalWonderFootprintOffsets,
+  getNaturalWonderFootprintOffsetsByParity,
   resolveNaturalWonderMaterializationDirection,
 } from "@civ7/map-policy";
 import placement from "@mapgen/domain/placement";
@@ -35,6 +35,7 @@ const FEATURE_POLICIES = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
       placementClass?: string;
       naturalWonderTiles?: number;
       naturalWonderDirection?: number;
+      naturalWonderPlaceFirst?: boolean;
     }
   | undefined
 >;
@@ -117,7 +118,26 @@ function buildNaturalWonderBlockedMask(width: number, height: number): Uint8Arra
   return mask;
 }
 
-/** Builds placement inputs from map info, authored config, adapter-owned catalogs, and pipeline artifacts. */
+/**
+ * Builds placement inputs from map info, authored config, adapter-owned catalogs,
+ * and pipeline artifacts — and runs the natural-wonder planner.
+ *
+ * This is the boundary step (`kind:mod`) that lets the pure planner stay
+ * engine-/policy-free: it resolves each catalog wonder's MATERIALIZATION
+ * direction and parity-keyed footprint offsets from `@civ7/map-policy`
+ * (`resolveNaturalWonderMaterializationDirection` /
+ * `getNaturalWonderFootprintOffsetsByParity`) and passes them across as plain
+ * contract DATA in `featureCatalog`. Wonders whose placement class has no
+ * footprint are dropped here (the `if (!footprintOffsetsByParity) return []`),
+ * so the op never sees an unstampable shape.
+ *
+ * It also forwards already-computed physical signals (vegetation, moisture,
+ * temperature, fertility, discharge, slope) — never recomputed — and the engine
+ * terrain/biome/feature surfaces (terrain is a DECLARED readback, biome/feature
+ * are artifact-reconstructed; see the per-helper docs above) plus the polar-water
+ * `naturalWonderBlockedMask`. Returns the assembled inputs and the planner's
+ * `naturalWonderPlan` (the intent that `place-natural-wonders` later stamps).
+ */
 export function buildPlacementInputs(
   context: ExtendedMapContext,
   config: DerivePlacementInputsConfig,
@@ -129,6 +149,8 @@ export function buildPlacementInputs(
     };
     hydrography: {
       riverClass: Uint8Array;
+      discharge: Float32Array;
+      slopeClass: Uint8Array;
     };
     lakePlan: {
       lakeMask: Uint8Array;
@@ -137,6 +159,7 @@ export function buildPlacementInputs(
       effectiveMoisture: Float32Array;
       surfaceTemperature: Float32Array;
       aridityIndex: Float32Array;
+      vegetationDensity: Float32Array;
     };
     biomeBindings: {
       engineBiomeId: Uint16Array;
@@ -161,8 +184,11 @@ export function buildPlacementInputs(
       policy,
       entry.direction | 0
     );
-    const footprintOffsets = getNaturalWonderFootprintOffsets(policy, materializationDirection);
-    if (!footprintOffsets) return [];
+    const footprintOffsetsByParity = getNaturalWonderFootprintOffsetsByParity(
+      policy,
+      materializationDirection
+    );
+    if (!footprintOffsetsByParity) return [];
     return [
       {
         featureType,
@@ -173,10 +199,14 @@ export function buildPlacementInputs(
           ? { minimumElevation: policy.minimumElevation }
           : {}),
         ...(policy?.noLake ? { noLake: true } : {}),
+        ...(policy?.naturalWonderPlaceFirst ? { placeFirst: true } : {}),
         ...(policy?.placementClass ? { placementClass: policy.placementClass } : {}),
         ...(policy?.naturalWonderTiles ? { naturalWonderTiles: policy.naturalWonderTiles } : {}),
         featureTags: [...(FEATURE_TAGS_BY_FEATURE_TYPE[String(featureType)] ?? [])],
-        footprintOffsets: [...footprintOffsets],
+        footprintOffsetsByParity: {
+          even: [...footprintOffsetsByParity.even],
+          odd: [...footprintOffsetsByParity.odd],
+        },
       },
     ];
   });
@@ -197,6 +227,13 @@ export function buildPlacementInputs(
       aridityIndex: physical.biomeClassification.aridityIndex,
       riverClass: physical.hydrography.riverClass,
       lakeMask: physical.lakePlan.lakeMask,
+      // Forwarded physical suitability signals (already-computed; not recomputed).
+      vegetationDensity: physical.biomeClassification.vegetationDensity,
+      effectiveMoisture: physical.biomeClassification.effectiveMoisture,
+      surfaceTemperature: physical.biomeClassification.surfaceTemperature,
+      fertility: physical.pedology.fertility,
+      discharge: physical.hydrography.discharge,
+      slopeClass: physical.hydrography.slopeClass,
       coastTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_COAST,
       mountainTerrainType: CIV7_BROWSER_TABLES_V0.terrainTypeIndices.TERRAIN_MOUNTAIN,
       iceFeatureType: CIV7_BROWSER_TABLES_V0.featureTypes.FEATURE_ICE,

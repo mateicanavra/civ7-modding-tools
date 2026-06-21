@@ -1,4 +1,4 @@
-export { NATURAL_WONDER_CATALOG } from "./catalogs/natural-wonders.js";
+export { isSupportedNaturalWonder, NATURAL_WONDER_CATALOG } from "./catalogs/natural-wonders.js";
 export type {
   Civ7BrowserTablesV0,
   Civ7MapResourceMinimumAmountModifierRowV1,
@@ -18,11 +18,13 @@ export {
 } from "./coast-classification.js";
 export type {
   NaturalWonderFootprintOffset,
+  NaturalWonderFootprintOffsetsByParity,
   NaturalWonderPlacementPolicy,
 } from "./natural-wonder-footprints.js";
 export {
   getNaturalWonderFootprintIndices,
   getNaturalWonderFootprintOffsets,
+  getNaturalWonderFootprintOffsetsByParity,
   hasUnsupportedNaturalWonderPolicyTags,
   resolveNaturalWonderMaterializationDirection,
   resolveNaturalWonderPlacementDirection,

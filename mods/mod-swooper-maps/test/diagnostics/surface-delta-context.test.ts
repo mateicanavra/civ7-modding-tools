@@ -437,8 +437,11 @@ describe("surface delta context diagnostics", () => {
         },
       }
     );
+    // Anchor (1,0) is an even row; the parity-correct THREETRIANGLE footprints are
+    // dir0={1,4,2}, dir4={1,0,3}, dir5={1,3,4}. Local feature {1,2} → best dir 0;
+    // live feature {1,3} → best dirs {4,5}; so live diverges from local.
     const live = snapshot({
-      feature: { width: 3, height: 2, values: [-1, 35, -1, -1, 35, -1] },
+      feature: { width: 3, height: 2, values: [-1, 35, -1, 35, -1, -1] },
     });
 
     const rows = buildNaturalWonderFootprintReadbackContexts({ local, live });
@@ -483,9 +486,11 @@ describe("surface delta context diagnostics", () => {
   });
 
   test("joins exact-run readback evidence to natural-wonder catalog direction classes", () => {
+    // Anchor (1,0) even; TWOADJACENT footprints dir0={1,4}, dir5={1,3}. Local {1,4}
+    // → best dir 0; live {1,3} → best dir 5; live diverges from local.
     const local = snapshot(
       {
-        feature: { width: 3, height: 2, values: [-1, 36, -1, -1, -1, 36] },
+        feature: { width: 3, height: 2, values: [-1, 36, -1, -1, 36, -1] },
       },
       {
         naturalWonderPlan: {
@@ -501,7 +506,7 @@ describe("surface delta context diagnostics", () => {
       }
     );
     const live = snapshot({
-      feature: { width: 3, height: 2, values: [-1, 36, -1, -1, 36, -1] },
+      feature: { width: 3, height: 2, values: [-1, 36, -1, 36, -1, -1] },
     });
     const readbacks = buildNaturalWonderFootprintReadbackContexts({ local, live });
 

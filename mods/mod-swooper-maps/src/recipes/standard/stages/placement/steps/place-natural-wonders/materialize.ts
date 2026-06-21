@@ -243,6 +243,227 @@ function ensureFeatureValidTerrain(
   return "adjusted";
 }
 
+type NaturalWonderAnchorAttemptPlaced = {
+  status: "placed";
+  terrainAdjusted: number;
+  coordinateRow: NaturalWonderPlacementCoordinateRow;
+};
+type NaturalWonderAnchorAttemptRejected = {
+  status: "rejected";
+  terrainAdjusted: number;
+  coordinateRow: NaturalWonderPlacementCoordinateRow;
+  rejectionDetail: string;
+};
+type NaturalWonderAnchorAttempt =
+  | NaturalWonderAnchorAttemptPlaced
+  | NaturalWonderAnchorAttemptRejected;
+
+/**
+ * Candidate anchor list for one planned wonder: the primary plot followed by the
+ * planner's sanitized, de-duplicated, in-bounds `fallbackPlotIndices`. The
+ * materialize step tries these in order so a single engine refusal at the
+ * planner's first choice does not drop an otherwise-placeable wonder.
+ */
+function buildNaturalWonderAnchorCandidates(
+  primaryPlotIndex: number,
+  fallbackPlotIndices: readonly number[] | undefined,
+  width: number,
+  height: number
+): number[] {
+  const size = width * height;
+  const anchors: number[] = [primaryPlotIndex];
+  const seen = new Set<number>([primaryPlotIndex]);
+  if (Array.isArray(fallbackPlotIndices)) {
+    for (const raw of fallbackPlotIndices) {
+      if (!Number.isFinite(raw)) continue;
+      const idx = Math.trunc(raw);
+      if (idx < 0 || idx >= size || seen.has(idx)) continue;
+      seen.add(idx);
+      anchors.push(idx);
+    }
+  }
+  return anchors;
+}
+
+/**
+ * Attempts to stamp one natural wonder at a single anchor: recomputes the
+ * parity-aware footprint for THIS anchor, runs the occupancy + valid-terrain
+ * pre-check, calls `adapter.placeNaturalWonder`, and verifies strict readback.
+ * Returns a `placed`/`rejected` discriminated result plus the terrain
+ * adjustments performed (real map mutations, counted even when the attempt is
+ * later superseded). The engine is the final legality authority — this is the
+ * per-anchor unit the retry loop iterates over.
+ */
+function attemptStampNaturalWonderAtAnchor(args: {
+  adapter: ExtendedMapContext["adapter"];
+  anchorPlotIndex: number;
+  width: number;
+  height: number;
+  featureType: number;
+  direction: number;
+  plannedElevation: number | undefined;
+  rawElevation: number | undefined;
+}): NaturalWonderAnchorAttempt {
+  const { adapter, width, height, featureType, direction, plannedElevation, rawElevation } = args;
+  const plotIndex = args.anchorPlotIndex;
+  const y = (plotIndex / width) | 0;
+  const x = plotIndex - y * width;
+  let terrainAdjusted = 0;
+  const footprint = getNaturalWonderFootprintIndices({
+    x,
+    y,
+    width,
+    height,
+    policy: FEATURE_POLICIES[String(featureType)],
+    direction,
+  });
+  if (!footprint) {
+    return {
+      status: "rejected",
+      terrainAdjusted,
+      rejectionDetail: `feature=${featureType} plot=${plotIndex} reason=unsupported-footprint`,
+      coordinateRow: {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(plannedElevation === undefined ? {} : { elevation: plannedElevation }),
+        reason: "unsupported-footprint",
+      },
+    };
+  }
+  for (const footprintPlotIndex of footprint) {
+    const fy = (footprintPlotIndex / width) | 0;
+    const fx = footprintPlotIndex - fy * width;
+    if ((adapter.getFeatureType(fx, fy) | 0) !== (adapter.NO_FEATURE | 0)) {
+      const reason = `occupied:${footprintPlotIndex}`;
+      return {
+        status: "rejected",
+        terrainAdjusted,
+        rejectionDetail: `feature=${featureType} plot=${plotIndex} reason=${reason}`,
+        coordinateRow: {
+          status: "rejected",
+          plotIndex,
+          x,
+          y,
+          featureType,
+          direction,
+          ...(plannedElevation === undefined ? {} : { elevation: plannedElevation }),
+          reason,
+        },
+      };
+    }
+    const terrainStatus = ensureFeatureValidTerrain(adapter, fx, fy, height, featureType);
+    if (terrainStatus === "blocked") {
+      const reason = `terrain-policy:${footprintPlotIndex}`;
+      return {
+        status: "rejected",
+        terrainAdjusted,
+        rejectionDetail: `feature=${featureType} plot=${plotIndex} reason=${reason}`,
+        coordinateRow: {
+          status: "rejected",
+          plotIndex,
+          x,
+          y,
+          featureType,
+          direction,
+          ...(plannedElevation === undefined ? {} : { elevation: plannedElevation }),
+          reason,
+        },
+      };
+    }
+    if (terrainStatus === "adjusted") terrainAdjusted += 1;
+  }
+  const outcome: NaturalWonderPlacementOutcome = adapter.placeNaturalWonder(
+    x,
+    y,
+    featureType,
+    direction,
+    rawElevation
+  );
+  if (outcome.status === "rejected") {
+    return {
+      status: "rejected",
+      terrainAdjusted,
+      rejectionDetail: formatNaturalWonderRejectionExample({
+        featureType,
+        plotIndex,
+        direction,
+        elevation: outcome.elevation,
+        reason: outcome.reason,
+        observedPlotIndex: outcome.observedPlotIndex,
+        observedFeatureType: outcome.observedFeatureType,
+        expectedFootprintReadback: outcome.expectedFootprintReadback,
+        expectedFootprintReadbackStatus: outcome.expectedFootprintReadbackStatus,
+      }),
+      coordinateRow: {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
+        reason: outcome.reason,
+        ...(outcome.observedPlotIndex === undefined
+          ? {}
+          : { observedPlotIndex: outcome.observedPlotIndex }),
+        ...(outcome.observedFeatureType === undefined
+          ? {}
+          : { observedFeatureType: outcome.observedFeatureType }),
+        ...(outcome.expectedFootprintReadback === undefined
+          ? {}
+          : { expectedFootprintReadback: outcome.expectedFootprintReadback }),
+        ...(outcome.expectedFootprintReadbackStatus === undefined
+          ? {}
+          : { expectedFootprintReadbackStatus: outcome.expectedFootprintReadbackStatus }),
+      },
+    };
+  }
+  let readbackMismatch = false;
+  for (const footprintPlotIndex of footprint) {
+    const fy = (footprintPlotIndex / width) | 0;
+    const fx = footprintPlotIndex - fy * width;
+    if ((adapter.getFeatureType(fx, fy) | 0) !== featureType) {
+      readbackMismatch = true;
+      break;
+    }
+  }
+  if (readbackMismatch) {
+    return {
+      status: "rejected",
+      terrainAdjusted,
+      rejectionDetail: `feature=${featureType} plot=${plotIndex} reason=readback-mismatch`,
+      coordinateRow: {
+        status: "rejected",
+        plotIndex,
+        x,
+        y,
+        featureType,
+        direction,
+        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
+        reason: "readback-mismatch",
+      },
+    };
+  }
+  return {
+    status: "placed",
+    terrainAdjusted,
+    coordinateRow: {
+      status: "placed",
+      plotIndex,
+      x,
+      y,
+      featureType,
+      direction,
+      ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
+      reason: "placed",
+    },
+  };
+}
+
 /**
  * Materializes natural-wonder intent as the product owned by
  * `place-natural-wonders`.
@@ -334,147 +555,59 @@ export function stampNaturalWondersFromPlan({
     const plannedElevation = Number.isFinite(placementPlan.elevation)
       ? Math.trunc(placementPlan.elevation)
       : undefined;
-    const y = (plotIndex / width) | 0;
-    const x = plotIndex - y * width;
-    const footprint = getNaturalWonderFootprintIndices({
-      x,
-      y,
+    // Retry across the planner's primary anchor and its fallbacks until the
+    // engine accepts one. canHaveFeatureParam-true does NOT guarantee
+    // setFeatureType-success, so the planner publishes next-best anchors and the
+    // engine remains the final legality authority. Every attempt recomputes its
+    // own parity-aware footprint + occupancy/terrain pre-check; if all fail, the
+    // PRIMARY anchor's failure is recorded (one outcome row per placement).
+    //
+    // ensureFeatureValidTerrain may stamp valid terrain on an attempted anchor
+    // before placement, so a failed primary followed by a placed fallback can
+    // leave the primary's terrain adjusted. In practice this is inert: the
+    // planner only emits anchors whose footprint already passed validTerrainTypes
+    // (the same Feature_ValidTerrains source), so the pre-check returns
+    // "unchanged" and performs no mutation. terrainAdjustedCount counts every
+    // real mutation honestly (placed or superseded), matching the prior
+    // single-anchor accounting on the no-fallback path.
+    const rawElevation = Number.isFinite(placementPlan.elevation)
+      ? (placementPlan.elevation as number)
+      : undefined;
+    const anchorCandidates = buildNaturalWonderAnchorCandidates(
+      plotIndex,
+      placementPlan.fallbackPlotIndices,
       width,
-      height,
-      policy: FEATURE_POLICIES[String(featureType)],
-      direction,
-    });
-    if (!footprint) {
-      rejectedCount += 1;
-      rejectionDetails.push(
-        `feature=${featureType} plot=${plotIndex} reason=unsupported-footprint`
-      );
-      coordinateRows.push({
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        featureType,
-        direction,
-        ...(plannedElevation === undefined ? {} : { elevation: plannedElevation }),
-        reason: "unsupported-footprint",
-      });
-      continue;
-    }
-    let footprintBlocked = false;
-    let blockedReason = "unknown";
-    for (const footprintPlotIndex of footprint) {
-      const fy = (footprintPlotIndex / width) | 0;
-      const fx = footprintPlotIndex - fy * width;
-      if ((adapter.getFeatureType(fx, fy) | 0) !== (adapter.NO_FEATURE | 0)) {
-        footprintBlocked = true;
-        blockedReason = `occupied:${footprintPlotIndex}`;
-        break;
-      }
-      const terrainStatus = ensureFeatureValidTerrain(adapter, fx, fy, height, featureType);
-      if (terrainStatus === "blocked") {
-        footprintBlocked = true;
-        blockedReason = `terrain-policy:${footprintPlotIndex}`;
-        break;
-      }
-      if (terrainStatus === "adjusted") terrainAdjustedCount += 1;
-    }
-    if (footprintBlocked) {
-      rejectedCount += 1;
-      rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=${blockedReason}`);
-      coordinateRows.push({
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        featureType,
-        direction,
-        ...(plannedElevation === undefined ? {} : { elevation: plannedElevation }),
-        reason: blockedReason,
-      });
-      continue;
-    }
-    const outcome: NaturalWonderPlacementOutcome = adapter.placeNaturalWonder(
-      x,
-      y,
-      featureType,
-      direction,
-      Number.isFinite(placementPlan.elevation) ? placementPlan.elevation : undefined
+      height
     );
-    if (outcome.status === "rejected") {
-      rejectedCount += 1;
-      rejectionDetails.push(
-        formatNaturalWonderRejectionExample({
-          featureType,
-          plotIndex,
-          direction,
-          elevation: outcome.elevation,
-          reason: outcome.reason,
-          observedPlotIndex: outcome.observedPlotIndex,
-          observedFeatureType: outcome.observedFeatureType,
-          expectedFootprintReadback: outcome.expectedFootprintReadback,
-          expectedFootprintReadbackStatus: outcome.expectedFootprintReadbackStatus,
-        })
-      );
-      coordinateRows.push({
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
+    let placedAttempt: NaturalWonderAnchorAttemptPlaced | null = null;
+    let firstRejection: NaturalWonderAnchorAttemptRejected | null = null;
+    for (const anchorPlotIndex of anchorCandidates) {
+      const attempt = attemptStampNaturalWonderAtAnchor({
+        adapter,
+        anchorPlotIndex,
+        width,
+        height,
         featureType,
         direction,
-        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
-        reason: outcome.reason,
-        ...(outcome.observedPlotIndex === undefined
-          ? {}
-          : { observedPlotIndex: outcome.observedPlotIndex }),
-        ...(outcome.observedFeatureType === undefined
-          ? {}
-          : { observedFeatureType: outcome.observedFeatureType }),
-        ...(outcome.expectedFootprintReadback === undefined
-          ? {}
-          : { expectedFootprintReadback: outcome.expectedFootprintReadback }),
-        ...(outcome.expectedFootprintReadbackStatus === undefined
-          ? {}
-          : { expectedFootprintReadbackStatus: outcome.expectedFootprintReadbackStatus }),
+        plannedElevation,
+        rawElevation,
       });
-      continue;
-    }
-    let readbackMismatch = false;
-    for (const footprintPlotIndex of footprint) {
-      const fy = (footprintPlotIndex / width) | 0;
-      const fx = footprintPlotIndex - fy * width;
-      if ((adapter.getFeatureType(fx, fy) | 0) !== featureType) {
-        readbackMismatch = true;
+      terrainAdjustedCount += attempt.terrainAdjusted;
+      if (attempt.status === "placed") {
+        placedAttempt = attempt;
         break;
       }
+      if (!firstRejection) firstRejection = attempt;
     }
-    if (readbackMismatch) {
-      rejectedCount += 1;
-      rejectionDetails.push(`feature=${featureType} plot=${plotIndex} reason=readback-mismatch`);
-      coordinateRows.push({
-        status: "rejected",
-        plotIndex,
-        x,
-        y,
-        featureType,
-        direction,
-        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
-        reason: "readback-mismatch",
-      });
-    } else {
+    if (placedAttempt) {
       placedCount += 1;
-      coordinateRows.push({
-        status: "placed",
-        plotIndex,
-        x,
-        y,
-        featureType,
-        direction,
-        ...(outcome.elevation === undefined ? {} : { elevation: Math.trunc(outcome.elevation) }),
-        reason: "placed",
-      });
+      coordinateRows.push(placedAttempt.coordinateRow);
+      continue;
     }
+    const rejection = firstRejection!;
+    rejectedCount += 1;
+    rejectionDetails.push(rejection.rejectionDetail);
+    coordinateRows.push(rejection.coordinateRow);
   }
 
   return {
@@ -491,6 +624,14 @@ export function stampNaturalWondersFromPlan({
   };
 }
 
+/**
+ * Coerces a (possibly partial or cross-boundary) stats object back into a sound
+ * `NaturalWonderStampingStats`: clamps every count to a non-negative integer,
+ * enforces `targetCount >= plannedCount` and derives a `shortfallCount` when
+ * absent, caps `rejectionExamples`, and re-validates the coordinate proof/rows.
+ * Used when reading stats published across a step boundary (where the typed
+ * shape is not guaranteed) before telemetry or reconciliation consume them.
+ */
 export function normalizeNaturalWonderStampingStats(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): NaturalWonderStampingStats {
@@ -672,6 +813,18 @@ function buildNaturalWonderRuntimeRejectedRows(
     ]);
 }
 
+/**
+ * Projects stamping stats into the emitted `NATURAL_WONDER_PLACEMENT_V1`
+ * telemetry payload.
+ *
+ * PRECISION CAVEAT (load-bearing for evidence claims): the payload exposes
+ * per-row coordinates ONLY for REJECTED rows (`rejectedRows`). Placed wonders are
+ * summarized as an opaque `coordinateProof.placedHash32` (FNV-1a 32) plus a
+ * count — no individual placed coordinate. So a wonder's placed status is derived
+ * as `planned − rejected`, and a specific placed coordinate or its row parity is
+ * NOT directly provable from telemetry. The rejected-digest fields are omitted
+ * entirely when there are no rejected rows (keeps clean-run hashes stable).
+ */
 export function buildNaturalWonderPlacementRuntimeTelemetry(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): NaturalWonderPlacementRuntimeTelemetry {
@@ -702,6 +855,13 @@ export function buildNaturalWonderPlacementRuntimeTelemetry(
   };
 }
 
+/**
+ * Emits the `NATURAL_WONDER_PLACEMENT_V1` line to the engine log (the
+ * `[SWOOPER_MOD]`-prefixed channel that live-proof tooling scrapes). The single
+ * runtime sink for placement evidence; see
+ * {@link buildNaturalWonderPlacementRuntimeTelemetry} for the payload's
+ * placed-vs-rejected precision caveat.
+ */
 export function logNaturalWonderPlacementRuntimeTelemetry(
   stats: DeepReadonly<NaturalWonderStampingStats>
 ): void {

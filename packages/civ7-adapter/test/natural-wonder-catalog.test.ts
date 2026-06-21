@@ -10,7 +10,8 @@ describe("natural-wonder catalog", () => {
     const adapter = createMockAdapter();
 
     expect(adapter.getNaturalWonderCatalog()).toEqual(NATURAL_WONDER_CATALOG);
-    expect(NATURAL_WONDER_CATALOG.map((entry) => entry.featureType)).not.toContain(
+    // Previously-dropped 4-tile wonders are now placement-eligible (full 20 set).
+    expect(NATURAL_WONDER_CATALOG.map((entry) => entry.featureType)).toContain(
       featureTypes.FEATURE_BARRIER_REEF
     );
   });

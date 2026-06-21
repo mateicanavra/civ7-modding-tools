@@ -1,38 +1,16 @@
 import {
   CIV7_BROWSER_TABLES_V0,
-  getNaturalWonderFootprintOffsets,
-  hasUnsupportedNaturalWonderPolicyTags,
+  isSupportedNaturalWonder,
   NATURAL_WONDER_CATALOG,
-  resolveNaturalWonderPlacementDirection,
 } from "@civ7/map-policy";
 
+// Mirror consistency check: both the catalog and this verifier derive eligibility
+// from the single exported `isSupportedNaturalWonder` predicate, so they cannot
+// disagree (no second copy of the support filter to drift).
 const featureTable = CIV7_BROWSER_TABLES_V0.featureTypes;
-const featurePolicies = CIV7_BROWSER_TABLES_V0.featurePolicies as Record<
-  string,
-  | {
-      placementClass?: string;
-      naturalWonderDirection?: number;
-      naturalWonderTiles?: number;
-      naturalWonderPlaceFirst?: boolean;
-    }
-  | undefined
->;
-const featureTags = CIV7_BROWSER_TABLES_V0.featureTagsByFeatureType as Record<
-  string,
-  readonly string[] | undefined
->;
 const expectedIds = Object.values(featureTable)
   .map((featureType) => Math.trunc(featureType))
-  .filter((featureType) => {
-    const policy = featurePolicies[String(featureType)];
-    if (!policy?.naturalWonderTiles) return false;
-    if (policy.naturalWonderPlaceFirst === true && policy.naturalWonderTiles > 1) return false;
-    if (hasUnsupportedNaturalWonderPolicyTags(featureTags[String(featureType)])) return false;
-    return (
-      getNaturalWonderFootprintOffsets(policy, resolveNaturalWonderPlacementDirection(policy)) !==
-      null
-    );
-  })
+  .filter((featureType) => isSupportedNaturalWonder(featureType))
   .sort((a, b) => a - b);
 const actualIds = NATURAL_WONDER_CATALOG.map((entry) => entry.featureType);
 if (expectedIds.length !== actualIds.length) {

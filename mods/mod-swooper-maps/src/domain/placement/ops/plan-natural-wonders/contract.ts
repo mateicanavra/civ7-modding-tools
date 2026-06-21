@@ -16,6 +16,26 @@ const PlanNaturalWondersContract = defineOp({
     lakeMask: TypedArraySchemas.u8({
       description: "Hydrology lake mask per tile (1=lake, 0=non-lake).",
     }),
+    // Forwarded physical suitability signals (already-computed truth artifacts;
+    // not recomputed). Optional so the op tolerates inputs that omit them.
+    vegetationDensity: Type.Optional(
+      TypedArraySchemas.f32({ description: "Ecology vegetation density per tile (0..1)." })
+    ),
+    effectiveMoisture: Type.Optional(
+      TypedArraySchemas.f32({ description: "Ecology effective moisture per tile." })
+    ),
+    surfaceTemperature: Type.Optional(
+      TypedArraySchemas.f32({ description: "Ecology surface temperature per tile (C)." })
+    ),
+    fertility: Type.Optional(
+      TypedArraySchemas.f32({ description: "Pedology fertility per tile (0..1)." })
+    ),
+    discharge: Type.Optional(
+      TypedArraySchemas.f32({ description: "Hydrology accumulated discharge proxy per tile." })
+    ),
+    slopeClass: Type.Optional(
+      TypedArraySchemas.u8({ description: "Hydrology slope class per tile." })
+    ),
     coastTerrainType: Type.Integer({ minimum: 0 }),
     mountainTerrainType: Type.Integer({ minimum: 0 }),
     iceFeatureType: Type.Integer({ minimum: 0 }),
@@ -35,16 +55,19 @@ const PlanNaturalWondersContract = defineOp({
         validBiomeTypes: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
         minimumElevation: Type.Optional(Type.Number()),
         noLake: Type.Optional(Type.Boolean()),
+        placeFirst: Type.Optional(Type.Boolean()),
         placementClass: Type.Optional(Type.String()),
         naturalWonderTiles: Type.Optional(Type.Integer({ minimum: 1 })),
         featureTags: Type.Optional(Type.Array(Type.String())),
-        footprintOffsets: Type.Optional(
-          Type.Array(
-            Type.Object({
-              dx: Type.Integer(),
-              dy: Type.Integer(),
-            })
-          )
+        // Parity-keyed footprint offsets (odd-R): the even-row and odd-row offset
+        // lists for this wonder's class/direction. The op applies `(anchorY & 1)`
+        // at the concrete anchor. Computed in derive-placement-inputs via the
+        // map-policy byParity helper; the op stays mapgen-core-only.
+        footprintOffsetsByParity: Type.Optional(
+          Type.Object({
+            even: Type.Array(Type.Object({ dx: Type.Integer(), dy: Type.Integer() })),
+            odd: Type.Array(Type.Object({ dx: Type.Integer(), dy: Type.Integer() })),
+          })
         ),
       })
     ),
@@ -62,6 +85,12 @@ const PlanNaturalWondersContract = defineOp({
         direction: Type.Integer(),
         elevation: Type.Number(),
         priority: Type.Number({ minimum: 0, maximum: 1 }),
+        // Next-best anchor candidates for this wonder (suitability-descending),
+        // for the materialize step to retry when the engine refuses the primary
+        // anchor (canHaveFeatureParam-true does NOT guarantee setFeatureType-
+        // success). Excludes the primary + other placements' footprints; the
+        // engine remains the final legality authority.
+        fallbackPlotIndices: Type.Optional(Type.Array(Type.Integer({ minimum: 0 }))),
       })
     ),
   }),
