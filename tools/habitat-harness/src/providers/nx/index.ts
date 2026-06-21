@@ -108,7 +108,7 @@ function makeLiveNxProvider(): NxProviderService {
           runner.run({
             commandId: "nx-project-graph",
             kind: "workspace-tool",
-            executable: "target-check",
+            executable: "nx",
             argv: graphArgv(request).slice(1),
             cwd: repoRoot,
             captureGitState: false,
@@ -122,7 +122,7 @@ function makeLiveNxProvider(): NxProviderService {
           runner.run({
             commandId: "nx-run-many",
             kind: "workspace-tool",
-            executable: "target-check",
+            executable: "nx",
             argv: runManyArgv(request).slice(1),
             cwd: repoRoot,
             captureGitState: false,
@@ -136,7 +136,7 @@ function makeLiveNxProvider(): NxProviderService {
           runner.run({
             commandId: "nx-run-target",
             kind: "workspace-tool",
-            executable: "target-check",
+            executable: "nx",
             argv: runTargetArgv(request).slice(1),
             cwd: repoRoot,
             captureGitState: false,
@@ -162,12 +162,12 @@ export function affectedArgv(request: NxAffectedRequest): string[] {
 }
 
 export function graphArgv(request: NxGraphRequest): string[] {
-  return ["target-check", "graph", "--file", request.outputPath];
+  return ["nx", "graph", "--file", request.outputPath];
 }
 
 export function runManyArgv(request: NxRunManyRequest): string[] {
   return [
-    "target-check",
+    "nx",
     "run-many",
     "--targets",
     request.targets.join(","),
@@ -178,7 +178,7 @@ export function runManyArgv(request: NxRunManyRequest): string[] {
 }
 
 export function runTargetArgv(request: NxRunTargetRequest): string[] {
-  return ["target-check", "run", `${request.project}:${request.target}`, "--outputStyle=static"];
+  return ["nx", "run", `${request.project}:${request.target}`, "--outputStyle=static"];
 }
 
 function requireFakeResult<Request>(

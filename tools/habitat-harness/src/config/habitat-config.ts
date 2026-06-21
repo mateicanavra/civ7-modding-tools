@@ -38,6 +38,7 @@ export class HabitatConfig extends Context.Tag("@internal/habitat-harness/Habita
 export const defaultWorkspaceToolPolicies = new Map<string, WorkspaceToolPolicy>([
   ["biome", { executable: "biome", strategy: "bun-run" }],
   ["format-check", { executable: "biome", strategy: "bun-run" }],
+  ["nx", { executable: "nx", strategy: "bun-run" }],
   [
     "import-boundaries",
     {

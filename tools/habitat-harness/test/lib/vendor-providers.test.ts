@@ -101,7 +101,7 @@ describe("vendor providers", () => {
 
   test("NxProvider owns graph argv construction", () => {
     expect(graphArgv({ outputPath: "/tmp/habitat-graph-fake/graph.json" })).toEqual([
-      "target-check",
+      "nx",
       "graph",
       "--file",
       "/tmp/habitat-graph-fake/graph.json",
@@ -115,7 +115,7 @@ describe("vendor providers", () => {
     };
 
     expect(runManyArgv(request)).toEqual([
-      "target-check",
+      "nx",
       "run-many",
       "--targets",
       "test:architecture-cutover,test:architecture-core-purity",
@@ -134,7 +134,7 @@ describe("vendor providers", () => {
             runMany: (runManyRequest) =>
               commandResult(
                 "workspace-tool",
-                "target-check",
+                "nx",
                 runManyArgv(runManyRequest).slice(1),
                 repoRoot,
                 "batched ok\n"
@@ -154,7 +154,7 @@ describe("vendor providers", () => {
     };
 
     expect(runTargetArgv(request)).toEqual([
-      "target-check",
+      "nx",
       "run",
       "@internal/habitat-harness:boundaries",
       "--outputStyle=static",
@@ -170,7 +170,7 @@ describe("vendor providers", () => {
             runTarget: (runTargetRequest) =>
               commandResult(
                 "workspace-tool",
-                "target-check",
+                "nx",
                 runTargetArgv(runTargetRequest).slice(1),
                 repoRoot,
                 "single target ok\n"

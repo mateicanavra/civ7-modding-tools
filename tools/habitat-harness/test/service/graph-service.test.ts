@@ -27,7 +27,7 @@ describe("Habitat graph service", () => {
             {
               commandId: "nx-project-graph",
               kind: "workspace-tool",
-              executable: "target-check",
+              executable: "nx",
               argv: ["graph", "--file", request.outputPath],
               cwd: repoRoot,
               captureGitState: false,
@@ -67,7 +67,7 @@ describe("Habitat graph service", () => {
           makeHabitatCommandResult({
             commandId: "nx-project-graph",
             kind: "workspace-tool",
-            executable: "target-check",
+            executable: "nx",
             argv: ["graph", "--file", request.outputPath],
             cwd: repoRoot,
             captureGitState: false,
@@ -95,7 +95,7 @@ describe("Habitat graph service", () => {
             {
               commandId: "nx-project-graph",
               kind: "workspace-tool",
-              executable: "target-check",
+              executable: "nx",
               argv: ["graph", "--file", request.outputPath],
               cwd: repoRoot,
               captureGitState: false,
@@ -138,10 +138,10 @@ describe("Habitat graph service", () => {
           Effect.fail(
             new CommandUnavailable({
               commandId: "nx-project-graph",
-              executable: "target-check",
+              executable: "nx",
               argv: graphArgv(request).slice(1),
               cwd: repoRoot,
-              cause: "target-check unavailable",
+              cause: "nx unavailable",
             })
           ),
         graphArgv,
@@ -154,7 +154,7 @@ describe("Habitat graph service", () => {
     expect(result).toEqual({
       exitCode: 127,
       stdout: "",
-      stderr: "target-check unavailable\n",
+      stderr: "nx unavailable\n",
     });
     expect(events).toEqual(["mkdtemp:/tmp/habitat-graph-fake", "remove:/tmp/habitat-graph-fake"]);
   });
