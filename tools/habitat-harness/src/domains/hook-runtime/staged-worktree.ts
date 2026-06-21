@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { stagedPatternScanRoots } from "../../domains/structural-check/index.js";
+import { stagedSourceCheckPaths } from "../../domains/structural-check/index.js";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import type { SpawnResult } from "../../providers/command/index.js";
 import { runHookCommand } from "./command-runner.js";
@@ -32,8 +32,8 @@ export function biomeHookPaths(staged: readonly string[]): string[] {
   return staged.filter((candidate) => biomeCandidateExtensions.has(path.extname(candidate)));
 }
 
-export function hookPatternScanRoots(stagedPaths: readonly string[]): string[] {
-  return stagedPatternScanRoots(stagedPaths);
+export function hookSourceCheckPaths(stagedPaths: readonly string[]): string[] {
+  return stagedSourceCheckPaths(stagedPaths);
 }
 
 export function unstagedAmong(paths: string[], runtime: HookRuntime = {}): string[] {

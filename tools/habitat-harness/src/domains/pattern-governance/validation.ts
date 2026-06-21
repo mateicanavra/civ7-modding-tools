@@ -188,12 +188,12 @@ function checkRegisteredContradictions(
       )
     );
   }
-  if (manifest.ownerTool === "pattern-check" && manifest.applySafety.kind === "apply") {
+  if (manifest.ownerTool === "source-check" && manifest.applySafety.kind === "apply") {
     issues.push(
       issue(
         "apply-safety-contradicted",
         "applySafety.kind",
-        "pattern-check manifests must not request apply admission."
+        "source-check manifests must not request apply admission."
       )
     );
   }

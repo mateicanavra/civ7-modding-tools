@@ -135,9 +135,9 @@ export function boundariesTarget(): NxTargetDefinition {
   };
 }
 
-export function gritCheckTarget(): NxTargetDefinition {
+export function sourceCheckTarget(): NxTargetDefinition {
   return {
-    command: "bun tools/habitat-harness/bin/dev.ts check --tool pattern-check",
+    command: "bun tools/habitat-harness/bin/dev.ts check --tool source-check",
     options: workspaceCwd,
     cache: true,
     inputs: habitatInputs(),

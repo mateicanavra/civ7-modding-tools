@@ -2,7 +2,7 @@ import path from "node:path";
 import { habitatCacheRepoPathPrefix } from "../../lib/artifact-paths.js";
 import { repoRoot, toRepoRelative } from "../../lib/paths.js";
 import { decideScanRootProtection } from "../../lib/protected-zones/index.js";
-import type { RulePatternFacts } from "../rule-registry/index.js";
+import type { RuleSourceFacts } from "../rule-registry/index.js";
 
 export const sourceCheckCandidateExtensions = new Set([
   ".cjs",
@@ -25,12 +25,12 @@ const protectedSourceRootPrefixes = [
   "tools/habitat-harness/dist/",
 ];
 
-export function approvedSourceScanRootsForRules(rules: readonly RulePatternFacts[]): string[] {
+export function approvedSourceScanRootsForRules(rules: readonly RuleSourceFacts[]): string[] {
   return sortedUnique(rules.flatMap((rule) => rule.scanRoots));
 }
 
 export function selectedSourceScanRootsForRules(
-  selectedRules: readonly RulePatternFacts[],
+  selectedRules: readonly RuleSourceFacts[],
   scanRoots: readonly string[] | undefined
 ): string[] {
   if (!scanRoots) return approvedSourceScanRootsForRules(selectedRules);

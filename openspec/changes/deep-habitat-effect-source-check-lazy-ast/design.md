@@ -9,9 +9,9 @@ every possible representation up front.
 
 ## Ownership
 
-- `tools/habitat-harness/src/domains/source-check/source-patterns.ts` owns file
+- `tools/habitat-harness/src/domains/source-check/source-rules.ts` owns file
   collection and native source-check policy invocation.
-- `.habitat/source-check/pattern-rules.mjs` owns generated policy logic and
+- `.habitat/source-check/source-rules.mjs` owns generated policy logic and
   remains a read-only generated artifact for this slice.
 
 ## Implementation

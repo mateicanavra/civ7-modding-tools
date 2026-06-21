@@ -1,26 +1,30 @@
 ## MODIFIED Requirements
 
-### Requirement: Habitat Hook Target Planning
+### Requirement: Habitat check orchestration keeps routine feedback fast
 
-Habitat SHALL keep Git hook target planning at the Habitat/Nx boundary instead
-of duplicating vendor-backed structural lanes as top-level hook concerns.
+Habitat SHALL keep local structural feedback fast by separating graph metadata,
+staged checks, owner checks, affected project verification, and full workspace
+verification into distinct lanes with one owner for each vendor invocation.
 
-#### Scenario: Pre-push runs one Habitat structural harness target
+#### Scenario: Nx graph construction is metadata-only
 
-- **WHEN** Habitat builds the pre-push Nx affected target list
-- **THEN** the list SHALL include `habitat:check`
-- **AND** the list SHALL NOT separately include `biome:ci`, `boundaries`, or
-  `grit:check`.
+- **WHEN** Nx constructs the project graph
+- **THEN** Habitat inferred targets are created from cheap metadata
+- **AND** graph construction does not execute live Habitat domain, runtime, or
+  provider logic.
 
-#### Scenario: Pre-push preserves non-Habitat project gates
+#### Scenario: Rule target inputs are scoped
 
-- **WHEN** Habitat builds the pre-push Nx affected target list
-- **THEN** the list SHALL preserve project tests and existing validation targets
-  that are not owned by Habitat's structural harness.
+- **WHEN** Habitat creates an Nx target for a source or structural rule
+- **THEN** the target inputs are derived from the rule's path coverage,
+  manifests, policy artifacts, and required harness code
+- **AND** workspace-wide inputs are reserved for rules declared as workspace
+  gates.
 
-#### Scenario: Pre-push service execution uses the Nx provider
+#### Scenario: Verification lanes do not duplicate vendor work
 
-- **WHEN** the Habitat service runs the pre-push hook
-- **THEN** affected execution SHALL be delegated to `NxProvider`
-- **AND** the hook service SHALL NOT assemble a raw Nx process through the hook
-  runtime command runner.
+- **WHEN** a hook, root script, or Habitat verify path schedules Biome, Nx,
+  Grit, or Habitat checks
+- **THEN** each vendor capability has one owning lane for that invocation
+- **AND** the same work is not re-run through a second wrapper in the same
+  routine feedback path.

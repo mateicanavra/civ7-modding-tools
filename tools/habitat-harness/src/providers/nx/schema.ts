@@ -31,7 +31,7 @@ export const WorkspaceGraphTargetNamesSchema = Type.Object(
     boundaries: TargetNameSchema,
     check: TargetNameSchema,
     generatedCheck: TargetNameSchema,
-    gritCheck: TargetNameSchema,
+    sourceCheck: TargetNameSchema,
     lint: TargetNameSchema,
     rulePrefix: TargetNameSchema,
   },
@@ -48,7 +48,7 @@ export const WorkspaceGraphTargetNameOptionsSchema = Type.Partial(
       boundariesTargetName: TargetNameSchema,
       checkTargetName: TargetNameSchema,
       generatedCheckTargetName: TargetNameSchema,
-      gritCheckTargetName: TargetNameSchema,
+      sourceCheckTargetName: TargetNameSchema,
       lintTargetName: TargetNameSchema,
       ruleTargetPrefix: TargetNameSchema,
     },
@@ -60,7 +60,7 @@ export const RuleGraphTargetNamesSchema = Type.Pick(WorkspaceGraphTargetNamesSch
   "boundaries",
   "biomeCi",
   "generatedCheck",
-  "gritCheck",
+  "sourceCheck",
 ]);
 
 export const TargetDependencyDeclarationSchema = Type.Cyclic(

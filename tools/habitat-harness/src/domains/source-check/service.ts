@@ -1,17 +1,17 @@
 import type { FileSystem } from "@effect/platform";
 import { Context, Effect, Layer } from "effect";
-import type { RulePatternFacts } from "../rule-registry/index.js";
-import { runSourcePatternRulesEffect } from "./source-patterns.js";
+import type { RuleSourceFacts } from "../rule-registry/index.js";
+import { runSourceRulesEffect } from "./source-rules.js";
 
 export interface SourceCheckOptions {
   readonly scanRoots?: readonly string[];
 }
 
 export interface SourceCheckService {
-  readonly runPatternRules: (
-    rules: readonly RulePatternFacts[],
+  readonly runSourceRules: (
+    rules: readonly RuleSourceFacts[],
     options?: SourceCheckOptions
-  ) => ReturnType<typeof runSourcePatternRulesEffect>;
+  ) => ReturnType<typeof runSourceRulesEffect>;
 }
 
 export class SourceCheck extends Context.Tag("@internal/habitat-harness/SourceCheck")<
@@ -20,7 +20,7 @@ export class SourceCheck extends Context.Tag("@internal/habitat-harness/SourceCh
 >() {}
 
 export const SourceCheckLive = Layer.succeed(SourceCheck, {
-  runPatternRules: runSourcePatternRulesEffect,
+  runSourceRules: runSourceRulesEffect,
 });
 
 export function makeFakeSourceCheckLayer(service: SourceCheckService) {

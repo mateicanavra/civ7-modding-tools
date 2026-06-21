@@ -4,11 +4,11 @@ import type {
   RuleFileLayerFacts,
   RuleHookCheckFacts,
   RuleManifestFacts,
-  RulePatternFacts,
   RuleRegistryRecordV1,
   RuleReportFacts,
   RuleRoutingFacts,
   RuleSelectorFacts,
+  RuleSourceFacts,
 } from "./schema.js";
 
 type SelectorRecordInput = Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "ownerTool">;
@@ -21,8 +21,8 @@ type RoutingRecordInput = Pick<
   "id" | "ownerTool" | "ownerProject" | "pathCoverage"
 >;
 type BaselineRecordInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath">;
-type PatternRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "pattern-check" }>;
-type ManifestRecordInput = PatternRecordInput & { manifestPath: string };
+type SourceRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "source-check" }>;
+type ManifestRecordInput = SourceRecordInput & { manifestPath: string };
 type FileLayerRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
 type CommandRecordInput = Extract<
   RuleRegistryRecordV1,
@@ -30,7 +30,7 @@ type CommandRecordInput = Extract<
     ownerTool: "command-check" | "format-check" | "habitat" | "import-boundaries" | "target-check";
   }
 >;
-type HookCheckRecordInput = PatternRecordInput & { hookCheck: true };
+type HookCheckRecordInput = SourceRecordInput & { hookCheck: true };
 
 export function ruleSelectorFacts(records: readonly SelectorRecordInput[]): RuleSelectorFacts[] {
   return records.map((rule) => ({
@@ -71,9 +71,9 @@ export function ruleBaselineFacts(records: readonly BaselineRecordInput[]): Rule
   }));
 }
 
-export function rulePatternFacts(records: readonly RuleRegistryRecordV1[]): RulePatternFacts[] {
+export function ruleSourceFacts(records: readonly RuleRegistryRecordV1[]): RuleSourceFacts[] {
   return records
-    .filter((rule): rule is PatternRecordInput => rule.ownerTool === "pattern-check")
+    .filter((rule): rule is SourceRecordInput => rule.ownerTool === "source-check")
     .map((rule) => ({
       id: rule.id,
       lane: rule.lane,
@@ -92,7 +92,7 @@ export function ruleManifestFacts(records: readonly RuleRegistryRecordV1[]): Rul
   return records
     .filter(
       (rule): rule is ManifestRecordInput =>
-        rule.ownerTool === "pattern-check" && typeof rule.manifestPath === "string"
+        rule.ownerTool === "source-check" && typeof rule.manifestPath === "string"
     )
     .map((rule) => ({
       id: rule.id,
@@ -148,7 +148,7 @@ export function ruleHookCheckFacts(records: readonly RuleRegistryRecordV1[]): Ru
   return records
     .filter(
       (rule): rule is HookCheckRecordInput =>
-        rule.ownerTool === "pattern-check" && rule.hookCheck === true
+        rule.ownerTool === "source-check" && rule.hookCheck === true
     )
     .map((rule) => ({
       id: rule.id,

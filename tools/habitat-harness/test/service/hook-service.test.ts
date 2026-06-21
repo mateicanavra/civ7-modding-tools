@@ -103,7 +103,7 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain('"ruleId": "file-layer-pnpm-artifacts"');
     expect(result.stdout).toContain("biome: no staged supported files\n");
     expect(result.stdout).toContain(
-      "patterns: no staged TypeScript/JavaScript files in approved scan roots\n"
+      "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
     );
     expect(result.stdout).toContain("habitat hook pre-commit: PASS\n");
     expect(fake.calls).toEqual(["git diff --cached --name-status -z"]);

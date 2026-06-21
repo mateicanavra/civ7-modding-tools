@@ -27,15 +27,15 @@ import {
   activeRuleCommandExecutionFacts,
   activeRuleFileLayerFacts,
   activeRuleGraphFacts,
-  activeRulePatternFacts,
+  activeRuleSourceFacts,
   factsForRuleIds,
 } from "../rule-registry/active-facts.js";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RuleGraphFacts,
-  RulePatternFacts,
   RuleSelectorFacts,
+  RuleSourceFacts,
 } from "../rule-registry/index.js";
 import {
   approvedSourceScanRootsForRules,
@@ -56,7 +56,7 @@ export interface RuleExecutionRecord {
 export function rulesForExecution(
   selectedRules: readonly RuleSelectorFacts[],
   _options: {
-    gritFacts?: readonly RulePatternFacts[];
+    sourceRuleFacts?: readonly RuleSourceFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
   } = {}
@@ -64,24 +64,24 @@ export function rulesForExecution(
   return [...selectedRules];
 }
 
-export function stagedPatternScanRoots(
+export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRulePatternFacts)
+  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleSourceFacts)
 ): string[] {
   return stagedSourceScanRoots(stagedPaths, approvedScanRoots);
 }
 
-export function approvedScanRootsForRules(rules: readonly RulePatternFacts[]): string[] {
+export function approvedScanRootsForRules(rules: readonly RuleSourceFacts[]): string[] {
   return approvedSourceScanRootsForRules(rules);
 }
 
-export function stagedPatternNotApplicableRecords(
-  gritRules: readonly RulePatternFacts[],
+export function stagedSourceCheckNotApplicableRecords(
+  sourceRules: readonly RuleSourceFacts[],
   scanRoots: readonly string[]
 ): Map<string, RuleExecutionRecord> | undefined {
   if (scanRoots.length > 0) return undefined;
   return new Map(
-    gritRules.map((rule) => [
+    sourceRules.map((rule) => [
       rule.id,
       {
         result: {
@@ -114,35 +114,35 @@ export function executeSelectedRulesEffect(
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
-    const gritRules = factsForRuleIds(activeRulePatternFacts, selectedRuleIds);
-    if (gritRules.length > 0) {
+    const sourceRules = factsForRuleIds(activeRuleSourceFacts, selectedRuleIds);
+    if (sourceRules.length > 0) {
       const scanRoots = options.staged
-        ? stagedPatternScanRoots(
+        ? stagedSourceCheckPaths(
             options.stagedPaths ?? (yield* currentStagedPathsEffect()),
-            approvedScanRootsForRules(gritRules)
+            approvedScanRootsForRules(sourceRules)
           )
         : undefined;
       const stagedNotApplicable =
         options.staged && scanRoots
-          ? stagedPatternNotApplicableRecords(gritRules, scanRoots)
+          ? stagedSourceCheckNotApplicableRecords(sourceRules, scanRoots)
           : undefined;
       if (stagedNotApplicable) {
         for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
         const sourceCheck = yield* SourceCheck;
         const started = yield* Clock.currentTimeMillis;
-        const sourceResults = yield* sourceCheck.runPatternRules(
-          gritRules,
+        const sourceResults = yield* sourceCheck.runSourceRules(
+          sourceRules,
           scanRoots ? { scanRoots } : {}
         );
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-        for (const rule of gritRules) {
+        for (const rule of sourceRules) {
           const result = sourceResults.get(rule.id);
           if (result) {
             results.set(rule.id, {
               result,
               durationMs,
-              timing: sharedExecutionTiming("source-check:pattern-rules", durationMs, gritRules),
+              timing: sharedExecutionTiming("source-check:source-rules", durationMs, sourceRules),
               disposition: { kind: "executed", durationMs },
             });
           }

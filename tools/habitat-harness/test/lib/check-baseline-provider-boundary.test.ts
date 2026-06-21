@@ -117,7 +117,7 @@ function baselineRule(id: string) {
     id,
     exceptionPath: "none",
     ownerProject: "@internal/habitat-harness",
-    ownerTool: "pattern-check",
+    ownerTool: "source-check",
   } as const;
 }
 

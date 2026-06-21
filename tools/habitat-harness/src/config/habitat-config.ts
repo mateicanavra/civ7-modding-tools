@@ -57,7 +57,6 @@ export const defaultWorkspaceToolPolicies = new Map<string, WorkspaceToolPolicy>
       ],
     },
   ],
-  ["pattern-check", { executable: "grit", strategy: "bun-run" }],
   ["target-check", { executable: "nx", strategy: "bun-run" }],
   ["grit", { executable: "grit", strategy: "bun-run" }],
 ]);

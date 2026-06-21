@@ -15,7 +15,7 @@ describe("check summaries", () => {
         ok: false,
         rules: [
           rule({
-            ownerTool: "pattern-check",
+            ownerTool: "source-check",
             status: "fail",
             diagnostics: [
               diagnostic(
