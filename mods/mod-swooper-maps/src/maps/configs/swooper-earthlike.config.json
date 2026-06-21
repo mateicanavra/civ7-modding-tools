@@ -329,8 +329,8 @@
         "minRunoff": 0
       },
       "riverNetwork": {
-        "minorPercentile": 0.78,
-        "majorPercentile": 0.91,
+        "minorPercentile": 0.74,
+        "majorPercentile": 0.88,
         "minMinorDischarge": 0,
         "minMajorDischarge": 0
       }

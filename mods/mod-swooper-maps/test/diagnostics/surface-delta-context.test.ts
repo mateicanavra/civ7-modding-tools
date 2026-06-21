@@ -185,14 +185,18 @@ describe("surface delta context diagnostics", () => {
         "evidence-insufficient",
       ]),
       neighborhood: {
+        // Odd-R neighborhood of the probe tile (1,0) (even row -> WEST diagonals):
+        // (0,0) coast, (2,0) coast, (1,1) coast, (0,1) land. The OCEAN tile (2,1)
+        // is an odd-Q (column-offset) neighbor only and is correctly absent here,
+        // so ocean drops from 1 (old odd-Q) to 0.
         localCounts: {
           coast: 3,
-          ocean: 1,
+          ocean: 0,
           land: 1,
         },
         liveCounts: {
           coast: 3,
-          ocean: 1,
+          ocean: 0,
           land: 1,
         },
       },

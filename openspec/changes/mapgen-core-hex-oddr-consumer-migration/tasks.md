@@ -1,0 +1,40 @@
+# Tasks — odd-R consumer migration + dead-code removal
+
+## 1. Migrate live hex consumers to the canonical odd-R primitive
+- [x] `lib/plates/topology.ts` → `getHexNeighborIndicesOddQ` (delete inlined odd-Q offsets)
+- [x] hydrology `compute-precipitation/strategies/vector.ts` (delete inlined tables + row-0 delta; use dir-vectors + iterator)
+- [x] hydrology `compute-atmospheric-circulation/rules` (smoother → indices; ∇p wind → dir-vectors)
+- [x] hydrology `transport-moisture/strategies/vector-advection.ts` (upwind → `bestHexNeighborDirectionIndexOddQ` + iterator; preserve 2-donor blend)
+- [x] hydrology `compute-ocean-surface-currents/rules` (smoother + Helmholtz projection)
+- [x] hydrology `compute-ocean-thermal-state/rules` (upcurrent 2-donor + diffusion)
+- [x] morphology `compute-landmask/strategies/default.ts` coarse-bin axial → odd-R axial
+- [x] diagnostics `surface-delta-context.ts` neighbor tables → odd-R
+- [x] `@civ7/adapter` `mock-adapter.ts` neighbor table → odd-R in place (boundary-blocked from shared import)
+
+## 2. Remove dead code
+- [x] delete `lib/heightfield/{base,sea-level,index}.ts` (no live importer)
+- [x] remove `tsup.config.ts` heightfield entry + `package.json` `./lib/heightfield` export
+
+## 3. Verify (proof classes separate)
+- [x] BUILD: `@swooper/mapgen-core`, `@civ7/adapter`, `mod-swooper-maps` green (tsup compile gate)
+- [x] BIOME: changed files clean (10/10)
+- [x] TEST `@swooper/mapgen-core`: 103 pass / 0 fail
+- [x] TEST mod: 566 pass; failures triaged → 6 pre-existing/environmental, 5 adjacency-driven (ledger)
+- [x] DUMP before/after: wind col/row sawtooth windV 2.5 → 0.52 on fully-migrated build
+- [x] No-straggler scan: zero inlined `x&1` hex adjacency / offset tables remain in the live pipeline (verified by grep; comments excepted)
+- [x] Worktree resources submodule (`bun run resources:init`) → resource-corpus tests pass (were worktree-environmental)
+
+## 4. Downstream realignment (see ledger) — user directive: guards are INVARIANT, re-tune not loosen
+- [x] ocean-thermal `shelfMask mixing` test fixture: stop depending on odd-Q neighbor asymmetry (non-linear gradient)
+- [x] `surface-delta-context` diagnostic test: update expected neighbor classification to odd-R
+- [x] ecology baseline fingerprint fixture: regenerate against corrected output (re-run after re-tunes)
+- [x] earthlike `rough-upland component ≤40`: connected-component cap in `plan-rough-lands` (60→32, share unchanged)
+- [x] earthlike `river minor-share ≤0.55`: `riverNetwork.minorPercentile`/`majorPercentile` re-tune (0.61→0.50)
+- [x] earthlike `river seed-42 lowOrder >0.95` (migration-surfaced): discharge-gate the stream-order confluence bump in `compute-river-network-metrics` (0.90→1.00)
+
+## 5. Closure
+- [x] OpenSpec strict validation (migration packet); re-validate after ledger update
+- [x] Graphite branch stacked on `agent-A-mapgen-core-hex-oddr-adjacency`
+- [x] Full mod suite green except 2 PRE-EXISTING unrelated fails (standard-artifacts packaging mismatch; discoveries static-scan) — flagged, not in scope
+- [ ] Live in-game render proof (user-driven closure gate)
+- [ ] Resolve deferred `natural-wonder-footprints` parity via live per-direction probe (separate)

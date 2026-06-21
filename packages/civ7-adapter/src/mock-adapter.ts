@@ -247,21 +247,27 @@ function sanitizeResourceTypeCatalog(input: number[] | undefined, noResource: nu
   return Array.from(unique).sort((a, b) => a - b);
 }
 
-const ODD_Q_NEIGHBORS_EVEN: readonly (readonly [number, number])[] = [
+// Engine odd-R (row-offset) hex neighbors, parity keyed on the ROW (`y & 1`).
+// Even rows take the WEST diagonals, odd rows the EAST diagonals; the four
+// orthogonal-ish neighbors are common. Mirrors the live engine's
+// getAdjacentPlotLocation adjacency so the mock adapter predicts the engine
+// (this adapter cannot import the mapgen-core grid primitive across the
+// kind:adapter -> kind:foundation boundary, so the table is kept in sync here).
+const ODD_R_NEIGHBORS_EVEN_ROW: readonly (readonly [number, number])[] = [
   [-1, 0],
   [1, 0],
   [0, -1],
   [0, 1],
   [-1, -1],
-  [1, -1],
+  [-1, 1],
 ];
 
-const ODD_Q_NEIGHBORS_ODD: readonly (readonly [number, number])[] = [
+const ODD_R_NEIGHBORS_ODD_ROW: readonly (readonly [number, number])[] = [
   [-1, 0],
   [1, 0],
   [0, -1],
   [0, 1],
-  [-1, 1],
+  [1, -1],
   [1, 1],
 ];
 
@@ -810,7 +816,7 @@ export class MockAdapter implements EngineAdapter {
   }
 
   private hasAdjacentLand(x: number, y: number): boolean {
-    const offsets = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+    const offsets = (y & 1) === 1 ? ODD_R_NEIGHBORS_ODD_ROW : ODD_R_NEIGHBORS_EVEN_ROW;
     for (const [dx, dy] of offsets) {
       const ny = y + dy;
       if (ny < 0 || ny >= this.height) continue;
@@ -1266,7 +1272,7 @@ export class MockAdapter implements EngineAdapter {
     height: number,
     options: Readonly<{ includeValidationMaterializedCoast?: boolean }> = {}
   ): number | null {
-    const neighbors = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+    const neighbors = (y & 1) === 1 ? ODD_R_NEIGHBORS_ODD_ROW : ODD_R_NEIGHBORS_EVEN_ROW;
     for (const [dx, dy] of neighbors) {
       const ny = y + dy;
       if (ny < 0 || ny >= height) continue;
@@ -1286,7 +1292,7 @@ export class MockAdapter implements EngineAdapter {
   }
 
   private hasAdjacentLandTerrain(x: number, y: number, width: number, height: number): boolean {
-    const neighbors = (x & 1) === 1 ? ODD_Q_NEIGHBORS_ODD : ODD_Q_NEIGHBORS_EVEN;
+    const neighbors = (y & 1) === 1 ? ODD_R_NEIGHBORS_ODD_ROW : ODD_R_NEIGHBORS_EVEN_ROW;
     for (const [dx, dy] of neighbors) {
       const ny = y + dy;
       if (ny < 0 || ny >= height) continue;

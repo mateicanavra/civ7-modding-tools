@@ -124,10 +124,17 @@ const ComputeRiverNetworkMetricsOutputSchema = Type.Object(
 );
 
 const ComputeRiverNetworkMetricsDefaultStrategySchema = Type.Object(
-  {},
+  {
+    highOrderConfluenceUpstreamAreaMin: Type.Integer({
+      minimum: 0,
+      default: 64,
+      description:
+        "Minimum receiver upstream-area required before a >=2-tributary confluence may escalate stream-order proxy beyond order 2. Headwater (order 1->2) confluences ignore this floor; it suppresses spurious order-3 promotions on small networks where tiny equal-order branches merge.",
+    }),
+  },
   {
     additionalProperties: false,
-    description: "Default Hydrology river-network metric derivation (no public authoring surface).",
+    description: "Default Hydrology river-network metric derivation.",
   }
 );
 

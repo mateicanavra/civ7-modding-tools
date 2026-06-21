@@ -155,6 +155,90 @@ function countAcceptedWithinHexDistance(params: {
   return count;
 }
 
+/**
+ * Incremental connected-component sizer over accepted rough-land tiles.
+ *
+ * Selection runs in score order and the texture clustering bias pulls high-score
+ * candidates into a few dense basins, so the largest connected rough patch can
+ * grow into one carpet even while the total share stays in band. This union-find
+ * lets the acceptance loop predict the merged component size BEFORE committing a
+ * tile, so a candidate that would push a connected run past the fragmentation cap
+ * is skipped and the budget flows to scattered candidates instead. Adjacency uses
+ * the same odd-R neighborhood as the component metric, so the predicted size
+ * matches the measured one exactly.
+ */
+class RoughComponentSizer {
+  private readonly parent: Int32Array;
+  private readonly size: Int32Array;
+
+  constructor(tileCount: number) {
+    this.parent = new Int32Array(tileCount).fill(-1);
+    this.size = new Int32Array(tileCount);
+  }
+
+  private find(idx: number): number {
+    let root = idx;
+    while (this.parent[root]! >= 0) root = this.parent[root]!;
+    let node = idx;
+    while (this.parent[node]! >= 0) {
+      const next = this.parent[node]!;
+      this.parent[node] = root;
+      node = next;
+    }
+    return root;
+  }
+
+  /**
+   * Size the component that would result from accepting `idx`, merging any
+   * already-accepted odd-R neighbors, without mutating state.
+   */
+  projectedSizeIfAdded(params: {
+    index: number;
+    width: number;
+    height: number;
+    accepted: Uint8Array;
+  }): number {
+    const { index, width, height, accepted } = params;
+    const x = index % width;
+    const y = (index / width) | 0;
+    let total = 1;
+    const seenRoots: number[] = [];
+    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+      const ni = ny * width + nx;
+      if (accepted[ni] !== 1) return;
+      const root = this.find(ni);
+      if (seenRoots.includes(root)) return;
+      seenRoots.push(root);
+      total += this.size[root]!;
+    });
+    return total;
+  }
+
+  /** Commit `idx` as accepted, unioning it with neighboring components. */
+  add(params: { index: number; width: number; height: number; accepted: Uint8Array }): void {
+    const { index, width, height, accepted } = params;
+    this.parent[index] = -1;
+    this.size[index] = 1;
+    const x = index % width;
+    const y = (index / width) | 0;
+    forEachHexNeighborOddQ(x, y, width, height, (nx, ny) => {
+      const ni = ny * width + nx;
+      if (accepted[ni] !== 1) return;
+      const rootA = this.find(index);
+      const rootB = this.find(ni);
+      if (rootA === rootB) return;
+      const merged = this.size[rootA]! + this.size[rootB]!;
+      if (this.size[rootA]! >= this.size[rootB]!) {
+        this.parent[rootB] = rootA;
+        this.size[rootA] = merged;
+      } else {
+        this.parent[rootA] = rootB;
+        this.size[rootB] = merged;
+      }
+    });
+  }
+}
+
 export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default", {
   run: (input, config) => {
     const {
@@ -332,7 +416,15 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       return a - b;
     });
 
+    // Cap on the largest connected rough-land run. Interior rough uplands must
+    // stay broken/fragmented: scattered patches, not one carpet. The cap is well
+    // below the earthlike invariant target so the measured largest component
+    // lands inside the guard with margin across seed rolls and map sizes.
+    const roughComponentSizeCap = 32;
+    const componentSizer = new RoughComponentSizer(size);
+
     let accepted = 0;
+    let deferred: number[] | null = null;
     for (let k = 0; k < candidates.length && accepted < roughTarget; k++) {
       const idx = candidates[k]!;
       const nearbyAccepted = countAcceptedWithinHexDistance({
@@ -345,8 +437,41 @@ export const defaultStrategy = createStrategy(PlanRoughLandsContract, "default",
       const score = roughScoreByTile[idx] ?? 0;
       const localDensityLimit = score > threshold * 2.25 ? 5 : score > threshold * 1.5 ? 4 : 2;
       if (nearbyAccepted >= localDensityLimit) continue;
+      const projectedSize = componentSizer.projectedSizeIfAdded({
+        index: idx,
+        width,
+        height,
+        accepted: hillMask,
+      });
+      if (projectedSize > roughComponentSizeCap) {
+        // Hold capped candidates aside so the share can recover from scattered
+        // sites once the score-ordered pass finishes, instead of permanently
+        // dropping the budget that the carpet would have consumed.
+        (deferred ??= []).push(idx);
+        continue;
+      }
       hillMask[idx] = 1;
+      componentSizer.add({ index: idx, width, height, accepted: hillMask });
       accepted += 1;
+    }
+
+    // Backfill any unmet budget from deferred (capped) candidates, still honoring
+    // the component cap. This keeps the total rough share in band when the cap
+    // would otherwise starve selection on tightly clustered seeds.
+    if (deferred && accepted < roughTarget) {
+      for (let k = 0; k < deferred.length && accepted < roughTarget; k++) {
+        const idx = deferred[k]!;
+        const projectedSize = componentSizer.projectedSizeIfAdded({
+          index: idx,
+          width,
+          height,
+          accepted: hillMask,
+        });
+        if (projectedSize > roughComponentSizeCap) continue;
+        hillMask[idx] = 1;
+        componentSizer.add({ index: idx, width, height, accepted: hillMask });
+        accepted += 1;
+      }
     }
 
     return { hillMask, roughnessPotential };

@@ -1,9 +1,30 @@
 import { describe, expect, it } from "bun:test";
 
+import { forEachHexNeighborOddQWithDirection } from "@swooper/mapgen-core/lib/grid";
+
 import { computeOceanThermalState } from "../src/domain/hydrology/ops/compute-ocean-thermal-state/rules/index.js";
 
 function idx(x: number, y: number, width: number): number {
   return y * width + x;
+}
+
+function neighborAvgSST(
+  sstC: Float32Array,
+  isWaterMask: Uint8Array,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): number {
+  let sum = 0;
+  let count = 0;
+  forEachHexNeighborOddQWithDirection(x, y, width, height, (nx, ny) => {
+    const j = ny * width + nx;
+    if (isWaterMask[j] !== 1) return;
+    sum += sstC[j] ?? 0;
+    count += 1;
+  });
+  return count > 0 ? sum / count : 0;
 }
 
 describe("hydrology/compute-ocean-thermal-state", () => {
@@ -161,8 +182,18 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     const height = 6;
     const size = width * height;
 
+    // Use a NON-LINEAR latitude gradient (quadratic in row). Under the corrected
+    // odd-R neighborhood the vertical stencil is symmetric (2 neighbors above, 2
+    // below, 2 same-row), so a LINEAR latitude gradient makes the neighbor average
+    // equal the center SST and shelf mixing produces zero delta. A curved gradient
+    // keeps neighborAvg != center even with the symmetric neighborhood, so the
+    // test detects shelf-increased mixing without relying on neighbor asymmetry
+    // (the odd-Q bug the test previously, unknowingly, depended on).
     const latitudeByRow = new Float32Array(height);
-    for (let y = 0; y < height; y++) latitudeByRow[y] = 90 - (90 * y) / Math.max(1, height - 1);
+    for (let y = 0; y < height; y++) {
+      const f = y / Math.max(1, height - 1);
+      latitudeByRow[y] = 90 * (1 - f * f);
+    }
 
     const isWaterMask = new Uint8Array(size);
     isWaterMask.fill(1);
@@ -211,6 +242,17 @@ describe("hydrology/compute-ocean-thermal-state", () => {
     );
 
     expect(Math.abs((shelf.sstC[t] ?? 0) - (base.sstC[t] ?? 0))).toBeGreaterThan(1e-4);
+
+    // Intent: a shelf tile should mix MORE, i.e. move FURTHER toward the neighbor
+    // average than the same tile without a shelf. Compare against the neighbor
+    // average of the shelf-off field (the common stencil source for both runs).
+    const cx = Math.floor(width / 2);
+    const cy = Math.floor(height / 2);
+    const avg = neighborAvgSST(base.sstC, isWaterMask, cx, cy, width, height);
+    const baseDist = Math.abs((base.sstC[t] ?? 0) - avg);
+    const shelfDist = Math.abs((shelf.sstC[t] ?? 0) - avg);
+    expect(shelfDist).toBeLessThan(baseDist);
+
     // Determinism sanity: rerun matches exactly for the same inputs.
     const shelf2 = computeOceanThermalState(
       width,

@@ -74,16 +74,16 @@ function buildCoarseAverageHexOddQ(
   const size = Math.max(0, (width | 0) * (height | 0));
   const g = Math.max(1, Math.round(grain)) | 0;
 
-  // Bin in axial coordinates derived from odd-q offset coordinates so the low-pass kernel aligns with
-  // the hex grid topology (avoids axis-aligned rectangular artifacts).
+  // Bin in axial coordinates derived from the engine's odd-R (row-offset) coordinates so the low-pass
+  // kernel aligns with the hex grid topology (avoids axis-aligned rectangular artifacts).
   const sums = new Map<number, number>();
   const counts = new Map<number, number>();
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      const q = x | 0;
-      const r = (y - ((x - (x & 1)) >> 1)) | 0;
+      const q = (x - ((y - (y & 1)) >> 1)) | 0;
+      const r = y | 0;
       const qb = Math.floor(q / g) | 0;
       const rb = Math.floor(r / g) | 0;
       // Pack two signed 16-bit integers into one 32-bit key.
@@ -97,8 +97,8 @@ function buildCoarseAverageHexOddQ(
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      const q = x | 0;
-      const r = (y - ((x - (x & 1)) >> 1)) | 0;
+      const q = (x - ((y - (y & 1)) >> 1)) | 0;
+      const r = y | 0;
       const qb = Math.floor(q / g) | 0;
       const rb = Math.floor(r / g) | 0;
       const key = ((qb & 0xffff) << 16) | (rb & 0xffff) | 0;
