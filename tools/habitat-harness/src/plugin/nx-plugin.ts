@@ -1,8 +1,9 @@
 import path from "node:path";
 import { Value } from "typebox/value";
-import { ruleGraphFacts } from "../domains/rule-registry/graph.ts";
-import { loadRuleRegistryDocument } from "../domains/rule-registry/load.ts";
-import type { RuleRegistryRecordV1 } from "../domains/rule-registry/schema.js";
+import type {
+  RuleRegistryDocumentV1,
+  RuleRegistryRecordV1,
+} from "../domains/rule-registry/schema.js";
 import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
 import {
@@ -10,6 +11,8 @@ import {
   WorkspaceGraphTargetNamesSchema,
 } from "../providers/nx/schema.ts";
 import { workspaceGraphTargetNames } from "../providers/nx/targets.ts";
+import { ruleGraphFactsForNxPlugin } from "./rule-graph-facts.ts";
+import { loadRuleRegistryDocumentForNxPlugin } from "./rule-registry-loader.ts";
 import {
   type InferredProjects,
   InferredProjectsSchema,
@@ -29,21 +32,23 @@ import {
 } from "./target-definitions.ts";
 
 const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
-const rules = loadRuleRegistryDocument(rulesPath);
 
 export const createNodesV2 = [
   `${ruleRegistryRepoPath}/**/*.json`,
   (configFiles: string[], options: unknown) => {
+    const registry = loadRuleRegistryDocumentForNxPlugin(rulesPath);
     const projects = buildInferredProjects({
-      registry: rules,
+      registry,
       options,
     });
-    return configFiles.map((configFile) => [configFile, { projects }]);
+    const anchorConfigFile =
+      configFiles.find((configFile) => configFile.endsWith("index.json")) ?? configFiles[0];
+    return anchorConfigFile ? [[anchorConfigFile, { projects }]] : [];
   },
 ];
 
 function buildInferredProjects(input: {
-  registry: typeof rules;
+  registry: RuleRegistryDocumentV1;
   options: unknown;
 }): InferredProjects {
   const targetNames = Value.Parse(
@@ -66,7 +71,7 @@ function buildInferredProjects(input: {
   };
 
   addHarnessToolTargets({ addTarget, ownerRoots, targetNames });
-  const graphFacts = ruleGraphFacts(input.registry.rules, ownerRoots, targetNames);
+  const graphFacts = ruleGraphFactsForNxPlugin(input.registry.rules, ownerRoots, targetNames);
   const recordsByOwner = new Map<string, RuleRegistryRecordV1[]>();
   for (const rule of graphFacts) {
     const record = recordsById.get(rule.id);
@@ -133,7 +138,7 @@ function addRuleTarget(input: {
     definition: NxTargetDefinition
   ) => void;
   record: RuleRegistryRecordV1;
-  rule: ReturnType<typeof ruleGraphFacts>[number];
+  rule: ReturnType<typeof ruleGraphFactsForNxPlugin>[number];
   targetNames: ReturnType<typeof workspaceGraphTargetNames>;
 }) {
   const target = `${input.targetNames.rulePrefix}${input.rule.id}`;
@@ -219,7 +224,9 @@ function workspaceInput(repoRelativePath: string): string {
   return `{workspaceRoot}/${repoRelativePath}`;
 }
 
-function ownerRootsForRules(rules: ReturnType<typeof ruleGraphFacts>): Map<string, string> {
+function ownerRootsForRules(
+  rules: ReturnType<typeof ruleGraphFactsForNxPlugin>
+): Map<string, string> {
   return new Map(rules.map((rule) => [rule.ownerProject, rule.ownerRoot]));
 }
 
