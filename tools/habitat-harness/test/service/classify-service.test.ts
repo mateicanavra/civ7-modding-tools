@@ -13,6 +13,7 @@ const nxProjects: WorkspaceGraphProjectReader = {
         "generated:check",
         "grit:check",
         "test",
+        "validate:boundary-taxonomy",
       ]),
       project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
       project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),

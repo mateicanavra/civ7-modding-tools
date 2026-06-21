@@ -63,6 +63,8 @@ Implemented graph integration:
 - inferred `habitat:check` per rule owner;
 - inferred `habitat:rule:<rule-id>` aliases;
 - inferred repo-wide boundary, formatter, pattern, and generated-zone checks;
+- explicit package-owned `validate:boundary-taxonomy` target for current
+  workspace taxonomy validation;
 - root scripts normalized onto workspace graph entrypoints instead of manual task
   chaining;
 - package-local scripts kept leaf-local where possible.
@@ -159,4 +161,6 @@ Current tests cover:
 - workspace tool discovery and verification receipt construction.
 
 These tests cover Habitat's enforcement and orchestration behavior. They do not
-cover broad MapGen authoring generation.
+cover current workspace topology by resolving the live graph; that validation is
+owned by graph targets such as `validate:boundary-taxonomy`, `boundaries`, and
+`grit:check`.

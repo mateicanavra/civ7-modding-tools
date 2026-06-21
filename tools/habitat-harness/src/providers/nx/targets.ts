@@ -28,5 +28,5 @@ export function classifyTargetNames(): readonly string[] {
 
 export function verifyTargetNames(targetNames = workspaceGraphTargetNames()): readonly string[] {
   void targetNames;
-  return ["build", "check", "test"];
+  return ["build", "check", "test", "validate:boundary-taxonomy"];
 }

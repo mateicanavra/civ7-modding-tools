@@ -52,6 +52,10 @@ Root scripts also expose graph-owned entrypoints:
 - Full Habitat structural verification lives in `bun run habitat:check`,
   `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
   `bun run check`; it is not hidden inside root lint.
+- `@internal/habitat-harness:validate:boundary-taxonomy` runs the current
+  workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
+  target. It is part of root `bun run check` and Habitat verify/pre-push target
+  planning, not package unit tests.
 - `bun run verify` runs the repo-wide verification aggregate.
 - `bun run check` runs the repo-wide build, check, lint, test, and verify aggregate.
 - `bun run habitat:fix` runs `bun run habitat fix`.
@@ -62,19 +66,23 @@ the same command as diagnostic `bun run habitat verify`.
 ## Workspace Graph Integration
 
 The workspace graph loads the Habitat inference plugin from
-`tools/habitat-harness/src/plugin.ts`. The plugin gives the workspace graph
-these Habitat-owned targets:
+`tools/habitat-harness/src/plugin.ts` and package-declared Nx targets from
+project manifests. Together they expose these Habitat-owned targets:
 
 - Repo-wide `boundaries`
 - Repo-wide formatter targets
 - Repo-wide pattern checks
 - Repo-wide `generated:check`
+- Package-owned `validate:boundary-taxonomy` for current workspace taxonomy,
+  manifest, Nx metadata, boundary config, and graph-edge validation
 - Aggregate `habitat:check:all` for one-pass full Habitat graph checks
 - Per-rule `habitat:rule:<rule-id>` aliases
 - Per-owner `habitat:check` targets for projects that own Habitat rules
 
 The graph is the intended orchestration layer. Package scripts should not hide
 cross-project dependency ordering that belongs in graph target dependencies.
+Current workspace topology audits belong in this layer; unit tests cover the
+pure parser and audit model with fixtures.
 
 ## Rule Pack
 

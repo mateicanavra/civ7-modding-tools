@@ -56,6 +56,33 @@
         "dependsOn": [
           "build:bin-mode"
         ]
+      },
+      "validate:boundary-taxonomy": {
+        "command": "bun run --cwd tools/habitat-harness validate:boundary-taxonomy",
+        "cache": true,
+        "inputs": [
+          "{workspaceRoot}/eslint.boundaries.config.mjs",
+          "{workspaceRoot}/nx.json",
+          "{workspaceRoot}/package.json",
+          "{workspaceRoot}/bun.lock",
+          "{workspaceRoot}/docs/projects/habitat-harness/taxonomy.md",
+          "{workspaceRoot}/apps/**/package.json",
+          "{workspaceRoot}/mods/**/package.json",
+          "{workspaceRoot}/packages/**/package.json",
+          "{workspaceRoot}/tools/**/package.json",
+          "{workspaceRoot}/apps/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
+          "{workspaceRoot}/mods/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
+          "{workspaceRoot}/packages/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
+          "{workspaceRoot}/scripts/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
+          "{workspaceRoot}/tools/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
+          "!{workspaceRoot}/**/dist/**",
+          "!{workspaceRoot}/**/types/**",
+          "!{workspaceRoot}/**/mod/**",
+          "!{workspaceRoot}/**/example-generated-mod/**"
+        ],
+        "metadata": {
+          "description": "validates Habitat boundary taxonomy against manifests, Nx metadata, boundary config, and graph edges"
+        }
       }
     }
   },
@@ -65,6 +92,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat-harness --testTimeout=30000",
     "validate:cli-smoke": "bun run scripts/validate-cli-smoke.ts",
+    "validate:boundary-taxonomy": "env -u FORCE_COLOR bun run scripts/validate-boundary-taxonomy.ts",
     "validate:grit-patterns": "bun run --cwd ../.. grit patterns test --json >/dev/null",
     "generate:schemas": "bun run scripts/write-generator-schemas.ts",
     "clean": "rimraf dist oclif.manifest.json",
