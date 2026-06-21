@@ -72,6 +72,26 @@ export function approvedScanRootsForRules(rules: readonly RulePatternFacts[]): s
   return approvedSourceScanRootsForRules(rules);
 }
 
+export function stagedPatternNotApplicableRecords(
+  gritRules: readonly RulePatternFacts[],
+  scanRoots: readonly string[]
+): Map<string, RuleExecutionRecord> | undefined {
+  if (scanRoots.length > 0) return undefined;
+  return new Map(
+    gritRules.map((rule) => [
+      rule.id,
+      {
+        result: {
+          exitCode: 1,
+          diagnostics: [notApplicableDiagnostic(rule, "staged-scope-no-approved-roots")],
+        },
+        durationMs: 0,
+        disposition: { kind: "not-applicable", reason: "staged-scope-no-approved-roots" },
+      },
+    ])
+  );
+}
+
 export function executeSelectedRulesEffect(
   selectedRules: readonly RuleSelectorFacts[],
   options: Pick<CheckOptions, "staged" | "stagedPaths"> = {}
@@ -99,17 +119,12 @@ export function executeSelectedRulesEffect(
             approvedScanRootsForRules(gritRules)
           )
         : undefined;
-      if (options.staged && scanRoots?.length === 0) {
-        for (const rule of gritRules) {
-          results.set(rule.id, {
-            result: {
-              exitCode: 1,
-              diagnostics: [notApplicableDiagnostic(rule, "staged-scope-no-approved-roots")],
-            },
-            durationMs: 0,
-            disposition: { kind: "not-applicable", reason: "staged-scope-no-approved-roots" },
-          });
-        }
+      const stagedNotApplicable =
+        options.staged && scanRoots
+          ? stagedPatternNotApplicableRecords(gritRules, scanRoots)
+          : undefined;
+      if (stagedNotApplicable) {
+        for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
         const sourceCheck = yield* SourceCheck;
         const started = yield* Clock.currentTimeMillis;
