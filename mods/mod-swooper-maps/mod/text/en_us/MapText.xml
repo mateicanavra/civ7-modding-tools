@@ -55,5 +55,8 @@
 		<Row Tag="LOC_MAP_MOUNTAIN_RIVERS_PATCH_DESCRIPTION">
 			<Text>Mountain Patch terrain configuration with the current visible-river projection settings applied for Studio comparison.</Text>
 		</Row>
+		<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
+			<Text>Deep Desert Heat</Text>
+		</Row>
 	</EnglishText>
 </Database>

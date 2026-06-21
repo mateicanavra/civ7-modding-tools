@@ -39,6 +39,11 @@ function scanFile(
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
+    // Skip comment lines: a legacy/RNG name appearing in a comment never executes, so it
+    // must not count as a real call. (Without this, doc comments that *describe* a banned
+    // call — e.g. "as Civ7's base maps call generateDiscoveries()" — would false-positive.)
+    const trimmed = line.trim();
+    if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/*")) continue;
     for (const { name, re } of patterns) {
       if (!re.test(line)) continue;
       findings.push({ file: relFile, line: i + 1, pattern: name, text: line.trim() });

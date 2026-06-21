@@ -21,6 +21,7 @@ const configsDir = resolve(pkgRoot, "src/maps/configs");
 const generatedEntriesDir = resolve(pkgRoot, "src/maps/generated");
 const modConfigDir = resolve(pkgRoot, "mod/config");
 const modTextDir = resolve(pkgRoot, "mod/text/en_us");
+const modDataDir = resolve(pkgRoot, "mod/data");
 const distRecipesDir = resolve(pkgRoot, "dist/recipes");
 const transientStudioCurrentConfig = "studio-current.config.json";
 const includeTransientStudioCurrent = process.env.SWOOPER_INCLUDE_STUDIO_CURRENT === "1";
@@ -170,7 +171,48 @@ function renderMapText(configs: readonly ValidatedMapConfig[]): string {
 <Database>
 \t<EnglishText>
 ${rows}
+\t\t<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
+\t\t\t<Text>Deep Desert Heat</Text>
+\t\t</Row>
 \t</EnglishText>
+</Database>
+`;
+}
+
+// Deep-desert attrition. A custom, permanent, damaging PlotEffect — the data-defined
+// twin of the engine-internal ocean damage. PROVEN LIVE (a stationary unit on a DESERT_HEAT
+// tile took exactly 11 HP across one turn): a PlotEffects row with Damage>0 and no
+// TriggerOnEnter inflicts that Damage on ANY unit occupying the tile, every turn — exactly
+// the "crossing here is dangerous" model. DESERT_HEAT is permanent (TimeDecay/
+// UnoccupiedDecay=false) so it persists for the whole game, and AllowOnWater=false so it
+// only lives on land. This fills a real gap: NO base plot effect is both permanent AND
+// damages occupants per turn (the permanent ones — FLOODED, SNOW_*_PERMANENT — deal 0;
+// STONE_TRAP/DIGSITE are permanent but RemoveOnEnter one-shots; the per-turn damagers —
+// IS_BURNING/PLAGUE/FALLOUT — all TimeDecay away).
+//
+// NO WORLD-VISUAL: a custom type has no engine art (the visual name is
+// "VFX_ADDED_TO_MAP_"+PlotEffectType, with no asset for ours), and even base PLOTEFFECT_SAND
+// has no PERSISTENT decal — its only visual is a one-shot "appears" animation
+// (WorldUI.triggerVFXAtPlot, world-vfx.js:77), which mapgen placement never fires. A missing
+// VFX does NOT gate gameplay placement, so the damage still applies; the hazard is surfaced
+// in-game via the plot TOOLTIP (the PlotEffects Name) + the terrain already reading as harsh
+// desert. The ecology plan still co-places base PLOTEFFECT_SAND on these tiles (transient,
+// flavor only); a guaranteed world-overlay would need the art pipeline / a feature, tracked
+// as future work.
+//
+// Gameplay-DB table form: a ROOT <Database> with raw <Row> entries (Types + PlotEffects).
+// Loaded via a gameplay-scope UpdateDatabase action in the modinfo. (Contrast the high-level
+// <GameEffects xmlns="GameEffects"> <Modifier> form — a DIFFERENT root that rolls back if
+// nested in <Database>. No modifier needed here: PlotEffects.Damage is the whole mechanism.)
+function renderDesertHazardData(): string {
+  return `<?xml version="1.0" encoding="utf-8"?>
+<Database>
+  <Types>
+    <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
+  </Types>
+  <PlotEffects>
+    <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
+  </PlotEffects>
 </Database>
 `;
 }
@@ -201,6 +243,9 @@ function renderModInfo(configs: readonly ValidatedMapConfig[]): string {
 \t\t\t\t<UpdateText>
 \t\t\t\t\t<Item>text/en_us/MapText.xml</Item>
 \t\t\t\t</UpdateText>
+\t\t\t\t<UpdateDatabase>
+\t\t\t\t\t<Item>data/desert-hazard.xml</Item>
+\t\t\t\t</UpdateDatabase>
 \t\t\t\t<ImportFiles>
 ${imports}
 \t\t\t\t</ImportFiles>
@@ -278,6 +323,7 @@ async function main(): Promise<void> {
   await mkdir(generatedEntriesDir, { recursive: true });
   await mkdir(modConfigDir, { recursive: true });
   await mkdir(modTextDir, { recursive: true });
+  await mkdir(modDataDir, { recursive: true });
   await mkdir(distRecipesDir, { recursive: true });
 
   for (const entry of await readdir(generatedEntriesDir, { withFileTypes: true }).catch(() => [])) {
@@ -292,6 +338,7 @@ async function main(): Promise<void> {
 
   await writeFile(resolve(modConfigDir, "config.xml"), renderConfigXml(configs));
   await writeFile(resolve(pkgRoot, "mod/swooper-maps.modinfo"), renderModInfo(configs));
+  await writeFile(resolve(modDataDir, "desert-hazard.xml"), renderDesertHazardData());
   await writeFile(resolve(modTextDir, "MapText.xml"), renderMapText(configs));
   await writeFile(
     resolve(distRecipesDir, "standard-map-config.schema.json"),

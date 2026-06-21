@@ -574,7 +574,14 @@ const PLOT_EFFECT_SELECTORS = {
     medium: { typeName: "PLOTEFFECT_SNOW_MEDIUM_PERMANENT" },
     heavy: { typeName: "PLOTEFFECT_SNOW_HEAVY_PERMANENT" },
   },
+  // Deep-desert hazard. The sand channel places the cosmetic, art-backed PLOTEFFECT_SAND
+  // (visible marker) AND co-places the permanent, damaging PLOTEFFECT_DESERT_HEAT
+  // (authored in mod/data/desert-hazard.xml; Damage=11/turn, no decay) on the SAME
+  // deepest-scoring desert tiles. DESERT_HEAT has no world-VFX of its own (custom type),
+  // so the SAND provides the visual while DESERT_HEAT provides the attrition. The sand
+  // coverage % (public config) keeps the hazard to the deepest desert only.
   sand: { typeName: "PLOTEFFECT_SAND" },
+  sandHazard: { typeName: "PLOTEFFECT_DESERT_HEAT" },
   burned: { typeName: "PLOTEFFECT_BURNED" },
 } as const;
 
@@ -591,6 +598,7 @@ function plotEffectCoverageConfig(value: unknown) {
     sand: {
       ...sand,
       selector: PLOT_EFFECT_SELECTORS.sand,
+      hazard: PLOT_EFFECT_SELECTORS.sandHazard,
     },
     burned: {
       ...burned,

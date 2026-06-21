@@ -53,6 +53,20 @@ const PlotEffectsSnowPlanSchema = Type.Object({
 const PlotEffectsSandPlanSchema = Type.Object({
   enabled: Type.Boolean({ default: false, description: "Enable planning of sand plot effects." }),
   selector: createPlotEffectSelectorSchema({ typeName: "PLOTEFFECT_SAND" }),
+  // Optional companion effect CO-PLACED on the SAME selected sand tiles. The `selector`
+  // (PLOTEFFECT_SAND) is cosmetic (Damage=0) and provides the visible marker; the hazard
+  // carries the per-turn Damage (e.g. PLOTEFFECT_DESERT_HEAT). Genuinely opt-in (no schema
+  // default): when omitted, sand is placed alone (pure cosmetic). Both effects coexist on
+  // the tile — the engine supports multiple plot effects per plot.
+  hazard: Type.Optional(
+    Type.Object({
+      typeName: Type.Unsafe<PlotEffectKey>(
+        Type.String({
+          description: "Companion damaging plot effect type (ex: PLOTEFFECT_DESERT_HEAT).",
+        })
+      ),
+    })
+  ),
   coveragePct: Type.Number({
     default: 18,
     minimum: 0,
