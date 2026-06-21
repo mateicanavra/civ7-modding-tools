@@ -4,19 +4,9 @@ import {
   GitProvider,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/substrate/providers/git/index";
-import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
 import { Effect } from "effect";
 import { boundedPreview } from "./command-output.js";
 import type { VerifyReceipt } from "./schema.js";
-
-/**
- * Reads the current repository status for verify handoff.
- *
- * @returns Spawn result for `git status --short --branch`.
- */
-export function observeGitStatus(): Promise<SpawnResult> {
-  return runHabitatEffect(observeGitStatusEffect());
-}
 
 export function observeGitStatusEffect() {
   return GitProvider.pipe(

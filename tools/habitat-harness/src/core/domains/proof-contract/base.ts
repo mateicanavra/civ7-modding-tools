@@ -1,7 +1,6 @@
 import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import { GitProvider } from "@internal/habitat-harness/substrate/providers/git/index";
 import { GraphiteProvider } from "@internal/habitat-harness/substrate/providers/graphite/index";
-import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "./schema.js";
@@ -56,10 +55,6 @@ export function resolveVerifyBaseEffect(base?: string) {
         "could not resolve verify base from the remote default branch; pass --base explicitly.",
     });
   });
-}
-
-export async function resolveVerifyBase(base?: string): Promise<VerifyBaseResolution> {
-  return runHabitatEffect(resolveVerifyBaseEffect(base));
 }
 
 function resolveGraphiteParentEffect() {

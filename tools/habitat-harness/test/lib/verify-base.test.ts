@@ -5,7 +5,7 @@ import {
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/substrate/providers/command/index";
 import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
-import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
+import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/substrate/providers/graphite/index";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 
@@ -66,7 +66,12 @@ function resolveBase(base?: string, options: { graphiteExitCode?: number } = {})
       }
     );
   });
-  return runHabitatEffect(
-    resolveVerifyBaseEffect(base).pipe(Effect.provide(Layer.merge(commandLayer, gitLayer)))
+  const graphiteLayer = makeFakeGraphiteProviderLayer(() =>
+    options.graphiteExitCode === 0 || options.graphiteExitCode === undefined ? "agent-parent" : null
+  );
+  return Effect.runPromise(
+    resolveVerifyBaseEffect(base).pipe(
+      Effect.provide(Layer.mergeAll(commandLayer, gitLayer, graphiteLayer))
+    )
   );
 }
