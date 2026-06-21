@@ -5,7 +5,12 @@ import type { PlatformError } from "@effect/platform/Error";
 import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
 import { HabitatConfig, makeHabitatConfig } from "../../config/index.js";
 import { currentTimeMillis, epochMillisToIsoString } from "../../resources/index.js";
-import { GitStateProvider, readGitState, unknownGitState } from "../git/state.js";
+import {
+  GitStateProvider,
+  type HabitatCommandGitState,
+  readGitState,
+  unknownGitState,
+} from "../git/state.js";
 import { CommandInterrupted, CommandUnavailable } from "./errors.js";
 import { materializeHabitatCommandWithConfig } from "./materialize.js";
 import { makeCommandResultFromObservation } from "./output.js";
@@ -46,7 +51,7 @@ function runLiveCommand(
     };
     const timeoutMs = request.timeoutMs ?? config.timeoutPolicy.commandTimeoutMs;
     const execution = executeLiveCommand(request, effectiveRequest, commandRequest.executionPlane);
-    return yield* applyCommandTimeout(execution, request, effectiveRequest, timeoutMs);
+    return yield* interruptCommandOnTimeout(execution, request, effectiveRequest, timeoutMs);
   });
 }
 
@@ -57,52 +62,75 @@ function executeLiveCommand(
 ): Effect.Effect<HabitatCommandResult, CommandUnavailable, CommandExecutor | GitStateProvider> {
   return Effect.scoped(
     Effect.gen(function* () {
-      const startedMs = yield* Clock.currentTimeMillis;
-      const startedAt = epochMillisToIsoString(startedMs);
-      const beforeGitState =
-        effectiveRequest.captureGitState === false
-          ? unknownGitState().before
-          : yield* readGitStateEffect(effectiveRequest.cwd);
-      const command = Command.make(effectiveRequest.executable, ...effectiveRequest.argv).pipe(
-        Command.workingDirectory(path.resolve(effectiveRequest.cwd)),
-        Command.env(commandEnv(originalRequest.env))
+      const { gitState, value } = yield* captureCommandGitStateAround(
+        effectiveRequest.cwd,
+        effectiveRequest.captureGitState,
+        Effect.gen(function* () {
+          const startedMs = yield* Clock.currentTimeMillis;
+          const startedAt = epochMillisToIsoString(startedMs);
+          const command = Command.make(effectiveRequest.executable, ...effectiveRequest.argv).pipe(
+            Command.workingDirectory(path.resolve(effectiveRequest.cwd)),
+            Command.env(commandEnv(originalRequest.env))
+          );
+          const process = yield* Command.start(command);
+          yield* Effect.addFinalizer(() =>
+            process.isRunning.pipe(
+              Effect.flatMap((running) => (running ? process.kill("SIGTERM") : Effect.void)),
+              Effect.ignore
+            )
+          );
+          const [stdout, stderr, exitCode] = yield* Effect.all(
+            [collectStream(process.stdout), collectStream(process.stderr), process.exitCode],
+            { concurrency: "unbounded" }
+          );
+          const endedMs = yield* Clock.currentTimeMillis;
+          return {
+            startedAt,
+            endedAt: epochMillisToIsoString(endedMs),
+            durationMs: Math.max(0, endedMs - startedMs),
+            exitCode: Number(exitCode),
+            stdout,
+            stderr,
+          };
+        })
       );
-      const process = yield* Command.start(command);
-      yield* Effect.addFinalizer(() =>
-        process.isRunning.pipe(
-          Effect.flatMap((running) => (running ? process.kill("SIGTERM") : Effect.void)),
-          Effect.ignore
-        )
-      );
-      const [stdout, stderr, exitCode] = yield* Effect.all(
-        [collectStream(process.stdout), collectStream(process.stderr), process.exitCode],
-        { concurrency: "unbounded" }
-      );
-      const endedMs = yield* Clock.currentTimeMillis;
-      const afterGitState =
-        effectiveRequest.captureGitState === false
-          ? unknownGitState().after
-          : yield* readGitStateEffect(effectiveRequest.cwd);
       return makeCommandResultFromObservation(effectiveRequest, {
         requestedExecutable: originalRequest.executable,
         executionPlane,
-        gitState: { before: beforeGitState, after: afterGitState },
-        startedAt,
-        endedAt: epochMillisToIsoString(endedMs),
-        durationMs: Math.max(0, endedMs - startedMs),
-        exitCode: Number(exitCode),
-        stdout,
-        stderr,
+        gitState,
+        ...value,
       });
     })
-  ).pipe(Effect.catchAll((cause) => Effect.fail(commandUnavailable(originalRequest, cause))));
+  ).pipe(
+    Effect.catchAll((cause) => Effect.fail(commandUnavailableFromCause(originalRequest, cause)))
+  );
 }
 
 function readGitStateEffect(cwd: string) {
   return GitStateProvider.pipe(Effect.flatMap((gitState) => gitState.read(cwd)));
 }
 
-function applyCommandTimeout<R>(
+export function captureCommandGitStateAround<A, E, R>(
+  cwd: string,
+  captureGitState: boolean | undefined,
+  effect: Effect.Effect<A, E, R>
+): Effect.Effect<
+  { readonly gitState: HabitatCommandGitState; readonly value: A },
+  E,
+  R | GitStateProvider
+> {
+  return Effect.gen(function* () {
+    if (captureGitState === false) {
+      return { gitState: unknownGitState(), value: yield* effect };
+    }
+    const before = yield* readGitStateEffect(cwd);
+    const value = yield* effect;
+    const after = yield* readGitStateEffect(cwd);
+    return { gitState: { before, after }, value };
+  });
+}
+
+export function interruptCommandOnTimeout<R>(
   effect: Effect.Effect<HabitatCommandResult, CommandUnavailable, R>,
   originalRequest: HabitatProcessRequest,
   effectiveRequest: HabitatProcessRequest,
@@ -185,7 +213,7 @@ function commandEnv(env: HabitatProcessRequest["env"]): Record<string, string> {
   };
 }
 
-function commandUnavailable(request: HabitatProcessRequest, cause: unknown) {
+export function commandUnavailableFromCause(request: HabitatProcessRequest, cause: unknown) {
   return new CommandUnavailable({
     commandId: request.commandId,
     executable: request.executable,
