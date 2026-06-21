@@ -54,27 +54,35 @@ The standard recipe is **content-owned** (not SDK-owned):
 
 The current stage order is:
 
-1. `foundation`
-2. `morphology-coasts`
-3. `morphology-routing`
-4. `morphology-erosion`
-5. `morphology-features`
-6. `hydrology-climate-baseline`
-7. `hydrology-hydrography`
-8. `hydrology-climate-refine`
-9. `ecology-pedology`
-10. `ecology-biomes`
-11. `map-morphology`
-12. `map-hydrology`
-13. `map-elevation`
-14. `map-rivers`
-15. `ecology-features`
-16. `map-ecology`
-17. `placement`
+1. `foundation-mantle`
+2. `foundation-plates`
+3. `foundation-tectonics`
+4. `foundation-crust`
+5. `foundation-projection`
+6. `morphology-coasts`
+7. `morphology-routing`
+8. `morphology-erosion`
+9. `morphology-features`
+10. `hydrology-climate-baseline`
+11. `hydrology-hydrography`
+12. `hydrology-climate-refine`
+13. `ecology-pedology`
+14. `ecology-biomes`
+15. `map-morphology`
+16. `map-hydrology`
+17. `map-elevation`
+18. `map-rivers`
+19. `ecology-features`
+20. `map-ecology`
+21. `placement`
+
+The five `foundation-*` stages are a sibling family decomposed from the former
+single `foundation` stage; their steps run in the same order, so output is
+byte-identical (see the FOUNDATION domain reference for the stage→step map).
 
 Note:
 
-- “foundation/morphology-\*/hydrology/ecology-\*” stages are primarily **truth** producers.
+- “foundation-\*/morphology-\*/hydrology/ecology-\*” stages are primarily **truth** producers.
 - “map-\*” and “placement” stages are primarily **projection** / engine-facing surfaces.
 
 ## Config surface (schema + posture)
@@ -129,6 +137,6 @@ Domain contract references:
 ## Ground truth anchors
 
 - Standard recipe composition: `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
-- Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/index.ts`
+- Example stage schema/knobs posture: `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts`
 - Stage authoring contract: `packages/mapgen-core/src/authoring/stage.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
