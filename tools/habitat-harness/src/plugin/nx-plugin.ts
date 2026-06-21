@@ -2,6 +2,7 @@ import path from "node:path";
 import { Value } from "typebox/value";
 import { ruleGraphFacts } from "../domains/rule-registry/graph.ts";
 import { loadRuleRegistryDocument } from "../domains/rule-registry/load.ts";
+import type { RuleRegistryRecordV1 } from "../domains/rule-registry/schema.js";
 import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
 import {
@@ -52,6 +53,7 @@ function buildInferredProjects(input: {
     )
   );
   const ownerRoots = new Map(Object.entries(input.registry.ownerRoots));
+  const recordsById = new Map(input.registry.rules.map((rule) => [rule.id, rule]));
   const projects: InferredProjects = {};
   const addTarget = (
     root: string,
@@ -66,7 +68,13 @@ function buildInferredProjects(input: {
   addHarnessTargets({ addTarget, ownerRoots, targetNames });
   const inputs = habitatInputs();
   const graphFacts = ruleGraphFacts(input.registry.rules, ownerRoots, targetNames);
-  for (const rule of graphFacts) addRuleTarget({ addTarget, inputs, rule, targetNames });
+  for (const rule of graphFacts) {
+    const record = recordsById.get(rule.id);
+    if (!record) {
+      throw new Error(`Habitat graph metadata contract failure: missing rule record '${rule.id}'.`);
+    }
+    addRuleTarget({ addTarget, record, rule, targetNames });
+  }
   for (const [owner, root] of ownerRootsForRules(graphFacts)) {
     addTarget(root, owner, targetNames.check, ownerCheckTarget(owner, inputs));
   }
@@ -117,7 +125,7 @@ function addRuleTarget(input: {
     target: string,
     definition: NxTargetDefinition
   ) => void;
-  inputs: string[];
+  record: RuleRegistryRecordV1;
   rule: ReturnType<typeof ruleGraphFacts>[number];
   targetNames: ReturnType<typeof workspaceGraphTargetNames>;
 }) {
@@ -127,7 +135,11 @@ function addRuleTarget(input: {
       input.rule.ownerRoot,
       input.rule.ownerProject,
       target,
-      directRuleTarget(input.rule.id, input.rule.ownerProject, input.inputs)
+      directRuleTarget(
+        input.rule.id,
+        input.rule.ownerProject,
+        inputsForRuleTarget(input.record, input.rule.ownerRoot)
+      )
     );
     return;
   }
@@ -141,6 +153,53 @@ function addRuleTarget(input: {
       `Alias for ${dependency.project}:${dependency.target} (${input.rule.id})`
     )
   );
+}
+
+function inputsForRuleTarget(rule: RuleRegistryRecordV1, ownerRoot: string): string[] {
+  const covered = pathCoverageInputs(rule.pathCoverage, ownerRoot);
+  if (covered.kind === "workspace-gate") return habitatInputs();
+
+  const inputs = new Set<string>([
+    "{workspaceRoot}/tools/habitat-harness/src/**",
+    "{workspaceRoot}/package.json",
+    "{workspaceRoot}/bun.lock",
+    `{workspaceRoot}/.habitat/rules/${rule.id}/**`,
+    ...covered.inputs,
+  ]);
+  if (rule.ownerTool === "pattern-check") {
+    inputs.add("{workspaceRoot}/.habitat/source-check/pattern-rules.mjs");
+    for (const scanRoot of rule.scanRoots) inputs.add(workspaceInput(scanRoot));
+    if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
+  }
+  if (rule.ownerTool === "habitat" || rule.ownerTool === "command-check") {
+    inputs.add("{workspaceRoot}/scripts/lint/**");
+  }
+  return [...inputs];
+}
+
+function pathCoverageInputs(
+  coverage: RuleRegistryRecordV1["pathCoverage"],
+  ownerRoot: string
+): { kind: "scoped"; inputs: string[] } | { kind: "workspace-gate" } {
+  const inputs: string[] = [];
+  for (const entry of coverage) {
+    switch (entry.kind) {
+      case "exact-path":
+        inputs.push(...entry.patterns.map(workspaceInput));
+        break;
+      case "project-owner":
+        inputs.push(workspaceInput(`${ownerRoot}/**`));
+        break;
+      case "workspace-gate":
+      case "unresolved-metadata":
+        return { kind: "workspace-gate" };
+    }
+  }
+  return { kind: "scoped", inputs };
+}
+
+function workspaceInput(repoRelativePath: string): string {
+  return `{workspaceRoot}/${repoRelativePath}`;
 }
 
 function ownerRootsForRules(rules: ReturnType<typeof ruleGraphFacts>): Map<string, string> {
