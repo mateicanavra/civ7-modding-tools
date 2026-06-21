@@ -7,10 +7,11 @@
 
 ## 2. Nx Graph Metadata
 
-- [ ] 2.1 Replace live plugin domain imports with static or precompiled target
-  metadata.
-- [ ] 2.2 Remove TypeBox/runtime validation from Nx graph construction.
-- [ ] 2.3 Keep graph-time failures limited to malformed metadata that Nx needs.
+- [x] 2.1 Replace live plugin domain imports with graph-local target metadata.
+- [x] 2.2 Remove Effect/resource/runtime loading from Nx graph construction.
+- [x] 2.3 Return one anchored inferred-project map instead of duplicating it for
+  every matched registry JSON file.
+- [x] 2.4 Keep graph-time failures limited to malformed metadata that Nx needs.
 
 ## 3. Scoped Inputs
 
@@ -30,8 +31,8 @@
 
 ## 5. Validation
 
-- [ ] 5.1 `nx show project @internal/habitat-harness --json`
+- [x] 5.1 `nx show project @internal/habitat-harness --json`
 - [ ] 5.2 `bun tools/habitat-harness/bin/dev.ts check --tool source-check --json`
 - [ ] 5.3 `bun run habitat -- check --owner @internal/habitat-harness --json`
-- [ ] 5.4 `bun run --cwd tools/habitat-harness check`
+- [x] 5.4 `bun run --cwd tools/habitat-harness check`
 - [ ] 5.5 `bun run openspec -- validate deep-habitat-effect-fast-check-architecture --strict`

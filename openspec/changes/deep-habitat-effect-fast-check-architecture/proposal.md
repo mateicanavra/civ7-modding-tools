@@ -11,8 +11,8 @@ verification lanes repeat Biome, Nx, and Habitat work through different owners.
 
 ## What Changes
 
-- Make Nx graph creation depend on cheap Habitat metadata rather than live
-  domain/runtime imports.
+- Make Nx graph creation depend on cheap Habitat metadata and schema checks
+  rather than live domain/runtime imports.
 - Scope source-rule and owner-check Nx inputs from rule path coverage instead
   of broad workspace globs.
 - Give local, staged, owner, affected, and full checks distinct purposes and

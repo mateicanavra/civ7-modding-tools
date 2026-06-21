@@ -9,7 +9,8 @@ verification into distinct lanes with one owner for each vendor invocation.
 #### Scenario: Nx graph construction is metadata-only
 
 - **WHEN** Nx constructs the project graph
-- **THEN** Habitat inferred targets are created from cheap metadata
+- **THEN** Habitat inferred targets are created from cheap metadata and
+  graph-local schema checks
 - **AND** graph construction does not execute live Habitat domain, runtime, or
   provider logic.
 
