@@ -8,10 +8,7 @@ export type {
   Civ7StartBiasValueRowV1,
 } from "./civ7-tables.gen.js";
 export { CIV7_BROWSER_TABLES_V0, CIV7_POLICY_TABLES_V1 } from "./civ7-tables.gen.js";
-export type { CoastClassificationPolicyResult } from "./coast-classification.js";
 export {
-  applyCiv7CoastClassificationPolicy,
-  CIV7_COAST_CLASSIFICATION_POLICY_V0,
   WATER_CLASS_COAST,
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
