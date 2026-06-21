@@ -46,7 +46,12 @@ import { repoRoot } from "../../../lib/paths.js";
 import type { BiomeProvider } from "../../../providers/biome/index.js";
 import type { CommandRunner, SpawnResult } from "../../../providers/command/index.js";
 import { GitProvider, type GitProviderRequirements } from "../../../providers/git/index.js";
-import type { NxProvider } from "../../../providers/nx/index.js";
+import {
+  NxProvider,
+  spawnResultFromCommandProviderError,
+  spawnResultFromCommandResult,
+} from "../../../providers/nx/index.js";
+import { prePushTargetNames } from "../../../providers/nx/targets.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
@@ -87,15 +92,6 @@ type PreCommitStep<T> =
   | { readonly kind: "done"; readonly result: SpawnResult }
   | { readonly kind: "continue"; readonly state: T };
 
-const prePushTargets = [
-  "biome:ci",
-  "boundaries",
-  "grit:check",
-  "habitat:check",
-  "test",
-  "validate:boundary-taxonomy",
-  "validate:grit-patterns",
-];
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export const hookRouter = {
@@ -105,11 +101,13 @@ export const hookRouter = {
 export const router = hookRouter;
 
 export function runHookService(input: HookServiceRunInput = {}, options: HookServiceOptions = {}) {
-  if (input.name === "pre-push" && !input.base) {
+  if (input.name === "pre-push") {
+    const runtime = options.runtime ?? {};
     return Effect.gen(function* () {
-      const runtime = options.runtime ?? {};
-      const baseDecision = yield* resolvePrePushBaseForService(runtime);
-      return runPrePushWithBaseDecision(baseDecision, runtime);
+      const baseDecision = input.base
+        ? { kind: "resolved" as const, base: input.base, source: "explicit" as const }
+        : yield* resolvePrePushBaseForService(runtime);
+      return yield* runPrePushWithBaseDecisionEffect(baseDecision, runtime);
     });
   }
   if (input.name === "pre-commit") return runPreCommitEffect(options.runtime ?? {});
@@ -409,7 +407,7 @@ function runPrePushWithBaseDecision(
       "nx",
       "affected",
       "-t",
-      prePushTargets.join(","),
+      prePushTargetNames().join(","),
       "--base",
       base,
       "--head",
@@ -423,6 +421,51 @@ function runPrePushWithBaseDecision(
   return finalizePrePush(runtime, result.exitCode === 0 ? "pass" : "affected-failed", {
     exitCode: result.exitCode,
     ...output.result(),
+  });
+}
+
+function runPrePushWithBaseDecisionEffect(
+  baseDecision: PrePushBaseDecision,
+  runtime: HookRuntime = {}
+): Effect.Effect<SpawnResult, never, HookCheckRequirements> {
+  const output = createHookOutput(runtime.reporter);
+  output.writeStdout(localHookNotice);
+  if (runtime.trace) {
+    runtime.trace.prePush = {
+      outcome: "started",
+      startedAtMs: hookNow(runtime),
+    };
+    runtime.trace.prePush.preState = captureRepoSnapshot(runtime);
+  }
+  if (baseDecision.kind === "refused") {
+    output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
+    return Effect.succeed(
+      finalizePrePush(runtime, "base-refused", { exitCode: 1, ...output.result() })
+    );
+  }
+
+  return Effect.gen(function* () {
+    const base = baseDecision.base;
+    if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
+    if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
+    const nx = yield* NxProvider;
+    const targets = prePushTargetNames();
+    const request = { base, targets, head: "HEAD" };
+    const argv = nx.affectedArgv(request);
+    const startedAtMs = hookNow(runtime);
+    const result = yield* nx.affected(request).pipe(
+      Effect.match({
+        onFailure: spawnResultFromCommandProviderError,
+        onSuccess: spawnResultFromCommandResult,
+      })
+    );
+    recordHookCommand(runtime, "pre-push-affected", argv, startedAtMs, result.exitCode);
+    output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
+    output.writeStderr(result.stderr);
+    return finalizePrePush(runtime, result.exitCode === 0 ? "pass" : "affected-failed", {
+      exitCode: result.exitCode,
+      ...output.result(),
+    });
   });
 }
 
@@ -511,6 +554,26 @@ function recordInProcessHookCheck(
   runtime.trace?.commands.push({
     phase,
     argv: ["habitat", "check", ...argv],
+    cwd: repoRoot,
+    env: undefined,
+    exitCode,
+    startedAtMs,
+    endedAtMs,
+    durationMs: Math.max(0, endedAtMs - startedAtMs),
+  });
+}
+
+function recordHookCommand(
+  runtime: HookRuntime,
+  phase: "pre-push-affected",
+  argv: readonly string[],
+  startedAtMs: number,
+  exitCode: number
+) {
+  const endedAtMs = hookNow(runtime);
+  runtime.trace?.commands.push({
+    phase,
+    argv: [...argv],
     cwd: repoRoot,
     env: undefined,
     exitCode,

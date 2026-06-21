@@ -30,3 +30,7 @@ export function verifyTargetNames(targetNames = workspaceGraphTargetNames()): re
   void targetNames;
   return ["build", "check", "test", "validate:boundary-taxonomy", "validate:grit-patterns"];
 }
+
+export function prePushTargetNames(targetNames = workspaceGraphTargetNames()): readonly string[] {
+  return [targetNames.check, "test", "validate:boundary-taxonomy", "validate:grit-patterns"];
+}
