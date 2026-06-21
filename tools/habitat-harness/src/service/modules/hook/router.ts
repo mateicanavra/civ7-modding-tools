@@ -15,7 +15,6 @@ import {
   type PrePushBaseDecision,
   resolveGraphiteParent,
 } from "../../../domains/hook-runtime/pre-push-base.js";
-import { prePushTargetPlanForChangedPaths } from "../../../domains/hook-runtime/pre-push-targets.js";
 import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
 import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
 import {
@@ -48,6 +47,7 @@ import {
   StructuralCheck,
   stagedSourceCheckPaths,
 } from "../../../domains/structural-check/index.js";
+import { prePushTargetPlanForChangedPaths } from "../../../domains/validation-routing/index.js";
 import { repoRoot } from "../../../lib/paths.js";
 import type { BiomeProvider } from "../../../providers/biome/index.js";
 import type { CommandRunner, SpawnResult } from "../../../providers/command/index.js";
@@ -57,6 +57,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "../../../providers/nx/index.js";
+import { workspaceGraphTargetNames } from "../../../providers/nx/targets.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
@@ -427,7 +428,10 @@ function runPrePushWithBaseDecisionEffect(
       );
     }
     const nx = yield* NxProvider;
-    const targetPlan = prePushTargetPlanForChangedPaths(changedPaths.paths);
+    const targetPlan = prePushTargetPlanForChangedPaths(
+      changedPaths.paths,
+      workspaceGraphTargetNames()
+    );
     for (const target of targetPlan.runTargets) {
       const argv = nx.runTargetArgv(target);
       const startedAtMs = hookNow(runtime);

@@ -2,13 +2,14 @@ import { Value } from "typebox/value";
 import { repoRoot } from "../../lib/paths.js";
 import type { SpawnResult } from "../../providers/command/index.js";
 import { readWorkspaceGraph } from "../../providers/nx/graph.js";
-import { verifyTargetNames } from "../../providers/nx/targets.js";
+import { workspaceGraphTargetNames } from "../../providers/nx/targets.js";
 import { activeRuleGraphFacts } from "../rule-registry/active-facts.js";
 import {
   type CheckReport,
   type VerifyCheckSummary,
   verifyCheckSummary,
 } from "../structural-check/index.js";
+import { verifyAffectedTargetNames } from "../validation-routing/index.js";
 import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
@@ -55,7 +56,7 @@ export interface VerifyReceiptInput {
 }
 
 /** Verify target names currently owned by the workspace graph boundary. */
-export const verifyAffectedTargets = [...verifyTargetNames()];
+export const verifyAffectedTargets = [...verifyAffectedTargetNames(workspaceGraphTargetNames())];
 
 /**
  * Reads the workspace graph and returns the verify target plan.
