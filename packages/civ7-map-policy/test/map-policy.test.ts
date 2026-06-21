@@ -4,8 +4,10 @@ import { join } from "node:path";
 
 import {
   applyCiv7CoastClassificationPolicy,
+  applyCiv7CoastRingPolicy,
   CIV7_BROWSER_TABLES_V0,
   CIV7_COAST_CLASSIFICATION_POLICY_V0,
+  CIV7_COAST_RING_POLICY_V0,
   CIV7_DEFAULT_RIVER_MODELING_ARGS,
   CIV7_RIVER_MODELING_POLICY_V0,
   CIV7_RIVER_TYPE_METADATA_SOURCE,
@@ -22,6 +24,7 @@ import {
   resolveNaturalWonderMaterializationDirection,
   resolveNaturalWonderPlacementDirection,
   WATER_CLASS_COAST,
+  WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
 } from "../src/index.js";
 
@@ -181,6 +184,32 @@ describe("@civ7/map-policy", () => {
     expect(CIV7_COAST_CLASSIFICATION_POLICY_V0.source).toContain(
       "Base/modules/base-standard/maps/map-globals.js"
     );
+  });
+
+  it("stamps a single land-adjacent coast ring (not a distance band) via odd-R adjacency", () => {
+    const width = 7;
+    const height = 5;
+    const waterClass = new Uint8Array(width * height).fill(WATER_CLASS_OCEAN);
+    const landX = 3;
+    const landY = 2; // even row
+    waterClass[landY * width + landX] = WATER_CLASS_LAND;
+
+    const result = applyCiv7CoastRingPolicy({ width, height, waterClass });
+
+    // All six odd-R neighbours of the land tile (even row) become coast — exactly one ring.
+    expect(result.promotedOceanToCoast).toBe(6);
+    expect(result.waterClass[landY * width + (landX - 1)]).toBe(WATER_CLASS_COAST); // (2,2)
+    expect(result.waterClass[landY * width + (landX + 1)]).toBe(WATER_CLASS_COAST); // (4,2)
+    // The land tile itself is never reclassified.
+    expect(result.waterClass[landY * width + landX]).toBe(WATER_CLASS_LAND);
+    // A tile two rows away is NOT adjacent to land → stays ocean (proves no distance band).
+    expect(result.waterClass[(landY + 2) * width + landX]).toBe(WATER_CLASS_OCEAN); // (3,4)
+    // The input is not mutated.
+    expect(waterClass[landY * width + (landX + 1)]).toBe(WATER_CLASS_OCEAN);
+    let ringCount = 0;
+    for (const v of result.coastRingMask) ringCount += v;
+    expect(ringCount).toBe(6);
+    expect(CIV7_COAST_RING_POLICY_V0.version).toBe(0);
   });
 
   it("models supported natural-wonder footprints and filters unsupported catalog entries", () => {
