@@ -1,21 +1,31 @@
 import { wrapX } from "@mapgen/lib/grid/wrap.js";
 
-const OFFSETS_ODD: readonly (readonly [number, number])[] = [
+// Civ7 plot-grid adjacency. The engine grid is pointy-top, ROW-offset (odd-R):
+// neighbor parity is keyed on the ROW (`y & 1`), with the two parity-dependent
+// diagonals on the west column for even rows and the east column for odd rows.
+// Confirmed against the live engine's `getAdjacentPlotLocation` adjacency
+// (even row -> (-1,-1),(-1,1); odd row -> (1,-1),(1,1)). The four orthogonal-ish
+// neighbors (`(-1,0),(1,0),(0,-1),(0,1)`) are common to both parities.
+//
+// NOTE: the `OddQ` symbol names are legacy (the grid was historically and
+// incorrectly modeled as column-offset odd-Q); they are scheduled for a
+// mechanical rename to `OddR`. The implementation below is odd-R.
+const OFFSETS_ODD_ROW: readonly (readonly [number, number])[] = [
   [-1, 0],
   [1, 0],
   [0, -1],
   [0, 1],
-  [-1, 1],
+  [1, -1],
   [1, 1],
 ];
 
-const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
+const OFFSETS_EVEN_ROW: readonly (readonly [number, number])[] = [
   [-1, 0],
   [1, 0],
   [0, -1],
   [0, 1],
   [-1, -1],
-  [1, -1],
+  [-1, 1],
 ];
 
 export function getHexNeighborIndicesOddQ(
@@ -24,8 +34,8 @@ export function getHexNeighborIndicesOddQ(
   width: number,
   height: number
 ): number[] {
-  const isOddCol = (x & 1) === 1;
-  const offsets = isOddCol ? OFFSETS_ODD : OFFSETS_EVEN;
+  const isOddRow = (y & 1) === 1;
+  const offsets = isOddRow ? OFFSETS_ODD_ROW : OFFSETS_EVEN_ROW;
   const indices: number[] = [];
 
   for (const [dx, dy] of offsets) {
@@ -46,8 +56,8 @@ export function forEachHexNeighborOddQ(
   height: number,
   fn: (nx: number, ny: number) => void
 ): void {
-  const isOddCol = (x & 1) === 1;
-  const offsets = isOddCol ? OFFSETS_ODD : OFFSETS_EVEN;
+  const isOddRow = (y & 1) === 1;
+  const offsets = isOddRow ? OFFSETS_ODD_ROW : OFFSETS_EVEN_ROW;
 
   for (const [dx, dy] of offsets) {
     const nx = x + dx;
@@ -64,8 +74,8 @@ export function forEachHexNeighborOddQWithDirection(
   height: number,
   fn: (nx: number, ny: number, directionIndex: number) => void
 ): void {
-  const isOddCol = (x & 1) === 1;
-  const offsets = isOddCol ? OFFSETS_ODD : OFFSETS_EVEN;
+  const isOddRow = (y & 1) === 1;
+  const offsets = isOddRow ? OFFSETS_ODD_ROW : OFFSETS_EVEN_ROW;
 
   for (let directionIndex = 0; directionIndex < offsets.length; directionIndex++) {
     const [dx, dy] = offsets[directionIndex]!;

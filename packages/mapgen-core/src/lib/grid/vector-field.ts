@@ -5,22 +5,25 @@ export type Vec2 = Readonly<{ x: number; y: number }>;
 
 export const I8_VECTOR_MAX_ABS = 127;
 
-const OFFSETS_ODD: readonly (readonly [number, number])[] = [
+// Odd-R (row-offset) neighbor offsets — MUST match the canonical table in
+// `neighborhood/hex-oddq.ts` (and order, so direction indices stay consistent).
+// Parity is keyed on the ROW (`y & 1`); see hex-oddq for the engine derivation.
+const OFFSETS_ODD_ROW: readonly (readonly [number, number])[] = [
   [-1, 0],
   [1, 0],
   [0, -1],
   [0, 1],
-  [-1, 1],
+  [1, -1],
   [1, 1],
 ];
 
-const OFFSETS_EVEN: readonly (readonly [number, number])[] = [
+const OFFSETS_EVEN_ROW: readonly (readonly [number, number])[] = [
   [-1, 0],
   [1, 0],
   [0, -1],
   [0, 1],
   [-1, -1],
-  [1, -1],
+  [-1, 1],
 ];
 
 export function vec2(x: number, y: number): Vec2 {
@@ -83,33 +86,34 @@ export function dequantizeI8Signed(value: number, maxAbs: number): number {
  * Neighbor direction vectors (in hex space) from a tile center to each of its 6 neighbors.
  *
  * Notes:
- * - Uses odd-q projection (`projectOddqToHexSpace`).
+ * - Uses the odd-R projection (`projectOddqToHexSpace`, legacy name; odd-R math).
+ * - Parity is keyed on the ROW; the base is a representative row of each parity.
  * - Returns vectors in a stable, deterministic order matching the neighbor offset table.
  */
 function computeHexNeighborDirectionVectorsOddQ(
-  baseX: number,
+  baseRow: number,
   offsets: readonly (readonly [number, number])[]
 ): readonly Vec2[] {
-  const base = projectOddqToHexSpace(baseX, 0);
+  const base = projectOddqToHexSpace(0, baseRow);
   return offsets.map(([dx, dy]) => {
-    const p = projectOddqToHexSpace(baseX + dx, dy);
+    const p = projectOddqToHexSpace(dx, baseRow + dy);
     return { x: p.x - base.x, y: p.y - base.y };
   });
 }
 
-const HEX_NEIGHBOR_DIRS_EVEN = computeHexNeighborDirectionVectorsOddQ(0, OFFSETS_EVEN);
-const HEX_NEIGHBOR_DIRS_ODD = computeHexNeighborDirectionVectorsOddQ(1, OFFSETS_ODD);
+const HEX_NEIGHBOR_DIRS_EVEN = computeHexNeighborDirectionVectorsOddQ(0, OFFSETS_EVEN_ROW);
+const HEX_NEIGHBOR_DIRS_ODD = computeHexNeighborDirectionVectorsOddQ(1, OFFSETS_ODD_ROW);
 
-export function getHexNeighborDirectionVectorsOddQ(isOddCol: boolean): readonly Vec2[] {
-  return isOddCol ? HEX_NEIGHBOR_DIRS_ODD : HEX_NEIGHBOR_DIRS_EVEN;
+export function getHexNeighborDirectionVectorsOddQ(isOddRow: boolean): readonly Vec2[] {
+  return isOddRow ? HEX_NEIGHBOR_DIRS_ODD : HEX_NEIGHBOR_DIRS_EVEN;
 }
 
 /**
  * Choose the best-matching neighbor direction for a velocity vector (in hex space).
  * Returns the neighbor direction index [0..5].
  */
-export function bestHexNeighborDirectionIndexOddQ(velocity: Vec2, isOddCol: boolean): number {
-  const dirs = getHexNeighborDirectionVectorsOddQ(isOddCol);
+export function bestHexNeighborDirectionIndexOddQ(velocity: Vec2, isOddRow: boolean): number {
+  const dirs = getHexNeighborDirectionVectorsOddQ(isOddRow);
   const vHat = vec2Normalize(velocity);
   let best = 0;
   let bestDot = -Infinity;
@@ -142,9 +146,9 @@ export function estimateDivergenceOddQ(
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      const isOdd = (x & 1) === 1;
-      const dirs = getHexNeighborDirectionVectorsOddQ(isOdd);
-      const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
+      const isOddRow = (y & 1) === 1;
+      const dirs = getHexNeighborDirectionVectorsOddQ(isOddRow);
+      const offsets = isOddRow ? OFFSETS_ODD_ROW : OFFSETS_EVEN_ROW;
 
       const vx = fieldX[i] ?? 0;
       const vy = fieldY[i] ?? 0;
@@ -191,9 +195,9 @@ export function estimateCurlZOddQ(
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const i = y * width + x;
-      const isOdd = (x & 1) === 1;
-      const dirs = getHexNeighborDirectionVectorsOddQ(isOdd);
-      const offsets = isOdd ? OFFSETS_ODD : OFFSETS_EVEN;
+      const isOddRow = (y & 1) === 1;
+      const dirs = getHexNeighborDirectionVectorsOddQ(isOddRow);
+      const offsets = isOddRow ? OFFSETS_ODD_ROW : OFFSETS_EVEN_ROW;
 
       const vx = fieldX[i] ?? 0;
       const vy = fieldY[i] ?? 0;
