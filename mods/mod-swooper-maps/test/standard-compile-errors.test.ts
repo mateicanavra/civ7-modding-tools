@@ -17,7 +17,7 @@ const baseSettings = {
 
 const foundationConfig = {
   "foundation-mantle": { knobs: { plateCount: 28 } },
-  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-lithosphere": { knobs: { plateCount: 28 } },
   "foundation-projection": { knobs: { plateActivity: 0.5 } },
 };
 
@@ -250,7 +250,7 @@ describe("standard recipe compile errors (ecology)", () => {
             plateScalePower: 0.8,
           },
         },
-        "foundation-plates": {
+        "foundation-lithosphere": {
           platePartition: {
             referenceArea: 4536,
             plateScalePower: 0.8,
@@ -262,8 +262,8 @@ describe("standard recipe compile errors (ecology)", () => {
     for (const path of [
       "/config/foundation-mantle/meshResolution/referenceArea",
       "/config/foundation-mantle/meshResolution/plateScalePower",
-      "/config/foundation-plates/platePartition/referenceArea",
-      "/config/foundation-plates/platePartition/plateScalePower",
+      "/config/foundation-lithosphere/platePartition/referenceArea",
+      "/config/foundation-lithosphere/platePartition/plateScalePower",
     ]) {
       expect(
         err.errors.some((item) => item.code === "config.invalid" && item.path.includes(path))

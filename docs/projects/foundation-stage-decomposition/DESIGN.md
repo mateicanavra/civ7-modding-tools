@@ -22,9 +22,9 @@ plates → tectonic boundary history → crustal evolution → tile projection**
 | # | Stage | Steps (in order) | Unit of work | Produces (artifacts) | Knob |
 |---|---|---|---|---|---|
 | 1 | `foundation-mantle` | mesh, mantle-potential, mantle-forcing | Computational mesh + mantle convection forcing field — the deep-earth driver | `foundation.{mesh, mantlePotential, mantleForcing}` | `plateCount` (mesh sizing) |
-| 2 | `foundation-plates` | crust (init), plate-graph, plate-motion | Initial lithosphere, partitioned into rigid plates with kinematics | `foundation.{crustInit, plateGraph, plateMotion}` | `plateCount` (partition) |
+| 2 | `foundation-lithosphere` | crust (init), plate-graph, plate-motion | Initial lithosphere, partitioned into rigid plates with kinematics | `foundation.{crustInit, plateGraph, plateMotion}` | `plateCount` (partition) |
 | 3 | `foundation-tectonics` | tectonics | Plate-boundary dynamics + geological history (segments, era loop, events, fields, rollups, current drivers, tracers, provenance) | `foundation.{tectonicSegments, tectonicHistory, tectonicProvenance, tectonics}` | — |
-| 4 | `foundation-crust` | crust-evolution | **Merge:** initial crust ⊕ tectonic history → final crustal material state | `foundation.crust` | — |
+| 4 | `foundation-orogeny` | crust-evolution | **Merge:** initial crust ⊕ tectonic history → final crustal material state | `foundation.crust` | — |
 | 5 | `foundation-projection` | projection **[+ plate-topology]** | Resample mesh-space truth → Civ7 tile grid **[+ plate adjacency graph]** | `map.foundation{Plates, TileToCellIndex, CrustTiles, TectonicHistoryTiles, TectonicProvenanceTiles}` **[+ `foundation.plateTopology`]** | `plateActivity` |
 
 **Open fork (for the user):** `plate-topology` lands either as the **2nd step of
@@ -34,7 +34,7 @@ plates → tectonic boundary history → crustal evolution → tile projection**
 ### Dependency DAG (after the split)
 
 ```
-foundation-mantle ─▶ foundation-plates ─▶ foundation-tectonics ─▶ foundation-crust ─▶ foundation-projection ─▶ (morphology-coasts …)
+foundation-mantle ─▶ foundation-lithosphere ─▶ foundation-tectonics ─▶ foundation-orogeny ─▶ foundation-projection ─▶ (morphology-coasts …)
    mesh,                crustInit,            segments, history,       crust(final)        map.foundation*  (the cross-domain surface)
    mantlePotential,     plateGraph,           provenance, tectonics
    mantleForcing        plateMotion
@@ -74,9 +74,9 @@ recipes/standard/stages/
     validation.ts       validators for this stage's artifacts (+ shared wrapper from domain lib)
     viz.ts              viz meta/colors owned by this stage (imports shared geometry from domain lib)
     steps/{index.ts, mesh.ts, mesh.contract.ts, mantlePotential.ts, …, mantleForcing.contract.ts}
-  foundation-plates/      … crust(init), plate-graph, plate-motion ; public:{lithosphere,platePartition,plateMotion} ; knob plateCount
+  foundation-lithosphere/      … crust(init), plate-graph, plate-motion ; public:{lithosphere,platePartition,plateMotion} ; knob plateCount
   foundation-tectonics/   … tectonics ; public:{tectonicSegmentation,tectonicEras,tectonicFields,tectonicRollups}
-  foundation-crust/       … crust-evolution ; public:{} ; no knob
+  foundation-orogeny/       … crust-evolution ; public:{} ; no knob
   foundation-projection/  … projection [+ plate-topology] ; public:{} ; knob plateActivity
 ```
 
@@ -89,8 +89,8 @@ no `stages/foundation/` hub lingers:
   `wrapFoundationValidateNoDims` (per-artifact validators move into each stage's
   `validation.ts`, beside the artifacts they guard).
 - The shared **crust artifact schema** (`FoundationCrustArtifactSchema`, used by
-  `crustInit` and `crust`) → defined once (in `foundation-plates/artifacts.ts`,
-  owner of `crustInit`) and imported by `foundation-crust/artifacts.ts`.
+  `crustInit` and `crust`) → defined once (in `foundation-lithosphere/artifacts.ts`,
+  owner of `crustInit`) and imported by `foundation-orogeny/artifacts.ts`.
 - The **tile-space schemas** (consumed by `recipes/standard/map-artifacts.ts`) live
   in `foundation-projection/artifacts.ts`; `map-artifacts.ts` imports from there.
 
@@ -117,14 +117,14 @@ unconsumed" directive). Per-stage ownership:
 `buildPlateTopology` inline — the only loose-code step. Extract a real
 `foundation/compute-plate-topology` domain op (identity-preserving: same function,
 same inputs). It stays tile-derived for this slice; going mesh-native (→ move into
-`foundation-plates`) is the flagged follow-on.
+`foundation-lithosphere`) is the flagged follow-on.
 
 ---
 
 ## 4. Knobs
 
 - `plateCount` (shared `FoundationPlateCountKnobSchema`) is declared on **both**
-  `foundation-mantle` (→ mesh `cellCount`) and `foundation-plates` (→ partition
+  `foundation-mantle` (→ mesh `cellCount`) and `foundation-lithosphere` (→ partition
   count). Identity-safe: no default; configs set it on both blocks; omission →
   both ops default to 32. (Single-source "derive from mesh artifact" = clean
   follow-on, not this slice.)
@@ -164,7 +164,7 @@ must run **after** projection. Two clean placements:
 - **5 stages (recommended):** `plate-topology` is the **2nd step of
   `foundation-projection`**. Cohesive "tile-facing outputs" stage; doesn't mint a
   whole stage for a transitional, currently-viz-only diagnostic; folds cleanly into
-  `foundation-plates` when it later goes mesh-native. (Architecture/packet lens.)
+  `foundation-lithosphere` when it later goes mesh-native. (Architecture/packet lens.)
 - **6 stages:** `plate-topology` is its **own `foundation-topology` stage** after
   projection. Maximizes composability (a consumer of plate adjacency depends only
   on this node) and keeps `foundation-projection` purely mesh→tile resampling.
@@ -238,7 +238,7 @@ in-game smoke run (identity ⇒ parity, but the live engine is the closure test)
 These are made *possible* by the decomposition but are **not** part of this
 behavior-preserving refactor (they change output):
 - `foundation-material-history-contract` (per-era crust snapshots / material deltas).
-- `plate-topology` → mesh-native (from `plateGraph`+`mesh`), moved into `foundation-plates`.
+- `plate-topology` → mesh-native (from `plateGraph`+`mesh`), moved into `foundation-lithosphere`.
 - `plateCount` → single-source (derive from mesh artifact instead of duplicate knob).
 - `foundation-projection-provenance-confidence`, `morphology-landform-intents`, etc.
   (from the architecture packet's candidate slices).

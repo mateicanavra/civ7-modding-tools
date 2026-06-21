@@ -50,7 +50,7 @@ describe("shipped map config identity", () => {
     expect(swooperEarthlikeConfigRaw.sortIndex).toBe(501);
     expect(earthlike["foundation-projection"].knobs.plateActivity).toBe(0.85);
     expect(earthlike["foundation-mantle"].meshResolution.plateCount).toBe(28);
-    expect(earthlike["foundation-plates"].platePartition.plateCount).toBe(42);
+    expect(earthlike["foundation-lithosphere"].platePartition.plateCount).toBe(42);
     expect(earthlike["morphology-coasts"].knobs.shelfWidth).toBe("wide");
     expect(earthlike["morphology-coasts"].shelf).toMatchObject({
       nearshoreDistance: 8,
@@ -90,7 +90,7 @@ describe("shipped map config identity", () => {
     expect(earthlike.placement).not.toHaveProperty("floodplains");
     expect(earthlike["map-rivers"].knobs.navigableRiverDensity).toBe("normal");
     expect(earthlike["foundation-mantle"].meshResolution).not.toHaveProperty("referenceArea");
-    expect(earthlike["foundation-plates"].platePartition).not.toHaveProperty("plateScalePower");
+    expect(earthlike["foundation-lithosphere"].platePartition).not.toHaveProperty("plateScalePower");
   });
 
   it("keeps Ecology feature authoring semantic while compiled planners preserve tuned identity", () => {

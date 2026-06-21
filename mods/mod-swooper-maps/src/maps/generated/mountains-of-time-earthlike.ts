@@ -17,7 +17,7 @@ export default createMap({
   description: mapConfig.description,
   recipe: standardRecipe,
   sourceConfigId: "mountains-of-time-earthlike",
-  configHash: "d6c83141bd372e959caff6d9b2921759adedf9a397eea927ab9b93fc98cb0893",
-  envelopeHash: "0f23cf46fd615ef1ac44ccd7426d63a5623cb6fa34fd53992f98a027e7aa994a",
+  configHash: "eb0ca822819a90566e1a3284c1c681e8760e715bf1ee82bf35da2aaf54f566f9",
+  envelopeHash: "93b74f8e0d00795f1d98bdab397601c5733e415d721affe1b9d3ac2ee65678d8",
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });

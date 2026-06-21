@@ -1,9 +1,9 @@
 import foundation from "@mapgen/domain/foundation";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
 import { orderStandardStageSteps } from "../../contract-manifest.js";
-import { tectonics } from "./steps/index.js";
+import { plateMotion, tectonics } from "./steps/index.js";
 
-/** Foundation / Tectonics — boundary regimes + multi-era history, provenance, drivers. */
+/** Foundation / Tectonics — plate kinematics + boundary regimes, multi-era history, provenance. */
 export default createStage({
   id: "foundation-tectonics",
   knobsSchema: Type.Object(
@@ -12,8 +12,8 @@ export default createStage({
   ),
   public: Type.Object(
     {
-      // plateMotion is re-exposed here: the tectonics step recomputes per-era plate
-      // motion with the same op config as foundation-plates' plate-motion step.
+      // plateMotion is the sole home for the computePlateMotion op config: it feeds
+      // both the plate-motion step and the tectonics step's per-era motion recompute.
       plateMotion: Type.Optional(foundation.ops.computePlateMotion.strategies.default),
       tectonicSegmentation: Type.Optional(
         foundation.ops.computeTectonicSegments.strategies.default
@@ -26,11 +26,17 @@ export default createStage({
     },
     {
       additionalProperties: false,
-      description: "Tectonics advanced config (segments, eras, history).",
+      description: "Tectonics advanced config (plate motion + segments, eras, history).",
     }
   ),
-  steps: orderStandardStageSteps("foundation-tectonics", { tectonics }),
+  steps: orderStandardStageSteps("foundation-tectonics", {
+    "plate-motion": plateMotion,
+    tectonics,
+  }),
   compile: ({ config }: { config: Record<string, unknown> }) => ({
+    "plate-motion": {
+      computePlateMotion: { strategy: "default", config: config.plateMotion ?? {} },
+    },
     tectonics: {
       computePlateMotion: { strategy: "default", config: config.plateMotion ?? {} },
       computeTectonicSegments: { strategy: "default", config: config.tectonicSegmentation ?? {} },

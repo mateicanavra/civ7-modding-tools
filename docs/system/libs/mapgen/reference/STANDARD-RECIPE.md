@@ -55,9 +55,9 @@ The standard recipe is **content-owned** (not SDK-owned):
 The current stage order is:
 
 1. `foundation-mantle`
-2. `foundation-plates`
+2. `foundation-lithosphere`
 3. `foundation-tectonics`
-4. `foundation-crust`
+4. `foundation-orogeny`
 5. `foundation-projection`
 6. `morphology-coasts`
 7. `morphology-routing`

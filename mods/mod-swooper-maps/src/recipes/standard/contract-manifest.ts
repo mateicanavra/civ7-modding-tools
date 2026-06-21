@@ -13,15 +13,15 @@ import PlanWetlandsStepContract from "./stages/ecology-features/steps/plan-wetla
 import ScoreLayersStepContract from "./stages/ecology-features/steps/score-layers/contract.js";
 import PedologyStepContract from "./stages/ecology-pedology/steps/pedology/contract.js";
 import ResourceBasinsStepContract from "./stages/ecology-pedology/steps/resource-basins/contract.js";
-import CrustEvolutionStepContract from "./stages/foundation-crust/steps/crustEvolution.contract.js";
+import CrustStepContract from "./stages/foundation-lithosphere/steps/crust.contract.js";
+import PlateGraphStepContract from "./stages/foundation-lithosphere/steps/plateGraph.contract.js";
 import MantleForcingStepContract from "./stages/foundation-mantle/steps/mantleForcing.contract.js";
 import MantlePotentialStepContract from "./stages/foundation-mantle/steps/mantlePotential.contract.js";
 import MeshStepContract from "./stages/foundation-mantle/steps/mesh.contract.js";
-import CrustStepContract from "./stages/foundation-plates/steps/crust.contract.js";
-import PlateGraphStepContract from "./stages/foundation-plates/steps/plateGraph.contract.js";
-import PlateMotionStepContract from "./stages/foundation-plates/steps/plateMotion.contract.js";
+import CrustEvolutionStepContract from "./stages/foundation-orogeny/steps/crustEvolution.contract.js";
 import PlateTopologyStepContract from "./stages/foundation-projection/steps/plateTopology.contract.js";
 import ProjectionStepContract from "./stages/foundation-projection/steps/projection.contract.js";
+import PlateMotionStepContract from "./stages/foundation-tectonics/steps/plateMotion.contract.js";
 import TectonicsStepContract from "./stages/foundation-tectonics/steps/tectonics.contract.js";
 import ClimateBaselineStepContract from "./stages/hydrology-climate-baseline/steps/climateBaseline.contract.js";
 import ClimateRefineStepContract from "./stages/hydrology-climate-refine/steps/climateRefine.contract.js";
@@ -72,9 +72,9 @@ export const standardStageContractManifest = [
     MantlePotentialStepContract,
     MantleForcingStepContract,
   ]),
-  stage("foundation-plates", [CrustStepContract, PlateGraphStepContract, PlateMotionStepContract]),
-  stage("foundation-tectonics", [TectonicsStepContract]),
-  stage("foundation-crust", [CrustEvolutionStepContract]),
+  stage("foundation-lithosphere", [CrustStepContract, PlateGraphStepContract]),
+  stage("foundation-tectonics", [PlateMotionStepContract, TectonicsStepContract]),
+  stage("foundation-orogeny", [CrustEvolutionStepContract]),
   stage("foundation-projection", [ProjectionStepContract, PlateTopologyStepContract]),
   stage("morphology-coasts", [LandmassPlatesStepContract, RuggedCoastsStepContract]),
   stage("morphology-routing", [RoutingStepContract]),

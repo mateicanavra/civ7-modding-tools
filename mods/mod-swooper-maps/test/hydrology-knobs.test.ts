@@ -15,7 +15,7 @@ const env = {
 
 const foundationConfig = {
   "foundation-mantle": { knobs: { plateCount: 28 } },
-  "foundation-plates": { knobs: { plateCount: 28 } },
+  "foundation-lithosphere": { knobs: { plateCount: 28 } },
   "foundation-projection": { knobs: { plateActivity: 0.5 } },
 };
 

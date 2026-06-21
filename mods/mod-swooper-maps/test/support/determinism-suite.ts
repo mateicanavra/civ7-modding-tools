@@ -19,7 +19,7 @@ function buildConfig(overrides: {
   >;
   if (overrides.plateCount != null) {
     // plateCount is a cross-stage knob: it sizes the mesh (mantle) and the plate partition (plates).
-    for (const stageId of ["foundation-mantle", "foundation-plates"]) {
+    for (const stageId of ["foundation-mantle", "foundation-lithosphere"]) {
       config[stageId] = {
         ...config[stageId],
         knobs: { ...config[stageId]?.knobs, plateCount: overrides.plateCount },

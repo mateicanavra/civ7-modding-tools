@@ -222,9 +222,9 @@ structurally identical: `index.ts` (createStage), `artifacts.ts`, `validation.ts
 | # | Stage | Steps | Physical/algorithmic unit | Primary outputs | Knob |
 |---|---|---|---|---|---|
 | 1 | `foundation-mantle` | mesh, mantle-potential, mantle-forcing | Computational mesh + mantle convection forcing field | `foundation.{mesh,mantlePotential,mantleForcing}` | `plateCount`* |
-| 2 | `foundation-plates` | crust(init), plate-graph, plate-motion | Initial lithosphere + plate partition + rigid kinematics | `foundation.{crustInit,plateGraph,plateMotion}` | `plateCount`* |
-| 3 | `foundation-tectonics` | tectonics | Plate-boundary dynamics + geological history | `foundation.{tectonicSegments,tectonicHistory,tectonicProvenance,tectonics}` | — |
-| 4 | `foundation-crust` | crust-evolution | Crustal evolution (merge: crustInit ⊕ tectonic history) | `foundation.crust` | — |
+| 2 | `foundation-lithosphere` | crust(init), plate-graph | Static plate structure: initial lithosphere + plate partition (what the plates *are*) | `foundation.{crustInit,plateGraph}` | `plateCount`* |
+| 3 | `foundation-tectonics` | plate-motion, tectonics | Plate kinematics + boundary dynamics + geological history (what the plates *do*) | `foundation.{plateMotion,tectonicSegments,tectonicHistory,tectonicProvenance,tectonics}` | — |
+| 4 | `foundation-orogeny` | crust-evolution | Crustal evolution (merge: crustInit ⊕ tectonic history) | `foundation.crust` | — |
 | 5 | `foundation-projection` | projection, plate-topology | Project mesh truth → Civ7 tile grid (+ plate adjacency) | `map.foundation*`, `foundation.plateTopology` | `plateActivity` |
 
 \* `plateCount` cross-stage knob — resolution pending (§6).
@@ -232,8 +232,8 @@ structurally identical: `index.ts` (createStage), `artifacts.ts`, `validation.ts
 **Downstream dependency after the split:** morphology depends on
 `foundation-projection` (the `map.foundation*` outputs). The mesh-space truth
 stages (1–4) become independently dependable nodes (e.g. a future consumer of raw
-crust truth depends on `foundation-crust`; a plate-kinematics consumer depends on
-`foundation-plates`).
+crust truth depends on `foundation-orogeny`; a plate-kinematics consumer depends on
+`foundation-tectonics`).
 
 ### Why this is the right cut (physical grounding)
 
@@ -259,7 +259,7 @@ split). The decomposition stands; refinements below.
    identity test holds **without** snapshot regeneration (do NOT regenerate
    golden output — two agents wrongly suggested `--update-snapshots`; rejected).
 2. **`plateCount` cross-stage knob → duplicate on both stages** (`foundation-mantle`
-   for mesh, `foundation-plates` for plate-graph), referencing the shared
+   for mesh, `foundation-lithosphere` for plate-graph), referencing the shared
    `FoundationPlateCountKnobSchema`. Knob has no default; when omitted both ops
    independently default to 32 (identical) → identity-safe. Configs that set
    `plateCount` set it on **both** blocks. (Single-source "derive from mesh
@@ -269,12 +269,12 @@ split). The decomposition stands; refinements below.
    `foundation/compute-plate-topology` domain op from the inlined
    `buildPlateTopology` (removes the only `ops:{}` loose-code step). Stays
    tile-derived (reads `map.foundationPlates`) to preserve identity; **mesh-native
-   (from plateGraph+mesh) → foundation-plates is the flagged follow-on** (packet
+   (from plateGraph+mesh) → foundation-lithosphere is the flagged follow-on** (packet
    slice `foundation-plate-topology-op` + FOUNDATION.md open question #1).
 4. **Crust as its own stage → keep separate** (3/4 lenses; physics dissents,
    preferring merge-into-tectonics). Kept separate: it is the packet's distinct
    "layer 11" material-evolution merge, and separating it surfaces the layer for
-   the future material-history contract. `foundation-crust` is the merge node.
+   the future material-history contract. `foundation-orogeny` is the merge node.
 5. **Projection / topology grouping → the one open fork for the user.** 3/4 lenses
    favor separating topology from projection (different inputs: projection reads 6
    mesh artifacts → tiles; topology reads 1 tile artifact → adjacency); the
@@ -282,14 +282,14 @@ split). The decomposition stands; refinements below.
    projection-adjacent, post-projection, no consumer yet). → Present 5-stage
    (topology as projection's 2nd step) vs 6-stage (topology its own stage) and let
    the user pick. Recommendation: **5** (don't mint a stage for a transitional
-   tile-derived diagnostic; it folds cleanly into foundation-plates when it goes
+   tile-derived diagnostic; it folds cleanly into foundation-lithosphere when it goes
    mesh-native).
 6. **Artifact-quality audit → 0 bad artifacts; remove none.** 16 artifacts are
    meaningful/usable/atomic → publish all (honors clarification #1). `plateTopology`
    = "repair" (op-ify, decision 3). `tectonicSegments` = meaningful + atomic
    boundary surface, keep (published for diagnostics/tests even though no
    cross-domain consumer). No deletions.
-7. **`crustInit` placement → `foundation-plates`** (the initial lithosphere that is
+7. **`crustInit` placement → `foundation-lithosphere`** (the initial lithosphere that is
    partitioned). Physics-lens alternative (place in `foundation-mantle` as the
    first material response to forcing) noted; plates chosen for the coherent
    "lithosphere + partition + motion" unit.
@@ -409,5 +409,30 @@ split). The decomposition stands; refinements below.
   `build:studio-recipes`.
 - Slice 4 (docs): FOUNDATION.md stage-composition → 5-stage table + step-path
   anchors migrated; STANDARD-RECIPE.md stage order updated.
-- Status: **implemented + verified green; identity proven against main.** Remaining
-  closure: live in-game smoke run (the engine is the final closure test).
+- Naming refinement (2026-06-21, user review): the original `foundation-plates` /
+  `foundation-crust` names collided — `foundation-crust` held `crust-evolution`
+  while the `crust` step lived in `foundation-plates`. Renamed for physical honesty:
+  `foundation-plates → foundation-lithosphere`, `foundation-crust → foundation-orogeny`.
+  Stage-id renames are identity-safe (RNG phase stays `foundation`).
+- Cut correction (2026-06-21, user review): config-coupling audit found the only
+  cross-stage **op-config** duplication was `plateMotion`, authored on BOTH
+  `foundation-lithosphere` (plate-motion step) and `foundation-tectonics` (tectonics
+  step re-invokes `computePlateMotion` per-era). Per "a stage's boundary is its
+  ordered steps; shared op-config across a boundary = the cut severed a strong
+  interaction," moved the `plate-motion` step into `foundation-tectonics`. Result:
+  lithosphere = {crust, plate-graph} ("what plates are"); tectonics = {plate-motion,
+  tectonics} ("what plates do"); `plateMotion` now has one authoring home feeding
+  both steps. Identity-safe (step order unchanged; all 9 configs had identical
+  plateMotion under both blocks — verified before consolidating). `plateCount`
+  remains a shared **knob** (mantle mesh-density + lithosphere partition) — not
+  op-config; irreducible since the mesh is sized before the partition exists.
+- Deferred follow-on (behavioral, out of identity scope): `plateActivity` is a
+  plate-kinematics lever **applied in the projection step** (scales `computePlates`
+  movement/rotation/boundary that morphology later consumes), so projection shapes
+  truth-derived motion rather than purely materializing it. Correct knob placement
+  for current behavior (its consuming step is projection), but the clean layering —
+  compute "activity" in the motion truth and let projection render faithfully — is a
+  behavioral change that breaks byte-identity. Tracked here as a follow-on slice.
+- Status: **implemented + verified green; identity proven against main** (all 9
+  shipped/dev configs byte-identical end-to-end). Remaining closure: live in-game
+  smoke run (the engine is the final closure test).
