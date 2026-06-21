@@ -59,7 +59,7 @@ describe("Habitat graph service", () => {
     ]);
   });
 
-  test("keeps the legacy nullish graph projection contract", async () => {
+  test("rejects nullish graph payloads instead of falling back to raw JSON", async () => {
     const graphPath = path.join("/tmp/habitat-graph-fake", "graph.json");
     const layer = Layer.mergeAll(
       makeFakeNxProviderLayer({
@@ -79,11 +79,9 @@ describe("Habitat graph service", () => {
       )
     );
 
-    const result = await Effect.runPromise(
-      runGraphService({ json: true }).pipe(Effect.provide(layer))
-    );
-
-    expect(result.stdout).toBe('{"graph":null,"nodes":{"root":{}}}\n');
+    await expect(
+      Effect.runPromise(runGraphService({ json: true }).pipe(Effect.provide(layer)))
+    ).rejects.toThrow("Habitat graph service failed.");
   });
 
   test("returns failed Nx command streams without reading graph JSON", async () => {
