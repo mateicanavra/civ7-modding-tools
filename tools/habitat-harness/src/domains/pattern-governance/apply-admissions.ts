@@ -1,6 +1,5 @@
 import { Value } from "typebox/value";
-import { activeRuleSourceFacts } from "../rule-registry/active-facts.js";
-import type { RuleSourceFacts } from "../rule-registry/index.js";
+import { activeRuleSelectorFacts } from "../rule-registry/active-facts.js";
 import { applyAdmittedState } from "./admission.js";
 import {
   type ApplyAdmission,
@@ -17,6 +16,7 @@ const BUILT_IN_APPLY_ADMISSIONS = [
     manifestPath: ".habitat/patterns/apply/deep_import_to_public_surface.md",
     transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
     transactionInputRuleIds: ["domain-deep-import"],
+    dryRunRoots: ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
     dryRunOutput: "compact",
   },
   {
@@ -25,6 +25,7 @@ const BUILT_IN_APPLY_ADMISSIONS = [
     manifestPath: ".habitat/patterns/apply/docs_local_checkout_paths_rewrite.md",
     transactionInputRef: "patterns:docs-local-checkout-paths:transaction-input",
     transactionInputRuleIds: ["docs-local-checkout-paths"],
+    dryRunRoots: ["docs"],
     dryRunOutput: "standard",
   },
 ] as const;
@@ -38,12 +39,12 @@ export function defaultApplyAdmissions(): ApplyAdmission[] {
 }
 
 export function activeApplyTransactionInputs(): ApplyTransactionInput[] {
-  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), activeRuleSourceFacts);
+  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), activeRuleSelectorFacts);
 }
 
 export function applyTransactionInputsFromRuleFacts(
   admissions: readonly ApplyAdmission[],
-  ruleFacts: readonly RuleSourceFacts[]
+  ruleFacts: readonly { id: string }[]
 ): ApplyTransactionInput[] {
   const rulesById = new Map(ruleFacts.map((rule) => [rule.id, rule]));
   return admissions.flatMap((admission) => {
@@ -64,7 +65,7 @@ export function applyTransactionInputsFromRuleFacts(
             kind: "dry-run-command",
             commandId: `habitat-fix-${admission.patternId}-dry-run`,
             patternPath: admission.manifestPath,
-            roots: sortedUnique(rules.flatMap((rule) => rule.scanRoots)),
+            roots: sortedUnique(admission.dryRunRoots),
             output: admission.dryRunOutput,
           },
         ],
