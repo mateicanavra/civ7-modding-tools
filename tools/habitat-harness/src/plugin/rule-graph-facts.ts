@@ -1,4 +1,4 @@
-import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../domains/rule-registry/schema.ts";
+import type { NxRuleRegistryRecord } from "../providers/nx/rule-registry-loader.ts";
 import type { WorkspaceGraphTargetNames } from "../providers/nx/schema.ts";
 
 type RuleGraphTargetNames = Pick<
@@ -7,10 +7,10 @@ type RuleGraphTargetNames = Pick<
 >;
 
 export function ruleGraphFactsForNxPlugin(
-  records: readonly RuleRegistryRecordV1[],
+  records: readonly NxRuleRegistryRecord[],
   ownerRoots: ReadonlyMap<string, string>,
   targetNames: RuleGraphTargetNames
-): RuleGraphFacts[] {
+): NxRuleGraphFacts[] {
   return records.map((rule) => {
     const root = ownerRoots.get(rule.ownerProject);
     if (!root) {
@@ -28,9 +28,9 @@ export function ruleGraphFactsForNxPlugin(
 }
 
 function ruleGraphAlias(
-  rule: RuleRegistryRecordV1,
+  rule: NxRuleRegistryRecord,
   targetNames: RuleGraphTargetNames
-): RuleGraphFacts["alias"] {
+): NxRuleGraphFacts["alias"] {
   if (rule.id === "format-ci") {
     return {
       kind: "depends-on",
@@ -49,4 +49,16 @@ function ruleGraphAlias(
     };
   }
   return { kind: "direct-rule-check" };
+}
+
+export interface NxRuleGraphFacts {
+  readonly id: string;
+  readonly ownerProject: string;
+  readonly ownerRoot: string;
+  readonly alias:
+    | { readonly kind: "direct-rule-check" }
+    | {
+        readonly kind: "depends-on";
+        readonly target: { readonly project: string; readonly target: string };
+      };
 }

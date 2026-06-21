@@ -15,10 +15,10 @@
 
 ## 3. Scoped Inputs
 
-- [ ] 3.1 Drive rule target inputs from `pathCoverage`, `scanRoots`, manifests,
+- [x] 3.1 Drive rule target inputs from `pathCoverage`, `scanRoots`, manifests,
   and source-check policy files.
-- [ ] 3.2 Keep workspace-wide inputs only for true workspace gates.
-- [ ] 3.3 Make owner-check inputs the union of owned rule inputs without
+- [x] 3.2 Keep workspace-wide inputs only for true workspace gates.
+- [x] 3.3 Make owner-check inputs the union of owned rule inputs without
   collapsing to broad Habitat inputs unless required.
 
 ## 4. Verification Lanes
@@ -32,7 +32,7 @@
 ## 5. Validation
 
 - [x] 5.1 `nx show project @internal/habitat-harness --json`
-- [ ] 5.2 `bun tools/habitat-harness/bin/dev.ts check --tool source-check --json`
-- [ ] 5.3 `bun run habitat -- check --owner @internal/habitat-harness --json`
+- [x] 5.2 `bun tools/habitat-harness/bin/dev.ts check --tool source-check --json`
+- [x] 5.3 `bun run habitat -- check --owner @internal/habitat-harness --json`
 - [x] 5.4 `bun run --cwd tools/habitat-harness check`
-- [ ] 5.5 `bun run openspec -- validate deep-habitat-effect-fast-check-architecture --strict`
+- [x] 5.5 `bun run openspec -- validate deep-habitat-effect-fast-check-architecture --strict`
