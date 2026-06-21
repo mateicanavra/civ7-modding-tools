@@ -47,7 +47,7 @@ export default createStep(PlanResourcesStepContract, {
   run: (context, config, ops, deps) => {
     const { width, height } = context.dimensions;
     const topography = deps.artifacts.topography.read(context);
-    const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
+    const shelf = deps.artifacts.shelf.read(context);
     const landmasses = deps.artifacts.landmasses.read(context);
     const mountains = deps.artifacts.mountains.read(context);
     const beltDrivers = deps.artifacts.beltDrivers.read(context);
@@ -68,8 +68,8 @@ export default createStep(PlanResourcesStepContract, {
         height,
         landMask: topography.landMask,
         lakeMask: lakePlan.lakeMask,
-        coastalWater: coastlineMetrics.coastalWater,
-        shelfWater: coastlineMetrics.shelfMask,
+        coastalWater: shelf.coastalWater,
+        shelfWater: shelf.shelfMask,
         riverClass: hydrography.riverClass,
         surfaceTemperature: biomeClassification.surfaceTemperature,
         aridityIndex: biomeClassification.aridityIndex,

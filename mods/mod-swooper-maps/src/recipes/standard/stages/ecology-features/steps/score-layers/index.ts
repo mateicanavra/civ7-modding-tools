@@ -66,7 +66,7 @@ export default createStep(ScoreLayersStepContract, {
     const classification = deps.artifacts.biomeClassification.read(context);
     const pedology = deps.artifacts.pedology.read(context);
     const topography = deps.artifacts.topography.read(context);
-    const coastline = deps.artifacts.coastlineMetrics.read(context);
+    const coastline = deps.artifacts.shelf.read(context);
     const coastClassification = deps.artifacts.coastClassification.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);

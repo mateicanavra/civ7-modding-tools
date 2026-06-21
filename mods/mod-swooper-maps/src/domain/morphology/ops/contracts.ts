@@ -1,5 +1,6 @@
 import ComputeBaseTopographyContract from "./compute-base-topography/contract.js";
 import ComputeBeltDriversContract from "./compute-belt-drivers/contract.js";
+import ComputeCoastalAdjacencyContract from "./compute-coastal-adjacency/contract.js";
 import ComputeCoastlineMetricsContract from "./compute-coastline-metrics/contract.js";
 import ComputeDistanceToCoastContract from "./compute-distance-to-coast/contract.js";
 import ComputeFlowRoutingContract from "./compute-flow-routing/contract.js";
@@ -19,6 +20,7 @@ import ReconcileHeightfieldFromCoastContract from "./reconcile-heightfield-from-
 export const contracts = {
   computeBaseTopography: ComputeBaseTopographyContract,
   computeBeltDrivers: ComputeBeltDriversContract,
+  computeCoastalAdjacency: ComputeCoastalAdjacencyContract,
   computeCoastlineMetrics: ComputeCoastlineMetricsContract,
   computeDistanceToCoast: ComputeDistanceToCoastContract,
   computeFlowRouting: ComputeFlowRoutingContract,

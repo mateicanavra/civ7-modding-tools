@@ -35,11 +35,11 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "waterCoverage",
     "continents",
     "coastlineShape",
-    "shelf",
   ],
   "morphology-routing": ["knobs"],
   "morphology-erosion": ["knobs", "geomorphicCycle"],
   "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
+  "morphology-shelf": ["knobs", "shelf"],
   "hydrology-climate-baseline": [
     "knobs",
     "seasonalCycle",

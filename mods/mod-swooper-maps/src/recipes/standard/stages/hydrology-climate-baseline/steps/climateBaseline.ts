@@ -399,7 +399,7 @@ export default createStep(ClimateBaselineStepContract, {
     }
 
     const topography = deps.artifacts.topography.read(context);
-    const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
+    const shelf = deps.artifacts.shelf.read(context);
     const elevation = topography.elevation;
     const landMask = topography.landMask;
     const isWaterMask = new Uint8Array(width * height);
@@ -454,9 +454,9 @@ export default createStep(ClimateBaselineStepContract, {
           width,
           height,
           isWaterMask,
-          coastalWaterMask: coastlineMetrics.coastalWater,
-          distanceToCoast: coastlineMetrics.distanceToCoast,
-          shelfMask: coastlineMetrics.shelfMask,
+          coastalWaterMask: shelf.coastalWater,
+          distanceToCoast: shelf.distanceToCoast,
+          shelfMask: shelf.shelfMask,
         },
         config.computeOceanGeometry
       );
@@ -549,7 +549,7 @@ export default createStep(ClimateBaselineStepContract, {
           height,
           latitudeByRow,
           isWaterMask,
-          shelfMask: coastlineMetrics.shelfMask,
+          shelfMask: shelf.shelfMask,
           currentU: meanCurrentU,
           currentV: meanCurrentV,
         },

@@ -63,22 +63,25 @@ The current stage order is:
 7. `morphology-routing`
 8. `morphology-erosion`
 9. `morphology-features`
-10. `hydrology-climate-baseline`
-11. `hydrology-hydrography`
-12. `hydrology-climate-refine`
-13. `ecology-pedology`
-14. `ecology-biomes`
-15. `map-morphology`
-16. `map-hydrology`
-17. `map-elevation`
-18. `map-rivers`
-19. `ecology-features`
-20. `map-ecology`
-21. `placement`
+10. `morphology-shelf`
+11. `hydrology-climate-baseline`
+12. `hydrology-hydrography`
+13. `hydrology-climate-refine`
+14. `ecology-pedology`
+15. `ecology-biomes`
+16. `map-morphology`
+17. `map-hydrology`
+18. `map-elevation`
+19. `map-rivers`
+20. `ecology-features`
+21. `map-ecology`
+22. `placement`
 
 The five `foundation-*` stages are a sibling family decomposed from the former
 single `foundation` stage; their steps run in the same order, so output is
 byte-identical (see the FOUNDATION domain reference for the stage→step map).
+The `morphology-shelf` stage computes the continental shelf after island
+injection (post-features), so island peaks get true shelves.
 
 Note:
 

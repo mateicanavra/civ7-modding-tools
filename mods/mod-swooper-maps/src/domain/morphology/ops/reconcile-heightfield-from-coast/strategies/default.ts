@@ -13,14 +13,6 @@ export const defaultStrategy = createStrategy(ReconcileHeightfieldFromCoastContr
     const inputElevation = input.elevation as Int16Array;
     const seaLevel = input.seaLevel;
 
-    if (
-      inputLandMask.length !== size ||
-      coastMask.length !== size ||
-      inputElevation.length !== size
-    ) {
-      throw new Error("[ReconcileHeightfield] Input tensors must match width*height.");
-    }
-
     // Pure: derive fresh outputs from a copy of the input elevation; never mutate inputs.
     const landMask = new Uint8Array(size);
     const elevation = Int16Array.from(inputElevation);

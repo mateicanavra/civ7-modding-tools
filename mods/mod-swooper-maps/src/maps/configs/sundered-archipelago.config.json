@@ -147,15 +147,6 @@
           "activeBonus": 1,
           "passiveBonus": 2
         }
-      },
-      "shelf": {
-        "breakDepthSampleRadius": 3,
-        "shallowQuantile": 0.7,
-        "activeClosenessThreshold": 0.45,
-        "activeBreakDepthFactor": 0.6,
-        "passiveBreakDepthFactor": 1.25,
-        "absoluteMaxShelfDepth": -30,
-        "breakDepthScale": 1
       }
     },
     "morphology-routing": {},
@@ -203,6 +194,17 @@
         "randomJitter": 0.18,
         "minVolcanoes": 16,
         "maxVolcanoes": 70
+      }
+    },
+    "morphology-shelf": {
+      "shelf": {
+        "breakDepthSampleRadius": 3,
+        "shallowQuantile": 0.7,
+        "activeClosenessThreshold": 0.45,
+        "activeBreakDepthFactor": 0.6,
+        "passiveBreakDepthFactor": 1.25,
+        "absoluteMaxShelfDepth": -30,
+        "breakDepthScale": 1
       }
     },
     "hydrology-climate-baseline": {

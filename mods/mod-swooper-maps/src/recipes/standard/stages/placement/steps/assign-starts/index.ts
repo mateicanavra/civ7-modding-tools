@@ -24,7 +24,7 @@ export default createStep(AssignStartsStepContract, {
     const landmasses = deps.artifacts.landmasses.read(context);
     const mountains = deps.artifacts.mountains.read(context);
     const volcanoes = deps.artifacts.volcanoes.read(context);
-    const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
+    const shelf = deps.artifacts.shelf.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const biomeClassification = deps.artifacts.biomeClassification.read(context);
@@ -49,9 +49,9 @@ export default createStep(AssignStartsStepContract, {
         slotByTile,
         landmassIdByTile: landmasses.landmassIdByTile as Int32Array,
         landmassTileCounts: landmasses.landmasses.map((landmass) => landmass.tileCount),
-        coastalLand: coastlineMetrics.coastalLand as Uint8Array,
-        distanceToCoast: coastlineMetrics.distanceToCoast as Uint16Array,
-        shelfMask: coastlineMetrics.shelfMask as Uint8Array,
+        coastalLand: shelf.coastalLand as Uint8Array,
+        distanceToCoast: shelf.distanceToCoast as Uint16Array,
+        shelfMask: shelf.shelfMask as Uint8Array,
         elevation: topography.elevation as Int16Array,
         fertility: pedology.fertility as Float32Array,
         effectiveMoisture: biomeClassification.effectiveMoisture as Float32Array,

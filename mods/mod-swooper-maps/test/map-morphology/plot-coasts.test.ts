@@ -45,10 +45,10 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[6] = 1; // (2,1)
 
     context.artifacts.set("artifact:morphology.topography", { landMask });
-    context.artifacts.set("artifact:morphology.coastlineMetrics", {
+    context.artifacts.set("artifact:morphology.shelf", {
+      shelfMask,
       coastalLand: new Uint8Array(size),
       coastalWater,
-      shelfMask,
       distanceToCoast: new Uint16Array(size),
     });
 
@@ -120,10 +120,10 @@ describe("map-morphology/plot-coasts", () => {
     shelfMask[shelfIndex] = 1;
 
     context.artifacts.set("artifact:morphology.topography", { landMask });
-    context.artifacts.set("artifact:morphology.coastlineMetrics", {
+    context.artifacts.set("artifact:morphology.shelf", {
+      shelfMask,
       coastalLand: new Uint8Array(size),
       coastalWater,
-      shelfMask,
       distanceToCoast: new Uint16Array(size),
     });
 

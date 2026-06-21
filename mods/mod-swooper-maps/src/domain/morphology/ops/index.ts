@@ -1,6 +1,7 @@
 import type { DomainOpImplementationsForContracts } from "@swooper/mapgen-core/authoring";
 import computeBaseTopography from "./compute-base-topography/index.js";
 import computeBeltDrivers from "./compute-belt-drivers/index.js";
+import computeCoastalAdjacency from "./compute-coastal-adjacency/index.js";
 import computeCoastlineMetrics from "./compute-coastline-metrics/index.js";
 import computeDistanceToCoast from "./compute-distance-to-coast/index.js";
 import computeFlowRouting from "./compute-flow-routing/index.js";
@@ -21,6 +22,7 @@ import reconcileHeightfieldFromCoast from "./reconcile-heightfield-from-coast/in
 const implementations = {
   computeBaseTopography,
   computeBeltDrivers,
+  computeCoastalAdjacency,
   computeCoastlineMetrics,
   computeDistanceToCoast,
   computeFlowRouting,
@@ -44,6 +46,7 @@ export type { MountainsConfig } from "./mountains-shared/config.js";
 export {
   computeBaseTopography,
   computeBeltDrivers,
+  computeCoastalAdjacency,
   computeCoastlineMetrics,
   computeDistanceToCoast,
   computeFlowRouting,

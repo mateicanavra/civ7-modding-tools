@@ -794,6 +794,7 @@ function buildTerrainProjectionEvidence(
   context: ReturnType<typeof createExtendedMapContext>
 ): unknown {
   const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id);
+  const shelf = context.artifacts.get(morphologyArtifacts.shelf.id);
   const mapMorphologyCoastPolicy = context.artifacts.get(
     mapMorphologyArtifacts.coastClassification.id
   );
@@ -829,7 +830,12 @@ function buildTerrainProjectionEvidence(
     coastlineMetrics: pickSerializableFields(coastlineMetrics, [
       "coastalLand",
       "coastalWater",
+      "distanceToCoast",
+    ]),
+    shelf: pickSerializableFields(shelf, [
       "shelfMask",
+      "coastalLand",
+      "coastalWater",
       "distanceToCoast",
     ]),
     mapMorphologyCoastPolicy: pickSerializableFields(mapMorphologyCoastPolicy, [

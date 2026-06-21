@@ -29,15 +29,17 @@ export const defaultStrategy = createStrategy(ScoreAtollContract, "default", {
 
     for (let i = 0; i < size; i++) {
       if (input.landMask[i] !== 0) continue;
+      // Atolls MUST sit on ocean terrain: Civ7 rejects FEATURE_ATOLL on coast, and the
+      // continental shelf (shelfMask) projects to TERRAIN_COAST. So atolls only score on
+      // open-ocean banks beyond the shelf. (A wider shelf therefore yields fewer atolls by
+      // converting nearshore shallow banks into coast — an intended shelf-width tradeoff,
+      // not a scoring bug: placing atolls on shelf tiles only produces apply-time rejects.)
       if (input.openOceanMask[i] !== 1) continue;
       if (input.shelfMask[i] === 1) continue;
       if (input.coastalWater[i] !== 0) continue;
       const distanceToCoast = input.distanceToCoast[i] ?? 0;
       if (distanceToCoast < minDistanceToCoast || distanceToCoast > maxDistanceToCoast) continue;
 
-      // Civ7 atolls are open-water features. Swooper projects shelfMask water
-      // to TERRAIN_COAST, so atolls score from warm shallow open-ocean banks
-      // beyond the shelf/coast band rather than the coast surface used by reefs.
       const warmSuit = rampUp01(
         input.surfaceTemperature[i],
         config.tempWarmStartC,

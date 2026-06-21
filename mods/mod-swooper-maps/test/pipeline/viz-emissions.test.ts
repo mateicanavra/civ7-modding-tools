@@ -74,7 +74,7 @@ describe("standard pipeline viz emissions", () => {
       "foundation.plates.tilePlateId",
       "foundation.tectonics.boundaryType",
       "morphology.topography.elevation",
-      "morphology.coastlineMetrics.shelfMask",
+      "morphology.shelf.shelfMask",
       "morphology.shelf.breakDepth",
       "morphology.routing.flowAccum",
       "map.morphology.coasts.waterClass",
@@ -413,9 +413,7 @@ describe("standard pipeline viz emissions", () => {
       true
     );
 
-    const shelfMaskMetas = metasByKey.get("morphology.coastlineMetrics.shelfMask") as
-      | any[]
-      | undefined;
+    const shelfMaskMetas = metasByKey.get("morphology.shelf.shelfMask") as any[] | undefined;
     expect(
       shelfMaskMetas?.some((m) => m?.visibility === "default" && m?.palette === "categorical")
     ).toBe(true);

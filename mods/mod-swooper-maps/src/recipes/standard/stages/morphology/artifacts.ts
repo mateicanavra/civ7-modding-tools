@@ -58,10 +58,6 @@ const MorphologyCoastlineMetricsArtifactSchema = Type.Object(
     coastalWater: TypedArraySchemas.u8({
       description: "Mask (1/0): water tiles adjacent to land.",
     }),
-    shelfMask: TypedArraySchemas.u8({
-      description:
-        "Mask (1/0): shallow shelf water eligible for TERRAIN_COAST projection (deterministic, derived from Morphology truth).",
-    }),
     distanceToCoast: TypedArraySchemas.u16({
       description:
         "Minimum tile-graph distance to any coastline tile (0=coast), using wrapX=true and wrapY=false.",
@@ -69,7 +65,51 @@ const MorphologyCoastlineMetricsArtifactSchema = Type.Object(
   },
   {
     additionalProperties: false,
-    description: "Derived coastline metrics snapshot (Phase 2 schema; immutable at F2).",
+    description:
+      "CARVED coastline metrics snapshot (stage morphology-coasts; pre-island). The shelf and the post-island coastline live in artifact:morphology.shelf.",
+  }
+);
+
+const MorphologyShelfArtifactSchema = Type.Object(
+  {
+    shelfMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): continental-shelf water (margin-aware, depth-gated, shore-connected) eligible for TERRAIN_COAST projection. Derived from POST-island morphology truth so island peaks get shelves.",
+    }),
+    coastalLand: TypedArraySchemas.u8({
+      description: "Mask (1/0): POST-island land tiles adjacent to water.",
+    }),
+    coastalWater: TypedArraySchemas.u8({
+      description: "Mask (1/0): POST-island water tiles adjacent to land.",
+    }),
+    distanceToCoast: TypedArraySchemas.u16({
+      description: "POST-island minimum hex distance to the nearest coastline tile (0=coast).",
+    }),
+    activeMarginMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): water tiles treated as active margin (convergent/transform, high closeness) => shallower break.",
+    }),
+    depthGateMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): water tiles passing the per-tile depth gate (bathymetry >= break depth).",
+    }),
+    nearshoreCandidateMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): water tiles within breakDepthSampleRadius used to sample the break depth.",
+    }),
+    shelfBreakDepthByTile: TypedArraySchemas.i16({
+      description:
+        "Per-tile shelf-break depth (engine elevation units, <=0) after margin modulation; deeper => wider local shelf.",
+    }),
+    shallowCutoff: Type.Number({
+      description:
+        "Base shelf-break depth (engine elevation units, <=0): nearshore quantile before margin modulation.",
+    }),
+  },
+  {
+    additionalProperties: false,
+    description:
+      "Continental-shelf truth + post-island coastline metrics (stage morphology-shelf, after islands/mountains).",
   }
 );
 
@@ -319,6 +359,11 @@ export const morphologyArtifacts = {
     name: "coastlineMetrics",
     id: "artifact:morphology.coastlineMetrics",
     schema: MorphologyCoastlineMetricsArtifactSchema,
+  }),
+  shelf: defineArtifact({
+    name: "shelf",
+    id: "artifact:morphology.shelf",
+    schema: MorphologyShelfArtifactSchema,
   }),
   landmasses: defineArtifact({
     name: "landmasses",

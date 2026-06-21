@@ -1,10 +1,10 @@
 import { describe, expect, it } from "bun:test";
 import standardRecipe from "../../src/recipes/standard/recipe.js";
-import ruggedCoasts from "../../src/recipes/standard/stages/morphology-coasts/steps/ruggedCoasts.js";
+import computeShelf from "../../src/recipes/standard/stages/morphology-shelf/steps/computeShelf.js";
 import { standardConfig } from "../support/standard-config.js";
 
-describe("morphology-coasts shelfWidth knob", () => {
-  it("scales the cap-free break-depth lever (breakDepthScale) deterministically in rugged-coasts normalize", () => {
+describe("morphology-shelf shelfWidth knob", () => {
+  it("scales the cap-free break-depth lever (breakDepthScale) deterministically in compute-shelf normalize", () => {
     const base = (
       standardRecipe.compileConfig(
         {
@@ -14,7 +14,7 @@ describe("morphology-coasts shelfWidth knob", () => {
         },
         standardConfig
       ) as any
-    )["morphology-coasts"]?.["rugged-coasts"];
+    )["morphology-shelf"]?.["compute-shelf"];
     expect(base).toBeTruthy();
 
     const shelfMask = {
@@ -31,13 +31,13 @@ describe("morphology-coasts shelfWidth knob", () => {
     };
 
     // Wider shelf => deeper break => larger break-depth scale. Narrower => shallower => smaller.
-    const wide = (ruggedCoasts as any).normalize(
+    const wide = (computeShelf as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "wide" } }
     );
     expect(wide.shelfMask.config.breakDepthScale).toBeCloseTo(1.25);
 
-    const narrow = (ruggedCoasts as any).normalize(
+    const narrow = (computeShelf as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "narrow" } }
     );

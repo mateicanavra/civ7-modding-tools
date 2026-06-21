@@ -27,7 +27,7 @@ const AssignStartsStepContract = defineStep({
       morphologyArtifacts.landmasses,
       morphologyArtifacts.mountains,
       morphologyArtifacts.volcanoes,
-      morphologyArtifacts.coastlineMetrics,
+      morphologyArtifacts.shelf,
       hydrologyHydrographyArtifacts.hydrography,
       hydrologyHydrographyArtifacts.lakePlan,
       ecologyArtifacts.biomeClassification,
