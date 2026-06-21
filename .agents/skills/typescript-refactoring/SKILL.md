@@ -2,20 +2,18 @@
 name: typescript-refactoring
 description: |
   Use when refactoring, simplifying, or reducing complexity in TypeScript/JavaScript
-  code. Trigger phrases include "refactor this", "clean up this code", "reduce the
-  complexity", "this file/module is a mess", "fix this LLM slop", "simplify this",
-  "is this over-engineered?", "untangle this", "functional vs class here?",
-  "improve the structure/naming", "this is too abstract", and "review this TS for
-  quality". Owns the TypeScript substance: a code-smell catalog with detection
-  signals, safe compiler-gated refactoring mechanics, first-principles complexity
-  reduction (collapse the reachable-state space), the functions-vs-classes decision,
-  over-/under-engineering detection, and cleaning up arbitrarily-named, tangled,
-  structureless generated code. Defers WHAT good TypeScript looks like and target
-  patterns to dev:typescript; whether to refactor at all to cognition:solution-design;
-  module ownership/boundaries to cognition:domain-design; the test safety net to
-  cognition:testing-design; large target-state migrations to dev:architecture; and
-  public/exported surface contracts to dev:api-design. Not a language tutorial; not
-  a diff-scoped bug hunt (use /code-review for that).
+  code. Triggers: "refactor this", "clean up this code", "reduce the complexity",
+  "fix this LLM slop", "is this over-engineered?", "functional vs class here?",
+  "review this TS for quality". Owns: a code-smell catalog with detection signals,
+  compiler-gated refactoring mechanics, first-principles complexity reduction
+  (collapsing the reachable-state space), the functions-vs-classes decision,
+  over-/under-engineering detection, and cleanup of tangled, structureless generated
+  code. Defers to dev:typescript (what good TS and target patterns look like),
+  cognition:solution-design (whether to refactor at all), cognition:domain-design
+  (module ownership/boundaries), cognition:testing-design (the test safety net),
+  dev:architecture (large target-state migrations), and dev:api-design
+  (public/exported surface contracts). Not a language tutorial; not a diff-scoped bug
+  hunt (use /code-review).
 ---
 
 # TypeScript Refactoring — Thermonuclear Complexity Reduction
