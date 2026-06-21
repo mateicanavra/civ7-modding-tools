@@ -10,7 +10,7 @@ topology belong in the owning Habitat source domain, provider, or adapter.
 language js(typescript)
 
 `$body` where {
-  $filename <: r"^\.habitat/(rules|patterns|baselines)/.*\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$"
+  $filename <: r"^\.habitat/(?:rules|patterns|baselines)/.*\.(?:cjs|cts|js|jsx|mjs|mts|ts|tsx)$"
 }
 ```
 
@@ -31,7 +31,7 @@ export const managingCode = true;
 { "id": "probe" }
 
 // @filename: .habitat/patterns/checks/probe.md
-pattern text belongs here
+export const markdownFixtureParsesAsTypescript = "pattern text belongs here";
 
 // @filename: .habitat/baselines/probe.json
 []

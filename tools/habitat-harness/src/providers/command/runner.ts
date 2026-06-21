@@ -5,12 +5,13 @@ import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { PlatformError } from "@effect/platform/Error";
 import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
 import { HabitatConfig, makeHabitatConfig } from "../../config/index.js";
-import { CommandInterrupted, CommandUnavailable } from "../../errors/index.js";
 import { readGitState, unknownGitState } from "../../lib/git-state.js";
 import { currentTimeMillis, epochMillisToIsoString } from "../../resources/index.js";
+import { CommandInterrupted, CommandUnavailable } from "./errors.js";
 import { materializeHabitatCommandWithConfig } from "./materialize.js";
 import { makeCommandResultFromObservation } from "./output.js";
-import type { CommandRunnerService, HabitatCommandResult, HabitatProcessRequest } from "./types.js";
+import type { CommandRunnerService } from "./service.js";
+import type { HabitatCommandResult, HabitatProcessRequest } from "./types.js";
 
 export class CommandRunner extends Context.Tag("@internal/habitat-harness/CommandRunner")<
   CommandRunner,

@@ -5,7 +5,9 @@ level: error
 
 Habitat public surfaces and generic provider/service/runtime code stay
 product-neutral. Domain modules consume providers through public provider
-modules, not implementation internals.
+modules, not implementation internals. Provider-owned error classes stay with
+the provider that emits them; generic error buckets may aggregate but must not
+define or re-home provider failures.
 
 ```grit
 language js(typescript)
@@ -13,18 +15,19 @@ language js(typescript)
 or {
   import_statement(source=$source) where {
     $filename <: r"^tools/habitat-harness/src/public/.*\.tsx?$",
-    $source <: r"^\.\./(adapters|config|errors|lib|providers|runtime|rules)/"
+    $source <: r"^[\"']?\.\./(?:adapters|config|errors|lib|providers|runtime|rules)/"
   },
   import_statement(source=$source) where {
     $filename <: r"^tools/habitat-harness/src/public/.*\.tsx?$",
-    $source <: r"^\.\./domains/(?!structural-check/index\.js|workspace-graph-integration/index\.js|proof-contract/index\.js)"
+    $source <: r"^[\"']?\.\./domains/.+",
+    $source <: not r"^[\"']?\.\./domains/(?:structural-check/index\.js|workspace-graph-integration/index\.js|proof-contract/index\.js)[\"']?$"
   },
   import_statement(source=$source) where {
     $filename <: r"^tools/habitat-harness/src/domains/.*\.tsx?$",
-    $source <: r".*/providers/[^/]+/((errors|fake|materialize|observation|output|request|result|runner|spawn-result|types)\.js|(internal|live|private)/.+)"
+    $source <: r".*/providers/[^/]+/(?:(?:errors|fake|materialize|observation|output|request|result|runner|spawn-result|types)\.js|(?:internal|live|private)/.+)"
   },
-  `$body` where {
-    $filename <: r"^tools/habitat-harness/src/(config|providers|public|resources|runtime|service)/.*\.tsx?$",
+  program(statements=$body) where {
+    $filename <: r"^tools/habitat-harness/src/(?:config|providers|public|resources|runtime|service)/.*\.tsx?$",
     $text = text($body),
     or {
       $text <: includes "Civ7",
@@ -62,8 +65,17 @@ import { liveGit } from "../../providers/git/live/index.js";
 
 export const live = liveGit;
 
+// @filename: tools/habitat-harness/src/domains/check/fake.ts
+import type { GitFailure } from "../../providers/git/errors.js";
+
+export type Failure = GitFailure;
+
+// @filename: tools/habitat-harness/src/domains/check/register.ts
+import "../../providers/git/internal/register.js";
+
 // @filename: tools/habitat-harness/src/providers/generic/leak.ts
 export const product = "Civ7";
+
 ```
 
 ## Ignores fixture
@@ -80,6 +92,12 @@ export const provider = GitProvider;
 // @filename: tools/habitat-harness/src/public/check-report.ts
 export type { CheckReport } from "../domains/structural-check/index.js";
 
+// @filename: tools/habitat-harness/src/public/check-report.ts
+import type { CheckReport } from "../domains/structural-check/index.js";
+
+export type PublicCheckReport = CheckReport;
+
 // @filename: .habitat/rules/mapgen-rule/rule.json
 { "id": "product-specific-vocabulary-belongs-in-artifacts" }
+
 ```

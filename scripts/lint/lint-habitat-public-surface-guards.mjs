@@ -152,6 +152,7 @@ checkDeletedAdapters();
 checkLibRatchet();
 checkSourceEdges();
 checkSourceLanguage();
+checkCommandErrorOwnership();
 
 if (failures.length > 0) {
   console.error("=== Habitat Public Surface Guards ===");
@@ -270,6 +271,7 @@ function checkDeletedAdapters() {
     "tools/habitat-harness/src/lib/check-report.ts",
     "tools/habitat-harness/src/lib/diagnostics.ts",
     "tools/habitat-harness/src/domains/baseline-authority/integrity.ts",
+    "tools/habitat-harness/src/errors/domain-errors.ts",
   ]) {
     if (fileExists(file)) {
       fail("Removed public compatibility adapter returned.", [file]);
@@ -285,6 +287,50 @@ function checkLibRatchet() {
       "New Habitat feature/support files under src/lib require an owning domain/provider.",
       unapproved
     );
+  }
+}
+
+function checkCommandErrorOwnership() {
+  const commandErrorOwner = "tools/habitat-harness/src/providers/command/errors.ts";
+  const commandErrorNames = [
+    "CommandFailed",
+    "CommandInterrupted",
+    "CommandProviderError",
+    "CommandUnavailable",
+  ];
+  const commandErrorDefinitionPattern =
+    /export\s+(?:class\s+(?:CommandFailed|CommandInterrupted|CommandUnavailable)\b|type\s+CommandProviderError\s*=)/g;
+
+  for (const file of sourceFiles) {
+    const text = read(file);
+    if (file !== commandErrorOwner) {
+      checkAllowed(
+        file,
+        text,
+        commandErrorDefinitionPattern,
+        new Set([commandErrorOwner]),
+        "Command provider errors must be defined by the command provider."
+      );
+    }
+
+    if (
+      !file.startsWith(`${sourceRoot}/providers/`) &&
+      !file.startsWith(`${sourceRoot}/adapters/`)
+    ) {
+      continue;
+    }
+
+    const aggregateErrorImports = importsFrom(text, /["'][^"']*errors\/index\.js["']/);
+    const commandErrorLeaks = aggregateErrorImports.flatMap((entry) =>
+      commandErrorNames
+        .filter((name) => entry.specifier.includes(name))
+        .map((name) => `${file}:${entry.line}: ${name}`)
+    );
+    if (commandErrorLeaks.length > 0) {
+      fail("Provider and adapter modules must import command failures from the command provider.", [
+        ...commandErrorLeaks,
+      ]);
+    }
   }
 }
 
@@ -371,6 +417,15 @@ function checkSourceLanguage() {
       fail("Generic Habitat surfaces must not hard-code product vocabulary.", matches);
     }
   }
+}
+
+function importsFrom(text, sourcePattern) {
+  return [...text.matchAll(/import\s+(?:type\s+)?([\s\S]*?)\s+from\s+([^;\n]+);/g)]
+    .filter((match) => sourcePattern.test(match[2]))
+    .map((match) => ({
+      line: lineForIndex(text, match.index ?? 0),
+      specifier: match[1],
+    }));
 }
 
 function checkAllowed(file, text, pattern, allowedFiles, title) {

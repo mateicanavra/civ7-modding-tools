@@ -1,7 +1,6 @@
 import path from "node:path";
 import { ORPCError } from "@orpc/server";
-import { Effect } from "effect";
-import { JsonParseFailed } from "../../../errors/index.js";
+import { Data, Effect } from "effect";
 import {
   NxProvider,
   spawnResultFromCommandProviderError,
@@ -10,6 +9,11 @@ import {
 import { acquireTempDirectory, readText } from "../../../resources/index.js";
 import type { GraphServiceRunInput } from "./contract.js";
 import { module as graphModule } from "./module.js";
+
+class GraphJsonParseFailed extends Data.TaggedError("GraphJsonParseFailed")<{
+  readonly path: string;
+  readonly cause: string;
+}> {}
 
 export const graphRouter = {
   run: graphModule.run.effect(({ input }) => runGraphService(input)),
@@ -50,7 +54,7 @@ function parseGraphJson(graphPath: string, graphText: string) {
   return Effect.try({
     try: () => JSON.parse(graphText) as unknown,
     catch: (cause) =>
-      new JsonParseFailed({
+      new GraphJsonParseFailed({
         path: graphPath,
         cause: cause instanceof Error ? cause.message : String(cause),
       }),
