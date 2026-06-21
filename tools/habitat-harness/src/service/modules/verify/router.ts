@@ -14,7 +14,7 @@ import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/
 import { epochMillisToIsoString } from "@internal/habitat-harness/substrate/resources/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
-import { module as verifyModule } from "./module.js";
+import { verifyModule } from "./context.js";
 
 export const verifyRouter = {
   run: verifyModule.run.effect(({ input }) =>

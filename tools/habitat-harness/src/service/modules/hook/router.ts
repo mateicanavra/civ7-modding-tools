@@ -64,12 +64,15 @@ import {
   GraphiteProvider,
   type GraphiteProviderRequirements,
 } from "@internal/habitat-harness/substrate/providers/graphite/index";
+import type {
+  GritProvider,
+  GritProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
 import { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/substrate/providers/nx/targets";
 import { Effect } from "effect";
-import type { HookServiceOptions } from "./context.js";
+import { type HookServiceModuleContext, hookModule } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
-import { module as hookModule } from "./module.js";
 
 type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {
@@ -89,6 +92,8 @@ type HookCheckRequirements =
   | FileSystem.FileSystem
   | GitProvider
   | GitProviderRequirements
+  | GritProvider
+  | GritProviderRequirements
   | GraphiteProvider
   | GraphiteProviderRequirements
   | StructuralCheck;
@@ -131,12 +136,15 @@ type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export const hookRouter = {
-  run: hookModule.run.effect(({ context, input }) => runHookService(input, context.hook)),
+  run: hookModule.run.effect(({ context, input }) => runHookService(input, context)),
 };
 
 export const router = hookRouter;
 
-export function runHookService(input: HookServiceRunInput = {}, options: HookServiceOptions = {}) {
+export function runHookService(
+  input: HookServiceRunInput = {},
+  options: HookServiceModuleContext = {}
+) {
   if (input.name === "pre-push") {
     const runtime = options.runtime ?? {};
     return Effect.gen(function* () {

@@ -2,7 +2,7 @@ import { Data } from "effect";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 
-const GritAdapterFailureTagLiteralSchemas = [
+const GritProviderFailureTagLiteralSchemas = [
   Type.Literal("GritToolUnavailable"),
   Type.Literal("GritCommandFailed"),
   Type.Literal("GritNoJson"),
@@ -13,17 +13,17 @@ const GritAdapterFailureTagLiteralSchemas = [
   Type.Literal("GritPatternMatchMissing"),
   Type.Literal("GritUnexpectedDiagnosticIdentity"),
   Type.Literal("GritCacheProvenanceMissing"),
-  Type.Literal("GritAdapterInternalContractViolation"),
+  Type.Literal("GritProviderInternalContractViolation"),
 ] as const;
 
-export const GritAdapterFailureTagSchema = Type.Union([...GritAdapterFailureTagLiteralSchemas]);
+export const GritProviderFailureTagSchema = Type.Union([...GritProviderFailureTagLiteralSchemas]);
 
-export type GritAdapterFailureTag = Static<typeof GritAdapterFailureTagSchema>;
+export type GritProviderFailureTag = Static<typeof GritProviderFailureTagSchema>;
 
-export const gritAdapterFailureTags: readonly GritAdapterFailureTag[] =
-  GritAdapterFailureTagLiteralSchemas.map((schema) => schema.const as GritAdapterFailureTag);
+export const gritProviderFailureTags: readonly GritProviderFailureTag[] =
+  GritProviderFailureTagLiteralSchemas.map((schema) => schema.const as GritProviderFailureTag);
 
-export interface GritAdapterFailureFields {
+export interface GritProviderFailureFields {
   readonly detail: string;
   readonly commandId?: string;
   readonly executable?: string;
@@ -33,7 +33,7 @@ export interface GritAdapterFailureFields {
   readonly path?: string;
 }
 
-export type GritAdapterFailure =
+export type GritProviderFailure =
   | GritToolUnavailable
   | GritCommandFailed
   | GritNoJson
@@ -44,7 +44,7 @@ export type GritAdapterFailure =
   | GritPatternMatchMissing
   | GritUnexpectedDiagnosticIdentity
   | GritCacheProvenanceMissing
-  | GritAdapterInternalContractViolation;
+  | GritProviderInternalContractViolation;
 
 export class GritToolUnavailable extends Data.TaggedError("GritToolUnavailable")<{
   readonly commandId: string;
@@ -56,37 +56,37 @@ export class GritToolUnavailable extends Data.TaggedError("GritToolUnavailable")
 
 export class GritCommandFailed extends Data.TaggedError(
   "GritCommandFailed"
-)<GritAdapterFailureFields> {}
-export class GritNoJson extends Data.TaggedError("GritNoJson")<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
+export class GritNoJson extends Data.TaggedError("GritNoJson")<GritProviderFailureFields> {}
 export class GritMalformedJson extends Data.TaggedError(
   "GritMalformedJson"
-)<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
 export class GritSchemaDrift extends Data.TaggedError(
   "GritSchemaDrift"
-)<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
 export class GritUnexpectedResultShape extends Data.TaggedError(
   "GritUnexpectedResultShape"
-)<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
 export class GritEmptyScanRoots extends Data.TaggedError(
   "GritEmptyScanRoots"
-)<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
 export class GritPatternMatchMissing extends Data.TaggedError(
   "GritPatternMatchMissing"
-)<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
 export class GritUnexpectedDiagnosticIdentity extends Data.TaggedError(
   "GritUnexpectedDiagnosticIdentity"
-)<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
 export class GritCacheProvenanceMissing extends Data.TaggedError(
   "GritCacheProvenanceMissing"
-)<GritAdapterFailureFields> {}
-export class GritAdapterInternalContractViolation extends Data.TaggedError(
-  "GritAdapterInternalContractViolation"
-)<GritAdapterFailureFields> {}
+)<GritProviderFailureFields> {}
+export class GritProviderInternalContractViolation extends Data.TaggedError(
+  "GritProviderInternalContractViolation"
+)<GritProviderFailureFields> {}
 
-export function createGritAdapterFailure(
-  tag: GritAdapterFailureTag,
-  fields: GritAdapterFailureFields
-): GritAdapterFailure {
+export function createGritProviderFailure(
+  tag: GritProviderFailureTag,
+  fields: GritProviderFailureFields
+): GritProviderFailure {
   switch (tag) {
     case "GritToolUnavailable":
       return new GritToolUnavailable({
@@ -114,18 +114,18 @@ export function createGritAdapterFailure(
       return new GritUnexpectedDiagnosticIdentity(fields);
     case "GritCacheProvenanceMissing":
       return new GritCacheProvenanceMissing(fields);
-    case "GritAdapterInternalContractViolation":
-      return new GritAdapterInternalContractViolation(fields);
+    case "GritProviderInternalContractViolation":
+      return new GritProviderInternalContractViolation(fields);
   }
 }
 
-export function isGritAdapterFailureTag(value: string): value is GritAdapterFailureTag {
-  return Value.Check(GritAdapterFailureTagSchema, value);
+export function isGritProviderFailureTag(value: string): value is GritProviderFailureTag {
+  return Value.Check(GritProviderFailureTagSchema, value);
 }
 
-export function renderGritAdapterFailure(
-  tag: GritAdapterFailureTag,
-  detail = "Grit adapter failed before producing rule findings."
+export function renderGritProviderFailure(
+  tag: GritProviderFailureTag,
+  detail = "Grit provider failed before producing rule findings."
 ): string {
-  return `--- grit adapter failure (${tag}) ---\n${detail}`;
+  return `--- grit provider failure (${tag}) ---\n${detail}`;
 }

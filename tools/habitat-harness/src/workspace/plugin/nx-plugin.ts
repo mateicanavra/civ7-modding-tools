@@ -48,9 +48,9 @@ const harnessInternalBoundaryProjects = [
     tags: ["kind:tooling", "habitat:substrate"],
   },
   {
-    name: "@internal/habitat-harness-adapters",
-    root: "tools/habitat-harness/src/adapters",
-    tags: ["kind:tooling", "habitat:adapter"],
+    name: "@internal/habitat-harness-providers",
+    root: "tools/habitat-harness/src/substrate/providers",
+    tags: ["kind:tooling", "habitat:provider"],
   },
   {
     name: "@internal/habitat-harness-core",
@@ -251,6 +251,11 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   if (rule.ownerTool === "source-check") {
     inputs.add(workspaceInput(sourceCheckRuleRuntimeRepoPath));
     inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
+    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
+    if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
+  }
+  if (rule.ownerTool === "grit-check") {
+    inputs.add(workspaceInput(`.habitat/patterns/checks/${rule.patternName}.md`));
     for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }

@@ -1,9 +1,9 @@
 import {
-  type DiagnosticAdapterFailureKind,
-  DiagnosticAdapterFailureKindSchema,
   type DiagnosticCacheRequirement,
   DiagnosticCommandObservationSchema,
   DiagnosticCompletedCommandObservationSchema,
+  type DiagnosticProviderFailureKind,
+  DiagnosticProviderFailureKindSchema,
   DiagnosticScanRootRefusalSchema,
   diagnosticCacheRequirementForGritCheck,
   diagnosticCommandObservationFromResult,
@@ -23,7 +23,7 @@ import {
   type GritResult,
   type GritWireReport,
   GritWireReportSchema,
-} from "./provider/types.js";
+} from "./types.js";
 
 export const GritDiagnosticAcquisitionSchema = Type.Union([
   Type.Object(
@@ -38,9 +38,9 @@ export const GritDiagnosticAcquisitionSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("adapter-failed"),
+      kind: Type.Literal("provider-failed"),
       request: NativeGritCheckRequestSchema,
-      failure: DiagnosticAdapterFailureKindSchema,
+      failure: DiagnosticProviderFailureKindSchema,
       parseStatus: GritParseFailureStatusSchema,
       message: Type.String(),
       command: DiagnosticCommandObservationSchema,
@@ -157,7 +157,7 @@ export function parseGritCheckOutput(
       commandResult,
       cacheRequirement,
       request,
-      "GritAdapterInternalContractViolation",
+      "GritProviderInternalContractViolation",
       "unsupported-mode",
       `Grit ${truncated.stream} output exceeded the parser capture limit.`
     );
@@ -290,12 +290,12 @@ function parseFailure(
   commandResult: HabitatCommandResult,
   cacheRequirement: DiagnosticCacheRequirement,
   request: NativeGritCheckRequest,
-  failure: DiagnosticAdapterFailureKind,
+  failure: DiagnosticProviderFailureKind,
   parseStatus: GritParseFailureStatus,
   message: string
 ): GritDiagnosticAcquisition {
   return {
-    kind: "adapter-failed",
+    kind: "provider-failed",
     request,
     failure,
     parseStatus,

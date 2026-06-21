@@ -1,16 +1,8 @@
 import { Context } from "effect";
-import type { ClassifyServiceContext } from "./modules/classify/context.js";
-import type { FixServiceContext } from "./modules/fix/context.js";
-import type { HookServiceContext } from "./modules/hook/context.js";
-import type { TransactionsServiceContext } from "./modules/transactions/context.js";
 
-export interface HabitatServiceContext
-  extends ClassifyServiceContext,
-    FixServiceContext,
-    HookServiceContext,
-    TransactionsServiceContext {
-  readonly correlationId?: string;
-}
+// TODO: base and context are the same thing. either call it base or call it context, but all goes in one place -- its the service definition part, before it's wired in the implementer file
+
+export type { HabitatServiceContext } from "./context.js";
 
 export class HabitatServiceRuntime extends Context.Tag(
   "@internal/habitat-harness/HabitatServiceRuntime"

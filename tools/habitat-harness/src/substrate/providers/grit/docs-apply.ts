@@ -4,79 +4,15 @@ import {
   renderDiagnosticScanRootRefusal,
 } from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
-import type { RuleRunResult } from "@internal/habitat-harness/core/rules/architecture";
-import { Effect, type Layer } from "effect";
-import { runGritAdapterEffect } from "./effect.js";
-import { infrastructureFailure } from "./failure.js";
-import { docsLocalCheckoutPathsRewritePattern } from "./provider/constants.js";
-import { GritProvider, type GritProviderRequirements } from "./provider/index.js";
+import { Effect } from "effect";
+import { docsLocalCheckoutPathsRewritePattern } from "./constants.js";
+import { GritProvider, type GritProviderRequirements } from "./resource.js";
 import {
   decidePatternScanRoots,
   normalizeGritPath,
   selectedScanRootsForRules,
   sortedUnique,
 } from "./scan-roots/index.js";
-
-export async function runDocsApplyBackedGritRules(
-  selectedRules: readonly RuleSourceFacts[],
-  options: {
-    scanRoots?: readonly string[];
-    providerLayer?: Layer.Layer<GritProvider>;
-  }
-): Promise<Map<string, RuleRunResult>> {
-  const outcomes = await runGritAdapterEffect(
-    runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options),
-    options.providerLayer
-  );
-  return new Map(
-    selectedRules.map((rule) => {
-      const outcome = outcomes.get(rule.id);
-      if (!outcome) return [rule.id, infrastructureFailure(rule, "GritPatternMatchMissing")];
-      switch (outcome.kind) {
-        case "clean":
-          return [rule.id, { exitCode: 0, diagnostics: [] }];
-        case "findings":
-          return [
-            rule.id,
-            {
-              exitCode: 1,
-              diagnostics: outcome.diagnostics.map((diagnostic) => ({
-                ruleId: diagnostic.ruleId,
-                path: diagnostic.path,
-                line: diagnostic.line,
-                message: diagnostic.message,
-                severity: diagnostic.severity,
-                baselined: diagnostic.baselineState !== "unbaselined",
-              })),
-            },
-          ];
-        case "scan-root-refused":
-          return [rule.id, infrastructureFailure(rule, "GritEmptyScanRoots", outcome.detail)];
-        case "adapter-failed":
-          return [rule.id, infrastructureFailure(rule, outcome.failure, outcome.detail)];
-        case "cache-observation-missing":
-          return [rule.id, infrastructureFailure(rule, outcome.failure, outcome.detail)];
-        case "identity-missing":
-          return [rule.id, infrastructureFailure(rule, "GritPatternMatchMissing")];
-        case "unexpected-diagnostic-identity":
-          return [rule.id, infrastructureFailure(rule, "GritUnexpectedDiagnosticIdentity")];
-      }
-    })
-  );
-}
-
-export async function runDocsApplyBackedDiagnosticOutcomes(
-  selectedRules: readonly RuleSourceFacts[],
-  options: {
-    scanRoots?: readonly string[];
-    providerLayer?: Layer.Layer<GritProvider>;
-  }
-): Promise<Map<string, DiagnosticRunOutcome>> {
-  return runGritAdapterEffect(
-    runDocsApplyBackedDiagnosticOutcomesEffect(selectedRules, options),
-    options.providerLayer
-  );
-}
 
 export function runDocsApplyBackedDiagnosticOutcomesEffect(
   selectedRules: readonly RuleSourceFacts[],
@@ -113,14 +49,14 @@ export function runDocsApplyBackedDiagnosticOutcomesEffect(
   return docsApplyDryRunProgram(scanRoots).pipe(
     Effect.match({
       onFailure: (error) =>
-        adapterFailedOutcomes(
+        providerFailedOutcomes(
           selectedRules,
           "GritToolUnavailable",
           error instanceof Error ? error.message : "Grit executable unavailable."
         ),
       onSuccess: (commandResult) => {
         if (commandResult.exit.code !== 0 || commandResult.exit.interrupted) {
-          return adapterFailedOutcomes(
+          return providerFailedOutcomes(
             selectedRules,
             "GritCommandFailed",
             `Grit docs rewrite dry-run exited ${commandResult.exit.code}.`
@@ -177,7 +113,7 @@ function docsApplyDryRunProgram(scanRoots: readonly string[]) {
   );
 }
 
-function adapterFailedOutcomes(
+function providerFailedOutcomes(
   selectedRules: readonly RuleSourceFacts[],
   failure: "GritToolUnavailable" | "GritCommandFailed",
   detail: string
@@ -186,7 +122,7 @@ function adapterFailedOutcomes(
     selectedRules.map((rule) => [
       rule.id,
       {
-        kind: "adapter-failed",
+        kind: "provider-failed",
         entry: nativeDiagnosticEntry(rule),
         failure,
         detail,

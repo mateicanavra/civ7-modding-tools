@@ -51,5 +51,5 @@ or provider errors. Domain services consume provider data and decide Habitat
 outcomes.
 
 Vendor-providers creates provider contracts, fake/live Layers, and pure
-command/output parsing only. It does not drain `src/adapters/grit/**` and does
+command/output parsing only. It does not drain `src/substrate/providers/grit/**` and does
 not own apply/write transaction policy.

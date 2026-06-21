@@ -59,10 +59,10 @@ not a mirror of every source folder.
 
 | Tag | Definition |
 |---|---|
-| `habitat:substrate` | Effect substrate: config, typed errors, resources, basic path helpers, and generic providers for filesystem, time, command execution, Git, Nx, Biome, Husky, and reporting. |
-| `habitat:adapter` | Vendor adapter modules that translate Habitat domains into external tool behavior without owning service orchestration or host entrypoints. |
+| `habitat:substrate` | Effect substrate primitives: config, typed errors, resources, basic path helpers, and runtime assembly over provider resources. |
+| `habitat:provider` | Explicit vendor/tool capabilities for command execution, Git, Graphite, Grit, Nx, Biome, Husky, reporting, filesystem, and time. Providers expose Effect resources/layers and translate vendor behavior without owning host entrypoints. |
 | `habitat:core` | Habitat domain model and policies: rule registry, source checks, structural checks, graph routing, transactions, and public contract guards. |
-| `habitat:service` | Effect/oRPC service routers that orchestrate core domains and adapters and own the live Habitat application layer. |
+| `habitat:service` | Effect/oRPC service routers that orchestrate core domains and provider capabilities and own the live Habitat application layer. |
 | `habitat:workspace` | Nx plugin, generators, and workspace taxonomy code that materialize Habitat structure into repository tooling. |
 | `habitat:host` | CLI commands, bin entrypoints, and public package facade at the top of Habitat's internal graph. |
 
@@ -97,7 +97,7 @@ not a mirror of every source folder.
 | @internal/habitat-artifacts | `.habitat` | `kind:tooling` |
 | @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
 | @internal/habitat-harness-substrate | `tools/habitat-harness/src/substrate` | `kind:tooling`, `habitat:substrate` |
-| @internal/habitat-harness-adapters | `tools/habitat-harness/src/adapters` | `kind:tooling`, `habitat:adapter` |
+| @internal/habitat-harness-providers | `tools/habitat-harness/src/substrate/providers` | `kind:tooling`, `habitat:provider` |
 | @internal/habitat-harness-core | `tools/habitat-harness/src/core` | `kind:tooling`, `habitat:core` |
 | @internal/habitat-harness-service | `tools/habitat-harness/src/service` | `kind:tooling`, `habitat:service` |
 | @internal/habitat-harness-workspace | `tools/habitat-harness/src/workspace` | `kind:tooling`, `habitat:workspace` |
@@ -123,11 +123,11 @@ owned by their Grit/file-layer rules.
 | `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:control`, `kind:plugin` | mods consume SDK/engine/adapter/policy/control and plugin utilities needed for mod package workflows |
 | `kind:app` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin`, `kind:control`, `kind:mod`, `kind:tooling` | apps are top of the graph; nothing imports apps or the workspace root |
 | `kind:tooling` | `kind:tooling`, `kind:foundation` | harness stays out of product graph |
-| `habitat:substrate` | `habitat:substrate` | substrate is the leaf layer for Effect resources, config, typed errors, and generic providers |
-| `habitat:adapter` | `habitat:substrate`, `habitat:core`, `habitat:adapter` | adapters may translate core rule facts into vendor-specific provider work, but stay below services and host commands |
-| `habitat:core` | `habitat:substrate`, `habitat:core` | Habitat domains consume substrate capabilities and may collaborate with peer domains, but do not depend on adapters, services, workspace plugin code, or host commands |
-| `habitat:service` | `habitat:substrate`, `habitat:core`, `habitat:adapter`, `habitat:service` | service routers orchestrate core domains and adapters and own the full live application layer |
-| `habitat:workspace` | `habitat:substrate`, `habitat:core`, `habitat:workspace` | Nx plugin and generators consume domain metadata and substrate paths/providers without calling service routers or host commands |
+| `habitat:substrate` | `habitat:substrate`, `habitat:provider` | substrate owns Effect primitives and the low-level runtime assembly that provisions provider resources; provider modules still remain below core, service, workspace, and host |
+| `habitat:provider` | `habitat:substrate`, `habitat:core`, `habitat:provider` | providers own external tool/resource integration and may translate core rule facts into vendor-specific requests, but stay below services, workspace plugin code, and host commands |
+| `habitat:core` | `habitat:substrate`, `habitat:provider`, `habitat:core` | Habitat domains consume substrate and provider capabilities and may collaborate with peer domains, but do not depend on services, workspace plugin code, or host commands |
+| `habitat:service` | `habitat:substrate`, `habitat:provider`, `habitat:core`, `habitat:service` | service routers orchestrate core domains and provider capabilities and own the full live application layer |
+| `habitat:workspace` | `habitat:substrate`, `habitat:provider`, `habitat:core`, `habitat:workspace` | Nx plugin and generators consume domain metadata and substrate/provider facts without calling service routers or host commands |
 | `habitat:host` | `habitat:core`, `habitat:service`, `habitat:workspace`, `habitat:host` | CLI/bin/public facade is the top of Habitat's internal graph |
 
 Dual-tagged projects (`mod-civ7-intelligence-bridge`: `kind:mod` +

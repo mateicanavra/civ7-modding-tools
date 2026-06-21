@@ -2,6 +2,7 @@ import type {
   RuleBaselineFacts,
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
+  RuleGritFacts,
   RuleHookCheckFacts,
   RuleManifestFacts,
   RuleRegistryRecordV1,
@@ -22,6 +23,7 @@ type RoutingRecordInput = Pick<
 >;
 type BaselineRecordInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath">;
 type SourceRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "source-check" }>;
+type GritRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
 type ManifestRecordInput = SourceRecordInput & { manifestPath: string };
 type FileLayerRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
 type CommandRecordInput = Extract<
@@ -30,7 +32,7 @@ type CommandRecordInput = Extract<
     ownerTool: "command-check" | "format-check" | "habitat" | "nx";
   }
 >;
-type HookCheckRecordInput = SourceRecordInput & { hookCheck: true };
+type HookCheckRecordInput = (SourceRecordInput | GritRecordInput) & { hookCheck: true };
 
 export function ruleSelectorFacts(records: readonly SelectorRecordInput[]): RuleSelectorFacts[] {
   return records.map((rule) => ({
@@ -74,6 +76,23 @@ export function ruleBaselineFacts(records: readonly BaselineRecordInput[]): Rule
 export function ruleSourceFacts(records: readonly RuleRegistryRecordV1[]): RuleSourceFacts[] {
   return records
     .filter((rule): rule is SourceRecordInput => rule.ownerTool === "source-check")
+    .map((rule) => ({
+      id: rule.id,
+      lane: rule.lane,
+      message: rule.message,
+      patternName: rule.patternName,
+      pathCoverage: rule.pathCoverage.map((coverage) =>
+        coverage.kind === "exact-path"
+          ? { kind: coverage.kind, patterns: [...coverage.patterns] }
+          : { ...coverage }
+      ),
+      scanRoots: [...rule.scanRoots],
+    }));
+}
+
+export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGritFacts[] {
+  return records
+    .filter((rule): rule is GritRecordInput => rule.ownerTool === "grit-check")
     .map((rule) => ({
       id: rule.id,
       lane: rule.lane,

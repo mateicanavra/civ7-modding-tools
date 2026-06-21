@@ -1,12 +1,10 @@
-import type { GritProvider } from "@internal/habitat-harness/adapters/grit/provider/index";
 import type { ApplyTransactionInput } from "@internal/habitat-harness/core/domains/pattern-governance/index";
-import type { Layer } from "effect";
+import { habitatServiceImplementer } from "../../impl.js";
 
-export interface TransactionsServiceContext {
-  readonly transactions?: TransactionsServiceOptions;
-}
-
-export interface TransactionsServiceOptions {
-  readonly providerLayer?: Layer.Layer<GritProvider>;
+export interface TransactionsServiceModuleContext {
   readonly transactionInputs?: readonly ApplyTransactionInput[];
 }
+
+export const transactionsModule = habitatServiceImplementer.transactions.use(({ context, next }) =>
+  next({ context: context.transactions ?? {} })
+);

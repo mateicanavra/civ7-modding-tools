@@ -7,6 +7,7 @@ const RuleIdentitySchema = Type.Object(
     ownerTool: Type.Union([
       Type.Literal("format-check"),
       Type.Literal("file-layer"),
+      Type.Literal("grit-check"),
       Type.Literal("habitat"),
       Type.Literal("source-check"),
       Type.Literal("command-check"),
@@ -135,6 +136,18 @@ export const SourceCheckRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+export const GritCheckRuleRegistryRecordV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataSchema],
+  {
+    ownerTool: Type.Literal("grit-check"),
+    patternName: Type.String({ minLength: 1 }),
+    scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
+    hookCheck: Type.Optional(HookCheckSchema),
+    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
 const GeneratedZoneFileLayerRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
@@ -165,6 +178,7 @@ const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
 export const RuleRegistryRecordV1Schema = Type.Union([
   CommandRuleRegistryRecordV1Schema,
   NxRuleRegistryRecordV1Schema,
+  GritCheckRuleRegistryRecordV1Schema,
   SourceCheckRuleRegistryRecordV1Schema,
   GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
   ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,
@@ -262,6 +276,15 @@ export const RuleSourceFactsSchema = Type.Pick(SourceCheckRuleRegistryRecordV1Sc
   "scanRoots",
 ]);
 
+export const RuleGritFactsSchema = Type.Pick(GritCheckRuleRegistryRecordV1Schema, [
+  "id",
+  "lane",
+  "message",
+  "patternName",
+  "pathCoverage",
+  "scanRoots",
+]);
+
 export const RuleManifestFactsSchema = Type.Interface(
   [Type.Pick(SourceCheckRuleRegistryRecordV1Schema, ["id", "lane", "patternName"])],
   {
@@ -295,7 +318,12 @@ export const RuleFileLayerFactsSchema = Type.Union([
 ]);
 
 export const RuleHookCheckFactsSchema = Type.Interface(
-  [Type.Pick(SourceCheckRuleRegistryRecordV1Schema, ["id"])],
+  [
+    Type.Union([
+      Type.Pick(SourceCheckRuleRegistryRecordV1Schema, ["id"]),
+      Type.Pick(GritCheckRuleRegistryRecordV1Schema, ["id"]),
+    ]),
+  ],
   {
     hookCheck: HookCheckSchema,
   },
@@ -312,6 +340,7 @@ export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
 export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
 export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
 export type RuleSourceFacts = Static<typeof RuleSourceFactsSchema>;
+export type RuleGritFacts = Static<typeof RuleGritFactsSchema>;
 export type RuleManifestFacts = Static<typeof RuleManifestFactsSchema>;
 export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
 export type RuleHookCheckFacts = Static<typeof RuleHookCheckFactsSchema>;

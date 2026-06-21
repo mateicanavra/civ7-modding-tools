@@ -255,7 +255,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
         ok: false,
         status: "fail",
         diagnosticMessage:
-          "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+          "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
       }),
     });
 
@@ -368,7 +368,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
         ok: false,
         status: "fail",
         diagnosticMessage:
-          "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+          "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
       }),
     });
 
@@ -395,7 +395,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
         ok: false,
         status: "fail",
         diagnosticMessage:
-          "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
+          "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
       }),
     });
 

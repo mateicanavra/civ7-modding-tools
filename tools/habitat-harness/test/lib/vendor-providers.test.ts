@@ -1,7 +1,3 @@
-import {
-  GritProvider,
-  makeFakeGritProviderLayer,
-} from "@internal/habitat-harness/adapters/grit/provider/index";
 import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   BiomeProvider,
@@ -21,6 +17,10 @@ import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
 } from "@internal/habitat-harness/substrate/providers/graphite/index";
+import {
+  GritProvider,
+  makeFakeGritProviderLayer,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
 import { huskyDelegator } from "@internal/habitat-harness/substrate/providers/husky/index";
 import {
   affectedArgv,

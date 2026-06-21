@@ -1,4 +1,3 @@
-import { GritProvider } from "@internal/habitat-harness/adapters/grit/provider/index";
 import {
   type GritDryRunCommandInput,
   type PatternApplyRecord,
@@ -16,14 +15,14 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/substrate/providers/command/index";
+import { GritProvider } from "@internal/habitat-harness/substrate/providers/grit/index";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
-import type { TransactionsServiceOptions } from "./context.js";
-import { module as transactionsModule } from "./module.js";
+import { type TransactionsServiceModuleContext, transactionsModule } from "./context.js";
 
 export const transactionsRouter = {
   apply: transactionsModule.apply.effect(({ context, input }) =>
-    runTransactionApplyService(input, context.transactions)
+    runTransactionApplyService(input, context)
   ),
 };
 
@@ -31,7 +30,7 @@ export const router = transactionsRouter;
 
 export function runTransactionApplyService(
   input: unknown,
-  options: TransactionsServiceOptions = {}
+  options: TransactionsServiceModuleContext = {}
 ) {
   return Effect.gen(function* () {
     const request = parsePatternApplyRequest(input);
@@ -227,13 +226,11 @@ function pathInRoot(candidate: string, root: string): boolean {
 
 function runDryRunCommands(
   commands: readonly GritDryRunCommandInput[],
-  options: TransactionsServiceOptions
+  _options: TransactionsServiceModuleContext
 ) {
-  const program = Effect.forEach(commands, (command) => runDryRunCommand(command), {
+  return Effect.forEach(commands, (command) => runDryRunCommand(command), {
     concurrency: 1,
   });
-
-  return options.providerLayer ? program.pipe(Effect.provide(options.providerLayer)) : program;
 }
 
 function runDryRunCommand(input: GritDryRunCommandInput) {

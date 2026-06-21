@@ -7,7 +7,7 @@ import {
 import { decideScanRootProtection } from "@internal/habitat-harness/core/domains/protected-zones/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
-import { protectedScanRootPrefixes } from "../provider/constants.js";
+import { protectedScanRootPrefixes } from "../constants.js";
 
 export interface PatternScanRootValidationOptions {
   requireExisting?: boolean;

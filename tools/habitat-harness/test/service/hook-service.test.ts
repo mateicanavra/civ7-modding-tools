@@ -299,7 +299,7 @@ describe("Habitat hook service", () => {
   test("runs pre-push source checks over changed hook source paths", async () => {
     const fake = makePrePushRuntime();
     const checkRequests: CheckOptions[] = [];
-    const changedPath = "tools/habitat-harness/src/adapters/grit/runner.ts";
+    const changedPath = "packages/sdk/src/index.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },

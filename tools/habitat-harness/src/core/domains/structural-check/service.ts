@@ -7,6 +7,10 @@ import type {
   GitProvider,
   GitProviderRequirements,
 } from "@internal/habitat-harness/substrate/providers/git/index";
+import type {
+  GritProvider,
+  GritProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
 import type { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Context, Effect, Layer } from "effect";
 import type { RuleSelection } from "../../domains/rule-selection/index.js";
@@ -34,6 +38,8 @@ export interface StructuralCheckService {
     | FileSystem.FileSystem
     | GitProvider
     | GitProviderRequirements
+    | GritProvider
+    | GritProviderRequirements
   >;
   readonly expandBaselines: (
     selection?: RuleSelection,
@@ -51,6 +57,8 @@ export interface StructuralCheckService {
     | FileSystem.FileSystem
     | GitProvider
     | GitProviderRequirements
+    | GritProvider
+    | GritProviderRequirements
   >;
 }
 

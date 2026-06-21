@@ -106,9 +106,9 @@ Implemented diagnostic/check state:
 - shared source-check helper runtime under
   `tools/habitat-harness/src/core/domains/source-check/rule-runtime.mjs`;
 - fixture tests for pattern validity;
-- adapter normalization over machine JSON output;
+- Grit provider normalization over machine JSON output;
 - cache/failure handling tests;
-- Effect-backed process boundary for the pattern adapter.
+- Effect-backed process boundary for the Grit provider.
 
 Implemented apply state:
 
@@ -157,7 +157,7 @@ Current tests cover:
 - rule selection;
 - baselines and baseline integrity;
 - classification;
-- pattern adapter behavior;
+- Grit provider behavior;
 - Habitat apply transaction behavior;
 - generated/protected zones;
 - hooks;

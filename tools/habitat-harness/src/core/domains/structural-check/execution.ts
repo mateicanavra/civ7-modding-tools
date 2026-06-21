@@ -27,6 +27,11 @@ import {
   type GitStateProvider,
 } from "@internal/habitat-harness/substrate/providers/git/index";
 import {
+  GritProvider,
+  type GritProviderRequirements,
+  runGritRulesEffect,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
+import {
   NxProvider,
   type NxProviderService,
   spawnResultFromCommandResult,
@@ -36,6 +41,7 @@ import {
   activeRuleCommandExecutionFacts,
   activeRuleFileLayerFacts,
   activeRuleGraphFacts,
+  activeRuleGritFacts,
   activeRuleHookCheckFacts,
   activeRuleSourceFacts,
   factsForRuleIds,
@@ -79,10 +85,20 @@ export function rulesForExecution(
     : [...selectedRules];
   if (!options.hookCheck) return rules;
   const hookRuleIds = new Set(activeRuleHookCheckFacts.map((rule) => rule.id));
-  return rules.filter((rule) => rule.ownerTool !== "source-check" || hookRuleIds.has(rule.id));
+  return rules.filter(
+    (rule) =>
+      (rule.ownerTool !== "source-check" && rule.ownerTool !== "grit-check") ||
+      hookRuleIds.has(rule.id)
+  );
 }
 
-const defaultLocalRuleTools = new Set(["command-check", "file-layer", "habitat", "source-check"]);
+const defaultLocalRuleTools = new Set([
+  "command-check",
+  "file-layer",
+  "grit-check",
+  "habitat",
+  "source-check",
+]);
 
 function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?: boolean }) {
   if (options.staged) return false;
@@ -131,6 +147,8 @@ export function executeSelectedRulesEffect(
   | CommandRunner
   | NxProvider
   | CommandExecutor
+  | GritProvider
+  | GritProviderRequirements
   | SourceCheck
   | HabitatConfig
   | FileSystem.FileSystem
@@ -169,6 +187,38 @@ export function executeSelectedRulesEffect(
               result,
               durationMs,
               timing: sharedExecutionTiming("source-check:source-rules", durationMs, sourceRules),
+              disposition: { kind: "executed", durationMs },
+            });
+          }
+        }
+      }
+    }
+
+    const gritRules = factsForRuleIds(activeRuleGritFacts, selectedRuleIds);
+    if (gritRules.length > 0) {
+      const scanRoots = options.staged
+        ? stagedSourceCheckPaths(
+            options.stagedPaths ?? (yield* currentStagedPathsEffect()),
+            approvedScanRootsForRules(gritRules)
+          )
+        : undefined;
+      const stagedNotApplicable =
+        options.staged && scanRoots
+          ? stagedSourceCheckNotApplicableRecords(gritRules, scanRoots)
+          : undefined;
+      if (stagedNotApplicable) {
+        for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
+      } else {
+        const started = yield* Clock.currentTimeMillis;
+        const gritResults = yield* runGritRulesEffect(gritRules, scanRoots ? { scanRoots } : {});
+        const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
+        for (const rule of gritRules) {
+          const result = gritResults.get(rule.id);
+          if (result) {
+            results.set(rule.id, {
+              result,
+              durationMs,
+              timing: sharedExecutionTiming("grit-check:rules", durationMs, gritRules),
               disposition: { kind: "executed", durationMs },
             });
           }

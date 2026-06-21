@@ -1,7 +1,7 @@
 import { type Static, Type } from "typebox";
 import { DiagnosticCatalogEntrySchema } from "./catalog.js";
 import { DiagnosticCacheObservationSchema } from "./command.js";
-import { DiagnosticAdapterFailureKindSchema } from "./failure.js";
+import { DiagnosticProviderFailureKindSchema } from "./failure.js";
 import { DiagnosticIdentitySchema, ObservedDiagnosticIdentitySchema } from "./identity.js";
 import { DiagnosticScanRootRefusalSchema } from "./scan-root.js";
 
@@ -44,9 +44,9 @@ export const DiagnosticRunOutcomeSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("adapter-failed"),
+      kind: Type.Literal("provider-failed"),
       entry: DiagnosticCatalogEntrySchema,
-      failure: DiagnosticAdapterFailureKindSchema,
+      failure: DiagnosticProviderFailureKindSchema,
       detail: Type.String({ minLength: 1 }),
     },
     { additionalProperties: false }
@@ -111,11 +111,11 @@ export const DiagnosticConsumerResultSchema = Type.Union([
   ),
   Type.Object(
     {
-      kind: Type.Literal("adapter-failed"),
+      kind: Type.Literal("provider-failed"),
       ruleId: Type.String({ minLength: 1 }),
       diagnosticCatalogEntryId: Type.String({ minLength: 1 }),
       diagnosticIdentity: DiagnosticIdentitySchema,
-      failure: DiagnosticAdapterFailureKindSchema,
+      failure: DiagnosticProviderFailureKindSchema,
       detail: Type.String({ minLength: 1 }),
     },
     { additionalProperties: false }
@@ -188,9 +188,9 @@ export function diagnosticConsumerResultFromOutcome(
     };
   }
   switch (outcome.kind) {
-    case "adapter-failed":
+    case "provider-failed":
       return {
-        kind: "adapter-failed",
+        kind: "provider-failed",
         ...base,
         failure: outcome.failure,
         detail: outcome.detail,

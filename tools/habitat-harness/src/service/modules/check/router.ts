@@ -14,14 +14,18 @@ import type {
   GitProvider,
   GitProviderRequirements,
 } from "@internal/habitat-harness/substrate/providers/git/index";
+import type {
+  GritProvider,
+  GritProviderRequirements,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
 import type { NxProvider } from "@internal/habitat-harness/substrate/providers/nx/index";
 import { Effect } from "effect";
+import { checkModule } from "./context.js";
 import type {
   CheckServiceExpandBaselineInput,
   CheckServiceExpandBaselineOutput,
   CheckServiceRunInput,
 } from "./contract.js";
-import { module as checkModule } from "./module.js";
 
 export const checkRouter = {
   run: checkModule.run.effect(({ input }) => runCheckService(input)),
@@ -61,6 +65,8 @@ export function expandCheckBaselinesService(
   | FileSystem.FileSystem
   | GitProvider
   | GitProviderRequirements
+  | GritProvider
+  | GritProviderRequirements
   | StructuralCheck
 > {
   return Effect.gen(function* () {

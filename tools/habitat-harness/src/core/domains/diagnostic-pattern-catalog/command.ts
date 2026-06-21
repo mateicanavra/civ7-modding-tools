@@ -4,7 +4,7 @@ import type {
 } from "@internal/habitat-harness/substrate/providers/command/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import type { DiagnosticAdapterFailureKind } from "./failure.js";
+import type { DiagnosticProviderFailureKind } from "./failure.js";
 
 const DiagnosticCommandRequestMetadataSchema = Type.Object(
   {
@@ -307,9 +307,9 @@ export function diagnosticToolUnavailableObservation(input: {
   };
 }
 
-export function diagnosticAdapterFailureForCacheObservation(
+export function diagnosticProviderFailureForCacheObservation(
   observation: DiagnosticCacheObservation
-): DiagnosticAdapterFailureKind | null {
+): DiagnosticProviderFailureKind | null {
   return observation.kind === "missing-required-observation" ? observation.failure : null;
 }
 

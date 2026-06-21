@@ -42,12 +42,12 @@ export {
   DiagnosticCompletedCommandObservationSchema,
   DiagnosticInterruptedCommandObservationSchema,
   DiagnosticOutputMetadataSchema,
-  diagnosticAdapterFailureForCacheObservation,
   diagnosticCacheObservationFromCommand,
   diagnosticCacheRequirementForGritCheck,
   diagnosticCacheRequirementSatisfied,
   diagnosticCommandObservationFromResult,
   diagnosticCompletedCommandObservationFromResult,
+  diagnosticProviderFailureForCacheObservation,
   diagnosticToolUnavailableObservation,
   NativeGritCheckRequestSchema,
   NativeGritCommandFamilySchema,
@@ -55,12 +55,12 @@ export {
   nativeGritCheckRequestFromCommandResult,
   nativeGritCheckRequestFromProcessRequest,
 } from "./command.js";
-export type { DiagnosticAdapterFailureKind } from "./failure.js";
+export type { DiagnosticProviderFailureKind } from "./failure.js";
 export {
-  DiagnosticAdapterFailureKindSchema,
-  diagnosticAdapterFailureKinds,
-  isDiagnosticAdapterFailureKind,
-  renderDiagnosticAdapterFailure,
+  DiagnosticProviderFailureKindSchema,
+  diagnosticProviderFailureKinds,
+  isDiagnosticProviderFailureKind,
+  renderDiagnosticProviderFailure,
 } from "./failure.js";
 export type {
   DiagnosticIdentity,

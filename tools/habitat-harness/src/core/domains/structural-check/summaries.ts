@@ -1,5 +1,5 @@
 import { Value } from "typebox/value";
-import { isDiagnosticAdapterFailureKind } from "../../domains/diagnostic-pattern-catalog/index.js";
+import { isDiagnosticProviderFailureKind } from "../../domains/diagnostic-pattern-catalog/index.js";
 import {
   isDependencyRefusalDiagnostic,
   isNotApplicableDiagnostic,
@@ -98,7 +98,7 @@ export function isDiagnosticUnavailableSummary(summary: HookCheckSummary): boole
 
 function hookCheckKind(report: CheckReport, outcome: CheckOutcome): HookCheckSummary["kind"] {
   if (outcome.kind === "selector-refused") return "selector-refused";
-  if (hasGritAdapterFailure(report)) return "diagnostic-unavailable";
+  if (hasGritProviderFailure(report)) return "diagnostic-unavailable";
   if (hasBaselineRefusal(report)) return "baseline-refused";
   if (outcome.kind === "dependency-refused") return "dependency-refused";
   if (outcome.kind === "no-applicable-rules") return "not-applicable";
@@ -163,12 +163,12 @@ function hasBaselineRefusal(report: CheckReport): boolean {
   );
 }
 
-function hasGritAdapterFailure(report: CheckReport): boolean {
+function hasGritProviderFailure(report: CheckReport): boolean {
   return report.rules.some(
     (rule) =>
-      rule.ownerTool === "source-check" &&
+      (rule.ownerTool === "source-check" || rule.ownerTool === "grit-check") &&
       rule.diagnostics.some(
-        (diagnostic) => parseGritAdapterFailureKind(diagnostic.message) !== null
+        (diagnostic) => parseGritProviderFailureKind(diagnostic.message) !== null
       )
   );
 }
@@ -192,16 +192,16 @@ function isRefusedReport(rule: RuleReport): boolean {
   return (
     (rule.ruleId === "baseline-integrity" && rule.status === "fail") ||
     rule.diagnostics.some(isDependencyRefusalDiagnostic) ||
-    rule.diagnostics.some((diagnostic) => parseGritAdapterFailureKind(diagnostic.message) !== null)
+    rule.diagnostics.some((diagnostic) => parseGritProviderFailureKind(diagnostic.message) !== null)
   );
 }
 
-function parseGritAdapterFailureKind(message: string): string | null {
-  const marker = "--- grit adapter failure (";
+function parseGritProviderFailureKind(message: string): string | null {
+  const marker = "--- grit provider failure (";
   const line = message.split("\n").find((candidate) => candidate.startsWith(marker));
   if (!line) return null;
   const closing = line.indexOf(")", marker.length);
   if (closing === -1) return null;
   const kind = line.slice(marker.length, closing);
-  return isDiagnosticAdapterFailureKind(kind) ? kind : null;
+  return isDiagnosticProviderFailureKind(kind) ? kind : null;
 }
