@@ -15,6 +15,11 @@ class GraphJsonParseFailed extends Data.TaggedError("GraphJsonParseFailed")<{
   readonly cause: string;
 }> {}
 
+class GraphJsonShapeInvalid extends Data.TaggedError("GraphJsonShapeInvalid")<{
+  readonly path: string;
+  readonly reason: string;
+}> {}
+
 export const graphRouter = {
   run: graphModule.run.effect(({ input }) => runGraphService(input)),
 };
@@ -41,9 +46,12 @@ export function runGraphService(input: GraphServiceRunInput = {}) {
       const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
         Effect.mapError(graphServiceInternalError)
       );
+      const selectedPayload = yield* selectGraphPayload(graphPath, graphPayload).pipe(
+        Effect.mapError(graphServiceInternalError)
+      );
       return {
         exitCode: 0,
-        stdout: `${JSON.stringify(selectGraphPayload(graphPayload), null, input.json ? 0 : 2)}\n`,
+        stdout: `${JSON.stringify(selectedPayload, null, input.json ? 0 : 2)}\n`,
         stderr: "",
       };
     })
@@ -61,11 +69,23 @@ function parseGraphJson(graphPath: string, graphText: string) {
   });
 }
 
-function selectGraphPayload(payload: unknown): unknown {
+function selectGraphPayload(
+  graphPath: string,
+  payload: unknown
+): Effect.Effect<unknown, GraphJsonShapeInvalid> {
   if (payload && typeof payload === "object" && "graph" in payload) {
-    return (payload as { readonly graph: unknown }).graph ?? payload;
+    const graph = (payload as { readonly graph: unknown }).graph;
+    if (!graph || typeof graph !== "object") {
+      return Effect.fail(
+        new GraphJsonShapeInvalid({
+          path: graphPath,
+          reason: "Nx graph payload must contain a non-null graph object.",
+        })
+      );
+    }
+    return Effect.succeed(graph);
   }
-  return payload;
+  return Effect.succeed(payload);
 }
 
 function graphServiceInternalError() {
