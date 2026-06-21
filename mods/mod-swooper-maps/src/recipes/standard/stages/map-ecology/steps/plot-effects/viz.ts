@@ -7,6 +7,7 @@ export const PLOT_EFFECT_VIZ_VALUE_BY_KEY: Readonly<Record<string, number>> = {
   PLOTEFFECT_SAND: 4,
   PLOTEFFECT_BURNED: 5,
   PLOTEFFECT_DESERT_HEAT: 6,
+  PLOTEFFECT_FROSTBITE: 7,
 } as const;
 
 export const PLOT_EFFECT_VIZ_CATEGORIES = [
@@ -36,6 +37,11 @@ export const PLOT_EFFECT_VIZ_CATEGORIES = [
     value: 6,
     label: "Desert Heat (Hazard)",
     color: [220, 38, 38, 240] as [number, number, number, number],
+  },
+  {
+    value: 7,
+    label: "Frostbite (Hazard)",
+    color: [37, 99, 235, 240] as [number, number, number, number],
   },
 ];
 

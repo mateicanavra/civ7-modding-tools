@@ -21,7 +21,7 @@
 					<Item>text/en_us/MapText.xml</Item>
 				</UpdateText>
 				<UpdateDatabase>
-					<Item>data/desert-hazard.xml</Item>
+					<Item>data/biome-hazards.xml</Item>
 				</UpdateDatabase>
 				<ImportFiles>
 					<Item>maps/swooper-desert-mountains.js</Item>

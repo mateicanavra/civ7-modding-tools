@@ -226,10 +226,12 @@ export const DEFAULT_PLOT_EFFECT_TYPES: MockPlotEffectType[] = [
   { id: 2, name: "PLOTEFFECT_SNOW_HEAVY_PERMANENT", tags: ["SNOW", "HEAVY", "PERMANENT"] },
   { id: 3, name: "PLOTEFFECT_SAND", tags: ["SAND"] },
   { id: 4, name: "PLOTEFFECT_BURNED", tags: ["BURNED"] },
-  // Authored by mod-swooper-maps (data/desert-hazard.xml): a permanent, damaging
-  // deep-desert plot effect. Registered here so mock runs of the standard recipe
-  // can resolve it via getPlotEffectTypeIndex during the map-ecology apply step.
+  // Authored by mod-swooper-maps (data/biome-hazards.xml): permanent, damaging biome
+  // attrition plot effects placed on the most climate-extreme tiles. Registered here so
+  // mock runs of the standard recipe can resolve them via getPlotEffectTypeIndex during
+  // the map-ecology apply step.
   { id: 5, name: "PLOTEFFECT_DESERT_HEAT", tags: ["DESERT", "HEAT", "HAZARD"] },
+  { id: 6, name: "PLOTEFFECT_FROSTBITE", tags: ["COLD", "FROST", "HAZARD"] },
 ];
 
 const DEFAULT_NATURAL_WONDER_CATALOG: NaturalWonderCatalogEntry[] = NATURAL_WONDER_CATALOG;

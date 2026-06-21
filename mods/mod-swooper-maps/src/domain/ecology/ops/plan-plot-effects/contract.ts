@@ -48,6 +48,26 @@ const PlotEffectsSnowPlanSchema = Type.Object({
     maximum: 1,
     description: "Minimum snowScore01 to place the heavy snow selector.",
   }),
+  // Optional companion hazard (e.g. PLOTEFFECT_FROSTBITE) co-placed on the COLDEST selected
+  // snow tiles — those with snowScore01 >= hazardThreshold. The snow selectors are cosmetic
+  // (Damage=0, render via terrain material); the hazard carries the per-turn Damage. Genuinely
+  // opt-in (no schema default): when omitted, only cosmetic snow is placed.
+  hazard: Type.Optional(
+    Type.Object({
+      typeName: Type.Unsafe<PlotEffectKey>(
+        Type.String({
+          description: "Companion damaging plot effect type (ex: PLOTEFFECT_FROSTBITE).",
+        })
+      ),
+    })
+  ),
+  hazardThreshold: Type.Number({
+    default: 0.85,
+    minimum: 0,
+    maximum: 1,
+    description:
+      "Minimum snowScore01 (deepest cold) for a selected snow tile to also receive the hazard.",
+  }),
 });
 
 const PlotEffectsSandPlanSchema = Type.Object({

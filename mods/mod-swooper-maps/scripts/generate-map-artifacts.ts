@@ -174,44 +174,50 @@ ${rows}
 \t\t<Row Tag="LOC_PLOTEFFECT_DESERT_HEAT_NAME">
 \t\t\t<Text>Deep Desert Heat</Text>
 \t\t</Row>
+\t\t<Row Tag="LOC_PLOTEFFECT_FROSTBITE_NAME">
+\t\t\t<Text>Killing Frost</Text>
+\t\t</Row>
 \t</EnglishText>
 </Database>
 `;
 }
 
-// Deep-desert attrition. A custom, permanent, damaging PlotEffect — the data-defined
-// twin of the engine-internal ocean damage. PROVEN LIVE (a stationary unit on a DESERT_HEAT
-// tile took exactly 11 HP across one turn): a PlotEffects row with Damage>0 and no
-// TriggerOnEnter inflicts that Damage on ANY unit occupying the tile, every turn — exactly
-// the "crossing here is dangerous" model. DESERT_HEAT is permanent (TimeDecay/
-// UnoccupiedDecay=false) so it persists for the whole game, and AllowOnWater=false so it
-// only lives on land. This fills a real gap: NO base plot effect is both permanent AND
-// damages occupants per turn (the permanent ones — FLOODED, SNOW_*_PERMANENT — deal 0;
-// STONE_TRAP/DIGSITE are permanent but RemoveOnEnter one-shots; the per-turn damagers —
-// IS_BURNING/PLAGUE/FALLOUT — all TimeDecay away).
+// Biome attrition hazards. Custom, permanent, damaging PlotEffects — the data-defined twin
+// of the engine-internal ocean damage. PROVEN LIVE (a stationary unit on a DESERT_HEAT tile
+// took exactly 11 HP across one turn): a PlotEffects row with Damage>0 and no TriggerOnEnter
+// inflicts that Damage on ANY unit occupying the tile, every turn — the "crossing here is
+// dangerous" model. Each is permanent (TimeDecay/UnoccupiedDecay=false) and land-only
+// (AllowOnWater=false). They are placed by the ecology plot-effect plan on the most
+// physically EXTREME tiles of each biome (highest climate-stress score), not by geometry:
+//   - DESERT_HEAT  — deepest/hottest/driest desert (sand stress: aridity + heat)
+//   - FROSTBITE    — deepest/coldest tundra (snow stress: freeze + elevation, temp ≤ max)
+//   - JUNGLE_FEVER — deepest/hottest-wettest rainforest (jungle stress: heat + humidity)
+// This fills a real gap: NO base plot effect is both permanent AND damages occupants per
+// turn (permanent ones — FLOODED, SNOW_*_PERMANENT — deal 0; STONE_TRAP/DIGSITE are
+// permanent but RemoveOnEnter one-shots; the per-turn damagers — IS_BURNING/PLAGUE/FALLOUT —
+// all TimeDecay away).
 //
-// NO WORLD-VISUAL: a custom type has no engine art (the visual name is
-// "VFX_ADDED_TO_MAP_"+PlotEffectType, with no asset for ours), and even base PLOTEFFECT_SAND
-// has no PERSISTENT decal — its only visual is a one-shot "appears" animation
-// (WorldUI.triggerVFXAtPlot, world-vfx.js:77), which mapgen placement never fires. A missing
-// VFX does NOT gate gameplay placement, so the damage still applies; the hazard is surfaced
-// in-game via the plot TOOLTIP (the PlotEffects Name) + the terrain already reading as harsh
-// desert. The ecology plan still co-places base PLOTEFFECT_SAND on these tiles (transient,
-// flavor only); a guaranteed world-overlay would need the art pipeline / a feature, tracked
-// as future work.
+// NO WORLD-VISUAL for custom types (the visual name is "VFX_ADDED_TO_MAP_"+PlotEffectType,
+// with no asset for ours; even base PLOTEFFECT_SAND has only a one-shot animation, no
+// persistent decal). A missing VFX does NOT gate placement, so the damage still applies; the
+// hazard is surfaced via the plot TOOLTIP (the Name) + terrain reading. (Frostbite tiles do
+// carry permanent snow, which renders via the terrain material, so cold hazards read
+// naturally.) A guaranteed overlay would need the art pipeline / a feature — future work.
 //
 // Gameplay-DB table form: a ROOT <Database> with raw <Row> entries (Types + PlotEffects).
 // Loaded via a gameplay-scope UpdateDatabase action in the modinfo. (Contrast the high-level
 // <GameEffects xmlns="GameEffects"> <Modifier> form — a DIFFERENT root that rolls back if
 // nested in <Database>. No modifier needed here: PlotEffects.Damage is the whole mechanism.)
-function renderDesertHazardData(): string {
+function renderBiomeHazardData(): string {
   return `<?xml version="1.0" encoding="utf-8"?>
 <Database>
   <Types>
     <Row Type="PLOTEFFECT_DESERT_HEAT" Kind="KIND_PLOTEFFECT"/>
+    <Row Type="PLOTEFFECT_FROSTBITE" Kind="KIND_PLOTEFFECT"/>
   </Types>
   <PlotEffects>
     <Row PlotEffectType="PLOTEFFECT_DESERT_HEAT" Name="LOC_PLOTEFFECT_DESERT_HEAT_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
+    <Row PlotEffectType="PLOTEFFECT_FROSTBITE" Name="LOC_PLOTEFFECT_FROSTBITE_NAME" TimeDecay="false" UnoccupiedDecay="false" TimeValue="1" Damage="11" Defense="0" AllowOnWater="false"/>
   </PlotEffects>
 </Database>
 `;
@@ -244,7 +250,7 @@ function renderModInfo(configs: readonly ValidatedMapConfig[]): string {
 \t\t\t\t\t<Item>text/en_us/MapText.xml</Item>
 \t\t\t\t</UpdateText>
 \t\t\t\t<UpdateDatabase>
-\t\t\t\t\t<Item>data/desert-hazard.xml</Item>
+\t\t\t\t\t<Item>data/biome-hazards.xml</Item>
 \t\t\t\t</UpdateDatabase>
 \t\t\t\t<ImportFiles>
 ${imports}
@@ -338,7 +344,7 @@ async function main(): Promise<void> {
 
   await writeFile(resolve(modConfigDir, "config.xml"), renderConfigXml(configs));
   await writeFile(resolve(pkgRoot, "mod/swooper-maps.modinfo"), renderModInfo(configs));
-  await writeFile(resolve(modDataDir, "desert-hazard.xml"), renderDesertHazardData());
+  await writeFile(resolve(modDataDir, "biome-hazards.xml"), renderBiomeHazardData());
   await writeFile(resolve(modTextDir, "MapText.xml"), renderMapText(configs));
   await writeFile(
     resolve(distRecipesDir, "standard-map-config.schema.json"),
