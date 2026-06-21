@@ -1,9 +1,9 @@
 ## 1. Baseline
 
-- [ ] 1.1 Measure current `nx show project @internal/habitat-harness --json`
+- [x] 1.1 Measure current `nx show project @internal/habitat-harness --json`
   startup.
-- [ ] 1.2 Measure direct `habitat check --tool source-check --json`.
-- [ ] 1.3 Map duplicate root, hook, verify, and package-local check lanes.
+- [x] 1.2 Measure direct `habitat check --tool source-check --json`.
+- [x] 1.3 Map duplicate root, hook, verify, and package-local check lanes.
 
 ## 2. Nx Graph Metadata
 
@@ -20,6 +20,8 @@
 - [x] 3.2 Keep workspace-wide inputs only for true workspace gates.
 - [x] 3.3 Make owner-check inputs the union of owned rule inputs without
   collapsing to broad Habitat inputs unless required.
+- [x] 3.4 Replace remaining source-check `unresolved-metadata` records with
+  explicit exact path coverage derived from the generated source-check policy.
 
 ## 4. Verification Lanes
 
@@ -42,3 +44,13 @@
 - [x] 5.3 `bun run habitat -- check --owner @internal/habitat-harness --json`
 - [x] 5.4 `bun run --cwd tools/habitat-harness check`
 - [x] 5.5 `bun run openspec -- validate deep-habitat-effect-fast-check-architecture --strict`
+- [x] 5.6 `jq -r 'select(.ownerTool=="source-check" and
+  (.pathCoverage[]?.kind=="unresolved-metadata")) | .id'
+  .habitat/rules/*/rule.json`
+- [x] 5.7 `bun run --cwd tools/habitat-harness test --
+  test/rules/registry/contract.test.ts test/rules/registry/facts.test.ts
+  test/lib/rule-selection.test.ts test/service/check-service.test.ts`
+- [x] 5.8 `nx affected
+  --targets=check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns
+  --base agent-DRA-effect-rule-input-scope-fastpath --head HEAD
+  --outputStyle=static --excludeTaskDependencies`
