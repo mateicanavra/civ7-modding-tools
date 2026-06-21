@@ -18,9 +18,9 @@ Current toolkit reference:
 - `docs/AUTHORING-NEXT.md` frames the next generator/apply product loop.
 
 The command shell is oclif, matching the repo's `@mateicanavra/civ7-cli`
-pattern: command classes live under `src/commands/**`, local repo scripts run
-`bin/dev.ts`, and `bin/run.js` is the built production runner. Build output
-(`dist/**`) and `oclif.manifest.json` are generated artifacts.
+pattern: command classes live under `src/host/commands/**`, local repo scripts
+run `bin/dev.ts`, and `bin/run.js` is the built production runner. Build
+output (`dist/**`) and `oclif.manifest.json` are generated artifacts.
 
 ## Usage
 

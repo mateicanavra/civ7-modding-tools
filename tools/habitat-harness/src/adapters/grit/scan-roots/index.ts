@@ -3,10 +3,10 @@ import path from "node:path";
 import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
-} from "../../../domains/diagnostic-pattern-catalog/index.js";
-import type { RuleSourceFacts } from "../../../domains/rule-registry/index.js";
-import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
-import { decideScanRootProtection } from "../../../lib/protected-zones/index.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import { decideScanRootProtection } from "@internal/habitat-harness/core/domains/protected-zones/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
 import { protectedScanRootPrefixes } from "../provider/constants.js";
 
 export interface PatternScanRootValidationOptions {

@@ -1,34 +1,34 @@
-import { Effect, Layer } from "effect";
-import { describe, expect, test } from "vitest";
 import {
   classifyResourcePreCommitDecision,
   classifyResourcesState,
-} from "../../src/domains/hook-runtime/resource-inspection.js";
+} from "@internal/habitat-harness/core/domains/hook-runtime/resource-inspection";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "../../src/domains/hook-runtime/runtime.js";
+} from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
 import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
-} from "../../src/domains/structural-check/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import { runHookService } from "@internal/habitat-harness/service/modules/hook/router";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   type BiomeCommandRequest,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "../../src/providers/biome/index.js";
+} from "@internal/habitat-harness/substrate/providers/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
   type SpawnResult,
-} from "../../src/providers/command/index.js";
-import type { HabitatCommandResult } from "../../src/providers/command/types.js";
-import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
-import { makeFakeNxProviderLayer } from "../../src/providers/nx/index.js";
-import { runHookService } from "../../src/service/modules/hook/router.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/providers/command/types";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
+import { makeFakeNxProviderLayer } from "@internal/habitat-harness/substrate/providers/nx/index";
+import { Effect, Layer } from "effect";
+import { describe, expect, test } from "vitest";
 
 type RunCommand = NonNullable<HookRuntime["runCommand"]>;
 

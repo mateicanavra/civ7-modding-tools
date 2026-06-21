@@ -1,15 +1,15 @@
-import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
 import {
   createVerifyReceipt,
   VerifyReceiptSchema,
   validateVerifyReceipt,
-} from "../../src/domains/proof-contract/index.js";
-import type { CheckReport } from "../../src/domains/structural-check/schema.js";
+} from "@internal/habitat-harness/core/domains/proof-contract/index";
+import type { CheckReport } from "@internal/habitat-harness/core/domains/structural-check/schema";
 import {
   type VerifyTargetPlan,
   verifyTargetPlan,
-} from "../../src/domains/workspace-graph-integration/index.js";
+} from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {

@@ -1,12 +1,15 @@
 import path from "node:path";
-import { ORPCError } from "@orpc/server";
-import { Data, Effect } from "effect";
 import {
   NxProvider,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "../../../providers/nx/index.js";
-import { acquireTempDirectory, readText } from "../../../resources/index.js";
+} from "@internal/habitat-harness/substrate/providers/nx/index";
+import {
+  acquireTempDirectory,
+  readText,
+} from "@internal/habitat-harness/substrate/resources/index";
+import { ORPCError } from "@orpc/server";
+import { Data, Effect } from "effect";
 import type { GraphServiceRunInput } from "./contract.js";
 import { module as graphModule } from "./module.js";
 

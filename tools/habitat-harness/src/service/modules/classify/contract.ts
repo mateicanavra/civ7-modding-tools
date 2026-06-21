@@ -1,7 +1,7 @@
+import { ClassifyResultSchema } from "@internal/habitat-harness/core/domains/workspace-graph-integration/schema";
 import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { ClassifyResultSchema } from "../../../domains/workspace-graph-integration/schema.js";
 import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
 import type { HabitatServiceProcedureMeta } from "../../metadata.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";

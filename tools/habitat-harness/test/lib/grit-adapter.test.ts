@@ -1,16 +1,17 @@
-import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
-import { gritRuleResultsFromReport } from "../../src/adapters/grit/diagnostics.js";
+import { gritRuleResultsFromReport } from "@internal/habitat-harness/adapters/grit/diagnostics";
 import {
   discoverPatternScanRoots,
   runGritDiagnosticOutcomes,
   runGritRules,
   validateScanRoots,
-} from "../../src/adapters/grit/index.js";
-import { parseGritCheckOutput, parseGritCheckTextOutput } from "../../src/adapters/grit/output.js";
-import { defaultGritCommandTimeoutMs } from "../../src/adapters/grit/provider/constants.js";
-import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
-import { decidePatternScanRoots } from "../../src/adapters/grit/scan-roots/index.js";
+} from "@internal/habitat-harness/adapters/grit/index";
+import {
+  parseGritCheckOutput,
+  parseGritCheckTextOutput,
+} from "@internal/habitat-harness/adapters/grit/output";
+import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/adapters/grit/provider/constants";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/adapters/grit/provider/index";
+import { decidePatternScanRoots } from "@internal/habitat-harness/adapters/grit/scan-roots/index";
 import {
   DiagnosticCatalogEntrySchema,
   diagnosticAdapterFailureKinds,
@@ -22,14 +23,16 @@ import {
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticAdapterFailure,
-} from "../../src/domains/diagnostic-pattern-catalog/index.js";
-import type { RuleSourceFacts } from "../../src/domains/rule-registry/index.js";
-import { repoRoot, toRepoRelative } from "../../src/lib/paths.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
   type OutputCapture,
-} from "../../src/providers/command/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 describe("Grit check adapter parser and diagnostics", () => {
   test("parses the pinned Grit check JSON shape from stderr", () => {

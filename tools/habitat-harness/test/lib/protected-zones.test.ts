@@ -1,16 +1,16 @@
-import { describe, expect, test } from "vitest";
 import {
   defaultHostPolicyDocument,
   readHostPolicyState,
   unavailableHostPolicyState,
-} from "../../src/lib/host-policy.js";
+} from "@internal/habitat-harness/core/domains/host-policy";
 import {
   decideScanRootProtection,
   declarationForFileLayerRule,
   evaluateProtectedMutationGuard,
   runFileLayerProtectedMutationRule,
   stagedPathsFromNameStatus,
-} from "../../src/lib/protected-zones/index.js";
+} from "@internal/habitat-harness/core/domains/protected-zones/index";
+import { describe, expect, test } from "vitest";
 
 describe("protected zone file-layer execution", () => {
   test("rejects an unknown generated zone before staged no-op behavior", () => {

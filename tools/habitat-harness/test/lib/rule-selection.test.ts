@@ -1,6 +1,8 @@
-import { describe, expect, test } from "vitest";
-import type { RuleSourceFacts } from "../../src/domains/rule-registry/index.js";
-import { type RuleSelection, selectRules } from "../../src/domains/rule-selection/index.js";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import {
+  type RuleSelection,
+  selectRules,
+} from "@internal/habitat-harness/core/domains/rule-selection/index";
 import {
   approvedScanRootsForRules,
   checkCommandContext,
@@ -10,9 +12,10 @@ import {
   stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
   structuralCheckRequest,
-} from "../../src/domains/structural-check/index.js";
-import { validateCheckReport } from "../../src/domains/structural-check/schema.js";
-import type { HarnessRule } from "../../src/rules/architecture.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import { validateCheckReport } from "@internal/habitat-harness/core/domains/structural-check/schema";
+import type { HarnessRule } from "@internal/habitat-harness/core/rules/architecture";
+import { describe, expect, test } from "vitest";
 
 const fakeRules: HarnessRule[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),

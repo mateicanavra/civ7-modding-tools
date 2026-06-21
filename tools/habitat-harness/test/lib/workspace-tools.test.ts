@@ -1,7 +1,7 @@
+import { defaultWorkspaceToolPolicies } from "@internal/habitat-harness/substrate/config/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
+import { materializeDefaultHabitatCommand } from "@internal/habitat-harness/substrate/providers/command/index";
 import { describe, expect, test } from "vitest";
-import { defaultWorkspaceToolPolicies } from "../../src/config/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
-import { materializeDefaultHabitatCommand } from "../../src/providers/command/index.js";
 
 describe("workspace tool command materialization", () => {
   test("routes repo-local tools through Bun's workspace command plane", () => {

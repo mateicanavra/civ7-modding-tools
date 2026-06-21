@@ -1,15 +1,15 @@
-import { readJson } from "@nx/devkit";
-import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
-import { describe, expect, test } from "vitest";
 import {
   patternManifestPath,
   type RegisteredPatternManifest,
   validatePatternManifest,
-} from "../../src/domains/pattern-governance/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
 import {
   candidateArtifactPaths,
   patternGenerator,
-} from "../../src/generators/pattern/generator.js";
+} from "@internal/habitat-harness/workspace/generators/pattern/generator";
+import { readJson } from "@nx/devkit";
+import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
+import { describe, expect, test } from "vitest";
 
 const rulesPath = ".habitat/rules";
 const indexPath = `${rulesPath}/index.json`;

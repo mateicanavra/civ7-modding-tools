@@ -1,19 +1,23 @@
-import { Effect } from "effect";
-import { describe, expect, test } from "vitest";
-import { GritProvider, makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
+import {
+  GritProvider,
+  makeFakeGritProviderLayer,
+} from "@internal/habitat-harness/adapters/grit/provider/index";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   BiomeProvider,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "../../src/providers/biome/index.js";
+} from "@internal/habitat-harness/substrate/providers/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
   materializeDefaultHabitatCommand,
-} from "../../src/providers/command/index.js";
-import { GitProvider, makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
-import { huskyDelegator } from "../../src/providers/husky/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import {
+  GitProvider,
+  makeFakeGitProviderLayer,
+} from "@internal/habitat-harness/substrate/providers/git/index";
+import { huskyDelegator } from "@internal/habitat-harness/substrate/providers/husky/index";
 import {
   affectedArgv,
   graphArgv,
@@ -21,8 +25,10 @@ import {
   NxProvider,
   runManyArgv,
   runTargetArgv,
-} from "../../src/providers/nx/index.js";
-import { runHabitatEffect } from "../../src/runtime/index.js";
+} from "@internal/habitat-harness/substrate/providers/nx/index";
+import { runHabitatEffect } from "@internal/habitat-harness/substrate/runtime/index";
+import { Effect } from "effect";
+import { describe, expect, test } from "vitest";
 
 describe("vendor providers", () => {
   test("GitProvider fake layer owns git command families without spawning", async () => {

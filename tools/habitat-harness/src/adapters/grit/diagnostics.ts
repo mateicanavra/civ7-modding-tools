@@ -6,9 +6,9 @@ import {
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
-} from "../../domains/diagnostic-pattern-catalog/index.js";
-import type { RuleSourceFacts } from "../../domains/rule-registry/index.js";
-import type { RuleRunResult } from "../../rules/architecture.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import type { RuleRunResult } from "@internal/habitat-harness/core/rules/architecture";
 import { infrastructureFailure } from "./failure.js";
 import type { GritDiagnosticOptions, GritReport, GritResult } from "./provider/types.js";
 import { normalizeGritPath } from "./scan-roots/index.js";

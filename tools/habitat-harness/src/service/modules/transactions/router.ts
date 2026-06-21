@@ -1,6 +1,4 @@
-import { Effect } from "effect";
-import { Value } from "typebox/value";
-import { GritProvider } from "../../../adapters/grit/provider/index.js";
+import { GritProvider } from "@internal/habitat-harness/adapters/grit/provider/index";
 import {
   type GritDryRunCommandInput,
   type PatternApplyRecord,
@@ -11,13 +9,15 @@ import {
   type RecoveryInstruction,
   resolveTransactionInput,
   type TransactionRefusal,
-} from "../../../domains/transformation-transaction/schema.js";
+} from "@internal/habitat-harness/core/domains/transformation-transaction/schema";
 import {
   captureOutput,
   type HabitatCommandResult,
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "../../../providers/command/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { Effect } from "effect";
+import { Value } from "typebox/value";
 import type { TransactionsServiceOptions } from "./context.js";
 import { module as transactionsModule } from "./module.js";
 

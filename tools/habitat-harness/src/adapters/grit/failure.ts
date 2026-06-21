@@ -1,9 +1,9 @@
 import {
   type DiagnosticAdapterFailureKind,
   renderDiagnosticAdapterFailure,
-} from "../../domains/diagnostic-pattern-catalog/index.js";
-import type { RuleSourceFacts } from "../../domains/rule-registry/index.js";
-import type { RuleRunResult } from "../../rules/architecture.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
+import type { RuleRunResult } from "@internal/habitat-harness/core/rules/architecture";
 
 export function infrastructureFailure(
   rule: RuleSourceFacts,

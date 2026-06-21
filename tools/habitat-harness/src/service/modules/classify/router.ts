@@ -1,5 +1,5 @@
+import { classifyTargetResult } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
 import { Effect } from "effect";
-import { classifyTargetResult } from "../../../domains/workspace-graph-integration/index.js";
 import { module as classifyModule } from "./module.js";
 
 export const classifyRouter = {

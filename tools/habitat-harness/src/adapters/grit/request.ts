@@ -1,4 +1,3 @@
-import { Effect } from "effect";
 import {
   diagnosticAdapterFailureForCacheObservation,
   diagnosticCacheObservationFromCommand,
@@ -8,8 +7,8 @@ import {
   diagnosticToolUnavailableObservation,
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
-} from "../../domains/diagnostic-pattern-catalog/index.js";
-import { FileWriteFailed } from "../../errors/index.js";
+} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
+import { FileWriteFailed } from "@internal/habitat-harness/substrate/errors/index";
 import {
   CommandFailed,
   CommandInterrupted,
@@ -17,8 +16,9 @@ import {
   captureOutput,
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "../../providers/command/index.js";
-import { acquireTempDirectory } from "../../resources/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { acquireTempDirectory } from "@internal/habitat-harness/substrate/resources/index";
+import { Effect } from "effect";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";
 import { GritToolUnavailable } from "./provider/failures.js";
 import { GritProvider, gritCheckRequest } from "./provider/index.js";

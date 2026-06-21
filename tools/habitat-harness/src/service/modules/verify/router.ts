@@ -1,19 +1,19 @@
-import { ORPCError } from "@orpc/server";
-import { Clock, Effect } from "effect";
 import {
   createVerifyReceipt,
   observeGitStatusEffect,
   readVerifyTargetPlan,
   resolveVerifyBaseEffect,
   runAffectedVerificationEffect,
-} from "../../../domains/proof-contract/index.js";
+} from "@internal/habitat-harness/core/domains/proof-contract/index";
 import {
   checkCommandContext,
   StructuralCheck,
   verifyCheckSummary,
-} from "../../../domains/structural-check/index.js";
-import type { SpawnResult } from "../../../providers/command/index.js";
-import { epochMillisToIsoString } from "../../../resources/index.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
+import { epochMillisToIsoString } from "@internal/habitat-harness/substrate/resources/index";
+import { ORPCError } from "@orpc/server";
+import { Clock, Effect } from "effect";
 import { module as verifyModule } from "./module.js";
 
 export const verifyRouter = {

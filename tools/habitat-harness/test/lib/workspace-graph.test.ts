@@ -1,5 +1,4 @@
-import { describe, expect, test } from "vitest";
-import type { RuleGraphFacts } from "../../src/domains/rule-registry/schema.js";
+import type { RuleGraphFacts } from "@internal/habitat-harness/core/domains/rule-registry/schema";
 import {
   aggregateWorkspaceDependency,
   explicitProjectTarget,
@@ -7,10 +6,11 @@ import {
   resolveDependencyDeclaration,
   ruleAliasTargetState,
   sameProjectTarget,
-} from "../../src/domains/workspace-graph-integration/index.js";
-import { readWorkspaceGraph } from "../../src/providers/nx/graph.js";
-import type { WorkspaceProject } from "../../src/providers/nx/schema.js";
-import { workspaceGraphTargetNames } from "../../src/providers/nx/targets.js";
+} from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
+import { readWorkspaceGraph } from "@internal/habitat-harness/substrate/providers/nx/graph";
+import type { WorkspaceProject } from "@internal/habitat-harness/substrate/providers/nx/schema";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/substrate/providers/nx/targets";
+import { describe, expect, test } from "vitest";
 
 const projects: WorkspaceProject[] = [
   {

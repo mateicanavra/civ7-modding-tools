@@ -1,9 +1,9 @@
-import { describe, expect, test } from "vitest";
 import {
   parseRuleRegistryDocument,
   parseRuleRegistryText,
-} from "../../../src/domains/rule-registry/index.js";
-import { rules } from "../../../src/rules/architecture.js";
+} from "@internal/habitat-harness/core/domains/rule-registry/index";
+import { rules } from "@internal/habitat-harness/core/rules/architecture";
+import { describe, expect, test } from "vitest";
 import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
 describe("rule registry contract", () => {
