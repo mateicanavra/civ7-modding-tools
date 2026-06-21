@@ -9,9 +9,13 @@ export const VerifyBaseResolutionSchema = Type.Union(
       {
         kind: Type.Literal("resolved", { description: "Base resolution succeeded." }),
         base: Type.String({ minLength: 1, description: "Git revision used as the affected base." }),
-        source: Type.Union([Type.Literal("flag"), Type.Literal("merge-base")], {
-          description: "Whether the base came from --base or the repository merge-base.",
-        }),
+        source: Type.Union(
+          [Type.Literal("flag"), Type.Literal("graphite-parent"), Type.Literal("merge-base")],
+          {
+            description:
+              "Whether the base came from --base, the Graphite parent, or the repository merge-base.",
+          }
+        ),
       },
       { additionalProperties: false, description: "Resolved verify base." }
     ),
@@ -56,9 +60,12 @@ export const VerifyBaseSchema = Type.Object(
       description: "Explicit --base value when supplied.",
     }),
     resolved: Type.String({ minLength: 1, description: "Effective base used by affected checks." }),
-    source: Type.Union([Type.Literal("flag"), Type.Literal("merge-base")], {
-      description: "Where the effective base came from.",
-    }),
+    source: Type.Union(
+      [Type.Literal("flag"), Type.Literal("graphite-parent"), Type.Literal("merge-base")],
+      {
+        description: "Where the effective base came from.",
+      }
+    ),
   },
   { additionalProperties: false, description: "Verify receipt base summary." }
 );

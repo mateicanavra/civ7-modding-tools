@@ -1,5 +1,7 @@
 import { Effect } from "effect";
 import { Value } from "typebox/value";
+import { repoRoot } from "../../lib/paths.js";
+import { CommandRunner } from "../../providers/command/index.js";
 import { GitProvider } from "../../providers/git/index.js";
 import { runHabitatEffect } from "../../runtime/index.js";
 import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "./schema.js";
@@ -15,9 +17,10 @@ export interface VerifyOptions {
 /**
  * Resolves the affected base for verify.
  *
- * The command must either respect an explicit `--base` value or find the merge-base
- * with the repository's remote default branch; when neither is possible, verify
- * refuses before running affected targets.
+ * The command must either respect an explicit `--base` value, use the Graphite
+ * parent for stacked local work, or find the merge-base with the repository's
+ * remote default branch. When none are possible, verify refuses before running
+ * affected targets.
  *
  * @param base - Optional base ref supplied by the caller.
  * @returns A TypeBox-validated resolution or refusal.
@@ -28,6 +31,15 @@ export function resolveVerifyBaseEffect(base?: string) {
       Value.Parse(VerifyBaseResolutionSchema, { kind: "resolved", base, source: "flag" })
     );
   return Effect.gen(function* () {
+    const graphiteParent = yield* resolveGraphiteParentEffect();
+    if (graphiteParent) {
+      return Value.Parse(VerifyBaseResolutionSchema, {
+        kind: "resolved",
+        base: graphiteParent,
+        source: "graphite-parent",
+      });
+    }
+
     const git = yield* GitProvider;
     const defaultBranch = yield* git.remoteDefaultBranch();
     const resolved = defaultBranch ? yield* git.mergeBase(defaultBranch) : null;
@@ -48,4 +60,23 @@ export function resolveVerifyBaseEffect(base?: string) {
 
 export async function resolveVerifyBase(base?: string): Promise<VerifyBaseResolution> {
   return runHabitatEffect(resolveVerifyBaseEffect(base));
+}
+
+function resolveGraphiteParentEffect() {
+  return CommandRunner.pipe(
+    Effect.flatMap((runner) =>
+      runner.run({
+        commandId: "verify-base-graphite-parent",
+        kind: "workspace-tool",
+        executable: "gt",
+        argv: ["branch", "info", "--no-interactive"],
+        cwd: repoRoot,
+        captureGitState: false,
+      })
+    ),
+    Effect.map((result) =>
+      result.exit.code === 0 ? (result.stdout.text.match(/Parent:\s*([^\s]+)/)?.[1] ?? null) : null
+    ),
+    Effect.catchAll(() => Effect.succeed(null))
+  );
 }
