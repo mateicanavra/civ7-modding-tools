@@ -25,8 +25,8 @@
 
 ## 4. Verification Lanes
 
-- [ ] 4.1 Define local staged checks as staged-file Habitat/Biome work only.
-- [ ] 4.2 Define owner checks as scoped Habitat source/structural enforcement.
+- [x] 4.1 Define local staged checks as staged-file Habitat/Biome work only.
+- [x] 4.2 Define owner checks as scoped Habitat source/structural enforcement.
 - [x] 4.3 Define affected checks as Nx-owned project verification.
 - [x] 4.4 Remove duplicate Biome/Grit/Habitat execution across root scripts,
   hooks, and verify.
@@ -54,3 +54,4 @@
   --targets=check,boundaries,generated:check,source:check,validate:boundary-taxonomy,validate:grit-patterns
   --base agent-DRA-effect-rule-input-scope-fastpath --head HEAD
   --outputStyle=static --excludeTaskDependencies`
+- [x] 5.9 `nx show project mod-swooper-maps --json`
