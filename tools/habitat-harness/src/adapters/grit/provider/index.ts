@@ -10,6 +10,7 @@ import type {
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "../../../providers/command/types.js";
+import type { GitStateProvider } from "../../../providers/git/index.js";
 import { ensurePatternCacheRoot } from "../../../resources/index.js";
 import {
   defaultGritCommandTimeoutMs,
@@ -22,7 +23,8 @@ export type GritProviderRequirements =
   | CommandExecutor
   | HabitatConfig
   | FileSystem.FileSystem
-  | CommandRunner;
+  | CommandRunner
+  | GitStateProvider;
 
 export interface GritCheckProviderRequest {
   scanRoots: readonly string[];

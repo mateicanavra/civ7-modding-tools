@@ -1,16 +1,16 @@
-import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { Command } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { PlatformError } from "@effect/platform/Error";
 import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
 import { HabitatConfig, makeHabitatConfig } from "../../config/index.js";
-import { readGitState, unknownGitState } from "../../lib/git-state.js";
 import { currentTimeMillis, epochMillisToIsoString } from "../../resources/index.js";
+import { GitStateProvider, readGitState, unknownGitState } from "../git/state.js";
 import { CommandInterrupted, CommandUnavailable } from "./errors.js";
 import { materializeHabitatCommandWithConfig } from "./materialize.js";
 import { makeCommandResultFromObservation } from "./output.js";
 import type { CommandRunnerService } from "./service.js";
+import { runSyncHostCommand } from "./sync.js";
 import type { HabitatCommandResult, HabitatProcessRequest } from "./types.js";
 
 export class CommandRunner extends Context.Tag("@internal/habitat-harness/CommandRunner")<
@@ -28,7 +28,7 @@ function runLiveCommand(
 ): Effect.Effect<
   HabitatCommandResult,
   CommandUnavailable | CommandInterrupted,
-  CommandExecutor | HabitatConfig
+  CommandExecutor | HabitatConfig | GitStateProvider
 > {
   return Effect.gen(function* () {
     const configService = yield* HabitatConfig;
@@ -54,7 +54,7 @@ function executeLiveCommand(
   originalRequest: HabitatProcessRequest,
   effectiveRequest: HabitatProcessRequest,
   executionPlane: HabitatCommandResult["executionPlane"]
-): Effect.Effect<HabitatCommandResult, CommandUnavailable, CommandExecutor> {
+): Effect.Effect<HabitatCommandResult, CommandUnavailable, CommandExecutor | GitStateProvider> {
   return Effect.scoped(
     Effect.gen(function* () {
       const startedMs = yield* Clock.currentTimeMillis;
@@ -62,7 +62,7 @@ function executeLiveCommand(
       const beforeGitState =
         effectiveRequest.captureGitState === false
           ? unknownGitState().before
-          : readGitState(effectiveRequest.cwd);
+          : yield* readGitStateEffect(effectiveRequest.cwd);
       const command = Command.make(effectiveRequest.executable, ...effectiveRequest.argv).pipe(
         Command.workingDirectory(path.resolve(effectiveRequest.cwd)),
         Command.env(commandEnv(originalRequest.env))
@@ -82,7 +82,7 @@ function executeLiveCommand(
       const afterGitState =
         effectiveRequest.captureGitState === false
           ? unknownGitState().after
-          : readGitState(effectiveRequest.cwd);
+          : yield* readGitStateEffect(effectiveRequest.cwd);
       return makeCommandResultFromObservation(effectiveRequest, {
         requestedExecutable: originalRequest.executable,
         executionPlane,
@@ -96,6 +96,10 @@ function executeLiveCommand(
       });
     })
   ).pipe(Effect.catchAll((cause) => Effect.fail(commandUnavailable(originalRequest, cause))));
+}
+
+function readGitStateEffect(cwd: string) {
+  return GitStateProvider.pipe(Effect.flatMap((gitState) => gitState.read(cwd)));
 }
 
 function applyCommandTimeout<R>(
@@ -137,10 +141,9 @@ export function runSyncHabitatCommand(request: HabitatProcessRequest): HabitatCo
     effectiveRequest.captureGitState === false
       ? unknownGitState().before
       : readGitState(effectiveRequest.cwd);
-  const result = spawnSync(command.executable, command.argv, {
+  const result = runSyncHostCommand(command.executable, command.argv, {
     cwd: path.resolve(effectiveRequest.cwd),
     env: { ...process.env, ...commandEnv(request.env) },
-    encoding: "utf8",
     maxBuffer: 64 * 1024 * 1024,
     timeout: request.timeoutMs ?? config.timeoutPolicy.commandTimeoutMs,
     killSignal: "SIGTERM",

@@ -40,7 +40,7 @@ optional soup on one interface.
 | argv/cwd/env redaction | command model |
 | stdout/stderr bounds and digest | command model |
 | duration and timestamps | `HabitatClock` plus command model |
-| before/after Git state | `GitProvider` |
+| before/after Git state | `GitStateProvider` under `GitProvider` |
 | cache observation | provider that owns the cache |
 | parse status | adapter that parses output |
 | rendered message | boundary renderer |
@@ -51,10 +51,9 @@ optional soup on one interface.
 - A command result has mutually exclusive optional fields instead of variants.
 - Feature code string-matches stderr to classify expected failures.
 
-## Follow-On Boundary
+## Git State Boundary
 
-`CommandRunner` still captures before/after Git snapshots through the existing
-`readGitState` helper. Moving that snapshot acquisition fully behind
-`GitProvider` must be a separate branch because the current `GitProvider` is
-itself command-runner-backed for live Git commands; doing both in one step would
-create a provider cycle instead of a cleaner command model.
+`CommandRunner` captures before/after Git snapshots through `GitStateProvider`,
+which is owned by the Git provider boundary and does not call `CommandRunner`.
+Live Git command execution may still use `CommandRunner` without creating a
+provider cycle.

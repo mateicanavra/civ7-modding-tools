@@ -12,7 +12,6 @@ const allowedLibFiles = new Set([
   "tools/habitat-harness/src/lib/artifact-paths.ts",
   "tools/habitat-harness/src/lib/boundary-taxonomy.ts",
   "tools/habitat-harness/src/lib/effect-runtime.ts",
-  "tools/habitat-harness/src/lib/git-state.ts",
   "tools/habitat-harness/src/lib/graph.ts",
   "tools/habitat-harness/src/lib/host-policy.ts",
   "tools/habitat-harness/src/lib/host-policy/decisions.ts",
@@ -41,7 +40,10 @@ const allowedRuntimeEdges = new Set([
   "tools/habitat-harness/src/service/impl.ts",
 ]);
 
-const allowedChildProcessEdges = new Set(["tools/habitat-harness/src/providers/command/runner.ts"]);
+const allowedChildProcessEdges = new Set([
+  "tools/habitat-harness/src/providers/command/runner.ts",
+  "tools/habitat-harness/src/providers/command/sync.ts",
+]);
 
 const allowedFsEdges = new Set([
   "tools/habitat-harness/src/adapters/grit/scan-roots/index.ts",

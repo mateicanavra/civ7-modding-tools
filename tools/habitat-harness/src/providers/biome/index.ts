@@ -4,8 +4,9 @@ import type { HabitatConfig } from "../../config/index.js";
 import { repoRoot } from "../../lib/paths.js";
 import { type CommandProviderError, CommandRunner } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
+import type { GitStateProvider } from "../git/index.js";
 
-type BiomeProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner;
+type BiomeProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
 
 export type BiomeCommandKind = "format" | "check" | "ci";
 
