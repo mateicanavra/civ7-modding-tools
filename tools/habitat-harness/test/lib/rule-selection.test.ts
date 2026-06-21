@@ -159,6 +159,45 @@ describe("rule selector boundary", () => {
     expect(() => renderCheckReport(invalid, { json: true })).toThrow(/ok must be false/);
   });
 
+  test("renders shared check work once instead of per-rule fake durations", () => {
+    const report = {
+      schemaVersion: 1,
+      command: "habitat check --tool pattern-check",
+      startedAt: "2026-06-21T00:00:00.000Z",
+      ok: true,
+      rules: [
+        passingRule("alpha-pattern", {
+          durationMs: 2500,
+          timing: {
+            kind: "shared",
+            groupId: "source-check:pattern-rules",
+            durationMs: 2500,
+            ruleCount: 2,
+          },
+        }),
+        passingRule("beta-pattern", {
+          durationMs: 2500,
+          timing: {
+            kind: "shared",
+            groupId: "source-check:pattern-rules",
+            durationMs: 2500,
+            ruleCount: 2,
+          },
+        }),
+      ],
+    };
+
+    const rendered = renderCheckReport(report);
+
+    expect(rendered).toContain(
+      "alpha-pattern (pattern-check, enforced) [locked] — shared:source-check:pattern-rules"
+    );
+    expect(rendered).toContain(
+      "beta-pattern (pattern-check, enforced) [locked] — shared:source-check:pattern-rules"
+    );
+    expect(rendered).toContain("shared work:\n  source-check:pattern-rules: 2500ms across 2 rules");
+  });
+
   test("staged execution preserves selected rules for explicit not-applicable disposition", () => {
     const stagedEligible = fakeRule("hook", "pattern-check", "@internal/habitat-harness", {
       hookCheck: true,
@@ -266,6 +305,22 @@ function fakeRule(
     remediate: null,
     message: "test fixture",
     exceptionPath: "none",
+    ...overrides,
+  };
+}
+
+function passingRule(id: string, overrides: Record<string, unknown> = {}) {
+  return {
+    ruleId: id,
+    ownerTool: "pattern-check",
+    lane: "enforced",
+    status: "pass",
+    locked: true,
+    durationMs: 1,
+    diagnostics: [],
+    detect: ["demo"],
+    message: "demo",
+    remediate: null,
     ...overrides,
   };
 }

@@ -46,11 +46,12 @@ import {
 import { ruleAliasTargetState } from "../workspace-graph-integration/index.js";
 import { dependencyRefusalDiagnostic, notApplicableDiagnostic } from "./disposition-diagnostics.js";
 import type { CheckOptions } from "./request.js";
-import type { HabitatDiagnostic, RuleExecutionDisposition } from "./schema.js";
+import type { HabitatDiagnostic, RuleExecutionDisposition, RuleExecutionTiming } from "./schema.js";
 
 export interface RuleExecutionRecord {
   result: RuleRunResult;
   durationMs: number;
+  timing?: RuleExecutionTiming;
   disposition: RuleExecutionDisposition;
 }
 
@@ -143,6 +144,7 @@ export function executeSelectedRulesEffect(
             results.set(rule.id, {
               result,
               durationMs,
+              timing: sharedExecutionTiming("source-check:pattern-rules", durationMs, gritRules),
               disposition: { kind: "executed", durationMs },
             });
           }
@@ -331,11 +333,26 @@ function runGraphBackedCommandRuleGroup(
       records.set(rule.id, {
         result: ruleResult,
         durationMs,
+        timing: sharedExecutionTiming("nx:graph-targets", durationMs, rules),
         disposition: { kind: "executed", durationMs },
       });
     }
     return records;
   });
+}
+
+function sharedExecutionTiming(
+  groupId: string,
+  durationMs: number,
+  rules: readonly { id: string }[]
+): RuleExecutionTiming | undefined {
+  if (rules.length < 2) return undefined;
+  return {
+    kind: "shared",
+    groupId,
+    durationMs,
+    ruleCount: rules.length,
+  };
 }
 
 function runGraphTargetsEffect(
