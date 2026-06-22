@@ -1,5 +1,5 @@
 import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/registry/schema";
-import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/validation-routing/index";
+import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   type AggregateWorkspaceTargetDeclaration,
   type GraphRefusalState,

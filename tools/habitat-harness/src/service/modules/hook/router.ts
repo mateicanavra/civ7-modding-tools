@@ -14,7 +14,7 @@ import {
   activeRuleSourceFacts,
   factsForRuleIds,
 } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
-import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/validation-routing/index";
+import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   type HookCheckCommandResult,
   type PreCommitOutcome,
