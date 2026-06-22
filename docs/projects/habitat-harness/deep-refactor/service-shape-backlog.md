@@ -2,12 +2,14 @@
 
 Current burn-down categories:
 
+- Active next slice: audit `service/model/check` by consumer set. Keep report DTOs, summaries, render/request language, source-scope, and structural policy shared only where check/hook/verify/CLI genuinely share the same service language; move check-only execution or authority code under the owning module instead of letting `service/model` become an authority bucket.
 - Standing guardrail: do not turn `model` into a dumping ground. If logic clusters there instead of a router/procedure, policy, DTO, or repository kind, redesign the module split/merge before adding more files.
 - Standing guardrail: do not keep instruction Markdown or other unmanaged file kinds inside `src/service/model`; preserve durable guidance in this backlog or docs, then keep source trees to named code/artifact kinds only.
 - Standing guardrail: policy files are helpers or policy middleware; do not recreate oRPC procedure/router responsibilities outside the oRPC module/router flow.
 - Router import shape: every `service/modules/*/router.ts` imports only its local `./module.js`; all policy helpers, provider access, resource calls, Effect wrappers, and DTO/schema helpers must be projected through module context or moved to service/model when truly shared.
 - Router violation queue from current scan: all root module routers are clean.
 - Service-level context stays limited to provisioned/shared resources; module-local procedure concepts stay in `module.ts` or module-local model policy/DTO/helper kinds.
+- Active ratchet: module-local `model/` trees now need the same named-kind file discipline as shared `service/model`; arbitrary implementation files under `model/` are unmanaged logic and must be renamed/classified or moved.
 - Promise/resource adaptation belongs outside routers. Routers author procedure logic through the module implementer and consume ready Effect-returning operations from handler context.
 - Remove module-local context from `service/base.ts`; service context keeps only provisioned resources and shared service metadata.
 - Let each `module.ts` project service resources into the module-specific procedure context.
@@ -112,3 +114,4 @@ Completed burn-downs:
 - Check CLI output paths now resolve through the provisioned Habitat service context platform repo root instead of importing the global repo-root singleton at the CLI command edge.
 - The `service/model/IMPORTANT.md` instruction was absorbed into the backlog and removed from source; the remaining service-model burn-down should continue moving module-local DTO/policy/repository logic into the owning module while keeping only genuinely shared cross-module facts under `service/model`.
 - The service shape validator no longer has a Markdown exception for `service/model/IMPORTANT.md`, and the Nx validation target now watches `src/service/model/**` so shared service-model topology is ratcheted with module topology.
+- Module-local `model/` trees now use strict policy/DTO/error file-kind naming in the service shape validator; future loose model files are rejected instead of quietly becoming unowned logic.
