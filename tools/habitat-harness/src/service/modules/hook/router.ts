@@ -44,17 +44,17 @@ import {
 import {
   BiomeProvider,
   type BiomeCommandRequest,
-} from "@internal/habitat-harness/service/runtime/biome/index";
+} from "@internal/habitat-harness/providers/biome/index";
 import {
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { GitProvider } from "@internal/habitat-harness/service/runtime/git/index";
-import { GraphiteProvider } from "@internal/habitat-harness/service/runtime/graphite/index";
-import { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
-import { workspaceGraphTargetNames as defaultWorkspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
-import { repoRoot as defaultRepoRoot } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/resources/command/index";
+import { GitProvider } from "@internal/habitat-harness/providers/git/index";
+import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
+import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
+import { workspaceGraphTargetNames as defaultWorkspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
+import { repoRoot as defaultRepoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import {
   type HabitatServiceRequirements,

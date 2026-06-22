@@ -3,18 +3,18 @@ import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { BaselineAuthority } from "@internal/habitat-harness/service/model/check/baseline/index";
 import type { SourceCheck } from "@internal/habitat-harness/service/model/check/source/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/selection/index";
-import type { BiomeProvider } from "@internal/habitat-harness/service/runtime/biome/index";
-import type { CommandRunner } from "@internal/habitat-harness/service/runtime/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/service/runtime/config/index";
+import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
+import type { CommandRunner } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import type {
   GitProvider,
   GitProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/git/index";
+} from "@internal/habitat-harness/providers/git/index";
 import type {
   GritProvider,
   GritProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/grit/index";
-import type { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
+} from "@internal/habitat-harness/providers/grit/index";
+import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { Context, Effect, Layer } from "effect";
 import type { BaselineExpansionResult } from "./baseline-expansion.js";
 import { expandBaselinesEffect } from "./baseline-expansion.js";

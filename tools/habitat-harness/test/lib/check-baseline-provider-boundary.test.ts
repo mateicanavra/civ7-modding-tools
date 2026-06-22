@@ -7,8 +7,8 @@ import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model
 import {
   captureOutput,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";

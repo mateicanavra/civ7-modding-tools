@@ -55,8 +55,9 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 
 `@internal/habitat-harness` remains one package, but Habitat's source is
 projected into inferred Nx boundary projects. Fixed roots cover the command
-surface, service shell, service model, and runtime resources. Every directory
-under `tools/habitat-harness/src/service/modules/*` is inferred as the same
+surface, service shell, service model, provider implementations, shared
+resources, and runtime composition. Every directory under
+`tools/habitat-harness/src/service/modules/*` is inferred as the same
 `layer:service-module` kind, so future modules inherit the same boundary
 treatment without adding a concrete tag or constraint row.
 
@@ -64,12 +65,12 @@ treatment without adding a concrete tag or constraint row.
 |---|---|
 | `habitat:cli` | Thin command surface and bin-facing command classes. CLI code calls the Habitat service; it does not own domain execution. |
 | `habitat:service` | Effect/oRPC service contracts, implementers, routers, and owned modules for checking, fixing, classifying, verifying, graph routing, hooks, and scaffolding. |
-| `habitat:runtime` | Effect resources/providers for config, typed errors, filesystem/time/cache, command execution, and delegated vendor tools such as Grit, Biome, Nx, Git, Graphite, and reporters. |
+| `habitat:runtime` | Effect resources/providers and runtime composition for config, typed errors, filesystem/time/cache, command execution, and delegated vendor tools such as Grit, Biome, Nx, Git, Graphite, and reporters. |
 | `layer:service-entry` | Public caller entry for a service package or command surface. |
 | `layer:service-shell` | Root service contract, Effect-oRPC implementer, root router composition, and initial context. |
 | `layer:service-model` | Service-wide DTOs, read models, facts, and policies intentionally shared by modules. |
 | `layer:service-module` | One named service module with its contract, module implementer, router, local model, local policy, and local middleware. |
-| `layer:resource-provider` | Runtime resource/provider implementation for delegated tools and host capabilities. |
+| `layer:resource-provider` | Resource/provider implementation and runtime layer composition for delegated tools and host capabilities. |
 
 ## 2. Per-project assignment
 
@@ -103,7 +104,9 @@ treatment without adding a concrete tag or constraint row.
 | @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
 | @internal/habitat-harness-service-shell | `tools/habitat-harness/src/service` | `kind:tooling`, `habitat:service`, `layer:service-shell` |
 | @internal/habitat-harness-service-model | `tools/habitat-harness/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |
-| @internal/habitat-harness-runtime | `tools/habitat-harness/src/service/runtime` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| @internal/habitat-harness-providers | `tools/habitat-harness/src/providers` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| @internal/habitat-harness-resources | `tools/habitat-harness/src/resources` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| @internal/habitat-harness-runtime | `tools/habitat-harness/src/runtime` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
 | @internal/habitat-harness-cli | `tools/habitat-harness/src/cli` | `kind:tooling`, `habitat:cli` |
 
 Habitat service module projects are inferred from

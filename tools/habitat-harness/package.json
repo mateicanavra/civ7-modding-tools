@@ -147,6 +147,24 @@
       "import": "./dist/service/*.js",
       "default": "./dist/service/*.js"
     },
+    "./providers/*": {
+      "bun": "./src/providers/*.ts",
+      "types": "./src/providers/*.ts",
+      "import": "./dist/providers/*.js",
+      "default": "./dist/providers/*.js"
+    },
+    "./resources/*": {
+      "bun": "./src/resources/*.ts",
+      "types": "./src/resources/*.ts",
+      "import": "./dist/resources/*.js",
+      "default": "./dist/resources/*.js"
+    },
+    "./runtime/*": {
+      "bun": "./src/runtime/*.ts",
+      "types": "./src/runtime/*.ts",
+      "import": "./dist/runtime/*.js",
+      "default": "./dist/runtime/*.js"
+    },
     "./nx-plugin": {
       "bun": "./src/nx-plugin.ts",
       "types": "./src/nx-plugin.ts",

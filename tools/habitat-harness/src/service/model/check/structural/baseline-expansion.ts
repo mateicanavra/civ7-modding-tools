@@ -15,19 +15,19 @@ import {
   type RuleSelectionResult,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/selection/index";
-import type { BiomeProvider } from "@internal/habitat-harness/service/runtime/biome/index";
-import { CommandRunner } from "@internal/habitat-harness/service/runtime/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/service/runtime/config/index";
-import { renderHabitatError } from "@internal/habitat-harness/service/runtime/errors/index";
+import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
+import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
+import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import type {
   GitProvider,
   GitProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/git/index";
+} from "@internal/habitat-harness/providers/git/index";
 import type {
   GritProvider,
   GritProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/grit/index";
-import type { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
+} from "@internal/habitat-harness/providers/grit/index";
+import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { Effect } from "effect";
 import { executeSelectedRulesEffect } from "./execution.js";
 

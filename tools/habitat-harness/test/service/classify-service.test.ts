@@ -1,6 +1,6 @@
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
 import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/model/workspace/index";
-import type { WorkspaceProject } from "@internal/habitat-harness/service/runtime/nx/schema";
+import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { describe, expect, test } from "vitest";
 
 const nxProjects: WorkspaceGraphProjectReader = {

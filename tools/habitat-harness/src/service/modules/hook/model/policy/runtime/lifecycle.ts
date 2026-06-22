@@ -1,8 +1,8 @@
-import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import type {
   GitProviderRequirements,
   GitProviderService,
-} from "@internal/habitat-harness/service/runtime/git/index";
+} from "@internal/habitat-harness/providers/git/index";
 import { Effect } from "effect";
 import { captureRepoSnapshotEffect } from "./repo-snapshot.js";
 import { type HookRuntime, hookNow } from "./runtime.js";

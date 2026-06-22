@@ -8,16 +8,16 @@ import {
 import {
   baselineRepoPath,
   ruleRegistryRepoPath,
-} from "@internal/habitat-harness/service/runtime/artifact-paths";
+} from "@internal/habitat-harness/resources/artifact-paths";
 import {
   type FileWriteFailed,
   renderHabitatError,
-} from "@internal/habitat-harness/service/runtime/errors/index";
+} from "@internal/habitat-harness/resources/errors/index";
 import {
   GitProvider,
   type GitProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/git/index";
-import { baselinesDir, repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/providers/git/index";
+import { baselinesDir, repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   isDirectory,
   isFile,
@@ -25,7 +25,7 @@ import {
   readDirectory,
   readText,
   writeText,
-} from "@internal/habitat-harness/service/runtime/resources/index";
+} from "@internal/habitat-harness/resources/platform/index";
 import { Effect } from "effect";
 import type { BaselineAuthorityContext } from "./context.js";
 import { errorMessage, externalSourceFilePath } from "./context.js";

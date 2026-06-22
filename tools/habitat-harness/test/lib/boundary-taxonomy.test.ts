@@ -9,7 +9,7 @@ import {
   type TaxonomyConstraint,
 } from "@internal/habitat-harness/service/modules/graph/model/policy/boundary-taxonomy";
 import type { NxProjectMetadata } from "@internal/habitat-harness/service/modules/graph/model/policy/nx-projects";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { describe, expect, test } from "vitest";
 
 describe("boundary taxonomy verifier", () => {
@@ -22,8 +22,18 @@ describe("boundary taxonomy verifier", () => {
       tags: ["kind:tooling"],
     });
     expect(taxonomy.projects).toContainEqual({
+      name: "@internal/habitat-harness-providers",
+      root: "tools/habitat-harness/src/providers",
+      tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+    });
+    expect(taxonomy.projects).toContainEqual({
+      name: "@internal/habitat-harness-resources",
+      root: "tools/habitat-harness/src/resources",
+      tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+    });
+    expect(taxonomy.projects).toContainEqual({
       name: "@internal/habitat-harness-runtime",
-      root: "tools/habitat-harness/src/service/runtime",
+      root: "tools/habitat-harness/src/runtime",
       tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
     });
     expect(taxonomy.projects).toContainEqual({

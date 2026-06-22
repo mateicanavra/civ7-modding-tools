@@ -1,4 +1,4 @@
-import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import { Clock, Effect } from "effect";
 import type { HookReportChannel, HookTrace } from "./schema.js";
 

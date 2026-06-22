@@ -4,8 +4,8 @@ import { pathToFileURL } from "node:url";
 import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,
-} from "@internal/habitat-harness/service/runtime/artifact-paths";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/resources/artifact-paths";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { createProjectGraphAsync } from "@nx/devkit";
 import type { NxProjectMetadata } from "./nx-projects.js";
 

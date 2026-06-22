@@ -12,11 +12,11 @@ import {
   type WorkspaceProject,
   type WorkspaceTargetState,
   WorkspaceTargetStateSchema,
-} from "@internal/habitat-harness/service/runtime/nx/schema";
+} from "@internal/habitat-harness/providers/nx/schema";
 import {
   classifyTargetNames,
   workspaceGraphTargetNames,
-} from "@internal/habitat-harness/service/runtime/nx/targets";
+} from "@internal/habitat-harness/providers/nx/targets";
 import { Value } from "typebox/value";
 import {
   explicitProjectTargetDependency,

@@ -1,4 +1,4 @@
-import { readGitState } from "@internal/habitat-harness/service/runtime/git/state";
+import { readGitState } from "@internal/habitat-harness/providers/git/state";
 import { parseWorktreeObservation, type WorktreeObservation } from "./schema.js";
 
 export function observeWorktree(cwd?: string): WorktreeObservation {

@@ -3,7 +3,7 @@ import {
   type WorkspaceProject,
   workspaceProjectHasTarget,
 } from "@internal/habitat-harness/service/model/workspace/index";
-import { NxWorkspaceGraphProjectReader } from "@internal/habitat-harness/service/runtime/nx/graph";
+import { NxWorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
 
 export type NxProjectMetadata = WorkspaceProject;
 

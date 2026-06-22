@@ -1,6 +1,6 @@
-import { GitProvider } from "@internal/habitat-harness/service/runtime/git/index";
-import { GraphiteProvider } from "@internal/habitat-harness/service/runtime/graphite/index";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { GitProvider } from "@internal/habitat-harness/providers/git/index";
+import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "./schema.js";

@@ -3,11 +3,11 @@ import {
   NxProvider,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/service/runtime/nx/index";
+} from "@internal/habitat-harness/providers/nx/index";
 import {
   acquireTempDirectory,
   readText,
-} from "@internal/habitat-harness/service/runtime/resources/index";
+} from "@internal/habitat-harness/resources/platform/index";
 import { ORPCError } from "@orpc/server";
 import { Data, Effect } from "effect";
 import { module } from "./module.js";

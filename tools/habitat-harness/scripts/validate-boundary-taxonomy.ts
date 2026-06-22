@@ -7,7 +7,7 @@ import {
   readNxProjectMetadataFromGraph,
   readWorkspaceManifestProjects,
 } from "@internal/habitat-harness/service/modules/graph/model/policy/boundary-taxonomy";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 
 const taxonomy = parseBoundaryTaxonomy(
   await readFile(path.join(repoRoot, "docs/projects/habitat-harness/taxonomy.md"), "utf8")

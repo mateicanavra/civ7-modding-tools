@@ -12,7 +12,7 @@ describe("source-check rule execution", () => {
           message: "test rule",
           patternName: "adapter_base_standard_import",
           pathCoverage: [{ kind: "project-owner" }],
-          scanRoots: ["tools/habitat-harness/src/service/runtime/grit"],
+          scanRoots: ["tools/habitat-harness/src/providers/grit"],
         },
       ])
     );

@@ -1,9 +1,9 @@
-import type { HabitatCommandResult } from "@internal/habitat-harness/service/runtime/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/index";
 import type {
   GitProviderRequirements,
   GitProviderService,
-} from "@internal/habitat-harness/service/runtime/git/index";
-import { toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/providers/git/index";
+import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import { classifyResourcesState } from "./resource-inspection.js";
 import type { HookRuntime } from "./runtime.js";

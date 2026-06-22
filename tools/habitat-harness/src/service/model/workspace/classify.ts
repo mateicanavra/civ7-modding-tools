@@ -2,7 +2,7 @@ import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model
 import {
   readWorkspaceGraph,
   type WorkspaceGraphProjectReader,
-} from "@internal/habitat-harness/service/runtime/nx/graph";
+} from "@internal/habitat-harness/providers/nx/graph";
 import { diffText, extractDiffPaths } from "./diff.js";
 import { classifyPathFromProjects, graphReadRefusal, graphRefusalResult } from "./path.js";
 import {

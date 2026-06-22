@@ -5,8 +5,8 @@ import {
   ruleBaselineFacts,
   ruleSelectorFacts,
 } from "@internal/habitat-harness/service/model/rules/registry/index";
-import { ruleRegistryRepoPath } from "@internal/habitat-harness/service/runtime/artifact-paths";
-import { baselinesDir, repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
+import { baselinesDir, repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
 export interface BaselineAuthorityContext {

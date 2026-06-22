@@ -10,14 +10,14 @@ import {
   materializeHabitatCommandWithConfig,
   redactEnvDelta,
   renderCommandObservation,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { makeHabitatConfig } from "@internal/habitat-harness/service/runtime/config/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { makeHabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import {
   CommandInterrupted,
   CommandUnavailable,
-} from "@internal/habitat-harness/service/runtime/errors/index";
-import { makeFakeGitStateProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/resources/errors/index";
+import { makeFakeGitStateProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";
 
@@ -132,7 +132,7 @@ describe("CommandRunner", () => {
         branch: "after-branch",
         head: "after-head",
         dirty: true,
-        statusShort: " M tools/habitat-harness/src/service/runtime/command/runner.ts\n",
+        statusShort: " M tools/habitat-harness/src/resources/command/runner.ts\n",
         statusDigest: "after-digest",
       },
     ];

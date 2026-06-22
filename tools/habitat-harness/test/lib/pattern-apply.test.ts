@@ -14,8 +14,8 @@ import {
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { makeFakeGritProviderLayer } from "@internal/habitat-harness/service/runtime/grit/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/providers/grit/index";
 import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
