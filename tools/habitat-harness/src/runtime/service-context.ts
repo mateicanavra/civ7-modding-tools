@@ -17,7 +17,7 @@ import type {
   HabitatServiceContext,
   HabitatServiceDeps,
 } from "@internal/habitat-harness/service/base";
-import { StructuralCheck } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { StructuralCheck } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { Effect, ManagedRuntime } from "effect";
 
 const serviceContextRuntime = ManagedRuntime.make(HabitatRuntimeLive);

@@ -13,7 +13,7 @@ import {
   toRepoRelative,
 } from "@internal/habitat-harness/resources/paths";
 import { pathExistsSync } from "@internal/habitat-harness/resources/platform/index";
-import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { Effect } from "effect";
 
 const biomeCandidateExtensions = new Set([

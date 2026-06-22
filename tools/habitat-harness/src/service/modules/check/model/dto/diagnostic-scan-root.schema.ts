@@ -1,7 +1,7 @@
 import {
   ProtectedZoneOwnerSchema,
   ProtectedZoneRecoveryInstructionSchema,
-} from "@internal/habitat-harness/service/model/check/dto/protected-zone.schema";
+} from "@internal/habitat-harness/service/modules/check/model/dto/protected-zone.schema";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 

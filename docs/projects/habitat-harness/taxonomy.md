@@ -112,6 +112,11 @@ Habitat service module projects are inferred from
 `@internal/habitat-harness-service-module-<module>` and tags `kind:tooling`,
 `habitat:service`, and `layer:service-module`. They are not enumerated here
 because the boundary rule applies to the kind, not to concrete module names.
+Each module-local `model` directory is also inferred as
+`@internal/habitat-harness-service-module-<module>-model` with tags
+`kind:tooling`, `habitat:service`, `layer:service-model`, and
+`scope:module-model`. Module roots may import their own `./model/**` artifacts;
+other access is still governed by the tag rows below.
 
 ## 3. Dependency constraints (project plane, initial rule set)
 

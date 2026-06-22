@@ -3,11 +3,11 @@ import {
   type CheckReport,
   type HookCheckSummary,
   hookCheckSummary,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import {
   CheckReportSchema,
   validateCheckReport,
-} from "@internal/habitat-harness/service/model/check/policy/structural/schema";
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
 import { Value } from "typebox/value";
 
 export type HookCheckCommandResult =

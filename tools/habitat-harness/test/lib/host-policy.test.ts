@@ -9,7 +9,7 @@ import {
   missingHostPolicyState,
   readHostPolicyState,
   unavailableHostPolicyState,
-} from "@internal/habitat-harness/service/model/check/index";
+} from "@internal/habitat-harness/service/modules/check/model/index";
 import { describe, expect, test } from "vitest";
 
 describe("host policy boundary", () => {

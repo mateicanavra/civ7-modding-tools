@@ -2,7 +2,7 @@ import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatComman
 import {
   renderCheckReport,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/modules/verify/model/index";
 import { Flags } from "@oclif/core";
 

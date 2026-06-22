@@ -26,7 +26,7 @@ import {
   type CheckReport,
   makeFakeStructuralCheckLayer,
   StructuralCheck,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,

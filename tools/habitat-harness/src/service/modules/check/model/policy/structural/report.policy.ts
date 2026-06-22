@@ -12,17 +12,17 @@ import type {
 import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
-import {
-  type BaselineApplicationResult,
-  BaselineAuthority,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
-import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   activeRuleReportFacts,
   factsForRuleIds,
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import {
+  type BaselineApplicationResult,
+  BaselineAuthority,
+} from "@internal/habitat-harness/service/modules/check/model/policy/baseline/index";
+import { SourceCheck } from "@internal/habitat-harness/service/modules/check/model/policy/source/index";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
 import { baselineContractInputs } from "./baseline-expansion.policy.js";

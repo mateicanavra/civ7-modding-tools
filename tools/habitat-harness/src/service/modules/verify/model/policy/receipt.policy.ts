@@ -2,11 +2,6 @@ import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import {
-  type CheckReport,
-  type VerifyCheckSummary,
-  verifyCheckSummary,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
@@ -14,6 +9,11 @@ import {
   VerifyTargetPlanSchema,
   verifyTargetPlan,
 } from "@internal/habitat-harness/service/model/workspace/index";
+import {
+  type CheckReport,
+  type VerifyCheckSummary,
+  verifyCheckSummary,
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { Value } from "typebox/value";
 import {
   type VerifyBaseResolution,

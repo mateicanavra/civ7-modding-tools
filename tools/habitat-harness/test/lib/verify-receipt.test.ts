@@ -1,8 +1,8 @@
-import type { CheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import {
   type VerifyTargetPlan,
   verifyTargetPlan,
 } from "@internal/habitat-harness/service/model/workspace/index";
+import type { CheckReport } from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
 import {
   createVerifyReceipt,
   VerifyReceiptSchema,

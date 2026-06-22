@@ -26,21 +26,6 @@ import {
   renderHabitatError,
 } from "@internal/habitat-harness/resources/errors/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
-import {
-  modifiedStagedPaths,
-  runFileLayerProtectedMutationRule,
-  type StagedMutationPath,
-  stagedPathsFromNameStatus,
-} from "@internal/habitat-harness/service/model/check/index";
-import {
-  type RuleRunResult,
-  ruleDiagnosticsFromCommandResult,
-} from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture.policy";
-import {
-  approvedSourceScanRootsForRules,
-  SourceCheck,
-  stagedSourceScanRoots,
-} from "@internal/habitat-harness/service/model/check/policy/source/index";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
@@ -58,6 +43,21 @@ import {
   factsForRuleIds,
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import {
+  modifiedStagedPaths,
+  runFileLayerProtectedMutationRule,
+  type StagedMutationPath,
+  stagedPathsFromNameStatus,
+} from "@internal/habitat-harness/service/modules/check/model/index";
+import {
+  type RuleRunResult,
+  ruleDiagnosticsFromCommandResult,
+} from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/architecture.policy";
+import {
+  approvedSourceScanRootsForRules,
+  SourceCheck,
+  stagedSourceScanRoots,
+} from "@internal/habitat-harness/service/modules/check/model/policy/source/index";
 import { Clock, Effect } from "effect";
 import { notApplicableDiagnostic } from "./disposition-diagnostics.policy.js";
 import type { CheckOptions } from "./request.policy.js";

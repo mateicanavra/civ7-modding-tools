@@ -1,5 +1,5 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { renderCheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { renderCheckReport } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { Flags } from "@oclif/core";
 
 export default class Check extends HabitatCommand {
