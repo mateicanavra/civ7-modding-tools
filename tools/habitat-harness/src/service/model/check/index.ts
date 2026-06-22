@@ -47,17 +47,6 @@ export {
   structuralCheckRequest,
 } from "./policy/request.policy.js";
 export {
-  approvedSourceScanRootsForRules,
-  approvedSourceScanRootsForRules as approvedScanRootsForRules,
-  collapsedSourceScanRoots,
-  pathsOverlap,
-  selectedSourceScanRootsForRules,
-  sortedUnique,
-  sourceCheckCandidateExtensions,
-  stagedSourceCheckPaths,
-  stagedSourceScanRoots,
-} from "./policy/source-scope.policy.js";
-export {
   checkOutcomeFromReport,
   hookCheckSummary,
   isDiagnosticUnavailableSummary,

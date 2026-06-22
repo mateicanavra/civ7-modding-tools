@@ -12,18 +12,12 @@ import {
 } from "@internal/habitat-harness/resources/errors/index";
 import type { BaselineFileSystemPort } from "@internal/habitat-harness/service/model/baseline/index";
 import {
-  approvedSourceScanRootsForRules,
   type CheckOptions,
   type HabitatDiagnostic,
   notApplicableDiagnostic,
   type RuleExecutionDisposition,
   type RuleExecutionTiming,
-  stagedSourceScanRoots,
 } from "@internal/habitat-harness/service/model/check/index";
-import {
-  runSourceRulesEffect,
-  type SourceRuleFileSystem,
-} from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   type RuleRunResult,
   ruleDiagnosticsFromCommandResult,
@@ -47,6 +41,12 @@ import {
   type RuleFactsCatalog,
 } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import {
+  approvedSourceScanRootsForRules,
+  runSourceRulesEffect,
+  type SourceRuleFileSystem,
+  stagedSourceScanRoots,
+} from "@internal/habitat-harness/service/model/source-check/index";
 import { Clock, Effect } from "effect";
 
 export interface RuleExecutionRecord {
