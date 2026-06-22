@@ -5,14 +5,6 @@ import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "./schema.js";
 
-/** Options accepted by the verify orchestration layer after Oclif parses CLI flags. */
-export interface VerifyOptions {
-  /** Explicit Git base ref for affected verification. */
-  base?: string;
-  /** Raw command args recorded into the receipt for handoff context. */
-  commandArgs?: readonly string[];
-}
-
 /**
  * Resolves the affected base for verify.
  *

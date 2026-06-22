@@ -30,7 +30,6 @@ export default class Verify extends HabitatCommand {
     const service = createHabitatServiceClient();
     const result = await service.verify.run({
       base: flags.base,
-      commandArgs: this.rawArgv(),
       affectedExecution: flags.json ? "plan-only" : "run",
     });
     if (result.kind === "base-refused") this.error(result.message, { exit: 1 });

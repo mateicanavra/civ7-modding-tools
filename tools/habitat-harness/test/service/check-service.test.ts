@@ -25,7 +25,6 @@ describe("Habitat check service", () => {
             selectors: { rule: "format-ci", tool: "biome" },
             baselineIntegrity: true,
             base: "origin/main",
-            commandArgs: ["--json"],
             staged: true,
             stagedPaths: ["tools/habitat-harness/src/cli/commands/check.ts"],
           })
@@ -54,8 +53,8 @@ describe("Habitat check service", () => {
         command: {
           bin: "habitat",
           id: "check",
-          argv: ["--json"],
-          serialized: "habitat check --json",
+          argv: [],
+          serialized: "habitat check",
         },
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/cli/commands/check.ts"],

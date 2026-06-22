@@ -43,7 +43,7 @@ export const verifyRouter = {
     const checkReport = yield* structuralCheck.createReport({
       base,
       baselineIntegrity: true,
-      command: checkCommandContext(input.commandArgs ?? []),
+      command: checkCommandContext(),
     });
     const checkSummary = verifyCheckSummary(checkReport);
     const targetPlan = yield* Effect.promise(() => Promise.resolve(readVerifyTargetPlan()));
@@ -72,7 +72,6 @@ export const verifyRouter = {
       requestedBase: input.base,
       resolvedBase: base,
       baseSource: baseDecision.source,
-      commandArgs: input.commandArgs,
       startedAt,
       durationMs: Math.max(0, endedMs - startedMs),
       exitCode,

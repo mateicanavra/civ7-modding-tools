@@ -43,7 +43,6 @@ export {
 } from "@internal/habitat-harness/service/model/workspace/index";
 export type {
   VerifyBaseResolution,
-  VerifyOptions,
   VerifyReceipt,
 } from "@internal/habitat-harness/service/model/verify/proof/index";
 export {

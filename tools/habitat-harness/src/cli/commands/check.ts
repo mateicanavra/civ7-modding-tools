@@ -1,9 +1,6 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import {
-  checkCommandContext,
-  renderCheckReport,
-} from "@internal/habitat-harness/service/model/check/structural/index";
+import { renderCheckReport } from "@internal/habitat-harness/service/model/check/structural/index";
 import { Flags } from "@oclif/core";
 
 export default class Check extends HabitatCommand {
@@ -42,7 +39,6 @@ export default class Check extends HabitatCommand {
       const expansion = await client.check.expandBaseline({
         selectors: selection,
         base,
-        command: checkCommandContext(this.rawArgv()),
       });
       if (expansion.kind === "refused") this.error(expansion.message, { exit: 1 });
       for (const message of expansion.messages) this.log(message);
@@ -54,7 +50,6 @@ export default class Check extends HabitatCommand {
       selectors: selection,
       ...(baselineIntegrity ? { base } : {}),
       baselineIntegrity,
-      command: checkCommandContext(this.rawArgv()),
       staged: flags.staged,
     });
     this.log(renderCheckReport(report, { json: flags.json, output: flags.output }));

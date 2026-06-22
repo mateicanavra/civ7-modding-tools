@@ -127,7 +127,7 @@ describe("Habitat oclif commands", () => {
     mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
     mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockVerifyRun.mockImplementation(
-      async (input: { base?: string; commandArgs?: string[]; affectedExecution?: string }) => {
+      async (input: { base?: string; affectedExecution?: string }) => {
         const base = input.base ?? "merge-base";
         return {
           kind: "completed",
@@ -185,11 +185,6 @@ describe("Habitat oclif commands", () => {
           tool: "source-check",
         },
         staged: true,
-        command: expect.objectContaining({
-          argv: expect.arrayContaining(["--json", "--rule", "adapter-boundary"]),
-          bin: "habitat",
-          id: "check",
-        }),
       })
     );
     expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport, {
@@ -210,11 +205,6 @@ describe("Habitat oclif commands", () => {
           tool: undefined,
         },
         base: "main",
-        command: expect.objectContaining({
-          argv: ["--expand-baseline", "--rule", "demo-rule"],
-          bin: "habitat",
-          id: "check",
-        }),
       })
     );
     expect(mockCheckRun).not.toHaveBeenCalled();
@@ -270,7 +260,6 @@ describe("Habitat oclif commands", () => {
     expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
     expect(mockVerifyRun).toHaveBeenCalledWith({
       base: "HEAD~1",
-      commandArgs: ["--base", "HEAD~1"],
       affectedExecution: "run",
     });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
@@ -283,7 +272,6 @@ describe("Habitat oclif commands", () => {
 
     expect(mockVerifyRun).toHaveBeenCalledWith({
       base: "HEAD~1",
-      commandArgs: ["--base", "HEAD~1", "--json"],
       affectedExecution: "plan-only",
     });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
@@ -337,14 +325,14 @@ describe("Habitat oclif commands", () => {
 
 function verifyReceiptPayload(
   base: string,
-  input: { base?: string; commandArgs?: string[]; affectedExecution?: string }
+  input: { base?: string; affectedExecution?: string }
 ) {
   const planned = input.affectedExecution === "plan-only";
   return {
     schemaVersion: 1,
     outcome: planned ? "planned" : "succeeded",
     command: {
-      argv: ["habitat", "verify", ...(input.commandArgs ?? [])],
+      argv: ["habitat", "verify"],
       cwd: "/repo",
       env: {},
       startedAt: "2026-06-13T00:00:00.000Z",
