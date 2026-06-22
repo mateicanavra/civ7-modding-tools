@@ -11,12 +11,6 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import { service } from "@internal/habitat-harness/service/impl";
-import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
-import {
-  activeRuleHookCheckFacts,
-  activeRuleSourceFacts,
-  factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   approvedScanRootsForRules,
   type CheckReport,
@@ -24,9 +18,15 @@ import {
   type HookCheckSummary,
   hookCheckSummary,
   renderCheckReport,
-  type StructuralCheckService,
   stagedSourceCheckPaths,
-} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
+} from "@internal/habitat-harness/service/model/check/index";
+import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
+import {
+  activeRuleHookCheckFacts,
+  activeRuleSourceFacts,
+  factsForRuleIds,
+} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { StructuralCheckService } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { Effect } from "effect";
 import type { HookServiceRunInput } from "./contract.js";
 import {

@@ -1,10 +1,6 @@
 import { isDiagnosticProviderFailureKind } from "@internal/habitat-harness/service/model/diagnostics/index";
 import { Value } from "typebox/value";
 import {
-  isDependencyRefusalDiagnostic,
-  isNotApplicableDiagnostic,
-} from "./disposition-diagnostics.policy.js";
-import {
   type CheckOutcome,
   CheckOutcomeSchema,
   type CheckReport,
@@ -14,7 +10,11 @@ import {
   type SelectorRequest,
   type VerifyCheckSummary,
   VerifyCheckSummarySchema,
-} from "./schema.js";
+} from "../dto/check.schema.js";
+import {
+  isDependencyRefusalDiagnostic,
+  isNotApplicableDiagnostic,
+} from "./disposition-diagnostics.policy.js";
 
 export function checkOutcomeFromReport(report: CheckReport): CheckOutcome {
   const failingReports = report.rules.filter((rule) => rule.status === "fail");

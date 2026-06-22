@@ -1,7 +1,4 @@
-import type {
-  CheckReport,
-  RuleReport,
-} from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
+import type { CheckReport, RuleReport } from "../dto/check.schema.js";
 
 /** Human rendering of rule results (the agent-readable half of every failure). */
 

@@ -14,7 +14,7 @@ import type { HabitatProcessRequest } from "@internal/habitat-harness/resources/
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
-import type { CheckReport } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
+import type { CheckReport } from "@internal/habitat-harness/service/model/check/index";
 import { Effect } from "effect";
 
 export function makeTestHabitatServiceDeps(

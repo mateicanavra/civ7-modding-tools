@@ -27,9 +27,11 @@ import {
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
+import type {
+  CheckOptions,
+  CheckReport,
+} from "@internal/habitat-harness/service/model/check/index";
 import {
-  type CheckOptions,
-  type CheckReport,
   makeFakeStructuralCheckLayer,
   StructuralCheck,
 } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";

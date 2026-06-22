@@ -1,9 +1,7 @@
 import { service } from "@internal/habitat-harness/service/impl";
-import {
-  checkCommandContext,
-  describeRuleSelectionFailure,
-  type StructuralCheckService,
-} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
+import { checkCommandContext } from "@internal/habitat-harness/service/model/check/index";
+import { describeRuleSelectionFailure } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import type { StructuralCheckService } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import type { CheckServiceRunInput } from "./contract.js";
 
 export interface CheckModuleContext {
@@ -25,6 +23,7 @@ export const module = service.check.use(({ context, next }) =>
 );
 
 function selectorsFromInput(input: Pick<CheckServiceRunInput, "selectors">) {
+  // TODO: update pattern -- don't do this.. just us multiple .use()
   return {
     ...(input.selectors?.owner ? { owner: input.selectors.owner } : {}),
     ...(input.selectors?.rule ? { rule: input.selectors.rule } : {}),

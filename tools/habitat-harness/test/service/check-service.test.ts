@@ -1,6 +1,6 @@
+import type { CheckOptions } from "@internal/habitat-harness/service/model/check/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import type { StructuralCheckService } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
-import type { CheckOptions } from "@internal/habitat-harness/service/modules/check/model/policy/structural/request.policy";
 import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";

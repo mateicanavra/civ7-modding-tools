@@ -3,6 +3,7 @@ import { habitatCacheRepoPathPrefix } from "@internal/habitat-harness/resources/
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { decideScanRootProtection } from "@internal/habitat-harness/service/model/host/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
+import { activeRuleSourceFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 
 export const sourceCheckCandidateExtensions = new Set([
   ".cjs",
@@ -51,6 +52,13 @@ export function stagedSourceScanRoots(
       .filter((candidate) => sourceCheckCandidateExtensions.has(path.extname(candidate)))
   );
   return candidates.filter((candidate) => isApprovedSourceScanRoot(candidate, approvedScanRoots));
+}
+
+export function stagedSourceCheckPaths(
+  stagedPaths: readonly string[],
+  approvedScanRoots: readonly string[] = approvedSourceScanRootsForRules(activeRuleSourceFacts)
+): string[] {
+  return stagedSourceScanRoots(stagedPaths, approvedScanRoots);
 }
 
 export function collapsedSourceScanRoots(scanRoots: readonly string[]): string[] {
