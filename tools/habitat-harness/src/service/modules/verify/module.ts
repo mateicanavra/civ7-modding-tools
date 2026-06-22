@@ -1,7 +1,4 @@
-import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
-import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import { runGritRulesEffect } from "@internal/habitat-harness/providers/grit/index";
-import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import type {
   HabitatServiceContext,
   HabitatServiceDeps,
@@ -29,6 +26,10 @@ import {
   readVerifyTargetPlan,
   resolveVerifyBaseEffect,
   runAffectedVerificationEffect,
+  type VerifyBaseGitPort,
+  type VerifyBaseGraphitePort,
+  type VerifyGitStatusPort,
+  type VerifyNxAffectedPort,
   type VerifyReceiptInput,
 } from "./model/index.js";
 
@@ -43,6 +44,10 @@ export interface VerifyModuleContext {
   readonly resolveVerifyBase: ReturnType<typeof makeResolveVerifyBase>;
   readonly runAffectedVerification: ReturnType<typeof makeRunAffectedVerification>;
   readonly verifyCheckSummary: typeof verifyCheckSummary;
+}
+
+interface VerifyWorkspaceGraphPort {
+  readonly workspaceGraph: () => Effect.Effect<Parameters<typeof readVerifyTargetPlan>[1]>;
 }
 
 type VerifyModule = EffectImplementerInternal<
@@ -122,7 +127,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
 
 function readVerifyTargetPlanEffect(input: {
   readonly rules: HabitatServiceDeps["rules"];
-  readonly nx: NxProviderService;
+  readonly nx: VerifyWorkspaceGraphPort;
 }) {
   return () =>
     input.nx.workspaceGraph().pipe(Effect.map((graph) => readVerifyTargetPlan(input.rules, graph)));
@@ -136,7 +141,7 @@ function makeCreateVerifyReceipt(context: {
     createVerifyReceipt({ ...input, env: context.env, repoRoot: context.repoRoot });
 }
 
-function makeRunAffectedVerification(nx: NxProviderService) {
+function makeRunAffectedVerification(nx: VerifyNxAffectedPort) {
   return (base: string, targets: readonly string[]) =>
     runAffectedVerificationEffect(nx, base, targets).pipe(
       Effect.mapError(verifyServiceInternalError)
@@ -144,15 +149,15 @@ function makeRunAffectedVerification(nx: NxProviderService) {
 }
 
 function makeObserveGitStatus(input: {
-  readonly git: GitProviderService;
+  readonly git: VerifyGitStatusPort;
   readonly repoRoot: string;
 }) {
   return () => observeGitStatusEffect(input).pipe(Effect.mapError(verifyServiceInternalError));
 }
 
 function makeResolveVerifyBase(context: {
-  readonly git: GitProviderService;
-  readonly graphite: GraphiteProviderService;
+  readonly git: VerifyBaseGitPort;
+  readonly graphite: VerifyBaseGraphitePort;
   readonly repoRoot: string;
 }) {
   return (base?: string) => resolveVerifyBaseEffect(context, base);

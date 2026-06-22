@@ -16,9 +16,19 @@ export {
   VerifyReceiptSchema,
   validateVerifyReceipt,
 } from "@internal/habitat-harness/service/model/verify/index";
-export { resolveVerifyBaseEffect } from "./policy/base-resolution.policy.js";
-export { runAffectedVerificationEffect } from "./policy/nx-affected.policy.js";
-export { observeGitStatusEffect } from "./policy/post-state.policy.js";
+export {
+  resolveVerifyBaseEffect,
+  type VerifyBaseGitPort,
+  type VerifyBaseGraphitePort,
+} from "./policy/base-resolution.policy.js";
+export {
+  runAffectedVerificationEffect,
+  type VerifyNxAffectedPort,
+} from "./policy/nx-affected.policy.js";
+export {
+  observeGitStatusEffect,
+  type VerifyGitStatusPort,
+} from "./policy/post-state.policy.js";
 export type { VerifyReceiptInput } from "./policy/receipt.policy.js";
 export {
   createVerifyReceipt,
