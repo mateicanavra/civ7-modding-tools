@@ -46,6 +46,7 @@ Completed burn-downs:
 - Service callers now import workspace target-name policy from `service/model/workspace`; direct Nx target helper imports are no longer spread into hook, verify receipt, or rule fact catalog code.
 - Classify path and diff policy now receive filesystem capability through module-projected platform context; classify model no longer imports platform filesystem helpers directly.
 - Workspace graph DTOs, target-name defaults, graph refusal shapes, and verify target-plan schemas now live under `service/model/workspace`; the Nx provider only owns graph reading and package-inventory parsing.
+- Nx rule registry loading now validates against service-owned rule registry schemas; graph facts consume service registry records instead of provider-local duplicate record types.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
