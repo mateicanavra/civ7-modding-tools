@@ -1,15 +1,11 @@
 import {
-  readWorkspaceGraph,
-  type WorkspaceGraphProjectReader,
-} from "@internal/habitat-harness/providers/nx/graph";
-import type { WorkspaceGraphReadState } from "@internal/habitat-harness/providers/nx/schema";
-import {
   type ClassifyResult,
   type PathClassification,
   parseClassifyResult,
   stringifyClassifyResult,
 } from "@internal/habitat-harness/service/model/classify/index";
 import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import type { WorkspaceGraphReadState } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
 import {
   classifyPathFromProjects,
@@ -46,21 +42,21 @@ export {
 } from "@internal/habitat-harness/service/model/classify/index";
 
 export interface ClassifyOptions {
-  nxProjects?: WorkspaceGraphProjectReader;
+  graph: WorkspaceGraphReadState | (() => WorkspaceGraphReadState);
   repoRoot: string;
   rules: RuleFactsCatalog;
 }
 
-export async function classifyTargetResult(
+export function classifyTargetResult(
   target: string,
   options: ClassifyOptions
-): Promise<ClassifyResult> {
+): ClassifyResult {
   const diff = diffText(target, options);
   if (diff) {
     const paths = extractDiffPaths(diff);
     if (paths.length === 0) return malformedOrPathlessDiffResult(target);
 
-    const graph = await readWorkspaceGraph(options.repoRoot, options.nxProjects);
+    const graph = readGraph(options);
     if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
 
     return parseClassifyResult({
@@ -72,7 +68,7 @@ export async function classifyTargetResult(
     });
   }
 
-  const graph = await readWorkspaceGraph(options.repoRoot, options.nxProjects);
+  const graph = readGraph(options);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
@@ -113,26 +109,26 @@ export function classifyTargetResultEffect(
   );
 }
 
-export async function classifyPathResult(
+export function classifyPathResult(
   target: string,
   options: ClassifyOptions
-): Promise<PathClassification> {
-  const graph = await readWorkspaceGraph(options.repoRoot, options.nxProjects);
+): PathClassification {
+  const graph = readGraph(options);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
 
-export async function classifyTarget(
+export function classifyTarget(
   target: string,
   options: ClassifyOptions
-): Promise<ClassifyResult> {
+): ClassifyResult {
   return classifyTargetResult(target, options);
 }
 
-export async function classifyPath(
+export function classifyPath(
   target: string,
   options: ClassifyOptions
-): Promise<PathClassification> {
+): PathClassification {
   return classifyPathResult(target, options);
 }
 
@@ -150,4 +146,8 @@ function malformedOrPathlessDiffResult(input: string): ClassifyResult {
       "Provide a repo path or a unified diff with diff --git or +++ b/ changed-file headers.",
     ],
   });
+}
+
+function readGraph(options: ClassifyOptions): WorkspaceGraphReadState {
+  return typeof options.graph === "function" ? options.graph() : options.graph;
 }
