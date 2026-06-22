@@ -1,10 +1,5 @@
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import type {
-  HabitatServiceContext,
-  HabitatServiceDeps,
-  HabitatServiceRequirements,
-  HabitatServiceRuntimeError,
-} from "@internal/habitat-harness/service/base";
+import type { HabitatModule } from "@internal/habitat-harness/service/base";
 import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
@@ -12,14 +7,10 @@ import {
   type CheckReport,
   renderCheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import {
-  createCheckReportEffect,
-  type StructuralExecutionContext,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/validation/policy/target-routing.policy";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import type { Effect } from "effect";
-import type { EffectImplementerInternal } from "effect-orpc";
 import type { HookPreCommitInput } from "./contract.js";
 import { finalizePreCommitEffect, finalizePrePushEffect } from "./model/policy/lifecycle.policy.js";
 import type {
@@ -97,96 +88,57 @@ export interface HookModuleContext {
   ) => HookRouterEffect<StagedHookCheckResult>;
 }
 
-type HookModule = EffectImplementerInternal<
-  HabitatServiceContract["hook"],
-  HabitatServiceContext,
-  HabitatServiceContext & HookModuleContext,
-  HabitatServiceRequirements,
-  HabitatServiceRuntimeError
->;
-
-export const module: HookModule = service.hook.use(({ context, next }) => {
-  const hookContext = {
-    biome: context.deps.biome,
-    git: context.deps.git,
-    graphite: context.deps.graphite,
-    nx: context.deps.nx,
-    platform: context.deps.platform,
-    reporter: context.deps.reporter,
-    rules: context.deps.rules,
-    createCheckReport: (options) =>
-      createCheckReport(
-        { ...options, repoRoot: context.deps.platform.repoRoot },
-        structuralExecutionContext(context.deps)
-      ),
-    workspaceGraphTargetNames,
-  } satisfies HookProcedureContext;
-
-  return next({
-    context: {
-      beginPreCommit: (resourcePolicy) => beginPreCommit(hookContext, resourcePolicy),
-      checkSummaryAllowsNextStage,
-      continuePreCommitAfterFileLayer,
-      createHookOutput: () => createHookOutput(hookContext.reporter),
-      finalizePreCommitEffect,
-      finalizePrePushEffect,
-      finishPreCommit,
-      hookNow,
-      hookResult,
-      localHookNotice,
-      preCommitBiomeProviderStep,
-      prePushAffectedArgv: (request) => hookContext.nx.affectedArgv(request),
-      prePushChangedPaths: (base) => prePushChangedPaths(hookContext, base),
-      prePushHookSourceCheck: (changedPaths) => prePushHookSourceCheck(hookContext, changedPaths),
-      prePushHookSourceCheckPaths: (changedPaths) =>
-        prePushHookSourceCheckPaths(hookContext, changedPaths),
-      prePushRunAffected: (request) => runPrePushAffected(hookContext, request),
-      prePushRunTarget: (target) => runPrePushTarget(hookContext, target),
-      prePushRunTargetArgv: (target) => hookContext.nx.runTargetArgv(target),
-      prePushTargetPlanForChangedPaths: (changedPaths) =>
-        prePushTargetPlanForChangedPaths(
-          changedPaths,
-          hookContext.workspaceGraphTargetNames(),
-          hookContext.rules.artifactPath
+export const module: HabitatModule<HabitatServiceContract["hook"], HookModuleContext> =
+  service.hook.use(({ context, next }) => {
+    const hookContext = {
+      biome: context.deps.biome,
+      git: context.deps.git,
+      graphite: context.deps.graphite,
+      nx: context.deps.nx,
+      platform: context.deps.platform,
+      reporter: context.deps.reporter,
+      rules: context.deps.rules,
+      createCheckReport: (options) =>
+        createCheckReportEffect(
+          { ...options, repoRoot: context.deps.platform.repoRoot },
+          context.structuralCheck
         ),
-      recordHookCommand: (phase, argv, startedAtMs, exitCode) =>
-        recordHookCommand(hookContext, phase, argv, startedAtMs, exitCode),
-      renderCheckReport,
-      resolvePrePushBase: () => resolvePrePushBase(hookContext),
-      section,
-      stagedHookCheck: (tool, stagedPaths) => stagedHookCheck(hookContext, tool, stagedPaths),
-    } satisfies HookModuleContext,
+      workspaceGraphTargetNames,
+    } satisfies HookProcedureContext;
+
+    return next({
+      context: {
+        beginPreCommit: (resourcePolicy) => beginPreCommit(hookContext, resourcePolicy),
+        checkSummaryAllowsNextStage,
+        continuePreCommitAfterFileLayer,
+        createHookOutput: () => createHookOutput(hookContext.reporter),
+        finalizePreCommitEffect,
+        finalizePrePushEffect,
+        finishPreCommit,
+        hookNow,
+        hookResult,
+        localHookNotice,
+        preCommitBiomeProviderStep,
+        prePushAffectedArgv: (request) => hookContext.nx.affectedArgv(request),
+        prePushChangedPaths: (base) => prePushChangedPaths(hookContext, base),
+        prePushHookSourceCheck: (changedPaths) => prePushHookSourceCheck(hookContext, changedPaths),
+        prePushHookSourceCheckPaths: (changedPaths) =>
+          prePushHookSourceCheckPaths(hookContext, changedPaths),
+        prePushRunAffected: (request) => runPrePushAffected(hookContext, request),
+        prePushRunTarget: (target) => runPrePushTarget(hookContext, target),
+        prePushRunTargetArgv: (target) => hookContext.nx.runTargetArgv(target),
+        prePushTargetPlanForChangedPaths: (changedPaths) =>
+          prePushTargetPlanForChangedPaths(
+            changedPaths,
+            hookContext.workspaceGraphTargetNames(),
+            hookContext.rules.artifactPath
+          ),
+        recordHookCommand: (phase, argv, startedAtMs, exitCode) =>
+          recordHookCommand(hookContext, phase, argv, startedAtMs, exitCode),
+        renderCheckReport,
+        resolvePrePushBase: () => resolvePrePushBase(hookContext),
+        section,
+        stagedHookCheck: (tool, stagedPaths) => stagedHookCheck(hookContext, tool, stagedPaths),
+      } satisfies HookModuleContext,
+    });
   });
-});
-
-function createCheckReport(options: CheckOptions, context: StructuralExecutionContext) {
-  return createCheckReportEffect(options, context);
-}
-
-function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
-  return {
-    baselineFileSystem: {
-      isDirectory: deps.platform.isDirectory,
-      isFile: deps.platform.isFileEffect,
-      makeDirectory: deps.platform.makeDirectory,
-      readDirectory: deps.platform.readDirectory,
-      readText: deps.platform.readText,
-      writeText: deps.platform.writeText,
-    },
-    biome: deps.biome,
-    command: deps.commandRunner,
-    git: deps.git,
-    grit: {
-      runRules: deps.grit.runRules,
-    },
-    nx: deps.nx,
-    repoRoot: deps.platform.repoRoot,
-    rules: deps.rules,
-    sourceFileSystem: {
-      isDirectory: deps.platform.isDirectory,
-      isFile: deps.platform.isFileEffect,
-      readDirectory: deps.platform.readDirectory,
-      readText: deps.platform.readText,
-    },
-  };
-}

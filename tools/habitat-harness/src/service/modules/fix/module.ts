@@ -4,6 +4,8 @@ import type {
   HabitatCommandResult,
   SpawnResult,
 } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatModule } from "@internal/habitat-harness/service/base";
+import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import type {
@@ -42,25 +44,26 @@ export interface FixPatternApplyIntent {
   readonly kind: PatternApplyRequest["kind"];
 }
 
-export const module = service.fix.use(({ context, next }) => {
-  const admittedApplyTransactionInputs = makeAdmittedApplyTransactionInputs(
-    context.deps.rules.selector
-  );
-  const runPatternApplyTransactions = makeRunPatternApplyTransactions(
-    context.deps.grit,
-    context.deps.git,
-    context.deps.platform.repoRoot
-  );
-  return next({
-    context: {
-      admittedApplyTransactionInputs,
-      defaultApplyAdmissions,
-      missingAdmissionRefusal,
-      renderPatternApply,
-      runPatternApplyTransactions,
-    } satisfies FixModuleContext,
+export const module: HabitatModule<HabitatServiceContract["fix"], FixModuleContext> =
+  service.fix.use(({ context, next }) => {
+    const admittedApplyTransactionInputs = makeAdmittedApplyTransactionInputs(
+      context.deps.rules.selector
+    );
+    const runPatternApplyTransactions = makeRunPatternApplyTransactions(
+      context.deps.grit,
+      context.deps.git,
+      context.deps.platform.repoRoot
+    );
+    return next({
+      context: {
+        admittedApplyTransactionInputs,
+        defaultApplyAdmissions,
+        missingAdmissionRefusal,
+        renderPatternApply,
+        runPatternApplyTransactions,
+      } satisfies FixModuleContext,
+    });
   });
-});
 
 function makeAdmittedApplyTransactionInputs(ruleFacts: readonly { id: string }[]) {
   return () => admittedApplyTransactionInputsFromRules(ruleFacts);
