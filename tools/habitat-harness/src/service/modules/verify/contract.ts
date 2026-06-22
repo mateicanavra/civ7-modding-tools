@@ -27,7 +27,7 @@ const VerifyServiceAffectedResultSchema = Type.Object(
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Raw affected command streams for CLI handoff." }
+  { additionalProperties: false, description: "Habitat affected verification execution result." }
 );
 export type VerifyServiceAffectedResult = Static<typeof VerifyServiceAffectedResultSchema>;
 

@@ -18,7 +18,7 @@ const GraphServiceRunOutputSchema = Type.Object(
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Raw graph command streams for CLI handoff." }
+  { additionalProperties: false, description: "Habitat graph service execution result." }
 );
 export type GraphServiceRunOutput = Static<typeof GraphServiceRunOutputSchema>;
 

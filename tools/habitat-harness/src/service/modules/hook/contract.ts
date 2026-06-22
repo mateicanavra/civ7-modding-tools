@@ -19,7 +19,7 @@ const HookServiceRunOutputSchema = Type.Object(
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Raw hook command streams for CLI handoff." }
+  { additionalProperties: false, description: "Habitat hook service execution result." }
 );
 export type HookServiceRunOutput = Static<typeof HookServiceRunOutputSchema>;
 
