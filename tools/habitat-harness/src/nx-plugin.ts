@@ -4,13 +4,13 @@ import {
   sourceCheckRuleModuleRepoPath,
   sourceCheckRuleRuntimeRepoPath,
 } from "./service/model/check/source/module-paths.ts";
-import { ruleGraphFactsForNxPlugin } from "./service/modules/graph/model/dto/rule-graph-facts.dto.ts";
+import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
   type InferredProjects,
   InferredProjectsSchema,
   type NxTargetDefinition,
   NxTargetDefinitionSchema,
-} from "./service/modules/graph/model/dto/target-definition.schema.ts";
+} from "./service/model/graph/dto/target-definition.schema.ts";
 import {
   aggregateCheckTarget,
   aliasRuleTarget,
@@ -21,7 +21,7 @@ import {
   habitatInputs,
   ownerCheckTarget,
   sourceCheckTarget,
-} from "./service/modules/graph/model/policy/target-definitions.ts";
+} from "./service/model/graph/policy/target-definitions.ts";
 import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,

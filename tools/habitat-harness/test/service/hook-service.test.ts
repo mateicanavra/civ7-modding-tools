@@ -507,7 +507,7 @@ describe("Habitat hook service", () => {
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath =
-      "tools/habitat-harness/src/service/modules/graph/model/policy/boundary-taxonomy.ts";
+      "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },

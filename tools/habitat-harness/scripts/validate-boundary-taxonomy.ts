@@ -6,7 +6,7 @@ import {
   readBoundaryConfigConstraints,
   readNxProjectMetadataFromGraph,
   readWorkspaceManifestProjects,
-} from "@internal/habitat-harness/service/modules/graph/model/policy/boundary-taxonomy";
+} from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 
 const taxonomy = parseBoundaryTaxonomy(
