@@ -2,7 +2,7 @@ import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   type CheckOptions,
   type CheckReport,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/model/check/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import type { BaselineExpansionResult } from "@internal/habitat-harness/service/modules/check/model/policy/baseline-expansion.policy";
 import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
