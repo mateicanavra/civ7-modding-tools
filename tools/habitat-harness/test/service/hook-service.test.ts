@@ -20,6 +20,7 @@ import {
   type NxRunTargetRequest,
   runTargetArgv,
 } from "@internal/habitat-harness/providers/nx/index";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   captureOutput,
   makeHabitatCommandResult,
@@ -621,11 +622,51 @@ describe("Habitat hook service", () => {
   test("runs pre-commit through the in-process Habitat service router", async () => {
     const fake = makePreCommitRuntime();
 
-    const result = await createRouterClient(habitatServiceRouter, {
-      context: {
-        hook: { runtime: fake.runtime },
-      },
-    }).hook.run({ name: "pre-commit" });
+    const result = await Effect.runPromise(
+      Effect.gen(function* () {
+        const biome = yield* BiomeProvider;
+        const git = yield* GitProvider;
+        const graphite = yield* GraphiteProvider;
+        const nx = yield* NxProvider;
+        const structuralCheck = yield* StructuralCheck;
+        return yield* Effect.promise(() =>
+          createRouterClient(habitatServiceRouter, {
+            context: {
+              deps: {
+                biome,
+                git,
+                graphite,
+                nx,
+                repoRoot,
+                structuralCheck,
+                workspaceGraphTargetNames,
+              },
+              hook: { runtime: fake.runtime },
+            },
+          }).hook.run({ name: "pre-commit" })
+        );
+      }).pipe(
+        Effect.provide(
+          Layer.mergeAll(
+            prePushGitLayer(makePrePushRuntime()),
+            nxLayer(),
+            makeFakeStructuralCheckLayer({
+              createReport: (options = {}) =>
+                Effect.succeed(
+                  fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check")
+                ),
+              expandBaselines: () =>
+                Effect.succeed({
+                  kind: "expanded",
+                  messages: [],
+                }),
+            }),
+            biomeLayer(),
+            makeFakeGraphiteProviderLayer(() => null)
+          )
+        )
+      )
+    );
 
     expect(result.exitCode).toBe(0);
     expect(result.stderr).toBe("");
@@ -708,14 +749,28 @@ function runHookServiceInTest(
 ) {
   const layer = structuralCheck
     ? Layer.mergeAll(gitLayer, nx, structuralCheck, biome, graphite)
-    : Layer.mergeAll(gitLayer, nx, biome, graphite);
+    : Layer.mergeAll(
+        gitLayer,
+        nx,
+        makeFakeStructuralCheckLayer({
+          createReport: (options = {}) =>
+            Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
+          expandBaselines: () =>
+            Effect.succeed({
+              kind: "expanded",
+              messages: [],
+            }),
+        }),
+        biome,
+        graphite
+      );
   return Effect.runPromise(
     Effect.gen(function* () {
       const biome = yield* BiomeProvider;
       const git = yield* GitProvider;
       const graphite = yield* GraphiteProvider;
       const nx = yield* NxProvider;
-      const resolvedStructuralCheck = structuralCheck ? yield* StructuralCheck : undefined;
+      const resolvedStructuralCheck = yield* StructuralCheck;
       const runHook = hookRouter.run.callable({
         context: {
           deps: {
@@ -723,7 +778,9 @@ function runHookServiceInTest(
             git,
             graphite,
             nx,
-            ...(resolvedStructuralCheck ? { structuralCheck: resolvedStructuralCheck } : {}),
+            repoRoot,
+            structuralCheck: resolvedStructuralCheck,
+            workspaceGraphTargetNames,
           },
           hook: options,
         },
@@ -914,5 +971,28 @@ function passingCheckReport(command: string): CheckReport {
     startedAt: "2026-06-21T00:00:00.000Z",
     ok: true,
     rules: [],
+  };
+}
+
+function fileLayerPassingCheckReport(command: string): CheckReport {
+  return {
+    schemaVersion: 1,
+    command,
+    startedAt: "2026-06-21T00:00:00.000Z",
+    ok: true,
+    rules: [
+      {
+        ruleId: "file-layer-pnpm-artifacts",
+        ownerTool: "file-layer",
+        lane: "enforced",
+        status: "pass",
+        locked: true,
+        durationMs: 1,
+        diagnostics: [],
+        detect: ["habitat", "check", "--tool", "file-layer"],
+        message: "File-layer pnpm artifacts are controlled by package manager commands.",
+        remediate: null,
+      },
+    ],
   };
 }

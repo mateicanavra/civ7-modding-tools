@@ -8,7 +8,12 @@ import {
   GitProvider,
   makeFakeGitProviderLayer,
 } from "@internal/habitat-harness/providers/git/index";
+import {
+  GraphiteProvider,
+  makeFakeGraphiteProviderLayer,
+} from "@internal/habitat-harness/providers/graphite/index";
 import { makeFakeNxProviderLayer, NxProvider } from "@internal/habitat-harness/providers/nx/index";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   captureOutput,
   makeHabitatCommandResult,
@@ -463,6 +468,7 @@ async function runPreCommitInTest(
 ): Promise<SpawnResult> {
   const layer = Layer.mergeAll(
     makeGitLayer(fake),
+    makeFakeGraphiteProviderLayer(() => null),
     makeFakeNxProviderLayer(),
     makeStructuralCheckLayer(fake),
     makeBiomeLayer(fake)
@@ -474,6 +480,7 @@ function runHookProcedure(context: HookServiceModuleContext) {
   return Effect.gen(function* () {
     const biome = yield* BiomeProvider;
     const git = yield* GitProvider;
+    const graphite = yield* GraphiteProvider;
     const nx = yield* NxProvider;
     const structuralCheck = yield* StructuralCheck;
     const runHook = hookRouter.run.callable({
@@ -481,8 +488,11 @@ function runHookProcedure(context: HookServiceModuleContext) {
         deps: {
           biome,
           git,
+          graphite,
           nx,
+          repoRoot,
           structuralCheck,
+          workspaceGraphTargetNames,
         },
         hook: context,
       },

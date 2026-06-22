@@ -1,7 +1,5 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Args, Flags } from "@oclif/core";
-import { createRouterClient } from "@orpc/server";
 
 export default class Hook extends HabitatCommand {
   static override summary = "Run a Habitat git-hook entrypoint";
@@ -21,7 +19,7 @@ export default class Hook extends HabitatCommand {
 
   async run(): Promise<void> {
     const { args, flags } = await this.parse(Hook);
-    const client = createRouterClient(habitatServiceRouter, { context: {} });
+    const client = await this.habitatServiceClient();
     const result = await client.hook.run({ name: args.name, base: flags.base });
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);

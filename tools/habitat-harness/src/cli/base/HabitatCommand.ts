@@ -1,4 +1,7 @@
+import { createLiveHabitatServiceContext } from "@internal/habitat-harness/runtime/service-context";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Command, Flags } from "@oclif/core";
+import { createRouterClient } from "@orpc/server";
 
 export abstract class HabitatCommand extends Command {
   static override baseFlags = {
@@ -11,5 +14,11 @@ export abstract class HabitatCommand extends Command {
 
   protected exitWith(code: number): void {
     if (code !== 0) this.exit(code);
+  }
+
+  protected async habitatServiceClient() {
+    return createRouterClient(habitatServiceRouter, {
+      context: await createLiveHabitatServiceContext(),
+    });
   }
 }

@@ -1,5 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
+import { Value } from "typebox/value";
+import {
+  loadRuleRegistryDocumentForNxPlugin,
+  type NxRuleRegistryDocument,
+  type NxRuleRegistryRecord,
+} from "./providers/nx/rule-registry-loader.ts";
+import {
+  WorkspaceGraphTargetNameOptionsSchema,
+  WorkspaceGraphTargetNamesSchema,
+} from "./providers/nx/schema.ts";
+import { workspaceGraphTargetNames } from "./providers/nx/targets.ts";
+import {
+  habitatArtifactsProjectName,
+  habitatArtifactsRoot,
+  ruleRegistryRepoPath,
+} from "./resources/artifact-paths.ts";
+import { repoRoot } from "./resources/paths.ts";
 import {
   sourceCheckRuleModuleRepoPath,
   sourceCheckRuleRuntimeRepoPath,
@@ -22,23 +39,6 @@ import {
   ownerCheckTarget,
   sourceCheckTarget,
 } from "./service/model/graph/policy/target-definitions.ts";
-import {
-  habitatArtifactsProjectName,
-  habitatArtifactsRoot,
-  ruleRegistryRepoPath,
-} from "./resources/artifact-paths.ts";
-import {
-  loadRuleRegistryDocumentForNxPlugin,
-  type NxRuleRegistryDocument,
-  type NxRuleRegistryRecord,
-} from "./providers/nx/rule-registry-loader.ts";
-import {
-  WorkspaceGraphTargetNameOptionsSchema,
-  WorkspaceGraphTargetNamesSchema,
-} from "./providers/nx/schema.ts";
-import { workspaceGraphTargetNames } from "./providers/nx/targets.ts";
-import { repoRoot } from "./resources/paths.ts";
-import { Value } from "typebox/value";
 
 const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
 
@@ -71,7 +71,7 @@ const harnessInternalBoundaryProjects = [
   {
     name: "@internal/habitat-harness-runtime",
     root: "tools/habitat-harness/src/runtime",
-    tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+    tags: ["kind:tooling", "habitat:runtime"],
   },
 ] as const;
 

@@ -1,6 +1,6 @@
+import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
-import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { createRouterClient } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
@@ -51,6 +51,7 @@ describe("Habitat classify service", () => {
   test("classifies targets through the in-process Habitat service router", async () => {
     const result = await createRouterClient(habitatServiceRouter, {
       context: {
+        deps: {},
         classify: { options: { nxProjects } },
       },
     }).classify.run({ target: "tools/habitat-harness/src/cli/commands/classify.ts" });
@@ -66,6 +67,7 @@ describe("Habitat classify service", () => {
   test("routes classify through the in-process Habitat service router", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
+        deps: {},
         classify: { options: { nxProjects } },
       },
     });
@@ -82,6 +84,7 @@ describe("Habitat classify service", () => {
   test("preserves diff classification through the service contract boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
+        deps: {},
         classify: { options: { nxProjects } },
       },
     });
@@ -115,6 +118,7 @@ index 3333333..4444444 100644
   test("preserves malformed diff refusal before graph reads", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
+        deps: {},
         classify: {
           options: {
             nxProjects: {
@@ -139,6 +143,7 @@ index 3333333..4444444 100644
   test("preserves unresolved-owner path states through the service boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
+        deps: {},
         classify: { options: { nxProjects } },
       },
     });
@@ -153,6 +158,7 @@ index 3333333..4444444 100644
   test("preserves graph-refusal states through the service boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
+        deps: {},
         classify: {
           options: {
             nxProjects: {

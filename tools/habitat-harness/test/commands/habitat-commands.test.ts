@@ -71,6 +71,10 @@ vi.mock("@orpc/server", () => ({
   })),
 }));
 
+vi.mock("../../src/runtime/service-context.js", () => ({
+  createLiveHabitatServiceContext: vi.fn(async () => ({ deps: {} })),
+}));
+
 import Check from "@internal/habitat-harness/cli/commands/check";
 import Classify from "@internal/habitat-harness/cli/commands/classify";
 import Fix from "@internal/habitat-harness/cli/commands/fix";
