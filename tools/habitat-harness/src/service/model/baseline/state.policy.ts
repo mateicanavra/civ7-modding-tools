@@ -4,7 +4,7 @@ import {
   type BaselineAuthorityState,
   type BaselineRefusal,
   parseBaselineKeys,
-} from "./schema.js";
+} from "./dto/baseline.schema.js";
 import { sameStringList } from "./utils.policy.js";
 
 export function baselineAuthorityResult(state: BaselineAuthorityState): BaselineAuthorityResult {

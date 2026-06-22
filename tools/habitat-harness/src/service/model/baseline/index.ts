@@ -2,13 +2,6 @@ export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./applic
 export type { BaselineAuthorityContext, BaselineFileSystemPort } from "./context.policy.js";
 export { errorMessage } from "./context.policy.js";
 export { baselineContractInputs } from "./contract-inputs.policy.js";
-export {
-  baselineIntegrityFindingsEffect,
-  checkBaselineIntegrityEffect,
-  guardBaselineExpansionEffect,
-  loadBaselineStateEffect,
-  writeBaselineEffect,
-} from "./operations.policy.js";
 export type {
   BaselineApplicationResult,
   BaselineAuthorityResult,
@@ -23,7 +16,7 @@ export type {
   ExplicitDebtBaselineState,
   ExplicitEmptyBaselineState,
   RuleIntroductionBaselineManifest,
-} from "./schema.js";
+} from "./dto/baseline.schema.js";
 export {
   BaselineApplicationResultSchema,
   BaselineAuthorityResultSchema,
@@ -35,7 +28,14 @@ export {
   BaselineRefusalSchema,
   BaselineRuleContractInputSchema,
   RuleIntroductionBaselineManifestSchema,
-} from "./schema.js";
+} from "./dto/baseline.schema.js";
+export {
+  baselineIntegrityFindingsEffect,
+  checkBaselineIntegrityEffect,
+  guardBaselineExpansionEffect,
+  loadBaselineStateEffect,
+  writeBaselineEffect,
+} from "./operations.policy.js";
 export {
   baselineAuthorityResult,
   isBaselineLocked,

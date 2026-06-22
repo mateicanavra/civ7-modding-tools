@@ -7,7 +7,7 @@ import {
   loadBaselineStateEffect,
   violationKey,
   writeBaselineEffect,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+} from "@internal/habitat-harness/service/model/baseline/index";
 import {
   executeSelectedRulesEffect,
   type StructuralExecutionContext,

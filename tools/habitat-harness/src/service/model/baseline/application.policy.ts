@@ -3,7 +3,7 @@ import {
   type BaselineApplicationResult,
   type BaselineAuthorityState,
   type BaselineRefusal,
-} from "./schema.js";
+} from "./dto/baseline.schema.js";
 import { sameStringList } from "./utils.policy.js";
 
 export function violationKey(diagnostic: HabitatDiagnostic): string {
