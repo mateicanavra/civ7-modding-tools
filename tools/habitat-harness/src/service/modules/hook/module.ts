@@ -656,7 +656,7 @@ function resolvePrePushBase(context: HookProcedureContext): HookRouterEffect<Pre
     yield* recordHookCommand(
       context,
       "pre-push-base",
-      ["gt", "branch", "info", "--no-interactive"],
+      context.graphite.parentArgv(),
       startedAtMs,
       parent ? 0 : 1
     );
