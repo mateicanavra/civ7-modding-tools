@@ -262,19 +262,13 @@ function prePushHook(context: HookProcedureContext, input: HookExecuteInput) {
 
     if (baseDecision.kind === "refused") {
       output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
-      return yield* finalizePrePushEffect("base-refused", {
-        exitCode: 1,
-        ...output.result(),
-      });
+      return yield* finalizePrePushEffect("base-refused", yield* hookResult(output, 1));
     }
     const base = baseDecision.base;
     const changedPaths = yield* prePushChangedPaths(context, base);
     if (changedPaths.kind === "unavailable") {
       output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
-      return yield* finalizePrePushEffect("affected-failed", {
-        exitCode: 1,
-        ...output.result(),
-      });
+      return yield* finalizePrePushEffect("affected-failed", yield* hookResult(output, 1));
     }
     const hookSourcePaths = prePushHookSourceCheckPaths(context, changedPaths.paths);
     if (hookSourcePaths.length > 0) {
@@ -283,10 +277,10 @@ function prePushHook(context: HookProcedureContext, input: HookExecuteInput) {
         section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
       );
       if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
-        return yield* finalizePrePushEffect("affected-failed", {
-          exitCode: hookSourceCheck.exitCode,
-          ...output.result(),
-        });
+        return yield* finalizePrePushEffect(
+          "affected-failed",
+          yield* hookResult(output, hookSourceCheck.exitCode)
+        );
       }
     } else {
       output.writeStdout(
@@ -319,18 +313,15 @@ function prePushHook(context: HookProcedureContext, input: HookExecuteInput) {
       );
       output.writeStderr(targetResult.stderr);
       if (targetResult.exitCode !== 0) {
-        return yield* finalizePrePushEffect("affected-failed", {
-          exitCode: targetResult.exitCode,
-          ...output.result(),
-        });
+        return yield* finalizePrePushEffect(
+          "affected-failed",
+          yield* hookResult(output, targetResult.exitCode)
+        );
       }
     }
     if (targetPlan.affectedTargets.length === 0) {
       output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
-      return yield* finalizePrePushEffect("pass", {
-        exitCode: 0,
-        ...output.result(),
-      });
+      return yield* finalizePrePushEffect("pass", yield* hookResult(output, 0));
     }
     const request = {
       base,
@@ -349,10 +340,10 @@ function prePushHook(context: HookProcedureContext, input: HookExecuteInput) {
     yield* recordHookCommand(context, "pre-push-affected", argv, startedAtMs, result.exitCode);
     output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
     output.writeStderr(result.stderr);
-    return yield* finalizePrePushEffect(result.exitCode === 0 ? "pass" : "affected-failed", {
-      exitCode: result.exitCode,
-      ...output.result(),
-    });
+    return yield* finalizePrePushEffect(
+      result.exitCode === 0 ? "pass" : "affected-failed",
+      yield* hookResult(output, result.exitCode)
+    );
   });
 }
 
@@ -388,6 +379,10 @@ function unknownHookResult(name: string | undefined): SpawnResult {
   };
 }
 
+function hookResult(output: HookOutput, exitCode: number): HookRouterEffect<SpawnResult> {
+  return output.flush().pipe(Effect.as({ exitCode, ...output.result() }));
+}
+
 function hashRepoRelativeFile(
   context: HookProcedureContext,
   repoRelativePath: string
@@ -415,10 +410,7 @@ function beginPreCommit(
       return {
         kind: "done",
         outcome: "resource-blocked",
-        result: {
-          exitCode: 1,
-          ...output.result(),
-        },
+        result: yield* hookResult(output, 1),
       };
     }
 
@@ -446,26 +438,23 @@ function continuePreCommitAfterFileLayer(
   state: PreCommitState,
   fileLayer: StagedHookCheckResult
 ): HookRouterEffect<PreCommitStep<PreCommitBiomeState>> {
-  const { context, output, staged } = state;
-  output.writeStdout(section("file-layer staged check", fileLayer.stdout));
-  output.writeStderr(fileLayer.stderr);
-  const fileLayerCheck = stagedHookCheckCommandResult(fileLayer);
-  if (!checkSummaryAllowsNextStage(fileLayerCheck)) {
-    if (fileLayerCheck.kind !== "parsed") {
-      output.writeStderr("habitat hook pre-commit: could not parse file-layer check JSON.\n");
-    }
-    return Effect.succeed({
-      kind: "done",
-      outcome: "file-layer-failed",
-      result: {
-        exitCode: fileLayer.exitCode === 0 ? 1 : fileLayer.exitCode,
-        ...output.result(),
-      },
-    });
-  }
-
-  const biomePaths = biomeHookPaths(staged);
   return Effect.gen(function* () {
+    const { context, output, staged } = state;
+    output.writeStdout(section("file-layer staged check", fileLayer.stdout));
+    output.writeStderr(fileLayer.stderr);
+    const fileLayerCheck = stagedHookCheckCommandResult(fileLayer);
+    if (!checkSummaryAllowsNextStage(fileLayerCheck)) {
+      if (fileLayerCheck.kind !== "parsed") {
+        output.writeStderr("habitat hook pre-commit: could not parse file-layer check JSON.\n");
+      }
+      return {
+        kind: "done",
+        outcome: "file-layer-failed",
+        result: yield* hookResult(output, fileLayer.exitCode === 0 ? 1 : fileLayer.exitCode),
+      };
+    }
+
+    const biomePaths = biomeHookPaths(staged);
     const partialStartedAtMs = yield* hookNow();
     const partials = yield* unstagedAmongEffect(context.git, context.platform.repoRoot, biomePaths);
     yield* recordHookCommand(
@@ -487,10 +476,7 @@ function continuePreCommitAfterFileLayer(
       return {
         kind: "done",
         outcome: "partial-staging-refused",
-        result: {
-          exitCode: 1,
-          ...output.result(),
-        },
+        result: yield* hookResult(output, 1),
       } satisfies PreCommitStep<PreCommitBiomeState>;
     }
     const beforeHashes = new Map(
@@ -540,10 +526,7 @@ function preCommitBiomeProviderStep(
       return {
         kind: "done",
         outcome: "biome-format-failed",
-        result: {
-          exitCode: format.exitCode,
-          ...output.result(),
-        },
+        result: yield* hookResult(output, format.exitCode),
       };
     }
 
@@ -566,10 +549,7 @@ function preCommitBiomeProviderStep(
         return {
           kind: "done",
           outcome: "formatter-restage-failed",
-          result: {
-            exitCode: restage.exitCode,
-            ...output.result(),
-          },
+          result: yield* hookResult(output, restage.exitCode),
         };
       }
       output.writeStdout(`formatter restage: ${touched.length} path(s)\n`);
@@ -597,10 +577,7 @@ function preCommitBiomeProviderStep(
       return {
         kind: "done",
         outcome: "biome-check-failed",
-        result: {
-          exitCode: check.exitCode,
-          ...output.result(),
-        },
+        result: yield* hookResult(output, check.exitCode),
       };
     }
 
@@ -624,51 +601,43 @@ function finishPreCommit(
   state: PreCommitSourceCheckState,
   sourceCheckResult: StagedHookCheckResult | undefined
 ): HookRouterEffect<SpawnResult> {
-  const { context, output } = state;
-  if (state.sourceCheckPaths.length > 0) {
-    if (!sourceCheckResult) {
-      return finalizePreCommitEffect("command-failed", {
-        exitCode: 1,
-        ...output.result(),
-      });
-    }
-    output.writeStdout(section("source check", sourceCheckResult.stdout));
-    output.writeStderr(sourceCheckResult.stderr);
-    const sourceCheck = stagedHookCheckCommandResult(sourceCheckResult);
-    if (sourceCheck.kind !== "parsed") {
-      if (sourceCheckResult.exitCode !== 0 && sourceCheck.kind === "missing-json") {
-        return finalizePreCommitEffect("command-failed", {
-          exitCode: sourceCheckResult.exitCode,
-          ...output.result(),
-        });
+  return Effect.gen(function* () {
+    const { output } = state;
+    if (state.sourceCheckPaths.length > 0) {
+      if (!sourceCheckResult) {
+        return yield* finalizePreCommitEffect("command-failed", yield* hookResult(output, 1));
       }
-      output.writeStderr("habitat hook pre-commit: could not parse Habitat source check JSON.\n");
-      return finalizePreCommitEffect("parse-failed", {
-        exitCode: 1,
-        ...output.result(),
-      });
-    }
-    if (!checkSummaryAllowsNextStage(sourceCheck)) {
-      if (sourceCheck.summary.kind === "diagnostic-unavailable") {
-        output.writeStderr("habitat hook pre-commit: could not parse source check JSON output.\n");
-        return finalizePreCommitEffect("parse-failed", {
-          exitCode: 1,
-          ...output.result(),
-        });
+      output.writeStdout(section("source check", sourceCheckResult.stdout));
+      output.writeStderr(sourceCheckResult.stderr);
+      const sourceCheck = stagedHookCheckCommandResult(sourceCheckResult);
+      if (sourceCheck.kind !== "parsed") {
+        if (sourceCheckResult.exitCode !== 0 && sourceCheck.kind === "missing-json") {
+          return yield* finalizePreCommitEffect(
+            "command-failed",
+            yield* hookResult(output, sourceCheckResult.exitCode)
+          );
+        }
+        output.writeStderr("habitat hook pre-commit: could not parse Habitat source check JSON.\n");
+        return yield* finalizePreCommitEffect("parse-failed", yield* hookResult(output, 1));
       }
-      return finalizePreCommitEffect("finding", {
-        exitCode: 1,
-        ...output.result(),
-      });
+      if (!checkSummaryAllowsNextStage(sourceCheck)) {
+        if (sourceCheck.summary.kind === "diagnostic-unavailable") {
+          output.writeStderr(
+            "habitat hook pre-commit: could not parse source check JSON output.\n"
+          );
+          return yield* finalizePreCommitEffect("parse-failed", yield* hookResult(output, 1));
+        }
+        return yield* finalizePreCommitEffect("finding", yield* hookResult(output, 1));
+      }
+    } else {
+      output.writeStdout(
+        "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
+      );
     }
-  } else {
-    output.writeStdout(
-      "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
-    );
-  }
 
-  output.writeStdout("habitat hook pre-commit: PASS\n");
-  return finalizePreCommitEffect("pass", { exitCode: 0, ...output.result() });
+    output.writeStdout("habitat hook pre-commit: PASS\n");
+    return yield* finalizePreCommitEffect("pass", yield* hookResult(output, 0));
+  });
 }
 
 function prePushChangedPaths(
