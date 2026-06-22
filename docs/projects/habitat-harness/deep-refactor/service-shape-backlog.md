@@ -22,6 +22,8 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Provider/resource imports in service internals are now isolated to `service/base.ts`, the service-entry dependency surface; modules consume provider capabilities through module-owned ports or provider-owned methods.
+- Grit rule execution is now a Grit provider capability; check, hook, and verify modules project `deps.grit.runRules` into structural policy and no longer import `runGritRulesEffect` directly.
 - Baseline authority now receives a baseline-owned filesystem port through structural execution context; direct platform helper imports are removed from baseline policy, and the platform resource exposes the write-capable filesystem operations needed for runtime projection.
 - Hook module procedure context now uses hook-owned Biome, Git, Graphite, Nx, platform, and reporter operation ports; the hook module no longer imports concrete provider/platform/reporter service types.
 - Verify module runtime helpers now use verify-owned Git, Graphite, Nx affected, and workspace-graph ports instead of concrete provider service types; the verify model barrel exports its policy ports for module wiring.
