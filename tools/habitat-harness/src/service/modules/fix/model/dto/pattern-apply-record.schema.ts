@@ -1,9 +1,9 @@
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { ApplyAdmissionSchema } from "../patterns/index.js";
-import { NonEmptyStringSchema } from "./primitives.js";
-import { TransactionRefusalSchema } from "./refusal.js";
-import { PatternApplyRequestSchema } from "./request.js";
+import { PatternApplyRequestSchema } from "./pattern-apply-request.schema.js";
+import { ApplyAdmissionSchema } from "./pattern-management.schema.js";
+import { NonEmptyStringSchema } from "./shared.schema.js";
+import { TransactionRefusalSchema } from "./transaction-refusal.schema.js";
 
 const DryRunCommandResultSchema = Type.Object(
   {

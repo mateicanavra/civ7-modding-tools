@@ -6,19 +6,19 @@ import type { SpawnResult } from "@internal/habitat-harness/resources/command/in
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import type { FixServiceRunInput } from "./contract.js";
+import type {
+  ApplyAdmission,
+  PatternApplyRecord,
+  PatternApplyRequest,
+  WorktreeObservation,
+} from "./model/dto/index.js";
 import {
-  type ApplyAdmission,
   activeApplyTransactionInputs,
   defaultApplyAdmissions,
-} from "./model/policy/patterns/index.js";
-import {
-  observeWorktree,
-  type PatternApplyRecord,
-  type PatternApplyRequest,
   renderPatternApply,
   runPatternApplyTransaction,
-  type WorktreeObservation,
-} from "./model/policy/transactions/index.js";
+} from "./model/policy/index.js";
+import { observeWorktree } from "./model/repositories/index.js";
 
 export interface FixModuleContext {
   readonly activeApplyTransactionInputs: typeof activeApplyTransactionInputs;

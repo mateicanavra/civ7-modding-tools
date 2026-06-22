@@ -1,4 +1,3 @@
-export { NonEmptyStringSchema } from "./primitives.js";
 export {
   type PatternApplyDryRunCompletedOutcome,
   PatternApplyDryRunCompletedOutcomeSchema,
@@ -9,15 +8,7 @@ export {
   type PatternApplyRefusedOutcome,
   PatternApplyRefusedOutcomeSchema,
   parsePatternApplyRecord,
-} from "./record.js";
-export {
-  type PatternApplyRefusalReason,
-  PatternApplyRefusalReasonSchema,
-  type RecoveryInstruction,
-  RecoveryInstructionSchema,
-  type TransactionRefusal,
-  TransactionRefusalSchema,
-} from "./refusal.js";
+} from "./pattern-apply-record.schema.js";
 export {
   type DryRunIntent,
   DryRunIntentSchema,
@@ -29,14 +20,22 @@ export {
   parseWorktreeObservation,
   type WorktreeObservation,
   WorktreeObservationSchema,
-} from "./request.js";
+} from "./pattern-apply-request.schema.js";
+export { NonEmptyStringSchema } from "./shared.schema.js";
 export {
   type GritDryRunCommandInput,
   GritDryRunCommandInputSchema,
   type ResolvedTransactionInput,
   ResolvedTransactionInputSchema,
-  resolveTransactionInput,
   type TransactionInputResolution,
   TransactionInputResolutionSchema,
   UnresolvedTransactionInputResolutionSchema,
-} from "./transaction-input.js";
+} from "./transaction-input.schema.js";
+export {
+  type PatternApplyRefusalReason,
+  PatternApplyRefusalReasonSchema,
+  type RecoveryInstruction,
+  RecoveryInstructionSchema,
+  type TransactionRefusal,
+  TransactionRefusalSchema,
+} from "./transaction-refusal.schema.js";

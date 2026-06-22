@@ -3,7 +3,7 @@ import {
   type PatternAdmissionRefusal,
   type PatternAdmissionRefusalReason,
   PatternAdmissionRefusalSchema,
-} from "./schema.js";
+} from "../dto/pattern-management.schema.js";
 
 export function patternAdmissionRefusal(input: {
   reason: PatternAdmissionRefusalReason;

@@ -4,7 +4,7 @@ import {
   type DiagnosticAdmission,
   type PatternState,
   PatternStateSchema,
-} from "./schema.js";
+} from "../dto/pattern-management.schema.js";
 
 export function diagnosticAdmittedState(admission: DiagnosticAdmission): PatternState {
   return admittedState("diagnostic-admitted", admission);

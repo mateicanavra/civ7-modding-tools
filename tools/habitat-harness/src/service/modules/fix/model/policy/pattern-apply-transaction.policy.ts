@@ -5,17 +5,17 @@ import {
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import { Effect } from "effect";
-import type { ApplyTransactionInput } from "../patterns/index.js";
-import type { GritDryRunCommandInput } from "./schema.js";
 import {
+  type GritDryRunCommandInput,
   type PatternApplyRecord,
   type PatternApplyRefusalReason,
   type PatternApplyRequest,
   parsePatternApplyRequest,
   type RecoveryInstruction,
-  resolveTransactionInput,
   type TransactionRefusal,
-} from "./schema.js";
+} from "../dto/pattern-apply.schema.js";
+import type { ApplyTransactionInput } from "../dto/pattern-management.schema.js";
+import { resolveTransactionInput } from "./transaction-input.policy.js";
 
 type ResolvedGritProvider = GritProviderService;
 
