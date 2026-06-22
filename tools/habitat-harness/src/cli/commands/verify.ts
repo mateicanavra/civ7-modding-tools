@@ -4,9 +4,7 @@ import {
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/modules/verify/model/index";
-import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Flags } from "@oclif/core";
-import { createRouterClient } from "@orpc/server";
 
 export default class Verify extends HabitatCommand {
   static override summary = "Run Habitat check plus affected verification targets";
@@ -28,7 +26,7 @@ export default class Verify extends HabitatCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Verify);
-    const service = createRouterClient(habitatServiceRouter, { context: {} });
+    const service = await this.habitatServiceClient();
     const result = await service.verify.run({
       base: flags.base,
       affectedExecution: flags.json ? "plan-only" : "run",

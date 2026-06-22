@@ -1,8 +1,6 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
 import { renderCheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Flags } from "@oclif/core";
-import { createRouterClient } from "@orpc/server";
 
 export default class Check extends HabitatCommand {
   static override summary = "Run Habitat structural checks";
@@ -35,7 +33,7 @@ export default class Check extends HabitatCommand {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
     const base = flags.base ?? "main";
-    const client = createRouterClient(habitatServiceRouter, { context: {} });
+    const client = await this.habitatServiceClient();
     if (flags["expand-baseline"]) {
       const expansion = await client.check.expandBaseline({
         selectors: selection,

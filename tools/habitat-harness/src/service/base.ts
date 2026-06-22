@@ -49,9 +49,9 @@ export interface VerifyServiceModuleContext {
 }
 
 export interface HabitatServiceContext {
+  readonly deps: Partial<HabitatServiceDeps>;
   readonly check?: CheckServiceModuleContext;
   readonly classify?: ClassifyServiceModuleContext;
-  readonly deps?: Partial<HabitatServiceDeps>;
   readonly fix?: FixServiceModuleContext;
   readonly graph?: GraphServiceModuleContext;
   readonly hook?: HookServiceModuleContext;
@@ -73,9 +73,12 @@ export interface HabitatServiceDeps {
   readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
 }
 
-export interface HabitatServiceResolvedContext extends HabitatServiceContext, HabitatServiceDeps {
-  readonly options: ClassifyOptions | undefined;
-  readonly runtime: HookRuntime | undefined;
+export function requiredHabitatServiceDependency<T>(
+  value: T | undefined,
+  name: keyof HabitatServiceDeps
+): T {
+  if (value !== undefined) return value;
+  throw new Error(`Habitat service dependency missing: ${name}`);
 }
 
 export class HabitatServiceRuntime extends Context.Tag(

@@ -11,8 +11,6 @@ const FixCommandIntentSchema = Type.Object(
   { additionalProperties: false, description: "Habitat fix command intent." }
 );
 
-export type FixServiceRunInput = Static<typeof FixCommandIntentSchema>;
-
 const FixServiceRunOutputSchema = Type.Object(
   {
     exitCode: Type.Integer(),
@@ -21,10 +19,12 @@ const FixServiceRunOutputSchema = Type.Object(
   },
   { additionalProperties: false, description: "Habitat fix service execution result." }
 );
-export type FixServiceRunOutput = Static<typeof FixServiceRunOutputSchema>;
 
 const FixServiceRunInputStandardSchema = toStandardSchema(FixCommandIntentSchema);
 const FixServiceRunOutputStandardSchema = toStandardSchema(FixServiceRunOutputSchema);
+
+export type FixServiceRunInput = Static<typeof FixCommandIntentSchema>;
+export type FixServiceRunOutput = Static<typeof FixServiceRunOutputSchema>;
 
 export const fixServiceRunContract: HabitatServiceProcedureContract<
   typeof FixServiceRunInputStandardSchema,

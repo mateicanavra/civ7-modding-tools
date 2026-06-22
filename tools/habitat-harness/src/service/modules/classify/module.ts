@@ -5,7 +5,7 @@ export const module = service.classify.use(({ context, next }) =>
   next({
     context: {
       ...(context.classify ?? {}),
-      options: context.options,
+      options: context.classify?.options,
     },
   })
 );

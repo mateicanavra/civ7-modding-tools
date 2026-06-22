@@ -51,7 +51,7 @@ describe("Habitat fix service", () => {
       Effect.gen(function* () {
         const grit = yield* GritProvider;
         return yield* Effect.promise(() =>
-          createRouterClient(habitatServiceRouter, { context: { fix: { grit } } }).fix.run({
+          createRouterClient(habitatServiceRouter, { context: { deps: { grit } } }).fix.run({
             kind: "dry-run-intent",
           })
         );
