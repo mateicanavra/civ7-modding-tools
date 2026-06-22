@@ -1,4 +1,3 @@
-import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import {
@@ -17,6 +16,7 @@ import {
   VerifyTargetPlanConsumptionSchema,
 } from "@internal/habitat-harness/service/model/verify/index";
 import {
+  type WorkspaceGraphReadState,
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
   verifyTargetPlan,
@@ -68,11 +68,10 @@ export const verifyAffectedTargets = [...verifyAffectedTargetNames(workspaceGrap
  *
  * @returns Runnable target plan or graph-refusal plan for the verify receipt.
  */
-export async function readVerifyTargetPlan(
+export function readVerifyTargetPlan(
   rules: RuleFactsCatalog,
-  repoRoot: string
-): Promise<VerifyTargetPlan> {
-  const graph = await readWorkspaceGraph(repoRoot);
+  graph: WorkspaceGraphReadState
+): VerifyTargetPlan {
   if (graph.kind === "graph-ready")
     return verifyTargetPlan(graph.snapshot.projects, undefined, undefined, rules.graph);
   return graphRefusedVerifyTargetPlan(graph.kind, graph.message);

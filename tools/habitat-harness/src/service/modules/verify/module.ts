@@ -81,7 +81,7 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
       epochMillisToIsoString,
       observeGitStatus,
       readVerifyTargetPlan: readVerifyTargetPlanEffect({
-        repoRoot: context.deps.platform.repoRoot,
+        nx: context.deps.nx,
         rules: context.deps.rules,
       }),
       resolveVerifyBase,
@@ -109,9 +109,10 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
 
 function readVerifyTargetPlanEffect(input: {
   readonly rules: HabitatServiceDeps["rules"];
-  readonly repoRoot: string;
+  readonly nx: NxProviderService;
 }) {
-  return () => Effect.promise(() => readVerifyTargetPlan(input.rules, input.repoRoot));
+  return () =>
+    input.nx.workspaceGraph().pipe(Effect.map((graph) => readVerifyTargetPlan(input.rules, graph)));
 }
 
 function makeCreateVerifyReceipt(context: {
