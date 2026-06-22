@@ -82,7 +82,7 @@ Completed burn-downs:
 - Check public DTO/request/render/summary policy now lives under `service/model/check`; the check module itself is reduced to contract/module/router ownership.
 - Diagnostic contracts now live under `service/model/diagnostics`, host/protected-surface policy lives under `service/model/host`, and Grit providers no longer import check module internals.
 - Check report DTOs, request language, renderers, summaries, staged source-scope policy, and disposition helpers now live under `service/model/check`; hook, verify, CLI, and tests no longer deep-import check structural schema/render/request internals.
-- Classify and verify JSON result languages now live under public `service/model/classify` and `service/model/verify` surfaces; CLI commands and service contracts no longer import module-private result DTO files.
+- Classify and verify JSON result languages were first lifted out of ad hoc internals and are now owned by their module `model/dto` trees; CLI commands and service contracts consume the owning module barrels.
 - Structural check, baseline authority, and source-check policy now live under `service/model/check/policy`; check, hook, verify, runtime layers, Nx plugin inference, and tests no longer import check module-private policy internals.
 - Workspace graph reads now enter classify through the Nx provider resource; `HabitatServiceDeps` no longer carries the classify-only `workspaceProjects` test seam.
 - Platform filesystem/temp/path/repo-root helpers now enter the service through one `HabitatPlatform` resource; `HabitatServiceDeps` no longer carries raw platform helper functions.
@@ -107,3 +107,4 @@ Completed burn-downs:
 - Habitat runtime config now loads through an Effect `Config` descriptor and live layer; the old custom config source/schema files are deleted, while deterministic test/manual overrides remain available through `makeHabitatConfigLayer`.
 - Habitat runtime realization now derives Git, Graphite, Biome, Nx, Grit, Git state, and platform repo-scoped resources from the loaded `HabitatConfig` value instead of hardcoding the global repo root in `runtime/layers.ts`.
 - Boundary taxonomy no longer contains a stale allowance for separately inferred `service/modules/*/model` projects; module-local models remain inside their owning `layer:service-module` project and unexpected inferred model projects become validation failures.
+- Classify result DTOs and verify receipt DTOs now live under their owning module `model/dto` trees; the old shared `service/model/classify` and `service/model/verify` directories are deleted, and CLI/tests consume the module-owned model barrels.

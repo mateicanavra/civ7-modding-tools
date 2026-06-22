@@ -3,8 +3,8 @@ import {
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
-import type { VerifyReceipt } from "@internal/habitat-harness/service/model/verify/index";
 import { Effect } from "effect";
+import type { VerifyReceipt } from "../dto/verify.schema.js";
 import { boundedPreview } from "./command-output.policy.js";
 
 export interface VerifyGitStatusPort {
