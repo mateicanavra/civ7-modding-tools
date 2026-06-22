@@ -8,7 +8,10 @@ export {
   defaultApplyAdmissions,
 } from "./pattern-apply-admissions.policy.js";
 export { renderPatternApply } from "./pattern-apply-render.policy.js";
-export { runPatternApplyTransaction } from "./pattern-apply-transaction.policy.js";
+export {
+  type PatternApplyGritPort,
+  runPatternApplyTransaction,
+} from "./pattern-apply-transaction.policy.js";
 export {
   patternCandidateRoot,
   patternManifestPath,
