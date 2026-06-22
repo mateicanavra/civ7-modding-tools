@@ -177,10 +177,10 @@ export function executeSelectedRulesEffect(
         for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
         const started = yield* Clock.currentTimeMillis;
-        const sourceResults = yield* runSourceRulesEffect(
-          sourceRules,
-          scanRoots ? { scanRoots } : {}
-        );
+        const sourceResults = yield* runSourceRulesEffect(sourceRules, {
+          ...executionContext(options),
+          ...(scanRoots ? { scanRoots } : {}),
+        });
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
         for (const rule of sourceRules) {
           const result = sourceResults.get(rule.id);
