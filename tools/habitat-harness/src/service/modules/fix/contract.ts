@@ -1,11 +1,10 @@
-import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
+import { habitatServiceErrorMap } from "../../errors.js";
+import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";
 
-export const FixCommandIntentSchema = Type.Object(
+const FixCommandIntentSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("dry-run-intent"), Type.Literal("live-write-intent")]),
   },
@@ -27,22 +26,14 @@ export type FixServiceRunOutput = Static<typeof FixServiceRunOutputSchema>;
 const FixServiceRunInputStandardSchema = toStandardSchema(FixCommandIntentSchema);
 const FixServiceRunOutputStandardSchema = toStandardSchema(FixServiceRunOutputSchema);
 
-export type FixServiceRunContract = ContractProcedure<
+export const fixServiceRunContract: HabitatServiceProcedureContract<
   typeof FixServiceRunInputStandardSchema,
-  typeof FixServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const fixServiceRunContract: FixServiceRunContract = eoc
+  typeof FixServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(FixServiceRunInputStandardSchema)
   .output(FixServiceRunOutputStandardSchema);
 
-export type FixServiceContract = Readonly<{
-  run: FixServiceRunContract;
-}>;
-
-export const fixServiceContract: FixServiceContract = {
+export const fixServiceContract = {
   run: fixServiceRunContract,
 };

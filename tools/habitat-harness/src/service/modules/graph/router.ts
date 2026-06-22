@@ -10,8 +10,8 @@ import {
 } from "@internal/habitat-harness/service/runtime/resources/index";
 import { ORPCError } from "@orpc/server";
 import { Data, Effect } from "effect";
-import { implementer } from "./context.js";
 import type { GraphServiceRunInput } from "./contract.js";
+import { implementer } from "./module.js";
 
 class GraphJsonParseFailed extends Data.TaggedError("GraphJsonParseFailed")<{
   readonly path: string;

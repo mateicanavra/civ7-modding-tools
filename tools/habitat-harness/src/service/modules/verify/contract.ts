@@ -1,11 +1,10 @@
 import { CheckReportSchema } from "@internal/habitat-harness/service/modules/check/structural/schema";
 import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/modules/graph/workspace/index";
 import { VerifyReceiptSchema } from "@internal/habitat-harness/service/modules/verify/proof/schema";
-import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
+import { habitatServiceErrorMap } from "../../errors.js";
+import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const VerifyServiceRunInputSchema = Type.Object(
@@ -61,22 +60,14 @@ export type VerifyServiceRunOutput = Static<typeof VerifyServiceRunOutputSchema>
 const VerifyServiceRunInputStandardSchema = toStandardSchema(VerifyServiceRunInputSchema);
 const VerifyServiceRunOutputStandardSchema = toStandardSchema(VerifyServiceRunOutputSchema);
 
-export type VerifyServiceRunContract = ContractProcedure<
+export const verifyServiceRunContract: HabitatServiceProcedureContract<
   typeof VerifyServiceRunInputStandardSchema,
-  typeof VerifyServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const verifyServiceRunContract: VerifyServiceRunContract = eoc
+  typeof VerifyServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(VerifyServiceRunInputStandardSchema)
   .output(VerifyServiceRunOutputStandardSchema);
 
-export type VerifyServiceContract = Readonly<{
-  run: VerifyServiceRunContract;
-}>;
-
-export const verifyServiceContract: VerifyServiceContract = {
+export const verifyServiceContract = {
   run: verifyServiceRunContract,
 };

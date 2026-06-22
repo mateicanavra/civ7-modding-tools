@@ -1,29 +1,17 @@
-import { eoc } from "effect-orpc";
-import { type CheckServiceContract, checkServiceContract } from "./modules/check/contract.js";
-import {
-  type ClassifyServiceContract,
-  classifyServiceContract,
-} from "./modules/classify/contract.js";
-import { type FixServiceContract, fixServiceContract } from "./modules/fix/contract.js";
-import { type GraphServiceContract, graphServiceContract } from "./modules/graph/contract.js";
-import { type HookServiceContract, hookServiceContract } from "./modules/hook/contract.js";
-import { type VerifyServiceContract, verifyServiceContract } from "./modules/verify/contract.js";
+import { checkServiceContract } from "./modules/check/contract.js";
+import { classifyServiceContract } from "./modules/classify/contract.js";
+import { fixServiceContract } from "./modules/fix/contract.js";
+import { graphServiceContract } from "./modules/graph/contract.js";
+import { hookServiceContract } from "./modules/hook/contract.js";
+import { verifyServiceContract } from "./modules/verify/contract.js";
 
-// TODO: not necessary to export these types;
-export type HabitatServiceContract = Readonly<{
-  check: CheckServiceContract;
-  classify: ClassifyServiceContract;
-  fix: FixServiceContract;
-  graph: GraphServiceContract;
-  hook: HookServiceContract;
-  verify: VerifyServiceContract;
-}>;
-
-export const habitatServiceContract: HabitatServiceContract = eoc.router({
+export const habitatServiceContract = {
   check: checkServiceContract,
   classify: classifyServiceContract,
   fix: fixServiceContract,
   graph: graphServiceContract,
   hook: hookServiceContract,
   verify: verifyServiceContract,
-});
+};
+
+export type HabitatServiceContract = typeof habitatServiceContract;

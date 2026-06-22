@@ -3,11 +3,10 @@ import {
   CheckReportSchema,
   SelectorRequestSchema,
 } from "@internal/habitat-harness/service/modules/check/structural/schema";
-import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
+import { habitatServiceErrorMap } from "../../errors.js";
+import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const CheckServiceRunInputSchema = Type.Object(
@@ -67,36 +66,23 @@ const CheckServiceExpandBaselineOutputStandardSchema = toStandardSchema(
   CheckServiceExpandBaselineOutputSchema
 );
 
-export type CheckServiceRunContract = ContractProcedure<
+export const checkServiceRunContract: HabitatServiceProcedureContract<
   typeof CheckServiceRunInputStandardSchema,
-  typeof CheckServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export type CheckServiceExpandBaselineContract = ContractProcedure<
-  typeof CheckServiceExpandBaselineInputStandardSchema,
-  typeof CheckServiceExpandBaselineOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const checkServiceRunContract: CheckServiceRunContract = eoc
+  typeof CheckServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(CheckServiceRunInputStandardSchema)
   .output(CheckServiceRunOutputStandardSchema);
 
-export const checkServiceExpandBaselineContract: CheckServiceExpandBaselineContract = eoc
+export const checkServiceExpandBaselineContract: HabitatServiceProcedureContract<
+  typeof CheckServiceExpandBaselineInputStandardSchema,
+  typeof CheckServiceExpandBaselineOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(CheckServiceExpandBaselineInputStandardSchema)
   .output(CheckServiceExpandBaselineOutputStandardSchema);
 
-export type CheckServiceContract = Readonly<{
-  run: CheckServiceRunContract;
-  expandBaseline: CheckServiceExpandBaselineContract;
-}>;
-
-export const checkServiceContract: CheckServiceContract = {
+export const checkServiceContract = {
   run: checkServiceRunContract,
   expandBaseline: checkServiceExpandBaselineContract,
 };

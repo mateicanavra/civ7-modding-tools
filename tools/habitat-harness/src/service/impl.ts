@@ -1,24 +1,23 @@
 import { ManagedRuntime } from "effect";
-import { type EffectImplementer, implementEffect } from "effect-orpc";
+import { type EffectImplementer, eoc, implementEffect } from "effect-orpc";
 import {
   type HabitatServiceContext,
   type HabitatServiceRequirements,
   type HabitatServiceRuntimeError,
   habitatServiceLayer,
 } from "./context.js";
-import { habitatServiceContract } from "./contract.js";
+import { type HabitatServiceContract, habitatServiceContract } from "./contract.js";
 
+const habitatServiceOrpcContract = eoc.router(habitatServiceContract);
 export const habitatServiceEffectRuntime = ManagedRuntime.make(habitatServiceLayer);
 
-export type HabitatServiceImplementer = EffectImplementer<
-  typeof habitatServiceContract,
+export const habitatServiceImplementer: EffectImplementer<
+  HabitatServiceContract,
   HabitatServiceContext & Record<never, never>,
   HabitatServiceContext,
   HabitatServiceRequirements,
   HabitatServiceRuntimeError
->;
-
-export const habitatServiceImplementer: HabitatServiceImplementer = implementEffect(
-  habitatServiceContract,
+> = implementEffect(
+  habitatServiceOrpcContract,
   habitatServiceEffectRuntime
 ).$context<HabitatServiceContext>();
