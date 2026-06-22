@@ -27,22 +27,30 @@ export function hookNow(): Effect.Effect<number> {
 }
 
 export function createHookOutput(reporter?: HookReporterPort): {
+  flush: () => Effect.Effect<void>;
   writeStdout: (text: string) => void;
   writeStderr: (text: string) => void;
   result: () => Pick<SpawnResult, "stdout" | "stderr">;
 } {
   let stdout = "";
   let stderr = "";
+  const events: HookReportEvent[] = [];
   return {
+    flush() {
+      if (!reporter || events.length === 0) return Effect.void;
+      return Effect.forEach(events, (event) => reporter.emit(event), {
+        discard: true,
+      });
+    },
     writeStdout(text) {
       if (!text) return;
       stdout += text;
-      if (reporter) Effect.runSync(reporter.emit({ kind: "stdout", text }));
+      events.push({ kind: "stdout", text });
     },
     writeStderr(text) {
       if (!text) return;
       stderr += text;
-      if (reporter) Effect.runSync(reporter.emit({ kind: "stderr", text }));
+      events.push({ kind: "stderr", text });
     },
     result() {
       return { stdout, stderr };
