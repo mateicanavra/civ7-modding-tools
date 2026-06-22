@@ -17,16 +17,20 @@ import {
 export function runDocsApplyBackedDiagnosticOutcomesEffect(
   selectedRules: readonly RuleSourceFacts[],
   options: {
+    repoRoot: string;
     scanRoots?: readonly string[];
-  } = {}
+  }
 ): Effect.Effect<
   Map<string, DiagnosticRunOutcome>,
   never,
   GritProvider | GritProviderRequirements
 > {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
-  const scanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
+  const scanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots, {
+    repoRoot: options.repoRoot,
+  });
   const scanRootDecision = decidePatternScanRoots(scanRoots, {
+    repoRoot: options.repoRoot,
     allowDocsRoot: true,
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });

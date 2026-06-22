@@ -217,7 +217,10 @@ export function executeSelectedRulesEffect(
         for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
         const started = yield* Clock.currentTimeMillis;
-        const gritResults = yield* runGritRulesEffect(gritRules, scanRoots ? { scanRoots } : {});
+        const gritResults = yield* runGritRulesEffect(gritRules, {
+          repoRoot: context.repoRoot,
+          ...(scanRoots ? { scanRoots } : {}),
+        });
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
         for (const rule of gritRules) {
           const result = gritResults.get(rule.id);

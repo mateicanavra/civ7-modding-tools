@@ -40,13 +40,18 @@ type TestGritOptions = NonNullable<Parameters<typeof runGritRulesEffect>[1]> & {
   layer?: GritProviderLayer;
 };
 
-const unusedGritProviderLayer = makeFakeGritProviderLayer((request) => {
-  throw new Error(`Unexpected Grit provider request: ${request.argv.join(" ")}`);
-});
+const unusedGritProviderLayer = makeFakeGritProviderLayer(
+  (request) => {
+    throw new Error(`Unexpected Grit provider request: ${request.argv.join(" ")}`);
+  },
+  { repoRoot }
+);
 
 function runGritRules(selectedRules: readonly RuleSourceFacts[], options: TestGritOptions = {}) {
   const { layer = unusedGritProviderLayer, ...runOptions } = options;
-  return Effect.runPromise(runGritRulesEffect(selectedRules, runOptions).pipe(provide(layer)));
+  return Effect.runPromise(
+    runGritRulesEffect(selectedRules, { repoRoot, ...runOptions }).pipe(provide(layer))
+  );
 }
 
 function runGritDiagnosticOutcomes(
@@ -55,7 +60,7 @@ function runGritDiagnosticOutcomes(
 ) {
   const { layer = unusedGritProviderLayer, ...runOptions } = options;
   return Effect.runPromise(
-    runGritDiagnosticOutcomesEffect(selectedRules, runOptions).pipe(provide(layer))
+    runGritDiagnosticOutcomesEffect(selectedRules, { repoRoot, ...runOptions }).pipe(provide(layer))
   );
 }
 
@@ -337,6 +342,7 @@ describe("Grit check provider parser and diagnostics", () => {
 
   test("validates missing, outside, generated, protected, and approved scan roots", () => {
     const options = {
+      repoRoot,
       pathExists: fakeExistingScanRoots([
         ".git",
         "docs/PROCESS.md",
@@ -361,18 +367,18 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("keeps scan-root refusal reasons as closed decisions", () => {
-    expect(decidePatternScanRoots([])).toEqual({ kind: "refused", reason: "empty" });
-    expect(decidePatternScanRoots(["../outside"])).toEqual({
+    expect(decidePatternScanRoots([], { repoRoot })).toEqual({ kind: "refused", reason: "empty" });
+    expect(decidePatternScanRoots(["../outside"], { repoRoot })).toEqual({
       kind: "refused",
       reason: "outside-repo",
       root: "../outside",
     });
-    expect(decidePatternScanRoots(["missing-root"])).toEqual({
+    expect(decidePatternScanRoots(["missing-root"], { repoRoot })).toEqual({
       kind: "refused",
       reason: "missing",
       root: "missing-root",
     });
-    expect(decidePatternScanRoots(["packages"])).toEqual({
+    expect(decidePatternScanRoots(["packages"], { repoRoot })).toEqual({
       kind: "accepted",
       roots: ["packages"],
       source: "rule-registry-facts",
@@ -670,11 +676,11 @@ describe("Grit check provider parser and diagnostics", () => {
       scanRoots: ["docs"],
     });
 
-    expect(discoverPatternScanRoots([sourceRule])).not.toContain("docs");
-    const docsRoots = discoverPatternScanRoots([docsRule]);
+    expect(discoverPatternScanRoots([sourceRule], { repoRoot })).not.toContain("docs");
+    const docsRoots = discoverPatternScanRoots([docsRule], { repoRoot });
     expect(docsRoots).toEqual(["docs"]);
-    expect(discoverPatternScanRoots([sourceRule, docsRule])).toContain("docs");
-    expect(discoverPatternScanRoots([sourceRule, docsRule])).toContain(
+    expect(discoverPatternScanRoots([sourceRule, docsRule], { repoRoot })).toContain("docs");
+    expect(discoverPatternScanRoots([sourceRule, docsRule], { repoRoot })).toContain(
       "mods/mod-swooper-maps/src/maps"
     );
   });

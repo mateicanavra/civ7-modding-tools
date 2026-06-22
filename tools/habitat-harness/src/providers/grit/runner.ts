@@ -29,6 +29,7 @@ import {
 import type { GritCheckCacheMode, GritCheckOutputFormat, GritDiagnosticOptions } from "./types.js";
 
 interface GritRunOptions {
+  repoRoot: string;
   scanRoots?: readonly string[];
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
@@ -37,7 +38,7 @@ interface GritRunOptions {
 
 export function runGritRulesEffect(
   selectedRules: readonly RuleSourceFacts[],
-  options: GritRunOptions = {}
+  options: GritRunOptions
 ): Effect.Effect<Map<string, RuleRunResult>, never, GritProvider | GritProviderRequirements> {
   return runGritDiagnosticOutcomesEffect(selectedRules, options).pipe(
     Effect.map((outcomes) => ruleRunResultsFromDiagnosticOutcomes(selectedRules, outcomes))
@@ -46,7 +47,7 @@ export function runGritRulesEffect(
 
 export function runGritDiagnosticOutcomesEffect(
   selectedRules: readonly RuleSourceFacts[],
-  options: GritRunOptions = {}
+  options: GritRunOptions
 ): Effect.Effect<
   Map<string, DiagnosticRunOutcome>,
   never,
@@ -77,7 +78,9 @@ function runGritRuleOutcomeGroupEffect(
   GritProvider | GritProviderRequirements
 > {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
-  const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
+  const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots, {
+    repoRoot: options.repoRoot,
+  });
   if (requestedScanRoots.length === 0) {
     return runGritScanRootBatchEffect(selectedRules, [], options, outputFormat);
   }
@@ -119,6 +122,7 @@ function runGritScanRootBatchEffect(
 > {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
   const scanRootDecision = decidePatternScanRoots(scanRoots, {
+    repoRoot: options.repoRoot,
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
@@ -151,6 +155,7 @@ function runGritScanRootBatchEffect(
     );
   }
   const program = gritCheckProgram(scanRoots, {
+    repoRoot: options.repoRoot,
     cacheMode: options.cacheMode,
     requireObservableCacheStatus: options.requireObservableCacheStatus,
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
