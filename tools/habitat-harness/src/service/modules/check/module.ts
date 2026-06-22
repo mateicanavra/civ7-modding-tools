@@ -16,7 +16,7 @@ import type { CheckServiceRunInput } from "./contract.js";
 
 export interface CheckModuleContext {
   readonly checkCommandContext: typeof checkCommandContext;
-  readonly createCheckReport: typeof createCheckReport;
+  readonly createCheckReport: (options?: CheckOptions) => ReturnType<typeof createCheckReport>;
   readonly describeRuleSelectionFailure: typeof describeRuleSelectionFailure;
   readonly expandBaselines: typeof expandBaselines;
   readonly selectorsFromInput: typeof selectorsFromInput;
@@ -26,7 +26,8 @@ export const module = service.check.use(({ context, next }) =>
   next({
     context: {
       checkCommandContext,
-      createCheckReport,
+      createCheckReport: (options) =>
+        createCheckReport({ ...options, repoRoot: context.deps.platform.repoRoot }),
       describeRuleSelectionFailure,
       expandBaselines,
       selectorsFromInput,

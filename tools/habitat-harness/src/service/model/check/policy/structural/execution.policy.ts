@@ -110,9 +110,10 @@ function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?
 
 export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleSourceFacts)
+  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleSourceFacts),
+  context: { readonly repoRoot: string }
 ): string[] {
-  return stagedSourceScanRoots(stagedPaths, approvedScanRoots);
+  return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);
 }
 
 export function approvedScanRootsForRules(rules: readonly RuleSourceFacts[]): string[] {
@@ -141,7 +142,7 @@ export function stagedSourceCheckNotApplicableRecords(
 
 export function executeSelectedRulesEffect(
   selectedRules: readonly RuleSelectorFacts[],
-  options: Pick<CheckOptions, "staged" | "stagedPaths"> = {}
+  options: Pick<CheckOptions, "repoRoot" | "staged" | "stagedPaths"> = {}
 ): Effect.Effect<
   Map<string, RuleExecutionRecord>,
   never,
@@ -164,7 +165,8 @@ export function executeSelectedRulesEffect(
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
             options.stagedPaths ?? (yield* currentStagedPathsEffect()),
-            approvedScanRootsForRules(sourceRules)
+            approvedScanRootsForRules(sourceRules),
+            sourceScopeContext(options)
           )
         : undefined;
       const stagedNotApplicable =
@@ -199,7 +201,8 @@ export function executeSelectedRulesEffect(
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
             options.stagedPaths ?? (yield* currentStagedPathsEffect()),
-            approvedScanRootsForRules(gritRules)
+            approvedScanRootsForRules(gritRules),
+            sourceScopeContext(options)
           )
         : undefined;
       const stagedNotApplicable =
@@ -254,6 +257,13 @@ export function executeSelectedRulesEffect(
 
     return results;
   });
+}
+
+function sourceScopeContext(options: Pick<CheckOptions, "repoRoot">): {
+  readonly repoRoot: string;
+} {
+  if (!options.repoRoot) throw new Error("habitat internal error: missing source-scope repo root");
+  return { repoRoot: options.repoRoot };
 }
 
 function executeFormatRulesEffect(

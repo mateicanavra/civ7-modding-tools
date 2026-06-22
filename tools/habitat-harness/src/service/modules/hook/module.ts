@@ -121,7 +121,8 @@ export const module = service.hook.use(({ context, next }) => {
     nx: context.deps.nx,
     platform: context.deps.platform,
     reporter: context.deps.reporter,
-    createCheckReport,
+    createCheckReport: (options) =>
+      createCheckReport({ ...options, repoRoot: context.deps.platform.repoRoot }),
     workspaceGraphTargetNames,
   } satisfies HookProcedureContext;
 
@@ -165,7 +166,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
           ...output.result(),
         });
       }
-      const hookSourcePaths = prePushHookSourceCheckPaths(changedPaths.paths);
+      const hookSourcePaths = prePushHookSourceCheckPaths(context, changedPaths.paths);
       if (hookSourcePaths.length > 0) {
         const hookSourceCheck = yield* prePushHookSourceCheck(context, hookSourcePaths);
         output.writeStdout(
@@ -508,8 +509,8 @@ function preCommitBiomeProviderStep(
 function continuePreCommitAfterBiome(
   state: PreCommitBiomeState
 ): PreCommitStep<PreCommitSourceCheckState> {
-  const { staged } = state;
-  const sourceCheckPaths = hookSourceCheckPaths(staged);
+  const { context, staged } = state;
+  const sourceCheckPaths = hookSourceCheckPaths(staged, context.platform.repoRoot);
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
 }
 
@@ -582,10 +583,15 @@ function prePushChangedPaths(
   });
 }
 
-function prePushHookSourceCheckPaths(changedPaths: readonly string[]): readonly string[] {
+function prePushHookSourceCheckPaths(
+  context: HookProcedureContext,
+  changedPaths: readonly string[]
+): readonly string[] {
   const hookRuleIds = activeRuleHookCheckFacts.map((rule) => rule.id);
   const hookSourceRules = factsForRuleIds(activeRuleSourceFacts, hookRuleIds);
-  return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules));
+  return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules), {
+    repoRoot: context.platform.repoRoot,
+  });
 }
 
 function prePushHookSourceCheck(

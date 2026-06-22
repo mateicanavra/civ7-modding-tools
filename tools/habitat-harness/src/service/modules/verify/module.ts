@@ -63,7 +63,8 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
   return next({
     context: {
       checkCommandContext,
-      createCheckReport,
+      createCheckReport: (options) =>
+        createCheckReport({ ...options, repoRoot: context.deps.platform.repoRoot }),
       createVerifyReceipt: createReceipt,
       currentTimeMillis: Clock.currentTimeMillis,
       epochMillisToIsoString,

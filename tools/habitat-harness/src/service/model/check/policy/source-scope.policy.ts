@@ -1,9 +1,12 @@
 import path from "node:path";
 import { habitatCacheRepoPathPrefix } from "@internal/habitat-harness/resources/artifact-paths";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { decideScanRootProtection } from "@internal/habitat-harness/service/model/host/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { activeRuleSourceFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+
+export interface SourceScopeContext {
+  readonly repoRoot: string;
+}
 
 export const sourceCheckCandidateExtensions = new Set([
   ".cjs",
@@ -44,21 +47,25 @@ export function selectedSourceScanRootsForRules(
 
 export function stagedSourceScanRoots(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = []
+  approvedScanRoots: readonly string[] = [],
+  context: SourceScopeContext
 ): string[] {
   const candidates = sortedUnique(
     stagedPaths
-      .map((candidate) => toRepoRelative(candidate))
+      .map((candidate) => toRepoRelative(context, candidate))
       .filter((candidate) => sourceCheckCandidateExtensions.has(path.extname(candidate)))
   );
-  return candidates.filter((candidate) => isApprovedSourceScanRoot(candidate, approvedScanRoots));
+  return candidates.filter((candidate) =>
+    isApprovedSourceScanRoot(candidate, approvedScanRoots, context)
+  );
 }
 
 export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedSourceScanRootsForRules(activeRuleSourceFacts)
+  approvedScanRoots: readonly string[] = approvedSourceScanRootsForRules(activeRuleSourceFacts),
+  context: SourceScopeContext
 ): string[] {
-  return stagedSourceScanRoots(stagedPaths, approvedScanRoots);
+  return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);
 }
 
 export function collapsedSourceScanRoots(scanRoots: readonly string[]): string[] {
@@ -73,8 +80,8 @@ export function collapsedSourceScanRoots(scanRoots: readonly string[]): string[]
 }
 
 export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
-  const normalizedCandidate = toRepoRelative(candidate);
-  const normalizedRoot = toRepoRelative(declaredRoot);
+  const normalizedCandidate = normalizeRepoPath(candidate);
+  const normalizedRoot = normalizeRepoPath(declaredRoot);
   return (
     normalizedCandidate === normalizedRoot ||
     normalizedCandidate.startsWith(`${normalizedRoot}/`) ||
@@ -83,22 +90,23 @@ export function pathsOverlap(candidate: string, declaredRoot: string): boolean {
 }
 
 export function sortedUnique(values: readonly string[]): string[] {
-  return [...new Set(values.map(toRepoRelative))].sort((a, b) => a.localeCompare(b));
+  return [...new Set(values.map(normalizeRepoPath))].sort((a, b) => a.localeCompare(b));
 }
 
 function sourceScanRootContains(parent: string, child: string): boolean {
-  const normalizedParent = toRepoRelative(parent);
-  const normalizedChild = toRepoRelative(child);
+  const normalizedParent = normalizeRepoPath(parent);
+  const normalizedChild = normalizeRepoPath(child);
   if (normalizedParent === "") return true;
   return normalizedParent === normalizedChild || normalizedChild.startsWith(`${normalizedParent}/`);
 }
 
 function isApprovedSourceScanRoot(
   candidate: string,
-  approvedScanRoots: readonly string[]
+  approvedScanRoots: readonly string[],
+  context: SourceScopeContext
 ): boolean {
-  const absolute = path.resolve(repoRoot, candidate);
-  const relative = toRepoRelative(absolute);
+  const absolute = path.resolve(context.repoRoot, candidate);
+  const relative = toRepoRelative(context, absolute);
   if (relative === ".." || relative.startsWith("../")) return false;
   const protection = decideScanRootProtection(relative, {
     protectedPrefixes: protectedSourceRootPrefixes,
@@ -107,4 +115,16 @@ function isApprovedSourceScanRoot(
   return approvedScanRoots.length === 0
     ? true
     : approvedScanRoots.some((approvedRoot) => pathsOverlap(relative, approvedRoot));
+}
+
+function toRepoRelative(context: SourceScopeContext, candidate: string): string {
+  return path
+    .relative(context.repoRoot, path.resolve(context.repoRoot, candidate))
+    .split(path.sep)
+    .join("/");
+}
+
+function normalizeRepoPath(candidate: string): string {
+  const normalized = path.normalize(candidate).split(path.sep).join("/");
+  return normalized === "." ? "" : normalized.replace(/^\.\//, "");
 }
