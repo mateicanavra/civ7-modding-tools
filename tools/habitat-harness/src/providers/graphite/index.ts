@@ -14,6 +14,7 @@ export type GraphiteProviderRequirements =
   | GitStateProvider;
 
 export interface GraphiteProviderService {
+  readonly parentArgv: () => readonly string[];
   readonly parent: (options?: {
     cwd?: string;
   }) => Effect.Effect<string | null, never, GraphiteProviderRequirements>;
@@ -26,6 +27,7 @@ export class GraphiteProvider extends Context.Tag("@internal/habitat-harness/Gra
 
 export function makeGraphiteProviderLayer(repoRoot: string): Layer.Layer<GraphiteProvider> {
   return Layer.succeed(GraphiteProvider, {
+    parentArgv,
     parent: (options = {}) =>
       CommandRunner.pipe(
         Effect.flatMap((runner) =>
@@ -33,7 +35,7 @@ export function makeGraphiteProviderLayer(repoRoot: string): Layer.Layer<Graphit
             commandId: "graphite-parent",
             kind: "workspace-tool",
             executable: "gt",
-            argv: ["branch", "info", "--no-interactive"],
+            argv: parentArgv().slice(1),
             cwd: options.cwd ?? repoRoot,
             captureGitState: false,
           })
@@ -53,6 +55,7 @@ export function makeFakeGraphiteProviderLayer(
   { repoRoot = "." }: { readonly repoRoot?: string } = {}
 ) {
   return Layer.succeed(GraphiteProvider, {
+    parentArgv,
     parent: (options = {}) =>
       Effect.sync(() => handler({ cwd: options.cwd ?? repoRoot })).pipe(
         Effect.flatMap((result) =>
@@ -61,4 +64,8 @@ export function makeFakeGraphiteProviderLayer(
         Effect.catchAll(() => Effect.succeed(null))
       ),
   });
+}
+
+export function parentArgv(): readonly string[] {
+  return ["gt", "branch", "info", "--no-interactive"];
 }

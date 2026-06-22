@@ -40,6 +40,7 @@ Completed burn-downs:
 - Fix apply planning now names transaction inputs by admitted pattern policy and explicit rule facts; the old “active apply transaction inputs” language is removed.
 - Deleted the unused service-model Nx project reader bridge; Nx graph acquisition stays behind the Nx provider and module-projected context.
 - Structural check execution now receives the provisioned Grit service through module context; shared structural policy no longer asks Effect to resolve the Grit provider tag.
+- Hook pre-push base recording now asks the Graphite provider for the parent command argv; the hook module no longer hardcodes Graphite command vocabulary.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
