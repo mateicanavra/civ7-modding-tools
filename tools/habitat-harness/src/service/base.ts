@@ -8,6 +8,7 @@ import type {
   acquireTempDirectory,
   readText,
 } from "@internal/habitat-harness/resources/platform/index";
+import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
@@ -27,6 +28,7 @@ export interface HabitatServiceDeps {
   readonly hookRuntime: HookRuntime;
   readonly nx: NxProviderService;
   readonly readText: typeof readText;
+  readonly reporter: HabitatReporterService;
   readonly repoRoot: string;
   readonly structuralCheck: StructuralCheckService;
   readonly workspaceProjects: WorkspaceGraphProjectReader;

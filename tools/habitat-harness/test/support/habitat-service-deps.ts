@@ -12,6 +12,7 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatProcessRequest } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import type { CheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { Effect } from "effect";
@@ -97,6 +98,7 @@ export function makeTestHabitatServiceDeps(
       runTargetArgv,
     },
     readText: () => Effect.succeed(""),
+    reporter: fakeReporter(),
     repoRoot,
     structuralCheck: {
       createReport: (options = {}) =>
@@ -107,6 +109,15 @@ export function makeTestHabitatServiceDeps(
       readProjects: async () => [],
     },
     ...overrides,
+  };
+}
+
+function fakeReporter(events: HabitatReportEvent[] = []) {
+  return {
+    emit: (event: HabitatReportEvent) =>
+      Effect.sync(() => {
+        events.push(event);
+      }),
   };
 }
 

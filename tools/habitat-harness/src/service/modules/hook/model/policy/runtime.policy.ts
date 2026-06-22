@@ -1,15 +1,7 @@
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import { Clock, Effect } from "effect";
-import type { HookReportChannel, HookTrace } from "../dto/hook.schema.js";
-
-export interface HookReportEvent {
-  channel: HookReportChannel;
-  text: string;
-}
-
-export interface HookReporter {
-  write(event: HookReportEvent): void;
-}
+import type { HookTrace } from "../dto/hook.schema.js";
 
 export interface ResourceRecoveryCommands {
   publish: string;
@@ -27,7 +19,6 @@ export interface HookRuntime {
   pathExists?: (target: string) => boolean;
   fileHash?: (repoRelativePath: string) => string | null;
   nowMs?: () => number;
-  reporter?: HookReporter;
   resourcePolicy?: HookResourcePolicy;
   trace?: HookTrace;
 }
@@ -40,7 +31,7 @@ export function hookNow(runtime: HookRuntime): Effect.Effect<number> {
   return runtime.nowMs ? Effect.sync(runtime.nowMs) : Clock.currentTimeMillis;
 }
 
-export function createHookOutput(reporter?: HookReporter): {
+export function createHookOutput(reporter?: HabitatReporterService): {
   writeStdout: (text: string) => void;
   writeStderr: (text: string) => void;
   result: () => Pick<SpawnResult, "stdout" | "stderr">;
@@ -51,12 +42,12 @@ export function createHookOutput(reporter?: HookReporter): {
     writeStdout(text) {
       if (!text) return;
       stdout += text;
-      reporter?.write({ channel: "stdout", text });
+      if (reporter) Effect.runSync(reporter.emit({ kind: "stdout", text }));
     },
     writeStderr(text) {
       if (!text) return;
       stderr += text;
-      reporter?.write({ channel: "stderr", text });
+      if (reporter) Effect.runSync(reporter.emit({ kind: "stderr", text }));
     },
     result() {
       return { stdout, stderr };

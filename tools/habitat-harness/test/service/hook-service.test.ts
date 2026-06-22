@@ -26,6 +26,7 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import {
   type CheckOptions,
   type CheckReport,
@@ -35,7 +36,6 @@ import {
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import {
   createHookTrace,
-  type HookReportEvent,
   type HookRuntime,
 } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
@@ -248,16 +248,14 @@ describe("Habitat hook service", () => {
   });
 
   test("reports pre-push output through an injected reporter service", async () => {
-    const events: HookReportEvent[] = [];
+    const events: HabitatReportEvent[] = [];
     const fake = makePrePushRuntime({ graphiteParent: "agent-HR-parent" });
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
       {
-        runtime: {
-          ...fake.runtime,
-          reporter: { write: (event) => events.push(event) },
-        },
+        reporterEvents: events,
+        runtime: fake.runtime,
       },
       undefined,
       nxLayer(() =>
@@ -284,15 +282,15 @@ describe("Habitat hook service", () => {
     expect(renderReported(events, "stdout")).toBe(result.stdout);
     expect(renderReported(events, "stderr")).toBe(result.stderr);
     expect(events).toContainEqual({
-      channel: "stdout",
+      kind: "stdout",
       text: "hook result: workstation check only; CI remains authoritative.\n",
     });
     expect(events).toContainEqual({
-      channel: "stdout",
+      kind: "stdout",
       text: prePushNoChangedSourceCheck,
     });
     expect(events).toContainEqual({
-      channel: "stderr",
+      kind: "stderr",
       text: "target failed\n",
     });
   });
@@ -741,7 +739,10 @@ describe("Habitat hook service", () => {
 
 function runHookServiceInTest(
   input: HookServiceRunInput,
-  options: { readonly runtime?: HookRuntime } = {},
+  options: {
+    readonly reporterEvents?: HabitatReportEvent[];
+    readonly runtime?: HookRuntime;
+  } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
   structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>,
@@ -781,6 +782,16 @@ function runHookServiceInTest(
               graphite,
               hookRuntime: options.runtime ?? {},
               nx,
+              ...(options.reporterEvents
+                ? {
+                    reporter: {
+                      emit: (event: HabitatReportEvent) =>
+                        Effect.sync(() => {
+                          options.reporterEvents?.push(event);
+                        }),
+                    },
+                  }
+                : {}),
               repoRoot,
               structuralCheck: resolvedStructuralCheck,
             }),
@@ -959,9 +970,9 @@ function renderPathList(paths: string[]): string {
   return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
 }
 
-function renderReported(events: HookReportEvent[], channel: HookReportEvent["channel"]): string {
+function renderReported(events: HabitatReportEvent[], kind: HabitatReportEvent["kind"]): string {
   return events
-    .filter((event) => event.channel === channel)
+    .filter((event) => event.kind === kind)
     .map((event) => event.text)
     .join("");
 }
