@@ -56,6 +56,10 @@ or {
     $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/(?:router\.ts|router/.*\.router\.ts)$",
     $name <: r"^run[A-Z].*(?:Service|Effect)$"
   },
+  `return yield* context.$name($args)` where {
+    $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/(?:router\.ts|router/.*\.router\.ts)$",
+    $name <: r"^run[A-Z]"
+  },
   `const $name = $value` where {
     $filename <: r".*tools/habitat-harness/src/service/router\.ts$",
     $name <: r".*RouterDefinition$"
@@ -144,6 +148,15 @@ function runCheckService(input) {
 function runCheckEffect(input) {
   return input;
 }
+
+// @filename: tools/habitat-harness/src/service/modules/check/router.ts
+import { module } from "./module.js";
+
+export const router = {
+  report: module.report.effect(function* ({ context, input }) {
+    return yield* context.runCheck(input);
+  }),
+};
 
 // @filename: tools/habitat-harness/src/service/modules/check/router.ts
 const parsed = Value.Parse(CheckServiceRunInputSchema, input);

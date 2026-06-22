@@ -56,3 +56,12 @@ CLI-shaped `run` calls. Rename the procedure surface to
 parsing flags, then compile those flags into the action inputs. Update contracts,
 routers, CLI callers, focused tests, and command mocks together; do not add a
 compatibility alias for the old `run` names.
+
+## Active Slice: Router Wrapper Burn-Down
+
+Routers must not reduce to one-line delegates such as
+`return yield* context.runHook(input)` or `context.runGraph(...)`. Keep router
+imports local-module-only, but expose module-owned primitive operations through
+context and write procedure-level dispatch/orchestration in the router body.
+Tighten the Grit service-wiring pattern so future router files reject
+`context.run*` wrapper delegates.

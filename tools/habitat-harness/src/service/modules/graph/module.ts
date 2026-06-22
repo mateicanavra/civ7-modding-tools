@@ -1,32 +1,61 @@
 import path from "node:path";
 import {
   type CommandProviderError,
-  type HabitatCommandResult,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
-import type { GraphWorkspaceGraphInput } from "./contract.js";
 import {
   GraphServiceBadRequestError,
   GraphServiceInternalError,
 } from "./model/errors/graph.errors.js";
 
 export interface GraphModuleContext {
-  readonly runGraph: ReturnType<typeof makeRunGraph>;
+  readonly parseWorkspaceGraphJson: (
+    graphPath: string,
+    graphText: string,
+    badRequest: GraphBadRequest
+  ) => Effect.Effect<unknown, GraphServiceBadRequestError>;
+  readonly readWorkspaceGraphText: (
+    graphPath: string
+  ) => Effect.Effect<string, GraphServiceInternalError, any>;
+  readonly runNxWorkspaceGraph: (
+    input: GraphNxGraphRequest
+  ) => Effect.Effect<SpawnResult, never, any>;
+  readonly selectWorkspaceGraphPayload: (
+    graphPath: string,
+    payload: unknown,
+    badRequest: GraphBadRequest
+  ) => Effect.Effect<unknown, GraphServiceBadRequestError>;
+  readonly withWorkspaceGraphFile: <A>(
+    body: (graphPath: string) => Generator<any, A, any>
+  ) => Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any>;
 }
 
 export const module = service.graph.use(({ context, next }) => {
-  const runGraph = makeRunGraph({
-    acquireTempDirectory: context.deps.platform.acquireTempDirectory,
-    readText: context.deps.platform.readText,
-    runNxGraph: context.deps.nx.graph,
-  });
   return next({
     context: {
-      runGraph,
+      parseWorkspaceGraphJson: (graphPath, graphText, badRequest) =>
+        parseGraphJson(graphPath, graphText).pipe(
+          Effect.mapError((failure) => badRequest({ message: failure.message }))
+        ),
+      readWorkspaceGraphText: (graphPath) =>
+        context.deps.platform.readText(graphPath).pipe(Effect.mapError(graphServiceInternalError)),
+      runNxWorkspaceGraph: (request) =>
+        context.deps.nx.graph(request).pipe(
+          Effect.match({
+            onFailure: spawnResultFromCommandProviderError,
+            onSuccess: spawnResultFromCommandResult,
+          })
+        ),
+      selectWorkspaceGraphPayload: (graphPath, payload, badRequest) =>
+        selectGraphPayload(graphPath, payload).pipe(
+          Effect.mapError((failure) => badRequest({ message: failure.message }))
+        ),
+      withWorkspaceGraphFile: (body) =>
+        withWorkspaceGraphFile(context.deps.platform.acquireTempDirectory, body),
     } satisfies GraphModuleContext,
   });
 });
@@ -36,47 +65,24 @@ interface GraphJsonFailure {
 }
 
 type GraphBadRequest = (input: { readonly message: string }) => GraphServiceBadRequestError;
+type GraphScopedBody<A> = (graphPath: string) => Generator<any, A, any>;
 
-interface GraphRuntimeDeps {
-  readonly acquireTempDirectory: (prefix: string) => Effect.Effect<string, unknown, any>;
-  readonly readText: (filePath: string) => Effect.Effect<string, unknown, any>;
-  readonly runNxGraph: (input: {
-    readonly outputPath: string;
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+export interface GraphNxGraphRequest {
+  readonly outputPath: string;
 }
 
-function makeRunGraph(deps: GraphRuntimeDeps) {
-  return (input: GraphWorkspaceGraphInput = {}, badRequest: GraphBadRequest) =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const tempDir = yield* deps
-          .acquireTempDirectory("habitat-graph-")
-          .pipe(Effect.mapError(graphServiceInternalError));
-        const graphPath = path.join(tempDir, "graph.json");
-        const spawnResult = yield* deps.runNxGraph({ outputPath: graphPath }).pipe(
-          Effect.match({
-            onFailure: spawnResultFromCommandProviderError,
-            onSuccess: spawnResultFromCommandResult,
-          })
-        );
-        if (spawnResult.exitCode !== 0) return spawnResult;
-
-        const graphText = yield* deps
-          .readText(graphPath)
-          .pipe(Effect.mapError(graphServiceInternalError));
-        const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
-          Effect.mapError((failure) => badRequest({ message: failure.message }))
-        );
-        const selectedPayload = yield* selectGraphPayload(graphPath, graphPayload).pipe(
-          Effect.mapError((failure) => badRequest({ message: failure.message }))
-        );
-        return {
-          exitCode: 0,
-          stdout: `${JSON.stringify(selectedPayload, null, input.json ? 0 : 2)}\n`,
-          stderr: "",
-        } satisfies SpawnResult;
-      })
-    );
+function withWorkspaceGraphFile<A>(
+  acquireTempDirectory: (prefix: string) => Effect.Effect<string, unknown, any>,
+  body: GraphScopedBody<A>
+): Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any> {
+  return Effect.scoped(
+    Effect.gen(function* () {
+      const tempDir = yield* acquireTempDirectory("habitat-graph-").pipe(
+        Effect.mapError(graphServiceInternalError)
+      );
+      return yield* body(path.join(tempDir, "graph.json"));
+    })
+  ) as Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any>;
 }
 
 function parseGraphJson(graphPath: string, graphText: string) {
