@@ -14,6 +14,11 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatProcessRequest } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import {
+  isDirectorySync,
+  readDirectorySync,
+  readTextSync,
+} from "@internal/habitat-harness/resources/platform/filesystem";
 import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import type { CheckReport } from "@internal/habitat-harness/service/model/check/index";
@@ -24,7 +29,13 @@ import {
 import { Effect } from "effect";
 
 export function makeTestRuleFacts() {
-  return ruleFactsCatalog(loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath)));
+  return ruleFactsCatalog(
+    loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath), {
+      isDirectory: isDirectorySync,
+      readDirectory: readDirectorySync,
+      readText: readTextSync,
+    })
+  );
 }
 
 export function makeTestHabitatServiceDeps(
@@ -118,8 +129,12 @@ export function makeTestHabitatServiceDeps(
       acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
       env: {},
       hashFile: () => null,
+      isDirectory: () => Effect.succeed(false),
+      isDirectorySync: () => false,
       isFile: () => false,
       pathExists: () => false,
+      readDirectory: () => Effect.succeed([]),
+      readDirectorySync: () => [],
       readText: () => Effect.succeed(""),
       readTextSync: () => "",
       repoRoot,
