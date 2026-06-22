@@ -24,12 +24,8 @@ import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/p
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
-import {
-  executeSelectedRulesEffect,
-  type RuleExecutionRecord,
-  rulesForExecution,
-  type StructuralExecutionContext,
-} from "./execution.policy.js";
+import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
+import { executeSelectedRulesEffect, rulesForExecution } from "./execution.policy.js";
 import { constructCheckReportEffect, selectorRefusalReportEffect } from "./selection.policy.js";
 import {
   BaselineApplicationOutcomeSchema,
