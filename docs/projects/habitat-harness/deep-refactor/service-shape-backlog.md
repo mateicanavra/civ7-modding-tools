@@ -11,6 +11,7 @@ Current burn-down categories:
 - Service-level context stays limited to provisioned/shared resources; module-local procedure concepts stay in `module.ts` or module-local model policy/DTO/helper kinds.
 - Active ratchet: module-local `model/` trees now need the same named-kind file discipline as shared `service/model`; arbitrary implementation files under `model/` are unmanaged logic and must be renamed/classified or moved.
 - Active ratchet: model subdirectories are restricted to `dto`, `errors`, `policy`, and `repositories`; generic `helpers`, `persistence`, and `prompts` buckets are not allowed because they hide ownership instead of naming it.
+- Active runtime cleanup: service runtime realization belongs under `runtime/`; `service/impl.ts` should attach the contract/context to an already-realized managed runtime instead of composing live provider layers itself.
 - Promise/resource adaptation belongs outside routers. Routers author procedure logic through the module implementer and consume ready Effect-returning operations from handler context.
 - Remove module-local context from `service/base.ts`; service context keeps only provisioned resources and shared service metadata.
 - Let each `module.ts` project service resources into the module-specific procedure context.
@@ -119,3 +120,4 @@ Completed burn-downs:
 - Baseline expansion moved out of shared structural check policy into the check module model; shared check model now keeps only baseline contract input projection for report/integrity policy, and hook tests no longer fake a baseline-expansion dependency they never use.
 - The structural check policy barrel no longer re-exports general check DTO/request/render/summary language; consumers import public check language from `service/model/check/index` and structural-only helpers from `policy/structural/index`.
 - Model shape validation now rejects generic `helpers`, `persistence`, and `prompts` buckets; Habitat service logic must land in explicit DTO, policy, repository, or error kinds.
+- Habitat service managed runtime construction moved to `runtime/service-runtime.ts`; the oRPC implementer and live service context creation share the same runtime-boundary composition instead of constructing runtimes in service files.
