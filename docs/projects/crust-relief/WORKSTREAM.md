@@ -301,8 +301,17 @@ shape-verified per the brief's "necessary, not sufficient" caveat.)
 ## 10. Open decisions (genuinely the user's)
 
 - **Cold-reef guarantee** (`sundered-archipelago` `requireColdReefs`, currently suspended):
-  restore it as closure proof, or retire by explicit product decision (brief §9). Defer to
-  closure; surface to user then.
+  **Finding:** the reshape does NOT restore cold reefs on this map (cold=0 at 106×66, =2 at
+  80×50). It is physically coherent — the reshape gives this all-continental archipelago real
+  deep-water margins (submerged crust p50 −77), so its islands rise steeply from deep ocean with
+  little broad SHALLOW cold shelf. This is the *opposite* of a drowned-flat-platform: the crust
+  near these islands is now genuinely deep, not flat. Restoring cold reefs would require a
+  map-identity tweak (widen this map's `shelfWidth`, or the cold-reef depth window) — NOT a
+  crust-physics change, and tuning to hit a cold-reef count would violate the philosophy.
+  **Product decision needed:** (a) retire the guarantee for this deep-water archipelago (accept no
+  cold reefs — physically honest), or (b) widen the shelf/depth-window for this map's identity to
+  bring them back. Kept suspended (`false`) pending the call; suite is green. Recommend (a) unless
+  cold reefs are a required identity feature of sundered-archipelago.
 
 ---
 

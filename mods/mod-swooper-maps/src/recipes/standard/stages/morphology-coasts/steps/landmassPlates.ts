@@ -212,53 +212,6 @@ function applyBaseTerrainBuffers(
   return { landCount, waterCount, minElevation, maxElevation };
 }
 
-function relaxUndrivenInteriorDomes(args: {
-  elevation: Int16Array;
-  landMask: Uint8Array;
-  distanceToCoast: Uint16Array;
-  upliftPotential: Uint8Array;
-  riftPotential: Uint8Array;
-  tectonicStress: Uint8Array;
-}): void {
-  const { elevation, landMask, distanceToCoast, upliftPotential, riftPotential, tectonicStress } =
-    args;
-  let maxLandDistance = 0;
-  for (let i = 0; i < landMask.length; i++) {
-    if (landMask[i] !== 1) continue;
-    maxLandDistance = Math.max(maxLandDistance, distanceToCoast[i] ?? 0);
-  }
-  if (maxLandDistance < 4) return;
-
-  for (let i = 0; i < elevation.length; i++) {
-    if (landMask[i] !== 1) continue;
-    const distance01 = Math.min(1, (distanceToCoast[i] ?? 0) / maxLandDistance);
-    const driver01 =
-      Math.max(upliftPotential[i] ?? 0, riftPotential[i] ?? 0, tectonicStress[i] ?? 0) / 255;
-    const undriven01 = Math.max(0, 1 - driver01 * 0.75);
-    const relaxation = Math.round(36 * Math.pow(distance01, 1.35) * undriven01);
-    if (relaxation <= 0) continue;
-    elevation[i] = clampInt16((elevation[i] ?? 0) - relaxation);
-  }
-}
-
-function summarizeHeightfield(
-  elevation: Int16Array,
-  landMask: Uint8Array
-): { landCount: number; waterCount: number; minElevation: number; maxElevation: number } {
-  let landCount = 0;
-  let waterCount = 0;
-  let minElevation = 0;
-  let maxElevation = 0;
-  for (let i = 0; i < elevation.length; i++) {
-    const value = elevation[i] ?? 0;
-    if (landMask[i] === 1) landCount += 1;
-    else waterCount += 1;
-    if (i === 0 || value < minElevation) minElevation = value;
-    if (i === 0 || value > maxElevation) maxElevation = value;
-  }
-  return { landCount, waterCount, minElevation, maxElevation };
-}
-
 export default createStep(LandmassPlatesStepContract, {
   artifacts: implementArtifacts(LandmassPlatesStepContract.artifacts!.provides!, {
     topography: {
@@ -416,25 +369,16 @@ export default createStep(LandmassPlatesStepContract, {
       config.landmask
     );
 
-    let stats = applyBaseTerrainBuffers(
+    const stats = applyBaseTerrainBuffers(
       width,
       height,
       baseTopography.elevation,
       landmask.landMask,
       context.buffers.heightfield
     );
-    relaxUndrivenInteriorDomes({
-      elevation: context.buffers.heightfield.elevation,
-      landMask: context.buffers.heightfield.landMask,
-      distanceToCoast: landmask.distanceToCoast,
-      upliftPotential: beltDrivers.upliftPotential,
-      riftPotential: beltDrivers.riftPotential,
-      tectonicStress: beltDrivers.tectonicStress,
-    });
-    stats = summarizeHeightfield(
-      context.buffers.heightfield.elevation,
-      context.buffers.heightfield.landMask
-    );
+    // (Removed `relaxUndrivenInteriorDomes`: it artificially lowered undriven interior land to fake
+    // relief on the old flat unimodal hump. With bimodal crust relief, undriven interiors are real
+    // cratons that should ride high — the heuristic now double-counted and carved them back down.)
 
     const seaLevelValue = seaLevel.seaLevel;
     const waterElevation = clampInt16(Math.floor(seaLevelValue));

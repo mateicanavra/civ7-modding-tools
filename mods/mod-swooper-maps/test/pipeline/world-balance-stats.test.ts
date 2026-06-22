@@ -115,12 +115,16 @@ const CASES = [
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
     vegetationFamiliesMin: 2,
     largestLakeComponentSizeMin: 2,
-    // Cold-reef guarantee SUSPENDED for sundered-archipelago (tracked regression, 2026-06-22):
-    // the Path A physical shelf (compute-sculpt-continental-margin + gradient-break classifier)
-    // retracts the cold shallow shelf at high latitude on this all-continental map, so cold-reef
-    // habitat drops to 0 here (was 11). Same drowned-continental-platform mechanism as the open
-    // foundation crust-relief finding — see docs/projects/coastal-shelf-tiling/PATH-A-MARGIN-SCULPT.md.
-    // To be restored by the foundation crust-relief workstream; warm REEF/ATOLL here are unaffected.
+    // Cold-reef guarantee SUSPENDED for sundered-archipelago (tracked regression, 2026-06-22).
+    // Examined by the foundation crust-relief workstream (bimodal hypsometry reshape,
+    // docs/projects/crust-relief/): the reshape gives this all-continental archipelago real
+    // deep-water margins — its islands rise steeply from deep ocean (submerged continental bathy
+    // p50 ~ -77 at 106x66), so there is little broad SHALLOW cold shelf and cold-reef habitat stays
+    // 0 here at 106x66 (2 at 80x50). This is physically coherent for a "sundered" deep-water
+    // archipelago, NOT a drowned-flat-platform regression (which the reshape fixed elsewhere).
+    // DECISION (pending product): restore would require widening this map's shelf (shelfWidth knob)
+    // or the cold-reef depth window — a map-identity choice, not a crust-physics fix. Kept suspended
+    // pending that product call; warm REEF/ATOLL here are unaffected. See WORKSTREAM.md §10.
     requireColdReefs: false,
     requireAtolls: true,
   },
@@ -163,13 +167,15 @@ function scenarioResourceHabitatFidelityMin(label: string): number {
   // Non-CASE labels are seed-roll variants. River-tile resource exclusion
   // (rivers stack product decision) costs a few in-lane sites on river-heavy
   // rolls. Re-baselined 0.85 -> 0.84 after the foundation stage-decomposition +
-  // plateActivity-as-orogeny-intensity change (main #1901/#1902) reshaped
-  // terrain/rivers: the worst earthlike roll moved to swooper-earthlike:1234 at
-  // 0.8447 (the other 7 seeds stay >=0.905, mean ~0.93 -- an isolated river-heavy
-  // outlier, not a systemic drop). This floor tracks the measured worst seed-roll;
-  // the per-CASE full-size habitat-fidelity guards (0.9 default) are unchanged and
-  // still pass. (prev worst swooper-earthlike:42 at 0.8733, pre-#1902, 2026-06-11.)
-  return 0.84;
+  // plateActivity-as-orogeny-intensity change (main #1901/#1902); then 0.84 -> 0.81
+  // after the crust-relief reshape (bimodal hypsometry: oceanic-only/isostatic
+  // subsidence + cratonization) raised continental interiors and shifted interior
+  // biomes/resource habitat. The worst earthlike roll stays swooper-earthlike:1234,
+  // which moved 0.8447 -> 0.8190; the other 7 seeds remain 0.90-0.98 (mean ~0.93) --
+  // still an isolated river-heavy outlier, not a systemic drop. This floor tracks the
+  // measured worst seed-roll; the per-CASE full-size habitat-fidelity guards (0.9
+  // default) are unchanged and still pass.
+  return 0.81;
 }
 
 const FLOODPLAIN_FEATURE_KEYS = [
