@@ -86,7 +86,7 @@ console.log("Habitat service module shape ok.");
 
 function validateKnownDirectory(directory: string, kind: string): void {
   if (kind === "model") {
-    validateModelDirectory(directory, { strictPolicyNames: false });
+    validateModelDirectory(directory, { strictPolicyNames: true });
     return;
   }
 
