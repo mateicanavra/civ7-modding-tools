@@ -1,5 +1,4 @@
 import type { RuleSelectorFacts as RegistryRuleSelectorFacts } from "../dto/registry.schema.js";
-import { activeRuleSelectorFacts } from "./active-facts.policy.js";
 
 export interface RuleSelection {
   owner?: string;
@@ -39,7 +38,7 @@ export type RuleSelectionResult =
 
 export function selectRules(
   selection: RuleSelection = {},
-  registry: readonly RegistryRuleSelectorFacts[] = activeRuleSelectorFacts
+  registry: readonly RegistryRuleSelectorFacts[]
 ): RuleSelectionResult {
   const facts = selectorFacts(selection, registry);
   const wrongNamespace = facts.find((fact) => !fact.known && fact.matchedNamespace);
