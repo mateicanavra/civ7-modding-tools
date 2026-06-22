@@ -43,6 +43,7 @@ Completed burn-downs:
 - Hook pre-push base recording now asks the Graphite provider for the parent command argv; the hook module no longer hardcodes Graphite command vocabulary.
 - Classify model helpers now consume service-owned workspace graph state instead of importing Nx graph reader/provider seams.
 - Verify target planning now consumes graph state supplied by the Nx provider through module context; receipt policy no longer imports Nx graph acquisition.
+- Service callers now import workspace target-name policy from `service/model/workspace`; direct Nx target helper imports are no longer spread into hook, verify receipt, or rule fact catalog code.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
