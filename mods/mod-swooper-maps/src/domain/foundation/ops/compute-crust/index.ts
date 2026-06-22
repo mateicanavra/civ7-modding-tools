@@ -1,49 +1,15 @@
 import { createOp } from "@swooper/mapgen-core/authoring";
-import { clamp01 } from "@swooper/mapgen-core/lib/math";
+import { clamp01, clampU8 } from "@swooper/mapgen-core/lib/math";
 
+import {
+  deriveBuoyancy,
+  isContinentalMaturity,
+  strengthFromMaturity,
+  strengthFromThermalAge,
+  strengthFromThickness,
+} from "../../lib/crust/buoyancy.js";
 import { requireMantleForcing, requireMesh } from "../../lib/require.js";
 import ComputeCrustContract from "./contract.js";
-
-const MATURITY_CONTINENT_THRESHOLD = 0.55;
-
-const OCEANIC_BASE_ELEVATION = 0.32;
-const OCEANIC_AGE_DEPTH = 0.22;
-const MATURITY_BUOYANCY_BOOST = 0.45;
-const THICKNESS_BUOYANCY_BOOST = 0.25;
-
-const STRENGTH_BASE_MIN = 0.45;
-const STRENGTH_MATURITY_MIN = 0.5;
-const STRENGTH_THICKNESS_MIN = 0.55;
-
-function clampU8(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  if (value <= 0) return 0;
-  if (value >= 255) return 255;
-  return value | 0;
-}
-
-function strengthFromThermalAge(age01: number): number {
-  return STRENGTH_BASE_MIN + (1 - STRENGTH_BASE_MIN) * clamp01(age01);
-}
-
-function strengthFromMaturity(maturity: number): number {
-  return STRENGTH_MATURITY_MIN + (1 - STRENGTH_MATURITY_MIN) * clamp01(maturity);
-}
-
-function strengthFromThickness(thickness: number): number {
-  return STRENGTH_THICKNESS_MIN + (1 - STRENGTH_THICKNESS_MIN) * clamp01(thickness);
-}
-
-function deriveBuoyancy(params: {
-  maturity: number;
-  thickness: number;
-  thermalAge01: number;
-}): number {
-  const maturityBoost = MATURITY_BUOYANCY_BOOST * clamp01(params.maturity);
-  const thicknessBoost = THICKNESS_BUOYANCY_BOOST * clamp01(params.thickness);
-  const subsidence = OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01);
-  return clamp01(OCEANIC_BASE_ELEVATION + maturityBoost + thicknessBoost - subsidence);
-}
 
 const computeCrust = createOp(ComputeCrustContract, {
   strategies: {
@@ -100,7 +66,7 @@ const computeCrust = createOp(ComputeCrustContract, {
           const age01 = 0;
           const damage01 = clamp01((damage[i] ?? 0) / 255);
 
-          type[i] = m >= MATURITY_CONTINENT_THRESHOLD ? 1 : 0;
+          type[i] = isContinentalMaturity(m) ? 1 : 0;
           age[i] = 0;
 
           const buoy = deriveBuoyancy({ maturity: m, thickness: t, thermalAge01: age01 });
