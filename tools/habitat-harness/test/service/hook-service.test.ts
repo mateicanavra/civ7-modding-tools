@@ -34,7 +34,7 @@ import {
   StructuralCheck,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
-import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
+import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { createRouterClient } from "@orpc/server";
@@ -56,12 +56,9 @@ const prePushNoChangedSourceCheck =
 
 describe("Habitat hook service", () => {
   test("runs owned hook orchestration from service input", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime }
-    );
+    const result = await runHookServiceInTest({ name: "pre-push", base: "HEAD~1" });
 
     expect(result).toEqual({
       exitCode: 0,
@@ -81,12 +78,12 @@ describe("Habitat hook service", () => {
     });
   });
 
-  test("preserves empty base as hook runtime input", async () => {
-    const fake = makePrePushRuntime({ graphiteParent: "agent-parent" });
+  test("resolves empty pre-push base from Graphite", async () => {
+    const fake = makePrePushFixture({ graphiteParent: "agent-parent" });
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
-      { runtime: fake.runtime },
+      {},
       undefined,
       undefined,
       undefined,
@@ -99,12 +96,12 @@ describe("Habitat hook service", () => {
   });
 
   test("resolves pre-push merge-base through GitProvider when Graphite parent is absent", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const gitCalls: string[] = [];
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push(argv.join(" "));
         const stdout =
@@ -132,12 +129,12 @@ describe("Habitat hook service", () => {
   });
 
   test("refuses pre-push when no affected base can be resolved", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const gitCalls: string[] = [];
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push(argv.join(" "));
         return commandResult(argv, options.cwd, "", 1);
@@ -155,11 +152,11 @@ describe("Habitat hook service", () => {
   });
 
   test("propagates Nx affected failures with base provenance", async () => {
-    const fake = makePrePushRuntime({ graphiteParent: "agent-HR-parent" });
+    const fake = makePrePushFixture({ graphiteParent: "agent-HR-parent" });
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
-      { runtime: fake.runtime },
+      {},
       undefined,
       nxLayer(() =>
         commandResult(
@@ -190,14 +187,11 @@ describe("Habitat hook service", () => {
 
   test("reports pre-push output through an injected reporter service", async () => {
     const events: HabitatReportEvent[] = [];
-    const fake = makePrePushRuntime({ graphiteParent: "agent-HR-parent" });
+    const fake = makePrePushFixture({ graphiteParent: "agent-HR-parent" });
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
-      {
-        reporterEvents: events,
-        runtime: fake.runtime,
-      },
+      { reporterEvents: events },
       undefined,
       nxLayer(() =>
         commandResult(
@@ -237,12 +231,9 @@ describe("Habitat hook service", () => {
   });
 
   test("runs pre-push through provider-backed service execution", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime }
-    );
+    const result = await runHookServiceInTest({ name: "pre-push", base: "HEAD~1" });
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("base=HEAD~1");
@@ -250,13 +241,13 @@ describe("Habitat hook service", () => {
   });
 
   test("runs pre-push source checks over changed hook source paths", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const checkRequests: CheckOptions[] = [];
     const changedPath = "packages/sdk/src/index.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -286,13 +277,13 @@ describe("Habitat hook service", () => {
   });
 
   test("uses source-check target only for source rule artifact pre-push changes", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPath = ".habitat/rules/rng-authority-static/rule.json";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -324,13 +315,13 @@ describe("Habitat hook service", () => {
   });
 
   test("uses the owning rule target for non-source rule artifact pre-push changes", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPath = ".habitat/rules/import-boundaries/rule.json";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -361,7 +352,7 @@ describe("Habitat hook service", () => {
   });
 
   test("uses source-check plus owning rule targets for mixed rule artifact pre-push changes", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPaths = [
       ".habitat/rules/rng-authority-static/rule.json",
@@ -370,7 +361,7 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD"
@@ -403,7 +394,7 @@ describe("Habitat hook service", () => {
   });
 
   test("uses owner-local check without structural affected targets for ordinary tooling changes", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath =
@@ -411,7 +402,7 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -454,7 +445,7 @@ describe("Habitat hook service", () => {
   });
 
   test("uses boundary taxonomy target for boundary taxonomy tooling changes", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath =
@@ -462,7 +453,7 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -507,14 +498,14 @@ describe("Habitat hook service", () => {
   });
 
   test("uses all structural targets for structural target declaration changes", async () => {
-    const fake = makePrePushRuntime();
+    const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath = "tools/habitat-harness/package.json";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
-      { runtime: fake.runtime },
+      {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -559,7 +550,7 @@ describe("Habitat hook service", () => {
   });
 
   test("runs pre-commit through the in-process Habitat service router", async () => {
-    const fake = makePreCommitRuntime();
+    const fake = makePreCommitFixture();
 
     const result = await Effect.runPromise(
       Effect.gen(function* () {
@@ -577,7 +568,6 @@ describe("Habitat hook service", () => {
                   git,
                   graphite,
                   hashFile: fake.hashFile,
-                  hookRuntime: fake.runtime,
                   nx,
                   pathExists: fake.pathExists,
                   repoRoot,
@@ -590,7 +580,7 @@ describe("Habitat hook service", () => {
       }).pipe(
         Effect.provide(
           Layer.mergeAll(
-            prePushGitLayer(makePrePushRuntime()),
+            prePushGitLayer(makePrePushFixture()),
             nxLayer(),
             makeFakeStructuralCheckLayer({
               createReport: (options = {}) =>
@@ -626,7 +616,7 @@ describe("Habitat hook service", () => {
 
   test("routes pre-commit Biome execution through the Biome provider", async () => {
     const stagedPath = "tools/habitat-harness/src/service/modules/hook/router.ts";
-    const fake = makePreCommitRuntime({
+    const fake = makePreCommitFixture({
       stagedPaths: [stagedPath],
       fileHashes: { [stagedPath]: ["before-format", "after-format"] },
     });
@@ -634,7 +624,7 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-commit" },
-      { hashFile: fake.hashFile, pathExists: fake.pathExists, runtime: fake.runtime },
+      { hashFile: fake.hashFile, pathExists: fake.pathExists },
       preCommitGitLayer(fake),
       undefined,
       makeFakeStructuralCheckLayer({
@@ -682,7 +672,7 @@ function runHookServiceInTest(
     readonly hashFile?: (targetPath: string) => string | null;
     readonly pathExists?: (targetPath: string) => boolean;
     readonly reporterEvents?: HabitatReportEvent[];
-    readonly runtime?: HookRuntime;
+    readonly resourcePolicy?: HookResourcePolicy;
   } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
@@ -722,7 +712,6 @@ function runHookServiceInTest(
               git,
               graphite,
               ...(options.hashFile ? { hashFile: options.hashFile } : {}),
-              hookRuntime: options.runtime ?? {},
               nx,
               ...(options.pathExists ? { pathExists: options.pathExists } : {}),
               ...(options.reporterEvents
@@ -741,7 +730,12 @@ function runHookServiceInTest(
           },
         },
       });
-      return yield* withFiberContext(() => runHook(input));
+      return yield* withFiberContext(() =>
+        runHook({
+          ...input,
+          ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
+        })
+      );
     }).pipe(Effect.provide(layer))
   );
 }
@@ -771,8 +765,7 @@ function commandResult(
   );
 }
 
-function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
-  runtime: HookRuntime;
+function makePrePushFixture(options: { graphiteParent?: string } = {}): {
   calls: string[];
   options: { graphiteParent?: string };
 } {
@@ -780,7 +773,6 @@ function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
   return {
     calls,
     options,
-    runtime: {},
   };
 }
 
@@ -791,7 +783,7 @@ function graphiteLayer(fake: { calls: string[]; options: { graphiteParent?: stri
   });
 }
 
-function prePushGitLayer(_fake: ReturnType<typeof makePrePushRuntime>) {
+function prePushGitLayer(_fake: ReturnType<typeof makePrePushFixture>) {
   return makeFakeGitProviderLayer((argv, options) => {
     const call = argv.join(" ");
     if (call === "branch --show-current") {
@@ -839,14 +831,13 @@ function repoRootForTestCommand(): string {
   return process.cwd().replace(/\/tools\/habitat-harness$/, "");
 }
 
-function makePreCommitRuntime(
+function makePreCommitFixture(
   options: {
     stagedPaths?: string[];
     unstagedPaths?: string[];
     fileHashes?: Record<string, string[]>;
   } = {}
 ): {
-  runtime: HookRuntime;
   hashFile: (targetPath: string) => string | null;
   pathExists: (targetPath: string) => boolean;
   calls: string[];
@@ -873,7 +864,6 @@ function makePreCommitRuntime(
     hashFile,
     options,
     pathExists,
-    runtime: {},
   };
 }
 
@@ -882,7 +872,7 @@ function toTestRepoRelative(targetPath: string): string {
   return targetPath.startsWith(prefix) ? targetPath.slice(prefix.length) : targetPath;
 }
 
-function preCommitGitLayer(fake: ReturnType<typeof makePreCommitRuntime>) {
+function preCommitGitLayer(fake: ReturnType<typeof makePreCommitFixture>) {
   return makeFakeGitProviderLayer((argv, options) => {
     const call = ["git", ...argv].join(" ");
     fake.calls.push(call);

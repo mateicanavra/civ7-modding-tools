@@ -13,7 +13,6 @@ import type {
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { Context, type Layer } from "effect";
 
 export interface HabitatServiceContext {
@@ -28,7 +27,6 @@ export interface HabitatServiceDeps {
   readonly graphite: GraphiteProviderService;
   readonly grit: GritProviderService;
   readonly hashFile: typeof hashFileSync;
-  readonly hookRuntime: HookRuntime;
   readonly nx: NxProviderService;
   readonly pathExists: typeof pathExistsSync;
   readonly readText: typeof readText;

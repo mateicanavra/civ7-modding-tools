@@ -31,7 +31,7 @@ import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
 } from "@internal/habitat-harness/service/modules/hook/model/policy/resource-inspection.policy";
-import { type HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
+import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -136,7 +136,7 @@ describe("Habitat hook resource policy", () => {
         const git = yield* GitProvider;
         return yield* classifyResourcePreCommitDecisionEffect(
           { git, pathExists: fake.pathExists, repoRoot },
-          fake.runtime
+          fake.resourcePolicy
         );
       }).pipe(Effect.provide(makeGitLayer(fake)))
     );
@@ -151,7 +151,7 @@ describe("Habitat hook resource policy", () => {
   test("treats missing resource policy as a pass", () => {
     const fake = makeFakeRuntime();
 
-    const state = classifyResourcesState(fake.runtime);
+    const state = classifyResourcesState(fake.resourcePolicy);
 
     expect(state).toMatchObject({
       kind: "not-configured",
@@ -327,7 +327,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
       }),
     });
 
-    const result = await runPreCommitInTest(fake, fake.runtime, events);
+    const result = await runPreCommitInTest(fake, fake.resourcePolicy, events);
 
     expect(result.exitCode).toBe(1);
     expect(renderReported(events, "stdout")).toBe(result.stdout);
@@ -364,8 +364,8 @@ interface FakeRuntimeOptions {
   allUnstagedPaths?: string[];
 }
 
-interface FakeHookRuntime {
-  readonly runtime: HookRuntime;
+interface FakeHookHarness {
+  readonly resourcePolicy?: HookResourcePolicy;
   readonly hashFile: (targetPath: string) => string | null;
   readonly pathExists: (targetPath: string) => boolean;
   readonly calls: string[];
@@ -375,8 +375,8 @@ interface FakeHookRuntime {
 }
 
 async function runPreCommitInTest(
-  fake: FakeHookRuntime,
-  runtime: HookRuntime = fake.runtime,
+  fake: FakeHookHarness,
+  resourcePolicy: HookResourcePolicy | undefined = fake.resourcePolicy,
   reporterEvents?: HabitatReportEvent[]
 ): Promise<SpawnResult> {
   const layer = Layer.mergeAll(
@@ -391,7 +391,7 @@ async function runPreCommitInTest(
       hashFile: fake.hashFile,
       pathExists: fake.pathExists,
       reporterEvents,
-      runtime,
+      resourcePolicy,
     }).pipe(Effect.provide(layer))
   );
 }
@@ -400,7 +400,7 @@ function runHookProcedure(options: {
   readonly hashFile?: (targetPath: string) => string | null;
   readonly pathExists?: (targetPath: string) => boolean;
   readonly reporterEvents?: HabitatReportEvent[];
-  readonly runtime?: HookRuntime;
+  readonly resourcePolicy?: HookResourcePolicy;
 }) {
   return Effect.gen(function* () {
     const biome = yield* BiomeProvider;
@@ -416,7 +416,6 @@ function runHookProcedure(options: {
             git,
             graphite,
             ...(options.hashFile ? { hashFile: options.hashFile } : {}),
-            hookRuntime: options.runtime ?? {},
             nx,
             ...(options.pathExists ? { pathExists: options.pathExists } : {}),
             ...(options.reporterEvents
@@ -435,11 +434,16 @@ function runHookProcedure(options: {
         },
       },
     });
-    return yield* withFiberContext(() => runHook({ name: "pre-commit" }));
+    return yield* withFiberContext(() =>
+      runHook({
+        name: "pre-commit",
+        ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
+      })
+    );
   });
 }
 
-function makeStructuralCheckLayer(fake: FakeHookRuntime) {
+function makeStructuralCheckLayer(fake: FakeHookHarness) {
   return makeFakeStructuralCheckLayer({
     createReport: (options = {}) =>
       Effect.sync(() => {
@@ -460,7 +464,7 @@ function makeStructuralCheckLayer(fake: FakeHookRuntime) {
   });
 }
 
-function makeBiomeLayer(fake: FakeHookRuntime) {
+function makeBiomeLayer(fake: FakeHookHarness) {
   return makeFakeBiomeProviderLayer((request) => {
     fake.biomeRequests.push(request);
     const exitCode =
@@ -480,7 +484,7 @@ function makeBiomeLayer(fake: FakeHookRuntime) {
   });
 }
 
-function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
+function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookHarness {
   const calls: string[] = [];
   const checkRequests: CheckOptions[] = [];
   const biomeRequests: BiomeCommandRequest[] = [];
@@ -511,19 +515,17 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
     hashFile,
     options,
     pathExists,
-    runtime: {
-      resourcePolicy: options.resourcePolicy
-        ? {
-            path: "vendor/resources",
-            commands: {
-              publish: "resource publish",
-              status: "resource status",
-              init: "resource init",
-              unlock: "resource unlock",
-            },
-          }
-        : undefined,
-    },
+    resourcePolicy: options.resourcePolicy
+      ? {
+          path: "vendor/resources",
+          commands: {
+            publish: "resource publish",
+            status: "resource status",
+            init: "resource init",
+            unlock: "resource unlock",
+          },
+        }
+      : undefined,
   };
 }
 
@@ -532,7 +534,7 @@ function toTestRepoRelative(targetPath: string): string {
   return targetPath.startsWith(prefix) ? targetPath.slice(prefix.length) : targetPath;
 }
 
-function makeGitLayer(fake: FakeHookRuntime) {
+function makeGitLayer(fake: FakeHookHarness) {
   return makeFakeGitProviderLayer((argv, options) => {
     const call = ["git", ...argv].join(" ");
     fake.calls.push(call);
@@ -610,7 +612,7 @@ function sourceCheckReport(options: {
   return checkReport({
     ...options,
     command: "habitat check --staged --tool source-check --json",
-    ruleId: "hook-runtime-probe",
+    ruleId: "hook-source-check-probe",
     ownerTool: "source-check",
     message: "source-check hook check probe",
     detect: ["habitat", "check", "--tool", "source-check"],
@@ -625,7 +627,7 @@ function fileLayerCheckReport(options: {
   return checkReport({
     ...options,
     command: "habitat check --staged --tool file-layer --json",
-    ruleId: "file-layer-hook-runtime-probe",
+    ruleId: "file-layer-hook-check-probe",
     ownerTool: "file-layer",
     message: "File-layer hook check probe",
     detect: ["habitat", "check", "--tool", "file-layer"],

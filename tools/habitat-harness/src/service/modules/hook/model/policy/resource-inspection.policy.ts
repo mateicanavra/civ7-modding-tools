@@ -15,7 +15,7 @@ import {
   refusedResourceDecision,
   resourceDecisionToFacade,
 } from "./resource-decision.policy.js";
-import type { HookRuntime } from "./runtime.policy.js";
+import type { HookResourcePolicy } from "./runtime.policy.js";
 
 interface ResourceInspectionContext {
   readonly git: GitProviderService;
@@ -23,8 +23,8 @@ interface ResourceInspectionContext {
   readonly repoRoot: string;
 }
 
-export function classifyResourcesState(runtime: HookRuntime = {}): ResourceStateFacade {
-  if (!runtime.resourcePolicy) {
+export function classifyResourcesState(resourcePolicy?: HookResourcePolicy): ResourceStateFacade {
+  if (!resourcePolicy) {
     return resourceDecisionToFacade(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")
     );
@@ -36,16 +36,16 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
 
 export function classifyResourcePreCommitDecisionEffect(
   context: ResourceInspectionContext,
-  runtime: HookRuntime = {}
+  resourcePolicy?: HookResourcePolicy
 ): Effect.Effect<ResourcePreCommitDecision, never, GitProviderRequirements> {
-  if (!runtime.resourcePolicy) {
+  if (!resourcePolicy) {
     return Effect.succeed(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")
     );
   }
   const { git, pathExists, repoRoot } = context;
-  const resourcePath = normalizeResourcePath(repoRoot, runtime.resourcePolicy.path);
-  const resourceCommands = runtime.resourcePolicy.commands;
+  const resourcePath = normalizeResourcePath(repoRoot, resourcePolicy.path);
+  const resourceCommands = resourcePolicy.commands;
   if (!resourcePath || resourcePath === ".." || resourcePath.startsWith("../")) {
     return Effect.succeed(
       resourceFailure("inspection-failed", "Hook resource policy path is outside the repo.", [
