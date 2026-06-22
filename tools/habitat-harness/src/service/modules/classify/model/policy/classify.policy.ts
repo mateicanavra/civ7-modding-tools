@@ -12,7 +12,7 @@ import {
   graphReadRefusal,
   graphRefusalResult,
 } from "./classify-path.policy.js";
-import { diffText, extractDiffPaths } from "./diff-target.policy.js";
+import { type ClassifyFileSystem, diffText, extractDiffPaths } from "./diff-target.policy.js";
 
 export type {
   ClassifiedTarget,
@@ -43,14 +43,12 @@ export {
 
 export interface ClassifyOptions {
   graph: WorkspaceGraphReadState | (() => WorkspaceGraphReadState);
+  fileSystem: ClassifyFileSystem;
   repoRoot: string;
   rules: RuleFactsCatalog;
 }
 
-export function classifyTargetResult(
-  target: string,
-  options: ClassifyOptions
-): ClassifyResult {
+export function classifyTargetResult(target: string, options: ClassifyOptions): ClassifyResult {
   const diff = diffText(target, options);
   if (diff) {
     const paths = extractDiffPaths(diff);
@@ -76,7 +74,11 @@ export function classifyTargetResult(
 export function classifyTargetResultEffect(
   target: string,
   readGraph: Effect.Effect<WorkspaceGraphReadState>,
-  context: { readonly repoRoot: string; readonly rules: RuleFactsCatalog }
+  context: {
+    readonly repoRoot: string;
+    readonly rules: RuleFactsCatalog;
+    readonly fileSystem: ClassifyFileSystem;
+  }
 ): Effect.Effect<ClassifyResult> {
   const diff = diffText(target, context);
   if (diff) {
@@ -109,26 +111,17 @@ export function classifyTargetResultEffect(
   );
 }
 
-export function classifyPathResult(
-  target: string,
-  options: ClassifyOptions
-): PathClassification {
+export function classifyPathResult(target: string, options: ClassifyOptions): PathClassification {
   const graph = readGraph(options);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
 
-export function classifyTarget(
-  target: string,
-  options: ClassifyOptions
-): ClassifyResult {
+export function classifyTarget(target: string, options: ClassifyOptions): ClassifyResult {
   return classifyTargetResult(target, options);
 }
 
-export function classifyPath(
-  target: string,
-  options: ClassifyOptions
-): PathClassification {
+export function classifyPath(target: string, options: ClassifyOptions): PathClassification {
   return classifyPathResult(target, options);
 }
 

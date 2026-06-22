@@ -1,5 +1,10 @@
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
+  isFileSync,
+  readTextSync,
+  statKindSync,
+} from "@internal/habitat-harness/resources/platform/filesystem";
+import {
   classifyPath,
   classifyPathResult,
   classifyTarget,
@@ -50,7 +55,17 @@ const fixtureProjects = [
 ];
 
 const testRuleFacts = makeTestRuleFacts();
-const defaultClassifyOptions = { graph: graphReady(fixtureProjects), repoRoot, rules: testRuleFacts };
+const testClassifyFileSystem = {
+  isFile: isFileSync,
+  readText: readTextSync,
+  statKind: statKindSync,
+};
+const defaultClassifyOptions = {
+  fileSystem: testClassifyFileSystem,
+  graph: graphReady(fixtureProjects),
+  repoRoot,
+  rules: testRuleFacts,
+};
 
 describe("Habitat classify D4 result model", () => {
   test("classifies project paths with D2 routing and D3 target guidance", async () => {
@@ -224,6 +239,7 @@ index 3333333..4444444 100644
     const result = await classifyTargetResult("not a diff\njust text", {
       repoRoot,
       rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
       graph: () => {
         throw new Error("graph should not be read for malformed diff refusal");
       },
@@ -236,6 +252,7 @@ index 3333333..4444444 100644
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
       rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
       graph: {
         kind: "malformed-graph-json",
         message: "workspace graph fixture is malformed",
@@ -251,6 +268,7 @@ index 3333333..4444444 100644
     const readFailure = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
       rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
       graph: {
         kind: "nx-read-failure",
         message: "cannot read project graph",
@@ -259,6 +277,7 @@ index 3333333..4444444 100644
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
       rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
       graph: {
         kind: "nx-daemon-failure",
         message: "Nx daemon unavailable",
@@ -282,7 +301,10 @@ index 3333333..4444444 100644
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
       rules: testRuleFacts,
-      graph: graphReady([project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"])]),
+      fileSystem: testClassifyFileSystem,
+      graph: graphReady([
+        project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"]),
+      ]),
     });
 
     expect(result.state).toBe("graph-refusal");
@@ -296,6 +318,7 @@ index 3333333..4444444 100644
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
       rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
       graph: graphReady([
         project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
           "check",

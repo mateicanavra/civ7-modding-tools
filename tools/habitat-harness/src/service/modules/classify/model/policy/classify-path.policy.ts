@@ -4,7 +4,6 @@ import type {
   WorkspaceGraphReadState,
   WorkspaceProject,
 } from "@internal/habitat-harness/service/model/workspace/index";
-import { statKindSync } from "@internal/habitat-harness/resources/platform/filesystem";
 import {
   type PathClassification,
   parsePathClassification,
@@ -17,11 +16,16 @@ import {
 } from "@internal/habitat-harness/service/model/workspace/index";
 import { rulesForPath } from "./rule-routing.policy.js";
 import { projectTargets, workspaceTargets } from "./target-plan.policy.js";
+import type { ClassifyFileSystem } from "./diff-target.policy.js";
 
 export function classifyPathFromProjects(
   target: string,
   projects: readonly WorkspaceProject[],
-  context: { readonly repoRoot: string; readonly rules: RuleFactsCatalog }
+  context: {
+    readonly repoRoot: string;
+    readonly rules: RuleFactsCatalog;
+    readonly fileSystem: ClassifyFileSystem;
+  }
 ): PathClassification {
   const rel = toRepoRelative(context.repoRoot, target);
   const graphRefusal = firstGraphRefusal(projects, context.rules);
@@ -120,12 +124,15 @@ function firstGraphRefusal(
   ].find((state): state is GraphRefusalState => state.kind === "graph-refusal");
 }
 
-function isWorkspaceSurface(pathInRepo: string, context: { readonly repoRoot: string }): boolean {
+function isWorkspaceSurface(
+  pathInRepo: string,
+  context: { readonly repoRoot: string; readonly fileSystem: ClassifyFileSystem }
+): boolean {
   const [rootSegment] = pathInRepo.split("/");
   if (!rootSegment || rootSegment === "." || rootSegment === "..") return false;
 
   const rootSurfacePath = path.join(context.repoRoot, rootSegment);
-  const rootKind = statKindSync(rootSurfacePath);
+  const rootKind = context.fileSystem.statKind(rootSurfacePath);
   const rootIsFile = rootKind === "File";
   const rootIsDirectory = rootKind === "Directory";
   if (pathInRepo === rootSegment) return rootIsFile || rootIsDirectory;
