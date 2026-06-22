@@ -38,3 +38,4 @@ Completed burn-downs:
 - Check-owned model code now lives under `service/modules/check/model`; `service/model` no longer owns baseline, source-check, structural-check, protected-zone, or host-policy implementation.
 - Diagnostic contracts now live under `service/model/diagnostics`, host/protected-surface policy lives under `service/model/host`, and Grit providers no longer import check module internals.
 - Check report DTOs, request language, renderers, summaries, staged source-scope policy, and disposition helpers now live under `service/model/check`; hook, verify, CLI, and tests no longer deep-import check structural schema/render/request internals.
+- Classify and verify JSON result languages now live under public `service/model/classify` and `service/model/verify` surfaces; CLI commands and service contracts no longer import module-private result DTO files.

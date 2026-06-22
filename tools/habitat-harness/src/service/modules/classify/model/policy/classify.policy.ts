@@ -2,13 +2,13 @@ import {
   readWorkspaceGraph,
   type WorkspaceGraphProjectReader,
 } from "@internal/habitat-harness/providers/nx/graph";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   type ClassifyResult,
   type PathClassification,
   parseClassifyResult,
   stringifyClassifyResult,
-} from "../dto/classify.schema.js";
+} from "@internal/habitat-harness/service/model/classify/index";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   classifyPathFromProjects,
   graphReadRefusal,
@@ -29,7 +29,7 @@ export type {
   UnavailableClassifiedTarget,
   UnresolvedOwnerClassification,
   WorkspacePathClassification,
-} from "../dto/classify.schema.js";
+} from "@internal/habitat-harness/service/model/classify/index";
 export {
   ClassifyDiffResultSchema,
   ClassifyResultSchema,
@@ -41,7 +41,7 @@ export {
   UnresolvedOwnerClassificationSchema,
   validateClassifyResult,
   WorkspacePathClassificationSchema,
-} from "../dto/classify.schema.js";
+} from "@internal/habitat-harness/service/model/classify/index";
 
 export interface ClassifyOptions {
   nxProjects?: WorkspaceGraphProjectReader;
