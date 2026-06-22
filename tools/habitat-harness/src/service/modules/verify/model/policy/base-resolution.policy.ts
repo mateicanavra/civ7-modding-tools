@@ -1,9 +1,6 @@
-import {
-  type VerifyBaseResolution,
-  VerifyBaseResolutionSchema,
-} from "@internal/habitat-harness/service/model/verify/index";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
+import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "../dto/verify.schema.js";
 
 export interface VerifyBaseGitPort {
   readonly remoteDefaultBranch: (options?: {

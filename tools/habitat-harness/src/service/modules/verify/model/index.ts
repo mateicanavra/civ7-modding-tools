@@ -2,7 +2,7 @@
 export type {
   VerifyBaseResolution,
   VerifyReceipt,
-} from "@internal/habitat-harness/service/model/verify/index";
+} from "./dto/verify.schema.js";
 export {
   isVerifyReceipt,
   stringifyVerifyReceipt,
@@ -15,7 +15,7 @@ export {
   VerifyPostStateSchema,
   VerifyReceiptSchema,
   validateVerifyReceipt,
-} from "@internal/habitat-harness/service/model/verify/index";
+} from "./dto/verify.schema.js";
 export {
   resolveVerifyBaseEffect,
   type VerifyBaseGitPort,

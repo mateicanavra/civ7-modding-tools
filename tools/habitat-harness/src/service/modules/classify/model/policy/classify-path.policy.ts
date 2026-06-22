@@ -1,8 +1,4 @@
 import path from "node:path";
-import {
-  type PathClassification,
-  parsePathClassification,
-} from "@internal/habitat-harness/service/model/classify/index";
 import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type {
   GraphRefusalState,
@@ -14,6 +10,7 @@ import {
   ruleGraphTargetStates,
   workspaceTargetStates,
 } from "@internal/habitat-harness/service/model/workspace/index";
+import { type PathClassification, parsePathClassification } from "../dto/classify.schema.js";
 import type { ClassifyFileSystem } from "./diff-target.policy.js";
 import { rulesForPath } from "./rule-routing.policy.js";
 import { projectTargets, workspaceTargets } from "./target-plan.policy.js";
