@@ -65,3 +65,12 @@ imports local-module-only, but expose module-owned primitive operations through
 context and write procedure-level dispatch/orchestration in the router body.
 Tighten the Grit service-wiring pattern so future router files reject
 `context.run*` wrapper delegates.
+
+## Resource Config Follow-Up
+
+Explore Effect `Config` as the owner for Habitat runtime configuration loading
+instead of continuing to grow hand-rolled config parsing/source selection. The
+follow-up must either adopt Effect Config for `resources/config/**` or refuse it
+with a concrete cause. Startup/shutdown helpers such as TSDKArc are lower
+priority and should only be considered if the runtime acquisition/release model
+still has a real gap after Effect Config is evaluated.
