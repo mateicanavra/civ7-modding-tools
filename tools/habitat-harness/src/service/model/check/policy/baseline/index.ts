@@ -1,5 +1,7 @@
 export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.policy.js";
 export type { BaselineAuthorityContext, BaselineFileSystemPort } from "./context.policy.js";
+export { errorMessage } from "./context.policy.js";
+export { baselineContractInputs } from "./contract-inputs.policy.js";
 export {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,

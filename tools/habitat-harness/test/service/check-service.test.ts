@@ -1,10 +1,10 @@
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import type { BaselineExpansionResult } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   type CheckOptions,
   type CheckReport,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import type { BaselineExpansionResult } from "@internal/habitat-harness/service/modules/check/model/policy/baseline-expansion.policy";
 import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -21,6 +21,20 @@ const mockCreateCheckReportEffect = vi.hoisted(() => vi.fn<CreateCheckReportPoli
 const mockExpandBaselinesEffect = vi.hoisted(() => vi.fn<ExpandBaselinesPolicy>());
 
 vi.mock(
+  "@internal/habitat-harness/service/modules/check/model/policy/baseline-expansion.policy",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("@internal/habitat-harness/service/modules/check/model/policy/baseline-expansion.policy")
+      >();
+    return {
+      ...actual,
+      expandBaselinesEffect: mockExpandBaselinesEffect,
+    };
+  }
+);
+
+vi.mock(
   "@internal/habitat-harness/service/model/check/policy/structural/index",
   async (importOriginal) => {
     const actual =
@@ -30,7 +44,6 @@ vi.mock(
     return {
       ...actual,
       createCheckReportEffect: mockCreateCheckReportEffect,
-      expandBaselinesEffect: mockExpandBaselinesEffect,
     };
   }
 );

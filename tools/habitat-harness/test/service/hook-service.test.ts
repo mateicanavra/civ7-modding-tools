@@ -31,7 +31,6 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { BaselineExpansionResult } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookExecuteInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
@@ -42,14 +41,10 @@ import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 type StructuralCheckPolicy = {
   readonly createReport: (options?: CheckOptions) => Effect.Effect<CheckReport>;
-  readonly expandBaselines: () => Effect.Effect<BaselineExpansionResult>;
 };
 
 const mockCreateCheckReportEffect = vi.hoisted(() =>
   vi.fn<StructuralCheckPolicy["createReport"]>()
-);
-const mockExpandBaselinesEffect = vi.hoisted(() =>
-  vi.fn<StructuralCheckPolicy["expandBaselines"]>()
 );
 
 vi.mock(
@@ -62,7 +57,6 @@ vi.mock(
     return {
       ...actual,
       createCheckReportEffect: mockCreateCheckReportEffect,
-      expandBaselinesEffect: mockExpandBaselinesEffect,
     };
   }
 );
@@ -81,7 +75,6 @@ const prePushNoChangedSourceCheck =
 describe("Habitat hook service", () => {
   beforeEach(() => {
     mockCreateCheckReportEffect.mockReset();
-    mockExpandBaselinesEffect.mockReset();
     useStructuralCheckPolicy(defaultStructuralCheckPolicy());
   });
 
@@ -290,7 +283,6 @@ describe("Habitat hook service", () => {
             checkRequests.push(options);
             return passingCheckReport(options.command?.serialized ?? "habitat check");
           }),
-        expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
       }
     );
 
@@ -583,11 +575,6 @@ describe("Habitat hook service", () => {
     useStructuralCheckPolicy({
       createReport: (options = {}) =>
         Effect.succeed(fileLayerPassingCheckReport(options.command?.serialized ?? "habitat check")),
-      expandBaselines: () =>
-        Effect.succeed({
-          kind: "expanded",
-          messages: [],
-        }),
     });
 
     const result = await Effect.runPromise(
@@ -655,7 +642,6 @@ describe("Habitat hook service", () => {
       {
         createReport: (options = {}) =>
           Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
-        expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
       },
       biomeLayer((request) => {
         biomeRequests.push(request);
@@ -695,17 +681,11 @@ function defaultStructuralCheckPolicy(): StructuralCheckPolicy {
   return {
     createReport: (options = {}) =>
       Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
-    expandBaselines: () =>
-      Effect.succeed({
-        kind: "expanded",
-        messages: [],
-      }),
   };
 }
 
 function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
   mockCreateCheckReportEffect.mockImplementation(policy.createReport);
-  mockExpandBaselinesEffect.mockImplementation(policy.expandBaselines);
 }
 
 function runHookServiceInTest(

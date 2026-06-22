@@ -12,9 +12,7 @@ import {
   checkCommandContext,
 } from "@internal/habitat-harness/service/model/check/index";
 import {
-  type BaselineExpansionResult,
   createCheckReportEffect,
-  expandBaselinesEffect,
   type StructuralExecutionContext,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
@@ -24,6 +22,10 @@ import {
 import { Effect } from "effect";
 import type { EffectImplementerInternal } from "effect-orpc";
 import type { CheckReportInput } from "./contract.js";
+import {
+  type BaselineExpansionResult,
+  expandBaselinesEffect,
+} from "./model/policy/baseline-expansion.policy.js";
 
 type CheckModuleEffect<T> = Effect.Effect<T, never, any>;
 

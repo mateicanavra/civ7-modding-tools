@@ -36,10 +36,6 @@ export {
 } from "@internal/habitat-harness/service/model/check/index";
 export { describeRuleSelectionFailure } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 export {
-  type BaselineExpansionResult,
-  expandBaselinesEffect,
-} from "./baseline-expansion.policy.js";
-export {
   executeSelectedRulesEffect,
   rulesForExecution,
   type StructuralExecutionContext,
