@@ -1,4 +1,4 @@
-import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/registry/schema";
+import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
 import {
   aggregateWorkspaceDependency,
   explicitProjectTarget,

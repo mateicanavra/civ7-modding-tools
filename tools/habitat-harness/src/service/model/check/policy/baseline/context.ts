@@ -4,7 +4,7 @@ import {
   loadRuleRegistryDocument,
   ruleBaselineFacts,
   ruleSelectorFacts,
-} from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/index";
 import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
 import { baselinesDir, repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";

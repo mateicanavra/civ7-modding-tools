@@ -1,5 +1,5 @@
-import { activeRuleRegistryDocument } from "./load.js";
-import type { RuleRegistryRecordV1 } from "./schema.js";
+import type { RuleRegistryRecordV1 } from "../dto/registry.schema.js";
+import { activeRuleRegistryDocument } from "../repositories/registry.repository.js";
 
 export interface HabitatArtifactRulePathInput {
   readonly id: string;

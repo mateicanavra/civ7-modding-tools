@@ -3,7 +3,7 @@ import {
   BaselineAuthorityLive,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/execution";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   captureOutput,
   makeHabitatCommandResult,

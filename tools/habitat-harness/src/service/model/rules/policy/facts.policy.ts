@@ -10,7 +10,7 @@ import type {
   RuleRoutingFacts,
   RuleSelectorFacts,
   RuleSourceFacts,
-} from "./schema.js";
+} from "../dto/registry.schema.js";
 
 type SelectorRecordInput = Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "ownerTool">;
 type ReportRecordInput = Pick<

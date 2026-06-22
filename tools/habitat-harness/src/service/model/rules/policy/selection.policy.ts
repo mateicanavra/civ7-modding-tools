@@ -1,5 +1,5 @@
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
-import type { RuleSelectorFacts as RegistryRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import type { RuleSelectorFacts as RegistryRuleSelectorFacts } from "../dto/registry.schema.js";
+import { activeRuleSelectorFacts } from "./active-facts.policy.js";
 
 export interface RuleSelection {
   owner?: string;

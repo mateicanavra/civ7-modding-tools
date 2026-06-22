@@ -4,7 +4,7 @@ import {
 } from "@internal/habitat-harness/providers/nx/schema";
 import type { Static } from "typebox";
 import { Value } from "typebox/value";
-import type { RuleGraphFacts, RuleRegistryRecordV1 } from "./schema.js";
+import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../dto/registry.schema.js";
 
 export function ruleGraphFacts(
   records: readonly RuleRegistryRecordV1[],

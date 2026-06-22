@@ -1,5 +1,5 @@
 import type { FileSystem } from "@effect/platform";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Context, Effect } from "effect";
 import { runSourceRulesEffect } from "./source-rules.js";
 

@@ -3,7 +3,7 @@ import {
   type VerifyCheckSummary,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   type VerifyTargetPlan,

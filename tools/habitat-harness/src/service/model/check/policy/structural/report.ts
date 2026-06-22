@@ -8,8 +8,8 @@ import { SourceCheck } from "@internal/habitat-harness/service/model/check/polic
 import {
   activeRuleReportFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/registry/active-facts";
-import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";

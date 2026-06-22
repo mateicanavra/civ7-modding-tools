@@ -4,7 +4,7 @@ import {
   hostSurfaceDecisionForGeneratedZone,
   hostSurfaceDecisionForPath,
 } from "./host-policy-decisions.policy.js";
-import type { RuleFileLayerFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import type { RuleFileLayerFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Value } from "typebox/value";
 import {
   type DeclarationReadiness,

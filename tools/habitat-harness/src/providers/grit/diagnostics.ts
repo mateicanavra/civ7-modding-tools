@@ -8,7 +8,7 @@ import {
   renderUnexpectedObservedGritIdentity,
 } from "@internal/habitat-harness/service/model/check/index";
 import type { RuleRunResult } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { infrastructureFailure } from "./failure.js";
 import { normalizeGritPath } from "./scan-roots/index.js";
 import type { GritDiagnosticOptions, GritReport, GritResult } from "./types.js";

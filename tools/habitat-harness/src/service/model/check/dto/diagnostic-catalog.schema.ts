@@ -1,4 +1,4 @@
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { type Static, Type } from "typebox";
 import {
   GritDiagnosticIdentitySchema,
