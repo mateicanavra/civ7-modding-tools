@@ -116,3 +116,4 @@ Completed burn-downs:
 - The service shape validator no longer has a Markdown exception for `service/model/IMPORTANT.md`, and the Nx validation target now watches `src/service/model/**` so shared service-model topology is ratcheted with module topology.
 - Module-local `model/` trees now use strict policy/DTO/error file-kind naming in the service shape validator; future loose model files are rejected instead of quietly becoming unowned logic.
 - Baseline expansion moved out of shared structural check policy into the check module model; shared check model now keeps only baseline contract input projection for report/integrity policy, and hook tests no longer fake a baseline-expansion dependency they never use.
+- The structural check policy barrel no longer re-exports general check DTO/request/render/summary language; consumers import public check language from `service/model/check/index` and structural-only helpers from `policy/structural/index`.

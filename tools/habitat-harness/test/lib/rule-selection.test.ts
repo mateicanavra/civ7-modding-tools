@@ -3,12 +3,14 @@ import {
   approvedScanRootsForRules,
   checkCommandContext,
   renderCheckReport,
-  rulesForExecution,
-  selectorRefusalReportEffect,
-  stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
   structuralCheckRequest,
   validateCheckReport,
+} from "@internal/habitat-harness/service/model/check/index";
+import {
+  rulesForExecution,
+  selectorRefusalReportEffect,
+  stagedSourceCheckNotApplicableRecords,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type {
   RuleRegistryRecordV1,
