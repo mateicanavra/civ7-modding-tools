@@ -837,9 +837,7 @@ function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
   return {
     calls,
     options,
-    runtime: {
-      nowMs: () => 1_000,
-    },
+    runtime: {},
   };
 }
 
@@ -928,7 +926,6 @@ function makePreCommitRuntime(
         hashReads.set(repoRelativePath, readCount + 1);
         return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
       },
-      nowMs: () => 1_000,
     },
   };
 }
