@@ -40,3 +40,4 @@ Completed burn-downs:
 - Check report DTOs, request language, renderers, summaries, staged source-scope policy, and disposition helpers now live under `service/model/check`; hook, verify, CLI, and tests no longer deep-import check structural schema/render/request internals.
 - Classify and verify JSON result languages now live under public `service/model/classify` and `service/model/verify` surfaces; CLI commands and service contracts no longer import module-private result DTO files.
 - Structural check, baseline authority, and source-check policy now live under `service/model/check/policy`; check, hook, verify, runtime layers, Nx plugin inference, and tests no longer import check module-private policy internals.
+- Workspace graph reads now enter classify through the Nx provider resource; `HabitatServiceDeps` no longer carries the classify-only `workspaceProjects` test seam.

@@ -2,6 +2,7 @@ import {
   readWorkspaceGraph,
   type WorkspaceGraphProjectReader,
 } from "@internal/habitat-harness/providers/nx/graph";
+import type { WorkspaceGraphReadState } from "@internal/habitat-harness/providers/nx/schema";
 import {
   type ClassifyResult,
   type PathClassification,
@@ -9,6 +10,7 @@ import {
   stringifyClassifyResult,
 } from "@internal/habitat-harness/service/model/classify/index";
 import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import { Effect } from "effect";
 import {
   classifyPathFromProjects,
   graphReadRefusal,
@@ -71,6 +73,39 @@ export async function classifyTargetResult(
   const graph = await readWorkspaceGraph(options.nxProjects);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects);
+}
+
+export function classifyTargetResultEffect(
+  target: string,
+  readGraph: Effect.Effect<WorkspaceGraphReadState>
+): Effect.Effect<ClassifyResult> {
+  const diff = diffText(target);
+  if (diff) {
+    const paths = extractDiffPaths(diff);
+    if (paths.length === 0) return Effect.succeed(malformedOrPathlessDiffResult(target));
+
+    return readGraph.pipe(
+      Effect.map((graph) =>
+        graph.kind === "graph-ready"
+          ? parseClassifyResult({
+              schemaVersion: 1,
+              state: "diff",
+              input: target,
+              paths: paths.map((path) => classifyPathFromProjects(path, graph.snapshot.projects)),
+              recoveryInstructions: [],
+            })
+          : graphRefusalResult(target, graphReadRefusal(graph))
+      )
+    );
+  }
+
+  return readGraph.pipe(
+    Effect.map((graph) =>
+      graph.kind === "graph-ready"
+        ? classifyPathFromProjects(target, graph.snapshot.projects)
+        : graphRefusalResult(target, graphReadRefusal(graph))
+    )
+  );
 }
 
 export async function classifyPathResult(

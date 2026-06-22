@@ -1,5 +1,7 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { GitStateProvider } from "@internal/habitat-harness/providers/git/index";
+import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
+import type { WorkspaceGraphReadState } from "@internal/habitat-harness/providers/nx/schema";
 import {
   type CommandProviderError,
   CommandRunner,
@@ -51,6 +53,7 @@ export interface NxProviderService {
     request: NxRunTargetRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
   readonly runTargetArgv: (request: NxRunTargetRequest) => string[];
+  readonly workspaceGraph: () => Effect.Effect<WorkspaceGraphReadState>;
 }
 
 export class NxProvider extends Context.Tag("@internal/habitat-harness/NxProvider")<
@@ -65,6 +68,7 @@ export interface FakeNxProviderHandlers {
   readonly graph?: (request: NxGraphRequest) => HabitatCommandResult;
   readonly runMany?: (request: NxRunManyRequest) => HabitatCommandResult;
   readonly runTarget?: (request: NxRunTargetRequest) => HabitatCommandResult;
+  readonly workspaceGraph?: () => WorkspaceGraphReadState;
 }
 
 export function makeFakeNxProviderLayer(
@@ -84,6 +88,7 @@ export function makeFakeNxProviderLayer(
     runTarget: (request) =>
       Effect.sync(() => requireFakeResult("runTarget", handlers.runTarget, request)),
     runTargetArgv,
+    workspaceGraph: () => Effect.sync(() => requireFakeWorkspaceGraph(handlers.workspaceGraph)),
   });
 }
 
@@ -145,6 +150,7 @@ function makeLiveNxProvider(): NxProviderService {
         )
       ),
     runTargetArgv,
+    workspaceGraph: () => Effect.promise(() => readWorkspaceGraph()),
   };
 }
 
@@ -190,6 +196,13 @@ function requireFakeResult<Request>(
 ): HabitatCommandResult {
   if (!handler) throw new Error(`Fake Nx provider missing ${name} handler.`);
   return handler(request);
+}
+
+function requireFakeWorkspaceGraph(
+  handler: (() => WorkspaceGraphReadState) | undefined
+): WorkspaceGraphReadState {
+  if (!handler) throw new Error("Fake Nx provider missing workspaceGraph handler.");
+  return handler();
 }
 
 export { spawnResultFromCommandProviderError, spawnResultFromCommandResult };

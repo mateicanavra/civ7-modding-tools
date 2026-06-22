@@ -2,7 +2,6 @@ import type { BiomeProviderService } from "@internal/habitat-harness/providers/b
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import type {
   acquireTempDirectory,
@@ -33,7 +32,6 @@ export interface HabitatServiceDeps {
   readonly reporter: HabitatReporterService;
   readonly repoRoot: string;
   readonly structuralCheck: StructuralCheckService;
-  readonly workspaceProjects: WorkspaceGraphProjectReader;
 }
 
 export class HabitatServiceRuntime extends Context.Tag(
