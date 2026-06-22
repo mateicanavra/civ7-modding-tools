@@ -18,7 +18,7 @@ Current burn-down categories:
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
 - Follow-up: rule facts and registry loading are now input-driven; continue applying the same pattern to any remaining shared policies that read repo/process state at import time.
-- Follow-up: live provider layers are root-provisioned at runtime; remaining provider-level global path imports are isolated to Grit scan-root/path normalization and should be converted to explicit path-policy context next.
+- Follow-up: provider/runtime root handling is now input-driven; keep future provider helpers from importing global checkout paths except at runtime realization.
 
 Completed burn-downs:
 
@@ -36,6 +36,7 @@ Completed burn-downs:
 - Active rule fact singletons and the active registry document export are deleted; tests now build explicit rule facts from an explicit registry path at the test edge.
 - Rule registry loaders now require an explicit registry path; runtime and tests choose the path at their edges instead of the shared repository importing global repo-root state.
 - Git, Git state, Graphite, Biome, Nx, and Grit live provider layers now receive repo root from runtime realization instead of importing the global repo-root singleton inside provider live constructors.
+- Grit scan-root and text-output path normalization now use explicit provider/local path context; provider code no longer imports global repo path helpers.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.

@@ -24,10 +24,11 @@ import { GritProvider } from "./resource.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
-export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
+export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions) {
   return Effect.scoped(
     Effect.gen(function* () {
       const scanRootDecision = decidePatternScanRoots(scanRoots, {
+        repoRoot: options.repoRoot,
         allowDocsRoot: options.allowDocsRoot,
       });
       if (scanRootDecision.kind === "refused") {

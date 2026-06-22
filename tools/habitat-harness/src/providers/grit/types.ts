@@ -60,6 +60,7 @@ export type GritReport = Static<typeof GritReportSchema>;
 export type GritParseFailureStatus = Static<typeof GritParseFailureStatusSchema>;
 
 export interface GritCheckOptions {
+  repoRoot: string;
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
   allowDocsRoot?: boolean;
