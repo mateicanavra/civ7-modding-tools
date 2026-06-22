@@ -560,7 +560,6 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
   const checkRequests: CheckOptions[] = [];
   const biomeRequests: BiomeCommandRequest[] = [];
   const hashReads = new Map<string, number>();
-  let nowMs = 1_000;
 
   return {
     calls,
@@ -585,7 +584,6 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
         hashReads.set(repoRelativePath, readCount + 1);
         return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
       },
-      nowMs: () => nowMs++,
       resourcePolicy: options.resourcePolicy
         ? {
             path: "vendor/resources",

@@ -151,7 +151,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       if (runtime.trace) {
         runtime.trace.prePush = {
           outcome: "started",
-          startedAtMs: yield* hookNow(runtime),
+          startedAtMs: yield* hookNow(),
         };
       }
       if (runtime.trace?.prePush) {
@@ -198,7 +198,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       );
       for (const target of targetPlan.runTargets) {
         const argv = context.nx.runTargetArgv(target);
-        const startedAtMs = yield* hookNow(runtime);
+        const startedAtMs = yield* hookNow();
         const targetResult = yield* context.nx.runTarget(target).pipe(
           Effect.match({
             onFailure: spawnResultFromCommandProviderError,
@@ -238,7 +238,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
         excludeTaskDependencies: true,
       };
       const argv = context.nx.affectedArgv(request);
-      const startedAtMs = yield* hookNow(runtime);
+      const startedAtMs = yield* hookNow();
       const result = yield* context.nx.affected(request).pipe(
         Effect.match({
           onFailure: spawnResultFromCommandProviderError,
@@ -330,7 +330,7 @@ function beginPreCommit(
   output.writeStdout(localHookNotice);
 
   return Effect.gen(function* () {
-    const startedAtMs = yield* hookNow(runtime);
+    const startedAtMs = yield* hookNow();
     const resourceDecision = yield* classifyResourcePreCommitDecisionEffect(context, runtime);
     const resources = resourceDecisionToFacade(resourceDecision);
     if (runtime.trace) {
@@ -365,7 +365,7 @@ function beginPreCommit(
     }
 
     const hashFile = runtime.fileHash ?? fileHash;
-    const stagedStartedAtMs = yield* hookNow(runtime);
+    const stagedStartedAtMs = yield* hookNow();
     const staged = yield* existingStagedPathsEffect(context.git, context.repoRoot, runtime);
     yield* recordHookCommand(
       context,
@@ -406,7 +406,7 @@ function continuePreCommitAfterFileLayer(
   const biomePaths = biomeHookPaths(staged);
   if (runtime.trace?.preCommit) runtime.trace.preCommit.biomePaths = biomePaths;
   return Effect.gen(function* () {
-    const partialStartedAtMs = yield* hookNow(runtime);
+    const partialStartedAtMs = yield* hookNow();
     const partials = yield* unstagedAmongEffect(context.git, context.repoRoot, biomePaths);
     yield* recordHookCommand(
       context,
@@ -460,7 +460,7 @@ function preCommitBiomeProviderStep(
       paths: biomePaths,
     };
     const formatArgv = context.biome.argv(formatRequest);
-    const formatStartedAtMs = yield* hookNow(runtime);
+    const formatStartedAtMs = yield* hookNow();
     const format = yield* context.biome.run(formatRequest).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
@@ -493,7 +493,7 @@ function preCommitBiomeProviderStep(
     );
     if (runtime.trace?.preCommit) runtime.trace.preCommit.formatterTouchedPaths = touched;
     if (touched.length > 0) {
-      const restageStartedAtMs = yield* hookNow(runtime);
+      const restageStartedAtMs = yield* hookNow();
       const restage = yield* gitAddEffect(context.git, context.repoRoot, touched);
       yield* recordHookCommand(
         context,
@@ -527,7 +527,7 @@ function preCommitBiomeProviderStep(
       paths: biomePaths,
     };
     const checkArgv = context.biome.argv(checkRequest);
-    const checkStartedAtMs = yield* hookNow(runtime);
+    const checkStartedAtMs = yield* hookNow();
     const check = yield* context.biome.run(checkRequest).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
@@ -650,7 +650,7 @@ function prePushHookSourceCheck(
 ): HookRouterEffect<PrePushHookSourceCheckResult> {
   return Effect.gen(function* () {
     const argv = ["--hook-check", "--tool", "source-check", "--json"];
-    const startedAtMs = yield* hookNow(runtime);
+    const startedAtMs = yield* hookNow();
     const report = yield* context.structuralCheck.createReport({
       tool: "source-check",
       hookCheck: true,
@@ -676,7 +676,7 @@ function resolvePrePushBase(
   runtime: HookRuntime
 ): HookRouterEffect<PrePushBaseDecision> {
   return Effect.gen(function* () {
-    const startedAtMs = yield* hookNow(runtime);
+    const startedAtMs = yield* hookNow();
     const parent = yield* context.graphite.parent({ cwd: context.repoRoot });
     yield* recordHookCommand(
       context,
@@ -709,7 +709,7 @@ function stagedHookCheck(
 ): HookRouterEffect<StagedHookCheckResult> {
   return Effect.gen(function* () {
     const argv = ["--staged", "--tool", tool, "--json"];
-    const startedAtMs = yield* hookNow(runtime);
+    const startedAtMs = yield* hookNow();
     const report = yield* context.structuralCheck.createReport({
       tool,
       staged: true,
@@ -750,7 +750,7 @@ function recordInProcessHookCheck(
   exitCode: number
 ): Effect.Effect<void> {
   return Effect.gen(function* () {
-    const endedAtMs = yield* hookNow(runtime);
+    const endedAtMs = yield* hookNow();
     runtime.trace?.commands.push({
       phase,
       argv: ["habitat", "check", ...argv],
@@ -781,7 +781,7 @@ function recordHookCommand(
   exitCode: number
 ): Effect.Effect<void> {
   return Effect.gen(function* () {
-    const endedAtMs = yield* hookNow(runtime);
+    const endedAtMs = yield* hookNow();
     runtime.trace?.commands.push({
       phase,
       argv: [...argv],

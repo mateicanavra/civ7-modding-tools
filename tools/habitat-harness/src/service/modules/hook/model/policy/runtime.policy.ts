@@ -18,7 +18,6 @@ export interface HookResourcePolicy {
 export interface HookRuntime {
   pathExists?: (target: string) => boolean;
   fileHash?: (repoRelativePath: string) => string | null;
-  nowMs?: () => number;
   resourcePolicy?: HookResourcePolicy;
   trace?: HookTrace;
 }
@@ -27,8 +26,8 @@ export function createHookTrace(): HookTrace {
   return { commands: [] };
 }
 
-export function hookNow(runtime: HookRuntime): Effect.Effect<number> {
-  return runtime.nowMs ? Effect.sync(runtime.nowMs) : Clock.currentTimeMillis;
+export function hookNow(): Effect.Effect<number> {
+  return Clock.currentTimeMillis;
 }
 
 export function createHookOutput(reporter?: HabitatReporterService): {
