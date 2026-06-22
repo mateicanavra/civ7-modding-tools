@@ -14,7 +14,7 @@ import {
   checkCommandContext,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
-import { StructuralCheck } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
 import type { EffectImplementerInternal } from "effect-orpc";
@@ -77,7 +77,7 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
 });
 
 function createCheckReport(options?: CheckOptions) {
-  return Effect.flatMap(StructuralCheck, (service) => service.createReport(options));
+  return createCheckReportEffect(options);
 }
 
 function readVerifyTargetPlanEffect() {

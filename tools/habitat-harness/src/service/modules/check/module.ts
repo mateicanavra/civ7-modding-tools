@@ -3,7 +3,10 @@ import {
   type CheckOptions,
   checkCommandContext,
 } from "@internal/habitat-harness/service/model/check/index";
-import { StructuralCheck } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import {
+  createCheckReportEffect,
+  expandBaselinesEffect,
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   describeRuleSelectionFailure,
   type RuleSelection,
@@ -32,11 +35,11 @@ export const module = service.check.use(({ context, next }) =>
 );
 
 function createCheckReport(options?: CheckOptions) {
-  return Effect.flatMap(StructuralCheck, (service) => service.createReport(options));
+  return createCheckReportEffect(options);
 }
 
 function expandBaselines(selection?: RuleSelection, options?: { readonly base?: string }) {
-  return Effect.flatMap(StructuralCheck, (service) => service.expandBaselines(selection, options));
+  return expandBaselinesEffect(selection, options);
 }
 
 function selectorsFromInput(input: Pick<CheckServiceRunInput, "selectors">) {

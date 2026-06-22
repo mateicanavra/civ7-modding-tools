@@ -46,12 +46,6 @@ export {
 } from "./execution.policy.js";
 export { createCheckReportEffect } from "./report.policy.js";
 export { selectorRefusalReport } from "./selection.policy.js";
-export {
-  makeFakeStructuralCheckLayer,
-  StructuralCheck,
-  StructuralCheckLive,
-  type StructuralCheckService,
-} from "./service.policy.js";
 export type {
   BaselineApplicationOutcome,
   DiagnosticConsumptionOutcome,

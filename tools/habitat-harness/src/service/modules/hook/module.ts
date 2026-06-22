@@ -22,7 +22,7 @@ import {
   renderCheckReport,
   stagedSourceCheckPaths,
 } from "@internal/habitat-harness/service/model/check/index";
-import { StructuralCheck } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   activeRuleHookCheckFacts,
@@ -133,7 +133,7 @@ export const module = service.hook.use(({ context, next }) => {
 });
 
 function createCheckReport(options?: CheckOptions) {
-  return Effect.flatMap(StructuralCheck, (service) => service.createReport(options));
+  return createCheckReportEffect(options);
 }
 
 function runHook(context: HookProcedureContext, input: HookServiceRunInput = {}) {
