@@ -1,13 +1,10 @@
+import type { CheckReport, RuleReport } from "@internal/habitat-harness/service/model/check/index";
 import {
   HookCheckSummarySchema,
   hookCheckSummary,
   VerifyCheckSummarySchema,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
-import type {
-  CheckReport,
-  RuleReport,
-} from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
+} from "@internal/habitat-harness/service/model/check/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 

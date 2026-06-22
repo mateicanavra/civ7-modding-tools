@@ -1,4 +1,4 @@
-import type { HabitatDiagnostic, RuleExecutionDisposition } from "./schema.js";
+import type { HabitatDiagnostic, RuleExecutionDisposition } from "../dto/check.schema.js";
 
 export const notApplicableDiagnosticMessages = {
   "staged-scope-no-approved-roots":

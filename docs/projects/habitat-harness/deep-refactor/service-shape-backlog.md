@@ -2,6 +2,8 @@
 
 Current burn-down categories:
 
+- Standing guardrail: do not turn `model` into a dumping ground. If logic clusters there instead of a router/procedure, policy, DTO, or repository kind, redesign the module split/merge before adding more files.
+- Standing guardrail: policy files are helpers or policy middleware; do not recreate oRPC procedure/router responsibilities outside the oRPC module/router flow.
 - Router import shape: every `service/modules/*/router.ts` imports only its local `./module.js`; all policy helpers, provider access, resource calls, Effect wrappers, and DTO/schema helpers must be projected through module context or moved to service/model when truly shared.
 - Router violation queue from current scan: all root module routers are clean.
 - Service-level context stays limited to provisioned/shared resources; module-local procedure concepts stay in `module.ts` or module-local model policy/DTO/helper kinds.
@@ -14,7 +16,6 @@ Current burn-down categories:
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
-- Follow-up: hook, verify, and fix still import published check DTO/service internals directly; split the check module's public DTO/service surface from private baseline/source/protected-zone implementation.
 
 Completed burn-downs:
 
@@ -36,3 +37,4 @@ Completed burn-downs:
 - Classify diff target handling now lives in a named policy artifact; the module no longer has a loose `model/helpers` bucket.
 - Check-owned model code now lives under `service/modules/check/model`; `service/model` no longer owns baseline, source-check, structural-check, protected-zone, or host-policy implementation.
 - Diagnostic contracts now live under `service/model/diagnostics`, host/protected-surface policy lives under `service/model/host`, and Grit providers no longer import check module internals.
+- Check report DTOs, request language, renderers, summaries, staged source-scope policy, and disposition helpers now live under `service/model/check`; hook, verify, CLI, and tests no longer deep-import check structural schema/render/request internals.

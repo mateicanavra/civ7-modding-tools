@@ -12,20 +12,20 @@ import {
   readDirectory,
   readText,
 } from "@internal/habitat-harness/resources/platform/filesystem";
+import {
+  collapsedSourceScanRoots,
+  type HabitatDiagnostic,
+  selectedSourceScanRootsForRules,
+  sortedUnique,
+} from "@internal/habitat-harness/service/model/check/index";
 import type { RuleRunResult } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import {
   pathCoveragePatternMatches,
   type RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/index";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
 import { Effect } from "effect";
 import ts from "typescript";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.policy.js";
-import {
-  collapsedSourceScanRoots,
-  selectedSourceScanRootsForRules,
-  sortedUnique,
-} from "./scan-roots.policy.js";
 import type { SourceCheckOptions } from "./service.policy.js";
 
 interface SourceFileRecord {
