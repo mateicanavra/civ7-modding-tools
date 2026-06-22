@@ -16,6 +16,7 @@ import { graphRouter } from "@internal/habitat-harness/service/modules/graph/rou
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("Habitat graph service", () => {
   test("runs Nx graph through providers and returns compact CLI JSON", async () => {
@@ -200,7 +201,9 @@ function graphDeps(
 
 function runGraphProcedure(input: GraphServiceRunInput, deps: GraphTestDeps) {
   return Effect.gen(function* () {
-    const runGraph = graphRouter.run.callable({ context: { deps } });
+    const runGraph = graphRouter.run.callable({
+      context: { deps: makeTestHabitatServiceDeps(deps) },
+    });
     return yield* withFiberContext(() => runGraph(input));
   });
 }

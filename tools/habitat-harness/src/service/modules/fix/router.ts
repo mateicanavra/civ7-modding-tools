@@ -24,9 +24,9 @@ import {
   type TransactionRefusal,
   type WorktreeObservation,
 } from "./model/policy/transactions/index.js";
-import { type FixServiceModuleContext, module } from "./module.js";
+import { type FixModuleContext, module } from "./module.js";
 
-type ResolvedGritProvider = NonNullable<FixServiceModuleContext["grit"]>;
+type ResolvedGritProvider = FixModuleContext["grit"];
 
 export const fixRouter = {
   run: module.run.effect(function* ({ context: options, input }) {

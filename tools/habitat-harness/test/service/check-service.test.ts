@@ -5,6 +5,7 @@ import { checkRouter } from "@internal/habitat-harness/service/modules/check/rou
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 const mockReport = {
   schemaVersion: 1,
@@ -27,7 +28,9 @@ describe("Habitat check service", () => {
     };
     const result = await Effect.runPromise(
       Effect.gen(function* () {
-        const runCheck = checkRouter.run.callable({ context: { deps: { structuralCheck } } });
+        const runCheck = checkRouter.run.callable({
+          context: { deps: makeTestHabitatServiceDeps({ structuralCheck }) },
+        });
         return yield* withFiberContext(() =>
           runCheck({
             selectors: { rule: "format-ci", tool: "biome" },
@@ -74,7 +77,7 @@ describe("Habitat check service", () => {
     const expanded = await Effect.runPromise(
       Effect.gen(function* () {
         const expandBaseline = checkRouter.expandBaseline.callable({
-          context: { deps: { structuralCheck } },
+          context: { deps: makeTestHabitatServiceDeps({ structuralCheck }) },
         });
         return yield* withFiberContext(() =>
           expandBaseline({
@@ -104,7 +107,7 @@ describe("Habitat check service", () => {
     const refused = await Effect.runPromise(
       Effect.gen(function* () {
         const expandBaseline = checkRouter.expandBaseline.callable({
-          context: { deps: { structuralCheck } },
+          context: { deps: makeTestHabitatServiceDeps({ structuralCheck }) },
         });
         return yield* withFiberContext(() =>
           expandBaseline({

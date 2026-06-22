@@ -46,6 +46,7 @@ import { createRouterClient } from "@orpc/server";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 const prePushAffectedTargets =
   "check,validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
@@ -633,13 +634,15 @@ describe("Habitat hook service", () => {
           createRouterClient(habitatServiceRouter, {
             context: {
               deps: {
-                biome,
-                git,
-                graphite,
-                nx,
-                repoRoot,
-                structuralCheck,
-                workspaceGraphTargetNames,
+                ...makeTestHabitatServiceDeps({
+                  biome,
+                  git,
+                  graphite,
+                  nx,
+                  repoRoot,
+                  structuralCheck,
+                  workspaceGraphTargetNames,
+                }),
               },
               hook: { runtime: fake.runtime },
             },
@@ -774,13 +777,15 @@ function runHookServiceInTest(
       const runHook = hookRouter.run.callable({
         context: {
           deps: {
-            biome,
-            git,
-            graphite,
-            nx,
-            repoRoot,
-            structuralCheck: resolvedStructuralCheck,
-            workspaceGraphTargetNames,
+            ...makeTestHabitatServiceDeps({
+              biome,
+              git,
+              graphite,
+              nx,
+              repoRoot,
+              structuralCheck: resolvedStructuralCheck,
+              workspaceGraphTargetNames,
+            }),
           },
           hook: options,
         },

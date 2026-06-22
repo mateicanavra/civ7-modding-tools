@@ -68,3 +68,31 @@ in middleware, with the admissions path as the concrete example. The
 magic-migration collect service and rawr-hq example-todo service package are
 the reference shapes. Some policy can remain helper logic in routers, but this
 should be intentional.
+
+## Graph Error Mapping Note
+
+This inline instruction was moved out of `graph/router.ts` because service
+source should not carry loose refactor notes:
+
+> I dont think we need to do errors like this. we should be throwing errors
+> directly, especially the ones listed onthe contract.
+>
+> Fix this issue categorically; make it a pattern -- a positive enforcement
+> pattern (allowlist), not a deny-list. check the effect-orpc docs and the orpc
+> docs.
+
+## Fix Module Context Note
+
+These inline instructions were moved out of `fix/module.ts` because module
+source should contain only managed file kinds and implementation code:
+
+> these imports are not allowed either; specifically modules should not be
+> importing from service base at all. they can import only the implementer or
+> service shared model logic
+>
+> do not export this from here; there is no need. if there is a need, something
+> is wrong. bake disallowed exports into a dedicated pattern please. make it
+> stringent in the same style as imports. like same approach but for exports
+>
+> specifically what is wrong above is that that module context should not live
+> with teh service level AT ALL
