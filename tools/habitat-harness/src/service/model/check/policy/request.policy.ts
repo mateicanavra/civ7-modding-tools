@@ -16,7 +16,6 @@ export interface CheckOptions extends RuleSelection {
 
 export interface EmitCheckOptions {
   json?: boolean;
-  output?: string;
 }
 
 export function normalizeSelectorRequest(selection: RuleSelection): SelectorRequest {
