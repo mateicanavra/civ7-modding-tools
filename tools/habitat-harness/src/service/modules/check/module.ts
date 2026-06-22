@@ -1,18 +1,15 @@
-import type { HabitatModule } from "@internal/habitat-harness/service/base";
-import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
-import { service } from "@internal/habitat-harness/service/impl";
+import { service, type HabitatModule } from "@internal/habitat-harness/service/impl";
 import {
   type CheckOptions,
   type CheckReport,
   checkCommandContext,
 } from "@internal/habitat-harness/service/model/check/index";
-import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index"; // TODO: nope, get rid of this shit completely. you can't smuggle core logic into service policy as a standalone effect like this.
+import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   describeRuleSelectionFailure,
   type RuleSelection,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
-import type { CheckReportInput } from "./contract.js";	// TODO: also not allowed. module contracts are aggregated and attached at the service level in the service implementer. module should never borrow anything from its contract. this is an import violation. update your patterns
 import {
   type BaselineExpansionResult,
   expandBaselinesEffect,
@@ -31,8 +28,8 @@ export interface CheckModuleContext {
   readonly selectorsFromInput: typeof selectorsFromInput;
 }
 
-export const module: HabitatModule<HabitatServiceContract["check"], CheckModuleContext> =
-  service.check.use(({ context, next }) =>
+export const module: HabitatModule<"check", CheckModuleContext> = service.check.use(
+  ({ context, next }) =>
     next({
       context: {
         checkCommandContext,
@@ -51,9 +48,15 @@ export const module: HabitatModule<HabitatServiceContract["check"], CheckModuleC
         selectorsFromInput,
       } satisfies CheckModuleContext,
     })
-  );
+);
 
-function selectorsFromInput(input: Pick<CheckReportInput, "selectors">) {
+function selectorsFromInput(input: {
+  readonly selectors?: {
+    readonly owner?: string;
+    readonly rule?: string;
+    readonly tool?: string;
+  };
+}) {
   return {
     ...(input.selectors?.owner ? { owner: input.selectors.owner } : {}),
     ...(input.selectors?.rule ? { rule: input.selectors.rule } : {}),

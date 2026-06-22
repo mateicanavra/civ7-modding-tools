@@ -5,9 +5,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatModule } from "@internal/habitat-harness/service/base";
-import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
-import { service } from "@internal/habitat-harness/service/impl";
+import { service, type HabitatModule } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import {
   GraphServiceBadRequestError,
@@ -36,8 +34,8 @@ export interface GraphModuleContext {
   ) => Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any>;
 }
 
-export const module: HabitatModule<HabitatServiceContract["graph"], GraphModuleContext> =
-  service.graph.use(({ context, next }) => {
+export const module: HabitatModule<"graph", GraphModuleContext> = service.graph.use(
+  ({ context, next }) => {
     return next({
       context: {
         parseWorkspaceGraphJson: (graphPath, graphText, badRequest) =>
@@ -63,7 +61,8 @@ export const module: HabitatModule<HabitatServiceContract["graph"], GraphModuleC
           withWorkspaceGraphFile(context.deps.platform.acquireTempDirectory, body),
       } satisfies GraphModuleContext,
     });
-  });
+  }
+);
 
 interface GraphJsonFailure {
   readonly message: string;

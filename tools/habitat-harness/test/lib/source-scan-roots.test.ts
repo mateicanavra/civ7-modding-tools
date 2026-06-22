@@ -8,10 +8,14 @@ describe("source-check scan root planning", () => {
         "packages/mapgen-core/src",
         "packages/mapgen-core",
         "./packages/mapgen-core/src/core",
-        "tools/habitat-harness/src/service/model/source-check/policy/source",
+        ".habitat/tooling/components/legacy-source-check",
         "tools/habitat-harness/src",
       ])
-    ).toEqual(["packages/mapgen-core", "tools/habitat-harness/src"]);
+    ).toEqual([
+      ".habitat/tooling/components/legacy-source-check",
+      "packages/mapgen-core",
+      "tools/habitat-harness/src",
+    ]);
   });
 
   test("preserves sibling roots and exact files not covered by a selected parent", () => {

@@ -1,5 +1,6 @@
 import { habitatServiceManagedRuntime } from "@internal/habitat-harness/runtime/service-runtime";
 import {
+  type HabitatModule as BaseHabitatModule,
   type HabitatServiceContext,
   type HabitatServiceRequirements,
   type HabitatServiceRuntimeError,
@@ -13,6 +14,11 @@ import type { EffectImplementerInternal } from "effect-orpc";
 import { eoc, implementEffect } from "effect-orpc";
 
 const habitatServiceOrpcContract = eoc.router(habitatServiceContract);
+
+export type HabitatModule<
+  TPath extends keyof HabitatServiceContract,
+  TContext extends object,
+> = BaseHabitatModule<HabitatServiceContract[TPath], TContext>;
 
 export const service: EffectImplementerInternal<
   HabitatServiceContract,

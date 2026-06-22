@@ -16,7 +16,7 @@ export interface ValidationTargetPlan {
 
 const habitatHarnessProject = "@internal/habitat-harness";
 const packageCheckTarget = "check";
-const habitatToolingPrefix = "tools/habitat-harness/";
+const habitatToolingPrefixes = ["tools/habitat-harness/", ".habitat/tooling/"] as const;
 const boundaryTaxonomyTargetName = "validate:boundary-taxonomy";
 const gritPatternsTargetName = "validate:grit-patterns";
 const serviceModuleShapeTargetName = "validate:service-module-shape";
@@ -91,7 +91,7 @@ function artifactAffectedTargets(
 }
 
 function isHabitatToolingPath(filePath: string): boolean {
-  return filePath.startsWith(habitatToolingPrefix);
+  return habitatToolingPrefixes.some((prefix) => filePath.startsWith(prefix));
 }
 
 function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly string[] {
@@ -110,7 +110,7 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
-    filePath === "tools/habitat-harness/scripts/validate-boundary-taxonomy.ts" ||
+    filePath === ".habitat/tooling/components/boundary-taxonomy/validate-boundary-taxonomy.ts" ||
     filePath ===
       "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts" ||
     filePath === "tools/habitat-harness/src/validation/boundary-taxonomy-inputs.ts"
@@ -127,7 +127,8 @@ function isStructuralTargetDeclarationPath(filePath: string): boolean {
 
 function isServiceModuleShapeToolingPath(filePath: string): boolean {
   return (
-    filePath === "tools/habitat-harness/scripts/validate-service-module-shape.ts" ||
+    filePath ===
+      ".habitat/tooling/components/service-module-shape/validate-service-module-shape.ts" ||
     filePath.startsWith("tools/habitat-harness/src/service/modules/")
   );
 }
