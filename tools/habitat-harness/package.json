@@ -104,10 +104,11 @@
         "inputs": [
           "{workspaceRoot}/tools/habitat-harness/scripts/validate-service-module-shape.ts",
           "{workspaceRoot}/tools/habitat-harness/src/service/modules/**",
+          "{workspaceRoot}/tools/habitat-harness/src/service/model/**",
           "{workspaceRoot}/tools/habitat-harness/package.json"
         ],
         "metadata": {
-          "description": "validates collect-style Habitat service module file-kind topology"
+          "description": "validates collect-style Habitat service module and service-model file-kind topology"
         }
       }
     }

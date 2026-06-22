@@ -71,9 +71,7 @@ for (const domainName of sortedChildren(serviceModelRoot)) {
     validateModelDirectory(domainPath, { strictPolicyNames: true });
     continue;
   }
-  if (domainName !== "IMPORTANT.md") {
-    report(relativePath, `unknown loose service model file '${domainName}'.`);
-  }
+  report(relativePath, `unknown loose service model file '${domainName}'.`);
 }
 
 if (issues.length > 0) {
