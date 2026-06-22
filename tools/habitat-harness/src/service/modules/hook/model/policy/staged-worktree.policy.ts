@@ -8,10 +8,6 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import {
-  repoRoot as defaultRepoRoot,
-  toRepoRelative,
-} from "@internal/habitat-harness/resources/paths";
 import { pathExistsSync } from "@internal/habitat-harness/resources/platform/index";
 import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/index";
 import { Effect } from "effect";
@@ -61,7 +57,10 @@ export function unstagedAmongEffect(
       .diffNameOnly({ paths, cwd: repoRoot })
       .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
     if (!result || result.exit.code !== 0 || !result.stdout.text) return [];
-    return result.stdout.text.split("\0").filter(Boolean).map(toRepoRelative);
+    return result.stdout.text
+      .split("\0")
+      .filter(Boolean)
+      .map((candidate) => toRepoRelative(repoRoot, candidate));
   });
 }
 
@@ -90,11 +89,11 @@ function stagedPathsEffect(
       .diffNameStatus({ cached: true, cwd: repoRoot })
       .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
     if (!result || result.exit.code !== 0 || !result.stdout.text) return [];
-    return parseNameStatus(result.stdout.text);
+    return parseNameStatus(result.stdout.text, repoRoot);
   });
 }
 
-function parseNameStatus(stdout: string): string[] {
+function parseNameStatus(stdout: string, repoRoot: string): string[] {
   const tokens = stdout.split("\0").filter(Boolean);
   const out: string[] = [];
   for (let i = 0; i < tokens.length; ) {
@@ -110,5 +109,9 @@ function parseNameStatus(stdout: string): string[] {
     if (!file || status.startsWith("D")) continue;
     out.push(file);
   }
-  return [...new Set(out.map(toRepoRelative))];
+  return [...new Set(out.map((candidate) => toRepoRelative(repoRoot, candidate)))];
+}
+
+function toRepoRelative(repoRoot: string, candidate: string): string {
+  return path.relative(repoRoot, path.resolve(repoRoot, candidate)).split(path.sep).join("/");
 }
