@@ -16,7 +16,7 @@ import {
   createCheckReportEffect,
   type StructuralExecutionContext,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
+import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/validation/policy/target-routing.policy";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import type { Effect } from "effect";
 import type { EffectImplementerInternal } from "effect-orpc";
