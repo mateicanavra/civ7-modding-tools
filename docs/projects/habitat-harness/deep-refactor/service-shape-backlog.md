@@ -22,6 +22,7 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Hook lifecycle/resource-inspection/runtime/staged-worktree policies now depend on hook-owned operation ports or pure inputs instead of concrete Git provider, platform resource, or reporter resource service types; live provider projection remains at the hook module boundary for the next module-boundary cleanup.
 - Baseline authority now receives Git through explicit baseline context from module-projected resources; shared baseline policy no longer resolves `GitProvider` internally.
 - Structural rule execution now receives Biome, Nx, Git, and CommandRunner through module-projected execution context; shared structural policy no longer yields those provider/resource tags directly.
 - Hook staged-worktree and resource-inspection policies now derive repo-relative paths from their module-projected repo root; hook module policy no longer imports global path helpers.
