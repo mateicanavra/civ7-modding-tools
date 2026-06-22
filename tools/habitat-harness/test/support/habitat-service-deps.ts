@@ -77,6 +77,18 @@ export function makeTestHabitatServiceDeps(
       applyDryRun: (request) =>
         Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
+      runRules: (selectedRules) =>
+        Effect.succeed(
+          new Map(
+            selectedRules.map((rule) => [
+              rule.id,
+              {
+                exitCode: 0,
+                diagnostics: [],
+              },
+            ])
+          )
+        ),
     },
     nx: {
       affected: (request) =>

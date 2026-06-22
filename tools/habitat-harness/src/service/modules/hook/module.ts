@@ -1,5 +1,4 @@
 import path from "node:path";
-import { runGritRulesEffect } from "@internal/habitat-harness/providers/grit/index";
 import {
   type CommandProviderError,
   type HabitatCommandResult,
@@ -229,8 +228,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
     command: deps.commandRunner,
     git: deps.git,
     grit: {
-      runRules: (selectedRules, options) =>
-        runGritRulesEffect(selectedRules, { ...options, grit: deps.grit }),
+      runRules: deps.grit.runRules,
     },
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
