@@ -2,7 +2,7 @@ import {
   type ApplyAdmission,
   activeApplyTransactionInputs,
   defaultApplyAdmissions,
-} from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
+} from "./model/policy/patterns/index.js";
 import {
   type GritDryRunCommandInput,
   observeWorktree,
@@ -15,7 +15,7 @@ import {
   resolveTransactionInput,
   type TransactionRefusal,
   type WorktreeObservation,
-} from "@internal/habitat-harness/service/model/fix/policy/transactions/index";
+} from "./model/policy/transactions/index.js";
 import {
   captureOutput,
   type HabitatProcessRequest,

@@ -12,3 +12,5 @@ all of this shit here is NOT relevant at the service level. nearly all of it is 
 I told you that the service directory should not own the module models. look at the other note. you started doing it right, then you just undid the correct direction for no reason.
 
 use your first principles -- modules own their local models and other data/code/logic/policy/etc.
+
+I'm sure you're on this -- but your patterns should already invalidate this file tree setup. If it doesn't, you have failed yet again to appropriately make the file structure allow-list only, which is the required thing
