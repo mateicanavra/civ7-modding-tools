@@ -8,6 +8,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
   approvedScanRootsForRules,
@@ -56,6 +57,7 @@ type HookProcedureContext = {
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly nx: NxProviderService;
+  readonly reporter: HabitatReporterService;
   readonly repoRoot: string;
   readonly runtime: HookRuntime;
   readonly structuralCheck: StructuralCheckService;
@@ -118,6 +120,7 @@ export const module = service.hook.use(({ context, next }) => {
     git: context.deps.git,
     graphite: context.deps.graphite,
     nx: context.deps.nx,
+    reporter: context.deps.reporter,
     repoRoot: context.deps.repoRoot,
     runtime: context.deps.hookRuntime,
     structuralCheck: context.deps.structuralCheck,
@@ -142,7 +145,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
             source: "explicit",
           } satisfies PrePushBaseDecision)
         : yield* resolvePrePushBase(context, runtime);
-      const output = createHookOutput(runtime.reporter);
+      const output = createHookOutput(context.reporter);
       output.writeStdout(localHookNotice);
 
       if (runtime.trace) {
@@ -322,7 +325,7 @@ function beginPreCommit(
   context: HookProcedureContext,
   runtime: HookRuntime = {}
 ): HookRouterEffect<PreCommitStep<PreCommitState>> {
-  const output = createHookOutput(runtime.reporter);
+  const output = createHookOutput(context.reporter);
   output.writeStdout("habitat hook pre-commit\n");
   output.writeStdout(localHookNotice);
 

@@ -6,6 +6,7 @@ import { NxWorkspaceGraphProjectReader } from "@internal/habitat-harness/provide
 import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { acquireTempDirectory, readText } from "@internal/habitat-harness/resources/platform/index";
+import { silentHabitatReporter } from "@internal/habitat-harness/resources/reporter/index";
 import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type {
   HabitatServiceContext,
@@ -34,6 +35,7 @@ export async function createLiveHabitatServiceContext(
         hookRuntime: input.deps?.hookRuntime ?? {},
         nx: input.deps?.nx ?? (yield* NxProvider),
         readText,
+        reporter: input.deps?.reporter ?? silentHabitatReporter,
         repoRoot,
         structuralCheck: input.deps?.structuralCheck ?? (yield* StructuralCheck),
         workspaceProjects: input.deps?.workspaceProjects ?? new NxWorkspaceGraphProjectReader(),

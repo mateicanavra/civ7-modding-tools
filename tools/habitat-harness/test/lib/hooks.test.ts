@@ -20,6 +20,7 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import {
   type CheckOptions,
   type CheckReport,
@@ -32,7 +33,6 @@ import {
 } from "@internal/habitat-harness/service/modules/hook/model/policy/resource-inspection.policy";
 import {
   createHookTrace,
-  type HookReportEvent,
   type HookRuntime,
 } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
@@ -402,7 +402,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
   });
 
   test("reports pre-commit output through an injected reporter service", async () => {
-    const events: HookReportEvent[] = [];
+    const events: HabitatReportEvent[] = [];
     const fake = makeFakeRuntime({
       stagedPaths: ["packages/example/src/index.ts"],
       sourceCheckStdout: sourceCheckReport({
@@ -413,20 +413,17 @@ describe("Habitat pre-commit staged mutation policy", () => {
       }),
     });
 
-    const result = await runPreCommitInTest(fake, {
-      ...fake.runtime,
-      reporter: { write: (event) => events.push(event) },
-    });
+    const result = await runPreCommitInTest(fake, fake.runtime, events);
 
     expect(result.exitCode).toBe(1);
     expect(renderReported(events, "stdout")).toBe(result.stdout);
     expect(renderReported(events, "stderr")).toBe(result.stderr);
     expect(events).toContainEqual({
-      channel: "stdout",
+      kind: "stdout",
       text: "hook result: workstation check only; CI remains authoritative.\n",
     });
     expect(events).toContainEqual({
-      channel: "stderr",
+      kind: "stderr",
       text: "habitat hook pre-commit: could not parse source check JSON output.\n",
     });
   });
@@ -463,7 +460,8 @@ interface FakeHookRuntime {
 
 async function runPreCommitInTest(
   fake: FakeHookRuntime,
-  runtime: HookRuntime = fake.runtime
+  runtime: HookRuntime = fake.runtime,
+  reporterEvents?: HabitatReportEvent[]
 ): Promise<SpawnResult> {
   const layer = Layer.mergeAll(
     makeGitLayer(fake),
@@ -472,10 +470,15 @@ async function runPreCommitInTest(
     makeStructuralCheckLayer(fake),
     makeBiomeLayer(fake)
   );
-  return Effect.runPromise(runHookProcedure({ runtime }).pipe(Effect.provide(layer)));
+  return Effect.runPromise(
+    runHookProcedure({ reporterEvents, runtime }).pipe(Effect.provide(layer))
+  );
 }
 
-function runHookProcedure(options: { readonly runtime?: HookRuntime }) {
+function runHookProcedure(options: {
+  readonly reporterEvents?: HabitatReportEvent[];
+  readonly runtime?: HookRuntime;
+}) {
   return Effect.gen(function* () {
     const biome = yield* BiomeProvider;
     const git = yield* GitProvider;
@@ -491,6 +494,16 @@ function runHookProcedure(options: { readonly runtime?: HookRuntime }) {
             graphite,
             hookRuntime: options.runtime ?? {},
             nx,
+            ...(options.reporterEvents
+              ? {
+                  reporter: {
+                    emit: (event: HabitatReportEvent) =>
+                      Effect.sync(() => {
+                        options.reporterEvents?.push(event);
+                      }),
+                  },
+                }
+              : {}),
             repoRoot,
             structuralCheck,
           }),
@@ -651,9 +664,9 @@ function renderPathList(paths: string[]): string {
   return paths.length === 0 ? "" : `${paths.join("\0")}\0`;
 }
 
-function renderReported(events: HookReportEvent[], channel: HookReportEvent["channel"]): string {
+function renderReported(events: HabitatReportEvent[], kind: HabitatReportEvent["kind"]): string {
   return events
-    .filter((event) => event.channel === channel)
+    .filter((event) => event.kind === kind)
     .map((event) => event.text)
     .join("");
 }
