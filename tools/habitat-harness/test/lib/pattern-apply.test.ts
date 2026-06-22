@@ -14,11 +14,9 @@ import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/transactions/index";
-import {
-  fixRouter,
   runPatternApplyTransaction,
-} from "@internal/habitat-harness/service/modules/fix/router";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/transactions/index";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";

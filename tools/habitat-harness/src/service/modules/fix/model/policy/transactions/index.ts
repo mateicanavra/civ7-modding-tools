@@ -1,3 +1,4 @@
+export { runPatternApplyTransaction } from "./apply-transaction.policy.js";
 export { renderPatternApply } from "./render.js";
 export {
   type DryRunIntent,
