@@ -1,9 +1,8 @@
 import path from "node:path";
 import type {
-  GitProviderRequirements,
-  GitProviderService,
-} from "@internal/habitat-harness/providers/git/index";
-import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
+  CommandProviderError,
+  HabitatCommandResult,
+} from "@internal/habitat-harness/resources/command/index";
 import { Effect } from "effect";
 import type {
   ResourcePreCommitDecision,
@@ -17,9 +16,21 @@ import {
 } from "./resource-decision.policy.js";
 import type { HookResourcePolicy } from "./runtime.policy.js";
 
-interface ResourceInspectionContext {
-  readonly git: GitProviderService;
-  readonly platform: HabitatPlatformService;
+interface ResourceInspectionGitPort<R = never> {
+  readonly command: (
+    argv: readonly string[],
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
+}
+
+interface ResourceInspectionPlatformPort {
+  readonly repoRoot: string;
+  readonly pathExists: (targetPath: string) => boolean;
+}
+
+interface ResourceInspectionContext<R = never> {
+  readonly git: ResourceInspectionGitPort<R>;
+  readonly platform: ResourceInspectionPlatformPort;
 }
 
 export function classifyResourcesState(resourcePolicy?: HookResourcePolicy): ResourceStateFacade {
@@ -36,7 +47,15 @@ export function classifyResourcesState(resourcePolicy?: HookResourcePolicy): Res
 export function classifyResourcePreCommitDecisionEffect(
   context: ResourceInspectionContext,
   resourcePolicy?: HookResourcePolicy
-): Effect.Effect<ResourcePreCommitDecision, never, GitProviderRequirements> {
+): Effect.Effect<ResourcePreCommitDecision>;
+export function classifyResourcePreCommitDecisionEffect<R>(
+  context: ResourceInspectionContext<R>,
+  resourcePolicy?: HookResourcePolicy
+): Effect.Effect<ResourcePreCommitDecision, never, R>;
+export function classifyResourcePreCommitDecisionEffect<R>(
+  context: ResourceInspectionContext<R>,
+  resourcePolicy?: HookResourcePolicy
+): Effect.Effect<ResourcePreCommitDecision, never, R> {
   if (!resourcePolicy) {
     return Effect.succeed(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")

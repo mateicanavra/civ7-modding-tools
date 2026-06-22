@@ -1,6 +1,14 @@
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import { Clock, Effect } from "effect";
+
+type HookReportEvent =
+  | { readonly kind: "stdout"; readonly text: string }
+  | { readonly kind: "stderr"; readonly text: string }
+  | { readonly kind: "trace"; readonly message: string };
+
+interface HookReporterPort {
+  readonly emit: (event: HookReportEvent) => Effect.Effect<void>;
+}
 
 export interface ResourceRecoveryCommands {
   publish: string;
@@ -18,7 +26,7 @@ export function hookNow(): Effect.Effect<number> {
   return Clock.currentTimeMillis;
 }
 
-export function createHookOutput(reporter?: HabitatReporterService): {
+export function createHookOutput(reporter?: HookReporterPort): {
   writeStdout: (text: string) => void;
   writeStderr: (text: string) => void;
   result: () => Pick<SpawnResult, "stdout" | "stderr">;

@@ -178,7 +178,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
 
       if (baseDecision.kind === "refused") {
         output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
-        return yield* finalizePrePushEffect(context, "base-refused", {
+        return yield* finalizePrePushEffect("base-refused", {
           exitCode: 1,
           ...output.result(),
         });
@@ -187,7 +187,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       const changedPaths = yield* prePushChangedPaths(context, base);
       if (changedPaths.kind === "unavailable") {
         output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
-        return yield* finalizePrePushEffect(context, "affected-failed", {
+        return yield* finalizePrePushEffect("affected-failed", {
           exitCode: 1,
           ...output.result(),
         });
@@ -199,7 +199,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
           section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
         );
         if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
-          return yield* finalizePrePushEffect(context, "affected-failed", {
+          return yield* finalizePrePushEffect("affected-failed", {
             exitCode: hookSourceCheck.exitCode,
             ...output.result(),
           });
@@ -235,7 +235,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
         );
         output.writeStderr(targetResult.stderr);
         if (targetResult.exitCode !== 0) {
-          return yield* finalizePrePushEffect(context, "affected-failed", {
+          return yield* finalizePrePushEffect("affected-failed", {
             exitCode: targetResult.exitCode,
             ...output.result(),
           });
@@ -243,7 +243,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       }
       if (targetPlan.affectedTargets.length === 0) {
         output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
-        return yield* finalizePrePushEffect(context, "pass", {
+        return yield* finalizePrePushEffect("pass", {
           exitCode: 0,
           ...output.result(),
         });
@@ -266,7 +266,6 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
       output.writeStderr(result.stderr);
       return yield* finalizePrePushEffect(
-        context,
         result.exitCode === 0 ? "pass" : "affected-failed",
         {
           exitCode: result.exitCode,
@@ -278,20 +277,16 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
     if (input.name === "pre-commit") {
       const begun = yield* beginPreCommit(context, input.resourcePolicy);
       if (begun.kind === "done") {
-        return yield* finalizePreCommitEffect(context, begun.outcome, begun.result);
+        return yield* finalizePreCommitEffect(begun.outcome, begun.result);
       }
       const fileLayer = yield* stagedHookCheck(context, "file-layer", begun.state.staged);
       const afterFileLayer = yield* continuePreCommitAfterFileLayer(begun.state, fileLayer);
       if (afterFileLayer.kind === "done") {
-        return yield* finalizePreCommitEffect(
-          context,
-          afterFileLayer.outcome,
-          afterFileLayer.result
-        );
+        return yield* finalizePreCommitEffect(afterFileLayer.outcome, afterFileLayer.result);
       }
       const afterBiome = yield* preCommitBiomeProviderStep(afterFileLayer.state);
       if (afterBiome.kind === "done") {
-        return yield* finalizePreCommitEffect(context, afterBiome.outcome, afterBiome.result);
+        return yield* finalizePreCommitEffect(afterBiome.outcome, afterBiome.result);
       }
 
       const sourceCheckResult =
@@ -552,7 +547,7 @@ function finishPreCommit(
   const { context, output } = state;
   if (state.sourceCheckPaths.length > 0) {
     if (!sourceCheckResult) {
-      return finalizePreCommitEffect(context, "command-failed", {
+      return finalizePreCommitEffect("command-failed", {
         exitCode: 1,
         ...output.result(),
       });
@@ -562,13 +557,13 @@ function finishPreCommit(
     const sourceCheck = stagedHookCheckCommandResult(sourceCheckResult);
     if (sourceCheck.kind !== "parsed") {
       if (sourceCheckResult.exitCode !== 0 && sourceCheck.kind === "missing-json") {
-        return finalizePreCommitEffect(context, "command-failed", {
+        return finalizePreCommitEffect("command-failed", {
           exitCode: sourceCheckResult.exitCode,
           ...output.result(),
         });
       }
       output.writeStderr("habitat hook pre-commit: could not parse Habitat source check JSON.\n");
-      return finalizePreCommitEffect(context, "parse-failed", {
+      return finalizePreCommitEffect("parse-failed", {
         exitCode: 1,
         ...output.result(),
       });
@@ -576,12 +571,12 @@ function finishPreCommit(
     if (!checkSummaryAllowsNextStage(sourceCheck)) {
       if (sourceCheck.summary.kind === "diagnostic-unavailable") {
         output.writeStderr("habitat hook pre-commit: could not parse source check JSON output.\n");
-        return finalizePreCommitEffect(context, "parse-failed", {
+        return finalizePreCommitEffect("parse-failed", {
           exitCode: 1,
           ...output.result(),
         });
       }
-      return finalizePreCommitEffect(context, "finding", {
+      return finalizePreCommitEffect("finding", {
         exitCode: 1,
         ...output.result(),
       });
@@ -593,7 +588,7 @@ function finishPreCommit(
   }
 
   output.writeStdout("habitat hook pre-commit: PASS\n");
-  return finalizePreCommitEffect(context, "pass", { exitCode: 0, ...output.result() });
+  return finalizePreCommitEffect("pass", { exitCode: 0, ...output.result() });
 }
 
 function prePushChangedPaths(
