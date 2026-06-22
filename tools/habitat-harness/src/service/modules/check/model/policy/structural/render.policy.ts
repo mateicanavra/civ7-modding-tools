@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import { renderReport } from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/messages.policy";
+import { renderReport } from "./messages.policy.js";
 import type { EmitCheckOptions } from "./request.policy.js";
 import type { CheckReport } from "./schema.js";
 import { validateCheckReport } from "./schema.js";

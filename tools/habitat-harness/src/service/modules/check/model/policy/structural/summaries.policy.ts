@@ -1,4 +1,4 @@
-import { isDiagnosticProviderFailureKind } from "@internal/habitat-harness/service/modules/check/model/index";
+import { isDiagnosticProviderFailureKind } from "@internal/habitat-harness/service/model/diagnostics/index";
 import { Value } from "typebox/value";
 import {
   isDependencyRefusalDiagnostic,

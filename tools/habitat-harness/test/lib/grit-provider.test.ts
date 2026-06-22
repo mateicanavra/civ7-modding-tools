@@ -18,7 +18,6 @@ import {
   type OutputCapture,
 } from "@internal/habitat-harness/resources/command/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   DiagnosticCatalogEntrySchema,
   diagnosticCacheRequirementForGritCheck,
@@ -30,7 +29,8 @@ import {
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticProviderFailure,
-} from "@internal/habitat-harness/service/modules/check/model/index";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect, type Layer } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";

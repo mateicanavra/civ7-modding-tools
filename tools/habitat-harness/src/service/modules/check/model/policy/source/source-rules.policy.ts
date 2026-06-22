@@ -12,11 +12,11 @@ import {
   readDirectory,
   readText,
 } from "@internal/habitat-harness/resources/platform/filesystem";
+import type { RuleRunResult } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import {
   pathCoveragePatternMatches,
   type RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/index";
-import type { RuleRunResult } from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/architecture.policy";
 import type { HabitatDiagnostic } from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
 import { Effect } from "effect";
 import ts from "typescript";

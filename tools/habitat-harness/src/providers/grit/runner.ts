@@ -1,4 +1,3 @@
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   type DiagnosticCacheObservation,
   type DiagnosticFinding,
@@ -7,8 +6,9 @@ import {
   type DiagnosticScanRootRefusal,
   diagnosticCatalogEntryFromRuleSourceFacts,
   renderDiagnosticScanRootRefusal,
-} from "@internal/habitat-harness/service/modules/check/model/index";
-import type { RuleRunResult } from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/architecture.policy";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
+import type { RuleRunResult } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect } from "effect";
 import {
   gritDiagnosticOutcomesFromReport,

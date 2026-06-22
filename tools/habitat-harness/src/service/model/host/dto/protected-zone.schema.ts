@@ -1,9 +1,9 @@
+import { type Static, Type } from "typebox";
 import {
   HostMatcherSchema,
   HostPolicyOwnerSchema,
   HostRecoveryInstructionSchema,
-} from "@internal/habitat-harness/service/modules/check/model/dto/host-policy.schema";
-import { type Static, Type } from "typebox";
+} from "./host-policy.schema.js";
 
 const NonEmptyStringSchema = Type.String({ minLength: 1 });
 

@@ -1,10 +1,10 @@
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/diagnostics/index";
 import {
   activeRuleRegistryDocument,
   type RuleCommandExecutionFacts,
   type RuleRegistryRecordV1,
 } from "@internal/habitat-harness/service/model/rules/index";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
 
 /**
  * The rule pack is authored in .habitat and consumed through the registry

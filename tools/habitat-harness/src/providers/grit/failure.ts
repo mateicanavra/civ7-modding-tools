@@ -1,9 +1,9 @@
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   type DiagnosticProviderFailureKind,
   renderDiagnosticProviderFailure,
-} from "@internal/habitat-harness/service/modules/check/model/index";
-import type { RuleRunResult } from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/architecture.policy";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
+import type { RuleRunResult } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 
 export function infrastructureFailure(
   rule: RuleSourceFacts,

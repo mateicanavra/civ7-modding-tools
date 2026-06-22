@@ -15,7 +15,6 @@ Current burn-down categories:
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
 - Follow-up: hook, verify, and fix still import published check DTO/service internals directly; split the check module's public DTO/service surface from private baseline/source/protected-zone implementation.
-- Follow-up: Grit provider still imports check-module diagnostic contracts; the next slice must make Grit produce provider-native output or extract a deliberately shared diagnostic DTO/policy domain without rebuilding a top-level service-model junk drawer.
 
 Completed burn-downs:
 
@@ -36,3 +35,4 @@ Completed burn-downs:
 - Fix module pattern/apply internals now use explicit `model/dto`, `model/policy`, and `model/repositories` kinds; the old nested `patterns/` and `transactions/` pseudo-domains are removed.
 - Classify diff target handling now lives in a named policy artifact; the module no longer has a loose `model/helpers` bucket.
 - Check-owned model code now lives under `service/modules/check/model`; `service/model` no longer owns baseline, source-check, structural-check, protected-zone, or host-policy implementation.
+- Diagnostic contracts now live under `service/model/diagnostics`, host/protected-surface policy lives under `service/model/host`, and Grit providers no longer import check module internals.
