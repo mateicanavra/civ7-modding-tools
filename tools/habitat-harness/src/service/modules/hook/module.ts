@@ -9,6 +9,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
@@ -55,11 +56,9 @@ type HookProcedureContext = {
   readonly biome: BiomeProviderService;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
-  readonly hashFile: (repoRelativePath: string) => string | null;
   readonly nx: NxProviderService;
-  readonly pathExists: (targetPath: string) => boolean;
+  readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
-  readonly repoRoot: string;
   readonly structuralCheck: StructuralCheckService;
   readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
 };
@@ -77,7 +76,6 @@ interface PreCommitState {
   readonly resourcePolicy?: HookResourcePolicy;
   readonly output: HookOutput;
   readonly staged: readonly string[];
-  readonly hashFile: (repoRelativePath: string) => string | null;
 }
 
 interface PreCommitBiomeState extends PreCommitState {
@@ -119,12 +117,9 @@ export const module = service.hook.use(({ context, next }) => {
     biome: context.deps.biome,
     git: context.deps.git,
     graphite: context.deps.graphite,
-    hashFile: (repoRelativePath) =>
-      context.deps.platform.hashFile(path.join(context.deps.platform.repoRoot, repoRelativePath)),
     nx: context.deps.nx,
-    pathExists: context.deps.platform.pathExists,
+    platform: context.deps.platform,
     reporter: context.deps.reporter,
-    repoRoot: context.deps.platform.repoRoot,
     structuralCheck: context.deps.structuralCheck,
     workspaceGraphTargetNames,
   } satisfies HookProcedureContext;
@@ -285,6 +280,13 @@ function unknownHookResult(name: string | undefined): SpawnResult {
   };
 }
 
+function hashRepoRelativeFile(
+  context: HookProcedureContext,
+  repoRelativePath: string
+): string | null {
+  return context.platform.hashFile(path.join(context.platform.repoRoot, repoRelativePath));
+}
+
 function beginPreCommit(
   context: HookProcedureContext,
   resourcePolicy?: HookResourcePolicy
@@ -315,8 +317,8 @@ function beginPreCommit(
     const stagedStartedAtMs = yield* hookNow();
     const staged = yield* existingStagedPathsEffect(
       context.git,
-      context.repoRoot,
-      context.pathExists
+      context.platform.repoRoot,
+      context.platform.pathExists
     );
     yield* recordHookCommand(
       context,
@@ -327,7 +329,7 @@ function beginPreCommit(
     );
     return {
       kind: "continue",
-      state: { context, resourcePolicy, output, staged, hashFile: context.hashFile },
+      state: { context, resourcePolicy, output, staged },
     };
   });
 }
@@ -336,7 +338,7 @@ function continuePreCommitAfterFileLayer(
   state: PreCommitState,
   fileLayer: StagedHookCheckResult
 ): HookRouterEffect<PreCommitStep<PreCommitBiomeState>> {
-  const { context, hashFile, output, staged } = state;
+  const { context, output, staged } = state;
   output.writeStdout(section("file-layer staged check", fileLayer.stdout));
   output.writeStderr(fileLayer.stderr);
   const fileLayerCheck = stagedHookCheckCommandResult(fileLayer);
@@ -357,7 +359,7 @@ function continuePreCommitAfterFileLayer(
   const biomePaths = biomeHookPaths(staged);
   return Effect.gen(function* () {
     const partialStartedAtMs = yield* hookNow();
-    const partials = yield* unstagedAmongEffect(context.git, context.repoRoot, biomePaths);
+    const partials = yield* unstagedAmongEffect(context.git, context.platform.repoRoot, biomePaths);
     yield* recordHookCommand(
       context,
       "partial-staging",
@@ -383,7 +385,9 @@ function continuePreCommitAfterFileLayer(
         },
       } satisfies PreCommitStep<PreCommitBiomeState>;
     }
-    const beforeHashes = new Map(biomePaths.map((candidate) => [candidate, hashFile(candidate)]));
+    const beforeHashes = new Map(
+      biomePaths.map((candidate) => [candidate, hashRepoRelativeFile(context, candidate)])
+    );
     return {
       kind: "continue",
       state: { ...state, biomePaths, beforeHashes },
@@ -394,7 +398,7 @@ function continuePreCommitAfterFileLayer(
 function preCommitBiomeProviderStep(
   state: PreCommitBiomeState
 ): HookRouterEffect<PreCommitStep<PreCommitSourceCheckState>> {
-  const { beforeHashes, biomePaths, context, hashFile, output } = state;
+  const { beforeHashes, biomePaths, context, output } = state;
   if (biomePaths.length === 0) {
     output.writeStdout("biome: no staged supported files\n");
     return Effect.succeed(continuePreCommitAfterBiome(state));
@@ -436,11 +440,11 @@ function preCommitBiomeProviderStep(
     }
 
     const touched = biomePaths.filter(
-      (candidate) => beforeHashes.get(candidate) !== hashFile(candidate)
+      (candidate) => beforeHashes.get(candidate) !== hashRepoRelativeFile(context, candidate)
     );
     if (touched.length > 0) {
       const restageStartedAtMs = yield* hookNow();
-      const restage = yield* gitAddEffect(context.git, context.repoRoot, touched);
+      const restage = yield* gitAddEffect(context.git, context.platform.repoRoot, touched);
       yield* recordHookCommand(
         context,
         "formatter-restage",
@@ -561,7 +565,7 @@ function prePushChangedPaths(
 ): HookRouterEffect<PrePushChangedPathsResult> {
   return Effect.gen(function* () {
     const result = yield* context.git
-      .command(["diff", "--name-only", "-z", base, "HEAD"], { cwd: context.repoRoot })
+      .command(["diff", "--name-only", "-z", base, "HEAD"], { cwd: context.platform.repoRoot })
       .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
     if (!result || result.exit.code !== 0) {
       return {
@@ -609,7 +613,7 @@ function prePushHookSourceCheck(
 function resolvePrePushBase(context: HookProcedureContext): HookRouterEffect<PrePushBaseDecision> {
   return Effect.gen(function* () {
     const startedAtMs = yield* hookNow();
-    const parent = yield* context.graphite.parent({ cwd: context.repoRoot });
+    const parent = yield* context.graphite.parent({ cwd: context.platform.repoRoot });
     yield* recordHookCommand(
       context,
       "pre-push-base",
@@ -619,9 +623,11 @@ function resolvePrePushBase(context: HookProcedureContext): HookRouterEffect<Pre
     );
     if (parent) return { kind: "resolved" as const, base: parent, source: "graphite-parent" };
 
-    const defaultBranch = yield* context.git.remoteDefaultBranch({ cwd: context.repoRoot });
+    const defaultBranch = yield* context.git.remoteDefaultBranch({
+      cwd: context.platform.repoRoot,
+    });
     const base = defaultBranch
-      ? yield* context.git.mergeBase(defaultBranch, { cwd: context.repoRoot })
+      ? yield* context.git.mergeBase(defaultBranch, { cwd: context.platform.repoRoot })
       : null;
     if (base) return { kind: "resolved" as const, base, source: "merge-base" };
     return {

@@ -4,6 +4,7 @@ import type {
   GitProviderService,
 } from "@internal/habitat-harness/providers/git/index";
 import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
+import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import { Effect } from "effect";
 import type {
   ResourcePreCommitDecision,
@@ -19,8 +20,7 @@ import type { HookResourcePolicy } from "./runtime.policy.js";
 
 interface ResourceInspectionContext {
   readonly git: GitProviderService;
-  readonly pathExists: (targetPath: string) => boolean;
-  readonly repoRoot: string;
+  readonly platform: HabitatPlatformService;
 }
 
 export function classifyResourcesState(resourcePolicy?: HookResourcePolicy): ResourceStateFacade {
@@ -43,7 +43,8 @@ export function classifyResourcePreCommitDecisionEffect(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")
     );
   }
-  const { git, pathExists, repoRoot } = context;
+  const { git, platform } = context;
+  const { pathExists, repoRoot } = platform;
   const resourcePath = normalizeResourcePath(repoRoot, resourcePolicy.path);
   const resourceCommands = resourcePolicy.commands;
   if (!resourcePath || resourcePath === ".." || resourcePath.startsWith("../")) {
