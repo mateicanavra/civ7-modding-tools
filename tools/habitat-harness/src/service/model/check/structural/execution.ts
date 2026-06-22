@@ -31,7 +31,7 @@ import type {
   RuleSelectorFacts,
   RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/registry/index";
-import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/selection/index";
+import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import {
   CommandRunner,

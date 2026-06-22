@@ -2,7 +2,7 @@ import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { BaselineAuthority } from "@internal/habitat-harness/service/model/check/baseline/index";
 import type { SourceCheck } from "@internal/habitat-harness/service/model/check/source/index";
-import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/selection/index";
+import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import type { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";

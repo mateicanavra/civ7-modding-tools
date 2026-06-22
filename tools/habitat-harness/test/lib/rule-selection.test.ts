@@ -14,7 +14,7 @@ import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/ru
 import {
   type RuleSelection,
   selectRules,
-} from "@internal/habitat-harness/service/model/rules/selection/index";
+} from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { describe, expect, test } from "vitest";
 
 const fakeRules: HarnessRule[] = [

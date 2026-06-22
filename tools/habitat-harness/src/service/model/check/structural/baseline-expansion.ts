@@ -10,11 +10,11 @@ import {
   activeRuleSelectorFacts,
   factsForRuleIds,
 } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
-import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/selection/index";
+import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import {
   type RuleSelectionResult,
   selectRules,
-} from "@internal/habitat-harness/service/model/rules/selection/index";
+} from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
