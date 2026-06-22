@@ -1,4 +1,4 @@
-import { resolveVerifyBaseEffect } from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
+import { resolveVerifyBaseEffect } from "@internal/habitat-harness/service/model/verify/proof/index";
 import {
   captureOutput,
   makeFakeCommandRunnerLayer,

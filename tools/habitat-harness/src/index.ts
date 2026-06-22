@@ -45,7 +45,7 @@ export type {
   VerifyBaseResolution,
   VerifyOptions,
   VerifyReceipt,
-} from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
+} from "@internal/habitat-harness/service/model/verify/proof/index";
 export {
   createVerifyReceipt,
   isVerifyReceipt,
@@ -60,4 +60,4 @@ export {
   VerifyReceiptSchema,
   validateVerifyReceipt,
   verifyAffectedTargets,
-} from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
+} from "@internal/habitat-harness/service/model/verify/proof/index";
