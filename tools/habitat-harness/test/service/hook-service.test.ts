@@ -31,15 +31,10 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import {
-  makeFakeStructuralCheckLayer,
-  StructuralCheck,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
-import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
-import { createRouterClient } from "@orpc/server";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
@@ -559,25 +554,23 @@ describe("Habitat hook service", () => {
         const git = yield* GitProvider;
         const graphite = yield* GraphiteProvider;
         const nx = yield* NxProvider;
-        const structuralCheck = yield* StructuralCheck;
-        return yield* Effect.promise(() =>
-          createRouterClient(habitatServiceRouter, {
-            context: {
-              deps: {
-                ...makeTestHabitatServiceDeps({
-                  biome,
-                  git,
-                  graphite,
-                  hashFile: fake.hashFile,
-                  nx,
-                  pathExists: fake.pathExists,
-                  repoRoot,
-                  structuralCheck,
-                }),
+        const runHook = hookRouter.run.callable({
+          context: {
+            deps: makeTestHabitatServiceDeps({
+              biome,
+              git,
+              graphite,
+              nx,
+              platform: {
+                ...makeTestHabitatServiceDeps().platform,
+                hashFile: fake.hashFile,
+                pathExists: fake.pathExists,
+                repoRoot,
               },
-            },
-          }).hook.run({ name: "pre-commit" })
-        );
+            }),
+          },
+        });
+        return yield* withFiberContext(() => runHook({ name: "pre-commit" }));
       }).pipe(
         Effect.provide(
           Layer.mergeAll(
@@ -704,7 +697,6 @@ function runHookServiceInTest(
       const git = yield* GitProvider;
       const graphite = yield* GraphiteProvider;
       const nx = yield* NxProvider;
-      const resolvedStructuralCheck = yield* StructuralCheck;
       const runHook = hookRouter.run.callable({
         context: {
           deps: {
@@ -729,7 +721,6 @@ function runHookServiceInTest(
                     },
                   }
                 : {}),
-              structuralCheck: resolvedStructuralCheck,
             }),
           },
         },

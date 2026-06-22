@@ -13,6 +13,7 @@ Current burn-down categories:
 - Keep routers authored as procedure logic, importing only the module implementer from `./module.js`.
 - Move shared resource needs into service-level deps/middleware; keep module-specific domain concepts inside the owning module.
 - Burn down `service/model` to only genuinely shared cross-module models; module-local DTO/policy/repository code belongs under the owning `service/modules/<module>/model` tree.
+- Continue collapsing internal Effect service tags that only exist to shuttle Habitat-owned policy; shared policy can be projected through module context, while service-level context remains external/provisioned resources.
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
@@ -43,3 +44,4 @@ Completed burn-downs:
 - Workspace graph reads now enter classify through the Nx provider resource; `HabitatServiceDeps` no longer carries the classify-only `workspaceProjects` test seam.
 - Platform filesystem/temp/path/repo-root helpers now enter the service through one `HabitatPlatform` resource; `HabitatServiceDeps` no longer carries raw platform helper functions.
 - Hook module procedure context now carries the `HabitatPlatform` resource directly instead of exploded `hashFile`, `pathExists`, and `repoRoot` fields.
+- Structural check policy no longer enters through `HabitatServiceDeps` or live service-context construction; check, hook, and verify modules resolve the shared Effect policy layer at execution while tests provision fakes as layers.

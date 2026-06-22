@@ -6,7 +6,6 @@ import type { NxProviderService } from "@internal/habitat-harness/providers/nx/i
 import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
-import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { Context, type Layer } from "effect";
 
 export interface HabitatServiceContext {
@@ -22,7 +21,6 @@ export interface HabitatServiceDeps {
   readonly nx: NxProviderService;
   readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
-  readonly structuralCheck: StructuralCheckService;
 }
 
 export class HabitatServiceRuntime extends Context.Tag(

@@ -25,10 +25,7 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import {
-  makeFakeStructuralCheckLayer,
-  StructuralCheck,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
@@ -416,7 +413,6 @@ function runHookProcedure(options: {
     const git = yield* GitProvider;
     const graphite = yield* GraphiteProvider;
     const nx = yield* NxProvider;
-    const structuralCheck = yield* StructuralCheck;
     const runHook = hookRouter.run.callable({
       context: {
         deps: {
@@ -441,7 +437,6 @@ function runHookProcedure(options: {
                   },
                 }
               : {}),
-            structuralCheck,
           }),
         },
       },

@@ -14,6 +14,7 @@ import type { HabitatReporterService } from "@internal/habitat-harness/resources
 import { service } from "@internal/habitat-harness/service/impl";
 import {
   approvedScanRootsForRules,
+  type CheckOptions,
   type CheckReport,
   checkCommandContext,
   type HookCheckSummary,
@@ -21,7 +22,7 @@ import {
   renderCheckReport,
   stagedSourceCheckPaths,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { StructuralCheck } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   activeRuleHookCheckFacts,
@@ -59,7 +60,7 @@ type HookProcedureContext = {
   readonly nx: NxProviderService;
   readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
-  readonly structuralCheck: StructuralCheckService;
+  readonly createCheckReport: typeof createCheckReport;
   readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
 };
 type BiomeCommandRequest = Parameters<HookProcedureContext["biome"]["run"]>[0];
@@ -120,7 +121,7 @@ export const module = service.hook.use(({ context, next }) => {
     nx: context.deps.nx,
     platform: context.deps.platform,
     reporter: context.deps.reporter,
-    structuralCheck: context.deps.structuralCheck,
+    createCheckReport,
     workspaceGraphTargetNames,
   } satisfies HookProcedureContext;
 
@@ -130,6 +131,10 @@ export const module = service.hook.use(({ context, next }) => {
     } satisfies HookModuleContext,
   });
 });
+
+function createCheckReport(options?: CheckOptions) {
+  return Effect.flatMap(StructuralCheck, (service) => service.createReport(options));
+}
 
 function runHook(context: HookProcedureContext, input: HookServiceRunInput = {}) {
   return Effect.gen(function* () {
@@ -590,7 +595,7 @@ function prePushHookSourceCheck(
   return Effect.gen(function* () {
     const argv = ["--hook-check", "--tool", "source-check", "--json"];
     const startedAtMs = yield* hookNow();
-    const report = yield* context.structuralCheck.createReport({
+    const report = yield* context.createCheckReport({
       tool: "source-check",
       hookCheck: true,
       staged: true,
@@ -646,7 +651,7 @@ function stagedHookCheck(
   return Effect.gen(function* () {
     const argv = ["--staged", "--tool", tool, "--json"];
     const startedAtMs = yield* hookNow();
-    const report = yield* context.structuralCheck.createReport({
+    const report = yield* context.createCheckReport({
       tool,
       staged: true,
       stagedPaths,
