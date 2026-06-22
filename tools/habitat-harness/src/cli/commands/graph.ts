@@ -1,6 +1,7 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Flags } from "@oclif/core";
+import { createRouterClient } from "@orpc/server";
 
 export default class Graph extends HabitatCommand {
   static override summary = "Emit the current Nx project graph";
@@ -14,7 +15,7 @@ export default class Graph extends HabitatCommand {
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Graph);
-    const client = createHabitatServiceClient();
+    const client = createRouterClient(habitatServiceRouter, { context: {} });
     const result = await client.graph.run({ json: flags.json });
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);

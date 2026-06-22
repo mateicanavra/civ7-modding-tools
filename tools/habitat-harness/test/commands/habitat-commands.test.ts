@@ -52,18 +52,15 @@ vi.mock("../../src/service/model/check/policy/structural/index.js", async (impor
 });
 
 vi.mock("../../src/service/model/verify/index.js", async (importOriginal) => {
-  const actual =
-    await importOriginal<
-      typeof import("../../src/service/model/verify/index.js")
-    >();
+  const actual = await importOriginal<typeof import("../../src/service/model/verify/index.js")>();
   return {
     ...actual,
     stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
   };
 });
 
-vi.mock("../../src/service/router.js", () => ({
-  createHabitatServiceClient: vi.fn(() => ({
+vi.mock("@orpc/server", () => ({
+  createRouterClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
     classify: { run: mockClassifyRun },
     fix: { run: mockFixRun },
@@ -82,7 +79,7 @@ import Verify from "@internal/habitat-harness/cli/commands/verify";
 import * as checkReport from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import * as classify from "@internal/habitat-harness/service/model/workspace/index";
 import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/index";
-import * as serviceClient from "@internal/habitat-harness/service/router";
+import { createRouterClient } from "@orpc/server";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];
@@ -176,7 +173,7 @@ describe("Habitat oclif commands", () => {
       "HEAD",
     ]);
 
-    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(createRouterClient).toHaveBeenCalled();
     expect(mockCheckRun).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD",
@@ -225,10 +222,10 @@ describe("Habitat oclif commands", () => {
     expect(mockCheckRun).not.toHaveBeenCalled();
   });
 
-  test("fix forwards dry-run intent through the Habitat service client", async () => {
+  test("fix forwards dry-run intent through the Habitat service router", async () => {
     await Fix.run(["--dry-run"]);
 
-    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(createRouterClient).toHaveBeenCalled();
     expect(mockFixRun).toHaveBeenCalledWith({ kind: "dry-run-intent" });
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
@@ -237,7 +234,7 @@ describe("Habitat oclif commands", () => {
   test("fix forwards live-write intent by default", async () => {
     await Fix.run([]);
 
-    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(createRouterClient).toHaveBeenCalled();
     expect(mockFixRun).toHaveBeenCalledWith({ kind: "live-write-intent" });
     expect(stdout.join("")).toContain("biome ok");
   });
@@ -259,7 +256,7 @@ describe("Habitat oclif commands", () => {
   test("verify awaits check and affected target execution", async () => {
     await Verify.run(["--base", "HEAD~1"]);
 
-    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(createRouterClient).toHaveBeenCalled();
     expect(mockVerifyRun).toHaveBeenCalledWith({
       base: "HEAD~1",
       affectedExecution: "run",
@@ -287,7 +284,7 @@ describe("Habitat oclif commands", () => {
   test("graph forwards compact JSON output", async () => {
     await Graph.run(["--json"]);
 
-    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(createRouterClient).toHaveBeenCalled();
     expect(mockGraphRun).toHaveBeenCalledWith({ json: true });
     expect(stdout.join("")).toContain('{"nodes":{}}');
   });
@@ -302,16 +299,16 @@ describe("Habitat oclif commands", () => {
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.owner.project).toBe("@internal/habitat-harness");
     expect(result.owner.tags).toEqual(["kind:tooling"]);
-    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(createRouterClient).toHaveBeenCalled();
     expect(mockClassifyRun).toHaveBeenCalledWith({
       target: "tools/habitat-harness/src/cli/commands/check.ts",
     });
   });
 
-  test("hook dispatches through the Habitat service client", async () => {
+  test("hook dispatches through the Habitat service router", async () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
-    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(createRouterClient).toHaveBeenCalled();
     expect(mockHookRun).toHaveBeenCalledWith({ name: "pre-push", base: "HEAD~1" });
     expect(stdout.join("")).toContain("hook ok");
   });
@@ -325,10 +322,7 @@ describe("Habitat oclif commands", () => {
   }
 });
 
-function verifyReceiptPayload(
-  base: string,
-  input: { base?: string; affectedExecution?: string }
-) {
+function verifyReceiptPayload(base: string, input: { base?: string; affectedExecution?: string }) {
   const planned = input.affectedExecution === "plan-only";
   return {
     schemaVersion: 1,

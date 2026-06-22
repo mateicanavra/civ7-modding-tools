@@ -1,6 +1,7 @@
 import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/model/workspace/index";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
+import { createRouterClient } from "@orpc/server";
 import { describe, expect, test } from "vitest";
 
 const nxProjects: WorkspaceGraphProjectReader = {
@@ -46,9 +47,11 @@ const nxProjects: WorkspaceGraphProjectReader = {
 };
 
 describe("Habitat classify service", () => {
-  test("classifies targets through the in-process Habitat service client", async () => {
-    const result = await createHabitatServiceClient({
-      classify: { options: { nxProjects } },
+  test("classifies targets through the in-process Habitat service router", async () => {
+    const result = await createRouterClient(habitatServiceRouter, {
+      context: {
+        classify: { options: { nxProjects } },
+      },
     }).classify.run({ target: "tools/habitat-harness/src/cli/commands/classify.ts" });
 
     expect(result.state).toBe("project-path");
@@ -59,9 +62,11 @@ describe("Habitat classify service", () => {
     );
   });
 
-  test("routes classify through the in-process Habitat service client", async () => {
-    const client = createHabitatServiceClient({
-      classify: { options: { nxProjects } },
+  test("routes classify through the in-process Habitat service router", async () => {
+    const client = createRouterClient(habitatServiceRouter, {
+      context: {
+        classify: { options: { nxProjects } },
+      },
     });
 
     const result = await client.classify.run({
@@ -74,8 +79,10 @@ describe("Habitat classify service", () => {
   });
 
   test("preserves diff classification through the service contract boundary", async () => {
-    const client = createHabitatServiceClient({
-      classify: { options: { nxProjects } },
+    const client = createRouterClient(habitatServiceRouter, {
+      context: {
+        classify: { options: { nxProjects } },
+      },
     });
 
     const result = await client.classify.run({
@@ -105,12 +112,14 @@ index 3333333..4444444 100644
   });
 
   test("preserves malformed diff refusal before graph reads", async () => {
-    const client = createHabitatServiceClient({
-      classify: {
-        options: {
-          nxProjects: {
-            async readProjects() {
-              throw new Error("graph should not be read for malformed diff refusal");
+    const client = createRouterClient(habitatServiceRouter, {
+      context: {
+        classify: {
+          options: {
+            nxProjects: {
+              async readProjects() {
+                throw new Error("graph should not be read for malformed diff refusal");
+              },
             },
           },
         },
@@ -127,8 +136,10 @@ index 3333333..4444444 100644
   });
 
   test("preserves unresolved-owner path states through the service boundary", async () => {
-    const client = createHabitatServiceClient({
-      classify: { options: { nxProjects } },
+    const client = createRouterClient(habitatServiceRouter, {
+      context: {
+        classify: { options: { nxProjects } },
+      },
     });
 
     const result = await client.classify.run({ target: "notes/not-yet-created.md" });
@@ -139,20 +150,22 @@ index 3333333..4444444 100644
   });
 
   test("preserves graph-refusal states through the service boundary", async () => {
-    const client = createHabitatServiceClient({
-      classify: {
-        options: {
-          nxProjects: {
-            async readProjects() {
-              return [
-                {
-                  name: "",
-                  root: "",
-                  sourceRoot: null,
-                  tags: [],
-                  targets: [],
-                },
-              ];
+    const client = createRouterClient(habitatServiceRouter, {
+      context: {
+        classify: {
+          options: {
+            nxProjects: {
+              async readProjects() {
+                return [
+                  {
+                    name: "",
+                    root: "",
+                    sourceRoot: null,
+                    tags: [],
+                    targets: [],
+                  },
+                ];
+              },
             },
           },
         },

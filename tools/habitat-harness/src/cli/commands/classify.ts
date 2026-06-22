@@ -1,7 +1,8 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
 import { stringifyClassifyResult } from "@internal/habitat-harness/service/model/workspace/dto/classify.schema";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Args } from "@oclif/core";
+import { createRouterClient } from "@orpc/server";
 
 export default class Classify extends HabitatCommand {
   static override summary = "Classify a repo path or diff into Habitat orientation";
@@ -19,7 +20,7 @@ export default class Classify extends HabitatCommand {
 
   async run(): Promise<void> {
     const { args } = await this.parse(Classify);
-    const client = createHabitatServiceClient();
+    const client = createRouterClient(habitatServiceRouter, { context: {} });
     this.log(stringifyClassifyResult(await client.classify.run({ target: args.path })));
   }
 }
