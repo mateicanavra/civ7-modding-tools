@@ -112,6 +112,7 @@ describe("check and baseline provider boundaries", () => {
           git: deps.git,
           nx: deps.nx,
           repoRoot: "/repo",
+          rules: deps.rules,
         }
       )
     );

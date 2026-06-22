@@ -42,8 +42,12 @@ export function biomeHookPaths(staged: readonly string[]): string[] {
   return staged.filter((candidate) => biomeCandidateExtensions.has(path.extname(candidate)));
 }
 
-export function hookSourceCheckPaths(stagedPaths: readonly string[], repoRoot: string): string[] {
-  return stagedSourceCheckPaths(stagedPaths, undefined, { repoRoot });
+export function hookSourceCheckPaths(
+  stagedPaths: readonly string[],
+  repoRoot: string,
+  approvedScanRoots: readonly string[]
+): string[] {
+  return stagedSourceCheckPaths(stagedPaths, approvedScanRoots, { repoRoot });
 }
 
 export function unstagedAmongEffect(

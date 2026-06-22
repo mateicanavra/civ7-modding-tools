@@ -15,6 +15,7 @@ import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import type { CheckReport } from "@internal/habitat-harness/service/model/check/index";
+import { activeRuleFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Effect } from "effect";
 
 export function makeTestHabitatServiceDeps(
@@ -113,6 +114,7 @@ export function makeTestHabitatServiceDeps(
       repoRoot,
     },
     reporter: fakeReporter(),
+    rules: activeRuleFacts,
     ...overrides,
   };
 }

@@ -17,7 +17,7 @@ Current burn-down categories:
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
-- Follow-up: active rule registry loading still uses an import-time singleton rooted through `resources/paths`; replace it with an explicit registry input/read path or generated artifact so rule facts are not coupled to global checkout state.
+- Follow-up: active rule registry loading still has compatibility singleton consumers in classify, fix admissions, diagnostic rule architecture, artifact-path planning, and the exported active-facts constants; continue replacing those with service-projected rule facts or explicit registry inputs so rule facts are not coupled to global checkout state.
 
 Completed burn-downs:
 
@@ -26,6 +26,7 @@ Completed burn-downs:
 - Hook staged-worktree and resource-inspection policies now derive repo-relative paths from their module-projected repo root; hook module policy no longer imports global path helpers.
 - Verify receipt command metadata now receives an allowlisted environment snapshot from the platform resource; verify policy no longer reads `process.env`.
 - Boundary taxonomy policy now requires callers to pass the repo root/config path explicitly; the service-model graph policy no longer imports the global repo root.
+- Rule facts now have an explicit `RuleFactsCatalog` derived from a registry document; live service context reads `.habitat/rules` through the platform repo root, and structural check, hook, verify, and source-scope execution consume module-projected rule facts instead of active registry singletons.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.

@@ -17,9 +17,8 @@ import {
   writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import {
-  activeRuleBaselineFacts,
-  activeRuleSelectorFacts,
   factsForRuleIds,
+  type RuleFactsCatalog,
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import {
@@ -55,14 +54,17 @@ export function expandBaselinesEffect(
   | GritProviderRequirements
 > {
   return Effect.gen(function* () {
-    const selected = selectRules(selection);
+    const selected = selectRules(selection, executionContext.rules.selector);
     if (!selected.ok) return selected;
 
     const context = baselineContext(executionContext);
     const messages: string[] = [];
     const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {}, executionContext);
     const baselinesByRuleId = factsByRuleId(
-      baselineContractInputs(selected.rules.map((rule) => rule.id))
+      baselineContractInputs(
+        executionContext.rules,
+        selected.rules.map((rule) => rule.id)
+      )
     );
     for (const rule of selected.rules) {
       const baselineFacts = baselinesByRuleId.get(rule.id);
@@ -95,7 +97,7 @@ export function expandBaselinesEffect(
       if (keys.length > 0) {
         const guard = yield* guardBaselineExpansionEffect(rule.id, keys, options.base ?? "main", {
           ...context,
-          registry: baselineContractInputs(),
+          registry: baselineContractInputs(executionContext.rules),
         });
         if (guard.status === "refused") {
           return {
@@ -128,12 +130,10 @@ function baselineContext(context: StructuralExecutionContext): BaselineAuthority
   return { git: context.git, repoRoot: context.repoRoot };
 }
 
-export function baselineContractInputs(ruleIds?: readonly string[]) {
-  const baselineFacts = ruleIds
-    ? factsForRuleIds(activeRuleBaselineFacts, ruleIds)
-    : activeRuleBaselineFacts;
+export function baselineContractInputs(rules: RuleFactsCatalog, ruleIds?: readonly string[]) {
+  const baselineFacts = ruleIds ? factsForRuleIds(rules.baseline, ruleIds) : rules.baseline;
   const selectorsByRuleId = factsByRuleId(
-    ruleIds ? factsForRuleIds(activeRuleSelectorFacts, ruleIds) : activeRuleSelectorFacts
+    ruleIds ? factsForRuleIds(rules.selector, ruleIds) : rules.selector
   );
   return baselineFacts.map((fact) => {
     const selector = selectorsByRuleId.get(fact.id);

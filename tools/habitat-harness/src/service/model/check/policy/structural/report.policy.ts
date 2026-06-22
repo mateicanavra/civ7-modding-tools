@@ -27,10 +27,7 @@ import {
   loadBaselineStateEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
-import {
-  activeRuleReportFacts,
-  factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
@@ -66,7 +63,7 @@ export function createCheckReportEffect(
 > {
   return Effect.gen(function* () {
     const request = structuralCheckRequest(options);
-    const selection = selectRules(request.selectors);
+    const selection = selectRules(request.selectors, context.rules.selector);
     if (!selection.ok) return yield* selectorRefusalReportEffect(selection, request);
     Value.Parse(RuleSelectionOutcomeSchema, {
       kind: "selected",
@@ -77,10 +74,13 @@ export function createCheckReportEffect(
     const selectedRules = rulesForExecution(selection.rules, {
       ...options,
       selection: request.selectors,
+      hookCheckFacts: context.rules.hookCheck,
     });
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
-    const reportsByRuleId = factsByRuleId(factsForRuleIds(activeRuleReportFacts, selectedRuleIds));
-    const baselineInputsByRuleId = factsByRuleId(baselineContractInputs(selectedRuleIds));
+    const reportsByRuleId = factsByRuleId(factsForRuleIds(context.rules.report, selectedRuleIds));
+    const baselineInputsByRuleId = factsByRuleId(
+      baselineContractInputs(context.rules, selectedRuleIds)
+    );
     const reports: RuleReport[] = [];
     const ruleResults = yield* executeSelectedRulesEffect(selectedRules, options, context);
     for (const rule of selectedRules) {
@@ -230,7 +230,7 @@ function baselineIntegrityReportEffect(
     const integrityStarted = yield* Clock.currentTimeMillis;
     const integrity = yield* checkBaselineIntegrityEffect(base, {
       ...baselineContext(context),
-      registry: baselineContractInputs(),
+      registry: baselineContractInputs(context.rules),
     });
     const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
     return {
