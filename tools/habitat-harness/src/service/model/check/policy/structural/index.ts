@@ -42,6 +42,7 @@ export {
 export {
   executeSelectedRulesEffect,
   rulesForExecution,
+  type StructuralExecutionContext,
   stagedSourceCheckNotApplicableRecords,
 } from "./execution.policy.js";
 export { createCheckReportEffect } from "./report.policy.js";

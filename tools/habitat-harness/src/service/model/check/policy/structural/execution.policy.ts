@@ -1,10 +1,10 @@
 import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
+import type { BiomeProviderService } from "@internal/habitat-harness/providers/biome/index";
 import {
-  GitProvider,
   type GitProviderRequirements,
+  type GitProviderService,
   type GitStateProvider,
 } from "@internal/habitat-harness/providers/git/index";
 import {
@@ -13,12 +13,12 @@ import {
   runGritRulesEffect,
 } from "@internal/habitat-harness/providers/grit/index";
 import {
-  NxProvider,
   type NxProviderService,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/providers/nx/index";
 import {
-  CommandRunner,
+  type CommandRunner,
+  type CommandRunnerService,
   type HabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
@@ -70,6 +70,14 @@ export interface RuleExecutionRecord {
   durationMs: number;
   timing?: RuleExecutionTiming;
   disposition: RuleExecutionDisposition;
+}
+
+export interface StructuralExecutionContext {
+  readonly repoRoot: string;
+  readonly biome: BiomeProviderService;
+  readonly commandRunner: CommandRunnerService;
+  readonly git: GitProviderService;
+  readonly nx: NxProviderService;
 }
 
 export function rulesForExecution(
@@ -142,19 +150,17 @@ export function stagedSourceCheckNotApplicableRecords(
 
 export function executeSelectedRulesEffect(
   selectedRules: readonly RuleSelectorFacts[],
-  options: Pick<CheckOptions, "repoRoot" | "staged" | "stagedPaths">
+  options: Pick<CheckOptions, "staged" | "stagedPaths">,
+  context: StructuralExecutionContext
 ): Effect.Effect<
   Map<string, RuleExecutionRecord>,
   never,
-  | BiomeProvider
   | CommandRunner
-  | NxProvider
   | CommandExecutor
   | GritProvider
   | GritProviderRequirements
   | HabitatConfig
   | FileSystem.FileSystem
-  | GitProvider
   | GitProviderRequirements
 > {
   return Effect.gen(function* () {
@@ -164,9 +170,9 @@ export function executeSelectedRulesEffect(
     if (sourceRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
-            options.stagedPaths ?? (yield* currentStagedPathsEffect(executionContext(options))),
+            options.stagedPaths ?? (yield* currentStagedPathsEffect(context)),
             approvedScanRootsForRules(sourceRules),
-            sourceScopeContext(options)
+            sourceScopeContext(context)
           )
         : undefined;
       const stagedNotApplicable =
@@ -178,7 +184,7 @@ export function executeSelectedRulesEffect(
       } else {
         const started = yield* Clock.currentTimeMillis;
         const sourceResults = yield* runSourceRulesEffect(sourceRules, {
-          ...executionContext(options),
+          repoRoot: context.repoRoot,
           ...(scanRoots ? { scanRoots } : {}),
         });
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
@@ -200,9 +206,9 @@ export function executeSelectedRulesEffect(
     if (gritRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
-            options.stagedPaths ?? (yield* currentStagedPathsEffect(executionContext(options))),
+            options.stagedPaths ?? (yield* currentStagedPathsEffect(context)),
             approvedScanRootsForRules(gritRules),
-            sourceScopeContext(options)
+            sourceScopeContext(context)
           )
         : undefined;
       const stagedNotApplicable =
@@ -238,68 +244,63 @@ export function executeSelectedRulesEffect(
     );
     yield* executeFormatRulesEffect(
       commandRules.filter((rule) => rule.ownerTool === "format-check"),
-      results
+      results,
+      context
     );
     const remainingCommandRules = commandRules.filter((rule) => rule.ownerTool !== "format-check");
     const graphBackedRules = remainingCommandRules.filter((rule) =>
       isGraphBackedCommandRule(rule, graphRulesById)
     );
-    yield* executeGraphBackedCommandRulesEffect(graphBackedRules, graphRulesById, results);
+    yield* executeGraphBackedCommandRulesEffect(graphBackedRules, graphRulesById, results, context);
     yield* executeCommandRulesEffect(
       remainingCommandRules.filter((rule) => !isGraphBackedCommandRule(rule, graphRulesById)),
       results,
-      executionContext(options)
+      context
     );
     yield* executeFileLayerRulesEffect(
       factsForRuleIds(activeRuleFileLayerFacts, selectedRuleIds),
       results,
       options,
-      executionContext(options)
+      context
     );
 
     return results;
   });
 }
 
-function executionContext(options: Pick<CheckOptions, "repoRoot">): { readonly repoRoot: string } {
-  if (!options.repoRoot) throw new Error("habitat internal error: missing execution repo root");
-  return { repoRoot: options.repoRoot };
-}
-
-function sourceScopeContext(options: Pick<CheckOptions, "repoRoot">): {
+function sourceScopeContext(context: StructuralExecutionContext): {
   readonly repoRoot: string;
 } {
-  if (!options.repoRoot) throw new Error("habitat internal error: missing source-scope repo root");
-  return { repoRoot: options.repoRoot };
+  return { repoRoot: context.repoRoot };
 }
 
 function executeFormatRulesEffect(
   formatRules: readonly RuleCommandExecutionFacts[],
-  results: Map<string, RuleExecutionRecord>
-): Effect.Effect<
-  void,
-  never,
-  BiomeProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
-> {
+  results: Map<string, RuleExecutionRecord>,
+  context: StructuralExecutionContext
+): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
   return Effect.gen(function* () {
-    const records = yield* Effect.all(formatRules.map(executeFormatRuleEffect), {
-      concurrency: "unbounded",
-    });
+    const records = yield* Effect.all(
+      formatRules.map((rule) => executeFormatRuleEffect(rule, context)),
+      {
+        concurrency: "unbounded",
+      }
+    );
     for (const [ruleId, record] of records) results.set(ruleId, record);
   });
 }
 
 function executeFormatRuleEffect(
-  rule: RuleCommandExecutionFacts
+  rule: RuleCommandExecutionFacts,
+  context: StructuralExecutionContext
 ): Effect.Effect<
   [string, RuleExecutionRecord],
   never,
-  BiomeProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
+  CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
 > {
   return Effect.gen(function* () {
-    const biome = yield* BiomeProvider;
     const started = yield* Clock.currentTimeMillis;
-    const result = yield* biome.run({ kind: "ci" }).pipe(
+    const result = yield* context.biome.run({ kind: "ci" }).pipe(
       Effect.match({
         onFailure: (error) => commandProviderFailureResult(rule, error),
         onSuccess: (commandResult) => commandRuleResult(rule, commandResult),
@@ -320,11 +321,13 @@ function isGraphBackedCommandRule(
 function executeCommandRulesEffect(
   commandRules: readonly RuleCommandExecutionFacts[],
   results: Map<string, RuleExecutionRecord>,
-  context: { readonly repoRoot: string }
+  context: StructuralExecutionContext
 ): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
   return Effect.gen(function* () {
     const groupResults = yield* Effect.all(
-      commandRuleExecutionGroups(commandRules, context).map(executeCommandRuleGroupEffect),
+      commandRuleExecutionGroups(commandRules, context).map((group) =>
+        executeCommandRuleGroupEffect(group, context)
+      ),
       {
         concurrency: "unbounded",
       }
@@ -338,17 +341,14 @@ function executeCommandRulesEffect(
 function executeGraphBackedCommandRulesEffect(
   rules: readonly RuleCommandExecutionFacts[],
   graphRulesById: ReadonlyMap<string, RuleGraphFacts>,
-  results: Map<string, RuleExecutionRecord>
-): Effect.Effect<
-  void,
-  never,
-  NxProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
-> {
+  results: Map<string, RuleExecutionRecord>,
+  context: StructuralExecutionContext
+): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
   if (rules.length === 0) return Effect.void;
   const groups = groupedGraphBackedCommandRules(rules);
   return Effect.gen(function* () {
     const groupResults = yield* Effect.all(
-      groups.map((group) => runGraphBackedCommandRuleGroup(group, graphRulesById)),
+      groups.map((group) => runGraphBackedCommandRuleGroup(group, graphRulesById, context)),
       { concurrency: "unbounded" }
     );
     for (const groupResult of groupResults) {
@@ -359,17 +359,17 @@ function executeGraphBackedCommandRulesEffect(
 
 function runGraphBackedCommandRuleGroup(
   rules: readonly RuleCommandExecutionFacts[],
-  graphRulesById: ReadonlyMap<string, RuleGraphFacts>
+  graphRulesById: ReadonlyMap<string, RuleGraphFacts>,
+  context: StructuralExecutionContext
 ): Effect.Effect<
   Map<string, RuleExecutionRecord>,
   never,
-  NxProvider | CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
+  CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
 > {
   return Effect.gen(function* () {
     const targets = graphTargetsForRules(rules, graphRulesById);
-    const nx = yield* NxProvider;
     const started = yield* Clock.currentTimeMillis;
-    const execution = yield* runGraphTargetsEffect(nx, targets).pipe(
+    const execution = yield* runGraphTargetsEffect(context.nx, targets).pipe(
       Effect.match({
         onFailure: (error) => ({ kind: "provider-failure" as const, error }),
         onSuccess: (commandResult) => ({
@@ -495,16 +495,16 @@ function commandRuleExecutionGroups(
 }
 
 function executeCommandRuleGroupEffect(
-  group: CommandRuleExecutionGroup
+  group: CommandRuleExecutionGroup,
+  context: StructuralExecutionContext
 ): Effect.Effect<
   Map<string, RuleExecutionRecord>,
   never,
-  CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider
+  CommandExecutor | HabitatConfig | GitStateProvider
 > {
   return Effect.gen(function* () {
-    const runner = yield* CommandRunner;
     const started = yield* Clock.currentTimeMillis;
-    const result = yield* runner
+    const result = yield* context.commandRunner
       .run({
         commandId: commandRuleGroupId(group),
         kind: "workspace-tool",
@@ -601,8 +601,8 @@ function executeFileLayerRulesEffect(
   fileLayerRules: readonly RuleFileLayerFacts[],
   results: Map<string, RuleExecutionRecord>,
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
-  context: { readonly repoRoot: string }
-): Effect.Effect<void, never, GitProvider | GitProviderRequirements> {
+  context: StructuralExecutionContext
+): Effect.Effect<void, never, GitProviderRequirements> {
   return Effect.gen(function* () {
     const stagedPathsResult =
       options.staged && options.stagedPaths
@@ -645,10 +645,10 @@ function isStagedPathReadFailure(
 
 function currentStagedPathActionsEffect(context: {
   readonly repoRoot: string;
-}): Effect.Effect<StagedPathActionReadResult, never, GitProvider | GitProviderRequirements> {
+  readonly git: GitProviderService;
+}): Effect.Effect<StagedPathActionReadResult, never, GitProviderRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
-    const result = yield* git
+    const result = yield* context.git
       .diffNameStatus({ cached: true, cwd: context.repoRoot })
       .pipe(Effect.either);
     if (result._tag === "Left") {
@@ -685,10 +685,10 @@ function stagedPathReadFailureDiagnostic(
 
 function currentStagedPathsEffect(context: {
   readonly repoRoot: string;
-}): Effect.Effect<string[], never, GitProvider | GitProviderRequirements> {
+  readonly git: GitProviderService;
+}): Effect.Effect<string[], never, GitProviderRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
-    const result = yield* git
+    const result = yield* context.git
       .diffNameOnly({ cached: true, cwd: context.repoRoot })
       .pipe(Effect.either);
     if (result._tag === "Left" || result.right.exit.code !== 0 || !result.right.stdout.text) {

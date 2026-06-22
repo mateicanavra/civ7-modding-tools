@@ -4,6 +4,7 @@ import type { NxProviderService } from "@internal/habitat-harness/providers/nx/i
 import { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
 import type {
   HabitatServiceContext,
+  HabitatServiceDeps,
   HabitatServiceRequirements,
   HabitatServiceRuntimeError,
 } from "@internal/habitat-harness/service/base";
@@ -11,10 +12,14 @@ import type { HabitatServiceContract } from "@internal/habitat-harness/service/c
 import { service } from "@internal/habitat-harness/service/impl";
 import {
   type CheckOptions,
+  type CheckReport,
   checkCommandContext,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
-import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import {
+  createCheckReportEffect,
+  type StructuralExecutionContext,
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
 import type { EffectImplementerInternal } from "effect-orpc";
@@ -29,7 +34,7 @@ import {
 
 export interface VerifyModuleContext {
   readonly checkCommandContext: typeof checkCommandContext;
-  readonly createCheckReport: typeof createCheckReport;
+  readonly createCheckReport: (options?: CheckOptions) => Effect.Effect<CheckReport, never, any>;
   readonly createVerifyReceipt: ReturnType<typeof makeCreateVerifyReceipt>;
   readonly currentTimeMillis: typeof Clock.currentTimeMillis;
   readonly epochMillisToIsoString: typeof epochMillisToIsoString;
@@ -64,7 +69,10 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
     context: {
       checkCommandContext,
       createCheckReport: (options) =>
-        createCheckReport({ ...options, repoRoot: context.deps.platform.repoRoot }),
+        createCheckReport(
+          { ...options, repoRoot: context.deps.platform.repoRoot },
+          structuralExecutionContext(context.deps)
+        ),
       createVerifyReceipt: createReceipt,
       currentTimeMillis: Clock.currentTimeMillis,
       epochMillisToIsoString,
@@ -77,8 +85,18 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
   });
 });
 
-function createCheckReport(options?: CheckOptions) {
-  return createCheckReportEffect(options);
+function createCheckReport(options: CheckOptions, context: StructuralExecutionContext) {
+  return createCheckReportEffect(options, context);
+}
+
+function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
+  return {
+    biome: deps.biome,
+    commandRunner: deps.commandRunner,
+    git: deps.git,
+    nx: deps.nx,
+    repoRoot: deps.platform.repoRoot,
+  };
 }
 
 function readVerifyTargetPlanEffect() {

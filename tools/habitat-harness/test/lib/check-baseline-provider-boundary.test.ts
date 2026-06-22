@@ -1,4 +1,7 @@
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import {
+  makeFakeGitProviderLayer,
+  makeGitProviderFromCommandHandler,
+} from "@internal/habitat-harness/providers/git/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
@@ -12,6 +15,7 @@ import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps.js";
 
 describe("check and baseline provider boundaries", () => {
   test("baseline integrity reads state through filesystem and git providers", async () => {
@@ -90,16 +94,23 @@ describe("check and baseline provider boundaries", () => {
     const fileLayerRule = activeRuleSelectorFacts.find((rule) => rule.ownerTool === "file-layer");
     expect(fileLayerRule).toBeDefined();
     const gitCalls: string[][] = [];
-    const layer = Layer.mergeAll(
-      makeFakeGitProviderLayer((argv, options) => {
-        gitCalls.push([...argv]);
-        return commandResult(argv, options.cwd, "", 1, "fake staged diff failure\n");
-      })
-    );
+    const git = makeGitProviderFromCommandHandler((argv, options) => {
+      gitCalls.push([...argv]);
+      return commandResult(argv, options.cwd, "", 1, "fake staged diff failure\n");
+    });
+    const deps = makeTestHabitatServiceDeps({ git });
 
     const results = await Effect.runPromise(
-      executeSelectedRulesEffect([fileLayerRule!], { repoRoot: "/repo", staged: true }).pipe(
-        Effect.provide(layer)
+      executeSelectedRulesEffect(
+        [fileLayerRule!],
+        { staged: true },
+        {
+          biome: deps.biome,
+          commandRunner: deps.commandRunner,
+          git: deps.git,
+          nx: deps.nx,
+          repoRoot: "/repo",
+        }
       )
     );
     const record = results.get(fileLayerRule!.id);

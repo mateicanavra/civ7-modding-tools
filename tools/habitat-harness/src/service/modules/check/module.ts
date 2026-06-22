@@ -1,5 +1,6 @@
 import type {
   HabitatServiceContext,
+  HabitatServiceDeps,
   HabitatServiceRequirements,
   HabitatServiceRuntimeError,
 } from "@internal/habitat-harness/service/base";
@@ -14,6 +15,7 @@ import {
   type BaselineExpansionResult,
   createCheckReportEffect,
   expandBaselinesEffect,
+  type StructuralExecutionContext,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   describeRuleSelectionFailure,
@@ -49,24 +51,42 @@ export const module: CheckModule = service.check.use(({ context, next }) =>
     context: {
       checkCommandContext,
       createCheckReport: (options) =>
-        createCheckReport({ ...options, repoRoot: context.deps.platform.repoRoot }),
+        createCheckReport(
+          { ...options, repoRoot: context.deps.platform.repoRoot },
+          structuralExecutionContext(context.deps)
+        ),
       describeRuleSelectionFailure,
       expandBaselines: (selection, options) =>
-        expandBaselines(selection, { ...options, repoRoot: context.deps.platform.repoRoot }),
+        expandBaselines(
+          selection,
+          { ...options, repoRoot: context.deps.platform.repoRoot },
+          structuralExecutionContext(context.deps)
+        ),
       selectorsFromInput,
     } satisfies CheckModuleContext,
   })
 );
 
-function createCheckReport(options?: CheckOptions) {
-  return createCheckReportEffect(options);
+function createCheckReport(options: CheckOptions, context: StructuralExecutionContext) {
+  return createCheckReportEffect(options, context);
 }
 
 function expandBaselines(
   selection: RuleSelection | undefined,
-  options: { readonly base?: string; readonly repoRoot: string }
+  options: { readonly base?: string; readonly repoRoot: string },
+  context: StructuralExecutionContext
 ) {
-  return expandBaselinesEffect(selection, options);
+  return expandBaselinesEffect(selection, options, context);
+}
+
+function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
+  return {
+    biome: deps.biome,
+    commandRunner: deps.commandRunner,
+    git: deps.git,
+    nx: deps.nx,
+    repoRoot: deps.platform.repoRoot,
+  };
 }
 
 function selectorsFromInput(input: Pick<CheckServiceRunInput, "selectors">) {

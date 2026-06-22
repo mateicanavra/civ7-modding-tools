@@ -3,6 +3,7 @@ import { GitProvider } from "@internal/habitat-harness/providers/git/index";
 import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
 import { GritProvider } from "@internal/habitat-harness/providers/grit/index";
 import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
+import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import { HabitatPlatform } from "@internal/habitat-harness/resources/platform/index";
 import { silentHabitatReporter } from "@internal/habitat-harness/resources/reporter/index";
 import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
@@ -25,6 +26,7 @@ export async function createLiveHabitatServiceContext(
     Effect.gen(function* () {
       return {
         biome: input.deps?.biome ?? (yield* BiomeProvider),
+        commandRunner: input.deps?.commandRunner ?? (yield* CommandRunner),
         git: input.deps?.git ?? (yield* GitProvider),
         graphite: input.deps?.graphite ?? (yield* GraphiteProvider),
         grit: input.deps?.grit ?? (yield* GritProvider),
