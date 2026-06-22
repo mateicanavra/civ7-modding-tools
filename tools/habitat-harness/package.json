@@ -166,6 +166,12 @@
       "import": "./dist/runtime/*.js",
       "default": "./dist/runtime/*.js"
     },
+    "./validation/*": {
+      "bun": "./src/validation/*.ts",
+      "types": "./src/validation/*.ts",
+      "import": "./dist/validation/*.js",
+      "default": "./dist/validation/*.js"
+    },
     "./nx-plugin": {
       "bun": "./src/nx-plugin.ts",
       "types": "./src/nx-plugin.ts",
