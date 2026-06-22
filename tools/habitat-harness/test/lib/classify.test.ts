@@ -1,4 +1,5 @@
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
 import {
   classifyPath,
@@ -52,10 +53,12 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
   },
 };
 
+const defaultClassifyOptions = { nxProjects: fixtureNxProjects, repoRoot };
+
 describe("Habitat classify D4 result model", () => {
   test("classifies project paths with D2 routing and D3 target guidance", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
-      nxProjects: fixtureNxProjects,
+      ...defaultClassifyOptions,
     });
 
     expect(result.state).toBe("project-path");
@@ -97,7 +100,7 @@ describe("Habitat classify D4 result model", () => {
   test("keeps exact routing metadata visible without prose scope inference", async () => {
     const result = await classifyPathResult(
       "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/strategies/default.ts",
-      { nxProjects: fixtureNxProjects }
+      defaultClassifyOptions
     );
 
     expect(result.state).toBe("project-path");
@@ -112,7 +115,7 @@ describe("Habitat classify D4 result model", () => {
 
   test("separates unavailable targets from runnable target guidance", async () => {
     const result = await classifyPathResult("packages/civ7-adapter/src/index.ts", {
-      nxProjects: fixtureNxProjects,
+      ...defaultClassifyOptions,
     });
 
     expect(result.state).toBe("project-path");
@@ -134,16 +137,16 @@ describe("Habitat classify D4 result model", () => {
   });
 
   test("distinguishes intentional workspace paths from unresolved owners", async () => {
-    const workspace = await classifyPathResult("package.json", { nxProjects: fixtureNxProjects });
+    const workspace = await classifyPathResult("package.json", defaultClassifyOptions);
     const structuralWorkspace = await classifyPathResult(
       "openspec/changes/deep-habitat-d4-orientation-routing/tasks.md",
-      { nxProjects: fixtureNxProjects }
+      defaultClassifyOptions
     );
     const unresolved = await classifyPathResult("notes/not-yet-created.md", {
-      nxProjects: fixtureNxProjects,
+      ...defaultClassifyOptions,
     });
     const unknownRoot = await classifyPathResult("whatever.md", {
-      nxProjects: fixtureNxProjects,
+      ...defaultClassifyOptions,
     });
 
     expect(workspace.state).toBe("workspace-path");
@@ -187,7 +190,7 @@ index 3333333..4444444 100644
 -export const plugin = 1;
 +export const plugin = 2;
 `,
-      { nxProjects: fixtureNxProjects }
+      defaultClassifyOptions
     );
 
     expect(result.state).toBe("diff");
@@ -208,7 +211,7 @@ index 3333333..4444444 100644
 
   test("refuses malformed or pathless diff-like input", async () => {
     const result = await classifyTargetResult("not a diff\njust text", {
-      nxProjects: fixtureNxProjects,
+      ...defaultClassifyOptions,
     });
 
     expect(result.state).toBe("malformed-or-pathless-diff");
@@ -222,6 +225,7 @@ index 3333333..4444444 100644
 
   test("refuses malformed or pathless diff-like input before reading the graph", async () => {
     const result = await classifyTargetResult("not a diff\njust text", {
+      repoRoot,
       nxProjects: {
         async readProjects() {
           throw new Error("Nx daemon unavailable");
@@ -234,6 +238,7 @@ index 3333333..4444444 100644
 
   test("renders malformed graph metadata as a D3-owned graph-refusal state", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
+      repoRoot,
       nxProjects: {
         async readProjects() {
           return [
@@ -256,6 +261,7 @@ index 3333333..4444444 100644
 
   test("renders Nx graph read failures as D3-owned graph-refusal states", async () => {
     const readFailure = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
+      repoRoot,
       nxProjects: {
         async readProjects() {
           throw new Error("cannot read project graph");
@@ -263,6 +269,7 @@ index 3333333..4444444 100644
       },
     });
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
+      repoRoot,
       nxProjects: {
         async readProjects() {
           throw new Error("Nx daemon unavailable");
@@ -285,6 +292,7 @@ index 3333333..4444444 100644
 
   test("renders missing-project graph aliases as graph-refusal states", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
+      repoRoot,
       nxProjects: {
         async readProjects() {
           return [project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"])];
@@ -301,6 +309,7 @@ index 3333333..4444444 100644
 
   test("renders missing-target graph aliases as graph-refusal states", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
+      repoRoot,
       nxProjects: {
         async readProjects() {
           return [
@@ -327,7 +336,7 @@ index 3333333..4444444 100644
 describe("Habitat classify public API", () => {
   test("classifyPath returns the owned D4 path model directly", async () => {
     const result = await classifyPath("tools/habitat-harness/src/nx-plugin.ts", {
-      nxProjects: fixtureNxProjects,
+      ...defaultClassifyOptions,
     });
 
     expect(result.state).toBe("project-path");
@@ -345,7 +354,7 @@ describe("Habitat classify public API", () => {
   });
 
   test("classifyTarget returns malformed diff refusal without an old diff wrapper", async () => {
-    const result = await classifyTarget("not a diff\njust text", { nxProjects: fixtureNxProjects });
+    const result = await classifyTarget("not a diff\njust text", defaultClassifyOptions);
 
     expect(result.state).toBe("malformed-or-pathless-diff");
     if (result.state !== "malformed-or-pathless-diff") {

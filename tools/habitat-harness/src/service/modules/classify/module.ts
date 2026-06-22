@@ -25,7 +25,9 @@ export const module: ClassifyModule = service.classify.use(({ context, next }) =
   next({
     context: {
       classifyTargetResult: (target: string) =>
-        classifyTargetResultEffect(target, context.deps.nx.workspaceGraph()),
+        classifyTargetResultEffect(target, context.deps.nx.workspaceGraph(), {
+          repoRoot: context.deps.platform.repoRoot,
+        }),
     } satisfies ClassifyModuleContext,
   })
 );
