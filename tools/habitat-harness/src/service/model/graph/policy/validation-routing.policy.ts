@@ -1,4 +1,4 @@
-import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/schema";
+import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import {
   type HabitatArtifactRulePathInput,
   habitatArtifactPathPlan,

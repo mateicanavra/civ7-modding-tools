@@ -1,6 +1,6 @@
 import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
-import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
 import {

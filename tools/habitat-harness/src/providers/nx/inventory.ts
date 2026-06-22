@@ -1,13 +1,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { Value } from "typebox/value";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
 import {
   type PackageJsonTargetInventory,
   PackageJsonTargetInventorySchema,
   type RootPackageJsonWorkspace,
   RootPackageJsonWorkspaceSchema,
-  type WorkspaceProject,
-} from "./schema.js";
+} from "./inventory.schema.js";
 
 export function readPackageTargetInventory(workspaceRoot: string): WorkspaceProject[] {
   return workspacePackageJsonPaths(workspaceRoot)

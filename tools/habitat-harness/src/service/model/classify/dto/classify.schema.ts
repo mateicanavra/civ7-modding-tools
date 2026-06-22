@@ -1,4 +1,4 @@
-import { GraphRefusalStateSchema } from "@internal/habitat-harness/providers/nx/schema";
+import { GraphRefusalStateSchema } from "@internal/habitat-harness/service/model/workspace/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 

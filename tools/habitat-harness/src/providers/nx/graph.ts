@@ -7,7 +7,7 @@ import {
   WorkspaceGraphSnapshotSchema,
   type WorkspaceProject,
   WorkspaceProjectSchema,
-} from "./schema.js";
+} from "@internal/habitat-harness/service/model/workspace/index";
 
 export type WorkspaceGraphProjectReader = {
   readProjects(): Promise<WorkspaceProject[]>;

@@ -1,5 +1,5 @@
 import type { NxRuleRegistryRecord } from "@internal/habitat-harness/providers/nx/rule-registry-loader";
-import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/schema";
+import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 
 type RuleGraphTargetNames = Pick<
   WorkspaceGraphTargetNames,
