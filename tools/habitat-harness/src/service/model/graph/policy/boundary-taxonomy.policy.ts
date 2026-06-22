@@ -5,8 +5,8 @@ import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,
 } from "@internal/habitat-harness/resources/artifact-paths";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
 import { createProjectGraphAsync } from "@nx/devkit";
-import type { NxProjectMetadata } from "./nx-projects.policy.js";
 
 export interface TaxonomyProject {
   name: string;
@@ -157,7 +157,7 @@ export function extractBoundaryConfigConstraints(config: unknown): TaxonomyConst
 }
 
 export async function readNxProjectMetadataFromGraph(): Promise<{
-  projects: NxProjectMetadata[];
+  projects: WorkspaceProject[];
   graphEdges: BoundaryGraphEdge[];
 }> {
   const graph = await createProjectGraphAsync();
@@ -173,7 +173,7 @@ export async function readNxProjectMetadataFromGraph(): Promise<{
         targets: Object.keys(data.targets ?? {})
           .sort()
           .map((targetName) => ({ name: targetName })),
-      } satisfies NxProjectMetadata;
+      } satisfies WorkspaceProject;
     })
     .sort((a, b) => a.root.localeCompare(b.root) || a.name.localeCompare(b.name));
 
@@ -204,7 +204,7 @@ async function readProjectJsonTags(root: string, projectRoot: string): Promise<s
 export function auditBoundaryTaxonomy(input: {
   taxonomy: ParsedBoundaryTaxonomy;
   manifests: readonly WorkspaceManifestProject[];
-  nxProjects: readonly NxProjectMetadata[];
+  nxProjects: readonly WorkspaceProject[];
   configConstraints: readonly TaxonomyConstraint[];
   graphEdges: readonly BoundaryGraphEdge[];
 }): BoundaryTaxonomyAudit {

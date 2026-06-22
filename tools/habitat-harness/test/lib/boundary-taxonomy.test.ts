@@ -9,7 +9,7 @@ import {
   readWorkspaceManifestProjects,
   type TaxonomyConstraint,
 } from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy.policy";
-import type { NxProjectMetadata } from "@internal/habitat-harness/service/model/graph/policy/nx-projects.policy";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
 import { describe, expect, test } from "vitest";
 
 describe("boundary taxonomy verifier", () => {
@@ -200,7 +200,7 @@ async function readTaxonomyMarkdown(): Promise<string> {
 
 function fakeNxProjects(
   projects: Array<[name: string, root: string, tags: string[]]>
-): NxProjectMetadata[] {
+): WorkspaceProject[] {
   return projects.map(([name, root, tags]) => ({
     name,
     root,
