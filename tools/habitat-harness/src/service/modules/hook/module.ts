@@ -1,16 +1,12 @@
 import path from "node:path";
-import type { BiomeProviderService } from "@internal/habitat-harness/providers/biome/index";
-import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
-import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import { runGritRulesEffect } from "@internal/habitat-harness/providers/grit/index";
-import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import {
+  type CommandProviderError,
+  type HabitatCommandResult,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
-import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
@@ -58,17 +54,90 @@ import {
 } from "./model/policy/staged-worktree.policy.js";
 
 type HookProcedureContext = {
-  readonly biome: BiomeProviderService;
-  readonly git: GitProviderService;
-  readonly graphite: GraphiteProviderService;
-  readonly nx: NxProviderService;
-  readonly platform: HabitatPlatformService;
-  readonly reporter: HabitatReporterService;
+  readonly biome: HookBiomePort;
+  readonly git: HookGitPort;
+  readonly graphite: HookGraphitePort;
+  readonly nx: HookNxPort;
+  readonly platform: HookPlatformPort;
+  readonly reporter: HookReporterPort;
   readonly rules: RuleFactsCatalog;
   readonly createCheckReport: (options?: CheckOptions) => HookRouterEffect<CheckReport>;
   readonly workspaceGraphTargetNames: typeof workspaceGraphTargetNames;
 };
-type BiomeCommandRequest = Parameters<HookProcedureContext["biome"]["run"]>[0];
+interface HookBiomeCommandRequest {
+  readonly kind: "format" | "check";
+  readonly paths?: readonly string[];
+  readonly write?: boolean;
+  readonly noErrorsOnUnmatched?: boolean;
+}
+interface HookBiomePort {
+  readonly argv: (request: HookBiomeCommandRequest) => string[];
+  readonly run: (
+    request: HookBiomeCommandRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+}
+interface HookGitPort {
+  readonly add: (
+    paths: readonly string[],
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly command: (
+    argv: readonly string[],
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly diffNameOnly: (
+    input?: { readonly paths?: readonly string[]; readonly cwd?: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly diffNameStatus: (
+    input?: { readonly cached?: boolean; readonly cwd?: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly mergeBase: (
+    ref: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+  readonly remoteDefaultBranch: (
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+}
+interface HookGraphitePort {
+  readonly parent: (
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+  readonly parentArgv: () => readonly string[];
+}
+interface HookNxAffectedRequest {
+  readonly base: string;
+  readonly targets: readonly string[];
+  readonly head?: string;
+  readonly excludeTaskDependencies?: boolean;
+}
+interface HookNxRunTargetRequest {
+  readonly project: string;
+  readonly target: string;
+}
+interface HookNxPort {
+  readonly affected: (
+    request: HookNxAffectedRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly affectedArgv: (request: HookNxAffectedRequest) => string[];
+  readonly runTarget: (
+    request: HookNxRunTargetRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly runTargetArgv: (request: HookNxRunTargetRequest) => string[];
+}
+interface HookPlatformPort {
+  readonly hashFile: (filePath: string) => string | null;
+  readonly pathExists: (targetPath: string) => boolean;
+  readonly repoRoot: string;
+}
+type HookReportEvent =
+  | { readonly kind: "stdout"; readonly text: string }
+  | { readonly kind: "stderr"; readonly text: string }
+  | { readonly kind: "trace"; readonly message: string };
+interface HookReporterPort {
+  readonly emit: (event: HookReportEvent) => Effect.Effect<void>;
+}
+type BiomeCommandRequest = HookBiomeCommandRequest;
 type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {
   readonly check: {
