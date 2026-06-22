@@ -23,7 +23,7 @@ import {
   graphRefusalMessage,
   resolveTargetDependencyDeclaration,
   sameProjectTargetDependency,
-} from "./dependencies.js";
+} from "./target-dependencies.policy.js";
 
 export function findWorkspaceOwningProject(
   repoRelativePath: string,

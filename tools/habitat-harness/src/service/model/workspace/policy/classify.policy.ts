@@ -3,14 +3,18 @@ import {
   readWorkspaceGraph,
   type WorkspaceGraphProjectReader,
 } from "@internal/habitat-harness/providers/nx/graph";
-import { diffText, extractDiffPaths } from "./diff.js";
-import { classifyPathFromProjects, graphReadRefusal, graphRefusalResult } from "./path.js";
+import { diffText, extractDiffPaths } from "../helpers/diff.helper.js";
+import {
+  classifyPathFromProjects,
+  graphReadRefusal,
+  graphRefusalResult,
+} from "./classify-path.policy.js";
 import {
   type ClassifyResult,
   type PathClassification,
   parseClassifyResult,
   stringifyClassifyResult,
-} from "./schema.js";
+} from "../dto/classify.schema.js";
 
 export type {
   ClassifiedTarget,
@@ -25,7 +29,7 @@ export type {
   UnavailableClassifiedTarget,
   UnresolvedOwnerClassification,
   WorkspacePathClassification,
-} from "./schema.js";
+} from "../dto/classify.schema.js";
 export {
   ClassifyDiffResultSchema,
   ClassifyResultSchema,
@@ -37,7 +41,7 @@ export {
   UnresolvedOwnerClassificationSchema,
   validateClassifyResult,
   WorkspacePathClassificationSchema,
-} from "./schema.js";
+} from "../dto/classify.schema.js";
 
 export interface ClassifyOptions {
   nxProjects?: WorkspaceGraphProjectReader;
