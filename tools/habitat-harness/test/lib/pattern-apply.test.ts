@@ -1,12 +1,12 @@
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
 import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "@internal/habitat-harness/service/model/fix/policy/transactions/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/transactions/index";
 import {
   fixRouter,
   runPatternApplyTransaction,
