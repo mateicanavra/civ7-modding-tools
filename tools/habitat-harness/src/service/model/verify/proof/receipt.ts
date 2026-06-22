@@ -4,7 +4,7 @@ import {
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/structural/index";
 import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
-import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/validation-routing/index";
+import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
