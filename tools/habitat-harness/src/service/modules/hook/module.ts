@@ -9,14 +9,12 @@ import {
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
-  approvedScanRootsForRules,
   type CheckOptions,
   type CheckReport,
   checkCommandContext,
   type HookCheckSummary,
   hookCheckSummary,
   renderCheckReport,
-  stagedSourceCheckPaths,
 } from "@internal/habitat-harness/service/model/check/index";
 import {
   createCheckReportEffect,
@@ -27,6 +25,10 @@ import {
   factsForRuleIds,
   type RuleFactsCatalog,
 } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import {
+  approvedScanRootsForRules,
+  stagedSourceCheckPaths,
+} from "@internal/habitat-harness/service/model/source-check/index";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
 import type { HookPreCommitInput, HookPrePushInput } from "./contract.js";

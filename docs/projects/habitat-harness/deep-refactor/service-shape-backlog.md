@@ -2,7 +2,7 @@
 
 Current burn-down categories:
 
-- Active next slice: continue auditing `service/model/check` by consumer set. Keep report DTOs, summaries, render/request language, source-scope, and structural policy shared only where check/hook/verify/CLI genuinely share the same service language; move check-only execution or authority code under the owning module instead of letting `service/model` become an authority bucket.
+- Active next slice: continue auditing `service/model/check` by consumer set. Keep report DTOs, summaries, render/request language, and structural policy shared only where check/hook/verify/CLI genuinely share the same service language; move check-only execution or authority code under the owning module instead of letting `service/model` become an authority bucket.
 - Standing guardrail: do not turn `model` into a dumping ground. If logic clusters there instead of a router/procedure, policy, DTO, or repository kind, redesign the module split/merge before adding more files.
 - Standing guardrail: do not keep instruction Markdown or other unmanaged file kinds inside `src/service/model`; preserve durable guidance in this backlog or docs, then keep source trees to named code/artifact kinds only.
 - Standing guardrail: policy files are helpers or policy middleware; do not recreate oRPC procedure/router responsibilities outside the oRPC module/router flow.
@@ -131,3 +131,4 @@ Completed burn-downs:
 - Module contract files now compose procedure contracts directly in the exported module contract object; per-procedure contract constants are no longer exported as extra public surface.
 - Fix service procedure shape now exposes direct `fix.planPatterns({})` and `fix.applyPatterns({})` actions. CLI `--dry-run` compiles to the planning action, live fix calls compile to the apply action, and dry-run/live-write transaction intent remains module-internal policy input instead of public procedure input.
 - Baseline authority is now its own shared `service/model/baseline` domain with DTO/policy files in named kinds. Check structural reporting and check baseline expansion import baseline explicitly instead of burying baseline authority under `service/model/check`.
+- Source-check scan planning and native source-rule runtime now live under `service/model/source-check`; check no longer re-exports source-check operations, and Nx target inference imports source-check rule module paths from the owning domain.

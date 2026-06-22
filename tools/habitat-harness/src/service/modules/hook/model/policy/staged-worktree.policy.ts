@@ -6,7 +6,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/index";
+import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/source-check/index";
 import { Effect } from "effect";
 
 const biomeCandidateExtensions = new Set([
