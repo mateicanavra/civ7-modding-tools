@@ -1,5 +1,5 @@
 import type { FileSystem } from "@effect/platform";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import type { FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
 import type {
   GitProvider,

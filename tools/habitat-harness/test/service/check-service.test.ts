@@ -1,5 +1,5 @@
-import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/model/check/structural/index";
-import type { CheckOptions } from "@internal/habitat-harness/service/model/check/structural/request";
+import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import type { CheckOptions } from "@internal/habitat-harness/service/model/check/policy/structural/request";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
 import { Effect } from "effect";

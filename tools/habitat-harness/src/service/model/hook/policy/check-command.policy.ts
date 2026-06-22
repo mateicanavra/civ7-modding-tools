@@ -2,11 +2,11 @@ import {
   type CheckReport,
   type HookCheckSummary,
   hookCheckSummary,
-} from "@internal/habitat-harness/service/model/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   CheckReportSchema,
   validateCheckReport,
-} from "@internal/habitat-harness/service/model/check/structural/schema";
+} from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import { Value } from "typebox/value";
 

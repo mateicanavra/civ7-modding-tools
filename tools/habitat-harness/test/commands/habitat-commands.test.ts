@@ -21,9 +21,11 @@ const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/service/model/check/structural/index.js", async (importOriginal) => {
+vi.mock("../../src/service/model/check/policy/structural/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../../src/service/model/check/structural/index.js")>();
+    await importOriginal<
+      typeof import("../../src/service/model/check/policy/structural/index.js")
+    >();
   return {
     ...actual,
     checkCommandContext: vi.fn((argv: string[]) => ({
@@ -77,7 +79,7 @@ import Fix from "@internal/habitat-harness/cli/commands/fix";
 import Graph from "@internal/habitat-harness/cli/commands/graph";
 import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
-import * as checkReport from "@internal/habitat-harness/service/model/check/structural/index";
+import * as checkReport from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import * as classify from "@internal/habitat-harness/service/model/workspace/index";
 import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/index";
 import * as serviceClient from "@internal/habitat-harness/service/router";

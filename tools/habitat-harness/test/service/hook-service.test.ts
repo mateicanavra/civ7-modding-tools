@@ -3,7 +3,7 @@ import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
-} from "@internal/habitat-harness/service/model/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import {
   createHookTrace,
@@ -456,7 +456,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/service/model/check/source/source-rules.ts";
+    const changedPath = "tools/habitat-harness/src/service/model/check/policy/source/source-rules.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },

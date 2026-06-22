@@ -10,13 +10,13 @@ import {
   isBaselineLocked,
   loadBaselineState,
   validateBaselineContract,
-} from "@internal/habitat-harness/service/model/check/baseline/index";
+} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
   guardBaselineExpansionEffect,
-} from "@internal/habitat-harness/service/model/check/baseline/operations";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/structural/schema";
+} from "@internal/habitat-harness/service/model/check/policy/baseline/operations";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import {
   captureOutput,
   type HabitatCommandResult,
@@ -501,7 +501,7 @@ function showMock(
   const comparisonSha = options.mergeBase ?? "merge-base-sha";
   const ruleRegistryAtBase =
     options.artifactLayoutAtBase === "pre-d14a"
-      ? "tools/habitat-harness/src/service/model/check/rule-runtime/rules.json"
+      ? "tools/habitat-harness/src/service/model/check/policy/rule-runtime/rules.json"
       : ".habitat/rules/index.json";
   if (spec === `${comparisonSha}:${ruleRegistryAtBase}`) {
     if (options.rulePackAtBase === null)

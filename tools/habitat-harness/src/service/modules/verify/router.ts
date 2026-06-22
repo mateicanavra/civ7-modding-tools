@@ -3,7 +3,7 @@ import {
   StructuralCheck,
   type StructuralCheckService,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/model/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   createVerifyReceipt,
   readVerifyTargetPlan,

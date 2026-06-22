@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/structural/index";
+import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   type SpawnResult,
   spawnResultFromCommandProviderError,

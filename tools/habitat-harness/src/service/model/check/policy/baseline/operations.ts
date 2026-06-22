@@ -50,7 +50,7 @@ interface RequiredBaselineAuthorityContext {
 }
 
 const preD14aAuthoredArtifactPaths = {
-  ruleRegistry: "tools/habitat-harness/src/service/model/check/rule-runtime/rules.json",
+  ruleRegistry: "tools/habitat-harness/src/service/model/check/policy/rule-runtime/rules.json",
   baseline(ruleId: string): string {
     return `tools/habitat-harness/baselines/${ruleId}.json`;
   },

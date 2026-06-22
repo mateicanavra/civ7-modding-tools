@@ -7,7 +7,7 @@ import {
   diagnosticCatalogEntryFromRuleSourceFacts,
   renderDiagnosticScanRootRefusal,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { RuleRunResult } from "@internal/habitat-harness/service/model/check/rule-runtime/architecture";
+import type { RuleRunResult } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import { Effect } from "effect";
 import {

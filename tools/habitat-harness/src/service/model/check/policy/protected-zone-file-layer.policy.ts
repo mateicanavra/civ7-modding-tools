@@ -1,4 +1,4 @@
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import type { RuleFileLayerFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import type { StagedMutationPath } from "../dto/protected-zone.schema.js";
 import {
