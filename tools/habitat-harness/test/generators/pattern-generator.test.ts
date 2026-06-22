@@ -6,7 +6,7 @@ import {
   patternManifestPath,
   type RegisteredPatternManifest,
   validatePatternManifest,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+} from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";

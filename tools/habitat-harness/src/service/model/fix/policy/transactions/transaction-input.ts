@@ -4,7 +4,7 @@ import {
   ApplyDryRunCommandSchema,
   type ApplyTransactionInput,
   ApplyTransactionInputSchema,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+} from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { NonEmptyStringSchema } from "./primitives.js";
