@@ -134,3 +134,4 @@ Completed burn-downs:
 - Source-check scan planning and native source-rule runtime now live under `service/model/source-check`; check no longer re-exports source-check operations, and Nx target inference imports source-check rule module paths from the owning domain.
 - Structural check policy no longer exports source-check helper wrappers; staged source path planning and approved scan-root calculation are owned by `service/model/source-check`.
 - Structural check execution now has named context and source/grit lane policies; the main execution policy orchestrates rule categories instead of also owning provider port shape and source-check execution internals.
+- Hook pre-commit/pre-push procedure orchestration now lives in the hook router instead of whole-action `context.run*` delegates; the hook module projects lower-level resource-backed operations and command recording into the procedure context.
