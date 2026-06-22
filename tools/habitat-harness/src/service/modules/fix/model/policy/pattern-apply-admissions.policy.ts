@@ -37,7 +37,7 @@ export function defaultApplyAdmissions(): ApplyAdmission[] {
   });
 }
 
-export function activeApplyTransactionInputs(
+export function admittedApplyTransactionInputs(
   ruleFacts: readonly { id: string }[]
 ): ApplyTransactionInput[] {
   return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), ruleFacts);

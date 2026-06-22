@@ -3,7 +3,7 @@ export {
   diagnosticAdmittedState,
 } from "./pattern-admission.policy.js";
 export {
-  activeApplyTransactionInputs,
+  admittedApplyTransactionInputs,
   applyTransactionInputsFromRuleFacts,
   defaultApplyAdmissions,
 } from "./pattern-apply-admissions.policy.js";

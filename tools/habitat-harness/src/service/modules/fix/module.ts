@@ -13,7 +13,7 @@ import type {
   WorktreeObservation,
 } from "./model/dto/index.js";
 import {
-  activeApplyTransactionInputs as activeApplyTransactionInputsFromRules,
+  admittedApplyTransactionInputs as admittedApplyTransactionInputsFromRules,
   defaultApplyAdmissions,
   renderPatternApply,
   runPatternApplyTransaction,
@@ -21,7 +21,7 @@ import {
 import { observeWorktree } from "./model/repositories/index.js";
 
 export interface FixModuleContext {
-  readonly activeApplyTransactionInputs: ReturnType<typeof makeActiveApplyTransactionInputs>;
+  readonly admittedApplyTransactionInputs: ReturnType<typeof makeAdmittedApplyTransactionInputs>;
   readonly defaultApplyAdmissions: typeof defaultApplyAdmissions;
   readonly missingAdmissionRefusal: typeof missingAdmissionRefusal;
   readonly renderPatternApply: typeof renderPatternApply;
@@ -29,7 +29,7 @@ export interface FixModuleContext {
 }
 
 export const module = service.fix.use(({ context, next }) => {
-  const activeApplyTransactionInputs = makeActiveApplyTransactionInputs(
+  const admittedApplyTransactionInputs = makeAdmittedApplyTransactionInputs(
     context.deps.rules.selector
   );
   const runPatternApplyTransactions = makeRunPatternApplyTransactions(
@@ -38,7 +38,7 @@ export const module = service.fix.use(({ context, next }) => {
   );
   return next({
     context: {
-      activeApplyTransactionInputs,
+      admittedApplyTransactionInputs,
       defaultApplyAdmissions,
       missingAdmissionRefusal,
       renderPatternApply,
@@ -47,15 +47,15 @@ export const module = service.fix.use(({ context, next }) => {
   });
 });
 
-function makeActiveApplyTransactionInputs(ruleFacts: readonly { id: string }[]) {
-  return () => activeApplyTransactionInputsFromRules(ruleFacts);
+function makeAdmittedApplyTransactionInputs(ruleFacts: readonly { id: string }[]) {
+  return () => admittedApplyTransactionInputsFromRules(ruleFacts);
 }
 
 function makeRunPatternApplyTransactions(grit: GritProviderService, repoRoot: string) {
   return (
     input: FixServiceRunInput,
     admissions: readonly ApplyAdmission[],
-    transactionInputs: ReturnType<typeof activeApplyTransactionInputsFromRules>
+    transactionInputs: ReturnType<typeof admittedApplyTransactionInputsFromRules>
   ): Effect.Effect<PatternApplyRecord[], never, GritProviderRequirements> =>
     Effect.forEach(
       admissions,
