@@ -1,6 +1,6 @@
 import path from "node:path";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import { Context, Effect, Layer } from "effect";
+import { Config, Context, Effect, Layer, Option } from "effect";
 
 export type HabitatToolExecutionPlane = "workspace-bun-run" | "workspace-bunx-binary" | "system";
 
@@ -42,6 +42,19 @@ export const defaultWorkspaceToolPolicies = new Map<string, WorkspaceToolPolicy>
   ["grit", { executable: "grit", strategy: "bun-run" }],
 ]);
 
+/**
+ * Runtime-owned config surface. Static tool policy stays typed in Habitat; host
+ * deployment choices enter through Effect's ConfigProvider.
+ */
+export const habitatConfigDescriptor = Config.all({
+  repoRoot: Config.withDefault(Config.string("HABITAT_REPO_ROOT"), repoRoot),
+  harnessRoot: Config.option(Config.string("HABITAT_HARNESS_ROOT")),
+  cacheRoot: Config.option(Config.string("HABITAT_CACHE_ROOT")),
+  patternCacheRoot: Config.option(Config.string("HABITAT_PATTERN_CACHE_ROOT")),
+  telemetryDisabled: Config.withDefault(Config.boolean("HABITAT_TELEMETRY_DISABLED"), true),
+  commandTimeoutMs: Config.option(Config.integer("HABITAT_COMMAND_TIMEOUT_MS")),
+});
+
 export function makeHabitatConfig(
   overrides: Partial<Omit<HabitatConfigValue, "workspaceTools">> & {
     readonly workspaceTools?: ReadonlyMap<string, WorkspaceToolPolicy>;
@@ -60,8 +73,30 @@ export function makeHabitatConfig(
   };
 }
 
+export const loadHabitatConfig = Effect.map(habitatConfigDescriptor, (config) => {
+  const root = config.repoRoot;
+  const cacheRoot = Option.getOrElse(config.cacheRoot, () => path.join(root, ".habitat", "cache"));
+  return makeHabitatConfig({
+    repoRoot: root,
+    harnessRoot: Option.getOrElse(config.harnessRoot, () =>
+      path.join(root, "tools", "habitat-harness")
+    ),
+    cacheRoot,
+    patternCacheRoot: Option.getOrElse(config.patternCacheRoot, () =>
+      path.join(cacheRoot, "patterns")
+    ),
+    telemetryDisabled: config.telemetryDisabled,
+    timeoutPolicy: {
+      commandTimeoutMs: Option.getOrUndefined(config.commandTimeoutMs),
+    },
+  });
+});
+
 export function makeHabitatConfigLayer(config: HabitatConfigValue = makeHabitatConfig()) {
   return Layer.succeed(HabitatConfig, { get: Effect.succeed(config) });
 }
 
-export const HabitatConfigLive = makeHabitatConfigLayer();
+export const HabitatConfigLive = Layer.effect(
+  HabitatConfig,
+  Effect.map(loadHabitatConfig, (config) => ({ get: Effect.succeed(config) }))
+);
