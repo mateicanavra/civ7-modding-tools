@@ -12,9 +12,11 @@ import {
 const taxonomy = parseBoundaryTaxonomy(
   await readFile(path.join(repoRoot, "docs/projects/habitat-harness/taxonomy.md"), "utf8")
 );
-const manifests = await readWorkspaceManifestProjects();
+const manifests = await readWorkspaceManifestProjects(repoRoot);
 const { projects, graphEdges } = await readNxProjectMetadataFromGraph();
-const configConstraints = await readBoundaryConfigConstraints();
+const configConstraints = await readBoundaryConfigConstraints(
+  path.join(repoRoot, "eslint.boundaries.config.mjs")
+);
 
 const audit = auditBoundaryTaxonomy({
   taxonomy,
