@@ -168,18 +168,6 @@ function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?
   return !selection.owner && !selection.rule && !selection.tool;
 }
 
-export function stagedSourceCheckPaths(
-  stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[],
-  context: { readonly repoRoot: string }
-): string[] {
-  return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);
-}
-
-export function approvedScanRootsForRules(rules: readonly RuleSourceFacts[]): string[] {
-  return approvedSourceScanRootsForRules(rules);
-}
-
 export function stagedSourceCheckNotApplicableRecords(
   sourceRules: readonly RuleSourceFacts[],
   scanRoots: readonly string[]
@@ -211,9 +199,9 @@ export function executeSelectedRulesEffect(
     const sourceRules = factsForRuleIds(context.rules.source, selectedRuleIds);
     if (sourceRules.length > 0) {
       const scanRoots = options.staged
-        ? stagedSourceCheckPaths(
+        ? stagedSourceScanRoots(
             options.stagedPaths ?? (yield* currentStagedPathsEffect(context)),
-            approvedScanRootsForRules(sourceRules),
+            approvedSourceScanRootsForRules(sourceRules),
             sourceScopeContext(context)
           )
         : undefined;
@@ -248,9 +236,9 @@ export function executeSelectedRulesEffect(
     const gritRules = factsForRuleIds(context.rules.grit, selectedRuleIds);
     if (gritRules.length > 0) {
       const scanRoots = options.staged
-        ? stagedSourceCheckPaths(
+        ? stagedSourceScanRoots(
             options.stagedPaths ?? (yield* currentStagedPathsEffect(context)),
-            approvedScanRootsForRules(gritRules),
+            approvedSourceScanRootsForRules(gritRules),
             sourceScopeContext(context)
           )
         : undefined;
