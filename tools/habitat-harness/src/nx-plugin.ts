@@ -331,7 +331,12 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
   return [...inputs];
 }
 
-function sourceCheckRuleScopeInputs(rule: NxRuleRegistryRecord): string[] {
+type PatternBackedRegistryRecord = Extract<
+  NxRuleRegistryRecord,
+  { ownerTool: "source-check" | "grit-check" }
+>;
+
+function sourceCheckRuleScopeInputs(rule: PatternBackedRegistryRecord): string[] {
   const exactPathInputs = rule.pathCoverage.flatMap((entry) =>
     entry.kind === "exact-path" ? entry.patterns.map(workspaceInput) : []
   );
