@@ -1,6 +1,6 @@
 import type { FixServiceModuleContext } from "@internal/habitat-harness/service/base";
 import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
@@ -9,6 +9,7 @@ import {
   GritProvider,
   makeFakeGritProviderLayer,
 } from "@internal/habitat-harness/providers/grit/index";
+import { createRouterClient } from "@orpc/server";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
@@ -39,7 +40,7 @@ describe("Habitat fix service", () => {
     });
   });
 
-  test("routes through the in-process Habitat service client", async () => {
+  test("routes through the in-process Habitat service router", async () => {
     const requests: HabitatProcessRequest[] = [];
     const layer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
@@ -50,7 +51,9 @@ describe("Habitat fix service", () => {
       Effect.gen(function* () {
         const grit = yield* GritProvider;
         return yield* Effect.promise(() =>
-          createHabitatServiceClient({ fix: { grit } }).fix.run({ kind: "dry-run-intent" })
+          createRouterClient(habitatServiceRouter, { context: { fix: { grit } } }).fix.run({
+            kind: "dry-run-intent",
+          })
         );
       }).pipe(Effect.provide(layer))
     );

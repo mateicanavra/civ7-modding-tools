@@ -11,7 +11,7 @@ import {
   type HookRuntime,
 } from "@internal/habitat-harness/service/model/hook/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import {
   type BiomeCommandRequest,
   biomeArgv,
@@ -32,6 +32,7 @@ import {
   runTargetArgv,
 } from "@internal/habitat-harness/providers/nx/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import { createRouterClient } from "@orpc/server";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
@@ -456,7 +457,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/service/model/check/policy/source/source-rules.ts";
+    const changedPath =
+      "tools/habitat-harness/src/service/model/check/policy/source/source-rules.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -506,8 +508,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath =
-      "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts";
+    const changedPath = "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -607,11 +608,13 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("runs pre-commit through the in-process Habitat service client", async () => {
+  test("runs pre-commit through the in-process Habitat service router", async () => {
     const fake = makePreCommitRuntime();
 
-    const result = await createHabitatServiceClient({
-      hook: { runtime: fake.runtime },
+    const result = await createRouterClient(habitatServiceRouter, {
+      context: {
+        hook: { runtime: fake.runtime },
+      },
     }).hook.run({ name: "pre-commit" });
 
     expect(result.exitCode).toBe(0);
