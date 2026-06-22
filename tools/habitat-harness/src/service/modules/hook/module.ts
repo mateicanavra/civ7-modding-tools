@@ -3,7 +3,6 @@ import type { BiomeProviderService } from "@internal/habitat-harness/providers/b
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   type SpawnResult,
   spawnResultFromCommandProviderError,
@@ -32,6 +31,7 @@ import {
   factsForRuleIds,
   type RuleFactsCatalog,
 } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
 import type { HookServiceRunInput } from "./contract.js";
 import {
@@ -65,7 +65,7 @@ type HookProcedureContext = {
   readonly reporter: HabitatReporterService;
   readonly rules: RuleFactsCatalog;
   readonly createCheckReport: (options?: CheckOptions) => HookRouterEffect<CheckReport>;
-  readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
+  readonly workspaceGraphTargetNames: typeof workspaceGraphTargetNames;
 };
 type BiomeCommandRequest = Parameters<HookProcedureContext["biome"]["run"]>[0];
 type StagedHookCheckTool = "file-layer" | "source-check";

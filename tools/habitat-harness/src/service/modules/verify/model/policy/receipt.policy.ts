@@ -1,4 +1,3 @@
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import {
   type CheckReport,
@@ -20,6 +19,7 @@ import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
   verifyTargetPlan,
+  workspaceGraphTargetNames,
 } from "@internal/habitat-harness/service/model/workspace/index";
 import { Value } from "typebox/value";
 import { selectedVerifyEnv } from "./command-output.policy.js";

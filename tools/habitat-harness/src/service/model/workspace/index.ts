@@ -38,6 +38,7 @@ export {
   ruleAliasTargetState,
   ruleGraphTargetStates,
   verifyTargetPlan,
+  workspaceGraphTargetNames,
   workspaceProjectHasTarget,
   workspaceTargetStates,
 } from "./policy/workspace-targets.policy.js";

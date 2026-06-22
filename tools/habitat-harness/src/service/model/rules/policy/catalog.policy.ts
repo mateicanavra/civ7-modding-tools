@@ -1,4 +1,4 @@
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import type { RuleRegistryDocumentV1 } from "../dto/registry.schema.js";
 import { ruleArtifactPathFacts } from "./artifact-paths.policy.js";
 import {

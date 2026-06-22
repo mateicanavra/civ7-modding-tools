@@ -13,7 +13,7 @@ import {
 } from "@internal/habitat-harness/providers/nx/schema";
 import {
   classifyTargetNames,
-  workspaceGraphTargetNames,
+  workspaceGraphTargetNames as providerWorkspaceGraphTargetNames,
 } from "@internal/habitat-harness/providers/nx/targets";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
@@ -24,6 +24,12 @@ import {
   resolveTargetDependencyDeclaration,
   sameProjectTargetDependency,
 } from "./target-dependencies.policy.js";
+
+export function workspaceGraphTargetNames(
+  options: Parameters<typeof providerWorkspaceGraphTargetNames>[0] = {}
+): WorkspaceGraphTargetNames {
+  return providerWorkspaceGraphTargetNames(options);
+}
 
 export function findWorkspaceOwningProject(
   repoRelativePath: string,
