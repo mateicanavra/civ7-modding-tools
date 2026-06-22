@@ -9,12 +9,12 @@ import {
   parseClassifyResult,
   stringifyClassifyResult,
 } from "../dto/classify.schema.js";
-import { diffText, extractDiffPaths } from "../helpers/diff.helper.js";
 import {
   classifyPathFromProjects,
   graphReadRefusal,
   graphRefusalResult,
 } from "./classify-path.policy.js";
+import { diffText, extractDiffPaths } from "./diff-target.policy.js";
 
 export type {
   ClassifiedTarget,

@@ -31,3 +31,4 @@ Completed burn-downs:
 - Shared `service/model/*` domains now reject loose unmanaged files; policy code must be named and classified by kind.
 - Shared `service/model/*/policy` files now use explicit policy/rule suffixes instead of generic `*.ts` and `*.mjs` names.
 - Fix module pattern/apply internals now use explicit `model/dto`, `model/policy`, and `model/repositories` kinds; the old nested `patterns/` and `transactions/` pseudo-domains are removed.
+- Classify diff target handling now lives in a named policy artifact; the module no longer has a loose `model/helpers` bucket.
