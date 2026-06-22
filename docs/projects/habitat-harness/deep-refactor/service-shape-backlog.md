@@ -37,6 +37,7 @@ Completed burn-downs:
 - Rule registry loaders now require an explicit registry path; runtime and tests choose the path at their edges instead of the shared repository importing global repo-root state.
 - Git, Git state, Graphite, Biome, Nx, and Grit live provider layers now receive repo root from runtime realization instead of importing the global repo-root singleton inside provider live constructors.
 - Grit scan-root and text-output path normalization now use explicit provider/local path context; provider code no longer imports global repo path helpers.
+- Fix apply planning now names transaction inputs by admitted pattern policy and explicit rule facts; the old “active apply transaction inputs” language is removed.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
