@@ -1,10 +1,10 @@
 import { module } from "./module.js";
 
 export const graphRouter = {
-  workspaceGraph: module.workspaceGraph.effect(function* ({ context, errors, input = {} }) {
+  workspaceGraph: module.workspaceGraph.effect(function* ({ context, errors }) {
     return yield* context.withWorkspaceGraphFile(function* (graphPath) {
       const spawnResult = yield* context.runNxWorkspaceGraph({ outputPath: graphPath });
-      if (spawnResult.exitCode !== 0) return spawnResult;
+      if (spawnResult.exitCode !== 0) return { kind: "command-failed" as const, ...spawnResult };
 
       const graphText = yield* context.readWorkspaceGraphText(graphPath);
       const graphPayload = yield* context.parseWorkspaceGraphJson(
@@ -18,9 +18,8 @@ export const graphRouter = {
         errors.BAD_REQUEST
       );
       return {
-        exitCode: 0,
-        stdout: `${JSON.stringify(selectedPayload, null, input.json ? 0 : 2)}\n`,
-        stderr: "",
+        kind: "completed" as const,
+        graph: selectedPayload,
       };
     });
   }),
