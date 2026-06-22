@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
@@ -25,7 +26,6 @@ import {
   type HabitatError,
   renderHabitatError,
 } from "@internal/habitat-harness/resources/errors/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import {
   approvedSourceScanRootsForRules,
   type CheckOptions,
@@ -142,7 +142,7 @@ export function stagedSourceCheckNotApplicableRecords(
 
 export function executeSelectedRulesEffect(
   selectedRules: readonly RuleSelectorFacts[],
-  options: Pick<CheckOptions, "repoRoot" | "staged" | "stagedPaths"> = {}
+  options: Pick<CheckOptions, "repoRoot" | "staged" | "stagedPaths">
 ): Effect.Effect<
   Map<string, RuleExecutionRecord>,
   never,
@@ -164,7 +164,7 @@ export function executeSelectedRulesEffect(
     if (sourceRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
-            options.stagedPaths ?? (yield* currentStagedPathsEffect()),
+            options.stagedPaths ?? (yield* currentStagedPathsEffect(executionContext(options))),
             approvedScanRootsForRules(sourceRules),
             sourceScopeContext(options)
           )
@@ -200,7 +200,7 @@ export function executeSelectedRulesEffect(
     if (gritRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
-            options.stagedPaths ?? (yield* currentStagedPathsEffect()),
+            options.stagedPaths ?? (yield* currentStagedPathsEffect(executionContext(options))),
             approvedScanRootsForRules(gritRules),
             sourceScopeContext(options)
           )
@@ -247,16 +247,23 @@ export function executeSelectedRulesEffect(
     yield* executeGraphBackedCommandRulesEffect(graphBackedRules, graphRulesById, results);
     yield* executeCommandRulesEffect(
       remainingCommandRules.filter((rule) => !isGraphBackedCommandRule(rule, graphRulesById)),
-      results
+      results,
+      executionContext(options)
     );
     yield* executeFileLayerRulesEffect(
       factsForRuleIds(activeRuleFileLayerFacts, selectedRuleIds),
       results,
-      options
+      options,
+      executionContext(options)
     );
 
     return results;
   });
+}
+
+function executionContext(options: Pick<CheckOptions, "repoRoot">): { readonly repoRoot: string } {
+  if (!options.repoRoot) throw new Error("habitat internal error: missing execution repo root");
+  return { repoRoot: options.repoRoot };
 }
 
 function sourceScopeContext(options: Pick<CheckOptions, "repoRoot">): {
@@ -312,11 +319,12 @@ function isGraphBackedCommandRule(
 
 function executeCommandRulesEffect(
   commandRules: readonly RuleCommandExecutionFacts[],
-  results: Map<string, RuleExecutionRecord>
+  results: Map<string, RuleExecutionRecord>,
+  context: { readonly repoRoot: string }
 ): Effect.Effect<void, never, CommandRunner | CommandExecutor | HabitatConfig | GitStateProvider> {
   return Effect.gen(function* () {
     const groupResults = yield* Effect.all(
-      commandRuleExecutionGroups(commandRules).map(executeCommandRuleGroupEffect),
+      commandRuleExecutionGroups(commandRules, context).map(executeCommandRuleGroupEffect),
       {
         concurrency: "unbounded",
       }
@@ -467,18 +475,19 @@ interface CommandRuleExecutionGroup {
 }
 
 function commandRuleExecutionGroups(
-  rules: readonly RuleCommandExecutionFacts[]
+  rules: readonly RuleCommandExecutionFacts[],
+  context: { readonly repoRoot: string }
 ): CommandRuleExecutionGroup[] {
   const groups = new Map<string, CommandRuleExecutionGroup>();
   for (const rule of rules) {
     const executable = rule.detect[0] ?? "";
     const argv = rule.detect.slice(1);
-    const key = JSON.stringify({ executable, argv, cwd: repoRoot });
+    const key = JSON.stringify({ executable, argv, cwd: context.repoRoot });
     const current = groups.get(key);
     groups.set(key, {
       executable,
       argv,
-      cwd: repoRoot,
+      cwd: context.repoRoot,
       rules: current ? [...current.rules, rule] : [rule],
     });
   }
@@ -591,14 +600,15 @@ function isHabitatError(error: unknown): error is HabitatError {
 function executeFileLayerRulesEffect(
   fileLayerRules: readonly RuleFileLayerFacts[],
   results: Map<string, RuleExecutionRecord>,
-  options: Pick<CheckOptions, "staged" | "stagedPaths">
+  options: Pick<CheckOptions, "staged" | "stagedPaths">,
+  context: { readonly repoRoot: string }
 ): Effect.Effect<void, never, GitProvider | GitProviderRequirements> {
   return Effect.gen(function* () {
     const stagedPathsResult =
       options.staged && options.stagedPaths
         ? modifiedStagedPaths(options.stagedPaths)
         : options.staged
-          ? yield* currentStagedPathActionsEffect()
+          ? yield* currentStagedPathActionsEffect(context)
           : undefined;
     for (const rule of fileLayerRules) {
       const started = yield* Clock.currentTimeMillis;
@@ -633,14 +643,14 @@ function isStagedPathReadFailure(
   return Boolean(result && "ok" in result && !result.ok);
 }
 
-function currentStagedPathActionsEffect(): Effect.Effect<
-  StagedPathActionReadResult,
-  never,
-  GitProvider | GitProviderRequirements
-> {
+function currentStagedPathActionsEffect(context: {
+  readonly repoRoot: string;
+}): Effect.Effect<StagedPathActionReadResult, never, GitProvider | GitProviderRequirements> {
   return Effect.gen(function* () {
     const git = yield* GitProvider;
-    const result = yield* git.diffNameStatus({ cached: true, cwd: repoRoot }).pipe(Effect.either);
+    const result = yield* git
+      .diffNameStatus({ cached: true, cwd: context.repoRoot })
+      .pipe(Effect.either);
     if (result._tag === "Left") {
       return {
         ok: false,
@@ -673,17 +683,27 @@ function stagedPathReadFailureDiagnostic(
   };
 }
 
-function currentStagedPathsEffect(): Effect.Effect<
-  string[],
-  never,
-  GitProvider | GitProviderRequirements
-> {
+function currentStagedPathsEffect(context: {
+  readonly repoRoot: string;
+}): Effect.Effect<string[], never, GitProvider | GitProviderRequirements> {
   return Effect.gen(function* () {
     const git = yield* GitProvider;
-    const result = yield* git.diffNameOnly({ cached: true, cwd: repoRoot }).pipe(Effect.either);
+    const result = yield* git
+      .diffNameOnly({ cached: true, cwd: context.repoRoot })
+      .pipe(Effect.either);
     if (result._tag === "Left" || result.right.exit.code !== 0 || !result.right.stdout.text) {
       return [];
     }
-    return result.right.stdout.text.split("\0").filter(Boolean).map(toRepoRelative);
+    return result.right.stdout.text
+      .split("\0")
+      .filter(Boolean)
+      .map((candidate) => toRepoRelative(context, candidate));
   });
+}
+
+function toRepoRelative(context: { readonly repoRoot: string }, candidate: string): string {
+  return path
+    .relative(context.repoRoot, path.resolve(context.repoRoot, candidate))
+    .split(path.sep)
+    .join("/");
 }
