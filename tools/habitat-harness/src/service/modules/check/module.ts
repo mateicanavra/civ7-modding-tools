@@ -1,3 +1,4 @@
+import { runGritRulesEffect } from "@internal/habitat-harness/providers/grit/index";
 import type {
   HabitatServiceContext,
   HabitatServiceDeps,
@@ -82,9 +83,12 @@ function expandBaselines(
 function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
   return {
     biome: deps.biome,
-    commandRunner: deps.commandRunner,
+    command: deps.commandRunner,
     git: deps.git,
-    grit: deps.grit,
+    grit: {
+      runRules: (selectedRules, options) =>
+        runGritRulesEffect(selectedRules, { ...options, grit: deps.grit }),
+    },
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
     rules: deps.rules,

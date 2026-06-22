@@ -1,5 +1,6 @@
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
+import { runGritRulesEffect } from "@internal/habitat-harness/providers/grit/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import type {
   HabitatServiceContext,
@@ -101,9 +102,12 @@ function epochMillisToIsoString(epochMillis: number): string {
 function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
   return {
     biome: deps.biome,
-    commandRunner: deps.commandRunner,
+    command: deps.commandRunner,
     git: deps.git,
-    grit: deps.grit,
+    grit: {
+      runRules: (selectedRules, options) =>
+        runGritRulesEffect(selectedRules, { ...options, grit: deps.grit }),
+    },
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
     rules: deps.rules,

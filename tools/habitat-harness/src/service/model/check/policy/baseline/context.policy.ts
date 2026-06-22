@@ -1,8 +1,25 @@
-import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
+import type { Effect } from "effect";
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
+export interface BaselineGitPort<R = any> {
+  readonly lsTreeNameOnly: (
+    ref: string,
+    repoPath: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<readonly string[] | null, never, R>;
+  readonly mergeBase: (
+    ref: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, R>;
+  readonly show: (
+    ref: string,
+    repoPath: string,
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, R>;
+}
+
 export interface BaselineAuthorityContext {
-  git: GitProviderService;
+  git: BaselineGitPort;
   repoRoot: string;
   baselinesDir?: string;
   registry?: readonly BaselineRuleContractInput[];
