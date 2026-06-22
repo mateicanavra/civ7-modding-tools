@@ -21,6 +21,7 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
         "test",
         "validate:boundary-taxonomy",
         "validate:grit-patterns",
+        "validate:service-module-shape",
       ]),
       project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
       project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
@@ -307,6 +308,7 @@ index 3333333..4444444 100644
               "check",
               "validate:boundary-taxonomy",
               "validate:grit-patterns",
+              "validate:service-module-shape",
             ]),
             project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", []),
           ];

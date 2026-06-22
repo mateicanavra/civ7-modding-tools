@@ -16,7 +16,12 @@ const packageCheckTarget = "check";
 const habitatToolingPrefix = "tools/habitat-harness/";
 const boundaryTaxonomyTargetName = "validate:boundary-taxonomy";
 const gritPatternsTargetName = "validate:grit-patterns";
-const structuralTargetNames = [boundaryTaxonomyTargetName, gritPatternsTargetName] as const;
+const serviceModuleShapeTargetName = "validate:service-module-shape";
+const structuralTargetNames = [
+  boundaryTaxonomyTargetName,
+  gritPatternsTargetName,
+  serviceModuleShapeTargetName,
+] as const;
 
 export function graphCheckTargetNames(targetNames: WorkspaceGraphTargetNames): readonly string[] {
   return [
@@ -88,9 +93,11 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
   const targets = new Set<string>();
   for (const filePath of paths) {
     if (isBoundaryTaxonomyToolingPath(filePath)) targets.add(boundaryTaxonomyTargetName);
+    if (isServiceModuleShapeToolingPath(filePath)) targets.add(serviceModuleShapeTargetName);
     if (isStructuralTargetDeclarationPath(filePath)) {
       targets.add(boundaryTaxonomyTargetName);
       targets.add(gritPatternsTargetName);
+      targets.add(serviceModuleShapeTargetName);
     }
   }
   return [...targets];
@@ -105,4 +112,11 @@ function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
 
 function isStructuralTargetDeclarationPath(filePath: string): boolean {
   return filePath === "tools/habitat-harness/package.json";
+}
+
+function isServiceModuleShapeToolingPath(filePath: string): boolean {
+  return (
+    filePath === "tools/habitat-harness/scripts/validate-service-module-shape.ts" ||
+    filePath.startsWith("tools/habitat-harness/src/service/modules/")
+  );
 }

@@ -37,13 +37,14 @@ import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
 
-const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
+const prePushAffectedTargets =
+  "check,validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
 const prePushSourceArtifactTargets = "source:check";
 const prePushNonSourceRuleArtifactTargets = "habitat:rule:import-boundaries";
 const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:import-boundaries";
 const prePushBoundaryTaxonomyTargets = "validate:boundary-taxonomy";
 const prePushStructuralTargetDeclarationTargets =
-  "validate:boundary-taxonomy,validate:grit-patterns";
+  "validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
 const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
