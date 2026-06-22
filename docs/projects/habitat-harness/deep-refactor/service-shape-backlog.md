@@ -127,3 +127,4 @@ Completed burn-downs:
 - Hook service procedure shape now exposes `hook.preCommit` and `hook.prePush`; the old `hook.execute({ name })` envelope and unknown-name service state are deleted, and CLI hook dispatch compiles names to direct service actions.
 - Graph service procedure shape now returns a graph action result instead of a CLI stdout/stderr JSON envelope; `--json` compact formatting is owned by the CLI command.
 - Redundant `HabitatServiceProcedureContract<...>` annotations were removed from module contracts and the now-unused `service/procedure-contract.ts` helper was deleted. The custom `toStandardSchema` adapter remains for now because the installed TypeBox package does not expose a native Standard Schema converter.
+- Module contract files now compose procedure contracts directly in the exported module contract object; per-procedure contract constants are no longer exported as extra public surface.

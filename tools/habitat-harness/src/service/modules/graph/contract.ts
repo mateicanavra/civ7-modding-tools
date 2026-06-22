@@ -40,14 +40,9 @@ const GraphWorkspaceGraphOutputSchema = Type.Union(
 );
 export type GraphWorkspaceGraphOutput = Static<typeof GraphWorkspaceGraphOutputSchema>;
 
-const GraphWorkspaceGraphInputStandardSchema = toStandardSchema(GraphWorkspaceGraphInputSchema);
-const GraphWorkspaceGraphOutputStandardSchema = toStandardSchema(GraphWorkspaceGraphOutputSchema);
-
-export const graphWorkspaceGraphContract = eoc
-  .errors(graphServiceErrorMap)
-  .input(GraphWorkspaceGraphInputStandardSchema)
-  .output(GraphWorkspaceGraphOutputStandardSchema);
-
 export const graphServiceContract = {
-  workspaceGraph: graphWorkspaceGraphContract,
+  workspaceGraph: eoc
+    .errors(graphServiceErrorMap)
+    .input(toStandardSchema(GraphWorkspaceGraphInputSchema))
+    .output(toStandardSchema(GraphWorkspaceGraphOutputSchema)),
 };

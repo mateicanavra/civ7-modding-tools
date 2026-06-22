@@ -51,26 +51,13 @@ export type CheckServiceExpandBaselineOutput = Static<
   typeof CheckServiceExpandBaselineOutputSchema
 >;
 
-const CheckReportInputStandardSchema = toStandardSchema(CheckReportInputSchema);
-const CheckReportOutputStandardSchema = toStandardSchema(CheckReportSchema);
-const CheckServiceExpandBaselineInputStandardSchema = toStandardSchema(
-  CheckServiceExpandBaselineInputSchema
-);
-const CheckServiceExpandBaselineOutputStandardSchema = toStandardSchema(
-  CheckServiceExpandBaselineOutputSchema
-);
-
-export const checkReportContract = eoc
-  .errors(habitatServiceErrorMap)
-  .input(CheckReportInputStandardSchema)
-  .output(CheckReportOutputStandardSchema);
-
-export const checkServiceExpandBaselineContract = eoc
-  .errors(habitatServiceErrorMap)
-  .input(CheckServiceExpandBaselineInputStandardSchema)
-  .output(CheckServiceExpandBaselineOutputStandardSchema);
-
 export const checkServiceContract = {
-  report: checkReportContract,
-  expandBaseline: checkServiceExpandBaselineContract,
+  report: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(CheckReportInputSchema))
+    .output(toStandardSchema(CheckReportSchema)),
+  expandBaseline: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(CheckServiceExpandBaselineInputSchema))
+    .output(toStandardSchema(CheckServiceExpandBaselineOutputSchema)),
 };

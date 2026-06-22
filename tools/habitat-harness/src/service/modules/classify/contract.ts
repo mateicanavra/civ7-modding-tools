@@ -12,14 +12,9 @@ const ClassifyTargetInputSchema = Type.Object(
 );
 export type ClassifyTargetInput = Static<typeof ClassifyTargetInputSchema>;
 
-const ClassifyTargetInputStandardSchema = toStandardSchema(ClassifyTargetInputSchema);
-const ClassifyTargetOutputStandardSchema = toStandardSchema(ClassifyResultSchema);
-
-export const classifyTargetContract = eoc
-  .errors(habitatServiceErrorMap)
-  .input(ClassifyTargetInputStandardSchema)
-  .output(ClassifyTargetOutputStandardSchema);
-
 export const classifyServiceContract = {
-  target: classifyTargetContract,
+  target: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(ClassifyTargetInputSchema))
+    .output(toStandardSchema(ClassifyResultSchema)),
 };
