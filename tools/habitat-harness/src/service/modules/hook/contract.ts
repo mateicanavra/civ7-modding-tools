@@ -1,5 +1,4 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
-import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
@@ -50,18 +49,12 @@ const HookPreCommitInputStandardSchema = toStandardSchema(HookPreCommitInputSche
 const HookPrePushInputStandardSchema = toStandardSchema(HookPrePushInputSchema);
 const HookResultStandardSchema = toStandardSchema(HookResultSchema);
 
-export const hookPreCommitContract: HabitatServiceProcedureContract<
-  typeof HookPreCommitInputStandardSchema,
-  typeof HookResultStandardSchema
-> = eoc
+export const hookPreCommitContract = eoc
   .errors(habitatServiceErrorMap)
   .input(HookPreCommitInputStandardSchema)
   .output(HookResultStandardSchema);
 
-export const hookPrePushContract: HabitatServiceProcedureContract<
-  typeof HookPrePushInputStandardSchema,
-  typeof HookResultStandardSchema
-> = eoc
+export const hookPrePushContract = eoc
   .errors(habitatServiceErrorMap)
   .input(HookPrePushInputStandardSchema)
   .output(HookResultStandardSchema);

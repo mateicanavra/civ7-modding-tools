@@ -2,7 +2,6 @@ import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors
 import { CheckReportSchema } from "@internal/habitat-harness/service/model/check/index";
 import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/model/workspace/index";
 import { VerifyReceiptSchema } from "@internal/habitat-harness/service/modules/verify/model/index";
-import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
@@ -59,10 +58,7 @@ export type VerifyChangesOutput = Static<typeof VerifyChangesOutputSchema>;
 const VerifyChangesInputStandardSchema = toStandardSchema(VerifyChangesInputSchema);
 const VerifyChangesOutputStandardSchema = toStandardSchema(VerifyChangesOutputSchema);
 
-export const verifyChangesContract: HabitatServiceProcedureContract<
-  typeof VerifyChangesInputStandardSchema,
-  typeof VerifyChangesOutputStandardSchema
-> = eoc
+export const verifyChangesContract = eoc
   .errors(habitatServiceErrorMap)
   .input(VerifyChangesInputStandardSchema)
   .output(VerifyChangesOutputStandardSchema);

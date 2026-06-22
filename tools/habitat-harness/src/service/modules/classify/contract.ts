@@ -1,6 +1,5 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
 import { ClassifyResultSchema } from "@internal/habitat-harness/service/modules/classify/model/index";
-import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
@@ -16,10 +15,7 @@ export type ClassifyTargetInput = Static<typeof ClassifyTargetInputSchema>;
 const ClassifyTargetInputStandardSchema = toStandardSchema(ClassifyTargetInputSchema);
 const ClassifyTargetOutputStandardSchema = toStandardSchema(ClassifyResultSchema);
 
-export const classifyTargetContract: HabitatServiceProcedureContract<
-  typeof ClassifyTargetInputStandardSchema,
-  typeof ClassifyTargetOutputStandardSchema
-> = eoc
+export const classifyTargetContract = eoc
   .errors(habitatServiceErrorMap)
   .input(ClassifyTargetInputStandardSchema)
   .output(ClassifyTargetOutputStandardSchema);
