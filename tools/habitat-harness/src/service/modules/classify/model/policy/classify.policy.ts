@@ -47,13 +47,14 @@ export {
 
 export interface ClassifyOptions {
   nxProjects?: WorkspaceGraphProjectReader;
+  repoRoot: string;
 }
 
 export async function classifyTargetResult(
   target: string,
-  options: ClassifyOptions = {}
+  options: ClassifyOptions
 ): Promise<ClassifyResult> {
-  const diff = diffText(target);
+  const diff = diffText(target, options);
   if (diff) {
     const paths = extractDiffPaths(diff);
     if (paths.length === 0) return malformedOrPathlessDiffResult(target);
@@ -65,21 +66,22 @@ export async function classifyTargetResult(
       schemaVersion: 1,
       state: "diff",
       input: target,
-      paths: paths.map((path) => classifyPathFromProjects(path, graph.snapshot.projects)),
+      paths: paths.map((path) => classifyPathFromProjects(path, graph.snapshot.projects, options)),
       recoveryInstructions: [],
     });
   }
 
   const graph = await readWorkspaceGraph(options.nxProjects);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
-  return classifyPathFromProjects(target, graph.snapshot.projects);
+  return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
 
 export function classifyTargetResultEffect(
   target: string,
-  readGraph: Effect.Effect<WorkspaceGraphReadState>
+  readGraph: Effect.Effect<WorkspaceGraphReadState>,
+  context: { readonly repoRoot: string }
 ): Effect.Effect<ClassifyResult> {
-  const diff = diffText(target);
+  const diff = diffText(target, context);
   if (diff) {
     const paths = extractDiffPaths(diff);
     if (paths.length === 0) return Effect.succeed(malformedOrPathlessDiffResult(target));
@@ -91,7 +93,9 @@ export function classifyTargetResultEffect(
               schemaVersion: 1,
               state: "diff",
               input: target,
-              paths: paths.map((path) => classifyPathFromProjects(path, graph.snapshot.projects)),
+              paths: paths.map((path) =>
+                classifyPathFromProjects(path, graph.snapshot.projects, context)
+              ),
               recoveryInstructions: [],
             })
           : graphRefusalResult(target, graphReadRefusal(graph))
@@ -102,7 +106,7 @@ export function classifyTargetResultEffect(
   return readGraph.pipe(
     Effect.map((graph) =>
       graph.kind === "graph-ready"
-        ? classifyPathFromProjects(target, graph.snapshot.projects)
+        ? classifyPathFromProjects(target, graph.snapshot.projects, context)
         : graphRefusalResult(target, graphReadRefusal(graph))
     )
   );
@@ -110,23 +114,23 @@ export function classifyTargetResultEffect(
 
 export async function classifyPathResult(
   target: string,
-  options: ClassifyOptions = {}
+  options: ClassifyOptions
 ): Promise<PathClassification> {
   const graph = await readWorkspaceGraph(options.nxProjects);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
-  return classifyPathFromProjects(target, graph.snapshot.projects);
+  return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
 
 export async function classifyTarget(
   target: string,
-  options: ClassifyOptions = {}
+  options: ClassifyOptions
 ): Promise<ClassifyResult> {
   return classifyTargetResult(target, options);
 }
 
 export async function classifyPath(
   target: string,
-  options: ClassifyOptions = {}
+  options: ClassifyOptions
 ): Promise<PathClassification> {
   return classifyPathResult(target, options);
 }

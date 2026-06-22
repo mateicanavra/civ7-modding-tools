@@ -48,3 +48,4 @@ Completed burn-downs:
 - Source-check rule execution no longer has an internal Effect service tag or runtime layer; structural execution calls the owned source-rule policy directly.
 - Baseline authority no longer has an internal Effect service tag or runtime layer; structural check/report/expansion policy calls baseline policy operations directly.
 - Verify base, post-state, and Nx affected policies now receive module-projected provider resources instead of reading provider tags from the Effect runtime.
+- Classify path and diff policy now receives repo root from module-projected platform context instead of importing the global repo-root singleton.

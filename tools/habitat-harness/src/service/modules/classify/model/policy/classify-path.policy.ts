@@ -4,7 +4,6 @@ import type {
   WorkspaceGraphReadState,
   WorkspaceProject,
 } from "@internal/habitat-harness/providers/nx/schema";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { statKindSync } from "@internal/habitat-harness/resources/platform/filesystem";
 import {
   type PathClassification,
@@ -21,15 +20,16 @@ import { projectTargets, workspaceTargets } from "./target-plan.policy.js";
 
 export function classifyPathFromProjects(
   target: string,
-  projects: readonly WorkspaceProject[]
+  projects: readonly WorkspaceProject[],
+  context: { readonly repoRoot: string }
 ): PathClassification {
-  const rel = toRepoRelative(target);
+  const rel = toRepoRelative(context.repoRoot, target);
   const graphRefusal = firstGraphRefusal(projects);
   if (graphRefusal) return graphRefusalResult(target, graphRefusal);
 
   const owner = findWorkspaceOwningProject(rel, projects);
   if (owner) return projectPathResult(target, rel, owner, projects);
-  if (isWorkspaceSurface(rel)) return workspacePathResult(target, rel, projects);
+  if (isWorkspaceSurface(rel, context)) return workspacePathResult(target, rel, projects);
   return unresolvedOwnerResult(target, rel);
 }
 
@@ -114,14 +114,18 @@ function firstGraphRefusal(projects: readonly WorkspaceProject[]): GraphRefusalS
   ].find((state): state is GraphRefusalState => state.kind === "graph-refusal");
 }
 
-function isWorkspaceSurface(pathInRepo: string): boolean {
+function isWorkspaceSurface(pathInRepo: string, context: { readonly repoRoot: string }): boolean {
   const [rootSegment] = pathInRepo.split("/");
   if (!rootSegment || rootSegment === "." || rootSegment === "..") return false;
 
-  const rootSurfacePath = path.join(repoRoot, rootSegment);
+  const rootSurfacePath = path.join(context.repoRoot, rootSegment);
   const rootKind = statKindSync(rootSurfacePath);
   const rootIsFile = rootKind === "File";
   const rootIsDirectory = rootKind === "Directory";
   if (pathInRepo === rootSegment) return rootIsFile || rootIsDirectory;
   return rootIsDirectory;
+}
+
+function toRepoRelative(repoRoot: string, target: string): string {
+  return path.relative(repoRoot, path.resolve(repoRoot, target)).split(path.sep).join("/");
 }
