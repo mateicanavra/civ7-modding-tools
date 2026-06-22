@@ -24,6 +24,7 @@ import {
 import {
   applyBaseline,
   type BaselineApplicationResult,
+  type BaselineAuthorityContext,
   baselineFailureDiagnostic,
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
@@ -95,7 +96,7 @@ export function createCheckReportEffect(
       const baselineFacts = baselineInputsByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* loadBaselineStateEffect(baselineFacts);
+      const baseline = yield* loadBaselineStateEffect(baselineFacts, baselineContext(options));
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       Value.Parse(RuleExecutionPlanSchema, {
@@ -132,7 +133,7 @@ export function createCheckReportEffect(
     }
 
     if (options.baselineIntegrity)
-      reports.push(yield* baselineIntegrityReportEffect(options.base ?? "main"));
+      reports.push(yield* baselineIntegrityReportEffect(options.base ?? "main", options));
     return yield* constructCheckReportEffect({ command: request.command.serialized, reports });
   });
 }
@@ -228,11 +229,13 @@ function ruleReportFromDiagnostics(input: {
 }
 
 function baselineIntegrityReportEffect(
-  base: string
+  base: string,
+  options: CheckOptions
 ): Effect.Effect<RuleReport, never, FileSystem.FileSystem | GitProvider | GitProviderRequirements> {
   return Effect.gen(function* () {
     const integrityStarted = yield* Clock.currentTimeMillis;
     const integrity = yield* checkBaselineIntegrityEffect(base, {
+      ...baselineContext(options),
       registry: baselineContractInputs(),
     });
     const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
@@ -256,6 +259,11 @@ function baselineIntegrityReportEffect(
       remediate: null,
     };
   });
+}
+
+function baselineContext(options: Pick<CheckOptions, "repoRoot">): BaselineAuthorityContext {
+  if (!options.repoRoot) throw new Error("habitat internal error: missing baseline repo root");
+  return { repoRoot: options.repoRoot };
 }
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {

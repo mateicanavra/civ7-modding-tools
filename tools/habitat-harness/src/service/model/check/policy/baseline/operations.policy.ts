@@ -6,13 +6,13 @@ import {
 } from "@internal/habitat-harness/providers/git/index";
 import {
   baselineRepoPath,
+  baselinesRepoPath,
   ruleRegistryRepoPath,
 } from "@internal/habitat-harness/resources/artifact-paths";
 import {
   type FileWriteFailed,
   renderHabitatError,
 } from "@internal/habitat-harness/resources/errors/index";
-import { baselinesDir, repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   isDirectory,
   isFile,
@@ -58,7 +58,7 @@ const preD14aAuthoredArtifactPaths = {
 
 export function loadBaselineStateEffect(
   rule: BaselineRuleContractInput,
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ) {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
@@ -85,7 +85,7 @@ export function loadBaselineStateEffect(
   });
 }
 
-export function validateBaselineContractEffect(options: BaselineAuthorityContext = {}) {
+export function validateBaselineContractEffect(options: BaselineAuthorityContext) {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
     const states = new Map<string, BaselineAuthorityState>();
@@ -123,7 +123,7 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
 
 export function checkBaselineIntegrityEffect(
   base = "main",
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ): Effect.Effect<
   BaselineIntegrityResult,
   never,
@@ -192,7 +192,7 @@ export function guardBaselineExpansionEffect(
   ruleId: string,
   keys: readonly string[],
   base = "main",
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ): Effect.Effect<
   BaselineExpansionDecision,
   never,
@@ -253,7 +253,7 @@ export function guardBaselineExpansionEffect(
 export function writeBaselineEffect(
   ruleId: string,
   keys: readonly string[],
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ): Effect.Effect<void, FileWriteFailed, FileSystem.FileSystem> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
@@ -266,14 +266,13 @@ export function writeBaselineEffect(
 }
 
 function resolveBaselineAuthorityContext(
-  options: BaselineAuthorityContext = {}
+  options: BaselineAuthorityContext
 ): Effect.Effect<RequiredBaselineAuthorityContext, never, FileSystem.FileSystem> {
-  const root = options.repoRoot ?? repoRoot;
   return Effect.gen(function* () {
     return {
-      repoRoot: root,
-      baselinesDir: options.baselinesDir ?? baselinesDir,
-      registry: options.registry ?? (yield* readCurrentRuleRegistryEffect(root)),
+      repoRoot: options.repoRoot,
+      baselinesDir: options.baselinesDir ?? path.join(options.repoRoot, baselinesRepoPath),
+      registry: options.registry ?? (yield* readCurrentRuleRegistryEffect(options.repoRoot)),
       ruleIntroductionManifests: options.ruleIntroductionManifests ?? [],
     };
   });
