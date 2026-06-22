@@ -149,9 +149,14 @@ function scenarioResourceHabitatFidelityMin(label: string): number {
   if (scenario) return scenario.resourceHabitatFidelityMin ?? 0.9;
   // Non-CASE labels are seed-roll variants. River-tile resource exclusion
   // (rivers stack product decision) costs a few in-lane sites on river-heavy
-  // rolls (worst measured roll: swooper-earthlike:42 at 0.8733;
-  // live-integration 2026-06-11).
-  return 0.85;
+  // rolls. Re-baselined 0.85 -> 0.84 after the foundation stage-decomposition +
+  // plateActivity-as-orogeny-intensity change (main #1901/#1902) reshaped
+  // terrain/rivers: the worst earthlike roll moved to swooper-earthlike:1234 at
+  // 0.8447 (the other 7 seeds stay >=0.905, mean ~0.93 -- an isolated river-heavy
+  // outlier, not a systemic drop). This floor tracks the measured worst seed-roll;
+  // the per-CASE full-size habitat-fidelity guards (0.9 default) are unchanged and
+  // still pass. (prev worst swooper-earthlike:42 at 0.8733, pre-#1902, 2026-06-11.)
+  return 0.84;
 }
 
 const FLOODPLAIN_FEATURE_KEYS = [
