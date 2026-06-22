@@ -5,12 +5,12 @@
   "generators": {
     "project": {
       "factory": "./src/generators/scaffold/project/support/generator.ts#projectGenerator",
-      "schema": "./src/generators/scaffold/project/support/schema.json",
+      "schema": "../../.habitat/tooling/components/generator-schemas/scaffold/project/schema.json",
       "description": "Scaffold a Habitat-conformant workspace project for supported uniform kinds."
     },
     "pattern": {
       "factory": "./src/generators/scaffold/pattern/support/generator.ts#patternGenerator",
-      "schema": "./src/generators/scaffold/pattern/support/schema.json",
+      "schema": "../../.habitat/tooling/components/generator-schemas/scaffold/pattern/schema.json",
       "description": "Scaffold a Habitat Grit pattern candidate draft. Registered pattern promotion is governed by Pattern Governance."
     }
   }

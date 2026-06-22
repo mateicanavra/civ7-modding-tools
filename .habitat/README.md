@@ -1,13 +1,17 @@
-# Habitat Authored Artifacts
+# Habitat Authority Tree
 
-This directory contains checked-in Habitat data authored for this repository.
+This directory is the repository's authority tree for Habitat enforcement.
 The Habitat SDK code under `tools/habitat-harness` manages, validates, and
-reads these artifacts, but the package source tree is not the owner of the
-authored rule pack, patterns, or baselines.
+executes these artifacts, but package source, root scripts, tests, CI, hooks,
+and tool configs are not independent sources of enforcement truth.
 
-Current artifact planes:
+Authority planes:
 
-- `rules/index.json`: shared rule registry metadata.
+- `AUTHORITY.md`: the contract for what may be authoritative here and what
+  remains Toolkit execution mechanics elsewhere.
+- `config.md`: a human-readable sketch of the Habitat operation model. It is
+  not consumed programmatically.
+- `rules/index.json`: shared rule registry metadata and owner-root catalog.
 - `rules/<rule-id>/rule.json`: one self-contained record per registered Habitat
   rule, parsed through the
   TypeBox registry schema in
@@ -17,6 +21,8 @@ Current artifact planes:
 - `patterns/checks/*.md`: active Habitat check patterns.
 - `patterns/apply/*.md`: active Habitat apply patterns.
 
-Executor compatibility views are outside this authored artifact tree. Habitat
-owns the rule, pattern, and baseline hierarchy here; adapter-specific paths are
-implementation details.
+Executor compatibility views are outside this authority tree. Habitat owns the
+rule, pattern, and baseline hierarchy here; Grit, Biome, Nx, Vitest, Husky, CI,
+and shell/Node/Python scripts are execution mechanisms. The dispatch logic that
+invokes those mechanisms belongs in Habitat Toolkit source, not in a separate
+`.habitat` tooling configuration layer.

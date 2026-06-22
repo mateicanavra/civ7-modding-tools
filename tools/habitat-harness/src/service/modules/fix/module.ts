@@ -4,9 +4,7 @@ import type {
   HabitatCommandResult,
   SpawnResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatModule } from "@internal/habitat-harness/service/base";
-import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
-import { service } from "@internal/habitat-harness/service/impl";
+import { service, type HabitatModule } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import type {
   ApplyAdmission,
@@ -44,8 +42,8 @@ export interface FixPatternApplyIntent {
   readonly kind: PatternApplyRequest["kind"];
 }
 
-export const module: HabitatModule<HabitatServiceContract["fix"], FixModuleContext> =
-  service.fix.use(({ context, next }) => {
+export const module: HabitatModule<"fix", FixModuleContext> = service.fix.use(
+  ({ context, next }) => {
     const admittedApplyTransactionInputs = makeAdmittedApplyTransactionInputs(
       context.deps.rules.selector
     );
@@ -63,7 +61,8 @@ export const module: HabitatModule<HabitatServiceContract["fix"], FixModuleConte
         runPatternApplyTransactions,
       } satisfies FixModuleContext,
     });
-  });
+  }
+);
 
 function makeAdmittedApplyTransactionInputs(ruleFacts: readonly { id: string }[]) {
   return () => admittedApplyTransactionInputsFromRules(ruleFacts);
