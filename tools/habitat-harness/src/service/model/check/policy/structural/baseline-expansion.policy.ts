@@ -15,6 +15,7 @@ import type { HabitatConfig } from "@internal/habitat-harness/resources/config/i
 import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
   applyBaseline,
+  type BaselineAuthorityContext,
   guardBaselineExpansionEffect,
   loadBaselineStateEffect,
   violationKey,
@@ -45,7 +46,7 @@ export type BaselineExpansionResult =
 
 export function expandBaselinesEffect(
   selection: RuleSelection = {},
-  options: { base?: string } = {}
+  options: { base?: string; repoRoot: string }
 ): Effect.Effect<
   BaselineExpansionResult,
   never,
@@ -64,8 +65,11 @@ export function expandBaselinesEffect(
     const selected = selectRules(selection);
     if (!selected.ok) return selected;
 
+    const context = baselineContext(options);
     const messages: string[] = [];
-    const ruleResults = yield* executeSelectedRulesEffect(selected.rules);
+    const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {
+      repoRoot: options.repoRoot,
+    });
     const baselinesByRuleId = factsByRuleId(
       baselineContractInputs(selected.rules.map((rule) => rule.id))
     );
@@ -73,7 +77,7 @@ export function expandBaselinesEffect(
       const baselineFacts = baselinesByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* loadBaselineStateEffect(baselineFacts);
+      const baseline = yield* loadBaselineStateEffect(baselineFacts, context);
       if (baseline.kind === "baseline-refusal") {
         return {
           ok: false,
@@ -99,6 +103,7 @@ export function expandBaselinesEffect(
         .map(violationKey);
       if (keys.length > 0) {
         const guard = yield* guardBaselineExpansionEffect(rule.id, keys, options.base ?? "main", {
+          ...context,
           registry: baselineContractInputs(),
         });
         if (guard.status === "refused") {
@@ -109,7 +114,7 @@ export function expandBaselinesEffect(
             message: guard.message,
           };
         }
-        const writeFailure = yield* writeBaselineEffect(rule.id, guard.keys).pipe(
+        const writeFailure = yield* writeBaselineEffect(rule.id, guard.keys, context).pipe(
           Effect.as(null),
           Effect.catchAll((error) => Effect.succeed(error))
         );
@@ -126,6 +131,10 @@ export function expandBaselinesEffect(
     }
     return { ok: true, messages };
   });
+}
+
+function baselineContext(options: { readonly repoRoot: string }): BaselineAuthorityContext {
+  return { repoRoot: options.repoRoot };
 }
 
 export function baselineContractInputs(ruleIds?: readonly string[]) {

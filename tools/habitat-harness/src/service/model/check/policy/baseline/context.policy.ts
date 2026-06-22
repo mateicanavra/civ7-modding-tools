@@ -1,7 +1,7 @@
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
 export interface BaselineAuthorityContext {
-  repoRoot?: string;
+  repoRoot: string;
   baselinesDir?: string;
   registry?: readonly BaselineRuleContractInput[];
   ruleIntroductionManifests?: readonly RuleIntroductionBaselineManifest[];

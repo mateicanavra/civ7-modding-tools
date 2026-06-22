@@ -125,7 +125,7 @@ describe("Habitat check service", () => {
       messages: ["baseline written: rule-a (1 entries)"],
     });
     expect(observed).toEqual([
-      { selection: { owner: "tools-habitat-harness" }, options: { base: "main" } },
+      { selection: { owner: "tools-habitat-harness" }, options: { base: "main", repoRoot } },
     ]);
 
     expansion = {
