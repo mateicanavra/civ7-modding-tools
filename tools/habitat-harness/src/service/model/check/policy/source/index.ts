@@ -6,11 +6,11 @@ export {
   sortedUnique,
   sourceCheckCandidateExtensions,
   stagedSourceScanRoots,
-} from "./scan-roots.js";
+} from "./scan-roots.policy.js";
 export {
   SourceCheck,
   type SourceCheckOptions,
   type SourceCheckRequirements,
   type SourceCheckService,
-} from "./service.js";
-export { runSourceRulesEffect } from "./source-rules.js";
+} from "./service.policy.js";
+export { runSourceRulesEffect } from "./source-rules.policy.js";

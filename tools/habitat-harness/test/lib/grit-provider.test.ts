@@ -1,21 +1,3 @@
-import {
-  DiagnosticCatalogEntrySchema,
-  diagnosticCacheRequirementForGritCheck,
-  diagnosticCatalogEntryFromNativeRule,
-  diagnosticCatalogEntryFromRuleSourceFacts,
-  diagnosticConsumerResultFromOutcome,
-  diagnosticProviderFailureKinds,
-  GritDiagnosticCatalogEntrySchema,
-  NativeDiagnosticCatalogEntrySchema,
-  observedNativeDiagnosticIdentity,
-  renderDiagnosticProviderFailure,
-} from "@internal/habitat-harness/service/model/check/index";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
-import {
-  type HabitatProcessRequest,
-  makeHabitatCommandResult,
-  type OutputCapture,
-} from "@internal/habitat-harness/resources/command/index";
 import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/providers/grit/constants";
 import { gritRuleResultsFromReport } from "@internal/habitat-harness/providers/grit/diagnostics";
 import {
@@ -30,7 +12,25 @@ import {
   parseGritCheckTextOutput,
 } from "@internal/habitat-harness/providers/grit/output";
 import { decidePatternScanRoots } from "@internal/habitat-harness/providers/grit/scan-roots/index";
+import {
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+  type OutputCapture,
+} from "@internal/habitat-harness/resources/command/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
+import {
+  DiagnosticCatalogEntrySchema,
+  diagnosticCacheRequirementForGritCheck,
+  diagnosticCatalogEntryFromNativeRule,
+  diagnosticCatalogEntryFromRuleSourceFacts,
+  diagnosticConsumerResultFromOutcome,
+  diagnosticProviderFailureKinds,
+  GritDiagnosticCatalogEntrySchema,
+  NativeDiagnosticCatalogEntrySchema,
+  observedNativeDiagnosticIdentity,
+  renderDiagnosticProviderFailure,
+} from "@internal/habitat-harness/service/model/check/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect, type Layer } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";

@@ -3,10 +3,7 @@ import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/i
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
-import {
-  type VerifyBaseResolution,
-  VerifyBaseResolutionSchema,
-} from "../dto/verify.schema.js";
+import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "../dto/verify.schema.js";
 
 /**
  * Resolves the affected base for verify.

@@ -1,3 +1,4 @@
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import {
   type CheckReport,
   type HookCheckSummary,
@@ -7,7 +8,6 @@ import {
   CheckReportSchema,
   validateCheckReport,
 } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
-import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import { Value } from "typebox/value";
 
 export type HookCheckCommandResult =

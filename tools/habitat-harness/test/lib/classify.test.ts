@@ -1,3 +1,4 @@
+import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
 import {
   classifyPath,
@@ -6,7 +7,6 @@ import {
   classifyTargetResult,
   validateClassifyResult,
 } from "@internal/habitat-harness/service/modules/classify/model/index";
-import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { describe, expect, test } from "vitest";
 
 const fixtureNxProjects: WorkspaceGraphProjectReader = {

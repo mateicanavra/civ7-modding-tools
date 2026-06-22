@@ -1,3 +1,4 @@
+import { makeFakeGitStateProviderLayer } from "@internal/habitat-harness/providers/git/index";
 import {
   CommandRunner,
   captureCommandGitStateAround,
@@ -16,7 +17,6 @@ import {
   CommandInterrupted,
   CommandUnavailable,
 } from "@internal/habitat-harness/resources/errors/index";
-import { makeFakeGitStateProviderLayer } from "@internal/habitat-harness/providers/git/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";

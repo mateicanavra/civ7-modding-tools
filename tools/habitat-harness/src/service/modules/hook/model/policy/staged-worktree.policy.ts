@@ -1,20 +1,20 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import {
-  type SpawnResult,
-  spawnResultFromCommandProviderError,
-  spawnResultFromCommandResult,
-} from "@internal/habitat-harness/resources/command/index";
 import type {
   GitProviderRequirements,
   GitProviderService,
 } from "@internal/habitat-harness/providers/git/index";
 import {
+  type SpawnResult,
+  spawnResultFromCommandProviderError,
+  spawnResultFromCommandResult,
+} from "@internal/habitat-harness/resources/command/index";
+import {
   repoRoot as defaultRepoRoot,
   toRepoRelative,
 } from "@internal/habitat-harness/resources/paths";
+import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { Effect } from "effect";
 import type { HookRuntime } from "./runtime.policy.js";
 

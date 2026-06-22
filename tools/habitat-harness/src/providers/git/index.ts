@@ -1,13 +1,13 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import { Context, Effect, Layer } from "effect";
 import {
   type CommandProviderError,
   CommandRunner,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
+import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import { Context, Effect, Layer } from "effect";
 import type { GitStateProvider } from "./state.js";
 
 export {

@@ -55,13 +55,6 @@ export {
   nativeGritCheckRequestFromCommandResult,
   nativeGritCheckRequestFromProcessRequest,
 } from "./dto/diagnostic-command.schema.js";
-export type { DiagnosticProviderFailureKind } from "./errors/diagnostic-provider.errors.js";
-export {
-  DiagnosticProviderFailureKindSchema,
-  diagnosticProviderFailureKinds,
-  isDiagnosticProviderFailureKind,
-  renderDiagnosticProviderFailure,
-} from "./errors/diagnostic-provider.errors.js";
 export type {
   DiagnosticIdentity,
   GritDiagnosticIdentity,
@@ -129,6 +122,13 @@ export {
   ProtectedMutationGuardSchema,
   TransactionPathDecisionSchema,
 } from "./dto/protected-zone.schema.js";
+export type { DiagnosticProviderFailureKind } from "./errors/diagnostic-provider.errors.js";
+export {
+  DiagnosticProviderFailureKindSchema,
+  diagnosticProviderFailureKinds,
+  isDiagnosticProviderFailureKind,
+  renderDiagnosticProviderFailure,
+} from "./errors/diagnostic-provider.errors.js";
 export {
   hostApplyGateDecision,
   hostAuthoringBoundaryState,

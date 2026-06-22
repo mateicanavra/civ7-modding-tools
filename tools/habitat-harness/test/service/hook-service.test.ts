@@ -469,7 +469,7 @@ describe("Habitat hook service", () => {
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath =
-      "tools/habitat-harness/src/service/model/check/policy/source/source-rules.ts";
+      "tools/habitat-harness/src/service/model/check/policy/source/source-rules.policy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -519,7 +519,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts";
+    const changedPath =
+      "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },

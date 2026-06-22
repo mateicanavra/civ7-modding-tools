@@ -1,27 +1,20 @@
+import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   type CheckReport,
   type VerifyCheckSummary,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
+import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
   verifyTargetPlan,
 } from "@internal/habitat-harness/service/model/workspace/index";
-import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Value } from "typebox/value";
-import { selectedVerifyEnv } from "./command-output.policy.js";
-import {
-  affectedVerificationArgv,
-  completedNxAffected,
-  skippedNxAffected,
-} from "./nx-affected.policy.js";
-import { postStateObservation } from "./post-state.policy.js";
 import {
   type VerifyBaseResolution,
   VerifyHabitatCheckSummarySchema,
@@ -30,6 +23,13 @@ import {
   VerifySelectorStateSchema,
   VerifyTargetPlanConsumptionSchema,
 } from "../dto/verify.schema.js";
+import { selectedVerifyEnv } from "./command-output.policy.js";
+import {
+  affectedVerificationArgv,
+  completedNxAffected,
+  skippedNxAffected,
+} from "./nx-affected.policy.js";
+import { postStateObservation } from "./post-state.policy.js";
 
 /** Inputs needed to assemble a verify handoff receipt after command execution. */
 export interface VerifyReceiptInput {

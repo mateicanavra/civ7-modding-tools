@@ -1,4 +1,4 @@
-import type { HarnessRule } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture";
+import type { HarnessRule } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture.policy";
 import {
   approvedScanRootsForRules,
   checkCommandContext,

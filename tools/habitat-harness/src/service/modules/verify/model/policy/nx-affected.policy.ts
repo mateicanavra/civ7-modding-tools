@@ -1,10 +1,10 @@
-import type { VerifyTargetPlan } from "@internal/habitat-harness/service/model/workspace/index";
-import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import {
   affectedArgv,
   NxProvider,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/providers/nx/index";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
+import type { VerifyTargetPlan } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
 import type { VerifyReceipt } from "../dto/verify.schema.js";
 import { boundedPreview } from "./command-output.policy.js";

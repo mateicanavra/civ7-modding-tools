@@ -2,6 +2,12 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { NodeContext } from "@effect/platform-node";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import {
+  captureOutput,
+  type HabitatCommandResult,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/resources/command/index";
 import {
   applyBaseline,
   type BaselineAuthorityContext,
@@ -15,14 +21,8 @@ import {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
   guardBaselineExpansionEffect,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/operations";
+} from "@internal/habitat-harness/service/model/check/policy/baseline/operations.policy";
 import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
-import {
-  captureOutput,
-  type HabitatCommandResult,
-  makeHabitatCommandResult,
-} from "@internal/habitat-harness/resources/command/index";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
 import { Effect, Layer } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 

@@ -1,5 +1,5 @@
-import { habitatArtifactPathPlan } from "@internal/habitat-harness/service/model/rules/policy/artifact-paths.policy";
 import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/schema";
+import { habitatArtifactPathPlan } from "@internal/habitat-harness/service/model/rules/policy/artifact-paths.policy";
 
 export interface ValidationRunTarget {
   readonly project: string;
@@ -106,7 +106,7 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath === "tools/habitat-harness/scripts/validate-boundary-taxonomy.ts" ||
-    filePath === "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts"
+    filePath === "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts"
   );
 }
 
