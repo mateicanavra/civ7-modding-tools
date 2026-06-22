@@ -10,7 +10,6 @@ import { type Static, Type } from "typebox";
 const VerifyServiceRunInputSchema = Type.Object(
   {
     base: Type.Optional(Type.String({ minLength: 1 })),
-    commandArgs: Type.Optional(Type.Array(Type.String())),
     affectedExecution: Type.Optional(
       Type.Union([Type.Literal("run"), Type.Literal("plan-only")], {
         description:

@@ -16,7 +16,6 @@ describe("verify receipt", () => {
     const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
-      commandArgs: ["--base", "HEAD", "--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 0,
@@ -71,7 +70,6 @@ describe("verify receipt", () => {
     const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
-      commandArgs: ["--base", "HEAD", "--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 0,
@@ -95,7 +93,6 @@ describe("verify receipt", () => {
     const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
-      commandArgs: ["--base", "HEAD", "--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 1,
@@ -137,7 +134,6 @@ describe("verify receipt", () => {
     const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
-      commandArgs: ["--base", "HEAD", "--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 0,
@@ -166,7 +162,6 @@ describe("verify receipt", () => {
     const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
-      commandArgs: ["--base", "HEAD", "--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 1,
@@ -188,7 +183,6 @@ describe("verify receipt", () => {
     const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
-      commandArgs: ["--base", "HEAD", "--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 1,
@@ -216,7 +210,6 @@ describe("verify receipt", () => {
       requestedBase: undefined,
       resolvedBase: "merge-base-sha",
       baseSource: "merge-base",
-      commandArgs: ["--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 1,
@@ -246,7 +239,6 @@ describe("verify receipt", () => {
     const receipt = createVerifyReceipt({
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
-      commandArgs: ["--base", "HEAD", "--json"],
       startedAt: "2026-06-15T00:00:00.000Z",
       durationMs: 12,
       exitCode: 0,

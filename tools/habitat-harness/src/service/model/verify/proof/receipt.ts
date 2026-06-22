@@ -35,8 +35,6 @@ export interface VerifyReceiptInput {
   resolvedBase: string;
   /** Source of the effective base. */
   baseSource?: Extract<VerifyBaseResolution, { kind: "resolved" }>["source"];
-  /** Raw verify command args recorded into the receipt. */
-  commandArgs?: readonly string[];
   /** ISO timestamp captured when verify started. */
   startedAt: string;
   /** Elapsed command duration in milliseconds. */
@@ -101,7 +99,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
       postState,
     }),
     command: {
-      argv: ["habitat", "verify", ...(input.commandArgs ?? [])],
+      argv: ["habitat", "verify"],
       cwd: repoRoot,
       env: selectedVerifyEnv(),
       startedAt: input.startedAt,

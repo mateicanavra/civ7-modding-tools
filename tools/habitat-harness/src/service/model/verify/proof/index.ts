@@ -1,5 +1,4 @@
 /** Public verify module barrel for command orchestration and receipt contracts. */
-export type { VerifyOptions } from "./base.js";
 export { resolveVerifyBaseEffect } from "./base.js";
 export { runAffectedVerificationEffect } from "./nx-affected.js";
 export { observeGitStatusEffect } from "./post-state.js";

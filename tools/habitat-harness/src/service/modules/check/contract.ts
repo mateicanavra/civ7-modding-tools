@@ -1,6 +1,5 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
 import {
-  CheckCommandContextSchema,
   CheckReportSchema,
   SelectorRequestSchema,
 } from "@internal/habitat-harness/service/model/check/structural/schema";
@@ -14,8 +13,6 @@ const CheckServiceRunInputSchema = Type.Object(
     selectors: Type.Optional(SelectorRequestSchema),
     base: Type.Optional(Type.String({ minLength: 1 })),
     baselineIntegrity: Type.Optional(Type.Boolean()),
-    command: Type.Optional(CheckCommandContextSchema),
-    commandArgs: Type.Optional(Type.Array(Type.String())),
     staged: Type.Optional(Type.Boolean()),
     stagedPaths: Type.Optional(Type.Array(Type.String())),
   },
@@ -27,8 +24,6 @@ const CheckServiceExpandBaselineInputSchema = Type.Object(
   {
     selectors: Type.Optional(SelectorRequestSchema),
     base: Type.Optional(Type.String({ minLength: 1 })),
-    command: Type.Optional(CheckCommandContextSchema),
-    commandArgs: Type.Optional(Type.Array(Type.String())),
   },
   { additionalProperties: false, description: "Habitat check baseline expansion request." }
 );
