@@ -7,8 +7,8 @@ import {
   parseBoundaryTaxonomy,
   readWorkspaceManifestProjects,
   type TaxonomyConstraint,
-} from "@internal/habitat-harness/service/modules/graph/model/policy/boundary-taxonomy";
-import type { NxProjectMetadata } from "@internal/habitat-harness/service/modules/graph/model/policy/nx-projects";
+} from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy";
+import type { NxProjectMetadata } from "@internal/habitat-harness/service/model/graph/policy/nx-projects";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { describe, expect, test } from "vitest";
 

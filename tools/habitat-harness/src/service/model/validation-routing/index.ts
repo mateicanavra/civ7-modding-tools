@@ -99,7 +99,7 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath === "tools/habitat-harness/scripts/validate-boundary-taxonomy.ts" ||
-    filePath === "tools/habitat-harness/src/service/modules/graph/model/policy/boundary-taxonomy.ts"
+    filePath === "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts"
   );
 }
 
