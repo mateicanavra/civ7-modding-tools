@@ -18,7 +18,8 @@ const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
 const mockClassifyTarget = vi.hoisted(() => vi.fn());
 const mockFixApplyPatterns = vi.hoisted(() => vi.fn());
 const mockGraphWorkspaceGraph = vi.hoisted(() => vi.fn());
-const mockHookExecute = vi.hoisted(() => vi.fn());
+const mockHookPreCommit = vi.hoisted(() => vi.fn());
+const mockHookPrePush = vi.hoisted(() => vi.fn());
 const mockVerifyChanges = vi.hoisted(() => vi.fn());
 const mockWriteFileSync = vi.hoisted(() => vi.fn());
 
@@ -73,7 +74,7 @@ vi.mock("@orpc/server", () => ({
     classify: { target: mockClassifyTarget },
     fix: { applyPatterns: mockFixApplyPatterns },
     graph: { workspaceGraph: mockGraphWorkspaceGraph },
-    hook: { execute: mockHookExecute },
+    hook: { preCommit: mockHookPreCommit, prePush: mockHookPrePush },
     verify: { changes: mockVerifyChanges },
   })),
 }));
@@ -146,7 +147,8 @@ describe("Habitat oclif commands", () => {
       stdout: '{"nodes":{}}\n',
       stderr: "",
     });
-    mockHookExecute.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
+    mockHookPreCommit.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
+    mockHookPrePush.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockVerifyChanges.mockImplementation(
       async (input: { base?: string; affectedExecution?: string }) => {
         const base = input.base ?? "merge-base";
@@ -332,8 +334,18 @@ describe("Habitat oclif commands", () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockHookExecute).toHaveBeenCalledWith({ name: "pre-push", base: "HEAD~1" });
+    expect(mockHookPrePush).toHaveBeenCalledWith({ base: "HEAD~1" });
     expect(stdout.join("")).toContain("hook ok");
+  });
+
+  test("hook rejects unknown names before calling the service router", async () => {
+    await expect(Hook.run([])).rejects.toThrow();
+
+    expect(mockHookPreCommit).not.toHaveBeenCalled();
+    expect(mockHookPrePush).not.toHaveBeenCalled();
+    expect(stderr.join("")).toBe(
+      "Unknown Habitat hook '(missing)'. Expected pre-commit or pre-push.\n"
+    );
   });
 
   test("classify uses oclif parse errors for missing required path", async () => {

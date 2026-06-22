@@ -12,6 +12,8 @@ Current burn-down categories:
 - Active ratchet: module-local `model/` trees now need the same named-kind file discipline as shared `service/model`; arbitrary implementation files under `model/` are unmanaged logic and must be renamed/classified or moved.
 - Active ratchet: model subdirectories are restricted to `dto`, `errors`, `policy`, and `repositories`; generic `helpers`, `persistence`, and `prompts` buckets are not allowed because they hide ownership instead of naming it.
 - Active runtime cleanup: service runtime realization belongs under `runtime/`; `service/impl.ts` should attach the contract/context to an already-realized managed runtime instead of composing live provider layers itself.
+- Active CLI-shape cleanup: service procedures must expose direct Habitat actions, not command-name envelopes. The CLI owns hook-name parsing/refusal and calls the direct service action.
+- Active contract cleanup: continue simplifying service contracts and schemas after action splits; schemas should describe domain action inputs/outputs directly, not mirror command envelopes or preserve old compatibility names.
 - Promise/resource adaptation belongs outside routers. Routers author procedure logic through the module implementer and consume ready Effect-returning operations from handler context.
 - Remove module-local context from `service/base.ts`; service context keeps only provisioned resources and shared service metadata.
 - Let each `module.ts` project service resources into the module-specific procedure context.
@@ -121,3 +123,4 @@ Completed burn-downs:
 - The structural check policy barrel no longer re-exports general check DTO/request/render/summary language; consumers import public check language from `service/model/check/index` and structural-only helpers from `policy/structural/index`.
 - Model shape validation now rejects generic `helpers`, `persistence`, and `prompts` buckets; Habitat service logic must land in explicit DTO, policy, repository, or error kinds.
 - Habitat service managed runtime construction moved to `runtime/service-runtime.ts`; the oRPC implementer and live service context creation share the same runtime-boundary composition instead of constructing runtimes in service files.
+- Hook service procedure shape now exposes `hook.preCommit` and `hook.prePush`; the old `hook.execute({ name })` envelope and unknown-name service state are deleted, and CLI hook dispatch compiles names to direct service actions.

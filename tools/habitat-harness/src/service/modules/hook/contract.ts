@@ -4,10 +4,8 @@ import { toStandardSchema } from "@internal/habitat-harness/service/typebox-stan
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
 
-const HookExecuteInputSchema = Type.Object(
+const HookPreCommitInputSchema = Type.Object(
   {
-    name: Type.Optional(Type.String()),
-    base: Type.Optional(Type.String()),
     resourcePolicy: Type.Optional(
       Type.Object(
         {
@@ -26,31 +24,49 @@ const HookExecuteInputSchema = Type.Object(
       )
     ),
   },
-  { additionalProperties: false, description: "Habitat hook execution request." }
+  { additionalProperties: false, description: "Habitat pre-commit hook action request." }
 );
-export type HookExecuteInput = Static<typeof HookExecuteInputSchema>;
+export type HookPreCommitInput = Static<typeof HookPreCommitInputSchema>;
 
-const HookExecuteOutputSchema = Type.Object(
+const HookPrePushInputSchema = Type.Object(
+  {
+    base: Type.Optional(Type.String()),
+  },
+  { additionalProperties: false, description: "Habitat pre-push hook action request." }
+);
+export type HookPrePushInput = Static<typeof HookPrePushInputSchema>;
+
+const HookResultSchema = Type.Object(
   {
     exitCode: Type.Integer(),
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Habitat hook execution result." }
+  { additionalProperties: false, description: "Habitat hook action result." }
 );
-export type HookExecuteOutput = Static<typeof HookExecuteOutputSchema>;
+export type HookResult = Static<typeof HookResultSchema>;
 
-const HookExecuteInputStandardSchema = toStandardSchema(HookExecuteInputSchema);
-const HookExecuteOutputStandardSchema = toStandardSchema(HookExecuteOutputSchema);
+const HookPreCommitInputStandardSchema = toStandardSchema(HookPreCommitInputSchema);
+const HookPrePushInputStandardSchema = toStandardSchema(HookPrePushInputSchema);
+const HookResultStandardSchema = toStandardSchema(HookResultSchema);
 
-export const hookExecuteContract: HabitatServiceProcedureContract<
-  typeof HookExecuteInputStandardSchema,
-  typeof HookExecuteOutputStandardSchema
+export const hookPreCommitContract: HabitatServiceProcedureContract<
+  typeof HookPreCommitInputStandardSchema,
+  typeof HookResultStandardSchema
 > = eoc
   .errors(habitatServiceErrorMap)
-  .input(HookExecuteInputStandardSchema)
-  .output(HookExecuteOutputStandardSchema);
+  .input(HookPreCommitInputStandardSchema)
+  .output(HookResultStandardSchema);
+
+export const hookPrePushContract: HabitatServiceProcedureContract<
+  typeof HookPrePushInputStandardSchema,
+  typeof HookResultStandardSchema
+> = eoc
+  .errors(habitatServiceErrorMap)
+  .input(HookPrePushInputStandardSchema)
+  .output(HookResultStandardSchema);
 
 export const hookServiceContract = {
-  execute: hookExecuteContract,
+  preCommit: hookPreCommitContract,
+  prePush: hookPrePushContract,
 };

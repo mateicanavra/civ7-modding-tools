@@ -29,7 +29,7 @@ import {
 } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
-import type { HookExecuteInput } from "./contract.js";
+import type { HookPreCommitInput, HookPrePushInput } from "./contract.js";
 import {
   type HookCheckCommandResult,
   type PreCommitOutcome,
@@ -185,9 +185,8 @@ type HookRouterEffect<T> = Effect.Effect<T, never, any>;
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 interface HookModuleContext {
-  readonly preCommit: (input: HookExecuteInput) => HookRouterEffect<SpawnResult>;
-  readonly prePush: (input: HookExecuteInput) => HookRouterEffect<SpawnResult>;
-  readonly unknownHookResult: typeof unknownHookResult;
+  readonly preCommit: (input: HookPreCommitInput) => HookRouterEffect<SpawnResult>;
+  readonly prePush: (input: HookPrePushInput) => HookRouterEffect<SpawnResult>;
 }
 
 export const module = service.hook.use(({ context, next }) => {
@@ -211,7 +210,6 @@ export const module = service.hook.use(({ context, next }) => {
     context: {
       preCommit: (input) => preCommitHook(hookContext, input),
       prePush: (input) => prePushHook(hookContext, input),
-      unknownHookResult,
     } satisfies HookModuleContext,
   });
 });
@@ -248,7 +246,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
   };
 }
 
-function prePushHook(context: HookProcedureContext, input: HookExecuteInput) {
+function prePushHook(context: HookProcedureContext, input: HookPrePushInput) {
   return Effect.gen(function* () {
     const baseDecision = input.base
       ? ({
@@ -347,7 +345,7 @@ function prePushHook(context: HookProcedureContext, input: HookExecuteInput) {
   });
 }
 
-function preCommitHook(context: HookProcedureContext, input: HookExecuteInput) {
+function preCommitHook(context: HookProcedureContext, input: HookPreCommitInput) {
   return Effect.gen(function* () {
     const begun = yield* beginPreCommit(context, input.resourcePolicy);
     if (begun.kind === "done") {
@@ -369,14 +367,6 @@ function preCommitHook(context: HookProcedureContext, input: HookExecuteInput) {
         : undefined;
     return yield* finishPreCommit(afterBiome.state, sourceCheckResult);
   });
-}
-
-function unknownHookResult(name: string | undefined): SpawnResult {
-  return {
-    exitCode: 2,
-    stdout: "",
-    stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
-  };
 }
 
 function hookResult(output: HookOutput, exitCode: number): HookRouterEffect<SpawnResult> {

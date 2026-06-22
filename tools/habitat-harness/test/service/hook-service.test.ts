@@ -31,7 +31,10 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { HookExecuteInput } from "@internal/habitat-harness/service/modules/hook/contract";
+import type {
+  HookPreCommitInput,
+  HookPrePushInput,
+} from "@internal/habitat-harness/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { Effect, Layer } from "effect";
@@ -81,7 +84,7 @@ describe("Habitat hook service", () => {
   test("runs owned hook orchestration from service input", async () => {
     const fake = makePrePushFixture();
 
-    const result = await runHookServiceInTest({ name: "pre-push", base: "HEAD~1" });
+    const result = await runPrePushHookServiceInTest({ base: "HEAD~1" });
 
     expect(result).toEqual({
       exitCode: 0,
@@ -91,21 +94,11 @@ describe("Habitat hook service", () => {
     expect(fake.calls).toEqual([]);
   });
 
-  test("preserves unknown hook stream behavior", async () => {
-    const result = await runHookServiceInTest({});
-
-    expect(result).toEqual({
-      exitCode: 2,
-      stdout: "",
-      stderr: "Unknown Habitat hook '(missing)'. Expected pre-commit or pre-push.\n",
-    });
-  });
-
   test("resolves empty pre-push base from Graphite", async () => {
     const fake = makePrePushFixture({ graphiteParent: "agent-parent" });
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "" },
       {},
       undefined,
       undefined,
@@ -122,8 +115,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const gitCalls: string[] = [];
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push(argv.join(" "));
@@ -155,8 +148,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const gitCalls: string[] = [];
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push(argv.join(" "));
@@ -177,8 +170,8 @@ describe("Habitat hook service", () => {
   test("propagates Nx affected failures with base provenance", async () => {
     const fake = makePrePushFixture({ graphiteParent: "agent-HR-parent" });
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "" },
       {},
       undefined,
       nxLayer(() =>
@@ -212,8 +205,8 @@ describe("Habitat hook service", () => {
     const events: HabitatReportEvent[] = [];
     const fake = makePrePushFixture({ graphiteParent: "agent-HR-parent" });
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "" },
       { reporterEvents: events },
       undefined,
       nxLayer(() =>
@@ -256,7 +249,7 @@ describe("Habitat hook service", () => {
   test("runs pre-push through provider-backed service execution", async () => {
     const fake = makePrePushFixture();
 
-    const result = await runHookServiceInTest({ name: "pre-push", base: "HEAD~1" });
+    const result = await runPrePushHookServiceInTest({ base: "HEAD~1" });
 
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("base=HEAD~1");
@@ -268,8 +261,8 @@ describe("Habitat hook service", () => {
     const checkRequests: CheckOptions[] = [];
     const changedPath = "packages/sdk/src/index.ts";
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
@@ -303,8 +296,8 @@ describe("Habitat hook service", () => {
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPath = ".habitat/rules/rng-authority-static/rule.json";
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
@@ -341,8 +334,8 @@ describe("Habitat hook service", () => {
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPath = ".habitat/rules/import-boundaries/rule.json";
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
@@ -381,8 +374,8 @@ describe("Habitat hook service", () => {
       ".habitat/rules/import-boundaries/rule.json",
     ];
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
@@ -421,8 +414,8 @@ describe("Habitat hook service", () => {
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath = "tools/habitat-harness/src/nx-plugin.ts";
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
@@ -472,8 +465,8 @@ describe("Habitat hook service", () => {
     const changedPath =
       "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
@@ -524,8 +517,8 @@ describe("Habitat hook service", () => {
     const runTargetRequests: NxRunTargetRequest[] = [];
     const changedPath = "tools/habitat-harness/package.json";
 
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "HEAD~1" },
+    const result = await runPrePushHookServiceInTest(
+      { base: "HEAD~1" },
       {},
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
@@ -583,7 +576,7 @@ describe("Habitat hook service", () => {
         const git = yield* GitProvider;
         const graphite = yield* GraphiteProvider;
         const nx = yield* NxProvider;
-        const executeHook = hookRouter.execute.callable({
+        const preCommitHook = hookRouter.preCommit.callable({
           context: {
             deps: makeTestHabitatServiceDeps({
               biome,
@@ -599,7 +592,7 @@ describe("Habitat hook service", () => {
             }),
           },
         });
-        return yield* withFiberContext(() => executeHook({ name: "pre-commit" }));
+        return yield* withFiberContext(() => preCommitHook({}));
       }).pipe(
         Effect.provide(
           Layer.mergeAll(
@@ -634,8 +627,8 @@ describe("Habitat hook service", () => {
     });
     const biomeRequests: BiomeCommandRequest[] = [];
 
-    const result = await runHookServiceInTest(
-      { name: "pre-commit" },
+    const result = await runPreCommitHookServiceInTest(
+      {},
       { hashFile: fake.hashFile, pathExists: fake.pathExists },
       preCommitGitLayer(fake),
       undefined,
@@ -688,8 +681,8 @@ function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
   mockCreateCheckReportEffect.mockImplementation(policy.createReport);
 }
 
-function runHookServiceInTest(
-  input: HookExecuteInput,
+function runPrePushHookServiceInTest(
+  input: HookPrePushInput = {},
   options: {
     readonly hashFile?: (targetPath: string) => string | null;
     readonly pathExists?: (targetPath: string) => boolean;
@@ -706,46 +699,80 @@ function runHookServiceInTest(
   const layer = Layer.mergeAll(gitLayer, nx, biome, graphite);
   return Effect.runPromise(
     Effect.gen(function* () {
-      const biome = yield* BiomeProvider;
-      const git = yield* GitProvider;
-      const graphite = yield* GraphiteProvider;
-      const nx = yield* NxProvider;
-      const executeHook = hookRouter.execute.callable({
-        context: {
-          deps: {
-            ...makeTestHabitatServiceDeps({
-              biome,
-              git,
-              graphite,
-              nx,
-              platform: {
-                ...makeTestHabitatServiceDeps().platform,
-                ...(options.hashFile ? { hashFile: options.hashFile } : {}),
-                ...(options.pathExists ? { pathExists: options.pathExists } : {}),
-                repoRoot,
-              },
-              ...(options.reporterEvents
-                ? {
-                    reporter: {
-                      emit: (event: HabitatReportEvent) =>
-                        Effect.sync(() => {
-                          options.reporterEvents?.push(event);
-                        }),
-                    },
-                  }
-                : {}),
-            }),
-          },
-        },
-      });
+      const context = yield* hookServiceContext(options);
+      const prePushHook = hookRouter.prePush.callable({ context });
+      return yield* withFiberContext(() => prePushHook(input));
+    }).pipe(Effect.provide(layer))
+  );
+}
+
+function runPreCommitHookServiceInTest(
+  input: HookPreCommitInput = {},
+  options: {
+    readonly hashFile?: (targetPath: string) => string | null;
+    readonly pathExists?: (targetPath: string) => boolean;
+    readonly reporterEvents?: HabitatReportEvent[];
+    readonly resourcePolicy?: HookResourcePolicy;
+  } = {},
+  gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
+  nx = nxLayer(),
+  structuralCheck?: StructuralCheckPolicy,
+  biome = biomeLayer(),
+  graphite = makeFakeGraphiteProviderLayer(() => null)
+) {
+  if (structuralCheck) useStructuralCheckPolicy(structuralCheck);
+  const layer = Layer.mergeAll(gitLayer, nx, biome, graphite);
+  return Effect.runPromise(
+    Effect.gen(function* () {
+      const context = yield* hookServiceContext(options);
+      const preCommitHook = hookRouter.preCommit.callable({ context });
       return yield* withFiberContext(() =>
-        executeHook({
+        preCommitHook({
           ...input,
           ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
         })
       );
     }).pipe(Effect.provide(layer))
   );
+}
+
+function hookServiceContext(options: {
+  readonly hashFile?: (targetPath: string) => string | null;
+  readonly pathExists?: (targetPath: string) => boolean;
+  readonly reporterEvents?: HabitatReportEvent[];
+}) {
+  return Effect.gen(function* () {
+    const biome = yield* BiomeProvider;
+    const git = yield* GitProvider;
+    const graphite = yield* GraphiteProvider;
+    const nx = yield* NxProvider;
+    return {
+      deps: {
+        ...makeTestHabitatServiceDeps({
+          biome,
+          git,
+          graphite,
+          nx,
+          platform: {
+            ...makeTestHabitatServiceDeps().platform,
+            ...(options.hashFile ? { hashFile: options.hashFile } : {}),
+            ...(options.pathExists ? { pathExists: options.pathExists } : {}),
+            repoRoot,
+          },
+          ...(options.reporterEvents
+            ? {
+                reporter: {
+                  emit: (event: HabitatReportEvent) =>
+                    Effect.sync(() => {
+                      options.reporterEvents?.push(event);
+                    }),
+                },
+              }
+            : {}),
+        }),
+      },
+    };
+  });
 }
 
 function commandResult(
