@@ -1,4 +1,3 @@
-import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
   applyBaseline,
   type BaselineAuthorityContext,
@@ -17,6 +16,7 @@ import {
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
+import { errorMessage } from "../baseline/context.policy.js";
 import { executeSelectedRulesEffect, type StructuralExecutionContext } from "./execution.policy.js";
 
 export type BaselineExpansionResult =
@@ -97,7 +97,7 @@ export function expandBaselinesEffect(
             ok: false,
             requested: selection,
             reason: "baseline-contract",
-            message: `Unable to write baseline for '${rule.id}': ${renderHabitatError(writeFailure)}`,
+            message: `Unable to write baseline for '${rule.id}': ${errorMessage(writeFailure)}`,
           };
         }
         messages.push(`baseline written: ${rule.id} (${keys.length} entries)`);
@@ -108,7 +108,11 @@ export function expandBaselinesEffect(
 }
 
 function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
-  return { git: context.git, repoRoot: context.repoRoot };
+  return {
+    fileSystem: context.baselineFileSystem,
+    git: context.git,
+    repoRoot: context.repoRoot,
+  };
 }
 
 export function baselineContractInputs(rules: RuleFactsCatalog, ruleIds?: readonly string[]) {

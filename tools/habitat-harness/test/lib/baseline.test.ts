@@ -11,6 +11,14 @@ import {
   type HabitatCommandResult,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
+import {
+  isDirectory,
+  isFile,
+  makeDirectory,
+  readDirectory,
+  readText,
+  writeText,
+} from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/index";
 import {
   applyBaseline,
@@ -449,6 +457,14 @@ function createBaselineContext(options: {
   const baselinesDir = path.join(repoRoot, ".habitat", "baselines");
   mkdirSync(baselinesDir, { recursive: true });
   return {
+    fileSystem: {
+      isDirectory,
+      isFile,
+      makeDirectory,
+      readDirectory,
+      readText,
+      writeText,
+    },
     repoRoot,
     baselinesDir,
     registry: options.registry,

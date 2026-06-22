@@ -238,7 +238,11 @@ function baselineIntegrityReportEffect(
 }
 
 function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
-  return { git: context.git, repoRoot: context.repoRoot };
+  return {
+    fileSystem: context.baselineFileSystem,
+    git: context.git,
+    repoRoot: context.repoRoot,
+  };
 }
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {
