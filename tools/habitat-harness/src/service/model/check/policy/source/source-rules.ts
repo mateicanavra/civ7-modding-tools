@@ -6,7 +6,7 @@ import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/
 import {
   pathCoveragePatternMatches,
   type RuleSourceFacts,
-} from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/index";
 import {
   habitatCacheRepoPath,
   habitatCacheRepoPathPrefix,

@@ -10,7 +10,7 @@ import {
   structuralCheckRequest,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { validateCheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   type RuleSelection,
   selectRules,

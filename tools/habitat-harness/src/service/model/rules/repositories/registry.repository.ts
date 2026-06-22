@@ -16,12 +16,12 @@ import type {
   RuleRegistryDocumentV1,
   RuleRegistryIndexV1,
   RuleRegistryRecordV1,
-} from "./schema.ts";
+} from "../dto/registry.schema.ts";
 import {
   RuleRegistryDocumentV1Schema,
   RuleRegistryIndexV1Schema,
   RuleRegistryRecordV1Schema,
-} from "./schema.ts";
+} from "../dto/registry.schema.ts";
 
 export type RuleRegistryIssueCode =
   | "registry-json-invalid"

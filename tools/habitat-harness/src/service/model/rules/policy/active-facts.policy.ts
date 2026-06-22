@@ -1,17 +1,17 @@
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
+import { activeRuleRegistryDocument } from "../repositories/registry.repository.js";
 import {
-  activeRuleRegistryDocument,
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
   ruleFileLayerFacts,
-  ruleGraphFacts,
   ruleGritFacts,
   ruleHookCheckFacts,
   ruleReportFacts,
   ruleRoutingFacts,
   ruleSelectorFacts,
   ruleSourceFacts,
-} from "./index.js";
+} from "./facts.policy.js";
+import { ruleGraphFacts } from "./graph.policy.js";
 
 const records = activeRuleRegistryDocument.rules;
 

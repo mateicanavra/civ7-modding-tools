@@ -1,6 +1,6 @@
-import { activeRuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
-import type { RuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
-import { pathCoveragePatternMatches } from "@internal/habitat-harness/service/model/rules/registry/path-coverage";
+import { activeRuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/index";
+import { pathCoveragePatternMatches } from "@internal/habitat-harness/service/model/rules/policy/path-coverage.policy";
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import type { RuleCoverageKind, RuleRouting } from "../dto/classify.schema.js";
 

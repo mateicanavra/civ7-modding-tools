@@ -13,7 +13,7 @@ import {
   activeRuleHookCheckFacts,
   activeRuleSourceFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   type HookCheckCommandResult,

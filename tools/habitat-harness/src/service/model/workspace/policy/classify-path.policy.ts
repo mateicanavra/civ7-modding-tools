@@ -1,5 +1,5 @@
 import path from "node:path";
-import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type {
   GraphRefusalState,
   WorkspaceGraphReadState,

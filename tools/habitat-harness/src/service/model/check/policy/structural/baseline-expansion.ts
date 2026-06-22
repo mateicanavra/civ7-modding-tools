@@ -9,7 +9,7 @@ import {
   activeRuleBaselineFacts,
   activeRuleSelectorFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import {
   type RuleSelectionResult,

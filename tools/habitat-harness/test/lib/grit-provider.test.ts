@@ -10,7 +10,7 @@ import {
   observedNativeDiagnosticIdentity,
   renderDiagnosticProviderFailure,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,

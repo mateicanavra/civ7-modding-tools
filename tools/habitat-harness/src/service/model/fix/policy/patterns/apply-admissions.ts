@@ -1,4 +1,4 @@
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Value } from "typebox/value";
 import { applyAdmittedState } from "./admission.js";
 import {

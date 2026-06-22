@@ -3,7 +3,7 @@ import {
   activeRuleRegistryDocument,
   type RuleCommandExecutionFacts,
   type RuleRegistryRecordV1,
-} from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/index";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 
 /**

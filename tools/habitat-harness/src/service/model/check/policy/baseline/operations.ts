@@ -4,7 +4,7 @@ import {
   parseRuleRegistryDocument,
   ruleBaselineFacts,
   ruleSelectorFacts,
-} from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/index";
 import {
   baselineRepoPath,
   ruleRegistryRepoPath,

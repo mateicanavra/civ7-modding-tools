@@ -23,14 +23,14 @@ import {
   activeRuleHookCheckFacts,
   activeRuleSourceFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/registry/active-facts";
+} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RuleGraphFacts,
   RuleSelectorFacts,
   RuleSourceFacts,
-} from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import {

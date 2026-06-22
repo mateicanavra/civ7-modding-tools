@@ -10,7 +10,8 @@ Current artifact planes:
 - `rules/index.json`: shared rule registry metadata.
 - `rules/<rule-id>/rule.json`: one self-contained record per registered Habitat
   rule, parsed through the
-  TypeBox registry schema in `tools/habitat-harness/src/rules/registry`.
+  TypeBox registry schema in
+  `tools/habitat-harness/src/service/model/rules/dto/registry.schema.ts`.
 - `baselines/*.json`: explicit baseline files for registered rules, parsed
   through the baseline contract.
 - `patterns/checks/*.md`: active Habitat check patterns.
