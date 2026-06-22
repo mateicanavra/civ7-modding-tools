@@ -78,7 +78,7 @@ import Graph from "@internal/habitat-harness/cli/commands/graph";
 import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
 import * as checkReport from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import * as classify from "@internal/habitat-harness/service/model/workspace/index";
+import * as classify from "@internal/habitat-harness/service/modules/classify/model/index";
 import * as verifyReceipt from "@internal/habitat-harness/service/modules/verify/model/index";
 import { createRouterClient } from "@orpc/server";
 

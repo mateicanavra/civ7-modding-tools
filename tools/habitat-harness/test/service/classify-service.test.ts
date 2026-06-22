@@ -1,4 +1,4 @@
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/model/workspace/index";
+import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { createRouterClient } from "@orpc/server";
