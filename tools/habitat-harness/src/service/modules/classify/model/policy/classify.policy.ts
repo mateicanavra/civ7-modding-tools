@@ -1,20 +1,20 @@
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   readWorkspaceGraph,
   type WorkspaceGraphProjectReader,
 } from "@internal/habitat-harness/providers/nx/graph";
-import { diffText, extractDiffPaths } from "../helpers/diff.helper.js";
-import {
-  classifyPathFromProjects,
-  graphReadRefusal,
-  graphRefusalResult,
-} from "./classify-path.policy.js";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   type ClassifyResult,
   type PathClassification,
   parseClassifyResult,
   stringifyClassifyResult,
 } from "../dto/classify.schema.js";
+import { diffText, extractDiffPaths } from "../helpers/diff.helper.js";
+import {
+  classifyPathFromProjects,
+  graphReadRefusal,
+  graphRefusalResult,
+} from "./classify-path.policy.js";
 
 export type {
   ClassifiedTarget,

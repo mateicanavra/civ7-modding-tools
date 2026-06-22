@@ -1,14 +1,17 @@
 export { describeRuleSelectionFailure } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-export { type BaselineExpansionResult, expandBaselinesEffect } from "./baseline-expansion.js";
+export {
+  type BaselineExpansionResult,
+  expandBaselinesEffect,
+} from "./baseline-expansion.policy.js";
 export {
   approvedScanRootsForRules,
   executeSelectedRulesEffect,
   rulesForExecution,
   stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
-} from "./execution.js";
-export { renderCheckReport, stringifyCheckReport } from "./render.js";
-export { createCheckReportEffect } from "./report.js";
+} from "./execution.policy.js";
+export { renderCheckReport, stringifyCheckReport } from "./render.policy.js";
+export { createCheckReportEffect } from "./report.policy.js";
 export {
   baselineAuthoringRequest,
   type CheckOptions,
@@ -16,7 +19,7 @@ export {
   type EmitCheckOptions,
   normalizeSelectorRequest,
   structuralCheckRequest,
-} from "./request.js";
+} from "./request.policy.js";
 export type {
   CheckCommandContext,
   CheckOutcome,
@@ -39,30 +42,30 @@ export {
   VerifyCheckSummarySchema,
   validateCheckReport,
 } from "./schema.js";
-export { selectorRefusalReport } from "./selection.js";
+export { selectorRefusalReport } from "./selection.policy.js";
 export {
   makeFakeStructuralCheckLayer,
   StructuralCheck,
   StructuralCheckLive,
   type StructuralCheckService,
-} from "./service.js";
+} from "./service.policy.js";
 export type {
   BaselineApplicationOutcome,
   DiagnosticConsumptionOutcome,
   RuleExecutionPlan,
   RuleSelectionOutcome,
   StructuralRuleOutcome,
-} from "./state.js";
+} from "./state.policy.js";
 export {
   BaselineApplicationOutcomeSchema,
   DiagnosticConsumptionOutcomeSchema,
   RuleExecutionPlanSchema,
   RuleSelectionOutcomeSchema,
   StructuralRuleOutcomeSchema,
-} from "./state.js";
+} from "./state.policy.js";
 export {
   checkOutcomeFromReport,
   hookCheckSummary,
   isDiagnosticUnavailableSummary,
   verifyCheckSummary,
-} from "./summaries.js";
+} from "./summaries.policy.js";

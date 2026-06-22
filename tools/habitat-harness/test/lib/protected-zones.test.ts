@@ -1,13 +1,11 @@
 import {
   decideScanRootProtection,
   declarationForFileLayerRule,
+  defaultHostPolicyDocument,
   evaluateProtectedMutationGuard,
+  readHostPolicyState,
   runFileLayerProtectedMutationRule,
   stagedPathsFromNameStatus,
-} from "@internal/habitat-harness/service/model/check/index";
-import {
-  defaultHostPolicyDocument,
-  readHostPolicyState,
   unavailableHostPolicyState,
 } from "@internal/habitat-harness/service/model/check/index";
 import { describe, expect, test } from "vitest";

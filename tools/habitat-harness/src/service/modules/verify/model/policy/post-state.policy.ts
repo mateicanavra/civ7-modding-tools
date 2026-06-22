@@ -1,8 +1,8 @@
-import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import {
   GitProvider,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/providers/git/index";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import type { VerifyReceipt } from "../dto/verify.schema.js";

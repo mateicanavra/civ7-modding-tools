@@ -1,11 +1,7 @@
 import path from "node:path";
-import type { HostSurfaceDecision } from "../dto/host-policy.schema.js";
-import {
-  hostSurfaceDecisionForGeneratedZone,
-  hostSurfaceDecisionForPath,
-} from "./host-policy-decisions.policy.js";
 import type { RuleFileLayerFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Value } from "typebox/value";
+import type { HostSurfaceDecision } from "../dto/host-policy.schema.js";
 import {
   type DeclarationReadiness,
   DeclarationReadinessSchema,
@@ -18,6 +14,10 @@ import {
   type ProtectedZoneOwner,
   type ProtectedZoneRecoveryInstruction,
 } from "../dto/protected-zone.schema.js";
+import {
+  hostSurfaceDecisionForGeneratedZone,
+  hostSurfaceDecisionForPath,
+} from "./host-policy-decisions.policy.js";
 
 type GeneratedZoneRule = Extract<RuleFileLayerFacts, { generatedZone: string }>;
 type ForbiddenFileNameRule = Extract<RuleFileLayerFacts, { forbiddenFileNames: readonly string[] }>;

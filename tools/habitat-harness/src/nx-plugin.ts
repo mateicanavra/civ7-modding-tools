@@ -20,7 +20,7 @@ import { repoRoot } from "./resources/paths.ts";
 import {
   sourceCheckRuleModuleRepoPath,
   sourceCheckRuleRuntimeRepoPath,
-} from "./service/model/check/policy/source/module-paths.ts";
+} from "./service/model/check/policy/source/module-paths.policy.ts";
 import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
   type InferredProjects,
@@ -38,7 +38,7 @@ import {
   habitatInputs,
   ownerCheckTarget,
   sourceCheckTarget,
-} from "./service/model/graph/policy/target-definitions.ts";
+} from "./service/model/graph/policy/target-definitions.policy.ts";
 
 const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
 

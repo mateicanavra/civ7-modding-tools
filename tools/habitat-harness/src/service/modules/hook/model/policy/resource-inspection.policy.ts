@@ -6,17 +6,17 @@ import type {
 } from "@internal/habitat-harness/providers/git/index";
 import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
+import type {
+  ResourcePreCommitDecision,
+  ResourceStateFacade,
+  ResourceStateKind,
+} from "../dto/hook.schema.js";
 import {
   allowedResourceDecision,
   refusedResourceDecision,
   resourceDecisionToFacade,
 } from "./resource-decision.policy.js";
 import type { HookRuntime } from "./runtime.policy.js";
-import type {
-  ResourcePreCommitDecision,
-  ResourceStateFacade,
-  ResourceStateKind,
-} from "../dto/hook.schema.js";
 
 export function classifyResourcesState(runtime: HookRuntime = {}): ResourceStateFacade {
   if (!runtime.resourcePolicy) {

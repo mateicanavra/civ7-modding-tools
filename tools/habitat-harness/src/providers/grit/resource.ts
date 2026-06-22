@@ -1,6 +1,7 @@
 import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
+import type { GitStateProvider } from "@internal/habitat-harness/providers/git/index";
 import {
   type CommandProviderError,
   CommandRunner,
@@ -11,7 +12,6 @@ import type {
 } from "@internal/habitat-harness/resources/command/types";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
-import type { GitStateProvider } from "@internal/habitat-harness/providers/git/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   acquireTempDirectory,

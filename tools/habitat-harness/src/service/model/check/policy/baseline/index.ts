@@ -1,6 +1,6 @@
-export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.js";
-export type { BaselineAuthorityContext, RequiredBaselineContext } from "./context.js";
-export { resolveBaselineContext } from "./context.js";
+export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.policy.js";
+export type { BaselineAuthorityContext, RequiredBaselineContext } from "./context.policy.js";
+export { resolveBaselineContext } from "./context.policy.js";
 export type {
   BaselineApplicationResult,
   BaselineAuthorityResult,
@@ -33,7 +33,7 @@ export {
   BaselineAuthorityLive,
   type BaselineAuthorityService,
   makeFakeBaselineAuthorityLayer,
-} from "./service.js";
+} from "./service.policy.js";
 export {
   baselineAuthorityResult,
   baselinePath,
@@ -42,4 +42,4 @@ export {
   loadBaselineState,
   parseBaselineArray,
   validateBaselineContract,
-} from "./state.js";
+} from "./state.policy.js";

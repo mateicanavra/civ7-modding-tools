@@ -22,7 +22,7 @@ describe("source-check rule execution", () => {
       diagnostics: [
         {
           ruleId: "adapter-base-standard-import",
-          path: "tools/habitat-harness/src/service/model/check/policy/source/rules/adapter-base-standard-import.mjs",
+          path: "tools/habitat-harness/src/service/model/check/policy/source/rules/adapter-base-standard-import.rule.mjs",
           message:
             "Source-check rules must declare exact path coverage before native source execution.",
           severity: "error",

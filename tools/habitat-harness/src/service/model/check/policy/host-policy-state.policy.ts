@@ -1,5 +1,4 @@
 import { Value } from "typebox/value";
-import { defaultHostPolicyDocument } from "./host-policy-declarations.policy.js";
 import {
   type HostMatcher,
   type HostPolicyDeclaration,
@@ -9,6 +8,7 @@ import {
   type HostPolicyState,
   HostPolicyStateSchema,
 } from "../dto/host-policy.schema.js";
+import { defaultHostPolicyDocument } from "./host-policy-declarations.policy.js";
 
 type SurfaceDeclaration = Extract<HostPolicyDeclaration, { matcher: HostMatcher }>;
 type GeneratedSurfaceDeclaration = Extract<HostPolicyDeclaration, { generatedZoneId: string }>;

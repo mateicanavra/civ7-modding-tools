@@ -1,13 +1,13 @@
-import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/index";
 import type {
   GitProviderRequirements,
   GitProviderService,
 } from "@internal/habitat-harness/providers/git/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/index";
 import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
+import type { HookRepoSnapshot, ResourceStateKind } from "../dto/hook.schema.js";
 import { classifyResourcesState } from "./resource-inspection.policy.js";
 import type { HookRuntime } from "./runtime.policy.js";
-import type { HookRepoSnapshot, ResourceStateKind } from "../dto/hook.schema.js";
 
 export function captureRepoSnapshotEffect(
   context: { readonly git: GitProviderService; readonly repoRoot: string },
