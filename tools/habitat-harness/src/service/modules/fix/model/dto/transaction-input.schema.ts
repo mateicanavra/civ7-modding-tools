@@ -1,13 +1,10 @@
 import { type Static, Type } from "typebox";
-import { Value } from "typebox/value";
 import {
-  type ApplyAdmission,
   type ApplyDryRunCommand,
   ApplyDryRunCommandSchema,
-  type ApplyTransactionInput,
   ApplyTransactionInputSchema,
-} from "../patterns/index.js";
-import { NonEmptyStringSchema } from "./primitives.js";
+} from "./pattern-management.schema.js";
+import { NonEmptyStringSchema } from "./shared.schema.js";
 
 export const GritDryRunCommandInputSchema = ApplyDryRunCommandSchema;
 
@@ -55,56 +52,8 @@ export const TransactionInputResolutionSchema = Type.Union([
   InvalidTransactionInputResolutionSchema,
 ]);
 
+export const TransactionInputRegistrySchema = Type.Array(ApplyTransactionInputSchema);
+
 export type GritDryRunCommandInput = ApplyDryRunCommand;
 export type ResolvedTransactionInput = Static<typeof ResolvedTransactionInputSchema>;
 export type TransactionInputResolution = Static<typeof TransactionInputResolutionSchema>;
-
-const TransactionInputRegistrySchema = Type.Array(ApplyTransactionInputSchema);
-
-export function resolveTransactionInput(
-  admission: ApplyAdmission,
-  inputs: readonly ApplyTransactionInput[]
-): TransactionInputResolution {
-  const inputErrors = [...Value.Errors(TransactionInputRegistrySchema, inputs)];
-  if (inputErrors.length > 0) {
-    return parseResolution({
-      kind: "invalid-transaction-input",
-      transactionInputRef: admission.transactionInputRef,
-      message: inputErrors[0]?.message ?? "Invalid transaction contract.",
-    });
-  }
-
-  const registry = Value.Parse(TransactionInputRegistrySchema, inputs);
-  const refMatches = registry.filter(
-    (input) => input.transactionInputRef === admission.transactionInputRef
-  );
-  const matched = refMatches.find(
-    (input) =>
-      input.patternId === admission.patternId && input.manifestPath === admission.manifestPath
-  );
-
-  if (matched) {
-    return parseResolution({
-      ...matched,
-      kind: "resolved-transaction-input",
-    });
-  }
-
-  if (refMatches.length > 0) {
-    return parseResolution({
-      kind: "mismatched-transaction-input",
-      patternId: admission.patternId,
-      manifestPath: admission.manifestPath,
-      transactionInputRef: admission.transactionInputRef,
-    });
-  }
-
-  return parseResolution({
-    kind: "unresolved-transaction-input",
-    transactionInputRef: admission.transactionInputRef,
-  });
-}
-
-function parseResolution(value: unknown): TransactionInputResolution {
-  return Value.Parse(TransactionInputResolutionSchema, value);
-}

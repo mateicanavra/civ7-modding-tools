@@ -1,8 +1,8 @@
 import { TransactionPathDecisionSchema } from "@internal/habitat-harness/service/model/check/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import { ApplyAdmissionSchema } from "../patterns/index.js";
-import { NonEmptyStringSchema } from "./primitives.js";
+import { ApplyAdmissionSchema } from "./pattern-management.schema.js";
+import { NonEmptyStringSchema } from "./shared.schema.js";
 
 export const WorktreeObservationSchema = Type.Object(
   {

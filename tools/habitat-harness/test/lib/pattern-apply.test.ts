@@ -9,13 +9,13 @@ import {
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+  PatternApplyRequest,
+} from "@internal/habitat-harness/service/modules/fix/model/dto/index";
+import { PatternApplyRequestSchema } from "@internal/habitat-harness/service/modules/fix/model/dto/index";
 import {
-  type PatternApplyRequest,
-  PatternApplyRequestSchema,
   renderPatternApply,
   runPatternApplyTransaction,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/transactions/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/index";
 import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";

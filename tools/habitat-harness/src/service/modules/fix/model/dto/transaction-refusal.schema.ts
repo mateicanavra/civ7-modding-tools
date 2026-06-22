@@ -1,5 +1,5 @@
 import { type Static, Type } from "typebox";
-import { NonEmptyStringSchema } from "./primitives.js";
+import { NonEmptyStringSchema } from "./shared.schema.js";
 
 export const PatternApplyRefusalReasonSchema = Type.Union([
   Type.Literal("missing-apply-admission"),

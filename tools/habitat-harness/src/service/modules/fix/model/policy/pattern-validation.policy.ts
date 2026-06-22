@@ -1,5 +1,4 @@
 import { Value } from "typebox/value";
-import { patternCandidateRoot, patternManifestPath } from "./paths.js";
 import {
   type PatternLifecycle,
   type PatternManifest,
@@ -7,7 +6,8 @@ import {
   type PatternRuleReferenceInput,
   type PatternValidationFailureReason,
   type PatternValidationIssue,
-} from "./schema.js";
+} from "../dto/pattern-management.schema.js";
+import { patternCandidateRoot, patternManifestPath } from "./pattern-artifact-paths.policy.js";
 
 export interface PatternRulePackReferenceInput {
   id: string;

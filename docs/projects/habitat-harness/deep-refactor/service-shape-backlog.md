@@ -11,7 +11,6 @@ Current burn-down categories:
 - Keep routers authored as procedure logic, importing only the module implementer from `./module.js`.
 - Move shared resource needs into service-level deps/middleware; keep module-specific domain concepts inside the owning module.
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
-- Normalize remaining module-local `model/policy` files into named policy artifacts; the current known remainder is the fix module's pattern and transaction policy internals.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
 
@@ -31,3 +30,4 @@ Completed burn-downs:
 - Graph router internal error mapping now uses contract-listed effect-oRPC errors; router source carries no TODO notes for this path.
 - Shared `service/model/*` domains now reject loose unmanaged files; policy code must be named and classified by kind.
 - Shared `service/model/*/policy` files now use explicit policy/rule suffixes instead of generic `*.ts` and `*.mjs` names.
+- Fix module pattern/apply internals now use explicit `model/dto`, `model/policy`, and `model/repositories` kinds; the old nested `patterns/` and `transactions/` pseudo-domains are removed.

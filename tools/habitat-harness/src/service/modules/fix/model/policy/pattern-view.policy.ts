@@ -11,7 +11,7 @@ import {
   type PatternState,
   type PatternView,
   PatternViewSchema,
-} from "./schema.js";
+} from "../dto/pattern-management.schema.js";
 
 export function patternView(state: PatternState): PatternView {
   switch (state.kind) {

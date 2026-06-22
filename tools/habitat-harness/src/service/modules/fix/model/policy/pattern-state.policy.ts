@@ -5,7 +5,7 @@ import {
   type PatternRetirementDecision,
   type PatternState,
   PatternStateSchema,
-} from "./schema.js";
+} from "../dto/pattern-management.schema.js";
 
 export function candidateDraftState(candidate: CandidatePatternManifest): PatternState {
   return Value.Parse(PatternStateSchema, { kind: "candidate-draft", candidate });

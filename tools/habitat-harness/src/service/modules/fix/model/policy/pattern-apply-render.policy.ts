@@ -1,5 +1,5 @@
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import type { PatternApplyRecord } from "./schema.js";
+import type { PatternApplyRecord } from "../dto/pattern-apply.schema.js";
 
 export function renderPatternApply(record: PatternApplyRecord): SpawnResult {
   switch (record.outcome.kind) {

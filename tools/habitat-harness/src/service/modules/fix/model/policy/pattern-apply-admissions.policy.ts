@@ -1,13 +1,13 @@
 import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Value } from "typebox/value";
-import { applyAdmittedState } from "./admission.js";
 import {
   type ApplyAdmission,
   ApplyAdmissionSchema,
   type ApplyTransactionInput,
   ApplyTransactionInputSchema,
-} from "./schema.js";
-import { applyAdmission } from "./views.js";
+} from "../dto/pattern-management.schema.js";
+import { applyAdmittedState } from "./pattern-admission.policy.js";
+import { applyAdmission } from "./pattern-view.policy.js";
 
 const BUILT_IN_APPLY_ADMISSIONS = [
   {
