@@ -1,6 +1,7 @@
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import type { RuleRegistryDocumentV1 } from "../dto/registry.schema.js";
 import { activeRuleRegistryDocument } from "../repositories/registry.repository.js";
+import { ruleArtifactPathFacts } from "./artifact-paths.policy.js";
 import {
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
@@ -15,6 +16,7 @@ import {
 import { ruleGraphFacts } from "./graph.policy.js";
 
 export interface RuleFactsCatalog {
+  readonly artifactPath: ReturnType<typeof ruleArtifactPathFacts>;
   readonly selector: ReturnType<typeof ruleSelectorFacts>;
   readonly report: ReturnType<typeof ruleReportFacts>;
   readonly baseline: ReturnType<typeof ruleBaselineFacts>;
@@ -30,6 +32,7 @@ export interface RuleFactsCatalog {
 export function ruleFactsCatalog(document: RuleRegistryDocumentV1): RuleFactsCatalog {
   const records = document.rules;
   return {
+    artifactPath: ruleArtifactPathFacts(records),
     selector: ruleSelectorFacts(records),
     report: ruleReportFacts(records),
     baseline: ruleBaselineFacts(records),
@@ -48,6 +51,7 @@ export function ruleFactsCatalog(document: RuleRegistryDocumentV1): RuleFactsCat
 }
 
 export const activeRuleFacts = ruleFactsCatalog(activeRuleRegistryDocument);
+export const activeRuleArtifactPathFacts = activeRuleFacts.artifactPath;
 export const activeRuleSelectorFacts = activeRuleFacts.selector;
 export const activeRuleReportFacts = activeRuleFacts.report;
 export const activeRuleBaselineFacts = activeRuleFacts.baseline;
