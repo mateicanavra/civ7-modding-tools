@@ -434,7 +434,7 @@ function runHookProcedure(options: {
     const git = yield* GitProvider;
     const graphite = yield* GraphiteProvider;
     const nx = yield* NxProvider;
-    const executeHook = hookRouter.execute.callable({
+    const preCommitHook = hookRouter.preCommit.callable({
       context: {
         deps: {
           ...makeTestHabitatServiceDeps({
@@ -463,8 +463,7 @@ function runHookProcedure(options: {
       },
     });
     return yield* withFiberContext(() =>
-      executeHook({
-        name: "pre-commit",
+      preCommitHook({
         ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
       })
     );
