@@ -50,17 +50,13 @@ import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
   RuleGraphFacts,
+  RuleHookCheckFacts,
   RuleSelectorFacts,
   RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/index";
 import {
-  activeRuleCommandExecutionFacts,
-  activeRuleFileLayerFacts,
-  activeRuleGraphFacts,
-  activeRuleGritFacts,
-  activeRuleHookCheckFacts,
-  activeRuleSourceFacts,
   factsForRuleIds,
+  type RuleFactsCatalog,
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
@@ -78,6 +74,7 @@ export interface StructuralExecutionContext {
   readonly commandRunner: CommandRunnerService;
   readonly git: GitProviderService;
   readonly nx: NxProviderService;
+  readonly rules: RuleFactsCatalog;
 }
 
 export function rulesForExecution(
@@ -85,6 +82,7 @@ export function rulesForExecution(
   options: {
     selection?: RuleSelection;
     hookCheck?: boolean;
+    hookCheckFacts?: readonly RuleHookCheckFacts[];
     sourceRuleFacts?: readonly RuleSourceFacts[];
     staged?: boolean;
     stagedPaths?: readonly string[];
@@ -94,7 +92,7 @@ export function rulesForExecution(
     ? selectedRules.filter((rule) => defaultLocalRuleTools.has(rule.ownerTool))
     : [...selectedRules];
   if (!options.hookCheck) return rules;
-  const hookRuleIds = new Set(activeRuleHookCheckFacts.map((rule) => rule.id));
+  const hookRuleIds = new Set((options.hookCheckFacts ?? []).map((rule) => rule.id));
   return rules.filter(
     (rule) =>
       (rule.ownerTool !== "source-check" && rule.ownerTool !== "grit-check") ||
@@ -118,7 +116,7 @@ function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?
 
 export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedScanRootsForRules(activeRuleSourceFacts),
+  approvedScanRoots: readonly string[],
   context: { readonly repoRoot: string }
 ): string[] {
   return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);
@@ -166,7 +164,7 @@ export function executeSelectedRulesEffect(
   return Effect.gen(function* () {
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
-    const sourceRules = factsForRuleIds(activeRuleSourceFacts, selectedRuleIds);
+    const sourceRules = factsForRuleIds(context.rules.source, selectedRuleIds);
     if (sourceRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
@@ -202,7 +200,7 @@ export function executeSelectedRulesEffect(
       }
     }
 
-    const gritRules = factsForRuleIds(activeRuleGritFacts, selectedRuleIds);
+    const gritRules = factsForRuleIds(context.rules.grit, selectedRuleIds);
     if (gritRules.length > 0) {
       const scanRoots = options.staged
         ? stagedSourceCheckPaths(
@@ -235,10 +233,10 @@ export function executeSelectedRulesEffect(
       }
     }
 
-    const commandRules = factsForRuleIds(activeRuleCommandExecutionFacts, selectedRuleIds);
+    const commandRules = factsForRuleIds(context.rules.commandExecution, selectedRuleIds);
     const graphRulesById = factsByRuleId(
       factsForRuleIds(
-        activeRuleGraphFacts,
+        context.rules.graph,
         commandRules.map((rule) => rule.id)
       )
     );
@@ -258,7 +256,7 @@ export function executeSelectedRulesEffect(
       context
     );
     yield* executeFileLayerRulesEffect(
-      factsForRuleIds(activeRuleFileLayerFacts, selectedRuleIds),
+      factsForRuleIds(context.rules.fileLayer, selectedRuleIds),
       results,
       options,
       context

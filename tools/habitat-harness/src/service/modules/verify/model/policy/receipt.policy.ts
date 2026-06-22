@@ -7,7 +7,7 @@ import {
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
-import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   type VerifyBaseResolution,
   VerifyHabitatCheckSummarySchema,
@@ -68,10 +68,10 @@ export const verifyAffectedTargets = [...verifyAffectedTargetNames(workspaceGrap
  *
  * @returns Runnable target plan or graph-refusal plan for the verify receipt.
  */
-export async function readVerifyTargetPlan(): Promise<VerifyTargetPlan> {
+export async function readVerifyTargetPlan(rules: RuleFactsCatalog): Promise<VerifyTargetPlan> {
   const graph = await readWorkspaceGraph();
   if (graph.kind === "graph-ready")
-    return verifyTargetPlan(graph.snapshot.projects, undefined, undefined, activeRuleGraphFacts);
+    return verifyTargetPlan(graph.snapshot.projects, undefined, undefined, rules.graph);
   return graphRefusedVerifyTargetPlan(graph.kind, graph.message);
 }
 

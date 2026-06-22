@@ -297,7 +297,7 @@ describe("rule selector boundary", () => {
           "tools/habitat-harness/src/service/modules/hook/router.ts",
           "README.md",
         ],
-        undefined,
+        ["packages/mapgen-core/src/core"],
         { repoRoot }
       )
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);

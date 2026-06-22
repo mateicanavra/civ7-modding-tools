@@ -86,6 +86,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
     git: deps.git,
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
+    rules: deps.rules,
   };
 }
 

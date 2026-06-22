@@ -39,7 +39,7 @@ export interface VerifyModuleContext {
   readonly currentTimeMillis: typeof Clock.currentTimeMillis;
   readonly epochMillisToIsoString: typeof epochMillisToIsoString;
   readonly observeGitStatus: ReturnType<typeof makeObserveGitStatus>;
-  readonly readVerifyTargetPlan: typeof readVerifyTargetPlanEffect;
+  readonly readVerifyTargetPlan: ReturnType<typeof readVerifyTargetPlanEffect>;
   readonly resolveVerifyBase: ReturnType<typeof makeResolveVerifyBase>;
   readonly runAffectedVerification: ReturnType<typeof makeRunAffectedVerification>;
   readonly verifyCheckSummary: typeof verifyCheckSummary;
@@ -80,7 +80,7 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
       currentTimeMillis: Clock.currentTimeMillis,
       epochMillisToIsoString,
       observeGitStatus,
-      readVerifyTargetPlan: readVerifyTargetPlanEffect,
+      readVerifyTargetPlan: readVerifyTargetPlanEffect(context.deps.rules),
       resolveVerifyBase,
       runAffectedVerification,
       verifyCheckSummary,
@@ -99,11 +99,12 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
     git: deps.git,
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
+    rules: deps.rules,
   };
 }
 
-function readVerifyTargetPlanEffect() {
-  return Effect.promise(() => readVerifyTargetPlan());
+function readVerifyTargetPlanEffect(rules: HabitatServiceDeps["rules"]) {
+  return () => Effect.promise(() => readVerifyTargetPlan(rules));
 }
 
 function makeCreateVerifyReceipt(context: {
