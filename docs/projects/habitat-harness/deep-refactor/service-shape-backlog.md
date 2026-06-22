@@ -137,3 +137,4 @@ Completed burn-downs:
 - Hook pre-commit/pre-push procedure orchestration now lives in the hook router instead of whole-action `context.run*` delegates; the hook module projects lower-level resource-backed operations and command recording into the procedure context.
 - Structural check execution lanes now have named command/Nx-backed and file-layer/staged-path policies; `execution.policy.ts` is reduced to rule selection and lane orchestration instead of owning every execution implementation.
 - Hook procedure context vocabulary now lives in a named module-local policy file; `hook/module.ts` no longer exports raw provider/port/state type declarations as inline implementation clutter.
+- Boundary taxonomy filesystem/config/Nx graph acquisition now lives under `src/validation`; shared `service/model/graph` retains the pure taxonomy parser/auditor instead of importing filesystem and Nx graph APIs.
