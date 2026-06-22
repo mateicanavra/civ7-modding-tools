@@ -4,7 +4,7 @@ import {
   checkCommandContext,
   renderCheckReport,
   rulesForExecution,
-  selectorRefusalReport,
+  selectorRefusalReportEffect,
   stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
   structuralCheckRequest,
@@ -18,6 +18,7 @@ import {
   type RuleSelection,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 const fakeRules: RuleRegistryRecordV1[] = [
@@ -109,12 +110,14 @@ describe("rule selector boundary", () => {
   });
 
   test("renders invalid selectors as schemaVersion 1 failing CheckReports", () => {
-    const report = selectorRefusalReport(
-      selectionFailure({ rule: "definitely-not-a-rule" }),
-      structuralCheckRequest({
-        command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
-        rule: "definitely-not-a-rule",
-      })
+    const report = Effect.runSync(
+      selectorRefusalReportEffect(
+        selectionFailure({ rule: "definitely-not-a-rule" }),
+        structuralCheckRequest({
+          command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
+          rule: "definitely-not-a-rule",
+        })
+      )
     );
 
     expect(validateCheckReport(report)).toEqual([]);
