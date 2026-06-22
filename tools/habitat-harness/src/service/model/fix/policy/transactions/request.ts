@@ -1,5 +1,5 @@
 import { TransactionPathDecisionSchema } from "@internal/habitat-harness/service/model/check/protected-zones/index";
-import { ApplyAdmissionSchema } from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
+import { ApplyAdmissionSchema } from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { NonEmptyStringSchema } from "./primitives.js";
