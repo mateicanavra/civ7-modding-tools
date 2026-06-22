@@ -1,24 +1,16 @@
-import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
+import { habitatServiceManagedRuntime } from "@internal/habitat-harness/runtime/service-runtime";
 import {
   type HabitatServiceContext,
   type HabitatServiceRequirements,
-  HabitatServiceRuntime,
   type HabitatServiceRuntimeError,
 } from "@internal/habitat-harness/service/base";
 import {
   type HabitatServiceContract,
   habitatServiceContract,
 } from "@internal/habitat-harness/service/contract";
-import { Layer, ManagedRuntime } from "effect";
 import { type EffectImplementer, eoc, implementEffect } from "effect-orpc";
 
 const habitatServiceOrpcContract = eoc.router(habitatServiceContract);
-export const habitatServiceEffectRuntime = ManagedRuntime.make(
-  Layer.mergeAll(
-    HabitatRuntimeLive,
-    Layer.succeed(HabitatServiceRuntime, { service: "habitat" as const })
-  )
-);
 
 export const service: EffectImplementer<
   HabitatServiceContract,
@@ -28,5 +20,5 @@ export const service: EffectImplementer<
   HabitatServiceRuntimeError
 > = implementEffect(
   habitatServiceOrpcContract,
-  habitatServiceEffectRuntime
+  habitatServiceManagedRuntime
 ).$context<HabitatServiceContext>();
