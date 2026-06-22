@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { BiomeProviderService } from "@internal/habitat-harness/providers/biome/index";
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
@@ -46,7 +47,6 @@ import {
 import {
   biomeHookPaths,
   existingStagedPathsEffect,
-  fileHash,
   gitAddEffect,
   hookSourceCheckPaths,
   unstagedAmongEffect,
@@ -56,7 +56,9 @@ type HookProcedureContext = {
   readonly biome: BiomeProviderService;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
+  readonly hashFile: (repoRelativePath: string) => string | null;
   readonly nx: NxProviderService;
+  readonly pathExists: (targetPath: string) => boolean;
   readonly reporter: HabitatReporterService;
   readonly repoRoot: string;
   readonly runtime: HookRuntime;
@@ -119,7 +121,10 @@ export const module = service.hook.use(({ context, next }) => {
     biome: context.deps.biome,
     git: context.deps.git,
     graphite: context.deps.graphite,
+    hashFile: (repoRelativePath) =>
+      context.deps.hashFile(path.join(context.deps.repoRoot, repoRelativePath)),
     nx: context.deps.nx,
+    pathExists: context.deps.pathExists,
     reporter: context.deps.reporter,
     repoRoot: context.deps.repoRoot,
     runtime: context.deps.hookRuntime,
@@ -364,9 +369,12 @@ function beginPreCommit(
       };
     }
 
-    const hashFile = runtime.fileHash ?? fileHash;
     const stagedStartedAtMs = yield* hookNow();
-    const staged = yield* existingStagedPathsEffect(context.git, context.repoRoot, runtime);
+    const staged = yield* existingStagedPathsEffect(
+      context.git,
+      context.repoRoot,
+      context.pathExists
+    );
     yield* recordHookCommand(
       context,
       runtime,
@@ -377,7 +385,10 @@ function beginPreCommit(
     );
     if (runtime.trace?.preCommit) runtime.trace.preCommit.stagedPaths = staged;
 
-    return { kind: "continue", state: { context, runtime, output, staged, hashFile } };
+    return {
+      kind: "continue",
+      state: { context, runtime, output, staged, hashFile: context.hashFile },
+    };
   });
 }
 

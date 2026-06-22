@@ -137,7 +137,10 @@ describe("Habitat hook resource policy", () => {
     const decision = await Effect.runPromise(
       Effect.gen(function* () {
         const git = yield* GitProvider;
-        return yield* classifyResourcePreCommitDecisionEffect({ git, repoRoot }, fake.runtime);
+        return yield* classifyResourcePreCommitDecisionEffect(
+          { git, pathExists: fake.pathExists, repoRoot },
+          fake.runtime
+        );
       }).pipe(Effect.provide(makeGitLayer(fake)))
     );
 
@@ -452,6 +455,8 @@ interface FakeRuntimeOptions {
 
 interface FakeHookRuntime {
   readonly runtime: HookRuntime;
+  readonly hashFile: (targetPath: string) => string | null;
+  readonly pathExists: (targetPath: string) => boolean;
   readonly calls: string[];
   readonly checkRequests: CheckOptions[];
   readonly biomeRequests: BiomeCommandRequest[];
@@ -471,11 +476,18 @@ async function runPreCommitInTest(
     makeBiomeLayer(fake)
   );
   return Effect.runPromise(
-    runHookProcedure({ reporterEvents, runtime }).pipe(Effect.provide(layer))
+    runHookProcedure({
+      hashFile: fake.hashFile,
+      pathExists: fake.pathExists,
+      reporterEvents,
+      runtime,
+    }).pipe(Effect.provide(layer))
   );
 }
 
 function runHookProcedure(options: {
+  readonly hashFile?: (targetPath: string) => string | null;
+  readonly pathExists?: (targetPath: string) => boolean;
   readonly reporterEvents?: HabitatReportEvent[];
   readonly runtime?: HookRuntime;
 }) {
@@ -492,8 +504,10 @@ function runHookProcedure(options: {
             biome,
             git,
             graphite,
+            ...(options.hashFile ? { hashFile: options.hashFile } : {}),
             hookRuntime: options.runtime ?? {},
             nx,
+            ...(options.pathExists ? { pathExists: options.pathExists } : {}),
             ...(options.reporterEvents
               ? {
                   reporter: {
@@ -560,30 +574,33 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
   const checkRequests: CheckOptions[] = [];
   const biomeRequests: BiomeCommandRequest[] = [];
   const hashReads = new Map<string, number>();
+  const pathExists = (target: string) => {
+    if (target.endsWith("vendor/resources")) {
+      return options.resourcesRootExists ?? true;
+    }
+    if (target.endsWith("index.lock")) return options.indexLockExists ?? false;
+    if ((options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate))) {
+      return true;
+    }
+    return false;
+  };
+  const hashFile = (targetPath: string) => {
+    const repoRelativePath = toTestRepoRelative(targetPath);
+    const sequence = options.fileHashes?.[repoRelativePath];
+    if (!sequence) return `stable:${repoRelativePath}`;
+    const readCount = hashReads.get(repoRelativePath) ?? 0;
+    hashReads.set(repoRelativePath, readCount + 1);
+    return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
+  };
 
   return {
     calls,
     checkRequests,
     biomeRequests,
+    hashFile,
     options,
+    pathExists,
     runtime: {
-      pathExists: (target) => {
-        if (target.endsWith("vendor/resources")) {
-          return options.resourcesRootExists ?? true;
-        }
-        if (target.endsWith("index.lock")) return options.indexLockExists ?? false;
-        if ((options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate))) {
-          return true;
-        }
-        return false;
-      },
-      fileHash: (repoRelativePath) => {
-        const sequence = options.fileHashes?.[repoRelativePath];
-        if (!sequence) return `stable:${repoRelativePath}`;
-        const readCount = hashReads.get(repoRelativePath) ?? 0;
-        hashReads.set(repoRelativePath, readCount + 1);
-        return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
-      },
       resourcePolicy: options.resourcePolicy
         ? {
             path: "vendor/resources",
@@ -597,6 +614,11 @@ function makeFakeRuntime(options: FakeRuntimeOptions = {}): FakeHookRuntime {
         : undefined,
     },
   };
+}
+
+function toTestRepoRelative(targetPath: string): string {
+  const prefix = `${repoRoot}/`;
+  return targetPath.startsWith(prefix) ? targetPath.slice(prefix.length) : targetPath;
 }
 
 function makeGitLayer(fake: FakeHookRuntime) {

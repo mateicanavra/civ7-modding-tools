@@ -54,6 +54,7 @@ export function makeTestHabitatServiceDeps(
         Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
     },
+    hashFile: () => null,
     hookRuntime: {},
     nx: {
       affected: (request) =>
@@ -97,6 +98,7 @@ export function makeTestHabitatServiceDeps(
         ),
       runTargetArgv,
     },
+    pathExists: () => false,
     readText: () => Effect.succeed(""),
     reporter: fakeReporter(),
     repoRoot,

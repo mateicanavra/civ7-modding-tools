@@ -5,7 +5,12 @@ import { GritProvider } from "@internal/habitat-harness/providers/grit/index";
 import { NxWorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
 import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import { acquireTempDirectory, readText } from "@internal/habitat-harness/resources/platform/index";
+import {
+  acquireTempDirectory,
+  hashFileSync,
+  pathExistsSync,
+  readText,
+} from "@internal/habitat-harness/resources/platform/index";
 import { silentHabitatReporter } from "@internal/habitat-harness/resources/reporter/index";
 import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type {
@@ -32,8 +37,10 @@ export async function createLiveHabitatServiceContext(
         git: input.deps?.git ?? (yield* GitProvider),
         graphite: input.deps?.graphite ?? (yield* GraphiteProvider),
         grit: input.deps?.grit ?? (yield* GritProvider),
+        hashFile: input.deps?.hashFile ?? hashFileSync,
         hookRuntime: input.deps?.hookRuntime ?? {},
         nx: input.deps?.nx ?? (yield* NxProvider),
+        pathExists: input.deps?.pathExists ?? pathExistsSync,
         readText,
         reporter: input.deps?.reporter ?? silentHabitatReporter,
         repoRoot,

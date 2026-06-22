@@ -16,6 +16,7 @@ Current burn-down categories:
 - Follow-up: package-level `tsc --noEmit` still exceeds the useful local feedback budget; keep validation pressure on narrower structural validators while the check-duration architecture work continues.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
 - Follow-up: `hookRuntime` is still caller-local hook execution state on service deps; it needs a deliberate runtime/caller design because it still carries path/file callbacks, resource policy, and trace state.
+- Follow-up: package-level `tsc --noEmit` still exceeds the useful local feedback budget even after the visible fix-module diagnostic was repaired; keep validation pressure on narrower structural validators while the check-duration architecture work continues.
 
 Completed burn-downs:
 
@@ -25,6 +26,8 @@ Completed burn-downs:
 - Pure helper functions `epochMillisToIsoString` and `workspaceGraphTargetNames` were removed from `HabitatServiceDeps`; modules import them from their owning platform/provider modules.
 - Hook output reporting now uses the shared `HabitatReporterService` resource; `HookRuntime` no longer carries the reporter callback.
 - Hook timing now uses Effect `Clock`; `HookRuntime` no longer carries a custom clock callback.
+- Hook filesystem access now uses the shared platform resource surface; `HookRuntime` no longer carries path-existence or file-hash callbacks.
+- Fix transactions require the provisioned Grit provider instead of carrying a provider-missing fallback path; provider runtime requirements are recorded in the module operation type instead of being hidden.
 - Graph router internal error mapping now uses contract-listed effect-oRPC errors; router source carries no TODO notes for this path.
 - Shared `service/model/*` domains now reject loose unmanaged files; policy code must be named and classified by kind.
 - Shared `service/model/*/policy` files now use explicit policy/rule suffixes instead of generic `*.ts` and `*.mjs` names.

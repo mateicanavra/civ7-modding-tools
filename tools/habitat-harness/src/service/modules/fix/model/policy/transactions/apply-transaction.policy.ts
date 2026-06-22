@@ -21,9 +21,9 @@ type ResolvedGritProvider = GritProviderService;
 
 export function runPatternApplyTransaction(
   input: PatternApplyRequest,
-  options: { readonly grit?: ResolvedGritProvider } & Partial<{
+  options: { readonly grit: ResolvedGritProvider } & Partial<{
     readonly transactionInputs: readonly ApplyTransactionInput[];
-  }> = {}
+  }>
 ) {
   return Effect.gen(function* () {
     const request = parsePatternApplyRequest(input);
@@ -222,34 +222,15 @@ function pathInRoot(candidate: string, root: string): boolean {
 
 function runDryRunCommands(
   commands: readonly GritDryRunCommandInput[],
-  grit: ResolvedGritProvider | undefined
+  grit: ResolvedGritProvider
 ) {
   return Effect.forEach(commands, (command) => runDryRunCommand(command, grit), {
     concurrency: 1,
   });
 }
 
-function runDryRunCommand(input: GritDryRunCommandInput, grit: ResolvedGritProvider | undefined) {
+function runDryRunCommand(input: GritDryRunCommandInput, grit: ResolvedGritProvider) {
   return Effect.gen(function* () {
-    if (!grit) {
-      const commandRequest = {
-        commandId: input.commandId,
-        kind: "pattern-apply",
-        executable: "grit",
-        argv: ["apply", "--dry-run", input.patternPath, ...input.roots],
-        cwd: "",
-        captureGitState: false,
-      } satisfies HabitatProcessRequest;
-      return makeHabitatCommandResult(commandRequest, {
-        requestedExecutable: commandRequest.executable,
-        exit: { code: 1, signal: null, interrupted: false },
-        stderr: captureOutput("grit provider was not resolved for Habitat fix.\n"),
-        observation: {
-          kind: "tool-unavailable",
-          detail: "grit provider was not resolved for Habitat fix.",
-        },
-      });
-    }
     const providerRequest = {
       commandId: input.commandId,
       patternPath: input.patternPath,
