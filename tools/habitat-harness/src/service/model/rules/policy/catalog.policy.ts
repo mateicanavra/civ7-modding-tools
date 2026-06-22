@@ -1,6 +1,5 @@
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import type { RuleRegistryDocumentV1 } from "../dto/registry.schema.js";
-import { activeRuleRegistryDocument } from "../repositories/registry.repository.js";
 import { ruleArtifactPathFacts } from "./artifact-paths.policy.js";
 import {
   ruleBaselineFacts,
@@ -49,19 +48,6 @@ export function ruleFactsCatalog(document: RuleRegistryDocumentV1): RuleFactsCat
     ),
   };
 }
-
-export const activeRuleFacts = ruleFactsCatalog(activeRuleRegistryDocument);
-export const activeRuleArtifactPathFacts = activeRuleFacts.artifactPath;
-export const activeRuleSelectorFacts = activeRuleFacts.selector;
-export const activeRuleReportFacts = activeRuleFacts.report;
-export const activeRuleBaselineFacts = activeRuleFacts.baseline;
-export const activeRuleCommandExecutionFacts = activeRuleFacts.commandExecution;
-export const activeRuleSourceFacts = activeRuleFacts.source;
-export const activeRuleGritFacts = activeRuleFacts.grit;
-export const activeRuleFileLayerFacts = activeRuleFacts.fileLayer;
-export const activeRuleHookCheckFacts = activeRuleFacts.hookCheck;
-export const activeRuleRoutingFacts = activeRuleFacts.routing;
-export const activeRuleGraphFacts = activeRuleFacts.graph;
 
 export function factsForRuleIds<T extends { id: string }>(
   facts: readonly T[],

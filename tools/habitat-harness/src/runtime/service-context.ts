@@ -14,7 +14,7 @@ import type {
   HabitatServiceDeps,
 } from "@internal/habitat-harness/service/base";
 import { loadRuleRegistryDocumentEffect } from "@internal/habitat-harness/service/model/rules/index";
-import { ruleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import { ruleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { Effect, ManagedRuntime } from "effect";
 
 const serviceContextRuntime = ManagedRuntime.make(HabitatRuntimeLive);

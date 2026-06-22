@@ -31,7 +31,7 @@ import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/serv
 import {
   factsForRuleIds,
   type RuleFactsCatalog,
-} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { Effect } from "effect";
 import type { HookServiceRunInput } from "./contract.js";
 import {

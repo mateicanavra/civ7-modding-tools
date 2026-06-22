@@ -9,7 +9,7 @@ import {
   parseClassifyResult,
   stringifyClassifyResult,
 } from "@internal/habitat-harness/service/model/classify/index";
-import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { Effect } from "effect";
 import {
   classifyPathFromProjects,

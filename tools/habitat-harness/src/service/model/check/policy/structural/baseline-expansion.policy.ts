@@ -19,7 +19,7 @@ import {
 import {
   factsForRuleIds,
   type RuleFactsCatalog,
-} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import {
   type RuleSelectionResult,
