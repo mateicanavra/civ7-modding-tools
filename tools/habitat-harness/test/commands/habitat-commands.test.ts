@@ -60,7 +60,7 @@ vi.mock("../../src/service/model/verify/proof/index.js", async (importOriginal) 
   };
 });
 
-vi.mock("../../src/service/client.js", () => ({
+vi.mock("../../src/service/router.js", () => ({
   createHabitatServiceClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
     classify: { run: mockClassifyRun },
@@ -77,10 +77,10 @@ import Fix from "@internal/habitat-harness/cli/commands/fix";
 import Graph from "@internal/habitat-harness/cli/commands/graph";
 import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
-import * as serviceClient from "@internal/habitat-harness/service/client";
 import * as checkReport from "@internal/habitat-harness/service/model/check/structural/index";
 import * as classify from "@internal/habitat-harness/service/model/workspace/index";
 import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/proof/index";
+import * as serviceClient from "@internal/habitat-harness/service/router";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];

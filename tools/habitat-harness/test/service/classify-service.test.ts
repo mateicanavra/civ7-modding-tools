@@ -1,5 +1,5 @@
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
 import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/model/workspace/index";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { describe, expect, test } from "vitest";
 

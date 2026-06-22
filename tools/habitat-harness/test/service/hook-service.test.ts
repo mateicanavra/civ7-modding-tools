@@ -1,5 +1,4 @@
 import type { HookServiceModuleContext } from "@internal/habitat-harness/service/base";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
 import {
   type CheckOptions,
   type CheckReport,
@@ -12,6 +11,7 @@ import {
   type HookRuntime,
 } from "@internal/habitat-harness/service/model/hook/runtime/runtime";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import {
   type BiomeCommandRequest,
   biomeArgv,

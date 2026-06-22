@@ -1,6 +1,6 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
 import { renderCheckReport } from "@internal/habitat-harness/service/model/check/structural/index";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import { Flags } from "@oclif/core";
 
 export default class Check extends HabitatCommand {
