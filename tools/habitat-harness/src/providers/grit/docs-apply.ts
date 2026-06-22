@@ -6,7 +6,7 @@ import {
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect } from "effect";
 import { docsLocalCheckoutPathsRewritePattern } from "./constants.js";
-import { GritProvider, type GritProviderRequirements } from "./resource.js";
+import type { GritProviderRequirements, GritProviderService } from "./resource.js";
 import {
   decidePatternScanRoots,
   normalizeGritPath,
@@ -18,13 +18,10 @@ export function runDocsApplyBackedDiagnosticOutcomesEffect(
   selectedRules: readonly RuleSourceFacts[],
   options: {
     repoRoot: string;
+    grit: GritProviderService;
     scanRoots?: readonly string[];
   }
-): Effect.Effect<
-  Map<string, DiagnosticRunOutcome>,
-  never,
-  GritProvider | GritProviderRequirements
-> {
+): Effect.Effect<Map<string, DiagnosticRunOutcome>, never, GritProviderRequirements> {
   if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
   const scanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots, {
     repoRoot: options.repoRoot,
@@ -50,7 +47,7 @@ export function runDocsApplyBackedDiagnosticOutcomesEffect(
     );
   }
 
-  return docsApplyDryRunProgram(scanRoots).pipe(
+  return docsApplyDryRunProgram(scanRoots, options.grit).pipe(
     Effect.match({
       onFailure: (error) =>
         providerFailedOutcomes(
@@ -102,10 +99,9 @@ function nativeDiagnosticEntry(rule: RuleSourceFacts) {
   });
 }
 
-function docsApplyDryRunProgram(scanRoots: readonly string[]) {
+function docsApplyDryRunProgram(scanRoots: readonly string[], grit: GritProviderService) {
   return Effect.scoped(
     Effect.gen(function* () {
-      const grit = yield* GritProvider;
       return yield* grit.applyDryRun({
         commandId: "docs-apply-dry-run",
         patternPath: docsLocalCheckoutPathsRewritePattern,

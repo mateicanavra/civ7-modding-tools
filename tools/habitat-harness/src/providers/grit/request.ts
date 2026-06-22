@@ -20,11 +20,14 @@ import {
 import { Effect } from "effect";
 import { GritToolUnavailable } from "./failures.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";
-import { GritProvider } from "./resource.js";
+import type { GritProviderService } from "./resource.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
-export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions) {
+export function gritCheckProgram(
+  scanRoots: readonly string[],
+  options: GritCheckOptions & { readonly grit: GritProviderService }
+) {
   return Effect.scoped(
     Effect.gen(function* () {
       const scanRootDecision = decidePatternScanRoots(scanRoots, {
@@ -51,8 +54,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
               outputFormat: options.outputFormat,
             }
           : { outputFormat: options.outputFormat };
-      const grit = yield* GritProvider;
-      const processRequest = grit.checkRequest({
+      const processRequest = options.grit.checkRequest({
         scanRoots,
         cacheMode: requestOptions.cacheMode,
         observableCacheStatus: requestOptions.observableCacheStatus,
@@ -64,7 +66,7 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
         outputContract: nativeOutputContractForGritCheck(options),
         cacheRequirement,
       });
-      const result = yield* grit
+      const result = yield* options.grit
         .check({
           scanRoots,
           cacheMode: requestOptions.cacheMode,

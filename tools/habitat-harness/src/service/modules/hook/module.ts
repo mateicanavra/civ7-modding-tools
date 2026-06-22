@@ -150,6 +150,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
     biome: deps.biome,
     commandRunner: deps.commandRunner,
     git: deps.git,
+    grit: deps.grit,
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
     rules: deps.rules,
