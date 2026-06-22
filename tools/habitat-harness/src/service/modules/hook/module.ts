@@ -1,7 +1,5 @@
 import path from "node:path";
 import {
-  type CommandProviderError,
-  type HabitatCommandResult,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
@@ -18,7 +16,6 @@ import {
   type CheckOptions,
   type CheckReport,
   checkCommandContext,
-  type HookCheckSummary,
   hookCheckSummary,
   renderCheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
@@ -27,10 +24,7 @@ import {
   type StructuralExecutionContext,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
-import {
-  factsForRuleIds,
-  type RuleFactsCatalog,
-} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import {
   approvedScanRootsForRules,
   stagedSourceCheckPaths,
@@ -46,6 +40,25 @@ import {
   resourceDecisionToFacade,
 } from "./model/index.js";
 import { finalizePreCommitEffect, finalizePrePushEffect } from "./model/policy/lifecycle.policy.js";
+import type {
+  HookBiomeCommandRequest,
+  HookCommandRecordPhase,
+  HookNxAffectedRequest,
+  HookNxRunTargetRequest,
+  HookOutput,
+  HookProcedureContext,
+  HookRouterEffect,
+  PreCommitBiomeState,
+  PreCommitSourceCheckState,
+  PreCommitState,
+  PreCommitStep,
+  PrePushBaseDecision,
+  PrePushChangedPathsResult,
+  PrePushHookSourceCheckResult,
+  StagedHookCheckResult,
+  StagedHookCheckTool,
+} from "./model/policy/procedure-context.policy.js";
+import { localHookNotice } from "./model/policy/procedure-context.policy.js";
 import { classifyResourcePreCommitDecisionEffect } from "./model/policy/resource-inspection.policy.js";
 import {
   createHookOutput,
@@ -60,138 +73,6 @@ import {
   hookSourceCheckPaths,
   unstagedAmongEffect,
 } from "./model/policy/staged-worktree.policy.js";
-
-export type HookProcedureContext = {
-  readonly biome: HookBiomePort;
-  readonly git: HookGitPort;
-  readonly graphite: HookGraphitePort;
-  readonly nx: HookNxPort;
-  readonly platform: HookPlatformPort;
-  readonly reporter: HookReporterPort;
-  readonly rules: RuleFactsCatalog;
-  readonly createCheckReport: (options?: CheckOptions) => HookRouterEffect<CheckReport>;
-  readonly workspaceGraphTargetNames: typeof workspaceGraphTargetNames;
-};
-export interface HookBiomeCommandRequest {
-  readonly kind: "format" | "check";
-  readonly paths?: readonly string[];
-  readonly write?: boolean;
-  readonly noErrorsOnUnmatched?: boolean;
-}
-export interface HookBiomePort {
-  readonly argv: (request: HookBiomeCommandRequest) => string[];
-  readonly run: (
-    request: HookBiomeCommandRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-}
-export interface HookGitPort {
-  readonly add: (
-    paths: readonly string[],
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly command: (
-    argv: readonly string[],
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly diffNameOnly: (input?: {
-    readonly paths?: readonly string[];
-    readonly cwd?: string;
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly diffNameStatus: (input?: {
-    readonly cached?: boolean;
-    readonly cwd?: string;
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly mergeBase: (
-    ref: string,
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
-  readonly remoteDefaultBranch: (options?: {
-    readonly cwd?: string;
-  }) => Effect.Effect<string | null, never, any>;
-}
-export interface HookGraphitePort {
-  readonly parent: (options?: {
-    readonly cwd?: string;
-  }) => Effect.Effect<string | null, never, any>;
-  readonly parentArgv: () => readonly string[];
-}
-export interface HookNxAffectedRequest {
-  readonly base: string;
-  readonly targets: readonly string[];
-  readonly head?: string;
-  readonly excludeTaskDependencies?: boolean;
-}
-export interface HookNxRunTargetRequest {
-  readonly project: string;
-  readonly target: string;
-}
-export interface HookNxPort {
-  readonly affected: (
-    request: HookNxAffectedRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly affectedArgv: (request: HookNxAffectedRequest) => string[];
-  readonly runTarget: (
-    request: HookNxRunTargetRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly runTargetArgv: (request: HookNxRunTargetRequest) => string[];
-}
-export interface HookPlatformPort {
-  readonly hashFile: (filePath: string) => string | null;
-  readonly pathExists: (targetPath: string) => boolean;
-  readonly repoRoot: string;
-}
-type HookReportEvent =
-  | { readonly kind: "stdout"; readonly text: string }
-  | { readonly kind: "stderr"; readonly text: string }
-  | { readonly kind: "trace"; readonly message: string };
-export interface HookReporterPort {
-  readonly emit: (event: HookReportEvent) => Effect.Effect<void>;
-}
-type BiomeCommandRequest = HookBiomeCommandRequest;
-export type StagedHookCheckTool = "file-layer" | "source-check";
-export type StagedHookCheckResult = SpawnResult & {
-  readonly check: {
-    readonly report: CheckReport;
-    readonly summary: HookCheckSummary;
-  };
-};
-export type HookOutput = ReturnType<typeof createHookOutput>;
-export interface PreCommitState {
-  readonly context: HookProcedureContext;
-  readonly resourcePolicy?: HookResourcePolicy;
-  readonly output: HookOutput;
-  readonly staged: readonly string[];
-}
-
-export interface PreCommitBiomeState extends PreCommitState {
-  readonly biomePaths: readonly string[];
-  readonly beforeHashes: ReadonlyMap<string, string | null>;
-}
-
-export interface PreCommitSourceCheckState extends PreCommitState {
-  readonly sourceCheckPaths: readonly string[];
-}
-
-export type PreCommitStep<T> =
-  | { readonly kind: "done"; readonly outcome: PreCommitOutcome; readonly result: SpawnResult }
-  | { readonly kind: "continue"; readonly state: T };
-export type PrePushChangedPathsResult =
-  | { readonly kind: "available"; readonly paths: readonly string[] }
-  | { readonly kind: "unavailable"; readonly message: string };
-export type PrePushBaseDecision =
-  | {
-      readonly kind: "resolved";
-      readonly base: string;
-      readonly source: "explicit" | "graphite-parent" | "merge-base";
-    }
-  | {
-      readonly kind: "refused";
-      readonly message: string;
-    };
-export type ParsedHookCheckResult = Extract<HookCheckCommandResult, { readonly kind: "parsed" }>;
-export type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
-type HookRouterEffect<T> = Effect.Effect<T, never, any>;
-const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export interface HookModuleContext {
   readonly beginPreCommit: (
@@ -448,7 +329,7 @@ function preCommitBiomeProviderStep(
   }
 
   return Effect.gen(function* () {
-    const formatRequest: BiomeCommandRequest = {
+    const formatRequest: HookBiomeCommandRequest = {
       kind: "format",
       write: true,
       noErrorsOnUnmatched: true,
@@ -506,7 +387,7 @@ function preCommitBiomeProviderStep(
       output.writeStdout("formatter restage: 0 paths\n");
     }
 
-    const checkRequest: BiomeCommandRequest = {
+    const checkRequest: HookBiomeCommandRequest = {
       kind: "check",
       noErrorsOnUnmatched: true,
       paths: biomePaths,
@@ -753,16 +634,6 @@ function recordInProcessHookCheck(
   void exitCode;
   return Effect.void;
 }
-
-type HookCommandRecordPhase =
-  | "partial-staging"
-  | "staged-paths"
-  | "formatter-restage"
-  | "biome-format"
-  | "biome-check"
-  | "pre-push-base"
-  | "pre-push-target"
-  | "pre-push-affected";
 
 function recordHookCommand(
   context: HookProcedureContext,

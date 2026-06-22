@@ -136,3 +136,4 @@ Completed burn-downs:
 - Structural check execution now has named context and source/grit lane policies; the main execution policy orchestrates rule categories instead of also owning provider port shape and source-check execution internals.
 - Hook pre-commit/pre-push procedure orchestration now lives in the hook router instead of whole-action `context.run*` delegates; the hook module projects lower-level resource-backed operations and command recording into the procedure context.
 - Structural check execution lanes now have named command/Nx-backed and file-layer/staged-path policies; `execution.policy.ts` is reduced to rule selection and lane orchestration instead of owning every execution implementation.
+- Hook procedure context vocabulary now lives in a named module-local policy file; `hook/module.ts` no longer exports raw provider/port/state type declarations as inline implementation clutter.
