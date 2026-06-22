@@ -13,7 +13,7 @@ import {
   findWorkspaceOwningProject,
   ruleGraphTargetStates,
   workspaceTargetStates,
-} from "./workspace-targets.policy.js";
+} from "@internal/habitat-harness/service/model/workspace/index";
 import { projectTargets, workspaceTargets } from "./target-plan.policy.js";
 
 export function classifyPathFromProjects(

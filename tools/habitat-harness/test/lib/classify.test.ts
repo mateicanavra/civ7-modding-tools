@@ -1,11 +1,11 @@
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/model/workspace/index";
+import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
 import {
   classifyPath,
   classifyPathResult,
   classifyTarget,
   classifyTargetResult,
   validateClassifyResult,
-} from "@internal/habitat-harness/service/model/workspace/index";
+} from "@internal/habitat-harness/service/modules/classify/model/index";
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { describe, expect, test } from "vitest";
 

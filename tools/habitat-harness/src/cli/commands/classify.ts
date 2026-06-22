@@ -1,5 +1,5 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { stringifyClassifyResult } from "@internal/habitat-harness/service/model/workspace/dto/classify.schema";
+import { stringifyClassifyResult } from "@internal/habitat-harness/service/modules/classify/model/dto/classify.schema";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Args } from "@oclif/core";
 import { createRouterClient } from "@orpc/server";

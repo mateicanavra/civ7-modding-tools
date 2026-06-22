@@ -1,9 +1,9 @@
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
-import type {
-  ClassifiedTarget,
-  UnavailableClassifiedTarget,
-} from "../dto/classify.schema.js";
-import { projectTargetStates, workspaceTargetStates } from "./workspace-targets.policy.js";
+import type { ClassifiedTarget, UnavailableClassifiedTarget } from "../dto/classify.schema.js";
+import {
+  projectTargetStates,
+  workspaceTargetStates,
+} from "@internal/habitat-harness/service/model/workspace/index";
 
 export function projectTargets(project: WorkspaceProject): {
   targets: ClassifiedTarget[];

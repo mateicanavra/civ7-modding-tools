@@ -1,5 +1,5 @@
-import { classifyTargetResult } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
+import { classifyTargetResult } from "./model/index.js";
 import { module } from "./module.js";
 
 export const classifyRouter = {
