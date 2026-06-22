@@ -16,6 +16,7 @@ Current burn-down categories:
 - Active contract cleanup: continue simplifying service contracts and schemas after action splits; schemas should describe domain action inputs/outputs directly, not mirror command envelopes or preserve old compatibility names.
 - Active contract cleanup: simplify effect-oRPC contract files categorically. Procedure contracts should not manually repeat input/output generic types when schemas already define them; module contracts should compose procedure definitions directly where the local pattern allows; investigate replacing the custom `toStandardSchema` wrapper with TypeBox's native Standard Schema support if the installed TypeBox version provides it.
 - Active CLI-shape cleanup follow-up: continue replacing command-shaped procedure inputs with direct module actions. `fix` is now split into plan/apply actions; remaining modules should keep flags, command names, formatting, and output mode choices at the CLI edge.
+- Active hook context cleanup: `HookModuleContext` is still a design smell if it becomes a giant menu of low-level operations. If this context belongs to the hook module, it should not need to be declared in this way; if it is external to the hook module, the logic must live outside the hook module.
 - Promise/resource adaptation belongs outside routers. Routers author procedure logic through the module implementer and consume ready Effect-returning operations from handler context.
 - Remove module-local context from `service/base.ts`; service context keeps only provisioned resources and shared service metadata.
 - Let each `module.ts` project service resources into the module-specific procedure context.
@@ -31,6 +32,7 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Structural check execution context projection now lives in the service entry context projection; check, hook, and verify modules no longer rebuild the same resource mapping locally.
 - Provider/resource imports in service internals are now isolated to `service/base.ts`, the service-entry dependency surface; modules consume provider capabilities through module-owned ports or provider-owned methods.
 - Grit rule execution is now a Grit provider capability; check, hook, and verify modules project `deps.grit.runRules` into structural policy and no longer import `runGritRulesEffect` directly.
 - Baseline authority now receives a baseline-owned filesystem port through structural execution context; direct platform helper imports are removed from baseline policy, and the platform resource exposes the write-capable filesystem operations needed for runtime projection.

@@ -1,9 +1,4 @@
-import type {
-  HabitatServiceContext,
-  HabitatServiceDeps,
-  HabitatServiceRequirements,
-  HabitatServiceRuntimeError,
-} from "@internal/habitat-harness/service/base";
+import type { HabitatModule } from "@internal/habitat-harness/service/base";
 import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
@@ -11,17 +6,13 @@ import {
   type CheckReport,
   checkCommandContext,
 } from "@internal/habitat-harness/service/model/check/index";
-import {
-  createCheckReportEffect,
-  type StructuralExecutionContext,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index"; // TODO: nope, get rid of this shit completely. you can't smuggle core logic into service policy as a standalone effect like this.
 import {
   describeRuleSelectionFailure,
   type RuleSelection,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
-import type { EffectImplementerInternal } from "effect-orpc";
-import type { CheckReportInput } from "./contract.js";
+import type { CheckReportInput } from "./contract.js";	// TODO: also not allowed. module contracts are aggregated and attached at the service level in the service implementer. module should never borrow anything from its contract. this is an import violation. update your patterns
 import {
   type BaselineExpansionResult,
   expandBaselinesEffect,
@@ -40,74 +31,27 @@ export interface CheckModuleContext {
   readonly selectorsFromInput: typeof selectorsFromInput;
 }
 
-type CheckModule = EffectImplementerInternal<
-  HabitatServiceContract["check"],
-  HabitatServiceContext,
-  HabitatServiceContext & CheckModuleContext,
-  HabitatServiceRequirements,
-  HabitatServiceRuntimeError
->;
-
-export const module: CheckModule = service.check.use(({ context, next }) =>
-  next({
-    context: {
-      checkCommandContext,
-      createCheckReport: (options) =>
-        createCheckReport(
-          { ...options, repoRoot: context.deps.platform.repoRoot },
-          structuralExecutionContext(context.deps)
-        ),
-      describeRuleSelectionFailure,
-      expandBaselines: (selection, options) =>
-        expandBaselines(
-          selection,
-          { ...options, repoRoot: context.deps.platform.repoRoot },
-          structuralExecutionContext(context.deps)
-        ),
-      selectorsFromInput,
-    } satisfies CheckModuleContext,
-  })
-);
-
-function createCheckReport(options: CheckOptions, context: StructuralExecutionContext) {
-  return createCheckReportEffect(options, context);
-}
-
-function expandBaselines(
-  selection: RuleSelection | undefined,
-  options: { readonly base?: string; readonly repoRoot: string },
-  context: StructuralExecutionContext
-) {
-  return expandBaselinesEffect(selection, options, context);
-}
-
-function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
-  return {
-    baselineFileSystem: {
-      isDirectory: deps.platform.isDirectory,
-      isFile: deps.platform.isFileEffect,
-      makeDirectory: deps.platform.makeDirectory,
-      readDirectory: deps.platform.readDirectory,
-      readText: deps.platform.readText,
-      writeText: deps.platform.writeText,
-    },
-    biome: deps.biome,
-    command: deps.commandRunner,
-    git: deps.git,
-    grit: {
-      runRules: deps.grit.runRules,
-    },
-    nx: deps.nx,
-    repoRoot: deps.platform.repoRoot,
-    rules: deps.rules,
-    sourceFileSystem: {
-      isDirectory: deps.platform.isDirectory,
-      isFile: deps.platform.isFileEffect,
-      readDirectory: deps.platform.readDirectory,
-      readText: deps.platform.readText,
-    },
-  };
-}
+export const module: HabitatModule<HabitatServiceContract["check"], CheckModuleContext> =
+  service.check.use(({ context, next }) =>
+    next({
+      context: {
+        checkCommandContext,
+        createCheckReport: (options) =>
+          createCheckReportEffect(
+            { ...options, repoRoot: context.deps.platform.repoRoot },
+            context.structuralCheck
+          ),
+        describeRuleSelectionFailure,
+        expandBaselines: (selection, options) =>
+          expandBaselinesEffect(
+            selection,
+            { ...options, repoRoot: context.deps.platform.repoRoot },
+            context.structuralCheck
+          ),
+        selectorsFromInput,
+      } satisfies CheckModuleContext,
+    })
+  );
 
 function selectorsFromInput(input: Pick<CheckReportInput, "selectors">) {
   return {
