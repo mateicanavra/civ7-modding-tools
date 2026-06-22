@@ -2,7 +2,7 @@ import {
   parseRuleRegistryDocument,
   parseRuleRegistryText,
 } from "@internal/habitat-harness/service/model/rules/index";
-import { rules } from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/architecture.policy";
+import { rules } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import { describe, expect, test } from "vitest";
 import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 

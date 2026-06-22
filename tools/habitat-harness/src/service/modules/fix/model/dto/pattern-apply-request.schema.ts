@@ -1,4 +1,4 @@
-import { TransactionPathDecisionSchema } from "@internal/habitat-harness/service/modules/check/model/index";
+import { TransactionPathDecisionSchema } from "@internal/habitat-harness/service/model/host/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import { ApplyAdmissionSchema } from "./pattern-management.schema.js";

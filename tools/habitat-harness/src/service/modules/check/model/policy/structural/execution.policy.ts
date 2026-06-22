@@ -26,6 +26,16 @@ import {
   renderHabitatError,
 } from "@internal/habitat-harness/resources/errors/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
+import {
+  type RuleRunResult,
+  ruleDiagnosticsFromCommandResult,
+} from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import {
+  modifiedStagedPaths,
+  runFileLayerProtectedMutationRule,
+  type StagedMutationPath,
+  stagedPathsFromNameStatus,
+} from "@internal/habitat-harness/service/model/host/index";
 import type {
   RuleCommandExecutionFacts,
   RuleFileLayerFacts,
@@ -43,16 +53,6 @@ import {
   factsForRuleIds,
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import {
-  modifiedStagedPaths,
-  runFileLayerProtectedMutationRule,
-  type StagedMutationPath,
-  stagedPathsFromNameStatus,
-} from "@internal/habitat-harness/service/modules/check/model/index";
-import {
-  type RuleRunResult,
-  ruleDiagnosticsFromCommandResult,
-} from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/architecture.policy";
 import {
   approvedSourceScanRootsForRules,
   SourceCheck,

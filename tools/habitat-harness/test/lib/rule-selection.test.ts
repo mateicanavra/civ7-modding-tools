@@ -3,7 +3,7 @@ import {
   type RuleSelection,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import type { HarnessRule } from "@internal/habitat-harness/service/modules/check/model/policy/rule-runtime/architecture.policy";
+import type { HarnessRule } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import {
   approvedScanRootsForRules,
   checkCommandContext,

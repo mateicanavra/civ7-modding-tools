@@ -1,12 +1,12 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   type DiagnosticScanRootDecision,
-  decideScanRootProtection,
   renderDiagnosticScanRootRefusal,
-} from "@internal/habitat-harness/service/modules/check/model/index";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
+import { decideScanRootProtection } from "@internal/habitat-harness/service/model/host/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { protectedScanRootPrefixes } from "../constants.js";
 
 export interface PatternScanRootValidationOptions {
