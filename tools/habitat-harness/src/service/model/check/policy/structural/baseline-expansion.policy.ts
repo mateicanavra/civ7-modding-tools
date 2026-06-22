@@ -14,8 +14,11 @@ import { CommandRunner } from "@internal/habitat-harness/resources/command/index
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
-  BaselineAuthority,
+  applyBaseline,
+  guardBaselineExpansionEffect,
+  loadBaselineStateEffect,
   violationKey,
+  writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import {
   activeRuleBaselineFacts,
@@ -46,7 +49,6 @@ export function expandBaselinesEffect(
 ): Effect.Effect<
   BaselineExpansionResult,
   never,
-  | BaselineAuthority
   | BiomeProvider
   | CommandRunner
   | NxProvider
@@ -59,7 +61,6 @@ export function expandBaselinesEffect(
   | GritProviderRequirements
 > {
   return Effect.gen(function* () {
-    const baselineAuthority = yield* BaselineAuthority;
     const selected = selectRules(selection);
     if (!selected.ok) return selected;
 
@@ -72,7 +73,7 @@ export function expandBaselinesEffect(
       const baselineFacts = baselinesByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* baselineAuthority.loadState(baselineFacts);
+      const baseline = yield* loadBaselineStateEffect(baselineFacts);
       if (baseline.kind === "baseline-refusal") {
         return {
           ok: false,
@@ -84,7 +85,7 @@ export function expandBaselinesEffect(
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       const { diagnostics } = execution.result;
-      const baselineResult = yield* baselineAuthority.apply(diagnostics, baseline);
+      const baselineResult = yield* Effect.sync(() => applyBaseline(diagnostics, baseline));
       if (baselineResult.status === "refused") {
         return {
           ok: false,
@@ -97,14 +98,9 @@ export function expandBaselinesEffect(
         .filter((diagnostic) => diagnostic.severity === "error" && !diagnostic.baselined)
         .map(violationKey);
       if (keys.length > 0) {
-        const guard = yield* baselineAuthority.guardExpansion(
-          rule.id,
-          keys,
-          options.base ?? "main",
-          {
-            registry: baselineContractInputs(),
-          }
-        );
+        const guard = yield* guardBaselineExpansionEffect(rule.id, keys, options.base ?? "main", {
+          registry: baselineContractInputs(),
+        });
         if (guard.status === "refused") {
           return {
             ok: false,
@@ -113,7 +109,7 @@ export function expandBaselinesEffect(
             message: guard.message,
           };
         }
-        const writeFailure = yield* baselineAuthority.write(rule.id, guard.keys).pipe(
+        const writeFailure = yield* writeBaselineEffect(rule.id, guard.keys).pipe(
           Effect.as(null),
           Effect.catchAll((error) => Effect.succeed(error))
         );

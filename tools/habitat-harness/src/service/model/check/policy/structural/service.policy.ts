@@ -16,7 +16,6 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { BaselineAuthority } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Context, Effect, Layer } from "effect";
 import type { BaselineExpansionResult } from "./baseline-expansion.policy.js";
@@ -29,7 +28,6 @@ export interface StructuralCheckService {
   ) => Effect.Effect<
     CheckReport,
     never,
-    | BaselineAuthority
     | BiomeProvider
     | CommandRunner
     | NxProvider
@@ -47,7 +45,6 @@ export interface StructuralCheckService {
   ) => Effect.Effect<
     BaselineExpansionResult,
     never,
-    | BaselineAuthority
     | BiomeProvider
     | CommandRunner
     | NxProvider

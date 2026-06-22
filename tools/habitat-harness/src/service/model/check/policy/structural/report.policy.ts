@@ -22,8 +22,13 @@ import {
   structuralCheckRequest,
 } from "@internal/habitat-harness/service/model/check/index";
 import {
+  applyBaseline,
   type BaselineApplicationResult,
-  BaselineAuthority,
+  baselineFailureDiagnostic,
+  baselineIntegrityFindingsEffect,
+  checkBaselineIntegrityEffect,
+  isBaselineLocked,
+  loadBaselineStateEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
@@ -53,7 +58,6 @@ export function createCheckReportEffect(
 ): Effect.Effect<
   CheckReport,
   never,
-  | BaselineAuthority
   | BiomeProvider
   | CommandRunner
   | NxProvider
@@ -66,7 +70,6 @@ export function createCheckReportEffect(
   | GritProviderRequirements
 > {
   return Effect.gen(function* () {
-    const baselineAuthority = yield* BaselineAuthority;
     const request = structuralCheckRequest(options);
     const selection = selectRules(request.selectors);
     if (!selection.ok) return yield* selectorRefusalReportEffect(selection, request);
@@ -92,7 +95,7 @@ export function createCheckReportEffect(
       const baselineFacts = baselineInputsByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* baselineAuthority.loadState(baselineFacts);
+      const baseline = yield* loadBaselineStateEffect(baselineFacts);
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       Value.Parse(RuleExecutionPlanSchema, {
@@ -103,14 +106,16 @@ export function createCheckReportEffect(
       });
       const executionDiagnostics = execution.result.diagnostics;
       diagnosticConsumptionOutcome(execution.disposition, executionDiagnostics);
-      const baselineResult = yield* baselineAuthority.apply(executionDiagnostics, baseline);
-      const locked = yield* baselineAuthority.isLocked(baseline);
+      const baselineResult = yield* Effect.sync(() =>
+        applyBaseline(executionDiagnostics, baseline)
+      );
+      const locked = yield* Effect.sync(() => isBaselineLocked(baseline));
       baselineApplicationOutcome(rule.id, baselineResult, locked, executionDiagnostics);
       const diagnostics = [
         ...executionDiagnostics,
         ...(yield* Effect.all(
           baselineResult.refusals.map((failure) =>
-            baselineAuthority.failureDiagnostic(rule.id, failure)
+            Effect.sync(() => baselineFailureDiagnostic(rule.id, failure))
           )
         )),
       ];
@@ -224,18 +229,13 @@ function ruleReportFromDiagnostics(input: {
 
 function baselineIntegrityReportEffect(
   base: string
-): Effect.Effect<
-  RuleReport,
-  never,
-  BaselineAuthority | FileSystem.FileSystem | GitProvider | GitProviderRequirements
-> {
+): Effect.Effect<RuleReport, never, FileSystem.FileSystem | GitProvider | GitProviderRequirements> {
   return Effect.gen(function* () {
-    const baselineAuthority = yield* BaselineAuthority;
     const integrityStarted = yield* Clock.currentTimeMillis;
-    const integrity = yield* baselineAuthority.checkIntegrity(base, {
+    const integrity = yield* checkBaselineIntegrityEffect(base, {
       registry: baselineContractInputs(),
     });
-    const integrityFindings = yield* baselineAuthority.integrityFindings(integrity);
+    const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
     return {
       ruleId: "baseline-integrity",
       ownerTool: "habitat-builtin",

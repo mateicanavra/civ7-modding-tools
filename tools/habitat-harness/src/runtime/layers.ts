@@ -11,7 +11,6 @@ import { CommandRunnerLive } from "@internal/habitat-harness/resources/command/i
 import { HabitatConfigLive } from "@internal/habitat-harness/resources/config/index";
 import { HabitatPlatformLive } from "@internal/habitat-harness/resources/platform/index";
 import { HabitatReporterLive } from "@internal/habitat-harness/resources/reporter/index";
-import { BaselineAuthorityLive } from "@internal/habitat-harness/service/model/check/policy/baseline/service.policy";
 import { StructuralCheckLive } from "@internal/habitat-harness/service/model/check/policy/structural/service.policy";
 import { Layer } from "effect";
 
@@ -27,6 +26,5 @@ export const HabitatRuntimeLive = Layer.mergeAll(
   HabitatReporterLive,
   HabitatPlatformLive,
   GritProviderLive,
-  BaselineAuthorityLive,
   StructuralCheckLive
 );
