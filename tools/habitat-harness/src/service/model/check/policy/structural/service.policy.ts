@@ -16,9 +16,9 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
+import type { BaselineAuthority } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+import type { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import type { BaselineAuthority } from "@internal/habitat-harness/service/modules/check/model/policy/baseline/index";
-import type { SourceCheck } from "@internal/habitat-harness/service/modules/check/model/policy/source/index";
 import { Context, Effect, Layer } from "effect";
 import type { BaselineExpansionResult } from "./baseline-expansion.policy.js";
 import { expandBaselinesEffect } from "./baseline-expansion.policy.js";

@@ -34,7 +34,7 @@ import type {
 import {
   makeFakeStructuralCheckLayer,
   StructuralCheck,
-} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import type { HookResourcePolicy } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";

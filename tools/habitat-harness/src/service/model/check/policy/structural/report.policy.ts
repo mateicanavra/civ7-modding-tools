@@ -21,17 +21,17 @@ import {
   type CheckOptions,
   structuralCheckRequest,
 } from "@internal/habitat-harness/service/model/check/index";
+import {
+  type BaselineApplicationResult,
+  BaselineAuthority,
+} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   activeRuleReportFacts,
   factsForRuleIds,
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import {
-  type BaselineApplicationResult,
-  BaselineAuthority,
-} from "@internal/habitat-harness/service/modules/check/model/policy/baseline/index";
-import { SourceCheck } from "@internal/habitat-harness/service/modules/check/model/policy/source/index";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
 import { baselineContractInputs } from "./baseline-expansion.policy.js";

@@ -35,6 +35,7 @@ import {
   type RuleExecutionTiming,
   stagedSourceScanRoots,
 } from "@internal/habitat-harness/service/model/check/index";
+import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   type RuleRunResult,
   ruleDiagnosticsFromCommandResult,
@@ -62,7 +63,6 @@ import {
   factsForRuleIds,
 } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import { SourceCheck } from "@internal/habitat-harness/service/modules/check/model/policy/source/index";
 import { Clock, Effect } from "effect";
 
 export interface RuleExecutionRecord {

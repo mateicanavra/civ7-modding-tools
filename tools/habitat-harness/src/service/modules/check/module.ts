@@ -1,7 +1,7 @@
 import { service } from "@internal/habitat-harness/service/impl";
 import { checkCommandContext } from "@internal/habitat-harness/service/model/check/index";
+import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { describeRuleSelectionFailure } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import type { StructuralCheckService } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import type { CheckServiceRunInput } from "./contract.js";
 
 export interface CheckModuleContext {
