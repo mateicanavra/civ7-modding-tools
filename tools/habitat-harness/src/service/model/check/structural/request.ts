@@ -1,4 +1,4 @@
-import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/selection/index";
+import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import type { CheckCommandContext, SelectorRequest, StructuralCheckRequest } from "./schema.js";
 
 export interface CheckOptions extends RuleSelection {

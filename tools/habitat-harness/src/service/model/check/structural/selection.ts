@@ -1,7 +1,7 @@
 import {
   describeRuleSelectionFailure,
   type RuleSelectionResult,
-} from "@internal/habitat-harness/service/model/rules/selection/index";
+} from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import {
   currentTimeMillis,
   epochMillisToIsoString,

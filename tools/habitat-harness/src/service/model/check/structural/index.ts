@@ -1,4 +1,4 @@
-export { describeRuleSelectionFailure } from "@internal/habitat-harness/service/model/rules/selection/index";
+export { describeRuleSelectionFailure } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 export { type BaselineExpansionResult, expandBaselinesEffect } from "./baseline-expansion.js";
 export {
   approvedScanRootsForRules,
