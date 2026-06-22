@@ -12,20 +12,31 @@ const graphServiceErrorMap = {
 } as const;
 
 const GraphWorkspaceGraphInputSchema = Type.Object(
-  {
-    json: Type.Optional(Type.Boolean()),
-  },
-  { additionalProperties: false, description: "Habitat workspace graph request." }
+  {},
+  { additionalProperties: false, description: "Habitat workspace graph action request." }
 );
 export type GraphWorkspaceGraphInput = Static<typeof GraphWorkspaceGraphInputSchema>;
 
-const GraphWorkspaceGraphOutputSchema = Type.Object(
-  {
-    exitCode: Type.Integer(),
-    stdout: Type.String(),
-    stderr: Type.String(),
-  },
-  { additionalProperties: false, description: "Habitat workspace graph result." }
+const GraphWorkspaceGraphOutputSchema = Type.Union(
+  [
+    Type.Object(
+      {
+        kind: Type.Literal("completed"),
+        graph: Type.Unknown(),
+      },
+      { additionalProperties: false, description: "Workspace graph payload." }
+    ),
+    Type.Object(
+      {
+        kind: Type.Literal("command-failed"),
+        exitCode: Type.Integer(),
+        stdout: Type.String(),
+        stderr: Type.String(),
+      },
+      { additionalProperties: false, description: "Nx graph command failed." }
+    ),
+  ],
+  { description: "Habitat workspace graph action result." }
 );
 export type GraphWorkspaceGraphOutput = Static<typeof GraphWorkspaceGraphOutputSchema>;
 

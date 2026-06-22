@@ -14,6 +14,7 @@ Current burn-down categories:
 - Active runtime cleanup: service runtime realization belongs under `runtime/`; `service/impl.ts` should attach the contract/context to an already-realized managed runtime instead of composing live provider layers itself.
 - Active CLI-shape cleanup: service procedures must expose direct Habitat actions, not command-name envelopes. The CLI owns hook-name parsing/refusal and calls the direct service action.
 - Active contract cleanup: continue simplifying service contracts and schemas after action splits; schemas should describe domain action inputs/outputs directly, not mirror command envelopes or preserve old compatibility names.
+- Active contract cleanup: simplify effect-oRPC contract files categorically. Procedure contracts should not manually repeat input/output generic types when schemas already define them; module contracts should compose procedure definitions directly where the local pattern allows; investigate replacing the custom `toStandardSchema` wrapper with TypeBox's native Standard Schema support if the installed TypeBox version provides it.
 - Promise/resource adaptation belongs outside routers. Routers author procedure logic through the module implementer and consume ready Effect-returning operations from handler context.
 - Remove module-local context from `service/base.ts`; service context keeps only provisioned resources and shared service metadata.
 - Let each `module.ts` project service resources into the module-specific procedure context.
@@ -124,3 +125,4 @@ Completed burn-downs:
 - Model shape validation now rejects generic `helpers`, `persistence`, and `prompts` buckets; Habitat service logic must land in explicit DTO, policy, repository, or error kinds.
 - Habitat service managed runtime construction moved to `runtime/service-runtime.ts`; the oRPC implementer and live service context creation share the same runtime-boundary composition instead of constructing runtimes in service files.
 - Hook service procedure shape now exposes `hook.preCommit` and `hook.prePush`; the old `hook.execute({ name })` envelope and unknown-name service state are deleted, and CLI hook dispatch compiles names to direct service actions.
+- Graph service procedure shape now returns a graph action result instead of a CLI stdout/stderr JSON envelope; `--json` compact formatting is owned by the CLI command.

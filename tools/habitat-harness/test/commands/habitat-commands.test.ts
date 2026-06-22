@@ -143,9 +143,8 @@ describe("Habitat oclif commands", () => {
     }));
     mockFixApplyPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphWorkspaceGraph.mockResolvedValue({
-      exitCode: 0,
-      stdout: '{"nodes":{}}\n',
-      stderr: "",
+      kind: "completed",
+      graph: { nodes: {} },
     });
     mockHookPreCommit.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockHookPrePush.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
@@ -310,7 +309,7 @@ describe("Habitat oclif commands", () => {
     await Graph.run(["--json"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockGraphWorkspaceGraph).toHaveBeenCalledWith({ json: true });
+    expect(mockGraphWorkspaceGraph).toHaveBeenCalledWith({});
     expect(stdout.join("")).toContain('{"nodes":{}}');
   });
 

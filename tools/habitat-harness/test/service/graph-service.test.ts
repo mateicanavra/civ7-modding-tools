@@ -19,7 +19,7 @@ import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("Habitat graph service", () => {
-  test("runs Nx graph through providers and returns compact CLI JSON", async () => {
+  test("runs Nx graph through providers and returns graph payload", async () => {
     const events: string[] = [];
     const graphRequests: NxGraphRequest[] = [];
     const graphPath = path.join("/tmp/habitat-graph-fake", "graph.json");
@@ -45,12 +45,11 @@ describe("Habitat graph service", () => {
       }
     );
 
-    const result = await Effect.runPromise(runGraphProcedure({ json: true }, deps));
+    const result = await Effect.runPromise(runGraphProcedure({}, deps));
 
     expect(result).toEqual({
-      exitCode: 0,
-      stdout: '{"nodes":{"app":{}}}\n',
-      stderr: "",
+      kind: "completed",
+      graph: { nodes: { app: {} } },
     });
     expect(graphRequests).toEqual([{ outputPath: graphPath }]);
     expect(events).toEqual([
@@ -80,7 +79,7 @@ describe("Habitat graph service", () => {
       }
     );
 
-    await expect(Effect.runPromise(runGraphProcedure({ json: true }, deps))).rejects.toThrow(
+    await expect(Effect.runPromise(runGraphProcedure({}, deps))).rejects.toThrow(
       "Habitat graph service read invalid Nx graph JSON at /tmp/habitat-graph-fake/graph.json: graph must be a non-null object."
     );
   });
@@ -110,6 +109,7 @@ describe("Habitat graph service", () => {
     const result = await Effect.runPromise(runGraphProcedure({}, deps));
 
     expect(result).toEqual({
+      kind: "command-failed",
       exitCode: 2,
       stdout: "",
       stderr: "nx graph failed\n",
@@ -147,6 +147,7 @@ describe("Habitat graph service", () => {
     const result = await Effect.runPromise(runGraphProcedure({}, deps));
 
     expect(result).toEqual({
+      kind: "command-failed",
       exitCode: 127,
       stdout: "",
       stderr: "nx unavailable\n",
