@@ -1,6 +1,6 @@
 import type { VerifyServiceModuleContext } from "../../context.js";
-import { habitatServiceImplementer } from "../../impl.js";
+import { service } from "../../impl.js";
 
-export const implementer = habitatServiceImplementer.verify.use(({ next }) =>
+export const module = service.verify.use(({ next }) =>
   next({ context: {} satisfies VerifyServiceModuleContext })
 );

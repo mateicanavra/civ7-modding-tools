@@ -25,16 +25,10 @@ import {
 import { GritProvider } from "@internal/habitat-harness/service/runtime/grit/index";
 import { Effect } from "effect";
 import type { FixServiceRunInput } from "./contract.js";
-import { type FixServiceModuleContext, implementer } from "./module.js";
+import { type FixServiceModuleContext, module } from "./module.js";
 
 export const fixRouter = {
-  run: implementer.run.effect(({ context, input }) => runFixService(input, context)),
-};
-
-export const router = fixRouter;
-
-function runFixService(input: FixServiceRunInput, options: FixServiceModuleContext = {}) {
-  return Effect.gen(function* () {
+  run: module.run.effect(function* ({ context: options = {}, input }) {
     const admissions = options.admissions ?? defaultApplyAdmissions();
 
     if (admissions.length === 0) {
@@ -59,8 +53,10 @@ function runFixService(input: FixServiceRunInput, options: FixServiceModuleConte
       stdout: rendered.map((result) => result.stdout).join(""),
       stderr: rendered.map((result) => result.stderr).join(""),
     };
-  });
-}
+  }),
+};
+
+export const router = fixRouter;
 
 function transactionRequest(
   intent: FixServiceRunInput,

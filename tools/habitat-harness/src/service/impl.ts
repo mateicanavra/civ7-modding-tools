@@ -11,7 +11,7 @@ import { type HabitatServiceContract, habitatServiceContract } from "./contract.
 const habitatServiceOrpcContract = eoc.router(habitatServiceContract);
 export const habitatServiceEffectRuntime = ManagedRuntime.make(habitatServiceLayer);
 
-export const habitatServiceImplementer: EffectImplementer<
+export const service: EffectImplementer<
   HabitatServiceContract,
   HabitatServiceContext & Record<never, never>,
   HabitatServiceContext,
