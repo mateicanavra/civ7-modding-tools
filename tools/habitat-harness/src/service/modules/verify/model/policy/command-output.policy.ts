@@ -19,11 +19,11 @@ export function boundedPreview(value: string, limit = 4096): { text: string; tru
  *
  * @returns Allowlisted environment key/value pairs.
  */
-export function selectedVerifyEnv(): Record<string, string> {
+export function selectedVerifyEnv(env: Record<string, string | undefined>): Record<string, string> {
   return Object.fromEntries(
     ["CI", "FORCE_COLOR", "NX_DAEMON", "NX_CACHE_PROJECT_GRAPH", "NX_PROJECT_GRAPH_CACHE"]
       .map((key): [string, string] | undefined => {
-        const value = process.env[key];
+        const value = env[key];
         return value === undefined ? undefined : [key, value];
       })
       .filter((entry): entry is [string, string] => entry !== undefined)

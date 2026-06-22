@@ -34,6 +34,8 @@ import { postStateObservation } from "./post-state.policy.js";
 export interface VerifyReceiptInput {
   /** Repository root used for command metadata. */
   repoRoot: string;
+  /** Environment values available to receipt command metadata. */
+  env?: Record<string, string | undefined>;
   /** Optional base ref explicitly requested by the caller. */
   requestedBase?: string;
   /** Effective Git base used for affected verification. */
@@ -106,7 +108,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
     command: {
       argv: ["habitat", "verify"],
       cwd: input.repoRoot,
-      env: selectedVerifyEnv(),
+      env: selectedVerifyEnv(input.env ?? {}),
       startedAt: input.startedAt,
       durationMs: input.durationMs,
       exitCode: input.exitCode,

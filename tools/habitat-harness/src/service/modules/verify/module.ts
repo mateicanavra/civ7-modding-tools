@@ -64,7 +64,10 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
     git: context.deps.git,
     repoRoot: context.deps.platform.repoRoot,
   });
-  const createReceipt = makeCreateVerifyReceipt(context.deps.platform.repoRoot);
+  const createReceipt = makeCreateVerifyReceipt({
+    env: context.deps.platform.env,
+    repoRoot: context.deps.platform.repoRoot,
+  });
   return next({
     context: {
       checkCommandContext,
@@ -103,9 +106,12 @@ function readVerifyTargetPlanEffect() {
   return Effect.promise(() => readVerifyTargetPlan());
 }
 
-function makeCreateVerifyReceipt(repoRoot: string) {
-  return (input: Omit<VerifyReceiptInput, "repoRoot">) =>
-    createVerifyReceipt({ ...input, repoRoot });
+function makeCreateVerifyReceipt(context: {
+  readonly env: Record<string, string | undefined>;
+  readonly repoRoot: string;
+}) {
+  return (input: Omit<VerifyReceiptInput, "env" | "repoRoot">) =>
+    createVerifyReceipt({ ...input, env: context.env, repoRoot: context.repoRoot });
 }
 
 function makeRunAffectedVerification(nx: NxProviderService) {

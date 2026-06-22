@@ -106,6 +106,7 @@ export function makeTestHabitatServiceDeps(
     },
     platform: {
       acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
+      env: {},
       hashFile: () => null,
       pathExists: () => false,
       readText: () => Effect.succeed(""),
