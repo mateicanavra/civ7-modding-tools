@@ -6,13 +6,16 @@ import type {
 } from "@internal/habitat-harness/providers/nx/schema";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { statKindSync } from "@internal/habitat-harness/resources/platform/filesystem";
+import {
+  type PathClassification,
+  parsePathClassification,
+} from "@internal/habitat-harness/service/model/classify/index";
 import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   findWorkspaceOwningProject,
   ruleGraphTargetStates,
   workspaceTargetStates,
 } from "@internal/habitat-harness/service/model/workspace/index";
-import { type PathClassification, parsePathClassification } from "../dto/classify.schema.js";
 import { rulesForPath } from "./rule-routing.policy.js";
 import { projectTargets, workspaceTargets } from "./target-plan.policy.js";
 

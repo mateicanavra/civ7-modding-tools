@@ -3,7 +3,7 @@ import {
   renderCheckReport,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
-import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/modules/verify/model/index";
+import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/model/verify/index";
 import { Flags } from "@oclif/core";
 
 export default class Verify extends HabitatCommand {

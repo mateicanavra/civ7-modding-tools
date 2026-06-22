@@ -1,9 +1,12 @@
 import { GitProvider } from "@internal/habitat-harness/providers/git/index";
 import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import {
+  type VerifyBaseResolution,
+  VerifyBaseResolutionSchema,
+} from "@internal/habitat-harness/service/model/verify/index";
 import { Effect } from "effect";
 import { Value } from "typebox/value";
-import { type VerifyBaseResolution, VerifyBaseResolutionSchema } from "../dto/verify.schema.js";
 
 /**
  * Resolves the affected base for verify.
