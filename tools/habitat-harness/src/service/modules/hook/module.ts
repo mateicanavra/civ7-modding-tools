@@ -36,7 +36,6 @@ import {
   resourceDecisionToFacade,
 } from "./model/index.js";
 import { finalizePreCommitEffect, finalizePrePushEffect } from "./model/policy/lifecycle.policy.js";
-import { captureRepoSnapshotEffect } from "./model/policy/repo-snapshot.policy.js";
 import { classifyResourcePreCommitDecisionEffect } from "./model/policy/resource-inspection.policy.js";
 import {
   createHookOutput,
@@ -153,15 +152,6 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       const output = createHookOutput(context.reporter);
       output.writeStdout(localHookNotice);
 
-      if (runtime.trace) {
-        runtime.trace.prePush = {
-          outcome: "started",
-          startedAtMs: yield* hookNow(),
-        };
-      }
-      if (runtime.trace?.prePush) {
-        runtime.trace.prePush.preState = yield* captureRepoSnapshotEffect(context, runtime);
-      }
       if (baseDecision.kind === "refused") {
         output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
         return yield* finalizePrePushEffect(context, runtime, "base-refused", {
@@ -170,8 +160,6 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
         });
       }
       const base = baseDecision.base;
-      if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
-      if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
       const changedPaths = yield* prePushChangedPaths(context, base);
       if (changedPaths.kind === "unavailable") {
         output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
@@ -338,24 +326,6 @@ function beginPreCommit(
     const startedAtMs = yield* hookNow();
     const resourceDecision = yield* classifyResourcePreCommitDecisionEffect(context, runtime);
     const resources = resourceDecisionToFacade(resourceDecision);
-    if (runtime.trace) {
-      runtime.trace.preCommit = {
-        resourceState: resources.kind,
-        stagedPaths: [],
-        biomePaths: [],
-        sourceCheckPaths: [],
-        partialPaths: [],
-        formatterTouchedPaths: [],
-        restagedPaths: [],
-        outcome: "started",
-        startedAtMs,
-      };
-      runtime.trace.preCommit.preState = yield* captureRepoSnapshotEffect(
-        context,
-        runtime,
-        resources.kind
-      );
-    }
     output.writeStdout(`resources: ${resources.kind}\n`);
     if (!resources.allowPreCommit) {
       output.writeStderr(renderResourceDecisionFailure(resourceDecision));
@@ -383,8 +353,6 @@ function beginPreCommit(
       stagedStartedAtMs,
       0
     );
-    if (runtime.trace?.preCommit) runtime.trace.preCommit.stagedPaths = staged;
-
     return {
       kind: "continue",
       state: { context, runtime, output, staged, hashFile: context.hashFile },
@@ -415,7 +383,6 @@ function continuePreCommitAfterFileLayer(
   }
 
   const biomePaths = biomeHookPaths(staged);
-  if (runtime.trace?.preCommit) runtime.trace.preCommit.biomePaths = biomePaths;
   return Effect.gen(function* () {
     const partialStartedAtMs = yield* hookNow();
     const partials = yield* unstagedAmongEffect(context.git, context.repoRoot, biomePaths);
@@ -427,7 +394,6 @@ function continuePreCommitAfterFileLayer(
       partialStartedAtMs,
       0
     );
-    if (runtime.trace?.preCommit) runtime.trace.preCommit.partialPaths = partials;
     if (partials.length > 0) {
       output.writeStderr(
         [
@@ -502,7 +468,6 @@ function preCommitBiomeProviderStep(
     const touched = biomePaths.filter(
       (candidate) => beforeHashes.get(candidate) !== hashFile(candidate)
     );
-    if (runtime.trace?.preCommit) runtime.trace.preCommit.formatterTouchedPaths = touched;
     if (touched.length > 0) {
       const restageStartedAtMs = yield* hookNow();
       const restage = yield* gitAddEffect(context.git, context.repoRoot, touched);
@@ -526,7 +491,6 @@ function preCommitBiomeProviderStep(
           },
         };
       }
-      if (runtime.trace?.preCommit) runtime.trace.preCommit.restagedPaths = touched;
       output.writeStdout(`formatter restage: ${touched.length} path(s)\n`);
     } else {
       output.writeStdout("formatter restage: 0 paths\n");
@@ -573,9 +537,8 @@ function preCommitBiomeProviderStep(
 function continuePreCommitAfterBiome(
   state: PreCommitBiomeState
 ): PreCommitStep<PreCommitSourceCheckState> {
-  const { runtime, staged } = state;
+  const { staged } = state;
   const sourceCheckPaths = hookSourceCheckPaths(staged);
-  if (runtime.trace?.preCommit) runtime.trace.preCommit.sourceCheckPaths = sourceCheckPaths;
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
 }
 
@@ -760,19 +723,13 @@ function recordInProcessHookCheck(
   startedAtMs: number,
   exitCode: number
 ): Effect.Effect<void> {
-  return Effect.gen(function* () {
-    const endedAtMs = yield* hookNow();
-    runtime.trace?.commands.push({
-      phase,
-      argv: ["habitat", "check", ...argv],
-      cwd: context.repoRoot,
-      env: undefined,
-      exitCode,
-      startedAtMs,
-      endedAtMs,
-      durationMs: Math.max(0, endedAtMs - startedAtMs),
-    });
-  });
+  void context;
+  void runtime;
+  void phase;
+  void argv;
+  void startedAtMs;
+  void exitCode;
+  return Effect.void;
 }
 
 function recordHookCommand(
@@ -791,19 +748,13 @@ function recordHookCommand(
   startedAtMs: number,
   exitCode: number
 ): Effect.Effect<void> {
-  return Effect.gen(function* () {
-    const endedAtMs = yield* hookNow();
-    runtime.trace?.commands.push({
-      phase,
-      argv: [...argv],
-      cwd: context.repoRoot,
-      env: undefined,
-      exitCode,
-      startedAtMs,
-      endedAtMs,
-      durationMs: Math.max(0, endedAtMs - startedAtMs),
-    });
-  });
+  void context;
+  void runtime;
+  void phase;
+  void argv;
+  void startedAtMs;
+  void exitCode;
+  return Effect.void;
 }
 
 function checkSummaryAllowsNextStage(result: HookCheckCommandResult): boolean {

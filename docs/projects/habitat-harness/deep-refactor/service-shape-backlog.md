@@ -27,6 +27,7 @@ Completed burn-downs:
 - Hook output reporting now uses the shared `HabitatReporterService` resource; `HookRuntime` no longer carries the reporter callback.
 - Hook timing now uses Effect `Clock`; `HookRuntime` no longer carries a custom clock callback.
 - Hook filesystem access now uses the shared platform resource surface; `HookRuntime` no longer carries path-existence or file-hash callbacks.
+- Hook trace/provenance collection has been deleted from the service runtime path; hook focused tests now validate behavior without repo snapshot bookkeeping.
 - Fix transactions require the provisioned Grit provider instead of carrying a provider-missing fallback path; provider runtime requirements are recorded in the module operation type instead of being hidden.
 - Graph router internal error mapping now uses contract-listed effect-oRPC errors; router source carries no TODO notes for this path.
 - Shared `service/model/*` domains now reject loose unmanaged files; policy code must be named and classified by kind.

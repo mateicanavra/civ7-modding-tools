@@ -31,10 +31,7 @@ import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
 } from "@internal/habitat-harness/service/modules/hook/model/policy/resource-inspection.policy";
-import {
-  createHookTrace,
-  type HookRuntime,
-} from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
+import { type HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -316,92 +313,6 @@ describe("Habitat pre-commit staged mutation policy", () => {
       })
     );
     expect(fake.checkRequests.map((request) => request.tool)).not.toContain("source-check");
-  });
-
-  test("records typed pre-commit state and command provenance through fake services", async () => {
-    const trace = createHookTrace();
-    const fake = makeFakeRuntime({
-      stagedPaths: ["packages/example/src/index.ts", "README.md"],
-      fileHashes: {
-        "packages/example/src/index.ts": ["before", "after"],
-        "README.md": ["foreign-before", "foreign-after"],
-      },
-    });
-
-    const result = await runPreCommitInTest(fake, { ...fake.runtime, trace });
-
-    expect(result.exitCode).toBe(0);
-    expect(trace.preCommit).toMatchObject({
-      preState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        stagedPaths: ["packages/example/src/index.ts", "README.md"],
-        unstagedPaths: [],
-        resourceState: "not-configured",
-      },
-      postState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        stagedPaths: ["packages/example/src/index.ts", "README.md"],
-        unstagedPaths: [],
-        resourceState: "not-configured",
-      },
-      resourceState: "not-configured",
-      stagedPaths: ["packages/example/src/index.ts", "README.md"],
-      biomePaths: ["packages/example/src/index.ts"],
-      sourceCheckPaths: ["packages/example/src/index.ts"],
-      partialPaths: [],
-      formatterTouchedPaths: ["packages/example/src/index.ts"],
-      restagedPaths: ["packages/example/src/index.ts"],
-      outcome: "pass",
-      exitCode: 0,
-    });
-    expect(trace.preCommit?.durationMs).toBeGreaterThan(0);
-    expect(trace.commands.every((command) => command.durationMs >= 0)).toBe(true);
-    expect(trace.commands.map((command) => command.phase)).toEqual(
-      expect.arrayContaining([
-        "staged-paths",
-        "file-layer",
-        "partial-staging",
-        "biome-format",
-        "formatter-restage",
-        "biome-check",
-        "source-check",
-      ])
-    );
-    expect(trace.commands.find((command) => command.phase === "source-check")).toMatchObject({
-      argv: ["habitat", "check", "--staged", "--tool", "source-check", "--json"],
-      cwd: repoRoot,
-      env: undefined,
-      exitCode: 0,
-    });
-  });
-
-  test("records source-check diagnostic-unavailable as an explicit pre-commit outcome", async () => {
-    const trace = createHookTrace();
-    const fake = makeFakeRuntime({
-      stagedPaths: ["packages/example/src/index.ts"],
-      sourceCheckStdout: sourceCheckReport({
-        ok: false,
-        status: "fail",
-        diagnosticMessage:
-          "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nGrit output contains wrapper text around JSON.",
-      }),
-    });
-
-    const result = await runPreCommitInTest(fake, { ...fake.runtime, trace });
-
-    expect(result.exitCode).toBe(1);
-    expect(trace.preCommit).toMatchObject({
-      sourceCheckPaths: ["packages/example/src/index.ts"],
-      outcome: "parse-failed",
-      exitCode: 1,
-      postState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        resourceState: "not-configured",
-      },
-    });
   });
 
   test("reports pre-commit output through an injected reporter service", async () => {

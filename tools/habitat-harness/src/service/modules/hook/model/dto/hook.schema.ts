@@ -3,25 +3,6 @@ import { type Static, Type } from "typebox";
 export const HookNameSchema = Type.Union([Type.Literal("pre-commit"), Type.Literal("pre-push")]);
 export type HookName = Static<typeof HookNameSchema>;
 
-export const HookReportChannelSchema = Type.Union([Type.Literal("stdout"), Type.Literal("stderr")]);
-export type HookReportChannel = Static<typeof HookReportChannelSchema>;
-
-export const HookCommandPhaseSchema = Type.Union([
-  Type.Literal("repo-state"),
-  Type.Literal("resource-state"),
-  Type.Literal("staged-paths"),
-  Type.Literal("file-layer"),
-  Type.Literal("partial-staging"),
-  Type.Literal("biome-format"),
-  Type.Literal("formatter-restage"),
-  Type.Literal("biome-check"),
-  Type.Literal("source-check"),
-  Type.Literal("pre-push-base"),
-  Type.Literal("pre-push-target"),
-  Type.Literal("pre-push-affected"),
-]);
-export type HookCommandPhase = Static<typeof HookCommandPhaseSchema>;
-
 export const ResourceStateKindSchema = Type.Union([
   Type.Literal("clean"),
   Type.Literal("not-configured"),
@@ -103,83 +84,3 @@ export const PrePushOutcomeSchema = Type.Union([
   Type.Literal("pass"),
 ]);
 export type PrePushOutcome = Static<typeof PrePushOutcomeSchema>;
-
-export const HookCommandRecordSchema = Type.Object(
-  {
-    phase: HookCommandPhaseSchema,
-    argv: Type.Array(Type.String()),
-    cwd: Type.String({ minLength: 1 }),
-    env: Type.Optional(Type.Record(Type.String(), Type.String())),
-    exitCode: Type.Number(),
-    startedAtMs: Type.Number(),
-    endedAtMs: Type.Number(),
-    durationMs: Type.Number({ minimum: 0 }),
-  },
-  { additionalProperties: false }
-);
-export type HookCommandRecord = Static<typeof HookCommandRecordSchema>;
-
-export const HookRepoSnapshotSchema = Type.Object(
-  {
-    branch: Type.Union([Type.String(), Type.Null()]),
-    head: Type.Union([Type.String(), Type.Null()]),
-    stagedPaths: Type.Array(Type.String()),
-    unstagedPaths: Type.Array(Type.String()),
-    resourceState: ResourceStateKindSchema,
-  },
-  { additionalProperties: false }
-);
-export type HookRepoSnapshot = Static<typeof HookRepoSnapshotSchema>;
-
-const PreCommitTraceSchema = Type.Object(
-  {
-    startedAtMs: Type.Number(),
-    endedAtMs: Type.Optional(Type.Number()),
-    durationMs: Type.Optional(Type.Number({ minimum: 0 })),
-    preState: Type.Optional(HookRepoSnapshotSchema),
-    postState: Type.Optional(HookRepoSnapshotSchema),
-    resourceState: ResourceStateKindSchema,
-    stagedPaths: Type.Array(Type.String()),
-    biomePaths: Type.Array(Type.String()),
-    sourceCheckPaths: Type.Array(Type.String()),
-    partialPaths: Type.Array(Type.String()),
-    formatterTouchedPaths: Type.Array(Type.String()),
-    restagedPaths: Type.Array(Type.String()),
-    outcome: PreCommitOutcomeSchema,
-    exitCode: Type.Optional(Type.Number()),
-  },
-  { additionalProperties: false }
-);
-export type PreCommitTrace = Static<typeof PreCommitTraceSchema>;
-
-const PrePushTraceSchema = Type.Object(
-  {
-    startedAtMs: Type.Number(),
-    endedAtMs: Type.Optional(Type.Number()),
-    durationMs: Type.Optional(Type.Number({ minimum: 0 })),
-    preState: Type.Optional(HookRepoSnapshotSchema),
-    postState: Type.Optional(HookRepoSnapshotSchema),
-    base: Type.Optional(Type.String({ minLength: 1 })),
-    baseSource: Type.Optional(
-      Type.Union([
-        Type.Literal("explicit"),
-        Type.Literal("graphite-parent"),
-        Type.Literal("merge-base"),
-      ])
-    ),
-    outcome: PrePushOutcomeSchema,
-    exitCode: Type.Optional(Type.Number()),
-  },
-  { additionalProperties: false }
-);
-export type PrePushTrace = Static<typeof PrePushTraceSchema>;
-
-export const HookTraceSchema = Type.Object(
-  {
-    commands: Type.Array(HookCommandRecordSchema),
-    preCommit: Type.Optional(PreCommitTraceSchema),
-    prePush: Type.Optional(PrePushTraceSchema),
-  },
-  { additionalProperties: false }
-);
-export type HookTrace = Static<typeof HookTraceSchema>;
