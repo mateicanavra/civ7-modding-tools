@@ -15,15 +15,7 @@ const moduleRootDirectories = new Set([
   "router",
 ]);
 
-const modelRootDirectories = new Set([
-  "dto",
-  "errors",
-  "helpers",
-  "persistence",
-  "policy",
-  "prompts",
-  "repositories",
-]);
+const modelRootDirectories = new Set(["dto", "errors", "policy", "repositories"]);
 
 interface ShapeIssue {
   readonly path: string;
