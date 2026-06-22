@@ -86,8 +86,18 @@ export function makeFakeGritProviderLayer(
   ) => HabitatCommandResult,
   options: { readonly repoRoot?: string } = {}
 ) {
+  return Layer.succeed(GritProvider, makeFakeGritProviderService(handler, options));
+}
+
+export function makeFakeGritProviderService(
+  handler: (
+    request: HabitatProcessRequest,
+    providerRequest: GritProviderCommandRequest
+  ) => HabitatCommandResult,
+  options: { readonly repoRoot?: string } = {}
+): GritProviderService {
   const repoRoot = options.repoRoot ?? ".";
-  return Layer.succeed(GritProvider, {
+  return {
     check: (request) =>
       Effect.sync(() => {
         const prepared = fakePreparedCacheRequest(request, repoRoot);
@@ -106,7 +116,7 @@ export function makeFakeGritProviderLayer(
         });
       }),
     applyDryRunRequest: (request) => gritProviderApplyDryRunRequest(repoRoot, request),
-  });
+  };
 }
 
 function fakePreparedCacheRequest<T extends { cacheMode?: string; cacheDir?: string }>(

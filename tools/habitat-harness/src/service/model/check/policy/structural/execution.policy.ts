@@ -8,8 +8,8 @@ import {
   type GitStateProvider,
 } from "@internal/habitat-harness/providers/git/index";
 import {
-  GritProvider,
   type GritProviderRequirements,
+  type GritProviderService,
   runGritRulesEffect,
 } from "@internal/habitat-harness/providers/grit/index";
 import {
@@ -73,6 +73,7 @@ export interface StructuralExecutionContext {
   readonly biome: BiomeProviderService;
   readonly commandRunner: CommandRunnerService;
   readonly git: GitProviderService;
+  readonly grit: GritProviderService;
   readonly nx: NxProviderService;
   readonly rules: RuleFactsCatalog;
 }
@@ -155,7 +156,6 @@ export function executeSelectedRulesEffect(
   never,
   | CommandRunner
   | CommandExecutor
-  | GritProvider
   | GritProviderRequirements
   | HabitatConfig
   | FileSystem.FileSystem
@@ -219,6 +219,7 @@ export function executeSelectedRulesEffect(
         const started = yield* Clock.currentTimeMillis;
         const gritResults = yield* runGritRulesEffect(gritRules, {
           repoRoot: context.repoRoot,
+          grit: context.grit,
           ...(scanRoots ? { scanRoots } : {}),
         });
         const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);

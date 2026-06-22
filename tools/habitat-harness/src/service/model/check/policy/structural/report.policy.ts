@@ -1,10 +1,7 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
-import type {
-  GritProvider,
-  GritProviderRequirements,
-} from "@internal/habitat-harness/providers/grit/index";
+import type { GritProviderRequirements } from "@internal/habitat-harness/providers/grit/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import type {
@@ -58,7 +55,6 @@ export function createCheckReportEffect(
   | HabitatConfig
   | FileSystem.FileSystem
   | GitProviderRequirements
-  | GritProvider
   | GritProviderRequirements
 > {
   return Effect.gen(function* () {
