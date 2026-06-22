@@ -1,3 +1,4 @@
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { BaselineExpansionResult } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   type CheckOptions,
@@ -87,6 +88,7 @@ describe("Habitat check service", () => {
           argv: [],
           serialized: "habitat check",
         },
+        repoRoot,
         staged: true,
         stagedPaths: ["tools/habitat-harness/src/cli/commands/check.ts"],
       },

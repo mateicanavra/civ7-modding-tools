@@ -10,6 +10,7 @@ export interface CheckOptions extends RuleSelection {
   baselineIntegrity?: boolean;
   command?: CheckCommandContext;
   hookCheck?: boolean;
+  repoRoot?: string;
   staged?: boolean;
   stagedPaths?: readonly string[];
 }
