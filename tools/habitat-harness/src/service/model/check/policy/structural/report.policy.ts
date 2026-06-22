@@ -12,6 +12,7 @@ import {
   applyBaseline,
   type BaselineApplicationResult,
   type BaselineAuthorityContext,
+  baselineContractInputs,
   baselineFailureDiagnostic,
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
@@ -23,7 +24,6 @@ import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/p
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
-import { baselineContractInputs } from "./baseline-expansion.policy.js";
 import {
   executeSelectedRulesEffect,
   type RuleExecutionRecord,
