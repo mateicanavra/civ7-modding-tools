@@ -25,7 +25,6 @@ import {
   type BaselineApplicationResult,
   BaselineAuthority,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
-import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   activeRuleReportFacts,
@@ -59,7 +58,6 @@ export function createCheckReportEffect(
   | CommandRunner
   | NxProvider
   | CommandExecutor
-  | SourceCheck
   | HabitatConfig
   | FileSystem.FileSystem
   | GitProvider
