@@ -1,6 +1,6 @@
 import type { GraphServiceModuleContext } from "../../context.js";
-import { habitatServiceImplementer } from "../../impl.js";
+import { service } from "../../impl.js";
 
-export const implementer = habitatServiceImplementer.graph.use(({ next }) =>
+export const module = service.graph.use(({ next }) =>
   next({ context: {} satisfies GraphServiceModuleContext })
 );

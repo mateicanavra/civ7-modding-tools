@@ -71,8 +71,7 @@ import { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
 import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
-import type { HookServiceRunInput } from "./contract.js";
-import { type HookServiceModuleContext, implementer } from "./module.js";
+import { module } from "./module.js";
 
 type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {
@@ -136,24 +135,169 @@ type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export const hookRouter = {
-  run: implementer.run.effect(({ context, input }) => runHookService(input, context)),
+  run: module.run.effect(function* ({ context: options = {}, input = {} }) {
+    if (input.name === "pre-push") {
+      const runtime = options.runtime ?? {};
+      const baseDecision = input.base
+        ? { kind: "resolved" as const, base: input.base, source: "explicit" as const }
+        : yield* resolvePrePushBase(runtime);
+      const output = createHookOutput(runtime.reporter);
+      output.writeStdout(localHookNotice);
+
+      if (runtime.trace) {
+        runtime.trace.prePush = {
+          outcome: "started",
+          startedAtMs: yield* hookNow(runtime),
+        };
+      }
+      if (runtime.trace?.prePush) {
+        runtime.trace.prePush.preState = yield* captureRepoSnapshotEffect(runtime);
+      }
+      if (baseDecision.kind === "refused") {
+        output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
+        return yield* finalizePrePushEffect(runtime, "base-refused", {
+          exitCode: 1,
+          ...output.result(),
+        });
+      }
+      const base = baseDecision.base;
+      if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
+      if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
+      const changedPaths = yield* prePushChangedPaths(base);
+      if (changedPaths.kind === "unavailable") {
+        output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
+        return yield* finalizePrePushEffect(runtime, "affected-failed", {
+          exitCode: 1,
+          ...output.result(),
+        });
+      }
+      const hookSourcePaths = prePushHookSourceCheckPaths(changedPaths.paths);
+      if (hookSourcePaths.length > 0) {
+        const hookSourceCheck = yield* prePushHookSourceCheck(runtime, hookSourcePaths);
+        output.writeStdout(
+          section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
+        );
+        if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
+          return yield* finalizePrePushEffect(runtime, "affected-failed", {
+            exitCode: hookSourceCheck.exitCode,
+            ...output.result(),
+          });
+        }
+      } else {
+        output.writeStdout(
+          "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n"
+        );
+      }
+      const nx = yield* NxProvider;
+      const targetPlan = prePushTargetPlanForChangedPaths(
+        changedPaths.paths,
+        workspaceGraphTargetNames()
+      );
+      for (const target of targetPlan.runTargets) {
+        const argv = nx.runTargetArgv(target);
+        const startedAtMs = yield* hookNow(runtime);
+        const targetResult = yield* nx.runTarget(target).pipe(
+          Effect.match({
+            onFailure: spawnResultFromCommandProviderError,
+            onSuccess: spawnResultFromCommandResult,
+          })
+        );
+        yield* recordHookCommand(
+          runtime,
+          "pre-push-target",
+          argv,
+          startedAtMs,
+          targetResult.exitCode
+        );
+        output.writeStdout(
+          `habitat hook pre-push: repo Nx target ${target.project}:${target.target}\n${targetResult.stdout}`
+        );
+        output.writeStderr(targetResult.stderr);
+        if (targetResult.exitCode !== 0) {
+          return yield* finalizePrePushEffect(runtime, "affected-failed", {
+            exitCode: targetResult.exitCode,
+            ...output.result(),
+          });
+        }
+      }
+      if (targetPlan.affectedTargets.length === 0) {
+        output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
+        return yield* finalizePrePushEffect(runtime, "pass", {
+          exitCode: 0,
+          ...output.result(),
+        });
+      }
+      const request = {
+        base,
+        targets: targetPlan.affectedTargets,
+        head: "HEAD",
+        excludeTaskDependencies: true,
+      };
+      const argv = nx.affectedArgv(request);
+      const startedAtMs = yield* hookNow(runtime);
+      const result = yield* nx.affected(request).pipe(
+        Effect.match({
+          onFailure: spawnResultFromCommandProviderError,
+          onSuccess: spawnResultFromCommandResult,
+        })
+      );
+      yield* recordHookCommand(runtime, "pre-push-affected", argv, startedAtMs, result.exitCode);
+      output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
+      output.writeStderr(result.stderr);
+      return yield* finalizePrePushEffect(
+        runtime,
+        result.exitCode === 0 ? "pass" : "affected-failed",
+        {
+          exitCode: result.exitCode,
+          ...output.result(),
+        }
+      );
+    }
+
+    if (input.name === "pre-commit") {
+      const runtime = options.runtime ?? {};
+      const begun = yield* beginPreCommit(runtime);
+      if (begun.kind === "done") {
+        return yield* finalizePreCommitEffect(runtime, begun.outcome, begun.result);
+      }
+      const fileLayer = yield* stagedHookCheck(
+        begun.state.runtime,
+        "file-layer",
+        begun.state.staged
+      );
+      const afterFileLayer = yield* continuePreCommitAfterFileLayer(begun.state, fileLayer);
+      if (afterFileLayer.kind === "done") {
+        return yield* finalizePreCommitEffect(
+          begun.state.runtime,
+          afterFileLayer.outcome,
+          afterFileLayer.result
+        );
+      }
+      const afterBiome = yield* preCommitBiomeProviderStep(afterFileLayer.state);
+      if (afterBiome.kind === "done") {
+        return yield* finalizePreCommitEffect(
+          afterFileLayer.state.runtime,
+          afterBiome.outcome,
+          afterBiome.result
+        );
+      }
+
+      const sourceCheckResult =
+        afterBiome.state.sourceCheckPaths.length > 0
+          ? yield* stagedHookCheck(
+              afterBiome.state.runtime,
+              "source-check",
+              afterBiome.state.sourceCheckPaths
+            )
+          : undefined;
+      return yield* finishPreCommit(afterBiome.state, sourceCheckResult);
+    }
+
+    return unknownHookResult(input.name);
+  }),
 };
 
 export const router = hookRouter;
-
-function runHookService(input: HookServiceRunInput = {}, options: HookServiceModuleContext = {}) {
-  if (input.name === "pre-push") {
-    const runtime = options.runtime ?? {};
-    return Effect.gen(function* () {
-      const baseDecision = input.base
-        ? { kind: "resolved" as const, base: input.base, source: "explicit" as const }
-        : yield* resolvePrePushBaseForService(runtime);
-      return yield* runPrePushWithBaseDecisionEffect(baseDecision, runtime);
-    });
-  }
-  if (input.name === "pre-commit") return runPreCommitEffect(options.runtime ?? {});
-  return Effect.succeed(unknownHookResult(input.name));
-}
 
 function unknownHookResult(name: string | undefined): SpawnResult {
   return {
@@ -163,49 +307,7 @@ function unknownHookResult(name: string | undefined): SpawnResult {
   };
 }
 
-function runPreCommitEffect(
-  runtime: HookRuntime = {}
-): Effect.Effect<SpawnResult, never, HookCheckRequirements> {
-  return Effect.gen(function* () {
-    const begun = yield* beginPreCommitEffect(runtime);
-    if (begun.kind === "done") {
-      return yield* finalizePreCommitEffect(runtime, begun.outcome, begun.result);
-    }
-    const fileLayer = yield* runStagedHookCheckServiceEffect(
-      begun.state.runtime,
-      "file-layer",
-      begun.state.staged
-    );
-    const afterFileLayer = yield* continuePreCommitAfterFileLayerEffect(begun.state, fileLayer);
-    if (afterFileLayer.kind === "done") {
-      return yield* finalizePreCommitEffect(
-        begun.state.runtime,
-        afterFileLayer.outcome,
-        afterFileLayer.result
-      );
-    }
-    const afterBiome = yield* runPreCommitBiomeProviderEffect(afterFileLayer.state);
-    if (afterBiome.kind === "done") {
-      return yield* finalizePreCommitEffect(
-        afterFileLayer.state.runtime,
-        afterBiome.outcome,
-        afterBiome.result
-      );
-    }
-
-    const sourceCheckResult =
-      afterBiome.state.sourceCheckPaths.length > 0
-        ? yield* runStagedHookCheckServiceEffect(
-            afterBiome.state.runtime,
-            "source-check",
-            afterBiome.state.sourceCheckPaths
-          )
-        : undefined;
-    return yield* finishPreCommitEffect(afterBiome.state, sourceCheckResult);
-  });
-}
-
-function beginPreCommitEffect(
+function beginPreCommit(
   runtime: HookRuntime = {}
 ): Effect.Effect<PreCommitStep<PreCommitState>, never, HookCheckRequirements> {
   const output = createHookOutput(runtime.reporter);
@@ -259,7 +361,7 @@ function beginPreCommitEffect(
   });
 }
 
-function continuePreCommitAfterFileLayerEffect(
+function continuePreCommitAfterFileLayer(
   state: PreCommitState,
   fileLayer: StagedHookCheckResult
 ): Effect.Effect<PreCommitStep<PreCommitBiomeState>, never, HookCheckRequirements> {
@@ -317,7 +419,7 @@ function continuePreCommitAfterFileLayerEffect(
   });
 }
 
-function runPreCommitBiomeProviderEffect(
+function preCommitBiomeProviderStep(
   state: PreCommitBiomeState
 ): Effect.Effect<PreCommitStep<PreCommitSourceCheckState>, never, HookCheckRequirements> {
   const { beforeHashes, biomePaths, hashFile, output, runtime } = state;
@@ -434,7 +536,7 @@ function continuePreCommitAfterBiome(
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
 }
 
-function finishPreCommitEffect(
+function finishPreCommit(
   state: PreCommitSourceCheckState,
   sourceCheckResult: StagedHookCheckResult | undefined
 ): Effect.Effect<SpawnResult, never, HookCheckRequirements> {
@@ -482,126 +584,7 @@ function finishPreCommitEffect(
   return finalizePreCommitEffect(runtime, "pass", { exitCode: 0, ...output.result() });
 }
 
-function runPrePushWithBaseDecisionEffect(
-  baseDecision: PrePushBaseDecision,
-  runtime: HookRuntime = {}
-): Effect.Effect<SpawnResult, never, HookCheckRequirements> {
-  const output = createHookOutput(runtime.reporter);
-  output.writeStdout(localHookNotice);
-
-  return Effect.gen(function* () {
-    if (runtime.trace) {
-      runtime.trace.prePush = {
-        outcome: "started",
-        startedAtMs: yield* hookNow(runtime),
-      };
-    }
-    if (runtime.trace?.prePush) {
-      runtime.trace.prePush.preState = yield* captureRepoSnapshotEffect(runtime);
-    }
-    if (baseDecision.kind === "refused") {
-      output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
-      return yield* finalizePrePushEffect(runtime, "base-refused", {
-        exitCode: 1,
-        ...output.result(),
-      });
-    }
-    const base = baseDecision.base;
-    if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
-    if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
-    const changedPaths = yield* prePushChangedPathsEffect(base);
-    if (changedPaths.kind === "unavailable") {
-      output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
-      return yield* finalizePrePushEffect(runtime, "affected-failed", {
-        exitCode: 1,
-        ...output.result(),
-      });
-    }
-    const hookSourcePaths = prePushHookSourceCheckPaths(changedPaths.paths);
-    if (hookSourcePaths.length > 0) {
-      const hookSourceCheck = yield* runPrePushHookSourceCheckEffect(runtime, hookSourcePaths);
-      output.writeStdout(
-        section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
-      );
-      if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
-        return yield* finalizePrePushEffect(runtime, "affected-failed", {
-          exitCode: hookSourceCheck.exitCode,
-          ...output.result(),
-        });
-      }
-    } else {
-      output.writeStdout(
-        "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n"
-      );
-    }
-    const nx = yield* NxProvider;
-    const targetPlan = prePushTargetPlanForChangedPaths(
-      changedPaths.paths,
-      workspaceGraphTargetNames()
-    );
-    for (const target of targetPlan.runTargets) {
-      const argv = nx.runTargetArgv(target);
-      const startedAtMs = yield* hookNow(runtime);
-      const targetResult = yield* nx.runTarget(target).pipe(
-        Effect.match({
-          onFailure: spawnResultFromCommandProviderError,
-          onSuccess: spawnResultFromCommandResult,
-        })
-      );
-      yield* recordHookCommand(
-        runtime,
-        "pre-push-target",
-        argv,
-        startedAtMs,
-        targetResult.exitCode
-      );
-      output.writeStdout(
-        `habitat hook pre-push: repo Nx target ${target.project}:${target.target}\n${targetResult.stdout}`
-      );
-      output.writeStderr(targetResult.stderr);
-      if (targetResult.exitCode !== 0) {
-        return yield* finalizePrePushEffect(runtime, "affected-failed", {
-          exitCode: targetResult.exitCode,
-          ...output.result(),
-        });
-      }
-    }
-    if (targetPlan.affectedTargets.length === 0) {
-      output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
-      return yield* finalizePrePushEffect(runtime, "pass", {
-        exitCode: 0,
-        ...output.result(),
-      });
-    }
-    const request = {
-      base,
-      targets: targetPlan.affectedTargets,
-      head: "HEAD",
-      excludeTaskDependencies: true,
-    };
-    const argv = nx.affectedArgv(request);
-    const startedAtMs = yield* hookNow(runtime);
-    const result = yield* nx.affected(request).pipe(
-      Effect.match({
-        onFailure: spawnResultFromCommandProviderError,
-        onSuccess: spawnResultFromCommandResult,
-      })
-    );
-    yield* recordHookCommand(runtime, "pre-push-affected", argv, startedAtMs, result.exitCode);
-    output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
-    output.writeStderr(result.stderr);
-    return yield* finalizePrePushEffect(
-      runtime,
-      result.exitCode === 0 ? "pass" : "affected-failed",
-      {
-        exitCode: result.exitCode,
-        ...output.result(),
-      }
-    );
-  });
-}
-
-function prePushChangedPathsEffect(
+function prePushChangedPaths(
   base: string
 ): Effect.Effect<PrePushChangedPathsResult, never, GitProvider | GitProviderRequirements> {
   return Effect.gen(function* () {
@@ -625,7 +608,7 @@ function prePushHookSourceCheckPaths(changedPaths: readonly string[]): readonly 
   return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules));
 }
 
-function runPrePushHookSourceCheckEffect(
+function prePushHookSourceCheck(
   runtime: HookRuntime,
   changedPaths: readonly string[]
 ): Effect.Effect<PrePushHookSourceCheckResult, never, HookCheckRequirements> {
@@ -653,7 +636,7 @@ function runPrePushHookSourceCheckEffect(
   });
 }
 
-function resolvePrePushBaseForService(
+function resolvePrePushBase(
   runtime: HookRuntime
 ): Effect.Effect<PrePushBaseDecision, never, HookCheckRequirements> {
   return Effect.gen(function* () {
@@ -681,7 +664,7 @@ function resolvePrePushBaseForService(
   });
 }
 
-function runStagedHookCheckServiceEffect(
+function stagedHookCheck(
   runtime: HookRuntime,
   tool: StagedHookCheckTool,
   stagedPaths: readonly string[]

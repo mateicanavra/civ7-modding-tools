@@ -1,6 +1,6 @@
 import type { CheckServiceModuleContext } from "../../context.js";
-import { habitatServiceImplementer } from "../../impl.js";
+import { service } from "../../impl.js";
 
-export const implementer = habitatServiceImplementer.check.use(({ next }) =>
+export const module = service.check.use(({ next }) =>
   next({ context: {} satisfies CheckServiceModuleContext })
 );
