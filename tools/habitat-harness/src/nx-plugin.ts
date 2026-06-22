@@ -1,15 +1,16 @@
+import fs from "node:fs";
 import path from "node:path";
 import {
   sourceCheckRuleModuleRepoPath,
   sourceCheckRuleRuntimeRepoPath,
-} from "@internal/habitat-harness/service/modules/check/source/module-paths";
-import { ruleGraphFactsForNxPlugin } from "@internal/habitat-harness/service/modules/graph/rule-graph-facts";
+} from "@internal/habitat-harness/service/model/check/source/module-paths";
+import { ruleGraphFactsForNxPlugin } from "@internal/habitat-harness/service/modules/graph/model/dto/rule-graph-facts.dto";
 import {
   type InferredProjects,
   InferredProjectsSchema,
   type NxTargetDefinition,
   NxTargetDefinitionSchema,
-} from "@internal/habitat-harness/service/modules/graph/target-definition-schema";
+} from "@internal/habitat-harness/service/modules/graph/model/dto/target-definition.schema";
 import {
   aggregateCheckTarget,
   aliasRuleTarget,
@@ -20,7 +21,7 @@ import {
   habitatInputs,
   ownerCheckTarget,
   sourceCheckTarget,
-} from "@internal/habitat-harness/service/modules/graph/target-definitions";
+} from "@internal/habitat-harness/service/modules/graph/model/policy/target-definitions";
 import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,
@@ -48,14 +49,19 @@ const harnessInternalBoundaryProjects = [
     tags: ["kind:tooling", "habitat:cli"],
   },
   {
-    name: "@internal/habitat-harness-service",
+    name: "@internal/habitat-harness-service-shell",
     root: "tools/habitat-harness/src/service",
-    tags: ["kind:tooling", "habitat:service"],
+    tags: ["kind:tooling", "habitat:service", "layer:service-shell"],
+  },
+  {
+    name: "@internal/habitat-harness-service-model",
+    root: "tools/habitat-harness/src/service/model",
+    tags: ["kind:tooling", "habitat:service", "layer:service-model"],
   },
   {
     name: "@internal/habitat-harness-runtime",
     root: "tools/habitat-harness/src/service/runtime",
-    tags: ["kind:tooling", "habitat:runtime"],
+    tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
   },
 ] as const;
 
@@ -131,13 +137,31 @@ function buildInferredProjects(input: {
 }
 
 function addHarnessInternalBoundaryProjects(projects: InferredProjects): void {
-  for (const project of harnessInternalBoundaryProjects) {
+  for (const project of [...harnessInternalBoundaryProjects, ...harnessServiceModuleProjects()]) {
     projects[project.root] = {
       name: project.name,
       tags: [...project.tags],
       targets: {},
     };
   }
+}
+
+function harnessServiceModuleProjects(): Array<{
+  name: string;
+  root: string;
+  tags: readonly string[];
+}> {
+  const modulesRoot = "tools/habitat-harness/src/service/modules";
+  const absoluteModulesRoot = path.join(repoRoot, modulesRoot);
+  if (!fs.existsSync(absoluteModulesRoot)) return [];
+  return fs
+    .readdirSync(absoluteModulesRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => ({
+      name: `@internal/habitat-harness-service-module-${entry.name}`,
+      root: `${modulesRoot}/${entry.name}`,
+      tags: ["kind:tooling", "habitat:service", "layer:service-module"] as const,
+    }));
 }
 
 function addHarnessToolTargets(input: {

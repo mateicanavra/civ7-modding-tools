@@ -21,9 +21,9 @@ const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/service/modules/check/structural/index.js", async (importOriginal) => {
+vi.mock("../../src/service/model/check/structural/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../../src/service/modules/check/structural/index.js")>();
+    await importOriginal<typeof import("../../src/service/model/check/structural/index.js")>();
   return {
     ...actual,
     checkCommandContext: vi.fn((argv: string[]) => ({
@@ -49,9 +49,11 @@ vi.mock("../../src/service/modules/check/structural/index.js", async (importOrig
   };
 });
 
-vi.mock("../../src/service/modules/verify/proof/index.js", async (importOriginal) => {
+vi.mock("../../src/service/modules/verify/model/policy/proof/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../../src/service/modules/verify/proof/index.js")>();
+    await importOriginal<
+      typeof import("../../src/service/modules/verify/model/policy/proof/index.js")
+    >();
   return {
     ...actual,
     stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
@@ -76,9 +78,9 @@ import Graph from "@internal/habitat-harness/cli/commands/graph";
 import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
 import * as serviceClient from "@internal/habitat-harness/service/client";
-import * as checkReport from "@internal/habitat-harness/service/modules/check/structural/index";
-import * as classify from "@internal/habitat-harness/service/modules/graph/workspace/index";
-import * as verifyReceipt from "@internal/habitat-harness/service/modules/verify/proof/index";
+import * as checkReport from "@internal/habitat-harness/service/model/check/structural/index";
+import * as classify from "@internal/habitat-harness/service/model/workspace/index";
+import * as verifyReceipt from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];

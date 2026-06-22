@@ -1,12 +1,15 @@
-import { ManagedRuntime } from "effect";
-import { type EffectImplementer, eoc, implementEffect } from "effect-orpc";
 import {
   type HabitatServiceContext,
   type HabitatServiceRequirements,
   type HabitatServiceRuntimeError,
   habitatServiceLayer,
-} from "./context.js";
-import { type HabitatServiceContract, habitatServiceContract } from "./contract.js";
+} from "@internal/habitat-harness/service/base";
+import {
+  type HabitatServiceContract,
+  habitatServiceContract,
+} from "@internal/habitat-harness/service/contract";
+import { ManagedRuntime } from "effect";
+import { type EffectImplementer, eoc, implementEffect } from "effect-orpc";
 
 const habitatServiceOrpcContract = eoc.router(habitatServiceContract);
 export const habitatServiceEffectRuntime = ManagedRuntime.make(habitatServiceLayer);

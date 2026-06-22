@@ -1,9 +1,9 @@
-import { ClassifyResultSchema } from "@internal/habitat-harness/service/modules/graph/workspace/schema";
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
+import { ClassifyResultSchema } from "@internal/habitat-harness/service/model/workspace/schema";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const ClassifyServiceRunInputSchema = Type.Object(
   {

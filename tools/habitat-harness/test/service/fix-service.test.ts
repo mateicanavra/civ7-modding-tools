@@ -1,9 +1,9 @@
+import type { FixServiceModuleContext } from "@internal/habitat-harness/service/base";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import type { FixServiceModuleContext } from "@internal/habitat-harness/service/context";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/service/modules/fix/patterns/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
 import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
 import {
   type HabitatProcessRequest,

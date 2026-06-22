@@ -1,10 +1,10 @@
-import { service } from "./impl.js";
-import { checkRouter } from "./modules/check/router.js";
-import { classifyRouter } from "./modules/classify/router.js";
-import { fixRouter } from "./modules/fix/router.js";
-import { graphRouter } from "./modules/graph/router.js";
-import { hookRouter } from "./modules/hook/router.js";
-import { verifyRouter } from "./modules/verify/router.js";
+import { service } from "@internal/habitat-harness/service/impl";
+import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
+import { classifyRouter } from "@internal/habitat-harness/service/modules/classify/router";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
+import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
+import { verifyRouter } from "@internal/habitat-harness/service/modules/verify/router";
 
 export const habitatServiceRouter = service.router({
   check: checkRouter,

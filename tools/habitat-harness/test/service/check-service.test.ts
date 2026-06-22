@@ -1,7 +1,7 @@
+import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/model/check/structural/index";
+import type { CheckOptions } from "@internal/habitat-harness/service/model/check/structural/request";
+import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/selection/index";
 import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
-import type { RuleSelection } from "@internal/habitat-harness/service/modules/check/rules/selection/index";
-import { makeFakeStructuralCheckLayer } from "@internal/habitat-harness/service/modules/check/structural/index";
-import type { CheckOptions } from "@internal/habitat-harness/service/modules/check/structural/request";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

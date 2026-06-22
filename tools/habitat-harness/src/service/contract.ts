@@ -1,9 +1,9 @@
-import { checkServiceContract } from "./modules/check/contract.js";
-import { classifyServiceContract } from "./modules/classify/contract.js";
-import { fixServiceContract } from "./modules/fix/contract.js";
-import { graphServiceContract } from "./modules/graph/contract.js";
-import { hookServiceContract } from "./modules/hook/contract.js";
-import { verifyServiceContract } from "./modules/verify/contract.js";
+import { checkServiceContract } from "@internal/habitat-harness/service/modules/check/contract";
+import { classifyServiceContract } from "@internal/habitat-harness/service/modules/classify/contract";
+import { fixServiceContract } from "@internal/habitat-harness/service/modules/fix/contract";
+import { graphServiceContract } from "@internal/habitat-harness/service/modules/graph/contract";
+import { hookServiceContract } from "@internal/habitat-harness/service/modules/hook/contract";
+import { verifyServiceContract } from "@internal/habitat-harness/service/modules/verify/contract";
 
 export const habitatServiceContract = {
   check: checkServiceContract,

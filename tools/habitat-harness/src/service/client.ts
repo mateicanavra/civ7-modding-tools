@@ -1,7 +1,10 @@
+import type { HabitatServiceContext } from "@internal/habitat-harness/service/base";
+import { habitatServiceContract } from "@internal/habitat-harness/service/contract";
+import {
+  type HabitatServiceRouter,
+  habitatServiceRouter,
+} from "@internal/habitat-harness/service/router";
 import { createRouterClient } from "@orpc/server";
-import type { HabitatServiceContext } from "./context.js";
-import { habitatServiceContract } from "./contract.js";
-import { type HabitatServiceRouter, habitatServiceRouter } from "./router.js";
 
 export { habitatServiceContract };
 

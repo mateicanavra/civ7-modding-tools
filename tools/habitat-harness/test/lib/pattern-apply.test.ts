@@ -2,16 +2,16 @@ import type { FixServiceModuleContext } from "@internal/habitat-harness/service/
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "@internal/habitat-harness/service/modules/fix/patterns/index";
-import {
-  fixRouter,
-  runPatternApplyTransaction,
-} from "@internal/habitat-harness/service/modules/fix/router";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
 import {
   type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-} from "@internal/habitat-harness/service/modules/fix/transactions/index";
+} from "@internal/habitat-harness/service/modules/fix/model/policy/transactions/index";
+import {
+  fixRouter,
+  runPatternApplyTransaction,
+} from "@internal/habitat-harness/service/modules/fix/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,

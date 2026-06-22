@@ -54,14 +54,22 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 ### Habitat internal boundary tags
 
 `@internal/habitat-harness` remains one package, but Habitat's source is
-projected into three inferred Nx boundary projects. The units are the actual
-product shape: command surface, owned service modules, and runtime resources.
+projected into inferred Nx boundary projects. Fixed roots cover the command
+surface, service shell, service model, and runtime resources. Every directory
+under `tools/habitat-harness/src/service/modules/*` is inferred as the same
+`layer:service-module` kind, so future modules inherit the same boundary
+treatment without adding a concrete tag or constraint row.
 
 | Tag | Definition |
 |---|---|
 | `habitat:cli` | Thin command surface and bin-facing command classes. CLI code calls the Habitat service; it does not own domain execution. |
 | `habitat:service` | Effect/oRPC service contracts, implementers, routers, and owned modules for checking, fixing, classifying, verifying, graph routing, hooks, and scaffolding. |
 | `habitat:runtime` | Effect resources/providers for config, typed errors, filesystem/time/cache, command execution, and delegated vendor tools such as Grit, Biome, Nx, Git, Graphite, and reporters. |
+| `layer:service-entry` | Public caller entry for a service package or command surface. |
+| `layer:service-shell` | Root service contract, Effect-oRPC implementer, root router composition, and initial context. |
+| `layer:service-model` | Service-wide DTOs, read models, facts, and policies intentionally shared by modules. |
+| `layer:service-module` | One named service module with its contract, module implementer, router, local model, local policy, and local middleware. |
+| `layer:resource-provider` | Runtime resource/provider implementation for delegated tools and host capabilities. |
 
 ## 2. Per-project assignment
 
@@ -93,9 +101,16 @@ product shape: command surface, owned service modules, and runtime resources.
 | civ-mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
 | @internal/habitat-artifacts | `.habitat` | `kind:tooling` |
 | @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
-| @internal/habitat-harness-service | `tools/habitat-harness/src/service` | `kind:tooling`, `habitat:service` |
-| @internal/habitat-harness-runtime | `tools/habitat-harness/src/service/runtime` | `kind:tooling`, `habitat:runtime` |
+| @internal/habitat-harness-service-shell | `tools/habitat-harness/src/service` | `kind:tooling`, `habitat:service`, `layer:service-shell` |
+| @internal/habitat-harness-service-model | `tools/habitat-harness/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |
+| @internal/habitat-harness-runtime | `tools/habitat-harness/src/service/runtime` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
 | @internal/habitat-harness-cli | `tools/habitat-harness/src/cli` | `kind:tooling`, `habitat:cli` |
+
+Habitat service module projects are inferred from
+`tools/habitat-harness/src/service/modules/*` with project names
+`@internal/habitat-harness-service-module-<module>` and tags `kind:tooling`,
+`habitat:service`, and `layer:service-module`. They are not enumerated here
+because the boundary rule applies to the kind, not to concrete module names.
 
 ## 3. Dependency constraints (project plane, initial rule set)
 
@@ -120,6 +135,11 @@ owned by their Grit/file-layer rules.
 | `habitat:runtime` | `habitat:runtime`, `habitat:service` | runtime owns resource/provider integration and may consume service-owned structural facts needed to translate Habitat requests into vendor calls |
 | `habitat:service` | `habitat:runtime`, `habitat:service` | service modules own Habitat logic and consume runtime resources/providers |
 | `habitat:cli` | `habitat:service`, `habitat:cli` | CLI commands call service routers and keep command parsing/output at the edge |
+| `layer:service-entry` | `layer:service-shell`, `layer:service-entry` | public service/CLI entry code may call the service shell but not service module internals directly |
+| `layer:service-shell` | `layer:service-model`, `layer:service-module`, `layer:resource-provider` | root service composition owns contract/implementer/router assembly over modules, shared service model, and runtime |
+| `layer:service-module` | `layer:service-shell`, `layer:service-model`, `layer:resource-provider` | modules use the service implementer seam, shared service model, and runtime resources; same-module local imports stay inside one inferred project, while sibling module imports are red because `layer:service-module` cannot depend on `layer:service-module` |
+| `layer:service-model` | `layer:service-model`, `layer:resource-provider` | service-wide facts, DTOs, and read models may reuse resource contracts but do not import module internals |
+| `layer:resource-provider` | `layer:resource-provider`, `layer:service-model` | runtime providers may consume shared service model facts but must not import service module internals |
 
 Dual-tagged projects (`mod-civ7-intelligence-bridge`: `kind:mod` +
 `kind:control`) are constrained by the **intersection** of their rows — every

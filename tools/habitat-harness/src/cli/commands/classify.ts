@@ -1,6 +1,6 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import { stringifyClassifyResult } from "@internal/habitat-harness/service/modules/graph/workspace/schema";
+import { stringifyClassifyResult } from "@internal/habitat-harness/service/model/workspace/schema";
 import { Args } from "@oclif/core";
 
 export default class Classify extends HabitatCommand {

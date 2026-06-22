@@ -1,17 +1,17 @@
+import type { HookServiceModuleContext } from "@internal/habitat-harness/service/base";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import type { HookServiceModuleContext } from "@internal/habitat-harness/service/context";
 import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
-} from "@internal/habitat-harness/service/modules/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
-import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "@internal/habitat-harness/service/modules/hook/runtime/runtime";
+} from "@internal/habitat-harness/service/modules/hook/model/policy/runtime/runtime";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import {
   type BiomeCommandRequest,
   biomeArgv,
@@ -456,7 +456,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/service/modules/check/source/source-rules.ts";
+    const changedPath = "tools/habitat-harness/src/service/model/check/source/source-rules.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -506,7 +506,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/service/modules/graph/boundary-taxonomy.ts";
+    const changedPath =
+      "tools/habitat-harness/src/service/modules/graph/model/policy/boundary-taxonomy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },

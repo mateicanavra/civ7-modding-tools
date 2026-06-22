@@ -7,8 +7,8 @@ import {
   parseBoundaryTaxonomy,
   readWorkspaceManifestProjects,
   type TaxonomyConstraint,
-} from "@internal/habitat-harness/service/modules/graph/boundary-taxonomy";
-import type { NxProjectMetadata } from "@internal/habitat-harness/service/modules/graph/nx-projects";
+} from "@internal/habitat-harness/service/modules/graph/model/policy/boundary-taxonomy";
+import type { NxProjectMetadata } from "@internal/habitat-harness/service/modules/graph/model/policy/nx-projects";
 import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { describe, expect, test } from "vitest";
 
@@ -24,7 +24,12 @@ describe("boundary taxonomy verifier", () => {
     expect(taxonomy.projects).toContainEqual({
       name: "@internal/habitat-harness-runtime",
       root: "tools/habitat-harness/src/service/runtime",
-      tags: ["kind:tooling", "habitat:runtime"],
+      tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+    });
+    expect(taxonomy.projects).toContainEqual({
+      name: "@internal/habitat-harness-service-model",
+      root: "tools/habitat-harness/src/service/model",
+      tags: ["kind:tooling", "habitat:service", "layer:service-model"],
     });
     expect(taxonomy.projects).toContainEqual({
       name: "@internal/habitat-artifacts",
@@ -87,7 +92,7 @@ describe("boundary taxonomy verifier", () => {
       reason: "nx-inferred-habitat-internal-project",
       message:
         "The Habitat internal root is an inferred Nx project-plane node, not a package manifest workspace.",
-      project: "@internal/habitat-harness-service",
+      project: "@internal/habitat-harness-service-shell",
       root: "tools/habitat-harness/src/service",
     });
   });

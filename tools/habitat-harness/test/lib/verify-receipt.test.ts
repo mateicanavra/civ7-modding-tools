@@ -1,13 +1,13 @@
-import type { CheckReport } from "@internal/habitat-harness/service/modules/check/structural/schema";
+import type { CheckReport } from "@internal/habitat-harness/service/model/check/structural/schema";
 import {
   type VerifyTargetPlan,
   verifyTargetPlan,
-} from "@internal/habitat-harness/service/modules/graph/workspace/index";
+} from "@internal/habitat-harness/service/model/workspace/index";
 import {
   createVerifyReceipt,
   VerifyReceiptSchema,
   validateVerifyReceipt,
-} from "@internal/habitat-harness/service/modules/verify/proof/index";
+} from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 

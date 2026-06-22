@@ -7,7 +7,7 @@ import {
   ruleManifestFacts,
   ruleRoutingFacts,
   ruleSourceFacts,
-} from "@internal/habitat-harness/service/modules/check/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/registry/index";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
 import { describe, expect, test } from "vitest";
 import { baseRule } from "./helpers.js";

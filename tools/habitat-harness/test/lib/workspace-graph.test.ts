@@ -1,4 +1,4 @@
-import type { RuleGraphFacts } from "@internal/habitat-harness/service/modules/check/rules/registry/schema";
+import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/registry/schema";
 import {
   aggregateWorkspaceDependency,
   explicitProjectTarget,
@@ -6,7 +6,7 @@ import {
   resolveDependencyDeclaration,
   ruleAliasTargetState,
   sameProjectTarget,
-} from "@internal/habitat-harness/service/modules/graph/workspace/index";
+} from "@internal/habitat-harness/service/model/workspace/index";
 import { readWorkspaceGraph } from "@internal/habitat-harness/service/runtime/nx/graph";
 import type { WorkspaceProject } from "@internal/habitat-harness/service/runtime/nx/schema";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";

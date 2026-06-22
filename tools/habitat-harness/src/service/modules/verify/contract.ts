@@ -1,11 +1,11 @@
-import { CheckReportSchema } from "@internal/habitat-harness/service/modules/check/structural/schema";
-import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/modules/graph/workspace/index";
-import { VerifyReceiptSchema } from "@internal/habitat-harness/service/modules/verify/proof/schema";
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
+import { CheckReportSchema } from "@internal/habitat-harness/service/model/check/structural/schema";
+import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/model/workspace/index";
+import { VerifyReceiptSchema } from "@internal/habitat-harness/service/modules/verify/model/policy/proof/schema";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const VerifyServiceRunInputSchema = Type.Object(
   {
