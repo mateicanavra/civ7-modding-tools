@@ -1,12 +1,16 @@
 import type { ClassifyOptions } from "@internal/habitat-harness/service/model/workspace/index";
-import type {
-  ApplyAdmission,
-  ApplyTransactionInput,
-} from "@internal/habitat-harness/service/modules/fix/model/policy/patterns/index";
-import type { WorktreeObservation } from "@internal/habitat-harness/service/modules/fix/model/policy/transactions/index";
 import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime/runtime";
-import { HabitatRuntimeLive } from "@internal/habitat-harness/service/runtime/layers";
-import { Context, Layer } from "effect";
+import type { BiomeProviderService } from "@internal/habitat-harness/service/runtime/biome/index";
+import type { GitProviderService } from "@internal/habitat-harness/service/runtime/git/index";
+import type { GraphiteProviderService } from "@internal/habitat-harness/service/runtime/graphite/index";
+import type { GritProviderService } from "@internal/habitat-harness/service/runtime/grit/index";
+import type { HabitatRuntimeLive } from "@internal/habitat-harness/service/runtime/layers";
+import type { NxProviderService } from "@internal/habitat-harness/service/runtime/nx/index";
+import type {
+  acquireTempDirectory,
+  readText,
+} from "@internal/habitat-harness/service/runtime/resources/index";
+import { Context, type Layer } from "effect";
 
 export type CheckServiceModuleContext = Record<never, never>;
 
@@ -15,18 +19,32 @@ export interface ClassifyServiceModuleContext {
 }
 
 export interface FixServiceModuleContext {
-  readonly admissions?: readonly ApplyAdmission[];
-  readonly transactionInputs?: readonly ApplyTransactionInput[];
-  readonly worktree?: WorktreeObservation;
+  readonly grit?: GritProviderService;
 }
 
-export type GraphServiceModuleContext = Record<never, never>;
+export interface GraphServiceModuleContext {
+  readonly acquireTempDirectory?: typeof acquireTempDirectory;
+  readonly nx?: NxProviderService;
+  readonly readText?: typeof readText;
+}
 
 export interface HookServiceModuleContext {
+  readonly biome?: BiomeProviderService;
+  readonly git?: GitProviderService;
+  readonly graphite?: GraphiteProviderService;
+  readonly nx?: NxProviderService;
+  readonly repoRoot?: string;
   readonly runtime?: HookRuntime;
+  readonly workspaceGraphTargetNames?: typeof import("./runtime/nx/targets.js").workspaceGraphTargetNames;
 }
 
-export type VerifyServiceModuleContext = Record<never, never>;
+export interface VerifyServiceModuleContext {
+  readonly epochMillisToIsoString?: typeof import("./runtime/resources/index.js").epochMillisToIsoString;
+  readonly git?: GitProviderService;
+  readonly graphite?: GraphiteProviderService;
+  readonly nx?: NxProviderService;
+  readonly repoRoot?: string;
+}
 
 export interface HabitatServiceContext {
   readonly check?: CheckServiceModuleContext;
@@ -42,10 +60,7 @@ export class HabitatServiceRuntime extends Context.Tag(
   "@internal/habitat-harness/HabitatServiceRuntime"
 )<HabitatServiceRuntime, { readonly service: "habitat" }>() {}
 
-export const habitatServiceLayer = Layer.mergeAll(
-  HabitatRuntimeLive,
-  Layer.succeed(HabitatServiceRuntime, { service: "habitat" })
-);
-
-export type HabitatServiceRequirements = Layer.Layer.Success<typeof habitatServiceLayer>;
-export type HabitatServiceRuntimeError = Layer.Layer.Error<typeof habitatServiceLayer>;
+export type HabitatServiceRequirements =
+  | HabitatServiceRuntime
+  | Layer.Layer.Success<typeof HabitatRuntimeLive>;
+export type HabitatServiceRuntimeError = Layer.Layer.Error<typeof HabitatRuntimeLive>;

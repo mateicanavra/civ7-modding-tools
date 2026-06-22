@@ -7,11 +7,14 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/service/runtime/command/index";
-import {
-  GitProvider,
-  type GitProviderRequirements,
+import type {
+  GitProviderRequirements,
+  GitProviderService,
 } from "@internal/habitat-harness/service/runtime/git/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
+import {
+  repoRoot as defaultRepoRoot,
+  toRepoRelative,
+} from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
 import type { HookRuntime } from "./runtime.js";
 
@@ -32,10 +35,12 @@ const biomeCandidateExtensions = new Set([
 ]);
 
 export function existingStagedPathsEffect(
+  git: GitProviderService,
+  repoRoot: string,
   runtime: HookRuntime = {}
-): Effect.Effect<string[], never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<string[], never, GitProviderRequirements> {
   const pathExists = runtime.pathExists ?? existsSync;
-  return stagedPathsEffect().pipe(
+  return stagedPathsEffect(git, repoRoot).pipe(
     Effect.map((paths) => paths.filter((candidate) => pathExists(path.join(repoRoot, candidate))))
   );
 }
@@ -49,11 +54,12 @@ export function hookSourceCheckPaths(stagedPaths: readonly string[]): string[] {
 }
 
 export function unstagedAmongEffect(
+  git: GitProviderService,
+  repoRoot: string,
   paths: string[]
-): Effect.Effect<string[], never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<string[], never, GitProviderRequirements> {
   if (paths.length === 0) return Effect.succeed([]);
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
     const result = yield* git
       .diffNameOnly({ paths, cwd: repoRoot })
       .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
@@ -63,11 +69,12 @@ export function unstagedAmongEffect(
 }
 
 export function gitAddEffect(
+  git: GitProviderService,
+  repoRoot: string,
   paths: string[]
-): Effect.Effect<SpawnResult, never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<SpawnResult, never, GitProviderRequirements> {
   if (paths.length === 0) return Effect.succeed({ exitCode: 0, stdout: "", stderr: "" });
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
     return yield* git.add(paths, { cwd: repoRoot }).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
@@ -78,18 +85,16 @@ export function gitAddEffect(
 }
 
 export function fileHash(repoRelativePath: string): string | null {
-  const absolute = path.join(repoRoot, repoRelativePath);
+  const absolute = path.join(defaultRepoRoot, repoRelativePath);
   if (!existsSync(absolute)) return null;
   return createHash("sha256").update(readFileSync(absolute)).digest("hex");
 }
 
-function stagedPathsEffect(): Effect.Effect<
-  string[],
-  never,
-  GitProvider | GitProviderRequirements
-> {
+function stagedPathsEffect(
+  git: GitProviderService,
+  repoRoot: string
+): Effect.Effect<string[], never, GitProviderRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
     const result = yield* git
       .diffNameStatus({ cached: true, cwd: repoRoot })
       .pipe(Effect.catchAll(() => Effect.succeed(undefined)));

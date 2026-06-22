@@ -1,4 +1,4 @@
-import { classifyTargetResult } from "@internal/habitat-harness/service/model/workspace/index"; // TODO: NO YOU FUCKWAD. THIS IS WRONG. NO SPELUNKING INTO OTHER MODULES. THIS MEANS YOU DO NOT HAVE CORRECT DOMAIN AND MODULE DESIGN. THIS SHOULD ALRADY BE ENFORCED AS NX MODULE BOUNDARIES.
+import { classifyTargetResult } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
 import { module } from "./module.js";
 

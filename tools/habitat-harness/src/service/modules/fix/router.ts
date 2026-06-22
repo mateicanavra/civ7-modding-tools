@@ -28,18 +28,19 @@ import type { FixServiceRunInput } from "./contract.js";
 import { type FixServiceModuleContext, module } from "./module.js";
 
 export const fixRouter = {
-  run: module.run.effect(function* ({ context: options = {}, input }) {
-    const admissions = options.admissions ?? defaultApplyAdmissions();
+  run: module.run.effect(function* ({ context: options, input }) {
+    const admissions = defaultApplyAdmissions();
 
     if (admissions.length === 0) {
       return missingAdmissionRefusal();
     }
 
-    const transactionInputs = options.transactionInputs ?? activeApplyTransactionInputs();
+    const transactionInputs = activeApplyTransactionInputs();
     const records = yield* Effect.forEach(
       admissions,
       (admission) =>
-        runPatternApplyTransaction(transactionRequest(input, admission, options.worktree), {
+        runPatternApplyTransaction(transactionRequest(input, admission), {
+          ...(options.grit ? { grit: options.grit } : {}),
           transactionInputs,
         }),
       { concurrency: 1 }
@@ -72,7 +73,9 @@ function transactionRequest(
 
 export function runPatternApplyTransaction(
   input: PatternApplyRequest,
-  options: Pick<FixServiceModuleContext, "transactionInputs"> = {}
+  options: { readonly grit?: FixServiceModuleContext["grit"] } & Partial<{
+    readonly transactionInputs: ReturnType<typeof activeApplyTransactionInputs>;
+  }> = {}
 ) {
   return Effect.gen(function* () {
     const request = parsePatternApplyRequest(input);
@@ -204,7 +207,10 @@ export function runPatternApplyTransaction(
     }
 
     if (request.kind === "dry-run-intent") {
-      const commandResults = yield* runDryRunCommands(transactionInput.dryRunCommands);
+      const commandResults = yield* runDryRunCommands(
+        transactionInput.dryRunCommands,
+        options.grit
+      );
       const failed = commandResults.find(
         (result) => result.exit.code !== 0 || result.exit.interrupted
       );
@@ -266,15 +272,18 @@ function pathInRoot(candidate: string, root: string): boolean {
   return candidate === root || candidate.startsWith(normalizedRoot);
 }
 
-function runDryRunCommands(commands: readonly GritDryRunCommandInput[]) {
-  return Effect.forEach(commands, (command) => runDryRunCommand(command), {
+function runDryRunCommands(
+  commands: readonly GritDryRunCommandInput[],
+  grit: FixServiceModuleContext["grit"]
+) {
+  return Effect.forEach(commands, (command) => runDryRunCommand(command, grit), {
     concurrency: 1,
   });
 }
 
-function runDryRunCommand(input: GritDryRunCommandInput) {
+function runDryRunCommand(input: GritDryRunCommandInput, grit: FixServiceModuleContext["grit"]) {
   return Effect.gen(function* () {
-    const grit = yield* GritProvider;
+    const gritProvider = grit ?? (yield* GritProvider);
     const providerRequest = {
       commandId: input.commandId,
       patternPath: input.patternPath,
@@ -282,8 +291,8 @@ function runDryRunCommand(input: GritDryRunCommandInput) {
       output: input.output,
       cacheMode: "disabled",
     } as const;
-    const commandRequest = grit.applyDryRunRequest(providerRequest);
-    return yield* grit.applyDryRun(providerRequest).pipe(
+    const commandRequest = gritProvider.applyDryRunRequest(providerRequest);
+    return yield* gritProvider.applyDryRun(providerRequest).pipe(
       Effect.catchTag("CommandUnavailable", (error) =>
         Effect.succeed(
           makeHabitatCommandResult(commandRequestFromProviderError(commandRequest, error), {

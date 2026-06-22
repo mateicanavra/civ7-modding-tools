@@ -1,7 +1,3 @@
-import type { FileSystem } from "@effect/platform";
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { BaselineAuthority } from "@internal/habitat-harness/service/model/check/baseline/index";
-import type { SourceCheck } from "@internal/habitat-harness/service/model/check/source/index";
 import {
   approvedScanRootsForRules,
   type CheckReport,
@@ -9,8 +5,9 @@ import {
   type HookCheckSummary,
   hookCheckSummary,
   renderCheckReport,
-  StructuralCheck,
   stagedSourceCheckPaths,
+  StructuralCheck,
+  type StructuralCheckService,
 } from "@internal/habitat-harness/service/model/check/structural/index";
 import {
   activeRuleHookCheckFacts,
@@ -45,33 +42,25 @@ import {
   unstagedAmongEffect,
 } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime/staged-worktree";
 import {
-  type BiomeCommandRequest,
   BiomeProvider,
+  type BiomeCommandRequest,
 } from "@internal/habitat-harness/service/runtime/biome/index";
 import {
-  type CommandRunner,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/service/runtime/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/service/runtime/config/index";
-import {
-  GitProvider,
-  type GitProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/git/index";
-import {
-  GraphiteProvider,
-  type GraphiteProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/graphite/index";
-import type {
-  GritProvider,
-  GritProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/grit/index";
+import { GitProvider } from "@internal/habitat-harness/service/runtime/git/index";
+import { GraphiteProvider } from "@internal/habitat-harness/service/runtime/graphite/index";
 import { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { workspaceGraphTargetNames as defaultWorkspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
+import { repoRoot as defaultRepoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
-import { module } from "./module.js";
+import {
+  type HabitatServiceRequirements,
+  type HookServiceModuleContext,
+  module,
+} from "./module.js";
 
 type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {
@@ -80,24 +69,9 @@ type StagedHookCheckResult = SpawnResult & {
     readonly summary: HookCheckSummary;
   };
 };
-type HookCheckRequirements =
-  | BaselineAuthority
-  | BiomeProvider
-  | CommandRunner
-  | NxProvider
-  | CommandExecutor
-  | SourceCheck
-  | HabitatConfig
-  | FileSystem.FileSystem
-  | GitProvider
-  | GitProviderRequirements
-  | GritProvider
-  | GritProviderRequirements
-  | GraphiteProvider
-  | GraphiteProviderRequirements
-  | StructuralCheck;
 type HookOutput = ReturnType<typeof createHookOutput>;
 interface PreCommitState {
+  readonly context: ResolvedHookServiceModuleContext;
   readonly runtime: HookRuntime;
   readonly output: HookOutput;
   readonly staged: readonly string[];
@@ -131,16 +105,25 @@ type PrePushBaseDecision =
     };
 type ParsedHookCheckResult = Extract<HookCheckCommandResult, { readonly kind: "parsed" }>;
 type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
+type ResolvedHookServiceModuleContext = Required<Omit<HookServiceModuleContext, "runtime">> &
+  Pick<HookServiceModuleContext, "runtime"> & {
+    readonly structuralCheck: StructuralCheckService;
+  };
 
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 export const hookRouter = {
-  run: module.run.effect(function* ({ context: options = {}, input = {} }) {
+  run: module.run.effect(function* ({ context: moduleContext, input = {} }) {
+    const context = yield* resolveHookContext(moduleContext);
     if (input.name === "pre-push") {
-      const runtime = options.runtime ?? {};
+      const runtime = context.runtime ?? {};
       const baseDecision = input.base
-        ? { kind: "resolved" as const, base: input.base, source: "explicit" as const }
-        : yield* resolvePrePushBase(runtime);
+        ? ({
+            kind: "resolved",
+            base: input.base,
+            source: "explicit",
+          } satisfies PrePushBaseDecision)
+        : yield* resolvePrePushBase(context, runtime);
       const output = createHookOutput(runtime.reporter);
       output.writeStdout(localHookNotice);
 
@@ -151,11 +134,11 @@ export const hookRouter = {
         };
       }
       if (runtime.trace?.prePush) {
-        runtime.trace.prePush.preState = yield* captureRepoSnapshotEffect(runtime);
+        runtime.trace.prePush.preState = yield* captureRepoSnapshotEffect(context, runtime);
       }
       if (baseDecision.kind === "refused") {
         output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
-        return yield* finalizePrePushEffect(runtime, "base-refused", {
+        return yield* finalizePrePushEffect(context, runtime, "base-refused", {
           exitCode: 1,
           ...output.result(),
         });
@@ -163,22 +146,22 @@ export const hookRouter = {
       const base = baseDecision.base;
       if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
       if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
-      const changedPaths = yield* prePushChangedPaths(base);
+      const changedPaths = yield* prePushChangedPaths(context, base);
       if (changedPaths.kind === "unavailable") {
         output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
-        return yield* finalizePrePushEffect(runtime, "affected-failed", {
+        return yield* finalizePrePushEffect(context, runtime, "affected-failed", {
           exitCode: 1,
           ...output.result(),
         });
       }
       const hookSourcePaths = prePushHookSourceCheckPaths(changedPaths.paths);
       if (hookSourcePaths.length > 0) {
-        const hookSourceCheck = yield* prePushHookSourceCheck(runtime, hookSourcePaths);
+        const hookSourceCheck = yield* prePushHookSourceCheck(context, runtime, hookSourcePaths);
         output.writeStdout(
           section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
         );
         if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
-          return yield* finalizePrePushEffect(runtime, "affected-failed", {
+          return yield* finalizePrePushEffect(context, runtime, "affected-failed", {
             exitCode: hookSourceCheck.exitCode,
             ...output.result(),
           });
@@ -188,21 +171,21 @@ export const hookRouter = {
           "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n"
         );
       }
-      const nx = yield* NxProvider;
       const targetPlan = prePushTargetPlanForChangedPaths(
         changedPaths.paths,
-        workspaceGraphTargetNames()
+        context.workspaceGraphTargetNames()
       );
       for (const target of targetPlan.runTargets) {
-        const argv = nx.runTargetArgv(target);
+        const argv = context.nx.runTargetArgv(target);
         const startedAtMs = yield* hookNow(runtime);
-        const targetResult = yield* nx.runTarget(target).pipe(
+        const targetResult = yield* context.nx.runTarget(target).pipe(
           Effect.match({
             onFailure: spawnResultFromCommandProviderError,
             onSuccess: spawnResultFromCommandResult,
           })
         );
         yield* recordHookCommand(
+          context,
           runtime,
           "pre-push-target",
           argv,
@@ -214,7 +197,7 @@ export const hookRouter = {
         );
         output.writeStderr(targetResult.stderr);
         if (targetResult.exitCode !== 0) {
-          return yield* finalizePrePushEffect(runtime, "affected-failed", {
+          return yield* finalizePrePushEffect(context, runtime, "affected-failed", {
             exitCode: targetResult.exitCode,
             ...output.result(),
           });
@@ -222,7 +205,7 @@ export const hookRouter = {
       }
       if (targetPlan.affectedTargets.length === 0) {
         output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
-        return yield* finalizePrePushEffect(runtime, "pass", {
+        return yield* finalizePrePushEffect(context, runtime, "pass", {
           exitCode: 0,
           ...output.result(),
         });
@@ -233,18 +216,26 @@ export const hookRouter = {
         head: "HEAD",
         excludeTaskDependencies: true,
       };
-      const argv = nx.affectedArgv(request);
+      const argv = context.nx.affectedArgv(request);
       const startedAtMs = yield* hookNow(runtime);
-      const result = yield* nx.affected(request).pipe(
+      const result = yield* context.nx.affected(request).pipe(
         Effect.match({
           onFailure: spawnResultFromCommandProviderError,
           onSuccess: spawnResultFromCommandResult,
         })
       );
-      yield* recordHookCommand(runtime, "pre-push-affected", argv, startedAtMs, result.exitCode);
+      yield* recordHookCommand(
+        context,
+        runtime,
+        "pre-push-affected",
+        argv,
+        startedAtMs,
+        result.exitCode
+      );
       output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
       output.writeStderr(result.stderr);
       return yield* finalizePrePushEffect(
+        context,
         runtime,
         result.exitCode === 0 ? "pass" : "affected-failed",
         {
@@ -255,12 +246,13 @@ export const hookRouter = {
     }
 
     if (input.name === "pre-commit") {
-      const runtime = options.runtime ?? {};
-      const begun = yield* beginPreCommit(runtime);
+      const runtime = context.runtime ?? {};
+      const begun = yield* beginPreCommit(context, runtime);
       if (begun.kind === "done") {
-        return yield* finalizePreCommitEffect(runtime, begun.outcome, begun.result);
+        return yield* finalizePreCommitEffect(context, runtime, begun.outcome, begun.result);
       }
       const fileLayer = yield* stagedHookCheck(
+        context,
         begun.state.runtime,
         "file-layer",
         begun.state.staged
@@ -268,6 +260,7 @@ export const hookRouter = {
       const afterFileLayer = yield* continuePreCommitAfterFileLayer(begun.state, fileLayer);
       if (afterFileLayer.kind === "done") {
         return yield* finalizePreCommitEffect(
+          context,
           begun.state.runtime,
           afterFileLayer.outcome,
           afterFileLayer.result
@@ -276,6 +269,7 @@ export const hookRouter = {
       const afterBiome = yield* preCommitBiomeProviderStep(afterFileLayer.state);
       if (afterBiome.kind === "done") {
         return yield* finalizePreCommitEffect(
+          context,
           afterFileLayer.state.runtime,
           afterBiome.outcome,
           afterBiome.result
@@ -285,6 +279,7 @@ export const hookRouter = {
       const sourceCheckResult =
         afterBiome.state.sourceCheckPaths.length > 0
           ? yield* stagedHookCheck(
+              context,
               afterBiome.state.runtime,
               "source-check",
               afterBiome.state.sourceCheckPaths
@@ -299,6 +294,24 @@ export const hookRouter = {
 
 export const router = hookRouter;
 
+function resolveHookContext(
+  context: HookServiceModuleContext
+): Effect.Effect<ResolvedHookServiceModuleContext, never, HabitatServiceRequirements> {
+  return Effect.gen(function* () {
+    return {
+      biome: context.biome ?? (yield* BiomeProvider),
+      git: context.git ?? (yield* GitProvider),
+      graphite: context.graphite ?? (yield* GraphiteProvider),
+      nx: context.nx ?? (yield* NxProvider),
+      repoRoot: context.repoRoot ?? defaultRepoRoot,
+      runtime: context.runtime,
+      structuralCheck: yield* StructuralCheck,
+      workspaceGraphTargetNames:
+        context.workspaceGraphTargetNames ?? defaultWorkspaceGraphTargetNames,
+    };
+  });
+}
+
 function unknownHookResult(name: string | undefined): SpawnResult {
   return {
     exitCode: 2,
@@ -308,15 +321,16 @@ function unknownHookResult(name: string | undefined): SpawnResult {
 }
 
 function beginPreCommit(
+  context: ResolvedHookServiceModuleContext,
   runtime: HookRuntime = {}
-): Effect.Effect<PreCommitStep<PreCommitState>, never, HookCheckRequirements> {
+): Effect.Effect<PreCommitStep<PreCommitState>, never, HabitatServiceRequirements> {
   const output = createHookOutput(runtime.reporter);
   output.writeStdout("habitat hook pre-commit\n");
   output.writeStdout(localHookNotice);
 
   return Effect.gen(function* () {
     const startedAtMs = yield* hookNow(runtime);
-    const resourceDecision = yield* classifyResourcePreCommitDecisionEffect(runtime);
+    const resourceDecision = yield* classifyResourcePreCommitDecisionEffect(context, runtime);
     const resources = resourceDecisionToFacade(resourceDecision);
     if (runtime.trace) {
       runtime.trace.preCommit = {
@@ -330,7 +344,11 @@ function beginPreCommit(
         outcome: "started",
         startedAtMs,
       };
-      runtime.trace.preCommit.preState = yield* captureRepoSnapshotEffect(runtime, resources.kind);
+      runtime.trace.preCommit.preState = yield* captureRepoSnapshotEffect(
+        context,
+        runtime,
+        resources.kind
+      );
     }
     output.writeStdout(`resources: ${resources.kind}\n`);
     if (!resources.allowPreCommit) {
@@ -347,8 +365,9 @@ function beginPreCommit(
 
     const hashFile = runtime.fileHash ?? fileHash;
     const stagedStartedAtMs = yield* hookNow(runtime);
-    const staged = yield* existingStagedPathsEffect(runtime);
+    const staged = yield* existingStagedPathsEffect(context.git, context.repoRoot, runtime);
     yield* recordHookCommand(
+      context,
       runtime,
       "staged-paths",
       ["git", "diff", "--cached", "--name-status", "-z"],
@@ -357,15 +376,15 @@ function beginPreCommit(
     );
     if (runtime.trace?.preCommit) runtime.trace.preCommit.stagedPaths = staged;
 
-    return { kind: "continue", state: { runtime, output, staged, hashFile } };
+    return { kind: "continue", state: { context, runtime, output, staged, hashFile } };
   });
 }
 
 function continuePreCommitAfterFileLayer(
   state: PreCommitState,
   fileLayer: StagedHookCheckResult
-): Effect.Effect<PreCommitStep<PreCommitBiomeState>, never, HookCheckRequirements> {
-  const { hashFile, output, runtime, staged } = state;
+): Effect.Effect<PreCommitStep<PreCommitBiomeState>, never, HabitatServiceRequirements> {
+  const { context, hashFile, output, runtime, staged } = state;
   output.writeStdout(section("file-layer staged check", fileLayer.stdout));
   output.writeStderr(fileLayer.stderr);
   const fileLayerCheck = stagedHookCheckCommandResult(fileLayer);
@@ -387,8 +406,9 @@ function continuePreCommitAfterFileLayer(
   if (runtime.trace?.preCommit) runtime.trace.preCommit.biomePaths = biomePaths;
   return Effect.gen(function* () {
     const partialStartedAtMs = yield* hookNow(runtime);
-    const partials = yield* unstagedAmongEffect(biomePaths);
+    const partials = yield* unstagedAmongEffect(context.git, context.repoRoot, biomePaths);
     yield* recordHookCommand(
+      context,
       runtime,
       "partial-staging",
       ["git", "diff", "--name-only", "-z", "--", ...biomePaths],
@@ -412,39 +432,42 @@ function continuePreCommitAfterFileLayer(
           exitCode: 1,
           ...output.result(),
         },
-      };
+      } satisfies PreCommitStep<PreCommitBiomeState>;
     }
     const beforeHashes = new Map(biomePaths.map((candidate) => [candidate, hashFile(candidate)]));
-    return { kind: "continue", state: { ...state, biomePaths, beforeHashes } };
+    return {
+      kind: "continue",
+      state: { ...state, biomePaths, beforeHashes },
+    } satisfies PreCommitStep<PreCommitBiomeState>;
   });
 }
 
 function preCommitBiomeProviderStep(
   state: PreCommitBiomeState
-): Effect.Effect<PreCommitStep<PreCommitSourceCheckState>, never, HookCheckRequirements> {
-  const { beforeHashes, biomePaths, hashFile, output, runtime } = state;
+): Effect.Effect<PreCommitStep<PreCommitSourceCheckState>, never, HabitatServiceRequirements> {
+  const { beforeHashes, biomePaths, context, hashFile, output, runtime } = state;
   if (biomePaths.length === 0) {
     output.writeStdout("biome: no staged supported files\n");
     return Effect.succeed(continuePreCommitAfterBiome(state));
   }
 
   return Effect.gen(function* () {
-    const biome = yield* BiomeProvider;
     const formatRequest: BiomeCommandRequest = {
       kind: "format",
       write: true,
       noErrorsOnUnmatched: true,
       paths: biomePaths,
     };
-    const formatArgv = biome.argv(formatRequest);
+    const formatArgv = context.biome.argv(formatRequest);
     const formatStartedAtMs = yield* hookNow(runtime);
-    const format = yield* biome.run(formatRequest).pipe(
+    const format = yield* context.biome.run(formatRequest).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
         onSuccess: spawnResultFromCommandResult,
       })
     );
     yield* recordHookCommand(
+      context,
       runtime,
       "biome-format",
       formatArgv,
@@ -470,8 +493,9 @@ function preCommitBiomeProviderStep(
     if (runtime.trace?.preCommit) runtime.trace.preCommit.formatterTouchedPaths = touched;
     if (touched.length > 0) {
       const restageStartedAtMs = yield* hookNow(runtime);
-      const restage = yield* gitAddEffect(touched);
+      const restage = yield* gitAddEffect(context.git, context.repoRoot, touched);
       yield* recordHookCommand(
+        context,
         runtime,
         "formatter-restage",
         ["git", "add", "--", ...touched],
@@ -501,15 +525,22 @@ function preCommitBiomeProviderStep(
       noErrorsOnUnmatched: true,
       paths: biomePaths,
     };
-    const checkArgv = biome.argv(checkRequest);
+    const checkArgv = context.biome.argv(checkRequest);
     const checkStartedAtMs = yield* hookNow(runtime);
-    const check = yield* biome.run(checkRequest).pipe(
+    const check = yield* context.biome.run(checkRequest).pipe(
       Effect.match({
         onFailure: spawnResultFromCommandProviderError,
         onSuccess: spawnResultFromCommandResult,
       })
     );
-    yield* recordHookCommand(runtime, "biome-check", checkArgv, checkStartedAtMs, check.exitCode);
+    yield* recordHookCommand(
+      context,
+      runtime,
+      "biome-check",
+      checkArgv,
+      checkStartedAtMs,
+      check.exitCode
+    );
     output.writeStdout(section("biome check", check.stdout));
     output.writeStderr(check.stderr);
     if (check.exitCode !== 0) {
@@ -539,11 +570,11 @@ function continuePreCommitAfterBiome(
 function finishPreCommit(
   state: PreCommitSourceCheckState,
   sourceCheckResult: StagedHookCheckResult | undefined
-): Effect.Effect<SpawnResult, never, HookCheckRequirements> {
-  const { output, runtime } = state;
+): Effect.Effect<SpawnResult, never, HabitatServiceRequirements> {
+  const { context, output, runtime } = state;
   if (state.sourceCheckPaths.length > 0) {
     if (!sourceCheckResult) {
-      return finalizePreCommitEffect(runtime, "command-failed", {
+      return finalizePreCommitEffect(context, runtime, "command-failed", {
         exitCode: 1,
         ...output.result(),
       });
@@ -553,13 +584,13 @@ function finishPreCommit(
     const sourceCheck = stagedHookCheckCommandResult(sourceCheckResult);
     if (sourceCheck.kind !== "parsed") {
       if (sourceCheckResult.exitCode !== 0 && sourceCheck.kind === "missing-json") {
-        return finalizePreCommitEffect(runtime, "command-failed", {
+        return finalizePreCommitEffect(context, runtime, "command-failed", {
           exitCode: sourceCheckResult.exitCode,
           ...output.result(),
         });
       }
       output.writeStderr("habitat hook pre-commit: could not parse Habitat source check JSON.\n");
-      return finalizePreCommitEffect(runtime, "parse-failed", {
+      return finalizePreCommitEffect(context, runtime, "parse-failed", {
         exitCode: 1,
         ...output.result(),
       });
@@ -567,12 +598,15 @@ function finishPreCommit(
     if (!checkSummaryAllowsNextStage(sourceCheck)) {
       if (sourceCheck.summary.kind === "diagnostic-unavailable") {
         output.writeStderr("habitat hook pre-commit: could not parse source check JSON output.\n");
-        return finalizePreCommitEffect(runtime, "parse-failed", {
+        return finalizePreCommitEffect(context, runtime, "parse-failed", {
           exitCode: 1,
           ...output.result(),
         });
       }
-      return finalizePreCommitEffect(runtime, "finding", { exitCode: 1, ...output.result() });
+      return finalizePreCommitEffect(context, runtime, "finding", {
+        exitCode: 1,
+        ...output.result(),
+      });
     }
   } else {
     output.writeStdout(
@@ -581,16 +615,16 @@ function finishPreCommit(
   }
 
   output.writeStdout("habitat hook pre-commit: PASS\n");
-  return finalizePreCommitEffect(runtime, "pass", { exitCode: 0, ...output.result() });
+  return finalizePreCommitEffect(context, runtime, "pass", { exitCode: 0, ...output.result() });
 }
 
 function prePushChangedPaths(
+  context: ResolvedHookServiceModuleContext,
   base: string
-): Effect.Effect<PrePushChangedPathsResult, never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<PrePushChangedPathsResult, never, HabitatServiceRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
-    const result = yield* git
-      .command(["diff", "--name-only", "-z", base, "HEAD"], { cwd: repoRoot })
+    const result = yield* context.git
+      .command(["diff", "--name-only", "-z", base, "HEAD"], { cwd: context.repoRoot })
       .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
     if (!result || result.exit.code !== 0) {
       return {
@@ -609,14 +643,14 @@ function prePushHookSourceCheckPaths(changedPaths: readonly string[]): readonly 
 }
 
 function prePushHookSourceCheck(
+  context: ResolvedHookServiceModuleContext,
   runtime: HookRuntime,
   changedPaths: readonly string[]
-): Effect.Effect<PrePushHookSourceCheckResult, never, HookCheckRequirements> {
+): Effect.Effect<PrePushHookSourceCheckResult, never, HabitatServiceRequirements> {
   return Effect.gen(function* () {
-    const structuralCheck = yield* StructuralCheck;
     const argv = ["--hook-check", "--tool", "source-check", "--json"];
     const startedAtMs = yield* hookNow(runtime);
-    const report = yield* structuralCheck.createReport({
+    const report = yield* context.structuralCheck.createReport({
       tool: "source-check",
       hookCheck: true,
       staged: true,
@@ -631,19 +665,20 @@ function prePushHookSourceCheck(
       summary,
     };
     const exitCode = checkSummaryAllowsNextStage(result) ? 0 : 1;
-    yield* recordInProcessHookCheck(runtime, "source-check", argv, startedAtMs, exitCode);
+    yield* recordInProcessHookCheck(context, runtime, "source-check", argv, startedAtMs, exitCode);
     return { ...result, exitCode };
   });
 }
 
 function resolvePrePushBase(
+  context: ResolvedHookServiceModuleContext,
   runtime: HookRuntime
-): Effect.Effect<PrePushBaseDecision, never, HookCheckRequirements> {
+): Effect.Effect<PrePushBaseDecision, never, HabitatServiceRequirements> {
   return Effect.gen(function* () {
-    const graphite = yield* GraphiteProvider;
     const startedAtMs = yield* hookNow(runtime);
-    const parent = yield* graphite.parent({ cwd: repoRoot });
+    const parent = yield* context.graphite.parent({ cwd: context.repoRoot });
     yield* recordHookCommand(
+      context,
       runtime,
       "pre-push-base",
       ["gt", "branch", "info", "--no-interactive"],
@@ -652,9 +687,10 @@ function resolvePrePushBase(
     );
     if (parent) return { kind: "resolved" as const, base: parent, source: "graphite-parent" };
 
-    const git = yield* GitProvider;
-    const defaultBranch = yield* git.remoteDefaultBranch({ cwd: repoRoot });
-    const base = defaultBranch ? yield* git.mergeBase(defaultBranch, { cwd: repoRoot }) : null;
+    const defaultBranch = yield* context.git.remoteDefaultBranch({ cwd: context.repoRoot });
+    const base = defaultBranch
+      ? yield* context.git.mergeBase(defaultBranch, { cwd: context.repoRoot })
+      : null;
     if (base) return { kind: "resolved" as const, base, source: "merge-base" };
     return {
       kind: "refused" as const,
@@ -665,15 +701,15 @@ function resolvePrePushBase(
 }
 
 function stagedHookCheck(
+  context: ResolvedHookServiceModuleContext,
   runtime: HookRuntime,
   tool: StagedHookCheckTool,
   stagedPaths: readonly string[]
-): Effect.Effect<StagedHookCheckResult, never, HookCheckRequirements> {
+): Effect.Effect<StagedHookCheckResult, never, HabitatServiceRequirements> {
   return Effect.gen(function* () {
-    const structuralCheck = yield* StructuralCheck;
     const argv = ["--staged", "--tool", tool, "--json"];
     const startedAtMs = yield* hookNow(runtime);
-    const report = yield* structuralCheck.createReport({
+    const report = yield* context.structuralCheck.createReport({
       tool,
       staged: true,
       stagedPaths,
@@ -683,7 +719,7 @@ function stagedHookCheck(
       ...spawnResultFromCheckReport(report),
       check: { report, summary: hookCheckSummary(report) },
     };
-    yield* recordInProcessHookCheck(runtime, tool, argv, startedAtMs, result.exitCode);
+    yield* recordInProcessHookCheck(context, runtime, tool, argv, startedAtMs, result.exitCode);
     return result;
   });
 }
@@ -705,6 +741,7 @@ function stagedHookCheckCommandResult(result: StagedHookCheckResult): HookCheckC
 }
 
 function recordInProcessHookCheck(
+  context: ResolvedHookServiceModuleContext,
   runtime: HookRuntime,
   phase: StagedHookCheckTool,
   argv: readonly string[],
@@ -716,7 +753,7 @@ function recordInProcessHookCheck(
     runtime.trace?.commands.push({
       phase,
       argv: ["habitat", "check", ...argv],
-      cwd: repoRoot,
+      cwd: context.repoRoot,
       env: undefined,
       exitCode,
       startedAtMs,
@@ -727,6 +764,7 @@ function recordInProcessHookCheck(
 }
 
 function recordHookCommand(
+  context: ResolvedHookServiceModuleContext,
   runtime: HookRuntime,
   phase:
     | "partial-staging"
@@ -746,7 +784,7 @@ function recordHookCommand(
     runtime.trace?.commands.push({
       phase,
       argv: [...argv],
-      cwd: repoRoot,
+      cwd: context.repoRoot,
       env: undefined,
       exitCode,
       startedAtMs,
