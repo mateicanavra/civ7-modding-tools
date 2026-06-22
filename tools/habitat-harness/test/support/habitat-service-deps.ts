@@ -21,7 +21,6 @@ export function makeTestHabitatServiceDeps(
   overrides: Partial<HabitatServiceDeps> = {}
 ): HabitatServiceDeps {
   return {
-    acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
     biome: {
       run: (request) =>
         Effect.succeed(
@@ -54,7 +53,6 @@ export function makeTestHabitatServiceDeps(
         Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
     },
-    hashFile: () => null,
     nx: {
       affected: (request) =>
         Effect.succeed(
@@ -102,10 +100,14 @@ export function makeTestHabitatServiceDeps(
           snapshot: { projects: [] },
         }),
     },
-    pathExists: () => false,
-    readText: () => Effect.succeed(""),
+    platform: {
+      acquireTempDirectory: () => Effect.succeed("/tmp/habitat-service-test"),
+      hashFile: () => null,
+      pathExists: () => false,
+      readText: () => Effect.succeed(""),
+      repoRoot,
+    },
     reporter: fakeReporter(),
-    repoRoot,
     structuralCheck: {
       createReport: (options = {}) =>
         Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),

@@ -155,7 +155,10 @@ describe("Habitat graph service", () => {
   });
 });
 
-type GraphTestDeps = Pick<HabitatServiceDeps, "acquireTempDirectory" | "nx" | "readText">;
+interface GraphTestDeps {
+  readonly nx?: Partial<HabitatServiceDeps["nx"]>;
+  readonly platform?: Partial<HabitatServiceDeps["platform"]>;
+}
 
 function graphDeps(
   events: string[],
@@ -164,17 +167,24 @@ function graphDeps(
 ): GraphTestDeps {
   const tempDir = "/tmp/habitat-graph-fake";
   return {
-    acquireTempDirectory: () =>
-      Effect.acquireRelease(
-        Effect.sync(() => {
-          events.push(`mkdtemp:${tempDir}`);
-          return tempDir;
-        }),
-        () =>
+    platform: {
+      acquireTempDirectory: () =>
+        Effect.acquireRelease(
           Effect.sync(() => {
-            events.push(`remove:${tempDir}`);
-          })
-      ),
+            events.push(`mkdtemp:${tempDir}`);
+            return tempDir;
+          }),
+          () =>
+            Effect.sync(() => {
+              events.push(`remove:${tempDir}`);
+            })
+        ),
+      readText: (targetPath) =>
+        Effect.sync(() => {
+          events.push(`read:${targetPath}`);
+          return files.get(targetPath) ?? "";
+        }),
+    },
     nx: {
       affected: () =>
         Effect.succeed(
@@ -191,18 +201,21 @@ function graphDeps(
       graphArgv,
       ...nx,
     },
-    readText: (targetPath) =>
-      Effect.sync(() => {
-        events.push(`read:${targetPath}`);
-        return files.get(targetPath) ?? "";
-      }),
   };
 }
 
 function runGraphProcedure(input: GraphServiceRunInput, deps: GraphTestDeps) {
   return Effect.gen(function* () {
+    const baseDeps = makeTestHabitatServiceDeps();
     const runGraph = graphRouter.run.callable({
-      context: { deps: makeTestHabitatServiceDeps(deps) },
+      context: {
+        deps: {
+          ...baseDeps,
+          ...deps,
+          nx: { ...baseDeps.nx, ...deps.nx },
+          platform: { ...baseDeps.platform, ...deps.platform },
+        },
+      },
     });
     return yield* withFiberContext(() => runGraph(input));
   });

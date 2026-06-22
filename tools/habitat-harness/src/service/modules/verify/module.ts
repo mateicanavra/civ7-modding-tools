@@ -49,12 +49,12 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
   const resolveVerifyBase = makeResolveVerifyBase({
     git: context.deps.git,
     graphite: context.deps.graphite,
-    repoRoot: context.deps.repoRoot,
+    repoRoot: context.deps.platform.repoRoot,
   });
   const runAffectedVerification = makeRunAffectedVerification(context.deps.nx);
   const observeGitStatus = makeObserveGitStatus({
     git: context.deps.git,
-    repoRoot: context.deps.repoRoot,
+    repoRoot: context.deps.platform.repoRoot,
   });
   return next({
     context: {

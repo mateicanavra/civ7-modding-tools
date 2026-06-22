@@ -417,9 +417,13 @@ function runHookProcedure(options: {
             biome,
             git,
             graphite,
-            ...(options.hashFile ? { hashFile: options.hashFile } : {}),
             nx,
-            ...(options.pathExists ? { pathExists: options.pathExists } : {}),
+            platform: {
+              ...makeTestHabitatServiceDeps().platform,
+              ...(options.hashFile ? { hashFile: options.hashFile } : {}),
+              ...(options.pathExists ? { pathExists: options.pathExists } : {}),
+              repoRoot,
+            },
             ...(options.reporterEvents
               ? {
                   reporter: {
@@ -430,7 +434,6 @@ function runHookProcedure(options: {
                   },
                 }
               : {}),
-            repoRoot,
             structuralCheck,
           }),
         },

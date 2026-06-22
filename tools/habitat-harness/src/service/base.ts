@@ -3,12 +3,7 @@ import type { GitProviderService } from "@internal/habitat-harness/providers/git
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
-import type {
-  acquireTempDirectory,
-  hashFileSync,
-  pathExistsSync,
-  readText,
-} from "@internal/habitat-harness/resources/platform/index";
+import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
@@ -20,17 +15,13 @@ export interface HabitatServiceContext {
 }
 
 export interface HabitatServiceDeps {
-  readonly acquireTempDirectory: typeof acquireTempDirectory;
   readonly biome: BiomeProviderService;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly grit: GritProviderService;
-  readonly hashFile: typeof hashFileSync;
   readonly nx: NxProviderService;
-  readonly pathExists: typeof pathExistsSync;
-  readonly readText: typeof readText;
+  readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
-  readonly repoRoot: string;
   readonly structuralCheck: StructuralCheckService;
 }
 
