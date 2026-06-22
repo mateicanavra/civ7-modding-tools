@@ -1,21 +1,15 @@
 import path from "node:path";
-import type { FileSystem } from "@effect/platform";
 import {
-  type CommandProviderError,
   type HabitatCommandResult,
-  type HabitatProcessRequest,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import {
   type HabitatError,
   renderHabitatError,
 } from "@internal/habitat-harness/resources/errors/index";
-import type { BaselineFileSystemPort } from "@internal/habitat-harness/service/model/baseline/index";
 import {
   type CheckOptions,
   type HabitatDiagnostic,
-  notApplicableDiagnostic,
-  type RuleExecutionDisposition,
   type RuleExecutionTiming,
 } from "@internal/habitat-harness/service/model/check/index";
 import {
@@ -36,100 +30,19 @@ import type {
   RuleSelectorFacts,
   RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/index";
-import {
-  factsForRuleIds,
-  type RuleFactsCatalog,
-} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import {
-  approvedSourceScanRootsForRules,
-  runSourceRulesEffect,
-  type SourceRuleFileSystem,
-  stagedSourceScanRoots,
-} from "@internal/habitat-harness/service/model/source-check/index";
 import { Clock, Effect } from "effect";
-
-export interface RuleExecutionRecord {
-  result: RuleRunResult;
-  durationMs: number;
-  timing?: RuleExecutionTiming;
-  disposition: RuleExecutionDisposition;
-}
-
-export interface StructuralExecutionContext {
-  readonly baselineFileSystem: BaselineFileSystemPort;
-  readonly repoRoot: string;
-  readonly biome: StructuralBiomePort;
-  readonly command: StructuralCommandPort;
-  readonly git: StructuralGitPort;
-  readonly grit: StructuralGritPort;
-  readonly nx: StructuralNxPort;
-  readonly rules: RuleFactsCatalog;
-  readonly sourceFileSystem: SourceRuleFileSystem<FileSystem.FileSystem>;
-}
-
-interface StructuralBiomePort {
-  readonly run: (request: {
-    readonly kind: "ci";
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-}
-
-interface StructuralCommandPort {
-  readonly run: (
-    request: HabitatProcessRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-}
-
-interface StructuralGitPort {
-  readonly diffNameOnly: (input?: {
-    readonly cached?: boolean;
-    readonly cwd?: string;
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly diffNameStatus: (input?: {
-    readonly cached?: boolean;
-    readonly cwd?: string;
-  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly lsTreeNameOnly: (
-    ref: string,
-    repoPath: string,
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<readonly string[] | null, never, any>;
-  readonly mergeBase: (
-    ref: string,
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
-  readonly show: (
-    ref: string,
-    repoPath: string,
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
-}
-
-interface StructuralGritPort {
-  readonly runRules: (
-    selectedRules: readonly RuleSourceFacts[],
-    options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
-  ) => Effect.Effect<Map<string, RuleRunResult>, never, any>;
-}
-
-interface StructuralNxPort {
-  readonly runMany: (
-    request: StructuralNxRunManyRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly runTarget: (
-    request: StructuralNxRunTargetRequest
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-}
-
-interface StructuralNxRunManyRequest {
-  readonly projects: readonly string[];
-  readonly targets: readonly string[];
-}
-
-interface StructuralNxRunTargetRequest {
-  readonly project: string;
-  readonly target: string;
-}
+import type {
+  RuleExecutionRecord,
+  StructuralExecutionContext,
+  StructuralGitPort,
+  StructuralNxPort,
+} from "./context.policy.js";
+import {
+  executeGritSourceRulesEffect,
+  executeNativeSourceRulesEffect,
+} from "./source-execution.policy.js";
 
 export function rulesForExecution(
   selectedRules: readonly RuleSelectorFacts[],
@@ -168,26 +81,6 @@ function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?
   return !selection.owner && !selection.rule && !selection.tool;
 }
 
-export function stagedSourceCheckNotApplicableRecords(
-  sourceRules: readonly RuleSourceFacts[],
-  scanRoots: readonly string[]
-): Map<string, RuleExecutionRecord> | undefined {
-  if (scanRoots.length > 0) return undefined;
-  return new Map(
-    sourceRules.map((rule) => [
-      rule.id,
-      {
-        result: {
-          exitCode: 1,
-          diagnostics: [notApplicableDiagnostic(rule, "staged-scope-no-approved-roots")],
-        },
-        durationMs: 0,
-        disposition: { kind: "not-applicable", reason: "staged-scope-no-approved-roots" },
-      },
-    ])
-  );
-}
-
 export function executeSelectedRulesEffect(
   selectedRules: readonly RuleSelectorFacts[],
   options: Pick<CheckOptions, "staged" | "stagedPaths">,
@@ -197,77 +90,14 @@ export function executeSelectedRulesEffect(
     const results = new Map<string, RuleExecutionRecord>();
     const selectedRuleIds = selectedRules.map((rule) => rule.id);
     const sourceRules = factsForRuleIds(context.rules.source, selectedRuleIds);
-    if (sourceRules.length > 0) {
-      const scanRoots = options.staged
-        ? stagedSourceScanRoots(
-            options.stagedPaths ?? (yield* currentStagedPathsEffect(context)),
-            approvedSourceScanRootsForRules(sourceRules),
-            sourceScopeContext(context)
-          )
-        : undefined;
-      const stagedNotApplicable =
-        options.staged && scanRoots
-          ? stagedSourceCheckNotApplicableRecords(sourceRules, scanRoots)
-          : undefined;
-      if (stagedNotApplicable) {
-        for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
-      } else {
-        const started = yield* Clock.currentTimeMillis;
-        const sourceResults = yield* runSourceRulesEffect(sourceRules, {
-          fileSystem: context.sourceFileSystem,
-          repoRoot: context.repoRoot,
-          ...(scanRoots ? { scanRoots } : {}),
-        });
-        const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-        for (const rule of sourceRules) {
-          const result = sourceResults.get(rule.id);
-          if (result) {
-            results.set(rule.id, {
-              result,
-              durationMs,
-              timing: sharedExecutionTiming("source-check:source-rules", durationMs, sourceRules),
-              disposition: { kind: "executed", durationMs },
-            });
-          }
-        }
-      }
-    }
+    yield* executeNativeSourceRulesEffect(sourceRules, results, options, context, () =>
+      currentStagedPathsEffect(context)
+    );
 
     const gritRules = factsForRuleIds(context.rules.grit, selectedRuleIds);
-    if (gritRules.length > 0) {
-      const scanRoots = options.staged
-        ? stagedSourceScanRoots(
-            options.stagedPaths ?? (yield* currentStagedPathsEffect(context)),
-            approvedSourceScanRootsForRules(gritRules),
-            sourceScopeContext(context)
-          )
-        : undefined;
-      const stagedNotApplicable =
-        options.staged && scanRoots
-          ? stagedSourceCheckNotApplicableRecords(gritRules, scanRoots)
-          : undefined;
-      if (stagedNotApplicable) {
-        for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
-      } else {
-        const started = yield* Clock.currentTimeMillis;
-        const gritResults = yield* context.grit.runRules(gritRules, {
-          repoRoot: context.repoRoot,
-          ...(scanRoots ? { scanRoots } : {}),
-        });
-        const durationMs = Math.max(0, (yield* Clock.currentTimeMillis) - started);
-        for (const rule of gritRules) {
-          const result = gritResults.get(rule.id);
-          if (result) {
-            results.set(rule.id, {
-              result,
-              durationMs,
-              timing: sharedExecutionTiming("grit-check:rules", durationMs, gritRules),
-              disposition: { kind: "executed", durationMs },
-            });
-          }
-        }
-      }
-    }
+    yield* executeGritSourceRulesEffect(gritRules, results, options, context, () =>
+      currentStagedPathsEffect(context)
+    );
 
     const commandRules = factsForRuleIds(context.rules.commandExecution, selectedRuleIds);
     const graphRulesById = factsByRuleId(
@@ -300,12 +130,6 @@ export function executeSelectedRulesEffect(
 
     return results;
   });
-}
-
-function sourceScopeContext(context: StructuralExecutionContext): {
-  readonly repoRoot: string;
-} {
-  return { repoRoot: context.repoRoot };
 }
 
 function executeFormatRulesEffect(
