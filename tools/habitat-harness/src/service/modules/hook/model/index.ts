@@ -1,20 +1,12 @@
 export type {
-  HookCommandPhase,
-  HookCommandRecord,
   HookName,
-  HookReportChannel,
-  HookRepoSnapshot,
-  HookTrace,
   PreCommitOutcome,
-  PreCommitTrace,
   PrePushOutcome,
-  PrePushTrace,
   ResourcePreCommitDecision,
   ResourceStateFacade,
   ResourceStateKind,
 } from "./dto/hook.schema.js";
 export {
-  HookTraceSchema,
   ResourcePreCommitDecisionSchema,
   ResourceStateFacadeSchema,
 } from "./dto/hook.schema.js";

@@ -1,7 +1,6 @@
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import { Clock, Effect } from "effect";
-import type { HookTrace } from "../dto/hook.schema.js";
 
 export interface ResourceRecoveryCommands {
   publish: string;
@@ -17,11 +16,6 @@ export interface HookResourcePolicy {
 
 export interface HookRuntime {
   resourcePolicy?: HookResourcePolicy;
-  trace?: HookTrace;
-}
-
-export function createHookTrace(): HookTrace {
-  return { commands: [] };
 }
 
 export function hookNow(): Effect.Effect<number> {

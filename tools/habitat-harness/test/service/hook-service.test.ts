@@ -34,10 +34,7 @@ import {
   StructuralCheck,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
-import {
-  createHookTrace,
-  type HookRuntime,
-} from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
+import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { createRouterClient } from "@orpc/server";
@@ -189,62 +186,6 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain(prePushNoChangedSourceCheck);
     expect(result.stdout).toContain("affected failed");
     expect(result.stderr).toContain("target failed");
-  });
-
-  test("records pre-push base and affected provenance through providers", async () => {
-    const trace = createHookTrace();
-    const fake = makePrePushRuntime({ graphiteParent: "agent-HR-parent" });
-
-    const result = await runHookServiceInTest(
-      { name: "pre-push", base: "" },
-      { runtime: { ...fake.runtime, trace } },
-      prePushGitLayer(fake),
-      undefined,
-      undefined,
-      undefined,
-      graphiteLayer(fake)
-    );
-
-    expect(result.exitCode).toBe(0);
-    expect(trace.prePush).toMatchObject({
-      base: "agent-HR-parent",
-      baseSource: "graphite-parent",
-      outcome: "pass",
-      exitCode: 0,
-      preState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        resourceState: "not-configured",
-      },
-      postState: {
-        branch: "agent-HR-test",
-        head: "abc123head",
-        resourceState: "not-configured",
-      },
-    });
-    expect(trace.commands.find((command) => command.phase === "pre-push-base")).toMatchObject({
-      argv: ["gt", "branch", "info", "--no-interactive"],
-      cwd: repoRoot,
-      env: undefined,
-      exitCode: 0,
-    });
-    expect(trace.commands.find((command) => command.phase === "pre-push-affected")).toMatchObject({
-      argv: [
-        "nx",
-        "affected",
-        "-t",
-        prePushAffectedTargets,
-        "--base",
-        "agent-HR-parent",
-        "--head",
-        "HEAD",
-        "--outputStyle=static",
-        "--excludeTaskDependencies",
-      ],
-      cwd: repoRoot,
-      env: undefined,
-      exitCode: 0,
-    });
   });
 
   test("reports pre-push output through an injected reporter service", async () => {
@@ -684,7 +625,6 @@ describe("Habitat hook service", () => {
   });
 
   test("routes pre-commit Biome execution through the Biome provider", async () => {
-    const trace = createHookTrace();
     const stagedPath = "tools/habitat-harness/src/service/modules/hook/router.ts";
     const fake = makePreCommitRuntime({
       stagedPaths: [stagedPath],
@@ -694,7 +634,7 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-commit" },
-      { hashFile: fake.hashFile, pathExists: fake.pathExists, runtime: { ...fake.runtime, trace } },
+      { hashFile: fake.hashFile, pathExists: fake.pathExists, runtime: fake.runtime },
       preCommitGitLayer(fake),
       undefined,
       makeFakeStructuralCheckLayer({
@@ -733,9 +673,6 @@ describe("Habitat hook service", () => {
         paths: [stagedPath],
       },
     ]);
-    expect(trace.commands.map((command) => command.phase)).toEqual(
-      expect.arrayContaining(["biome-format", "formatter-restage", "biome-check"])
-    );
   });
 });
 
