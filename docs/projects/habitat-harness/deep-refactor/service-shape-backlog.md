@@ -99,3 +99,4 @@ Completed burn-downs:
 - Baseline Effect operations now require explicit repo-root context and derive baseline paths from artifact policy; they no longer import global repo-root or baselines-dir singletons.
 - Structural rule execution now receives repo root through explicit execution context for command cwd and staged git reads instead of importing the global repo-root/path helpers.
 - Source-check native rule execution now receives repo root through `SourceCheckOptions` for module loading, source reads, and scan-root collection instead of importing global repo-root/path helpers.
+- Nx now infers one boundary project per Habitat service module and no separate module-local model projects; module-local `model/` trees stay inside their owning module boundary while shared `src/service/model` remains the only shared service-model project.
