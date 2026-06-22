@@ -38,7 +38,6 @@ export async function createLiveHabitatServiceContext(
         graphite: input.deps?.graphite ?? (yield* GraphiteProvider),
         grit: input.deps?.grit ?? (yield* GritProvider),
         hashFile: input.deps?.hashFile ?? hashFileSync,
-        hookRuntime: input.deps?.hookRuntime ?? {},
         nx: input.deps?.nx ?? (yield* NxProvider),
         pathExists: input.deps?.pathExists ?? pathExistsSync,
         readText,

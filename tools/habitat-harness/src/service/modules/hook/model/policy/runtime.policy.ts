@@ -14,10 +14,6 @@ export interface HookResourcePolicy {
   commands: ResourceRecoveryCommands;
 }
 
-export interface HookRuntime {
-  resourcePolicy?: HookResourcePolicy;
-}
-
 export function hookNow(): Effect.Effect<number> {
   return Clock.currentTimeMillis;
 }

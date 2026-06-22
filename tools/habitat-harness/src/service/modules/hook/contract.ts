@@ -8,6 +8,23 @@ const HookServiceRunInputSchema = Type.Object(
   {
     name: Type.Optional(Type.String()),
     base: Type.Optional(Type.String()),
+    resourcePolicy: Type.Optional(
+      Type.Object(
+        {
+          path: Type.String({ minLength: 1 }),
+          commands: Type.Object(
+            {
+              publish: Type.String({ minLength: 1 }),
+              status: Type.String({ minLength: 1 }),
+              init: Type.String({ minLength: 1 }),
+              unlock: Type.String({ minLength: 1 }),
+            },
+            { additionalProperties: false }
+          ),
+        },
+        { additionalProperties: false }
+      )
+    ),
   },
   { additionalProperties: false, description: "Habitat hook service run request." }
 );

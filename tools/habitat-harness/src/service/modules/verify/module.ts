@@ -3,6 +3,12 @@ import type { GraphiteProviderService } from "@internal/habitat-harness/provider
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import { spawnResultFromCommandResult } from "@internal/habitat-harness/resources/command/index";
 import { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
+import type {
+  HabitatServiceContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError,
+} from "@internal/habitat-harness/service/base";
+import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
   checkCommandContext,
@@ -11,6 +17,7 @@ import {
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
+import type { EffectImplementerInternal } from "effect-orpc";
 import {
   createVerifyReceipt,
   readVerifyTargetPlan,
@@ -30,7 +37,15 @@ export interface VerifyModuleContext {
   readonly verifyCheckSummary: typeof verifyCheckSummary;
 }
 
-export const module = service.verify.use(({ context, next }) => {
+type VerifyModule = EffectImplementerInternal<
+  HabitatServiceContract["verify"],
+  HabitatServiceContext,
+  HabitatServiceContext & VerifyModuleContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError
+>;
+
+export const module: VerifyModule = service.verify.use(({ context, next }) => {
   const resolveVerifyBase = makeResolveVerifyBase({
     git: context.deps.git,
     graphite: context.deps.graphite,

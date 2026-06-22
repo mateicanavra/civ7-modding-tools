@@ -55,7 +55,6 @@ export function makeTestHabitatServiceDeps(
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
     },
     hashFile: () => null,
-    hookRuntime: {},
     nx: {
       affected: (request) =>
         Effect.succeed(

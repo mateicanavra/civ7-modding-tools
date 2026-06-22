@@ -13,10 +13,7 @@ Current burn-down categories:
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Normalize remaining module-local `model/policy` files into named policy artifacts; the current known remainder is the fix module's pattern and transaction policy internals.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
-- Follow-up: package-level `tsc --noEmit` still exceeds the useful local feedback budget; keep validation pressure on narrower structural validators while the check-duration architecture work continues.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
-- Follow-up: `hookRuntime` is still caller-local hook execution state on service deps; it needs a deliberate runtime/caller design because it still carries path/file callbacks, resource policy, and trace state.
-- Follow-up: package-level `tsc --noEmit` still exceeds the useful local feedback budget even after the visible fix-module diagnostic was repaired; keep validation pressure on narrower structural validators while the check-duration architecture work continues.
 
 Completed burn-downs:
 
@@ -28,6 +25,8 @@ Completed burn-downs:
 - Hook timing now uses Effect `Clock`; `HookRuntime` no longer carries a custom clock callback.
 - Hook filesystem access now uses the shared platform resource surface; `HookRuntime` no longer carries path-existence or file-hash callbacks.
 - Hook trace/provenance collection has been deleted from the service runtime path; hook focused tests now validate behavior without repo snapshot bookkeeping.
+- Hook resource policy now enters through the validated `hook.run` action input; `HabitatServiceDeps` no longer contains a generic `hookRuntime` option bag.
+- Verify module wiring now has an explicit effect-oRPC implementer type boundary so package typecheck no longer trips over serialized router inference.
 - Fix transactions require the provisioned Grit provider instead of carrying a provider-missing fallback path; provider runtime requirements are recorded in the module operation type instead of being hidden.
 - Graph router internal error mapping now uses contract-listed effect-oRPC errors; router source carries no TODO notes for this path.
 - Shared `service/model/*` domains now reject loose unmanaged files; policy code must be named and classified by kind.
