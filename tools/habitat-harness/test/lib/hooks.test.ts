@@ -137,7 +137,14 @@ describe("Habitat hook resource policy", () => {
       Effect.gen(function* () {
         const git = yield* GitProvider;
         return yield* classifyResourcePreCommitDecisionEffect(
-          { git, pathExists: fake.pathExists, repoRoot },
+          {
+            git,
+            platform: {
+              ...makeTestHabitatServiceDeps().platform,
+              pathExists: fake.pathExists,
+              repoRoot,
+            },
+          },
           fake.resourcePolicy
         );
       }).pipe(Effect.provide(makeGitLayer(fake)))
