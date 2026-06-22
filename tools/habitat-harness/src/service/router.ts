@@ -1,6 +1,3 @@
-import type { Router } from "@orpc/server";
-import type { HabitatServiceContext } from "./context.js";
-import { habitatServiceContract } from "./contract.js";
 import { habitatServiceImplementer } from "./impl.js";
 import { checkRouter } from "./modules/check/router.js";
 import { classifyRouter } from "./modules/classify/router.js";
@@ -18,7 +15,8 @@ const habitatServiceRouterDefinition = {
   verify: verifyRouter,
 };
 
-export const habitatServiceRouter: Router<typeof habitatServiceContract, HabitatServiceContext> =
-  habitatServiceImplementer.router(habitatServiceRouterDefinition);
+export const habitatServiceRouter = habitatServiceImplementer.router(
+  habitatServiceRouterDefinition
+);
 
 export type HabitatServiceRouter = typeof habitatServiceRouter;

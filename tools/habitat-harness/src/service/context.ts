@@ -1,11 +1,29 @@
 import { HabitatRuntimeLive } from "@internal/habitat-harness/service/runtime/layers";
 import { Context, Layer } from "effect";
-import type { CheckServiceModuleContext } from "./modules/check/context.js";
-import type { ClassifyServiceModuleContext } from "./modules/classify/context.js";
-import type { FixServiceModuleContext } from "./modules/fix/context.js";
-import type { GraphServiceModuleContext } from "./modules/graph/context.js";
-import type { HookServiceModuleContext } from "./modules/hook/context.js";
-import type { VerifyServiceModuleContext } from "./modules/verify/context.js";
+import type { ApplyAdmission, ApplyTransactionInput } from "./modules/fix/patterns/index.js";
+import type { WorktreeObservation } from "./modules/fix/transactions/index.js";
+import type { ClassifyOptions } from "./modules/graph/workspace/index.js";
+import type { HookRuntime } from "./modules/hook/runtime/runtime.js";
+
+export type CheckServiceModuleContext = Record<never, never>;
+
+export interface ClassifyServiceModuleContext {
+  readonly options?: ClassifyOptions;
+}
+
+export interface FixServiceModuleContext {
+  readonly admissions?: readonly ApplyAdmission[];
+  readonly transactionInputs?: readonly ApplyTransactionInput[];
+  readonly worktree?: WorktreeObservation;
+}
+
+export type GraphServiceModuleContext = Record<never, never>;
+
+export interface HookServiceModuleContext {
+  readonly runtime?: HookRuntime;
+}
+
+export type VerifyServiceModuleContext = Record<never, never>;
 
 export interface HabitatServiceContext {
   readonly check?: CheckServiceModuleContext;

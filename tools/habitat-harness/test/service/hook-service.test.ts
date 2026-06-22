@@ -1,10 +1,10 @@
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
+import type { HookServiceModuleContext } from "@internal/habitat-harness/service/context";
 import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
 } from "@internal/habitat-harness/service/modules/check/structural/index";
-import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import {

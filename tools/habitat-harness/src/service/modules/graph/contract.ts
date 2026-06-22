@@ -1,8 +1,7 @@
-import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
+import { habitatServiceErrorMap } from "../../errors.js";
+import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const GraphServiceRunInputSchema = Type.Object(
@@ -26,22 +25,14 @@ export type GraphServiceRunOutput = Static<typeof GraphServiceRunOutputSchema>;
 const GraphServiceRunInputStandardSchema = toStandardSchema(GraphServiceRunInputSchema);
 const GraphServiceRunOutputStandardSchema = toStandardSchema(GraphServiceRunOutputSchema);
 
-export type GraphServiceRunContract = ContractProcedure<
+export const graphServiceRunContract: HabitatServiceProcedureContract<
   typeof GraphServiceRunInputStandardSchema,
-  typeof GraphServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const graphServiceRunContract: GraphServiceRunContract = eoc
+  typeof GraphServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(GraphServiceRunInputStandardSchema)
   .output(GraphServiceRunOutputStandardSchema);
 
-export type GraphServiceContract = Readonly<{
-  run: GraphServiceRunContract;
-}>;
-
-export const graphServiceContract: GraphServiceContract = {
+export const graphServiceContract = {
   run: graphServiceRunContract,
 };

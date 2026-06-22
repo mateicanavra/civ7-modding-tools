@@ -71,8 +71,8 @@ import { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
 import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
-import { type HookServiceModuleContext, implementer } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
+import { type HookServiceModuleContext, implementer } from "./module.js";
 
 type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {

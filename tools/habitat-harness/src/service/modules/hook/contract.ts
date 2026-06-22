@@ -1,8 +1,7 @@
-import type { ContractProcedure } from "@orpc/contract";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
+import { habitatServiceErrorMap } from "../../errors.js";
+import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const HookServiceRunInputSchema = Type.Object(
@@ -27,22 +26,14 @@ export type HookServiceRunOutput = Static<typeof HookServiceRunOutputSchema>;
 const HookServiceRunInputStandardSchema = toStandardSchema(HookServiceRunInputSchema);
 const HookServiceRunOutputStandardSchema = toStandardSchema(HookServiceRunOutputSchema);
 
-export type HookServiceRunContract = ContractProcedure<
+export const hookServiceRunContract: HabitatServiceProcedureContract<
   typeof HookServiceRunInputStandardSchema,
-  typeof HookServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const hookServiceRunContract: HookServiceRunContract = eoc
+  typeof HookServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(HookServiceRunInputStandardSchema)
   .output(HookServiceRunOutputStandardSchema);
 
-export type HookServiceContract = Readonly<{
-  run: HookServiceRunContract;
-}>;
-
-export const hookServiceContract: HookServiceContract = {
+export const hookServiceContract = {
   run: hookServiceRunContract,
 };

@@ -1,5 +1,5 @@
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
-import type { FixServiceModuleContext } from "@internal/habitat-harness/service/modules/fix/context";
+import type { FixServiceModuleContext } from "@internal/habitat-harness/service/context";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,

@@ -1,6 +1,5 @@
 import {
   type ApplyAdmission,
-  ApplyAdmissionSchema,
   activeApplyTransactionInputs,
   defaultApplyAdmissions,
 } from "@internal/habitat-harness/service/modules/fix/patterns/index";
@@ -8,7 +7,6 @@ import {
   type GritDryRunCommandInput,
   observeWorktree,
   type PatternApplyRecord,
-  PatternApplyRecordSchema,
   type PatternApplyRefusalReason,
   type PatternApplyRequest,
   parsePatternApplyRequest,
@@ -26,13 +24,8 @@ import {
 } from "@internal/habitat-harness/service/runtime/command/index";
 import { GritProvider } from "@internal/habitat-harness/service/runtime/grit/index";
 import { Effect } from "effect";
-import { Type } from "typebox";
-import { Value } from "typebox/value";
-import { type FixServiceModuleContext, implementer } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";
-import { FixCommandIntentSchema } from "./contract.js";
-
-const FixAdmissionSetSchema = Type.Array(ApplyAdmissionSchema);
+import { type FixServiceModuleContext, implementer } from "./module.js";
 
 export const fixRouter = {
   run: implementer.run.effect(({ context, input }) => runFixService(input, context)),
@@ -42,11 +35,7 @@ export const router = fixRouter;
 
 function runFixService(input: FixServiceRunInput, options: FixServiceModuleContext = {}) {
   return Effect.gen(function* () {
-    const parsed = Value.Parse(FixCommandIntentSchema, input);
-    const admissions = Value.Parse(
-      FixAdmissionSetSchema,
-      options.admissions ?? defaultApplyAdmissions()
-    );
+    const admissions = options.admissions ?? defaultApplyAdmissions();
 
     if (admissions.length === 0) {
       return missingAdmissionRefusal();
@@ -56,7 +45,7 @@ function runFixService(input: FixServiceRunInput, options: FixServiceModuleConte
     const records = yield* Effect.forEach(
       admissions,
       (admission) =>
-        runPatternApplyTransaction(transactionRequest(parsed, admission, options.worktree), {
+        runPatternApplyTransaction(transactionRequest(input, admission, options.worktree), {
           transactionInputs,
         }),
       { concurrency: 1 }
@@ -236,7 +225,7 @@ export function runPatternApplyTransaction(
         });
       }
 
-      return Value.Parse(PatternApplyRecordSchema, {
+      return {
         schemaVersion: 1,
         request,
         outcome: {
@@ -250,7 +239,7 @@ export function runPatternApplyTransaction(
             stderr: result.stderr.text,
           })),
         },
-      });
+      } satisfies PatternApplyRecord;
     }
 
     return refusalRecord(request, {
@@ -362,14 +351,14 @@ function refusalRecord(
     message: refusal.message,
     recovery: refusal.recovery,
   };
-  return Value.Parse(PatternApplyRecordSchema, {
+  return {
     schemaVersion: 1,
     request,
     outcome: {
       kind: "refused",
       refusal: parsedRefusal,
     },
-  });
+  } satisfies PatternApplyRecord;
 }
 
 interface TransactionRefusalInput {
