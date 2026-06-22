@@ -98,7 +98,9 @@ describe("check and baseline provider boundaries", () => {
     );
 
     const results = await Effect.runPromise(
-      executeSelectedRulesEffect([fileLayerRule!], { staged: true }).pipe(Effect.provide(layer))
+      executeSelectedRulesEffect([fileLayerRule!], { repoRoot: "/repo", staged: true }).pipe(
+        Effect.provide(layer)
+      )
     );
     const record = results.get(fileLayerRule!.id);
 

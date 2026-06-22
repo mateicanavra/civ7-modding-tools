@@ -54,3 +54,4 @@ Completed burn-downs:
 - Source-scope staged path normalization now receives repo root through module-projected check policy context instead of importing the global repo-root/path singleton.
 - Baseline authority no longer exports or tests a synchronous file-system API; baseline state tests now use the Effect policy operations and the stale sync path/read helpers are removed.
 - Baseline Effect operations now require explicit repo-root context and derive baseline paths from artifact policy; they no longer import global repo-root or baselines-dir singletons.
+- Structural rule execution now receives repo root through explicit execution context for command cwd and staged git reads instead of importing the global repo-root/path helpers.
