@@ -1,4 +1,5 @@
 import { createLiveHabitatServiceContext } from "@internal/habitat-harness/runtime/service-context";
+import type { HabitatServiceContext } from "@internal/habitat-harness/service/base";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Command, Flags } from "@oclif/core";
 import { createRouterClient } from "@orpc/server";
@@ -17,8 +18,14 @@ export abstract class HabitatCommand extends Command {
   }
 
   protected async habitatServiceClient() {
-    return createRouterClient(habitatServiceRouter, {
-      context: await createLiveHabitatServiceContext(),
-    });
+    return this.habitatServiceClientForContext(await this.habitatServiceContext());
+  }
+
+  protected async habitatServiceContext() {
+    return createLiveHabitatServiceContext();
+  }
+
+  protected habitatServiceClientForContext(context: HabitatServiceContext) {
+    return createRouterClient(habitatServiceRouter, { context });
   }
 }

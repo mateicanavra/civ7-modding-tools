@@ -1,7 +1,6 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   renderCheckReport,
   stringifyCheckReport,
@@ -39,7 +38,8 @@ export default class Check extends HabitatCommand {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
     const base = flags.base ?? "main";
-    const client = await this.habitatServiceClient();
+    const context = await this.habitatServiceContext();
+    const client = this.habitatServiceClientForContext(context);
     if (flags["expand-baseline"]) {
       const expansion = await client.check.expandBaseline({
         selectors: selection,
@@ -59,7 +59,10 @@ export default class Check extends HabitatCommand {
     });
     const rendered = renderCheckReport(report, { json: flags.json });
     if (flags.output) {
-      writeFileSync(path.resolve(repoRoot, flags.output), `${stringifyCheckReport(report)}\n`);
+      writeFileSync(
+        path.resolve(context.deps.platform.repoRoot, flags.output),
+        `${stringifyCheckReport(report)}\n`
+      );
     }
     this.log(rendered);
     this.exitWith(report.ok ? 0 : 1);
