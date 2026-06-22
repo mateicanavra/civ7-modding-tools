@@ -15,9 +15,13 @@ import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Value } from "typebox/value";
-import { selectedVerifyEnv } from "./command-output.js";
-import { affectedVerificationArgv, completedNxAffected, skippedNxAffected } from "./nx-affected.js";
-import { postStateObservation } from "./post-state.js";
+import { selectedVerifyEnv } from "./command-output.policy.js";
+import {
+  affectedVerificationArgv,
+  completedNxAffected,
+  skippedNxAffected,
+} from "./nx-affected.policy.js";
+import { postStateObservation } from "./post-state.policy.js";
 import {
   type VerifyBaseResolution,
   VerifyHabitatCheckSummarySchema,
@@ -25,7 +29,7 @@ import {
   VerifyReceiptSchema,
   VerifySelectorStateSchema,
   VerifyTargetPlanConsumptionSchema,
-} from "./schema.js";
+} from "../dto/verify.schema.js";
 
 /** Inputs needed to assemble a verify handoff receipt after command execution. */
 export interface VerifyReceiptInput {

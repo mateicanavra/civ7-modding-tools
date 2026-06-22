@@ -49,10 +49,10 @@ vi.mock("../../src/service/model/check/structural/index.js", async (importOrigin
   };
 });
 
-vi.mock("../../src/service/model/verify/proof/index.js", async (importOriginal) => {
+vi.mock("../../src/service/model/verify/index.js", async (importOriginal) => {
   const actual =
     await importOriginal<
-      typeof import("../../src/service/model/verify/proof/index.js")
+      typeof import("../../src/service/model/verify/index.js")
     >();
   return {
     ...actual,
@@ -79,7 +79,7 @@ import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
 import * as checkReport from "@internal/habitat-harness/service/model/check/structural/index";
 import * as classify from "@internal/habitat-harness/service/model/workspace/index";
-import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/proof/index";
+import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/index";
 import * as serviceClient from "@internal/habitat-harness/service/router";
 
 describe("Habitat oclif commands", () => {

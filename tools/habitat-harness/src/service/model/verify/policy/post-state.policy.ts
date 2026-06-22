@@ -5,8 +5,8 @@ import {
 } from "@internal/habitat-harness/providers/git/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
-import { boundedPreview } from "./command-output.js";
-import type { VerifyReceipt } from "./schema.js";
+import type { VerifyReceipt } from "../dto/verify.schema.js";
+import { boundedPreview } from "./command-output.policy.js";
 
 export function observeGitStatusEffect() {
   return GitProvider.pipe(

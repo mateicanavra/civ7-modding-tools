@@ -1,7 +1,7 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
 import { CheckReportSchema } from "@internal/habitat-harness/service/model/check/structural/schema";
 import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/model/workspace/index";
-import { VerifyReceiptSchema } from "@internal/habitat-harness/service/model/verify/proof/schema";
+import { VerifyReceiptSchema } from "@internal/habitat-harness/service/model/verify/dto/verify.schema";
 import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";

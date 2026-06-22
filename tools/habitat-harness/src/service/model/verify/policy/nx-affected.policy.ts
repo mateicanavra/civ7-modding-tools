@@ -6,8 +6,8 @@ import {
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/providers/nx/index";
 import { Effect } from "effect";
-import { boundedPreview } from "./command-output.js";
-import type { VerifyReceipt } from "./schema.js";
+import type { VerifyReceipt } from "../dto/verify.schema.js";
+import { boundedPreview } from "./command-output.policy.js";
 
 type SkippedNxAffectedReason = Extract<
   VerifyReceipt["nxAffected"],
