@@ -10,15 +10,17 @@ import {
   structuralCheckRequest,
   validateCheckReport,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import type { HarnessRule } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
+import type {
+  RuleRegistryRecordV1,
+  RuleSourceFacts,
+} from "@internal/habitat-harness/service/model/rules/index";
 import {
   type RuleSelection,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { describe, expect, test } from "vitest";
 
-const fakeRules: HarnessRule[] = [
+const fakeRules: RuleRegistryRecordV1[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
   fakeRule("beta-rule", "tool-b", "@scope/beta"),
   fakeRule("gamma-rule", "tool-a", "@scope/gamma"),
@@ -322,8 +324,8 @@ function fakeRule(
   id: string,
   ownerTool: string,
   ownerProject: string,
-  overrides: Partial<HarnessRule> = {}
-): HarnessRule {
+  overrides: Partial<RuleRegistryRecordV1> = {}
+): RuleRegistryRecordV1 {
   return {
     id,
     ownerTool,
