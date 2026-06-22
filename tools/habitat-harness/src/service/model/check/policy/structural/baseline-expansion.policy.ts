@@ -1,6 +1,5 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import type {
   GitProvider,
   GitProviderRequirements,
@@ -9,7 +8,6 @@ import type {
   GritProvider,
   GritProviderRequirements,
 } from "@internal/habitat-harness/providers/grit/index";
-import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
@@ -32,7 +30,7 @@ import {
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
-import { executeSelectedRulesEffect } from "./execution.policy.js";
+import { executeSelectedRulesEffect, type StructuralExecutionContext } from "./execution.policy.js";
 
 export type BaselineExpansionResult =
   | { ok: true; messages: string[] }
@@ -46,13 +44,12 @@ export type BaselineExpansionResult =
 
 export function expandBaselinesEffect(
   selection: RuleSelection = {},
-  options: { base?: string; repoRoot: string }
+  options: { base?: string; repoRoot: string },
+  executionContext: StructuralExecutionContext
 ): Effect.Effect<
   BaselineExpansionResult,
   never,
-  | BiomeProvider
   | CommandRunner
-  | NxProvider
   | CommandExecutor
   | HabitatConfig
   | FileSystem.FileSystem
@@ -67,9 +64,7 @@ export function expandBaselinesEffect(
 
     const context = baselineContext(options);
     const messages: string[] = [];
-    const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {
-      repoRoot: options.repoRoot,
-    });
+    const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {}, executionContext);
     const baselinesByRuleId = factsByRuleId(
       baselineContractInputs(selected.rules.map((rule) => rule.id))
     );

@@ -1,6 +1,5 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import type {
   GitProvider,
   GitProviderRequirements,
@@ -9,7 +8,6 @@ import type {
   GritProvider,
   GritProviderRequirements,
 } from "@internal/habitat-harness/providers/grit/index";
-import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import type {
@@ -44,6 +42,7 @@ import {
   executeSelectedRulesEffect,
   type RuleExecutionRecord,
   rulesForExecution,
+  type StructuralExecutionContext,
 } from "./execution.policy.js";
 import { constructCheckReportEffect, selectorRefusalReportEffect } from "./selection.policy.js";
 import {
@@ -55,13 +54,12 @@ import {
 } from "./state.policy.js";
 
 export function createCheckReportEffect(
-  options: CheckOptions = {}
+  options: CheckOptions = {},
+  context: StructuralExecutionContext
 ): Effect.Effect<
   CheckReport,
   never,
-  | BiomeProvider
   | CommandRunner
-  | NxProvider
   | CommandExecutor
   | HabitatConfig
   | FileSystem.FileSystem
@@ -88,7 +86,7 @@ export function createCheckReportEffect(
     const reportsByRuleId = factsByRuleId(factsForRuleIds(activeRuleReportFacts, selectedRuleIds));
     const baselineInputsByRuleId = factsByRuleId(baselineContractInputs(selectedRuleIds));
     const reports: RuleReport[] = [];
-    const ruleResults = yield* executeSelectedRulesEffect(selectedRules, options);
+    const ruleResults = yield* executeSelectedRulesEffect(selectedRules, options, context);
     for (const rule of selectedRules) {
       const reportFacts = reportsByRuleId.get(rule.id);
       if (!reportFacts)

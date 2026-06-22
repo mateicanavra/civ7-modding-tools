@@ -33,6 +33,10 @@ export function makeTestHabitatServiceDeps(
         ),
       argv: biomeArgv,
     },
+    commandRunner: {
+      run: (request) => Effect.succeed(commandResult(request)),
+      runSync: commandResult,
+    },
     git: makeGitProviderFromCommandHandler((argv, options) =>
       commandResult({
         commandId: `git-${argv.join("-")}`,
