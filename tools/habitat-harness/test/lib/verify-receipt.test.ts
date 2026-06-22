@@ -14,6 +14,7 @@ import { describe, expect, test } from "vitest";
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       startedAt: "2026-06-15T00:00:00.000Z",
@@ -68,6 +69,7 @@ describe("verify receipt", () => {
   test("bounds large Nx stream previews without serializing full output bodies", () => {
     const stdout = `start\n${"x".repeat(6000)}`;
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       startedAt: "2026-06-15T00:00:00.000Z",
@@ -91,6 +93,7 @@ describe("verify receipt", () => {
 
   test("represents skipped Nx affected truthfully when Habitat check fails first", () => {
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       startedAt: "2026-06-15T00:00:00.000Z",
@@ -139,6 +142,7 @@ describe("verify receipt", () => {
 
   test("represents JSON receipt-only affected planning without executing Nx affected", () => {
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       startedAt: "2026-06-15T00:00:00.000Z",
@@ -174,6 +178,7 @@ describe("verify receipt", () => {
 
   test("ignores affected results when the Habitat check failed", () => {
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       startedAt: "2026-06-15T00:00:00.000Z",
@@ -195,6 +200,7 @@ describe("verify receipt", () => {
 
   test("records failed Nx execution as a distinct receipt state", () => {
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       startedAt: "2026-06-15T00:00:00.000Z",
@@ -221,6 +227,7 @@ describe("verify receipt", () => {
 
   test("records refused workspace target planning as a blocked receipt", () => {
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: undefined,
       resolvedBase: "merge-base-sha",
       baseSource: "merge-base",
@@ -251,6 +258,7 @@ describe("verify receipt", () => {
 
   test("rejects structurally invalid verify receipts with TypeBox validation", () => {
     const receipt = createVerifyReceipt({
+      repoRoot: "/repo",
       requestedBase: "HEAD",
       resolvedBase: "HEAD",
       startedAt: "2026-06-15T00:00:00.000Z",

@@ -1,18 +1,19 @@
 import {
-  GitProvider,
+  type GitProviderService,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/providers/git/index";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { VerifyReceipt } from "@internal/habitat-harness/service/model/verify/index";
 import { Effect } from "effect";
 import { boundedPreview } from "./command-output.policy.js";
 
-export function observeGitStatusEffect() {
-  return GitProvider.pipe(
-    Effect.flatMap((git) => git.statusShortBranch()),
-    Effect.map(spawnResultFromCommandResult)
-  );
+export function observeGitStatusEffect(context: {
+  readonly git: GitProviderService;
+  readonly repoRoot: string;
+}) {
+  return context.git
+    .statusShortBranch({ cwd: context.repoRoot })
+    .pipe(Effect.map(spawnResultFromCommandResult));
 }
 
 /**
@@ -21,12 +22,15 @@ export function observeGitStatusEffect() {
  * @param result - Completed git status command.
  * @returns Clean, dirty, or unavailable post-state with bounded stream metadata.
  */
-export function postStateObservation(result: SpawnResult): VerifyReceipt["postState"] {
+export function postStateObservation(
+  result: SpawnResult,
+  context: { readonly repoRoot: string }
+): VerifyReceipt["postState"] {
   const stdout = boundedPreview(result.stdout);
   const stderr = boundedPreview(result.stderr);
   const command = {
     argv: ["git", "status", "--short", "--branch"],
-    cwd: repoRoot,
+    cwd: context.repoRoot,
     exitCode: result.exitCode,
     stdoutLength: result.stdout.length,
     stderrLength: result.stderr.length,

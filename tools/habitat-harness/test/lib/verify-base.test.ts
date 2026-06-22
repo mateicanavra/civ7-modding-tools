@@ -1,12 +1,10 @@
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
-import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/providers/graphite/index";
+import { makeGitProviderFromCommandHandler } from "@internal/habitat-harness/providers/git/index";
 import {
   captureOutput,
-  makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import { resolveVerifyBaseEffect } from "@internal/habitat-harness/service/modules/verify/model/index";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("verify base resolution", () => {
@@ -36,14 +34,7 @@ describe("verify base resolution", () => {
 });
 
 function resolveBase(base?: string, options: { graphiteExitCode?: number } = {}) {
-  const commandLayer = makeFakeCommandRunnerLayer((request) =>
-    makeHabitatCommandResult(request, {
-      exit: { code: options.graphiteExitCode ?? 0, signal: null, interrupted: false },
-      stdout: captureOutput("Parent: agent-parent\n"),
-      stderr: captureOutput(""),
-    })
-  );
-  const gitLayer = makeFakeGitProviderLayer((argv, runOptions) => {
+  const git = makeGitProviderFromCommandHandler((argv, runOptions) => {
     const stdout =
       argv[0] === "symbolic-ref"
         ? "origin/main\n"
@@ -66,12 +57,13 @@ function resolveBase(base?: string, options: { graphiteExitCode?: number } = {})
       }
     );
   });
-  const graphiteLayer = makeFakeGraphiteProviderLayer(() =>
-    options.graphiteExitCode === 0 || options.graphiteExitCode === undefined ? "agent-parent" : null
-  );
-  return Effect.runPromise(
-    resolveVerifyBaseEffect(base).pipe(
-      Effect.provide(Layer.mergeAll(commandLayer, gitLayer, graphiteLayer))
-    )
-  );
+  const graphite = {
+    parent: () =>
+      Effect.succeed(
+        options.graphiteExitCode === 0 || options.graphiteExitCode === undefined
+          ? "agent-parent"
+          : null
+      ),
+  };
+  return Effect.runPromise(resolveVerifyBaseEffect({ git, graphite, repoRoot: "/repo" }, base));
 }

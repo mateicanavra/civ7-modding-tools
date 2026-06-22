@@ -47,3 +47,4 @@ Completed burn-downs:
 - Structural check policy no longer enters through `HabitatServiceDeps` or live service-context construction; check, hook, and verify modules resolve the shared Effect policy layer at execution while tests provision fakes as layers.
 - Source-check rule execution no longer has an internal Effect service tag or runtime layer; structural execution calls the owned source-rule policy directly.
 - Baseline authority no longer has an internal Effect service tag or runtime layer; structural check/report/expansion policy calls baseline policy operations directly.
+- Verify base, post-state, and Nx affected policies now receive module-projected provider resources instead of reading provider tags from the Effect runtime.

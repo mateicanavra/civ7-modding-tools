@@ -1,6 +1,5 @@
-import { GitProvider } from "@internal/habitat-harness/providers/git/index";
-import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
+import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import {
   type VerifyBaseResolution,
   VerifyBaseResolutionSchema,
@@ -19,13 +18,20 @@ import { Value } from "typebox/value";
  * @param base - Optional base ref supplied by the caller.
  * @returns A TypeBox-validated resolution or refusal.
  */
-export function resolveVerifyBaseEffect(base?: string) {
+export function resolveVerifyBaseEffect(
+  context: {
+    readonly git: GitProviderService;
+    readonly graphite: GraphiteProviderService;
+    readonly repoRoot: string;
+  },
+  base?: string
+) {
   if (base)
     return Effect.succeed(
       Value.Parse(VerifyBaseResolutionSchema, { kind: "resolved", base, source: "flag" })
     );
   return Effect.gen(function* () {
-    const graphiteParent = yield* resolveGraphiteParentEffect();
+    const graphiteParent = yield* context.graphite.parent({ cwd: context.repoRoot });
     if (graphiteParent) {
       return Value.Parse(VerifyBaseResolutionSchema, {
         kind: "resolved",
@@ -34,9 +40,10 @@ export function resolveVerifyBaseEffect(base?: string) {
       });
     }
 
-    const git = yield* GitProvider;
-    const defaultBranch = yield* git.remoteDefaultBranch();
-    const resolved = defaultBranch ? yield* git.mergeBase(defaultBranch) : null;
+    const defaultBranch = yield* context.git.remoteDefaultBranch({ cwd: context.repoRoot });
+    const resolved = defaultBranch
+      ? yield* context.git.mergeBase(defaultBranch, { cwd: context.repoRoot })
+      : null;
     if (resolved) {
       return Value.Parse(VerifyBaseResolutionSchema, {
         kind: "resolved",
@@ -50,8 +57,4 @@ export function resolveVerifyBaseEffect(base?: string) {
         "could not resolve verify base from the remote default branch; pass --base explicitly.",
     });
   });
-}
-
-function resolveGraphiteParentEffect() {
-  return GraphiteProvider.pipe(Effect.flatMap((graphite) => graphite.parent({ cwd: repoRoot })));
 }
