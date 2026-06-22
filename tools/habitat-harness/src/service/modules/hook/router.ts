@@ -20,19 +20,19 @@ import {
   type PreCommitOutcome,
   renderResourceDecisionFailure,
   resourceDecisionToFacade,
-} from "@internal/habitat-harness/service/model/hook/runtime/index";
+} from "@internal/habitat-harness/service/model/hook/index";
 import {
   finalizePreCommitEffect,
   finalizePrePushEffect,
-} from "@internal/habitat-harness/service/model/hook/runtime/lifecycle";
-import { captureRepoSnapshotEffect } from "@internal/habitat-harness/service/model/hook/runtime/repo-snapshot";
-import { classifyResourcePreCommitDecisionEffect } from "@internal/habitat-harness/service/model/hook/runtime/resource-inspection";
+} from "@internal/habitat-harness/service/model/hook/policy/lifecycle.policy";
+import { captureRepoSnapshotEffect } from "@internal/habitat-harness/service/model/hook/policy/repo-snapshot.policy";
+import { classifyResourcePreCommitDecisionEffect } from "@internal/habitat-harness/service/model/hook/policy/resource-inspection.policy";
 import {
   createHookOutput,
   type HookRuntime,
   hookNow,
   section,
-} from "@internal/habitat-harness/service/model/hook/runtime/runtime";
+} from "@internal/habitat-harness/service/model/hook/policy/runtime.policy";
 import {
   biomeHookPaths,
   existingStagedPathsEffect,
@@ -40,7 +40,7 @@ import {
   gitAddEffect,
   hookSourceCheckPaths,
   unstagedAmongEffect,
-} from "@internal/habitat-harness/service/model/hook/runtime/staged-worktree";
+} from "@internal/habitat-harness/service/model/hook/policy/staged-worktree.policy";
 import {
   BiomeProvider,
   type BiomeCommandRequest,

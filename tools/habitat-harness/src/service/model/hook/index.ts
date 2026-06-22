@@ -1,12 +1,12 @@
-export type { HookCheckCommandResult } from "./check-command.js";
-export { hookCheckCommandResult } from "./check-command.js";
+export type { HookCheckCommandResult } from "./policy/check-command.policy.js";
+export { hookCheckCommandResult } from "./policy/check-command.policy.js";
 export {
   allowedResourceDecision,
   refusedResourceDecision,
   renderResourceDecisionFailure,
   resourceAllowsPreCommit,
   resourceDecisionToFacade,
-} from "./resource.js";
+} from "./policy/resource-decision.policy.js";
 export type {
   HookCommandPhase,
   HookCommandRecord,
@@ -21,9 +21,9 @@ export type {
   ResourcePreCommitDecision,
   ResourceStateFacade,
   ResourceStateKind,
-} from "./schema.js";
+} from "./dto/hook.schema.js";
 export {
   HookTraceSchema,
   ResourcePreCommitDecisionSchema,
   ResourceStateFacadeSchema,
-} from "./schema.js";
+} from "./dto/hook.schema.js";

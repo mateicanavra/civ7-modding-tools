@@ -16,7 +16,7 @@ import {
   toRepoRelative,
 } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
-import type { HookRuntime } from "./runtime.js";
+import type { HookRuntime } from "./runtime.policy.js";
 
 const biomeCandidateExtensions = new Set([
   ".cjs",

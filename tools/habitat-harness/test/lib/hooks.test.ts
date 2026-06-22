@@ -7,12 +7,12 @@ import type { HookServiceModuleContext } from "@internal/habitat-harness/service
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
-} from "@internal/habitat-harness/service/model/hook/runtime/resource-inspection";
+} from "@internal/habitat-harness/service/model/hook/policy/resource-inspection.policy";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "@internal/habitat-harness/service/model/hook/runtime/runtime";
+} from "@internal/habitat-harness/service/model/hook/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import {
   type BiomeCommandRequest,
