@@ -6,18 +6,18 @@
     "height": 20
   },
   "artifacts": {
-    "artifact:ecology.soils": "b71f7aea2863f7353008192359e49314cda2275d3b1ae42d9836727aa7348392",
+    "artifact:ecology.soils": "6a4f3561eff75064bb9a797a476bbf2d8d9dfe3bacb5263eb8d187fd1393c07f",
     "artifact:ecology.resourceBasins": "f0955ebb31fb793be429702cbef7346c9ef395c901aed38dfc196ed473c3e709",
-    "artifact:ecology.biomeClassification": "04b0345fb274169d38d443facb519a1bedf9745561e37263d6e21edd23e41b3f",
-    "artifact:ecology.scoreLayers": "b523379cbead74983f891f8c1fb4d512b853a6a9697da606a4cbc61a75fb3fef",
+    "artifact:ecology.biomeClassification": "0fd65bce52c263ff6597bdc93d03b719c2c2eda1c54fd294d0f67809502c1eef",
+    "artifact:ecology.scoreLayers": "a5a4a134c6e3a1ca8c302e6b1526ca98fa8c90e8de0e81f3d179130ce8266003",
     "artifact:ecology.occupancy.base": "36a789c59d04da275cff3d423f9ce267e3d11f9bdf3c21f2d0beb1d9f24913e3",
     "artifact:ecology.occupancy.ice": "5a691011ac99c29ee803413bf700557e5a61c7d84292b0b8082297c54c0210b6",
-    "artifact:ecology.occupancy.reefs": "012ce87b98f93a129af8343e76913e5a1f191a3990b8232672dd2d7fd505a86d",
-    "artifact:ecology.occupancy.wetlands": "6b69a6a624075f2e2665a3636d9000b0cad63c9adc0fcbde9990d6e41305a27a",
-    "artifact:ecology.occupancy.vegetation": "1ac761faf8eb1f2b41599912326ffc8d9a8c2c802842de2d590541d754dc16f6",
-    "artifact:ecology.featureIntents.vegetation": "b0aeafc6ed1424b53ec2b3e71236621151fce1d124bee5de7233dae7d09dc8b2",
+    "artifact:ecology.occupancy.reefs": "7ba08ff35edf516ed261add603e98d4532df60b685c5447474d89c60bb0a6f28",
+    "artifact:ecology.occupancy.wetlands": "d1992836107924c89b239fb2093b929b5d81b71f525f321a65caf5b873f3956b",
+    "artifact:ecology.occupancy.vegetation": "9bfd2b70c4931869696139ec8b85c8ff98cb714fd850916951c76db42f3f8cd1",
+    "artifact:ecology.featureIntents.vegetation": "08f12e0404d3595cd7ead2e84a2b656c9a3325f037881b0b557657147425819e",
     "artifact:ecology.featureIntents.wetlands": "79c8ea572ab86ba216807e2d5c38526d82a59cf0bce5ec92cf19cf74417d2ddc",
-    "artifact:ecology.featureIntents.reefs": "a0d319ab649c351c5db109a7117b64d50616a645dea372a6f3b7fecc4d7a60fc",
+    "artifact:ecology.featureIntents.reefs": "7cc059e3b655917f094dbc23014c3e7a6b054b743ad87339e8fa480915346571",
     "artifact:ecology.featureIntents.ice": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
   }
 }

@@ -198,13 +198,9 @@
     },
     "morphology-shelf": {
       "shelf": {
-        "breakDepthSampleRadius": 3,
-        "shallowQuantile": 0.7,
         "activeClosenessThreshold": 0.45,
-        "activeBreakDepthFactor": 0.6,
-        "passiveBreakDepthFactor": 1.25,
-        "absoluteMaxShelfDepth": -30,
-        "breakDepthScale": 1
+        "breakGradient": 8,
+        "breakGradientScale": 1
       }
     },
     "hydrology-climate-baseline": {

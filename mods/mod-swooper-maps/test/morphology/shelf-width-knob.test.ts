@@ -4,7 +4,7 @@ import computeShelf from "../../src/recipes/standard/stages/morphology-shelf/ste
 import { standardConfig } from "../support/standard-config.js";
 
 describe("morphology-shelf shelfWidth knob", () => {
-  it("scales the cap-free break-depth lever (breakDepthScale) deterministically in compute-shelf normalize", () => {
+  it("scales the cap-free break-gradient lever (breakGradientScale) deterministically in compute-shelf normalize", () => {
     const base = (
       standardRecipe.compileConfig(
         {
@@ -20,31 +20,28 @@ describe("morphology-shelf shelfWidth knob", () => {
     const shelfMask = {
       strategy: "default",
       config: {
-        shallowQuantile: 0.6,
-        breakDepthSampleRadius: 8,
+        breakGradient: 8,
+        breakGradientScale: 1,
         activeClosenessThreshold: 0.35,
-        activeBreakDepthFactor: 0.6,
-        passiveBreakDepthFactor: 1.25,
-        absoluteMaxShelfDepth: -30,
-        breakDepthScale: 1,
       },
     };
 
-    // Wider shelf => deeper break => larger break-depth scale. Narrower => shallower => smaller.
+    // Wider shelf => more permissive gradient => larger break-gradient scale (the gentle apron
+    // reaches further before the read break). Narrower => stricter => smaller.
     const wide = (computeShelf as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "wide" } }
     );
-    expect(wide.shelfMask.config.breakDepthScale).toBeCloseTo(1.25);
+    expect(wide.shelfMask.config.breakGradientScale).toBeCloseTo(1.25);
 
     const narrow = (computeShelf as any).normalize(
       { ...base, shelfMask },
       { knobs: { shelfWidth: "narrow" } }
     );
-    expect(narrow.shelfMask.config.breakDepthScale).toBeCloseTo(0.75);
+    expect(narrow.shelfMask.config.breakGradientScale).toBeCloseTo(0.75);
 
-    expect(wide.shelfMask.config.breakDepthScale).toBeGreaterThan(
-      narrow.shelfMask.config.breakDepthScale
+    expect(wide.shelfMask.config.breakGradientScale).toBeGreaterThan(
+      narrow.shelfMask.config.breakGradientScale
     );
     // The cap-free shelf has no tile-distance caps to scale.
     expect(wide.shelfMask.config.capTilesActive).toBeUndefined();

@@ -17,7 +17,7 @@ export default createMap({
   description: mapConfig.description,
   recipe: standardRecipe,
   sourceConfigId: "mountain-rivers-patch",
-  configHash: "a4dc50e0364293323ba7db333e9acb5233b0158a35bfa294c5b1cf92e9736d11",
-  envelopeHash: "22b2e6b5b4b77e46c66308318a5ff6e1e554973c20470bbf732529b66fcece7c",
+  configHash: "825c2ca45c9995aad70bc3dfc00a2a91128d6de9a1b231ab76d385936ea6f705",
+  envelopeHash: "7d4d059ba45b1462b6bbe5bd16cb9dbdffef3fc2f8e78193dfcca51ae67f0cfe",
   config: canonicalRecipeConfig<StandardRecipeConfig>(mapConfig),
 });
