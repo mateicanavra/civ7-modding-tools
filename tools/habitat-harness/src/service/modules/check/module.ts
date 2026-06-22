@@ -1,7 +1,9 @@
-import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import { service } from "@internal/habitat-harness/service/impl";
+import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 
-export type CheckModuleContext = Pick<HabitatServiceDeps, "structuralCheck">;
+export interface CheckModuleContext {
+  readonly structuralCheck: StructuralCheckService;
+}
 
 export const module = service.check.use(({ context, next }) =>
   next({

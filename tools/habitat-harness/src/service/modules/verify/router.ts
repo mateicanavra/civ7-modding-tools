@@ -1,22 +1,21 @@
+import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
+import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import {
   type SpawnResult,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatServiceRequirements } from "@internal/habitat-harness/service/base";
 import {
   checkCommandContext,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
-import { Value } from "typebox/value";
 import {
   createVerifyReceipt,
   readVerifyTargetPlan,
   type VerifyBaseResolution,
-  VerifyBaseResolutionSchema,
 } from "./model/index.js";
-import { module, type VerifyModuleContext } from "./module.js";
+import { module } from "./module.js";
 
 export const verifyRouter = {
   run: module.run.effect(function* ({ context, input }) {
@@ -90,22 +89,28 @@ function verifyServiceInternalError() {
 }
 
 function resolveVerifyBase(
-  context: VerifyModuleContext,
+  context: {
+    readonly git: GitProviderService;
+    readonly graphite: GraphiteProviderService;
+    readonly repoRoot: string;
+  },
   base?: string
-): Effect.Effect<VerifyBaseResolution, never, HabitatServiceRequirements> {
+) {
   if (base) {
-    return Effect.succeed(
-      Value.Parse(VerifyBaseResolutionSchema, { kind: "resolved", base, source: "flag" })
-    );
+    return Effect.succeed({
+      kind: "resolved",
+      base,
+      source: "flag",
+    } satisfies VerifyBaseResolution);
   }
   return Effect.gen(function* () {
     const graphiteParent = yield* context.graphite.parent({ cwd: context.repoRoot });
     if (graphiteParent) {
-      return Value.Parse(VerifyBaseResolutionSchema, {
+      return {
         kind: "resolved",
         base: graphiteParent,
         source: "graphite-parent",
-      });
+      } satisfies VerifyBaseResolution;
     }
 
     const defaultBranch = yield* context.git.remoteDefaultBranch({ cwd: context.repoRoot });
@@ -113,16 +118,16 @@ function resolveVerifyBase(
       ? yield* context.git.mergeBase(defaultBranch, { cwd: context.repoRoot })
       : null;
     if (resolved) {
-      return Value.Parse(VerifyBaseResolutionSchema, {
+      return {
         kind: "resolved",
         base: resolved,
         source: "merge-base",
-      });
+      } satisfies VerifyBaseResolution;
     }
-    return Value.Parse(VerifyBaseResolutionSchema, {
+    return {
       kind: "refused",
       message:
         "could not resolve verify base from the remote default branch; pass --base explicitly.",
-    });
+    } satisfies VerifyBaseResolution;
   });
 }

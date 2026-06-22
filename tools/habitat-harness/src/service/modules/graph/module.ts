@@ -1,10 +1,15 @@
-import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
+import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
+import type {
+  acquireTempDirectory,
+  readText,
+} from "@internal/habitat-harness/resources/platform/index";
 import { service } from "@internal/habitat-harness/service/impl";
 
-export type GraphModuleContext = Pick<
-  HabitatServiceDeps,
-  "acquireTempDirectory" | "nx" | "readText"
->;
+export interface GraphModuleContext {
+  readonly acquireTempDirectory: typeof acquireTempDirectory;
+  readonly nx: NxProviderService;
+  readonly readText: typeof readText;
+}
 
 export const module = service.graph.use(({ context, next }) =>
   next({

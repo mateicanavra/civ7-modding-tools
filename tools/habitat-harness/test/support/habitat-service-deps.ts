@@ -48,12 +48,14 @@ export function makeTestHabitatServiceDeps(
       parent: () => Effect.succeed(null),
     },
     grit: {
-      check: (request) => Effect.succeed(commandResult(gritRequest("grit-check", request.scanRoots))),
+      check: (request) =>
+        Effect.succeed(commandResult(gritRequest("grit-check", request.scanRoots))),
       checkRequest: (request) => gritRequest("grit-check", request.scanRoots),
       applyDryRun: (request) =>
         Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
     },
+    hookRuntime: {},
     nx: {
       affected: (request) =>
         Effect.succeed(
@@ -102,6 +104,9 @@ export function makeTestHabitatServiceDeps(
       createReport: (options = {}) =>
         Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
       expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
+    },
+    workspaceProjects: {
+      readProjects: async () => [],
     },
     workspaceGraphTargetNames,
     ...overrides,

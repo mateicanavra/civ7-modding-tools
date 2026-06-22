@@ -10,6 +10,9 @@ Habitat service modules follow the Effect-oRPC service shape:
 - `modules/*/module.ts` imports `service` and exports `module`.
 - `modules/*/router.ts` imports the local `module` and writes procedure logic
   directly with `module.<procedure>.effect(function* (...) { ... })`.
+- Router imports from the local module file are allow-listed to `module` only;
+  module context stays inside the module implementer and procedure handler
+  context.
 
 Routers must not rebuild context, import the root implementer, hide procedure
 logic behind `run*Service` or `run*Effect` wrappers, or use arrow/non-generator
@@ -25,6 +28,16 @@ or {
   `import $imports from $source` where {
     $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/(?:router\.ts|router/.*\.router\.ts)$",
     $source <: r"^[\"']?\.\./\.\./impl(?:\.js)?[\"']?$"
+  },
+  `import { $imports } from $source` where {
+    $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/router\.ts$",
+    $source <: r"^[\"']?\./module(?:\.js)?[\"']?$",
+    ! $imports <: r"^\s*module\s*$"
+  },
+  `import { $imports } from $source` where {
+    $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/router/.*\.router\.ts$",
+    $source <: r"^[\"']?\.\./module(?:\.js)?[\"']?$",
+    ! $imports <: r"^\s*module\s*$"
   },
   `$target.effect(($args) => $body)` where {
     $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/(?:router\.ts|router/.*\.router\.ts)$"
@@ -78,6 +91,12 @@ export const router = {};
 
 // @filename: tools/habitat-harness/src/service/modules/check/router.ts
 import { module } from "./module.js";
+import { type CheckModuleContext, module } from "./module.js";
+
+export const router = {};
+
+// @filename: tools/habitat-harness/src/service/modules/check/router/run.router.ts
+import { module, type CheckModuleContext } from "../module.js";
 
 export const router = {
   run: module.run.effect(({ input }) => runCheck(input)),

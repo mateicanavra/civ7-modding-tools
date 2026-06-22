@@ -27,7 +27,6 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import type { HookServiceModuleContext } from "@internal/habitat-harness/service/base";
 import {
   type CheckOptions,
   type CheckReport,
@@ -638,13 +637,13 @@ describe("Habitat hook service", () => {
                   biome,
                   git,
                   graphite,
+                  hookRuntime: fake.runtime,
                   nx,
                   repoRoot,
                   structuralCheck,
                   workspaceGraphTargetNames,
                 }),
               },
-              hook: { runtime: fake.runtime },
             },
           }).hook.run({ name: "pre-commit" })
         );
@@ -743,7 +742,7 @@ describe("Habitat hook service", () => {
 
 function runHookServiceInTest(
   input: HookServiceRunInput,
-  options: HookServiceModuleContext = {},
+  options: { readonly runtime?: HookRuntime } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
   structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>,
@@ -781,13 +780,13 @@ function runHookServiceInTest(
               biome,
               git,
               graphite,
+              hookRuntime: options.runtime ?? {},
               nx,
               repoRoot,
               structuralCheck: resolvedStructuralCheck,
               workspaceGraphTargetNames,
             }),
           },
-          hook: options,
         },
       });
       return yield* withFiberContext(() => runHook(input));
