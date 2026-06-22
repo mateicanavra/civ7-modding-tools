@@ -3,6 +3,7 @@
 Current burn-down categories:
 
 - Standing guardrail: do not turn `model` into a dumping ground. If logic clusters there instead of a router/procedure, policy, DTO, or repository kind, redesign the module split/merge before adding more files.
+- Standing guardrail: do not keep instruction Markdown or other unmanaged file kinds inside `src/service/model`; preserve durable guidance in this backlog or docs, then keep source trees to named code/artifact kinds only.
 - Standing guardrail: policy files are helpers or policy middleware; do not recreate oRPC procedure/router responsibilities outside the oRPC module/router flow.
 - Router import shape: every `service/modules/*/router.ts` imports only its local `./module.js`; all policy helpers, provider access, resource calls, Effect wrappers, and DTO/schema helpers must be projected through module context or moved to service/model when truly shared.
 - Router violation queue from current scan: all root module routers are clean.
@@ -109,3 +110,4 @@ Completed burn-downs:
 - Boundary taxonomy no longer contains a stale allowance for separately inferred `service/modules/*/model` projects; module-local models remain inside their owning `layer:service-module` project and unexpected inferred model projects become validation failures.
 - Classify result DTOs and verify receipt DTOs now live under their owning module `model/dto` trees; the old shared `service/model/classify` and `service/model/verify` directories are deleted, and CLI/tests consume the module-owned model barrels.
 - Check CLI output paths now resolve through the provisioned Habitat service context platform repo root instead of importing the global repo-root singleton at the CLI command edge.
+- The `service/model/IMPORTANT.md` instruction was absorbed into the backlog and removed from source; the remaining service-model burn-down should continue moving module-local DTO/policy/repository logic into the owning module while keeping only genuinely shared cross-module facts under `service/model`.
