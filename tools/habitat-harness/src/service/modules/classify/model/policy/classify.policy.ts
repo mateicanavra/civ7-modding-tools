@@ -9,7 +9,7 @@ import {
   parseClassifyResult,
   stringifyClassifyResult,
 } from "@internal/habitat-harness/service/model/classify/index";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Effect } from "effect";
 import {
   classifyPathFromProjects,
@@ -48,6 +48,7 @@ export {
 export interface ClassifyOptions {
   nxProjects?: WorkspaceGraphProjectReader;
   repoRoot: string;
+  rules: RuleFactsCatalog;
 }
 
 export async function classifyTargetResult(
@@ -79,7 +80,7 @@ export async function classifyTargetResult(
 export function classifyTargetResultEffect(
   target: string,
   readGraph: Effect.Effect<WorkspaceGraphReadState>,
-  context: { readonly repoRoot: string }
+  context: { readonly repoRoot: string; readonly rules: RuleFactsCatalog }
 ): Effect.Effect<ClassifyResult> {
   const diff = diffText(target, context);
   if (diff) {
@@ -135,8 +136,8 @@ export async function classifyPath(
   return classifyPathResult(target, options);
 }
 
-export function commandSummary(): string {
-  return `rule pack: ${activeRuleSelectorFacts.length} rules (+ baseline-integrity built-in)`;
+export function commandSummary(rules: RuleFactsCatalog): string {
+  return `rule pack: ${rules.selector.length} rules (+ baseline-integrity built-in)`;
 }
 
 function malformedOrPathlessDiffResult(input: string): ClassifyResult {
