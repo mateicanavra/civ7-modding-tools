@@ -7,7 +7,7 @@ import {
   diagnosticToolUnavailableObservation,
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
-} from "@internal/habitat-harness/service/model/check/diagnostics/index";
+} from "@internal/habitat-harness/service/model/check/index";
 import {
   CommandFailed,
   CommandInterrupted,

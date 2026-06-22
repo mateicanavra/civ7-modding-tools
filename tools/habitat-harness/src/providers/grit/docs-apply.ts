@@ -2,7 +2,7 @@ import {
   type DiagnosticRunOutcome,
   diagnosticCatalogEntryFromNativeRule,
   renderDiagnosticScanRootRefusal,
-} from "@internal/habitat-harness/service/model/check/diagnostics/index";
+} from "@internal/habitat-harness/service/model/check/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import { Effect } from "effect";
 import { docsLocalCheckoutPathsRewritePattern } from "./constants.js";
