@@ -1,4 +1,4 @@
-import { runSourceRulesEffect } from "@internal/habitat-harness/service/modules/check/model/policy/source/index";
+import { runSourceRulesEffect } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
@@ -22,7 +22,7 @@ describe("source-check rule execution", () => {
       diagnostics: [
         {
           ruleId: "adapter-base-standard-import",
-          path: "tools/habitat-harness/src/service/modules/check/model/policy/source/rules/adapter-base-standard-import.rule.mjs",
+          path: "tools/habitat-harness/src/service/model/check/policy/source/rules/adapter-base-standard-import.rule.mjs",
           message:
             "Source-check rules must declare exact path coverage before native source execution.",
           severity: "error",

@@ -14,6 +14,11 @@ import { CommandRunner } from "@internal/habitat-harness/resources/command/index
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
+  BaselineAuthority,
+  violationKey,
+} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
+import {
   activeRuleBaselineFacts,
   activeRuleSelectorFacts,
   factsForRuleIds,
@@ -23,11 +28,6 @@ import {
   type RuleSelectionResult,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
-import {
-  BaselineAuthority,
-  violationKey,
-} from "@internal/habitat-harness/service/modules/check/model/policy/baseline/index";
-import { SourceCheck } from "@internal/habitat-harness/service/modules/check/model/policy/source/index";
 import { Effect } from "effect";
 import { executeSelectedRulesEffect } from "./execution.policy.js";
 

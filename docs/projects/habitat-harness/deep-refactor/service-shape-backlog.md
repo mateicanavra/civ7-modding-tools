@@ -35,7 +35,8 @@ Completed burn-downs:
 - Shared `service/model/*/policy` files now use explicit policy/rule suffixes instead of generic `*.ts` and `*.mjs` names.
 - Fix module pattern/apply internals now use explicit `model/dto`, `model/policy`, and `model/repositories` kinds; the old nested `patterns/` and `transactions/` pseudo-domains are removed.
 - Classify diff target handling now lives in a named policy artifact; the module no longer has a loose `model/helpers` bucket.
-- Check-owned model code now lives under `service/modules/check/model`; `service/model` no longer owns baseline, source-check, structural-check, protected-zone, or host-policy implementation.
+- Check public DTO/request/render/summary policy now lives under `service/model/check`; the check module itself is reduced to contract/module/router ownership.
 - Diagnostic contracts now live under `service/model/diagnostics`, host/protected-surface policy lives under `service/model/host`, and Grit providers no longer import check module internals.
 - Check report DTOs, request language, renderers, summaries, staged source-scope policy, and disposition helpers now live under `service/model/check`; hook, verify, CLI, and tests no longer deep-import check structural schema/render/request internals.
 - Classify and verify JSON result languages now live under public `service/model/classify` and `service/model/verify` surfaces; CLI commands and service contracts no longer import module-private result DTO files.
+- Structural check, baseline authority, and source-check policy now live under `service/model/check/policy`; check, hook, verify, runtime layers, Nx plugin inference, and tests no longer import check module-private policy internals.
