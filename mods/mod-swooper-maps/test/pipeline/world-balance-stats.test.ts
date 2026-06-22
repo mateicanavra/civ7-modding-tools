@@ -122,9 +122,14 @@ const CASES = [
     // p50 ~ -77 at 106x66), so there is little broad SHALLOW cold shelf and cold-reef habitat stays
     // 0 here at 106x66 (2 at 80x50). This is physically coherent for a "sundered" deep-water
     // archipelago, NOT a drowned-flat-platform regression (which the reshape fixed elsewhere).
-    // DECISION (pending product): restore would require widening this map's shelf (shelfWidth knob)
-    // or the cold-reef depth window — a map-identity choice, not a crust-physics fix. Kept suspended
-    // pending that product call; warm REEF/ATOLL here are unaffected. See WORKSTREAM.md §10.
+    // PRODUCT CALL (2026-06-22): the guarantee MATCHES this map's intent and must NOT be retired —
+    // its description is explicitly reef-rich + shallow-sea ("volcanic islands and shallow seas …
+    // island chains connected by coral reefs … narrow channels"). The crust-relief reshape exposed
+    // that the current sundered-archipelago config drifted from that intent: it now yields steep
+    // deep-water margins (no broad shallow cold shelf) instead of shallow reef seas. Fix is a
+    // dedicated map-config REWORK (re-embody shallow seas + reefs + island chains), tracked as a
+    // follow-up — NOT a crust-physics change here. Kept suspended until that rework lands; do not
+    // retire. See docs/projects/crust-relief/WORKSTREAM.md §10.
     requireColdReefs: false,
     requireAtolls: true,
   },
