@@ -3,7 +3,7 @@ import { createHabitatServiceClient } from "@internal/habitat-harness/service/cl
 import {
   checkCommandContext,
   renderCheckReport,
-} from "@internal/habitat-harness/service/modules/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/structural/index";
 import { Flags } from "@oclif/core";
 
 export default class Check extends HabitatCommand {

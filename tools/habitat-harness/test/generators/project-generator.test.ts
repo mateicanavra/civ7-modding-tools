@@ -1,4 +1,4 @@
-import { projectGenerator } from "@internal/habitat-harness/service/modules/scaffold/project/generator";
+import { projectGenerator } from "@internal/habitat-harness/generators/scaffold/project/support/generator";
 import { readJson } from "@nx/devkit";
 import { createTreeWithEmptyWorkspace } from "@nx/devkit/testing";
 import { describe, expect, test } from "vitest";

@@ -9,8 +9,8 @@ import {
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticProviderFailure,
-} from "@internal/habitat-harness/service/modules/check/diagnostics/index";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/modules/check/rules/registry/index";
+} from "@internal/habitat-harness/service/model/check/diagnostics/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,

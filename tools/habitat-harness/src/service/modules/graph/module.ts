@@ -1,5 +1,5 @@
-import type { GraphServiceModuleContext } from "../../context.js";
-import { service } from "../../impl.js";
+import type { GraphServiceModuleContext } from "@internal/habitat-harness/service/base";
+import { service } from "@internal/habitat-harness/service/impl";
 
 export const module = service.graph.use(({ next }) =>
   next({ context: {} satisfies GraphServiceModuleContext })

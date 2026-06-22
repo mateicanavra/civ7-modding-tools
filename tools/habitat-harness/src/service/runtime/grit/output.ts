@@ -11,7 +11,7 @@ import {
   type NativeGritCheckRequest,
   NativeGritCheckRequestSchema,
   nativeGritCheckRequestFromCommandResult,
-} from "@internal/habitat-harness/service/modules/check/diagnostics/index";
+} from "@internal/habitat-harness/service/model/check/diagnostics/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/service/runtime/command/index";
 import { toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
 import { type Static, Type } from "typebox";

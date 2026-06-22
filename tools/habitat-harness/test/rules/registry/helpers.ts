@@ -1,7 +1,7 @@
 import type {
   parseRuleRegistryDocument,
   RuleRegistryRecordV1,
-} from "@internal/habitat-harness/service/modules/check/rules/registry/index";
+} from "@internal/habitat-harness/service/model/rules/registry/index";
 import { expect } from "vitest";
 
 export function registryDocument(rules: unknown[]): unknown {

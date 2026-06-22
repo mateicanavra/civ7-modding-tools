@@ -1,10 +1,10 @@
 import { NodeContext } from "@effect/platform-node";
-import { BaselineAuthorityLive } from "@internal/habitat-harness/service/modules/check/baseline/service";
+import { BaselineAuthorityLive } from "@internal/habitat-harness/service/model/check/baseline/service";
 import {
   runSourceRulesEffect,
   SourceCheck,
-} from "@internal/habitat-harness/service/modules/check/source/index";
-import { StructuralCheckLive } from "@internal/habitat-harness/service/modules/check/structural/service";
+} from "@internal/habitat-harness/service/model/check/source/index";
+import { StructuralCheckLive } from "@internal/habitat-harness/service/model/check/structural/service";
 import { Layer } from "effect";
 import { BiomeProviderLive } from "./biome/index.js";
 import { CommandRunnerLive } from "./command/index.js";

@@ -1,3 +1,5 @@
+export type { PatternGeneratorOptions } from "@internal/habitat-harness/generators/scaffold/pattern/support/schema";
+export type { HabitatProjectGeneratorOptions } from "@internal/habitat-harness/generators/scaffold/project/support/schema";
 export type {
   CheckOptions,
   CheckReport,
@@ -7,7 +9,7 @@ export type {
   RuleReport,
   RuleStatus,
   VerifyCheckSummary,
-} from "@internal/habitat-harness/service/modules/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/structural/index";
 export {
   CheckOutcomeSchema,
   checkCommandContext,
@@ -20,7 +22,7 @@ export {
   VerifyCheckSummarySchema,
   validateCheckReport,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/modules/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/structural/index";
 export type {
   ClassifiedTarget,
   ClassifyOptions,
@@ -29,7 +31,7 @@ export type {
   RuleCoverageKind,
   RuleRouting,
   UnavailableClassifiedTarget,
-} from "@internal/habitat-harness/service/modules/graph/workspace/index";
+} from "@internal/habitat-harness/service/model/workspace/index";
 export {
   classifyPath,
   classifyPathResult,
@@ -38,14 +40,12 @@ export {
   commandSummary,
   stringifyClassifyResult,
   validateClassifyResult,
-} from "@internal/habitat-harness/service/modules/graph/workspace/index";
-export type { PatternGeneratorOptions } from "@internal/habitat-harness/service/modules/scaffold/pattern/schema";
-export type { HabitatProjectGeneratorOptions } from "@internal/habitat-harness/service/modules/scaffold/project/schema";
+} from "@internal/habitat-harness/service/model/workspace/index";
 export type {
   VerifyBaseResolution,
   VerifyOptions,
   VerifyReceipt,
-} from "@internal/habitat-harness/service/modules/verify/proof/index";
+} from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
 export {
   createVerifyReceipt,
   isVerifyReceipt,
@@ -60,4 +60,4 @@ export {
   VerifyReceiptSchema,
   validateVerifyReceipt,
   verifyAffectedTargets,
-} from "@internal/habitat-harness/service/modules/verify/proof/index";
+} from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";

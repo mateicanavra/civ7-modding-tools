@@ -2,14 +2,14 @@ import {
   checkCommandContext,
   StructuralCheck,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/modules/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/structural/index";
 import {
   createVerifyReceipt,
   observeGitStatusEffect,
   readVerifyTargetPlan,
   resolveVerifyBaseEffect,
   runAffectedVerificationEffect,
-} from "@internal/habitat-harness/service/modules/verify/proof/index";
+} from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
 import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
 import { epochMillisToIsoString } from "@internal/habitat-harness/service/runtime/resources/index";
 import { ORPCError } from "@orpc/server";

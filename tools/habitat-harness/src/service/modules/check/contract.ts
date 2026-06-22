@@ -1,13 +1,13 @@
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
 import {
   CheckCommandContextSchema,
   CheckReportSchema,
   SelectorRequestSchema,
-} from "@internal/habitat-harness/service/modules/check/structural/schema";
+} from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureContract } from "../../procedure-contract.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const CheckServiceRunInputSchema = Type.Object(
   {

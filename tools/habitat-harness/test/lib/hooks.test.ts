@@ -2,18 +2,18 @@ import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
-} from "@internal/habitat-harness/service/modules/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/structural/index";
 import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
-import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
-} from "@internal/habitat-harness/service/modules/hook/runtime/resource-inspection";
+} from "@internal/habitat-harness/service/modules/hook/model/policy/runtime/resource-inspection";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "@internal/habitat-harness/service/modules/hook/runtime/runtime";
+} from "@internal/habitat-harness/service/modules/hook/model/policy/runtime/runtime";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import {
   type BiomeCommandRequest,
   biomeArgv,

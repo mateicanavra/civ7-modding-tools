@@ -79,18 +79,37 @@ const depConstraints = [
     sourceTag: "habitat:cli",
     onlyDependOnLibsWithTags: ["habitat:service", "habitat:cli"],
   },
+  {
+    sourceTag: "layer:service-entry",
+    onlyDependOnLibsWithTags: ["layer:service-shell", "layer:service-entry"],
+  },
+  {
+    sourceTag: "layer:service-shell",
+    onlyDependOnLibsWithTags: [
+      "layer:service-model",
+      "layer:service-module",
+      "layer:resource-provider",
+    ],
+  },
+  {
+    sourceTag: "layer:service-module",
+    onlyDependOnLibsWithTags: [
+      "layer:service-shell",
+      "layer:service-model",
+      "layer:resource-provider",
+    ],
+  },
+  {
+    sourceTag: "layer:service-model",
+    onlyDependOnLibsWithTags: ["layer:service-model", "layer:resource-provider"],
+  },
+  {
+    sourceTag: "layer:resource-provider",
+    onlyDependOnLibsWithTags: ["layer:resource-provider", "layer:service-model"],
+  },
 ];
 
-const allow = [
-  "/base-standard/**",
-  "./nx-plugin.ts",
-  "../../service/modules/check/source/module-paths.ts",
-  "../../service/runtime/artifact-paths.ts",
-  "../../substrate/lib/paths.ts",
-  "../../substrate/providers/nx/rule-registry-loader.ts",
-  "../../substrate/providers/nx/schema.ts",
-  "../../substrate/providers/nx/targets.ts",
-];
+const allow = ["/base-standard/**", "./nx-plugin.ts"];
 
 export default [
   {

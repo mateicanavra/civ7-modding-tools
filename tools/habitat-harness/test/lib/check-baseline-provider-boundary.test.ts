@@ -1,9 +1,9 @@
 import {
   BaselineAuthority,
   BaselineAuthorityLive,
-} from "@internal/habitat-harness/service/modules/check/baseline/index";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/modules/check/rules/registry/active-facts";
-import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/modules/check/structural/execution";
+} from "@internal/habitat-harness/service/model/check/baseline/index";
+import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/structural/execution";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
 import {
   captureOutput,
   makeHabitatCommandResult,
