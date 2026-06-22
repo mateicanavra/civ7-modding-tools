@@ -23,6 +23,7 @@ import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -44,7 +45,9 @@ describe("pattern apply", () => {
     const result = await Effect.runPromise(
       Effect.gen(function* () {
         const grit = yield* GritProvider;
-        const runFix = fixRouter.run.callable({ context: { deps: { grit } } });
+        const runFix = fixRouter.run.callable({
+          context: { deps: makeTestHabitatServiceDeps({ grit }) },
+        });
         return yield* withFiberContext(() => runFix({ kind: "dry-run-intent" }));
       }).pipe(Effect.provide(layer))
     );

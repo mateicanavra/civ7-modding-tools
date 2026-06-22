@@ -33,14 +33,10 @@ export const graphRouter = {
         );
         if (spawnResult.exitCode !== 0) return spawnResult;
 
-        const graphText = yield* context.readText(graphPath).pipe(
-          // TODO: I dont think we need to do errors like this. we should be throwing errors directly, especially the ones listed onthe contract
-          Effect.mapError(graphServiceInternalError)
-        );
+        const graphText = yield* context
+          .readText(graphPath)
+          .pipe(Effect.mapError(graphServiceInternalError));
         const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
-          // TODO: I dont think we need to do errors like this. we should be throwing errors directly, especially the ones listed onthe contract
-          // TODO: Fix this issue categorically; make it a pattern -- a positive enforcement pattern (allowlist), not a deny-list
-          // TODO: check the effect-orpc docs and the orpc docs
           Effect.mapError(graphServiceInternalError)
         );
         const selectedPayload = yield* selectGraphPayload(graphPath, graphPayload).pipe(

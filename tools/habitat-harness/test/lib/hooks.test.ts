@@ -41,6 +41,7 @@ import { hookRouter } from "@internal/habitat-harness/service/modules/hook/route
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";
+import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 describe("Habitat hook resource policy", () => {
   test("passes clean resources without invoking the publish script", async () => {
@@ -486,13 +487,15 @@ function runHookProcedure(context: HookServiceModuleContext) {
     const runHook = hookRouter.run.callable({
       context: {
         deps: {
-          biome,
-          git,
-          graphite,
-          nx,
-          repoRoot,
-          structuralCheck,
-          workspaceGraphTargetNames,
+          ...makeTestHabitatServiceDeps({
+            biome,
+            git,
+            graphite,
+            nx,
+            repoRoot,
+            structuralCheck,
+            workspaceGraphTargetNames,
+          }),
         },
         hook: context,
       },
