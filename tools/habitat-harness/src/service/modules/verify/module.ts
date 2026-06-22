@@ -1,7 +1,6 @@
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
-import { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
 import type {
   HabitatServiceContext,
   HabitatServiceDeps,
@@ -93,6 +92,10 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
 
 function createCheckReport(options: CheckOptions, context: StructuralExecutionContext) {
   return createCheckReportEffect(options, context);
+}
+
+function epochMillisToIsoString(epochMillis: number): string {
+  return new Date(epochMillis).toISOString();
 }
 
 function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
