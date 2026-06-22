@@ -35,3 +35,14 @@ If a generator is domain-specific authoring input, it belongs under `.habitat/`
 as managed Habitat input, not under toolkit source. If it is core Habitat
 toolkit logic, it must be a named Habitat service capability or a named Nx
 generator support surface with explicit file-kind rules.
+
+## Active Slice: Module-Local Model Boundaries
+
+Nx must treat a service module and its module-local `model/` tree as one module
+project, not as a shared service-model project. The separate inferred
+`@internal/habitat-harness-service-module-<module>-model` projects blur
+module-local domain ownership into shared model ownership and make the boundary
+taxonomy weaker than the collect-style shape. Collapse module-local model trees
+back into their owning module projects, keep only `src/service/model` as the
+shared service-model project, update taxonomy text, and validate with the
+existing `boundaries` target plus service-module shape validation.

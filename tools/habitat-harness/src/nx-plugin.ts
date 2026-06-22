@@ -167,31 +167,11 @@ function harnessServiceModuleProjects(): Array<{
   return fs
     .readdirSync(absoluteModulesRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
-    .flatMap((entry) => {
-      const moduleRoot = `${modulesRoot}/${entry.name}`;
-      const moduleProjects = [
-        {
-          name: `@internal/habitat-harness-service-module-${entry.name}`,
-          root: moduleRoot,
-          tags: ["kind:tooling", "habitat:service", "layer:service-module"] as const,
-        },
-      ];
-      const modelRoot = `${moduleRoot}/model`;
-      if (!fs.existsSync(path.join(repoRoot, modelRoot))) return moduleProjects;
-      return [
-        ...moduleProjects,
-        {
-          name: `@internal/habitat-harness-service-module-${entry.name}-model`,
-          root: modelRoot,
-          tags: [
-            "kind:tooling",
-            "habitat:service",
-            "layer:service-model",
-            "scope:module-model",
-          ] as const,
-        },
-      ];
-    });
+    .map((entry) => ({
+      name: `@internal/habitat-harness-service-module-${entry.name}`,
+      root: `${modulesRoot}/${entry.name}`,
+      tags: ["kind:tooling", "habitat:service", "layer:service-module"] as const,
+    }));
 }
 
 function addHarnessToolTargets(input: {

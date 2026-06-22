@@ -112,11 +112,11 @@ Habitat service module projects are inferred from
 `@internal/habitat-harness-service-module-<module>` and tags `kind:tooling`,
 `habitat:service`, and `layer:service-module`. They are not enumerated here
 because the boundary rule applies to the kind, not to concrete module names.
-Each module-local `model` directory is also inferred as
-`@internal/habitat-harness-service-module-<module>-model` with tags
-`kind:tooling`, `habitat:service`, `layer:service-model`, and
-`scope:module-model`. Module roots may import their own `./model/**` artifacts;
-other access is still governed by the tag rows below.
+Each module-local `model` directory stays inside its owning service-module
+project. That makes same-module model access a normal same-project import and
+keeps sibling module model access red through the generic `layer:service-module`
+row. Only `tools/habitat-harness/src/service/model` is the shared
+`layer:service-model` project.
 
 ## 3. Dependency constraints (project plane, initial rule set)
 
@@ -143,7 +143,7 @@ owned by their Grit/file-layer rules.
 | `habitat:cli` | `habitat:runtime`, `habitat:service`, `habitat:cli` | CLI commands parse user flags, acquire runtime-backed service context, and call service routers while keeping command output at the edge |
 | `layer:service-entry` | `layer:service-shell`, `layer:service-entry` | public service/CLI entry code may call the service shell but not service module internals directly |
 | `layer:service-shell` | `habitat:runtime`, `layer:service-model`, `layer:service-module`, `layer:resource-provider` | root service composition owns contract/implementer/router assembly over modules, shared service model, and the Effect/oRPC managed runtime |
-| `layer:service-module` | `layer:service-shell`, `layer:service-model`, `layer:resource-provider` | modules use the service implementer seam, shared service model, and runtime resources; same-module local imports stay inside one inferred project, while sibling module imports are red because `layer:service-module` cannot depend on `layer:service-module` |
+| `layer:service-module` | `layer:service-shell`, `layer:service-model`, `layer:resource-provider` | modules use the service implementer seam, shared service model, and runtime resources; module-local `model/` trees stay inside their owning module project, while sibling module imports are red because `layer:service-module` cannot depend on `layer:service-module` |
 | `layer:service-model` | `layer:service-model`, `layer:resource-provider` | service-wide facts, DTOs, and read models may reuse resource contracts but do not import module internals |
 | `layer:resource-provider` | `layer:resource-provider`, `layer:service-model` | runtime providers may consume shared service model facts but must not import service module internals |
 
