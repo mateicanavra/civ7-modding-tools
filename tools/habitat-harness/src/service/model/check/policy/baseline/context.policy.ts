@@ -1,6 +1,8 @@
+import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
 
 export interface BaselineAuthorityContext {
+  git: GitProviderService;
   repoRoot: string;
   baselinesDir?: string;
   registry?: readonly BaselineRuleContractInput[];

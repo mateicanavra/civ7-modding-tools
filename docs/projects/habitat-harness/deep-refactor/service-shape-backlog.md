@@ -20,6 +20,7 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Baseline authority now receives Git through explicit baseline context from module-projected resources; shared baseline policy no longer resolves `GitProvider` internally.
 - Structural rule execution now receives Biome, Nx, Git, and CommandRunner through module-projected execution context; shared structural policy no longer yields those provider/resource tags directly.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.

@@ -24,32 +24,33 @@ describe("check and baseline provider boundaries", () => {
     const events: string[] = [];
     const gitCalls: string[][] = [];
     const registry = [baselineRule("existing-rule")];
+    const git = makeGitProviderFromCommandHandler((argv, options) => {
+      gitCalls.push([...argv]);
+      if (argv[0] === "merge-base") {
+        return commandResult(argv, options.cwd, "merge-base-sha\n");
+      }
+      if (argv[0] === "show" && argv[1] === "merge-base-sha:.habitat/rules/rules.json") {
+        return commandResult(argv, options.cwd, ruleRegistryJson(["existing-rule"]));
+      }
+      if (
+        argv[0] === "show" &&
+        argv[1] === "merge-base-sha:.habitat/baselines/existing-rule.json"
+      ) {
+        return commandResult(argv, options.cwd, "[]\n");
+      }
+      return commandResult(argv, options.cwd, "", 1, "not found\n");
+    });
     const layer = Layer.mergeAll(
       makeFakePlatformFileSystemLayer(
         events,
         new Map([[`${baselinesDir}/existing-rule.json`, "[]\n"]]),
         new Map([[baselinesDir, [{ name: "existing-rule.json", kind: "file" }]]])
-      ),
-      makeFakeGitProviderLayer((argv, options) => {
-        gitCalls.push([...argv]);
-        if (argv[0] === "merge-base") {
-          return commandResult(argv, options.cwd, "merge-base-sha\n");
-        }
-        if (argv[0] === "show" && argv[1] === "merge-base-sha:.habitat/rules/rules.json") {
-          return commandResult(argv, options.cwd, ruleRegistryJson(["existing-rule"]));
-        }
-        if (
-          argv[0] === "show" &&
-          argv[1] === "merge-base-sha:.habitat/baselines/existing-rule.json"
-        ) {
-          return commandResult(argv, options.cwd, "[]\n");
-        }
-        return commandResult(argv, options.cwd, "", 1, "not found\n");
-      })
+      )
     );
 
     const result = await Effect.runPromise(
       checkBaselineIntegrityEffect("main", {
+        git,
         repoRoot: root,
         baselinesDir,
         registry,
@@ -78,6 +79,7 @@ describe("check and baseline provider boundaries", () => {
 
     await Effect.runPromise(
       writeBaselineEffect("new-rule", ["z::last", "a::first"], {
+        git: makeTestHabitatServiceDeps().git,
         repoRoot: "/repo",
         baselinesDir,
         registry: [],
