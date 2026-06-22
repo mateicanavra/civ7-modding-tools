@@ -1,13 +1,8 @@
 import path from "node:path";
 import {
-  NxProvider,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/providers/nx/index";
-import {
-  acquireTempDirectory,
-  readText,
-} from "@internal/habitat-harness/resources/platform/index";
+} from "@internal/habitat-harness/resources/command/index";
 import { ORPCError } from "@orpc/server";
 import { Data, Effect } from "effect";
 import { module } from "./module.js";
@@ -24,16 +19,13 @@ class GraphJsonShapeInvalid extends Data.TaggedError("GraphJsonShapeInvalid")<{
 
 export const graphRouter = {
   run: module.run.effect(function* ({ context, input = {} }) {
-    const nx = context.nx ?? (yield* NxProvider);
-    const acquireGraphTempDirectory = context.acquireTempDirectory ?? acquireTempDirectory;
-    const readGraphText = context.readText ?? readText;
     return yield* Effect.scoped(
       Effect.gen(function* () {
-        const tempDir = yield* acquireGraphTempDirectory("habitat-graph-").pipe(
-          Effect.mapError(graphServiceInternalError)
-        );
+        const tempDir = yield* context
+          .acquireTempDirectory("habitat-graph-")
+          .pipe(Effect.mapError(graphServiceInternalError));
         const graphPath = path.join(tempDir, "graph.json");
-        const spawnResult = yield* nx.graph({ outputPath: graphPath }).pipe(
+        const spawnResult = yield* context.nx.graph({ outputPath: graphPath }).pipe(
           Effect.match({
             onFailure: spawnResultFromCommandProviderError,
             onSuccess: spawnResultFromCommandResult,
@@ -41,10 +33,14 @@ export const graphRouter = {
         );
         if (spawnResult.exitCode !== 0) return spawnResult;
 
-        const graphText = yield* readGraphText(graphPath).pipe(
+        const graphText = yield* context.readText(graphPath).pipe(
+          // TODO: I dont think we need to do errors like this. we should be throwing errors directly, especially the ones listed onthe contract
           Effect.mapError(graphServiceInternalError)
         );
         const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
+          // TODO: I dont think we need to do errors like this. we should be throwing errors directly, especially the ones listed onthe contract
+          // TODO: Fix this issue categorically; make it a pattern -- a positive enforcement pattern (allowlist), not a deny-list
+          // TODO: check the effect-orpc docs and the orpc docs
           Effect.mapError(graphServiceInternalError)
         );
         const selectedPayload = yield* selectGraphPayload(graphPath, graphPayload).pipe(

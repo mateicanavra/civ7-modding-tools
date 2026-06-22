@@ -1,3 +1,11 @@
+import {
+  GritProvider,
+  makeFakeGritProviderLayer,
+} from "@internal/habitat-harness/providers/grit/index";
+import {
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/resources/command/index";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
@@ -11,11 +19,6 @@ import {
   fixRouter,
   runPatternApplyTransaction,
 } from "@internal/habitat-harness/service/modules/fix/router";
-import {
-  type HabitatProcessRequest,
-  makeHabitatCommandResult,
-} from "@internal/habitat-harness/resources/command/index";
-import { makeFakeGritProviderLayer } from "@internal/habitat-harness/providers/grit/index";
 import { Effect, type Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { Value } from "typebox/value";
@@ -40,7 +43,8 @@ describe("pattern apply", () => {
 
     const result = await Effect.runPromise(
       Effect.gen(function* () {
-        const runFix = fixRouter.run.callable({ context: { fix: {} } });
+        const grit = yield* GritProvider;
+        const runFix = fixRouter.run.callable({ context: { deps: { grit } } });
         return yield* withFiberContext(() => runFix({ kind: "dry-run-intent" }));
       }).pipe(Effect.provide(layer))
     );
@@ -297,7 +301,13 @@ function applyTransaction(
   options?: { readonly transactionInputs?: readonly ApplyTransactionInput[] },
   layer?: Layer.Layer<never>
 ) {
-  const program = runPatternApplyTransaction(input, options);
+  const program = Effect.gen(function* () {
+    const grit = layer ? yield* GritProvider : undefined;
+    return yield* runPatternApplyTransaction(input, {
+      ...options,
+      ...(grit ? { grit } : {}),
+    });
+  });
   return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);
 }
 

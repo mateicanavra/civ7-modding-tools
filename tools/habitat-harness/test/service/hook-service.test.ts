@@ -1,8 +1,37 @@
+import {
+  type BiomeCommandRequest,
+  BiomeProvider,
+  biomeArgv,
+  makeFakeBiomeProviderLayer,
+} from "@internal/habitat-harness/providers/biome/index";
+import {
+  GitProvider,
+  makeFakeGitProviderLayer,
+} from "@internal/habitat-harness/providers/git/index";
+import {
+  GraphiteProvider,
+  makeFakeGraphiteProviderLayer,
+} from "@internal/habitat-harness/providers/graphite/index";
+import {
+  affectedArgv,
+  makeFakeNxProviderLayer,
+  type NxAffectedRequest,
+  NxProvider,
+  type NxRunTargetRequest,
+  runTargetArgv,
+} from "@internal/habitat-harness/providers/nx/index";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/resources/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { HookServiceModuleContext } from "@internal/habitat-harness/service/base";
 import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
+  StructuralCheck,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
 import {
@@ -12,26 +41,6 @@ import {
 } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
-import {
-  type BiomeCommandRequest,
-  biomeArgv,
-  makeFakeBiomeProviderLayer,
-} from "@internal/habitat-harness/providers/biome/index";
-import {
-  captureOutput,
-  makeHabitatCommandResult,
-} from "@internal/habitat-harness/resources/command/index";
-import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
-import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/providers/graphite/index";
-import {
-  affectedArgv,
-  makeFakeNxProviderLayer,
-  type NxAffectedRequest,
-  type NxRunTargetRequest,
-  runTargetArgv,
-} from "@internal/habitat-harness/providers/nx/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { createRouterClient } from "@orpc/server";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -702,7 +711,23 @@ function runHookServiceInTest(
     : Layer.mergeAll(gitLayer, nx, biome, graphite);
   return Effect.runPromise(
     Effect.gen(function* () {
-      const runHook = hookRouter.run.callable({ context: { hook: options } });
+      const biome = yield* BiomeProvider;
+      const git = yield* GitProvider;
+      const graphite = yield* GraphiteProvider;
+      const nx = yield* NxProvider;
+      const resolvedStructuralCheck = structuralCheck ? yield* StructuralCheck : undefined;
+      const runHook = hookRouter.run.callable({
+        context: {
+          deps: {
+            biome,
+            git,
+            graphite,
+            nx,
+            ...(resolvedStructuralCheck ? { structuralCheck: resolvedStructuralCheck } : {}),
+          },
+          hook: options,
+        },
+      });
       return yield* withFiberContext(() => runHook(input));
     }).pipe(Effect.provide(layer))
   );
