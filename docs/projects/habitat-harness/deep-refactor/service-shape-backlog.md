@@ -50,3 +50,4 @@ Completed burn-downs:
 - Verify base, post-state, and Nx affected policies now receive module-projected provider resources instead of reading provider tags from the Effect runtime.
 - Classify path and diff policy now receives repo root from module-projected platform context instead of importing the global repo-root singleton.
 - Check report rendering is now pure service-model formatting; the CLI owns `--output` file writes after compiling flags to service actions.
+- Structural check orchestration no longer has an internal Effect service tag, live layer, or fake layer; check, hook, and verify modules call owned structural policies directly.
