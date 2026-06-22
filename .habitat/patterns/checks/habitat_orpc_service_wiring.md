@@ -26,8 +26,12 @@ or {
     $filename <: r".*tools/habitat-harness/src/service/.*\.ts$"
   },
   `import $imports from $source` where {
-    $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/(?:router\.ts|router/.*\.router\.ts)$",
-    $source <: r"^[\"']?\.\./\.\./impl(?:\.js)?[\"']?$"
+    $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/router\.ts$",
+    ! $source <: r"^[\"']?\./module(?:\.js)?[\"']?$"
+  },
+  `import $imports from $source` where {
+    $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/router/.*\.router\.ts$",
+    ! $source <: r"^[\"']?\.\./module(?:\.js)?[\"']?$"
   },
   `import { $imports } from $source` where {
     $filename <: r".*tools/habitat-harness/src/service/modules/[^/]+/router\.ts$",
@@ -90,6 +94,26 @@ import { service } from "../../impl.js";
 export const router = {};
 
 // @filename: tools/habitat-harness/src/service/modules/check/router.ts
+import { Effect } from "effect";
+
+export const router = {};
+
+// @filename: tools/habitat-harness/src/service/modules/check/router.ts
+import { module } from "../module.js";
+
+export const router = {};
+
+// @filename: tools/habitat-harness/src/service/modules/check/router/run.router.ts
+import { Effect } from "effect";
+
+export const router = {};
+
+// @filename: tools/habitat-harness/src/service/modules/check/router/run.router.ts
+import { module } from "./module.js";
+
+export const router = {};
+
+// @filename: tools/habitat-harness/src/service/modules/check/router.ts
 import { module } from "./module.js";
 import { type CheckModuleContext, module } from "./module.js";
 
@@ -145,21 +169,19 @@ export const module = service.check.use(({ next }) => next({ context: {} }));
 
 // @filename: tools/habitat-harness/src/service/modules/check/router.ts
 import { module } from "./module.js";
-import { Effect } from "effect";
 
 export const router = {
   run: module.run.effect(function* ({ input }) {
-    return yield* Effect.succeed(input);
+    return input;
   }),
 };
 
 // @filename: tools/habitat-harness/src/service/modules/check/router/run.router.ts
 import { module } from "../module.js";
-import { Effect } from "effect";
 
 export const runRouter = {
   run: module.run.effect(function* ({ input }) {
-    return yield* Effect.succeed(input);
+    return input;
   }),
 };
 ```
