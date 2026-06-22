@@ -1,8 +1,8 @@
 import path from "node:path";
 import { habitatCacheRepoPathPrefix } from "@internal/habitat-harness/resources/artifact-paths";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
-import { decideScanRootProtection } from "@internal/habitat-harness/service/model/check/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
+import { decideScanRootProtection } from "@internal/habitat-harness/service/modules/check/model/index";
 
 export const sourceCheckCandidateExtensions = new Set([
   ".cjs",

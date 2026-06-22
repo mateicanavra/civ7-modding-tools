@@ -7,7 +7,7 @@ import {
   runFileLayerProtectedMutationRule,
   stagedPathsFromNameStatus,
   unavailableHostPolicyState,
-} from "@internal/habitat-harness/service/model/check/index";
+} from "@internal/habitat-harness/service/modules/check/model/index";
 import { describe, expect, test } from "vitest";
 
 describe("protected zone file-layer execution", () => {

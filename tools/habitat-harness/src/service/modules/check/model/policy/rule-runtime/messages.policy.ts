@@ -1,7 +1,7 @@
 import type {
   CheckReport,
   RuleReport,
-} from "@internal/habitat-harness/service/model/check/policy/structural/schema";
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
 
 /** Human rendering of rule results (the agent-readable half of every failure). */
 

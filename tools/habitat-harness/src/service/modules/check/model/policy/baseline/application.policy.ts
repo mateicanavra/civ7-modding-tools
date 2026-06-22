@@ -1,4 +1,4 @@
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/modules/check/model/policy/structural/schema";
 import {
   type BaselineApplicationResult,
   type BaselineAuthorityState,

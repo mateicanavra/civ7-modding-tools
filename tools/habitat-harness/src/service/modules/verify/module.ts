@@ -14,7 +14,7 @@ import {
   checkCommandContext,
   type StructuralCheckService,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
 import type { EffectImplementerInternal } from "effect-orpc";

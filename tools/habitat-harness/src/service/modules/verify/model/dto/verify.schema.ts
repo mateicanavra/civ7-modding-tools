@@ -1,4 +1,4 @@
-import { VerifyCheckSummarySchema } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { VerifyCheckSummarySchema } from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 

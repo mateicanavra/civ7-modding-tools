@@ -3,7 +3,7 @@ import {
   checkCommandContext,
   describeRuleSelectionFailure,
   type StructuralCheckService,
-} from "@internal/habitat-harness/service/model/check/policy/structural/index";
+} from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import type { CheckServiceRunInput } from "./contract.js";
 
 export interface CheckModuleContext {

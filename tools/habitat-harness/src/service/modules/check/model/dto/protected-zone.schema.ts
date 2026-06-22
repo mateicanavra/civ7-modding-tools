@@ -2,7 +2,7 @@ import {
   HostMatcherSchema,
   HostPolicyOwnerSchema,
   HostRecoveryInstructionSchema,
-} from "@internal/habitat-harness/service/model/check/dto/host-policy.schema";
+} from "@internal/habitat-harness/service/modules/check/model/dto/host-policy.schema";
 import { type Static, Type } from "typebox";
 
 const NonEmptyStringSchema = Type.String({ minLength: 1 });

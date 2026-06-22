@@ -21,35 +21,38 @@ const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/service/model/check/policy/structural/index.js", async (importOriginal) => {
-  const actual =
-    await importOriginal<
-      typeof import("../../src/service/model/check/policy/structural/index.js")
-    >();
-  return {
-    ...actual,
-    checkCommandContext: vi.fn((argv: string[]) => ({
-      bin: "habitat",
-      id: "check",
-      argv,
-      serialized: ["habitat", "check", ...argv].join(" "),
-    })),
-    renderCheckReport: vi.fn(() => '{"ok":true}'),
-    verifyCheckSummary: vi.fn(() => ({
-      reportSchemaVersion: 1,
-      requestedSelectors: {},
-      selectedRuleIds: [],
-      selectedRealRuleIds: [],
-      builtInRuleIds: [],
-      statusCounts: {},
-      advisoryCount: 0,
-      failingCount: 0,
-      refusedCount: 0,
-      notApplicableCount: 0,
-      allowsAffectedExecution: true,
-    })),
-  };
-});
+vi.mock(
+  "../../src/service/modules/check/model/policy/structural/index.js",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("../../src/service/modules/check/model/policy/structural/index.js")
+      >();
+    return {
+      ...actual,
+      checkCommandContext: vi.fn((argv: string[]) => ({
+        bin: "habitat",
+        id: "check",
+        argv,
+        serialized: ["habitat", "check", ...argv].join(" "),
+      })),
+      renderCheckReport: vi.fn(() => '{"ok":true}'),
+      verifyCheckSummary: vi.fn(() => ({
+        reportSchemaVersion: 1,
+        requestedSelectors: {},
+        selectedRuleIds: [],
+        selectedRealRuleIds: [],
+        builtInRuleIds: [],
+        statusCounts: {},
+        advisoryCount: 0,
+        failingCount: 0,
+        refusedCount: 0,
+        notApplicableCount: 0,
+        allowsAffectedExecution: true,
+      })),
+    };
+  }
+);
 
 vi.mock("../../src/service/modules/verify/model/index.js", async (importOriginal) => {
   const actual =
@@ -87,7 +90,7 @@ import Fix from "@internal/habitat-harness/cli/commands/fix";
 import Graph from "@internal/habitat-harness/cli/commands/graph";
 import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
-import * as checkReport from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import * as checkReport from "@internal/habitat-harness/service/modules/check/model/policy/structural/index";
 import * as classify from "@internal/habitat-harness/service/modules/classify/model/index";
 import * as verifyReceipt from "@internal/habitat-harness/service/modules/verify/model/index";
 import { createRouterClient } from "@orpc/server";

@@ -3,12 +3,12 @@ import {
   captureOutput,
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
+import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import {
   BaselineAuthority,
   BaselineAuthorityLive,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
-import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/execution.policy";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+} from "@internal/habitat-harness/service/modules/check/model/policy/baseline/index";
+import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/modules/check/model/policy/structural/execution.policy";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
