@@ -1,4 +1,12 @@
 import {
+  captureOutput,
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+  type SpawnResult,
+} from "@internal/habitat-harness/resources/command/index";
+import { Effect } from "effect";
+import type { FixServiceRunInput } from "./contract.js";
+import {
   type ApplyAdmission,
   activeApplyTransactionInputs,
   defaultApplyAdmissions,
@@ -16,16 +24,9 @@ import {
   type TransactionRefusal,
   type WorktreeObservation,
 } from "./model/policy/transactions/index.js";
-import {
-  captureOutput,
-  type HabitatProcessRequest,
-  makeHabitatCommandResult,
-  type SpawnResult,
-} from "@internal/habitat-harness/resources/command/index";
-import { GritProvider } from "@internal/habitat-harness/providers/grit/index";
-import { Effect } from "effect";
-import type { FixServiceRunInput } from "./contract.js";
 import { type FixServiceModuleContext, module } from "./module.js";
+
+type ResolvedGritProvider = NonNullable<FixServiceModuleContext["grit"]>;
 
 export const fixRouter = {
   run: module.run.effect(function* ({ context: options, input }) {
@@ -73,7 +74,7 @@ function transactionRequest(
 
 export function runPatternApplyTransaction(
   input: PatternApplyRequest,
-  options: { readonly grit?: FixServiceModuleContext["grit"] } & Partial<{
+  options: { readonly grit?: ResolvedGritProvider } & Partial<{
     readonly transactionInputs: ReturnType<typeof activeApplyTransactionInputs>;
   }> = {}
 ) {
@@ -274,16 +275,34 @@ function pathInRoot(candidate: string, root: string): boolean {
 
 function runDryRunCommands(
   commands: readonly GritDryRunCommandInput[],
-  grit: FixServiceModuleContext["grit"]
+  grit: ResolvedGritProvider | undefined
 ) {
   return Effect.forEach(commands, (command) => runDryRunCommand(command, grit), {
     concurrency: 1,
   });
 }
 
-function runDryRunCommand(input: GritDryRunCommandInput, grit: FixServiceModuleContext["grit"]) {
+function runDryRunCommand(input: GritDryRunCommandInput, grit: ResolvedGritProvider | undefined) {
   return Effect.gen(function* () {
-    const gritProvider = grit ?? (yield* GritProvider);
+    if (!grit) {
+      const commandRequest = {
+        commandId: input.commandId,
+        kind: "pattern-apply",
+        executable: "grit",
+        argv: ["apply", "--dry-run", input.patternPath, ...input.roots],
+        cwd: "",
+        captureGitState: false,
+      } satisfies HabitatProcessRequest;
+      return makeHabitatCommandResult(commandRequest, {
+        requestedExecutable: commandRequest.executable,
+        exit: { code: 1, signal: null, interrupted: false },
+        stderr: captureOutput("grit provider was not resolved for Habitat fix.\n"),
+        observation: {
+          kind: "tool-unavailable",
+          detail: "grit provider was not resolved for Habitat fix.",
+        },
+      });
+    }
     const providerRequest = {
       commandId: input.commandId,
       patternPath: input.patternPath,
@@ -291,8 +310,8 @@ function runDryRunCommand(input: GritDryRunCommandInput, grit: FixServiceModuleC
       output: input.output,
       cacheMode: "disabled",
     } as const;
-    const commandRequest = gritProvider.applyDryRunRequest(providerRequest);
-    return yield* gritProvider.applyDryRun(providerRequest).pipe(
+    const commandRequest = grit.applyDryRunRequest(providerRequest);
+    return yield* grit.applyDryRun(providerRequest).pipe(
       Effect.catchTag("CommandUnavailable", (error) =>
         Effect.succeed(
           makeHabitatCommandResult(commandRequestFromProviderError(commandRequest, error), {

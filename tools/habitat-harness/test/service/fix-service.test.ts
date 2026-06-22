@@ -1,14 +1,14 @@
-import type { FixServiceModuleContext } from "@internal/habitat-harness/service/base";
-import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
-import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
-import {
-  type HabitatProcessRequest,
-  makeHabitatCommandResult,
-} from "@internal/habitat-harness/resources/command/index";
 import {
   GritProvider,
   makeFakeGritProviderLayer,
 } from "@internal/habitat-harness/providers/grit/index";
+import {
+  type HabitatProcessRequest,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/resources/command/index";
+import type { FixServiceModuleContext } from "@internal/habitat-harness/service/base";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
+import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { createRouterClient } from "@orpc/server";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
@@ -71,7 +71,8 @@ function runFixProcedure(
   input = { kind: "dry-run-intent" as const }
 ) {
   return Effect.gen(function* () {
-    const runFix = fixRouter.run.callable({ context: { fix: context } });
+    const grit = context.grit ?? (yield* GritProvider);
+    const runFix = fixRouter.run.callable({ context: { deps: { grit } } });
     return yield* withFiberContext(() => runFix(input));
   });
 }
