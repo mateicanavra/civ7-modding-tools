@@ -1,9 +1,6 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type {
-  GitProvider,
-  GitProviderRequirements,
-} from "@internal/habitat-harness/providers/git/index";
+import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
 import type {
   GritProvider,
   GritProviderRequirements,
@@ -53,7 +50,6 @@ export function expandBaselinesEffect(
   | CommandExecutor
   | HabitatConfig
   | FileSystem.FileSystem
-  | GitProvider
   | GitProviderRequirements
   | GritProvider
   | GritProviderRequirements
@@ -62,7 +58,7 @@ export function expandBaselinesEffect(
     const selected = selectRules(selection);
     if (!selected.ok) return selected;
 
-    const context = baselineContext(options);
+    const context = baselineContext(executionContext);
     const messages: string[] = [];
     const ruleResults = yield* executeSelectedRulesEffect(selected.rules, {}, executionContext);
     const baselinesByRuleId = factsByRuleId(
@@ -128,8 +124,8 @@ export function expandBaselinesEffect(
   });
 }
 
-function baselineContext(options: { readonly repoRoot: string }): BaselineAuthorityContext {
-  return { repoRoot: options.repoRoot };
+function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
+  return { git: context.git, repoRoot: context.repoRoot };
 }
 
 export function baselineContractInputs(ruleIds?: readonly string[]) {

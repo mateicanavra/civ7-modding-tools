@@ -1,9 +1,6 @@
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type {
-  GitProvider,
-  GitProviderRequirements,
-} from "@internal/habitat-harness/providers/git/index";
+import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
 import type {
   GritProvider,
   GritProviderRequirements,
@@ -63,7 +60,6 @@ export function createCheckReportEffect(
   | CommandExecutor
   | HabitatConfig
   | FileSystem.FileSystem
-  | GitProvider
   | GitProviderRequirements
   | GritProvider
   | GritProviderRequirements
@@ -94,7 +90,7 @@ export function createCheckReportEffect(
       const baselineFacts = baselineInputsByRuleId.get(rule.id);
       if (!baselineFacts)
         throw new Error(`habitat internal error: missing baseline facts for ${rule.id}`);
-      const baseline = yield* loadBaselineStateEffect(baselineFacts, baselineContext(options));
+      const baseline = yield* loadBaselineStateEffect(baselineFacts, baselineContext(context));
       const execution = ruleResults.get(rule.id);
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       Value.Parse(RuleExecutionPlanSchema, {
@@ -131,7 +127,7 @@ export function createCheckReportEffect(
     }
 
     if (options.baselineIntegrity)
-      reports.push(yield* baselineIntegrityReportEffect(options.base ?? "main", options));
+      reports.push(yield* baselineIntegrityReportEffect(options.base ?? "main", context));
     return yield* constructCheckReportEffect({ command: request.command.serialized, reports });
   });
 }
@@ -228,12 +224,12 @@ function ruleReportFromDiagnostics(input: {
 
 function baselineIntegrityReportEffect(
   base: string,
-  options: CheckOptions
-): Effect.Effect<RuleReport, never, FileSystem.FileSystem | GitProvider | GitProviderRequirements> {
+  context: StructuralExecutionContext
+): Effect.Effect<RuleReport, never, FileSystem.FileSystem | GitProviderRequirements> {
   return Effect.gen(function* () {
     const integrityStarted = yield* Clock.currentTimeMillis;
     const integrity = yield* checkBaselineIntegrityEffect(base, {
-      ...baselineContext(options),
+      ...baselineContext(context),
       registry: baselineContractInputs(),
     });
     const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
@@ -259,9 +255,8 @@ function baselineIntegrityReportEffect(
   });
 }
 
-function baselineContext(options: Pick<CheckOptions, "repoRoot">): BaselineAuthorityContext {
-  if (!options.repoRoot) throw new Error("habitat internal error: missing baseline repo root");
-  return { repoRoot: options.repoRoot };
+function baselineContext(context: StructuralExecutionContext): BaselineAuthorityContext {
+  return { git: context.git, repoRoot: context.repoRoot };
 }
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {

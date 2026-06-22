@@ -2,7 +2,10 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { NodeContext } from "@effect/platform-node";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import {
+  type GitProviderService,
+  makeGitProviderFromCommandHandler,
+} from "@internal/habitat-harness/providers/git/index";
 import {
   captureOutput,
   type HabitatCommandResult,
@@ -23,7 +26,7 @@ import {
   loadBaselineStateEffect,
   validateBaselineContractEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/operations.policy";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { afterEach, describe, expect, test } from "vitest";
 
 const tempDirs: string[] = [];
@@ -410,9 +413,7 @@ function runBaselineEffect<A, E>(
   effect: Effect.Effect<A, E, never>,
   context: BaselineTestContext
 ): Promise<A> {
-  return Effect.runPromise(
-    effect.pipe(Effect.provide(Layer.mergeAll(NodeContext.layer, context.gitLayer)))
-  );
+  return Effect.runPromise(effect.pipe(Effect.provide(NodeContext.layer)));
 }
 
 function diagnostic(
@@ -431,9 +432,9 @@ function diagnostic(
 }
 
 interface BaselineTestContext extends BaselineAuthorityContext {
+  readonly git: GitProviderService;
   readonly repoRoot: string;
   readonly baselinesDir: string;
-  readonly gitLayer: ReturnType<typeof makeFakeGitProviderLayer>;
 }
 
 function createBaselineContext(options: {
@@ -451,7 +452,7 @@ function createBaselineContext(options: {
     repoRoot,
     baselinesDir,
     registry: options.registry,
-    gitLayer: makeFakeGitProviderLayer((argv, runOptions) => {
+    git: makeGitProviderFromCommandHandler((argv, runOptions) => {
       if (argv[0] === "merge-base") {
         return options.mergeBase === null
           ? commandResult(argv, runOptions.cwd, "", 1, "no merge-base\n")
