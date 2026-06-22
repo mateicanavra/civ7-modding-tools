@@ -204,7 +204,8 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       }
       const targetPlan = prePushTargetPlanForChangedPaths(
         changedPaths.paths,
-        context.workspaceGraphTargetNames()
+        context.workspaceGraphTargetNames(),
+        context.rules.artifactPath
       );
       for (const target of targetPlan.runTargets) {
         const argv = context.nx.runTargetArgv(target);

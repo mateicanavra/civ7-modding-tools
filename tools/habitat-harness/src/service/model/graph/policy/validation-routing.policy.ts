@@ -1,5 +1,8 @@
 import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/schema";
-import { habitatArtifactPathPlan } from "@internal/habitat-harness/service/model/rules/policy/artifact-paths.policy";
+import {
+  type HabitatArtifactRulePathInput,
+  habitatArtifactPathPlan,
+} from "@internal/habitat-harness/service/model/rules/policy/artifact-paths.policy";
 
 export interface ValidationRunTarget {
   readonly project: string;
@@ -47,16 +50,18 @@ export function prePushAffectedTargetNames(
 
 export function prePushTargetNamesForChangedPaths(
   changedPaths: readonly string[],
-  targetNames: WorkspaceGraphTargetNames
+  targetNames: WorkspaceGraphTargetNames,
+  artifactRules: readonly HabitatArtifactRulePathInput[]
 ): readonly string[] {
-  return prePushTargetPlanForChangedPaths(changedPaths, targetNames).affectedTargets;
+  return prePushTargetPlanForChangedPaths(changedPaths, targetNames, artifactRules).affectedTargets;
 }
 
 export function prePushTargetPlanForChangedPaths(
   changedPaths: readonly string[],
-  targetNames: WorkspaceGraphTargetNames
+  targetNames: WorkspaceGraphTargetNames,
+  artifactRules: readonly HabitatArtifactRulePathInput[]
 ): ValidationTargetPlan {
-  const plan = habitatArtifactPathPlan(changedPaths);
+  const plan = habitatArtifactPathPlan(changedPaths, artifactRules);
   if (plan.allHabitatArtifacts) {
     return { runTargets: [], affectedTargets: artifactAffectedTargets(plan, targetNames) };
   }
