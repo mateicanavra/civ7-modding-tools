@@ -1,9 +1,3 @@
-import type { FileSystem } from "@effect/platform";
-import type { CommandExecutor } from "@effect/platform/CommandExecutor";
-import type { GitProviderRequirements } from "@internal/habitat-harness/providers/git/index";
-import type { GritProviderRequirements } from "@internal/habitat-harness/providers/grit/index";
-import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
   applyBaseline,
@@ -39,16 +33,7 @@ export function expandBaselinesEffect(
   selection: RuleSelection = {},
   options: { base?: string; repoRoot: string },
   executionContext: StructuralExecutionContext
-): Effect.Effect<
-  BaselineExpansionResult,
-  never,
-  | CommandRunner
-  | CommandExecutor
-  | HabitatConfig
-  | FileSystem.FileSystem
-  | GitProviderRequirements
-  | GritProviderRequirements
-> {
+): Effect.Effect<BaselineExpansionResult, never, any> {
   return Effect.gen(function* () {
     const selected = selectRules(selection, executionContext.rules.selector);
     if (!selected.ok) return selected;
