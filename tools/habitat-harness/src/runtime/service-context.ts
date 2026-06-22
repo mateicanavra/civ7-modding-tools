@@ -2,7 +2,6 @@ import { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import { GitProvider } from "@internal/habitat-harness/providers/git/index";
 import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
 import { GritProvider } from "@internal/habitat-harness/providers/grit/index";
-import { NxWorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
 import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
@@ -44,7 +43,6 @@ export async function createLiveHabitatServiceContext(
         reporter: input.deps?.reporter ?? silentHabitatReporter,
         repoRoot,
         structuralCheck: input.deps?.structuralCheck ?? (yield* StructuralCheck),
-        workspaceProjects: input.deps?.workspaceProjects ?? new NxWorkspaceGraphProjectReader(),
         ...input.deps,
       } satisfies HabitatServiceDeps;
     })

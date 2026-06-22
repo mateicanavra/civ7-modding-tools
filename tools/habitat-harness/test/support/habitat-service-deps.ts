@@ -96,6 +96,11 @@ export function makeTestHabitatServiceDeps(
           })
         ),
       runTargetArgv,
+      workspaceGraph: () =>
+        Effect.succeed({
+          kind: "graph-ready",
+          snapshot: { projects: [] },
+        }),
     },
     pathExists: () => false,
     readText: () => Effect.succeed(""),
@@ -105,9 +110,6 @@ export function makeTestHabitatServiceDeps(
       createReport: (options = {}) =>
         Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
       expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
-    },
-    workspaceProjects: {
-      readProjects: async () => [],
     },
     ...overrides,
   };

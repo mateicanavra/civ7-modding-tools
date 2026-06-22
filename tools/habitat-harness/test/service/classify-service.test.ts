@@ -1,58 +1,54 @@
-import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
+import type {
+  WorkspaceGraphReadState,
+  WorkspaceProject,
+} from "@internal/habitat-harness/providers/nx/schema";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { createRouterClient } from "@orpc/server";
+import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
-const nxProjects: WorkspaceGraphProjectReader = {
-  async readProjects() {
-    return [
-      project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
-        "biome:ci",
-        "boundaries",
-        "check",
-        "generated:check",
-        "source:check",
-        "test",
-        "validate:boundary-taxonomy",
-        "validate:grit-patterns",
-        "validate:service-module-shape",
-      ]),
-      project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
-      project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
-      project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", [
-        "check",
-        "test",
-      ]),
-      project("@civ7/types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
-      project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", [
-        "check",
-        "test",
-        "test:architecture-core-purity",
-      ]),
-      project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
-      project("mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
-        "test:architecture-bundle-runtime-imports",
-      ]),
-      project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
-        "check",
-        "test",
-        "test:architecture-cutover",
-        "test:architecture-ecology-step-imports",
-        "test:architecture-m11-projection-band",
-        "test:architecture-map-bundle-runtime-imports",
-        "test:architecture-rng-authority",
-      ]),
-    ];
-  },
-};
+const workspaceGraph = graphReady([
+  project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
+    "biome:ci",
+    "boundaries",
+    "check",
+    "generated:check",
+    "source:check",
+    "test",
+    "validate:boundary-taxonomy",
+    "validate:grit-patterns",
+    "validate:service-module-shape",
+  ]),
+  project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
+  project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
+  project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
+  project("@civ7/types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
+  project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", [
+    "check",
+    "test",
+    "test:architecture-core-purity",
+  ]),
+  project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
+  project("mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
+    "test:architecture-bundle-runtime-imports",
+  ]),
+  project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
+    "check",
+    "test",
+    "test:architecture-cutover",
+    "test:architecture-ecology-step-imports",
+    "test:architecture-m11-projection-band",
+    "test:architecture-map-bundle-runtime-imports",
+    "test:architecture-rng-authority",
+  ]),
+]);
 
 describe("Habitat classify service", () => {
   test("classifies targets through the in-process Habitat service router", async () => {
     const result = await createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeTestHabitatServiceDeps({ workspaceProjects: nxProjects }),
+        deps: makeClassifyDeps(workspaceGraph),
       },
     }).classify.run({ target: "tools/habitat-harness/src/cli/commands/classify.ts" });
 
@@ -67,7 +63,7 @@ describe("Habitat classify service", () => {
   test("routes classify through the in-process Habitat service router", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeTestHabitatServiceDeps({ workspaceProjects: nxProjects }),
+        deps: makeClassifyDeps(workspaceGraph),
       },
     });
 
@@ -83,7 +79,7 @@ describe("Habitat classify service", () => {
   test("preserves diff classification through the service contract boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeTestHabitatServiceDeps({ workspaceProjects: nxProjects }),
+        deps: makeClassifyDeps(workspaceGraph),
       },
     });
 
@@ -116,12 +112,8 @@ index 3333333..4444444 100644
   test("preserves malformed diff refusal before graph reads", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeTestHabitatServiceDeps({
-          workspaceProjects: {
-            async readProjects() {
-              throw new Error("graph should not be read for malformed diff refusal");
-            },
-          },
+        deps: makeClassifyDeps(() => {
+          throw new Error("graph should not be read for malformed diff refusal");
         }),
       },
     });
@@ -138,7 +130,7 @@ index 3333333..4444444 100644
   test("preserves unresolved-owner path states through the service boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeTestHabitatServiceDeps({ workspaceProjects: nxProjects }),
+        deps: makeClassifyDeps(workspaceGraph),
       },
     });
 
@@ -152,20 +144,9 @@ index 3333333..4444444 100644
   test("preserves graph-refusal states through the service boundary", async () => {
     const client = createRouterClient(habitatServiceRouter, {
       context: {
-        deps: makeTestHabitatServiceDeps({
-          workspaceProjects: {
-            async readProjects() {
-              return [
-                {
-                  name: "",
-                  root: "",
-                  sourceRoot: null,
-                  tags: [],
-                  targets: [],
-                },
-              ];
-            },
-          },
+        deps: makeClassifyDeps({
+          kind: "malformed-graph-json",
+          message: "workspace graph fixture is malformed",
         }),
       },
     });
@@ -193,4 +174,21 @@ function project(
     tags: [tag],
     targets: targets.map((targetName) => ({ name: targetName })),
   };
+}
+
+function makeClassifyDeps(
+  graph: WorkspaceGraphReadState | (() => WorkspaceGraphReadState)
+): ReturnType<typeof makeTestHabitatServiceDeps> {
+  const deps = makeTestHabitatServiceDeps();
+  return {
+    ...deps,
+    nx: {
+      ...deps.nx,
+      workspaceGraph: () => Effect.sync(() => (typeof graph === "function" ? graph() : graph)),
+    },
+  };
+}
+
+function graphReady(projects: readonly WorkspaceProject[]): WorkspaceGraphReadState {
+  return { kind: "graph-ready", snapshot: { projects } };
 }
