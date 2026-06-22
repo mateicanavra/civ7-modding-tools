@@ -1,14 +1,14 @@
+import type { HostPolicyState } from "../dto/host-policy.schema.js";
 import {
-  type HostPolicyState,
   hostSurfaceDecisionForScanRoot,
-} from "@internal/habitat-harness/service/model/check/protection-policy/index";
+} from "./host-policy-decisions.policy.js";
 import { Value } from "typebox/value";
 import {
   type ProtectedZoneOwner,
   type ProtectedZoneRecoveryInstruction,
   type ScanRootProtectionDecision,
   ScanRootProtectionDecisionSchema,
-} from "./schema.js";
+} from "../dto/protected-zone.schema.js";
 
 export function decideScanRootProtection(
   root: string,

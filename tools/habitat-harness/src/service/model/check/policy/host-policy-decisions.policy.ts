@@ -15,8 +15,8 @@ import {
   type HostRecoveryInstruction,
   type HostSurfaceDecision,
   HostSurfaceDecisionSchema,
-} from "./schema.js";
-import { defaultHostPolicyState } from "./state.js";
+} from "../dto/host-policy.schema.js";
+import { defaultHostPolicyState } from "./host-policy-state.policy.js";
 
 type SurfaceDeclaration = Extract<HostPolicyDeclaration, { matcher: HostMatcher }>;
 type GeneratedSurfaceDeclaration = Extract<

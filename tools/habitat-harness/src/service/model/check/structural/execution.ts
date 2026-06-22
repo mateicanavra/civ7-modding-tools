@@ -5,7 +5,7 @@ import {
   runFileLayerProtectedMutationRule,
   type StagedMutationPath,
   stagedPathsFromNameStatus,
-} from "@internal/habitat-harness/service/model/check/protected-zones/index";
+} from "@internal/habitat-harness/service/model/check/index";
 import {
   type RuleRunResult,
   ruleDiagnosticsFromCommandResult,

@@ -4,7 +4,7 @@ import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
 } from "@internal/habitat-harness/service/model/check/index";
-import { decideScanRootProtection } from "@internal/habitat-harness/service/model/check/protected-zones/index";
+import { decideScanRootProtection } from "@internal/habitat-harness/service/model/check/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { protectedScanRootPrefixes } from "../constants.js";

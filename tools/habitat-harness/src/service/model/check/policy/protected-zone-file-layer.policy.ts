@@ -1,9 +1,15 @@
 import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/structural/schema";
 import type { RuleFileLayerFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
-import { declarationForFileLayerRule, declarationForHostSurfacePath } from "./declarations.js";
-import { decisionDiagnostic, declarationReadinessDiagnostic } from "./diagnostics.js";
-import { evaluateProtectedMutationGuard } from "./guard.js";
-import type { StagedMutationPath } from "./schema.js";
+import type { StagedMutationPath } from "../dto/protected-zone.schema.js";
+import {
+  declarationForFileLayerRule,
+  declarationForHostSurfacePath,
+} from "./protected-zone-declarations.policy.js";
+import {
+  decisionDiagnostic,
+  declarationReadinessDiagnostic,
+} from "./protected-zone-diagnostics.policy.js";
+import { evaluateProtectedMutationGuard } from "./protected-zone-guard.policy.js";
 
 export function runFileLayerProtectedMutationRule(
   rule: RuleFileLayerFacts,

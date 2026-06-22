@@ -1,7 +1,10 @@
 import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/structural/schema";
 import type { RuleFileLayerFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
-import { renderRecoveryInstruction } from "./recovery.js";
-import type { DeclarationReadiness, ProtectedMutationDecision } from "./schema.js";
+import type {
+  DeclarationReadiness,
+  ProtectedMutationDecision,
+} from "../dto/protected-zone.schema.js";
+import { renderRecoveryInstruction } from "./protected-zone-recovery.policy.js";
 
 export function declarationReadinessDiagnostic(
   rule: RuleFileLayerFacts,
