@@ -1,6 +1,5 @@
 export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.policy.js";
-export type { BaselineAuthorityContext, RequiredBaselineContext } from "./context.policy.js";
-export { resolveBaselineContext } from "./context.policy.js";
+export type { BaselineAuthorityContext } from "./context.policy.js";
 export {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
@@ -37,10 +36,6 @@ export {
 } from "./schema.js";
 export {
   baselineAuthorityResult,
-  baselinePath,
   isBaselineLocked,
-  loadBaseline,
-  loadBaselineState,
   parseBaselineArray,
-  validateBaselineContract,
 } from "./state.policy.js";

@@ -52,3 +52,4 @@ Completed burn-downs:
 - Check report rendering is now pure service-model formatting; the CLI owns `--output` file writes after compiling flags to service actions.
 - Structural check orchestration no longer has an internal Effect service tag, live layer, or fake layer; check, hook, and verify modules call owned structural policies directly.
 - Source-scope staged path normalization now receives repo root through module-projected check policy context instead of importing the global repo-root/path singleton.
+- Baseline authority no longer exports or tests a synchronous file-system API; baseline state tests now use the Effect policy operations and the stale sync path/read helpers are removed.
