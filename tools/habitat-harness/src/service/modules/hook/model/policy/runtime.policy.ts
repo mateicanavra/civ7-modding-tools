@@ -16,8 +16,6 @@ export interface HookResourcePolicy {
 }
 
 export interface HookRuntime {
-  pathExists?: (target: string) => boolean;
-  fileHash?: (repoRelativePath: string) => string | null;
   resourcePolicy?: HookResourcePolicy;
   trace?: HookTrace;
 }

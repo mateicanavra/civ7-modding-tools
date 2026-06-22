@@ -303,10 +303,10 @@ function applyTransaction(
   layer?: Layer.Layer<never>
 ) {
   const program = Effect.gen(function* () {
-    const grit = layer ? yield* GritProvider : undefined;
+    const grit = layer ? yield* GritProvider : makeTestHabitatServiceDeps().grit;
     return yield* runPatternApplyTransaction(input, {
       ...options,
-      ...(grit ? { grit } : {}),
+      grit,
     });
   });
   return Effect.runPromise(layer ? program.pipe(Effect.provide(layer)) : program);

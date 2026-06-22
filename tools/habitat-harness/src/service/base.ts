@@ -6,6 +6,8 @@ import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/prov
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import type {
   acquireTempDirectory,
+  hashFileSync,
+  pathExistsSync,
   readText,
 } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
@@ -25,8 +27,10 @@ export interface HabitatServiceDeps {
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly grit: GritProviderService;
+  readonly hashFile: typeof hashFileSync;
   readonly hookRuntime: HookRuntime;
   readonly nx: NxProviderService;
+  readonly pathExists: typeof pathExistsSync;
   readonly readText: typeof readText;
   readonly reporter: HabitatReporterService;
   readonly repoRoot: string;

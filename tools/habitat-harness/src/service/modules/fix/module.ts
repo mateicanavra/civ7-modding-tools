@@ -1,4 +1,7 @@
-import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
+import type {
+  GritProviderRequirements,
+  GritProviderService,
+} from "@internal/habitat-harness/providers/grit/index";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
@@ -38,17 +41,17 @@ export const module = service.fix.use(({ context, next }) => {
   });
 });
 
-function makeRunPatternApplyTransactions(grit: GritProviderService | undefined) {
+function makeRunPatternApplyTransactions(grit: GritProviderService) {
   return (
     input: FixServiceRunInput,
     admissions: readonly ApplyAdmission[],
     transactionInputs: ReturnType<typeof activeApplyTransactionInputs>
-  ): Effect.Effect<PatternApplyRecord[]> =>
+  ): Effect.Effect<PatternApplyRecord[], never, GritProviderRequirements> =>
     Effect.forEach(
       admissions,
       (admission) =>
         runPatternApplyTransaction(transactionRequest(input, admission), {
-          ...(grit ? { grit } : {}),
+          grit,
           transactionInputs,
         }),
       { concurrency: 1 }

@@ -635,8 +635,10 @@ describe("Habitat hook service", () => {
                   biome,
                   git,
                   graphite,
+                  hashFile: fake.hashFile,
                   hookRuntime: fake.runtime,
                   nx,
+                  pathExists: fake.pathExists,
                   repoRoot,
                   structuralCheck,
                 }),
@@ -692,7 +694,7 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-commit" },
-      { runtime: { ...fake.runtime, trace } },
+      { hashFile: fake.hashFile, pathExists: fake.pathExists, runtime: { ...fake.runtime, trace } },
       preCommitGitLayer(fake),
       undefined,
       makeFakeStructuralCheckLayer({
@@ -740,6 +742,8 @@ describe("Habitat hook service", () => {
 function runHookServiceInTest(
   input: HookServiceRunInput,
   options: {
+    readonly hashFile?: (targetPath: string) => string | null;
+    readonly pathExists?: (targetPath: string) => boolean;
     readonly reporterEvents?: HabitatReportEvent[];
     readonly runtime?: HookRuntime;
   } = {},
@@ -780,8 +784,10 @@ function runHookServiceInTest(
               biome,
               git,
               graphite,
+              ...(options.hashFile ? { hashFile: options.hashFile } : {}),
               hookRuntime: options.runtime ?? {},
               nx,
+              ...(options.pathExists ? { pathExists: options.pathExists } : {}),
               ...(options.reporterEvents
                 ? {
                     reporter: {
@@ -904,6 +910,8 @@ function makePreCommitRuntime(
   } = {}
 ): {
   runtime: HookRuntime;
+  hashFile: (targetPath: string) => string | null;
+  pathExists: (targetPath: string) => boolean;
   calls: string[];
   options: {
     stagedPaths?: string[];
@@ -913,21 +921,28 @@ function makePreCommitRuntime(
 } {
   const calls: string[] = [];
   const hashReads = new Map<string, number>();
+  const pathExists = (target: string) =>
+    (options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate));
+  const hashFile = (targetPath: string) => {
+    const repoRelativePath = toTestRepoRelative(targetPath);
+    const sequence = options.fileHashes?.[repoRelativePath];
+    if (!sequence) return `stable:${repoRelativePath}`;
+    const readCount = hashReads.get(repoRelativePath) ?? 0;
+    hashReads.set(repoRelativePath, readCount + 1);
+    return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
+  };
   return {
     calls,
+    hashFile,
     options,
-    runtime: {
-      pathExists: (target) =>
-        (options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate)),
-      fileHash: (repoRelativePath) => {
-        const sequence = options.fileHashes?.[repoRelativePath];
-        if (!sequence) return `stable:${repoRelativePath}`;
-        const readCount = hashReads.get(repoRelativePath) ?? 0;
-        hashReads.set(repoRelativePath, readCount + 1);
-        return sequence[Math.min(readCount, sequence.length - 1)] ?? null;
-      },
-    },
+    pathExists,
+    runtime: {},
   };
+}
+
+function toTestRepoRelative(targetPath: string): string {
+  const prefix = `${repoRoot}/`;
+  return targetPath.startsWith(prefix) ? targetPath.slice(prefix.length) : targetPath;
 }
 
 function preCommitGitLayer(fake: ReturnType<typeof makePreCommitRuntime>) {

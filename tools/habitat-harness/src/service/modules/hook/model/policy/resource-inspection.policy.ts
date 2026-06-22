@@ -1,4 +1,3 @@
-import { existsSync } from "node:fs";
 import path from "node:path";
 import type {
   GitProviderRequirements,
@@ -18,6 +17,12 @@ import {
 } from "./resource-decision.policy.js";
 import type { HookRuntime } from "./runtime.policy.js";
 
+interface ResourceInspectionContext {
+  readonly git: GitProviderService;
+  readonly pathExists: (targetPath: string) => boolean;
+  readonly repoRoot: string;
+}
+
 export function classifyResourcesState(runtime: HookRuntime = {}): ResourceStateFacade {
   if (!runtime.resourcePolicy) {
     return resourceDecisionToFacade(
@@ -30,7 +35,7 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
 }
 
 export function classifyResourcePreCommitDecisionEffect(
-  context: { readonly git: GitProviderService; readonly repoRoot: string },
+  context: ResourceInspectionContext,
   runtime: HookRuntime = {}
 ): Effect.Effect<ResourcePreCommitDecision, never, GitProviderRequirements> {
   if (!runtime.resourcePolicy) {
@@ -38,8 +43,7 @@ export function classifyResourcePreCommitDecisionEffect(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")
     );
   }
-  const pathExists = runtime.pathExists ?? existsSync;
-  const { git, repoRoot } = context;
+  const { git, pathExists, repoRoot } = context;
   const resourcePath = normalizeResourcePath(repoRoot, runtime.resourcePolicy.path);
   const resourceCommands = runtime.resourcePolicy.commands;
   if (!resourcePath || resourcePath === ".." || resourcePath.startsWith("../")) {
