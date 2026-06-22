@@ -4,11 +4,11 @@ import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router"
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
+} from "@internal/habitat-harness/resources/command/index";
 import {
   GritProvider,
   makeFakeGritProviderLayer,
-} from "@internal/habitat-harness/service/runtime/grit/index";
+} from "@internal/habitat-harness/providers/grit/index";
 import { Effect } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

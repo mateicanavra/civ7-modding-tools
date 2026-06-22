@@ -13,12 +13,12 @@ import {
 import {
   type SpawnResult,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { GitProvider } from "@internal/habitat-harness/service/runtime/git/index";
-import { GraphiteProvider } from "@internal/habitat-harness/service/runtime/graphite/index";
-import { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
-import { repoRoot as defaultRepoRoot } from "@internal/habitat-harness/service/runtime/paths";
-import { epochMillisToIsoString as defaultEpochMillisToIsoString } from "@internal/habitat-harness/service/runtime/resources/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { GitProvider } from "@internal/habitat-harness/providers/git/index";
+import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
+import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
+import { repoRoot as defaultRepoRoot } from "@internal/habitat-harness/resources/paths";
+import { epochMillisToIsoString as defaultEpochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
 import type {
   HabitatServiceRequirements,
   VerifyServiceModuleContext,

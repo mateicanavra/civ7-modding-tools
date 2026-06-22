@@ -14,11 +14,11 @@ export type {
   WorkspaceGraphTargetNames,
   WorkspaceProject,
   WorkspaceTargetState,
-} from "@internal/habitat-harness/service/runtime/nx/schema";
+} from "@internal/habitat-harness/providers/nx/schema";
 export {
   RuleGraphTargetNamesSchema,
   VerifyTargetPlanSchema,
-} from "@internal/habitat-harness/service/runtime/nx/schema";
+} from "@internal/habitat-harness/providers/nx/schema";
 export type {
   ClassifiedTarget,
   ClassifyDiffResult,

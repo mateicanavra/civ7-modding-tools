@@ -32,32 +32,32 @@ import type {
   RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/registry/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/selection/index";
-import { BiomeProvider } from "@internal/habitat-harness/service/runtime/biome/index";
+import { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import {
   CommandRunner,
   type HabitatCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import type { HabitatConfig } from "@internal/habitat-harness/service/runtime/config/index";
+} from "@internal/habitat-harness/resources/command/index";
+import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import {
   type HabitatError,
   renderHabitatError,
-} from "@internal/habitat-harness/service/runtime/errors/index";
+} from "@internal/habitat-harness/resources/errors/index";
 import {
   GitProvider,
   type GitProviderRequirements,
   type GitStateProvider,
-} from "@internal/habitat-harness/service/runtime/git/index";
+} from "@internal/habitat-harness/providers/git/index";
 import {
   GritProvider,
   type GritProviderRequirements,
   runGritRulesEffect,
-} from "@internal/habitat-harness/service/runtime/grit/index";
+} from "@internal/habitat-harness/providers/grit/index";
 import {
   NxProvider,
   type NxProviderService,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/service/runtime/nx/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/providers/nx/index";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { Clock, Effect } from "effect";
 import { notApplicableDiagnostic } from "./disposition-diagnostics.js";
 import type { CheckOptions } from "./request.js";

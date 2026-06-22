@@ -10,10 +10,10 @@ import {
   VerifyTargetPlanSchema,
   verifyTargetPlan,
 } from "@internal/habitat-harness/service/model/workspace/index";
-import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
-import { readWorkspaceGraph } from "@internal/habitat-harness/service/runtime/nx/graph";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
+import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Value } from "typebox/value";
 import { selectedVerifyEnv } from "./command-output.js";
 import { affectedVerificationArgv, completedNxAffected, skippedNxAffected } from "./nx-affected.js";

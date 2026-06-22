@@ -109,7 +109,13 @@ const depConstraints = [
   },
 ];
 
-const allow = ["/base-standard/**", "./nx-plugin.ts"];
+const allow = [
+  "/base-standard/**",
+  "./nx-plugin.ts",
+  "./providers/**",
+  "./resources/**",
+  "./service/**",
+];
 
 export default [
   {

@@ -6,15 +6,15 @@ import {
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
+} from "@internal/habitat-harness/resources/command/index";
 import type {
   GitProviderRequirements,
   GitProviderService,
-} from "@internal/habitat-harness/service/runtime/git/index";
+} from "@internal/habitat-harness/providers/git/index";
 import {
   repoRoot as defaultRepoRoot,
   toRepoRelative,
-} from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import type { HookRuntime } from "./runtime.js";
 

@@ -1,4 +1,4 @@
-import type { WorkspaceProject } from "@internal/habitat-harness/service/runtime/nx/schema";
+import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import type { ClassifiedTarget, UnavailableClassifiedTarget } from "./schema.js";
 import { projectTargetStates, workspaceTargetStates } from "./states.js";
 

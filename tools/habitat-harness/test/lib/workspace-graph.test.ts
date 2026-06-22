@@ -7,9 +7,9 @@ import {
   ruleAliasTargetState,
   sameProjectTarget,
 } from "@internal/habitat-harness/service/model/workspace/index";
-import { readWorkspaceGraph } from "@internal/habitat-harness/service/runtime/nx/graph";
-import type { WorkspaceProject } from "@internal/habitat-harness/service/runtime/nx/schema";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
+import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
+import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import { describe, expect, test } from "vitest";
 
 const projects: WorkspaceProject[] = [

@@ -21,8 +21,8 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
   type SpawnResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { GritProvider } from "@internal/habitat-harness/service/runtime/grit/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { GritProvider } from "@internal/habitat-harness/providers/grit/index";
 import { Effect } from "effect";
 import type { FixServiceRunInput } from "./contract.js";
 import { type FixServiceModuleContext, module } from "./module.js";

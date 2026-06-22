@@ -1,4 +1,4 @@
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   activeRuleRegistryDocument,
   ruleBaselineFacts,

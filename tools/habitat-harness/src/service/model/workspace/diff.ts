@@ -1,9 +1,9 @@
 import path from "node:path";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   isFileSync,
   readTextSync,
-} from "@internal/habitat-harness/service/runtime/resources/filesystem";
+} from "@internal/habitat-harness/resources/platform/filesystem";
 
 export function diffText(target: string): string | undefined {
   if (target.includes("\n") || target.startsWith("diff --git ")) return target;

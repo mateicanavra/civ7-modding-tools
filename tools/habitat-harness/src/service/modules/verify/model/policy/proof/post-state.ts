@@ -1,9 +1,9 @@
-import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 import {
   GitProvider,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/service/runtime/git/index";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/providers/git/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import { boundedPreview } from "./command-output.js";
 import type { VerifyReceipt } from "./schema.js";

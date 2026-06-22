@@ -18,19 +18,19 @@ import {
   type BiomeCommandRequest,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "@internal/habitat-harness/service/runtime/biome/index";
+} from "@internal/habitat-harness/providers/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
   type SpawnResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import type { HabitatCommandResult } from "@internal/habitat-harness/service/runtime/command/types";
+} from "@internal/habitat-harness/resources/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import {
   GitProvider,
   makeFakeGitProviderLayer,
-} from "@internal/habitat-harness/service/runtime/git/index";
-import { makeFakeNxProviderLayer } from "@internal/habitat-harness/service/runtime/nx/index";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/providers/git/index";
+import { makeFakeNxProviderLayer } from "@internal/habitat-harness/providers/nx/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

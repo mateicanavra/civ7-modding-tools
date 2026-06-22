@@ -4,7 +4,7 @@ import {
   type RuleCommandExecutionFacts,
   type RuleRegistryRecordV1,
 } from "@internal/habitat-harness/service/model/rules/registry/index";
-import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
+import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
 
 /**
  * The rule pack is authored in .habitat and consumed through the registry

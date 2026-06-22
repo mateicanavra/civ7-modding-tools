@@ -1,7 +1,7 @@
 import {
   patternCandidateRoot,
   patternManifestRoot,
-} from "@internal/habitat-harness/service/runtime/artifact-paths";
+} from "@internal/habitat-harness/resources/artifact-paths";
 
 export { patternCandidateRoot, patternManifestRoot };
 

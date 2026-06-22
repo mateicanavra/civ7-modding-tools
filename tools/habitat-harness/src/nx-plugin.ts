@@ -3,14 +3,14 @@ import path from "node:path";
 import {
   sourceCheckRuleModuleRepoPath,
   sourceCheckRuleRuntimeRepoPath,
-} from "@internal/habitat-harness/service/model/check/source/module-paths";
-import { ruleGraphFactsForNxPlugin } from "@internal/habitat-harness/service/modules/graph/model/dto/rule-graph-facts.dto";
+} from "./service/model/check/source/module-paths.ts";
+import { ruleGraphFactsForNxPlugin } from "./service/modules/graph/model/dto/rule-graph-facts.dto.ts";
 import {
   type InferredProjects,
   InferredProjectsSchema,
   type NxTargetDefinition,
   NxTargetDefinitionSchema,
-} from "@internal/habitat-harness/service/modules/graph/model/dto/target-definition.schema";
+} from "./service/modules/graph/model/dto/target-definition.schema.ts";
 import {
   aggregateCheckTarget,
   aliasRuleTarget,
@@ -21,23 +21,23 @@ import {
   habitatInputs,
   ownerCheckTarget,
   sourceCheckTarget,
-} from "@internal/habitat-harness/service/modules/graph/model/policy/target-definitions";
+} from "./service/modules/graph/model/policy/target-definitions.ts";
 import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,
   ruleRegistryRepoPath,
-} from "@internal/habitat-harness/service/runtime/artifact-paths";
+} from "./resources/artifact-paths.ts";
 import {
   loadRuleRegistryDocumentForNxPlugin,
   type NxRuleRegistryDocument,
   type NxRuleRegistryRecord,
-} from "@internal/habitat-harness/service/runtime/nx/rule-registry-loader";
+} from "./providers/nx/rule-registry-loader.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
-} from "@internal/habitat-harness/service/runtime/nx/schema";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/runtime/nx/targets";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+} from "./providers/nx/schema.ts";
+import { workspaceGraphTargetNames } from "./providers/nx/targets.ts";
+import { repoRoot } from "./resources/paths.ts";
 import { Value } from "typebox/value";
 
 const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
@@ -59,8 +59,18 @@ const harnessInternalBoundaryProjects = [
     tags: ["kind:tooling", "habitat:service", "layer:service-model"],
   },
   {
+    name: "@internal/habitat-harness-providers",
+    root: "tools/habitat-harness/src/providers",
+    tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+  },
+  {
+    name: "@internal/habitat-harness-resources",
+    root: "tools/habitat-harness/src/resources",
+    tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
+  },
+  {
     name: "@internal/habitat-harness-runtime",
-    root: "tools/habitat-harness/src/service/runtime",
+    root: "tools/habitat-harness/src/runtime",
     tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
   },
 ] as const;

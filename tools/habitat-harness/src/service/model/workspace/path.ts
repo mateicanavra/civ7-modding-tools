@@ -4,9 +4,9 @@ import type {
   GraphRefusalState,
   WorkspaceGraphReadState,
   WorkspaceProject,
-} from "@internal/habitat-harness/service/runtime/nx/schema";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
-import { statKindSync } from "@internal/habitat-harness/service/runtime/resources/filesystem";
+} from "@internal/habitat-harness/providers/nx/schema";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
+import { statKindSync } from "@internal/habitat-harness/resources/platform/filesystem";
 import { rulesForPath } from "./routing.js";
 import { type PathClassification, parsePathClassification } from "./schema.js";
 import {

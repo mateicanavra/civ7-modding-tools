@@ -10,14 +10,14 @@ import {
 import {
   habitatCacheRepoPath,
   habitatCacheRepoPathPrefix,
-} from "@internal/habitat-harness/service/runtime/artifact-paths";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/resources/artifact-paths";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import {
   isDirectory,
   isFile,
   readDirectory,
   readText,
-} from "@internal/habitat-harness/service/runtime/resources/filesystem";
+} from "@internal/habitat-harness/resources/platform/filesystem";
 import { Effect } from "effect";
 import ts from "typescript";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.js";

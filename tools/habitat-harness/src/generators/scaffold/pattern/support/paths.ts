@@ -3,7 +3,7 @@ import {
   checkPatternRoot,
   patternCandidateRoot,
   ruleRegistryRepoPath,
-} from "@internal/habitat-harness/service/runtime/artifact-paths";
+} from "@internal/habitat-harness/resources/artifact-paths";
 
 export function activePatternPathFor(options: { readonly patternName: string }) {
   return `${checkPatternRoot}/${options.patternName}.md`;

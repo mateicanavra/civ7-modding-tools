@@ -8,7 +8,7 @@ import {
   type HabitatServiceContract,
   habitatServiceContract,
 } from "@internal/habitat-harness/service/contract";
-import { HabitatRuntimeLive } from "@internal/habitat-harness/service/runtime/layers";
+import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import { Layer, ManagedRuntime } from "effect";
 import { type EffectImplementer, eoc, implementEffect } from "effect-orpc";
 

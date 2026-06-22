@@ -3,9 +3,9 @@ import {
   captureOutput,
   makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
-import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/service/runtime/graphite/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/providers/git/index";
+import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/providers/graphite/index";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 

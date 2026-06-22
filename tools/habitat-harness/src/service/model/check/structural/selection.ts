@@ -5,7 +5,7 @@ import {
 import {
   currentTimeMillis,
   epochMillisToIsoString,
-} from "@internal/habitat-harness/service/runtime/resources/index";
+} from "@internal/habitat-harness/resources/platform/index";
 import { Clock, Effect } from "effect";
 import type { CheckReport, RuleReport, StructuralCheckRequest } from "./schema.js";
 

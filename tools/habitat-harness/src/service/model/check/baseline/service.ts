@@ -1,10 +1,10 @@
 import type { FileSystem } from "@effect/platform";
 import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/structural/schema";
-import type { FileWriteFailed } from "@internal/habitat-harness/service/runtime/errors/index";
+import type { FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
 import type {
   GitProvider,
   GitProviderRequirements,
-} from "@internal/habitat-harness/service/runtime/git/index";
+} from "@internal/habitat-harness/providers/git/index";
 import { Context, Effect, Layer } from "effect";
 import { applyBaseline, baselineFailureDiagnostic } from "./application.js";
 import type { BaselineAuthorityContext } from "./context.js";

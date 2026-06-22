@@ -1,6 +1,6 @@
 import path from "node:path";
-import { ruleRegistryRepoPath } from "@internal/habitat-harness/service/runtime/artifact-paths";
-import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   isDirectory,
   isDirectorySync,
@@ -8,7 +8,7 @@ import {
   readDirectorySync,
   readText,
   readTextSync,
-} from "@internal/habitat-harness/service/runtime/resources/filesystem";
+} from "@internal/habitat-harness/resources/platform/filesystem";
 import { Data, Effect } from "effect";
 import type { TSchema } from "typebox";
 import { Value } from "typebox/value";

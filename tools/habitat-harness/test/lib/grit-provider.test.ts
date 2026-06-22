@@ -15,22 +15,22 @@ import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
   type OutputCapture,
-} from "@internal/habitat-harness/service/runtime/command/index";
-import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/service/runtime/grit/constants";
-import { gritRuleResultsFromReport } from "@internal/habitat-harness/service/runtime/grit/diagnostics";
+} from "@internal/habitat-harness/resources/command/index";
+import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/providers/grit/constants";
+import { gritRuleResultsFromReport } from "@internal/habitat-harness/providers/grit/diagnostics";
 import {
   discoverPatternScanRoots,
   makeFakeGritProviderLayer,
   runGritDiagnosticOutcomesEffect,
   runGritRulesEffect,
   validateScanRoots,
-} from "@internal/habitat-harness/service/runtime/grit/index";
+} from "@internal/habitat-harness/providers/grit/index";
 import {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
-} from "@internal/habitat-harness/service/runtime/grit/output";
-import { decidePatternScanRoots } from "@internal/habitat-harness/service/runtime/grit/scan-roots/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
+} from "@internal/habitat-harness/providers/grit/output";
+import { decidePatternScanRoots } from "@internal/habitat-harness/providers/grit/scan-roots/index";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { Effect, type Layer } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
