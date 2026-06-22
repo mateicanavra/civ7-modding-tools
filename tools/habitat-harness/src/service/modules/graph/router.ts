@@ -23,14 +23,16 @@ class GraphJsonShapeInvalid extends Data.TaggedError("GraphJsonShapeInvalid")<{
 }> {}
 
 export const graphRouter = {
-  run: module.run.effect(function* ({ input = {} }) {
+  run: module.run.effect(function* ({ context, input = {} }) {
+    const nx = context.nx ?? (yield* NxProvider);
+    const acquireGraphTempDirectory = context.acquireTempDirectory ?? acquireTempDirectory;
+    const readGraphText = context.readText ?? readText;
     return yield* Effect.scoped(
       Effect.gen(function* () {
-        const tempDir = yield* acquireTempDirectory("habitat-graph-").pipe(
+        const tempDir = yield* acquireGraphTempDirectory("habitat-graph-").pipe(
           Effect.mapError(graphServiceInternalError)
         );
         const graphPath = path.join(tempDir, "graph.json");
-        const nx = yield* NxProvider;
         const spawnResult = yield* nx.graph({ outputPath: graphPath }).pipe(
           Effect.match({
             onFailure: spawnResultFromCommandProviderError,
@@ -39,7 +41,7 @@ export const graphRouter = {
         );
         if (spawnResult.exitCode !== 0) return spawnResult;
 
-        const graphText = yield* readText(graphPath).pipe(
+        const graphText = yield* readGraphText(graphPath).pipe(
           Effect.mapError(graphServiceInternalError)
         );
         const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(

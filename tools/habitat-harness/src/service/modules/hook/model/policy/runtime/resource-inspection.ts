@@ -1,10 +1,10 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
-import {
-  GitProvider,
-  type GitProviderRequirements,
+import type {
+  GitProviderRequirements,
+  GitProviderService,
 } from "@internal/habitat-harness/service/runtime/git/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
+import { toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
 import {
   allowedResourceDecision,
@@ -30,15 +30,17 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
 }
 
 export function classifyResourcePreCommitDecisionEffect(
+  context: { readonly git: GitProviderService; readonly repoRoot: string },
   runtime: HookRuntime = {}
-): Effect.Effect<ResourcePreCommitDecision, never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<ResourcePreCommitDecision, never, GitProviderRequirements> {
   if (!runtime.resourcePolicy) {
     return Effect.succeed(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")
     );
   }
   const pathExists = runtime.pathExists ?? existsSync;
-  const resourcePath = normalizeResourcePath(runtime.resourcePolicy.path);
+  const { git, repoRoot } = context;
+  const resourcePath = normalizeResourcePath(repoRoot, runtime.resourcePolicy.path);
   const resourceCommands = runtime.resourcePolicy.commands;
   if (!resourcePath || resourcePath === ".." || resourcePath.startsWith("../")) {
     return Effect.succeed(
@@ -59,7 +61,6 @@ export function classifyResourcePreCommitDecisionEffect(
   }
 
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
     const insideWorktree = yield* git
       .command(["-C", resourcesRoot, "rev-parse", "--is-inside-work-tree"], { cwd: repoRoot })
       .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
@@ -168,7 +169,7 @@ export function classifyResourcePreCommitDecisionEffect(
   });
 }
 
-function normalizeResourcePath(resourcePath: string): string {
+function normalizeResourcePath(repoRoot: string, resourcePath: string): string {
   const absolute = path.isAbsolute(resourcePath) ? resourcePath : path.join(repoRoot, resourcePath);
   return toRepoRelative(absolute);
 }

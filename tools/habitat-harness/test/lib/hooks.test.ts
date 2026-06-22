@@ -25,7 +25,10 @@ import {
   type SpawnResult,
 } from "@internal/habitat-harness/service/runtime/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/service/runtime/command/types";
-import { makeFakeGitProviderLayer } from "@internal/habitat-harness/service/runtime/git/index";
+import {
+  GitProvider,
+  makeFakeGitProviderLayer,
+} from "@internal/habitat-harness/service/runtime/git/index";
 import { makeFakeNxProviderLayer } from "@internal/habitat-harness/service/runtime/nx/index";
 import { repoRoot } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect, Layer } from "effect";
@@ -126,7 +129,10 @@ describe("Habitat hook resource policy", () => {
     });
 
     const decision = await Effect.runPromise(
-      classifyResourcePreCommitDecisionEffect(fake.runtime).pipe(Effect.provide(makeGitLayer(fake)))
+      Effect.gen(function* () {
+        const git = yield* GitProvider;
+        return yield* classifyResourcePreCommitDecisionEffect({ git, repoRoot }, fake.runtime);
+      }).pipe(Effect.provide(makeGitLayer(fake)))
     );
 
     expect(decision).toMatchObject({

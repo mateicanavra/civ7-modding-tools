@@ -1,27 +1,40 @@
 import {
   checkCommandContext,
   StructuralCheck,
+  type StructuralCheckService,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/structural/index";
 import {
   createVerifyReceipt,
-  observeGitStatusEffect,
   readVerifyTargetPlan,
-  resolveVerifyBaseEffect,
-  runAffectedVerificationEffect,
+  type VerifyBaseResolution,
+  VerifyBaseResolutionSchema,
 } from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
-import type { SpawnResult } from "@internal/habitat-harness/service/runtime/command/index";
-import { epochMillisToIsoString } from "@internal/habitat-harness/service/runtime/resources/index";
+import {
+  type SpawnResult,
+  spawnResultFromCommandResult,
+} from "@internal/habitat-harness/service/runtime/command/index";
+import { GitProvider } from "@internal/habitat-harness/service/runtime/git/index";
+import { GraphiteProvider } from "@internal/habitat-harness/service/runtime/graphite/index";
+import { NxProvider } from "@internal/habitat-harness/service/runtime/nx/index";
+import { repoRoot as defaultRepoRoot } from "@internal/habitat-harness/service/runtime/paths";
+import { epochMillisToIsoString as defaultEpochMillisToIsoString } from "@internal/habitat-harness/service/runtime/resources/index";
+import type {
+  HabitatServiceRequirements,
+  VerifyServiceModuleContext,
+} from "@internal/habitat-harness/service/base";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
+import { Value } from "typebox/value";
 import { module } from "./module.js";
 
 export const verifyRouter = {
-  run: module.run.effect(function* ({ input }) {
-    const structuralCheck = yield* StructuralCheck;
+  run: module.run.effect(function* ({ context: moduleContext, input }) {
+    const context = yield* resolveVerifyContext(moduleContext);
+    const { structuralCheck } = context;
     const startedMs = yield* Clock.currentTimeMillis;
-    const startedAt = epochMillisToIsoString(startedMs);
-    const baseDecision = yield* resolveVerifyBaseEffect(input.base);
+    const startedAt = context.epochMillisToIsoString(startedMs);
+    const baseDecision = yield* resolveVerifyBase(context, input.base);
     if (baseDecision.kind === "refused") {
       return { kind: "base-refused" as const, message: baseDecision.message };
     }
@@ -41,14 +54,20 @@ export const verifyRouter = {
     if (!checkSummary.allowsAffectedExecution) exitCode = 1;
     else if (targetPlan.kind === "verify-target-plan-refused") exitCode = 1;
     else if (affectedExecution === "run") {
-      affectedResult = yield* runAffectedVerificationEffect(base, targetPlan).pipe(
-        Effect.mapError(verifyServiceInternalError)
-      );
+      affectedResult = yield* context.nx
+        .affected({ base, targets: targetPlan.targets })
+        .pipe(
+          Effect.map(spawnResultFromCommandResult),
+          Effect.mapError(verifyServiceInternalError)
+        );
       exitCode = affectedResult.exitCode;
     } else {
       affectedSkipReason = "receipt-only";
     }
     const endedMs = yield* Clock.currentTimeMillis;
+    const gitStatus = yield* context.git
+      .statusShortBranch({ cwd: context.repoRoot })
+      .pipe(Effect.map(spawnResultFromCommandResult), Effect.mapError(verifyServiceInternalError));
     const receipt = createVerifyReceipt({
       requestedBase: input.base,
       resolvedBase: base,
@@ -61,7 +80,7 @@ export const verifyRouter = {
       verifyTargetPlan: targetPlan,
       affectedResult,
       affectedSkipReason,
-      gitStatus: yield* observeGitStatusEffect().pipe(Effect.mapError(verifyServiceInternalError)),
+      gitStatus,
     });
     return {
       kind: "completed" as const,
@@ -76,8 +95,65 @@ export const verifyRouter = {
 
 export const router = verifyRouter;
 
+type ResolvedVerifyServiceModuleContext = Required<VerifyServiceModuleContext> & {
+  readonly structuralCheck: StructuralCheckService;
+};
+
+function resolveVerifyContext(
+  context: VerifyServiceModuleContext
+): Effect.Effect<ResolvedVerifyServiceModuleContext, never, HabitatServiceRequirements> {
+  return Effect.gen(function* () {
+    return {
+      epochMillisToIsoString: context.epochMillisToIsoString ?? defaultEpochMillisToIsoString,
+      git: context.git ?? (yield* GitProvider),
+      graphite: context.graphite ?? (yield* GraphiteProvider),
+      nx: context.nx ?? (yield* NxProvider),
+      repoRoot: context.repoRoot ?? defaultRepoRoot,
+      structuralCheck: yield* StructuralCheck,
+    };
+  });
+}
+
 function verifyServiceInternalError() {
   return new ORPCError("INTERNAL_SERVER_ERROR", {
     message: "Habitat verify service failed.",
+  });
+}
+
+function resolveVerifyBase(
+  context: ResolvedVerifyServiceModuleContext,
+  base?: string
+): Effect.Effect<VerifyBaseResolution, never, HabitatServiceRequirements> {
+  if (base) {
+    return Effect.succeed(
+      Value.Parse(VerifyBaseResolutionSchema, { kind: "resolved", base, source: "flag" })
+    );
+  }
+  return Effect.gen(function* () {
+    const graphiteParent = yield* context.graphite.parent({ cwd: context.repoRoot });
+    if (graphiteParent) {
+      return Value.Parse(VerifyBaseResolutionSchema, {
+        kind: "resolved",
+        base: graphiteParent,
+        source: "graphite-parent",
+      });
+    }
+
+    const defaultBranch = yield* context.git.remoteDefaultBranch({ cwd: context.repoRoot });
+    const resolved = defaultBranch
+      ? yield* context.git.mergeBase(defaultBranch, { cwd: context.repoRoot })
+      : null;
+    if (resolved) {
+      return Value.Parse(VerifyBaseResolutionSchema, {
+        kind: "resolved",
+        base: resolved,
+        source: "merge-base",
+      });
+    }
+    return Value.Parse(VerifyBaseResolutionSchema, {
+      kind: "refused",
+      message:
+        "could not resolve verify base from the remote default branch; pass --base explicitly.",
+    });
   });
 }

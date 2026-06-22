@@ -1,4 +1,3 @@
-import type { FixServiceModuleContext } from "@internal/habitat-harness/service/modules/fix/context";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
@@ -32,19 +31,25 @@ describe("pattern apply", () => {
     ).toBe(false);
   });
 
-  test("refuses fix at the command boundary before apply admission", async () => {
+  test("fix command boundary consumes service-owned apply admissions", async () => {
+    const requests: HabitatProcessRequest[] = [];
+    const layer = makeFakeGritProviderLayer((request) => {
+      requests.push(request);
+      return makeHabitatCommandResult(request);
+    });
+
     const result = await Effect.runPromise(
       Effect.gen(function* () {
-        const runFix = fixRouter.run.callable({ context: { fix: { admissions: [] } } });
+        const runFix = fixRouter.run.callable({ context: { fix: {} } });
         return yield* withFiberContext(() => runFix({ kind: "dry-run-intent" }));
-      })
+      }).pipe(Effect.provide(layer))
     );
 
     expect(result).toMatchObject({
-      exitCode: 1,
-      stdout: "",
-      stderr: expect.stringContaining("missing-apply-admission"),
+      exitCode: 0,
+      stderr: "",
     });
+    expect(requests).toHaveLength(2);
   });
 
   test("rejects unsupported request properties through TypeBox", () => {
@@ -289,7 +294,7 @@ describe("pattern apply", () => {
 
 function applyTransaction(
   input: PatternApplyRequest,
-  options?: Pick<FixServiceModuleContext, "transactionInputs">,
+  options?: { readonly transactionInputs?: readonly ApplyTransactionInput[] },
   layer?: Layer.Layer<never>
 ) {
   const program = runPatternApplyTransaction(input, options);

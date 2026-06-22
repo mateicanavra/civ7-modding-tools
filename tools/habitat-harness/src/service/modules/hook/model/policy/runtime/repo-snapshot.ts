@@ -1,20 +1,21 @@
 import type { HabitatCommandResult } from "@internal/habitat-harness/service/runtime/command/index";
-import {
-  GitProvider,
-  type GitProviderRequirements,
+import type {
+  GitProviderRequirements,
+  GitProviderService,
 } from "@internal/habitat-harness/service/runtime/git/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
+import { toRepoRelative } from "@internal/habitat-harness/service/runtime/paths";
 import { Effect } from "effect";
 import { classifyResourcesState } from "./resource-inspection.js";
 import type { HookRuntime } from "./runtime.js";
 import type { HookRepoSnapshot, ResourceStateKind } from "./schema.js";
 
 export function captureRepoSnapshotEffect(
+  context: { readonly git: GitProviderService; readonly repoRoot: string },
   runtime: HookRuntime,
   resourceState?: ResourceStateKind
-): Effect.Effect<HookRepoSnapshot, never, GitProvider | GitProviderRequirements> {
+): Effect.Effect<HookRepoSnapshot, never, GitProviderRequirements> {
   return Effect.gen(function* () {
-    const git = yield* GitProvider;
+    const { git, repoRoot } = context;
     const branch = yield* git.currentBranch({ cwd: repoRoot });
     const head = yield* git.head({ cwd: repoRoot });
     const staged = yield* git
