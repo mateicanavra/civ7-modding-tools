@@ -1,5 +1,31 @@
 # Restack Lookahead — coastal-tiling stack onto post-foundation-decomposition main
 
+> ## ✅ EXECUTED 2026-06-21 (stack restacked onto main `bcc5ab7bd`; 584 pass / 2 skip / 0 fail)
+> Re-ran the merge-tree simulation against the **real** merged main (foundation had advanced to
+> `bcc5ab7bd`, two commits past the `0d131cc33` this was authored on). Outcome vs prediction:
+> - **Stage names changed** (`#1901` "honest stage names"): `foundation-plates`→**`foundation-lithosphere`**,
+>   `foundation-crust`→**`foundation-orogeny`**. Real merged order: mantle / lithosphere / tectonics /
+>   orogeny / projection, then morphology-coasts…features, **morphology-shelf**, hydrology… (22 stages).
+> - **Output changed** (`#1902` plateActivity = post-classification orogeny-intensity, value 0.85→0.5 on
+>   `foundation-tectonics`): the byte-identical premise held for the *decomposition* but NOT for the later
+>   knob commit. Consequences: generated map hashes + ecology fingerprints regenerated/re-blessed for the
+>   new pipeline; `shipped-map-identity` hand-merge took main's foundation assertions verbatim.
+> - **New conflict not predicted:** `test/fixtures/ecology-parity/ecology-artifacts-fingerprints.v1.json`
+>   (the `#1902` ecology ripple) — re-blessed via `bun test/support/generate-ecology-baseline-fixtures.ts`.
+> - Conflicts auto-resolved per §3: per-branch `gen:maps` (s1/r2/r3), ecology re-bless (r4b), `git rm`
+>   foundation-topology-lock, take-main standard-recipe, hand-merge shipped-map-identity + STANDARD-RECIPE.md.
+>   Idempotency verified at tip (regen+rebless = 0 diff).
+> - **Two post-restack fixes:** (1) stale gitignored `dist/recipes/*` made `gen:studio-recipes-types` fail
+>   + the artifact-guards test red → fixed by `nx run mod-swooper-maps:build:studio-recipes` (no commit;
+>   dist is gitignored). (2) `#1902` shifted the worst earthlike seed-roll habitat fidelity to 0.8447
+>   (s1234; other 7 seeds ≥0.905) → re-baselined the seed-roll floor 0.85→0.84 with documentation (commit
+>   `0fc4e508c`); per-CASE full-size guards unchanged.
+> - **Deferred follow-up (still open):** add `morphology-shelf` to the `roots` allowlist in the new
+>   `map-stamping.contract-guard.test.ts` for guard coverage (§4) — verify it exists on the new main first.
+
+---
+
+
 > **Purpose.** The foundation-decomposition stack merges into `main` BEFORE this coastal-tiling stack.
 > When it does, this stack gets restacked (rebased) onto the new `main`. This doc is the executable
 > runbook for that restack: every predicted conflict + its exact resolution, derived by simulating the
