@@ -1,4 +1,4 @@
-import { TransactionPathDecisionSchema } from "@internal/habitat-harness/service/model/check/protected-zones/index";
+import { TransactionPathDecisionSchema } from "@internal/habitat-harness/service/model/check/index";
 import { ApplyAdmissionSchema } from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";

@@ -1,8 +1,8 @@
+import type { HostRecoveryInstruction } from "../dto/host-policy.schema.js";
 import {
-  type HostRecoveryInstruction,
   renderHostRecoveryInstruction,
-} from "@internal/habitat-harness/service/model/check/protection-policy/index";
-import type { ProtectedZoneRecoveryInstruction } from "./schema.js";
+} from "./host-policy-decisions.policy.js";
+import type { ProtectedZoneRecoveryInstruction } from "../dto/protected-zone.schema.js";
 
 export function renderRecoveryInstruction(recovery: ProtectedZoneRecoveryInstruction): string {
   if (isHostRecovery(recovery)) return renderHostRecoveryInstruction(recovery);

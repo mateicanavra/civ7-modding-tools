@@ -1,5 +1,5 @@
 import path from "node:path";
-import { decideScanRootProtection } from "@internal/habitat-harness/service/model/check/protected-zones/index";
+import { decideScanRootProtection } from "@internal/habitat-harness/service/model/check/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import { habitatCacheRepoPathPrefix } from "@internal/habitat-harness/resources/artifact-paths";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";

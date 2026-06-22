@@ -4,12 +4,12 @@ import {
   evaluateProtectedMutationGuard,
   runFileLayerProtectedMutationRule,
   stagedPathsFromNameStatus,
-} from "@internal/habitat-harness/service/model/check/protected-zones/index";
+} from "@internal/habitat-harness/service/model/check/index";
 import {
   defaultHostPolicyDocument,
   readHostPolicyState,
   unavailableHostPolicyState,
-} from "@internal/habitat-harness/service/model/check/protection-policy";
+} from "@internal/habitat-harness/service/model/check/index";
 import { describe, expect, test } from "vitest";
 
 describe("protected zone file-layer execution", () => {

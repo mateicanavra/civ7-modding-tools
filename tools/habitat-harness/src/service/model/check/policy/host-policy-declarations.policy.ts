@@ -7,7 +7,7 @@ import {
   HostPolicyDocumentSchema,
   type HostRecoveryInstruction,
   UnsupportedHostShapeDeclarationSchema,
-} from "./schema.js";
+} from "../dto/host-policy.schema.js";
 
 const policyId = "civ7-repo-host-policy";
 
