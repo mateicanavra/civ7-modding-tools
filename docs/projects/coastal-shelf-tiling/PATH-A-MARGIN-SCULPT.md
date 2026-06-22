@@ -91,6 +91,12 @@ tuned to a target):
 
 ## (c) OPEN FINDING — drowned continental platforms
 
+> **Investigated and handed off** → see
+> [`../crust-relief/FOUNDATION-CRUST-RELIEF.md`](../crust-relief/FOUNDATION-CRUST-RELIEF.md).
+> Verdict: NOT a config tweak. Root cause is a dense unimodal continental-crust buoyancy hump centred
+> on sea level (config scaling is cancelled by the sea-level solver); the fix reshapes the
+> distribution in `compute-crust-evolution`. The summary below stands.
+
 On earthlike, ~50% of continental crust is SUBMERGED FLAT (bathymetry median ≈ −5), forming roughly
 half of all coast tiles. This is a **FOUNDATION crust-relief characteristic**, NOT the shelf sculpt:
 continental crust baseline sits at/near sea level, so large tracts of continental crust drown as
