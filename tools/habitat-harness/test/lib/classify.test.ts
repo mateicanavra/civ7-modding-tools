@@ -1,5 +1,6 @@
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import { activeRuleFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
 import {
   classifyPath,
@@ -53,7 +54,7 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
   },
 };
 
-const defaultClassifyOptions = { nxProjects: fixtureNxProjects, repoRoot };
+const defaultClassifyOptions = { nxProjects: fixtureNxProjects, repoRoot, rules: activeRuleFacts };
 
 describe("Habitat classify D4 result model", () => {
   test("classifies project paths with D2 routing and D3 target guidance", async () => {
@@ -239,6 +240,7 @@ index 3333333..4444444 100644
   test("renders malformed graph metadata as a D3-owned graph-refusal state", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
+      rules: activeRuleFacts,
       nxProjects: {
         async readProjects() {
           return [
@@ -270,6 +272,7 @@ index 3333333..4444444 100644
     });
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
+      rules: activeRuleFacts,
       nxProjects: {
         async readProjects() {
           throw new Error("Nx daemon unavailable");
@@ -293,6 +296,7 @@ index 3333333..4444444 100644
   test("renders missing-project graph aliases as graph-refusal states", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
+      rules: activeRuleFacts,
       nxProjects: {
         async readProjects() {
           return [project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"])];
@@ -310,6 +314,7 @@ index 3333333..4444444 100644
   test("renders missing-target graph aliases as graph-refusal states", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
+      rules: activeRuleFacts,
       nxProjects: {
         async readProjects() {
           return [
