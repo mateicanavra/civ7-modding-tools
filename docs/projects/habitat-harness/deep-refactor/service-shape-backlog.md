@@ -108,3 +108,4 @@ Completed burn-downs:
 - Habitat runtime realization now derives Git, Graphite, Biome, Nx, Grit, Git state, and platform repo-scoped resources from the loaded `HabitatConfig` value instead of hardcoding the global repo root in `runtime/layers.ts`.
 - Boundary taxonomy no longer contains a stale allowance for separately inferred `service/modules/*/model` projects; module-local models remain inside their owning `layer:service-module` project and unexpected inferred model projects become validation failures.
 - Classify result DTOs and verify receipt DTOs now live under their owning module `model/dto` trees; the old shared `service/model/classify` and `service/model/verify` directories are deleted, and CLI/tests consume the module-owned model barrels.
+- Check CLI output paths now resolve through the provisioned Habitat service context platform repo root instead of importing the global repo-root singleton at the CLI command edge.
