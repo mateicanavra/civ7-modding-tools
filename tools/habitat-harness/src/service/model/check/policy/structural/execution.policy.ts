@@ -47,6 +47,7 @@ import {
 } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
+import type { BaselineFileSystemPort } from "../baseline/index.js";
 
 export interface RuleExecutionRecord {
   result: RuleRunResult;
@@ -56,6 +57,7 @@ export interface RuleExecutionRecord {
 }
 
 export interface StructuralExecutionContext {
+  readonly baselineFileSystem: BaselineFileSystemPort;
   readonly repoRoot: string;
   readonly biome: StructuralBiomePort;
   readonly command: StructuralCommandPort;

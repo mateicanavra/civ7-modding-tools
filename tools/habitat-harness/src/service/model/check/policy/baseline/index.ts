@@ -1,5 +1,5 @@
 export { applyBaseline, baselineFailureDiagnostic, violationKey } from "./application.policy.js";
-export type { BaselineAuthorityContext } from "./context.policy.js";
+export type { BaselineAuthorityContext, BaselineFileSystemPort } from "./context.policy.js";
 export {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,

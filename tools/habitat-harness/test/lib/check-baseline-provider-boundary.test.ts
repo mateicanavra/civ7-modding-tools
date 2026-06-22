@@ -7,6 +7,14 @@ import {
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import {
+  isDirectory,
+  isFile,
+  makeDirectory,
+  readDirectory,
+  readText,
+  writeText,
+} from "@internal/habitat-harness/resources/platform/index";
+import {
   checkBaselineIntegrityEffect,
   writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
@@ -50,6 +58,7 @@ describe("check and baseline provider boundaries", () => {
     const result = await Effect.runPromise(
       checkBaselineIntegrityEffect("main", {
         git,
+        fileSystem: baselineFileSystemPort(),
         repoRoot: root,
         baselinesDir,
         registry,
@@ -79,6 +88,7 @@ describe("check and baseline provider boundaries", () => {
     await Effect.runPromise(
       writeBaselineEffect("new-rule", ["z::last", "a::first"], {
         git: makeTestHabitatServiceDeps().git,
+        fileSystem: baselineFileSystemPort(),
         repoRoot: "/repo",
         baselinesDir,
         registry: [],
@@ -108,6 +118,7 @@ describe("check and baseline provider boundaries", () => {
         [fileLayerRule!],
         { staged: true },
         {
+          baselineFileSystem: baselineFileSystemPort(),
           biome: deps.biome,
           commandRunner: deps.commandRunner,
           git: deps.git,
@@ -132,6 +143,17 @@ function baselineRule(id: string) {
     ownerProject: "@internal/habitat-harness",
     ownerTool: "source-check",
   } as const;
+}
+
+function baselineFileSystemPort() {
+  return {
+    isDirectory,
+    isFile,
+    makeDirectory,
+    readDirectory,
+    readText,
+    writeText,
+  };
 }
 
 function ruleRegistryJson(ruleIds: readonly string[]) {

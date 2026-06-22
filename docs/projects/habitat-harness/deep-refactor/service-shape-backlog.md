@@ -22,6 +22,7 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Baseline authority now receives a baseline-owned filesystem port through structural execution context; direct platform helper imports are removed from baseline policy, and the platform resource exposes the write-capable filesystem operations needed for runtime projection.
 - Hook module procedure context now uses hook-owned Biome, Git, Graphite, Nx, platform, and reporter operation ports; the hook module no longer imports concrete provider/platform/reporter service types.
 - Verify module runtime helpers now use verify-owned Git, Graphite, Nx affected, and workspace-graph ports instead of concrete provider service types; the verify model barrel exports its policy ports for module wiring.
 - Fix module worktree observation and pattern-apply execution now depend on fix-owned Git and Grit operation ports; the fix module tree no longer imports concrete Git/Grit provider service or requirement types.

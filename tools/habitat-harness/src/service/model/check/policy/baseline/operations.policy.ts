@@ -1,29 +1,17 @@
 import path from "node:path";
-import type { FileSystem } from "@effect/platform";
 import {
   baselineRepoPath,
   baselinesRepoPath,
   ruleRegistryRepoPath,
 } from "@internal/habitat-harness/resources/artifact-paths";
-import {
-  type FileWriteFailed,
-  renderHabitatError,
-} from "@internal/habitat-harness/resources/errors/index";
-import {
-  isDirectory,
-  isFile,
-  makeDirectory,
-  readDirectory,
-  readText,
-  writeText,
-} from "@internal/habitat-harness/resources/platform/index";
+import { renderHabitatError } from "@internal/habitat-harness/resources/errors/index";
 import {
   parseRuleRegistryDocument,
   ruleBaselineFacts,
   ruleSelectorFacts,
 } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect } from "effect";
-import type { BaselineAuthorityContext } from "./context.policy.js";
+import type { BaselineAuthorityContext, BaselineFileSystemPort } from "./context.policy.js";
 import { errorMessage, externalSourceFilePath } from "./context.policy.js";
 import {
   type BaselineAuthorityState,
@@ -37,6 +25,7 @@ import { parseBaselineArray } from "./state.policy.js";
 import { sortedUnique } from "./utils.policy.js";
 
 interface RequiredBaselineAuthorityContext {
+  readonly fileSystem: BaselineAuthorityContext["fileSystem"];
   readonly git: BaselineAuthorityContext["git"];
   readonly repoRoot: string;
   readonly baselinesDir: string;
@@ -60,7 +49,7 @@ export function loadBaselineStateEffect(
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
     const p = baselinePathForRule(rule.id, context);
-    if (yield* fileExists(p)) return yield* parseBaselineFileEffect(p, rule.id, context);
+    if (yield* fileExists(p, context)) return yield* parseBaselineFileEffect(p, rule.id, context);
 
     if (rule.exceptionPath && rule.exceptionPath !== "none") {
       return {
@@ -89,8 +78,8 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
     const refusals: BaselineRefusal[] = [];
     const registered = new Set(context.registry.map((rule) => rule.id));
 
-    if (yield* directoryExists(context.baselinesDir)) {
-      const entries = yield* readDirectory(context.baselinesDir).pipe(
+    if (yield* directoryExists(context.baselinesDir, context)) {
+      const entries = yield* context.fileSystem.readDirectory(context.baselinesDir).pipe(
         Effect.catchAll(() => Effect.succeed([]))
       );
       for (const entry of entries) {
@@ -121,7 +110,7 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
 export function checkBaselineIntegrityEffect(
   base = "main",
   options: BaselineAuthorityContext
-): Effect.Effect<BaselineIntegrityResult, never, FileSystem.FileSystem | any> {
+): Effect.Effect<BaselineIntegrityResult, never, any> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
     const contract = yield* validateBaselineContractEffect(context);
@@ -186,7 +175,7 @@ export function guardBaselineExpansionEffect(
   keys: readonly string[],
   base = "main",
   options: BaselineAuthorityContext
-): Effect.Effect<BaselineExpansionDecision, never, FileSystem.FileSystem | any> {
+): Effect.Effect<BaselineExpansionDecision, never, any> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
     const uniqueKeys = sortedUnique(keys);
@@ -243,11 +232,11 @@ export function writeBaselineEffect(
   ruleId: string,
   keys: readonly string[],
   options: BaselineAuthorityContext
-): Effect.Effect<void, FileWriteFailed, FileSystem.FileSystem> {
+): Effect.Effect<void, unknown, any> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
-    yield* makeDirectory(context.baselinesDir);
-    yield* writeText(
+    yield* context.fileSystem.makeDirectory(context.baselinesDir);
+    yield* context.fileSystem.writeText(
       baselinePathForRule(ruleId, context),
       `${JSON.stringify([...keys].sort(), null, 2)}\n`
     );
@@ -256,24 +245,30 @@ export function writeBaselineEffect(
 
 function resolveBaselineAuthorityContext(
   options: BaselineAuthorityContext
-): Effect.Effect<RequiredBaselineAuthorityContext, never, FileSystem.FileSystem> {
+): Effect.Effect<RequiredBaselineAuthorityContext, never, any> {
   return Effect.gen(function* () {
     return {
       git: options.git,
+      fileSystem: options.fileSystem,
       repoRoot: options.repoRoot,
       baselinesDir: options.baselinesDir ?? path.join(options.repoRoot, baselinesRepoPath),
-      registry: options.registry ?? (yield* readCurrentRuleRegistryEffect(options.repoRoot)),
+      registry:
+        options.registry ??
+        (yield* readCurrentRuleRegistryEffect(options.repoRoot, options.fileSystem)),
       ruleIntroductionManifests: options.ruleIntroductionManifests ?? [],
     };
   });
 }
 
 function readCurrentRuleRegistryEffect(
-  root: string
-): Effect.Effect<BaselineRuleContractInput[], never, FileSystem.FileSystem> {
+  root: string,
+  fileSystem: BaselineFileSystemPort
+): Effect.Effect<BaselineRuleContractInput[], never, any> {
   return Effect.gen(function* () {
     const registryPath = path.join(root, ruleRegistryRepoPath, "rules.json");
-    const raw = yield* readText(registryPath).pipe(Effect.catchAll(() => Effect.succeed(null)));
+    const raw = yield* fileSystem
+      .readText(registryPath)
+      .pipe(Effect.catchAll(() => Effect.succeed(null)));
     if (raw === null) return [];
     try {
       const parsed = parseRuleRegistryDocument(JSON.parse(raw), registryPath);
@@ -305,14 +300,14 @@ function parseBaselineFileEffect(
   context: RequiredBaselineAuthorityContext
 ) {
   return Effect.gen(function* () {
-    const raw = yield* readText(filePath).pipe(Effect.either);
+    const raw = yield* context.fileSystem.readText(filePath).pipe(Effect.either);
     if (raw._tag === "Left") {
       return {
         kind: "baseline-refusal" as const,
         ruleId,
         path: toAuthorityRelative(filePath, context),
         reason: "malformed-baseline" as const,
-        message: `Baseline '${toAuthorityRelative(filePath, context)}' is not readable JSON: ${renderHabitatError(raw.left)}.`,
+        message: `Baseline '${toAuthorityRelative(filePath, context)}' is not readable JSON: ${errorMessage(raw.left)}.`,
       };
     }
 
@@ -349,14 +344,20 @@ function parseBaselineFileEffect(
   });
 }
 
-function fileExists(filePath: string): Effect.Effect<boolean, never, FileSystem.FileSystem> {
-  return isFile(filePath).pipe(Effect.catchAll(() => Effect.succeed(false)));
+function fileExists(
+  filePath: string,
+  context: RequiredBaselineAuthorityContext
+): Effect.Effect<boolean, never, any> {
+  return context.fileSystem.isFile(filePath).pipe(Effect.catchAll(() => Effect.succeed(false)));
 }
 
 function directoryExists(
-  directoryPath: string
-): Effect.Effect<boolean, never, FileSystem.FileSystem> {
-  return isDirectory(directoryPath).pipe(Effect.catchAll(() => Effect.succeed(false)));
+  directoryPath: string,
+  context: RequiredBaselineAuthorityContext
+): Effect.Effect<boolean, never, any> {
+  return context.fileSystem
+    .isDirectory(directoryPath)
+    .pipe(Effect.catchAll(() => Effect.succeed(false)));
 }
 
 function mergeBaseEffect(

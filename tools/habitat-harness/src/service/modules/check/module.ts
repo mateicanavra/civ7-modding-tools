@@ -82,6 +82,14 @@ function expandBaselines(
 
 function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
   return {
+    baselineFileSystem: {
+      isDirectory: deps.platform.isDirectory,
+      isFile: deps.platform.isFileEffect,
+      makeDirectory: deps.platform.makeDirectory,
+      readDirectory: deps.platform.readDirectory,
+      readText: deps.platform.readText,
+      writeText: deps.platform.writeText,
+    },
     biome: deps.biome,
     command: deps.commandRunner,
     git: deps.git,
