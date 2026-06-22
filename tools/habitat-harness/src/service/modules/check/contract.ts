@@ -3,7 +3,6 @@ import {
   CheckReportSchema,
   SelectorRequestSchema,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
@@ -61,18 +60,12 @@ const CheckServiceExpandBaselineOutputStandardSchema = toStandardSchema(
   CheckServiceExpandBaselineOutputSchema
 );
 
-export const checkReportContract: HabitatServiceProcedureContract<
-  typeof CheckReportInputStandardSchema,
-  typeof CheckReportOutputStandardSchema
-> = eoc
+export const checkReportContract = eoc
   .errors(habitatServiceErrorMap)
   .input(CheckReportInputStandardSchema)
   .output(CheckReportOutputStandardSchema);
 
-export const checkServiceExpandBaselineContract: HabitatServiceProcedureContract<
-  typeof CheckServiceExpandBaselineInputStandardSchema,
-  typeof CheckServiceExpandBaselineOutputStandardSchema
-> = eoc
+export const checkServiceExpandBaselineContract = eoc
   .errors(habitatServiceErrorMap)
   .input(CheckServiceExpandBaselineInputStandardSchema)
   .output(CheckServiceExpandBaselineOutputStandardSchema);

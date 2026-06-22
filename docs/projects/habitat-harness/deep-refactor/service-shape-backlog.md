@@ -126,3 +126,4 @@ Completed burn-downs:
 - Habitat service managed runtime construction moved to `runtime/service-runtime.ts`; the oRPC implementer and live service context creation share the same runtime-boundary composition instead of constructing runtimes in service files.
 - Hook service procedure shape now exposes `hook.preCommit` and `hook.prePush`; the old `hook.execute({ name })` envelope and unknown-name service state are deleted, and CLI hook dispatch compiles names to direct service actions.
 - Graph service procedure shape now returns a graph action result instead of a CLI stdout/stderr JSON envelope; `--json` compact formatting is owned by the CLI command.
+- Redundant `HabitatServiceProcedureContract<...>` annotations were removed from module contracts and the now-unused `service/procedure-contract.ts` helper was deleted. The custom `toStandardSchema` adapter remains for now because the installed TypeBox package does not expose a native Standard Schema converter.

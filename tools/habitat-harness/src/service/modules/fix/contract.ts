@@ -1,5 +1,4 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
-import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
@@ -26,10 +25,7 @@ const FixApplyPatternsOutputStandardSchema = toStandardSchema(FixApplyPatternsOu
 export type FixApplyPatternsInput = Static<typeof FixCommandIntentSchema>;
 export type FixApplyPatternsOutput = Static<typeof FixApplyPatternsOutputSchema>;
 
-export const fixApplyPatternsContract: HabitatServiceProcedureContract<
-  typeof FixApplyPatternsInputStandardSchema,
-  typeof FixApplyPatternsOutputStandardSchema
-> = eoc
+export const fixApplyPatternsContract = eoc
   .errors(habitatServiceErrorMap)
   .input(FixApplyPatternsInputStandardSchema)
   .output(FixApplyPatternsOutputStandardSchema);
