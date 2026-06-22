@@ -32,7 +32,10 @@ export const module = service.fix.use(({ context, next }) => {
   const activeApplyTransactionInputs = makeActiveApplyTransactionInputs(
     context.deps.rules.selector
   );
-  const runPatternApplyTransactions = makeRunPatternApplyTransactions(context.deps.grit);
+  const runPatternApplyTransactions = makeRunPatternApplyTransactions(
+    context.deps.grit,
+    context.deps.platform.repoRoot
+  );
   return next({
     context: {
       activeApplyTransactionInputs,
@@ -48,7 +51,7 @@ function makeActiveApplyTransactionInputs(ruleFacts: readonly { id: string }[]) 
   return () => activeApplyTransactionInputsFromRules(ruleFacts);
 }
 
-function makeRunPatternApplyTransactions(grit: GritProviderService) {
+function makeRunPatternApplyTransactions(grit: GritProviderService, repoRoot: string) {
   return (
     input: FixServiceRunInput,
     admissions: readonly ApplyAdmission[],
@@ -57,7 +60,7 @@ function makeRunPatternApplyTransactions(grit: GritProviderService) {
     Effect.forEach(
       admissions,
       (admission) =>
-        runPatternApplyTransaction(transactionRequest(input, admission), {
+        runPatternApplyTransaction(transactionRequest(input, admission, repoRoot), {
           grit,
           transactionInputs,
         }),
@@ -68,7 +71,8 @@ function makeRunPatternApplyTransactions(grit: GritProviderService) {
 function transactionRequest(
   intent: FixServiceRunInput,
   admission: ApplyAdmission,
-  worktree: WorktreeObservation = observeWorktree()
+  repoRoot: string,
+  worktree: WorktreeObservation = observeWorktree(repoRoot)
 ): PatternApplyRequest {
   return {
     kind: intent.kind,

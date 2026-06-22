@@ -12,8 +12,10 @@ export interface NxProjectMetadataReader {
 }
 
 export class NxProjectGraphMetadataReader implements NxProjectMetadataReader {
+  constructor(private readonly repoRoot: string) {}
+
   async readProjects(): Promise<NxProjectMetadata[]> {
-    return new NxWorkspaceGraphProjectReader().readProjects();
+    return new NxWorkspaceGraphProjectReader(this.repoRoot).readProjects();
   }
 }
 

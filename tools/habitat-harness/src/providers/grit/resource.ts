@@ -12,7 +12,6 @@ import type {
 } from "@internal/habitat-harness/resources/command/types";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
 import { FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   acquireTempDirectory,
   ensurePatternCacheRoot,
@@ -76,35 +75,43 @@ export class GritProvider extends Context.Tag("@internal/habitat-harness/GritPro
   GritProviderService
 >() {}
 
-export const GritProviderLive = Layer.succeed(GritProvider, makeLiveGritProvider());
+export function makeGritProviderLayer(repoRoot: string): Layer.Layer<GritProvider> {
+  return Layer.succeed(GritProvider, makeLiveGritProvider(repoRoot));
+}
 
 export function makeFakeGritProviderLayer(
   handler: (
     request: HabitatProcessRequest,
     providerRequest: GritProviderCommandRequest
-  ) => HabitatCommandResult
+  ) => HabitatCommandResult,
+  options: { readonly repoRoot?: string } = {}
 ) {
+  const repoRoot = options.repoRoot ?? ".";
   return Layer.succeed(GritProvider, {
     check: (request) =>
       Effect.sync(() => {
-        const prepared = fakePreparedCacheRequest(request);
-        return handler(gritProviderCheckRequest(prepared), { kind: "check", ...prepared });
+        const prepared = fakePreparedCacheRequest(request, repoRoot);
+        return handler(gritProviderCheckRequest(repoRoot, prepared), {
+          kind: "check",
+          ...prepared,
+        });
       }),
-    checkRequest: gritProviderCheckRequest,
+    checkRequest: (request) => gritProviderCheckRequest(repoRoot, request),
     applyDryRun: (request) =>
       Effect.sync(() => {
-        const prepared = fakePreparedCacheRequest(request);
-        return handler(gritProviderApplyDryRunRequest(prepared), {
+        const prepared = fakePreparedCacheRequest(request, repoRoot);
+        return handler(gritProviderApplyDryRunRequest(repoRoot, prepared), {
           kind: "apply-dry-run",
           ...prepared,
         });
       }),
-    applyDryRunRequest: gritProviderApplyDryRunRequest,
+    applyDryRunRequest: (request) => gritProviderApplyDryRunRequest(repoRoot, request),
   });
 }
 
 function fakePreparedCacheRequest<T extends { cacheMode?: string; cacheDir?: string }>(
-  request: T
+  request: T,
+  repoRoot: string
 ): T {
   if (request.cacheMode !== "fresh" || request.cacheDir) return request;
   return {
@@ -113,38 +120,40 @@ function fakePreparedCacheRequest<T extends { cacheMode?: string; cacheDir?: str
   } as T;
 }
 
-function makeLiveGritProvider(): GritProviderService {
+function makeLiveGritProvider(repoRoot: string): GritProviderService {
   return {
     check: (request) =>
       Effect.scoped(
         Effect.gen(function* () {
           const prepared = yield* prepareCacheRequest(request);
           const runner = yield* CommandRunner;
-          return yield* runner.run(gritProviderCheckRequest(prepared));
+          return yield* runner.run(gritProviderCheckRequest(repoRoot, prepared));
         })
       ),
-    checkRequest: gritProviderCheckRequest,
+    checkRequest: (request) => gritProviderCheckRequest(repoRoot, request),
     applyDryRun: (request) =>
       Effect.scoped(
         Effect.gen(function* () {
           const prepared = yield* prepareCacheRequest(request);
           const runner = yield* CommandRunner;
-          return yield* runner.run(gritProviderApplyDryRunRequest(prepared));
+          return yield* runner.run(gritProviderApplyDryRunRequest(repoRoot, prepared));
         })
       ),
-    applyDryRunRequest: gritProviderApplyDryRunRequest,
+    applyDryRunRequest: (request) => gritProviderApplyDryRunRequest(repoRoot, request),
   };
 }
 
 export function gritCheckRequest(
   scanRoots: readonly string[],
   options: {
+    repoRoot: string;
     cacheDir?: string;
     outputFormat?: "json" | "text";
     timeoutMs?: number;
     observableCacheStatus?: "unknown" | "fresh" | "cache-hit" | "replay";
-  } = {}
+  }
 ): HabitatProcessRequest {
+  const { repoRoot } = options;
   const cacheDir = options.cacheDir ?? path.join(repoRoot, ".habitat", "cache", "patterns");
   return {
     commandId: "pattern-check-current-tree",
@@ -170,8 +179,12 @@ export function gritCheckRequest(
   };
 }
 
-function gritProviderCheckRequest(request: GritCheckProviderRequest): HabitatProcessRequest {
+function gritProviderCheckRequest(
+  repoRoot: string,
+  request: GritCheckProviderRequest
+): HabitatProcessRequest {
   return gritCheckRequest(request.scanRoots, {
+    repoRoot,
     cacheDir: request.cacheDir,
     observableCacheStatus: request.observableCacheStatus,
     outputFormat: request.outputFormat,
@@ -180,6 +193,7 @@ function gritProviderCheckRequest(request: GritCheckProviderRequest): HabitatPro
 }
 
 export function gritApplyDryRunRequest(
+  repoRoot: string,
   request: GritApplyDryRunProviderRequest
 ): HabitatProcessRequest {
   const cacheMode = request.cacheMode ?? "disabled";
@@ -221,9 +235,10 @@ export function gritApplyDryRunRequest(
 }
 
 function gritProviderApplyDryRunRequest(
+  repoRoot: string,
   request: GritApplyDryRunProviderRequest
 ): HabitatProcessRequest {
-  return gritApplyDryRunRequest(request);
+  return gritApplyDryRunRequest(repoRoot, request);
 }
 
 function prepareCacheRequest<

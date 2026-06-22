@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import { runSyncHostCommand } from "@internal/habitat-harness/resources/command/sync";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Context, Effect, Layer } from "effect";
 
 export interface HabitatGitState {
@@ -25,19 +24,22 @@ export class GitStateProvider extends Context.Tag("@internal/habitat-harness/Git
   GitStateProviderService
 >() {}
 
-export const GitStateProviderLive = Layer.succeed(GitStateProvider, {
-  read: (cwd) => Effect.sync(() => readGitState(cwd)),
-});
+export function makeGitStateProviderLayer(repoRoot: string): Layer.Layer<GitStateProvider> {
+  return Layer.succeed(GitStateProvider, {
+    read: (cwd) => Effect.sync(() => readGitState(cwd ?? repoRoot)),
+  });
+}
 
 export function makeFakeGitStateProviderLayer(
-  handler: (cwd: string) => HabitatGitState
+  handler: (cwd: string) => HabitatGitState,
+  { repoRoot = "." }: { readonly repoRoot?: string } = {}
 ): Layer.Layer<GitStateProvider> {
   return Layer.succeed(GitStateProvider, {
     read: (cwd) => Effect.sync(() => handler(cwd ?? repoRoot)),
   });
 }
 
-export function readGitState(cwd = repoRoot): HabitatGitState {
+export function readGitState(cwd: string): HabitatGitState {
   const branch = gitValue(["branch", "--show-current"], cwd);
   const head = gitValue(["rev-parse", "HEAD"], cwd);
   const status = gitOutput(["status", "--short"], cwd);

@@ -20,7 +20,7 @@ import {
 import { Effect } from "effect";
 import { GritToolUnavailable } from "./failures.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";
-import { GritProvider, gritCheckRequest } from "./resource.js";
+import { GritProvider } from "./resource.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
@@ -50,8 +50,13 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
               outputFormat: options.outputFormat,
             }
           : { outputFormat: options.outputFormat };
-      const processRequest = gritCheckRequest(scanRoots, requestOptions);
       const grit = yield* GritProvider;
+      const processRequest = grit.checkRequest({
+        scanRoots,
+        cacheMode: requestOptions.cacheMode,
+        observableCacheStatus: requestOptions.observableCacheStatus,
+        outputFormat: requestOptions.outputFormat,
+      });
       const nativeRequest = nativeGritCheckRequestFromProcessRequest({
         request: processRequest,
         commandFamily: nativeCommandFamilyForGritCheck(options),
@@ -179,5 +184,3 @@ function nativeOutputContractForGritCheck(
 ): "json-report" | "standard-text-report" {
   return options.outputFormat === "text" ? "standard-text-report" : "json-report";
 }
-
-export { gritCheckRequest };

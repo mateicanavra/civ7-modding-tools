@@ -77,10 +77,13 @@ describe("vendor providers", () => {
         return yield* graphite.parent();
       }).pipe(
         Effect.provide(
-          makeFakeGraphiteProviderLayer((options) => {
-            observed.push(options.cwd);
-            return "agent-parent";
-          })
+          makeFakeGraphiteProviderLayer(
+            (options) => {
+              observed.push(options.cwd);
+              return "agent-parent";
+            },
+            { repoRoot }
+          )
         )
       )
     );
