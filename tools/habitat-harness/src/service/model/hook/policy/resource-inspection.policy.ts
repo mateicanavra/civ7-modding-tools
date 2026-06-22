@@ -10,13 +10,13 @@ import {
   allowedResourceDecision,
   refusedResourceDecision,
   resourceDecisionToFacade,
-} from "./resource.js";
-import type { HookRuntime } from "./runtime.js";
+} from "./resource-decision.policy.js";
+import type { HookRuntime } from "./runtime.policy.js";
 import type {
   ResourcePreCommitDecision,
   ResourceStateFacade,
   ResourceStateKind,
-} from "./schema.js";
+} from "../dto/hook.schema.js";
 
 export function classifyResourcesState(runtime: HookRuntime = {}): ResourceStateFacade {
   if (!runtime.resourcePolicy) {

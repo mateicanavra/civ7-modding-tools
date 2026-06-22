@@ -9,7 +9,7 @@ import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "@internal/habitat-harness/service/model/hook/runtime/runtime";
+} from "@internal/habitat-harness/service/model/hook/policy/runtime.policy";
 import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
 import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import {

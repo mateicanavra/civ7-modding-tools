@@ -5,9 +5,9 @@ import type {
 } from "@internal/habitat-harness/providers/git/index";
 import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
-import { classifyResourcesState } from "./resource-inspection.js";
-import type { HookRuntime } from "./runtime.js";
-import type { HookRepoSnapshot, ResourceStateKind } from "./schema.js";
+import { classifyResourcesState } from "./resource-inspection.policy.js";
+import type { HookRuntime } from "./runtime.policy.js";
+import type { HookRepoSnapshot, ResourceStateKind } from "../dto/hook.schema.js";
 
 export function captureRepoSnapshotEffect(
   context: { readonly git: GitProviderService; readonly repoRoot: string },

@@ -4,7 +4,7 @@ import {
   ResourcePreCommitDecisionSchema,
   type ResourceStateFacade,
   ResourceStateFacadeSchema,
-} from "./schema.js";
+} from "../dto/hook.schema.js";
 
 type AllowedKind = Extract<ResourcePreCommitDecision, { commit: "allowed" }>["kind"];
 type RefusedKind = Extract<ResourcePreCommitDecision, { commit: "refused" }>["kind"];

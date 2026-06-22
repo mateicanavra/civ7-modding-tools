@@ -4,9 +4,9 @@ import type {
   GitProviderService,
 } from "@internal/habitat-harness/providers/git/index";
 import { Effect } from "effect";
-import { captureRepoSnapshotEffect } from "./repo-snapshot.js";
-import { type HookRuntime, hookNow } from "./runtime.js";
-import type { HookTrace, PreCommitOutcome, ResourceStateKind } from "./schema.js";
+import { captureRepoSnapshotEffect } from "./repo-snapshot.policy.js";
+import { type HookRuntime, hookNow } from "./runtime.policy.js";
+import type { HookTrace, PreCommitOutcome, ResourceStateKind } from "../dto/hook.schema.js";
 
 export function finalizePreCommitEffect(
   context: { readonly git: GitProviderService; readonly repoRoot: string },
