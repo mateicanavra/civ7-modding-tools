@@ -33,7 +33,7 @@ export type {
   UnavailableClassifiedTarget,
   UnresolvedOwnerClassification,
   WorkspacePathClassification,
-} from "./classify.js";
+} from "./policy/classify.policy.js";
 export {
   ClassifyResultSchema,
   classifyPath,
@@ -43,7 +43,7 @@ export {
   commandSummary,
   stringifyClassifyResult,
   validateClassifyResult,
-} from "./classify.js";
+} from "./policy/classify.policy.js";
 export {
   aggregateWorkspaceDependency,
   aggregateWorkspaceTarget,
@@ -56,7 +56,7 @@ export {
   resolveTargetDependencyDeclaration,
   sameProjectTarget,
   sameProjectTargetDependency,
-} from "./dependencies.js";
+} from "./policy/target-dependencies.policy.js";
 export {
   findWorkspaceOwningProject,
   projectTargetStates,
@@ -65,4 +65,4 @@ export {
   verifyTargetPlan,
   workspaceProjectHasTarget,
   workspaceTargetStates,
-} from "./states.js";
+} from "./policy/workspace-targets.policy.js";

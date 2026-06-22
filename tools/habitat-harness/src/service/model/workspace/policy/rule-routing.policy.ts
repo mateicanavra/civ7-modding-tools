@@ -2,7 +2,7 @@ import { activeRuleRoutingFacts } from "@internal/habitat-harness/service/model/
 import type { RuleRoutingFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import { pathCoveragePatternMatches } from "@internal/habitat-harness/service/model/rules/registry/path-coverage";
 import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
-import type { RuleCoverageKind, RuleRouting } from "./schema.js";
+import type { RuleCoverageKind, RuleRouting } from "../dto/classify.schema.js";
 
 export function rulesForPath(pathInRepo: string, owner?: WorkspaceProject): RuleRouting[] {
   return activeRuleRoutingFacts

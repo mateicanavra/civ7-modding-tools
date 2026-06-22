@@ -7,14 +7,14 @@ import type {
 } from "@internal/habitat-harness/providers/nx/schema";
 import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { statKindSync } from "@internal/habitat-harness/resources/platform/filesystem";
-import { rulesForPath } from "./routing.js";
-import { type PathClassification, parsePathClassification } from "./schema.js";
+import { type PathClassification, parsePathClassification } from "../dto/classify.schema.js";
+import { rulesForPath } from "./rule-routing.policy.js";
 import {
   findWorkspaceOwningProject,
   ruleGraphTargetStates,
   workspaceTargetStates,
-} from "./states.js";
-import { projectTargets, workspaceTargets } from "./target-plan.js";
+} from "./workspace-targets.policy.js";
+import { projectTargets, workspaceTargets } from "./target-plan.policy.js";
 
 export function classifyPathFromProjects(
   target: string,
