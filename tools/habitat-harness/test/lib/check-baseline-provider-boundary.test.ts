@@ -4,8 +4,8 @@ import {
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import {
-  BaselineAuthority,
-  BaselineAuthorityLive,
+  checkBaselineIntegrityEffect,
+  writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/execution.policy";
 import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
@@ -14,14 +14,13 @@ import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
 
 describe("check and baseline provider boundaries", () => {
-  test("BaselineAuthorityLive reads integrity state through filesystem and git providers", async () => {
+  test("baseline integrity reads state through filesystem and git providers", async () => {
     const root = "/repo";
     const baselinesDir = "/repo/.habitat/baselines";
     const events: string[] = [];
     const gitCalls: string[][] = [];
     const registry = [baselineRule("existing-rule")];
     const layer = Layer.mergeAll(
-      BaselineAuthorityLive,
       makeFakePlatformFileSystemLayer(
         events,
         new Map([[`${baselinesDir}/existing-rule.json`, "[]\n"]]),
@@ -46,13 +45,10 @@ describe("check and baseline provider boundaries", () => {
     );
 
     const result = await Effect.runPromise(
-      Effect.gen(function* () {
-        const baseline = yield* BaselineAuthority;
-        return yield* baseline.checkIntegrity("main", {
-          repoRoot: root,
-          baselinesDir,
-          registry,
-        });
+      checkBaselineIntegrityEffect("main", {
+        repoRoot: root,
+        baselinesDir,
+        registry,
       }).pipe(Effect.provide(layer))
     );
 
@@ -71,19 +67,16 @@ describe("check and baseline provider boundaries", () => {
     ]);
   });
 
-  test("BaselineAuthorityLive writes baselines through the platform filesystem", async () => {
+  test("baseline expansion writes through the platform filesystem", async () => {
     const baselinesDir = "/repo/.habitat/baselines";
     const events: string[] = [];
-    const layer = Layer.mergeAll(BaselineAuthorityLive, makeFakePlatformFileSystemLayer(events));
+    const layer = makeFakePlatformFileSystemLayer(events);
 
     await Effect.runPromise(
-      Effect.gen(function* () {
-        const baseline = yield* BaselineAuthority;
-        yield* baseline.write("new-rule", ["z::last", "a::first"], {
-          repoRoot: "/repo",
-          baselinesDir,
-          registry: [],
-        });
+      writeBaselineEffect("new-rule", ["z::last", "a::first"], {
+        repoRoot: "/repo",
+        baselinesDir,
+        registry: [],
       }).pipe(Effect.provide(layer))
     );
 
