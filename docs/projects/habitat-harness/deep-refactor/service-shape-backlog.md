@@ -48,6 +48,7 @@ Completed burn-downs:
 - Workspace graph DTOs, target-name defaults, graph refusal shapes, and verify target-plan schemas now live under `service/model/workspace`; the Nx provider only owns graph reading and package-inventory parsing.
 - Nx rule registry loading now validates against service-owned rule registry schemas; graph facts consume service registry records instead of provider-local duplicate record types.
 - Rule registry repository loading now receives explicit async/sync filesystem capabilities; runtime and tests provide platform filesystem at the edge instead of the shared rules model importing platform helpers.
+- Source-rule native execution now receives an explicit source filesystem capability from module-projected platform context; source policy no longer imports platform filesystem helpers directly.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.

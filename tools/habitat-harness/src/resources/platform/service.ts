@@ -4,6 +4,7 @@ import {
   hashFileSync,
   isDirectory,
   isDirectorySync,
+  isFile,
   isFileSync,
   pathExistsSync,
   readDirectory,
@@ -21,6 +22,7 @@ export interface HabitatPlatformService {
   readonly isDirectory: typeof isDirectory;
   readonly isDirectorySync: typeof isDirectorySync;
   readonly isFile: typeof isFileSync;
+  readonly isFileEffect: typeof isFile;
   readonly pathExists: typeof pathExistsSync;
   readonly readDirectory: typeof readDirectory;
   readonly readDirectorySync: typeof readDirectorySync;
@@ -42,6 +44,7 @@ export const HabitatPlatformLive = Layer.succeed(HabitatPlatform, {
   isDirectory,
   isDirectorySync,
   isFile: isFileSync,
+  isFileEffect: isFile,
   pathExists: pathExistsSync,
   readDirectory,
   readDirectorySync,
