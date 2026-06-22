@@ -55,14 +55,9 @@ const VerifyChangesOutputSchema = Type.Union(
 );
 export type VerifyChangesOutput = Static<typeof VerifyChangesOutputSchema>;
 
-const VerifyChangesInputStandardSchema = toStandardSchema(VerifyChangesInputSchema);
-const VerifyChangesOutputStandardSchema = toStandardSchema(VerifyChangesOutputSchema);
-
-export const verifyChangesContract = eoc
-  .errors(habitatServiceErrorMap)
-  .input(VerifyChangesInputStandardSchema)
-  .output(VerifyChangesOutputStandardSchema);
-
 export const verifyServiceContract = {
-  changes: verifyChangesContract,
+  changes: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(VerifyChangesInputSchema))
+    .output(toStandardSchema(VerifyChangesOutputSchema)),
 };

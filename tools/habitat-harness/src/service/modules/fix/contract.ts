@@ -19,17 +19,12 @@ const FixApplyPatternsOutputSchema = Type.Object(
   { additionalProperties: false, description: "Habitat pattern apply result." }
 );
 
-const FixApplyPatternsInputStandardSchema = toStandardSchema(FixCommandIntentSchema);
-const FixApplyPatternsOutputStandardSchema = toStandardSchema(FixApplyPatternsOutputSchema);
-
 export type FixApplyPatternsInput = Static<typeof FixCommandIntentSchema>;
 export type FixApplyPatternsOutput = Static<typeof FixApplyPatternsOutputSchema>;
 
-export const fixApplyPatternsContract = eoc
-  .errors(habitatServiceErrorMap)
-  .input(FixApplyPatternsInputStandardSchema)
-  .output(FixApplyPatternsOutputStandardSchema);
-
 export const fixServiceContract = {
-  applyPatterns: fixApplyPatternsContract,
+  applyPatterns: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(FixCommandIntentSchema))
+    .output(toStandardSchema(FixApplyPatternsOutputSchema)),
 };

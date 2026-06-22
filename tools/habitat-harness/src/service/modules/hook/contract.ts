@@ -45,21 +45,13 @@ const HookResultSchema = Type.Object(
 );
 export type HookResult = Static<typeof HookResultSchema>;
 
-const HookPreCommitInputStandardSchema = toStandardSchema(HookPreCommitInputSchema);
-const HookPrePushInputStandardSchema = toStandardSchema(HookPrePushInputSchema);
-const HookResultStandardSchema = toStandardSchema(HookResultSchema);
-
-export const hookPreCommitContract = eoc
-  .errors(habitatServiceErrorMap)
-  .input(HookPreCommitInputStandardSchema)
-  .output(HookResultStandardSchema);
-
-export const hookPrePushContract = eoc
-  .errors(habitatServiceErrorMap)
-  .input(HookPrePushInputStandardSchema)
-  .output(HookResultStandardSchema);
-
 export const hookServiceContract = {
-  preCommit: hookPreCommitContract,
-  prePush: hookPrePushContract,
+  preCommit: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(HookPreCommitInputSchema))
+    .output(toStandardSchema(HookResultSchema)),
+  prePush: eoc
+    .errors(habitatServiceErrorMap)
+    .input(toStandardSchema(HookPrePushInputSchema))
+    .output(toStandardSchema(HookResultSchema)),
 };
