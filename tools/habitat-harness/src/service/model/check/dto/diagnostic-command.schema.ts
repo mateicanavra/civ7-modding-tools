@@ -4,7 +4,7 @@ import type {
 } from "@internal/habitat-harness/resources/command/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
-import type { DiagnosticProviderFailureKind } from "./failure.js";
+import type { DiagnosticProviderFailureKind } from "../errors/diagnostic-provider.errors.js";
 
 const DiagnosticCommandRequestMetadataSchema = Type.Object(
   {

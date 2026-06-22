@@ -6,7 +6,7 @@ import {
   NativeDiagnosticIdentitySchema,
   type NativeDiagnosticIdentityValue,
   nativeDiagnosticIdentity,
-} from "./identity.js";
+} from "./diagnostic-identity.schema.js";
 
 export const GritDiagnosticScanContractSchema = Type.Object(
   {

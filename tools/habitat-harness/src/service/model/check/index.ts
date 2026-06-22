@@ -9,7 +9,7 @@ export type {
   NativeDiagnosticCatalogEntry,
   NativeDiagnosticMatchContract,
   NativeDiagnosticScanContract,
-} from "./catalog.js";
+} from "./dto/diagnostic-catalog.schema.js";
 export {
   DiagnosticCatalogEntrySchema,
   DiagnosticMatchContractSchema,
@@ -23,7 +23,7 @@ export {
   NativeDiagnosticCatalogEntrySchema,
   NativeDiagnosticMatchContractSchema,
   NativeDiagnosticScanContractSchema,
-} from "./catalog.js";
+} from "./dto/diagnostic-catalog.schema.js";
 export type {
   DiagnosticCacheObservation,
   DiagnosticCacheRequirement,
@@ -34,7 +34,7 @@ export type {
   NativeGritCheckRequest,
   NativeGritCommandFamily,
   NativeGritOutputContract,
-} from "./command.js";
+} from "./dto/diagnostic-command.schema.js";
 export {
   DiagnosticCacheObservationSchema,
   DiagnosticCacheRequirementSchema,
@@ -54,14 +54,14 @@ export {
   NativeGritOutputContractSchema,
   nativeGritCheckRequestFromCommandResult,
   nativeGritCheckRequestFromProcessRequest,
-} from "./command.js";
-export type { DiagnosticProviderFailureKind } from "./failure.js";
+} from "./dto/diagnostic-command.schema.js";
+export type { DiagnosticProviderFailureKind } from "./errors/diagnostic-provider.errors.js";
 export {
   DiagnosticProviderFailureKindSchema,
   diagnosticProviderFailureKinds,
   isDiagnosticProviderFailureKind,
   renderDiagnosticProviderFailure,
-} from "./failure.js";
+} from "./errors/diagnostic-provider.errors.js";
 export type {
   DiagnosticIdentity,
   GritDiagnosticIdentity,
@@ -70,7 +70,7 @@ export type {
   ObservedDiagnosticIdentity,
   ObservedGritDiagnosticIdentity,
   ObservedNativeDiagnosticIdentity,
-} from "./identity.js";
+} from "./dto/diagnostic-identity.schema.js";
 export {
   DiagnosticIdentitySchema,
   GritDiagnosticIdentitySchema,
@@ -86,27 +86,27 @@ export {
   observedGritIdentityMatches,
   observedNativeDiagnosticIdentity,
   renderUnexpectedObservedGritIdentity,
-} from "./identity.js";
+} from "./dto/diagnostic-identity.schema.js";
 export type {
   DiagnosticConsumerResult,
   DiagnosticFinding,
   DiagnosticRunOutcome,
-} from "./outcome.js";
+} from "./dto/diagnostic-outcome.schema.js";
 export {
   DiagnosticConsumerResultSchema,
   DiagnosticFindingSchema,
   DiagnosticRunOutcomeSchema,
   diagnosticConsumerResultFromOutcome,
-} from "./outcome.js";
+} from "./dto/diagnostic-outcome.schema.js";
 export type {
   DiagnosticScanRootDecision,
   DiagnosticScanRootRefusal,
   DiagnosticScanRootRefusalReason,
-} from "./scan-root.js";
+} from "./dto/diagnostic-scan-root.schema.js";
 export {
   DiagnosticScanRootDecisionSchema,
   DiagnosticScanRootRefusalReasonSchema,
   DiagnosticScanRootRefusalSchema,
   isDiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
-} from "./scan-root.js";
+} from "./dto/diagnostic-scan-root.schema.js";

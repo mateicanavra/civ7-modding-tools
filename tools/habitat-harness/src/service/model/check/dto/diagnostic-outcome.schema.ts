@@ -1,9 +1,12 @@
 import { type Static, Type } from "typebox";
-import { DiagnosticCatalogEntrySchema } from "./catalog.js";
-import { DiagnosticCacheObservationSchema } from "./command.js";
-import { DiagnosticProviderFailureKindSchema } from "./failure.js";
-import { DiagnosticIdentitySchema, ObservedDiagnosticIdentitySchema } from "./identity.js";
-import { DiagnosticScanRootRefusalSchema } from "./scan-root.js";
+import { DiagnosticProviderFailureKindSchema } from "../errors/diagnostic-provider.errors.js";
+import { DiagnosticCatalogEntrySchema } from "./diagnostic-catalog.schema.js";
+import { DiagnosticCacheObservationSchema } from "./diagnostic-command.schema.js";
+import {
+  DiagnosticIdentitySchema,
+  ObservedDiagnosticIdentitySchema,
+} from "./diagnostic-identity.schema.js";
+import { DiagnosticScanRootRefusalSchema } from "./diagnostic-scan-root.schema.js";
 
 const DiagnosticSeveritySchema = Type.Union([Type.Literal("error"), Type.Literal("advisory")]);
 const BaselineStateSchema = Type.Union([
