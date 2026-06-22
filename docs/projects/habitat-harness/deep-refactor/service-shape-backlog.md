@@ -24,6 +24,7 @@ Completed burn-downs:
 - Structural rule execution now receives Biome, Nx, Git, and CommandRunner through module-projected execution context; shared structural policy no longer yields those provider/resource tags directly.
 - Hook staged-worktree and resource-inspection policies now derive repo-relative paths from their module-projected repo root; hook module policy no longer imports global path helpers.
 - Verify receipt command metadata now receives an allowlisted environment snapshot from the platform resource; verify policy no longer reads `process.env`.
+- Boundary taxonomy policy now requires callers to pass the repo root/config path explicitly; the service-model graph policy no longer imports the global repo root.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
