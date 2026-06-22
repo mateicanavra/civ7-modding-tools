@@ -7,7 +7,7 @@ import type { CommandRunnerService } from "@internal/habitat-harness/resources/c
 import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
-import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { Context, type Layer } from "effect";
 
 export interface HabitatServiceContext {

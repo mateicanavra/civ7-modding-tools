@@ -257,5 +257,3 @@ function duplicateRuleIdIssues(
     message: `Duplicate Habitat rule id: ${JSON.stringify(id)}.`,
   }));
 }
-
-export const activeRuleRegistryDocument = loadRuleRegistryDocument();

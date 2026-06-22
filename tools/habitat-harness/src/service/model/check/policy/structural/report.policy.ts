@@ -27,7 +27,7 @@ import {
   loadBaselineStateEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
-import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";

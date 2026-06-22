@@ -7,7 +7,7 @@ import {
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
-import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import {
   type VerifyBaseResolution,
   VerifyHabitatCheckSummarySchema,

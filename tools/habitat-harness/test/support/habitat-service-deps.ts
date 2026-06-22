@@ -1,3 +1,4 @@
+import path from "node:path";
 import { biomeArgv } from "@internal/habitat-harness/providers/biome/index";
 import { makeGitProviderFromCommandHandler } from "@internal/habitat-harness/providers/git/index";
 import {
@@ -6,6 +7,7 @@ import {
   runManyArgv,
   runTargetArgv,
 } from "@internal/habitat-harness/providers/nx/index";
+import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
 import {
   captureOutput,
   makeHabitatCommandResult,
@@ -15,8 +17,15 @@ import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { HabitatReportEvent } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import type { CheckReport } from "@internal/habitat-harness/service/model/check/index";
-import { activeRuleFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import {
+  loadRuleRegistryDocument,
+  ruleFactsCatalog,
+} from "@internal/habitat-harness/service/model/rules/index";
 import { Effect } from "effect";
+
+export function makeTestRuleFacts() {
+  return ruleFactsCatalog(loadRuleRegistryDocument(path.join(repoRoot, ruleRegistryRepoPath)));
+}
 
 export function makeTestHabitatServiceDeps(
   overrides: Partial<HabitatServiceDeps> = {}
@@ -114,7 +123,7 @@ export function makeTestHabitatServiceDeps(
       repoRoot,
     },
     reporter: fakeReporter(),
-    rules: activeRuleFacts,
+    rules: makeTestRuleFacts(),
     ...overrides,
   };
 }
