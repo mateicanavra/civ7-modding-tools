@@ -6,7 +6,13 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
+import type {
+  HabitatServiceContext,
+  HabitatServiceDeps,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError,
+} from "@internal/habitat-harness/service/base";
+import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
   type CheckOptions,
@@ -31,7 +37,8 @@ import {
 } from "@internal/habitat-harness/service/model/source-check/index";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
-import type { HookPreCommitInput, HookPrePushInput } from "./contract.js";
+import type { EffectImplementerInternal } from "effect-orpc";
+import type { HookPreCommitInput } from "./contract.js";
 import {
   type HookCheckCommandResult,
   type PreCommitOutcome,
@@ -54,7 +61,7 @@ import {
   unstagedAmongEffect,
 } from "./model/policy/staged-worktree.policy.js";
 
-type HookProcedureContext = {
+export type HookProcedureContext = {
   readonly biome: HookBiomePort;
   readonly git: HookGitPort;
   readonly graphite: HookGraphitePort;
@@ -65,19 +72,19 @@ type HookProcedureContext = {
   readonly createCheckReport: (options?: CheckOptions) => HookRouterEffect<CheckReport>;
   readonly workspaceGraphTargetNames: typeof workspaceGraphTargetNames;
 };
-interface HookBiomeCommandRequest {
+export interface HookBiomeCommandRequest {
   readonly kind: "format" | "check";
   readonly paths?: readonly string[];
   readonly write?: boolean;
   readonly noErrorsOnUnmatched?: boolean;
 }
-interface HookBiomePort {
+export interface HookBiomePort {
   readonly argv: (request: HookBiomeCommandRequest) => string[];
   readonly run: (
     request: HookBiomeCommandRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
 }
-interface HookGitPort {
+export interface HookGitPort {
   readonly add: (
     paths: readonly string[],
     options?: { readonly cwd?: string }
@@ -102,23 +109,23 @@ interface HookGitPort {
     readonly cwd?: string;
   }) => Effect.Effect<string | null, never, any>;
 }
-interface HookGraphitePort {
+export interface HookGraphitePort {
   readonly parent: (options?: {
     readonly cwd?: string;
   }) => Effect.Effect<string | null, never, any>;
   readonly parentArgv: () => readonly string[];
 }
-interface HookNxAffectedRequest {
+export interface HookNxAffectedRequest {
   readonly base: string;
   readonly targets: readonly string[];
   readonly head?: string;
   readonly excludeTaskDependencies?: boolean;
 }
-interface HookNxRunTargetRequest {
+export interface HookNxRunTargetRequest {
   readonly project: string;
   readonly target: string;
 }
-interface HookNxPort {
+export interface HookNxPort {
   readonly affected: (
     request: HookNxAffectedRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
@@ -128,7 +135,7 @@ interface HookNxPort {
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
   readonly runTargetArgv: (request: HookNxRunTargetRequest) => string[];
 }
-interface HookPlatformPort {
+export interface HookPlatformPort {
   readonly hashFile: (filePath: string) => string | null;
   readonly pathExists: (targetPath: string) => boolean;
   readonly repoRoot: string;
@@ -137,41 +144,41 @@ type HookReportEvent =
   | { readonly kind: "stdout"; readonly text: string }
   | { readonly kind: "stderr"; readonly text: string }
   | { readonly kind: "trace"; readonly message: string };
-interface HookReporterPort {
+export interface HookReporterPort {
   readonly emit: (event: HookReportEvent) => Effect.Effect<void>;
 }
 type BiomeCommandRequest = HookBiomeCommandRequest;
-type StagedHookCheckTool = "file-layer" | "source-check";
-type StagedHookCheckResult = SpawnResult & {
+export type StagedHookCheckTool = "file-layer" | "source-check";
+export type StagedHookCheckResult = SpawnResult & {
   readonly check: {
     readonly report: CheckReport;
     readonly summary: HookCheckSummary;
   };
 };
-type HookOutput = ReturnType<typeof createHookOutput>;
-interface PreCommitState {
+export type HookOutput = ReturnType<typeof createHookOutput>;
+export interface PreCommitState {
   readonly context: HookProcedureContext;
   readonly resourcePolicy?: HookResourcePolicy;
   readonly output: HookOutput;
   readonly staged: readonly string[];
 }
 
-interface PreCommitBiomeState extends PreCommitState {
+export interface PreCommitBiomeState extends PreCommitState {
   readonly biomePaths: readonly string[];
   readonly beforeHashes: ReadonlyMap<string, string | null>;
 }
 
-interface PreCommitSourceCheckState extends PreCommitState {
+export interface PreCommitSourceCheckState extends PreCommitState {
   readonly sourceCheckPaths: readonly string[];
 }
 
-type PreCommitStep<T> =
+export type PreCommitStep<T> =
   | { readonly kind: "done"; readonly outcome: PreCommitOutcome; readonly result: SpawnResult }
   | { readonly kind: "continue"; readonly state: T };
-type PrePushChangedPathsResult =
+export type PrePushChangedPathsResult =
   | { readonly kind: "available"; readonly paths: readonly string[] }
   | { readonly kind: "unavailable"; readonly message: string };
-type PrePushBaseDecision =
+export type PrePushBaseDecision =
   | {
       readonly kind: "resolved";
       readonly base: string;
@@ -181,17 +188,61 @@ type PrePushBaseDecision =
       readonly kind: "refused";
       readonly message: string;
     };
-type ParsedHookCheckResult = Extract<HookCheckCommandResult, { readonly kind: "parsed" }>;
-type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
+export type ParsedHookCheckResult = Extract<HookCheckCommandResult, { readonly kind: "parsed" }>;
+export type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
 type HookRouterEffect<T> = Effect.Effect<T, never, any>;
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
-interface HookModuleContext {
-  readonly preCommit: (input: HookPreCommitInput) => HookRouterEffect<SpawnResult>;
-  readonly prePush: (input: HookPrePushInput) => HookRouterEffect<SpawnResult>;
+export interface HookModuleContext {
+  readonly beginPreCommit: (
+    resourcePolicy: HookPreCommitInput["resourcePolicy"]
+  ) => HookRouterEffect<PreCommitStep<PreCommitState>>;
+  readonly checkSummaryAllowsNextStage: typeof checkSummaryAllowsNextStage;
+  readonly continuePreCommitAfterFileLayer: typeof continuePreCommitAfterFileLayer;
+  readonly createHookOutput: () => HookOutput;
+  readonly finalizePreCommitEffect: typeof finalizePreCommitEffect;
+  readonly finalizePrePushEffect: typeof finalizePrePushEffect;
+  readonly finishPreCommit: typeof finishPreCommit;
+  readonly hookNow: typeof hookNow;
+  readonly hookResult: typeof hookResult;
+  readonly localHookNotice: typeof localHookNotice;
+  readonly preCommitBiomeProviderStep: typeof preCommitBiomeProviderStep;
+  readonly prePushAffectedArgv: (request: HookNxAffectedRequest) => string[];
+  readonly prePushChangedPaths: (base: string) => HookRouterEffect<PrePushChangedPathsResult>;
+  readonly prePushHookSourceCheck: (
+    changedPaths: readonly string[]
+  ) => HookRouterEffect<PrePushHookSourceCheckResult>;
+  readonly prePushHookSourceCheckPaths: (changedPaths: readonly string[]) => readonly string[];
+  readonly prePushRunAffected: (request: HookNxAffectedRequest) => HookRouterEffect<SpawnResult>;
+  readonly prePushRunTarget: (target: HookNxRunTargetRequest) => HookRouterEffect<SpawnResult>;
+  readonly prePushRunTargetArgv: (target: HookNxRunTargetRequest) => string[];
+  readonly prePushTargetPlanForChangedPaths: (
+    changedPaths: readonly string[]
+  ) => ReturnType<typeof prePushTargetPlanForChangedPaths>;
+  readonly recordHookCommand: (
+    phase: HookCommandRecordPhase,
+    argv: readonly string[],
+    startedAtMs: number,
+    exitCode: number
+  ) => Effect.Effect<void>;
+  readonly renderCheckReport: typeof renderCheckReport;
+  readonly resolvePrePushBase: () => HookRouterEffect<PrePushBaseDecision>;
+  readonly section: typeof section;
+  readonly stagedHookCheck: (
+    tool: StagedHookCheckTool,
+    stagedPaths: readonly string[]
+  ) => HookRouterEffect<StagedHookCheckResult>;
 }
 
-export const module = service.hook.use(({ context, next }) => {
+type HookModule = EffectImplementerInternal<
+  HabitatServiceContract["hook"],
+  HabitatServiceContext,
+  HabitatServiceContext & HookModuleContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError
+>;
+
+export const module: HookModule = service.hook.use(({ context, next }) => {
   const hookContext = {
     biome: context.deps.biome,
     git: context.deps.git,
@@ -210,8 +261,37 @@ export const module = service.hook.use(({ context, next }) => {
 
   return next({
     context: {
-      preCommit: (input) => preCommitHook(hookContext, input),
-      prePush: (input) => prePushHook(hookContext, input),
+      beginPreCommit: (resourcePolicy) => beginPreCommit(hookContext, resourcePolicy),
+      checkSummaryAllowsNextStage,
+      continuePreCommitAfterFileLayer,
+      createHookOutput: () => createHookOutput(hookContext.reporter),
+      finalizePreCommitEffect,
+      finalizePrePushEffect,
+      finishPreCommit,
+      hookNow,
+      hookResult,
+      localHookNotice,
+      preCommitBiomeProviderStep,
+      prePushAffectedArgv: (request) => hookContext.nx.affectedArgv(request),
+      prePushChangedPaths: (base) => prePushChangedPaths(hookContext, base),
+      prePushHookSourceCheck: (changedPaths) => prePushHookSourceCheck(hookContext, changedPaths),
+      prePushHookSourceCheckPaths: (changedPaths) =>
+        prePushHookSourceCheckPaths(hookContext, changedPaths),
+      prePushRunAffected: (request) => runPrePushAffected(hookContext, request),
+      prePushRunTarget: (target) => runPrePushTarget(hookContext, target),
+      prePushRunTargetArgv: (target) => hookContext.nx.runTargetArgv(target),
+      prePushTargetPlanForChangedPaths: (changedPaths) =>
+        prePushTargetPlanForChangedPaths(
+          changedPaths,
+          hookContext.workspaceGraphTargetNames(),
+          hookContext.rules.artifactPath
+        ),
+      recordHookCommand: (phase, argv, startedAtMs, exitCode) =>
+        recordHookCommand(hookContext, phase, argv, startedAtMs, exitCode),
+      renderCheckReport,
+      resolvePrePushBase: () => resolvePrePushBase(hookContext),
+      section,
+      stagedHookCheck: (tool, stagedPaths) => stagedHookCheck(hookContext, tool, stagedPaths),
     } satisfies HookModuleContext,
   });
 });
@@ -246,129 +326,6 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
       readText: deps.platform.readText,
     },
   };
-}
-
-function prePushHook(context: HookProcedureContext, input: HookPrePushInput) {
-  return Effect.gen(function* () {
-    const baseDecision = input.base
-      ? ({
-          kind: "resolved",
-          base: input.base,
-          source: "explicit",
-        } satisfies PrePushBaseDecision)
-      : yield* resolvePrePushBase(context);
-    const output = createHookOutput(context.reporter);
-    output.writeStdout(localHookNotice);
-
-    if (baseDecision.kind === "refused") {
-      output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
-      return yield* finalizePrePushEffect("base-refused", yield* hookResult(output, 1));
-    }
-    const base = baseDecision.base;
-    const changedPaths = yield* prePushChangedPaths(context, base);
-    if (changedPaths.kind === "unavailable") {
-      output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
-      return yield* finalizePrePushEffect("affected-failed", yield* hookResult(output, 1));
-    }
-    const hookSourcePaths = prePushHookSourceCheckPaths(context, changedPaths.paths);
-    if (hookSourcePaths.length > 0) {
-      const hookSourceCheck = yield* prePushHookSourceCheck(context, hookSourcePaths);
-      output.writeStdout(
-        section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
-      );
-      if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
-        return yield* finalizePrePushEffect(
-          "affected-failed",
-          yield* hookResult(output, hookSourceCheck.exitCode)
-        );
-      }
-    } else {
-      output.writeStdout(
-        "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n"
-      );
-    }
-    const targetPlan = prePushTargetPlanForChangedPaths(
-      changedPaths.paths,
-      context.workspaceGraphTargetNames(),
-      context.rules.artifactPath
-    );
-    for (const target of targetPlan.runTargets) {
-      const argv = context.nx.runTargetArgv(target);
-      const startedAtMs = yield* hookNow();
-      const targetResult = yield* context.nx.runTarget(target).pipe(
-        Effect.match({
-          onFailure: spawnResultFromCommandProviderError,
-          onSuccess: spawnResultFromCommandResult,
-        })
-      );
-      yield* recordHookCommand(
-        context,
-        "pre-push-target",
-        argv,
-        startedAtMs,
-        targetResult.exitCode
-      );
-      output.writeStdout(
-        `habitat hook pre-push: repo Nx target ${target.project}:${target.target}\n${targetResult.stdout}`
-      );
-      output.writeStderr(targetResult.stderr);
-      if (targetResult.exitCode !== 0) {
-        return yield* finalizePrePushEffect(
-          "affected-failed",
-          yield* hookResult(output, targetResult.exitCode)
-        );
-      }
-    }
-    if (targetPlan.affectedTargets.length === 0) {
-      output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
-      return yield* finalizePrePushEffect("pass", yield* hookResult(output, 0));
-    }
-    const request = {
-      base,
-      targets: targetPlan.affectedTargets,
-      head: "HEAD",
-      excludeTaskDependencies: true,
-    };
-    const argv = context.nx.affectedArgv(request);
-    const startedAtMs = yield* hookNow();
-    const result = yield* context.nx.affected(request).pipe(
-      Effect.match({
-        onFailure: spawnResultFromCommandProviderError,
-        onSuccess: spawnResultFromCommandResult,
-      })
-    );
-    yield* recordHookCommand(context, "pre-push-affected", argv, startedAtMs, result.exitCode);
-    output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
-    output.writeStderr(result.stderr);
-    return yield* finalizePrePushEffect(
-      result.exitCode === 0 ? "pass" : "affected-failed",
-      yield* hookResult(output, result.exitCode)
-    );
-  });
-}
-
-function preCommitHook(context: HookProcedureContext, input: HookPreCommitInput) {
-  return Effect.gen(function* () {
-    const begun = yield* beginPreCommit(context, input.resourcePolicy);
-    if (begun.kind === "done") {
-      return yield* finalizePreCommitEffect(begun.outcome, begun.result);
-    }
-    const fileLayer = yield* stagedHookCheck(context, "file-layer", begun.state.staged);
-    const afterFileLayer = yield* continuePreCommitAfterFileLayer(begun.state, fileLayer);
-    if (afterFileLayer.kind === "done") {
-      return yield* finalizePreCommitEffect(afterFileLayer.outcome, afterFileLayer.result);
-    }
-    const afterBiome = yield* preCommitBiomeProviderStep(afterFileLayer.state);
-    if (afterBiome.kind === "done") {
-      return yield* finalizePreCommitEffect(afterBiome.outcome, afterBiome.result);
-    }
-
-    const sourceCheckResult =
-      afterBiome.state.sourceCheckPaths.length > 0
-        ? yield* stagedHookCheck(context, "source-check", afterBiome.state.sourceCheckPaths)
-        : undefined;
-    return yield* finishPreCommit(afterBiome.state, sourceCheckResult);
-  });
 }
 
 function hookResult(output: HookOutput, exitCode: number): HookRouterEffect<SpawnResult> {
@@ -691,6 +648,30 @@ function prePushHookSourceCheck(
   });
 }
 
+function runPrePushTarget(
+  context: HookProcedureContext,
+  target: HookNxRunTargetRequest
+): HookRouterEffect<SpawnResult> {
+  return context.nx.runTarget(target).pipe(
+    Effect.match({
+      onFailure: spawnResultFromCommandProviderError,
+      onSuccess: spawnResultFromCommandResult,
+    })
+  );
+}
+
+function runPrePushAffected(
+  context: HookProcedureContext,
+  request: HookNxAffectedRequest
+): HookRouterEffect<SpawnResult> {
+  return context.nx.affected(request).pipe(
+    Effect.match({
+      onFailure: spawnResultFromCommandProviderError,
+      onSuccess: spawnResultFromCommandResult,
+    })
+  );
+}
+
 function resolvePrePushBase(context: HookProcedureContext): HookRouterEffect<PrePushBaseDecision> {
   return Effect.gen(function* () {
     const startedAtMs = yield* hookNow();
@@ -773,17 +754,19 @@ function recordInProcessHookCheck(
   return Effect.void;
 }
 
+type HookCommandRecordPhase =
+  | "partial-staging"
+  | "staged-paths"
+  | "formatter-restage"
+  | "biome-format"
+  | "biome-check"
+  | "pre-push-base"
+  | "pre-push-target"
+  | "pre-push-affected";
+
 function recordHookCommand(
   context: HookProcedureContext,
-  phase:
-    | "partial-staging"
-    | "staged-paths"
-    | "formatter-restage"
-    | "biome-format"
-    | "biome-check"
-    | "pre-push-base"
-    | "pre-push-target"
-    | "pre-push-affected",
+  phase: HookCommandRecordPhase,
   argv: readonly string[],
   startedAtMs: number,
   exitCode: number
