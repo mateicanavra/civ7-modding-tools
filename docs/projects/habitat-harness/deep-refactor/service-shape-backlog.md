@@ -139,3 +139,4 @@ Completed burn-downs:
 - Hook procedure context vocabulary now lives in a named module-local policy file; `hook/module.ts` no longer exports raw provider/port/state type declarations as inline implementation clutter.
 - Boundary taxonomy filesystem/config/Nx graph acquisition now lives under `src/validation`; shared `service/model/graph` retains the pure taxonomy parser/auditor instead of importing filesystem and Nx graph APIs.
 - Hook pre-commit/pre-push operation bodies now live in module-local `procedure-operations.policy.ts`; `hook/module.ts` is reduced to effect-oRPC context projection plus shared check-report context construction.
+- Hook/verify validation target routing now lives under shared `service/model/validation`; graph model no longer owns Habitat validation target selection policy.
