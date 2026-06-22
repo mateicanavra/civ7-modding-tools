@@ -22,6 +22,7 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Graph module runtime dependencies are now graph-owned operation ports for temp directory acquisition, graph file reads, and Nx graph generation; the graph module no longer imports concrete Nx provider or platform resource service types.
 - Shared structural check policy now depends on structural-owned operation ports for Biome, command execution, Git staged/base reads, Grit rule execution, and Nx target execution; check/hook/verify modules project live providers into those ports, and baseline authority no longer requires a full Git provider service.
 - Hook lifecycle/resource-inspection/runtime/staged-worktree policies now depend on hook-owned operation ports or pure inputs instead of concrete Git provider, platform resource, or reporter resource service types; live provider projection remains at the hook module boundary for the next module-boundary cleanup.
 - Baseline authority now receives Git through explicit baseline context from module-projected resources; shared baseline policy no longer resolves `GitProvider` internally.

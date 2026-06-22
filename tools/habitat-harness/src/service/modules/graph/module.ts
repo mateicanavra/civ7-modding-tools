@@ -1,11 +1,11 @@
 import path from "node:path";
-import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import {
+  type CommandProviderError,
+  type HabitatCommandResult,
   type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import type { GraphServiceRunInput } from "./contract.js";
@@ -20,8 +20,9 @@ export interface GraphModuleContext {
 
 export const module = service.graph.use(({ context, next }) => {
   const runGraph = makeRunGraph({
-    nx: context.deps.nx,
-    platform: context.deps.platform,
+    acquireTempDirectory: context.deps.platform.acquireTempDirectory,
+    readText: context.deps.platform.readText,
+    runNxGraph: context.deps.nx.graph,
   });
   return next({
     context: {
@@ -37,19 +38,24 @@ interface GraphJsonFailure {
 type GraphBadRequest = (input: { readonly message: string }) => GraphServiceBadRequestError;
 
 interface GraphRuntimeDeps {
-  readonly nx: NxProviderService;
-  readonly platform: HabitatPlatformService;
+  readonly acquireTempDirectory: (
+    prefix: string
+  ) => Effect.Effect<string, unknown, any>;
+  readonly readText: (filePath: string) => Effect.Effect<string, unknown, any>;
+  readonly runNxGraph: (
+    input: { readonly outputPath: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
 }
 
 function makeRunGraph(deps: GraphRuntimeDeps) {
   return (input: GraphServiceRunInput = {}, badRequest: GraphBadRequest) =>
     Effect.scoped(
       Effect.gen(function* () {
-        const tempDir = yield* deps.platform
+        const tempDir = yield* deps
           .acquireTempDirectory("habitat-graph-")
           .pipe(Effect.mapError(graphServiceInternalError));
         const graphPath = path.join(tempDir, "graph.json");
-        const spawnResult = yield* deps.nx.graph({ outputPath: graphPath }).pipe(
+        const spawnResult = yield* deps.runNxGraph({ outputPath: graphPath }).pipe(
           Effect.match({
             onFailure: spawnResultFromCommandProviderError,
             onSuccess: spawnResultFromCommandResult,
@@ -57,7 +63,7 @@ function makeRunGraph(deps: GraphRuntimeDeps) {
         );
         if (spawnResult.exitCode !== 0) return spawnResult;
 
-        const graphText = yield* deps.platform
+        const graphText = yield* deps
           .readText(graphPath)
           .pipe(Effect.mapError(graphServiceInternalError));
         const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
