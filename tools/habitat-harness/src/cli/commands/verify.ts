@@ -3,7 +3,7 @@ import {
   renderCheckReport,
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/model/verify/index";
+import { stringifyVerifyReceipt } from "@internal/habitat-harness/service/modules/verify/model/index";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { Flags } from "@oclif/core";
 import { createRouterClient } from "@orpc/server";
