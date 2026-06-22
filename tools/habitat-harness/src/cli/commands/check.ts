@@ -51,7 +51,7 @@ export default class Check extends HabitatCommand {
     }
 
     const baselineIntegrity = flags["baseline-integrity"] || Boolean(flags.base);
-    const report = await client.check.run({
+    const report = await client.check.report({
       selectors: selection,
       ...(baselineIntegrity ? { base } : {}),
       baselineIntegrity,

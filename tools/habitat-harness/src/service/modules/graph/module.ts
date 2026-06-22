@@ -8,7 +8,7 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
-import type { GraphServiceRunInput } from "./contract.js";
+import type { GraphWorkspaceGraphInput } from "./contract.js";
 import {
   GraphServiceBadRequestError,
   GraphServiceInternalError,
@@ -38,17 +38,15 @@ interface GraphJsonFailure {
 type GraphBadRequest = (input: { readonly message: string }) => GraphServiceBadRequestError;
 
 interface GraphRuntimeDeps {
-  readonly acquireTempDirectory: (
-    prefix: string
-  ) => Effect.Effect<string, unknown, any>;
+  readonly acquireTempDirectory: (prefix: string) => Effect.Effect<string, unknown, any>;
   readonly readText: (filePath: string) => Effect.Effect<string, unknown, any>;
-  readonly runNxGraph: (
-    input: { readonly outputPath: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly runNxGraph: (input: {
+    readonly outputPath: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
 }
 
 function makeRunGraph(deps: GraphRuntimeDeps) {
-  return (input: GraphServiceRunInput = {}, badRequest: GraphBadRequest) =>
+  return (input: GraphWorkspaceGraphInput = {}, badRequest: GraphBadRequest) =>
     Effect.scoped(
       Effect.gen(function* () {
         const tempDir = yield* deps

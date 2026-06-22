@@ -8,32 +8,32 @@ const FixCommandIntentSchema = Type.Object(
   {
     kind: Type.Union([Type.Literal("dry-run-intent"), Type.Literal("live-write-intent")]),
   },
-  { additionalProperties: false, description: "Habitat fix command intent." }
+  { additionalProperties: false, description: "Habitat pattern apply intent." }
 );
 
-const FixServiceRunOutputSchema = Type.Object(
+const FixApplyPatternsOutputSchema = Type.Object(
   {
     exitCode: Type.Integer(),
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Habitat fix service execution result." }
+  { additionalProperties: false, description: "Habitat pattern apply result." }
 );
 
-const FixServiceRunInputStandardSchema = toStandardSchema(FixCommandIntentSchema);
-const FixServiceRunOutputStandardSchema = toStandardSchema(FixServiceRunOutputSchema);
+const FixApplyPatternsInputStandardSchema = toStandardSchema(FixCommandIntentSchema);
+const FixApplyPatternsOutputStandardSchema = toStandardSchema(FixApplyPatternsOutputSchema);
 
-export type FixServiceRunInput = Static<typeof FixCommandIntentSchema>;
-export type FixServiceRunOutput = Static<typeof FixServiceRunOutputSchema>;
+export type FixApplyPatternsInput = Static<typeof FixCommandIntentSchema>;
+export type FixApplyPatternsOutput = Static<typeof FixApplyPatternsOutputSchema>;
 
-export const fixServiceRunContract: HabitatServiceProcedureContract<
-  typeof FixServiceRunInputStandardSchema,
-  typeof FixServiceRunOutputStandardSchema
+export const fixApplyPatternsContract: HabitatServiceProcedureContract<
+  typeof FixApplyPatternsInputStandardSchema,
+  typeof FixApplyPatternsOutputStandardSchema
 > = eoc
   .errors(habitatServiceErrorMap)
-  .input(FixServiceRunInputStandardSchema)
-  .output(FixServiceRunOutputStandardSchema);
+  .input(FixApplyPatternsInputStandardSchema)
+  .output(FixApplyPatternsOutputStandardSchema);
 
 export const fixServiceContract = {
-  run: fixServiceRunContract,
+  applyPatterns: fixApplyPatternsContract,
 };

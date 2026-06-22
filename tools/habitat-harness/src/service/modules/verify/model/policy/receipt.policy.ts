@@ -15,10 +15,10 @@ import {
   VerifyTargetPlanConsumptionSchema,
 } from "@internal/habitat-harness/service/model/verify/index";
 import {
-  type WorkspaceGraphReadState,
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
   verifyTargetPlan,
+  type WorkspaceGraphReadState,
   workspaceGraphTargetNames,
 } from "@internal/habitat-harness/service/model/workspace/index";
 import { Value } from "typebox/value";

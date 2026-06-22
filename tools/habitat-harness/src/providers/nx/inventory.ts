@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { Value } from "typebox/value";
 import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
+import { Value } from "typebox/value";
 import {
   type PackageJsonTargetInventory,
   PackageJsonTargetInventorySchema,

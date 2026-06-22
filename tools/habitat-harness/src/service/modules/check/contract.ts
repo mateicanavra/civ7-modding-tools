@@ -8,7 +8,7 @@ import { toStandardSchema } from "@internal/habitat-harness/service/typebox-stan
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
 
-const CheckServiceRunInputSchema = Type.Object(
+const CheckReportInputSchema = Type.Object(
   {
     selectors: Type.Optional(SelectorRequestSchema),
     base: Type.Optional(Type.String({ minLength: 1 })),
@@ -16,9 +16,9 @@ const CheckServiceRunInputSchema = Type.Object(
     staged: Type.Optional(Type.Boolean()),
     stagedPaths: Type.Optional(Type.Array(Type.String())),
   },
-  { additionalProperties: false, description: "Habitat check service run request." }
+  { additionalProperties: false, description: "Habitat check report request." }
 );
-export type CheckServiceRunInput = Static<typeof CheckServiceRunInputSchema>;
+export type CheckReportInput = Static<typeof CheckReportInputSchema>;
 
 const CheckServiceExpandBaselineInputSchema = Type.Object(
   {
@@ -52,8 +52,8 @@ export type CheckServiceExpandBaselineOutput = Static<
   typeof CheckServiceExpandBaselineOutputSchema
 >;
 
-const CheckServiceRunInputStandardSchema = toStandardSchema(CheckServiceRunInputSchema);
-const CheckServiceRunOutputStandardSchema = toStandardSchema(CheckReportSchema);
+const CheckReportInputStandardSchema = toStandardSchema(CheckReportInputSchema);
+const CheckReportOutputStandardSchema = toStandardSchema(CheckReportSchema);
 const CheckServiceExpandBaselineInputStandardSchema = toStandardSchema(
   CheckServiceExpandBaselineInputSchema
 );
@@ -61,13 +61,13 @@ const CheckServiceExpandBaselineOutputStandardSchema = toStandardSchema(
   CheckServiceExpandBaselineOutputSchema
 );
 
-export const checkServiceRunContract: HabitatServiceProcedureContract<
-  typeof CheckServiceRunInputStandardSchema,
-  typeof CheckServiceRunOutputStandardSchema
+export const checkReportContract: HabitatServiceProcedureContract<
+  typeof CheckReportInputStandardSchema,
+  typeof CheckReportOutputStandardSchema
 > = eoc
   .errors(habitatServiceErrorMap)
-  .input(CheckServiceRunInputStandardSchema)
-  .output(CheckServiceRunOutputStandardSchema);
+  .input(CheckReportInputStandardSchema)
+  .output(CheckReportOutputStandardSchema);
 
 export const checkServiceExpandBaselineContract: HabitatServiceProcedureContract<
   typeof CheckServiceExpandBaselineInputStandardSchema,
@@ -78,6 +78,6 @@ export const checkServiceExpandBaselineContract: HabitatServiceProcedureContract
   .output(CheckServiceExpandBaselineOutputStandardSchema);
 
 export const checkServiceContract = {
-  run: checkServiceRunContract,
+  report: checkReportContract,
   expandBaseline: checkServiceExpandBaselineContract,
 };
