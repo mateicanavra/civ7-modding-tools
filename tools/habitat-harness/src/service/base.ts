@@ -1,5 +1,5 @@
 import type { ClassifyOptions } from "@internal/habitat-harness/service/model/workspace/index";
-import type { HookRuntime } from "@internal/habitat-harness/service/model/hook/policy/runtime.policy";
+import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import type { BiomeProviderService } from "@internal/habitat-harness/providers/biome/index";
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
