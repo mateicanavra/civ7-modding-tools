@@ -16,7 +16,6 @@ export type ClassifyServiceRunInput = Static<typeof ClassifyServiceRunInputSchem
 const ClassifyServiceRunInputStandardSchema = toStandardSchema(ClassifyServiceRunInputSchema);
 const ClassifyServiceRunOutputStandardSchema = toStandardSchema(ClassifyResultSchema);
 
-// TODO: STOP FUCKING OVERCOMPLICATING THIS. YOU DO NOT NEED TO MANUALLY TYPE THE INPUT AND OUTPUT TYPES. IF YOU'RE DOING THIS, IT'S A FUNDAMENTAL DESIGN SMELL. USE THE EFFECT-ORPC LIBRARY. READ THE DOCS. READ THE ORPC DOCS. LOOK AT CONTRACT FIRST APPROACH.
 export const classifyServiceRunContract: HabitatServiceProcedureContract<
   typeof ClassifyServiceRunInputStandardSchema,
   typeof ClassifyServiceRunOutputStandardSchema

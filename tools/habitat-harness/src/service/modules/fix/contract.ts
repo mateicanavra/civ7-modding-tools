@@ -19,7 +19,7 @@ const FixServiceRunOutputSchema = Type.Object(
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Raw fix command streams for CLI handoff." }
+  { additionalProperties: false, description: "Habitat fix service execution result." }
 );
 export type FixServiceRunOutput = Static<typeof FixServiceRunOutputSchema>;
 
