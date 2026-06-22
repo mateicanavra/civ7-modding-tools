@@ -1,6 +1,6 @@
 import type { FixServiceModuleContext } from "@internal/habitat-harness/service/base";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
 import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,

@@ -1,5 +1,5 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
 import { Args, Flags } from "@oclif/core";
 
 export default class Hook extends HabitatCommand {
