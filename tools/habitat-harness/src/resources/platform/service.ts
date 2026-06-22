@@ -41,21 +41,37 @@ export class HabitatPlatform extends Context.Tag("@internal/habitat-harness/Habi
   HabitatPlatformService
 >() {}
 
-export const HabitatPlatformLive = Layer.succeed(HabitatPlatform, {
-  acquireTempDirectory,
-  env: process.env,
-  hashFile: hashFileSync,
-  isDirectory,
-  isDirectorySync,
-  isFile: isFileSync,
-  isFileEffect: isFile,
-  makeDirectory,
-  pathExists: pathExistsSync,
-  readDirectory,
-  readDirectorySync,
-  readText,
-  readTextSync,
-  repoRoot,
-  statKind: statKindSync,
-  writeText,
-});
+export function makeHabitatPlatformService(
+  input: { readonly repoRoot: string; readonly env?: Record<string, string | undefined> } = {
+    repoRoot,
+  }
+): HabitatPlatformService {
+  return {
+    acquireTempDirectory,
+    env: input.env ?? process.env,
+    hashFile: hashFileSync,
+    isDirectory,
+    isDirectorySync,
+    isFile: isFileSync,
+    isFileEffect: isFile,
+    makeDirectory,
+    pathExists: pathExistsSync,
+    readDirectory,
+    readDirectorySync,
+    readText,
+    readTextSync,
+    repoRoot: input.repoRoot,
+    statKind: statKindSync,
+    writeText,
+  };
+}
+
+export function makeHabitatPlatformLayer(
+  input: { readonly repoRoot: string; readonly env?: Record<string, string | undefined> } = {
+    repoRoot,
+  }
+): Layer.Layer<HabitatPlatform> {
+  return Layer.succeed(HabitatPlatform, makeHabitatPlatformService(input));
+}
+
+export const HabitatPlatformLive = makeHabitatPlatformLayer({ repoRoot });

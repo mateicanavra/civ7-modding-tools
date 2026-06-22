@@ -1,4 +1,6 @@
 import { HabitatConfig, HabitatConfigLive } from "@internal/habitat-harness/resources/config/index";
+import { HabitatPlatform } from "@internal/habitat-harness/resources/platform/index";
+import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import { ConfigProvider, Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 
@@ -32,6 +34,33 @@ describe("Habitat config resource", () => {
       patternCacheRoot: "/tmp/effect-config-patterns",
       telemetryDisabled: false,
       timeoutPolicy: { commandTimeoutMs: 125 },
+    });
+  });
+
+  test("realizes repo-scoped runtime resources from live config", async () => {
+    const configProvider = ConfigProvider.fromMap(
+      new Map([["HABITAT_REPO_ROOT", "/tmp/effect-config-runtime"]])
+    );
+
+    const result = await Effect.runPromise(
+      Effect.gen(function* () {
+        const configResource = yield* HabitatConfig;
+        const platform = yield* HabitatPlatform;
+        const config = yield* configResource.get;
+        return {
+          configRepoRoot: config.repoRoot,
+          platformRepoRoot: platform.repoRoot,
+        };
+      }).pipe(
+        Effect.provide(
+          HabitatRuntimeLive.pipe(Layer.provide(Layer.setConfigProvider(configProvider)))
+        )
+      )
+    );
+
+    expect(result).toEqual({
+      configRepoRoot: "/tmp/effect-config-runtime",
+      platformRepoRoot: "/tmp/effect-config-runtime",
     });
   });
 });

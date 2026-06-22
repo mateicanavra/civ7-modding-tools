@@ -105,3 +105,4 @@ Completed burn-downs:
 - The loose `resources/config/note.md` source-tree instruction file is removed; its Effect Config evaluation request is preserved in the service-shape backlog as a concrete follow-up.
 - Hook output reporting no longer calls `Effect.runSync` from service policy code; hook output accumulates reporter events synchronously and flushes them through Effect at final result boundaries while preserving reporter chunk behavior.
 - Habitat runtime config now loads through an Effect `Config` descriptor and live layer; the old custom config source/schema files are deleted, while deterministic test/manual overrides remain available through `makeHabitatConfigLayer`.
+- Habitat runtime realization now derives Git, Graphite, Biome, Nx, Grit, Git state, and platform repo-scoped resources from the loaded `HabitatConfig` value instead of hardcoding the global repo root in `runtime/layers.ts`.
