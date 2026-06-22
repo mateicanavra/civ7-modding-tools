@@ -3,7 +3,7 @@ import type {
   GraphRefusalState,
   WorkspaceGraphReadState,
   WorkspaceProject,
-} from "@internal/habitat-harness/providers/nx/schema";
+} from "@internal/habitat-harness/service/model/workspace/index";
 import { statKindSync } from "@internal/habitat-harness/resources/platform/filesystem";
 import {
   type PathClassification,
