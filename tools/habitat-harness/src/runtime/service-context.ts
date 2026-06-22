@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { FileSystem } from "@effect/platform";
 import { BiomeProvider } from "@internal/habitat-harness/providers/biome/index";
 import { GitProvider } from "@internal/habitat-harness/providers/git/index";
 import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
@@ -13,7 +14,10 @@ import type {
   HabitatServiceContext,
   HabitatServiceDeps,
 } from "@internal/habitat-harness/service/base";
-import { loadRuleRegistryDocumentEffect } from "@internal/habitat-harness/service/model/rules/index";
+import {
+  loadRuleRegistryDocumentEffect,
+  type RuleRegistryFileSystem,
+} from "@internal/habitat-harness/service/model/rules/index";
 import { ruleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { Effect, ManagedRuntime } from "effect";
 
@@ -29,6 +33,11 @@ export async function createLiveHabitatServiceContext(
   const deps = await serviceContextRuntime.runPromise(
     Effect.gen(function* () {
       const platform = input.deps?.platform ?? (yield* HabitatPlatform);
+      const registryFileSystem: RuleRegistryFileSystem<FileSystem.FileSystem> = {
+        isDirectory: platform.isDirectory,
+        readDirectory: platform.readDirectory,
+        readText: platform.readText,
+      };
       return {
         biome: input.deps?.biome ?? (yield* BiomeProvider),
         commandRunner: input.deps?.commandRunner ?? (yield* CommandRunner),
@@ -41,7 +50,8 @@ export async function createLiveHabitatServiceContext(
         rules:
           input.deps?.rules ??
           (yield* loadRuleRegistryDocumentEffect(
-            path.join(platform.repoRoot, ruleRegistryRepoPath)
+            path.join(platform.repoRoot, ruleRegistryRepoPath),
+            registryFileSystem
           ).pipe(Effect.map(ruleFactsCatalog))),
         ...input.deps,
       } satisfies HabitatServiceDeps;
