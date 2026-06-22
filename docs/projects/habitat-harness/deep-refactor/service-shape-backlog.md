@@ -17,6 +17,7 @@ Current burn-down categories:
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
+- Follow-up: active rule registry loading still uses an import-time singleton rooted through `resources/paths`; replace it with an explicit registry input/read path or generated artifact so rule facts are not coupled to global checkout state.
 
 Completed burn-downs:
 
