@@ -53,6 +53,7 @@ Completed burn-downs:
 - Fix worktree observation now runs through module-projected Git provider context; the sync worktree repository wrapper around provider internals is deleted.
 - Structural selector refusal reports now use the Effect clock path only; the sync report builder and direct platform time import were removed.
 - Verify receipt timing now formats timestamps locally in the verify module; verify module code no longer imports platform time helpers.
+- Verify base resolution, Nx affected execution, and post-state policies now depend on narrow verify-owned ports instead of concrete Git, Graphite, and Nx provider service types.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
