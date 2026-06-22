@@ -9,7 +9,7 @@ import {
   readVerifyTargetPlan,
   type VerifyBaseResolution,
   VerifyBaseResolutionSchema,
-} from "@internal/habitat-harness/service/modules/verify/model/policy/proof/index";
+} from "@internal/habitat-harness/service/model/verify/proof/index";
 import {
   type SpawnResult,
   spawnResultFromCommandResult,
