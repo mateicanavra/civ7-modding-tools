@@ -1,7 +1,7 @@
 import {
   RuleGraphTargetNamesSchema,
   type WorkspaceGraphTargetNames,
-} from "@internal/habitat-harness/providers/nx/schema";
+} from "@internal/habitat-harness/service/model/workspace/index";
 import type { Static } from "typebox";
 import { Value } from "typebox/value";
 import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../dto/registry.schema.js";

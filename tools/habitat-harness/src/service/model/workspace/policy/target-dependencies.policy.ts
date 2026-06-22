@@ -4,7 +4,7 @@ import {
   type TargetDependencyResolution,
   TargetDependencyResolutionSchema,
   type WorkspaceProject,
-} from "@internal/habitat-harness/providers/nx/schema";
+} from "../dto/workspace.schema.ts";
 import { Value } from "typebox/value";
 
 export function sameProjectTargetDependency(target: string): TargetDependencyDeclaration {

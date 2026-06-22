@@ -9,8 +9,8 @@ import {
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
-} from "./providers/nx/schema.ts";
-import { workspaceGraphTargetNames } from "./providers/nx/targets.ts";
+} from "./service/model/workspace/dto/workspace.schema.ts";
+import { workspaceGraphTargetNames } from "./service/model/workspace/policy/workspace-targets.policy.ts";
 import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,

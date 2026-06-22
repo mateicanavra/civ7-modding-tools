@@ -250,29 +250,6 @@ export const VerifyTargetPlanSchema = Type.Union([
   ),
 ]);
 
-export const PackageJsonTargetInventorySchema = Type.Object(
-  {
-    name: Type.Optional(Type.String({ minLength: 1 })),
-    scripts: Type.Optional(Type.Record(Type.String({ minLength: 1 }), Type.String())),
-    nx: Type.Optional(
-      Type.Object(
-        {
-          targets: Type.Optional(Type.Record(Type.String({ minLength: 1 }), Type.Unknown())),
-        },
-        { additionalProperties: true }
-      )
-    ),
-  },
-  { additionalProperties: true }
-);
-
-export const RootPackageJsonWorkspaceSchema = Type.Object(
-  {
-    workspaces: Type.Optional(Type.Array(Type.String({ minLength: 1 }))),
-  },
-  { additionalProperties: true }
-);
-
 export type WorkspaceProject = Static<typeof WorkspaceProjectSchema>;
 export type WorkspaceGraphSnapshot = Static<typeof WorkspaceGraphSnapshotSchema>;
 export type WorkspaceGraphTargetNames = Static<typeof WorkspaceGraphTargetNamesSchema>;
@@ -290,5 +267,3 @@ export type AggregateWorkspaceTargetDeclaration = Static<
 >;
 export type WorkspaceGraphReadState = Static<typeof WorkspaceGraphReadStateSchema>;
 export type VerifyTargetPlan = Static<typeof VerifyTargetPlanSchema>;
-export type PackageJsonTargetInventory = Static<typeof PackageJsonTargetInventorySchema>;
-export type RootPackageJsonWorkspace = Static<typeof RootPackageJsonWorkspaceSchema>;

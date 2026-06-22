@@ -1,7 +1,7 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { GitStateProvider } from "@internal/habitat-harness/providers/git/index";
 import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
-import type { WorkspaceGraphReadState } from "@internal/habitat-harness/providers/nx/schema";
+import type { WorkspaceGraphReadState } from "@internal/habitat-harness/service/model/workspace/index";
 import {
   type CommandProviderError,
   CommandRunner,
