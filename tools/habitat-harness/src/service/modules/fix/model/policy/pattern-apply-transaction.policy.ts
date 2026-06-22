@@ -1,6 +1,6 @@
 import {
-  captureOutput,
   type CommandProviderError,
+  captureOutput,
   type HabitatCommandResult,
   type HabitatProcessRequest,
   makeHabitatCommandResult,

@@ -23,7 +23,7 @@ import {
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
 import type { EffectImplementerInternal } from "effect-orpc";
-import type { CheckServiceRunInput } from "./contract.js";
+import type { CheckReportInput } from "./contract.js";
 
 type CheckModuleEffect<T> = Effect.Effect<T, never, any>;
 
@@ -107,7 +107,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
   };
 }
 
-function selectorsFromInput(input: Pick<CheckServiceRunInput, "selectors">) {
+function selectorsFromInput(input: Pick<CheckReportInput, "selectors">) {
   return {
     ...(input.selectors?.owner ? { owner: input.selectors.owner } : {}),
     ...(input.selectors?.rule ? { rule: input.selectors.rule } : {}),

@@ -29,7 +29,7 @@ import {
 } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
-import type { HookServiceRunInput } from "./contract.js";
+import type { HookExecuteInput } from "./contract.js";
 import {
   type HookCheckCommandResult,
   type PreCommitOutcome,
@@ -84,24 +84,26 @@ interface HookGitPort {
     argv: readonly string[],
     options?: { readonly cwd?: string }
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly diffNameOnly: (
-    input?: { readonly paths?: readonly string[]; readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly diffNameStatus: (
-    input?: { readonly cached?: boolean; readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly diffNameOnly: (input?: {
+    readonly paths?: readonly string[];
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly diffNameStatus: (input?: {
+    readonly cached?: boolean;
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
   readonly mergeBase: (
     ref: string,
     options?: { readonly cwd?: string }
   ) => Effect.Effect<string | null, never, any>;
-  readonly remoteDefaultBranch: (
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
+  readonly remoteDefaultBranch: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<string | null, never, any>;
 }
 interface HookGraphitePort {
-  readonly parent: (
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
+  readonly parent: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<string | null, never, any>;
   readonly parentArgv: () => readonly string[];
 }
 interface HookNxAffectedRequest {
@@ -183,7 +185,7 @@ type HookRouterEffect<T> = Effect.Effect<T, never, any>;
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
 interface HookModuleContext {
-  readonly runHook: (input?: HookServiceRunInput) => HookRouterEffect<SpawnResult>;
+  readonly runHook: (input?: HookExecuteInput) => HookRouterEffect<SpawnResult>;
 }
 
 export const module = service.hook.use(({ context, next }) => {
@@ -242,7 +244,7 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
   };
 }
 
-function runHook(context: HookProcedureContext, input: HookServiceRunInput = {}) {
+function runHook(context: HookProcedureContext, input: HookExecuteInput = {}) {
   return Effect.gen(function* () {
     if (input.name === "pre-push") {
       const baseDecision = input.base
@@ -344,13 +346,10 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       yield* recordHookCommand(context, "pre-push-affected", argv, startedAtMs, result.exitCode);
       output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
       output.writeStderr(result.stderr);
-      return yield* finalizePrePushEffect(
-        result.exitCode === 0 ? "pass" : "affected-failed",
-        {
-          exitCode: result.exitCode,
-          ...output.result(),
-        }
-      );
+      return yield* finalizePrePushEffect(result.exitCode === 0 ? "pass" : "affected-failed", {
+        exitCode: result.exitCode,
+        ...output.result(),
+      });
     }
 
     if (input.name === "pre-commit") {

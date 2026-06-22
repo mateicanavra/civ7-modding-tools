@@ -6,7 +6,7 @@ import type {
 } from "@internal/habitat-harness/resources/command/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
-import type { FixServiceRunInput } from "./contract.js";
+import type { FixApplyPatternsInput } from "./contract.js";
 import type {
   ApplyAdmission,
   PatternApplyRecord,
@@ -22,15 +22,13 @@ import {
 } from "./model/policy/index.js";
 
 interface FixGitPort {
-  readonly currentBranch: (
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
-  readonly head: (
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<string | null, never, any>;
-  readonly statusShort: (
-    options?: { readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly currentBranch: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<string | null, never, any>;
+  readonly head: (options?: { readonly cwd?: string }) => Effect.Effect<string | null, never, any>;
+  readonly statusShort: (options?: {
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
 }
 
 export interface FixModuleContext {
@@ -71,7 +69,7 @@ function makeRunPatternApplyTransactions(
   repoRoot: string
 ) {
   return (
-    input: FixServiceRunInput,
+    input: FixApplyPatternsInput,
     admissions: readonly ApplyAdmission[],
     transactionInputs: ReturnType<typeof admittedApplyTransactionInputsFromRules>
   ): Effect.Effect<PatternApplyRecord[], never, any> =>
@@ -125,7 +123,7 @@ function dirtyPathCount(statusShort: string): number {
 }
 
 function transactionRequest(
-  intent: FixServiceRunInput,
+  intent: FixApplyPatternsInput,
   admission: ApplyAdmission,
   worktree: WorktreeObservation
 ): PatternApplyRequest {

@@ -1,7 +1,7 @@
 import { module } from "./module.js";
 
 export const verifyRouter = {
-  run: module.run.effect(function* ({ context, input }) {
+  changes: module.changes.effect(function* ({ context, input }) {
     const startedMs = yield* context.currentTimeMillis;
     const startedAt = context.epochMillisToIsoString(startedMs);
     const baseDecision = yield* context.resolveVerifyBase(input.base);

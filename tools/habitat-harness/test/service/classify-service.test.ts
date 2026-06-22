@@ -50,7 +50,7 @@ describe("Habitat classify service", () => {
       context: {
         deps: makeClassifyDeps(workspaceGraph),
       },
-    }).classify.run({ target: "tools/habitat-harness/src/cli/commands/classify.ts" });
+    }).classify.target({ target: "tools/habitat-harness/src/cli/commands/classify.ts" });
 
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
@@ -67,7 +67,7 @@ describe("Habitat classify service", () => {
       },
     });
 
-    const result = await client.classify.run({
+    const result = await client.classify.target({
       target: "tools/habitat-harness/src/cli/commands/classify.ts",
     });
 
@@ -83,7 +83,7 @@ describe("Habitat classify service", () => {
       },
     });
 
-    const result = await client.classify.run({
+    const result = await client.classify.target({
       target: `diff --git a/apps/mapgen-studio/src/main.tsx b/apps/mapgen-studio/src/main.tsx
 index 1111111..2222222 100644
 --- a/apps/mapgen-studio/src/main.tsx
@@ -118,7 +118,7 @@ index 3333333..4444444 100644
       },
     });
 
-    const result = await client.classify.run({ target: "not a diff\njust text" });
+    const result = await client.classify.target({ target: "not a diff\njust text" });
 
     expect(result.state).toBe("malformed-or-pathless-diff");
     if (result.state !== "malformed-or-pathless-diff") {
@@ -134,7 +134,7 @@ index 3333333..4444444 100644
       },
     });
 
-    const result = await client.classify.run({ target: "notes/not-yet-created.md" });
+    const result = await client.classify.target({ target: "notes/not-yet-created.md" });
 
     expect(result.state).toBe("unresolved-owner");
     if (result.state !== "unresolved-owner") throw new Error("expected unresolved-owner");
@@ -151,7 +151,7 @@ index 3333333..4444444 100644
       },
     });
 
-    const result = await client.classify.run({
+    const result = await client.classify.target({
       target: "tools/habitat-harness/src/cli/commands/classify.ts",
     });
 

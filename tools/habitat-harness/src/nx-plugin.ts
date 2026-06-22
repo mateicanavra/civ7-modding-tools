@@ -7,11 +7,6 @@ import {
   type NxRuleRegistryRecord,
 } from "./providers/nx/rule-registry-loader.ts";
 import {
-  WorkspaceGraphTargetNameOptionsSchema,
-  WorkspaceGraphTargetNamesSchema,
-} from "./service/model/workspace/dto/workspace.schema.ts";
-import { workspaceGraphTargetNames } from "./service/model/workspace/policy/workspace-targets.policy.ts";
-import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,
   ruleRegistryRepoPath,
@@ -39,6 +34,11 @@ import {
   ownerCheckTarget,
   sourceCheckTarget,
 } from "./service/model/graph/policy/target-definitions.policy.ts";
+import {
+  WorkspaceGraphTargetNameOptionsSchema,
+  WorkspaceGraphTargetNamesSchema,
+} from "./service/model/workspace/dto/workspace.schema.ts";
+import { workspaceGraphTargetNames } from "./service/model/workspace/policy/workspace-targets.policy.ts";
 
 const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
 

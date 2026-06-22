@@ -79,9 +79,9 @@ export function validateBaselineContractEffect(options: BaselineAuthorityContext
     const registered = new Set(context.registry.map((rule) => rule.id));
 
     if (yield* directoryExists(context.baselinesDir, context)) {
-      const entries = yield* context.fileSystem.readDirectory(context.baselinesDir).pipe(
-        Effect.catchAll(() => Effect.succeed([]))
-      );
+      const entries = yield* context.fileSystem
+        .readDirectory(context.baselinesDir)
+        .pipe(Effect.catchAll(() => Effect.succeed([])));
       for (const entry of entries) {
         if (entry.kind !== "file" || !entry.name.endsWith(".json")) continue;
         const ruleId = entry.name.replace(/\.json$/, "");

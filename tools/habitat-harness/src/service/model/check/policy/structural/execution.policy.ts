@@ -69,9 +69,9 @@ export interface StructuralExecutionContext {
 }
 
 interface StructuralBiomePort {
-  readonly run: (
-    request: { readonly kind: "ci" }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly run: (request: {
+    readonly kind: "ci";
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
 }
 
 interface StructuralCommandPort {
@@ -81,12 +81,14 @@ interface StructuralCommandPort {
 }
 
 interface StructuralGitPort {
-  readonly diffNameOnly: (
-    input?: { readonly cached?: boolean; readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
-  readonly diffNameStatus: (
-    input?: { readonly cached?: boolean; readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly diffNameOnly: (input?: {
+    readonly cached?: boolean;
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+  readonly diffNameStatus: (input?: {
+    readonly cached?: boolean;
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
   readonly lsTreeNameOnly: (
     ref: string,
     repoPath: string,

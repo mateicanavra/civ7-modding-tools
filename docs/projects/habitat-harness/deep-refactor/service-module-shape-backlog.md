@@ -46,3 +46,13 @@ taxonomy weaker than the collect-style shape. Collapse module-local model trees
 back into their owning module projects, keep only `src/service/model` as the
 shared service-model project, update taxonomy text, and validate with the
 existing `boundaries` target plus service-module shape validation.
+
+## Active Slice: Action-Named Procedures
+
+Service procedure names must describe direct Habitat actions instead of generic
+CLI-shaped `run` calls. Rename the procedure surface to
+`check.report`, `classify.target`, `fix.applyPatterns`,
+`graph.workspaceGraph`, `hook.execute`, and `verify.changes`. CLI commands keep
+parsing flags, then compile those flags into the action inputs. Update contracts,
+routers, CLI callers, focused tests, and command mocks together; do not add a
+compatibility alias for the old `run` names.

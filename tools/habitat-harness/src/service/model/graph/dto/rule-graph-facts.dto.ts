@@ -1,8 +1,8 @@
-import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import type {
   RuleGraphFacts,
   RuleRegistryRecordV1,
 } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
+import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 
 type RuleGraphTargetNames = Pick<
   WorkspaceGraphTargetNames,

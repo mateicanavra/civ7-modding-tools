@@ -1,6 +1,4 @@
 import path from "node:path";
-import { createProjectGraphAsync } from "@nx/devkit";
-import { Value } from "typebox/value";
 import {
   type WorkspaceGraphReadState,
   WorkspaceGraphReadStateSchema,
@@ -8,6 +6,8 @@ import {
   type WorkspaceProject,
   WorkspaceProjectSchema,
 } from "@internal/habitat-harness/service/model/workspace/index";
+import { createProjectGraphAsync } from "@nx/devkit";
+import { Value } from "typebox/value";
 
 export type WorkspaceGraphProjectReader = {
   readProjects(): Promise<WorkspaceProject[]>;

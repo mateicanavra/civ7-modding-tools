@@ -1,8 +1,8 @@
-import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
 import type {
   ClassifiedTarget,
   UnavailableClassifiedTarget,
 } from "@internal/habitat-harness/service/model/classify/index";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
 import {
   projectTargetStates,
   workspaceTargetStates,

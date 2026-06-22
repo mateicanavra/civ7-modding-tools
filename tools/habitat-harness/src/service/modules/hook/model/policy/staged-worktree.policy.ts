@@ -30,16 +30,15 @@ interface HookStagedGitPort<R = never> {
     paths: readonly string[],
     options?: { readonly cwd?: string }
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
-  readonly diffNameOnly: (
-    input?: {
-      readonly cached?: boolean;
-      readonly paths?: readonly string[];
-      readonly cwd?: string;
-    }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
-  readonly diffNameStatus: (
-    input?: { readonly cached?: boolean; readonly cwd?: string }
-  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
+  readonly diffNameOnly: (input?: {
+    readonly cached?: boolean;
+    readonly paths?: readonly string[];
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
+  readonly diffNameStatus: (input?: {
+    readonly cached?: boolean;
+    readonly cwd?: string;
+  }) => Effect.Effect<HabitatCommandResult, CommandProviderError, R>;
 }
 
 export function existingStagedPathsEffect(
@@ -128,10 +127,7 @@ export function gitAddEffect<R>(
   });
 }
 
-function stagedPathsEffect(
-  git: HookStagedGitPort,
-  repoRoot: string
-): Effect.Effect<string[]>;
+function stagedPathsEffect(git: HookStagedGitPort, repoRoot: string): Effect.Effect<string[]>;
 function stagedPathsEffect<R>(
   git: HookStagedGitPort<R>,
   repoRoot: string

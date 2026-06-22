@@ -19,6 +19,6 @@ export default class Classify extends HabitatCommand {
   async run(): Promise<void> {
     const { args } = await this.parse(Classify);
     const client = await this.habitatServiceClient();
-    this.log(stringifyClassifyResult(await client.classify.run({ target: args.path })));
+    this.log(stringifyClassifyResult(await client.classify.target({ target: args.path })));
   }
 }
