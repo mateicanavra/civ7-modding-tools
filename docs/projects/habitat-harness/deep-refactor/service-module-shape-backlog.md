@@ -74,3 +74,9 @@ follow-up must either adopt Effect Config for `resources/config/**` or refuse it
 with a concrete cause. Startup/shutdown helpers such as TSDKArc are lower
 priority and should only be considered if the runtime acquisition/release model
 still has a real gap after Effect Config is evaluated.
+
+Completed step: replaced the custom config source/schema substrate with an
+Effect-native config descriptor and live layer. Keep deterministic test/manual
+overrides through `makeHabitatConfigLayer`, but make the default live resource
+load through Effect `Config` so runtime overrides enter through the Effect config
+provider rather than a Habitat-specific source abstraction.
