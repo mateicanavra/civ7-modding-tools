@@ -6,7 +6,6 @@ import type {
 } from "@internal/habitat-harness/resources/command/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
-import type { FixApplyPatternsInput } from "./contract.js";
 import type {
   ApplyAdmission,
   PatternApplyRecord,
@@ -39,6 +38,10 @@ export interface FixModuleContext {
   readonly runPatternApplyTransactions: ReturnType<typeof makeRunPatternApplyTransactions>;
 }
 
+export interface FixPatternApplyIntent {
+  readonly kind: PatternApplyRequest["kind"];
+}
+
 export const module = service.fix.use(({ context, next }) => {
   const admittedApplyTransactionInputs = makeAdmittedApplyTransactionInputs(
     context.deps.rules.selector
@@ -69,7 +72,7 @@ function makeRunPatternApplyTransactions(
   repoRoot: string
 ) {
   return (
-    input: FixApplyPatternsInput,
+    input: FixPatternApplyIntent,
     admissions: readonly ApplyAdmission[],
     transactionInputs: ReturnType<typeof admittedApplyTransactionInputsFromRules>
   ): Effect.Effect<PatternApplyRecord[], never, any> =>
@@ -123,7 +126,7 @@ function dirtyPathCount(statusShort: string): number {
 }
 
 function transactionRequest(
-  intent: FixApplyPatternsInput,
+  intent: FixPatternApplyIntent,
   admission: ApplyAdmission,
   worktree: WorktreeObservation
 ): PatternApplyRequest {

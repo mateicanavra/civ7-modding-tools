@@ -16,6 +16,7 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
 const mockCheckReport = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
 const mockClassifyTarget = vi.hoisted(() => vi.fn());
+const mockFixPlanPatterns = vi.hoisted(() => vi.fn());
 const mockFixApplyPatterns = vi.hoisted(() => vi.fn());
 const mockGraphWorkspaceGraph = vi.hoisted(() => vi.fn());
 const mockHookPreCommit = vi.hoisted(() => vi.fn());
@@ -72,7 +73,7 @@ vi.mock("@orpc/server", () => ({
   createRouterClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, report: mockCheckReport },
     classify: { target: mockClassifyTarget },
-    fix: { applyPatterns: mockFixApplyPatterns },
+    fix: { planPatterns: mockFixPlanPatterns, applyPatterns: mockFixApplyPatterns },
     graph: { workspaceGraph: mockGraphWorkspaceGraph },
     hook: { preCommit: mockHookPreCommit, prePush: mockHookPrePush },
     verify: { changes: mockVerifyChanges },
@@ -141,6 +142,7 @@ describe("Habitat oclif commands", () => {
       unavailableTargets: [],
       recoveryInstructions: [],
     }));
+    mockFixPlanPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockFixApplyPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphWorkspaceGraph.mockResolvedValue({
       kind: "completed",
@@ -246,11 +248,12 @@ describe("Habitat oclif commands", () => {
     expect(mockCheckReport).not.toHaveBeenCalled();
   });
 
-  test("fix forwards dry-run intent through the Habitat service router", async () => {
+  test("fix forwards dry-run through the Habitat service router as a plan action", async () => {
     await Fix.run(["--dry-run"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "dry-run-intent" });
+    expect(mockFixPlanPatterns).toHaveBeenCalledWith({});
+    expect(mockFixApplyPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
   });
@@ -259,7 +262,8 @@ describe("Habitat oclif commands", () => {
     await Fix.run([]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(mockFixApplyPatterns).toHaveBeenCalledWith({});
+    expect(mockFixPlanPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toContain("biome ok");
   });
 
@@ -272,7 +276,7 @@ describe("Habitat oclif commands", () => {
 
     await expect(Fix.run([])).rejects.toMatchObject({ oclif: { exit: 1 } });
 
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(mockFixApplyPatterns).toHaveBeenCalledWith({});
     expect(stdout.join("")).toBe("");
     expect(stderr.join("")).toContain("missing-apply-admission");
   });
