@@ -80,3 +80,9 @@ Effect-native config descriptor and live layer. Keep deterministic test/manual
 overrides through `makeHabitatConfigLayer`, but make the default live resource
 load through Effect `Config` so runtime overrides enter through the Effect config
 provider rather than a Habitat-specific source abstraction.
+
+Completed step: derived live provider and platform realization from the loaded
+`HabitatConfig` value. `runtime/layers.ts` must stop importing the global
+`repoRoot` singleton to provision Git, Graphite, Biome, Nx, Grit, Git state, and
+platform resources; provider factories still accept a repo root, but the runtime
+layer should obtain it from `HabitatConfigLive`.

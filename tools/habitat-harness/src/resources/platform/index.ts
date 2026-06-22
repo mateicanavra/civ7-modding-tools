@@ -10,6 +10,12 @@ export {
   readText,
   writeText,
 } from "./filesystem.js";
-export { HabitatPlatform, HabitatPlatformLive, type HabitatPlatformService } from "./service.js";
+export {
+  HabitatPlatform,
+  HabitatPlatformLive,
+  type HabitatPlatformService,
+  makeHabitatPlatformLayer,
+  makeHabitatPlatformService,
+} from "./service.js";
 export { acquireTempDirectory } from "./temp-dir.js";
 export { currentTimeMillis, epochMillisToIsoString } from "./time.js";
