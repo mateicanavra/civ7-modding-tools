@@ -3,7 +3,7 @@ import path from "node:path";
 import {
   sourceCheckRuleModuleRepoPath,
   sourceCheckRuleRuntimeRepoPath,
-} from "./service/model/check/source/module-paths.ts";
+} from "./service/model/check/policy/source/module-paths.ts";
 import { ruleGraphFactsForNxPlugin } from "./service/model/graph/dto/rule-graph-facts.dto.ts";
 import {
   type InferredProjects,

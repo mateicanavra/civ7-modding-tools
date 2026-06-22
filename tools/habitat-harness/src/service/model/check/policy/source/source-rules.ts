@@ -1,8 +1,8 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import type { FileSystem } from "@effect/platform";
-import type { RuleRunResult } from "@internal/habitat-harness/service/model/check/rule-runtime/architecture";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { RuleRunResult } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import {
   pathCoveragePatternMatches,
   type RuleSourceFacts,

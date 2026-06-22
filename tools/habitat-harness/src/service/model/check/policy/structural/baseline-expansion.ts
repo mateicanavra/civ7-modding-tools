@@ -3,8 +3,8 @@ import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import {
   BaselineAuthority,
   violationKey,
-} from "@internal/habitat-harness/service/model/check/baseline/index";
-import { SourceCheck } from "@internal/habitat-harness/service/model/check/source/index";
+} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   activeRuleBaselineFacts,
   activeRuleSelectorFacts,

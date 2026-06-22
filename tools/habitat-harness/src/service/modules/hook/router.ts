@@ -8,7 +8,7 @@ import {
   stagedSourceCheckPaths,
   StructuralCheck,
   type StructuralCheckService,
-} from "@internal/habitat-harness/service/model/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   activeRuleHookCheckFacts,
   activeRuleSourceFacts,

@@ -9,12 +9,12 @@ import {
 import {
   type RuleRunResult,
   ruleDiagnosticsFromCommandResult,
-} from "@internal/habitat-harness/service/model/check/rule-runtime/architecture";
+} from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture";
 import {
   approvedSourceScanRootsForRules,
   SourceCheck,
   stagedSourceScanRoots,
-} from "@internal/habitat-harness/service/model/check/source/index";
+} from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   activeRuleCommandExecutionFacts,
   activeRuleFileLayerFacts,

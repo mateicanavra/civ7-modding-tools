@@ -1,4 +1,4 @@
-import type { CheckReport } from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { CheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import {
   type VerifyTargetPlan,
   verifyTargetPlan,

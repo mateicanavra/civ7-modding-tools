@@ -2,7 +2,7 @@ import {
   type CheckReport,
   type VerifyCheckSummary,
   verifyCheckSummary,
-} from "@internal/habitat-harness/service/model/check/structural/index";
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { activeRuleGraphFacts } from "@internal/habitat-harness/service/model/rules/registry/active-facts";
 import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
