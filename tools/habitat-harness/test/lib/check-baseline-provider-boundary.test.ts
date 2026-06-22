@@ -11,7 +11,6 @@ import {
   writeBaselineEffect,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/execution.policy";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";
 import { makeFakePlatformFileSystemLayer } from "../support/fake-platform-file-system.js";
@@ -93,7 +92,9 @@ describe("check and baseline provider boundaries", () => {
   });
 
   test("staged file-layer checks render GitProvider failures as diagnostics", async () => {
-    const fileLayerRule = activeRuleSelectorFacts.find((rule) => rule.ownerTool === "file-layer");
+    const fileLayerRule = makeTestHabitatServiceDeps().rules.selector.find(
+      (rule) => rule.ownerTool === "file-layer"
+    );
     expect(fileLayerRule).toBeDefined();
     const gitCalls: string[][] = [];
     const git = makeGitProviderFromCommandHandler((argv, options) => {
