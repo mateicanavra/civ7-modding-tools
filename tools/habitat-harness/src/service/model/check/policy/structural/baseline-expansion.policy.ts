@@ -17,7 +17,6 @@ import {
   BaselineAuthority,
   violationKey,
 } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
-import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   activeRuleBaselineFacts,
   activeRuleSelectorFacts,
@@ -52,7 +51,6 @@ export function expandBaselinesEffect(
   | CommandRunner
   | NxProvider
   | CommandExecutor
-  | SourceCheck
   | HabitatConfig
   | FileSystem.FileSystem
   | GitProvider

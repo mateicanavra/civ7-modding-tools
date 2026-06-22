@@ -26,7 +26,10 @@ import {
 import { Effect } from "effect";
 import ts from "typescript";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.policy.js";
-import type { SourceCheckOptions } from "./service.policy.js";
+
+export interface SourceCheckOptions {
+  readonly scanRoots?: readonly string[];
+}
 
 interface SourceFileRecord {
   readonly path: string;

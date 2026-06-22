@@ -35,7 +35,7 @@ import {
   type RuleExecutionTiming,
   stagedSourceScanRoots,
 } from "@internal/habitat-harness/service/model/check/index";
-import { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
+import { runSourceRulesEffect } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   type RuleRunResult,
   ruleDiagnosticsFromCommandResult,
@@ -151,7 +151,6 @@ export function executeSelectedRulesEffect(
   | CommandExecutor
   | GritProvider
   | GritProviderRequirements
-  | SourceCheck
   | HabitatConfig
   | FileSystem.FileSystem
   | GitProvider
@@ -175,9 +174,8 @@ export function executeSelectedRulesEffect(
       if (stagedNotApplicable) {
         for (const [ruleId, record] of stagedNotApplicable) results.set(ruleId, record);
       } else {
-        const sourceCheck = yield* SourceCheck;
         const started = yield* Clock.currentTimeMillis;
-        const sourceResults = yield* sourceCheck.runSourceRules(
+        const sourceResults = yield* runSourceRulesEffect(
           sourceRules,
           scanRoots ? { scanRoots } : {}
         );

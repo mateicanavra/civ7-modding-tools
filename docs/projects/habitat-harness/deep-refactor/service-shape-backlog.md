@@ -45,3 +45,4 @@ Completed burn-downs:
 - Platform filesystem/temp/path/repo-root helpers now enter the service through one `HabitatPlatform` resource; `HabitatServiceDeps` no longer carries raw platform helper functions.
 - Hook module procedure context now carries the `HabitatPlatform` resource directly instead of exploded `hashFile`, `pathExists`, and `repoRoot` fields.
 - Structural check policy no longer enters through `HabitatServiceDeps` or live service-context construction; check, hook, and verify modules resolve the shared Effect policy layer at execution while tests provision fakes as layers.
+- Source-check rule execution no longer has an internal Effect service tag or runtime layer; structural execution calls the owned source-rule policy directly.

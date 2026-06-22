@@ -17,7 +17,6 @@ import type {
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
 import type { BaselineAuthority } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
-import type { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Context, Effect, Layer } from "effect";
 import type { BaselineExpansionResult } from "./baseline-expansion.policy.js";
@@ -35,7 +34,6 @@ export interface StructuralCheckService {
     | CommandRunner
     | NxProvider
     | CommandExecutor
-    | SourceCheck
     | HabitatConfig
     | FileSystem.FileSystem
     | GitProvider
@@ -54,7 +52,6 @@ export interface StructuralCheckService {
     | CommandRunner
     | NxProvider
     | CommandExecutor
-    | SourceCheck
     | HabitatConfig
     | FileSystem.FileSystem
     | GitProvider
