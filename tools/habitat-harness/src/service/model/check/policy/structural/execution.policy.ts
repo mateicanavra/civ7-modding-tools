@@ -35,7 +35,10 @@ import {
   type RuleExecutionTiming,
   stagedSourceScanRoots,
 } from "@internal/habitat-harness/service/model/check/index";
-import { runSourceRulesEffect } from "@internal/habitat-harness/service/model/check/policy/source/index";
+import {
+  runSourceRulesEffect,
+  type SourceRuleFileSystem,
+} from "@internal/habitat-harness/service/model/check/policy/source/index";
 import {
   type RuleRunResult,
   ruleDiagnosticsFromCommandResult,
@@ -76,6 +79,7 @@ export interface StructuralExecutionContext {
   readonly grit: GritProviderService;
   readonly nx: NxProviderService;
   readonly rules: RuleFactsCatalog;
+  readonly sourceFileSystem: SourceRuleFileSystem<FileSystem.FileSystem>;
 }
 
 export function rulesForExecution(
@@ -182,6 +186,7 @@ export function executeSelectedRulesEffect(
       } else {
         const started = yield* Clock.currentTimeMillis;
         const sourceResults = yield* runSourceRulesEffect(sourceRules, {
+          fileSystem: context.sourceFileSystem,
           repoRoot: context.repoRoot,
           ...(scanRoots ? { scanRoots } : {}),
         });

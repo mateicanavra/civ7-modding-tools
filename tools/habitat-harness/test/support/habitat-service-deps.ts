@@ -132,6 +132,7 @@ export function makeTestHabitatServiceDeps(
       isDirectory: () => Effect.succeed(false),
       isDirectorySync: () => false,
       isFile: () => false,
+      isFileEffect: () => Effect.succeed(false),
       pathExists: () => false,
       readDirectory: () => Effect.succeed([]),
       readDirectorySync: () => [],

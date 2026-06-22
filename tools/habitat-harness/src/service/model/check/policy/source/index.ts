@@ -7,4 +7,8 @@ export {
   sourceCheckCandidateExtensions,
   stagedSourceScanRoots,
 } from "@internal/habitat-harness/service/model/check/index";
-export { runSourceRulesEffect, type SourceCheckOptions } from "./source-rules.policy.js";
+export {
+  runSourceRulesEffect,
+  type SourceCheckOptions,
+  type SourceRuleFileSystem,
+} from "./source-rules.policy.js";

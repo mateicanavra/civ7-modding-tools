@@ -104,6 +104,12 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
     rules: deps.rules,
+    sourceFileSystem: {
+      isDirectory: deps.platform.isDirectory,
+      isFile: deps.platform.isFileEffect,
+      readDirectory: deps.platform.readDirectory,
+      readText: deps.platform.readText,
+    },
   };
 }
 
