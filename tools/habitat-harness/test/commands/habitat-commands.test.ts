@@ -51,8 +51,9 @@ vi.mock("../../src/service/model/check/policy/structural/index.js", async (impor
   };
 });
 
-vi.mock("../../src/service/model/verify/index.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/service/model/verify/index.js")>();
+vi.mock("../../src/service/modules/verify/model/index.js", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../src/service/modules/verify/model/index.js")>();
   return {
     ...actual,
     stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
@@ -78,7 +79,7 @@ import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
 import * as checkReport from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import * as classify from "@internal/habitat-harness/service/model/workspace/index";
-import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/index";
+import * as verifyReceipt from "@internal/habitat-harness/service/modules/verify/model/index";
 import { createRouterClient } from "@orpc/server";
 
 describe("Habitat oclif commands", () => {
