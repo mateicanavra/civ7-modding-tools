@@ -13,7 +13,7 @@ import type {
   WorktreeObservation,
 } from "./model/dto/index.js";
 import {
-  activeApplyTransactionInputs,
+  activeApplyTransactionInputs as activeApplyTransactionInputsFromRules,
   defaultApplyAdmissions,
   renderPatternApply,
   runPatternApplyTransaction,
@@ -21,7 +21,7 @@ import {
 import { observeWorktree } from "./model/repositories/index.js";
 
 export interface FixModuleContext {
-  readonly activeApplyTransactionInputs: typeof activeApplyTransactionInputs;
+  readonly activeApplyTransactionInputs: ReturnType<typeof makeActiveApplyTransactionInputs>;
   readonly defaultApplyAdmissions: typeof defaultApplyAdmissions;
   readonly missingAdmissionRefusal: typeof missingAdmissionRefusal;
   readonly renderPatternApply: typeof renderPatternApply;
@@ -29,6 +29,9 @@ export interface FixModuleContext {
 }
 
 export const module = service.fix.use(({ context, next }) => {
+  const activeApplyTransactionInputs = makeActiveApplyTransactionInputs(
+    context.deps.rules.selector
+  );
   const runPatternApplyTransactions = makeRunPatternApplyTransactions(context.deps.grit);
   return next({
     context: {
@@ -41,11 +44,15 @@ export const module = service.fix.use(({ context, next }) => {
   });
 });
 
+function makeActiveApplyTransactionInputs(ruleFacts: readonly { id: string }[]) {
+  return () => activeApplyTransactionInputsFromRules(ruleFacts);
+}
+
 function makeRunPatternApplyTransactions(grit: GritProviderService) {
   return (
     input: FixServiceRunInput,
     admissions: readonly ApplyAdmission[],
-    transactionInputs: ReturnType<typeof activeApplyTransactionInputs>
+    transactionInputs: ReturnType<typeof activeApplyTransactionInputsFromRules>
   ): Effect.Effect<PatternApplyRecord[], never, GritProviderRequirements> =>
     Effect.forEach(
       admissions,
