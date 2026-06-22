@@ -26,6 +26,11 @@ export const module: ClassifyModule = service.classify.use(({ context, next }) =
     context: {
       classifyTargetResult: (target: string) =>
         classifyTargetResultEffect(target, context.deps.nx.workspaceGraph(), {
+          fileSystem: {
+            isFile: context.deps.platform.isFile,
+            readText: context.deps.platform.readTextSync,
+            statKind: context.deps.platform.statKind,
+          },
           repoRoot: context.deps.platform.repoRoot,
           rules: context.deps.rules,
         }),

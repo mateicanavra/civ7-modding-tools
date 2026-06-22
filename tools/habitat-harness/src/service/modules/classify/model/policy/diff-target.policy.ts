@@ -1,14 +1,19 @@
 import path from "node:path";
-import { isFileSync, readTextSync } from "@internal/habitat-harness/resources/platform/filesystem";
+
+export interface ClassifyFileSystem {
+  readonly isFile: (targetPath: string) => boolean;
+  readonly readText: (targetPath: string) => string;
+  readonly statKind: (targetPath: string) => string | undefined;
+}
 
 export function diffText(
   target: string,
-  context: { readonly repoRoot: string }
+  context: { readonly repoRoot: string; readonly fileSystem: ClassifyFileSystem }
 ): string | undefined {
   if (target.includes("\n") || target.startsWith("diff --git ")) return target;
   const candidate = path.resolve(context.repoRoot, target);
-  if (isDiffPath(candidate) && isFileSync(candidate)) {
-    const text = readTextSync(candidate);
+  if (isDiffPath(candidate) && context.fileSystem.isFile(candidate)) {
+    const text = context.fileSystem.readText(candidate);
     if (text.includes("diff --git ") || text.includes("\n+++ b/")) return text;
   }
   return undefined;
