@@ -27,7 +27,6 @@ import {
   makeFakeStructuralCheckLayer,
   StructuralCheck,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
@@ -477,7 +476,7 @@ async function runPreCommitInTest(
   return Effect.runPromise(runHookProcedure({ runtime }).pipe(Effect.provide(layer)));
 }
 
-function runHookProcedure(context: HookServiceModuleContext) {
+function runHookProcedure(options: { readonly runtime?: HookRuntime }) {
   return Effect.gen(function* () {
     const biome = yield* BiomeProvider;
     const git = yield* GitProvider;
@@ -491,13 +490,13 @@ function runHookProcedure(context: HookServiceModuleContext) {
             biome,
             git,
             graphite,
+            hookRuntime: options.runtime ?? {},
             nx,
             repoRoot,
             structuralCheck,
             workspaceGraphTargetNames,
           }),
         },
-        hook: context,
       },
     });
     return yield* withFiberContext(() => runHook({ name: "pre-commit" }));

@@ -1,3 +1,4 @@
+import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
 import {
   captureOutput,
   type HabitatProcessRequest,
@@ -24,9 +25,9 @@ import {
   type TransactionRefusal,
   type WorktreeObservation,
 } from "./model/policy/transactions/index.js";
-import { type FixModuleContext, module } from "./module.js";
+import { module } from "./module.js";
 
-type ResolvedGritProvider = FixModuleContext["grit"];
+type ResolvedGritProvider = GritProviderService;
 
 export const fixRouter = {
   run: module.run.effect(function* ({ context: options, input }) {

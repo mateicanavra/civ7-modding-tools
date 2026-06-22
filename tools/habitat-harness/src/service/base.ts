@@ -2,6 +2,7 @@ import type { BiomeProviderService } from "@internal/habitat-harness/providers/b
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
+import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import type {
   acquireTempDirectory,
@@ -10,25 +11,11 @@ import type {
 } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import type { ClassifyOptions } from "@internal/habitat-harness/service/modules/classify/model/index";
 import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { Context, type Layer } from "effect";
 
-export type CheckServiceModuleContext = Record<never, never>;
-
-export interface ClassifyServiceModuleContext {
-  readonly options?: ClassifyOptions;
-}
-
-export interface HookServiceModuleContext {
-  readonly runtime?: HookRuntime;
-}
-
 export interface HabitatServiceContext {
   readonly deps: HabitatServiceDeps;
-  readonly check?: CheckServiceModuleContext;
-  readonly classify?: ClassifyServiceModuleContext;
-  readonly hook?: HookServiceModuleContext;
   readonly correlationId?: string;
 }
 
@@ -39,10 +26,12 @@ export interface HabitatServiceDeps {
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly grit: GritProviderService;
+  readonly hookRuntime: HookRuntime;
   readonly nx: NxProviderService;
   readonly readText: typeof readText;
   readonly repoRoot: string;
   readonly structuralCheck: StructuralCheckService;
+  readonly workspaceProjects: WorkspaceGraphProjectReader;
   readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
 }
 

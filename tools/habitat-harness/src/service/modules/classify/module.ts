@@ -1,11 +1,14 @@
-import type { ClassifyServiceModuleContext } from "@internal/habitat-harness/service/base";
 import { service } from "@internal/habitat-harness/service/impl";
+import type { ClassifyOptions } from "./model/index.js";
+
+interface ClassifyModuleContext {
+  readonly options?: ClassifyOptions;
+}
 
 export const module = service.classify.use(({ context, next }) =>
   next({
     context: {
-      ...(context.classify ?? {}),
-      options: context.classify?.options,
-    },
+      options: { nxProjects: context.deps.workspaceProjects },
+    } satisfies ClassifyModuleContext,
   })
 );

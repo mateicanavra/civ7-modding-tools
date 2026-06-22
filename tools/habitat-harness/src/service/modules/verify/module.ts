@@ -1,19 +1,18 @@
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
-import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
+import type { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 
-export type VerifyModuleContext = Pick<
-  HabitatServiceDeps,
-  "epochMillisToIsoString" | "repoRoot"
-> & {
+export interface VerifyModuleContext {
+  readonly epochMillisToIsoString: typeof epochMillisToIsoString;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly nx: NxProviderService;
+  readonly repoRoot: string;
   readonly structuralCheck: StructuralCheckService;
-};
+}
 
 export const module = service.verify.use(({ context, next }) =>
   next({
