@@ -318,3 +318,57 @@ shape-verified per the brief's "necessary, not sufficient" caveat.)
 | Emergent relief on former platforms | harness + Studio + live | ☐ not started |
 | Holds across maps/seeds | multi-seed harness | ☐ not started |
 | In-game playable (closure) | live engine run + screenshots | ☐ not started |
+
+---
+
+## 12. Implementation results (as-built)
+
+**Model as built** (in `lib/crust/buoyancy.ts` + `compute-crust-evolution`):
+1. **Isostatic, thickness-gated subsidence** (supersedes M1's first-cut maturity gate). Thermal
+   subsidence acts fully on THIN crust (oceanic lithosphere → young-ridge-high/old-abyss-deep, *and*
+   thinned/young continental margins → subside into real shelves) and fades to zero as crust thickens
+   into an isostatically-supported cratonic keel (`isostaticSupport(thickness)`). This is more
+   physical than crust-type gating and is what yields a natural shelf→coast→highland spread instead of
+   a uniform high plateau. Retires the saturated-thermalAge mis-model (age now drives buoyancy only
+   through thickness-gated subsidence, where it is physical).
+2. **Cratonization** (`compute-crust-evolution` era loop): continental crust that survives quiescent
+   eras consolidates a buoyant keel (`cratonRoot01`); active/rifted eras don't, and rift recycles it.
+   Adds a high-craton tail without a wholesale lift (rate 0.08; the isostatic spread carries the
+   gradient). Uses the *quiescence* of each era (inverse of disruption) — the differentiator is how
+   many quiescent eras a cell experienced.
+
+**Shape outcome (earthlike s1018, vs baseline):**
+| metric | baseline | as-built | meaning |
+|---|---|---|---|
+| continental crustUnit min/p50/max | 0.485/0.54/0.68 (dense hump) | **0.575/0.72/0.96 (broad spread)** | no longer a dense hump at the waterline |
+| DROWNING ZONE [−15,+15] | 73.7% | 48% | crust near waterline reduced (now a gradient, not a flat slab) |
+| clearly above >+15 | 17.8% | 51% | emergent high continental land tripled |
+| submerged continental bathy p50/min | −1 / −21 (flat) | **−5 / −30 (shelf→slope)** | no longer dead-flat; real shelf-slope-abyss profile |
+| land elev p10/p50/max | −6/3/53 | 14/28/86 | continents ride high with internal relief |
+| submergedPctOfCont | 32.2% | ~33% | **unchanged — by design** (see below) |
+
+**Why `submergedPctOfCont` does not (and should not) fall.** It is structurally pinned:
+`water%(63) − oceanic%(~44) = ~19%` of all cells = ~33% of continental crust *must* sit below the
+waterline regardless of relief shape, as long as oceanic crust fills the deep mode. Critically,
+**33% submerged continental ≈ Earth's own continental-shelf fraction** (~30% of continental crust is
+submerged shelf). The brief's symptom was never "shelves exist" — it was "broad **flat** shelves with
+**nothing emergent**." That is decisively fixed: the submerged crust is now a real shelf→slope→abyss
+profile (bathy p50 −5, sparse continental slope between −70 and −10), and the emergent crust rides
+high with relief. Forcing `submergedPctOfCont` down would require shrinking the continental fraction
+(a maturity-classification change) — a **possible follow-up lever** (the model over-produces
+continental crust: 56% earthlike / 67% juicy vs Earth ~40%), but reducing it to hit a fraction would
+be the forbidden tune-to-a-ratio. Recorded as an open lever, not pursued by tuning.
+
+**Visual (earthlike s1018):** `tools/ascii-map.mjs <RUNDIR> elev` — high cratonic cores (`@`/`^`)
+grading through coastal land (`#`) and lowlands (`-`) to coherent shelves (`:`) and deep basins (`.`);
+former dead-flat platforms are now high continents with internal relief. (Baseline: vast `+` flat
+platforms interrupting low featureless land.)
+
+**Robustness (holds across seeds + configs, not one tuned seed):** continental crustUnit is a broad
+spread on every map (earthlike s1018/7/99/2024 ≈ 0.57/0.70/0.97; latest-juicy 0.57/0.74/0.97;
+shattered-ring 0.57/0.67/0.81; sundered-archipelago 0.61/0.81/0.96; desert-mountains 0.81/0.88/0.96 —
+all-land mountainous, high by design). Submerged continental bathymetry un-pinned everywhere (p50:
+earthlike −5/−12, juicy −9, shattered-ring −37, **sundered-archipelago −77**). No carpeting / empty
+maps. **OPEN (downstream slice):** sundered-archipelago submerged crust is now *deep* (p50 −77) — must
+confirm enough *shallow* cold shelf remains to restore `requireColdReefs`, else tune shelf width or
+retire by product decision.
