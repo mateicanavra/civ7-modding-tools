@@ -1,6 +1,4 @@
 import path from "node:path";
-import { ruleRegistryRepoPath } from "@internal/habitat-harness/resources/artifact-paths";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   isDirectory,
   isDirectorySync,
@@ -87,15 +85,13 @@ export function parseRuleRegistryDocument(
   return { ok: true, document };
 }
 
-export function loadRuleRegistryDocument(
-  registryPath = defaultRuleRegistryPath()
-): RuleRegistryDocumentV1 {
+export function loadRuleRegistryDocument(registryPath: string): RuleRegistryDocumentV1 {
   return isDirectorySync(registryPath)
     ? loadRuleRegistryDirectorySync(registryPath)
     : parseRuleRegistryTextOrThrow(readTextSync(registryPath), registryPath);
 }
 
-export function loadRuleRegistryDocumentEffect(registryPath = defaultRuleRegistryPath()) {
+export function loadRuleRegistryDocumentEffect(registryPath: string) {
   return Effect.gen(function* () {
     if (yield* isDirectory(registryPath)) return yield* loadRuleRegistryDirectory(registryPath);
 
@@ -103,10 +99,6 @@ export function loadRuleRegistryDocumentEffect(registryPath = defaultRuleRegistr
     if (result.ok) return result.document;
     return yield* Effect.fail(new RuleRegistryLoadFailed({ issues: result.issues }));
   });
-}
-
-export function defaultRuleRegistryPath(): string {
-  return path.join(repoRoot, ruleRegistryRepoPath);
 }
 
 function loadRuleRegistryDirectory(registryDir: string) {

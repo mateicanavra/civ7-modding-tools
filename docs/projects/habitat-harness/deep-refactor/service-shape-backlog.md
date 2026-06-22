@@ -17,7 +17,7 @@ Current burn-down categories:
 - Enforce router/module import shape with allow-list tooling after the source tree matches the rule.
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
-- Follow-up: rule facts are now input-driven; continue applying the same pattern to any remaining shared policies that read repo/process state at import time.
+- Follow-up: rule facts and registry loading are now input-driven; continue applying the same pattern to any remaining shared policies that read repo/process state at import time.
 
 Completed burn-downs:
 
@@ -33,6 +33,7 @@ Completed burn-downs:
 - Artifact-path routing now has an explicit rule-fact facet in `RuleFactsCatalog`; pre-push routing receives artifact facts from hook module context instead of loading the active registry from shared policy.
 - Rule selection policy now requires explicit selector facts; shared rule selection can no longer fall back to active checkout facts.
 - Active rule fact singletons and the active registry document export are deleted; tests now build explicit rule facts from an explicit registry path at the test edge.
+- Rule registry loaders now require an explicit registry path; runtime and tests choose the path at their edges instead of the shared repository importing global repo-root state.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
