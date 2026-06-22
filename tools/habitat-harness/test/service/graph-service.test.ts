@@ -81,7 +81,7 @@ describe("Habitat graph service", () => {
     );
 
     await expect(Effect.runPromise(runGraphProcedure({ json: true }, deps))).rejects.toThrow(
-      "Habitat graph service failed."
+      "Habitat graph service read invalid Nx graph JSON at /tmp/habitat-graph-fake/graph.json: graph must be a non-null object."
     );
   });
 
