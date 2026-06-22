@@ -2,7 +2,7 @@ import type { GitProviderService } from "@internal/habitat-harness/providers/git
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import { spawnResultFromCommandResult } from "@internal/habitat-harness/resources/command/index";
-import type { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
+import { epochMillisToIsoString } from "@internal/habitat-harness/resources/platform/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
   checkCommandContext,
@@ -46,7 +46,7 @@ export const module = service.verify.use(({ context, next }) => {
       checkCommandContext,
       createVerifyReceipt,
       currentTimeMillis: Clock.currentTimeMillis,
-      epochMillisToIsoString: context.deps.epochMillisToIsoString,
+      epochMillisToIsoString,
       observeGitStatus,
       readVerifyTargetPlan: readVerifyTargetPlanEffect,
       resolveVerifyBase,

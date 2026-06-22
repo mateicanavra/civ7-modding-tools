@@ -20,7 +20,6 @@ import {
   type NxRunTargetRequest,
   runTargetArgv,
 } from "@internal/habitat-harness/providers/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   captureOutput,
   makeHabitatCommandResult,
@@ -642,7 +641,6 @@ describe("Habitat hook service", () => {
                   nx,
                   repoRoot,
                   structuralCheck,
-                  workspaceGraphTargetNames,
                 }),
               },
             },
@@ -785,7 +783,6 @@ function runHookServiceInTest(
               nx,
               repoRoot,
               structuralCheck: resolvedStructuralCheck,
-              workspaceGraphTargetNames,
             }),
           },
         },

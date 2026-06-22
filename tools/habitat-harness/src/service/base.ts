@@ -6,7 +6,6 @@ import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/prov
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
 import type {
   acquireTempDirectory,
-  epochMillisToIsoString,
   readText,
 } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
@@ -22,7 +21,6 @@ export interface HabitatServiceContext {
 export interface HabitatServiceDeps {
   readonly acquireTempDirectory: typeof acquireTempDirectory;
   readonly biome: BiomeProviderService;
-  readonly epochMillisToIsoString: typeof epochMillisToIsoString;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly grit: GritProviderService;
@@ -32,7 +30,6 @@ export interface HabitatServiceDeps {
   readonly repoRoot: string;
   readonly structuralCheck: StructuralCheckService;
   readonly workspaceProjects: WorkspaceGraphProjectReader;
-  readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
 }
 
 export class HabitatServiceRuntime extends Context.Tag(

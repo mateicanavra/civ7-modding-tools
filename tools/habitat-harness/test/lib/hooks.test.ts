@@ -13,7 +13,6 @@ import {
   makeFakeGraphiteProviderLayer,
 } from "@internal/habitat-harness/providers/graphite/index";
 import { makeFakeNxProviderLayer, NxProvider } from "@internal/habitat-harness/providers/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   captureOutput,
   makeHabitatCommandResult,
@@ -494,7 +493,6 @@ function runHookProcedure(options: { readonly runtime?: HookRuntime }) {
             nx,
             repoRoot,
             structuralCheck,
-            workspaceGraphTargetNames,
           }),
         },
       },

@@ -6,7 +6,6 @@ import {
   runManyArgv,
   runTargetArgv,
 } from "@internal/habitat-harness/providers/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   captureOutput,
   makeHabitatCommandResult,
@@ -34,7 +33,6 @@ export function makeTestHabitatServiceDeps(
         ),
       argv: biomeArgv,
     },
-    epochMillisToIsoString: (millis) => new Date(millis).toISOString(),
     git: makeGitProviderFromCommandHandler((argv, options) =>
       commandResult({
         commandId: `git-${argv.join("-")}`,
@@ -108,7 +106,6 @@ export function makeTestHabitatServiceDeps(
     workspaceProjects: {
       readProjects: async () => [],
     },
-    workspaceGraphTargetNames,
     ...overrides,
   };
 }

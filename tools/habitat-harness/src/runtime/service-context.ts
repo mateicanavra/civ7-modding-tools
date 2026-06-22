@@ -4,13 +4,8 @@ import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/i
 import { GritProvider } from "@internal/habitat-harness/providers/grit/index";
 import { NxWorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
 import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import {
-  acquireTempDirectory,
-  epochMillisToIsoString,
-  readText,
-} from "@internal/habitat-harness/resources/platform/index";
+import { acquireTempDirectory, readText } from "@internal/habitat-harness/resources/platform/index";
 import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type {
   HabitatServiceContext,
@@ -33,7 +28,6 @@ export async function createLiveHabitatServiceContext(
       return {
         acquireTempDirectory,
         biome: input.deps?.biome ?? (yield* BiomeProvider),
-        epochMillisToIsoString,
         git: input.deps?.git ?? (yield* GitProvider),
         graphite: input.deps?.graphite ?? (yield* GraphiteProvider),
         grit: input.deps?.grit ?? (yield* GritProvider),
@@ -43,7 +37,6 @@ export async function createLiveHabitatServiceContext(
         repoRoot,
         structuralCheck: input.deps?.structuralCheck ?? (yield* StructuralCheck),
         workspaceProjects: input.deps?.workspaceProjects ?? new NxWorkspaceGraphProjectReader(),
-        workspaceGraphTargetNames,
         ...input.deps,
       } satisfies HabitatServiceDeps;
     })

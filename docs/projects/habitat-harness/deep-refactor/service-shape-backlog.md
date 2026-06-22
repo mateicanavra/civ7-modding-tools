@@ -15,12 +15,14 @@ Current burn-down categories:
 - Validate through typecheck, tests, Nx boundaries, service module shape, Grit pattern validation, and boundary taxonomy before each local Graphite commit.
 - Follow-up: package-level `tsc --noEmit` still exceeds the useful local feedback budget; keep validation pressure on narrower structural validators while the check-duration architecture work continues.
 - Follow-up: native `grit check` over the six router files exceeded the useful feedback budget even after the wiring pattern fixtures passed; current-tree Grit execution needs the same duration architecture repair as TypeScript.
+- Follow-up: `hookRuntime` is still caller-local hook execution state on service deps; it needs a deliberate runtime/caller design because it carries non-serializable callbacks and traces, unlike pure provider functions.
 
 Completed burn-downs:
 
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
+- Pure helper functions `epochMillisToIsoString` and `workspaceGraphTargetNames` were removed from `HabitatServiceDeps`; modules import them from their owning platform/provider modules.
 - Graph router internal error mapping now uses contract-listed effect-oRPC errors; router source carries no TODO notes for this path.
 - Shared `service/model/*` domains now reject loose unmanaged files; policy code must be named and classified by kind.
 - Shared `service/model/*/policy` files now use explicit policy/rule suffixes instead of generic `*.ts` and `*.mjs` names.
