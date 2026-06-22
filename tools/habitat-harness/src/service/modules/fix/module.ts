@@ -1,13 +1,9 @@
 import { createHash } from "node:crypto";
 import type {
-  GitProviderRequirements,
-  GitProviderService,
-} from "@internal/habitat-harness/providers/git/index";
-import type {
-  GritProviderRequirements,
-  GritProviderService,
-} from "@internal/habitat-harness/providers/grit/index";
-import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
+  CommandProviderError,
+  HabitatCommandResult,
+  SpawnResult,
+} from "@internal/habitat-harness/resources/command/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import type { FixServiceRunInput } from "./contract.js";
@@ -20,9 +16,22 @@ import type {
 import {
   admittedApplyTransactionInputs as admittedApplyTransactionInputsFromRules,
   defaultApplyAdmissions,
+  type PatternApplyGritPort,
   renderPatternApply,
   runPatternApplyTransaction,
 } from "./model/policy/index.js";
+
+interface FixGitPort {
+  readonly currentBranch: (
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+  readonly head: (
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<string | null, never, any>;
+  readonly statusShort: (
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, any>;
+}
 
 export interface FixModuleContext {
   readonly admittedApplyTransactionInputs: ReturnType<typeof makeAdmittedApplyTransactionInputs>;
@@ -57,19 +66,15 @@ function makeAdmittedApplyTransactionInputs(ruleFacts: readonly { id: string }[]
 }
 
 function makeRunPatternApplyTransactions(
-  grit: GritProviderService,
-  git: GitProviderService,
+  grit: PatternApplyGritPort,
+  git: FixGitPort,
   repoRoot: string
 ) {
   return (
     input: FixServiceRunInput,
     admissions: readonly ApplyAdmission[],
     transactionInputs: ReturnType<typeof admittedApplyTransactionInputsFromRules>
-  ): Effect.Effect<
-    PatternApplyRecord[],
-    never,
-    GritProviderRequirements | GitProviderRequirements
-  > =>
+  ): Effect.Effect<PatternApplyRecord[], never, any> =>
     Effect.gen(function* () {
       const worktree = yield* observeWorktreeEffect(git, repoRoot);
       return yield* Effect.forEach(
@@ -85,9 +90,9 @@ function makeRunPatternApplyTransactions(
 }
 
 function observeWorktreeEffect(
-  git: GitProviderService,
+  git: FixGitPort,
   repoRoot: string
-): Effect.Effect<WorktreeObservation, never, GitProviderRequirements> {
+): Effect.Effect<WorktreeObservation, never, any> {
   return Effect.gen(function* () {
     const [branch, head, status] = yield* Effect.all(
       [
