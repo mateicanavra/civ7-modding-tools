@@ -108,11 +108,6 @@ export function makeTestHabitatServiceDeps(
       repoRoot,
     },
     reporter: fakeReporter(),
-    structuralCheck: {
-      createReport: (options = {}) =>
-        Effect.succeed(passingCheckReport(options.command?.serialized ?? "habitat check")),
-      expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
-    },
     ...overrides,
   };
 }

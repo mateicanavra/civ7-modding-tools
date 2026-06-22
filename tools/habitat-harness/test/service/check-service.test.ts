@@ -1,5 +1,8 @@
 import type { CheckOptions } from "@internal/habitat-harness/service/model/check/index";
-import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import {
+  makeFakeStructuralCheckLayer,
+  type StructuralCheckService,
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
 import { Effect } from "effect";
@@ -29,7 +32,7 @@ describe("Habitat check service", () => {
     const result = await Effect.runPromise(
       Effect.gen(function* () {
         const runCheck = checkRouter.run.callable({
-          context: { deps: makeTestHabitatServiceDeps({ structuralCheck }) },
+          context: { deps: makeTestHabitatServiceDeps() },
         });
         return yield* withFiberContext(() =>
           runCheck({
@@ -40,7 +43,7 @@ describe("Habitat check service", () => {
             stagedPaths: ["tools/habitat-harness/src/cli/commands/check.ts"],
           })
         );
-      })
+      }).pipe(Effect.provide(makeFakeStructuralCheckLayer(structuralCheck)))
     );
 
     expect(result).toBe(mockReport);
@@ -77,7 +80,7 @@ describe("Habitat check service", () => {
     const expanded = await Effect.runPromise(
       Effect.gen(function* () {
         const expandBaseline = checkRouter.expandBaseline.callable({
-          context: { deps: makeTestHabitatServiceDeps({ structuralCheck }) },
+          context: { deps: makeTestHabitatServiceDeps() },
         });
         return yield* withFiberContext(() =>
           expandBaseline({
@@ -85,7 +88,7 @@ describe("Habitat check service", () => {
             base: "main",
           })
         );
-      })
+      }).pipe(Effect.provide(makeFakeStructuralCheckLayer(structuralCheck)))
     );
 
     expect(expanded).toEqual({
@@ -107,14 +110,14 @@ describe("Habitat check service", () => {
     const refused = await Effect.runPromise(
       Effect.gen(function* () {
         const expandBaseline = checkRouter.expandBaseline.callable({
-          context: { deps: makeTestHabitatServiceDeps({ structuralCheck }) },
+          context: { deps: makeTestHabitatServiceDeps() },
         });
         return yield* withFiberContext(() =>
           expandBaseline({
             selectors: { rule: "missing-rule" },
           })
         );
-      })
+      }).pipe(Effect.provide(makeFakeStructuralCheckLayer(structuralCheck)))
     );
 
     expect(refused).toEqual({
