@@ -1,4 +1,3 @@
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 import { Value } from "typebox/value";
 import {
   type ApplyAdmission,
@@ -38,8 +37,10 @@ export function defaultApplyAdmissions(): ApplyAdmission[] {
   });
 }
 
-export function activeApplyTransactionInputs(): ApplyTransactionInput[] {
-  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), activeRuleSelectorFacts);
+export function activeApplyTransactionInputs(
+  ruleFacts: readonly { id: string }[]
+): ApplyTransactionInput[] {
+  return applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), ruleFacts);
 }
 
 export function applyTransactionInputsFromRuleFacts(
