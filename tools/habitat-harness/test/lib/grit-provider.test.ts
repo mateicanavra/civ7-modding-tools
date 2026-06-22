@@ -433,24 +433,27 @@ describe("Grit check provider parser and diagnostics", () => {
   test("runs selected Grit rules through one argument-array command request", async () => {
     const rule = fakeGritRule("adapter-base-standard-import", "adapter_base_standard_import");
     let observedRequest: HabitatProcessRequest | undefined;
-    const fakeLayer = makeFakeGritProviderLayer((request) => {
-      observedRequest = request;
-      return makeHabitatCommandResult(request, {
-        stderr: output(
-          JSON.stringify({
-            paths: ["packages/example/src/demo.ts"],
-            results: [
-              {
-                local_name: "adapter_base_standard_import",
-                path: "packages/example/src/demo.ts",
-                start: { line: 1 },
-                extra: { message: "adapter finding" },
-              },
-            ],
-          })
-        ),
-      });
-    });
+    const fakeLayer = makeFakeGritProviderLayer(
+      (request) => {
+        observedRequest = request;
+        return makeHabitatCommandResult(request, {
+          stderr: output(
+            JSON.stringify({
+              paths: ["packages/example/src/demo.ts"],
+              results: [
+                {
+                  local_name: "adapter_base_standard_import",
+                  path: "packages/example/src/demo.ts",
+                  start: { line: 1 },
+                  extra: { message: "adapter finding" },
+                },
+              ],
+            })
+          ),
+        });
+      },
+      { repoRoot }
+    );
 
     const results = await runGritRules([rule], {
       scanRoots: ["packages"],

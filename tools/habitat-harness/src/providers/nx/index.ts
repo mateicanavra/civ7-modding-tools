@@ -10,7 +10,6 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Context, Effect, Layer } from "effect";
 
 type NxProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
@@ -61,7 +60,9 @@ export class NxProvider extends Context.Tag("@internal/habitat-harness/NxProvide
   NxProviderService
 >() {}
 
-export const NxProviderLive = Layer.succeed(NxProvider, makeLiveNxProvider());
+export function makeNxProviderLayer(repoRoot: string): Layer.Layer<NxProvider> {
+  return Layer.succeed(NxProvider, makeLiveNxProvider(repoRoot));
+}
 
 export interface FakeNxProviderHandlers {
   readonly affected?: (request: NxAffectedRequest) => HabitatCommandResult;
@@ -92,7 +93,7 @@ export function makeFakeNxProviderLayer(
   });
 }
 
-function makeLiveNxProvider(): NxProviderService {
+function makeLiveNxProvider(repoRoot: string): NxProviderService {
   return {
     affected: (request) =>
       CommandRunner.pipe(
@@ -150,7 +151,7 @@ function makeLiveNxProvider(): NxProviderService {
         )
       ),
     runTargetArgv,
-    workspaceGraph: () => Effect.promise(() => readWorkspaceGraph()),
+    workspaceGraph: () => Effect.promise(() => readWorkspaceGraph(repoRoot)),
   };
 }
 

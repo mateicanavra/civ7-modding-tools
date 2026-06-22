@@ -60,7 +60,7 @@ export async function classifyTargetResult(
     const paths = extractDiffPaths(diff);
     if (paths.length === 0) return malformedOrPathlessDiffResult(target);
 
-    const graph = await readWorkspaceGraph(options.nxProjects);
+    const graph = await readWorkspaceGraph(options.repoRoot, options.nxProjects);
     if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
 
     return parseClassifyResult({
@@ -72,7 +72,7 @@ export async function classifyTargetResult(
     });
   }
 
-  const graph = await readWorkspaceGraph(options.nxProjects);
+  const graph = await readWorkspaceGraph(options.repoRoot, options.nxProjects);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
@@ -117,7 +117,7 @@ export async function classifyPathResult(
   target: string,
   options: ClassifyOptions
 ): Promise<PathClassification> {
-  const graph = await readWorkspaceGraph(options.nxProjects);
+  const graph = await readWorkspaceGraph(options.repoRoot, options.nxProjects);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }

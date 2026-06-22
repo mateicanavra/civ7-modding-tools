@@ -68,8 +68,11 @@ export const verifyAffectedTargets = [...verifyAffectedTargetNames(workspaceGrap
  *
  * @returns Runnable target plan or graph-refusal plan for the verify receipt.
  */
-export async function readVerifyTargetPlan(rules: RuleFactsCatalog): Promise<VerifyTargetPlan> {
-  const graph = await readWorkspaceGraph();
+export async function readVerifyTargetPlan(
+  rules: RuleFactsCatalog,
+  repoRoot: string
+): Promise<VerifyTargetPlan> {
+  const graph = await readWorkspaceGraph(repoRoot);
   if (graph.kind === "graph-ready")
     return verifyTargetPlan(graph.snapshot.projects, undefined, undefined, rules.graph);
   return graphRefusedVerifyTargetPlan(graph.kind, graph.message);

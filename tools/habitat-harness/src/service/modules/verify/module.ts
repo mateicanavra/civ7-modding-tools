@@ -80,7 +80,10 @@ export const module: VerifyModule = service.verify.use(({ context, next }) => {
       currentTimeMillis: Clock.currentTimeMillis,
       epochMillisToIsoString,
       observeGitStatus,
-      readVerifyTargetPlan: readVerifyTargetPlanEffect(context.deps.rules),
+      readVerifyTargetPlan: readVerifyTargetPlanEffect({
+        repoRoot: context.deps.platform.repoRoot,
+        rules: context.deps.rules,
+      }),
       resolveVerifyBase,
       runAffectedVerification,
       verifyCheckSummary,
@@ -103,8 +106,11 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
   };
 }
 
-function readVerifyTargetPlanEffect(rules: HabitatServiceDeps["rules"]) {
-  return () => Effect.promise(() => readVerifyTargetPlan(rules));
+function readVerifyTargetPlanEffect(input: {
+  readonly rules: HabitatServiceDeps["rules"];
+  readonly repoRoot: string;
+}) {
+  return () => Effect.promise(() => readVerifyTargetPlan(input.rules, input.repoRoot));
 }
 
 function makeCreateVerifyReceipt(context: {

@@ -6,7 +6,6 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Context, Effect, Layer } from "effect";
 
 type BiomeProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
@@ -32,7 +31,9 @@ export class BiomeProvider extends Context.Tag("@internal/habitat-harness/BiomeP
   BiomeProviderService
 >() {}
 
-export const BiomeProviderLive = Layer.succeed(BiomeProvider, makeLiveBiomeProvider());
+export function makeBiomeProviderLayer(repoRoot: string): Layer.Layer<BiomeProvider> {
+  return Layer.succeed(BiomeProvider, makeLiveBiomeProvider(repoRoot));
+}
 
 export function makeFakeBiomeProviderLayer(
   handler: (request: BiomeCommandRequest) => HabitatCommandResult
@@ -43,7 +44,7 @@ export function makeFakeBiomeProviderLayer(
   });
 }
 
-function makeLiveBiomeProvider(): BiomeProviderService {
+function makeLiveBiomeProvider(repoRoot: string): BiomeProviderService {
   return {
     run: (request) =>
       CommandRunner.pipe(

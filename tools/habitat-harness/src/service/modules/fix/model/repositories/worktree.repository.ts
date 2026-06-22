@@ -1,7 +1,7 @@
 import { readGitState } from "@internal/habitat-harness/providers/git/state";
 import { parseWorktreeObservation, type WorktreeObservation } from "../dto/pattern-apply.schema.js";
 
-export function observeWorktree(cwd?: string): WorktreeObservation {
+export function observeWorktree(cwd: string): WorktreeObservation {
   const state = readGitState(cwd);
   return parseWorktreeObservation({
     kind: "worktree-observation",
