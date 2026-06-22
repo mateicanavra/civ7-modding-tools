@@ -1,13 +1,4 @@
 import type { FileSystem } from "@effect/platform";
-import type {
-  CheckReport,
-  RuleExecutionDisposition,
-  RuleReport,
-} from "@internal/habitat-harness/service/model/check/index";
-import {
-  type CheckOptions,
-  structuralCheckRequest,
-} from "@internal/habitat-harness/service/model/check/index";
 import {
   applyBaseline,
   type BaselineApplicationResult,
@@ -18,7 +9,16 @@ import {
   checkBaselineIntegrityEffect,
   isBaselineLocked,
   loadBaselineStateEffect,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+} from "@internal/habitat-harness/service/model/baseline/index";
+import type {
+  CheckReport,
+  RuleExecutionDisposition,
+  RuleReport,
+} from "@internal/habitat-harness/service/model/check/index";
+import {
+  type CheckOptions,
+  structuralCheckRequest,
+} from "@internal/habitat-harness/service/model/check/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
