@@ -3,13 +3,7 @@ import { GitProvider } from "@internal/habitat-harness/providers/git/index";
 import { GraphiteProvider } from "@internal/habitat-harness/providers/graphite/index";
 import { GritProvider } from "@internal/habitat-harness/providers/grit/index";
 import { NxProvider } from "@internal/habitat-harness/providers/nx/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import {
-  acquireTempDirectory,
-  hashFileSync,
-  pathExistsSync,
-  readText,
-} from "@internal/habitat-harness/resources/platform/index";
+import { HabitatPlatform } from "@internal/habitat-harness/resources/platform/index";
 import { silentHabitatReporter } from "@internal/habitat-harness/resources/reporter/index";
 import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import type {
@@ -31,17 +25,13 @@ export async function createLiveHabitatServiceContext(
   const deps = await serviceContextRuntime.runPromise(
     Effect.gen(function* () {
       return {
-        acquireTempDirectory,
         biome: input.deps?.biome ?? (yield* BiomeProvider),
         git: input.deps?.git ?? (yield* GitProvider),
         graphite: input.deps?.graphite ?? (yield* GraphiteProvider),
         grit: input.deps?.grit ?? (yield* GritProvider),
-        hashFile: input.deps?.hashFile ?? hashFileSync,
         nx: input.deps?.nx ?? (yield* NxProvider),
-        pathExists: input.deps?.pathExists ?? pathExistsSync,
-        readText,
+        platform: input.deps?.platform ?? (yield* HabitatPlatform),
         reporter: input.deps?.reporter ?? silentHabitatReporter,
-        repoRoot,
         structuralCheck: input.deps?.structuralCheck ?? (yield* StructuralCheck),
         ...input.deps,
       } satisfies HabitatServiceDeps;

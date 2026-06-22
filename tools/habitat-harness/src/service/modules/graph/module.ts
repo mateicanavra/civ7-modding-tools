@@ -5,10 +5,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import type {
-  acquireTempDirectory,
-  readText,
-} from "@internal/habitat-harness/resources/platform/index";
+import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import type { GraphServiceRunInput } from "./contract.js";
@@ -23,9 +20,8 @@ export interface GraphModuleContext {
 
 export const module = service.graph.use(({ context, next }) => {
   const runGraph = makeRunGraph({
-    acquireTempDirectory: context.deps.acquireTempDirectory,
     nx: context.deps.nx,
-    readText: context.deps.readText,
+    platform: context.deps.platform,
   });
   return next({
     context: {
@@ -41,16 +37,15 @@ interface GraphJsonFailure {
 type GraphBadRequest = (input: { readonly message: string }) => GraphServiceBadRequestError;
 
 interface GraphRuntimeDeps {
-  readonly acquireTempDirectory: typeof acquireTempDirectory;
   readonly nx: NxProviderService;
-  readonly readText: typeof readText;
+  readonly platform: HabitatPlatformService;
 }
 
 function makeRunGraph(deps: GraphRuntimeDeps) {
   return (input: GraphServiceRunInput = {}, badRequest: GraphBadRequest) =>
     Effect.scoped(
       Effect.gen(function* () {
-        const tempDir = yield* deps
+        const tempDir = yield* deps.platform
           .acquireTempDirectory("habitat-graph-")
           .pipe(Effect.mapError(graphServiceInternalError));
         const graphPath = path.join(tempDir, "graph.json");
@@ -62,7 +57,7 @@ function makeRunGraph(deps: GraphRuntimeDeps) {
         );
         if (spawnResult.exitCode !== 0) return spawnResult;
 
-        const graphText = yield* deps
+        const graphText = yield* deps.platform
           .readText(graphPath)
           .pipe(Effect.mapError(graphServiceInternalError));
         const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(

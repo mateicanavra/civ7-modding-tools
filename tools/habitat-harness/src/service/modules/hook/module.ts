@@ -120,11 +120,11 @@ export const module = service.hook.use(({ context, next }) => {
     git: context.deps.git,
     graphite: context.deps.graphite,
     hashFile: (repoRelativePath) =>
-      context.deps.hashFile(path.join(context.deps.repoRoot, repoRelativePath)),
+      context.deps.platform.hashFile(path.join(context.deps.platform.repoRoot, repoRelativePath)),
     nx: context.deps.nx,
-    pathExists: context.deps.pathExists,
+    pathExists: context.deps.platform.pathExists,
     reporter: context.deps.reporter,
-    repoRoot: context.deps.repoRoot,
+    repoRoot: context.deps.platform.repoRoot,
     structuralCheck: context.deps.structuralCheck,
     workspaceGraphTargetNames,
   } satisfies HookProcedureContext;
