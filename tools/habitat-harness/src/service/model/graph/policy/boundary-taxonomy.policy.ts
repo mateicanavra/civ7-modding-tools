@@ -63,8 +63,7 @@ export interface BoundaryTaxonomyNote {
     | "workspace-root-not-nx-project"
     | "nx-inferred-artifact-project"
     | "nx-inferred-habitat-internal-project"
-    | "nx-inferred-habitat-service-module-project"
-    | "nx-inferred-habitat-service-module-model-project";
+    | "nx-inferred-habitat-service-module-project";
   message: string;
   project: string;
   root: string;
@@ -254,16 +253,6 @@ export function auditBoundaryTaxonomy(input: {
           reason: "nx-inferred-habitat-service-module-project",
           message:
             "Habitat service modules are inferred from service/modules/* and governed by the generic layer:service-module boundary row.",
-          project: nxProject.name,
-          root: nxProject.root,
-        });
-        continue;
-      }
-      if (isNxInferredHabitatServiceModuleModelProject(nxProject)) {
-        notes.push({
-          reason: "nx-inferred-habitat-service-module-model-project",
-          message:
-            "Habitat service module models are inferred from service/modules/*/model and governed by the generic layer:service-model boundary row.",
           project: nxProject.name,
           root: nxProject.root,
         });
@@ -530,19 +519,6 @@ function isNxInferredHabitatServiceModuleProject(project: {
     project.name.startsWith("@internal/habitat-harness-service-module-") &&
     project.root.startsWith("tools/habitat-harness/src/service/modules/") &&
     project.tags.includes("layer:service-module")
-  );
-}
-
-function isNxInferredHabitatServiceModuleModelProject(project: {
-  name: string;
-  root: string;
-  tags: readonly string[];
-}): boolean {
-  return (
-    project.name.startsWith("@internal/habitat-harness-service-module-") &&
-    project.name.endsWith("-model") &&
-    /^tools\/habitat-harness\/src\/service\/modules\/[^/]+\/model$/.test(project.root) &&
-    project.tags.includes("layer:service-model")
   );
 }
 
