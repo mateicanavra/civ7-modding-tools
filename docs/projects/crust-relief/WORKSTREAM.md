@@ -6,8 +6,9 @@
 > (the proven root-cause analysis) and the measurement harness under [`tools/`](./tools).
 > **Do not re-derive the finding** — start from the brief and verify it.
 
-**Status:** investigation COMPLETE (root cause verified in code + falsification re-reproduced +
-full subsystem trace synthesized); design fixed; entering implementation (slice 2, consolidation).
+**Status:** reshape IMPLEMENTED + harness-verified + downstream-realigned (suite green). Slices 1–5
+landed (frame → de-dup → M1 → M2 → realign). Remaining: live in-game verification (blocked on
+exclusive access to the shared engine) + the `sundered-archipelago` cold-reef product decision (§10).
 **Base:** `agent-shelf-physical-break` (realism-thread tip, commit `e1bfde4b9`).
 **Branch:** `agent-crust-relief-frame` (worktree `wt-agent-crust-relief-frame`), graphite-tracked
 onto `agent-shelf-physical-break` → `agent-coast-r3d-shelf-diagnostic`.
@@ -323,10 +324,12 @@ shape-verified per the brief's "necessary, not sufficient" caveat.)
 | No cratonization mechanism; unused craton signals exist | 5-agent subsystem trace + source | ✅ verified-in-code |
 | Workspace builds; diagnostics run | nx build (21 proj) + dump run | ✅ done |
 | Falsification (config can't fix) reproduces | harness drowned/hypso, 3 runs + juicy | ✅ reproduced |
-| Reshaped relief is bimodal | harness hypso shape, ≥1 seed | ☐ not started |
-| Emergent relief on former platforms | harness + Studio + live | ☐ not started |
-| Holds across maps/seeds | multi-seed harness | ☐ not started |
-| In-game playable (closure) | live engine run + screenshots | ☐ not started |
+| Reshaped relief is bimodal / spread | harness hypso (broad spread ~0.57–0.97, all seeds+configs) | ✅ harness-verified |
+| Submerged crust no longer flat at 0 | drowned.mjs bathy p50 −5 to −77 by map (was ~−1) | ✅ harness-verified |
+| Emergent relief on former platforms | DROWNING ZONE 73.7%→7.6%; clearly-emergent 17.8%→51%; before/after PNG | ✅ harness-verified + visual |
+| Holds across maps/seeds | 4 earthlike seeds + shattered-ring/sundered/desert/juicy | ✅ verified |
+| Downstream coherent; full mod suite green | `bun test` 584 pass / 2 skip / 0 fail after realignment | ✅ done |
+| In-game playable (closure) | live engine run + screenshots | ⏳ BLOCKED: shared live engine in use by a parked daemon/sibling lane; deploy would clobber the shared Mods folder from a feature branch. Needs user go-ahead (or run from integrated-tip worktree when engine free). |
 
 ---
 
