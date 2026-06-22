@@ -7,7 +7,7 @@ import {
   createVerifyReceipt,
   VerifyReceiptSchema,
   validateVerifyReceipt,
-} from "@internal/habitat-harness/service/model/verify/proof/index";
+} from "@internal/habitat-harness/service/model/verify/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
