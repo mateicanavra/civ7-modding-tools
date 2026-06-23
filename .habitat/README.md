@@ -29,9 +29,16 @@ Current niche roots:
   schema defaults, and cutover guardrails.
 - `civ7/mapgen/studio-integration/**`: MapGen Studio integration artifacts.
 
-Each subject folder remains the unit of evidence. A subject folder may contain
-`rule.json`, Markdown pattern files, baseline JSON, or temporary source/check
-adapters that still need Toolkit integration.
+Each rule folder remains the unit of evidence. Rule folders live under the
+owning niche's `rules/` directory and use a shared filename prefix for related
+artifacts:
+
+- `<rule-name>.rule.json`: rule metadata.
+- `<rule-name>.baseline.json`: baseline, fixture, current-tree, or
+  generated-artifact policy data.
+- `<rule-name>.pattern.md`: primary check or apply pattern source.
+- `<rule-name>.apply.pattern.md`: secondary apply pattern source when a rule
+  also has a primary diagnostic pattern.
 
 Authority planes:
 
@@ -39,17 +46,17 @@ Authority planes:
   remains Toolkit execution mechanics elsewhere.
 - `config.md`: a human-readable sketch of the Habitat operation model. It is
   not consumed programmatically.
-- `<niche>/<subject>/rule.json`: provisional subject-local rule metadata.
-- `<niche>/<subject>/*.md`: provisional subject-local check or apply pattern
-  source.
-- `<niche>/<subject>/*.json`: provisional subject-local baseline, fixture, or
-  generated-artifact policy data.
-- `<niche>/<subject>/*.{mjs,ts}`: transitional adapters or legacy rule sources
-  that must either be admitted as Toolkit execution mechanics or converted into
-  authored patterns.
+- `<niche>/rules/<rule-name>/<rule-name>.rule.json`: provisional rule metadata.
+- `<niche>/rules/<rule-name>/<rule-name>.pattern.md`: provisional check or apply
+  pattern source.
+- `<niche>/rules/<rule-name>/<rule-name>.baseline.json`: provisional baseline,
+  fixture, current-tree, or generated-artifact policy data.
+- `<niche>/rules/<rule-name>/*.{mjs,ts}`: transitional adapters or legacy rule
+  sources that must either be admitted as Toolkit execution mechanics or
+  converted into authored patterns.
 
 Executor compatibility views are outside this authority tree. Habitat owns the
-rule, pattern, baseline, and subject hierarchy here; Grit, Biome, Nx, Vitest,
+rule, pattern, baseline, and rule-folder hierarchy here; Grit, Biome, Nx, Vitest,
 Husky, CI, and shell/Node/Python scripts are execution mechanisms. The dispatch
 logic that invokes those mechanisms belongs in Habitat Toolkit source, not in a
 separate `.habitat` tooling configuration layer.
