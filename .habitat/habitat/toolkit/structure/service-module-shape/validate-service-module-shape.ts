@@ -1,5 +1,5 @@
 // Habitat-owned command adapter. Integration note: this is still a custom
-// filesystem validator; the target state is a positive `.habitat/patterns`
+// filesystem validator; the target state is a positive subject-local pattern
 // allowlist plus only the minimal runner code needed to execute it.
 import fs from "node:fs";
 import path from "node:path";

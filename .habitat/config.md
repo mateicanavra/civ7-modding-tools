@@ -17,45 +17,73 @@ commands. If the mapping is generic Habitat behavior, it belongs in Toolkit
 code. If the mapping is repo-authored policy, it needs a Habitat rule, pattern,
 baseline, or manifest entry.
 
-## Provisional Niche Hierarchy
+## Provisional Domain-Niche Hierarchy
 
-The current `.habitat` tree groups rule folders by durable policy seam. This
-is a V1 classification layout, not a parseable manifest and not a completed
-runtime migration.
+The current `.habitat` tree groups subject folders first by domain niche, then
+by four flat governance layers. This is a V1 classification layout, not a
+parseable manifest and not a completed runtime migration.
 
 ```text
 .habitat
   global
-    repo-hygiene
-      rules
-    generated-and-protected-artifacts
-      rules
+    repository
+      boundaries
+      structure
   habitat
-    authority-and-toolkit-runtime
-      rules
+    toolkit
+      boundaries
+      structure
+      capabilities
+      contracts
   civ7
-    platform-integration-boundaries
-      rules
+    platform
+      boundaries
+      capabilities
+      contracts
     mapgen
-      core-and-sdk-boundaries
-        rules
-      pipeline-architecture
-        rules
-      studio-integration
-        rules
+      core
+        boundaries
+        structure
+        capabilities
+      pipeline
+        boundaries
+        structure
+        capabilities
+        contracts
+      studio
+        boundaries
 ```
 
-Rules at a niche level are intended to cascade to child niches when the final
-manifest model exists. Until then, the rule folder is the practical unit of
-classification and evidence. Do not create deeper branches for narrow handles
-such as `ecology-step-imports` or `placement-outcome-boundary`; those are rule
-folders inside the broader MapGen pipeline architecture niche.
+The niche names are domain nouns. They should not encode a layer, runner, file
+type, current defect, or artifact classification. For example, `platform` is a
+niche; `boundaries` is a layer under it. `repository` is a niche; generated and
+protected artifacts are structural subjects under it.
 
-Rule-owned files use the same rule-name prefix:
+Layer buckets are flat. Do not break a layer into `definition`, `model`,
+`enforcement`, `evidence`, `state`, `actions`, or `proof` folders in this pass.
+Those are artifact facets, not hierarchy levels. Policies at a niche level are
+intended to cascade to child niches when the final manifest model exists. Until
+then, the subject folder is the practical unit of classification and evidence.
+Do not create deeper branches for narrow handles such as `ecology-step-imports`
+or `placement-outcome-boundary`; those are subject folders inside the broader
+MapGen pipeline niche.
 
-- `<rule-name>.rule.json`;
-- `<rule-name>.baseline.json`;
-- `<rule-name>.pattern.md`.
+Layer meanings:
+
+- `boundaries`: import/export, dependency direction, public/private surface, and
+  ownership-edge subjects.
+- `structure`: file-tree, module-shape, generated/protected placement,
+  docs-shape, and retired-topology subjects.
+- `capabilities`: privileged runtime, provider, engine, RNG, validation,
+  process, or other effectful capability subjects.
+- `contracts`: schema, DTO, public API, registry, manifest, generator input, and
+  dependency-contract subjects.
+
+Rule-owned files use the same subject-name prefix:
+
+- `<subject-name>.rule.json`;
+- `<subject-name>.baseline.json`;
+- `<subject-name>.pattern.md`.
 
 ## Domain Operations
 
@@ -69,9 +97,9 @@ an authored policy?
 
 Authored check policy may include:
 
-- rule-local `<rule-name>.pattern.md` source patterns;
-- rule-local `<rule-name>.rule.json` metadata;
-- rule-local `<rule-name>.baseline.json` baseline, fixture, current-tree, or
+- subject-local `<subject>.pattern.md` source patterns;
+- subject-local `<subject>.rule.json` metadata;
+- subject-local `<subject>.baseline.json` baseline, fixture, current-tree, or
   generated-artifact JSON;
 - explicit scope, severity, and ownership metadata.
 
@@ -87,7 +115,7 @@ may Habitat make to the repository?
 
 Authored apply policy may include:
 
-- rule-local apply patterns;
+- subject-local apply patterns;
 - safety/admission metadata in the relevant rule or pattern manifest;
 - scope and refusal conditions.
 
@@ -169,11 +197,18 @@ habitat
 ## Naming Rules
 
 - Operation names are verbs: `check`, `apply`, `generate`, `verify`.
+- Niche names are domain nouns: `repository`, `toolkit`, `platform`, `core`,
+  `pipeline`, `studio`.
+- Layer names are generic governance concerns: `boundaries`, `structure`,
+  `capabilities`, `contracts`.
 - Authored subjects are governed concepts: `workspace import boundary`,
   `repository format`, `service module shape`, `generated artifact ownership`.
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
 - Rule IDs are stable registry handles, not ontology roots.
 - Vendor names do not organize `.habitat`.
+- Artifact classes such as generated/protected files do not create niches unless
+  a later domain pass proves a distinct language, authority, scope, change-rate,
+  and proof boundary.
 - Narrow rule handles do not create niche branches unless a later domain pass
   proves a distinct language, authority, scope, change-rate, and proof boundary.
 
