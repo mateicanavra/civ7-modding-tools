@@ -19,7 +19,7 @@ baseline, or manifest entry.
 
 ## Provisional Niche Hierarchy
 
-The current `.habitat` tree groups subject folders by durable policy seam. This
+The current `.habitat` tree groups rule folders by durable policy seam. This
 is a V1 classification layout, not a parseable manifest and not a completed
 runtime migration.
 
@@ -27,22 +27,35 @@ runtime migration.
 .habitat
   global
     repo-hygiene
+      rules
     generated-and-protected-artifacts
+      rules
   habitat
     authority-and-toolkit-runtime
+      rules
   civ7
     platform-integration-boundaries
+      rules
     mapgen
       core-and-sdk-boundaries
+        rules
       pipeline-architecture
+        rules
       studio-integration
+        rules
 ```
 
 Rules at a niche level are intended to cascade to child niches when the final
-manifest model exists. Until then, the subject folder is the practical unit of
+manifest model exists. Until then, the rule folder is the practical unit of
 classification and evidence. Do not create deeper branches for narrow handles
 such as `ecology-step-imports` or `placement-outcome-boundary`; those are rule
-subjects inside the broader MapGen pipeline architecture niche.
+folders inside the broader MapGen pipeline architecture niche.
+
+Rule-owned files use the same rule-name prefix:
+
+- `<rule-name>.rule.json`;
+- `<rule-name>.baseline.json`;
+- `<rule-name>.pattern.md`.
 
 ## Domain Operations
 
@@ -56,9 +69,10 @@ an authored policy?
 
 Authored check policy may include:
 
-- subject-local Markdown source patterns;
-- subject-local `rule.json` metadata;
-- subject-local baseline, fixture, current-tree, or generated-artifact JSON;
+- rule-local `<rule-name>.pattern.md` source patterns;
+- rule-local `<rule-name>.rule.json` metadata;
+- rule-local `<rule-name>.baseline.json` baseline, fixture, current-tree, or
+  generated-artifact JSON;
 - explicit scope, severity, and ownership metadata.
 
 Execution mechanics are not authored here. The Toolkit decides how to run check
@@ -73,7 +87,7 @@ may Habitat make to the repository?
 
 Authored apply policy may include:
 
-- subject-local apply patterns;
+- rule-local apply patterns;
 - safety/admission metadata in the relevant rule or pattern manifest;
 - scope and refusal conditions.
 
