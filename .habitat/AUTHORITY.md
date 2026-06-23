@@ -31,7 +31,10 @@ semantics.
   `<subject>.baseline.json` for rule-owned baseline/evidence files.
 - Subject-local Markdown files preserve authored check and apply pattern source.
 - Subject-local command-check adapters are co-located with the subject they
-  enforce as `<subject>.check.{sh,mjs,py,ts}`.
+  enforce as `<subject>.check.{sh,mjs,py,ts}` and must be read-only.
+- Habitat-owned docs fix/generate operations have provisional
+  `<subject>.operation.md` identities until the Toolkit admits typed operation
+  manifests.
 - Transitional adapters and legacy rule modules are co-located with the subject
   folder or Toolkit niche that owns their policy evidence.
 - CI and hooks already delegate into root commands that can route through
@@ -44,8 +47,8 @@ semantics.
   `.habitat/tooling/components` paths.
 - Many registered source rules still use `ownerTool: "source-check"` even when
   an authored Markdown pattern exists in a subject folder.
-- Some command-backed rules still execute transitional subject-local scripts
-  instead of typed Habitat/Grit/Biome/Nx policy.
+- Some command-backed rules still execute transitional subject-local read-only
+  scripts instead of typed Habitat/Grit/Biome/Nx policy.
 - Structural tests live in package `test/` trees without a Habitat rule identity
   or explicit decision that they are product tests rather than structure rules.
 - `.grit/grit.yaml` is still a bridge, not an authority surface; it must point
@@ -66,9 +69,9 @@ semantics.
 4. A baseline or current-tree evidence file is accepted only when co-located
    with the owning rule as `<subject>.baseline.json` until the final
    manifest shape is accepted.
-5. A command-backed check is accepted only when its script is co-located with
-   the owning subject as `<subject>.check.{sh,mjs,py,ts}` or explicitly
-   classified as product/package tooling outside Habitat.
+5. A command-backed check is accepted only when its script is read-only and
+   co-located with the owning subject as `<subject>.check.{sh,mjs,py,ts}` or
+   explicitly classified as product/package tooling outside Habitat.
 6. Tool dispatch, provider selection, command construction, and result
    normalization are Habitat Toolkit implementation details.
 7. External tool configs such as `biome.json`, `nx.json`,
@@ -76,7 +79,11 @@ semantics.
    `.github/workflows/*` are invocation or bridge layers. They remain in their
    conventional locations, but their structural meaning must be recoverable from
    `.habitat`.
-8. No new loose lint, validation, structural-check, or pattern script may be
+8. Habitat-owned apply/fix/generate/verify operations require an explicit
+   operation identity. Until typed manifests exist, use
+   `<subject>.operation.md` and do not register the operation as a read-only
+   rule unless it actually performs a read-only check.
+9. No new loose lint, validation, structural-check, or pattern script may be
    introduced as authored policy without a Habitat rule identity. If it is
    Toolkit execution machinery, it belongs in Toolkit source and must not be
    represented as repo-authored Habitat policy.
@@ -85,9 +92,12 @@ semantics.
 
 | Path | Owns | Does Not Own |
 | --- | --- | --- |
-| `global/repository/**` | Repo-wide policy for checkout hygiene, formatting, imports, generated outputs, protected surfaces, lock/artifact files, and current-tree ownership evidence. | Product-specific architecture or generator implementation. |
+| `global/repository/**` | Repo-wide policy for formatting, imports, host-protected surfaces, lock/artifact files, and current-tree ownership evidence. | Product-specific architecture, generated product projections, or generator implementation. |
 | `habitat/toolkit/**` | Habitat's own Toolkit authority, service shape, provider paths, generator schema contracts, rule-pack registry, and transitional runtime subjects. | Generic dispatch configuration outside Toolkit code. |
-| `docs/**` | Documentation maintenance capabilities and structure support, including project issue-link fixing and docs-site generation helpers. | Product runtime behavior, package build behavior, or historical evidence rewriting. |
+| `docs/content/**` | Documentation content hygiene and portable reference structure. | Product runtime behavior, package build behavior, or generated docs-site operation implementation. |
+| `docs/projects/**` | Documentation project maintenance operations, including issue-link fixing. | Product runtime behavior, package build behavior, or historical evidence rewriting. |
+| `docs/site/**` | Documentation site generation operations. | General docs content policy or product runtime behavior. |
+| `civ7/resources/**` | Official-resource-derived Civ7 generated projections and protected generated resource surfaces. | MapGen pipeline-generated map entrypoints or generic repository artifact policy. |
 | `civ7/platform/**` | Civ7 adapter, direct-control, app-facing control surfaces, and oRPC ownership. | MapGen pipeline internals. |
 | `civ7/mapgen/core/**` | MapGen package/runtime core, SDK entrypoint, and docs surface. | Pipeline step architecture or Studio-specific recipe artifact use. |
 | `civ7/mapgen/pipeline/**` | MapGen pipeline contracts, domain/recipe import topology, runtime capability access, RNG/config, schema/default, and cutover guardrails. | Separate ecology, placement, runner, or rule-ID hierarchy roots. |

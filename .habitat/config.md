@@ -36,11 +36,15 @@ parseable manifest and not a completed runtime migration.
       capabilities
       contracts
   docs
+    content
+      structure
     projects
       capabilities
     site
       capabilities
   civ7
+    resources
+      structure
     platform
       boundaries
       capabilities
@@ -57,13 +61,13 @@ parseable manifest and not a completed runtime migration.
         contracts
       studio
         boundaries
-        capabilities
+        structure
 ```
 
 The niche names are domain nouns. They should not encode a layer, runner, file
 type, current defect, or artifact classification. For example, `platform` is a
-niche; `boundaries` is a layer under it. `repository` is a niche; generated and
-protected artifacts are structural subjects under it.
+niche; `boundaries` is a layer under it. `repository` is a niche; repo-wide
+format and protected-surface policies are structural subjects under it.
 
 Layer buckets are flat. Do not break a layer into `definition`, `model`,
 `enforcement`, `evidence`, `state`, `actions`, or `proof` folders in this pass.
@@ -90,7 +94,10 @@ Rule-owned files use the same subject-name prefix:
 - `<subject-name>.rule.json`;
 - `<subject-name>.baseline.json`;
 - `<subject-name>.pattern.md`.
-- `<subject-name>.check.{sh,mjs,py,ts}` for transitional command-backed checks.
+- `<subject-name>.check.{sh,mjs,py,ts}` for transitional read-only
+  command-backed checks.
+- `<subject-name>.operation.md` for provisional non-check operation identity
+  until typed operation manifests exist.
 
 ## Domain Operations
 
@@ -100,7 +107,8 @@ not individual rule names.
 ### `check`
 
 Read-only evaluation. A check answers: does the current repository state satisfy
-an authored policy?
+an authored policy? It must not build packages, write generated output, create
+lock directories, or otherwise mutate repository state.
 
 Authored check policy may include:
 
@@ -144,6 +152,10 @@ Authored generation policy may include:
 
 Generator implementation remains Toolkit or package code. `.habitat` owns the
 policy for generated artifact authority, not the generator engine.
+
+Until the Toolkit has a typed operation manifest schema, Habitat-owned
+generators are admitted with a subject-local `<subject>.operation.md` identity
+instead of a registered read-only rule.
 
 ### `verify`
 
@@ -204,8 +216,8 @@ habitat
 ## Naming Rules
 
 - Operation names are verbs: `check`, `apply`, `generate`, `verify`.
-- Niche names are domain nouns: `repository`, `toolkit`, `platform`, `core`,
-  `pipeline`, `studio`.
+- Niche names are domain nouns: `repository`, `toolkit`, `content`,
+  `resources`, `platform`, `core`, `pipeline`, `studio`.
 - Layer names are generic governance concerns: `boundaries`, `structure`,
   `capabilities`, `contracts`.
 - Authored subjects are governed concepts: `workspace import boundary`,

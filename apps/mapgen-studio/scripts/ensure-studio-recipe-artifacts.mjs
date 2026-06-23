@@ -10,6 +10,9 @@ import {
 } from "node:fs";
 import { join } from "node:path";
 
+// Package-local mutating ensure workflow. The Habitat subject with the same
+// concern is a read-only current-state check.
+
 const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();

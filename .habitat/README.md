@@ -16,14 +16,19 @@ has been fully rewired.
 
 Current niche roots:
 
-- `global/repository/**`: repo-wide policy for checkout hygiene, formatting,
-  import boundaries, protected surfaces, generated outputs, and package
-  artifacts.
+- `global/repository/**`: repo-wide policy for formatting, import boundaries,
+  host-protected surfaces, and package-manager artifacts.
 - `habitat/toolkit/**`: Habitat's own Toolkit authority, service shape,
   provider paths, generator schemas, rule-pack registry, and transitional
   runtime adapters.
-- `docs/**`: documentation maintenance authority such as project issue-link
-  fixers and docs site sidebar generation.
+- `docs/content/**`: documentation content hygiene, including portable docs
+  references.
+- `docs/projects/**`: documentation project maintenance operations such as
+  issue-link fixing.
+- `docs/site/**`: documentation site generation operations such as sidebar
+  refresh.
+- `civ7/resources/**`: official-resource-derived Civ7 generated projections
+  and generated resource surfaces.
 - `civ7/platform/**`: Civ7 adapter, control, and oRPC integration surfaces.
 - `civ7/mapgen/core/**`: MapGen package/runtime core, SDK entrypoint, and docs
   surface.
@@ -53,9 +58,11 @@ rule-owned artifacts:
 - `<subject-name>.pattern.md`: primary check or apply pattern source.
 - `<subject-name>.apply.pattern.md`: secondary apply pattern source when a rule
   also has a primary diagnostic pattern.
-- `<subject-name>.check.{sh,mjs,py,ts}`: subject-local transitional command
-  adapter when the policy has not yet been expressed as Grit, Biome, Nx, or a
-  typed Habitat provider.
+- `<subject-name>.check.{sh,mjs,py,ts}`: subject-local transitional read-only
+  command adapter when the policy has not yet been expressed as Grit, Biome,
+  Nx, or a typed Habitat provider.
+- `<subject-name>.operation.md`: provisional identity for Habitat-owned
+  non-check operations until typed operation manifests exist.
 
 Authority planes:
 
@@ -69,7 +76,9 @@ Authority planes:
 - `<niche>/<layer>/<subject>/<subject>.baseline.json`: provisional baseline,
   fixture, current-tree, or generated-artifact policy data.
 - `<niche>/<layer>/<subject>/<subject>.check.{sh,mjs,py,ts}`: transitional
-  subject-local command check.
+  subject-local read-only command check.
+- `<niche>/<layer>/<subject>/<subject>.operation.md`: provisional non-check
+  operation identity.
 - `<niche>/<layer>/<subject>/*.{mjs,ts}`: transitional adapters or legacy rule
   sources that must either be admitted as Toolkit execution mechanics or
   converted into authored patterns.
