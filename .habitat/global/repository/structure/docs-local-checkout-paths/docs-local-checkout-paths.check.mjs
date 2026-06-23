@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 
-const repoRoot = path.resolve(new URL("../..", import.meta.url).pathname);
+const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+  encoding: "utf8",
+}).trim();
 const docsRoot = path.join(repoRoot, "docs");
 const message = "Replace local absolute docs paths with durable repo-relative docs paths.";
 const localPathPattern = /\/(?:Users|home|Volumes)\//;

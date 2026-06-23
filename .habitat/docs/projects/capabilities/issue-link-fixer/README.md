@@ -11,17 +11,17 @@ What it does:
 
 Dry-run (default):
 ```sh
-node scripts/fix-doc-issue-links.mjs
+node .habitat/docs/projects/capabilities/issue-link-fixer/issue-link-fixer.fix.mjs
 ```
 
 Apply changes:
 ```sh
-node scripts/fix-doc-issue-links.mjs --write
+node .habitat/docs/projects/capabilities/issue-link-fixer/issue-link-fixer.fix.mjs --write
 ```
 
 Different project root:
 ```sh
-node scripts/fix-doc-issue-links.mjs --project docs/projects/engine-refactor-v1 --write
+node .habitat/docs/projects/capabilities/issue-link-fixer/issue-link-fixer.fix.mjs --project docs/projects/engine-refactor-v1 --write
 ```
 
 ## Options

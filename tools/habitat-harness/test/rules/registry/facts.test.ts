@@ -107,7 +107,8 @@ describe("rule registry facts", () => {
     expect(
       ruleBaselineFacts([
         baseRule({
-          exceptionPath: "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST",
+          exceptionPath:
+            ".habitat/civ7/platform/boundaries/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
           ownerTool: "source-check",
           patternName: "sample_pattern",
           scanRoots: ["packages"],
@@ -118,7 +119,8 @@ describe("rule registry facts", () => {
     ).toEqual([
       {
         id: "sample-rule",
-        exceptionPath: "scripts/lint/lint-adapter-boundary.sh#ALLOWLIST",
+        exceptionPath:
+          ".habitat/civ7/platform/boundaries/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
       },
     ]);
   });

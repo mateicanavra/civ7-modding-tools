@@ -120,9 +120,12 @@ export function loadRuleRegistryDocumentEffect<R>(
   });
 }
 
-function loadRuleRegistryDirectory<R>(registryDir: string, fileSystem: RuleRegistryFileSystem<R>) {
-  const indexPath = path.join(registryDir, "index.json");
+function loadRuleRegistryDirectory<R>(
+  registryDir: string,
+  fileSystem: RuleRegistryFileSystem<R>
+): Effect.Effect<RuleRegistryDocumentV1, RuleRegistryLoadFailed | unknown, R> {
   return Effect.gen(function* () {
+    const indexPath = yield* ruleRegistryIndexPath(registryDir, fileSystem);
     const index = yield* parseRegistryJson<RuleRegistryIndexV1, R>(
       indexPath,
       RuleRegistryIndexV1Schema,
@@ -140,7 +143,7 @@ function loadRuleRegistryDirectory<R>(registryDir: string, fileSystem: RuleRegis
         ownerRoots: index.ownerRoots,
         rules,
       },
-      registryDir
+      indexPath
     );
     if (result.ok) return result.document;
     return yield* Effect.fail(new RuleRegistryLoadFailed({ issues: result.issues }));
@@ -151,18 +154,16 @@ function loadRuleRegistryDirectorySync(
   registryDir: string,
   fileSystem: RuleRegistrySyncFileSystem
 ): RuleRegistryDocumentV1 {
-  const indexPath = path.join(registryDir, "index.json");
+  const indexPath = ruleRegistryIndexPathSync(registryDir, fileSystem);
   const index = parseRegistryJsonSync<RuleRegistryIndexV1>(
     indexPath,
     RuleRegistryIndexV1Schema,
     fileSystem
   );
-  const rules = fileSystem
-    .readDirectory(registryDir)
-    .filter((entry) => entry.kind === "directory")
-    .map((entry) =>
+  const rules = ruleFilePathsSync(registryDir, fileSystem)
+    .map((rulePath) =>
       parseRegistryJsonSync<RuleRegistryRecordV1>(
-        path.join(registryDir, entry.name, "rule.json"),
+        rulePath,
         RuleRegistryRecordV1Schema,
         fileSystem
       )
@@ -174,7 +175,7 @@ function loadRuleRegistryDirectorySync(
       ownerRoots: index.ownerRoots,
       rules,
     },
-    registryDir
+    indexPath
   );
   if (result.ok) return result.document;
   throw new RuleRegistryLoadFailed({ issues: result.issues });
@@ -222,7 +223,7 @@ function parseRegistryJson<T, R = never>(
   filePath: string,
   schema: TSchema,
   fileSystem: RuleRegistryFileSystem<R>
-) {
+): Effect.Effect<T, RuleRegistryLoadFailed | unknown, R> {
   return Effect.gen(function* () {
     let parsed: unknown;
     try {
@@ -256,14 +257,124 @@ function parseRegistryJson<T, R = never>(
   });
 }
 
-function ruleFilePaths<R>(registryDir: string, fileSystem: RuleRegistryFileSystem<R>) {
+function ruleFilePaths<R>(
+  registryDir: string,
+  fileSystem: RuleRegistryFileSystem<R>
+): Effect.Effect<string[], unknown, R> {
   return Effect.gen(function* () {
-    const entries = yield* fileSystem.readDirectory(registryDir);
-    return entries
-      .filter((entry) => entry.kind === "directory")
-      .map((entry) => path.join(registryDir, entry.name, "rule.json"))
-      .sort();
+    return (
+      yield* findFiles(registryDir, fileSystem, (filePath) => filePath.endsWith(".rule.json"))
+    ).sort();
   });
+}
+
+function ruleRegistryIndexPath<R>(
+  registryDir: string,
+  fileSystem: RuleRegistryFileSystem<R>
+): Effect.Effect<string, RuleRegistryLoadFailed | unknown, R> {
+  return Effect.gen(function* () {
+    const directIndex = path.join(registryDir, "index.json");
+    try {
+      yield* fileSystem.readText(directIndex);
+      return directIndex;
+    } catch {
+      // The authority-tree layout stores the registry index as a subject artifact.
+    }
+
+    const candidates = yield* findFiles(registryDir, fileSystem, (filePath) =>
+      filePath.endsWith("/rule-pack-index/index.json")
+    );
+    if (candidates.length === 1) return candidates[0] as string;
+    return yield* Effect.fail(
+      new RuleRegistryLoadFailed({
+        issues: [
+          {
+            code: "registry-schema-invalid",
+            path: registryDir,
+            message:
+              candidates.length > 1
+                ? `Expected one rule-pack index, found ${candidates.length}.`
+                : "Missing rule-pack index.json.",
+          },
+        ],
+      })
+    );
+  });
+}
+
+function ruleRegistryIndexPathSync(
+  registryDir: string,
+  fileSystem: RuleRegistrySyncFileSystem
+): string {
+  const directIndex = path.join(registryDir, "index.json");
+  try {
+    fileSystem.readText(directIndex);
+    return directIndex;
+  } catch {
+    // The authority-tree layout stores the registry index as a subject artifact.
+  }
+
+  const candidates = findFilesSync(registryDir, fileSystem, (filePath) =>
+    filePath.endsWith("/rule-pack-index/index.json")
+  );
+  if (candidates.length === 1) return candidates[0] as string;
+  throw new RuleRegistryLoadFailed({
+    issues: [
+      {
+        code: "registry-schema-invalid",
+        path: registryDir,
+        message:
+          candidates.length > 1
+            ? `Expected one rule-pack index, found ${candidates.length}.`
+            : "Missing rule-pack index.json.",
+      },
+    ],
+  });
+}
+
+function ruleFilePathsSync(
+  registryDir: string,
+  fileSystem: RuleRegistrySyncFileSystem
+): string[] {
+  return findFilesSync(registryDir, fileSystem, (filePath) =>
+    filePath.endsWith(".rule.json")
+  ).sort();
+}
+
+function findFiles<R>(
+  root: string,
+  fileSystem: RuleRegistryFileSystem<R>,
+  predicate: (filePath: string) => boolean
+): Effect.Effect<string[], unknown, R> {
+  return Effect.gen(function* () {
+    const entries = yield* fileSystem.readDirectory(root);
+    const groups = yield* Effect.all(
+      entries.map((entry) => {
+        const absolute = path.join(root, entry.name);
+        if (entry.kind === "directory") return findFiles(absolute, fileSystem, predicate);
+        return Effect.succeed(
+          entry.kind === "file" && predicate(toPosixPath(absolute)) ? [absolute] : []
+        );
+      })
+    );
+    return groups.flat();
+  });
+}
+
+function findFilesSync(
+  root: string,
+  fileSystem: RuleRegistrySyncFileSystem,
+  predicate: (filePath: string) => boolean
+): string[] {
+  return fileSystem.readDirectory(root).flatMap((entry) => {
+    const absolute = path.join(root, entry.name);
+    if (entry.kind === "directory") return findFilesSync(absolute, fileSystem, predicate);
+    return entry.kind === "file" && predicate(toPosixPath(absolute)) ? [absolute] : [];
+  });
+}
+
+function toPosixPath(filePath: string): string {
+  return filePath.split(path.sep).join("/");
 }
 
 function renderRuleRegistryIssues(heading: string, issues: readonly RuleRegistryIssue[]): string {

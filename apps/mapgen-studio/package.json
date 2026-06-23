@@ -99,7 +99,7 @@
     "dev:server": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
     "serve": "bun src/server/daemon/daemon.ts --assets-root dist",
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
-    "check:worker-bundle": "node scripts/check-worker-bundle.mjs",
+    "check:worker-bundle": "node ../../.habitat/civ7/mapgen/studio/boundaries/worker-bundle/worker-bundle.check.mjs",
     "check": "tsc --noEmit",
     "lint:react-compiler": "node scripts/lint-react-compiler.mjs",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio",

@@ -261,7 +261,7 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   const inputs = new Set<string>([
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
-    `{workspaceRoot}/.habitat/rules/${rule.id}/**`,
+    `{workspaceRoot}/.habitat/**/${rule.id}/**`,
     ...covered.inputs,
   ]);
   if (rule.ownerProject === "@internal/habitat-harness") {
@@ -274,12 +274,12 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.ownerTool === "grit-check") {
-    inputs.add(workspaceInput(`.habitat/patterns/checks/${rule.patternName}.md`));
+    inputs.add(workspaceInput(`.habitat/**/${rule.id}/${rule.id}.pattern.md`));
     for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.ownerTool === "habitat" || rule.ownerTool === "command-check") {
-    inputs.add("{workspaceRoot}/scripts/lint/**");
+    inputs.add(`{workspaceRoot}/.habitat/**/${rule.id}/**`);
   }
   return [...inputs];
 }
@@ -299,7 +299,7 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
     "{workspaceRoot}/tools/habitat-harness/src/**",
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
-    "{workspaceRoot}/.habitat/rules/**",
+    "{workspaceRoot}/.habitat/**",
     workspaceInput(sourceCheckRuleRuntimeRepoPath),
   ]);
   for (const rule of rules) {

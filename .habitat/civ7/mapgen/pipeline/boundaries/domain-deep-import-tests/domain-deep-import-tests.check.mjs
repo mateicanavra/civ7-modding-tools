@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import ts from "typescript";
 
-const repoRoot = path.resolve(import.meta.dirname, "../..");
+const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+  encoding: "utf8",
+}).trim();
 const roots = [
   path.join(repoRoot, "mods/mod-swooper-maps/test"),
   ...packageTestRoots(path.join(repoRoot, "packages")),

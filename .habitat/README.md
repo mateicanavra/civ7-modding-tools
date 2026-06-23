@@ -22,6 +22,8 @@ Current niche roots:
 - `habitat/toolkit/**`: Habitat's own Toolkit authority, service shape,
   provider paths, generator schemas, rule-pack registry, and transitional
   runtime adapters.
+- `docs/**`: documentation maintenance authority such as project issue-link
+  fixers and docs site sidebar generation.
 - `civ7/platform/**`: Civ7 adapter, control, and oRPC integration surfaces.
 - `civ7/mapgen/core/**`: MapGen package/runtime core, SDK entrypoint, and docs
   surface.
@@ -51,6 +53,9 @@ rule-owned artifacts:
 - `<subject-name>.pattern.md`: primary check or apply pattern source.
 - `<subject-name>.apply.pattern.md`: secondary apply pattern source when a rule
   also has a primary diagnostic pattern.
+- `<subject-name>.check.{sh,mjs,py,ts}`: subject-local transitional command
+  adapter when the policy has not yet been expressed as Grit, Biome, Nx, or a
+  typed Habitat provider.
 
 Authority planes:
 
@@ -63,6 +68,8 @@ Authority planes:
   pattern source.
 - `<niche>/<layer>/<subject>/<subject>.baseline.json`: provisional baseline,
   fixture, current-tree, or generated-artifact policy data.
+- `<niche>/<layer>/<subject>/<subject>.check.{sh,mjs,py,ts}`: transitional
+  subject-local command check.
 - `<niche>/<layer>/<subject>/*.{mjs,ts}`: transitional adapters or legacy rule
   sources that must either be admitted as Toolkit execution mechanics or
   converted into authored patterns.
