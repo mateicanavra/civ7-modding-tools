@@ -6,7 +6,10 @@
 >
 > **Status:** root cause is structural — crust→tile **resolution/projection** (§2). The crust-buoyancy
 > reshape already landed (§5) is the right substrate but is per-cell, so it cannot resolve a per-cell
-> defect. Acceptance (§8) is unmet until the resolution is addressed.
+> defect. Direction is now **locked** (§4, §9): finer crust at fixed plate count, bounded, with the
+> coarseness-dependent cosmetic noise stripped. Acceptance is a **two-layer framework** (§8). A
+> targeted tectonic-content (down/lateral relief) effort is a flagged **adjacent** workstream (§10),
+> sequenced after the resolution slice — not folded in by default.
 >
 > Measured figures below are a snapshot (earthlike seed 1018 / ToT = swooper-earthlike HUGE; stack tip
 > at time of writing). Re-measure after any mesh/config change — they are diagnostics, not invariants.
@@ -75,26 +78,25 @@ structure have the **coarsest** crust.
 
 ## 4. Direction (to design, then verify)
 
-The crust evolution must express relief finer than ~19-tile Voronoi blocks. The plate **dynamics** want
-to stay coarse (plate motion/boundaries are fine at `plateCount` plates); the crust **relief** must get
-finer. Decision criterion: *yield sub-cell relief without destabilizing coarse plate dynamics.*
+The crust evolution must express relief finer than ~19-tile Voronoi blocks. The plate **dynamics** stay
+coarse (plate motion/boundaries are fine at `plateCount` plates); the crust **relief** gets finer.
+Decision criterion: *yield sub-cell relief without destabilizing coarse plate dynamics — and without
+speckle.* Full plan + numbers in §9.
 
-- **Preferred — finer crust resolution at fixed plate count.** Raise `cellsPerPlate` (or evolve crust
-  on a derived finer grid). Verified-critical distinction: the plate partition seeds **exactly**
-  `plateCount` plates (`compute-plate-graph`), so raising `cellsPerPlate` gives more cells *per plate*
-  and **does not change the plate count or over-split plates**. It makes crust + tectonic fields finer
-  while plate tectonics stay coarse — directly serving Principle 2. Open design costs: (i) the
-  projection is O(tiles × cells) — at ~per-tile resolution ≈ 49M nearest-cell tests/map; needs a
-  spatial index or a cheaper assignment; (ii) confirm the per-cell crust/tectonic dynamics produce good
-  *fine* structure (not just a finer copy of the same blobs).
-- **Avoid for this purpose — raising `plateCount`.** That changes the number of plates and is the
-  lever that can **over-split** (the reported prior failure mode — confirm in §7). It is a plate-
-  dynamics knob, not the crust-resolution knob.
-- **Complement only — interpolate the projection** (smooth crust field vs nearest-cell copy). Cheap,
-  but a smooth ramp yields graded slopes, not discrete emergent islands → fails Principle 1 as a
-  standalone fix. At most a smoothing complement to finer resolution.
+**DECIDED — finer crust at fixed plate count, bounded, with cosmetic noise stripped.**
+- Raise `cellsPerPlate` (or evolve crust on a derived finer grid). Verified: the partition seeds
+  **exactly** `plateCount` plates (`compute-plate-graph:340`), and `compute-mesh:15` sets
+  `cellCount = plateCount × cellsPerPlate`, so raising `cellsPerPlate` gives more cells *per plate* and
+  **does not change the plate count or over-split** — over-split is a `plateCount`-only risk (the §7
+  history question is now resolved). Finer crust + tectonic fields, plate tectonics stay coarse — serves
+  Principle 2.
+- **Bounded, not tile-fine** (~3–6 tiles/cell, not 1) and **strip the per-tile cosmetic noise** that
+  currently relies on coarseness to smooth — otherwise fine resolution turns it into speckle. This is
+  *fewer* cosmetic mechanisms, not more. See §9.
+- **Avoid — raising `plateCount`** (that over-splits; it's a plate-dynamics knob, not the resolution
+  knob). **Complement only — interpolating the projection** (anti-seam smoothing, never the relief source).
 
-Author **knobs** (Principle 3) attach to whatever resolution/formation parameters this introduces.
+Author **knobs** (Principle 3, §11) attach to the formation parameters this introduces.
 
 ---
 
@@ -124,35 +126,133 @@ The finer-resolution work (§4) is what lets this richer crust *express* itself 
 
 ---
 
-## 7. Open questions / decisions
+## 7. Decisions (resolved)
 
-- **Acceptance thresholds (blocking decision — see §8):** exact pass numbers for coast/ocean %,
-  microcontinent count, and submerged-continental % are not yet set. Decide them with the user before
-  implementing, so "pass" is not qualitative.
-- **History:** was a finer/granular crust accumulation lowered to coarse cells because **plates
-  over-split**? That failure mode attaches to `plateCount`, not `cellsPerPlate` — confirm before
-  designing §4 (doc: `docs/projects/engine-refactor-v1/resources/slides/_archive/voronoi-plate-generation.outline.md`).
-- **Resolution approach:** how fine, and how to pay the O(tiles×cells) projection cost.
-- **Knob set:** which physical levers to expose (buoyancy bias, sea shallowness, archipelago-ness, crust
-  resolution).
+- **Acceptance model — RESOLVED.** Not single pass-numbers but a **two-layer framework** (§8): per-map
+  physical *envelopes* (Layer 1) + cross-map *relational* checks (Layer 2), both over a seed ensemble,
+  neither enforcing a template. Replaces the old "set exact coast/ocean/microcontinent numbers" plan.
+- **History (over-split) — RESOLVED.** Confirmed in code: `cellsPerPlate` does **not** over-split plates
+  (`compute-plate-graph:340` seeds exactly `plateCount`); the real fine-resolution risk is **speckle**,
+  coupled to coarseness via per-tile noise in `compute-base-topography` (§9). The archived
+  `voronoi-plate-generation.outline.md` is consistent (cell-level plate physics; no resolution-coherence note).
+- **Resolution approach — RESOLVED.** Finer crust at fixed plate count, bounded to ~3–6 tiles/cell, with
+  cosmetic per-tile noise stripped; projection cost is trivial in that range (§9).
+- **Knob set — RESOLVED (§11).** Confirmed pair: continental **buoyancy bias** + **sea shallowness**;
+  strong orthogonal third **continental abundance** (`continentalFraction`); **fragmentation /
+  archipelago-ness** rides with the §10 content work (it couples near the waterline).
+- **Sequencing — RESOLVED: resolution-first.** Land the acceptance harness (R1–R6) + the bounded
+  finer-crust + anti-speckle slice first, measure on earthlike HUGE/10, and let R1–R6 decide whether the
+  §10 down/lateral content work is needed. The §10 work is a measurement-gated fast-follow, not bundled.
 
 ---
 
-## 8. Verification protocol + acceptance
+## 8. Acceptance framework (two layers)
 
-Generate on the **ToT config (swooper-earthlike), HUGE, 10 players**, live in-game (deploy from the
-studio worktree pinned to the stack tip), plus the harness dump at 106×66. Report **before vs after**,
-all directional targets to be ratified in §7:
+Acceptance is **two complementary layers**. Neither alone suffices. Both are **envelopes over a seed
+ensemble**, never single-map point targets, and neither may enforce a physical template (no "must have a
+supercontinent", no "must have N microcontinents"). All metrics are computable from existing tile fields
+(`foundationCrustTiles.type`, `morphology.topography.{elevation,seaLevel}`, `.bathymetry`,
+`morphology.shelf.shelfMask`, `morphology.landmasses`) — see the field inventory; this is mostly *wiring*,
+not new instrumentation. Measure on the **ToT config (swooper-earthlike), HUGE, 10 players**, live in-game
+(deploy from the studio worktree pinned to the stack tip) + harness dump at 106×66; report before/after.
 
-- **coast-tile % and ocean-tile %** of the map — coast/shelf **down** from ~45%; open ocean **up** from
-  ~17% (`tools/drowned.mjs`).
-- **microcontinent count (13–60 tiles)** and island chains — **up from 0** to a ratified floor
-  (connected-component landmass labeling — add/keep a small histogram tool; the §1 figure came from a
-  flood-fill over `landMask`, not from drowned/hypso/agecorr).
-- **submerged-continental %** and submerged bathymetry — drowned fraction **down** from ~33% and/or the
-  submerged crust genuinely deep, not flat at the waterline (`tools/drowned.mjs`).
-- whole-map + cross-section renders (`tools/ascii-map.mjs`, `tools/render-png.mjs`).
+### Layer 1 — per-map physical-envelope metrics
+Each archetype gets its **own** profile (never shared). Profiles are **probability envelopes (ranges)**
+from physical expectation, NOT tuned down to current output. Earthlike is anchored to real-Earth structure;
+archipelago/ring get their own anchored envelopes; the rest looser.
+- Metrics are **distributional/shape** (bimodality, mode separation, spread), not point ratios, so they
+  don't penalize natural emergence. Any metric sensitive to luck-of-the-draw tectonics gets **wide bands**,
+  judged over the *ensemble* (fails only if the ensemble leaves the band, not a single seed).
+- Earthlike anchor (illustrative, to ratify): land fraction within a band of the config target;
+  **hypsometry bimodal** (continental-platform mode + deep-ocean mode, separated, trough at the waterline);
+  submerged-continental crust a **minority** of water; deep-ocean median depth ≫ shelf median.
 
-**Pass** = land emerges on former platforms (microcontinents/archipelagos appear), coast/ocean reads
-crisp, emergent from crust history (no cosmetic relief, no output-tuned constant), holding across
-seeds and across the map archetypes (earthlike, sundered-archipelago, shattered-ring, desert-mountains).
+### Layer 2 — cross-map relational checks (the atomic relationships)
+The more meaningful layer: measurable, template-free, **symmetric** relationships that say the crust is
+physically coherent and naturally varied.
+
+- **R1 — Bidirectional relief within continental crust (symmetry).** Over continental-crust tiles,
+  `(elevation − seaLevel)` has **non-trivial spread AND mass on both sides of 0**: some continental crust
+  emerges, some sits drowned/lowland, and emerged land has internal relief (not a flat plateau). Evaluate
+  the same statistic down-from-land and up-from-shelf. (Encodes the symmetry requirement: relief varies
+  *both* ways — not only shelves rising, but land also subsiding into lowlands.)
+- **R2 — Coast/ocean bimodality.** Water bathymetry is bimodal: shallow shelf at margins + a genuinely
+  deep abyssal population, deep-mode ≫ shelf-mode, shelf does **not** dominate total water. Kills the
+  "flat shelf tub at the waterline" pathology.
+- **R3 — Shelf belongs to land (continental coherence).** Shelves are **margins of emerged landmasses**,
+  not orphan shallows over fully-drowned continental crust. Substantial continental-crust components have
+  **both** an emerged core **and** a shelf rim. Kills "vast drowned platform with nothing on it."
+- **R4 — Non-degenerate size spectrum.** The landmass size distribution **populates the middle**
+  (intermediate islands/microcontinents exist), not just "few huge + many 1–2-tile specks." Framed as
+  "the middle of the spectrum is non-empty," NOT "there must be N microcontinents." Measure via
+  `morphology.landmasses` — ideally with downstream **island injection turned down** (`islandChains`), so
+  we measure crust, not the injector.
+- **R5 — Knob monotonicity (composability).** Sweeping a physical knob (§11) shifts the aggregate
+  character **monotonically and predictably** while R1–R4 keep holding. Pass = "the knob does what it
+  says," not "a sweep point hits a shape."
+- **R6 — Cross-seed envelope.** R1–R4 hold across a seed ensemble per config (character robust to RNG
+  even though geography differs).
+
+**Overall pass** = Layer-1 envelopes hold over the ensemble for each archetype AND Layer-2 R1–R6 hold —
+emergent from crust history, **cosmetic relief OFF**, across seeds and across archetypes (earthlike,
+sundered-archipelago, shattered-ring, desert-mountains). Renders (`tools/ascii-map.mjs`,
+`tools/render-png.mjs`) remain the human cross-check, not the gate.
+
+---
+
+## 9. Resolution + anti-speckle plan (DECIDED)
+
+**Finer crust at fixed plate count, bounded, with the coarseness-dependent cosmetic noise stripped.**
+
+- **No over-split.** `compute-mesh:15` → `cellCount = plateCount × cellsPerPlate`; `compute-plate-graph:340`
+  seeds **exactly** `plateCount` plates regardless of cell count. Raising `cellsPerPlate` adds cells *per
+  plate* (finer crust + finer boundary arcs = less-blocky belts), same plate count. Over-split is a
+  `plateCount`-only risk.
+- **Bounded, not tile-fine.** Target ~3–6 tiles/cell (earthlike ~19 → cellsPerPlate ~40–60), **not 1**.
+  Projection is O(tiles×cells); at ~1–2k cells that's ~10–14M nearest-cell tests/map — trivial. A spatial
+  index is only needed near tile resolution (~49M).
+- **Anti-speckle — the decisive constraint.** The pipeline is *coupled to coarseness*: per-tile white
+  noise in `compute-base-topography` (`crustNoiseAmplitude`, `arcNoiseWeight`,
+  `default.ts:36`/`rules:79`) relies on ~19 tiles/cell to act as sub-cell smoothing; at fine scale it
+  flips marginal-buoyancy tiles into salt-and-pepper. **Remove/curtail that cosmetic noise** — the finer
+  *emergent* crust now carries sub-cell structure. Spatial coherence (no speckle) comes from the
+  crust-evolution operators being spatially coherent (cratonization, boundary-following orogeny, thermal
+  subsidence), not from any added fractal. Net: *fewer* cosmetic mechanisms — aligned with Principle 1.
+- **Interpolation = complement only.** Optional light anti-seam smoothing of the mesh→tile projection;
+  never the relief source (a smooth ramp gives graded slopes, not discrete islands).
+- **Reject:** tile-fine grid (speckle); interpolation-only (no discrete islands); raising `plateCount`.
+
+## 10. Tectonic-content (down/lateral relief) — adjacent workstream
+
+Honest finding: plate motion is **kinematic but internally coherent** — mantle forcing is seeded
+(Poisson-disk plumes in `compute-mantle-potential`; plate velocities are least-squares fits in
+`compute-plate-motion`), but boundary *type* is correctly derived from relative motion
+(`compute-tectonic-segments`), orogeny tracks convergence, and crust responds via maturity/thickness →
+buoyancy. The **up (uplift) pathway is strong; the down/lateral pathway (subsidence, rifting,
+fragmentation) is weak** and only loosely coupled to tectonics.
+
+Consequence: the §9 resolution fix gives crisper coast/ocean and lets richer crust express, but **R1
+(down-variation) and R4 (intermediate landmasses) may need the crust model to *generate* more
+intra-continental heterogeneity** — passive-margin thinning, failed rifts, thermal sag — to pass by
+*emergence* rather than by the injector.
+
+- **Out of scope (explicitly):** a full physical mantle-convection solver. The seeded-but-coherent model
+  is fine for a game; rebuilding it is over-engineering and violates "no output knobs / stay emergent but
+  proportionate."
+- **The adjacent candidate:** *targeted* coupling of the down/lateral pathway to existing tectonic fields
+  (divergence/rift → continental thinning → fragmentation + sag), reusing the unified model.
+- **Sequence:** land the §9 resolution + anti-speckle slice **first**, then *measure* R1–R6 — the numbers
+  decide whether §10 is needed, instead of guessing. Fragmentation / archipelago-ness (§11) is a natural
+  output of this pathway.
+
+## 11. Knobs (physical formation levers)
+
+Global formation levers; none is a per-region depth or an output target (Principle 3).
+- **Continental buoyancy bias** — how high continental crust rides → emerged area / drowned fraction.
+- **Sea shallowness** — shelf/margin depth → how shallow & wide seas read (defined as a *formation* lever
+  — shelf-break depth / margin flexure — decoupled from the sea-level datum and from buoyancy).
+- **Continental abundance** (`continentalFraction`) — how much crust is continental at all (more/larger
+  vs fewer continents). Orthogonal to buoyancy's "how high."
+- **Fragmentation / archipelago-ness** — continental crust breaking into intermediate landmasses; moves
+  R4. **Partially couples** to buoyancy near the waterline, so it rides with the §10 content pathway,
+  where it falls out of rift/thinning naturally rather than as a standalone knob.
