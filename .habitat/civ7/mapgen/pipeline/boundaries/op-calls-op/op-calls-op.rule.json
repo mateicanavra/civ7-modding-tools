@@ -1,18 +1,17 @@
 {
   "id": "op-calls-op",
-  "ownerTool": "source-check",
+  "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
-  "forbids": "domain op runtime entrypoints importing sibling op runtimes or the domain ops barrel",
+  "forbids": "domain op runtime entrypoints importing sibling op runtimes, importing the domain ops barrel, or invoking op orchestration helpers",
   "why": "Domain ops stay atomic; step and stage composition owns cross-op orchestration.",
-  "detect": ["habitat", "check", "--tool", "source-check"],
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/boundaries/op-calls-op/op-calls-op.check.mjs"
+  ],
   "remediate": null,
   "message": "Move op composition into the owning step/stage or public domain surface.",
   "exceptionPath": "none",
-  "patternName": "op_calls_op",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",

@@ -1,29 +1,17 @@
 {
   "id": "ecology-step-imports",
-  "ownerTool": "source-check",
+  "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-* and map-ecology source",
   "forbids": "active ecology recipe stages importing/exporting ecology ops or rules internals, plus files under retired ecology stage directories",
   "why": "Ecology recipe stages compose public domain surfaces; retired wrapper topology must not re-enter active source.",
-  "detect": ["habitat", "check", "--tool", "source-check"],
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/boundaries/ecology-step-imports/ecology-step-imports.check.mjs"
+  ],
   "remediate": null,
   "message": "Use public ecology domain surfaces and keep retired ecology topology out of active source.",
   "exceptionPath": "none",
-  "patternName": "ecology_step_imports",
-  "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-biomes",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-pedology",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/map-ecology",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features-score",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-ice",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-reefs",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-wetlands",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-vegetation"
-  ],
   "pathCoverage": [
     {
       "kind": "exact-path",
