@@ -48,6 +48,6 @@ export const resources = ".civ7/outputs/resources";
 // @filename: tools/habitat-harness/src/service/runtime/grit/constants.ts
 export const injectedProbeRoot = "tools/habitat-harness/injected-probe-roots";
 
-// @filename: .habitat/habitat/authority-and-toolkit-runtime/rules/example-rule/example-rule.rule.json
+// @filename: .habitat/habitat/toolkit/contracts/example-rule/example-rule.rule.json
 const registryMetadataCanNameProductRoots = "mods/mod-swooper-maps/src/domain";
 ```

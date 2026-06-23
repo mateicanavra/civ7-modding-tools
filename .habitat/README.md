@@ -5,39 +5,51 @@ The Habitat SDK code under `tools/habitat-harness` manages, validates, and
 executes these artifacts, but package source, root scripts, tests, CI, hooks,
 and tool configs are not independent sources of enforcement truth.
 
-The current layout is a provisional niche hierarchy. It groups gathered rule,
-pattern, baseline, and adapter artifacts by durable policy seam so later work
-can define one pattern at a time and burn down violations against that pattern.
-It is not a final ontology, and it is not evidence that runtime integration has
-been fully rewired.
+The current layout is a provisional domain-niche hierarchy with four flat
+policy layers inside each niche: `boundaries`, `structure`, `capabilities`, and
+`contracts`. Niches are domain nouns. Layers are generic governance concerns.
+Rule, pattern, baseline, and adapter artifacts are then grouped by subject under
+the layer that best describes the subject's primary concern.
+
+This is not a final ontology, and it is not evidence that runtime integration
+has been fully rewired.
 
 Current niche roots:
 
-- `global/repo-hygiene/**`: repo-wide hygiene policies such as checkout path
-  normalization, format/CI conformance, and import boundary rules.
-- `global/generated-and-protected-artifacts/**`: generated outputs and protected
-  surfaces whose ownership is structural rather than product-specific.
-- `habitat/authority-and-toolkit-runtime/**`: Habitat's own authority,
-  generator, service-shape, provider-path, rule-pack, and transitional Toolkit
-  runtime artifacts.
-- `civ7/platform-integration-boundaries/**`: Civ7 platform adapter, control,
-  and oRPC boundary policies.
-- `civ7/mapgen/core-and-sdk-boundaries/**`: MapGen package and SDK surface
-  boundaries.
-- `civ7/mapgen/pipeline-architecture/**`: MapGen pipeline architecture rules,
-  including stage contracts, domain/recipe imports, runtime purity, RNG/config,
+- `global/repository/**`: repo-wide policy for checkout hygiene, formatting,
+  import boundaries, protected surfaces, generated outputs, and package
+  artifacts.
+- `habitat/toolkit/**`: Habitat's own Toolkit authority, service shape,
+  provider paths, generator schemas, rule-pack registry, and transitional
+  runtime adapters.
+- `civ7/platform/**`: Civ7 adapter, control, and oRPC integration surfaces.
+- `civ7/mapgen/core/**`: MapGen package/runtime core, SDK entrypoint, and docs
+  surface.
+- `civ7/mapgen/pipeline/**`: MapGen pipeline policy subjects, including stage
+  contracts, domain/recipe imports, runtime capability access, RNG/config,
   schema defaults, and cutover guardrails.
-- `civ7/mapgen/studio-integration/**`: MapGen Studio integration artifacts.
+- `civ7/mapgen/studio/**`: MapGen Studio integration with recipe artifacts.
 
-Each rule folder remains the unit of evidence. Rule folders live under the
-owning niche's `rules/` directory and use a shared filename prefix for related
-artifacts:
+Within a niche, subjects are grouped into these flat layer buckets:
 
-- `<rule-name>.rule.json`: rule metadata.
-- `<rule-name>.baseline.json`: baseline, fixture, current-tree, or
+- `boundaries`: import/export, dependency direction, public/private surface, and
+  ownership-edge subjects.
+- `structure`: file-tree, module-shape, generated/protected file placement,
+  docs-shape, and retired-topology subjects.
+- `capabilities`: privileged runtime, provider, engine, RNG, validation,
+  process, or other effectful capability subjects.
+- `contracts`: schema, DTO, public API, registry, manifest, generator input, and
+  dependency-contract subjects.
+
+Each subject folder remains the unit of evidence. Subject folders live directly
+under one of the layer buckets and use a shared filename prefix for related
+rule-owned artifacts:
+
+- `<subject-name>.rule.json`: rule metadata.
+- `<subject-name>.baseline.json`: baseline, fixture, current-tree, or
   generated-artifact policy data.
-- `<rule-name>.pattern.md`: primary check or apply pattern source.
-- `<rule-name>.apply.pattern.md`: secondary apply pattern source when a rule
+- `<subject-name>.pattern.md`: primary check or apply pattern source.
+- `<subject-name>.apply.pattern.md`: secondary apply pattern source when a rule
   also has a primary diagnostic pattern.
 
 Authority planes:
@@ -46,20 +58,20 @@ Authority planes:
   remains Toolkit execution mechanics elsewhere.
 - `config.md`: a human-readable sketch of the Habitat operation model. It is
   not consumed programmatically.
-- `<niche>/rules/<rule-name>/<rule-name>.rule.json`: provisional rule metadata.
-- `<niche>/rules/<rule-name>/<rule-name>.pattern.md`: provisional check or apply
+- `<niche>/<layer>/<subject>/<subject>.rule.json`: provisional rule metadata.
+- `<niche>/<layer>/<subject>/<subject>.pattern.md`: provisional check or apply
   pattern source.
-- `<niche>/rules/<rule-name>/<rule-name>.baseline.json`: provisional baseline,
+- `<niche>/<layer>/<subject>/<subject>.baseline.json`: provisional baseline,
   fixture, current-tree, or generated-artifact policy data.
-- `<niche>/rules/<rule-name>/*.{mjs,ts}`: transitional adapters or legacy rule
+- `<niche>/<layer>/<subject>/*.{mjs,ts}`: transitional adapters or legacy rule
   sources that must either be admitted as Toolkit execution mechanics or
   converted into authored patterns.
 
 Executor compatibility views are outside this authority tree. Habitat owns the
-rule, pattern, baseline, and rule-folder hierarchy here; Grit, Biome, Nx, Vitest,
-Husky, CI, and shell/Node/Python scripts are execution mechanisms. The dispatch
-logic that invokes those mechanisms belongs in Habitat Toolkit source, not in a
-separate `.habitat` tooling configuration layer.
+rule, pattern, baseline, and subject-folder hierarchy here; Grit, Biome, Nx,
+Vitest, Husky, CI, and shell/Node/Python scripts are execution mechanisms. The
+dispatch logic that invokes those mechanisms belongs in Habitat Toolkit source,
+not in a separate `.habitat` tooling configuration layer.
 
 Compatibility note: several Toolkit paths still reference the old flat
 `.habitat/rules`, `.habitat/patterns`, `.habitat/baselines`, and
