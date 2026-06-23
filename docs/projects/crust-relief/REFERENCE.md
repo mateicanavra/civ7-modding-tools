@@ -295,11 +295,14 @@ intra-continental heterogeneity** — passive-margin thinning, failed rifts, the
 
 - **Out of scope (explicitly):** a full physical mantle-convection solver. The seeded-but-coherent model
   is fine for a game; rebuilding it is over-engineering and violates "stay emergent but proportionate."
-- **The mechanism (candidates, to choose):** add coherent fine-scale variance to maturity/thickness (hence
-  buoyancy) emergent from crust history — e.g. (a) cratonic-keel patchiness (differentiation that does NOT
-  consolidate uniformly), (b) rift basins / failed rifts (coherent multi-cell thinning + subsidence),
-  (c) passive-margin stretching (continental crust thinned toward oceanic at trailing edges). All reshape
-  the buoyancy *distribution* away from a unimodal lump; fragmentation / archipelago-ness (§11) falls out.
+- **The mechanism — DECIDED (two coupled):** (1) **continental lithospheric thinning** at extensional/
+  rift settings + passive margins (β-stretching → thickness loss → isostatic subsidence → drowned
+  corridors/basins; the down mode + fragmentation engine) coupled with (2) **cratonic keel patchiness**
+  (only ancient, quiescent, boundary-distant interiors consolidate → discrete buoyant cores; the up mode
+  + lateral strength/thermal heterogeneity). Coupling: a cell's thinned-vs-keel fate is set by its per-era
+  tectonic trajectory, so adjacent histories diverge → lateral buoyancy contrast → bimodal hypsometry.
+  Both reshape the buoyancy *distribution* off the waterline lump; fragmentation / archipelago-ness (§11)
+  falls out. See [`HANDOFF.md`](./HANDOFF.md).
 - **Sequence (content-led):** the first slice is the acceptance harness (R1–R6, captures the smooth-lump
   baseline) + a chosen content mechanism on the existing mesh (chunky ~13–60-tile bodies are the expected,
   acceptable first result). Resolution (§9) is folded in **only** if/when sub-microcontinent archipelagos
