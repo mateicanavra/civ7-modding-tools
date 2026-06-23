@@ -19,6 +19,8 @@
     "docs:project": "./scripts/docs-project.sh && bunx docsify-cli serve ./docs --port 7979",
     "dev:playground": "nx run @civ7/playground:dev",
     "dev:mapgen-studio": "nx run mapgen-studio:dev",
+    "restart:mapgen-studio": "bash ./scripts/restart-mapgen-studio.sh",
+    "dev:mapgen-studio:restart": "bun run restart:mapgen-studio",
     "lint": "nx run @internal/habitat-harness:biome:ci",
     "lint:cli": "nx run @mateicanavra/civ7-cli:lint",
     "lint:sdk": "nx run @mateicanavra/civ7-sdk:lint",
