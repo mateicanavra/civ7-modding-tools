@@ -46,7 +46,7 @@ For a Grit pattern implementation DRA, also read:
 For a supervisor or watcher, read:
 
 - this skill
-- `dra-structural-watcher`
+- `habitat:dra-structural-watcher`
 - the supervised DRA goal
 - the supervised DRA's branch, diff, status, phase record, review ledger, and verification output
 

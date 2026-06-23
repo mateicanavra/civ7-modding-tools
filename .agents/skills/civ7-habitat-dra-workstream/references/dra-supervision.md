@@ -50,7 +50,7 @@ Do not send broad dissatisfaction. Send a concrete correction.
 
 ## Watcher Use
 
-Use `dra-structural-watcher` when you need an independent disk-first pass over an implementation DRA. The watcher should not design or implement. It should identify material drift, stale records, owner-boundary violations, hidden untracked state, and proof-class conflation.
+Use `habitat:dra-structural-watcher` when you need an independent disk-first pass over an implementation DRA. The watcher should not design or implement. It should identify material drift, stale records, owner-boundary violations, hidden untracked state, and proof-class conflation.
 
 Watcher output becomes supervisor input. The supervisor still owns classification and repair demand wording.
 

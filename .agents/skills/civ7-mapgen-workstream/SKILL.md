@@ -42,7 +42,7 @@ Two load-bearing lines govern everything below:
 - Engine/SDK architecture decisions → `civ7-architecture-authority`.
 - Official game-data authority (resource catalogs, XML) → `civ7-product-authority`.
 - Pure build/deploy/log/tuner operational debugging → `civ7-operational-debugging`.
-- Closure/PR discipline → `civ7-open-spec-workstream` / `civ7-systematic-workstream`
+- Closure/PR discipline → `civ7-open-spec-workstream` / `habitat:systematic-workstream`
   (this skill *hands off* to them; it does not re-implement closure).
 
 ## Routing Table
@@ -77,7 +77,7 @@ facet-agent team pattern, and the closure handoff live in
 7  In-game verification → GATE: diagnostics + Earth-like benchmark + Studio + LIVE run/screenshots
 8  Architecture review  → civ7-architecture-authority: boundaries, drift, idiomatic (Grit/Biome) patterns
 9  Refinement          → loop 4–7 until verified + reviewed
-10 Finalization        → HAND OFF to civ7-open-spec-workstream / civ7-systematic-workstream
+10 Finalization        → HAND OFF to civ7-open-spec-workstream / habitat:systematic-workstream
 ```
 
 Step 6 branches on problem class: **generation-logic** lands in
@@ -175,4 +175,4 @@ selection (the three control points) is owned there and in
    at step 5.
 6. **Implement** with `assets/recipe-scaffolds.md`; **verify in-game** with
    `assets/live-verification-runbook.md`.
-7. **Hand off** closure to `civ7-open-spec-workstream` / `civ7-systematic-workstream`.
+7. **Hand off** closure to `civ7-open-spec-workstream` / `habitat:systematic-workstream`.

@@ -150,4 +150,4 @@ The bridge is encoded in `mods/mod-swooper-maps/src/domain/resources/lib/earthli
 | Community lead (forum/wiki) | firecrawl / `search:*` — **discovery only** | 13 |
 | Realistic *and* placeable count range | `official-earthlike.ts` ∩ `resource-legality.ts` | 8 |
 
-When the request is bounded → hand legality/intent findings to design (step 4–5). When it needs corpus coverage (all resources, all biomes) → that is a `civ7-systematic-workstream` handoff at closure (`references/orchestration.md`).
+When the request is bounded → hand legality/intent findings to design (step 4–5). When it needs corpus coverage (all resources, all biomes) → that is a `habitat:systematic-workstream` handoff at closure (`references/orchestration.md`).

@@ -131,7 +131,7 @@ For Civ7 OpenSpec workstreams, tell the worker to read at least:
 - the active `openspec/changes/<change-id>/` files;
 - root `AGENTS.md` and any closest subtree router for edited files.
 
-Add `dra-structural-watcher` only when the worker is also asked to audit
+Add `habitat:dra-structural-watcher` only when the worker is also asked to audit
 closure drift or watcher findings. Otherwise keep the role as artifact worker,
 not watcher.
 
