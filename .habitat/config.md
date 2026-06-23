@@ -17,6 +17,33 @@ commands. If the mapping is generic Habitat behavior, it belongs in Toolkit
 code. If the mapping is repo-authored policy, it needs a Habitat rule, pattern,
 baseline, or manifest entry.
 
+## Provisional Niche Hierarchy
+
+The current `.habitat` tree groups subject folders by durable policy seam. This
+is a V1 classification layout, not a parseable manifest and not a completed
+runtime migration.
+
+```text
+.habitat
+  global
+    repo-hygiene
+    generated-and-protected-artifacts
+  habitat
+    authority-and-toolkit-runtime
+  civ7
+    platform-integration-boundaries
+    mapgen
+      core-and-sdk-boundaries
+      pipeline-architecture
+      studio-integration
+```
+
+Rules at a niche level are intended to cascade to child niches when the final
+manifest model exists. Until then, the subject folder is the practical unit of
+classification and evidence. Do not create deeper branches for narrow handles
+such as `ecology-step-imports` or `placement-outcome-boundary`; those are rule
+subjects inside the broader MapGen pipeline architecture niche.
+
 ## Domain Operations
 
 Habitat's natural top-level operations are domain operations, not vendors and
@@ -29,9 +56,9 @@ an authored policy?
 
 Authored check policy may include:
 
-- source patterns under `patterns/checks/*.md`;
-- rule metadata under `rules/<rule-id>/rule.json`;
-- baseline state under `baselines/<rule-id>.json`;
+- subject-local Markdown source patterns;
+- subject-local `rule.json` metadata;
+- subject-local baseline, fixture, current-tree, or generated-artifact JSON;
 - explicit scope, severity, and ownership metadata.
 
 Execution mechanics are not authored here. The Toolkit decides how to run check
@@ -46,7 +73,7 @@ may Habitat make to the repository?
 
 Authored apply policy may include:
 
-- apply patterns under `patterns/apply/*.md`;
+- subject-local apply patterns;
 - safety/admission metadata in the relevant rule or pattern manifest;
 - scope and refusal conditions.
 
@@ -133,6 +160,8 @@ habitat
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
 - Rule IDs are stable registry handles, not ontology roots.
 - Vendor names do not organize `.habitat`.
+- Narrow rule handles do not create niche branches unless a later domain pass
+  proves a distinct language, authority, scope, change-rate, and proof boundary.
 
 ## What Belongs In Parseable Config Later
 
@@ -141,6 +170,7 @@ policy only:
 
 - enabled operations;
 - registered policy subjects;
+- niche cascade rules and subject placement;
 - scope, severity, lane, and baseline references;
 - pattern and generated-artifact authority;
 - explicit exceptions and refusal rules.
@@ -148,3 +178,12 @@ policy only:
 It should not store generic Toolkit dispatch such as "format uses Biome" or
 "source patterns use Grit" unless the repo is deliberately overriding a Toolkit
 default. Defaults belong in code.
+
+## Compatibility Debt
+
+Toolkit code and tests still reference the old flat `.habitat/rules`,
+`.habitat/patterns`, `.habitat/baselines`, and `.habitat/tooling/components`
+paths. Those references are required follow-up integration work, especially in
+generator schemas, source-check loader paths, validation target routing, package
+scripts, Nx inputs, and pattern/baseline tests. This file records the intended
+domain model only; it must not be used to claim those execution paths are fixed.

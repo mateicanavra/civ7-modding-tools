@@ -1,7 +1,16 @@
-# Habitat Tooling Component Index
+# Habitat Toolkit Runtime Subject Index
 
-This directory groups Habitat-owned executable adapters and related bridge
-assets by the component they enforce or support.
+This subject records Habitat-owned executable adapters and related bridge assets
+that were gathered during authority-tree triage. It is not a new
+`.habitat/tooling/components` ontology. Generic dispatch, provider selection,
+and command routing remain Toolkit implementation details under
+`tools/habitat-harness`.
+
+Integration note: several Toolkit files still reference the previous
+`.habitat/tooling/components/*` paths for package scripts, Nx inputs, generator
+schemas, source-check loader modules, and target routing. Those references are
+compatibility debt for a later Toolkit integration slice, not evidence that this
+subject is the runtime resolver.
 
 ## Components
 

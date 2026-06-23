@@ -1,6 +1,6 @@
 # Habitat Authority Contract
 
-Status: active authority frame
+Status: active authority frame with provisional niche hierarchy
 
 ## What This Establishes
 
@@ -12,20 +12,32 @@ The immediate goal is not to move executables or tool dispatch into `.habitat`.
 The goal is to make every authored enforcement policy trace back to Habitat
 artifacts, while execution mechanics stay in Habitat Toolkit source.
 
+The current subject hierarchy is provisional. It is a first-pass domain design
+for organizing the 54 triage subjects by policy seam, not by runner, rule ID,
+source folder, or current defect name. Rules defined at a niche level are
+expected to cascade to child niches once the manifest model exists, but this
+commit does not implement cascade semantics.
+
 ## Already True
 
-- Rule identity lives under `rules/<rule-id>/rule.json`.
-- Owner roots live in `rules/index.json`.
-- Baselines live under `baselines/*.json`.
-- Authored check patterns live under `patterns/checks/*.md`.
-- Authored apply patterns live under `patterns/apply/*.md`.
+- Collected subject folders live under provisional niche roots.
+- Rule identity is co-located as `<niche>/<subject>/rule.json`.
+- Subject-local JSON files preserve baseline, fixture, generated-artifact, or
+  rule-pack evidence gathered during triage.
+- Subject-local Markdown files preserve authored check and apply pattern source.
+- Transitional adapters and legacy rule modules are co-located with the subject
+  or Toolkit-runtime niche that owns their policy evidence.
 - CI and hooks already delegate into root commands that can route through
   Habitat and Nx.
 
 ## Still Not True
 
+- Toolkit resolvers, target routing, tests, docs, and package scripts still
+  contain compatibility references to old flat `.habitat/rules`,
+  `.habitat/patterns`, `.habitat/baselines`, and
+  `.habitat/tooling/components` paths.
 - Many registered source rules still use `ownerTool: "source-check"` even when
-  an authored Markdown pattern exists under `patterns/checks`.
+  an authored Markdown pattern exists in a subject folder.
 - Some command-backed rules point directly at root `scripts/lint/*` files.
 - Structural tests live in package `test/` trees without a Habitat rule identity
   or explicit decision that they are product tests rather than structure rules.
@@ -36,18 +48,22 @@ artifacts, while execution mechanics stay in Habitat Toolkit source.
 
 ## Authority Rules
 
-1. A structural rule is admitted only by a `rules/<rule-id>/rule.json` record.
-2. A source-pattern rule is authored in `patterns/checks/*.md` or
-   `patterns/apply/*.md`.
-3. A baseline is accepted only by `baselines/<rule-id>.json`.
-4. Tool dispatch, provider selection, command construction, and result
+1. A structural subject is admitted only by a subject folder under a recognized
+   niche root.
+2. A structural rule is admitted only by that subject's `rule.json` record or a
+   documented transitional adapter in the Habitat Toolkit runtime niche.
+3. A source-pattern rule is authored as a Markdown pattern in the owning subject
+   folder until the final manifest shape is accepted.
+4. A baseline or current-tree evidence file is accepted only when co-located
+   with the owning subject until the final manifest shape is accepted.
+5. Tool dispatch, provider selection, command construction, and result
    normalization are Habitat Toolkit implementation details.
-5. External tool configs such as `biome.json`, `nx.json`,
+6. External tool configs such as `biome.json`, `nx.json`,
    `eslint.boundaries.config.mjs`, `.grit/grit.yaml`, `.husky/*`, and
    `.github/workflows/*` are invocation or bridge layers. They remain in their
    conventional locations, but their structural meaning must be recoverable from
    `.habitat`.
-6. No new loose lint, validation, structural-check, or pattern script may be
+7. No new loose lint, validation, structural-check, or pattern script may be
    introduced as authored policy without a Habitat rule identity. If it is
    Toolkit execution machinery, it belongs in Toolkit source and must not be
    represented as repo-authored Habitat policy.
@@ -56,11 +72,13 @@ artifacts, while execution mechanics stay in Habitat Toolkit source.
 
 | Path | Owns | Does Not Own |
 | --- | --- | --- |
-| `rules/index.json` | Rule registry root metadata and owner roots. | Per-rule behavior. |
-| `rules/<rule-id>/rule.json` | Rule identity, owner tool, detect command, severity lane, baseline link, pattern link. | Pattern source or command implementation. |
-| `patterns/checks/*.md` | Positive check pattern definitions and GritQL source. | Runtime/provider implementation. |
-| `patterns/apply/*.md` | Positive apply pattern definitions and apply intent. | Diagnostic check execution. |
-| `baselines/*.json` | Accepted current violations and baseline state. | New rule intent. |
+| `global/repo-hygiene/**` | Repo-wide hygiene subjects that are not owned by a single product or Toolkit domain. | Product-specific architecture. |
+| `global/generated-and-protected-artifacts/**` | Generated files, protected host surfaces, lock/artifact policies, and current-tree ownership evidence. | Generator implementation. |
+| `habitat/authority-and-toolkit-runtime/**` | Habitat's own authority, service shape, provider-path, generator-schema bridge, rule-pack, and transitional runtime subjects. | Generic dispatch configuration outside Toolkit code. |
+| `civ7/platform-integration-boundaries/**` | Civ7 adapter, control-app, and oRPC ownership boundaries. | MapGen pipeline internals. |
+| `civ7/mapgen/core-and-sdk-boundaries/**` | MapGen package/runtime and SDK public surface boundaries. | Pipeline step architecture. |
+| `civ7/mapgen/pipeline-architecture/**` | MapGen pipeline contracts, domain/recipe import topology, runtime purity, RNG/config, schema/default, and cutover guardrails. | Separate ecology, placement, runner, or rule-ID hierarchy roots. |
+| `civ7/mapgen/studio-integration/**` | MapGen Studio recipe integration artifacts. | General MapGen pipeline architecture. |
 | `config.md` | Human-readable operation model and vocabulary. | Parseable tool dispatch configuration. |
 
 ## Current Owner-Tool Classes
@@ -88,15 +106,18 @@ Biome, Nx, Vitest, Bun, or shell commands is Toolkit code.
 
 The next consolidation slices should:
 
-1. Convert pattern-backed `source-check` rules to `grit-check`.
-2. Classify command-backed root lint scripts as either authored Habitat policy
+1. Rewire Toolkit rule, pattern, baseline, source-check, target-routing,
+   generator-schema, package-script, and test references from legacy flat paths
+   to the accepted authority model.
+2. Convert pattern-backed `source-check` rules to `grit-check`.
+3. Classify command-backed root lint scripts as either authored Habitat policy
    or Toolkit execution mechanics. Do not create a `.habitat/tooling` layer for
    generic command dispatch.
-3. Decide which structural-looking tests are true Habitat rules and register
+4. Decide which structural-looking tests are true Habitat rules and register
    them, leaving product/domain tests in package test trees.
-4. Make `.grit/grit.yaml` an execution bridge to Habitat patterns, not a second
+5. Make `.grit/grit.yaml` an execution bridge to Habitat patterns, not a second
    pattern source.
-5. Keep Nx, Biome, Husky, CI, and package scripts as thin execution layers whose
+6. Keep Nx, Biome, Husky, CI, and package scripts as thin execution layers whose
    authority is traceable to this tree.
 
 ## Stop Conditions
@@ -106,8 +127,10 @@ Stop a consolidation slice if it creates any of these states:
 - an authored structural policy exists with no Habitat rule identity;
 - generic tool dispatch is modeled as repo-authored `.habitat` configuration
   instead of Toolkit source;
-- a pattern exists outside `.habitat/patterns` with no bridge rationale;
-- a baseline exists outside `.habitat/baselines`;
+- a pattern, baseline, or adapter exists outside its subject folder with no
+  bridge rationale;
 - an external config claims structural meaning not represented in `.habitat`;
 - a test is used as a structural gate without either Habitat registration or an
   explicit product-test classification.
+- a new niche level is created for `swooper-maps`, `ecology`, `placement`, a
+  runner name, a rule ID, or a current defect name without later domain proof.
