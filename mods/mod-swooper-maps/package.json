@@ -245,7 +245,7 @@
     "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
     "build:studio-recipes:bundle": "tsup --config tsup.studio-recipes.config.ts",
     "build:studio-recipes:maps": "bun ./scripts/generate-map-artifacts.ts",
-    "viz:runtime-deps": "node ../../.habitat/civ7/mapgen/core/capabilities/viz-runtime-deps/viz-runtime-deps.check.mjs",
+    "viz:runtime-deps": "node ./scripts/ensure-viz-runtime-deps.mjs",
     "verify": "bun ./scripts/verify.ts"
   },
   "dependencies": {
