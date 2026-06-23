@@ -1,0 +1,34 @@
+{
+  "id": "studio-recipe-artifacts-preflight",
+  "ownerTool": "command-check",
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**, mods/mod-swooper-maps/src/maps/**, mods/mod-swooper-maps/src/recipes/**, packages/mapgen-core/src/**",
+  "forbids": "starting Studio with missing or stale recipe artifact dist outputs",
+  "why": "Studio consumes generated recipe schema/default/preset artifacts; stale or partial dist state breaks config and browser runtime assumptions.",
+  "detect": [
+    "node",
+    ".habitat/civ7/mapgen/studio/capabilities/studio-recipe-artifacts-preflight/studio-recipe-artifacts-preflight.check.mjs"
+  ],
+  "remediate": "Run the preflight or rebuild mod-swooper-maps studio recipe artifacts.",
+  "message": "Studio recipe artifacts must be present and fresh before Studio starts.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**",
+        "mods/mod-swooper-maps/src/maps/**",
+        "mods/mod-swooper-maps/src/recipes/**",
+        "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
+        "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
+        "mods/mod-swooper-maps/package.json",
+        "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
+        "packages/mapgen-core/src/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

@@ -1,11 +1,11 @@
+import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const appRoot = resolve(__dirname, "..");
+const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+  encoding: "utf8",
+}).trim();
+const appRoot = resolve(repoRoot, "apps/mapgen-studio");
 const distRoot = resolve(appRoot, "dist");
 
 function walk(dir) {

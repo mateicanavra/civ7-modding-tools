@@ -35,6 +35,11 @@ parseable manifest and not a completed runtime migration.
       structure
       capabilities
       contracts
+  docs
+    projects
+      capabilities
+    site
+      capabilities
   civ7
     platform
       boundaries
@@ -52,6 +57,7 @@ parseable manifest and not a completed runtime migration.
         contracts
       studio
         boundaries
+        capabilities
 ```
 
 The niche names are domain nouns. They should not encode a layer, runner, file
@@ -84,6 +90,7 @@ Rule-owned files use the same subject-name prefix:
 - `<subject-name>.rule.json`;
 - `<subject-name>.baseline.json`;
 - `<subject-name>.pattern.md`.
+- `<subject-name>.check.{sh,mjs,py,ts}` for transitional command-backed checks.
 
 ## Domain Operations
 

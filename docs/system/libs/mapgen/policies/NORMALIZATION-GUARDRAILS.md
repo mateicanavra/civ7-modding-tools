@@ -57,8 +57,8 @@ completed implementation record.
 ## Ground truth anchors
 
 - Habitat command guardrails:
-  `.habitat/rules/domain-refactor-guardrails/rule.json` and
-  `.habitat/rules/adapter-boundary/rule.json`
+  `.habitat/civ7/mapgen/pipeline/boundaries/domain-refactor-guardrails/domain-refactor-guardrails.rule.json` and
+  `.habitat/civ7/platform/boundaries/adapter-boundary/adapter-boundary.rule.json`
 - Pattern rule catalog: `.habitat/patterns/checks/`
 - Guard command wiring: `package.json`
 - Normalization packet source table:

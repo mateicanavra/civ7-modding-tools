@@ -6,7 +6,10 @@
   "scope": "docs/**/*.md",
   "forbids": "absolute local checkout paths that carry a docs/...md suffix",
   "why": "Docs should survive checkout moves, worktree renames, user-home differences, and thread handoffs; the pattern layer owns suffix-based rewrite hygiene for host-local docs references.",
-  "detect": ["node", "./scripts/lint/lint-docs-local-checkout-paths.mjs"],
+  "detect": [
+    "node",
+    ".habitat/global/repository/structure/docs-local-checkout-paths/docs-local-checkout-paths.check.mjs"
+  ],
   "remediate": "Use repo-relative docs paths so the reference survives checkout moves, worktree renames, and different user-home layouts.",
   "message": "Replace local absolute docs paths with durable repo-relative docs paths.",
   "exceptionPath": "none",

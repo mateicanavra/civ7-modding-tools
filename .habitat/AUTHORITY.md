@@ -30,6 +30,8 @@ semantics.
   rule-pack evidence gathered during triage, using
   `<subject>.baseline.json` for rule-owned baseline/evidence files.
 - Subject-local Markdown files preserve authored check and apply pattern source.
+- Subject-local command-check adapters are co-located with the subject they
+  enforce as `<subject>.check.{sh,mjs,py,ts}`.
 - Transitional adapters and legacy rule modules are co-located with the subject
   folder or Toolkit niche that owns their policy evidence.
 - CI and hooks already delegate into root commands that can route through
@@ -37,13 +39,13 @@ semantics.
 
 ## Still Not True
 
-- Toolkit resolvers, target routing, tests, docs, and package scripts still
-  contain compatibility references to old flat `.habitat/rules`,
-  `.habitat/patterns`, `.habitat/baselines`, and
+- Toolkit resolvers, tests, and docs still contain compatibility references to
+  old flat `.habitat/rules`, `.habitat/patterns`, `.habitat/baselines`, and
   `.habitat/tooling/components` paths.
 - Many registered source rules still use `ownerTool: "source-check"` even when
   an authored Markdown pattern exists in a subject folder.
-- Some command-backed rules point directly at root `scripts/lint/*` files.
+- Some command-backed rules still execute transitional subject-local scripts
+  instead of typed Habitat/Grit/Biome/Nx policy.
 - Structural tests live in package `test/` trees without a Habitat rule identity
   or explicit decision that they are product tests rather than structure rules.
 - `.grit/grit.yaml` is still a bridge, not an authority surface; it must point
@@ -64,14 +66,17 @@ semantics.
 4. A baseline or current-tree evidence file is accepted only when co-located
    with the owning rule as `<subject>.baseline.json` until the final
    manifest shape is accepted.
-5. Tool dispatch, provider selection, command construction, and result
+5. A command-backed check is accepted only when its script is co-located with
+   the owning subject as `<subject>.check.{sh,mjs,py,ts}` or explicitly
+   classified as product/package tooling outside Habitat.
+6. Tool dispatch, provider selection, command construction, and result
    normalization are Habitat Toolkit implementation details.
-6. External tool configs such as `biome.json`, `nx.json`,
+7. External tool configs such as `biome.json`, `nx.json`,
    `eslint.boundaries.config.mjs`, `.grit/grit.yaml`, `.husky/*`, and
    `.github/workflows/*` are invocation or bridge layers. They remain in their
    conventional locations, but their structural meaning must be recoverable from
    `.habitat`.
-7. No new loose lint, validation, structural-check, or pattern script may be
+8. No new loose lint, validation, structural-check, or pattern script may be
    introduced as authored policy without a Habitat rule identity. If it is
    Toolkit execution machinery, it belongs in Toolkit source and must not be
    represented as repo-authored Habitat policy.
@@ -82,6 +87,7 @@ semantics.
 | --- | --- | --- |
 | `global/repository/**` | Repo-wide policy for checkout hygiene, formatting, imports, generated outputs, protected surfaces, lock/artifact files, and current-tree ownership evidence. | Product-specific architecture or generator implementation. |
 | `habitat/toolkit/**` | Habitat's own Toolkit authority, service shape, provider paths, generator schema contracts, rule-pack registry, and transitional runtime subjects. | Generic dispatch configuration outside Toolkit code. |
+| `docs/**` | Documentation maintenance capabilities and structure support, including project issue-link fixing and docs-site generation helpers. | Product runtime behavior, package build behavior, or historical evidence rewriting. |
 | `civ7/platform/**` | Civ7 adapter, direct-control, app-facing control surfaces, and oRPC ownership. | MapGen pipeline internals. |
 | `civ7/mapgen/core/**` | MapGen package/runtime core, SDK entrypoint, and docs surface. | Pipeline step architecture or Studio-specific recipe artifact use. |
 | `civ7/mapgen/pipeline/**` | MapGen pipeline contracts, domain/recipe import topology, runtime capability access, RNG/config, schema/default, and cutover guardrails. | Separate ecology, placement, runner, or rule-ID hierarchy roots. |

@@ -6,11 +6,10 @@ that were gathered during authority-tree triage. It is not a new
 and command routing remain Toolkit implementation details under
 `tools/habitat-harness`.
 
-Integration note: several Toolkit files still reference the previous
-`.habitat/tooling/components/*` paths for package scripts, Nx inputs, generator
-schemas, source-check loader modules, and target routing. Those references are
-compatibility debt for a later Toolkit integration slice, not evidence that this
-subject is the runtime resolver.
+Integration note: some Toolkit files still reference the previous
+`.habitat/tooling/components/*` paths for generator schemas and source-check
+loader modules. Those references are compatibility debt for a later Toolkit
+integration slice, not evidence that this subject is the runtime resolver.
 
 ## Transitional Subjects
 
