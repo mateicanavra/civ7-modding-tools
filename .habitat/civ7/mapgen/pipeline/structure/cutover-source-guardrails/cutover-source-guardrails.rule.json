@@ -1,22 +1,17 @@
 {
   "id": "cutover-source-guardrails",
-  "ownerTool": "source-check",
+  "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/{domain,recipes/standard,maps}/**/*.{ts,json}",
   "forbids": "shim, shadow, compare, dual-path, and legacy stage-token surfaces in runtime source",
   "why": "Cutover work should delete obsolete paths rather than preserve parallel runtime semantics.",
-  "detect": ["habitat", "check", "--tool", "source-check"],
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/structure/cutover-source-guardrails/cutover-source-guardrails.check.mjs"
+  ],
   "remediate": null,
   "message": "Delete obsolete cutover terminology and legacy stage tokens from runtime source.",
   "exceptionPath": "none",
-  "patternName": "cutover_source_guardrails",
-  "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain",
-    "mods/mod-swooper-maps/src/recipes/standard",
-    "mods/mod-swooper-maps/src/maps"
-  ],
   "pathCoverage": [
     {
       "kind": "exact-path",
