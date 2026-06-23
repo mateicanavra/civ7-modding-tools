@@ -4,12 +4,16 @@
 > brief [`FOUNDATION-CRUST-RELIEF.md`](./FOUNDATION-CRUST-RELIEF.md) and the harness in [`tools/`](./tools).
 > Session log + raw measurements live in `WORKSTREAM.md` (historical).
 >
-> **Status:** root cause is structural — crust→tile **resolution/projection** (§2). The crust-buoyancy
-> reshape already landed (§5) is the right substrate but is per-cell, so it cannot resolve a per-cell
-> defect. Direction is now **locked** (§4, §9): finer crust at fixed plate count, bounded, with the
-> coarseness-dependent cosmetic noise stripped. Acceptance is a **two-layer framework** (§8). A
-> targeted tectonic-content (down/lateral relief) effort is a flagged **adjacent** workstream (§10),
-> sequenced after the resolution slice — not folded in by default.
+> **Status — CORRECTED (Juicy counterexample, §2.1):** the lead root cause is **CONTENT, not
+> resolution**. The buoyancy field is smooth and low-frequency from its mantle source, with a unimodal
+> lump of mass near the waterline → contiguous crust crosses sea level as flat shelves. Finer cells only
+> sample the same smooth field more finely (a finer tiling of a flat shelf is still a flat shelf).
+> Verified: swooper-earthlike and latest-juicy have **identical** `cellsPerPlate = 13` (the "~26" is
+> false) and differ only in `plateActivity` (0.85 vs 0.5) — Juicy cranks tectonic *intensity* and still
+> drowns. So neither the resolution knob nor the intensity knob reshapes the distribution; only a new
+> emergent **content** mechanism does (§10 is now the lead, not adjacent). Resolution (§9) is a *modest
+> enabler* — `cellsPerPlate ~3–5` once content exists; finer just makes speckle. Acceptance is the
+> **two-layer framework** (§8). The crust-buoyancy reshape already landed (§5) is correct substrate.
 >
 > Measured figures below are a snapshot (earthlike seed 1018 / ToT = swooper-earthlike HUGE; stack tip
 > at time of writing). Re-measure after any mesh/config change — they are diagnostics, not invariants.
@@ -60,6 +64,40 @@ structure have the **coarsest** crust.
 
 ---
 
+## 2.1 Re-adjudication — CONTENT is the lead cause, resolution is a secondary enabler (VERIFIED)
+
+§2's "resolution/projection" framing was **half the story and the wrong half to lead with**. Adversarially
+re-verified against the code and the Juicy counterexample:
+
+- **The buoyancy field is smooth and low-frequency by construction.** `buoyancy.ts:91` —
+  `0.32 + 0.45·maturity + 0.25·thickness − subsidence` — is linear in inputs that are themselves smooth:
+  the mantle potential is a sum of ~24 Gaussian plumes/downwellings, normalized and Laplacian-smoothed
+  (`compute-mantle-potential/index.ts:104-217`); maturity/thickness integrate exponentially-decayed
+  tectonic emissions per cell with **no** independent fine-scale variance (`compute-crust-evolution:106-150`).
+  Finest structure ≈ 10–20 cells. `buoyancy.ts:69-73`: "the SHAPE of this function's output distribution
+  IS the hypsometry."
+- **Smooth + unimodal mass near the waterline ⇒ flat shelves.** A large fraction of continental buoyancy
+  sits in a narrow band (~0.3–0.6) around the sea-level crossing (~0.58), so contiguous regions cross the
+  waterline **together** as flat blocks. The only fine variance in the chain is per-tile **white noise**
+  in base-topography (`crustNoiseAmplitude=0.1`, `arcNoiseWeight=0.2`) — incoherent → speckle, not islands.
+- **The Juicy counterexample is decisive.** swooper-earthlike and latest-juicy have **identical**
+  `cellsPerPlate = 13` (both `…config.json:12`; the "~26" claim is false). They differ only in
+  `plateActivity` (0.85 vs 0.5). Juicy cranks tectonic *intensity* and **still drowns**. So neither the
+  resolution knob nor the intensity knob touches the smooth unimodal *distribution shape* — and a finer
+  tiling of a smooth field is still a flat shelf. "The real lever is SOURCE VARIANCE, not SINK RESOLUTION."
+- **Conceptual conflation (the deep cause).** `project-plates.ts` copying crust verbatim is the *symptom*
+  of crust **relief** being computed on, and bound to, the **plate/mantle mesh** — so it inherits that
+  simulation's smoothness *and* its coarseness. Relief has no generating process of its own. The clean
+  decomposition gives crust relief its own structure-making step (cratonic-keel patchiness, rift basins,
+  passive-margin thinning) that *creates* coherent few-tile variance, decoupled from the smooth mantle
+  field. This is why content and resolution were tangled — one shared root.
+
+**Corrected order:** content-led (§10, now the lead), resolution as a *modest* enabler (§9): once content
+has coherent few-tile structure, `cellsPerPlate ~3–5` expresses it; finer only adds speckle/truncation
+artifacts. Even an agent tasked with *defending* resolution concluded content is primary.
+
+---
+
 ## 3. Governing principles (binding)
 
 1. **Emergent, not cosmetic.** Relief — shelf vs archipelago vs wide passive margin — must fall out of
@@ -78,12 +116,17 @@ structure have the **coarsest** crust.
 
 ## 4. Direction (to design, then verify)
 
-The crust evolution must express relief finer than ~19-tile Voronoi blocks. The plate **dynamics** stay
-coarse (plate motion/boundaries are fine at `plateCount` plates); the crust **relief** gets finer.
-Decision criterion: *yield sub-cell relief without destabilizing coarse plate dynamics — and without
-speckle.* Full plan + numbers in §9.
+> **Corrected by §2.1:** the lead is **content** (§10) — make the crust-evolution/buoyancy field carry
+> coherent fine-scale variance (cratonic-keel patchiness, rift basins, margin thinning) so its
+> distribution stops being a smooth lump at the waterline. Resolution below is the *enabler* that lets
+> that content reach tiles — necessary but secondary, and only modestly (`cellsPerPlate ~3–5`).
 
-**DECIDED — finer crust at fixed plate count, bounded, with cosmetic noise stripped.**
+The crust **relief** must (a) *have* fine structure to express (§10, content — the lead) and (b) be
+sampled finely enough to express it (below, resolution — the enabler). The plate **dynamics** stay coarse
+(motion/boundaries are fine at `plateCount` plates). Resolution criterion: *express the new content
+without destabilizing coarse plate dynamics — and without speckle.*
+
+**Resolution (enabler) — finer crust at fixed plate count, bounded, with cosmetic noise stripped.**
 - Raise `cellsPerPlate` (or evolve crust on a derived finer grid). Verified: the partition seeds
   **exactly** `plateCount` plates (`compute-plate-graph:340`), and `compute-mesh:15` sets
   `cellCount = plateCount × cellsPerPlate`, so raising `cellsPerPlate` gives more cells *per plate* and
@@ -140,9 +183,11 @@ The finer-resolution work (§4) is what lets this richer crust *express* itself 
 - **Knob set — RESOLVED (§11).** Confirmed pair: continental **buoyancy bias** + **sea shallowness**;
   strong orthogonal third **continental abundance** (`continentalFraction`); **fragmentation /
   archipelago-ness** rides with the §10 content work (it couples near the waterline).
-- **Sequencing — RESOLVED: resolution-first.** Land the acceptance harness (R1–R6) + the bounded
-  finer-crust + anti-speckle slice first, measure on earthlike HUGE/10, and let R1–R6 decide whether the
-  §10 down/lateral content work is needed. The §10 work is a measurement-gated fast-follow, not bundled.
+- **Sequencing — CORRECTED to content-led (§2.1).** The Juicy counterexample already ran the
+  "resolution/intensity alone" experiment and it still drowns, so resolution-first would burn a cycle to
+  rediscover that. Lead with the §10 **content** mechanism (coherent fine-scale buoyancy variance) +
+  the acceptance harness (R1–R6); bring resolution (§9) along as the modest enabler needed to express it.
+  Open: which content mechanism(s) and how much of §9 rides with the first slice (see §10).
 
 ---
 
@@ -200,9 +245,15 @@ sundered-archipelago, shattered-ring, desert-mountains). Renders (`tools/ascii-m
 
 ---
 
-## 9. Resolution + anti-speckle plan (DECIDED)
+## 9. Resolution + anti-speckle plan (ENABLER — secondary to §10 content)
 
 **Finer crust at fixed plate count, bounded, with the coarseness-dependent cosmetic noise stripped.**
+
+> **Resolution sets the *minimum feature size*, not whether features exist.** It only matters once §10
+> content gives cells differentiated buoyancy. Critically: at the current ~19 tiles/cell, a differentiated
+> cell already yields a **~13–60-tile** body — i.e. current resolution may already support **microcontinents**
+> (§8 R4) once content varies cell-to-cell. Finer cells (below) are needed only for **sub-microcontinent
+> archipelagos**. So resolution may *not* be in the first slice at all.
 
 - **No over-split.** `compute-mesh:15` → `cellCount = plateCount × cellsPerPlate`; `compute-plate-graph:340`
   seeds **exactly** `plateCount` plates regardless of cell count. Raising `cellsPerPlate` adds cells *per
@@ -222,7 +273,13 @@ sundered-archipelago, shattered-ring, desert-mountains). Renders (`tools/ascii-m
   never the relief source (a smooth ramp gives graded slopes, not discrete islands).
 - **Reject:** tile-fine grid (speckle); interpolation-only (no discrete islands); raising `plateCount`.
 
-## 10. Tectonic-content (down/lateral relief) — adjacent workstream
+## 10. Content — coherent fine-scale buoyancy variance (THE LEAD)
+
+The lead fix (§2.1): give the continental crust field **coherent, few-tile-scale buoyancy variance**, so
+its distribution stops being a smooth lump at the waterline. This is lateral differentiation (some
+continental crust thinned toward oceanic, some consolidated into buoyant keels) *and* the down pathway
+(rift basins, thermal sag) — both emergent from crust history, never painted on. It subsumes the old
+"down/lateral relief" framing and is no longer adjacent/deferred.
 
 Honest finding: plate motion is **kinematic but internally coherent** — mantle forcing is seeded
 (Poisson-disk plumes in `compute-mantle-potential`; plate velocities are least-squares fits in
@@ -237,13 +294,16 @@ intra-continental heterogeneity** — passive-margin thinning, failed rifts, the
 *emergence* rather than by the injector.
 
 - **Out of scope (explicitly):** a full physical mantle-convection solver. The seeded-but-coherent model
-  is fine for a game; rebuilding it is over-engineering and violates "no output knobs / stay emergent but
-  proportionate."
-- **The adjacent candidate:** *targeted* coupling of the down/lateral pathway to existing tectonic fields
-  (divergence/rift → continental thinning → fragmentation + sag), reusing the unified model.
-- **Sequence:** land the §9 resolution + anti-speckle slice **first**, then *measure* R1–R6 — the numbers
-  decide whether §10 is needed, instead of guessing. Fragmentation / archipelago-ness (§11) is a natural
-  output of this pathway.
+  is fine for a game; rebuilding it is over-engineering and violates "stay emergent but proportionate."
+- **The mechanism (candidates, to choose):** add coherent fine-scale variance to maturity/thickness (hence
+  buoyancy) emergent from crust history — e.g. (a) cratonic-keel patchiness (differentiation that does NOT
+  consolidate uniformly), (b) rift basins / failed rifts (coherent multi-cell thinning + subsidence),
+  (c) passive-margin stretching (continental crust thinned toward oceanic at trailing edges). All reshape
+  the buoyancy *distribution* away from a unimodal lump; fragmentation / archipelago-ness (§11) falls out.
+- **Sequence (content-led):** the first slice is the acceptance harness (R1–R6, captures the smooth-lump
+  baseline) + a chosen content mechanism on the existing mesh (chunky ~13–60-tile bodies are the expected,
+  acceptable first result). Resolution (§9) is folded in **only** if/when sub-microcontinent archipelagos
+  are wanted. Juicy already proved resolution/intensity-first is a dead end — no need to re-measure that.
 
 ## 11. Knobs (physical formation levers)
 
