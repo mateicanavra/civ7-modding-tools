@@ -48,12 +48,12 @@ survives only in `eslint.boundaries.config.mjs`, whose sole rule is
 | ID | File | Invariant | Disposition |
 |---|---|---|---|
 | core-purity | `packages/mapgen-core/test/architecture/core-purity.test.ts` | mapgen-core prod code has no Civ7 runtime refs | keep-as-test; **duplicated intent** with nx-boundaries tag rule (`kind:core` ↛ `kind:adapter`) — once the tag rule is locked, slim the test or retire (decided in H6) |
-| rng-authority-boundary | `mods/.../test/pipeline/rng-authority-boundary.test.ts` | no engine RNG / official generators in standard recipe + domain | keep-as-test (runtime semantics) |
+| rng-authority-static | `.habitat/civ7/mapgen/pipeline/capabilities/rng-authority-static/rng-authority-static.check.mjs` | no engine RNG / official generators in standard recipe + domain source | migrated from package test to Habitat command-check in hidden-test-authority batch; runtime RNG execution proof stays in `standard-rng-authority.test.ts` |
 | recipe-import-boundary | retired H6 (`mods/.../test/pipeline/recipe-import-boundary.test.ts`) | recipes use public domain surfaces | grit-check equivalent locked; retired in H6 |
 | ecology-step-imports | `.habitat/civ7/mapgen/pipeline/boundaries/ecology-step-imports/ecology-step-imports.check.mjs` | retired stage dirs absent; active ecology stages avoid ecology ops/rules internals | migrated from package test to Habitat command-check in hidden-test-authority audit; `.pattern.md` remains future Grit source while source-check path compatibility is repaired |
 | m11-projection-boundary-band | `mods/.../test/foundation/m11-projection-boundary-band.test.ts` | projection algorithm correctness | keep-as-test (domain logic, not structure) |
 | map-bundle-runtime-imports | `mods/.../test/build/map-bundle-runtime-imports.test.ts` | built bundles embed workspace packages; TextEncoder bootstrap; river markers | keep-as-test (build output correctness) |
-| cutover-tests | `mods/mod-swooper-maps` `test:architecture-cutover` → Habitat-owned `op-calls-op` command-check plus `no-dual-contract-paths`, `no-shim-surfaces`, `foundation-topology-lock` package tests | M-cutover structural invariants (distinct from the six rows above) | `op-calls-op` migrated to Habitat command-check in hidden-test-authority audit; the remaining cutover tests stay package-local until narrowed into explicit structural manifests |
+| cutover-tests | `mods/mod-swooper-maps` `test:architecture-cutover` → Habitat-owned `op-calls-op`, `cutover-source-guardrails`, and `standard-stage-topology` command-checks | M-cutover structural invariants (distinct from the six rows above) | migrated to Habitat command-checks in hidden-test-authority audit/batch; package-local cutover tests retired |
 
 ## D. CI wiring
 

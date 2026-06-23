@@ -129,9 +129,9 @@ train redefines the other's authority.
 - Structural/boundary/lint-style checks found in normal test suites are
   temporary compatibility gates only. H5/H6 must migrate them into the Habitat
   harness owner that fits (Nx/Biome/Grit/file-layer/native), prove parity, and
-  retire the normal-test copy. Current H4 root-proof examples:
-  `mods/mod-swooper-maps/test/morphology/catalog-ownership.test.ts` and
-  `mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards.test.ts`.
+  retire the normal-test copy. The hidden-test-authority batch migrated the
+  MapGen static/source-shape examples, including morphology catalog ownership;
+  generated artifact/config-authoring tests remain separate follow-up work.
 - Worktree/Graphite discipline per repo skills; one slice per branch; `gt restack --upstack` after mid-stack changes; `gt sync --no-restack` in shared environments.
 
 ## Next exact action

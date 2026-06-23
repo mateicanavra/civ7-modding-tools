@@ -96,6 +96,12 @@
         ],
         "cache": true
       },
+      "test:architecture-static-guardrails": {
+        "dependsOn": [
+          "^build"
+        ],
+        "cache": true
+      },
       "test:architecture-ecology-step-imports": {
         "dependsOn": [
           "^build"
@@ -229,13 +235,14 @@
     "gen:studio-recipes-types": "bun ./scripts/generate-studio-recipe-types.ts",
     "lint": "biome check .",
     "check": "tsc --noEmit",
-    "test": "bun test",
+    "test": "bun test; status=$?; bun run test:architecture-static-guardrails; exit $status",
     "test:studio-run-in-game": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",
-    "test:architecture-rng-authority": "bun test test/pipeline/rng-authority-boundary.test.ts",
+    "test:architecture-rng-authority": "node ../../.habitat/civ7/mapgen/pipeline/capabilities/rng-authority-static/rng-authority-static.check.mjs",
     "test:architecture-ecology-step-imports": "node ../../.habitat/civ7/mapgen/pipeline/boundaries/ecology-step-imports/ecology-step-imports.check.mjs",
     "test:architecture-m11-projection-band": "bun test test/foundation/m11-projection-boundary-band.test.ts",
     "test:architecture-map-bundle-runtime-imports": "bun test test/build/map-bundle-runtime-imports.test.ts",
-    "test:architecture-cutover": "node ../../.habitat/civ7/mapgen/pipeline/boundaries/op-calls-op/op-calls-op.check.mjs && bun test test/pipeline/no-dual-contract-paths.test.ts test/pipeline/no-shim-surfaces.test.ts test/pipeline/foundation-topology-lock.test.ts",
+    "test:architecture-cutover": "node ../../.habitat/civ7/mapgen/pipeline/boundaries/op-calls-op/op-calls-op.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/structure/cutover-source-guardrails/cutover-source-guardrails.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/structure/standard-stage-topology/standard-stage-topology.check.mjs",
+    "test:architecture-static-guardrails": "node ../../.habitat/civ7/mapgen/pipeline/boundaries/op-calls-op/op-calls-op.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/boundaries/ecology-step-imports/ecology-step-imports.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/structure/cutover-source-guardrails/cutover-source-guardrails.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/capabilities/rng-authority-static/rng-authority-static.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/structure/standard-stage-topology/standard-stage-topology.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/capabilities/map-projection-callsite-ownership/map-projection-callsite-ownership.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/contracts/map-contract-surfaces/map-contract-surfaces.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/contracts/foundation-contract-surfaces/foundation-contract-surfaces.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/contracts/morphology-contract-surfaces/morphology-contract-surfaces.check.mjs && node ../../.habitat/civ7/mapgen/pipeline/structure/domain-config-catalogs/domain-config-catalogs.check.mjs",
     "viz:standard": "bun ./src/dev/viz/standard-run.ts",
     "diag:dump": "bun ./src/dev/diagnostics/run-standard-dump.ts",
     "diag:analyze": "bun ./src/dev/diagnostics/analyze-dump.ts",
