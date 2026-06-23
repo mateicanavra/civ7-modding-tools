@@ -1,7 +1,9 @@
-// Integration note: these paths intentionally point at `.habitat` because the
-// legacy native source-check rule modules are authored enforcement artifacts,
-// not service-model source. This adapter should be removed when the remaining
-// source-check rules are converted to Grit-backed `.habitat/patterns`.
+// Habitat hierarchy V1 integration note: these paths still point at the old
+// `.habitat/tooling/components/legacy-source-check` compatibility shape. The
+// legacy rule modules now live under the provisional Habitat authority niche,
+// and a later Toolkit slice must either rewire this loader through the accepted
+// authority resolver or remove it when the remaining source-check rules convert
+// to Grit-backed subjects.
 export const sourceCheckRuleRuntimeRepoPath =
   ".habitat/tooling/components/legacy-source-check/runtime/rule-runtime.policy.mjs";
 

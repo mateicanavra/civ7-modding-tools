@@ -109,6 +109,10 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 }
 
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
+  // Habitat hierarchy V1 integration note: this still recognizes the old
+  // `.habitat/tooling/components` adapter path. The authority artifact now lives
+  // under `.habitat/habitat/authority-and-toolkit-runtime`; update this routing
+  // with the accepted resolver in the Toolkit integration slice.
   return (
     filePath === ".habitat/tooling/components/boundary-taxonomy/validate-boundary-taxonomy.ts" ||
     filePath ===
@@ -126,6 +130,10 @@ function isStructuralTargetDeclarationPath(filePath: string): boolean {
 }
 
 function isServiceModuleShapeToolingPath(filePath: string): boolean {
+  // Habitat hierarchy V1 integration note: this still recognizes the old
+  // `.habitat/tooling/components` adapter path. The authority artifact now lives
+  // under `.habitat/habitat/authority-and-toolkit-runtime`; update this routing
+  // with the accepted resolver in the Toolkit integration slice.
   return (
     filePath ===
       ".habitat/tooling/components/service-module-shape/validate-service-module-shape.ts" ||

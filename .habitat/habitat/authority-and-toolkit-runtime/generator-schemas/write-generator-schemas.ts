@@ -1,6 +1,11 @@
-// Habitat-owned generated-schema adapter. Integration note: Nx still requires
-// schema JSON files at stable paths; this script writes those bridge assets
-// under `.habitat` while TypeBox schema definitions remain in the SDK source.
+// Habitat-owned generated-schema adapter.
+//
+// Integration note: this file has moved into the provisional niche hierarchy,
+// but the generator bridge still writes and package metadata still reads the
+// old `.habitat/tooling/components/generator-schemas` paths. A follow-up
+// Toolkit integration slice must choose the accepted resolver path and update
+// this adapter, `tools/habitat-harness/generators.json`, schema support docs,
+// and package scripts together.
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
