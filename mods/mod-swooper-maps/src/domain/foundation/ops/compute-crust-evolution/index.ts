@@ -16,6 +16,18 @@ import {
 } from "../../lib/require.js";
 import ComputeCrustEvolutionContract from "./contract.js";
 
+// ─────────────────────────────────────────────────────────────────────────────────────────────────
+// STRUCTURE vs TUNING — kept un-mixed:
+//   • The constants below are STRUCTURE — universal physics (mechanisms + couplings: β-stretching →
+//     thinning, keel patchiness, the continental-freeboard step, maturity-graded breakup, foundering of
+//     under-differentiated crust, and how they feed thickness → buoyancy). They define HOW crust evolves
+//     and hold for EVERY map class; never tune them to a land/ocean output ratio.
+//   • The per-map-class CHARACTER knobs — continental abundance, freeboard, fragmentation, shelf depth —
+//     are real author-facing config (see ./config.ts), read from `config` in the strategy below. A
+//     different class (archipelago, pangaea, desert, …) is the SAME structure with DIFFERENT config,
+//     never a different algorithm. Do NOT fix a class-tuning miss by bending a STRUCTURE constant.
+// ─────────────────────────────────────────────────────────────────────────────────────────────────
+
 // Thickening is driven by differentiated (mature) crust; maturity integrates uplift/volcanism and
 // is suppressed by disruption, so a maturity-based mapping keeps thickness coherent with the
 // rest of the evolution model.
@@ -34,25 +46,103 @@ const DISRUPTION_SHEAR_COEFF = 0.25;
 const DISRUPTION_FRACTURE_COEFF = 0.3;
 const MATURITY_DISRUPTION_COEFF = 0.28;
 
-const RIFT_RECYCLE_THRESHOLD = 0.35;
-const RIFT_RECYCLE_MATURITY_CAP = 0.08;
 const RIFT_THERMAL_AGE_MUL = 0.4;
 const THERMAL_AGE_RIFT_SLOWDOWN = 0.6;
 
 // Cratonization: stable continental crust consolidates a thick, buoyant felsic keel over quiescent
 // eras — the positive feedback that grows a real high-craton elevation mode (vs. a single band
 // hugging the continent threshold) and leaves young/recently-rifted margins thin and low. Rates are
-// physical (per-era keel growth / rift recycling), never tuned to a land/ocean output ratio.
-const CRATON_MATURITY_MIN = 0.55; // keel growth begins at continental maturity…
-const CRATON_MATURITY_SPAN = 0.3; // …and reaches full rate by maturity ~0.85 (only true cratons)
-const CRATON_THICKEN_RATE = 0.08; // keel thickness gained per fully-quiescent era (adds a high tail,
-//                                   not a wholesale lift — the isostatic spread carries the gradient)
-const CRATON_RIFT_RECYCLE_MUL = 0.3; // fraction of the keel surviving a rifting era
+// physical (per-era keel growth), never tuned to a land/ocean output ratio.
+const CRATON_MATURITY_MIN = 0.55; // keel growth begins at the continental threshold…
+const CRATON_MATURITY_SPAN = 0.15; // …reaching full rate by maturity ~0.7 (most continental crust)
+const CRATON_THICKEN_RATE = 0.16; // keel thickness gained per fully-quiescent era — over the 5-era
+//                                   budget this lifts stable continental crust to real freeboard
+//                                   (continents sit ABOVE sea level), the keel feedback carrying the
+//                                   oldest interiors highest. The continental/oceanic freeboard gap is
+//                                   physical (granitic thick crust floats high), not an output ratio.
+
+// Keel positive feedback: a consolidating cratonic root is itself buoyant and shields its interior
+// from reworking, so keel growth accelerates with the keel already present. This sharpens the HIGH
+// mode (cratons pull decisively away from the waterline) instead of leaving a gentle high tail.
+const CRATON_KEEL_FEEDBACK = 1.4; // keel-begets-keel gain on per-era keel growth
+
+// ── Continental lithospheric thinning via critical β-stretching ──────────────────────────────────
+// A cell accumulates `extension01 = Σ_eras (rift · continentalness)` — the β-stretching integral over
+// its history. That integral is mapped to thinning through a CRITICAL threshold: below β_crit the
+// stretched lithosphere recovers (no permanent thinning); above it, runaway thinning removes crustal
+// thickness, the cell loses isostatic support (buoyancy.ts ISOSTASY ramp) and subsides into shelves /
+// lowlands. The threshold is the load-bearing nonlinearity: per-era rift is a smooth spatial falloff
+// from boundaries (p50≈p90/2.6), so a LINEAR mapping just sags the whole continent uniformly — the
+// threshold instead resolves that smooth gradient into two camps (kept vs thinned), which is what
+// makes the hypsometry bimodal rather than a shifted unimodal lump. Physical (β-factor criticality);
+// the threshold is a property of the lithosphere, never tuned to a land/ocean output ratio.
+const THINNING_CONTINENTAL_MIN = 0.4; // extension registers only on continental-grade crust…
+const THINNING_CONTINENTAL_SPAN = 0.3; // …reaching full sensitivity by maturity ~0.7
+const THIN_CRIT_LO = 0.15; // cumulative extension below which crust recovers (no thinning)
+const THIN_CRIT_HI = 0.45; // cumulative extension at/above which the margin is fully thinned
+// (shelf depth: `config.thinningThicknessLoss` — thickness removed from a fully-thinned margin)
+
+// Continental freeboard — the compositional dichotomy. Differentiated (granitic) continental crust is
+// intrinsically thicker and more buoyant than basaltic oceanic crust; this thickness step, gated
+// sharply at the differentiation threshold, is the PRIMARY reason Earth's hypsometry is bimodal
+// (continents stand above sea level, the ocean floor lies deep, the continental slope between is the
+// rare antimode). Without it, buoyancy is continuous in maturity and the two crust populations sit
+// adjacent with no empty band at the waterline. It is emergent from history (only crust matured past
+// the threshold earns it) and rides on the existing isostatic-support gate in buoyancy.ts to become a
+// buoyancy step. Its MAGNITUDE is the granitic/basaltic thickness contrast — the per-class freeboard /
+// sea-shallowness knob `config.continentalFreeboard` (a physical contrast, never an output ratio).
+const CONTINENTAL_FREEBOARD_LO = 0.62; // maturity where the step begins — marginally-differentiated…
+const CONTINENTAL_FREEBOARD_HI = 0.74; // …(transitional) crust earns little freeboard and forms shallow
+//                                        shelves; only well-matured interiors rise to emerged land. The
+//                                        onset above the bare continental threshold (0.55) is what splits
+//                                        the continental crust into shelf vs land — its internal bimodality.
+
+// Hyperextension → breakup. Crust stretched past its breakup threshold has rifted through: it is
+// replaced by thin, undifferentiated oceanic-grade lithosphere — the DEEP mode and the fragmentation
+// engine (drowned corridors that split a continent into microcontinents). This is the model's one hard
+// bistable switch, standing in for the continental/oceanic crustal dichotomy that makes Earth's
+// hypsometry fundamentally bimodal. Its threshold RISES WITH MATURITY: thick, cratonic lithosphere
+// resists rifting, while thin, marginally-differentiated crust ruptures under modest extension. So
+// stretched marginal crust converts to oceanic — shrinking the continental area toward Earth's ~41%
+// and carving passive margins — while cratons survive all but the most extreme stretching. (The prior
+// per-era `RIFT_RECYCLE_THRESHOLD = 0.35` was dead code: per-era rift peaks ~0.30, so margins never
+// converted; this revives that physics on cumulative extension with a strength-graded threshold.)
+// (fragmentation: `config.hyperextensionBreakupBase` — breakup threshold for marginal crust)
+const HYPEREXTENSION_BREAKUP_RESIST = 0.45; // added per unit of cratonic maturity (cratons resist)
+const HYPEREXTENSION_RESIST_SPAN = 0.4; // maturity span (above the continental threshold) over which
+//                                         breakup resistance ramps from marginal to full cratonic
+const HYPEREXTENSION_MATURITY_CAP = 0.1; // residual maturity of newly-rifted oceanic-grade crust
+
+// Continental survival vs foundering. Crust that never truly differentiated — maturity only marginally
+// past the bare continental threshold — is weak, thin and isostatically unstable: its dense lower
+// lithosphere founders/delaminates and the cell reverts to thin oceanic-grade crust. This caps the
+// continental area near Earth's ~41% (the model otherwise over-matures ~66% of cells just past the bare
+// threshold), so at an earthlike water budget sea level lands in the continental/oceanic gap instead of
+// drowning a too-large platform into flat shelves. Keyed on MATURITY (differentiation), not on keel: a
+// margin that matured and then thinned is real continental crust that subsided — it must survive as a
+// drowned shelf, so foundering must not catch it. Only genuinely under-differentiated crust founders.
+// (abundance: `config.continentalSurvivalMaturity` — maturity below which marginal crust founders)
+const SHELF_PRESERVE_EXTENSION = 0.1; // …a stretched margin (high extension) survives as drowned shelf
+
+/** Hermite smoothstep in [0,1]; 0 below edge0, 1 above edge1. */
+function smoothstep(edge0: number, edge1: number, x: number): number {
+  if (edge1 <= edge0) return x >= edge1 ? 1 : 0;
+  const t = clamp01((x - edge0) / (edge1 - edge0));
+  return t * t * (3 - 2 * t);
+}
 
 const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
   strategies: {
     default: {
-      run: (input, _config) => {
+      run: (input, config) => {
+        // Per-map-class character knobs (defaults = earthlike profile; see ./config.ts).
+        const {
+          continentalSurvivalMaturity,
+          continentalFreeboard,
+          hyperextensionBreakupBase,
+          thinningThicknessLoss,
+        } = config;
+
         const mesh = requireMesh(input.mesh, "foundation/compute-crust-evolution");
         const cellCount = mesh.cellCount | 0;
 
@@ -94,6 +184,7 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           let thickness01 = clamp01(initThickness);
           let thermalAge01 = 0;
           let cratonRoot01 = 0;
+          let extension01 = 0;
 
           // Baseline damage proxy (existing one-shot formula).
           const fractureTotal01 = clamp01((tectonicHistory.fractureTotal[i] ?? 0) / 255);
@@ -125,12 +216,6 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
             );
             maturity01 = clamp01(maturity01 - MATURITY_DISRUPTION_COEFF * disrupt * maturity01);
 
-            // Rift reset (recycling).
-            if (r >= RIFT_RECYCLE_THRESHOLD) {
-              maturity01 = Math.min(maturity01, RIFT_RECYCLE_MATURITY_CAP);
-              thermalAge01 *= RIFT_THERMAL_AGE_MUL;
-            }
-
             // Damage update.
             damage01 = clamp01(Math.max(damage01, disrupt));
 
@@ -139,22 +224,84 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
               thermalAge01 + thermalAgeStep * (1 - THERMAL_AGE_RIFT_SLOWDOWN * r)
             );
 
-            // Cratonization: a continental cell that survives a quiescent era thickens its keel; an
-            // active/rifting era adds little, and a rift recycles most of it. `cratonizing` ramps in
-            // with maturity so only continental-grade crust consolidates; `quiescence` is the inverse
-            // of this era's disruption. Cells that matured early then drifted off the active belt
-            // accumulate a deep keel (high mode); perpetually-active or rifted margins stay thin (low).
+            // Cumulative continental extension (β-stretching integral). `continentalness` gates it so
+            // oceanic / not-yet-differentiated crust does not register stretching. Mapped to thinning /
+            // breakup AFTER the loop via the critical thresholds.
+            const continentalness = clamp01(
+              (maturity01 - THINNING_CONTINENTAL_MIN) / THINNING_CONTINENTAL_SPAN
+            );
+            extension01 = clamp01(extension01 + r * continentalness);
+
+            // Running "un-stretched" fraction: a cell already past the critical stretch cannot
+            // consolidate a keel even in a later quiet era — the extension is recorded in the crust.
+            // This is the coupling that makes thinning and cratonization near-exclusive per cell.
+            const unstretched = 1 - smoothstep(THIN_CRIT_LO, THIN_CRIT_HI, extension01);
+
+            // Cratonization: a continental cell that survives quiescent, un-stretched eras thickens its
+            // keel. `cratonizing` ramps in with maturity so only continental-grade crust consolidates;
+            // `quiescence` is the inverse of this era's disruption; `unstretched` denies keels to
+            // stretched margins; the keel-feedback term runs consolidation away to a deep root. Cells
+            // that matured early then drifted off the active belt grow the deepest keels (high mode).
             const cratonizing = clamp01((maturity01 - CRATON_MATURITY_MIN) / CRATON_MATURITY_SPAN);
             const quiescence = clamp01(1 - disrupt);
-            cratonRoot01 = clamp01(cratonRoot01 + CRATON_THICKEN_RATE * cratonizing * quiescence);
-            if (r >= RIFT_RECYCLE_THRESHOLD) cratonRoot01 *= CRATON_RIFT_RECYCLE_MUL;
+            cratonRoot01 = clamp01(
+              cratonRoot01 +
+                CRATON_THICKEN_RATE *
+                  cratonizing *
+                  quiescence *
+                  unstretched *
+                  (1 + CRATON_KEEL_FEEDBACK * cratonRoot01)
+            );
           }
 
-          // Thickness = differentiated-crust base (from maturity) + the accumulated cratonic keel.
-          // The keel is the high-mode driver: long-quiescent cratons reach full thickness and ride
-          // highest; young/rifted margins keep only the maturity base and stay low → real shelf depth.
+          // Critical-stretching thinning: map the cumulative extension integral through β_crit.
+          const thinning01 = smoothstep(THIN_CRIT_LO, THIN_CRIT_HI, extension01);
+
+          // Continental survival vs reversion to oceanic. A cell stays continental only if it BOTH
+          // (a) avoided hyperextension breakup (stretched past its maturity-graded threshold — marginal
+          // crust ruptures at low extension, cratons resist) AND (b) consolidated enough crust
+          // (maturity + keel) to be isostatically stable. Otherwise its lower lithosphere founders and
+          // it reverts to thin oceanic-grade crust — the deep mode, the fragmentation engine, and the
+          // cap on emerged continental area. Surviving thinned-but-continental crust below the breakup
+          // threshold remains as the shelf / lowland down-variety.
+          const breakupThreshold =
+            hyperextensionBreakupBase +
+            HYPEREXTENSION_BREAKUP_RESIST *
+              clamp01((maturity01 - CRATON_MATURITY_MIN) / HYPEREXTENSION_RESIST_SPAN);
+          const hyperextended = extension01 >= breakupThreshold;
+          // Stable, under-differentiated crust founders; a stretched margin (high extension) survives as
+          // a drowned shelf even at the same maturity, so foundering does not erase the shelf.
+          const foundersStable =
+            maturity01 < continentalSurvivalMaturity && extension01 < SHELF_PRESERVE_EXTENSION;
+          if (hyperextended || foundersStable) {
+            maturity01 = Math.min(maturity01, HYPEREXTENSION_MATURITY_CAP);
+            thermalAge01 = thermalAge01 * RIFT_THERMAL_AGE_MUL;
+          }
+
+          // Continental freeboard step — the granitic/basaltic dichotomy (see constant). Computed from
+          // the post-breakup maturity so ruptured crust forfeits its freeboard and joins the deep mode,
+          // and GATED by (1 − thinning): a stretched margin loses its freeboard and subsides to a
+          // distinct drowned-shelf level, while stable interiors keep full freeboard as emerged land.
+          // This split — emerged land vs drowned shelf — is what makes the CONTINENTAL crust itself
+          // bimodal, opening the gap at sea level (where the water-fill solver cuts) instead of a flat
+          // platform straddling the waterline.
+          const continentalFreeboardStep =
+            continentalFreeboard *
+            smoothstep(CONTINENTAL_FREEBOARD_LO, CONTINENTAL_FREEBOARD_HI, maturity01) *
+            (1 - thinning01);
+
+          // Thickness = differentiated-crust base (maturity) + continental-freeboard step + cratonic
+          // keel − critical-stretch thinning. Freeboard lifts the whole continental platform clear of
+          // the waterline (emptying the band at sea level); the keel is the HIGH-mode driver
+          // (long-quiescent cratons ride highest); thinning is the LOW-mode driver (stretched margins
+          // lose thickness, lose isostatic support, subside, drown). The thresholds keep these
+          // near-exclusive per cell, so thickness — and hence buoyancy — turns bimodal across the world.
           thickness01 = clamp01(
-            initThickness + THICKNESS_FROM_MATURITY_GAIN * maturity01 + cratonRoot01
+            initThickness +
+              THICKNESS_FROM_MATURITY_GAIN * maturity01 +
+              continentalFreeboardStep +
+              cratonRoot01 -
+              thinningThicknessLoss * thinning01
           );
 
           maturity[i] = maturity01;

@@ -47,3 +47,57 @@ export const FoundationPlateActivityKnobSchema = Type.Number({
 });
 
 export type FoundationPlateActivityKnob = Static<typeof FoundationPlateActivityKnobSchema>;
+
+/**
+ * Continental abundance knob (semantic intent) — a COUPLED author lever.
+ *
+ * Meaning:
+ * - "How much of the world is continental." One physical intent — buoyant, abundant continental
+ *   crust both survives foundering AND resists rifting — so the lever drives two coupled
+ *   `compute-crust-evolution` properties together:
+ *     • `continentalSurvivalMaturity` (DOWN as abundance rises — marginal crust survives), and
+ *     • `hyperextensionBreakupBase`   (UP   as abundance rises — coherent crust resists breakup).
+ * - 0.5 reproduces the earthlike op defaults; → 1 trends pangaea, → 0 trends archipelago/waterworld.
+ *
+ * Stage scope:
+ * - `foundation-orogeny` (the `crust-evolution` step's `normalize` injects the resolved pair into the
+ *   `computeCrustEvolution` config). Optional: when unset, the raw op config (abundance properties)
+ *   is left untouched; when set, the lever overrides that coupled pair.
+ */
+export const FoundationContinentalAbundanceKnobSchema = Type.Number({
+  default: 0.5,
+  minimum: 0,
+  maximum: 1,
+  description:
+    "Continental abundance scalar in [0..1]. Couples survival-maturity (down) + breakup-resistance (up): 0.5 = earthlike, →1 pangaea, →0 archipelago. foundation-orogeny.",
+});
+
+export type FoundationContinentalAbundanceKnob = Static<
+  typeof FoundationContinentalAbundanceKnobSchema
+>;
+
+/**
+ * Continental relief knob (semantic intent) — a COUPLED author lever.
+ *
+ * Meaning:
+ * - "How dramatic the continent↔ocean transition stands." One physical intent — stronger isostatic
+ *   differentiation makes continents ride higher AND their thinned margins subside deeper — so the
+ *   lever drives two coupled `compute-crust-evolution` properties together:
+ *     • `continentalFreeboard`    (UP as relief rises — continents stand higher), and
+ *     • `thinningThicknessLoss`   (UP as relief rises — margins/basins subside deeper).
+ * - 0.5 reproduces the earthlike op defaults; → 1 tall continents + deep shelves, → 0 low + shallow.
+ *
+ * Stage scope:
+ * - `foundation-orogeny` (the `crust-evolution` step's `normalize` injects the resolved pair into the
+ *   `computeCrustEvolution` config). Optional: when unset, the raw op config (relief properties) is
+ *   left untouched; when set, the lever overrides that coupled pair.
+ */
+export const FoundationContinentalReliefKnobSchema = Type.Number({
+  default: 0.5,
+  minimum: 0,
+  maximum: 1,
+  description:
+    "Continental relief scalar in [0..1]. Couples freeboard (up) + shelf/basin depth (up): 0.5 = earthlike, →1 tall continents/deep shelves, →0 low/shallow. foundation-orogeny.",
+});
+
+export type FoundationContinentalReliefKnob = Static<typeof FoundationContinentalReliefKnobSchema>;

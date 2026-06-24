@@ -6,14 +6,10 @@ import {
 } from "../../lib/tectonics/schemas.js";
 import { FoundationCrustSchema } from "../compute-crust/contract.js";
 import { FoundationMeshSchema } from "../compute-mesh/contract.js";
+import { CrustEvolutionConfigSchema } from "./config.js";
 
-const StrategySchema = Type.Object(
-  {},
-  {
-    additionalProperties: false,
-    description: "Default strategy parameters for crust evolution from tectonic history.",
-  }
-);
+// Per-map-class character knobs (abundance, freeboard, fragmentation, shelf depth); see ./config.ts.
+const StrategySchema = CrustEvolutionConfigSchema;
 
 const ComputeCrustEvolutionContract = defineOp({
   kind: "compute",

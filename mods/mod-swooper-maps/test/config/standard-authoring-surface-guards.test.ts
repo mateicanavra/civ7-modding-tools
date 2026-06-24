@@ -26,7 +26,9 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "tectonicFields",
     "tectonicRollups",
   ],
-  "foundation-orogeny": ["knobs"],
+  // Internal-as-public (recipe-compile architecture §1.5): no `public`/`compile`; the crust-character
+  // op config is surfaced verbatim through the step (`crust-evolution.computeCrustEvolution.config.*`).
+  "foundation-orogeny": ["knobs", "crust-evolution"],
   "foundation-projection": ["knobs"],
   "morphology-coasts": [
     "knobs",
@@ -116,30 +118,6 @@ function getAtSchemaPath(schema: unknown, path: readonly string[]): unknown {
   return current;
 }
 
-function collectRawEnvelopePaths(value: unknown, path: string[] = []): string[] {
-  if (!isObject(value)) {
-    if (Array.isArray(value)) {
-      return value.flatMap((item, index) =>
-        collectRawEnvelopePaths(item, [...path, String(index)])
-      );
-    }
-    return [];
-  }
-
-  const paths: string[] = [];
-  if (
-    Object.prototype.hasOwnProperty.call(value, "strategy") &&
-    Object.prototype.hasOwnProperty.call(value, "config")
-  ) {
-    paths.push(path.join("."));
-  }
-
-  for (const [key, child] of Object.entries(value)) {
-    paths.push(...collectRawEnvelopePaths(child, [...path, key]));
-  }
-  return paths;
-}
-
 function collectOpenObjectSchemaPaths(value: unknown, path: string[] = []): string[] {
   if (!isObject(value)) {
     if (Array.isArray(value)) {
@@ -202,15 +180,21 @@ function createMapConfigExpression(source: string, id: string): string {
 }
 
 describe("standard authoring surface guardrails", () => {
-  it("keeps every standard source stage on an explicit semantic public authoring surface", () => {
+  it("keeps every standard source stage on a canonical authoring surface", () => {
     expect(STANDARD_STAGES.map((stage) => stage.id)).toEqual(Object.keys(STANDARD_PUBLIC_KEYS));
 
     for (const stage of STANDARD_STAGES) {
       const expectedKeys = STANDARD_PUBLIC_KEYS[stage.id];
       expect(expectedKeys, `${stage.id} expected public keys`).toBeDefined();
 
+      // Two canonical variants (recipe-compile architecture §1.5): a stage either declares an explicit
+      // semantic `public` surface (op envelopes hidden behind named keys), or is internal-as-public
+      // (no `public`/`compile`; the step-id-keyed internal surface that carries op envelopes verbatim).
+      const hasPublic = Boolean((stage as { public?: unknown }).public);
       const authoring = deriveStageAuthoringModel(stage);
-      expect(authoring.config.layer, `${stage.id} layer`).toBe("semantic-public-config");
+      expect(authoring.config.layer, `${stage.id} layer`).toBe(
+        hasPublic ? "semantic-public-config" : "internal-step-config"
+      );
       expect(
         (authoring.config.schema as any).additionalProperties,
         `${stage.id} strict schema`
@@ -222,10 +206,6 @@ describe("standard authoring surface guardrails", () => {
       expect(
         collectOpenObjectSchemaPaths(authoring.config.schema),
         `${stage.id} public object strictness`
-      ).toEqual([]);
-      expect(
-        collectRawEnvelopePaths(authoring.config.schema),
-        `${stage.id} public schema raw envelopes`
       ).toEqual([]);
 
       for (const step of authoring.runtime.steps) {
