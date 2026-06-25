@@ -27,7 +27,9 @@ In scope:
 - Assertion-level classification of candidates as package tests, structural
   checks, boundary/import constraints, mixed tests, currentness checks, or
   migration substrate.
-- The MapGen canary targets recorded by the edge-miss stabilization slice.
+- The MapGen canary targets recorded by the edge-miss stabilization slice. The
+  temporary canary files were consumed by the migration workstream; current
+  dispositions live in `workstream.md`.
 - Operational package surfaces where architecture rules may be hidden inside
   behavior tests or Toolkit tests.
 - The next-turn investigation frame, corpus contract, and review gates.
@@ -50,10 +52,8 @@ Source pointers:
 - `.habitat/AUTHORITY-TREE-SHAPE.md`
 - `.habitat/dominoes.md`
 - `docs/projects/habitat-harness/hidden-test-authority/ledger.md`
+- `docs/projects/habitat-harness/hidden-test-authority/workstream.md`
 - `docs/projects/habitat-harness/task-graph-cleanup/edge-miss-stabilization.md`
-- `mods/mod-swooper-maps/removed-architecture-targets.txt`
-- `packages/mapgen-core/removed-architecture-targets.txt`
-- `mods/mod-civ7-intelligence-bridge/removed-architecture-targets.txt`
 - Agent review lanes run for this frame: corpus-surface scout, oracle classifier,
   and adversarial migration reviewer.
 
@@ -64,7 +64,7 @@ Repo-state note:
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-habitat-mapgen-static-guardrail-batch`,
   currently stacked above `agent-DRA-habitat-edge-miss-stabilization`.
 - The primary checkout may be on a different branch and may not contain the same
-  canary files or `tools/habitat` rename state. Do not use it as the source of
+  migration state or `tools/habitat` rename state. Do not use it as the source of
   truth without first aligning the checkout to the target commit.
 
 ## WHAT
@@ -167,7 +167,8 @@ Protective belt:
 
 - Transitional `command-check` scripts are acceptable for static authority that
   cannot yet be expressed in Grit or another durable adapter.
-- Current canary files are seed evidence, not a complete corpus.
+- The former canary files were seed evidence, not a complete corpus. Current
+  assertion-level dispositions live in `workstream.md`.
 - Existing `hidden-test-authority/ledger.md` is useful history but not final
   truth; it contains earlier branch/path language and must be reconciled with
   the current authority tree.
@@ -251,10 +252,8 @@ Start with authority, then evidence:
 1. `.habitat/AUTHORITY.md`, `.habitat/ARTIFACT-KINDS.md`,
    `.habitat/AUTHORITY-TREE-SHAPE.md`, and existing `.habitat/**/_self/**`
    packets.
-2. Edge-miss canaries:
-   - `mods/mod-swooper-maps/removed-architecture-targets.txt`
-   - `packages/mapgen-core/removed-architecture-targets.txt`
-   - `mods/mod-civ7-intelligence-bridge/removed-architecture-targets.txt`
+2. Current embedded migration dispositions:
+   - `docs/projects/habitat-harness/hidden-test-authority/workstream.md`
 3. Current graph/package surfaces:
    - root `package.json`
    - `nx.json`

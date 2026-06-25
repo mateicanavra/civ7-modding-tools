@@ -1,8 +1,0 @@
-Removed Nx architecture targets retained as migration canaries.
-
-This target name was removed from project.json because the package test suite
-already owns execution today. The next embedded hidden authority migration
-should split structural authority into `.habitat` only if the oracle is static
-and generic enough; generated bundle/runtime proof stays package-local.
-
-- test:architecture-bundle-runtime-imports

@@ -1,6 +1,10 @@
 # Hidden Test Authority Ledger
 
-Status: active investigation ledger for `agent-DRA-habitat-hidden-test-authority-audit`
+Status: superseded investigation ledger for `agent-DRA-habitat-hidden-test-authority-audit`
+
+Current dispositions for the embedded hidden-authority migration live in
+`docs/projects/habitat-harness/hidden-test-authority/workstream.md`. This file
+is retained as historical context for the earlier audit slice.
 
 ## Frame
 

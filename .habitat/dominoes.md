@@ -346,28 +346,32 @@ script moves. They require reading the test oracle, splitting structure from
 runtime/product behavior, migrating only the structural authority, and then
 deleting or narrowing the original test.
 
-First likely cluster: MapGen authoring-surface authority.
+First cluster completed: MapGen authoring-surface authority plus same-class
+Studio, Civ7 resource, and platform static authority found during the
+systematic embedded-authority pass.
 
-Candidate sources:
+Migrated packets include:
 
-- `mods/mod-swooper-maps/test/config/standard-authoring-surface-guards.test.ts`
-- `mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards.test.ts`
-- `apps/mapgen-studio/test/config/defaultConfigSchema.test.ts`
-- `apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts`
-
-Likely authority:
-
-- MapGen authoring contracts.
-- Generated recipe artifact shape.
-- Public schema surface shape.
-- Standard stage topology/public authoring model.
+- `standard-authoring-surface`
+- `standard-map-entrypoints`
+- `standard-recipe-artifact-parity`
+- `standard-contract-manifest`
+- `shipped-map-catalog`
+- `ecology-fudging-guardrails`
+- `civ7-map-policy-boundary`
+- `civ7-map-policy-provenance`
+- `studio-recipe-dag-boundary`
+- `studio-dev-runner-topology`
+- `studio-rpc-daemon-boundary`
+- `intelligence-bridge-ui-bootstrap`
+- `adapter-legacy-generator-boundary`
 
 Later embedded clusters:
 
-- Studio/server static authority, such as daemon deploy isolation, watch
-  ignores, Nx dev runner shape, and one-mount structure.
-- Core/platform public-surface authority, such as MapGen core purity,
-  intelligence bridge package shape, and direct-control public API boundaries.
+- Remaining Studio config tests that must still be split assertion-by-assertion
+  before migration.
+- Core/platform public-surface authority beyond the migrated bridge and adapter
+  checks, such as direct-control public API boundaries.
 
 Scope guard:
 

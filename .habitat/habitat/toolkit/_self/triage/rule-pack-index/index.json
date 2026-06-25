@@ -3,11 +3,14 @@
   "schemaVersion": 1,
   "ownerRoots": {
     "control-orpc": "packages/civ7-control-orpc",
+    "civ7-adapter": "packages/civ7-adapter",
+    "civ7-map-policy": "packages/civ7-map-policy",
     "civ7-docs": "apps/docs",
     "habitat": "tools/habitat",
     "civ7-sdk": "packages/sdk",
     "mapgen-core": "packages/mapgen-core",
     "mapgen-studio": "apps/mapgen-studio",
+    "mod-intelligence-bridge": "mods/mod-civ7-intelligence-bridge",
     "mod-swooper-maps": "mods/mod-swooper-maps"
   }
 }
