@@ -150,8 +150,7 @@ describe("map-rivers/plot-rivers", () => {
       baseWaterClass: new Uint8Array(size),
       sourceCoastMask: new Uint8Array(size),
       waterClass: new Uint8Array(size),
-      policyCoastMask: new Uint8Array(size),
-      coastBufferTiles: 0,
+      coastRingMask: new Uint8Array(size),
       promotedOceanToCoast: 0,
     });
 

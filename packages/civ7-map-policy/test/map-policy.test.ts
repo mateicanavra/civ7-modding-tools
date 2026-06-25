@@ -3,10 +3,8 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import {
-  applyCiv7CoastClassificationPolicy,
   applyCiv7CoastRingPolicy,
   CIV7_BROWSER_TABLES_V0,
-  CIV7_COAST_CLASSIFICATION_POLICY_V0,
   CIV7_COAST_RING_POLICY_V0,
   CIV7_DEFAULT_RIVER_MODELING_ARGS,
   CIV7_RIVER_MODELING_POLICY_V0,
@@ -164,26 +162,6 @@ describe("@civ7/map-policy", () => {
     for (const [key, value] of Object.entries(CIV7_RIVER_TYPE_METADATA_SOURCE.values)) {
       expect(dts).toContain(`readonly ${key}: ${value};`);
     }
-  });
-
-  it("classifies coast buffers with the policy-owned odd-q projection", () => {
-    const width = 5;
-    const height = 3;
-    const waterClass = new Uint8Array(width * height).fill(WATER_CLASS_OCEAN);
-    waterClass[1 * width + 1] = WATER_CLASS_COAST;
-
-    const result = applyCiv7CoastClassificationPolicy({
-      width,
-      height,
-      waterClass,
-      coastBufferTiles: 1,
-    });
-
-    expect(result.promotedOceanToCoast).toBeGreaterThan(0);
-    expect(result.waterClass[1 * width + 2]).toBe(WATER_CLASS_COAST);
-    expect(CIV7_COAST_CLASSIFICATION_POLICY_V0.source).toContain(
-      "Base/modules/base-standard/maps/map-globals.js"
-    );
   });
 
   it("stamps a single land-adjacent coast ring (not a distance band) via odd-R adjacency", () => {
