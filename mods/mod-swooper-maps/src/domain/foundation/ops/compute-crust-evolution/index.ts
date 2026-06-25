@@ -39,6 +39,16 @@ const RIFT_RECYCLE_MATURITY_CAP = 0.08;
 const RIFT_THERMAL_AGE_MUL = 0.4;
 const THERMAL_AGE_RIFT_SLOWDOWN = 0.6;
 
+// Cratonization: stable continental crust consolidates a thick, buoyant felsic keel over quiescent
+// eras — the positive feedback that grows a real high-craton elevation mode (vs. a single band
+// hugging the continent threshold) and leaves young/recently-rifted margins thin and low. Rates are
+// physical (per-era keel growth / rift recycling), never tuned to a land/ocean output ratio.
+const CRATON_MATURITY_MIN = 0.55; // keel growth begins at continental maturity…
+const CRATON_MATURITY_SPAN = 0.3; // …and reaches full rate by maturity ~0.85 (only true cratons)
+const CRATON_THICKEN_RATE = 0.08; // keel thickness gained per fully-quiescent era (adds a high tail,
+//                                   not a wholesale lift — the isostatic spread carries the gradient)
+const CRATON_RIFT_RECYCLE_MUL = 0.3; // fraction of the keel surviving a rifting era
+
 const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
   strategies: {
     default: {
@@ -83,6 +93,7 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           let maturity01 = 0;
           let thickness01 = clamp01(initThickness);
           let thermalAge01 = 0;
+          let cratonRoot01 = 0;
 
           // Baseline damage proxy (existing one-shot formula).
           const fractureTotal01 = clamp01((tectonicHistory.fractureTotal[i] ?? 0) / 255);
@@ -127,11 +138,23 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
             thermalAge01 = clamp01(
               thermalAge01 + thermalAgeStep * (1 - THERMAL_AGE_RIFT_SLOWDOWN * r)
             );
+
+            // Cratonization: a continental cell that survives a quiescent era thickens its keel; an
+            // active/rifting era adds little, and a rift recycles most of it. `cratonizing` ramps in
+            // with maturity so only continental-grade crust consolidates; `quiescence` is the inverse
+            // of this era's disruption. Cells that matured early then drifted off the active belt
+            // accumulate a deep keel (high mode); perpetually-active or rifted margins stay thin (low).
+            const cratonizing = clamp01((maturity01 - CRATON_MATURITY_MIN) / CRATON_MATURITY_SPAN);
+            const quiescence = clamp01(1 - disrupt);
+            cratonRoot01 = clamp01(cratonRoot01 + CRATON_THICKEN_RATE * cratonizing * quiescence);
+            if (r >= RIFT_RECYCLE_THRESHOLD) cratonRoot01 *= CRATON_RIFT_RECYCLE_MUL;
           }
 
-          // Thickness increases with differentiated crust, and implicitly responds to uplift/volcanism via maturity.
+          // Thickness = differentiated-crust base (from maturity) + the accumulated cratonic keel.
+          // The keel is the high-mode driver: long-quiescent cratons reach full thickness and ride
+          // highest; young/rifted margins keep only the maturity base and stay low → real shelf depth.
           thickness01 = clamp01(
-            Math.max(thickness01, initThickness + THICKNESS_FROM_MATURITY_GAIN * maturity01)
+            initThickness + THICKNESS_FROM_MATURITY_GAIN * maturity01 + cratonRoot01
           );
 
           maturity[i] = maturity01;

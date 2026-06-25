@@ -32,13 +32,13 @@ export const THICKNESS_BUOYANCY_BOOST = 0.25;
 export const MATURITY_CONTINENT_THRESHOLD = 0.55;
 
 /**
- * Continentality ramp: maturity at which crust begins / finishes behaving as felsic continental
- * lithosphere (thick-rooted, buoyant) rather than mafic oceanic lithosphere (dense, subsiding).
- * Brackets {@link MATURITY_CONTINENT_THRESHOLD} so the oceanic↔continental transition is smooth,
- * not a hard discontinuity at the type cut.
+ * Isostatic-support ramp over crustal thickness. Thin crust (basaltic oceanic lithosphere; thinned
+ * or young continental margins) is poorly supported and subsides as it cools; thick crust (cratonic
+ * keels / orogenic roots) is isostatically buoyant and does not subside. Brackets the basaltic floor
+ * (~0.25–0.35 → full subsidence) and a consolidated keel (~0.75+ → none).
  */
-export const CONTINENTAL_FADE_LO = 0.4;
-export const CONTINENTAL_FADE_HI = 0.6;
+export const ISOSTASY_THIN_THICKNESS = 0.35;
+export const ISOSTASY_THICK_THICKNESS = 0.75;
 
 /** Lithospheric-strength factor floors (thermalAge / maturity / thickness). */
 export const STRENGTH_BASE_MIN = 0.45;
@@ -59,34 +59,35 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
 }
 
 /**
- * Continentality in [0,1]: 0 = oceanic (mafic, dense, subsides with age), 1 = continental
- * (felsic, thick-rooted, buoyant), ramping across the continent threshold. Gates processes
- * that physically act on only one crust type.
+ * Isostatic support in [0,1] from crustal thickness: 0 = thin / poorly supported (subsides with
+ * age), 1 = thick / buoyant (does not subside).
  */
-export function continentality(maturity: number): number {
-  return smoothstep(CONTINENTAL_FADE_LO, CONTINENTAL_FADE_HI, clamp01(maturity));
+export function isostaticSupport(thickness: number): number {
+  return smoothstep(ISOSTASY_THIN_THICKNESS, ISOSTASY_THICK_THICKNESS, clamp01(thickness));
 }
 
 /**
- * Isostatic crust buoyancy in [0,1] from crust-history state. Higher rides higher (emerges as
- * land / shallow shelf); lower sinks (deep ocean). `baseElevation := this`, and base-topography
- * linearly remaps it into the absolute relief band — so the SHAPE of this function's output
- * distribution IS the hypsometry.
+ * Isostatic crust buoyancy in [0,1] from crust-history state. Higher rides higher (emerges as land /
+ * shallow shelf); lower sinks (deep ocean). `baseElevation := this`, and base-topography linearly
+ * remaps it into the absolute relief band — so the SHAPE of this function's output distribution IS
+ * the hypsometry.
  *
- * Thermal subsidence is an OCEANIC process: cooling mafic lithosphere contracts and sinks with
- * thermal age (young ridge high → old abyss deep). Continental (felsic, thick-rooted) crust does
- * NOT thermally subside — old cratons are the highest, most stable crust. We therefore gate the
- * subsidence term by (1 − continentality): full on oceanic crust, fading to zero as the cell
- * matures continental. This lifts the aged continental band off the waterline instead of dragging
- * exactly the crust that should ride highest down onto it. (It also retires the prior mis-model
- * where a saturated, signal-free continental thermalAge applied a uniform ~−0.21 to all crust.)
+ * Thermal subsidence (cooling lithosphere contracts and sinks with age) is gated by ISOSTASY rather
+ * than crust type: it acts fully on THIN crust — basaltic oceanic lithosphere (young ridge high →
+ * old abyss deep) and thinned/young continental margins (which subside into real shelves) — and
+ * fades to zero as crust thickens into an isostatically-supported cratonic keel (old cratons ride
+ * highest, never sinking). This deepens old ocean, keeps cratons high, AND leaves thin margins low,
+ * yielding a natural shelf→coast→highland spread rather than a drowned flat band (old uniform
+ * subsidence) or a uniform high plateau. It also retires the prior mis-model where a saturated,
+ * signal-free continental thermalAge dragged all crust down uniformly.
  */
 export function deriveBuoyancy(params: CrustBuoyancyInputs): number {
   const maturity = clamp01(params.maturity);
+  const thickness = clamp01(params.thickness);
   const maturityBoost = MATURITY_BUOYANCY_BOOST * maturity;
-  const thicknessBoost = THICKNESS_BUOYANCY_BOOST * clamp01(params.thickness);
-  const oceanic = 1 - continentality(maturity);
-  const subsidence = OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01) * oceanic;
+  const thicknessBoost = THICKNESS_BUOYANCY_BOOST * thickness;
+  const subsidence =
+    OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01) * (1 - isostaticSupport(thickness));
   return clamp01(CRUST_BASE_BUOYANCY + maturityBoost + thicknessBoost - subsidence);
 }
 
