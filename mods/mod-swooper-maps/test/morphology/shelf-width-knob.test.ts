@@ -43,4 +43,43 @@ describe("morphology-coasts shelfWidth knob", () => {
     expect(narrow.shelfMask.config.capTilesActive).toBe(2);
     expect(narrow.shelfMask.config.capTilesPassive).toBe(3);
   });
+
+  it("does not let a too-low capTilesMax silently collapse the passive>active distinction (footgun guard)", () => {
+    const base = (
+      standardRecipe.compileConfig(
+        {
+          seed: 123,
+          dimensions: { width: 80, height: 60 },
+          latitudeBounds: { topLatitude: 60, bottomLatitude: -60 },
+        },
+        standardConfig
+      ) as any
+    )["morphology-coasts"]?.["rugged-coasts"];
+
+    // capTilesMax below the configured margin caps used to clamp both active and
+    // passive down to capTilesMax (the latest_juicy capTilesMax:1 footgun).
+    const shelfMask = {
+      strategy: "default",
+      config: {
+        nearshoreDistance: 8,
+        shallowQuantile: 0.6,
+        activeClosenessThreshold: 0.35,
+        capTilesActive: 3,
+        capTilesPassive: 6,
+        capTilesMax: 1,
+      },
+    };
+
+    const wide = (ruggedCoasts as any).normalize(
+      { ...base, shelfMask },
+      { knobs: { shelfWidth: "wide" } }
+    );
+    // Ceiling floors to max(capTilesMax, active, passive) = 6, so the scaled caps
+    // survive: active = min(6, round(3*1.25)) = 4, passive = min(6, round(6*1.25)) = 6.
+    expect(wide.shelfMask.config.capTilesActive).toBe(4);
+    expect(wide.shelfMask.config.capTilesPassive).toBe(6);
+    expect(wide.shelfMask.config.capTilesPassive).toBeGreaterThan(
+      wide.shelfMask.config.capTilesActive
+    );
+  });
 });

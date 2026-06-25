@@ -44,9 +44,16 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
     }
 
     const nearshoreDistance = clampInt(config.nearshoreDistance, 0, 65535);
-    const capMax = clampInt(config.capTilesMax, 0, 65535);
-    const capActive = clampInt(config.capTilesActive, 0, capMax);
-    const capPassive = clampInt(config.capTilesPassive, 0, capMax);
+    const capActiveReq = clampInt(config.capTilesActive, 0, 65535);
+    const capPassiveReq = clampInt(config.capTilesPassive, 0, 65535);
+    // capTilesMax is an ABSOLUTE safety ceiling on shelf reach, not a per-margin cap.
+    // Floor it to the larger configured margin cap so a too-low capTilesMax can never
+    // silently collapse the margin-aware distinction (passive > active). A bare
+    // `min(cap, capTilesMax)` is the footgun that flattened the juicy configs to a
+    // 1-tile ring (capTilesMax:1 clamped both active=3 and passive=4 to 1).
+    const capMax = Math.max(clampInt(config.capTilesMax, 0, 65535), capActiveReq, capPassiveReq);
+    const capActive = Math.min(capActiveReq, capMax);
+    const capPassive = Math.min(capPassiveReq, capMax);
 
     // Sample nearshore bathymetry over candidate nearshore water tiles.
     // We store into a fixed array then quantile over the filled prefix.
