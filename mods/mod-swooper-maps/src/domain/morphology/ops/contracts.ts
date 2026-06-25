@@ -14,6 +14,7 @@ import PlanIslandChainsContract from "./plan-island-chains/contract.js";
 import PlanRidgesContract from "./plan-ridges/contract.js";
 import PlanRoughLandsContract from "./plan-rough-lands/contract.js";
 import PlanVolcanoesContract from "./plan-volcanoes/contract.js";
+import ReconcileHeightfieldFromCoastContract from "./reconcile-heightfield-from-coast/contract.js";
 
 export const contracts = {
   computeBaseTopography: ComputeBaseTopographyContract,
@@ -32,6 +33,7 @@ export const contracts = {
   planRidges: PlanRidgesContract,
   planRoughLands: PlanRoughLandsContract,
   planVolcanoes: PlanVolcanoesContract,
+  reconcileHeightfieldFromCoast: ReconcileHeightfieldFromCoastContract,
 } as const;
 
 export default contracts;

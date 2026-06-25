@@ -16,6 +16,7 @@ import planIslandChains from "./plan-island-chains/index.js";
 import planRidges from "./plan-ridges/index.js";
 import planRoughLands from "./plan-rough-lands/index.js";
 import planVolcanoes from "./plan-volcanoes/index.js";
+import reconcileHeightfieldFromCoast from "./reconcile-heightfield-from-coast/index.js";
 
 const implementations = {
   computeBaseTopography,
@@ -34,6 +35,7 @@ const implementations = {
   planRidges,
   planRoughLands,
   planVolcanoes,
+  reconcileHeightfieldFromCoast,
 } as const satisfies DomainOpImplementationsForContracts<typeof contracts>;
 
 export default implementations;
@@ -56,4 +58,5 @@ export {
   planRidges,
   planRoughLands,
   planVolcanoes,
+  reconcileHeightfieldFromCoast,
 };
