@@ -53,11 +53,13 @@ describe("shipped map config identity", () => {
     expect(earthlike["foundation-lithosphere"].platePartition.plateCount).toBe(42);
     expect(earthlike["morphology-coasts"].knobs.shelfWidth).toBe("wide");
     expect(earthlike["morphology-coasts"].shelf).toMatchObject({
-      nearshoreDistance: 8,
+      breakDepthSampleRadius: 8,
       shallowQuantile: 0.45,
-      capTilesActive: 4,
-      capTilesPassive: 10,
-      capTilesMax: 14,
+      activeClosenessThreshold: 0.45,
+      activeBreakDepthFactor: 0.6,
+      passiveBreakDepthFactor: 1.25,
+      absoluteMaxShelfDepth: -30,
+      breakDepthScale: 1,
     });
     expect(earthlike["morphology-features"].mountainRanges).toMatchObject({
       rangeSystemSpacingTiles: 19.7,
