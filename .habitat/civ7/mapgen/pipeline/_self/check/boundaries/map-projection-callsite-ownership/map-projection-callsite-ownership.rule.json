@@ -1,0 +1,21 @@
+{
+  "id": "map-projection-callsite-ownership",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
+  "forbids": "Civ7 adapter map-projection calls outside their dedicated projection steps, physics stages reading engine projection state, or row-major odd-r tile callsites",
+  "why": "Map projection and Civ7 materialization capability ownership is structural authority.",
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/_self/check/boundaries/map-projection-callsite-ownership/map-projection-callsite-ownership.check.mjs"
+  ],
+  "remediate": null,
+  "message": "Move adapter projection calls to the owning map projection step or use authored artifacts upstream.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+    }
+  ]
+}

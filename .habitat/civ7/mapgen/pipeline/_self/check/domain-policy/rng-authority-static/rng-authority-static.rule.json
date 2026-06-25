@@ -1,0 +1,24 @@
+{
+  "id": "rng-authority-static",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/{domain,recipes/standard}/**/*.ts",
+  "forbids": "authored generation source calling engine RNG, Math.random, official generators, or internal mapgen-core RNG",
+  "why": "Swooper authored generation owns deterministic RNG policy instead of reaching through engine/runtime generator APIs.",
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/_self/check/domain-policy/rng-authority-static/rng-authority-static.check.mjs"
+  ],
+  "remediate": null,
+  "message": "Keep authored generation off engine RNG and official generators.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts"
+      ]
+    }
+  ]
+}

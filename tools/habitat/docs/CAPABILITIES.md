@@ -98,9 +98,9 @@ pure parser and audit model with fixtures.
 ## Rule Pack
 
 The rule registry is authored under the authority tree as
-`.habitat/**/_self/check/<rule-id>/<rule-id>.rule.json`. The current
+`.habitat/**/_self/check/<category>/<rule-id>/<rule-id>.rule.json`. The current
 compatibility index is
-`.habitat/habitat/toolkit/_self/triage/rule-pack-index/index.json`. At this
+`.habitat/habitat/toolkit/_self/triage/structure/rule-pack-index/index.json`. At this
 state it contains 60 registered rules:
 
 | Habitat lane | Count | Role |

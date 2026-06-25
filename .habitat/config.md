@@ -20,53 +20,36 @@ baseline, or manifest entry.
 ## Provisional Domain-Niche Hierarchy
 
 The current `.habitat` tree groups artifact packets first by domain niche, then
-by `_self/<kind>/`. This is a provisional classification layout, not a parseable
-manifest and not a completed runtime migration.
+by `_self/<kind>/<category>/`. This is a provisional classification layout, not
+a parseable manifest and not a completed runtime migration.
 
 ```text
 .habitat
-  global
-    repository
+  <niche>
+    <optional-child-niche>
       _self
-        check
-  habitat
-    toolkit
-      _self
-        check
-        triage
-  docs
-    content
-      _self
-        check
-    projects
-      _self
-        fix
-    site
-      _self
-        generate
+        <kind>
+          <category>
+            <artifact-packet>
+
   civ7
-    resources
-      _self
-        check
-    platform
-      _self
-        check
     mapgen
-      core
-        _self
-          check
       pipeline
         _self
           check
-      studio
-        _self
-          check
+            boundaries
+              recipe-domain-surface
+            execution-context
+              op-calls-op
+            domain-policy
+              rng-authority-static
 ```
 
 The niche names are domain nouns. They should not encode a layer, runner, file
 type, current defect, or artifact classification. For example, `platform` and
-`repository` are niches. Artifact kind directories live under `_self/`, not
-beside child niches.
+`repository` are niches. Artifact kind directories live under `_self/`, and
+universal subject category directories live under each artifact kind, not beside
+child niches.
 
 Policies at a niche level are intended to cascade to child niches when the final
 manifest model exists. Until then, the artifact packet folder is the practical

@@ -172,7 +172,7 @@ model.
 Current rule:
 
 ```text
-.habitat/<niche>/_self/<kind>/<packet>/
+.habitat/<niche>/_self/<kind>/<category>/<packet>/
 ```
 
 Key decisions:
@@ -187,7 +187,8 @@ Key decisions:
 
 Outcome: all current packets were moved out of provisional `boundaries`,
 `structure`, `capabilities`, and `contracts` buckets into the `_self/<kind>`
-shape.
+shape. A later category pass physically grouped packets beneath
+`_self/<kind>/<category>/`.
 
 What landed:
 
@@ -268,8 +269,8 @@ is not a surprise and should not be papered over as a one-off bug.
 Current direction: treat full-suite execution as a likely scrap-and-rebuild
 surface. The rebuild should start from the flattened authority tree:
 
-- discover executable packets from `.habitat/**/_self/<kind>/<packet>/`;
-- infer niche, artifact kind, and packet identity from the path;
+- discover executable packets from `.habitat/**/_self/<kind>/<category>/<packet>/`;
+- infer niche, artifact kind, category, and packet identity from the path;
 - exclude `_self/triage` from default execution;
 - refuse unknown, stale, or not-yet-admitted packets with explicit selector or
   admission diagnostics;
@@ -300,7 +301,7 @@ What this domino should do:
   - if it already has a Habitat rule, rewire the caller to
     `habitat check --rule ...`;
   - if it is a standalone script that should be Habitat-owned, move it into the
-    appropriate `.habitat/<niche>/_self/check/<packet>/` packet, register it,
+    appropriate `.habitat/<niche>/_self/check/<category>/<packet>/` packet, register it,
     add an empty or existing baseline as appropriate, and route it through
     `habitat check --rule ...`;
   - if it is redundant after a Habitat route exists, remove the alias instead

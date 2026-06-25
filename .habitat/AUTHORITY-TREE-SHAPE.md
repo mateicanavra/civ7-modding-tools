@@ -9,7 +9,7 @@ metadata, support-file ontology, blueprint schema, or niche cascade semantics.
 ## Core Decision
 
 Habitat preserves the current domain-niche jurisdiction model and stores
-exact-niche-owned artifact packets under `_self/<kind>/`.
+exact-niche-owned artifact packets under `_self/<kind>/<category>/`.
 
 Target shape:
 
@@ -18,15 +18,20 @@ Target shape:
   <niche>/
     _self/
       check/
-        <artifact-packet>/
+        <category>/
+          <artifact-packet>/
       fix/
-        <artifact-packet>/
+        <category>/
+          <artifact-packet>/
       generate/
-        <artifact-packet>/
+        <category>/
+          <artifact-packet>/
       migrate/
-        <artifact-packet>/
+        <category>/
+          <artifact-packet>/
       triage/
-        <artifact-packet>/
+        <category>/
+          <artifact-packet>/
 ```
 
 For nested niches, normal child directories remain child niches. `_self/` is the
@@ -39,8 +44,10 @@ separator for artifacts owned by that exact niche:
       pipeline/
         _self/
           check/
-            op-calls-op/
-            rng-authority-static/
+            execution-context/
+              op-calls-op/
+            domain-policy/
+              rng-authority-static/
           fix/
           generate/
           migrate/
@@ -49,7 +56,8 @@ separator for artifacts owned by that exact niche:
         recipes/
           _self/
             check/
-              recipe-domain-surface/
+              boundaries/
+                recipe-domain-surface/
 ```
 
 Do not invent new child niches such as `recipes/` or `stages/` unless the
@@ -94,6 +102,7 @@ tree semantically legible:
 - normal directories under a niche are child niches;
 - `_self/` contains this niche's own artifact packets;
 - artifact-kind directories live under `_self/`;
+- universal subject category directories live under artifact-kind directories;
 - child niches are never visually mixed with artifact-kind directories.
 
 Do not treat `_self/` as the final blueprint model. It is a practical separator
@@ -113,6 +122,24 @@ Accepted artifact-kind directories under `_self/` are:
 
 The mutability contract for executable kinds is defined in
 `ARTIFACT-KINDS.md`. `triage/` is not an executable kind; it is a holding area.
+
+### Subject Category Directory
+
+A subject category directory answers: what universal engineering purpose does
+this packet serve?
+
+Accepted category directories are defined in `SUBJECT-CATEGORIES.md`:
+
+- `boundaries`
+- `structure`
+- `contracts`
+- `execution-context`
+- `derived-artifacts`
+- `quality`
+- `domain-policy`
+
+Categories are not niches, runner names, artifact kinds, or domain-specific
+handles. They are a physical grouping level inside each artifact kind.
 
 ### Artifact Packet
 

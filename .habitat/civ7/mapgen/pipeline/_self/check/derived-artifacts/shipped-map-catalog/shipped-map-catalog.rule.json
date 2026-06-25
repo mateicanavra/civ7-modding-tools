@@ -1,0 +1,26 @@
+{
+  "id": "shipped-map-catalog",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "Swooper Maps shipped mod catalog artifacts",
+  "forbids": "transient Studio map config identifiers in shipped map catalog artifacts",
+  "why": "Studio's transient current map config must not leak into shipped Civ7 mod catalog metadata.",
+  "detect": ["bun", ".habitat/civ7/mapgen/pipeline/_self/check/derived-artifacts/shipped-map-catalog/shipped-map-catalog.check.ts"],
+  "remediate": "Regenerate shipped mod catalog artifacts without the transient studio-current map config.",
+  "message": "Shipped map catalog contains transient Studio map config identifiers.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/mod/config/config.xml",
+        "mods/mod-swooper-maps/mod/swooper-maps.modinfo",
+        "mods/mod-swooper-maps/mod/text/en_us/MapText.xml"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

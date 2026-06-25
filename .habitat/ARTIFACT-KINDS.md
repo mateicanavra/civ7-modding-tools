@@ -166,6 +166,6 @@ These are deliberately unresolved:
 - what the reduced supporting-file vocabulary should be;
 - what the eventual machine-readable admission model should contain.
 
-The next tree pass should flatten premature concern-layer nesting and classify
-current packets under niche-local `_self/<kind>/` directories before the
-resolver schema hardens around the current hierarchy.
+Current packets are physically grouped under niche-local
+`_self/<kind>/<category>/` directories. Artifact kind remains the mutability
+axis; category records the packet's universal engineering purpose.

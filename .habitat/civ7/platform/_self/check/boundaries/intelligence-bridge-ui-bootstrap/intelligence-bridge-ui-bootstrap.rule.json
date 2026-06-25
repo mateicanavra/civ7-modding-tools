@@ -1,0 +1,22 @@
+{
+  "id": "intelligence-bridge-ui-bootstrap",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-intelligence-bridge",
+  "lane": "enforced",
+  "scope": "Civ7 intelligence bridge UI bootstrap source",
+  "forbids": "UI bootstrap importing the root control-oRPC package or client/server RPC primitives instead of the narrow game-ui entrypoint",
+  "why": "The bridge mod is a thin game-runtime adapter; its UI bootstrap must use the narrow game UI install surface.",
+  "detect": ["bun", ".habitat/civ7/platform/_self/check/boundaries/intelligence-bridge-ui-bootstrap/intelligence-bridge-ui-bootstrap.check.ts"],
+  "remediate": "Import and install through @civ7/control-orpc/game-ui only.",
+  "message": "Civ7 intelligence bridge UI bootstrap crossed the game-ui boundary.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-civ7-intelligence-bridge/src/ui/civ7-intelligence-bridge.ts"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

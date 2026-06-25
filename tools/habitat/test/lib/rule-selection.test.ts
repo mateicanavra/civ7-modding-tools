@@ -285,10 +285,10 @@ describe("rule selector boundary", () => {
       executeCommandRulesEffect(
         [
           fakeCommandRule("direct-js", [
-            ".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.mjs",
+            ".habitat/civ7/mapgen/pipeline/_self/check/structure/direct/direct.check.mjs",
           ]),
           fakeCommandRule("direct-sh", [
-            ".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.sh",
+            ".habitat/civ7/mapgen/pipeline/_self/check/structure/direct/direct.check.sh",
           ]),
           fakeCommandRule("explicit-node", ["node", ".habitat/checks/explicit.check.mjs"]),
         ],
@@ -309,11 +309,11 @@ describe("rule selector boundary", () => {
     expect(requests).toEqual([
       {
         executable: "node",
-        argv: [".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.mjs"],
+        argv: [".habitat/civ7/mapgen/pipeline/_self/check/structure/direct/direct.check.mjs"],
       },
       {
         executable: "bash",
-        argv: [".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.sh"],
+        argv: [".habitat/civ7/mapgen/pipeline/_self/check/structure/direct/direct.check.sh"],
       },
       {
         executable: "node",
