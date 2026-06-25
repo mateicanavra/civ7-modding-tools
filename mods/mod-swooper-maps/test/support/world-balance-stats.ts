@@ -46,6 +46,11 @@ export type WorldBalanceStats = Readonly<{
   plannedMountainRegionNonMountainShare: number;
   plannedMountainRegionFlatInteriorShare: number;
   plannedLargestMountainRegionFlatPocketSize: number;
+  // Total flat-interior tiles across the mountain region (mountain-region tiles that are
+  // neither mountain nor hill). A seed-robust "settlement-scale interior valleys exist in
+  // volume" signal — unlike the single-largest-pocket extremal, which is hostage to whether
+  // those valleys form one contiguous blob or several.
+  plannedMountainRegionFlatInteriorTiles: number;
   plannedHillTiles: number;
   plannedHillShareOfPreLakeLand: number;
   plannedHillComponentCount: number;
@@ -145,6 +150,16 @@ export type WorldBalanceStats = Readonly<{
   wetlandShareOfPreLakeLand: number;
   reefFamilyTiles: number;
   reefFamilyShareOfWater: number;
+  coastWaterTiles: number;
+  // Share of all water that is DEEP ocean (TERRAIN_OCEAN), not coast/shelf. The hypsometry signal
+  // a drowned map collapses: a flat oceanic floor reads as all-shelf (low deep share), while a real
+  // margin→abyss profile yields deep-ocean-dominant water. Floored in the geography-budget gate so a
+  // re-drowning regression (deep share crashing toward zero) can no longer pass invisibly.
+  deepOceanShareOfWater: number;
+  // Cold reefs bank on shallow (coast/shelf) water; this is their share of that shelf, NOT
+  // of total water. Size/seed-stable carpet signal that gates true over-placement rather
+  // than how much ocean a seed rolled (reefFamilyShareOfWater is total-water-coupled).
+  coldReefShareOfCoastWater: number;
   vegetationFamilyTiles: number;
   vegetationFamilyShareOfPreLakeLand: number;
   vegetationFeatureFamiliesPresent: number;
@@ -389,6 +404,7 @@ function computeMountainRegionMetrics(args: {
   roughLandShare: number;
   nonMountainShare: number;
   flatInteriorShare: number;
+  flatInteriorTiles: number;
   largestFlatPocketSize: number;
 } {
   const size = Math.max(0, args.width * args.height);
@@ -423,6 +439,7 @@ function computeMountainRegionMetrics(args: {
     roughLandShare: shareOf(roughLandTiles, tiles),
     nonMountainShare: tiles === 0 ? 0 : 1 - mountainTiles / tiles,
     flatInteriorShare: shareOf(flatInteriorTiles, tiles),
+    flatInteriorTiles,
     largestFlatPocketSize: flatInteriorComponents.largestComponentSize,
   };
 }
@@ -906,6 +923,7 @@ export function collectWorldBalanceStats(
   );
 
   let waterTiles = 0;
+  let coastWaterTiles = 0;
   let postProjectionLandTiles = 0;
   let finalMountainTiles = 0;
   let finalHillTiles = 0;
@@ -930,6 +948,7 @@ export function collectWorldBalanceStats(
   const mountainTerrain = adapter.getTerrainTypeIndex("TERRAIN_MOUNTAIN");
   const hillTerrain = adapter.getTerrainTypeIndex("TERRAIN_HILL");
   const flatTerrain = adapter.getTerrainTypeIndex("TERRAIN_FLAT");
+  const coastTerrain = adapter.getTerrainTypeIndex("TERRAIN_COAST");
   const plainsBiome = adapter.getBiomeGlobal("BIOME_PLAINS");
   const volcanoFeatureType = adapter.getFeatureTypeIndex("FEATURE_VOLCANO");
   const featureCounts: Record<string, number> = Object.fromEntries(
@@ -955,8 +974,10 @@ export function collectWorldBalanceStats(
       const feature = adapter.getFeatureType(x, y);
       const resource = adapter.getResourceType(x, y) | 0;
       if (resource !== noResource) incrementCount(finalResourceTypeCounts, resource);
-      if (isWater) waterTiles += 1;
-      else {
+      if (isWater) {
+        waterTiles += 1;
+        if (terrain === coastTerrain) coastWaterTiles += 1;
+      } else {
         postProjectionLandTiles += 1;
         if (terrain === mountainTerrain) {
           finalMountainTiles += 1;
@@ -1224,6 +1245,7 @@ export function collectWorldBalanceStats(
       plannedMountainRegionMetrics.flatInteriorShare
     ),
     plannedLargestMountainRegionFlatPocketSize: plannedMountainRegionMetrics.largestFlatPocketSize,
+    plannedMountainRegionFlatInteriorTiles: plannedMountainRegionMetrics.flatInteriorTiles,
     plannedHillTiles,
     plannedHillShareOfPreLakeLand: shareOf(plannedHillTiles, preLakeLandTiles),
     plannedHillComponentCount: plannedHillComponents.componentCount,
@@ -1346,6 +1368,10 @@ export function collectWorldBalanceStats(
     wetlandShareOfPreLakeLand: preLakeLandTiles === 0 ? 0 : wetlandTiles / preLakeLandTiles,
     reefFamilyTiles,
     reefFamilyShareOfWater: waterTiles === 0 ? 0 : reefFamilyTiles / waterTiles,
+    coastWaterTiles,
+    deepOceanShareOfWater: waterTiles === 0 ? 0 : (waterTiles - coastWaterTiles) / waterTiles,
+    coldReefShareOfCoastWater:
+      coastWaterTiles === 0 ? 0 : (featureCounts.FEATURE_COLD_REEF ?? 0) / coastWaterTiles,
     vegetationFamilyTiles,
     vegetationFamilyShareOfPreLakeLand:
       preLakeLandTiles === 0 ? 0 : vegetationFamilyTiles / preLakeLandTiles,

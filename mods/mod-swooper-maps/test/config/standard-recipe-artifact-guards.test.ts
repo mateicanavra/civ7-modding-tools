@@ -71,19 +71,6 @@ function deriveSourceStudioUiMeta() {
   };
 }
 
-function hasRawOpEnvelope(value: unknown): boolean {
-  if (!value || typeof value !== "object") return false;
-  if (Array.isArray(value)) return value.some(hasRawOpEnvelope);
-  const obj = value as Record<string, unknown>;
-  if (
-    Object.prototype.hasOwnProperty.call(obj, "strategy") &&
-    Object.prototype.hasOwnProperty.call(obj, "config")
-  ) {
-    return true;
-  }
-  return Object.values(obj).some(hasRawOpEnvelope);
-}
-
 describe("standard recipe source artifact guards", () => {
   it("keeps generated standard schema and defaults aligned with source stages", () => {
     const sourceSchema = stableJson(deriveRecipeConfigSchema(STANDARD_STAGES as any)) as TSchema;
@@ -103,6 +90,5 @@ describe("standard recipe source artifact guards", () => {
     );
     expect(errors).toEqual([]);
     expect(STANDARD_RECIPE_CONFIG).toEqual(stripSchemaMetadataRoot(value));
-    expect(hasRawOpEnvelope(STANDARD_RECIPE_CONFIG)).toBe(false);
   });
 });

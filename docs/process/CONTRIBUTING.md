@@ -46,6 +46,7 @@ bun run test
 - MapGen Studio:
   ```bash
   bun run dev:mapgen-studio
+  bun run restart:mapgen-studio
   nx run mapgen-studio:build
   ```
 

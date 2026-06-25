@@ -1,3 +1,7 @@
+import {
+  resolveContinentalAbundance,
+  resolveContinentalRelief,
+} from "@mapgen/domain/foundation/config.js";
 import { defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
 
@@ -17,6 +21,31 @@ export default createStep(CrustEvolutionStepContract, {
       validate: (value) => wrapFoundationValidateNoDims(value, validateCrustArtifact),
     },
   }),
+  // The crust-character knobs are high-level coupled levers: each, when an author sets it, overrides
+  // its coupled compute-crust-evolution properties (abundance → survival + breakup-resistance;
+  // relief → freeboard + shelf depth + abyssal depth). Unset levers leave the raw op config (internal-as-public)
+  // untouched, so granular per-property authoring still works.
+  normalize: (config, ctx) => {
+    const { continentalAbundance, continentalRelief } = ctx.knobs as Readonly<{
+      continentalAbundance?: number;
+      continentalRelief?: number;
+    }>;
+    if (config.computeCrustEvolution.strategy !== "default") return config;
+    if (continentalAbundance === undefined && continentalRelief === undefined) return config;
+    return {
+      ...config,
+      computeCrustEvolution: {
+        ...config.computeCrustEvolution,
+        config: {
+          ...config.computeCrustEvolution.config,
+          ...(continentalAbundance === undefined
+            ? {}
+            : resolveContinentalAbundance(continentalAbundance)),
+          ...(continentalRelief === undefined ? {} : resolveContinentalRelief(continentalRelief)),
+        },
+      },
+    };
+  },
   run: (context, config, ops, deps) => {
     const mesh = deps.artifacts.foundationMesh.read(context);
     const crustInit = deps.artifacts.foundationCrustInit.read(context);

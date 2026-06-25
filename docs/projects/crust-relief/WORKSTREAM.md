@@ -6,8 +6,9 @@
 > (the proven root-cause analysis) and the measurement harness under [`tools/`](./tools).
 > **Do not re-derive the finding** — start from the brief and verify it.
 
-**Status:** investigation COMPLETE (root cause verified in code + falsification re-reproduced +
-full subsystem trace synthesized); design fixed; entering implementation (slice 2, consolidation).
+**Status:** reshape IMPLEMENTED + harness-verified + downstream-realigned (suite green). Slices 1–5
+landed (frame → de-dup → M1 → M2 → realign). Remaining: live in-game verification (blocked on
+exclusive access to the shared engine) + the `sundered-archipelago` cold-reef product decision (§10).
 **Base:** `agent-shelf-physical-break` (realism-thread tip, commit `e1bfde4b9`).
 **Branch:** `agent-crust-relief-frame` (worktree `wt-agent-crust-relief-frame`), graphite-tracked
 onto `agent-shelf-physical-break` → `agent-coast-r3d-shelf-diagnostic`.
@@ -300,9 +301,25 @@ shape-verified per the brief's "necessary, not sufficient" caveat.)
 
 ## 10. Open decisions (genuinely the user's)
 
-- **Cold-reef guarantee** (`sundered-archipelago` `requireColdReefs`, currently suspended):
-  restore it as closure proof, or retire by explicit product decision (brief §9). Defer to
-  closure; surface to user then.
+- **Cold-reef guarantee** (`sundered-archipelago` `requireColdReefs`, suspended) — **RESOLVED to
+  "rework the map" (do NOT retire).** The reshape gives this map deep-water margins (submerged crust
+  p50 −77) → cold=0 at 106×66, =2 at 80×50. But the map's **intent** (its own description) is
+  explicitly *reef-rich + shallow-sea*: "volcanic islands and **shallow seas** … island chains
+  connected by **coral reefs** … narrow channels." So the guarantee MATCHES intent; the current
+  *config* has drifted (the crust-relief reshape exposed it — steep deep margins, not shallow reef
+  seas). **Fix = a dedicated `sundered-archipelago` config rework** to re-embody shallow seas + reefs
+  + island chains (full pass, the map "could use a lot of love" — user). NOT a crust-physics change
+  and NOT a retire. Kept suspended (`false`) until the rework lands. Tracked as a follow-up (see §13).
+
+- **Metric profiles (intended direction, per user):** not every map should be held to the same
+  universal guarantees. The right long-term shape is a **per-map (or per-map-type) expectation
+  profile** that captures what each map is *supposed* to produce, with world-balance benchmarks run
+  against the map's profile rather than one global floor. This makes expectations map-appropriate
+  (e.g. sundered-archipelago *requires* cold reefs; a desert-mountains map does not) and lets us tell
+  whether the algorithms meet each map's intent. Documented here as the intended direction; a full
+  implementation is its own workstream (tracked, §13). The `CASES[]` table in
+  `world-balance-stats.test.ts` is the seed of this — it already carries per-map `reefMax`/
+  `requiredFeatures`/`requireColdReefs`/etc.; the profile system would formalize and externalize it.
 
 ---
 
@@ -314,10 +331,26 @@ shape-verified per the brief's "necessary, not sufficient" caveat.)
 | No cratonization mechanism; unused craton signals exist | 5-agent subsystem trace + source | ✅ verified-in-code |
 | Workspace builds; diagnostics run | nx build (21 proj) + dump run | ✅ done |
 | Falsification (config can't fix) reproduces | harness drowned/hypso, 3 runs + juicy | ✅ reproduced |
-| Reshaped relief is bimodal | harness hypso shape, ≥1 seed | ☐ not started |
-| Emergent relief on former platforms | harness + Studio + live | ☐ not started |
-| Holds across maps/seeds | multi-seed harness | ☐ not started |
-| In-game playable (closure) | live engine run + screenshots | ☐ not started |
+| Reshaped relief is bimodal / spread | harness hypso (broad spread ~0.57–0.97, all seeds+configs) | ✅ harness-verified |
+| Submerged crust no longer flat at 0 | drowned.mjs bathy p50 −5 to −77 by map (was ~−1) | ✅ harness-verified |
+| Emergent relief on former platforms | DROWNING ZONE 73.7%→7.6%; clearly-emergent 17.8%→51%; before/after PNG | ✅ harness-verified + visual |
+| Holds across maps/seeds | 4 earthlike seeds + shattered-ring/sundered/desert/juicy | ✅ verified |
+| Downstream coherent; full mod suite green | `bun test` 584 pass / 2 skip / 0 fail after realignment | ✅ done |
+| In-game playable (closure) | live engine run + screenshots | ✅ **in-game observed** — deployed from the studio worktree pinned to stack tip `fb558ddf4`; `studio-run-in-game-live` gate hit `[mapgen-complete]` + `"seed":1337` (no SIGSEGV/failure) on swooper-earthlike MAPSIZE_STANDARD; two appshots captured (zoom + macro) showing real continental shelves → deep ocean + mountain relief, fully playable. |
+
+---
+
+## 13. Follow-ups (tracked, out of this workstream's scope)
+
+- **`sundered-archipelago` config rework** — re-embody its shallow-seas + coral-reef + island-chain
+  intent (currently drifted to deep-water margins after the reshape); then restore `requireColdReefs`.
+  Full-pass config review (the map "could use a lot of love"). Separate workstream.
+- **Per-map metric profiles** — formalize/externalize per-map expectation profiles (seeded by the
+  `CASES[]` table) so world-balance benchmarks run against each map's intent, not one global floor.
+- **Continental fraction (optional lever)** — the maturity model still over-produces continental
+  crust (56% earthlike / 67% juicy vs Earth ~40%); a sharper maturity differentiation (or a
+  thickness/buoyancy-based continent classification) would lower `submergedPctOfCont` toward Earth's
+  by *physics*, not by tuning a ratio. Not required (shape acceptance met); recorded as a real lever.
 
 ---
 

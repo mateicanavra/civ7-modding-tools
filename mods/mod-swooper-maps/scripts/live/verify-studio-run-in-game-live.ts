@@ -7,12 +7,15 @@ import { fileURLToPath } from "node:url";
 
 import {
   type Civ7DirectControlOptions,
+  type Civ7SavedGameConfiguration,
+  type Civ7SavedGameConfigurationRef,
   type Civ7SetupOptionValue,
   checkCiv7DirectControlHealth,
   createCiv7ControlRequestId,
   DEFAULT_CIV7_SCRIPTING_LOG,
   getCiv7SetupMapRows,
   getCiv7SetupSnapshot,
+  listCiv7SavedGameConfigurations,
   runCiv7SinglePlayerFromSetup,
   snapshotFile,
   waitForFreshLogMarkers,
@@ -29,6 +32,7 @@ type LiveProofArgs = {
   seed?: number;
   gameSeed?: number;
   playerCount?: number;
+  savedConfig?: string;
   fromRunningGame: "reject" | "exit-to-shell";
   mutate: boolean;
   options: Record<string, Civ7SetupOptionValue>;
@@ -59,6 +63,7 @@ Read-only default:
 Mutating setup/start proof:
   --mutate --map-script <file> --map-size <size> --seed <seed>
   [--game-seed <seed>] [--player-count <n>]
+  [--saved-config <name|fileName|path>]
   [--from-running-game reject|exit-to-shell]
   [--option Key=value]
 
@@ -66,6 +71,15 @@ Notes:
   Without --mutate this only checks LSQ health, setup snapshot, and optional
   map-row visibility. With --mutate it prepares and starts a disposable
   single-player session through @civ7/direct-control.
+
+  --saved-config loads one of Civ7's saved game setups (.Civ7Cfg) before the
+  map is applied, so the launched game uses that config's leader/civ/difficulty/
+  speed/player-count. The value matches a config by displayName, fileName,
+  id, or absolute path (case-insensitive; e.g. "ToT Config"). Omit
+  --player-count to honor the saved config's own count; any --option is applied
+  on top of the loaded config. Note: --seed/--map-script/--map-size still govern
+  the map (Civ7 stores saved seeds as signed 32-bit, and prepare overrides the
+  seed from --seed regardless), so the saved config's own map/seed are not used.
 
   For {swooper-maps}/maps/*.js, this verifier also blocks stale installed mod
   bundles by comparing the local generated map script with the deployed Civ Mods
@@ -161,6 +175,9 @@ function parseArgs(argv: string[]): LiveProofArgs {
       case "--player-count":
         args.playerCount = parseInteger(value(), arg);
         break;
+      case "--saved-config":
+        args.savedConfig = value();
+        break;
       case "--from-running-game": {
         const mode = value();
         if (mode !== "reject" && mode !== "exit-to-shell") {
@@ -203,6 +220,32 @@ function parseOptionValue(value: string): Civ7SetupOptionValue {
   if (value === "false") return false;
   if (/^-?\d+$/.test(value)) return Number(value);
   return value;
+}
+
+/**
+ * Resolve a `--saved-config` query to the saved game configurations it matches.
+ *
+ * Matches case-insensitively against a config's displayName, fileName,
+ * fileName-without-extension, id, or absolute path. Returns every distinct
+ * file that matched (deduped by path) so the caller can reject ambiguous
+ * queries instead of silently picking one.
+ */
+export function matchSavedGameConfigurations(
+  configurations: ReadonlyArray<Civ7SavedGameConfiguration>,
+  query: string
+): ReadonlyArray<Civ7SavedGameConfiguration> {
+  const needle = query.trim().toLowerCase();
+  const byPath = new Map<string, Civ7SavedGameConfiguration>();
+  for (const config of configurations) {
+    const matched =
+      config.id.toLowerCase() === needle ||
+      config.displayName.toLowerCase() === needle ||
+      config.fileName.toLowerCase() === needle ||
+      config.fileName.replace(/\.civ7cfg$/i, "").toLowerCase() === needle ||
+      config.path.toLowerCase() === needle;
+    if (matched) byPath.set(config.path, config);
+  }
+  return [...byPath.values()];
 }
 
 export function resolveSwooperMapScriptPaths(args: {
@@ -453,6 +496,40 @@ async function main(): Promise<number> {
     }
 
     report.mutationAttempted = true;
+
+    let savedConfigRef: Civ7SavedGameConfigurationRef | undefined;
+    if (args.savedConfig) {
+      const list = await listCiv7SavedGameConfigurations();
+      const matches = matchSavedGameConfigurations(list.configurations, args.savedConfig);
+      if (matches.length === 0) {
+        throw new Error(
+          `No saved game config matched "${args.savedConfig}" in ${list.directory}. ` +
+            `Available: ${list.configurations.map((config) => config.displayName).join(", ") || "(none)"}`
+        );
+      }
+      if (matches.length > 1) {
+        throw new Error(
+          `--saved-config "${args.savedConfig}" is ambiguous; matched ${matches.length}: ` +
+            matches.map((config) => config.fileName).join(", ")
+        );
+      }
+      const matched = matches[0]!;
+      savedConfigRef = {
+        id: matched.id,
+        displayName: matched.displayName,
+        fileName: matched.fileName,
+        path: matched.path,
+      };
+      stages.push({
+        name: "saved-config-resolution",
+        ok: true,
+        query: args.savedConfig,
+        directory: list.directory,
+        resolved: savedConfigRef,
+        summary: matched.summary,
+      });
+    }
+
     const scriptingLogPath = process.env.CIV7_SCRIPTING_LOG ?? DEFAULT_CIV7_SCRIPTING_LOG;
     const scriptingSnapshot = await snapshotFile(scriptingLogPath);
     const run = await runCiv7SinglePlayerFromSetup(
@@ -462,6 +539,7 @@ async function main(): Promise<number> {
         seed: args.seed,
         gameSeed: args.gameSeed,
         playerCount: args.playerCount,
+        ...(savedConfigRef ? { savedConfig: savedConfigRef } : {}),
         options: args.options,
         fromRunningGame: args.fromRunningGame,
         waitForTuner: true,
