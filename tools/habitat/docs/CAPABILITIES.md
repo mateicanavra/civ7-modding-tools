@@ -56,7 +56,7 @@ Root scripts also expose graph-owned entrypoints:
   invocations are for diagnostics and focused proof, not package script policy.
 - `habitat:habitat:check` runs the Toolkit-owned Habitat rules for CLI
   smoke, boundary taxonomy, service-module shape, and other registered
-  `@habitat/cli` rules.
+  `habitat` owner rules.
 - Native `grit patterns test` validation is not exposed as a current package
   script or graph target because this checkout no longer has an active testable
   pattern corpus for that command.
@@ -97,8 +97,10 @@ pure parser and audit model with fixtures.
 
 ## Rule Pack
 
-The rule registry is `.habitat/rules/index.json` and
-`.habitat/rules/<rule-id>/rule.json`. At this
+The rule registry is authored under the authority tree as
+`.habitat/**/_self/check/<rule-id>/<rule-id>.rule.json`. The current
+compatibility index is
+`.habitat/habitat/toolkit/_self/triage/rule-pack-index/index.json`. At this
 state it contains 60 registered rules:
 
 | Habitat lane | Count | Role |
@@ -118,12 +120,12 @@ Lane state:
 Owner state:
 
 - `mod-swooper-maps`: 36 rules
-- `@habitat/cli`: 17 rules
-- `@swooper/mapgen-core`: 1 rule
-- `@civ7/control-orpc`: 1 rule
-- `@mateicanavra/civ7-sdk`: 1 rule
+- `habitat`: 17 rules
+- `mapgen-core`: 1 rule
+- `control-orpc`: 1 rule
+- `civ7-sdk`: 1 rule
 - `mapgen-studio`: 2 rules
-- `@civ7/docs`: 2 rules
+- `civ7-docs`: 2 rules
 
 ## Baselines
 

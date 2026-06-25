@@ -142,8 +142,8 @@ dedicated refactor worktree:
   `tools/habitat/src/service/modules/hook/router/`, but local TODOs
   still indicate procedure orchestration is being pushed into policy/context
   helpers instead of staying in router/module-owned procedure flow.
-- `tools/habitat/scripts/write-generator-schemas.ts` still references
-  old `service/modules/scaffold` schema paths while scaffold now lives under
+- `.habitat/habitat/toolkit/_self/triage/generator-schemas/write-generator-schemas.ts`
+  owns the provisional generated-schema adapter while scaffold source lives under
   `src/generators/scaffold`.
 - `tools/habitat/src/nx-plugin.ts`,
   `tools/habitat/src/service/model/validation/policy/target-routing.policy.ts`,

@@ -140,6 +140,7 @@ function refuse(
 function projectScaffoldWriteSet(root: string): string[] {
   return [
     path.posix.join(root, "package.json"),
+    path.posix.join(root, "project.json"),
     path.posix.join(root, "tsconfig.json"),
     path.posix.join(root, "src", "index.ts"),
     path.posix.join(root, "test", "index.test.ts"),

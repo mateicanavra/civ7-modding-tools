@@ -26,7 +26,7 @@ const projects: WorkspaceProject[] = [
     root: "packages/library-a",
     sourceRoot: null,
     tags: ["kind:foundation"],
-    targets: [{ name: "build" }, { name: "test:architecture-core-purity" }],
+    targets: [{ name: "build" }, { name: "test" }],
   },
   {
     name: "policy-b",

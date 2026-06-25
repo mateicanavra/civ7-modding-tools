@@ -231,7 +231,7 @@ Proof gates:
 - Habitat boundary-taxonomy, classify, and workspace-graph tests
 - Representative execution: `nx build civ7-cli --skip-nx-cache`,
   `nx run civ7-cli -t test:play --skip-nx-cache`, and
-  `nx run mod-swooper-maps -t test:architecture-cutover --skip-nx-cache`
+  `nx run mod-swooper-maps:habitat:check --skip-nx-cache`
 
 ## Hard Core
 
@@ -391,7 +391,7 @@ outside package-script inference.
 | Surface | Disposition | Reason |
 | --- | --- | --- |
 | Root `deploy:mods` | Thin Nx entrypoint | The root script now uses `nx run-many --targets=deploy`; Nx discovers the two deploy-capable mod projects instead of a hand-maintained project list. |
-| Root `nx.json` single-project defaults | Moved/deleted root policy | `build:studio-recipes`, `test:studio-run-in-game`, and `test:architecture-cutover` resolve only on `mod-swooper-maps`, so their graph semantics belong on the MapGen project. `deploy:studio` resolves on no project and is removed instead of preserving a hidden generated-state expectation. |
+| Root `nx.json` single-project defaults | Moved/deleted root policy | `build:studio-recipes` and `test:studio-run-in-game` resolve only on `mod-swooper-maps`, so their graph semantics belong on the MapGen project. Retired `test:architecture-*` names are canaries for embedded hidden-authority migration, not live graph targets. `deploy:studio` resolves on no project and is removed instead of preserving a hidden generated-state expectation. |
 | `apps/mapgen-studio` `dev` | Graph-owned target | The real Studio dev entrypoint is `nx run mapgen-studio:dev` because the graph starts the frontend through `dev:frontend`, depends on the server daemon, and marks the task continuous. The package script `dev` was removed to avoid bypassing orchestration. |
 | `apps/mapgen-studio` `build` | Graph-owned target | `build` is the aggregate that depends on `build:vite` and declares `dist/**`; the package script `build` was removed so the command surface does not bypass graph dependencies. |
 | `apps/mapgen-studio` `check`, `test`, `build:vite` | Graph-owned targets | The explicit targets own their commands plus Studio recipe dependencies and `dist/**` outputs. Same-name package scripts were removed so the graph is the only command surface for these tasks. |
@@ -581,7 +581,8 @@ The clean Habitat model is:
 - `.habitat` owns authority content.
 - `tools/habitat` owns the CLI/runtime.
 - Nx runs Habitat targets.
-- `targetDefaults["habitat:*"]` builds `@habitat/cli` before Habitat targets.
+- `targetDefaults["habitat:check"]` builds the `habitat` project before
+  owner-level Habitat check targets.
 - Rule-level targets may remain generated as `habitat:rule:<id>` where useful.
 - Owner-level `habitat:check` should come from Habitat authority data, not a
   hand-copied package script list.
@@ -781,7 +782,7 @@ symptom was fixed.
 | Studio build output | `mapgen-studio:build` graph metadata | `mapgen-studio:build` depends on `build:vite`, so the build target honestly produces `dist`. Generated `habitat:check` then depends on `build` before bundle-output checks. |
 | ORPC check aggregation | `control-orpc:check` graph metadata | Keep the no-op check aggregator, but depend on `check:types` and generated `habitat:check` instead of a package `lint` rule list. |
 | Preserved operational surfaces | Owning packages and existing explicit Nx metadata | CLI/Oclif phases, Direct Control `project.json`, deploys, generated-output targets, MapGen strict guardrail exception, and package-owned diagnostics stay explicit. |
-| Root target defaults | Shared root policy only | Keep broad defaults such as `build`, `check`, `test`, `lint`, `dev`, `deploy`, `verify`, `clean`, and `habitat:check`; remove or localize single-project and dead defaults such as `build:studio-recipes`, `test:studio-run-in-game`, `test:architecture-cutover`, and `deploy:studio`. |
+| Root target defaults | Shared root policy only | Keep broad defaults such as `build`, `check`, `test`, `lint`, `dev`, `deploy`, `verify`, `clean`, and `habitat:check`; remove or localize single-project and dead defaults such as `build:studio-recipes`, `test:studio-run-in-game`, and `deploy:studio`. Retired `test:architecture-*` target names are recorded as package-local canaries for the embedded hidden-authority migration. |
 
 Important resolved-graph note: in this checkout, `targetDefaults["habitat:*"]`
 with `dependsOn` overwrote generated alias target dependencies instead of

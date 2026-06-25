@@ -20,14 +20,6 @@
         "cwd": "mods/mod-civ7-intelligence-bridge"
       }
     },
-    "test:architecture-bundle-runtime-imports": {
-      "command": "bun test test/controller-mod-package.test.ts",
-      "dependsOn": ["build"],
-      "cache": true,
-      "options": {
-        "cwd": "mods/mod-civ7-intelligence-bridge"
-      }
-    },
     "gen:modinfo": {
       "command": "bun ./scripts/generate-mod-artifacts.ts",
       "cache": true,

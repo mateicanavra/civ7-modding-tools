@@ -172,7 +172,7 @@ describe("rule registry facts", () => {
             ownerTool: "nx",
             graphTarget: {
               project: "mod-swooper-maps",
-              target: "test:architecture-core-purity",
+              target: "habitat:check",
             },
           }),
           baseRule({ id: "direct-rule" }),
@@ -196,7 +196,7 @@ describe("rule registry facts", () => {
         ownerRoot: "mods/mod-swooper-maps",
         alias: {
           kind: "depends-on",
-          target: { project: "mod-swooper-maps", target: "test:architecture-core-purity" },
+          target: { project: "mod-swooper-maps", target: "habitat:check" },
         },
       },
       {

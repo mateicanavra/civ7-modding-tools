@@ -136,14 +136,14 @@ describe("vendor providers", () => {
   test("NxProvider batches graph-owned targets through run-many", async () => {
     const request = {
       projects: ["mod-swooper-maps", "mapgen-core"],
-      targets: ["test:architecture-cutover", "test:architecture-core-purity"],
+      targets: ["habitat:check", "test"],
     };
 
     expect(runManyArgv(request)).toEqual([
       "nx",
       "run-many",
       "--targets",
-      "test:architecture-cutover,test:architecture-core-purity",
+      "habitat:check,test",
       "--projects",
       "mod-swooper-maps,mapgen-core",
       "--outputStyle=static",

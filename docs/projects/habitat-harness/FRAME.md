@@ -225,7 +225,7 @@ H1's official migration path completed and the later
 - Current command boundary after the lint-topology repair: `bun run lint` is
   the fast repo-wide Biome hygiene gate. Full Habitat structural proof remains
   explicit through `nx run-many -t habitat:check`,
-  `@habitat/cli:habitat:check:all`, `bun run verify`, and
+  `habitat:habitat:check:all`, `bun run verify`, and
   `bun run check`; it is not hidden inside root lint.
 
 ## 5. Spec draft disposition

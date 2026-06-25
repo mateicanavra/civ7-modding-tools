@@ -146,7 +146,7 @@ Update:
 - `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/rules/rules.json`:
   expected exit 0; command behavior receipt that registry ownership remains
   discoverable.
-- `nx show project @habitat/cli`: expected exit 0; graph metadata
+- `nx show project habitat`: expected exit 0; graph metadata
   receipt that registry-derived targets remain visible.
 - Cache stance: graph metadata may be cached, but the packet must record the
   exact JSON target metadata used.

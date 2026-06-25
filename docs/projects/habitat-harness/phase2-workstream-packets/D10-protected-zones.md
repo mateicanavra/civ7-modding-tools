@@ -119,7 +119,7 @@ Update:
 
 - `bun run --cwd tools/habitat test -- test/lib/generated-zones.test.ts test/lib/hooks.test.ts`:
   expected exit 0 after the packet creates or updates generated-zone fixtures.
-- `nx run @habitat/cli:generated:check`: expected exit 0; current
+- `nx run habitat:generated:check`: expected exit 0; current
   generated-zone freshness receipt.
 - `bun run habitat check --staged --tool file-layer --json`: expected exit 0
   for clean staged state and nonzero for injected protected-zone mutation.

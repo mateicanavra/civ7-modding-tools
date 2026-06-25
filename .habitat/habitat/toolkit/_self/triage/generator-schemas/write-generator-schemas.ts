@@ -1,11 +1,9 @@
 // Habitat-owned generated-schema adapter.
 //
-// Integration note: this file has moved into the provisional niche hierarchy,
-// but the generator bridge still writes and package metadata still reads the
-// old `.habitat/tooling/components/generator-schemas` paths. A follow-up
-// Toolkit integration slice must choose the accepted resolver path and update
-// this adapter, `tools/habitat/generators.json`, schema support docs,
-// and package scripts together.
+// Integration note: generator metadata now reads the schemas from this
+// authority-tree packet. The Toolkit still needs a first-class generator schema
+// packet model, but the compatibility writer no longer emits the retired
+// `.habitat/tooling/components` paths.
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -15,8 +13,8 @@ import { HabitatProjectGeneratorNxSchema } from "@habitat/cli/generators/scaffol
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "..", "..");
 const schemaPaths = [
-  ".habitat/tooling/components/generator-schemas/scaffold/project/schema.json",
-  ".habitat/tooling/components/generator-schemas/scaffold/pattern/schema.json",
+  ".habitat/habitat/toolkit/_self/triage/generator-schemas/scaffold-project.schema.json",
+  ".habitat/habitat/toolkit/_self/triage/generator-schemas/scaffold-pattern.schema.json",
 ] as const;
 
 writeSchema(schemaPaths[0], HabitatProjectGeneratorNxSchema);

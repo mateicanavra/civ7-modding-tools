@@ -1,15 +1,5 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "name": "mapgen-core",
-  "tags": ["kind:engine"],
-  "targets": {
-    "test:architecture-core-purity": {
-      "command": "bun test test/architecture/core-purity.test.ts",
-      "dependsOn": ["^build"],
-      "cache": true,
-      "options": {
-        "cwd": "packages/mapgen-core"
-      }
-    }
-  }
+  "tags": ["kind:engine"]
 }
