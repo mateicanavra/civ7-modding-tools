@@ -40,6 +40,15 @@ const modes = new Map<string, Mode>([
     },
   ],
   [
+    "output-parity",
+    {
+      script: "scripts/live/verify-output-parity.ts",
+      description:
+        "Load a map live and diff its engine output vs the headless recipe surface (Studio-free).",
+      live: true,
+    },
+  ],
+  [
     "resource-delta-feasibility",
     {
       script: "scripts/live/verify-resource-delta-feasibility.ts",
