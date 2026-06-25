@@ -31,6 +31,15 @@ export const THICKNESS_BUOYANCY_BOOST = 0.25;
 /** Maturity at/above which a cell is classified continental crust. */
 export const MATURITY_CONTINENT_THRESHOLD = 0.55;
 
+/**
+ * Continentality ramp: maturity at which crust begins / finishes behaving as felsic continental
+ * lithosphere (thick-rooted, buoyant) rather than mafic oceanic lithosphere (dense, subsiding).
+ * Brackets {@link MATURITY_CONTINENT_THRESHOLD} so the oceanic↔continental transition is smooth,
+ * not a hard discontinuity at the type cut.
+ */
+export const CONTINENTAL_FADE_LO = 0.4;
+export const CONTINENTAL_FADE_HI = 0.6;
+
 /** Lithospheric-strength factor floors (thermalAge / maturity / thickness). */
 export const STRENGTH_BASE_MIN = 0.45;
 export const STRENGTH_MATURITY_MIN = 0.5;
@@ -42,16 +51,42 @@ export interface CrustBuoyancyInputs {
   thermalAge01: number;
 }
 
+/** Hermite smoothstep in [0,1]; 0 below edge0, 1 above edge1. */
+function smoothstep(edge0: number, edge1: number, x: number): number {
+  if (edge1 <= edge0) return x >= edge1 ? 1 : 0;
+  const t = clamp01((x - edge0) / (edge1 - edge0));
+  return t * t * (3 - 2 * t);
+}
+
 /**
- * Isostatic crust buoyancy in [0,1] from crust-history state. Higher rides higher
- * (emerges as land / shallow shelf); lower sinks (deep ocean). `baseElevation := this`,
- * and base-topography linearly remaps it into the absolute relief band — so the SHAPE
- * of this function's output distribution is the hypsometry.
+ * Continentality in [0,1]: 0 = oceanic (mafic, dense, subsides with age), 1 = continental
+ * (felsic, thick-rooted, buoyant), ramping across the continent threshold. Gates processes
+ * that physically act on only one crust type.
+ */
+export function continentality(maturity: number): number {
+  return smoothstep(CONTINENTAL_FADE_LO, CONTINENTAL_FADE_HI, clamp01(maturity));
+}
+
+/**
+ * Isostatic crust buoyancy in [0,1] from crust-history state. Higher rides higher (emerges as
+ * land / shallow shelf); lower sinks (deep ocean). `baseElevation := this`, and base-topography
+ * linearly remaps it into the absolute relief band — so the SHAPE of this function's output
+ * distribution IS the hypsometry.
+ *
+ * Thermal subsidence is an OCEANIC process: cooling mafic lithosphere contracts and sinks with
+ * thermal age (young ridge high → old abyss deep). Continental (felsic, thick-rooted) crust does
+ * NOT thermally subside — old cratons are the highest, most stable crust. We therefore gate the
+ * subsidence term by (1 − continentality): full on oceanic crust, fading to zero as the cell
+ * matures continental. This lifts the aged continental band off the waterline instead of dragging
+ * exactly the crust that should ride highest down onto it. (It also retires the prior mis-model
+ * where a saturated, signal-free continental thermalAge applied a uniform ~−0.21 to all crust.)
  */
 export function deriveBuoyancy(params: CrustBuoyancyInputs): number {
-  const maturityBoost = MATURITY_BUOYANCY_BOOST * clamp01(params.maturity);
+  const maturity = clamp01(params.maturity);
+  const maturityBoost = MATURITY_BUOYANCY_BOOST * maturity;
   const thicknessBoost = THICKNESS_BUOYANCY_BOOST * clamp01(params.thickness);
-  const subsidence = OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01);
+  const oceanic = 1 - continentality(maturity);
+  const subsidence = OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01) * oceanic;
   return clamp01(CRUST_BASE_BUOYANCY + maturityBoost + thicknessBoost - subsidence);
 }
 
