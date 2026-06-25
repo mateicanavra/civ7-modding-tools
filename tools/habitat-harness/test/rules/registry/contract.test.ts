@@ -26,9 +26,9 @@ describe("rule registry contract", () => {
       readText: readTextSync,
     }).rules;
 
-    expect(rules).toHaveLength(55);
+    expect(rules).toHaveLength(60);
     expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(29);
-    expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(18);
+    expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(23);
     expect(rules.filter((rule) => rule.ownerTool === "file-layer")).toHaveLength(5);
     expect(rules.filter((rule) => rule.ownerTool === "format-check")).toHaveLength(1);
     expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(1);

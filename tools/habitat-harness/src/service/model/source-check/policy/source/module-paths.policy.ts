@@ -1,11 +1,9 @@
-// Habitat hierarchy V1 integration note: these paths still point at the old
-// `.habitat/tooling/components/legacy-source-check` compatibility shape. The
-// legacy rule modules now live under the provisional Habitat authority niche,
-// and a later Toolkit slice must either rewire this loader through the accepted
-// authority resolver or remove it when the remaining source-check rules convert
-// to Grit-backed subjects.
+// Habitat hierarchy V1 integration note: source-check execution now searches
+// subject-local `.rule.mjs` files under `.habitat`, while this legacy module
+// path remains the fallback diagnostic label until source-check disappears or
+// the final authority resolver owns module lookup.
 export const sourceCheckRuleRuntimeRepoPath =
-  ".habitat/tooling/components/legacy-source-check/runtime/rule-runtime.policy.mjs";
+  ".habitat/habitat/toolkit/_self/triage/legacy-source-check/rule-runtime.policy.mjs";
 
 export const sourceCheckRuleModulesRepoPath =
   ".habitat/tooling/components/legacy-source-check/rules";

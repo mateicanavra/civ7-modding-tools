@@ -58,11 +58,13 @@
           "build:bin-mode"
         ]
       },
-      "validate:boundary-taxonomy": {
-        "command": "bun run --cwd tools/habitat-harness validate:boundary-taxonomy",
+      "lint": {
+        "command": "bun tools/habitat-harness/bin/dev.ts check --rule cli-smoke --rule boundary-taxonomy --rule service-module-shape",
         "cache": true,
         "inputs": [
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/boundary-taxonomy/validate-boundary-taxonomy.ts",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/check/cli-smoke/cli-smoke.check.ts",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/check/boundary-taxonomy/boundary-taxonomy.check.ts",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/check/service-module-shape/service-module-shape.check.ts",
           "{workspaceRoot}/eslint.boundaries.config.mjs",
           "{workspaceRoot}/nx.json",
           "{workspaceRoot}/package.json",
@@ -77,42 +79,17 @@
           "{workspaceRoot}/packages/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
           "{workspaceRoot}/scripts/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
           "{workspaceRoot}/tools/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/legacy-source-check/**/*.mjs",
+          "{workspaceRoot}/tools/habitat-harness/src/service/modules/**",
+          "{workspaceRoot}/tools/habitat-harness/src/service/model/**",
+          "{workspaceRoot}/tools/habitat-harness/package.json",
           "!{workspaceRoot}/**/dist/**",
           "!{workspaceRoot}/**/types/**",
           "!{workspaceRoot}/**/mod/**",
           "!{workspaceRoot}/**/example-generated-mod/**"
         ],
         "metadata": {
-          "description": "validates Habitat boundary taxonomy against manifests, Nx metadata, boundary config, and graph edges"
-        }
-      },
-      "validate:grit-patterns": {
-        "command": "bun run --cwd tools/habitat-harness validate:grit-patterns",
-        "cache": true,
-        "inputs": [
-          "{workspaceRoot}/.grit/grit.yaml",
-          "{workspaceRoot}/.habitat/patterns/**/*.md",
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/legacy-source-check/**/*.mjs",
-          "{workspaceRoot}/package.json",
-          "{workspaceRoot}/bun.lock",
-          "{workspaceRoot}/tools/habitat-harness/package.json"
-        ],
-        "metadata": {
-          "description": "validates checked-in Habitat Grit pattern fixtures through native grit patterns test"
-        }
-      },
-      "validate:service-module-shape": {
-        "command": "bun run --cwd tools/habitat-harness validate:service-module-shape",
-        "cache": true,
-        "inputs": [
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/service-module-shape/validate-service-module-shape.ts",
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/legacy-source-check/**/*.mjs",
-          "{workspaceRoot}/tools/habitat-harness/src/service/modules/**",
-          "{workspaceRoot}/tools/habitat-harness/src/service/model/**",
-          "{workspaceRoot}/tools/habitat-harness/package.json"
-        ],
-        "metadata": {
-          "description": "validates collect-style Habitat service module and service-model file-kind topology"
+          "description": "runs admitted Habitat Toolkit read-only authority checks"
         }
       }
     }
@@ -122,10 +99,7 @@
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat-harness --testTimeout=30000",
-    "validate:cli-smoke": "bun run ../../.habitat/habitat/toolkit/_self/triage/cli-smoke/validate-cli-smoke.ts",
-    "validate:boundary-taxonomy": "env -u FORCE_COLOR bun run ../../.habitat/habitat/toolkit/_self/triage/boundary-taxonomy/validate-boundary-taxonomy.ts",
-    "validate:service-module-shape": "env -u FORCE_COLOR bun run ../../.habitat/habitat/toolkit/_self/triage/service-module-shape/validate-service-module-shape.ts",
-    "validate:grit-patterns": "env -u FORCE_COLOR bun run --cwd ../.. grit patterns test",
+    "lint": "bun ./bin/dev.ts check --rule cli-smoke --rule boundary-taxonomy --rule service-module-shape",
     "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_self/triage/generator-schemas/write-generator-schemas.ts",
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist oclif.manifest.json",

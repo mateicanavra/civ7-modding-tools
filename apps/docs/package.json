@@ -19,8 +19,7 @@
         "cache": false,
         "outputs": [],
         "dependsOn": [
-          "validate:docs",
-          "check:links"
+          "lint"
         ]
       },
       "build": {
@@ -41,14 +40,13 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "check:ts": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config ../../vitest.config.ts --project docs",
-    "check:links": "bun run scripts/broken-links-pages-only.ts",
+    "lint": "bun ../../tools/habitat-harness/bin/dev.ts check --rule docs-site-config --rule docs-site-links",
     "validate": "node -e \"\"",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",
     "fix:mdx-links": "bun run scripts/fix-mdx-links.ts",
     "sync": "bun run scripts/sync-resources.ts",
-    "build": "node -e \"\"",
-    "validate:docs": "bun run scripts/validate-docs.ts"
+    "build": "node -e \"\""
   },
   "devDependencies": {
     "mintlify": "^4.2.616"

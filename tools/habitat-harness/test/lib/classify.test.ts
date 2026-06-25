@@ -26,9 +26,7 @@ const fixtureProjects = [
     "generated:check",
     "source:check",
     "test",
-    "validate:boundary-taxonomy",
-    "validate:grit-patterns",
-    "validate:service-module-shape",
+    "lint",
   ]),
   project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
   project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
@@ -322,9 +320,7 @@ index 3333333..4444444 100644
       graph: graphReady([
         project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
           "check",
-          "validate:boundary-taxonomy",
-          "validate:grit-patterns",
-          "validate:service-module-shape",
+          "lint",
         ]),
         project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", []),
       ]),

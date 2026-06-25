@@ -1,6 +1,4 @@
-// Habitat-owned command adapter. Integration note: this smoke check is still
-// invoked through the Habitat package script; it should become an admitted
-// command-check or test-check rule before being treated as structural authority.
+// Habitat-owned command-check adapter for CLI smoke validation.
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 

@@ -64,14 +64,12 @@ vi.mock(
   }
 );
 
-const prePushAffectedTargets =
-  "check,validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
+const prePushAffectedTargets = "check,lint";
 const prePushSourceArtifactTargets = "source:check";
 const prePushNonSourceRuleArtifactTargets = "habitat:rule:import-boundaries";
 const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:import-boundaries";
-const prePushBoundaryTaxonomyTargets = "validate:boundary-taxonomy";
-const prePushStructuralTargetDeclarationTargets =
-  "validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape";
+const prePushBoundaryTaxonomyTargets = "lint";
+const prePushStructuralTargetDeclarationTargets = "lint";
 const prePushNoChangedSourceCheck =
   "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n";
 
@@ -294,7 +292,7 @@ describe("Habitat hook service", () => {
   test("uses source-check target only for source rule artifact pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath = ".habitat/rules/rng-authority-static/rule.json";
+    const changedPath = ".habitat/rules/recipe-runtime-domain-ops/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -370,7 +368,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPaths = [
-      ".habitat/rules/rng-authority-static/rule.json",
+      ".habitat/rules/recipe-runtime-domain-ops/rule.json",
       ".habitat/rules/import-boundaries/rule.json",
     ];
 
@@ -458,7 +456,7 @@ describe("Habitat hook service", () => {
     expect(affectedRequests).toEqual([]);
   });
 
-  test("uses boundary taxonomy target for boundary taxonomy tooling changes", async () => {
+  test("uses Toolkit lint target for boundary taxonomy tooling changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
