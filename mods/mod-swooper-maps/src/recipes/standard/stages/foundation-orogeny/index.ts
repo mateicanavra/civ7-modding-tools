@@ -9,9 +9,9 @@ import { crustEvolution } from "./steps/index.js";
 /** Foundation / Orogeny — final crust from initial crust + tectonic history (the merge stage). */
 export default createStage({
   id: "foundation-orogeny",
-  // High-level coupled crust-character levers. Each expresses one author intent across two coupled
+  // High-level coupled crust-character levers. Each expresses one author intent across coupled
   // compute-crust-evolution properties (abundance → survival + breakup-resistance; relief → freeboard
-  // + shelf depth). 0.5 = earthlike. Optional: unset ⇒ the raw op config (surfaced through the step)
+  // + shelf depth + abyssal depth). 0.5 = earthlike. Optional: unset ⇒ the raw op config (surfaced)
   // is left untouched; set ⇒ the lever overrides its coupled pair. See domain/foundation/shared/knobs.ts.
   knobsSchema: Type.Object(
     {

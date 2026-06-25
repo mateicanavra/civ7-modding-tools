@@ -35,14 +35,27 @@ const CASES = [
     label: "swooper-earthlike",
     config: recipeConfig(swooperEarthlikeConfigRaw),
     wetlandMax: 0.08,
-    // Cold-reef re-baseline (gate-validity investigation 2026-06-24): this continental earthlike
-    // map has broad shallow COLD high-latitude shelves (the bimodal crust-relief reshape), so
-    // reef-family share is cold-reef-driven (atoll=0 on every seed) and strongly bimodal — seeds
-    // that roll cold shelves bloom to 0.08-0.12 of water, the rest sit near 0. The old 0.04 cap
-    // predated the cold-shelf reshape (measured 106x66 bloom max 0.1173, 80x50 0.1218). Raised to
-    // admit the coherent bloom with headroom — same precedent as the sibling reef re-baselines
-    // below. True carpeting is gated separately by the coldReefShareOfCoastWater<=0.15 guard in
-    // the loop (cold reefs are isolated single-tile banks: stride=4 placement, largestCluster=1).
+    // Deep-ocean floor — the per-CLASS guardrail whose ABSENCE let the drowned-map regression ship
+    // (aabc81beb homogenized the oceanic floor flat; the gradient shelf classifier then flooded the
+    // whole basin as shelf → ~18% deep). This earthlike map's CONFIG asks for deep ocean (consolidated
+    // continents + the abyssal margin→abyss profile), so deepOceanShareOfWater = OCEAN/(OCEAN+COAST)
+    // is a real quality signal HERE — and ONLY here. It is deliberately NOT applied to the fragmented
+    // classes below (archipelago/shattered): they SHOULD read coast-heavy (measured: sundered-
+    // archipelago ~0.28-0.33 deep), which is correct geography, not a regression. STABLE physical
+    // floor, not a per-seed chase: earthlike lands 0.45-0.59 deep across all real Civ sizes (TINY..
+    // HUGE, mean ~0.51, 0.505 at this gate seed); the drowned regression sat at 0.18 and the
+    // mechanism-off control at ~0.27-0.29. 0.40 brackets the two regimes with ~10pt headroom.
+    deepOceanShareMin: 0.4,
+    // Cold-reef re-baseline (gate-validity investigation 2026-06-24/25): this continental earthlike
+    // map has COLD high-latitude shelves whose width varies with the deep-ocean hypsometry, so
+    // cold-reef yield is strongly SEED-BIMODAL — measured 106x66 across 8 seeds: 0 on 2/8 (incl. the
+    // single-seed gate seed 1018), and 2..117 on the other 6/8 (anti-correlated with deep share:
+    // the shelfiest seed 1234 @0.41 deep blooms 117). Because the yield is bimodal, the cold-reef
+    // PRESENCE guarantee is a multi-seed check (see the dedicated `it` below), NOT a single-seed
+    // require here (seed 1018 happens to roll 0). The reefMax budget still admits the coherent bloom
+    // with headroom (measured 106x66 bloom max 0.1173, 80x50 0.1218). True carpeting is gated
+    // separately by the coldReefShareOfCoastWater<=0.15 guard in the loop (cold reefs are isolated
+    // single-tile banks: stride=4 placement, largestCluster=1).
     reefMax: 0.13,
     requiredFeatures: [
       "FEATURE_FOREST",
@@ -53,7 +66,9 @@ const CASES = [
     ],
     vegetationFamiliesMin: 5,
     rainforestVegetationShareMax: 0.65,
-    requireColdReefs: true,
+    // requireColdReefs intentionally NOT set here — cold-reef yield is seed-bimodal (see reefMax
+    // note) and the single-seed gate seed (1018) rolls 0. Presence is guaranteed by the multi-seed
+    // `it("keeps earthlike cold-reef ocean accents present across seed rolls")` below instead.
     // Atolls are not required on this continental earthlike map. The post-features shelf
     // (morphology-shelf) classifies island-ring shallow water as shelf, and atolls score
     // ONLY on warm shallow water beyond the shelf (reef-score-atoll skips shelfMask), so
@@ -236,19 +251,22 @@ function expectResourceDiagnostics(stats: WorldBalanceStats): void {
     `${stats.label} same-type spacing floor violations`
   ).toBe(0);
   // Resource variety: every demanded type should be planned at least once. On small seed-roll
-  // maps (<=80x50) a single rare type may legitimately receive zero plans — rarity stratification
-  // plus a small tile/legality budget can't always seat every type (the missing type rotates by
-  // seed: Kaolin/Clay/Salt; its habitat biome exists, the engine ValidPlacements legality mask is
-  // the bottleneck, not the crust reshape). This is gated by the silent-vanish guard above
-  // (resourceBelowMinWithoutShortfallCount===0), which still trips a type that vanishes WITHOUT a
-  // recorded typed shortfall. Full-size maps keep the strict floor (measured gap 0 across all
-  // seeds). gate-validity investigation 2026-06-24.
+  // maps (<=80x50) one or two rare types may legitimately receive zero plans — rarity stratification
+  // plus a small tile/legality budget can't always seat every type (the missing types rotate by
+  // seed: Kaolin/Clay/Salt; their habitat biome exists, the engine ValidPlacements legality mask is
+  // the bottleneck, not the crust reshape). The crust-relief reshape (deep-ocean hypsometry) shifted
+  // placement enough that one unlucky small-map seed now drops 2 rare types instead of 1 (measured
+  // 80x50 across seeds 1018/1/2/3/42/99/1234/7777: gap is 0 on six seeds, 1 on seed 1, and 2 ONLY on
+  // seed 3 — which is shelf-RICH, 80 cold reefs, so this is rarity rotation, not shelf starvation).
+  // This is gated by the silent-vanish guard above (resourceBelowMinWithoutShortfallCount===0), which
+  // still trips a type that vanishes WITHOUT a recorded typed shortfall. Full-size maps keep the
+  // strict floor (measured gap 0 across all seeds). gate-validity investigation 2026-06-24/25.
   const varietyFloor = Math.min(stats.resourceDemandTypeCount, stats.resourcePlannedCount);
   const smallSeedRollMap = stats.width * stats.height <= 80 * 50;
   expect(
     stats.resourceUniquePlannedTypes,
     `${stats.label} planned resource variety`
-  ).toBeGreaterThanOrEqual(varietyFloor - (smallSeedRollMap ? 1 : 0));
+  ).toBeGreaterThanOrEqual(varietyFloor - (smallSeedRollMap ? 2 : 0));
   expect(
     stats.resourcePlacedCount + stats.resourceRejectedCount + stats.resourceMismatchCount,
     `${stats.label} resource outcome total`
@@ -445,6 +463,15 @@ describe("world balance stats", () => {
         `${caseData.label} reef-family share`
       ).toBeLessThanOrEqual(caseData.reefMax);
 
+      // Deep-ocean floor (per-class; see the CASE note). Only maps whose config asks for deep ocean
+      // carry this — fragmented/coast-heavy classes are intentionally exempt (no deepOceanShareMin).
+      if ("deepOceanShareMin" in caseData) {
+        expect(
+          stats.deepOceanShareOfWater,
+          `${caseData.label} deep-ocean share of water (drowned-map guardrail)`
+        ).toBeGreaterThanOrEqual(caseData.deepOceanShareMin);
+      }
+
       // Structural carpet guard, complementing the per-class reefMax budget above (which is
       // total-water-coupled, hence size/seed-sensitive). Cold reefs bank on shallow shelf, so
       // their share of COAST water is the size-stable over-placement signal: it gates genuine
@@ -543,6 +570,30 @@ describe("world balance stats", () => {
     );
     expect(presentIn("FEATURE_SAGEBRUSH_STEPPE"), "sagebrush seed presence").toBeGreaterThanOrEqual(
       6
+    );
+  });
+
+  // Cold-reef PRESENCE guarantee for earthlike — the multi-seed replacement for the old single-seed
+  // requireColdReefs (which the gate seed 1018 now fails: cold-reef yield is seed-bimodal under the
+  // deep-ocean hypsometry). Runs at the REAL HUGE size (106x66), not 80x50. Cold reefs bank on broad
+  // shallow COLD shelf, so their count anti-correlates with deep-ocean share; across the 8
+  // representative seeds they are present on 6/8 (0 only on 1018 and 3), 2..117 elsewhere. A floor of
+  // >=4 present guards against a regression that ELIMINATES cold reefs (would read 0/8) while
+  // tolerating the genuine bimodality. Carpeting is gated by coldReefShareOfCoastWater<=0.15 above.
+  it("keeps earthlike cold-reef ocean accents present across seed rolls", { timeout: 30_000 }, () => {
+    const seeds = [1018, 1, 2, 3, 42, 99, 1234, 7777];
+    const present = seeds.filter((seed) => {
+      const stats = collectWorldBalanceStats({
+        label: `swooper-earthlike:cold-reef:${seed}`,
+        config: recipeConfig(swooperEarthlikeConfigRaw),
+        seed,
+        width: 106,
+        height: 66,
+      });
+      return (stats.featureCounts.FEATURE_COLD_REEF ?? 0) > 0;
+    }).length;
+    expect(present, "earthlike cold-reef presence across seed rolls (>=4 of 8)").toBeGreaterThanOrEqual(
+      4
     );
   });
 

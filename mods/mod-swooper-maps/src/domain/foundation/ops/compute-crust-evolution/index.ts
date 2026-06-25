@@ -124,6 +124,21 @@ const HYPEREXTENSION_MATURITY_CAP = 0.1; // residual maturity of newly-rifted oc
 // (abundance: `config.continentalSurvivalMaturity` — maturity below which marginal crust founders)
 const SHELF_PRESERVE_EXTENSION = 0.1; // …a stretched margin (high extension) survives as drowned shelf
 
+// ── Abyssal subsidence: the oceanic floor's margin→abyss depth profile ────────────────────────────
+// Oceanic crust deepens with geodesic distance from the continental margin — the age / distance-from-
+// ridge → depth relationship (young passive margins shallow; old abyssal plains deep). The MECHANISM
+// (deepen-with-distance) is universal structure; the MAGNITUDE is the per-class knob
+// `config.oceanicAbyssalDepth`. Why it is load-bearing: the downstream shelf classifier
+// (compute-shelf-mask) is GRADIENT-based — it floods gentle seabed outward from shore and only stops
+// at a steep break (the continental slope). A FLAT oceanic floor presents no such break anywhere, so
+// the shelf floods the entire basin (a drowned, shelf-only world). This offshore deepening reinstates
+// the continental slope that separates shelf from deep ocean. Distance is in mesh hops from the
+// nearest continental cell; the exponential falloff concentrates the drop in the first cells off the
+// margin (the continental slope), then plateaus across the abyssal plain. The shelf is kept by the
+// downstream classifier's shore-adjacency rule (it always makes shoreline water coast), so this can
+// deepen from the first oceanic ring while the margin still reads a real shelf.
+const ABYSS_DISTANCE_SCALE = 0.8; // mesh-hops over which the continental slope falls toward the abyss
+
 /** Hermite smoothstep in [0,1]; 0 below edge0, 1 above edge1. */
 function smoothstep(edge0: number, edge1: number, x: number): number {
   if (edge1 <= edge0) return x >= edge1 ? 1 : 0;
@@ -141,6 +156,7 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           continentalFreeboard,
           hyperextensionBreakupBase,
           thinningThicknessLoss,
+          oceanicAbyssalDepth,
         } = config;
 
         const mesh = requireMesh(input.mesh, "foundation/compute-crust-evolution");
@@ -326,6 +342,49 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           const strengthThk = strengthFromThickness(thickness01);
           const strengthDamage = 1 - damage01;
           strength[i] = clamp01(strengthBase * strengthComp * strengthThk * strengthDamage);
+        }
+
+        // ── Abyssal subsidence pass ─────────────────────────────────────────────────────────────────
+        // Deepen oceanic crust by its geodesic distance (mesh hops) from the nearest continental cell,
+        // so the floor falls from the margin shelf to the abyssal plain offshore (see ABYSS_DISTANCE_
+        // SCALE / config.oceanicAbyssalDepth above). Without this the reverted-oceanic floor is flat,
+        // and the gradient-based shelf classifier (compute-shelf-mask) finds no continental slope to
+        // break on — it floods the whole basin as shelf. The shoreline itself stays coast regardless
+        // (the classifier's land-adjacency rule), so this only carves the deep basin interior.
+        if (oceanicAbyssalDepth > 0 && ABYSS_DISTANCE_SCALE > 0) {
+          const marginDistance = new Int32Array(cellCount).fill(-1);
+          const bfsQueue = new Int32Array(cellCount);
+          let qHead = 0;
+          let qTail = 0;
+          for (let i = 0; i < cellCount; i++) {
+            if (type[i] === 1) {
+              marginDistance[i] = 0;
+              bfsQueue[qTail++] = i;
+            }
+          }
+          // All-ocean world (no continental seed) ⇒ no margin to deepen from; the floor is left as-is.
+          while (qHead < qTail) {
+            const c = bfsQueue[qHead++]!;
+            const start = mesh.neighborsOffsets[c] | 0;
+            const end = mesh.neighborsOffsets[c + 1] | 0;
+            const nextDist = (marginDistance[c]! | 0) + 1;
+            for (let cursor = start; cursor < end; cursor++) {
+              const n = mesh.neighbors[cursor] | 0;
+              if (n < 0 || n >= cellCount || marginDistance[n] !== -1) continue;
+              marginDistance[n] = nextDist;
+              bfsQueue[qTail++] = n;
+            }
+          }
+          for (let i = 0; i < cellCount; i++) {
+            if (type[i] === 1) continue; // continents keep their freeboard / keel elevation
+            const d = marginDistance[i]! < 0 ? 0 : marginDistance[i]! | 0;
+            // Saturating margin→abyss profile: the continental slope falls off over the first hops off
+            // the margin, then the abyssal plain plateaus. (Oceanic cells are ≥ 1 hop from a continent.)
+            const abyssFraction = 1 - Math.exp(-d / ABYSS_DISTANCE_SCALE);
+            const deepened = clamp01(baseElevation[i]! - oceanicAbyssalDepth * abyssFraction);
+            baseElevation[i] = deepened;
+            buoyancy[i] = deepened;
+          }
         }
 
         return {

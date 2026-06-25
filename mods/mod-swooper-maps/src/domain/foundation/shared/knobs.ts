@@ -81,23 +81,25 @@ export type FoundationContinentalAbundanceKnob = Static<
  *
  * Meaning:
  * - "How dramatic the continent↔ocean transition stands." One physical intent — stronger isostatic
- *   differentiation makes continents ride higher AND their thinned margins subside deeper — so the
- *   lever drives two coupled `compute-crust-evolution` properties together:
- *     • `continentalFreeboard`    (UP as relief rises — continents stand higher), and
- *     • `thinningThicknessLoss`   (UP as relief rises — margins/basins subside deeper).
- * - 0.5 reproduces the earthlike op defaults; → 1 tall continents + deep shelves, → 0 low + shallow.
+ *   differentiation makes continents ride higher, their thinned margins subside deeper, AND the open
+ *   ocean floor falls further to the abyssal plain — so the lever drives three coupled
+ *   `compute-crust-evolution` properties together:
+ *     • `continentalFreeboard`    (UP as relief rises — continents stand higher),
+ *     • `thinningThicknessLoss`   (UP as relief rises — margins/basins subside deeper), and
+ *     • `oceanicAbyssalDepth`     (UP as relief rises — the offshore floor deepens to the abyss).
+ * - 0.5 reproduces the earthlike op defaults; → 1 tall continents + deep shelves + deep ocean, → 0 low + shallow.
  *
  * Stage scope:
- * - `foundation-orogeny` (the `crust-evolution` step's `normalize` injects the resolved pair into the
+ * - `foundation-orogeny` (the `crust-evolution` step's `normalize` injects the resolved triple into the
  *   `computeCrustEvolution` config). Optional: when unset, the raw op config (relief properties) is
- *   left untouched; when set, the lever overrides that coupled pair.
+ *   left untouched; when set, the lever overrides that coupled triple.
  */
 export const FoundationContinentalReliefKnobSchema = Type.Number({
   default: 0.5,
   minimum: 0,
   maximum: 1,
   description:
-    "Continental relief scalar in [0..1]. Couples freeboard (up) + shelf/basin depth (up): 0.5 = earthlike, →1 tall continents/deep shelves, →0 low/shallow. foundation-orogeny.",
+    "Continental relief scalar in [0..1]. Couples freeboard (up) + shelf/basin depth (up) + abyssal depth (up): 0.5 = earthlike, →1 tall continents/deep shelves/deep ocean, →0 low/shallow. foundation-orogeny.",
 });
 
 export type FoundationContinentalReliefKnob = Static<typeof FoundationContinentalReliefKnobSchema>;

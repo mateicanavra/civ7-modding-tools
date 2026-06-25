@@ -62,11 +62,26 @@ export const CrustEvolutionConfigSchema = Type.Object(
       minimum: 0,
       maximum: 1,
     }),
+    /**
+     * ABYSSAL relief: how far the oceanic floor subsides away from the continental margin (the
+     * age/distance-from-ridge → depth relationship — passive margins shallow, abyssal plains deep).
+     * This is what gives ocean basins a real margin→abyss profile (shelf → continental slope → abyss);
+     * the gradient-based shelf classifier (compute-shelf-mask) needs that offshore deepening to read a
+     * continental slope, otherwise a flat oceanic floor floods the whole basin as shelf. Higher ⇒
+     * deeper, more dominant open ocean with a narrower shelf fringe; 0 ⇒ a flat floor (shelf-heavy).
+     */
+    oceanicAbyssalDepth: Type.Number({
+      description:
+        "Abyssal subsidence of oceanic floor with distance from the continental margin (deep-ocean relief). Higher = deeper, more dominant open ocean / thinner shelf fringe; 0 = flat floor (shelf-heavy).",
+      default: 0.75,
+      minimum: 0,
+      maximum: 1,
+    }),
   },
   {
     additionalProperties: false,
     description:
-      "Per-map-class character knobs for foundation/compute-crust-evolution (abundance, freeboard, fragmentation, shelf depth). Defaults are the earthlike profile.",
+      "Per-map-class character knobs for foundation/compute-crust-evolution (abundance, freeboard, fragmentation, shelf depth, abyssal relief). Defaults are the earthlike profile.",
   }
 );
 

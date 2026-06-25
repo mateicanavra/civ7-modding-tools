@@ -151,6 +151,11 @@ export type WorldBalanceStats = Readonly<{
   reefFamilyTiles: number;
   reefFamilyShareOfWater: number;
   coastWaterTiles: number;
+  // Share of all water that is DEEP ocean (TERRAIN_OCEAN), not coast/shelf. The hypsometry signal
+  // a drowned map collapses: a flat oceanic floor reads as all-shelf (low deep share), while a real
+  // margin→abyss profile yields deep-ocean-dominant water. Floored in the geography-budget gate so a
+  // re-drowning regression (deep share crashing toward zero) can no longer pass invisibly.
+  deepOceanShareOfWater: number;
   // Cold reefs bank on shallow (coast/shelf) water; this is their share of that shelf, NOT
   // of total water. Size/seed-stable carpet signal that gates true over-placement rather
   // than how much ocean a seed rolled (reefFamilyShareOfWater is total-water-coupled).
@@ -1364,6 +1369,7 @@ export function collectWorldBalanceStats(
     reefFamilyTiles,
     reefFamilyShareOfWater: waterTiles === 0 ? 0 : reefFamilyTiles / waterTiles,
     coastWaterTiles,
+    deepOceanShareOfWater: waterTiles === 0 ? 0 : (waterTiles - coastWaterTiles) / waterTiles,
     coldReefShareOfCoastWater:
       coastWaterTiles === 0 ? 0 : (featureCounts.FEATURE_COLD_REEF ?? 0) / coastWaterTiles,
     vegetationFamilyTiles,

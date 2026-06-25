@@ -79,6 +79,11 @@
         "activityThreshold": 1
       }
     },
+    "foundation-orogeny": {
+      "knobs": {
+        "continentalAbundance": 0.65
+      }
+    },
     "morphology-coasts": {
       "knobs": {
         "seaLevel": "earthlike",

@@ -56,20 +56,26 @@ export function resolveContinentalAbundance(value: number | undefined): {
 }
 
 /**
- * Continental relief lever → the coupled `compute-crust-evolution` relief pair. One intent (how
- * dramatic the continent↔ocean transition) drives both: more relief ⇒ continents stand higher
- * (freeboard UP) and thinned margins subside deeper (shelf/basin depth UP). 0.5 reproduces the op
- * defaults (freeboard 0.35, thinningLoss 0.55).
+ * Continental relief lever → the coupled `compute-crust-evolution` relief triple. One intent (how
+ * dramatic the continent↔ocean transition) drives all three: more relief ⇒ continents stand higher
+ * (freeboard UP), thinned margins subside deeper (shelf/basin depth UP), and the open-ocean floor
+ * falls further from the margin to the abyssal plain (abyssal depth UP). Abyssal depth belongs to
+ * the same intent: it is the deep end of the continent↔ocean relief — the offshore deepening the
+ * gradient shelf classifier reads as a continental slope (without it a flat floor floods the basin
+ * as shelf). 0.5 reproduces the op defaults (freeboard 0.35, thinningLoss 0.55, abyssalDepth 0.75).
  *
  * freeboard:     0.0 -> 0.15, 0.5 -> 0.35, 1.0 -> 0.55   (up with relief)
  * thinningLoss:  0.0 -> 0.40, 0.5 -> 0.55, 1.0 -> 0.72   (up with relief)
+ * abyssalDepth:  0.0 -> 0.35, 0.5 -> 0.75, 1.0 -> 0.95   (up with relief)
  */
 export function resolveContinentalRelief(value: number | undefined): {
   continentalFreeboard: number;
   thinningThicknessLoss: number;
+  oceanicAbyssalDepth: number;
 } {
   return {
     continentalFreeboard: piecewise(value, 0.15, 0.35, 0.55),
     thinningThicknessLoss: piecewise(value, 0.4, 0.55, 0.72),
+    oceanicAbyssalDepth: piecewise(value, 0.35, 0.75, 0.95),
   };
 }
