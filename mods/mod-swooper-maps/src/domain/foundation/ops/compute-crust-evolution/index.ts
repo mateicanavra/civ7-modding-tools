@@ -2,6 +2,13 @@ import { createOp } from "@swooper/mapgen-core/authoring";
 import { clamp01, clampU8 } from "@swooper/mapgen-core/lib/math";
 
 import {
+  deriveBuoyancy,
+  isContinentalMaturity,
+  strengthFromMaturity,
+  strengthFromThermalAge,
+  strengthFromThickness,
+} from "../../lib/crust/buoyancy.js";
+import {
   requireCrust,
   requireMesh,
   requireTectonicHistory,
@@ -9,21 +16,10 @@ import {
 } from "../../lib/require.js";
 import ComputeCrustEvolutionContract from "./contract.js";
 
-const MATURITY_CONTINENT_THRESHOLD = 0.55;
-
-const OCEANIC_BASE_ELEVATION = 0.32;
-const OCEANIC_AGE_DEPTH = 0.22;
-const MATURITY_BUOYANCY_BOOST = 0.45;
-const THICKNESS_BUOYANCY_BOOST = 0.25;
-
 // Thickening is driven by differentiated (mature) crust; maturity integrates uplift/volcanism and
 // is suppressed by disruption, so a maturity-based mapping keeps thickness coherent with the
 // rest of the evolution model.
 const THICKNESS_FROM_MATURITY_GAIN = 0.5;
-
-const STRENGTH_BASE_MIN = 0.45;
-const STRENGTH_MATURITY_MIN = 0.5;
-const STRENGTH_THICKNESS_MIN = 0.55;
 
 // Baseline damage proxy (normalized weighted sum) coefficients.
 const DAMAGE_COEFF_SUM = 0.55 + 0.6 + 0.45;
@@ -42,29 +38,6 @@ const RIFT_RECYCLE_THRESHOLD = 0.35;
 const RIFT_RECYCLE_MATURITY_CAP = 0.08;
 const RIFT_THERMAL_AGE_MUL = 0.4;
 const THERMAL_AGE_RIFT_SLOWDOWN = 0.6;
-
-function strengthFromThermalAge(age01: number): number {
-  return STRENGTH_BASE_MIN + (1 - STRENGTH_BASE_MIN) * clamp01(age01);
-}
-
-function strengthFromMaturity(maturity: number): number {
-  return STRENGTH_MATURITY_MIN + (1 - STRENGTH_MATURITY_MIN) * clamp01(maturity);
-}
-
-function strengthFromThickness(thickness: number): number {
-  return STRENGTH_THICKNESS_MIN + (1 - STRENGTH_THICKNESS_MIN) * clamp01(thickness);
-}
-
-function deriveBuoyancy(params: {
-  maturity: number;
-  thickness: number;
-  thermalAge01: number;
-}): number {
-  const maturityBoost = MATURITY_BUOYANCY_BOOST * clamp01(params.maturity);
-  const thicknessBoost = THICKNESS_BUOYANCY_BOOST * clamp01(params.thickness);
-  const subsidence = OCEANIC_AGE_DEPTH * clamp01(params.thermalAge01);
-  return clamp01(OCEANIC_BASE_ELEVATION + maturityBoost + thicknessBoost - subsidence);
-}
 
 const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
   strategies: {
@@ -166,7 +139,7 @@ const computeCrustEvolution = createOp(ComputeCrustEvolutionContract, {
           thermalAge[i] = clampU8(thermalAge01 * 255);
           damage[i] = clampU8(damage01 * 255);
 
-          const isContinent = maturity01 >= MATURITY_CONTINENT_THRESHOLD ? 1 : 0;
+          const isContinent = isContinentalMaturity(maturity01) ? 1 : 0;
           type[i] = isContinent;
           age[i] = thermalAge[i];
 
