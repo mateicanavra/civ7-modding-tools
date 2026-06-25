@@ -3,18 +3,12 @@ import {
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "@habitat/cli/providers/biome/index";
-import {
-  GitProvider,
-  makeFakeGitProviderLayer,
-} from "@habitat/cli/providers/git/index";
+import { GitProvider, makeFakeGitProviderLayer } from "@habitat/cli/providers/git/index";
 import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
 } from "@habitat/cli/providers/graphite/index";
-import {
-  GritProvider,
-  makeFakeGritProviderLayer,
-} from "@habitat/cli/providers/grit/index";
+import { GritProvider, makeFakeGritProviderLayer } from "@habitat/cli/providers/grit/index";
 import {
   affectedArgv,
   graphArgv,
@@ -141,7 +135,7 @@ describe("vendor providers", () => {
 
   test("NxProvider batches graph-owned targets through run-many", async () => {
     const request = {
-      projects: ["mod-swooper-maps", "@swooper/mapgen-core"],
+      projects: ["mod-swooper-maps", "mapgen-core"],
       targets: ["test:architecture-cutover", "test:architecture-core-purity"],
     };
 
@@ -151,7 +145,7 @@ describe("vendor providers", () => {
       "--targets",
       "test:architecture-cutover,test:architecture-core-purity",
       "--projects",
-      "mod-swooper-maps,@swooper/mapgen-core",
+      "mod-swooper-maps,mapgen-core",
       "--outputStyle=static",
     ]);
 
@@ -180,14 +174,14 @@ describe("vendor providers", () => {
 
   test("NxProvider owns single target execution without run-many", async () => {
     const request = {
-      project: "@habitat/cli",
+      project: "habitat",
       target: "boundaries",
     };
 
     expect(runTargetArgv(request)).toEqual([
       "nx",
       "run",
-      "@habitat/cli:boundaries",
+      "habitat:boundaries",
       "--outputStyle=static",
     ]);
 

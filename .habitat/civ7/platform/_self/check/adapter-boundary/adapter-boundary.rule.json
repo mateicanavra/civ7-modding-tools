@@ -1,7 +1,7 @@
 {
   "id": "adapter-boundary",
   "ownerTool": "command-check",
-  "ownerProject": "@habitat/cli",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "packages/**",
   "forbids": "/base-standard/ imports outside packages/civ7-adapter",

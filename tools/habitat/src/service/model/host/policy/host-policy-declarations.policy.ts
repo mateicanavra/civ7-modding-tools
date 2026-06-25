@@ -70,7 +70,7 @@ export const defaultHostPolicyDocument: HostPolicyDocument = Value.Parse(HostPol
         kind: "exact",
         value: "packages/civ7-map-policy/src/civ7-tables.gen.ts",
       },
-      commandRecovery("map-policy-workflow", "nx run @civ7/map-policy:verify -- --write")
+      commandRecovery("map-policy-workflow", "nx run civ7-map-policy:verify -- --write")
     ),
     {
       policyId,

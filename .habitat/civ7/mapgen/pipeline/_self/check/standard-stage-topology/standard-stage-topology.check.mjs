@@ -45,12 +45,21 @@ const findings = [
 
 for (const legacyId of legacyStageAliases) {
   if (stageIds.includes(legacyId)) {
-    findings.push({ file: "mods/mod-swooper-maps/src/recipes/standard/recipe.ts", line: 1, rule: "legacy-stage-alias", detail: legacyId });
+    findings.push({
+      file: "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+      line: 1,
+      rule: "legacy-stage-alias",
+      detail: legacyId,
+    });
   }
 }
 
-const foundationPaths = stageIds.filter((id) => id === "foundation" || id.startsWith("foundation-"));
-findings.push(...assertEqual(foundationPaths, ["foundation"], "foundation-stage-path", "foundation stage paths"));
+const foundationPaths = stageIds.filter(
+  (id) => id === "foundation" || id.startsWith("foundation-")
+);
+findings.push(
+  ...assertEqual(foundationPaths, ["foundation"], "foundation-stage-path", "foundation stage paths")
+);
 
 const mapStageDirs = readdirSync(stagesRoot)
   .filter((entry) => entry.startsWith("map-"))
@@ -58,7 +67,12 @@ const mapStageDirs = readdirSync(stagesRoot)
   .sort();
 for (const dir of mapStageDirs) {
   if (!stageIds.includes(dir)) {
-    findings.push({ file: path.relative(modRoot, path.join(stagesRoot, dir)), line: 1, rule: "map-helper-stage-dir", detail: dir });
+    findings.push({
+      file: path.relative(modRoot, path.join(stagesRoot, dir)),
+      line: 1,
+      rule: "map-helper-stage-dir",
+      detail: dir,
+    });
   }
 }
 

@@ -2,10 +2,7 @@ import path from "node:path";
 import type { FileSystem } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { GitStateProvider } from "@habitat/cli/providers/git/index";
-import {
-  type CommandProviderError,
-  CommandRunner,
-} from "@habitat/cli/resources/command/index";
+import { type CommandProviderError, CommandRunner } from "@habitat/cli/resources/command/index";
 import type {
   HabitatCommandResult,
   HabitatProcessRequest,

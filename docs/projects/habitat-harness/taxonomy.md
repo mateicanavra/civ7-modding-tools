@@ -34,12 +34,12 @@ Two enforcement planes — do not conflate them:
 `kind:control` is a project-plane grouping, not a single lifecycle owner. Current
 accepted control architecture keeps these responsibilities separate:
 
-- `@civ7/direct-control` owns the raw tuner socket/framing/session primitive and
+- `control-direct` owns the raw tuner socket/framing/session primitive and
   graceful close behavior.
-- `@civ7/studio-server` owns the long-lived Studio host session through the
+- `control-studio-server` owns the long-lived Studio host session through the
   Effect-scoped `Civ7TunerSession` (`Layer.scoped`, `Effect.acquireRelease`, and
   host `ManagedRuntime.dispose`).
-- `@civ7/control-orpc` owns native oRPC/Effect procedure contracts and service
+- `control-orpc` owns native oRPC/Effect procedure contracts and service
   behavior over supplied direct-control ports; provider construction belongs to
   callers/runtime adapters.
 - Effect procedure code may use scoped acquire/release for reversible game UI
@@ -77,39 +77,39 @@ treatment without adding a concrete tag or constraint row.
 | Project | Path | Tags |
 |---|---|---|
 | civ7-modding-tools | `.` | `kind:workspace` |
-| @mateicanavra/civ7-cli | `packages/cli` | `kind:app` |
-| @civ7/docs | `apps/docs` | `kind:app` |
-| @civ7/playground | `apps/playground` | `kind:app` |
+| civ7-cli | `packages/cli` | `kind:app` |
+| civ7-docs | `apps/docs` | `kind:app` |
+| civ7-playground | `apps/playground` | `kind:app` |
 | mapgen-studio | `apps/mapgen-studio` | `kind:app` |
-| @mateicanavra/civ7-sdk | `packages/sdk` | `kind:sdk` |
-| @swooper/mapgen-core | `packages/mapgen-core` | `kind:engine` |
-| @civ7/adapter | `packages/civ7-adapter` | `kind:adapter` |
-| @civ7/direct-control | `packages/civ7-direct-control` | `kind:control` |
-| @civ7/control-orpc | `packages/civ7-control-orpc` | `kind:control` |
-| @civ7/studio-server | `packages/studio-server` | `kind:control` |
-| @civ7/types | `packages/civ7-types` | `kind:foundation` |
-| @civ7/config | `packages/config` | `kind:foundation` |
-| @civ7/map-policy | `packages/civ7-map-policy` | `kind:foundation` |
-| @swooper/mapgen-viz | `packages/mapgen-viz` | `kind:foundation` |
-| @civ7/plugin-files | `packages/plugins/plugin-files` | `kind:plugin` |
-| @civ7/plugin-git | `packages/plugins/plugin-git` | `kind:plugin` |
-| @civ7/plugin-graph | `packages/plugins/plugin-graph` | `kind:plugin` |
-| @civ7/plugin-mods | `packages/plugins/plugin-mods` | `kind:plugin` |
+| civ7-sdk | `packages/sdk` | `kind:sdk` |
+| mapgen-core | `packages/mapgen-core` | `kind:engine` |
+| civ7-adapter | `packages/civ7-adapter` | `kind:adapter` |
+| control-direct | `packages/civ7-direct-control` | `kind:control` |
+| control-orpc | `packages/civ7-control-orpc` | `kind:control` |
+| control-studio-server | `packages/studio-server` | `kind:control` |
+| civ7-types | `packages/civ7-types` | `kind:foundation` |
+| civ7-config | `packages/config` | `kind:foundation` |
+| civ7-map-policy | `packages/civ7-map-policy` | `kind:foundation` |
+| mapgen-viz | `packages/mapgen-viz` | `kind:foundation` |
+| plugin-files | `packages/plugins/plugin-files` | `kind:plugin` |
+| plugin-git | `packages/plugins/plugin-git` | `kind:plugin` |
+| plugin-graph | `packages/plugins/plugin-graph` | `kind:plugin` |
+| plugin-mods | `packages/plugins/plugin-mods` | `kind:plugin` |
 | mod-swooper-maps | `mods/mod-swooper-maps` | `kind:mod` |
-| mod-civ7-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
-| civ-mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
-| @internal/habitat-artifacts | `.habitat` | `kind:tooling` |
-| @habitat/cli | `tools/habitat` | `kind:tooling` |
-| @habitat/cli-service-shell | `tools/habitat/src/service` | `kind:tooling`, `habitat:service`, `layer:service-shell` |
-| @habitat/cli-service-model | `tools/habitat/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |
-| @habitat/cli-providers | `tools/habitat/src/providers` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
-| @habitat/cli-resources | `tools/habitat/src/resources` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
-| @habitat/cli-runtime | `tools/habitat/src/runtime` | `kind:tooling`, `habitat:runtime` |
-| @habitat/cli-cli | `tools/habitat/src/cli` | `kind:tooling`, `habitat:cli` |
+| mod-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
+| mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
+| habitat-artifacts | `.habitat` | `kind:tooling` |
+| habitat | `tools/habitat` | `kind:tooling` |
+| habitat-service | `tools/habitat/src/service` | `kind:tooling`, `habitat:service`, `layer:service-shell` |
+| habitat-service-model | `tools/habitat/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |
+| habitat-providers | `tools/habitat/src/providers` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| habitat-resources | `tools/habitat/src/resources` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| habitat-runtime | `tools/habitat/src/runtime` | `kind:tooling`, `habitat:runtime` |
+| habitat-cli | `tools/habitat/src/cli` | `kind:tooling`, `habitat:cli` |
 
 Habitat service module projects are inferred from
 `tools/habitat/src/service/modules/*` with project names
-`@habitat/cli-service-module-<module>` and tags `kind:tooling`,
+`habitat-service-<module>` and tags `kind:tooling`,
 `habitat:service`, and `layer:service-module`. They are not enumerated here
 because the boundary rule applies to the kind, not to concrete module names.
 Each module-local `model` directory stays inside its owning service-module
@@ -147,7 +147,7 @@ owned by their Grit/file-layer rules.
 | `layer:service-model` | `layer:service-model`, `layer:resource-provider` | service-wide facts, DTOs, and read models may reuse resource contracts but do not import module internals |
 | `layer:resource-provider` | `layer:resource-provider`, `layer:service-model` | runtime providers may consume shared service model facts but must not import service module internals |
 
-Dual-tagged projects (`mod-civ7-intelligence-bridge`: `kind:mod` +
+Dual-tagged projects (`mod-intelligence-bridge`: `kind:mod` +
 `kind:control`) are constrained by the **intersection** of their rows — every
 matching constraint is enforced, so its effective allowed set is
 {engine, adapter, foundation, control} (e.g. a future sdk dep would be red
@@ -162,8 +162,8 @@ Initial baseline expectation: **all constraints green**. The original H3
 adoption proof locked `nx-boundaries` with an empty baseline; current recovery
 proof keeps that claim live only when the taxonomy, boundary config, resolved
 Nx tags, and resolved graph edges agree. The H3 direct rule run also found one
-hidden relative test import from `@civ7/direct-control` into
-`@civ7/map-policy`; it was repaired as an explicit package import/devDependency
+hidden relative test import from `control-direct` into
+`civ7-map-policy`; it was repaired as an explicit package import/devDependency
 because `kind:control -> kind:foundation` is tag-legal. The burn-down backlog
 lives in the intra-project plane (existing allowlists + file-layer/Grit rules).
 

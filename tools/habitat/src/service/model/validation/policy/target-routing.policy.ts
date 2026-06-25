@@ -14,7 +14,7 @@ export interface ValidationTargetPlan {
   readonly affectedTargets: readonly string[];
 }
 
-const habitatHarnessProject = "@habitat/cli";
+const habitatHarnessProject = "habitat";
 const packageCheckTarget = "check";
 const packageLintTarget = "lint";
 const habitatToolingPrefixes = ["tools/habitat/", ".habitat/tooling/"] as const;
@@ -103,8 +103,7 @@ function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath ===
       ".habitat/habitat/toolkit/_self/check/boundary-taxonomy/boundary-taxonomy.check.ts" ||
-    filePath ===
-      "tools/habitat/src/service/model/graph/policy/boundary-taxonomy.policy.ts" ||
+    filePath === "tools/habitat/src/service/model/graph/policy/boundary-taxonomy.policy.ts" ||
     filePath === "tools/habitat/src/validation/boundary-taxonomy-inputs.ts"
   );
 }
@@ -112,8 +111,7 @@ function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
 function isStructuralTargetDeclarationPath(filePath: string): boolean {
   return (
     filePath === "tools/habitat/package.json" ||
-    filePath ===
-      "tools/habitat/src/service/model/validation/policy/target-routing.policy.ts"
+    filePath === "tools/habitat/src/service/model/validation/policy/target-routing.policy.ts"
   );
 }
 

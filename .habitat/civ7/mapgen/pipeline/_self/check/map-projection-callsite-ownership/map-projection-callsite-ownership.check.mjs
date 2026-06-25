@@ -37,7 +37,12 @@ findings.push(
     "build-elevation-owner",
     "TerrainBuilder.buildElevation callers"
   ),
-  ...assertEqual(callers(stageFiles, /adapter\.generateLakes\s*\(/u), [], "generate-lakes-owner", "adapter.generateLakes callers"),
+  ...assertEqual(
+    callers(stageFiles, /adapter\.generateLakes\s*\(/u),
+    [],
+    "generate-lakes-owner",
+    "adapter.generateLakes callers"
+  ),
   ...assertEqual(
     callers(stageFiles, /adapter\.stampLakes\s*\(/u),
     ["mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts"],
@@ -50,7 +55,12 @@ findings.push(
     "model-rivers-owner",
     "adapter.modelRivers callers"
   ),
-  ...assertEqual(callers(stageFiles, /tile\.hexOddR/u), [], "odd-r-callsite", "tile.hexOddR callers")
+  ...assertEqual(
+    callers(stageFiles, /tile\.hexOddR/u),
+    [],
+    "odd-r-callsite",
+    "tile.hexOddR callers"
+  )
 );
 
 for (const file of physicsFiles) {
@@ -75,13 +85,26 @@ const plotRiversContract = path.join(
 findings.push(
   ...assertContains(plotRivers, "selectNavigableRiverTerrain", "plot-rivers-materialization"),
   ...assertContains(plotRivers, "setTerrainType", "plot-rivers-materialization"),
-  ...assertContains(plotRivers, "map.rivers.authoredTerrainMaterialization", "plot-rivers-materialization"),
+  ...assertContains(
+    plotRivers,
+    "map.rivers.authoredTerrainMaterialization",
+    "plot-rivers-materialization"
+  ),
   ...assertContains(plotRivers, "CIV7_DEFAULT_RIVER_MODELING_ARGS", "plot-rivers-materialization"),
   ...assertContains(plotRivers, "modelRivers(", "plot-rivers-materialization"),
-  ...assertContains(plotRiversContract, "MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted", "plot-rivers-contract")
+  ...assertContains(
+    plotRiversContract,
+    "MAP_PROJECTION_EFFECT_TAGS.map.riversPlotted",
+    "plot-rivers-contract"
+  )
 );
 if (read(plotRiversContract).includes("riversModeled")) {
-  findings.push({ file: repoRel(plotRiversContract), line: 1, rule: "plot-rivers-contract", detail: "riversModeled" });
+  findings.push({
+    file: repoRel(plotRiversContract),
+    line: 1,
+    rule: "plot-rivers-contract",
+    detail: "riversModeled",
+  });
 }
 
 assertNoFindings("map-projection-callsite-ownership", findings);

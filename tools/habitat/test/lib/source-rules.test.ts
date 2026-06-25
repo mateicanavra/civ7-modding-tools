@@ -1,4 +1,11 @@
+import { NodeContext } from "@effect/platform-node";
 import { repoRoot } from "@habitat/cli/resources/paths";
+import {
+  isDirectory,
+  isFile,
+  readDirectory,
+  readText,
+} from "@habitat/cli/resources/platform/index";
 import { runSourceRulesEffect } from "@habitat/cli/service/model/source-check/index";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
@@ -17,8 +24,11 @@ describe("source-check rule execution", () => {
             scanRoots: ["tools/habitat/src/providers/grit"],
           },
         ],
-        { repoRoot }
-      )
+        {
+          fileSystem: { isDirectory, isFile, readDirectory, readText },
+          repoRoot,
+        }
+      ).pipe(Effect.provide(NodeContext.layer))
     );
 
     expect(results.get("adapter-base-standard-import")).toMatchObject({

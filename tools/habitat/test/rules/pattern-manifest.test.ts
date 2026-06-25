@@ -37,7 +37,7 @@ describe("pattern manifest validator", () => {
       patternName: "candidate_probe",
       lifecycle: "candidate",
       openspecChangeId: "habitat-pattern-generator-metadata-repair",
-      ownerProject: "@habitat/cli",
+      ownerProject: "habitat",
       ownerTool: "source-check",
       candidateArtifacts: {
         patternPath: ".habitat/patterns/candidates/candidate_probe.md",
@@ -190,7 +190,7 @@ describe("pattern manifest validator", () => {
       ruleId: "options-probe",
       patternName: "options_probe",
       lifecycle: "registered-enforced",
-      ownerProject: "@habitat/cli",
+      ownerProject: "habitat",
       scope: "source scope",
       forbids: "forbidden shape",
       why: "architectural rationale",
@@ -229,7 +229,7 @@ function registeredManifest(
     patternName: "registration_probe",
     lifecycle: "registered-advisory",
     openspecChangeId: "habitat-pattern-generator-metadata-repair",
-    ownerProject: "@habitat/cli",
+    ownerProject: "habitat",
     ownerTool: "source-check",
     normativeSources: [
       {

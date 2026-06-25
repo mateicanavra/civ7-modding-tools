@@ -1,7 +1,7 @@
 {
   "id": "mapgen-core-runtime-civ7",
   "ownerTool": "source-check",
-  "ownerProject": "@swooper/mapgen-core",
+  "ownerProject": "mapgen-core",
   "lane": "enforced",
   "scope": "packages/mapgen-core/src/**/*.ts excluding src/dev",
   "forbids": "Civ7 adapter value imports, /base-standard paths, runtime globals, adapter creation, or unsafe engine casts in mapgen-core production source",

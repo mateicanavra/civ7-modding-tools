@@ -5,7 +5,7 @@ This package uses [Vitest](https://vitest.dev/).
 ## Running tests
 
 ```bash
-nx run @civ7/plugin-graph:test
+nx run plugin-graph:test
 ```
 
 ## Current smoke tests

@@ -6,10 +6,7 @@ import {
   type HabitatServiceRuntimeError,
   type HabitatServiceSharedContext,
 } from "@habitat/cli/service/base";
-import {
-  type HabitatServiceContract,
-  habitatServiceContract,
-} from "@habitat/cli/service/contract";
+import { type HabitatServiceContract, habitatServiceContract } from "@habitat/cli/service/contract";
 import type { EffectImplementerInternal } from "effect-orpc";
 import { eoc, implementEffect } from "effect-orpc";
 

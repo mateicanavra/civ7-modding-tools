@@ -13,6 +13,7 @@ import { describe, expect, test } from "vitest";
 
 const rulesPath = ".habitat/rules";
 const indexPath = `${rulesPath}/index.json`;
+const registeredRulePath = ".habitat";
 
 describe("Habitat pattern generator", () => {
   test("creates candidate artifacts without registering active enforcement state", async () => {
@@ -30,7 +31,7 @@ describe("Habitat pattern generator", () => {
     expect(tree.exists(".habitat/baselines/dra-metadata-probe.json")).toBe(false);
     expect(readJson(tree, indexPath)).toMatchObject({
       schemaVersion: 1,
-      ownerRoots: { "@habitat/cli": "tools/habitat" },
+      ownerRoots: { habitat: "tools/habitat" },
     });
 
     const manifest = readJson(tree, candidatePaths.manifestPath);
@@ -324,7 +325,7 @@ function createPatternTree(
   for (const rule of rulesJson.rules) {
     const id = (rule as { id?: unknown }).id;
     if (typeof id !== "string") continue;
-    tree.write(`${rulesPath}/${id}/rule.json`, `${JSON.stringify(rule, null, 2)}\n`);
+    tree.write(`${registeredRulePath}/${id}/rule.json`, `${JSON.stringify(rule, null, 2)}\n`);
   }
   return tree;
 }
@@ -333,7 +334,7 @@ function emptyRuleRegistryDocument(rules: unknown[] = []) {
   return {
     schemaVersion: 1,
     ownerRoots: {
-      "@habitat/cli": "tools/habitat",
+      habitat: "tools/habitat",
     },
     rules,
   };
@@ -343,7 +344,7 @@ function existingRegistryRule(ruleId: string) {
   return {
     id: ruleId,
     ownerTool: "command-check",
-    ownerProject: "@habitat/cli",
+    ownerProject: "habitat",
     lane: "enforced",
     scope: "workspace",
     forbids: "test fixture",
@@ -408,7 +409,7 @@ function registeredManifest(
     patternName: "registration_probe",
     lifecycle: "registered-advisory",
     openspecChangeId: "habitat-pattern-generator-metadata-repair",
-    ownerProject: "@habitat/cli",
+    ownerProject: "habitat",
     ownerTool: "source-check",
     normativeSources: [
       {

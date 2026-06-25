@@ -2,10 +2,7 @@ import {
   type HabitatCommandResult,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
-import {
-  type HabitatError,
-  renderHabitatError,
-} from "@habitat/cli/resources/errors/index";
+import { type HabitatError, renderHabitatError } from "@habitat/cli/resources/errors/index";
 import type { RuleExecutionTiming } from "@habitat/cli/service/model/check/index";
 import {
   type RuleRunResult,

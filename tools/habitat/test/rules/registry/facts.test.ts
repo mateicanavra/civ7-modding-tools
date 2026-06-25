@@ -94,7 +94,7 @@ describe("rule registry facts", () => {
       {
         id: "sample-rule",
         ownerTool: "command-check",
-        ownerProject: "@habitat/cli",
+        ownerProject: "habitat",
         pathCoverage: [{ kind: "exact-path", patterns: ["packages/**"] }],
       },
     ]);
@@ -158,7 +158,7 @@ describe("rule registry facts", () => {
 
   test("projects graph facts from owner roots and structured targets", () => {
     const ownerRoots = new Map([
-      ["@habitat/cli", "tools/habitat"],
+      ["habitat", "tools/habitat"],
       ["mod-swooper-maps", "mods/mod-swooper-maps"],
     ]);
 
@@ -183,11 +183,11 @@ describe("rule registry facts", () => {
     ).toEqual([
       {
         id: "format-ci",
-        ownerProject: "@habitat/cli",
+        ownerProject: "habitat",
         ownerRoot: "tools/habitat",
         alias: {
           kind: "depends-on",
-          target: { project: "@habitat/cli", target: "biome:ci" },
+          target: { project: "habitat", target: "biome:ci" },
         },
       },
       {
@@ -201,7 +201,7 @@ describe("rule registry facts", () => {
       },
       {
         id: "direct-rule",
-        ownerProject: "@habitat/cli",
+        ownerProject: "habitat",
         ownerRoot: "tools/habitat",
         alias: { kind: "direct-rule-check" },
       },

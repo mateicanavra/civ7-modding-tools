@@ -1,7 +1,4 @@
-import {
-  type CheckOptions,
-  notApplicableDiagnostic,
-} from "@habitat/cli/service/model/check/index";
+import { type CheckOptions, notApplicableDiagnostic } from "@habitat/cli/service/model/check/index";
 import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
 import {
   approvedSourceScanRootsForRules,

@@ -1,9 +1,6 @@
 import path from "node:path";
 import { renderHabitatError } from "@habitat/cli/resources/errors/index";
-import type {
-  CheckOptions,
-  HabitatDiagnostic,
-} from "@habitat/cli/service/model/check/index";
+import type { CheckOptions, HabitatDiagnostic } from "@habitat/cli/service/model/check/index";
 import {
   modifiedStagedPaths,
   runFileLayerProtectedMutationRule,

@@ -1,7 +1,7 @@
 {
   "id": "docs-site-config",
   "ownerTool": "command-check",
-  "ownerProject": "@civ7/docs",
+  "ownerProject": "civ7-docs",
   "lane": "enforced",
   "scope": "apps/docs/docs.json, apps/docs/index.mdx, and apps/docs/public/llms.txt",
   "forbids": "docs site configuration missing required root files or navigation shape",

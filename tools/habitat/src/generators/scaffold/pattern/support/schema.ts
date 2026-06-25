@@ -20,7 +20,7 @@ export const PatternGeneratorOptionsSchema = Type.Object(
       Type.String({
         minLength: 1,
         description: "Owning Nx project for the Habitat rule.",
-        default: "@habitat/cli",
+        default: "habitat",
       })
     ),
     patternName: Type.Optional(

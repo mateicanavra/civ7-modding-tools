@@ -4,10 +4,7 @@ import {
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "@habitat/cli/providers/biome/index";
-import {
-  GitProvider,
-  makeFakeGitProviderLayer,
-} from "@habitat/cli/providers/git/index";
+import { GitProvider, makeFakeGitProviderLayer } from "@habitat/cli/providers/git/index";
 import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
@@ -21,10 +18,7 @@ import {
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
-import type {
-  CheckOptions,
-  CheckReport,
-} from "@habitat/cli/service/model/check/index";
+import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
@@ -44,19 +38,16 @@ const mockCreateCheckReportEffect = vi.hoisted(() =>
   vi.fn<StructuralCheckPolicy["createReport"]>()
 );
 
-vi.mock(
-  "@habitat/cli/service/model/check/policy/structural/index",
-  async (importOriginal) => {
-    const actual =
-      await importOriginal<
-        typeof import("@habitat/cli/service/model/check/policy/structural/index")
-      >();
-    return {
-      ...actual,
-      createCheckReportEffect: mockCreateCheckReportEffect,
-    };
-  }
-);
+vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@habitat/cli/service/model/check/policy/structural/index")
+    >();
+  return {
+    ...actual,
+    createCheckReportEffect: mockCreateCheckReportEffect,
+  };
+});
 
 describe("Habitat hook resource policy", () => {
   test("passes clean resources without invoking the publish script", async () => {

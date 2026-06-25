@@ -23,7 +23,7 @@ bunx vitest run
 To run only the mapgen-core Bun tests:
 
 ```bash
-nx run @swooper/mapgen-core:test
+nx run mapgen-core:test
 ```
 
 To run only the mod tests:

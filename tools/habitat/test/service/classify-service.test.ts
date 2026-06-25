@@ -9,7 +9,7 @@ import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 const workspaceGraph = graphReady([
-  project("@habitat/cli", "tools/habitat", "kind:tooling", [
+  project("habitat", "tools/habitat", "kind:tooling", [
     "biome:ci",
     "boundaries",
     "check",
@@ -18,17 +18,17 @@ const workspaceGraph = graphReady([
     "test",
     "lint",
   ]),
-  project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
-  project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
-  project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
-  project("@civ7/types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
-  project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", [
+  project("civ7-adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
+  project("civ7-config", "packages/config", "kind:foundation", ["build", "check", "test"]),
+  project("plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
+  project("civ7-types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
+  project("mapgen-core", "packages/mapgen-core", "kind:foundation", [
     "check",
     "test",
     "test:architecture-core-purity",
   ]),
   project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
-  project("mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
+  project("mod-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
     "test:architecture-bundle-runtime-imports",
   ]),
   project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
@@ -52,9 +52,9 @@ describe("Habitat classify service", () => {
 
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
-    expect(result.owner.project).toBe("@habitat/cli");
+    expect(result.owner.project).toBe("habitat");
     expect(result.runnableTargets.map((target) => target.command)).toContain(
-      "nx run @habitat/cli:check"
+      "nx run habitat:check"
     );
   });
 

@@ -15,10 +15,7 @@ import type {
   RuleExecutionDisposition,
   RuleReport,
 } from "@habitat/cli/service/model/check/index";
-import {
-  type CheckOptions,
-  structuralCheckRequest,
-} from "@habitat/cli/service/model/check/index";
+import { type CheckOptions, structuralCheckRequest } from "@habitat/cli/service/model/check/index";
 import type { RuleReportFacts } from "@habitat/cli/service/model/rules/index";
 import { factsForRuleIds } from "@habitat/cli/service/model/rules/policy/catalog.policy";
 import { selectRules } from "@habitat/cli/service/model/rules/policy/selection.policy";

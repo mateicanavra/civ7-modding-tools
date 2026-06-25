@@ -125,7 +125,7 @@ describe("Habitat oclif commands", () => {
       input: input.target,
       path: input.target,
       owner: {
-        project: "@habitat/cli",
+        project: "habitat",
         projectRoot: "tools/habitat",
         tags: ["kind:tooling"],
       },
@@ -133,7 +133,7 @@ describe("Habitat oclif commands", () => {
         {
           ruleId: "adapter-boundary",
           ownerTool: "command-check",
-          ownerProject: "@habitat/cli",
+          ownerProject: "habitat",
           coverageKind: "workspace-gate",
           reason: "Workspace-level Habitat gate relevant beyond a single owning project.",
         },
@@ -190,7 +190,7 @@ describe("Habitat oclif commands", () => {
       "--rule",
       "adapter-boundary",
       "--owner",
-      "@habitat/cli",
+      "habitat",
       "--tool",
       "source-check",
       "--staged",
@@ -213,7 +213,7 @@ describe("Habitat oclif commands", () => {
             "--rule",
             "adapter-boundary",
             "--owner",
-            "@habitat/cli",
+            "habitat",
             "--tool",
             "source-check",
             "--staged",
@@ -221,10 +221,10 @@ describe("Habitat oclif commands", () => {
             "HEAD",
           ],
           serialized:
-            "habitat check --json --output /tmp/report.json --rule adapter-boundary --owner @habitat/cli --tool source-check --staged --base HEAD",
+            "habitat check --json --output /tmp/report.json --rule adapter-boundary --owner habitat --tool source-check --staged --base HEAD",
         },
         selectors: {
-          owner: "@habitat/cli",
+          owner: "habitat",
           rule: "adapter-boundary",
           tool: "source-check",
         },
@@ -380,7 +380,7 @@ describe("Habitat oclif commands", () => {
     const result = Value.Parse(classify.ClassifyResultSchema, payload);
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
-    expect(result.owner.project).toBe("@habitat/cli");
+    expect(result.owner.project).toBe("habitat");
     expect(result.owner.tags).toEqual(["kind:tooling"]);
     expect(createRouterClient).toHaveBeenCalled();
     expect(mockClassifyTarget).toHaveBeenCalledWith({

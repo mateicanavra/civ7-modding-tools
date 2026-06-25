@@ -10,10 +10,7 @@ import type {
   RuleExecutionTiming,
 } from "@habitat/cli/service/model/check/index";
 import type { RuleRunResult } from "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy";
-import type {
-  RuleFactsCatalog,
-  RuleSourceFacts,
-} from "@habitat/cli/service/model/rules/index";
+import type { RuleFactsCatalog, RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
 import type { SourceRuleFileSystem } from "@habitat/cli/service/model/source-check/index";
 import type { Effect } from "effect";
 

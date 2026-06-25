@@ -1,0 +1,5 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-map-policy",
+  "tags": ["kind:foundation"]
+}

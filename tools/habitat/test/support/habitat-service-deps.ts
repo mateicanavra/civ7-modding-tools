@@ -8,10 +8,7 @@ import {
   runTargetArgv,
 } from "@habitat/cli/providers/nx/index";
 import { ruleRegistryRepoPath } from "@habitat/cli/resources/artifact-paths";
-import {
-  captureOutput,
-  makeHabitatCommandResult,
-} from "@habitat/cli/resources/command/index";
+import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import type { HabitatProcessRequest } from "@habitat/cli/resources/command/types";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import {
@@ -22,10 +19,7 @@ import {
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
 import type { HabitatServiceDeps } from "@habitat/cli/service/base";
 import type { CheckReport } from "@habitat/cli/service/model/check/index";
-import {
-  loadRuleRegistryDocument,
-  ruleFactsCatalog,
-} from "@habitat/cli/service/model/rules/index";
+import { loadRuleRegistryDocument, ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
 import { Effect } from "effect";
 
 export function makeTestRuleFacts() {

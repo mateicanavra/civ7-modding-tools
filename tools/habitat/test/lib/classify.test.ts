@@ -1,9 +1,5 @@
 import { repoRoot } from "@habitat/cli/resources/paths";
-import {
-  isFileSync,
-  readTextSync,
-  statKindSync,
-} from "@habitat/cli/resources/platform/filesystem";
+import { isFileSync, readTextSync, statKindSync } from "@habitat/cli/resources/platform/filesystem";
 import type {
   WorkspaceGraphReadState,
   WorkspaceProject,
@@ -19,7 +15,7 @@ import { describe, expect, test } from "vitest";
 import { makeTestRuleFacts } from "../support/habitat-service-deps.js";
 
 const fixtureProjects = [
-  project("@habitat/cli", "tools/habitat", "kind:tooling", [
+  project("habitat", "tools/habitat", "kind:tooling", [
     "biome:ci",
     "boundaries",
     "check",
@@ -28,17 +24,17 @@ const fixtureProjects = [
     "test",
     "lint",
   ]),
-  project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
-  project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
-  project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
-  project("@civ7/types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
-  project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", [
+  project("civ7-adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
+  project("civ7-config", "packages/config", "kind:foundation", ["build", "check", "test"]),
+  project("plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
+  project("civ7-types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
+  project("mapgen-core", "packages/mapgen-core", "kind:foundation", [
     "check",
     "test",
     "test:architecture-core-purity",
   ]),
   project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
-  project("mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
+  project("mod-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
     "test:architecture-bundle-runtime-imports",
   ]),
   project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
@@ -74,17 +70,17 @@ describe("Habitat classify D4 result model", () => {
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.owner).toEqual({
-      project: "@habitat/cli",
+      project: "habitat",
       projectRoot: "tools/habitat",
       tags: ["kind:tooling"],
     });
     expect(result.ruleRouting.map((rule) => rule.ruleId)).toContain("adapter-boundary");
     expect(result.runnableTargets).toContainEqual(
       expect.objectContaining({
-        command: "nx run @habitat/cli:check",
+        command: "nx run habitat:check",
         source: {
           kind: "nx-project-graph",
-          project: "@habitat/cli",
+          project: "habitat",
           target: "check",
         },
       })
@@ -131,15 +127,15 @@ describe("Habitat classify D4 result model", () => {
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.runnableTargets.map((target) => target.command)).toContain(
-      "nx run @civ7/adapter:check"
+      "nx run civ7-adapter:check"
     );
     expect(result.runnableTargets.map((target) => target.command)).not.toContain(
-      "nx run @civ7/adapter:test"
+      "nx run civ7-adapter:test"
     );
     expect(result.unavailableTargets).toEqual([
       {
         owner: "project",
-        project: "@civ7/adapter",
+        project: "civ7-adapter",
         target: "test",
         reason: "missing-nx-target",
       },
@@ -216,7 +212,7 @@ index 3333333..4444444 100644
     const owners = result.paths.map((classification) =>
       classification.state === "project-path" ? classification.owner.project : null
     );
-    expect(owners).toEqual(["mapgen-studio", "@civ7/plugin-graph"]);
+    expect(owners).toEqual(["mapgen-studio", "plugin-graph"]);
   });
 
   test("refuses malformed or pathless diff-like input", async () => {
@@ -301,7 +297,7 @@ index 3333333..4444444 100644
       rules: testRuleFacts,
       fileSystem: testClassifyFileSystem,
       graph: graphReady([
-        project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"]),
+        project("civ7-adapter", "packages/civ7-adapter", "kind:adapter", ["check"]),
       ]),
     });
 
@@ -318,11 +314,8 @@ index 3333333..4444444 100644
       rules: testRuleFacts,
       fileSystem: testClassifyFileSystem,
       graph: graphReady([
-        project("@habitat/cli", "tools/habitat", "kind:tooling", [
-          "check",
-          "lint",
-        ]),
-        project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", []),
+        project("habitat", "tools/habitat", "kind:tooling", ["check", "lint"]),
+        project("mapgen-core", "packages/mapgen-core", "kind:foundation", []),
       ]),
     });
 
@@ -342,7 +335,7 @@ describe("Habitat classify public API", () => {
 
     expect(result.state).toBe("project-path");
     if (result.state !== "project-path") throw new Error("expected project-path");
-    expect(result.owner.project).toBe("@habitat/cli");
+    expect(result.owner.project).toBe("habitat");
     expect(result.ruleRouting).toContainEqual(
       expect.objectContaining({ ruleId: "adapter-boundary", coverageKind: "project-owner" })
     );
@@ -350,7 +343,7 @@ describe("Habitat classify public API", () => {
       expect.objectContaining({ coverageKind: "workspace-gate" })
     );
     expect(result.runnableTargets.map((target) => target.command)).toContain(
-      "nx run @habitat/cli:check"
+      "nx run habitat:check"
     );
   });
 

@@ -86,7 +86,7 @@ The root `package.json` command surface is not the execution graph. It is a smal
 - Remove duplicate or direct-tool convenience aliases:
   `check-types`, `test:ci`, `test:vitest`, `test:ui`, `check:graph`, `habitat:check`, `habitat:fix`.
 - Remove publish aliases and update publish CI to direct Nx:
-  `publish:sdk`, `publish:cli`, `publish:all` become direct `nx run @mateicanavra/civ7-sdk:publish:npm` and `nx run @mateicanavra/civ7-cli:publish:npm` in `.github/workflows/publish.yml`.
+  `publish:sdk`, `publish:cli`, `publish:all` become direct `nx run civ7-sdk:publish:npm` and `nx run civ7-cli:publish:npm` in `.github/workflows/publish.yml`.
 - Keep root scripts that are real repo surfaces:
   `prepare`, `build`, `check`, `lint`, `test`, `clean`, `deploy:mods`, `ci`, `verify`, `resources:*`, `refresh:data`, `ci:architecture-strict-core`, `gt:*`, `openspec*`, `biome:*`, `docs:project`, and `habitat`.
 - Normalize direct Habitat usage in hooks/CI/docs from `bun run habitat ...` or `bun run habitat:check ...` to `bun habitat ...` where it is CLI behavior. Use `nx run-many -t habitat:check` only when the intended behavior is Nx owner-target execution.
@@ -108,8 +108,8 @@ The root `package.json` command surface is not the execution graph. It is a smal
   `bun habitat check --help`,
   representative `bun habitat check --json --rule op-calls-op`.
 - Run representative graph tasks:
-  `nx run @mateicanavra/civ7-cli:build --skip-nx-cache`,
-  `nx run @mateicanavra/civ7-cli:test:play --skip-nx-cache`,
+  `nx run civ7-cli:build --skip-nx-cache`,
+  `nx run civ7-cli:test:play --skip-nx-cache`,
   `nx run mapgen-studio:dev --help` only if Nx supports a non-starting help/dry check; otherwise rely on resolved target inspection for continuous dev targets.
 - Run docs/test checks touched by the change:
   `bun run --cwd tools/habitat test`,
@@ -122,7 +122,116 @@ The root `package.json` command surface is not the execution graph. It is a smal
 - `bun habitat` is the canonical direct Habitat CLI surface; `habitat:check` and `habitat:fix` are unnecessary root affordances.
 - Root `build/check/lint/test/clean/ci/verify` remain because they are repo-wide workflows, not package-specific aliases.
 - Publish CI can safely call Nx targets directly instead of root publish aliases.
-- Continuous/dev product targets do not need root aliases; docs should teach `nx run mapgen-studio:dev`, `nx run @mateicanavra/civ7-cli:dev`, etc.
+- Continuous/dev product targets do not need root aliases; docs should teach `nx run mapgen-studio:dev`, `nx run civ7-cli:dev`, etc.
+
+# Nx Project Identity Normalization Frame And Plan
+
+## Frame
+
+The Nx project name is the graph identity. It does not need to equal the npm
+package name, import specifier, generator package name, mod id, recipe id, or
+runtime service id.
+
+**Hard core**
+
+- Nx project names should be short enough to type directly with `nx`, while
+  still carrying their domain.
+- `project.json#name` owns package-backed Nx identity whenever the Nx name
+  intentionally diverges from `package.json#name`.
+- Package names, workspace dependency keys, TypeScript imports, package
+  exports, mod ids, recipe ids, Railway service names, and generator package
+  ids stay unchanged.
+- Root or package scripts must not be reintroduced as spelling aliases for
+  renamed projects.
+- Generated Habitat topology projects are graph-visible boundary nodes, so they
+  participate in the rename and must stay aligned with taxonomy policy,
+  classify output, and tests.
+
+**Exterior**
+
+- Do not rename npm packages or public import surfaces.
+- Do not rewrite archived proof logs or historical docs solely to update old
+  command evidence.
+- Do not collapse valid graph metadata back into package scripts.
+- Do not remove runtime ids or product names that only happen to resemble old
+  Nx project names.
+
+**Would force a reframe**
+
+- If Nx release/publish behavior cannot resolve package metadata after the Nx
+  project name diverges from `package.json#name`.
+- If Habitat boundary taxonomy requires scoped package-looking names for
+  generated non-package projects.
+
+## Canonical Rename Map
+
+| Old Nx project | New Nx project | Notes |
+| --- | --- | --- |
+| `@mateicanavra/civ7-cli` | `civ7-cli` | Package name remains `@mateicanavra/civ7-cli`. |
+| `@mateicanavra/civ7-sdk` | `civ7-sdk` | Package name remains `@mateicanavra/civ7-sdk`. |
+| `@civ7/docs` | `civ7-docs` | App graph identity; package name remains unchanged. |
+| `@civ7/playground` | `civ7-playground` | App graph identity; package name remains unchanged. |
+| `@civ7/adapter` | `civ7-adapter` | Package/import identity remains unchanged. |
+| `@civ7/types` | `civ7-types` | Package/import identity remains unchanged. |
+| `@civ7/config` | `civ7-config` | Package/import identity remains unchanged. |
+| `@civ7/map-policy` | `civ7-map-policy` | Package/import identity remains unchanged. |
+| `@civ7/direct-control` | `control-direct` | Control-domain graph identity. |
+| `@civ7/control-orpc` | `control-orpc` | Control-domain graph identity. |
+| `@civ7/studio-server` | `control-studio-server` | Control-domain graph identity. |
+| `@swooper/mapgen-core` | `mapgen-core` | Package/import identity remains unchanged. |
+| `@swooper/mapgen-viz` | `mapgen-viz` | Package/import identity remains unchanged. |
+| `mapgen-studio` | `mapgen-studio` | Already short and domain-legible. |
+| `@civ7/plugin-files` | `plugin-files` | Plugin graph identity. |
+| `@civ7/plugin-git` | `plugin-git` | Plugin graph identity. |
+| `@civ7/plugin-graph` | `plugin-graph` | Plugin graph identity. |
+| `@civ7/plugin-mods` | `plugin-mods` | Plugin graph identity. |
+| `mod-swooper-maps` | `mod-swooper-maps` | Runtime mod id and graph name already align. |
+| `civ-mod-dacia` | `mod-dacia` | Runtime package/mod id remains unchanged. |
+| `mod-civ7-intelligence-bridge` | `mod-intelligence-bridge` | Runtime package/mod id remains unchanged. |
+| `@habitat/cli` | `habitat` | Package, import, bin, and generator identities remain `@habitat/cli` / `habitat`. |
+| `@internal/habitat-artifacts` | `habitat-artifacts` | Generated artifact topology node. |
+| `@habitat/cli-cli` | `habitat-cli` | Generated Habitat topology node. |
+| `@habitat/cli-service-shell` | `habitat-service` | Generated Habitat topology node. |
+| `@habitat/cli-service-model` | `habitat-service-model` | Generated Habitat topology node. |
+| `@habitat/cli-providers` | `habitat-providers` | Generated Habitat topology node. |
+| `@habitat/cli-resources` | `habitat-resources` | Generated Habitat topology node. |
+| `@habitat/cli-runtime` | `habitat-runtime` | Generated Habitat topology node. |
+| `@habitat/cli-service-module-check` | `habitat-service-check` | Generated from service module directory. |
+| `@habitat/cli-service-module-classify` | `habitat-service-classify` | Generated from service module directory. |
+| `@habitat/cli-service-module-fix` | `habitat-service-fix` | Generated from service module directory. |
+| `@habitat/cli-service-module-graph` | `habitat-service-graph` | Generated from service module directory. |
+| `@habitat/cli-service-module-hook` | `habitat-service-hook` | Generated from service module directory. |
+| `@habitat/cli-service-module-verify` | `habitat-service-verify` | Generated from service module directory. |
+
+## Implementation Ledger
+
+- Add sibling `project.json` files for tag-only package-inferred projects whose
+  graph name now diverges from their package name.
+- Update `nx.json`, explicit `project.json` dependencies, CI workflows, active
+  command docs, Habitat rule metadata, remediation strings, and tests that
+  assert Nx task ids.
+- Update `tools/habitat/src/nx-plugin.ts`, Habitat artifact paths, boundary
+  taxonomy policy, taxonomy docs, and taxonomy/classify tests for generated
+  Habitat topology names.
+- Audit old names only in graph/command contexts. Expected remaining old-name
+  hits are package names, imports, workspace dependencies, package exports,
+  generator package ids, mod/runtime ids, archives, and historical proof.
+
+Proof gates:
+
+- `nx show projects --json`
+- `nx graph --print`
+- `nx show projects --withTarget build --json`
+- `nx show projects --withTarget check --json`
+- `nx show projects --withTarget habitat:check --json`
+- `nx show project civ7-cli --json`
+- `nx show project habitat --json`
+- `nx show project habitat-service-check --json`
+- `bun habitat classify tools/habitat/src/service/modules/check/router.ts`
+- Habitat boundary-taxonomy, classify, and workspace-graph tests
+- Representative execution: `nx build civ7-cli --skip-nx-cache`,
+  `nx run civ7-cli -t test:play --skip-nx-cache`, and
+  `nx run mod-swooper-maps -t test:architecture-cutover --skip-nx-cache`
 
 ## Hard Core
 
@@ -287,7 +396,7 @@ outside package-script inference.
 | `apps/mapgen-studio` `build` | Graph-owned target | `build` is the aggregate that depends on `build:vite` and declares `dist/**`; the package script `build` was removed so the command surface does not bypass graph dependencies. |
 | `apps/mapgen-studio` `check`, `test`, `build:vite` | Graph-owned targets | The explicit targets own their commands plus Studio recipe dependencies and `dist/**` outputs. Same-name package scripts were removed so the graph is the only command surface for these tasks. |
 | `packages/civ7-control-orpc` `check` | Graph-owned target | `check` aggregates `check:types` and generated `habitat:check`; the package script was removed. |
-| `packages/civ7-control-orpc` `build`, `check:types` | Graph-owned targets | Explicit targets own the build/typecheck commands plus dependency freshness and outputs, including the `@civ7/direct-control:build` dependency for type checks. Same-name package scripts were removed. |
+| `packages/civ7-control-orpc` `build`, `check:types` | Graph-owned targets | Explicit targets own the build/typecheck commands plus dependency freshness and outputs, including the `control-direct:build` dependency for type checks. Same-name package scripts were removed. |
 | `packages/civ7-direct-control/project.json` | Preserved explicit graph metadata | Direct Control owns tuner framing, state discovery, reconnect/session behavior, and live runtime access. Its `project.json` keeps bundle/types phases, outputs, and build aggregation explicit; the duplicate `build` package script was removed. |
 | `packages/cli` `build` | Graph-owned target | CLI build is an Oclif aggregate over `build:tsc`, `build:manifest`, and `build:bin-mode`; the package script `build` was removed because TypeScript alone is not the honest build. |
 | `packages/cli` phase, link, data, mod, test, readme, publish rows | Graph-owned targets | The explicit targets own Oclif ordering, generated README/manifest outputs, cache policy, and publish/link/data/mod ordering. Package scripts with the same names were removed; direct users should run the Nx target. |
@@ -334,7 +443,7 @@ Root `nx.json` should define the repo-wide task contract:
 
 - common `build`, `check`, `lint`, `test`, `verify`, `deploy`, `dev`, and
   `clean` policy;
-- `habitat:*` dependency on `@habitat/cli:build`;
+- `habitat:*` dependency on `habitat:build`;
 - generated/source check defaults where Habitat owns the runner;
 - cache defaults and broad output defaults that are actually safe across
   packages.
@@ -579,7 +688,7 @@ Tasks:
   exception targets and name them as exceptions.
 - Replace root pinned `habitat:check` project lists with graph-derived target
   selection unless exclusions are deliberate and documented.
-- Verify that `targetDefaults["habitat:*"]` applies the `@habitat/cli:build`
+- Verify that `targetDefaults["habitat:*"]` applies the `habitat:build`
   dependency to generated and explicit Habitat targets.
 
 Exit condition: no package manifest carries Habitat rule-list policy as a
@@ -667,10 +776,10 @@ symptom was fixed.
 | --- | --- | --- |
 | Root package health workflows | Root scripts as thin Nx entrypoints | `build`, `check`, `lint`, `test`, `ci`, and `verify` ask Nx to discover target owners instead of running curated rule lists or broad direct CLI checks. Direct Habitat CLI use is `bun habitat <subcommand>`; graph Habitat execution is `nx run-many -t habitat:check`. |
 | Habitat owner checks | Generated Habitat Nx targets plus explicit graph targets when needed | Package scripts no longer carry Habitat rule-list policy. Owner checks run through generated `habitat:check` targets or explicit Nx-only exception targets. |
-| Habitat CLI build dependency | Root `targetDefaults["habitat:check"]` for owner checks; Habitat Nx plugin for generated rule targets | Owner checks declare the package build plus `@habitat/cli:build`; generated `habitat:rule:*` targets emit their own CLI build dependency so alias targets keep their real graph dependency. |
+| Habitat CLI build dependency | Root `targetDefaults["habitat:check"]` for owner checks; Habitat Nx plugin for generated rule targets | Owner checks declare the package build plus `habitat:build`; generated `habitat:rule:*` targets emit their own CLI build dependency so alias targets keep their real graph dependency. |
 | Docs no-op validation | Docs package scripts for real docs operations; Nx build target for docs aggregation | Remove stale package no-op scripts and the stale `validate` target; docs build remains a no-op aggregate only for the real `sync` operation. |
 | Studio build output | `mapgen-studio:build` graph metadata | `mapgen-studio:build` depends on `build:vite`, so the build target honestly produces `dist`. Generated `habitat:check` then depends on `build` before bundle-output checks. |
-| ORPC check aggregation | `@civ7/control-orpc:check` graph metadata | Keep the no-op check aggregator, but depend on `check:types` and generated `habitat:check` instead of a package `lint` rule list. |
+| ORPC check aggregation | `control-orpc:check` graph metadata | Keep the no-op check aggregator, but depend on `check:types` and generated `habitat:check` instead of a package `lint` rule list. |
 | Preserved operational surfaces | Owning packages and existing explicit Nx metadata | CLI/Oclif phases, Direct Control `project.json`, deploys, generated-output targets, MapGen strict guardrail exception, and package-owned diagnostics stay explicit. |
 | Root target defaults | Shared root policy only | Keep broad defaults such as `build`, `check`, `test`, `lint`, `dev`, `deploy`, `verify`, `clean`, and `habitat:check`; remove or localize single-project and dead defaults such as `build:studio-recipes`, `test:studio-run-in-game`, `test:architecture-cutover`, and `deploy:studio`. |
 

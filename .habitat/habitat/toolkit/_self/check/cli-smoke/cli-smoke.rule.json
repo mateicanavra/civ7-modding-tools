@@ -1,7 +1,7 @@
 {
   "id": "cli-smoke",
   "ownerTool": "command-check",
-  "ownerProject": "@habitat/cli",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "Habitat CLI help and JSON check report surface",
   "forbids": "Habitat CLI help or selected-check JSON output becoming unparseable",

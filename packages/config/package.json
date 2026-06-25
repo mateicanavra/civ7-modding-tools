@@ -2,11 +2,6 @@
   "name": "@civ7/config",
   "version": "0.1.0",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:foundation"
-    ]
-  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

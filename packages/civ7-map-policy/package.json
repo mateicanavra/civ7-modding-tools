@@ -1,11 +1,6 @@
 {
   "name": "@civ7/map-policy",
   "version": "0.1.0",
-  "nx": {
-    "tags": [
-      "kind:foundation"
-    ]
-  },
   "description": "Pure Civ7 map policy facts and deterministic compliance helpers",
   "type": "module",
   "main": "./dist/index.js",

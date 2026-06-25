@@ -14,4 +14,4 @@ Validate with:
 
 - `bun run --cwd packages/civ7-direct-control test`
 - `bun run --cwd packages/civ7-direct-control check`
-- `nx run @civ7/direct-control:build`
+- `nx run control-direct:build`

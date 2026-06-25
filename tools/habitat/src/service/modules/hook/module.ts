@@ -1,4 +1,4 @@
-import { service, type HabitatModule } from "@habitat/cli/service/impl";
+import { type HabitatModule, service } from "@habitat/cli/service/impl";
 import { renderCheckReport } from "@habitat/cli/service/model/check/index";
 import { createCheckReportEffect } from "@habitat/cli/service/model/check/policy/structural/index";
 import { prePushTargetPlanForChangedPaths } from "@habitat/cli/service/model/validation/policy/target-routing.policy";

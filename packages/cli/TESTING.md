@@ -5,13 +5,13 @@ This package uses [Vitest](https://vitest.dev/) with the Node environment. Tests
 ## Running tests
 
 ```bash
-nx run @mateicanavra/civ7-cli:test
+nx run civ7-cli:test
 ```
 
 For the Civ7 live-play command suite:
 
 ```bash
-nx run @mateicanavra/civ7-cli:test:play
+nx run civ7-cli:test:play
 ```
 
 Run these from the repo root. They go through Nx so compiled workspace

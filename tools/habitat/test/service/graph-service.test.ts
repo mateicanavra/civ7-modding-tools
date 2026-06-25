@@ -1,13 +1,6 @@
 import path from "node:path";
-import {
-  affectedArgv,
-  graphArgv,
-  type NxGraphRequest,
-} from "@habitat/cli/providers/nx/index";
-import {
-  captureOutput,
-  makeHabitatCommandResult,
-} from "@habitat/cli/resources/command/index";
+import { affectedArgv, graphArgv, type NxGraphRequest } from "@habitat/cli/providers/nx/index";
+import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import { CommandUnavailable } from "@habitat/cli/resources/errors/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatServiceDeps } from "@habitat/cli/service/base";

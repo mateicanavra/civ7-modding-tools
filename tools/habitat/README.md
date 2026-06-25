@@ -34,7 +34,7 @@ bun run verify             # graph-owned heavier verification aggregate
 bun habitat check          # diagnostic Habitat CLI loop (add --json for JSON)
 bun habitat verify         # diagnostic Habitat CLI verify loop
 bun habitat classify packages/config/src/index.ts
-nx run @habitat/cli:boundaries  # project-plane tag boundaries
+nx run habitat:boundaries  # project-plane tag boundaries
 bun run biome:ci                                       # hygiene-layer CI gate
 bun habitat hook pre-commit     # local staged hook path
 bun habitat hook pre-push       # local affected pre-push path

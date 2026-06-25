@@ -40,7 +40,7 @@ function ruleGraphAlias(
   if (rule.id === "format-ci") {
     return {
       kind: "depends-on",
-      target: { project: "@habitat/cli", target: targetNames.biomeCi },
+      target: { project: "habitat", target: targetNames.biomeCi },
     };
   }
   if (rule.ownerTool === "nx") {

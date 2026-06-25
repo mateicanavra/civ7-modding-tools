@@ -1,11 +1,6 @@
 {
   "name": "@civ7/playground",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:app"
-    ]
-  },
   "scripts": {
     "dev": "bun run src/build.ts",
     "build": "bun run src/build.ts",

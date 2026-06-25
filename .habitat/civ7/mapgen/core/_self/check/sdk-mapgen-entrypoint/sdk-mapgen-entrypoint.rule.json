@@ -1,7 +1,7 @@
 {
   "id": "sdk-mapgen-entrypoint",
   "ownerTool": "source-check",
-  "ownerProject": "@mateicanavra/civ7-sdk",
+  "ownerProject": "civ7-sdk",
   "lane": "enforced",
   "scope": "packages/sdk/src/**/*.ts and packages/mapgen-core/src/**/*.ts",
   "forbids": "SDK root importing/exporting ./mapgen or Civ7 adapter imports outside mapgen runtime subpath",
