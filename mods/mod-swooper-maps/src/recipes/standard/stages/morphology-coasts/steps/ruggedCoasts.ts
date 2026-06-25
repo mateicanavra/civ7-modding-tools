@@ -174,6 +174,23 @@ export default createStep(RuggedCoastsStepContract, {
     heightfield.elevation.set(reconciled.elevation);
     bathymetry.set(reconciled.bathymetry);
 
+    // Diagnostic: the post-carve, PRE-erosion seafloor. This is the bathymetry the shelf
+    // would have read before R3 relocated it downstream; comparing it to the post-erosion
+    // (geomorphology) and post-island (compute-shelf) snapshots isolates how much erosion
+    // vs island injection shallows the nearshore that drives shelf width.
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.coastlineMetrics.bathymetryPreErosion",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "i16",
+      values: bathymetry,
+      meta: defineVizMeta("morphology.coastlineMetrics.bathymetryPreErosion", {
+        label: "Bathymetry (Post-carve, Pre-erosion)",
+        group: GROUP_COASTLINES,
+        visibility: "debug",
+      }),
+    });
+
     context.trace.event(() => {
       const size = Math.max(0, (width | 0) * (height | 0));
       let coastTiles = 0;

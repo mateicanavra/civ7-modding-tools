@@ -117,6 +117,34 @@ export default createStep(ComputeShelfStepContract, {
     const landMask = topography.landMask;
     const bathymetry = topography.bathymetry;
 
+    // Diagnostic: the exact bathymetry/landMask the shelf classifier reads (post-erosion AND
+    // post-island). Paired with the pre-erosion snapshot (morphology-coasts) it isolates how
+    // much erosion vs island injection drives shelf width.
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.shelf.bathymetryInput",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "i16",
+      values: bathymetry,
+      meta: defineVizMeta("morphology.shelf.bathymetryInput", {
+        label: "Bathymetry (Shelf Input, Post-island)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+      }),
+    });
+    context.viz?.dumpGrid(context.trace, {
+      dataTypeKey: "morphology.shelf.landMaskInput",
+      spaceId: TILE_SPACE_ID,
+      dims: { width, height },
+      format: "u8",
+      values: landMask,
+      meta: defineVizMeta("morphology.shelf.landMaskInput", {
+        label: "Land Mask (Shelf Input, Post-island)",
+        group: GROUP_SHELF,
+        visibility: "debug",
+      }),
+    });
+
     // 1) Post-island shoreline adjacency (island peaks now count).
     const { coastalLand, coastalWater } = ops.coastalAdjacency(
       { width, height, landMask },

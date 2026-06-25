@@ -126,3 +126,12 @@ runId `3efbb0139ba2c71f227dbc367a2c421e479bd387ccffa0fe9c8cfa87cb770993` (latest
   own `shelfWidth: "wide"`; narrowable via config if a lower coast share is desired. C5 bound stands as a
   pre-cap-free target; R3's island-shelf coast is a deliberate, physically-grounded overshoot, not the
   naive band the workstream removed.
+- **C5 mechanism correction (2026-06-21, Thread 1 — see [EROSION-THREAD.md](./EROSION-THREAD.md)):** the
+  "+0.10 is island shelves" framing is right in spirit but imprecise on the dominant mechanism. Validated
+  factor isolation (offline shelf replica byte-exact vs live, latest_juicy wide, s1337): the R3 shelf
+  growth +512 tiles (1788→2300) is **0% erosion** (post-erosion seafloor bathymetry is byte-identical to
+  pre-erosion — erosion is subaerial, max underwater |Δ|=0.057 < the int16 step), **22% island geometry**
+  (+112, new island shelf rings + distance re-windowing), and **78% a global nearshore-cutoff coupling**
+  (+400): islands add nearshore samples that deepen the single global `shallowCutoff` −7→−9, widening the
+  depth gate on continental margins map-wide. The erosion hypothesis is refuted (no action); the +400
+  global-cutoff coupling is the quantified target for the margin-aware seafloor lever (Thread 2).

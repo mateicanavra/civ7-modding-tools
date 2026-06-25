@@ -30,7 +30,8 @@
       "build": {
         "dependsOn": [
           "^build",
-          "gen:maps"
+          "gen:maps",
+          "build:studio-recipes"
         ],
         "inputs": [
           "default",
@@ -221,7 +222,7 @@
   "scripts": {
     "build": "tsup",
     "build:studio-deploy": "tsup",
-    "build:studio-recipes": "node -e \"\"",
+    "build:studio-recipes": "bun run build:studio-recipes:bundle && bun run gen:studio-recipes-types && bun run gen:maps",
     "gen:maps": "bun ./scripts/generate-map-artifacts.ts",
     "migrate:configs": "bun ./scripts/migrate-config-shapes.ts && biome format --write src/maps/configs && bun run gen:maps",
     "migrate:configs:check": "bun ./scripts/migrate-config-shapes.ts --dry",
