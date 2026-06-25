@@ -1,61 +1,81 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
+/**
+ * Cap-free shelf classifier config.
+ *
+ * The continental shelf is shallow water connected to the shoreline and shallower than
+ * the *shelf-break depth*. There are NO tile-distance caps: shelf extent emerges from
+ * where the seafloor drops past the break depth (the depth gate) and from contiguity to
+ * shore (the flood-fill). Margin type modulates the break depth as physics — active
+ * (convergent/transform) margins drop off steeply (shallower break, narrower shelf);
+ * passive margins are gentle (deeper break, wider shelf).
+ */
 export const ShelfMaskConfigSchema = Type.Object(
   {
-    nearshoreDistance: Type.Integer({
-      default: 3,
-      minimum: 0,
-      maximum: 64,
-      description:
-        "Controls candidate nearshore water distance cap used to sample shelf bathymetry.",
-    }),
     shallowQuantile: Type.Number({
-      default: 0.7,
+      default: 0.6,
       minimum: 0,
       maximum: 1,
       description:
-        "Quantile (0..1) of nearshore bathymetry used as the shallow cutoff (higher => narrower shelf; lower => wider).",
+        "Quantile (0..1) of nearshore bathymetry used as the base shelf-break depth. Higher => shallower break => narrower shelf; lower => deeper => wider. Adapts the break to each map's depth scale.",
+    }),
+    breakDepthSampleRadius: Type.Integer({
+      default: 8,
+      minimum: 1,
+      maximum: 64,
+      description:
+        "Nearshore window (tiles from coast) over which bathymetry is sampled to estimate the break depth. This bounds which tiles INFORM the cutoff (a statistical estimator window), NOT the shelf extent.",
     }),
     activeClosenessThreshold: Type.Number({
-      default: 0.45,
+      default: 0.35,
       minimum: 0,
       maximum: 1,
       description:
-        "Controls boundary closeness threshold for treating convergent/transform margins as active for shelf narrowing.",
+        "Boundary-closeness (0..1) above which a convergent/transform margin counts as active (steeper drop-off, narrower shelf).",
     }),
-    capTilesActive: Type.Integer({
-      default: 2,
+    activeBreakDepthFactor: Type.Number({
+      default: 0.6,
       minimum: 0,
-      maximum: 64,
-      description: "Controls max distance to coast for shelf classification near active margins.",
-    }),
-    capTilesPassive: Type.Integer({
-      default: 4,
-      minimum: 0,
-      maximum: 64,
+      maximum: 4,
       description:
-        "Controls max distance to coast for shelf classification away from active margins.",
+        "Break-depth multiplier on active margins (<1 => shallower break => narrower shelf). Margin physics, not a cap.",
     }),
-    capTilesMax: Type.Integer({
-      default: 8,
+    passiveBreakDepthFactor: Type.Number({
+      default: 1.25,
       minimum: 0,
-      maximum: 64,
-      description: "Controls hard clamp on the per-tile shelf distance cap.",
+      maximum: 4,
+      description:
+        "Break-depth multiplier on passive margins (>1 => deeper break => wider shelf). Margin physics, not a cap.",
+    }),
+    absoluteMaxShelfDepth: Type.Integer({
+      default: -30,
+      minimum: -1000,
+      maximum: 0,
+      description:
+        "Deepest (most negative, metres) the shelf-break depth may reach: a physical safety floor so the depth gate cannot flood a degenerately-flat sea. A metric depth, NOT a tile-distance cap.",
+    }),
+    breakDepthScale: Type.Number({
+      default: 1,
+      minimum: 0,
+      maximum: 8,
+      description:
+        "Global break-depth scale set from the shelfWidth knob (narrow<1, wide>1). Authors use the knob; normalize() injects this value.",
     }),
   },
   {
     additionalProperties: false,
     description:
-      "Shelf classifier controls (steering inputs): nearshore sampling distance, shallow cutoff quantile, and margin-aware distance caps.",
+      "Cap-free shelf classifier: a margin-modulated bathymetric break depth (with a physical depth floor) plus connectivity to shore. No tile-distance caps.",
   }
 );
 
 /**
- * Computes a shallow-shelf water mask for projecting to Civ7 TERRAIN_COAST.
+ * Computes a continental-shelf water mask for projecting to Civ7 TERRAIN_COAST.
  *
- * Intent:
- * - Deterministic, Morphology-derived shelf band (no Civ RNG helpers).
- * - Narrow shelves near active (convergent/transform) margins; wider elsewhere.
+ * Physics: shelf = water that is (a) shallower than a margin-modulated bathymetric break
+ * depth AND (b) flood-connected to the shoreline. Passive margins yield broad shelves,
+ * active margins narrow ones. No tile-distance caps; the only bounds are the break depth
+ * (a metric depth) and shore connectivity (BFS).
  */
 const ComputeShelfMaskContract = defineOp({
   kind: "compute",
@@ -66,10 +86,11 @@ const ComputeShelfMaskContract = defineOp({
     landMask: TypedArraySchemas.u8({ description: "Land mask per tile (1=land, 0=water)." }),
     bathymetry: TypedArraySchemas.i16({
       description:
-        "Bathymetry per tile (meters): 0 on land; <=0 in water; closer to 0 is shallower.",
+        "Bathymetry per tile (metres): 0 on land; <=0 in water; closer to 0 is shallower.",
     }),
     distanceToCoast: TypedArraySchemas.u16({
-      description: "Distance to coast per tile (0=coast).",
+      description:
+        "Distance to coast per tile (0=coast). Used only to window the break-depth sample.",
     }),
     boundaryCloseness: TypedArraySchemas.u8({
       description: "Boundary proximity per tile (0..255).",
@@ -80,27 +101,28 @@ const ComputeShelfMaskContract = defineOp({
   }),
   output: Type.Object({
     shelfMask: TypedArraySchemas.u8({
-      description: "Mask (1/0): shallow shelf water eligible for TERRAIN_COAST projection.",
+      description:
+        "Mask (1/0): shallow shelf water (shallower than the break depth AND connected to shore) eligible for TERRAIN_COAST.",
     }),
     activeMarginMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): tiles treated as active margin for shelf narrowing (convergent/transform with high closeness).",
-    }),
-    capTilesByTile: TypedArraySchemas.u8({
-      description:
-        "Per-tile distance cap (tiles) used by the shelf classifier (active margins narrower, passive wider).",
-    }),
-    nearshoreCandidateMask: TypedArraySchemas.u8({
-      description:
-        "Mask (1/0): water tiles within nearshoreDistance used to sample bathymetry for the shallow cutoff.",
+        "Mask (1/0): water tiles treated as active margin (convergent/transform with high closeness) => shallower break depth.",
     }),
     depthGateMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): water tiles passing the shallow bathymetry cutoff (bathymetry >= shallowCutoff).",
+        "Mask (1/0): water tiles passing the per-tile depth gate (bathymetry >= break depth).",
+    }),
+    nearshoreCandidateMask: TypedArraySchemas.u8({
+      description:
+        "Mask (1/0): water tiles within breakDepthSampleRadius used to sample bathymetry for the break-depth quantile.",
+    }),
+    shelfBreakDepthByTile: TypedArraySchemas.i16({
+      description:
+        "Per-tile shelf-break depth (metres, <=0) after margin modulation; deeper (more negative) => wider local shelf.",
     }),
     shallowCutoff: Type.Number({
       description:
-        "Bathymetry cutoff (meters, <=0) selected deterministically from nearshore samples; bathymetry >= cutoff is treated as shallow.",
+        "Base shelf-break depth (metres, <=0): the nearshore bathymetry quantile before margin modulation.",
     }),
   }),
   strategies: {
