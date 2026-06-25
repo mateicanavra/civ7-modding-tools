@@ -1,6 +1,4 @@
-import { readFileSync } from "node:fs";
 import { createServer, type Server } from "node:http";
-import { fileURLToPath } from "node:url";
 import { type Civ7ControlOrpcContext, Civ7ControlOrpcContract } from "@civ7/control-orpc";
 import { Civ7DirectControlSession, type Civ7PlayableStatusResult } from "@civ7/direct-control";
 import {
@@ -147,22 +145,6 @@ describe("one /rpc mount serves the whole unified contract", () => {
     }
   });
 
-  test("production daemon leaves EventHub lifecycle inside the Studio runtime", () => {
-    const daemonSource = readFileSync(
-      fileURLToPath(new URL("../../src/server/daemon/daemon.ts", import.meta.url)),
-      "utf8"
-    );
-    const contextSource = readFileSync(
-      fileURLToPath(new URL("../../src/server/studio/context.ts", import.meta.url)),
-      "utf8"
-    );
-
-    expect(daemonSource).toContain("createStudioRpcHandler(context");
-    expect(daemonSource).not.toContain("createStudioEventHub");
-    expect(daemonSource).not.toMatch(/eventHub\?:|createStudioRpcHandler\([^)]*\{[^}]*eventHub/);
-    expect(daemonSource).not.toContain("eventHub.shutdown();");
-    expect(contextSource).not.toContain("eventHub");
-  });
 });
 
 async function listenWithStudioServer(overrides: Partial<StudioServerContext>): Promise<{

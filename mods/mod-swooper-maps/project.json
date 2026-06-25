@@ -86,6 +86,7 @@
     "gen:map-artifacts": {
       "command": "bun ./scripts/generate-map-artifacts.ts",
       "dependsOn": [
+        "gen:studio-recipes-types",
         "gen:configs:shape-check",
         {
           "projects": ["mapgen-core"],
@@ -155,7 +156,7 @@
     },
     "build:studio-recipes:maps": {
       "command": "node -e \"\"",
-      "dependsOn": ["gen:studio-recipes-types", "gen:map-artifacts"],
+      "dependsOn": ["gen:map-artifacts"],
       "cache": false,
       "outputs": [
         "{projectRoot}/dist/recipes/standard-map-config.schema.json",

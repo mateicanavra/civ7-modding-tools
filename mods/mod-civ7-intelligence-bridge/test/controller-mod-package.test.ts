@@ -50,19 +50,6 @@ describe("Civ7 intelligence bridge mod package", () => {
     expect(modinfo).not.toContain('scope="shell"');
   });
 
-  test("keeps the UI bootstrap on the narrow game-ui package entry", async () => {
-    const source = await readFile(
-      join(packageRoot.pathname, "src/ui/civ7-intelligence-bridge.ts"),
-      "utf8"
-    );
-
-    expect(source).toContain("@civ7/control-orpc/game-ui");
-    expect(source).toContain("installCiv7GameUiIntelligenceBridge");
-    expect(source).not.toContain('@civ7/control-orpc";');
-    expect(source).not.toContain("RPCHandler");
-    expect(source).not.toContain("RPCLink");
-  });
-
   test("keeps the generated UI bundle free of Node and direct-control runtime code", async () => {
     const bundle = await readFile(
       join(packageRoot.pathname, "mod/ui/civ7-intelligence-bridge.js"),

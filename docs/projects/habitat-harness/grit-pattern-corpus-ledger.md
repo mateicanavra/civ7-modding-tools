@@ -20,11 +20,12 @@ ownership lives in source-check pattern rules, and generated-bundle/domain
 correctness checks remain package Nx targets.
 
 **Edge-miss stabilization note:** the later task-graph stabilization slice
-removes package-visible `test:architecture-*` Nx targets from the active graph.
-The old target names are retained only in package-local
-`removed-architecture-targets.txt` canaries for the embedded hidden-authority
-migration corpus. Rows below that still name those targets are historical proof
-records, not live target contracts.
+removed package-visible `test:architecture-*` Nx targets from the active graph.
+The temporary canary files were consumed by the embedded hidden-authority
+migration and replaced by
+`docs/projects/habitat-harness/hidden-test-authority/workstream.md`. Rows below
+that still name old targets are historical proof records, not live target
+contracts.
 
 ## Historical Corpus Seed Summary
 

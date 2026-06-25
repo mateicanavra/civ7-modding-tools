@@ -7,7 +7,7 @@ const PlaceDiscoveriesStepContract = defineStep({
   id: "place-discoveries",
   phase: "placement",
   // Discoveries run last (after natural wonders, resources, and starts), exactly
-  // as Civ7's base maps call generateDiscoveries(): the official generator reads
+  // as Civ7's base maps run discovery generation: the official generator reads
   // engine state (isNaturalWonder / getResourceType / distance-from-start) that
   // must already be stamped. Ordering after starts/resources is carried by the
   // effect tags; the start plots are consumed from the startAssignment artifact

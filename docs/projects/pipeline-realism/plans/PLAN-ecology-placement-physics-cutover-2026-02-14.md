@@ -159,7 +159,7 @@ Changes:
 1. Remove dead contracts/knobs/config keys from staged cutovers.
 2. Convert observe-first drift checks to fail-hard for true contract mismatches.
 3. Final no-legacy static scans:
-- extend `mods/mod-swooper-maps/test/ecology/no-fudging-static-scan.test.ts`
+- extend Habitat `ecology-fudging-guardrails`
 - add placement/hydrology randomness scans.
 4. Docs and ADR updates:
 - `docs/system/mods/swooper-maps/architecture.md`

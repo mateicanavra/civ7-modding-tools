@@ -47,7 +47,7 @@ survives only in `eslint.boundaries.config.mjs`, whose sole rule is
 
 | ID | File | Invariant | Disposition |
 |---|---|---|---|
-| core-purity | `packages/mapgen-core/test/architecture/core-purity.test.ts` | mapgen-core prod code has no Civ7 runtime refs | keep-as-test; **duplicated intent** with nx-boundaries tag rule (`kind:core` ↛ `kind:adapter`) — once the tag rule is locked, slim the test or retire (decided in H6) |
+| core-purity | `.habitat/civ7/mapgen/core/_self/check/mapgen-core-runtime-civ7` | mapgen-core prod code has no Civ7 runtime refs | migrated to Habitat source/check authority; former package architecture test retired in embedded hidden-authority migration |
 | rng-authority-static | `.habitat/civ7/mapgen/pipeline/_self/check/rng-authority-static/rng-authority-static.check.mjs` | no engine RNG / official generators in standard recipe + domain source | migrated from package test to Habitat command-check in hidden-test-authority batch; runtime RNG execution proof stays in `standard-rng-authority.test.ts` |
 | recipe-import-boundary | retired H6 (`mods/.../test/pipeline/recipe-import-boundary.test.ts`) | recipes use public domain surfaces | grit-check equivalent locked; retired in H6 |
 | ecology-step-imports | `.habitat/civ7/mapgen/pipeline/_self/check/ecology-step-imports/ecology-step-imports.check.mjs` | retired stage dirs absent; active ecology stages avoid ecology ops/rules internals | migrated from package test to Habitat command-check in hidden-test-authority audit; `.pattern.md` remains future Grit source while source-check path compatibility is repaired |

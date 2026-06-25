@@ -56,7 +56,7 @@ For `mods/mod-swooper-maps`, CI/local validation should include:
 
 - Deterministic placement suite (`test/placement/**`) validating stamp-based resources/wonders/discoveries.
 - Hydrology regression suite (`test/map-hydrology/**`, `test/hydrology/plan-lakes.test.ts`) validating sink-driven lake planning and runtime fill parity.
-- Static policy scans (`test/ecology/no-fudging-static-scan.test.ts`) enforcing no RNG/fudge constructs and no legacy generator call/module usage in scoped ecology/hydrology/placement surfaces.
+- Static policy scans (`bun habitat check --rule ecology-fudging-guardrails`) enforcing no RNG/fudge constructs and no legacy generator call/module usage in scoped ecology/hydrology/placement surfaces.
 - RNG authority guards (`packages/mapgen-core/test/core/rng.test.ts`,
   `.habitat/civ7/mapgen/pipeline/_self/check/rng-authority-static/rng-authority-static.check.mjs`, and
   `mods/mod-swooper-maps/test/pipeline/standard-rng-authority.test.ts`)
