@@ -1,6 +1,6 @@
 import {
-  applyCiv7CoastClassificationPolicy,
-  CIV7_COAST_CLASSIFICATION_POLICY_V0,
+  applyCiv7CoastRingPolicy,
+  CIV7_COAST_RING_POLICY_V0,
   WATER_CLASS_COAST,
   WATER_CLASS_LAND,
   WATER_CLASS_OCEAN,
@@ -14,7 +14,6 @@ import {
   snapshotEngineHeightfield,
 } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
-import { getHexNeighborIndicesOddQ } from "@swooper/mapgen-core/lib/grid";
 import { assertWaterDriftWithinPolicy } from "../../../projection-policies/noWaterDrift.js";
 import { mapMorphologyArtifacts } from "../artifacts.js";
 import PlotCoastsStepContract from "./plotCoasts.contract.js";
@@ -42,7 +41,8 @@ export default createStep(PlotCoastsStepContract, {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const idx = y * width + x;
-        // The source mask is Morphology truth; the later policy pass is a separate engine-compatibility band.
+        // Coast is the physically-derived continental shelf (margin-aware, depth-gated)
+        // plus the guaranteed shoreline ring. No uniform distance band overrides it.
         const isLand = topography.landMask[idx] === 1;
         const isCoast =
           !isLand &&
@@ -56,43 +56,20 @@ export default createStep(PlotCoastsStepContract, {
       }
     }
 
-    const coastPolicy = applyCiv7CoastClassificationPolicy({
+    // Coast-ring invariant: every land tile must border at least one coast tile — no land
+    // may sit against deep ocean (the live engine renders floating cliff plateaus) and
+    // coastal settlement legality requires the adjacency. The shelf covers most of this
+    // already; the ring policy heals the residue (e.g. ocean around island peaks injected
+    // after coastline metrics) with a single land-adjacent ring using engine odd-R adjacency.
+    // This is NOT a coast-width control — width is the shelf (see compute-shelf-mask).
+    const coastRing = applyCiv7CoastRingPolicy({
       width,
       height,
       waterClass: baseWaterClass,
     });
-    const waterClass = coastPolicy.waterClass;
-    const policyCoastMask = coastPolicy.policyCoastMask;
-    let promotedOceanToCoast = coastPolicy.promotedOceanToCoast;
-
-    // Coast-ring invariant: every land tile must have a coast ring — no land may
-    // border deep ocean, or the live engine renders floating cliff plateaus.
-    // The Civ7 coast policy seeds expansion from existing COAST tiles (not land),
-    // so land injected after coastline metrics (e.g. island peaks) gets no ring.
-    // Promote any deep-ocean tile adjacent to land to coast, using the canonical
-    // engine adjacency (odd-R). This is source-agnostic — it heals islands and
-    // any future late land injection — so the no-water-drift policy stops
-    // fighting the engine's coast repair. The earlier eight-offset superset
-    // workaround is unnecessary now that the adjacency model matches the engine.
-    let landAdjacentCoastRingPromotions = 0;
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        const idx = y * width + x;
-        if ((waterClass[idx] | 0) !== WATER_CLASS_OCEAN) continue;
-        let adjacentToLand = false;
-        for (const neighbor of getHexNeighborIndicesOddQ(x, y, width, height)) {
-          if ((waterClass[neighbor] | 0) === WATER_CLASS_LAND) {
-            adjacentToLand = true;
-            break;
-          }
-        }
-        if (!adjacentToLand) continue;
-        waterClass[idx] = WATER_CLASS_COAST;
-        policyCoastMask[idx] = 1;
-        landAdjacentCoastRingPromotions += 1;
-      }
-    }
-    promotedOceanToCoast += landAdjacentCoastRingPromotions;
+    const waterClass = coastRing.waterClass;
+    const coastRingMask = coastRing.coastRingMask;
+    const promotedOceanToCoast = coastRing.promotedOceanToCoast;
 
     deps.artifacts.coastClassification.publish(context, {
       width,
@@ -100,25 +77,16 @@ export default createStep(PlotCoastsStepContract, {
       baseWaterClass,
       sourceCoastMask,
       waterClass,
-      policyCoastMask,
-      coastBufferTiles: coastPolicy.coastBufferTiles,
+      coastRingMask,
       promotedOceanToCoast,
     });
 
     context.trace.event(() => ({
       type: "map.morphology.coasts.policy",
-      policy: "civ7.coastClassification.v0",
-      coastBufferTiles: coastPolicy.coastBufferTiles,
+      policy: "civ7.coastRing.v0",
       promotedOceanToCoast,
-      source: CIV7_COAST_CLASSIFICATION_POLICY_V0.source,
+      source: CIV7_COAST_RING_POLICY_V0.source,
     }));
-
-    if (landAdjacentCoastRingPromotions > 0) {
-      context.trace.event(() => ({
-        type: "map.morphology.coasts.landAdjacentCoastRing",
-        promoted: landAdjacentCoastRingPromotions,
-      }));
-    }
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -155,10 +123,10 @@ export default createStep(PlotCoastsStepContract, {
       format: "u8",
       values: waterClass,
       meta: defineVizMeta("map.morphology.coasts.waterClass", {
-        label: "Water Class (Engine Policy)",
+        label: "Water Class (Engine)",
         group: GROUP_MAP_MORPHOLOGY,
         description:
-          "Post-policy water class stamped into engine terrain (0=land, 1=coast, 2=ocean). This includes source coast tiles plus Civ7 compatibility coast-band promotions.",
+          "Water class stamped into engine terrain (0=land, 1=coast, 2=ocean): the continental shelf plus the guaranteed land-adjacent coast ring.",
         role: "membership",
         palette: "categorical",
         categories: [
@@ -189,22 +157,22 @@ export default createStep(PlotCoastsStepContract, {
       }),
     });
     context.viz?.dumpGrid(context.trace, {
-      dataTypeKey: "map.morphology.coasts.policyCoastMask",
+      dataTypeKey: "map.morphology.coasts.coastRingMask",
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: coastPolicy.policyCoastMask,
-      meta: defineVizMeta("map.morphology.coasts.policyCoastMask", {
-        label: "Policy Coast Additions",
+      values: coastRingMask,
+      meta: defineVizMeta("map.morphology.coasts.coastRingMask", {
+        label: "Coast Ring Additions",
         group: GROUP_MAP_MORPHOLOGY,
         description:
-          "Ocean tiles promoted to coast by the Civ7 compatibility policy after source coast selection.",
+          "Ocean tiles promoted to coast by the land-adjacent coast-ring guarantee (the residue not already covered by the shelf).",
         visibility: "debug",
         role: "membership",
         palette: "categorical",
         categories: [
-          { value: 0, label: "Not policy-added", color: [15, 23, 42, 40] },
-          { value: 1, label: "Policy-added coast", color: [125, 211, 252, 235] },
+          { value: 0, label: "Not ring-added", color: [15, 23, 42, 40] },
+          { value: 1, label: "Ring-added coast", color: [125, 211, 252, 235] },
         ],
       }),
     });

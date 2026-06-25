@@ -1,9 +1,4 @@
-import {
-  applyCiv7CoastClassificationPolicy,
-  WATER_CLASS_COAST,
-  WATER_CLASS_LAND,
-  WATER_CLASS_OCEAN,
-} from "@civ7/map-policy";
+import { WATER_CLASS_OCEAN } from "@civ7/map-policy";
 import { BIOME_SYMBOL_TO_INDEX } from "@mapgen/domain/ecology";
 import { clamp01, ctxStepSeed, defineVizMeta } from "@swooper/mapgen-core";
 import { createStep, implementArtifacts } from "@swooper/mapgen-core/authoring";
@@ -72,6 +67,7 @@ export default createStep(ScoreLayersStepContract, {
     const pedology = deps.artifacts.pedology.read(context);
     const topography = deps.artifacts.topography.read(context);
     const coastline = deps.artifacts.coastlineMetrics.read(context);
+    const coastClassification = deps.artifacts.coastClassification.read(context);
     const hydrography = deps.artifacts.hydrography.read(context);
     const lakePlan = deps.artifacts.lakePlan.read(context);
     const riverProjection = deps.artifacts.projectedNavigableRivers.read(context);
@@ -81,22 +77,12 @@ export default createStep(ScoreLayersStepContract, {
     const { width, height } = context.dimensions;
     const size = Math.max(0, (width | 0) * (height | 0));
     const ecologyLandMask = new Uint8Array(size);
-    const baseWaterClass = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       ecologyLandMask[i] = topography.landMask[i] === 1 && lakePlan.lakeMask[i] !== 1 ? 1 : 0;
-      const isLand = topography.landMask[i] === 1;
-      const isCoast = !isLand && (coastline.coastalWater[i] === 1 || coastline.shelfMask[i] === 1);
-      baseWaterClass[i] = isLand
-        ? WATER_CLASS_LAND
-        : isCoast
-          ? WATER_CLASS_COAST
-          : WATER_CLASS_OCEAN;
     }
-    const projectedWaterClass = applyCiv7CoastClassificationPolicy({
-      width,
-      height,
-      waterClass: baseWaterClass,
-    }).waterClass;
+    // Open ocean is the authoritative engine projection (shelf + coast ring), not a local
+    // recomputation: read the coastClassification waterClass stamped by map-morphology/plot-coasts.
+    const projectedWaterClass = coastClassification.waterClass;
     const openOceanMask = new Uint8Array(size);
     for (let i = 0; i < size; i++) {
       openOceanMask[i] = projectedWaterClass[i] === WATER_CLASS_OCEAN ? 1 : 0;

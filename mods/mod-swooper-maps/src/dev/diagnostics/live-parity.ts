@@ -838,8 +838,7 @@ function buildTerrainProjectionEvidence(
       "baseWaterClass",
       "sourceCoastMask",
       "waterClass",
-      "policyCoastMask",
-      "coastBufferTiles",
+      "coastRingMask",
       "promotedOceanToCoast",
     ]),
     mapMorphologyCoastTerrainSnapshot: pickSerializableFields(mapMorphologyCoastTerrainSnapshot, [
