@@ -28,6 +28,7 @@ const LandmassPlatesStepContract = defineStep({
     beltDrivers: morphology.ops.computeBeltDrivers,
     substrate: morphology.ops.computeSubstrate,
     baseTopography: morphology.ops.computeBaseTopography,
+    sculptContinentalMargin: morphology.ops.computeSculptContinentalMargin,
     seaLevel: morphology.ops.computeSeaLevel,
     landmask: morphology.ops.computeLandmask,
   },

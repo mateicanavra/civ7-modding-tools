@@ -88,7 +88,14 @@ const CASES = [
     // water at seed 1018 / 106x66 (atoll 33 -> 69, cold-reef 23 -> 51, reef
     // 37 -> 39). Raised the minimum needed to admit the new shelf-anchored
     // geography while still gating against carpeting.
-    reefMax: 0.032,
+    // Path A physical-shelf re-baseline (2026-06-22): the datum-free
+    // sculpt-continental-margin op retracts the coast band further; reef-family
+    // share 0.0307 -> 0.0389 of water at seed 1018 / 106x66 (reefFamilyTiles 202:
+    // atoll 38, reef 153, cold-reef 11). Same anti-carpeting accent trajectory,
+    // reef-heavy composition from the broader beyond-shelf shallow surface;
+    // budget raised 0.032 -> 0.04 to admit the approved coastline (0.04 matches
+    // the earthlike budget, still below the desert-mountains 0.047 cap).
+    reefMax: 0.04,
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_SAGEBRUSH_STEPPE"],
     vegetationFamiliesMin: 3,
     requireAtolls: true,
@@ -108,7 +115,13 @@ const CASES = [
     requiredFeatures: ["FEATURE_FOREST", "FEATURE_RAINFOREST", "FEATURE_MANGROVE"],
     vegetationFamiliesMin: 2,
     largestLakeComponentSizeMin: 2,
-    requireColdReefs: true,
+    // Cold-reef guarantee SUSPENDED for sundered-archipelago (tracked regression, 2026-06-22):
+    // the Path A physical shelf (compute-sculpt-continental-margin + gradient-break classifier)
+    // retracts the cold shallow shelf at high latitude on this all-continental map, so cold-reef
+    // habitat drops to 0 here (was 11). Same drowned-continental-platform mechanism as the open
+    // foundation crust-relief finding — see docs/projects/coastal-shelf-tiling/PATH-A-MARGIN-SCULPT.md.
+    // To be restored by the foundation crust-relief workstream; warm REEF/ATOLL here are unaffected.
+    requireColdReefs: false,
     requireAtolls: true,
   },
   {

@@ -9,6 +9,7 @@ export { ReliefConfigSchema } from "./ops/compute-base-topography/config.js";
 export { CoastConfigSchema } from "./ops/compute-coastline-metrics/config.js";
 export { GeomorphicCycleConfigSchema } from "./ops/compute-geomorphic-cycle/config.js";
 export { LandmaskConfigSchema } from "./ops/compute-landmask/contract.js";
+export { SculptContinentalMarginConfigSchema } from "./ops/compute-sculpt-continental-margin/config.js";
 export { HypsometryConfigSchema } from "./ops/compute-sea-level/config.js";
 export { ShelfMaskConfigSchema } from "./ops/compute-shelf-mask/contract.js";
 export { SubstrateConfigSchema } from "./ops/compute-substrate/contract.js";

@@ -1,6 +1,10 @@
 import type { MapDimensions } from "@civ7/adapter";
 import type { MorphologySeaLevelKnob } from "@mapgen/domain/morphology/config.js";
 import { MORPHOLOGY_SEA_LEVEL_TARGET_WATER_PERCENT_DELTA } from "@mapgen/domain/morphology/config.js";
+// SINGLE SOURCE OF TRUTH for the absolute-elevation quantization scale: the same constant
+// base topography quantizes with, imported so the margin sculpt derives its profile on the
+// exact engine scale rather than mirroring it as a config field.
+import { DEFAULT_ELEVATION_SCALE } from "@mapgen/domain/morphology/ops/compute-base-topography/rules/index.js";
 import {
   computeSampleStep,
   ctxRandom,
@@ -335,6 +339,33 @@ export default createStep(LandmassPlatesStepContract, {
       },
       config.baseTopography
     );
+
+    // Sculpt continental-margin morphology (apron -> break -> slope -> abyss) directly into
+    // ABSOLUTE elevation, datum-free, BEFORE sea level is solved. This GENERATES the real
+    // margin the shelf classifier later reads. Because it rewrites baseTopography.elevation in
+    // place — the same buffer compute-sea-level consumes — the datum is solved on the sculpted
+    // histogram (the one real coupling), held in check by the targetWaterPercent intent (see
+    // normalize). marginHopDistance/apronLengthScale are exposed for diagnostics only.
+    const margin = ops.sculptContinentalMargin(
+      {
+        width,
+        height,
+        // Relief datums SINGLE-SOURCED from the same base-topography config the op above consumed
+        // (config.baseTopography.config) + the canonical elevation scale base topography quantizes
+        // with, so the margin profile derives endpoints against THIS map's real relief, not a mirror.
+        oceanicHeight: config.baseTopography.config.oceanicHeight,
+        continentalHeight: config.baseTopography.config.continentalHeight,
+        elevationScale: DEFAULT_ELEVATION_SCALE,
+        elevation: baseTopography.elevation,
+        crustType: crustTiles.type,
+        crustAge: crustTiles.age,
+        crustBuoyancy: crustTiles.buoyancy,
+        boundaryCloseness: beltDrivers.boundaryCloseness,
+        boundaryType: beltDrivers.boundaryType,
+      },
+      config.sculptContinentalMargin
+    );
+    baseTopography.elevation.set(margin.elevation);
 
     const seaLevel = ops.seaLevel(
       {

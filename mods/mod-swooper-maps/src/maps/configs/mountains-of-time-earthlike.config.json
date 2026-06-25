@@ -229,13 +229,9 @@
         "shelfWidth": "wide"
       },
       "shelf": {
-        "breakDepthSampleRadius": 8,
-        "shallowQuantile": 0.6,
         "activeClosenessThreshold": 0.35,
-        "activeBreakDepthFactor": 0.6,
-        "passiveBreakDepthFactor": 1.25,
-        "absoluteMaxShelfDepth": -30,
-        "breakDepthScale": 1
+        "breakGradient": 8,
+        "breakGradientScale": 1
       }
     },
     "hydrology-climate-baseline": {

@@ -7,6 +7,7 @@ import ComputeFlowRoutingContract from "./compute-flow-routing/contract.js";
 import ComputeGeomorphicCycleContract from "./compute-geomorphic-cycle/contract.js";
 import ComputeLandmaskContract from "./compute-landmask/contract.js";
 import ComputeLandmassesContract from "./compute-landmasses/contract.js";
+import ComputeSculptContinentalMarginContract from "./compute-sculpt-continental-margin/contract.js";
 import ComputeSeaLevelContract from "./compute-sea-level/contract.js";
 import ComputeShelfMaskContract from "./compute-shelf-mask/contract.js";
 import ComputeSubstrateContract from "./compute-substrate/contract.js";
@@ -27,6 +28,7 @@ export const contracts = {
   computeGeomorphicCycle: ComputeGeomorphicCycleContract,
   computeLandmask: ComputeLandmaskContract,
   computeLandmasses: ComputeLandmassesContract,
+  computeSculptContinentalMargin: ComputeSculptContinentalMarginContract,
   computeShelfMask: ComputeShelfMaskContract,
   computeSeaLevel: ComputeSeaLevelContract,
   computeSubstrate: ComputeSubstrateContract,

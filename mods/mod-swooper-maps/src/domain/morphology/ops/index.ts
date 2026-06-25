@@ -8,6 +8,7 @@ import computeFlowRouting from "./compute-flow-routing/index.js";
 import computeGeomorphicCycle from "./compute-geomorphic-cycle/index.js";
 import computeLandmask from "./compute-landmask/index.js";
 import computeLandmasses from "./compute-landmasses/index.js";
+import computeSculptContinentalMargin from "./compute-sculpt-continental-margin/index.js";
 import computeSeaLevel from "./compute-sea-level/index.js";
 import computeShelfMask from "./compute-shelf-mask/index.js";
 import computeSubstrate from "./compute-substrate/index.js";
@@ -29,6 +30,7 @@ const implementations = {
   computeGeomorphicCycle,
   computeLandmask,
   computeLandmasses,
+  computeSculptContinentalMargin,
   computeShelfMask,
   computeSeaLevel,
   computeSubstrate,
@@ -53,6 +55,7 @@ export {
   computeGeomorphicCycle,
   computeLandmask,
   computeLandmasses,
+  computeSculptContinentalMargin,
   computeSeaLevel,
   computeShelfMask,
   computeSubstrate,

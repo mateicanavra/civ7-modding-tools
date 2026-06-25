@@ -94,10 +94,11 @@ export default createStep(ComputeShelfStepContract, {
             ...config.shelfMask,
             config: {
               ...config.shelfMask.config,
-              // The shelfWidth knob drives the cap-free break-depth scale: narrow (<1) =>
-              // shallower break => narrower shelf; wide (>1) => deeper => wider. No caps.
-              breakDepthScale: clampFinite(
-                config.shelfMask.config.breakDepthScale * shelfMultiplier,
+              // The shelfWidth knob drives the cap-free break-GRADIENT scale: narrow (<1) =>
+              // stricter gradient => the gentle apron yields to the slope sooner => narrower
+              // shelf; wide (>1) => more permissive => wider. No caps; reads the sculpted break.
+              breakGradientScale: clampFinite(
+                config.shelfMask.config.breakGradientScale * shelfMultiplier,
                 0
               ),
             },
@@ -233,13 +234,9 @@ export default createStep(ComputeShelfStepContract, {
         strategy: selection.strategy,
         config: shelfConfig
           ? {
-              shallowQuantile: shelfConfig.shallowQuantile,
-              breakDepthSampleRadius: shelfConfig.breakDepthSampleRadius,
+              breakGradient: shelfConfig.breakGradient,
+              breakGradientScale: shelfConfig.breakGradientScale,
               activeClosenessThreshold: shelfConfig.activeClosenessThreshold,
-              activeBreakDepthFactor: shelfConfig.activeBreakDepthFactor,
-              passiveBreakDepthFactor: shelfConfig.passiveBreakDepthFactor,
-              absoluteMaxShelfDepth: shelfConfig.absoluteMaxShelfDepth,
-              breakDepthScale: shelfConfig.breakDepthScale,
             }
           : undefined,
       };

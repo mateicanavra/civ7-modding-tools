@@ -7,6 +7,7 @@ import {
   HypsometryConfigSchema,
   LandmaskConfigSchema,
   ReliefConfigSchema,
+  SculptContinentalMarginConfigSchema,
   SubstrateConfigSchema,
 } from "@mapgen/domain/morphology/ops";
 import { createStage, Type } from "@swooper/mapgen-core/authoring";
@@ -34,6 +35,7 @@ const publicSchema = Type.Object(
   {
     substrate: Type.Optional(SubstrateConfigSchema),
     relief: Type.Optional(ReliefConfigSchema),
+    continentalMargin: Type.Optional(SculptContinentalMarginConfigSchema),
     waterCoverage: Type.Optional(HypsometryConfigSchema),
     continents: Type.Optional(LandmaskConfigSchema),
     coastlineShape: Type.Optional(CoastConfigSchema),
@@ -62,6 +64,7 @@ export default createStage({
       beltDrivers: defaultEnvelope({}),
       substrate: defaultEnvelope(config.substrate),
       baseTopography: defaultEnvelope(config.relief),
+      sculptContinentalMargin: defaultEnvelope(config.continentalMargin),
       seaLevel: defaultEnvelope(config.waterCoverage),
       landmask: defaultEnvelope(config.continents),
     },

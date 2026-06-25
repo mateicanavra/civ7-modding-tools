@@ -1,81 +1,62 @@
 import { defineOp, Type, TypedArraySchemas } from "@swooper/mapgen-core/authoring/contracts";
 
 /**
- * Cap-free shelf classifier config.
+ * Physical-break shelf classifier config.
  *
- * The continental shelf is shallow water connected to the shoreline and shallower than
- * the *shelf-break depth*. There are NO tile-distance caps: shelf extent emerges from
- * where the seafloor drops past the break depth (the depth gate) and from contiguity to
- * shore (the flood-fill). Margin type modulates the break depth as physics — active
- * (convergent/transform) margins drop off steeply (shallower break, narrower shelf);
- * passive margins are gentle (deeper break, wider shelf).
+ * The continental shelf is the GENTLE seafloor apron between the shoreline and the shelf
+ * BREAK — the knee where the seabed gradient steepens into the continental slope. The
+ * upstream sculpt (compute-sculpt-continental-margin) GENERATES that real morphology into
+ * absolute elevation before the datum is solved, so this classifier READS the break from the
+ * terrain instead of inventing one from a depth quantile.
+ *
+ * Mechanism: a water tile is "pre-break" (apron) when its local seabed gradient — the steepest
+ * bathymetry drop to a neighbour — is below a break-gradient threshold; it is "post-break"
+ * (slope/abyss) once the gradient steepens past it. Shelf = pre-break water flood-connected to
+ * shore. There is NO depth quantile, NO reference to the solved sea level (gradient is a
+ * difference of bathymetry, so the datum cancels), and NO tile-distance membership cap; the
+ * only bounds are the gradient steepening (read from terrain) and shore connectivity (BFS).
  */
 export const ShelfMaskConfigSchema = Type.Object(
   {
-    shallowQuantile: Type.Number({
-      default: 0.6,
-      minimum: 0,
-      maximum: 1,
-      description:
-        "Quantile (0..1) of nearshore bathymetry used as the base shelf-break depth. Higher => shallower break => narrower shelf; lower => deeper => wider. Adapts the break to each map's depth scale.",
-    }),
-    breakDepthSampleRadius: Type.Integer({
+    breakGradient: Type.Number({
       default: 8,
-      minimum: 1,
-      maximum: 64,
+      minimum: 0.5,
+      maximum: 200,
       description:
-        "Nearshore window (tiles from coast) over which bathymetry is sampled to estimate the break depth. This bounds which tiles INFORM the cutoff (a statistical estimator window), NOT the shelf extent.",
+        "Seabed gradient (bathymetry units per tile-hop) at or above which the seafloor is treated as the steep continental slope (post-break), excluding it from the shelf. A difference of bathymetry, so the datum cancels — NOT a depth quantile and NOT a depth band. Read against the sculpted margin profile.",
+    }),
+    breakGradientScale: Type.Number({
+      default: 1,
+      minimum: 0,
+      maximum: 8,
+      description:
+        "Global break-gradient scale set from the shelfWidth knob (narrow<1 => stricter gradient => narrower shelf; wide>1 => more permissive => wider). Authors use the knob; normalize() injects this value.",
     }),
     activeClosenessThreshold: Type.Number({
       default: 0.35,
       minimum: 0,
       maximum: 1,
       description:
-        "Boundary-closeness (0..1) above which a convergent/transform margin counts as active (steeper drop-off, narrower shelf).",
-    }),
-    activeBreakDepthFactor: Type.Number({
-      default: 0.6,
-      minimum: 0,
-      maximum: 4,
-      description:
-        "Break-depth multiplier on active margins (<1 => shallower break => narrower shelf). Margin physics, not a cap.",
-    }),
-    passiveBreakDepthFactor: Type.Number({
-      default: 1.25,
-      minimum: 0,
-      maximum: 4,
-      description:
-        "Break-depth multiplier on passive margins (>1 => deeper break => wider shelf). Margin physics, not a cap.",
-    }),
-    absoluteMaxShelfDepth: Type.Integer({
-      default: -30,
-      minimum: -1000,
-      maximum: 0,
-      description:
-        "Deepest (most negative) the shelf-break depth may reach, in engine elevation units (elevation - seaLevel), NOT real metres. A depth floor: it bounds how DEEP the gate can reach so a steep margin/scale cannot push the break into true deep ocean. It does NOT bound a uniformly-shallow sea, where admitting the whole connected basin is the intended outcome. A metric depth, NOT a tile-distance cap.",
-    }),
-    breakDepthScale: Type.Number({
-      default: 1,
-      minimum: 0,
-      maximum: 8,
-      description:
-        "Global break-depth scale set from the shelfWidth knob (narrow<1, wide>1). Authors use the knob; normalize() injects this value.",
+        "Boundary-closeness (0..1) above which a convergent/transform margin counts as active. Diagnostic only: the margin posture is already sculpted into the terrain the gradient reads.",
     }),
   },
   {
     additionalProperties: false,
     description:
-      "Cap-free shelf classifier: a margin-modulated bathymetric break depth (with a physical depth floor) plus connectivity to shore. No tile-distance caps.",
+      "Physical-break shelf classifier: the gentle pre-break apron (seabed gradient below the break-gradient threshold) flood-connected to shore. No depth quantile, no datum reference, no tile-distance caps.",
   }
 );
 
 /**
  * Computes a continental-shelf water mask for projecting to Civ7 TERRAIN_COAST.
  *
- * Physics: shelf = water that is (a) shallower than a margin-modulated bathymetric break
- * depth AND (b) flood-connected to the shoreline. Passive margins yield broad shelves,
- * active margins narrow ones. No tile-distance caps; the only bounds are the break depth
- * (a metric depth) and shore connectivity (BFS).
+ * Physics: shelf = water that is (a) on the GENTLE pre-break apron (local seabed gradient
+ * below the break-gradient threshold) AND (b) flood-connected to the shoreline. The break is
+ * READ from the sculpted margin terrain (where the seabed gradient steepens into the slope),
+ * not invented from a depth quantile. Passive margins yield broad shelves, active margins
+ * narrow ones — because the sculpt already carved those postures into the terrain the gradient
+ * reads. No tile-distance caps and no datum reference; the only bounds are the gradient
+ * steepening (terrain-read) and shore connectivity (BFS).
  */
 const ComputeShelfMaskContract = defineOp({
   kind: "compute",
@@ -90,39 +71,40 @@ const ComputeShelfMaskContract = defineOp({
     }),
     distanceToCoast: TypedArraySchemas.u16({
       description:
-        "Distance to coast per tile (0=coast). Used only to window the break-depth sample.",
+        "Distance to coast per tile (0=coast). Diagnostic/connectivity aid only; never a membership cap.",
     }),
     boundaryCloseness: TypedArraySchemas.u8({
-      description: "Boundary proximity per tile (0..255).",
+      description: "Boundary proximity per tile (0..255). Diagnostic (active-margin overlay) only.",
     }),
     boundaryType: TypedArraySchemas.u8({
-      description: "Boundary type per tile (1=conv,2=div,3=trans).",
+      description:
+        "Boundary type per tile (1=conv,2=div,3=trans). Diagnostic (active-margin overlay) only.",
     }),
   }),
   output: Type.Object({
     shelfMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): shallow shelf water (shallower than the break depth AND connected to shore) eligible for TERRAIN_COAST.",
+        "Mask (1/0): gentle pre-break shelf water (seabed gradient below the break-gradient threshold AND connected to shore) eligible for TERRAIN_COAST.",
     }),
     activeMarginMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): water tiles treated as active margin (convergent/transform with high closeness) => shallower break depth.",
+        "Mask (1/0): water tiles treated as active margin (convergent/transform with high closeness). Diagnostic overlay; the steeper drop-off is already in the terrain.",
     }),
     depthGateMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): water tiles passing the per-tile depth gate (bathymetry >= break depth).",
+        "Mask (1/0): water tiles passing the gentle-gradient gate (local seabed gradient below the break-gradient threshold = pre-break apron).",
     }),
     nearshoreCandidateMask: TypedArraySchemas.u8({
       description:
-        "Mask (1/0): water tiles within breakDepthSampleRadius used to sample bathymetry for the break-depth quantile.",
+        "Mask (1/0): water tiles directly adjacent to land (the shoreline-ring shelf seeds for the connectivity flood).",
     }),
     shelfBreakDepthByTile: TypedArraySchemas.i16({
       description:
-        "Per-tile shelf-break depth (engine elevation units, <=0) after margin modulation; deeper (more negative) => wider local shelf.",
+        "Per-tile bathymetry (engine elevation units, <=0) at the read shelf break: the local seabed depth where the gradient first steepens past the threshold. 0 where no break was read.",
     }),
     shallowCutoff: Type.Number({
       description:
-        "Base shelf-break depth (engine elevation units, <=0): the nearshore bathymetry quantile before margin modulation.",
+        "Deprecated under the physical-break model (the quantile estimator was removed). Always 0; retained <=0 for output-contract stability.",
     }),
   }),
   strategies: {

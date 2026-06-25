@@ -93,7 +93,14 @@ export function blendBoundaryElevation(params: {
   return base * (1 - blend) + neighborAverage * blend;
 }
 
-const DEFAULT_ELEVATION_SCALE = 100;
+/**
+ * Canonical Int16 elevation quantization scale. SINGLE SOURCE OF TRUTH for the
+ * normalized-relief -> absolute-engine-elevation conversion: base topography quantizes with it
+ * (see {@link quantizeElevation}), and downstream datum-free margin sculpting derives its profile
+ * endpoints on the exact same scale by importing this constant (rather than mirroring it as its
+ * own config field).
+ */
+export const DEFAULT_ELEVATION_SCALE = 100;
 
 /**
  * Quantizes a raw elevation sample into the canonical Int16 elevation scale.

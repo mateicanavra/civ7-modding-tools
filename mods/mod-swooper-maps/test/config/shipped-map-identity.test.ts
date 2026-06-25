@@ -52,14 +52,14 @@ describe("shipped map config identity", () => {
     expect(earthlike["foundation-mantle"].meshResolution.plateCount).toBe(28);
     expect(earthlike["foundation-lithosphere"].platePartition.plateCount).toBe(42);
     expect(earthlike["morphology-shelf"].knobs.shelfWidth).toBe("wide");
+    // Re-blessed for the physical-margin shelf model (Path A): the compute-shelf-mask
+    // classifier reads a seabed-gradient break (breakGradient/breakGradientScale) off the
+    // sculpted continental margin, replacing the old nearshore-bathymetry quantile config
+    // (shallowQuantile/breakDepth*). User signed off on the new global coastline 2026-06-22.
     expect(earthlike["morphology-shelf"].shelf).toMatchObject({
-      breakDepthSampleRadius: 8,
-      shallowQuantile: 0.45,
       activeClosenessThreshold: 0.45,
-      activeBreakDepthFactor: 0.6,
-      passiveBreakDepthFactor: 1.25,
-      absoluteMaxShelfDepth: -30,
-      breakDepthScale: 1,
+      breakGradient: 8,
+      breakGradientScale: 1,
     });
     expect(earthlike["morphology-features"].mountainRanges).toMatchObject({
       rangeSystemSpacingTiles: 19.7,

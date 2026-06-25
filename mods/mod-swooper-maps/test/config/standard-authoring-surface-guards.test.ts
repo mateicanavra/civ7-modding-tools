@@ -32,6 +32,9 @@ const STANDARD_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "knobs",
     "substrate",
     "relief",
+    // Path A physical-shelf re-baseline (2026-06-22): public authoring surface for the
+    // new datum-free op compute-sculpt-continental-margin (SculptContinentalMarginConfigSchema).
+    "continentalMargin",
     "waterCoverage",
     "continents",
     "coastlineShape",

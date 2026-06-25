@@ -31,6 +31,7 @@ const MORPHOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "knobs",
     "substrate",
     "relief",
+    "continentalMargin",
     "waterCoverage",
     "continents",
     "coastlineShape",
