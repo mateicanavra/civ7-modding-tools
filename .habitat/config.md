@@ -23,6 +23,12 @@ The current `.habitat` tree groups subject folders first by domain niche, then
 by four flat governance layers. This is a V1 classification layout, not a
 parseable manifest and not a completed runtime migration.
 
+This section records the checked-in tree shape that exists before the next
+flattening pass. The target shape for that pass is defined in
+`AUTHORITY-TREE-SHAPE.md`: preserve domain niches, remove the concern-layer
+buckets, and group current leaf folders as artifact packets under `_self/check`,
+`_self/fix`, `_self/generate`, `_self/migrate`, or `_self/triage`.
+
 ```text
 .habitat
   global
@@ -97,12 +103,17 @@ Rule-owned files use the same subject-name prefix:
 - `<subject-name>.check.{sh,mjs,py,ts}` for transitional read-only
   command-backed checks.
 - `<subject-name>.operation.md` for provisional non-check operation identity
-  until typed operation manifests exist.
+  until typed operation admission exists.
 
 ## Domain Operations
 
-Habitat's natural top-level operations are domain operations, not vendors and
-not individual rule names.
+Habitat's current working artifact-kind vocabulary is defined in
+`ARTIFACT-KINDS.md`. The accepted top-level kinds are `check`, `fix`,
+`generate`, and `migrate`.
+
+This section is a human sketch only. It must not become a parseable dispatch
+schema, and it must not encode support artifact types or implementation
+adapters.
 
 ### `check`
 
@@ -110,116 +121,78 @@ Read-only evaluation. A check answers: does the current repository state satisfy
 an authored policy? It must not build packages, write generated output, create
 lock directories, or otherwise mutate repository state.
 
-Authored check policy may include:
-
-- subject-local `<subject>.pattern.md` source patterns;
-- subject-local `<subject>.rule.json` metadata;
-- subject-local `<subject>.baseline.json` baseline, fixture, current-tree, or
-  generated-artifact JSON;
-- explicit scope, severity, and ownership metadata.
-
 Execution mechanics are not authored here. The Toolkit decides how to run check
-policy through its implementation: Grit for source patterns, Biome for format
-conformance, Nx for workspace graph boundaries, test runners for registered
-test-backed checks, or temporary command paths during migration.
+policy through its implementation.
 
-### `apply`
+### `fix`
 
-Controlled mutation. An apply operation answers: what authorized transformation
-may Habitat make to the repository?
+Idempotent repair. A fix operation answers: what safe recurring repair may
+Habitat apply to existing authored files?
 
-Authored apply policy may include:
-
-- subject-local apply patterns;
-- safety/admission metadata in the relevant rule or pattern manifest;
-- scope and refusal conditions.
-
-Apply is separate from check because it mutates files. It needs stricter
-admission, safety, preview, and rollback semantics than a diagnostic check.
+Fix is separate from check because it mutates files. It is separate from migrate
+because it should be safe to run repeatedly and should not change the accepted
+source/data model.
 
 ### `generate`
 
-Materialization from an accepted template, generator, or schema. A generate
-operation answers: what repository artifact may Habitat create or refresh from
-an approved source?
-
-Authored generation policy may include:
-
-- which artifact class is generated;
-- where generated output is allowed to live;
-- whether generated output is committed, ignored, or protected;
-- which source policy or schema controls generation.
+Materialization from accepted inputs. A generate operation answers: what
+repository artifact may Habitat create or refresh from an approved source?
 
 Generator implementation remains Toolkit or package code. `.habitat` owns the
 policy for generated artifact authority, not the generator engine.
 
-Until the Toolkit has a typed operation manifest schema, Habitat-owned
+Until the Toolkit has a typed operation-admission model, Habitat-owned
 generators are admitted with a subject-local `<subject>.operation.md` identity
 instead of a registered read-only rule.
 
-### `verify`
+### `migrate`
 
-Proof orchestration. A verify operation answers: what bundle of checks, tests,
-builds, or receipts is sufficient for a closure claim?
+Structural transition. A migrate operation answers: how may Habitat move
+authored source or data from one accepted shape to another?
 
-Authored verify policy may include:
-
-- which proof classes are required;
-- which checks must be included;
-- which baselines or receipts are accepted;
-- which closure claims are out of scope.
-
-Verify is not just another check if it composes multiple proof classes and
-produces a closure receipt. If it only runs one read-only diagnostic, it should
-remain under `check`.
+Migrate is separate from fix because it changes the accepted model, not just the
+current formatting or surface of existing authored files.
 
 ## Conceptual Shape
 
-This is the shape the eventual machine-readable model should express, but this
-file is not that model:
+This is the shape the eventual machine-readable model may need to express, but
+this file is not that model:
 
 ```text
 habitat
   check
-    authored policies
-      source pattern checks
-      file and artifact ownership checks
-      workspace boundary checks
-      registered structural test checks
+    read-only policy evaluation
     Toolkit execution
       implemented in Habitat source
 
-  apply
-    authored policies
-      approved transformations
-      safety and refusal rules
+  fix
+    idempotent repair of authored files
     Toolkit execution
       implemented in Habitat source
 
   generate
-    authored policies
-      generated artifact classes
-      output locations
-      authority and freshness rules
+    materialization from accepted inputs
     Toolkit execution
       implemented in Habitat source or owning package code
 
-  verify
-    authored policies
-      proof bundles
-      closure requirements
-      receipt expectations
+  migrate
+    transition between accepted authored shapes
     Toolkit execution
       implemented in Habitat source
 ```
 
 ## Naming Rules
 
-- Operation names are verbs: `check`, `apply`, `generate`, `verify`.
+- Artifact kind names are verbs: `check`, `fix`, `generate`, `migrate`.
 - Niche names are domain nouns: `repository`, `toolkit`, `content`,
   `resources`, `platform`, `core`, `pipeline`, `studio`.
-- Layer names are generic governance concerns: `boundaries`, `structure`,
-  `capabilities`, `contracts`.
+- `_self` is the temporary exact-niche-owned artifact container; normal child
+  directories under a niche remain child niches.
+- Blueprint is a future executable/enforceable unit within a niche. It is not
+  the current flattening unit.
+- Current layer names are generic governance concerns: `boundaries`,
+  `structure`, `capabilities`, `contracts`. They are a checked-in V1
+  classification aid, not the target post-flattening hierarchy.
 - Authored subjects are governed concepts: `workspace import boundary`,
   `repository format`, `service module shape`, `generated artifact ownership`.
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
@@ -236,11 +209,10 @@ habitat
 If a future parseable config is introduced, it should store authored repository
 policy only:
 
-- enabled operations;
-- registered policy subjects;
+- enabled artifact kinds;
+- admitted policy subjects;
 - niche cascade rules and subject placement;
-- scope, severity, lane, and baseline references;
-- pattern and generated-artifact authority;
+- scope, severity, and lane;
 - explicit exceptions and refusal rules.
 
 It should not store generic Toolkit dispatch such as "format uses Biome" or

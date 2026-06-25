@@ -1,6 +1,7 @@
 # Habitat Authority Contract
 
-Status: active authority frame with provisional domain-niche hierarchy
+Status: active authority frame with provisional domain-niche hierarchy and next
+tree-shape reference
 
 ## What This Establishes
 
@@ -12,10 +13,14 @@ The immediate goal is not to move executables or tool dispatch into `.habitat`.
 The goal is to make every authored enforcement policy trace back to Habitat
 artifacts, while execution mechanics stay in Habitat Toolkit source.
 
-The current subject hierarchy is provisional. It first names domain niches, then
-places each subject under one of four generic governance layers: `boundaries`,
-`structure`, `capabilities`, or `contracts`. This is intentionally not organized
-by runner, rule ID, source folder, current defect name, or artifact class.
+The current checked-in hierarchy is provisional. It first names domain niches,
+then places each subject under one of four generic governance layers:
+`boundaries`, `structure`, `capabilities`, or `contracts`. The next accepted
+shape is defined in `AUTHORITY-TREE-SHAPE.md`: remove those concern-layer
+buckets, keep the niche hierarchy, and group leaf artifact packets under
+`_self/check`, `_self/fix`, `_self/generate`, `_self/migrate`, or
+`_self/triage`.
+
 Policies defined at a niche level are expected to cascade to child niches once
 the manifest model exists, but this commit does not implement cascade
 semantics.
@@ -33,8 +38,15 @@ semantics.
 - Subject-local command-check adapters are co-located with the subject they
   enforce as `<subject>.check.{sh,mjs,py,ts}` and must be read-only.
 - Habitat-owned docs fix/generate operations have provisional
-  `<subject>.operation.md` identities until the Toolkit admits typed operation
-  manifests.
+  `<subject>.operation.md` identities until the Toolkit has typed operation
+  admission.
+- Habitat artifact kinds and mutability rules are defined in
+  `ARTIFACT-KINDS.md`. That reference currently admits `check`, `fix`,
+  `generate`, and `migrate` only.
+- The next authority-tree shape is defined in `AUTHORITY-TREE-SHAPE.md`. That
+  reference treats current leaf folders as artifact packets and replaces the
+  current layer buckets with niche-local `_self/<kind>/` directories plus
+  `_self/triage/`.
 - Transitional adapters and legacy rule modules are co-located with the subject
   folder or Toolkit niche that owns their policy evidence.
 - CI and hooks already delegate into root commands that can route through
@@ -58,6 +70,10 @@ semantics.
 
 ## Authority Rules
 
+These rules describe the current checked-in authority tree until the flattening
+pass lands. The next pass should replace the layer-bucket placement rule with
+the target shape in `AUTHORITY-TREE-SHAPE.md`.
+
 1. A structural subject is admitted only by a subject folder under a recognized
    niche root and one of the accepted layer buckets: `boundaries`, `structure`,
    `capabilities`, or `contracts`.
@@ -79,8 +95,8 @@ semantics.
    `.github/workflows/*` are invocation or bridge layers. They remain in their
    conventional locations, but their structural meaning must be recoverable from
    `.habitat`.
-8. Habitat-owned apply/fix/generate/verify operations require an explicit
-   operation identity. Until typed manifests exist, use
+8. Habitat-owned fix/generate/migrate operations require an explicit operation
+   identity. Until typed operation admission exists, use
    `<subject>.operation.md` and do not register the operation as a read-only
    rule unless it actually performs a read-only check.
 9. No new loose lint, validation, structural-check, or pattern script may be
@@ -102,10 +118,13 @@ semantics.
 | `civ7/mapgen/core/**` | MapGen package/runtime core, SDK entrypoint, and docs surface. | Pipeline step architecture or Studio-specific recipe artifact use. |
 | `civ7/mapgen/pipeline/**` | MapGen pipeline contracts, domain/recipe import topology, runtime capability access, RNG/config, schema/default, and cutover guardrails. | Separate ecology, placement, runner, or rule-ID hierarchy roots. |
 | `civ7/mapgen/studio/**` | MapGen Studio's recipe-artifact integration surface. | General MapGen pipeline architecture. |
-| `<niche>/boundaries/**` | Import/export, dependency direction, public/private surface, and ownership-edge subjects for that niche. | Runtime capability access, schema shape, or file-tree shape unless the boundary is the primary governed concern. |
-| `<niche>/structure/**` | File-tree, module-shape, generated/protected placement, docs-shape, and retired-topology subjects for that niche. | Public API contracts or privileged runtime access. |
-| `<niche>/capabilities/**` | Privileged runtime, provider, engine, RNG, validation, process, or other effectful capability subjects for that niche. | Ordinary import boundaries or structural file placement. |
-| `<niche>/contracts/**` | Schema, DTO, public API, registry, manifest, generator input, and dependency-contract subjects for that niche. | Generic execution dispatch or narrow source-folder defects. |
+| `<niche>/boundaries/**` | Current checked-in layer bucket for import/export, dependency direction, public/private surface, and ownership-edge subjects. | A durable hierarchy level after the flattening pass. |
+| `<niche>/structure/**` | Current checked-in layer bucket for file-tree, module-shape, generated/protected placement, docs-shape, and retired-topology subjects. | A durable hierarchy level after the flattening pass. |
+| `<niche>/capabilities/**` | Current checked-in layer bucket for privileged runtime, provider, engine, RNG, validation, process, or other effectful capability subjects. | A durable hierarchy level after the flattening pass. |
+| `<niche>/contracts/**` | Current checked-in layer bucket for schema, DTO, public API, registry, manifest, generator input, and dependency-contract subjects. | A durable hierarchy level after the flattening pass. |
+| `<niche>/_self/<check|fix|generate|migrate>/**` | Target flattening-pass location for admitted artifact packets, grouped by mutability kind under the owning niche. | Domain ownership, support-file ontology, blueprint schema, or implementation adapter dispatch. |
+| `<niche>/_self/triage/**` | Target flattening-pass holding area for mixed, unclear, legacy, or not-yet-admitted packets. | Default execution. |
+| `<niche>/<child-niche>/**` | Child jurisdiction under the parent niche. | Parent-owned artifact packets; those belong under the parent's `_self/`. |
 | `config.md` | Human-readable operation model and vocabulary. | Parseable tool dispatch configuration. |
 
 ## Current Owner-Tool Classes
@@ -125,9 +144,10 @@ ontology and should not grow into a separate adapter configuration language.
   not yet been rewritten as Grit, Biome, Nx, file-layer, or test-backed rules.
 - `test-check`: reserved class for structural tests admitted as Habitat rules.
 
-Long term, Habitat's user-facing operation model should be domain-oriented:
-`check`, `apply`, `generate`, and `verify`. How each operation reaches Grit,
-Biome, Nx, Vitest, Bun, or shell commands is Toolkit code.
+Habitat's current working artifact-kind vocabulary is documented in
+`ARTIFACT-KINDS.md`: `check`, `fix`, `generate`, and `migrate`. How each kind
+reaches Grit, Biome, Nx, Vitest, Bun, shell commands, or package-local tooling
+is Toolkit code, not repo-authored adapter configuration.
 
 ## Migration Implications
 
@@ -146,6 +166,8 @@ The next consolidation slices should:
    pattern source.
 6. Keep Nx, Biome, Husky, CI, and package scripts as thin execution layers whose
    authority is traceable to this tree.
+7. Execute the flattening pass described in `AUTHORITY-TREE-SHAPE.md` before
+   hardening resolver metadata around the current layer-bucket hierarchy.
 
 ## Stop Conditions
 
@@ -159,7 +181,10 @@ Stop a consolidation slice if it creates any of these states:
 - an external config claims structural meaning not represented in `.habitat`;
 - a test is used as a structural gate without either Habitat registration or an
   explicit product-test classification;
-- a new layer is created outside `boundaries`, `structure`, `capabilities`, and
-  `contracts`, or a new niche level is created for `swooper-maps`, `ecology`,
-  `placement`, a runner name, an artifact class, a rule ID, or a current defect
-  name without later domain proof.
+- before the flattening pass, a new concern layer is created outside
+  `boundaries`, `structure`, `capabilities`, and `contracts`;
+- after the flattening pass, a new concern-layer bucket is reintroduced beneath
+  a niche instead of using `_self/<kind>/`;
+- a new niche level is created for `swooper-maps`, `ecology`, `placement`, a
+  runner name, an artifact class, a rule ID, or a current defect name without
+  later domain proof.

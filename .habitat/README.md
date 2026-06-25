@@ -11,6 +11,12 @@ policy layers inside each niche: `boundaries`, `structure`, `capabilities`, and
 Rule, pattern, baseline, and adapter artifacts are then grouped by subject under
 the layer that best describes the subject's primary concern.
 
+This records the current checked-in tree, not the target shape. The next
+flattening pass is governed by `AUTHORITY-TREE-SHAPE.md`: preserve the niche
+hierarchy, remove the concern-layer buckets, and classify current leaf folders
+as artifact packets under `_self/check`, `_self/fix`, `_self/generate`,
+`_self/migrate`, or `_self/triage`.
+
 This is not a final ontology, and it is not evidence that runtime integration
 has been fully rewired.
 
@@ -62,12 +68,16 @@ rule-owned artifacts:
   command adapter when the policy has not yet been expressed as Grit, Biome,
   Nx, or a typed Habitat provider.
 - `<subject-name>.operation.md`: provisional identity for Habitat-owned
-  non-check operations until typed operation manifests exist.
+  non-check operations until typed operation admission exists.
 
 Authority planes:
 
 - `AUTHORITY.md`: the contract for what may be authoritative here and what
   remains Toolkit execution mechanics elsewhere.
+- `ARTIFACT-KINDS.md`: the working reference for Habitat artifact kinds and
+  their mutability rules.
+- `AUTHORITY-TREE-SHAPE.md`: the working reference for the next authority-tree
+  flattening pass and artifact-packet shape.
 - `config.md`: a human-readable sketch of the Habitat operation model. It is
   not consumed programmatically.
 - `<niche>/<layer>/<subject>/<subject>.rule.json`: provisional rule metadata.
@@ -82,6 +92,14 @@ Authority planes:
 - `<niche>/<layer>/<subject>/*.{mjs,ts}`: transitional adapters or legacy rule
   sources that must either be admitted as Toolkit execution mechanics or
   converted into authored patterns.
+
+Target flattening shape:
+
+- `<niche>/_self/<kind>/<artifact-packet>/**`: current packet location after
+  the flattening pass, where `<kind>` is `check`, `fix`, `generate`,
+  `migrate`, or `triage`.
+- Normal directories under a niche remain child niches. `_self/` separates
+  exact-niche-owned packets from child niches.
 
 Executor compatibility views are outside this authority tree. Habitat owns the
 rule, pattern, baseline, and subject-folder hierarchy here; Grit, Biome, Nx,
