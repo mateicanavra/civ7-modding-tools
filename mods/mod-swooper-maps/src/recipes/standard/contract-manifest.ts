@@ -45,6 +45,7 @@ import LandmassesStepContract from "./stages/morphology-features/steps/landmasse
 import MountainsStepContract from "./stages/morphology-features/steps/mountains.contract.js";
 import VolcanoesStepContract from "./stages/morphology-features/steps/volcanoes.contract.js";
 import RoutingStepContract from "./stages/morphology-routing/steps/routing.contract.js";
+import ComputeShelfStepContract from "./stages/morphology-shelf/steps/computeShelf.contract.js";
 import AdjustResourcesStepContract from "./stages/placement/steps/adjust-resources/contract.js";
 import AssignAdvancedStartsStepContract from "./stages/placement/steps/assign-advanced-starts/contract.js";
 import AssignStartsStepContract from "./stages/placement/steps/assign-starts/contract.js";
@@ -85,6 +86,7 @@ export const standardStageContractManifest = [
     VolcanoesStepContract,
     LandmassesStepContract,
   ]),
+  stage("morphology-shelf", [ComputeShelfStepContract]),
   stage("hydrology-climate-baseline", [ClimateBaselineStepContract]),
   stage("hydrology-hydrography", [RiversStepContract, HydrologyLakesStepContract]),
   stage("hydrology-climate-refine", [ClimateRefineStepContract]),

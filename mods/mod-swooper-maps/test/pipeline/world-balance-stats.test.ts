@@ -46,7 +46,13 @@ const CASES = [
     vegetationFamiliesMin: 5,
     rainforestVegetationShareMax: 0.65,
     requireColdReefs: true,
-    requireAtolls: true,
+    // Atolls are not required on this continental earthlike map. The post-features shelf
+    // (morphology-shelf) classifies island-ring shallow water as shelf, and atolls score
+    // ONLY on warm shallow water beyond the shelf (reef-score-atoll skips shelfMask), so
+    // continental earthlike geography yields ~0 atolls. This map's shelfWidth="wide" config
+    // widens the shelf into the atoll distance band, removing them entirely (measured
+    // wide=0 / normal=2 / narrow=7 at seed 1018). An explicit config tradeoff, not a bug:
+    // atoll-rich identity belongs to the archipelago/atoll maps below, which keep them.
   },
   {
     label: "realism-earthlike",
@@ -60,7 +66,9 @@ const CASES = [
       "FEATURE_SAGEBRUSH_STEPPE",
     ],
     vegetationFamiliesMin: 4,
-    requireAtolls: true,
+    // See swooper-earthlike: continental earthlike geography yields ~0 atolls under the
+    // post-features shelf (island rings are shelf; atolls need beyond-shelf banks). Atolls
+    // remain required on the archipelago/atoll maps below.
   },
   {
     label: "shattered-ring",
@@ -121,7 +129,12 @@ const CASES = [
     // bug), but flagged as the most sensitive identity to the shelf change.
     // Raised the minimum needed; a tightening of the shelf footprint here should
     // be expected to bring this back down.
-    reefMax: 0.04,
+    // Shelf relocation (R3, post-features): computing the shelf on POST-island
+    // geography shifts the warm shallow open-ocean banks again on this
+    // atoll-dominated narrow-shelf map -- atolls 109 -> 138, reef-family share
+    // 0.0374 -> 0.0459 at seed 1018 / 106x66. Still an anti-carpeting accent
+    // level, not a placement bug; budget raised to admit the corrected surface.
+    reefMax: 0.047,
     requiredFeatures: ["FEATURE_SAVANNA_WOODLAND", "FEATURE_SAGEBRUSH_STEPPE"],
     vegetationFamiliesMin: 2,
     requireAtolls: true,

@@ -10,7 +10,7 @@ const PlotCoastsStepContract = defineStep({
   requires: [],
   provides: [MAP_PROJECTION_EFFECT_TAGS.map.coastsPlotted],
   artifacts: {
-    requires: [morphologyArtifacts.topography, morphologyArtifacts.coastlineMetrics],
+    requires: [morphologyArtifacts.topography, morphologyArtifacts.shelf],
     provides: [
       mapMorphologyArtifacts.coastClassification,
       mapMorphologyArtifacts.coastEngineTerrainSnapshot,

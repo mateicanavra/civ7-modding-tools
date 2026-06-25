@@ -54,15 +54,15 @@ describe("Earthlike coasts (smoke)", () => {
     if (!(topography?.bathymetry instanceof Int16Array))
       throw new Error("Missing topography.bathymetry.");
 
-    const coastlineMetrics = context.artifacts.get(morphologyArtifacts.coastlineMetrics.id) as
+    // The shelf + post-island coastline live in the morphology-shelf artifact now.
+    const shelf = context.artifacts.get(morphologyArtifacts.shelf.id) as
       | { coastalWater?: Uint8Array; shelfMask?: Uint8Array; distanceToCoast?: Uint16Array }
       | undefined;
-    if (!(coastlineMetrics?.coastalWater instanceof Uint8Array))
-      throw new Error("Missing coastlineMetrics.coastalWater.");
-    if (!(coastlineMetrics?.shelfMask instanceof Uint8Array))
-      throw new Error("Missing coastlineMetrics.shelfMask.");
-    if (!(coastlineMetrics?.distanceToCoast instanceof Uint16Array))
-      throw new Error("Missing coastlineMetrics.distanceToCoast.");
+    if (!(shelf?.coastalWater instanceof Uint8Array))
+      throw new Error("Missing shelf.coastalWater.");
+    if (!(shelf?.shelfMask instanceof Uint8Array)) throw new Error("Missing shelf.shelfMask.");
+    if (!(shelf?.distanceToCoast instanceof Uint16Array))
+      throw new Error("Missing shelf.distanceToCoast.");
 
     const beltDrivers = context.artifacts.get(morphologyArtifacts.beltDrivers.id) as
       | { boundaryCloseness?: Uint8Array; boundaryType?: Uint8Array }
@@ -97,13 +97,9 @@ describe("Earthlike coasts (smoke)", () => {
     let shorelineRing = 0;
     let shelfBeyondRing = 0;
     for (let i = 0; i < width * height; i++) {
-      const dist = coastlineMetrics.distanceToCoast[i] | 0;
-      if ((coastlineMetrics.coastalWater[i] | 0) === 1) shorelineRing += 1;
-      if (
-        (coastlineMetrics.shelfMask[i] | 0) === 1 &&
-        (coastlineMetrics.coastalWater[i] | 0) === 0 &&
-        dist >= 2
-      ) {
+      const dist = shelf.distanceToCoast[i] | 0;
+      if ((shelf.coastalWater[i] | 0) === 1) shorelineRing += 1;
+      if ((shelf.shelfMask[i] | 0) === 1 && (shelf.coastalWater[i] | 0) === 0 && dist >= 2) {
         shelfBeyondRing += 1;
       }
     }
@@ -127,7 +123,7 @@ describe("Earthlike coasts (smoke)", () => {
         height,
         landMask: topography.landMask,
         bathymetry: topography.bathymetry,
-        distanceToCoast: coastlineMetrics.distanceToCoast,
+        distanceToCoast: shelf.distanceToCoast,
         boundaryCloseness: beltDrivers.boundaryCloseness,
         boundaryType: beltDrivers.boundaryType,
       },

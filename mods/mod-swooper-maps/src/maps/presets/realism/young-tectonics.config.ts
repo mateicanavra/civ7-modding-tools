@@ -9,8 +9,9 @@ export const realismYoungTectonicsConfig: StandardRecipeConfig = {
   "foundation-lithosphere": { knobs: { plateCount: 28 } },
   "foundation-tectonics": { knobs: { plateActivity: 0.75 } },
   "morphology-coasts": {
-    knobs: { seaLevel: "earthlike", coastRuggedness: "rugged", shelfWidth: "normal" },
+    knobs: { seaLevel: "earthlike", coastRuggedness: "rugged" },
   },
+  "morphology-shelf": { knobs: { shelfWidth: "normal" } },
   "morphology-erosion": { knobs: { erosion: "high" } },
   "morphology-features": { knobs: { volcanism: "high" } },
 };

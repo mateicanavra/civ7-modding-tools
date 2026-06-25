@@ -20,7 +20,7 @@ const ScoreLayersStepContract = defineStep({
       hydrologyHydrographyArtifacts.lakePlan,
       mapRiversArtifacts.projectedNavigableRivers,
       morphologyArtifacts.topography,
-      morphologyArtifacts.coastlineMetrics,
+      morphologyArtifacts.shelf,
       mapMorphologyArtifacts.coastClassification,
       morphologyArtifacts.mountains,
       morphologyArtifacts.volcanoes,

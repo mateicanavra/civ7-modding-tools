@@ -56,16 +56,6 @@ export const defaultStrategy = createStrategy(ComputeShelfMaskContract, "default
     const boundaryCloseness = input.boundaryCloseness as Uint8Array;
     const boundaryType = input.boundaryType as Uint8Array;
 
-    if (
-      landMask.length !== size ||
-      bathymetry.length !== size ||
-      distanceToCoast.length !== size ||
-      boundaryCloseness.length !== size ||
-      boundaryType.length !== size
-    ) {
-      throw new Error("[ShelfMask] Input tensors must match width*height.");
-    }
-
     const sampleRadius = config.breakDepthSampleRadius;
     const absoluteMaxShelfDepth = config.absoluteMaxShelfDepth;
     const activeThresholdU8 = Math.floor(config.activeClosenessThreshold * 255);

@@ -82,8 +82,7 @@
     "morphology-coasts": {
       "knobs": {
         "seaLevel": "earthlike",
-        "coastRuggedness": "normal",
-        "shelfWidth": "wide"
+        "coastRuggedness": "normal"
       },
       "substrate": {
         "continentalBaseErodibility": 0.3,
@@ -155,15 +154,6 @@
           "bayNoiseBonus": 0.45,
           "fjordWeight": 0.85
         }
-      },
-      "shelf": {
-        "breakDepthSampleRadius": 8,
-        "shallowQuantile": 0.45,
-        "activeClosenessThreshold": 0.45,
-        "activeBreakDepthFactor": 0.6,
-        "passiveBreakDepthFactor": 1.25,
-        "absoluteMaxShelfDepth": -30,
-        "breakDepthScale": 1
       }
     },
     "morphology-routing": {
@@ -232,6 +222,20 @@
         "terrainTextureFractalMix": 0.55,
         "erosionMaturity": 0.26,
         "tectonicSignalSensitivity": 1.8
+      }
+    },
+    "morphology-shelf": {
+      "knobs": {
+        "shelfWidth": "wide"
+      },
+      "shelf": {
+        "breakDepthSampleRadius": 8,
+        "shallowQuantile": 0.45,
+        "activeClosenessThreshold": 0.45,
+        "activeBreakDepthFactor": 0.6,
+        "passiveBreakDepthFactor": 1.25,
+        "absoluteMaxShelfDepth": -30,
+        "breakDepthScale": 1
       }
     },
     "hydrology-climate-baseline": {

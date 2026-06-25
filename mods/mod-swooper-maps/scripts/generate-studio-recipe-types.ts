@@ -250,6 +250,7 @@ const STAGE_LABEL_OVERRIDES: Record<string, string> = {
   "morphology-routing": "Morphology / Routing",
   "morphology-erosion": "Morphology / Erosion",
   "morphology-features": "Morphology / Features",
+  "morphology-shelf": "Morphology / Shelf",
   "map-morphology": "Map / Morphology",
   "map-hydrology": "Map / Hydrology",
   "map-ecology": "Map / Ecology",

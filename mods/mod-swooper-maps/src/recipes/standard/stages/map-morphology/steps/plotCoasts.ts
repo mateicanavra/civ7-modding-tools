@@ -31,7 +31,7 @@ export default createStep(PlotCoastsStepContract, {
   ),
   run: (context, _config, _ops, deps) => {
     const topography = deps.artifacts.topography.read(context);
-    const coastlineMetrics = deps.artifacts.coastlineMetrics.read(context);
+    const shelf = deps.artifacts.shelf.read(context);
     const { width, height } = context.dimensions;
     const size = Math.max(0, (width | 0) * (height | 0));
 
@@ -44,9 +44,7 @@ export default createStep(PlotCoastsStepContract, {
         // Coast is the physically-derived continental shelf (margin-aware, depth-gated)
         // plus the guaranteed shoreline ring. No uniform distance band overrides it.
         const isLand = topography.landMask[idx] === 1;
-        const isCoast =
-          !isLand &&
-          (coastlineMetrics.coastalWater[idx] === 1 || coastlineMetrics.shelfMask[idx] === 1);
+        const isCoast = !isLand && (shelf.coastalWater[idx] === 1 || shelf.shelfMask[idx] === 1);
         if (isCoast) sourceCoastMask[idx] = 1;
         baseWaterClass[idx] = isLand
           ? WATER_CLASS_LAND
@@ -181,9 +179,9 @@ export default createStep(PlotCoastsStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: coastlineMetrics.coastalLand,
+      values: shelf.coastalLand,
       meta: defineVizMeta("map.morphology.coasts.coastalLand", {
-        label: "Coastal Land (Coastline Metrics)",
+        label: "Coastal Land (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
         visibility: "debug",
       }),
@@ -193,9 +191,9 @@ export default createStep(PlotCoastsStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: coastlineMetrics.coastalWater,
+      values: shelf.coastalWater,
       meta: defineVizMeta("map.morphology.coasts.coastalWater", {
-        label: "Coastal Water (Coastline Metrics)",
+        label: "Coastal Water (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
         visibility: "debug",
       }),
@@ -205,9 +203,9 @@ export default createStep(PlotCoastsStepContract, {
       spaceId: TILE_SPACE_ID,
       dims: { width, height },
       format: "u8",
-      values: coastlineMetrics.shelfMask,
+      values: shelf.shelfMask,
       meta: defineVizMeta("map.morphology.coasts.shelfMask", {
-        label: "Shelf Mask (Coastline Metrics)",
+        label: "Shelf Mask (Post-island Shelf)",
         group: GROUP_MAP_MORPHOLOGY,
         visibility: "debug",
       }),

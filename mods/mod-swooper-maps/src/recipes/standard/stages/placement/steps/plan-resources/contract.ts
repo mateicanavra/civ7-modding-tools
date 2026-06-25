@@ -30,7 +30,7 @@ const PlanResourcesStepContract = defineStep({
   artifacts: {
     requires: [
       morphologyArtifacts.topography,
-      morphologyArtifacts.coastlineMetrics,
+      morphologyArtifacts.shelf,
       morphologyArtifacts.landmasses,
       morphologyArtifacts.mountains,
       morphologyArtifacts.beltDrivers,

@@ -51,8 +51,8 @@ describe("shipped map config identity", () => {
     expect(earthlike["foundation-tectonics"].knobs.plateActivity).toBe(0.5);
     expect(earthlike["foundation-mantle"].meshResolution.plateCount).toBe(28);
     expect(earthlike["foundation-lithosphere"].platePartition.plateCount).toBe(42);
-    expect(earthlike["morphology-coasts"].knobs.shelfWidth).toBe("wide");
-    expect(earthlike["morphology-coasts"].shelf).toMatchObject({
+    expect(earthlike["morphology-shelf"].knobs.shelfWidth).toBe("wide");
+    expect(earthlike["morphology-shelf"].shelf).toMatchObject({
       breakDepthSampleRadius: 8,
       shallowQuantile: 0.45,
       activeClosenessThreshold: 0.45,

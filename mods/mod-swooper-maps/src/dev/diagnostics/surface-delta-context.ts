@@ -1693,6 +1693,7 @@ function terrainProjectionRowContext(
   const morphology = isRecord(projection.coastlineMetrics)
     ? projection.coastlineMetrics
     : undefined;
+  const shelf = isRecord(projection.shelf) ? projection.shelf : undefined;
   const mapMorphologyCoastPolicy = isRecord(projection.mapMorphologyCoastPolicy)
     ? projection.mapMorphologyCoastPolicy
     : undefined;
@@ -1733,8 +1734,15 @@ function terrainProjectionRowContext(
       ? {
           coastalLand: indexedInteger(morphology.coastalLand, plotIndex),
           coastalWater: indexedInteger(morphology.coastalWater, plotIndex),
-          shelfMask: indexedInteger(morphology.shelfMask, plotIndex),
           distanceToCoast: indexedInteger(morphology.distanceToCoast, plotIndex),
+        }
+      : null,
+    shelf: shelf
+      ? {
+          shelfMask: indexedInteger(shelf.shelfMask, plotIndex),
+          coastalLand: indexedInteger(shelf.coastalLand, plotIndex),
+          coastalWater: indexedInteger(shelf.coastalWater, plotIndex),
+          distanceToCoast: indexedInteger(shelf.distanceToCoast, plotIndex),
         }
       : null,
     mapMorphologyCoastPolicy: mapMorphologyCoastPolicy

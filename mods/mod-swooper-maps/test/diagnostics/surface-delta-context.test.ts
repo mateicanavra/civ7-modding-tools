@@ -75,7 +75,12 @@ describe("surface delta context diagnostics", () => {
           coastlineMetrics: {
             coastalLand: [0, 0, 0, 1, 0, 0],
             coastalWater: [1, 1, 1, 0, 1, 1],
+            distanceToCoast: [0, 1, 0, 0, 0, 1],
+          },
+          shelf: {
             shelfMask: [1, 0, 1, 0, 1, 0],
+            coastalLand: [0, 0, 0, 1, 0, 0],
+            coastalWater: [1, 1, 1, 0, 1, 1],
             distanceToCoast: [0, 1, 0, 0, 0, 1],
           },
           mapMorphologyCoastPolicy: {
@@ -202,7 +207,11 @@ describe("surface delta context diagnostics", () => {
       localProjection: {
         morphology: {
           coastalWater: 1,
+          distanceToCoast: 1,
+        },
+        shelf: {
           shelfMask: 0,
+          coastalWater: 1,
           distanceToCoast: 1,
         },
         mapMorphologyCoastPolicy: {

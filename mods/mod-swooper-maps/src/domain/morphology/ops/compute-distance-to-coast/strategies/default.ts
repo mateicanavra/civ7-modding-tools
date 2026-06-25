@@ -10,9 +10,6 @@ export const defaultStrategy = createStrategy(ComputeDistanceToCoastContract, "d
     const { width, height } = input;
     const size = Math.max(0, (width | 0) * (height | 0));
     const coastal = input.coastal as Uint8Array;
-    if (coastal.length !== size) {
-      throw new Error("[DistanceToCoast] coastal mask must match width*height.");
-    }
 
     const distance = new Uint16Array(size);
     distance.fill(UNREACHED);

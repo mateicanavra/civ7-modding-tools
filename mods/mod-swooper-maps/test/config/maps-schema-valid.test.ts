@@ -34,11 +34,11 @@ const MORPHOLOGY_PUBLIC_KEYS: Record<string, readonly string[]> = {
     "waterCoverage",
     "continents",
     "coastlineShape",
-    "shelf",
   ],
   "morphology-routing": ["knobs"],
   "morphology-erosion": ["knobs", "geomorphicCycle"],
   "morphology-features": ["knobs", "islandChains", "mountainRanges", "volcanoes"],
+  "morphology-shelf": ["knobs", "shelf"],
 };
 
 const MORPHOLOGY_INTERNAL_STAGE_KEYS = [
