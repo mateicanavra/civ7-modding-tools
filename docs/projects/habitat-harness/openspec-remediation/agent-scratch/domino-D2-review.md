@@ -31,15 +31,15 @@
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/review-disposition-ledger.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/closure-checklist.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/architecture.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/generated-zones.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/rule-selection.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts`
 - `docs/DOMAIN-MAPPING.md`
 
 Validation command run:
@@ -60,11 +60,11 @@ The packet describes the desired direction, but it does not yet define the contr
 
 The current registry has 51 rules and 16 observed fields: `detect`, `exceptionPath`, `forbiddenFileNames`, `forbids`, `generatedZone`, `gritPattern`, `hookScope`, `id`, `lane`, `message`, `nxTarget`, `ownerProject`, `ownerTool`, `remediate`, `scope`, and `why`. Existing consumers do not need the same facets:
 
-- `HarnessRule` currently exposes the whole mixed record, including prose and execution fields, at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/architecture.ts:16`.
-- `classifyRuleScope` still derives exact-path and workspace-gate behavior from prose `scope` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:886` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:955`.
-- The Nx plugin hard-codes owner roots and aliases `rule.nxTarget` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:17` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:223`.
-- Baseline integrity has its own parser that projects only `id` and `exceptionPath` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:753`.
-- Generated zones are maintained as a separate code table, not a host declaration link, at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/generated-zones.ts:17`.
+- `HarnessRule` currently exposes the whole mixed record, including prose and execution fields, at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts:16`.
+- `classifyRuleScope` still derives exact-path and workspace-gate behavior from prose `scope` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:886` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:955`.
+- The Nx plugin hard-codes owner roots and aliases `rule.nxTarget` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:17` and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:223`.
+- Baseline integrity has its own parser that projects only `id` and `exceptionPath` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:753`.
+- Generated zones are maintained as a separate code table, not a host declaration link, at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/generated-zones.ts:17`.
 
 Required repair: add a D2-owned registry inventory and projection matrix before acceptance. For each consumer, name the projection, exact fields, required/optional facet states, refusal condition, public surface impact, and forbidden source fields. At minimum, cover selector, classify routing, workspace graph/Nx target aliasing, baseline integrity, Grit scan/pattern projection, generated-zone guard, Pattern Authority registration, hook scope, and diagnostic pattern catalog handoff.
 
@@ -101,7 +101,7 @@ Required repair: expand `specs/habitat-harness/spec.md` into separate requiremen
 
 The validation list in `tasks.md` lines 20-25 runs existing rule-selection and Pattern Authority tests, `classify`, `nx show project`, OpenSpec validation, and `git diff --check`. The source D2 packet required a field inventory, consumer projection matrix, malformed-rule scenarios, and an injected bad case. The OpenSpec scaffold dropped those oracles.
 
-Current tests in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/rule-selection.test.ts:38` cover selector facts, and lines 121-161 cover staged Grit selection. They do not prove that every consumer stopped parsing prose, that malformed facets fail before execution, that Nx target alias metadata is structured, or that generated-zone metadata is host-declared.
+Current tests in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/rule-selection.test.ts:38` cover selector facts, and lines 121-161 cover staged Grit selection. They do not prove that every consumer stopped parsing prose, that malformed facets fail before execution, that Nx target alias metadata is structured, or that generated-zone metadata is host-declared.
 
 Required repair: add required validation oracles for at least one malformed row per facet class, a projection matrix test, a command JSON compatibility test, an Nx target metadata assertion, and a classify test that would fail if prose `scope` parsing remains authoritative.
 

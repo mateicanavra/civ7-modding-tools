@@ -1,7 +1,7 @@
 {
   "id": "cli-smoke",
   "ownerTool": "command-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "@habitat/cli",
   "lane": "enforced",
   "scope": "Habitat CLI help and JSON check report surface",
   "forbids": "Habitat CLI help or selected-check JSON output becoming unparseable",
@@ -13,7 +13,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["tools/habitat-harness/bin/**", "tools/habitat-harness/src/cli/**"]
+      "patterns": ["tools/habitat/bin/**", "tools/habitat/src/cli/**"]
     },
     {
       "kind": "project-owner"

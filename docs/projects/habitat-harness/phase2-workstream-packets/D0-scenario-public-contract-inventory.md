@@ -41,18 +41,18 @@ Inventory and classify:
 - JSON schemas and human output for `CheckReport`, `Classification`,
   `DiffClassification`, `VerifyReceipt`, `GritApplyTransactionReceipt`, and
   `HookTrace`.
-- package exports from `/tools/habitat-harness/src/index.ts` and
-  `/tools/habitat-harness/package.json`.
+- package exports from `/tools/habitat/src/index.ts` and
+  `/tools/habitat/package.json`.
 - root scripts and Habitat script entrypoints.
-- inferred Nx targets from `/tools/habitat-harness/src/plugin.js` and
+- inferred Nx targets from `/tools/habitat/src/plugin.js` and
   `/nx.json`.
-- generator surfaces under `/tools/habitat-harness/src/generators/`.
+- generator surfaces under `/tools/habitat/src/generators/`.
 - Husky delegators and `habitat hook` behavior.
 
 The output must include an export matrix for
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/index.ts`
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/index.ts`
 and
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/package.json`.
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`.
 Each export must be classified as public stable, public versioned,
 package-internal, command-only DTO, test-only, generated/derived, deprecated, or
 refused. No later packet may move or remove exported internals until this matrix
@@ -69,7 +69,7 @@ Parallelism: none. D0 is the suite entrance.
 
 ## Current State-Space Problem
 
-Public and internal surfaces are mixed. `/tools/habitat-harness/src/index.ts`
+Public and internal surfaces are mixed. `/tools/habitat/src/index.ts`
 exports broad internals from `command-engine.ts`, `baseline.ts`, `grit-apply.ts`,
 `hooks.ts`, and patterns. The TypeScript state space is too large
 because every exported inferred type can become an accidental public contract.
@@ -155,7 +155,7 @@ Update or create:
 
 - command/API compatibility matrix;
 - README command examples;
-- `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`;
+- `tools/habitat/docs/IMPLEMENTED-SURFACE.md`;
 - generator surface notes;
 - root script documentation;
 - OpenSpec packet prerequisites for D1-D14.
@@ -164,9 +164,9 @@ Update or create:
 
 - `git status --short --branch`: expected exit 0; records clean Graphite state
   before and after packet implementation.
-- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts`:
+- `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts`:
   expected exit 0; command behavior receipt for public CLI compatibility.
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js`:
+- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`:
   expected exit 0; command behavior receipt for a stable representative path.
 - `bun run lint`: expected exit 0; hygiene receipt, cache acceptable only if Nx
   reports matching inputs.

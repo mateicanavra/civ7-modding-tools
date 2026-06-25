@@ -29,13 +29,13 @@ paths before any live write.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/packet-index.md`
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/README.md`
 - Current code/tests:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-apply.ts`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit.ts`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/habitat-process.ts`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/fix.ts`
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-apply.test.ts`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/habitat-process.ts`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/fix.ts`
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/deep_import_to_public_surface.md`
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/docs_local_checkout_paths_rewrite.md`
 - Related owner packets:
@@ -138,7 +138,7 @@ decision:
 - CLI command surface: `habitat fix` currently supports only `--dry-run`.
   Adding `--json`, changing stdout/stderr shape, or changing exit-code meaning
   is a public command contract change.
-- Package exports from `tools/habitat-harness/src/index.ts`:
+- Package exports from `tools/habitat/src/index.ts`:
   `GritApplyRewriteInventoryEntry`, `GritApplyTransactionOptions`,
   `GritApplyTransactionProof`, `GritApplyTransactionResult`,
   `classifyApplyRewriteInventory`, `parseApplyRewriteInventory`, and
@@ -279,7 +279,7 @@ D9 should specify this target write set, with no implicit expansion:
      inventory mode is valid for the pattern.
 
 6. Test fixture write set:
-   - `tools/habitat-harness/test/lib/grit-apply.test.ts` currently creates and
+   - `tools/habitat/test/lib/grit-apply.test.ts` currently creates and
      removes
      `mods/mod-swooper-maps/src/recipes/standard/stages/habitat-apply-copy-proof/**`
      as test-only probe files.
@@ -293,7 +293,7 @@ as dependency-bound:
 
 - Repo/VCS/tooling protected prefixes already modeled in Grit scan validation:
   `.civ7/**`, `.git/**`, `.habitat/cache/patterns/**`, `dist/**`, `node_modules/**`,
-  `tools/habitat-harness/dist/**`.
+  `tools/habitat/dist/**`.
 - Generated zones currently modeled in `generated-zones.ts`:
   `mods/mod-swooper-maps/src/maps/generated/**`,
   `packages/civ7-types/generated/**`,
@@ -399,7 +399,7 @@ Native vendor proof:
 
 Habitat wrapper/unit proof:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts`
   - Proves D9 transaction unit behavior, rollback branches, isolated-copy proof,
     and fake-process command sequencing.
   - Does not prove command JSON, native Grit semantics, Biome semantics, D8

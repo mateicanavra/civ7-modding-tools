@@ -62,7 +62,7 @@ R4 validation proves documentation integrity only:
 | `bun run habitat classify docs/projects/studio-runtime-simplification/workstream/runtime-effect-recovery-design` | Passed; workspace-level path; returned `bun run lint`. | Required target discovery. |
 | `bun run habitat classify docs/projects/studio-runtime-simplification/workstream/runtime-effect-recovery-closeout` | Passed; workspace-level path; returned `bun run lint`. | Required target discovery. |
 | `git diff --check` | Passed before commit. | Diff whitespace hygiene only. |
-| `bun run lint` | Non-green on unrelated `mod-swooper-maps:habitat:check` rules listed below; `@internal/habitat-harness:habitat:check` passed with advisory `doc-ambiguity`. | Root graph hygiene; not green, not caused by this docs-only write set. |
+| `bun run lint` | Non-green on unrelated `mod-swooper-maps:habitat:check` rules listed below; `@habitat/cli:habitat:check` passed with advisory `doc-ambiguity`. | Root graph hygiene; not green, not caused by this docs-only write set. |
 
 Root `bun run lint` is expected to remain non-green on unrelated
 `mod-swooper-maps:habitat:check` rules:

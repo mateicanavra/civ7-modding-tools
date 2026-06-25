@@ -322,7 +322,7 @@ checks passed.
 
 | Scenario | Later Command/Test | Oracle |
 | --- | --- | --- |
-| Clean pre-commit local feedback | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts -t "passes clean"` | exit 0; trace outcome `pass`; D1 non-claims present; no CI/apply/product claims. |
+| Clean pre-commit local feedback | `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts -t "passes clean"` | exit 0; trace outcome `pass`; D1 non-claims present; no CI/apply/product claims. |
 | Resource-blocked | focused hook test for dirty/locked/uninitialized resources | exit 1; no file-layer/Biome/Grit/publish/restage calls; recovery instruction present. |
 | File-layer failed / D10 refusal | focused hook test with D7 `LocalFeedbackCheckProjection` carrying D10 refusal | exit 1; stops before Biome/Grit/restage; renders D10 owner/recovery without path-policy recomputation. |
 | D6 diagnostic finding | hook-stage unit/contract test with D6 findings projection | exit 1; renders at least one normalized diagnostic; no raw Grit parsing. |

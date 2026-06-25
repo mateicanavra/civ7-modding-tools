@@ -31,8 +31,8 @@ Primary D12 and context sources read:
 - `openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream-artifacts/review-disposition-ledger.md`
 - `openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream-artifacts/downstream-realignment-ledger.md`
 - `openspec/changes/deep-habitat-d12-verify-handoff-receipt/workstream-artifacts/closure-checklist.md`
-- `tools/habitat-harness/docs/CAPABILITIES.md`
-- `tools/habitat-harness/docs/SCENARIOS.md`
+- `tools/habitat/docs/CAPABILITIES.md`
+- `tools/habitat/docs/SCENARIOS.md`
 
 Cross-domino sources read:
 

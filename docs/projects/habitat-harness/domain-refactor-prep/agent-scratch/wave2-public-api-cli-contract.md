@@ -32,7 +32,7 @@ and does not authorize implementation.
   `docs/projects/habitat-harness/domain-refactor-frame.md`,
   `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`.
 - Habitat docs:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/README.md`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/README.md`,
   `docs/CAPABILITIES.md`,
   `docs/IMPLEMENTED-SURFACE.md`,
   `docs/SCENARIOS.md`,
@@ -44,23 +44,23 @@ and does not authorize implementation.
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/nx.json`,
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-commit`,
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/.husky/pre-push`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/package.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/generators.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/oclif.manifest.json`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/commands/*.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/index.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/lib/command-engine.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/lib/diagnostics.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/generators/project/*`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/generators/pattern/*`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/package.json`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/generators.json`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/oclif.manifest.json`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/commands/*.ts`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/index.ts`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/diagnostics.ts`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/project/*`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/generators/pattern/*`,
   focused command/classify/verify/generator/hook/apply tests under
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/test`.
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/test`.
 - Fresh command evidence:
-  `/Users/mateicanavra/.bun/bin/bun /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/bin/dev.ts --help`,
+  `/Users/mateicanavra/.bun/bin/bun /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/bin/dev.ts --help`,
   `check --help`, `classify --help`, `verify --help`, `fix --help`,
   `graph --help`, `hook --help`, and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/node_modules/.bin/nx show project @internal/habitat-harness --json`.
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/node_modules/.bin/nx show project @habitat/cli --json`.
 
 ## Contract Inventory
 
@@ -102,9 +102,9 @@ and does not authorize implementation.
   because `verify` does not expose rule selectors.
 - `Classification` and `DiffClassification` are exported TS types and emitted
   CLI shapes. Diff classification is versioned; single classification is not.
-- Package exports expose `.` as `/tools/habitat-harness/src/index.ts`,
-  `./plugin` as `/tools/habitat-harness/src/plugin.js`, and `./rules` as
-  `/tools/habitat-harness/src/rules/rules.json`. The root index exports many
+- Package exports expose `.` as `/tools/habitat/src/index.ts`,
+  `./plugin` as `/tools/habitat/src/plugin.js`, and `./rules` as
+  `/tools/habitat/src/rules/rules.json`. The root index exports many
   internals: baseline operations, rule selection/reporting, classify, verify,
   fix/graph/hook runners, Grit apply transaction APIs, Effect process boundary,
   proof artifact writers, rules, and Pattern Authority manifest APIs.
@@ -114,7 +114,7 @@ and does not authorize implementation.
 - Root scripts expose `habitat`, `habitat:check`, `habitat:fix`, `lint`,
   `verify`, and `check`. Root `verify` is `nx run-many --targets=verify`; it is
   not the same as `habitat verify`.
-- Nx loads `/tools/habitat-harness/src/plugin.js`. Public inferred targets
+- Nx loads `/tools/habitat/src/plugin.js`. Public inferred targets
   include `biome:format`, `biome:check`, `biome:ci`, `boundaries`,
   `grit:check`, `generated:check`, `habitat:check:all`, per-rule
   `habitat:rule:<rule-id>`, and per-owner `habitat:check`.
@@ -126,13 +126,13 @@ and does not authorize implementation.
 
 ### Generators
 
-- `@internal/habitat-harness:project <name> --kind=<kind>`: supports
+- `@habitat/cli:project <name> --kind=<kind>`: supports
   `foundation`, `plugin`, and `app`, including `kind:` prefixes. Refuses
   `mod`, `engine`, `control`, `adapter`, `sdk`, `tooling`, mismatched roots,
   mismatched package names, non-empty roots, and package-name collisions before
   writes. Writes package metadata, `kind:*` tag, TypeScript config, source stub,
   Bun test stub, and README.
-- `@internal/habitat-harness:pattern <ruleId>`: candidate lifecycle by default.
+- `@habitat/cli:pattern <ruleId>`: candidate lifecycle by default.
   Candidate output is non-enforcing and not a rule, active Grit check, baseline,
   or hook scope. Registered advisory/enforced modes require `--manifestPath`,
   accepted Pattern Authority Manifest, baseline contract, rule-introduction
@@ -226,7 +226,7 @@ and does not authorize implementation.
   Grit failure tags projected through diagnostics, staged Grit scan-root
   behavior, and Pattern Authority references. Keep diagnostics separate from
   registered rule admission.
-- Pattern Governance packet: public impact is `@internal/habitat-harness:pattern`,
+- Pattern Governance packet: public impact is `@habitat/cli:pattern`,
   candidate/registered lifecycle flags, manifest contract, baseline contract,
   hook-scope decision, and active rule writes. This should not be bundled with
   raw Grit acquisition.
@@ -240,7 +240,7 @@ and does not authorize implementation.
 - Generated/Protected Zone Authority packet: public impact is staged file-layer
   checks, `generated:check`, generated-zone refusal language, and generated
   artifact proof. Keep this separate from general structural enforcement.
-- Scaffolding packet: public impact is `@internal/habitat-harness:project`,
+- Scaffolding packet: public impact is `@habitat/cli:project`,
   supported/refused kinds, canonical roots/package names, and generated file
   set. Future Authoring Topology must not backfill meaning into this generator.
 - Proof Contract packet: cross-cutting public impact across `check`, `verify`,
@@ -271,7 +271,7 @@ and does not authorize implementation.
   package export paths, Nx target names, generator schemas, or hook entrypoints
   without an explicit public-surface section and compatibility/proof story.
 - Stop if a packet can only be described as moving code from
-  `/tools/habitat-harness/src/lib/command-engine.ts` into smaller files rather
+  `/tools/habitat/src/lib/command-engine.ts` into smaller files rather
   than stabilizing a scenario/domain contract.
 - Stop if product language uses implementation owner names such as
   `command-engine`, `file-layer`, or `grit-apply` where the public scenario is

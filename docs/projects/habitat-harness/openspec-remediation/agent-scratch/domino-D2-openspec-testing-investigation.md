@@ -68,28 +68,28 @@ Control and packet sources:
 Current code and validation evidence:
 
 - `package.json`
-- `tools/habitat-harness/package.json`
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/src/rules/architecture.ts`
-- `tools/habitat-harness/src/plugin.js`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/src/lib/baseline.ts`
-- `tools/habitat-harness/src/lib/generated-zones.ts`
-- `tools/habitat-harness/src/lib/grit.ts`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `tools/habitat-harness/test/lib/rule-selection.test.ts`
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
-- `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
-- `tools/habitat-harness/test/lib/biome-closure.test.ts`
-- `tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`
-- `tools/habitat-harness/test/lib/classify.test.ts` was identified as an
+- `tools/habitat/package.json`
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/src/rules/architecture.ts`
+- `tools/habitat/src/plugin.js`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/src/lib/baseline.ts`
+- `tools/habitat/src/lib/generated-zones.ts`
+- `tools/habitat/src/lib/grit.ts`
+- `tools/habitat/src/generators/pattern/registration.cjs`
+- `tools/habitat/test/lib/rule-selection.test.ts`
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
+- `tools/habitat/test/lib/enforcement-surface.test.ts`
+- `tools/habitat/test/lib/biome-closure.test.ts`
+- `tools/habitat/test/commands/habitat-entrypoints.test.ts`
+- `tools/habitat/test/lib/classify.test.ts` was identified as an
   existing validation surface.
-- `tools/habitat-harness/test/lib/baseline.test.ts` was identified as an
+- `tools/habitat/test/lib/baseline.test.ts` was identified as an
   existing validation surface.
-- `tools/habitat-harness/test/lib/grit-adapter.test.ts` and
-  `tools/habitat-harness/test/lib/grit-injected-probe.test.ts` were identified
+- `tools/habitat/test/lib/grit-adapter.test.ts` and
+  `tools/habitat/test/lib/grit-injected-probe.test.ts` were identified
   as existing validation surfaces.
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts` was
+- `tools/habitat/test/generators/pattern-generator.test.ts` was
   identified as an existing validation surface.
 
 Commands run:
@@ -331,13 +331,13 @@ Replace the current broad implementation tasks with ordered, bounded tasks.
 
 3. Create the implementation write set and protected paths.
    - Expected implementation write set may include
-     `tools/habitat-harness/src/rules/**`,
-     `tools/habitat-harness/src/lib/command-engine.ts`,
-     `tools/habitat-harness/src/plugin.js`,
-     `tools/habitat-harness/src/lib/baseline.ts`,
-     `tools/habitat-harness/src/lib/generated-zones.ts`,
-     `tools/habitat-harness/src/lib/grit.ts`,
-     `tools/habitat-harness/src/generators/pattern/**`,
+     `tools/habitat/src/rules/**`,
+     `tools/habitat/src/lib/command-engine.ts`,
+     `tools/habitat/src/plugin.js`,
+     `tools/habitat/src/lib/baseline.ts`,
+     `tools/habitat/src/lib/generated-zones.ts`,
+     `tools/habitat/src/lib/grit.ts`,
+     `tools/habitat/src/generators/pattern/**`,
      and targeted tests.
    - Protected paths must include source domino packets, generated outputs,
      lockfiles, unrelated packages, D0/D1 accepted records except explicit
@@ -383,16 +383,16 @@ exist.
 | --- | --- | --- | --- | --- | --- |
 | V0 strict D2 shape | `bun run openspec -- validate deep-habitat-d2-rule-registry-metadata-contract --strict` | 0 | OpenSpec change shape is valid | OpenSpec local parse; no Habitat runtime | Does not prove implementation readiness, domain acceptance, or projection completeness |
 | V1 all OpenSpec shape | `bun run openspec:validate` | 0 | All OpenSpec records pass strict validation | OpenSpec local parse | Does not prove Habitat behavior or current-tree cleanliness |
-| V2 registry schema/projections | `bun run --cwd tools/habitat-harness test -- test/lib/rule-registry-metadata.test.ts` | 0 after implementation | Versioned parser accepts valid registry, rejects missing identity, unknown owner/tool/lane, invalid facet combinations, and whole-row leakage | Vitest local fixtures; injected registry rows | Does not prove command UX or Nx runtime |
-| V3 selector/check compatibility | `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | Unknown selector, wrong namespace, and empty intersection produce D1-aligned `rule-selection-integrity` without execution | Vitest/subprocess local | Does not prove all rules execute correctly |
-| V4 classify/routing | `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts` | 0 | Classify uses routing projection for exact-path/project-owner/workspace-gate/unresolved states; test fails if prose `scope` remains authority | Vitest local fixtures and Nx metadata stubs | Does not prove D3 graph implementation beyond routing facts |
-| V5 graph/Nx metadata | `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts test/lib/biome-closure.test.ts` | 0 | Plugin projects and target aliases derive from graph facts; unknown owner root is a metadata failure, not skipped target creation | Vitest local createNodes inference | Does not prove Nx task execution |
-| V6 live target metadata sample | `nx show project @internal/habitat-harness` | 0 | Habitat targets remain visible and registry-derived target metadata can be cited in the phase record | Nx may use local graph cache; record whether cache was reused or reset | Does not prove target commands run |
-| V7 baseline projection | `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | Baseline reads baseline projection and rejects missing/malformed/orphan states through known diagnostics | Vitest local temp/renamed baseline files | Does not prove rule correctness |
-| V8 Grit projection | `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/lib/rule-selection.test.ts` | 0 | Grit pattern identity, scan roots, hook scope, cache/freshness stance, and unexpected pattern identity are explicit | Vitest local/fake Grit where available; record fresh/cache state when command-backed | Does not prove all Grit patterns semantically correct |
-| V9 generated-zone projection | `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` plus a new generated-zone projection test if not already covered | 0 | Known zones map to host declarations/remediation; unknown zone fails explicitly before silent pass | Vitest fake staged paths | Does not prove regeneration command output |
-| V10 Pattern Authority projection | `bun run --cwd tools/habitat-harness test -- test/rules/pattern-authority-manifest.test.ts test/generators/pattern-generator.test.ts` | 0 | Manifest path/status/lifecycle/hook agreement are projected from registry metadata; candidate is not accepted authority | Vitest tree fixtures | Does not admit new patterns |
-| V11 command classify sample | `bun run habitat classify tools/habitat-harness/src/rules/rules.json` | 0 | Command output still discovers registry ownership and routing facts without prose authority | Local command; record worktree path and branch | Does not prove all metadata projections |
+| V2 registry schema/projections | `bun run --cwd tools/habitat test -- test/lib/rule-registry-metadata.test.ts` | 0 after implementation | Versioned parser accepts valid registry, rejects missing identity, unknown owner/tool/lane, invalid facet combinations, and whole-row leakage | Vitest local fixtures; injected registry rows | Does not prove command UX or Nx runtime |
+| V3 selector/check compatibility | `bun run --cwd tools/habitat test -- test/lib/rule-selection.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | Unknown selector, wrong namespace, and empty intersection produce D1-aligned `rule-selection-integrity` without execution | Vitest/subprocess local | Does not prove all rules execute correctly |
+| V4 classify/routing | `bun run --cwd tools/habitat test -- test/lib/classify.test.ts` | 0 | Classify uses routing projection for exact-path/project-owner/workspace-gate/unresolved states; test fails if prose `scope` remains authority | Vitest local fixtures and Nx metadata stubs | Does not prove D3 graph implementation beyond routing facts |
+| V5 graph/Nx metadata | `bun run --cwd tools/habitat test -- test/lib/enforcement-surface.test.ts test/lib/biome-closure.test.ts` | 0 | Plugin projects and target aliases derive from graph facts; unknown owner root is a metadata failure, not skipped target creation | Vitest local createNodes inference | Does not prove Nx task execution |
+| V6 live target metadata sample | `nx show project @habitat/cli` | 0 | Habitat targets remain visible and registry-derived target metadata can be cited in the phase record | Nx may use local graph cache; record whether cache was reused or reset | Does not prove target commands run |
+| V7 baseline projection | `bun run --cwd tools/habitat test -- test/lib/baseline.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | Baseline reads baseline projection and rejects missing/malformed/orphan states through known diagnostics | Vitest local temp/renamed baseline files | Does not prove rule correctness |
+| V8 Grit projection | `bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/lib/rule-selection.test.ts` | 0 | Grit pattern identity, scan roots, hook scope, cache/freshness stance, and unexpected pattern identity are explicit | Vitest local/fake Grit where available; record fresh/cache state when command-backed | Does not prove all Grit patterns semantically correct |
+| V9 generated-zone projection | `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts` plus a new generated-zone projection test if not already covered | 0 | Known zones map to host declarations/remediation; unknown zone fails explicitly before silent pass | Vitest fake staged paths | Does not prove regeneration command output |
+| V10 Pattern Authority projection | `bun run --cwd tools/habitat test -- test/rules/pattern-authority-manifest.test.ts test/generators/pattern-generator.test.ts` | 0 | Manifest path/status/lifecycle/hook agreement are projected from registry metadata; candidate is not accepted authority | Vitest tree fixtures | Does not admit new patterns |
+| V11 command classify sample | `bun run habitat classify tools/habitat/src/rules/rules.json` | 0 | Command output still discovers registry ownership and routing facts without prose authority | Local command; record worktree path and branch | Does not prove all metadata projections |
 | V12 check malformed metadata command | New fixture command or test-owned injected registry path | Nonzero for malformed injected row | Missing required facet fails before ordinary rule execution and cannot silently disable a rule | Test fixture; no current-tree mutation | Does not prove clean current tree |
 | V13 whitespace | `git diff --check` | 0 | No whitespace errors in changed files | Git working tree | Does not prove tests or acceptance |
 | V14 final state | `git status --short --branch` | 0 | Only D2-owned files dirty before commit, or next packet records handoff | Git working tree | Does not prove Graphite submit readiness |

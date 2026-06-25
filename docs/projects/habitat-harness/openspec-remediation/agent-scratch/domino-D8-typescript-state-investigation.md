@@ -28,27 +28,27 @@ The current disk state incompletely prevents bad promotion by runtime tests and 
 - `openspec/changes/deep-habitat-d8-pattern-governance/workstream/phase-record.md`
 - `openspec/changes/deep-habitat-d8-pattern-governance/workstream/closure-checklist.md`
 - `openspec/changes/deep-habitat-d8-pattern-governance/workstream/review-disposition-ledger.md`
-- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-- `tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `tools/habitat-harness/src/generators/pattern/schema.json`
-- `tools/habitat-harness/src/rules/architecture.ts`
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/src/plugin.js`
-- `tools/habitat-harness/src/lib/baseline.ts`
-- `tools/habitat-harness/src/lib/grit-apply.ts`
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts`
-- `tools/habitat-harness/test/lib/grit-apply.test.ts`
-- `tools/habitat-harness/test/lib/grit-adapter.test.ts`
-- `tools/habitat-harness/test/lib/hooks.test.ts`
-- `tools/habitat-harness/test/lib/rule-selection.test.ts`
+- `tools/habitat/src/rules/pattern-authority/manifest.ts`
+- `tools/habitat/src/generators/pattern/generator.cjs`
+- `tools/habitat/src/generators/pattern/registration.cjs`
+- `tools/habitat/src/generators/pattern/schema.json`
+- `tools/habitat/src/rules/architecture.ts`
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/src/plugin.js`
+- `tools/habitat/src/lib/baseline.ts`
+- `tools/habitat/src/lib/grit-apply.ts`
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
+- `tools/habitat/test/generators/pattern-generator.test.ts`
+- `tools/habitat/test/lib/grit-apply.test.ts`
+- `tools/habitat/test/lib/grit-adapter.test.ts`
+- `tools/habitat/test/lib/hooks.test.ts`
+- `tools/habitat/test/lib/rule-selection.test.ts`
 
 ## Current Type/Code Inventory
 
 The current manifest layer already contains a useful discriminant, but it is not the complete Pattern Authority state machine D8 needs.
 
-- `PatternAuthorityLifecycle` is `"candidate" | "registered-advisory" | "registered-enforced"` in `tools/habitat-harness/src/rules/pattern-authority/manifest.ts:5`.
+- `PatternAuthorityLifecycle` is `"candidate" | "registered-advisory" | "registered-enforced"` in `tools/habitat/src/rules/pattern-authority/manifest.ts:5`.
 - `CandidatePatternAuthorityManifest` owns `candidateArtifacts`, `registration.accepted: false`, and `requiredForRegistration` at `manifest.ts:67-78`.
 - `RegisteredPatternAuthorityManifest` owns normative/proving sources, language, scan roots, fixture strategy, false-positive model, current-tree scan, baseline contract, hook scope, and apply safety at `manifest.ts:80-122`.
 - `PatternAuthorityApplySafety` separates `{ kind: "not-apply" }` from `{ kind: "apply"; dryRunCommand; noWriteProof; appliedDiffProof; rollbackProof; typeAndTestProof }` at `manifest.ts:34-43`.
@@ -65,7 +65,7 @@ The validator catches many contradictions, but the current result shape still le
 
 The generator path is still driven by string lifecycle options and file-presence checks.
 
-- `patternGenerator()` normalizes options, validates collisions, then branches on `options.lifecycle !== "candidate"` at `tools/habitat-harness/src/generators/pattern/generator.cjs:3-10`.
+- `patternGenerator()` normalizes options, validates collisions, then branches on `options.lifecycle !== "candidate"` at `tools/habitat/src/generators/pattern/generator.cjs:3-10`.
 - `normalizeOptions()` builds one broad options record with `lifecycle`, `manifestPath`, and optional `hookScope` at `generator.cjs:26-38`.
 - `normalizeLifecycle()` validates raw strings at `generator.cjs:41-51`.
 - Candidate generation writes a candidate pattern markdown and candidate manifest at `generator.cjs:12-24`.
@@ -73,7 +73,7 @@ The generator path is still driven by string lifecycle options and file-presence
 
 The registration program correctly fail-closes before promotion writes in several cases, but it does so as runtime sequencing over a broad input record.
 
-- `registeredPatternPromotionProgram(input)` refuses missing `manifestPath` at `tools/habitat-harness/src/generators/pattern/registration.cjs:32-37`.
+- `registeredPatternPromotionProgram(input)` refuses missing `manifestPath` at `tools/habitat/src/generators/pattern/registration.cjs:32-37`.
 - It reads and validates the manifest with an invocation-shaped rule reference at `registration.cjs:39-63`.
 - It validates baseline contract before active writes at `registration.cjs:64-65` and `registration.cjs:148-223`.
 - It rejects existing active pattern/candidate artifacts before writes at `registration.cjs:67-85`.
@@ -82,33 +82,33 @@ The registration program correctly fail-closes before promotion writes in severa
 
 The rule registry and Nx plugin still represent Pattern Authority as optional metadata on a general-purpose rule record.
 
-- `HarnessRule` includes optional `gritPattern?`, `manifestPath?`, `hookScope?`, `generatedZone?`, `forbiddenFileNames?`, and `nxTarget?` at `tools/habitat-harness/src/rules/architecture.ts:16-34`.
+- `HarnessRule` includes optional `gritPattern?`, `manifestPath?`, `hookScope?`, `generatedZone?`, `forbiddenFileNames?`, and `nxTarget?` at `tools/habitat/src/rules/architecture.ts:16-34`.
 - `rules.json` is the shared rule-pack source, but the current file has no `"manifestPath"` entries.
-- `plugin.js` treats `ownerTool === "grit-check"` as an alias to the canonical Grit target at `tools/habitat-harness/src/plugin.js:213-217`, regardless of Pattern Authority lifecycle.
+- `plugin.js` treats `ownerTool === "grit-check"` as an alias to the canonical Grit target at `tools/habitat/src/plugin.js:213-217`, regardless of Pattern Authority lifecycle.
 
 Baseline and apply code already define adjacent authority states that D8 should consume through projections instead of re-owning.
 
-- Baseline states are a real union: explicit empty, explicit debt, external exception source, or contract failure at `tools/habitat-harness/src/lib/baseline.ts:53-83`.
+- Baseline states are a real union: explicit empty, explicit debt, external exception source, or contract failure at `tools/habitat/src/lib/baseline.ts:53-83`.
 - Baseline growth for new rules requires an accepted rule-introduction manifest at `baseline.ts:330-338`, `baseline.ts:423-467`, and `baseline.ts:799-830`.
-- Grit apply transaction proof has changed paths, diff evidence, inventory, rollback, gate commands, and non-claims at `tools/habitat-harness/src/lib/grit-apply.ts:74-91`.
+- Grit apply transaction proof has changed paths, diff evidence, inventory, rollback, gate commands, and non-claims at `tools/habitat/src/lib/grit-apply.ts:74-91`.
 - Apply inventory and diff evidence classify pre-approved versus blocked writes at `grit-apply.ts:576-633`.
 - Apply request non-claims explicitly do not prove current-tree Grit, baseline shrink, or product runtime at `grit-apply.ts:665-703` and `grit-apply.ts:1081-1119`.
 
 Current tests prove important behavior but not the full D8 packet target.
 
-- Manifest tests accept registered advisory with matching rule reference and candidate drafts without authority acceptance at `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts:10-60`.
+- Manifest tests accept registered advisory with matching rule reference and candidate drafts without authority acceptance at `tools/habitat/test/rules/pattern-authority-manifest.test.ts:10-60`.
 - Manifest tests reject missing, malformed, placeholder, contradicted, orphan, wrong-path, sparse-reference, hook-mismatch, Grit-only, Nx-options-only, and placeholder-baseline states at `pattern-authority-manifest.test.ts:62-263`.
-- Generator tests prove candidate writes do not register active enforcement at `tools/habitat-harness/test/generators/pattern-generator.test.ts:20-55`.
+- Generator tests prove candidate writes do not register active enforcement at `tools/habitat/test/generators/pattern-generator.test.ts:20-55`.
 - Generator tests prove missing manifest, placeholder manifest, hook mismatch, and missing baseline refuse before promotion writes at `pattern-generator.test.ts:57-207`.
 - Generator tests prove registered advisory/enforced/hook-scoped writes after accepted manifest and baseline contract at `pattern-generator.test.ts:139-237`.
 - Generator tests assert no candidate or promotion writes for collision/refusal cases at `pattern-generator.test.ts:310-385`.
-- Apply tests block unapproved inventory, outside roots, create evidence, and delete evidence; they pre-approve only modification evidence inside approved roots at `tools/habitat-harness/test/lib/grit-apply.test.ts:173-298`.
-- Grit adapter and hook tests reject protected scan roots and avoid staged Grit outside approved roots at `tools/habitat-harness/test/lib/grit-adapter.test.ts:221-233`, `tools/habitat-harness/test/lib/hooks.test.ts:315-331`, and `tools/habitat-harness/test/lib/rule-selection.test.ts:121-160`.
+- Apply tests block unapproved inventory, outside roots, create evidence, and delete evidence; they pre-approve only modification evidence inside approved roots at `tools/habitat/test/lib/grit-apply.test.ts:173-298`.
+- Grit adapter and hook tests reject protected scan roots and avoid staged Grit outside approved roots at `tools/habitat/test/lib/grit-adapter.test.ts:221-233`, `tools/habitat/test/lib/hooks.test.ts:315-331`, and `tools/habitat/test/lib/rule-selection.test.ts:121-160`.
 
 ## State-Space Smells
 
 1. File-presence lifecycle.
-   Candidate/registered distinction is partly enforced by path collisions: candidate artifacts under `tools/habitat-harness/src/rules/pattern-authority/candidates/**`, active patterns under `.habitat/patterns/active/checks/**`, baseline files under `tools/habitat-harness/baselines/**`, and rule-pack entries in `rules.json`. The checks are important, but they are symptoms of state, not the state model. D8 must make file presence a projection of `PatternAuthorityState`, never the authority source.
+   Candidate/registered distinction is partly enforced by path collisions: candidate artifacts under `tools/habitat/src/rules/pattern-authority/candidates/**`, active patterns under `.habitat/patterns/active/checks/**`, baseline files under `tools/habitat/baselines/**`, and rule-pack entries in `rules.json`. The checks are important, but they are symptoms of state, not the state model. D8 must make file presence a projection of `PatternAuthorityState`, never the authority source.
 
 2. Optional/flag soup in generator input.
    One broad options object carries `lifecycle`, `manifestPath?`, and `hookScope?`. Invalid combinations are representable: registered lifecycle without manifest path, hook scope without enforced lifecycle, candidate with manifest path, candidate with hook scope, or registered apply semantics through a check-owned generator path.
@@ -260,15 +260,15 @@ Later implementation must stay inside this write set unless the D8 packet is exp
 
 Allowed source write set:
 
-- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-- `tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `tools/habitat-harness/src/generators/pattern/schema.json` only if D0 compatibility disposition covers generator option changes.
-- `tools/habitat-harness/src/rules/architecture.ts` only for typed projection consumption, not unrelated rule execution behavior.
-- `tools/habitat-harness/src/rules/rules.json` only for adding `manifestPath` metadata required by an accepted registered fixture or test case; no broad registry churn.
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts`
-- New narrowly-scoped tests under `tools/habitat-harness/test/rules/` or `tools/habitat-harness/test/generators/` for Pattern Authority admission state and negative type/runtime cases.
+- `tools/habitat/src/rules/pattern-authority/manifest.ts`
+- `tools/habitat/src/generators/pattern/generator.cjs`
+- `tools/habitat/src/generators/pattern/registration.cjs`
+- `tools/habitat/src/generators/pattern/schema.json` only if D0 compatibility disposition covers generator option changes.
+- `tools/habitat/src/rules/architecture.ts` only for typed projection consumption, not unrelated rule execution behavior.
+- `tools/habitat/src/rules/rules.json` only for adding `manifestPath` metadata required by an accepted registered fixture or test case; no broad registry churn.
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
+- `tools/habitat/test/generators/pattern-generator.test.ts`
+- New narrowly-scoped tests under `tools/habitat/test/rules/` or `tools/habitat/test/generators/` for Pattern Authority admission state and negative type/runtime cases.
 - D8 OpenSpec packet files under `openspec/changes/deep-habitat-d8-pattern-governance/**`.
 - D8 scratch/phase records under `docs/projects/habitat-harness/openspec-remediation/**`.
 - Pattern Authority docs or ledgers explicitly named by the repaired D8 packet.
@@ -276,23 +276,23 @@ Allowed source write set:
 Allowed runtime write projections for the generator:
 
 - Candidate generation may write:
-  - `tools/habitat-harness/src/rules/pattern-authority/candidates/<rule-id>.json`
-  - `tools/habitat-harness/src/rules/pattern-authority/candidates/<pattern-name>.md`
+  - `tools/habitat/src/rules/pattern-authority/candidates/<rule-id>.json`
+  - `tools/habitat/src/rules/pattern-authority/candidates/<pattern-name>.md`
 - Registered diagnostic/hook admission may write:
   - `.habitat/patterns/active/checks/<pattern-name>.md`
-  - `tools/habitat-harness/src/rules/rules.json`
+  - `tools/habitat/src/rules/rules.json`
 - Registered diagnostic/hook admission may require existing, prewritten:
-  - `tools/habitat-harness/src/rules/pattern-authority/<rule-id>.json`
-  - `tools/habitat-harness/baselines/<rule-id>.json`
+  - `tools/habitat/src/rules/pattern-authority/<rule-id>.json`
+  - `tools/habitat/baselines/<rule-id>.json`
   - the manifest's rule-introduction baseline manifest path under `openspec/changes/<change-id>/workstream/**`
 
 Protected paths:
 
-- `tools/habitat-harness/baselines/**` must not be created, expanded, or edited as a side effect of Pattern Authority admission. Baseline files are D5-owned inputs to D8 admission.
+- `tools/habitat/baselines/**` must not be created, expanded, or edited as a side effect of Pattern Authority admission. Baseline files are D5-owned inputs to D8 admission.
 - `.habitat/patterns/active/apply/**` must not be edited by diagnostic registration. Apply patterns require a separate apply-approved state.
 - `.habitat/grit.yaml`, `.gritignore`, `.gitignore`, and Grit acquisition configuration must not be changed by D8 admission.
-- `tools/habitat-harness/src/lib/grit-apply.ts` and Grit apply transaction tests are protected from D8 implementation unless the packet explicitly invokes the D9/apply workstream.
-- `tools/habitat-harness/src/lib/baseline.ts` is protected from D8 implementation unless D5 contract changes are explicitly accepted.
+- `tools/habitat/src/lib/grit-apply.ts` and Grit apply transaction tests are protected from D8 implementation unless the packet explicitly invokes the D9/apply workstream.
+- `tools/habitat/src/lib/baseline.ts` is protected from D8 implementation unless D5 contract changes are explicitly accepted.
 - Product source roots (`apps/**`, `packages/**`, `mods/**`) are protected from D8 implementation except for test fixtures explicitly approved by the packet.
 - Generated artifacts (`dist/**`, `mod/**`, generated zones, `.civ7/**`, lockfiles) are protected.
 - Existing active Grit pattern files unrelated to the admitted test fixture are protected.
@@ -318,10 +318,10 @@ Protected paths:
 
 Suggested exact later command set:
 
-- `bun run --cwd tools/habitat-harness test -- test/rules/pattern-authority-manifest.test.ts test/generators/pattern-generator.test.ts`
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts test/lib/grit-adapter.test.ts test/lib/hooks.test.ts test/lib/rule-selection.test.ts`
+- `bun run --cwd tools/habitat test -- test/rules/pattern-authority-manifest.test.ts test/generators/pattern-generator.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts test/lib/grit-adapter.test.ts test/lib/hooks.test.ts test/lib/rule-selection.test.ts`
 - `bun run habitat check --rule baseline-integrity --json`
-- `bun run habitat classify tools/habitat-harness/src/rules/rules.json`
+- `bun run habitat classify tools/habitat/src/rules/rules.json`
 - `bun run openspec -- validate deep-habitat-d8-pattern-governance --strict`
 - `bun run openspec:validate`
 - `git diff --check`

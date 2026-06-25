@@ -5,8 +5,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 const repoRoot = path.resolve(import.meta.dir, "../../../../../..");
-const modulesRoot = path.join(repoRoot, "tools/habitat-harness/src/service/modules");
-const serviceModelRoot = path.join(repoRoot, "tools/habitat-harness/src/service/model");
+const modulesRoot = path.join(repoRoot, "tools/habitat/src/service/modules");
+const serviceModelRoot = path.join(repoRoot, "tools/habitat/src/service/model");
 
 const moduleRootFiles = new Set(["contract.ts", "module.ts", "project.json", "router.ts"]);
 const moduleRootDirectories = new Set([

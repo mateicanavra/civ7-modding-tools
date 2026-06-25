@@ -27,22 +27,22 @@
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/workstream/downstream-realignment-ledger.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/workstream/phase-record.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/workstream/review-disposition-ledger.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/graph.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/verify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/enforcement-surface.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/graph.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/enforcement-surface.test.ts`
 
 Commands run as review evidence only:
 
 - `git status --short --branch`
 - `gt --version`
-- `nx show project @internal/habitat-harness --json`
-- `bun run habitat classify tools/habitat-harness/src/plugin.js`
+- `nx show project @habitat/cli --json`
+- `bun run habitat classify tools/habitat/src/plugin.js`
 - `bun run openspec -- validate deep-habitat-d3-workspace-graph-boundary --strict`
-- `nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache`
+- `nx run @habitat/cli:habitat:rule:biome-ci --skip-nx-cache`
 
 ## Framing Correction Applied
 
@@ -136,13 +136,13 @@ wrappers that do not transform, and errors collapsed into a generic channel.
 
 The current live falsifier demonstrates the general boundary failure:
 
-- `/tools/habitat-harness/src/plugin.js` defines `biomeCiTargetName` as
+- `/tools/habitat/src/plugin.js` defines `biomeCiTargetName` as
   `"biome:ci"`.
 - `dependencyForTarget("biome:ci")` emits
   `{ projects: ["biome"], target: "ci" }`.
 - `biome` is not an Nx project.
 - `aliasRuleTarget` emits a no-op wrapper with `command: 'node -e ""'`.
-- `nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache`
+- `nx run @habitat/cli:habitat:rule:biome-ci --skip-nx-cache`
   exits 0 after Nx reports the dependency project pattern matches no projects.
 
 That does not mean D3 is scoped to `biome-ci`. It means the current model admits
@@ -601,12 +601,12 @@ Required unit gates:
 
 Required command gates:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/workspace-graph.test.ts`
-- `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts`
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`
-- `nx show project @internal/habitat-harness --json`
-- `NX_DAEMON=false nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache`
-- `bun run habitat classify tools/habitat-harness/src/plugin.js --json`
+- `bun run --cwd tools/habitat test -- test/lib/workspace-graph.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/enforcement-surface.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts`
+- `nx show project @habitat/cli --json`
+- `NX_DAEMON=false nx run @habitat/cli:habitat:rule:biome-ci --skip-nx-cache`
+- `bun run habitat classify tools/habitat/src/plugin.js --json`
 - `bun run openspec -- validate deep-habitat-d3-workspace-graph-boundary --strict`
 - `bun run openspec:validate`
 - `git diff --check`

@@ -59,8 +59,8 @@ Upstream packet contracts read:
 
 Current behavior inputs read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/hooks.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/hooks.test.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/PROCESS.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/process/CONTRIBUTING.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/process/GRAPHITE.md`
@@ -156,7 +156,7 @@ After D11 implementation facts exist, realign at least these surfaces:
 - `docs/process/GRAPHITE.md`: if D11 changes pre-push base detection or Graphite handoff guidance, add a local-feedback/non-claim note rather than treating hook pass as PR readiness.
 - Root `AGENTS.md` hook guidance: update only if behavior changes, preserving the rule that hooks reduce local friction while CI remains authoritative.
 - `.husky/pre-commit` and `.husky/pre-push`: keep stable unless D0 compatibility rows authorize any command-path change.
-- Tool docs/examples under `tools/habitat-harness/docs/**`: update examples that show legacy hook notice output or old recovery behavior.
+- Tool docs/examples under `tools/habitat/docs/**`: update examples that show legacy hook notice output or old recovery behavior.
 
 ## Findings
 

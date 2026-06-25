@@ -65,7 +65,7 @@ host-specific apply gates, including current MapGen public-ops validation
 Current source confirms why: generic transaction code still validates
 `@mapgen/domain/**/ops` imports and `mods/mod-swooper-maps` public-ops paths
 inside `grit-apply.ts`
-(`tools/habitat-harness/src/lib/grit-apply.ts:830-915`).
+(`tools/habitat/src/lib/grit-apply.ts:830-915`).
 
 Repair:
 
@@ -142,13 +142,13 @@ That defers source blocker classification to implementation.
 
 Current source evidence identifies at least these blockers:
 `generated-zones.ts` embeds Swooper/Civ7 generated paths and remediation text
-(`tools/habitat-harness/src/lib/generated-zones.ts:17-37`);
+(`tools/habitat/src/lib/generated-zones.ts:17-37`);
 `grit-apply.ts` embeds MapGen public-ops validation
-(`tools/habitat-harness/src/lib/grit-apply.ts:830-915`);
+(`tools/habitat/src/lib/grit-apply.ts:830-915`);
 the project generator schema admits current-repo kinds while runtime supports
 only plugin/foundation/app
-(`tools/habitat-harness/src/generators/project/schema.json:15-37`,
-`tools/habitat-harness/src/generators/project/generator.cjs:51-56`).
+(`tools/habitat/src/generators/project/schema.json:15-37`,
+`tools/habitat/src/generators/project/generator.cjs:51-56`).
 
 Repair:
 

@@ -36,7 +36,7 @@ Graphite submission.
 
 Cache stance:
 
-- Unit tests run through `bun run --cwd tools/habitat-harness test -- ...` are
+- Unit tests run through `bun run --cwd tools/habitat test -- ...` are
   normal Vitest execution and should be treated as fresh local proof.
 - Git-state, staged-file, dry-run hook, dry-run apply, injected probe, and
   generator dry-run commands must run fresh because they depend on current
@@ -59,11 +59,11 @@ or internal.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts`
+  `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts`
   must exit `0` and assert stable CLI invocation behavior, including direct
   `--json` behavior.
 - Integration:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
+  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
   must exit `0` and return a representative workspace classification.
 - Hygiene:
   `bun run lint` must exit `0`; Nx cache is acceptable only if the validation
@@ -85,7 +85,7 @@ Operationally, impossible proof combinations must be unrepresentable or rejected
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts`
   must exit `0` and assert proof class, scope, non-claims, failure/refusal, and
   stream-bounding semantics.
 - CLI:
@@ -109,13 +109,13 @@ required facet data must fail before rule execution.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`
   must exit `0` and assert selector, manifest, and projection contracts.
 - CLI:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
+  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
   must exit `0` and preserve registry ownership discovery.
 - Graph:
-  `nx show project @internal/habitat-harness` must exit `0` and record the
+  `nx show project @habitat/cli` must exit `0` and record the
   relevant target metadata.
 - Injected bad case: one rule row missing owner, tool, or lane metadata must be
   rejected before a command can silently skip or misroute it.
@@ -134,14 +134,14 @@ reported as executable proof.
 Validation gates:
 
 - Graph:
-  `nx show project @internal/habitat-harness` must exit `0` and expose Habitat
+  `nx show project @habitat/cli` must exit `0` and expose Habitat
   project metadata.
 - Alias execution:
-  `nx run @internal/habitat-harness:habitat:rule:biome-ci` may be closure proof
+  `nx run @habitat/cli:habitat:rule:biome-ci` may be closure proof
   only if it exits `0` and the record proves the dependency target ran rather
   than a false-green `node -e ""` path.
 - Boundary:
-  `nx run @internal/habitat-harness:boundaries` must exit `0` only after current
+  `nx run @habitat/cli:boundaries` must exit `0` only after current
   graph-file ENOENT risks are fixed or explicitly excluded from the closure
   claim.
 - Unit tests must include plugin inferred-target tests and classify tests for
@@ -164,10 +164,10 @@ semantics.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts` must
+  `bun run --cwd tools/habitat test -- test/lib/classify.test.ts` must
   exit `0` and cover every classification variant plus refusal output.
 - CLI path:
-  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
+  `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
   must exit `0`.
 - CLI docs path:
   `bun run habitat classify docs/projects/habitat-harness/phase2-workstream-packets/README.md`
@@ -190,7 +190,7 @@ the rule introduction path proves that expansion is intentional.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts` must
+  `bun run --cwd tools/habitat test -- test/lib/baseline.test.ts` must
   exit `0` and assert baseline state and expansion guard semantics.
 - CLI:
   `bun run habitat check --rule baseline-integrity --json` must exit `0` for
@@ -216,7 +216,7 @@ violation proof must be recorded as different rows.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`
   must exit `0`.
 - CLI:
   `bun run habitat check --tool grit-check --json` must exit `0` only after
@@ -243,7 +243,7 @@ derived from rule reports and cannot contradict individual statuses.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts test/lib/enforcement-surface.test.ts test/lib/rule-selection.test.ts`
+  `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts test/lib/enforcement-surface.test.ts test/lib/rule-selection.test.ts`
   must exit `0`.
 - CLI full check:
   `bun run habitat check --json` must exit `0` only after current-tree proof
@@ -267,7 +267,7 @@ registration, and diagnostic registration cannot imply apply approval.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`
+  `bun run --cwd tools/habitat test -- test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`
   must exit `0`.
 - Baseline consumer:
   `bun run habitat check --rule baseline-integrity --json` must exit `0`.
@@ -292,7 +292,7 @@ guard or treating host paths as built-in truth.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/generated-zones.test.ts test/lib/grit-apply.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/generated-zones.test.ts test/lib/grit-apply.test.ts`
   must exit `0` after host-policy fixtures are introduced or updated.
 - CLI representative path:
   `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/mods/mod-swooper-maps/src/maps/generated/swooper-earthlike.ts`
@@ -317,7 +317,7 @@ failure must be separate states.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts`
   must exit `0` and cover dry-run, isolated copy, rollback, formatter handoff,
   and safe-write states.
 - CLI:
@@ -343,10 +343,10 @@ hand edit must fail with the owning remediation.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/generated-zones.test.ts test/lib/hooks.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/generated-zones.test.ts test/lib/hooks.test.ts`
   must exit `0` after generated-zone fixtures are introduced or updated.
 - Freshness:
-  `nx run @internal/habitat-harness:generated:check` must exit `0` and record
+  `nx run @habitat/cli:generated:check` must exit `0` and record
   whether dependency targets were cached.
 - CLI staged guard:
   `bun run habitat check --staged --tool file-layer --json` must exit `0` for a
@@ -368,7 +368,7 @@ generated-zone guards, affected targets, and Graphite base resolution.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` must exit
+  `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts` must exit
   `0`.
 - CLI pre-commit:
   `bun run habitat hook pre-commit --dry-run` must exit `0` for clean staged
@@ -395,7 +395,7 @@ contract explicitly allows forced mode.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/verify-proof.test.ts test/lib/proof-artifact.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/verify-proof.test.ts test/lib/proof-artifact.test.ts`
   must exit `0`.
 - CLI:
   `bun run habitat verify --json` must exit `0` only after D7 current-tree proof
@@ -422,13 +422,13 @@ before writes.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts`
+  `bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts`
   must exit `0`.
 - Supported dry-run:
-  `nx g @internal/habitat-harness:project habitat-scratch --kind=plugin --dry-run`
+  `nx g @habitat/cli:project habitat-scratch --kind=plugin --dry-run`
   must exit `0`.
 - Unsupported dry-run:
-  `nx g @internal/habitat-harness:project unsupported-scratch --kind=host-specific --dry-run`
+  `nx g @habitat/cli:project unsupported-scratch --kind=host-specific --dry-run`
   must exit nonzero with a designed refusal.
 - Injected bad case: unsupported kind, registered-pattern-without-manifest, and
   host-specific scaffold request must all refuse before writes.
@@ -446,7 +446,7 @@ investigation criteria, not generic scaffolding.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/lib/classify.test.ts`
+  `bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/lib/classify.test.ts`
   must exit `0` and cover refusal plus orientation examples.
 - CLI:
   `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
@@ -470,7 +470,7 @@ standalone Effect or process-framework migration.
 Validation gates:
 
 - Unit/contract:
-  `bun run --cwd tools/habitat-harness test -- test/lib/habitat-process.test.ts test/lib/effect-parity.test.ts`
+  `bun run --cwd tools/habitat test -- test/lib/habitat-process.test.ts test/lib/effect-parity.test.ts`
   must exit `0` only if a consuming packet activates D15.
 - Git:
   `git status --short --branch` must exit `0`; provenance capture must not

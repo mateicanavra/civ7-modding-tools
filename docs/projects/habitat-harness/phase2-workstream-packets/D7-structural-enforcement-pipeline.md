@@ -129,7 +129,7 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts test/lib/enforcement-surface.test.ts test/lib/rule-selection.test.ts`:
+- `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts test/lib/enforcement-surface.test.ts test/lib/rule-selection.test.ts`:
   expected exit 0; command, report-shape, and selector receipt.
 - `bun run habitat check --json`: expected exit 0 after current-tree receipt risks
   are fixed or explicitly non-goaled.

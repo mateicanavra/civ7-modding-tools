@@ -67,7 +67,7 @@
 | `bun install --frozen-lockfile` | Passed; installed workspace dependencies in the isolated worktree with no recorded lockfile change. | Dependency freshness for repo-local scripts. |
 | `bun run openspec:validate` | Passed: 186 items passed, 0 failed. | OpenSpec tree shape only; not runtime behavior. |
 | `bun run habitat classify docs/projects/studio-runtime-simplification/workstream/prework-runtime-effect-recovery` | Passed; classified as workspace-level path and returned `bun run lint`. | Required validation target discovery. |
-| `bun run lint` | Non-green: `mod-swooper-maps:habitat:check` failed `arch-test-m11-projection-band`, `arch-test-map-bundle-runtime-imports`, and `arch-test-cutover`; `@internal/habitat-harness:habitat:check` passed with one advisory `doc-ambiguity` finding. | Root graph hygiene is not green. The failures are outside this docs-only write set and are not repaired in this prework slice. |
+| `bun run lint` | Non-green: `mod-swooper-maps:habitat:check` failed `arch-test-m11-projection-band`, `arch-test-map-bundle-runtime-imports`, and `arch-test-cutover`; `@habitat/cli:habitat:check` passed with one advisory `doc-ambiguity` finding. | Root graph hygiene is not green. The failures are outside this docs-only write set and are not repaired in this prework slice. |
 | `git diff --check` | Passed. | Diff whitespace hygiene for the current prework write set. |
 
 ## Team

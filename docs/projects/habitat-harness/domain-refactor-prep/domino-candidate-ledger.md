@@ -123,7 +123,7 @@ Sequential blockers:
 
 Rejected as invalid packet foundations:
 
-- Split `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/lib/command-engine.ts` by size.
+- Split `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/lib/command-engine.ts` by size.
 - Rewrite the CLI command classes.
 - Move all Habitat internals to Effect.
 - Create a generic proof supertype/framework.
@@ -140,7 +140,7 @@ P1:
 - `classify` can overclaim precision while rule scope remains prose-derived.
 - Baseline growth and Pattern Governance can deadlock if rule introduction, manifests, and baseline expansion are not sequenced.
 - Generic apply can absorb MapGen-specific validation and cease being generic.
-- `@internal/habitat-harness:test` full-suite reliability was observed as a current proof risk.
+- `@habitat/cli:test` full-suite reliability was observed as a current proof risk.
 - An inferred `habitat:rule:biome-ci` alias can report false green despite a missing `biome` project dependency warning.
 
 P2:

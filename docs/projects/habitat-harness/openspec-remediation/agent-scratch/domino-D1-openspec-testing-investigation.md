@@ -37,17 +37,17 @@ Minimum required rows:
 
 | Current surface | Current path | Target contract family |
 | --- | --- | --- |
-| `CheckReport` | `tools/habitat-harness/src/lib/diagnostics.ts` and `src/lib/command-engine.ts` | Check result |
-| `RuleReport` / `HabitatDiagnostic` | `tools/habitat-harness/src/lib/diagnostics.ts` | Diagnostic |
-| `VerifyProof` / `createVerifyProof` | `tools/habitat-harness/src/lib/command-engine.ts` | Verify handoff receipt or D0-backed compatibility wrapper |
-| `HookTrace`, `PreCommitTrace`, `PrePushTrace` | `tools/habitat-harness/src/lib/hooks.ts` | Local feedback trace |
-| hook proof notice | `tools/habitat-harness/src/lib/hooks.ts`, `test/lib/hooks.test.ts` | Human output local-feedback non-claim |
-| `GritApplyTransactionResult` | `tools/habitat-harness/src/lib/grit-apply.ts` | Apply command outcome |
-| `GritApplyTransactionProof` | `tools/habitat-harness/src/lib/grit-apply.ts` | Apply transaction record or compatibility wrapper |
-| `AdapterProofArtifact`, `ProofArtifactWriter`, `ProofArtifactWriteFailure` | `tools/habitat-harness/src/lib/proof-artifact.ts` | Adapter command-result artifact compatibility |
+| `CheckReport` | `tools/habitat/src/lib/diagnostics.ts` and `src/lib/command-engine.ts` | Check result |
+| `RuleReport` / `HabitatDiagnostic` | `tools/habitat/src/lib/diagnostics.ts` | Diagnostic |
+| `VerifyProof` / `createVerifyProof` | `tools/habitat/src/lib/command-engine.ts` | Verify handoff receipt or D0-backed compatibility wrapper |
+| `HookTrace`, `PreCommitTrace`, `PrePushTrace` | `tools/habitat/src/lib/hooks.ts` | Local feedback trace |
+| hook proof notice | `tools/habitat/src/lib/hooks.ts`, `test/lib/hooks.test.ts` | Human output local-feedback non-claim |
+| `GritApplyTransactionResult` | `tools/habitat/src/lib/grit-apply.ts` | Apply command outcome |
+| `GritApplyTransactionProof` | `tools/habitat/src/lib/grit-apply.ts` | Apply transaction record or compatibility wrapper |
+| `AdapterProofArtifact`, `ProofArtifactWriter`, `ProofArtifactWriteFailure` | `tools/habitat/src/lib/proof-artifact.ts` | Adapter command-result artifact compatibility |
 | `proof` fields in classify/apply/docs | `src/lib/command-engine.ts`, `src/lib/grit-apply.ts`, docs | Compatibility terms requiring keep/rename/version decision |
 | Graphite state in hooks/handoffs | `src/lib/hooks.ts`, workstream records | Handoff state record, not command proof |
-| docs proof language | `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`, `tools/habitat-harness/docs/SCENARIOS.md` | Docs-example or historical current-state prose |
+| docs proof language | `tools/habitat/docs/IMPLEMENTED-SURFACE.md`, `tools/habitat/docs/SCENARIOS.md` | Docs-example or historical current-state prose |
 
 Requirement:
 Habitat SHALL maintain a D1 receipt-surface inventory before source implementation starts. A surface in the inventory SHALL be assigned to exactly one target contract family and SHALL carry D0 compatibility handling before D1 changes a public name, JSON shape, exported type, command output, hook phrase, docs example, or handoff record.
@@ -307,12 +307,12 @@ D1 must express each gate as command, expected status, oracle, bad case, cache/f
 
 | Gate | Expected status | Oracle | Required bad case | Cache/freshness stance | Non-claims |
 | --- | --- | --- | --- | --- | --- |
-| `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` | 0 | Public entrypoint forwarding remains pinned; invalid JSON selectors exit 1 with schemaVersion 1 `CheckReport`; human invalid selectors do not emit JSON; output path is honored. | Unknown owner/rule/tool and wrong-namespace selector all produce `rule-selection-integrity`, `ok: false`, exit 1. | Normal Vitest execution; no Nx cache claim. | Does not prove all rules correct, current tree clean, or D1 terminology accepted. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/proof-artifact.test.ts` | 0 | Adapter artifact compatibility remains path-safe, redacted, retention-bounded, and non-claiming. | `adapterProofArtifactPath("../escape")` throws; secret env value absent from serialized artifact. | Normal Vitest execution; file writes use temp root or controlled path. | Does not prove command result correctness, current tree proof, or product proof. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/verify-proof.test.ts` | 0 | Verify receipt bounds streams, records task-local cache state, and truthfully skips Nx affected when Habitat check fails. | Failing check produces `nxAffected.status: "skipped"`, empty streams/projects/cache states, null exitCode. | Normal Vitest execution; cache state parsed from fixture stdout, not asserted as fresh unless fixture says so. | Does not prove CI execution, apply safety, baseline migration, Grit row semantics, product/runtime behavior. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` | 0 | Hook local-feedback traces record outcomes, resource refusals, partial-staging refusal, Grit parse failures, pre-push base provenance, and local-only non-claim notice. | Dirty resources and partial staging exit before later commands; malformed Grit JSON records `grit-parse-failed`; pre-push Nx failure exits nonzero. | Normal Vitest execution with fake runtime; no live hook execution; no Nx cache claim. | Does not prove CI, review readiness, product correctness, or broad command proof. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts` | 0 | Apply transaction distinguishes dry-run, dirty live refusal, isolated copy, rollback, Biome handoff, gate failure, diff evidence, and failure tags. | Dirty live apply does not call process; ambiguous dry-run fails; outside-root/create/delete/missing-export cases block; rollback failure remains failure. | Normal Vitest execution; Grit process is faked for most cases; isolated copy uses temp directory; Grit cache stance is isolated/unknown unless command record states otherwise. | Does not prove all Grit patterns safe, current-tree check success, baseline shrink, Nx scheduling, or product runtime. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | Combined D1-focused regression set passes in one invocation. | Any malformed payload/failure-projection test above fails the gate. | Normal Vitest; no Nx cache claim. | Does not replace OpenSpec validation or current-tree command samples. |
+| `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts` | 0 | Public entrypoint forwarding remains pinned; invalid JSON selectors exit 1 with schemaVersion 1 `CheckReport`; human invalid selectors do not emit JSON; output path is honored. | Unknown owner/rule/tool and wrong-namespace selector all produce `rule-selection-integrity`, `ok: false`, exit 1. | Normal Vitest execution; no Nx cache claim. | Does not prove all rules correct, current tree clean, or D1 terminology accepted. |
+| `bun run --cwd tools/habitat test -- test/lib/proof-artifact.test.ts` | 0 | Adapter artifact compatibility remains path-safe, redacted, retention-bounded, and non-claiming. | `adapterProofArtifactPath("../escape")` throws; secret env value absent from serialized artifact. | Normal Vitest execution; file writes use temp root or controlled path. | Does not prove command result correctness, current tree proof, or product proof. |
+| `bun run --cwd tools/habitat test -- test/lib/verify-proof.test.ts` | 0 | Verify receipt bounds streams, records task-local cache state, and truthfully skips Nx affected when Habitat check fails. | Failing check produces `nxAffected.status: "skipped"`, empty streams/projects/cache states, null exitCode. | Normal Vitest execution; cache state parsed from fixture stdout, not asserted as fresh unless fixture says so. | Does not prove CI execution, apply safety, baseline migration, Grit row semantics, product/runtime behavior. |
+| `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts` | 0 | Hook local-feedback traces record outcomes, resource refusals, partial-staging refusal, Grit parse failures, pre-push base provenance, and local-only non-claim notice. | Dirty resources and partial staging exit before later commands; malformed Grit JSON records `grit-parse-failed`; pre-push Nx failure exits nonzero. | Normal Vitest execution with fake runtime; no live hook execution; no Nx cache claim. | Does not prove CI, review readiness, product correctness, or broad command proof. |
+| `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts` | 0 | Apply transaction distinguishes dry-run, dirty live refusal, isolated copy, rollback, Biome handoff, gate failure, diff evidence, and failure tags. | Dirty live apply does not call process; ambiguous dry-run fails; outside-root/create/delete/missing-export cases block; rollback failure remains failure. | Normal Vitest execution; Grit process is faked for most cases; isolated copy uses temp directory; Grit cache stance is isolated/unknown unless command record states otherwise. | Does not prove all Grit patterns safe, current-tree check success, baseline shrink, Nx scheduling, or product runtime. |
+| `bun run --cwd tools/habitat test -- test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts test/commands/habitat-entrypoints.test.ts` | 0 | Combined D1-focused regression set passes in one invocation. | Any malformed payload/failure-projection test above fails the gate. | Normal Vitest; no Nx cache claim. | Does not replace OpenSpec validation or current-tree command samples. |
 | `bun run habitat check --json` | 0 for implementation closure; if nonzero during design, D1 must record actual nonzero result as current-tree diagnostic evidence only | Output is valid schemaVersion 1 `CheckReport`; `ok` matches rule statuses; command does not claim receipt/handoff/CI/apply safety. | A D1-added/required malformed `CheckReport` unit test rejects `ok: true` with failing rule status. | Fresh command invocation from current remediation worktree; no Nx cache; current-tree state must be recorded. | Does not prove individual rule correctness, runtime behavior, apply safety, or D1 implementation completeness by itself. |
 | `bun run habitat verify --json` | 0 for implementation closure when current check and Nx affected pass; if check fails, expected nonzero with valid skipped-Nx receipt | JSON is valid verify receipt or D0-approved `VerifyProof` compatibility wrapper; Nx affected executed only after check pass; non-claims are present; streams bounded. | Check-failed fixture/unit test prevents executed Nx state. | Fresh command invocation; Nx cache may occur but must be visible task-locally as cache-hit/unknown/fresh according to the designed parser. | Does not prove CI, Graphite readiness, apply safety, or product/runtime behavior. |
 | `bun run habitat fix --dry-run` | 0 for no-op or approved dry-run; nonzero only for explicit transaction refusal | Output/transaction record distinguishes dry-run from live apply and carries apply non-claims. | Ambiguous dry-run output cannot be reported as success. | Fresh command invocation; Grit request records isolated/default cache policy and observable status. | Does not prove live apply safety unless live transaction gate is separately run and accepted. |
@@ -403,24 +403,24 @@ The proposal must include:
 
 The design must include an `Approved Write Set` section. Candidate D1 implementation write set:
 
-- `tools/habitat-harness/src/lib/diagnostics.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/src/lib/hooks.ts`
-- `tools/habitat-harness/src/lib/grit-apply.ts`
-- `tools/habitat-harness/src/lib/proof-artifact.ts`
-- `tools/habitat-harness/src/commands/check.ts`
-- `tools/habitat-harness/src/commands/verify.ts`
-- `tools/habitat-harness/src/commands/fix.ts`
-- `tools/habitat-harness/src/commands/hook.ts`
-- `tools/habitat-harness/src/index.ts` only if D0 classifies affected exports and D1 chooses facade/version/rename handling.
-- `tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`
-- `tools/habitat-harness/test/lib/proof-artifact.test.ts`
-- `tools/habitat-harness/test/lib/verify-proof.test.ts`
-- `tools/habitat-harness/test/lib/hooks.test.ts`
-- `tools/habitat-harness/test/lib/grit-apply.test.ts`
+- `tools/habitat/src/lib/diagnostics.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/src/lib/hooks.ts`
+- `tools/habitat/src/lib/grit-apply.ts`
+- `tools/habitat/src/lib/proof-artifact.ts`
+- `tools/habitat/src/commands/check.ts`
+- `tools/habitat/src/commands/verify.ts`
+- `tools/habitat/src/commands/fix.ts`
+- `tools/habitat/src/commands/hook.ts`
+- `tools/habitat/src/index.ts` only if D0 classifies affected exports and D1 chooses facade/version/rename handling.
+- `tools/habitat/test/commands/habitat-entrypoints.test.ts`
+- `tools/habitat/test/lib/proof-artifact.test.ts`
+- `tools/habitat/test/lib/verify-proof.test.ts`
+- `tools/habitat/test/lib/hooks.test.ts`
+- `tools/habitat/test/lib/grit-apply.test.ts`
 - New D1-specific tests only if adjacent to the owning contract family.
-- `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md` only for D1-approved terminology/non-claim clarification.
-- `tools/habitat-harness/docs/SCENARIOS.md` only for D1-approved command receipt/non-claim examples.
+- `tools/habitat/docs/IMPLEMENTED-SURFACE.md` only for D1-approved terminology/non-claim clarification.
+- `tools/habitat/docs/SCENARIOS.md` only for D1-approved command receipt/non-claim examples.
 - `openspec/changes/deep-habitat-d1-receipt-contract-boundary/**` for packet implementation by the D1 owner, not during this investigation.
 - `docs/projects/habitat-harness/openspec-remediation/packet-index.md` only for status/citation updates after D1 acceptance.
 
@@ -429,8 +429,8 @@ The design must include a `Protected Paths` section:
 - `docs/projects/habitat-harness/phase2-workstream-packets/**` source packets are read-only inputs.
 - `openspec/changes/deep-habitat-d0-command-surface-inventory/**` is read-only except citation by D1; D1 must not repair D0 in the D1 layer.
 - Other domino packets under `openspec/changes/deep-habitat-d{2..15}-*/**` and `deep-habitat-host-policy-boundary-gate/**` are read-only except downstream ledger/index updates explicitly owned by D1.
-- Generated artifacts: `dist/**`, `tools/habitat-harness/dist/**`, `oclif.manifest.json`, Nx cache outputs, generated project outputs, `mod/**`, and package-manager lockfiles.
-- Root `package.json`, `nx.json`, `tools/habitat-harness/package.json`, generator schemas, and migrations unless D0 row and D1 design explicitly authorize a public-surface change.
+- Generated artifacts: `dist/**`, `tools/habitat/dist/**`, `oclif.manifest.json`, Nx cache outputs, generated project outputs, `mod/**`, and package-manager lockfiles.
+- Root `package.json`, `nx.json`, `tools/habitat/package.json`, generator schemas, and migrations unless D0 row and D1 design explicitly authorize a public-surface change.
 - Runtime Civ7 direct-control packages; D1 does not add alternate runtime transports.
 
 ### Tasks Requirements
@@ -479,7 +479,7 @@ D1 must replace generic downstream rows with per-domino contract dependencies:
 | D14 Authoring Topology Fence | Explicit include/exclude decision. Source D1 packet says D1 unblocks D14; current index omits it. If D14 consumes handoff/refusal examples, list D1 dependency. |
 | D15 Trigger | D1 must state whether adapter artifact/general receipt substrate triggers D15. Default: no trigger unless multiple consumer packets need shared execution provenance substrate. |
 
-Docs realignment must classify `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md` and `tools/habitat-harness/docs/SCENARIOS.md` proof language as target, compatibility, docs-example, or historical current-state prose. It must not rewrite durable docs merely to hide compatibility obligations.
+Docs realignment must classify `tools/habitat/docs/IMPLEMENTED-SURFACE.md` and `tools/habitat/docs/SCENARIOS.md` proof language as target, compatibility, docs-example, or historical current-state prose. It must not rewrite durable docs merely to hide compatibility obligations.
 
 ## Remaining Blockers And Concrete Repairs
 

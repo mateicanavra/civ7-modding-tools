@@ -45,15 +45,15 @@ Pattern Governance relations.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/downstream-realignment-ledger.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/workstream/closure-checklist.md`
 - Current Habitat code/tests as evidence only:
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/src/rules/architecture.ts`
-  - `tools/habitat-harness/src/plugin.js`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `tools/habitat-harness/src/lib/generated-zones.ts`
-  - `tools/habitat-harness/test/lib/classify.test.ts`
-  - `tools/habitat-harness/test/lib/rule-selection.test.ts`
-  - `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/src/rules/architecture.ts`
+  - `tools/habitat/src/plugin.js`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/src/lib/generated-zones.ts`
+  - `tools/habitat/test/lib/classify.test.ts`
+  - `tools/habitat/test/lib/rule-selection.test.ts`
+  - `tools/habitat/test/lib/enforcement-surface.test.ts`
 
 ## Current Domain-Language Problems
 

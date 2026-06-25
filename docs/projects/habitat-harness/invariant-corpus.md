@@ -60,7 +60,7 @@ survives only in `eslint.boundaries.config.mjs`, whose sole rule is
 | ID | Where | Behavior | Disposition |
 |---|---|---|---|
 | pnpm-guard | `.github/workflows/ci.yml` | fail on pnpm artifacts | keep; H7 adds a **registered file-layer rule** (empty baseline, locked) run in pre-commit — not an unregistered native check |
-| root-lint | `package.json` `lint` | graph-owned hygiene gate | current root `lint` runs `@internal/habitat-harness:biome:ci`; full Habitat structural proof is separate |
+| root-lint | `package.json` `lint` | graph-owned hygiene gate | current root `lint` runs `@habitat/cli:biome:ci`; full Habitat structural proof is separate |
 | root-check | `package.json` `check` | graph-owned aggregate | current root `check` runs `nx run-many --targets=build,check,lint,test,verify`; structural Habitat proof remains explicit through Habitat/check/verify paths rather than hidden in lint |
 | architecture-strict-core | ci.yml job | strict-core guardrails plus Habitat diagnostics artifact | current strict-core remains a direct full-profile diagnostic step; Habitat diagnostics are captured separately through `habitat:check --json` |
 
@@ -85,7 +85,7 @@ survives only in `eslint.boundaries.config.mjs`, whose sole rule is
 
 ## Summary counts
 
-- 9 lint scripts → Grit/Habitat-native/wrapped split after H6: recipe-import and control-oRPC scripts retired; workspace/doc/normalization native rules moved under `tools/habitat-harness/src/rules/native`; adapter/domain-refactor/mapgen-docs remain wrapped for still-owned semantics.
+- 9 lint scripts → Grit/Habitat-native/wrapped split after H6: recipe-import and control-oRPC scripts retired; workspace/doc/normalization native rules moved under `tools/habitat/src/rules/native`; adapter/domain-refactor/mapgen-docs remain wrapped for still-owned semantics.
 - 8 ESLint rule families → grit-check families after H6, including `grit-contract-export-all`; root `eslint.config.js` retired.
 - 6 architecture tests (+4 coarse-wrapped cutover tests) → recipe-import-boundary retired in H6; ecology test slimmed to directory absence; runtime/build/domain tests stay.
 - 4 generated zones → file-layer rules (new enforcement).

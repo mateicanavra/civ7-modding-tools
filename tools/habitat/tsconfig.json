@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@habitat/cli": ["src/index.ts"],
+      "@habitat/cli/*": ["src/*"]
+    },
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+  "exclude": ["test", "dist"]
+}

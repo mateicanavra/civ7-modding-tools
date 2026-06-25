@@ -13,7 +13,7 @@ the DRA takeover frame in
 Local repo state observed before writing: current branch
 `codex/habitat-dra-takeover-frame` with pre-existing modified
 `docs/projects/habitat-harness/dra-takeover-frame.md`,
-`docs/projects/habitat-harness/habitat-harness-spec-draft-input.md`, and
+`docs/projects/habitat-harness/cli-spec-draft-input.md`, and
 `openspec/changes/habitat-biome-hygiene/workstream/phase-record.md`, plus
 pre-existing untracked Habitat research/ledger files. This artifact only writes
 this file.
@@ -51,7 +51,7 @@ Current check patterns and rule-pack registrations:
 | --- | --- | --- | --- | --- |
 | Domain surface | `.habitat/patterns/checks/domain_deep_import.md:4` | `grit-domain-deep-import`, `rules.json:120` | `mod-swooper-maps`; recipes/maps deep domain imports | `habitat-grit-proof-domain-deep-import` |
 | Domain surface | `.habitat/patterns/checks/recipe_domain_surface.md:4` | `grit-recipe-domain-surface`, `rules.json:135` | `mod-swooper-maps`; recipes import approved domain surfaces | `habitat-grit-proof-recipe-domain-surface` |
-| Domain surface | `.habitat/patterns/checks/studio_recipe_artifacts.md:4` | `grit-studio-recipe-artifacts`, `rules.json:150` | `@internal/habitat-harness`; Studio UI recipe artifact imports | `habitat-grit-proof-studio-recipe-artifacts` |
+| Domain surface | `.habitat/patterns/checks/studio_recipe_artifacts.md:4` | `grit-studio-recipe-artifacts`, `rules.json:150` | `@habitat/cli`; Studio UI recipe artifact imports | `habitat-grit-proof-studio-recipe-artifacts` |
 | Domain surface | `.habitat/patterns/checks/step_contract_domain_surface.md:4` | `grit-step-contract-domain-surface`, `rules.json:165` | `mod-swooper-maps`; step contract imports | `habitat-grit-proof-step-contract-domain-surface` |
 | Domain surface | `.habitat/patterns/checks/recipe_runtime_domain_ops.md:4` | `grit-recipe-runtime-domain-ops`, `rules.json:180` | `mod-swooper-maps`; recipe runtime domain ops imports | `habitat-grit-proof-recipe-runtime-domain-ops` |
 | Domain surface | `.habitat/patterns/checks/contract_export_all.md:4` | `grit-contract-export-all`, `rules.json:70` | `mod-swooper-maps`; contract/public-surface value export stars | `habitat-grit-proof-contract-export-all` |
@@ -64,7 +64,7 @@ Current check patterns and rule-pack registrations:
 | Stage isolation | `.habitat/patterns/checks/domain_root_catalogs.md:4` | `grit-domain-root-catalogs`, `rules.json:285` | `mod-swooper-maps`; domain-root tag/artifact catalogs | `habitat-grit-proof-domain-root-catalogs` |
 | Stage isolation | `.habitat/patterns/checks/wrapper_advanced_stage_config.md:4` | `grit-wrapper-advanced-stage-config`, `rules.json:300` | `mod-swooper-maps`; wrapper-only advanced config | `habitat-grit-proof-wrapper-advanced-stage-config` |
 | Stage isolation | `.habitat/patterns/checks/placement_outcome_boundary.md:4` | `grit-placement-outcome-boundary`, `rules.json:315` | `mod-swooper-maps`; placement outcome boundary | `habitat-grit-proof-placement-outcome-boundary` |
-| Ownership | `.habitat/patterns/checks/adapter_base_standard_import.md:4` | `grit-adapter-base-standard-import`, `rules.json:330` | `@internal/habitat-harness`; `/base-standard/` imports outside adapter | `habitat-grit-proof-adapter-base-standard-import` |
+| Ownership | `.habitat/patterns/checks/adapter_base_standard_import.md:4` | `grit-adapter-base-standard-import`, `rules.json:330` | `@habitat/cli`; `/base-standard/` imports outside adapter | `habitat-grit-proof-adapter-base-standard-import` |
 | Ownership | `.habitat/patterns/checks/control_orpc_contract_ownership.md:4` | `grit-control-orpc-contract-ownership`, `rules.json:345` | `@civ7/control-orpc`; transport-pure contracts | `habitat-grit-proof-control-orpc-contract-ownership` |
 | Ownership | `.habitat/patterns/checks/viz_contract_ownership.md:4` | `grit-viz-contract-ownership`, `rules.json:360` | `mod-swooper-maps`; stage visualization ownership | `habitat-grit-proof-viz-contract-ownership` |
 | Ownership | `.habitat/patterns/checks/sdk_mapgen_entrypoint.md:4` | `grit-sdk-mapgen-entrypoint`, `rules.json:375` | `@mateicanavra/civ7-sdk`; SDK mapgen subpath isolation | `habitat-grit-proof-sdk-mapgen-entrypoint` |
@@ -74,11 +74,11 @@ Current check patterns and rule-pack registrations:
 
 All current check patterns have native markdown samples. The test harness reads
 check and apply pattern names from the filesystem at
-`tools/habitat-harness/test/grit/grit-patterns.test.ts:20`, invokes
+`tools/habitat/test/grit/grit-patterns.test.ts:20`, invokes
 `grit patterns test --json` at
-`tools/habitat-harness/test/grit/grit-patterns.test.ts:30`, and requires report
+`tools/habitat/test/grit/grit-patterns.test.ts:30`, and requires report
 count plus all sample states to pass at
-`tools/habitat-harness/test/grit/grit-patterns.test.ts:50`.
+`tools/habitat/test/grit/grit-patterns.test.ts:50`.
 
 ## Current Apply Surface
 
@@ -86,23 +86,23 @@ Current apply corpus:
 
 | Pattern | File | Current allowlist | Apply roots | Safety status |
 | --- | --- | --- | --- | --- |
-| `deep_import_to_public_surface` | `.habitat/patterns/apply/deep_import_to_public_surface.md:4` | hardcoded at `tools/habitat-harness/src/lib/grit.ts:35` | discovered `mods/*/src/{recipes,maps}` via `tools/habitat-harness/src/lib/grit.ts:136` | implemented, under-proof |
+| `deep_import_to_public_surface` | `.habitat/patterns/apply/deep_import_to_public_surface.md:4` | hardcoded at `tools/habitat/src/lib/grit.ts:35` | discovered `mods/*/src/{recipes,maps}` via `tools/habitat/src/lib/grit.ts:136` | implemented, under-proof |
 
 Apply execution details:
 
 - The hardcoded apply list contains only
   `.habitat/patterns/apply/deep_import_to_public_surface.md` at
-  `tools/habitat-harness/src/lib/grit.ts:35`.
+  `tools/habitat/src/lib/grit.ts:35`.
 - `runGritApplyPatterns` loops that allowlist and invokes
   `grit apply <pattern> ... --force --output compact` with optional `--dry-run`
-  at `tools/habitat-harness/src/lib/grit.ts:86`.
+  at `tools/habitat/src/lib/grit.ts:86`.
 - Apply scan roots are discovered from `mods/*/src`, then constrained to existing
-  `recipes` and `maps` children at `tools/habitat-harness/src/lib/grit.ts:136`.
+  `recipes` and `maps` children at `tools/habitat/src/lib/grit.ts:136`.
   The current discovered roots are `mods/mod-swooper-maps/src/recipes` and
   `mods/mod-swooper-maps/src/maps`.
 - `habitat fix` runs the allowlisted Grit apply patterns first, then runs
   `biome check .` for dry-run or `biome check --write .` for writes at
-  `tools/habitat-harness/src/lib/command-engine.ts:173`.
+  `tools/habitat/src/lib/command-engine.ts:173`.
 - H5 approved only this mechanical deep-domain-ops import rewrite and rejected
   `export *` to named exports because pure Grit cannot synthesize cross-file
   export lists safely, per
@@ -125,25 +125,25 @@ Current tests and proof surfaces:
 
 | Surface | Current evidence | What it proves | What it does not prove |
 | --- | --- | --- | --- |
-| Native pattern samples | `tools/habitat-harness/test/grit/grit-patterns.test.ts:20` and fresh command: 23 reports / 45 samples passed | Pattern markdown is discoverable and sample cases pass | Current-tree scan scope, baseline semantics, parity with old checks, apply safety |
-| Command plumbing | `tools/habitat-harness/test/commands/habitat-commands.test.ts:70`, `:103`, `:115` | Oclif command flags call the engine for check, baseline expansion, and fix dry-run | Real engine behavior, real Grit apply, real Biome output |
-| Classify matrix | `tools/habitat-harness/test/lib/classify.test.ts:5` | Representative paths map to project/tags/rules/targets | Complete path-specific rule precision across repo |
+| Native pattern samples | `tools/habitat/test/grit/grit-patterns.test.ts:20` and fresh command: 23 reports / 45 samples passed | Pattern markdown is discoverable and sample cases pass | Current-tree scan scope, baseline semantics, parity with old checks, apply safety |
+| Command plumbing | `tools/habitat/test/commands/habitat-commands.test.ts:70`, `:103`, `:115` | Oclif command flags call the engine for check, baseline expansion, and fix dry-run | Real engine behavior, real Grit apply, real Biome output |
+| Classify matrix | `tools/habitat/test/lib/classify.test.ts:5` | Representative paths map to project/tags/rules/targets | Complete path-specific rule precision across repo |
 | H5 historical proof | `openspec/changes/habitat-grit-catalog/workstream/phase-record.md:148` | Historical H5 closure claimed native samples, probes, current-tree Grit target, generated-zone probe, build/check/test | Current behavior in this worktree unless re-run |
 | H6 historical proof | `openspec/changes/habitat-enforcement-consolidation/workstream/phase-record.md:164` | Historical H6 closure claimed 23 patterns / 45 samples and retired-script probes | Current behavior in this worktree unless re-run |
 
 Baseline behavior:
 
 - Baseline code says one file per rule lives under
-  `tools/habitat-harness/baselines/<rule-id>.json`, and missing file means empty
-  baseline / locked rule at `tools/habitat-harness/src/lib/baseline.ts:7`.
+  `tools/habitat/baselines/<rule-id>.json`, and missing file means empty
+  baseline / locked rule at `tools/habitat/src/lib/baseline.ts:7`.
 - `habitat check` marks a rule locked when its baseline set is empty and
   `exceptionPath` is `none` at
-  `tools/habitat-harness/src/lib/command-engine.ts:78`.
+  `tools/habitat/src/lib/command-engine.ts:78`.
 - Baseline expansion is explicit and local via `--expand-baseline`, but CI-style
   integrity rejects added baseline entries for existing rules unless the rule id
-  is new at the merge base, per `tools/habitat-harness/src/lib/baseline.ts:71`.
+  is new at the merge base, per `tools/habitat/src/lib/baseline.ts:71`.
 - Current live baseline files: only
-  `tools/habitat-harness/baselines/adapter-boundary.json:1`, containing one
+  `tools/habitat/baselines/adapter-boundary.json:1`, containing one
   entry for `packages/civ7-map-policy/src/river-type-metadata.source.ts`.
 - The legacy broad adapter allowlist remains in
   `scripts/lint/lint-adapter-boundary.sh:24` with seven listed files at
@@ -171,7 +171,7 @@ Retired and remaining guardrail surfaces:
 - Current wrapped/kept tests include `core-purity`, `rng-authority-boundary`,
   `ecology-step-import-guardrails`, `m11-projection-boundary-band`,
   `map-bundle-runtime-imports`, and `test:architecture-cutover`, as registered
-  in `tools/habitat-harness/src/rules/rules.json:491`.
+  in `tools/habitat/src/rules/rules.json:491`.
 
 ## Recovery Candidates
 
@@ -243,20 +243,20 @@ row-by-row, not ported wholesale:
 
 Generator and migration surfaces:
 
-- `@internal/habitat-harness:pattern` is declared in
-  `tools/habitat-harness/generators.json:11`.
+- `@habitat/cli:pattern` is declared in
+  `tools/habitat/generators.json:11`.
 - The current pattern generator writes a check pattern, an empty baseline, and a
-  rule-pack entry at `tools/habitat-harness/src/generators/pattern/generator.cjs:5`.
+  rule-pack entry at `tools/habitat/src/generators/pattern/generator.cjs:5`.
 - The generator currently supplies placeholder authority text when `why` is
-  omitted at `tools/habitat-harness/src/generators/pattern/generator.cjs:23`.
+  omitted at `tools/habitat/src/generators/pattern/generator.cjs:23`.
   The DRA frame calls this out as a repair need at
   `docs/projects/habitat-harness/dra-takeover-frame.md:194`.
 - The README describes the pattern generator as writing the native pattern,
   empty locked baseline, and `grit-check` rule-pack entry at
-  `tools/habitat-harness/README.md:81`.
+  `tools/habitat/README.md:81`.
 - H8 verifies supported project generators and pattern generator probes at
   `openspec/changes/habitat-generators-migrations/workstream/phase-record.md:57`.
-- Harness migrations are declared in `tools/habitat-harness/migrations.json:5`;
+- Harness migrations are declared in `tools/habitat/migrations.json:5`;
   the current migration is a no-op proof of wiring, not a real structural
   migration.
 

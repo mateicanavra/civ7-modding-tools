@@ -109,13 +109,13 @@ Non-claims:
 Update:
 
 - Authoring Topology deferral row with trigger;
-- `tools/habitat-harness/docs/AUTHORING-NEXT.md`;
+- `tools/habitat/docs/AUTHORING-NEXT.md`;
 - scenario corpus if future criteria change;
 - AGENTS guidance only if durable generic guidance changes.
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/lib/classify.test.ts`:
+- `bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/lib/classify.test.ts`:
   expected exit 0; refusal and orientation receipt for out-of-scope authoring
   topology requests.
 - `bun run habitat classify docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`:

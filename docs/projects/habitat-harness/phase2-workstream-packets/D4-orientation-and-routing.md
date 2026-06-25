@@ -115,18 +115,18 @@ Non-claims:
 
 Update:
 
-- `tools/habitat-harness/docs/SCENARIOS.md`;
+- `tools/habitat/docs/SCENARIOS.md`;
 - classify examples in README/docs;
 - scenario corpus if new states appear;
 - D14 Authoring Topology fence examples.
 
 ## Validation Commands / Receipt Template
 
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js`:
+- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js`:
   expected exit 0; representative supported-path classification receipt.
 - `bun run habitat classify docs/projects/habitat-harness/phase2-workstream-packets/README.md`:
   expected exit 0; representative docs-path classification receipt.
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts`:
   expected exit 0; JSON and refusal contract receipt.
 - Cache stance: classify command receipt must be current process output, not only
   cached Nx metadata.

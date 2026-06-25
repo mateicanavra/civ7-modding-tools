@@ -6,19 +6,19 @@ Objective: ground the Deep Habitat Phase 2 OpenSpec remediation pass in the actu
 
 Input packets read: every file under `docs/projects/habitat-harness/phase2-workstream-packets/`, including `D0` through `D15`, `G-HOST`, the README, review disposition ledger, and validation results.
 
-Code inspected: `tools/habitat-harness` source, bin entrypoints, package exports, command engine, Grit adapter/apply/probe, hooks, Nx plugin, generators, pattern authority, rule registry, baselines, diagnostics, tests, `.grit/patterns`, root/package scripts, and adjacent Habitat docs.
+Code inspected: `tools/habitat` source, bin entrypoints, package exports, command engine, Grit adapter/apply/probe, hooks, Nx plugin, generators, pattern authority, rule registry, baselines, diagnostics, tests, `.grit/patterns`, root/package scripts, and adjacent Habitat docs.
 
 This note is scratch for OpenSpec authors. It does not propose implementation edits directly.
 
 ## High-Level Topology
 
-`@internal/habitat-harness` currently exposes a broad internal implementation surface from `tools/habitat-harness/src/index.ts`. Public package exports in `tools/habitat-harness/package.json` are only `.`, `./plugin`, and `./rules`, but the root index re-exports command engine, baseline, diagnostics, Effect runtime/parity helpers, git state, Grit apply/probe/failures, habitat process, proof artifact, workspace tools, rules, and Pattern Authority types/functions. D0 should treat this as an overexposed compatibility fact until a deliberate public-surface matrix decides what remains stable.
+`@habitat/cli` currently exposes a broad internal implementation surface from `tools/habitat/src/index.ts`. Public package exports in `tools/habitat/package.json` are only `.`, `./plugin`, and `./rules`, but the root index re-exports command engine, baseline, diagnostics, Effect runtime/parity helpers, git state, Grit apply/probe/failures, habitat process, proof artifact, workspace tools, rules, and Pattern Authority types/functions. D0 should treat this as an overexposed compatibility fact until a deliberate public-surface matrix decides what remains stable.
 
-The primary command flow runs through `tools/habitat-harness/bin/dev.ts` into `src/commands/*.ts`, then into `src/lib/command-engine.ts`. `createCheckReport` is the central structural check path. It loads rule selection, applies baseline policy, runs selected rules, expands baselines when requested, and derives report status. `createVerifyProof` wraps check and affected-target results for verify. `classify` maps paths/diffs to projects, likely targets, and rule scope. `fix` delegates to Grit apply transactions. `hook` delegates to hook orchestration. `graph` reports workspace graph facts.
+The primary command flow runs through `tools/habitat/bin/dev.ts` into `src/commands/*.ts`, then into `src/lib/command-engine.ts`. `createCheckReport` is the central structural check path. It loads rule selection, applies baseline policy, runs selected rules, expands baselines when requested, and derives report status. `createVerifyProof` wraps check and affected-target results for verify. `classify` maps paths/diffs to projects, likely targets, and rule scope. `fix` delegates to Grit apply transactions. `hook` delegates to hook orchestration. `graph` reports workspace graph facts.
 
 The rule registry is `src/rules/rules.json` plus `src/rules/architecture.ts`. Current registry counts observed: 51 rules total; owner tools include `grit-check`, `file-layer`, `habitat-native`, `nx-boundaries`, `wrapped-script`, `wrapped-test`, and one `biome` rule. Most Grit rules are host/project scoped to Swooper/MapGen. Rule metadata already carries useful discriminants (`ownerProject`, `ownerTool`, `lane`, `scope`, `hookScope`, `gritPattern`, `nxTarget`, `generatedZone`), but some fields are prose or host-specific rather than stable domain authority.
 
-Nx integration is split between root workspace config and `tools/habitat-harness/src/plugin.js`. The plugin constructs inferred targets and dependencies from hard-coded owner roots and target names. Current `nx show project @internal/habitat-harness --json` shows `habitat:rule:biome-ci` depends on project `biome` target `ci`; this is the false-green boundary described by D3 because the target is graph metadata, not proof that the owning tool command exists or is correctly modeled.
+Nx integration is split between root workspace config and `tools/habitat/src/plugin.js`. The plugin constructs inferred targets and dependencies from hard-coded owner roots and target names. Current `nx show project @habitat/cli --json` shows `habitat:rule:biome-ci` depends on project `biome` target `ci`; this is the false-green boundary described by D3 because the target is graph metadata, not proof that the owning tool command exists or is correctly modeled.
 
 Grit topology has three layers:
 
@@ -30,7 +30,7 @@ Generated/protected zones are currently declared in `src/lib/generated-zones.ts`
 
 Hooks are implemented in `src/lib/hooks.ts` and exposed by `src/commands/hook.ts`. Pre-commit runs resource-state checks, staged file-layer checks, Biome formatting/checking with restage, and staged Grit checks. Pre-push runs `nx affected -t biome:ci,boundaries,grit:check,habitat:check,test`. The hook command currently accepts `--base` only; packets that require `habitat hook ... --dry-run` need a spec correction or command change.
 
-Generators live under `tools/habitat-harness/src/generators`. The project generator schema advertises unsupported kinds (`adapter`, `control`, `engine`, `mod`, `sdk`, `tooling`) even though implementation supports only `plugin`, `foundation`, and `app`. That mismatch is a direct D13 public-contract risk. The pattern generator can create candidates and registered lifecycle artifacts when supplied a Pattern Authority manifest, but the current tree has only the manifest support code, not actual manifest instances.
+Generators live under `tools/habitat/src/generators`. The project generator schema advertises unsupported kinds (`adapter`, `control`, `engine`, `mod`, `sdk`, `tooling`) even though implementation supports only `plugin`, `foundation`, and `app`. That mismatch is a direct D13 public-contract risk. The pattern generator can create candidates and registered lifecycle artifacts when supplied a Pattern Authority manifest, but the current tree has only the manifest support code, not actual manifest instances.
 
 ## Proof/Evidence Naming Guidance
 
@@ -54,13 +54,13 @@ Use `proof` only where the system is asserting an independently reproducible gat
 
 Likely write sets:
 
-- `tools/habitat-harness/package.json`
-- `tools/habitat-harness/src/index.ts`
-- `tools/habitat-harness/src/commands/*.ts`
-- `tools/habitat-harness/bin/dev.ts`
-- `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`
-- `tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`
-- `tools/habitat-harness/test/commands/habitat-commands.test.ts`
+- `tools/habitat/package.json`
+- `tools/habitat/src/index.ts`
+- `tools/habitat/src/commands/*.ts`
+- `tools/habitat/bin/dev.ts`
+- `tools/habitat/docs/IMPLEMENTED-SURFACE.md`
+- `tools/habitat/test/commands/habitat-entrypoints.test.ts`
+- `tools/habitat/test/commands/habitat-commands.test.ts`
 - Any OpenSpec changes defining command/JSON output contracts.
 
 Public surfaces affected:
@@ -85,10 +85,10 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts`
-- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-commands.test.ts`
+- `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts`
+- `bun run --cwd tools/habitat test -- test/commands/habitat-commands.test.ts`
 - `bun run habitat check --json`
-- `bun run habitat classify tools/habitat-harness/src/index.ts --json`
+- `bun run habitat classify tools/habitat/src/index.ts --json`
 
 OpenSpec correction: make D0 a hard prerequisite before any internal movement. The current export shape is broad enough that implementation refactors may otherwise become accidental breaking changes.
 
@@ -96,15 +96,15 @@ OpenSpec correction: make D0 a hard prerequisite before any internal movement. T
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/proof-artifact.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/src/lib/habitat-process.ts`
-- `tools/habitat-harness/src/lib/effect-parity.ts`
-- `tools/habitat-harness/src/lib/effect-runtime.ts`
-- `tools/habitat-harness/test/lib/proof-artifact.test.ts`
-- `tools/habitat-harness/test/lib/verify-proof.test.ts`
-- `tools/habitat-harness/test/lib/habitat-process.test.ts`
-- `tools/habitat-harness/test/lib/effect-parity.test.ts`
+- `tools/habitat/src/lib/proof-artifact.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/src/lib/habitat-process.ts`
+- `tools/habitat/src/lib/effect-parity.ts`
+- `tools/habitat/src/lib/effect-runtime.ts`
+- `tools/habitat/test/lib/proof-artifact.test.ts`
+- `tools/habitat/test/lib/verify-proof.test.ts`
+- `tools/habitat/test/lib/habitat-process.test.ts`
+- `tools/habitat/test/lib/effect-parity.test.ts`
 
 Public surfaces affected:
 
@@ -126,8 +126,8 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts`
-- `bun run --cwd tools/habitat-harness test -- test/lib/habitat-process.test.ts test/lib/effect-parity.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/habitat-process.test.ts test/lib/effect-parity.test.ts`
 - `bun run habitat verify --json`
 
 OpenSpec correction: split compatibility fields from target domain names. D1 should define migration/alias behavior for existing public JSON names if those names change.
@@ -136,18 +136,18 @@ OpenSpec correction: split compatibility fields from target domain names. D1 sho
 
 Likely write sets:
 
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/src/rules/architecture.ts`
-- `tools/habitat-harness/src/rules/messages.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/test/lib/rule-selection.test.ts`
-- `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/src/rules/architecture.ts`
+- `tools/habitat/src/rules/messages.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/test/lib/rule-selection.test.ts`
+- `tools/habitat/test/lib/enforcement-surface.test.ts`
 
 Public surfaces affected:
 
 - Rule IDs and selectors used by `habitat check --rule`, `--owner`, and `--tool`.
 - JSON rule metadata in check reports.
-- Baseline IDs under `tools/habitat-harness/baselines`.
+- Baseline IDs under `tools/habitat/baselines`.
 
 Risky current names:
 
@@ -163,7 +163,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/lib/enforcement-surface.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/rule-selection.test.ts test/lib/enforcement-surface.test.ts`
 - `bun run habitat check --json`
 - `bun run habitat check --tool grit-check --json`
 
@@ -173,11 +173,11 @@ OpenSpec correction: specify whether rule metadata is a public API, internal imp
 
 Likely write sets:
 
-- `tools/habitat-harness/src/plugin.js`
-- `tools/habitat-harness/src/lib/nx-projects.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/test/lib/classify.test.ts`
-- `tools/habitat-harness/test/lib/workspace-tools.test.ts`
+- `tools/habitat/src/plugin.js`
+- `tools/habitat/src/lib/nx-projects.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/test/lib/classify.test.ts`
+- `tools/habitat/test/lib/workspace-tools.test.ts`
 - Root `nx.json` only if target defaults change.
 
 Public surfaces affected:
@@ -200,8 +200,8 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `nx show project @internal/habitat-harness --json`
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts test/lib/workspace-tools.test.ts`
+- `nx show project @habitat/cli --json`
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts test/lib/workspace-tools.test.ts`
 - `bun run habitat graph --json`
 
 OpenSpec correction: require target availability facts to be distinguished from command execution proof.
@@ -210,11 +210,11 @@ OpenSpec correction: require target availability facts to be distinguished from 
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/docs/DOMAIN-MAPPING.md`
-- `tools/habitat-harness/docs/SCENARIOS.md`
-- `tools/habitat-harness/docs/CAPABILITIES.md`
-- `tools/habitat-harness/test/lib/classify.test.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/docs/DOMAIN-MAPPING.md`
+- `tools/habitat/docs/SCENARIOS.md`
+- `tools/habitat/docs/CAPABILITIES.md`
+- `tools/habitat/test/lib/classify.test.ts`
 
 Public surfaces affected:
 
@@ -234,7 +234,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts`
 - `bun run habitat classify <path> --json`
 
 OpenSpec correction: classify output should be described as routing guidance unless it can prove runnable targets from resolved Nx metadata.
@@ -243,11 +243,11 @@ OpenSpec correction: classify output should be described as routing guidance unl
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/baseline.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/baselines/*.json`
-- `tools/habitat-harness/test/lib/baseline.test.ts`
-- `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
+- `tools/habitat/src/lib/baseline.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/baselines/*.json`
+- `tools/habitat/test/lib/baseline.test.ts`
+- `tools/habitat/test/lib/enforcement-surface.test.ts`
 
 Public surfaces affected:
 
@@ -269,7 +269,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/baseline.test.ts`
 - `bun run habitat check --expand-baseline --json`
 - `bun run habitat check --json`
 
@@ -280,13 +280,13 @@ OpenSpec correction: specify baseline authority as a contract over exception sou
 Likely write sets:
 
 - `.habitat/patterns/active/checks/*.md`
-- `tools/habitat-harness/src/lib/grit.ts`
-- `tools/habitat-harness/src/lib/grit-env.ts`
-- `tools/habitat-harness/src/lib/grit-failures.ts`
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts`
-- `tools/habitat-harness/test/lib/grit-adapter.test.ts`
-- `tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
-- `tools/habitat-harness/test/lib/grit-failures.test.ts`
+- `tools/habitat/src/lib/grit.ts`
+- `tools/habitat/src/lib/grit-env.ts`
+- `tools/habitat/src/lib/grit-failures.ts`
+- `tools/habitat/src/lib/grit-injected-probe.ts`
+- `tools/habitat/test/lib/grit-adapter.test.ts`
+- `tools/habitat/test/lib/grit-injected-probe.test.ts`
+- `tools/habitat/test/lib/grit-failures.test.ts`
 
 Public surfaces affected:
 
@@ -308,7 +308,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/lib/grit-failures.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/lib/grit-failures.test.ts`
 - `bun run habitat check --tool grit-check --json`
 
 OpenSpec correction: call the catalog a diagnostic pattern catalog and model adapter/probe separately.
@@ -317,12 +317,12 @@ OpenSpec correction: call the catalog a diagnostic pattern catalog and model ada
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/src/rules/architecture.ts`
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/src/lib/diagnostics.ts`
-- `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
-- `tools/habitat-harness/test/lib/rule-selection.test.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/src/rules/architecture.ts`
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/src/lib/diagnostics.ts`
+- `tools/habitat/test/lib/enforcement-surface.test.ts`
+- `tools/habitat/test/lib/rule-selection.test.ts`
 
 Public surfaces affected:
 
@@ -343,7 +343,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts test/lib/rule-selection.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/enforcement-surface.test.ts test/lib/rule-selection.test.ts`
 - `bun run habitat check --json`
 - `bun run habitat check --staged --tool grit-check --json`
 
@@ -353,11 +353,11 @@ OpenSpec correction: D7 should be sequenced after D5, D6, and D10 so enforcement
 
 Likely write sets:
 
-- `tools/habitat-harness/src/pattern-authority/manifest.ts`
-- `tools/habitat-harness/src/generators/pattern/*`
+- `tools/habitat/src/pattern-authority/manifest.ts`
+- `tools/habitat/src/generators/pattern/*`
 - `.grit/patterns/habitat/**`
-- `tools/habitat-harness/test/lib/pattern-authority.test.ts`
-- `tools/habitat-harness/test/generators/pattern.test.ts`
+- `tools/habitat/test/lib/pattern-authority.test.ts`
+- `tools/habitat/test/generators/pattern.test.ts`
 
 Public surfaces affected:
 
@@ -378,8 +378,8 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/pattern-authority.test.ts test/generators/pattern.test.ts`
-- `nx g @internal/habitat-harness:pattern <rule-id>` for generator behavior when appropriate.
+- `bun run --cwd tools/habitat test -- test/lib/pattern-authority.test.ts test/generators/pattern.test.ts`
+- `nx g @habitat/cli:pattern <rule-id>` for generator behavior when appropriate.
 
 OpenSpec correction: separate candidate drafting from registered enforcement as explicit lifecycle states.
 
@@ -387,10 +387,10 @@ OpenSpec correction: separate candidate drafting from registered enforcement as 
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/grit-apply.ts`
+- `tools/habitat/src/lib/grit-apply.ts`
 - `.habitat/patterns/active/apply/*.md`
-- `tools/habitat-harness/src/commands/fix.ts`
-- `tools/habitat-harness/test/lib/grit-apply.test.ts`
+- `tools/habitat/src/commands/fix.ts`
+- `tools/habitat/test/lib/grit-apply.test.ts`
 
 Public surfaces affected:
 
@@ -412,7 +412,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts`
 - `bun run habitat fix --dry-run`
 
 OpenSpec correction: D9 depends on G-HOST if host-specific apply policy is to leave generic Habitat code.
@@ -421,11 +421,11 @@ OpenSpec correction: D9 depends on G-HOST if host-specific apply policy is to le
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/grit-apply.ts`
-- `tools/habitat-harness/src/lib/generated-zones.ts`
-- `tools/habitat-harness/scripts/verify-generated-zones.mjs`
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/src/plugin.js`
+- `tools/habitat/src/lib/grit-apply.ts`
+- `tools/habitat/src/lib/generated-zones.ts`
+- `tools/habitat/scripts/verify-generated-zones.mjs`
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/src/plugin.js`
 - OpenSpec host/generic boundary docs.
 
 Public surfaces affected:
@@ -447,7 +447,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts`
 - `bun run habitat check --tool file-layer --json`
 - Any generated-zone verification command once its owning target is clarified.
 
@@ -457,11 +457,11 @@ OpenSpec correction: G-HOST should happen after D0/D1 and before D10/D9 where cu
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/generated-zones.ts`
-- `tools/habitat-harness/scripts/verify-generated-zones.mjs`
-- `tools/habitat-harness/src/rules/architecture.ts`
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
+- `tools/habitat/src/lib/generated-zones.ts`
+- `tools/habitat/scripts/verify-generated-zones.mjs`
+- `tools/habitat/src/rules/architecture.ts`
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/test/lib/enforcement-surface.test.ts`
 - Potential new test file, because `test/lib/generated-zones.test.ts` does not currently exist.
 
 Public surfaces affected:
@@ -484,8 +484,8 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- Existing: `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts`
-- Likely new: `bun run --cwd tools/habitat-harness test -- test/lib/generated-zones.test.ts`
+- Existing: `bun run --cwd tools/habitat test -- test/lib/enforcement-surface.test.ts`
+- Likely new: `bun run --cwd tools/habitat test -- test/lib/generated-zones.test.ts`
 - `bun run habitat check --tool file-layer --json`
 
 OpenSpec correction: either specify creation of `generated-zones.test.ts` or reference existing enforcement-surface coverage.
@@ -494,12 +494,12 @@ OpenSpec correction: either specify creation of `generated-zones.test.ts` or ref
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/hooks.ts`
-- `tools/habitat-harness/src/commands/hook.ts`
+- `tools/habitat/src/lib/hooks.ts`
+- `tools/habitat/src/commands/hook.ts`
 - `.husky/pre-commit`
 - `.husky/pre-push`
-- `tools/habitat-harness/test/lib/hooks.test.ts`
-- `tools/habitat-harness/test/commands/habitat-commands.test.ts`
+- `tools/habitat/test/lib/hooks.test.ts`
+- `tools/habitat/test/commands/habitat-commands.test.ts`
 
 Public surfaces affected:
 
@@ -522,7 +522,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts`
 - `bun run habitat hook pre-commit`
 - `bun run habitat hook pre-push --base origin/main`
 
@@ -532,11 +532,11 @@ OpenSpec correction: either remove `--dry-run` from D11 or require adding it as 
 
 Likely write sets:
 
-- `tools/habitat-harness/src/commands/verify.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/src/lib/proof-artifact.ts`
-- `tools/habitat-harness/test/lib/verify-proof.test.ts`
-- `tools/habitat-harness/test/commands/habitat-commands.test.ts`
+- `tools/habitat/src/commands/verify.ts`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/src/lib/proof-artifact.ts`
+- `tools/habitat/test/lib/verify-proof.test.ts`
+- `tools/habitat/test/commands/habitat-commands.test.ts`
 
 Public surfaces affected:
 
@@ -558,7 +558,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/verify-proof.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/verify-proof.test.ts`
 - `bun run habitat verify --json`
 
 OpenSpec correction: call this a verify handoff receipt unless it captures all proof inputs required by D1.
@@ -567,13 +567,13 @@ OpenSpec correction: call this a verify handoff receipt unless it captures all p
 
 Likely write sets:
 
-- `tools/habitat-harness/src/generators/project/schema.json`
-- `tools/habitat-harness/src/generators/project/index.ts`
-- `tools/habitat-harness/src/generators/pattern/schema.json`
-- `tools/habitat-harness/src/generators/pattern/index.ts`
-- `tools/habitat-harness/test/generators/project.test.ts`
-- `tools/habitat-harness/test/generators/pattern.test.ts`
-- `tools/habitat-harness/generators.json`
+- `tools/habitat/src/generators/project/schema.json`
+- `tools/habitat/src/generators/project/index.ts`
+- `tools/habitat/src/generators/pattern/schema.json`
+- `tools/habitat/src/generators/pattern/index.ts`
+- `tools/habitat/test/generators/project.test.ts`
+- `tools/habitat/test/generators/pattern.test.ts`
+- `tools/habitat/generators.json`
 
 Public surfaces affected:
 
@@ -595,8 +595,8 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/generators/project.test.ts test/generators/pattern.test.ts`
-- `nx g @internal/habitat-harness:project <name> --kind=<plugin|foundation|app> --dry-run`
+- `bun run --cwd tools/habitat test -- test/generators/project.test.ts test/generators/pattern.test.ts`
+- `nx g @habitat/cli:project <name> --kind=<plugin|foundation|app> --dry-run`
 
 OpenSpec correction: schema and implementation must agree. If refusal is the desired contract, unsupported kinds should not be advertised as normal enum choices unless the generator deliberately emits refusal diagnostics for them.
 
@@ -604,11 +604,11 @@ OpenSpec correction: schema and implementation must agree. If refusal is the des
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/command-engine.ts`
-- `tools/habitat-harness/src/lib/nx-projects.ts`
-- `tools/habitat-harness/docs/DOMAIN-MAPPING.md`
+- `tools/habitat/src/lib/command-engine.ts`
+- `tools/habitat/src/lib/nx-projects.ts`
+- `tools/habitat/docs/DOMAIN-MAPPING.md`
 - `docs/projects/habitat-harness/taxonomy.md`
-- `tools/habitat-harness/test/lib/classify.test.ts`
+- `tools/habitat/test/lib/classify.test.ts`
 
 Public surfaces affected:
 
@@ -630,7 +630,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts`
 - `bun run habitat classify <path> --json`
 - `nx show project <project> --json`
 
@@ -640,14 +640,14 @@ OpenSpec correction: do not make `plugin.js` hard-coded owner roots the long-ter
 
 Likely write sets:
 
-- `tools/habitat-harness/src/lib/habitat-process.ts`
-- `tools/habitat-harness/src/lib/effect-runtime.ts`
-- `tools/habitat-harness/src/lib/effect-parity.ts`
-- `tools/habitat-harness/src/lib/workspace-tools.ts`
-- `tools/habitat-harness/src/lib/grit-apply.ts`
-- `tools/habitat-harness/test/lib/habitat-process.test.ts`
-- `tools/habitat-harness/test/lib/effect-parity.test.ts`
-- `tools/habitat-harness/test/lib/workspace-tools.test.ts`
+- `tools/habitat/src/lib/habitat-process.ts`
+- `tools/habitat/src/lib/effect-runtime.ts`
+- `tools/habitat/src/lib/effect-parity.ts`
+- `tools/habitat/src/lib/workspace-tools.ts`
+- `tools/habitat/src/lib/grit-apply.ts`
+- `tools/habitat/test/lib/habitat-process.test.ts`
+- `tools/habitat/test/lib/effect-parity.test.ts`
+- `tools/habitat/test/lib/workspace-tools.test.ts`
 
 Public surfaces affected:
 
@@ -668,7 +668,7 @@ Owner boundaries:
 
 Likely tests/commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/habitat-process.test.ts test/lib/effect-parity.test.ts test/lib/workspace-tools.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/habitat-process.test.ts test/lib/effect-parity.test.ts test/lib/workspace-tools.test.ts`
 - `bun run habitat fix --dry-run`
 
 OpenSpec correction: D15 should trigger after D1 defines what provenance is allowed to support, prove, or merely record.

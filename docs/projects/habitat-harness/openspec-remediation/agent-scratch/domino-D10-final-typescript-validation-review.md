@@ -40,13 +40,13 @@ D10 packet/context reads:
 
 Current implementation evidence read:
 
-- `tools/habitat-harness/src/lib/generated-zones.ts`
-- `tools/habitat-harness/src/rules/architecture.ts`
-- `tools/habitat-harness/src/rules/rules.json`
+- `tools/habitat/src/lib/generated-zones.ts`
+- `tools/habitat/src/rules/architecture.ts`
+- `tools/habitat/src/rules/rules.json`
 - Relevant D10 integration ranges in:
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/grit-apply.ts`
-  - `tools/habitat-harness/src/lib/hooks.ts`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/grit-apply.ts`
+  - `tools/habitat/src/lib/hooks.ts`
 
 ## Commands Run
 

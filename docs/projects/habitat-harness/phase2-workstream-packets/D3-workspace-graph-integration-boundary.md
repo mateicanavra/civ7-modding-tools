@@ -49,8 +49,8 @@ graph/plugin focused.
 
 ## Current State-Space Problem
 
-`/tools/habitat-harness/src/plugin.js` builds inferred targets and owner roots,
-while `/tools/habitat-harness/src/lib/nx-projects.ts` reads project metadata for
+`/tools/habitat/src/plugin.js` builds inferred targets and owner roots,
+while `/tools/habitat/src/lib/nx-projects.ts` reads project metadata for
 classification. Validation found a false-green risk where an inferred
 `habitat:rule:biome-ci` alias depends on `{"projects":["biome"],"target":"ci"}`
 even though `biome` is not a project.
@@ -97,7 +97,7 @@ Required design receipt:
 
 Later implementation receipt:
 
-- `nx show project @internal/habitat-harness --json`;
+- `nx show project @habitat/cli --json`;
 - plugin unit tests for inferred targets;
 - classify tests for available/unavailable targets;
 - injected missing-project alias test;
@@ -120,17 +120,17 @@ Non-claims:
 Update:
 
 - Nx/Habitat graph contract doc;
-- `tools/habitat-harness/docs/CAPABILITIES.md`;
+- `tools/habitat/docs/CAPABILITIES.md`;
 - classify examples;
 - validation stop conditions related to false-green aliases.
 
 ## Validation Commands / Receipt Template
 
-- `nx show project @internal/habitat-harness`: expected exit 0; graph metadata
+- `nx show project @habitat/cli`: expected exit 0; graph metadata
   receipt for Habitat project targets and package exports.
-- `nx run @internal/habitat-harness:habitat:rule:biome-ci`: expected exit 0
+- `nx run @habitat/cli:habitat:rule:biome-ci`: expected exit 0
   only when the alias proves its dependency ran rather than a false green.
-- `nx run @internal/habitat-harness:boundaries`: expected exit 0 after current
+- `nx run @habitat/cli:boundaries`: expected exit 0 after current
   graph-file ENOENT risks are fixed or explicitly non-goaled.
 - Cache stance: target-alias receipt must run with cache disabled or include
   dependency execution evidence.

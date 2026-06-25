@@ -143,7 +143,7 @@ The runner should:
   been flattened into the target shape;
 - infer execution mechanics from Habitat Toolkit support rather than requiring
   artifact-local dispatch declarations;
-- keep implementation dispatch in `tools/habitat-harness`;
+- keep implementation dispatch in `tools/habitat`;
 - allow package scripts or Nx targets to bridge into Habitat while `.habitat`
   remains the authority source.
 

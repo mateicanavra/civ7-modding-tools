@@ -23,8 +23,8 @@ Primary sources read:
 - `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/**`
 - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D5-review.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/baseline.test.ts`
 - `docs/projects/habitat-harness/phase2-workstream-packets/D2-rule-registry-metadata-contract.md`
 - `docs/projects/habitat-harness/phase2-workstream-packets/D7-structural-enforcement-pipeline.md`
 - `docs/projects/habitat-harness/phase2-workstream-packets/D8-pattern-governance.md`
@@ -72,7 +72,7 @@ The proposal says the product needs to "connect each structural-debt record to o
 
 That language is not acceptable. It conflates:
 
-- a `DiagnosticKey`: stable identity for a diagnostic, currently path plus message in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:148`;
+- a `DiagnosticKey`: stable identity for a diagnostic, currently path plus message in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:148`;
 - a `BaselineEntry`: a sorted unique JSON string entry in a Habitat baseline file;
 - an `ExternalExceptionProjectionEntry`: a projected diagnostic key from a non-baseline source;
 - a `BaselineApplicationMatch`: the result of applying an accepted projection to live diagnostics.
@@ -93,7 +93,7 @@ Target repair: replace all D5/D8 wording with a one-way consumer contract:
 
 ### P1-4: External exception language does not distinguish source, projection, and baseline authority
 
-The source packet asks D5 to define external exception source variants so incomplete projection/validation combinations cannot exist at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:64`. Current code shows why: `ExternalExceptionSourceModel` allows optional `projectedKeys`, optional `projectKeys`, and optional `validate` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:109`. The packet does not repair this ontology.
+The source packet asks D5 to define external exception source variants so incomplete projection/validation combinations cannot exist at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:64`. Current code shows why: `ExternalExceptionSourceModel` allows optional `projectedKeys`, optional `projectKeys`, and optional `validate` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:109`. The packet does not repair this ontology.
 
 "External exception baseline" should be rejected. The external artifact is not a Habitat baseline file. It is an external exception source. D5's accepted authority is the projection from that source into diagnostic keys, plus validation/validatenance. The authoritative object for consumers is the projection result, not the source file.
 
@@ -107,7 +107,7 @@ The accepted projection must include validatenance and owner/migration owner. D7
 
 ### P1-5: Rule-introduction manifest acceptance/refusal is not specified as authority
 
-The source D5 packet says baseline expansion must stay behind a typed introduction guard at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:71`. Current code has the relevant manifest fields at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:90` and still has boolean guard output at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:223`.
+The source D5 packet says baseline expansion must stay behind a typed introduction guard at `docs/projects/habitat-harness/phase2-workstream-packets/D5-baseline-authority.md:71`. Current code has the relevant manifest fields at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:90` and still has boolean guard output at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:223`.
 
 The OpenSpec packet only says "introduction manifest relation" at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority/tasks.md:14`. That is not an authority model. The manifest either authorizes exactly one seeded baseline projection for a rule that is new relative to the comparison base, or it refuses.
 
@@ -151,7 +151,7 @@ The proposal says check output may change within D0 compatibility rules at `/Use
 
 That is not enough. D5 cannot ask D0 to classify "everything" after the fact. The packet must enumerate the D5 compatibility surface before implementation:
 
-- baseline JSON files under `tools/habitat-harness/baselines/*.json`;
+- baseline JSON files under `tools/habitat/baselines/*.json`;
 - rule registry baseline facet/projection from D2;
 - `--expand-baseline` behavior and refusal messages;
 - `habitat check --rule baseline-integrity --json` output;
@@ -166,13 +166,13 @@ The source packet requires `bun run habitat check --rule baseline-integrity --js
 
 For D5, broad check output is not the authority validation. It can be a D7 consumer validation later. D5 must require focused validation for baseline state, expansion guard, external projection, and integrity refusal cases.
 
-Target repair: validation gates must include design-time OpenSpec validation separately from later implementation validation, and later validation must include `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`, `bun run habitat check --rule baseline-integrity --json`, injected missing/malformed/orphan/growth/manifest mismatch cases, `git diff --check`, and `git status --short --branch`.
+Target repair: validation gates must include design-time OpenSpec validation separately from later implementation validation, and later validation must include `bun run --cwd tools/habitat test -- test/lib/baseline.test.ts`, `bun run habitat check --rule baseline-integrity --json`, injected missing/malformed/orphan/growth/manifest mismatch cases, `git diff --check`, and `git status --short --branch`.
 
 ## P3 Findings
 
 ### P3-1: "Locked" is currently a code fact, not an accepted domain term
 
-Current code marks explicit empty baselines as `locked: true` and debt/external states as `locked: false` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:53`. The packet does not decide whether "locked" is target language or a compatibility fact.
+Current code marks explicit empty baselines as `locked: true` and debt/external states as `locked: false` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:53`. The packet does not decide whether "locked" is target language or a compatibility fact.
 
 Recommendation: if accepted, define `locked` only as a compatibility projection for "this rule has an explicit empty baseline and any diagnostic is unbaselined current debt." Otherwise reject it and use `explicit-empty` plus shrink-only semantics. Do not let `locked` become a second authority model.
 
@@ -196,7 +196,7 @@ Use the smallest reviewed ontology that supports validation, classification, and
 
 - `Rule`: D2-owned identity for a Habitat rule. D5 consumes only the baseline facet/projection.
 - `DiagnosticKey`: stable identity for a diagnostic that may be baselined. Current evidence uses `path::message`.
-- `BaselineFile`: Habitat-owned JSON file at `tools/habitat-harness/baselines/<rule-id>.json`.
+- `BaselineFile`: Habitat-owned JSON file at `tools/habitat/baselines/<rule-id>.json`.
 - `BaselineEntry`: one sorted unique diagnostic key entry in a `BaselineFile`.
 - `ExternalExceptionSource`: non-baseline source that may project diagnostic keys.
 - `ExternalExceptionProjection`: D5-accepted projection from an external source to sorted diagnostic keys, with owner and migration owner.

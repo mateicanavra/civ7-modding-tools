@@ -18,25 +18,25 @@ Reviewed:
   `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D8-*.md`.
 - Current Pattern Authority, generator, registry, Grit, baseline, command,
   hook, apply, plugin, and public-doc topology:
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `tools/habitat-harness/src/generators/pattern/generator.cjs`
-  - `tools/habitat-harness/src/generators/pattern/registration.cjs`
-  - `tools/habitat-harness/src/generators/pattern/schema.json`
-  - `tools/habitat-harness/generators.json`
-  - `tools/habitat-harness/src/rules/architecture.ts`
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/src/plugin.js`
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/baseline.ts`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/lib/hooks.ts`
-  - `tools/habitat-harness/src/lib/grit-apply.ts`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/src/generators/pattern/generator.cjs`
+  - `tools/habitat/src/generators/pattern/registration.cjs`
+  - `tools/habitat/src/generators/pattern/schema.json`
+  - `tools/habitat/generators.json`
+  - `tools/habitat/src/rules/architecture.ts`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/src/plugin.js`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/baseline.ts`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/lib/hooks.ts`
+  - `tools/habitat/src/lib/grit-apply.ts`
   - `.habitat/patterns/active/checks/**`
   - `.habitat/patterns/active/apply/**`
-  - `tools/habitat-harness/baselines/**`
-  - `tools/habitat-harness/README.md`
-  - `tools/habitat-harness/docs/CAPABILITIES.md`
-  - `tools/habitat-harness/docs/SCENARIOS.md`
+  - `tools/habitat/baselines/**`
+  - `tools/habitat/README.md`
+  - `tools/habitat/docs/CAPABILITIES.md`
+  - `tools/habitat/docs/SCENARIOS.md`
 
 Skill anchors read before review:
 
@@ -99,16 +99,16 @@ accurately enough for design/specification acceptance.
 
 Current disk inventory observed during rereview:
 
-- 52 Habitat rules in `tools/habitat-harness/src/rules/rules.json`.
+- 52 Habitat rules in `tools/habitat/src/rules/rules.json`.
 - 32 `ownerTool: "grit-check"` rules, 31 enforced and one advisory.
 - 31 `grit-check` rules with `hookScope: "pre-commit"`.
 - 0 active rules with `manifestPath`.
 - 32 check patterns under `.habitat/patterns/active/checks`.
 - 3 apply patterns under `.habitat/patterns/active/apply`.
 - 0 committed candidate files under
-  `tools/habitat-harness/src/rules/pattern-authority/candidates`.
+  `tools/habitat/src/rules/pattern-authority/candidates`.
 - 0 committed registered Pattern Authority JSON manifests under
-  `tools/habitat-harness/src/rules/pattern-authority/*.json`.
+  `tools/habitat/src/rules/pattern-authority/*.json`.
 
 The repaired packet accounts for the most important topology risk: existing
 active Grit rules without `manifestPath` are compatibility facts, not complete
@@ -143,7 +143,7 @@ Grit paths, baseline references, command output, docs, examples, and guidance.
 touched surfaces, and `tasks.md:10`/`tasks.md:12` make D0/D1 checks explicit
 pre-source tasks.
 
-The current `tools/habitat-harness/generators.json:14` description still says
+The current `tools/habitat/generators.json:14` description still says
 the pattern generator creates a Grit pattern and matching rule-pack entry,
 while candidate generation is candidate-only. That is not a D8 P1/P2 blocker
 because the repaired packet already treats generator public wording as a
@@ -166,7 +166,7 @@ source while claiming Pattern Governance work.
 ### Stale Outputs And Guidance
 
 Accepted with P3 residuals. Current docs have stale counts:
-`tools/habitat-harness/docs/CAPABILITIES.md:81` says 51 registered rules,
+`tools/habitat/docs/CAPABILITIES.md:81` says 51 registered rules,
 `CAPABILITIES.md:86` says 31 `grit-check` rules, and
 `CAPABILITIES.md:131` says 31 check patterns. Current disk has 52 rules, 32
 `grit-check` rules, and 32 check patterns. The repaired downstream ledger
@@ -204,10 +204,10 @@ Commands run from
 
 ## Residual P3 Notes
 
-- P3: `tools/habitat-harness/docs/CAPABILITIES.md` has stale registry and Grit
+- P3: `tools/habitat/docs/CAPABILITIES.md` has stale registry and Grit
   counts. D8 handles this as non-authority; update only through the public-docs
   owner path if implementation changes user guidance.
-- P3: `tools/habitat-harness/generators.json:14` describes the pattern generator
+- P3: `tools/habitat/generators.json:14` describes the pattern generator
   as creating a matching rule-pack entry. Candidate generation is
   candidate-only in current source. If later D8/D13 implementation touches the
   pattern generator public surface, include this description in the D0/D13

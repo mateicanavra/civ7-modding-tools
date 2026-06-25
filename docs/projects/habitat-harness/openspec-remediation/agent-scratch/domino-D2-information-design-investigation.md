@@ -46,16 +46,16 @@ D2 is a high-fanout authority packet. It enables D3, D4, D5, D6, D7, D8, D10, an
   - D1 OpenSpec packet under `/openspec/changes/deep-habitat-d1-receipt-contract-boundary/**`
   - D1 final information-design and cross-domino reviews plus D1 review disposition ledger
 - Current code and tests as evidence only:
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/src/rules/architecture.ts`
-  - `tools/habitat-harness/src/plugin.js`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/lib/baseline.ts`
-  - `tools/habitat-harness/src/lib/generated-zones.ts`
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `tools/habitat-harness/test/lib/classify.test.ts`
-  - `tools/habitat-harness/test/lib/rule-selection.test.ts`
-  - `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/src/rules/architecture.ts`
+  - `tools/habitat/src/plugin.js`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/lib/baseline.ts`
+  - `tools/habitat/src/lib/generated-zones.ts`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/test/lib/classify.test.ts`
+  - `tools/habitat/test/lib/rule-selection.test.ts`
+  - `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
 - Downstream lookahead:
   - D3, D4, D5, D6, D7, D8, D10, D13, and G-HOST OpenSpec scaffolds by D2 references.
 

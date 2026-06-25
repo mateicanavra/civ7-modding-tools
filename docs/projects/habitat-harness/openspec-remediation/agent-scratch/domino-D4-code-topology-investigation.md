@@ -44,34 +44,34 @@ D4 and dependency evidence:
 
 Current code surfaces:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/classify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-commands.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/classify.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
 
 Commands run:
 
 - `git status --short --branch`
-- `bun run habitat classify tools/habitat-harness/src/plugin.js`
+- `bun run habitat classify tools/habitat/src/plugin.js`
 - `bun run habitat classify $'not a diff\njust text'`
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts`
 
 Observed command state:
 
 - Worktree is clean on `codex/deep-habitat-openspec-remediation`; branch is ahead of `origin/main`.
-- `bun run habitat classify tools/habitat-harness/src/plugin.js` exits 0 and emits the current path JSON shape.
+- `bun run habitat classify tools/habitat/src/plugin.js` exits 0 and emits the current path JSON shape.
 - `bun run habitat classify $'not a diff\njust text'` exits 0 and emits `{"schemaVersion":1,"inputKind":"diff","paths":[]}`.
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts` passes 20 tests.
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts` passes 20 tests.
 
 ## Current Classify Surface Map
 
 ### DTOs
 
-`Classification` is declared in `/tools/habitat-harness/src/lib/command-engine.ts` lines 169-180:
+`Classification` is declared in `/tools/habitat/src/lib/command-engine.ts` lines 169-180:
 
 - Required fields: `path`, `project`.
 - Optional fields: `projectRoot`, `tags`, `rulesInScope`, `scopedRules`, `requiredTargets`, `targets`, `unavailableTargets`, `note`.
@@ -107,11 +107,11 @@ Observed command state:
 
 ### Exports
 
-`/tools/habitat-harness/src/index.ts` re-exports these classify DTOs and functions:
+`/tools/habitat/src/index.ts` re-exports these classify DTOs and functions:
 
 - Type exports lines 20-28: `Classification`, `ClassifiedTarget`, `ClassifyOptions`, `DiffClassification`, `RuleScopeKind`, `ScopedRule`, `UnavailableClassifiedTarget`.
 - Function exports lines 29-44: `classifyPath`, `classifyTarget`, plus other broad command-engine functions.
-- Package export path: `/tools/habitat-harness/package.json` exports `"."` as `./src/index.ts`, so these names are package-export public-surface candidates until D0 classifies them.
+- Package export path: `/tools/habitat/package.json` exports `"."` as `./src/index.ts`, so these names are package-export public-surface candidates until D0 classifies them.
 
 This means any D4 source change to these types or functions must cite D0 rows
 for package exports and command JSON, then follow the recorded compatibility
@@ -120,14 +120,14 @@ document-only handling, or generated-only handling as applicable.
 
 ### Command Behavior
 
-`/tools/habitat-harness/src/commands/classify.ts` is a thin Oclif adapter:
+`/tools/habitat/src/commands/classify.ts` is a thin Oclif adapter:
 
 - Args lines 11-17 define one required `path` argument described as path, absolute path, literal diff, or `.diff/.patch`.
 - Runtime lines 19-22 logs `JSON.stringify(await classifyTarget(args.path), null, 2)`.
 - There is no `--json` flag because JSON is the only current output.
 - There is no human output branch, exit-code distinction, malformed diff refusal, or graph-refusal catch in the adapter.
 
-Current path output from `tools/habitat-harness/src/plugin.js` includes:
+Current path output from `tools/habitat/src/plugin.js` includes:
 
 - no top-level `schemaVersion`;
 - project ownership fields: `path`, `project`, `projectRoot`, `tags`;
@@ -149,7 +149,7 @@ That is the negative-control bug: a malformed/pathless input is indistinguishabl
 
 ### Source Control Flow
 
-`classifyTarget()` in `/tools/habitat-harness/src/lib/command-engine.ts` lines 822-835:
+`classifyTarget()` in `/tools/habitat/src/lib/command-engine.ts` lines 822-835:
 
 - Calls `diffText(target)`.
 - If truthy, reads Nx projects and returns `DiffClassification`.
@@ -180,7 +180,7 @@ That is the negative-control bug: a malformed/pathless input is indistinguishabl
 - Exact path scope comes from `scopePathPatterns(rule)` and `scopePatternMatches()`.
 - Project-owner scope falls back when `rule.ownerProject === owner.name`.
 - `grit-check` and `wrapped-test` owned rules without exact path metadata become `unresolved-metadata`.
-- Workspace gates are inferred from `rule.ownerProject === "@internal/habitat-harness"` plus keywords in `rule.scope`.
+- Workspace gates are inferred from `rule.ownerProject === "@habitat/cli"` plus keywords in `rule.scope`.
 
 `scopePathPatterns()`, `scopeIsMachineParseable()`, and helpers lines 955-999:
 
@@ -208,7 +208,7 @@ That is the negative-control bug: a malformed/pathless input is indistinguishabl
 
 ### Test Consumers
 
-`/tools/habitat-harness/test/lib/classify.test.ts` directly imports `classifyPath` and `classifyTarget` from `command-engine.ts`.
+`/tools/habitat/test/lib/classify.test.ts` directly imports `classifyPath` and `classifyTarget` from `command-engine.ts`.
 
 Current assertions lock these compatibility fields:
 
@@ -229,7 +229,7 @@ Missing test consumers that D4 must add:
 - Unavailable targets and graph refusals from D3-compatible target facts.
 - Exact JSON snapshots for each orientation variant if D0 decides JSON is versioned or preserved through facade.
 
-`/tools/habitat-harness/test/commands/habitat-commands.test.ts` mocks `classifyTarget()` and only asserts the command adapter prints parseable ownership JSON and forwards the raw arg. It does not pin real output shape, exit codes, or refusal behavior.
+`/tools/habitat/test/commands/habitat-commands.test.ts` mocks `classifyTarget()` and only asserts the command adapter prints parseable ownership JSON and forwards the raw arg. It does not pin real output shape, exit codes, or refusal behavior.
 
 ## Exact State-Space Smells
 
@@ -294,12 +294,12 @@ D4 implementation is blocked behind concrete D0 rows for at least:
 
 | Surface | Current topology | Why D4 depends on D0 |
 | --- | --- | --- |
-| `habitat classify` CLI verb/arg | `/tools/habitat-harness/src/commands/classify.ts` prints JSON for one required arg | D4 may alter refusal behavior, exit codes, JSON shape, and possibly human/non-claim output. |
+| `habitat classify` CLI verb/arg | `/tools/habitat/src/commands/classify.ts` prints JSON for one required arg | D4 may alter refusal behavior, exit codes, JSON shape, and possibly human/non-claim output. |
 | `habitat classify` command JSON path output | `Classification` object without schemaVersion | D4 target must version or facade path output. |
 | `habitat classify` command JSON diff output | `DiffClassification` with `schemaVersion: 1`, `inputKind: "diff"` | D4 must decide whether valid diff output is preserved, versioned, or nested under a new orientation result. |
 | Malformed/pathless diff behavior | currently success with empty `paths` | D4 wants a refusal-like variant; this is an intentional behavior change. |
 | Package exports from `src/index.ts` | classify DTOs and functions exported from `"."` | D4 may add new orientation types and/or facade old types. |
-| Docs/examples | `tools/habitat-harness/docs/SCENARIOS.md`, README/examples per packet | Examples must follow D0 docs-example rows before public guidance changes. |
+| Docs/examples | `tools/habitat/docs/SCENARIOS.md`, README/examples per packet | Examples must follow D0 docs-example rows before public guidance changes. |
 | D3 classify target compatibility fields | `ClassifiedTarget`, `UnavailableClassifiedTarget`, legacy `proof` | D4 must not remove or reinterpret target fields without D0 handling. |
 
 Until those rows exist, D4 can be repaired as design/specification only. Source implementation that changes output or exports must remain blocked.
@@ -319,13 +319,13 @@ OpenSpec/design repair write set for the current remediation pass:
 
 Likely later source implementation write set, after D0 rows and live D2/D3 facts:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- New orientation/routing module under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/` if D4 extracts the target union and legacy facade.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/classify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts` only for D0-covered public export additions/facades.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-commands.test.ts`
-- New focused tests under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/` for orientation DTO variants if extraction occurs.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- New orientation/routing module under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/` if D4 extracts the target union and legacy facade.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/classify.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts` only for D0-covered public export additions/facades.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
+- New focused tests under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/` for orientation DTO variants if extraction occurs.
 - Adjacent Habitat docs/examples only after D0 docs-example rows exist.
 
 ## Protected Paths
@@ -333,14 +333,14 @@ Likely later source implementation write set, after D0 rows and live D2/D3 facts
 D4 repair and implementation should not touch these without an amended packet and re-review:
 
 - D2 registry source authority:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/architecture.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/architecture.ts`
   - Registry projection modules owned by D2.
 - D3 graph authority:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/workspace-graph-contract.js`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/workspace-graph.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts` except compatibility-adapter consumption explicitly coordinated with D3.
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/workspace-graph-contract.js`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/workspace-graph.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts` except compatibility-adapter consumption explicitly coordinated with D3.
 - D7 enforcement behavior and check aggregation outside classify-facing projections.
 - D12 verify receipt schema and handoff wording.
 - D13 scaffolding/refusal implementation and D14 topology fence implementation.

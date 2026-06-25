@@ -34,18 +34,18 @@ Repaired D13 packet/control files:
 
 Current topology and tests:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/generators.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/package.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/project/schema.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/project/generator.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/schema.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/project-generator.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/pattern-generator.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/migration-boundary.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/generators.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/package.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/project/schema.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/project/generator.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/schema.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/generator.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/pattern-authority/manifest.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/rules/pattern-authority-manifest.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/migration-boundary.test.ts`
 
 Mandatory anchoring read before task work:
 
@@ -85,7 +85,7 @@ The repaired packet correctly repairs the prior code/vendor blockers:
 - No invented `habitat generate` gate remains. `design.md` explicitly rejects `bun run habitat generate --help` as a D13 gate, and `proposal.md`/`spec.md`/`tasks.md` use Nx generator dry-runs and generator tests instead.
 - The project generator topology is represented accurately. Current code supports only `plugin`, `foundation`, and `app` write contracts, strips optional `kind:` prefixes, and runtime-refuses other schema-admitted names before writes.
 - The project schema's admitted `adapter`, `control`, `engine`, `mod`, `sdk`, and `tooling` values are treated as compatibility/refusal surfaces, not as generic Habitat taxonomy.
-- Pattern candidate vs registered behavior is separated. Current candidate generation writes only candidate markdown and candidate manifest paths under `tools/habitat-harness/src/rules/pattern-authority/candidates`; registered lifecycles route through `registration.cjs` and Pattern Authority manifest validation before active `.grit`/`rules.json` writes.
+- Pattern candidate vs registered behavior is separated. Current candidate generation writes only candidate markdown and candidate manifest paths under `tools/habitat/src/rules/pattern-authority/candidates`; registered lifecycles route through `registration.cjs` and Pattern Authority manifest validation before active `.grit`/`rules.json` writes.
 - D8 remains the owner of registration/admission semantics. The packet protects `.habitat/patterns/active/checks/**`, `rules.json`, baselines, and `pattern-authority/manifest.ts` except through D8-governed paths.
 - G-HOST and D14 are not smuggled into current schemas. Host-specific source behavior remains blocked behind G-HOST, and the proposal now correctly states that D13 owns only the generic refusal envelope while D14 owns authoring-specific blocked actions, future criteria, and recovery semantics.
 - The write/protected set is safe for later implementation. It scopes edits to generator schemas, generator implementation, registration refusal projection, generator tests, relevant docs, and D13/D0 control files, while protecting active Grit, baselines, generated artifacts, lockfiles, MapGen/Civ packages, and Authoring Topology paths.

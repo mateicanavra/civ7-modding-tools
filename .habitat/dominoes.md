@@ -40,7 +40,7 @@ What landed:
 - Rejected broad implementation improvisation as the wrong mode for the current
   phase.
 - Established that `.habitat` owns authored authority content while
-  `tools/habitat-harness` owns Toolkit execution mechanics.
+  `tools/habitat` owns Toolkit execution mechanics.
 
 ### 2. Gather Baked-In Authority Content
 

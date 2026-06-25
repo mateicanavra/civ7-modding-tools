@@ -93,7 +93,7 @@ output is not active authority, and MapGen authoring topology is refused
 
 ### Supported Scaffold
 
-An agent requests `nx g @internal/habitat-harness:project <name>
+An agent requests `nx g @habitat/cli:project <name>
 --kind=<foundation|plugin|app>`. D13 should validate the target root, package
 name, supported kind, empty target, and follow-up checks before writing. Success
 creates the supported uniform shell and then routes the user to classify/check.
@@ -105,12 +105,12 @@ and does not imply MapGen authoring support
 
 Current implementation evidence exists for this scenario: project generator
 supports `plugin`, `foundation`, and `app` in code
-(`/tools/habitat-harness/src/generators/project/generator.cjs:4`-`:22`) and
+(`/tools/habitat/src/generators/project/generator.cjs:4`-`:22`) and
 refuses unsupported normalized kinds before writes
-(`/tools/habitat-harness/src/generators/project/generator.cjs:51`-`:57`).
+(`/tools/habitat/src/generators/project/generator.cjs:51`-`:57`).
 However, the schema still exposes a broader enum including `adapter`, `control`,
 `engine`, `mod`, `sdk`, and `tooling`
-(`/tools/habitat-harness/src/generators/project/schema.json:15`-`:37`), so D13
+(`/tools/habitat/src/generators/project/schema.json:15`-`:37`), so D13
 implementation remains D0-public-surface-blocked.
 
 ### Candidate Pattern
@@ -123,10 +123,10 @@ hook, diagnostic admission, local-feedback admission, or apply admission
 (`/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:8`-`:18`).
 
 Current implementation evidence exists for candidate-only output
-(`/tools/habitat-harness/src/generators/pattern/generator.cjs:12`-`:24`,
+(`/tools/habitat/src/generators/pattern/generator.cjs:12`-`:24`,
 `:101`-`:130`), and tests assert no active Grit pattern, no baseline, and no
 rule row for candidate generation
-(`/tools/habitat-harness/test/generators/pattern-generator.test.ts:20`-`:55`).
+(`/tools/habitat/test/generators/pattern-generator.test.ts:20`-`:55`).
 D13 can accept this as present-behavior evidence, not as final source authority,
 until D0/D2/D8 facts are live.
 
@@ -148,10 +148,10 @@ generator can write active files.
 
 Current implementation has a registered path in the pattern generator schema and
 implementation (`registered-advisory`, `registered-enforced`)
-(`/tools/habitat-harness/src/generators/pattern/schema.json:24`-`:29`;
-`/tools/habitat-harness/src/generators/pattern/generator.cjs:7`-`:9`) and a
+(`/tools/habitat/src/generators/pattern/schema.json:24`-`:29`;
+`/tools/habitat/src/generators/pattern/generator.cjs:7`-`:9`) and a
 registration program that writes active Grit and rules files after validation
-(`/tools/habitat-harness/src/generators/pattern/registration.cjs:87`-`:102`).
+(`/tools/habitat/src/generators/pattern/registration.cjs:87`-`:102`).
 That is exactly why D13 must be source-blocked behind D8 live facts and D0/D2
 compatibility rows before implementation.
 
@@ -340,9 +340,9 @@ scaffold" without naming the closed set or root/package preflight states
 
 Current implementation reinforces why this matters: the generator code supports
 only `plugin`, `foundation`, and `app`
-(`/tools/habitat-harness/src/generators/project/generator.cjs:4`-`:22`), but the
+(`/tools/habitat/src/generators/project/generator.cjs:4`-`:22`), but the
 schema enum still exposes unsupported domain kinds
-(`/tools/habitat-harness/src/generators/project/schema.json:15`-`:37`).
+(`/tools/habitat/src/generators/project/schema.json:15`-`:37`).
 
 Impact: The packet does not tell the execution agent whether to change the
 schema, preserve it behind D0 compatibility, or encode unsupported enum values
@@ -355,7 +355,7 @@ the set, and route every other kind through a typed refusal with no writes.
 ### P2: D13 validation gates are not scenario-complete and include a suspect command surface.
 
 The source packet requires generator tests, supported dry-run through
-`nx g @internal/habitat-harness:project`, unsupported-kind dry-run refusal, and
+`nx g @habitat/cli:project`, unsupported-kind dry-run refusal, and
 injected bad cases for unsupported kind, registered-pattern-without-manifest, and
 host-specific scaffold request
 (`/docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:124`-`:135`).
@@ -365,9 +365,9 @@ The live proposal/tasks replace this with tests plus `bun run habitat generate
 `/openspec/changes/deep-habitat-d13-scaffolding-refusal-contracts/tasks.md:18`-`:24`).
 
 The repo exposes Habitat generators through Nx generator metadata
-(`/tools/habitat-harness/generators.json:5`-`:15`) and root `bun run habitat`
+(`/tools/habitat/generators.json:5`-`:15`) and root `bun run habitat`
 points to the Habitat CLI dev entrypoint, but no `generate` command surface was
-found in `tools/habitat-harness/src/commands`
+found in `tools/habitat/src/commands`
 (`/package.json:65`; command search returned no `generate` command).
 
 Impact: The validation plan does not falsify the required D13 product risks:

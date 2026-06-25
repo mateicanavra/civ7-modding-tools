@@ -46,22 +46,22 @@ the canonical registry only where D0 compatibility requires them.
 - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`
 - D0 and D1 OpenSpec packet excerpts for compatibility constraints.
 - Current code surfaces:
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/src/rules/architecture.ts`
-  - `tools/habitat-harness/src/plugin.js`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/lib/baseline.ts`
-  - `tools/habitat-harness/src/lib/generated-zones.ts`
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/hooks.ts`
-  - `tools/habitat-harness/src/lib/grit-injected-probe.ts`
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/src/rules/architecture.ts`
+  - `tools/habitat/src/plugin.js`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/lib/baseline.ts`
+  - `tools/habitat/src/lib/generated-zones.ts`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/hooks.ts`
+  - `tools/habitat/src/lib/grit-injected-probe.ts`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
 
 ## Current Smells By File And Surface
 
 ### Optional/facet soup on the registry record
 
-`tools/habitat-harness/src/rules/architecture.ts:16` defines `HarnessRule` as a
+`tools/habitat/src/rules/architecture.ts:16` defines `HarnessRule` as a
 single mixed record. Fields such as `nxTarget`, `gritPattern`, `manifestPath`,
 `generatedZone`, `forbiddenFileNames`, and `hookScope` are optional on the whole
 type at lines 25 and 29-33. This admits combinations that have no domain
@@ -79,14 +79,14 @@ carries only the fields its state permits.
 
 ### Untyped JSON parse as registry authority
 
-`tools/habitat-harness/src/rules/architecture.ts:38` casts parsed JSON directly
+`tools/habitat/src/rules/architecture.ts:38` casts parsed JSON directly
 to `{ rules: HarnessRule[] }`. That cast is the registry trust boundary, but it
 does not validate the field/state relationships above. Any later consumer that
 narrows through ad hoc checks is repairing this unsound boundary locally.
 
 ### Prose fields used as machine routing authority
 
-`tools/habitat-harness/src/lib/command-engine.ts:886` classifies rule scope from
+`tools/habitat/src/lib/command-engine.ts:886` classifies rule scope from
 the whole `HarnessRule`. It parses prose `scope` into patterns at
 `command-engine.ts:955`, rejects prose qualifiers through string includes at
 `command-engine.ts:966`, and detects workspace gates with prose substring checks
@@ -96,7 +96,7 @@ each consumer can invent a different semantic interpretation.
 
 ### Graph metadata duplicated and silently skipped
 
-`tools/habitat-harness/src/plugin.js:17` hard-codes `OWNER_ROOTS` outside the
+`tools/habitat/src/plugin.js:17` hard-codes `OWNER_ROOTS` outside the
 registry. `plugin.js:199` silently continues when an owner root is missing.
 `plugin.js:213`, `plugin.js:218`, and `plugin.js:223` infer target alias policy
 from `ownerTool`, rule ids, and raw `nxTarget`. This is shotgun surgery and
@@ -105,13 +105,13 @@ emitting a contract failure.
 
 ### Consumer-local projection fragments already exist, but are not canonical
 
-Baseline has its own projection parser. `tools/habitat-harness/src/lib/baseline.ts:753`
+Baseline has its own projection parser. `tools/habitat/src/lib/baseline.ts:753`
 parses only `id` and `exceptionPath`, normalizing missing `exceptionPath` to
 `"none"` at `baseline.ts:788`. Pattern Authority has a partial rule-pack input
-shape at `tools/habitat-harness/src/rules/pattern-authority/manifest.ts:161`,
+shape at `tools/habitat/src/rules/pattern-authority/manifest.ts:161`,
 but its fields are optional and are later checked as orphan-manifest issues at
 `manifest.ts:680`. Classification already emits a smaller `ScopedRule` shape at
-`tools/habitat-harness/src/lib/command-engine.ts:169`, but it is derived from
+`tools/habitat/src/lib/command-engine.ts:169`, but it is derived from
 whole-record heuristics.
 
 These are evidence that projections are viable. They are not authority. D2
@@ -119,7 +119,7 @@ should consolidate them under one registry owner.
 
 ### Generated-zone authority split across rule records and code table
 
-`tools/habitat-harness/src/lib/generated-zones.ts:17` defines generated zones in
+`tools/habitat/src/lib/generated-zones.ts:17` defines generated zones in
 code while file-layer rules reference `generatedZone` from `rules.json`. At
 `generated-zones.ts:45`, unknown/missing generated-zone metadata fails only when
 the staged rule executes. The target state should make the generated-zone
@@ -128,7 +128,7 @@ declaration content, but D2 must own the registry link and projection state.
 
 ### Hook scope is a hidden Grit-only modifier
 
-`tools/habitat-harness/src/lib/command-engine.ts:400` filters staged execution
+`tools/habitat/src/lib/command-engine.ts:400` filters staged execution
 by `rule.ownerTool === "grit-check"` and `rule.hookScope === "pre-commit"`.
 Because `hookScope` is optional on all rules, the valid state "Grit rule that
 participates in pre-commit" is encoded as a field that may or may not exist.
@@ -451,11 +451,11 @@ D0-governed.
 
 Baseline gates from the current packet are necessary but insufficient:
 
-- `bun run --cwd tools/habitat-harness check`
-- `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`
-- `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts test/lib/baseline.test.ts test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/lib/hooks.test.ts`
-- `bun run habitat classify tools/habitat-harness/src/rules/rules.json`
-- `nx show project @internal/habitat-harness`
+- `bun run --cwd tools/habitat check`
+- `bun run --cwd tools/habitat test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/classify.test.ts test/lib/baseline.test.ts test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/lib/hooks.test.ts`
+- `bun run habitat classify tools/habitat/src/rules/rules.json`
+- `nx show project @habitat/cli`
 - `bun run openspec -- validate deep-habitat-d2-rule-registry-metadata-contract --strict`
 - `bun run openspec:validate`
 - `git diff --check`

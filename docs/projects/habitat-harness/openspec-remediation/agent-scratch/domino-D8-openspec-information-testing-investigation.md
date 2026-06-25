@@ -47,11 +47,11 @@ implementation.
   - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D7-final-openspec-information-review.md`
 - Domain and current-code evidence:
   - `docs/projects/habitat-harness/domain-mapping/domain-design-packet.md`
-  - `tools/habitat-harness/src/generators/pattern/generator.cjs`
-  - `tools/habitat-harness/src/generators/pattern/registration.cjs`
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `tools/habitat-harness/test/generators/pattern-generator.test.ts`
-  - `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
+  - `tools/habitat/src/generators/pattern/generator.cjs`
+  - `tools/habitat/src/generators/pattern/registration.cjs`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/test/generators/pattern-generator.test.ts`
+  - `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
 
 ## OpenSpec Artifact Findings
 
@@ -473,11 +473,11 @@ design/specification:
 Later implementation gates must include exact expected status, actual status,
 cache/freshness stance, non-claims, and blocker disposition. Minimum gates:
 
-- `bun run --cwd tools/habitat-harness test -- test/generators/pattern-generator.test.ts`
+- `bun run --cwd tools/habitat test -- test/generators/pattern-generator.test.ts`
   with bad cases for candidate non-registration, registered promotion without
   manifest, placeholder manifest, baseline missing, hook mismatch, active
   artifact collision, and candidate baseline collision.
-- `bun run --cwd tools/habitat-harness test -- test/rules/pattern-authority-manifest.test.ts`
+- `bun run --cwd tools/habitat test -- test/rules/pattern-authority-manifest.test.ts`
   with bad cases for missing/malformed/placeholder/contradicted/orphan
   manifests, Grit-only authority, Nx-options-only authority, hook mismatch,
   apply-safety contradiction, and retired/manifest-invalid lifecycle.
@@ -487,7 +487,7 @@ cache/freshness stance, non-claims, and blocker disposition. Minimum gates:
   apply-safe state.
 - Focused D13 handoff tests proving generated candidate output remains
   non-enforcing and registration prerequisites are explicit.
-- `bun run habitat classify tools/habitat-harness/src/rules/rules.json` only as
+- `bun run habitat classify tools/habitat/src/rules/rules.json` only as
   a D2/D4 compatibility observation, not as D8 admission proof.
 - A current-tree command proof only after D0/D1/D7 decide the relevant command
   output families; otherwise command proof remains blocked and non-authoritative.
@@ -613,7 +613,7 @@ requires:
 | D8-INFO-009 | P1 | D8 has no final rereview evidence and global constraints are not acceptance evidence. | Keep status BLOCKING until fresh final D8 rereviews record no unresolved P1/P2 against repaired disk state. |
 | D8-TEST-001 | P2 | Validation gates are command names without expected status, actual status, oracle, bad case, cache stance, non-claim, or blocker disposition. | Add design-time and later implementation validation matrices with exact oracles and bad cases. |
 | D8-TEST-002 | P2 | The current validation set does not falsify the central bad case: candidate output without accepted manifest, fixture proof, baseline authority, hook-scope decision, or apply-safety decision becomes registered or active. | Add candidate-not-registered bad-case tests and registration refusal tests. |
-| D8-TEST-003 | P2 | `bun run habitat classify tools/habitat-harness/src/rules/rules.json` is listed as a D8 gate even though it does not prove Pattern Governance admission. | Reclassify this as a compatibility observation with non-claims, or replace it with D8-specific projection/admission tests. |
+| D8-TEST-003 | P2 | `bun run habitat classify tools/habitat/src/rules/rules.json` is listed as a D8 gate even though it does not prove Pattern Governance admission. | Reclassify this as a compatibility observation with non-claims, or replace it with D8-specific projection/admission tests. |
 | D8-CTRL-001 | P2 | `phase-record.md` records a stale branch value. | Replace with `$ACTIVE_REMEDIATION_BRANCH` or the correct active branch. |
 | D8-CTRL-002 | P2 | Downstream realignment is generic and does not name the D9/D13 consumer contracts D8 enables. | Add concrete downstream rows for D9 apply governance and D13 candidate/generator refusal. |
 | D8-CTRL-003 | P2 | D8 closure checklist can pass without complete-standard wording audit or final rereview evidence. | Add wording audit and final rereview gates before any packet-index status movement. |

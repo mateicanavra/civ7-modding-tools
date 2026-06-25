@@ -53,11 +53,11 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 
 ### Habitat internal boundary tags
 
-`@internal/habitat-harness` remains one package, but Habitat's source is
+`@habitat/cli` remains one package, but Habitat's source is
 projected into inferred Nx boundary projects. Fixed roots cover the command
 surface, service shell, service model, provider implementations, shared
 resources, and runtime composition. Every directory under
-`tools/habitat-harness/src/service/modules/*` is inferred as the same
+`tools/habitat/src/service/modules/*` is inferred as the same
 `layer:service-module` kind, so future modules inherit the same boundary
 treatment without adding a concrete tag or constraint row.
 
@@ -101,23 +101,23 @@ treatment without adding a concrete tag or constraint row.
 | mod-civ7-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
 | civ-mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
 | @internal/habitat-artifacts | `.habitat` | `kind:tooling` |
-| @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
-| @internal/habitat-harness-service-shell | `tools/habitat-harness/src/service` | `kind:tooling`, `habitat:service`, `layer:service-shell` |
-| @internal/habitat-harness-service-model | `tools/habitat-harness/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |
-| @internal/habitat-harness-providers | `tools/habitat-harness/src/providers` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
-| @internal/habitat-harness-resources | `tools/habitat-harness/src/resources` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
-| @internal/habitat-harness-runtime | `tools/habitat-harness/src/runtime` | `kind:tooling`, `habitat:runtime` |
-| @internal/habitat-harness-cli | `tools/habitat-harness/src/cli` | `kind:tooling`, `habitat:cli` |
+| @habitat/cli | `tools/habitat` | `kind:tooling` |
+| @habitat/cli-service-shell | `tools/habitat/src/service` | `kind:tooling`, `habitat:service`, `layer:service-shell` |
+| @habitat/cli-service-model | `tools/habitat/src/service/model` | `kind:tooling`, `habitat:service`, `layer:service-model` |
+| @habitat/cli-providers | `tools/habitat/src/providers` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| @habitat/cli-resources | `tools/habitat/src/resources` | `kind:tooling`, `habitat:runtime`, `layer:resource-provider` |
+| @habitat/cli-runtime | `tools/habitat/src/runtime` | `kind:tooling`, `habitat:runtime` |
+| @habitat/cli-cli | `tools/habitat/src/cli` | `kind:tooling`, `habitat:cli` |
 
 Habitat service module projects are inferred from
-`tools/habitat-harness/src/service/modules/*` with project names
-`@internal/habitat-harness-service-module-<module>` and tags `kind:tooling`,
+`tools/habitat/src/service/modules/*` with project names
+`@habitat/cli-service-module-<module>` and tags `kind:tooling`,
 `habitat:service`, and `layer:service-module`. They are not enumerated here
 because the boundary rule applies to the kind, not to concrete module names.
 Each module-local `model` directory stays inside its owning service-module
 project. That makes same-module model access a normal same-project import and
 keeps sibling module model access red through the generic `layer:service-module`
-row. Only `tools/habitat-harness/src/service/model` is the shared
+row. Only `tools/habitat/src/service/model` is the shared
 `layer:service-model` project.
 
 ## 3. Dependency constraints (project plane, initial rule set)

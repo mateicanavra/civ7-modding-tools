@@ -24,16 +24,16 @@ Blocker: the current D12 OpenSpec disk state still lets a later implementation a
 - Current D12 packet: `openspec/changes/deep-habitat-d12-verify-handoff-receipt/{proposal.md,design.md,tasks.md,specs/habitat-harness/spec.md,workstream/phase-record.md,review-disposition-ledger.md,downstream-realignment-ledger.md,closure-checklist.md}`.
 - Accepted upstream OpenSpec changes: D0, D1, D3, and D7 under `openspec/changes/`.
 - Current code/tests/docs:
-  - `tools/habitat-harness/src/commands/verify.ts`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/lib/hooks.ts`
-  - `tools/habitat-harness/src/index.ts`
-  - `tools/habitat-harness/test/lib/verify-proof.test.ts`
-  - `tools/habitat-harness/test/commands/habitat-commands.test.ts`
-  - `tools/habitat-harness/test/lib/enforcement-surface.test.ts`
-  - `tools/habitat-harness/test/lib/hooks.test.ts`
-  - `tools/habitat-harness/docs/CAPABILITIES.md`
-  - `tools/habitat-harness/docs/SCENARIOS.md`
+  - `tools/habitat/src/commands/verify.ts`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/lib/hooks.ts`
+  - `tools/habitat/src/index.ts`
+  - `tools/habitat/test/lib/verify-proof.test.ts`
+  - `tools/habitat/test/commands/habitat-commands.test.ts`
+  - `tools/habitat/test/lib/enforcement-surface.test.ts`
+  - `tools/habitat/test/lib/hooks.test.ts`
+  - `tools/habitat/docs/CAPABILITIES.md`
+  - `tools/habitat/docs/SCENARIOS.md`
 
 ### Official Nx sources
 
@@ -51,7 +51,7 @@ Official Nx notes used for this lane:
 
 ### Command path
 
-`tools/habitat-harness/src/commands/verify.ts` is the oclif command boundary.
+`tools/habitat/src/commands/verify.ts` is the oclif command boundary.
 
 - Lines 11-14 define the public command summary and description as Habitat check plus hard-coded affected targets.
 - Lines 20-26 expose `--base` and `--json`; JSON mode is described as a `VerifyProof` artifact.
@@ -63,7 +63,7 @@ Current behavior already has useful ordering: Habitat check failure prevents Nx 
 
 ### Receipt assembly path
 
-`tools/habitat-harness/src/lib/command-engine.ts` currently owns the whole assembler.
+`tools/habitat/src/lib/command-engine.ts` currently owns the whole assembler.
 
 - Lines 101-166 define exported `VerifyProof` with command metadata, base, `habitatCheck`, `nxAffected`, `postState`, and `nonClaims`.
 - Lines 610-612 resolve verify base from flag, merge-base, or `main`.
@@ -80,14 +80,14 @@ The current code combines D7 check projection, D3 target selection, D12 receipt 
 
 ### Public exports
 
-`tools/habitat-harness/src/index.ts` exports `resolveVerifyBase` and `runAffectedVerification` at lines 37-38. It does not currently export `VerifyProof` or `createVerifyProof`. Any D12 public API change must cite D0 rows before source edits.
+`tools/habitat/src/index.ts` exports `resolveVerifyBase` and `runAffectedVerification` at lines 37-38. It does not currently export `VerifyProof` or `createVerifyProof`. Any D12 public API change must cite D0 rows before source edits.
 
 ### Hook comparison path
 
-`tools/habitat-harness/src/lib/hooks.ts` uses a different affected invocation for pre-push.
+`tools/habitat/src/lib/hooks.ts` uses a different affected invocation for pre-push.
 
 - The hook affected phase passes `nx affected -t biome:ci,boundaries,grit:check,habitat:check,test --base <base> --head HEAD --outputStyle=static`.
-- `tools/habitat-harness/test/lib/hooks.test.ts` asserts that exact command for explicit base, Graphite-parent base, merge-base, and `main` base cases.
+- `tools/habitat/test/lib/hooks.test.ts` asserts that exact command for explicit base, Graphite-parent base, merge-base, and `main` base cases.
 
 D12 does not own hook behavior, but the D12 packet must explain whether diagnostic verify should align with this operation shape or intentionally differ. Today the D12 packet does neither.
 
@@ -130,13 +130,13 @@ D12 must specify:
 
 The D12 packet should authorize a precise later write set before TypeScript source work starts:
 
-- `tools/habitat-harness/src/commands/verify.ts`: CLI orchestration, flags, exit behavior, human output.
-- `tools/habitat-harness/src/lib/command-engine.ts` or a new verify receipt module under `tools/habitat-harness/src/lib/`: receipt assembly, affected invocation wrapper, bounded stream recording, post-state observation helpers.
-- `tools/habitat-harness/src/index.ts`: only if D0 explicitly accepts an export change.
-- `tools/habitat-harness/test/lib/verify-proof.test.ts`: legacy JSON compatibility and target receipt schema tests.
-- `tools/habitat-harness/test/commands/habitat-commands.test.ts`: CLI ordering, JSON/human mode, and exit behavior tests.
-- `tools/habitat-harness/test/lib/enforcement-surface.test.ts`: public surface inventory adjustments if scripts or target ownership changes.
-- `tools/habitat-harness/docs/CAPABILITIES.md` and `tools/habitat-harness/docs/SCENARIOS.md`: public docs only after design/spec close the behavior.
+- `tools/habitat/src/commands/verify.ts`: CLI orchestration, flags, exit behavior, human output.
+- `tools/habitat/src/lib/command-engine.ts` or a new verify receipt module under `tools/habitat/src/lib/`: receipt assembly, affected invocation wrapper, bounded stream recording, post-state observation helpers.
+- `tools/habitat/src/index.ts`: only if D0 explicitly accepts an export change.
+- `tools/habitat/test/lib/verify-proof.test.ts`: legacy JSON compatibility and target receipt schema tests.
+- `tools/habitat/test/commands/habitat-commands.test.ts`: CLI ordering, JSON/human mode, and exit behavior tests.
+- `tools/habitat/test/lib/enforcement-surface.test.ts`: public surface inventory adjustments if scripts or target ownership changes.
+- `tools/habitat/docs/CAPABILITIES.md` and `tools/habitat/docs/SCENARIOS.md`: public docs only after design/spec close the behavior.
 - D12 OpenSpec files and workstream ledgers: proposal/design/tasks/spec/phase record/review disposition/downstream realignment.
 
 ### Protected paths and ownership boundaries
@@ -147,15 +147,15 @@ D12 should not edit or redefine:
 - D7 check execution, diagnostics, baselines, or report internals except to consume `VerifyCheckSummaryProjection`.
 - D1 naming and ontology contracts except by citing them.
 - D0 compatibility matrix rules except by citing the needed surface rows or recording a blocker when rows are absent.
-- Hook mechanics in `tools/habitat-harness/src/lib/hooks.ts` unless a separate D11-owned change accepts that scope.
-- Nx plugin graph inference in `tools/habitat-harness/src/plugin.ts` or generated target ownership without D3 approval.
+- Hook mechanics in `tools/habitat/src/lib/hooks.ts` unless a separate D11-owned change accepts that scope.
+- Nx plugin graph inference in `tools/habitat/src/plugin.ts` or generated target ownership without D3 approval.
 - Generated outputs, lockfiles, resource submodule contents, `.civ7/outputs/resources`, and runtime Civ7 control surfaces.
 
 ## Validation Matrix
 
 | Risk | Required D12 oracle | Required evidence |
 | --- | --- | --- |
-| Check failure still runs Nx | Unit test forces failing/refused D7 projection and asserts no Nx invocation, `nxAffected.status: "skipped"`, reason from projection, empty streams, empty projects, empty cache states, and null Nx exit. | `tools/habitat-harness/test/commands/habitat-commands.test.ts` plus receipt assembler test. |
+| Check failure still runs Nx | Unit test forces failing/refused D7 projection and asserts no Nx invocation, `nxAffected.status: "skipped"`, reason from projection, empty streams, empty projects, empty cache states, and null Nx exit. | `tools/habitat/test/commands/habitat-commands.test.ts` plus receipt assembler test. |
 | Nx nonzero exit looks successful | Unit test returns Nx exit 1 and asserts `nxAffected.status: "failed"`, command exit nonzero, bounded streams present, and no success wording. | Receipt assembler and CLI tests. |
 | Target list is still D12-local | Test injects D3 `VerifyTargetPlan` and asserts affected argv/receipt targets match the plan exactly; graph refusal prevents execution. | New or updated verify receipt test. |
 | Base/head semantics drift from Nx vendor contract | Test asserts full argv including `--base`, `--head`, and `--outputStyle`; packet records official Nx URLs. | CLI/assembler test and source register. |
@@ -169,7 +169,7 @@ D12 should not edit or redefine:
 
 Required gates for later packet closure:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/verify-proof.test.ts test/commands/habitat-commands.test.ts test/lib/enforcement-surface.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/verify-proof.test.ts test/commands/habitat-commands.test.ts test/lib/enforcement-surface.test.ts`
 - `bun run habitat verify --help`
 - `bun run openspec -- validate deep-habitat-d12-verify-handoff-receipt --strict`
 - `bun run openspec:validate`
@@ -190,13 +190,13 @@ P1.2: D12 does not specify the Nx affected invocation.
 
 - Evidence: `openspec/changes/deep-habitat-d12-verify-handoff-receipt/proposal.md:73-79` lists validation commands but no affected argv oracle.
 - Evidence: `openspec/changes/deep-habitat-d12-verify-handoff-receipt/tasks.md:14-16` asks implementation to define the assembler and streams/post-state/skipped states without exact Nx command mechanics.
-- Evidence: current code `tools/habitat-harness/src/lib/command-engine.ts:722-729` runs `nx affected` with target list and `--base` only, while hook pre-push uses `--base`, `--head HEAD`, and `--outputStyle=static`.
+- Evidence: current code `tools/habitat/src/lib/command-engine.ts:722-729` runs `nx affected` with target list and `--base` only, while hook pre-push uses `--base`, `--head HEAD`, and `--outputStyle=static`.
 - Why this blocks acceptance: official Nx docs make base/head comparison central, and D3 owns target plan facts. D12 cannot leave target list, head, output style, or target ordering to code author judgment.
 - Repair demand: Add an `Affected Invocation Contract` that names the source of targets as D3 `VerifyTargetPlan`, records exact argv including base/head/output style, defines ordering, and states the refusal behavior when graph facts are unavailable.
 
 P1.3: D12 does not specify post-state collection even though post-state is part of the source domino.
 
-- Evidence: source D12 requires git/resource post-state recording; current code records `git status --short` and `resources:status` at `tools/habitat-harness/src/lib/command-engine.ts:646-681`.
+- Evidence: source D12 requires git/resource post-state recording; current code records `git status --short` and `resources:status` at `tools/habitat/src/lib/command-engine.ts:646-681`.
 - Evidence: current D12 spec has no post-state requirement beyond the broad sentence in `design.md:24-26`.
 - Why this blocks acceptance: D1 defines `PostStateObservation`, and D12 must record what is observed, which commands are run, how failures are represented, and which claims are explicitly excluded.
 - Repair demand: Add `Post-State Observation Contract` with command names, cwd, exit code, bounded stdout/stderr, observation labels, failure representation, and canonical non-claims for tree cleanliness, Graphite readiness, apply safety, CI, and product/runtime behavior.
@@ -204,7 +204,7 @@ P1.3: D12 does not specify post-state collection even though post-state is part 
 P1.4: D12 does not consume the D7 check projection contract.
 
 - Evidence: D7 requires a `VerifyCheckSummaryProjection` with requested selectors, mode, selected rule ids, built-in rows, status counts, advisory/failing/refused/not-applicable counts, allowed affected execution, and skip reason.
-- Evidence: current code still emits `requestedSelectors: {}` at `tools/habitat-harness/src/lib/command-engine.ts:732-748`; current D12 does not forbid that representation.
+- Evidence: current code still emits `requestedSelectors: {}` at `tools/habitat/src/lib/command-engine.ts:732-748`; current D12 does not forbid that representation.
 - Why this blocks acceptance: selector state and check refusal are command boundary facts. Empty object output hides whether the selector state is absent, inherited, unsupported, or requested.
 - Repair demand: Add a D7 consumer section requiring the exact projection fields and explicit selector-state variants; tests must fail if the receipt contains an empty selector placeholder.
 
@@ -224,7 +224,7 @@ P2.2: D12 tasks are not implementation-ready.
 
 P2.3: D12 does not distinguish diagnostic verify from root graph proof strongly enough in the spec.
 
-- Evidence: `tools/habitat-harness/docs/CAPABILITIES.md:49-60` already warns that `bun run verify` and `bun run habitat verify` are different surfaces.
+- Evidence: `tools/habitat/docs/CAPABILITIES.md:49-60` already warns that `bun run verify` and `bun run habitat verify` are different surfaces.
 - Evidence: current D12 spec does not require that distinction in JSON/human/docs.
 - Risk: a handoff receipt may be mistaken for root graph proof or CI proof.
 - Repair demand: Add explicit non-claims and docs requirements stating that diagnostic verify is command-output receipt only and does not replace root Nx proof, CI proof, Graphite submit readiness, or runtime/product proof.
@@ -256,7 +256,7 @@ P3.2: D12 packet language still contains reduced-standard phrasing on disk.
 
 P3.3: Existing docs describe current behavior but are not yet tied to D12 acceptance.
 
-- Evidence: `tools/habitat-harness/docs/CAPABILITIES.md:40-47` names current verify behavior; `tools/habitat-harness/docs/SCENARIOS.md:78-93` gives a high-level diagnostic verify scenario.
+- Evidence: `tools/habitat/docs/CAPABILITIES.md:40-47` names current verify behavior; `tools/habitat/docs/SCENARIOS.md:78-93` gives a high-level diagnostic verify scenario.
 - Repair demand: D12 should require later docs updates after design closure, not before, and should name the exact docs surface rows under D0.
 
 ## Exact Repair Demands
