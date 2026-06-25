@@ -1,6 +1,7 @@
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
+  habitatArtifactsRoot,
   habitatCacheRepoPath,
   habitatCacheRepoPathPrefix,
 } from "@internal/habitat-harness/resources/artifact-paths";
@@ -146,7 +147,31 @@ function loadSourceCheckRuleModuleEffect(
   rule: RuleSourceFacts,
   options: SourceCheckOptions
 ): Effect.Effect<LoadedSourceRuleModule, never> {
-  const modulePath = sourceCheckRuleModuleRepoPath(rule.id);
+  return Effect.gen(function* () {
+    const modulePaths = yield* sourceCheckRuleModuleCandidateRepoPaths(rule.id, options);
+    let lastFailure: string | undefined;
+    for (const modulePath of modulePaths) {
+      const loaded = yield* importSourceCheckRuleModuleEffect(rule, options, modulePath);
+      if (loaded.module) return loaded;
+      lastFailure = loaded.loadFailure;
+    }
+    return {
+      rule,
+      modulePath: modulePaths[0] ?? sourceCheckRuleModuleRepoPath(rule.id),
+      loadFailure: lastFailure,
+    };
+  });
+}
+
+function moduleUrl(options: SourceCheckOptions, repoPath: string): string {
+  return pathToFileURL(path.join(options.repoRoot, repoPath)).href;
+}
+
+function importSourceCheckRuleModuleEffect(
+  rule: RuleSourceFacts,
+  options: SourceCheckOptions,
+  modulePath: string
+): Effect.Effect<LoadedSourceRuleModule, never> {
   return Effect.tryPromise({
     try: async () => ({
       rule,
@@ -168,8 +193,42 @@ function loadSourceCheckRuleModuleEffect(
   );
 }
 
-function moduleUrl(options: SourceCheckOptions, repoPath: string): string {
-  return pathToFileURL(path.join(options.repoRoot, repoPath)).href;
+function sourceCheckRuleModuleCandidateRepoPaths(
+  ruleId: string,
+  options: SourceCheckOptions
+): Effect.Effect<string[], never, any> {
+  const legacyPath = sourceCheckRuleModuleRepoPath(ruleId);
+  return findSourceCheckRuleModules(
+    path.join(options.repoRoot, habitatArtifactsRoot),
+    options,
+    (p) => toRepoRelative(options, p).endsWith(`/${ruleId}/${ruleId}.rule.mjs`)
+  ).pipe(
+    Effect.map((subjectLocalPaths) => sortedUnique([legacyPath, ...subjectLocalPaths])),
+    Effect.catchAll(() => Effect.succeed([legacyPath]))
+  );
+}
+
+function findSourceCheckRuleModules(
+  root: string,
+  options: Pick<SourceCheckOptions, "fileSystem" | "repoRoot">,
+  predicate: (absolutePath: string) => boolean
+): Effect.Effect<string[], unknown, any> {
+  return Effect.gen(function* () {
+    const entries = yield* options.fileSystem.readDirectory(root);
+    const groups = yield* Effect.all(
+      entries.map((entry) => {
+        const absolute = path.join(root, entry.name);
+        if (entry.kind === "directory") {
+          return findSourceCheckRuleModules(absolute, options, predicate);
+        }
+        return Effect.succeed(
+          entry.kind === "file" && predicate(absolute) ? [toRepoRelative(options, absolute)] : []
+        );
+      }),
+      { concurrency: 8 }
+    );
+    return groups.flat();
+  });
 }
 
 function sourceCheckRuleModuleFromModule(ruleId: string, module: unknown): SourceCheckRuleModule {
@@ -346,7 +405,7 @@ function collectDirectory(
   );
 }
 
-function toRepoRelative(options: SourceCheckOptions, candidate: string): string {
+function toRepoRelative(options: Pick<SourceCheckOptions, "repoRoot">, candidate: string): string {
   return path
     .relative(options.repoRoot, path.resolve(options.repoRoot, candidate))
     .split(path.sep)

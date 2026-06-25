@@ -1,4 +1,4 @@
-import { sourceCheckRuntime as runtime } from "../runtime/rule-runtime.policy.mjs";
+import { sourceCheckRuntime as runtime } from "../../../../../../habitat/toolkit/_self/triage/legacy-source-check/rule-runtime.policy.mjs";
 
 export const ruleId = "mapgen-core-runtime-civ7";
 export const candidateExtensions = [".ts"];

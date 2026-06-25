@@ -1,10 +1,13 @@
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 async function run(): Promise<void> {
-  const projectRoot = process.cwd();
+  const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+    encoding: "utf8",
+  }).trim();
+  const projectRoot = join(repoRoot, "apps/docs");
   const tmpRoot = mkdtempSync(join(tmpdir(), "mint-pages-only-"));
   try {
     // Copy minimal inputs

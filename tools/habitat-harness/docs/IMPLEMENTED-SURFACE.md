@@ -63,10 +63,8 @@ Implemented graph integration:
 - inferred `habitat:check` per rule owner;
 - inferred `habitat:rule:<rule-id>` aliases;
 - inferred repo-wide boundary, formatter, pattern, and generated-zone checks;
-- explicit package-owned `validate:boundary-taxonomy` target for current
-  workspace taxonomy validation;
-- explicit package-owned `validate:grit-patterns` target for checked-in
-  Habitat/Grit pattern fixture validation;
+- explicit package-owned `lint` target for current Toolkit read-only checks,
+  including CLI smoke, boundary taxonomy, and service-module shape;
 - public-surface guard logic owned in Habitat source, with the root lint script
   serving as the current-tree rule wrapper;
 - root scripts normalized onto workspace graph entrypoints instead of manual task
@@ -172,5 +170,4 @@ Current tests cover:
 
 These tests cover Habitat's enforcement and orchestration behavior. They do not
 cover current workspace topology by resolving the live graph; that validation is
-owned by graph targets such as `validate:boundary-taxonomy`, `boundaries`, and
-`source:check`.
+owned by graph targets such as `lint`, `boundaries`, and `source:check`.

@@ -1,4 +1,4 @@
-import { sourceCheckRuntime as runtime } from "../runtime/rule-runtime.policy.mjs";
+import { sourceCheckRuntime as runtime } from "../../../../../../habitat/toolkit/_self/triage/legacy-source-check/rule-runtime.policy.mjs";
 
 export const ruleId = "runtime-helper-redeclarations";
 export const candidateExtensions = [".ts"];

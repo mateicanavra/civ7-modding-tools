@@ -48,21 +48,21 @@ The root script `bun run habitat` dispatches to
 
 Root scripts also expose graph-owned entrypoints:
 
-- `bun run lint` runs the canonical repo-wide formatter hygiene target.
+- `bun run lint` runs the canonical curated Habitat rule group for root-visible
+  authority checks. Biome remains available as `bun run biome:ci`.
 - Curated package/script verification should call explicit Habitat rules with
   repeatable `--rule` selection. Broad full-suite structural verification is
   intended to live behind `bun run habitat:check`, `bun run check`, and
   `@internal/habitat-harness:habitat:check:all`, but that aggregate path has
   accumulated resolver/admission debt and is not currently a trustworthy
   acceptance proof. Treat it as a rebuild target, not as a surprising failure.
-- `@internal/habitat-harness:validate:boundary-taxonomy` runs the current
-  workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
-  target. It is part of root `bun run check:graph`, CI, Habitat verify, and
-  pre-push workstation target planning, not package unit tests.
-- `@internal/habitat-harness:validate:grit-patterns` runs checked-in Habitat
-  Grit pattern fixture validation through native `grit patterns test`. It is
-  part of root `bun run check:graph`, CI, Habitat verify, and pre-push
-  workstation target planning, not package unit tests.
+- `@internal/habitat-harness:lint` runs the admitted Toolkit read-only checks
+  for CLI smoke, boundary taxonomy, and service-module shape. The old
+  package-visible `validate:*` target family has been collapsed into this
+  single lint target.
+- Native `grit patterns test` validation is not exposed as a current package
+  script or graph target because this checkout no longer has an active testable
+  pattern corpus for that command.
 - `bun run check` runs the diagnostic Habitat structural aggregate.
 - `bun run check:graph` runs affected package checks and structural validation
   without dependency build/test fanout.
@@ -71,8 +71,8 @@ Root scripts also expose graph-owned entrypoints:
   explicit validation targets; Habitat artifact-only changes run Habitat
   structural/source-check targets instead of generic product `check`.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
-- `bun run ci` runs the full repo-wide build, check, lint, test, and structural
-  validation aggregate without re-entering `verify`.
+- `bun run ci` runs the full repo-wide build, check, lint, and test aggregate
+  without re-entering `verify`.
 - `bun run habitat:fix` runs `bun run habitat fix`.
 
 Important distinction: root `bun run verify` is a workspace aggregate. It is not
@@ -88,10 +88,9 @@ project manifests. Together they expose these Habitat-owned targets:
 - Repo-wide formatter targets
 - Repo-wide pattern checks
 - Repo-wide `generated:check`
-- Package-owned `validate:boundary-taxonomy` for current workspace taxonomy,
-  manifest, Nx metadata, boundary config, and graph-edge validation
-- Package-owned `validate:grit-patterns` for checked-in Habitat/Grit pattern
-  fixture validation
+- Package-owned `lint` for Toolkit CLI smoke, current workspace taxonomy,
+  manifest, Nx metadata, boundary config, graph-edge validation, and service
+  module shape
 - Aggregate `habitat:check:all` for one-pass full Habitat graph checks
   (known rebuild target until full-suite discovery/admission is repaired)
 - Per-rule `habitat:rule:<rule-id>` aliases
@@ -106,29 +105,31 @@ pure parser and audit model with fixtures.
 
 The rule registry is `.habitat/rules/index.json` and
 `.habitat/rules/<rule-id>/rule.json`. At this
-state it contains 49 registered rules:
+state it contains 60 registered rules:
 
 | Habitat lane | Count | Role |
 | --- | ---: | --- |
-| Pattern checks | 35 | Source-shape diagnostics over registered scan roots. |
+| Pattern checks | 29 | Source-shape diagnostics over registered scan roots. |
 | File protection | 5 | Generated-zone and forbidden-file staged checks. |
-| Native checks | 3 | Habitat structural rules and built-in checks. |
-| Command checks | 4 | Existing command-line gates wrapped without changing their semantics. |
+| Native checks | 1 | Habitat structural rules and built-in checks. |
+| Command checks | 23 | Existing command-line gates wrapped without changing their semantics. |
 | Formatter hygiene | 1 | Hygiene-layer CI gate. |
 | Project boundaries | 1 | Project-plane import boundary enforcement. |
 
 Lane state:
 
-- 48 enforced rules fail `habitat check` on unbaselined violations.
+- 59 enforced rules fail `habitat check` on unbaselined violations.
 - 1 advisory rule reports findings without failing the check.
 
 Owner state:
 
-- `mod-swooper-maps`: 29 rules
+- `mod-swooper-maps`: 36 rules
 - `@internal/habitat-harness`: 17 rules
 - `@swooper/mapgen-core`: 1 rule
 - `@civ7/control-orpc`: 1 rule
 - `@mateicanavra/civ7-sdk`: 1 rule
+- `mapgen-studio`: 2 rules
+- `@civ7/docs`: 2 rules
 
 ## Baselines
 
@@ -154,8 +155,8 @@ registered source rules through per-rule source-check modules.
 
 Current active source-check state:
 
-- 34 registered source-check rules in the rule registry.
-- 34 rule implementation modules under
+- 29 registered source-check rules in the rule registry.
+- 29 rule implementation modules under
   `tools/habitat-harness/src/service/modules/check/source/rules`.
 - Shared source-check TypeScript/text helpers live in
   `tools/habitat-harness/src/service/modules/check/source/rule-runtime.mjs`.

@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -7,9 +8,13 @@ function fail(message: string): never {
 }
 
 function main(): void {
-  const docsJsonPath = join(process.cwd(), "docs.json");
-  const indexMdxRoot = join(process.cwd(), "index.mdx");
-  const llmsTxtPath = join(process.cwd(), "public", "llms.txt");
+  const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
+    encoding: "utf8",
+  }).trim();
+  const docsRoot = join(repoRoot, "apps/docs");
+  const docsJsonPath = join(docsRoot, "docs.json");
+  const indexMdxRoot = join(docsRoot, "index.mdx");
+  const llmsTxtPath = join(docsRoot, "public", "llms.txt");
 
   if (!existsSync(docsJsonPath)) fail("docs.json missing");
   if (!existsSync(indexMdxRoot)) fail("index.mdx missing");

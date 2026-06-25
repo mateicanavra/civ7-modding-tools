@@ -1,0 +1,22 @@
+{
+  "id": "docs-site-config",
+  "ownerTool": "command-check",
+  "ownerProject": "@civ7/docs",
+  "lane": "enforced",
+  "scope": "apps/docs/docs.json, apps/docs/index.mdx, and apps/docs/public/llms.txt",
+  "forbids": "docs site configuration missing required root files or navigation shape",
+  "why": "The docs app must keep the site root and Mintlify navigation inputs present and structured.",
+  "detect": ["bun", ".habitat/docs/site/_self/check/docs-site-config/docs-site-config.check.ts"],
+  "remediate": "Restore apps/docs/docs.json, apps/docs/index.mdx, apps/docs/public/llms.txt, and a docs.json navigation object.",
+  "message": "Docs site configuration is missing required files or navigation shape.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["apps/docs/docs.json", "apps/docs/index.mdx", "apps/docs/public/llms.txt"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

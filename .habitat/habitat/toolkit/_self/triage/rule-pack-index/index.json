@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "ownerRoots": {
     "@civ7/control-orpc": "packages/civ7-control-orpc",
+    "@civ7/docs": "apps/docs",
     "@internal/habitat-harness": "tools/habitat-harness",
     "@mateicanavra/civ7-sdk": "packages/sdk",
     "@swooper/mapgen-core": "packages/mapgen-core",

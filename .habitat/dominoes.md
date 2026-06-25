@@ -240,10 +240,10 @@ What this did not prove:
 
 - Plain `habitat check` / `bun run habitat:check` full-suite execution remains
   broken and should not be treated as a known-good aggregate.
-- Long root/package aliases such as
-  `lint:domain-refactor-guardrails:strict-core` may still exist as caller
-  profiles even when they now route through Habitat. Those aliases are not final
-  authority; they are script-surface debt.
+- Root/package lint aliases should collapse into package-level `lint` scripts.
+  Profiled non-lint callers such as `ci:architecture-strict-core` may still
+  exist when they preserve an explicit environment profile while routing
+  through Habitat.
 - Existing rule violations, including the strict domain-refactor guardrail
   failure, remain policy burn-down work after the runner bridge reaches the
   rule.

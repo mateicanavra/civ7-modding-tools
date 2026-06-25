@@ -1,7 +1,4 @@
-// Habitat-owned command adapter. Integration note: this remains a TypeScript
-// script executed by the Habitat package target; a later slice should register
-// this adapter explicitly in rule metadata instead of relying on package script
-// naming.
+// Habitat-owned command-check adapter for boundary taxonomy validation.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { repoRoot } from "../../../../../../tools/habitat-harness/src/resources/paths.ts";

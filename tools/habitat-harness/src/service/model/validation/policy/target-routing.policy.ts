@@ -16,15 +16,9 @@ export interface ValidationTargetPlan {
 
 const habitatHarnessProject = "@internal/habitat-harness";
 const packageCheckTarget = "check";
+const packageLintTarget = "lint";
 const habitatToolingPrefixes = ["tools/habitat-harness/", ".habitat/tooling/"] as const;
-const boundaryTaxonomyTargetName = "validate:boundary-taxonomy";
-const gritPatternsTargetName = "validate:grit-patterns";
-const serviceModuleShapeTargetName = "validate:service-module-shape";
-const structuralTargetNames = [
-  boundaryTaxonomyTargetName,
-  gritPatternsTargetName,
-  serviceModuleShapeTargetName,
-] as const;
+const structuralTargetNames = [packageLintTarget] as const;
 
 export function graphCheckTargetNames(targetNames: WorkspaceGraphTargetNames): readonly string[] {
   return [
@@ -85,7 +79,6 @@ function artifactAffectedTargets(
   for (const ruleId of plan.nonSourceCheckRuleArtifactIds) {
     targets.add(`${targetNames.rulePrefix}${ruleId}`);
   }
-  if (plan.hasGritPatternArtifact) targets.add(gritPatternsTargetName);
   if (plan.hasUnclassifiedArtifact || targets.size === 0) targets.add(targetNames.check);
   return [...targets];
 }
@@ -97,12 +90,10 @@ function isHabitatToolingPath(filePath: string): boolean {
 function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly string[] {
   const targets = new Set<string>();
   for (const filePath of paths) {
-    if (isBoundaryTaxonomyToolingPath(filePath)) targets.add(boundaryTaxonomyTargetName);
-    if (isServiceModuleShapeToolingPath(filePath)) targets.add(serviceModuleShapeTargetName);
+    if (isBoundaryTaxonomyToolingPath(filePath)) targets.add(packageLintTarget);
+    if (isServiceModuleShapeToolingPath(filePath)) targets.add(packageLintTarget);
     if (isStructuralTargetDeclarationPath(filePath)) {
-      targets.add(boundaryTaxonomyTargetName);
-      targets.add(gritPatternsTargetName);
-      targets.add(serviceModuleShapeTargetName);
+      targets.add(packageLintTarget);
     }
   }
   return [...targets];
@@ -111,7 +102,7 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath ===
-      ".habitat/habitat/toolkit/_self/triage/boundary-taxonomy/validate-boundary-taxonomy.ts" ||
+      ".habitat/habitat/toolkit/_self/check/boundary-taxonomy/boundary-taxonomy.check.ts" ||
     filePath ===
       "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts" ||
     filePath === "tools/habitat-harness/src/validation/boundary-taxonomy-inputs.ts"
@@ -129,7 +120,7 @@ function isStructuralTargetDeclarationPath(filePath: string): boolean {
 function isServiceModuleShapeToolingPath(filePath: string): boolean {
   return (
     filePath ===
-      ".habitat/habitat/toolkit/_self/triage/service-module-shape/validate-service-module-shape.ts" ||
+      ".habitat/habitat/toolkit/_self/check/service-module-shape/service-module-shape.check.ts" ||
     filePath.startsWith("tools/habitat-harness/src/service/modules/")
   );
 }
