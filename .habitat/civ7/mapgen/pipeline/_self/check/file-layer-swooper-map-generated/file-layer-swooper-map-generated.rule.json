@@ -1,7 +1,7 @@
 {
   "id": "file-layer-swooper-map-generated",
   "ownerTool": "file-layer",
-  "ownerProject": "@habitat/cli",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "staged changes under mods/mod-swooper-maps/src/maps/generated/**",
   "forbids": "staged hand-edits to generated Swooper map entrypoints",

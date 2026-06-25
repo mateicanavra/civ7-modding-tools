@@ -204,7 +204,7 @@ describe("Habitat baseline contract", () => {
           {
             id: "existing-rule",
             ownerTool: "command-check",
-            ownerProject: "@habitat/cli",
+            ownerProject: "habitat",
           },
         ],
       }),
@@ -238,7 +238,7 @@ describe("Habitat baseline contract", () => {
           {
             changeId: "fixture-change",
             ruleId: "new-rule",
-            ownerProject: "@habitat/cli",
+            ownerProject: "habitat",
             ownerTool: "source-check",
             baselinePath: ".habitat/baselines/new-rule.json",
             initialBaselineKeys: ["src/example.ts::diagnostic"],
@@ -256,7 +256,7 @@ describe("Habitat baseline contract", () => {
           {
             changeId: "fixture-change",
             ruleId: "new-rule",
-            ownerProject: "@habitat/cli",
+            ownerProject: "habitat",
             ownerTool: "command-check",
             baselinePath: ".habitat/baselines/new-rule.json",
             initialBaselineKeys: ["src/example.ts::diagnostic"],
@@ -286,7 +286,7 @@ describe("Habitat baseline contract", () => {
           {
             changeId: "fixture-change",
             ruleId: "downstack-rule",
-            ownerProject: "@habitat/cli",
+            ownerProject: "habitat",
             ownerTool: "source-check",
             baselinePath: ".habitat/baselines/downstack-rule.json",
             initialBaselineKeys: [key],
@@ -397,7 +397,7 @@ describe("Habitat baseline contract", () => {
 function rule(
   id: string,
   exceptionPath = "none",
-  ownerProject = "@habitat/cli",
+  ownerProject = "habitat",
   ownerTool = "source-check"
 ): BaselineRuleContractInput {
   return {
@@ -560,7 +560,7 @@ function showMock(
         {
           schemaVersion: 1,
           ownerRoots: {
-            "@habitat/cli": "tools/habitat",
+            habitat: "tools/habitat",
           },
           rules: options.rulePackAtBase.map(baseRuleRecord),
         },
@@ -614,7 +614,7 @@ function commandResult(
 function baseRuleRecord(id: string) {
   return {
     id,
-    ownerProject: "@habitat/cli",
+    ownerProject: "habitat",
     ownerTool: "command-check",
     lane: "enforced",
     scope: "tools/habitat/**",

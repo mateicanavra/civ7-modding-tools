@@ -1,7 +1,7 @@
 {
   "id": "docs-local-checkout-paths",
   "ownerTool": "command-check",
-  "ownerProject": "@habitat/cli",
+  "ownerProject": "habitat",
   "lane": "advisory",
   "scope": "docs/**/*.md",
   "forbids": "absolute local checkout paths that carry a docs/...md suffix",

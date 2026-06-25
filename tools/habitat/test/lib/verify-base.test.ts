@@ -1,8 +1,5 @@
 import { makeGitProviderFromCommandHandler } from "@habitat/cli/providers/git/index";
-import {
-  captureOutput,
-  makeHabitatCommandResult,
-} from "@habitat/cli/resources/command/index";
+import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import { resolveVerifyBaseEffect } from "@habitat/cli/service/modules/verify/model/index";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";

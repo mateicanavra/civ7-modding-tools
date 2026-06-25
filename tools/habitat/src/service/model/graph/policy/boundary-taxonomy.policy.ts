@@ -202,13 +202,6 @@ export function auditBoundaryTaxonomy(input: {
         project: taxonomyProject.name,
         root: taxonomyProject.root,
       });
-    } else if (manifest.name !== taxonomyProject.name) {
-      issues.push({
-        reason: "manifest-name-mismatch",
-        message: `Manifest at ${taxonomyProject.root} is ${manifest.name}, but taxonomy lists ${taxonomyProject.name}.`,
-        project: taxonomyProject.name,
-        root: taxonomyProject.root,
-      });
     } else if (taxonomyProject.root === ".") {
       notes.push({
         reason: "workspace-root-not-nx-project",
@@ -393,10 +386,7 @@ function isNxInferredArtifactProject(project: TaxonomyProject): boolean {
 }
 
 function isNxInferredHabitatInternalProject(project: TaxonomyProject): boolean {
-  return (
-    project.name.startsWith("@habitat/cli-") &&
-    project.root.startsWith("tools/habitat/src/")
-  );
+  return project.name.startsWith("habitat-") && project.root.startsWith("tools/habitat/src/");
 }
 
 function isNxInferredHabitatServiceModuleProject(project: {
@@ -405,7 +395,7 @@ function isNxInferredHabitatServiceModuleProject(project: {
   tags: readonly string[];
 }): boolean {
   return (
-    project.name.startsWith("@habitat/cli-service-module-") &&
+    project.name.startsWith("habitat-service-") &&
     project.root.startsWith("tools/habitat/src/service/modules/") &&
     project.tags.includes("layer:service-module")
   );

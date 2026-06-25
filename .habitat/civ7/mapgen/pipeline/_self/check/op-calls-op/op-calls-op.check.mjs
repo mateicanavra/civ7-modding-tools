@@ -43,9 +43,7 @@ function walkFiles(root) {
 }
 
 function isOpRuntimeEntrypoint(file) {
-  return /\/mods\/mod-swooper-maps\/src\/domain\/[^/]+\/ops\/[^/]+\/index\.ts$/.test(
-    toPosix(file)
-  );
+  return /\/mods\/mod-swooper-maps\/src\/domain\/[^/]+\/ops\/[^/]+\/index\.ts$/.test(toPosix(file));
 }
 
 function scanModuleSources(sourceFile, file) {

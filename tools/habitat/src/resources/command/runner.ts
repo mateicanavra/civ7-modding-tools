@@ -9,10 +9,7 @@ import {
   unknownGitState,
 } from "@habitat/cli/providers/git/state";
 import { HabitatConfig, makeHabitatConfig } from "@habitat/cli/resources/config/index";
-import {
-  currentTimeMillis,
-  epochMillisToIsoString,
-} from "@habitat/cli/resources/platform/index";
+import { currentTimeMillis, epochMillisToIsoString } from "@habitat/cli/resources/platform/index";
 import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
 import { CommandInterrupted, CommandUnavailable } from "./errors.js";
 import { materializeHabitatCommandWithConfig } from "./materialize.js";

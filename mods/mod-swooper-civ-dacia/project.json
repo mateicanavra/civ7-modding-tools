@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "civ-mod-dacia",
+  "name": "mod-dacia",
   "tags": ["kind:mod"],
   "targets": {
     "deploy": {
@@ -8,7 +8,7 @@
       "dependsOn": [
         "build",
         {
-          "projects": ["@mateicanavra/civ7-cli"],
+          "projects": ["civ7-cli"],
           "target": "build"
         }
       ],

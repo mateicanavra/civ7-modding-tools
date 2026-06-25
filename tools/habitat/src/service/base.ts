@@ -34,9 +34,10 @@ export interface HabitatServiceDeps {
   readonly rules: RuleFactsCatalog;
 }
 
-export class HabitatServiceRuntime extends Context.Tag(
-  "@habitat/cli/HabitatServiceRuntime"
-)<HabitatServiceRuntime, { readonly service: "habitat" }>() {}
+export class HabitatServiceRuntime extends Context.Tag("@habitat/cli/HabitatServiceRuntime")<
+  HabitatServiceRuntime,
+  { readonly service: "habitat" }
+>() {}
 
 export type HabitatServiceRequirements =
   | HabitatServiceRuntime

@@ -120,7 +120,7 @@
       "command": "bun ./scripts/migrate-config-shapes.ts --dry",
       "dependsOn": [
         {
-          "projects": ["@swooper/mapgen-core"],
+          "projects": ["mapgen-core"],
           "target": "build"
         }
       ],
@@ -135,7 +135,7 @@
       "dependsOn": [
         "migrate:configs:check",
         {
-          "projects": ["@swooper/mapgen-core"],
+          "projects": ["mapgen-core"],
           "target": "build"
         }
       ],
@@ -227,7 +227,7 @@
       "dependsOn": [
         "build",
         {
-          "projects": ["@mateicanavra/civ7-cli"],
+          "projects": ["civ7-cli"],
           "target": "build"
         }
       ],

@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "mod-civ7-intelligence-bridge",
+  "name": "mod-intelligence-bridge",
   "tags": ["kind:mod", "kind:control"],
   "targets": {
     "build:bundle": {

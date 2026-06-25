@@ -1,7 +1,4 @@
-import {
-  GritProvider,
-  makeFakeGritProviderLayer,
-} from "@habitat/cli/providers/grit/index";
+import { GritProvider, makeFakeGritProviderLayer } from "@habitat/cli/providers/grit/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,

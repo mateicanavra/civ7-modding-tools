@@ -18,7 +18,7 @@
     "resources:publish": "bash ./packages/cli/scripts/resources-submodule/publish-submodule.sh",
     "resources:status": "bash ./packages/cli/scripts/resources-submodule/status.sh",
     "resources:unlock": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py",
-    "refresh:data": "bun run resources:init && nx run @civ7/plugin-files:build && nx run --project=@mateicanavra/civ7-cli --target=data:unzip:default",
+    "refresh:data": "bun run resources:init && nx run plugin-files:build && nx run --project=civ7-cli --target=data:unzip:default",
     "ci:architecture-strict-core": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun habitat check --rule domain-refactor-guardrails",
     "deploy:mods": "nx run-many --targets=deploy",
     "gt:import-worktree": "bash ./scripts/graphite-import-worktree.sh",

@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "@habitat/cli",
+  "name": "habitat",
   "tags": ["kind:tooling"],
   "targets": {
     "build:tsc": {

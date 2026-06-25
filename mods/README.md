@@ -194,7 +194,7 @@ git subtree pull --prefix=mods/another-mod mod-another-mod main
 - [ ] `git subtree add --prefix=mods/<slug> mod-<slug> <branch> [--squash]`
 - [ ] Normalize `package.json` to:
   - `private: true`
-  - `@mateicanavra/civ7-sdk: workspace:*`
+  - `civ7-sdk: workspace:*`
   - Build to `./mod/`
 - [ ] Validate build: `bun run --cwd mods/<mod-slug> build`
 - [ ] Push the subtree to mirror: `git subtree push --prefix=mods/<slug> mod-<slug> <branch>`

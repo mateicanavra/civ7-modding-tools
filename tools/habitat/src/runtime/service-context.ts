@@ -10,10 +10,7 @@ import { CommandRunner } from "@habitat/cli/resources/command/index";
 import { HabitatPlatform } from "@habitat/cli/resources/platform/index";
 import { silentHabitatReporter } from "@habitat/cli/resources/reporter/index";
 import { habitatServiceManagedRuntime } from "@habitat/cli/runtime/service-runtime";
-import type {
-  HabitatServiceContext,
-  HabitatServiceDeps,
-} from "@habitat/cli/service/base";
+import type { HabitatServiceContext, HabitatServiceDeps } from "@habitat/cli/service/base";
 import {
   loadRuleRegistryDocumentEffect,
   type RuleRegistryFileSystem,

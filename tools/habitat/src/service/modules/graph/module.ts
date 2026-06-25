@@ -5,7 +5,7 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@habitat/cli/resources/command/index";
-import { service, type HabitatModule } from "@habitat/cli/service/impl";
+import { type HabitatModule, service } from "@habitat/cli/service/impl";
 import { Effect } from "effect";
 import {
   GraphServiceBadRequestError,

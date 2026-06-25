@@ -1,8 +1,5 @@
 import { repoRoot } from "@habitat/cli/resources/paths";
-import {
-  type CheckOptions,
-  type CheckReport,
-} from "@habitat/cli/service/model/check/index";
+import { type CheckOptions, type CheckReport } from "@habitat/cli/service/model/check/index";
 import type { RuleSelection } from "@habitat/cli/service/model/rules/policy/selection.policy";
 import type { BaselineExpansionResult } from "@habitat/cli/service/modules/check/model/policy/baseline-expansion.policy";
 import { checkRouter } from "@habitat/cli/service/modules/check/router";
@@ -34,19 +31,16 @@ vi.mock(
   }
 );
 
-vi.mock(
-  "@habitat/cli/service/model/check/policy/structural/index",
-  async (importOriginal) => {
-    const actual =
-      await importOriginal<
-        typeof import("@habitat/cli/service/model/check/policy/structural/index")
-      >();
-    return {
-      ...actual,
-      createCheckReportEffect: mockCreateCheckReportEffect,
-    };
-  }
-);
+vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@habitat/cli/service/model/check/policy/structural/index")
+    >();
+  return {
+    ...actual,
+    createCheckReportEffect: mockCreateCheckReportEffect,
+  };
+});
 
 const mockReport = {
   schemaVersion: 1,

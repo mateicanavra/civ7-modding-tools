@@ -26,8 +26,8 @@ describe("verify receipt", () => {
       affectedResult: {
         exitCode: 0,
         stdout:
-          "> nx run @habitat/cli:boundaries  [existing outputs match the cache, left as is]\n" +
-          "> nx run @habitat/cli:check\n" +
+          "> nx run habitat:boundaries  [existing outputs match the cache, left as is]\n" +
+          "> nx run habitat:check\n" +
           "Nx read the output from the cache instead of running the command for 1 out of 2 tasks.\n",
         stderr: "warning stream\n",
       },
@@ -45,19 +45,19 @@ describe("verify receipt", () => {
     if (receipt.nxAffected.kind !== "executed") throw new Error("expected executed receipt");
     expect(receipt.nxAffected.stdoutLength).toBeGreaterThan(0);
     expect(receipt.nxAffected.stderrLength).toBe("warning stream\n".length);
-    expect(receipt.nxAffected.stdoutPreview).toContain("@habitat/cli:boundaries");
+    expect(receipt.nxAffected.stdoutPreview).toContain("habitat:boundaries");
     expect(receipt.nxAffected.stderrPreview).toBe("warning stream\n");
     expect(receipt.nxAffected.stdoutTruncated).toBe(false);
     expect(receipt.nxAffected.cacheStateByTask).toEqual([
       {
-        taskId: "@habitat/cli:boundaries",
-        project: "@habitat/cli",
+        taskId: "habitat:boundaries",
+        project: "habitat",
         target: "boundaries",
         cacheState: "cache-hit",
       },
       {
-        taskId: "@habitat/cli:check",
-        project: "@habitat/cli",
+        taskId: "habitat:check",
+        project: "habitat",
         target: "check",
         cacheState: "not-observed",
       },
@@ -271,7 +271,7 @@ describe("verify receipt", () => {
 function verifyTargetPlanFixture() {
   return verifyTargetPlan([
     {
-      name: "@habitat/cli",
+      name: "habitat",
       root: "tools/habitat",
       sourceRoot: null,
       tags: ["kind:tooling"],

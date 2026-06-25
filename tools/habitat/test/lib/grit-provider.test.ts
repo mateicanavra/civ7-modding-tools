@@ -7,10 +7,7 @@ import {
   runGritRulesEffect,
   validateScanRoots,
 } from "@habitat/cli/providers/grit/index";
-import {
-  parseGritCheckOutput,
-  parseGritCheckTextOutput,
-} from "@habitat/cli/providers/grit/output";
+import { parseGritCheckOutput, parseGritCheckTextOutput } from "@habitat/cli/providers/grit/output";
 import { decidePatternScanRoots } from "@habitat/cli/providers/grit/scan-roots/index";
 import {
   type HabitatProcessRequest,

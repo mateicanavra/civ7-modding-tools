@@ -1,16 +1,16 @@
 {
   "id": "import-boundaries",
   "ownerTool": "nx",
-  "ownerProject": "@habitat/cli",
+  "ownerProject": "habitat",
   "graphTarget": {
-    "project": "@habitat/cli",
+    "project": "habitat",
     "target": "boundaries"
   },
   "lane": "enforced",
   "scope": "all workspace project imports",
   "forbids": "cross-project imports that violate docs/projects/habitat-harness/taxonomy.md §3 or bypass package entrypoints with relative/absolute project imports",
   "why": "Project-plane architecture is graph law in H3: every workspace package carries kind:* tags and the tag constraints lock with an empty baseline.",
-  "detect": ["nx", "run", "@habitat/cli:boundaries"],
+  "detect": ["nx", "run", "habitat:boundaries"],
   "remediate": null,
   "message": "Fix the import edge or revise taxonomy.md and the boundary configuration together with recorded provenance; do not weaken the boundary config ad hoc.",
   "exceptionPath": "none",

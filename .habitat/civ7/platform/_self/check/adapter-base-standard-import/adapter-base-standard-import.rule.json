@@ -1,7 +1,7 @@
 {
   "id": "adapter-base-standard-import",
   "ownerTool": "source-check",
-  "ownerProject": "@habitat/cli",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "packages/**/*.ts outside packages/civ7-adapter",
   "forbids": "runtime /base-standard/ imports outside @civ7/adapter",

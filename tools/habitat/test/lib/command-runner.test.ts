@@ -13,10 +13,7 @@ import {
   renderCommandObservation,
 } from "@habitat/cli/resources/command/index";
 import { makeHabitatConfig } from "@habitat/cli/resources/config/index";
-import {
-  CommandInterrupted,
-  CommandUnavailable,
-} from "@habitat/cli/resources/errors/index";
+import { CommandInterrupted, CommandUnavailable } from "@habitat/cli/resources/errors/index";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import { Duration, Effect, Fiber, TestClock, TestContext } from "effect";
 import { describe, expect, test } from "vitest";

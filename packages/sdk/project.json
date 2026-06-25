@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "@mateicanavra/civ7-sdk",
+  "name": "civ7-sdk",
   "tags": ["kind:sdk"],
   "targets": {
     "publish:npm": {

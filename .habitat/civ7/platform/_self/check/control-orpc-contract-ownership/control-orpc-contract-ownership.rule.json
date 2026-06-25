@@ -1,7 +1,7 @@
 {
   "id": "control-orpc-contract-ownership",
   "ownerTool": "source-check",
-  "ownerProject": "@civ7/control-orpc",
+  "ownerProject": "control-orpc",
   "lane": "enforced",
   "scope": "packages/civ7-control-orpc/src/modules/**/contract.ts and root index",
   "forbids": "direct-control imports in contracts or contract-local schemas from public root",

@@ -1,9 +1,6 @@
 import { NodeContext } from "@effect/platform-node";
 import { makeBiomeProviderLayer } from "@habitat/cli/providers/biome/index";
-import {
-  makeGitProviderLayer,
-  makeGitStateProviderLayer,
-} from "@habitat/cli/providers/git/index";
+import { makeGitProviderLayer, makeGitStateProviderLayer } from "@habitat/cli/providers/git/index";
 import { makeGraphiteProviderLayer } from "@habitat/cli/providers/graphite/index";
 import { makeGritProviderLayer } from "@habitat/cli/providers/grit/index";
 import { makeNxProviderLayer } from "@habitat/cli/providers/nx/index";

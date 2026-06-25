@@ -27,7 +27,7 @@
       "dependsOn": [
         "build",
         {
-          "projects": ["@mateicanavra/civ7-cli"],
+          "projects": ["civ7-cli"],
           "target": "build"
         }
       ],
@@ -37,7 +37,7 @@
       "dependsOn": [
         "build",
         {
-          "projects": ["@habitat/cli"],
+          "projects": ["habitat"],
           "target": "build"
         }
       ],

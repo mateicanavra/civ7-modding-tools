@@ -8,7 +8,7 @@ export function registryDocument(rules: unknown[]): unknown {
   return {
     schemaVersion: 1,
     ownerRoots: {
-      "@habitat/cli": "tools/habitat",
+      habitat: "tools/habitat",
       "mod-swooper-maps": "mods/mod-swooper-maps",
     },
     rules,
@@ -27,7 +27,7 @@ export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryR
   const rule = {
     id: "sample-rule",
     ownerTool: "command-check",
-    ownerProject: "@habitat/cli",
+    ownerProject: "habitat",
     lane: "enforced",
     scope: "workspace",
     forbids: "broken structure",

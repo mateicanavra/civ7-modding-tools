@@ -93,7 +93,7 @@ export function normalizePatternScaffoldOptions(
     patternName,
     lifecycle: rawOptions.lifecycle ?? "candidate",
     identifier: identifierFor(patternName),
-    ownerProject: rawOptions.ownerProject ?? "@habitat/cli",
+    ownerProject: rawOptions.ownerProject ?? "habitat",
     openspecChangeId: rawOptions.openspecChangeId ?? "habitat-pattern-generator-metadata-repair",
     ...(rawOptions.manifestPath ? { manifestPath: rawOptions.manifestPath } : {}),
   });

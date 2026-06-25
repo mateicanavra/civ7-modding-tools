@@ -106,7 +106,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_SDK }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN_SDK }}
           NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
-        run: nx run @mateicanavra/civ7-sdk:publish:npm
+        run: nx run civ7-sdk:publish:npm
 
       - name: Publish CLI
         if: steps.target.outputs.target == 'cli' || steps.target.outputs.target == 'all'
@@ -114,4 +114,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_CLI }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN_CLI }}
           NPM_CONFIG_REGISTRY: https://npm.pkg.github.com
-        run: nx run @mateicanavra/civ7-cli:publish:npm
+        run: nx run civ7-cli:publish:npm

@@ -44,32 +44,32 @@ const rulesPath = path.join(repoRoot, ruleRegistryRepoPath);
 
 const harnessInternalBoundaryProjects = [
   {
-    name: "@habitat/cli-cli",
+    name: "habitat-cli",
     root: "tools/habitat/src/cli",
     tags: ["kind:tooling", "habitat:cli"],
   },
   {
-    name: "@habitat/cli-service-shell",
+    name: "habitat-service",
     root: "tools/habitat/src/service",
     tags: ["kind:tooling", "habitat:service", "layer:service-shell"],
   },
   {
-    name: "@habitat/cli-service-model",
+    name: "habitat-service-model",
     root: "tools/habitat/src/service/model",
     tags: ["kind:tooling", "habitat:service", "layer:service-model"],
   },
   {
-    name: "@habitat/cli-providers",
+    name: "habitat-providers",
     root: "tools/habitat/src/providers",
     tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
   },
   {
-    name: "@habitat/cli-resources",
+    name: "habitat-resources",
     root: "tools/habitat/src/resources",
     tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
   },
   {
-    name: "@habitat/cli-runtime",
+    name: "habitat-runtime",
     root: "tools/habitat/src/runtime",
     tags: ["kind:tooling", "habitat:runtime"],
   },
@@ -168,7 +168,7 @@ function harnessServiceModuleProjects(): Array<{
     .readdirSync(absoluteModulesRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => ({
-      name: `@habitat/cli-service-module-${entry.name}`,
+      name: `habitat-service-${entry.name}`,
       root: `${modulesRoot}/${entry.name}`,
       tags: ["kind:tooling", "habitat:service", "layer:service-module"] as const,
     }));
@@ -185,7 +185,7 @@ function addHarnessToolTargets(input: {
   records: readonly NxRuleRegistryRecord[];
   targetNames: ReturnType<typeof workspaceGraphTargetNames>;
 }) {
-  const harnessProject = "@habitat/cli";
+  const harnessProject = "habitat";
   const harnessRoot = input.ownerRoots.get(harnessProject);
   if (!harnessRoot) {
     throw new Error(
@@ -264,7 +264,7 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
     `{workspaceRoot}/.habitat/**/${rule.id}/**`,
     ...covered.inputs,
   ]);
-  if (rule.ownerProject === "@habitat/cli") {
+  if (rule.ownerProject === "habitat") {
     inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }
   if (rule.ownerTool === "source-check") {

@@ -1,8 +1,5 @@
 import { HabitatCommand } from "@habitat/cli/cli/base/HabitatCommand";
-import {
-  renderCheckReport,
-  verifyCheckSummary,
-} from "@habitat/cli/service/model/check/index";
+import { renderCheckReport, verifyCheckSummary } from "@habitat/cli/service/model/check/index";
 import { stringifyVerifyReceipt } from "@habitat/cli/service/modules/verify/model/index";
 import { Flags } from "@oclif/core";
 

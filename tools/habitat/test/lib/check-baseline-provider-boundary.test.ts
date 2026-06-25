@@ -2,10 +2,7 @@ import {
   makeFakeGitProviderLayer,
   makeGitProviderFromCommandHandler,
 } from "@habitat/cli/providers/git/index";
-import {
-  captureOutput,
-  makeHabitatCommandResult,
-} from "@habitat/cli/resources/command/index";
+import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import {
   isDirectory,
   isFile,
@@ -36,8 +33,12 @@ describe("check and baseline provider boundaries", () => {
       if (argv[0] === "merge-base") {
         return commandResult(argv, options.cwd, "merge-base-sha\n");
       }
-      if (argv[0] === "show" && argv[1] === "merge-base-sha:.habitat/rules/rules.json") {
-        return commandResult(argv, options.cwd, ruleRegistryJson(["existing-rule"]));
+      if (argv[0] === "ls-tree" && argv[4] === ".habitat") {
+        return commandResult(
+          argv,
+          options.cwd,
+          ".habitat/global/repository/_self/check/existing-rule/existing-rule.rule.json\n"
+        );
       }
       if (
         argv[0] === "show" &&
@@ -75,7 +76,12 @@ describe("check and baseline provider boundaries", () => {
     ]);
     expect(gitCalls).toEqual([
       ["merge-base", "HEAD", "main"],
-      ["show", "merge-base-sha:.habitat/rules/rules.json"],
+      ["show", "merge-base-sha:.habitat/rules.json"],
+      [
+        "show",
+        "merge-base-sha:tools/habitat/src/service/model/check/policy/rule-runtime/rules.json",
+      ],
+      ["ls-tree", "-r", "--name-only", "merge-base-sha", ".habitat"],
       ["show", "merge-base-sha:.habitat/baselines/existing-rule.json"],
     ]);
   });
@@ -140,7 +146,7 @@ function baselineRule(id: string) {
   return {
     id,
     exceptionPath: "none",
-    ownerProject: "@habitat/cli",
+    ownerProject: "habitat",
     ownerTool: "source-check",
   } as const;
 }
@@ -154,33 +160,6 @@ function baselineFileSystemPort() {
     readText,
     writeText,
   };
-}
-
-function ruleRegistryJson(ruleIds: readonly string[]) {
-  return JSON.stringify(
-    {
-      schemaVersion: 1,
-      ownerRoots: {
-        "@habitat/cli": "tools/habitat",
-      },
-      rules: ruleIds.map((id) => ({
-        id,
-        ownerProject: "@habitat/cli",
-        ownerTool: "command-check",
-        lane: "enforced",
-        scope: "tools/habitat/**",
-        forbids: "fixture violation",
-        why: "fixture base registry record for provider-boundary tests",
-        detect: ["fixture", id],
-        remediate: null,
-        message: "fixture baseline authority diagnostic",
-        exceptionPath: "none",
-        pathCoverage: [{ kind: "workspace-gate" }],
-      })),
-    },
-    null,
-    2
-  );
 }
 
 function commandResult(

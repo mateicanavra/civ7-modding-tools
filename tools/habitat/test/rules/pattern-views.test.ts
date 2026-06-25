@@ -173,7 +173,7 @@ function candidateManifest() {
     patternName: "candidate_probe",
     lifecycle: "candidate" as const,
     openspecChangeId: "deep-habitat-d8-patterns",
-    ownerProject: "@habitat/cli",
+    ownerProject: "habitat",
     ownerTool: "source-check" as const,
     candidateArtifacts: {
       patternPath: ".habitat/patterns/candidates/candidate_probe.md",

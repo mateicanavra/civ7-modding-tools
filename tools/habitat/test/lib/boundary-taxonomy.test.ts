@@ -17,37 +17,37 @@ describe("boundary taxonomy verifier", () => {
     const taxonomy = parseBoundaryTaxonomy(await readTaxonomyMarkdown());
 
     expect(taxonomy.projects).toContainEqual({
-      name: "@habitat/cli",
+      name: "habitat",
       root: "tools/habitat",
       tags: ["kind:tooling"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "@habitat/cli-providers",
+      name: "habitat-providers",
       root: "tools/habitat/src/providers",
       tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "@habitat/cli-resources",
+      name: "habitat-resources",
       root: "tools/habitat/src/resources",
       tags: ["kind:tooling", "habitat:runtime", "layer:resource-provider"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "@habitat/cli-runtime",
+      name: "habitat-runtime",
       root: "tools/habitat/src/runtime",
       tags: ["kind:tooling", "habitat:runtime"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "@habitat/cli-service-model",
+      name: "habitat-service-model",
       root: "tools/habitat/src/service/model",
       tags: ["kind:tooling", "habitat:service", "layer:service-model"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "@internal/habitat-artifacts",
+      name: "habitat-artifacts",
       root: ".habitat",
       tags: ["kind:tooling"],
     });
     expect(taxonomy.projects).toContainEqual({
-      name: "mod-civ7-intelligence-bridge",
+      name: "mod-intelligence-bridge",
       root: "mods/mod-civ7-intelligence-bridge",
       tags: ["kind:mod", "kind:control"],
     });
@@ -74,7 +74,7 @@ describe("boundary taxonomy verifier", () => {
           .map((project) => [project.name, project.root, project.tags])
       ),
       configConstraints: taxonomy.constraints,
-      graphEdges: [{ source: "@civ7/adapter", target: "@civ7/types" }],
+      graphEdges: [{ source: "civ7-adapter", target: "civ7-types" }],
     });
 
     expect(audit.ok).toBe(true);
@@ -95,14 +95,14 @@ describe("boundary taxonomy verifier", () => {
       reason: "nx-inferred-artifact-project",
       message:
         "The Habitat artifact root is an inferred Nx project-plane node, not a package manifest workspace.",
-      project: "@internal/habitat-artifacts",
+      project: "habitat-artifacts",
       root: ".habitat",
     });
     expect(audit.notes).toContainEqual({
       reason: "nx-inferred-habitat-internal-project",
       message:
         "The Habitat internal root is an inferred Nx project-plane node, not a package manifest workspace.",
-      project: "@habitat/cli-service-shell",
+      project: "habitat-service",
       root: "tools/habitat/src/service",
     });
   });
@@ -129,8 +129,8 @@ describe("boundary taxonomy verifier", () => {
       ),
       configConstraints: taxonomy.constraints,
       graphEdges: [
-        { source: "@civ7/types", target: "@civ7/adapter" },
-        { source: "mod-civ7-intelligence-bridge", target: "@mateicanavra/civ7-sdk" },
+        { source: "civ7-types", target: "civ7-adapter" },
+        { source: "mod-intelligence-bridge", target: "civ7-sdk" },
       ],
     });
 
@@ -216,7 +216,7 @@ function manifestBackedProjects(projects: Array<{ name: string; root: string; ta
       (project) => project.root !== ".habitat" && !isInferredHabitatInternalRoot(project.root)
     )
     .map((project) => ({
-      name: project.name,
+      name: packageNameForRoot(project.root) ?? project.name,
       root: project.root,
       tags: project.root === "." ? [] : project.tags,
     }));
@@ -224,4 +224,33 @@ function manifestBackedProjects(projects: Array<{ name: string; root: string; ta
 
 function isInferredHabitatInternalRoot(root: string): boolean {
   return root.startsWith("tools/habitat/src/");
+}
+
+function packageNameForRoot(root: string): string | null {
+  return (
+    (
+      {
+        "apps/docs": "@civ7/docs",
+        "apps/playground": "@civ7/playground",
+        "mods/mod-civ7-intelligence-bridge": "mod-civ7-intelligence-bridge",
+        "mods/mod-swooper-civ-dacia": "civ-mod-dacia",
+        "packages/civ7-adapter": "@civ7/adapter",
+        "packages/civ7-control-orpc": "@civ7/control-orpc",
+        "packages/civ7-direct-control": "@civ7/direct-control",
+        "packages/civ7-map-policy": "@civ7/map-policy",
+        "packages/civ7-types": "@civ7/types",
+        "packages/cli": "@mateicanavra/civ7-cli",
+        "packages/config": "@civ7/config",
+        "packages/mapgen-core": "@swooper/mapgen-core",
+        "packages/mapgen-viz": "@swooper/mapgen-viz",
+        "packages/plugins/plugin-files": "@civ7/plugin-files",
+        "packages/plugins/plugin-git": "@civ7/plugin-git",
+        "packages/plugins/plugin-graph": "@civ7/plugin-graph",
+        "packages/plugins/plugin-mods": "@civ7/plugin-mods",
+        "packages/sdk": "@mateicanavra/civ7-sdk",
+        "packages/studio-server": "@civ7/studio-server",
+        "tools/habitat": "@habitat/cli",
+      } satisfies Record<string, string>
+    )[root] ?? null
+  );
 }

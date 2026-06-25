@@ -16,32 +16,32 @@ bun run test
 ### Developing the CLI (@mateicanavra/civ7-cli)
 - Local dev:
   ```bash
-  nx run @mateicanavra/civ7-cli:dev
+  nx run civ7-cli:dev
   ```
 - Global link (optional):
   ```bash
-  nx run @mateicanavra/civ7-cli:link:global
+  nx run civ7-cli:link:global
   civ7 --help
   ```
 
 ### Workspace apps/packages
 - Docs:
   ```bash
-  nx run @civ7/docs:dev
-  nx run @civ7/docs:fix:mdx-links
+  nx run civ7-docs:dev
+  nx run civ7-docs:fix:mdx-links
   ```
 - CLI:
   ```bash
-  nx run @mateicanavra/civ7-cli:build
+  nx run civ7-cli:build
   node packages/cli/bin/run.js --help
   ```
 - SDK:
   ```bash
-  nx run @mateicanavra/civ7-sdk:build
+  nx run civ7-sdk:build
   ```
 - Playground:
   ```bash
-  nx run @civ7/playground:dev
+  nx run civ7-playground:dev
   ```
 - MapGen Studio:
   ```bash
@@ -53,16 +53,16 @@ bun run test
 ### Project task commands
 - Dev per package:
   ```bash
-  nx run @mateicanavra/civ7-cli:dev
-  nx run @mateicanavra/civ7-sdk:dev
-  nx run @civ7/docs:dev
-  nx run @civ7/playground:dev
+  nx run civ7-cli:dev
+  nx run civ7-sdk:dev
+  nx run civ7-docs:dev
+  nx run civ7-playground:dev
   ```
 - Run CLI from root:
   ```bash
-  nx run @mateicanavra/civ7-cli:dev -- <civ7-command-and-args>
+  nx run civ7-cli:dev -- <civ7-command-and-args>
   # example
-  nx run @mateicanavra/civ7-cli:dev -- data unzip default
+  nx run civ7-cli:dev -- data unzip default
   ```
 
 ## Outputs policy
@@ -84,7 +84,7 @@ bun run test
 
 ## Publish readiness (Phase 9)
 - SDK: `bun pm pack --cwd packages/sdk` (validation only; do not commit `.tgz`)
-- CLI: `nx run @mateicanavra/civ7-cli:link:global && civ7 --help`
+- CLI: `nx run civ7-cli:link:global && civ7 --help`
 
 ## Package Validation
 
@@ -92,10 +92,10 @@ Use root scripts for package validation so Nx builds workspace
 dependencies before running package tests:
 
 ```bash
-nx run @mateicanavra/civ7-cli:build
-nx run @mateicanavra/civ7-cli:test
-nx run @mateicanavra/civ7-cli:test:play
-nx run @mateicanavra/civ7-cli:check
+nx run civ7-cli:build
+nx run civ7-cli:test
+nx run civ7-cli:test:play
+nx run civ7-cli:check
 ```
 
 Avoid package-local CLI tests such as `bun run --cwd packages/cli test` unless
@@ -103,9 +103,9 @@ the dependency graph has already been built. The CLI imports compiled workspace
 packages like `@civ7/direct-control`, so package-local tests can otherwise read
 stale `dist/` output.
 
-`nx run @mateicanavra/civ7-cli:link:global` follows the same rule: it builds `@mateicanavra/civ7-cli`
-through Nx first, including the oclif manifest generation in the package
-build, then registers the package binary as the global `civ7` command.
+`nx run civ7-cli:link:global` follows the same rule: it builds the CLI package through Nx first,
+including the oclif manifest generation in the package build, then registers the package binary as
+the global `civ7` command.
 
 Normal package-local `dev`, `build`, `check`, and `test` scripts must stay
 leaf-local. They should not call `scripts/preflight`, run `bun --filter`, run
@@ -139,8 +139,8 @@ The publish workflow will build, lint, test, typecheck, then publish the targete
 ### Local publish (optional)
 From repo root:
 ```bash
-nx run @mateicanavra/civ7-sdk:publish:npm   # publish SDK
-nx run @mateicanavra/civ7-cli:publish:npm   # publish CLI
+nx run civ7-sdk:publish:npm   # publish SDK
+nx run civ7-cli:publish:npm   # publish CLI
 # publish both by running the SDK command first, then the CLI command
 ```
 

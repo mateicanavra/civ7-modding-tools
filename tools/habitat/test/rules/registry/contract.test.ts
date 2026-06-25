@@ -56,7 +56,7 @@ describe("rule registry contract", () => {
       [fallbackIndex]: JSON.stringify({
         schemaVersion: 1,
         ownerRoots: {
-          "@habitat/cli": "tools/habitat",
+          habitat: "tools/habitat",
         },
       }),
       [rulePath]: JSON.stringify(baseRule()),
@@ -186,7 +186,7 @@ describe("rule registry contract", () => {
           {
             ...baseRule(),
             ownerTool: "nx",
-            nxTarget: "@habitat/cli:test:wrapped",
+            nxTarget: "habitat:test:wrapped",
           },
         ]),
         "inline-registry.json"

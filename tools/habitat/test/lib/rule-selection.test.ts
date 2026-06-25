@@ -1,17 +1,17 @@
-import { repoRoot } from "@habitat/cli/resources/paths";
 import { makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
+import { repoRoot } from "@habitat/cli/resources/paths";
 import {
   checkCommandContext,
   renderCheckReport,
   structuralCheckRequest,
   validateCheckReport,
 } from "@habitat/cli/service/model/check/index";
+import { executeCommandRulesEffect } from "@habitat/cli/service/model/check/policy/structural/command-execution.policy";
 import {
   rulesForExecution,
   selectorRefusalReportEffect,
   stagedSourceCheckNotApplicableRecords,
 } from "@habitat/cli/service/model/check/policy/structural/index";
-import { executeCommandRulesEffect } from "@habitat/cli/service/model/check/policy/structural/command-execution.policy";
 import type {
   RuleCommandExecutionFacts,
   RuleRegistryRecordV1,

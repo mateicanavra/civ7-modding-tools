@@ -1,7 +1,7 @@
 {
   "id": "habitat-provider-domain-paths",
   "ownerTool": "grit-check",
-  "ownerProject": "@habitat/cli",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "tools/habitat/src/providers/grit/**",
   "forbids": "product/domain scan roots hard-coded inside the Grit provider",

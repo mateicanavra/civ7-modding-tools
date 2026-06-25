@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "@civ7/control-orpc",
+  "name": "control-orpc",
   "tags": ["kind:control"],
   "targets": {
     "build": {
@@ -15,7 +15,7 @@
       "command": "tsc -p tsconfig.json --noEmit",
       "dependsOn": [
         {
-          "projects": ["@civ7/direct-control"],
+          "projects": ["control-direct"],
           "target": "build"
         }
       ],

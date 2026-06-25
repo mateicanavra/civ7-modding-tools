@@ -1,7 +1,7 @@
 import type { NxTargetDefinition } from "../dto/target-definition.schema.js";
 
 const workspaceCwd = { cwd: "{workspaceRoot}" };
-const habitatCliBuildDependency = { projects: ["@habitat/cli"], target: "build" };
+const habitatCliBuildDependency = { projects: ["habitat"], target: "build" };
 
 export function habitatInputs(): string[] {
   return [

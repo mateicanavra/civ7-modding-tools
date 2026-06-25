@@ -21,5 +21,5 @@ Scope: `packages/civ7-control-orpc/**`
 Validate with:
 
 - `bun run --cwd packages/civ7-control-orpc test`
-- `nx run @civ7/control-orpc:check`
+- `nx run control-orpc:check`
 - `bun run --cwd packages/civ7-control-orpc build`

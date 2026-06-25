@@ -29,7 +29,7 @@ describe("Habitat config resource", () => {
 
     expect(config).toMatchObject({
       repoRoot: "/tmp/effect-config-repo",
-      harnessRoot: "/tmp/effect-config-repo/tools/habitat",
+      harnessRoot: "/tmp/effect-config-repo/tools/habitat-harness",
       cacheRoot: "/tmp/effect-config-cache",
       patternCacheRoot: "/tmp/effect-config-patterns",
       telemetryDisabled: false,

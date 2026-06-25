@@ -23,9 +23,10 @@ const morphologyStages = [
 ].map((stage) => path.join(stagesRoot, stage));
 const morphologyContractFiles = [
   path.join(stagesRoot, "morphology/artifacts.ts"),
-  ...existingFiles(morphologyStages.map((root) => path.join(root, "steps")), [".ts"]).filter(
-    (file) => file.endsWith("contract.ts") || file.endsWith("artifacts.ts")
-  ),
+  ...existingFiles(
+    morphologyStages.map((root) => path.join(root, "steps")),
+    [".ts"]
+  ).filter((file) => file.endsWith("contract.ts") || file.endsWith("artifacts.ts")),
 ];
 const morphologyHydrologyFiles = existingFiles(
   [...morphologyStages, path.join(stagesRoot, "hydrology-climate-baseline/steps")],
@@ -34,11 +35,21 @@ const morphologyHydrologyFiles = existingFiles(
 const findings = [];
 
 for (const file of morphologyContractFiles) {
-  findings.push(...textFindings(file, ["westContinent", "eastContinent", "LandmassRegionId"], "runtime-continent-contract"));
+  findings.push(
+    ...textFindings(
+      file,
+      ["westContinent", "eastContinent", "LandmassRegionId"],
+      "runtime-continent-contract"
+    )
+  );
 }
 for (const file of morphologyHydrologyFiles) {
   findings.push(
-    ...textFindings(file, ["westContinent", "eastContinent", "LandmassRegionId", "markLandmassId("], "runtime-continent-step")
+    ...textFindings(
+      file,
+      ["westContinent", "eastContinent", "LandmassRegionId", "markLandmassId("],
+      "runtime-continent-step"
+    )
   );
 }
 for (const file of existingFiles(morphologyStages, [".ts"])) {
@@ -46,18 +57,33 @@ for (const file of existingFiles(morphologyStages, [".ts"])) {
   const text = read(file);
   for (const match of text.matchAll(/publishStoryOverlay\s*\([\s\S]{0,200}\)/gu)) {
     if (/HOTSPOTS|["']hotspots["']/.test(match[0])) {
-      findings.push({ file: repoRel(file), line: lineOf(text, match.index ?? 0), rule: "morphology-hotspot-overlay", detail: match[0].trim() });
+      findings.push({
+        file: repoRel(file),
+        line: lineOf(text, match.index ?? 0),
+        rule: "morphology-hotspot-overlay",
+        detail: match[0].trim(),
+      });
     }
   }
 }
 for (const file of walkFiles(path.join(stagesRoot, "morphology-coasts/steps"), [".ts"])) {
   findings.push(...textFindings(file, ["morphology.dualRead", "dualRead"], "morphology-dual-read"));
 }
-for (const file of existingFiles(morphologyStages.map((root) => path.join(root, "steps")), [".ts"]).filter((file) => file.endsWith("contract.ts"))) {
-  findings.push(...textFindings(file, ["artifact:storyOverlays"], "morphology-story-overlay-contract"));
+for (const file of existingFiles(
+  morphologyStages.map((root) => path.join(root, "steps")),
+  [".ts"]
+).filter((file) => file.endsWith("contract.ts"))) {
+  findings.push(
+    ...textFindings(file, ["artifact:storyOverlays"], "morphology-story-overlay-contract")
+  );
 }
-for (const file of existingFiles(morphologyStages.map((root) => path.join(root, "steps")), [".ts"]).filter((file) => !file.endsWith("contract.ts"))) {
-  findings.push(...textFindings(file, ["overlays.js", "readOverlay"], "morphology-overlay-implementation"));
+for (const file of existingFiles(
+  morphologyStages.map((root) => path.join(root, "steps")),
+  [".ts"]
+).filter((file) => !file.endsWith("contract.ts"))) {
+  findings.push(
+    ...textFindings(file, ["overlays.js", "readOverlay"], "morphology-overlay-implementation")
+  );
 }
 
 for (const file of walkFiles(srcRoot, [".ts"])) {
@@ -75,31 +101,68 @@ for (const file of walkFiles(srcRoot, [".ts"])) {
     )
   );
 }
-for (const file of [...walkFiles(path.join(modRoot, "src/maps"), [".ts"]), path.join(modRoot, "test/standard-run.test.ts")]) {
+for (const file of [
+  ...walkFiles(path.join(modRoot, "src/maps"), [".ts"]),
+  path.join(modRoot, "test/standard-run.test.ts"),
+]) {
   const text = read(file);
   for (const pattern of [/\blandmass\s*:/gu, /\boceanSeparation\s*:/gu]) {
     for (const match of text.matchAll(pattern)) {
-      findings.push({ file: repoRel(file), line: lineOf(text, match.index ?? 0), rule: "legacy-morphology-config-key", detail: match[0] });
+      findings.push({
+        file: repoRel(file),
+        line: lineOf(text, match.index ?? 0),
+        rule: "legacy-morphology-config-key",
+        detail: match[0],
+      });
     }
   }
 }
 
-const landmassContract = path.join(stagesRoot, "morphology-coasts/steps/landmassPlates.contract.ts");
+const landmassContract = path.join(
+  stagesRoot,
+  "morphology-coasts/steps/landmassPlates.contract.ts"
+);
 const mountainsContract = path.join(stagesRoot, "morphology-features/steps/mountains.contract.ts");
 findings.push(
   ...assertContains(landmassContract, "mapArtifacts.foundationCrustTiles", "belt-driver-contract"),
-  ...assertContains(landmassContract, "mapArtifacts.foundationTectonicHistoryTiles", "belt-driver-contract"),
-  ...assertContains(landmassContract, "mapArtifacts.foundationTectonicProvenanceTiles", "belt-driver-contract"),
+  ...assertContains(
+    landmassContract,
+    "mapArtifacts.foundationTectonicHistoryTiles",
+    "belt-driver-contract"
+  ),
+  ...assertContains(
+    landmassContract,
+    "mapArtifacts.foundationTectonicProvenanceTiles",
+    "belt-driver-contract"
+  ),
   ...assertContains(landmassContract, "morphologyArtifacts.beltDrivers", "belt-driver-contract"),
   ...assertContains(mountainsContract, "morphologyArtifacts.beltDrivers", "belt-driver-contract")
 );
 findings.push(
-  ...textFindings(landmassContract, ["mapArtifacts.foundationPlates"], "legacy-plate-driver-contract"),
-  ...textFindings(mountainsContract, ["mapArtifacts.foundationTectonicHistoryTiles", "mapArtifacts.foundationTectonicProvenanceTiles", "mapArtifacts.foundationPlates"], "legacy-plate-driver-contract")
+  ...textFindings(
+    landmassContract,
+    ["mapArtifacts.foundationPlates"],
+    "legacy-plate-driver-contract"
+  ),
+  ...textFindings(
+    mountainsContract,
+    [
+      "mapArtifacts.foundationTectonicHistoryTiles",
+      "mapArtifacts.foundationTectonicProvenanceTiles",
+      "mapArtifacts.foundationPlates",
+    ],
+    "legacy-plate-driver-contract"
+  )
 );
 
 const plotMountains = path.join(stagesRoot, "map-morphology/steps/plotMountains.ts");
-findings.push(...textFindings(plotMountains, ["foundationPlates", "foundationArtifacts.plates"], "plot-mountains-legacy-plates"));
+findings.push(
+  ...textFindings(
+    plotMountains,
+    ["foundationPlates", "foundationArtifacts.plates"],
+    "plot-mountains-legacy-plates"
+  )
+);
 
 const hotspotPublishers = walkFiles(srcRoot, [".ts"])
   .filter((file) => {
@@ -111,15 +174,28 @@ const hotspotPublishers = walkFiles(srcRoot, [".ts"])
   .map((file) => path.relative(srcRoot, file).split(path.sep).join("/"))
   .sort();
 findings.push(
-  ...assertEqual(hotspotPublishers, ["domain/narrative/tagging/hotspots.ts"], "hotspot-overlay-owner", "HOTSPOTS publishers")
+  ...assertEqual(
+    hotspotPublishers,
+    ["domain/narrative/tagging/hotspots.ts"],
+    "hotspot-overlay-owner",
+    "HOTSPOTS publishers"
+  )
 );
 
-const morphologyEffectFiles = existingFiles([...morphologyStages, path.join(srcRoot, "recipes/standard/tags.ts")], [".ts"]);
+const morphologyEffectFiles = existingFiles(
+  [...morphologyStages, path.join(srcRoot, "recipes/standard/tags.ts")],
+  [".ts"]
+);
 for (const file of morphologyEffectFiles) {
   findings.push(
     ...textFindings(
       file,
-      ["landmassApplied", "coastlinesApplied", "effect:engine.landmassApplied", "effect:engine.coastlinesApplied"],
+      [
+        "landmassApplied",
+        "coastlinesApplied",
+        "effect:engine.landmassApplied",
+        "effect:engine.coastlinesApplied",
+      ],
       "legacy-morphology-effect-gating"
     )
   );

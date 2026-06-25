@@ -1,11 +1,6 @@
 {
   "name": "@civ7/types",
   "version": "0.1.0",
-  "nx": {
-    "tags": [
-      "kind:foundation"
-    ]
-  },
   "description": "TypeScript type definitions for Civilization VII modding runtime environment",
   "types": "./index.d.ts",
   "exports": {

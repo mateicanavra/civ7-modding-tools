@@ -1,7 +1,7 @@
 {
   "id": "docs-site-links",
   "ownerTool": "command-check",
-  "ownerProject": "@civ7/docs",
+  "ownerProject": "civ7-docs",
   "lane": "enforced",
   "scope": "apps/docs/**/*.mdx and apps/docs/docs.json",
   "forbids": "broken Mintlify page links in the docs site",

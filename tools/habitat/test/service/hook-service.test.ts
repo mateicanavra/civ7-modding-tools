@@ -4,10 +4,7 @@ import {
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "@habitat/cli/providers/biome/index";
-import {
-  GitProvider,
-  makeFakeGitProviderLayer,
-} from "@habitat/cli/providers/git/index";
+import { GitProvider, makeFakeGitProviderLayer } from "@habitat/cli/providers/git/index";
 import {
   GraphiteProvider,
   makeFakeGraphiteProviderLayer,
@@ -20,17 +17,11 @@ import {
   type NxRunTargetRequest,
   runTargetArgv,
 } from "@habitat/cli/providers/nx/index";
-import {
-  captureOutput,
-  makeHabitatCommandResult,
-} from "@habitat/cli/resources/command/index";
+import { captureOutput, makeHabitatCommandResult } from "@habitat/cli/resources/command/index";
 import type { HabitatCommandResult } from "@habitat/cli/resources/command/types";
 import { repoRoot } from "@habitat/cli/resources/paths";
 import type { HabitatReportEvent } from "@habitat/cli/resources/reporter/index";
-import type {
-  CheckOptions,
-  CheckReport,
-} from "@habitat/cli/service/model/check/index";
+import type { CheckOptions, CheckReport } from "@habitat/cli/service/model/check/index";
 import type {
   HookPreCommitInput,
   HookPrePushInput,
@@ -50,19 +41,16 @@ const mockCreateCheckReportEffect = vi.hoisted(() =>
   vi.fn<StructuralCheckPolicy["createReport"]>()
 );
 
-vi.mock(
-  "@habitat/cli/service/model/check/policy/structural/index",
-  async (importOriginal) => {
-    const actual =
-      await importOriginal<
-        typeof import("@habitat/cli/service/model/check/policy/structural/index")
-      >();
-    return {
-      ...actual,
-      createCheckReportEffect: mockCreateCheckReportEffect,
-    };
-  }
-);
+vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@habitat/cli/service/model/check/policy/structural/index")
+    >();
+  return {
+    ...actual,
+    createCheckReportEffect: mockCreateCheckReportEffect,
+  };
+});
 
 const prePushAffectedTargets = "check,lint";
 const prePushSourceArtifactTargets = "source:check";
@@ -447,12 +435,10 @@ describe("Habitat hook service", () => {
     );
 
     expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain(
-      "habitat hook pre-push: repo Nx target @habitat/cli:check"
-    );
+    expect(result.stdout).toContain("habitat hook pre-push: repo Nx target habitat:check");
     expect(result.stdout).toContain("target ok");
     expect(result.stdout).toContain("habitat hook pre-push: no repo Nx affected targets selected");
-    expect(runTargetRequests).toEqual([{ project: "@habitat/cli", target: "check" }]);
+    expect(runTargetRequests).toEqual([{ project: "habitat", target: "check" }]);
     expect(affectedRequests).toEqual([]);
   });
 
@@ -460,8 +446,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath =
-      "tools/habitat/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
+    const changedPath = "tools/habitat/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -498,7 +483,7 @@ describe("Habitat hook service", () => {
     );
 
     expect(result.exitCode).toBe(0);
-    expect(runTargetRequests).toEqual([{ project: "@habitat/cli", target: "check" }]);
+    expect(runTargetRequests).toEqual([{ project: "habitat", target: "check" }]);
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
@@ -550,7 +535,7 @@ describe("Habitat hook service", () => {
     );
 
     expect(result.exitCode).toBe(0);
-    expect(runTargetRequests).toEqual([{ project: "@habitat/cli", target: "check" }]);
+    expect(runTargetRequests).toEqual([{ project: "habitat", target: "check" }]);
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",

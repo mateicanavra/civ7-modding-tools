@@ -1,9 +1,6 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { GitStateProvider } from "@habitat/cli/providers/git/index";
-import {
-  type CommandProviderError,
-  CommandRunner,
-} from "@habitat/cli/resources/command/index";
+import { type CommandProviderError, CommandRunner } from "@habitat/cli/resources/command/index";
 import type { HabitatConfig } from "@habitat/cli/resources/config/index";
 import { Context, Effect, Layer } from "effect";
 

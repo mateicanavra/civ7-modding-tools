@@ -42,7 +42,7 @@ execution. That path depends on generated `dist/` files and has failed mid-turn
 when the worktree was not freshly built. Nx graph targets and package-local commands
 are for building, testing, linking, or developing the CLI; they are not the live
 turn-control surface. If `civ7` does not expose an expected command, relink with
-`nx run @mateicanavra/civ7-cli:link:global` from the support worktree, then return to `civ7 game ...`.
+`nx run civ7-cli:link:global` from the support worktree, then return to `civ7 game ...`.
 
 ## Loader Order
 

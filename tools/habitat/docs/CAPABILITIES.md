@@ -52,9 +52,9 @@ Root scripts also expose graph-owned entrypoints:
   available as `bun run biome:ci`.
 - Habitat structural verification lives behind generated owner and rule targets:
   `nx run-many -t habitat:check`, `nx run <project>:habitat:check`, and
-  `@habitat/cli:habitat:check:all`. Curated direct `habitat check --rule`
+  `habitat:habitat:check:all`. Curated direct `habitat check --rule`
   invocations are for diagnostics and focused proof, not package script policy.
-- `@habitat/cli:habitat:check` runs the Toolkit-owned Habitat rules for CLI
+- `habitat:habitat:check` runs the Toolkit-owned Habitat rules for CLI
   smoke, boundary taxonomy, service-module shape, and other registered
   `@habitat/cli` rules.
 - Native `grit patterns test` validation is not exposed as a current package
