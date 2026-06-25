@@ -104,3 +104,16 @@ runId `3efbb0139ba2c71f227dbc367a2c421e479bd387ccffa0fe9c8cfa87cb770993` (latest
   op), R3 (relocate the shelf to a post-features `morphology-shelf` stage so islands get true
   shelves — the "misplaced" fix), R5 (pure reconcile-heightfield op; thin the carving step). The
   shelf physics is already correct; R3 only changes *where* it is computed (post-erosion/post-island).
+- **R1/R3/R5 landed (2026-06-21).** R1/R5 byte-identical (shipped-map-identity + ecology fingerprints
+  unchanged). R3 map-affecting, re-verified headless (full mod suite 592 pass; recipe DAG clean;
+  habitat architecture green; configs migrated with tuned values preserved). See REDESIGN.md
+  "Implementation status" for mechanics.
+- **R3 reef/atoll consequence (verified, append-only):** the post-island shelf converts nearshore
+  warm shallow banks into coast; atolls require warm shallow OPEN-ocean (Civ7 rejects FEATURE_ATOLL on
+  coast). So wide-shelf continental maps yield ~0 atolls (wide=0 / normal=2 / narrow=7 on
+  swooper-earthlike s1018) — an explicit `shelfWidth` tradeoff, not a scoring defect (gate-survivor
+  probe: ~200 warm in-band candidates, but the shallow/high-score ones are now shelf; atolls on shelf
+  only apply-time-reject). C9 adjustment: `requireAtolls` dropped from the two continental earthlike
+  maps; the 3 atoll-themed maps keep it; `desert-mountains` `reefMax` 0.04→0.047 (atolls 109→138).
+- **R7 live re-verification (R3 is map-affecting):** the step-7 `studio-run-in-game-live` gate must be
+  re-run on latest_juicy at the R3 stack tip before closure (the prior live PASS predates R3).
