@@ -61,7 +61,7 @@ This command will install all necessary dependencies, build the CLI, and create 
 
 ```bash
 bun install --frozen-lockfile
-bun run link:cli
+nx run @mateicanavra/civ7-cli:link:global
 ```
 You only need to run this command once for the initial setup, or whenever you pull changes that affect dependencies or the CLI source code.
 

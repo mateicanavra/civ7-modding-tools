@@ -109,7 +109,6 @@
     }
   },
   "scripts": {
-    "build": "tsup --config tsup.config.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "clean": "rimraf dist"

@@ -17,13 +17,13 @@ Runs:
 To run only the Vitest projects:
 
 ```bash
-bun run test:vitest
+bunx vitest run
 ```
 
 To run only the mapgen-core Bun tests:
 
 ```bash
-bun run test:mapgen
+nx run @swooper/mapgen-core:test
 ```
 
 To run only the mod tests:
@@ -35,7 +35,7 @@ nx run mod-swooper-maps:test
 ## Visualizing test runs
 
 ```bash
-bun run test:ui
+bunx vitest --ui
 ```
 
 Opens the interactive Vitest UI for all workspaces.
@@ -43,7 +43,7 @@ Opens the interactive Vitest UI for all workspaces.
 ## Running a single workspace
 
 ```bash
-bun run test:vitest -- --project <name>
+bunx vitest run --project <name>
 ```
 
 Use the project name from `vitest.config.ts` (`cli`, `sdk`, `docs`, or `playground`) to target an individual suite.

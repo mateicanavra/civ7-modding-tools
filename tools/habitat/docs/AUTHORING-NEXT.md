@@ -47,10 +47,10 @@ Preferred slice:
 4. Insert the step into an existing stage or generate a small dedicated stage if
    that is the clean current convention.
 5. Run generated code through:
-   - `bun run habitat classify <generated diff>`;
+   - `bun habitat classify <generated diff>`;
    - owning package `check`;
    - owning package `test` where relevant;
-   - `bun run habitat:check`;
+   - `nx run-many -t habitat:check`;
    - recipe compilation or the closest current recipe validation.
 
 If current conventions make this slice wrong, choose the smallest complete

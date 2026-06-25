@@ -101,8 +101,8 @@ classification and authority layout only.
 
 Runner status note: curated `habitat check --rule <id>` execution is the
 currently proven bridge for package scripts. Plain `habitat check` /
-`bun run habitat:check` full-suite execution has known resolver/admission debt
-and should be treated as a rebuild target rather than a surprising failure. The
+graph-wide `nx run-many -t habitat:check` full-suite execution has known
+resolver/admission debt and should be treated as a rebuild target rather than a surprising failure. The
 full-suite runner should be rebuilt around `.habitat/**/_self/<kind>/<packet>/`
 discovery, path-inferred niche/kind identity, explicit triage exclusion, and
 clear packet-level diagnostics.

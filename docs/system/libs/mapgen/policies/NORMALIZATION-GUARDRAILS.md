@@ -48,10 +48,10 @@ completed implementation record.
 
 ## Commands
 
-- `bun run habitat:check -- --rule normalization-guardrails`
-- `bun run habitat:check -- --rule domain-refactor-guardrails`
-- `bun run habitat:check -- --tool pattern-check`
-- `bun run habitat:check -- --rule adapter-boundary`
+- `bun habitat check --rule normalization-guardrails`
+- `bun habitat check --rule domain-refactor-guardrails`
+- `bun habitat check --tool pattern-check`
+- `bun habitat check --rule adapter-boundary`
 - `bun run lint:mapgen-docs`
 
 ## Ground truth anchors

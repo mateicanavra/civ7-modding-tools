@@ -11,7 +11,7 @@ for agents entering the toolkit.
 Use:
 
 ```bash
-bun run habitat classify mods/mod-swooper-maps/src/recipes/standard/recipe.ts
+bun habitat classify mods/mod-swooper-maps/src/recipes/standard/recipe.ts
 ```
 
 Supported outcome:
@@ -29,7 +29,7 @@ Use this before touching unfamiliar code.
 Use:
 
 ```bash
-bun run habitat classify path/to/change.patch
+bun habitat classify path/to/change.patch
 ```
 
 Supported outcome:
@@ -48,7 +48,7 @@ or mod boundaries.
 Use:
 
 ```bash
-bun run habitat:check
+nx run-many -t habitat:check
 ```
 
 Supported outcome:
@@ -58,7 +58,7 @@ Supported outcome:
 - baseline integrity is checked;
 - enforced findings fail;
 - advisory findings report without failing;
-- JSON output is available with `bun run habitat check -- --json`.
+- JSON output is available with `bun habitat check --json`.
 
 ### Run Graph-Owned Repo Checks
 
@@ -66,23 +66,21 @@ Use:
 
 ```bash
 bun run check
-bun run check:graph
+nx run-many -t habitat:check
 bun run verify
 ```
 
 Supported outcome:
 
 - `check` runs graph-discovered package check targets;
-- `check:graph` expands affected projects and runs package checks plus
-  structural validation targets without dependency build/test fanout;
+- `nx run-many -t habitat:check` runs graph-owned Habitat structural targets;
 - `verify` runs heavier package build/check/test verification targets;
 - Habitat checks participate through generated owner-level `habitat:check`
   targets.
 
-Use `bun run check` for package health, `bun run habitat:check` for Habitat
-structural ownership checks, `bun run check:graph` when the change needs
-affected package type-check and structural coverage, and `bun run verify` when
-it needs the heavier build/check/test aggregate. CI runs the full graph without
+Use `bun run check` for package health, `nx run-many -t habitat:check` for
+Habitat structural ownership checks, and `bun run verify` when the change needs
+the heavier build/check/test aggregate. CI runs the full graph without
 re-entering `verify`.
 
 Pre-push is a local feedback path, not a synonym for `check:graph`: it checks
@@ -94,7 +92,7 @@ explicit validation targets.
 Use:
 
 ```bash
-bun run habitat verify -- --base <ref>
+bun habitat verify --base <ref>
 ```
 
 Supported outcome:
@@ -171,8 +169,8 @@ is useful; the manifest and review must establish that.
 Use:
 
 ```bash
-bun run habitat:fix -- --dry-run
-bun run habitat:fix
+bun habitat fix --dry-run
+bun habitat fix
 ```
 
 Supported outcome:
@@ -191,8 +189,8 @@ available in the current toolkit.
 Use:
 
 ```bash
-bun run habitat hook pre-commit
-bun run habitat hook pre-push
+bun habitat hook pre-commit
+bun habitat hook pre-push
 ```
 
 Supported outcome:

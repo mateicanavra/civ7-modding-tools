@@ -1,0 +1,240 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "mod-swooper-maps",
+  "tags": ["kind:mod"],
+  "targets": {
+    "build": {
+      "command": "tsup",
+      "dependsOn": ["^build", "gen:maps"],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "env": "SWOOPER_STUDIO_RUN_ID"
+        },
+        {
+          "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+        }
+      ],
+      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "build:studio-recipes": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/src/maps/generated/**"],
+      "dependsOn": ["build:studio-recipes:maps"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "build:studio-deploy": {
+      "command": "tsup",
+      "inputs": [
+        "default",
+        {
+          "env": "SWOOPER_STUDIO_RUN_ID"
+        },
+        {
+          "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+        }
+      ],
+      "outputs": ["{projectRoot}/mod/**", "{projectRoot}/src/maps/generated/**"],
+      "dependsOn": ["^build", "gen:maps"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "check": {
+      "command": "tsc --noEmit",
+      "dependsOn": ["^build", "build"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test": {
+      "command": "bun test",
+      "dependsOn": ["^build", "build:studio-recipes", "test:architecture-static-guardrails"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test:studio-run-in-game": {
+      "command": "bun test test/standard-run.test.ts test/build/map-bundle-runtime-imports.test.ts test/config/maps-schema-valid.test.ts test/config/shipped-map-identity.test.ts",
+      "dependsOn": ["build:studio-recipes"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test:architecture-cutover": {
+      "command": "bun habitat check --rule op-calls-op --rule cutover-source-guardrails --rule standard-stage-topology",
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test:architecture-rng-authority": {
+      "command": "bun habitat check --rule rng-authority-static",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test:architecture-static-guardrails": {
+      "command": "bun habitat check --rule op-calls-op --rule ecology-step-imports --rule cutover-source-guardrails --rule rng-authority-static --rule standard-stage-topology --rule map-projection-callsite-ownership --rule map-contract-surfaces --rule foundation-contract-surfaces --rule morphology-contract-surfaces --rule domain-config-catalogs",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test:architecture-ecology-step-imports": {
+      "command": "bun habitat check --rule ecology-step-imports",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test:architecture-m11-projection-band": {
+      "command": "bun test test/foundation/m11-projection-boundary-band.test.ts",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "test:architecture-map-bundle-runtime-imports": {
+      "command": "bun test test/build/map-bundle-runtime-imports.test.ts",
+      "dependsOn": ["build"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "migrate:configs:check": {
+      "command": "bun ./scripts/migrate-config-shapes.ts --dry",
+      "dependsOn": [
+        {
+          "projects": ["@swooper/mapgen-core"],
+          "target": "build"
+        }
+      ],
+      "inputs": ["default", "^default"],
+      "cache": true,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "gen:maps": {
+      "command": "bun ./scripts/generate-map-artifacts.ts",
+      "dependsOn": [
+        "migrate:configs:check",
+        {
+          "projects": ["@swooper/mapgen-core"],
+          "target": "build"
+        }
+      ],
+      "inputs": [
+        "default",
+        "^default",
+        {
+          "env": "SWOOPER_STUDIO_RUN_ID"
+        },
+        {
+          "env": "SWOOPER_INCLUDE_STUDIO_CURRENT"
+        }
+      ],
+      "outputs": [
+        "{projectRoot}/mod/**",
+        "{projectRoot}/src/maps/generated/**",
+        "{projectRoot}/dist/recipes/standard-map-config.schema.json",
+        "{projectRoot}/dist/recipes/standard-map-configs.js",
+        "{projectRoot}/dist/recipes/standard-map-configs.d.ts"
+      ],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "build:studio-recipes:bundle": {
+      "command": "tsup --config tsup.studio-recipes.config.ts",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**"],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "gen:studio-recipes-types": {
+      "command": "bun ./scripts/generate-studio-recipe-types.ts",
+      "dependsOn": ["build:studio-recipes:bundle"],
+      "cache": true,
+      "outputs": [
+        "{projectRoot}/dist/recipes/standard.schema.json",
+        "{projectRoot}/dist/recipes/standard.defaults.json",
+        "{projectRoot}/dist/recipes/standard.presets.json",
+        "{projectRoot}/dist/recipes/standard.d.ts",
+        "{projectRoot}/dist/recipes/standard-artifacts.js",
+        "{projectRoot}/dist/recipes/standard-artifacts.d.ts"
+      ],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "build:studio-recipes:maps": {
+      "command": "bun ./scripts/generate-map-artifacts.ts",
+      "dependsOn": ["migrate:configs:check", "gen:studio-recipes-types"],
+      "cache": true,
+      "outputs": [
+        "{projectRoot}/dist/recipes/standard-map-config.schema.json",
+        "{projectRoot}/dist/recipes/standard-map-configs.js",
+        "{projectRoot}/dist/recipes/standard-map-configs.d.ts",
+        "{projectRoot}/src/maps/generated/**"
+      ],
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "viz:standard": {
+      "command": "bun ./src/dev/viz/standard-run.ts",
+      "dependsOn": ["viz:runtime-deps"],
+      "cache": false,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "diag:dump": {
+      "command": "bun ./src/dev/diagnostics/run-standard-dump.ts",
+      "dependsOn": ["viz:runtime-deps"],
+      "cache": false,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "viz:runtime-deps": {
+      "command": "node ./scripts/ensure-viz-runtime-deps.mjs",
+      "cache": false,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    },
+    "deploy": {
+      "command": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-maps",
+      "dependsOn": [
+        "build",
+        {
+          "projects": ["@mateicanavra/civ7-cli"],
+          "target": "build"
+        }
+      ],
+      "cache": false,
+      "options": {
+        "cwd": "mods/mod-swooper-maps"
+      }
+    }
+  }
+}

@@ -33,25 +33,25 @@ Those are authoring-workflow capabilities, and they remain explicit gaps.
 
 ## Command Surface
 
-The root script `bun run habitat` dispatches to
+The direct command `bun habitat` dispatches through the root `habitat` script to
 `tools/habitat/bin/dev.ts`, which runs the oclif command set from
 `tools/habitat/src/cli/commands`. The available commands are:
 
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
-| `check` | `bun run habitat check`; graph entrypoint: `bun run habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
-| `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
-| `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
-| `fix` | `bun run habitat fix`, `bun run habitat:fix` | Runs the approved Habitat apply transaction, then hands changed files to the formatter. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
-| `graph` | `bun run habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
-| `hook` | `bun run habitat hook pre-commit`, `bun run habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
+| `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
+| `verify` | `bun habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
+| `classify` | `bun habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
+| `fix` | `bun habitat fix` | Runs the approved Habitat apply transaction, then hands changed files to the formatter. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
+| `graph` | `bun habitat graph --json` | Runs workspace graph generation and prints the project graph JSON. |
+| `hook` | `bun habitat hook pre-commit`, `bun habitat hook pre-push` | Provides the stable Husky hook entrypoint. Hooks are local friction reduction; CI and explicit verification remain authoritative. |
 
 Root scripts also expose graph-owned entrypoints:
 
 - `bun run lint` runs graph-discovered package lint targets. Biome remains
   available as `bun run biome:ci`.
 - Habitat structural verification lives behind generated owner and rule targets:
-  `bun run habitat:check`, `nx run <project>:habitat:check`, and
+  `nx run-many -t habitat:check`, `nx run <project>:habitat:check`, and
   `@habitat/cli:habitat:check:all`. Curated direct `habitat check --rule`
   invocations are for diagnostics and focused proof, not package script policy.
 - `@habitat/cli:habitat:check` runs the Toolkit-owned Habitat rules for CLI
@@ -61,19 +61,16 @@ Root scripts also expose graph-owned entrypoints:
   script or graph target because this checkout no longer has an active testable
   pattern corpus for that command.
 - `bun run check` runs graph-discovered package check targets.
-- `bun run check:graph` runs affected package checks and structural validation
-  without dependency build/test fanout.
-- `bun run habitat hook pre-push` runs changed-path hook source checks in
+- `bun habitat hook pre-push` runs changed-path hook source checks in
   process. Ordinary source changes then run affected package checks plus
   explicit validation targets; Habitat artifact-only changes run Habitat
   structural/source-check targets instead of generic product `check`.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
 - `bun run ci` runs the full repo-wide build, check, lint, and test aggregate
   without re-entering `verify`.
-- `bun run habitat:fix` runs `bun run habitat fix`.
 
 Important distinction: root `bun run verify` is a workspace aggregate. It is not
-the same command as diagnostic `bun run habitat verify`.
+the same command as diagnostic `bun habitat verify`.
 
 ## Workspace Graph Integration
 
@@ -263,8 +260,8 @@ Registered advisory/enforced lifecycle:
 
 Husky delegates directly to Habitat:
 
-- `.husky/pre-commit` -> `bun run habitat hook pre-commit`
-- `.husky/pre-push` -> `bun run habitat hook pre-push`
+- `.husky/pre-commit` -> `bun habitat hook pre-commit`
+- `.husky/pre-push` -> `bun habitat hook pre-push`
 
 Pre-commit is a workstation hook check. It checks resources state, staged
 file-layer protections, partial-staging risk, staged formatting checks, and

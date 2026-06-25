@@ -261,7 +261,7 @@ function registeredManifest(
       suppressionPolicy: "No inline suppression accepted for generated registered rules.",
     },
     currentTreeScan: {
-      command: "bun run habitat:check -- --json --rule registration-probe",
+      command: "bun habitat check --json --rule registration-probe",
       resultClass: "zero-findings",
     },
     baselineContract: {

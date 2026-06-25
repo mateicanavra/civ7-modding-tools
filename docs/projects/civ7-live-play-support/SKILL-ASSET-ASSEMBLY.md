@@ -39,10 +39,10 @@ civ7 game ...
 
 Do not call `bun packages/cli/bin/run.js` from the support worktree during turn
 execution. That path depends on generated `dist/` files and has failed mid-turn
-when the worktree was not freshly built. Root Turbo and package-local commands
+when the worktree was not freshly built. Nx graph targets and package-local commands
 are for building, testing, linking, or developing the CLI; they are not the live
 turn-control surface. If `civ7` does not expose an expected command, relink with
-`bun run link:cli` from the support worktree, then return to `civ7 game ...`.
+`nx run @mateicanavra/civ7-cli:link:global` from the support worktree, then return to `civ7 game ...`.
 
 ## Loader Order
 

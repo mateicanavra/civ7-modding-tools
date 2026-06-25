@@ -97,7 +97,7 @@ jobs:
 
       - name: Habitat JSON diagnostics
         if: always()
-        run: bun run habitat check --json --output habitat-diagnostics.json
+        run: bun habitat check --json --output habitat-diagnostics.json
 
       - name: Upload habitat diagnostics
         if: always()

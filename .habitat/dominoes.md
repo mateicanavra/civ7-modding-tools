@@ -238,7 +238,7 @@ What this proved:
 
 What this did not prove:
 
-- Plain `habitat check` / `bun run habitat:check` full-suite execution remains
+- Plain `habitat check` / graph-wide `nx run-many -t habitat:check` full-suite execution remains
   broken and should not be treated as a known-good aggregate.
 - Root/package lint aliases should collapse into package-level `lint` scripts.
   Profiled non-lint callers such as `ci:architecture-strict-core` may still
@@ -259,8 +259,8 @@ in the working model.
 selection, resolves a curated packet set, applies baselines, and can support
 package scripts while the broader runner is being redesigned.
 
-Plain `habitat check` / `bun run habitat:check` is not currently a trustworthy
-aggregate. It still tries to run the accumulated default rule universe through
+Plain `habitat check` / graph-wide `nx run-many -t habitat:check` is not
+currently a trustworthy aggregate. It still tries to run the accumulated default rule universe through
 old assumptions about registry shape, artifact admission, packet identity,
 default inclusion, and error reporting. The observed `Internal Server Error`
 is not a surprise and should not be papered over as a one-off bug.
