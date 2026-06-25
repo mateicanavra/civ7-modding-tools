@@ -101,16 +101,16 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 - Prereqs: Node 22.22.0 and Bun 1.3.14.
 - Install from repo root: `bun install --frozen-lockfile`
 - Build this package from the repo root:
-  - `bun run build:cli`
+  - `nx run @mateicanavra/civ7-cli:build`
   - Generates `dist/` and refreshes `oclif.manifest.json` after Nx
     builds workspace dependencies.
 - Test this package from the repo root:
-  - `bun run test:cli`
-  - `bun run test:cli:play` for the live-play command suite.
+  - `nx run @mateicanavra/civ7-cli:test`
+  - `nx run @mateicanavra/civ7-cli:test:play` for the live-play command suite.
   - Avoid `bun run --cwd packages/cli test` unless dependency packages have
     already been built; the CLI imports compiled workspace packages such as
     `@civ7/direct-control`.
-- Local linking (optional): `bun run link:cli` (from repo root) to expose the
+- Local linking (optional): `nx run @mateicanavra/civ7-cli:link:global` (from repo root) to expose the
   `civ7` binary. This builds the CLI through Nx first, including oclif
   manifest generation, then registers the package `bin` entry globally.
 - Live Civ7 play should use the linked `civ7 game ...` command. Package-local
@@ -118,7 +118,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
   not active turn execution.
 - Dev run:
   - Via bin: `node packages/cli/bin/run.js <command>`
-  - Via root script: `bun run dev:cli -- data:crawl --help`
+  - Via Nx: `nx run @mateicanavra/civ7-cli:dev -- data:crawl --help`
 
 ### Code structure (key paths)
 
@@ -164,7 +164,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 
 ### Testing
 
-- A minimal [Vitest](https://vitest.dev/) suite lives in `test/` (`test/commands` for CLI surfaces, `test/utils` for helpers). Run `bun run test:cli` from the repo root so Nx builds workspace dependencies first.
+- A minimal [Vitest](https://vitest.dev/) suite lives in `test/` (`test/commands` for CLI surfaces, `test/utils` for helpers). Run `nx run @mateicanavra/civ7-cli:test` from the repo root so Nx builds workspace dependencies first.
 - Recommended strategy for expanding coverage:
   - Unit‑test seed parsing, index construction, and expander rules.
   - Snapshot DOT/JSON for a small sample seed.

@@ -68,7 +68,7 @@ Examples of common “realism” knob sets (see anchors for exact ranges and map
 
 Use Studio as the canonical “author feedback loop”:
 
-- `bun run dev:mapgen-studio`
+- `nx run mapgen-studio:dev`
 
 Then:
 

@@ -10,7 +10,7 @@ This package uses [Vitest](https://vitest.dev/).
   ```
 - Run only this package's tests:
   ```bash
-  bun run test:vitest -- --project config
+  bunx vitest run --project config
   ```
 
 ## Current status

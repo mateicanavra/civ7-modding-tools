@@ -25,8 +25,8 @@ Goals:
 From repo root:
 
 ```bash
-bun run test:ci
-bun run nx run mapgen-studio:build:vite
+bun run test
+nx run mapgen-studio:build:vite
 bun run --cwd mods/mod-swooper-maps viz:standard --silent
 ```
 
@@ -49,7 +49,7 @@ ls -dt mods/mod-swooper-maps/dist/visualization/* | head -n 1
 Start Studio:
 
 ```bash
-bun run dev:mapgen-studio
+nx run mapgen-studio:dev
 ```
 
 In Studio, verify:

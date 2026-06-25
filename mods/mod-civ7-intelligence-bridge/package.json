@@ -2,45 +2,11 @@
   "name": "mod-civ7-intelligence-bridge",
   "version": "0.1.0",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:mod",
-      "kind:control"
-    ],
-    "targets": {
-      "build:bundle": {
-        "dependsOn": [
-          "^build",
-          "gen:modinfo"
-        ],
-        "cache": true,
-        "outputs": [
-          "{projectRoot}/dist/**"
-        ]
-      },
-      "build": {
-        "dependsOn": [
-          "build:bundle"
-        ],
-        "cache": true
-      },
-      "test:architecture-bundle-runtime-imports": {
-        "dependsOn": [
-          "build"
-        ],
-        "cache": true
-      }
-    }
-  },
   "description": "Game-scoped Civ7 controller bridge bootstrap for native control-oRPC.",
   "type": "module",
   "scripts": {
-    "build": "tsup",
     "check": "tsc --noEmit",
-    "gen:modinfo": "bun ./scripts/generate-mod-artifacts.ts",
     "test": "bun test",
-    "test:architecture-bundle-runtime-imports": "bun test test/controller-mod-package.test.ts",
-    "build:bundle": "tsup",
     "clean:generated-artifacts": "bun ./scripts/clean-generated-artifacts.ts"
   },
   "dependencies": {

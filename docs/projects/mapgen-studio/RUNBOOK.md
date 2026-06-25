@@ -3,7 +3,7 @@
 ## Local Dev
 Recommended (root):
 ```bash
-bun run dev:mapgen-studio
+nx run mapgen-studio:dev
 ```
 
 Notes:

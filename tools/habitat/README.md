@@ -25,33 +25,32 @@ output (`dist/**`) and `oclif.manifest.json` are generated artifacts.
 ## Usage
 
 ```bash
-bun run habitat            # command help
-bun run habitat:check      # Nx owner-level Habitat checks
+bun habitat                # command help
+nx run-many -t habitat:check # Nx owner-level Habitat checks
 bun run check              # graph-owned package checks
 bun run lint               # graph-owned package lint targets
-bun run habitat:fix        # approved Grit codemods, then Biome safe writes
-bun run check:graph        # affected graph package-check and structural aggregate
+bun habitat fix            # approved Grit codemods, then Biome safe writes
 bun run verify             # graph-owned heavier verification aggregate
-bun run habitat check      # diagnostic Habitat CLI loop (add --json for JSON)
-bun run habitat verify     # diagnostic Habitat CLI verify loop
-bun run habitat classify packages/config/src/index.ts
+bun habitat check          # diagnostic Habitat CLI loop (add --json for JSON)
+bun habitat verify         # diagnostic Habitat CLI verify loop
+bun habitat classify packages/config/src/index.ts
 nx run @habitat/cli:boundaries  # project-plane tag boundaries
 bun run biome:ci                                       # hygiene-layer CI gate
-bun run habitat hook pre-commit     # local staged hook path
-bun run habitat hook pre-push       # local affected pre-push path
+bun habitat hook pre-commit     # local staged hook path
+bun habitat hook pre-push       # local affected pre-push path
 ```
 
 Notes:
 
 - Curated `habitat check --rule <id>` execution remains a diagnostic selector,
-  not a package-script policy surface. Root `bun run habitat:check` enters the
-  Nx graph and runs owner-level generated Habitat targets.
+  not a package-script policy surface. `nx run-many -t habitat:check` enters
+  the Nx graph and runs owner-level generated Habitat targets.
 - Direct `habitat check` assumes a built tree for bundle-output test rules.
-  Graph-owned `bun run habitat:check` declares the build dependencies needed by
+  Graph-owned `nx run-many -t habitat:check` declares the build dependencies needed by
   generated owner targets.
 - `bun run lint` owns package-local lint targets. Habitat structural findings
-  belong to `bun run habitat:check`; graph validation belongs to
-  `bun run check:graph`.
+  belong to `nx run-many -t habitat:check`; broader graph validation belongs
+  to the relevant Nx target set.
 - Advisory-lane rules (`adr-lint`, `doc-ambiguity`) report but never fail —
   matching their pre-harness enforcement reality.
 - Baselines (`.habitat/baselines/<rule-id>.json`) are explicit contract artifacts and
@@ -92,7 +91,7 @@ Notes:
 Use Habitat as the structural entrypoint before authoring:
 
 ```bash
-bun run habitat classify <path-or-diff>
+bun habitat classify <path-or-diff>
 ```
 
 The JSON output names the owning workspace project, its `kind:*` tags,
@@ -143,8 +142,8 @@ GRIT_TELEMETRY_DISABLED=true bunx --no-install grit patterns test --verbose
 
 Husky owns the Git hook files and delegates to Habitat:
 
-- `.husky/pre-commit` -> `bun run habitat hook pre-commit`
-- `.husky/pre-push` -> `bun run habitat hook pre-push`
+- `.husky/pre-commit` -> `bun habitat hook pre-commit`
+- `.husky/pre-push` -> `bun habitat hook pre-push`
 
 Pre-commit is staged-scope only. It checks resource submodule state without
 publishing, fails with explicit remediation when resources require action,
@@ -173,8 +172,8 @@ Biome-owned rules into ESLint.
 Use:
 
 ```bash
-bun run habitat:fix -- --dry-run   # report approved Grit codemods + hygiene drift without writes
-bun run habitat:fix                # apply approved Grit codemods, then Biome format + safe assists
+bun habitat fix --dry-run   # report approved Grit codemods + hygiene drift without writes
+bun habitat fix             # apply approved Grit codemods, then Biome format + safe assists
 nx run-many -t biome:ci # CI-equivalent hygiene gate
 ```
 

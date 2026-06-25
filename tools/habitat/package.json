@@ -17,59 +17,13 @@
     "oclif.manifest.json",
     "src"
   ],
-  "nx": {
-    "tags": [
-      "kind:tooling"
-    ],
-    "targets": {
-      "build:tsc": {
-        "dependsOn": [
-          "clean:dist"
-        ],
-        "cache": true,
-        "outputs": [
-          "{projectRoot}/dist/**"
-        ]
-      },
-      "build:manifest": {
-        "dependsOn": [
-          "build:tsc"
-        ],
-        "cache": true,
-        "outputs": [
-          "{projectRoot}/oclif.manifest.json"
-        ]
-      },
-      "build:bin-mode": {
-        "dependsOn": [
-          "build:manifest"
-        ],
-        "cache": false,
-        "outputs": []
-      },
-      "build": {
-        "command": "node -e \"\"",
-        "cache": false,
-        "outputs": [
-          "{projectRoot}/dist/**",
-          "{projectRoot}/oclif.manifest.json"
-        ],
-        "dependsOn": [
-          "build:bin-mode"
-        ]
-      }
-    }
-  },
   "scripts": {
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat --testTimeout=30000",
     "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_self/triage/generator-schemas/write-generator-schemas.ts",
     "clean": "rimraf dist oclif.manifest.json",
-    "clean:dist": "rimraf dist oclif.manifest.json",
-    "build:tsc": "tsc -p tsconfig.json",
-    "build:manifest": "oclif manifest",
-    "build:bin-mode": "chmod +x bin/run.js"
+    "clean:dist": "rimraf dist oclif.manifest.json"
   },
   "exports": {
     ".": {

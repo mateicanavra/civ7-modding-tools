@@ -1,31 +1,7 @@
 {
   "name": "@civ7/docs",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:app"
-    ],
-    "targets": {
-      "dev": {
-        "dependsOn": [
-          "^build",
-          "sync"
-        ],
-        "cache": false,
-        "continuous": true
-      },
-      "build": {
-        "command": "node -e \"\"",
-        "cache": false,
-        "outputs": [],
-        "dependsOn": [
-          "sync"
-        ]
-      }
-    }
-  },
   "scripts": {
-    "dev": "bun run scripts/dev-staged.ts",
     "start": "mintlify dev -p 6660 --no-open",
     "normalize": "bun run scripts/update-code-blocks.ts",
     "check": "tsc -p tsconfig.json --noEmit",
@@ -33,8 +9,7 @@
     "test": "vitest run --config ../../vitest.config.ts --project docs",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",
-    "fix:mdx-links": "bun run scripts/fix-mdx-links.ts",
-    "sync": "bun run scripts/sync-resources.ts"
+    "fix:mdx-links": "bun run scripts/fix-mdx-links.ts"
   },
   "devDependencies": {
     "mintlify": "^4.2.616"

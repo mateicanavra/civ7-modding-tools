@@ -1,0 +1,30 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ-mod-dacia",
+  "tags": ["kind:mod"],
+  "targets": {
+    "deploy": {
+      "command": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
+      "dependsOn": [
+        "build",
+        {
+          "projects": ["@mateicanavra/civ7-cli"],
+          "target": "build"
+        }
+      ],
+      "cache": false,
+      "options": {
+        "cwd": "mods/mod-swooper-civ-dacia"
+      }
+    },
+    "build:deploy": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["deploy"],
+      "options": {
+        "cwd": "mods/mod-swooper-civ-dacia"
+      }
+    }
+  }
+}

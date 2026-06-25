@@ -2,43 +2,6 @@
   "name": "@civ7/control-orpc",
   "version": "0.1.0",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:control"
-    ],
-    "targets": {
-      "build": {
-        "dependsOn": [
-          "clean",
-          "^build"
-        ],
-        "outputs": [
-          "{projectRoot}/dist/**"
-        ]
-      },
-      "check:types": {
-        "dependsOn": [
-          {
-            "projects": [
-              "@civ7/direct-control"
-            ],
-            "target": "build"
-          }
-        ],
-        "cache": true,
-        "outputs": []
-      },
-      "check": {
-        "command": "node -e \"\"",
-        "cache": false,
-        "outputs": [],
-        "dependsOn": [
-          "check:types",
-          "habitat:check"
-        ]
-      }
-    }
-  },
   "description": "Native oRPC/Effect procedure composition over Civ7 direct-control atoms.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -86,10 +49,8 @@
     }
   },
   "scripts": {
-    "build": "node scripts/build.mjs",
     "test": "vitest run --config vitest.config.ts",
-    "clean": "rimraf dist tsconfig.tsbuildinfo",
-    "check:types": "tsc -p tsconfig.json --noEmit"
+    "clean": "rimraf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "@civ7/direct-control": "workspace:*",

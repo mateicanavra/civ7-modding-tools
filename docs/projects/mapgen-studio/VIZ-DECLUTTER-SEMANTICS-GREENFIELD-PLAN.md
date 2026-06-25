@@ -402,8 +402,8 @@ slices:
 ## 6) Verification (commands + manual)
 
 ### Build/typecheck/test gates
-- `bun run check-types`
-- `bun run test:vitest`
+- `bun run check`
+- `bunx vitest run`
 - `bun run --cwd mods/mod-swooper-maps test`
 - `bun run --cwd apps/mapgen-studio build` (ensures worker bundle integrity)
 
