@@ -14,21 +14,12 @@
         "cache": false,
         "continuous": true
       },
-      "validate": {
-        "command": "node -e \"\"",
-        "cache": false,
-        "outputs": [],
-        "dependsOn": [
-          "lint"
-        ]
-      },
       "build": {
         "command": "node -e \"\"",
         "cache": false,
         "outputs": [],
         "dependsOn": [
-          "sync",
-          "validate"
+          "sync"
         ]
       }
     }
@@ -40,13 +31,10 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "check:ts": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config ../../vitest.config.ts --project docs",
-    "lint": "bun ../../tools/habitat/bin/dev.ts check --rule docs-site-config --rule docs-site-links",
-    "validate": "node -e \"\"",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",
     "fix:mdx-links": "bun run scripts/fix-mdx-links.ts",
-    "sync": "bun run scripts/sync-resources.ts",
-    "build": "node -e \"\""
+    "sync": "bun run scripts/sync-resources.ts"
   },
   "devDependencies": {
     "mintlify": "^4.2.616"

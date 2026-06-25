@@ -39,7 +39,7 @@ The root script `bun run habitat` dispatches to
 
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
-| `check` | `bun run habitat check`, `bun run habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution is the currently proven package-script bridge; broad full-suite execution is known runner debt. |
+| `check` | `bun run habitat check`; graph entrypoint: `bun run habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
 | `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
 | `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun run habitat fix`, `bun run habitat:fix` | Runs the approved Habitat apply transaction, then hands changed files to the formatter. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
@@ -48,22 +48,19 @@ The root script `bun run habitat` dispatches to
 
 Root scripts also expose graph-owned entrypoints:
 
-- `bun run lint` runs the canonical curated Habitat rule group for root-visible
-  authority checks. Biome remains available as `bun run biome:ci`.
-- Curated package/script verification should call explicit Habitat rules with
-  repeatable `--rule` selection. Broad full-suite structural verification is
-  intended to live behind `bun run habitat:check`, `bun run check`, and
-  `@habitat/cli:habitat:check:all`, but that aggregate path has
-  accumulated resolver/admission debt and is not currently a trustworthy
-  acceptance proof. Treat it as a rebuild target, not as a surprising failure.
-- `@habitat/cli:lint` runs the admitted Toolkit read-only checks
-  for CLI smoke, boundary taxonomy, and service-module shape. The old
-  package-visible `validate:*` target family has been collapsed into this
-  single lint target.
+- `bun run lint` runs graph-discovered package lint targets. Biome remains
+  available as `bun run biome:ci`.
+- Habitat structural verification lives behind generated owner and rule targets:
+  `bun run habitat:check`, `nx run <project>:habitat:check`, and
+  `@habitat/cli:habitat:check:all`. Curated direct `habitat check --rule`
+  invocations are for diagnostics and focused proof, not package script policy.
+- `@habitat/cli:habitat:check` runs the Toolkit-owned Habitat rules for CLI
+  smoke, boundary taxonomy, service-module shape, and other registered
+  `@habitat/cli` rules.
 - Native `grit patterns test` validation is not exposed as a current package
   script or graph target because this checkout no longer has an active testable
   pattern corpus for that command.
-- `bun run check` runs the diagnostic Habitat structural aggregate.
+- `bun run check` runs graph-discovered package check targets.
 - `bun run check:graph` runs affected package checks and structural validation
   without dependency build/test fanout.
 - `bun run habitat hook pre-push` runs changed-path hook source checks in

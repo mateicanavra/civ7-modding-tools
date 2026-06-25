@@ -10,8 +10,8 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PatternGeneratorOptionsSchema } from "../../../../../../tools/habitat/src/generators/scaffold/pattern/support/schema.ts";
-import { HabitatProjectGeneratorNxSchema } from "../../../../../../tools/habitat/src/generators/scaffold/project/support/schema.ts";
+import { PatternGeneratorOptionsSchema } from "@habitat/cli/generators/scaffold/pattern/support/schema";
+import { HabitatProjectGeneratorNxSchema } from "@habitat/cli/generators/scaffold/project/support/schema";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "..", "..");
 const schemaPaths = [

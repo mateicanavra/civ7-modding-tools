@@ -20,6 +20,26 @@ Make the repository task system boring and legible:
 The desired outcome is fewer states, not a more elaborate abstraction around
 the current states.
 
+### Reframe After Partial Implementation Failure
+
+The first implementation pass failed the objective frame. It repaired the
+highest-risk rows and made several Habitat/Studio paths honest, but it treated
+the treatment map as a bounded checklist instead of as the starting ledger for a
+complete repository-wide build/task graph normalization.
+
+Prior frame that failed: "reduce the known high-risk rows." That frame predicted
+that resolving root Habitat entrypoints, Studio build output, docs stale
+targets, and package Habitat rule-list scripts would satisfy the cleanup. The
+back-talk was immediate: a repository-wide duplicate script/target audit still
+showed same-name package scripts and local Nx targets across many packages.
+
+Named reframing move: **chunk decomposition plus double-loop change**. The work
+chunk is no longer "the high-risk rows"; it is "every manifest task surface."
+The governing variable is no longer "known failures pass"; it is "each task has
+exactly one command owner and, when graph metadata is needed, exactly one graph
+metadata owner." High-risk rows remain priority evidence, but they are not the
+closure boundary.
+
 ## Hard Core
 
 These are the non-negotiable design rules for the cleanup:
@@ -28,7 +48,9 @@ These are the non-negotiable design rules for the cleanup:
   dependencies, inputs, outputs, continuous tasks, and no-op aggregation belong
   in Nx.
 - **`nx.json` owns shared defaults.** If a rule applies to every target with a
-  given name, define it once in `targetDefaults`.
+  given name across the repository, define it once in `targetDefaults`. A
+  single-project target name, product-specific output set, or dead generated
+  target is not shared policy just because `targetDefaults` can match it.
 - **Package scripts are leaf commands.** A package script may define `build`,
   `check`, `lint`, `test`, `dev`, or another package-local operation when that
   script is the actual command. It should not hide dependency ordering,
@@ -44,6 +66,9 @@ These are the non-negotiable design rules for the cleanup:
   copied into package scripts as another policy surface.
 - **Root scripts are convenience entrypoints.** They may call `nx run`,
   `nx run-many`, or a true repo operation, but they are not the graph authority.
+- **The whole manifest corpus is the unit of completion.** Every `package.json`
+  and `project.json` task surface must be classified. A green high-risk subset
+  is not a successful cleanup.
 
 ## Current State
 
@@ -76,12 +101,13 @@ Current resolved project families:
 ### Corpus Treatment Map
 
 This is the implementation corpus. Future work should update the row decision,
-not start a new scan from scratch.
+not start a new scan from scratch. The row decisions are not sufficient by
+themselves; the complete manifest ledger below is the closure instrument.
 
 | Surface | Current Shape | Cleanup Treatment |
 | --- | --- | --- |
 | Root `package.json` | Workflow aliases and operational repo scripts. Some aliases manually curate target selection. | Keep thin root Nx entrypoints; remove hidden project selection where Nx can discover targets. |
-| Root `nx.json` | Global `targetDefaults` plus Habitat plugin registration. | Keep as shared policy authority; add shared defaults only when broadly true. |
+| Root `nx.json` | Global `targetDefaults` plus Habitat plugin registration. | Keep as shared policy authority; add shared defaults only when broadly true; move single-project/product-specific target semantics to the owning project and delete dead defaults. |
 | `packages/config` | Simple scripts only. | Keep script-inferred tasks. |
 | `packages/civ7-adapter` | Simple build/check scripts. | Keep script-inferred tasks. |
 | `packages/civ7-map-policy` | Simple build/check/test plus package `verify`. | Keep script-inferred tasks; only add metadata if `verify` gains graph semantics. |
@@ -101,6 +127,87 @@ not start a new scan from scratch.
 | `mods/mod-civ7-intelligence-bridge` | Build/test/generated mod scripts plus architecture test metadata. | Preserve operational scripts and architecture-test metadata. |
 | `mods/mod-swooper-civ-dacia` | Build/deploy/check/lint plus deployment aggregate. | Preserve deploy metadata; remove duplicate/stale shells only. |
 | `mods/mod-swooper-maps` | Many product operations, generated-output targets, tests, deploy, and Habitat rule-list scripts. | Preserve operational/generated-output metadata; remove package-script Habitat policy; keep strict profile as explicit exception until green. |
+
+### Complete Manifest Ledger
+
+Implementation must maintain a manifest-by-manifest ledger. A package is not
+done until each same-name script/target pair is resolved into one of these
+states:
+
+- **Script-owned leaf:** keep the package script; remove local Nx command
+  duplication; rely on Nx inference plus `targetDefaults`.
+- **Graph-owned target:** remove the package script if it is not the package's
+  genuine command surface; keep the Nx target command/metadata as the authority.
+- **Split ownership:** keep the package script as the leaf command and keep the
+  same-name Nx target only for graph metadata that cannot live in the script:
+  `dependsOn`, `outputs`, `inputs`, `cache`, `continuous`, executor choice, or
+  intentional no-op aggregation. The Nx target must not duplicate command text
+  unless the executor requires a script name to preserve orchestration semantics.
+- **Operational exception:** keep both only when the package script is a
+  deliberate human/package command surface and the Nx target is an explicit
+  graph wrapper for deploy/publish/order/outputs. The reason must be named in
+  the ledger.
+
+The implementation must produce this audit mechanically before and after
+changes:
+
+```sh
+bun -e '
+const fs=require("fs");
+const paths=require("child_process").execSync("rg --files -g package.json",{encoding:"utf8"}).trim().split(/\n/).filter(Boolean).sort();
+for (const p of paths) {
+  const j=JSON.parse(fs.readFileSync(p,"utf8"));
+  const scripts=j.scripts||{};
+  const targets=j.nx?.targets||{};
+  const dup=Object.keys(scripts).filter((name)=>targets[name]);
+  if (!dup.length) continue;
+  console.log(p);
+  for (const name of dup) {
+    const target=targets[name];
+    const keys=["command","dependsOn","outputs","inputs","cache","continuous","executor","metadata"].filter((key)=>Object.prototype.hasOwnProperty.call(target,key));
+    console.log(`  ${name}: script=${JSON.stringify(scripts[name])} targetKeys=${keys.join(",")}`);
+  }
+}
+'
+```
+
+Closure requires every printed row to be classified and either changed or
+explicitly justified. The final implementation summary must include the
+post-change audit result.
+
+#### Current Ledger Dispositions
+
+This ledger is the implementation checkpoint for the complete manifest corpus.
+Rows not listed by the post-change audit are either simple script-inferred
+packages, graph-owned targets with no same-name package script, generated
+Habitat/plugin targets, or `project.json` metadata that is intentionally
+outside package-script inference.
+
+| Surface | Disposition | Reason |
+| --- | --- | --- |
+| Root `deploy:mods` | Thin Nx entrypoint | The root script now uses `nx run-many --targets=deploy`; Nx discovers the two deploy-capable mod projects instead of a hand-maintained project list. |
+| Root `nx.json` single-project defaults | Moved/deleted root policy | `build:studio-recipes`, `test:studio-run-in-game`, and `test:architecture-cutover` resolve only on `mod-swooper-maps`, so their graph semantics belong on the MapGen project. `deploy:studio` resolves on no project and is removed instead of preserving a hidden generated-state expectation. |
+| `apps/mapgen-studio` `dev` | Graph-owned target | The real Studio dev entrypoint is `nx run mapgen-studio:dev` because the graph starts the frontend through `dev:frontend`, depends on the server daemon, and marks the task continuous. The package script `dev` was removed to avoid bypassing orchestration. |
+| `apps/mapgen-studio` `build` | Graph-owned target | `build` is the aggregate that depends on `build:vite` and declares `dist/**`; the package script `build` was removed so the command surface does not bypass graph dependencies. |
+| `apps/mapgen-studio` `check`, `test`, `build:vite` | Split ownership | Package scripts own the leaf commands; Nx targets add Studio recipe dependencies and `dist/**` outputs for the Vite phase. |
+| `packages/civ7-control-orpc` `check` | Graph-owned target | `check` aggregates `check:types` and generated `habitat:check`; the package script was removed. `check:types` remains the leaf TypeScript command. |
+| `packages/civ7-control-orpc` `build`, `check:types` | Split ownership | Package scripts own the build/typecheck commands; Nx adds dependency freshness and outputs, including the `@civ7/direct-control:build` dependency for type checks. |
+| `packages/civ7-direct-control/project.json` | Preserved explicit graph metadata | Direct Control owns tuner framing, state discovery, reconnect/session behavior, and live runtime access. Its `project.json` keeps bundle/types phases, outputs, and build aggregation explicit instead of moving runtime authority into generic package scripts. |
+| `packages/cli` `build` | Graph-owned target | CLI build is an Oclif aggregate over `build:tsc`, `build:manifest`, and `build:bin-mode`; the package script `build` was removed because TypeScript alone is not the honest build. |
+| `packages/cli` phase, link, data, mod, test, readme, publish rows | Split ownership / operational exception | Package scripts are the human/CLI operation commands; Nx adds Oclif ordering, generated README/manifest outputs, cache policy, and publish/link/data/mod ordering. The no-op `pack:prepare` package script was removed. |
+| `tools/habitat` `build` | Graph-owned target | Habitat build is an Oclif aggregate over `build:tsc`, `build:manifest`, and `build:bin-mode`; the package script `build` was removed because TypeScript alone is not the honest production runner build. |
+| `tools/habitat` build phases | Split ownership | Package scripts own direct phase commands; Nx owns phase ordering and outputs. |
+| Habitat Nx plugin loader | Source-owned graph discovery | Files loaded by `tools/habitat/src/nx-plugin.ts` import registry schema types/source relatively where needed so `nx show ...` works from committed source without a prior ignored `tools/habitat/dist` build. The boundary allowlist contains only the exact loader edge required for this. |
+| `mods/mod-swooper-civ-dacia` `build:deploy` | Graph-owned target | The no-op package script was removed; the Nx target preserves build/deploy ordering. |
+| `mods/mod-swooper-civ-dacia` `deploy` | Operational exception | The package script is the deploy command surface; Nx adds build and CLI build ordering with cache disabled. |
+| `mods/mod-swooper-maps` `build:studio-recipes` | Graph-owned target | The no-op package script was removed; the Nx target owns recipe bundle/map aggregation and generated outputs locally rather than relying on a root single-project default. |
+| `mods/mod-swooper-maps` `test:studio-run-in-game` | Split ownership | The package script owns the focused test command; the local Nx target depends on `build:studio-recipes` because the suite imports generated recipe/map artifacts. |
+| `mods/mod-swooper-maps` `test:architecture-cutover` | Split ownership / embedded authority exception | The package script remains the existing Habitat rule-list exception; local Nx metadata keeps cache behavior without imposing an irrelevant root upstream-build dependency. |
+| `mods/mod-swooper-maps` build, generated, check, test, viz, diag, deploy rows | Split ownership / operational exception | Package scripts are product-local operations; Nx adds generated-output metadata, cache policy, environment-sensitive inputs, dependency ordering, and deploy ordering. Embedded architecture test authority remains an explicit exception until that separate authority migration is in scope. |
+| `mods/mod-civ7-intelligence-bridge` build and architecture rows | Split ownership | Package scripts own the bundle/test commands; Nx adds generated modinfo dependency, outputs, and cache policy. |
+| `apps/docs` `dev` | Split ownership | Package script owns docs dev staging; Nx adds `sync`, upstream build dependency, continuous behavior, and disabled cache. |
+| `packages/mapgen-core` architecture row | Split ownership | Package script owns the focused architecture test; Nx adds upstream build freshness and cache policy. |
+| `packages/sdk` `publish:npm` | Operational exception | Package script is the publish command; Nx owns build/lint/test/check ordering and disables cache. |
 
 ## Why It Is A Mess
 
@@ -140,6 +247,11 @@ Root `nx.json` should define the repo-wide task contract:
 package has to repeat the same dependency or cache rule, the model is probably
 wrong.
 
+The reverse is also true: if `nx show projects --withTarget <name> --json`
+returns one project, or zero projects, root `targetDefaults` is probably the
+wrong owner. Keep that metadata on the project when it is real graph behavior;
+delete it when it only preserves a stale or anticipated target name.
+
 ### Package `package.json`
 
 Package scripts should be a readable command list for local package work:
@@ -177,6 +289,82 @@ only when it adds graph semantics:
 
 If a local target has the same command text as a package script and adds no
 meaningful graph metadata, it should be removed.
+
+### Package Script And Nx Target Ownership Examples
+
+Default to Nx inference. A plain package should expose the command once as a
+script and let Nx infer the target:
+
+```json
+{
+  "scripts": {
+    "build": "tsup"
+  }
+}
+```
+
+Use same-name split ownership only when the script owns the command and the Nx
+target adds graph metadata. In this shape, `scripts.build` is the command owner;
+`nx.targets.build` is the graph metadata owner:
+
+```json
+{
+  "scripts": {
+    "build": "tsup"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "dependsOn": ["^build"],
+        "outputs": ["{projectRoot}/dist/**"]
+      }
+    }
+  }
+}
+```
+
+Use a graph-owned target when the task is intentionally an aggregate, phase
+wrapper, deploy/publish operation, or generated-output contract. In this shape,
+`build` is not a package script because the graph owns the aggregate command:
+
+```json
+{
+  "nx": {
+    "targets": {
+      "build": {
+        "command": "node -e \"\"",
+        "dependsOn": ["build:tsc", "build:manifest"],
+        "outputs": ["{projectRoot}/dist/**"]
+      }
+    }
+  },
+  "scripts": {
+    "build:tsc": "tsc -p tsconfig.json",
+    "build:manifest": "oclif manifest"
+  }
+}
+```
+
+Do not create same-name command duplication. This shape is invalid because both
+the package script and the explicit Nx target claim command ownership:
+
+```json
+{
+  "scripts": {
+    "build": "tsup"
+  },
+  "nx": {
+    "targets": {
+      "build": {
+        "command": "tsup"
+      }
+    }
+  }
+}
+```
+
+Also invalid: a package script that delegates back into its own Nx target, such
+as `"build": "nx run same-project:build"`. Nx is already the graph runner.
 
 ### Habitat Targets
 
@@ -265,13 +453,16 @@ Tasks:
 
 - For every package, remove exact command duplication between `scripts` and
   local `nx.targets`.
+- Use the Complete Manifest Ledger as the work queue; do not stop after
+  Habitat/root/Studio rows.
 - Preserve local Nx metadata where it adds graph semantics.
 - Remove self-delegating scripts such as package scripts that invoke Nx back
   into the same package target.
 - Normalize root scripts into thin Nx entrypoints.
 
-Exit condition: each task has one command owner and, where needed, one graph
-metadata owner.
+Exit condition: the post-change duplicate script/target audit is empty or every
+remaining row is explicitly classified as split ownership or an operational
+exception with a named graph-semantic reason.
 
 ### Domino 3: De-Shadow Habitat Targets
 
@@ -363,6 +554,31 @@ Proof gates:
 
 Exit condition: the resolved graph matches the target model and the worktree is
 ready for Graphite closure.
+
+## Implementation Plan Rows
+
+The first implementation slice reduced high-risk rows but did not complete the
+repository objective. The next implementation pass must use these rows plus the
+Complete Manifest Ledger; no row is complete merely because its high-risk
+symptom was fixed.
+
+| Row | Owner After Cleanup | Change |
+| --- | --- | --- |
+| Root package health workflows | Root scripts as thin Nx entrypoints | `build`, `check`, `lint`, `test`, `ci`, `verify`, and `habitat:check` ask Nx to discover target owners instead of running curated rule lists or broad direct CLI checks. |
+| Habitat owner checks | Generated Habitat Nx targets plus root `habitat:check` target policy | Package scripts no longer carry Habitat rule-list policy. Owner checks run through generated `habitat:check` targets. |
+| Habitat CLI build dependency | Root `targetDefaults["habitat:check"]` for owner checks; Habitat Nx plugin for generated rule targets | Owner checks declare the package build plus `@habitat/cli:build`; generated `habitat:rule:*` targets emit their own CLI build dependency so alias targets keep their real graph dependency. |
+| Docs no-op validation | Docs package scripts for real docs operations; Nx build target for docs aggregation | Remove stale package no-op scripts and the stale `validate` target; docs build remains a no-op aggregate only for the real `sync` operation. |
+| Studio build output | `mapgen-studio:build` graph metadata | `mapgen-studio:build` depends on `build:vite`, so the build target honestly produces `dist`. Generated `habitat:check` then depends on `build` before bundle-output checks. |
+| ORPC check aggregation | `@civ7/control-orpc:check` graph metadata | Keep the no-op check aggregator, but depend on `check:types` and generated `habitat:check` instead of a package `lint` rule list. |
+| Preserved operational surfaces | Owning packages and existing explicit Nx metadata | CLI/Oclif phases, Direct Control `project.json`, deploys, generated-output targets, MapGen strict guardrail exception, and package-owned diagnostics stay explicit. |
+| Root target defaults | Shared root policy only | Keep broad defaults such as `build`, `check`, `test`, `lint`, `dev`, `deploy`, `verify`, `clean`, and `habitat:check`; remove or localize single-project and dead defaults such as `build:studio-recipes`, `test:studio-run-in-game`, `test:architecture-cutover`, and `deploy:studio`. |
+
+Important resolved-graph note: in this checkout, `targetDefaults["habitat:*"]`
+with `dependsOn` overwrote generated alias target dependencies instead of
+merging them. Do not use that wildcard default for `habitat:rule:*` until the
+merge behavior is proven. Generated rule targets must emit the CLI build
+dependency directly so alias rules such as `format-ci` and `import-boundaries`
+retain their real target dependencies.
 
 ## Implementation Guardrails
 

@@ -173,11 +173,13 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 
 ### CI/CD and publishing
 
-- Scripts:
-  - `build`: clean, type‑check/build, regenerate oclif manifest, ensure `bin/run.js` is executable
-  - `prepack`: build + generate README via oclif
-  - `publish:local`: build and link globally for local dev
-  - `pack` / `publish`: package/publish with Bun
+- Nx targets own graph ordering:
+  - `build`: type-check/build, regenerate oclif manifest, ensure `bin/run.js` is executable
+  - `pack:prepare`: build + generate README via oclif
+  - `link:global`: build and link globally for local dev
+  - `publish:npm`: build, lint, test, check, then publish with Bun
+- Package scripts remain for leaf phase commands and direct CLI operations; use
+  the root Nx entrypoints for build/publish/link proof.
 
 ### Extending the crawler
 

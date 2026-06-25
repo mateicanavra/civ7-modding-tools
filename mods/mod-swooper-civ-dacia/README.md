@@ -62,7 +62,7 @@ Use these scripts to build and deploy your mod in one step:
 ```bash
 bun run build          # generate XML in mod/
 bun run deploy         # deploys mod via the monorepo CLI
-bun run build:deploy   # build and deploy
+nx run civ-mod-dacia:build:deploy   # build and deploy
 ```
 
 ## Credits

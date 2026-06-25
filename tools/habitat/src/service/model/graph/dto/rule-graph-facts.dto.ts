@@ -1,7 +1,4 @@
-import type {
-  RuleGraphFacts,
-  RuleRegistryRecordV1,
-} from "@habitat/cli/service/model/rules/dto/registry.schema";
+import type { RuleGraphFacts, RuleRegistryRecordV1 } from "../../rules/dto/registry.schema.ts";
 import type { WorkspaceGraphTargetNames } from "../../workspace/index.ts";
 
 type RuleGraphTargetNames = Pick<

@@ -44,7 +44,7 @@
           "{projectRoot}/dist/**"
         ],
         "dependsOn": [
-          "lint"
+          "build:vite"
         ]
       },
       "check": {
@@ -83,28 +83,18 @@
         "outputs": [
           "{projectRoot}/dist/**"
         ]
-      },
-      "lint": {
-        "dependsOn": [
-          "build:vite"
-        ],
-        "cache": true,
-        "outputs": []
       }
     }
   },
   "scripts": {
-    "dev": "vite",
     "dev:frontend": "vite",
     "dev:server": "bun --conditions bun-source --watch src/server/daemon/daemon.ts",
     "serve": "bun src/server/daemon/daemon.ts --assets-root dist",
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "ensure:studio-recipe-artifacts": "node ./scripts/ensure-studio-recipe-artifacts.mjs",
-    "lint": "bun ../../tools/habitat/bin/dev.ts check --rule worker-bundle",
     "check": "tsc --noEmit",
     "lint:react-compiler": "node scripts/lint-react-compiler.mjs",
     "test": "vitest run --config ../../vitest.config.ts --project mapgen-studio",
-    "build": "vite build",
     "preview": "vite preview",
     "build:vite": "vite build"
   },

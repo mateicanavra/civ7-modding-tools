@@ -1,6 +1,7 @@
 import type { NxTargetDefinition } from "../dto/target-definition.schema.js";
 
 const workspaceCwd = { cwd: "{workspaceRoot}" };
+const habitatCliBuildDependency = { projects: ["@habitat/cli"], target: "build" };
 
 export function habitatInputs(): string[] {
   return [
@@ -162,6 +163,7 @@ export function aggregateCheckTarget(inputs = habitatInputs()): NxTargetDefiniti
     options: workspaceCwd,
     cache: true,
     inputs,
+    dependsOn: [habitatCliBuildDependency],
     metadata: { description: "aggregate Habitat rule check; runs broad native-tool checks once" },
   };
 }
@@ -175,7 +177,7 @@ export function aliasRuleTarget(
     options: workspaceCwd,
     cache: false,
     outputs: [],
-    dependsOn,
+    dependsOn: [habitatCliBuildDependency, ...(dependsOn ?? [])],
     metadata: { description },
   };
 }
@@ -190,6 +192,7 @@ export function directRuleTarget(
     options: workspaceCwd,
     cache: true,
     inputs,
+    dependsOn: [habitatCliBuildDependency],
     metadata: { description: `Habitat rule ${ruleId} owned by ${ownerProject}` },
   };
 }
