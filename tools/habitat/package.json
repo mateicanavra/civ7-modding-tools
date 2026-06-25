@@ -57,49 +57,13 @@
         "dependsOn": [
           "build:bin-mode"
         ]
-      },
-      "lint": {
-        "command": "bun tools/habitat/bin/dev.ts check --rule cli-smoke --rule boundary-taxonomy --rule service-module-shape",
-        "cache": true,
-        "inputs": [
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/check/cli-smoke/cli-smoke.check.ts",
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/check/boundary-taxonomy/boundary-taxonomy.check.ts",
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/check/service-module-shape/service-module-shape.check.ts",
-          "{workspaceRoot}/eslint.boundaries.config.mjs",
-          "{workspaceRoot}/nx.json",
-          "{workspaceRoot}/package.json",
-          "{workspaceRoot}/bun.lock",
-          "{workspaceRoot}/docs/projects/habitat-harness/taxonomy.md",
-          "{workspaceRoot}/apps/**/package.json",
-          "{workspaceRoot}/mods/**/package.json",
-          "{workspaceRoot}/packages/**/package.json",
-          "{workspaceRoot}/tools/**/package.json",
-          "{workspaceRoot}/apps/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
-          "{workspaceRoot}/mods/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
-          "{workspaceRoot}/packages/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
-          "{workspaceRoot}/scripts/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
-          "{workspaceRoot}/tools/**/*.{cjs,cts,js,jsx,mjs,mts,ts,tsx}",
-          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/legacy-source-check/**/*.mjs",
-          "{workspaceRoot}/tools/habitat/src/service/modules/**",
-          "{workspaceRoot}/tools/habitat/src/service/model/**",
-          "{workspaceRoot}/tools/habitat/package.json",
-          "!{workspaceRoot}/**/dist/**",
-          "!{workspaceRoot}/**/types/**",
-          "!{workspaceRoot}/**/mod/**",
-          "!{workspaceRoot}/**/example-generated-mod/**"
-        ],
-        "metadata": {
-          "description": "runs admitted Habitat Toolkit read-only authority checks"
-        }
       }
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat --testTimeout=30000",
-    "lint": "bun ./bin/dev.ts check --rule cli-smoke --rule boundary-taxonomy --rule service-module-shape",
     "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_self/triage/generator-schemas/write-generator-schemas.ts",
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist oclif.manifest.json",
@@ -149,6 +113,18 @@
       "types": "./src/generators/scaffold/model/index.ts",
       "import": "./dist/generators/scaffold/model/index.js",
       "default": "./dist/generators/scaffold/model/index.js"
+    },
+    "./generators/scaffold/pattern/support/schema": {
+      "bun": "./src/generators/scaffold/pattern/support/schema.ts",
+      "types": "./src/generators/scaffold/pattern/support/schema.ts",
+      "import": "./dist/generators/scaffold/pattern/support/schema.js",
+      "default": "./dist/generators/scaffold/pattern/support/schema.js"
+    },
+    "./generators/scaffold/project/support/schema": {
+      "bun": "./src/generators/scaffold/project/support/schema.ts",
+      "types": "./src/generators/scaffold/project/support/schema.ts",
+      "import": "./dist/generators/scaffold/project/support/schema.js",
+      "default": "./dist/generators/scaffold/project/support/schema.js"
     },
     "./validation/*": {
       "bun": "./src/validation/*.ts",

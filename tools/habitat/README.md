@@ -26,9 +26,9 @@ output (`dist/**`) and `oclif.manifest.json` are generated artifacts.
 
 ```bash
 bun run habitat            # command help
-bun run habitat:check      # diagnostic full Habitat rule aggregate
-bun run check              # diagnostic full Habitat rule aggregate
-bun run lint               # graph-owned repo-wide Biome hygiene
+bun run habitat:check      # Nx owner-level Habitat checks
+bun run check              # graph-owned package checks
+bun run lint               # graph-owned package lint targets
 bun run habitat:fix        # approved Grit codemods, then Biome safe writes
 bun run check:graph        # affected graph package-check and structural aggregate
 bun run verify             # graph-owned heavier verification aggregate
@@ -43,17 +43,15 @@ bun run habitat hook pre-push       # local affected pre-push path
 
 Notes:
 
-- Curated `habitat check --rule <id>` execution is the currently proven bridge
-  for package scripts. Plain `bun run habitat:check` / `bun run check` is still
-  the intended full-suite aggregate surface, but the current implementation has
-  known resolver/admission debt and can fail before producing useful packet
-  diagnostics. Do not treat that failure as a new surprise or as evidence that
-  selected-rule execution is broken; treat full-suite execution as a rebuild
-  target.
-- `habitat check` assumes a built tree for the bundle-output test rules
-  (`bun run build` first, or use graph validation through `bun run check:graph`).
-- `bun run lint` owns repo-wide Biome hygiene. Habitat structural findings
-  belong to `bun run check`; graph validation belongs to `bun run check:graph`.
+- Curated `habitat check --rule <id>` execution remains a diagnostic selector,
+  not a package-script policy surface. Root `bun run habitat:check` enters the
+  Nx graph and runs owner-level generated Habitat targets.
+- Direct `habitat check` assumes a built tree for bundle-output test rules.
+  Graph-owned `bun run habitat:check` declares the build dependencies needed by
+  generated owner targets.
+- `bun run lint` owns package-local lint targets. Habitat structural findings
+  belong to `bun run habitat:check`; graph validation belongs to
+  `bun run check:graph`.
 - Advisory-lane rules (`adr-lint`, `doc-ambiguity`) report but never fail —
   matching their pre-harness enforcement reality.
 - Baselines (`.habitat/baselines/<rule-id>.json`) are explicit contract artifacts and

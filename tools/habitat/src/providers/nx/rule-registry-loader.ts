@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import type { TSchema } from "typebox";
+import { Value } from "typebox/value";
 import {
   type RuleRegistryDocumentV1,
   RuleRegistryDocumentV1Schema,
@@ -8,8 +10,6 @@ import {
   type RuleRegistryRecordV1,
   RuleRegistryRecordV1Schema,
 } from "../../service/model/rules/dto/registry.schema.ts";
-import type { TSchema } from "typebox";
-import { Value } from "typebox/value";
 
 export type NxRuleRegistryRecord = RuleRegistryRecordV1;
 export type NxRuleRegistryDocument = RuleRegistryDocumentV1;
@@ -46,7 +46,9 @@ function findRuleRegistryIndexPath(registryDir: string): string {
   const directIndex = path.join(registryDir, "index.json");
   if (fs.existsSync(directIndex)) return directIndex;
 
-  const candidates = findFiles(registryDir, (filePath) => filePath.endsWith("/rule-pack-index/index.json"));
+  const candidates = findFiles(registryDir, (filePath) =>
+    filePath.endsWith("/rule-pack-index/index.json")
+  );
   if (candidates.length === 1) return candidates[0] as string;
   if (candidates.length > 1) {
     throw registryLoadError("Habitat rule registry is invalid", [

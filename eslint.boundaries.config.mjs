@@ -117,6 +117,10 @@ const allow = [
   "./providers/**",
   "./resources/**",
   "./service/**",
+  "../../../../resources/**",
+  "../../service/model/rules/dto/registry.schema.ts",
+  "../../host/**",
+  "../../rules/**",
 ];
 
 export default [

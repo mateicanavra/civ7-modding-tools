@@ -23,15 +23,6 @@
       ],
       "cache": true
     },
-    "build:studio-recipes": {
-      "dependsOn": ["^build"],
-      "outputs": [
-        "{projectRoot}/dist/**",
-        "{projectRoot}/mod/**",
-        "{projectRoot}/src/maps/generated/**"
-      ],
-      "cache": true
-    },
     "deploy": {
       "dependsOn": [
         "build",
@@ -42,15 +33,15 @@
       ],
       "cache": false
     },
-    "deploy:studio": {
+    "habitat:check": {
       "dependsOn": [
         "build",
         {
-          "projects": ["@mateicanavra/civ7-cli"],
+          "projects": ["@habitat/cli"],
           "target": "build"
         }
       ],
-      "cache": false
+      "cache": true
     },
     "dev": {
       "cache": false,
@@ -64,14 +55,6 @@
       "cache": true
     },
     "test": {
-      "dependsOn": ["^build"],
-      "cache": true
-    },
-    "test:studio-run-in-game": {
-      "dependsOn": ["^build"],
-      "cache": true
-    },
-    "test:architecture-cutover": {
       "dependsOn": ["^build"],
       "cache": true
     },

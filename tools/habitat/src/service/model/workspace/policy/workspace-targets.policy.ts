@@ -1,5 +1,5 @@
-import type { RuleGraphFacts } from "@habitat/cli/service/model/rules/dto/registry.schema";
 import { Value } from "typebox/value";
+import type { RuleGraphFacts } from "../../rules/dto/registry.schema.ts";
 import { verifyAffectedTargetNames } from "../../validation/policy/target-routing.policy.ts";
 import {
   type AggregateWorkspaceTargetDeclaration,

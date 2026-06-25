@@ -10,11 +10,12 @@ runExpectSuccess(["bun", "run", "habitat", "--", "check", "--help"], "check help
 const checkResult = run([
   "bun",
   "run",
-  "habitat:check",
+  "habitat",
   "--",
+  "check",
   "--json",
   "--rule",
-  "workspace-entrypoints",
+  "service-module-shape",
 ]);
 if (checkResult.status !== 0 && checkResult.status !== 1) {
   fail("check JSON", checkResult, "expected exit 0 or 1");

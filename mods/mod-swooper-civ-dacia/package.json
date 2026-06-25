@@ -36,8 +36,7 @@
     "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
     "docs": "docsify serve docs",
     "lint": "biome check .",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "build:deploy": "node -e \"\""
+    "check": "tsc -p tsconfig.json --noEmit"
   },
   "repository": {
     "type": "git",
