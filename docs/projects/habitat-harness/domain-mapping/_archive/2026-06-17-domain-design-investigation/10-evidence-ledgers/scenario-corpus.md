@@ -8,7 +8,7 @@ intent. It does not treat current module placement as the domain model.
 
 - Supported current scenarios: S01-S09.
 - Desired or future scenarios: S10-S12.
-- Evidence basis: `tools/habitat-harness/docs/DOMAIN-MAPPING.md`,
+- Evidence basis: `tools/habitat/docs/DOMAIN-MAPPING.md`,
   `CAPABILITIES.md`, `IMPLEMENTED-SURFACE.md`, `SCENARIOS.md`, `GAPS.md`,
   `AUTHORING-NEXT.md`, current Habitat source, and current Habitat tests.
 - Product split: S01-S09 describe the current structural substrate; S10-S12
@@ -30,9 +30,9 @@ intent. It does not treat current module placement as the domain model.
 - Failure/refusal modes: workspace-level path, unresolved rule metadata,
   missing project target.
 - Current evidence: `classifyPath`/`classifyPathWithProjects` in
-  `tools/habitat-harness/src/lib/command-engine.ts`,
+  `tools/habitat/src/lib/command-engine.ts`,
   `NxProjectGraphMetadataReader` in `src/lib/nx-projects.ts`,
-  `tools/habitat-harness/test/lib/classify.test.ts`,
+  `tools/habitat/test/lib/classify.test.ts`,
   `CAPABILITIES.md`.
 - Flow map: F01.
 - Evidence status: verified current behavior.
@@ -75,7 +75,7 @@ intent. It does not treat current module placement as the domain model.
   failure.
 - Current evidence: `selectRules`, `createCheckReport`, `executeSelectedRules`,
   `applyBaseline`, and `checkBaselineIntegrity` in `command-engine.ts` and
-  `baseline.ts`; `tools/habitat-harness/src/rules/rules.json`; rule-selection
+  `baseline.ts`; `tools/habitat/src/rules/rules.json`; rule-selection
   and baseline tests; `CAPABILITIES.md`.
 - Flow map: F03.
 - Evidence status: verified current behavior.
@@ -96,7 +96,7 @@ intent. It does not treat current module placement as the domain model.
 - Failure/refusal modes: Habitat check failure skips Nx affected; affected task
   failure produces nonzero proof; proof does not claim product runtime behavior.
 - Current evidence: `createVerifyProof`, `runAffectedVerification`,
-  `verifyAffectedTargets`, and `tools/habitat-harness/test/lib/verify-proof.test.ts`;
+  `verifyAffectedTargets`, and `tools/habitat/test/lib/verify-proof.test.ts`;
   `CAPABILITIES.md`.
 - Flow map: F04.
 - Evidence status: verified current behavior.
@@ -119,7 +119,7 @@ intent. It does not treat current module placement as the domain model.
   unexpected file, missing target export, Biome failure, gate failure.
 - Current evidence: `runFix` in `command-engine.ts`; `runGritApplyTransaction`,
   `classifyApplyRewriteInventory`, `classifyApplyDiffEvidence`, and rollback
-  paths in `grit-apply.ts`; `tools/habitat-harness/test/lib/grit-apply.test.ts`;
+  paths in `grit-apply.ts`; `tools/habitat/test/lib/grit-apply.test.ts`;
   `CAPABILITIES.md`.
 - Flow map: F05.
 - Evidence status: verified current behavior.
@@ -140,7 +140,7 @@ intent. It does not treat current module placement as the domain model.
 - Failure/refusal modes: dirty or uninitialized resources submodule, partial
   staging, formatter failure, Grit parse/finding, affected target failure.
 - Current evidence: `runPreCommit`, `runPrePush`, `classifyResourcesState`,
-  `localHookProofNotice` in `hooks.ts`; `tools/habitat-harness/test/lib/hooks.test.ts`;
+  `localHookProofNotice` in `hooks.ts`; `tools/habitat/test/lib/hooks.test.ts`;
   `CAPABILITIES.md`.
 - Flow map: F06.
 - Evidence status: verified current behavior.
@@ -150,7 +150,7 @@ intent. It does not treat current module placement as the domain model.
 - Status: supported limited.
 - Actor: agent or maintainer creating a uniform workspace project.
 - Trigger: need for a supported app, foundation, or plugin project.
-- Interface: `nx g @internal/habitat-harness:project`.
+- Interface: `nx g @habitat/cli:project`.
 - Input: kind and name, with optional directory/package fields.
 - Output: package, tsconfig, source, test, README, or refusal.
 - Domain concepts: scaffolding, uniform project shape, domain-owned refusal.
@@ -158,7 +158,7 @@ intent. It does not treat current module placement as the domain model.
 - Proof need: scratch generation and Nx/project metadata discovery.
 - Failure/refusal modes: unsupported kind, mismatched root, mismatched package
   name, non-empty root, package-name collision.
-- Current evidence: `tools/habitat-harness/src/generators/project/generator.cjs`,
+- Current evidence: `tools/habitat/src/generators/project/generator.cjs`,
   project generator tests, `IMPLEMENTED-SURFACE.md`, `CAPABILITIES.md`.
 - Flow map: F07.
 - Evidence status: verified current behavior.
@@ -168,7 +168,7 @@ intent. It does not treat current module placement as the domain model.
 - Status: supported.
 - Actor: maintainer or agent drafting a structural rule candidate.
 - Trigger: need for a future structural check.
-- Interface: `nx g @internal/habitat-harness:pattern`.
+- Interface: `nx g @habitat/cli:pattern`.
 - Input: rule id, pattern name, lifecycle candidate, owner metadata.
 - Output: non-enforcing candidate Grit markdown and candidate manifest.
 - Domain concepts: pattern candidate, authority gap, admission checklist.

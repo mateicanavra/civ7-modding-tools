@@ -54,7 +54,7 @@
     "biome:format": "biome format --write .",
     "biome:check": "biome check .",
     "biome:ci": "biome ci .",
-    "habitat": "bun tools/habitat-harness/bin/dev.ts",
+    "habitat": "bun tools/habitat/bin/dev.ts",
     "habitat:check": "bun run habitat check",
     "habitat:fix": "bun run habitat fix",
     "ci": "nx run-many --targets=build,check,lint,test",

@@ -57,8 +57,8 @@ The current bar is:
 
 `phase-record.md` still records the old weak validation gates:
 
-- `nx show project @internal/habitat-harness`
-- `bun run habitat classify tools/habitat-harness/src/plugin.js`
+- `nx show project @habitat/cli`
+- `bun run habitat classify tools/habitat/src/plugin.js`
 - OpenSpec validation
 - `git diff --check`
 
@@ -107,7 +107,7 @@ Graph authority surface, not just the current falsifier.
 Required repair:
 
 - Add a validation gate that inventories every D3-owned graph declaration and
-  every emitted D3-owned Nx target from `nx show project @internal/habitat-harness
+  every emitted D3-owned Nx target from `nx show project @habitat/cli
   --json`.
 - The gate must assert, for the complete set:
   - every owner root comes from the Workspace Graph contract;
@@ -194,10 +194,10 @@ Required repair:
 
 ## Required Validation Repairs
 
-- Keep `NX_DAEMON=false nx run @internal/habitat-harness:habitat:rule:biome-ci
+- Keep `NX_DAEMON=false nx run @habitat/cli:habitat:rule:biome-ci
   --skip-nx-cache` as a required regression proof.
 - Add full emitted-target inventory assertions from `nx show project
-  @internal/habitat-harness --json`.
+  @habitat/cli --json`.
 - Add unit tests or fixtures that cover all graph refusal states, including
   missing project, missing target, unresolved alias dependency, malformed graph
   JSON, Nx read failure, and Nx daemon failure.

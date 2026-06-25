@@ -1,9 +1,9 @@
 {
   "id": "service-module-shape",
   "ownerTool": "command-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "@habitat/cli",
   "lane": "enforced",
-  "scope": "tools/habitat-harness/src/service/modules/** and tools/habitat-harness/src/service/model/**",
+  "scope": "tools/habitat/src/service/modules/** and tools/habitat/src/service/model/**",
   "forbids": "service module and service-model files outside the admitted file tree and suffix shape",
   "why": "The Habitat Toolkit must be its own golden example for service module structure.",
   "detect": ["bun", ".habitat/habitat/toolkit/_self/check/service-module-shape/service-module-shape.check.ts"],
@@ -14,8 +14,8 @@
     {
       "kind": "exact-path",
       "patterns": [
-        "tools/habitat-harness/src/service/modules/**",
-        "tools/habitat-harness/src/service/model/**"
+        "tools/habitat/src/service/modules/**",
+        "tools/habitat/src/service/model/**"
       ]
     },
     {

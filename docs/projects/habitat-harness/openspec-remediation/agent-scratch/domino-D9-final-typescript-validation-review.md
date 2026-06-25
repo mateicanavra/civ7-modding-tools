@@ -6,7 +6,7 @@ Accepted for the design/specification lane.
 
 No unresolved P1/P2 TypeScript state-space or validation findings remain against the current disk state of `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction`.
 
-This is not source acceptance. The current implementation evidence in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-apply.ts` still has the legacy flags, nullable proof DTO, boolean result, inline host validation, and broad orchestration module that D9 is meant to replace. The packet now treats that source as evidence, not target authority, and gives implementation agents a sufficiently exact replacement model and falsification suite.
+This is not source acceptance. The current implementation evidence in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts` still has the legacy flags, nullable proof DTO, boolean result, inline host validation, and broad orchestration module that D9 is meant to replace. The packet now treats that source as evidence, not target authority, and gives implementation agents a sufficiently exact replacement model and falsification suite.
 
 ## Findings
 
@@ -38,8 +38,8 @@ Disk evidence reviewed:
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d9-transformation-transaction/workstream/phase-record.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D9-transformation-transaction.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D9-typescript-state-investigation.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-apply.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-apply.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-apply.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`
 
 ## TypeScript State-Space Review
 

@@ -134,7 +134,7 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/host-policy.test.ts test/lib/grit-apply.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/host-policy.test.ts test/lib/grit-apply.test.ts`:
   expected exit 0 after the implementation creates the internal host-policy
   module fixtures and apply-gate consumer fixtures.
 - `bun run habitat classify $REPO_ROOT/mods/mod-swooper-maps/src/maps/generated/swooper-earthlike.ts`:

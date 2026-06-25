@@ -22,15 +22,15 @@ exist.
 - Re-read the active negative-control note in `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D3-review.md:1`, which supersedes any historical wording that lowered D3 to a `biome-ci`-only fix.
 - Re-read the D3 proposal, design, spec, tasks, and all workstream files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary`.
 - Re-read `docs/projects/habitat-harness/openspec-remediation/context.md` and the packet index.
-- Re-checked current graph-related source topology in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`.
+- Re-checked current graph-related source topology in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`.
 
 Commands run:
 
 - `bun run openspec -- validate deep-habitat-d3-workspace-graph-boundary --strict`: passed.
 - `bun run openspec:validate`: passed, 249 items.
 - `git diff --check`: passed.
-- `nx show project @internal/habitat-harness --json`: still shows `habitat:rule:biome-ci` depends on `{"projects":["biome"],"target":"ci"}`.
-- `NX_DAEMON=false nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache`: still exits 0 after Nx reports the dependency misconfiguration.
+- `nx show project @habitat/cli --json`: still shows `habitat:rule:biome-ci` depends on `{"projects":["biome"],"target":"ci"}`.
+- `NX_DAEMON=false nx run @habitat/cli:habitat:rule:biome-ci --skip-nx-cache`: still exits 0 after Nx reports the dependency misconfiguration.
 
 ## Acceptance Basis
 
@@ -76,22 +76,22 @@ multi-dependency, graph read, and daemon failure cases in `/Users/mateicanavra/D
 
 The current source remains a live falsifier, not acceptance evidence for
 implementation. `plugin.js` still owns `OWNER_ROOTS` and target-name defaults in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:17`
-and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:29`.
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:17`
+and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:29`.
 It still defines `dependencyForTarget` with first-colon parsing in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:182`,
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:182`,
 still projects aliases through `node -e ""` in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:190`,
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:190`,
 and still routes `biome-ci`, grit, generated, and `rule.nxTarget` alias shapes
-locally in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:203`.
+locally in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:203`.
 
 `nx-projects.ts` still reads graph metadata and owns `findOwningProject` /
-`projectHasTarget` helpers in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts:21`.
+`projectHasTarget` helpers in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts:21`.
 `command-engine.ts` still carries classify target DTOs, hard-coded verify target
 names, and local project/workspace target construction in
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:196`,
-`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:614`,
-and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:1032`.
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:196`,
+`/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:614`,
+and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:1032`.
 
 That source state is exactly what D3 now requires later implementation to
 replace.

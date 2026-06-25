@@ -27,12 +27,12 @@ D6 can become acceptable without source implementation if the packet is repaired
 - D6 OpenSpec scaffold under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/`
 - D0, D1, and D2 OpenSpec packets and ledgers where D6 depends on public compatibility, command-record vocabulary, and rule metadata projections.
 - Code grounding set:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-failures.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-injected-probe.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/habitat-process.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-adapter.test.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-failures.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-injected-probe.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/habitat-process.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-adapter.test.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-injected-probe.test.ts`
 
 ## Current Smell Inventory
 
@@ -299,9 +299,9 @@ D0 matrix file is currently missing at `docs/projects/habitat-harness/public-sur
 
 D6 packet must require concrete D0 rows for at least:
 
-- `GritCheckParseResult`, `GritReport`, `GritResult`, `GritCheckOptions`, `GritCheckRequestOptions`, `GritProjectionOptions`, `GritCheckCacheMode`, `GritScanRootValidationOptions`, and exported functions in `tools/habitat-harness/src/lib/grit.ts`.
-- `GritAdapterFailureTag`, `GritAdapterFailure`, `createGritAdapterFailure`, `isGritAdapterFailureTag`, and `renderGritAdapterFailure` in `tools/habitat-harness/src/lib/grit-failures.ts`.
-- `InjectedGritProbeInput`, `InjectedGritProbeResult`, `InjectedGritProbeFailure`, `InjectedProbeScope`, and `runInjectedGritProbe` in `tools/habitat-harness/src/lib/grit-injected-probe.ts`.
+- `GritCheckParseResult`, `GritReport`, `GritResult`, `GritCheckOptions`, `GritCheckRequestOptions`, `GritProjectionOptions`, `GritCheckCacheMode`, `GritScanRootValidationOptions`, and exported functions in `tools/habitat/src/lib/grit.ts`.
+- `GritAdapterFailureTag`, `GritAdapterFailure`, `createGritAdapterFailure`, `isGritAdapterFailureTag`, and `renderGritAdapterFailure` in `tools/habitat/src/lib/grit-failures.ts`.
+- `InjectedGritProbeInput`, `InjectedGritProbeResult`, `InjectedGritProbeFailure`, `InjectedProbeScope`, and `runInjectedGritProbe` in `tools/habitat/src/lib/grit-injected-probe.ts`.
 - `HabitatCommandResult`, `HabitatProcessRequest`, `GritParseStatus`, `CommandCachePolicy`, and `HabitatCommandKind` only to the extent D6 changes their package-export or command-JSON meaning.
 - `habitat check --json` command JSON fields that expose diagnostics, adapter failure text, parse status, rule status, `ok`, and non-claims.
 - human output lines containing `--- grit adapter failure (...) ---` if any docs/tests/users rely on exact wording.

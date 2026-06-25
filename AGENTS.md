@@ -67,9 +67,9 @@ See `docs/process/GRAPHITE.md` and `docs/process/LINEAR.md` for full conventions
   before editing. Treat emitted project targets as runnable only when classify
   reports them from resolved Nx metadata; unavailable targets are routing facts,
   not commands to run. For supported new uniform projects, scaffold with
-  `nx g @internal/habitat-harness:project <name> --kind=<plugin|foundation|app>`;
+  `nx g @habitat/cli:project <name> --kind=<plugin|foundation|app>`;
   for new Grit-backed rules, use
-  `nx g @internal/habitat-harness:pattern <rule-id>` only to create a
+  `nx g @habitat/cli:pattern <rule-id>` only to create a
   non-enforcing candidate draft. Candidate output is not a registered Habitat
   rule, baseline, hook scope, or current-tree proof. Registered enforcement
   requires the accepted Pattern Authority Manifest, baseline contract,

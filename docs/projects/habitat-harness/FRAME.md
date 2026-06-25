@@ -19,7 +19,7 @@ Treat repository structure as an **executable, ratchetable contract**. Today the
 repo's architecture is enforced by a scattered, partially-prose surface: nine
 custom lint scripts, six architecture tests, an ESLint config of restricted
 imports, CI jobs, and AGENTS.md/doc rules with no enforcement. The harness
-re-homes all of that into one repository-local toolkit (`tools/habitat-harness`)
+re-homes all of that into one repository-local toolkit (`tools/habitat`)
 with five enforcement layers, each with a single owning tool, plus a ratchet so
 new invariants can land red and be burned down to green without blocking the
 repo.
@@ -225,7 +225,7 @@ H1's official migration path completed and the later
 - Current command boundary after the lint-topology repair: `bun run lint` is
   the fast repo-wide Biome hygiene gate. Full Habitat structural proof remains
   explicit through `bun run habitat:check`,
-  `@internal/habitat-harness:habitat:check:all`, `bun run verify`, and
+  `@habitat/cli:habitat:check:all`, `bun run verify`, and
   `bun run check`; it is not hidden inside root lint.
 
 ## 5. Spec draft disposition

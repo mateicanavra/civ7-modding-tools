@@ -1,6 +1,6 @@
 # oRPC Context Provisioning Note
 
-This note was moved out of `tools/habitat-harness/src/service/modules/hook/model`
+This note was moved out of `tools/habitat/src/service/modules/hook/model`
 because service module source allows only managed file kinds. The instruction
 still applies to the refactor:
 
@@ -24,7 +24,7 @@ service edge without reintroducing provider acquisition into service internals.
 
 ## Fix Contract Export Ordering Note
 
-This note was moved out of `tools/habitat-harness/src/service/modules/fix`
+This note was moved out of `tools/habitat/src/service/modules/fix`
 because service module source allows only managed file kinds. The instruction
 still applies to the fix contract cleanup:
 

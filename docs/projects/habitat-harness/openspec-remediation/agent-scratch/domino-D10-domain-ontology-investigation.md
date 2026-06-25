@@ -19,12 +19,12 @@ Scope: design/specification only; no source implementation
 - Current D10 OpenSpec artifacts under `openspec/changes/deep-habitat-d10-protected-zone-authority/**`.
 - Adjacent accepted/current OpenSpec records for D7, D8, D9, D11, and G-HOST where they mention D10, generated/protected zones, host policy, staged mutation, apply admission, transactions, or local feedback.
 - Current source evidence:
-  - `tools/habitat-harness/src/lib/generated-zones.ts`.
-  - `tools/habitat-harness/scripts/verify-generated-zones.mjs`.
-  - `tools/habitat-harness/src/rules/rules.json`.
-  - `tools/habitat-harness/src/rules/architecture.ts`.
-  - `tools/habitat-harness/src/lib/grit-apply.ts`.
-  - `tools/habitat-harness/src/lib/hooks.ts`.
+  - `tools/habitat/src/lib/generated-zones.ts`.
+  - `tools/habitat/scripts/verify-generated-zones.mjs`.
+  - `tools/habitat/src/rules/rules.json`.
+  - `tools/habitat/src/rules/architecture.ts`.
+  - `tools/habitat/src/lib/grit-apply.ts`.
+  - `tools/habitat/src/lib/hooks.ts`.
 
 ## Core Judgment
 
@@ -212,7 +212,7 @@ Repair demand: replace generic gates with design-time and later implementation g
 
 - OpenSpec strict validation and wording audit for design acceptance.
 - Later implementation: generated-zone declaration schema tests, staged protected mutation tests, unknown zone id tests, missing host declaration refusal tests, declaration overlap/conflict tests, forbidden artifact tests, generated drift check separation tests, hook consumer tests, and D9 transaction path-authority tests.
-- Command scenarios must include `bun run habitat check --staged --tool file-layer --json` for clean and injected bad staged states, plus `nx run @internal/habitat-harness:generated:check` or its accepted successor for drift check non-claim.
+- Command scenarios must include `bun run habitat check --staged --tool file-layer --json` for clean and injected bad staged states, plus `nx run @habitat/cli:generated:check` or its accepted successor for drift check non-claim.
 
 ## P2 Blockers In Current D10 Packet
 

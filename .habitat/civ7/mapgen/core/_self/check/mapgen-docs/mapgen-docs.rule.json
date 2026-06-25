@@ -1,7 +1,7 @@
 {
   "id": "mapgen-docs",
   "ownerTool": "command-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "@habitat/cli",
   "lane": "enforced",
   "scope": "docs/system/libs/mapgen/**",
   "forbids": "mapgen canonical docs missing <toc>, ground-truth anchors, or with dead anchor paths",

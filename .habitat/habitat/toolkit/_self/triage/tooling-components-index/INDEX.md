@@ -4,7 +4,7 @@ This subject records Habitat-owned executable adapters and related bridge assets
 that were gathered during authority-tree triage. It is not a new
 `.habitat/tooling/components` ontology. Generic dispatch, provider selection,
 and command routing remain Toolkit implementation details under
-`tools/habitat-harness`.
+`tools/habitat`.
 
 Integration note: some Toolkit files still reference the previous
 `.habitat/tooling/components/*` paths for generator schemas and source-check
@@ -15,8 +15,8 @@ integration slice, not evidence that this subject is the runtime resolver.
 
 | Subject | Current Authority Path | Contents | Source Before Move | Integration State |
 | --- | --- | --- | --- | --- |
-| `generator-schemas` | `habitat/toolkit/_self/triage/generator-schemas/` | Generator schema writer and generated Nx schema JSON bridge assets. | `tools/habitat-harness/scripts/write-generator-schemas.ts`, `tools/habitat-harness/src/generators/scaffold/*/support/schema.json` | Generator schema paths updated; writer still exists only as a command adapter. |
-| `legacy-source-check` | `habitat/toolkit/_self/triage/legacy-source-check/` | Retired native source-check runtime and per-rule `.mjs` modules. | `tools/habitat-harness/src/service/model/source-check/policy/source/**` | Loader paths updated; target state is conversion to Grit-backed subject-local patterns. |
+| `generator-schemas` | `habitat/toolkit/_self/triage/generator-schemas/` | Generator schema writer and generated Nx schema JSON bridge assets. | `tools/habitat/scripts/write-generator-schemas.ts`, `tools/habitat/src/generators/scaffold/*/support/schema.json` | Generator schema paths updated; writer still exists only as a command adapter. |
+| `legacy-source-check` | `habitat/toolkit/_self/triage/legacy-source-check/` | Retired native source-check runtime and per-rule `.mjs` modules. | `tools/habitat/src/service/model/source-check/policy/source/**` | Loader paths updated; target state is conversion to Grit-backed subject-local patterns. |
 
 Do not add new adapter subjects here unless they are admitted by `.habitat/AUTHORITY.md`.
 

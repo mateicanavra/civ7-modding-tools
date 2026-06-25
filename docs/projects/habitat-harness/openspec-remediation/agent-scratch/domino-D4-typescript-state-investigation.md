@@ -19,10 +19,10 @@ The repair must define a real discriminated union orientation result, field rule
 - All files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/typescript-refactoring/references/`
 - Both files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.agents/skills/typescript-refactoring/assets/`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/AGENTS.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/classify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/classify.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
 - `docs/projects/habitat-harness/phase2-workstream-packets/D4-orientation-and-routing.md`
 - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D4-review.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/proposal.md`
@@ -103,7 +103,7 @@ Required D0 rows or equivalent citations before source implementation:
 | --- | --- | --- |
 | `habitat classify` CLI invocation | Public command verb with a required path/diff argument | `preserve` invocation unless D0 records a different explicit command change |
 | `habitat classify` command JSON | Current path shape is unversioned `Classification`; diff shape is `schemaVersion: 1` `DiffClassification` | Prefer `version` for the new discriminated result. If D0 instead chooses `preserve`, D4 must provide a compatibility wrapper/facade and expose the union separately. |
-| `Classification` package export | Exported from `tools/habitat-harness/src/index.ts`; optional-heavy DTO currently used as command output | Changes must cite D0 rows and keep the compatibility shape explicit through facade, deprecation, or versioning. |
+| `Classification` package export | Exported from `tools/habitat/src/index.ts`; optional-heavy DTO currently used as command output | Changes must cite D0 rows and keep the compatibility shape explicit through facade, deprecation, or versioning. |
 | `DiffClassification` package export | Exported from `src/index.ts`; versioned wrapper but contains optional-heavy child records | `version` or `facade`; `preserve` only if an adapter keeps old shape while target union lives behind a new surface. |
 | `ClassifiedTarget`, `UnavailableClassifiedTarget`, `ScopedRule` exports | Public supporting DTOs used by classify output | `preserve` as supporting fact types unless D2/D3 explicitly version/facade them. D4 should consume them; it must not redefine D2/D3 authority locally. |
 | Docs examples showing classify JSON/human output | Docs-only examples of current behavior | `document-only`; update examples only after citing command JSON/source rows. |

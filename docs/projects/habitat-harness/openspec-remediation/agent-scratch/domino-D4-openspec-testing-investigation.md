@@ -24,7 +24,7 @@ Objective: turn `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-de
 - Accepted D0 design/spec/tasks under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d0-command-surface-inventory/`
 - Accepted D2 design/spec/tasks under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/`
 - Accepted D3 design/spec/tasks under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d3-workspace-graph-boundary/`
-- Present-behavior evidence in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/classify.ts`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
+- Present-behavior evidence in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`, `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/classify.ts`, and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
 
 Command run:
 
@@ -106,12 +106,12 @@ The current D4 packet says the executor must record a concrete write set later. 
 
 Suggested write set:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- New orientation/classify contract module under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/` if needed
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/classify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts` only for D0-cited public export compatibility
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
-- New focused classify/orientation fixtures under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/` if needed
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- New orientation/classify contract module under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/` if needed
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/classify.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts` only for D0-cited public export compatibility
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
+- New focused classify/orientation fixtures under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/` if needed
 - `docs/SCENARIOS.md` and adjacent classify examples only when D0 rows cover public guidance
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d4-orientation-routing/**`
 - `docs/projects/habitat-harness/openspec-remediation/packet-index.md` only for D4 status after review
@@ -266,7 +266,7 @@ Scenario names:
 
 | Gate | Expected status | Oracle | Non-claim |
 | --- | --- | --- | --- |
-| Project path classify: `bun run habitat classify tools/habitat-harness/src/plugin.js --json` or current command equivalent | exit 0 | Top-level `state: "project-path"`; owner is `@internal/habitat-harness`; project root is `tools/habitat-harness`; tags are present; D2-backed scoped rules are present; D3-backed runnable targets and unavailable targets are distinguishable; non-claims are present. | Does not run targets, prove rule correctness, prove graph freshness beyond current read, or prove D7 enforcement. |
+| Project path classify: `bun run habitat classify tools/habitat/src/plugin.js --json` or current command equivalent | exit 0 | Top-level `state: "project-path"`; owner is `@habitat/cli`; project root is `tools/habitat`; tags are present; D2-backed scoped rules are present; D3-backed runnable targets and unavailable targets are distinguishable; non-claims are present. | Does not run targets, prove rule correctness, prove graph freshness beyond current read, or prove D7 enforcement. |
 | Workspace path classify: `bun run habitat classify package.json --json` or current command equivalent | exit 0 | Top-level `state: "workspace-path"`; no project owner; workspace-gate guidance present; no project-local target commands; non-claim that no project owner was inferred. | Does not prove every workspace rule is applicable or that workspace targets are fresh. |
 | Multi-path diff classify using one project path and one workspace path | exit 0 | Top-level `state: "diff"`; deterministic sorted paths; each changed path has its own path-level state; targets/rules are per-path, not collapsed. | Does not prove patch applies or that changed files exist. |
 | Malformed/pathless diff: literal newline text or empty patch input | nonzero or exit 0 with explicit refusal, per D0/D1 compatibility decision | Top-level `state: "malformed-or-pathless-diff"`; stable refusal reason; recovery instruction; zero runnable targets; no empty successful `paths: []` diff. | Does not infer ownership, target availability, or safety. |
@@ -275,7 +275,7 @@ Scenario names:
 | Unavailable target unit fixture | test exit 0 | `project-path` state includes unavailable target rows for missing project targets and does not include those targets in runnable command lists. | Does not prove absent targets should be created or run. |
 | D2 unresolved routing metadata unit fixture | test exit 0 | Path-level orientation includes scoped rule with unresolved routing metadata and does not guess from legacy `scope` prose. | Does not prove D2 registry correctness beyond supplied projection facts. |
 | D3 graph refusal facts unit fixture | test exit 0 | Orientation preserves D3 graph refusal categories such as missing-project alias, missing-target alias, and unresolved alias dependency as non-runnable facts. | Does not prove D3 dependency declarations are complete. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts` | exit 0 | Covers every D4 top-level state and the D2/D3 bad cases above. | Does not prove unrelated command behavior. |
+| `bun run --cwd tools/habitat test -- test/lib/classify.test.ts` | exit 0 | Covers every D4 top-level state and the D2/D3 bad cases above. | Does not prove unrelated command behavior. |
 | `bun run openspec -- validate deep-habitat-d4-orientation-routing --strict` | exit 0 | OpenSpec change structure is valid. | Does not prove contract adequacy. |
 | `bun run openspec:validate` | exit 0 | Repo OpenSpec records remain valid. | Does not prove runtime behavior. |
 | `git diff --check` | exit 0 | No whitespace conflict markers or diff formatting errors. | Does not prove semantic correctness. |
@@ -406,7 +406,7 @@ Replace `tasks.md` with implementation-ready slices like:
 
 ## 6. Validation
 
-- [ ] 6.1 Run `bun run --cwd tools/habitat-harness test -- test/lib/classify.test.ts`.
+- [ ] 6.1 Run `bun run --cwd tools/habitat test -- test/lib/classify.test.ts`.
 - [ ] 6.2 Run project path, workspace path, multi-path diff, and malformed/pathless
       diff classify commands and record exact expected states.
 - [ ] 6.3 Run graph refusal and unresolved owner fixtures and record exact expected
@@ -420,7 +420,7 @@ Replace `tasks.md` with implementation-ready slices like:
 - [ ] 7.1 Run final domain-language, OpenSpec/testing, TypeScript state-space,
       D2/D3 boundary, and information-design review lanes.
 - [ ] 7.2 Repair every accepted P1/P2 finding before D4 acceptance.
-- [ ] 7.3 Update `tools/habitat-harness/docs/SCENARIOS.md`, classify examples,
+- [ ] 7.3 Update `tools/habitat/docs/SCENARIOS.md`, classify examples,
       D14 dependency notes, packet index, phase record, downstream ledger, and
       closure checklist only after implementation facts are known.
 - [ ] 7.4 Leave the worktree clean or write a zero-context next packet.

@@ -128,14 +128,14 @@ Non-claims:
 Update:
 
 - receipt-class ledger;
-- `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`;
-- `tools/habitat-harness/docs/SCENARIOS.md`;
+- `tools/habitat/docs/IMPLEMENTED-SURFACE.md`;
+- `tools/habitat/docs/SCENARIOS.md`;
 - OpenSpec workstream templates if they cite Habitat receipt;
 - command examples in project records.
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/receipt-artifact.test.ts test/lib/verify-receipt.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/receipt-artifact.test.ts test/lib/verify-receipt.test.ts`:
   expected exit 0; schema/test receipt for receipt DTO boundaries.
 - `bun run habitat check --json`: expected exit 0 only after current-tree
   receipt risks are fixed or explicitly non-goaled by this packet.

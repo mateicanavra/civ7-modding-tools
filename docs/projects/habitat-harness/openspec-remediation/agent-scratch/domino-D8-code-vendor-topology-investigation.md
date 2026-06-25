@@ -40,18 +40,18 @@ Repo and OpenSpec sources:
 
 Current code, tests, and docs:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/generators/pattern/schema.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
-- Relevant slices of `tools/habitat-harness/src/lib/command-engine.ts`, `tools/habitat-harness/src/lib/hooks.ts`, `tools/habitat-harness/src/lib/grit.ts`, `tools/habitat-harness/src/lib/grit-apply.ts`, and `tools/habitat-harness/src/lib/baseline.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/pattern-generator.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/pattern-authority/manifest.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/generator.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/registration.cjs`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/generators/pattern/schema.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+- Relevant slices of `tools/habitat/src/lib/command-engine.ts`, `tools/habitat/src/lib/hooks.ts`, `tools/habitat/src/lib/grit.ts`, `tools/habitat/src/lib/grit-apply.ts`, and `tools/habitat/src/lib/baseline.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/rules/pattern-authority-manifest.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts`
 - Grit check/apply pattern inventory under `.grit/patterns/habitat/**`
-- Baseline inventory under `tools/habitat-harness/baselines/**`
-- `tools/habitat-harness/README.md`, `tools/habitat-harness/docs/CAPABILITIES.md`, and `tools/habitat-harness/docs/SCENARIOS.md`
+- Baseline inventory under `tools/habitat/baselines/**`
+- `tools/habitat/README.md`, `tools/habitat/docs/CAPABILITIES.md`, and `tools/habitat/docs/SCENARIOS.md`
 
 ## Vendor Docs Consulted
 
@@ -92,7 +92,7 @@ Vendor ownership facts D8 must respect:
 
 ### Pattern Authority Manifest
 
-`tools/habitat-harness/src/rules/pattern-authority/manifest.ts` is the current
+`tools/habitat/src/rules/pattern-authority/manifest.ts` is the current
 core Pattern Authority surface.
 
 Current exported model:
@@ -136,7 +136,7 @@ D8 gap:
 
 ### Pattern Generator And Promotion
 
-`tools/habitat-harness/src/generators/pattern/generator.cjs` is the current Nx
+`tools/habitat/src/generators/pattern/generator.cjs` is the current Nx
 generator entrypoint for pattern work.
 
 Current candidate generation:
@@ -145,10 +145,10 @@ Current candidate generation:
   id, manifest path, and hook scope.
 - Defaults lifecycle to `candidate`.
 - Refuses active rule collisions in `.habitat/patterns/active/checks`, baseline
-  collisions under `tools/habitat-harness/baselines`, and duplicate `rules.json`
+  collisions under `tools/habitat/baselines`, and duplicate `rules.json`
   ids.
 - Writes candidate pattern and candidate manifest under
-  `tools/habitat-harness/src/rules/pattern-authority/candidates`.
+  `tools/habitat/src/rules/pattern-authority/candidates`.
 - Candidate output explicitly says it is not an active Grit check, not a
   `rules.json` entry, not baselined, and not hook-scoped.
 
@@ -161,7 +161,7 @@ Current registered promotion:
   before writing registered output.
 - Refuses active pattern collisions and candidate-artifact collisions.
 - Writes `.habitat/patterns/active/checks/<pattern>.md`.
-- Appends a rule entry to `tools/habitat-harness/src/rules/rules.json`.
+- Appends a rule entry to `tools/habitat/src/rules/rules.json`.
 - Records `hookScope: "pre-commit"` only when the accepted manifest and
   invocation agree.
 
@@ -175,7 +175,7 @@ D8 gap:
 
 ### Rule Registry And Active Grit Catalog
 
-`tools/habitat-harness/src/rules/rules.json` is the current Habitat rule pack.
+`tools/habitat/src/rules/rules.json` is the current Habitat rule pack.
 Current disk inventory:
 
 - 52 total registered Habitat rules.
@@ -188,9 +188,9 @@ Current disk inventory:
 - Current Grit apply pattern directory contains 3 Markdown files under
   `.habitat/patterns/active/apply`.
 - No committed candidate files currently exist under
-  `tools/habitat-harness/src/rules/pattern-authority/candidates`.
+  `tools/habitat/src/rules/pattern-authority/candidates`.
 - No committed registered Pattern Authority JSON manifests currently exist
-  under `tools/habitat-harness/src/rules/pattern-authority/*.json`.
+  under `tools/habitat/src/rules/pattern-authority/*.json`.
 
 D8 gap:
 
@@ -205,20 +205,20 @@ D8 gap:
 
 Current consumers of D8-adjacent state:
 
-- `tools/habitat-harness/src/lib/grit.ts` consumes `rules.json` Grit facts and
+- `tools/habitat/src/lib/grit.ts` consumes `rules.json` Grit facts and
   `.grit` patterns to run/project diagnostics.
-- `tools/habitat-harness/src/lib/baseline.ts` consumes registered rule ids and
+- `tools/habitat/src/lib/baseline.ts` consumes registered rule ids and
   baseline JSON files, and enforces rule-introduction baseline manifests for
   seeded new-rule baselines.
-- `tools/habitat-harness/src/lib/command-engine.ts` selects rules, reduces
+- `tools/habitat/src/lib/command-engine.ts` selects rules, reduces
   staged Grit execution to hook-scoped rules, executes rule owners, applies
   baselines, and assembles `CheckReport`.
-- `tools/habitat-harness/src/lib/hooks.ts` uses `hookScope` and staged Grit
+- `tools/habitat/src/lib/hooks.ts` uses `hookScope` and staged Grit
   roots for pre-commit local feedback.
-- `tools/habitat-harness/src/plugin.js` uses `rules.json` to infer
+- `tools/habitat/src/plugin.js` uses `rules.json` to infer
   `habitat:check`, `habitat:rule:*`, `grit:check`, `generated:check`, and
   owner-specific targets.
-- `tools/habitat-harness/src/lib/grit-apply.ts` consumes apply patterns for fix
+- `tools/habitat/src/lib/grit-apply.ts` consumes apply patterns for fix
   transactions. D9 owns transaction safety, rollback, and recovery states.
 
 D8 does not own final report assembly, baseline application, diagnostic
@@ -230,7 +230,7 @@ trust.
 
 ### Public Or Durable D8-Adjacent Surfaces
 
-- Package exports from `tools/habitat-harness/src/index.ts`:
+- Package exports from `tools/habitat/src/index.ts`:
   `CandidatePatternAuthorityManifest`, `RegisteredPatternAuthorityManifest`,
   `PatternAuthorityManifest`, `PatternAuthorityRuleReference`,
   `PatternAuthorityValidationFailureReason`,
@@ -240,10 +240,10 @@ trust.
   `patternAuthorityManifestRoot`, `patternAuthorityManifestSchemaVersion`,
   `patternAuthorityRuleReferenceFromRule`, and
   `validatePatternAuthorityManifest`.
-- Nx generator surface from `tools/habitat-harness/generators.json`:
-  `@internal/habitat-harness:pattern`, its schema, and its factory.
+- Nx generator surface from `tools/habitat/generators.json`:
+  `@habitat/cli:pattern`, its schema, and its factory.
 - Generator schema fields in
-  `tools/habitat-harness/src/generators/pattern/schema.json`: `ruleId`,
+  `tools/habitat/src/generators/pattern/schema.json`: `ruleId`,
   `ownerProject`, `patternName`, `lifecycle`, `openspecChangeId`,
   `manifestPath`, and `hookScope`.
 - Current active rule registry fields in `rules.json`: `id`, `ownerTool`,
@@ -251,10 +251,10 @@ trust.
   `message`, `exceptionPath`, `gritPattern`, `manifestPath`, and `hookScope`.
 - Grit pattern file paths under `.habitat/patterns/active/checks/**` and
   `.habitat/patterns/active/apply/**`.
-- Baseline JSON files under `tools/habitat-harness/baselines/<rule-id>.json`.
-- Human guidance in `tools/habitat-harness/README.md`,
-  `tools/habitat-harness/docs/SCENARIOS.md`, and
-  `tools/habitat-harness/docs/CAPABILITIES.md`.
+- Baseline JSON files under `tools/habitat/baselines/<rule-id>.json`.
+- Human guidance in `tools/habitat/README.md`,
+  `tools/habitat/docs/SCENARIOS.md`, and
+  `tools/habitat/docs/CAPABILITIES.md`.
 - OpenSpec D8 artifacts under
   `openspec/changes/deep-habitat-d8-pattern-governance/**`.
 
@@ -308,43 +308,43 @@ Candidate later D8 implementation write set, after packet acceptance:
 - `openspec/changes/deep-habitat-d8-pattern-governance/**` for packet repair,
   phase records, review disposition, downstream realignment, and closure
   evidence.
-- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts` for the
+- `tools/habitat/src/rules/pattern-authority/manifest.ts` for the
   lifecycle union, manifest validation, refusal-state shape, retired-state
   shape, and rule-reference projection.
-- `tools/habitat-harness/src/generators/pattern/generator.cjs` only for
+- `tools/habitat/src/generators/pattern/generator.cjs` only for
   generator behavior that creates candidate states or routes promotion through
   accepted D8 governance.
-- `tools/habitat-harness/src/generators/pattern/registration.cjs` only for
+- `tools/habitat/src/generators/pattern/registration.cjs` only for
   registered promotion admission gates, refusal output, and baseline/manifest
   consumption.
-- `tools/habitat-harness/src/generators/pattern/schema.json` only if D0/D13
+- `tools/habitat/src/generators/pattern/schema.json` only if D0/D13
   compatibility allows generator schema changes.
-- `tools/habitat-harness/src/index.ts` only for explicit public export
+- `tools/habitat/src/index.ts` only for explicit public export
   additions/versioning approved through D0.
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts` for
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts` for
   lifecycle, refusal, retired-state, manifest-invalid candidate, hook-scope,
   apply-safety, and rule-reference tests.
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts` for
+- `tools/habitat/test/generators/pattern-generator.test.ts` for
   candidate and promotion write/refusal tests.
 - A new focused D8 test file may be justified if lifecycle state explosion makes
   the two existing test files too broad.
-- `tools/habitat-harness/README.md`,
-  `tools/habitat-harness/docs/SCENARIOS.md`, and
-  `tools/habitat-harness/docs/CAPABILITIES.md` only for public guidance
+- `tools/habitat/README.md`,
+  `tools/habitat/docs/SCENARIOS.md`, and
+  `tools/habitat/docs/CAPABILITIES.md` only for public guidance
   updates caused by accepted D8 semantics.
 - `docs/projects/habitat-harness/openspec-remediation/packet-index.md` and
   D8 downstream ledgers only after D8 review/repair facts change packet status.
 
 Conditional write set requiring extra authority:
 
-- `tools/habitat-harness/src/rules/rules.json` only when D2 registry facts,
+- `tools/habitat/src/rules/rules.json` only when D2 registry facts,
   D5 baseline contract, and D8 admission state explicitly authorize a rule
   registration or migration.
 - `.habitat/patterns/active/checks/**` only when D6 diagnostic catalog and D8
   admission both authorize active pattern creation or migration.
 - `.habitat/patterns/active/apply/**` only when D9 apply-safety authority
   authorizes a transformation pattern; D8 alone cannot approve apply writes.
-- `tools/habitat-harness/baselines/**` only through D5-approved
+- `tools/habitat/baselines/**` only through D5-approved
   rule-introduction or baseline-integrity paths.
 
 ## Protected Paths
@@ -352,28 +352,28 @@ Conditional write set requiring extra authority:
 D8 must protect these paths from direct edits unless the named owner contract
 explicitly authorizes the change:
 
-- `tools/habitat-harness/dist/**` and
-  `tools/habitat-harness/oclif.manifest.json`: generated build artifacts.
+- `tools/habitat/dist/**` and
+  `tools/habitat/oclif.manifest.json`: generated build artifacts.
 - `node_modules/**`, `.nx/**`, `.habitat/cache/patterns/**`, and `.grit/.gritmodules/**`:
   vendor/cache output.
 - Root lockfiles and package manager generated state.
-- `tools/habitat-harness/baselines/**`: D5 baseline authority. Do not edit
+- `tools/habitat/baselines/**`: D5 baseline authority. Do not edit
   baseline JSON as a side effect of Pattern Governance design.
 - Existing `.habitat/patterns/active/checks/**`: D6 diagnostic catalog and
   current enforcement state. D8 must not treat file presence as lifecycle
   authority.
 - Existing `.habitat/patterns/active/apply/**`: D9 transformation authority.
   Diagnostic registration does not imply apply approval.
-- `tools/habitat-harness/src/rules/rules.json`: D2 rule registry metadata.
+- `tools/habitat/src/rules/rules.json`: D2 rule registry metadata.
   D8 may consume and reference registry facts, but schema/row changes need D2
   and D0 compatibility.
-- `tools/habitat-harness/src/plugin.js`, `nx.json`, and root Nx target
+- `tools/habitat/src/plugin.js`, `nx.json`, and root Nx target
   configuration: D3 graph/Nx topology and D0 public surfaces.
-- `tools/habitat-harness/src/lib/command-engine.ts`,
-  `tools/habitat-harness/src/lib/hooks.ts`,
-  `tools/habitat-harness/src/lib/grit.ts`,
-  `tools/habitat-harness/src/lib/grit-apply.ts`, and
-  `tools/habitat-harness/src/lib/baseline.ts`: owned primarily by D7, D11, D6,
+- `tools/habitat/src/lib/command-engine.ts`,
+  `tools/habitat/src/lib/hooks.ts`,
+  `tools/habitat/src/lib/grit.ts`,
+  `tools/habitat/src/lib/grit-apply.ts`, and
+  `tools/habitat/src/lib/baseline.ts`: owned primarily by D7, D11, D6,
   D9, and D5 respectively.
 - Generated or protected product outputs outside Habitat, including `mod/**`,
   `dist/**`, `mods/mod-swooper-maps/src/maps/generated/**`, and
@@ -381,7 +381,7 @@ explicitly authorizes the change:
 
 Stale/generated-output concerns:
 
-- `tools/habitat-harness/docs/CAPABILITIES.md` says there are 31 active
+- `tools/habitat/docs/CAPABILITIES.md` says there are 31 active
   `grit-check` rules and 2 apply patterns, while current disk inventory shows
   32 `grit-check` rules and 3 apply pattern files. D8 must treat that as stale
   guidance evidence, not a source of truth, and should repair docs only if D8
@@ -394,15 +394,15 @@ Stale/generated-output concerns:
 
 Current D8 validation gates:
 
-- `bun run --cwd tools/habitat-harness test -- test/rules/pattern-authority-manifest.test.ts`
-- `bun run habitat classify tools/habitat-harness/src/rules/rules.json`
+- `bun run --cwd tools/habitat test -- test/rules/pattern-authority-manifest.test.ts`
+- `bun run habitat classify tools/habitat/src/rules/rules.json`
 - `bun run openspec -- validate deep-habitat-d8-pattern-governance --strict`
 - `bun run openspec:validate`
 - `git diff --check`
 
 Required D8 topology gates before implementation readiness:
 
-- `bun run --cwd tools/habitat-harness test -- test/rules/pattern-authority-manifest.test.ts test/generators/pattern-generator.test.ts`: must cover candidate draft, manifest-invalid candidate, registered diagnostic, hook-scoped registered, apply-approved registered, refused, retired, missing manifest, missing fixtures, missing baseline contract, missing hook decision, apply-safety absence, and no-write refusal cases.
+- `bun run --cwd tools/habitat test -- test/rules/pattern-authority-manifest.test.ts test/generators/pattern-generator.test.ts`: must cover candidate draft, manifest-invalid candidate, registered diagnostic, hook-scoped registered, apply-approved registered, refused, retired, missing manifest, missing fixtures, missing baseline contract, missing hook decision, apply-safety absence, and no-write refusal cases.
 - `bun run habitat check --rule baseline-integrity --json`: must prove D5
   baseline contract state for any registered pattern touched by D8. Broad
   `habitat check --json` is not a substitute for the D5-focused gate.
@@ -410,8 +410,8 @@ Required D8 topology gates before implementation readiness:
   or a narrowed accepted equivalent: must prove native Grit fixture behavior
   for pattern files touched by D8. This proves pattern fixture syntax/behavior,
   not Pattern Governance admission.
-- `bun run habitat classify tools/habitat-harness/src/rules/rules.json` and
-  `bun run habitat classify tools/habitat-harness/src/rules/pattern-authority/manifest.ts`: must record path routing facts and available targets.
+- `bun run habitat classify tools/habitat/src/rules/rules.json` and
+  `bun run habitat classify tools/habitat/src/rules/pattern-authority/manifest.ts`: must record path routing facts and available targets.
 - `bun run openspec -- validate deep-habitat-d8-pattern-governance --strict`
 - `bun run openspec:validate`
 - `git diff --check`

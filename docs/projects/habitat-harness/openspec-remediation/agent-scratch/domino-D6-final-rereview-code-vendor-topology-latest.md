@@ -34,14 +34,14 @@ D2 `ruleGritFacts` projections.
   - `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/workstream/closure-checklist.md`
   - `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/workstream/downstream-realignment-ledger.md`
 - Code/tests:
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/grit-failures.ts`
-  - `tools/habitat-harness/src/lib/grit-injected-probe.ts`
-  - `tools/habitat-harness/src/lib/habitat-process.ts`
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/test/lib/grit-adapter.test.ts`
-  - `tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
-  - `tools/habitat-harness/test/grit/grit-patterns.test.ts`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/grit-failures.ts`
+  - `tools/habitat/src/lib/grit-injected-probe.ts`
+  - `tools/habitat/src/lib/habitat-process.ts`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/test/lib/grit-adapter.test.ts`
+  - `tools/habitat/test/lib/grit-injected-probe.test.ts`
+  - `tools/habitat/test/grit/grit-patterns.test.ts`
 
 ## Commands Run
 
@@ -52,7 +52,7 @@ D2 `ruleGritFacts` projections.
   reported by the command.
 - `find openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog -maxdepth 3 -type f | sort`
 - `find docs/projects/habitat-harness -name AGENTS.md -print`
-- `find tools/habitat-harness -name AGENTS.md -print`
+- `find tools/habitat -name AGENTS.md -print`
 - `wc -l` over the D6 packet/control files and the required code/test files.
 - `cat` for the mandatory skills and OpenSpec-workstream references listed above.
 - `nl -ba` reads over every D6 packet/control file and targeted code/test ranges
@@ -66,7 +66,7 @@ D2 `ruleGritFacts` projections.
 - `bun run habitat check --tool grit-check --json`
   - Result: exit 0, `ok: true`; enforced Grit rules passed. Existing advisory
     `docs-local-checkout-paths` findings remain in historical scratch artifacts.
-- `bun run --cwd tools/habitat-harness test -- test/grit/grit-patterns.test.ts`
+- `bun run --cwd tools/habitat test -- test/grit/grit-patterns.test.ts`
   - Result: exit 0, 1 file passed, native Grit samples pass.
 - `bun run openspec:validate`
   - Result: exit 0, 249 OpenSpec items passed.
@@ -80,30 +80,30 @@ design/specification contract, not as a claim that source has been repaired:
 
 - Identity topology is correctly source-blocked. Current code still projects from
   whole `HarnessRule` rows and falls back through `rule.gritPattern ?? rule.id`
-  in `tools/habitat-harness/src/lib/grit.ts:600` and
-  `tools/habitat-harness/src/lib/grit.ts:626`; `rules.json` still carries direct
-  `gritPattern` fields such as `tools/habitat-harness/src/rules/rules.json:70`
-  and `tools/habitat-harness/src/rules/rules.json:120`. D6 now forbids fallback
+  in `tools/habitat/src/lib/grit.ts:600` and
+  `tools/habitat/src/lib/grit.ts:626`; `rules.json` still carries direct
+  `gritPattern` fields such as `tools/habitat/src/rules/rules.json:70`
+  and `tools/habitat/src/rules/rules.json:120`. D6 now forbids fallback
   identity and requires D2-backed `DiagnosticIdentity` in
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:74`,
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:88`,
   and `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/specs/habitat-harness/spec.md:27`.
 - Command-family topology is now closed enough for implementation. Current code
   has distinct JSON check, text check, and docs apply dry-run observation paths in
-  `tools/habitat-harness/src/lib/grit.ts:126`,
-  `tools/habitat-harness/src/lib/grit.ts:293`, and
-  `tools/habitat-harness/src/lib/grit.ts:428`; tests pin these distinctions in
-  `tools/habitat-harness/test/lib/grit-adapter.test.ts:235`,
-  `tools/habitat-harness/test/lib/grit-adapter.test.ts:328`, and
-  `tools/habitat-harness/test/lib/grit-adapter.test.ts:391`. D6 now names the
+  `tools/habitat/src/lib/grit.ts:126`,
+  `tools/habitat/src/lib/grit.ts:293`, and
+  `tools/habitat/src/lib/grit.ts:428`; tests pin these distinctions in
+  `tools/habitat/test/lib/grit-adapter.test.ts:235`,
+  `tools/habitat/test/lib/grit-adapter.test.ts:328`, and
+  `tools/habitat/test/lib/grit-adapter.test.ts:391`. D6 now names the
   closed native command families and output contracts in
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:189`
   and `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/specs/habitat-harness/spec.md:69`.
 - Parsed acquisition is no longer allowed to smuggle unfinished command states.
   Current `GritCheckParseResult` still carries full `HabitatCommandResult` in
-  `tools/habitat-harness/src/lib/grit.ts:45`; successful parse paths preserve full
-  process detail in `tools/habitat-harness/src/lib/grit.ts:491` and
-  `tools/habitat-harness/src/lib/grit.ts:738`. D6 now restricts parsed
+  `tools/habitat/src/lib/grit.ts:45`; successful parse paths preserve full
+  process detail in `tools/habitat/src/lib/grit.ts:491` and
+  `tools/habitat/src/lib/grit.ts:738`. D6 now restricts parsed
   acquisition to `CompletedDiagnosticCommandObservation` in
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:210`
   and `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:264`,
@@ -111,8 +111,8 @@ design/specification contract, not as a claim that source has been repaired:
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/specs/habitat-harness/spec.md:111`.
 - Adapter/apply failure ownership is repaired at the packet level. Current
   exports still include D9-owned `GritApply*` tags inside
-  `GritAdapterFailureTag` at `tools/habitat-harness/src/lib/grit-failures.ts:3`
-  and `tools/habitat-harness/src/lib/grit-failures.ts:34`. D6 now defines a
+  `GritAdapterFailureTag` at `tools/habitat/src/lib/grit-failures.ts:3`
+  and `tools/habitat/src/lib/grit-failures.ts:34`. D6 now defines a
   diagnostic-only failure subset and explicitly forbids `GritApply*` states in
   diagnostic acquisition/projection/probe targets at
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:248`
@@ -121,10 +121,10 @@ design/specification contract, not as a claim that source has been repaired:
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/specs/habitat-harness/spec.md:136`.
 - Scan roots, cache, and freshness are now typed target states rather than text
   or option flags. Current code returns string/null scan-root failures in
-  `tools/habitat-harness/src/lib/grit.ts:682` and uses cache flags/policies in
-  `tools/habitat-harness/src/lib/grit.ts:60`,
-  `tools/habitat-harness/src/lib/habitat-process.ts:39`, and
-  `tools/habitat-harness/src/lib/grit.ts:396`. D6 closes scan-root decisions and
+  `tools/habitat/src/lib/grit.ts:682` and uses cache flags/policies in
+  `tools/habitat/src/lib/grit.ts:60`,
+  `tools/habitat/src/lib/habitat-process.ts:39`, and
+  `tools/habitat/src/lib/grit.ts:396`. D6 closes scan-root decisions and
   cache observations in
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:165`
   and `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:231`,
@@ -134,10 +134,10 @@ design/specification contract, not as a claim that source has been repaired:
 - Injected probes are repaired as diagnostic outcomes. Current code still uses
   proof-shaped language and can return `ok: true` with
   `cleanupRestoredStatus` as a boolean in
-  `tools/habitat-harness/src/lib/grit-injected-probe.ts:38` and
-  `tools/habitat-harness/src/lib/grit-injected-probe.ts:200`; it also parses
+  `tools/habitat/src/lib/grit-injected-probe.ts:38` and
+  `tools/habitat/src/lib/grit-injected-probe.ts:200`; it also parses
   adapter failure tags from rendered diagnostic messages in
-  `tools/habitat-harness/src/lib/grit-injected-probe.ts:370`. D6 now makes
+  `tools/habitat/src/lib/grit-injected-probe.ts:370`. D6 now makes
   successful probe observation require restored cleanup and moves dirty/not
   restored cleanup to failure context in
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:327`
@@ -154,7 +154,7 @@ design/specification contract, not as a claim that source has been repaired:
 - Native Grit fixtures remain correctly scoped as vendor/corpus evidence, not
   current-tree cleanliness or governance admission. The native fixture test runs
   `grit patterns test --json` in
-  `tools/habitat-harness/test/grit/grit-patterns.test.ts:29`; D6 records the
+  `tools/habitat/test/grit/grit-patterns.test.ts:29`; D6 records the
   non-claim in
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/workstream/phase-record.md:73`
   and
@@ -176,7 +176,7 @@ design/specification contract, not as a claim that source has been repaired:
   `openspec/changes/deep-habitat-d6-diagnostic-pattern-catalog/design.md:286`.
   Implementation tests should preserve the word `observation` and the D9
   non-claim because current code's request kind is still `grit-apply` at
-  `tools/habitat-harness/src/lib/grit.ts:297`.
+  `tools/habitat/src/lib/grit.ts:297`.
 - P3: `bun run habitat check --tool grit-check --json` is currently command-green
   but reports advisory docs-local-path findings in historical scratch artifacts.
   This does not block D6 packet acceptance, but those advisory docs findings

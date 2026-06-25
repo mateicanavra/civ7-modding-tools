@@ -6,7 +6,7 @@
 - Prepared by: DRA Habitat domain mapping owner.
 - Prepared at: 2026-06-17.
 - Frame source / pointer:
-  `tools/habitat-harness/docs/DOMAIN-MAPPING.md`.
+  `tools/habitat/docs/DOMAIN-MAPPING.md`.
 - Intended execution rail: rail-neutral brief consumed by codebase deep dives,
   document reconciliation, and scenario corpus work.
 - Status: ready for execution after harness validation.
@@ -103,7 +103,7 @@
 - Why this geometry: the domain must be derived from use and proof flows, while
   current code remains important connected evidence.
 - Initial terrain / sources / paths: Habitat reference docs, project frames,
-  `tools/habitat-harness/src`, `tools/habitat-harness/test`, `rules.json`,
+  `tools/habitat/src`, `tools/habitat/test`, `rules.json`,
   baselines, Grit patterns, generators, hooks, Nx plugin, and selected MapGen
   topology references.
 - Required breadth: all required scenarios from `DOMAIN-MAPPING.md`, including

@@ -163,14 +163,14 @@ records-only closure unless fresh evidence finds an active Turbo workflow.
 
 | Workstream | Failure mode | Primary source trace | Required decision | Likely files | Priority |
 | --- | --- | --- | --- | --- | --- |
-| `habitat-oclif-entrypoint-repair` | Command surface bypass and stale ignored build output. | `openspec/changes/habitat-oclif-cli/**`, `tools/habitat-harness/bin/dev.ts`, `tools/habitat-harness/bin/run.js` | Keep source-loaded dev runner, but make command discovery/root help real. | `tools/habitat-harness/bin/**`, `tools/habitat-harness/src/bin/**`, `tools/habitat-harness/package.json`, tests | P0 |
-| `habitat-grit-proof-repair` | Grit tranche overclaimed as catalog closure. | `openspec/changes/habitat-grit-catalog/**`, `.grit/**`, `tools/habitat-harness/src/lib/grit.ts` | Define first-tranche proof and scan scope standards. | `.grit/patterns/**`, `tools/habitat-harness/src/rules/rules.json`, tests, docs | P0 |
-| `habitat-scaffold-contract-repair` | Ratchet/baseline/diagnostic contract mismatch. | `openspec/changes/habitat-harness-scaffold/**` | Decide explicit baseline semantics and diagnostic schema. | `tools/habitat-harness/src/lib/baseline.ts`, `src/plugin.js`, baselines, tests | P1 |
-| `habitat-classify-generator-repair` | Agent guidance is not precise enough. | `openspec/changes/habitat-generators-migrations/**` | Decide supported generator kinds and path-aware rule scope. | `tools/habitat-harness/src/commands/classify.ts`, generators, tests, README | P1 |
+| `habitat-oclif-entrypoint-repair` | Command surface bypass and stale ignored build output. | `openspec/changes/habitat-oclif-cli/**`, `tools/habitat/bin/dev.ts`, `tools/habitat/bin/run.js` | Keep source-loaded dev runner, but make command discovery/root help real. | `tools/habitat/bin/**`, `tools/habitat/src/bin/**`, `tools/habitat/package.json`, tests | P0 |
+| `habitat-grit-proof-repair` | Grit tranche overclaimed as catalog closure. | `openspec/changes/habitat-grit-catalog/**`, `.grit/**`, `tools/habitat/src/lib/grit.ts` | Define first-tranche proof and scan scope standards. | `.grit/patterns/**`, `tools/habitat/src/rules/rules.json`, tests, docs | P0 |
+| `habitat-scaffold-contract-repair` | Ratchet/baseline/diagnostic contract mismatch. | `openspec/changes/cli-scaffold/**` | Decide explicit baseline semantics and diagnostic schema. | `tools/habitat/src/lib/baseline.ts`, `src/plugin.js`, baselines, tests | P1 |
+| `habitat-classify-generator-repair` | Agent guidance is not precise enough. | `openspec/changes/habitat-generators-migrations/**` | Decide supported generator kinds and path-aware rule scope. | `tools/habitat/src/commands/classify.ts`, generators, tests, README | P1 |
 | `habitat-boundary-taxonomy-tightening` | Boundary taxonomy allows unproven edges. | `openspec/changes/habitat-boundary-tags/**`, `docs/projects/habitat-harness/taxonomy.md` | Remove speculative edges or add architecture authority. | `eslint.boundaries.config.mjs`, taxonomy, review ledger | P1 |
 | `habitat-nx-adoption-cleanup` | Historical Turbo/Nx command examples and pre-remediation records can mislead implementers. | `openspec/changes/habitat-nx-adoption/**`, `habitat-nx-worktree-state-contract/**` | Treat active graph cleanup as settled; patch or supersede stale guidance without reopening package metadata/cache work. | H1 docs/spec notes, project ledgers, active guidance docs | records-only |
 | `habitat-biome-closure-repair` | Protected archives and lint script ownership are unclear. | `openspec/changes/habitat-biome-hygiene/**` | Decide package-local lint script policy and archive proof. | `biome.json`, package scripts, `.git-blame-ignore-revs`, phase record | P2 |
-| `habitat-git-hook-hardening` | Hooks are useful but under-tested and side-effectful. | `openspec/changes/habitat-git-hooks/**` | Decide warning/fail budgets and whether publish belongs in hooks. | `.husky/**`, `tools/habitat-harness/src/lib/hooks.ts`, hook tests | P2 |
+| `habitat-git-hook-hardening` | Hooks are useful but under-tested and side-effectful. | `openspec/changes/habitat-git-hooks/**` | Decide warning/fail budgets and whether publish belongs in hooks. | `.husky/**`, `tools/habitat/src/lib/hooks.ts`, hook tests | P2 |
 | `habitat-enforcement-surface-cleanup` | Direct aliases still bypass the harness model. | `openspec/changes/habitat-enforcement-consolidation/**` | Decide surviving direct aliases and retirement triggers. | root/package scripts, package scripts, docs, CI | P2 |
 
 ## Repair Workstream Contract
@@ -199,7 +199,7 @@ existing `habitat-nx-worktree-state-contract` records unless an active Turbo
 workflow reappears.
 
 **Source trace:** `openspec/changes/habitat-nx-adoption/proposal.md`,
-`tasks.md`, `specs/habitat-harness/spec.md`,
+`tasks.md`, `specs/cli/spec.md`,
 `workstream/phase-record.md`, `package.json`, `nx.json`,
 `.github/workflows/**`, docs mentioning `bunx turbo`, and
 `habitat-nx-worktree-state-contract/**`.
@@ -228,12 +228,12 @@ workflow contract and resolved target evidence rather than reopening H1.
 
 **Suggested change id:** `habitat-scaffold-contract-repair`
 
-**Source trace:** `openspec/changes/habitat-harness-scaffold/**`,
-`tools/habitat-harness/src/lib/baseline.ts`,
-`tools/habitat-harness/src/lib/diagnostics.ts`,
-`tools/habitat-harness/src/plugin.js`,
-`tools/habitat-harness/src/rules/rules.json`, and
-`tools/habitat-harness/baselines/**`.
+**Source trace:** `openspec/changes/cli-scaffold/**`,
+`tools/habitat/src/lib/baseline.ts`,
+`tools/habitat/src/lib/diagnostics.ts`,
+`tools/habitat/src/plugin.js`,
+`tools/habitat/src/rules/rules.json`, and
+`tools/habitat/baselines/**`.
 
 **Pre-implementation decision:** decide whether missing baselines are valid
 empty baselines or whether every locked rule must have an explicit committed
@@ -306,10 +306,10 @@ block root verification.
 **Suggested change id:** `habitat-oclif-entrypoint-repair`
 
 **Source trace:** `openspec/changes/habitat-oclif-cli/**`,
-`tools/habitat-harness/bin/dev.ts`,
-`tools/habitat-harness/bin/run.js`,
-`tools/habitat-harness/src/bin/habitat.ts`,
-`tools/habitat-harness/package.json`, root `package.json`, Nx inferred targets,
+`tools/habitat/bin/dev.ts`,
+`tools/habitat/bin/run.js`,
+`tools/habitat/src/bin/habitat.ts`,
+`tools/habitat/package.json`, root `package.json`, Nx inferred targets,
 and harness CLI tests.
 
 **Pre-implementation decision:** keep the current source-loaded dev runner with
@@ -337,8 +337,8 @@ command surface.
 
 **Source trace:** `openspec/changes/habitat-grit-catalog/**`,
 `.habitat/grit.yaml`, `.gritignore`, `.grit/patterns/habitat/**`,
-`tools/habitat-harness/src/lib/grit.ts`,
-`tools/habitat-harness/src/rules/rules.json`, and Grit tests.
+`tools/habitat/src/lib/grit.ts`,
+`tools/habitat/src/rules/rules.json`, and Grit tests.
 
 **Pre-implementation decision:** decide the truthfully supported claim:
 "first locked Grit tranche" unless the team actually expands and proves the
@@ -386,7 +386,7 @@ with H5.
 **Suggested change id:** `habitat-git-hook-hardening`
 
 **Source trace:** `openspec/changes/habitat-git-hooks/**`, `.husky/**`,
-`tools/habitat-harness/src/lib/hooks.ts`,
+`tools/habitat/src/lib/hooks.ts`,
 `scripts/civ7-resources/publish-submodule.sh`, and hook tests.
 
 **Pre-implementation decision:** decide whether timing budgets are warning-only
@@ -409,8 +409,8 @@ scope model, not define its own.
 **Suggested change id:** `habitat-classify-generator-repair`
 
 **Source trace:** `openspec/changes/habitat-generators-migrations/**`,
-`tools/habitat-harness/src/commands/classify.ts`,
-`tools/habitat-harness/src/lib/command-engine.ts`, generator files, migration
+`tools/habitat/src/commands/classify.ts`,
+`tools/habitat/src/lib/command-engine.ts`, generator files, migration
 files, root `AGENTS.md`, and harness README.
 
 **Pre-implementation decision:** decide which generator kinds are truly

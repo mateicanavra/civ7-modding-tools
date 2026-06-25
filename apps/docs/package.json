@@ -40,7 +40,7 @@
     "check": "tsc -p tsconfig.json --noEmit",
     "check:ts": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --config ../../vitest.config.ts --project docs",
-    "lint": "bun ../../tools/habitat-harness/bin/dev.ts check --rule docs-site-config --rule docs-site-links",
+    "lint": "bun ../../tools/habitat/bin/dev.ts check --rule docs-site-config --rule docs-site-links",
     "validate": "node -e \"\"",
     "fix:duplicate-h1": "bun run scripts/remove-duplicate-h1.ts",
     "fix:title-prefixes": "bun run scripts/remove-title-prefixes.ts",

@@ -37,8 +37,8 @@ Observed sources:
   `docs/projects/habitat-harness/research/official-docs-effect.md`,
   `official-docs-gritql.md`, `official-docs-biome.md`, and
   `official-docs-nx.md`.
-- Current source on stack tip under `tools/habitat-harness/src`.
-- Root workflow and hook surfaces: `package.json`, `tools/habitat-harness/package.json`,
+- Current source on stack tip under `tools/habitat/src`.
+- Root workflow and hook surfaces: `package.json`, `tools/habitat/package.json`,
   `.husky/pre-commit`, and `.husky/pre-push`.
 
 Evidence rules:
@@ -76,7 +76,7 @@ The target session repeatedly reset the work around these control demands:
   rules, GritQL, Biome, Nx boundaries, project metadata, and generated checks,
   not brittle tests that merely guard an accidental implementation shape.
 - `.habitat` owns checked-in authored Habitat artifacts. Managing code remains
-  under `tools/habitat-harness`. Executable native TypeScript rules or
+  under `tools/habitat`. Executable native TypeScript rules or
   vendor-named directories inside `.habitat` violate the authored-artifact
   boundary unless a later accepted packet deliberately authorizes them.
 - Generic Habitat source must not bake in Civ7, MapGen, recipe, domain, stage,
@@ -125,7 +125,7 @@ domain substrate.
 
 Effect has been introduced, but mostly as a Grit adapter island:
 
-- `tools/habitat-harness/package.json` now depends on `effect`,
+- `tools/habitat/package.json` now depends on `effect`,
   `@effect/platform`, and `@effect/platform-node`.
 - Historical `src/lib/effect-runtime.ts`/`src/substrate/runtime/run.ts`
   centralized one `runHabitatEffect` edge. The current stack drains that generic
@@ -327,7 +327,7 @@ Observed:
 
 - D14A moves authored registry, baselines, and active patterns under
   `.habitat`.
-- Managing code remains under `tools/habitat-harness`.
+- Managing code remains under `tools/habitat`.
 - Session notes warned against executable native TS rules and vendor-forward
   hierarchy under `.habitat`.
 

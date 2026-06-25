@@ -77,11 +77,11 @@ Downstream OpenSpec starter packets:
 
 Present-behavior evidence only:
 
-- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-- `tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs`
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts`
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts`
+- `tools/habitat/src/rules/pattern-authority/manifest.ts`
+- `tools/habitat/src/generators/pattern/generator.cjs`
+- `tools/habitat/src/generators/pattern/registration.cjs`
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts`
+- `tools/habitat/test/generators/pattern-generator.test.ts`
 - `docs/projects/habitat-harness/grit-pattern-corpus-ledger.md`
 - `docs/projects/habitat-harness/recovery-claim-ledger.md`
 

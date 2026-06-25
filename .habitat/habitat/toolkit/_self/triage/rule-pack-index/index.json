@@ -4,7 +4,7 @@
   "ownerRoots": {
     "@civ7/control-orpc": "packages/civ7-control-orpc",
     "@civ7/docs": "apps/docs",
-    "@internal/habitat-harness": "tools/habitat-harness",
+    "@habitat/cli": "tools/habitat",
     "@mateicanavra/civ7-sdk": "packages/sdk",
     "@swooper/mapgen-core": "packages/mapgen-core",
     "mapgen-studio": "apps/mapgen-studio",

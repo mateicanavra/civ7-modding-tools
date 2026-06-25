@@ -1,7 +1,7 @@
 {
   "id": "file-layer-civ7-map-policy-tables",
   "ownerTool": "file-layer",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "@habitat/cli",
   "lane": "enforced",
   "scope": "staged changes to packages/civ7-map-policy/src/civ7-tables.gen.ts",
   "forbids": "staged hand-edits to generated Civ7 map-policy tables",

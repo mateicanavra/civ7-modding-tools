@@ -50,7 +50,7 @@ cannot remain an ad hoc pile of scripts and compatibility paths.
 
 ### In Scope
 
-- Habitat Toolkit structure under `tools/habitat-harness`.
+- Habitat Toolkit structure under `tools/habitat`.
 - Authored Habitat rules and patterns under `.habitat`.
 - Enforcement wiring through GritQL, Biome, and Nx.
 - The active Graphite stack and dirty refactor worktree state.
@@ -126,33 +126,33 @@ dedicated refactor worktree:
   deletions, plus untracked `service/model/pattern-scope/` and split
   `service/modules/hook/router/` files.
 - Embedded source-check runtime deletion is in progress:
-  `tools/habitat-harness/src/service/model/source-check/**` is deleted,
+  `tools/habitat/src/service/model/source-check/**` is deleted,
   including the `.mjs` rule runtime and per-rule `.mjs` files.
 - Many `.habitat/rules/*/rule.json` records are changed from `source-check`
   toward `grit-check`.
 - `.habitat/patterns/checks/habitat_orpc_service_wiring.md` is being expanded
   to cover service `.mjs` files, module imports, grouped routers, and topology
   violations.
-- `tools/habitat-harness/src/service/base.ts` and
-  `tools/habitat-harness/src/service/impl.ts` are projecting shared
+- `tools/habitat/src/service/base.ts` and
+  `tools/habitat/src/service/impl.ts` are projecting shared
   `structuralCheck` and `createCheckReport` context. This aligns with the
   preserved runtime/context direction, but the exact shared context key
   allowlist is not yet written as a pattern.
 - Hook router splitting is in progress under
-  `tools/habitat-harness/src/service/modules/hook/router/`, but local TODOs
+  `tools/habitat/src/service/modules/hook/router/`, but local TODOs
   still indicate procedure orchestration is being pushed into policy/context
   helpers instead of staying in router/module-owned procedure flow.
-- `tools/habitat-harness/scripts/write-generator-schemas.ts` still references
+- `tools/habitat/scripts/write-generator-schemas.ts` still references
   old `service/modules/scaffold` schema paths while scaffold now lives under
   `src/generators/scaffold`.
-- `tools/habitat-harness/src/nx-plugin.ts`,
-  `tools/habitat-harness/src/service/model/validation/policy/target-routing.policy.ts`,
+- `tools/habitat/src/nx-plugin.ts`,
+  `tools/habitat/src/service/model/validation/policy/target-routing.policy.ts`,
   and the new `service/model/pattern-scope/` surface still carry
   `sourceCheck*` names while rule execution is moving toward Grit-backed
   patterns.
 - Docs and tests still contain stale `source-check` and `pattern-check`
-  language, including `tools/habitat-harness/docs/CAPABILITIES.md`,
-  `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`, several hook tests, and
+  language, including `tools/habitat/docs/CAPABILITIES.md`,
+  `tools/habitat/docs/IMPLEMENTED-SURFACE.md`, several hook tests, and
   rule registry tests.
 
 This state is external evidence for the investigation. Do not normalize,
@@ -169,12 +169,12 @@ stage, commit, or revert it as part of this frame.
 | User objected to `.mjs` scripts being smuggled into the toolkit generator SDK and scripts directory. | Executable artifact ownership | Executable rules belong to authored Habitat/Grit artifacts or explicit tool entrypoints, not service model internals | Inventory and eliminate service-owned `.mjs` rule engines; classify legitimate scripts. | Transcript chunk 133 | High |
 | Dirty diff deletes `service/model/source-check/**` including `.mjs` runtime files. | Current dirty evidence | Pattern execution should route through Grit provider and `.habitat/patterns` | Finish source-check-to-grit-check cutover only after pattern authority is fully specified. | `git diff --name-status` in refactor worktree | High |
 | `.habitat/rules/*/rule.json` records are being rewritten toward `grit-check`. | Rule registry ownership | Registry metadata points to the authored pattern artifact and execution tool | Ensure all pattern-backed source rules have `ownerTool: "grit-check"` and valid pattern paths. | Dirty `.habitat/rules` diff | High |
-| `docs/CAPABILITIES.md` and `docs/IMPLEMENTED-SURFACE.md` still describe registered source-check modules and `.mjs` runtime state. | Documentation drift | Docs must not preserve retired architecture as current | Update after the pattern decision lands; until then mark as stale evidence. | `rg source-check tools/habitat-harness/docs` | High |
-| Generator schema writer imports from old scaffold service-module paths. | Generator/scaffold placement | Scaffold artifacts live under generator-owned support paths, not service modules | Fix or retire stale script surface in the generator/scaffold pattern slice. | `tools/habitat-harness/scripts/write-generator-schemas.ts` | High |
-| `pattern-check` remains in provider/request/test language while rule registry moves to `grit-check`. | Naming and tool boundary | User-facing Habitat rule class and vendor command kind must be intentionally distinct | Decide and document whether `pattern-check` is vendor-command vocabulary or stale Habitat vocabulary. | `rg pattern-check tools/habitat-harness` | Medium |
-| Dirty service context projection centralizes `structuralCheck` and `createCheckReport`, while the allowlist for shared context keys is not explicit. | Runtime/context ownership | Shared service context is a closed set of root-owned capabilities consumed by module projections | Add a dedicated service implementer/shared context pattern before accepting the projection as correct. | `tools/habitat-harness/src/service/base.ts`, `tools/habitat-harness/src/service/impl.ts` | High |
-| Dirty hook router split is paired with TODOs that procedure logic is being smuggled into policy/context helpers. | Router/procedure ownership | Routers own procedure orchestration; policies provide pure helpers and domain decisions | Add router/procedure responsibility to the service module pattern and burn down policy-smuggling after the pattern is registered. | `tools/habitat-harness/src/service/modules/hook/router/`, `procedure-context.policy.ts`, `procedure-operations.policy.ts` | High |
-| Registry schema and service wiring patterns still expose `forbids`/`detect`-style negative language. | Pattern definition discipline | Positive allowlist table comes first; negative clauses are derived enforcement only | Require every pattern record to cite its positive allowlist row before GritQL registration. | `tools/habitat-harness/src/service/model/rules/dto/registry.schema.ts`, `.habitat/patterns/checks/habitat_orpc_service_wiring.md` | High |
+| `docs/CAPABILITIES.md` and `docs/IMPLEMENTED-SURFACE.md` still describe registered source-check modules and `.mjs` runtime state. | Documentation drift | Docs must not preserve retired architecture as current | Update after the pattern decision lands; until then mark as stale evidence. | `rg source-check tools/habitat/docs` | High |
+| Generator schema writer imports from old scaffold service-module paths. | Generator/scaffold placement | Scaffold artifacts live under generator-owned support paths, not service modules | Fix or retire stale script surface in the generator/scaffold pattern slice. | `tools/habitat/scripts/write-generator-schemas.ts` | High |
+| `pattern-check` remains in provider/request/test language while rule registry moves to `grit-check`. | Naming and tool boundary | User-facing Habitat rule class and vendor command kind must be intentionally distinct | Decide and document whether `pattern-check` is vendor-command vocabulary or stale Habitat vocabulary. | `rg pattern-check tools/habitat` | Medium |
+| Dirty service context projection centralizes `structuralCheck` and `createCheckReport`, while the allowlist for shared context keys is not explicit. | Runtime/context ownership | Shared service context is a closed set of root-owned capabilities consumed by module projections | Add a dedicated service implementer/shared context pattern before accepting the projection as correct. | `tools/habitat/src/service/base.ts`, `tools/habitat/src/service/impl.ts` | High |
+| Dirty hook router split is paired with TODOs that procedure logic is being smuggled into policy/context helpers. | Router/procedure ownership | Routers own procedure orchestration; policies provide pure helpers and domain decisions | Add router/procedure responsibility to the service module pattern and burn down policy-smuggling after the pattern is registered. | `tools/habitat/src/service/modules/hook/router/`, `procedure-context.policy.ts`, `procedure-operations.policy.ts` | High |
+| Registry schema and service wiring patterns still expose `forbids`/`detect`-style negative language. | Pattern definition discipline | Positive allowlist table comes first; negative clauses are derived enforcement only | Require every pattern record to cite its positive allowlist row before GritQL registration. | `tools/habitat/src/service/model/rules/dto/registry.schema.ts`, `.habitat/patterns/checks/habitat_orpc_service_wiring.md` | High |
 
 ## Pattern Families
 
@@ -198,15 +198,15 @@ Every pattern row must declare:
 
 Allowed locations:
 
-- `tools/habitat-harness/src/service/modules/<module>/contract.ts`
-- `tools/habitat-harness/src/service/modules/<module>/module.ts`
-- `tools/habitat-harness/src/service/modules/<module>/router.ts`
-- `tools/habitat-harness/src/service/modules/<module>/router/index.ts`
-- `tools/habitat-harness/src/service/modules/<module>/router/*.router.ts`
-- `tools/habitat-harness/src/service/modules/<module>/model/dto/*.ts`
-- `tools/habitat-harness/src/service/modules/<module>/model/errors/*.ts`
-- `tools/habitat-harness/src/service/modules/<module>/model/policy/*.policy.ts`
-- `tools/habitat-harness/src/service/modules/<module>/model/repositories/*.repository.ts`
+- `tools/habitat/src/service/modules/<module>/contract.ts`
+- `tools/habitat/src/service/modules/<module>/module.ts`
+- `tools/habitat/src/service/modules/<module>/router.ts`
+- `tools/habitat/src/service/modules/<module>/router/index.ts`
+- `tools/habitat/src/service/modules/<module>/router/*.router.ts`
+- `tools/habitat/src/service/modules/<module>/model/dto/*.ts`
+- `tools/habitat/src/service/modules/<module>/model/errors/*.ts`
+- `tools/habitat/src/service/modules/<module>/model/policy/*.policy.ts`
+- `tools/habitat/src/service/modules/<module>/model/repositories/*.repository.ts`
 
 Allowed imports:
 
@@ -243,11 +243,11 @@ Expected violations:
 
 Allowed locations:
 
-- `tools/habitat-harness/src/service/model/<domain>/dto/*.ts`
-- `tools/habitat-harness/src/service/model/<domain>/errors/*.ts`
-- `tools/habitat-harness/src/service/model/<domain>/policy/*.policy.ts`
-- `tools/habitat-harness/src/service/model/<domain>/repositories/*.repository.ts`
-- `tools/habitat-harness/src/service/model/<domain>/index.ts`
+- `tools/habitat/src/service/model/<domain>/dto/*.ts`
+- `tools/habitat/src/service/model/<domain>/errors/*.ts`
+- `tools/habitat/src/service/model/<domain>/policy/*.policy.ts`
+- `tools/habitat/src/service/model/<domain>/repositories/*.repository.ts`
+- `tools/habitat/src/service/model/<domain>/index.ts`
 
 Allowed imports:
 
@@ -355,7 +355,7 @@ Expected violations:
 
 Allowed locations:
 
-- generator source: `tools/habitat-harness/src/generators/scaffold/**`
+- generator source: `tools/habitat/src/generators/scaffold/**`
 - generator schemas/support files: under the generator-owned support tree.
 - service modules: only runtime service capabilities, not scaffolding internals.
 
@@ -440,9 +440,9 @@ Expected violations:
 
 Allowed locations:
 
-- root service context requirements: `tools/habitat-harness/src/service/base.ts`
-- aggregate implementer binding: `tools/habitat-harness/src/service/impl.ts`
-- module projection: `tools/habitat-harness/src/service/modules/<module>/module.ts`
+- root service context requirements: `tools/habitat/src/service/base.ts`
+- aggregate implementer binding: `tools/habitat/src/service/impl.ts`
+- module projection: `tools/habitat/src/service/modules/<module>/module.ts`
 
 Allowed context keys:
 
@@ -476,8 +476,8 @@ Expected violations:
 
 Allowed locations:
 
-- root contract composition: `tools/habitat-harness/src/service/contract.ts`
-- module contracts: `tools/habitat-harness/src/service/modules/<module>/contract.ts`
+- root contract composition: `tools/habitat/src/service/contract.ts`
+- module contracts: `tools/habitat/src/service/modules/<module>/contract.ts`
 - DTO/schema files: module-local or shared-model `model/dto/*.ts`
 - package public exports: intentional package entrypoints only.
 
@@ -581,7 +581,7 @@ Order matters. Do not pick later items because they are easier.
      authored patterns.
    - Remove service-owned `.mjs` runtime authority.
    - Acceptance: no active Habitat pattern-backed source rule requires
-     `tools/habitat-harness/src/service/model/source-check/**`.
+     `tools/habitat/src/service/model/source-check/**`.
 
 3. **Service Module Allowlist**
    - Pattern rows: PF-01, PF-03, PF-04, PF-10, PF-11.

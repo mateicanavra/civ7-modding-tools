@@ -131,7 +131,7 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts`:
   expected exit 0; hook orchestration and staged-path receipt.
 - `bun run habitat hook pre-commit --dry-run`: expected exit 0 for clean staged
   state after D7/D9/D10 contracts are stable.

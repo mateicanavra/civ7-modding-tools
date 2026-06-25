@@ -1,7 +1,7 @@
 {
   "id": "format-ci",
   "ownerTool": "format-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "@habitat/cli",
   "lane": "enforced",
   "scope": "live repo files included by the formatter configuration",
   "forbids": "formatter drift, ordinary lint hygiene violations, and import-organization drift",

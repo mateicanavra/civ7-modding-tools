@@ -114,17 +114,17 @@ Scope limits:
 Update:
 
 - scaffolding matrix;
-- `tools/habitat-harness/docs/SCENARIOS.md`;
-- `tools/habitat-harness/docs/AUTHORING-NEXT.md`;
+- `tools/habitat/docs/SCENARIOS.md`;
+- `tools/habitat/docs/AUTHORING-NEXT.md`;
 - AGENTS scaffold guidance if command examples change.
 
 ## Validation Commands
 
-- `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts`:
+- `bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts`:
   expected exit 0; supported scaffold and pattern candidate behavior.
-- `nx g @internal/habitat-harness:project habitat-scratch --kind=plugin --dry-run`:
+- `nx g @habitat/cli:project habitat-scratch --kind=plugin --dry-run`:
   expected exit 0; supported project dry-run behavior.
-- `nx g @internal/habitat-harness:project unsupported-scratch --kind=host-specific --dry-run`:
+- `nx g @habitat/cli:project unsupported-scratch --kind=host-specific --dry-run`:
   expected nonzero; unsupported-kind refusal.
 - Cache stance: generator dry-runs must run fresh and must not rely on Nx cache.
 - Injected bad case: include unsupported kind, registered-pattern-without-manifest,

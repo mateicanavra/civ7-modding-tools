@@ -1,7 +1,7 @@
 # Habitat Authority Tree
 
 This directory is the repository's authority tree for Habitat enforcement.
-The Habitat SDK code under `tools/habitat-harness` manages, validates, and
+The Habitat SDK code under `tools/habitat` manages, validates, and
 executes these artifacts, but package source, root scripts, tests, CI, hooks,
 and tool configs are not independent sources of enforcement truth.
 

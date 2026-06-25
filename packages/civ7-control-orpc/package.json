@@ -88,7 +88,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "check": "tsc -p tsconfig.json --noEmit",
-    "lint": "bun ../../tools/habitat-harness/bin/dev.ts check --rule control-orpc-contract-ownership",
+    "lint": "bun ../../tools/habitat/bin/dev.ts check --rule control-orpc-contract-ownership",
     "test": "vitest run --config vitest.config.ts",
     "clean": "rimraf dist tsconfig.tsbuildinfo",
     "check:types": "tsc -p tsconfig.json --noEmit"

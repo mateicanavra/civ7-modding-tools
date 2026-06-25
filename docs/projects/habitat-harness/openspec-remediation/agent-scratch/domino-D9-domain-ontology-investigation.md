@@ -12,7 +12,7 @@ still an incomplete packet with one broad requirement, two scenarios, generic ta
 phrases, and no closed transaction ontology. A later implementation agent would
 still have to invent state names, owner handoffs, refusal families, request
 constructors, and compatibility term disposition while editing
-`tools/habitat-harness/src/lib/grit-apply.ts`.
+`tools/habitat/src/lib/grit-apply.ts`.
 
 ## Exact D9 Domain And Single Owner
 

@@ -26,7 +26,7 @@ Use this order when sources disagree:
    for known overclaims, recovery sequencing, and Grit backfill rules.
 5. `docs/projects/habitat-harness/review-disposition-ledger.md`,
    `docs/projects/habitat-harness/discrepancy-log.md`, and
-   `docs/projects/habitat-harness/habitat-harness-spec-draft-input.md`
+   `docs/projects/habitat-harness/cli-spec-draft-input.md`
    sections 10, 11, and 14 as the pre-execution and target-shape evidence
    packet.
 6. Current source code, package scripts, generated manifests, and fresh command
@@ -281,7 +281,7 @@ Observed current corpus:
 - 22 check patterns under `.habitat/patterns/checks/`.
 - 1 apply pattern under `.habitat/patterns/apply/`.
 - `habitat fix` runs that allowlisted apply pattern, then Biome.
-- The apply list is hardcoded in `tools/habitat-harness/src/lib/grit.ts`.
+- The apply list is hardcoded in `tools/habitat/src/lib/grit.ts`.
 
 Treat this as the first locked tranche, not a complete catalog.
 

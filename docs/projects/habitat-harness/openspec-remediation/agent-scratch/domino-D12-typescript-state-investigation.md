@@ -52,11 +52,11 @@ Applied skill constraints:
 | `openspec/changes/deep-habitat-d1-receipt-contract-boundary/**` | D1 names target `VerifyReceipt`, treats `VerifyProof` as legacy compatibility, requires canonical non-claim ids, and forbids generic proof substrate. |
 | `openspec/changes/deep-habitat-d3-workspace-graph-boundary/**` | D3 owns graph read state, target availability, target plan facts, dependency resolution, and graph refusals consumed by verify. |
 | `openspec/changes/deep-habitat-d7-structural-enforcement-pipeline/**` | D7 owns `VerifyCheckSummaryProjection` and the check outcomes that allow or block affected-target execution. |
-| `tools/habitat-harness/src/commands/verify.ts` | Current command behavior evidence. JSON help still says `VerifyProof`; command runs check first and only runs affected targets when `report.ok` is true. |
-| `tools/habitat-harness/src/lib/command-engine.ts` | Current state-smell evidence: `VerifyProof`, `VerifyProofInput.affectedResult?`, hard-coded `verifyAffectedTargets`, `{}` selector summary, string non-claims, direct post-state commands, and local graph/target assumptions. |
-| `tools/habitat-harness/src/lib/diagnostics.ts` | Current `CheckReport.ok` remains a settable boolean; D12 must consume D7's projection rather than treating raw `CheckReport` as target authority. |
-| `tools/habitat-harness/test/lib/verify-proof.test.ts` | Current tests cover bounded streams and skipped affected state after failed check at constructor level. They do not prove the target union or D0/D1 compatibility. |
-| `tools/habitat-harness/test/commands/habitat-commands.test.ts` | Current command tests cover successful `verify --json`; they do not assert that failed check prevents `runAffectedVerification`. |
+| `tools/habitat/src/commands/verify.ts` | Current command behavior evidence. JSON help still says `VerifyProof`; command runs check first and only runs affected targets when `report.ok` is true. |
+| `tools/habitat/src/lib/command-engine.ts` | Current state-smell evidence: `VerifyProof`, `VerifyProofInput.affectedResult?`, hard-coded `verifyAffectedTargets`, `{}` selector summary, string non-claims, direct post-state commands, and local graph/target assumptions. |
+| `tools/habitat/src/lib/diagnostics.ts` | Current `CheckReport.ok` remains a settable boolean; D12 must consume D7's projection rather than treating raw `CheckReport` as target authority. |
+| `tools/habitat/test/lib/verify-proof.test.ts` | Current tests cover bounded streams and skipped affected state after failed check at constructor level. They do not prove the target union or D0/D1 compatibility. |
+| `tools/habitat/test/commands/habitat-commands.test.ts` | Current command tests cover successful `verify --json`; they do not assert that failed check prevents `runAffectedVerification`. |
 | `docs/projects/habitat-harness/openspec-remediation/packet-index.md` | D12 is still marked an incomplete, blocking packet. |
 | Current validation | `bun run openspec -- validate deep-habitat-d12-verify-handoff-receipt --strict` exits 0. `git diff --check` exits 0 before this scratch edit. These are shape checks, not state-model acceptance. |
 

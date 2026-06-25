@@ -1,7 +1,7 @@
 {
   "id": "boundary-taxonomy",
   "ownerTool": "command-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "@habitat/cli",
   "lane": "enforced",
   "scope": "workspace package manifests, Nx metadata, ESLint boundary config, and Habitat taxonomy docs",
   "forbids": "drift between declared project kinds, Nx graph tags, boundary config, and taxonomy documentation",

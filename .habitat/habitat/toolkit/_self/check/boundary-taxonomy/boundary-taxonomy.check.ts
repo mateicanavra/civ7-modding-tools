@@ -1,16 +1,16 @@
 // Habitat-owned command-check adapter for boundary taxonomy validation.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { repoRoot } from "../../../../../../tools/habitat-harness/src/resources/paths.ts";
+import { repoRoot } from "../../../../../../tools/habitat/src/resources/paths.ts";
 import {
   auditBoundaryTaxonomy,
   parseBoundaryTaxonomy,
-} from "../../../../../../tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
+} from "../../../../../../tools/habitat/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
 import {
   readBoundaryConfigConstraints,
   readNxProjectMetadataFromGraph,
   readWorkspaceManifestProjects,
-} from "../../../../../../tools/habitat-harness/src/validation/boundary-taxonomy-inputs.ts";
+} from "../../../../../../tools/habitat/src/validation/boundary-taxonomy-inputs.ts";
 
 const taxonomy = parseBoundaryTaxonomy(
   await readFile(path.join(repoRoot, "docs/projects/habitat-harness/taxonomy.md"), "utf8")

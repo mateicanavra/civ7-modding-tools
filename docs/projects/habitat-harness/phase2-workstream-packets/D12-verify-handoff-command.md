@@ -102,7 +102,7 @@ Update:
 
 ## Validation Commands
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/verify-receipt.test.ts test/commands/habitat-commands.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/verify-receipt.test.ts test/commands/habitat-commands.test.ts`
 - `bun run habitat verify --json`
 - `git status --short --branch`
 

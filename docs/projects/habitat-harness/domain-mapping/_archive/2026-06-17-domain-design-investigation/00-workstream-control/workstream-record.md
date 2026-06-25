@@ -24,7 +24,7 @@
   the current technical layout, the frame is invalid.
 - Redesign trigger: if the work collapses into documenting `src/lib` and
   `src/commands` modules, return to the frame in
-  `tools/habitat-harness/docs/DOMAIN-MAPPING.md`.
+  `tools/habitat/docs/DOMAIN-MAPPING.md`.
 
 ## Status
 

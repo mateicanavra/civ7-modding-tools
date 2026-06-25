@@ -52,19 +52,19 @@ Scope checked:
   - `docs/projects/habitat-harness/openspec-remediation/agent-scratch/domino-D2-review.md`
   - all fresh D2 investigation docs under `agent-scratch/domino-D2-*-investigation.md`
 - Current code evidence:
-  - `tools/habitat-harness/src/rules/architecture.ts`
-  - `tools/habitat-harness/src/rules/rules.json`
-  - `tools/habitat-harness/src/plugin.js`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/src/lib/baseline.ts`
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/grit-injected-probe.ts`
-  - `tools/habitat-harness/src/lib/generated-zones.ts`
-  - `tools/habitat-harness/src/lib/hooks.ts`
-  - `tools/habitat-harness/src/rules/pattern-authority/manifest.ts`
-  - `tools/habitat-harness/src/generators/pattern/generator.cjs`
-  - `tools/habitat-harness/src/generators/pattern/registration.cjs`
-  - `tools/habitat-harness/src/index.ts`
+  - `tools/habitat/src/rules/architecture.ts`
+  - `tools/habitat/src/rules/rules.json`
+  - `tools/habitat/src/plugin.js`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/src/lib/baseline.ts`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/grit-injected-probe.ts`
+  - `tools/habitat/src/lib/generated-zones.ts`
+  - `tools/habitat/src/lib/hooks.ts`
+  - `tools/habitat/src/rules/pattern-authority/manifest.ts`
+  - `tools/habitat/src/generators/pattern/generator.cjs`
+  - `tools/habitat/src/generators/pattern/registration.cjs`
+  - `tools/habitat/src/index.ts`
   - focused tests discovered by current imports and packet gates
 
 ## What Is Repaired
@@ -80,19 +80,19 @@ Scope checked:
 
 ### P2-1: Current `grit-injected-probe` registry consumer is not in the approved write set or migration slice
 
-`design.md` forbids whole-record crossing where a projection exists and names `ruleGritFacts` as the projection for Grit adapter/D6/D8/hooks consumers. It also lists the later D2 implementation write set at `openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:245`. That write set includes `grit.ts` but omits `tools/habitat-harness/src/lib/grit-injected-probe.ts`.
+`design.md` forbids whole-record crossing where a projection exists and names `ruleGritFacts` as the projection for Grit adapter/D6/D8/hooks consumers. It also lists the later D2 implementation write set at `openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md:245`. That write set includes `grit.ts` but omits `tools/habitat/src/lib/grit-injected-probe.ts`.
 
 Current code shows `grit-injected-probe.ts` is a direct registry consumer:
 
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts:4` imports `HarnessRule`, `ruleById`, and `rules`.
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts:34` accepts a `registry?: readonly HarnessRule[]`.
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts:81` defaults to the global `rules`.
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts:82`-`83` finds a whole rule by id.
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts:261`-`267` reads `gritPattern` directly from the registry and compares it to the injected probe pattern identity.
+- `tools/habitat/src/lib/grit-injected-probe.ts:4` imports `HarnessRule`, `ruleById`, and `rules`.
+- `tools/habitat/src/lib/grit-injected-probe.ts:34` accepts a `registry?: readonly HarnessRule[]`.
+- `tools/habitat/src/lib/grit-injected-probe.ts:81` defaults to the global `rules`.
+- `tools/habitat/src/lib/grit-injected-probe.ts:82`-`83` finds a whole rule by id.
+- `tools/habitat/src/lib/grit-injected-probe.ts:261`-`267` reads `gritPattern` directly from the registry and compares it to the injected probe pattern identity.
 
 This is exactly the kind of consumer-local registry read D2 is supposed to collapse into named projections. The packet does require `test/lib/grit-injected-probe.test.ts` in validation, but the source file is outside the named write set and outside the consumer migration tasks. A later implementer could either leave this whole-row consumer in place or be forced outside the packet write set to repair it.
 
-Required repair: add `tools/habitat-harness/src/lib/grit-injected-probe.ts` to the D2 implementation write set and add an implementation task requiring injected-probe behavior to consume `ruleGritFacts`/registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`. If D2 intentionally excludes it as D6-owned, the packet must say so and move the required write/test ownership to D6; the current D2 validation gate already pulls it into D2.
+Required repair: add `tools/habitat/src/lib/grit-injected-probe.ts` to the D2 implementation write set and add an implementation task requiring injected-probe behavior to consume `ruleGritFacts`/registry projections rather than `HarnessRule`, `rules`, `ruleById`, or raw `gritPattern`. If D2 intentionally excludes it as D6-owned, the packet must say so and move the required write/test ownership to D6; the current D2 validation gate already pulls it into D2.
 
 ### P2-2: Hook/local-feedback public surface is named as impacted but lacks a hook-specific validation gate
 
@@ -100,14 +100,14 @@ Required repair: add `tools/habitat-harness/src/lib/grit-injected-probe.ts` to t
 
 Current hook code is a command-facing surface:
 
-- `tools/habitat-harness/src/lib/hooks.ts:247`-`259` shells out to `habitat check --staged --tool file-layer --json`.
-- `tools/habitat-harness/src/lib/hooks.ts:350`-`368` shells out to `habitat check --staged --tool grit-check --json`.
-- `tools/habitat-harness/src/lib/hooks.ts:371`-`393` parses check-report JSON and turns Grit parse failures/findings into hook outcomes.
-- `tools/habitat-harness/test/lib/hooks.test.ts:787`-`825` fixtures command-facing hook JSON containing `ownerTool`, `lane`, `detect`, `message`, and `remediate`.
+- `tools/habitat/src/lib/hooks.ts:247`-`259` shells out to `habitat check --staged --tool file-layer --json`.
+- `tools/habitat/src/lib/hooks.ts:350`-`368` shells out to `habitat check --staged --tool grit-check --json`.
+- `tools/habitat/src/lib/hooks.ts:371`-`393` parses check-report JSON and turns Grit parse failures/findings into hook outcomes.
+- `tools/habitat/test/lib/hooks.test.ts:787`-`825` fixtures command-facing hook JSON containing `ownerTool`, `lane`, `detect`, `message`, and `remediate`.
 
-D2's implementation validation list covers rule selection, classify, baseline, Grit adapter/probe, enforcement surface, generator, Pattern Authority, `habitat classify`, `habitat check -- --json`, `nx show project`, OpenSpec validation, and whitespace. It does not include `tools/habitat-harness/test/lib/hooks.test.ts` or another hook-specific oracle. Because D2 itself names hook/local-feedback output and `ruleLocalFeedbackFacts`, the implementation gates should include a hook test proving D2's eligibility metadata changes do not drift hook command behavior or silently reinterpret registry fields through check-report JSON.
+D2's implementation validation list covers rule selection, classify, baseline, Grit adapter/probe, enforcement surface, generator, Pattern Authority, `habitat classify`, `habitat check -- --json`, `nx show project`, OpenSpec validation, and whitespace. It does not include `tools/habitat/test/lib/hooks.test.ts` or another hook-specific oracle. Because D2 itself names hook/local-feedback output and `ruleLocalFeedbackFacts`, the implementation gates should include a hook test proving D2's eligibility metadata changes do not drift hook command behavior or silently reinterpret registry fields through check-report JSON.
 
-Required repair: add `bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts` or an equivalent hook/local-feedback oracle to `tasks.md`, `proposal.md`, and the phase-record validation table. The non-claim should state this proves hook-facing D2 metadata compatibility only, not D11 hook behavior closure.
+Required repair: add `bun run --cwd tools/habitat test -- test/lib/hooks.test.ts` or an equivalent hook/local-feedback oracle to `tasks.md`, `proposal.md`, and the phase-record validation table. The non-claim should state this proves hook-facing D2 metadata compatibility only, not D11 hook behavior closure.
 
 ## Validation Run During Rereview
 

@@ -41,13 +41,13 @@ falsifying tests.
   `agent-scratch/global-testing-validation-designer.md`,
   `agent-scratch/global-cross-domino-sequencer.md`.
 - Current code/test evidence:
-  `tools/habitat-harness/src/lib/grit-apply.ts`,
-  `tools/habitat-harness/src/lib/grit-failures.ts`,
-  `tools/habitat-harness/src/lib/command-engine.ts`,
-  `tools/habitat-harness/src/commands/fix.ts`,
-  `tools/habitat-harness/test/lib/grit-apply.test.ts`,
-  `tools/habitat-harness/test/commands/habitat-commands.test.ts`,
-  `tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`.
+  `tools/habitat/src/lib/grit-apply.ts`,
+  `tools/habitat/src/lib/grit-failures.ts`,
+  `tools/habitat/src/lib/command-engine.ts`,
+  `tools/habitat/src/commands/fix.ts`,
+  `tools/habitat/test/lib/grit-apply.test.ts`,
+  `tools/habitat/test/commands/habitat-commands.test.ts`,
+  `tools/habitat/test/commands/habitat-entrypoints.test.ts`.
 
 ## Current Control State
 
@@ -470,9 +470,9 @@ These must close before source refactor implementation starts:
 These prove implementation after packet acceptance; they cannot substitute for
 the design-time gates above:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`.
-- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-commands.test.ts`.
-- `bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts` if public CLI behavior changes.
+- `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts`.
+- `bun run --cwd tools/habitat test -- test/commands/habitat-commands.test.ts`.
+- `bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts` if public CLI behavior changes.
 - `bun run habitat fix --dry-run` or `bun run habitat fix --dry-run --json`
   depending on the D0/D9 public output decision.
 - `git status --short --branch` before and after dry-run/no-residue checks.

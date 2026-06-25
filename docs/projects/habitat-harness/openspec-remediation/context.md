@@ -25,7 +25,7 @@ packet artifacts pointed at the variables below.
 | `$AGENT_SCRATCH` | `$REMEDIATION_DIR/agent-scratch`. |
 | `$PHASE2_PACKET_DIR` | `$HABITAT_PROJECT/phase2-workstream-packets`. |
 | `$OPENSPEC_CHANGES` | `$REPO_ROOT/openspec/changes`. |
-| `$HABITAT_TOOL` | `$REPO_ROOT/tools/habitat-harness`. |
+| `$HABITAT_TOOL` | `$REPO_ROOT/tools/habitat`. |
 | `$REMEDIATION_FRAME` | `$HABITAT_PROJECT/openspec-remediation-frame.md`. |
 
 ## D0 Variables

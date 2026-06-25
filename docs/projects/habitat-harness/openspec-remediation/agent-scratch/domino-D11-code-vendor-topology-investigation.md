@@ -29,7 +29,7 @@ Repo and packet sources read or targeted for D11-relevant contract facts:
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/phase2-workstream-packets/D11-local-feedback.md`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d11-local-feedback/**`
 - Upstream accepted design/specification packets: D0, D1, D3, D6, D7, D9, and D10 under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/`
-- Live hook code/tests: `tools/habitat-harness/src/lib/hooks.ts`, `tools/habitat-harness/src/commands/hook.ts`, `tools/habitat-harness/src/lib/command-engine.ts`, `tools/habitat-harness/src/index.ts`, `tools/habitat-harness/test/lib/hooks.test.ts`, `.husky/pre-commit`, `.husky/pre-push`
+- Live hook code/tests: `tools/habitat/src/lib/hooks.ts`, `tools/habitat/src/commands/hook.ts`, `tools/habitat/src/lib/command-engine.ts`, `tools/habitat/src/index.ts`, `tools/habitat/test/lib/hooks.test.ts`, `.husky/pre-commit`, `.husky/pre-push`
 
 Official/native vendor sources consulted:
 
@@ -53,29 +53,29 @@ Repo state at entrance: active worktree `/Users/mateicanavra/Documents/.nosync/D
 
 ### CLI Entrypoint
 
-- `tools/habitat-harness/src/commands/hook.ts` defines the Oclif command `habitat hook [name]` with optional `--base`.
+- `tools/habitat/src/commands/hook.ts` defines the Oclif command `habitat hook [name]` with optional `--base`.
 - The command imports `runHook` from `../lib/command-engine.js`, not directly from `../lib/hooks.js`.
-- `tools/habitat-harness/src/lib/command-engine.ts` re-exports `runHook` from `./hooks.js`.
-- `tools/habitat-harness/src/index.ts` exports `runHook` from `command-engine`.
+- `tools/habitat/src/lib/command-engine.ts` re-exports `runHook` from `./hooks.js`.
+- `tools/habitat/src/index.ts` exports `runHook` from `command-engine`.
 
 This makes `runHook` a package-export/public-surface candidate on at least two planes: command behavior and package export compatibility.
 
 ### Pre-Commit Sequence In Current Code
 
-Current `runPreCommit` in `tools/habitat-harness/src/lib/hooks.ts` performs:
+Current `runPreCommit` in `tools/habitat/src/lib/hooks.ts` performs:
 
 1. Write banner `habitat hook pre-commit` and the legacy local-feedback notice.
 2. Classify resource state with `classifyResourcesState`.
 3. If resources are not allowed, return `resource-blocked` before file-layer, Biome, Grit, or resource publishing.
 4. Read staged paths from `git diff --cached --name-status -z`, ignoring deleted paths and including both old/new paths for rename/copy.
-5. Run staged file-layer check via `bun tools/habitat-harness/bin/dev.ts check --staged --tool file-layer --json`.
+5. Run staged file-layer check via `bun tools/habitat/bin/dev.ts check --staged --tool file-layer --json`.
 6. If file-layer fails, stop before Biome/Grit.
 7. Compute Biome candidate paths by extension.
 8. Refuse partial staging by checking `git diff --name-only -z -- <biomePaths>`.
 9. Hash Biome candidate files, run `biome format --write --no-errors-on-unmatched <biomePaths>`, then restage only hash-changed paths with `git add -- <touched>`.
 10. Run `biome check --no-errors-on-unmatched <biomePaths>`.
 11. Compute staged Grit scan roots by extension plus `validateScanRoots(..., { requireExisting: false })`.
-12. If roots exist, run `bun tools/habitat-harness/bin/dev.ts check --staged --tool grit-check --json`.
+12. If roots exist, run `bun tools/habitat/bin/dev.ts check --staged --tool grit-check --json`.
 13. Parse whole `CheckReport` JSON from stdout/stderr and use `report.ok`; regex-detect selected Grit adapter parse failures inside diagnostic messages.
 14. Return `grit-command-failed`, `grit-parse-failed`, `grit-finding`, or `pass`.
 
@@ -109,13 +109,13 @@ D11 must not authorize source changes until D0 rows and D1 handling exist for ev
 | --- | --- | --- | --- |
 | `.husky/pre-commit` | `.husky/pre-commit` | hook runner / repository automation | Stable delegator command; changes affect native Git hook behavior. |
 | `.husky/pre-push` | `.husky/pre-push` | hook runner / repository automation | Stable delegator command; changes affect native Git hook behavior. |
-| `habitat hook` command | `tools/habitat-harness/src/commands/hook.ts` | CLI verb, command behavior, help output | `name` argument and `--base` are public command surfaces. |
-| `--base` flag | `tools/habitat-harness/src/commands/hook.ts` | CLI flag / pre-push behavior | D11 must define compatibility and intended use; current description says probes and CI diagnostics. |
-| `runHook` facade | `tools/habitat-harness/src/lib/command-engine.ts`, `tools/habitat-harness/src/index.ts` | package export | Currently exported publicly through `index.ts`; D0/D1 required before rename/narrow/facade. |
-| `runPreCommit`, `runPrePush`, `createHookTrace`, `HookTrace`, trace interfaces | `tools/habitat-harness/src/lib/hooks.ts` | package-internal or package-export risk, test-facing API | Tests import directly; D0 must classify public vs internal before target schema changes. |
-| Human output notice | `tools/habitat-harness/src/lib/hooks.ts` | human output, tests/docs | Current wording uses legacy local-feedback language; D1 treats it as compatibility-only. D11 should replace only through D0/D1 handling. |
-| Outcome strings and command phase strings | `tools/habitat-harness/src/lib/hooks.ts` | machine/test trace | Need closed trace contract if retained. |
-| Hook test expectations | `tools/habitat-harness/test/lib/hooks.test.ts`, `tools/habitat-harness/test/commands/habitat-commands.test.ts` | public behavior characterization | Tests pin current text, commands, sequence, and trace fields. |
+| `habitat hook` command | `tools/habitat/src/commands/hook.ts` | CLI verb, command behavior, help output | `name` argument and `--base` are public command surfaces. |
+| `--base` flag | `tools/habitat/src/commands/hook.ts` | CLI flag / pre-push behavior | D11 must define compatibility and intended use; current description says probes and CI diagnostics. |
+| `runHook` facade | `tools/habitat/src/lib/command-engine.ts`, `tools/habitat/src/index.ts` | package export | Currently exported publicly through `index.ts`; D0/D1 required before rename/narrow/facade. |
+| `runPreCommit`, `runPrePush`, `createHookTrace`, `HookTrace`, trace interfaces | `tools/habitat/src/lib/hooks.ts` | package-internal or package-export risk, test-facing API | Tests import directly; D0 must classify public vs internal before target schema changes. |
+| Human output notice | `tools/habitat/src/lib/hooks.ts` | human output, tests/docs | Current wording uses legacy local-feedback language; D1 treats it as compatibility-only. D11 should replace only through D0/D1 handling. |
+| Outcome strings and command phase strings | `tools/habitat/src/lib/hooks.ts` | machine/test trace | Need closed trace contract if retained. |
+| Hook test expectations | `tools/habitat/test/lib/hooks.test.ts`, `tools/habitat/test/commands/habitat-commands.test.ts` | public behavior characterization | Tests pin current text, commands, sequence, and trace fields. |
 
 The expected durable D0 matrix file `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/docs/projects/habitat-harness/public-surface-compatibility-matrix.md` is absent in this worktree. That absence alone blocks D11 source implementation for all touched hook surfaces.
 
@@ -149,12 +149,12 @@ The expected durable D0 matrix file `/Users/mateicanavra/Documents/.nosync/DEV/w
 
 Later D11 may own only the local-feedback orchestration surfaces:
 
-- `tools/habitat-harness/src/lib/hooks.ts`
-- `tools/habitat-harness/src/commands/hook.ts`
-- `tools/habitat-harness/src/lib/command-engine.ts` only for D0/D1-compatible hook facade/export handling
-- `tools/habitat-harness/src/index.ts` only if D0 classifies the hook exports and authorizes facade/preserve/version handling
-- `tools/habitat-harness/test/lib/hooks.test.ts`
-- `tools/habitat-harness/test/commands/habitat-commands.test.ts` only for CLI dispatch/help compatibility
+- `tools/habitat/src/lib/hooks.ts`
+- `tools/habitat/src/commands/hook.ts`
+- `tools/habitat/src/lib/command-engine.ts` only for D0/D1-compatible hook facade/export handling
+- `tools/habitat/src/index.ts` only if D0 classifies the hook exports and authorizes facade/preserve/version handling
+- `tools/habitat/test/lib/hooks.test.ts`
+- `tools/habitat/test/commands/habitat-commands.test.ts` only for CLI dispatch/help compatibility
 - `.husky/pre-commit`
 - `.husky/pre-push`
 - Adjacent hook docs/examples only after D0/D1 public-surface handling exists
