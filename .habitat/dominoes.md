@@ -200,28 +200,30 @@ Current semantic review:
 - `habitat/toolkit/_self/triage` is intentionally murky and should remain so
   until admission/resolver design is addressed.
 
-## Active Next Domino
-
 ### 11. Bridge Package Scripts Through Habitat Check
 
 Goal: packages should run Habitat-owned checks through the Habitat command
 surface instead of calling `.habitat/.../*.check.*` directly.
 
-This is intentionally narrower than full resolver alignment.
+Status: landed as `agent-DRA-habitat-check-runner-bridge`.
 
-What this domino should do:
+What landed:
 
-- Fix the narrow `FileReadFailed` loader/runtime issue that currently prevents
-  `habitat check --rule <id>` from reaching registered checks.
-- Add the smallest selector improvement needed for curated package scripts,
-  probably repeated or multi-rule selection.
-- Rewire package scripts from direct `.habitat` script paths to Habitat command
+- Fixed the narrow async registry fallback issue that prevented selected
+  checks from reaching the flattened authority-tree rule-pack index.
+- Added repeatable `--rule` selection so package scripts can run curated rule
+  groups through `habitat check --rule <id> --rule <id>`.
+- Added command-check runner inference for direct packet-local `.mjs`, `.sh`,
+  and `.py` detects.
+- Rewired the MapGen static guardrail package scripts through Habitat command
   invocations.
+- Rewired the root strict domain-refactor guardrail alias through Habitat while
+  preserving its existing environment profile.
 - Preserve the existing check set; do not redesign check semantics in this
   slice.
 - Keep `_self/triage` excluded from default execution.
 
-Acceptance shape:
+What this proved:
 
 - A single rule can run through `habitat check --rule <id>`.
 - A curated package group can run through Habitat without hard-coded `.habitat`
@@ -229,19 +231,113 @@ Acceptance shape:
 - `mods/mod-swooper-maps` architecture static guardrails run through Habitat.
 - Existing package scripts retain their prior behavioral scope.
 
+What this did not prove:
+
+- Plain `habitat check` / `bun run habitat:check` full-suite execution remains
+  broken and should not be treated as a known-good aggregate.
+- Long root/package aliases such as
+  `lint:domain-refactor-guardrails:strict-core` may still exist as caller
+  profiles even when they now route through Habitat. Those aliases are not final
+  authority; they are script-surface debt.
+- Existing rule violations, including the strict domain-refactor guardrail
+  failure, remain policy burn-down work after the runner bridge reaches the
+  rule.
+
+## Known Runner Debt
+
+### Full-Suite `habitat check`
+
+The selected-rule path and the full-suite path are now intentionally separated
+in the working model.
+
+`habitat check --rule <id>` is the proven bridge. It uses explicit rule
+selection, resolves a curated packet set, applies baselines, and can support
+package scripts while the broader runner is being redesigned.
+
+Plain `habitat check` / `bun run habitat:check` is not currently a trustworthy
+aggregate. It still tries to run the accumulated default rule universe through
+old assumptions about registry shape, artifact admission, packet identity,
+default inclusion, and error reporting. The observed `Internal Server Error`
+is not a surprise and should not be papered over as a one-off bug.
+
+Current direction: treat full-suite execution as a likely scrap-and-rebuild
+surface. The rebuild should start from the flattened authority tree:
+
+- discover executable packets from `.habitat/**/_self/<kind>/<packet>/`;
+- infer niche, artifact kind, and packet identity from the path;
+- exclude `_self/triage` from default execution;
+- refuse unknown, stale, or not-yet-admitted packets with explicit selector or
+  admission diagnostics;
+- report per-packet failures directly, not as generic service errors;
+- preserve curated `--rule` execution as the compatibility bridge while this is
+  rebuilt.
+
+Do not let the broken full-suite path drive the authority ontology. The current
+Toolkit internals are overfit to earlier shapes and should not be used as proof
+that the flattened model is wrong.
+
+## Active Next Domino
+
+### 12. Package Script Surface Consolidation
+
+Goal: remove rogue lint/check/architecture authority from package scripts as a
+caller surface, without deleting package-local tests that still contain
+unmigrated authority.
+
+This is the next cleanup domino before deeper Toolkit redesign. It fits the
+current ratchet because package scripts are now able to call curated Habitat
+rules through `habitat check --rule`, and the remaining script surface is
+mostly a routing and classification problem.
+
+What this domino should do:
+
+- Inventory all root and package `package.json` scripts that look like lint,
+  check, architecture, guardrail, contract, boundary, generated, manifest, or
+  schema enforcement.
+- Classify each script as:
+  - Habitat-routable authority already represented by one or more rule IDs;
+  - hidden authority still baked into package tests or package-local scripts;
+  - operational product/runtime workflow that should remain with its consumer;
+  - graph/tool-required script that must stay where a tool such as Nx, ESLint,
+    or TypeScript expects it.
+- Replace explicit package/root enforcement wrappers with
+  `habitat check --rule ...` when the authority is already represented in
+  `.habitat`.
+- Keep short convenience aliases only when they are clearly caller profiles,
+  not independent sources of policy.
+- Record hidden package-test authority as candidates for later migration rather
+  than deleting those tests.
+- Avoid routing through plain `habitat check` until the full-suite path is
+  rebuilt.
+
+Acceptance shape:
+
+- No package script calls a Habitat packet-local script path directly when a
+  registered rule ID exists.
+- Long, specific lint/check aliases are either removed, shortened to clear
+  Habitat caller aliases, or explicitly recorded as profile debt.
+- Package tests containing structural authority are identified and queued for
+  extraction instead of silently preserved or removed.
+- Operational scripts remain with their consumers, especially when they run
+  product workflows rather than Habitat authority.
+- The worktree proves the updated callers through targeted package/root script
+  commands.
+
 Scope guard:
 
-- Do not build the final niche/kind resolver here.
-- Do not introduce blueprint directories here.
-- Do not repair every wrong or overprecise check.
-- Do not refactor the Toolkit service model beyond what the bridge requires.
+- Do not migrate the next batch of hidden package-test authority inside this
+  domino unless it is a trivial already-admitted rule selection change.
+- Do not repair underlying rule violations such as strict domain-refactor
+  guardrail findings here.
+- Do not rely on broad `habitat check` as proof.
+- Do not redesign full-suite runner discovery in this slice.
 
 ## Planned Dominoes
 
-### 12. Runner And Resolver Alignment
+### 13. Full-Suite Runner Rebuild
 
-Goal: teach Habitat discovery to understand the flattened authority tree
-directly.
+Goal: replace the broken plain `habitat check` aggregate with a runner that
+understands the flattened authority tree directly.
 
 Expected direction:
 
@@ -255,14 +351,17 @@ Expected direction:
 - Infer packet identity from the directory below kind.
 - Exclude `_self/triage` from default execution.
 - Avoid metadata declarations for facts already recoverable from the tree.
+- Preserve selected-rule execution as the compatibility path.
+- Produce explicit admission, selector, and packet execution diagnostics instead
+  of generic `Internal Server Error` failures.
 
-Why this comes after the package bridge:
+Why this comes after script-surface consolidation:
 
-The package bridge proves the command surface and compatibility path first.
-Full resolver work is larger and easier to overbuild if done before package
-scripts are using Habitat as the doorway.
+Script consolidation reduces the caller surface first. Full-suite rebuild is
+larger and easier to overbuild if done before the repo stops depending on
+package-local lint/check wrappers as implicit policy.
 
-### 13. Authoring-Surface Hidden Authority Batch
+### 14. Authoring-Surface Hidden Authority Batch
 
 Goal: migrate the next obvious cluster of MapGen authoring-surface authority
 from package tests into Habitat-owned packets.
@@ -288,7 +387,7 @@ Scope guard:
   package-local.
 - Use transitional scripts only where Grit/source-check is not yet viable.
 
-### 14. Studio And Server Structural Authority Batch
+### 15. Studio And Server Structural Authority Batch
 
 Goal: extract static Studio/server authority from tests that currently mix
 structure with runtime/dev-server behavior.
@@ -306,7 +405,7 @@ Likely split:
 - Keep dev-server behavior, UI behavior, runtime proof, and integration
   behavior package-local.
 
-### 15. Core And Platform Public-Surface Authority Batch
+### 16. Core And Platform Public-Surface Authority Batch
 
 Goal: migrate broader package/API boundary authority after MapGen and Studio
 patterns prove the bridge and resolver.
@@ -323,7 +422,7 @@ Scope guard:
   work.
 - Do not mix this batch into the MapGen authoring batch.
 
-### 16. Sift, Rename, And Reclassify Packets
+### 17. Sift, Rename, And Reclassify Packets
 
 Goal: after the runner bridge and two or three migrated clusters exist, do a
 semantic reclassification pass on packet names, niche placement, and artifact
@@ -344,7 +443,7 @@ Why not now:
 Before more execution evidence exists, renaming and reshaping risks encoding a
 theory instead of observed structure.
 
-### 17. Blueprint Model Design
+### 18. Blueprint Model Design
 
 Goal: define blueprint as the executable/enforceable unit inside a niche.
 
@@ -369,7 +468,7 @@ Scope guard:
 - Do not force current artifact packets to become blueprint directories until
   the model is proven.
 
-### 18. Toolkit Simplification And Service-Model Cleanup
+### 19. Toolkit Simplification And Service-Model Cleanup
 
 Goal: return to the Habitat Toolkit itself after authority content and command
 integration have stabilized.
@@ -393,12 +492,15 @@ then package command integration, then resolver alignment.
 
 ## Current Hand-Off
 
-The next implementation context should start with Domino 11:
+The next implementation context should start with Domino 12:
 
-1. Reproduce and diagnose the current `FileReadFailed` from
-   `habitat check --rule standard-stage-topology`.
-2. Fix only the narrow loader/runtime path issue needed for rule execution.
-3. Add the smallest selector support needed for curated package rule groups.
-4. Rewire package scripts away from direct `.habitat` script paths.
-5. Verify package scripts still run the same authority scope through Habitat.
-
+1. Inventory lint/check/architecture-like scripts in root and package
+   `package.json` files.
+2. Classify each as Habitat-routable authority, hidden package-test authority,
+   operational workflow, or hard tool-location constraint.
+3. Rewire already-admitted authority through curated
+   `habitat check --rule ...` calls.
+4. Queue hidden package-test authority for later migration instead of deleting
+   it.
+5. Verify the updated caller scripts directly; do not use broad
+   `habitat check` as the acceptance proof.

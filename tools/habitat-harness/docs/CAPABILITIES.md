@@ -39,7 +39,7 @@ The root script `bun run habitat` dispatches to
 
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
-| `check` | `bun run habitat check`, `bun run habitat:check` | Runs the Habitat rule pack, supports `--owner`, repeatable `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. |
+| `check` | `bun run habitat check`, `bun run habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution is the currently proven package-script bridge; broad full-suite execution is known runner debt. |
 | `verify` | `bun run habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
 | `classify` | `bun run habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun run habitat fix`, `bun run habitat:fix` | Runs the approved Habitat apply transaction, then hands changed files to the formatter. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
@@ -49,9 +49,12 @@ The root script `bun run habitat` dispatches to
 Root scripts also expose graph-owned entrypoints:
 
 - `bun run lint` runs the canonical repo-wide formatter hygiene target.
-- Full Habitat structural verification lives in `bun run habitat:check`,
-  `bun run check`, and `@internal/habitat-harness:habitat:check:all`; it is
-  not hidden inside root lint.
+- Curated package/script verification should call explicit Habitat rules with
+  repeatable `--rule` selection. Broad full-suite structural verification is
+  intended to live behind `bun run habitat:check`, `bun run check`, and
+  `@internal/habitat-harness:habitat:check:all`, but that aggregate path has
+  accumulated resolver/admission debt and is not currently a trustworthy
+  acceptance proof. Treat it as a rebuild target, not as a surprising failure.
 - `@internal/habitat-harness:validate:boundary-taxonomy` runs the current
   workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
   target. It is part of root `bun run check:graph`, CI, Habitat verify, and
@@ -90,6 +93,7 @@ project manifests. Together they expose these Habitat-owned targets:
 - Package-owned `validate:grit-patterns` for checked-in Habitat/Grit pattern
   fixture validation
 - Aggregate `habitat:check:all` for one-pass full Habitat graph checks
+  (known rebuild target until full-suite discovery/admission is repaired)
 - Per-rule `habitat:rule:<rule-id>` aliases
 - Per-owner `habitat:check` targets for projects that own Habitat rules
 
