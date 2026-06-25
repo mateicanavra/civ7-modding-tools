@@ -62,7 +62,7 @@
         "command": "bun run --cwd tools/habitat-harness validate:boundary-taxonomy",
         "cache": true,
         "inputs": [
-          "{workspaceRoot}/.habitat/habitat/toolkit/boundaries/boundary-taxonomy/validate-boundary-taxonomy.ts",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/boundary-taxonomy/validate-boundary-taxonomy.ts",
           "{workspaceRoot}/eslint.boundaries.config.mjs",
           "{workspaceRoot}/nx.json",
           "{workspaceRoot}/package.json",
@@ -92,7 +92,7 @@
         "inputs": [
           "{workspaceRoot}/.grit/grit.yaml",
           "{workspaceRoot}/.habitat/patterns/**/*.md",
-          "{workspaceRoot}/.habitat/habitat/toolkit/capabilities/legacy-source-check/**/*.mjs",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/legacy-source-check/**/*.mjs",
           "{workspaceRoot}/package.json",
           "{workspaceRoot}/bun.lock",
           "{workspaceRoot}/tools/habitat-harness/package.json"
@@ -105,8 +105,8 @@
         "command": "bun run --cwd tools/habitat-harness validate:service-module-shape",
         "cache": true,
         "inputs": [
-          "{workspaceRoot}/.habitat/habitat/toolkit/structure/service-module-shape/validate-service-module-shape.ts",
-          "{workspaceRoot}/.habitat/habitat/toolkit/capabilities/legacy-source-check/**/*.mjs",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/service-module-shape/validate-service-module-shape.ts",
+          "{workspaceRoot}/.habitat/habitat/toolkit/_self/triage/legacy-source-check/**/*.mjs",
           "{workspaceRoot}/tools/habitat-harness/src/service/modules/**",
           "{workspaceRoot}/tools/habitat-harness/src/service/model/**",
           "{workspaceRoot}/tools/habitat-harness/package.json"
@@ -122,11 +122,11 @@
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat-harness --testTimeout=30000",
-    "validate:cli-smoke": "bun run ../../.habitat/habitat/toolkit/capabilities/cli-smoke/validate-cli-smoke.ts",
-    "validate:boundary-taxonomy": "env -u FORCE_COLOR bun run ../../.habitat/habitat/toolkit/boundaries/boundary-taxonomy/validate-boundary-taxonomy.ts",
-    "validate:service-module-shape": "env -u FORCE_COLOR bun run ../../.habitat/habitat/toolkit/structure/service-module-shape/validate-service-module-shape.ts",
+    "validate:cli-smoke": "bun run ../../.habitat/habitat/toolkit/_self/triage/cli-smoke/validate-cli-smoke.ts",
+    "validate:boundary-taxonomy": "env -u FORCE_COLOR bun run ../../.habitat/habitat/toolkit/_self/triage/boundary-taxonomy/validate-boundary-taxonomy.ts",
+    "validate:service-module-shape": "env -u FORCE_COLOR bun run ../../.habitat/habitat/toolkit/_self/triage/service-module-shape/validate-service-module-shape.ts",
     "validate:grit-patterns": "env -u FORCE_COLOR bun run --cwd ../.. grit patterns test",
-    "generate:schemas": "bun run ../../.habitat/habitat/toolkit/contracts/generator-schemas/write-generator-schemas.ts",
+    "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_self/triage/generator-schemas/write-generator-schemas.ts",
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist oclif.manifest.json",
     "build:tsc": "tsc -p tsconfig.json",
