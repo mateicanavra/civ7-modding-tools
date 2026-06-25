@@ -16,6 +16,11 @@ Prefer the next irreversible, testable integration move over broad redesign.
 When a domino lands, reassess the tree and runner surface before committing to
 the next one.
 
+Every domino should reduce future states. A scan or ledger is not progress by
+itself; it only counts inside a vertical slice that also moves or deletes
+authority, rewires callers, proves behavior, and leaves fewer places for policy
+to hide.
+
 Do not use this sequence to justify speculative ontology work. Ontology and
 resolver design should only harden after the gathered authority content proves
 the need.
@@ -219,9 +224,9 @@ What landed:
   invocations.
 - Rewired the root strict domain-refactor guardrail alias through Habitat while
   preserving its existing environment profile.
-- Preserve the existing check set; do not redesign check semantics in this
+- Preserved the existing check set; did not redesign check semantics in this
   slice.
-- Keep `_self/triage` excluded from default execution.
+- Kept `_self/triage` excluded from default execution.
 
 What this proved:
 
@@ -278,55 +283,52 @@ that the flattened model is wrong.
 
 ## Active Next Domino
 
-### 12. Package Script Surface Consolidation
+### 12. Package Script Cleanup
 
-Goal: remove rogue lint/check/architecture authority from package scripts as a
-caller surface, without deleting package-local tests that still contain
-unmigrated authority.
+Goal: remove obvious lint/check/structure authority from root and package
+`package.json` surfaces by moving simple enforcement scripts into `.habitat`
+and rewiring callers through `habitat check --rule ...`.
 
-This is the next cleanup domino before deeper Toolkit redesign. It fits the
-current ratchet because package scripts are now able to call curated Habitat
-rules through `habitat check --rule`, and the remaining script surface is
-mostly a routing and classification problem.
+This is a cleanup domino, not an audit domino. The deliverable is less cruft:
+fewer package scripts that act like policy, fewer direct script paths, and
+fewer duplicate enforcement surfaces.
 
 What this domino should do:
 
-- Inventory all root and package `package.json` scripts that look like lint,
-  check, architecture, guardrail, contract, boundary, generated, manifest, or
-  schema enforcement.
-- Classify each script as:
-  - Habitat-routable authority already represented by one or more rule IDs;
-  - hidden authority still baked into package tests or package-local scripts;
-  - operational product/runtime workflow that should remain with its consumer;
-  - graph/tool-required script that must stay where a tool such as Nx, ESLint,
-    or TypeScript expects it.
-- Replace explicit package/root enforcement wrappers with
-  `habitat check --rule ...` when the authority is already represented in
-  `.habitat`.
-- Keep short convenience aliases only when they are clearly caller profiles,
-  not independent sources of policy.
-- Record hidden package-test authority as candidates for later migration rather
-  than deleting those tests.
-- Avoid routing through plain `habitat check` until the full-suite path is
-  rebuilt.
+- Walk every root/package `package.json` script once.
+- For every clearly simple lint/check/structure script:
+  - if it already has a Habitat rule, rewire the caller to
+    `habitat check --rule ...`;
+  - if it is a standalone script that should be Habitat-owned, move it into the
+    appropriate `.habitat/<niche>/_self/check/<packet>/` packet, register it,
+    add an empty or existing baseline as appropriate, and route it through
+    `habitat check --rule ...`;
+  - if it is redundant after a Habitat route exists, remove the alias instead
+    of keeping a shadow policy name.
+- Leave package-local operational workflows in place when they run product
+  behavior, builds, dev servers, generated-output refresh, or tool-required
+  package checks.
+- Leave scripts whose authority is embedded in tests for the next domino. Do
+  not partially extract those in this pass.
+- Avoid broad `habitat check`; use curated `--rule` calls only.
 
 Acceptance shape:
 
-- No package script calls a Habitat packet-local script path directly when a
-  registered rule ID exists.
-- Long, specific lint/check aliases are either removed, shortened to clear
-  Habitat caller aliases, or explicitly recorded as profile debt.
-- Package tests containing structural authority are identified and queued for
-  extraction instead of silently preserved or removed.
-- Operational scripts remain with their consumers, especially when they run
-  product workflows rather than Habitat authority.
-- The worktree proves the updated callers through targeted package/root script
-  commands.
+- No root/package script directly invokes `.habitat/**/<packet>.check.*` when a
+  registered rule can be called.
+- Any simple package-visible lint/check script that belongs to Habitat is moved
+  fully into a Habitat check packet and made runnable by rule ID.
+- Package scripts that remain are clearly operational, tool-required, package
+  test entrypoints, or short aliases into Habitat/Nx.
+- The changed root/package scripts are verified directly.
+- The worktree is clean and committed.
 
 Scope guard:
 
-- Do not migrate the next batch of hidden package-test authority inside this
-  domino unless it is a trivial already-admitted rule selection change.
+- Do not create a classification ledger as a substitute for moving or deleting
+  script authority.
+- Do not migrate authority embedded inside test files or broad package test
+  suites.
 - Do not repair underlying rule violations such as strict domain-refactor
   guardrail findings here.
 - Do not rely on broad `habitat check` as proof.
@@ -334,7 +336,49 @@ Scope guard:
 
 ## Planned Dominoes
 
-### 13. Full-Suite Runner Rebuild
+### 13. Embedded Hidden Authority Migration
+
+Goal: extract structural authority that is still baked into package tests or
+other embedded locations, one vertical cluster at a time.
+
+This is separate from package script cleanup because these checks are not simple
+script moves. They require reading the test oracle, splitting structure from
+runtime/product behavior, migrating only the structural authority, and then
+deleting or narrowing the original test.
+
+First likely cluster: MapGen authoring-surface authority.
+
+Candidate sources:
+
+- `mods/mod-swooper-maps/test/config/standard-authoring-surface-guards.test.ts`
+- `mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards.test.ts`
+- `apps/mapgen-studio/test/config/defaultConfigSchema.test.ts`
+- `apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts`
+
+Likely authority:
+
+- MapGen authoring contracts.
+- Generated recipe artifact shape.
+- Public schema surface shape.
+- Standard stage topology/public authoring model.
+
+Later embedded clusters:
+
+- Studio/server static authority, such as daemon deploy isolation, watch
+  ignores, Nx dev runner shape, and one-mount structure.
+- Core/platform public-surface authority, such as MapGen core purity,
+  intelligence bridge package shape, and direct-control public API boundaries.
+
+Scope guard:
+
+- Move structural authority into Habitat.
+- Keep runtime behavior, product correctness, dev-server behavior, generated
+  bundle proof, and integration behavior package-local.
+- Delete or narrow the original test only after Habitat has parity for the
+  migrated structural oracle.
+- Use transitional scripts only where Grit/source-check is not yet viable.
+
+### 14. Full-Suite Runner Rebuild
 
 Goal: replace the broken plain `habitat check` aggregate with a runner that
 understands the flattened authority tree directly.
@@ -355,74 +399,13 @@ Expected direction:
 - Produce explicit admission, selector, and packet execution diagnostics instead
   of generic `Internal Server Error` failures.
 
-Why this comes after script-surface consolidation:
+Why this comes after package-script cleanup and at least one embedded migration:
 
-Script consolidation reduces the caller surface first. Full-suite rebuild is
-larger and easier to overbuild if done before the repo stops depending on
-package-local lint/check wrappers as implicit policy.
+The runner should be rebuilt around a smaller, cleaner caller surface and a
+proven set of migrated packets. Rebuilding it before removing obvious package
+script cruft risks preserving compatibility for states that should disappear.
 
-### 14. Authoring-Surface Hidden Authority Batch
-
-Goal: migrate the next obvious cluster of MapGen authoring-surface authority
-from package tests into Habitat-owned packets.
-
-Candidate sources:
-
-- `mods/mod-swooper-maps/test/config/standard-authoring-surface-guards.test.ts`
-- `mods/mod-swooper-maps/test/config/standard-recipe-artifact-guards.test.ts`
-- `apps/mapgen-studio/test/config/defaultConfigSchema.test.ts`
-- `apps/mapgen-studio/test/config/standardRecipeArtifactGuards.test.ts`
-
-Likely authority:
-
-- MapGen authoring contracts.
-- Generated recipe artifact shape.
-- Public schema surface shape.
-- Standard stage topology/public authoring model.
-
-Scope guard:
-
-- Genericize only where the parent niche makes that natural.
-- Keep runtime behavior, product correctness, and generated bundle proof
-  package-local.
-- Use transitional scripts only where Grit/source-check is not yet viable.
-
-### 15. Studio And Server Structural Authority Batch
-
-Goal: extract static Studio/server authority from tests that currently mix
-structure with runtime/dev-server behavior.
-
-Candidate sources:
-
-- `daemonDeployIsolation.test.ts`
-- `watchIgnores.test.ts`
-- `nxDevRunner.test.ts`
-- `oneMount.test.ts`
-
-Likely split:
-
-- Move static path/config/process-boundary assertions into Habitat.
-- Keep dev-server behavior, UI behavior, runtime proof, and integration
-  behavior package-local.
-
-### 16. Core And Platform Public-Surface Authority Batch
-
-Goal: migrate broader package/API boundary authority after MapGen and Studio
-patterns prove the bridge and resolver.
-
-Candidate sources:
-
-- `packages/mapgen-core/test/architecture/core-purity.test.ts`
-- `mods/mod-civ7-intelligence-bridge/test/controller-mod-package.test.ts`
-- `packages/civ7-direct-control/test/public-api.test.ts`
-
-Scope guard:
-
-- Treat these as API/package-boundary authority, not MapGen authoring-surface
-  work.
-- Do not mix this batch into the MapGen authoring batch.
-
-### 17. Sift, Rename, And Reclassify Packets
+### 15. Sift, Rename, And Reclassify Packets
 
 Goal: after the runner bridge and two or three migrated clusters exist, do a
 semantic reclassification pass on packet names, niche placement, and artifact
@@ -443,7 +426,7 @@ Why not now:
 Before more execution evidence exists, renaming and reshaping risks encoding a
 theory instead of observed structure.
 
-### 18. Blueprint Model Design
+### 16. Blueprint Model Design
 
 Goal: define blueprint as the executable/enforceable unit inside a niche.
 
@@ -468,7 +451,7 @@ Scope guard:
 - Do not force current artifact packets to become blueprint directories until
   the model is proven.
 
-### 19. Toolkit Simplification And Service-Model Cleanup
+### 17. Toolkit Simplification And Service-Model Cleanup
 
 Goal: return to the Habitat Toolkit itself after authority content and command
 integration have stabilized.
@@ -494,13 +477,9 @@ then package command integration, then resolver alignment.
 
 The next implementation context should start with Domino 12:
 
-1. Inventory lint/check/architecture-like scripts in root and package
-   `package.json` files.
-2. Classify each as Habitat-routable authority, hidden package-test authority,
-   operational workflow, or hard tool-location constraint.
-3. Rewire already-admitted authority through curated
-   `habitat check --rule ...` calls.
-4. Queue hidden package-test authority for later migration instead of deleting
-   it.
-5. Verify the updated caller scripts directly; do not use broad
-   `habitat check` as the acceptance proof.
+1. Scan root/package `package.json` files for lint/check/structure scripts.
+2. Move or rewire only the obvious simple Habitat authority.
+3. Delete redundant aliases where the Habitat route replaces them.
+4. Leave operational scripts and embedded-test authority alone.
+5. Verify changed callers directly; do not use broad `habitat check` as the
+   acceptance proof.
