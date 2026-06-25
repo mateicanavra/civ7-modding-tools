@@ -13,9 +13,11 @@ The goal is to make every authored enforcement policy trace back to Habitat
 artifacts, while execution mechanics stay in Habitat Toolkit source.
 
 The current checked-in hierarchy is provisional. It first names domain niches,
-then places exact-niche-owned artifact packets under `_self/<kind>/`, where
-`<kind>` is `check`, `fix`, `generate`, `migrate`, or `triage`. The flattened
-shape is defined in `AUTHORITY-TREE-SHAPE.md`.
+then places exact-niche-owned artifact packets under
+`_self/<kind>/<category>/`, where `<kind>` is `check`, `fix`, `generate`,
+`migrate`, or `triage`, and `<category>` is one of the universal subject
+categories in `SUBJECT-CATEGORIES.md`. The flattened shape is defined in
+`AUTHORITY-TREE-SHAPE.md`.
 
 Policies defined at a niche level are expected to cascade to child niches once
 the manifest model exists, but this commit does not implement cascade
@@ -24,9 +26,9 @@ semantics.
 ## Already True
 
 - Collected artifact packets live under each provisional niche root's
-  `_self/<kind>/` directories.
+  `_self/<kind>/<category>/` directories.
 - Rule identity is co-located as
-  `<niche>/_self/check/<packet>/<packet>.rule.json`.
+  `<niche>/_self/check/<category>/<packet>/<packet>.rule.json`.
 - Subject-local JSON files preserve baseline, fixture, generated-artifact, or
   rule-pack evidence gathered during triage, using
   `<subject>.baseline.json` for rule-owned baseline/evidence files.
@@ -41,7 +43,8 @@ semantics.
   `generate`, and `migrate` only.
 - The current authority-tree shape is defined in `AUTHORITY-TREE-SHAPE.md`.
   That reference treats gathered leaf folders as artifact packets under
-  niche-local `_self/<kind>/` directories plus `_self/triage/`.
+  niche-local `_self/<kind>/<category>/` directories plus category-qualified
+  `_self/triage/`.
 - Transitional adapters and legacy rule modules are co-located with the packet
   folder or Toolkit niche that owns their policy evidence.
 - CI and hooks already delegate into root commands that can route through
@@ -68,7 +71,7 @@ semantics.
 These rules describe the current checked-in authority tree.
 
 1. A structural check packet is admitted only by a packet folder under a
-   recognized niche root at `_self/check/<packet>`.
+   recognized niche root at `_self/check/<category>/<packet>`.
 2. A structural rule is admitted only by that folder's
    `<subject>.rule.json` record or a documented transitional adapter in the
    Habitat Toolkit niche.
@@ -110,8 +113,8 @@ These rules describe the current checked-in authority tree.
 | `civ7/mapgen/core/**` | MapGen package/runtime core, SDK entrypoint, and docs surface. | Pipeline step architecture or Studio-specific recipe artifact use. |
 | `civ7/mapgen/pipeline/**` | MapGen pipeline contracts, domain/recipe import topology, runtime capability access, RNG/config, schema/default, and cutover guardrails. | Separate ecology, placement, runner, or rule-ID hierarchy roots. |
 | `civ7/mapgen/studio/**` | MapGen Studio's recipe-artifact integration surface. | General MapGen pipeline architecture. |
-| `<niche>/_self/<check|fix|generate|migrate>/**` | Current location for admitted artifact packets, grouped by mutability kind under the owning niche. | Domain ownership, support-file ontology, blueprint schema, or implementation adapter dispatch. |
-| `<niche>/_self/triage/**` | Holding area for mixed, unclear, legacy, or not-yet-admitted packets. | Default execution. |
+| `<niche>/_self/<check|fix|generate|migrate>/<category>/**` | Current location for admitted artifact packets, grouped by mutability kind and universal purpose category under the owning niche. | Domain ownership, support-file ontology, blueprint schema, or implementation adapter dispatch. |
+| `<niche>/_self/triage/<category>/**` | Holding area for mixed, unclear, legacy, or not-yet-admitted packets grouped by best-fit purpose category. | Default execution. |
 | `<niche>/<child-niche>/**` | Child jurisdiction under the parent niche. | Parent-owned artifact packets; those belong under the parent's `_self/`. |
 | `config.md` | Human-readable operation model and vocabulary. | Parseable tool dispatch configuration. |
 
@@ -154,8 +157,8 @@ The next consolidation slices should:
    pattern source.
 6. Keep Nx, Biome, Husky, CI, and package scripts as thin execution layers whose
    authority is traceable to this tree.
-7. Teach Toolkit discovery to route by `_self/<kind>/<packet>` before hardening
-   resolver metadata around artifact packets.
+7. Teach Toolkit discovery to route by `_self/<kind>/<category>/<packet>`
+   before hardening resolver metadata around artifact packets.
 
 ## Stop Conditions
 
@@ -170,7 +173,7 @@ Stop a consolidation slice if it creates any of these states:
 - a test is used as a structural gate without either Habitat registration or an
   explicit product-test classification;
 - a new concern-layer bucket is introduced beneath a niche instead of using
-  `_self/<kind>/`;
+  `_self/<kind>/<category>/`;
 - a new niche level is created for `swooper-maps`, `ecology`, `placement`, a
   runner name, an artifact class, a rule ID, or a current defect name without
   later domain proof.

@@ -6,8 +6,10 @@ executes these artifacts, but package source, root scripts, tests, CI, hooks,
 and tool configs are not independent sources of enforcement truth.
 
 The current layout is a provisional domain-niche hierarchy. Niches are domain
-nouns. Exact-niche-owned artifact packets live under `_self/<kind>/`, where
-`<kind>` is `check`, `fix`, `generate`, `migrate`, or `triage`.
+nouns. Exact-niche-owned artifact packets live under
+`_self/<kind>/<category>/`, where `<kind>` is `check`, `fix`, `generate`,
+`migrate`, or `triage`, and `<category>` is one of the universal subject
+categories in `SUBJECT-CATEGORIES.md`.
 
 This is not a final ontology, and it is not evidence that runtime integration
 has been fully rewired.
@@ -45,8 +47,8 @@ niches. Artifact-kind folders under `_self/` carry mutability and runner intent:
 - `triage`: holding area for mixed, legacy, or not-yet-admitted packets.
 
 Each artifact packet remains the unit of evidence. Packet folders live under
-`<niche>/_self/<kind>/` and use a shared filename prefix for related rule-owned
-artifacts:
+`<niche>/_self/<kind>/<category>/` and use a shared filename prefix for related
+rule-owned artifacts:
 
 - `<subject-name>.rule.json`: rule metadata.
 - `<subject-name>.baseline.json`: baseline, fixture, current-tree, or
@@ -72,16 +74,18 @@ Authority planes:
   integration dominoes.
 - `config.md`: a human-readable sketch of the Habitat operation model. It is
   not consumed programmatically.
-- `<niche>/_self/check/<packet>/<packet>.rule.json`: provisional rule metadata.
-- `<niche>/_self/check/<packet>/<packet>.pattern.md`: provisional check or apply
-  pattern source.
-- `<niche>/_self/check/<packet>/<packet>.baseline.json`: provisional baseline,
-  fixture, current-tree, or generated-artifact policy data.
-- `<niche>/_self/check/<packet>/<packet>.check.{sh,mjs,py,ts}`: transitional
-  packet-local read-only command check.
-- `<niche>/_self/<fix|generate|migrate>/<packet>/<packet>.operation.md`:
+- `<niche>/_self/check/<category>/<packet>/<packet>.rule.json`: provisional
+  rule metadata.
+- `<niche>/_self/check/<category>/<packet>/<packet>.pattern.md`: provisional
+  check or apply pattern source.
+- `<niche>/_self/check/<category>/<packet>/<packet>.baseline.json`:
+  provisional baseline, fixture, current-tree, or generated-artifact policy
+  data.
+- `<niche>/_self/check/<category>/<packet>/<packet>.check.{sh,mjs,py,ts}`:
+  transitional packet-local read-only command check.
+- `<niche>/_self/<fix|generate|migrate>/<category>/<packet>/<packet>.operation.md`:
   provisional non-check operation identity.
-- `<niche>/_self/triage/<packet>/**`: mixed, unclear, legacy, or
+- `<niche>/_self/triage/<category>/<packet>/**`: mixed, unclear, legacy, or
   not-yet-admitted packet material excluded from default execution.
 - Normal directories under a niche remain child niches. `_self/` separates
   exact-niche-owned packets from child niches.
@@ -103,6 +107,7 @@ Runner status note: curated `habitat check --rule <id>` execution is the
 currently proven bridge for package scripts. Plain `habitat check` /
 graph-wide `nx run-many -t habitat:check` full-suite execution has known
 resolver/admission debt and should be treated as a rebuild target rather than a surprising failure. The
-full-suite runner should be rebuilt around `.habitat/**/_self/<kind>/<packet>/`
-discovery, path-inferred niche/kind identity, explicit triage exclusion, and
-clear packet-level diagnostics.
+full-suite runner should be rebuilt around
+`.habitat/**/_self/<kind>/<category>/<packet>/` discovery, path-inferred
+niche/kind/category identity, explicit triage exclusion, and clear packet-level
+diagnostics.

@@ -37,7 +37,7 @@ describe("check and baseline provider boundaries", () => {
         return commandResult(
           argv,
           options.cwd,
-          ".habitat/global/repository/_self/check/existing-rule/existing-rule.rule.json\n"
+          ".habitat/global/repository/_self/check/structure/existing-rule/existing-rule.rule.json\n"
         );
       }
       if (

@@ -1,0 +1,24 @@
+{
+  "id": "domain-refactor-guardrails",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**, recipes/standard/**",
+  "forbids": "ops importing adapter/context/map-projection/domain-root config; cross-domain deep imports; RNG/engine imports outside runtime layers (boundary profile)",
+  "why": "Domain ops stay pure and composable; the recipe layer owns composition.",
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/_self/check/boundaries/domain-refactor-guardrails/domain-refactor-guardrails.check.sh"
+  ],
+  "remediate": null,
+  "message": "Route the import through the domain public surface (@mapgen/domain/<d>, /ops, /config.js).",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/**"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

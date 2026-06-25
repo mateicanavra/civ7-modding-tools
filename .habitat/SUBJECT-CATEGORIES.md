@@ -146,4 +146,4 @@ Do not create categories from niches, runner names, owner tools, artifact kinds,
 
 - Packet count: 80
 - Category stub files: 80
-- Source of truth for this pass: `.habitat/**/_self/{check,fix,generate,migrate,triage}/*/`
+- Source of truth for this pass: `.habitat/**/_self/{check,fix,generate,migrate,triage}/{boundaries,structure,contracts,execution-context,derived-artifacts,quality,domain-policy}/*/`

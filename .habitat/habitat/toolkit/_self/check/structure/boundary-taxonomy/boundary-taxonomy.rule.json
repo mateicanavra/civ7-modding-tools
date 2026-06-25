@@ -1,0 +1,33 @@
+{
+  "id": "boundary-taxonomy",
+  "ownerTool": "command-check",
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "scope": "workspace package manifests, Nx metadata, ESLint boundary config, and Habitat taxonomy docs",
+  "forbids": "drift between declared project kinds, Nx graph tags, boundary config, and taxonomy documentation",
+  "why": "Project-kind taxonomy is Habitat Toolkit authority over workspace boundary facts.",
+  "detect": [
+    "bun",
+    ".habitat/habitat/toolkit/_self/check/structure/boundary-taxonomy/boundary-taxonomy.check.ts"
+  ],
+  "remediate": "Align package manifests, nx.json/project metadata, eslint.boundaries.config.mjs, and docs/projects/habitat-harness/taxonomy.md.",
+  "message": "Habitat boundary taxonomy validation failed.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/**/package.json",
+        "mods/**/package.json",
+        "packages/**/package.json",
+        "tools/**/package.json",
+        "nx.json",
+        "eslint.boundaries.config.mjs",
+        "docs/projects/habitat-harness/taxonomy.md"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}
