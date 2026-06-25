@@ -16,6 +16,7 @@ export type {
   VerifyCheckSummary,
 } from "./dto/check.schema.js";
 export {
+  CheckCommandContextSchema,
   CheckOutcomeSchema,
   CheckReportSchema,
   HabitatDiagnosticSchema,

@@ -73,6 +73,7 @@ export const SelectorRequestSchema = Type.Object(
   {
     owner: Type.Optional(Type.String({ minLength: 1 })),
     rule: Type.Optional(Type.String({ minLength: 1 })),
+    rules: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
     tool: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }

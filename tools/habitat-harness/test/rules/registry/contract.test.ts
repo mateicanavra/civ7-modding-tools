@@ -8,9 +8,13 @@ import {
 } from "@internal/habitat-harness/resources/platform/filesystem";
 import {
   loadRuleRegistryDocument,
+  loadRuleRegistryDocumentEffect,
   parseRuleRegistryDocument,
   parseRuleRegistryText,
+  type RuleRegistryDirectoryEntry,
+  type RuleRegistryFileSystem,
 } from "@internal/habitat-harness/service/model/rules/index";
+import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
@@ -36,6 +40,33 @@ describe("rule registry contract", () => {
         .every((rule) => rule.scanRoots.length > 0)
     ).toBe(true);
     expect(rules.every((rule) => rule.pathCoverage.length > 0)).toBe(true);
+  });
+
+  test("async directory loading falls back when the root index is absent", async () => {
+    const registryDir = "/repo/.habitat";
+    const fallbackIndex = path.join(
+      registryDir,
+      "habitat/toolkit/_self/triage/rule-pack-index/index.json"
+    );
+    const rulePath = path.join(
+      registryDir,
+      "global/repository/_self/check/sample-rule/sample-rule.rule.json"
+    );
+    const fileSystem = virtualRegistryFileSystem({
+      [fallbackIndex]: JSON.stringify({
+        schemaVersion: 1,
+        ownerRoots: {
+          "@internal/habitat-harness": "tools/habitat-harness",
+        },
+      }),
+      [rulePath]: JSON.stringify(baseRule()),
+    });
+
+    const document = await Effect.runPromise(
+      loadRuleRegistryDocumentEffect(registryDir, fileSystem)
+    );
+
+    expect(document.rules.map((rule) => rule.id)).toEqual(["sample-rule"]);
   });
 
   test("rejects invalid JSON before schema validation", () => {
@@ -233,3 +264,46 @@ describe("rule registry contract", () => {
     );
   });
 });
+
+function virtualRegistryFileSystem(files: Record<string, string>): RuleRegistryFileSystem<never> {
+  const filePaths = Object.keys(files);
+  const directories = new Set<string>();
+  for (const filePath of filePaths) {
+    let current = path.dirname(filePath);
+    while (current !== path.dirname(current)) {
+      directories.add(current);
+      current = path.dirname(current);
+    }
+  }
+
+  return {
+    isDirectory: (registryPath) => Effect.succeed(directories.has(registryPath)),
+    readDirectory: (registryPath) =>
+      directories.has(registryPath)
+        ? Effect.succeed(directoryEntries(registryPath, directories, filePaths))
+        : Effect.fail(new Error(`not a directory: ${registryPath}`)),
+    readText: (registryPath) =>
+      registryPath in files
+        ? Effect.succeed(files[registryPath] as string)
+        : Effect.fail(new Error(`missing file: ${registryPath}`)),
+  };
+}
+
+function directoryEntries(
+  directory: string,
+  directories: ReadonlySet<string>,
+  filePaths: readonly string[]
+): RuleRegistryDirectoryEntry[] {
+  const entries = new Map<string, RuleRegistryDirectoryEntry>();
+  for (const child of directories) {
+    if (path.dirname(child) === directory) {
+      entries.set(path.basename(child), { name: path.basename(child), kind: "directory" });
+    }
+  }
+  for (const filePath of filePaths) {
+    if (path.dirname(filePath) === directory) {
+      entries.set(path.basename(filePath), { name: path.basename(filePath), kind: "file" });
+    }
+  }
+  return [...entries.values()].sort((left, right) => left.name.localeCompare(right.name));
+}

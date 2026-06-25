@@ -50,7 +50,7 @@
     "lint:adapter-boundary": "nx run --project=@internal/habitat-harness --target=habitat:rule:adapter-boundary",
     "lint:domain-refactor-guardrails": "nx run --project=mod-swooper-maps --target=habitat:rule:domain-refactor-guardrails",
     "lint:mapgen-recipe-imports": "nx run --project=@internal/habitat-harness --target=source:check",
-    "lint:domain-refactor-guardrails:strict-core": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 ./.habitat/civ7/mapgen/pipeline/_self/check/domain-refactor-guardrails/domain-refactor-guardrails.check.sh",
+    "lint:domain-refactor-guardrails:strict-core": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun run habitat check --rule domain-refactor-guardrails",
     "ci:architecture-strict-core": "bun run lint:domain-refactor-guardrails:strict-core",
     "lint:mapgen-docs": "nx run --project=@internal/habitat-harness --target=habitat:rule:mapgen-docs",
     "deploy:mods": "nx run-many --targets=deploy --projects=mod-swooper-maps,civ-mod-dacia",

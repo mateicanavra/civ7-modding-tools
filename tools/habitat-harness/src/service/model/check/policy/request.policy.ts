@@ -20,9 +20,11 @@ export interface EmitCheckOptions {
 }
 
 export function normalizeSelectorRequest(selection: RuleSelection): SelectorRequest {
+  const ruleValues = ruleSelectorValues(selection);
   return {
     ...(selection.owner ? { owner: selection.owner } : {}),
-    ...(selection.rule ? { rule: selection.rule } : {}),
+    ...(ruleValues.length === 1 ? { rule: ruleValues[0] } : {}),
+    ...(ruleValues.length > 1 ? { rules: ruleValues } : {}),
     ...(selection.tool ? { tool: selection.tool } : {}),
   };
 }
@@ -69,4 +71,8 @@ export function baselineAuthoringRequest(
     base: { base: options.base ?? "main" },
     command: options.command ?? checkCommandContext(),
   };
+}
+
+function ruleSelectorValues(selection: RuleSelection): string[] {
+  return [...new Set([...(selection.rule ? [selection.rule] : []), ...(selection.rules ?? [])])];
 }

@@ -3,6 +3,7 @@ import type { RuleSelectorFacts as RegistryRuleSelectorFacts } from "../dto/regi
 export interface RuleSelection {
   owner?: string;
   rule?: string;
+  rules?: readonly string[];
   tool?: string;
 }
 
@@ -97,8 +98,12 @@ function filterRuleIds(
   registry: readonly RegistryRuleSelectorFacts[]
 ): string[] {
   let selected = [...registry];
+  const requestedRules = ruleSelectorValues(selection);
   if (selection.owner) selected = selected.filter((rule) => rule.ownerProject === selection.owner);
-  if (selection.rule) selected = selected.filter((rule) => rule.id === selection.rule);
+  if (requestedRules.length > 0) {
+    const requestedRuleSet = new Set(requestedRules);
+    selected = selected.filter((rule) => requestedRuleSet.has(rule.id));
+  }
   if (selection.tool) selected = selected.filter((rule) => rule.ownerTool === selection.tool);
   return selected.map((rule) => rule.id);
 }
@@ -109,9 +114,15 @@ function selectorFacts(
 ): RuleSelectorFact[] {
   const facts: RuleSelectorFact[] = [];
   if (selection.owner) facts.push(selectorFact("owner", selection.owner, registry));
-  if (selection.rule) facts.push(selectorFact("rule", selection.rule, registry));
+  for (const ruleId of ruleSelectorValues(selection)) {
+    facts.push(selectorFact("rule", ruleId, registry));
+  }
   if (selection.tool) facts.push(selectorFact("tool", selection.tool, registry));
   return facts;
+}
+
+function ruleSelectorValues(selection: RuleSelection): string[] {
+  return [...new Set([...(selection.rule ? [selection.rule] : []), ...(selection.rules ?? [])])];
 }
 
 function selectorFact(

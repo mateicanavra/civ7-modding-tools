@@ -162,11 +162,7 @@ function loadRuleRegistryDirectorySync(
   );
   const rules = ruleFilePathsSync(registryDir, fileSystem)
     .map((rulePath) =>
-      parseRegistryJsonSync<RuleRegistryRecordV1>(
-        rulePath,
-        RuleRegistryRecordV1Schema,
-        fileSystem
-      )
+      parseRegistryJsonSync<RuleRegistryRecordV1>(rulePath, RuleRegistryRecordV1Schema, fileSystem)
     )
     .sort((left, right) => left.id.localeCompare(right.id));
   const result = parseRuleRegistryDocument(
@@ -262,9 +258,9 @@ function ruleFilePaths<R>(
   fileSystem: RuleRegistryFileSystem<R>
 ): Effect.Effect<string[], unknown, R> {
   return Effect.gen(function* () {
-    return (
-      yield* findFiles(registryDir, fileSystem, (filePath) => filePath.endsWith(".rule.json"))
-    ).sort();
+    return (yield* findFiles(registryDir, fileSystem, (filePath) =>
+      filePath.endsWith(".rule.json")
+    )).sort();
   });
 }
 
@@ -274,11 +270,9 @@ function ruleRegistryIndexPath<R>(
 ): Effect.Effect<string, RuleRegistryLoadFailed | unknown, R> {
   return Effect.gen(function* () {
     const directIndex = path.join(registryDir, "index.json");
-    try {
-      yield* fileSystem.readText(directIndex);
+    const directIndexProbe = yield* Effect.either(fileSystem.readText(directIndex));
+    if (directIndexProbe._tag === "Right") {
       return directIndex;
-    } catch {
-      // The authority-tree layout stores the registry index as a subject artifact.
     }
 
     const candidates = yield* findFiles(registryDir, fileSystem, (filePath) =>
@@ -332,10 +326,7 @@ function ruleRegistryIndexPathSync(
   });
 }
 
-function ruleFilePathsSync(
-  registryDir: string,
-  fileSystem: RuleRegistrySyncFileSystem
-): string[] {
+function ruleFilePathsSync(registryDir: string, fileSystem: RuleRegistrySyncFileSystem): string[] {
   return findFilesSync(registryDir, fileSystem, (filePath) =>
     filePath.endsWith(".rule.json")
   ).sort();
