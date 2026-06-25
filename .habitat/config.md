@@ -19,81 +19,60 @@ baseline, or manifest entry.
 
 ## Provisional Domain-Niche Hierarchy
 
-The current `.habitat` tree groups subject folders first by domain niche, then
-by four flat governance layers. This is a V1 classification layout, not a
-parseable manifest and not a completed runtime migration.
-
-This section records the checked-in tree shape that exists before the next
-flattening pass. The target shape for that pass is defined in
-`AUTHORITY-TREE-SHAPE.md`: preserve domain niches, remove the concern-layer
-buckets, and group current leaf folders as artifact packets under `_self/check`,
-`_self/fix`, `_self/generate`, `_self/migrate`, or `_self/triage`.
+The current `.habitat` tree groups artifact packets first by domain niche, then
+by `_self/<kind>/`. This is a provisional classification layout, not a parseable
+manifest and not a completed runtime migration.
 
 ```text
 .habitat
   global
     repository
-      boundaries
-      structure
+      _self
+        check
   habitat
     toolkit
-      boundaries
-      structure
-      capabilities
-      contracts
+      _self
+        check
+        triage
   docs
     content
-      structure
+      _self
+        check
     projects
-      capabilities
+      _self
+        fix
     site
-      capabilities
+      _self
+        generate
   civ7
     resources
-      structure
+      _self
+        check
     platform
-      boundaries
-      capabilities
-      contracts
+      _self
+        check
     mapgen
       core
-        boundaries
-        structure
-        capabilities
+        _self
+          check
       pipeline
-        boundaries
-        structure
-        capabilities
-        contracts
+        _self
+          check
       studio
-        boundaries
-        structure
+        _self
+          check
 ```
 
 The niche names are domain nouns. They should not encode a layer, runner, file
-type, current defect, or artifact classification. For example, `platform` is a
-niche; `boundaries` is a layer under it. `repository` is a niche; repo-wide
-format and protected-surface policies are structural subjects under it.
+type, current defect, or artifact classification. For example, `platform` and
+`repository` are niches. Artifact kind directories live under `_self/`, not
+beside child niches.
 
-Layer buckets are flat. Do not break a layer into `definition`, `model`,
-`enforcement`, `evidence`, `state`, `actions`, or `proof` folders in this pass.
-Those are artifact facets, not hierarchy levels. Policies at a niche level are
-intended to cascade to child niches when the final manifest model exists. Until
-then, the subject folder is the practical unit of classification and evidence.
-Do not create deeper branches for narrow handles such as `ecology-step-imports`
-or `placement-outcome-boundary`; those are subject folders inside the broader
-MapGen pipeline niche.
-
-Layer meanings:
-
-- `boundaries`: import/export, dependency direction, public/private surface, and
-  ownership-edge subjects.
-- `structure`: file-tree, module-shape, generated/protected placement,
-  docs-shape, and retired-topology subjects.
-- `capabilities`: privileged runtime, provider, engine, RNG, validation,
-  process, or other effectful capability subjects.
-- `contracts`: schema, DTO, public API, registry, manifest, generator input, and
-  dependency-contract subjects.
+Policies at a niche level are intended to cascade to child niches when the final
+manifest model exists. Until then, the artifact packet folder is the practical
+unit of classification and evidence. Do not create deeper branches for narrow
+handles such as `ecology-step-imports` or `placement-outcome-boundary`; those are
+packets inside the broader MapGen pipeline niche.
 
 Rule-owned files use the same subject-name prefix:
 
@@ -190,10 +169,9 @@ habitat
   directories under a niche remain child niches.
 - Blueprint is a future executable/enforceable unit within a niche. It is not
   the current flattening unit.
-- Current layer names are generic governance concerns: `boundaries`,
-  `structure`, `capabilities`, `contracts`. They are a checked-in V1
-  classification aid, not the target post-flattening hierarchy.
-- Authored subjects are governed concepts: `workspace import boundary`,
+- Retired layer names such as `boundaries`, `structure`, `capabilities`, and
+  `contracts` describe governance concerns, not durable hierarchy buckets.
+- Authored packets are governed concepts: `workspace import boundary`,
   `repository format`, `service module shape`, `generated artifact ownership`.
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
 - Rule IDs are stable registry handles, not ontology roots.

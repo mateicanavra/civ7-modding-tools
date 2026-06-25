@@ -5,17 +5,9 @@ The Habitat SDK code under `tools/habitat-harness` manages, validates, and
 executes these artifacts, but package source, root scripts, tests, CI, hooks,
 and tool configs are not independent sources of enforcement truth.
 
-The current layout is a provisional domain-niche hierarchy with four flat
-policy layers inside each niche: `boundaries`, `structure`, `capabilities`, and
-`contracts`. Niches are domain nouns. Layers are generic governance concerns.
-Rule, pattern, baseline, and adapter artifacts are then grouped by subject under
-the layer that best describes the subject's primary concern.
-
-This records the current checked-in tree, not the target shape. The next
-flattening pass is governed by `AUTHORITY-TREE-SHAPE.md`: preserve the niche
-hierarchy, remove the concern-layer buckets, and classify current leaf folders
-as artifact packets under `_self/check`, `_self/fix`, `_self/generate`,
-`_self/migrate`, or `_self/triage`.
+The current layout is a provisional domain-niche hierarchy. Niches are domain
+nouns. Exact-niche-owned artifact packets live under `_self/<kind>/`, where
+`<kind>` is `check`, `fix`, `generate`, `migrate`, or `triage`.
 
 This is not a final ontology, and it is not evidence that runtime integration
 has been fully rewired.
@@ -43,20 +35,18 @@ Current niche roots:
   schema defaults, and cutover guardrails.
 - `civ7/mapgen/studio/**`: MapGen Studio integration with recipe artifacts.
 
-Within a niche, subjects are grouped into these flat layer buckets:
+Within a niche, `_self/` separates packets owned by that exact niche from child
+niches. Artifact-kind folders under `_self/` carry mutability and runner intent:
 
-- `boundaries`: import/export, dependency direction, public/private surface, and
-  ownership-edge subjects.
-- `structure`: file-tree, module-shape, generated/protected file placement,
-  docs-shape, and retired-topology subjects.
-- `capabilities`: privileged runtime, provider, engine, RNG, validation,
-  process, or other effectful capability subjects.
-- `contracts`: schema, DTO, public API, registry, manifest, generator input, and
-  dependency-contract subjects.
+- `check`: read-only evaluation.
+- `fix`: idempotent repair of existing authored files.
+- `generate`: materialization of declared generated or scaffolded outputs.
+- `migrate`: intentional transition from one accepted authored shape to another.
+- `triage`: holding area for mixed, legacy, or not-yet-admitted packets.
 
-Each subject folder remains the unit of evidence. Subject folders live directly
-under one of the layer buckets and use a shared filename prefix for related
-rule-owned artifacts:
+Each artifact packet remains the unit of evidence. Packet folders live under
+`<niche>/_self/<kind>/` and use a shared filename prefix for related rule-owned
+artifacts:
 
 - `<subject-name>.rule.json`: rule metadata.
 - `<subject-name>.baseline.json`: baseline, fixture, current-tree, or
@@ -76,28 +66,21 @@ Authority planes:
   remains Toolkit execution mechanics elsewhere.
 - `ARTIFACT-KINDS.md`: the working reference for Habitat artifact kinds and
   their mutability rules.
-- `AUTHORITY-TREE-SHAPE.md`: the working reference for the next authority-tree
-  flattening pass and artifact-packet shape.
+- `AUTHORITY-TREE-SHAPE.md`: the working reference for the current flattened
+  authority-tree shape.
 - `config.md`: a human-readable sketch of the Habitat operation model. It is
   not consumed programmatically.
-- `<niche>/<layer>/<subject>/<subject>.rule.json`: provisional rule metadata.
-- `<niche>/<layer>/<subject>/<subject>.pattern.md`: provisional check or apply
+- `<niche>/_self/check/<packet>/<packet>.rule.json`: provisional rule metadata.
+- `<niche>/_self/check/<packet>/<packet>.pattern.md`: provisional check or apply
   pattern source.
-- `<niche>/<layer>/<subject>/<subject>.baseline.json`: provisional baseline,
+- `<niche>/_self/check/<packet>/<packet>.baseline.json`: provisional baseline,
   fixture, current-tree, or generated-artifact policy data.
-- `<niche>/<layer>/<subject>/<subject>.check.{sh,mjs,py,ts}`: transitional
-  subject-local read-only command check.
-- `<niche>/<layer>/<subject>/<subject>.operation.md`: provisional non-check
-  operation identity.
-- `<niche>/<layer>/<subject>/*.{mjs,ts}`: transitional adapters or legacy rule
-  sources that must either be admitted as Toolkit execution mechanics or
-  converted into authored patterns.
-
-Target flattening shape:
-
-- `<niche>/_self/<kind>/<artifact-packet>/**`: current packet location after
-  the flattening pass, where `<kind>` is `check`, `fix`, `generate`,
-  `migrate`, or `triage`.
+- `<niche>/_self/check/<packet>/<packet>.check.{sh,mjs,py,ts}`: transitional
+  packet-local read-only command check.
+- `<niche>/_self/<fix|generate|migrate>/<packet>/<packet>.operation.md`:
+  provisional non-check operation identity.
+- `<niche>/_self/triage/<packet>/**`: mixed, unclear, legacy, or
+  not-yet-admitted packet material excluded from default execution.
 - Normal directories under a niche remain child niches. `_self/` separates
   exact-niche-owned packets from child niches.
 

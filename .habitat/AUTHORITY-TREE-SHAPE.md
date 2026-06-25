@@ -1,6 +1,6 @@
 # Habitat Authority Tree Shape
 
-Status: working normative reference for the next flattening pass
+Status: working normative reference for the current flattened authority tree
 
 This document defines the current target shape for `.habitat` authority
 artifacts. It is intentionally narrow. It does not define final resolver
@@ -8,9 +8,8 @@ metadata, support-file ontology, blueprint schema, or niche cascade semantics.
 
 ## Core Decision
 
-Habitat should flatten the premature concern-layer buckets, preserve the
-current domain-niche jurisdiction model, and reorganize current leaf folders as
-artifact packets under `_self/<kind>/`.
+Habitat preserves the current domain-niche jurisdiction model and stores
+exact-niche-owned artifact packets under `_self/<kind>/`.
 
 Target shape:
 
@@ -53,10 +52,9 @@ separator for artifacts owned by that exact niche:
               recipe-domain-surface/
 ```
 
-The immediate flattening pass should not invent new child niches such as
-`recipes/` or `stages/` unless the current placement is clearly wrong. Future
-domain refinement may move packets from a parent niche into child niches after
-the boundary is proven.
+Do not invent new child niches such as `recipes/` or `stages/` unless the
+current placement is clearly wrong. Future domain refinement may move packets
+from a parent niche into child niches after the boundary is proven.
 
 ## Concepts
 
@@ -91,7 +89,7 @@ defect names, artifact kinds, or artifact classes.
 directory contains it.
 
 It is deliberately weaker than a final ontology term. It exists to keep the
-tree semantically legible during the flattening pass:
+tree semantically legible:
 
 - normal directories under a niche are child niches;
 - `_self/` contains this niche's own artifact packets;
@@ -132,8 +130,8 @@ op-calls-op/
   op-calls-op.check.mjs
 ```
 
-For the next flattening pass, treat each current leaf folder as one artifact
-packet and classify it by its primary executable artifact kind.
+Treat each current leaf folder as one artifact packet and classify it by its
+primary executable artifact kind.
 
 ### Blueprint
 
@@ -151,9 +149,8 @@ Collapsing niche into blueprint would be wrong because it would force one
 authority area to equal one executable plan.
 
 Blueprint structure is not the next domino. This document records the direction
-so it is not lost, but the flattening pass should not invent blueprint
-directories, split current packets into blueprints, or harden blueprint
-metadata.
+so it is not lost, but the current tree should not invent blueprint directories,
+split current packets into blueprints, or harden blueprint metadata.
 
 ### Triage
 
@@ -167,7 +164,7 @@ them.
 ## Negative Rules
 
 - Do not keep `boundaries`, `structure`, `capabilities`, or `contracts` as
-  required layer buckets in the next tree shape.
+  required layer buckets.
 - Do not place `check`, `fix`, `generate`, `migrate`, or `triage` directly next
   to child niches. They belong under `_self/`.
 - Do not create runner-named directories such as `grit`, `nx`, `source-check`,
@@ -180,7 +177,7 @@ them.
   the current gathered packet model.
 - Do not classify a mutating script as `check` to preserve an existing path.
 
-## Classification Rule For The Flattening Pass
+## Classification Rule
 
 Classify each current leaf folder by the strongest admitted artifact kind it
 contains:
@@ -193,8 +190,8 @@ contains:
 - mixed, unclear, legacy, or not-yet-admitted packets -> `_self/triage`
 
 If a folder contains multiple real artifact kinds and cannot be classified by
-one primary kind without losing meaning, move it to `_self/triage/` rather than
-splitting it during the mechanical flattening pass.
+one primary kind without losing meaning, keep it in `_self/triage/` until a
+later pass splits or admits it.
 
 ## Execution Implications
 
@@ -219,20 +216,18 @@ placement or file shape.
 
 `_self/triage/` is intentionally excluded from default execution.
 
-## Next Move Pipeline
+## Next Domino
 
-The next flattening pass should proceed in this order:
+The next implementation pass should teach Toolkit discovery to route by:
 
-1. Gather the current `.habitat` leaf-folder corpus and count each packet once.
-2. Preserve current niche placements unless a packet is clearly misplaced.
-3. Classify every packet into `_self/check`, `_self/fix`, `_self/generate`,
-   `_self/migrate`, or `_self/triage` using the rule above.
-4. Detect collisions that would occur after removing the current layer buckets.
-5. Move whole packet folders mechanically into the target niche/kind shape.
-6. Update live path references in package scripts, tests, Habitat docs, and
-   Toolkit compatibility surfaces that directly point at moved packets.
-7. Verify that every pre-move packet exists exactly once after the move.
+```text
+.habitat/**/_self/check/*/
+.habitat/**/_self/fix/*/
+.habitat/**/_self/generate/*/
+.habitat/**/_self/migrate/*/
+```
 
-The flattening pass should not rewrite rule semantics, invent blueprints, solve
-the support-file ontology, or create child niches merely because a future
-refinement might justify them.
+That resolver work should infer niche, artifact kind, and packet identity from
+the tree. It should not rewrite rule semantics, invent blueprints, solve the
+support-file ontology, or create child niches merely because a future refinement
+might justify them.

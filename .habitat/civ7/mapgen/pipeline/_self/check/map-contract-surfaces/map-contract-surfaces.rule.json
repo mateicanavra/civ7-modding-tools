@@ -1,0 +1,25 @@
+{
+  "id": "map-contract-surfaces",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "standard recipe physics contracts, map projection tags, and map artifact source",
+  "forbids": "physics contracts requiring map artifacts/effects, realized-map artifact tags, or non-canonical map effect names",
+  "why": "The physics-to-map projection seam is a contract boundary, not package-local behavior.",
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/_self/check/map-contract-surfaces/map-contract-surfaces.check.mjs"
+  ],
+  "remediate": null,
+  "message": "Keep map projection dependencies on the map side of the contract seam.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.contract.ts",
+        "mods/mod-swooper-maps/src/**/*.ts",
+        "packages/mapgen-core/src/**/*.ts"
+      ]
+    }
+  ]
+}
