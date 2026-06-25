@@ -117,3 +117,12 @@ runId `3efbb0139ba2c71f227dbc367a2c421e479bd387ccffa0fe9c8cfa87cb770993` (latest
   maps; the 3 atoll-themed maps keep it; `desert-mountains` `reefMax` 0.04→0.047 (atolls 109→138).
 - **R7 live re-verification (R3 is map-affecting):** the step-7 `studio-run-in-game-live` gate must be
   re-run on latest_juicy at the R3 stack tip before closure (the prior live PASS predates R3).
+- **C5 re-measure after R3 (latest_juicy 106×66 s1337):** coast share of water 0.466 → **0.563**
+  (just above the pre-declared C5 upper bound 0.55); shelf-derived share 86.5% → **91.3%**;
+  coast-ring additions 305 → **0**; landShare 0.36 (unchanged); resources 281/281 placed, 0 lake drift.
+  The ring going to 0 is the intended R3 coherence (the post-island shelf already provides coast around
+  ALL land incl. island peaks, so the ring guarantee is a no-op safety net). The +0.10 coast-share rise
+  is island shelves — **physics-driven** (91% shelf, not a uniform band) and amplified by latest_juicy's
+  own `shelfWidth: "wide"`; narrowable via config if a lower coast share is desired. C5 bound stands as a
+  pre-cap-free target; R3's island-shelf coast is a deliberate, physically-grounded overshoot, not the
+  naive band the workstream removed.

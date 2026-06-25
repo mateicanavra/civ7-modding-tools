@@ -144,7 +144,7 @@ export default createStep(PlotCoastsStepContract, {
         label: "Source Coast Mask",
         group: GROUP_MAP_MORPHOLOGY,
         description:
-          "Pre-policy water tiles selected for coast terrain from coastlineMetrics coastalWater or shelfMask.",
+          "Pre-policy water tiles selected for coast terrain from the post-island shelf artifact (coastalWater or shelfMask).",
         visibility: "default",
         role: "membership",
         palette: "categorical",
