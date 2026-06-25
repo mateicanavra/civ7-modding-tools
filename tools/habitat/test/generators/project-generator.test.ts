@@ -14,12 +14,16 @@ describe("Habitat project generator", () => {
     const packageJson = readJson(tree, "packages/plugins/plugin-rules/package.json");
     expect(packageJson).toMatchObject({
       name: "plugin-rules",
-      nx: { tags: ["kind:plugin"] },
       scripts: {
         build: "tsc -p tsconfig.json",
         check: "tsc -p tsconfig.json --noEmit",
         test: "bun test",
       },
+    });
+    expect(readJson(tree, "packages/plugins/plugin-rules/project.json")).toEqual({
+      $schema: "../../../node_modules/nx/schemas/project-schema.json",
+      name: "plugin-rules",
+      tags: ["kind:plugin"],
     });
   });
 
@@ -30,7 +34,10 @@ describe("Habitat project generator", () => {
 
     expect(readJson(tree, "packages/plugins/plugin-runtime-kit/package.json")).toMatchObject({
       name: "plugin-runtime-kit",
-      nx: { tags: ["kind:plugin"] },
+    });
+    expect(readJson(tree, "packages/plugins/plugin-runtime-kit/project.json")).toMatchObject({
+      name: "plugin-runtime-kit",
+      tags: ["kind:plugin"],
     });
   });
 
@@ -41,7 +48,10 @@ describe("Habitat project generator", () => {
 
     expect(readJson(tree, "packages/plugins/plugin-runtime-kit/package.json")).toMatchObject({
       name: "plugin-runtime-kit",
-      nx: { tags: ["kind:plugin"] },
+    });
+    expect(readJson(tree, "packages/plugins/plugin-runtime-kit/project.json")).toMatchObject({
+      name: "plugin-runtime-kit",
+      tags: ["kind:plugin"],
     });
   });
 

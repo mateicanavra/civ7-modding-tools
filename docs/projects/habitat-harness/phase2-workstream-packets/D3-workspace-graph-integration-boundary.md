@@ -97,7 +97,7 @@ Required design receipt:
 
 Later implementation receipt:
 
-- `nx show project @habitat/cli --json`;
+- `nx show project habitat --json`;
 - plugin unit tests for inferred targets;
 - classify tests for available/unavailable targets;
 - injected missing-project alias test;
@@ -126,11 +126,11 @@ Update:
 
 ## Validation Commands / Receipt Template
 
-- `nx show project @habitat/cli`: expected exit 0; graph metadata
+- `nx show project habitat`: expected exit 0; graph metadata
   receipt for Habitat project targets and package exports.
-- `nx run @habitat/cli:habitat:rule:biome-ci`: expected exit 0
+- `nx run habitat:habitat:rule:biome-ci`: expected exit 0
   only when the alias proves its dependency ran rather than a false green.
-- `nx run @habitat/cli:boundaries`: expected exit 0 after current
+- `nx run habitat:boundaries`: expected exit 0 after current
   graph-file ENOENT risks are fixed or explicitly non-goaled.
 - Cache stance: target-alias receipt must run with cache disabled or include
   dependency execution evidence.

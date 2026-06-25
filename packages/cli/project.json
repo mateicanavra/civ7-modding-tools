@@ -103,7 +103,7 @@
     },
     "data:unzip:default": {
       "command": "node bin/run.js data unzip default",
-      "dependsOn": ["data:zip:default"],
+      "dependsOn": ["build"],
       "cache": false,
       "outputs": [],
       "options": {

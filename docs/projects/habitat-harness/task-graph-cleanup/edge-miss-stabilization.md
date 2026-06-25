@@ -1,0 +1,33 @@
+# Habitat Edge-Miss Stabilization
+
+**Status:** implementation closure record for the task-graph cleanup edge-miss slice
+
+This record closes the accepted P1/P2 findings from the post-cleanup review so
+the next workstream can start the embedded hidden-authority migration without
+reopening task-graph cleanup. It is not a new broad ledger.
+
+## Dispositions
+
+| Finding | Evidence | Expected state | Disposition | Proof |
+| --- | --- | --- | --- | --- |
+| MapGen Habitat rule-list policy lived in hand-written `project.json` wrapper targets. | `mods/mod-swooper-maps/project.json` exposed `test:architecture-cutover`, `test:architecture-rng-authority`, `test:architecture-static-guardrails`, and `test:architecture-ecology-step-imports`. | Owner-level Habitat checks run through generated `habitat:check`; hard-coded rule-list targets are not graph policy. | Fixed: wrapper targets removed; `test` now depends on `habitat:check`. Removed target names are retained in `mods/mod-swooper-maps/removed-architecture-targets.txt` as migration canaries. | `nx run mod-swooper-maps:habitat:check --outputStyle=static` passes. `nx run mod-swooper-maps:test --outputStyle=static` reaches and passes the Habitat dependency, then fails known package-local product/runtime tests outside this slice. |
+| Standalone architecture targets remained as hidden-authority graph surfaces. | `packages/mapgen-core: test:architecture-core-purity`, `mods/mod-civ7-intelligence-bridge: test:architecture-bundle-runtime-imports`, and `mods/mod-swooper-maps` M11/map-bundle targets. | Runtime/product tests remain package-local; extracted static authority moves through the next embedded hidden-authority migration. | Fixed/deferred: standalone targets removed where package `test` still covers the files; canary files record removed names next to each package manifest. | `nx run mapgen-core:test --outputStyle=static`; `nx run mod-intelligence-bridge:test --outputStyle=static`; package canary file search. |
+| Active Habitat docs named removed root scripts, stale path-style targets, or stale Nx identities. | `public-surface-compatibility-matrix.md`, `FRAME.md`, phase packets, recovery claim ledger, and task-graph cleanup docs referenced removed aliases or old `@habitat/cli` graph names. | Active docs teach current graph identities and removed aliases as removed, not preserved. Historical proof docs may keep old evidence when explicitly historical. | Fixed: active compatibility and framing docs now use current graph identities; removed root aliases are marked removed; historical target mentions are superseded with canary notes. | `rg` search for stale live aliases and old path-style target names. |
+| Habitat generator metadata pointed at stale package/schema paths. | `tools/habitat/generators.json` referenced `internal/habitat-harness` and old `.habitat/tooling/components/generator-schemas/**` paths. | Nx resolves `@habitat/cli` generators from current authority schema files. | Fixed: generator metadata uses `@habitat/cli` and `.habitat/habitat/toolkit/_self/triage/generator-schemas/*.schema.json`. The project generator now emits a real `project.json` for Nx identity instead of hiding tags under `package.json#nx`. | `nx g @habitat/cli:project habitat-generator-smoke --kind=plugin --dry-run --no-interactive`; `nx g @habitat/cli:pattern habitat-generator-smoke-pattern --dry-run --no-interactive`; generator tests. |
+| Resource refresh graph implied zip through unzip. | `civ7-cli:data:unzip:default` depended on `data:zip:default`; root `refresh:data` hid the intended sequence. | Resource refresh sequence is explicit at the root; unzip does not implicitly zip. | Fixed: `refresh:data` runs `resources:init`, `civ7-cli:data:zip:default`, then `civ7-cli:data:unzip:default`; unzip depends only on `build`. | `nx show project civ7-cli --json` and `jq '.targets["data:unzip:default"].dependsOn'`. |
+| MapGen map artifact generation had duplicate command owners. | `gen:maps` and `build:studio-recipes:maps` both ran `bun ./scripts/generate-map-artifacts.ts`. | Exactly one target owns the generator command; other targets aggregate/depend. | Fixed: `gen:map-artifacts` owns the command; `gen:maps` and `build:studio-recipes:maps` aggregate through dependencies. | `rg '"command": "bun ./scripts/generate-map-artifacts.ts"' mods/mod-swooper-maps/project.json` returns one row; `nx run mod-swooper-maps:build:studio-recipes --outputStyle=static`. |
+| Config migration check was named as a migration target inside generation flow. | `migrate:configs:check` was a precondition for map artifact generation. | Until Habitat has a migrate/check artifact model, this remains package-owned generator precondition language. | Fixed/deferred: renamed to `gen:configs:shape-check`; not moved into Habitat in this slice. | `nx show project mod-swooper-maps --json`. |
+| Generated/currentness artifacts could be tempting to hand-edit. | Civ7 map policy generated outputs may require local resources to refresh. | Generated artifacts remain source-owned; agents do not hand-edit them. | Deferred safely: no generated artifact hand edits. If map-policy generated headers drift, refresh through the owning resource/generator path after resources are present. | Resource-trigger proof is `bun run resources:init` followed by the owning Civ7 map-policy verification/generation target. |
+| Not every package `test` depends on `habitat:check`. | Reviewer found generated `habitat:check` targets on packages whose tests do not depend on them. | Root CI/workflows run `habitat:check` explicitly; only packages whose test contract includes static authority should depend on Habitat checks. | Deferred as policy, not fixed here: this slice only changed `mod-swooper-maps:test`, where the removed architecture wrappers were part of the test contract. | `nx run-many -t habitat:check --outputStyle=static`; root `ci` includes `habitat:check`. |
+
+## Next Corpus
+
+The next true domino is embedded hidden-authority migration. Seed it from:
+
+- `mods/mod-swooper-maps/removed-architecture-targets.txt`
+- `packages/mapgen-core/removed-architecture-targets.txt`
+- `mods/mod-civ7-intelligence-bridge/removed-architecture-targets.txt`
+- package tests still carrying architecture/static authority assertions
+
+Those canaries are not runnable surfaces. They are pointers to oracles that need
+classification, extraction, or explicit package-local disposition.

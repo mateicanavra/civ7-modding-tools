@@ -26,6 +26,7 @@
     "clean:dist": "rimraf dist oclif.manifest.json"
   },
   "exports": {
+    "./package.json": "./package.json",
     ".": {
       "bun": "./src/index.ts",
       "types": "./src/index.ts",

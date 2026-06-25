@@ -28,23 +28,16 @@ const fixtureProjects = [
   project("civ7-config", "packages/config", "kind:foundation", ["build", "check", "test"]),
   project("plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
   project("civ7-types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
-  project("mapgen-core", "packages/mapgen-core", "kind:foundation", [
-    "check",
-    "test",
-    "test:architecture-core-purity",
-  ]),
+  project("mapgen-core", "packages/mapgen-core", "kind:foundation", ["check", "test"]),
   project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
   project("mod-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
-    "test:architecture-bundle-runtime-imports",
+    "build",
+    "test",
   ]),
   project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
     "check",
+    "habitat:check",
     "test",
-    "test:architecture-cutover",
-    "test:architecture-ecology-step-imports",
-    "test:architecture-m11-projection-band",
-    "test:architecture-map-bundle-runtime-imports",
-    "test:architecture-rng-authority",
   ]),
 ];
 
