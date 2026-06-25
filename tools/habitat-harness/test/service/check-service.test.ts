@@ -108,6 +108,47 @@ describe("Habitat check service", () => {
     ]);
   });
 
+  test("preserves CLI command context supplied by the caller", async () => {
+    const observed: CheckOptions[] = [];
+    mockCreateCheckReportEffect.mockImplementation((options) =>
+      Effect.sync(() => {
+        observed.push(options ?? {});
+        return mockReport;
+      })
+    );
+    mockExpandBaselinesEffect.mockImplementation(() => Effect.succeed({ ok: true, messages: [] }));
+    const command = {
+      bin: "habitat" as const,
+      id: "check" as const,
+      argv: ["--rule", "op-calls-op", "--rule", "standard-stage-topology"],
+      serialized: "habitat check --rule op-calls-op --rule standard-stage-topology",
+    };
+
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const reportCheck = checkRouter.report.callable({
+          context: { deps: makeTestHabitatServiceDeps() },
+        });
+        return yield* withFiberContext(() =>
+          reportCheck({
+            command,
+            selectors: { rules: ["op-calls-op", "standard-stage-topology"] },
+          })
+        );
+      })
+    );
+
+    expect(observed).toEqual([
+      {
+        rules: ["op-calls-op", "standard-stage-topology"],
+        baselineIntegrity: false,
+        command,
+        repoRoot,
+        staged: false,
+      },
+    ]);
+  });
+
   test("projects baseline expansion into service output states", async () => {
     const observed: Array<{ selection: RuleSelection; options: { base?: string } }> = [];
     let expansion = { ok: true as const, messages: ["baseline written: rule-a (1 entries)"] };

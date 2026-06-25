@@ -1,4 +1,5 @@
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import { makeHabitatCommandResult } from "@internal/habitat-harness/resources/command/index";
 import {
   checkCommandContext,
   renderCheckReport,
@@ -10,7 +11,9 @@ import {
   selectorRefusalReportEffect,
   stagedSourceCheckNotApplicableRecords,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import { executeCommandRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/command-execution.policy";
 import type {
+  RuleCommandExecutionFacts,
   RuleRegistryRecordV1,
   RuleSourceFacts,
 } from "@internal/habitat-harness/service/model/rules/index";
@@ -47,7 +50,26 @@ describe("rule selector boundary", () => {
   test("selects valid owner, rule, and tool filters", () => {
     expect(selectedIds({ owner: "@scope/alpha" })).toEqual(["alpha-rule"]);
     expect(selectedIds({ rule: "beta-rule" })).toEqual(["beta-rule"]);
+    expect(selectedIds({ rules: ["alpha-rule", "gamma-rule"] })).toEqual([
+      "alpha-rule",
+      "gamma-rule",
+    ]);
     expect(selectedIds({ tool: "tool-a" })).toEqual(["alpha-rule", "gamma-rule"]);
+  });
+
+  test("unions repeated rule selectors before intersecting owner and tool", () => {
+    expect(selectedIds({ rules: ["alpha-rule", "gamma-rule"], tool: "tool-a" })).toEqual([
+      "alpha-rule",
+      "gamma-rule",
+    ]);
+    expect(selectedIds({ rules: ["alpha-rule", "beta-rule"], tool: "tool-a" })).toEqual([
+      "alpha-rule",
+    ]);
+    expect(
+      selectionFailure({ rules: ["alpha-rule", "beta-rule"], owner: "@scope/gamma" })
+    ).toMatchObject({
+      reason: "empty-selection",
+    });
   });
 
   test("reports unknown owner, rule, and tool selectors with structured facts", () => {
@@ -65,6 +87,13 @@ describe("rule selector boundary", () => {
     expect(selectionFailure({ rule: "missing-rule" })).toMatchObject({
       reason: "unknown-selector",
       selectorFacts: [{ kind: "rule", requestedValue: "missing-rule", known: false }],
+    });
+    expect(selectionFailure({ rules: ["alpha-rule", "missing-rule"] })).toMatchObject({
+      reason: "unknown-selector",
+      selectorFacts: [
+        { kind: "rule", requestedValue: "alpha-rule", known: true },
+        { kind: "rule", requestedValue: "missing-rule", known: false },
+      ],
     });
     expect(selectionFailure({ tool: "missing-tool" })).toMatchObject({
       reason: "unknown-selector",
@@ -249,6 +278,51 @@ describe("rule selector boundary", () => {
     ).toEqual(["graph-proof", "format-proof"]);
   });
 
+  test("command-check execution infers runners for direct script detects", async () => {
+    const requests: Array<{ executable: string; argv: readonly string[] }> = [];
+    const results = new Map();
+    await Effect.runPromise(
+      executeCommandRulesEffect(
+        [
+          fakeCommandRule("direct-js", [
+            ".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.mjs",
+          ]),
+          fakeCommandRule("direct-sh", [
+            ".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.sh",
+          ]),
+          fakeCommandRule("explicit-node", ["node", ".habitat/checks/explicit.check.mjs"]),
+        ],
+        results,
+        {
+          repoRoot,
+          command: {
+            run: (request) =>
+              Effect.sync(() => {
+                requests.push({ executable: request.executable, argv: request.argv });
+                return makeHabitatCommandResult(request);
+              }),
+          },
+        } as any
+      )
+    );
+
+    expect(requests).toEqual([
+      {
+        executable: "node",
+        argv: [".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.mjs"],
+      },
+      {
+        executable: "bash",
+        argv: [".habitat/civ7/mapgen/pipeline/_self/check/direct/direct.check.sh"],
+      },
+      {
+        executable: "node",
+        argv: [".habitat/checks/explicit.check.mjs"],
+      },
+    ]);
+    expect([...results.keys()].sort()).toEqual(["direct-js", "direct-sh", "explicit-node"]);
+  });
+
   test("staged execution does not drop source-check rules when staged paths are outside approved roots", () => {
     const stagedEligible = fakeRule("hook", "source-check", "@internal/habitat-harness", {
       hookCheck: true,
@@ -372,5 +446,15 @@ function fakeSourceRuleFact(id: string, scanRoots: readonly string[]): RuleSourc
     lane: "enforced",
     message: "test fixture",
     scanRoots: [...scanRoots],
+  };
+}
+
+function fakeCommandRule(id: string, detect: readonly string[]): RuleCommandExecutionFacts {
+  return {
+    id,
+    ownerTool: "command-check",
+    lane: "enforced",
+    detect: [...detect],
+    message: `${id} failed.`,
   };
 }

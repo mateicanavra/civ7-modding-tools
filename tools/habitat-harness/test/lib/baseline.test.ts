@@ -61,6 +61,23 @@ describe("Habitat baseline contract", () => {
     expect(await checkIntegrity("main", ctx)).toEqual({ status: "accepted", refusals: [] });
   });
 
+  test("loads subject-local baseline files from the authority tree", async () => {
+    const ctx = createBaselineContext({
+      registry: [rule("subject-local-rule")],
+      rulePackAtBase: ["subject-local-rule"],
+      baselinesAtBase: new Map(),
+    });
+    writeSubjectLocalBaselineFile(ctx.repoRoot, "subject-local-rule", []);
+
+    const state = await loadState(rule("subject-local-rule"), ctx);
+
+    expect(state).toMatchObject({
+      kind: "explicit-empty",
+      ruleId: "subject-local-rule",
+      locked: true,
+    });
+  });
+
   test("applies explicit debt baselines and leaves new errors unbaselined", async () => {
     const ctx = createBaselineContext({
       registry: [rule("existing-rule")],
@@ -499,7 +516,7 @@ function lsTreeMock(
     return commandResult(argv, cwd, "", 1, "not found\n");
   }
   const comparisonSha = options.mergeBase ?? "merge-base-sha";
-  const expected = ["ls-tree", "-r", "--name-only", comparisonSha, ".habitat/rules"];
+  const expected = ["ls-tree", "-r", "--name-only", comparisonSha, ".habitat"];
   if (argv.length !== expected.length || argv.some((entry, index) => entry !== expected[index])) {
     return commandResult(argv, cwd, "", 1, `unexpected command: ${argv.join(" ")}\n`);
   }
@@ -509,7 +526,9 @@ function lsTreeMock(
   return commandResult(
     argv,
     cwd,
-    `${options.rulePackAtBase.map((id) => `.habitat/rules/${id}/rule.json`).join("\n")}\n`
+    `${options.rulePackAtBase
+      .map((id) => `.habitat/global/repository/_self/check/${id}/${id}.rule.json`)
+      .join("\n")}\n`
   );
 }
 
@@ -612,4 +631,22 @@ function baseRuleRecord(id: string) {
 function writeBaselineFile(baselinesDir: string, ruleId: string, entries: string[]) {
   mkdirSync(baselinesDir, { recursive: true });
   writeFileSync(path.join(baselinesDir, `${ruleId}.json`), `${JSON.stringify(entries, null, 2)}\n`);
+}
+
+function writeSubjectLocalBaselineFile(repoRoot: string, ruleId: string, entries: string[]) {
+  const packetDir = path.join(
+    repoRoot,
+    ".habitat",
+    "civ7",
+    "mapgen",
+    "pipeline",
+    "_self",
+    "check",
+    ruleId
+  );
+  mkdirSync(packetDir, { recursive: true });
+  writeFileSync(
+    path.join(packetDir, `${ruleId}.baseline.json`),
+    `${JSON.stringify(entries, null, 2)}\n`
+  );
 }

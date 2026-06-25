@@ -203,6 +203,26 @@ describe("Habitat oclif commands", () => {
       expect.objectContaining({
         base: "HEAD",
         baselineIntegrity: true,
+        command: {
+          bin: "habitat",
+          id: "check",
+          argv: [
+            "--json",
+            "--output",
+            "/tmp/report.json",
+            "--rule",
+            "adapter-boundary",
+            "--owner",
+            "@internal/habitat-harness",
+            "--tool",
+            "source-check",
+            "--staged",
+            "--base",
+            "HEAD",
+          ],
+          serialized:
+            "habitat check --json --output /tmp/report.json --rule adapter-boundary --owner @internal/habitat-harness --tool source-check --staged --base HEAD",
+        },
         selectors: {
           owner: "@internal/habitat-harness",
           rule: "adapter-boundary",
@@ -217,6 +237,41 @@ describe("Habitat oclif commands", () => {
     expect(checkReport.stringifyCheckReport).toHaveBeenCalledWith(mockReport);
     expect(mockWriteFileSync).toHaveBeenCalledWith("/tmp/report.json", '{"ok":true}\n');
     expect(capturedOutput()).toContain('{"ok":true}');
+  });
+
+  test("check forwards repeated rule flags as a curated rule selection", async () => {
+    await Check.run([
+      "--rule",
+      "op-calls-op",
+      "--rule",
+      "cutover-source-guardrails",
+      "--rule",
+      "standard-stage-topology",
+    ]);
+
+    expect(mockCheckReport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selectors: {
+          owner: undefined,
+          rules: ["op-calls-op", "cutover-source-guardrails", "standard-stage-topology"],
+          tool: undefined,
+        },
+        command: {
+          bin: "habitat",
+          id: "check",
+          argv: [
+            "--rule",
+            "op-calls-op",
+            "--rule",
+            "cutover-source-guardrails",
+            "--rule",
+            "standard-stage-topology",
+          ],
+          serialized:
+            "habitat check --rule op-calls-op --rule cutover-source-guardrails --rule standard-stage-topology",
+        },
+      })
+    );
   });
 
   test("check expand-baseline uses the authoring path instead of report emission", async () => {

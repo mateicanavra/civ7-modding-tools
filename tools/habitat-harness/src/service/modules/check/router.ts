@@ -7,7 +7,7 @@ export const checkRouter = {
       ...selectorsFromInput(input),
       ...(input.base ? { base: input.base } : {}),
       baselineIntegrity: input.baselineIntegrity ?? false,
-      command: checkCommandContext(),
+      command: input.command ?? checkCommandContext(),
       staged: input.staged ?? false,
       ...(input.stagedPaths ? { stagedPaths: input.stagedPaths } : {}),
     });

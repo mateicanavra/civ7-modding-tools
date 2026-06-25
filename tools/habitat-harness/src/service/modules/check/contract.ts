@@ -1,5 +1,6 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
 import {
+  CheckCommandContextSchema,
   CheckReportSchema,
   SelectorRequestSchema,
 } from "@internal/habitat-harness/service/model/check/index";
@@ -12,6 +13,7 @@ const CheckReportInputSchema = Type.Object(
     selectors: Type.Optional(SelectorRequestSchema),
     base: Type.Optional(Type.String({ minLength: 1 })),
     baselineIntegrity: Type.Optional(Type.Boolean()),
+    command: Type.Optional(CheckCommandContextSchema),
     staged: Type.Optional(Type.Boolean()),
     stagedPaths: Type.Optional(Type.Array(Type.String())),
   },

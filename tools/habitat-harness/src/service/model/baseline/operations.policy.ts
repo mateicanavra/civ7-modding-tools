@@ -50,6 +50,10 @@ export function loadBaselineStateEffect(
     const context = yield* resolveBaselineAuthorityContext(options);
     const p = baselinePathForRule(rule.id, context);
     if (yield* fileExists(p, context)) return yield* parseBaselineFileEffect(p, rule.id, context);
+    const subjectLocalBaseline = yield* subjectLocalBaselinePathForRule(rule.id, context);
+    if (subjectLocalBaseline) {
+      return yield* parseBaselineFileEffect(subjectLocalBaseline, rule.id, context);
+    }
 
     if (rule.exceptionPath && rule.exceptionPath !== "none") {
       return {
@@ -434,12 +438,19 @@ function loadBaseRuleIdsFromDirectoryEffect(
     const lines = yield* context.git.lsTreeNameOnly(mb, registryPath, { cwd: context.repoRoot });
     if (lines === null) return null;
     const ids = lines
-      .filter((line) => line.startsWith(`${registryPath}/`) && line.endsWith("/rule.json"))
-      .map((line) => line.slice(`${registryPath}/`.length, -"/rule.json".length))
-      .filter(Boolean)
+      .filter((line) => line.startsWith(`${registryPath}/`))
+      .map((line) => baseRuleIdFromRegistryPath(line))
+      .filter((id): id is string => Boolean(id))
       .sort();
     return ids.length === 0 ? null : new Set(ids);
   });
+}
+
+function baseRuleIdFromRegistryPath(repoPath: string): string | undefined {
+  const oldMatch = /\/rules\/([^/]+)\/rule\.json$/u.exec(repoPath);
+  if (oldMatch?.[1]) return oldMatch[1];
+  const currentMatch = /\/([^/]+)\/\1\.rule\.json$/u.exec(repoPath);
+  return currentMatch?.[1];
 }
 
 function loadBaseBaselineKeysEffect(
@@ -584,6 +595,41 @@ function baselinePathForRule(
   context: Pick<RequiredBaselineAuthorityContext, "baselinesDir">
 ): string {
   return path.join(context.baselinesDir, `${ruleId}.json`);
+}
+
+function subjectLocalBaselinePathForRule(
+  ruleId: string,
+  context: Pick<RequiredBaselineAuthorityContext, "repoRoot" | "fileSystem">
+): Effect.Effect<string | null, never, any> {
+  const registryRoot = path.join(context.repoRoot, ruleRegistryRepoPath);
+  return findBaselineFiles(registryRoot, context, (filePath) =>
+    toPosixPath(filePath).endsWith(`/${ruleId}/${ruleId}.baseline.json`)
+  ).pipe(
+    Effect.map((candidates) => candidates.sort()[0] ?? null),
+    Effect.catchAll(() => Effect.succeed(null))
+  );
+}
+
+function findBaselineFiles(
+  root: string,
+  context: Pick<RequiredBaselineAuthorityContext, "fileSystem">,
+  predicate: (filePath: string) => boolean
+): Effect.Effect<string[], unknown, any> {
+  return Effect.gen(function* () {
+    const entries = yield* context.fileSystem.readDirectory(root);
+    const groups = yield* Effect.all(
+      entries.map((entry) => {
+        const absolute = path.join(root, entry.name);
+        if (entry.kind === "directory") return findBaselineFiles(absolute, context, predicate);
+        return Effect.succeed(entry.kind === "file" && predicate(absolute) ? [absolute] : []);
+      })
+    );
+    return groups.flat();
+  });
+}
+
+function toPosixPath(filePath: string): string {
+  return filePath.split(path.sep).join("/");
 }
 
 function toAuthorityRelative(

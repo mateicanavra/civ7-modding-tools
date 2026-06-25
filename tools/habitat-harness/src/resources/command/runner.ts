@@ -174,7 +174,7 @@ export function runSyncHabitatCommand(request: HabitatProcessRequest): HabitatCo
       : readGitState(effectiveRequest.cwd);
   const result = runSyncHostCommand(command.executable, command.argv, {
     cwd: path.resolve(effectiveRequest.cwd),
-    env: { ...process.env, ...commandEnv(request.env) },
+    env: commandEnv(request.env),
     maxBuffer: 64 * 1024 * 1024,
     timeout: request.timeoutMs ?? config.timeoutPolicy.commandTimeoutMs,
     killSignal: "SIGTERM",
@@ -210,6 +210,11 @@ function collectStream(
 
 function commandEnv(env: HabitatProcessRequest["env"]): Record<string, string> {
   return {
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(
+        (entry): entry is [string, string] => entry[1] !== undefined
+      )
+    ),
     ...Object.fromEntries(
       Object.entries(env ?? {}).filter((entry): entry is [string, string] => entry[1] !== undefined)
     ),

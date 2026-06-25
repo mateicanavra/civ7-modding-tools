@@ -213,8 +213,7 @@ function commandRuleExecutionGroups(
 ): CommandRuleExecutionGroup[] {
   const groups = new Map<string, CommandRuleExecutionGroup>();
   for (const rule of rules) {
-    const executable = rule.detect[0] ?? "";
-    const argv = rule.detect.slice(1);
+    const { executable, argv } = commandInvocationFromDetect(rule.detect);
     const key = JSON.stringify({ executable, argv, cwd: context.repoRoot });
     const current = groups.get(key);
     groups.set(key, {
@@ -225,6 +224,29 @@ function commandRuleExecutionGroups(
     });
   }
   return [...groups.values()];
+}
+
+function commandInvocationFromDetect(detect: readonly string[]): {
+  readonly executable: string;
+  readonly argv: readonly string[];
+} {
+  const executable = detect[0] ?? "";
+  const argv = detect.slice(1);
+  const runner = directScriptRunner(executable);
+  if (!runner) return { executable, argv };
+  return { executable: runner, argv: [executable, ...argv] };
+}
+
+function directScriptRunner(executable: string): "node" | "bash" | "python3" | undefined {
+  if (!isScriptPath(executable)) return undefined;
+  if (/\.(?:mjs|js|cjs)$/u.test(executable)) return "node";
+  if (/\.sh$/u.test(executable)) return "bash";
+  if (/\.py$/u.test(executable)) return "python3";
+  return undefined;
+}
+
+function isScriptPath(value: string): boolean {
+  return value.startsWith(".") || value.startsWith("/") || value.includes("/");
 }
 
 function executeCommandRuleGroupEffect(
