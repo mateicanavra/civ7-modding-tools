@@ -140,6 +140,21 @@ live-proof runbook in `MILESTONE-PROOFS.md`).
 **Scope:** Design the operator-facing recovery surface, decide whether restart is a button, guided action, or linked run flow, wire it to the existing direct-control restart capability, and prove it against tuner-wedged and game-not-running states.
 **Impact:** Studio can report wedge suspicion, but it does not yet give the operator a first-class one-click recovery affordance from that health signal.
 
+## DEF-016: Nx parallel task race around shared build outputs
+
+**Deferred:** 2026-06-25
+**Trigger:** Before relying on broad `nx run-many -t habitat:check` or other multi-project Habitat/Nx proof commands as authoritative CI gates; also before expanding Habitat owner targets that share build dependencies.
+**Context:** During the embedded authority migration proof, broad and parallel Nx runs repeatedly surfaced flaky behavior around shared build/output-producing tasks, including `control-direct:build-bundle` being reported as flaky and earlier Habitat CLI build/output races. The slice-specific owner graph passed when run as one focused target set, but the broader graph still showed concurrency-sensitive behavior. This is not the primary embedded-authority concern, but it is a real task-graph correctness issue.
+**Scope:**
+- Audit tasks with shared mutable outputs, clean steps, generated manifests, and bundle outputs used by multiple downstream targets.
+- Ensure output ownership is single-writer, and that dependent targets consume outputs through Nx dependencies rather than concurrent shell-level invocations.
+- Revisit Habitat CLI build/manifest generation and direct-control bundle tasks for cache/output isolation.
+- Add a targeted proof command that demonstrates the broad Habitat/Nx graph is stable without relying on incidental serial execution.
+**Impact:**
+- Broad multi-project Nx proofs can produce flaky failures unrelated to the authority being tested.
+- Reviewers cannot treat full-suite `habitat:check` graph failures as clean signal until this is resolved.
+- For now, use focused owner-target proof commands for Habitat migration slices and record broad-run failures separately when they hit known graph debt.
+
 ## Project-scoped deferrals
 
 Some deferrals are intentionally scoped to a specific project/milestone (e.g., Engine Refactor v1) rather than the whole system. Keep those in the project’s deferrals doc:
