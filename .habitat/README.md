@@ -68,6 +68,8 @@ Authority planes:
   their mutability rules.
 - `AUTHORITY-TREE-SHAPE.md`: the working reference for the current flattened
   authority-tree shape.
+- `dominoes.md`: the working ratchet sequence for authority-tree and runner
+  integration dominoes.
 - `config.md`: a human-readable sketch of the Habitat operation model. It is
   not consumed programmatically.
 - `<niche>/_self/check/<packet>/<packet>.rule.json`: provisional rule metadata.
