@@ -2,18 +2,18 @@ import path from "node:path";
 import { Value } from "typebox/value";
 import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
-import { workspaceGraphTargetNames } from "../lib/workspace-graph-contract.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
 } from "../lib/workspace-graph/schema.ts";
+import { workspaceGraphTargetNames } from "../lib/workspace-graph-contract.ts";
 import { ruleGraphFacts } from "../rules/registry/graph.ts";
 import { loadRuleRegistryDocument } from "../rules/registry/load.ts";
 import {
-  InferredProjectsSchema,
-  NxTargetDefinitionSchema,
   type InferredProjects,
+  InferredProjectsSchema,
   type NxTargetDefinition,
+  NxTargetDefinitionSchema,
 } from "./target-definition-schema.ts";
 import {
   aggregateCheckTarget,

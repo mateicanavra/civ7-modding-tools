@@ -2,33 +2,28 @@ import path from "node:path";
 import { Value } from "typebox/value";
 import type { RuleFileLayerFacts } from "../../rules/registry/index.js";
 import {
+  type HostSurfaceDecision,
   hostSurfaceDecisionForGeneratedZone,
   hostSurfaceDecisionForPath,
-  type HostSurfaceDecision,
 } from "../host-policy.js";
 import {
-  DeclarationReadinessSchema,
-  ForbiddenArtifactDeclarationSchema,
-  GeneratedSurfaceDeclarationSchema,
-  ProtectedSurfaceDeclarationSchema,
   type DeclarationReadiness,
+  DeclarationReadinessSchema,
   type ForbiddenArtifactDeclaration,
+  ForbiddenArtifactDeclarationSchema,
   type GeneratedSurfaceDeclaration,
+  GeneratedSurfaceDeclarationSchema,
   type ProtectedSurfaceDeclaration,
+  ProtectedSurfaceDeclarationSchema,
   type ProtectedZoneOwner,
   type ProtectedZoneRecoveryInstruction,
 } from "./schema.js";
 
 type GeneratedZoneRule = Extract<RuleFileLayerFacts, { generatedZone: string }>;
-type ForbiddenFileNameRule = Extract<
-  RuleFileLayerFacts,
-  { forbiddenFileNames: readonly string[] }
->;
+type ForbiddenFileNameRule = Extract<RuleFileLayerFacts, { forbiddenFileNames: readonly string[] }>;
 type DeclarationFileLayerRule = GeneratedZoneRule | ForbiddenFileNameRule;
 
-export function declarationForFileLayerRule(
-  rule: DeclarationFileLayerRule
-): DeclarationReadiness {
+export function declarationForFileLayerRule(rule: DeclarationFileLayerRule): DeclarationReadiness {
   if ("generatedZone" in rule) return generatedSurfaceDeclaration(rule);
   return forbiddenArtifactDeclaration(rule);
 }
@@ -160,10 +155,7 @@ function blockedDeclaration(
   return Value.Parse(DeclarationReadinessSchema, {
     kind,
     zoneId,
-    ownerId:
-      kind === "blocked-missing-host-declaration"
-        ? "host-policy"
-        : "protected-zone-policy",
+    ownerId: kind === "blocked-missing-host-declaration" ? "host-policy" : "protected-zone-policy",
     recovery: declarationRepairRecovery(kind),
   });
 }
@@ -172,10 +164,7 @@ function declarationRepairRecovery(
   kind: "blocked-missing-host-declaration" | "blocked-declaration-conflict"
 ): ProtectedZoneRecoveryInstruction {
   return {
-    ownerId:
-      kind === "blocked-missing-host-declaration"
-        ? "host-policy"
-        : "protected-zone-policy",
+    ownerId: kind === "blocked-missing-host-declaration" ? "host-policy" : "protected-zone-policy",
     actionKind: "documented-workflow",
     documentRef: "openspec/changes/deep-habitat-host-policy-boundary-gate",
     retryCondition:
@@ -185,9 +174,7 @@ function declarationRepairRecovery(
   };
 }
 
-function protectedZoneOwner(
-  owner: NonNullable<HostSurfaceDecision["owner"]>
-): ProtectedZoneOwner {
+function protectedZoneOwner(owner: NonNullable<HostSurfaceDecision["owner"]>): ProtectedZoneOwner {
   return {
     ownerId: owner.ownerId,
     displayName: owner.displayName,

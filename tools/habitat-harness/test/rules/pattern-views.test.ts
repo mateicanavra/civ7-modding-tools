@@ -1,24 +1,22 @@
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import {
+  ApplyPatternPathSchema,
+  activeApplyTransactionInputs,
   applyAdmission,
   applyAdmittedState,
-  diagnosticAdmittedState,
+  applyTransactionInputsFromRuleFacts,
   candidateDraftState,
   candidateHandoff,
+  defaultApplyAdmissions,
   diagnosticAdmission,
+  diagnosticAdmittedState,
   invalidCandidateState,
   patternAdmissionRefusal,
-  patternView,
   patternRecovery,
-  retiredPatternState,
-} from "../../src/rules/patterns/index.js";
-import {
-  ApplyPatternPathSchema,
+  patternView,
   RepoRelativePathSchema,
-  activeApplyTransactionInputs,
-  applyTransactionInputsFromRuleFacts,
-  defaultApplyAdmissions,
+  retiredPatternState,
 } from "../../src/rules/patterns/index.js";
 
 describe("pattern management views", () => {

@@ -12,14 +12,6 @@ export {
   sameProjectTargetDependency,
 } from "./workspace-graph/dependencies.js";
 export {
-  findWorkspaceOwningProject,
-  projectTargetStates,
-  ruleAliasTargetState,
-  verifyTargetPlan,
-  workspaceProjectHasTarget,
-  workspaceTargetStates,
-} from "./workspace-graph/states.js";
-export {
   NxWorkspaceGraphProjectReader,
   readWorkspaceGraph,
   type WorkspaceGraphProjectReader,
@@ -40,6 +32,14 @@ export type {
   WorkspaceTargetState,
 } from "./workspace-graph/schema.js";
 export { RuleGraphTargetNamesSchema, VerifyTargetPlanSchema } from "./workspace-graph/schema.js";
+export {
+  findWorkspaceOwningProject,
+  projectTargetStates,
+  ruleAliasTargetState,
+  verifyTargetPlan,
+  workspaceProjectHasTarget,
+  workspaceTargetStates,
+} from "./workspace-graph/states.js";
 export {
   classifyTargetNames,
   verifyTargetNames,

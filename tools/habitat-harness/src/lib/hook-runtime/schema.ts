@@ -1,15 +1,9 @@
 import { type Static, Type } from "typebox";
 
-export const HookNameSchema = Type.Union([
-  Type.Literal("pre-commit"),
-  Type.Literal("pre-push"),
-]);
+export const HookNameSchema = Type.Union([Type.Literal("pre-commit"), Type.Literal("pre-push")]);
 export type HookName = Static<typeof HookNameSchema>;
 
-export const HookReportChannelSchema = Type.Union([
-  Type.Literal("stdout"),
-  Type.Literal("stderr"),
-]);
+export const HookReportChannelSchema = Type.Union([Type.Literal("stdout"), Type.Literal("stderr")]);
 export type HookReportChannel = Static<typeof HookReportChannelSchema>;
 
 export const HookCommandPhaseSchema = Type.Union([

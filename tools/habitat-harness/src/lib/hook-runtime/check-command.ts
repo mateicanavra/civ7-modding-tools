@@ -1,9 +1,5 @@
 import { Value } from "typebox/value";
-import {
-  hookCheckSummary,
-  type CheckReport,
-  type HookCheckSummary,
-} from "../check/index.js";
+import { type CheckReport, type HookCheckSummary, hookCheckSummary } from "../check/index.js";
 import { CheckReportSchema, validateCheckReport } from "../check/schema.js";
 import type { SpawnResult } from "../spawn.js";
 

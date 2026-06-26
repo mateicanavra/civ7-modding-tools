@@ -13,42 +13,100 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
   targets: ["build"],
   states: [],
 }));
+const mockCheckRun = vi.hoisted(() => vi.fn());
+const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
+const mockClassifyRun = vi.hoisted(() => vi.fn());
+const mockFixRun = vi.hoisted(() => vi.fn());
+const mockGraphRun = vi.hoisted(() => vi.fn());
+const mockHookRun = vi.hoisted(() => vi.fn());
+const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/lib/check-report.js", () => ({
-  checkCommandContext: vi.fn((argv: string[]) => ({
-    bin: "habitat",
-    id: "check",
-    argv,
-    serialized: ["habitat", "check", ...argv].join(" "),
-  })),
-  createCheckReport: vi.fn(() => mockReport),
-  describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
-  expandBaselines: vi.fn(() => ({ ok: true, messages: ["baseline written: demo-rule (1 entry)"] })),
-  renderCheckReport: vi.fn(() => '{"ok":true}'),
-  verifyCheckSummary: vi.fn(() => ({
-    reportSchemaVersion: 1,
-    requestedSelectors: {},
-    selectedRuleIds: [],
-    selectedRealRuleIds: [],
-    builtInRuleIds: [],
-    statusCounts: {},
-    advisoryCount: 0,
-    failingCount: 0,
-    refusedCount: 0,
-    notApplicableCount: 0,
-    allowsAffectedExecution: true,
+vi.mock("../../src/lib/check-report.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/lib/check-report.js")>();
+  return {
+    ...actual,
+    checkCommandContext: vi.fn((argv: string[]) => ({
+      bin: "habitat",
+      id: "check",
+      argv,
+      serialized: ["habitat", "check", ...argv].join(" "),
+    })),
+    createCheckReport: vi.fn(() => mockReport),
+    describeRuleSelectionFailure: vi.fn(() => "invalid selector"),
+    expandBaselines: vi.fn(() => ({
+      ok: true,
+      messages: ["baseline written: demo-rule (1 entry)"],
+    })),
+    renderCheckReport: vi.fn(() => '{"ok":true}'),
+    verifyCheckSummary: vi.fn(() => ({
+      reportSchemaVersion: 1,
+      requestedSelectors: {},
+      selectedRuleIds: [],
+      selectedRealRuleIds: [],
+      builtInRuleIds: [],
+      statusCounts: {},
+      advisoryCount: 0,
+      failingCount: 0,
+      refusedCount: 0,
+      notApplicableCount: 0,
+      allowsAffectedExecution: true,
+    })),
+  };
+});
+
+vi.mock("../../src/lib/verify/index.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../src/lib/verify/index.js")>();
+  return {
+    ...actual,
+    stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
+  };
+});
+
+vi.mock("../../src/service/client.js", () => ({
+  createHabitatServiceClient: vi.fn(() => ({
+    check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
+    classify: { run: mockClassifyRun },
+    fix: { run: mockFixRun },
+    graph: { run: mockGraphRun },
+    hook: { run: mockHookRun },
+    verify: { run: mockVerifyRun },
   })),
 }));
 
-vi.mock("../../src/lib/classify.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/lib/classify.js")>();
-  return {
-    ...actual,
-    classifyTargetResult: vi.fn((target: string) => ({
+import Check from "../../src/commands/check.js";
+import Classify from "../../src/commands/classify.js";
+import Fix from "../../src/commands/fix.js";
+import Graph from "../../src/commands/graph.js";
+import Hook from "../../src/commands/hook.js";
+import Verify from "../../src/commands/verify.js";
+import * as checkReport from "../../src/lib/check-report.js";
+import * as classify from "../../src/lib/classify.js";
+import * as verifyReceipt from "../../src/lib/verify/index.js";
+import * as serviceClient from "../../src/service/client.js";
+
+describe("Habitat oclif commands", () => {
+  let stdout: string[];
+  let stderr: string[];
+  let logs: string[];
+  let stdoutSpy: ReturnType<typeof vi.spyOn>;
+  let stderrSpy: ReturnType<typeof vi.spyOn>;
+  let logSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    stdout = [];
+    stderr = [];
+    logs = [];
+    mockCheckRun.mockResolvedValue(mockReport);
+    mockCheckExpandBaseline.mockResolvedValue({
+      kind: "expanded",
+      messages: ["baseline written: demo-rule (1 entry)"],
+    });
+    mockClassifyRun.mockImplementation(async (input: { target: string }) => ({
       schemaVersion: 1,
       state: "project-path",
-      input: target,
-      path: target,
+      input: input.target,
+      path: input.target,
       owner: {
         project: "@internal/habitat-harness",
         projectRoot: "tools/habitat-harness",
@@ -66,115 +124,21 @@ vi.mock("../../src/lib/classify.js", async (importOriginal) => {
       runnableTargets: [],
       unavailableTargets: [],
       recoveryInstructions: [],
-    })),
-    stringifyClassifyResult: vi.fn(actual.stringifyClassifyResult),
-  };
-});
-
-vi.mock("../../src/lib/fix.js", () => ({
-  runFix: vi.fn(() => ({ exitCode: 0, stdout: "biome ok\n", stderr: "" })),
-}));
-
-vi.mock("../../src/lib/graph.js", () => ({
-  runGraph: vi.fn(() => ({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" })),
-}));
-
-vi.mock("../../src/lib/hooks.js", () => ({
-  runHook: vi.fn(() => ({ exitCode: 0, stdout: "hook ok\n", stderr: "" })),
-}));
-
-vi.mock("../../src/lib/verify/index.js", () => ({
-  createVerifyReceipt: vi.fn(() => ({
-    schemaVersion: 1,
-    outcome: "succeeded",
-    command: {
-      argv: ["habitat", "verify", "--json"],
-      cwd: "/repo",
-      env: {},
-      startedAt: "2026-06-13T00:00:00.000Z",
-      durationMs: 1,
-      exitCode: 0,
-    },
-    base: { requested: "HEAD~1", resolved: "HEAD~1", source: "flag" },
-    habitatCheck: {
-      reportSchemaVersion: 1,
-      selectedRuleIds: [],
-      selectedRealRuleIds: ["adapter-boundary"],
-      builtInRuleIds: [],
-      statusCounts: {},
-      advisoryCount: 0,
-      failingCount: 0,
-      refusedCount: 0,
-      notApplicableCount: 0,
-      consumption: "allows-affected-execution",
-      selectorState: { kind: "none" },
-    },
-    targetPlan: { kind: "target-plan-ready", targets: ["build"] },
-    nxAffected: {
-      kind: "executed",
-      argv: ["nx", "affected", "-t", "build", "--base", "HEAD~1"],
-      targets: ["build"],
-      projects: [],
-      cacheStateByTask: [],
-      exitCode: 0,
-      stdoutLength: 12,
-      stderrLength: 0,
-      stdoutPreview: "affected ok\n",
-      stderrPreview: "",
-      stdoutTruncated: false,
-      stderrTruncated: false,
-    },
-    postState: {
-      kind: "observed-clean",
-      gitStatus: {
-        argv: ["git", "status", "--short", "--branch"],
-        cwd: "/repo",
-        exitCode: 0,
-        stdoutLength: 0,
-        stderrLength: 0,
-        stdoutPreview: "",
-        stderrPreview: "",
-        stdoutTruncated: false,
-        stderrTruncated: false,
-      },
-    },
-  })),
-  readVerifyTargetPlan: vi.fn(() => mockVerifyTargetPlan),
-  resolveVerifyBase: vi.fn((base?: string) => ({
-    kind: "resolved",
-    base: base ?? "merge-base",
-    source: base ? "flag" : "merge-base",
-  })),
-  runAffectedVerification: vi.fn(() => ({ exitCode: 0, stdout: "affected ok\n", stderr: "" })),
-  stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
-}));
-
-import Check from "../../src/commands/check.js";
-import Classify from "../../src/commands/classify.js";
-import Fix from "../../src/commands/fix.js";
-import Graph from "../../src/commands/graph.js";
-import Hook from "../../src/commands/hook.js";
-import Verify from "../../src/commands/verify.js";
-import * as checkReport from "../../src/lib/check-report.js";
-import * as classify from "../../src/lib/classify.js";
-import * as fix from "../../src/lib/fix.js";
-import * as graph from "../../src/lib/graph.js";
-import * as hooks from "../../src/lib/hooks.js";
-import * as verifyReceipt from "../../src/lib/verify/index.js";
-
-describe("Habitat oclif commands", () => {
-  let stdout: string[];
-  let stderr: string[];
-  let logs: string[];
-  let stdoutSpy: ReturnType<typeof vi.spyOn>;
-  let stderrSpy: ReturnType<typeof vi.spyOn>;
-  let logSpy: ReturnType<typeof vi.spyOn>;
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    stdout = [];
-    stderr = [];
-    logs = [];
+    }));
+    mockFixRun.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
+    mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
+    mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
+    mockVerifyRun.mockImplementation(async (input: { base?: string; commandArgs?: string[] }) => {
+      const base = input.base ?? "merge-base";
+      return {
+        kind: "completed",
+        base,
+        checkReport: mockReport,
+        targetPlan: mockVerifyTargetPlan,
+        affectedResult: { exitCode: 0, stdout: "affected ok\n", stderr: "" },
+        receipt: verifyReceiptPayload(base, input),
+      };
+    });
     stdoutSpy = vi.spyOn(process.stdout, "write").mockImplementation((chunk) => {
       stdout.push(String(chunk));
       return true;
@@ -210,12 +174,16 @@ describe("Habitat oclif commands", () => {
       "HEAD",
     ]);
 
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockCheckRun).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD",
-        owner: "@internal/habitat-harness",
-        rule: "adapter-boundary",
-        tool: "pattern-check",
+        baselineIntegrity: true,
+        selectors: {
+          owner: "@internal/habitat-harness",
+          rule: "adapter-boundary",
+          tool: "pattern-check",
+        },
         staged: true,
         command: expect.objectContaining({
           argv: expect.arrayContaining(["--json", "--rule", "adapter-boundary"]),
@@ -234,77 +202,92 @@ describe("Habitat oclif commands", () => {
   test("check expand-baseline uses the authoring path instead of report emission", async () => {
     await Check.run(["--expand-baseline", "--rule", "demo-rule"]);
 
-    expect(checkReport.expandBaselines).toHaveBeenCalledWith(
-      {
-        owner: undefined,
-        rule: "demo-rule",
-        tool: undefined,
-      },
-      {
-        base: "main",
-      }
-    );
-    expect(checkReport.createCheckReport).not.toHaveBeenCalled();
-    expect(capturedOutput()).toContain("baseline written: demo-rule");
-  });
-
-  test("fix forwards dry-run intent to the transaction runner", async () => {
-    await Fix.run(["--dry-run"]);
-
-    expect(fix.runFix).toHaveBeenCalledWith({ kind: "dry-run-intent" });
-    expect(stdout.join("")).toContain("biome ok");
-    expect(stderr.join("")).toBe("");
-  });
-
-  test("verify awaits check and affected target execution", async () => {
-    await Verify.run(["--base", "HEAD~1"]);
-
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
+    expect(mockCheckExpandBaseline).toHaveBeenCalledWith(
       expect.objectContaining({
-        base: "HEAD~1",
+        selectors: {
+          owner: undefined,
+          rule: "demo-rule",
+          tool: undefined,
+        },
+        base: "main",
         command: expect.objectContaining({
-          argv: ["--base", "HEAD~1"],
+          argv: ["--expand-baseline", "--rule", "demo-rule"],
           bin: "habitat",
           id: "check",
         }),
       })
     );
-    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
-      "HEAD~1",
-      mockVerifyTargetPlan
-    );
+    expect(mockCheckRun).not.toHaveBeenCalled();
+    expect(checkReport.createCheckReport).not.toHaveBeenCalled();
+    expect(capturedOutput()).toContain("baseline written: demo-rule");
+  });
+
+  test("check expand-baseline exits on service refusal", async () => {
+    mockCheckExpandBaseline.mockResolvedValueOnce({
+      kind: "refused",
+      message: "invalid selector",
+    });
+
+    await expect(Check.run(["--expand-baseline", "--rule", "missing-rule"])).rejects.toMatchObject({
+      oclif: { exit: 1 },
+    });
+    expect(mockCheckRun).not.toHaveBeenCalled();
+  });
+
+  test("fix forwards dry-run intent through the Habitat service client", async () => {
+    await Fix.run(["--dry-run"]);
+
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockFixRun).toHaveBeenCalledWith({ kind: "dry-run-intent" });
+    expect(stdout.join("")).toContain("biome ok");
+    expect(stderr.join("")).toBe("");
+  });
+
+  test("fix forwards live-write intent by default", async () => {
+    await Fix.run([]);
+
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockFixRun).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(stdout.join("")).toContain("biome ok");
+  });
+
+  test("fix forwards refusal streams and exit code", async () => {
+    mockFixRun.mockResolvedValueOnce({
+      exitCode: 1,
+      stdout: "",
+      stderr: "habitat fix refused: missing-apply-admission\n",
+    });
+
+    await expect(Fix.run([])).rejects.toMatchObject({ oclif: { exit: 1 } });
+
+    expect(mockFixRun).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(stdout.join("")).toBe("");
+    expect(stderr.join("")).toContain("missing-apply-admission");
+  });
+
+  test("verify awaits check and affected target execution", async () => {
+    await Verify.run(["--base", "HEAD~1"]);
+
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockVerifyRun).toHaveBeenCalledWith({
+      base: "HEAD~1",
+      commandArgs: ["--base", "HEAD~1"],
+    });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
+    expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport);
     expect(stdout.join("")).toContain("affected ok");
   });
 
   test("verify can emit structured receipt JSON", async () => {
     await Verify.run(["--base", "HEAD~1", "--json"]);
 
-    expect(checkReport.createCheckReport).toHaveBeenCalledWith(
-      expect.objectContaining({
-        base: "HEAD~1",
-        command: expect.objectContaining({
-          argv: ["--base", "HEAD~1", "--json"],
-          bin: "habitat",
-          id: "check",
-        }),
-      })
-    );
-    expect(verifyReceipt.runAffectedVerification).toHaveBeenCalledWith(
-      "HEAD~1",
-      mockVerifyTargetPlan
-    );
+    expect(mockVerifyRun).toHaveBeenCalledWith({
+      base: "HEAD~1",
+      commandArgs: ["--base", "HEAD~1", "--json"],
+    });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
-    expect(verifyReceipt.createVerifyReceipt).toHaveBeenCalledWith(
-      expect.objectContaining({
-        requestedBase: "HEAD~1",
-        resolvedBase: "HEAD~1",
-        commandArgs: ["--base", "HEAD~1", "--json"],
-        exitCode: 0,
-        checkReport: mockReport,
-        verifyTargetPlan: mockVerifyTargetPlan,
-        baseSource: "flag",
-      })
+    expect(verifyReceipt.stringifyVerifyReceipt).toHaveBeenCalledWith(
+      expect.objectContaining({ schemaVersion: 1 })
     );
     const payload = JSON.parse(capturedOutput()) as { schemaVersion: number };
     expect(payload.schemaVersion).toBe(1);
@@ -313,7 +296,8 @@ describe("Habitat oclif commands", () => {
   test("graph forwards compact JSON output", async () => {
     await Graph.run(["--json"]);
 
-    expect(graph.runGraph).toHaveBeenCalledWith({ json: true });
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockGraphRun).toHaveBeenCalledWith({ json: true });
     expect(stdout.join("")).toContain('{"nodes":{}}');
   });
 
@@ -327,15 +311,17 @@ describe("Habitat oclif commands", () => {
     if (result.state !== "project-path") throw new Error("expected project-path");
     expect(result.owner.project).toBe("@internal/habitat-harness");
     expect(result.owner.tags).toEqual(["kind:tooling"]);
-    expect(classify.classifyTargetResult).toHaveBeenCalledWith(
-      "tools/habitat-harness/src/commands/check.ts"
-    );
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockClassifyRun).toHaveBeenCalledWith({
+      target: "tools/habitat-harness/src/commands/check.ts",
+    });
   });
 
-  test("hook dispatches to the Habitat hook runner", async () => {
+  test("hook dispatches through the Habitat service client", async () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
-    expect(hooks.runHook).toHaveBeenCalledWith("pre-push", { base: "HEAD~1" });
+    expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
+    expect(mockHookRun).toHaveBeenCalledWith({ name: "pre-push", base: "HEAD~1" });
     expect(stdout.join("")).toContain("hook ok");
   });
 
@@ -347,3 +333,65 @@ describe("Habitat oclif commands", () => {
     return `${stdout.join("")}${logs.join("\n")}`;
   }
 });
+
+function verifyReceiptPayload(base: string, input: { base?: string; commandArgs?: string[] }) {
+  return {
+    schemaVersion: 1,
+    outcome: "succeeded",
+    command: {
+      argv: ["habitat", "verify", ...(input.commandArgs ?? [])],
+      cwd: "/repo",
+      env: {},
+      startedAt: "2026-06-13T00:00:00.000Z",
+      durationMs: 1,
+      exitCode: 0,
+    },
+    base: {
+      requested: input.base ?? null,
+      resolved: base,
+      source: input.base ? "flag" : "merge-base",
+    },
+    habitatCheck: {
+      reportSchemaVersion: 1,
+      selectedRuleIds: [],
+      selectedRealRuleIds: ["adapter-boundary"],
+      builtInRuleIds: [],
+      statusCounts: {},
+      advisoryCount: 0,
+      failingCount: 0,
+      refusedCount: 0,
+      notApplicableCount: 0,
+      consumption: "allows-affected-execution",
+      selectorState: { kind: "none" },
+    },
+    targetPlan: { kind: "target-plan-ready", targets: ["build"] },
+    nxAffected: {
+      kind: "executed",
+      argv: ["nx", "affected", "-t", "build", "--base", base],
+      targets: ["build"],
+      projects: [],
+      cacheStateByTask: [],
+      exitCode: 0,
+      stdoutLength: 12,
+      stderrLength: 0,
+      stdoutPreview: "affected ok\n",
+      stderrPreview: "",
+      stdoutTruncated: false,
+      stderrTruncated: false,
+    },
+    postState: {
+      kind: "observed-clean",
+      gitStatus: {
+        argv: ["git", "status", "--short", "--branch"],
+        cwd: "/repo",
+        exitCode: 0,
+        stdoutLength: 0,
+        stderrLength: 0,
+        stdoutPreview: "",
+        stderrPreview: "",
+        stdoutTruncated: false,
+        stderrTruncated: false,
+      },
+    },
+  };
+}

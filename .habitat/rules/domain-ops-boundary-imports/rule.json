@@ -6,12 +6,7 @@
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
   "forbids": "ops using adapter/context crossing constructs",
   "why": "Domain ops stay pure and composable; adapter/context belongs outside domain implementation.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "pattern-check"
-  ],
+  "detect": ["habitat", "check", "--tool", "pattern-check"],
   "remediate": null,
   "message": "Remove adapter/context crossing from domain ops.",
   "exceptionPath": "none",
@@ -27,9 +22,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
     }
   ]
 }

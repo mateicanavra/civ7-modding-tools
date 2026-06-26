@@ -28,7 +28,9 @@ export function selectedScanRootsForRules(
   return matchingRoots.length > 0 ? matchingRoots : [...scanRoots];
 }
 
-export function discoverPatternScanRoots(selectedRules: readonly RulePatternFacts[] = []): string[] {
+export function discoverPatternScanRoots(
+  selectedRules: readonly RulePatternFacts[] = []
+): string[] {
   const declaredRoots = selectedRules.flatMap(declaredScanRootsForRule);
   return uniqueRepoRelative(declaredRoots).filter((scanPath) =>
     existsSync(path.join(repoRoot, scanPath))

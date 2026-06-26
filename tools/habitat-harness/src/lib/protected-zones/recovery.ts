@@ -1,7 +1,4 @@
-import {
-  renderHostRecoveryInstruction,
-  type HostRecoveryInstruction,
-} from "../host-policy.js";
+import { type HostRecoveryInstruction, renderHostRecoveryInstruction } from "../host-policy.js";
 import type { ProtectedZoneRecoveryInstruction } from "./schema.js";
 
 export function renderRecoveryInstruction(recovery: ProtectedZoneRecoveryInstruction): string {

@@ -21,11 +21,7 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
         "test",
       ]),
       project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
-      project("@civ7/config", "packages/config", "kind:foundation", [
-        "build",
-        "check",
-        "test",
-      ]),
+      project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
       project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", [
         "check",
         "test",
@@ -288,9 +284,7 @@ index 3333333..4444444 100644
     const result = await classifyPathResult("tools/habitat-harness/src/plugin.ts", {
       nxProjects: {
         async readProjects() {
-          return [
-            project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"]),
-          ];
+          return [project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"])];
         },
       },
     });

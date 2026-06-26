@@ -1,9 +1,6 @@
 import { Value } from "typebox/value";
 import { activeRuleGraphFacts } from "../../rules/facts.js";
-import {
-  type VerifyCheckSummary,
-  verifyCheckSummary,
-} from "../check-report.js";
+import { type VerifyCheckSummary, verifyCheckSummary } from "../check-report.js";
 import type { CheckReport } from "../diagnostics.js";
 import { repoRoot } from "../paths.js";
 import type { SpawnResult } from "../spawn.js";
@@ -16,14 +13,14 @@ import {
 } from "../workspace-graph/index.js";
 import { selectedVerifyEnv } from "./command-output.js";
 import { affectedVerificationArgv, completedNxAffected, skippedNxAffected } from "./nx-affected.js";
-import { observeGitStatus, postStateObservation } from "./post-state.js";
+import { postStateObservation } from "./post-state.js";
 import {
-  VerifyHabitatCheckSummarySchema,
   type VerifyBaseResolution,
+  VerifyHabitatCheckSummarySchema,
+  type VerifyReceipt,
   VerifyReceiptSchema,
   VerifySelectorStateSchema,
   VerifyTargetPlanConsumptionSchema,
-  type VerifyReceipt,
 } from "./schema.js";
 
 /** Inputs needed to assemble a verify handoff receipt after command execution. */
@@ -48,6 +45,8 @@ export interface VerifyReceiptInput {
   verifyTargetPlan?: VerifyTargetPlan;
   /** Optional affected command result; absent means verify skipped affected execution. */
   affectedResult?: SpawnResult;
+  /** Git status observation captured through the Git provider before receipt assembly. */
+  gitStatus: SpawnResult;
 }
 
 /** Verify target names currently owned by the workspace graph boundary. */
@@ -74,7 +73,6 @@ export async function readVerifyTargetPlan(): Promise<VerifyTargetPlan> {
 export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
   const targetPlan = input.verifyTargetPlan ?? verifyTargetPlan();
   const nxArgv = affectedVerificationArgv(input.resolvedBase, targetPlan);
-  const gitStatus = observeGitStatus();
   const habitatCheckSummary = verifyCheckSummary(input.checkReport);
   const nxAffected =
     habitatCheckSummary.allowsAffectedExecution &&
@@ -85,7 +83,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
           nxArgv,
           habitatCheckSummary.allowsAffectedExecution ? targetPlan : undefined
         );
-  const postState = postStateObservation(gitStatus);
+  const postState = postStateObservation(input.gitStatus);
   return Value.Parse(VerifyReceiptSchema, {
     schemaVersion: 1,
     outcome: receiptOutcome({
@@ -140,9 +138,7 @@ function consumeVerifyTargetPlan(targetPlan: VerifyTargetPlan): VerifyReceipt["t
   });
 }
 
-function summarizeVerifyCheckReport(
-  summary: VerifyCheckSummary
-): VerifyReceipt["habitatCheck"] {
+function summarizeVerifyCheckReport(summary: VerifyCheckSummary): VerifyReceipt["habitatCheck"] {
   return Value.Parse(VerifyHabitatCheckSummarySchema, {
     ...summary,
     consumption: summary.allowsAffectedExecution
@@ -171,7 +167,10 @@ function receiptOutcome(input: {
   nxAffected: VerifyReceipt["nxAffected"];
   postState: VerifyReceipt["postState"];
 }): VerifyReceipt["outcome"] {
-  if (!input.check.allowsAffectedExecution || input.targetPlan.kind === "verify-target-plan-refused")
+  if (
+    !input.check.allowsAffectedExecution ||
+    input.targetPlan.kind === "verify-target-plan-refused"
+  )
     return "blocked";
   if (input.nxAffected.kind === "failed" || input.postState.kind === "unavailable") return "failed";
   return "succeeded";

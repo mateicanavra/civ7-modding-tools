@@ -39,10 +39,7 @@ export const LiveWriteIntentSchema = Type.Interface(
   { additionalProperties: false }
 );
 
-export const PatternApplyRequestSchema = Type.Union([
-  DryRunIntentSchema,
-  LiveWriteIntentSchema,
-]);
+export const PatternApplyRequestSchema = Type.Union([DryRunIntentSchema, LiveWriteIntentSchema]);
 
 export type WorktreeObservation = Static<typeof WorktreeObservationSchema>;
 export type DryRunIntent = Static<typeof DryRunIntentSchema>;
@@ -53,8 +50,6 @@ export function parseWorktreeObservation(value: unknown): WorktreeObservation {
   return Value.Parse(WorktreeObservationSchema, value);
 }
 
-export function parsePatternApplyRequest(
-  value: unknown
-): PatternApplyRequest {
+export function parsePatternApplyRequest(value: unknown): PatternApplyRequest {
   return Value.Parse(PatternApplyRequestSchema, value);
 }

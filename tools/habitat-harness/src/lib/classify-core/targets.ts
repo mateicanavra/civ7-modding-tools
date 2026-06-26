@@ -1,7 +1,7 @@
 import {
   projectTargetStates,
-  workspaceTargetStates,
   type WorkspaceProject,
+  workspaceTargetStates,
 } from "../workspace-graph/index.js";
 import type { ClassifiedTarget, UnavailableClassifiedTarget } from "./schema.js";
 

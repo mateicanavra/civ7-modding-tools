@@ -1,24 +1,12 @@
-import { describe, expect, test, vi } from "vitest";
-import type { CheckReport } from "../../src/lib/diagnostics.js";
-
-const runMock = vi.hoisted(() =>
-  vi.fn((argv: string[]) => {
-    if (argv[0] === "git") return { exitCode: 0, stdout: "", stderr: "" };
-    return { exitCode: 0, stdout: "", stderr: "" };
-  })
-);
-
-vi.mock("../../src/lib/spawn.js", () => ({
-  run: runMock,
-}));
-
 import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
+import type { CheckReport } from "../../src/lib/diagnostics.js";
 import {
   createVerifyReceipt,
   VerifyReceiptSchema,
   validateVerifyReceipt,
 } from "../../src/lib/verify/index.js";
-import { verifyTargetPlan, type VerifyTargetPlan } from "../../src/lib/workspace-graph/index.js";
+import { type VerifyTargetPlan, verifyTargetPlan } from "../../src/lib/workspace-graph/index.js";
 
 describe("verify receipt", () => {
   test("embeds bounded Nx stream metadata and keeps cache state task-local", () => {
@@ -31,6 +19,7 @@ describe("verify receipt", () => {
       exitCode: 0,
       checkReport: checkReport(),
       verifyTargetPlan: verifyTargetPlanFixture(),
+      gitStatus: gitStatusFixture(),
       affectedResult: {
         exitCode: 0,
         stdout:
@@ -85,6 +74,7 @@ describe("verify receipt", () => {
       exitCode: 0,
       checkReport: checkReport(),
       verifyTargetPlan: verifyTargetPlanFixture(),
+      gitStatus: gitStatusFixture(),
       affectedResult: {
         exitCode: 0,
         stdout,
@@ -108,6 +98,7 @@ describe("verify receipt", () => {
       exitCode: 1,
       checkReport: checkReport({ ok: false }),
       verifyTargetPlan: verifyTargetPlanFixture(),
+      gitStatus: gitStatusFixture(),
     });
 
     expect(receipt.outcome).toBe("blocked");
@@ -157,6 +148,7 @@ describe("verify receipt", () => {
       exitCode: 1,
       checkReport: checkReport({ ok: false }),
       verifyTargetPlan: verifyTargetPlanFixture(),
+      gitStatus: gitStatusFixture(),
       affectedResult: {
         exitCode: 0,
         stdout: "should not be serialized",
@@ -178,6 +170,7 @@ describe("verify receipt", () => {
       exitCode: 1,
       checkReport: checkReport(),
       verifyTargetPlan: verifyTargetPlanFixture(),
+      gitStatus: gitStatusFixture({ stdout: " M tools/habitat-harness/src/index.ts\n" }),
       affectedResult: {
         exitCode: 1,
         stdout: "affected failed\n",
@@ -205,6 +198,7 @@ describe("verify receipt", () => {
       exitCode: 1,
       checkReport: checkReport(),
       verifyTargetPlan: refusedVerifyTargetPlanFixture(),
+      gitStatus: gitStatusFixture(),
     });
 
     expect(receipt.outcome).toBe("blocked");
@@ -234,6 +228,7 @@ describe("verify receipt", () => {
       exitCode: 0,
       checkReport: checkReport(),
       verifyTargetPlan: verifyTargetPlanFixture(),
+      gitStatus: gitStatusFixture(),
       affectedResult: {
         exitCode: 0,
         stdout: "affected ok\n",
@@ -278,6 +273,14 @@ function refusedVerifyTargetPlanFixture(): VerifyTargetPlan {
       reason: "nx-read-failure",
       message: "graph unavailable",
     },
+  };
+}
+
+function gitStatusFixture(options: { stdout?: string; stderr?: string; exitCode?: number } = {}) {
+  return {
+    exitCode: options.exitCode ?? 0,
+    stdout: options.stdout ?? "",
+    stderr: options.stderr ?? "",
   };
 }
 

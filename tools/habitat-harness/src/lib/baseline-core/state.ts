@@ -1,21 +1,21 @@
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import {
+  type BaselineContractContext,
   baselinePathForRule,
   errorMessage,
+  type RequiredBaselineContext,
   readJsonFile,
   resolveBaselineContext,
   toContextRelative,
-  type BaselineContractContext,
-  type RequiredBaselineContext,
 } from "./context.js";
 import {
-  parseBaselineKeys,
   type BaselineAuthorityResult,
   type BaselineAuthorityState,
   type BaselineContractValidation,
   type BaselineRefusal,
   type BaselineRuleContractInput,
+  parseBaselineKeys,
 } from "./schema.js";
 import { sameStringList } from "./utils.js";
 
@@ -83,9 +83,7 @@ export function validateBaselineContract(
   return { states, refusals };
 }
 
-export function baselineAuthorityResult(
-  state: BaselineAuthorityState
-): BaselineAuthorityResult {
+export function baselineAuthorityResult(state: BaselineAuthorityState): BaselineAuthorityResult {
   return state.kind === "baseline-refusal"
     ? { status: "refused", refusal: state }
     : { status: "accepted", state };

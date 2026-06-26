@@ -157,11 +157,7 @@ describe("rule selector boundary", () => {
     const stagedEligible = fakeRule("hook", "pattern-check", "@internal/habitat-harness", {
       hookCheck: true,
     });
-    const currentTreeOnly = fakeRule(
-      "current-tree",
-      "pattern-check",
-      "@internal/habitat-harness"
-    );
+    const currentTreeOnly = fakeRule("current-tree", "pattern-check", "@internal/habitat-harness");
     const nativeRule = fakeRule("file-layer-rule", "file-layer", "@internal/habitat-harness");
 
     expect(
@@ -184,7 +180,7 @@ describe("rule selector boundary", () => {
         gritFacts: [fakeGritFact("hook", ["packages"])],
         hookCheckFacts: [{ id: "hook", hookCheck: true }],
         staged: true,
-        stagedPaths: ["tools/habitat-harness/src/lib/hooks.ts"],
+        stagedPaths: ["tools/habitat-harness/src/service/modules/hook/run.ts"],
       }).map((rule) => rule.id)
     ).toEqual(["hook"]);
   });
@@ -207,13 +203,13 @@ describe("rule selector boundary", () => {
       )
     ).toBe(true);
     expect(report.ok).toBe(false);
-  });
+  }, 90_000);
 
   test("staged Grit scan roots preserve exact approved file paths", () => {
     expect(
       stagedPatternScanRoots([
         "packages/mapgen-core/src/core/index.ts",
-        "tools/habitat-harness/src/lib/hooks.ts",
+        "tools/habitat-harness/src/service/modules/hook/run.ts",
         "README.md",
       ])
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);

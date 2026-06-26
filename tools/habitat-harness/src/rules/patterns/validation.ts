@@ -1,4 +1,5 @@
 import { Value } from "typebox/value";
+import { patternCandidateRoot, patternManifestPath } from "./paths.js";
 import {
   type PatternLifecycle,
   type PatternManifest,
@@ -7,7 +8,6 @@ import {
   type PatternValidationFailureReason,
   type PatternValidationIssue,
 } from "./schema.js";
-import { patternCandidateRoot, patternManifestPath } from "./paths.js";
 
 export interface PatternRulePackReferenceInput {
   id: string;
@@ -214,7 +214,9 @@ function checkRuleReference(
   issues: PatternValidationIssue[]
 ) {
   if (!options.requireRuleReference) return;
-  const reference = options.ruleReferences?.find((candidate) => candidate.ruleId === manifest.ruleId);
+  const reference = options.ruleReferences?.find(
+    (candidate) => candidate.ruleId === manifest.ruleId
+  );
   if (!reference) {
     issues.push(
       issue(
@@ -247,7 +249,11 @@ function checkRuleReference(
       )
     );
   }
-  if (options.manifestPath && reference.manifestPath && reference.manifestPath !== options.manifestPath) {
+  if (
+    options.manifestPath &&
+    reference.manifestPath &&
+    reference.manifestPath !== options.manifestPath
+  ) {
     issues.push(
       issue(
         "contradicted-manifest",

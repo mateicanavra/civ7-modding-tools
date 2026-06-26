@@ -1,6 +1,6 @@
 import path from "node:path";
 import { Value } from "typebox/value";
-import { StagedMutationPathSchema, type StagedMutationPath } from "./schema.js";
+import { type StagedMutationPath, StagedMutationPathSchema } from "./schema.js";
 
 export function stagedPathsFromNameStatus(output: string): StagedMutationPath[] {
   const tokens = output.split("\0").filter(Boolean);

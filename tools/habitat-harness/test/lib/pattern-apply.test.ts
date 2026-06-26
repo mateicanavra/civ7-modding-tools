@@ -1,21 +1,19 @@
+import { Effect } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
-import { runFix } from "../../src/lib/fix.js";
 import {
+  type HabitatProcessRequest,
   makeFakeHabitatProcessLayer,
   makeHabitatCommandResult,
-  type HabitatProcessRequest,
 } from "../../src/lib/habitat-process.js";
 import {
+  type PatternApplyRequest,
   PatternApplyRequestSchema,
   renderPatternApply,
-  runPatternApply,
-  type PatternApplyRequest,
 } from "../../src/lib/pattern-apply/index.js";
-import type {
-  ApplyAdmission,
-  ApplyTransactionInput,
-} from "../../src/rules/patterns/index.js";
+import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
+import type { TransactionsServiceOptions } from "../../src/service/modules/transactions/context.js";
+import { runTransactionApplyService } from "../../src/service/modules/transactions/run.js";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
@@ -28,11 +26,10 @@ describe("pattern apply", () => {
   });
 
   test("refuses fix at the command boundary before apply admission", async () => {
-    const result = await runFix(
-      { kind: "dry-run-intent" },
-      {
-        admissions: [],
-      }
+    const { runFixService } = await import("../../src/service/modules/fix/run.js");
+
+    const result = await Effect.runPromise(
+      runFixService({ kind: "dry-run-intent" }, { admissions: [] })
     );
 
     expect(result).toMatchObject({
@@ -67,7 +64,7 @@ describe("pattern apply", () => {
       });
     });
 
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "dry-run-intent",
         worktree: cleanWorktree(),
@@ -102,7 +99,7 @@ describe("pattern apply", () => {
       })
     );
 
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "dry-run-intent",
         worktree: cleanWorktree(),
@@ -120,7 +117,7 @@ describe("pattern apply", () => {
   });
 
   test("missing transaction input stays a refusal after admission", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "dry-run-intent",
       worktree: cleanWorktree(),
       admission: applyAdmission({
@@ -157,7 +154,7 @@ describe("pattern apply", () => {
       ],
     } as Partial<ApplyTransactionInput>);
 
-    const record = await runPatternApply(
+    const record = await applyTransaction(
       {
         kind: "dry-run-intent",
         worktree: cleanWorktree(),
@@ -176,15 +173,18 @@ describe("pattern apply", () => {
   });
 
   test("refuses transaction input whose identity does not match the admission", async () => {
-    const record = await runPatternApply({
-      kind: "dry-run-intent",
-      worktree: cleanWorktree(),
-      admission: applyAdmission({
-        patternId: "other-apply-pattern",
-      }),
-    } satisfies PatternApplyRequest, {
-      transactionInputs: [transactionInput()],
-    });
+    const record = await applyTransaction(
+      {
+        kind: "dry-run-intent",
+        worktree: cleanWorktree(),
+        admission: applyAdmission({
+          patternId: "other-apply-pattern",
+        }),
+      } satisfies PatternApplyRequest,
+      {
+        transactionInputs: [transactionInput()],
+      }
+    );
 
     expect(record.outcome).toMatchObject({
       kind: "refused",
@@ -196,7 +196,7 @@ describe("pattern apply", () => {
   });
 
   test("blocks live writes without protected-zone authority", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "live-write-intent",
       worktree: cleanWorktree(),
       admission: applyAdmission(),
@@ -209,7 +209,7 @@ describe("pattern apply", () => {
   });
 
   test("blocks live writes on dirty worktrees before zone or host decisions", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "live-write-intent",
       worktree: dirtyWorktree(),
       admission: applyAdmission(),
@@ -222,7 +222,7 @@ describe("pattern apply", () => {
   });
 
   test("blocks live writes without host-policy authority", async () => {
-    const record = await runPatternApply({
+    const record = await applyTransaction({
       kind: "live-write-intent",
       worktree: cleanWorktree(),
       admission: applyAdmission(),
@@ -236,14 +236,17 @@ describe("pattern apply", () => {
   });
 
   test("consumes an allowed protected-zone write decision before live execution", async () => {
-    const record = await runPatternApply({
-      kind: "live-write-intent",
-      worktree: cleanWorktree(),
-      admission: applyAdmission(),
-      pathDecision: allowedPathDecision(),
-    } satisfies PatternApplyRequest, {
-      transactionInputs: [transactionInput()],
-    });
+    const record = await applyTransaction(
+      {
+        kind: "live-write-intent",
+        worktree: cleanWorktree(),
+        admission: applyAdmission(),
+        pathDecision: allowedPathDecision(),
+      } satisfies PatternApplyRequest,
+      {
+        transactionInputs: [transactionInput()],
+      }
+    );
 
     expect(record.outcome).toMatchObject({
       kind: "refused",
@@ -252,16 +255,19 @@ describe("pattern apply", () => {
   });
 
   test("binds protected-zone write decisions to the admitted transaction roots", async () => {
-    const record = await runPatternApply({
-      kind: "live-write-intent",
-      worktree: cleanWorktree(),
-      admission: applyAdmission(),
-      pathDecision: allowedPathDecision({
-        path: "packages/outside-admitted-root/example.ts",
-      }),
-    } satisfies PatternApplyRequest, {
-      transactionInputs: [transactionInput()],
-    });
+    const record = await applyTransaction(
+      {
+        kind: "live-write-intent",
+        worktree: cleanWorktree(),
+        admission: applyAdmission(),
+        pathDecision: allowedPathDecision({
+          path: "packages/outside-admitted-root/example.ts",
+        }),
+      } satisfies PatternApplyRequest,
+      {
+        transactionInputs: [transactionInput()],
+      }
+    );
 
     expect(record.outcome).toMatchObject({
       kind: "refused",
@@ -269,6 +275,10 @@ describe("pattern apply", () => {
     });
   });
 });
+
+function applyTransaction(input: unknown, options?: TransactionsServiceOptions) {
+  return Effect.runPromise(runTransactionApplyService(input, options));
+}
 
 function cleanWorktree() {
   return {
@@ -288,9 +298,7 @@ function dirtyWorktree() {
   } as const;
 }
 
-function applyAdmission(
-  overrides: Partial<ApplyAdmission> = {}
-): ApplyAdmission {
+function applyAdmission(overrides: Partial<ApplyAdmission> = {}): ApplyAdmission {
   return {
     kind: "apply-admission",
     patternId: "deep-import-to-public-surface",
@@ -302,9 +310,7 @@ function applyAdmission(
   };
 }
 
-function transactionInput(
-  overrides: Partial<ApplyTransactionInput> = {}
-): ApplyTransactionInput {
+function transactionInput(overrides: Partial<ApplyTransactionInput> = {}): ApplyTransactionInput {
   return {
     kind: "apply-transaction-input",
     patternId: "deep-import-to-public-surface",

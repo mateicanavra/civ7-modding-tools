@@ -1,5 +1,4 @@
-import { spawnSync } from "node:child_process";
-import { materializeHabitatCommand } from "./workspace-tools.js";
+import { runSyncHabitatCommand } from "../providers/command/index.js";
 
 export interface SpawnResult {
   exitCode: number;
@@ -13,20 +12,21 @@ export interface SpawnResult {
  */
 export function run(
   argv: string[],
-  opts: { cwd: string; env?: Record<string, string> }
+  opts: { cwd: string; env?: Record<string, string>; captureGitState?: boolean }
 ): SpawnResult {
   const [cmd, ...args] = argv;
-  const env = { ...process.env, ...opts.env };
-  const command = materializeHabitatCommand(cmd, args);
-  const res = spawnSync(command.executable, command.argv, {
-    cwd: command.cwd ?? opts.cwd,
-    env,
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
+  const result = runSyncHabitatCommand({
+    commandId: `sync-${cmd}`,
+    kind: "workspace-tool",
+    executable: cmd,
+    argv: args,
+    cwd: opts.cwd,
+    env: opts.env,
+    captureGitState: opts.captureGitState,
   });
   return {
-    exitCode: res.status ?? (res.error ? 127 : 0),
-    stdout: res.stdout ?? "",
-    stderr: res.stderr ?? (res.error ? `${String(res.error)}\n` : ""),
+    exitCode: result.exit.code,
+    stdout: result.stdout.text,
+    stderr: result.stderr.text,
   };
 }
