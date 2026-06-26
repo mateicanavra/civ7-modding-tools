@@ -1,4 +1,8 @@
-# domain-ops-root-config
+# Prohibit Root Config Facade Imports In Domain Ops
+
+Subject ID: `domain-ops-root-config`
+
+Title: Prohibit Root Config Facade Imports In Domain Ops
 
 Blueprint: `domain-operation`
 

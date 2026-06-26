@@ -1,4 +1,8 @@
-# domain-refactor-guardrails
+# Enforce Domain Refactor Boundary Profile
+
+Subject ID: `domain-refactor-guardrails`
+
+Title: Enforce Domain Refactor Boundary Profile
 
 Blueprint: `_self`
 

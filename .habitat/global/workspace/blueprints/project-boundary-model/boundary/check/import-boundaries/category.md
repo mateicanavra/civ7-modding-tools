@@ -1,4 +1,8 @@
-# import-boundaries
+# Enforce Workspace Import Boundaries
+
+Subject ID: `import-boundaries`
+
+Title: Enforce Workspace Import Boundaries
 
 Blueprint: `project-boundary-model`
 

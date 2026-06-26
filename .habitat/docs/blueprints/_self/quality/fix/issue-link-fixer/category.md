@@ -1,4 +1,8 @@
-# issue-link-fixer
+# Repair Docs Issue Links And Dependency Metadata
+
+Subject ID: `issue-link-fixer`
+
+Title: Repair Docs Issue Links And Dependency Metadata
 
 Blueprint: `_self`
 

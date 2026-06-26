@@ -1,4 +1,8 @@
-# mapgen-docs
+# Validate MapGen Docs Anchors And References
+
+Subject ID: `mapgen-docs`
+
+Title: Validate MapGen Docs Anchors And References
 
 Blueprint: `mapgen-canonical-docs`
 

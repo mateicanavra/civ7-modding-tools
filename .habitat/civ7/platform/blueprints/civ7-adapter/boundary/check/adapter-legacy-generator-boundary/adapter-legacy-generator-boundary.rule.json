@@ -1,5 +1,6 @@
 {
   "id": "adapter-legacy-generator-boundary",
+  "title": "Prohibit Adapter-Local Legacy Generator Logic",
   "ownerTool": "command-check",
   "ownerProject": "civ7-adapter",
   "lane": "enforced",
@@ -16,7 +17,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-adapter/src/**"]
+      "patterns": [
+        "packages/civ7-adapter/src/**"
+      ]
     },
     {
       "kind": "project-owner"

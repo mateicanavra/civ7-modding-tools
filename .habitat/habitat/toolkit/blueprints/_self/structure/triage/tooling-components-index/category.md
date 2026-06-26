@@ -1,4 +1,8 @@
-# tooling-components-index
+# Inventory Transitional Toolkit Adapter Subjects
+
+Subject ID: `tooling-components-index`
+
+Title: Inventory Transitional Toolkit Adapter Subjects
 
 Blueprint: `_self`
 

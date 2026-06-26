@@ -1,4 +1,8 @@
-# control-app-surface
+# Require Sanctioned Direct-Control Session Owners
+
+Subject ID: `control-app-surface`
+
+Title: Require Sanctioned Direct-Control Session Owners
 
 Blueprint: `direct-control-session`
 

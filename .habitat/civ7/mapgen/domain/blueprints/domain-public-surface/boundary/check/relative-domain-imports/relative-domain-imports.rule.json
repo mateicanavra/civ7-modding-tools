@@ -1,18 +1,27 @@
 {
   "id": "relative-domain-imports",
+  "title": "Prohibit Relative Domain Reaches From Recipes And Maps",
   "ownerTool": "source-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
   "forbids": "recipe/map source importing local domain source through relative ../domain paths",
   "why": "Recipes and maps compose domains through named public surfaces, not local source-tree reaches.",
-  "detect": ["habitat", "check", "--tool", "source-check"],
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "source-check"
+  ],
   "remediate": null,
   "message": "Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather than relative ../domain paths.",
   "exceptionPath": "none",
   "patternName": "relative_domain_imports",
   "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps"
+  ],
   "pathCoverage": [
     {
       "kind": "exact-path",

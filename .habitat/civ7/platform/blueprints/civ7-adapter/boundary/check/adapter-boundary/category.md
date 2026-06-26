@@ -1,4 +1,8 @@
-# adapter-boundary
+# Block Unapproved Base-Standard Boundary Leaks
+
+Subject ID: `adapter-boundary`
+
+Title: Block Unapproved Base-Standard Boundary Leaks
 
 Blueprint: `civ7-adapter`
 

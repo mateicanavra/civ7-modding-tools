@@ -1,4 +1,8 @@
-# standard-recipe-artifact-parity
+# Verify Standard Recipe Artifacts Match Source Stages
+
+Subject ID: `standard-recipe-artifact-parity`
+
+Title: Verify Standard Recipe Artifacts Match Source Stages
 
 Blueprint: `standard-recipe`
 

@@ -1,5 +1,6 @@
 {
   "id": "service-module-shape",
+  "title": "Validate Habitat Service Module File Shape",
   "ownerTool": "command-check",
   "ownerProject": "habitat",
   "lane": "enforced",
@@ -16,7 +17,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["tools/habitat/src/service/modules/**", "tools/habitat/src/service/model/**"]
+      "patterns": [
+        "tools/habitat/src/service/modules/**",
+        "tools/habitat/src/service/model/**"
+      ]
     },
     {
       "kind": "project-owner"

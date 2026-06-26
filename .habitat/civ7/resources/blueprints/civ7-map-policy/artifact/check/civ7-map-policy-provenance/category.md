@@ -1,4 +1,8 @@
-# civ7-map-policy-provenance
+# Preserve Evidence Provenance Labels
+
+Subject ID: `civ7-map-policy-provenance`
+
+Title: Preserve Evidence Provenance Labels
 
 Blueprint: `civ7-map-policy`
 

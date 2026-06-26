@@ -1,4 +1,8 @@
-# studio-recipe-dag-boundary
+# Require Recipe DAG Contract Metadata
+
+Subject ID: `studio-recipe-dag-boundary`
+
+Title: Require Recipe DAG Contract Metadata
 
 Blueprint: `recipe-dag-service`
 

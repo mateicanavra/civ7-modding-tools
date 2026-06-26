@@ -1,4 +1,8 @@
-# foundation-contract-surfaces
+# Preserve Decomposed Foundation Contract Surfaces
+
+Subject ID: `foundation-contract-surfaces`
+
+Title: Preserve Decomposed Foundation Contract Surfaces
 
 Blueprint: `foundation-domain`
 

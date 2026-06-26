@@ -1,4 +1,8 @@
-# rng-authority-static
+# Prohibit Ambient RNG In Authored Generation
+
+Subject ID: `rng-authority-static`
+
+Title: Prohibit Ambient RNG In Authored Generation
 
 Blueprint: `_self`
 

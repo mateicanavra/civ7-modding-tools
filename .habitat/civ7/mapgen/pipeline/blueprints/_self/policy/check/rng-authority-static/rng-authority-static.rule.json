@@ -1,5 +1,6 @@
 {
   "id": "rng-authority-static",
+  "title": "Prohibit Ambient RNG In Authored Generation",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

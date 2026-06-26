@@ -1,4 +1,8 @@
-# control-orpc-contract-ownership
+# Preserve Transport-Pure oRPC Contracts
+
+Subject ID: `control-orpc-contract-ownership`
+
+Title: Preserve Transport-Pure oRPC Contracts
 
 Blueprint: `control-orpc`
 

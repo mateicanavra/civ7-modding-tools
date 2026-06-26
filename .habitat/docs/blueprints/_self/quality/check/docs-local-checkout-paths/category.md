@@ -1,4 +1,8 @@
-# docs-local-checkout-paths
+# Ensure Docs Checkout Paths Are Portable
+
+Subject ID: `docs-local-checkout-paths`
+
+Title: Ensure Docs Checkout Paths Are Portable
 
 Blueprint: `_self`
 

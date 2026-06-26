@@ -1,4 +1,8 @@
-# map-projection-callsite-ownership
+# Require Projection Calls In Projection Steps
+
+Subject ID: `map-projection-callsite-ownership`
+
+Title: Require Projection Calls In Projection Steps
 
 Blueprint: `map-projection`
 

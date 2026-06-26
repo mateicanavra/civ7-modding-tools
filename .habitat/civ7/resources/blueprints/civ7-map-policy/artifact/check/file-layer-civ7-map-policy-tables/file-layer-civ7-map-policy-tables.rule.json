@@ -1,12 +1,19 @@
 {
   "id": "file-layer-civ7-map-policy-tables",
+  "title": "Block Hand-Edits To Generated Map-Policy Tables",
   "ownerTool": "file-layer",
   "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "staged changes to packages/civ7-map-policy/src/civ7-tables.gen.ts",
   "forbids": "staged hand-edits to generated Civ7 map-policy tables",
   "why": "Map-policy tables must be regenerated from official resources.",
-  "detect": ["habitat", "check", "--staged", "--tool", "file-layer"],
+  "detect": [
+    "habitat",
+    "check",
+    "--staged",
+    "--tool",
+    "file-layer"
+  ],
   "remediate": "Run owning workspace target: civ7-map-policy:verify -- --write",
   "message": "Generated Civ7 map-policy tables are protected from hand edit.",
   "exceptionPath": "none",
@@ -14,7 +21,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-map-policy/src/civ7-tables.gen.ts"]
+      "patterns": [
+        "packages/civ7-map-policy/src/civ7-tables.gen.ts"
+      ]
     }
   ]
 }

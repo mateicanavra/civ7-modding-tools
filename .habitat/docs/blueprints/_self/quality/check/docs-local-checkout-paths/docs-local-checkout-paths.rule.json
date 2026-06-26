@@ -1,5 +1,6 @@
 {
   "id": "docs-local-checkout-paths",
+  "title": "Ensure Docs Checkout Paths Are Portable",
   "ownerTool": "command-check",
   "ownerProject": "habitat",
   "lane": "advisory",
@@ -16,7 +17,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["docs/**/*.md"]
+      "patterns": [
+        "docs/**/*.md"
+      ]
     }
   ]
 }

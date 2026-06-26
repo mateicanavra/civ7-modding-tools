@@ -1,12 +1,16 @@
 {
   "id": "studio-rpc-daemon-boundary",
+  "title": "Enforce Studio RPC EventHub Topology",
   "ownerTool": "command-check",
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
   "scope": "MapGen Studio production daemon RPC boundary",
   "forbids": "daemon-owned EventHub lifecycle or EventHub injection into the RPC handler",
   "why": "The daemon mounts Studio RPC; EventHub lifecycle belongs inside the Studio runtime context.",
-  "detect": ["bun", ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/studio-rpc-daemon-boundary/studio-rpc-daemon-boundary.check.ts"],
+  "detect": [
+    "bun",
+    ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/studio-rpc-daemon-boundary/studio-rpc-daemon-boundary.check.ts"
+  ],
   "remediate": "Keep EventHub creation and shutdown inside the Studio runtime context.",
   "message": "Studio daemon owns or injects EventHub lifecycle.",
   "exceptionPath": "none",

@@ -1,4 +1,8 @@
-# cutover-source-guardrails
+# Prohibit Cutover Shims, Dual Paths, And Legacy Stage Aliases
+
+Subject ID: `cutover-source-guardrails`
+
+Title: Prohibit Cutover Shims, Dual Paths, And Legacy Stage Aliases
 
 Blueprint: `_self`
 

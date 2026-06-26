@@ -1,4 +1,8 @@
-# sibling-stage-step-imports
+# Prohibit Sibling Stage Private Step Imports
+
+Subject ID: `sibling-stage-step-imports`
+
+Title: Prohibit Sibling Stage Private Step Imports
 
 Blueprint: `standard-recipe`
 

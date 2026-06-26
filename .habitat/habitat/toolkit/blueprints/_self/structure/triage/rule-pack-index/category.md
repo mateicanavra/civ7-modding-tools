@@ -1,4 +1,8 @@
-# rule-pack-index
+# Preserve Transitional Rule-Pack Owner Roots
+
+Subject ID: `rule-pack-index`
+
+Title: Preserve Transitional Rule-Pack Owner Roots
 
 Blueprint: `_self`
 

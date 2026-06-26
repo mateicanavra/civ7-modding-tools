@@ -1,4 +1,8 @@
-# docs-site-config
+# Validate Docs Site Config Inputs
+
+Subject ID: `docs-site-config`
+
+Title: Validate Docs Site Config Inputs
 
 Blueprint: `docs-site`
 

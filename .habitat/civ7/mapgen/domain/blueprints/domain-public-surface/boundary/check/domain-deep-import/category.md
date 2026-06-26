@@ -1,4 +1,8 @@
-# domain-deep-import
+# Require Public Domain Surfaces In Recipes And Maps
+
+Subject ID: `domain-deep-import`
+
+Title: Require Public Domain Surfaces In Recipes And Maps
 
 Blueprint: `domain-public-surface`
 

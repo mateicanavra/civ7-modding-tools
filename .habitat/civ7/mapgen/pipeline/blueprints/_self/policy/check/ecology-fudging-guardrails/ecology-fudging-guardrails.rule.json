@@ -1,12 +1,16 @@
 {
   "id": "ecology-fudging-guardrails",
+  "title": "Prohibit Ecology Fudge Terms And Legacy Generator Surfaces",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "MapGen ecology, hydrology, placement, and adapter planning source surfaces",
   "forbids": "probabilistic fudge constructs, ad-hoc RNG calls, and legacy Civ7 generator calls in scoped planning surfaces",
   "why": "These source-token guardrails are structural enforcement and should be owned by Habitat rather than package tests.",
-  "detect": ["bun", ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/ecology-fudging-guardrails/ecology-fudging-guardrails.check.ts"],
+  "detect": [
+    "bun",
+    ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/ecology-fudging-guardrails/ecology-fudging-guardrails.check.ts"
+  ],
   "remediate": "Remove probabilistic fudge constructs or explicitly reclassify the invariant before changing this check.",
   "message": "MapGen source planning surface contains forbidden fudge, RNG, or legacy generator construct.",
   "exceptionPath": "none",

@@ -1,4 +1,8 @@
-# placement-outcome-boundary
+# Require Typed Placement Outcomes Before Apply
+
+Subject ID: `placement-outcome-boundary`
+
+Title: Require Typed Placement Outcomes Before Apply
 
 Blueprint: `placement-outcome`
 

@@ -1,4 +1,8 @@
-# viz-contract-ownership
+# Require Shared Visualization Contracts At Stage Surfaces
+
+Subject ID: `viz-contract-ownership`
+
+Title: Require Shared Visualization Contracts At Stage Surfaces
 
 Blueprint: `standard-recipe`
 

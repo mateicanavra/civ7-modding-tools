@@ -1,4 +1,8 @@
-# studio-recipe-artifacts-current
+# Verify Studio Recipe Artifacts Are Current
+
+Subject ID: `studio-recipe-artifacts-current`
+
+Title: Verify Studio Recipe Artifacts Are Current
 
 Blueprint: `recipe-artifact-supply`
 

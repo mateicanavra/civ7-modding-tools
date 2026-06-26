@@ -1,4 +1,8 @@
-# generator-schemas
+# Preserve Generator Schema Contracts
+
+Subject ID: `generator-schemas`
+
+Title: Preserve Generator Schema Contracts
 
 Blueprint: `generator`
 

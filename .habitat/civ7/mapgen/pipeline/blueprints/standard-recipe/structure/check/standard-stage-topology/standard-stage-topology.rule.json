@@ -1,5 +1,6 @@
 {
   "id": "standard-stage-topology",
+  "title": "Preserve Standard Stage Topology And Path Invariants",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

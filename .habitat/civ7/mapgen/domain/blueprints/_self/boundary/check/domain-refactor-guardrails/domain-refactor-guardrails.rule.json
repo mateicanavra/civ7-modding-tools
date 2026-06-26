@@ -1,5 +1,6 @@
 {
   "id": "domain-refactor-guardrails",
+  "title": "Enforce Domain Refactor Boundary Profile",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -15,7 +16,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/**"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**"
+      ]
     },
     {
       "kind": "project-owner"

@@ -1,4 +1,8 @@
-# viz-runtime-deps
+# Verify Visualization Runtime Build Artifacts
+
+Subject ID: `viz-runtime-deps`
+
+Title: Verify Visualization Runtime Build Artifacts
 
 Blueprint: `runtime-dependencies`
 

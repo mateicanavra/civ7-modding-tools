@@ -1,4 +1,8 @@
-# domain-deep-import-tests
+# Require Public Domain Surfaces In Tests
+
+Subject ID: `domain-deep-import-tests`
+
+Title: Require Public Domain Surfaces In Tests
 
 Blueprint: `domain-public-surface`
 

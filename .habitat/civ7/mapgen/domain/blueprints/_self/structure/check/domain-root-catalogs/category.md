@@ -1,4 +1,8 @@
-# domain-root-catalogs
+# Prohibit Retired Domain Root Catalogs
+
+Subject ID: `domain-root-catalogs`
+
+Title: Prohibit Retired Domain Root Catalogs
 
 Blueprint: `_self`
 

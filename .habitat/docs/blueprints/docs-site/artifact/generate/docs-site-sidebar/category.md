@@ -1,4 +1,8 @@
-# docs-site-sidebar
+# Generate Docs Sidebar From Docs Tree
+
+Subject ID: `docs-site-sidebar`
+
+Title: Generate Docs Sidebar From Docs Tree
 
 Blueprint: `docs-site`
 

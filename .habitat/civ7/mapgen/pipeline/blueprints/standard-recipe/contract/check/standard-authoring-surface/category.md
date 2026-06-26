@@ -1,4 +1,8 @@
-# standard-authoring-surface
+# Verify Standard Recipe Public Authoring Surface
+
+Subject ID: `standard-authoring-surface`
+
+Title: Verify Standard Recipe Public Authoring Surface
 
 Blueprint: `standard-recipe`
 

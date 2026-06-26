@@ -1,4 +1,8 @@
-# adapter-legacy-generator-boundary
+# Prohibit Adapter-Local Legacy Generator Logic
+
+Subject ID: `adapter-legacy-generator-boundary`
+
+Title: Prohibit Adapter-Local Legacy Generator Logic
 
 Blueprint: `civ7-adapter`
 

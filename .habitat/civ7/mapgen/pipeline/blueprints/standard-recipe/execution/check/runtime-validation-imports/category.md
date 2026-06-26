@@ -1,4 +1,8 @@
-# runtime-validation-imports
+# Prohibit Runtime Validation And Compiler Imports
+
+Subject ID: `runtime-validation-imports`
+
+Title: Prohibit Runtime Validation And Compiler Imports
 
 Blueprint: `standard-recipe`
 

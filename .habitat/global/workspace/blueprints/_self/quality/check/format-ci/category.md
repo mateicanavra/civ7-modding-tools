@@ -1,4 +1,8 @@
-# format-ci
+# Enforce Formatting And Import Hygiene
+
+Subject ID: `format-ci`
+
+Title: Enforce Formatting And Import Hygiene
 
 Blueprint: `_self`
 

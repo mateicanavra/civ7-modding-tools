@@ -1,19 +1,24 @@
 {
   "id": "adapter-boundary",
+  "title": "Block Unapproved Base-Standard Boundary Leaks",
   "ownerTool": "command-check",
   "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "packages/**",
   "forbids": "/base-standard/ imports outside packages/civ7-adapter",
   "why": "The adapter is the sole owner of Civ7 engine surfaces; leaks make engine coupling untrackable.",
-  "detect": [".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/adapter-boundary/adapter-boundary.check.sh"],
+  "detect": [
+    ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/adapter-boundary/adapter-boundary.check.sh"
+  ],
   "remediate": null,
   "message": "Move the /base-standard/ import into @civ7/adapter, or remove it from the allowlisted script debt.",
   "exceptionPath": "none",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/**"]
+      "patterns": [
+        "packages/**"
+      ]
     },
     {
       "kind": "project-owner"

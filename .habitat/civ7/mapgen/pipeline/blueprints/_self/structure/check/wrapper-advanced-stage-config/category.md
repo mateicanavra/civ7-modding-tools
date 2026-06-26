@@ -1,4 +1,8 @@
-# wrapper-advanced-stage-config
+# Prohibit Wrapper-Only Advanced Config
+
+Subject ID: `wrapper-advanced-stage-config`
+
+Title: Prohibit Wrapper-Only Advanced Config
 
 Blueprint: `_self`
 

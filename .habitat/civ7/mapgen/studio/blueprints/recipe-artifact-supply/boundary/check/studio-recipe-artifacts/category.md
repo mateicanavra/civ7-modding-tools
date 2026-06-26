@@ -1,4 +1,8 @@
-# studio-recipe-artifacts
+# Require Studio UI Recipe Artifact Imports
+
+Subject ID: `studio-recipe-artifacts`
+
+Title: Require Studio UI Recipe Artifact Imports
 
 Blueprint: `recipe-artifact-supply`
 

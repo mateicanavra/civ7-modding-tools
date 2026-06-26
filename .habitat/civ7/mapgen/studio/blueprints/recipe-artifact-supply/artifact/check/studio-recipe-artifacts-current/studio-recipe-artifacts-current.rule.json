@@ -1,5 +1,6 @@
 {
   "id": "studio-recipe-artifacts-current",
+  "title": "Verify Studio Recipe Artifacts Are Current",
   "ownerTool": "command-check",
   "ownerProject": "mapgen-studio",
   "lane": "enforced",

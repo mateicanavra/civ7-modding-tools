@@ -1,4 +1,8 @@
-# docs-site-links
+# Verify Docs Site Link Integrity
+
+Subject ID: `docs-site-links`
+
+Title: Verify Docs Site Link Integrity
 
 Blueprint: `docs-site`
 

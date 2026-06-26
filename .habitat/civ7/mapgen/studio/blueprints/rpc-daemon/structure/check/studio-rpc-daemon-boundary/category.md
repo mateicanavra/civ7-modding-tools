@@ -1,4 +1,8 @@
-# studio-rpc-daemon-boundary
+# Enforce Studio RPC EventHub Topology
+
+Subject ID: `studio-rpc-daemon-boundary`
+
+Title: Enforce Studio RPC EventHub Topology
 
 Blueprint: `rpc-daemon`
 

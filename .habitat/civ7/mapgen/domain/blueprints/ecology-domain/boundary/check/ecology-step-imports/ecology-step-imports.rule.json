@@ -1,5 +1,6 @@
 {
   "id": "ecology-step-imports",
+  "title": "Require Public Ecology Surfaces And Retired Topology Removal",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

@@ -1,18 +1,27 @@
 {
   "id": "sdk-mapgen-entrypoint",
+  "title": "Require Explicit MapGen SDK Opt-In",
   "ownerTool": "source-check",
   "ownerProject": "civ7-sdk",
   "lane": "enforced",
   "scope": "packages/sdk/src/**/*.ts and packages/mapgen-core/src/**/*.ts",
   "forbids": "SDK root importing/exporting ./mapgen or Civ7 adapter imports outside mapgen runtime subpath",
   "why": "General SDK authoring APIs stay runtime-neutral; mapgen bindings are explicit opt-in.",
-  "detect": ["habitat", "check", "--tool", "source-check"],
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "source-check"
+  ],
   "remediate": null,
   "message": "Keep Civ7 map runtime bindings behind @mateicanavra/civ7-sdk/mapgen.",
   "exceptionPath": "none",
   "patternName": "sdk_mapgen_entrypoint",
   "hookCheck": true,
-  "scanRoots": ["packages/sdk/src", "packages/mapgen-core/src"],
+  "scanRoots": [
+    "packages/sdk/src",
+    "packages/mapgen-core/src"
+  ],
   "pathCoverage": [
     {
       "kind": "exact-path",

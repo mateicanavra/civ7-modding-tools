@@ -1,4 +1,8 @@
-# runtime-config-merge
+# Prohibit Runtime-Local Config Default Merging
+
+Subject ID: `runtime-config-merge`
+
+Title: Prohibit Runtime-Local Config Default Merging
 
 Blueprint: `standard-recipe`
 

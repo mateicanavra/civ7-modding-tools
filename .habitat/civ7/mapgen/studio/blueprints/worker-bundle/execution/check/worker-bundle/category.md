@@ -1,4 +1,8 @@
-# worker-bundle
+# Ensure Studio Worker Bundle Is Browser-Safe
+
+Subject ID: `worker-bundle`
+
+Title: Ensure Studio Worker Bundle Is Browser-Safe
 
 Blueprint: `worker-bundle`
 

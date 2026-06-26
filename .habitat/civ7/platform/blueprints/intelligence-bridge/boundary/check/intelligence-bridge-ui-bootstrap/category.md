@@ -1,4 +1,8 @@
-# intelligence-bridge-ui-bootstrap
+# Require Narrow Game-UI Bridge Bootstrap
+
+Subject ID: `intelligence-bridge-ui-bootstrap`
+
+Title: Require Narrow Game-UI Bridge Bootstrap
 
 Blueprint: `intelligence-bridge`
 

@@ -1,4 +1,8 @@
-# contract-export-all
+# Prohibit Bare Value Export-All From Contract Surfaces
+
+Subject ID: `contract-export-all`
+
+Title: Prohibit Bare Value Export-All From Contract Surfaces
 
 Blueprint: `standard-recipe`
 

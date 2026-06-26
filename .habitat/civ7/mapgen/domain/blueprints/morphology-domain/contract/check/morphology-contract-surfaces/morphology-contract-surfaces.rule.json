@@ -1,5 +1,6 @@
 {
   "id": "morphology-contract-surfaces",
+  "title": "Preserve Morphology Contracts And Overlay Ownership",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

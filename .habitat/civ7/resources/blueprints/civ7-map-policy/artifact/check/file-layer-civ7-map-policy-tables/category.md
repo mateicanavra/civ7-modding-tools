@@ -1,4 +1,8 @@
-# file-layer-civ7-map-policy-tables
+# Block Hand-Edits To Generated Map-Policy Tables
+
+Subject ID: `file-layer-civ7-map-policy-tables`
+
+Title: Block Hand-Edits To Generated Map-Policy Tables
 
 Blueprint: `civ7-map-policy`
 

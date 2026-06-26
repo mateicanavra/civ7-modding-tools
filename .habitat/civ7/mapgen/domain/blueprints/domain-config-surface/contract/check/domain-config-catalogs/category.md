@@ -1,4 +1,8 @@
-# domain-config-catalogs
+# Require Owned Domain Config Catalog Surfaces
+
+Subject ID: `domain-config-catalogs`
+
+Title: Require Owned Domain Config Catalog Surfaces
 
 Blueprint: `domain-config-surface`
 
