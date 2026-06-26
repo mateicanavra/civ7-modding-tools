@@ -120,4 +120,9 @@ git diff --check
 
 ## Conflict Resolution Notes
 
-No post-fold restack conflicts have been recorded yet.
+- `codex/habitat-effect-substrate-service-roots`: Swooper generated map entrypoint hash conflicts in `mountains-of-time-earthlike.ts` and `mountains-of-time-original.ts` were resolved by running `bun run --cwd mods/mod-swooper-maps gen:maps`; no generated file was hand-merged.
+- `codex/habitat-authority-tree-relocation`: package-local Swooper contract guard tests were deleted only after carrying trunk's split `foundation-*` and `morphology-shelf` intent into the migrated Habitat command checks. Direct proof run: `foundation-contract-surfaces` and `map-contract-surfaces`.
+- `codex/habitat-package-taskgraph-embedded-authority`: root and Swooper package taskgraph conflicts resolved in favor of graph-owned Nx targets and thin root Nx entrypoints, while preserving the non-Nx `restart:mapgen-studio` helper. Contributor docs now use `nx run mapgen-studio:dev` plus `bun run restart:mapgen-studio`.
+- `codex/habitat-package-taskgraph-embedded-authority`: embedded Swooper test authority conflicts were resolved by deleting superseded package tests after validating replacement Habitat command checks for `standard-authoring-surface`, `standard-recipe-artifact-parity`, and `ecology-fudging-guardrails`.
+- `codex/habitat-package-taskgraph-embedded-authority`: generated Studio recipe artifacts were refreshed through the graph-owned `nx run mod-swooper-maps:build:studio-recipes --outputStyle=static` target. The artifact parity rule now allows the explicit internal-as-public `foundation-orogeny.crust-evolution.computeCrustEvolution` raw-envelope path and rejects any other raw generated default envelope.
+- `codex/habitat-authority-physicalization-sourcecheck-burn`: repeated `package.json` docs generator path conflicts were resolved to the final authority-tree location, `./.habitat/docs/blueprints/docs-site/artifact/generate/generate_docs_sidebar_from_docs_tree/generate_docs_sidebar_from_docs_tree.generate.sh`, while preserving the Studio restart helper.
