@@ -1,9 +1,9 @@
 import {
   type DiagnosticAdapterFailureKind,
   renderDiagnosticAdapterFailure,
-} from "../../lib/diagnostic-catalog/index.js";
+} from "../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../../rules/registry/index.js";
 
 export function infrastructureFailure(
   rule: RulePatternFacts,

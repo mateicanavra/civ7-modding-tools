@@ -5,9 +5,12 @@ import { CommandInterrupted, CommandUnavailable } from "../../src/errors/index.j
 import { repoRoot } from "../../src/lib/paths.js";
 import {
   CommandRunner,
+  captureOutput,
   makeFakeCommandRunnerLayer,
   makeHabitatCommandResult,
   materializeHabitatCommandWithConfig,
+  redactEnvDelta,
+  renderCommandObservation,
 } from "../../src/providers/command/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 
@@ -53,6 +56,59 @@ describe("CommandRunner", () => {
 
     expect(result.commandId).toBe("fake-command");
     expect(result.stdout.text).toBe("fake\n");
+    expect(result.observation).toMatchObject({ kind: "completed", exitCode: 0 });
+    expect("parseStatus" in result).toBe(false);
+    expect("failureTag" in result).toBe(false);
+  });
+
+  test("derives discriminated command observations from exit state", () => {
+    const failed = makeHabitatCommandResult(
+      {
+        commandId: "failed-command",
+        kind: "workspace-tool",
+        executable: "node",
+        argv: ["--bad-flag"],
+        cwd: repoRoot,
+      },
+      {
+        exit: { code: 2, signal: null, interrupted: false },
+      }
+    );
+    const interrupted = makeHabitatCommandResult(
+      {
+        commandId: "interrupted-command",
+        kind: "workspace-tool",
+        executable: "node",
+        argv: ["--bad-flag"],
+        cwd: repoRoot,
+      },
+      {
+        exit: { code: 130, signal: "SIGTERM", interrupted: true },
+      }
+    );
+
+    expect(failed.observation).toMatchObject({ kind: "failed", exitCode: 2 });
+    expect(interrupted.observation).toMatchObject({
+      kind: "interrupted",
+      exitCode: 130,
+      signal: "SIGTERM",
+    });
+    expect(renderCommandObservation(interrupted.observation)).toBe("interrupted by SIGTERM");
+  });
+
+  test("redacts sensitive env values and preserves output digests under truncation", () => {
+    const env = redactEnvDelta({
+      HABITAT_TOKEN: "secret-token",
+      HABITAT_MODE: "local",
+    });
+    const output = captureOutput("x".repeat(4 * 1024 * 1024 + 8));
+
+    expect(env.HABITAT_TOKEN).toEqual({ value: "<redacted>", redacted: true });
+    expect(env.HABITAT_MODE).toEqual({ value: "local", redacted: false });
+    expect(output.truncated).toBe(true);
+    expect(output.text.length).toBe(4 * 1024 * 1024);
+    expect(output.bytes).toBe(4 * 1024 * 1024 + 8);
+    expect(output.sha256).toHaveLength(64);
   });
 
   test("reports unavailable commands as generic provider errors", async () => {

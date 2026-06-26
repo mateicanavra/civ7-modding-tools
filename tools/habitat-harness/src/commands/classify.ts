@@ -1,6 +1,6 @@
 import { Args } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { stringifyClassifyResult } from "../lib/classify-core/schema.js";
+import { stringifyClassifyResult } from "../domains/workspace-graph-integration/schema.js";
 import { createHabitatServiceClient } from "../service/client.js";
 
 export default class Classify extends HabitatCommand {

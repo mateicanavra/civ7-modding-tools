@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { type HabitatCommandGitState, unknownGitState } from "../../lib/git-state.js";
+import { commandObservationFromExit } from "./observation.js";
 import type {
   HabitatCommandResult,
   HabitatProcessRequest,
@@ -18,6 +19,7 @@ export function makeHabitatCommandResult(
   const startedAt = overrides.timing?.startedAt ?? new Date(0).toISOString();
   const endedAt = overrides.timing?.endedAt ?? startedAt;
   const exit = overrides.exit ?? { code: 0, signal: null, interrupted: false };
+  const cachePolicy = request.cachePolicy ?? { mode: "default", observableStatus: "unknown" };
   return {
     commandId: request.commandId,
     kind: request.kind,
@@ -29,7 +31,7 @@ export function makeHabitatCommandResult(
     envDelta: redactEnvDelta(request.env),
     gitState: overrides.gitState ?? unknownGitState(),
     scanRoots: [...(request.scanRoots ?? [])],
-    cachePolicy: request.cachePolicy ?? { mode: "default", observableStatus: "unknown" },
+    cachePolicy,
     timing: {
       startedAt,
       endedAt,
@@ -39,9 +41,14 @@ export function makeHabitatCommandResult(
     exit,
     stdout: overrides.stdout ?? captureOutput(""),
     stderr: overrides.stderr ?? captureOutput(""),
-    parseStatus: overrides.parseStatus ?? "unparsed",
-    failureTag:
-      overrides.failureTag ?? (exit.code === 0 && !exit.interrupted ? null : "CommandFailed"),
+    observation:
+      overrides.observation ??
+      commandObservationFromExit({
+        exitCode: exit.code,
+        signal: exit.signal,
+        interrupted: exit.interrupted,
+        cachePolicy,
+      }),
   };
 }
 
@@ -78,7 +85,6 @@ export function makeCommandResultFromObservation(
     },
     stdout: captureOutput(observation.stdout),
     stderr: captureOutput(observation.stderr),
-    failureTag: observation.exitCode === 0 && !observation.interrupted ? null : "CommandFailed",
   });
 }
 

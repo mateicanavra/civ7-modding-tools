@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
+import type { WorkspaceGraphProjectReader } from "../../src/domains/workspace-graph-integration/index.js";
 import {
   classifyPath,
   classifyPathResult,
   classifyTarget,
   classifyTargetResult,
   validateClassifyResult,
-} from "../../src/lib/classify.js";
-import type { WorkspaceGraphProjectReader } from "../../src/lib/workspace-graph/index.js";
-import type { WorkspaceProject } from "../../src/lib/workspace-graph/schema.js";
+} from "../../src/domains/workspace-graph-integration/index.js";
+import type { WorkspaceProject } from "../../src/providers/nx/schema.js";
 
 const fixtureNxProjects: WorkspaceGraphProjectReader = {
   async readProjects() {

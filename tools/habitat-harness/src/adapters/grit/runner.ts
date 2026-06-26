@@ -1,5 +1,4 @@
-import { Effect, Layer } from "effect";
-import { CommandUnavailable } from "../../errors/index.js";
+import { Effect, type Layer } from "effect";
 import {
   type DiagnosticAdapterFailureKind,
   type DiagnosticCacheObservation,
@@ -7,46 +6,38 @@ import {
   type DiagnosticScanRootRefusal,
   diagnosticCatalogEntryFromRulePatternFacts,
   renderDiagnosticScanRootRefusal,
-} from "../../lib/diagnostic-catalog/index.js";
+} from "../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../domains/rule-registry/index.js";
 import { runHabitatEffect } from "../../lib/effect-runtime.js";
-import { HabitatProcess } from "../../lib/habitat-process.js";
-import {
-  GritProvider,
-  type GritProviderService,
-  gritCheckRequest,
-} from "../../providers/grit/index.js";
 import type { RuleRunResult } from "../../rules/architecture.js";
-import type { RulePatternFacts } from "../../rules/registry/index.js";
 import {
   gritDiagnosticOutcomesFromReport,
   ruleRunResultsFromDiagnosticOutcomes,
 } from "./diagnostics.js";
-import { runDocsApplyBackedDiagnosticOutcomes, runDocsApplyBackedGritRules } from "./docs-apply.js";
+import { runDocsApplyBackedDiagnosticOutcomesEffect } from "./docs-apply.js";
 import { infrastructureFailure } from "./failure.js";
+import type { GritDiagnosticAcquisition } from "./output.js";
+import { GritProvider, type GritProviderRequirements } from "./provider/index.js";
+import type {
+  GritCheckCacheMode,
+  GritCheckOutputFormat,
+  GritDiagnosticOptions,
+} from "./provider/types.js";
 import { gritCheckProgram } from "./request.js";
 import {
-  decideEffectivePatternScanRoots,
+  decidePatternScanRoots,
   ruleHasDocsScanRoot,
   ruleUsesDocsApplyDryRun,
   selectedScanRootsForRules,
 } from "./scan-roots/index.js";
-import type {
-  GritCheckCacheMode,
-  GritCheckOutputFormat,
-  GritDiagnosticAcquisition,
-  GritDiagnosticOptions,
-} from "./types.js";
 
 interface GritRunOptions {
   scanRoots?: readonly string[];
-  processLayer?: Layer.Layer<HabitatProcess>;
   providerLayer?: Layer.Layer<GritProvider>;
   cacheMode?: GritCheckCacheMode;
   requireObservableCacheStatus?: boolean;
   diagnostics?: GritDiagnosticOptions;
 }
-
-const LIVE_SOURCE_BATCH_RULE_LIMIT = 1;
 
 export async function runGritRule(rule: RulePatternFacts): Promise<RuleRunResult> {
   const results = await runGritRules([rule]);
@@ -59,104 +50,131 @@ export async function runGritRules(
   selectedRules: readonly RulePatternFacts[],
   options: GritRunOptions = {}
 ): Promise<Map<string, RuleRunResult>> {
-  if (selectedRules.length === 0) return new Map();
-  const docsRules = selectedRules.filter(ruleHasDocsScanRoot);
-  const docsApplyBackedRules = docsRules.filter(ruleUsesDocsApplyDryRun);
-  const docsCheckRules = docsRules.filter((rule) => !ruleUsesDocsApplyDryRun(rule));
-  const sourceRules = selectedRules.filter((rule) => !ruleHasDocsScanRoot(rule));
-  if (docsRules.length > 0 && sourceRules.length > 0) {
-    return new Map([
-      ...(await runGritRuleGroup(sourceRules, options, "json")),
-      ...(await runDocsApplyBackedGritRules(docsApplyBackedRules, options)),
-      ...(await runGritRuleGroup(docsCheckRules, options, "text")),
-    ]);
-  }
-  if (docsApplyBackedRules.length > 0 && docsCheckRules.length > 0) {
-    return new Map([
-      ...(await runDocsApplyBackedGritRules(docsApplyBackedRules, options)),
-      ...(await runGritRuleGroup(docsCheckRules, options, "text")),
-    ]);
-  }
-  if (docsApplyBackedRules.length > 0) {
-    return runDocsApplyBackedGritRules(docsApplyBackedRules, options);
-  }
-  return runGritRuleGroup(selectedRules, options, docsRules.length > 0 ? "text" : "json");
+  return runHabitatEffect(
+    options.providerLayer
+      ? runGritRulesEffect(selectedRules, options).pipe(Effect.provide(options.providerLayer))
+      : runGritRulesEffect(selectedRules, options)
+  );
+}
+
+export function runGritRulesEffect(
+  selectedRules: readonly RulePatternFacts[],
+  options: Omit<GritRunOptions, "providerLayer"> = {}
+): Effect.Effect<Map<string, RuleRunResult>, never, GritProvider | GritProviderRequirements> {
+  return runGritDiagnosticOutcomesEffect(selectedRules, options).pipe(
+    Effect.map((outcomes) => ruleRunResultsFromDiagnosticOutcomes(selectedRules, outcomes))
+  );
 }
 
 export async function runGritDiagnosticOutcomes(
   selectedRules: readonly RulePatternFacts[],
   options: GritRunOptions = {}
 ): Promise<Map<string, DiagnosticRunOutcome>> {
-  if (selectedRules.length === 0) return new Map();
+  return runHabitatEffect(
+    options.providerLayer
+      ? runGritDiagnosticOutcomesEffect(selectedRules, options).pipe(
+          Effect.provide(options.providerLayer)
+        )
+      : runGritDiagnosticOutcomesEffect(selectedRules, options)
+  );
+}
+
+export function runGritDiagnosticOutcomesEffect(
+  selectedRules: readonly RulePatternFacts[],
+  options: Omit<GritRunOptions, "providerLayer"> = {}
+): Effect.Effect<
+  Map<string, DiagnosticRunOutcome>,
+  never,
+  GritProvider | GritProviderRequirements
+> {
+  if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
   const docsRules = selectedRules.filter(ruleHasDocsScanRoot);
   const docsApplyBackedRules = docsRules.filter(ruleUsesDocsApplyDryRun);
   const docsCheckRules = docsRules.filter((rule) => !ruleUsesDocsApplyDryRun(rule));
   const sourceRules = selectedRules.filter((rule) => !ruleHasDocsScanRoot(rule));
-  return new Map([
-    ...(await runDocsApplyBackedDiagnosticOutcomes(docsApplyBackedRules, options)),
-    ...(await runGritRuleOutcomeGroup(sourceRules, options, "json")),
-    ...(await runGritRuleOutcomeGroup(docsCheckRules, options, "text")),
-  ]);
+  return Effect.all(
+    [
+      runGritRuleOutcomeGroupEffect(sourceRules, options, "json"),
+      runDocsApplyBackedDiagnosticOutcomesEffect(docsApplyBackedRules, options),
+      runGritRuleOutcomeGroupEffect(docsCheckRules, options, "text"),
+    ],
+    { concurrency: 1 }
+  ).pipe(Effect.map((groups) => new Map(groups.flatMap((group) => [...group]))));
 }
 
-async function runGritRuleGroup(
+function runGritRuleOutcomeGroupEffect(
   selectedRules: readonly RulePatternFacts[],
-  options: GritRunOptions,
+  options: Omit<GritRunOptions, "providerLayer">,
   outputFormat: GritCheckOutputFormat
-): Promise<Map<string, RuleRunResult>> {
-  return ruleRunResultsFromDiagnosticOutcomes(
-    selectedRules,
-    await runGritRuleOutcomeGroup(selectedRules, options, outputFormat)
-  );
-}
-
-async function runGritRuleOutcomeGroup(
-  selectedRules: readonly RulePatternFacts[],
-  options: GritRunOptions,
-  outputFormat: GritCheckOutputFormat
-): Promise<Map<string, DiagnosticRunOutcome>> {
+): Effect.Effect<
+  Map<string, DiagnosticRunOutcome>,
+  never,
+  GritProvider | GritProviderRequirements
+> {
+  if (selectedRules.length === 0) return Effect.succeed(new Map<string, DiagnosticRunOutcome>());
   const requestedScanRoots = selectedScanRootsForRules(selectedRules, options.scanRoots);
-  const scanRootDecision = decideEffectivePatternScanRoots(selectedRules, requestedScanRoots, {
+  const scanRootDecision = decidePatternScanRoots(requestedScanRoots, {
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     approvedScanRoots: selectedRules.flatMap((rule) => rule.scanRoots),
   });
   if (scanRootDecision.kind === "refused") {
-    return new Map(
-      selectedRules.map((rule) => [
-        rule.id,
-        scanRootRefusedOutcome(
-          rule,
-          scanRootDecision,
-          renderDiagnosticScanRootRefusal(scanRootDecision)
-        ),
-      ])
+    return Effect.succeed(
+      new Map(
+        selectedRules.map((rule) => [
+          rule.id,
+          scanRootRefusedOutcome(
+            rule,
+            scanRootDecision,
+            renderDiagnosticScanRootRefusal(scanRootDecision)
+          ),
+        ])
+      )
     );
   }
-  const scanRoots =
-    scanRootDecision.kind === "expanded-test-files"
-      ? scanRootDecision.effectiveRoots
-      : scanRootDecision.roots;
-  const schedulingFailure = liveSourceBatchSchedulingFailure(selectedRules, options, outputFormat);
-  if (schedulingFailure) {
-    return new Map(
-      selectedRules.map((rule) => [
-        rule.id,
-        adapterFailedOutcome(rule, "GritAdapterInternalContractViolation", schedulingFailure),
-      ])
+  if (scanRootDecision.kind !== "accepted") {
+    return Effect.succeed(
+      new Map(
+        selectedRules.map((rule) => [
+          rule.id,
+          adapterFailedOutcome(
+            rule,
+            "GritAdapterInternalContractViolation",
+            "Unexpected scan-root expansion decision after ignored-test expansion removal."
+          ),
+        ])
+      )
     );
   }
+  const scanRoots = scanRootDecision.roots;
   const program = gritCheckProgram(scanRoots, {
     cacheMode: options.cacheMode,
     requireObservableCacheStatus: options.requireObservableCacheStatus,
     allowDocsRoot: selectedRules.some(ruleHasDocsScanRoot),
     outputFormat,
   });
-  const providerLayer = options.processLayer
-    ? gritProviderLayerForOptions(options)
-    : options.providerLayer;
-  const acquisition = await runHabitatEffect(
-    providerLayer ? program.pipe(Effect.provide(providerLayer)) : program
+  return program.pipe(
+    Effect.match({
+      onFailure: (error) =>
+        new Map(
+          selectedRules.map((rule) => [
+            rule.id,
+            adapterFailedOutcome(
+              rule,
+              "GritToolUnavailable",
+              error instanceof Error ? error.message : "Grit cache or command resource unavailable."
+            ),
+          ])
+        ),
+      onSuccess: (acquisition) => outcomesFromAcquisition(selectedRules, acquisition, options),
+    })
   );
+}
+
+function outcomesFromAcquisition(
+  selectedRules: readonly RulePatternFacts[],
+  acquisition: GritDiagnosticAcquisition,
+  options: GritRunOptions
+): Map<string, DiagnosticRunOutcome> {
   switch (acquisition.kind) {
     case "parsed":
       return gritDiagnosticOutcomesFromReport(
@@ -190,65 +208,6 @@ async function runGritRuleOutcomeGroup(
         ])
       );
   }
-}
-
-function liveSourceBatchSchedulingFailure(
-  selectedRules: readonly RulePatternFacts[],
-  options: GritRunOptions,
-  outputFormat: GritCheckOutputFormat
-): string | null {
-  if (options.processLayer) return null;
-  if (outputFormat !== "json") return null;
-  if (selectedRules.length <= LIVE_SOURCE_BATCH_RULE_LIMIT) return null;
-  return [
-    `Refusing to run ${selectedRules.length} source-backed Grit rules as one live batch.`,
-    "This Habitat adapter cannot schedule broad source-wide Grit execution safely yet.",
-    "Move this lane to GritProvider batching/resource scheduling before enabling aggregate execution.",
-  ].join(" ");
-}
-
-function gritProviderLayerForOptions(options: GritRunOptions): Layer.Layer<GritProvider> {
-  const processLayer = options.processLayer;
-  if (!processLayer) throw new Error("processLayer is required for test-backed Grit provider");
-  return Layer.effect(
-    GritProvider,
-    HabitatProcess.pipe(
-      Effect.map(
-        (process): GritProviderService => ({
-          check: (request) =>
-            process
-              .run(
-                gritCheckRequest(request.scanRoots, {
-                  cacheDir: request.cacheDir,
-                  observableCacheStatus: request.observableCacheStatus,
-                  outputFormat: request.outputFormat,
-                  timeoutMs: request.timeoutMs,
-                })
-              )
-              .pipe(
-                Effect.mapError((error) =>
-                  error._tag === "GritToolUnavailable"
-                    ? new CommandUnavailable({
-                        commandId: error.commandId,
-                        executable: error.executable,
-                        argv: error.argv,
-                        cwd: error.cwd,
-                        cause: error.cause,
-                      })
-                    : error
-                )
-              ),
-          checkRequest: (request) =>
-            gritCheckRequest(request.scanRoots, {
-              cacheDir: request.cacheDir,
-              observableCacheStatus: request.observableCacheStatus,
-              outputFormat: request.outputFormat,
-              timeoutMs: request.timeoutMs,
-            }),
-        })
-      )
-    )
-  ).pipe(Layer.provide(processLayer));
 }
 
 function missingCacheObservation(

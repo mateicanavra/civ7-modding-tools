@@ -13,20 +13,22 @@ drain proceeds.
 - Add a `fix` Habitat service module under `src/service/modules/fix/**`.
 - Compose `fix` into the root Habitat service contract and router.
 - Route `src/commands/fix.ts` through the in-process Habitat service client.
-- Move fix intent/admission/worktree/transaction orchestration into the fix
-  service module and delete the old `src/lib/fix.ts` wrapper path.
+- Move fix intent/admission orchestration into the fix service module and
+  delete the old `src/lib/fix.ts` wrapper path.
+- Move pattern apply contracts, transaction input resolution, refusal records,
+  rendering, and worktree observation into
+  `src/domains/transformation-transaction/**`; delete active
+  `src/lib/pattern-apply/**` feature logic instead of preserving wrappers.
 - Handle D0 public-surface row `D0-package-export-symbol-runfix` as `refuse`:
   no replacement package helper export is introduced.
 - Preserve the current fix result contract: `{ exitCode, stdout, stderr }`.
-- Record the remaining transformation transaction and protected-zone domain
-  drain as the next implementation unit.
+- Record protected-zone domain drainage as a later implementation unit.
 
 ## What Does Not Change
 
 - No live write escalation beyond current dry-run/refusal behavior.
 - No protected-zone policy relaxation.
-- No movement of lower-level pattern apply or protected-zone internals in this
-  slice.
+- No movement of protected-zone internals in this slice.
 
 ## Verification
 

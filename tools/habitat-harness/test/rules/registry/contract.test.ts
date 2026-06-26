@@ -1,15 +1,16 @@
 import { describe, expect, test } from "vitest";
-import { rules } from "../../../src/rules/architecture.js";
 import {
   parseRuleRegistryDocument,
   parseRuleRegistryText,
-} from "../../../src/rules/registry/index.js";
+} from "../../../src/domains/rule-registry/index.js";
+import { rules } from "../../../src/rules/architecture.js";
 import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
-    expect(rules).toHaveLength(50);
-    expect(rules.filter((rule) => rule.ownerTool === "pattern-check")).toHaveLength(33);
+    expect(rules).toHaveLength(51);
+    expect(rules.filter((rule) => rule.ownerTool === "pattern-check")).toHaveLength(32);
+    expect(rules.filter((rule) => rule.ownerTool === "habitat")).toHaveLength(1);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
     expect(
       rules

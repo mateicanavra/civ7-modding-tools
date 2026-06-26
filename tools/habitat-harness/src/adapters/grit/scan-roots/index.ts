@@ -1,13 +1,13 @@
-import { existsSync, readdirSync, statSync } from "node:fs";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import {
   type DiagnosticScanRootDecision,
   renderDiagnosticScanRootRefusal,
-} from "../../../lib/diagnostic-catalog/index.js";
+} from "../../../domains/diagnostic-pattern-catalog/index.js";
+import type { RulePatternFacts } from "../../../domains/rule-registry/index.js";
 import { repoRoot, toRepoRelative } from "../../../lib/paths.js";
 import { decideScanRootProtection } from "../../../lib/protected-zones/index.js";
-import type { RulePatternFacts } from "../../../rules/registry/index.js";
-import { gritCandidateExtensions, protectedScanRootPrefixes } from "../constants.js";
+import { protectedScanRootPrefixes } from "../provider/constants.js";
 
 export interface PatternScanRootValidationOptions {
   requireExisting?: boolean;
@@ -35,35 +35,6 @@ export function discoverPatternScanRoots(
   return uniqueRepoRelative(declaredRoots).filter((scanPath) =>
     existsSync(path.join(repoRoot, scanPath))
   );
-}
-
-export function effectivePatternScanRoots(
-  selectedRules: readonly RulePatternFacts[],
-  scanRoots: readonly string[]
-): string[] {
-  if (!selectedRules.some(ruleIncludesIgnoredTestFiles)) return [...scanRoots];
-  const exactTestFiles = scanRoots.flatMap(collectIgnoredTestFiles);
-  if (exactTestFiles.length === 0) return [...scanRoots];
-  return sortedUnique([
-    ...scanRoots.filter((scanRoot) => !isIgnoredTestDirectoryRoot(scanRoot)),
-    ...exactTestFiles,
-  ]);
-}
-
-export function decideEffectivePatternScanRoots(
-  selectedRules: readonly RulePatternFacts[],
-  requestedRoots: readonly string[],
-  options: PatternScanRootValidationOptions = {}
-): DiagnosticScanRootDecision {
-  const effectiveRoots = effectivePatternScanRoots(selectedRules, requestedRoots);
-  const decision = decidePatternScanRoots(effectiveRoots, options);
-  if (decision.kind !== "accepted") return decision;
-  if (sameRoots(requestedRoots, effectiveRoots)) return decision;
-  return {
-    kind: "expanded-test-files",
-    requestedRoots: [...requestedRoots],
-    effectiveRoots,
-  };
 }
 
 export function validateScanRoots(
@@ -115,7 +86,8 @@ export function ruleUsesDocsApplyDryRun(rule: RulePatternFacts): boolean {
 }
 
 export function isDocsScanRoot(scanRoot: string): boolean {
-  return path.extname(toRepoRelative(scanRoot)) === ".md";
+  const relative = toRepoRelative(scanRoot);
+  return relative === "docs" || relative.startsWith("docs/") || path.extname(relative) === ".md";
 }
 
 export function normalizeGritPath(gritPath: string | undefined): string {
@@ -127,83 +99,12 @@ export function sortedUnique(values: readonly string[]): string[] {
   return [...new Set(values.map(toRepoRelative))].sort((a, b) => a.localeCompare(b));
 }
 
-function sameRoots(left: readonly string[], right: readonly string[]): boolean {
-  if (left.length !== right.length) return false;
-  return left.every((value, index) => value === right[index]);
-}
-
 function uniqueRepoRelative(values: readonly string[]): string[] {
   return [...new Set(values.map(toRepoRelative))];
 }
 
 function declaredScanRootsForRule(rule: RulePatternFacts): string[] {
-  if (!ruleUsesDocsApplyDryRun(rule)) return [...rule.scanRoots];
-  return rule.scanRoots.flatMap(collectMarkdownScanRoots);
-}
-
-function collectMarkdownScanRoots(scanRoot: string): string[] {
-  const absolute = path.join(repoRoot, scanRoot);
-  if (!existsSync(absolute)) return [];
-  const relative = toRepoRelative(absolute);
-  const stats = statSync(absolute);
-  if (stats.isFile()) return path.extname(relative) === ".md" ? [relative] : [];
-  if (!stats.isDirectory()) return [];
-  const files: string[] = [];
-  collectMarkdownFiles(absolute, files);
-  return files.map(toRepoRelative);
-}
-
-function collectMarkdownFiles(absoluteRoot: string, files: string[]): void {
-  for (const entry of readdirSync(absoluteRoot, { withFileTypes: true })) {
-    const absolute = path.join(absoluteRoot, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === ".git") continue;
-      collectMarkdownFiles(absolute, files);
-      continue;
-    }
-    if (entry.isFile() && path.extname(entry.name) === ".md") files.push(absolute);
-  }
-}
-
-function ruleIncludesIgnoredTestFiles(rule: RulePatternFacts): boolean {
-  return rule.expandIgnoredTestDirectories === true;
-}
-
-function collectIgnoredTestFiles(scanRoot: string): string[] {
-  const absolute = path.resolve(repoRoot, scanRoot);
-  if (!existsSync(absolute)) return [];
-  const relative = toRepoRelative(absolute);
-  const stats = statSync(absolute);
-  if (stats.isFile()) return isIgnoredTestCandidate(relative) ? [relative] : [];
-  if (!stats.isDirectory()) return [];
-  const files: string[] = [];
-  collectFiles(absolute, files);
-  return files.map(toRepoRelative).filter(isIgnoredTestCandidate);
-}
-
-function isIgnoredTestDirectoryRoot(scanRoot: string): boolean {
-  const absolute = path.resolve(repoRoot, scanRoot);
-  if (!existsSync(absolute)) return false;
-  if (!statSync(absolute).isDirectory()) return false;
-  const relative = toRepoRelative(absolute);
-  return relative.endsWith("/test") || relative.includes("/test/");
-}
-
-function collectFiles(absoluteRoot: string, files: string[]): void {
-  for (const entry of readdirSync(absoluteRoot, { withFileTypes: true })) {
-    const absolute = path.join(absoluteRoot, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name === "node_modules" || entry.name === "dist" || entry.name === ".git") continue;
-      collectFiles(absolute, files);
-      continue;
-    }
-    if (entry.isFile()) files.push(absolute);
-  }
-}
-
-function isIgnoredTestCandidate(relative: string): boolean {
-  if (!gritCandidateExtensions.has(path.extname(relative))) return false;
-  return relative.includes("/test/") || /\.test\.[cm]?[jt]sx?$/.test(relative);
+  return [...rule.scanRoots];
 }
 
 function isApprovedScanRoot(

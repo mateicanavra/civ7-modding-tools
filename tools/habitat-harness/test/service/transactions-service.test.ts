@@ -1,17 +1,20 @@
 import { describe, expect, test } from "vitest";
+import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
+import type {
+  ApplyAdmission,
+  ApplyTransactionInput,
+} from "../../src/domains/pattern-governance/index.js";
+import { renderPatternApply } from "../../src/domains/transformation-transaction/index.js";
 import {
   type HabitatProcessRequest,
-  makeFakeHabitatProcessLayer,
   makeHabitatCommandResult,
-} from "../../src/lib/habitat-process.js";
-import { renderPatternApply } from "../../src/lib/pattern-apply/index.js";
-import type { ApplyAdmission, ApplyTransactionInput } from "../../src/rules/patterns/index.js";
+} from "../../src/providers/command/index.js";
 import { createHabitatServiceClient } from "../../src/service/client.js";
 
 describe("Habitat transactions service", () => {
   test("runs admitted dry-run transactions through the in-process service client", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const processLayer = makeFakeHabitatProcessLayer((request) => {
+    const providerLayer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -25,7 +28,7 @@ describe("Habitat transactions service", () => {
 
     const record = await createHabitatServiceClient({
       transactions: {
-        processLayer,
+        providerLayer,
         transactionInputs: [transactionInput()],
       },
     }).transactions.apply({
@@ -53,14 +56,14 @@ describe("Habitat transactions service", () => {
 
   test("refuses unresolved transaction input before vendor execution", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const processLayer = makeFakeHabitatProcessLayer((request) => {
+    const providerLayer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request);
     });
 
     const record = await createHabitatServiceClient({
       transactions: {
-        processLayer,
+        providerLayer,
         transactionInputs: [],
       },
     }).transactions.apply({

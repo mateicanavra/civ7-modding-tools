@@ -1,16 +1,16 @@
 import { describe, expect, test } from "vitest";
+import type { RuleGraphFacts } from "../../src/domains/rule-registry/schema.js";
 import {
   aggregateWorkspaceDependency,
   explicitProjectTarget,
   multiDependencyTargetRelationship,
-  readWorkspaceGraph,
   resolveDependencyDeclaration,
   ruleAliasTargetState,
   sameProjectTarget,
-  workspaceGraphTargetNames,
-} from "../../src/lib/workspace-graph/index.js";
-import type { WorkspaceProject } from "../../src/lib/workspace-graph/schema.js";
-import type { RuleGraphFacts } from "../../src/rules/registry/schema.js";
+} from "../../src/domains/workspace-graph-integration/index.js";
+import { readWorkspaceGraph } from "../../src/providers/nx/graph.js";
+import type { WorkspaceProject } from "../../src/providers/nx/schema.js";
+import { workspaceGraphTargetNames } from "../../src/providers/nx/targets.js";
 
 const projects: WorkspaceProject[] = [
   {

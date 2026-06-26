@@ -4,10 +4,10 @@
 
 - Project: Habitat Harness deep refactor
 - Phase: Check and baseline cutover
-- Owner: Effect-first planning lane
-- Branch/Graphite stack: `agent-DRA-effect-first-openspec-domino-plan` stacked on `agent-DRA-effect-first-repair-backlog`
+- Owner: Effect-first implementation lane
+- Branch/Graphite stack: `agent-DRA-effect-check-baseline-provider-drain` stacked on `agent-DRA-effect-command-result-model`
 - Started: 2026-06-19
-- Status: packet completed to OpenSpec shape
+- Status: provider-drain implementation in progress
 
 ## Objective
 
@@ -18,5 +18,55 @@
 
 ## Verification
 
-- Commands run: pending implementation.
-- Evidence boundary: design packet.
+- Commands run:
+  - `bun run --cwd tools/habitat-harness test -- test/service/check-service.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts test/lib/check-summaries.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- test/service/service-architecture.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- test/service/check-service.test.ts test/service/service-architecture.test.ts test/lib/baseline.test.ts test/lib/check-summaries.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `./node_modules/.bin/biome check --write .`
+  - `./node_modules/.bin/biome check --write tools/habitat-harness/src/domains/baseline-authority tools/habitat-harness/src/domains/structural-check tools/habitat-harness/src/service/impl.ts tools/habitat-harness/test/service/check-service.test.ts tools/habitat-harness/test/service/service-architecture.test.ts`
+  - `bun run openspec -- validate deep-habitat-effect-check-baseline-cutover --strict`
+  - `bun run biome:ci`
+  - `bun run openspec:validate`
+  - `git diff --check`
+  - `bun run habitat check --tool file-layer --json`
+  - `bun run habitat check --tool command-check --json`
+  - `bun run habitat check --tool format-check --json`
+  - `bun run habitat check --tool import-boundaries --json`
+  - `bun run habitat check --rule arch-test-core-purity --json`
+  - `bun run habitat check --tool target-check --json`
+  - `bun run habitat check --json`
+  - `bun run --cwd tools/habitat-harness test -- test/lib/check-baseline-provider-boundary.test.ts`
+  - `bun run --cwd tools/habitat-harness test -- test/lib/check-baseline-provider-boundary.test.ts test/service/service-architecture.test.ts`
+  - `bun run --cwd tools/habitat-harness check`
+  - `bun run --cwd tools/habitat-harness test -- test/lib/check-baseline-provider-boundary.test.ts test/lib/baseline.test.ts test/lib/check-summaries.test.ts test/service/check-service.test.ts test/service/service-architecture.test.ts`
+- Evidence boundary:
+  - Baseline and structural-check source ownership moved from `src/lib/**` to
+    `src/domains/**`.
+  - `check` service procedures now consume the `StructuralCheck` Effect service
+    provided by the Habitat service layer instead of importing the
+    `lib/check-report` adapter.
+  - `StructuralCheck` now consumes a named `BaselineAuthority` Effect domain
+    service for the active check/baseline service path.
+  - `BaselineAuthorityLive` now uses provider-backed Effect operations for
+    baseline state, integrity, expansion admission, and writes instead of
+    delegating to the legacy sync baseline context. The legacy sync functions
+    remain only behind the current public `src/lib/baseline.ts` adapter until
+    the public-surface cleanup packet narrows or removes that export surface.
+  - Staged structural-check path reads staged Git facts through `GitProvider`
+    and measures file-layer rule execution through `HabitatClock`.
+  - `test/lib/check-baseline-provider-boundary.test.ts` proves baseline
+    integrity/writes with fake filesystem/Git providers and staged Git refusal
+    rendering through the structural-check Effect path.
+  - Existing baseline and summary behavior is covered by the focused tests.
+  - CLI service-path smokes passed for `file-layer`, `command-check`,
+    `format-check`, `import-boundaries`, and `target-check`.
+  - Command-rule execution was made sequential in the active structural-check
+    path so Nx-backed target checks do not contend with each other during
+    aggregate check runs.
+  - The full `bun run habitat check --json` command now completes. It exits 1
+    because Grit-backed `pattern-check` reports `GritCommandFailed` / exit 130
+    after the Grit command window; that is the remaining aggregate blocker.
+  - Remaining aggregate blocker outside this provider-drain slice:
+    repair the Grit-backed pattern-check aggregate failure.

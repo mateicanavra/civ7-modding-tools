@@ -13,8 +13,8 @@ import {
   isBaselineLocked,
   loadBaselineState,
   validateBaselineContract,
-} from "../../src/lib/baseline.js";
-import type { HabitatDiagnostic } from "../../src/lib/diagnostics.js";
+} from "../../src/domains/baseline-authority/index.js";
+import type { HabitatDiagnostic } from "../../src/domains/structural-check/schema.js";
 
 const tempDirs: string[] = [];
 

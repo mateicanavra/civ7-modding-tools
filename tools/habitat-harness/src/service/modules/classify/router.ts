@@ -1,9 +1,10 @@
+import { Effect } from "effect";
+import { classifyTargetResult } from "../../../domains/workspace-graph-integration/index.js";
 import { module as classifyModule } from "./module.js";
-import { runClassifyService } from "./run.js";
 
 export const classifyRouter = {
   run: classifyModule.run.effect(({ context, input }) =>
-    runClassifyService(input, context.classify)
+    Effect.promise(() => classifyTargetResult(input.target, context.classify?.options ?? {}))
   ),
 };
 

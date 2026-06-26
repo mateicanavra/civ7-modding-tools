@@ -1,0 +1,68 @@
+export type {
+  AggregateWorkspaceTargetDeclaration,
+  GraphRefusalState,
+  PackageJsonTargetInventory,
+  ResolvedTargetDependency,
+  RootPackageJsonWorkspace,
+  RuleGraphTargetNames,
+  TargetDependencyDeclaration,
+  TargetDependencyResolution,
+  VerifyTargetPlan,
+  WorkspaceGraphReadState,
+  WorkspaceGraphSnapshot,
+  WorkspaceGraphTargetNameOptions,
+  WorkspaceGraphTargetNames,
+  WorkspaceProject,
+  WorkspaceTargetState,
+} from "../../providers/nx/schema.js";
+export {
+  RuleGraphTargetNamesSchema,
+  VerifyTargetPlanSchema,
+} from "../../providers/nx/schema.js";
+export type {
+  ClassifiedTarget,
+  ClassifyDiffResult,
+  ClassifyOptions,
+  ClassifyResult,
+  GraphRefusalClassification,
+  MalformedOrPathlessDiffResult,
+  PathClassification,
+  ProjectPathClassification,
+  RuleCoverageKind,
+  RuleRouting,
+  UnavailableClassifiedTarget,
+  UnresolvedOwnerClassification,
+  WorkspacePathClassification,
+} from "./classify.js";
+export {
+  ClassifyResultSchema,
+  classifyPath,
+  classifyPathResult,
+  classifyTarget,
+  classifyTargetResult,
+  commandSummary,
+  stringifyClassifyResult,
+  validateClassifyResult,
+} from "./classify.js";
+export {
+  aggregateWorkspaceDependency,
+  aggregateWorkspaceTarget,
+  explicitProjectTarget,
+  explicitProjectTargetDependency,
+  graphRefusalMessage,
+  multiDependencyTarget,
+  multiDependencyTargetRelationship,
+  resolveDependencyDeclaration,
+  resolveTargetDependencyDeclaration,
+  sameProjectTarget,
+  sameProjectTargetDependency,
+} from "./dependencies.js";
+export {
+  findWorkspaceOwningProject,
+  projectTargetStates,
+  ruleAliasTargetState,
+  ruleGraphTargetStates,
+  verifyTargetPlan,
+  workspaceProjectHasTarget,
+  workspaceTargetStates,
+} from "./states.js";

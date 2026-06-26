@@ -1,4 +1,4 @@
-import type { CheckReport, RuleReport } from "../lib/diagnostics.js";
+import type { CheckReport, RuleReport } from "../domains/structural-check/schema.js";
 
 /** Human rendering of rule results (the agent-readable half of every failure). */
 

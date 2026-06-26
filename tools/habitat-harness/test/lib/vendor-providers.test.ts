@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
+import { GritProvider, makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
 import { repoRoot } from "../../src/lib/paths.js";
 import {
   BiomeProvider,
@@ -8,7 +9,6 @@ import {
 } from "../../src/providers/biome/index.js";
 import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
 import { GitProvider, makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
-import { GritProvider, makeFakeGritProviderLayer } from "../../src/providers/grit/index.js";
 import { huskyDelegator } from "../../src/providers/husky/index.js";
 import {
   affectedArgv,
