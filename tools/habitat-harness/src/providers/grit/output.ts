@@ -13,7 +13,7 @@ import {
   type NativeGritCheckRequest,
   NativeGritCheckRequestSchema,
   nativeGritCheckRequestFromCommandResult,
-} from "@internal/habitat-harness/service/model/check/index";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
 import { type Static, Type } from "typebox";
 import { Value } from "typebox/value";
 import {

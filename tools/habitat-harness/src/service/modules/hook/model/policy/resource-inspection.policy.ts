@@ -1,10 +1,10 @@
-import { existsSync } from "node:fs";
 import path from "node:path";
 import type {
   GitProviderRequirements,
   GitProviderService,
 } from "@internal/habitat-harness/providers/git/index";
 import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
+import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import { Effect } from "effect";
 import type {
   ResourcePreCommitDecision,
@@ -16,10 +16,15 @@ import {
   refusedResourceDecision,
   resourceDecisionToFacade,
 } from "./resource-decision.policy.js";
-import type { HookRuntime } from "./runtime.policy.js";
+import type { HookResourcePolicy } from "./runtime.policy.js";
 
-export function classifyResourcesState(runtime: HookRuntime = {}): ResourceStateFacade {
-  if (!runtime.resourcePolicy) {
+interface ResourceInspectionContext {
+  readonly git: GitProviderService;
+  readonly platform: HabitatPlatformService;
+}
+
+export function classifyResourcesState(resourcePolicy?: HookResourcePolicy): ResourceStateFacade {
+  if (!resourcePolicy) {
     return resourceDecisionToFacade(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")
     );
@@ -30,18 +35,18 @@ export function classifyResourcesState(runtime: HookRuntime = {}): ResourceState
 }
 
 export function classifyResourcePreCommitDecisionEffect(
-  context: { readonly git: GitProviderService; readonly repoRoot: string },
-  runtime: HookRuntime = {}
+  context: ResourceInspectionContext,
+  resourcePolicy?: HookResourcePolicy
 ): Effect.Effect<ResourcePreCommitDecision, never, GitProviderRequirements> {
-  if (!runtime.resourcePolicy) {
+  if (!resourcePolicy) {
     return Effect.succeed(
       allowedResourceDecision("not-configured", "No hook resource policy is configured.")
     );
   }
-  const pathExists = runtime.pathExists ?? existsSync;
-  const { git, repoRoot } = context;
-  const resourcePath = normalizeResourcePath(repoRoot, runtime.resourcePolicy.path);
-  const resourceCommands = runtime.resourcePolicy.commands;
+  const { git, platform } = context;
+  const { pathExists, repoRoot } = platform;
+  const resourcePath = normalizeResourcePath(repoRoot, resourcePolicy.path);
+  const resourceCommands = resourcePolicy.commands;
   if (!resourcePath || resourcePath === ".." || resourcePath.startsWith("../")) {
     return Effect.succeed(
       resourceFailure("inspection-failed", "Hook resource policy path is outside the repo.", [

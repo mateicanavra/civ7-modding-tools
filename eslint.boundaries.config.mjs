@@ -112,6 +112,7 @@ const depConstraints = [
 
 const allow = [
   "/base-standard/**",
+  "./model/**",
   "./nx-plugin.ts",
   "./providers/**",
   "./resources/**",

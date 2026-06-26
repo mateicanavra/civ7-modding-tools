@@ -1,4 +1,3 @@
-import type { HarnessRule } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture.policy";
 import {
   approvedScanRootsForRules,
   checkCommandContext,
@@ -8,8 +7,9 @@ import {
   stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
   structuralCheckRequest,
+  validateCheckReport,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import { validateCheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
+import type { HarnessRule } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import {
   type RuleSelection,

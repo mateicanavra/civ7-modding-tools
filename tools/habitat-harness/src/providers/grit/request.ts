@@ -16,7 +16,7 @@ import {
   diagnosticToolUnavailableObservation,
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
-} from "@internal/habitat-harness/service/model/check/index";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
 import { Effect } from "effect";
 import { GritToolUnavailable } from "./failures.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";

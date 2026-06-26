@@ -4,7 +4,7 @@ import type {
   GitProviderRequirements,
 } from "@internal/habitat-harness/providers/git/index";
 import type { FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
-import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/service/model/check/index";
 import { Context, Effect, Layer } from "effect";
 import { applyBaseline, baselineFailureDiagnostic } from "./application.policy.js";
 import type { BaselineAuthorityContext } from "./context.policy.js";

@@ -12,6 +12,10 @@ import type {
 import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import type { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
+import type {
+  CheckOptions,
+  CheckReport,
+} from "@internal/habitat-harness/service/model/check/index";
 import type { BaselineAuthority } from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import type { SourceCheck } from "@internal/habitat-harness/service/model/check/policy/source/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
@@ -19,8 +23,6 @@ import { Context, Effect, Layer } from "effect";
 import type { BaselineExpansionResult } from "./baseline-expansion.policy.js";
 import { expandBaselinesEffect } from "./baseline-expansion.policy.js";
 import { createCheckReportEffect } from "./report.policy.js";
-import type { CheckOptions } from "./request.policy.js";
-import type { CheckReport } from "./schema.js";
 
 export interface StructuralCheckService {
   readonly createReport: (

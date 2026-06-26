@@ -12,6 +12,15 @@ import type {
 import type { NxProvider } from "@internal/habitat-harness/providers/nx/index";
 import { CommandRunner } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatConfig } from "@internal/habitat-harness/resources/config/index";
+import type {
+  CheckReport,
+  RuleExecutionDisposition,
+  RuleReport,
+} from "@internal/habitat-harness/service/model/check/index";
+import {
+  type CheckOptions,
+  structuralCheckRequest,
+} from "@internal/habitat-harness/service/model/check/index";
 import {
   type BaselineApplicationResult,
   BaselineAuthority,
@@ -31,8 +40,6 @@ import {
   type RuleExecutionRecord,
   rulesForExecution,
 } from "./execution.policy.js";
-import { type CheckOptions, structuralCheckRequest } from "./request.policy.js";
-import type { CheckReport, RuleExecutionDisposition, RuleReport } from "./schema.js";
 import { constructCheckReportEffect, selectorRefusalReportEffect } from "./selection.policy.js";
 import {
   BaselineApplicationOutcomeSchema,

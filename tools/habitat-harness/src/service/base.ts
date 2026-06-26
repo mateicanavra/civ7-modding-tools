@@ -2,15 +2,10 @@ import type { BiomeProviderService } from "@internal/habitat-harness/providers/b
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { GritProviderService } from "@internal/habitat-harness/providers/grit/index";
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/providers/nx/graph";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
-import type {
-  acquireTempDirectory,
-  readText,
-} from "@internal/habitat-harness/resources/platform/index";
+import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
+import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
 import type { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
-import type { StructuralCheckService } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import type { HookRuntime } from "@internal/habitat-harness/service/modules/hook/model/policy/runtime.policy";
 import { Context, type Layer } from "effect";
 
 export interface HabitatServiceContext {
@@ -19,17 +14,13 @@ export interface HabitatServiceContext {
 }
 
 export interface HabitatServiceDeps {
-  readonly acquireTempDirectory: typeof acquireTempDirectory;
   readonly biome: BiomeProviderService;
   readonly git: GitProviderService;
   readonly graphite: GraphiteProviderService;
   readonly grit: GritProviderService;
-  readonly hookRuntime: HookRuntime;
   readonly nx: NxProviderService;
-  readonly readText: typeof readText;
-  readonly repoRoot: string;
-  readonly structuralCheck: StructuralCheckService;
-  readonly workspaceProjects: WorkspaceGraphProjectReader;
+  readonly platform: HabitatPlatformService;
+  readonly reporter: HabitatReporterService;
 }
 
 export class HabitatServiceRuntime extends Context.Tag(

@@ -6,7 +6,7 @@ export {
   sortedUnique,
   sourceCheckCandidateExtensions,
   stagedSourceScanRoots,
-} from "./scan-roots.policy.js";
+} from "@internal/habitat-harness/service/model/check/index";
 export {
   SourceCheck,
   type SourceCheckOptions,

@@ -6,8 +6,8 @@ import {
   observedGritDiagnosticIdentity,
   observedGritIdentityMatches,
   renderUnexpectedObservedGritIdentity,
-} from "@internal/habitat-harness/service/model/check/index";
-import type { RuleRunResult } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/architecture.policy";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
+import type { RuleRunResult } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { infrastructureFailure } from "./failure.js";
 import { normalizeGritPath } from "./scan-roots/index.js";

@@ -29,7 +29,7 @@ import {
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticProviderFailure,
-} from "@internal/habitat-harness/service/model/check/index";
+} from "@internal/habitat-harness/service/model/diagnostics/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect, type Layer } from "effect";
 import { Value } from "typebox/value";

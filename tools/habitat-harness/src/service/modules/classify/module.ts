@@ -1,21 +1,31 @@
+import type {
+  HabitatServiceContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError,
+} from "@internal/habitat-harness/service/base";
+import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
-import { type ClassifyOptions, classifyTargetResult } from "./model/index.js";
+import type { EffectImplementerInternal } from "effect-orpc";
+import { type ClassifyResult, classifyTargetResultEffect } from "./model/index.js";
 
-interface ClassifyModuleContext {
-  readonly classifyTargetResult: typeof classifyTargetResultEffect;
-  readonly options?: ClassifyOptions;
+export interface ClassifyModuleContext {
+  readonly classifyTargetResult: (target: string) => Effect.Effect<ClassifyResult>;
 }
 
-export const module = service.classify.use(({ context, next }) =>
+type ClassifyModule = EffectImplementerInternal<
+  HabitatServiceContract["classify"],
+  HabitatServiceContext,
+  HabitatServiceContext & ClassifyModuleContext,
+  HabitatServiceRequirements,
+  HabitatServiceRuntimeError
+>;
+
+export const module: ClassifyModule = service.classify.use(({ context, next }) =>
   next({
     context: {
-      classifyTargetResult: classifyTargetResultEffect,
-      options: { nxProjects: context.deps.workspaceProjects },
+      classifyTargetResult: (target: string) =>
+        classifyTargetResultEffect(target, context.deps.nx.workspaceGraph()),
     } satisfies ClassifyModuleContext,
   })
 );
-
-function classifyTargetResultEffect(target: string, options: ClassifyOptions) {
-  return Effect.promise(() => classifyTargetResult(target, options));
-}
