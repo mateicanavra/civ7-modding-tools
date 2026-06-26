@@ -4,6 +4,7 @@ export {
   approvedScanRootsForRules,
   executeSelectedRulesEffect,
   rulesForExecution,
+  stagedPatternNotApplicableRecords,
   stagedPatternScanRoots,
 } from "./execution.js";
 export { renderCheckReport, stringifyCheckReport } from "./render.js";
@@ -38,6 +39,7 @@ export {
   VerifyCheckSummarySchema,
   validateCheckReport,
 } from "./schema.js";
+export { selectorRefusalReport } from "./selection.js";
 export {
   makeFakeStructuralCheckLayer,
   StructuralCheck,

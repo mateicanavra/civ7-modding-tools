@@ -7,7 +7,7 @@
 - Owner: Effect-first implementation lane
 - Branch/Graphite stack: `agent-DRA-effect-verify-graph-cutover` stacked on `agent-DRA-effect-orientation-workspace-graph`
 - Started: 2026-06-19
-- Status: implementation completed except aggregate verify CLI closure
+- Status: implementation completed; receipt-only verify JSON closure repaired
 
 ## Objective
 
@@ -32,8 +32,19 @@
   - `git diff --check`
   - `bun run build` exited 0; Nx reported the existing flaky-task notice for
     `@civ7/adapter:build` after successful completion.
-- Bounded limitation:
-  - `bun run habitat verify --json` was started and interrupted after a bounded
-    wait with no JSON output. This matches the current aggregate Habitat
-    pattern-check boundary recorded by the static-inventory domino. This packet
-    does not claim aggregate verify CLI closure until that boundary is repaired.
+- Current repair:
+  - `bun run habitat verify --json` now emits a receipt-only JSON handoff instead
+    of executing the affected target lane before output. Latest run:
+    `/usr/bin/time -p bun run habitat -- verify --json >
+    /tmp/habitat-verify-json-final.json` exited 0 in 19.16s with
+    `outcome=planned`, `nxAffected.skipReason=receipt-only`, and
+    `targetPlan.targets=[build,check,test]`.
+  - Verify target planning no longer includes Habitat-owned structural targets
+    (`boundaries`, `biome:ci`, `grit:check`, `generated:check`) in affected
+    execution; root graph verification remains the review-grade aggregate path.
+  - Graph-backed structural checks now batch through `NxProvider.runMany` by
+    proof owner. Aggregate `habitat check --json` still took 37.34s; the
+    remaining long pole is `import-boundaries` at roughly 23.9s, while the
+    target-check corpus is batched down to roughly 7.8s. That remaining length
+    is a follow-on architecture smell in the import-boundary proof path, not a
+    timeout issue.

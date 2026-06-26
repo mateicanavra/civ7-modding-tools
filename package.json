@@ -9,7 +9,7 @@
     "build": "nx run-many --targets=build",
     "build:cli": "nx run @mateicanavra/civ7-cli:build",
     "build:sdk": "nx run @mateicanavra/civ7-sdk:build",
-    "check": "nx run-many --targets=build,check,lint,test,verify",
+    "check": "nx run-many --targets=build,check,lint,test,verify,validate:boundary-taxonomy,validate:grit-patterns",
     "check-types": "nx run-many --targets=check",
     "check:cli": "nx run @mateicanavra/civ7-cli:check",
     "check:sdk": "nx run @mateicanavra/civ7-sdk:check",

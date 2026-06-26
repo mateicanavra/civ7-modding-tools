@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import path from "node:path";
-import { type HabitatCommandGitState, unknownGitState } from "../../lib/git-state.js";
+import { type HabitatCommandGitState, unknownGitState } from "../git/state.js";
 import { commandObservationFromExit } from "./observation.js";
 import type {
   HabitatCommandResult,

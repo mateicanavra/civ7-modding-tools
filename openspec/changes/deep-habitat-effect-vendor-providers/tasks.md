@@ -18,7 +18,10 @@
   Current branch moves verify base/status and affected execution to
   `GitProvider`/`NxProvider`; baseline/check/hook remain with their owning
   cutover packets.
-- [ ] 2.2 Replace `WorkspaceToolProvider` command-name map with provider command builders.
+  Follow-up branch routes hook service pre-push remote-default/merge-base
+  resolution through `GitProvider`; raw staged/resource hook Git callsites
+  remain with the hook provider-drain follow-on.
+- [x] 2.2 Replace `WorkspaceToolProvider` command-name map with provider command builders.
 - [x] 2.3 Keep provider outputs mapped to existing public command/report shapes.
 - [x] 2.4 Reject any new duplicate process path. The old process facade is
   deleted; remaining raw command callsites are tracked to their owning service
@@ -26,6 +29,7 @@
   Current branch removes provider exports from the root public surface and
   restores the bounded Grit live-source batch refusal until provider-owned
   scheduling exists.
+- [x] 2.5 Route hook service pre-push remote-default/merge-base reads through `GitProvider`.
 
 ## 3. Proof
 
@@ -35,11 +39,7 @@
 - [x] 3.4 Nx affected tests with fake provider metadata.
 - [x] 3.5 Git status/merge-base tests.
 - [x] 3.6 `bun run --cwd tools/habitat-harness test`
-- [ ] 3.7 `bun run habitat:check -- --json`
-  Boundary: `bun run habitat:check` was run on 2026-06-20 and still fails on
-  existing locked source-pattern findings plus docs-local advisory debt. The
-  prior 120s Grit timeout failure mode no longer reproduces; source patterns
-  fail in a bounded batch.
+- [x] 3.7 `bun run habitat check --tool habitat --json`
 - [x] 3.8 `bun run openspec -- validate deep-habitat-effect-vendor-providers --strict`
 - [x] 3.9 `bun run openspec:validate`
 - [x] 3.10 `git diff --check`

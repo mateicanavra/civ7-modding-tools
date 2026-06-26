@@ -48,8 +48,8 @@ The implemented surface provides a structural substrate:
 - enforce explicit shrink-only baseline contracts;
 - participate in the workspace graph through inferred Habitat-owned targets;
 - route project-plane boundary checks, formatter hygiene, pattern diagnostics,
-  generated-zone checks, wrapped scripts, wrapped tests, and Habitat-native
-  checks through one rule registry;
+  generated-zone checks, command checks, and Habitat-native checks through one
+  rule registry;
 - delegate local Git hooks through Habitat while keeping CI and explicit graph
   verification authoritative;
 - run a small guarded apply transaction for approved structural repairs;

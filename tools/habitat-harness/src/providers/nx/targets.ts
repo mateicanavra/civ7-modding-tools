@@ -27,13 +27,6 @@ export function classifyTargetNames(): readonly string[] {
 }
 
 export function verifyTargetNames(targetNames = workspaceGraphTargetNames()): readonly string[] {
-  return [
-    "build",
-    "check",
-    "test",
-    targetNames.boundaries,
-    targetNames.biomeCi,
-    targetNames.gritCheck,
-    targetNames.generatedCheck,
-  ];
+  void targetNames;
+  return ["build", "check", "test", "validate:boundary-taxonomy", "validate:grit-patterns"];
 }

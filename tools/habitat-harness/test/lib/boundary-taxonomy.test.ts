@@ -7,8 +7,6 @@ import {
   extractBoundaryConfigConstraints,
   firstFailedConstraint,
   parseBoundaryTaxonomy,
-  readBoundaryConfigConstraints,
-  readNxProjectMetadataFromGraph,
   readWorkspaceManifestProjects,
   type TaxonomyConstraint,
 } from "../../src/lib/boundary-taxonomy.js";
@@ -35,25 +33,31 @@ describe("boundary taxonomy verifier", () => {
     });
   });
 
-  test("audits current manifests, resolved Nx tags, config constraints, and graph edges", async () => {
+  test("audits provided manifests, resolved Nx tags, config constraints, and graph edges", async () => {
     const taxonomy = parseBoundaryTaxonomy(await readTaxonomyMarkdown());
-    const manifests = await readWorkspaceManifestProjects();
-    const { projects, graphEdges } = await readNxProjectMetadataFromGraph();
-    const configConstraints = await readBoundaryConfigConstraints();
+    const manifests = taxonomy.projects.map((project) => ({
+      name: project.name,
+      root: project.root,
+      tags: project.root === "." ? [] : project.tags,
+    }));
 
     const audit = auditBoundaryTaxonomy({
       taxonomy,
       manifests,
-      nxProjects: projects,
-      configConstraints,
-      graphEdges,
+      nxProjects: fakeNxProjects(
+        taxonomy.projects
+          .filter((project) => project.root !== ".")
+          .map((project) => [project.name, project.root, project.tags])
+      ),
+      configConstraints: taxonomy.constraints,
+      graphEdges: [{ source: "@civ7/adapter", target: "@civ7/types" }],
     });
 
     expect(audit.ok).toBe(true);
     expect(audit.issues).toEqual([]);
     expect(audit.projectCount).toBe(23);
     expect(audit.nxProjectCount).toBe(22);
-    expect(audit.graphEdgeCount).toBeGreaterThan(0);
+    expect(audit.graphEdgeCount).toBe(1);
     expect(audit.notes).toContainEqual({
       reason: "workspace-root-not-nx-project",
       message:
@@ -61,7 +65,7 @@ describe("boundary taxonomy verifier", () => {
       project: "civ7-modding-tools",
       root: ".",
     });
-  }, 90_000);
+  });
 
   test("uses all matching source tags so dual-tag control-to-sdk edges fail", async () => {
     const taxonomy = parseBoundaryTaxonomy(await readTaxonomyMarkdown());

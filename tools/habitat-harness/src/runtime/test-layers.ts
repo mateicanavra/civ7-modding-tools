@@ -5,8 +5,3 @@ export { makeFakeCommandRunnerLayer } from "../providers/command/index.js";
 export { makeFakeGitProviderLayer } from "../providers/git/index.js";
 export { makeFakeHuskyProviderLayer } from "../providers/husky/index.js";
 export { makeFakeNxProviderLayer } from "../providers/nx/index.js";
-export {
-  makeFakeHabitatClockLayer,
-  makeFakeHabitatFileSystemLayer,
-  makeFakeResourceScopeLayer,
-} from "../resources/index.js";

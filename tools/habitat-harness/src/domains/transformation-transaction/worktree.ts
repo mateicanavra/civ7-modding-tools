@@ -1,4 +1,4 @@
-import { readGitState } from "../../lib/git-state.js";
+import { readGitState } from "../../providers/git/state.js";
 import { parseWorktreeObservation, type WorktreeObservation } from "./schema.js";
 
 export function observeWorktree(cwd?: string): WorktreeObservation {

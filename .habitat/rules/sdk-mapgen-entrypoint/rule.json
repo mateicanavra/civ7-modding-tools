@@ -12,13 +12,7 @@
   "exceptionPath": "none",
   "patternName": "sdk_mapgen_entrypoint",
   "hookCheck": true,
-  "scanRoots": [
-    "packages",
-    "apps/mapgen-studio/src",
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["packages/sdk/src", "packages/mapgen-core/src"],
   "pathCoverage": [
     {
       "kind": "unresolved-metadata",

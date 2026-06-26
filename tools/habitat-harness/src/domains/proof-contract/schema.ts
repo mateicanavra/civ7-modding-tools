@@ -204,7 +204,11 @@ export const VerifyNxAffectedSchema = Type.Union(
       {
         kind: Type.Literal("skipped", { description: "Nx affected did not run." }),
         skipReason: Type.Union(
-          [Type.Literal("habitat-check-failed"), Type.Literal("workspace-graph-refused")],
+          [
+            Type.Literal("habitat-check-failed"),
+            Type.Literal("workspace-graph-refused"),
+            Type.Literal("receipt-only"),
+          ],
           {
             description: "Upstream condition that blocked affected execution.",
           }
@@ -289,7 +293,12 @@ export const VerifyPostStateSchema = Type.Union(
 
 /** Top-level verify receipt outcome for humans and agents consuming `habitat verify --json`. */
 export const VerifyReceiptOutcomeSchema = Type.Union(
-  [Type.Literal("succeeded"), Type.Literal("failed"), Type.Literal("blocked")],
+  [
+    Type.Literal("succeeded"),
+    Type.Literal("failed"),
+    Type.Literal("blocked"),
+    Type.Literal("planned"),
+  ],
   { description: "Verify receipt outcome." }
 );
 

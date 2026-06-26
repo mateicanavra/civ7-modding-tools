@@ -2,15 +2,17 @@ import { describe, expect, test } from "vitest";
 import type { RulePatternFacts } from "../../src/domains/rule-registry/index.js";
 import { type RuleSelection, selectRules } from "../../src/domains/rule-selection/index.js";
 import {
+  approvedScanRootsForRules,
   checkCommandContext,
-  createCheckReportEffect,
   renderCheckReport,
   rulesForExecution,
+  selectorRefusalReport,
+  stagedPatternNotApplicableRecords,
   stagedPatternScanRoots,
+  structuralCheckRequest,
 } from "../../src/domains/structural-check/index.js";
 import { validateCheckReport } from "../../src/domains/structural-check/schema.js";
 import type { HarnessRule } from "../../src/rules/architecture.js";
-import { runHabitatEffect } from "../../src/runtime/index.js";
 
 const fakeRules: HarnessRule[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
@@ -100,9 +102,10 @@ describe("rule selector boundary", () => {
     });
   });
 
-  test("renders invalid selectors as schemaVersion 1 failing CheckReports", async () => {
-    const report = await runHabitatEffect(
-      createCheckReportEffect({
+  test("renders invalid selectors as schemaVersion 1 failing CheckReports", () => {
+    const report = selectorRefusalReport(
+      selectionFailure({ rule: "definitely-not-a-rule" }),
+      structuralCheckRequest({
         command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
         rule: "definitely-not-a-rule",
       })
@@ -188,27 +191,37 @@ describe("rule selector boundary", () => {
     ).toEqual(["hook"]);
   });
 
-  test("staged Grit checks with no approved roots report not-applicable instead of baseline-only pass", async () => {
-    const report = await runHabitatEffect(
-      createCheckReportEffect({
-        tool: "pattern-check",
-        staged: true,
-        stagedPaths: ["README.md"],
-      })
-    );
+  test("staged Grit checks with no approved roots report not-applicable instead of baseline-only pass", () => {
+    const gritRule = fakeGritFact("hook", ["packages"]);
+    const scanRoots = stagedPatternScanRoots(["README.md"], approvedScanRootsForRules([gritRule]));
+    const records = stagedPatternNotApplicableRecords([gritRule], scanRoots);
+    const record = records?.get("hook");
 
-    const gritReports = report.rules.filter((rule) => rule.ownerTool === "pattern-check");
-    expect(gritReports.length).toBeGreaterThan(0);
-    expect(gritReports.every((rule) => rule.status !== "pass")).toBe(true);
+    expect(scanRoots).toEqual([]);
+    expect(record).toMatchObject({
+      result: {
+        exitCode: 1,
+        diagnostics: [
+          {
+            ruleId: "hook",
+            message: "Rule not applicable: staged scope contains no approved roots for this rule.",
+            severity: "error",
+            baselined: false,
+          },
+        ],
+      },
+      durationMs: 0,
+      disposition: {
+        kind: "not-applicable",
+        reason: "staged-scope-no-approved-roots",
+      },
+    });
     expect(
-      gritReports.every((rule) =>
-        rule.diagnostics.some((diagnostic) =>
-          diagnostic.message.startsWith("Rule not applicable: staged scope")
-        )
+      record?.result.diagnostics.every((diagnostic) =>
+        diagnostic.message.startsWith("Rule not applicable: staged scope")
       )
     ).toBe(true);
-    expect(report.ok).toBe(false);
-  }, 90_000);
+  });
 
   test("staged Grit scan roots preserve exact approved file paths", () => {
     expect(

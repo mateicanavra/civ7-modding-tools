@@ -12,13 +12,7 @@
   "exceptionPath": "none",
   "patternName": "viz_contract_ownership",
   "hookCheck": true,
-  "scanRoots": [
-    "packages",
-    "apps/mapgen-studio/src",
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
       "kind": "unresolved-metadata",

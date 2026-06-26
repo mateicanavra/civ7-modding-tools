@@ -15,6 +15,7 @@ import {
   graphArgv,
   makeFakeNxProviderLayer,
   NxProvider,
+  runManyArgv,
 } from "../../src/providers/nx/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 
@@ -100,6 +101,45 @@ describe("vendor providers", () => {
       "--file",
       "/tmp/habitat-graph-fake/graph.json",
     ]);
+  });
+
+  test("NxProvider batches graph-owned targets through run-many", async () => {
+    const request = {
+      projects: ["mod-swooper-maps", "@swooper/mapgen-core"],
+      targets: ["test:architecture-cutover", "test:architecture-core-purity"],
+    };
+
+    expect(runManyArgv(request)).toEqual([
+      "target-check",
+      "run-many",
+      "--targets",
+      "test:architecture-cutover,test:architecture-core-purity",
+      "--projects",
+      "mod-swooper-maps,@swooper/mapgen-core",
+      "--outputStyle=static",
+    ]);
+
+    const result = await runHabitatEffect(
+      Effect.gen(function* () {
+        const nx = yield* NxProvider;
+        return yield* nx.runMany(request);
+      }).pipe(
+        Effect.provide(
+          makeFakeNxProviderLayer({
+            runMany: (runManyRequest) =>
+              commandResult(
+                "workspace-tool",
+                "target-check",
+                runManyArgv(runManyRequest).slice(1),
+                repoRoot,
+                "batched ok\n"
+              ),
+          })
+        )
+      )
+    );
+
+    expect(result.stdout.text).toBe("batched ok\n");
   });
 
   test("BiomeProvider owns safe command-vector construction", async () => {

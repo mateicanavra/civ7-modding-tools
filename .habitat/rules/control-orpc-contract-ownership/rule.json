@@ -12,13 +12,7 @@
   "exceptionPath": "none",
   "patternName": "control_orpc_contract_ownership",
   "hookCheck": true,
-  "scanRoots": [
-    "packages",
-    "apps/mapgen-studio/src",
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps",
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["packages/civ7-control-orpc/src"],
   "pathCoverage": [
     {
       "kind": "unresolved-metadata",

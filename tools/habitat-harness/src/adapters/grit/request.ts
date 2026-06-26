@@ -9,13 +9,11 @@ import {
   nativeGritCheckRequestFromProcessRequest,
   renderDiagnosticScanRootRefusal,
 } from "../../domains/diagnostic-pattern-catalog/index.js";
+import { FileWriteFailed } from "../../errors/index.js";
 import {
   CommandFailed,
   CommandInterrupted,
   CommandUnavailable,
-  FileWriteFailed,
-} from "../../errors/index.js";
-import {
   captureOutput,
   type HabitatProcessRequest,
   makeHabitatCommandResult,

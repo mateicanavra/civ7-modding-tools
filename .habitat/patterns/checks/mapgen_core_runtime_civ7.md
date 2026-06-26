@@ -3,26 +3,56 @@ level: error
 ---
 # MapGen Core Runtime Civ7
 
-`mapgen-core` core/engine source stays independent from Civ7 runtime APIs.
+`mapgen-core` production source stays independent from Civ7 runtime APIs.
 
 ```grit
 language js(typescript)
 
 or {
   import_statement(source=$source) as $import where {
-    $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$",
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*",
     $source <: r"^[\"']?(?:@civ7/adapter(?:/civ7)?|/base-standard/.+)[\"']?$",
     ! $import <: includes "import type",
     ! $import <: includes "import { type",
     ! $import <: includes "import {type"
   },
-  `GameplayMap.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
-  `TerrainBuilder.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
-  `ResourceBuilder.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
-  `FeatureBuilder.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
-  `AreaBuilder.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
-  `MapConstructibles.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" },
-  `GameInfo.$member` where { $filename <: r".*packages/mapgen-core/src/(?:core|engine)/.*\.ts$" }
+  `GameplayMap` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  `TerrainBuilder` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  `ResourceBuilder` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  `FeatureBuilder` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  `AreaBuilder` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  `MapConstructibles` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  `GameInfo` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  `createCiv7Adapter` where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  },
+  contains r"engine\s+as\s+unknown" where {
+    $filename <: r".*packages/mapgen-core/src/.*\.ts$",
+    ! $filename <: r".*packages/mapgen-core/src/dev/.*"
+  }
 }
 ```
 

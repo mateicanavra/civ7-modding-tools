@@ -1,17 +1,17 @@
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Context, Effect, Layer } from "effect";
 import type { HabitatConfig } from "../../config/index.js";
-import type { CommandProviderError } from "../../errors/index.js";
 import { repoRoot } from "../../lib/paths.js";
-import type { HabitatClock } from "../../resources/index.js";
 import {
+  type CommandProviderError,
   CommandRunner,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "../command/index.js";
 import type { HabitatCommandResult } from "../command/types.js";
+import type { GitStateProvider } from "../git/index.js";
 
-type NxProviderRequirements = CommandExecutor | HabitatConfig | HabitatClock | CommandRunner;
+type NxProviderRequirements = CommandExecutor | HabitatConfig | CommandRunner | GitStateProvider;
 
 export interface NxAffectedRequest {
   base: string;
@@ -23,6 +23,11 @@ export interface NxGraphRequest {
   outputPath: string;
 }
 
+export interface NxRunManyRequest {
+  projects: readonly string[];
+  targets: readonly string[];
+}
+
 export interface NxProviderService {
   readonly affected: (
     request: NxAffectedRequest
@@ -32,6 +37,10 @@ export interface NxProviderService {
     request: NxGraphRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
   readonly graphArgv: (request: NxGraphRequest) => string[];
+  readonly runMany: (
+    request: NxRunManyRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
+  readonly runManyArgv: (request: NxRunManyRequest) => string[];
 }
 
 export class NxProvider extends Context.Tag("@internal/habitat-harness/NxProvider")<
@@ -44,6 +53,7 @@ export const NxProviderLive = Layer.succeed(NxProvider, makeLiveNxProvider());
 export interface FakeNxProviderHandlers {
   readonly affected?: (request: NxAffectedRequest) => HabitatCommandResult;
   readonly graph?: (request: NxGraphRequest) => HabitatCommandResult;
+  readonly runMany?: (request: NxRunManyRequest) => HabitatCommandResult;
 }
 
 export function makeFakeNxProviderLayer(
@@ -57,6 +67,9 @@ export function makeFakeNxProviderLayer(
     affectedArgv,
     graph: (request) => Effect.sync(() => requireFakeResult("graph", handlers.graph, request)),
     graphArgv,
+    runMany: (request) =>
+      Effect.sync(() => requireFakeResult("runMany", handlers.runMany, request)),
+    runManyArgv,
   });
 }
 
@@ -90,6 +103,20 @@ function makeLiveNxProvider(): NxProviderService {
         )
       ),
     graphArgv,
+    runMany: (request) =>
+      CommandRunner.pipe(
+        Effect.flatMap((runner) =>
+          runner.run({
+            commandId: "nx-run-many",
+            kind: "workspace-tool",
+            executable: "target-check",
+            argv: runManyArgv(request).slice(1),
+            cwd: repoRoot,
+            captureGitState: false,
+          })
+        )
+      ),
+    runManyArgv,
   };
 }
 
@@ -109,6 +136,18 @@ export function affectedArgv(request: NxAffectedRequest): string[] {
 
 export function graphArgv(request: NxGraphRequest): string[] {
   return ["target-check", "graph", "--file", request.outputPath];
+}
+
+export function runManyArgv(request: NxRunManyRequest): string[] {
+  return [
+    "target-check",
+    "run-many",
+    "--targets",
+    request.targets.join(","),
+    "--projects",
+    request.projects.join(","),
+    "--outputStyle=static",
+  ];
 }
 
 function requireFakeResult<Request>(
