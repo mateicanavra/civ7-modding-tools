@@ -1,0 +1,26 @@
+{
+  "id": "standard-recipe-artifact-parity",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "standard recipe generated schema, defaults, and Studio UI metadata artifacts",
+  "forbids": "generated standard recipe artifacts that drift from source stages or contain unexpected raw operation envelopes outside the explicit internal-as-public foundation-orogeny exception",
+  "why": "Standard recipe artifacts are structural authoring outputs consumed by Studio and SDK surfaces.",
+  "detect": ["bun", ".habitat/civ7/mapgen/blueprints/standard-pipeline/artifact/check/standard-recipe-artifact-parity/standard-recipe-artifact-parity.check.ts"],
+  "remediate": "Regenerate standard recipe artifacts from source stages and canonical defaults.",
+  "message": "Standard recipe generated artifacts drifted from source stages.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/**",
+        "mods/mod-swooper-maps/dist/recipes/standard-artifacts.*",
+        "mods/mod-swooper-maps/src/maps/configs/swooper-earthlike.config.json"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

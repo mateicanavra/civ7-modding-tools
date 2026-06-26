@@ -78,7 +78,7 @@ The workspace graph loads the Habitat inference plugin from
 `tools/habitat/src/nx-plugin.ts` and package-declared Nx targets from
 project manifests. Together they expose these Habitat-owned targets:
 
-- Repo-wide `boundaries`
+- Repo-wide `boundary`
 - Repo-wide formatter targets
 - Repo-wide pattern checks
 - Repo-wide `generated:check`
@@ -98,9 +98,10 @@ pure parser and audit model with fixtures.
 ## Rule Pack
 
 The rule registry is authored under the authority tree as
-`.habitat/**/_self/check/<category>/<rule-id>/<rule-id>.rule.json`. The current
+`.habitat/**/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/<packet>.rule.json`.
+The current
 compatibility index is
-`.habitat/habitat/toolkit/_self/triage/structure/rule-pack-index/index.json`. At this
+`.habitat/habitat/blueprints/toolkit/structure/triage/rule-pack-index/index.json`. At this
 state it contains 60 registered rules:
 
 | Habitat lane | Count | Role |

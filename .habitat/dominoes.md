@@ -172,39 +172,37 @@ model.
 Current rule:
 
 ```text
-.habitat/<niche>/_self/<kind>/<category>/<packet>/
+.habitat/<authority-area>/blueprints/<blueprint>/<category>/<kind>/<packet>/
 ```
 
 Key decisions:
 
-- Niche is jurisdiction.
-- `_self` separates exact-niche packets from child niches.
-- Artifact kind is below `_self`, not the primary domain axis.
-- Blueprint is a future executable/enforceable model inside a niche, not the
-  same thing as a niche.
+- Authority area is jurisdiction.
+- Blueprint is the broad authored concept and portable future unit.
+- Category is a single-word universal engineering purpose.
+- Artifact kind carries mutability and execution intent.
+- Narrow subjects, maintenance chores, and runner names are not blueprints.
 
-### 10. Flatten The Authority Tree
+### 10. Flatten And Blueprint The Authority Tree
 
-Outcome: all current packets were moved out of provisional `boundaries`,
-`structure`, `capabilities`, and `contracts` buckets into the `_self/<kind>`
-shape. A later category pass physically grouped packets beneath
-`_self/<kind>/<category>/`.
+Outcome: all current packets were moved out of provisional layer buckets, then physically organized under broad blueprints. The current packet shape is:
+
+```text
+.habitat/<authority-area>/blueprints/<blueprint>/<category>/<kind>/<packet>/
+```
 
 What landed:
 
-- 56 packets under `_self/check`.
-- 1 packet under `_self/fix`.
-- 1 packet under `_self/generate`.
-- 7 unsettled Toolkit packets under `_self/triage`.
-- No old layer buckets remain.
+- 80 packets classified by universal single-word category.
+- Broad blueprints such as `workspace`, `documentation`, `toolkit`, `platform-integration`, `official-resources`, `core-sdk`, `domain-model`, `standard-pipeline`, `map-output`, and `studio`.
+- Artifact kinds remain `check`, `fix`, `generate`, `migrate`, and `triage`.
+- Toolkit triage remains explicitly non-default executable authority.
 
 Current semantic review:
 
-- The tree holds together.
-- Niches read as authored jurisdictions.
-- `_self` makes artifact packets visibly distinct from child niches.
-- `habitat/toolkit/_self/triage` is intentionally murky and should remain so
-  until admission/resolver design is addressed.
+- The tree now centers on the blueprint as the authored concept, not on narrow subjects.
+- Categories and artifact kinds are visible without becoming the top-level domain axis.
+- The next resolver pass must discover this blueprint path shape directly.
 
 ### 11. Bridge Package Scripts Through Habitat Check
 
@@ -227,7 +225,7 @@ What landed:
   preserving its existing environment profile.
 - Preserved the existing check set; did not redesign check semantics in this
   slice.
-- Kept `_self/triage` excluded from default execution.
+- Kept `<category>/triage` excluded from default execution.
 
 What this proved:
 
@@ -269,9 +267,9 @@ is not a surprise and should not be papered over as a one-off bug.
 Current direction: treat full-suite execution as a likely scrap-and-rebuild
 surface. The rebuild should start from the flattened authority tree:
 
-- discover executable packets from `.habitat/**/_self/<kind>/<category>/<packet>/`;
-- infer niche, artifact kind, category, and packet identity from the path;
-- exclude `_self/triage` from default execution;
+- discover executable packets from `.habitat/**/blueprints/<blueprint>/<category>/<kind>/<packet>/`;
+- infer authority area, blueprint, category, artifact kind, and packet identity from the path;
+- exclude `<category>/triage` packets from default execution;
 - refuse unknown, stale, or not-yet-admitted packets with explicit selector or
   admission diagnostics;
 - report per-packet failures directly, not as generic service errors;
@@ -301,7 +299,7 @@ What this domino should do:
   - if it already has a Habitat rule, rewire the caller to
     `habitat check --rule ...`;
   - if it is a standalone script that should be Habitat-owned, move it into the
-    appropriate `.habitat/<niche>/_self/check/<category>/<packet>/` packet, register it,
+    appropriate `.habitat/<authority-area>/blueprints/<blueprint>/<category>/check/<packet>/` packet, register it,
     add an empty or existing baseline as appropriate, and route it through
     `habitat check --rule ...`;
   - if it is redundant after a Habitat route exists, remove the alias instead
@@ -391,14 +389,14 @@ understands the flattened authority tree directly.
 Expected direction:
 
 - Discover executable packets from:
-  - `.habitat/**/_self/check/*/`
-  - `.habitat/**/_self/fix/*/`
-  - `.habitat/**/_self/generate/*/`
-  - `.habitat/**/_self/migrate/*/`
-- Infer niche from the path before `_self`.
-- Infer kind from the directory below `_self`.
+  - `.habitat/**/blueprints/*/*/check/*/`
+  - `.habitat/**/blueprints/*/*/fix/*/`
+  - `.habitat/**/blueprints/*/*/generate/*/`
+  - `.habitat/**/blueprints/*/*/migrate/*/`
+- Infer authority area and blueprint from the path before the category.
+- Infer kind from the directory below category.
 - Infer packet identity from the directory below kind.
-- Exclude `_self/triage` from default execution.
+- Exclude `<category>/triage` packets from default execution.
 - Avoid metadata declarations for facts already recoverable from the tree.
 - Preserve selected-rule execution as the compatibility path.
 - Produce explicit admission, selector, and packet execution diagnostics instead

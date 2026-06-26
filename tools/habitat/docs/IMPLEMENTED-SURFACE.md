@@ -170,4 +170,4 @@ Current tests cover:
 
 These tests cover Habitat's enforcement and orchestration behavior. They do not
 cover current workspace topology by resolving the live graph; that validation is
-owned by graph targets such as `lint`, `boundaries`, and `source:check`.
+owned by graph targets such as `lint`, `boundary`, and `source:check`.

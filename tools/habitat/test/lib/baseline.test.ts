@@ -527,7 +527,7 @@ function lsTreeMock(
     argv,
     cwd,
     `${options.rulePackAtBase
-      .map((id) => `.habitat/global/repository/_self/check/${id}/${id}.rule.json`)
+      .map((id) => `.habitat/global/blueprints/workspace/structure/check/${id}/${id}.rule.json`)
       .join("\n")}\n`
   );
 }
@@ -639,8 +639,9 @@ function writeSubjectLocalBaselineFile(repoRoot: string, ruleId: string, entries
     ".habitat",
     "civ7",
     "mapgen",
-    "pipeline",
-    "_self",
+    "blueprints",
+    "domain-model",
+    "structure",
     "check",
     ruleId
   );

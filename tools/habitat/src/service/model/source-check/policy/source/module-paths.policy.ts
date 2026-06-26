@@ -3,7 +3,7 @@
 // path remains the fallback diagnostic label until source-check disappears or
 // the final authority resolver owns module lookup.
 export const sourceCheckRuleRuntimeRepoPath =
-  ".habitat/habitat/toolkit/_self/triage/structure/legacy-source-check/rule-runtime.policy.mjs";
+  ".habitat/habitat/blueprints/toolkit/structure/triage/legacy-source-check/rule-runtime.policy.mjs";
 
 export const sourceCheckRuleModulesRepoPath =
   ".habitat/tooling/components/legacy-source-check/rules";

@@ -102,6 +102,23 @@ function isGritPatternArtifactPath(filePath: string): boolean {
 }
 
 function ruleArtifactId(filePath: string): string | undefined {
-  const match = /^\.habitat\/rules\/([^/]+)(?:\/|$)/.exec(filePath);
-  return match?.[1];
+  const parts = filePath.split("/");
+  const blueprintIndex = parts.indexOf("blueprints");
+  if (parts[0] === ".habitat" && blueprintIndex >= 1) {
+    const artifactKind = parts[blueprintIndex + 3];
+    const packetId = parts[blueprintIndex + 4];
+    if (
+      packetId &&
+      (artifactKind === "check" ||
+        artifactKind === "fix" ||
+        artifactKind === "generate" ||
+        artifactKind === "migrate" ||
+        artifactKind === "triage")
+    ) {
+      return packetId;
+    }
+  }
+
+  const legacyRulesMatch = /^\.habitat\/rules\/([^/]+)(?:\/|$)/.exec(filePath);
+  return legacyRulesMatch?.[1];
 }

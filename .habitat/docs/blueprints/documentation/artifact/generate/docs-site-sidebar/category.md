@@ -1,0 +1,24 @@
+# docs-site-sidebar
+
+Blueprint: `documentation`
+
+Primary category: `artifact`
+
+Secondary categories: `quality`
+
+Artifact kind: `generate`
+
+Lifecycle: `steady`
+
+Admission: `provisional`
+
+Authority path: `.habitat/docs/blueprints/documentation/artifact/generate/docs-site-sidebar`
+
+Files:
+- `docs-site-sidebar.generate.sh`
+- `docs-site-sidebar.operation.md`
+
+Evidence: The operation generates the docs sidebar from the current docs tree.
+
+Notes:
+- Generate operation identity is provisional until typed operation manifests exist.
