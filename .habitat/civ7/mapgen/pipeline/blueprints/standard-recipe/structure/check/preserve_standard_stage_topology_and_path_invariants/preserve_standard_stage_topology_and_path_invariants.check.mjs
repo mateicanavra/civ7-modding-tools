@@ -10,11 +10,16 @@ import {
 } from "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const expectedStageIds = [
-  "foundation",
+  "foundation-mantle",
+  "foundation-lithosphere",
+  "foundation-tectonics",
+  "foundation-orogeny",
+  "foundation-projection",
   "morphology-coasts",
   "morphology-routing",
   "morphology-erosion",
   "morphology-features",
+  "morphology-shelf",
   "hydrology-climate-baseline",
   "hydrology-hydrography",
   "hydrology-climate-refine",
@@ -28,38 +33,12 @@ const expectedStageIds = [
   "map-ecology",
   "placement",
 ];
-const legacyStageAliases = [
-  "hydrology-pre",
-  "hydrology-core",
-  "hydrology-post",
-  "narrative-pre",
-  "narrative-mid",
-  "narrative-post",
-];
 
 const recipeText = readMod("src/recipes/standard/recipe.ts");
 const stageIds = extractOrderStandardStagesKeys(recipeText);
 const findings = [
   ...assertEqual(stageIds, expectedStageIds, "stage-order", "standard stage order"),
 ];
-
-for (const legacyId of legacyStageAliases) {
-  if (stageIds.includes(legacyId)) {
-    findings.push({
-      file: "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
-      line: 1,
-      rule: "legacy-stage-alias",
-      detail: legacyId,
-    });
-  }
-}
-
-const foundationPaths = stageIds.filter(
-  (id) => id === "foundation" || id.startsWith("foundation-")
-);
-findings.push(
-  ...assertEqual(foundationPaths, ["foundation"], "foundation-stage-path", "foundation stage paths")
-);
 
 const mapStageDirs = readdirSync(stagesRoot)
   .filter((entry) => entry.startsWith("map-"))
