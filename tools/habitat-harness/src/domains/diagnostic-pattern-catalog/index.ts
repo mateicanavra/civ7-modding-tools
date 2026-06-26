@@ -15,7 +15,7 @@ export {
   DiagnosticMatchContractSchema,
   DiagnosticScanContractSchema,
   diagnosticCatalogEntryFromNativeRule,
-  diagnosticCatalogEntryFromRulePatternFacts,
+  diagnosticCatalogEntryFromRuleSourceFacts,
   GritDiagnosticCatalogEntrySchema,
   GritDiagnosticMatchContractSchema,
   GritDiagnosticScanContractSchema,

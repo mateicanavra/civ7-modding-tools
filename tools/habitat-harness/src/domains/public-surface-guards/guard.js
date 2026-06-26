@@ -16,7 +16,6 @@ const allowedLibFiles = new Set([
   "tools/habitat-harness/src/lib/artifact-paths.ts",
   "tools/habitat-harness/src/lib/boundary-taxonomy.ts",
   "tools/habitat-harness/src/lib/effect-runtime.ts",
-  "tools/habitat-harness/src/lib/graph.ts",
   "tools/habitat-harness/src/lib/host-policy.ts",
   "tools/habitat-harness/src/lib/host-policy/decisions.ts",
   "tools/habitat-harness/src/lib/host-policy/declarations.ts",
@@ -58,8 +57,8 @@ const allowedFsEdges = new Set([
   "tools/habitat-harness/src/domains/hook-runtime/staged-worktree.ts",
   "tools/habitat-harness/src/domains/structural-check/render.ts",
   "tools/habitat-harness/src/lib/boundary-taxonomy.ts",
-  "tools/habitat-harness/src/lib/graph.ts",
   "tools/habitat-harness/src/providers/nx/inventory.ts",
+  "tools/habitat-harness/src/providers/nx/rule-registry-loader.ts",
   "tools/habitat-harness/src/resources/filesystem.ts",
 ]);
 
@@ -296,6 +295,7 @@ function checkDeletedAdapters() {
     "tools/habitat-harness/src/lib/classify.ts",
     "tools/habitat-harness/src/lib/diagnostics.ts",
     "tools/habitat-harness/src/lib/fix.ts",
+    "tools/habitat-harness/src/lib/graph.ts",
     "tools/habitat-harness/src/lib/hooks.ts",
     "tools/habitat-harness/src/lib/hook-runtime",
     "tools/habitat-harness/src/lib/pattern-apply",

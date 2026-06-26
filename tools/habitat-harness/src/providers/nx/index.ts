@@ -17,6 +17,7 @@ export interface NxAffectedRequest {
   base: string;
   targets: readonly string[];
   head?: string;
+  excludeTaskDependencies?: boolean;
 }
 
 export interface NxGraphRequest {
@@ -26,6 +27,11 @@ export interface NxGraphRequest {
 export interface NxRunManyRequest {
   projects: readonly string[];
   targets: readonly string[];
+}
+
+export interface NxRunTargetRequest {
+  project: string;
+  target: string;
 }
 
 export interface NxProviderService {
@@ -41,6 +47,10 @@ export interface NxProviderService {
     request: NxRunManyRequest
   ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
   readonly runManyArgv: (request: NxRunManyRequest) => string[];
+  readonly runTarget: (
+    request: NxRunTargetRequest
+  ) => Effect.Effect<HabitatCommandResult, CommandProviderError, NxProviderRequirements>;
+  readonly runTargetArgv: (request: NxRunTargetRequest) => string[];
 }
 
 export class NxProvider extends Context.Tag("@internal/habitat-harness/NxProvider")<
@@ -54,6 +64,7 @@ export interface FakeNxProviderHandlers {
   readonly affected?: (request: NxAffectedRequest) => HabitatCommandResult;
   readonly graph?: (request: NxGraphRequest) => HabitatCommandResult;
   readonly runMany?: (request: NxRunManyRequest) => HabitatCommandResult;
+  readonly runTarget?: (request: NxRunTargetRequest) => HabitatCommandResult;
 }
 
 export function makeFakeNxProviderLayer(
@@ -70,6 +81,9 @@ export function makeFakeNxProviderLayer(
     runMany: (request) =>
       Effect.sync(() => requireFakeResult("runMany", handlers.runMany, request)),
     runManyArgv,
+    runTarget: (request) =>
+      Effect.sync(() => requireFakeResult("runTarget", handlers.runTarget, request)),
+    runTargetArgv,
   });
 }
 
@@ -95,7 +109,7 @@ function makeLiveNxProvider(): NxProviderService {
           runner.run({
             commandId: "nx-project-graph",
             kind: "workspace-tool",
-            executable: "target-check",
+            executable: "nx",
             argv: graphArgv(request).slice(1),
             cwd: repoRoot,
             captureGitState: false,
@@ -109,7 +123,7 @@ function makeLiveNxProvider(): NxProviderService {
           runner.run({
             commandId: "nx-run-many",
             kind: "workspace-tool",
-            executable: "target-check",
+            executable: "nx",
             argv: runManyArgv(request).slice(1),
             cwd: repoRoot,
             captureGitState: false,
@@ -117,6 +131,20 @@ function makeLiveNxProvider(): NxProviderService {
         )
       ),
     runManyArgv,
+    runTarget: (request) =>
+      CommandRunner.pipe(
+        Effect.flatMap((runner) =>
+          runner.run({
+            commandId: "nx-run-target",
+            kind: "workspace-tool",
+            executable: "nx",
+            argv: runTargetArgv(request).slice(1),
+            cwd: repoRoot,
+            captureGitState: false,
+          })
+        )
+      ),
+    runTargetArgv,
   };
 }
 
@@ -131,16 +159,17 @@ export function affectedArgv(request: NxAffectedRequest): string[] {
     "--head",
     request.head ?? "HEAD",
     "--outputStyle=static",
+    ...(request.excludeTaskDependencies ? ["--excludeTaskDependencies"] : []),
   ];
 }
 
 export function graphArgv(request: NxGraphRequest): string[] {
-  return ["target-check", "graph", "--file", request.outputPath];
+  return ["nx", "graph", "--file", request.outputPath];
 }
 
 export function runManyArgv(request: NxRunManyRequest): string[] {
   return [
-    "target-check",
+    "nx",
     "run-many",
     "--targets",
     request.targets.join(","),
@@ -148,6 +177,10 @@ export function runManyArgv(request: NxRunManyRequest): string[] {
     request.projects.join(","),
     "--outputStyle=static",
   ];
+}
+
+export function runTargetArgv(request: NxRunTargetRequest): string[] {
+  return ["nx", "run", `${request.project}:${request.target}`, "--outputStyle=static"];
 }
 
 function requireFakeResult<Request>(

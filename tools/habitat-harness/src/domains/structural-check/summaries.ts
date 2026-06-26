@@ -166,7 +166,7 @@ function hasBaselineRefusal(report: CheckReport): boolean {
 function hasGritAdapterFailure(report: CheckReport): boolean {
   return report.rules.some(
     (rule) =>
-      rule.ownerTool === "pattern-check" &&
+      rule.ownerTool === "source-check" &&
       rule.diagnostics.some(
         (diagnostic) => parseGritAdapterFailureKind(diagnostic.message) !== null
       )

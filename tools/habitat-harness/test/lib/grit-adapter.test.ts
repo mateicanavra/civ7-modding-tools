@@ -16,14 +16,14 @@ import {
   diagnosticAdapterFailureKinds,
   diagnosticCacheRequirementForGritCheck,
   diagnosticCatalogEntryFromNativeRule,
-  diagnosticCatalogEntryFromRulePatternFacts,
+  diagnosticCatalogEntryFromRuleSourceFacts,
   diagnosticConsumerResultFromOutcome,
   GritDiagnosticCatalogEntrySchema,
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticAdapterFailure,
 } from "../../src/domains/diagnostic-pattern-catalog/index.js";
-import type { RulePatternFacts } from "../../src/domains/rule-registry/index.js";
+import type { RuleSourceFacts } from "../../src/domains/rule-registry/index.js";
 import { repoRoot, toRepoRelative } from "../../src/lib/paths.js";
 import {
   type HabitatProcessRequest,
@@ -366,7 +366,7 @@ describe("Grit check adapter parser and diagnostics", () => {
   });
 
   test("validates diagnostic catalog branches with TypeBox-specific contracts", () => {
-    const gritEntry = diagnosticCatalogEntryFromRulePatternFacts(
+    const gritEntry = diagnosticCatalogEntryFromRuleSourceFacts(
       fakeGritRule("domain-deep-import", "domain_deep_import")
     );
     const nativeEntry = diagnosticCatalogEntryFromNativeRule({
@@ -994,8 +994,8 @@ function fakeExistingScanRoots(
 function fakeGritRule(
   id: string,
   pattern: string,
-  overrides: Partial<RulePatternFacts> = {}
-): RulePatternFacts {
+  overrides: Partial<RuleSourceFacts> = {}
+): RuleSourceFacts {
   return {
     id,
     patternName: pattern,

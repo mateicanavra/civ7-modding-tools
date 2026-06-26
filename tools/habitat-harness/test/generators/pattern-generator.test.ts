@@ -40,7 +40,7 @@ describe("Habitat pattern generator", () => {
       patternName: "dra_metadata_probe",
       lifecycle: "candidate",
       openspecChangeId: "habitat-pattern-generator-metadata-repair",
-      ownerTool: "pattern-check",
+      ownerTool: "source-check",
       registration: { accepted: false },
     });
     expect(
@@ -409,7 +409,7 @@ function registeredManifest(
     lifecycle: "registered-advisory",
     openspecChangeId: "habitat-pattern-generator-metadata-repair",
     ownerProject: "@internal/habitat-harness",
-    ownerTool: "pattern-check",
+    ownerTool: "source-check",
     normativeSources: [
       {
         kind: "accepted-spec",

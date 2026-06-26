@@ -96,6 +96,7 @@ export function createCheckReportEffect(
         reportFacts,
         locked,
         durationMs: execution.durationMs,
+        timing: execution.timing,
         diagnostics,
       });
       structuralRuleOutcome(report, execution.disposition);
@@ -169,6 +170,7 @@ function ruleReportFromDiagnostics(input: {
   reportFacts: RuleReportFacts;
   locked: boolean;
   durationMs: number;
+  timing?: RuleReport["timing"];
   diagnostics: RuleReport["diagnostics"];
 }): RuleReport {
   const newViolations = input.diagnostics.filter(
@@ -189,6 +191,7 @@ function ruleReportFromDiagnostics(input: {
     status,
     locked: input.locked,
     durationMs: input.durationMs,
+    timing: input.timing,
     diagnostics: input.diagnostics,
     detect: input.reportFacts.detect,
     message: input.reportFacts.message,

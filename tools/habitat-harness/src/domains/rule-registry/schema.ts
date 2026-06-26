@@ -8,7 +8,7 @@ const RuleIdentitySchema = Type.Object(
       Type.Literal("format-check"),
       Type.Literal("file-layer"),
       Type.Literal("habitat"),
-      Type.Literal("pattern-check"),
+      Type.Literal("source-check"),
       Type.Literal("import-boundaries"),
       Type.Literal("command-check"),
       Type.Literal("target-check"),
@@ -126,10 +126,10 @@ const WrappedTestRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
-export const PatternCheckRuleRegistryRecordV1Schema = Type.Interface(
+export const SourceCheckRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
-    ownerTool: Type.Literal("pattern-check"),
+    ownerTool: Type.Literal("source-check"),
     patternName: Type.String({ minLength: 1 }),
     scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
     hookCheck: Type.Optional(HookCheckSchema),
@@ -168,7 +168,7 @@ const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
 export const RuleRegistryRecordV1Schema = Type.Union([
   CommandRuleRegistryRecordV1Schema,
   WrappedTestRuleRegistryRecordV1Schema,
-  PatternCheckRuleRegistryRecordV1Schema,
+  SourceCheckRuleRegistryRecordV1Schema,
   GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
   ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,
   HostSurfaceFileLayerRuleRegistryRecordV1Schema,
@@ -256,16 +256,17 @@ export const RuleCommandExecutionFactsSchema = Type.Interface(
   { additionalProperties: false }
 );
 
-export const RulePatternFactsSchema = Type.Pick(PatternCheckRuleRegistryRecordV1Schema, [
+export const RuleSourceFactsSchema = Type.Pick(SourceCheckRuleRegistryRecordV1Schema, [
   "id",
   "lane",
   "message",
   "patternName",
+  "pathCoverage",
   "scanRoots",
 ]);
 
 export const RuleManifestFactsSchema = Type.Interface(
-  [Type.Pick(PatternCheckRuleRegistryRecordV1Schema, ["id", "lane", "patternName"])],
+  [Type.Pick(SourceCheckRuleRegistryRecordV1Schema, ["id", "lane", "patternName"])],
   {
     manifestPath: Type.String({ minLength: 1 }),
   },
@@ -297,7 +298,7 @@ export const RuleFileLayerFactsSchema = Type.Union([
 ]);
 
 export const RuleHookCheckFactsSchema = Type.Interface(
-  [Type.Pick(PatternCheckRuleRegistryRecordV1Schema, ["id"])],
+  [Type.Pick(SourceCheckRuleRegistryRecordV1Schema, ["id"])],
   {
     hookCheck: HookCheckSchema,
   },
@@ -313,7 +314,7 @@ export type RuleBaselineFacts = Static<typeof RuleBaselineFactsSchema>;
 export type RuleRoutingFacts = Static<typeof RuleRoutingFactsSchema>;
 export type RuleGraphFacts = Static<typeof RuleGraphFactsSchema>;
 export type RuleCommandExecutionFacts = Static<typeof RuleCommandExecutionFactsSchema>;
-export type RulePatternFacts = Static<typeof RulePatternFactsSchema>;
+export type RuleSourceFacts = Static<typeof RuleSourceFactsSchema>;
 export type RuleManifestFacts = Static<typeof RuleManifestFactsSchema>;
 export type RuleFileLayerFacts = Static<typeof RuleFileLayerFactsSchema>;
 export type RuleHookCheckFacts = Static<typeof RuleHookCheckFactsSchema>;

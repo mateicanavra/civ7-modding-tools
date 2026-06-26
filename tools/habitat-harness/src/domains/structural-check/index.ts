@@ -4,8 +4,8 @@ export {
   approvedScanRootsForRules,
   executeSelectedRulesEffect,
   rulesForExecution,
-  stagedPatternNotApplicableRecords,
-  stagedPatternScanRoots,
+  stagedSourceCheckNotApplicableRecords,
+  stagedSourceCheckPaths,
 } from "./execution.js";
 export { renderCheckReport, stringifyCheckReport } from "./render.js";
 export { createCheckReportEffect } from "./report.js";

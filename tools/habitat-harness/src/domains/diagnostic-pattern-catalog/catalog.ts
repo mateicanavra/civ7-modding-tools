@@ -1,5 +1,5 @@
 import { type Static, Type } from "typebox";
-import type { RulePatternFacts } from "../rule-registry/index.js";
+import type { RuleSourceFacts } from "../rule-registry/index.js";
 import {
   GritDiagnosticIdentitySchema,
   gritDiagnosticIdentity,
@@ -11,7 +11,7 @@ import {
 export const GritDiagnosticScanContractSchema = Type.Object(
   {
     kind: Type.Literal("rule-registry-scan-roots"),
-    requiredFacet: Type.Literal("rulePatternFacts"),
+    requiredFacet: Type.Literal("ruleSourceFacts"),
   },
   { additionalProperties: false }
 );
@@ -103,8 +103,8 @@ export type GritDiagnosticCatalogEntry = Static<typeof GritDiagnosticCatalogEntr
 export type NativeDiagnosticCatalogEntry = Static<typeof NativeDiagnosticCatalogEntrySchema>;
 export type DiagnosticCatalogEntry = Static<typeof DiagnosticCatalogEntrySchema>;
 
-export function diagnosticCatalogEntryFromRulePatternFacts(
-  rule: Pick<RulePatternFacts, "id" | "patternName">
+export function diagnosticCatalogEntryFromRuleSourceFacts(
+  rule: Pick<RuleSourceFacts, "id" | "patternName">
 ): GritDiagnosticCatalogEntry {
   const diagnosticIdentity = gritDiagnosticIdentity(rule.patternName);
   return {
@@ -113,7 +113,7 @@ export function diagnosticCatalogEntryFromRulePatternFacts(
     ruleId: rule.id,
     diagnosticIdentity,
     source: "rule-registry-facts",
-    scanContract: { kind: "rule-registry-scan-roots", requiredFacet: "rulePatternFacts" },
+    scanContract: { kind: "rule-registry-scan-roots", requiredFacet: "ruleSourceFacts" },
     matchContract: { kind: "pattern-match", identity: diagnosticIdentity },
   };
 }

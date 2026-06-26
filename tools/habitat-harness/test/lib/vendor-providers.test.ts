@@ -7,7 +7,11 @@ import {
   biomeArgv,
   makeFakeBiomeProviderLayer,
 } from "../../src/providers/biome/index.js";
-import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+  materializeDefaultHabitatCommand,
+} from "../../src/providers/command/index.js";
 import { GitProvider, makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
 import { huskyDelegator } from "../../src/providers/husky/index.js";
 import {
@@ -16,6 +20,7 @@ import {
   makeFakeNxProviderLayer,
   NxProvider,
   runManyArgv,
+  runTargetArgv,
 } from "../../src/providers/nx/index.js";
 import { runHabitatEffect } from "../../src/runtime/index.js";
 
@@ -96,7 +101,7 @@ describe("vendor providers", () => {
 
   test("NxProvider owns graph argv construction", () => {
     expect(graphArgv({ outputPath: "/tmp/habitat-graph-fake/graph.json" })).toEqual([
-      "target-check",
+      "nx",
       "graph",
       "--file",
       "/tmp/habitat-graph-fake/graph.json",
@@ -110,7 +115,7 @@ describe("vendor providers", () => {
     };
 
     expect(runManyArgv(request)).toEqual([
-      "target-check",
+      "nx",
       "run-many",
       "--targets",
       "test:architecture-cutover,test:architecture-core-purity",
@@ -129,7 +134,7 @@ describe("vendor providers", () => {
             runMany: (runManyRequest) =>
               commandResult(
                 "workspace-tool",
-                "target-check",
+                "nx",
                 runManyArgv(runManyRequest).slice(1),
                 repoRoot,
                 "batched ok\n"
@@ -140,6 +145,42 @@ describe("vendor providers", () => {
     );
 
     expect(result.stdout.text).toBe("batched ok\n");
+  });
+
+  test("NxProvider owns single target execution without run-many", async () => {
+    const request = {
+      project: "@internal/habitat-harness",
+      target: "boundaries",
+    };
+
+    expect(runTargetArgv(request)).toEqual([
+      "nx",
+      "run",
+      "@internal/habitat-harness:boundaries",
+      "--outputStyle=static",
+    ]);
+
+    const result = await runHabitatEffect(
+      Effect.gen(function* () {
+        const nx = yield* NxProvider;
+        return yield* nx.runTarget(request);
+      }).pipe(
+        Effect.provide(
+          makeFakeNxProviderLayer({
+            runTarget: (runTargetRequest) =>
+              commandResult(
+                "workspace-tool",
+                "nx",
+                runTargetArgv(runTargetRequest).slice(1),
+                repoRoot,
+                "single target ok\n"
+              ),
+          })
+        )
+      )
+    );
+
+    expect(result.stdout.text).toBe("single target ok\n");
   });
 
   test("BiomeProvider owns safe command-vector construction", async () => {
@@ -184,6 +225,16 @@ describe("vendor providers", () => {
       "tools/habitat-harness/src/index.ts",
     ]);
     expect(result.stdout.text).toBe("formatted\n");
+  });
+
+  test("BiomeProvider executable materializes through the workspace binary policy", () => {
+    expect(materializeDefaultHabitatCommand("biome", ["ci", "."])).toMatchObject({
+      requestedExecutable: "biome",
+      executable: "bun",
+      argv: ["run", "--cwd", repoRoot, "biome", "ci", "."],
+      cwd: repoRoot,
+      executionPlane: "workspace-bun-run",
+    });
   });
 
   test("GritProvider owns check request construction and cache policy", async () => {

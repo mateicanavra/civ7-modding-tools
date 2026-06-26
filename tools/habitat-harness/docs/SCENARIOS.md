@@ -65,17 +65,23 @@ Supported outcome:
 Use:
 
 ```bash
-bun run verify
 bun run check
+bun run check:graph
+bun run verify
 ```
 
 Supported outcome:
 
-- the workspace graph expands task dependencies;
-- package checks run through owning targets;
+- `check` runs the Habitat structural aggregate;
+- `check:graph` expands affected projects and runs package checks plus
+  structural validation targets without dependency build/test fanout;
+- `verify` runs heavier package build/check/test verification targets;
 - Habitat checks participate through `habitat:check` where configured.
 
-Use root graph-owned scripts for review-grade verification.
+Use `bun run check` for ordinary structural health, `bun run check:graph` when
+the change needs affected package type-check and structural coverage, and
+`bun run verify` when it needs the heavier build/check/test aggregate. CI runs
+the full graph without re-entering `verify`.
 
 ### Run Diagnostic Habitat Verify
 
