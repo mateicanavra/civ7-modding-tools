@@ -62,9 +62,10 @@ output or package execution.
 ## Notable Data Quality Findings
 
 - `prohibit_ambient_rng_in_authored_generation` and
-  `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` are
-  `ownerTool: command-check` but also have source-check adapters. Treat this as
-  compatibility residue.
+  `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` had stale
+  source-check adapters despite `ownerTool: command-check`; those adapters were
+  deleted in the canary. The remaining question is command-check split or
+  consolidation.
 - `prohibit_ambient_rng_in_authored_generation` has a current exception in the
   command-check/source-check behavior for discovery materialization; carry or
   intentionally remove that exception before deleting the command/check path.

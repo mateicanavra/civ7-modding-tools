@@ -4,13 +4,13 @@ Status: implementation evidence
 
 ## Result
 
-The team converted 25 additional active source-check rules to `grit-check` and deleted their matching central adapters. Together with the canary, active source-check state is now reduced from 29 rule-selected adapters to 1.
+The team converted 25 additional active source-check rules to `grit-check` and deleted their matching central adapters. Together with the canary and final holdback split, active source-check state is now reduced from 29 rule-selected adapters to 0.
 
-Current residual:
+Final holdback closed:
 
 - `require_explicit_mapgen_sdk_opt_in`
 
-The residual remains intentionally because it mixes SDK opt-in authority with a mapgen-core adapter-import ban that overlaps `preserve_mapgen_core_runtime_neutrality`.
+The residual was split: SDK opt-in authority remains in the SDK packet as `grit-check`, while the overlapping mapgen-core adapter-import ban is owned by `preserve_mapgen_core_runtime_neutrality`. The final adapter and `rule-runtime.policy.mjs` were deleted.
 
 ## Lane Outcomes
 
@@ -20,7 +20,7 @@ The residual remains intentionally because it mixes SDK opt-in authority with a 
 | `mapgen-pipeline` | 10 | 0 | `lanes/mapgen-pipeline.jsonl` |
 | `mapgen-other` | 4 | 0 | `lanes/mapgen-other.jsonl` |
 | `platform-resources` | 2 | 0 | `lanes/platform-resources.jsonl` |
-| `holdback-review` | 0 | 1 | `lanes/holdback-review.jsonl` |
+| `holdback-review` | 1 | 0 | `lanes/holdback-review.jsonl` |
 
 ## Important Finding
 
@@ -28,8 +28,5 @@ The residual remains intentionally because it mixes SDK opt-in authority with a 
 
 ## Next Domino
 
-Split `require_explicit_mapgen_sdk_opt_in`:
-
-- keep SDK entrypoint opt-in/source-shape authority as Grit pattern authority;
-- remove or demote the overlapping mapgen-core adapter-import branch now covered by `preserve_mapgen_core_runtime_neutrality`;
-- delete the final adapter and then `rule-runtime.policy.mjs` once no importers remain.
+The source-check adapter/runtime surface is gone. Next work should target broad
+command-check split rows and non-Grit ownership cleanup.

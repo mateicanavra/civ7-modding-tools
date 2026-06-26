@@ -9,11 +9,9 @@ metadata, patterns, baselines, command checks, and operation notes.
 
 Current contents:
 
-- `source-check/runtime/`: shared legacy source-check runtime helpers.
-- `source-check/adapters/`: transitional `.rule.mjs` adapters loaded by the
-  source-check runner.
 - `command-check/`: shared helper code used by command-check scripts.
 
-The target end state is to remove this support island as source-check and
-command-check compatibility surfaces are converted to durable Habitat execution
-models.
+The former `source-check/runtime/` and `source-check/adapters/` support surfaces
+were deleted after the source-check predicates moved to Grit authority. The
+remaining target end state is to remove this support island as command-check
+compatibility surfaces are converted to durable Habitat execution models.

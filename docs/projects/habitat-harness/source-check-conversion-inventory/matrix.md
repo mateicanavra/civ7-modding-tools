@@ -1,24 +1,24 @@
 # Rule/Adapter Disposition Matrix
 
-Status: updated after systematic source-check adapter burn-down
+Status: updated after final source-check runtime deletion
 
 ## Coverage
 
 - Canonical rule records: 73
-- Centralized source-check adapters remaining: 1
-- Active `ownerTool: source-check` rule records: 1
-- Active source-check adapters: 1
+- Centralized source-check adapters remaining: 0
+- Active `ownerTool: source-check` rule records: 0
+- Active source-check adapters: 0
 - Deleted adapters in canary: `block_engine_runtime_imports_from_domain_ops`, `preserve_transport_pure_orpc_contracts`, `prohibit_ambient_rng_in_authored_generation`, `prohibit_cross_op_runtime_calls`, `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases`, `prohibit_runtime_helper_redeclarations`, `require_public_ecology_surfaces_and_retired_topology_removal`
 - Converted in systematic burn-down: `block_adapter_context_imports_from_domain_ops`, `enforce_adapter_only_base_standard_imports`, `preserve_mapgen_core_runtime_neutrality`, `prohibit_bare_value_export_all_from_contract_surfaces`, `prohibit_domain_ops_projection_effect_dependencies`, `prohibit_empty_object_defaults_in_contract_schemas`, `prohibit_recipe_imports_in_domain_source`, `prohibit_relative_domain_reaches_from_recipes_and_maps`, `prohibit_retired_domain_root_catalogs`, `prohibit_root_config_facade_imports_in_domain_ops`, `prohibit_runtime_calls_to_runvalidated`, `prohibit_runtime_local_config_default_merging`, `prohibit_runtime_orchestration_helpers_in_domain_ops`, `prohibit_runtime_validation_and_compiler_imports`, `prohibit_sibling_stage_private_step_imports`, `prohibit_wrapper_only_advanced_config`, `require_domain_contract_roots_in_step_contracts`, `require_public_domain_surfaces_in_recipes_and_maps`, `require_runtime_domain_op_bundle_imports`, `require_sanctioned_direct_control_session_owners`, `require_shared_visualization_contracts_at_stage_surfaces`, `require_studio_ui_recipe_artifact_imports`, `require_typed_dependency_and_effect_tag_constants`, `require_typed_placement_outcomes_before_apply`, `restrict_recipes_to_public_domain_surfaces`
-- Residual source-check holdback: `require_explicit_mapgen_sdk_opt_in`
+- Final source-check holdback converted and runtime deleted: `require_explicit_mapgen_sdk_opt_in`
 
 ## Disposition Counts
 
 | Disposition | Count |
 | --- | ---: |
 | `data_driven_import_path_rule` | 8 |
-| `grit_pattern_authority` | 37 |
-| `needs_split` | 16 |
+| `grit_pattern_authority` | 38 |
+| `needs_split` | 15 |
 | `package_local_test_or_validator` | 12 |
 
 ## Grit Pattern Authority
@@ -52,6 +52,7 @@ Status: updated after systematic source-check adapter burn-down
 | `prohibit_sibling_stage_private_step_imports` | mapgen-pipeline | grit-check | no | no | high: existing Grit import_statement pattern expresses the adapter predicate with path and import-source scope. |
 | `prohibit_wrapper_only_advanced_config` | mapgen-pipeline | grit-check | no | no | high: existing pattern directly matches the adapter predicate, including TS/JSON path scope and positive/negative fixtures. |
 | `require_domain_contract_roots_in_step_contracts` | mapgen-domain | grit-check | no | no | high: existing .pattern.md directly expresses path-scoped import/export source constraints. |
+| `require_explicit_mapgen_sdk_opt_in` | mapgen-other | grit-check | no | no | high: final split kept SDK opt-in import/export and SDK adapter-import predicates as Grit authority; the overlapping mapgen-core branch is owned by preserve_mapgen_core_runtime_neutrality. |
 | `require_narrow_game_ui_bridge_bootstrap` | platform-resources | command-check | no | no | strong but with one presence-check caveat: forbidden imports/tokens are direct Grit matches, and required import/install shape should be expressible with contains/not over the exact file. |
 | `require_public_domain_surfaces_in_recipes_and_maps` | mapgen-domain | grit-check | no | no | high: existing .pattern.md expresses the check; existing .apply.pattern.md is a separate fix operation candidate, not a runtime fixture. |
 | `require_public_domain_surfaces_in_tests` | mapgen-domain | command-check | no | no | high: this is path-scoped import/export source matching; no package runtime behavior is checked. |
@@ -76,7 +77,6 @@ Status: updated after systematic source-check adapter burn-down
 | `preserve_standard_stage_topology_and_path_invariants` | mapgen-pipeline | command-check | no | yes | medium: legacy alias text bans are Grit-friendly, but exact stage-order and directory-topology parity should become a data-driven topology rule or manifest-backed check. |
 | `prohibit_cross_op_runtime_calls` | mapgen-domain | command-check | no | yes | stale adapter deleted; cross-op import/export/dynamic predicate is already Grit-shaped, but ops.bind/runValidated overlaps with prohibit_runtime_orchestration_helpers_in_domain_ops and should consolidate rather than stay duplicated here. |
 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | mapgen-pipeline | command-check | no | yes | medium-high: most assertions are path-scoped token/source bans that Grit can express, but the packet mixes semantic ecology policy, runtime-adjacent RNG bans, and legacy generator boundary bans. |
-| `require_explicit_mapgen_sdk_opt_in` | mapgen-other | source-check | yes | yes | mixed-high: SDK opt-in entrypoint checks are Grit-shaped, but the mapgen-core adapter-import ban overlaps preserve_mapgen_core_runtime_neutrality and should split before adapter deletion. |
 | `require_owned_domain_config_catalog_surfaces` | mapgen-domain | command-check | no | yes | mixed: op import bans and milestone token bans are Grit/source-text candidates; exact export list and required-token presence are better split into data-driven structural checks. |
 | `require_projection_calls_in_projection_steps` | mapgen-other | command-check | no | yes | medium: forbidden call placement is Grit-shaped, but exact caller ownership lists and required source/contract token assertions should be separated before conversion |
 | `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | command-check | no | yes | stale adapter deleted; import/export and retired-path predicates are already Grit-shaped, while active-root existence is a separate topology/currentness assertion. |
@@ -122,7 +122,7 @@ Canonical rule rows do not currently land here. The four stale adapter-support f
 
 - The canary proved the source-check to grit-check ownership switch for three diverse adapter-backed rules and deleted seven adapter files total.
 - The systematic burn-down converted the remaining 25 straightforward adapter-backed Grit rows and deleted their adapters.
-- The source-check execution surface is now one explicit residual: `require_explicit_mapgen_sdk_opt_in`. It remains because the adapter mixes SDK opt-in authority with a mapgen-core adapter-import ban that overlaps `preserve_mapgen_core_runtime_neutrality`.
-- `rule-runtime.policy.mjs` is not deletion-ready yet; it has one active importer. The next biggest domino is splitting `require_explicit_mapgen_sdk_opt_in`, converting the Grit-shaped SDK opt-in part, and then deleting the final adapter plus runtime.
+- The final residual, `require_explicit_mapgen_sdk_opt_in`, was split: SDK opt-in authority stayed in the SDK packet as `grit-check`, while the overlapping mapgen-core adapter-import branch remains owned by `preserve_mapgen_core_runtime_neutrality`.
+- The source-check execution surface is now gone: zero source-check rule records, zero centralized adapters, and `rule-runtime.policy.mjs` deleted.
 - Broad command-check bundles are now the main source of state explosion. Treat `needs_split` rows as assertion-level extraction work, not as whole-packet conversions.
 - File-layer, Nx, generated-zone, and graph-backed rows fit the allowed enum imperfectly. They are kept in `data_driven_import_path_rule` with notes instead of expanding the classification vocabulary midstream.

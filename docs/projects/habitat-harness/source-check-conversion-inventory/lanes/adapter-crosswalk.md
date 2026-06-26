@@ -1,6 +1,6 @@
 # adapter-crosswalk Lane Inventory
 
-Status: updated after systematic source-check adapter burn-down
+Status: updated after final source-check runtime deletion
 
 This lane is a crosswalk/review lane. It accounted for the original `33`
 centralized `.rule.mjs` adapters under
@@ -12,15 +12,13 @@ records, adjacent patterns/checks, and runtime helper dependencies.
 - `33` original adapters inspected.
 - `7` adapters deleted in the canary.
 - `25` additional adapters deleted in the systematic burn-down.
-- `1` adapter remains.
-- `1` remaining adapter maps to an active `ownerTool: source-check` rule record.
-- `0` remaining adapters import anything except `../runtime/rule-runtime.policy.mjs`.
+- `1` final adapter deleted after splitting `require_explicit_mapgen_sdk_opt_in`.
+- `0` adapters remain.
+- `0` active `ownerTool: source-check` rule records remain.
 
 ## Remaining Source-Check Adapter
 
-| Rule ID | Disposition | Split | Helper shape | Reason it remains |
-| --- | --- | --- | --- | --- |
-| `require_explicit_mapgen_sdk_opt_in` | `needs_split` | yes | domain-specific SDK/mapgen-core mixed helper | Mixes SDK opt-in/public entrypoint policy with a mapgen-core adapter-import ban that overlaps `preserve_mapgen_core_runtime_neutrality`. |
+None.
 
 ## Deleted Or Converted Adapters
 
@@ -50,6 +48,7 @@ and grit-check-after proof:
 - `prohibit_sibling_stage_private_step_imports`
 - `prohibit_wrapper_only_advanced_config`
 - `require_domain_contract_roots_in_step_contracts`
+- `require_explicit_mapgen_sdk_opt_in`
 - `require_public_domain_surfaces_in_recipes_and_maps`
 - `require_public_ecology_surfaces_and_retired_topology_removal`
 - `require_runtime_domain_op_bundle_imports`
@@ -66,7 +65,7 @@ The runtime has two different kinds of exports. The generic AST support can be
 replaced by Grit execution mechanics. The only active domain-specific helper
 payload now used by source-check is `sdkMapgenEntrypointDiagnostics`.
 
-Generic support still present because the final adapter imports the runtime:
+Generic support deleted with `rule-runtime.policy.mjs`:
 
 - AST/fact collection: `importRefs`, `exportedConstNames`, `newExpressions`,
   `callExpressions`, `propertyCallExpressions`, `callNodes`,
@@ -77,7 +76,7 @@ Generic support still present because the final adapter imports the runtime:
 - Convenience predicates: `sourceRefsMatching`, `emptyObjectNullish`,
   `propertyNameOccurrences`.
 
-Domain-specific predicate payload still blocking runtime deletion:
+Domain-specific predicate payload deleted after final split:
 
 - `sdkMapgenEntrypointDiagnostics`
 
@@ -100,6 +99,5 @@ deletion:
 
 ## Next Move
 
-Split `require_explicit_mapgen_sdk_opt_in`, convert the SDK opt-in predicate to
-Grit, delete the final adapter, then delete `rule-runtime.policy.mjs` once no
-runtime importers remain.
+The source-check adapter/runtime layer is closed. The next work moves to broad
+command-check split rows and non-Grit ownership cleanup.

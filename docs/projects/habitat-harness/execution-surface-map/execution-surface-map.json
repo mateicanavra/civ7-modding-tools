@@ -2,11 +2,10 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 475,
-    "totalSupportFiles": 4,
+    "totalSurfaces": 474,
+    "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
-      "rule-module": 1,
       "apply-pattern": 2,
       "pattern": 36,
       "rule-json": 73,
@@ -21,7 +20,6 @@
       "habitat-cli-source": 124
     },
     "surfacesByRole": {
-      "source_check_adapter": 1,
       "policy_pattern": 38,
       "runner_metadata": 73,
       "command_check_executor": 36,
@@ -30,18 +28,17 @@
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
+      "unknown": 11,
       "habitat": 263,
-      "unknown": 12,
       "direct-script": 38,
       "package": 135,
       "nx": 65
     },
     "surfacesByBucket": {
-      "habitat_invoked": 263,
-      "transitional_runtime_tie": 2,
-      "mutation_surface": 120,
+      "mutation_surface": 121,
       "package_boundary_tie": 63,
-      "unknown_invocation": 12,
+      "unknown_invocation": 11,
+      "habitat_invoked": 263,
       "nx_ordering_tie": 105,
       "direct_script_invoked": 38,
       "package_invoked": 200
@@ -50,45 +47,28 @@
   },
   "executionAnatomy": {
     "roleCounts": {
-      "adapter": 74,
-      "fixture-support": 10,
-      "policy-predicate": 39,
-      "transient-dependency": 143,
+      "policy-predicate": 38,
+      "transient-dependency": 141,
+      "adapter": 73,
       "entrypoint": 236,
+      "fixture-support": 9,
       "runner-runtime": 124
     },
     "ruleModule": {
-      "total": 1,
-      "expectedExportShape": 1,
-      "transitionalRuntimeImports": 1,
+      "total": 0,
+      "expectedExportShape": 0,
+      "transitionalRuntimeImports": 0,
       "separableSupportCandidates": 0,
-      "candidateExtensions": [
-        ".ts"
-      ],
-      "runtimeHelperFanout": [
-        {
-          "helper": "policy",
-          "sourceCount": 1,
-          "sampleSources": [
-            ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs"
-          ]
-        },
-        {
-          "helper": "sdkMapgenEntrypointDiagnostics",
-          "sourceCount": 1,
-          "sampleSources": [
-            ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs"
-          ]
-        }
-      ]
+      "candidateExtensions": [],
+      "runtimeHelperFanout": []
     }
   },
   "topCrossBoundaryTiesByFanout": [
     {
       "target": "grit-check",
       "targetClass": "workspace-tool",
-      "references": 62,
-      "sourceCount": 33,
+      "references": 65,
+      "sourceCount": 35,
       "sampleSources": [
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.rule.json",
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.rule.json",
@@ -417,6 +397,21 @@
       ]
     },
     {
+      "target": "nx",
+      "targetClass": "workspace-tool",
+      "references": 8,
+      "sourceCount": 7,
+      "sampleSources": [
+        ".habitat/global/workspace/blueprints/project-boundary-model/boundary/check/enforce_workspace_import_boundaries/enforce_workspace_import_boundaries.rule.json",
+        "tools/habitat/src/providers/nx/index.ts",
+        "tools/habitat/src/service/model/rules/dto/registry.schema.ts",
+        "tools/habitat/src/service/model/rules/policy/facts.policy.ts",
+        "tools/habitat/src/service/model/rules/policy/graph.policy.ts",
+        "tools/habitat/src/service/model/rules/policy/selection.policy.ts",
+        "tools/habitat/src/service/modules/verify/model/policy/nx-affected.policy.ts"
+      ]
+    },
+    {
       "target": "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy",
       "targetClass": "habitat-toolkit",
       "references": 7,
@@ -501,20 +496,6 @@
         ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.rule.json",
         ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.rule.json",
         "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts"
-      ]
-    },
-    {
-      "target": "nx",
-      "targetClass": "workspace-tool",
-      "references": 7,
-      "sourceCount": 6,
-      "sampleSources": [
-        ".habitat/global/workspace/blueprints/project-boundary-model/boundary/check/enforce_workspace_import_boundaries/enforce_workspace_import_boundaries.rule.json",
-        "tools/habitat/src/providers/nx/index.ts",
-        "tools/habitat/src/service/model/rules/dto/registry.schema.ts",
-        "tools/habitat/src/service/model/rules/policy/facts.policy.ts",
-        "tools/habitat/src/service/model/rules/policy/graph.policy.ts",
-        "tools/habitat/src/service/modules/verify/model/policy/nx-affected.policy.ts"
       ]
     },
     {
@@ -1437,16 +1418,6 @@
       ]
     },
     {
-      "target": ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
-      "targetClass": "habitat-support",
-      "references": 3,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs",
-        "tools/habitat/src/service/model/source-check/policy/source/module-paths.policy.ts"
-      ]
-    },
-    {
       "target": "python3",
       "targetClass": "workspace-tool",
       "references": 3,
@@ -1924,16 +1895,6 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/map-output/blueprints/map-projection/contract/check/preserve_physics_to_map_projection_contracts/preserve_physics_to_map_projection_contracts.check.mjs",
         ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "packages/mapgen-core/src/.",
-      "targetClass": "package",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md",
-        ".habitat/civ7/mapgen/sdk/blueprints/mapgen-entrypoint/execution/check/require_explicit_mapgen_sdk_opt_in/require_explicit_mapgen_sdk_opt_in.pattern.md"
       ]
     },
     {
@@ -7854,6 +7815,15 @@
       ]
     },
     {
+      "target": "packages/mapgen-core/src/.",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md"
+      ]
+    },
+    {
       "target": "packages/mapgen-core/src/adapter/demo.ts",
       "targetClass": "package",
       "references": 1,
@@ -7878,15 +7848,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md"
-      ]
-    },
-    {
-      "target": "packages/mapgen-core/src/authoring/maps.ts",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/sdk/blueprints/mapgen-entrypoint/execution/check/require_explicit_mapgen_sdk_opt_in/require_explicit_mapgen_sdk_opt_in.pattern.md"
       ]
     },
     {
@@ -8823,88 +8784,7 @@
       ]
     }
   ],
-  "ruleModulesImportingTransitionalRuntime": [
-    {
-      "id": ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs",
-      "path": ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs",
-      "surfaceKind": "rule-module",
-      "surfaceRole": "source_check_adapter",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../runtime/rule-runtime.policy.mjs"
-        ],
-        "relativeHabitatImports": [
-          "../runtime/rule-runtime.policy.mjs",
-          "../runtime/rule-runtime.policy.mjs"
-        ],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../runtime/rule-runtime.policy.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../runtime/rule-runtime.policy.mjs",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "adapter",
-          "fixture-support",
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload.",
-        "runnerContract": "Dynamically imported by source-check; must export ruleId, candidateExtensions, and diagnosticsForRule.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": [
-          "imports transitional source-check runtime"
-        ],
-        "ruleModule": {
-          "exports": [
-            "candidateExtensions",
-            "diagnosticsForRule",
-            "ruleId"
-          ],
-          "hasExpectedExportShape": true,
-          "importsTransitionalRuntime": true,
-          "runtimeHelpers": [
-            "policy",
-            "sdkMapgenEntrypointDiagnostics"
-          ],
-          "candidateExtensions": [
-            ".ts"
-          ],
-          "regexLiteralCount": 1,
-          "lineCount": 9,
-          "predicateSignals": [
-            "regex/path/source predicates",
-            "shared runtime policy helper"
-          ],
-          "separableSupportSignals": []
-        }
-      },
-      "buckets": [
-        "habitat_invoked",
-        "transitional_runtime_tie"
-      ]
-    }
-  ],
+  "ruleModulesImportingTransitionalRuntime": [],
   "checksInvokingOrRecommendingPackageCurrentnessCommands": [
     {
       "id": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
@@ -10979,169 +10859,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/sdk/blueprints/mapgen-entrypoint/execution/check/require_explicit_mapgen_sdk_opt_in/require_explicit_mapgen_sdk_opt_in.pattern.md",
-      "path": ".habitat/civ7/mapgen/sdk/blueprints/mapgen-entrypoint/execution/check/require_explicit_mapgen_sdk_opt_in/require_explicit_mapgen_sdk_opt_in.pattern.md",
-      "surfaceKind": "pattern",
-      "surfaceRole": "policy_pattern",
-      "invokedBy": [
-        "unknown"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "packages/mapgen-core/src/.",
-          "packages/mapgen-core/src/authoring/maps.ts",
-          "packages/sdk/src/.",
-          "packages/sdk/src/builders/dynamic.ts",
-          "packages/sdk/src/builders/runtime.ts",
-          "packages/sdk/src/builders/runtime.tsx",
-          "packages/sdk/src/builders/source-prefix.ts",
-          "packages/sdk/src/builders/string.ts",
-          "packages/sdk/src/index",
-          "packages/sdk/src/index.ts",
-          "packages/sdk/src/mapgen/",
-          "packages/sdk/src/mapgen/create.ts",
-          "packages/sdk/src/mapgen/index.ts",
-          "packages/sdk/test/root.test.ts"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "grit\nlanguage js(typescript)\n\nor {"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          "build"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": "build",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./authoring/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./builders",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./createMap.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./mapgen",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./mapgen/index.js",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/.",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/authoring/maps.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/.",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/builders/dynamic.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/builders/runtime.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/builders/runtime.tsx",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/builders/source-prefix.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/builders/string.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/index",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/index.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/mapgen/",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/mapgen/create.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/src/mapgen/index.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/sdk/test/root.test.ts",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "grit\nlanguage js(typescript)\n\nor {",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
-      ]
-    },
-    {
       "id": ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
       "path": ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
       "surfaceKind": "pattern",
@@ -11480,106 +11197,10 @@
       "supportName": "README",
       "language": "md",
       "virtualFilenames": [],
-      "lineCount": 20
-    },
-    {
-      "path": ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs",
-      "packetPath": ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs",
-      "supportName": "require_explicit_mapgen_sdk_opt_in.rule",
-      "language": "mjs",
-      "virtualFilenames": [],
-      "lineCount": 9
-    },
-    {
-      "path": ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
-      "packetPath": ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
-      "supportName": "rule-runtime.policy",
-      "language": "mjs",
-      "virtualFilenames": [],
-      "lineCount": 523
+      "lineCount": 18
     }
   ],
   "surfaces": [
-    {
-      "id": ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs",
-      "path": ".habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs",
-      "surfaceKind": "rule-module",
-      "surfaceRole": "source_check_adapter",
-      "invokedBy": [
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../runtime/rule-runtime.policy.mjs"
-        ],
-        "relativeHabitatImports": [
-          "../runtime/rule-runtime.policy.mjs",
-          "../runtime/rule-runtime.policy.mjs"
-        ],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../runtime/rule-runtime.policy.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../runtime/rule-runtime.policy.mjs",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "adapter",
-          "fixture-support",
-          "policy-predicate",
-          "transient-dependency"
-        ],
-        "summary": "Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload.",
-        "runnerContract": "Dynamically imported by source-check; must export ruleId, candidateExtensions, and diagnosticsForRule.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": [
-          "imports transitional source-check runtime"
-        ],
-        "ruleModule": {
-          "exports": [
-            "candidateExtensions",
-            "diagnosticsForRule",
-            "ruleId"
-          ],
-          "hasExpectedExportShape": true,
-          "importsTransitionalRuntime": true,
-          "runtimeHelpers": [
-            "policy",
-            "sdkMapgenEntrypointDiagnostics"
-          ],
-          "candidateExtensions": [
-            ".ts"
-          ],
-          "regexLiteralCount": 1,
-          "lineCount": 9,
-          "predicateSignals": [
-            "regex/path/source predicates",
-            "shared runtime policy helper"
-          ],
-          "separableSupportSignals": []
-        }
-      },
-      "buckets": [
-        "habitat_invoked",
-        "transitional_runtime_tie"
-      ]
-    },
     {
       "id": ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.apply.pattern.md",
       "path": ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.apply.pattern.md",
@@ -20367,15 +19988,13 @@
       "surfaceKind": "pattern",
       "surfaceRole": "policy_pattern",
       "invokedBy": [
-        "unknown"
+        "habitat"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
         "imports": [],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "packages/mapgen-core/src/.",
-          "packages/mapgen-core/src/authoring/maps.ts",
           "packages/sdk/src/.",
           "packages/sdk/src/builders/dynamic.ts",
           "packages/sdk/src/builders/runtime.ts",
@@ -20428,16 +20047,6 @@
             "kind": "path-reference",
             "value": "./mapgen/index.js",
             "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/.",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src/authoring/maps.ts",
-            "targetClass": "package"
           },
           {
             "kind": "path-reference",
@@ -20514,14 +20123,15 @@
         "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
         "supportSignals": [],
         "transientSignals": [
-          "build/currentness or ordering tie"
+          "build/currentness or ordering tie",
+          "reaches package/app/mod boundary"
         ]
       },
       "buckets": [
+        "habitat_invoked",
         "mutation_surface",
         "nx_ordering_tie",
-        "package_boundary_tie",
-        "unknown_invocation"
+        "package_boundary_tie"
       ]
     },
     {
@@ -20529,15 +20139,15 @@
       "path": ".habitat/civ7/mapgen/sdk/blueprints/mapgen-entrypoint/execution/check/require_explicit_mapgen_sdk_opt_in/require_explicit_mapgen_sdk_opt_in.rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
-      "declaredOwnerTool": "source-check",
+      "declaredOwnerTool": "grit-check",
       "invokedBy": [
         "habitat"
       ],
       "detectCommand": [
         "--tool",
         "check",
-        "habitat",
-        "source-check"
+        "grit-check",
+        "habitat"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -20545,7 +20155,9 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "grit-check"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
@@ -20562,13 +20174,18 @@
           },
           {
             "kind": "rule-detect-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "rule-detect-command",
             "value": "habitat",
             "targetClass": "external"
           },
           {
-            "kind": "rule-detect-command",
-            "value": "source-check",
-            "targetClass": "external"
+            "kind": "shell-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
           }
         ]
       },
@@ -41056,10 +40673,15 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "grit-check",
+          "nx"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
-        "knownMutationVerbs": [],
+        "knownMutationVerbs": [
+          "rm"
+        ],
         "all": [
           {
             "kind": "import",
@@ -41067,9 +40689,24 @@
             "targetClass": "relative"
           },
           {
+            "kind": "mutation-verb",
+            "value": "rm",
+            "targetClass": "external"
+          },
+          {
             "kind": "path-reference",
             "value": "../dto/registry.schema.js",
             "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "shell-command",
+            "value": "nx",
+            "targetClass": "workspace-tool"
           }
         ]
       },
@@ -41082,7 +40719,8 @@
         "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked"
+        "habitat_invoked",
+        "mutation_surface"
       ]
     },
     {
@@ -41444,8 +41082,7 @@
         "childProcessCalls": [],
         "shellCommandCalls": [],
         "directHabitatPathCalls": [
-          ".habitat/_support/execution/source-check/adapters",
-          ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs"
+          ".habitat/_support/execution/source-check/adapters"
         ],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
@@ -41454,31 +41091,22 @@
             "kind": "path-reference",
             "value": ".habitat/_support/execution/source-check/adapters",
             "targetClass": "habitat-support"
-          },
-          {
-            "kind": "path-reference",
-            "value": ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
-            "targetClass": "habitat-support"
           }
         ]
       },
       "anatomy": {
         "roles": [
           "fixture-support",
-          "runner-runtime",
-          "transient-dependency"
+          "runner-runtime"
         ],
         "summary": "Toolkit runner/provider code that executes or routes rule surfaces.",
         "supportSignals": [
           "references fixture/support path"
         ],
-        "transientSignals": [
-          "imports transitional source-check runtime"
-        ]
+        "transientSignals": []
       },
       "buckets": [
-        "habitat_invoked",
-        "transitional_runtime_tie"
+        "habitat_invoked"
       ]
     },
     {

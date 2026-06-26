@@ -4,16 +4,16 @@ Status: inspected lane artifact
 
 Scope: `.habitat/civ7/mapgen/{core,map-output,sdk,studio,visualization}/**`
 
-Rows inspected: 17 rule records, including 6 source-check adapters and the added visualization row.
+Rows inspected: 17 rule records, including the source-check adapters that have since been deleted and the added visualization row.
 
 ## Summary
 
 | Disposition | Count | Rows |
 | --- | ---: | --- |
-| `grit_pattern_authority` | 7 | `prohibit_runtime_helper_redeclarations`, `preserve_mapgen_core_runtime_neutrality`, `prohibit_domain_ops_projection_effect_dependencies`, `preserve_physics_to_map_projection_contracts`, `require_typed_placement_outcomes_before_apply`, `require_studio_ui_recipe_artifact_imports`, `enforce_studio_rpc_eventhub_topology` |
+| `grit_pattern_authority` | 8 | `prohibit_runtime_helper_redeclarations`, `preserve_mapgen_core_runtime_neutrality`, `prohibit_domain_ops_projection_effect_dependencies`, `preserve_physics_to_map_projection_contracts`, `require_typed_placement_outcomes_before_apply`, `require_explicit_mapgen_sdk_opt_in`, `require_studio_ui_recipe_artifact_imports`, `enforce_studio_rpc_eventhub_topology` |
 | `data_driven_import_path_rule` | 2 | `protect_generated_map_entrypoints_from_hand_edits`, `block_studio_config_leakage_into_shipped_catalog` |
 | `package_local_test_or_validator` | 4 | `validate_generated_map_entrypoint_contracts`, `verify_studio_recipe_artifacts_are_current`, `ensure_studio_worker_bundle_is_browser_safe`, `verify_visualization_runtime_build_artifacts` |
-| `needs_split` | 4 | `require_projection_calls_in_projection_steps`, `require_explicit_mapgen_sdk_opt_in`, `enforce_studio_dev_runner_topology`, `require_recipe_dag_contract_metadata` |
+| `needs_split` | 3 | `require_projection_calls_in_projection_steps`, `enforce_studio_dev_runner_topology`, `require_recipe_dag_contract_metadata` |
 | `delete_or_demote` | 0 | none |
 
 ## First Grit Candidates
@@ -28,10 +28,14 @@ The cleanest next extraction slice from this lane is the adapter-backed source-c
 
 These five rows are the best state-space collapse because converting them deletes source-check adapters without needing package behavior decisions.
 
+The final follow-up split converted `require_explicit_mapgen_sdk_opt_in` to
+Grit and deleted the last source-check adapter/runtime. Its SDK opt-in predicate
+stays in the SDK packet; the overlapping mapgen-core adapter-import predicate is
+owned by `preserve_mapgen_core_runtime_neutrality`.
+
 ## Notable Split Candidates
 
 - `require_projection_calls_in_projection_steps`: split forbidden projection/physics call placement into Grit-shaped predicates; keep exact required owner/caller/token assertions separate until a better topology/check model exists.
-- `require_explicit_mapgen_sdk_opt_in`: review-adjusted split candidate. SDK opt-in entrypoint checks are Grit-shaped, but the adapter helper also catches a mapgen-core adapter-import ban that overlaps `preserve_mapgen_core_runtime_neutrality`.
 - `enforce_studio_dev_runner_topology`: split Nx target/dependency topology from source-token/file-existence checks. The Nx ordering part should not become Grit authority.
 - `require_recipe_dag_contract_metadata`: split direct import/source bans into Grit or data-driven boundary checks; keep transitive import-graph closure as a graph-aware validator unless Habitat grows a graph rule engine.
 

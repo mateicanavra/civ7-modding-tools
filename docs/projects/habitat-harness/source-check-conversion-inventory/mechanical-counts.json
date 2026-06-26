@@ -1,13 +1,13 @@
 {
   "ruleRecords": 73,
-  "adapters": 1,
-  "sourceCheckRules": 1,
-  "activeSourceCheckAdapters": 1,
+  "adapters": 0,
+  "sourceCheckRules": 0,
+  "activeSourceCheckAdapters": 0,
   "staleAdaptersForNonSourceRules": [],
   "dispositions": {
-    "grit_pattern_authority": 37,
+    "grit_pattern_authority": 38,
     "data_driven_import_path_rule": 8,
-    "needs_split": 16,
+    "needs_split": 15,
     "package_local_test_or_validator": 12
   },
   "lanes": {
@@ -59,11 +59,13 @@
     "restrict_recipes_to_public_domain_surfaces"
   ],
   "ownerToolCounts": {
-    "grit-check": 29,
+    "grit-check": 30,
     "command-check": 36,
     "file-layer": 5,
-    "source-check": 1,
     "format-check": 1,
     "nx": 1
-  }
+  },
+  "convertedFinalRuntimeDeletionRules": [
+    "require_explicit_mapgen_sdk_opt_in"
+  ]
 }
