@@ -89,19 +89,7 @@ const graph = await collectLocalImportGraph(servicePath);
 const graphPaths = [...graph.keys()].map(rel).sort();
 
 requireIncludes(serviceSource, 'from "mod-swooper-maps/recipes/studio-contracts"', "service source");
-requireNotMatches(
-  serviceSource,
-  /from\s+["']mod-swooper-maps\/recipes\/(?:standard|standard-artifacts|standard-map-configs|browser-test)/,
-  "service source"
-);
-requireNotMatches(serviceSource, /src\/recipes\/standard\/recipe\.js/, "service source");
 requireIncludes(serviceSource, "@swooper/mapgen-core/authoring/recipe-dag", "service source");
-requireNotMatches(studioContractsSource, /recipe\.js|browser-test/, "studio contracts");
-requireNotMatches(
-  studioContractsSource,
-  /createRecipe|createStage|createStep|collectCompileOps|compileOpsById|implementArtifacts/,
-  "studio contracts"
-);
 requireIncludes(studioContractsSource, "../standard/contract-manifest.js", "studio contracts");
 
 for (const expectedPath of [
