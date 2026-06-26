@@ -1,7 +1,7 @@
 {
   "id": "require_studio_ui_recipe_artifact_imports",
   "title": "Require Studio UI Recipe Artifact Imports",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "apps/mapgen-studio/src/**/*.{ts,tsx}",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": "Use mod-swooper-maps/recipes/*-artifacts.",
   "message": "MapGen Studio UI must import recipe artifacts, not runtime recipe modules.",

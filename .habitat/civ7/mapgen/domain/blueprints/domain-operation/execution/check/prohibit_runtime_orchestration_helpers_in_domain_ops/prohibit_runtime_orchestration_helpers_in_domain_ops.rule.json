@@ -1,7 +1,7 @@
 {
   "id": "prohibit_runtime_orchestration_helpers_in_domain_ops",
   "title": "Prohibit Runtime Orchestration Helpers In Domain Ops",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",

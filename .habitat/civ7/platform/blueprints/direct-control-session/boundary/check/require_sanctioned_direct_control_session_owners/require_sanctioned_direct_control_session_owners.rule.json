@@ -1,7 +1,7 @@
 {
   "id": "require_sanctioned_direct_control_session_owners",
   "title": "Require Sanctioned Direct-Control Session Owners",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "apps/**/*.ts, apps/**/*.tsx, packages/**/*.ts, packages/**/*.tsx",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Use Civ7TunerSession or withCiv7DirectControlSession instead of constructing Civ7DirectControlSession locally.",

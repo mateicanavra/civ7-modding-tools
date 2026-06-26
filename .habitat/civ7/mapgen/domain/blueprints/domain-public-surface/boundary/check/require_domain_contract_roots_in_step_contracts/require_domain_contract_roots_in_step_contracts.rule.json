@@ -1,7 +1,7 @@
 {
   "id": "require_domain_contract_roots_in_step_contracts",
   "title": "Require Domain Contract Roots In Step Contracts",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/*/src/recipes/**/stages/**/steps/**/{contract.ts,*.contract.ts}",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Step contracts must import only from @mapgen/domain/<domain>.",

@@ -1,7 +1,7 @@
 {
   "id": "prohibit_retired_domain_root_catalogs",
   "title": "Prohibit Retired Domain Root Catalogs",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/domain/**/{tags,artifacts}.ts",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Move domain-root catalogs to the owning public surface.",

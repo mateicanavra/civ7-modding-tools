@@ -87,3 +87,4 @@ apps/docs/public/civ7-official/resources/
 # Grit local caches/modules
 .grit/.gritmodules/
 .grit/cache/
+.habitat/cache/

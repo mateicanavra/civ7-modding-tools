@@ -1,7 +1,7 @@
 {
   "id": "restrict_recipes_to_public_domain_surfaces",
   "title": "Restrict Recipes To Public Domain Surfaces",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/recipes/**/*.ts",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Recipes may import @mapgen/domain/<domain>, @mapgen/domain/<domain>/ops, or /config.js only.",
