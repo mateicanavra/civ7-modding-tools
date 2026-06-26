@@ -205,6 +205,63 @@ valid when useful evidence remains but default execution would overclaim.
 Consolidation is valid when two packets enforce the same invariant through
 different historical mechanisms.
 
+## Disposition Workflow
+
+Do not treat disposition as a single action step. Pruning runs as a staged
+funnel that pushes irreversible decisions later, after the authority unit has
+been decomposed and labeled.
+
+Stage 1: inventory and decompose. Select one small suspect cluster and break
+each packet into assertion rows or operation rows. Record for each row the
+packet path, assertion text, current artifact kind, mutability, observed oracle,
+current owner, candidate owner, proof class, and uncertainty. Do not remove or
+move authority in this stage unless the row is mechanically empty or already
+superseded by an adjacent row with identical owner and proof.
+
+Stage 2: label without acting. Assign each row one provisional disposition:
+`keep-habitat`, `remove`, `demote-triage`, `split`, `consolidate`,
+`package-local`, `nx-ordering`, `generate-owner`, `fix-operation`,
+`migrate-operation`, or `needs-reframe`. The label is a hypothesis, not a
+change request. Rows with mixed or unstable labels remain decomposed until the
+owner and proof class are clear.
+
+Stage 3: form a decision cluster. Group rows only when they share the same
+owner, proof class, and action shape. Prefer a narrow cluster that can be
+proved end to end over a larger cluster with mixed verification. A valid
+cluster names what will change, what will not change, what evidence makes the
+decision durable, and what would invalidate it.
+
+Stage 4: execute one disposition cluster. Apply only the action named by the
+cluster:
+
+- `keep-habitat`: tighten metadata, naming, fixtures, or registration so the
+  structural invariant is explicit.
+- `remove`: delete the packet or row when no durable authority remains and no
+  useful triage evidence should be preserved.
+- `demote-triage`: keep evidence non-executable when it is useful history,
+  inventory, or unresolved ontology, but must not run as authority.
+- `split`: create separate authority units for rows with different owners,
+  proof classes, or mutability.
+- `consolidate`: merge duplicate authority into the stronger packet and remove
+  or redirect the weaker duplicate.
+- `package-local`: leave or move the assertion to the owning package's tests,
+  validators, or docs, without weakening package behavior proof.
+- `nx-ordering`: encode dependency/order/currentness in Nx target metadata or
+  project metadata, and remove Habitat enforcement unless separate structural
+  meaning remains.
+- `generate-owner`, `fix-operation`, or `migrate-operation`: admit the action
+  only with declared inputs, outputs, write scope, idempotence or migration
+  stop condition, and review boundary.
+
+Stage 5: prove and record. Run focused proof for the touched authority unit and
+the smallest broader check that can catch owner or dependency mistakes. Update
+`category.md`, authority docs, or project records only when durable authority
+changed. Commit each completed cluster as one Graphite layer.
+
+Decision pressure should move left to right. Early stages increase clarity;
+later stages reduce the tree. If a cluster cannot pass from labels to a durable
+decision, keep it decomposed and choose a smaller or cleaner cluster.
+
 ## First Pruning Targets
 
 Start with high-confidence caveats, not a broad sweep:
@@ -237,14 +294,17 @@ Search first in `.habitat/**/category.md` for `triage`, `provisional`,
 The next irreversible moves should reduce future states:
 
 1. Create or update the frame before pruning.
-2. Pick one small disposition cluster.
-3. Classify each assertion by oracle, mutability, current owner, forbidden
-   owners, and proof class.
-4. Remove, demote, split, consolidate, or relocate the cluster.
-5. Update adjacent authority docs only when durable authority changes.
-6. Run focused proof for touched packets plus the smallest broader build or
+2. Pick one small suspect cluster and decompose it into assertion or operation
+   rows.
+3. Label rows by oracle, mutability, current owner, candidate owner, forbidden
+   owners, proof class, and provisional disposition.
+4. Promote only rows with shared owner, proof class, and action shape into a
+   decision cluster.
+5. Execute exactly one disposition cluster.
+6. Update adjacent authority docs only when durable authority changes.
+7. Run focused proof for touched packets plus the smallest broader build or
    static check that proves the move.
-7. Commit as one reviewable Graphite layer.
+8. Commit as one reviewable Graphite layer.
 
 Do not create ledgers as a substitute for shrinking the authority surface. A
 ledger is useful only when it directly enables removal, demotion, split,
