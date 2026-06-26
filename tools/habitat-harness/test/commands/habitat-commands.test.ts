@@ -13,13 +13,13 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
   targets: ["build"],
   states: [],
 }));
-const mockCheckRun = vi.hoisted(() => vi.fn());
+const mockCheckReport = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
-const mockClassifyRun = vi.hoisted(() => vi.fn());
-const mockFixRun = vi.hoisted(() => vi.fn());
-const mockGraphRun = vi.hoisted(() => vi.fn());
-const mockHookRun = vi.hoisted(() => vi.fn());
-const mockVerifyRun = vi.hoisted(() => vi.fn());
+const mockClassifyTarget = vi.hoisted(() => vi.fn());
+const mockFixApplyPatterns = vi.hoisted(() => vi.fn());
+const mockGraphWorkspaceGraph = vi.hoisted(() => vi.fn());
+const mockHookExecute = vi.hoisted(() => vi.fn());
+const mockVerifyChanges = vi.hoisted(() => vi.fn());
 const mockWriteFileSync = vi.hoisted(() => vi.fn());
 
 vi.mock("node:fs", async (importOriginal) => {
@@ -58,8 +58,9 @@ vi.mock("../../src/service/model/check/index.js", async (importOriginal) => {
   };
 });
 
-vi.mock("../../src/service/model/verify/index.js", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../src/service/model/verify/index.js")>();
+vi.mock("../../src/service/modules/verify/model/index.js", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../src/service/modules/verify/model/index.js")>();
   return {
     ...actual,
     stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
@@ -68,12 +69,12 @@ vi.mock("../../src/service/model/verify/index.js", async (importOriginal) => {
 
 vi.mock("@orpc/server", () => ({
   createRouterClient: vi.fn(() => ({
-    check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
-    classify: { run: mockClassifyRun },
-    fix: { run: mockFixRun },
-    graph: { run: mockGraphRun },
-    hook: { run: mockHookRun },
-    verify: { run: mockVerifyRun },
+    check: { expandBaseline: mockCheckExpandBaseline, report: mockCheckReport },
+    classify: { target: mockClassifyTarget },
+    fix: { applyPatterns: mockFixApplyPatterns },
+    graph: { workspaceGraph: mockGraphWorkspaceGraph },
+    hook: { execute: mockHookExecute },
+    verify: { changes: mockVerifyChanges },
   })),
 }));
 
@@ -94,8 +95,8 @@ import Graph from "@internal/habitat-harness/cli/commands/graph";
 import Hook from "@internal/habitat-harness/cli/commands/hook";
 import Verify from "@internal/habitat-harness/cli/commands/verify";
 import * as checkReport from "@internal/habitat-harness/service/model/check/index";
-import * as classify from "@internal/habitat-harness/service/model/classify/index";
-import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/index";
+import * as classify from "@internal/habitat-harness/service/modules/classify/model/index";
+import * as verifyReceipt from "@internal/habitat-harness/service/modules/verify/model/index";
 import { createRouterClient } from "@orpc/server";
 
 describe("Habitat oclif commands", () => {
@@ -111,12 +112,12 @@ describe("Habitat oclif commands", () => {
     stdout = [];
     stderr = [];
     logs = [];
-    mockCheckRun.mockResolvedValue(mockReport);
+    mockCheckReport.mockResolvedValue(mockReport);
     mockCheckExpandBaseline.mockResolvedValue({
       kind: "expanded",
       messages: ["baseline written: demo-rule (1 entry)"],
     });
-    mockClassifyRun.mockImplementation(async (input: { target: string }) => ({
+    mockClassifyTarget.mockImplementation(async (input: { target: string }) => ({
       schemaVersion: 1,
       state: "project-path",
       input: input.target,
@@ -139,10 +140,14 @@ describe("Habitat oclif commands", () => {
       unavailableTargets: [],
       recoveryInstructions: [],
     }));
-    mockFixRun.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
-    mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
-    mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
-    mockVerifyRun.mockImplementation(
+    mockFixApplyPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
+    mockGraphWorkspaceGraph.mockResolvedValue({
+      exitCode: 0,
+      stdout: '{"nodes":{}}\n',
+      stderr: "",
+    });
+    mockHookExecute.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
+    mockVerifyChanges.mockImplementation(
       async (input: { base?: string; affectedExecution?: string }) => {
         const base = input.base ?? "merge-base";
         return {
@@ -191,7 +196,7 @@ describe("Habitat oclif commands", () => {
     ]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockCheckRun).toHaveBeenCalledWith(
+    expect(mockCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({
         base: "HEAD",
         baselineIntegrity: true,
@@ -224,7 +229,7 @@ describe("Habitat oclif commands", () => {
         base: "main",
       })
     );
-    expect(mockCheckRun).not.toHaveBeenCalled();
+    expect(mockCheckReport).not.toHaveBeenCalled();
     expect(capturedOutput()).toContain("baseline written: demo-rule");
   });
 
@@ -237,14 +242,14 @@ describe("Habitat oclif commands", () => {
     await expect(Check.run(["--expand-baseline", "--rule", "missing-rule"])).rejects.toMatchObject({
       oclif: { exit: 1 },
     });
-    expect(mockCheckRun).not.toHaveBeenCalled();
+    expect(mockCheckReport).not.toHaveBeenCalled();
   });
 
   test("fix forwards dry-run intent through the Habitat service router", async () => {
     await Fix.run(["--dry-run"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixRun).toHaveBeenCalledWith({ kind: "dry-run-intent" });
+    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "dry-run-intent" });
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
   });
@@ -253,12 +258,12 @@ describe("Habitat oclif commands", () => {
     await Fix.run([]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixRun).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "live-write-intent" });
     expect(stdout.join("")).toContain("biome ok");
   });
 
   test("fix forwards refusal streams and exit code", async () => {
-    mockFixRun.mockResolvedValueOnce({
+    mockFixApplyPatterns.mockResolvedValueOnce({
       exitCode: 1,
       stdout: "",
       stderr: "habitat fix refused: missing-apply-admission\n",
@@ -266,7 +271,7 @@ describe("Habitat oclif commands", () => {
 
     await expect(Fix.run([])).rejects.toMatchObject({ oclif: { exit: 1 } });
 
-    expect(mockFixRun).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "live-write-intent" });
     expect(stdout.join("")).toBe("");
     expect(stderr.join("")).toContain("missing-apply-admission");
   });
@@ -275,7 +280,7 @@ describe("Habitat oclif commands", () => {
     await Verify.run(["--base", "HEAD~1"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockVerifyRun).toHaveBeenCalledWith({
+    expect(mockVerifyChanges).toHaveBeenCalledWith({
       base: "HEAD~1",
       affectedExecution: "run",
     });
@@ -287,7 +292,7 @@ describe("Habitat oclif commands", () => {
   test("verify can emit structured receipt JSON", async () => {
     await Verify.run(["--base", "HEAD~1", "--json"]);
 
-    expect(mockVerifyRun).toHaveBeenCalledWith({
+    expect(mockVerifyChanges).toHaveBeenCalledWith({
       base: "HEAD~1",
       affectedExecution: "plan-only",
     });
@@ -303,7 +308,7 @@ describe("Habitat oclif commands", () => {
     await Graph.run(["--json"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockGraphRun).toHaveBeenCalledWith({ json: true });
+    expect(mockGraphWorkspaceGraph).toHaveBeenCalledWith({ json: true });
     expect(stdout.join("")).toContain('{"nodes":{}}');
   });
 
@@ -318,7 +323,7 @@ describe("Habitat oclif commands", () => {
     expect(result.owner.project).toBe("@internal/habitat-harness");
     expect(result.owner.tags).toEqual(["kind:tooling"]);
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockClassifyRun).toHaveBeenCalledWith({
+    expect(mockClassifyTarget).toHaveBeenCalledWith({
       target: "tools/habitat-harness/src/cli/commands/check.ts",
     });
   });
@@ -327,7 +332,7 @@ describe("Habitat oclif commands", () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockHookRun).toHaveBeenCalledWith({ name: "pre-push", base: "HEAD~1" });
+    expect(mockHookExecute).toHaveBeenCalledWith({ name: "pre-push", base: "HEAD~1" });
     expect(stdout.join("")).toContain("hook ok");
   });
 

@@ -1,7 +1,7 @@
 import { module } from "./module.js";
 
 export const checkRouter = {
-  run: module.run.effect(function* ({ context, input }) {
+  report: module.report.effect(function* ({ context, input }) {
     const { checkCommandContext, createCheckReport, selectorsFromInput } = context;
     return yield* createCheckReport({
       ...selectorsFromInput(input),

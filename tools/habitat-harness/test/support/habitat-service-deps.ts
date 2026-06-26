@@ -77,6 +77,18 @@ export function makeTestHabitatServiceDeps(
       applyDryRun: (request) =>
         Effect.succeed(commandResult(gritRequest(request.commandId, request.scanRoots))),
       applyDryRunRequest: (request) => gritRequest(request.commandId, request.scanRoots),
+      runRules: (selectedRules) =>
+        Effect.succeed(
+          new Map(
+            selectedRules.map((rule) => [
+              rule.id,
+              {
+                exitCode: 0,
+                diagnostics: [],
+              },
+            ])
+          )
+        ),
     },
     nx: {
       affected: (request) =>
@@ -133,6 +145,7 @@ export function makeTestHabitatServiceDeps(
       isDirectorySync: () => false,
       isFile: () => false,
       isFileEffect: () => Effect.succeed(false),
+      makeDirectory: () => Effect.void,
       pathExists: () => false,
       readDirectory: () => Effect.succeed([]),
       readDirectorySync: () => [],
@@ -140,6 +153,7 @@ export function makeTestHabitatServiceDeps(
       readTextSync: () => "",
       repoRoot,
       statKind: () => undefined,
+      writeText: () => Effect.void,
     },
     reporter: fakeReporter(),
     rules: makeTestRuleFacts(),

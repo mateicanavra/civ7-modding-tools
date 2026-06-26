@@ -1,8 +1,8 @@
-import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import {
   type HabitatArtifactRulePathInput,
   habitatArtifactPathPlan,
 } from "@internal/habitat-harness/service/model/rules/policy/artifact-paths.policy";
+import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 
 export interface ValidationRunTarget {
   readonly project: string;

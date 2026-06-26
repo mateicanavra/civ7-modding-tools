@@ -43,10 +43,10 @@ describe("pattern apply", () => {
     const result = await Effect.runPromise(
       Effect.gen(function* () {
         const grit = yield* GritProvider;
-        const runFix = fixRouter.run.callable({
+        const applyPatterns = fixRouter.applyPatterns.callable({
           context: { deps: makeTestHabitatServiceDeps({ grit }) },
         });
-        return yield* withFiberContext(() => runFix({ kind: "dry-run-intent" }));
+        return yield* withFiberContext(() => applyPatterns({ kind: "dry-run-intent" }));
       }).pipe(Effect.provide(layer))
     );
 

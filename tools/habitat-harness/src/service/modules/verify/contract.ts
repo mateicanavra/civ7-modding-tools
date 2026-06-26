@@ -1,13 +1,13 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
 import { CheckReportSchema } from "@internal/habitat-harness/service/model/check/index";
-import { VerifyReceiptSchema } from "@internal/habitat-harness/service/model/verify/index";
 import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/model/workspace/index";
+import { VerifyReceiptSchema } from "@internal/habitat-harness/service/modules/verify/model/index";
 import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
 
-const VerifyServiceRunInputSchema = Type.Object(
+const VerifyChangesInputSchema = Type.Object(
   {
     base: Type.Optional(Type.String({ minLength: 1 })),
     affectedExecution: Type.Optional(
@@ -17,9 +17,9 @@ const VerifyServiceRunInputSchema = Type.Object(
       })
     ),
   },
-  { additionalProperties: false, description: "Habitat verify service run request." }
+  { additionalProperties: false, description: "Habitat changes verification request." }
 );
-export type VerifyServiceRunInput = Static<typeof VerifyServiceRunInputSchema>;
+export type VerifyChangesInput = Static<typeof VerifyChangesInputSchema>;
 
 const VerifyServiceAffectedResultSchema = Type.Object(
   {
@@ -31,7 +31,7 @@ const VerifyServiceAffectedResultSchema = Type.Object(
 );
 export type VerifyServiceAffectedResult = Static<typeof VerifyServiceAffectedResultSchema>;
 
-const VerifyServiceRunOutputSchema = Type.Union(
+const VerifyChangesOutputSchema = Type.Union(
   [
     Type.Object(
       {
@@ -52,21 +52,21 @@ const VerifyServiceRunOutputSchema = Type.Union(
       { additionalProperties: false, description: "Completed Habitat verify service result." }
     ),
   ],
-  { description: "Habitat verify service run result." }
+  { description: "Habitat changes verification result." }
 );
-export type VerifyServiceRunOutput = Static<typeof VerifyServiceRunOutputSchema>;
+export type VerifyChangesOutput = Static<typeof VerifyChangesOutputSchema>;
 
-const VerifyServiceRunInputStandardSchema = toStandardSchema(VerifyServiceRunInputSchema);
-const VerifyServiceRunOutputStandardSchema = toStandardSchema(VerifyServiceRunOutputSchema);
+const VerifyChangesInputStandardSchema = toStandardSchema(VerifyChangesInputSchema);
+const VerifyChangesOutputStandardSchema = toStandardSchema(VerifyChangesOutputSchema);
 
-export const verifyServiceRunContract: HabitatServiceProcedureContract<
-  typeof VerifyServiceRunInputStandardSchema,
-  typeof VerifyServiceRunOutputStandardSchema
+export const verifyChangesContract: HabitatServiceProcedureContract<
+  typeof VerifyChangesInputStandardSchema,
+  typeof VerifyChangesOutputStandardSchema
 > = eoc
   .errors(habitatServiceErrorMap)
-  .input(VerifyServiceRunInputStandardSchema)
-  .output(VerifyServiceRunOutputStandardSchema);
+  .input(VerifyChangesInputStandardSchema)
+  .output(VerifyChangesOutputStandardSchema);
 
 export const verifyServiceContract = {
-  run: verifyServiceRunContract,
+  changes: verifyChangesContract,
 };

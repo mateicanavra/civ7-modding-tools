@@ -1,18 +1,24 @@
 import {
-  affectedArgv,
-  type NxProviderService,
+  type SpawnResult,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/providers/nx/index";
-import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import type { VerifyReceipt } from "@internal/habitat-harness/service/model/verify/index";
+} from "@internal/habitat-harness/resources/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/types";
 import type { VerifyTargetPlan } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
+import type { VerifyReceipt } from "../dto/verify.schema.js";
 import { boundedPreview } from "./command-output.policy.js";
 
 type SkippedNxAffectedReason = Extract<
   VerifyReceipt["nxAffected"],
   { kind: "skipped" }
 >["skipReason"];
+
+export interface VerifyNxAffectedPort {
+  readonly affected: (request: {
+    readonly base: string;
+    readonly targets: readonly string[];
+  }) => Effect.Effect<HabitatCommandResult, unknown, any>;
+}
 
 /**
  * Builds the Nx affected argv used by verify.
@@ -22,11 +28,21 @@ type SkippedNxAffectedReason = Extract<
  * @returns Argument vector passed to the repository-local Nx entrypoint.
  */
 export function affectedVerificationArgv(base: string, targetPlan: VerifyTargetPlan): string[] {
-  return affectedArgv({ base, targets: targetPlan.targets });
+  return [
+    "nx",
+    "affected",
+    "-t",
+    targetPlan.targets.join(","),
+    "--base",
+    base,
+    "--head",
+    "HEAD",
+    "--outputStyle=static",
+  ];
 }
 
 export function runAffectedVerificationEffect(
-  nx: NxProviderService,
+  nx: VerifyNxAffectedPort,
   base: string,
   targets: readonly string[]
 ) {

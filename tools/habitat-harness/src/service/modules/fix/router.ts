@@ -1,7 +1,7 @@
 import { module } from "./module.js";
 
 export const fixRouter = {
-  run: module.run.effect(function* ({ context, input }) {
+  applyPatterns: module.applyPatterns.effect(function* ({ context, input }) {
     const admissions = context.defaultApplyAdmissions();
 
     if (admissions.length === 0) {

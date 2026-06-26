@@ -1,8 +1,14 @@
 import { module } from "./module.js";
 
 export const hookRouter = {
-  run: module.run.effect(function* ({ context, input = {} }) {
-    return yield* context.runHook(input);
+  execute: module.execute.effect(function* ({ context, input = {} }) {
+    if (input.name === "pre-push") {
+      return yield* context.prePush(input);
+    }
+    if (input.name === "pre-commit") {
+      return yield* context.preCommit(input);
+    }
+    return context.unknownHookResult(input.name);
   }),
 };
 

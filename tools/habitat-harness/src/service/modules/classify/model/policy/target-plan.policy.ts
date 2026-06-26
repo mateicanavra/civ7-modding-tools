@@ -1,12 +1,9 @@
 import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
-import type {
-  ClassifiedTarget,
-  UnavailableClassifiedTarget,
-} from "@internal/habitat-harness/service/model/classify/index";
 import {
   projectTargetStates,
   workspaceTargetStates,
 } from "@internal/habitat-harness/service/model/workspace/index";
+import type { ClassifiedTarget, UnavailableClassifiedTarget } from "../dto/classify.schema.js";
 
 export function projectTargets(project: WorkspaceProject): {
   targets: ClassifiedTarget[];

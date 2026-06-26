@@ -6,12 +6,14 @@ import {
   isDirectorySync,
   isFile,
   isFileSync,
+  makeDirectory,
   pathExistsSync,
   readDirectory,
   readDirectorySync,
   readText,
   readTextSync,
   statKindSync,
+  writeText,
 } from "./filesystem.js";
 import { acquireTempDirectory } from "./temp-dir.js";
 
@@ -23,6 +25,7 @@ export interface HabitatPlatformService {
   readonly isDirectorySync: typeof isDirectorySync;
   readonly isFile: typeof isFileSync;
   readonly isFileEffect: typeof isFile;
+  readonly makeDirectory: typeof makeDirectory;
   readonly pathExists: typeof pathExistsSync;
   readonly readDirectory: typeof readDirectory;
   readonly readDirectorySync: typeof readDirectorySync;
@@ -30,6 +33,7 @@ export interface HabitatPlatformService {
   readonly readTextSync: typeof readTextSync;
   readonly repoRoot: string;
   readonly statKind: typeof statKindSync;
+  readonly writeText: typeof writeText;
 }
 
 export class HabitatPlatform extends Context.Tag("@internal/habitat-harness/HabitatPlatform")<
@@ -37,19 +41,37 @@ export class HabitatPlatform extends Context.Tag("@internal/habitat-harness/Habi
   HabitatPlatformService
 >() {}
 
-export const HabitatPlatformLive = Layer.succeed(HabitatPlatform, {
-  acquireTempDirectory,
-  env: process.env,
-  hashFile: hashFileSync,
-  isDirectory,
-  isDirectorySync,
-  isFile: isFileSync,
-  isFileEffect: isFile,
-  pathExists: pathExistsSync,
-  readDirectory,
-  readDirectorySync,
-  readText,
-  readTextSync,
-  repoRoot,
-  statKind: statKindSync,
-});
+export function makeHabitatPlatformService(
+  input: { readonly repoRoot: string; readonly env?: Record<string, string | undefined> } = {
+    repoRoot,
+  }
+): HabitatPlatformService {
+  return {
+    acquireTempDirectory,
+    env: input.env ?? process.env,
+    hashFile: hashFileSync,
+    isDirectory,
+    isDirectorySync,
+    isFile: isFileSync,
+    isFileEffect: isFile,
+    makeDirectory,
+    pathExists: pathExistsSync,
+    readDirectory,
+    readDirectorySync,
+    readText,
+    readTextSync,
+    repoRoot: input.repoRoot,
+    statKind: statKindSync,
+    writeText,
+  };
+}
+
+export function makeHabitatPlatformLayer(
+  input: { readonly repoRoot: string; readonly env?: Record<string, string | undefined> } = {
+    repoRoot,
+  }
+): Layer.Layer<HabitatPlatform> {
+  return Layer.succeed(HabitatPlatform, makeHabitatPlatformService(input));
+}
+
+export const HabitatPlatformLive = makeHabitatPlatformLayer({ repoRoot });

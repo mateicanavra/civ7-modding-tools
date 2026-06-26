@@ -22,6 +22,15 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Provider/resource imports in service internals are now isolated to `service/base.ts`, the service-entry dependency surface; modules consume provider capabilities through module-owned ports or provider-owned methods.
+- Grit rule execution is now a Grit provider capability; check, hook, and verify modules project `deps.grit.runRules` into structural policy and no longer import `runGritRulesEffect` directly.
+- Baseline authority now receives a baseline-owned filesystem port through structural execution context; direct platform helper imports are removed from baseline policy, and the platform resource exposes the write-capable filesystem operations needed for runtime projection.
+- Hook module procedure context now uses hook-owned Biome, Git, Graphite, Nx, platform, and reporter operation ports; the hook module no longer imports concrete provider/platform/reporter service types.
+- Verify module runtime helpers now use verify-owned Git, Graphite, Nx affected, and workspace-graph ports instead of concrete provider service types; the verify model barrel exports its policy ports for module wiring.
+- Fix module worktree observation and pattern-apply execution now depend on fix-owned Git and Grit operation ports; the fix module tree no longer imports concrete Git/Grit provider service or requirement types.
+- Graph module runtime dependencies are now graph-owned operation ports for temp directory acquisition, graph file reads, and Nx graph generation; the graph module no longer imports concrete Nx provider or platform resource service types.
+- Shared structural check policy now depends on structural-owned operation ports for Biome, command execution, Git staged/base reads, Grit rule execution, and Nx target execution; check/hook/verify modules project live providers into those ports, and baseline authority no longer requires a full Git provider service.
+- Hook lifecycle/resource-inspection/runtime/staged-worktree policies now depend on hook-owned operation ports or pure inputs instead of concrete Git provider, platform resource, or reporter resource service types; live provider projection remains at the hook module boundary for the next module-boundary cleanup.
 - Baseline authority now receives Git through explicit baseline context from module-projected resources; shared baseline policy no longer resolves `GitProvider` internally.
 - Structural rule execution now receives Biome, Nx, Git, and CommandRunner through module-projected execution context; shared structural policy no longer yields those provider/resource tags directly.
 - Hook staged-worktree and resource-inspection policies now derive repo-relative paths from their module-projected repo root; hook module policy no longer imports global path helpers.
@@ -53,6 +62,7 @@ Completed burn-downs:
 - Fix worktree observation now runs through module-projected Git provider context; the sync worktree repository wrapper around provider internals is deleted.
 - Structural selector refusal reports now use the Effect clock path only; the sync report builder and direct platform time import were removed.
 - Verify receipt timing now formats timestamps locally in the verify module; verify module code no longer imports platform time helpers.
+- Verify base resolution, Nx affected execution, and post-state policies now depend on narrow verify-owned ports instead of concrete Git, Graphite, and Nx provider service types.
 - `check` and `classify` routers now satisfy the local-module-only import rule.
 - `fix`, `graph`, `hook`, and `verify` routers now satisfy the local-module-only import rule.
 - `habitat_orpc_service_wiring` is now a true router import allow-list pattern: any router import not from the local module path is a violation.
@@ -72,7 +82,7 @@ Completed burn-downs:
 - Check public DTO/request/render/summary policy now lives under `service/model/check`; the check module itself is reduced to contract/module/router ownership.
 - Diagnostic contracts now live under `service/model/diagnostics`, host/protected-surface policy lives under `service/model/host`, and Grit providers no longer import check module internals.
 - Check report DTOs, request language, renderers, summaries, staged source-scope policy, and disposition helpers now live under `service/model/check`; hook, verify, CLI, and tests no longer deep-import check structural schema/render/request internals.
-- Classify and verify JSON result languages now live under public `service/model/classify` and `service/model/verify` surfaces; CLI commands and service contracts no longer import module-private result DTO files.
+- Classify and verify JSON result languages were first lifted out of ad hoc internals and are now owned by their module `model/dto` trees; CLI commands and service contracts consume the owning module barrels.
 - Structural check, baseline authority, and source-check policy now live under `service/model/check/policy`; check, hook, verify, runtime layers, Nx plugin inference, and tests no longer import check module-private policy internals.
 - Workspace graph reads now enter classify through the Nx provider resource; `HabitatServiceDeps` no longer carries the classify-only `workspaceProjects` test seam.
 - Platform filesystem/temp/path/repo-root helpers now enter the service through one `HabitatPlatform` resource; `HabitatServiceDeps` no longer carries raw platform helper functions.
@@ -89,3 +99,13 @@ Completed burn-downs:
 - Baseline Effect operations now require explicit repo-root context and derive baseline paths from artifact policy; they no longer import global repo-root or baselines-dir singletons.
 - Structural rule execution now receives repo root through explicit execution context for command cwd and staged git reads instead of importing the global repo-root/path helpers.
 - Source-check native rule execution now receives repo root through `SourceCheckOptions` for module loading, source reads, and scan-root collection instead of importing global repo-root/path helpers.
+- Nx now infers one boundary project per Habitat service module and no separate module-local model projects; module-local `model/` trees stay inside their owning module boundary while shared `src/service/model` remains the only shared service-model project.
+- Habitat service procedures now expose action names instead of generic `run` procedures: `check.report`, `classify.target`, `fix.applyPatterns`, `graph.workspaceGraph`, `hook.execute`, and `verify.changes`; CLI commands compile flags into those actions and no compatibility aliases remain.
+- Graph and hook routers no longer delegate their whole procedure body to `context.runGraph`/`context.runHook` wrappers; graph now owns its workspace graph execution/read/parse/select flow in the router, hook owns hook-name dispatch in the router, and the Grit service-wiring pattern rejects router `context.run*` wrapper delegates.
+- The loose `resources/config/note.md` source-tree instruction file is removed; its Effect Config evaluation request is preserved in the service-shape backlog as a concrete follow-up.
+- Hook output reporting no longer calls `Effect.runSync` from service policy code; hook output accumulates reporter events synchronously and flushes them through Effect at final result boundaries while preserving reporter chunk behavior.
+- Habitat runtime config now loads through an Effect `Config` descriptor and live layer; the old custom config source/schema files are deleted, while deterministic test/manual overrides remain available through `makeHabitatConfigLayer`.
+- Habitat runtime realization now derives Git, Graphite, Biome, Nx, Grit, Git state, and platform repo-scoped resources from the loaded `HabitatConfig` value instead of hardcoding the global repo root in `runtime/layers.ts`.
+- Boundary taxonomy no longer contains a stale allowance for separately inferred `service/modules/*/model` projects; module-local models remain inside their owning `layer:service-module` project and unexpected inferred model projects become validation failures.
+- Classify result DTOs and verify receipt DTOs now live under their owning module `model/dto` trees; the old shared `service/model/classify` and `service/model/verify` directories are deleted, and CLI/tests consume the module-owned model barrels.
+- Check CLI output paths now resolve through the provisioned Habitat service context platform repo root instead of importing the global repo-root singleton at the CLI command edge.

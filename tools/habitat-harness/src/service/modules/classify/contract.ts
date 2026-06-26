@@ -1,29 +1,29 @@
 import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
-import { ClassifyResultSchema } from "@internal/habitat-harness/service/model/classify/index";
+import { ClassifyResultSchema } from "@internal/habitat-harness/service/modules/classify/model/index";
 import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
 import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
 
-const ClassifyServiceRunInputSchema = Type.Object(
+const ClassifyTargetInputSchema = Type.Object(
   {
     target: Type.String({ minLength: 1 }),
   },
-  { additionalProperties: false, description: "Habitat classify service run request." }
+  { additionalProperties: false, description: "Habitat classify target request." }
 );
-export type ClassifyServiceRunInput = Static<typeof ClassifyServiceRunInputSchema>;
+export type ClassifyTargetInput = Static<typeof ClassifyTargetInputSchema>;
 
-const ClassifyServiceRunInputStandardSchema = toStandardSchema(ClassifyServiceRunInputSchema);
-const ClassifyServiceRunOutputStandardSchema = toStandardSchema(ClassifyResultSchema);
+const ClassifyTargetInputStandardSchema = toStandardSchema(ClassifyTargetInputSchema);
+const ClassifyTargetOutputStandardSchema = toStandardSchema(ClassifyResultSchema);
 
-export const classifyServiceRunContract: HabitatServiceProcedureContract<
-  typeof ClassifyServiceRunInputStandardSchema,
-  typeof ClassifyServiceRunOutputStandardSchema
+export const classifyTargetContract: HabitatServiceProcedureContract<
+  typeof ClassifyTargetInputStandardSchema,
+  typeof ClassifyTargetOutputStandardSchema
 > = eoc
   .errors(habitatServiceErrorMap)
-  .input(ClassifyServiceRunInputStandardSchema)
-  .output(ClassifyServiceRunOutputStandardSchema);
+  .input(ClassifyTargetInputStandardSchema)
+  .output(ClassifyTargetOutputStandardSchema);
 
 export const classifyServiceContract = {
-  run: classifyServiceRunContract,
+  target: classifyTargetContract,
 };

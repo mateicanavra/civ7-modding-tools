@@ -1,3 +1,6 @@
+import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
+import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
+import { Value } from "typebox/value";
 import {
   type AggregateWorkspaceTargetDeclaration,
   type GraphRefusalState,
@@ -6,16 +9,13 @@ import {
   type TargetDependencyResolution,
   type VerifyTargetPlan,
   VerifyTargetPlanSchema,
-  type WorkspaceGraphTargetNames,
   type WorkspaceGraphTargetNameOptions,
+  type WorkspaceGraphTargetNames,
+  WorkspaceGraphTargetNamesSchema,
   type WorkspaceProject,
   type WorkspaceTargetState,
-  WorkspaceGraphTargetNamesSchema,
   WorkspaceTargetStateSchema,
 } from "../dto/workspace.schema.ts";
-import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
-import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
-import { Value } from "typebox/value";
 import {
   explicitProjectTargetDependency,
   graphRefusalMessage,

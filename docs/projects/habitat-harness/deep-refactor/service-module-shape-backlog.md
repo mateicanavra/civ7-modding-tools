@@ -35,3 +35,54 @@ If a generator is domain-specific authoring input, it belongs under `.habitat/`
 as managed Habitat input, not under toolkit source. If it is core Habitat
 toolkit logic, it must be a named Habitat service capability or a named Nx
 generator support surface with explicit file-kind rules.
+
+## Active Slice: Module-Local Model Boundaries
+
+Nx must treat a service module and its module-local `model/` tree as one module
+project, not as a shared service-model project. The separate inferred
+`@internal/habitat-harness-service-module-<module>-model` projects blur
+module-local domain ownership into shared model ownership and make the boundary
+taxonomy weaker than the collect-style shape. Collapse module-local model trees
+back into their owning module projects, keep only `src/service/model` as the
+shared service-model project, update taxonomy text, and validate with the
+existing `boundaries` target plus service-module shape validation.
+
+## Active Slice: Action-Named Procedures
+
+Service procedure names must describe direct Habitat actions instead of generic
+CLI-shaped `run` calls. Rename the procedure surface to
+`check.report`, `classify.target`, `fix.applyPatterns`,
+`graph.workspaceGraph`, `hook.execute`, and `verify.changes`. CLI commands keep
+parsing flags, then compile those flags into the action inputs. Update contracts,
+routers, CLI callers, focused tests, and command mocks together; do not add a
+compatibility alias for the old `run` names.
+
+## Active Slice: Router Wrapper Burn-Down
+
+Routers must not reduce to one-line delegates such as
+`return yield* context.runHook(input)` or `context.runGraph(...)`. Keep router
+imports local-module-only, but expose module-owned primitive operations through
+context and write procedure-level dispatch/orchestration in the router body.
+Tighten the Grit service-wiring pattern so future router files reject
+`context.run*` wrapper delegates.
+
+## Resource Config Follow-Up
+
+Explore Effect `Config` as the owner for Habitat runtime configuration loading
+instead of continuing to grow hand-rolled config parsing/source selection. The
+follow-up must either adopt Effect Config for `resources/config/**` or refuse it
+with a concrete cause. Startup/shutdown helpers such as TSDKArc are lower
+priority and should only be considered if the runtime acquisition/release model
+still has a real gap after Effect Config is evaluated.
+
+Completed step: replaced the custom config source/schema substrate with an
+Effect-native config descriptor and live layer. Keep deterministic test/manual
+overrides through `makeHabitatConfigLayer`, but make the default live resource
+load through Effect `Config` so runtime overrides enter through the Effect config
+provider rather than a Habitat-specific source abstraction.
+
+Completed step: derived live provider and platform realization from the loaded
+`HabitatConfig` value. `runtime/layers.ts` must stop importing the global
+`repoRoot` singleton to provision Git, Graphite, Biome, Nx, Grit, Git state, and
+platform resources; provider factories still accept a repo root, but the runtime
+layer should obtain it from `HabitatConfigLive`.

@@ -16,9 +16,12 @@ import {
   acquireTempDirectory,
   ensurePatternCacheRoot,
 } from "@internal/habitat-harness/resources/platform/index";
+import type { RuleRunResult } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Context, Effect, Layer } from "effect";
 import { defaultGritCommandTimeoutMs, gritBin } from "./constants.js";
 import { gritMachineOutputEnv } from "./env.js";
+import { runGritRulesEffect } from "./runner.js";
 
 export type GritProviderRequirements =
   | CommandExecutor
@@ -68,6 +71,10 @@ export interface GritProviderService {
     GritProviderRequirements
   >;
   readonly applyDryRunRequest: (request: GritApplyDryRunProviderRequest) => HabitatProcessRequest;
+  readonly runRules: (
+    selectedRules: readonly RuleSourceFacts[],
+    options: { readonly repoRoot: string; readonly scanRoots?: readonly string[] }
+  ) => Effect.Effect<Map<string, RuleRunResult>, never, GritProviderRequirements>;
 }
 
 export class GritProvider extends Context.Tag("@internal/habitat-harness/GritProvider")<
@@ -97,7 +104,7 @@ export function makeFakeGritProviderService(
   options: { readonly repoRoot?: string } = {}
 ): GritProviderService {
   const repoRoot = options.repoRoot ?? ".";
-  return {
+  const provider: GritProviderService = {
     check: (request) =>
       Effect.sync(() => {
         const prepared = fakePreparedCacheRequest(request, repoRoot);
@@ -116,7 +123,10 @@ export function makeFakeGritProviderService(
         });
       }),
     applyDryRunRequest: (request) => gritProviderApplyDryRunRequest(repoRoot, request),
+    runRules: (selectedRules, runOptions) =>
+      runGritRulesEffect(selectedRules, { ...runOptions, grit: provider }),
   };
+  return provider;
 }
 
 function fakePreparedCacheRequest<T extends { cacheMode?: string; cacheDir?: string }>(
@@ -131,7 +141,7 @@ function fakePreparedCacheRequest<T extends { cacheMode?: string; cacheDir?: str
 }
 
 function makeLiveGritProvider(repoRoot: string): GritProviderService {
-  return {
+  const provider: GritProviderService = {
     check: (request) =>
       Effect.scoped(
         Effect.gen(function* () {
@@ -150,7 +160,10 @@ function makeLiveGritProvider(repoRoot: string): GritProviderService {
         })
       ),
     applyDryRunRequest: (request) => gritProviderApplyDryRunRequest(repoRoot, request),
+    runRules: (selectedRules, options) =>
+      runGritRulesEffect(selectedRules, { ...options, grit: provider }),
   };
+  return provider;
 }
 
 export function gritCheckRequest(

@@ -1,12 +1,12 @@
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import type { WorkspaceGraphReadState } from "@internal/habitat-harness/service/model/workspace/index";
+import { Effect } from "effect";
 import {
   type ClassifyResult,
   type PathClassification,
   parseClassifyResult,
   stringifyClassifyResult,
-} from "@internal/habitat-harness/service/model/classify/index";
-import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
-import type { WorkspaceGraphReadState } from "@internal/habitat-harness/service/model/workspace/index";
-import { Effect } from "effect";
+} from "../dto/classify.schema.js";
 import {
   classifyPathFromProjects,
   graphReadRefusal,
@@ -27,7 +27,7 @@ export type {
   UnavailableClassifiedTarget,
   UnresolvedOwnerClassification,
   WorkspacePathClassification,
-} from "@internal/habitat-harness/service/model/classify/index";
+} from "../dto/classify.schema.js";
 export {
   ClassifyDiffResultSchema,
   ClassifyResultSchema,
@@ -39,7 +39,7 @@ export {
   UnresolvedOwnerClassificationSchema,
   validateClassifyResult,
   WorkspacePathClassificationSchema,
-} from "@internal/habitat-harness/service/model/classify/index";
+} from "../dto/classify.schema.js";
 
 export interface ClassifyOptions {
   graph: WorkspaceGraphReadState | (() => WorkspaceGraphReadState);
