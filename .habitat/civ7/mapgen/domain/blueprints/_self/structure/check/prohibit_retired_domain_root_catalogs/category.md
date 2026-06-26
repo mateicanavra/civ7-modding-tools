@@ -22,7 +22,6 @@ Files:
 - `prohibit_retired_domain_root_catalogs.baseline.json`
 - `prohibit_retired_domain_root_catalogs.pattern.md`
 - `prohibit_retired_domain_root_catalogs.rule.json`
-- `prohibit_retired_domain_root_catalogs.rule.mjs`
 
 Evidence: The pattern forbids retired domain-root tags/artifacts catalog files.
 

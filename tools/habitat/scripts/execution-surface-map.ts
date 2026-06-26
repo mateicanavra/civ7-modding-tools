@@ -325,6 +325,7 @@ function surfaceRoleFor(kind: SurfaceKind): SurfaceRole {
 
 function targetClass(value: string): string {
   const normalized = value.replaceAll("\\", "/");
+  if (normalized.includes(".habitat/_support/")) return "habitat-support";
   if (normalized.includes(".habitat/")) return "habitat-authority";
   if (normalized.includes("tools/habitat") || normalized.includes("@habitat/cli")) return "habitat-toolkit";
   if (normalized.startsWith("node:")) return "node-builtin";
@@ -602,7 +603,12 @@ function anatomyForSurface(
     roles.add("transient-dependency");
     transientSignals.add("reaches package/app/mod boundary");
   }
-  if (tieText.includes("/fixtures/") || tieText.includes("/support/")) {
+  if (
+    surface.path.startsWith(".habitat/_support/") ||
+    tieText.includes("/fixtures/") ||
+    tieText.includes("/support/") ||
+    tieText.includes("_support/")
+  ) {
     roles.add("fixture-support");
     supportSignals.add("references fixture/support path");
   }
@@ -615,8 +621,9 @@ function anatomyForSurface(
   let runnerContract: string | undefined;
   if (surface.surfaceKind === "rule-module") {
     runnerContract = "Dynamically imported by source-check; must export ruleId, candidateExtensions, and diagnosticsForRule.";
-    summary =
-      "Transitional source-check adapter: the runner imports this module, while diagnosticsForRule carries the predicate payload. Regexes/path checks are policy predicates unless they reference auxiliary support files.";
+    summary = surface.path.startsWith(".habitat/_support/execution/source-check/adapters/")
+      ? "Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload."
+      : "Transitional source-check adapter: the runner imports this module, while diagnosticsForRule carries the predicate payload. Regexes/path checks are policy predicates unless they reference auxiliary support files.";
   } else if (surface.surfaceKind === "rule-json") {
     runnerContract = "Read by Habitat registry/catalog loading; not policy authority by itself.";
     summary = "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.";
@@ -649,7 +656,11 @@ function classifyBuckets(surface: Omit<SurfaceRecord, "buckets">): Bucket[] {
   if (surface.invokedBy.includes("direct-script") || surface.isDirectEntrypoint) buckets.add("direct_script_invoked");
 
   const tieText = surface.staticTies.all.map((tie) => tie.value).join("\n");
-  if (tieText.includes("preserve_legacy_source_check_runtime_during_cutover") || tieText.includes("rule-runtime.policy.mjs")) {
+  if (
+    tieText.includes("preserve_legacy_source_check_runtime_during_cutover") ||
+    tieText.includes("_support/execution/source-check/runtime") ||
+    tieText.includes("rule-runtime.policy.mjs")
+  ) {
     buckets.add("transitional_runtime_tie");
   }
   if (
@@ -915,7 +926,12 @@ function discoverCliSourceSurfaces(repoRoot: string): SurfaceRecord[] {
 function discoverSupportFiles(repoRoot: string): SupportFileRecord[] {
   return walkFiles(path.join(repoRoot, ".habitat"))
     .map((filePath) => ({ filePath, relPath: posixRel(repoRoot, filePath) }))
-    .filter(({ relPath }) => relPath.includes("/fixtures/") || relPath.includes("/support/"))
+    .filter(
+      ({ relPath }) =>
+        relPath.startsWith(".habitat/_support/") ||
+        relPath.includes("/fixtures/") ||
+        relPath.includes("/support/")
+    )
     .sort((left, right) => left.relPath.localeCompare(right.relPath))
     .map(({ filePath, relPath }) => {
       const text = fs.readFileSync(filePath, "utf8");
@@ -964,14 +980,30 @@ function markReferencedHabitatFiles(surfaces: SurfaceRecord[]): SurfaceRecord[] 
   for (const surface of surfaces) {
     if (surface.surfaceKind !== "rule-json") continue;
     const stem = surface.path.replace(/\.rule\.json$/, "");
-    for (const extension of [".rule.mjs", ".check.ts", ".check.mjs", ".check.js", ".check.sh", ".check.py", ".pattern.md"]) {
-      const targetId = habitatByPath.get(`${stem}${extension}`);
+    for (const targetPath of invokedHabitatSurfacePathsForRuleJson(surface, stem)) {
+      const targetId = habitatByPath.get(targetPath);
       const target = targetId ? byId.get(targetId) : undefined;
       if (targetId && target) byId.set(targetId, addInvokedBy(target, "habitat"));
     }
   }
 
   return [...byId.values()].sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function invokedHabitatSurfacePathsForRuleJson(surface: SurfaceRecord, stem: string): string[] {
+  const ruleId = path.basename(stem);
+  if (surface.declaredOwnerTool === "source-check") return [sourceCheckAdapterPath(ruleId)];
+  if (surface.declaredOwnerTool === "grit-check") return [`${stem}.pattern.md`];
+  if (surface.declaredOwnerTool === "command-check" || surface.declaredOwnerTool === "habitat") {
+    return [".check.ts", ".check.mjs", ".check.js", ".check.sh", ".check.py"].map(
+      (extension) => `${stem}${extension}`
+    );
+  }
+  return [];
+}
+
+function sourceCheckAdapterPath(ruleId: string): string {
+  return `.habitat/_support/execution/source-check/adapters/${ruleId}.rule.mjs`;
 }
 
 function countBy<T extends string>(items: readonly T[]): Record<T, number> {
@@ -1007,12 +1039,13 @@ function fanout(surfaces: SurfaceRecord[]) {
 function normalizeFanoutTie(tie: StaticTie): { target: string; targetClass: string } {
   if (
     tie.value.includes("preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs") ||
+    tie.value.includes("_support/execution/source-check/runtime/rule-runtime.policy.mjs") ||
     tie.value.endsWith("rule-runtime.policy.mjs")
   ) {
     return {
       target:
-        ".habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs",
-      targetClass: "habitat-authority",
+        ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs",
+      targetClass: "habitat-support",
     };
   }
 

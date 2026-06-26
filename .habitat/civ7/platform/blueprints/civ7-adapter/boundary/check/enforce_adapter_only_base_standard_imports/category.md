@@ -22,7 +22,6 @@ Files:
 - `enforce_adapter_only_base_standard_imports.baseline.json`
 - `enforce_adapter_only_base_standard_imports.pattern.md`
 - `enforce_adapter_only_base_standard_imports.rule.json`
-- `enforce_adapter_only_base_standard_imports.rule.mjs`
 
 Evidence: The pattern confines runtime base-standard imports to the adapter package.
 

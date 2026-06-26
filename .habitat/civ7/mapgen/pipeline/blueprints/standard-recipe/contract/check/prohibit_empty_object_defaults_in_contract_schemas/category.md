@@ -22,7 +22,6 @@ Files:
 - `prohibit_empty_object_defaults_in_contract_schemas.baseline.json`
 - `prohibit_empty_object_defaults_in_contract_schemas.pattern.md`
 - `prohibit_empty_object_defaults_in_contract_schemas.rule.json`
-- `prohibit_empty_object_defaults_in_contract_schemas.rule.mjs`
 
 Evidence: The pattern forbids empty object defaults in contract schema definitions.
 

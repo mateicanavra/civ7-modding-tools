@@ -22,7 +22,6 @@ Files:
 - `require_typed_placement_outcomes_before_apply.baseline.json`
 - `require_typed_placement_outcomes_before_apply.pattern.md`
 - `require_typed_placement_outcomes_before_apply.rule.json`
-- `require_typed_placement_outcomes_before_apply.rule.mjs`
 
 Evidence: The pattern requires placement apply code to consume typed outcomes rather than direct official generator calls.
 

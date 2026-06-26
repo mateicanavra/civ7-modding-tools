@@ -1,12 +1,11 @@
-// Habitat hierarchy V1 integration note: source-check execution now searches
-// subject-local `.rule.mjs` files under `.habitat`, while this legacy module
-// path remains the fallback diagnostic label until source-check disappears or
-// the final authority resolver owns module lookup.
+// Habitat hierarchy V1 integration note: source-check execution uses centralized
+// temporary support adapters under `.habitat/_support/execution`. Packet
+// directories remain the authoring sites for policy metadata and patterns.
 export const sourceCheckRuleRuntimeRepoPath =
-  ".habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs";
+  ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs";
 
 export const sourceCheckRuleModulesRepoPath =
-  ".habitat/tooling/components/preserve_legacy_source_check_runtime_during_cutover/rules";
+  ".habitat/_support/execution/source-check/adapters";
 
 export function sourceCheckRuleModuleRepoPath(ruleId: string): string {
   return `${sourceCheckRuleModulesRepoPath}/${ruleId}.rule.mjs`;

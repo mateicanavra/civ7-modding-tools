@@ -23,7 +23,6 @@ Files:
 - `require_public_ecology_surfaces_and_retired_topology_removal.check.mjs`
 - `require_public_ecology_surfaces_and_retired_topology_removal.pattern.md`
 - `require_public_ecology_surfaces_and_retired_topology_removal.rule.json`
-- `require_public_ecology_surfaces_and_retired_topology_removal.rule.mjs`
 
 Evidence: The check keeps active ecology stages on public domain surfaces and rejects retired ecology wrapper directories.
 

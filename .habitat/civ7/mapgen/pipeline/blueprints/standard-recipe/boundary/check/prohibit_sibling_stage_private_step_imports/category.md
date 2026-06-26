@@ -22,7 +22,6 @@ Files:
 - `prohibit_sibling_stage_private_step_imports.baseline.json`
 - `prohibit_sibling_stage_private_step_imports.pattern.md`
 - `prohibit_sibling_stage_private_step_imports.rule.json`
-- `prohibit_sibling_stage_private_step_imports.rule.mjs`
 
 Evidence: The pattern forbids stage code from importing another stage private steps implementation.
 

@@ -23,7 +23,6 @@ Files:
 - `prohibit_ambient_rng_in_authored_generation.check.mjs`
 - `prohibit_ambient_rng_in_authored_generation.pattern.md`
 - `prohibit_ambient_rng_in_authored_generation.rule.json`
-- `prohibit_ambient_rng_in_authored_generation.rule.mjs`
 
 Evidence: The check forbids ambient RNG, official generators, Math.random, and internal core RNG helpers in authored generation.
 

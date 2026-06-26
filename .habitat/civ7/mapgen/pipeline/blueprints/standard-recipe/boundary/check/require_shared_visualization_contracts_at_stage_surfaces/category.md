@@ -22,7 +22,6 @@ Files:
 - `require_shared_visualization_contracts_at_stage_surfaces.baseline.json`
 - `require_shared_visualization_contracts_at_stage_surfaces.pattern.md`
 - `require_shared_visualization_contracts_at_stage_surfaces.rule.json`
-- `require_shared_visualization_contracts_at_stage_surfaces.rule.mjs`
 
 Evidence: The pattern keeps shared visualization contracts at stage surfaces rather than step-private hubs.
 

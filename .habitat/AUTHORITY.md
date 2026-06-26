@@ -20,6 +20,10 @@ Niches are authored jurisdictions. Blueprints are buildable or enforceable thing
 
 Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
 
+Temporary execution support that cannot yet move into Toolkit source lives under
+`.habitat/_support/execution/`. That directory is a bridge, not a niche,
+blueprint, category, artifact kind, or authored policy root.
+
 ## Already True
 
 - Collected packets live under niche-local blueprint paths.
@@ -27,12 +31,13 @@ Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. Extern
 - Packet-local `category.md` files record current category, lifecycle, admission, evidence, and caveats.
 - Rule identity is co-located as `<packet>.rule.json`.
 - Pattern, baseline, command-check, and provisional operation files are co-located with their packets.
+- Transitional source-check adapters and shared execution helpers are centralized under `.habitat/_support/execution/` rather than packet authoring sites.
 - The Toolkit compatibility registry index lives at `.habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json`.
 
 ## Authority Rules
 
 1. A structural check packet is admitted only by a packet folder under a blueprint at `<category>/check/<packet>`.
-2. A structural rule is admitted only by that folder's `<packet>.rule.json` record or a documented transitional adapter in the Habitat Toolkit blueprint.
+2. A structural rule is admitted only by that folder's `<packet>.rule.json` record or documented transitional support under `.habitat/_support/execution/`.
 3. A source-pattern rule is authored as `<packet>.pattern.md` in the owning packet folder until the final manifest shape is accepted.
 4. Baseline/current-tree evidence is accepted only when co-located with the owning packet as `<packet>.baseline.json` until the final manifest shape is accepted.
 5. A command-backed check is accepted only when its script is read-only and co-located as `<packet>.check.{sh,mjs,py,ts}`.
@@ -71,7 +76,7 @@ Stop a consolidation slice if it creates any of these states:
 
 - authored structural policy exists with no Habitat identity;
 - generic tool dispatch is modeled as repo-authored `.habitat` config instead of Toolkit source;
-- a pattern, baseline, or adapter exists outside its packet folder with no bridge rationale;
+- a pattern, baseline, or adapter exists outside its packet folder with no bridge rationale such as `.habitat/_support/execution/README.md`;
 - external config claims structural meaning not represented in `.habitat`;
 - tests are used as structural gates without Habitat registration or explicit product-test classification;
 - niches, narrow subjects, runner names, or current defect names are promoted into blueprints without domain proof.

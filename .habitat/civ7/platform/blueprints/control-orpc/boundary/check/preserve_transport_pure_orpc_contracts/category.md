@@ -22,7 +22,6 @@ Files:
 - `preserve_transport_pure_orpc_contracts.baseline.json`
 - `preserve_transport_pure_orpc_contracts.pattern.md`
 - `preserve_transport_pure_orpc_contracts.rule.json`
-- `preserve_transport_pure_orpc_contracts.rule.mjs`
 
 Evidence: The pattern keeps control-oRPC contracts transport-pure and module-local schemas private.
 

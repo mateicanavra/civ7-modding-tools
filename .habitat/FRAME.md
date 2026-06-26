@@ -114,10 +114,13 @@ Use this model when reading a packet:
 
 - `*.rule.json` is runner/catalog metadata. It tells the Toolkit how current
   execution is wired; it is not the final source of policy truth.
-- `*.rule.mjs` is transitional source-check adapter glue while `ownerTool:
-  source-check` remains in the registry. Inline path/source regexes,
-  identifiers, and diagnostic messages in these files are behavior, not
-  fixtures.
+- `.habitat/_support/execution/source-check/adapters/*.rule.mjs` is
+  transitional source-check adapter support while `ownerTool: source-check`
+  remains in the registry. Inline path/source regexes, identifiers, and
+  diagnostic messages in these files are behavior, not fixtures.
+- `.habitat/_support/execution/` is a temporary support island under the
+  authority tree. It is not a niche, blueprint, category, artifact kind, or
+  final source of authored authority.
 - `*.pattern.md` is policy-pattern text. Grit examples or match/ignore blocks
   that are part of the pattern packet stay with the pattern unless a runner
   consumes them as separate support files.
@@ -129,9 +132,9 @@ Use this model when reading a packet:
 - `*.fix.*`, `*.generate.*`, and `*.operation.md` are operation surfaces, not
   default enforcement rules.
 
-Do not move `*.rule.mjs` literals into `fixtures/` unless the literal is proven
-to be support data needed to run a flow rather than policy behavior. Do not
-move `.pattern.md` examples merely because they are examples.
+Do not move source-check adapter literals into `fixtures/` unless the literal
+is proven to be support data needed to run a flow rather than policy behavior.
+Do not move `.pattern.md` examples merely because they are examples.
 
 ## Selection Commitments
 
@@ -291,8 +294,8 @@ decision, keep it decomposed and choose a smaller or cleaner cluster.
 
 Start with high-confidence caveats, not a broad sweep:
 
-- Toolkit triage packets:
-  `preserve_legacy_source_check_runtime_during_cutover`,
+- Toolkit triage/support packets:
+  `.habitat/_support/execution/`,
   `preserve_transitional_rule_pack_owner_roots`,
   `inventory_transitional_toolkit_adapter_subjects`, and
   `preserve_generator_schema_contracts`.

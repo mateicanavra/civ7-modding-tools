@@ -22,7 +22,6 @@ Files:
 - `prohibit_recipe_imports_in_domain_source.baseline.json`
 - `prohibit_recipe_imports_in_domain_source.pattern.md`
 - `prohibit_recipe_imports_in_domain_source.rule.json`
-- `prohibit_recipe_imports_in_domain_source.rule.mjs`
 
 Evidence: The pattern prevents domain source from importing or re-exporting recipe modules.
 

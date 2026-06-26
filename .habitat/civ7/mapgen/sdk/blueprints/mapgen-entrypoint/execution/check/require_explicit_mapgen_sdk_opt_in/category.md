@@ -22,7 +22,6 @@ Files:
 - `require_explicit_mapgen_sdk_opt_in.baseline.json`
 - `require_explicit_mapgen_sdk_opt_in.pattern.md`
 - `require_explicit_mapgen_sdk_opt_in.rule.json`
-- `require_explicit_mapgen_sdk_opt_in.rule.mjs`
 
 Evidence: The pattern keeps the general SDK runtime-neutral and makes MapGen bindings an explicit opt-in subpath.
 

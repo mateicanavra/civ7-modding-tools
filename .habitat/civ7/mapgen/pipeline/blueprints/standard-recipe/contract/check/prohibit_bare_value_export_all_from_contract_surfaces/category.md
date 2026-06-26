@@ -22,7 +22,6 @@ Files:
 - `prohibit_bare_value_export_all_from_contract_surfaces.baseline.json`
 - `prohibit_bare_value_export_all_from_contract_surfaces.pattern.md`
 - `prohibit_bare_value_export_all_from_contract_surfaces.rule.json`
-- `prohibit_bare_value_export_all_from_contract_surfaces.rule.mjs`
 
 Evidence: The pattern forbids bare value export-all from contract and public-surface files while allowing type-only aggregation.
 

@@ -22,7 +22,6 @@ Files:
 - `prohibit_root_config_facade_imports_in_domain_ops.baseline.json`
 - `prohibit_root_config_facade_imports_in_domain_ops.pattern.md`
 - `prohibit_root_config_facade_imports_in_domain_ops.rule.json`
-- `prohibit_root_config_facade_imports_in_domain_ops.rule.mjs`
 
 Evidence: The pattern prevents runtime ops from reaching root config facades instead of receiving normalized config.
 

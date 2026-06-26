@@ -22,7 +22,6 @@ Files:
 - `prohibit_runtime_local_config_default_merging.baseline.json`
 - `prohibit_runtime_local_config_default_merging.pattern.md`
 - `prohibit_runtime_local_config_default_merging.rule.json`
-- `prohibit_runtime_local_config_default_merging.rule.mjs`
 
 Evidence: The pattern prevents runtime layers from hiding config normalization behind empty-object merge/default syntax.
 

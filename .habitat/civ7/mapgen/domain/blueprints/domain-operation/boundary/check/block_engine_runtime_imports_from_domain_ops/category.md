@@ -22,7 +22,6 @@ Files:
 - `block_engine_runtime_imports_from_domain_ops.baseline.json`
 - `block_engine_runtime_imports_from_domain_ops.pattern.md`
 - `block_engine_runtime_imports_from_domain_ops.rule.json`
-- `block_engine_runtime_imports_from_domain_ops.rule.mjs`
 
 Evidence: The pattern forbids domain ops from importing engine runtime entrypoints as values.
 

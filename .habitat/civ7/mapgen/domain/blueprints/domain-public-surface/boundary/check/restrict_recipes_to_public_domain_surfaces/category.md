@@ -22,7 +22,6 @@ Files:
 - `restrict_recipes_to_public_domain_surfaces.baseline.json`
 - `restrict_recipes_to_public_domain_surfaces.pattern.md`
 - `restrict_recipes_to_public_domain_surfaces.rule.json`
-- `restrict_recipes_to_public_domain_surfaces.rule.mjs`
 
 Evidence: The pattern limits recipes to public domain root, ops, or config surfaces.
 

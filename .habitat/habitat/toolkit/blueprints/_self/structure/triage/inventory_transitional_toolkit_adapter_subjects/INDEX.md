@@ -16,7 +16,7 @@ integration slice, not evidence that this subject is the runtime resolver.
 | Subject | Current Authority Path | Contents | Source Before Move | Integration State |
 | --- | --- | --- | --- | --- |
 | `preserve_generator_schema_contracts` | `habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/` | Generator schema writer and generated Nx schema JSON bridge assets. | `tools/habitat/scripts/write-preserve_generator_schema_contracts.ts`, `tools/habitat/src/generators/scaffold/*/support/schema.json` | Generator schema paths updated; writer still exists only as a command adapter. |
-| `preserve_legacy_source_check_runtime_during_cutover` | `habitat/toolkit/blueprints/_self/structure/triage/preserve_legacy_source_check_runtime_during_cutover/` | Retired native source-check runtime and per-rule `.mjs` modules. | `tools/habitat/src/service/model/source-check/policy/source/**` | Loader paths updated; target state is conversion to Grit-backed packet-local patterns. |
+| `source-check execution support` | `_support/execution/source-check/` | Retired native source-check runtime and per-rule `.mjs` adapters centralized outside packet authoring sites. | `tools/habitat/src/service/model/source-check/policy/source/**` | Loader paths point at centralized support; target state is conversion to Grit-backed packet-local patterns. |
 
 Do not add new adapter subjects here unless they are admitted by `.habitat/AUTHORITY.md`.
 

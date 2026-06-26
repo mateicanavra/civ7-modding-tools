@@ -23,7 +23,6 @@ Files:
 - `prohibit_runtime_helper_redeclarations.baseline.json`
 - `prohibit_runtime_helper_redeclarations.pattern.md`
 - `prohibit_runtime_helper_redeclarations.rule.json`
-- `prohibit_runtime_helper_redeclarations.rule.mjs`
 
 Evidence: The pattern prevents runtime layers from redeclaring helpers whose ownership belongs in shared mapgen-core surfaces.
 

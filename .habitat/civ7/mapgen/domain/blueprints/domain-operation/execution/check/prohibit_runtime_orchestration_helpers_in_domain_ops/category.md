@@ -22,7 +22,6 @@ Files:
 - `prohibit_runtime_orchestration_helpers_in_domain_ops.baseline.json`
 - `prohibit_runtime_orchestration_helpers_in_domain_ops.pattern.md`
 - `prohibit_runtime_orchestration_helpers_in_domain_ops.rule.json`
-- `prohibit_runtime_orchestration_helpers_in_domain_ops.rule.mjs`
 
 Evidence: The pattern forbids ops.bind and runValidated inside domain op runtime entrypoints.
 
