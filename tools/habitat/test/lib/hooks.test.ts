@@ -28,7 +28,7 @@ import { hookRouter } from "@habitat/cli/service/modules/hook/router";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test, vi } from "vitest";
-import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
+import { makeTestHabitatServiceDeps, makeTestRuleFacts } from "../support/habitat-service-deps";
 
 type StructuralCheckPolicy = {
   readonly createReport: (options?: CheckOptions) => Effect.Effect<CheckReport>;
@@ -248,6 +248,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
   test("restages only formatter-touched Biome paths and leaves foreign staged paths untouched", async () => {
     const fake = makeFakeRuntime({
+      sourceCheckHookEnabled: true,
       stagedPaths: [
         "packages/example/src/index.ts",
         "packages/example/src/unchanged.ts",
@@ -282,6 +283,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
   test("fails closed when source checks report diagnostic-unavailable", async () => {
     const fake = makeFakeRuntime({
+      sourceCheckHookEnabled: true,
       stagedPaths: ["packages/example/src/index.ts"],
       sourceCheckStdout: sourceCheckReport({
         ok: false,
@@ -299,6 +301,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
 
   test("fails closed when source checks report findings", async () => {
     const fake = makeFakeRuntime({
+      sourceCheckHookEnabled: true,
       stagedPaths: ["packages/example/src/index.ts"],
       sourceCheckStdout: sourceCheckReport({
         ok: false,
@@ -336,6 +339,7 @@ describe("Habitat pre-commit staged mutation policy", () => {
   test("reports pre-commit output through an injected reporter service", async () => {
     const events: HabitatReportEvent[] = [];
     const fake = makeFakeRuntime({
+      sourceCheckHookEnabled: true,
       stagedPaths: ["packages/example/src/index.ts"],
       sourceCheckStdout: sourceCheckReport({
         ok: false,
@@ -377,6 +381,7 @@ interface FakeRuntimeOptions {
   biomeCheckExitCode?: number;
   sourceCheckStdout?: string;
   sourceCheckStderr?: string;
+  sourceCheckHookEnabled?: boolean;
   branch?: string;
   head?: string;
   allUnstagedPaths?: string[];
@@ -410,6 +415,7 @@ async function runPreCommitInTest(
       pathExists: fake.pathExists,
       reporterEvents,
       resourcePolicy,
+      sourceCheckHookEnabled: fake.options.sourceCheckHookEnabled,
     }).pipe(Effect.provide(layer))
   );
 }
@@ -419,6 +425,7 @@ function runHookProcedure(options: {
   readonly pathExists?: (targetPath: string) => boolean;
   readonly reporterEvents?: HabitatReportEvent[];
   readonly resourcePolicy?: HookResourcePolicy;
+  readonly sourceCheckHookEnabled?: boolean;
 }) {
   return Effect.gen(function* () {
     const biome = yield* BiomeProvider;
@@ -439,15 +446,18 @@ function runHookProcedure(options: {
               ...(options.pathExists ? { pathExists: options.pathExists } : {}),
               repoRoot,
             },
-            ...(options.reporterEvents
-              ? {
-                  reporter: {
-                    emit: (event: HabitatReportEvent) =>
-                      Effect.sync(() => {
-                        options.reporterEvents?.push(event);
-                      }),
-                  },
-                }
+              ...(options.reporterEvents
+                ? {
+                    reporter: {
+                      emit: (event: HabitatReportEvent) =>
+                        Effect.sync(() => {
+                          options.reporterEvents?.push(event);
+                        }),
+                    },
+                  }
+                : {}),
+            ...(options.sourceCheckHookEnabled
+              ? { rules: makeSyntheticSourceCheckHookRules() }
               : {}),
           }),
         },
@@ -483,6 +493,24 @@ function makeStructuralCheckPolicy(fake: FakeHookHarness): StructuralCheckPolicy
 
 function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
   mockCreateCheckReportEffect.mockImplementation(policy.createReport);
+}
+
+function makeSyntheticSourceCheckHookRules() {
+  const rules = makeTestRuleFacts();
+  return {
+    ...rules,
+    source: [
+      {
+        id: "hook-source-check-probe",
+        lane: "enforced" as const,
+        message: "source-check hook check probe",
+        patternName: "hook-source-check-probe",
+        pathCoverage: [{ kind: "exact-path" as const, patterns: ["packages/example/src/**"] }],
+        scanRoots: ["packages/example/src"],
+      },
+    ],
+    hookCheck: [{ id: "hook-source-check-probe", hookCheck: true as const }],
+  };
 }
 
 function makeBiomeLayer(fake: FakeHookHarness) {

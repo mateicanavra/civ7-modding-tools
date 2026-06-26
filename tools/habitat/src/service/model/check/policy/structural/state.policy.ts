@@ -9,14 +9,13 @@ import {
 import { type Static, Type } from "typebox";
 
 const RuleIdSchema = Type.String({ minLength: 1 });
-const NonEmptyRuleIdsSchema = Type.Array(RuleIdSchema, { minItems: 1 });
 
 export const RuleSelectionOutcomeSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("selected"),
       selector: SelectorRequestSchema,
-      selectedRuleIds: NonEmptyRuleIdsSchema,
+      selectedRuleIds: Type.Array(RuleIdSchema),
     },
     { additionalProperties: false }
   ),

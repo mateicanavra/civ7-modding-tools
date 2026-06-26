@@ -1,0 +1,29 @@
+{
+  "id": "ensure_studio_worker_bundle_is_browser_safe",
+  "title": "Ensure Studio Worker Bundle Is Browser-Safe",
+  "ownerTool": "command-check",
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "scope": "apps/mapgen-studio/dist/**/*.js",
+  "forbids": "Studio worker bundle leaking Civ7 runtime imports, engine globals, or Node builtins",
+  "why": "The Studio browser worker must stay browser-safe and use recipe artifacts instead of runtime-only Civ7 surfaces.",
+  "detect": [
+    "node",
+    ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.check.mjs"
+  ],
+  "remediate": "Move forbidden runtime access behind server/direct-control or artifact boundaries.",
+  "message": "Studio worker bundle contains forbidden runtime or Node references.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/dist/**/*.js",
+        "apps/mapgen-studio/dist/**/*.mjs"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

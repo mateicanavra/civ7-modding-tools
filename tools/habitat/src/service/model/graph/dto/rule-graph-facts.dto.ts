@@ -31,7 +31,7 @@ function ruleGraphAlias(
   rule: RuleRegistryRecordV1,
   targetNames: RuleGraphTargetNames
 ): RuleGraphFacts["alias"] {
-  if (rule.id === "format-ci") {
+  if (rule.id === "enforce_formatting_and_import_hygiene") {
     return {
       kind: "depends-on",
       target: { project: "habitat", target: targetNames.biomeCi },

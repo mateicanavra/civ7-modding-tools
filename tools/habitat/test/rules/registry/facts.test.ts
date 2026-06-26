@@ -108,7 +108,7 @@ describe("rule registry facts", () => {
       ruleBaselineFacts([
         baseRule({
           exceptionPath:
-            ".habitat/civ7/platform/_self/check/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
+            ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh#ALLOWLIST",
           ownerTool: "source-check",
           patternName: "sample_pattern",
           scanRoots: ["packages"],
@@ -120,7 +120,7 @@ describe("rule registry facts", () => {
       {
         id: "sample-rule",
         exceptionPath:
-          ".habitat/civ7/platform/_self/check/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
+          ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/block_unapproved_base_standard_boundary_leaks.check.sh#ALLOWLIST",
       },
     ]);
   });
@@ -165,7 +165,7 @@ describe("rule registry facts", () => {
     expect(
       ruleGraphFacts(
         [
-          baseRule({ id: "format-ci" }),
+          baseRule({ id: "enforce_formatting_and_import_hygiene" }),
           baseRule({
             id: "nx-rule",
             ownerProject: "mod-swooper-maps",
@@ -182,7 +182,7 @@ describe("rule registry facts", () => {
       )
     ).toEqual([
       {
-        id: "format-ci",
+        id: "enforce_formatting_and_import_hygiene",
         ownerProject: "habitat",
         ownerRoot: "tools/habitat",
         alias: {

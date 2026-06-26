@@ -30,10 +30,7 @@ import {
   ownerCheckTarget,
   sourceCheckTarget,
 } from "./service/model/graph/policy/target-definitions.policy.ts";
-import {
-  sourceCheckRuleModuleRepoPath,
-  sourceCheckRuleRuntimeRepoPath,
-} from "./service/model/source-check/policy/source/module-paths.policy.ts";
+import { sourceCheckRuleModuleRepoPath } from "./service/model/source-check/policy/source/module-paths.policy.ts";
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
@@ -268,7 +265,6 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
     inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }
   if (rule.ownerTool === "source-check") {
-    inputs.add(workspaceInput(sourceCheckRuleRuntimeRepoPath));
     inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
     for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
@@ -300,7 +296,6 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
     "{workspaceRoot}/.habitat/**",
-    workspaceInput(sourceCheckRuleRuntimeRepoPath),
   ]);
   for (const rule of rules) {
     if (rule.ownerTool !== "source-check") continue;

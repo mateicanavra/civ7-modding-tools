@@ -1,0 +1,34 @@
+{
+  "id": "prohibit_runtime_validation_and_compiler_imports",
+  "title": "Prohibit Runtime Validation And Compiler Imports",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "runtime recipe steps and domain strategies",
+  "forbids": "runtime layers importing TypeBox Value/TypeCompiler or mapgen compiler validation helpers",
+  "why": "Runtime layers rely on compile-time normalization, not live schema/default mutation.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Runtime layers must not import TypeBox runtime validation or compiler normalization helpers.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_runtime_validation_and_compiler_imports",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/**/stages/**/steps/**/*.ts",
+        "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
+      ]
+    }
+  ]
+}

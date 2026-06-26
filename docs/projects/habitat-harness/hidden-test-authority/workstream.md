@@ -11,7 +11,7 @@ The unit of analysis is the assertion, not the test file. Mixed tests are split:
 ## Team Lanes
 
 - Corpus lane: package tests, canary target notes, package/project scripts, and active docs with architecture/check language.
-- Existing-subject lane: match each candidate to current `.habitat/**/_self/<kind>` packets before adding a new one.
+- Existing-subject lane: match each candidate to current `.habitat/**/_self/<kind>/<category>` packets before adding a new one.
 - Operational lane: apply the same distinction to `tools/habitat`, direct-control, control-oRPC, and bridge packages.
 - Adversarial lane: reject whole-file moves, duplicate Habitat packets, new child niches, and runtime/product tests disguised as checks.
 

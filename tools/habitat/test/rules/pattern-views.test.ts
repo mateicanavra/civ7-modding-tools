@@ -136,7 +136,7 @@ describe("pattern management views", () => {
           ],
         }),
         expect.objectContaining({
-          patternId: "docs-local-checkout-paths",
+          patternId: "ensure_docs_checkout_paths_are_portable",
           dryRunCommands: [
             expect.objectContaining({
               roots: ["docs"],

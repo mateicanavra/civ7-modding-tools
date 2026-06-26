@@ -1,0 +1,36 @@
+{
+  "id": "prohibit_empty_object_defaults_in_contract_schemas",
+  "title": "Prohibit Empty Object Defaults In Contract Schemas",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "contract schema files",
+  "forbids": "empty object defaults in schema definitions",
+  "why": "Object-level empty defaults hide absent user configuration; property defaults are explicit.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not use empty object defaults in schema definitions; rely on property defaults.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_empty_object_defaults_in_contract_schemas",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/domain/**/ops/**/contract.ts",
+        "mods/*/src/domain/**/ops/**/*.contract.ts",
+        "mods/*/src/recipes/**/steps/**/contract.ts",
+        "mods/*/src/recipes/**/steps/**/*.contract.ts"
+      ]
+    }
+  ]
+}

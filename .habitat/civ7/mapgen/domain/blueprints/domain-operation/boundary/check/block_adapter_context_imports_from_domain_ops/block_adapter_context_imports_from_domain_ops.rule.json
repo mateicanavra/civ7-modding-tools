@@ -1,0 +1,32 @@
+{
+  "id": "block_adapter_context_imports_from_domain_ops",
+  "title": "Block Adapter Context Imports From Domain Ops",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+  "forbids": "ops using adapter/context crossing constructs",
+  "why": "Domain ops stay pure and composable; adapter/context belongs outside domain implementation.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Remove adapter/context crossing from domain ops.",
+  "exceptionPath": "none",
+  "patternName": "block_adapter_context_imports_from_domain_ops",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
+      ]
+    }
+  ]
+}

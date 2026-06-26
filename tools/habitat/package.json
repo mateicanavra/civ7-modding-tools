@@ -21,7 +21,8 @@
     "dev": "bun run bin/dev.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --project habitat --testTimeout=30000",
-    "generate:schemas": "bun run ../../.habitat/habitat/toolkit/_self/triage/generator-schemas/write-generator-schemas.ts",
+    "analyze:execution-surface": "bun run scripts/execution-surface-map.ts",
+    "generate:schemas": "bun run ../../.habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/write-preserve_generator_schema_contracts.ts",
     "clean": "rimraf dist oclif.manifest.json",
     "clean:dist": "rimraf dist oclif.manifest.json"
   },

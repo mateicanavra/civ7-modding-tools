@@ -161,7 +161,7 @@ What intentionally did not land:
 
 - support-artifact ontology;
 - implementation adapter schema;
-- blueprint structure;
+- final blueprint manifest structure;
 - final resolver metadata.
 
 ### 9. Define The Authority Tree Shape
@@ -172,38 +172,39 @@ model.
 Current rule:
 
 ```text
-.habitat/<niche>/_self/<kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
 ```
 
 Key decisions:
 
 - Niche is jurisdiction.
-- `_self` separates exact-niche packets from child niches.
-- Artifact kind is below `_self`, not the primary domain axis.
-- Blueprint is a future executable/enforceable model inside a niche, not the
-  same thing as a niche.
+- Blueprint is the buildable/enforceable thing inside a niche.
+- `_self` is the temporary blueprint placeholder for niche-wide authority.
+- Category is a single-word universal engineering purpose.
+- Artifact kind carries mutability and execution intent.
+- Narrow subjects, maintenance chores, and runner names are not blueprints.
 
-### 10. Flatten The Authority Tree
+### 10. Flatten, Categorize, And Correct The Blueprint Tree
 
-Outcome: all current packets were moved out of provisional `boundaries`,
-`structure`, `capabilities`, and `contracts` buckets into the `_self/<kind>`
-shape.
+Outcome: all current packets were moved out of provisional layer buckets, categorized, then corrected so broad areas are niches and buildable/enforceable things are blueprints. The current packet shape is:
+
+```text
+.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
+```
 
 What landed:
 
-- 56 packets under `_self/check`.
-- 1 packet under `_self/fix`.
-- 1 packet under `_self/generate`.
-- 7 unsettled Toolkit packets under `_self/triage`.
-- No old layer buckets remain.
+- 80 packets classified by universal single-word category.
+- Niche paths such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
+- Blueprint paths such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `ensure_studio_worker_bundle_is_browser_safe`.
+- Artifact kinds remain `check`, `fix`, `generate`, `migrate`, and `triage`.
+- Toolkit triage remains explicitly non-default executable authority.
 
 Current semantic review:
 
-- The tree holds together.
-- Niches read as authored jurisdictions.
-- `_self` makes artifact packets visibly distinct from child niches.
-- `habitat/toolkit/_self/triage` is intentionally murky and should remain so
-  until admission/resolver design is addressed.
+- The tree now separates niche jurisdiction from blueprint identity.
+- Categories and artifact kinds are visible without becoming the top-level domain axis.
+- The next resolver pass must discover this niche/blueprint path shape directly.
 
 ### 11. Bridge Package Scripts Through Habitat Check
 
@@ -226,7 +227,7 @@ What landed:
   preserving its existing environment profile.
 - Preserved the existing check set; did not redesign check semantics in this
   slice.
-- Kept `_self/triage` excluded from default execution.
+- Kept `<category>/triage` excluded from default execution.
 
 What this proved:
 
@@ -266,11 +267,11 @@ default inclusion, and error reporting. The observed `Internal Server Error`
 is not a surprise and should not be papered over as a one-off bug.
 
 Current direction: treat full-suite execution as a likely scrap-and-rebuild
-surface. The rebuild should start from the flattened authority tree:
+surface. The rebuild should start from the corrected niche/blueprint authority tree:
 
-- discover executable packets from `.habitat/**/_self/<kind>/<packet>/`;
-- infer niche, artifact kind, and packet identity from the path;
-- exclude `_self/triage` from default execution;
+- discover executable packets from `.habitat/**/blueprints/<blueprint>/<category>/<kind>/<packet>/`;
+- infer niche, blueprint, category, artifact kind, and packet identity from the path;
+- exclude `<category>/triage` packets from default execution;
 - refuse unknown, stale, or not-yet-admitted packets with explicit selector or
   admission diagnostics;
 - report per-packet failures directly, not as generic service errors;
@@ -300,9 +301,9 @@ What this domino should do:
   - if it already has a Habitat rule, rewire the caller to
     `habitat check --rule ...`;
   - if it is a standalone script that should be Habitat-owned, move it into the
-    appropriate `.habitat/<niche>/_self/check/<packet>/` packet, register it,
-    add an empty or existing baseline as appropriate, and route it through
-    `habitat check --rule ...`;
+    appropriate `.habitat/<niche>/blueprints/<blueprint>/<category>/check/<packet>/`
+    packet, register it, add an empty or existing baseline as appropriate, and
+    route it through `habitat check --rule ...`;
   - if it is redundant after a Habitat route exists, remove the alias instead
     of keeping a shadow policy name.
 - Leave package-local operational workflows in place when they run product
@@ -352,19 +353,19 @@ systematic embedded-authority pass.
 
 Migrated packets include:
 
-- `standard-authoring-surface`
-- `standard-map-entrypoints`
-- `standard-recipe-artifact-parity`
-- `standard-contract-manifest`
-- `shipped-map-catalog`
-- `ecology-fudging-guardrails`
-- `civ7-map-policy-boundary`
-- `civ7-map-policy-provenance`
-- `studio-recipe-dag-boundary`
-- `studio-dev-runner-topology`
-- `studio-rpc-daemon-boundary`
-- `intelligence-bridge-ui-bootstrap`
-- `adapter-legacy-generator-boundary`
+- `verify_standard_recipe_public_authoring_surface`
+- `validate_generated_map_entrypoint_contracts`
+- `verify_standard_recipe_artifacts_match_source_stages`
+- `verify_runtime_stage_order_matches_contract_manifest`
+- `block_studio_config_leakage_into_shipped_catalog`
+- `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces`
+- `ensure_map_policy_dependency_independence`
+- `preserve_evidence_provenance_labels`
+- `require_recipe_dag_contract_metadata`
+- `enforce_studio_dev_runner_topology`
+- `enforce_studio_rpc_eventhub_topology`
+- `require_narrow_game_ui_bridge_bootstrap`
+- `prohibit_adapter_local_legacy_generator_logic`
 
 Later embedded clusters:
 
@@ -385,19 +386,19 @@ Scope guard:
 ### 14. Full-Suite Runner Rebuild
 
 Goal: replace the broken plain `habitat check` aggregate with a runner that
-understands the flattened authority tree directly.
+understands the niche/blueprint authority tree directly.
 
 Expected direction:
 
 - Discover executable packets from:
-  - `.habitat/**/_self/check/*/`
-  - `.habitat/**/_self/fix/*/`
-  - `.habitat/**/_self/generate/*/`
-  - `.habitat/**/_self/migrate/*/`
-- Infer niche from the path before `_self`.
-- Infer kind from the directory below `_self`.
+  - `.habitat/**/blueprints/*/*/check/*/`
+  - `.habitat/**/blueprints/*/*/fix/*/`
+  - `.habitat/**/blueprints/*/*/generate/*/`
+  - `.habitat/**/blueprints/*/*/migrate/*/`
+- Infer niche and blueprint from the path before the category.
+- Infer kind from the directory below category.
 - Infer packet identity from the directory below kind.
-- Exclude `_self/triage` from default execution.
+- Exclude `<category>/triage` packets from default execution.
 - Avoid metadata declarations for facts already recoverable from the tree.
 - Preserve selected-rule execution as the compatibility path.
 - Produce explicit admission, selector, and packet execution diagnostics instead
@@ -430,16 +431,17 @@ Why not now:
 Before more execution evidence exists, renaming and reshaping risks encoding a
 theory instead of observed structure.
 
-### 16. Blueprint Model Design
+### 16. Blueprint Manifest Design
 
-Goal: define blueprint as the executable/enforceable unit inside a niche.
+Goal: define a typed manifest for blueprint identity, cascade rules, and lifecycle artifacts.
 
 Current direction:
 
 - Niche remains jurisdiction.
-- Blueprint becomes a designed model for creating, maintaining, or evolving a
-  class of thing.
+- Blueprint is now physically represented as a designed model for creating,
+  maintaining, or evolving a class of thing.
 - A niche may contain multiple blueprints.
+- `_self` remains a temporary placeholder, not the final ontology term.
 
 Open examples:
 
@@ -452,8 +454,8 @@ Open examples:
 Scope guard:
 
 - Do not collapse niche into blueprint.
-- Do not force current artifact packets to become blueprint directories until
-  the model is proven.
+- Do not promote niches or packet handles into blueprint directories without
+  evidence that they are buildable/enforceable things.
 
 ### 17. Toolkit Simplification And Service-Model Cleanup
 

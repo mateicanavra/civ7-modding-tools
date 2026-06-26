@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const mockReport = vi.hoisted(() => ({
   schemaVersion: 1,
-  command: "habitat check --json --rule adapter-boundary",
+  command: "habitat check --json --rule block_unapproved_base_standard_boundary_leaks",
   startedAt: "2026-06-13T00:00:00.000Z",
   ok: true,
   rules: [],
@@ -131,7 +131,7 @@ describe("Habitat oclif commands", () => {
       },
       ruleRouting: [
         {
-          ruleId: "adapter-boundary",
+          ruleId: "block_unapproved_base_standard_boundary_leaks",
           ownerTool: "command-check",
           ownerProject: "habitat",
           coverageKind: "workspace-gate",
@@ -188,7 +188,7 @@ describe("Habitat oclif commands", () => {
       "--output",
       "/tmp/report.json",
       "--rule",
-      "adapter-boundary",
+      "block_unapproved_base_standard_boundary_leaks",
       "--owner",
       "habitat",
       "--tool",
@@ -211,7 +211,7 @@ describe("Habitat oclif commands", () => {
             "--output",
             "/tmp/report.json",
             "--rule",
-            "adapter-boundary",
+            "block_unapproved_base_standard_boundary_leaks",
             "--owner",
             "habitat",
             "--tool",
@@ -221,11 +221,11 @@ describe("Habitat oclif commands", () => {
             "HEAD",
           ],
           serialized:
-            "habitat check --json --output /tmp/report.json --rule adapter-boundary --owner habitat --tool source-check --staged --base HEAD",
+            "habitat check --json --output /tmp/report.json --rule block_unapproved_base_standard_boundary_leaks --owner habitat --tool source-check --staged --base HEAD",
         },
         selectors: {
           owner: "habitat",
-          rule: "adapter-boundary",
+          rule: "block_unapproved_base_standard_boundary_leaks",
           tool: "source-check",
         },
         staged: true,
@@ -242,18 +242,18 @@ describe("Habitat oclif commands", () => {
   test("check forwards repeated rule flags as a curated rule selection", async () => {
     await Check.run([
       "--rule",
-      "op-calls-op",
+      "prohibit_cross_op_runtime_calls",
       "--rule",
-      "cutover-source-guardrails",
+      "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
       "--rule",
-      "standard-stage-topology",
+      "preserve_standard_stage_topology_and_path_invariants",
     ]);
 
     expect(mockCheckReport).toHaveBeenCalledWith(
       expect.objectContaining({
         selectors: {
           owner: undefined,
-          rules: ["op-calls-op", "cutover-source-guardrails", "standard-stage-topology"],
+          rules: ["prohibit_cross_op_runtime_calls", "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases", "preserve_standard_stage_topology_and_path_invariants"],
           tool: undefined,
         },
         command: {
@@ -261,14 +261,14 @@ describe("Habitat oclif commands", () => {
           id: "check",
           argv: [
             "--rule",
-            "op-calls-op",
+            "prohibit_cross_op_runtime_calls",
             "--rule",
-            "cutover-source-guardrails",
+            "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
             "--rule",
-            "standard-stage-topology",
+            "preserve_standard_stage_topology_and_path_invariants",
           ],
           serialized:
-            "habitat check --rule op-calls-op --rule cutover-source-guardrails --rule standard-stage-topology",
+            "habitat check --rule prohibit_cross_op_runtime_calls --rule prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases --rule preserve_standard_stage_topology_and_path_invariants",
         },
       })
     );
@@ -436,7 +436,7 @@ function verifyReceiptPayload(base: string, input: { base?: string; affectedExec
     habitatCheck: {
       reportSchemaVersion: 1,
       selectedRuleIds: [],
-      selectedRealRuleIds: ["adapter-boundary"],
+      selectedRealRuleIds: ["block_unapproved_base_standard_boundary_leaks"],
       builtInRuleIds: [],
       statusCounts: {},
       advisoryCount: 0,
