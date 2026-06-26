@@ -124,6 +124,7 @@ Status-style commands (e.g., `git status`, `mod status`) also accept `--json` fo
 
  - `src/base/` & `src/base/subtree/` — abstract oclif commands for git subtree flows (configure, import, push, pull, setup). Domain commands extend these to supply prefixes and defaults.
  - `src/commands/` — oclif commands grouped by topic: `data/` (crawl, explore, render, slice, zip, unzip), `docs/`, `game/` (running-session helpers that call `@civ7/direct-control` for direct Civ7 control), `git/subtree/` for git subtree helpers, and `mod/` (`git/` hosts subtree operations like `clear`, `list`, `remove`, `update`, `setup`, `import`, `pull`, `push`, `status` with aliases `link:*`, and `manage/` for local utilities)
+ - `scripts/resources-submodule/` — package-local operational helpers for the `.civ7/outputs/resources` submodule workflow that supports `data zip/unzip` refreshes.
  - `src/utils/` — config/path resolution helpers; generic git helpers (configureRemote, importSubtree, pushSubtree, pullSubtree, logRemotePushConfig, findRemoteNameForSlug/requireRemoteNameForSlug, resolveBranch/requireBranch, isNonEmptyDir) live in `utils/git.ts` and centralize logging, argument defaults, and remote/branch inference for git operations
  - Subtree command classes expose only the flags they consume; `repoUrl` is required only for `update`, `import`, and `setup` flows, while `push`/`pull` rely on saved config.
  - `repoUrl` or missing `slug` values may be provided interactively when running subtree commands; a `prerun` hook prompts for them in a TTY if omitted.

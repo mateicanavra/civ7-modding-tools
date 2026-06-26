@@ -177,5 +177,5 @@ mapgen-core) for provenance and grit-pattern grouping:
 | `scope:domain-surface` | recipes import domain only via `@mapgen/domain/<d>`, `/ops`, `/config.js`; step contracts only the entrypoint; no deep ops/rules/strategies imports; no domain-root `export *` facades | Habitat Grit catalog, `grit-contract-export-all`, guardrails full profile |
 | `scope:runtime-purity` | steps/strategies: no TypeBox runtime (`Value.*`, `TypeCompiler`), no `runValidated`, no helper redeclarations, no config merges (`?? {}`, `Value.Default(`) | eslint blocks; guardrails full profile |
 | `scope:stage-isolation` | no sibling-stage step imports (G5); no milestone-prefixed recipe IDs (G1); stage-order doc sync (G6) | Habitat `grit-sibling-stage-step-imports` and `normalization-guardrails` |
-| `scope:rng-authority` | no engine RNG / official generators in authored generation | `rng-authority-boundary.test.ts` (stays a test) |
+| `scope:rng-authority` | no engine RNG / official generators in authored generation | Habitat `rng-authority-static` command-check plus runtime `standard-rng-authority.test.ts` |
 | `scope:generated-zone` | generated paths are regenerate-only | root `AGENTS.md` promise (new enforcement, slice H5) |

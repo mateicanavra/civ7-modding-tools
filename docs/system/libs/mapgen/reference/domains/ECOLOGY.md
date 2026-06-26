@@ -129,7 +129,7 @@ The `map-ecology` stage:
 - Tag registry (effect tags, current `field:*` deps): `mods/mod-swooper-maps/src/recipes/standard/tags.ts`
 - Policy: truth vs projection: `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
 - Architecture guardrails (import bans and parity gates):
-  - `mods/mod-swooper-maps/test/ecology/ecology-step-import-guardrails.test.ts`
+  - `.habitat/civ7/mapgen/pipeline/_self/check/ecology-step-imports/ecology-step-imports.check.mjs`
   - `mods/mod-swooper-maps/test/ecology/earthlike-balance-smoke.test.ts`
 
 ## Open questions

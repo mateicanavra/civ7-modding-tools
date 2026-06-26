@@ -10,7 +10,6 @@ export function habitatInputs(): string[] {
     "{workspaceRoot}/.grit/patterns",
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
-    "{workspaceRoot}/scripts/lint/**",
     "{workspaceRoot}/packages/**",
     "{workspaceRoot}/apps/**",
     "{workspaceRoot}/mods/**",

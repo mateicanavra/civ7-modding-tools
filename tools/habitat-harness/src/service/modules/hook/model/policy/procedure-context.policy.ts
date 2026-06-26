@@ -7,14 +7,16 @@ import type {
   CheckOptions,
   CheckReport,
   HookCheckSummary,
+  renderCheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
 import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import type { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import type { Effect } from "effect";
 import type { PreCommitOutcome } from "../dto/hook.schema.js";
 import type { HookCheckCommandResult } from "./check-command.policy.js";
+import type { finalizePreCommitEffect, finalizePrePushEffect } from "./lifecycle.policy.js";
 import type { HookResourcePolicy } from "./runtime.policy.js";
-import { createHookOutput } from "./runtime.policy.js";
+import { createHookOutput, type hookNow, type section } from "./runtime.policy.js";
 
 export type HookRouterEffect<T> = Effect.Effect<T, never, any>;
 
@@ -176,3 +178,65 @@ export type HookCommandRecordPhase =
   | "pre-push-affected";
 
 export const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
+
+// TODO: THIS IS COMPLETELY FUCKING WRONG. STOP FUCKING DISREGARDING MY NOTES. THIS, WHAT YOU ARE DOING HERE, MAKES NO SENSE AT ALL. THIS IS ALL ACTUAL ROUTER LOGIC FOR THE HOOK MODULE. STOP SMUGGLIGN THIS INTO POLICY. THIS IS NOT POLICY. THESE ARE LITERALY THE CORE OPERATIONS OF THE HOOK MODULE. STOP OUTSOURCING THE CORE LOGIC. STOP PRETENDING CORE LOGIC IS EXTERNAL TO THE MODULE. THE MODULE IS THE ENTIRE POINT.
+
+export interface HookModuleContext {
+  readonly lifecycle: {
+    readonly finalizePreCommit: typeof finalizePreCommitEffect;
+    readonly finalizePrePush: typeof finalizePrePushEffect;
+  };
+  readonly output: {
+    readonly create: () => HookOutput;
+    readonly localNotice: typeof localHookNotice;
+    readonly renderCheckReport: typeof renderCheckReport;
+    readonly result: (output: HookOutput, exitCode: number) => HookRouterEffect<SpawnResult>;
+    readonly section: typeof section;
+  };
+  readonly preCommit: {
+    readonly begin: (
+      resourcePolicy: HookResourcePolicy | undefined
+    ) => HookRouterEffect<PreCommitStep<PreCommitState>>;
+    readonly continueAfterFileLayer: (
+      state: PreCommitState,
+      fileLayer: StagedHookCheckResult
+    ) => HookRouterEffect<PreCommitStep<PreCommitBiomeState>>;
+    readonly finish: (
+      state: PreCommitSourceCheckState,
+      sourceCheckResult: StagedHookCheckResult | undefined
+    ) => HookRouterEffect<SpawnResult>;
+    readonly runBiome: (
+      state: PreCommitBiomeState
+    ) => HookRouterEffect<PreCommitStep<PreCommitSourceCheckState>>;
+    readonly stagedCheck: (
+      tool: StagedHookCheckTool,
+      stagedPaths: readonly string[]
+    ) => HookRouterEffect<StagedHookCheckResult>;
+    readonly summaryAllowsNextStage: (result: HookCheckCommandResult) => boolean;
+  };
+  readonly prePush: {
+    readonly affectedArgv: (request: HookNxAffectedRequest) => string[];
+    readonly changedPaths: (base: string) => HookRouterEffect<PrePushChangedPathsResult>;
+    readonly hookSourceCheck: (
+      changedPaths: readonly string[]
+    ) => HookRouterEffect<PrePushHookSourceCheckResult>;
+    readonly hookSourceCheckPaths: (changedPaths: readonly string[]) => readonly string[];
+    readonly recordCommand: (
+      phase: HookCommandRecordPhase,
+      argv: readonly string[],
+      startedAtMs: number,
+      exitCode: number
+    ) => Effect.Effect<void>;
+    readonly resolveBase: () => HookRouterEffect<PrePushBaseDecision>;
+    readonly runAffected: (request: HookNxAffectedRequest) => HookRouterEffect<SpawnResult>;
+    readonly runTarget: (target: HookNxRunTargetRequest) => HookRouterEffect<SpawnResult>;
+    readonly runTargetArgv: (target: HookNxRunTargetRequest) => string[];
+    readonly targetPlanForChangedPaths: (changedPaths: readonly string[]) => {
+      readonly affectedTargets: readonly string[];
+      readonly runTargets: readonly HookNxRunTargetRequest[];
+    };
+  };
+  readonly time: {
+    readonly now: typeof hookNow;
+  };
+}

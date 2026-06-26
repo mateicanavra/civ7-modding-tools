@@ -1,6 +1,4 @@
-import type { HabitatModule, HabitatServiceDeps } from "@internal/habitat-harness/service/base";
-import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
-import { service } from "@internal/habitat-harness/service/impl";
+import { service, type HabitatModule } from "@internal/habitat-harness/service/impl";
 import {
   type CheckOptions,
   type CheckReport,
@@ -8,6 +6,7 @@ import {
   verifyCheckSummary,
 } from "@internal/habitat-harness/service/model/check/index";
 import { createCheckReportEffect } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/index";
 import { ORPCError } from "@orpc/server";
 import { Clock, Effect } from "effect";
 import {
@@ -40,8 +39,8 @@ interface VerifyWorkspaceGraphPort {
   readonly workspaceGraph: () => Effect.Effect<Parameters<typeof readVerifyTargetPlan>[1]>;
 }
 
-export const module: HabitatModule<HabitatServiceContract["verify"], VerifyModuleContext> =
-  service.verify.use(({ context, next }) => {
+export const module: HabitatModule<"verify", VerifyModuleContext> = service.verify.use(
+  ({ context, next }) => {
     const resolveVerifyBase = makeResolveVerifyBase({
       git: context.deps.git,
       graphite: context.deps.graphite,
@@ -77,14 +76,15 @@ export const module: HabitatModule<HabitatServiceContract["verify"], VerifyModul
         verifyCheckSummary,
       } satisfies VerifyModuleContext,
     });
-  });
+  }
+);
 
 function epochMillisToIsoString(epochMillis: number): string {
   return new Date(epochMillis).toISOString();
 }
 
 function readVerifyTargetPlanEffect(input: {
-  readonly rules: HabitatServiceDeps["rules"];
+  readonly rules: RuleFactsCatalog;
   readonly nx: VerifyWorkspaceGraphPort;
 }) {
   return () =>
