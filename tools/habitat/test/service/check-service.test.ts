@@ -72,7 +72,7 @@ describe("Habitat check service", () => {
         });
         return yield* withFiberContext(() =>
           reportCheck({
-            selectors: { rule: "format-ci", tool: "biome" },
+            selectors: { rule: "enforce_formatting_and_import_hygiene", tool: "biome" },
             baselineIntegrity: true,
             base: "origin/main",
             staged: true,
@@ -85,7 +85,7 @@ describe("Habitat check service", () => {
     expect(result).toBe(mockReport);
     expect(observed).toEqual([
       {
-        rule: "format-ci",
+        rule: "enforce_formatting_and_import_hygiene",
         tool: "biome",
         base: "origin/main",
         baselineIntegrity: true,
@@ -114,8 +114,8 @@ describe("Habitat check service", () => {
     const command = {
       bin: "habitat" as const,
       id: "check" as const,
-      argv: ["--rule", "op-calls-op", "--rule", "standard-stage-topology"],
-      serialized: "habitat check --rule op-calls-op --rule standard-stage-topology",
+      argv: ["--rule", "prohibit_cross_op_runtime_calls", "--rule", "preserve_standard_stage_topology_and_path_invariants"],
+      serialized: "habitat check --rule prohibit_cross_op_runtime_calls --rule preserve_standard_stage_topology_and_path_invariants",
     };
 
     await Effect.runPromise(
@@ -126,7 +126,7 @@ describe("Habitat check service", () => {
         return yield* withFiberContext(() =>
           reportCheck({
             command,
-            selectors: { rules: ["op-calls-op", "standard-stage-topology"] },
+            selectors: { rules: ["prohibit_cross_op_runtime_calls", "preserve_standard_stage_topology_and_path_invariants"] },
           })
         );
       })
@@ -134,7 +134,7 @@ describe("Habitat check service", () => {
 
     expect(observed).toEqual([
       {
-        rules: ["op-calls-op", "standard-stage-topology"],
+        rules: ["prohibit_cross_op_runtime_calls", "preserve_standard_stage_topology_and_path_invariants"],
         baselineIntegrity: false,
         command,
         repoRoot,

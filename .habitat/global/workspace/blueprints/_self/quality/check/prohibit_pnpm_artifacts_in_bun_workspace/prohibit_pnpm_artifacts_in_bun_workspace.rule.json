@@ -1,0 +1,32 @@
+{
+  "id": "prohibit_pnpm_artifacts_in_bun_workspace",
+  "title": "Prohibit pnpm Artifacts In Bun Workspace",
+  "ownerTool": "file-layer",
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "scope": "staged package-manager artifacts",
+  "forbids": "pnpm-lock.yaml or pnpm-workspace.yaml",
+  "why": "The repo package-manager contract is Bun-only; CI already rejects pnpm artifacts and H7 moves that feedback local.",
+  "detect": [
+    "habitat",
+    "check",
+    "--staged",
+    "--rule",
+    "prohibit_pnpm_artifacts_in_bun_workspace"
+  ],
+  "remediate": "Remove pnpm artifacts and use `bun install` so bun.lock remains the only package-manager lockfile.",
+  "message": "pnpm artifacts are forbidden in this Bun-only repo.",
+  "exceptionPath": "none",
+  "forbiddenFileNames": [
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "project-owner"
+    },
+    {
+      "kind": "workspace-gate"
+    }
+  ]
+}

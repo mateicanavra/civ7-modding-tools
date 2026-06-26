@@ -37,7 +37,7 @@ describe("check summaries", () => {
       report({
         ok: false,
         rules: [
-          rule({ ruleId: "adapter-boundary", ownerTool: "command-check", status: "pass" }),
+          rule({ ruleId: "block_unapproved_base_standard_boundary_leaks", ownerTool: "command-check", status: "pass" }),
           rule({
             ruleId: "baseline-integrity",
             ownerTool: "habitat-builtin",
@@ -47,12 +47,12 @@ describe("check summaries", () => {
           }),
         ],
       }),
-      { rule: "adapter-boundary" }
+      { rule: "block_unapproved_base_standard_boundary_leaks" }
     );
 
     expect(summary.reportSchemaVersion).toBe(1);
-    expect(summary.selectedRuleIds).toEqual(["adapter-boundary", "baseline-integrity"]);
-    expect(summary.selectedRealRuleIds).toEqual(["adapter-boundary"]);
+    expect(summary.selectedRuleIds).toEqual(["block_unapproved_base_standard_boundary_leaks", "baseline-integrity"]);
+    expect(summary.selectedRealRuleIds).toEqual(["block_unapproved_base_standard_boundary_leaks"]);
     expect(summary.builtInRuleIds).toEqual(["baseline-integrity"]);
     expect(summary.failingCount).toBe(1);
     expect(summary.refusedCount).toBe(1);

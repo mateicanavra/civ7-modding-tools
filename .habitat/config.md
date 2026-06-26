@@ -31,14 +31,14 @@ The current `.habitat` tree groups authority packets by niche, then by blueprint
           standard-recipe
             boundary
               check
-                sibling-stage-step-imports
+                prohibit_sibling_stage_private_step_imports
             execution
               check
-                runtime-run-validated
+                prohibit_runtime_calls_to_runvalidated
           _self
             policy
               check
-                rng-authority-static
+                prohibit_ambient_rng_in_authored_generation
 ```
 
 Niches are authored jurisdictions. Blueprints are buildable or enforceable things inside those jurisdictions. `_self` is the temporary blueprint placeholder for niche-wide authority. Neither niches nor blueprints should encode a runner, file type, current defect, or narrow maintenance task. Categories describe universal engineering purpose; artifact kinds define mutability.
@@ -78,7 +78,7 @@ Structural transition. A migrate operation answers how Habitat may move authored
 - Artifact kind names are verbs: `check`, `fix`, `generate`, `migrate`.
 - Category names are single-word universal purposes: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, `policy`.
 - Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
-- Blueprint names are constructible or enforceable things such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `worker-bundle`.
+- Blueprint names are constructible or enforceable things such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `ensure_studio_worker_bundle_is_browser_safe`.
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
 - Rule IDs are stable registry handles, not ontology roots.
 - Narrow rule handles do not become blueprints unless a later domain pass proves a distinct authored concept with its own lifecycle.

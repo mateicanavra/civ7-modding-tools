@@ -46,7 +46,7 @@ describe("rule registry contract", () => {
     const registryDir = "/repo/.habitat";
     const fallbackIndex = path.join(
       registryDir,
-      "habitat/toolkit/blueprints/_self/structure/triage/rule-pack-index/index.json"
+      "habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json"
     );
     const rulePath = path.join(
       registryDir,

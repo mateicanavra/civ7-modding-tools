@@ -61,8 +61,8 @@ Notes:
 - Baseline files must be JSON arrays of sorted, unique strings using the v1
   `path::message` key format. Malformed, duplicate, unsorted, orphaned, or
   missing required baseline state fails through `baseline-integrity`.
-- `adapter-boundary` and `doc-ambiguity` are the current modeled external
-  exception sources. `adapter-boundary` validates its script allowlist
+- `block_unapproved_base_standard_boundary_leaks` and `doc-ambiguity` are the current modeled external
+  exception sources. `block_unapproved_base_standard_boundary_leaks` validates its script allowlist
   projection against reported baselined diagnostics; `doc-ambiguity` keeps its
   advisory native baseline at `docs/.doc-ambiguity-lint-baseline.json`.
 - Baseline additions are valid only in the change that introduces the rule

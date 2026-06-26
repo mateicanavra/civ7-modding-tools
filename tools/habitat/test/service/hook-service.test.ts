@@ -54,8 +54,8 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
 
 const prePushAffectedTargets = "check,lint";
 const prePushSourceArtifactTargets = "source:check";
-const prePushNonSourceRuleArtifactTargets = "habitat:rule:import-boundaries";
-const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:import-boundaries";
+const prePushNonSourceRuleArtifactTargets = "habitat:rule:enforce_workspace_import_boundaries";
+const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:enforce_workspace_import_boundaries";
 const prePushBoundaryTaxonomyTargets = "lint";
 const prePushStructuralTargetDeclarationTargets = "lint";
 const prePushNoChangedSourceCheck =
@@ -280,7 +280,7 @@ describe("Habitat hook service", () => {
   test("uses source-check target only for source rule artifact pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath = ".habitat/rules/recipe-runtime-domain-ops/rule.json";
+    const changedPath = ".habitat/rules/require_runtime_domain_op_bundle_imports/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -318,7 +318,7 @@ describe("Habitat hook service", () => {
   test("uses the owning rule target for non-source rule artifact pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath = ".habitat/rules/import-boundaries/rule.json";
+    const changedPath = ".habitat/rules/enforce_workspace_import_boundaries/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -356,8 +356,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPaths = [
-      ".habitat/rules/recipe-runtime-domain-ops/rule.json",
-      ".habitat/rules/import-boundaries/rule.json",
+      ".habitat/rules/require_runtime_domain_op_bundle_imports/rule.json",
+      ".habitat/rules/enforce_workspace_import_boundaries/rule.json",
     ];
 
     const result = await runPrePushHookServiceInTest(
@@ -446,7 +446,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat/src/service/model/graph/policy/boundary-taxonomy.policy.ts";
+    const changedPath = "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -593,7 +593,7 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain("habitat hook pre-commit\n");
     expect(result.stdout).toContain("\n[file-layer staged check]\n");
     expect(result.stdout).toContain('"command": "habitat check --staged --tool file-layer --json"');
-    expect(result.stdout).toContain('"ruleId": "file-layer-pnpm-artifacts"');
+    expect(result.stdout).toContain('"ruleId": "prohibit_pnpm_artifacts_in_bun_workspace"');
     expect(result.stdout).toContain("biome: no staged supported files\n");
     expect(result.stdout).toContain(
       "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
@@ -952,7 +952,7 @@ function fileLayerPassingCheckReport(command: string): CheckReport {
     ok: true,
     rules: [
       {
-        ruleId: "file-layer-pnpm-artifacts",
+        ruleId: "prohibit_pnpm_artifacts_in_bun_workspace",
         ownerTool: "file-layer",
         lane: "enforced",
         status: "pass",

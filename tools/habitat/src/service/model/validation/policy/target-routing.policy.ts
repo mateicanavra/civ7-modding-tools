@@ -102,9 +102,9 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath ===
-      ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/boundary-taxonomy/boundary-taxonomy.check.ts" ||
-    filePath === "tools/habitat/src/service/model/graph/policy/boundary-taxonomy.policy.ts" ||
-    filePath === "tools/habitat/src/validation/boundary-taxonomy-inputs.ts"
+      ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts" ||
+    filePath === "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts" ||
+    filePath === "tools/habitat/src/validation/validate_boundary_taxonomy_against_workspace_graph-inputs.ts"
   );
 }
 
@@ -118,7 +118,7 @@ function isStructuralTargetDeclarationPath(filePath: string): boolean {
 function isServiceModuleShapeToolingPath(filePath: string): boolean {
   return (
     filePath ===
-      ".habitat/habitat/toolkit/blueprints/service-module/structure/check/service-module-shape/service-module-shape.check.ts" ||
+      ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_file_shape/validate_habitat_service_module_file_shape.check.ts" ||
     filePath.startsWith("tools/habitat/src/service/modules/")
   );
 }

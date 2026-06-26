@@ -1,0 +1,33 @@
+{
+  "id": "prohibit_retired_domain_root_catalogs",
+  "title": "Prohibit Retired Domain Root Catalogs",
+  "ownerTool": "source-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/{tags,artifacts}.ts",
+  "forbids": "domain-root tag/artifact catalogs",
+  "why": "Catalogs belong to owned public surfaces, not obsolete root files.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "source-check"
+  ],
+  "remediate": null,
+  "message": "Move domain-root catalogs to the owning public surface.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_retired_domain_root_catalogs",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/tags.ts",
+        "mods/mod-swooper-maps/src/domain/**/artifacts.ts"
+      ]
+    }
+  ]
+}

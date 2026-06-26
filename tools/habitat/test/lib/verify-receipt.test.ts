@@ -309,7 +309,7 @@ function checkReport(options: { ok?: boolean } = {}): CheckReport {
     ok,
     rules: [
       {
-        ruleId: "adapter-boundary",
+        ruleId: "block_unapproved_base_standard_boundary_leaks",
         ownerTool: "command-check",
         lane: "enforced",
         status: ok ? "pass" : "fail",
@@ -319,7 +319,7 @@ function checkReport(options: { ok?: boolean } = {}): CheckReport {
           ? []
           : [
               {
-                ruleId: "adapter-boundary",
+                ruleId: "block_unapproved_base_standard_boundary_leaks",
                 path: ".",
                 message: "failed",
                 severity: "error",
