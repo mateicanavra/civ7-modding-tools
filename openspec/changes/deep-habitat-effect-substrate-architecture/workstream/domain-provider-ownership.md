@@ -18,7 +18,7 @@ Effect.Effect<Success, HabitatError, Requirements>
 
 Allowed `Effect.run*` zones:
 
-- `src/runtime/**`
+- `src/service/impl.ts` and `src/service/runtime/**`
 - `src/commands/**`
 - `src/bin/**`
 - `src/generators/**`
@@ -31,17 +31,18 @@ Forbidden `Effect.run*` zones after migration:
 - `src/providers/**`
 - `src/resources/**`
 - migrated reusable logic formerly under `src/lib/**`, `src/base/**`, or
-  `src/adapters/**`
+  `src/substrate/providers/grit/**`
 
 Current known runtime-edge violations that later source packets must collapse:
 
 - `src/lib/workspace-tools.ts` uses `Effect.runSync` inside a reusable helper.
-- `src/lib/effect-runtime.ts` is the current runtime helper but lives under
-  `src/lib/**`.
 
-The architecture target is one named runtime edge: host adapters call
-`src/runtime/run.ts`; domains and providers return Effect programs; tests use
-test layers.
+The architecture target is explicit execution at real edges: substrate runtime
+exports `HabitatSubstrateLive`, service runtime composes the service
+implementer over service context layers, host/framework entrypoints can execute
+service programs, and tests run programs with explicit fake layers. Domains,
+providers, and resources return Effect programs; the generic runtime runner is
+not an accepted end-state API.
 
 ## Service Contract Rules
 
@@ -64,10 +65,9 @@ test hooks are replaced by fake Layers or request variants.
 | `CommandRunner` | `src/providers/command/**` | argv-array execution, cwd/env delta, stdout/stderr bounds, exit/signal, timing, redaction, interruption | vendor semantics or Habitat policy | process execution, timeout policy, bounded output, clock | deterministic command observations and failure matrix |
 | `WorkspaceToolProvider` | `src/providers/workspace-tools/**` | logical tool-to-command materialization and workspace-local binary policy | running commands | `HabitatConfig`, command metadata | fake logical tool table |
 | `GitProvider` | `src/providers/git/**` | branch/head/status, staged and unstaged diff, merge-base, tracked files, object reads, write-set facts | hook policy or proof receipt decisions | `CommandRunner`, `HabitatConfig` | fake repository state and command observations |
-| `GritProvider` | `src/adapters/grit/provider/**` | Grit command construction, pattern discovery, scan-root admission facts, check/apply/test execution, cache acquisition, diagnostic/output parsing | pattern governance decisions or baseline policy | `CommandRunner`, `HabitatConfig`, `ResourceScope`, `HabitatFileSystem` | fake Grit outputs, parser fixtures, scan-root matrix |
+| `GritProvider` | `src/substrate/providers/grit/**` | Grit command construction, pattern discovery, scan-root admission facts, check/apply/test execution, cache acquisition, diagnostic/output parsing | pattern governance decisions or baseline policy | `CommandRunner`, `HabitatConfig`, `ResourceScope`, `HabitatFileSystem` | fake Grit outputs, parser fixtures, scan-root matrix |
 | `BiomeProvider` | `src/providers/biome/**` | check/format command construction, reporter parsing, safe/unsafe fix classification, file-set discovery | staged restage policy or protected-zone authority | `CommandRunner`, `HabitatConfig`, `HabitatFileSystem` | fake reporter diagnostics and write/no-write outcomes |
 | `NxProvider` | `src/providers/nx/**` | project graph, target metadata, affected scope, generator metadata, sync-check facts | Habitat classify wording or target-plan policy | Nx devkit or command-backed graph access, `HabitatConfig` | fake graph and target metadata |
-| `HuskyHookProvider` | `src/providers/husky/**` | hook name validation, hook environment facts, delegator receipt, non-claim labels | local feedback transaction policy | `HabitatConfig`, hook environment | fake hook env/delegation facts |
 | `HabitatFileSystem` | `src/resources/filesystem.ts`, `src/providers/fs/**` | read/write/mkdir/rm/stat/readdir, JSON read/write, protected path checks | domain decisions about what should be written | platform fs, path service, config roots | fake fs or temp-scoped layer |
 | `HabitatClock` | `src/resources/clock.ts`, `src/providers/clock/**` | wall-clock and monotonic duration | report semantics | Effect Clock | TestClock-backed layer |
 | `HabitatReporter` | `src/providers/reporter/**` | stdout/stderr/report events, bounded output, JSON/text rendering hooks | domain outcome construction | console/std streams | event-capturing reporter |
@@ -108,7 +108,7 @@ stderr.
 | `DiagnosticPatternCatalog` | `src/domains/diagnostic-pattern-catalog/**` | diagnostic pattern identity, command/outcome model, catalog facts | GritProvider, RuleRegistry |
 | `PatternGovernance` | `src/domains/pattern-governance/**` | manifest schema, apply safety, admission state, views, lifecycle | FileSystem, GritProvider, RuleRegistry |
 | `TransformationTransaction` | `src/domains/transformation-transaction/**` | dry-run/apply transaction planning, rollback, worktree write-set record | GritProvider, GitProvider, FileSystem, ResourceScope |
-| `LocalFeedback` | `src/domains/local-feedback/**` | pre-commit/pre-push policy, staged/unstaged/restage decisions, local-only non-claims | HuskyHookProvider, GitProvider, BiomeProvider, GritProvider, NxProvider |
+| `LocalFeedback` | `src/domains/local-feedback/**` | pre-commit/pre-push policy, staged/unstaged/restage decisions, local-only non-claims | GitProvider, BiomeProvider, GritProvider, NxProvider |
 | `ProtectedZoneAuthority` | `src/domains/protected-zone-authority/**` | protected path declarations, recovery decisions, scan-root guard output | FileSystem, Host policy config |
 | `Scaffolding` | `src/domains/scaffolding/**` | project/pattern generator decisions, refusal model, authored-artifact fence | NxProvider, FileSystem, PatternGovernance |
 
@@ -135,7 +135,7 @@ adapter/public-contract boundaries.
 | `ConfigError` | `src/config/**` | missing repo root, invalid cache root, invalid hook mode |
 | `CommandError` | `src/providers/command/**` | spawn failure, timeout, interrupted command, bounded output overflow |
 | `FileSystemError` | `src/resources/**`, `src/providers/fs/**` | read/write/stat/json parse failure, protected path write refusal |
-| `VendorError` | `src/providers/{git,grit,biome,nx,husky}/**` | vendor unavailable, unexpected reporter shape, graph unavailable |
+| `VendorError` | `src/providers/{git,grit,biome,nx}/**` | vendor unavailable, unexpected reporter shape, graph unavailable |
 | `DomainError` | `src/domains/**` | invalid selector, baseline growth refusal, malformed registry, graph dependency mismatch |
 | `PublicContractError` | `src/domains/command-contract/**`, `src/public/**` | incompatible output change, unsupported contract version |
 | `InvariantViolation` | owning domain/provider | impossible internal state after schema validation |

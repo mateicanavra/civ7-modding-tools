@@ -1,20 +1,23 @@
-import { describe, expect, test } from "vitest";
-import { makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
 import type {
   ApplyAdmission,
   ApplyTransactionInput,
-} from "../../src/domains/pattern-governance/index.js";
-import { renderPatternApply } from "../../src/domains/transformation-transaction/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+import { renderPatternApply } from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
+import { transactionsRouter } from "@internal/habitat-harness/service/modules/transactions/router";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
-} from "../../src/providers/command/index.js";
-import { createHabitatServiceClient } from "../../src/service/client.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { makeFakeGritProviderLayer } from "@internal/habitat-harness/substrate/providers/grit/index";
+import { Effect } from "effect";
+import { withFiberContext } from "effect-orpc/node";
+import { describe, expect, test } from "vitest";
 
 describe("Habitat transactions service", () => {
-  test("runs admitted dry-run transactions through the in-process service client", async () => {
+  test("runs admitted dry-run transactions through the service Effect boundary", async () => {
     const requests: HabitatProcessRequest[] = [];
-    const providerLayer = makeFakeGritProviderLayer((request) => {
+    const layer = makeFakeGritProviderLayer((request) => {
       requests.push(request);
       return makeHabitatCommandResult(request, {
         stdout: {
@@ -26,16 +29,20 @@ describe("Habitat transactions service", () => {
       });
     });
 
-    const record = await createHabitatServiceClient({
-      transactions: {
-        providerLayer,
-        transactionInputs: [transactionInput()],
-      },
-    }).transactions.apply({
-      kind: "dry-run-intent",
-      worktree: cleanWorktree(),
-      admission: applyAdmission(),
-    });
+    const record = await Effect.runPromise(
+      Effect.gen(function* () {
+        const applyTransaction = transactionsRouter.apply.callable({
+          context: { transactions: { transactionInputs: [transactionInput()] } },
+        });
+        return yield* withFiberContext(() =>
+          applyTransaction({
+            kind: "dry-run-intent",
+            worktree: cleanWorktree(),
+            admission: applyAdmission(),
+          })
+        );
+      }).pipe(Effect.provide(layer))
+    );
 
     expect(record.outcome).toMatchObject({
       kind: "dry-run-completed",
@@ -54,16 +61,9 @@ describe("Habitat transactions service", () => {
     });
   });
 
-  test("refuses unresolved transaction input before vendor execution", async () => {
-    const requests: HabitatProcessRequest[] = [];
-    const providerLayer = makeFakeGritProviderLayer((request) => {
-      requests.push(request);
-      return makeHabitatCommandResult(request);
-    });
-
+  test("refuses unresolved transaction input through the in-process service client", async () => {
     const record = await createHabitatServiceClient({
       transactions: {
-        providerLayer,
         transactionInputs: [],
       },
     }).transactions.apply({
@@ -76,7 +76,6 @@ describe("Habitat transactions service", () => {
       kind: "refused",
       refusal: { reason: "missing-transaction-input" },
     });
-    expect(requests).toHaveLength(0);
   });
 });
 

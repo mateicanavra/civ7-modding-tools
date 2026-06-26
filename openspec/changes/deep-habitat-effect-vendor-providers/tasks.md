@@ -7,7 +7,8 @@
 - [x] 1.3 Define Grit provider contracts, fake/live Layers, and pure command/output parsing seams; defer adapter draining to `deep-habitat-effect-grit-apply-cutover`.
 - [x] 1.4 Add Biome provider.
 - [x] 1.5 Add Nx provider.
-- [x] 1.6 Add Husky delegator provider.
+- [x] 1.6 Delete unused Husky delegator provider; `.husky` remains the hook
+      delegator surface.
 - [x] 1.7 Remove `src/lib/habitat-process.ts`; command execution contracts now
   export from `src/providers/command`, and Grit callsites consume
   `GritProvider`/`CommandRunner` instead of the old process facade.

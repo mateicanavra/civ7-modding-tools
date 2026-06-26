@@ -1,9 +1,9 @@
-import type { ContractProcedure } from "@orpc/contract";
-import { eoc } from "effect-orpc";
 import {
   PatternApplyRecordSchema,
   PatternApplyRequestSchema,
-} from "../../../domains/transformation-transaction/schema.js";
+} from "@internal/habitat-harness/core/domains/transformation-transaction/schema";
+import type { ContractProcedure } from "@orpc/contract";
+import { eoc } from "effect-orpc";
 import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
 import type { HabitatServiceProcedureMeta } from "../../metadata.js";
 import { toStandardSchema } from "../../typebox-standard-schema.js";

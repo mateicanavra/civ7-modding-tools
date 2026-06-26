@@ -1,15 +1,18 @@
-import { Value } from "typebox/value";
-import { describe, expect, test } from "vitest";
 import {
   HookCheckSummarySchema,
   hookCheckSummary,
   VerifyCheckSummarySchema,
   verifyCheckSummary,
-} from "../../src/domains/structural-check/index.js";
-import type { CheckReport, RuleReport } from "../../src/domains/structural-check/schema.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import type {
+  CheckReport,
+  RuleReport,
+} from "@internal/habitat-harness/core/domains/structural-check/schema";
+import { Value } from "typebox/value";
+import { describe, expect, test } from "vitest";
 
 describe("check summaries", () => {
-  test("projects Grit adapter failures as hook diagnostic unavailability", () => {
+  test("projects Grit provider failures as hook diagnostic unavailability", () => {
     const summary = hookCheckSummary(
       report({
         ok: false,
@@ -19,7 +22,7 @@ describe("check summaries", () => {
             status: "fail",
             diagnostics: [
               diagnostic(
-                "Grit rule failed.\n--- grit adapter failure (GritMalformedJson) ---\nwrapped JSON"
+                "Grit rule failed.\n--- grit provider failure (GritMalformedJson) ---\nwrapped JSON"
               ),
             ],
           }),

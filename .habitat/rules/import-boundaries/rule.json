@@ -1,6 +1,6 @@
 {
   "id": "import-boundaries",
-  "ownerTool": "target-check",
+  "ownerTool": "nx",
   "ownerProject": "@internal/habitat-harness",
   "graphTarget": {
     "project": "@internal/habitat-harness",

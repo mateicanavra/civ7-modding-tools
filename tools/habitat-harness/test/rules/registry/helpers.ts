@@ -1,8 +1,8 @@
-import { expect } from "vitest";
 import type {
   parseRuleRegistryDocument,
   RuleRegistryRecordV1,
-} from "../../../src/domains/rule-registry/index.js";
+} from "@internal/habitat-harness/core/domains/rule-registry/index";
+import { expect } from "vitest";
 
 export function registryDocument(rules: unknown[]): unknown {
   return {

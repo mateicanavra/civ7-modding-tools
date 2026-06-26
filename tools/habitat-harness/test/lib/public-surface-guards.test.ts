@@ -1,8 +1,8 @@
-import { describe, expect, test } from "vitest";
 import {
   renderPublicSurfaceGuardFailures,
   runPublicSurfaceGuard,
-} from "../../src/domains/public-surface-guards/guard.js";
+} from "@internal/habitat-harness/core/domains/public-surface-guards/guard.js";
+import { describe, expect, test } from "vitest";
 
 describe("Habitat public surface guards", () => {
   test("rejects executable managing code inside authored artifacts", () => {
@@ -20,15 +20,16 @@ describe("Habitat public surface guards", () => {
 
   test("rejects public/internal leaks and product vocabulary in generic surfaces", () => {
     const result = runGuardWithInjectedFiles({
-      "tools/habitat-harness/src/domains/probe/service.ts":
-        'import { runGit } from "../../providers/git/runner.js";\nexport const value = runGit;\n',
-      "tools/habitat-harness/src/domains/probe/live.ts":
-        'import { liveGit } from "../../providers/git/live/index.js";\nexport const live = liveGit;\n',
-      "tools/habitat-harness/src/providers/probe/leak.ts": 'export const product = "Civ7";\n',
-      "tools/habitat-harness/src/public/leak.ts":
-        'import { makeThing } from "../providers/private/index.js";\nexport const value = makeThing;\n',
-      "tools/habitat-harness/src/public/domain-leak.ts":
-        'import { makeThing } from "../domains/private/index.js";\nexport const leakedDomain = makeThing;\n',
+      "tools/habitat-harness/src/core/domains/probe/service.ts":
+        'import { runGit } from "../../../substrate/providers/git/runner.js";\nexport const value = runGit;\n',
+      "tools/habitat-harness/src/core/domains/probe/live.ts":
+        'import { liveGit } from "../../../substrate/providers/git/live/index.js";\nexport const live = liveGit;\n',
+      "tools/habitat-harness/src/substrate/providers/probe/leak.ts":
+        'export const product = "Civ7";\n',
+      "tools/habitat-harness/src/host/public/leak.ts":
+        'import { makeThing } from "@internal/habitat-harness/substrate/providers/private/index";\nexport const value = makeThing;\n',
+      "tools/habitat-harness/src/host/public/domain-leak.ts":
+        'import { makeThing } from "@internal/habitat-harness/core/domains/private/index";\nexport const leakedDomain = makeThing;\n',
     });
 
     expect(result.exitCode).toBe(1);
@@ -42,25 +43,35 @@ describe("Habitat public surface guards", () => {
 
   test("rejects removed sync baseline integrity adapter return", () => {
     const result = runGuardWithInjectedFiles({
-      "tools/habitat-harness/src/domains/baseline-authority/integrity.ts":
+      "tools/habitat-harness/src/core/domains/baseline-authority/integrity.ts":
         "export function checkBaselineIntegrity() {}\n",
+      "tools/habitat-harness/src/core/domains/hook-runtime/command-runner.ts":
+        "export function runHookCommand() {}\n",
+      "tools/habitat-harness/src/core/domains/hook-runtime/pre-push-base.ts":
+        "export function resolveGraphiteParent() {}\n",
     });
 
     expect(result.exitCode).toBe(1);
-    expect(result.stderr).toContain("Removed public compatibility adapter returned.");
+    expect(result.stderr).toContain("Removed compatibility root returned.");
     expect(result.stderr).toContain(
-      "tools/habitat-harness/src/domains/baseline-authority/integrity.ts"
+      "tools/habitat-harness/src/core/domains/baseline-authority/integrity.ts"
+    );
+    expect(result.stderr).toContain(
+      "tools/habitat-harness/src/core/domains/hook-runtime/command-runner.ts"
+    );
+    expect(result.stderr).toContain(
+      "tools/habitat-harness/src/core/domains/hook-runtime/pre-push-base.ts"
     );
   });
 
   test("rejects service topology outside owned routers and provider boundaries", () => {
     const result = runGuardWithInjectedFiles({
-      "tools/habitat-harness/src/providers/probe/index.ts":
+      "tools/habitat-harness/src/substrate/providers/probe/index.ts":
         'import { runCheckService } from "../../service/modules/check/router.js";\nexport const value = runCheckService;\n',
-      "tools/habitat-harness/src/service/modules/check/module.ts":
-        'import { Layer } from "effect";\nexport const module = Layer.succeed;\n',
+      "tools/habitat-harness/src/service/modules/check/context.ts":
+        'import { Layer } from "effect";\nexport const implementer = Layer.succeed;\n',
       "tools/habitat-harness/src/service/modules/check/router.ts":
-        'import { router } from "./run.js";\nexport const checkRouter = router.router({});\n',
+        'import { router } from "./run.js";\nexport const checkRouter = router.router({});\nexport function runCheckService() {}\n',
       "tools/habitat-harness/src/service/modules/check/run.ts":
         "export function runCheckService() {}\n",
     });
@@ -70,7 +81,7 @@ describe("Habitat public surface guards", () => {
       "Habitat providers must stay below service and domain ownership"
     );
     expect(result.stderr).toContain(
-      "Habitat service module files must bind the owned service module only"
+      "Habitat service context files must bind and decorate the owned service module only"
     );
     expect(result.stderr).toContain(
       "Habitat service router files must own procedure logic directly"

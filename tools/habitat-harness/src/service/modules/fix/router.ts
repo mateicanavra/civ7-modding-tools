@@ -1,34 +1,34 @@
-import { Effect } from "effect";
-import { Type } from "typebox";
-import { Value } from "typebox/value";
 import {
   type ApplyAdmission,
   ApplyAdmissionSchema,
   activeApplyTransactionInputs,
   defaultApplyAdmissions,
-} from "../../../domains/pattern-governance/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
 import {
   observeWorktree,
   type PatternApplyRequest,
   renderPatternApply,
   type WorktreeObservation,
-} from "../../../domains/transformation-transaction/index.js";
-import type { SpawnResult } from "../../../providers/command/index.js";
-import { runTransactionApplyService } from "../transactions/router.js";
-import type { FixServiceOptions } from "./context.js";
+} from "@internal/habitat-harness/core/domains/transformation-transaction/index";
+import type { SpawnResult } from "@internal/habitat-harness/substrate/providers/command/index";
+import { Effect } from "effect";
+import { withFiberContext } from "effect-orpc/node";
+import { Type } from "typebox";
+import { Value } from "typebox/value";
+import { transactionsRouter } from "../transactions/router.js";
+import { type FixServiceModuleContext, implementer } from "./context.js";
 import type { FixServiceRunInput } from "./contract.js";
 import { FixCommandIntentSchema } from "./contract.js";
-import { module as fixModule } from "./module.js";
 
 const FixAdmissionSetSchema = Type.Array(ApplyAdmissionSchema);
 
 export const fixRouter = {
-  run: fixModule.run.effect(({ context, input }) => runFixService(input, context.fix)),
+  run: implementer.run.effect(({ context, input }) => runFixService(input, context)),
 };
 
 export const router = fixRouter;
 
-export function runFixService(input: FixServiceRunInput, options: FixServiceOptions = {}) {
+function runFixService(input: FixServiceRunInput, options: FixServiceModuleContext = {}) {
   return Effect.gen(function* () {
     const parsed = Value.Parse(FixCommandIntentSchema, input);
     const admissions = Value.Parse(
@@ -41,13 +41,15 @@ export function runFixService(input: FixServiceRunInput, options: FixServiceOpti
     }
 
     const transactionInputs = options.transactionInputs ?? activeApplyTransactionInputs();
+    const applyTransaction = transactionsRouter.apply.callable({
+      context: { transactions: { transactionInputs } },
+    });
     const records = yield* Effect.forEach(
       admissions,
       (admission) =>
-        runTransactionApplyService(transactionRequest(parsed, admission, options.worktree), {
-          providerLayer: options.providerLayer,
-          transactionInputs,
-        }),
+        withFiberContext(() =>
+          applyTransaction(transactionRequest(parsed, admission, options.worktree))
+        ),
       { concurrency: 1 }
     );
     const rendered = records.map(renderPatternApply);

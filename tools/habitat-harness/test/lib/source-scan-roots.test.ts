@@ -1,5 +1,5 @@
+import { collapsedSourceScanRoots } from "@internal/habitat-harness/core/domains/source-check/index";
 import { describe, expect, test } from "vitest";
-import { collapsedSourceScanRoots } from "../../src/domains/source-check/index.js";
 
 describe("source-check scan root planning", () => {
   test("collapses nested scan roots before filesystem traversal", () => {
@@ -8,7 +8,7 @@ describe("source-check scan root planning", () => {
         "packages/mapgen-core/src",
         "packages/mapgen-core",
         "./packages/mapgen-core/src/core",
-        "tools/habitat-harness/src/domains/source-check",
+        "tools/habitat-harness/src/core/domains/source-check",
         "tools/habitat-harness/src",
       ])
     ).toEqual(["packages/mapgen-core", "tools/habitat-harness/src"]);

@@ -1,10 +1,10 @@
-import { describe, expect, test } from "vitest";
 import {
   patternManifestPath,
   patternRuleReferenceFromRule,
   type RegisteredPatternManifest,
   validatePatternManifest,
-} from "../../src/domains/pattern-governance/index.js";
+} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+import { describe, expect, test } from "vitest";
 
 describe("pattern manifest validator", () => {
   test("accepts a structured registered advisory manifest with a matching rule reference", () => {

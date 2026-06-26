@@ -1,33 +1,40 @@
-import { Effect, Layer } from "effect";
-import { describe, expect, test } from "vitest";
 import {
   createHookTrace,
   type HookReportEvent,
   type HookRuntime,
-} from "../../src/domains/hook-runtime/runtime.js";
+} from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
 import {
   type CheckOptions,
   type CheckReport,
   makeFakeStructuralCheckLayer,
-} from "../../src/domains/structural-check/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
+} from "@internal/habitat-harness/core/domains/structural-check/index";
+import { createHabitatServiceClient } from "@internal/habitat-harness/service/client";
+import type { HookServiceModuleContext } from "@internal/habitat-harness/service/modules/hook/context";
+import type { HookServiceRunInput } from "@internal/habitat-harness/service/modules/hook/contract";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   type BiomeCommandRequest,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "../../src/providers/biome/index.js";
-import { captureOutput, makeHabitatCommandResult } from "../../src/providers/command/index.js";
-import type { HabitatCommandResult } from "../../src/providers/command/types.js";
-import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
+} from "@internal/habitat-harness/substrate/providers/biome/index";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import type { HabitatCommandResult } from "@internal/habitat-harness/substrate/providers/command/types";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
+import { makeFakeGraphiteProviderLayer } from "@internal/habitat-harness/substrate/providers/graphite/index";
 import {
   affectedArgv,
   makeFakeNxProviderLayer,
   type NxAffectedRequest,
   type NxRunTargetRequest,
   runTargetArgv,
-} from "../../src/providers/nx/index.js";
-import { createHabitatServiceClient } from "../../src/service/client.js";
-import { runHookService } from "../../src/service/modules/hook/router.js";
+} from "@internal/habitat-harness/substrate/providers/nx/index";
+import { Effect, Layer } from "effect";
+import { withFiberContext } from "effect-orpc/node";
+import { describe, expect, test } from "vitest";
 
 const prePushAffectedTargets = "check,validate:boundary-taxonomy,validate:grit-patterns";
 const prePushSourceArtifactTargets = "source:check";
@@ -71,7 +78,12 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
-      { runtime: fake.runtime }
+      { runtime: fake.runtime },
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      graphiteLayer(fake)
     );
 
     expect(result.stdout).toContain("base=agent-parent");
@@ -94,7 +106,11 @@ describe("Habitat hook service", () => {
               ? "abc123mergebase\n"
               : "";
         return commandResult(argv, options.cwd, stdout);
-      })
+      }),
+      undefined,
+      undefined,
+      undefined,
+      graphiteLayer(fake)
     );
 
     expect(result.exitCode).toBe(0);
@@ -117,7 +133,11 @@ describe("Habitat hook service", () => {
       makeFakeGitProviderLayer((argv, options) => {
         gitCalls.push(argv.join(" "));
         return commandResult(argv, options.cwd, "", 1);
-      })
+      }),
+      undefined,
+      undefined,
+      undefined,
+      graphiteLayer(fake)
     );
 
     expect(result.exitCode).toBe(1);
@@ -147,7 +167,10 @@ describe("Habitat hook service", () => {
           "target failed\n",
           "nx"
         )
-      )
+      ),
+      undefined,
+      undefined,
+      graphiteLayer(fake)
     );
 
     expect(result.exitCode).toBe(1);
@@ -163,7 +186,12 @@ describe("Habitat hook service", () => {
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "" },
-      { runtime: { ...fake.runtime, trace } }
+      { runtime: { ...fake.runtime, trace } },
+      prePushGitLayer(fake),
+      undefined,
+      undefined,
+      undefined,
+      graphiteLayer(fake)
     );
 
     expect(result.exitCode).toBe(0);
@@ -235,7 +263,10 @@ describe("Habitat hook service", () => {
           "target failed\n",
           "nx"
         )
-      )
+      ),
+      undefined,
+      undefined,
+      graphiteLayer(fake)
     );
 
     expect(result.exitCode).toBe(1);
@@ -271,7 +302,7 @@ describe("Habitat hook service", () => {
   test("runs pre-push source checks over changed hook source paths", async () => {
     const fake = makePrePushRuntime();
     const checkRequests: CheckOptions[] = [];
-    const changedPath = "tools/habitat-harness/src/adapters/grit/runner.ts";
+    const changedPath = "packages/sdk/src/index.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -425,7 +456,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/domains/source-check/source-rules.ts";
+    const changedPath = "tools/habitat-harness/src/core/domains/source-check/source-rules.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -475,7 +506,7 @@ describe("Habitat hook service", () => {
     const fake = makePrePushRuntime();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat-harness/src/lib/boundary-taxonomy.ts";
+    const changedPath = "tools/habitat-harness/src/substrate/lib/boundary-taxonomy.ts";
 
     const result = await runHookServiceInTest(
       { name: "pre-push", base: "HEAD~1" },
@@ -593,7 +624,7 @@ describe("Habitat hook service", () => {
       "source checks: no staged TypeScript/JavaScript files in approved source-check roots\n"
     );
     expect(result.stdout).toContain("habitat hook pre-commit: PASS\n");
-    expect(fake.calls).toEqual(["git diff --cached --name-status -z"]);
+    expect(fake.calls).toEqual([]);
   });
 
   test("routes pre-commit Biome execution through the Biome provider", async () => {
@@ -608,7 +639,7 @@ describe("Habitat hook service", () => {
     const result = await runHookServiceInTest(
       { name: "pre-commit" },
       { runtime: { ...fake.runtime, trace } },
-      undefined,
+      preCommitGitLayer(fake),
       undefined,
       makeFakeStructuralCheckLayer({
         createReport: (options = {}) =>
@@ -653,17 +684,23 @@ describe("Habitat hook service", () => {
 });
 
 function runHookServiceInTest(
-  input: Parameters<typeof runHookService>[0],
-  options: Parameters<typeof runHookService>[1] = {},
+  input: HookServiceRunInput,
+  options: HookServiceModuleContext = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
   structuralCheck?: ReturnType<typeof makeFakeStructuralCheckLayer>,
-  biome = biomeLayer()
+  biome = biomeLayer(),
+  graphite = makeFakeGraphiteProviderLayer(() => null)
 ) {
   const layer = structuralCheck
-    ? Layer.mergeAll(gitLayer, nx, structuralCheck, biome)
-    : Layer.mergeAll(gitLayer, nx, biome);
-  return Effect.runPromise(runHookService(input, options).pipe(Effect.provide(layer)));
+    ? Layer.mergeAll(gitLayer, nx, structuralCheck, biome, graphite)
+    : Layer.mergeAll(gitLayer, nx, biome, graphite);
+  return Effect.runPromise(
+    Effect.gen(function* () {
+      const runHook = hookRouter.run.callable({ context: { hook: options } });
+      return yield* withFiberContext(() => runHook(input));
+    }).pipe(Effect.provide(layer))
+  );
 }
 
 function commandResult(
@@ -694,33 +731,39 @@ function commandResult(
 function makePrePushRuntime(options: { graphiteParent?: string } = {}): {
   runtime: HookRuntime;
   calls: string[];
+  options: { graphiteParent?: string };
 } {
   const calls: string[] = [];
   return {
     calls,
+    options,
     runtime: {
-      runCommand: (argv) => {
-        const call = argv.join(" ");
-        calls.push(call);
-        if (call === "gt branch info --no-interactive") {
-          return options.graphiteParent
-            ? { exitCode: 0, stdout: `Parent: ${options.graphiteParent}\n`, stderr: "" }
-            : { exitCode: 1, stdout: "", stderr: "no graphite parent\n" };
-        }
-        if (call === "git branch --show-current") {
-          return { exitCode: 0, stdout: "agent-HR-test\n", stderr: "" };
-        }
-        if (call === "git rev-parse HEAD") {
-          return { exitCode: 0, stdout: "abc123head\n", stderr: "" };
-        }
-        if (call === "git diff --cached --name-only -z" || call === "git diff --name-only -z") {
-          return { exitCode: 0, stdout: "", stderr: "" };
-        }
-        throw new Error(`Unexpected hook service test command: ${call}`);
-      },
       nowMs: () => 1_000,
     },
   };
+}
+
+function graphiteLayer(fake: { calls: string[]; options: { graphiteParent?: string } }) {
+  return makeFakeGraphiteProviderLayer(() => {
+    fake.calls.push("gt branch info --no-interactive");
+    return fake.options.graphiteParent ?? null;
+  });
+}
+
+function prePushGitLayer(_fake: ReturnType<typeof makePrePushRuntime>) {
+  return makeFakeGitProviderLayer((argv, options) => {
+    const call = argv.join(" ");
+    if (call === "branch --show-current") {
+      return commandResult(argv, options.cwd, "agent-HR-test\n");
+    }
+    if (call === "rev-parse HEAD") {
+      return commandResult(argv, options.cwd, "abc123head\n");
+    }
+    if (call === "diff --cached --name-only -z" || call === "diff --name-only -z") {
+      return commandResult(argv, options.cwd, "");
+    }
+    return commandResult(argv, options.cwd, "");
+  });
 }
 
 function nxLayer(
@@ -764,38 +807,18 @@ function makePreCommitRuntime(
 ): {
   runtime: HookRuntime;
   calls: string[];
+  options: {
+    stagedPaths?: string[];
+    unstagedPaths?: string[];
+    fileHashes?: Record<string, string[]>;
+  };
 } {
   const calls: string[] = [];
   const hashReads = new Map<string, number>();
   return {
     calls,
+    options,
     runtime: {
-      runCommand: (argv) => {
-        const call = argv.join(" ");
-        calls.push(call);
-        if (call === "git branch --show-current") {
-          return { exitCode: 0, stdout: "agent-HR-test\n", stderr: "" };
-        }
-        if (call === "git rev-parse HEAD") {
-          return { exitCode: 0, stdout: "abc123head\n", stderr: "" };
-        }
-        if (call === "git diff --name-only -z") {
-          return { exitCode: 0, stdout: "", stderr: "" };
-        }
-        if (call === "git diff --cached --name-only -z") {
-          return { exitCode: 0, stdout: renderPathList(options.stagedPaths ?? []), stderr: "" };
-        }
-        if (call === "git diff --cached --name-status -z") {
-          return { exitCode: 0, stdout: renderNameStatus(options.stagedPaths ?? []), stderr: "" };
-        }
-        if (call.startsWith("git diff --name-only -z --")) {
-          return { exitCode: 0, stdout: renderPathList(options.unstagedPaths ?? []), stderr: "" };
-        }
-        if (call.startsWith("git add --")) {
-          return { exitCode: 0, stdout: "", stderr: "" };
-        }
-        throw new Error(`Unexpected hook pre-commit service test command: ${call}`);
-      },
       pathExists: (target) =>
         (options.stagedPaths ?? []).some((candidate) => target.endsWith(candidate)),
       fileHash: (repoRelativePath) => {
@@ -808,6 +831,35 @@ function makePreCommitRuntime(
       nowMs: () => 1_000,
     },
   };
+}
+
+function preCommitGitLayer(fake: ReturnType<typeof makePreCommitRuntime>) {
+  return makeFakeGitProviderLayer((argv, options) => {
+    const call = ["git", ...argv].join(" ");
+    fake.calls.push(call);
+    if (call === "git branch --show-current") {
+      return commandResult(argv, options.cwd, "agent-HR-test\n");
+    }
+    if (call === "git rev-parse HEAD") {
+      return commandResult(argv, options.cwd, "abc123head\n");
+    }
+    if (call === "git diff --name-only -z") {
+      return commandResult(argv, options.cwd, "");
+    }
+    if (call === "git diff --cached --name-only -z") {
+      return commandResult(argv, options.cwd, renderPathList(fake.options.stagedPaths ?? []));
+    }
+    if (call === "git diff --cached --name-status -z") {
+      return commandResult(argv, options.cwd, renderNameStatus(fake.options.stagedPaths ?? []));
+    }
+    if (call.startsWith("git diff --name-only -z --")) {
+      return commandResult(argv, options.cwd, renderPathList(fake.options.unstagedPaths ?? []));
+    }
+    if (call.startsWith("git add --")) {
+      return commandResult(argv, options.cwd, "");
+    }
+    throw new Error(`Unexpected hook pre-commit service test command: ${call}`);
+  });
 }
 
 function renderNameStatus(paths: string[]): string {

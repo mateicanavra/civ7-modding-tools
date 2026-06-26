@@ -2,8 +2,6 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { NodeContext } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
-import { afterEach, describe, expect, test } from "vitest";
 import {
   applyBaseline,
   type BaselineAuthorityContext,
@@ -12,19 +10,21 @@ import {
   isBaselineLocked,
   loadBaselineState,
   validateBaselineContract,
-} from "../../src/domains/baseline-authority/index.js";
+} from "@internal/habitat-harness/core/domains/baseline-authority/index";
 import {
   baselineIntegrityFindingsEffect,
   checkBaselineIntegrityEffect,
   guardBaselineExpansionEffect,
-} from "../../src/domains/baseline-authority/operations.js";
-import type { HabitatDiagnostic } from "../../src/domains/structural-check/schema.js";
+} from "@internal/habitat-harness/core/domains/baseline-authority/operations";
+import type { HabitatDiagnostic } from "@internal/habitat-harness/core/domains/structural-check/schema";
 import {
   captureOutput,
   type HabitatCommandResult,
   makeHabitatCommandResult,
-} from "../../src/providers/command/index.js";
-import { makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import { makeFakeGitProviderLayer } from "@internal/habitat-harness/substrate/providers/git/index";
+import { Effect, Layer } from "effect";
+import { afterEach, describe, expect, test } from "vitest";
 
 const tempDirs: string[] = [];
 
@@ -501,7 +501,7 @@ function showMock(
   const comparisonSha = options.mergeBase ?? "merge-base-sha";
   const ruleRegistryAtBase =
     options.artifactLayoutAtBase === "pre-d14a"
-      ? "tools/habitat-harness/src/rules/rules.json"
+      ? "tools/habitat-harness/src/core/rules/rules.json"
       : ".habitat/rules/index.json";
   if (spec === `${comparisonSha}:${ruleRegistryAtBase}`) {
     if (options.rulePackAtBase === null)

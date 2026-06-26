@@ -1,19 +1,26 @@
-import { Effect } from "effect";
-import { describe, expect, test } from "vitest";
-import { GritProvider, makeFakeGritProviderLayer } from "../../src/adapters/grit/provider/index.js";
-import { repoRoot } from "../../src/lib/paths.js";
+import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   BiomeProvider,
   biomeArgv,
   makeFakeBiomeProviderLayer,
-} from "../../src/providers/biome/index.js";
+} from "@internal/habitat-harness/substrate/providers/biome/index";
 import {
   captureOutput,
   makeHabitatCommandResult,
   materializeDefaultHabitatCommand,
-} from "../../src/providers/command/index.js";
-import { GitProvider, makeFakeGitProviderLayer } from "../../src/providers/git/index.js";
-import { huskyDelegator } from "../../src/providers/husky/index.js";
+} from "@internal/habitat-harness/substrate/providers/command/index";
+import {
+  GitProvider,
+  makeFakeGitProviderLayer,
+} from "@internal/habitat-harness/substrate/providers/git/index";
+import {
+  GraphiteProvider,
+  makeFakeGraphiteProviderLayer,
+} from "@internal/habitat-harness/substrate/providers/graphite/index";
+import {
+  GritProvider,
+  makeFakeGritProviderLayer,
+} from "@internal/habitat-harness/substrate/providers/grit/index";
 import {
   affectedArgv,
   graphArgv,
@@ -21,13 +28,14 @@ import {
   NxProvider,
   runManyArgv,
   runTargetArgv,
-} from "../../src/providers/nx/index.js";
-import { runHabitatEffect } from "../../src/runtime/index.js";
+} from "@internal/habitat-harness/substrate/providers/nx/index";
+import { Effect } from "effect";
+import { describe, expect, test } from "vitest";
 
 describe("vendor providers", () => {
   test("GitProvider fake layer owns git command families without spawning", async () => {
     const observed: string[][] = [];
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const git = yield* GitProvider;
         return {
@@ -61,6 +69,26 @@ describe("vendor providers", () => {
     ]);
   });
 
+  test("GraphiteProvider owns stack parent discovery", async () => {
+    const observed: string[] = [];
+    const result = await Effect.runPromise(
+      Effect.gen(function* () {
+        const graphite = yield* GraphiteProvider;
+        return yield* graphite.parent();
+      }).pipe(
+        Effect.provide(
+          makeFakeGraphiteProviderLayer((options) => {
+            observed.push(options.cwd);
+            return "agent-parent";
+          })
+        )
+      )
+    );
+
+    expect(result).toBe("agent-parent");
+    expect(observed).toEqual([repoRoot]);
+  });
+
   test("NxProvider exposes affected argv and fake execution at the provider boundary", async () => {
     const request = { base: "HEAD~1", targets: ["build", "test"] };
 
@@ -76,7 +104,7 @@ describe("vendor providers", () => {
       "--outputStyle=static",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const nx = yield* NxProvider;
         return yield* nx.affected(request);
@@ -124,7 +152,7 @@ describe("vendor providers", () => {
       "--outputStyle=static",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const nx = yield* NxProvider;
         return yield* nx.runMany(request);
@@ -160,7 +188,7 @@ describe("vendor providers", () => {
       "--outputStyle=static",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const nx = yield* NxProvider;
         return yield* nx.runTarget(request);
@@ -199,7 +227,7 @@ describe("vendor providers", () => {
       "tools/habitat-harness/src/index.ts",
     ]);
 
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const biome = yield* BiomeProvider;
         return yield* biome.run(request);
@@ -238,7 +266,7 @@ describe("vendor providers", () => {
   });
 
   test("GritProvider owns check request construction and cache policy", async () => {
-    const result = await runHabitatEffect(
+    const result = await Effect.runPromise(
       Effect.gen(function* () {
         const grit = yield* GritProvider;
         const request = grit.checkRequest({
@@ -282,13 +310,6 @@ describe("vendor providers", () => {
     });
     expect(result.request.timeoutMs).toBe(1234);
     expect(result.checked.kind).toBe("pattern-check");
-  });
-
-  test("HuskyProvider stays limited to hook delegator facts", () => {
-    expect(huskyDelegator("pre-commit")).toEqual({
-      hook: "pre-commit",
-      argv: ["bun", "run", "habitat", "hook", "pre-commit"],
-    });
   });
 });
 

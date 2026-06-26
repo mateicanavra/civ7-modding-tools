@@ -1,4 +1,3 @@
-import { describe, expect, test } from "vitest";
 import {
   ruleBaselineFacts,
   ruleCommandExecutionFacts,
@@ -8,8 +7,9 @@ import {
   ruleManifestFacts,
   ruleRoutingFacts,
   ruleSourceFacts,
-} from "../../../src/domains/rule-registry/index.js";
-import { workspaceGraphTargetNames } from "../../../src/providers/nx/targets.js";
+} from "@internal/habitat-harness/core/domains/rule-registry/index";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/substrate/providers/nx/targets";
+import { describe, expect, test } from "vitest";
 import { baseRule } from "./helpers.js";
 
 describe("rule registry facts", () => {
@@ -165,9 +165,9 @@ describe("rule registry facts", () => {
         [
           baseRule({ id: "format-ci" }),
           baseRule({
-            id: "target-check-rule",
+            id: "nx-rule",
             ownerProject: "mod-swooper-maps",
-            ownerTool: "target-check",
+            ownerTool: "nx",
             graphTarget: {
               project: "mod-swooper-maps",
               target: "test:architecture-core-purity",
@@ -189,7 +189,7 @@ describe("rule registry facts", () => {
         },
       },
       {
-        id: "target-check-rule",
+        id: "nx-rule",
         ownerProject: "mod-swooper-maps",
         ownerRoot: "mods/mod-swooper-maps",
         alias: {

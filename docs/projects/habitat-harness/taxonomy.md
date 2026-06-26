@@ -51,6 +51,21 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 `docs/projects/studio-runtime-simplification/PLAN.md`, and
 `packages/studio-server/src/services/Civ7TunerSession.ts`.
 
+### Habitat internal boundary tags
+
+`@internal/habitat-harness` remains one package, but Habitat's source is
+projected into six inferred Nx boundary projects. The units are architectural,
+not a mirror of every source folder.
+
+| Tag | Definition |
+|---|---|
+| `habitat:substrate` | Effect substrate primitives: config, typed errors, resources, basic path helpers, and runtime assembly over provider resources. |
+| `habitat:provider` | Explicit vendor/tool capabilities for command execution, Git, Graphite, Grit, Nx, Biome, Husky, reporting, filesystem, and time. Providers expose Effect resources/layers and translate vendor behavior without owning host entrypoints. |
+| `habitat:core` | Habitat domain model and policies: rule registry, source checks, structural checks, graph routing, transactions, and public contract guards. |
+| `habitat:service` | Effect/oRPC service routers that orchestrate core domains and provider capabilities and own the live Habitat application layer. |
+| `habitat:workspace` | Nx plugin, generators, and workspace taxonomy code that materialize Habitat structure into repository tooling. |
+| `habitat:host` | CLI commands, bin entrypoints, and public package facade at the top of Habitat's internal graph. |
+
 ## 2. Per-project assignment
 
 | Project | Path | Tags |
@@ -78,7 +93,13 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 | mod-civ7-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
 | civ-mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
 | @internal/habitat-artifacts | `.habitat` | `kind:tooling` |
-| (new) @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
+| @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
+| @internal/habitat-harness-substrate | `tools/habitat-harness/src/substrate` | `kind:tooling`, `habitat:substrate` |
+| @internal/habitat-harness-providers | `tools/habitat-harness/src/substrate/providers` | `kind:tooling`, `habitat:provider` |
+| @internal/habitat-harness-core | `tools/habitat-harness/src/core` | `kind:tooling`, `habitat:core` |
+| @internal/habitat-harness-service | `tools/habitat-harness/src/service` | `kind:tooling`, `habitat:service` |
+| @internal/habitat-harness-workspace | `tools/habitat-harness/src/workspace` | `kind:tooling`, `habitat:workspace` |
+| @internal/habitat-harness-host | `tools/habitat-harness/src/host` | `kind:tooling`, `habitat:host` |
 
 ## 3. Dependency constraints (project plane, initial rule set)
 
@@ -90,7 +111,7 @@ owned by their Grit/file-layer rules.
 
 | sourceTag | onlyDependOnLibsWithTags | Generalizes |
 |---|---|---|
-| `kind:workspace` | everything except `kind:app` and `kind:workspace` | root orchestration/proof scripts may consume public package surfaces, but app code remains a caller surface rather than a library |
+| `kind:workspace` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:control`, `kind:foundation`, `kind:plugin`, `kind:mod`, `kind:tooling` | root orchestration/proof scripts may consume public package surfaces, but app code remains a caller surface rather than a library |
 | `kind:foundation` | `kind:foundation` | leaf purity (types/config/policy/viz import nothing higher) |
 | `kind:adapter` | `kind:foundation` | adapter translates engine↔types; owns `/base-standard/` exclusively (`lint-adapter-boundary.sh`) |
 | `kind:engine` | `kind:adapter`, `kind:foundation` | core purity: mapgen-core sees adapter *types* only, never runtime values (`core-purity.test.ts`, G3 — runtime-value ban stays grit/test-owned) |
@@ -98,8 +119,14 @@ owned by their Grit/file-layer rules.
 | `kind:sdk` | `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin` | SDK composes engine+adapter; mapgen subpath isolation (G11) stays grit-owned |
 | `kind:control` | `kind:control`, `kind:foundation`, `kind:adapter`, `kind:engine` | control service layering (`control-orpc` over `direct-control`); lifecycle ownership remains governed by the control note above, and contract-ownership rules stay grit-owned. Architecture review 2026-06-12: no control→mod edge exists, and main `331534895` (studio-server) explicitly forbids that direction in code comments — the previously drafted `kind:mod` allowance was dropped pre-lock as falsely provenanced |
 | `kind:mod` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:control`, `kind:plugin` | mods consume SDK/engine/adapter/policy/control and plugin utilities needed for mod package workflows |
-| `kind:app` | everything except `kind:app` and `kind:workspace` | apps are top of the graph; nothing imports apps or the workspace root |
+| `kind:app` | `kind:sdk`, `kind:engine`, `kind:adapter`, `kind:foundation`, `kind:plugin`, `kind:control`, `kind:mod`, `kind:tooling` | apps are top of the graph; nothing imports apps or the workspace root |
 | `kind:tooling` | `kind:tooling`, `kind:foundation` | harness stays out of product graph |
+| `habitat:substrate` | `habitat:substrate`, `habitat:provider` | substrate owns Effect primitives and the low-level runtime assembly that provisions provider resources; provider modules still remain below core, service, workspace, and host |
+| `habitat:provider` | `habitat:substrate`, `habitat:core`, `habitat:provider` | providers own external tool/resource integration and may translate core rule facts into vendor-specific requests, but stay below services, workspace plugin code, and host commands |
+| `habitat:core` | `habitat:substrate`, `habitat:provider`, `habitat:core` | Habitat domains consume substrate and provider capabilities and may collaborate with peer domains, but do not depend on services, workspace plugin code, or host commands |
+| `habitat:service` | `habitat:substrate`, `habitat:provider`, `habitat:core`, `habitat:service` | service routers orchestrate core domains and provider capabilities and own the full live application layer |
+| `habitat:workspace` | `habitat:substrate`, `habitat:provider`, `habitat:core`, `habitat:workspace` | Nx plugin and generators consume domain metadata and substrate/provider facts without calling service routers or host commands |
+| `habitat:host` | `habitat:core`, `habitat:service`, `habitat:workspace`, `habitat:host` | CLI/bin/public facade is the top of Habitat's internal graph |
 
 Dual-tagged projects (`mod-civ7-intelligence-bridge`: `kind:mod` +
 `kind:control`) are constrained by the **intersection** of their rows — every

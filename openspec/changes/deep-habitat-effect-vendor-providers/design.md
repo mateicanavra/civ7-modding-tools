@@ -12,7 +12,6 @@ tools/habitat-harness/src/providers/
   grit/
   biome/
   nx/
-  husky/
   workspace-tools/
 ```
 
@@ -30,7 +29,6 @@ tools/habitat-harness/src/providers/
   safe/unsafe distinction, reporter choice, failure tags.
 - Nx: project graph, target existence, affected scope, plugin inferred target
   metadata, generator/migration host facts, cache/target observations.
-- Husky: hook name and delegator context only.
 - Workspace tools: Habitat logical tool names mapped to provider-owned command
   families; no library-local `Effect.runSync`.
 
@@ -40,7 +38,8 @@ tools/habitat-harness/src/providers/
 - Biome provider does not prove semantic safety for Habitat/Grit transforms.
 - Nx provider does not prove unchanged architecture through affected-only
   scope.
-- Husky provider does not own staged state or CI proof.
+- `.husky` delegators are hook entrypoints, not provider services; hook behavior
+  remains owned by the hook service.
 - No provider imports `src/domains/**` to make feature decisions. Providers
   accept request data and return typed provider data or provider errors.
 
@@ -51,5 +50,5 @@ or provider errors. Domain services consume provider data and decide Habitat
 outcomes.
 
 Vendor-providers creates provider contracts, fake/live Layers, and pure
-command/output parsing only. It does not drain `src/adapters/grit/**` and does
+command/output parsing only. It does not drain `src/substrate/providers/grit/**` and does
 not own apply/write transaction policy.

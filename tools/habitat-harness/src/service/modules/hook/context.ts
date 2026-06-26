@@ -1,9 +1,10 @@
-import type { HookRuntime } from "../../../domains/hook-runtime/runtime.js";
+import type { HookRuntime } from "@internal/habitat-harness/core/domains/hook-runtime/runtime";
+import { habitatServiceImplementer } from "../../impl.js";
 
-export interface HookServiceOptions {
+export interface HookServiceModuleContext {
   runtime?: HookRuntime;
 }
 
-export interface HookServiceContext {
-  readonly hook?: HookServiceOptions;
-}
+export const implementer = habitatServiceImplementer.hook.use(({ context, next }) =>
+  next({ context: context.hook ?? {} })
+);

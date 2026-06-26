@@ -1,4 +1,3 @@
-import { describe, expect, test } from "vitest";
 import {
   defaultHostPolicyDocument,
   hostApplyGateDecision,
@@ -10,7 +9,8 @@ import {
   missingHostPolicyState,
   readHostPolicyState,
   unavailableHostPolicyState,
-} from "../../src/lib/host-policy.js";
+} from "@internal/habitat-harness/core/domains/host-policy";
+import { describe, expect, test } from "vitest";
 
 describe("host policy boundary", () => {
   test("projects declared generated surfaces from host declarations", () => {

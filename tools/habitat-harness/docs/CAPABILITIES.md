@@ -35,7 +35,7 @@ Those are authoring-workflow capabilities, and they remain explicit gaps.
 
 The root script `bun run habitat` dispatches to
 `tools/habitat-harness/bin/dev.ts`, which runs the oclif command set from
-`tools/habitat-harness/src/commands`. The available commands are:
+`tools/habitat-harness/src/host/commands`. The available commands are:
 
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
@@ -78,7 +78,7 @@ the same command as diagnostic `bun run habitat verify`.
 ## Workspace Graph Integration
 
 The workspace graph loads the Habitat inference plugin from
-`tools/habitat-harness/src/plugin.ts` and package-declared Nx targets from
+`tools/habitat-harness/src/workspace/plugin.ts` and package-declared Nx targets from
 project manifests. Together they expose these Habitat-owned targets:
 
 - Repo-wide `boundaries`
@@ -152,9 +152,9 @@ Current active source-check state:
 
 - 34 registered source-check rules in the rule registry.
 - 34 rule implementation modules under
-  `tools/habitat-harness/src/domains/source-check/rules`.
+  `tools/habitat-harness/src/core/domains/source-check/rules`.
 - Shared source-check TypeScript/text helpers live in
-  `tools/habitat-harness/src/domains/source-check/rule-runtime.mjs`.
+  `tools/habitat-harness/src/core/domains/source-check/rule-runtime.mjs`.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
 - Habitat reports source-rule diagnostics back to Habitat rule IDs.

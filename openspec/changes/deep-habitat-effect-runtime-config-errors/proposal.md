@@ -9,13 +9,14 @@ migrated.
 
 ## What Changes
 
-- Add `src/runtime/**` for Effect program execution, layer assembly, and
-  host-edge run functions.
-- Add `src/config/**`, `src/errors/**`, `src/resources/**`,
-  `src/providers/command/**`, and `src/providers/reporter/**` for config,
-  typed errors, scoped resources, process execution, reporting, and test
-  layers.
-- Keep `Effect.run*` at host adapters and the named runtime bridge only.
+- Add `src/substrate/runtime/**` for substrate layer assembly and
+  `src/service/runtime/**` for service implementer runtime composition.
+- Add `src/substrate/config/**`, `src/substrate/errors/**`,
+  `src/substrate/resources/**`, `src/substrate/providers/command/**`, and
+  `src/substrate/providers/reporter/**` for config, typed errors, scoped
+  resources, process execution, reporting, and test layers.
+- Keep `Effect.run*` out of reusable source; service runtime, host/framework
+  entrypoints, and tests are explicit execution edges.
 - Convert expected failures to tagged errors or explicit refusal data.
 - Preserve current public command behavior while internals move.
 
@@ -27,10 +28,9 @@ migrated.
 
 ## Affected Owners
 
-- `tools/habitat-harness/src/lib/effect-runtime.ts`
 - `tools/habitat-harness/src/lib/workspace-tools.ts`
-- New `tools/habitat-harness/src/runtime/**`
-- New `tools/habitat-harness/src/providers/command/**`
+- New `tools/habitat-harness/src/substrate/runtime/**`
+- New `tools/habitat-harness/src/substrate/providers/command/**`
 - Habitat tests for runtime/fake layers.
 
 ## Stop Conditions

@@ -123,7 +123,7 @@ Second, distinct responsibilities are currently adjacent or interleaved:
 - rule-pack execution and wrapped-tool parsing in `rules`;
 - baseline and ratchet contracts in `baseline`;
 - workspace graph/project metadata in graph modules and the graph plugin;
-- pattern diagnostic acquisition in pattern adapters;
+- pattern diagnostic acquisition in the Grit provider;
 - guarded structural transformation in apply modules;
 - workstation hook checks in `hooks`;
 - generated/protected file zones in `generated-zones`;
