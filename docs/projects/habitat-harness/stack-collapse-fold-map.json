@@ -1,0 +1,1466 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": "gt log short --reverse --all",
+  "generatedAt": "2026-06-26T21:42:25.511Z",
+  "stack": {
+    "originalBottom": "agent-DRA-deep-habitat-prep-frame",
+    "originalTop": "agent-DRA-habitat-final-source-check-runtime-delete",
+    "originalBranchCount": 300,
+    "targetBranchCount": 17,
+    "base": "74363efe54",
+    "currentMain": "921075e9c6"
+  },
+  "disposition": {
+    "prRange": "#1831-#1883",
+    "policy": "superseded-by replacement 17-PR stack",
+    "excludedBranches": [
+      "studio_runner_parked"
+    ],
+    "referenceOnlyBranches": [
+      "claude/*"
+    ],
+    "conditionalAdoption": [
+      "codex/recover-d0-public-surface-matrix"
+    ]
+  },
+  "groups": [
+    {
+      "group": 1,
+      "originalRange": {
+        "start": 1,
+        "end": 24
+      },
+      "originalSurvivor": "agent-DRA-deep-habitat-prep-frame",
+      "originalTop": "agent-DRA-habitat-domain-language-cleanup",
+      "finalBranchName": "codex/habitat-d0-d15-implementation-frame",
+      "semanticBoundary": "D0-D15/G-HOST authority frame, public-surface compatibility, proof discipline",
+      "branchCount": 24,
+      "branches": [
+        {
+          "index": 1,
+          "branch": "agent-DRA-deep-habitat-prep-frame"
+        },
+        {
+          "index": 2,
+          "branch": "agent-DRA-d0-command-surface-inventory"
+        },
+        {
+          "index": 3,
+          "branch": "agent-DRA-graphite-commit-message-format"
+        },
+        {
+          "index": 4,
+          "branch": "agent-DRA-d1-receipt-contract-boundary"
+        },
+        {
+          "index": 5,
+          "branch": "agent-DRA-d1-delete-command-engine"
+        },
+        {
+          "index": 6,
+          "branch": "agent-DRA-d1-command-modules"
+        },
+        {
+          "index": 7,
+          "branch": "agent-DRA-d2-rule-registry-metadata-contract"
+        },
+        {
+          "index": 8,
+          "branch": "agent-DRA-d3-workspace-graph-boundary"
+        },
+        {
+          "index": 9,
+          "branch": "agent-DRA-d4-orientation-routing"
+        },
+        {
+          "index": 10,
+          "branch": "agent-DRA-d5-baseline-authority"
+        },
+        {
+          "index": 11,
+          "branch": "agent-DRA-d6-diagnostic-pattern-catalog"
+        },
+        {
+          "index": 12,
+          "branch": "agent-DRA-d7-structural-enforcement-pipeline"
+        },
+        {
+          "index": 13,
+          "branch": "agent-DRA-d7-structural-enforcement-closure"
+        },
+        {
+          "index": 14,
+          "branch": "agent-DRA-d8-pattern-governance"
+        },
+        {
+          "index": 15,
+          "branch": "agent-DRA-host-policy-boundary-gate"
+        },
+        {
+          "index": 16,
+          "branch": "agent-DRA-d9-transformation-transaction"
+        },
+        {
+          "index": 17,
+          "branch": "agent-DRA-d10-protected-zone-authority"
+        },
+        {
+          "index": 18,
+          "branch": "agent-DRA-d11-local-feedback"
+        },
+        {
+          "index": 19,
+          "branch": "agent-DRA-d12-verify-handoff-receipt"
+        },
+        {
+          "index": 20,
+          "branch": "agent-DRA-d13-scaffolding-refusal-contracts"
+        },
+        {
+          "index": 21,
+          "branch": "agent-DRA-d14a-authored-artifact-authority"
+        },
+        {
+          "index": 22,
+          "branch": "agent-DRA-d14-authoring-topology-fence"
+        },
+        {
+          "index": 23,
+          "branch": "agent-DRA-d15-execution-provenance-trigger"
+        },
+        {
+          "index": 24,
+          "branch": "agent-DRA-habitat-domain-language-cleanup"
+        }
+      ]
+    },
+    {
+      "group": 2,
+      "originalRange": {
+        "start": 25,
+        "end": 38
+      },
+      "originalSurvivor": "agent-DRA-effect-first-repair-backlog",
+      "originalTop": "agent-DRA-effect-transaction-service-module",
+      "finalBranchName": "codex/habitat-effect-substrate-service-roots",
+      "semanticBoundary": "Effect-first backlog, substrate, service module roots",
+      "branchCount": 14,
+      "branches": [
+        {
+          "index": 25,
+          "branch": "agent-DRA-effect-first-repair-backlog"
+        },
+        {
+          "index": 26,
+          "branch": "agent-DRA-effect-first-openspec-domino-plan"
+        },
+        {
+          "index": 27,
+          "branch": "agent-DRA-effect-record-authority-repair"
+        },
+        {
+          "index": 28,
+          "branch": "agent-DRA-effect-substrate-architecture"
+        },
+        {
+          "index": 29,
+          "branch": "agent-DRA-effect-static-inventory-guardrails"
+        },
+        {
+          "index": 30,
+          "branch": "agent-DRA-effect-runtime-config-errors"
+        },
+        {
+          "index": 31,
+          "branch": "agent-DRA-effect-vendor-providers"
+        },
+        {
+          "index": 32,
+          "branch": "agent-DRA-effect-owned-service-modules"
+        },
+        {
+          "index": 33,
+          "branch": "agent-DRA-effect-graph-service-module"
+        },
+        {
+          "index": 34,
+          "branch": "agent-DRA-effect-hook-service-module"
+        },
+        {
+          "index": 35,
+          "branch": "agent-DRA-effect-fix-service-module"
+        },
+        {
+          "index": 36,
+          "branch": "agent-DRA-effect-hook-service-ownership"
+        },
+        {
+          "index": 37,
+          "branch": "agent-DRA-effect-classify-service-module"
+        },
+        {
+          "index": 38,
+          "branch": "agent-DRA-effect-transaction-service-module"
+        }
+      ]
+    },
+    {
+      "group": 3,
+      "originalRange": {
+        "start": 39,
+        "end": 51
+      },
+      "originalSurvivor": "agent-DRA-effect-grit-apply-cutover",
+      "originalTop": "agent-DRA-effect-public-surface-guards",
+      "finalBranchName": "codex/habitat-effect-domain-public-guardrails",
+      "semanticBoundary": "Domain cutovers, public facade, public guards",
+      "branchCount": 13,
+      "branches": [
+        {
+          "index": 39,
+          "branch": "agent-DRA-effect-grit-apply-cutover"
+        },
+        {
+          "index": 40,
+          "branch": "agent-DRA-effect-check-baseline-cutover"
+        },
+        {
+          "index": 41,
+          "branch": "agent-DRA-effect-diagnostic-pattern-governance"
+        },
+        {
+          "index": 42,
+          "branch": "agent-DRA-effect-rule-registry-domain"
+        },
+        {
+          "index": 43,
+          "branch": "agent-DRA-effect-orientation-workspace-graph"
+        },
+        {
+          "index": 44,
+          "branch": "agent-DRA-effect-verify-graph-cutover"
+        },
+        {
+          "index": 45,
+          "branch": "agent-DRA-effect-transformation-transaction-domain"
+        },
+        {
+          "index": 46,
+          "branch": "agent-DRA-effect-hook-runtime-cutover"
+        },
+        {
+          "index": 47,
+          "branch": "agent-DRA-effect-grit-adapter-enclosure"
+        },
+        {
+          "index": 48,
+          "branch": "agent-DRA-effect-command-result-model"
+        },
+        {
+          "index": 49,
+          "branch": "agent-DRA-effect-check-baseline-provider-drain"
+        },
+        {
+          "index": 50,
+          "branch": "agent-DRA-effect-public-surface-facade"
+        },
+        {
+          "index": 51,
+          "branch": "agent-DRA-effect-public-surface-guards"
+        }
+      ]
+    },
+    {
+      "group": 4,
+      "originalRange": {
+        "start": 52,
+        "end": 70
+      },
+      "originalSurvivor": "agent-DRA-effect-native-platform-resource-drain",
+      "originalTop": "agent-DRA-effect-grit-scan-root-fs-drain",
+      "finalBranchName": "codex/habitat-effect-provider-test-drains",
+      "semanticBoundary": "Provider/resource/test drains",
+      "branchCount": 19,
+      "branches": [
+        {
+          "index": 52,
+          "branch": "agent-DRA-effect-native-platform-resource-drain"
+        },
+        {
+          "index": 53,
+          "branch": "agent-DRA-effect-workspace-tool-provider-drain"
+        },
+        {
+          "index": 54,
+          "branch": "agent-DRA-effect-artifact-language-enforcement"
+        },
+        {
+          "index": 55,
+          "branch": "agent-DRA-effect-git-provider-drain"
+        },
+        {
+          "index": 56,
+          "branch": "agent-DRA-effect-service-router-ownership"
+        },
+        {
+          "index": 57,
+          "branch": "agent-DRA-effect-command-git-state-provider"
+        },
+        {
+          "index": 58,
+          "branch": "agent-DRA-effect-hook-prepush-git-provider"
+        },
+        {
+          "index": 59,
+          "branch": "agent-DRA-effect-scaffolding-domain-fence"
+        },
+        {
+          "index": 60,
+          "branch": "agent-DRA-effect-grit-pattern-check-current-tree"
+        },
+        {
+          "index": 61,
+          "branch": "agent-DRA-effect-verify-json-receipt-boundary"
+        },
+        {
+          "index": 62,
+          "branch": "agent-DRA-effect-import-boundaries-target-scope"
+        },
+        {
+          "index": 63,
+          "branch": "agent-DRA-effect-target-check-drain"
+        },
+        {
+          "index": 64,
+          "branch": "agent-DRA-effect-boundary-taxonomy-drain"
+        },
+        {
+          "index": 65,
+          "branch": "agent-DRA-effect-grit-fixture-target-drain"
+        },
+        {
+          "index": 66,
+          "branch": "agent-DRA-effect-public-surface-guard-test-drain"
+        },
+        {
+          "index": 67,
+          "branch": "agent-DRA-effect-command-timeout-test-drain"
+        },
+        {
+          "index": 68,
+          "branch": "agent-DRA-effect-service-architecture-test-drain"
+        },
+        {
+          "index": 69,
+          "branch": "agent-DRA-effect-rule-selection-test-drain"
+        },
+        {
+          "index": 70,
+          "branch": "agent-DRA-effect-grit-scan-root-fs-drain"
+        }
+      ]
+    },
+    {
+      "group": 5,
+      "originalRange": {
+        "start": 71,
+        "end": 90
+      },
+      "originalSurvivor": "agent-DRA-effect-root-check-verify-split",
+      "originalTop": "agent-DRA-effect-validation-target-policy",
+      "finalBranchName": "codex/habitat-effect-graph-sourcecheck-routing",
+      "semanticBoundary": "Graph, source-check, routing, validation target policy",
+      "branchCount": 20,
+      "branches": [
+        {
+          "index": 71,
+          "branch": "agent-DRA-effect-root-check-verify-split"
+        },
+        {
+          "index": 72,
+          "branch": "agent-DRA-effect-source-check-lazy-ast"
+        },
+        {
+          "index": 73,
+          "branch": "agent-DRA-effect-source-check-path-planning"
+        },
+        {
+          "index": 74,
+          "branch": "agent-DRA-effect-nx-single-target-provider"
+        },
+        {
+          "index": 75,
+          "branch": "agent-DRA-effect-check-shared-timing"
+        },
+        {
+          "index": 76,
+          "branch": "agent-DRA-effect-command-execution-dedupe"
+        },
+        {
+          "index": 77,
+          "branch": "agent-DRA-effect-check-graph-preflight-drain"
+        },
+        {
+          "index": 78,
+          "branch": "agent-DRA-effect-biome-provider-materialization"
+        },
+        {
+          "index": 79,
+          "branch": "agent-DRA-effect-hook-check-in-process"
+        },
+        {
+          "index": 80,
+          "branch": "agent-DRA-effect-nx-rule-target-scope"
+        },
+        {
+          "index": 81,
+          "branch": "agent-DRA-effect-owner-check-input-scope"
+        },
+        {
+          "index": 82,
+          "branch": "agent-DRA-effect-fast-check-architecture"
+        },
+        {
+          "index": 83,
+          "branch": "agent-DRA-effect-import-boundaries-direct-provider"
+        },
+        {
+          "index": 84,
+          "branch": "agent-DRA-effect-delete-stale-graph-helper"
+        },
+        {
+          "index": 85,
+          "branch": "agent-DRA-effect-nx-provider-identity"
+        },
+        {
+          "index": 86,
+          "branch": "agent-DRA-effect-source-check-owner-surface"
+        },
+        {
+          "index": 87,
+          "branch": "agent-DRA-effect-nx-graph-metadata"
+        },
+        {
+          "index": 88,
+          "branch": "agent-DRA-effect-rule-input-scope-fastpath"
+        },
+        {
+          "index": 89,
+          "branch": "agent-DRA-effect-verification-lane-ownership"
+        },
+        {
+          "index": 90,
+          "branch": "agent-DRA-effect-validation-target-policy"
+        }
+      ]
+    },
+    {
+      "group": 6,
+      "originalRange": {
+        "start": 91,
+        "end": 120
+      },
+      "originalSurvivor": "agent-DRA-effect-source-check-file-planner",
+      "originalTop": "agent-DRA-effect-prepush-structural-target-family-routing",
+      "finalBranchName": "codex/habitat-effect-validation-prepush-sourcecheck",
+      "semanticBoundary": "Source-check planning, pre-push, validation lanes",
+      "branchCount": 30,
+      "branches": [
+        {
+          "index": 91,
+          "branch": "agent-DRA-effect-source-check-file-planner"
+        },
+        {
+          "index": 92,
+          "branch": "agent-DRA-effect-source-check-coverage-tightening"
+        },
+        {
+          "index": 93,
+          "branch": "agent-DRA-effect-fast-check-closure"
+        },
+        {
+          "index": 94,
+          "branch": "agent-DRA-effect-hook-prepush-provider-drain"
+        },
+        {
+          "index": 95,
+          "branch": "agent-DRA-effect-owner-target-input-isolation"
+        },
+        {
+          "index": 96,
+          "branch": "agent-DRA-effect-source-check-rule-index"
+        },
+        {
+          "index": 97,
+          "branch": "agent-DRA-effect-prepush-hook-plan"
+        },
+        {
+          "index": 98,
+          "branch": "agent-DRA-effect-docs-check-owner-split"
+        },
+        {
+          "index": 99,
+          "branch": "agent-DRA-effect-source-check-derived-cache"
+        },
+        {
+          "index": 100,
+          "branch": "agent-DRA-effect-source-check-rule-modules"
+        },
+        {
+          "index": 101,
+          "branch": "agent-DRA-effect-prepush-artifact-target-policy"
+        },
+        {
+          "index": 102,
+          "branch": "agent-DRA-effect-source-check-rule-extension-plans"
+        },
+        {
+          "index": 103,
+          "branch": "agent-DRA-effect-prepush-habitat-tooling-fastpath"
+        },
+        {
+          "index": 104,
+          "branch": "agent-DRA-effect-workspace-gate-metadata-tightening"
+        },
+        {
+          "index": 105,
+          "branch": "agent-DRA-effect-validation-lane-routing"
+        },
+        {
+          "index": 106,
+          "branch": "agent-DRA-effect-local-check-lane-filter"
+        },
+        {
+          "index": 107,
+          "branch": "agent-DRA-effect-check-graph-base-routing"
+        },
+        {
+          "index": 108,
+          "branch": "agent-DRA-effect-source-check-scan-root-normalization"
+        },
+        {
+          "index": 109,
+          "branch": "agent-DRA-effect-pattern-admission-root-repair"
+        },
+        {
+          "index": 110,
+          "branch": "agent-DRA-effect-source-check-exact-coverage-only"
+        },
+        {
+          "index": 111,
+          "branch": "agent-DRA-effect-source-check-fact-index"
+        },
+        {
+          "index": 112,
+          "branch": "agent-DRA-effect-source-check-nx-input-scope"
+        },
+        {
+          "index": 113,
+          "branch": "agent-DRA-effect-hook-biome-provider-routing"
+        },
+        {
+          "index": 114,
+          "branch": "agent-DRA-effect-hook-service-cutover"
+        },
+        {
+          "index": 115,
+          "branch": "agent-DRA-effect-prepush-duplicate-structural-drain"
+        },
+        {
+          "index": 116,
+          "branch": "agent-DRA-effect-grit-failure-taxonomy-enclosure"
+        },
+        {
+          "index": 117,
+          "branch": "agent-DRA-effect-source-check-live-layer-drain"
+        },
+        {
+          "index": 118,
+          "branch": "agent-DRA-effect-nx-boundary-target-routing"
+        },
+        {
+          "index": 119,
+          "branch": "agent-DRA-effect-prepush-artifact-source-dedup"
+        },
+        {
+          "index": 120,
+          "branch": "agent-DRA-effect-prepush-structural-target-family-routing"
+        }
+      ]
+    },
+    {
+      "group": 7,
+      "originalRange": {
+        "start": 121,
+        "end": 133
+      },
+      "originalSurvivor": "agent-DRA-effect-root-check-graph-validation-closure",
+      "originalTop": "agent-DRA-effect-husky-provider-drain",
+      "finalBranchName": "codex/habitat-effect-runtime-provider-closure",
+      "semanticBoundary": "Effect runtime/provider closeout",
+      "branchCount": 13,
+      "branches": [
+        {
+          "index": 121,
+          "branch": "agent-DRA-effect-root-check-graph-validation-closure"
+        },
+        {
+          "index": 122,
+          "branch": "agent-DRA-effect-target-check-alias-drain"
+        },
+        {
+          "index": 123,
+          "branch": "agent-DRA-effect-graph-payload-shape-contract"
+        },
+        {
+          "index": 124,
+          "branch": "agent-DRA-effect-nx-internal-boundary-topology"
+        },
+        {
+          "index": 125,
+          "branch": "agent-DRA-effect-hook-runtime-command-drain"
+        },
+        {
+          "index": 126,
+          "branch": "agent-DRA-effect-grit-resource-provider-consolidation"
+        },
+        {
+          "index": 127,
+          "branch": "agent-DRA-effect-verify-runtime-bridge-drain"
+        },
+        {
+          "index": 128,
+          "branch": "agent-DRA-effect-service-module-context-standardization"
+        },
+        {
+          "index": 129,
+          "branch": "agent-DRA-effect-substrate-runtime-runner-drain"
+        },
+        {
+          "index": 130,
+          "branch": "agent-DRA-effect-service-helper-surface-drain"
+        },
+        {
+          "index": 131,
+          "branch": "agent-DRA-effect-hook-clock-drain"
+        },
+        {
+          "index": 132,
+          "branch": "agent-DRA-effect-module-implementer-context"
+        },
+        {
+          "index": 133,
+          "branch": "agent-DRA-effect-husky-provider-drain"
+        }
+      ]
+    },
+    {
+      "group": 8,
+      "originalRange": {
+        "start": 134,
+        "end": 147
+      },
+      "originalSurvivor": "agent-DRA-habitat-service-consolidation",
+      "originalTop": "agent-DRA-habitat-validation-routing-policy",
+      "finalBranchName": "codex/habitat-service-orpc-router-model",
+      "semanticBoundary": "Habitat service consolidation, oRPC, router/model shift",
+      "branchCount": 14,
+      "branches": [
+        {
+          "index": 134,
+          "branch": "agent-DRA-habitat-service-consolidation"
+        },
+        {
+          "index": 135,
+          "branch": "agent-DRA-habitat-orpc-wiring"
+        },
+        {
+          "index": 136,
+          "branch": "agent-DRA-habitat-router-violation-burndown"
+        },
+        {
+          "index": 137,
+          "branch": "agent-DRA-habitat-collect-shape-boundaries"
+        },
+        {
+          "index": 138,
+          "branch": "agent-DRA-habitat-router-import-burndown"
+        },
+        {
+          "index": 139,
+          "branch": "agent-DRA-habitat-graph-model-relocation"
+        },
+        {
+          "index": 140,
+          "branch": "agent-DRA-habitat-verify-proof-model"
+        },
+        {
+          "index": 141,
+          "branch": "agent-DRA-habitat-hook-runtime-model"
+        },
+        {
+          "index": 142,
+          "branch": "agent-DRA-habitat-fix-policy-model"
+        },
+        {
+          "index": 143,
+          "branch": "agent-DRA-habitat-remove-command-args"
+        },
+        {
+          "index": 144,
+          "branch": "agent-DRA-habitat-contract-language"
+        },
+        {
+          "index": 145,
+          "branch": "agent-DRA-habitat-root-export-cleanup"
+        },
+        {
+          "index": 146,
+          "branch": "agent-DRA-habitat-service-router-client"
+        },
+        {
+          "index": 147,
+          "branch": "agent-DRA-habitat-validation-routing-policy"
+        }
+      ]
+    },
+    {
+      "group": 9,
+      "originalRange": {
+        "start": 148,
+        "end": 164
+      },
+      "originalSurvivor": "agent-DRA-habitat-workspace-model-kinds",
+      "originalTop": "agent-DRA-habitat-service-context-drain",
+      "finalBranchName": "codex/habitat-model-kinds-router-imports",
+      "semanticBoundary": "Model kinds, router import shape, service wrapper removal",
+      "branchCount": 17,
+      "branches": [
+        {
+          "index": 148,
+          "branch": "agent-DRA-habitat-workspace-model-kinds"
+        },
+        {
+          "index": 149,
+          "branch": "agent-DRA-habitat-rule-selection-policy"
+        },
+        {
+          "index": 150,
+          "branch": "agent-DRA-habitat-hook-model-kinds"
+        },
+        {
+          "index": 151,
+          "branch": "agent-DRA-habitat-verify-model-kinds"
+        },
+        {
+          "index": 152,
+          "branch": "agent-DRA-habitat-check-diagnostics-kinds"
+        },
+        {
+          "index": 153,
+          "branch": "agent-DRA-habitat-check-protection-kinds"
+        },
+        {
+          "index": 154,
+          "branch": "agent-DRA-habitat-check-policy-kinds"
+        },
+        {
+          "index": 155,
+          "branch": "agent-DRA-habitat-remove-service-client-wrapper"
+        },
+        {
+          "index": 156,
+          "branch": "agent-DRA-habitat-rules-model-kinds"
+        },
+        {
+          "index": 157,
+          "branch": "agent-DRA-habitat-preserve-model-note"
+        },
+        {
+          "index": 158,
+          "branch": "agent-DRA-habitat-fix-module-model"
+        },
+        {
+          "index": 159,
+          "branch": "agent-DRA-habitat-hook-module-model"
+        },
+        {
+          "index": 160,
+          "branch": "agent-DRA-habitat-verify-module-model"
+        },
+        {
+          "index": 161,
+          "branch": "agent-DRA-habitat-classify-module-model"
+        },
+        {
+          "index": 162,
+          "branch": "agent-DRA-habitat-service-shape-target"
+        },
+        {
+          "index": 163,
+          "branch": "agent-DRA-habitat-router-import-shape"
+        },
+        {
+          "index": 164,
+          "branch": "agent-DRA-habitat-service-context-drain"
+        }
+      ]
+    },
+    {
+      "group": 10,
+      "originalRange": {
+        "start": 165,
+        "end": 180
+      },
+      "originalSurvivor": "agent-DRA-habitat-hook-reporter-resource",
+      "originalTop": "agent-DRA-habitat-structural-check-context-drain",
+      "finalBranchName": "codex/habitat-service-context-resources",
+      "semanticBoundary": "Hook/service context and resource threading",
+      "branchCount": 16,
+      "branches": [
+        {
+          "index": 165,
+          "branch": "agent-DRA-habitat-hook-reporter-resource"
+        },
+        {
+          "index": 166,
+          "branch": "agent-DRA-habitat-hook-clock-resource"
+        },
+        {
+          "index": 167,
+          "branch": "agent-DRA-habitat-hook-filesystem-resource"
+        },
+        {
+          "index": 168,
+          "branch": "agent-DRA-habitat-hook-runtime-context"
+        },
+        {
+          "index": 169,
+          "branch": "agent-DRA-habitat-hook-resource-policy-context"
+        },
+        {
+          "index": 170,
+          "branch": "agent-DRA-habitat-fix-policy-shape"
+        },
+        {
+          "index": 171,
+          "branch": "agent-DRA-habitat-classify-policy-shape"
+        },
+        {
+          "index": 172,
+          "branch": "agent-DRA-habitat-service-model-ownership"
+        },
+        {
+          "index": 173,
+          "branch": "agent-DRA-habitat-diagnostic-ownership"
+        },
+        {
+          "index": 174,
+          "branch": "agent-DRA-habitat-check-public-model"
+        },
+        {
+          "index": 175,
+          "branch": "agent-DRA-habitat-cli-public-models"
+        },
+        {
+          "index": 176,
+          "branch": "agent-DRA-habitat-structural-check-model"
+        },
+        {
+          "index": 177,
+          "branch": "agent-DRA-habitat-nx-graph-provider"
+        },
+        {
+          "index": 178,
+          "branch": "agent-DRA-habitat-platform-resource-context"
+        },
+        {
+          "index": 179,
+          "branch": "agent-DRA-habitat-hook-platform-context"
+        },
+        {
+          "index": 180,
+          "branch": "agent-DRA-habitat-structural-check-context-drain"
+        }
+      ]
+    },
+    {
+      "group": 11,
+      "originalRange": {
+        "start": 181,
+        "end": 197
+      },
+      "originalSurvivor": "agent-DRA-habitat-source-check-policy-drain",
+      "originalTop": "agent-DRA-habitat-registry-loader-backlog",
+      "finalBranchName": "codex/habitat-policy-reporoot-baseline-context",
+      "semanticBoundary": "Policy, repo-root, baseline, source-scope context",
+      "branchCount": 17,
+      "branches": [
+        {
+          "index": 181,
+          "branch": "agent-DRA-habitat-source-check-policy-drain"
+        },
+        {
+          "index": 182,
+          "branch": "agent-DRA-habitat-baseline-authority-policy-drain"
+        },
+        {
+          "index": 183,
+          "branch": "agent-DRA-habitat-verify-policy-context-drain"
+        },
+        {
+          "index": 184,
+          "branch": "agent-DRA-habitat-classify-reporoot-context"
+        },
+        {
+          "index": 185,
+          "branch": "agent-DRA-habitat-check-render-purity"
+        },
+        {
+          "index": 186,
+          "branch": "agent-DRA-habitat-structural-policy-collapse"
+        },
+        {
+          "index": 187,
+          "branch": "agent-DRA-habitat-source-scope-context"
+        },
+        {
+          "index": 188,
+          "branch": "agent-DRA-habitat-baseline-path-context"
+        },
+        {
+          "index": 189,
+          "branch": "agent-DRA-habitat-baseline-operations-context"
+        },
+        {
+          "index": 190,
+          "branch": "agent-DRA-habitat-structural-execution-context"
+        },
+        {
+          "index": 191,
+          "branch": "agent-DRA-habitat-source-rules-context"
+        },
+        {
+          "index": 192,
+          "branch": "agent-DRA-habitat-structural-provider-context"
+        },
+        {
+          "index": 193,
+          "branch": "agent-DRA-habitat-baseline-git-context"
+        },
+        {
+          "index": 194,
+          "branch": "agent-DRA-habitat-hook-path-context"
+        },
+        {
+          "index": 195,
+          "branch": "agent-DRA-habitat-verify-env-context"
+        },
+        {
+          "index": 196,
+          "branch": "agent-DRA-habitat-boundary-root-context"
+        },
+        {
+          "index": 197,
+          "branch": "agent-DRA-habitat-registry-loader-backlog"
+        }
+      ]
+    },
+    {
+      "group": 12,
+      "originalRange": {
+        "start": 198,
+        "end": 223
+      },
+      "originalSurvivor": "agent-DRA-habitat-rule-facts-context",
+      "originalTop": "agent-DRA-habitat-verify-local-time-format",
+      "finalBranchName": "codex/habitat-rule-registry-graph-context",
+      "semanticBoundary": "Rule facts, registry/path, graph/worktree context",
+      "branchCount": 26,
+      "branches": [
+        {
+          "index": 198,
+          "branch": "agent-DRA-habitat-rule-facts-context"
+        },
+        {
+          "index": 199,
+          "branch": "agent-DRA-habitat-classify-rule-context"
+        },
+        {
+          "index": 200,
+          "branch": "agent-DRA-habitat-fix-rule-context"
+        },
+        {
+          "index": 201,
+          "branch": "agent-DRA-habitat-diagnostic-rule-context"
+        },
+        {
+          "index": 202,
+          "branch": "agent-DRA-habitat-artifact-rule-context"
+        },
+        {
+          "index": 203,
+          "branch": "agent-DRA-habitat-selection-rule-context"
+        },
+        {
+          "index": 204,
+          "branch": "agent-DRA-habitat-active-facts-drain"
+        },
+        {
+          "index": 205,
+          "branch": "agent-DRA-habitat-registry-path-context"
+        },
+        {
+          "index": 206,
+          "branch": "agent-DRA-habitat-provider-root-provision"
+        },
+        {
+          "index": 207,
+          "branch": "agent-DRA-habitat-grit-path-context"
+        },
+        {
+          "index": 208,
+          "branch": "agent-DRA-habitat-fix-admitted-inputs"
+        },
+        {
+          "index": 209,
+          "branch": "agent-DRA-habitat-remove-graph-reader-bridge"
+        },
+        {
+          "index": 210,
+          "branch": "agent-DRA-habitat-structural-grit-context"
+        },
+        {
+          "index": 211,
+          "branch": "agent-DRA-habitat-graphite-command-shape"
+        },
+        {
+          "index": 212,
+          "branch": "agent-DRA-habitat-classify-graph-state"
+        },
+        {
+          "index": 213,
+          "branch": "agent-DRA-habitat-verify-graph-context"
+        },
+        {
+          "index": 214,
+          "branch": "agent-DRA-habitat-workspace-target-surface"
+        },
+        {
+          "index": 215,
+          "branch": "agent-DRA-habitat-classify-platform-context"
+        },
+        {
+          "index": 216,
+          "branch": "agent-DRA-habitat-workspace-dto-ownership"
+        },
+        {
+          "index": 217,
+          "branch": "agent-DRA-habitat-rule-graph-facts-input"
+        },
+        {
+          "index": 218,
+          "branch": "agent-DRA-habitat-rule-registry-filesystem"
+        },
+        {
+          "index": 219,
+          "branch": "agent-DRA-habitat-source-rule-filesystem"
+        },
+        {
+          "index": 220,
+          "branch": "agent-DRA-habitat-hook-staged-path-context"
+        },
+        {
+          "index": 221,
+          "branch": "agent-DRA-habitat-fix-worktree-git-context"
+        },
+        {
+          "index": 222,
+          "branch": "agent-DRA-habitat-structural-selection-clock"
+        },
+        {
+          "index": 223,
+          "branch": "agent-DRA-habitat-verify-local-time-format"
+        }
+      ]
+    },
+    {
+      "group": 13,
+      "originalRange": {
+        "start": 224,
+        "end": 242
+      },
+      "originalSurvivor": "agent-DRA-habitat-verify-policy-ports",
+      "originalTop": "agent-DRA-habitat-cli-output-context",
+      "finalBranchName": "codex/habitat-ports-provider-config-output",
+      "semanticBoundary": "Ports, provider/config, module result/output surfaces",
+      "branchCount": 19,
+      "branches": [
+        {
+          "index": 224,
+          "branch": "agent-DRA-habitat-verify-policy-ports"
+        },
+        {
+          "index": 225,
+          "branch": "agent-DRA-habitat-hook-policy-ports"
+        },
+        {
+          "index": 226,
+          "branch": "agent-DRA-habitat-structural-policy-ports"
+        },
+        {
+          "index": 227,
+          "branch": "agent-DRA-habitat-graph-module-ports"
+        },
+        {
+          "index": 228,
+          "branch": "agent-DRA-habitat-fix-policy-ports"
+        },
+        {
+          "index": 229,
+          "branch": "agent-DRA-habitat-verify-module-ports"
+        },
+        {
+          "index": 230,
+          "branch": "agent-DRA-habitat-hook-module-ports"
+        },
+        {
+          "index": 231,
+          "branch": "agent-DRA-habitat-baseline-filesystem-port"
+        },
+        {
+          "index": 232,
+          "branch": "agent-DRA-habitat-grit-rule-provider"
+        },
+        {
+          "index": 233,
+          "branch": "agent-DRA-habitat-module-model-boundaries"
+        },
+        {
+          "index": 234,
+          "branch": "agent-DRA-habitat-action-procedures"
+        },
+        {
+          "index": 235,
+          "branch": "agent-DRA-habitat-router-wrapper-burndown"
+        },
+        {
+          "index": 236,
+          "branch": "agent-DRA-habitat-resource-source-hygiene"
+        },
+        {
+          "index": 237,
+          "branch": "agent-DRA-habitat-hook-output-effect-flush"
+        },
+        {
+          "index": 238,
+          "branch": "agent-DRA-habitat-effect-config"
+        },
+        {
+          "index": 239,
+          "branch": "agent-DRA-habitat-runtime-config-realization"
+        },
+        {
+          "index": 240,
+          "branch": "agent-DRA-habitat-boundary-taxonomy-tightening"
+        },
+        {
+          "index": 241,
+          "branch": "agent-DRA-habitat-module-result-dtos"
+        },
+        {
+          "index": 242,
+          "branch": "agent-DRA-habitat-cli-output-context"
+        }
+      ]
+    },
+    {
+      "group": 14,
+      "originalRange": {
+        "start": 243,
+        "end": 265
+      },
+      "originalSurvivor": "agent-DRA-habitat-service-model-note-hygiene",
+      "originalTop": "agent-DRA-habitat-service-context-projection",
+      "finalBranchName": "codex/habitat-service-model-execution-ratchets",
+      "semanticBoundary": "Service-model ratchets, actions, execution lanes",
+      "branchCount": 23,
+      "branches": [
+        {
+          "index": 243,
+          "branch": "agent-DRA-habitat-service-model-note-hygiene"
+        },
+        {
+          "index": 244,
+          "branch": "agent-DRA-habitat-service-model-shape-ratchet"
+        },
+        {
+          "index": 245,
+          "branch": "agent-DRA-habitat-module-model-shape-ratchet"
+        },
+        {
+          "index": 246,
+          "branch": "agent-DRA-habitat-check-baseline-expansion-ownership"
+        },
+        {
+          "index": 247,
+          "branch": "agent-DRA-habitat-structural-barrel-narrowing"
+        },
+        {
+          "index": 248,
+          "branch": "agent-DRA-habitat-model-kind-allowlist"
+        },
+        {
+          "index": 249,
+          "branch": "agent-DRA-habitat-service-runtime-boundary"
+        },
+        {
+          "index": 250,
+          "branch": "agent-DRA-habitat-hook-action-procedures"
+        },
+        {
+          "index": 251,
+          "branch": "agent-DRA-habitat-graph-action-result"
+        },
+        {
+          "index": 252,
+          "branch": "agent-DRA-habitat-contract-type-simplification"
+        },
+        {
+          "index": 253,
+          "branch": "agent-DRA-habitat-contract-object-composition"
+        },
+        {
+          "index": 254,
+          "branch": "agent-DRA-habitat-fix-action-procedures"
+        },
+        {
+          "index": 255,
+          "branch": "agent-DRA-habitat-baseline-model-domain"
+        },
+        {
+          "index": 256,
+          "branch": "agent-DRA-habitat-source-check-model-domain"
+        },
+        {
+          "index": 257,
+          "branch": "agent-DRA-habitat-structural-source-surface"
+        },
+        {
+          "index": 258,
+          "branch": "agent-DRA-habitat-structural-execution-lanes"
+        },
+        {
+          "index": 259,
+          "branch": "agent-DRA-habitat-hook-router-orchestration"
+        },
+        {
+          "index": 260,
+          "branch": "agent-DRA-habitat-structural-execution-split"
+        },
+        {
+          "index": 261,
+          "branch": "agent-DRA-habitat-hook-context-policy"
+        },
+        {
+          "index": 262,
+          "branch": "agent-DRA-habitat-boundary-taxonomy-inputs"
+        },
+        {
+          "index": 263,
+          "branch": "agent-DRA-habitat-hook-procedure-operations"
+        },
+        {
+          "index": 264,
+          "branch": "agent-DRA-habitat-validation-target-routing"
+        },
+        {
+          "index": 265,
+          "branch": "agent-DRA-habitat-service-context-projection"
+        }
+      ]
+    },
+    {
+      "group": 15,
+      "originalRange": {
+        "start": 266,
+        "end": 275
+      },
+      "originalSurvivor": "agent-DRA-habitat-authority-tooling-aggregation",
+      "originalTop": "agent-DRA-habitat-authority-tree-flattening",
+      "finalBranchName": "codex/habitat-authority-tree-relocation",
+      "semanticBoundary": "Authority tooling, triage hierarchy, rule/layer/script relocation",
+      "branchCount": 10,
+      "branches": [
+        {
+          "index": 266,
+          "branch": "agent-DRA-habitat-authority-tooling-aggregation"
+        },
+        {
+          "index": 267,
+          "branch": "agent-DRA-habitat-triage-hierarchy-v1"
+        },
+        {
+          "index": 268,
+          "branch": "agent-DRA-habitat-rule-file-normalization"
+        },
+        {
+          "index": 269,
+          "branch": "agent-DRA-habitat-layer-bucket-reorg"
+        },
+        {
+          "index": 270,
+          "branch": "agent-DRA-habitat-script-subject-consolidation"
+        },
+        {
+          "index": 271,
+          "branch": "agent-DRA-habitat-authority-placement-cleanup"
+        },
+        {
+          "index": 272,
+          "branch": "agent-DRA-habitat-hidden-test-authority-audit"
+        },
+        {
+          "index": 273,
+          "branch": "agent-DRA-habitat-mapgen-static-guardrail-batch"
+        },
+        {
+          "index": 274,
+          "branch": "agent-DRA-habitat-artifact-kind-reference"
+        },
+        {
+          "index": 275,
+          "branch": "agent-DRA-habitat-authority-tree-flattening"
+        }
+      ]
+    },
+    {
+      "group": 16,
+      "originalRange": {
+        "start": 276,
+        "end": 288
+      },
+      "originalSurvivor": "agent-DRA-node24-lts-upgrade-plan",
+      "originalTop": "agent-DRA-habitat-embedded-authority-migration",
+      "finalBranchName": "codex/habitat-package-taskgraph-embedded-authority",
+      "semanticBoundary": "Node/package/task graph cleanup, embedded authority migration",
+      "branchCount": 13,
+      "branches": [
+        {
+          "index": 276,
+          "branch": "agent-DRA-node24-lts-upgrade-plan"
+        },
+        {
+          "index": 277,
+          "branch": "agent-DRA-habitat-domino-ledger"
+        },
+        {
+          "index": 278,
+          "branch": "agent-DRA-habitat-check-runner-bridge"
+        },
+        {
+          "index": 279,
+          "branch": "agent-DRA-habitat-runner-debt-domino-docs"
+        },
+        {
+          "index": 280,
+          "branch": "agent-DRA-habitat-domino-vertical-slices"
+        },
+        {
+          "index": 281,
+          "branch": "agent-DRA-habitat-package-script-cleanup"
+        },
+        {
+          "index": 282,
+          "branch": "agent-DRA-habitat-package-rename"
+        },
+        {
+          "index": 283,
+          "branch": "agent-DRA-habitat-task-graph-cleanup-frame"
+        },
+        {
+          "index": 284,
+          "branch": "agent-DRA-habitat-task-graph-cleanup-implementation"
+        },
+        {
+          "index": 285,
+          "branch": "agent-DRA-habitat-nx-project-identity-normalization"
+        },
+        {
+          "index": 286,
+          "branch": "agent-DRA-habitat-edge-miss-stabilization"
+        },
+        {
+          "index": 287,
+          "branch": "agent-DRA-habitat-embedded-authority-frame"
+        },
+        {
+          "index": 288,
+          "branch": "agent-DRA-habitat-embedded-authority-migration"
+        }
+      ]
+    },
+    {
+      "group": 17,
+      "originalRange": {
+        "start": 289,
+        "end": 300
+      },
+      "originalSurvivor": "agent-DRA-habitat-universal-subject-categories",
+      "originalTop": "agent-DRA-habitat-final-source-check-runtime-delete",
+      "finalBranchName": "codex/habitat-authority-physicalization-sourcecheck-burn",
+      "semanticBoundary": "Authority tree physicalization, pruning, final source-check/Grit burn",
+      "branchCount": 12,
+      "branches": [
+        {
+          "index": 289,
+          "branch": "agent-DRA-habitat-universal-subject-categories"
+        },
+        {
+          "index": 290,
+          "branch": "agent-DRA-habitat-category-tree-physicalization"
+        },
+        {
+          "index": 291,
+          "branch": "agent-DRA-habitat-blueprint-tree-physicalization"
+        },
+        {
+          "index": 292,
+          "branch": "agent-DRA-habitat-niche-blueprint-correction"
+        },
+        {
+          "index": 293,
+          "branch": "agent-DRA-habitat-subject-title-metadata"
+        },
+        {
+          "index": 294,
+          "branch": "agent-DRA-habitat-underscore-subject-renames"
+        },
+        {
+          "index": 295,
+          "branch": "agent-DRA-habitat-authority-tree-pruning-frame"
+        },
+        {
+          "index": 296,
+          "branch": "agent-DRA-habitat-execution-support-centralization"
+        },
+        {
+          "index": 297,
+          "branch": "agent-DRA-habitat-source-check-conversion-inventory"
+        },
+        {
+          "index": 298,
+          "branch": "agent-DRA-habitat-grit-canary-adapter-burn"
+        },
+        {
+          "index": 299,
+          "branch": "agent-DRA-habitat-grit-adapter-burn-systematic"
+        },
+        {
+          "index": 300,
+          "branch": "agent-DRA-habitat-final-source-check-runtime-delete"
+        }
+      ]
+    }
+  ]
+}
