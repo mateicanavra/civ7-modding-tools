@@ -1,0 +1,25 @@
+{
+  "ruleRecords": 73,
+  "adapters": 33,
+  "sourceCheckRules": 29,
+  "activeSourceCheckAdapters": 29,
+  "staleAdaptersForNonSourceRules": [
+    "prohibit_ambient_rng_in_authored_generation",
+    "prohibit_cross_op_runtime_calls",
+    "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+    "require_public_ecology_surfaces_and_retired_topology_removal"
+  ],
+  "dispositions": {
+    "grit_pattern_authority": 37,
+    "data_driven_import_path_rule": 8,
+    "needs_split": 16,
+    "package_local_test_or_validator": 12
+  },
+  "lanes": {
+    "mapgen-domain": 17,
+    "platform-resources": 10,
+    "mapgen-other": 17,
+    "global-docs-toolkit": 12,
+    "mapgen-pipeline": 17
+  }
+}
