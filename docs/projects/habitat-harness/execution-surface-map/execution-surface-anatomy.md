@@ -13,10 +13,10 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 | role | surface count |
 | --- | --- |
-| adapter | 106 |
-| fixture-support | 42 |
-| policy-predicate | 71 |
-| transient-dependency | 154 |
+| adapter | 99 |
+| fixture-support | 35 |
+| policy-predicate | 64 |
+| transient-dependency | 149 |
 | entrypoint | 236 |
 | runner-runtime | 124 |
 
@@ -24,7 +24,7 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 | family | count | sample read |
 | --- | --- | --- |
-| rule-module | 33 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs: Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload.<br>.habitat/_support/execution/source-check/adapters/block_engine_runtime_imports_from_domain_ops.rule.mjs: Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload.<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs: Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload. |
+| rule-module | 26 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs: Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload.<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs: Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload.<br>.habitat/_support/execution/source-check/adapters/preserve_mapgen_core_runtime_neutrality.rule.mjs: Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload. |
 | apply-pattern | 2 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/require_public_domain_surfaces_in_recipes_and_maps.apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | pattern | 36 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | rule-json | 73 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
@@ -40,25 +40,21 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 ## Source-Check Rule Modules
 
-- Modules: 33
-- Expected adapter export shape: 33
-- Transitional runtime imports: 33
+- Modules: 26
+- Expected adapter export shape: 26
+- Transitional runtime imports: 26
 - Separable fixture/support candidates: 0
 
 | runtime helper | module count | sample modules |
 | --- | --- | --- |
-| policy | 33 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/block_engine_runtime_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs |
-| diagnostic | 20 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/block_engine_runtime_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs |
-| pathMatches | 16 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/block_engine_runtime_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs |
-| sourceRefsMatching | 7 | .habitat/_support/execution/source-check/adapters/prohibit_cross_op_runtime_calls.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_recipe_imports_in_domain_source.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_root_config_facade_imports_in_domain_ops.rule.mjs |
+| policy | 26 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs<br>.habitat/_support/execution/source-check/adapters/preserve_mapgen_core_runtime_neutrality.rule.mjs |
+| diagnostic | 14 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs<br>.habitat/_support/execution/source-check/adapters/preserve_mapgen_core_runtime_neutrality.rule.mjs |
+| pathMatches | 13 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_bare_value_export_all_from_contract_surfaces.rule.mjs |
+| sourceRefsMatching | 6 | .habitat/_support/execution/source-check/adapters/prohibit_recipe_imports_in_domain_source.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_root_config_facade_imports_in_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_runtime_validation_and_compiler_imports.rule.mjs |
 | callExpressions | 3 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_calls_to_runvalidated.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_runtime_orchestration_helpers_in_domain_ops.rule.mjs<br>.habitat/_support/execution/source-check/adapters/require_typed_placement_outcomes_before_apply.rule.mjs |
 | propertyCallExpressions | 3 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_calls_to_runvalidated.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_runtime_local_config_default_merging.rule.mjs<br>.habitat/_support/execution/source-check/adapters/prohibit_runtime_orchestration_helpers_in_domain_ops.rule.mjs |
 | emptyObjectNullish | 1 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_local_config_default_merging.rule.mjs |
-| isActiveEcologyStagePath | 1 | .habitat/_support/execution/source-check/adapters/require_public_ecology_surfaces_and_retired_topology_removal.rule.mjs |
 | isMapgenCoreProductionSource | 1 | .habitat/_support/execution/source-check/adapters/preserve_mapgen_core_runtime_neutrality.rule.mjs |
-| isRetiredEcologyPath | 1 | .habitat/_support/execution/source-check/adapters/require_public_ecology_surfaces_and_retired_topology_removal.rule.mjs |
-| isRngAuthorityScope | 1 | .habitat/_support/execution/source-check/adapters/prohibit_ambient_rng_in_authored_generation.rule.mjs |
-| isSwooperRuntimeSource | 1 | .habitat/_support/execution/source-check/adapters/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.rule.mjs |
 | isTestPath | 1 | .habitat/_support/execution/source-check/adapters/require_sanctioned_direct_control_session_owners.rule.mjs |
 | relativeDomainImportDiagnostics | 1 | .habitat/_support/execution/source-check/adapters/prohibit_relative_domain_reaches_from_recipes_and_maps.rule.mjs |
 | sdkMapgenEntrypointDiagnostics | 1 | .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs |
@@ -71,14 +67,9 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | path | kind | signals |
 | --- | --- | --- |
 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs | rule-module | imports transitional source-check runtime |
-| .habitat/_support/execution/source-check/adapters/block_engine_runtime_imports_from_domain_ops.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs | rule-module | imports transitional source-check runtime; reaches package/app/mod boundary |
 | .habitat/_support/execution/source-check/adapters/preserve_mapgen_core_runtime_neutrality.rule.mjs | rule-module | imports transitional source-check runtime |
-| .habitat/_support/execution/source-check/adapters/preserve_transport_pure_orpc_contracts.rule.mjs | rule-module | imports transitional source-check runtime |
-| .habitat/_support/execution/source-check/adapters/prohibit_ambient_rng_in_authored_generation.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_bare_value_export_all_from_contract_surfaces.rule.mjs | rule-module | imports transitional source-check runtime |
-| .habitat/_support/execution/source-check/adapters/prohibit_cross_op_runtime_calls.rule.mjs | rule-module | imports transitional source-check runtime |
-| .habitat/_support/execution/source-check/adapters/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_domain_ops_projection_effect_dependencies.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_empty_object_defaults_in_contract_schemas.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_recipe_imports_in_domain_source.rule.mjs | rule-module | imports transitional source-check runtime |
@@ -86,7 +77,6 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/_support/execution/source-check/adapters/prohibit_retired_domain_root_catalogs.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_root_config_facade_imports_in_domain_ops.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_calls_to_runvalidated.rule.mjs | rule-module | imports transitional source-check runtime |
-| .habitat/_support/execution/source-check/adapters/prohibit_runtime_helper_redeclarations.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_local_config_default_merging.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_orchestration_helpers_in_domain_ops.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_validation_and_compiler_imports.rule.mjs | rule-module | imports transitional source-check runtime |
@@ -95,7 +85,6 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/_support/execution/source-check/adapters/require_domain_contract_roots_in_step_contracts.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/require_public_domain_surfaces_in_recipes_and_maps.rule.mjs | rule-module | imports transitional source-check runtime |
-| .habitat/_support/execution/source-check/adapters/require_public_ecology_surfaces_and_retired_topology_removal.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/require_runtime_domain_op_bundle_imports.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/require_sanctioned_direct_control_session_owners.rule.mjs | rule-module | imports transitional source-check runtime; reaches package/app/mod boundary |
 | .habitat/_support/execution/source-check/adapters/require_shared_visualization_contracts_at_stage_surfaces.rule.mjs | rule-module | imports transitional source-check runtime |
@@ -103,10 +92,12 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/_support/execution/source-check/adapters/require_typed_dependency_and_effect_tag_constants.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/require_typed_placement_outcomes_before_apply.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/_support/execution/source-check/adapters/restrict_recipes_to_public_domain_surfaces.rule.mjs | rule-module | imports transitional source-check runtime |
+| .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md | pattern | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh | check-script | build/currentness or ordering tie; reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/require_owned_domain_config_catalog_surfaces/require_owned_domain_config_catalog_surfaces.check.mjs | check-script | reaches package/app/mod boundary |
+| .habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/block_engine_runtime_imports_from_domain_ops/block_engine_runtime_imports_from_domain_ops.pattern.md | pattern | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/prohibit_cross_op_runtime_calls.check.mjs | check-script | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_domain_contract_roots_in_step_contracts/require_domain_contract_roots_in_step_contracts.pattern.md | pattern | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.check.mjs | check-script | reaches package/app/mod boundary |
@@ -120,6 +111,11 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ambient_rng_in_authored_generation/prohibit_ambient_rng_in_authored_generation.check.mjs | check-script | build/currentness or ordering tie |
 | .habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.check.ts | check-script | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_wrapper_only_advanced_config/prohibit_wrapper_only_advanced_config.pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts | check-script | build/currentness or ordering tie; reaches package/app/mod boundary |
+| .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/prohibit_bare_value_export_all_from_contract_surfaces/prohibit_bare_value_export_all_from_contract_surfaces.pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.check.ts | check-script | reaches package/app/mod boundary |
+| .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs | check-script | reaches package/app/mod boundary |
+| .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts | check-script | reaches package/app/mod boundary |
 
 ## Fixture/Support Files
 
@@ -128,14 +124,9 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/_support/execution/command-check/mapgen-static-check-lib.mjs | mapgen-static-check-lib | 0 | 161 |
 | .habitat/_support/execution/README.md | README | 0 | 20 |
 | .habitat/_support/execution/source-check/adapters/block_adapter_context_imports_from_domain_ops.rule.mjs | block_adapter_context_imports_from_domain_ops.rule | 0 | 29 |
-| .habitat/_support/execution/source-check/adapters/block_engine_runtime_imports_from_domain_ops.rule.mjs | block_engine_runtime_imports_from_domain_ops.rule | 0 | 16 |
 | .habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs | enforce_adapter_only_base_standard_imports.rule | 0 | 14 |
 | .habitat/_support/execution/source-check/adapters/preserve_mapgen_core_runtime_neutrality.rule.mjs | preserve_mapgen_core_runtime_neutrality.rule | 0 | 41 |
-| .habitat/_support/execution/source-check/adapters/preserve_transport_pure_orpc_contracts.rule.mjs | preserve_transport_pure_orpc_contracts.rule | 0 | 31 |
-| .habitat/_support/execution/source-check/adapters/prohibit_ambient_rng_in_authored_generation.rule.mjs | prohibit_ambient_rng_in_authored_generation.rule | 0 | 35 |
 | .habitat/_support/execution/source-check/adapters/prohibit_bare_value_export_all_from_contract_surfaces.rule.mjs | prohibit_bare_value_export_all_from_contract_surfaces.rule | 0 | 18 |
-| .habitat/_support/execution/source-check/adapters/prohibit_cross_op_runtime_calls.rule.mjs | prohibit_cross_op_runtime_calls.rule | 0 | 14 |
-| .habitat/_support/execution/source-check/adapters/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.rule.mjs | prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.rule | 0 | 21 |
 | .habitat/_support/execution/source-check/adapters/prohibit_domain_ops_projection_effect_dependencies.rule.mjs | prohibit_domain_ops_projection_effect_dependencies.rule | 0 | 15 |
 | .habitat/_support/execution/source-check/adapters/prohibit_empty_object_defaults_in_contract_schemas.rule.mjs | prohibit_empty_object_defaults_in_contract_schemas.rule | 0 | 21 |
 | .habitat/_support/execution/source-check/adapters/prohibit_recipe_imports_in_domain_source.rule.mjs | prohibit_recipe_imports_in_domain_source.rule | 0 | 14 |
@@ -143,7 +134,6 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/_support/execution/source-check/adapters/prohibit_retired_domain_root_catalogs.rule.mjs | prohibit_retired_domain_root_catalogs.rule | 0 | 14 |
 | .habitat/_support/execution/source-check/adapters/prohibit_root_config_facade_imports_in_domain_ops.rule.mjs | prohibit_root_config_facade_imports_in_domain_ops.rule | 0 | 14 |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_calls_to_runvalidated.rule.mjs | prohibit_runtime_calls_to_runvalidated.rule | 0 | 17 |
-| .habitat/_support/execution/source-check/adapters/prohibit_runtime_helper_redeclarations.rule.mjs | prohibit_runtime_helper_redeclarations.rule | 0 | 17 |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_local_config_default_merging.rule.mjs | prohibit_runtime_local_config_default_merging.rule | 0 | 17 |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_orchestration_helpers_in_domain_ops.rule.mjs | prohibit_runtime_orchestration_helpers_in_domain_ops.rule | 0 | 17 |
 | .habitat/_support/execution/source-check/adapters/prohibit_runtime_validation_and_compiler_imports.rule.mjs | prohibit_runtime_validation_and_compiler_imports.rule | 0 | 14 |
@@ -152,7 +142,6 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/_support/execution/source-check/adapters/require_domain_contract_roots_in_step_contracts.rule.mjs | require_domain_contract_roots_in_step_contracts.rule | 0 | 16 |
 | .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs | require_explicit_mapgen_sdk_opt_in.rule | 0 | 9 |
 | .habitat/_support/execution/source-check/adapters/require_public_domain_surfaces_in_recipes_and_maps.rule.mjs | require_public_domain_surfaces_in_recipes_and_maps.rule | 0 | 14 |
-| .habitat/_support/execution/source-check/adapters/require_public_ecology_surfaces_and_retired_topology_removal.rule.mjs | require_public_ecology_surfaces_and_retired_topology_removal.rule | 0 | 17 |
 | .habitat/_support/execution/source-check/adapters/require_runtime_domain_op_bundle_imports.rule.mjs | require_runtime_domain_op_bundle_imports.rule | 0 | 14 |
 | .habitat/_support/execution/source-check/adapters/require_sanctioned_direct_control_session_owners.rule.mjs | require_sanctioned_direct_control_session_owners.rule | 0 | 16 |
 | .habitat/_support/execution/source-check/adapters/require_shared_visualization_contracts_at_stage_surfaces.rule.mjs | require_shared_visualization_contracts_at_stage_surfaces.rule | 0 | 9 |

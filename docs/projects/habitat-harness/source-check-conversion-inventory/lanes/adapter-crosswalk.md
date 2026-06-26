@@ -1,34 +1,32 @@
 # adapter-crosswalk Lane Inventory
 
-Status: Agent 6 reviewed all centralized source-check adapters.
+Status: Agent 6 reviewed all original centralized source-check adapters; updated after the burn-down canary.
 
-This lane is a crosswalk/review lane. It accounts for all `33` centralized
-`.rule.mjs` adapters under `.habitat/_support/execution/source-check/adapters/`
-and maps them back to rule records, adjacent patterns/checks, and runtime helper
-dependencies.
+This lane is a crosswalk/review lane. It accounted for the original `33`
+centralized `.rule.mjs` adapters under
+`.habitat/_support/execution/source-check/adapters/` and maps them back to rule
+records, adjacent patterns/checks, and runtime helper dependencies. After the
+burn-down canary, `26` adapter files remain.
 
 ## Coverage
 
-- `33` adapters inspected.
-- `33` adapters have a matching `.rule.json` by `ruleId`.
-- `29` adapters map to active `ownerTool: source-check` rule records.
-- `4` adapters are orphaned from the source-check registry because their rule
-  records are now `ownerTool: command-check`.
-- `0` adapters import anything except `../runtime/rule-runtime.policy.mjs`.
+- `33` original adapters inspected.
+- `7` adapters deleted in the canary.
+- `26` adapter files remain.
+- `26` remaining adapters map to active `ownerTool: source-check` rule records.
+- `0` remaining adapters import anything except `../runtime/rule-runtime.policy.mjs`.
 
 ## Source-Check Rule-Record Adapters
 
-These `29` adapters are still selected by source-check rule records and should
+These `26` adapters are still selected by source-check rule records and should
 be removed by converting their predicate payload to Grit/pattern authority or,
 for one mixed case, splitting first.
 
 | Rule ID | Disposition | Split | Helper shape |
 | --- | --- | --- | --- |
 | `block_adapter_context_imports_from_domain_ops` | `grit_pattern_authority` | no | generic import/identifier/property helpers |
-| `block_engine_runtime_imports_from_domain_ops` | `grit_pattern_authority` | no | generic import/path helpers |
 | `enforce_adapter_only_base_standard_imports` | `grit_pattern_authority` | no | generic import/path helpers |
 | `preserve_mapgen_core_runtime_neutrality` | `grit_pattern_authority` | no | domain-specific path helper plus generic import/identifier/text helpers |
-| `preserve_transport_pure_orpc_contracts` | `grit_pattern_authority` | no | domain-specific control-index schema export helper plus generic export/import helpers |
 | `prohibit_bare_value_export_all_from_contract_surfaces` | `grit_pattern_authority` | no | generic export/import helpers |
 | `prohibit_domain_ops_projection_effect_dependencies` | `grit_pattern_authority` | no | generic string literal/path helpers |
 | `prohibit_empty_object_defaults_in_contract_schemas` | `grit_pattern_authority` | no | generic object property/path helpers |
@@ -37,7 +35,6 @@ for one mixed case, splitting first.
 | `prohibit_retired_domain_root_catalogs` | `grit_pattern_authority` | no | path-only predicate |
 | `prohibit_root_config_facade_imports_in_domain_ops` | `grit_pattern_authority` | no | generic sourceRefsMatching helper |
 | `prohibit_runtime_calls_to_runvalidated` | `grit_pattern_authority` | no | generic call-expression helpers |
-| `prohibit_runtime_helper_redeclarations` | `grit_pattern_authority` | no | domain-specific helper-name predicate |
 | `prohibit_runtime_local_config_default_merging` | `grit_pattern_authority` | no | generic empty-object/property-call helpers |
 | `prohibit_runtime_orchestration_helpers_in_domain_ops` | `grit_pattern_authority` | no | generic call-expression helpers |
 | `prohibit_runtime_validation_and_compiler_imports` | `grit_pattern_authority` | no | generic sourceRefsMatching helper |
@@ -54,18 +51,21 @@ for one mixed case, splitting first.
 | `require_typed_placement_outcomes_before_apply` | `grit_pattern_authority` | no | generic call-expression/path helpers |
 | `restrict_recipes_to_public_domain_surfaces` | `grit_pattern_authority` | no | generic import/export helpers; overlaps another domain-surface rule |
 
-## Orphan Adapters
+## Deleted Adapters
 
-These adapters have matching rule records, but those records are no longer
-`ownerTool: source-check`. They are stale source-check support and should be
-deleted after the command-check/pattern-owning lane confirms replacement.
+These adapters were deleted in the burn-down canary after confirming the
+command-check rows still pass or the active source-check rows pass as
+`grit-check`.
 
 | Adapter | Current rule owner | Current executable surface | Disposition |
 | --- | --- | --- | --- |
-| `prohibit_ambient_rng_in_authored_generation` | `command-check` | `.check.mjs` plus `.pattern.md` | `delete_or_demote` |
-| `prohibit_cross_op_runtime_calls` | `command-check` | `.check.mjs` plus `.pattern.md` | `delete_or_demote` |
-| `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | `command-check` | `.check.mjs` plus `.pattern.md` | `delete_or_demote` |
-| `require_public_ecology_surfaces_and_retired_topology_removal` | `command-check` | `.check.mjs` plus `.pattern.md` | `delete_or_demote` |
+| `block_engine_runtime_imports_from_domain_ops` | `grit-check` | `.pattern.md` | converted canary |
+| `preserve_transport_pure_orpc_contracts` | `grit-check` | `.pattern.md` | converted canary |
+| `prohibit_runtime_helper_redeclarations` | `grit-check` | `.pattern.md` plus `.apply.pattern.md` | converted canary |
+| `prohibit_ambient_rng_in_authored_generation` | `command-check` | `.check.mjs` plus `.pattern.md` | stale adapter deleted |
+| `prohibit_cross_op_runtime_calls` | `command-check` | `.check.mjs` plus `.pattern.md` | stale adapter deleted |
+| `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | `command-check` | `.check.mjs` plus `.pattern.md` | stale adapter deleted |
+| `require_public_ecology_surfaces_and_retired_topology_removal` | `command-check` | `.check.mjs` plus `.pattern.md` | stale adapter deleted |
 
 ## Runtime Helper Dependency Map
 
@@ -104,9 +104,10 @@ Domain-specific predicate payload hidden in the runtime:
 - `require_explicit_mapgen_sdk_opt_in` should split before conversion. It mixes
   SDK opt-in/public entrypoint policy with a mapgen-core adapter-import ban that
   overlaps `preserve_mapgen_core_runtime_neutrality`.
-- `require_public_ecology_surfaces_and_retired_topology_removal` is an orphan
-  adapter and a mixed predicate. Its current command-check rule combines active
-  ecology public-surface imports with retired topology file removal.
+- `require_public_ecology_surfaces_and_retired_topology_removal` remains a
+  mixed command-check predicate after its stale adapter deletion. Its current
+  command-check rule combines active ecology public-surface imports with
+  retired topology file removal.
 - `require_public_domain_surfaces_in_recipes_and_maps` and
   `restrict_recipes_to_public_domain_surfaces` overlap. Convert/extract first,
   then consolidate the public-domain allowlist semantics.

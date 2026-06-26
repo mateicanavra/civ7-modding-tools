@@ -1,14 +1,9 @@
 {
   "ruleRecords": 73,
-  "adapters": 33,
-  "sourceCheckRules": 29,
-  "activeSourceCheckAdapters": 29,
-  "staleAdaptersForNonSourceRules": [
-    "prohibit_ambient_rng_in_authored_generation",
-    "prohibit_cross_op_runtime_calls",
-    "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
-    "require_public_ecology_surfaces_and_retired_topology_removal"
-  ],
+  "adapters": 26,
+  "sourceCheckRules": 26,
+  "activeSourceCheckAdapters": 26,
+  "staleAdaptersForNonSourceRules": [],
   "dispositions": {
     "grit_pattern_authority": 37,
     "data_driven_import_path_rule": 8,
@@ -21,5 +16,19 @@
     "mapgen-other": 17,
     "global-docs-toolkit": 12,
     "mapgen-pipeline": 17
-  }
+  },
+  "deletedAdapterRules": [
+    "block_engine_runtime_imports_from_domain_ops",
+    "preserve_transport_pure_orpc_contracts",
+    "prohibit_ambient_rng_in_authored_generation",
+    "prohibit_cross_op_runtime_calls",
+    "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+    "prohibit_runtime_helper_redeclarations",
+    "require_public_ecology_surfaces_and_retired_topology_removal"
+  ],
+  "convertedCanaryRules": [
+    "block_engine_runtime_imports_from_domain_ops",
+    "preserve_transport_pure_orpc_contracts",
+    "prohibit_runtime_helper_redeclarations"
+  ]
 }
