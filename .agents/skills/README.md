@@ -16,13 +16,19 @@ discipline; they should not duplicate the packet as a parallel spec.
 | `civ7-architecture-authority` | Placing code, moving boundaries, changing MapGen stage/step/domain shape, separating core/mod/adapter/generated concerns, or reviewing architecture drift. |
 | `civ7-product-authority` | Deciding product/domain ownership, public SDK/CLI/mod behavior, official game-data authority, consumer contract claims, or proof boundaries. |
 | `civ7-open-spec-workstream` | Running a bounded spec/workstream phase from authority grounding through implementation, verification, downstream realignment, and handoff. |
-| `civ7-systematic-workstream` | Running a systematic, evidence-grounded domain workstream that needs full corpus extraction, expected ranges, architecture-aligned strategies, local statistics, runtime proof, peer review, and clean Graphite closure. |
 | `civ7-operational-debugging` | Debugging build/deploy/log/in-game evidence across generated mod output, deployed Civ7 Mods folders, official resources, and proof boundaries. |
 | `civ7-orpc-control-architecture` | Designing or reviewing oRPC/Effect procedure, router, middleware, and context surfaces for Civ7 direct-control, CLI game/play commands, Studio endpoints, and live-play support refactors (`@civ7/control-orpc`). |
 | `civ7-play-game` | Playing a live, already-running Civ7 game turn-by-turn via the `civ7` CLI (`node packages/cli/bin/run.js game …`) and FireTuner: reading priorities/notifications/ready entities and issuing unit, city, research, civic, diplomacy, and end-turn actions. Self-describing read→action loop for a small agent. Not for designing the control surface (`civ7-orpc-control-architecture`) or launching/log debugging (`civ7-operational-debugging`). |
-| `dra-structural-watcher` | Running or setting up a separate watcher DRA for OpenSpec workstreams: heartbeat/cron monitoring, NOTE-TO-DRA scans, correction logs, closure-drift checks, and branch/stack watcher passes without owning implementation. |
-| `graphite-stack-drain` | Managing complex Graphite stack/worktree cleanup: deterministic stack census, source/sink accounting, folding over-atomized stacks, targeted restacks, submit/merge drains, and safe branch/worktree retirement. |
-| `typescript-refactoring` | Refactoring or reducing complexity in TypeScript/JavaScript anywhere in the repo: detecting code smells, executing safe compiler-gated refactors, collapsing the reachable-state space, choosing functions vs classes, judging over-/under-engineering, and cleaning up LLM-generated slop. |
+
+## Globalized Skills
+
+The following previously repo-local skills now live in RAWR HQ and should be
+loaded from the global provider when available:
+
+- `habitat:systematic-workstream`
+- `habitat:dra-structural-watcher`
+- `dev:graphite-stack-drain`
+- `dev:typescript-refactoring`
 
 ## Operating Rules
 

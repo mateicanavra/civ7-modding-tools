@@ -20,8 +20,8 @@ Use these skills with this one when the work crosses their scope:
 
 - `framing-design`: frame DRA goals, repair demands, supervisor messages, and workstream objectives.
 - `civ7-open-spec-workstream`: run packet authority, phase records, review lanes, downstream realignment, and ship gates.
-- `civ7-systematic-workstream`: turn atomic repair or pattern rows into analysis, corpus, design, implementation, review, iteration, realignment, and ship loops.
-- `dra-structural-watcher`: inspect implementation DRA output from disk and issue evidence-bound correction notes.
+- `habitat:systematic-workstream`: turn atomic repair or pattern rows into analysis, corpus, design, implementation, review, iteration, realignment, and ship loops.
+- `habitat:dra-structural-watcher`: inspect implementation DRA output from disk and issue evidence-bound correction notes.
 - `civ7-architecture-authority`, `civ7-product-authority`, `civ7-operational-debugging`: load when a packet touches architecture ownership, product proof, runtime/debug proof, or command behavior.
 
 ## Operating Loop

@@ -62,9 +62,9 @@ owner asks you to recover context. Treat that as secondary context; disk, git,
 validation output, and explicit owner facts are higher authority.
 
 If this worker is also being used as a watcher, read:
-10. .agents/skills/dra-structural-watcher/SKILL.md
-11. .agents/skills/dra-structural-watcher/references/pass-loop.md
-12. .agents/skills/dra-structural-watcher/references/correction-protocol.md
+10. Global skill `habitat:dra-structural-watcher`
+11. Global skill `habitat:dra-structural-watcher` pass-loop reference
+12. Global skill `habitat:dra-structural-watcher` correction-protocol reference
 
 Current objective:
 [one paragraph objective]

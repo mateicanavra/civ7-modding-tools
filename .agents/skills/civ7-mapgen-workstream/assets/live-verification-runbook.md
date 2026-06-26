@@ -146,7 +146,7 @@ Close with one closure label per claim (owner: `civ7-operational-debugging` → 
 
 State proof **boundaries** explicitly: an `in-game observed` claim for one Huge/earthlike seed does **not** prove other map sizes, seeds, eras, or mod combinations behave the same. Per-mode caveats (e.g. `AGREEMENT_GATE_THRESHOLD=0.95` measured at 0.9863 on the Huge/earthlike reference) belong in the proof note, not generalized.
 
-Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstream` / `civ7-systematic-workstream`); do not re-implement closure discipline here.
+Hand the labeled proof to finalization (loop step 10 → `civ7-open-spec-workstream` / `habitat:systematic-workstream`); do not re-implement closure discipline here.
 
 ---
 

@@ -82,7 +82,7 @@ The four archetypes map onto the request taxonomy:
 
 **Architecture review.** Per slice, not deferred — `civ7-architecture-authority` on the op/artifact ownership (`plan`/`select`/`reconcile` boundaries) and Grit `placement_outcome_boundary`.
 
-**Finalization.** Corpus-touching (all resource lanes, all start regions) but driven by bounded OpenSpec slices → both closure skills in play: per-slice `civ7-open-spec-workstream`, with the corpus-coverage framing of `civ7-systematic-workstream`. Closure mechanics: per-slice OpenSpec change validated (`bun run openspec validate <id> --strict`) + Graphite branch; `workstream-record.md` with proof gates labeled honestly by class; `closure-checklist.md`; `DEFERRALS.md`.
+**Finalization.** Corpus-touching (all resource lanes, all start regions) but driven by bounded OpenSpec slices → both closure skills in play: per-slice `civ7-open-spec-workstream`, with the corpus-coverage framing of `habitat:systematic-workstream`. Closure mechanics: per-slice OpenSpec change validated (`bun run openspec validate <id> --strict`) + Graphite branch; `workstream-record.md` with proof gates labeled honestly by class; `closure-checklist.md`; `DEFERRALS.md`.
 
 > **Lesson.** Behavioral closure means: pre-declared ledger → adversarial multi-agent prosecution → sliced implementation → milestone-scoped live verification where attempt-1 failure and a hotfix slice are *normal*. The live engine rejected a locally-valid map; that is exactly why in-game verification is the closure test, not Studio.
 

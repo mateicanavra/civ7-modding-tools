@@ -2,7 +2,7 @@
 
 > Open when running a map-gen request end-to-end: deciding which step you are on, what each step consumes/produces, where the gates are, how to shape the facet-agent team, and where the loop hands off at closure.
 
-This is the operating spec for `civ7-mapgen-workstream`. It expands the loop named in `SKILL.md` and points at owners for each step — it does **not** restate them. The team-shape philosophy is owned by `cognition:team-design`; the closure mechanics are owned by `civ7-open-spec-workstream` / `civ7-systematic-workstream`. This file gives only the thin map-gen-specific recipe and the gates.
+This is the operating spec for `civ7-mapgen-workstream`. It expands the loop named in `SKILL.md` and points at owners for each step — it does **not** restate them. The team-shape philosophy is owned by `cognition:team-design`; the closure mechanics are owned by `civ7-open-spec-workstream` / `habitat:systematic-workstream`. This file gives only the thin map-gen-specific recipe and the gates.
 
 ## How to read this
 
@@ -131,8 +131,8 @@ Distinguishing the two early is a core diagnostic skill — re-run the step-0 di
 The new skill's loop **stops at the boundary of closure** and hands off. It does not re-implement realignment, Graphite commit topology, phase records, or the closure checklist.
 
 - **Hand off to `civ7-open-spec-workstream`** when the change is **bounded and spec-driven** (a defined slice of behavior — most map-gen requests). Closure mechanics it owns: per-slice OpenSpec change + Graphite branch (`bun run openspec validate <id> --strict`); `workstream-record.md` with proof-gates labeled honestly by class; `closure-checklist.md` for remaining human-visual follow-ups; `deferrals.md` for known-but-unscheduled items.
-- **Hand off to `civ7-systematic-workstream`** when the work requires **corpus-wide** evidence/coverage (all resource placements, all biomes, the full 12-gate evidence loop).
-- **Reference (not own):** `graphite-stack-drain` for branch topology at finalization.
+- **Hand off to `habitat:systematic-workstream`** when the work requires **corpus-wide** evidence/coverage (all resource placements, all biomes, the full 12-gate evidence loop).
+- **Reference (not own):** `dev:graphite-stack-drain` for branch topology at finalization.
 
 - **Input:** a verified, reviewed change.
 - **Output:** a closed workstream record with proof gates labeled by their honest evidence class — including any **retained open proof gap** (e.g. an unverified live-watcher claim) recorded rather than silently dropped.
@@ -181,4 +181,4 @@ The arms are always coupled: never close a behavioral change without confirming 
 - Expectation ledger / live runbook / scaffolds → `assets/earthlike-expectation-ledger.md`, `assets/live-verification-runbook.md`, `assets/recipe-scaffolds.md`
 - Boundaries, Grit/Biome → `civ7-architecture-authority`
 - Proof discipline → `civ7-operational-debugging`
-- Closure → `civ7-open-spec-workstream`, `civ7-systematic-workstream`
+- Closure → `civ7-open-spec-workstream`, `habitat:systematic-workstream`
