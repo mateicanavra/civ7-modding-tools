@@ -5,9 +5,9 @@
   "activeSourceCheckAdapters": 0,
   "staleAdaptersForNonSourceRules": [],
   "dispositions": {
-    "grit_pattern_authority": 38,
+    "grit_pattern_authority": 41,
     "data_driven_import_path_rule": 8,
-    "needs_split": 15,
+    "needs_split": 12,
     "package_local_test_or_validator": 12
   },
   "lanes": {
@@ -59,13 +59,18 @@
     "restrict_recipes_to_public_domain_surfaces"
   ],
   "ownerToolCounts": {
-    "grit-check": 30,
-    "command-check": 36,
+    "grit-check": 33,
+    "command-check": 33,
     "file-layer": 5,
     "format-check": 1,
     "nx": 1
   },
   "convertedFinalRuntimeDeletionRules": [
     "require_explicit_mapgen_sdk_opt_in"
+  ],
+  "convertedCommandCheckSplitCanaryRules": [
+    "ensure_docs_checkout_paths_are_portable",
+    "prohibit_cross_op_runtime_calls",
+    "require_public_ecology_surfaces_and_retired_topology_removal"
   ]
 }
