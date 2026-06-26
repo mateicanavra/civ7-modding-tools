@@ -1,3 +1,8 @@
+import { createHash } from "node:crypto";
+import type {
+  GitProviderRequirements,
+  GitProviderService,
+} from "@internal/habitat-harness/providers/git/index";
 import type {
   GritProviderRequirements,
   GritProviderService,
@@ -13,15 +18,14 @@ import type {
   WorktreeObservation,
 } from "./model/dto/index.js";
 import {
-  activeApplyTransactionInputs,
+  admittedApplyTransactionInputs as admittedApplyTransactionInputsFromRules,
   defaultApplyAdmissions,
   renderPatternApply,
   runPatternApplyTransaction,
 } from "./model/policy/index.js";
-import { observeWorktree } from "./model/repositories/index.js";
 
 export interface FixModuleContext {
-  readonly activeApplyTransactionInputs: typeof activeApplyTransactionInputs;
+  readonly admittedApplyTransactionInputs: ReturnType<typeof makeAdmittedApplyTransactionInputs>;
   readonly defaultApplyAdmissions: typeof defaultApplyAdmissions;
   readonly missingAdmissionRefusal: typeof missingAdmissionRefusal;
   readonly renderPatternApply: typeof renderPatternApply;
@@ -29,10 +33,17 @@ export interface FixModuleContext {
 }
 
 export const module = service.fix.use(({ context, next }) => {
-  const runPatternApplyTransactions = makeRunPatternApplyTransactions(context.deps.grit);
+  const admittedApplyTransactionInputs = makeAdmittedApplyTransactionInputs(
+    context.deps.rules.selector
+  );
+  const runPatternApplyTransactions = makeRunPatternApplyTransactions(
+    context.deps.grit,
+    context.deps.git,
+    context.deps.platform.repoRoot
+  );
   return next({
     context: {
-      activeApplyTransactionInputs,
+      admittedApplyTransactionInputs,
       defaultApplyAdmissions,
       missingAdmissionRefusal,
       renderPatternApply,
@@ -41,27 +52,77 @@ export const module = service.fix.use(({ context, next }) => {
   });
 });
 
-function makeRunPatternApplyTransactions(grit: GritProviderService) {
+function makeAdmittedApplyTransactionInputs(ruleFacts: readonly { id: string }[]) {
+  return () => admittedApplyTransactionInputsFromRules(ruleFacts);
+}
+
+function makeRunPatternApplyTransactions(
+  grit: GritProviderService,
+  git: GitProviderService,
+  repoRoot: string
+) {
   return (
     input: FixServiceRunInput,
     admissions: readonly ApplyAdmission[],
-    transactionInputs: ReturnType<typeof activeApplyTransactionInputs>
-  ): Effect.Effect<PatternApplyRecord[], never, GritProviderRequirements> =>
-    Effect.forEach(
-      admissions,
-      (admission) =>
-        runPatternApplyTransaction(transactionRequest(input, admission), {
-          grit,
-          transactionInputs,
-        }),
-      { concurrency: 1 }
+    transactionInputs: ReturnType<typeof admittedApplyTransactionInputsFromRules>
+  ): Effect.Effect<
+    PatternApplyRecord[],
+    never,
+    GritProviderRequirements | GitProviderRequirements
+  > =>
+    Effect.gen(function* () {
+      const worktree = yield* observeWorktreeEffect(git, repoRoot);
+      return yield* Effect.forEach(
+        admissions,
+        (admission) =>
+          runPatternApplyTransaction(transactionRequest(input, admission, worktree), {
+            grit,
+            transactionInputs,
+          }),
+        { concurrency: 1 }
+      );
+    });
+}
+
+function observeWorktreeEffect(
+  git: GitProviderService,
+  repoRoot: string
+): Effect.Effect<WorktreeObservation, never, GitProviderRequirements> {
+  return Effect.gen(function* () {
+    const [branch, head, status] = yield* Effect.all(
+      [
+        git.currentBranch({ cwd: repoRoot }),
+        git.head({ cwd: repoRoot }),
+        git.statusShort({ cwd: repoRoot }).pipe(Effect.catchAll(() => Effect.succeed(undefined))),
+      ],
+      { concurrency: 3 }
     );
+    const statusShort =
+      status && status.exit.code === 0
+        ? status.stdout.text
+        : `${status?.stdout.text ?? ""}${status?.stderr.text ?? ""}`;
+    return {
+      kind: "worktree-observation",
+      dirty: statusShort.trim().length > 0,
+      dirtyPathCount: dirtyPathCount(statusShort),
+      statusDigest: createHash("sha256").update(statusShort).digest("hex"),
+      branch: branch ?? undefined,
+      head: head ?? undefined,
+    };
+  });
+}
+
+function dirtyPathCount(statusShort: string): number {
+  return statusShort
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean).length;
 }
 
 function transactionRequest(
   intent: FixServiceRunInput,
   admission: ApplyAdmission,
-  worktree: WorktreeObservation = observeWorktree()
+  worktree: WorktreeObservation
 ): PatternApplyRequest {
   return {
     kind: intent.kind,

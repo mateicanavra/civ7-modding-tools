@@ -1,6 +1,7 @@
 import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
-import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
+import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
 import {
   aggregateWorkspaceDependency,
@@ -210,12 +211,12 @@ describe("Workspace graph", () => {
   });
 
   test("reports Nx graph read failures as closed refusal states", async () => {
-    const readFailure = await readWorkspaceGraph({
+    const readFailure = await readWorkspaceGraph(repoRoot, {
       async readProjects() {
         throw new Error("cannot read project graph");
       },
     });
-    const daemonFailure = await readWorkspaceGraph({
+    const daemonFailure = await readWorkspaceGraph(repoRoot, {
       async readProjects() {
         throw new Error("Nx daemon unavailable");
       },

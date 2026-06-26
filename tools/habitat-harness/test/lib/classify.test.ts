@@ -1,6 +1,9 @@
-import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/modules/classify/model/index";
+import {
+  isFileSync,
+  readTextSync,
+  statKindSync,
+} from "@internal/habitat-harness/resources/platform/filesystem";
 import {
   classifyPath,
   classifyPathResult,
@@ -8,52 +11,61 @@ import {
   classifyTargetResult,
   validateClassifyResult,
 } from "@internal/habitat-harness/service/modules/classify/model/index";
+import type {
+  WorkspaceGraphReadState,
+  WorkspaceProject,
+} from "@internal/habitat-harness/service/model/workspace/index";
 import { describe, expect, test } from "vitest";
+import { makeTestRuleFacts } from "../support/habitat-service-deps.js";
 
-const fixtureNxProjects: WorkspaceGraphProjectReader = {
-  async readProjects() {
-    return [
-      project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
-        "biome:ci",
-        "boundaries",
-        "check",
-        "generated:check",
-        "source:check",
-        "test",
-        "validate:boundary-taxonomy",
-        "validate:grit-patterns",
-        "validate:service-module-shape",
-      ]),
-      project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
-      project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
-      project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", [
-        "check",
-        "test",
-      ]),
-      project("@civ7/types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
-      project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", [
-        "check",
-        "test",
-        "test:architecture-core-purity",
-      ]),
-      project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
-      project("mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
-        "test:architecture-bundle-runtime-imports",
-      ]),
-      project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
-        "check",
-        "test",
-        "test:architecture-cutover",
-        "test:architecture-ecology-step-imports",
-        "test:architecture-m11-projection-band",
-        "test:architecture-map-bundle-runtime-imports",
-        "test:architecture-rng-authority",
-      ]),
-    ];
-  },
+const fixtureProjects = [
+  project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
+    "biome:ci",
+    "boundaries",
+    "check",
+    "generated:check",
+    "source:check",
+    "test",
+    "validate:boundary-taxonomy",
+    "validate:grit-patterns",
+    "validate:service-module-shape",
+  ]),
+  project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["build", "check"]),
+  project("@civ7/config", "packages/config", "kind:foundation", ["build", "check", "test"]),
+  project("@civ7/plugin-graph", "packages/plugins/plugin-graph", "kind:plugin", ["check", "test"]),
+  project("@civ7/types", "packages/civ7-types", "kind:foundation", ["check", "test"]),
+  project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", [
+    "check",
+    "test",
+    "test:architecture-core-purity",
+  ]),
+  project("mapgen-studio", "apps/mapgen-studio", "kind:app", ["check", "test"]),
+  project("mod-civ7-intelligence-bridge", "mods/mod-civ7-intelligence-bridge", "kind:mod", [
+    "test:architecture-bundle-runtime-imports",
+  ]),
+  project("mod-swooper-maps", "mods/mod-swooper-maps", "kind:mod", [
+    "check",
+    "test",
+    "test:architecture-cutover",
+    "test:architecture-ecology-step-imports",
+    "test:architecture-m11-projection-band",
+    "test:architecture-map-bundle-runtime-imports",
+    "test:architecture-rng-authority",
+  ]),
+];
+
+const testRuleFacts = makeTestRuleFacts();
+const testClassifyFileSystem = {
+  isFile: isFileSync,
+  readText: readTextSync,
+  statKind: statKindSync,
 };
-
-const defaultClassifyOptions = { nxProjects: fixtureNxProjects, repoRoot };
+const defaultClassifyOptions = {
+  fileSystem: testClassifyFileSystem,
+  graph: graphReady(fixtureProjects),
+  repoRoot,
+  rules: testRuleFacts,
+};
 
 describe("Habitat classify D4 result model", () => {
   test("classifies project paths with D2 routing and D3 target guidance", async () => {
@@ -226,10 +238,10 @@ index 3333333..4444444 100644
   test("refuses malformed or pathless diff-like input before reading the graph", async () => {
     const result = await classifyTargetResult("not a diff\njust text", {
       repoRoot,
-      nxProjects: {
-        async readProjects() {
-          throw new Error("Nx daemon unavailable");
-        },
+      rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
+      graph: () => {
+        throw new Error("graph should not be read for malformed diff refusal");
       },
     });
 
@@ -239,18 +251,11 @@ index 3333333..4444444 100644
   test("renders malformed graph metadata as a D3-owned graph-refusal state", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
-      nxProjects: {
-        async readProjects() {
-          return [
-            {
-              name: "",
-              root: "",
-              sourceRoot: null,
-              tags: [],
-              targets: [],
-            },
-          ];
-        },
+      rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
+      graph: {
+        kind: "malformed-graph-json",
+        message: "workspace graph fixture is malformed",
       },
     });
 
@@ -262,18 +267,20 @@ index 3333333..4444444 100644
   test("renders Nx graph read failures as D3-owned graph-refusal states", async () => {
     const readFailure = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
-      nxProjects: {
-        async readProjects() {
-          throw new Error("cannot read project graph");
-        },
+      rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
+      graph: {
+        kind: "nx-read-failure",
+        message: "cannot read project graph",
       },
     });
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
-      nxProjects: {
-        async readProjects() {
-          throw new Error("Nx daemon unavailable");
-        },
+      rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
+      graph: {
+        kind: "nx-daemon-failure",
+        message: "Nx daemon unavailable",
       },
     });
 
@@ -293,11 +300,11 @@ index 3333333..4444444 100644
   test("renders missing-project graph aliases as graph-refusal states", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
-      nxProjects: {
-        async readProjects() {
-          return [project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"])];
-        },
-      },
+      rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
+      graph: graphReady([
+        project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"]),
+      ]),
     });
 
     expect(result.state).toBe("graph-refusal");
@@ -310,19 +317,17 @@ index 3333333..4444444 100644
   test("renders missing-target graph aliases as graph-refusal states", async () => {
     const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       repoRoot,
-      nxProjects: {
-        async readProjects() {
-          return [
-            project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
-              "check",
-              "validate:boundary-taxonomy",
-              "validate:grit-patterns",
-              "validate:service-module-shape",
-            ]),
-            project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", []),
-          ];
-        },
-      },
+      rules: testRuleFacts,
+      fileSystem: testClassifyFileSystem,
+      graph: graphReady([
+        project("@internal/habitat-harness", "tools/habitat-harness", "kind:tooling", [
+          "check",
+          "validate:boundary-taxonomy",
+          "validate:grit-patterns",
+          "validate:service-module-shape",
+        ]),
+        project("@swooper/mapgen-core", "packages/mapgen-core", "kind:foundation", []),
+      ]),
     });
 
     expect(result.state).toBe("graph-refusal");
@@ -378,4 +383,8 @@ function project(
     tags: [tag],
     targets: targets.map((targetName) => ({ name: targetName })),
   };
+}
+
+function graphReady(projects: readonly WorkspaceProject[]): WorkspaceGraphReadState {
+  return { kind: "graph-ready", snapshot: { projects } };
 }

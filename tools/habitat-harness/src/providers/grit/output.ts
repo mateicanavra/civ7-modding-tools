@@ -1,5 +1,4 @@
 import type { HabitatCommandResult } from "@internal/habitat-harness/resources/command/index";
-import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import {
   type DiagnosticCacheRequirement,
   DiagnosticCommandObservationSchema,
@@ -283,7 +282,7 @@ function parseGritTextResults(text: string): GritResult[] {
 
 function normalizeGritPath(gritPath: string | undefined): string {
   if (!gritPath) return ".";
-  return toRepoRelative(gritPath.replace(/^\.\//, ""));
+  return gritPath.replace(/\\/g, "/").replace(/^\.\//, "");
 }
 
 function parseFailure(

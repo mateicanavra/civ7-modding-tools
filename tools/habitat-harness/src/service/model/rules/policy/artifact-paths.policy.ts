@@ -1,5 +1,4 @@
 import type { RuleRegistryRecordV1 } from "../dto/registry.schema.js";
-import { activeRuleRegistryDocument } from "../repositories/registry.repository.js";
 
 export interface HabitatArtifactRulePathInput {
   readonly id: string;
@@ -16,9 +15,19 @@ export interface HabitatArtifactPathPlan {
   readonly hasUnclassifiedArtifact: boolean;
 }
 
+export function ruleArtifactPathFacts(
+  rules: readonly RuleRegistryRecordV1[]
+): HabitatArtifactRulePathInput[] {
+  return rules.map((rule) => ({
+    id: rule.id,
+    ownerTool: rule.ownerTool,
+    ...("manifestPath" in rule && rule.manifestPath ? { manifestPath: rule.manifestPath } : {}),
+  }));
+}
+
 export function habitatArtifactPathPlan(
   changedPaths: readonly string[],
-  rules: readonly HabitatArtifactRulePathInput[] = activeRuleRegistryDocument.rules
+  rules: readonly HabitatArtifactRulePathInput[]
 ): HabitatArtifactPathPlan {
   const paths = changedPaths.map(normalizeRepoPath).filter(Boolean);
   const classified = classifyHabitatArtifactPaths(paths, rules);

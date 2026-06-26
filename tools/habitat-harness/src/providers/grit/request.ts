@@ -20,14 +20,18 @@ import {
 import { Effect } from "effect";
 import { GritToolUnavailable } from "./failures.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";
-import { GritProvider, gritCheckRequest } from "./resource.js";
+import type { GritProviderService } from "./resource.js";
 import { decidePatternScanRoots } from "./scan-roots/index.js";
 import type { GritCheckOptions, GritCheckRequestOptions } from "./types.js";
 
-export function gritCheckProgram(scanRoots: readonly string[], options: GritCheckOptions = {}) {
+export function gritCheckProgram(
+  scanRoots: readonly string[],
+  options: GritCheckOptions & { readonly grit: GritProviderService }
+) {
   return Effect.scoped(
     Effect.gen(function* () {
       const scanRootDecision = decidePatternScanRoots(scanRoots, {
+        repoRoot: options.repoRoot,
         allowDocsRoot: options.allowDocsRoot,
       });
       if (scanRootDecision.kind === "refused") {
@@ -50,15 +54,19 @@ export function gritCheckProgram(scanRoots: readonly string[], options: GritChec
               outputFormat: options.outputFormat,
             }
           : { outputFormat: options.outputFormat };
-      const processRequest = gritCheckRequest(scanRoots, requestOptions);
-      const grit = yield* GritProvider;
+      const processRequest = options.grit.checkRequest({
+        scanRoots,
+        cacheMode: requestOptions.cacheMode,
+        observableCacheStatus: requestOptions.observableCacheStatus,
+        outputFormat: requestOptions.outputFormat,
+      });
       const nativeRequest = nativeGritCheckRequestFromProcessRequest({
         request: processRequest,
         commandFamily: nativeCommandFamilyForGritCheck(options),
         outputContract: nativeOutputContractForGritCheck(options),
         cacheRequirement,
       });
-      const result = yield* grit
+      const result = yield* options.grit
         .check({
           scanRoots,
           cacheMode: requestOptions.cacheMode,
@@ -179,5 +187,3 @@ function nativeOutputContractForGritCheck(
 ): "json-report" | "standard-text-report" {
   return options.outputFormat === "text" ? "standard-text-report" : "json-report";
 }
-
-export { gritCheckRequest };

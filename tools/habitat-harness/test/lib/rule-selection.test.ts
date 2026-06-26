@@ -4,21 +4,24 @@ import {
   checkCommandContext,
   renderCheckReport,
   rulesForExecution,
-  selectorRefusalReport,
+  selectorRefusalReportEffect,
   stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
   structuralCheckRequest,
   validateCheckReport,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
-import type { HarnessRule } from "@internal/habitat-harness/service/model/diagnostics/policy/rule-runtime/architecture.policy";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
+import type {
+  RuleRegistryRecordV1,
+  RuleSourceFacts,
+} from "@internal/habitat-harness/service/model/rules/index";
 import {
   type RuleSelection,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
-const fakeRules: HarnessRule[] = [
+const fakeRules: RuleRegistryRecordV1[] = [
   fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
   fakeRule("beta-rule", "tool-b", "@scope/beta"),
   fakeRule("gamma-rule", "tool-a", "@scope/gamma"),
@@ -107,12 +110,14 @@ describe("rule selector boundary", () => {
   });
 
   test("renders invalid selectors as schemaVersion 1 failing CheckReports", () => {
-    const report = selectorRefusalReport(
-      selectionFailure({ rule: "definitely-not-a-rule" }),
-      structuralCheckRequest({
-        command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
-        rule: "definitely-not-a-rule",
-      })
+    const report = Effect.runSync(
+      selectorRefusalReportEffect(
+        selectionFailure({ rule: "definitely-not-a-rule" }),
+        structuralCheckRequest({
+          command: checkCommandContext(["--json", "--rule", "definitely-not-a-rule"]),
+          rule: "definitely-not-a-rule",
+        })
+      )
     );
 
     expect(validateCheckReport(report)).toEqual([]);
@@ -297,7 +302,7 @@ describe("rule selector boundary", () => {
           "tools/habitat-harness/src/service/modules/hook/router.ts",
           "README.md",
         ],
-        undefined,
+        ["packages/mapgen-core/src/core"],
         { repoRoot }
       )
     ).toEqual(["packages/mapgen-core/src/core/index.ts"]);
@@ -322,8 +327,8 @@ function fakeRule(
   id: string,
   ownerTool: string,
   ownerProject: string,
-  overrides: Partial<HarnessRule> = {}
-): HarnessRule {
+  overrides: Partial<RuleRegistryRecordV1> = {}
+): RuleRegistryRecordV1 {
   return {
     id,
     ownerTool,

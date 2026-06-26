@@ -9,8 +9,8 @@ import {
 import {
   WorkspaceGraphTargetNameOptionsSchema,
   WorkspaceGraphTargetNamesSchema,
-} from "./providers/nx/schema.ts";
-import { workspaceGraphTargetNames } from "./providers/nx/targets.ts";
+} from "./service/model/workspace/dto/workspace.schema.ts";
+import { workspaceGraphTargetNames } from "./service/model/workspace/policy/workspace-targets.policy.ts";
 import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,
@@ -331,7 +331,12 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
   return [...inputs];
 }
 
-function sourceCheckRuleScopeInputs(rule: NxRuleRegistryRecord): string[] {
+type PatternBackedRegistryRecord = Extract<
+  NxRuleRegistryRecord,
+  { ownerTool: "source-check" | "grit-check" }
+>;
+
+function sourceCheckRuleScopeInputs(rule: PatternBackedRegistryRecord): string[] {
   const exactPathInputs = rule.pathCoverage.flatMap((entry) =>
     entry.kind === "exact-path" ? entry.patterns.map(workspaceInput) : []
   );

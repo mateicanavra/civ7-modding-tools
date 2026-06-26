@@ -1,7 +1,7 @@
 import type {
   WorkspaceGraphReadState,
   WorkspaceProject,
-} from "@internal/habitat-harness/providers/nx/schema";
+} from "@internal/habitat-harness/service/model/workspace/index";
 import { habitatServiceRouter } from "@internal/habitat-harness/service/router";
 import { createRouterClient } from "@orpc/server";
 import { Effect } from "effect";

@@ -8,7 +8,6 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
-import { pathExistsSync } from "@internal/habitat-harness/resources/platform/index";
 import { stagedSourceCheckPaths } from "@internal/habitat-harness/service/model/check/index";
 import { Effect } from "effect";
 
@@ -31,7 +30,7 @@ const biomeCandidateExtensions = new Set([
 export function existingStagedPathsEffect(
   git: GitProviderService,
   repoRoot: string,
-  pathExists: (targetPath: string) => boolean = pathExistsSync
+  pathExists: (targetPath: string) => boolean
 ): Effect.Effect<string[], never, GitProviderRequirements> {
   return stagedPathsEffect(git, repoRoot).pipe(
     Effect.map((paths) => paths.filter((candidate) => pathExists(path.join(repoRoot, candidate))))
@@ -42,8 +41,12 @@ export function biomeHookPaths(staged: readonly string[]): string[] {
   return staged.filter((candidate) => biomeCandidateExtensions.has(path.extname(candidate)));
 }
 
-export function hookSourceCheckPaths(stagedPaths: readonly string[], repoRoot: string): string[] {
-  return stagedSourceCheckPaths(stagedPaths, undefined, { repoRoot });
+export function hookSourceCheckPaths(
+  stagedPaths: readonly string[],
+  repoRoot: string,
+  approvedScanRoots: readonly string[]
+): string[] {
+  return stagedSourceCheckPaths(stagedPaths, approvedScanRoots, { repoRoot });
 }
 
 export function unstagedAmongEffect(

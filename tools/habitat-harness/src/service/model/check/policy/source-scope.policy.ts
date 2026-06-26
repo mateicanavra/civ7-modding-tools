@@ -2,7 +2,6 @@ import path from "node:path";
 import { habitatCacheRepoPathPrefix } from "@internal/habitat-harness/resources/artifact-paths";
 import { decideScanRootProtection } from "@internal/habitat-harness/service/model/host/index";
 import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
-import { activeRuleSourceFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
 
 export interface SourceScopeContext {
   readonly repoRoot: string;
@@ -62,7 +61,7 @@ export function stagedSourceScanRoots(
 
 export function stagedSourceCheckPaths(
   stagedPaths: readonly string[],
-  approvedScanRoots: readonly string[] = approvedSourceScanRootsForRules(activeRuleSourceFacts),
+  approvedScanRoots: readonly string[],
   context: SourceScopeContext
 ): string[] {
   return stagedSourceScanRoots(stagedPaths, approvedScanRoots, context);

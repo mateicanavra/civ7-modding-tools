@@ -1,5 +1,4 @@
 import path from "node:path";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { createProjectGraphAsync } from "@nx/devkit";
 import { Value } from "typebox/value";
 import {
@@ -8,13 +7,15 @@ import {
   WorkspaceGraphSnapshotSchema,
   type WorkspaceProject,
   WorkspaceProjectSchema,
-} from "./schema.js";
+} from "@internal/habitat-harness/service/model/workspace/index";
 
 export type WorkspaceGraphProjectReader = {
   readProjects(): Promise<WorkspaceProject[]>;
 };
 
 export class NxWorkspaceGraphProjectReader implements WorkspaceGraphProjectReader {
+  constructor(private readonly repoRoot: string) {}
+
   async readProjects(): Promise<WorkspaceProject[]> {
     const graph = await createProjectGraphAsync();
     return Object.entries(graph.nodes)
@@ -22,8 +23,8 @@ export class NxWorkspaceGraphProjectReader implements WorkspaceGraphProjectReade
         const data = node.data;
         return Value.Parse(WorkspaceProjectSchema, {
           name,
-          root: normalizeProjectRoot(data.root),
-          sourceRoot: data.sourceRoot ? normalizeProjectRoot(data.sourceRoot) : null,
+          root: normalizeProjectRoot(data.root, this.repoRoot),
+          sourceRoot: data.sourceRoot ? normalizeProjectRoot(data.sourceRoot, this.repoRoot) : null,
           tags: [...(data.tags ?? [])],
           targets: Object.keys(data.targets ?? {})
             .sort()
@@ -35,7 +36,8 @@ export class NxWorkspaceGraphProjectReader implements WorkspaceGraphProjectReade
 }
 
 export async function readWorkspaceGraph(
-  reader: WorkspaceGraphProjectReader = new NxWorkspaceGraphProjectReader()
+  repoRoot: string,
+  reader: WorkspaceGraphProjectReader = new NxWorkspaceGraphProjectReader(repoRoot)
 ): Promise<WorkspaceGraphReadState> {
   let projects: WorkspaceProject[];
   try {
@@ -65,6 +67,6 @@ function parseReadState(value: WorkspaceGraphReadState): WorkspaceGraphReadState
   return Value.Parse(WorkspaceGraphReadStateSchema, value);
 }
 
-function normalizeProjectRoot(projectRoot: string): string {
+function normalizeProjectRoot(projectRoot: string, repoRoot: string): string {
   return path.relative(repoRoot, path.resolve(repoRoot, projectRoot)).replaceAll(path.sep, "/");
 }

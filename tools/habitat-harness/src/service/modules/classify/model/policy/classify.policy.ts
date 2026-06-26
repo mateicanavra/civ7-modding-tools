@@ -1,22 +1,18 @@
 import {
-  readWorkspaceGraph,
-  type WorkspaceGraphProjectReader,
-} from "@internal/habitat-harness/providers/nx/graph";
-import type { WorkspaceGraphReadState } from "@internal/habitat-harness/providers/nx/schema";
-import {
   type ClassifyResult,
   type PathClassification,
   parseClassifyResult,
   stringifyClassifyResult,
 } from "@internal/habitat-harness/service/model/classify/index";
-import { activeRuleSelectorFacts } from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+import type { RuleFactsCatalog } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import type { WorkspaceGraphReadState } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
 import {
   classifyPathFromProjects,
   graphReadRefusal,
   graphRefusalResult,
 } from "./classify-path.policy.js";
-import { diffText, extractDiffPaths } from "./diff-target.policy.js";
+import { type ClassifyFileSystem, diffText, extractDiffPaths } from "./diff-target.policy.js";
 
 export type {
   ClassifiedTarget,
@@ -46,20 +42,19 @@ export {
 } from "@internal/habitat-harness/service/model/classify/index";
 
 export interface ClassifyOptions {
-  nxProjects?: WorkspaceGraphProjectReader;
+  graph: WorkspaceGraphReadState | (() => WorkspaceGraphReadState);
+  fileSystem: ClassifyFileSystem;
   repoRoot: string;
+  rules: RuleFactsCatalog;
 }
 
-export async function classifyTargetResult(
-  target: string,
-  options: ClassifyOptions
-): Promise<ClassifyResult> {
+export function classifyTargetResult(target: string, options: ClassifyOptions): ClassifyResult {
   const diff = diffText(target, options);
   if (diff) {
     const paths = extractDiffPaths(diff);
     if (paths.length === 0) return malformedOrPathlessDiffResult(target);
 
-    const graph = await readWorkspaceGraph(options.nxProjects);
+    const graph = readGraph(options);
     if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
 
     return parseClassifyResult({
@@ -71,7 +66,7 @@ export async function classifyTargetResult(
     });
   }
 
-  const graph = await readWorkspaceGraph(options.nxProjects);
+  const graph = readGraph(options);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
@@ -79,7 +74,11 @@ export async function classifyTargetResult(
 export function classifyTargetResultEffect(
   target: string,
   readGraph: Effect.Effect<WorkspaceGraphReadState>,
-  context: { readonly repoRoot: string }
+  context: {
+    readonly repoRoot: string;
+    readonly rules: RuleFactsCatalog;
+    readonly fileSystem: ClassifyFileSystem;
+  }
 ): Effect.Effect<ClassifyResult> {
   const diff = diffText(target, context);
   if (diff) {
@@ -112,31 +111,22 @@ export function classifyTargetResultEffect(
   );
 }
 
-export async function classifyPathResult(
-  target: string,
-  options: ClassifyOptions
-): Promise<PathClassification> {
-  const graph = await readWorkspaceGraph(options.nxProjects);
+export function classifyPathResult(target: string, options: ClassifyOptions): PathClassification {
+  const graph = readGraph(options);
   if (graph.kind !== "graph-ready") return graphRefusalResult(target, graphReadRefusal(graph));
   return classifyPathFromProjects(target, graph.snapshot.projects, options);
 }
 
-export async function classifyTarget(
-  target: string,
-  options: ClassifyOptions
-): Promise<ClassifyResult> {
+export function classifyTarget(target: string, options: ClassifyOptions): ClassifyResult {
   return classifyTargetResult(target, options);
 }
 
-export async function classifyPath(
-  target: string,
-  options: ClassifyOptions
-): Promise<PathClassification> {
+export function classifyPath(target: string, options: ClassifyOptions): PathClassification {
   return classifyPathResult(target, options);
 }
 
-export function commandSummary(): string {
-  return `rule pack: ${activeRuleSelectorFacts.length} rules (+ baseline-integrity built-in)`;
+export function commandSummary(rules: RuleFactsCatalog): string {
+  return `rule pack: ${rules.selector.length} rules (+ baseline-integrity built-in)`;
 }
 
 function malformedOrPathlessDiffResult(input: string): ClassifyResult {
@@ -149,4 +139,8 @@ function malformedOrPathlessDiffResult(input: string): ClassifyResult {
       "Provide a repo path or a unified diff with diff --git or +++ b/ changed-file headers.",
     ],
   });
+}
+
+function readGraph(options: ClassifyOptions): WorkspaceGraphReadState {
+  return typeof options.graph === "function" ? options.graph() : options.graph;
 }

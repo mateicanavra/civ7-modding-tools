@@ -3,7 +3,6 @@ import type { BiomeProviderService } from "@internal/habitat-harness/providers/b
 import type { GitProviderService } from "@internal/habitat-harness/providers/git/index";
 import type { GraphiteProviderService } from "@internal/habitat-harness/providers/graphite/index";
 import type { NxProviderService } from "@internal/habitat-harness/providers/nx/index";
-import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import {
   type SpawnResult,
   spawnResultFromCommandProviderError,
@@ -29,10 +28,10 @@ import {
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
-  activeRuleHookCheckFacts,
-  activeRuleSourceFacts,
   factsForRuleIds,
-} from "@internal/habitat-harness/service/model/rules/policy/active-facts.policy";
+  type RuleFactsCatalog,
+} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+import { workspaceGraphTargetNames } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
 import type { HookServiceRunInput } from "./contract.js";
 import {
@@ -64,8 +63,9 @@ type HookProcedureContext = {
   readonly nx: NxProviderService;
   readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
+  readonly rules: RuleFactsCatalog;
   readonly createCheckReport: (options?: CheckOptions) => HookRouterEffect<CheckReport>;
-  readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
+  readonly workspaceGraphTargetNames: typeof workspaceGraphTargetNames;
 };
 type BiomeCommandRequest = Parameters<HookProcedureContext["biome"]["run"]>[0];
 type StagedHookCheckTool = "file-layer" | "source-check";
@@ -125,6 +125,7 @@ export const module = service.hook.use(({ context, next }) => {
     nx: context.deps.nx,
     platform: context.deps.platform,
     reporter: context.deps.reporter,
+    rules: context.deps.rules,
     createCheckReport: (options) =>
       createCheckReport(
         { ...options, repoRoot: context.deps.platform.repoRoot },
@@ -149,8 +150,16 @@ function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecuti
     biome: deps.biome,
     commandRunner: deps.commandRunner,
     git: deps.git,
+    grit: deps.grit,
     nx: deps.nx,
     repoRoot: deps.platform.repoRoot,
+    rules: deps.rules,
+    sourceFileSystem: {
+      isDirectory: deps.platform.isDirectory,
+      isFile: deps.platform.isFileEffect,
+      readDirectory: deps.platform.readDirectory,
+      readText: deps.platform.readText,
+    },
   };
 }
 
@@ -202,7 +211,8 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
       }
       const targetPlan = prePushTargetPlanForChangedPaths(
         changedPaths.paths,
-        context.workspaceGraphTargetNames()
+        context.workspaceGraphTargetNames(),
+        context.rules.artifactPath
       );
       for (const target of targetPlan.runTargets) {
         const argv = context.nx.runTargetArgv(target);
@@ -527,7 +537,11 @@ function continuePreCommitAfterBiome(
   state: PreCommitBiomeState
 ): PreCommitStep<PreCommitSourceCheckState> {
   const { context, staged } = state;
-  const sourceCheckPaths = hookSourceCheckPaths(staged, context.platform.repoRoot);
+  const sourceCheckPaths = hookSourceCheckPaths(
+    staged,
+    context.platform.repoRoot,
+    hookSourceCheckApprovedRoots(context)
+  );
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
 }
 
@@ -604,11 +618,14 @@ function prePushHookSourceCheckPaths(
   context: HookProcedureContext,
   changedPaths: readonly string[]
 ): readonly string[] {
-  const hookRuleIds = activeRuleHookCheckFacts.map((rule) => rule.id);
-  const hookSourceRules = factsForRuleIds(activeRuleSourceFacts, hookRuleIds);
-  return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules), {
+  return stagedSourceCheckPaths(changedPaths, hookSourceCheckApprovedRoots(context), {
     repoRoot: context.platform.repoRoot,
   });
+}
+
+function hookSourceCheckApprovedRoots(context: HookProcedureContext): string[] {
+  const hookRuleIds = context.rules.hookCheck.map((rule) => rule.id);
+  return approvedScanRootsForRules(factsForRuleIds(context.rules.source, hookRuleIds));
 }
 
 function prePushHookSourceCheck(
@@ -645,7 +662,7 @@ function resolvePrePushBase(context: HookProcedureContext): HookRouterEffect<Pre
     yield* recordHookCommand(
       context,
       "pre-push-base",
-      ["gt", "branch", "info", "--no-interactive"],
+      context.graphite.parentArgv(),
       startedAtMs,
       parent ? 0 : 1
     );
