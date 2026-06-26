@@ -9,7 +9,7 @@
   "why": "The Studio browser worker must stay browser-safe and use recipe artifacts instead of runtime-only Civ7 surfaces.",
   "detect": [
     "node",
-    ".habitat/civ7/mapgen/studio/blueprints/ensure_studio_worker_bundle_is_browser_safe/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.check.mjs"
+    ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.check.mjs"
   ],
   "remediate": "Move forbidden runtime access behind server/direct-control or artifact boundaries.",
   "message": "Studio worker bundle contains forbidden runtime or Node references.",
