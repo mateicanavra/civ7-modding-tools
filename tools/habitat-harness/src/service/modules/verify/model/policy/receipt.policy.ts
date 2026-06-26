@@ -1,7 +1,6 @@
 import { readWorkspaceGraph } from "@internal/habitat-harness/providers/nx/graph";
 import { workspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/targets";
 import type { SpawnResult } from "@internal/habitat-harness/resources/command/index";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
   type CheckReport,
   type VerifyCheckSummary,
@@ -33,6 +32,10 @@ import { postStateObservation } from "./post-state.policy.js";
 
 /** Inputs needed to assemble a verify handoff receipt after command execution. */
 export interface VerifyReceiptInput {
+  /** Repository root used for command metadata. */
+  repoRoot: string;
+  /** Environment values available to receipt command metadata. */
+  env?: Record<string, string | undefined>;
   /** Optional base ref explicitly requested by the caller. */
   requestedBase?: string;
   /** Effective Git base used for affected verification. */
@@ -93,7 +96,7 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
             ? { targetPlan, reason: input.affectedSkipReason }
             : {}
         );
-  const postState = postStateObservation(input.gitStatus);
+  const postState = postStateObservation(input.gitStatus, { repoRoot: input.repoRoot });
   return Value.Parse(VerifyReceiptSchema, {
     schemaVersion: 1,
     outcome: receiptOutcome({
@@ -104,8 +107,8 @@ export function createVerifyReceipt(input: VerifyReceiptInput): VerifyReceipt {
     }),
     command: {
       argv: ["habitat", "verify"],
-      cwd: repoRoot,
-      env: selectedVerifyEnv(),
+      cwd: input.repoRoot,
+      env: selectedVerifyEnv(input.env ?? {}),
       startedAt: input.startedAt,
       durationMs: input.durationMs,
       exitCode: input.exitCode,

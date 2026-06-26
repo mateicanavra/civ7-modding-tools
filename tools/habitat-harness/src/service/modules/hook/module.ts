@@ -11,6 +11,7 @@ import {
 } from "@internal/habitat-harness/resources/command/index";
 import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import type { HabitatReporterService } from "@internal/habitat-harness/resources/reporter/index";
+import type { HabitatServiceDeps } from "@internal/habitat-harness/service/base";
 import { service } from "@internal/habitat-harness/service/impl";
 import {
   approvedScanRootsForRules,
@@ -22,7 +23,10 @@ import {
   renderCheckReport,
   stagedSourceCheckPaths,
 } from "@internal/habitat-harness/service/model/check/index";
-import { StructuralCheck } from "@internal/habitat-harness/service/model/check/policy/structural/index";
+import {
+  createCheckReportEffect,
+  type StructuralExecutionContext,
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { prePushTargetPlanForChangedPaths } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import {
   activeRuleHookCheckFacts,
@@ -60,7 +64,7 @@ type HookProcedureContext = {
   readonly nx: NxProviderService;
   readonly platform: HabitatPlatformService;
   readonly reporter: HabitatReporterService;
-  readonly createCheckReport: typeof createCheckReport;
+  readonly createCheckReport: (options?: CheckOptions) => HookRouterEffect<CheckReport>;
   readonly workspaceGraphTargetNames: typeof import("@internal/habitat-harness/providers/nx/targets").workspaceGraphTargetNames;
 };
 type BiomeCommandRequest = Parameters<HookProcedureContext["biome"]["run"]>[0];
@@ -121,7 +125,11 @@ export const module = service.hook.use(({ context, next }) => {
     nx: context.deps.nx,
     platform: context.deps.platform,
     reporter: context.deps.reporter,
-    createCheckReport,
+    createCheckReport: (options) =>
+      createCheckReport(
+        { ...options, repoRoot: context.deps.platform.repoRoot },
+        structuralExecutionContext(context.deps)
+      ),
     workspaceGraphTargetNames,
   } satisfies HookProcedureContext;
 
@@ -132,8 +140,18 @@ export const module = service.hook.use(({ context, next }) => {
   });
 });
 
-function createCheckReport(options?: CheckOptions) {
-  return Effect.flatMap(StructuralCheck, (service) => service.createReport(options));
+function createCheckReport(options: CheckOptions, context: StructuralExecutionContext) {
+  return createCheckReportEffect(options, context);
+}
+
+function structuralExecutionContext(deps: HabitatServiceDeps): StructuralExecutionContext {
+  return {
+    biome: deps.biome,
+    commandRunner: deps.commandRunner,
+    git: deps.git,
+    nx: deps.nx,
+    repoRoot: deps.platform.repoRoot,
+  };
 }
 
 function runHook(context: HookProcedureContext, input: HookServiceRunInput = {}) {
@@ -165,7 +183,7 @@ function runHook(context: HookProcedureContext, input: HookServiceRunInput = {})
           ...output.result(),
         });
       }
-      const hookSourcePaths = prePushHookSourceCheckPaths(changedPaths.paths);
+      const hookSourcePaths = prePushHookSourceCheckPaths(context, changedPaths.paths);
       if (hookSourcePaths.length > 0) {
         const hookSourceCheck = yield* prePushHookSourceCheck(context, hookSourcePaths);
         output.writeStdout(
@@ -508,8 +526,8 @@ function preCommitBiomeProviderStep(
 function continuePreCommitAfterBiome(
   state: PreCommitBiomeState
 ): PreCommitStep<PreCommitSourceCheckState> {
-  const { staged } = state;
-  const sourceCheckPaths = hookSourceCheckPaths(staged);
+  const { context, staged } = state;
+  const sourceCheckPaths = hookSourceCheckPaths(staged, context.platform.repoRoot);
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
 }
 
@@ -582,10 +600,15 @@ function prePushChangedPaths(
   });
 }
 
-function prePushHookSourceCheckPaths(changedPaths: readonly string[]): readonly string[] {
+function prePushHookSourceCheckPaths(
+  context: HookProcedureContext,
+  changedPaths: readonly string[]
+): readonly string[] {
   const hookRuleIds = activeRuleHookCheckFacts.map((rule) => rule.id);
   const hookSourceRules = factsForRuleIds(activeRuleSourceFacts, hookRuleIds);
-  return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules));
+  return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules), {
+    repoRoot: context.platform.repoRoot,
+  });
 }
 
 function prePushHookSourceCheck(

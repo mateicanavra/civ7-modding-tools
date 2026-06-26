@@ -1,5 +1,11 @@
+import { writeFileSync } from "node:fs";
+import path from "node:path";
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { renderCheckReport } from "@internal/habitat-harness/service/model/check/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import {
+  renderCheckReport,
+  stringifyCheckReport,
+} from "@internal/habitat-harness/service/model/check/index";
 import { Flags } from "@oclif/core";
 
 export default class Check extends HabitatCommand {
@@ -51,7 +57,11 @@ export default class Check extends HabitatCommand {
       baselineIntegrity,
       staged: flags.staged,
     });
-    this.log(renderCheckReport(report, { json: flags.json, output: flags.output }));
+    const rendered = renderCheckReport(report, { json: flags.json });
+    if (flags.output) {
+      writeFileSync(path.resolve(repoRoot, flags.output), `${stringifyCheckReport(report)}\n`);
+    }
+    this.log(rendered);
     this.exitWith(report.ok ? 0 : 1);
   }
 }

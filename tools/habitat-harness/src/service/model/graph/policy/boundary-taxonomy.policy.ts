@@ -5,7 +5,6 @@ import {
   habitatArtifactsProjectName,
   habitatArtifactsRoot,
 } from "@internal/habitat-harness/resources/artifact-paths";
-import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { createProjectGraphAsync } from "@nx/devkit";
 import type { NxProjectMetadata } from "./nx-projects.policy.js";
 
@@ -88,7 +87,7 @@ export function parseBoundaryTaxonomy(markdown: string): ParsedBoundaryTaxonomy 
 }
 
 export async function readWorkspaceManifestProjects(
-  root = repoRoot
+  root: string
 ): Promise<WorkspaceManifestProject[]> {
   const rootPackagePath = path.join(root, "package.json");
   const rootPackage = JSON.parse(await fs.readFile(rootPackagePath, "utf8")) as {
@@ -123,7 +122,7 @@ export async function readWorkspaceManifestProjects(
 }
 
 export async function readBoundaryConfigConstraints(
-  configPath = path.join(repoRoot, "eslint.boundaries.config.mjs")
+  configPath: string
 ): Promise<TaxonomyConstraint[]> {
   const imported = (await import(pathToFileURL(configPath).href)) as { default?: unknown };
   return extractBoundaryConfigConstraints(imported.default);

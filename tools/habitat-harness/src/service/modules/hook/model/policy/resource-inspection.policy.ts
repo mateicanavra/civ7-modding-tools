@@ -3,7 +3,6 @@ import type {
   GitProviderRequirements,
   GitProviderService,
 } from "@internal/habitat-harness/providers/git/index";
-import { toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import type { HabitatPlatformService } from "@internal/habitat-harness/resources/platform/index";
 import { Effect } from "effect";
 import type {
@@ -176,7 +175,7 @@ export function classifyResourcePreCommitDecisionEffect(
 
 function normalizeResourcePath(repoRoot: string, resourcePath: string): string {
   const absolute = path.isAbsolute(resourcePath) ? resourcePath : path.join(repoRoot, resourcePath);
-  return toRepoRelative(absolute);
+  return path.relative(repoRoot, path.resolve(absolute)).split(path.sep).join("/");
 }
 
 function resourceFailure(

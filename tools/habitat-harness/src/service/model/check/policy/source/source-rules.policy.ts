@@ -5,7 +5,6 @@ import {
   habitatCacheRepoPath,
   habitatCacheRepoPathPrefix,
 } from "@internal/habitat-harness/resources/artifact-paths";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import {
   isDirectory,
   isFile,
@@ -26,7 +25,11 @@ import {
 import { Effect } from "effect";
 import ts from "typescript";
 import { sourceCheckRuleModuleRepoPath } from "./module-paths.policy.js";
-import type { SourceCheckOptions } from "./service.policy.js";
+
+export interface SourceCheckOptions {
+  readonly repoRoot: string;
+  readonly scanRoots?: readonly string[];
+}
 
 interface SourceFileRecord {
   readonly path: string;
@@ -75,10 +78,10 @@ interface LoadedSourceRuleModule {
 
 export function runSourceRulesEffect(
   rules: readonly RuleSourceFacts[],
-  options: SourceCheckOptions = {}
+  options: SourceCheckOptions
 ) {
   return Effect.gen(function* () {
-    const loadedModules = yield* loadSourceCheckRuleModulesEffect(rules);
+    const loadedModules = yield* loadSourceCheckRuleModulesEffect(rules, options);
     const modulesByRule = new Map(loadedModules.map((loaded) => [loaded.rule.id, loaded]));
     const executableModules = loadedModules.filter(
       (loaded): loaded is LoadedSourceRuleModule & { module: SourceCheckRuleModule } =>
@@ -95,7 +98,7 @@ export function runSourceRulesEffect(
         decision.kind === "refused" ? [[decision.rule.id, decision.result] as const] : []
       )
     );
-    const files = yield* readPlannedSourceFiles(plans);
+    const files = yield* readPlannedSourceFiles(plans, options);
     const diagnosticsByRule = new Map<string, HabitatDiagnostic[]>(
       rules.map((rule) => [rule.id, []])
     );
@@ -123,20 +126,27 @@ export function runSourceRulesEffect(
 }
 
 function loadSourceCheckRuleModulesEffect(
-  rules: readonly RuleSourceFacts[]
+  rules: readonly RuleSourceFacts[],
+  options: SourceCheckOptions
 ): Effect.Effect<LoadedSourceRuleModule[], never> {
-  return Effect.forEach(rules, loadSourceCheckRuleModuleEffect, { concurrency: 8 });
+  return Effect.forEach(rules, (rule) => loadSourceCheckRuleModuleEffect(rule, options), {
+    concurrency: 8,
+  });
 }
 
 function loadSourceCheckRuleModuleEffect(
-  rule: RuleSourceFacts
+  rule: RuleSourceFacts,
+  options: SourceCheckOptions
 ): Effect.Effect<LoadedSourceRuleModule, never> {
   const modulePath = sourceCheckRuleModuleRepoPath(rule.id);
   return Effect.tryPromise({
     try: async () => ({
       rule,
       modulePath,
-      module: sourceCheckRuleModuleFromModule(rule.id, await import(moduleUrl(modulePath))),
+      module: sourceCheckRuleModuleFromModule(
+        rule.id,
+        await import(moduleUrl(options, modulePath))
+      ),
     }),
     catch: (error) => error,
   }).pipe(
@@ -150,8 +160,8 @@ function loadSourceCheckRuleModuleEffect(
   );
 }
 
-function moduleUrl(repoPath: string): string {
-  return pathToFileURL(path.join(repoRoot, repoPath)).href;
+function moduleUrl(options: SourceCheckOptions, repoPath: string): string {
+  return pathToFileURL(path.join(options.repoRoot, repoPath)).href;
 }
 
 function sourceCheckRuleModuleFromModule(ruleId: string, module: unknown): SourceCheckRuleModule {
@@ -223,7 +233,8 @@ function sourceRuleExactPathPatterns(rule: RuleSourceFacts): string[] {
 }
 
 function readPlannedSourceFiles(
-  plans: readonly SourceRuleFilePlan[]
+  plans: readonly SourceRuleFilePlan[],
+  options: SourceCheckOptions
 ): Effect.Effect<PlannedSourceFileRecord[], never, FileSystem.FileSystem> {
   return Effect.gen(function* () {
     if (plans.length === 0) return [];
@@ -231,7 +242,7 @@ function readPlannedSourceFiles(
     const candidateExtensions = new Set(plans.flatMap((plan) => [...plan.candidateExtensions]));
     const paths = yield* Effect.forEach(
       scanRoots,
-      (scanRoot) => collectSourcePaths(scanRoot, candidateExtensions),
+      (scanRoot) => collectSourcePaths(scanRoot, candidateExtensions, options),
       {
         concurrency: "unbounded",
       }
@@ -243,7 +254,7 @@ function readPlannedSourceFiles(
     const files = yield* Effect.forEach(
       plannedPaths,
       (plannedPath) =>
-        readText(path.join(repoRoot, plannedPath.path)).pipe(
+        readText(path.join(options.repoRoot, plannedPath.path)).pipe(
           Effect.map((text) => ({
             file: sourceFileRecord(plannedPath.path, text),
             plans: plannedPath.plans,
@@ -272,18 +283,19 @@ function sourceFileRecord(relativePath: string, text: string): SourceFileRecord 
 
 function collectSourcePaths(
   scanRoot: string,
-  candidateExtensions: ReadonlySet<string>
+  candidateExtensions: ReadonlySet<string>,
+  options: SourceCheckOptions
 ): Effect.Effect<string[], never, FileSystem.FileSystem> {
-  const absolute = path.join(repoRoot, scanRoot);
+  const absolute = path.join(options.repoRoot, scanRoot);
   return isFile(absolute).pipe(
     Effect.flatMap((file) => {
       if (file)
         return Effect.succeed(
-          isCandidateFile(scanRoot, candidateExtensions) ? [toRepoRelative(scanRoot)] : []
+          isCandidateFile(scanRoot, candidateExtensions) ? [toRepoRelative(options, scanRoot)] : []
         );
       return isDirectory(absolute).pipe(
         Effect.flatMap((directory) =>
-          directory ? collectDirectory(absolute, candidateExtensions) : Effect.succeed([])
+          directory ? collectDirectory(absolute, candidateExtensions, options) : Effect.succeed([])
         )
       );
     }),
@@ -293,7 +305,8 @@ function collectSourcePaths(
 
 function collectDirectory(
   absoluteDirectory: string,
-  candidateExtensions: ReadonlySet<string>
+  candidateExtensions: ReadonlySet<string>,
+  options: SourceCheckOptions
 ): Effect.Effect<string[], never, FileSystem.FileSystem> {
   return readDirectory(absoluteDirectory).pipe(
     Effect.flatMap((entries) =>
@@ -301,11 +314,11 @@ function collectDirectory(
         entries,
         (entry) => {
           const absolute = path.join(absoluteDirectory, entry.name);
-          const relative = toRepoRelative(absolute);
+          const relative = toRepoRelative(options, absolute);
           if (entry.kind === "directory") {
             return ignoredDirectory(entry.name, relative)
               ? Effect.succeed([])
-              : collectDirectory(absolute, candidateExtensions);
+              : collectDirectory(absolute, candidateExtensions, options);
           }
           return Effect.succeed(
             entry.kind === "file" && isCandidateFile(relative, candidateExtensions)
@@ -319,6 +332,13 @@ function collectDirectory(
     Effect.map((groups) => groups.flat()),
     Effect.catchAll(() => Effect.succeed([]))
   );
+}
+
+function toRepoRelative(options: SourceCheckOptions, candidate: string): string {
+  return path
+    .relative(options.repoRoot, path.resolve(options.repoRoot, candidate))
+    .split(path.sep)
+    .join("/");
 }
 
 function unsupportedNativeRule(
