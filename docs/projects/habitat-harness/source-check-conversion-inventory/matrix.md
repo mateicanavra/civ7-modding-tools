@@ -1,14 +1,14 @@
 # Rule/Adapter Disposition Matrix
 
-Status: synthesized from six lane artifacts
+Status: updated after source-check adapter burn-down canary
 
 ## Coverage
 
 - Canonical rule records: 73
-- Centralized source-check adapters in crosswalk: 33
-- Active `ownerTool: source-check` rule records: 29
-- Active source-check adapters: 29
-- Stale adapters for non-source-check records: `prohibit_ambient_rng_in_authored_generation`, `prohibit_cross_op_runtime_calls`, `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases`, `require_public_ecology_surfaces_and_retired_topology_removal`
+- Centralized source-check adapters remaining: 26
+- Active `ownerTool: source-check` rule records: 26
+- Active source-check adapters: 26
+- Deleted adapters in canary: `block_engine_runtime_imports_from_domain_ops`, `preserve_transport_pure_orpc_contracts`, `prohibit_ambient_rng_in_authored_generation`, `prohibit_cross_op_runtime_calls`, `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases`, `prohibit_runtime_helper_redeclarations`, `require_public_ecology_surfaces_and_retired_topology_removal`
 
 ## Disposition Counts
 
@@ -24,17 +24,17 @@ Status: synthesized from six lane artifacts
 | Rule | Lane | Owner Tool | Adapter | Split | Feasibility |
 | --- | --- | --- | --- | --- | --- |
 | `block_adapter_context_imports_from_domain_ops` | mapgen-domain | source-check | yes | no | high: existing .pattern.md covers the adapter predicate as structural source matching with filename constraints; no runtime/product oracle is involved. |
-| `block_engine_runtime_imports_from_domain_ops` | mapgen-domain | source-check | yes | no | high: existing .pattern.md is a direct structural import_statement rule with type-import exclusions. |
+| `block_engine_runtime_imports_from_domain_ops` | mapgen-domain | grit-check | no | no | converted canary: existing .pattern.md is a direct structural import_statement rule with type-import exclusions. |
 | `enforce_adapter_only_base_standard_imports` | platform-resources | source-check | yes | no | excellent: existing pattern.md already expresses the adapter predicate with structural TypeScript imports and path filters. |
 | `enforce_studio_rpc_eventhub_topology` | mapgen-other | command-check | no | no | high: source presence/absence and call/object-shape constraints over fixed TS files are Grit pattern authority candidates |
 | `ensure_map_policy_dependency_independence` | platform-resources | command-check | no | no | strong: pure import/export legality over TypeScript source with a small forbidden-specifier list and exact package path scope. |
 | `preserve_mapgen_core_runtime_neutrality` | mapgen-other | source-check | yes | no | high: existing .pattern.md expresses import, identifier, and source-text constraints with path guards |
 | `preserve_physics_to_map_projection_contracts` | mapgen-other | command-check | no | no | high: path-scoped string/source matching and effect-name regex constraints are clean Grit pattern authority candidates |
-| `preserve_transport_pure_orpc_contracts` | platform-resources | source-check | yes | no | excellent: existing pattern.md expresses all adapter predicate branches with structural imports, export const matching, export-from matching, regex name filters, and path filters. |
+| `preserve_transport_pure_orpc_contracts` | platform-resources | grit-check | no | no | converted canary: existing pattern.md expresses all adapter predicate branches with structural imports, export const matching, export-from matching, regex name filters, and path filters. |
 | `prohibit_adapter_local_legacy_generator_logic` | platform-resources | command-check | no | no | strong: path-scoped identifier, call-expression, and string/module-token bans are structural source matching that Grit should express cleanly. |
-| `prohibit_ambient_rng_in_authored_generation` | mapgen-pipeline | command-check | yes | no | high: existing pattern expresses the source/path/import bans; conversion must carry the current discovery materialization exception or intentionally delete it. |
+| `prohibit_ambient_rng_in_authored_generation` | mapgen-pipeline | command-check | no | no | stale adapter deleted; existing pattern expresses the source/path/import bans, while the current executable owner remains command-check. |
 | `prohibit_bare_value_export_all_from_contract_surfaces` | mapgen-pipeline | source-check | yes | no | high: existing pattern captures export-all syntax, text-filtered type-only allowance, and path scope. |
-| `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | mapgen-pipeline | command-check | yes | no | high: existing pattern expresses the source token and retired stage alias bans; the adapter's dual-stage-pair check becomes redundant if legacy aliases are directly banned. |
+| `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | mapgen-pipeline | command-check | no | no | stale adapter deleted; existing pattern expresses the source token and retired stage alias bans, while the current executable owner remains command-check. |
 | `prohibit_domain_ops_projection_effect_dependencies` | mapgen-other | source-check | yes | no | high: existing .pattern.md cleanly captures path-scoped string/source matching |
 | `prohibit_empty_object_defaults_in_contract_schemas` | mapgen-pipeline | source-check | yes | no | high: existing Grit pattern directly represents the property/default object-literal predicate and scoped contract paths. |
 | `prohibit_product_scan_roots_in_grit_provider` | global-docs-toolkit | grit-check | no | no | already Grit: the existing TypeScript Grit pattern text-matches provider source under tools/habitat/src/providers/grit. |
@@ -43,7 +43,7 @@ Status: synthesized from six lane artifacts
 | `prohibit_retired_domain_root_catalogs` | mapgen-domain | source-check | yes | no | high: existing .pattern.md is a direct filename-only structural pattern. |
 | `prohibit_root_config_facade_imports_in_domain_ops` | mapgen-domain | source-check | yes | no | high: existing .pattern.md cleanly expresses filename and source constraints. |
 | `prohibit_runtime_calls_to_runvalidated` | mapgen-pipeline | source-check | yes | no | high: existing pattern expresses direct/property call matching with path scope. |
-| `prohibit_runtime_helper_redeclarations` | mapgen-other | source-check | yes | no | high: existing .pattern.md covers the structural declarations; existing .apply.pattern.md covers optional rewrite behavior separately |
+| `prohibit_runtime_helper_redeclarations` | mapgen-other | grit-check | no | no | converted canary: existing .pattern.md covers the structural declarations; existing .apply.pattern.md covers optional rewrite behavior separately. |
 | `prohibit_runtime_local_config_default_merging` | mapgen-pipeline | source-check | yes | no | high: existing pattern expresses both syntax forms with path scope; confirm alias/default helper variants are intentionally out of scope before conversion. |
 | `prohibit_runtime_orchestration_helpers_in_domain_ops` | mapgen-domain | source-check | yes | no | high: existing .pattern.md directly matches the call expressions with filename constraints. |
 | `prohibit_runtime_validation_and_compiler_imports` | mapgen-pipeline | source-check | yes | no | high: import-source bans with path scope are a straightforward Grit authority target. |
@@ -72,12 +72,12 @@ Status: synthesized from six lane artifacts
 | `preserve_decomposed_foundation_contract_surfaces` | mapgen-domain | command-check | no | yes | mixed: import/text bans and re-export shim scans are Grit candidates; expected-presence assertions and exact contract/source currentness are better split into data-driven structural checks or package-local validators. |
 | `preserve_morphology_contracts_and_overlay_ownership` | mapgen-domain | command-check | no | yes | mixed: source text/import bans are Grit candidates; exact expected contract contents and single-owner publisher assertions need a separate data-driven or package-local validation model. |
 | `preserve_standard_stage_topology_and_path_invariants` | mapgen-pipeline | command-check | no | yes | medium: legacy alias text bans are Grit-friendly, but exact stage-order and directory-topology parity should become a data-driven topology rule or manifest-backed check. |
-| `prohibit_cross_op_runtime_calls` | mapgen-domain | command-check | yes | yes | mixed-high: cross-op import/export/dynamic predicate is already Grit; ops.bind/runValidated overlaps with prohibit_runtime_orchestration_helpers_in_domain_ops and should consolidate rather than stay duplicated here. |
+| `prohibit_cross_op_runtime_calls` | mapgen-domain | command-check | no | yes | stale adapter deleted; cross-op import/export/dynamic predicate is already Grit-shaped, but ops.bind/runValidated overlaps with prohibit_runtime_orchestration_helpers_in_domain_ops and should consolidate rather than stay duplicated here. |
 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | mapgen-pipeline | command-check | no | yes | medium-high: most assertions are path-scoped token/source bans that Grit can express, but the packet mixes semantic ecology policy, runtime-adjacent RNG bans, and legacy generator boundary bans. |
 | `require_explicit_mapgen_sdk_opt_in` | mapgen-other | source-check | yes | yes | mixed-high: SDK opt-in entrypoint checks are Grit-shaped, but the mapgen-core adapter-import ban overlaps preserve_mapgen_core_runtime_neutrality and should split before adapter deletion. |
 | `require_owned_domain_config_catalog_surfaces` | mapgen-domain | command-check | no | yes | mixed: op import bans and milestone token bans are Grit/source-text candidates; exact export list and required-token presence are better split into data-driven structural checks. |
 | `require_projection_calls_in_projection_steps` | mapgen-other | command-check | no | yes | medium: forbidden call placement is Grit-shaped, but exact caller ownership lists and required source/contract token assertions should be separated before conversion |
-| `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | command-check | yes | yes | mixed-high: import/export and retired-path predicates are already Grit; active-root existence is a separate topology/currentness assertion and should not block extracting the source predicates. |
+| `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | command-check | no | yes | stale adapter deleted; import/export and retired-path predicates are already Grit-shaped, while active-root existence is a separate topology/currentness assertion. |
 | `require_recipe_dag_contract_metadata` | mapgen-other | command-check | no | yes | medium: direct import/source bans are Grit-shaped, but local import-graph closure and expected graph membership require a graph-aware validator or package-local boundary test |
 | `validate_mapgen_docs_anchors_and_references` | global-docs-toolkit | command-check | no | yes | medium: toc/heading/alias/text-shape checks are plausible Grit markdown authority, but anchor target existence and router target liveness remain validator behavior. |
 | `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | command-check | no | yes | low for the whole rule: the main oracle is derived authoring-model semantics, though a few static sub-assertions may become separate structural checks. |
@@ -114,11 +114,12 @@ Status: synthesized from six lane artifacts
 
 ## Delete Or Demote
 
-Canonical rule rows do not currently land here. The delete/demote findings are adapter-support findings in `lanes/adapter-crosswalk.md`: the four stale adapters for command-check-owned records.
+Canonical rule rows do not currently land here. The four stale adapter-support findings from `lanes/adapter-crosswalk.md` were deleted in the canary.
 
 ## Actionable Read
 
-- The highest-leverage next move is not another inventory pass. Convert the active source-check adapter rows that already have adjacent Grit pattern authority. There are 28 direct adapter-backed Grit rows before split/consolidation work.
-- The four stale adapters are not selected by current source-check records and should be deleted or demoted after confirming command-check/pattern coverage.
+- The canary proved the source-check to grit-check ownership switch for three diverse adapter-backed rules and deleted seven adapter files total.
+- The highest-leverage next move remains converting active source-check adapter rows that already have adjacent Grit pattern authority. There are 25 direct adapter-backed Grit rows before split/consolidation work.
+- The four stale adapters are gone; future cleanup should focus on active source-check adapters or mixed command-check splits.
 - Broad command-check bundles are the main source of state explosion. Treat `needs_split` rows as assertion-level extraction work, not as whole-packet conversions.
 - File-layer, Nx, generated-zone, and graph-backed rows fit the allowed enum imperfectly. They are kept in `data_driven_import_path_rule` with notes instead of expanding the classification vocabulary midstream.

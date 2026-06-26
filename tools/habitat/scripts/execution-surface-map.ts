@@ -1055,6 +1055,10 @@ function normalizeFanoutTie(tie: StaticTie): { target: string; targetClass: stri
 function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
   const errors: string[] = [];
   const ruleJsonCount = surfaces.filter((surface) => surface.surfaceKind === "rule-json").length;
+  const activeSourceCheckRuleCount = surfaces.filter(
+    (surface) =>
+      surface.surfaceKind === "rule-json" && surface.declaredOwnerTool === "source-check"
+  ).length;
   const ruleModuleCount = surfaces.filter((surface) => surface.surfaceKind === "rule-module").length;
   const ruleModules = surfaces.filter((surface) => surface.surfaceKind === "rule-module");
   const transitionalRuleModules = surfaces.filter(
@@ -1082,15 +1086,19 @@ function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
   );
 
   if (ruleJsonCount !== 73) errors.push(`Expected 73 .rule.json files, found ${ruleJsonCount}.`);
-  if (ruleModuleCount !== 33) errors.push(`Expected 33 .rule.mjs files, found ${ruleModuleCount}.`);
-  if (transitionalRuleModules !== 33) {
-    errors.push(`Expected 33 transitional source-check runtime imports, found ${transitionalRuleModules}.`);
+  if (ruleModuleCount !== activeSourceCheckRuleCount) {
+    errors.push(
+      `Expected ${activeSourceCheckRuleCount} active source-check .rule.mjs files, found ${ruleModuleCount}.`
+    );
   }
-  if (expectedRuleModuleExports !== 33) {
-    errors.push(`Expected 33 .rule.mjs files with ruleId/candidateExtensions/diagnosticsForRule exports, found ${expectedRuleModuleExports}.`);
+  if (transitionalRuleModules !== activeSourceCheckRuleCount) {
+    errors.push(`Expected ${activeSourceCheckRuleCount} transitional source-check runtime imports, found ${transitionalRuleModules}.`);
   }
-  if (anatomyRuntimeImports !== 33) {
-    errors.push(`Expected 33 .rule.mjs anatomy runtime imports, found ${anatomyRuntimeImports}.`);
+  if (expectedRuleModuleExports !== activeSourceCheckRuleCount) {
+    errors.push(`Expected ${activeSourceCheckRuleCount} .rule.mjs files with ruleId/candidateExtensions/diagnosticsForRule exports, found ${expectedRuleModuleExports}.`);
+  }
+  if (anatomyRuntimeImports !== activeSourceCheckRuleCount) {
+    errors.push(`Expected ${activeSourceCheckRuleCount} .rule.mjs anatomy runtime imports, found ${anatomyRuntimeImports}.`);
   }
   if (!rootDocsProject) errors.push("Did not detect root docs:project direct .habitat call.");
   if (!toolkitGenerateSchemas) errors.push("Did not detect tools/habitat generate:schemas direct .habitat call.");
@@ -1252,7 +1260,7 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Sanity Assertions",
     "",
     report.summary.sanityAssertions.length === 0
-      ? "- Passed: 73 `.rule.json`, 33 `.rule.mjs`, 33 transitional runtime imports, root `docs:project`, and `tools/habitat` `generate:schemas` were detected."
+      ? `- Passed: 73 \`.rule.json\`, ${report.executionAnatomy.ruleModule.total} active source-check \`.rule.mjs\`, ${report.executionAnatomy.ruleModule.transitionalRuntimeImports} transitional runtime imports, root \`docs:project\`, and \`tools/habitat\` \`generate:schemas\` were detected.`
       : report.summary.sanityAssertions.map((issue) => `- ${issue}`).join("\n"),
     "",
     "## Surfaces By Kind",

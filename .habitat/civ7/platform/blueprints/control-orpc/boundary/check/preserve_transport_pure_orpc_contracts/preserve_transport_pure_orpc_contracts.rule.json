@@ -1,7 +1,7 @@
 {
   "id": "preserve_transport_pure_orpc_contracts",
   "title": "Preserve Transport-Pure oRPC Contracts",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "control-orpc",
   "lane": "enforced",
   "scope": "packages/civ7-control-orpc/src/modules/**/contract.ts and root index",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Keep control-oRPC contracts transport-pure and keep module-local schemas private.",
