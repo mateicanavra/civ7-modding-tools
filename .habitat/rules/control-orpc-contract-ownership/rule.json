@@ -1,0 +1,33 @@
+{
+  "id": "control-orpc-contract-ownership",
+  "ownerTool": "pattern-check",
+  "ownerProject": "@civ7/control-orpc",
+  "lane": "enforced",
+  "scope": "packages/civ7-control-orpc/src/modules/**/contract.ts and root index",
+  "forbids": "direct-control imports in contracts or contract-local schemas from public root",
+  "why": "oRPC contracts are transport-pure public contracts; runtime control stays in procedures/services.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Keep control-oRPC contracts transport-pure and keep module-local schemas private.",
+  "exceptionPath": "none",
+  "patternName": "control_orpc_contract_ownership",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "unresolved-metadata",
+      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+    }
+  ]
+}

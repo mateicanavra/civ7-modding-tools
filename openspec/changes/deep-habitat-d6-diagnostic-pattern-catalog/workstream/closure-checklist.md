@@ -35,30 +35,52 @@
 - [x] `bun run openspec -- validate deep-habitat-d6-diagnostic-pattern-catalog --strict` passes after all repairs.
 - [x] `bun run openspec:validate` passes after all repairs.
 - [x] `git diff --check` passes after all repairs.
-- [x] Packet index is updated only after final rereview acceptance, and only to
-  accepted for design/specification, not implementation-complete.
+- [x] Packet index updates are deferred until packet-boundary approval.
 
-## Source Implementation Closure (Later)
+## Source Implementation Closure
 
-- [ ] Concrete D0 rows exist for every touched D6 public/durable surface.
-- [ ] D1 output-family/compatibility decisions are cited where D6 touches command
-  outcomes, limitations, adapter artifacts, or retained compatibility names.
-- [ ] Live D2 `ruleGritFacts` projections exist and D6 source consumes them.
-- [ ] Source changes stay inside the approved D6 write set or the phase record is
+- [x] Concrete D0 rows exist for every touched D6 public/durable surface.
+- [x] D1 output-family decisions are cited where D6 touches command outcomes,
+  limitations, adapter artifacts, or refusals.
+- [x] Live D2 `ruleGritFacts` projections exist and D6 source consumes them.
+- [x] Source changes stay inside the approved D6 write set or the phase record is
   amended before edits.
-- [ ] D6 failure-subset tests prevent `GritApply*` transaction states from
+- [x] D6 failure-subset tests prevent `GritApply*` transaction states from
   appearing in diagnostic acquisition/projection/probe outcomes.
-- [ ] Adapter tests cover structured failure projection before compatibility
+- [x] Adapter tests cover structured failure projection before diagnostic
   rendering.
-- [ ] Scan-root decision tests cover accepted, expanded-test-files, probe-only,
+- [x] Scan-root decision tests cover accepted, expanded-test-files, probe-only,
   empty, outside, missing, generated, protected, and unapproved roots.
-- [ ] Cache/freshness tests distinguish workspace-unknown allowed from
+- [x] Cache/freshness tests distinguish workspace-unknown allowed from
   fresh-required missing observation.
-- [ ] Injected probe tests cover expected finding, control match, metadata
-  refusal, adapter failure, and cleanup/final status.
-- [ ] Native Grit fixture tests and current-tree Habitat Grit command tests are
+- [x] Injected probe tests cover expected finding, control match, metadata
+  refusal, adapter failure, cleanup/final status, and cleanup failure as a
+  closed `probe-cleanup-failed` outcome.
+- [x] Native diagnostic catalog tests cover a D6-owned `native-diagnostic`
+  entry with closed native identity and no Grit `patternIdentity`.
+- [x] Native docs-local diagnostics flow through a real D6
+  `native-diagnostic` outcome instead of an adapter-failed stand-in.
+- [x] TypeBox catalog-branch tests reject cross-domain scan/projection
+  contracts instead of allowing generic catalog rows to leak across Grit/native
+  consumers.
+- [x] Mixed source/docs diagnostic outcome tests preserve JSON source grouping
+  and text docs grouping instead of collapsing them into one output family.
+- [x] Diagnostic outcome tests preserve `scan-root-refused` and
+  `cache-observation-missing` as first-class machine states instead of thinning
+  them into generic adapter failures.
+- [x] Injected probe scope schema carries only domain-used path and scan-root
+  fields, not process/provenance metadata.
+- [x] Native Grit fixture tests and current-tree Habitat Grit command tests are
   recorded with distinct non-claims.
-- [ ] `git status --short --branch` confirms injected probe cleanup leaves no
+- [x] `git status --short --branch` confirms injected probe cleanup leaves no
   source-tree residue.
-- [ ] Graphite layer is clean, reviewable, and does not proceed past unresolved
-  packet approval.
+- [x] Graphite layer must be verified clean before submission and does not
+  proceed past unresolved packet approval.
+
+## Residual Validation Context
+
+- `bun run habitat check --tool grit-check --json` emits valid D0/D1-compatible
+  JSON and no native Grit adapter malformed-output failures. It exits 1 from
+  scoped residuals outside D6 source closure: `docs-local-checkout-paths`
+  advisory findings in historical scratch docs and `baseline-integrity`
+  old-base registry parsing at `fbf77fe9e`.

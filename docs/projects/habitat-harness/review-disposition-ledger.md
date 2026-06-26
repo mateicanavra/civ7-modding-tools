@@ -53,7 +53,7 @@
 | F31 | R2 | H6 perf threshold self-chosen | Pre-stated: ≤1.25× retired aggregate wall-clock on CI |
 | F32 | R2 | H8 classify spot-checks lack expected outputs; migration scenario undemonstrable beyond no-op | Four paths enumerated with expected taxonomy outputs; tasks note the demonstrable gate is the no-op run |
 | F33 | R2 | H1 task 4.3 affected probe unnamed; H3 "affected on clean tree" vacuous gate component | Probe names the package + expected affected set; H3 gate states `run-many --all` as the gate, affected as smoke |
-| F34 | R2 | H5 "grit init artifacts committed as appropriate" | Exact: commit `.grit/grit.yaml`; gitignore `.grit/.gritmodules`/cache |
+| F34 | R2 | H5 "grit init artifacts committed as appropriate" | Exact: commit `.habitat/grit.yaml`; gitignore `.grit/.gritmodules`/cache |
 | F35 | R3 | `scripts/lint/no-legacy-m4-foundation-tokens.txt` orphan data file unowned | Added to H6 deletion-sweep disposition |
 | F36 | R3 | Taxonomy §2 heading says 21, table has 22 rows | Heading clarified (21 projects + new harness package) |
 | F37 | R4 | FRAME §3 by-design habitat-native set underrepresented the corpus reality (degeneration accounting ambiguity) | FRAME §3 row added enumerating the full by-design native set (doc lints ×3, workspace-entrypoints, G6/G7, H7 bun-only guard) |

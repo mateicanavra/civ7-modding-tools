@@ -7,6 +7,7 @@ import {
   type BaselineContractContext,
   type BaselineRuleContractInput,
   baselineFailureDiagnostic,
+  baselineIntegrityFindings,
   checkBaselineIntegrity,
   guardBaselineExpansion,
   isBaselineLocked,
@@ -36,7 +37,7 @@ describe("Habitat baseline contract", () => {
     const state = loadBaselineState(rule("existing-rule"), ctx);
     expect(state).toMatchObject({ kind: "explicit-empty", ruleId: "existing-rule", locked: true });
     expect(isBaselineLocked(state)).toBe(true);
-    expect(checkBaselineIntegrity("main", ctx)).toEqual([]);
+    expect(checkBaselineIntegrity("main", ctx)).toEqual({ status: "accepted", refusals: [] });
   });
 
   test("applies explicit debt baselines and leaves new errors unbaselined", () => {
@@ -58,7 +59,7 @@ describe("Habitat baseline contract", () => {
     ];
     const state = loadBaselineState(rule("existing-rule"), ctx);
     expect(state).toMatchObject({ kind: "explicit-debt", locked: false });
-    expect(applyBaseline(diagnostics, state)).toEqual([]);
+    expect(applyBaseline(diagnostics, state)).toMatchObject({ status: "applied", refusals: [] });
     expect(diagnostics.map((entry) => entry.baselined)).toEqual([true, false]);
     expect(isBaselineLocked(state)).toBe(false);
   });
@@ -71,9 +72,9 @@ describe("Habitat baseline contract", () => {
     });
 
     const state = loadBaselineState(rule("missing-rule"), ctx);
-    expect(state).toMatchObject({ kind: "contract-failure", reason: "missing-baseline" });
+    expect(state).toMatchObject({ kind: "baseline-refusal", reason: "missing-baseline" });
     const validation = validateBaselineContract(ctx);
-    expect(validation.failures).toEqual([
+    expect(validation.refusals).toEqual([
       expect.objectContaining({ ruleId: "missing-rule", reason: "missing-baseline" }),
     ]);
   });
@@ -95,7 +96,7 @@ describe("Habitat baseline contract", () => {
     for (const item of cases) {
       writeFileSync(path.join(ctx.baselinesDir, `${item.ruleId}.json`), `${item.body}\n`);
       const state = loadBaselineState(rule(item.ruleId), ctx);
-      expect(state).toMatchObject({ kind: "contract-failure", reason: item.reason });
+      expect(state).toMatchObject({ kind: "baseline-refusal", reason: item.reason });
     }
   });
 
@@ -108,36 +109,8 @@ describe("Habitat baseline contract", () => {
     writeBaselineFile(ctx.baselinesDir, "registered-rule", []);
     writeBaselineFile(ctx.baselinesDir, "orphan-rule", []);
 
-    expect(validateBaselineContract(ctx).failures).toEqual([
+    expect(validateBaselineContract(ctx).refusals).toEqual([
       expect.objectContaining({ ruleId: "orphan-rule", reason: "orphan-baseline" }),
-    ]);
-  });
-
-  test("models external exception sources and rejects projection mismatches", () => {
-    const ctx = createBaselineContext({
-      registry: [rule("external-rule", "external-baseline.json")],
-      rulePackAtBase: ["external-rule"],
-      baselinesAtBase: new Map(),
-      externalSources: {
-        "external-rule": {
-          sourcePath: "external-baseline.json",
-          owner: "fixture",
-          migrationOwner: "fixture",
-          projectedKeys: ["src/a.ts::tracked debt"],
-        },
-      },
-    });
-    writeFileSync(path.join(ctx.repoRoot, "external-baseline.json"), "{}\n");
-
-    const state = loadBaselineState(rule("external-rule", "external-baseline.json"), ctx);
-    expect(state).toMatchObject({ kind: "external-exception-source", locked: false });
-
-    const matching = [diagnostic("external-rule", "src/a.ts", "tracked debt", true)];
-    expect(applyBaseline(matching, state)).toEqual([]);
-
-    const mismatched = [diagnostic("external-rule", "src/b.ts", "different debt", true)];
-    expect(applyBaseline(mismatched, state)).toEqual([
-      expect.objectContaining({ reason: "external-exception-projection-mismatch" }),
     ]);
   });
 
@@ -150,14 +123,15 @@ describe("Habitat baseline contract", () => {
     writeBaselineFile(ctx.baselinesDir, "explicit-rule", ["src/a.ts::tracked debt"]);
     const state = loadBaselineState(rule("explicit-rule"), ctx);
 
-    const failures = applyBaseline(
+    const result = applyBaseline(
       [diagnostic("explicit-rule", "src/a.ts", "tracked debt", true)],
       state
     );
-    expect(failures).toEqual([
-      expect.objectContaining({ reason: "parser-owned-baseline-without-contract" }),
-    ]);
-    expect(baselineFailureDiagnostic("explicit-rule", failures[0])).toMatchObject({
+    expect(result).toMatchObject({
+      status: "refused",
+      refusals: [expect.objectContaining({ reason: "parser-owned-baseline-without-contract" })],
+    });
+    expect(baselineFailureDiagnostic("explicit-rule", result.refusals[0])).toMatchObject({
       ruleId: "explicit-rule",
       severity: "error",
       baselined: false,
@@ -172,9 +146,9 @@ describe("Habitat baseline contract", () => {
     });
     writeBaselineFile(ctx.baselinesDir, "existing-rule", ["src/example.ts::diagnostic"]);
 
-    expect(checkBaselineIntegrity("main", ctx)).toEqual([
+    expect(integrityFindings("main", ctx)).toEqual([
       expect.objectContaining({
-        file: "tools/habitat-harness/baselines/existing-rule.json",
+        file: ".habitat/baselines/existing-rule.json",
         ruleId: "existing-rule",
         addedKeys: ["src/example.ts::diagnostic"],
         reason: expect.stringContaining(
@@ -182,6 +156,26 @@ describe("Habitat baseline contract", () => {
         ),
       }),
     ]);
+  });
+
+  test("compares baseline authority against pre-D14A authored artifact paths", () => {
+    const ctx = createBaselineContext({
+      registry: [rule("existing-rule")],
+      rulePackAtBase: JSON.stringify({
+        rules: [
+          {
+            id: "existing-rule",
+            ownerTool: "command-check",
+            ownerProject: "@internal/habitat-harness",
+          },
+        ],
+      }),
+      baselinesAtBase: new Map([["existing-rule", ["src/example.ts::diagnostic"]]]),
+      artifactLayoutAtBase: "pre-d14a",
+    });
+    writeBaselineFile(ctx.baselinesDir, "existing-rule", ["src/example.ts::diagnostic"]);
+
+    expect(checkBaselineIntegrity("main", ctx)).toEqual({ status: "accepted", refusals: [] });
   });
 
   test("requires rule-introduction manifests for seeded new-rule baselines", () => {
@@ -192,7 +186,7 @@ describe("Habitat baseline contract", () => {
     });
     writeBaselineFile(ctx.baselinesDir, "new-rule", ["src/example.ts::diagnostic"]);
 
-    expect(checkBaselineIntegrity("main", ctx)).toEqual([
+    expect(integrityFindings("main", ctx)).toEqual([
       expect.objectContaining({
         ruleId: "new-rule",
         reason: expect.stringContaining("no accepted rule-introduction baseline manifest"),
@@ -207,14 +201,35 @@ describe("Habitat baseline contract", () => {
             changeId: "fixture-change",
             ruleId: "new-rule",
             ownerProject: "@internal/habitat-harness",
-            ownerTool: "grit-check",
-            baselinePath: "tools/habitat-harness/baselines/new-rule.json",
+            ownerTool: "pattern-check",
+            baselinePath: ".habitat/baselines/new-rule.json",
             initialBaselineKeys: ["src/example.ts::diagnostic"],
             comparisonBase: "main",
           },
         ],
       })
-    ).toEqual([]);
+    ).toEqual({ status: "accepted", refusals: [] });
+
+    expect(
+      checkBaselineIntegrity("main", {
+        ...ctx,
+        registry: [rule("new-rule", "none", "@internal/habitat-harness", "pattern-check")],
+        ruleIntroductionManifests: [
+          {
+            changeId: "fixture-change",
+            ruleId: "new-rule",
+            ownerProject: "@internal/habitat-harness",
+            ownerTool: "command-check",
+            baselinePath: ".habitat/baselines/new-rule.json",
+            initialBaselineKeys: ["src/example.ts::diagnostic"],
+            comparisonBase: "main",
+          },
+        ],
+      })
+    ).toMatchObject({
+      status: "refused",
+      refusals: [expect.objectContaining({ reason: "rule-introduction-manifest-mismatch" })],
+    });
   });
 
   test("refuses Graphite child growth when an explicit trusted parent contains the rule", () => {
@@ -234,14 +249,14 @@ describe("Habitat baseline contract", () => {
             changeId: "fixture-change",
             ruleId: "downstack-rule",
             ownerProject: "@internal/habitat-harness",
-            ownerTool: "grit-check",
-            baselinePath: "tools/habitat-harness/baselines/downstack-rule.json",
+            ownerTool: "pattern-check",
+            baselinePath: ".habitat/baselines/downstack-rule.json",
             initialBaselineKeys: [key],
             comparisonBase: "main",
           },
         ],
       })
-    ).toEqual([]);
+    ).toEqual({ status: "accepted", refusals: [] });
 
     const trustedParentContext = createBaselineContext({
       registry: [rule("downstack-rule")],
@@ -251,9 +266,9 @@ describe("Habitat baseline contract", () => {
     });
     writeBaselineFile(trustedParentContext.baselinesDir, "downstack-rule", [key]);
 
-    expect(checkBaselineIntegrity("agent-HR-parent", trustedParentContext)).toEqual([
+    expect(integrityFindings("agent-HR-parent", trustedParentContext)).toEqual([
       expect.objectContaining({
-        file: "tools/habitat-harness/baselines/downstack-rule.json",
+        file: ".habitat/baselines/downstack-rule.json",
         ruleId: "downstack-rule",
         addedKeys: [key],
         reason: expect.stringContaining("existing rule 'downstack-rule' grew"),
@@ -263,8 +278,8 @@ describe("Habitat baseline contract", () => {
       guardBaselineExpansion("downstack-rule", [key], "agent-HR-parent", trustedParentContext)
     ).toEqual(
       expect.objectContaining({
-        ok: false,
-        reason: "baseline-growth-existing-rule",
+        status: "refused",
+        refusal: expect.objectContaining({ reason: "baseline-growth-existing-rule" }),
         message: expect.stringContaining("existing rule 'downstack-rule'"),
       })
     );
@@ -279,7 +294,7 @@ describe("Habitat baseline contract", () => {
     });
     writeBaselineFile(ctx.baselinesDir, "existing-rule", []);
 
-    expect(checkBaselineIntegrity("main", ctx)).toEqual([
+    expect(integrityFindings("main", ctx)).toEqual([
       expect.objectContaining({
         ruleId: "baseline-integrity",
         reason: expect.stringContaining("comparison-base-unavailable"),
@@ -294,7 +309,7 @@ describe("Habitat baseline contract", () => {
       baselinesAtBase: new Map([["existing-rule", []]]),
     });
     writeBaselineFile(missingBaseRules.baselinesDir, "existing-rule", []);
-    expect(checkBaselineIntegrity("main", missingBaseRules)).toEqual([
+    expect(integrityFindings("main", missingBaseRules)).toEqual([
       expect.objectContaining({ reason: expect.stringContaining("base-rule-registry-missing") }),
     ]);
 
@@ -302,9 +317,10 @@ describe("Habitat baseline contract", () => {
       registry: [rule("existing-rule")],
       rulePackAtBase: "{",
       baselinesAtBase: new Map([["existing-rule", []]]),
+      artifactLayoutAtBase: "pre-d14a",
     });
     writeBaselineFile(malformedBaseRules.baselinesDir, "existing-rule", []);
-    expect(checkBaselineIntegrity("main", malformedBaseRules)).toEqual([
+    expect(integrityFindings("main", malformedBaseRules)).toEqual([
       expect.objectContaining({ reason: expect.stringContaining("base-rule-registry-malformed") }),
     ]);
 
@@ -316,7 +332,7 @@ describe("Habitat baseline contract", () => {
     writeBaselineFile(badBaseBaseline.baselinesDir, "existing-rule", [
       "src/example.ts::diagnostic",
     ]);
-    expect(checkBaselineIntegrity("main", badBaseBaseline)).toEqual([
+    expect(integrityFindings("main", badBaseBaseline)).toEqual([
       expect.objectContaining({ reason: expect.stringContaining("base-baseline-unreadable") }),
     ]);
   });
@@ -332,16 +348,30 @@ describe("Habitat baseline contract", () => {
       guardBaselineExpansion("existing-rule", ["src/example.ts::diagnostic"], "main", ctx)
     ).toEqual(
       expect.objectContaining({
-        ok: false,
-        reason: "baseline-growth-existing-rule",
+        status: "refused",
+        refusal: expect.objectContaining({ reason: "baseline-growth-existing-rule" }),
         message: expect.stringContaining("Refusing baseline write for existing rule"),
       })
     );
   });
 });
 
-function rule(id: string, exceptionPath = "none"): BaselineRuleContractInput {
-  return { id, exceptionPath };
+function rule(
+  id: string,
+  exceptionPath = "none",
+  ownerProject = "@internal/habitat-harness",
+  ownerTool = "pattern-check"
+): BaselineRuleContractInput {
+  return {
+    id,
+    exceptionPath,
+    ownerProject,
+    ownerTool,
+  };
+}
+
+function integrityFindings(base: string, context: BaselineContractContext) {
+  return baselineIntegrityFindings(checkBaselineIntegrity(base, context));
 }
 
 function diagnostic(
@@ -363,18 +393,17 @@ function createBaselineContext(options: {
   registry: BaselineRuleContractInput[];
   rulePackAtBase: string[] | string | null;
   baselinesAtBase: Map<string, string[] | string>;
-  externalSources?: BaselineContractContext["externalSources"];
+  artifactLayoutAtBase?: "current" | "pre-d14a";
   mergeBase?: string | null;
 }): BaselineContractContext & { repoRoot: string; baselinesDir: string } {
   const repoRoot = mkdtempSync(path.join(tmpdir(), "habitat-baseline-test-"));
   tempDirs.push(repoRoot);
-  const baselinesDir = path.join(repoRoot, "tools", "habitat-harness", "baselines");
+  const baselinesDir = path.join(repoRoot, ".habitat", "baselines");
   mkdirSync(baselinesDir, { recursive: true });
   return {
     repoRoot,
     baselinesDir,
     registry: options.registry,
-    externalSources: options.externalSources ?? {},
     runCommand: (argv) => {
       if (argv[0] === "git" && argv[1] === "merge-base") {
         return options.mergeBase === null
@@ -384,8 +413,38 @@ function createBaselineContext(options: {
       if (argv[0] === "git" && argv[1] === "show") {
         return showMock(argv[2] ?? "", options);
       }
+      if (argv[0] === "git" && argv[1] === "ls-tree") {
+        return lsTreeMock(argv, options);
+      }
       return { exitCode: 1, stdout: "", stderr: `unexpected command: ${argv.join(" ")}\n` };
     },
+  };
+}
+
+function lsTreeMock(
+  argv: readonly string[],
+  options: {
+    rulePackAtBase: string[] | string | null;
+    baselinesAtBase: Map<string, string[] | string>;
+    artifactLayoutAtBase?: "current" | "pre-d14a";
+    mergeBase?: string | null;
+  }
+) {
+  if (options.artifactLayoutAtBase === "pre-d14a") {
+    return { exitCode: 1, stdout: "", stderr: "not found\n" };
+  }
+  const comparisonSha = options.mergeBase ?? "merge-base-sha";
+  const expected = ["git", "ls-tree", "-r", "--name-only", comparisonSha, ".habitat/rules"];
+  if (argv.length !== expected.length || argv.some((entry, index) => entry !== expected[index])) {
+    return { exitCode: 1, stdout: "", stderr: `unexpected command: ${argv.join(" ")}\n` };
+  }
+  if (!Array.isArray(options.rulePackAtBase)) {
+    return { exitCode: 1, stdout: "", stderr: "not found\n" };
+  }
+  return {
+    exitCode: 0,
+    stdout: `${options.rulePackAtBase.map((id) => `.habitat/rules/${id}/rule.json`).join("\n")}\n`,
+    stderr: "",
   };
 }
 
@@ -394,11 +453,16 @@ function showMock(
   options: {
     rulePackAtBase: string[] | string | null;
     baselinesAtBase: Map<string, string[] | string>;
+    artifactLayoutAtBase?: "current" | "pre-d14a";
     mergeBase?: string | null;
   }
 ) {
   const comparisonSha = options.mergeBase ?? "merge-base-sha";
-  if (spec === `${comparisonSha}:tools/habitat-harness/src/rules/rules.json`) {
+  const ruleRegistryAtBase =
+    options.artifactLayoutAtBase === "pre-d14a"
+      ? "tools/habitat-harness/src/rules/rules.json"
+      : ".habitat/rules/index.json";
+  if (spec === `${comparisonSha}:${ruleRegistryAtBase}`) {
     if (options.rulePackAtBase === null) return { exitCode: 1, stdout: "", stderr: "not found\n" };
     if (typeof options.rulePackAtBase === "string") {
       return { exitCode: 0, stdout: options.rulePackAtBase, stderr: "" };
@@ -407,7 +471,11 @@ function showMock(
       exitCode: 0,
       stdout: JSON.stringify(
         {
-          rules: options.rulePackAtBase.map((id) => ({ id })),
+          schemaVersion: 1,
+          ownerRoots: {
+            "@internal/habitat-harness": "tools/habitat-harness",
+          },
+          rules: options.rulePackAtBase.map(baseRuleRecord),
         },
         null,
         2
@@ -415,7 +483,10 @@ function showMock(
       stderr: "",
     };
   }
-  const prefix = `${comparisonSha}:tools/habitat-harness/baselines/`;
+  const prefix =
+    options.artifactLayoutAtBase === "pre-d14a"
+      ? `${comparisonSha}:tools/habitat-harness/baselines/`
+      : `${comparisonSha}:.habitat/baselines/`;
   if (spec.startsWith(prefix) && spec.endsWith(".json")) {
     const ruleId = spec.slice(prefix.length, -".json".length);
     const baseline = options.baselinesAtBase.get(ruleId);
@@ -428,6 +499,23 @@ function showMock(
     }
   }
   return { exitCode: 1, stdout: "", stderr: "not found\n" };
+}
+
+function baseRuleRecord(id: string) {
+  return {
+    id,
+    ownerProject: "@internal/habitat-harness",
+    ownerTool: "command-check",
+    lane: "enforced",
+    scope: "tools/habitat-harness/**",
+    forbids: "fixture violation",
+    why: "fixture base registry record for D5 baseline authority tests",
+    detect: ["fixture", id],
+    remediate: null,
+    message: "fixture baseline authority diagnostic",
+    exceptionPath: "none",
+    pathCoverage: [{ kind: "workspace-gate" }],
+  };
 }
 
 function writeBaselineFile(baselinesDir: string, ruleId: string, entries: string[]) {

@@ -1,0 +1,35 @@
+{
+  "id": "recipe-domain-surface",
+  "ownerTool": "pattern-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/**/*.ts",
+  "forbids": "recipes importing non-public domain subpaths",
+  "why": "Recipes compose domains only through stable public surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Recipes may import @mapgen/domain/<domain>, @mapgen/domain/<domain>/ops, or /config.js only.",
+  "exceptionPath": "none",
+  "patternName": "recipe_domain_surface",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/**/*.ts"
+      ]
+    }
+  ]
+}

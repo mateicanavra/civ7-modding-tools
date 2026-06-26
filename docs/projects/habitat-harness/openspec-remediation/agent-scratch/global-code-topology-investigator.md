@@ -24,7 +24,7 @@ Grit topology has three layers:
 
 - Check adapter: `src/lib/grit.ts`, `grit-env.ts`, `grit-failures.ts`, `grit-injected-probe.ts`.
 - Apply transaction: `src/lib/grit-apply.ts`.
-- Pattern corpus: `.grit/patterns/habitat/checks/*.md` and `.grit/patterns/habitat/apply/*.md`.
+- Pattern corpus: `.habitat/patterns/active/checks/*.md` and `.habitat/patterns/active/apply/*.md`.
 
 Generated/protected zones are currently declared in `src/lib/generated-zones.ts` and verified by `scripts/verify-generated-zones.mjs`. The declared zones are concrete Civ7/Swooper paths, which is useful evidence but a poor generic Habitat domain boundary unless explicitly modeled as host policy.
 
@@ -279,7 +279,7 @@ OpenSpec correction: specify baseline authority as a contract over exception sou
 
 Likely write sets:
 
-- `.grit/patterns/habitat/checks/*.md`
+- `.habitat/patterns/active/checks/*.md`
 - `tools/habitat-harness/src/lib/grit.ts`
 - `tools/habitat-harness/src/lib/grit-env.ts`
 - `tools/habitat-harness/src/lib/grit-failures.ts`
@@ -388,7 +388,7 @@ OpenSpec correction: separate candidate drafting from registered enforcement as 
 Likely write sets:
 
 - `tools/habitat-harness/src/lib/grit-apply.ts`
-- `.grit/patterns/habitat/apply/*.md`
+- `.habitat/patterns/active/apply/*.md`
 - `tools/habitat-harness/src/commands/fix.ts`
 - `tools/habitat-harness/test/lib/grit-apply.test.ts`
 

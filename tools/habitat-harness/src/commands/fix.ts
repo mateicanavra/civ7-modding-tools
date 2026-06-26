@@ -1,23 +1,25 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runFix } from "../lib/command-engine.js";
+import { runFix } from "../lib/fix.js";
 
 export default class Fix extends HabitatCommand {
   static override summary = "Apply Habitat-owned safe fixes";
   static override description =
-    "Runs approved GritQL codemods, then Biome as the hygiene owner. With --dry-run, reports without writing.";
+    "Runs Habitat pattern applys. With --dry-run, plans without writing.";
   static override examples = [
     "<%= config.bin %> <%= command.id %> --dry-run",
     "<%= config.bin %> <%= command.id %>",
   ];
 
   static override flags = {
-    "dry-run": Flags.boolean({ description: "Report hygiene drift without writing changes." }),
+    "dry-run": Flags.boolean({ description: "Plan the pattern apply without writing." }),
   };
 
   async run(): Promise<void> {
     const { flags } = await this.parse(Fix);
-    const result = await runFix({ dryRun: flags["dry-run"] });
+    const result = await runFix({
+      kind: flags["dry-run"] ? "dry-run-intent" : "live-write-intent",
+    });
     process.stdout.write(result.stdout);
     process.stderr.write(result.stderr);
     this.exitWith(result.exitCode);

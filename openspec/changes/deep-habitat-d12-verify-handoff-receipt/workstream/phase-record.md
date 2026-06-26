@@ -2,90 +2,51 @@
 
 ## State
 
-- Status: accepted for design/specification only after final rereviews found no unresolved P1/P2 findings.
-- Worktree: `$ACTIVE_REMEDIATION_WORKTREE`.
-- Branch: `$ACTIVE_REMEDIATION_BRANCH`.
-- Source packet: `$D12_SOURCE_PACKET`.
-- OpenSpec change: `$D12_CHANGE`.
-- Implementation: not started and not authorized.
+- Status: source implementation complete; final Graphite submission remains.
+- Stack parent: submitted D11 local-feedback layer `c0a45918b`.
+- Worktree: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-agent-DRA-deep-habitat-prep-frame`.
+- Product boundary: `habitat verify` emits a bounded verify receipt from check, graph target-plan, affected Nx, base, and post-state observations.
 
 ## Objective
 
-Design D12 as the Verify Handoff packet: a `VerifyReceipt` contract that
-assembles D1 receipt language, D3 verify target plan facts, D7 check summary
-projection, affected Nx command observations, post-state observations, and
-canonical non-claims into a bounded handoff record.
+D12 implements the verify handoff receipt as a generic repo-local Habitat command
+contract. The receipt helps an agent or reviewer understand what local checks
+were consumed, whether affected targets ran or were skipped, how the base was
+selected, what bounded command-output metadata is available, and what post-state
+was observed.
 
-## Current Gate
+D12 owns local verify receipt state only. CI, PR state, product approval,
+runtime behavior, OpenSpec acceptance, apply safety, root aggregate
+verification, rule correctness, and Graphite readiness remain separate owner
+surfaces.
 
-D12 is accepted for design/specification only. Source implementation remains
-blocked until concrete D0 rows, D1 output-family handling, live D3 verify target
-plan facts, live D7 verify check projection facts, and live D11 projections
-where consumed are available.
+## Current Implementation Shape
 
-The final design/specification gate closed after:
+- `tools/habitat-harness/src/commands/verify.ts` remains a thin Oclif command adapter.
+- `tools/habitat-harness/src/lib/verify/index.ts` is the verify module barrel used by the command and package root.
+- Focused modules under `tools/habitat-harness/src/lib/verify/` own base resolution, TypeBox schemas, receipt assembly, Nx affected observation, bounded command output, and post-state observation.
+- TypeBox schemas are the source of truth for receipt DTOs and runtime validation.
+- D7 `VerifyCheckSummaryProjection` decides affected-execution admission and selector state.
+- D3 `VerifyTargetPlan` supplies affected targets and graph-refusal state.
+- Affected execution is closed as `executed`, `failed`, or `skipped`.
+- Skipped affected execution carries either `habitat-check-failed` or `workspace-graph-refused`.
+- Nx affected argv is `nx affected -t <D3 targets> --base <resolved-base> --head HEAD --outputStyle=static`.
+- Serialized receipt output stores bounded stdout/stderr metadata, not raw command-output bodies.
+- Receipt source omits process-only fields.
 
-- first-wave D12 review findings are imported and repaired;
-- final D12 domain/ontology, TypeScript/validation, OpenSpec/information,
-  code/vendor topology, and cross-domino/product rereviews run against the
-  repaired disk state;
-- all accepted P1/P2 findings are repaired;
-- strict D12 OpenSpec validation, full OpenSpec validation, wording audit, and
-  diff hygiene pass.
+## Validation
 
-## Source Blockers Preserved
-
-- Concrete D0 rows are required before verify command JSON, human output, help,
-  exit behavior, exports, docs/examples, scripts, or tests change source
-  behavior.
-- D1 live output-family mapping is required before replacing or facading
-  legacy `VerifyProof` surfaces.
-- D3 live `VerifyTargetPlan` and graph-refusal facts are required before source
-  verify behavior consumes graph/target facts.
-- D7 live `VerifyCheckSummaryProjection` is required before source verify
-  behavior consumes check allow/skip and selector states.
-- D11 live local-feedback or hook trace projections are required before source
-  verify behavior observes any D11-owned local-feedback surface.
-
-## Validation Matrix
-
-| Gate | Expected status | Current use | Non-claim |
-| --- | --- | --- | --- |
-| `bun run openspec -- validate deep-habitat-d12-verify-handoff-receipt --strict` | 0 before design acceptance | Validates D12 packet structure. | Does not test Habitat source behavior. |
-| `bun run openspec:validate` | 0 before design acceptance | Validates whole OpenSpec corpus. | Does not make D12 implementation-ready. |
-| D12 wording audit over `$D12_CHANGE/**`, `$REMEDIATION_DIR/packet-index.md`, and `$AGENT_SCRATCH/domino-D12-*.md` | Clean except classified legacy compatibility names and canonical traceability | Prevents reduced-standard or legacy target wording in active guidance. | Does not test command output. |
-| `git diff --check` | 0 before commit | Patch hygiene. | Does not validate domain design. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/verify-proof.test.ts test/commands/habitat-commands.test.ts` | Later implementation gate | Verify source/test compatibility after source edits. | Not a design-acceptance gate and not CI. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts` | Later implementation gate when public surfaces change | Verifies surface inventory alignment. | Does not prove verify runtime behavior. |
-| `bun run habitat verify --json` | Later implementation gate with scenario-specific expected status | Public verify JSON behavior after source edits. | Not Graphite readiness, OpenSpec acceptance, apply safety, product completion, runtime behavior, current-tree cleanliness, or rule correctness. |
-
-## Review Lanes
-
-| Lane | Scratch path | Current status |
+| Command | Status | Result |
 | --- | --- | --- |
-| Domain/ontology | `$D12_FINAL_DOMAIN_REVIEW` | final rereview accepted; no unresolved P1/P2 |
-| TypeScript/validation | `$D12_FINAL_TYPESCRIPT_VALIDATION_REVIEW` | final rereview accepted; no unresolved P1/P2 |
-| Code/vendor topology | `$D12_FINAL_CODE_VENDOR_TOPOLOGY_REVIEW` | final rereview accepted; no unresolved P1/P2 |
-| OpenSpec/information/testing | `$D12_FINAL_OPENSPEC_INFORMATION_REVIEW` | final rereview accepted; no unresolved P1/P2 |
-| Cross-domino/product | `$D12_FINAL_CROSS_DOMINO_PRODUCT_REVIEW` | final rereview accepted; no unresolved P1/P2 |
+| `bun run --cwd tools/habitat-harness check` | pass | `tsc -p tsconfig.json --noEmit` exited 0 after the verify module split and TypeBox schema documentation pass. |
+| `bun run --cwd tools/habitat-harness test -- test/lib/verify-receipt.test.ts test/commands/habitat-commands.test.ts` | pass | 2 files, 16 tests passed. |
+| `bun run habitat verify --help` | pass | Oclif help renders verify usage, `--base`, and `--json`. |
+| `bun run habitat verify --json` | pass with blocked receipt | Exit 1 with valid `VerifyReceipt`: `outcome=blocked`, `nxAffected.kind=skipped`, `habitatCheck.consumption=blocks-affected-execution`, `targetPlan.kind=target-plan-ready`, `postState.kind=observed-dirty`; stdout stored at `/tmp/d12-habitat-verify-json.out`. |
+| `bun run openspec -- validate deep-habitat-d12-verify-handoff-receipt --strict` | pass | Change is valid. |
+| `bun run openspec:validate` | pass | 249 OpenSpec items passed, 0 failed. |
+| `git diff --check` | pass | No whitespace errors. |
+| Active source/test terminology audit | pass | No removed process-era receipt vocabulary remains in active Habitat source/tests. |
 
-## Supervisor Control Repair Before Final Rereview
+## Remaining Closure Work
 
-- Affected non-execution is aligned to D1/D7 `skipped` / skipped-affected
-  reason semantics. D12 does not introduce an alternate target affected state.
-- D11 local-feedback and hook trace surfaces are explicit observation
-  boundaries. D12 may observe named D11 projections only with D0/D1-compatible
-  surfaces and must not treat hook pass as verify completion or readiness.
-
-## Current Non-Claims
-
-- This packet does not implement Habitat source changes.
-- This packet accepts D12 for design/specification only; source implementation
-  remains blocked by the named upstream public-surface and live-projection
-  requirements.
-- This packet does not authorize legacy proof-named target code; those names are
-  compatibility surfaces until D0/D1 decide handling.
-- Later passing verify commands do not claim CI, product/runtime behavior,
-  Graphite readiness, OpenSpec acceptance, apply safety, current-tree
-  cleanliness, or rule correctness unless a separate owner explicitly provides
-  that authority.
+- Commit and submit through Graphite with a clean worktree.

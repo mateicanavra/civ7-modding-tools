@@ -1,0 +1,33 @@
+{
+  "id": "adapter-base-standard-import",
+  "ownerTool": "pattern-check",
+  "ownerProject": "@internal/habitat-harness",
+  "lane": "enforced",
+  "scope": "packages/**/*.ts outside packages/civ7-adapter",
+  "forbids": "runtime /base-standard/ imports outside @civ7/adapter",
+  "why": "The adapter is the sole owner of Civ7 engine imports; provenance strings remain covered by wrapped-rule ownership until H6 adjudication.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "pattern-check"
+  ],
+  "remediate": null,
+  "message": "Move /base-standard/ runtime imports into @civ7/adapter.",
+  "exceptionPath": "none",
+  "patternName": "adapter_base_standard_import",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages",
+    "apps/mapgen-studio/src",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "unresolved-metadata",
+      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+    }
+  ]
+}

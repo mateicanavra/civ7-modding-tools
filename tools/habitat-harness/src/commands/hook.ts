@@ -1,11 +1,11 @@
 import { Args, Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
-import { runHook } from "../lib/command-engine.js";
+import { runHook } from "../lib/hooks.js";
 
 export default class Hook extends HabitatCommand {
   static override summary = "Run a Habitat git-hook entrypoint";
   static override description =
-    "Stable hook surface for H7. Hook wiring is intentionally deferred until habitat-git-hooks.";
+    "Stable Habitat entrypoint for Husky-delegated pre-commit and pre-push checks.";
   static override examples = ["<%= config.bin %> <%= command.id %> pre-commit"];
 
   static override args = {
@@ -14,7 +14,7 @@ export default class Hook extends HabitatCommand {
 
   static override flags = {
     base: Flags.string({
-      description: "Override the pre-push affected base. Intended for probes and CI diagnostics.",
+      description: "Override the pre-push affected base.",
     }),
   };
 

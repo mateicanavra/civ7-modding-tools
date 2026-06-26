@@ -30,14 +30,14 @@ Relevant present-behavior evidence read:
 - `tools/habitat-harness/src/lib/grit-apply.ts`
 - `tools/habitat-harness/src/plugin.js`
 - `tools/habitat-harness/src/rules/rules.json`
-- `biome.json`, `.gritignore`, `.grit/grit.yaml`, `nx.json`
+- `biome.json`, `.gritignore`, `.habitat/grit.yaml`, `nx.json`
 - `tools/habitat-harness/test/lib/{hooks.test.ts,biome-closure.test.ts,grit-adapter.test.ts,grit-apply.test.ts,enforcement-surface.test.ts,classify.test.ts}`
 
 ## Vendor Authority Findings
 
 ### Grit Already Owns Pattern Discovery, Ignore, Check, And Apply Mechanics
 
-Official Grit docs say repository configuration lives in `.grit/grit.yaml`, pattern entries have
+Official Grit docs say repository configuration lives in `.habitat/grit.yaml`, pattern entries have
 `level` values consumed by `grit check`, Markdown or `.grit` patterns under `.grit/patterns` are
 auto-merged, and Grit defaults to importing patterns from `.grit/patterns`:
 https://docs.grit.io/guides/config

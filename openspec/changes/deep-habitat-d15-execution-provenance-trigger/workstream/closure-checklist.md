@@ -2,7 +2,7 @@
 
 ## Design Readiness
 
-- [x] Proposal cites controlling authority and source packet through
+- [x] Proposal cites controlling inputs and source packet through
   `$REMEDIATION_DIR/context.md` fixtures.
 - [x] Design names Command Observation Trigger ownership, dormant trigger state,
   forbidden default substrate ownership, and adjacent-domain consumers.
@@ -13,7 +13,7 @@
   TypeScript/validation, code/vendor topology, OpenSpec/information/testing, and
   cross-domino/product lanes.
 - [x] Accepted first-wave P1/P2 findings are repaired in active packet/control
-  artifacts.
+  records.
 - [x] Fresh final D15 rereview files record no unresolved P1/P2 findings against
   the repaired disk state.
 - [x] Review ledger has no accepted unresolved P1/P2 findings.
@@ -29,7 +29,7 @@
 
 ## Implementation Closure (Later)
 
-- [ ] Source implementation remains blocked unless a later accepted packet
+- [x] Source implementation remains blocked unless a later accepted packet
   changes D15 from `dormant` to `trigger-accepted`.
 - [ ] Future source changes stay inside the accepted trigger packet write set.
 - [ ] Future validation gates pass with exact command output recorded.

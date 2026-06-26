@@ -8,9 +8,9 @@ application results, and protected-zone guard decisions into one coherent check
 outcome, public `CheckReport`, human rendering, and command exit decision.
 
 This packet replaces the prior incomplete packet with design/specification
-content. It is not implementation-complete. Source edits remain blocked until
-concrete D0 compatibility rows, live D2/D3/D5/D6 projections, and an accepted
-D10 protected-zone contract exist for every touched surface.
+content. Source-start inventory is now recorded for the D7 structural
+check/report slice. D10 generated/protected-zone authority remains out of scope
+until the later D10 packet lands.
 
 ## Product Scenario
 
@@ -78,7 +78,7 @@ trustworthy structural result where:
 | D3 | Graph target/check invocation availability and graph-refusal states. | Live D3 graph projections must exist before D7 can prevent check-related Nx wrapper false greens in source. |
 | D5 | `BaselineApplicationResult`, `BaselineIntegrityResult`, and D5 refusal diagnostics. | Live D5 baseline application/integrity results must exist before D7 deletes local baseline loading/application. |
 | D6 | `DiagnosticRunOutcome` or diagnostic consumer projection. | Live D6 diagnostic projections must exist before D7 deletes local Grit/native diagnostic coupling. |
-| D10 | Protected-zone guard decision/refusal consumed by staged/file-layer check. | D10 is still draft; source implementation of protected-zone report outcomes is blocked until D10 acceptance and live guard results. |
+| D10 | Protected-zone guard decision/refusal consumed by staged/file-layer check. | D10 is later in the stack; D7 preserves current file-layer behavior only and does not implement protected-zone report authority until D10 acceptance and live guard results. |
 
 ## Enables
 

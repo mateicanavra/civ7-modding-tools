@@ -25,7 +25,7 @@ dependencies recorded in `$D8_PHASE_RECORD`.
 | Validation gates were too generic. | P2 | accepted and repaired | `$D8_CHANGE/design.md`, `$D8_CHANGE/tasks.md`, and `$D8_PHASE_RECORD` separate design-time gates from later implementation gates and name non-claims; final TypeScript/validation and OpenSpec/information rereviews accepted. |
 | Vendor ownership split was missing. | P1 | accepted and repaired | `$D8_CHANGE/design.md` Vendor Boundary records Grit, Biome, and Nx ownership boundaries; final code/vendor topology rereview accepted. |
 | Downstream D9/D11/D13/G-HOST handoffs were generic. | P2 | accepted and repaired | `$D8_DOWNSTREAM_LEDGER` names downstream owners, allowed facts, forbidden decisions, blockers, and non-claims; final cross-domino rereview accepted. |
-| `$ACTIVE_REMEDIATION_BRANCH` was stale. | P2 | accepted and repaired | `$REMEDIATION_DIR/context.md` now records `codex/d8-pattern-governance-packet` and D8 variables. |
+| `$ACTIVE_REMEDIATION_BRANCH` was stale. | P2 | accepted and repaired | `$REMEDIATION_DIR/context.md` now records `agent-DRA-d8-pattern-governance` and D8 variables. |
 
 ## Final Rereview Evidence
 

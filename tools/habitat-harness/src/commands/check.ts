@@ -1,11 +1,12 @@
 import { Flags } from "@oclif/core";
 import { HabitatCommand } from "../base/HabitatCommand.js";
 import {
+  checkCommandContext,
   createCheckReport,
   describeRuleSelectionFailure,
   expandBaselines,
   renderCheckReport,
-} from "../lib/command-engine.js";
+} from "../lib/check-report.js";
 
 export default class Check extends HabitatCommand {
   static override summary = "Run Habitat structural checks";
@@ -14,7 +15,7 @@ export default class Check extends HabitatCommand {
   static override examples = [
     "<%= config.bin %> <%= command.id %>",
     "<%= config.bin %> <%= command.id %> --json",
-    "<%= config.bin %> <%= command.id %> --rule biome-ci --json",
+    "<%= config.bin %> <%= command.id %> --rule format-ci --json",
   ];
 
   static override flags = {
@@ -46,7 +47,7 @@ export default class Check extends HabitatCommand {
     const report = await createCheckReport({
       ...selection,
       base: flags.base,
-      commandArgs: this.rawArgv(),
+      command: checkCommandContext(this.rawArgv()),
       staged: flags.staged,
     });
     this.log(renderCheckReport(report, { json: flags.json, output: flags.output }));

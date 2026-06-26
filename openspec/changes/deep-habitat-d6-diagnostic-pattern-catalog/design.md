@@ -28,7 +28,8 @@ Current code is useful input, but it mixes domains:
 - `tools/habitat-harness/src/lib/grit-failures.ts` mixes diagnostic adapter
   failures with D9 apply transaction failures.
 - `tools/habitat-harness/src/lib/grit-injected-probe.ts` models injected probes
-  with proof-shaped language and broad adapter failure tags.
+  with proof-shaped language and broad adapter failure tags that D6 must replace
+  with diagnostic/probe outcome terms.
 - `tools/habitat-harness/src/rules/architecture.ts` and `rules.json` currently
   pass whole `HarnessRule` rows into Grit execution.
 - Current tests already cover many target families, but the packet must specify
@@ -77,7 +78,7 @@ D6 target identity terms:
 
 - `ruleId`: D2-owned Habitat rule identity.
 - `patternIdentity`: native Grit diagnostic pattern identity. D6 resolves this
-  from D2 `ruleGritFacts`, never from an implementation fallback.
+  from D2 `ruleGritFacts`, never from alternate `ruleId` identity lookup.
 - `diagnosticCatalogEntryId`: D6-owned identity binding one `ruleId` to one
   `DiagnosticIdentity` and one diagnostic capability contract.
 - `observedDiagnosticIdentity`: raw identity evidence observed in native output,
@@ -89,8 +90,8 @@ D6 target identity terms:
 Resolution rules:
 
 - D6 accepts a catalog entry only when D2 supplies a valid Grit facet.
-- Missing or contradicted `patternIdentity` is a D2/D6 contract refusal, not a
-  fallback to `ruleId`.
+- Missing or contradicted `patternIdentity` is a D2/D6 contract refusal, not an
+  alternate identity path through `ruleId`.
 - Observed diagnostic identity evidence must match the selected
   `DiagnosticIdentity` during projection.
 - When native output contains both `local_name` and parsed `check_id`, matching
@@ -110,8 +111,8 @@ type DiagnosticCatalogEntry =
       ruleId: string;
       diagnosticIdentity: Extract<DiagnosticIdentity, { kind: "grit-pattern" }>;
       source: "d2-rule-grit-facts";
-      scanContract: DiagnosticScanContract;
-      projectionContract: DiagnosticProjectionContract;
+      scanContract: Extract<DiagnosticScanContract, { kind: "d2-grit-scan-roots" }>;
+      projectionContract: Extract<DiagnosticProjectionContract, { kind: "grit-pattern-projection" }>;
       limitations: readonly DiagnosticNonClaim[];
     }
   | {
@@ -120,8 +121,9 @@ type DiagnosticCatalogEntry =
       ruleId: string;
       diagnosticIdentity: Extract<DiagnosticIdentity, { kind: "native-rule" }>;
       source: "native-habitat-rule";
+      scanContract: Extract<DiagnosticScanContract, { kind: "native-docs-scan-roots" }>;
       acquisitionContract: NativeDiagnosticAcquisitionContract;
-      projectionContract: DiagnosticProjectionContract;
+      projectionContract: Extract<DiagnosticProjectionContract, { kind: "native-rule-projection" }>;
       limitations: readonly DiagnosticNonClaim[];
     };
 ```
@@ -138,7 +140,7 @@ type DiagnosticIdentity =
     }
   | {
       kind: "native-rule";
-      nativeDiagnosticIdentity: "docs-local-checkout-paths" | "docs-proof-evidence-vocabulary";
+      nativeDiagnosticIdentity: "docs-local-checkout-paths";
       source: "native-habitat-rule";
     };
 
@@ -150,7 +152,7 @@ type ObservedDiagnosticIdentity =
     }
   | {
       kind: "observed-native-rule";
-      observedNativeDiagnosticIdentity: "docs-local-checkout-paths" | "docs-proof-evidence-vocabulary";
+      observedNativeDiagnosticIdentity: "docs-local-checkout-paths";
       source: "native-habitat-rule";
     }
   | {
@@ -314,9 +316,8 @@ acquisition/projection/probe target states:
 - `GritApplyMissingTargetExport`
 - `GritApplyRollbackFailed`
 
-If existing exports require the broad tag set, the later implementation must
-keep it behind a D0-classified compatibility facade while D6 internals use the
-closed diagnostic subset.
+D6 implementation must update existing consumers to the closed diagnostic subset
+instead of keeping the broad tag set as a parallel diagnostic path.
 
 ### Diagnostic Projection And Run Outcome
 
@@ -324,8 +325,6 @@ closed diagnostic subset.
 type DiagnosticFindingProjection = {
   kind: "diagnostic-finding";
   ruleId: string;
-  diagnosticCatalogEntryId: string;
-  diagnosticIdentity: DiagnosticIdentity;
   path: string;
   line?: number;
   message: string;
@@ -336,11 +335,11 @@ type DiagnosticFindingProjection = {
 type DiagnosticRunOutcome =
   | { kind: "clean"; entry: DiagnosticCatalogEntry; diagnostics: readonly [] }
   | { kind: "findings"; entry: DiagnosticCatalogEntry; diagnostics: NonEmptyReadonlyArray<DiagnosticFindingProjection> }
-  | { kind: "scan-root-refused"; entry: DiagnosticCatalogEntry; decision: Extract<DiagnosticScanRootDecision, { kind: "refused" }> }
-  | { kind: "adapter-failed"; entry: DiagnosticCatalogEntry; failure: DiagnosticAdapterFailureKind }
+  | { kind: "scan-root-refused"; entry: DiagnosticCatalogEntry; decision: Extract<DiagnosticScanRootDecision, { kind: "refused" }>; detail: string }
+  | { kind: "adapter-failed"; entry: DiagnosticCatalogEntry; failure: DiagnosticAdapterFailureKind; detail: string }
   | { kind: "projection-missed"; entry: DiagnosticCatalogEntry; expectedIdentity: DiagnosticIdentity }
   | { kind: "unexpected-diagnostic-identity"; entry: DiagnosticCatalogEntry; unexpectedIdentity: ObservedDiagnosticIdentity }
-  | { kind: "cache-observation-missing"; entry: DiagnosticCatalogEntry; observation: Extract<DiagnosticCacheObservation, { kind: "missing-required-observation" }> };
+  | { kind: "cache-observation-missing"; entry: DiagnosticCatalogEntry; cache: Extract<DiagnosticCacheObservation, { kind: "missing-required-observation" }>; failure: "GritCacheProvenanceMissing"; detail: string };
 ```
 
 `clean`, `findings`, and `adapter-failed` are mutually exclusive. Adapter failure
@@ -390,8 +389,8 @@ type InjectedProbeRefusalReason =
 ```
 
 Target language is "probe", "outcome", "validation class", and "limitation".
-Existing `proofClass` fields, if retained, must be D0/D1 compatibility
-projections generated from `validationClass`, not core D6 language.
+D6 implementation must replace proof-shaped probe fields with those target
+terms in source callers and tests.
 
 ### Consumer Projection
 
@@ -419,6 +418,7 @@ type DiagnosticConsumerProjection =
       diagnosticCatalogEntryId: string;
       diagnosticIdentity: DiagnosticIdentity;
       decision: Extract<DiagnosticScanRootDecision, { kind: "refused" }>;
+      detail: string;
       limitations: readonly DiagnosticNonClaim[];
     }
   | {
@@ -427,21 +427,42 @@ type DiagnosticConsumerProjection =
       diagnosticCatalogEntryId: string;
       diagnosticIdentity: DiagnosticIdentity;
       failure: DiagnosticAdapterFailureKind;
+      detail: string;
       limitations: readonly DiagnosticNonClaim[];
     }
   | {
-      kind: "projection-missed" | "unexpected-diagnostic-identity" | "cache-observation-missing";
+      kind: "cache-observation-missing";
       ruleId: string;
       diagnosticCatalogEntryId: string;
       diagnosticIdentity: DiagnosticIdentity;
-      limitation: DiagnosticNonClaim;
+      cache: Extract<DiagnosticCacheObservation, { kind: "missing-required-observation" }>;
+      failure: "GritCacheProvenanceMissing";
+      detail: string;
+      limitations: readonly DiagnosticNonClaim[];
+    }
+  | {
+      kind: "projection-missed";
+      ruleId: string;
+      diagnosticCatalogEntryId: string;
+      diagnosticIdentity: DiagnosticIdentity;
+      expectedIdentity: DiagnosticIdentity;
+      limitations: readonly DiagnosticNonClaim[];
+    }
+  | {
+      kind: "unexpected-diagnostic-identity";
+      ruleId: string;
+      diagnosticCatalogEntryId: string;
+      diagnosticIdentity: DiagnosticIdentity;
+      unexpectedIdentity: ObservedDiagnosticIdentity;
+      limitations: readonly DiagnosticNonClaim[];
     };
 ```
 
 Consumer projection is derived from `DiagnosticRunOutcome`; it must not flatten
-failure fields into optional properties. Clean projections carry no diagnostics,
-findings projections carry at least one diagnostic finding, and adapter-failed
-projections carry adapter failure only on that variant.
+failure fields into optional properties or limitation-only rows. Clean
+projections carry no diagnostics, findings projections carry at least one
+diagnostic finding, and adapter-failed/cache/refusal/projection outcomes keep
+their own machine fields only on their variants.
 
 Consumer rules:
 
@@ -474,8 +495,9 @@ D6 source implementation requires concrete D0 rows before touching:
 - `tools/habitat-harness/docs/CAPABILITIES.md` or other durable docs if D6
   public guidance changes.
 
-D6 implementation is source-blocked until the D0 rows exist and cite closed
-compatibility handling.
+D6 implementation may begin for the surfaces enumerated in
+`workstream/implementation-start-inventory.md`; new touched public/durable
+surfaces still require D0 rows before source edits.
 
 ## Write Set For Later Implementation
 
@@ -486,8 +508,8 @@ D6 may later own:
 - `tools/habitat-harness/src/lib/grit-injected-probe.ts`
 - Grit-scoped projections around `tools/habitat-harness/src/lib/habitat-process.ts`
   only if D15 is not triggered
-- `tools/habitat-harness/src/index.ts` export compatibility facades where D0
-  authorizes them
+- `tools/habitat-harness/src/index.ts` export updates required by the D6
+  diagnostic contract
 - `tools/habitat-harness/src/rules/rules.json` only for D6 diagnostic metadata
   fields after D2 live facts exist
 - `tools/habitat-harness/test/lib/grit-adapter.test.ts`
@@ -501,17 +523,18 @@ Protected paths:
   fixtures approved by D5.
 - D7 report assembly/enforcement redesign.
 - D8 Pattern Governance lifecycle/admission implementation.
-- D9 apply transaction behavior and apply failure taxonomy except compatibility
-  references to split ownership.
+- D9 apply transaction behavior and apply failure taxonomy except D6 references
+  that split ownership.
 - D11 hook transaction/local-feedback sequencing.
 - D13 generator/manifest creation.
 - Generated outputs and lockfiles unless regenerated through repo process.
 
 ## Safe Refactor Sequence For Later Implementation
 
-1. Block on concrete D0 rows and live D2 `ruleGritFacts`.
-2. Add D6 model types in one canonical module; preserve exported compatibility
-   names only where D0 rows require them.
+1. Stay inside the D6 implementation-start inventory; add D0 rows before any
+   new public/durable surface edits.
+2. Add D6 model schemas/types in canonical modules and derive TypeScript types
+   from TypeBox schemas.
 3. Split `DiagnosticAdapterFailureKind` from D9 apply transaction failures.
 4. Introduce structured adapter failure projection; render message text from
    structure instead of parsing message text as source authority.
@@ -521,14 +544,14 @@ Protected paths:
 7. Replace cache option flags with `DiagnosticCacheRequirement` and
    `DiagnosticCacheObservation`.
 8. Migrate `runGritRules()` and projection from whole `HarnessRule` rows to D2
-   `ruleGritFacts`; delete fallback pattern identity.
-9. Migrate injected probe language to `InjectedProbeOutcome`; map compatibility
-   `proofClass` only if D0/D1 require it.
-10. Add behavior tests per state family before deleting compatibility paths.
-11. Delete compatibility-only paths when their D0 actions allow removal.
+   `ruleGritFacts`; delete alternate `ruleId` identity lookup.
+9. Migrate injected probe language to `InjectedProbeOutcome` and update source
+   callers/tests to the D6 probe outcome contract.
+10. Add behavior tests per state family for product behavior only.
+11. Delete obsolete paths and imports as their callers move to D6 contracts.
 
-Each slice must reduce reachable states or delete a compatibility path. A slice
-that only relocates code does not satisfy D6.
+Each slice must reduce reachable states or delete obsolete code. A slice that
+only relocates code does not satisfy D6.
 
 ## D15 Trigger Rule
 

@@ -19,13 +19,13 @@ Workspace Graph Integration owner.
 Forbidden owners:
 
 - Orientation and Routing may present graph facts but not infer target truth.
-- Proof Contract may record target execution but not construct the graph.
+- Receipt Contract may record target execution but not construct the graph.
 - Rule Registry may declare intended graph facets but not read Nx metadata.
 
 ## Consumers
 
 `habitat classify`, `habitat verify`, root Nx scripts, inferred Habitat targets,
-rule-target aliases, packet proof commands.
+rule-target aliases, packet receipt commands.
 
 ## Contract
 
@@ -87,15 +87,15 @@ the string parsing state space open for the next rule.
 fact fields are additive under `schemaVersion: 1` or require schema versioning.
 Nx inferred target names should remain stable unless explicitly versioned.
 
-## Proof Classes
+## Receipt Classes
 
-Required design proof:
+Required design receipt:
 
 - current plugin target inventory;
 - current classify target output inventory;
 - failing alias risk documented.
 
-Later implementation proof:
+Later implementation receipt:
 
 - `nx show project @internal/habitat-harness --json`;
 - plugin unit tests for inferred targets;
@@ -113,7 +113,7 @@ Non-claims:
 - Nx/tooling review.
 - Public classify contract review.
 - TypeScript graph-state review.
-- Operations proof review.
+- Operations receipt review.
 
 ## Downstream Realignment
 
@@ -124,15 +124,15 @@ Update:
 - classify examples;
 - validation stop conditions related to false-green aliases.
 
-## Validation Commands / Proof Template
+## Validation Commands / Receipt Template
 
 - `nx show project @internal/habitat-harness`: expected exit 0; graph metadata
-  proof for Habitat project targets and package exports.
+  receipt for Habitat project targets and package exports.
 - `nx run @internal/habitat-harness:habitat:rule:biome-ci`: expected exit 0
   only when the alias proves its dependency ran rather than a false green.
 - `nx run @internal/habitat-harness:boundaries`: expected exit 0 after current
-  graph-file ENOENT risks are fixed or explicitly non-claimed.
-- Cache stance: target-alias proof must run with cache disabled or include
+  graph-file ENOENT risks are fixed or explicitly non-goaled.
+- Cache stance: target-alias receipt must run with cache disabled or include
   dependency execution evidence.
 - Injected bad case: include one intentionally broken target alias and prove it
   cannot pass through `node -e ""`.
