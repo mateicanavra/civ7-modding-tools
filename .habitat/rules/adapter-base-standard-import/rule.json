@@ -15,8 +15,8 @@
   "scanRoots": ["packages"],
   "pathCoverage": [
     {
-      "kind": "unresolved-metadata",
-      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+      "kind": "exact-path",
+      "patterns": ["packages/**/*.ts"]
     }
   ]
 }

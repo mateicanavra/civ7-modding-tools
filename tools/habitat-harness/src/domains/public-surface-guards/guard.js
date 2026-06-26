@@ -100,6 +100,7 @@ const allowedArtifactSemantics = new Set([
   "tools/habitat-harness/src/domains/pattern-governance/paths.ts",
   "tools/habitat-harness/src/domains/pattern-governance/schema.ts",
   "tools/habitat-harness/src/domains/pattern-governance/validation.ts",
+  "tools/habitat-harness/src/domains/rule-registry/artifact-paths.ts",
   "tools/habitat-harness/src/domains/rule-registry/load.ts",
   "tools/habitat-harness/src/generators/pattern/generator.ts",
   "tools/habitat-harness/src/generators/pattern/paths.ts",

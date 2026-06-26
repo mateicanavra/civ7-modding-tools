@@ -15,8 +15,12 @@
   "scanRoots": ["packages/sdk/src", "packages/mapgen-core/src"],
   "pathCoverage": [
     {
-      "kind": "unresolved-metadata",
-      "reason": "Rule requires explicit typed path coverage before exact classify routing."
+      "kind": "exact-path",
+      "patterns": [
+        "packages/sdk/src/index.ts",
+        "packages/sdk/src/**/*.ts",
+        "packages/mapgen-core/src/**/*.ts"
+      ]
     }
   ]
 }

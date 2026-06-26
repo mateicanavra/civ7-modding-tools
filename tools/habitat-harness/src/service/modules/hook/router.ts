@@ -3,10 +3,8 @@ import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import { Effect } from "effect";
 import type { HabitatConfig } from "../../../config/index.js";
 import type { BaselineAuthority } from "../../../domains/baseline-authority/index.js";
-import { runHookCommand } from "../../../domains/hook-runtime/command-runner.js";
 import {
   type HookCheckCommandResult,
-  hookCheckCommandResult,
   renderResourceDecisionFailure,
   resourceDecisionToFacade,
 } from "../../../domains/hook-runtime/index.js";
@@ -14,13 +12,11 @@ import { finalizePreCommit, finalizePrePush } from "../../../domains/hook-runtim
 import {
   type PrePushBaseDecision,
   resolveGraphiteParent,
-  resolvePrePushBase,
 } from "../../../domains/hook-runtime/pre-push-base.js";
 import { captureRepoSnapshot } from "../../../domains/hook-runtime/repo-snapshot.js";
 import { classifyResourcePreCommitDecision } from "../../../domains/hook-runtime/resource-inspection.js";
 import {
   createHookOutput,
-  type HookOptions,
   type HookRuntime,
   hookNow,
   section,
@@ -33,33 +29,41 @@ import {
   hookSourceCheckPaths,
   unstagedAmong,
 } from "../../../domains/hook-runtime/staged-worktree.js";
+import {
+  activeRuleHookCheckFacts,
+  activeRuleSourceFacts,
+  factsForRuleIds,
+} from "../../../domains/rule-registry/active-facts.js";
 import type { SourceCheck } from "../../../domains/source-check/index.js";
 import {
+  approvedScanRootsForRules,
   type CheckReport,
   checkCommandContext,
   type HookCheckSummary,
   hookCheckSummary,
   renderCheckReport,
   StructuralCheck,
+  stagedSourceCheckPaths,
 } from "../../../domains/structural-check/index.js";
+import { prePushTargetPlanForChangedPaths } from "../../../domains/validation-routing/index.js";
 import { repoRoot } from "../../../lib/paths.js";
-import type { BiomeProvider } from "../../../providers/biome/index.js";
-import type { CommandRunner, SpawnResult } from "../../../providers/command/index.js";
-import { GitProvider, type GitProviderRequirements } from "../../../providers/git/index.js";
+import { type BiomeCommandRequest, BiomeProvider } from "../../../providers/biome/index.js";
 import {
-  NxProvider,
+  type CommandRunner,
+  type SpawnResult,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "../../../providers/nx/index.js";
-import { prePushTargetNames } from "../../../providers/nx/targets.js";
+} from "../../../providers/command/index.js";
+import { GitProvider, type GitProviderRequirements } from "../../../providers/git/index.js";
+import { NxProvider } from "../../../providers/nx/index.js";
+import { workspaceGraphTargetNames } from "../../../providers/nx/targets.js";
 import type { HookServiceOptions } from "./context.js";
 import type { HookServiceRunInput } from "./contract.js";
 import { module as hookModule } from "./module.js";
 
-type HookName = "pre-commit" | "pre-push";
 type StagedHookCheckTool = "file-layer" | "source-check";
 type StagedHookCheckResult = SpawnResult & {
-  readonly check?: {
+  readonly check: {
     readonly report: CheckReport;
     readonly summary: HookCheckSummary;
   };
@@ -84,6 +88,11 @@ interface PreCommitState {
   readonly hashFile: (repoRelativePath: string) => string | null;
 }
 
+interface PreCommitBiomeState extends PreCommitState {
+  readonly biomePaths: readonly string[];
+  readonly beforeHashes: ReadonlyMap<string, string | null>;
+}
+
 interface PreCommitSourceCheckState extends PreCommitState {
   readonly sourceCheckPaths: readonly string[];
 }
@@ -91,6 +100,11 @@ interface PreCommitSourceCheckState extends PreCommitState {
 type PreCommitStep<T> =
   | { readonly kind: "done"; readonly result: SpawnResult }
   | { readonly kind: "continue"; readonly state: T };
+type PrePushChangedPathsResult =
+  | { readonly kind: "available"; readonly paths: readonly string[] }
+  | { readonly kind: "unavailable"; readonly message: string };
+type ParsedHookCheckResult = Extract<HookCheckCommandResult, { readonly kind: "parsed" }>;
+type PrePushHookSourceCheckResult = SpawnResult & ParsedHookCheckResult;
 
 const localHookNotice = "hook result: workstation check only; CI remains authoritative.\n";
 
@@ -111,37 +125,15 @@ export function runHookService(input: HookServiceRunInput = {}, options: HookSer
     });
   }
   if (input.name === "pre-commit") return runPreCommitEffect(options.runtime ?? {});
-  return Effect.sync(() => runHook(input.name, { base: input.base }, options.runtime));
+  return Effect.succeed(unknownHookResult(input.name));
 }
 
-export function runHook(
-  name: string | undefined,
-  options: HookOptions = {},
-  runtime: HookRuntime = {}
-): SpawnResult {
-  if (!isHookName(name)) {
-    return {
-      exitCode: 2,
-      stdout: "",
-      stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
-    };
-  }
-  return name === "pre-commit" ? runPreCommit(runtime) : runPrePush(options, runtime);
-}
-
-export function runPreCommit(runtime: HookRuntime = {}): SpawnResult {
-  const begun = beginPreCommit(runtime);
-  if (begun.kind === "done") return begun.result;
-
-  const fileLayer = runStagedHookCheckCommand(begun.state.runtime, "file-layer");
-  const afterFileLayer = continuePreCommitAfterFileLayer(begun.state, fileLayer);
-  if (afterFileLayer.kind === "done") return afterFileLayer.result;
-
-  const sourceCheckResult =
-    afterFileLayer.state.sourceCheckPaths.length > 0
-      ? runStagedHookCheckCommand(afterFileLayer.state.runtime, "source-check")
-      : undefined;
-  return finishPreCommit(afterFileLayer.state, sourceCheckResult);
+function unknownHookResult(name: string | undefined): SpawnResult {
+  return {
+    exitCode: 2,
+    stdout: "",
+    stderr: `Unknown Habitat hook '${name ?? "(missing)"}'. Expected pre-commit or pre-push.\n`,
+  };
 }
 
 function runPreCommitEffect(
@@ -158,16 +150,18 @@ function runPreCommitEffect(
     );
     const afterFileLayer = continuePreCommitAfterFileLayer(begun.state, fileLayer);
     if (afterFileLayer.kind === "done") return afterFileLayer.result;
+    const afterBiome = yield* runPreCommitBiomeProviderEffect(afterFileLayer.state);
+    if (afterBiome.kind === "done") return afterBiome.result;
 
     const sourceCheckResult =
-      afterFileLayer.state.sourceCheckPaths.length > 0
+      afterBiome.state.sourceCheckPaths.length > 0
         ? yield* runStagedHookCheckServiceEffect(
-            afterFileLayer.state.runtime,
+            afterBiome.state.runtime,
             "source-check",
-            afterFileLayer.state.sourceCheckPaths
+            afterBiome.state.sourceCheckPaths
           )
         : undefined;
-    return finishPreCommit(afterFileLayer.state, sourceCheckResult);
+    return finishPreCommit(afterBiome.state, sourceCheckResult);
   });
 }
 
@@ -215,7 +209,7 @@ function beginPreCommit(runtime: HookRuntime = {}): PreCommitStep<PreCommitState
 function continuePreCommitAfterFileLayer(
   state: PreCommitState,
   fileLayer: StagedHookCheckResult
-): PreCommitStep<PreCommitSourceCheckState> {
+): PreCommitStep<PreCommitBiomeState> {
   const { hashFile, output, runtime, staged } = state;
   output.writeStdout(section("file-layer staged check", fileLayer.stdout));
   output.writeStderr(fileLayer.stderr);
@@ -255,15 +249,35 @@ function continuePreCommitAfterFileLayer(
     };
   }
   const beforeHashes = new Map(biomePaths.map((candidate) => [candidate, hashFile(candidate)]));
-  if (biomePaths.length > 0) {
-    const format = runHookCommand(
-      runtime,
-      "biome-format",
-      ["biome", "format", "--write", "--no-errors-on-unmatched", ...biomePaths],
-      {
-        cwd: repoRoot,
-      }
+  return { kind: "continue", state: { ...state, biomePaths, beforeHashes } };
+}
+
+function runPreCommitBiomeProviderEffect(
+  state: PreCommitBiomeState
+): Effect.Effect<PreCommitStep<PreCommitSourceCheckState>, never, HookCheckRequirements> {
+  const { beforeHashes, biomePaths, hashFile, output, runtime } = state;
+  if (biomePaths.length === 0) {
+    output.writeStdout("biome: no staged supported files\n");
+    return Effect.succeed(continuePreCommitAfterBiome(state));
+  }
+
+  return Effect.gen(function* () {
+    const biome = yield* BiomeProvider;
+    const formatRequest: BiomeCommandRequest = {
+      kind: "format",
+      write: true,
+      noErrorsOnUnmatched: true,
+      paths: biomePaths,
+    };
+    const formatArgv = biome.argv(formatRequest);
+    const formatStartedAtMs = hookNow(runtime);
+    const format = yield* biome.run(formatRequest).pipe(
+      Effect.match({
+        onFailure: spawnResultFromCommandProviderError,
+        onSuccess: spawnResultFromCommandResult,
+      })
     );
+    recordHookCommand(runtime, "biome-format", formatArgv, formatStartedAtMs, format.exitCode);
     output.writeStdout(section("biome format", format.stdout));
     output.writeStderr(format.stderr);
     if (format.exitCode !== 0) {
@@ -299,14 +313,20 @@ function continuePreCommitAfterFileLayer(
       output.writeStdout("formatter restage: 0 paths\n");
     }
 
-    const check = runHookCommand(
-      runtime,
-      "biome-check",
-      ["biome", "check", "--no-errors-on-unmatched", ...biomePaths],
-      {
-        cwd: repoRoot,
-      }
+    const checkRequest: BiomeCommandRequest = {
+      kind: "check",
+      noErrorsOnUnmatched: true,
+      paths: biomePaths,
+    };
+    const checkArgv = biome.argv(checkRequest);
+    const checkStartedAtMs = hookNow(runtime);
+    const check = yield* biome.run(checkRequest).pipe(
+      Effect.match({
+        onFailure: spawnResultFromCommandProviderError,
+        onSuccess: spawnResultFromCommandResult,
+      })
     );
+    recordHookCommand(runtime, "biome-check", checkArgv, checkStartedAtMs, check.exitCode);
     output.writeStdout(section("biome check", check.stdout));
     output.writeStderr(check.stderr);
     if (check.exitCode !== 0) {
@@ -318,10 +338,15 @@ function continuePreCommitAfterFileLayer(
         }),
       };
     }
-  } else {
-    output.writeStdout("biome: no staged supported files\n");
-  }
 
+    return continuePreCommitAfterBiome(state);
+  });
+}
+
+function continuePreCommitAfterBiome(
+  state: PreCommitBiomeState
+): PreCommitStep<PreCommitSourceCheckState> {
+  const { runtime, staged } = state;
   const sourceCheckPaths = hookSourceCheckPaths(staged);
   if (runtime.trace?.preCommit) runtime.trace.preCommit.sourceCheckPaths = sourceCheckPaths;
   return { kind: "continue", state: { ...state, sourceCheckPaths } };
@@ -375,58 +400,6 @@ function finishPreCommit(
   return finalizePreCommit(runtime, "pass", { exitCode: 0, ...output.result() });
 }
 
-export function runPrePush(options: HookOptions = {}, runtime: HookRuntime = {}): SpawnResult {
-  const baseDecision = options.base
-    ? { kind: "resolved" as const, base: options.base, source: "explicit" as const }
-    : resolvePrePushBase(runtime);
-  return runPrePushWithBaseDecision(baseDecision, runtime);
-}
-
-function runPrePushWithBaseDecision(
-  baseDecision: PrePushBaseDecision,
-  runtime: HookRuntime = {}
-): SpawnResult {
-  const output = createHookOutput(runtime.reporter);
-  output.writeStdout(localHookNotice);
-  if (runtime.trace) {
-    runtime.trace.prePush = {
-      outcome: "started",
-      startedAtMs: hookNow(runtime),
-    };
-    runtime.trace.prePush.preState = captureRepoSnapshot(runtime);
-  }
-  if (baseDecision.kind === "refused") {
-    output.writeStderr(`habitat hook pre-push: ${baseDecision.message}\n`);
-    return finalizePrePush(runtime, "base-refused", { exitCode: 1, ...output.result() });
-  }
-  const base = baseDecision.base;
-  if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
-  if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
-  const result = runHookCommand(
-    runtime,
-    "pre-push-affected",
-    [
-      "nx",
-      "affected",
-      "-t",
-      prePushTargetNames().join(","),
-      "--base",
-      base,
-      "--head",
-      "HEAD",
-      "--outputStyle=static",
-      "--excludeTaskDependencies",
-    ],
-    { cwd: repoRoot }
-  );
-  output.writeStdout(`habitat hook pre-push: repo Nx affected base=${base}\n${result.stdout}`);
-  output.writeStderr(result.stderr);
-  return finalizePrePush(runtime, result.exitCode === 0 ? "pass" : "affected-failed", {
-    exitCode: result.exitCode,
-    ...output.result(),
-  });
-}
-
 function runPrePushWithBaseDecisionEffect(
   baseDecision: PrePushBaseDecision,
   runtime: HookRuntime = {}
@@ -451,9 +424,70 @@ function runPrePushWithBaseDecisionEffect(
     const base = baseDecision.base;
     if (runtime.trace?.prePush) runtime.trace.prePush.base = base;
     if (runtime.trace?.prePush) runtime.trace.prePush.baseSource = baseDecision.source;
+    const changedPaths = yield* prePushChangedPathsEffect(base);
+    if (changedPaths.kind === "unavailable") {
+      output.writeStderr(`habitat hook pre-push: ${changedPaths.message}\n`);
+      return finalizePrePush(runtime, "affected-failed", {
+        exitCode: 1,
+        ...output.result(),
+      });
+    }
+    const hookSourcePaths = prePushHookSourceCheckPaths(changedPaths.paths);
+    if (hookSourcePaths.length > 0) {
+      const hookSourceCheck = yield* runPrePushHookSourceCheckEffect(runtime, hookSourcePaths);
+      output.writeStdout(
+        section("source-check changed-path hook check", renderCheckReport(hookSourceCheck.report))
+      );
+      if (!checkSummaryAllowsNextStage(hookSourceCheck)) {
+        return finalizePrePush(runtime, "affected-failed", {
+          exitCode: hookSourceCheck.exitCode,
+          ...output.result(),
+        });
+      }
+    } else {
+      output.writeStdout(
+        "source checks: no changed TypeScript/JavaScript/docs files in hook source-check roots\n"
+      );
+    }
     const nx = yield* NxProvider;
-    const targets = prePushTargetNames();
-    const request = { base, targets, head: "HEAD", excludeTaskDependencies: true };
+    const targetPlan = prePushTargetPlanForChangedPaths(
+      changedPaths.paths,
+      workspaceGraphTargetNames()
+    );
+    for (const target of targetPlan.runTargets) {
+      const argv = nx.runTargetArgv(target);
+      const startedAtMs = hookNow(runtime);
+      const targetResult = yield* nx.runTarget(target).pipe(
+        Effect.match({
+          onFailure: spawnResultFromCommandProviderError,
+          onSuccess: spawnResultFromCommandResult,
+        })
+      );
+      recordHookCommand(runtime, "pre-push-target", argv, startedAtMs, targetResult.exitCode);
+      output.writeStdout(
+        `habitat hook pre-push: repo Nx target ${target.project}:${target.target}\n${targetResult.stdout}`
+      );
+      output.writeStderr(targetResult.stderr);
+      if (targetResult.exitCode !== 0) {
+        return finalizePrePush(runtime, "affected-failed", {
+          exitCode: targetResult.exitCode,
+          ...output.result(),
+        });
+      }
+    }
+    if (targetPlan.affectedTargets.length === 0) {
+      output.writeStdout("habitat hook pre-push: no repo Nx affected targets selected\n");
+      return finalizePrePush(runtime, "pass", {
+        exitCode: 0,
+        ...output.result(),
+      });
+    }
+    const request = {
+      base,
+      targets: targetPlan.affectedTargets,
+      head: "HEAD",
+      excludeTaskDependencies: true,
+    };
     const argv = nx.affectedArgv(request);
     const startedAtMs = hookNow(runtime);
     const result = yield* nx.affected(request).pipe(
@@ -469,6 +503,58 @@ function runPrePushWithBaseDecisionEffect(
       exitCode: result.exitCode,
       ...output.result(),
     });
+  });
+}
+
+function prePushChangedPathsEffect(
+  base: string
+): Effect.Effect<PrePushChangedPathsResult, never, GitProvider | GitProviderRequirements> {
+  return Effect.gen(function* () {
+    const git = yield* GitProvider;
+    const result = yield* git
+      .command(["diff", "--name-only", "-z", base, "HEAD"], { cwd: repoRoot })
+      .pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+    if (!result || result.exit.code !== 0) {
+      return {
+        kind: "unavailable",
+        message: `could not read changed paths for base ${base}; refusing to skip hook source checks.`,
+      };
+    }
+    return { kind: "available", paths: result.stdout.text.split("\0").filter(Boolean) };
+  });
+}
+
+function prePushHookSourceCheckPaths(changedPaths: readonly string[]): readonly string[] {
+  const hookRuleIds = activeRuleHookCheckFacts.map((rule) => rule.id);
+  const hookSourceRules = factsForRuleIds(activeRuleSourceFacts, hookRuleIds);
+  return stagedSourceCheckPaths(changedPaths, approvedScanRootsForRules(hookSourceRules));
+}
+
+function runPrePushHookSourceCheckEffect(
+  runtime: HookRuntime,
+  changedPaths: readonly string[]
+): Effect.Effect<PrePushHookSourceCheckResult, never, HookCheckRequirements> {
+  return Effect.gen(function* () {
+    const structuralCheck = yield* StructuralCheck;
+    const argv = ["--hook-check", "--tool", "source-check", "--json"];
+    const startedAtMs = hookNow(runtime);
+    const report = yield* structuralCheck.createReport({
+      tool: "source-check",
+      hookCheck: true,
+      staged: true,
+      stagedPaths: changedPaths,
+      command: checkCommandContext(argv),
+    });
+    const summary = hookCheckSummary(report);
+    const result = {
+      ...spawnResultFromCheckReport(report),
+      kind: "parsed" as const,
+      report,
+      summary,
+    };
+    const exitCode = checkSummaryAllowsNextStage(result) ? 0 : 1;
+    recordInProcessHookCheck(runtime, "source-check", argv, startedAtMs, exitCode);
+    return { ...result, exitCode };
   });
 }
 
@@ -489,18 +575,6 @@ function resolvePrePushBaseForService(
         "could not resolve an affected base from Graphite parent or the remote default branch; pass --base explicitly.",
     };
   });
-}
-
-function runStagedHookCheckCommand(
-  runtime: HookRuntime,
-  tool: StagedHookCheckTool
-): StagedHookCheckResult {
-  return runHookCommand(
-    runtime,
-    tool,
-    ["bun", "tools/habitat-harness/bin/dev.ts", "check", "--staged", "--tool", tool, "--json"],
-    { cwd: repoRoot }
-  );
 }
 
 function runStagedHookCheckServiceEffect(
@@ -536,14 +610,11 @@ function spawnResultFromCheckReport(report: CheckReport): SpawnResult {
 }
 
 function stagedHookCheckCommandResult(result: StagedHookCheckResult): HookCheckCommandResult {
-  if (result.check) {
-    return {
-      kind: "parsed",
-      report: result.check.report,
-      summary: result.check.summary,
-    };
-  }
-  return hookCheckCommandResult(result);
+  return {
+    kind: "parsed",
+    report: result.check.report,
+    summary: result.check.summary,
+  };
 }
 
 function recordInProcessHookCheck(
@@ -568,7 +639,7 @@ function recordInProcessHookCheck(
 
 function recordHookCommand(
   runtime: HookRuntime,
-  phase: "pre-push-affected",
+  phase: "biome-format" | "biome-check" | "pre-push-target" | "pre-push-affected",
   argv: readonly string[],
   startedAtMs: number,
   exitCode: number
@@ -593,8 +664,4 @@ function checkSummaryAllowsNextStage(result: HookCheckCommandResult): boolean {
       result.summary.kind === "advisory-only" ||
       result.summary.kind === "not-applicable")
   );
-}
-
-function isHookName(name: string | undefined): name is HookName {
-  return name === "pre-commit" || name === "pre-push";
 }

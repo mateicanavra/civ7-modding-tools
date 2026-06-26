@@ -77,6 +77,7 @@ Provenance: `packages/civ7-direct-control/AGENTS.md`,
 | mod-swooper-maps | `mods/mod-swooper-maps` | `kind:mod` |
 | mod-civ7-intelligence-bridge | `mods/mod-civ7-intelligence-bridge` | `kind:mod`, `kind:control` |
 | civ-mod-dacia | `mods/mod-swooper-civ-dacia` | `kind:mod` |
+| @internal/habitat-artifacts | `.habitat` | `kind:tooling` |
 | (new) @internal/habitat-harness | `tools/habitat-harness` | `kind:tooling` |
 
 ## 3. Dependency constraints (project plane, initial rule set)

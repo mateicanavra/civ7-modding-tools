@@ -15,12 +15,6 @@
     {
       "kind": "exact-path",
       "patterns": ["packages/civ7-map-policy/src/civ7-tables.gen.ts"]
-    },
-    {
-      "kind": "project-owner"
-    },
-    {
-      "kind": "workspace-gate"
     }
   ]
 }

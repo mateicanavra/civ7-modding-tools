@@ -100,8 +100,11 @@ Implemented rule state:
 
 Implemented diagnostic/check state:
 
-- 35 active Habitat check patterns;
-- matching 35 registered pattern-backed rules;
+- 34 registered source-check rules;
+- 34 source-check rule modules under
+  `tools/habitat-harness/src/domains/source-check/rules`;
+- shared source-check helper runtime under
+  `tools/habitat-harness/src/domains/source-check/rule-runtime.mjs`;
 - fixture tests for pattern validity;
 - adapter normalization over machine JSON output;
 - cache/failure handling tests;

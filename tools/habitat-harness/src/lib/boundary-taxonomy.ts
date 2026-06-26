@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { createProjectGraphAsync } from "@nx/devkit";
+import { habitatArtifactsProjectName, habitatArtifactsRoot } from "./artifact-paths.js";
 import type { NxProjectMetadata } from "./nx-projects.js";
 import { repoRoot } from "./paths.js";
 
@@ -57,7 +58,7 @@ export interface BoundaryTaxonomyIssue {
 }
 
 export interface BoundaryTaxonomyNote {
-  reason: "workspace-root-not-nx-project";
+  reason: "workspace-root-not-nx-project" | "nx-inferred-artifact-project";
   message: string;
   project: string;
   root: string;
@@ -254,23 +255,30 @@ export function auditBoundaryTaxonomy(input: {
   for (const taxonomyProject of input.taxonomy.projects) {
     const manifest = manifestByRoot.get(taxonomyProject.root);
     if (!manifest) {
-      issues.push({
-        reason: "missing-manifest",
-        message: `Taxonomy project ${taxonomyProject.name} at ${taxonomyProject.root} has no package.json manifest.`,
+      if (!isNxInferredArtifactProject(taxonomyProject)) {
+        issues.push({
+          reason: "missing-manifest",
+          message: `Taxonomy project ${taxonomyProject.name} at ${taxonomyProject.root} has no package.json manifest.`,
+          project: taxonomyProject.name,
+          root: taxonomyProject.root,
+        });
+        continue;
+      }
+      notes.push({
+        reason: "nx-inferred-artifact-project",
+        message:
+          "The Habitat artifact root is an inferred Nx project-plane node, not a package manifest workspace.",
         project: taxonomyProject.name,
         root: taxonomyProject.root,
       });
-      continue;
-    }
-    if (manifest.name !== taxonomyProject.name) {
+    } else if (manifest.name !== taxonomyProject.name) {
       issues.push({
         reason: "manifest-name-mismatch",
         message: `Manifest at ${taxonomyProject.root} is ${manifest.name}, but taxonomy lists ${taxonomyProject.name}.`,
         project: taxonomyProject.name,
         root: taxonomyProject.root,
       });
-    }
-    if (taxonomyProject.root === ".") {
+    } else if (taxonomyProject.root === ".") {
       notes.push({
         reason: "workspace-root-not-nx-project",
         message:
@@ -483,6 +491,10 @@ function kindTags(values: readonly string[]): string[] {
 
 function sameTags(left: readonly string[], right: readonly string[]): boolean {
   return sortedUnique(left).join("\0") === sortedUnique(right).join("\0");
+}
+
+function isNxInferredArtifactProject(project: TaxonomyProject): boolean {
+  return project.name === habitatArtifactsProjectName && project.root === habitatArtifactsRoot;
 }
 
 function normalizeRepoPath(value: string): string {

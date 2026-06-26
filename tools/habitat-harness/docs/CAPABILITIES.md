@@ -54,15 +54,19 @@ Root scripts also expose graph-owned entrypoints:
   not hidden inside root lint.
 - `@internal/habitat-harness:validate:boundary-taxonomy` runs the current
   workspace taxonomy/config/manifest/Nx-graph drift audit as an explicit graph
-  target. It is part of root `bun run check:graph`, CI, and Habitat
-  verify/pre-push target planning, not package unit tests.
+  target. It is part of root `bun run check:graph`, CI, Habitat verify, and
+  pre-push workstation target planning, not package unit tests.
 - `@internal/habitat-harness:validate:grit-patterns` runs checked-in Habitat
   Grit pattern fixture validation through native `grit patterns test`. It is
-  part of root `bun run check:graph`, CI, and Habitat verify/pre-push target
-  planning, not package unit tests.
+  part of root `bun run check:graph`, CI, Habitat verify, and pre-push
+  workstation target planning, not package unit tests.
 - `bun run check` runs the diagnostic Habitat structural aggregate.
 - `bun run check:graph` runs affected package checks and structural validation
   without dependency build/test fanout.
+- `bun run habitat hook pre-push` runs changed-path hook source checks in
+  process. Ordinary source changes then run affected package checks plus
+  explicit validation targets; Habitat artifact-only changes run Habitat
+  structural/source-check targets instead of generic product `check`.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
 - `bun run ci` runs the full repo-wide build, check, lint, test, and structural
   validation aggregate without re-entering `verify`.
@@ -142,12 +146,15 @@ The baseline model is:
 ## Source Diagnostics
 
 Habitat owns the source-check contract. The current source-check engine runs
-checked-in source rules through Habitat's structural policy surface.
+registered source rules through per-rule source-check modules.
 
 Current active source-check state:
 
-- 35 check patterns under `.habitat/patterns/checks`.
-- 35 registered source-check rules in the rule registry.
+- 34 registered source-check rules in the rule registry.
+- 34 rule implementation modules under
+  `tools/habitat-harness/src/domains/source-check/rules`.
+- Shared source-check TypeScript/text helpers live in
+  `tools/habitat-harness/src/domains/source-check/rule-runtime.mjs`.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
 - Habitat reports source-rule diagnostics back to Habitat rule IDs.

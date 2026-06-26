@@ -93,9 +93,9 @@ describe("Habitat classify D4 result model", () => {
     expect("requiredTargets" in result).toBe(false);
   });
 
-  test("keeps D2 unresolved routing metadata visible without prose scope inference", async () => {
+  test("keeps exact routing metadata visible without prose scope inference", async () => {
     const result = await classifyPathResult(
-      "mods/mod-swooper-maps/src/domain/ecology/ops/features-plan-floodplains/index.ts",
+      "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes/strategies/default.ts",
       { nxProjects: fixtureNxProjects }
     );
 
@@ -104,7 +104,7 @@ describe("Habitat classify D4 result model", () => {
     expect(result.ruleRouting).toContainEqual(
       expect.objectContaining({
         ruleId: "runtime-validation-imports",
-        coverageKind: "unresolved-metadata",
+        coverageKind: "exact-path",
       })
     );
   });

@@ -15,12 +15,6 @@
     {
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/maps/generated/**"]
-    },
-    {
-      "kind": "project-owner"
-    },
-    {
-      "kind": "workspace-gate"
     }
   ]
 }

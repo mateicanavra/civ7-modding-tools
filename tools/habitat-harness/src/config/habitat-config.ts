@@ -39,24 +39,6 @@ export const defaultWorkspaceToolPolicies = new Map<string, WorkspaceToolPolicy>
   ["biome", { executable: "biome", strategy: "bun-run" }],
   ["format-check", { executable: "biome", strategy: "bun-run" }],
   ["nx", { executable: "nx", strategy: "bun-run" }],
-  [
-    "import-boundaries",
-    {
-      executable: "eslint",
-      strategy: "bun-run",
-      argvPrefix: [
-        "--quiet",
-        "--cache",
-        "--cache-strategy",
-        "content",
-        "--cache-location",
-        ".nx/cache/eslint-boundaries",
-        "--config",
-        "eslint.boundaries.config.mjs",
-        "--no-config-lookup",
-      ],
-    },
-  ],
   ["target-check", { executable: "nx", strategy: "bun-run" }],
   ["grit", { executable: "grit", strategy: "bun-run" }],
 ]);

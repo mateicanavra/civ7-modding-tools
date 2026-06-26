@@ -1,6 +1,14 @@
 import path from "node:path";
 import { Value } from "typebox/value";
-import { ruleRegistryRepoPath } from "../lib/artifact-paths.ts";
+import {
+  sourceCheckRuleModuleRepoPath,
+  sourceCheckRuleRuntimeRepoPath,
+} from "../domains/source-check/module-paths.ts";
+import {
+  habitatArtifactsProjectName,
+  habitatArtifactsRoot,
+  ruleRegistryRepoPath,
+} from "../lib/artifact-paths.ts";
 import { repoRoot } from "../lib/paths.ts";
 import {
   loadRuleRegistryDocumentForNxPlugin,
@@ -60,6 +68,11 @@ function buildInferredProjects(input: {
   const ownerRoots = new Map(Object.entries(input.registry.ownerRoots));
   const recordsById = new Map(input.registry.rules.map((rule) => [rule.id, rule]));
   const projects: InferredProjects = {};
+  projects[habitatArtifactsRoot] = {
+    name: habitatArtifactsProjectName,
+    tags: ["kind:tooling"],
+    targets: {},
+  };
   const addTarget = (
     root: string,
     _project: string,
@@ -183,15 +196,18 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   if (covered.kind === "workspace-gate") return habitatInputs();
 
   const inputs = new Set<string>([
-    "{workspaceRoot}/tools/habitat-harness/src/**",
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
     `{workspaceRoot}/.habitat/rules/${rule.id}/**`,
     ...covered.inputs,
   ]);
+  if (rule.ownerProject === "@internal/habitat-harness") {
+    inputs.add("{workspaceRoot}/tools/habitat-harness/src/**");
+  }
   if (rule.ownerTool === "source-check") {
-    inputs.add("{workspaceRoot}/.habitat/source-check/source-rules.mjs");
-    for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
+    inputs.add(workspaceInput(sourceCheckRuleRuntimeRepoPath));
+    inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
+    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.ownerTool === "habitat" || rule.ownerTool === "command-check") {
@@ -216,14 +232,23 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
     "{workspaceRoot}/.habitat/rules/**",
-    "{workspaceRoot}/.habitat/source-check/source-rules.mjs",
+    workspaceInput(sourceCheckRuleRuntimeRepoPath),
   ]);
   for (const rule of rules) {
     if (rule.ownerTool !== "source-check") continue;
-    for (const scanRoot of rule.scanRoots ?? []) inputs.add(workspaceScanRootInput(scanRoot));
+    inputs.add(workspaceInput(sourceCheckRuleModuleRepoPath(rule.id)));
+    for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   return [...inputs];
+}
+
+function sourceCheckRuleScopeInputs(rule: NxRuleRegistryRecord): string[] {
+  const exactPathInputs = rule.pathCoverage.flatMap((entry) =>
+    entry.kind === "exact-path" ? entry.patterns.map(workspaceInput) : []
+  );
+  if (exactPathInputs.length > 0) return exactPathInputs;
+  return (rule.scanRoots ?? []).map(workspaceScanRootInput);
 }
 
 function pathCoverageInputs(

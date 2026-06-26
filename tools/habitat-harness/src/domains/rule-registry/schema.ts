@@ -9,7 +9,6 @@ const RuleIdentitySchema = Type.Object(
       Type.Literal("file-layer"),
       Type.Literal("habitat"),
       Type.Literal("source-check"),
-      Type.Literal("import-boundaries"),
       Type.Literal("command-check"),
       Type.Literal("target-check"),
     ]),
@@ -90,13 +89,11 @@ const DirectCommandOwnerToolSchema = Type.Union([
   Type.Literal("command-check"),
   Type.Literal("format-check"),
   Type.Literal("habitat"),
-  Type.Literal("import-boundaries"),
 ]);
 const CommandOwnerToolSchema = Type.Union([
   Type.Literal("command-check"),
   Type.Literal("format-check"),
   Type.Literal("habitat"),
-  Type.Literal("import-boundaries"),
   Type.Literal("target-check"),
 ]);
 const HookCheckSchema = Type.Literal(true);

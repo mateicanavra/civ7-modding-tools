@@ -17,6 +17,7 @@ export const HookCommandPhaseSchema = Type.Union([
   Type.Literal("biome-check"),
   Type.Literal("source-check"),
   Type.Literal("pre-push-base"),
+  Type.Literal("pre-push-target"),
   Type.Literal("pre-push-affected"),
 ]);
 export type HookCommandPhase = Static<typeof HookCommandPhaseSchema>;
