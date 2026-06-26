@@ -4,6 +4,10 @@ Status: active authority frame with provisional niche/blueprint hierarchy
 
 ## What This Establishes
 
+Use `.habitat/FRAME.md` as the current living lens for authority-tree
+direction, source order, stack geolocation, and pruning posture. This file
+defines the durable authority contract that the frame applies.
+
 `.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
 
 The current hierarchy is:
