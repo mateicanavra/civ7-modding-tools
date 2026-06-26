@@ -9,7 +9,7 @@
   "why": "Studio's transient current map config must not leak into shipped Civ7 mod catalog metadata.",
   "detect": [
     "bun",
-    ".habitat/civ7/mapgen/map-output/blueprints/block_studio_config_leakage_into_shipped_catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.check.ts"
+    ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.check.ts"
   ],
   "remediate": "Regenerate shipped mod catalog artifacts without the transient studio-current map config.",
   "message": "Shipped map catalog contains transient Studio map config identifiers.",

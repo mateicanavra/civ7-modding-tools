@@ -20,6 +20,15 @@ type SurfaceKind =
   | "nx-plugin"
   | "habitat-cli-source";
 
+type SurfaceRole =
+  | "runner_metadata"
+  | "source_check_adapter"
+  | "policy_pattern"
+  | "command_check_executor"
+  | "operation_surface"
+  | "workspace_entrypoint"
+  | "toolkit_runner";
+
 type Bucket =
   | "habitat_invoked"
   | "package_invoked"
@@ -29,6 +38,14 @@ type Bucket =
   | "nx_ordering_tie"
   | "mutation_surface"
   | "unknown_invocation";
+
+type AnatomyRole =
+  | "entrypoint"
+  | "adapter"
+  | "runner-runtime"
+  | "policy-predicate"
+  | "fixture-support"
+  | "transient-dependency";
 
 interface PackageScriptRecord {
   packagePath: string;
@@ -66,6 +83,8 @@ interface SurfaceRecord {
   id: string;
   path: string;
   surfaceKind: SurfaceKind;
+  surfaceRole: SurfaceRole;
+  anatomy: ExecutionAnatomy;
   declaredOwnerTool?: string;
   invokedBy: Invoker[];
   detectCommand?: string[];
@@ -86,10 +105,41 @@ interface SurfaceRecord {
   buckets: Bucket[];
 }
 
+interface RuleModuleAnatomy {
+  exports: string[];
+  hasExpectedExportShape: boolean;
+  importsTransitionalRuntime: boolean;
+  runtimeHelpers: string[];
+  candidateExtensions: string[];
+  regexLiteralCount: number;
+  lineCount: number;
+  predicateSignals: string[];
+  separableSupportSignals: string[];
+}
+
+interface ExecutionAnatomy {
+  roles: AnatomyRole[];
+  summary: string;
+  runnerContract?: string;
+  supportSignals: string[];
+  transientSignals: string[];
+  ruleModule?: RuleModuleAnatomy;
+}
+
+interface SupportFileRecord {
+  path: string;
+  packetPath: string;
+  supportName: string;
+  language: string;
+  virtualFilenames: string[];
+  lineCount: number;
+}
+
 interface Args {
   repoRoot: string;
   outJson: string;
   outMd: string;
+  outAnatomyMd?: string;
 }
 
 interface RuleRecord {
@@ -205,6 +255,9 @@ function parseArgs(argv: string[]): Args {
     repoRoot,
     outJson: path.resolve(process.cwd(), outJsonArg),
     outMd: path.resolve(process.cwd(), outMdArg),
+    outAnatomyMd: values.get("--out-anatomy-md")
+      ? path.resolve(process.cwd(), values.get("--out-anatomy-md") ?? "")
+      : undefined,
   };
 }
 
@@ -249,6 +302,25 @@ function surfaceKindFor(relPath: string): SurfaceKind {
   if (relPath.endsWith(".apply.pattern.md")) return "apply-pattern";
   if (relPath.endsWith(".pattern.md")) return "pattern";
   throw new Error(`Unsupported surface path: ${relPath}`);
+}
+
+function surfaceRoleFor(kind: SurfaceKind): SurfaceRole {
+  if (kind === "rule-json") return "runner_metadata";
+  if (kind === "rule-module") return "source_check_adapter";
+  if (kind === "pattern" || kind === "apply-pattern") return "policy_pattern";
+  if (kind === "check-script") return "command_check_executor";
+  if (kind === "fix-script" || kind === "generate-script" || kind === "operation-note") {
+    return "operation_surface";
+  }
+  if (
+    kind === "package-script" ||
+    kind === "nx-target" ||
+    kind === "nx-target-default" ||
+    kind === "nx-plugin"
+  ) {
+    return "workspace_entrypoint";
+  }
+  return "toolkit_runner";
 }
 
 function targetClass(value: string): string {
@@ -426,6 +498,150 @@ function makeStaticTies(ties: StaticTie[]) {
   };
 }
 
+function uniqueSorted<T extends string>(items: readonly T[]): T[] {
+  return [...new Set(items)].sort();
+}
+
+function analyzeRuleModule(text: string): RuleModuleAnatomy {
+  const sourceFile = ts.createSourceFile("rule.mjs", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const exported = new Set<string>();
+  const candidateExtensions = new Set<string>();
+
+  const visit = (node: ts.Node): void => {
+    const modifiers = ts.canHaveModifiers(node) ? ts.getModifiers(node) ?? [] : [];
+    const isExported = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
+    if (isExported && ts.isVariableStatement(node)) {
+      for (const declaration of node.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) {
+          exported.add(declaration.name.text);
+          if (
+            declaration.name.text === "candidateExtensions" &&
+            declaration.initializer &&
+            ts.isArrayLiteralExpression(declaration.initializer)
+          ) {
+            for (const element of declaration.initializer.elements) {
+              if (ts.isStringLiteralLike(element)) candidateExtensions.add(element.text);
+            }
+          }
+        }
+      }
+    }
+    if (isExported && ts.isFunctionDeclaration(node) && node.name) exported.add(node.name.text);
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  const runtimeHelpers = uniqueSorted(
+    [...text.matchAll(/\bruntime\.([A-Za-z_$][A-Za-z0-9_$]*)/g)].map((match) => match[1] ?? "")
+  );
+  const regexLiteralCount = [...text.matchAll(/\/(?:\\\/|[^/\n])+\/[dgimsuy]*/g)].length;
+  const predicateSignals = uniqueSorted([
+    ...(regexLiteralCount > 0 ? ["regex/path/source predicates"] : []),
+    ...(runtimeHelpers.some((helper) => ["importRefs", "sourceRefsMatching"].includes(helper))
+      ? ["import/export reference predicates"]
+      : []),
+    ...(runtimeHelpers.some((helper) => ["callExpressions", "propertyCallExpressions"].includes(helper))
+      ? ["AST call-expression predicates"]
+      : []),
+    ...(runtimeHelpers.includes("policy") ? ["shared runtime policy helper"] : []),
+    ...(text.includes("file.text") ? ["raw text scan predicates"] : []),
+  ]);
+  const separableSupportSignals = uniqueSorted([
+    ...(text.includes("/fixtures/") || text.includes("/support/") ? ["references support files"] : []),
+    ...(/readFile|readText|fs\./.test(text) ? ["reads auxiliary files"] : []),
+  ]);
+
+  return {
+    exports: uniqueSorted([...exported]),
+    hasExpectedExportShape:
+      exported.size === 3 &&
+      exported.has("ruleId") &&
+      exported.has("candidateExtensions") &&
+      exported.has("diagnosticsForRule"),
+    importsTransitionalRuntime:
+      text.includes("rule-runtime.policy.mjs") ||
+      text.includes("sourceCheckRuntime") ||
+      text.includes("preserve_legacy_source_check_runtime_during_cutover"),
+    runtimeHelpers,
+    candidateExtensions: uniqueSorted([...candidateExtensions]),
+    regexLiteralCount,
+    lineCount: text.split("\n").length,
+    predicateSignals,
+    separableSupportSignals,
+  };
+}
+
+function anatomyForSurface(
+  surface: Omit<SurfaceRecord, "buckets" | "anatomy"> & { readonly buckets?: readonly Bucket[] },
+  ruleModule?: RuleModuleAnatomy
+): ExecutionAnatomy {
+  const roles = new Set<AnatomyRole>();
+  const supportSignals = new Set<string>();
+  const transientSignals = new Set<string>();
+  const tieText = surface.staticTies.all.map((tie) => tie.value).join("\n");
+
+  if (surface.isDirectEntrypoint || surface.invokedBy.some((invoker) => invoker !== "unknown")) {
+    if (["package-script", "nx-target", "nx-target-default", "nx-plugin", "check-script", "fix-script", "generate-script"].includes(surface.surfaceKind)) {
+      roles.add("entrypoint");
+    }
+  }
+  if (surface.surfaceKind === "rule-json" || surface.surfaceKind === "rule-module") roles.add("adapter");
+  if (surface.surfaceKind === "habitat-cli-source") roles.add("runner-runtime");
+  if (surface.surfaceKind === "pattern" || surface.surfaceKind === "apply-pattern" || surface.surfaceKind === "rule-module") {
+    roles.add("policy-predicate");
+  }
+  if (surface.buckets?.includes("transitional_runtime_tie") || tieText.includes("rule-runtime.policy.mjs")) {
+    roles.add("transient-dependency");
+    transientSignals.add("imports transitional source-check runtime");
+  }
+  if (surface.buckets?.includes("nx_ordering_tie") || /(?:generated|current|fresh|dist\/|build|gen:|ensure:)/.test(tieText)) {
+    roles.add("transient-dependency");
+    transientSignals.add("build/currentness or ordering tie");
+  }
+  if (surface.buckets?.includes("package_boundary_tie")) {
+    roles.add("transient-dependency");
+    transientSignals.add("reaches package/app/mod boundary");
+  }
+  if (tieText.includes("/fixtures/") || tieText.includes("/support/")) {
+    roles.add("fixture-support");
+    supportSignals.add("references fixture/support path");
+  }
+  if (ruleModule?.separableSupportSignals.length) {
+    roles.add("fixture-support");
+    for (const signal of ruleModule.separableSupportSignals) supportSignals.add(signal);
+  }
+
+  let summary = "Classified execution surface.";
+  let runnerContract: string | undefined;
+  if (surface.surfaceKind === "rule-module") {
+    runnerContract = "Dynamically imported by source-check; must export ruleId, candidateExtensions, and diagnosticsForRule.";
+    summary =
+      "Transitional source-check adapter: the runner imports this module, while diagnosticsForRule carries the predicate payload. Regexes/path checks are policy predicates unless they reference auxiliary support files.";
+  } else if (surface.surfaceKind === "rule-json") {
+    runnerContract = "Read by Habitat registry/catalog loading; not policy authority by itself.";
+    summary = "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.";
+  } else if (surface.surfaceKind === "pattern" || surface.surfaceKind === "apply-pattern") {
+    summary = "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.";
+  } else if (surface.surfaceKind === "check-script") {
+    summary = "Command-check executable surface invoked through Habitat metadata or direct references.";
+  } else if (surface.surfaceKind === "fix-script" || surface.surfaceKind === "generate-script") {
+    summary = "Operation executable surface; mutation/build behavior is expected and should not be confused with policy definition.";
+  } else if (surface.surfaceKind === "package-script" || surface.surfaceKind === "nx-target") {
+    summary = "Workspace entrypoint that may invoke Habitat or package-local work.";
+  } else if (surface.surfaceKind === "habitat-cli-source") {
+    summary = "Toolkit runner/provider code that executes or routes rule surfaces.";
+  }
+
+  return {
+    roles: uniqueSorted([...roles]),
+    summary,
+    runnerContract,
+    supportSignals: uniqueSorted([...supportSignals]),
+    transientSignals: uniqueSorted([...transientSignals]),
+    ruleModule,
+  };
+}
+
 function classifyBuckets(surface: Omit<SurfaceRecord, "buckets">): Bucket[] {
   const buckets = new Set<Bucket>();
   if (surface.invokedBy.includes("habitat")) buckets.add("habitat_invoked");
@@ -456,8 +672,25 @@ function classifyBuckets(surface: Omit<SurfaceRecord, "buckets">): Bucket[] {
   return [...buckets].sort();
 }
 
-function createSurface(input: Omit<SurfaceRecord, "buckets">): SurfaceRecord {
-  return { ...input, buckets: classifyBuckets(input) };
+function createSurface(
+  input: Omit<SurfaceRecord, "buckets" | "anatomy"> & { readonly anatomy?: ExecutionAnatomy }
+): SurfaceRecord {
+  const withoutBuckets = { ...input, anatomy: input.anatomy ?? emptyAnatomy() };
+  const buckets = classifyBuckets(withoutBuckets);
+  const surfaceWithoutBuckets = { ...withoutBuckets, buckets };
+  return {
+    ...surfaceWithoutBuckets,
+    anatomy: input.anatomy ?? anatomyForSurface(surfaceWithoutBuckets),
+  };
+}
+
+function emptyAnatomy(): ExecutionAnatomy {
+  return {
+    roles: [],
+    summary: "Unclassified execution surface.",
+    supportSignals: [],
+    transientSignals: [],
+  };
 }
 
 function invokersForRule(rule: RuleRecord): Invoker[] {
@@ -467,8 +700,17 @@ function invokersForRule(rule: RuleRecord): Invoker[] {
 
 function addInvokedBy(existing: SurfaceRecord, invoker: Invoker): SurfaceRecord {
   if (existing.invokedBy.includes(invoker)) return existing;
-  const updated = { ...existing, invokedBy: [...existing.invokedBy, invoker].sort() as Invoker[] };
-  return { ...updated, buckets: classifyBuckets(updated) };
+  const existingConcreteInvokers = existing.invokedBy.filter((item) => item !== "unknown");
+  const updated = {
+    ...existing,
+    invokedBy: [...existingConcreteInvokers, invoker].sort() as Invoker[],
+  };
+  const buckets = classifyBuckets(updated);
+  return {
+    ...updated,
+    buckets,
+    anatomy: anatomyForSurface({ ...updated, buckets }, existing.anatomy.ruleModule),
+  };
 }
 
 function discoverHabitatSurfaces(repoRoot: string): SurfaceRecord[] {
@@ -500,17 +742,24 @@ function discoverHabitatSurfaces(repoRoot: string): SurfaceRecord[] {
         for (const match of text.matchAll(/`([^`]+)`/g)) collectStringLiteralTies(ties, match[1] ?? "");
       }
 
-      const base = createSurface({
+      const input = {
         id: relPath,
         path: relPath,
         surfaceKind: kind,
+        surfaceRole: surfaceRoleFor(kind),
         declaredOwnerTool: ownerTool,
         invokedBy,
         detectCommand,
         isDirectEntrypoint: false,
         staticTies: makeStaticTies(ties),
+      };
+      return createSurface({
+        ...input,
+        anatomy:
+          kind === "rule-module"
+            ? anatomyForSurface(input, analyzeRuleModule(text))
+            : anatomyForSurface(input),
       });
-      return base;
     });
 }
 
@@ -535,6 +784,7 @@ function discoverPackageScripts(repoRoot: string): SurfaceRecord[] {
           id: `${relPath}#scripts.${scriptName}`,
           path: relPath,
           surfaceKind: "package-script",
+          surfaceRole: surfaceRoleFor("package-script"),
           invokedBy: isDirectHabitat ? ["package", "direct-script"] : ["package"],
           packageScript: {
             packagePath: relPath,
@@ -569,6 +819,7 @@ function discoverNxSurfaces(repoRoot: string): SurfaceRecord[] {
           id: `nx.json#targetDefaults.${targetName}`,
           path: "nx.json",
           surfaceKind: "nx-target-default",
+          surfaceRole: surfaceRoleFor("nx-target-default"),
           invokedBy: ["nx"],
           nxTarget: {
             projectPath: "nx.json",
@@ -590,6 +841,7 @@ function discoverNxSurfaces(repoRoot: string): SurfaceRecord[] {
           id: `nx.json#plugins.${index}`,
           path: "nx.json",
           surfaceKind: "nx-plugin",
+          surfaceRole: surfaceRoleFor("nx-plugin"),
           invokedBy: ["nx"],
           isDirectEntrypoint: false,
           staticTies: makeStaticTies(ties),
@@ -621,6 +873,7 @@ function discoverNxSurfaces(repoRoot: string): SurfaceRecord[] {
           id: `${relPath}#targets.${targetName}`,
           path: relPath,
           surfaceKind: "nx-target",
+          surfaceRole: surfaceRoleFor("nx-target"),
           invokedBy: isDirectHabitat ? ["nx", "direct-script"] : ["nx"],
           nxTarget: {
             projectPath: relPath,
@@ -651,10 +904,33 @@ function discoverCliSourceSurfaces(repoRoot: string): SurfaceRecord[] {
         id: relPath,
         path: relPath,
         surfaceKind: "habitat-cli-source",
+        surfaceRole: surfaceRoleFor("habitat-cli-source"),
         invokedBy: ["habitat"],
         isDirectEntrypoint: false,
         staticTies: makeStaticTies(ties),
       });
+    });
+}
+
+function discoverSupportFiles(repoRoot: string): SupportFileRecord[] {
+  return walkFiles(path.join(repoRoot, ".habitat"))
+    .map((filePath) => ({ filePath, relPath: posixRel(repoRoot, filePath) }))
+    .filter(({ relPath }) => relPath.includes("/fixtures/") || relPath.includes("/support/"))
+    .sort((left, right) => left.relPath.localeCompare(right.relPath))
+    .map(({ filePath, relPath }) => {
+      const text = fs.readFileSync(filePath, "utf8");
+      const packetPath = relPath.replace(/\/(?:fixtures|support)\/.*$/, "");
+      return {
+        path: relPath,
+        packetPath,
+        supportName: path.basename(filePath, path.extname(filePath)),
+        language: path.extname(filePath).replace(/^\./, "") || "text",
+        virtualFilenames: [...text.matchAll(/^\s*\/\/\s*@filename:\s*(.+)$/gm)]
+          .map((match) => match[1]?.trim() ?? "")
+          .filter(Boolean)
+          .sort(),
+        lineCount: text.split("\n").length,
+      };
     });
 }
 
@@ -708,9 +984,10 @@ function fanout(surfaces: SurfaceRecord[]) {
   const groups = new Map<string, { targetClass: string; count: number; sources: Set<string> }>();
   for (const surface of surfaces) {
     for (const tie of surface.staticTies.all) {
-      if (["node-builtin", "external", "unknown"].includes(tie.targetClass)) continue;
-      const key = `${tie.targetClass}:${tie.value}`;
-      const existing = groups.get(key) ?? { targetClass: tie.targetClass, count: 0, sources: new Set<string>() };
+      const normalizedTie = normalizeFanoutTie(tie);
+      if (["node-builtin", "external", "unknown"].includes(normalizedTie.targetClass)) continue;
+      const key = `${normalizedTie.targetClass}:${normalizedTie.target}`;
+      const existing = groups.get(key) ?? { targetClass: normalizedTie.targetClass, count: 0, sources: new Set<string>() };
       existing.count += 1;
       existing.sources.add(surface.id);
       groups.set(key, existing);
@@ -727,12 +1004,34 @@ function fanout(surfaces: SurfaceRecord[]) {
     .sort((left, right) => right.sourceCount - left.sourceCount || right.references - left.references || left.target.localeCompare(right.target));
 }
 
+function normalizeFanoutTie(tie: StaticTie): { target: string; targetClass: string } {
+  if (
+    tie.value.includes("preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs") ||
+    tie.value.endsWith("rule-runtime.policy.mjs")
+  ) {
+    return {
+      target:
+        ".habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_legacy_source_check_runtime_during_cutover/rule-runtime.policy.mjs",
+      targetClass: "habitat-authority",
+    };
+  }
+
+  return { target: tie.value, targetClass: tie.targetClass };
+}
+
 function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
   const errors: string[] = [];
   const ruleJsonCount = surfaces.filter((surface) => surface.surfaceKind === "rule-json").length;
   const ruleModuleCount = surfaces.filter((surface) => surface.surfaceKind === "rule-module").length;
+  const ruleModules = surfaces.filter((surface) => surface.surfaceKind === "rule-module");
   const transitionalRuleModules = surfaces.filter(
     (surface) => surface.surfaceKind === "rule-module" && surface.buckets.includes("transitional_runtime_tie")
+  ).length;
+  const expectedRuleModuleExports = ruleModules.filter(
+    (surface) => surface.anatomy.ruleModule?.hasExpectedExportShape
+  ).length;
+  const anatomyRuntimeImports = ruleModules.filter(
+    (surface) => surface.anatomy.ruleModule?.importsTransitionalRuntime
   ).length;
   const rootDocsProject = surfaces.some(
     (surface) =>
@@ -754,6 +1053,12 @@ function assertExpectedFacts(surfaces: SurfaceRecord[]): string[] {
   if (transitionalRuleModules !== 33) {
     errors.push(`Expected 33 transitional source-check runtime imports, found ${transitionalRuleModules}.`);
   }
+  if (expectedRuleModuleExports !== 33) {
+    errors.push(`Expected 33 .rule.mjs files with ruleId/candidateExtensions/diagnosticsForRule exports, found ${expectedRuleModuleExports}.`);
+  }
+  if (anatomyRuntimeImports !== 33) {
+    errors.push(`Expected 33 .rule.mjs anatomy runtime imports, found ${anatomyRuntimeImports}.`);
+  }
   if (!rootDocsProject) errors.push("Did not detect root docs:project direct .habitat call.");
   if (!toolkitGenerateSchemas) errors.push("Did not detect tools/habitat generate:schemas direct .habitat call.");
   return errors;
@@ -774,6 +1079,67 @@ function packageCurrentnessChecks(surfaces: SurfaceRecord[]): SurfaceRecord[] {
   });
 }
 
+function staleDetectTargets(surfaces: SurfaceRecord[]) {
+  const habitatPaths = new Set(surfaces.filter((surface) => surface.path.startsWith(".habitat/")).map((surface) => surface.path));
+  return surfaces
+    .filter((surface) => surface.surfaceKind === "rule-json")
+    .flatMap((surface) =>
+      (surface.detectCommand ?? [])
+        .filter((command) => command.startsWith(".habitat/"))
+        .filter((command) => /\.(?:check|fix|generate)\.[A-Za-z0-9]+$/.test(command))
+        .filter((command) => !habitatPaths.has(command))
+        .map((command) => ({
+          rulePath: surface.path,
+          ownerTool: surface.declaredOwnerTool ?? "",
+          missingDetectTarget: command,
+        }))
+    )
+    .sort((left, right) => left.rulePath.localeCompare(right.rulePath));
+}
+
+function anatomyRoleCounts(surfaces: readonly SurfaceRecord[]): Record<AnatomyRole, number> {
+  return countBy(surfaces.flatMap((surface) => surface.anatomy.roles));
+}
+
+function ruleModuleRuntimeHelperFanout(surfaces: readonly SurfaceRecord[]) {
+  const groups = new Map<string, Set<string>>();
+  for (const surface of surfaces) {
+    if (surface.surfaceKind !== "rule-module") continue;
+    for (const helper of surface.anatomy.ruleModule?.runtimeHelpers ?? []) {
+      const existing = groups.get(helper) ?? new Set<string>();
+      existing.add(surface.path);
+      groups.set(helper, existing);
+    }
+  }
+  return [...groups.entries()]
+    .map(([helper, sourcePaths]) => ({
+      helper,
+      sourceCount: sourcePaths.size,
+      sampleSources: [...sourcePaths].sort().slice(0, 5),
+    }))
+    .sort((left, right) => right.sourceCount - left.sourceCount || left.helper.localeCompare(right.helper));
+}
+
+function ruleModuleAnatomySummary(surfaces: readonly SurfaceRecord[]) {
+  const ruleModules = surfaces.filter((surface) => surface.surfaceKind === "rule-module");
+  return {
+    total: ruleModules.length,
+    expectedExportShape: ruleModules.filter(
+      (surface) => surface.anatomy.ruleModule?.hasExpectedExportShape
+    ).length,
+    transitionalRuntimeImports: ruleModules.filter(
+      (surface) => surface.anatomy.ruleModule?.importsTransitionalRuntime
+    ).length,
+    separableSupportCandidates: ruleModules.filter(
+      (surface) => (surface.anatomy.ruleModule?.separableSupportSignals.length ?? 0) > 0
+    ).length,
+    candidateExtensions: uniqueSorted(
+      ruleModules.flatMap((surface) => surface.anatomy.ruleModule?.candidateExtensions ?? [])
+    ),
+    runtimeHelperFanout: ruleModuleRuntimeHelperFanout(ruleModules),
+  };
+}
+
 function markdownTable(headers: string[], rows: string[][]): string {
   if (rows.length === 0) return "_None._\n";
   const escape = (value: string) => value.replaceAll("|", "\\|").replaceAll("\n", "<br>");
@@ -787,6 +1153,17 @@ function markdownTable(headers: string[], rows: string[][]): string {
 
 function renderMarkdown(report: ReturnType<typeof buildReport>): string {
   const byKindRows = Object.entries(report.summary.surfacesByKind).map(([kind, count]) => [kind, String(count)]);
+  const byRoleRows = Object.entries(report.summary.surfacesByRole).map(([role, count]) => [role, String(count)]);
+  const anatomyRows = Object.entries(report.executionAnatomy.roleCounts).map(([role, count]) => [
+    role,
+    String(count),
+  ]);
+  const supportRows = report.supportFiles.map((support) => [
+    support.path,
+    support.supportName,
+    String(support.virtualFilenames.length),
+    String(support.lineCount),
+  ]);
   const invokerRows = Object.entries(report.summary.entrypointsByInvoker).map(([invoker, count]) => [invoker, String(count)]);
   const bucketRows = Object.entries(report.summary.surfacesByBucket).map(([bucket, count]) => [bucket, String(count)]);
 
@@ -807,6 +1184,11 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     surface.surfaceKind,
     surface.staticTies.all.slice(0, 3).map((tie) => tie.value).join("; "),
   ]);
+  const staleDetectRows = report.staleDetectTargets.map((target) => [
+    target.rulePath,
+    target.ownerTool,
+    target.missingDetectTarget,
+  ]);
   const fanoutRows = report.topCrossBoundaryTiesByFanout.slice(0, 25).map((entry) => [
     entry.targetClass,
     entry.target,
@@ -814,6 +1196,20 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     String(entry.references),
     entry.sampleSources.slice(0, 3).join("<br>"),
   ]);
+  const helperRows = report.executionAnatomy.ruleModule.runtimeHelperFanout.slice(0, 25).map((entry) => [
+    entry.helper,
+    String(entry.sourceCount),
+    entry.sampleSources.slice(0, 3).join("<br>"),
+  ]);
+  const ruleModuleRows = report.surfaces
+    .filter((surface) => surface.surfaceKind === "rule-module")
+    .map((surface) => [
+      surface.path,
+      surface.anatomy.ruleModule?.candidateExtensions.join(", ") ?? "",
+      surface.anatomy.ruleModule?.runtimeHelpers.join(", ") ?? "",
+      String(surface.anatomy.ruleModule?.regexLiteralCount ?? 0),
+      surface.anatomy.ruleModule?.separableSupportSignals.join("; ") || "none",
+    ]);
 
   return [
     "# Execution Surface Map",
@@ -829,6 +1225,27 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Surfaces By Kind",
     "",
     markdownTable(["kind", "count"], byKindRows),
+    "## Surfaces By Role",
+    "",
+    markdownTable(["role", "count"], byRoleRows),
+    "## Execution Anatomy Roles",
+    "",
+    markdownTable(["anatomy role", "surface count"], anatomyRows),
+    "## `.rule.mjs` Anatomy",
+    "",
+    `- Total modules: ${report.executionAnatomy.ruleModule.total}`,
+    `- Expected export shape: ${report.executionAnatomy.ruleModule.expectedExportShape}`,
+    `- Transitional runtime imports: ${report.executionAnatomy.ruleModule.transitionalRuntimeImports}`,
+    `- Separable fixture/support candidates: ${report.executionAnatomy.ruleModule.separableSupportCandidates}`,
+    `- Candidate extensions: ${report.executionAnatomy.ruleModule.candidateExtensions.join(", ")}`,
+    "",
+    markdownTable(["runtime helper", "module count", "sample modules"], helperRows),
+    "## `.rule.mjs` Module Details",
+    "",
+    markdownTable(["path", "candidate extensions", "runtime helpers", "regex literals", "support signals"], ruleModuleRows),
+    "## Fixture/Support Files",
+    "",
+    markdownTable(["path", "support file", "virtual filenames", "lines"], supportRows),
     "## Entrypoints By Invoker",
     "",
     markdownTable(["invoker", "count"], invokerRows),
@@ -850,6 +1267,9 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     "## Unknown Or Unclassified Surfaces Requiring Follow-Up",
     "",
     markdownTable(["path", "kind", "sample ties"], unknownRows),
+    "## Stale Detect Targets",
+    "",
+    markdownTable(["rule path", "owner tool", "missing target"], staleDetectRows),
     "## Raw Data",
     "",
     "Complete records are committed in `execution-surface-map.json`.",
@@ -857,7 +1277,79 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
   ].join("\n");
 }
 
-function buildReport(surfaces: SurfaceRecord[]) {
+function renderAnatomyMarkdown(report: ReturnType<typeof buildReport>): string {
+  const roleRows = Object.entries(report.executionAnatomy.roleCounts).map(([role, count]) => [
+    role,
+    String(count),
+  ]);
+  const familyRows = Object.entries(report.summary.surfacesByKind).map(([kind, count]) => {
+    const samples = report.surfaces
+      .filter((surface) => surface.surfaceKind === kind)
+      .slice(0, 3)
+      .map((surface) => `${surface.path}: ${surface.anatomy.summary}`)
+      .join("<br>");
+    return [kind, String(count), samples];
+  });
+  const helperRows = report.executionAnatomy.ruleModule.runtimeHelperFanout.map((entry) => [
+    entry.helper,
+    String(entry.sourceCount),
+    entry.sampleSources.slice(0, 3).join("<br>"),
+  ]);
+  const transientRows = report.surfaces
+    .filter((surface) => surface.anatomy.roles.includes("transient-dependency"))
+    .slice(0, 50)
+    .map((surface) => [
+      surface.path,
+      surface.surfaceKind,
+      surface.anatomy.transientSignals.join("; "),
+    ]);
+
+  return [
+    "# Execution Surface Anatomy",
+    "",
+    "This companion report separates runnable behavior from adapter glue, runner/runtime code, policy predicates, fixture/support files, and transient dependencies. It is analysis only; it does not decide removals.",
+    "",
+    "## Read",
+    "",
+    "- `.rule.mjs` is currently a mixed surface: source-check adapter contract plus predicate payload.",
+    "- No `.rule.mjs` module currently shows separable fixture/support-file signals.",
+    "- Grit pattern examples in `.pattern.md` are not treated as fixture/support unless a runtime consumes them as separate support files.",
+    "- Build/currentness and package-local command ties are flagged as transient dependency candidates for later pruning.",
+    "",
+    "## Anatomy Roles",
+    "",
+    markdownTable(["role", "surface count"], roleRows),
+    "## Surface Families",
+    "",
+    markdownTable(["family", "count", "sample read"], familyRows),
+    "## Source-Check Rule Modules",
+    "",
+    `- Modules: ${report.executionAnatomy.ruleModule.total}`,
+    `- Expected adapter export shape: ${report.executionAnatomy.ruleModule.expectedExportShape}`,
+    `- Transitional runtime imports: ${report.executionAnatomy.ruleModule.transitionalRuntimeImports}`,
+    `- Separable fixture/support candidates: ${report.executionAnatomy.ruleModule.separableSupportCandidates}`,
+    "",
+    markdownTable(["runtime helper", "module count", "sample modules"], helperRows),
+    "## Transient Dependency Candidates",
+    "",
+    markdownTable(["path", "kind", "signals"], transientRows),
+    "## Fixture/Support Files",
+    "",
+    report.supportFiles.length === 0
+      ? "No `.habitat/**/fixtures/**` or `.habitat/**/support/**` files are present in this corrected tree."
+      : markdownTable(
+          ["path", "support file", "virtual filenames", "lines"],
+          report.supportFiles.map((support) => [
+            support.path,
+            support.supportName,
+            String(support.virtualFilenames.length),
+            String(support.lineCount),
+          ])
+        ),
+  ].join("\n");
+}
+
+function buildReport(surfaces: SurfaceRecord[], supportFiles: SupportFileRecord[]) {
   const allInvokers = surfaces.flatMap((surface) => surface.invokedBy);
   const allBuckets = surfaces.flatMap((surface) => surface.buckets);
   const sanityAssertions = assertExpectedFacts(surfaces);
@@ -873,22 +1365,35 @@ function buildReport(surfaces: SurfaceRecord[]) {
   const unknown = surfaces
     .filter((surface) => surface.buckets.includes("unknown_invocation"))
     .sort((left, right) => left.id.localeCompare(right.id));
+  const staleTargets = staleDetectTargets(surfaces);
 
   return {
     schemaVersion: 1,
     generatedBy: "tools/habitat/scripts/execution-surface-map.ts",
     summary: {
       totalSurfaces: surfaces.length,
+      totalSupportFiles: supportFiles.length,
+      totalSupportVirtualFilenames: supportFiles.reduce(
+        (total, support) => total + support.virtualFilenames.length,
+        0
+      ),
       surfacesByKind: countBy(surfaces.map((surface) => surface.surfaceKind)),
+      surfacesByRole: countBy(surfaces.map((surface) => surface.surfaceRole)),
       entrypointsByInvoker: countBy(allInvokers),
       surfacesByBucket: countBy(allBuckets),
       sanityAssertions,
+    },
+    executionAnatomy: {
+      roleCounts: anatomyRoleCounts(surfaces),
+      ruleModule: ruleModuleAnatomySummary(surfaces),
     },
     topCrossBoundaryTiesByFanout: fanout(surfaces),
     directPackageRootScriptsCallingHabitatInternals: directScriptCalls,
     ruleModulesImportingTransitionalRuntime: transitionImports,
     checksInvokingOrRecommendingPackageCurrentnessCommands: currentness,
     unknownUnclassifiedSurfaces: unknown,
+    staleDetectTargets: staleTargets,
+    supportFiles,
     surfaces,
   };
 }
@@ -901,7 +1406,8 @@ function main(): void {
     ...discoverNxSurfaces(args.repoRoot),
     ...discoverCliSourceSurfaces(args.repoRoot),
   ]);
-  const report = buildReport(allSurfaces);
+  const supportFiles = discoverSupportFiles(args.repoRoot);
+  const report = buildReport(allSurfaces, supportFiles);
   if (report.summary.sanityAssertions.length > 0) {
     throw new Error(`Execution surface map sanity assertions failed:\n${report.summary.sanityAssertions.join("\n")}`);
   }
@@ -910,8 +1416,13 @@ function main(): void {
   fs.mkdirSync(path.dirname(args.outMd), { recursive: true });
   fs.writeFileSync(args.outJson, `${JSON.stringify(report, null, 2)}\n`);
   fs.writeFileSync(args.outMd, renderMarkdown(report));
+  if (args.outAnatomyMd) {
+    fs.mkdirSync(path.dirname(args.outAnatomyMd), { recursive: true });
+    fs.writeFileSync(args.outAnatomyMd, renderAnatomyMarkdown(report));
+  }
   console.log(`Wrote ${posixRel(args.repoRoot, args.outJson)}`);
   console.log(`Wrote ${posixRel(args.repoRoot, args.outMd)}`);
+  if (args.outAnatomyMd) console.log(`Wrote ${posixRel(args.repoRoot, args.outAnatomyMd)}`);
   console.log(
     `Surfaces: ${report.summary.totalSurfaces}; rule-json: ${report.summary.surfacesByKind["rule-json"]}; rule-module: ${report.summary.surfacesByKind["rule-module"]}`
   );

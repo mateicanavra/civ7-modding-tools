@@ -108,6 +108,31 @@ they can classify before authoring, generate supported structure, run checks
 through a single authority tree, and avoid treating stale scripts or test names
 as architecture.
 
+## Current File-Role Model
+
+Use this model when reading a packet:
+
+- `*.rule.json` is runner/catalog metadata. It tells the Toolkit how current
+  execution is wired; it is not the final source of policy truth.
+- `*.rule.mjs` is transitional source-check adapter glue while `ownerTool:
+  source-check` remains in the registry. Inline path/source regexes,
+  identifiers, and diagnostic messages in these files are behavior, not
+  fixtures.
+- `*.pattern.md` is policy-pattern text. Grit examples or match/ignore blocks
+  that are part of the pattern packet stay with the pattern unless a runner
+  consumes them as separate support files.
+- `fixtures/` or `support/` should mean runtime/test support needed to execute
+  a flow, not examples embedded in policy-pattern authority.
+- `*.check.*` is a command-check executor. These files are the main suspect
+  lane for package-local validators, generated-output currentness checks, and
+  Nx-ordering issues.
+- `*.fix.*`, `*.generate.*`, and `*.operation.md` are operation surfaces, not
+  default enforcement rules.
+
+Do not move `*.rule.mjs` literals into `fixtures/` unless the literal is proven
+to be support data needed to run a flow rather than policy behavior. Do not
+move `.pattern.md` examples merely because they are examples.
+
 ## Selection Commitments
 
 In:
