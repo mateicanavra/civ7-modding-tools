@@ -1,0 +1,25 @@
+{
+  "id": "domain-config-catalogs",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "domain config facades, domain op schemas, and standard recipe tag catalogs",
+  "forbids": "domain config facades exporting op strategy schemas or recipe tag catalogs named after milestones",
+  "why": "Domain config and tag catalog ownership is a structural authoring surface, not product behavior.",
+  "detect": [
+    ".habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/domain-config-catalogs/domain-config-catalogs.check.mjs"
+  ],
+  "remediate": null,
+  "message": "Keep config facades recipe-facing and name tag catalogs by owner concern, not milestone.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/config.ts",
+        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "service-module-shape",
+  "ownerTool": "command-check",
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "scope": "tools/habitat/src/service/modules/** and tools/habitat/src/service/model/**",
+  "forbids": "service module and service-model files outside the admitted file tree and suffix shape",
+  "why": "The Habitat Toolkit must be its own golden example for service module structure.",
+  "detect": [
+    "bun",
+    ".habitat/habitat/toolkit/blueprints/service-module/structure/check/service-module-shape/service-module-shape.check.ts"
+  ],
+  "remediate": "Move service files into the admitted module/model tree and use the accepted file suffixes.",
+  "message": "Habitat service module shape validation failed.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["tools/habitat/src/service/modules/**", "tools/habitat/src/service/model/**"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

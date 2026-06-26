@@ -285,10 +285,10 @@ describe("rule selector boundary", () => {
       executeCommandRulesEffect(
         [
           fakeCommandRule("direct-js", [
-            ".habitat/civ7/mapgen/blueprints/domain-model/structure/check/direct/direct.check.mjs",
+            ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/direct.check.mjs",
           ]),
           fakeCommandRule("direct-sh", [
-            ".habitat/civ7/mapgen/blueprints/domain-model/structure/check/direct/direct.check.sh",
+            ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/direct.check.sh",
           ]),
           fakeCommandRule("explicit-node", ["node", ".habitat/checks/explicit.check.mjs"]),
         ],
@@ -310,13 +310,13 @@ describe("rule selector boundary", () => {
       {
         executable: "node",
         argv: [
-          ".habitat/civ7/mapgen/blueprints/domain-model/structure/check/direct/direct.check.mjs",
+          ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/direct.check.mjs",
         ],
       },
       {
         executable: "bash",
         argv: [
-          ".habitat/civ7/mapgen/blueprints/domain-model/structure/check/direct/direct.check.sh",
+          ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/direct.check.sh",
         ],
       },
       {

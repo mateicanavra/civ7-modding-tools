@@ -108,7 +108,7 @@ describe("rule registry facts", () => {
       ruleBaselineFacts([
         baseRule({
           exceptionPath:
-            ".habitat/civ7/blueprints/platform-integration/boundary/check/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
+            ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
           ownerTool: "source-check",
           patternName: "sample_pattern",
           scanRoots: ["packages"],
@@ -120,7 +120,7 @@ describe("rule registry facts", () => {
       {
         id: "sample-rule",
         exceptionPath:
-          ".habitat/civ7/blueprints/platform-integration/boundary/check/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
+          ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/adapter-boundary/adapter-boundary.check.sh#ALLOWLIST",
       },
     ]);
   });
