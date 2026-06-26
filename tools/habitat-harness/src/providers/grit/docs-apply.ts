@@ -2,8 +2,8 @@ import {
   type DiagnosticRunOutcome,
   diagnosticCatalogEntryFromNativeRule,
   renderDiagnosticScanRootRefusal,
-} from "@internal/habitat-harness/service/model/check/diagnostics/index";
-import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+} from "@internal/habitat-harness/service/model/check/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { Effect } from "effect";
 import { docsLocalCheckoutPathsRewritePattern } from "./constants.js";
 import { GritProvider, type GritProviderRequirements } from "./resource.js";

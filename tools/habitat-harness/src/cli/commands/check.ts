@@ -1,6 +1,5 @@
 import { HabitatCommand } from "@internal/habitat-harness/cli/base/HabitatCommand";
-import { renderCheckReport } from "@internal/habitat-harness/service/model/check/structural/index";
-import { createHabitatServiceClient } from "@internal/habitat-harness/service/router";
+import { renderCheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import { Flags } from "@oclif/core";
 
 export default class Check extends HabitatCommand {
@@ -34,7 +33,7 @@ export default class Check extends HabitatCommand {
     const { flags } = await this.parse(Check);
     const selection = { owner: flags.owner, rule: flags.rule, tool: flags.tool };
     const base = flags.base ?? "main";
-    const client = createHabitatServiceClient();
+    const client = await this.habitatServiceClient();
     if (flags["expand-baseline"]) {
       const expansion = await client.check.expandBaseline({
         selectors: selection,

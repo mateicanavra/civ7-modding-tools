@@ -1,14 +1,4 @@
 import {
-  diagnosticCacheObservationFromCommand,
-  diagnosticCacheRequirementForGritCheck,
-  diagnosticCacheRequirementSatisfied,
-  diagnosticCommandObservationFromResult,
-  diagnosticProviderFailureForCacheObservation,
-  diagnosticToolUnavailableObservation,
-  nativeGritCheckRequestFromProcessRequest,
-  renderDiagnosticScanRootRefusal,
-} from "@internal/habitat-harness/service/model/check/diagnostics/index";
-import {
   CommandFailed,
   CommandInterrupted,
   CommandUnavailable,
@@ -17,6 +7,16 @@ import {
   makeHabitatCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
 import { FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
+import {
+  diagnosticCacheObservationFromCommand,
+  diagnosticCacheRequirementForGritCheck,
+  diagnosticCacheRequirementSatisfied,
+  diagnosticCommandObservationFromResult,
+  diagnosticProviderFailureForCacheObservation,
+  diagnosticToolUnavailableObservation,
+  nativeGritCheckRequestFromProcessRequest,
+  renderDiagnosticScanRootRefusal,
+} from "@internal/habitat-harness/service/model/check/index";
 import { Effect } from "effect";
 import { GritToolUnavailable } from "./failures.js";
 import { parseGritCheckOutput, parseGritCheckTextOutput } from "./output.js";

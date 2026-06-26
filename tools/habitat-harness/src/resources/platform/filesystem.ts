@@ -2,10 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { FileSystem } from "@effect/platform";
 import type { PlatformError } from "@effect/platform/Error";
-import {
-  FileReadFailed,
-  FileWriteFailed,
-} from "@internal/habitat-harness/resources/errors/index";
+import { FileReadFailed, FileWriteFailed } from "@internal/habitat-harness/resources/errors/index";
 import { Effect } from "effect";
 
 export interface HabitatDirectoryEntry {

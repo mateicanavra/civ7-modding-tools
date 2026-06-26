@@ -1,14 +1,8 @@
-import {
-  checkCommandContext,
-  describeRuleSelectionFailure,
-  StructuralCheck,
-} from "@internal/habitat-harness/service/model/check/structural/index";
-import type { CheckServiceRunInput } from "./contract.js";
 import { module } from "./module.js";
 
 export const checkRouter = {
-  run: module.run.effect(function* ({ input }) {
-    const structuralCheck = yield* StructuralCheck;
+  run: module.run.effect(function* ({ context, input }) {
+    const { checkCommandContext, selectorsFromInput, structuralCheck } = context;
     return yield* structuralCheck.createReport({
       ...selectorsFromInput(input),
       ...(input.base ? { base: input.base } : {}),
@@ -18,8 +12,8 @@ export const checkRouter = {
       ...(input.stagedPaths ? { stagedPaths: input.stagedPaths } : {}),
     });
   }),
-  expandBaseline: module.expandBaseline.effect(function* ({ input }) {
-    const structuralCheck = yield* StructuralCheck;
+  expandBaseline: module.expandBaseline.effect(function* ({ context, input }) {
+    const { describeRuleSelectionFailure, selectorsFromInput, structuralCheck } = context;
     const expansion = yield* structuralCheck.expandBaselines(selectorsFromInput(input), {
       base: input.base ?? "main",
     });
@@ -29,11 +23,3 @@ export const checkRouter = {
 };
 
 export const router = checkRouter;
-
-function selectorsFromInput(input: Pick<CheckServiceRunInput, "selectors">) {
-  return {
-    ...(input.selectors?.owner ? { owner: input.selectors.owner } : {}),
-    ...(input.selectors?.rule ? { rule: input.selectors.rule } : {}),
-    ...(input.selectors?.tool ? { tool: input.selectors.tool } : {}),
-  };
-}

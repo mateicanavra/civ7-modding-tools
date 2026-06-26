@@ -4,11 +4,6 @@ import {
   makeFakeBiomeProviderLayer,
 } from "@internal/habitat-harness/providers/biome/index";
 import {
-  captureOutput,
-  makeHabitatCommandResult,
-  materializeDefaultHabitatCommand,
-} from "@internal/habitat-harness/resources/command/index";
-import {
   GitProvider,
   makeFakeGitProviderLayer,
 } from "@internal/habitat-harness/providers/git/index";
@@ -28,6 +23,11 @@ import {
   runManyArgv,
   runTargetArgv,
 } from "@internal/habitat-harness/providers/nx/index";
+import {
+  captureOutput,
+  makeHabitatCommandResult,
+  materializeDefaultHabitatCommand,
+} from "@internal/habitat-harness/resources/command/index";
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";

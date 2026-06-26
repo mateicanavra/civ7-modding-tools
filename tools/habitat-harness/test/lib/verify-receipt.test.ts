@@ -1,4 +1,4 @@
-import type { CheckReport } from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { CheckReport } from "@internal/habitat-harness/service/model/check/policy/structural/schema";
 import {
   type VerifyTargetPlan,
   verifyTargetPlan,
@@ -7,7 +7,7 @@ import {
   createVerifyReceipt,
   VerifyReceiptSchema,
   validateVerifyReceipt,
-} from "@internal/habitat-harness/service/model/verify/proof/index";
+} from "@internal/habitat-harness/service/modules/verify/model/index";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 
@@ -110,14 +110,21 @@ describe("verify receipt", () => {
         "nx",
         "affected",
         "-t",
-        "build,check,test,validate:boundary-taxonomy,validate:grit-patterns",
+        "build,check,test,validate:boundary-taxonomy,validate:grit-patterns,validate:service-module-shape",
         "--base",
         "HEAD",
         "--head",
         "HEAD",
         "--outputStyle=static",
       ],
-      targets: ["build", "check", "test", "validate:boundary-taxonomy", "validate:grit-patterns"],
+      targets: [
+        "build",
+        "check",
+        "test",
+        "validate:boundary-taxonomy",
+        "validate:grit-patterns",
+        "validate:service-module-shape",
+      ],
       projects: [],
       cacheStateByTask: [],
       exitCode: null,
@@ -148,7 +155,14 @@ describe("verify receipt", () => {
     expect(receipt.nxAffected).toMatchObject({
       kind: "skipped",
       skipReason: "receipt-only",
-      targets: ["build", "check", "test", "validate:boundary-taxonomy", "validate:grit-patterns"],
+      targets: [
+        "build",
+        "check",
+        "test",
+        "validate:boundary-taxonomy",
+        "validate:grit-patterns",
+        "validate:service-module-shape",
+      ],
       projects: [],
       cacheStateByTask: [],
       exitCode: null,
@@ -273,6 +287,7 @@ function verifyTargetPlanFixture() {
         { name: "test" },
         { name: "validate:boundary-taxonomy" },
         { name: "validate:grit-patterns" },
+        { name: "validate:service-module-shape" },
       ],
     },
   ]);

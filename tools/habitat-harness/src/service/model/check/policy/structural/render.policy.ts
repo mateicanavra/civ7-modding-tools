@@ -1,0 +1,23 @@
+import { writeFileSync } from "node:fs";
+import path from "node:path";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
+import { renderReport } from "@internal/habitat-harness/service/model/check/policy/rule-runtime/messages.policy";
+import type { EmitCheckOptions } from "./request.policy.js";
+import type { CheckReport } from "./schema.js";
+import { validateCheckReport } from "./schema.js";
+
+export function renderCheckReport(report: CheckReport, options: EmitCheckOptions = {}): string {
+  const json = stringifyCheckReport(report);
+  if (options.output) writeFileSync(path.resolve(repoRoot, options.output), `${json}\n`);
+  return options.json ? json : renderReport(report);
+}
+
+export function stringifyCheckReport(report: CheckReport): string {
+  const schemaErrors = validateCheckReport(report);
+  if (schemaErrors.length > 0) {
+    throw new Error(
+      `habitat internal error: report violates its own schema:\n${schemaErrors.join("\n")}`
+    );
+  }
+  return JSON.stringify(report, null, 2);
+}

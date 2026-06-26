@@ -1,14 +1,14 @@
+import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import {
   type HabitatServiceContext,
   type HabitatServiceRequirements,
-  type HabitatServiceRuntimeError,
   HabitatServiceRuntime,
+  type HabitatServiceRuntimeError,
 } from "@internal/habitat-harness/service/base";
 import {
   type HabitatServiceContract,
   habitatServiceContract,
 } from "@internal/habitat-harness/service/contract";
-import { HabitatRuntimeLive } from "@internal/habitat-harness/runtime/layers";
 import { Layer, ManagedRuntime } from "effect";
 import { type EffectImplementer, eoc, implementEffect } from "effect-orpc";
 

@@ -3,20 +3,17 @@ import { Command } from "@effect/platform";
 import type { CommandExecutor } from "@effect/platform/CommandExecutor";
 import type { PlatformError } from "@effect/platform/Error";
 import {
-  HabitatConfig,
-  makeHabitatConfig,
-} from "@internal/habitat-harness/resources/config/index";
-import {
-  currentTimeMillis,
-  epochMillisToIsoString,
-} from "@internal/habitat-harness/resources/platform/index";
-import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
-import {
   GitStateProvider,
   type HabitatCommandGitState,
   readGitState,
   unknownGitState,
 } from "@internal/habitat-harness/providers/git/state";
+import { HabitatConfig, makeHabitatConfig } from "@internal/habitat-harness/resources/config/index";
+import {
+  currentTimeMillis,
+  epochMillisToIsoString,
+} from "@internal/habitat-harness/resources/platform/index";
+import { Chunk, Clock, Context, Duration, Effect, Layer, Stream } from "effect";
 import { CommandInterrupted, CommandUnavailable } from "./errors.js";
 import { materializeHabitatCommandWithConfig } from "./materialize.js";
 import { makeCommandResultFromObservation } from "./output.js";

@@ -1,5 +1,5 @@
-import { habitatArtifactPathPlan } from "@internal/habitat-harness/service/model/rules/registry/artifact-paths";
 import type { WorkspaceGraphTargetNames } from "@internal/habitat-harness/providers/nx/schema";
+import { habitatArtifactPathPlan } from "@internal/habitat-harness/service/model/rules/policy/artifact-paths.policy";
 
 export interface ValidationRunTarget {
   readonly project: string;
@@ -16,7 +16,12 @@ const packageCheckTarget = "check";
 const habitatToolingPrefix = "tools/habitat-harness/";
 const boundaryTaxonomyTargetName = "validate:boundary-taxonomy";
 const gritPatternsTargetName = "validate:grit-patterns";
-const structuralTargetNames = [boundaryTaxonomyTargetName, gritPatternsTargetName] as const;
+const serviceModuleShapeTargetName = "validate:service-module-shape";
+const structuralTargetNames = [
+  boundaryTaxonomyTargetName,
+  gritPatternsTargetName,
+  serviceModuleShapeTargetName,
+] as const;
 
 export function graphCheckTargetNames(targetNames: WorkspaceGraphTargetNames): readonly string[] {
   return [
@@ -88,9 +93,11 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
   const targets = new Set<string>();
   for (const filePath of paths) {
     if (isBoundaryTaxonomyToolingPath(filePath)) targets.add(boundaryTaxonomyTargetName);
+    if (isServiceModuleShapeToolingPath(filePath)) targets.add(serviceModuleShapeTargetName);
     if (isStructuralTargetDeclarationPath(filePath)) {
       targets.add(boundaryTaxonomyTargetName);
       targets.add(gritPatternsTargetName);
+      targets.add(serviceModuleShapeTargetName);
     }
   }
   return [...targets];
@@ -99,10 +106,17 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath === "tools/habitat-harness/scripts/validate-boundary-taxonomy.ts" ||
-    filePath === "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.ts"
+    filePath === "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts"
   );
 }
 
 function isStructuralTargetDeclarationPath(filePath: string): boolean {
   return filePath === "tools/habitat-harness/package.json";
+}
+
+function isServiceModuleShapeToolingPath(filePath: string): boolean {
+  return (
+    filePath === "tools/habitat-harness/scripts/validate-service-module-shape.ts" ||
+    filePath.startsWith("tools/habitat-harness/src/service/modules/")
+  );
 }
