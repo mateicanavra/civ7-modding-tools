@@ -5,6 +5,8 @@ import {
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
 } from "@internal/habitat-harness/resources/command/index";
+import type { HabitatModule } from "@internal/habitat-harness/service/base";
+import type { HabitatServiceContract } from "@internal/habitat-harness/service/contract";
 import { service } from "@internal/habitat-harness/service/impl";
 import { Effect } from "effect";
 import {
@@ -34,31 +36,34 @@ export interface GraphModuleContext {
   ) => Effect.Effect<A, GraphServiceBadRequestError | GraphServiceInternalError, any>;
 }
 
-export const module = service.graph.use(({ context, next }) => {
-  return next({
-    context: {
-      parseWorkspaceGraphJson: (graphPath, graphText, badRequest) =>
-        parseGraphJson(graphPath, graphText).pipe(
-          Effect.mapError((failure) => badRequest({ message: failure.message }))
-        ),
-      readWorkspaceGraphText: (graphPath) =>
-        context.deps.platform.readText(graphPath).pipe(Effect.mapError(graphServiceInternalError)),
-      runNxWorkspaceGraph: (request) =>
-        context.deps.nx.graph(request).pipe(
-          Effect.match({
-            onFailure: spawnResultFromCommandProviderError,
-            onSuccess: spawnResultFromCommandResult,
-          })
-        ),
-      selectWorkspaceGraphPayload: (graphPath, payload, badRequest) =>
-        selectGraphPayload(graphPath, payload).pipe(
-          Effect.mapError((failure) => badRequest({ message: failure.message }))
-        ),
-      withWorkspaceGraphFile: (body) =>
-        withWorkspaceGraphFile(context.deps.platform.acquireTempDirectory, body),
-    } satisfies GraphModuleContext,
+export const module: HabitatModule<HabitatServiceContract["graph"], GraphModuleContext> =
+  service.graph.use(({ context, next }) => {
+    return next({
+      context: {
+        parseWorkspaceGraphJson: (graphPath, graphText, badRequest) =>
+          parseGraphJson(graphPath, graphText).pipe(
+            Effect.mapError((failure) => badRequest({ message: failure.message }))
+          ),
+        readWorkspaceGraphText: (graphPath) =>
+          context.deps.platform
+            .readText(graphPath)
+            .pipe(Effect.mapError(graphServiceInternalError)),
+        runNxWorkspaceGraph: (request) =>
+          context.deps.nx.graph(request).pipe(
+            Effect.match({
+              onFailure: spawnResultFromCommandProviderError,
+              onSuccess: spawnResultFromCommandResult,
+            })
+          ),
+        selectWorkspaceGraphPayload: (graphPath, payload, badRequest) =>
+          selectGraphPayload(graphPath, payload).pipe(
+            Effect.mapError((failure) => badRequest({ message: failure.message }))
+          ),
+        withWorkspaceGraphFile: (body) =>
+          withWorkspaceGraphFile(context.deps.platform.acquireTempDirectory, body),
+      } satisfies GraphModuleContext,
+    });
   });
-});
 
 interface GraphJsonFailure {
   readonly message: string;

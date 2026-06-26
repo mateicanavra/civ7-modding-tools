@@ -6,10 +6,10 @@ import {
   extractBoundaryConfigConstraints,
   firstFailedConstraint,
   parseBoundaryTaxonomy,
-  readWorkspaceManifestProjects,
   type TaxonomyConstraint,
 } from "@internal/habitat-harness/service/model/graph/policy/boundary-taxonomy.policy";
 import type { WorkspaceProject } from "@internal/habitat-harness/service/model/workspace/index";
+import { readWorkspaceManifestProjects } from "@internal/habitat-harness/validation/boundary-taxonomy-inputs";
 import { describe, expect, test } from "vitest";
 
 describe("boundary taxonomy verifier", () => {

@@ -1,4 +1,15 @@
 import type { FileSystem } from "@effect/platform";
+import {
+  applyBaseline,
+  type BaselineApplicationResult,
+  type BaselineAuthorityContext,
+  baselineContractInputs,
+  baselineFailureDiagnostic,
+  baselineIntegrityFindingsEffect,
+  checkBaselineIntegrityEffect,
+  isBaselineLocked,
+  loadBaselineStateEffect,
+} from "@internal/habitat-harness/service/model/baseline/index";
 import type {
   CheckReport,
   RuleExecutionDisposition,
@@ -8,28 +19,13 @@ import {
   type CheckOptions,
   structuralCheckRequest,
 } from "@internal/habitat-harness/service/model/check/index";
-import {
-  applyBaseline,
-  type BaselineApplicationResult,
-  type BaselineAuthorityContext,
-  baselineFailureDiagnostic,
-  baselineIntegrityFindingsEffect,
-  checkBaselineIntegrityEffect,
-  isBaselineLocked,
-  loadBaselineStateEffect,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
 import type { RuleReportFacts } from "@internal/habitat-harness/service/model/rules/index";
 import { factsForRuleIds } from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
 import { selectRules } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Clock, Effect } from "effect";
 import { Value } from "typebox/value";
-import { baselineContractInputs } from "./baseline-expansion.policy.js";
-import {
-  executeSelectedRulesEffect,
-  type RuleExecutionRecord,
-  rulesForExecution,
-  type StructuralExecutionContext,
-} from "./execution.policy.js";
+import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
+import { executeSelectedRulesEffect, rulesForExecution } from "./execution.policy.js";
 import { constructCheckReportEffect, selectorRefusalReportEffect } from "./selection.policy.js";
 import {
   BaselineApplicationOutcomeSchema,

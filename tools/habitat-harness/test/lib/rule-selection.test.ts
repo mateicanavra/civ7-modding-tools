@@ -1,14 +1,14 @@
 import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import {
-  approvedScanRootsForRules,
   checkCommandContext,
   renderCheckReport,
+  structuralCheckRequest,
+  validateCheckReport,
+} from "@internal/habitat-harness/service/model/check/index";
+import {
   rulesForExecution,
   selectorRefusalReportEffect,
   stagedSourceCheckNotApplicableRecords,
-  stagedSourceCheckPaths,
-  structuralCheckRequest,
-  validateCheckReport,
 } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type {
   RuleRegistryRecordV1,
@@ -18,6 +18,10 @@ import {
   type RuleSelection,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
+import {
+  approvedScanRootsForRules,
+  stagedSourceCheckPaths,
+} from "@internal/habitat-harness/service/model/source-check/index";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 

@@ -17,7 +17,7 @@ import {
 import {
   checkBaselineIntegrityEffect,
   writeBaselineEffect,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+} from "@internal/habitat-harness/service/model/baseline/index";
 import { executeSelectedRulesEffect } from "@internal/habitat-harness/service/model/check/policy/structural/execution.policy";
 import { Effect, Layer } from "effect";
 import { describe, expect, test } from "vitest";

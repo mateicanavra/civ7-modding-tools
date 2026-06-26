@@ -25,7 +25,6 @@ import type {
   CheckOptions,
   CheckReport,
 } from "@internal/habitat-harness/service/model/check/index";
-import type { BaselineExpansionResult } from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import {
   classifyResourcePreCommitDecisionEffect,
   classifyResourcesState,
@@ -39,14 +38,10 @@ import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 type StructuralCheckPolicy = {
   readonly createReport: (options?: CheckOptions) => Effect.Effect<CheckReport>;
-  readonly expandBaselines: () => Effect.Effect<BaselineExpansionResult>;
 };
 
 const mockCreateCheckReportEffect = vi.hoisted(() =>
   vi.fn<StructuralCheckPolicy["createReport"]>()
-);
-const mockExpandBaselinesEffect = vi.hoisted(() =>
-  vi.fn<StructuralCheckPolicy["expandBaselines"]>()
 );
 
 vi.mock(
@@ -59,7 +54,6 @@ vi.mock(
     return {
       ...actual,
       createCheckReportEffect: mockCreateCheckReportEffect,
-      expandBaselinesEffect: mockExpandBaselinesEffect,
     };
   }
 );
@@ -440,7 +434,7 @@ function runHookProcedure(options: {
     const git = yield* GitProvider;
     const graphite = yield* GraphiteProvider;
     const nx = yield* NxProvider;
-    const executeHook = hookRouter.execute.callable({
+    const preCommitHook = hookRouter.preCommit.callable({
       context: {
         deps: {
           ...makeTestHabitatServiceDeps({
@@ -469,8 +463,7 @@ function runHookProcedure(options: {
       },
     });
     return yield* withFiberContext(() =>
-      executeHook({
-        name: "pre-commit",
+      preCommitHook({
         ...(options.resourcePolicy ? { resourcePolicy: options.resourcePolicy } : {}),
       })
     );
@@ -494,13 +487,11 @@ function makeStructuralCheckPolicy(fake: FakeHookHarness): StructuralCheckPolicy
         }
         return passingCheckReport(options.command?.serialized ?? "habitat check");
       }),
-    expandBaselines: () => Effect.succeed({ ok: true, messages: [] }),
   };
 }
 
 function useStructuralCheckPolicy(policy: StructuralCheckPolicy) {
   mockCreateCheckReportEffect.mockImplementation(policy.createReport);
-  mockExpandBaselinesEffect.mockImplementation(policy.expandBaselines);
 }
 
 function makeBiomeLayer(fake: FakeHookHarness) {

@@ -111,12 +111,18 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
     filePath === "tools/habitat-harness/scripts/validate-boundary-taxonomy.ts" ||
-    filePath === "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts"
+    filePath ===
+      "tools/habitat-harness/src/service/model/graph/policy/boundary-taxonomy.policy.ts" ||
+    filePath === "tools/habitat-harness/src/validation/boundary-taxonomy-inputs.ts"
   );
 }
 
 function isStructuralTargetDeclarationPath(filePath: string): boolean {
-  return filePath === "tools/habitat-harness/package.json";
+  return (
+    filePath === "tools/habitat-harness/package.json" ||
+    filePath ===
+      "tools/habitat-harness/src/service/model/validation/policy/target-routing.policy.ts"
+  );
 }
 
 function isServiceModuleShapeToolingPath(filePath: string): boolean {

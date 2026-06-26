@@ -1,5 +1,8 @@
 import type { Effect } from "effect";
-import type { BaselineRuleContractInput, RuleIntroductionBaselineManifest } from "./schema.js";
+import type {
+  BaselineRuleContractInput,
+  RuleIntroductionBaselineManifest,
+} from "./dto/baseline.schema.js";
 
 export interface BaselineDirectoryEntry {
   readonly name: string;

@@ -1,6 +1,6 @@
-import { verifyAffectedTargetNames } from "@internal/habitat-harness/service/model/graph/policy/validation-routing.policy";
 import type { RuleGraphFacts } from "@internal/habitat-harness/service/model/rules/dto/registry.schema";
 import { Value } from "typebox/value";
+import { verifyAffectedTargetNames } from "../../validation/policy/target-routing.policy.ts";
 import {
   type AggregateWorkspaceTargetDeclaration,
   type GraphRefusalState,

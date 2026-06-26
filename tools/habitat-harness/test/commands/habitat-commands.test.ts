@@ -16,9 +16,11 @@ const mockVerifyTargetPlan = vi.hoisted(() => ({
 const mockCheckReport = vi.hoisted(() => vi.fn());
 const mockCheckExpandBaseline = vi.hoisted(() => vi.fn());
 const mockClassifyTarget = vi.hoisted(() => vi.fn());
+const mockFixPlanPatterns = vi.hoisted(() => vi.fn());
 const mockFixApplyPatterns = vi.hoisted(() => vi.fn());
 const mockGraphWorkspaceGraph = vi.hoisted(() => vi.fn());
-const mockHookExecute = vi.hoisted(() => vi.fn());
+const mockHookPreCommit = vi.hoisted(() => vi.fn());
+const mockHookPrePush = vi.hoisted(() => vi.fn());
 const mockVerifyChanges = vi.hoisted(() => vi.fn());
 const mockWriteFileSync = vi.hoisted(() => vi.fn());
 
@@ -71,9 +73,9 @@ vi.mock("@orpc/server", () => ({
   createRouterClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, report: mockCheckReport },
     classify: { target: mockClassifyTarget },
-    fix: { applyPatterns: mockFixApplyPatterns },
+    fix: { planPatterns: mockFixPlanPatterns, applyPatterns: mockFixApplyPatterns },
     graph: { workspaceGraph: mockGraphWorkspaceGraph },
-    hook: { execute: mockHookExecute },
+    hook: { preCommit: mockHookPreCommit, prePush: mockHookPrePush },
     verify: { changes: mockVerifyChanges },
   })),
 }));
@@ -140,13 +142,14 @@ describe("Habitat oclif commands", () => {
       unavailableTargets: [],
       recoveryInstructions: [],
     }));
+    mockFixPlanPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockFixApplyPatterns.mockResolvedValue({ exitCode: 0, stdout: "biome ok\n", stderr: "" });
     mockGraphWorkspaceGraph.mockResolvedValue({
-      exitCode: 0,
-      stdout: '{"nodes":{}}\n',
-      stderr: "",
+      kind: "completed",
+      graph: { nodes: {} },
     });
-    mockHookExecute.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
+    mockHookPreCommit.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
+    mockHookPrePush.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockVerifyChanges.mockImplementation(
       async (input: { base?: string; affectedExecution?: string }) => {
         const base = input.base ?? "merge-base";
@@ -245,11 +248,12 @@ describe("Habitat oclif commands", () => {
     expect(mockCheckReport).not.toHaveBeenCalled();
   });
 
-  test("fix forwards dry-run intent through the Habitat service router", async () => {
+  test("fix forwards dry-run through the Habitat service router as a plan action", async () => {
     await Fix.run(["--dry-run"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "dry-run-intent" });
+    expect(mockFixPlanPatterns).toHaveBeenCalledWith({});
+    expect(mockFixApplyPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toContain("biome ok");
     expect(stderr.join("")).toBe("");
   });
@@ -258,7 +262,8 @@ describe("Habitat oclif commands", () => {
     await Fix.run([]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(mockFixApplyPatterns).toHaveBeenCalledWith({});
+    expect(mockFixPlanPatterns).not.toHaveBeenCalled();
     expect(stdout.join("")).toContain("biome ok");
   });
 
@@ -271,7 +276,7 @@ describe("Habitat oclif commands", () => {
 
     await expect(Fix.run([])).rejects.toMatchObject({ oclif: { exit: 1 } });
 
-    expect(mockFixApplyPatterns).toHaveBeenCalledWith({ kind: "live-write-intent" });
+    expect(mockFixApplyPatterns).toHaveBeenCalledWith({});
     expect(stdout.join("")).toBe("");
     expect(stderr.join("")).toContain("missing-apply-admission");
   });
@@ -308,7 +313,7 @@ describe("Habitat oclif commands", () => {
     await Graph.run(["--json"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockGraphWorkspaceGraph).toHaveBeenCalledWith({ json: true });
+    expect(mockGraphWorkspaceGraph).toHaveBeenCalledWith({});
     expect(stdout.join("")).toContain('{"nodes":{}}');
   });
 
@@ -332,8 +337,18 @@ describe("Habitat oclif commands", () => {
     await Hook.run(["pre-push", "--base", "HEAD~1"]);
 
     expect(createRouterClient).toHaveBeenCalled();
-    expect(mockHookExecute).toHaveBeenCalledWith({ name: "pre-push", base: "HEAD~1" });
+    expect(mockHookPrePush).toHaveBeenCalledWith({ base: "HEAD~1" });
     expect(stdout.join("")).toContain("hook ok");
+  });
+
+  test("hook rejects unknown names before calling the service router", async () => {
+    await expect(Hook.run([])).rejects.toThrow();
+
+    expect(mockHookPreCommit).not.toHaveBeenCalled();
+    expect(mockHookPrePush).not.toHaveBeenCalled();
+    expect(stderr.join("")).toBe(
+      "Unknown Habitat hook '(missing)'. Expected pre-commit or pre-push.\n"
+    );
   });
 
   test("classify uses oclif parse errors for missing required path", async () => {

@@ -1,23 +1,23 @@
 import {
   applyBaseline,
   type BaselineAuthorityContext,
+  baselineContractInputs,
+  errorMessage,
   guardBaselineExpansionEffect,
   loadBaselineStateEffect,
   violationKey,
   writeBaselineEffect,
-} from "@internal/habitat-harness/service/model/check/policy/baseline/index";
+} from "@internal/habitat-harness/service/model/baseline/index";
 import {
-  factsForRuleIds,
-  type RuleFactsCatalog,
-} from "@internal/habitat-harness/service/model/rules/policy/catalog.policy";
+  executeSelectedRulesEffect,
+  type StructuralExecutionContext,
+} from "@internal/habitat-harness/service/model/check/policy/structural/index";
 import type { RuleSelection } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import {
   type RuleSelectionResult,
   selectRules,
 } from "@internal/habitat-harness/service/model/rules/policy/selection.policy";
 import { Effect } from "effect";
-import { errorMessage } from "../baseline/context.policy.js";
-import { executeSelectedRulesEffect, type StructuralExecutionContext } from "./execution.policy.js";
 
 export type BaselineExpansionResult =
   | { ok: true; messages: string[] }
@@ -113,25 +113,6 @@ function baselineContext(context: StructuralExecutionContext): BaselineAuthority
     git: context.git,
     repoRoot: context.repoRoot,
   };
-}
-
-export function baselineContractInputs(rules: RuleFactsCatalog, ruleIds?: readonly string[]) {
-  const baselineFacts = ruleIds ? factsForRuleIds(rules.baseline, ruleIds) : rules.baseline;
-  const selectorsByRuleId = factsByRuleId(
-    ruleIds ? factsForRuleIds(rules.selector, ruleIds) : rules.selector
-  );
-  return baselineFacts.map((fact) => {
-    const selector = selectorsByRuleId.get(fact.id);
-    return {
-      ...fact,
-      ...(selector
-        ? {
-            ownerProject: selector.ownerProject,
-            ownerTool: selector.ownerTool,
-          }
-        : {}),
-    };
-  });
 }
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {

@@ -2,11 +2,21 @@
 
 Current burn-down categories:
 
+- Active next slice: continue auditing `service/model/check` by consumer set. Keep report DTOs, summaries, render/request language, and structural policy shared only where check/hook/verify/CLI genuinely share the same service language; move check-only execution or authority code under the owning module instead of letting `service/model` become an authority bucket.
 - Standing guardrail: do not turn `model` into a dumping ground. If logic clusters there instead of a router/procedure, policy, DTO, or repository kind, redesign the module split/merge before adding more files.
+- Standing guardrail: do not keep instruction Markdown or other unmanaged file kinds inside `src/service/model`; preserve durable guidance in this backlog or docs, then keep source trees to named code/artifact kinds only.
 - Standing guardrail: policy files are helpers or policy middleware; do not recreate oRPC procedure/router responsibilities outside the oRPC module/router flow.
 - Router import shape: every `service/modules/*/router.ts` imports only its local `./module.js`; all policy helpers, provider access, resource calls, Effect wrappers, and DTO/schema helpers must be projected through module context or moved to service/model when truly shared.
 - Router violation queue from current scan: all root module routers are clean.
 - Service-level context stays limited to provisioned/shared resources; module-local procedure concepts stay in `module.ts` or module-local model policy/DTO/helper kinds.
+- Active ratchet: module-local `model/` trees now need the same named-kind file discipline as shared `service/model`; arbitrary implementation files under `model/` are unmanaged logic and must be renamed/classified or moved.
+- Active ratchet: model subdirectories are restricted to `dto`, `errors`, `policy`, and `repositories`; generic `helpers`, `persistence`, and `prompts` buckets are not allowed because they hide ownership instead of naming it.
+- Active runtime cleanup: service runtime realization belongs under `runtime/`; `service/impl.ts` should attach the contract/context to an already-realized managed runtime instead of composing live provider layers itself.
+- Active CLI-shape cleanup: service procedures must expose direct Habitat actions, not command-name envelopes. The CLI owns hook-name parsing/refusal and calls the direct service action.
+- Active contract cleanup: continue simplifying service contracts and schemas after action splits; schemas should describe domain action inputs/outputs directly, not mirror command envelopes or preserve old compatibility names.
+- Active contract cleanup: simplify effect-oRPC contract files categorically. Procedure contracts should not manually repeat input/output generic types when schemas already define them; module contracts should compose procedure definitions directly where the local pattern allows; investigate replacing the custom `toStandardSchema` wrapper with TypeBox's native Standard Schema support if the installed TypeBox version provides it.
+- Active CLI-shape cleanup follow-up: continue replacing command-shaped procedure inputs with direct module actions. `fix` is now split into plan/apply actions; remaining modules should keep flags, command names, formatting, and output mode choices at the CLI edge.
+- Active hook context cleanup: `HookModuleContext` is still a design smell if it becomes a giant menu of low-level operations. If this context belongs to the hook module, it should not need to be declared in this way; if it is external to the hook module, the logic must live outside the hook module.
 - Promise/resource adaptation belongs outside routers. Routers author procedure logic through the module implementer and consume ready Effect-returning operations from handler context.
 - Remove module-local context from `service/base.ts`; service context keeps only provisioned resources and shared service metadata.
 - Let each `module.ts` project service resources into the module-specific procedure context.
@@ -22,6 +32,7 @@ Current burn-down categories:
 
 Completed burn-downs:
 
+- Structural check execution context projection now lives in the service entry context projection; check, hook, and verify modules no longer rebuild the same resource mapping locally.
 - Provider/resource imports in service internals are now isolated to `service/base.ts`, the service-entry dependency surface; modules consume provider capabilities through module-owned ports or provider-owned methods.
 - Grit rule execution is now a Grit provider capability; check, hook, and verify modules project `deps.grit.runRules` into structural policy and no longer import `runGritRulesEffect` directly.
 - Baseline authority now receives a baseline-owned filesystem port through structural execution context; direct platform helper imports are removed from baseline policy, and the platform resource exposes the write-capable filesystem operations needed for runtime projection.
@@ -109,3 +120,25 @@ Completed burn-downs:
 - Boundary taxonomy no longer contains a stale allowance for separately inferred `service/modules/*/model` projects; module-local models remain inside their owning `layer:service-module` project and unexpected inferred model projects become validation failures.
 - Classify result DTOs and verify receipt DTOs now live under their owning module `model/dto` trees; the old shared `service/model/classify` and `service/model/verify` directories are deleted, and CLI/tests consume the module-owned model barrels.
 - Check CLI output paths now resolve through the provisioned Habitat service context platform repo root instead of importing the global repo-root singleton at the CLI command edge.
+- The `service/model/IMPORTANT.md` instruction was absorbed into the backlog and removed from source; the remaining service-model burn-down should continue moving module-local DTO/policy/repository logic into the owning module while keeping only genuinely shared cross-module facts under `service/model`.
+- The service shape validator no longer has a Markdown exception for `service/model/IMPORTANT.md`, and the Nx validation target now watches `src/service/model/**` so shared service-model topology is ratcheted with module topology.
+- Module-local `model/` trees now use strict policy/DTO/error file-kind naming in the service shape validator; future loose model files are rejected instead of quietly becoming unowned logic.
+- Baseline expansion moved out of shared structural check policy into the check module model; shared check model now keeps only baseline contract input projection for report/integrity policy, and hook tests no longer fake a baseline-expansion dependency they never use.
+- The structural check policy barrel no longer re-exports general check DTO/request/render/summary language; consumers import public check language from `service/model/check/index` and structural-only helpers from `policy/structural/index`.
+- Model shape validation now rejects generic `helpers`, `persistence`, and `prompts` buckets; Habitat service logic must land in explicit DTO, policy, repository, or error kinds.
+- Habitat service managed runtime construction moved to `runtime/service-runtime.ts`; the oRPC implementer and live service context creation share the same runtime-boundary composition instead of constructing runtimes in service files.
+- Hook service procedure shape now exposes `hook.preCommit` and `hook.prePush`; the old `hook.execute({ name })` envelope and unknown-name service state are deleted, and CLI hook dispatch compiles names to direct service actions.
+- Graph service procedure shape now returns a graph action result instead of a CLI stdout/stderr JSON envelope; `--json` compact formatting is owned by the CLI command.
+- Redundant `HabitatServiceProcedureContract<...>` annotations were removed from module contracts and the now-unused `service/procedure-contract.ts` helper was deleted. The custom `toStandardSchema` adapter remains for now because the installed TypeBox package does not expose a native Standard Schema converter.
+- Module contract files now compose procedure contracts directly in the exported module contract object; per-procedure contract constants are no longer exported as extra public surface.
+- Fix service procedure shape now exposes direct `fix.planPatterns({})` and `fix.applyPatterns({})` actions. CLI `--dry-run` compiles to the planning action, live fix calls compile to the apply action, and dry-run/live-write transaction intent remains module-internal policy input instead of public procedure input.
+- Baseline authority is now its own shared `service/model/baseline` domain with DTO/policy files in named kinds. Check structural reporting and check baseline expansion import baseline explicitly instead of burying baseline authority under `service/model/check`.
+- Source-check scan planning and native source-rule runtime now live under `service/model/source-check`; check no longer re-exports source-check operations, and Nx target inference imports source-check rule module paths from the owning domain.
+- Structural check policy no longer exports source-check helper wrappers; staged source path planning and approved scan-root calculation are owned by `service/model/source-check`.
+- Structural check execution now has named context and source/grit lane policies; the main execution policy orchestrates rule categories instead of also owning provider port shape and source-check execution internals.
+- Hook pre-commit/pre-push procedure orchestration now lives in the hook router instead of whole-action `context.run*` delegates; the hook module projects lower-level resource-backed operations and command recording into the procedure context.
+- Structural check execution lanes now have named command/Nx-backed and file-layer/staged-path policies; `execution.policy.ts` is reduced to rule selection and lane orchestration instead of owning every execution implementation.
+- Hook procedure context vocabulary now lives in a named module-local policy file; `hook/module.ts` no longer exports raw provider/port/state type declarations as inline implementation clutter.
+- Boundary taxonomy filesystem/config/Nx graph acquisition now lives under `src/validation`; shared `service/model/graph` retains the pure taxonomy parser/auditor instead of importing filesystem and Nx graph APIs.
+- Hook pre-commit/pre-push operation bodies now live in module-local `procedure-operations.policy.ts`; `hook/module.ts` is reduced to effect-oRPC context projection plus shared check-report context construction.
+- Hook/verify validation target routing now lives under shared `service/model/validation`; graph model no longer owns Habitat validation target selection policy.
