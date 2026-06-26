@@ -1,0 +1,32 @@
+{
+  "id": "prohibit_sibling_stage_private_step_imports",
+  "title": "Prohibit Sibling Stage Private Step Imports",
+  "ownerTool": "source-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
+  "forbids": "stage code importing another stage's steps implementation",
+  "why": "Stages compose through recipe/domain contracts, not sibling step internals.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "source-check"
+  ],
+  "remediate": null,
+  "message": "Do not import sibling stage steps; promote a contract or domain surface.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_sibling_stage_private_step_imports",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "prohibit_recipe_imports_in_domain_source",
+  "title": "Prohibit Recipe Imports In Domain Source",
+  "ownerTool": "source-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/*.ts",
+  "forbids": "domain source importing or re-exporting recipe modules",
+  "why": "Domain code defines reusable public surfaces; recipe composition stays in recipes and must not flow back into domain implementation.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "source-check"
+  ],
+  "remediate": null,
+  "message": "Domain source must not import recipe modules; move composition to recipes or expose a domain surface.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_recipe_imports_in_domain_source",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/*.ts"
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ export const GritDiagnosticIdentitySchema = Type.Object(
   { additionalProperties: false }
 );
 
-export const NativeDiagnosticIdentityValueSchema = Type.Literal("docs-local-checkout-paths");
+export const NativeDiagnosticIdentityValueSchema = Type.Literal("ensure_docs_checkout_paths_are_portable");
 
 export const NativeDiagnosticIdentitySchema = Type.Object(
   {

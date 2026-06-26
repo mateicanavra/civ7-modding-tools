@@ -23,7 +23,7 @@ Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. Extern
 - Packet-local `category.md` files record current category, lifecycle, admission, evidence, and caveats.
 - Rule identity is co-located as `<packet>.rule.json`.
 - Pattern, baseline, command-check, and provisional operation files are co-located with their packets.
-- The Toolkit compatibility registry index lives at `.habitat/habitat/toolkit/blueprints/_self/structure/triage/rule-pack-index/index.json`.
+- The Toolkit compatibility registry index lives at `.habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json`.
 
 ## Authority Rules
 

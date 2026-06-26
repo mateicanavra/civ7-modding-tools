@@ -95,7 +95,7 @@ export function runDocsApplyBackedDiagnosticOutcomesEffect(
 function nativeDiagnosticEntry(rule: RuleSourceFacts) {
   return diagnosticCatalogEntryFromNativeRule({
     ruleId: rule.id,
-    nativeDiagnosticIdentity: "docs-local-checkout-paths",
+    nativeDiagnosticIdentity: "ensure_docs_checkout_paths_are_portable",
   });
 }
 

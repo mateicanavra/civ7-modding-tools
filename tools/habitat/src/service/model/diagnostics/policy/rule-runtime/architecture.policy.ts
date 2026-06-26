@@ -30,7 +30,7 @@ export function ruleDiagnosticsFromCommandResult(
   rule: RuleCommandExecutionFacts,
   res: SpawnResult
 ): HabitatDiagnostic[] {
-  if (rule.id === "docs-local-checkout-paths") return docsLocalCheckoutPathDiagnostics(rule, res);
+  if (rule.id === "ensure_docs_checkout_paths_are_portable") return docsLocalCheckoutPathDiagnostics(rule, res);
   return coarse(rule, res);
 }
 

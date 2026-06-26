@@ -16,7 +16,7 @@ describe("source-check rule execution", () => {
       runSourceRulesEffect(
         [
           {
-            id: "adapter-base-standard-import",
+            id: "enforce_adapter_only_base_standard_imports",
             lane: "enforced",
             message: "test rule",
             patternName: "adapter_base_standard_import",
@@ -31,12 +31,12 @@ describe("source-check rule execution", () => {
       ).pipe(Effect.provide(NodeContext.layer))
     );
 
-    expect(results.get("adapter-base-standard-import")).toMatchObject({
+    expect(results.get("enforce_adapter_only_base_standard_imports")).toMatchObject({
       exitCode: 1,
       diagnostics: [
         {
-          ruleId: "adapter-base-standard-import",
-          path: ".habitat/tooling/components/legacy-source-check/rules/adapter-base-standard-import.rule.mjs",
+          ruleId: "enforce_adapter_only_base_standard_imports",
+          path: ".habitat/tooling/components/preserve_legacy_source_check_runtime_during_cutover/rules/enforce_adapter_only_base_standard_imports.rule.mjs",
           message:
             "Source-check rules must declare exact path coverage before native source execution.",
           severity: "error",

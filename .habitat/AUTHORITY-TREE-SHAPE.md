@@ -56,7 +56,7 @@ Current blueprint examples include:
 - `civ7/mapgen/domain/blueprints/domain-public-surface`
 - `civ7/mapgen/pipeline/blueprints/standard-recipe`
 - `civ7/mapgen/map-output/blueprints/map-projection`
-- `civ7/mapgen/studio/blueprints/worker-bundle`
+- `civ7/mapgen/studio/blueprints/ensure_studio_worker_bundle_is_browser_safe`
 
 ### `_self`
 

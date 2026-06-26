@@ -47,7 +47,7 @@ function findRuleRegistryIndexPath(registryDir: string): string {
   if (fs.existsSync(directIndex)) return directIndex;
 
   const candidates = findFiles(registryDir, (filePath) =>
-    filePath.endsWith("/rule-pack-index/index.json")
+    filePath.endsWith("/preserve_transitional_rule_pack_owner_roots/index.json")
   );
   if (candidates.length === 1) return candidates[0] as string;
   if (candidates.length > 1) {

@@ -101,7 +101,7 @@ The rule registry is authored under the authority tree as
 `.habitat/**/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/<packet>.rule.json`.
 The current
 compatibility index is
-`.habitat/habitat/toolkit/blueprints/_self/structure/triage/rule-pack-index/index.json`. At this
+`.habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json`. At this
 state it contains 60 registered rules:
 
 | Habitat lane | Count | Role |

@@ -1,0 +1,36 @@
+{
+  "id": "require_public_domain_surfaces_in_recipes_and_maps",
+  "title": "Require Public Domain Surfaces In Recipes And Maps",
+  "ownerTool": "source-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
+  "forbids": "recipe/map source deep-importing domain ops internals, ops-by-id, rules, or strategies",
+  "why": "Domain surfaces are named contracts; recipe/map code composes through public entrypoints.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "source-check"
+  ],
+  "remediate": null,
+  "message": "Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather than deep internals.",
+  "exceptionPath": "none",
+  "patternName": "require_public_domain_surfaces_in_recipes_and_maps",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/**/*.ts",
+        "mods/*/src/maps/**/*.ts",
+        "mods/*/src/recipes/**/*.tsx",
+        "mods/*/src/maps/**/*.tsx"
+      ]
+    }
+  ]
+}

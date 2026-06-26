@@ -1,0 +1,24 @@
+{
+  "id": "require_projection_calls_in_projection_steps",
+  "title": "Require Projection Calls In Projection Steps",
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
+  "forbids": "Civ7 adapter map-projection calls outside their dedicated projection steps, physics stages reading engine projection state, or row-major odd-r tile callsites",
+  "why": "Map projection and Civ7 materialization capability ownership is structural authority.",
+  "detect": [
+    ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs"
+  ],
+  "remediate": null,
+  "message": "Move adapter projection calls to the owning map projection step or use authored artifacts upstream.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
+      ]
+    }
+  ]
+}

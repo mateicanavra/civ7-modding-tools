@@ -196,7 +196,7 @@ What landed:
 
 - 80 packets classified by universal single-word category.
 - Niche paths such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
-- Blueprint paths such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `worker-bundle`.
+- Blueprint paths such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `ensure_studio_worker_bundle_is_browser_safe`.
 - Artifact kinds remain `check`, `fix`, `generate`, `migrate`, and `triage`.
 - Toolkit triage remains explicitly non-default executable authority.
 
@@ -353,19 +353,19 @@ systematic embedded-authority pass.
 
 Migrated packets include:
 
-- `standard-authoring-surface`
-- `standard-map-entrypoints`
-- `standard-recipe-artifact-parity`
-- `standard-contract-manifest`
-- `shipped-map-catalog`
-- `ecology-fudging-guardrails`
-- `civ7-map-policy-boundary`
-- `civ7-map-policy-provenance`
-- `studio-recipe-dag-boundary`
-- `studio-dev-runner-topology`
-- `studio-rpc-daemon-boundary`
-- `intelligence-bridge-ui-bootstrap`
-- `adapter-legacy-generator-boundary`
+- `verify_standard_recipe_public_authoring_surface`
+- `validate_generated_map_entrypoint_contracts`
+- `verify_standard_recipe_artifacts_match_source_stages`
+- `verify_runtime_stage_order_matches_contract_manifest`
+- `block_studio_config_leakage_into_shipped_catalog`
+- `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces`
+- `ensure_map_policy_dependency_independence`
+- `preserve_evidence_provenance_labels`
+- `require_recipe_dag_contract_metadata`
+- `enforce_studio_dev_runner_topology`
+- `enforce_studio_rpc_eventhub_topology`
+- `require_narrow_game_ui_bridge_bootstrap`
+- `prohibit_adapter_local_legacy_generator_logic`
 
 Later embedded clusters:
 
