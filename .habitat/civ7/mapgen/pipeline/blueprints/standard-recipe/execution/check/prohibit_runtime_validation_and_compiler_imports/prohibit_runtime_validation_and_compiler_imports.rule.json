@@ -1,7 +1,7 @@
 {
   "id": "prohibit_runtime_validation_and_compiler_imports",
   "title": "Prohibit Runtime Validation And Compiler Imports",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "runtime recipe steps and domain strategies",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Runtime layers must not import TypeBox runtime validation or compiler normalization helpers.",

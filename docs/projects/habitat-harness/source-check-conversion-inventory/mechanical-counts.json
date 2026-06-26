@@ -1,8 +1,8 @@
 {
   "ruleRecords": 73,
-  "adapters": 26,
-  "sourceCheckRules": 26,
-  "activeSourceCheckAdapters": 26,
+  "adapters": 1,
+  "sourceCheckRules": 1,
+  "activeSourceCheckAdapters": 1,
   "staleAdaptersForNonSourceRules": [],
   "dispositions": {
     "grit_pattern_authority": 37,
@@ -30,5 +30,40 @@
     "block_engine_runtime_imports_from_domain_ops",
     "preserve_transport_pure_orpc_contracts",
     "prohibit_runtime_helper_redeclarations"
-  ]
+  ],
+  "convertedSystematicBurnDownRules": [
+    "block_adapter_context_imports_from_domain_ops",
+    "enforce_adapter_only_base_standard_imports",
+    "preserve_mapgen_core_runtime_neutrality",
+    "prohibit_bare_value_export_all_from_contract_surfaces",
+    "prohibit_domain_ops_projection_effect_dependencies",
+    "prohibit_empty_object_defaults_in_contract_schemas",
+    "prohibit_recipe_imports_in_domain_source",
+    "prohibit_relative_domain_reaches_from_recipes_and_maps",
+    "prohibit_retired_domain_root_catalogs",
+    "prohibit_root_config_facade_imports_in_domain_ops",
+    "prohibit_runtime_calls_to_runvalidated",
+    "prohibit_runtime_local_config_default_merging",
+    "prohibit_runtime_orchestration_helpers_in_domain_ops",
+    "prohibit_runtime_validation_and_compiler_imports",
+    "prohibit_sibling_stage_private_step_imports",
+    "prohibit_wrapper_only_advanced_config",
+    "require_domain_contract_roots_in_step_contracts",
+    "require_public_domain_surfaces_in_recipes_and_maps",
+    "require_runtime_domain_op_bundle_imports",
+    "require_sanctioned_direct_control_session_owners",
+    "require_shared_visualization_contracts_at_stage_surfaces",
+    "require_studio_ui_recipe_artifact_imports",
+    "require_typed_dependency_and_effect_tag_constants",
+    "require_typed_placement_outcomes_before_apply",
+    "restrict_recipes_to_public_domain_surfaces"
+  ],
+  "ownerToolCounts": {
+    "grit-check": 29,
+    "command-check": 36,
+    "file-layer": 5,
+    "source-check": 1,
+    "format-check": 1,
+    "nx": 1
+  }
 }

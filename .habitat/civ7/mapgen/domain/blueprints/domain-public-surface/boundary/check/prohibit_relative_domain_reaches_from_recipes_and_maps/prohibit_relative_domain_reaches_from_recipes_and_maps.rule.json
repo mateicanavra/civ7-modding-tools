@@ -1,7 +1,7 @@
 {
   "id": "prohibit_relative_domain_reaches_from_recipes_and_maps",
   "title": "Prohibit Relative Domain Reaches From Recipes And Maps",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather than relative ../domain paths.",

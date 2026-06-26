@@ -1,7 +1,7 @@
 {
   "id": "prohibit_bare_value_export_all_from_contract_surfaces",
   "title": "Prohibit Bare Value Export-All From Contract Surfaces",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "contract/public-surface TypeScript files",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Replace value export * with named exports, or use export type * for type-only surfaces.",

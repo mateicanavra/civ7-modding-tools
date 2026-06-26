@@ -1,14 +1,16 @@
 # Rule/Adapter Disposition Matrix
 
-Status: updated after source-check adapter burn-down canary
+Status: updated after systematic source-check adapter burn-down
 
 ## Coverage
 
 - Canonical rule records: 73
-- Centralized source-check adapters remaining: 26
-- Active `ownerTool: source-check` rule records: 26
-- Active source-check adapters: 26
+- Centralized source-check adapters remaining: 1
+- Active `ownerTool: source-check` rule records: 1
+- Active source-check adapters: 1
 - Deleted adapters in canary: `block_engine_runtime_imports_from_domain_ops`, `preserve_transport_pure_orpc_contracts`, `prohibit_ambient_rng_in_authored_generation`, `prohibit_cross_op_runtime_calls`, `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases`, `prohibit_runtime_helper_redeclarations`, `require_public_ecology_surfaces_and_retired_topology_removal`
+- Converted in systematic burn-down: `block_adapter_context_imports_from_domain_ops`, `enforce_adapter_only_base_standard_imports`, `preserve_mapgen_core_runtime_neutrality`, `prohibit_bare_value_export_all_from_contract_surfaces`, `prohibit_domain_ops_projection_effect_dependencies`, `prohibit_empty_object_defaults_in_contract_schemas`, `prohibit_recipe_imports_in_domain_source`, `prohibit_relative_domain_reaches_from_recipes_and_maps`, `prohibit_retired_domain_root_catalogs`, `prohibit_root_config_facade_imports_in_domain_ops`, `prohibit_runtime_calls_to_runvalidated`, `prohibit_runtime_local_config_default_merging`, `prohibit_runtime_orchestration_helpers_in_domain_ops`, `prohibit_runtime_validation_and_compiler_imports`, `prohibit_sibling_stage_private_step_imports`, `prohibit_wrapper_only_advanced_config`, `require_domain_contract_roots_in_step_contracts`, `require_public_domain_surfaces_in_recipes_and_maps`, `require_runtime_domain_op_bundle_imports`, `require_sanctioned_direct_control_session_owners`, `require_shared_visualization_contracts_at_stage_surfaces`, `require_studio_ui_recipe_artifact_imports`, `require_typed_dependency_and_effect_tag_constants`, `require_typed_placement_outcomes_before_apply`, `restrict_recipes_to_public_domain_surfaces`
+- Residual source-check holdback: `require_explicit_mapgen_sdk_opt_in`
 
 ## Disposition Counts
 
@@ -23,43 +25,43 @@ Status: updated after source-check adapter burn-down canary
 
 | Rule | Lane | Owner Tool | Adapter | Split | Feasibility |
 | --- | --- | --- | --- | --- | --- |
-| `block_adapter_context_imports_from_domain_ops` | mapgen-domain | source-check | yes | no | high: existing .pattern.md covers the adapter predicate as structural source matching with filename constraints; no runtime/product oracle is involved. |
+| `block_adapter_context_imports_from_domain_ops` | mapgen-domain | grit-check | no | no | high: existing .pattern.md covers the adapter predicate as structural source matching with filename constraints; no runtime/product oracle is involved. |
 | `block_engine_runtime_imports_from_domain_ops` | mapgen-domain | grit-check | no | no | converted canary: existing .pattern.md is a direct structural import_statement rule with type-import exclusions. |
-| `enforce_adapter_only_base_standard_imports` | platform-resources | source-check | yes | no | excellent: existing pattern.md already expresses the adapter predicate with structural TypeScript imports and path filters. |
+| `enforce_adapter_only_base_standard_imports` | platform-resources | grit-check | no | no | excellent: existing pattern.md already expresses the adapter predicate with structural TypeScript imports and path filters. |
 | `enforce_studio_rpc_eventhub_topology` | mapgen-other | command-check | no | no | high: source presence/absence and call/object-shape constraints over fixed TS files are Grit pattern authority candidates |
 | `ensure_map_policy_dependency_independence` | platform-resources | command-check | no | no | strong: pure import/export legality over TypeScript source with a small forbidden-specifier list and exact package path scope. |
-| `preserve_mapgen_core_runtime_neutrality` | mapgen-other | source-check | yes | no | high: existing .pattern.md expresses import, identifier, and source-text constraints with path guards |
+| `preserve_mapgen_core_runtime_neutrality` | mapgen-other | grit-check | no | no | high: existing .pattern.md expresses import, identifier, and source-text constraints with path guards |
 | `preserve_physics_to_map_projection_contracts` | mapgen-other | command-check | no | no | high: path-scoped string/source matching and effect-name regex constraints are clean Grit pattern authority candidates |
 | `preserve_transport_pure_orpc_contracts` | platform-resources | grit-check | no | no | converted canary: existing pattern.md expresses all adapter predicate branches with structural imports, export const matching, export-from matching, regex name filters, and path filters. |
 | `prohibit_adapter_local_legacy_generator_logic` | platform-resources | command-check | no | no | strong: path-scoped identifier, call-expression, and string/module-token bans are structural source matching that Grit should express cleanly. |
 | `prohibit_ambient_rng_in_authored_generation` | mapgen-pipeline | command-check | no | no | stale adapter deleted; existing pattern expresses the source/path/import bans, while the current executable owner remains command-check. |
-| `prohibit_bare_value_export_all_from_contract_surfaces` | mapgen-pipeline | source-check | yes | no | high: existing pattern captures export-all syntax, text-filtered type-only allowance, and path scope. |
+| `prohibit_bare_value_export_all_from_contract_surfaces` | mapgen-pipeline | grit-check | no | no | high: existing pattern captures export-all syntax, text-filtered type-only allowance, and path scope. |
 | `prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases` | mapgen-pipeline | command-check | no | no | stale adapter deleted; existing pattern expresses the source token and retired stage alias bans, while the current executable owner remains command-check. |
-| `prohibit_domain_ops_projection_effect_dependencies` | mapgen-other | source-check | yes | no | high: existing .pattern.md cleanly captures path-scoped string/source matching |
-| `prohibit_empty_object_defaults_in_contract_schemas` | mapgen-pipeline | source-check | yes | no | high: existing Grit pattern directly represents the property/default object-literal predicate and scoped contract paths. |
+| `prohibit_domain_ops_projection_effect_dependencies` | mapgen-other | grit-check | no | no | high: existing .pattern.md cleanly captures path-scoped string/source matching |
+| `prohibit_empty_object_defaults_in_contract_schemas` | mapgen-pipeline | grit-check | no | no | high: existing Grit pattern directly represents the property/default object-literal predicate and scoped contract paths. |
 | `prohibit_product_scan_roots_in_grit_provider` | global-docs-toolkit | grit-check | no | no | already Grit: the existing TypeScript Grit pattern text-matches provider source under tools/habitat/src/providers/grit. |
-| `prohibit_recipe_imports_in_domain_source` | mapgen-domain | source-check | yes | no | high: existing .pattern.md directly expresses the predicate with filename and source constraints. |
-| `prohibit_relative_domain_reaches_from_recipes_and_maps` | mapgen-domain | source-check | yes | no | high: existing .pattern.md expresses all file-depth import/export cases as filename/source regex constraints. |
-| `prohibit_retired_domain_root_catalogs` | mapgen-domain | source-check | yes | no | high: existing .pattern.md is a direct filename-only structural pattern. |
-| `prohibit_root_config_facade_imports_in_domain_ops` | mapgen-domain | source-check | yes | no | high: existing .pattern.md cleanly expresses filename and source constraints. |
-| `prohibit_runtime_calls_to_runvalidated` | mapgen-pipeline | source-check | yes | no | high: existing pattern expresses direct/property call matching with path scope. |
+| `prohibit_recipe_imports_in_domain_source` | mapgen-domain | grit-check | no | no | high: existing .pattern.md directly expresses the predicate with filename and source constraints. |
+| `prohibit_relative_domain_reaches_from_recipes_and_maps` | mapgen-domain | grit-check | no | no | high: existing .pattern.md expresses all file-depth import/export cases as filename/source regex constraints. |
+| `prohibit_retired_domain_root_catalogs` | mapgen-domain | grit-check | no | no | high: existing .pattern.md is a direct filename-only structural pattern. |
+| `prohibit_root_config_facade_imports_in_domain_ops` | mapgen-domain | grit-check | no | no | high: existing .pattern.md cleanly expresses filename and source constraints. |
+| `prohibit_runtime_calls_to_runvalidated` | mapgen-pipeline | grit-check | no | no | high: existing pattern expresses direct/property call matching with path scope. |
 | `prohibit_runtime_helper_redeclarations` | mapgen-other | grit-check | no | no | converted canary: existing .pattern.md covers the structural declarations; existing .apply.pattern.md covers optional rewrite behavior separately. |
-| `prohibit_runtime_local_config_default_merging` | mapgen-pipeline | source-check | yes | no | high: existing pattern expresses both syntax forms with path scope; confirm alias/default helper variants are intentionally out of scope before conversion. |
-| `prohibit_runtime_orchestration_helpers_in_domain_ops` | mapgen-domain | source-check | yes | no | high: existing .pattern.md directly matches the call expressions with filename constraints. |
-| `prohibit_runtime_validation_and_compiler_imports` | mapgen-pipeline | source-check | yes | no | high: import-source bans with path scope are a straightforward Grit authority target. |
-| `prohibit_sibling_stage_private_step_imports` | mapgen-pipeline | source-check | yes | no | high: existing Grit import_statement pattern expresses the adapter predicate with path and import-source scope. |
-| `prohibit_wrapper_only_advanced_config` | mapgen-pipeline | source-check | yes | no | high: existing pattern directly matches the adapter predicate, including TS/JSON path scope and positive/negative fixtures. |
-| `require_domain_contract_roots_in_step_contracts` | mapgen-domain | source-check | yes | no | high: existing .pattern.md directly expresses path-scoped import/export source constraints. |
+| `prohibit_runtime_local_config_default_merging` | mapgen-pipeline | grit-check | no | no | high: existing pattern expresses both syntax forms with path scope; confirm alias/default helper variants are intentionally out of scope before conversion. |
+| `prohibit_runtime_orchestration_helpers_in_domain_ops` | mapgen-domain | grit-check | no | no | high: existing .pattern.md directly matches the call expressions with filename constraints. |
+| `prohibit_runtime_validation_and_compiler_imports` | mapgen-pipeline | grit-check | no | no | high: import-source bans with path scope are a straightforward Grit authority target. |
+| `prohibit_sibling_stage_private_step_imports` | mapgen-pipeline | grit-check | no | no | high: existing Grit import_statement pattern expresses the adapter predicate with path and import-source scope. |
+| `prohibit_wrapper_only_advanced_config` | mapgen-pipeline | grit-check | no | no | high: existing pattern directly matches the adapter predicate, including TS/JSON path scope and positive/negative fixtures. |
+| `require_domain_contract_roots_in_step_contracts` | mapgen-domain | grit-check | no | no | high: existing .pattern.md directly expresses path-scoped import/export source constraints. |
 | `require_narrow_game_ui_bridge_bootstrap` | platform-resources | command-check | no | no | strong but with one presence-check caveat: forbidden imports/tokens are direct Grit matches, and required import/install shape should be expressible with contains/not over the exact file. |
-| `require_public_domain_surfaces_in_recipes_and_maps` | mapgen-domain | source-check | yes | no | high: existing .pattern.md expresses the check; existing .apply.pattern.md is a separate fix operation candidate, not a runtime fixture. |
+| `require_public_domain_surfaces_in_recipes_and_maps` | mapgen-domain | grit-check | no | no | high: existing .pattern.md expresses the check; existing .apply.pattern.md is a separate fix operation candidate, not a runtime fixture. |
 | `require_public_domain_surfaces_in_tests` | mapgen-domain | command-check | no | no | high: this is path-scoped import/export source matching; no package runtime behavior is checked. |
-| `require_runtime_domain_op_bundle_imports` | mapgen-pipeline | source-check | yes | no | high: existing Grit import_statement source regex matches the adapter predicate. |
-| `require_sanctioned_direct_control_session_owners` | platform-resources | source-check | yes | no | excellent: existing pattern.md expresses constructor matching, path filters, owner exceptions, and test exclusions. |
-| `require_shared_visualization_contracts_at_stage_surfaces` | mapgen-pipeline | source-check | yes | no | high: pattern spells out the helper's path/import cases directly and includes fixtures. |
-| `require_studio_ui_recipe_artifact_imports` | mapgen-other | source-check | yes | no | high: existing .pattern.md captures the same import-source predicate and path exceptions |
-| `require_typed_dependency_and_effect_tag_constants` | mapgen-pipeline | source-check | yes | no | high: existing pattern expresses the defineStep/requires/provides/string-literal predicate with fixtures. |
-| `require_typed_placement_outcomes_before_apply` | mapgen-other | source-check | yes | no | high: existing .pattern.md is a direct structural call-expression pattern |
-| `restrict_recipes_to_public_domain_surfaces` | mapgen-domain | source-check | yes | no | high: existing .pattern.md directly expresses the allowed/forbidden source classes with path scope. |
+| `require_runtime_domain_op_bundle_imports` | mapgen-pipeline | grit-check | no | no | high: existing Grit import_statement source regex matches the adapter predicate. |
+| `require_sanctioned_direct_control_session_owners` | platform-resources | grit-check | no | no | excellent: existing pattern.md expresses constructor matching, path filters, owner exceptions, and test exclusions. |
+| `require_shared_visualization_contracts_at_stage_surfaces` | mapgen-pipeline | grit-check | no | no | high: pattern spells out the helper's path/import cases directly and includes fixtures. |
+| `require_studio_ui_recipe_artifact_imports` | mapgen-other | grit-check | no | no | high: existing .pattern.md captures the same import-source predicate and path exceptions |
+| `require_typed_dependency_and_effect_tag_constants` | mapgen-pipeline | grit-check | no | no | high: existing pattern expresses the defineStep/requires/provides/string-literal predicate with fixtures. |
+| `require_typed_placement_outcomes_before_apply` | mapgen-other | grit-check | no | no | high: existing .pattern.md is a direct structural call-expression pattern |
+| `restrict_recipes_to_public_domain_surfaces` | mapgen-domain | grit-check | no | no | high: existing .pattern.md directly expresses the allowed/forbidden source classes with path scope. |
 
 ## Needs Split
 
@@ -119,7 +121,8 @@ Canonical rule rows do not currently land here. The four stale adapter-support f
 ## Actionable Read
 
 - The canary proved the source-check to grit-check ownership switch for three diverse adapter-backed rules and deleted seven adapter files total.
-- The highest-leverage next move remains converting active source-check adapter rows that already have adjacent Grit pattern authority. There are 25 direct adapter-backed Grit rows before split/consolidation work.
-- The four stale adapters are gone; future cleanup should focus on active source-check adapters or mixed command-check splits.
-- Broad command-check bundles are the main source of state explosion. Treat `needs_split` rows as assertion-level extraction work, not as whole-packet conversions.
+- The systematic burn-down converted the remaining 25 straightforward adapter-backed Grit rows and deleted their adapters.
+- The source-check execution surface is now one explicit residual: `require_explicit_mapgen_sdk_opt_in`. It remains because the adapter mixes SDK opt-in authority with a mapgen-core adapter-import ban that overlaps `preserve_mapgen_core_runtime_neutrality`.
+- `rule-runtime.policy.mjs` is not deletion-ready yet; it has one active importer. The next biggest domino is splitting `require_explicit_mapgen_sdk_opt_in`, converting the Grit-shaped SDK opt-in part, and then deleting the final adapter plus runtime.
+- Broad command-check bundles are now the main source of state explosion. Treat `needs_split` rows as assertion-level extraction work, not as whole-packet conversions.
 - File-layer, Nx, generated-zone, and graph-backed rows fit the allowed enum imperfectly. They are kept in `data_driven_import_path_rule` with notes instead of expanding the classification vocabulary midstream.

@@ -1,7 +1,7 @@
 {
   "id": "prohibit_domain_ops_projection_effect_dependencies",
   "title": "Prohibit Domain Ops Projection Effect Dependencies",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Remove map projection/effect dependency keys from domain ops.",

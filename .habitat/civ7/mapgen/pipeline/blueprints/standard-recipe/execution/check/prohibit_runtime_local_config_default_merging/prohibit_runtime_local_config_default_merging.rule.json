@@ -1,7 +1,7 @@
 {
   "id": "prohibit_runtime_local_config_default_merging",
   "title": "Prohibit Runtime-Local Config Default Merging",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "runtime recipe steps and domain ops",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Move empty-object config defaulting to the owning compile/policy boundary instead of runtime step/op code.",

@@ -1,7 +1,7 @@
 {
   "id": "block_adapter_context_imports_from_domain_ops",
   "title": "Block Adapter Context Imports From Domain Ops",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Remove adapter/context crossing from domain ops.",

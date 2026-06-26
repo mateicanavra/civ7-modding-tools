@@ -1,7 +1,7 @@
 {
   "id": "prohibit_root_config_facade_imports_in_domain_ops",
   "title": "Prohibit Root Config Facade Imports In Domain Ops",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Do not import domain-root config facades from ops.",

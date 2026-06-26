@@ -1,6 +1,6 @@
 # Next Grit Extraction Slices
 
-Status: updated after source-check adapter burn-down canary
+Status: updated after systematic source-check adapter burn-down
 
 ## Completed Canary
 
@@ -17,23 +17,48 @@ Converted to `grit-check` and deleted active source-check adapters:
 - `preserve_transport_pure_orpc_contracts`
 - `prohibit_runtime_helper_redeclarations`
 
-## Slice 1: Delete Active Source-Check Adapters Already Mirrored By Grit
+## Completed Systematic Burn-Down
 
-Goal: wire these rules through Grit pattern authority and delete the corresponding active source-check adapters. This is the biggest immediate state-space collapse because it removes adapter modules without deciding package-validator or command-bundle ownership.
+Goal completed: wire active source-check adapter rows through Grit pattern authority where the inventory already classified them as direct Grit candidates, then delete their adapters.
 
-| Priority | Rule | Lane | Why |
-| ---: | --- | --- | --- |
-| 1 | `block_adapter_context_imports_from_domain_ops` | mapgen-domain | Path-scoped domain ops ban on @civ7/adapter imports/exports, ExtendedMapContext identifier use, and .adapter property access under mods/mod-swooper-maps/src/domain/**/ops/**/*.ts. |
-| 2 | `enforce_adapter_only_base_standard_imports` | platform-resources | For packages/**/*.ts outside packages/civ7-adapter, flag import declarations whose source matches /base-standard/. |
-| 3 | `preserve_mapgen_core_runtime_neutrality` | mapgen-other | For packages/mapgen-core production TypeScript source outside src/dev, flags runtime imports from @civ7/adapter or /base-standard, runtime Civ7 identifiers, createCiv7Adapter uses, and engine as unknown casts. |
-| 4 | `prohibit_bare_value_export_all_from_contract_surfaces` | mapgen-pipeline | Bans non-type `export * from ...` in contract/public-surface TypeScript files while allowing type-only aggregation. |
-| 5 | `prohibit_domain_ops_projection_effect_dependencies` | mapgen-other | For mod-swooper-maps domain ops TypeScript files, flags string literals beginning artifact:map. or effect:map. so domain ops do not encode map projection/effect dependency keys. |
-| 6 | `prohibit_empty_object_defaults_in_contract_schemas` | mapgen-pipeline | Bans `default: {}` in domain and recipe step contract schema files. |
-| 7 | `prohibit_recipe_imports_in_domain_source` | mapgen-domain | Path-scoped ban on domain source importing, exporting, or dynamically importing recipe modules through recipe aliases or relative ../recipes reaches. |
-| 8 | `prohibit_relative_domain_reaches_from_recipes_and_maps` | mapgen-domain | Recipe/map source must not reach local src/domain through relative import/export paths at stage, step, nested step, or map depth. |
-| 9 | `prohibit_retired_domain_root_catalogs` | mapgen-domain | File-path-only ban on domain-root tags.ts and artifacts.ts under mods/mod-swooper-maps/src/domain/<domain>/. |
-| 10 | `prohibit_root_config_facade_imports_in_domain_ops` | mapgen-domain | Path-scoped ban on domain ops importing/exporting/dynamically importing parent-traversed config.js facades through ../../config.js or deeper. |
-| 11 | `prohibit_runtime_calls_to_runvalidated` | mapgen-pipeline | Bans direct and property calls to `runValidated` in runtime recipe step files and domain strategy files. |
+Converted and deleted adapters:
+
+- `block_adapter_context_imports_from_domain_ops`
+- `enforce_adapter_only_base_standard_imports`
+- `preserve_mapgen_core_runtime_neutrality`
+- `prohibit_bare_value_export_all_from_contract_surfaces`
+- `prohibit_domain_ops_projection_effect_dependencies`
+- `prohibit_empty_object_defaults_in_contract_schemas`
+- `prohibit_recipe_imports_in_domain_source`
+- `prohibit_relative_domain_reaches_from_recipes_and_maps`
+- `prohibit_retired_domain_root_catalogs`
+- `prohibit_root_config_facade_imports_in_domain_ops`
+- `prohibit_runtime_calls_to_runvalidated`
+- `prohibit_runtime_local_config_default_merging`
+- `prohibit_runtime_orchestration_helpers_in_domain_ops`
+- `prohibit_runtime_validation_and_compiler_imports`
+- `prohibit_sibling_stage_private_step_imports`
+- `prohibit_wrapper_only_advanced_config`
+- `require_domain_contract_roots_in_step_contracts`
+- `require_public_domain_surfaces_in_recipes_and_maps`
+- `require_runtime_domain_op_bundle_imports`
+- `require_sanctioned_direct_control_session_owners`
+- `require_shared_visualization_contracts_at_stage_surfaces`
+- `require_studio_ui_recipe_artifact_imports`
+- `require_typed_dependency_and_effect_tag_constants`
+- `require_typed_placement_outcomes_before_apply`
+- `restrict_recipes_to_public_domain_surfaces`
+
+## Slice 1: Split Final Source-Check Holdback And Delete Runtime
+
+Goal: split `require_explicit_mapgen_sdk_opt_in` so the SDK opt-in predicate can become Grit authority and the overlapping mapgen-core adapter-import predicate can defer to `preserve_mapgen_core_runtime_neutrality`.
+
+Expected moves:
+
+- Keep SDK entrypoint opt-in/source-shape authority in the packet, preferably as Grit pattern authority.
+- Remove or demote the overlapping mapgen-core `@civ7/adapter/civ7` import ban branch from this packet because `preserve_mapgen_core_runtime_neutrality` now owns it through Grit.
+- Convert the residual rule away from `source-check`, delete `require_explicit_mapgen_sdk_opt_in.rule.mjs`, then delete `rule-runtime.policy.mjs` when no importers remain.
+- Regenerate execution-surface analytics and prove `source-check` has zero active rules.
 
 ## Slice 2: Promote Existing Non-Adapter Patterns Where Runner Ownership Is Clear
 

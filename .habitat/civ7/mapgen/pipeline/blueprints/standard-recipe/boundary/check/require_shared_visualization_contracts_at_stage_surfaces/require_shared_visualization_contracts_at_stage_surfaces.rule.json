@@ -1,7 +1,7 @@
 {
   "id": "require_shared_visualization_contracts_at_stage_surfaces",
   "title": "Require Shared Visualization Contracts At Stage Surfaces",
-  "ownerTool": "source-check",
+  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "standard recipe stage visualization files",
@@ -11,7 +11,7 @@
     "habitat",
     "check",
     "--tool",
-    "source-check"
+    "grit-check"
   ],
   "remediate": null,
   "message": "Use stages/<stage>/viz.ts for shared visualization contracts.",

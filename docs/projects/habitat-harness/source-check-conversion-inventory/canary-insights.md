@@ -16,6 +16,7 @@ Status: completed canary evidence
 
 ## What Still Needs Work
 
-- `rule-runtime.policy.mjs` remains because 26 active source-check adapters still import it.
+- `rule-runtime.policy.mjs` remains because 1 active source-check adapter still imports it.
+- The systematic burn-down after this canary converted the other 25 straightforward adapter-backed Grit rows.
 - Mixed command-check bundles still need split work before their Grit-shaped assertions can be extracted cleanly.
-- The next systematic wave should feed agents the same vertical slice: confirm pattern authority, switch one rule record, delete one adapter, run row-owned proof, update evidence.
+- The next split wave should start with `require_explicit_mapgen_sdk_opt_in`, then delete the final adapter and runtime if zero importers remain.
