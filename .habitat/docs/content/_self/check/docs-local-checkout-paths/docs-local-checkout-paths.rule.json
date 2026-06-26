@@ -1,7 +1,7 @@
 {
   "id": "docs-local-checkout-paths",
   "ownerTool": "command-check",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "habitat",
   "lane": "advisory",
   "scope": "docs/**/*.md",
   "forbids": "absolute local checkout paths that carry a docs/...md suffix",

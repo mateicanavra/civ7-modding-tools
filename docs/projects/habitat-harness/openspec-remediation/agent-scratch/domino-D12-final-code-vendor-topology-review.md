@@ -55,16 +55,16 @@ Accepted upstream/downstream grounding read:
 
 Current code, package, target, and test surfaces read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/verify.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/verify-proof.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-commands.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-commands.test.ts`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/package.json`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/nx.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/package.json`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/README.md`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/package.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/README.md`
 
 Vendor grounding read:
 
@@ -154,7 +154,7 @@ This matches D11, which keeps hook feedback local and explicitly prevents hook o
 
 The current code surfaces are not target-compliant, and D12 now describes that truthfully.
 
-Current `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/verify.ts` still exposes `bun run habitat verify` as a diagnostic Habitat CLI command that runs Habitat checks and then affected verification targets. Its JSON help still says it emits a structured `VerifyProof` artifact. Current `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts` still hardcodes affected targets, computes `nx affected` argv locally, emits legacy non-claim prose, uses `git status --short`, and records legacy affected/cache states.
+Current `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts` still exposes `bun run habitat verify` as a diagnostic Habitat CLI command that runs Habitat checks and then affected verification targets. Its JSON help still says it emits a structured `VerifyProof` artifact. Current `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts` still hardcodes affected targets, computes `nx affected` argv locally, emits legacy non-claim prose, uses `git status --short`, and records legacy affected/cache states.
 
 D12 correctly treats those as implementation gaps, not as accepted behavior:
 
@@ -165,7 +165,7 @@ D12 correctly treats those as implementation gaps, not as accepted behavior:
 - D7 owns check summary projection, selected rule ids, requested selector state, status counts, `allowsAffectedExecution`, and skipped-affected reason.
 - D11 may only contribute local-feedback non-claim and hook trace boundaries.
 
-The target affected command contract is aligned with Nx vendor behavior. Nx affected is a Git-diff and project-graph scoped task runner; the relevant vendor options are `--base`, `--head`, and `--outputStyle`. D12's target command shape, `nx affected -t <stable-target-list-from-D3-VerifyTargetPlan> --base <resolved-base> --head HEAD --outputStyle=static`, is stricter and more reviewable than the current code's local `nx affected -t <hardcoded-list> --base <base>` command. It also matches the repo's own hook precedent in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/hooks.ts`, while preserving D11's rule that hook behavior is only local feedback.
+The target affected command contract is aligned with Nx vendor behavior. Nx affected is a Git-diff and project-graph scoped task runner; the relevant vendor options are `--base`, `--head`, and `--outputStyle`. D12's target command shape, `nx affected -t <stable-target-list-from-D3-VerifyTargetPlan> --base <resolved-base> --head HEAD --outputStyle=static`, is stricter and more reviewable than the current code's local `nx affected -t <hardcoded-list> --base <base>` command. It also matches the repo's own hook precedent in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/hooks.ts`, while preserving D11's rule that hook behavior is only local feedback.
 
 D12's write/protected set split is appropriate:
 

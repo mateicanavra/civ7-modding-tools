@@ -21,9 +21,18 @@ const patterns = [
   { name: "official-biome-generator", re: /\.\s*designateBiomes\s*\(/u },
   { name: "official-feature-generator", re: /\.\s*addFeatures\s*\(/u },
   { name: "official-snow-generator", re: /\.\s*generateSnow\s*\(/u },
-  { name: "official-resource-generator", re: /\.\s*(?:generateResources|generateOfficialResources)\s*\(/u },
-  { name: "official-discovery-generator", re: /\.\s*(?:generateDiscoveries|generateOfficialDiscoveries)\s*\(/u },
-  { name: "official-start-generator", re: /\.\s*(?:assignStartPositions|chooseStartSectors)\s*\(/u },
+  {
+    name: "official-resource-generator",
+    re: /\.\s*(?:generateResources|generateOfficialResources)\s*\(/u,
+  },
+  {
+    name: "official-discovery-generator",
+    re: /\.\s*(?:generateDiscoveries|generateOfficialDiscoveries)\s*\(/u,
+  },
+  {
+    name: "official-start-generator",
+    re: /\.\s*(?:assignStartPositions|chooseStartSectors)\s*\(/u,
+  },
 ];
 
 const findings = [];

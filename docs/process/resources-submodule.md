@@ -44,7 +44,7 @@ When `.civ7/outputs/resources` is dirty, that command:
 
 When Husky is installed by `bun install`, every monorepo commit runs:
 
-- `bun run habitat hook pre-commit`
+- `bun habitat hook pre-commit`
 
 That hook checks resources state but does not commit or push resources. If the
 submodule is dirty, uninitialized, locked, or has an unstaged gitlink, the hook

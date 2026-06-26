@@ -1,0 +1,43 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "habitat",
+  "tags": ["kind:tooling"],
+  "targets": {
+    "build:tsc": {
+      "command": "tsc -p tsconfig.json",
+      "dependsOn": ["clean:dist"],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**"],
+      "options": {
+        "cwd": "tools/habitat"
+      }
+    },
+    "build:manifest": {
+      "command": "oclif manifest",
+      "dependsOn": ["build:tsc"],
+      "cache": true,
+      "outputs": ["{projectRoot}/oclif.manifest.json"],
+      "options": {
+        "cwd": "tools/habitat"
+      }
+    },
+    "build:bin-mode": {
+      "command": "chmod +x bin/run.js",
+      "dependsOn": ["build:manifest"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "tools/habitat"
+      }
+    },
+    "build": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/oclif.manifest.json"],
+      "dependsOn": ["build:bin-mode"],
+      "options": {
+        "cwd": "tools/habitat"
+      }
+    }
+  }
+}

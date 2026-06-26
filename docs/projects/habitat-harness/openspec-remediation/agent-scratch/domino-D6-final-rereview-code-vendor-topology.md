@@ -52,15 +52,15 @@ D6 packet/control files read:
 
 Grounding code/tests read:
 
-- `tools/habitat-harness/src/lib/grit.ts`
-- `tools/habitat-harness/src/lib/grit-failures.ts`
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts`
-- `tools/habitat-harness/src/lib/habitat-process.ts`
-- `tools/habitat-harness/src/lib/grit-apply.ts`
-- `tools/habitat-harness/src/rules/rules.json`
-- `tools/habitat-harness/test/lib/grit-adapter.test.ts`
-- `tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
-- `tools/habitat-harness/test/grit/grit-patterns.test.ts`
+- `tools/habitat/src/lib/grit.ts`
+- `tools/habitat/src/lib/grit-failures.ts`
+- `tools/habitat/src/lib/grit-injected-probe.ts`
+- `tools/habitat/src/lib/habitat-process.ts`
+- `tools/habitat/src/lib/grit-apply.ts`
+- `tools/habitat/src/rules/rules.json`
+- `tools/habitat/test/lib/grit-adapter.test.ts`
+- `tools/habitat/test/lib/grit-injected-probe.test.ts`
+- `tools/habitat/test/grit/grit-patterns.test.ts`
 
 Vendor docs used:
 
@@ -84,7 +84,7 @@ Vendor docs used:
   - Result: 32 current check pattern files.
 - `find .habitat/patterns/active/apply -maxdepth 1 -type f -name '*.md' | wc -l`
   - Result: 3 current apply pattern files.
-- `node -e "const r=require('./tools/habitat-harness/src/rules/rules.json').rules; console.log('grit-check rules', r.filter(x=>x.ownerTool==='grit-check').length); console.log('missing gritPattern', r.filter(x=>x.ownerTool==='grit-check'&&!x.gritPattern).map(x=>x.id));"`
+- `node -e "const r=require('./tools/habitat/src/rules/rules.json').rules; console.log('grit-check rules', r.filter(x=>x.ownerTool==='grit-check').length); console.log('missing gritPattern', r.filter(x=>x.ownerTool==='grit-check'&&!x.gritPattern).map(x=>x.id));"`
   - Result: 32 `grit-check` rules; no current `grit-check` rule is missing
     `gritPattern`.
 - `bun run openspec -- validate deep-habitat-d6-diagnostic-pattern-catalog --strict`
@@ -113,28 +113,28 @@ set without pulling D7, D8, D9, D11, or D13 source ownership into D6:
 
 - Current `grit.ts` still mixes native invocation, scan roots, JSON/text parsing,
   docs apply-dry-run projection, cache/freshness options, whole `HarnessRule`
-  projection, and pattern fallback (`tools/habitat-harness/src/lib/grit.ts:119`,
-  `tools/habitat-harness/src/lib/grit.ts:126`,
-  `tools/habitat-harness/src/lib/grit.ts:536`,
-  `tools/habitat-harness/src/lib/grit.ts:600`,
-  `tools/habitat-harness/src/lib/grit.ts:605`,
-  `tools/habitat-harness/src/lib/grit.ts:626`,
-  `tools/habitat-harness/src/lib/grit.ts:682`).
+  projection, and pattern fallback (`tools/habitat/src/lib/grit.ts:119`,
+  `tools/habitat/src/lib/grit.ts:126`,
+  `tools/habitat/src/lib/grit.ts:536`,
+  `tools/habitat/src/lib/grit.ts:600`,
+  `tools/habitat/src/lib/grit.ts:605`,
+  `tools/habitat/src/lib/grit.ts:626`,
+  `tools/habitat/src/lib/grit.ts:682`).
   D6 names those as current-state defects and later refactor targets in
   `design.md:21`, `design.md:74`, `design.md:150`, `design.md:190`,
   `design.md:225`, `design.md:328`, and `design.md:358`.
 - Current `grit-failures.ts` still contains D9 apply transaction tags in the
-  broad exported failure family (`tools/habitat-harness/src/lib/grit-failures.ts:3`,
-  `tools/habitat-harness/src/lib/grit-failures.ts:34`,
-  `tools/habitat-harness/src/lib/grit-failures.ts:85`). D6 explicitly forbids
+  broad exported failure family (`tools/habitat/src/lib/grit-failures.ts:3`,
+  `tools/habitat/src/lib/grit-failures.ts:34`,
+  `tools/habitat/src/lib/grit-failures.ts:85`). D6 explicitly forbids
   those tags in diagnostic acquisition/projection/probe target states and keeps
   broad compatibility facades behind D0 rows (`design.md:212`,
   `design.md:221`, `tasks.md:38`, `specs/habitat-harness/spec.md:87`).
 - Current injected probe code still exposes proof-shaped `proofClass` and finds
   adapter failures by regex over rendered text
-  (`tools/habitat-harness/src/lib/grit-injected-probe.ts:38`,
-  `tools/habitat-harness/src/lib/grit-injected-probe.ts:50`,
-  `tools/habitat-harness/src/lib/grit-injected-probe.ts:370`). D6 replaces that
+  (`tools/habitat/src/lib/grit-injected-probe.ts:38`,
+  `tools/habitat/src/lib/grit-injected-probe.ts:50`,
+  `tools/habitat/src/lib/grit-injected-probe.ts:370`). D6 replaces that
   target language with `InjectedProbeOutcome`, `validationClass`, structured
   failure projection, and D0/D1-only compatibility mapping (`design.md:252`,
   `design.md:275`, `specs/habitat-harness/spec.md:176`, `tasks.md:47`).
@@ -148,18 +148,18 @@ The packet models Grit output contracts accurately enough for implementation:
 
 - Official Grit docs define `grit check [PATHS]`, global `--json`, `grit apply
   --dry-run --output standard`, and `grit patterns test`. Current code uses the
-  same command families (`tools/habitat-harness/src/lib/grit.ts:428`,
-  `tools/habitat-harness/src/lib/grit.ts:293`,
-  `tools/habitat-harness/test/grit/grit-patterns.test.ts:30`).
+  same command families (`tools/habitat/src/lib/grit.ts:428`,
+  `tools/habitat/src/lib/grit.ts:293`,
+  `tools/habitat/test/grit/grit-patterns.test.ts:30`).
 - D6 preserves the needed distinctions among JSON diagnostics, docs text
   diagnostics, apply-dry-run-as-diagnostic-observation, and native fixture tests
   (`design.md:150`, `specs/habitat-harness/spec.md:60`,
   `specs/habitat-harness/spec.md:72`, `phase-record.md:64`).
 - Current malformed/wrapper JSON behavior is treated as a bad case, not as a
   pass claim. Current parser and tests already fail closed
-  (`tools/habitat-harness/src/lib/grit.ts:587`,
-  `tools/habitat-harness/test/lib/grit-adapter.test.ts:51`,
-  `tools/habitat-harness/test/lib/grit-injected-probe.test.ts:364`), and D6
+  (`tools/habitat/src/lib/grit.ts:587`,
+  `tools/habitat/test/lib/grit-adapter.test.ts:51`,
+  `tools/habitat/test/lib/grit-injected-probe.test.ts:364`), and D6
   makes that a target requirement (`specs/habitat-harness/spec.md:105`,
   `phase-record.md:66`, `review-disposition-ledger.md:36`).
 - Later validation gates use real existing test paths for adapter, injected

@@ -8,7 +8,7 @@ on branch `codex/d13-scaffolding-refusal-packet`.
 
 - Required skills read in full: Domain Design, Information Design, Solution Design, TypeScript Refactoring, and the requested TypeScript refactoring references.
 - Repo/OpenSpec routers read: root `AGENTS.md`, remediation frame, remediation context, packet index, source D13 packet, live D13 OpenSpec packet, and G-HOST packet enough to classify the host dependency.
-- Code/tests read: `tools/habitat-harness/generators.json`, project generator schema/implementation/tests, pattern generator schema/implementation/registration/tests, Pattern Authority Manifest validator/tests, command/export surfaces, Habitat generator docs, `.habitat/grit.yaml`, and `biome.json`.
+- Code/tests read: `tools/habitat/generators.json`, project generator schema/implementation/tests, pattern generator schema/implementation/registration/tests, Pattern Authority Manifest validator/tests, command/export surfaces, Habitat generator docs, `.habitat/grit.yaml`, and `biome.json`.
 - Vendor docs consulted:
   - Nx local generators and schema properties: https://nx.dev/docs/extending-nx/local-generators
   - Nx generator file creation and dry-run mechanics: https://nx.dev/docs/extending-nx/creating-files
@@ -20,31 +20,31 @@ Commands run:
 
 | Command | Result | D13 meaning |
 | --- | --- | --- |
-| `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts` | exit 0, 37 tests passed | Current generator and manifest tests pass. |
+| `bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts` | exit 0, 37 tests passed | Current generator and manifest tests pass. |
 | `bun run habitat generate --help` | exit 2, `Command generate not found.` | Live D13 validation gate is invalid. |
-| `bun run nx g @internal/habitat-harness:project habitat-scratch --kind=plugin --dry-run --no-interactive` | exit 0, dry-run CREATE list, no writes | Supported project command path is real. |
-| `bun run nx g @internal/habitat-harness:project unsupported-scratch --kind=mod --dry-run --no-interactive` | exit 1, Habitat runtime refusal | Schema admits `mod`; generator refuses before writes. |
-| `bun run nx g @internal/habitat-harness:project unsupported-scratch --kind=host-specific --dry-run --no-interactive` | exit 1, Nx schema enum rejection | This does not exercise Habitat refusal code. |
-| `bun run nx g @internal/habitat-harness:pattern grit-d13-scratch --dry-run --no-interactive` | exit 0, candidate dry-run CREATE list | Candidate generation path is real and non-active. |
-| `bun run nx g @internal/habitat-harness:pattern grit-d13-scratch --lifecycle=registered-advisory --dry-run --no-interactive` | exit 1, requires `--manifestPath` | Registered promotion refusal path is real. |
+| `bun run nx g @habitat/cli:project habitat-scratch --kind=plugin --dry-run --no-interactive` | exit 0, dry-run CREATE list, no writes | Supported project command path is real. |
+| `bun run nx g @habitat/cli:project unsupported-scratch --kind=mod --dry-run --no-interactive` | exit 1, Habitat runtime refusal | Schema admits `mod`; generator refuses before writes. |
+| `bun run nx g @habitat/cli:project unsupported-scratch --kind=host-specific --dry-run --no-interactive` | exit 1, Nx schema enum rejection | This does not exercise Habitat refusal code. |
+| `bun run nx g @habitat/cli:pattern grit-d13-scratch --dry-run --no-interactive` | exit 0, candidate dry-run CREATE list | Candidate generation path is real and non-active. |
+| `bun run nx g @habitat/cli:pattern grit-d13-scratch --lifecycle=registered-advisory --dry-run --no-interactive` | exit 1, requires `--manifestPath` | Registered promotion refusal path is real. |
 | `git status --short` | clean before scratch write | No source/package/generated files were changed by probes. |
 
 ## 1. Current Code Topology Map For D13 Surfaces
 
 ### Nx generator registration
 
-`tools/habitat-harness/package.json` exposes the package generator manifest through `"generators": "./generators.json"` and includes generator source in package files (`tools/habitat-harness/package.json:11`, `:13-23`). `tools/habitat-harness/generators.json:5-15` registers exactly two generators:
+`tools/habitat/package.json` exposes the package generator manifest through `"generators": "./generators.json"` and includes generator source in package files (`tools/habitat/package.json:11`, `:13-23`). `tools/habitat/generators.json:5-15` registers exactly two generators:
 
 - `project`: factory `./src/generators/project/generator.cjs#projectGenerator`, schema `./src/generators/project/schema.json`, description "Scaffold a Habitat-conformant workspace project for supported uniform kinds."
 - `pattern`: factory `./src/generators/pattern/generator.cjs#patternGenerator`, schema `./src/generators/pattern/schema.json`, description "Scaffold a Habitat Grit pattern and matching rule-pack entry."
 
-There is no Habitat oclif `generate` command. Current oclif commands under `tools/habitat-harness/src/commands` are `check`, `classify`, `fix`, `graph`, `hook`, and `verify`; the live command probe confirms `bun run habitat generate --help` fails.
+There is no Habitat oclif `generate` command. Current oclif commands under `tools/habitat/src/commands` are `check`, `classify`, `fix`, `graph`, `hook`, and `verify`; the live command probe confirms `bun run habitat generate --help` fails.
 
 ### Project generator
 
 Project generator support is narrower than its schema:
 
-- Runtime support is only `plugin`, `foundation`, and `app` in `PROJECT_KIND_CONTRACTS` (`tools/habitat-harness/src/generators/project/generator.cjs:4-20`) and `SUPPORTED_KINDS` (`:22`).
+- Runtime support is only `plugin`, `foundation`, and `app` in `PROJECT_KIND_CONTRACTS` (`tools/habitat/src/generators/project/generator.cjs:4-20`) and `SUPPORTED_KINDS` (`:22`).
 - Runtime refusal happens in `normalizeOptions` after stripping an optional `kind:` prefix (`:51-57`).
 - Runtime root/package checks refuse mismatched roots and package names before writes (`:59-76`).
 - Non-empty root and package-name collision checks also happen before writes (`:32-42`).
@@ -59,22 +59,22 @@ Current no-unsupported-write assessment:
 
 Hidden coupling:
 
-- The schema advertises `adapter`, `control`, `engine`, `mod`, `sdk`, and `tooling` as enum choices (`tools/habitat-harness/src/generators/project/schema.json:18-37`) even though runtime refuses them. This may be an intentional "schema-accepted refusal" design, but D13 must state that explicitly or remove unsupported choices from the schema.
+- The schema advertises `adapter`, `control`, `engine`, `mod`, `sdk`, and `tooling` as enum choices (`tools/habitat/src/generators/project/schema.json:18-37`) even though runtime refuses them. This may be an intentional "schema-accepted refusal" design, but D13 must state that explicitly or remove unsupported choices from the schema.
 - Package names still use the repo's current `@civ7` scope for generated packages (`generator.cjs:8`, `:13`, `:18`). D13 should treat this as current repo convention evidence, not a generic Habitat target semantic.
 
 ### Pattern generator and Pattern Governance
 
 Candidate lifecycle:
 
-- Default lifecycle is `candidate` (`tools/habitat-harness/src/generators/pattern/schema.json:24-29`; `generator.cjs:32`).
+- Default lifecycle is `candidate` (`tools/habitat/src/generators/pattern/schema.json:24-29`; `generator.cjs:32`).
 - Candidate generation refuses active pattern, active rule, active baseline, existing candidate pattern, and existing candidate manifest before candidate writes (`generator.cjs:5`, `:12-20`, `:76-91`).
-- Candidate writes are fixed under `tools/habitat-harness/src/rules/pattern-authority/candidates` (`:93-99`), specifically one markdown pattern draft and one candidate manifest JSON (`:22-23`).
+- Candidate writes are fixed under `tools/habitat/src/rules/pattern-authority/candidates` (`:93-99`), specifically one markdown pattern draft and one candidate manifest JSON (`:22-23`).
 - Candidate manifest explicitly says `registration.accepted: false` and lists required registration inputs (`:101-130`).
 
 Registered lifecycle:
 
 - `registered-advisory` and `registered-enforced` route into `promoteRegisteredPattern` (`generator.cjs:7-10`, `:59-74`).
-- Promotion requires `--manifestPath` (`registration.cjs:35-37`), validates a Pattern Authority Manifest with matching rule reference (`:39-62`), validates baseline contract and introduction manifest (`:64-65`, `:148-224`), refuses collisions (`:67-85`), then writes active `.habitat/patterns/active/checks/<pattern>.md` and updates `tools/habitat-harness/src/rules/rules.json` (`:87-95`).
+- Promotion requires `--manifestPath` (`registration.cjs:35-37`), validates a Pattern Authority Manifest with matching rule reference (`:39-62`), validates baseline contract and introduction manifest (`:64-65`, `:148-224`), refuses collisions (`:67-85`), then writes active `.habitat/patterns/active/checks/<pattern>.md` and updates `tools/habitat/src/rules/rules.json` (`:87-95`).
 - Hook scope is admitted only through manifest/invocation agreement (`registration.cjs:49-50`, `:122`; manifest validator checks at `manifest.ts:597-645`, `:741-756`).
 
 Pattern Authority Manifest:
@@ -85,18 +85,18 @@ Pattern Authority Manifest:
 
 Hidden coupling:
 
-- `generators.json` still describes the pattern generator as "Scaffold a Habitat Grit pattern and matching rule-pack entry" (`tools/habitat-harness/generators.json:11-15`). That is stale for candidate default behavior and ambiguous for D13 because candidate generation deliberately does not write a rule-pack entry.
+- `generators.json` still describes the pattern generator as "Scaffold a Habitat Grit pattern and matching rule-pack entry" (`tools/habitat/generators.json:11-15`). That is stale for candidate default behavior and ambiguous for D13 because candidate generation deliberately does not write a rule-pack entry.
 - D13 source says Pattern Governance owns registration, not candidate file writing (`docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:19-23`), but current `patternGenerator` owns both candidate file writing and registered promotion code. D13 must either keep registered promotion in D8-owned protected paths or state the exact D13/D8 split.
 
 ### Docs and command-facing surfaces
 
 Existing durable docs already state:
 
-- Habitat exposes exactly two Nx generators (`tools/habitat-harness/docs/CAPABILITIES.md:189-193`).
+- Habitat exposes exactly two Nx generators (`tools/habitat/docs/CAPABILITIES.md:189-193`).
 - Project generator supports only foundation/plugin/app and refuses non-uniform kinds, mismatched roots/package names, non-empty roots, and collisions (`CAPABILITIES.md:194-218`).
 - Pattern candidate output is non-active and registered lifecycle requires manifest/baseline governance (`CAPABILITIES.md:219-238`).
-- Scenario docs list supported project scaffolding and unsupported MapGen recipe/domain/stage/step authoring (`tools/habitat-harness/docs/SCENARIOS.md:95-120`, `:260-277`).
-- `AUTHORING-NEXT.md` frames MapGen authoring as future work and requires an executable vertical slice before accepting authoring generator claims (`tools/habitat-harness/docs/AUTHORING-NEXT.md:24-35`, `:60-71`, `:91-109`).
+- Scenario docs list supported project scaffolding and unsupported MapGen recipe/domain/stage/step authoring (`tools/habitat/docs/SCENARIOS.md:95-120`, `:260-277`).
+- `AUTHORING-NEXT.md` frames MapGen authoring as future work and requires an executable vertical slice before accepting authoring generator claims (`tools/habitat/docs/AUTHORING-NEXT.md:24-35`, `:60-71`, `:91-109`).
 
 These docs are better grounded than the current D13 OpenSpec scaffold. Later D13 implementation should update them only when the generator/refusal contract actually changes.
 
@@ -106,7 +106,7 @@ These docs are better grounded than the current D13 OpenSpec scaffold. Later D13
 
 Nx generator mechanics matter because D13 is not free to invent a parallel Habitat generator command unless it is explicitly added as a command surface.
 
-- Nx local generators are invoked through `nx generate <plugin>:<generator> ...`; the plugin package name is the command namespace. That maps directly to this repo's `@internal/habitat-harness` package name.
+- Nx local generators are invoked through `nx generate <plugin>:<generator> ...`; the plugin package name is the command namespace. That maps directly to this repo's `@habitat/cli` package name.
 - Nx `schema.json` describes available options, validation, and defaults. Standard JSON Schema fields such as `enum`, `default`, `description`, and Nx-specific `$default` directly affect CLI validation, prompting, and Nx Console rendering.
 - Nx generators manipulate an abstract tree and can create, update, move, or delete files. The dry-run flag previews changes without applying them.
 - Nx's own docs warn that modifying existing files is harder than creating files; JSON updates are safer than string replacement, and AST-aware changes are safer for TypeScript.
@@ -124,7 +124,7 @@ Official Grit docs recommend authoring patterns in `.md` files under `.grit/patt
 
 D13 implications:
 
-- Candidate artifacts under `tools/habitat-harness/src/rules/pattern-authority/candidates` are intentionally not active Grit patterns by official import mechanics and current `.habitat/grit.yaml` (`patterns: []`).
+- Candidate artifacts under `tools/habitat/src/rules/pattern-authority/candidates` are intentionally not active Grit patterns by official import mechanics and current `.habitat/grit.yaml` (`patterns: []`).
 - Active registration writes under `.habitat/patterns/active/checks` are not "just scaffolding"; they enter the Grit pattern loading surface and therefore belong behind Pattern Authority/D8 gates.
 - Grit frontmatter, Markdown prose, and generated pattern files must remain proof/example material, not Habitat authority. The manifest validator already encodes this.
 
@@ -145,23 +145,23 @@ D13 should require at least these D0 row categories before implementation:
 
 | Surface | Plane/facet | Current source |
 | --- | --- | --- |
-| `@internal/habitat-harness:project` generator name | generator/name | `tools/habitat-harness/generators.json:6-10` |
-| Project generator schema | generator/schema | `tools/habitat-harness/src/generators/project/schema.json` |
-| Project generator factory | generator/factory | `tools/habitat-harness/src/generators/project/generator.cjs` |
+| `@habitat/cli:project` generator name | generator/name | `tools/habitat/generators.json:6-10` |
+| Project generator schema | generator/schema | `tools/habitat/src/generators/project/schema.json` |
+| Project generator factory | generator/factory | `tools/habitat/src/generators/project/generator.cjs` |
 | Project unsupported-kind refusal | generator/refusal | `project/generator.cjs:51-57`; tests `project-generator.test.ts:90-99` |
 | Project mismatched root/package/collision refusals | generator/refusal | `project/generator.cjs:32-42`, `:66-76`; tests `:101-158` |
-| `@internal/habitat-harness:pattern` generator name | generator/name | `generators.json:11-15` |
+| `@habitat/cli:pattern` generator name | generator/name | `generators.json:11-15` |
 | Pattern generator schema/lifecycle options | generator/schema | `pattern/schema.json:24-44` |
 | Pattern candidate factory writes | generator/factory/refusal | `pattern/generator.cjs:3-24`, `:76-99` |
 | Pattern registered promotion/refusal | generator/factory/refusal | `pattern/registration.cjs:32-103`; tests `pattern-generator.test.ts:57-237` |
-| Pattern Authority Manifest validator exports | package-export and generator governance dependency | `tools/habitat-harness/src/index.ts:117-133`; `manifest.ts` |
+| Pattern Authority Manifest validator exports | package-export and generator governance dependency | `tools/habitat/src/index.ts:117-133`; `manifest.ts` |
 | Generator public docs/examples | docs-example | `CAPABILITIES.md:189-238`, `SCENARIOS.md:95-153`, `README.md:101-131` |
 | Root script/Nx command invocation examples | root-script/docs-example | root `package.json:65-67`, docs examples using `nx g` |
 | Nonexistent `habitat generate` help gate | cli/docs-example/refused | D13 packet currently names it; command probe fails |
 
 Compatibility handling likely needed:
 
-- Preserve or version `@internal/habitat-harness:project` and `@internal/habitat-harness:pattern` command names.
+- Preserve or version `@habitat/cli:project` and `@habitat/cli:pattern` command names.
 - Refuse unsupported project kinds explicitly.
 - Document-only for docs examples that merely demonstrate current command forms.
 - Generated-only for Nx/Nx Console derived help or dry-run output if inventoried.
@@ -172,29 +172,29 @@ This investigation edited only this scratch file. Later D13 implementation shoul
 
 Proposed D13 write set:
 
-- `tools/habitat-harness/src/generators/project/schema.json`
-- `tools/habitat-harness/src/generators/project/generator.cjs`
-- `tools/habitat-harness/test/generators/project-generator.test.ts`
-- `tools/habitat-harness/src/generators/pattern/schema.json`
-- `tools/habitat-harness/src/generators/pattern/generator.cjs`
-- `tools/habitat-harness/src/generators/pattern/registration.cjs` only if D13 explicitly owns command-facing refusal text around registered lifecycle; otherwise leave to D8.
-- `tools/habitat-harness/test/generators/pattern-generator.test.ts`
-- `tools/habitat-harness/test/rules/pattern-authority-manifest.test.ts` only for D13/D8 boundary tests about Nx options not being authority.
-- `tools/habitat-harness/generators.json` only if descriptions change to remove stale "matching rule-pack entry" language.
-- `tools/habitat-harness/docs/CAPABILITIES.md`
-- `tools/habitat-harness/docs/SCENARIOS.md`
-- `tools/habitat-harness/README.md`
-- `tools/habitat-harness/docs/AUTHORING-NEXT.md` only for authoring refusal clarification, not new authoring design.
+- `tools/habitat/src/generators/project/schema.json`
+- `tools/habitat/src/generators/project/generator.cjs`
+- `tools/habitat/test/generators/project-generator.test.ts`
+- `tools/habitat/src/generators/pattern/schema.json`
+- `tools/habitat/src/generators/pattern/generator.cjs`
+- `tools/habitat/src/generators/pattern/registration.cjs` only if D13 explicitly owns command-facing refusal text around registered lifecycle; otherwise leave to D8.
+- `tools/habitat/test/generators/pattern-generator.test.ts`
+- `tools/habitat/test/rules/pattern-authority-manifest.test.ts` only for D13/D8 boundary tests about Nx options not being authority.
+- `tools/habitat/generators.json` only if descriptions change to remove stale "matching rule-pack entry" language.
+- `tools/habitat/docs/CAPABILITIES.md`
+- `tools/habitat/docs/SCENARIOS.md`
+- `tools/habitat/README.md`
+- `tools/habitat/docs/AUTHORING-NEXT.md` only for authoring refusal clarification, not new authoring design.
 - D13 OpenSpec/workstream files and D0 matrix rows only in the owning D13/D0 implementation phase.
 
 Protected paths unless a later accepted owner expands scope:
 
 - `.habitat/patterns/active/checks/**` except through registered promotion tests or D8 implementation.
-- `tools/habitat-harness/src/rules/rules.json` except through registered promotion tests or D8 implementation.
-- `tools/habitat-harness/baselines/**` except through D5/D8 baseline authority.
-- `tools/habitat-harness/src/rules/pattern-authority/manifest.ts` unless D8 explicitly requests a manifest contract change.
+- `tools/habitat/src/rules/rules.json` except through registered promotion tests or D8 implementation.
+- `tools/habitat/baselines/**` except through D5/D8 baseline authority.
+- `tools/habitat/src/rules/pattern-authority/manifest.ts` unless D8 explicitly requests a manifest contract change.
 - `mods/**`, `packages/civ7-*`, `packages/mapgen-*`, and MapGen authoring topology paths; D13 is generic Habitat.
-- Generated artifacts: `dist/**`, `mod/**`, `tools/habitat-harness/oclif.manifest.json`, `.nx/**`, `.civ7/outputs/**`, `mods/mod-swooper-maps/src/maps/generated/**`, `packages/civ7-types/generated/**`, `packages/civ7-map-policy/src/civ7-tables.gen.ts`.
+- Generated artifacts: `dist/**`, `mod/**`, `tools/habitat/oclif.manifest.json`, `.nx/**`, `.civ7/outputs/**`, `mods/mod-swooper-maps/src/maps/generated/**`, `packages/civ7-types/generated/**`, `packages/civ7-map-policy/src/civ7-tables.gen.ts`.
 - Lockfiles and package dependency manifests unless D13 explicitly adds/removes a dependency, which current evidence does not require.
 - Packet index except through the remediation owner after D13 review acceptance.
 
@@ -204,12 +204,12 @@ Replace the current D13 gate set with falsifying gates that hit the actual Nx su
 
 | Gate | Expected result | Proves | Non-claim |
 | --- | --- | --- | --- |
-| `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts` | exit 0 | Unit coverage for project refusals, pattern candidate/registered separation, and manifest authority checks. | Does not prove live Nx CLI schema behavior unless paired with dry-runs. |
-| `bun run nx g @internal/habitat-harness:project habitat-scratch --kind=plugin --dry-run --no-interactive` | exit 0, CREATE list, dry-run note | Nx can resolve generator and supported project writes are previewed without mutation. | Does not prove generated project builds unless live-generation discovery test runs. |
-| `bun run nx g @internal/habitat-harness:project unsupported-scratch --kind=mod --dry-run --no-interactive` | nonzero with Habitat runtime refusal | A schema-admitted unsupported kind reaches Habitat refusal before writes. | Does not prove host-policy refusal. |
-| `bun run nx g @internal/habitat-harness:project unsupported-scratch --kind=host-specific --dry-run --no-interactive` | current expected nonzero Nx schema rejection | Current source packet bad case does not exercise Habitat refusal. Keep only as schema-rejection evidence unless D13 adds this enum deliberately. | Does not prove D13 refusal DTO/message. |
-| `bun run nx g @internal/habitat-harness:pattern grit-d13-scratch --dry-run --no-interactive` | exit 0, candidate paths under `pattern-authority/candidates` | Candidate generation path is non-active and does not write `.grit`, `rules.json`, or baseline. | Does not prove rule registration. |
-| `bun run nx g @internal/habitat-harness:pattern grit-d13-scratch --lifecycle=registered-advisory --dry-run --no-interactive` | nonzero requires `--manifestPath` | Registered lifecycle refuses without manifest before writes. | Does not prove accepted manifest promotion. |
+| `bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts` | exit 0 | Unit coverage for project refusals, pattern candidate/registered separation, and manifest authority checks. | Does not prove live Nx CLI schema behavior unless paired with dry-runs. |
+| `bun run nx g @habitat/cli:project habitat-scratch --kind=plugin --dry-run --no-interactive` | exit 0, CREATE list, dry-run note | Nx can resolve generator and supported project writes are previewed without mutation. | Does not prove generated project builds unless live-generation discovery test runs. |
+| `bun run nx g @habitat/cli:project unsupported-scratch --kind=mod --dry-run --no-interactive` | nonzero with Habitat runtime refusal | A schema-admitted unsupported kind reaches Habitat refusal before writes. | Does not prove host-policy refusal. |
+| `bun run nx g @habitat/cli:project unsupported-scratch --kind=host-specific --dry-run --no-interactive` | current expected nonzero Nx schema rejection | Current source packet bad case does not exercise Habitat refusal. Keep only as schema-rejection evidence unless D13 adds this enum deliberately. | Does not prove D13 refusal DTO/message. |
+| `bun run nx g @habitat/cli:pattern grit-d13-scratch --dry-run --no-interactive` | exit 0, candidate paths under `pattern-authority/candidates` | Candidate generation path is non-active and does not write `.grit`, `rules.json`, or baseline. | Does not prove rule registration. |
+| `bun run nx g @habitat/cli:pattern grit-d13-scratch --lifecycle=registered-advisory --dry-run --no-interactive` | nonzero requires `--manifestPath` | Registered lifecycle refuses without manifest before writes. | Does not prove accepted manifest promotion. |
 | Accepted-manifest registered promotion fixture in `pattern-generator.test.ts` | exit 0 in unit tests | D8/Pattern Authority path writes active `.grit` and `rules.json` only after manifest/baseline contract. | Does not make D13 the owner of Pattern Governance. |
 | `bun run openspec -- validate deep-habitat-d13-scaffolding-refusal-contracts --strict` | exit 0 after packet repair | OpenSpec shape. | Does not prove generator source behavior. |
 | `bun run openspec:validate` | exit 0 | Cross-OpenSpec shape. | Does not prove source behavior or D0 row completeness. |
@@ -233,7 +233,7 @@ Repair: add the concrete D13 contract, D0 row requirements, write set/protected 
 
 `proposal.md:73-78`, `tasks.md:20-24`, and `workstream/phase-record.md:22-28` require `bun run habitat generate --help`. The current oclif command set has no `generate` command, and the live probe returned exit 2 with `Command generate not found.`
 
-Repair: replace with Nx generator gates such as `bun run nx g @internal/habitat-harness:project ... --dry-run --no-interactive` and `bun run nx g @internal/habitat-harness:pattern ... --dry-run --no-interactive`.
+Repair: replace with Nx generator gates such as `bun run nx g @habitat/cli:project ... --dry-run --no-interactive` and `bun run nx g @habitat/cli:pattern ... --dry-run --no-interactive`.
 
 ### P1: D13 depends on G-HOST for host-specific refusal but G-HOST is still incomplete.
 
@@ -243,19 +243,19 @@ Repair: D13 may define the generic refusal shape and the way it consumes host-po
 
 ### P2: Project generator schema and runtime refusal semantics are mismatched and need an explicit D13 decision.
 
-The schema lists unsupported non-uniform kinds as enum values (`tools/habitat-harness/src/generators/project/schema.json:18-37`), but runtime supports only `plugin`, `foundation`, and `app` (`tools/habitat-harness/src/generators/project/generator.cjs:4-22`) and refuses all other enum-admitted kinds (`:51-57`). Nx vendor docs make `schema.json` option metadata part of CLI validation/prompting, so this is a public contract mismatch unless D13 intentionally models "schema-admitted refusal" as the contract.
+The schema lists unsupported non-uniform kinds as enum values (`tools/habitat/src/generators/project/schema.json:18-37`), but runtime supports only `plugin`, `foundation`, and `app` (`tools/habitat/src/generators/project/generator.cjs:4-22`) and refuses all other enum-admitted kinds (`:51-57`). Nx vendor docs make `schema.json` option metadata part of CLI validation/prompting, so this is a public contract mismatch unless D13 intentionally models "schema-admitted refusal" as the contract.
 
 Repair: either narrow the enum to supported kinds and document unsupported inputs as schema rejection, or keep unsupported enum values and specify runtime refusal DTO/message compatibility rows and tests for each refused kind.
 
 ### P2: The source packet's `host-specific` dry-run bad case does not reach Habitat refusal code.
 
-The source D13 packet requires a bad case using `--kind=host-specific` (`docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:130-134`). Current project schema does not include `host-specific` (`tools/habitat-harness/src/generators/project/schema.json:18-37`), and the live dry-run fails in Nx schema validation before generator code executes. That proves only Nx schema rejection, not D13's refusal DTO/message, owner, recovery guidance, or no-write behavior.
+The source D13 packet requires a bad case using `--kind=host-specific` (`docs/projects/habitat-harness/phase2-workstream-packets/D13-scaffolding-and-refusal-contracts.md:130-134`). Current project schema does not include `host-specific` (`tools/habitat/src/generators/project/schema.json:18-37`), and the live dry-run fails in Nx schema validation before generator code executes. That proves only Nx schema rejection, not D13's refusal DTO/message, owner, recovery guidance, or no-write behavior.
 
 Repair: use schema-admitted unsupported kinds such as `mod` for current runtime-refusal proof, or deliberately add a host-specific enum/request type after G-HOST defines the host boundary.
 
 ### P2: Pattern generator description and ownership language blur candidate generation with registered enforcement.
 
-`tools/habitat-harness/generators.json:11-15` describes `pattern` as scaffolding a Grit pattern and matching rule-pack entry. Current default candidate generation writes only candidate artifacts and explicitly does not register a rule (`tools/habitat-harness/src/generators/pattern/generator.cjs:12-24`, `:101-130`; test `pattern-generator.test.ts:20-55`). Registered promotion writes active `.grit` and `rules.json` only after manifest/baseline checks (`registration.cjs:32-103`). D13 source correctly says Pattern Governance owns registration (`D13-scaffolding-and-refusal-contracts.md:19-23`), but the live packet does not spell the D13/D8 boundary beyond generic "Separate project scaffolding from Pattern Governance candidate generation" (`openspec/.../design.md:24-26`).
+`tools/habitat/generators.json:11-15` describes `pattern` as scaffolding a Grit pattern and matching rule-pack entry. Current default candidate generation writes only candidate artifacts and explicitly does not register a rule (`tools/habitat/src/generators/pattern/generator.cjs:12-24`, `:101-130`; test `pattern-generator.test.ts:20-55`). Registered promotion writes active `.grit` and `rules.json` only after manifest/baseline checks (`registration.cjs:32-103`). D13 source correctly says Pattern Governance owns registration (`D13-scaffolding-and-refusal-contracts.md:19-23`), but the live packet does not spell the D13/D8 boundary beyond generic "Separate project scaffolding from Pattern Governance candidate generation" (`openspec/.../design.md:24-26`).
 
 Repair: update the D13 packet to require generator description cleanup and D0 rows for candidate generation, registered lifecycle refusal, and registered promotion handoff. Treat active `.grit`/`rules.json` writes as D8-owned unless D8 explicitly delegates command-facing refusal text to D13.
 

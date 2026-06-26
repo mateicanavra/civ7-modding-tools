@@ -1,6 +1,6 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "name": "@civ7/direct-control",
+  "name": "control-direct",
   "tags": ["kind:control"],
   "targets": {
     "build-bundle": {
@@ -19,7 +19,7 @@
       "dependsOn": [
         "build-bundle",
         {
-          "projects": ["@civ7/map-policy"],
+          "projects": ["civ7-map-policy"],
           "target": "build"
         }
       ],

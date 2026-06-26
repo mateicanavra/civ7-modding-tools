@@ -147,8 +147,10 @@ export function assertNoFindings(ruleId, findings) {
     return;
   }
   console.error(
-    [`[habitat-check] ${ruleId} found ${findings.length} violation(s):`, ...findings.map(format)]
-      .join("\n")
+    [
+      `[habitat-check] ${ruleId} found ${findings.length} violation(s):`,
+      ...findings.map(format),
+    ].join("\n")
   );
   process.exit(1);
 }

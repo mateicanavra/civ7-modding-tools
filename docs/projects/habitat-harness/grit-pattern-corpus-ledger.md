@@ -19,14 +19,22 @@ wrapper baselines describe the old proof trail only; current source-shape
 ownership lives in source-check pattern rules, and generated-bundle/domain
 correctness checks remain package Nx targets.
 
+**Edge-miss stabilization note:** the later task-graph stabilization slice
+removed package-visible `test:architecture-*` Nx targets from the active graph.
+The temporary canary files were consumed by the embedded hidden-authority
+migration and replaced by
+`docs/projects/habitat-harness/hidden-test-authority/workstream.md`. Rows below
+that still name old targets are historical proof records, not live target
+contracts.
+
 ## Historical Corpus Seed Summary
 
 - Current implemented corpus: 22 check patterns under
   `.habitat/patterns/checks/`.
 - Current implemented apply corpus: 1 apply pattern under
   `.habitat/patterns/apply/`.
-- Rule-pack owner: `tools/habitat-harness/src/rules/rules.json`.
-- Current scan adapter: `tools/habitat-harness/src/lib/grit.ts`.
+- Rule-pack owner: `tools/habitat/src/rules/rules.json`.
+- Current scan adapter: `tools/habitat/src/lib/grit.ts`.
 - Current scan roots: `packages`, `apps/mapgen-studio/src`,
   `mods/mod-swooper-maps/src/recipes`, `mods/mod-swooper-maps/src/maps`,
   `mods/mod-swooper-maps/src/domain`.
@@ -79,7 +87,7 @@ family. Native sample proof is currently available from the local extraction;
 the remaining proof classes are not satisfied by that fixture result.
 
 Baseline note for repair-chain consumers: every current Grit check row has a
-committed `tools/habitat-harness/baselines/<rule-id>.json` file containing
+committed `tools/habitat/baselines/<rule-id>.json` file containing
 `[]` on the accepted Grit proof stack. After
 `habitat-scaffold-contract-repair`, "empty locked" means that explicit file and
 `baseline-integrity` contract proof, not missing-file convention.
@@ -91,7 +99,7 @@ baseline/rule-introduction contract, native Grit sample proof, Habitat wrapper
 current-tree proof, fixture strategy, false-positive model, and hook decision.
 Hook-scoped generation also requires the accepted hook-owner staged-scope and
 rule-pack filtering proof. Candidate drafts under
-`tools/habitat-harness/src/rules/pattern-authority/candidates/` are not active
+`tools/habitat/src/rules/pattern-authority/candidates/` are not active
 Grit checks, rule-pack entries, baselines, hook-scope decisions, or row proof.
 
 | Pattern candidate | Architecture obligation | Normative source | Proving source | Owner layer | Scan roots | Fixture strategy | Current-tree scan | Baseline action | Apply safety | OpenSpec id |

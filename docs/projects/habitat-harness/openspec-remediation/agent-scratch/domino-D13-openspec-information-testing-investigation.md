@@ -87,40 +87,40 @@ The workstream files exist, but they do not carry the improved proposal contract
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Supported plugin | `bun run nx g @internal/habitat-harness:project d13-plugin-smoke --kind=plugin --dry-run --no-interactive` | 0 | Dry-run reports only `packages/plugins/plugin-d13-plugin-smoke/**`; no disk writes after dry-run; D0 row exists for schema/help/output if changed. | Does not prove plugin product behavior. |
-| Supported foundation | `bun run nx g @internal/habitat-harness:project d13-foundation-smoke --kind=foundation --dry-run --no-interactive` | 0 | Dry-run reports only `packages/d13-foundation-smoke/**`; no disk writes after dry-run. | Does not prove package build beyond scaffold contract. |
-| Supported app | `bun run nx g @internal/habitat-harness:project d13-app-smoke --kind=app --dry-run --no-interactive` | 0 | Dry-run reports only `apps/d13-app-smoke/**`; no disk writes after dry-run. | Does not prove app runtime behavior. |
+| Supported plugin | `bun run nx g @habitat/cli:project d13-plugin-smoke --kind=plugin --dry-run --no-interactive` | 0 | Dry-run reports only `packages/plugins/plugin-d13-plugin-smoke/**`; no disk writes after dry-run; D0 row exists for schema/help/output if changed. | Does not prove plugin product behavior. |
+| Supported foundation | `bun run nx g @habitat/cli:project d13-foundation-smoke --kind=foundation --dry-run --no-interactive` | 0 | Dry-run reports only `packages/d13-foundation-smoke/**`; no disk writes after dry-run. | Does not prove package build beyond scaffold contract. |
+| Supported app | `bun run nx g @habitat/cli:project d13-app-smoke --kind=app --dry-run --no-interactive` | 0 | Dry-run reports only `apps/d13-app-smoke/**`; no disk writes after dry-run. | Does not prove app runtime behavior. |
 
 ### Requirement Family: Unsupported Project Kinds Refuse Before Writes
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Non-uniform `mod` kind | `bun run nx g @internal/habitat-harness:project d13-mod-refusal --kind=mod --dry-run --no-interactive` | nonzero | Message names supported uniform kinds, refused kind, owning domain or next safe action; no `mods/d13-mod-refusal/**`, package, or source files. | Does not implement mod scaffolding. |
-| Non-uniform `engine/control/adapter/sdk/tooling` kinds | parameterized generator tests in `test/generators/project-generator.test.ts` | nonzero per kind | Each refusal has owner/reason/recovery and preserves tree state. Current code asserts no writes for `mod` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/project-generator.test.ts:90-99`, but D13 must define the full target matrix. | Does not claim all future workspace kinds are unsupported forever. |
+| Non-uniform `mod` kind | `bun run nx g @habitat/cli:project d13-mod-refusal --kind=mod --dry-run --no-interactive` | nonzero | Message names supported uniform kinds, refused kind, owning domain or next safe action; no `mods/d13-mod-refusal/**`, package, or source files. | Does not implement mod scaffolding. |
+| Non-uniform `engine/control/adapter/sdk/tooling` kinds | parameterized generator tests in `test/generators/project-generator.test.ts` | nonzero per kind | Each refusal has owner/reason/recovery and preserves tree state. Current code asserts no writes for `mod` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:90-99`, but D13 must define the full target matrix. | Does not claim all future workspace kinds are unsupported forever. |
 | Literal host-specific kind | If D13 wants `--kind=host-specific`, it must first change schema through D0; otherwise use an admitted non-uniform kind such as `mod` as the host-owned refusal fixture. | blocked until design chooses | The refusal must come from Habitat's designed refusal path, not an Nx schema parser error. | Does not authorize generic Habitat host policy. |
 
 ### Requirement Family: Project Preflight Refusals Are No-Write Outcomes
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Root mismatch | generator test using `kind=app` and `directory=packages/misplaced-app` | nonzero | Existing file tree unchanged; no package/source files written. Current test pattern exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/project-generator.test.ts:101-114`. | Does not validate D0 compatibility by itself. |
-| Package name mismatch | generator test using `kind=plugin` and wrong `packageName` | nonzero | Canonical root remains absent. Current test pattern exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/project-generator.test.ts:116-129`. | Does not prove package namespace policy beyond refusal. |
-| Existing root or package collision | generator tests | nonzero | Preexisting files are byte-preserved; target package is absent. Current tests cover this at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/project-generator.test.ts:131-158`. | Does not prove all filesystem races. |
+| Root mismatch | generator test using `kind=app` and `directory=packages/misplaced-app` | nonzero | Existing file tree unchanged; no package/source files written. Current test pattern exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:101-114`. | Does not validate D0 compatibility by itself. |
+| Package name mismatch | generator test using `kind=plugin` and wrong `packageName` | nonzero | Canonical root remains absent. Current test pattern exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:116-129`. | Does not prove package namespace policy beyond refusal. |
+| Existing root or package collision | generator tests | nonzero | Preexisting files are byte-preserved; target package is absent. Current tests cover this at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/project-generator.test.ts:131-158`. | Does not prove all filesystem races. |
 
 ### Requirement Family: Pattern Generation Produces Candidate-Only State
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Candidate pattern | `bun run nx g @internal/habitat-harness:pattern grit-d13-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d13-scaffolding-refusal-contracts --dry-run --no-interactive` | 0 | Only candidate paths are listed; no active `.grit`, `rules.json`, baseline, hook, local-feedback, or apply state. D8 requires this no-active-write rule at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:54-78` and `:262-266`. | Candidate generation does not register a rule. |
+| Candidate pattern | `bun run nx g @habitat/cli:pattern grit-d13-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d13-scaffolding-refusal-contracts --dry-run --no-interactive` | 0 | Only candidate paths are listed; no active `.grit`, `rules.json`, baseline, hook, local-feedback, or apply state. D8 requires this no-active-write rule at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:54-78` and `:262-266`. | Candidate generation does not register a rule. |
 | Candidate collision with active pattern/rule/baseline | generator tests or fixture command with existing active surface | nonzero | No candidate files written; refusal names collision and protected surface. D8 requires refusal before candidate writes at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d8-pattern-governance/specs/habitat-harness/spec.md:69-72`. | Does not decide D8 admission. |
 
 ### Requirement Family: Registered Pattern Requests Hand Off To D8 Or Refuse
 
 | Case | Command or test | Expected status | Required oracle | Non-claim |
 | --- | --- | --- | --- | --- |
-| Registered advisory without manifest | `bun run nx g @internal/habitat-harness:pattern grit-d13-advisory --lifecycle=registered-advisory --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/pattern-generator.test.ts:57-69`. | Does not create Pattern Authority admission. |
-| Registered enforced without manifest | `bun run nx g @internal/habitat-harness:pattern grit-d13-enforced --lifecycle=registered-enforced --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/pattern-generator.test.ts:71-83`. | Does not admit hook/local-feedback/apply state. |
-| Manifest with placeholder authority | generator test with placeholder manifest | nonzero | No active writes; refusal reason is closed and points to Pattern Authority repair. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/generators/pattern-generator.test.ts:85-110`. | Does not prove manifest validity alone is sufficient. |
+| Registered advisory without manifest | `bun run nx g @habitat/cli:pattern grit-d13-advisory --lifecycle=registered-advisory --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:57-69`. | Does not create Pattern Authority admission. |
+| Registered enforced without manifest | `bun run nx g @habitat/cli:pattern grit-d13-enforced --lifecycle=registered-enforced --dry-run --no-interactive` | nonzero | Refusal names Pattern Governance/D8, missing manifest, no active writes. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:71-83`. | Does not admit hook/local-feedback/apply state. |
+| Manifest with placeholder authority | generator test with placeholder manifest | nonzero | No active writes; refusal reason is closed and points to Pattern Authority repair. Current test shape exists at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/generators/pattern-generator.test.ts:85-110`. | Does not prove manifest validity alone is sufficient. |
 
 ### Requirement Family: Host Policy And Authoring Topology Refusals Are Explicit Blockers
 
@@ -151,24 +151,24 @@ Non-claims:
 
 D13 implementation validation command set after packet repair and source implementation:
 
-1. `bun run --cwd tools/habitat-harness test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`
+1. `bun run --cwd tools/habitat test -- test/generators/project-generator.test.ts test/generators/pattern-generator.test.ts test/rules/pattern-authority-manifest.test.ts`
    - Expected status: 0.
    - Required command record: includes explicit positive and negative D13 cases from section 3, including no-write assertions for every refusal.
    - Non-claim: broad generator tests alone do not prove D13 unless they assert the D13 scenario matrix.
 
-2. `bun run nx g @internal/habitat-harness:project d13-plugin-smoke --kind=plugin --dry-run --no-interactive`
+2. `bun run nx g @habitat/cli:project d13-plugin-smoke --kind=plugin --dry-run --no-interactive`
    - Expected status: 0.
    - Required command record: dry-run only, no persisted files, D0-compatible output if output changes.
 
-3. `bun run nx g @internal/habitat-harness:project d13-mod-refusal --kind=mod --dry-run --no-interactive`
+3. `bun run nx g @habitat/cli:project d13-mod-refusal --kind=mod --dry-run --no-interactive`
    - Expected status: nonzero.
    - Required command record: designed refusal output with owner/reason/next action/non-claim, no files.
 
-4. `bun run nx g @internal/habitat-harness:pattern grit-d13-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d13-scaffolding-refusal-contracts --dry-run --no-interactive`
+4. `bun run nx g @habitat/cli:pattern grit-d13-candidate --lifecycle=candidate --openspecChangeId=deep-habitat-d13-scaffolding-refusal-contracts --dry-run --no-interactive`
    - Expected status: 0.
    - Required proof: candidate-only output; no active `.grit`, registry, baseline, hook, local-feedback, or apply writes.
 
-5. `bun run nx g @internal/habitat-harness:pattern grit-d13-advisory --lifecycle=registered-advisory --dry-run --no-interactive`
+5. `bun run nx g @habitat/cli:pattern grit-d13-advisory --lifecycle=registered-advisory --dry-run --no-interactive`
    - Expected status: nonzero.
    - Required proof: D8-owned refusal for missing manifest/admission, no active writes.
 

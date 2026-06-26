@@ -1,43 +1,14 @@
 {
   "name": "civ-mod-dacia",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:mod"
-    ],
-    "targets": {
-      "deploy": {
-        "dependsOn": [
-          "build",
-          {
-            "projects": [
-              "@mateicanavra/civ7-cli"
-            ],
-            "target": "build"
-          }
-        ],
-        "cache": false
-      },
-      "build:deploy": {
-        "command": "node -e \"\"",
-        "cache": false,
-        "outputs": [],
-        "dependsOn": [
-          "deploy"
-        ]
-      }
-    }
-  },
   "version": "1.0.0",
   "description": "This mod adds the Dacia civilization to Civilization VII, including Decebalus as a leader, along with unique abilities, units, and buildings.",
   "main": "index.js",
   "scripts": {
     "build": "tsx build.ts",
-    "deploy": "node ../../packages/cli/bin/run.js mod manage deploy --input \"$PWD/mod\" --id mod-swooper-civ-dacia",
     "docs": "docsify serve docs",
     "lint": "biome check .",
-    "check": "tsc -p tsconfig.json --noEmit",
-    "build:deploy": "node -e \"\""
+    "check": "tsc -p tsconfig.json --noEmit"
   },
   "repository": {
     "type": "git",

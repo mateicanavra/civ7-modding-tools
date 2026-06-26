@@ -55,11 +55,11 @@ Project and packet grounding read:
 - All current files under
   `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d5-baseline-authority`.
 - Grounding code/tests named in the request:
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/baseline.test.ts`,
   and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`.
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-entrypoints.test.ts`.
 
 ## OpenSpec Artifact Gaps By File
 
@@ -105,10 +105,10 @@ Gaps:
   not tasks for the later executor to invent.
 - The design does not resolve current-code invalid-state pressure:
   `BaselineExpansionGuardResult` is still boolean-shaped at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:223`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:223`,
   and `ExternalExceptionSourceModel` still permits optional projections and
   validation at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:109`.
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:109`.
 
 ### `specs/habitat-harness/spec.md`
 
@@ -127,7 +127,7 @@ Gaps:
   rule-introduction manifest failures.
 - The current code already names many of these states in
   `BaselineContractFailureReason` at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:24`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:24`,
   but the spec does not make them normative.
 
 ### `tasks.md`
@@ -279,7 +279,7 @@ test oracle, and non-claim.
 
 17. Base registry missing.
     Acceptance: if the comparison base cannot provide
-    `tools/habitat-harness/src/rules/rules.json`, integrity/guard fail with
+    `tools/habitat/src/rules/rules.json`, integrity/guard fail with
     `base-rule-registry-missing`.
 
 18. Base registry malformed.
@@ -320,7 +320,7 @@ test oracle, and non-claim.
     Acceptance: every D5-touched public surface has a D0 row or explicit
     blocking note before implementation: baseline JSON files, `habitat check`
     JSON baseline fields/messages, `--expand-baseline` behavior, package exports
-    from `tools/habitat-harness/src/index.ts`, Pattern Governance baseline
+    from `tools/habitat/src/index.ts`, Pattern Governance baseline
     contract messages, and docs/examples.
 
 ## Validation Gate Design
@@ -346,7 +346,7 @@ Design-time packet validation:
 
 Later implementation-time behavioral gates:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/baseline.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/baseline.test.ts`
   - Expected: exit 0.
   - Must validate: unit-level D5 state matrix, including explicit empty/debt,
     missing/malformed/orphan baselines, external source states, parser-owned
@@ -378,7 +378,7 @@ Later implementation-time behavioral gates:
     admission.
 
 - Command entrypoint checks, likely in
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`.
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-entrypoints.test.ts`.
   - Expected: exit 0 for test command; negative command invocations return exit
     1 and schemaVersion 1 JSON with exact baseline refusal diagnostics where
     applicable.
@@ -412,12 +412,12 @@ Current packet state:
 - `tasks.md` lines 14-16 remain broad implementation verbs.
 - The present code/test grounding already exposes the omitted states:
   `BaselineContractFailureReason` at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:24`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:24`,
   loader/validator/guard entrypoints at
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:343`,
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:390`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:343`,
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:390`,
   and
-  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts:423`.
+  `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts:423`.
 
 Why this blocks: an implementation agent could satisfy the current two spec
 scenarios while omitting most of D5's authority surface.
@@ -490,11 +490,11 @@ write set is required before implementation.
 Required repair: enumerate expected implementation files and protected paths.
 Expected write set candidates include:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/baseline.ts`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/index.ts` if exported types/functions change.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/baseline.test.ts`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/commands/habitat-entrypoints.test.ts`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/baseline.ts`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/index.ts` if exported types/functions change.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/baseline.test.ts`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/commands/habitat-entrypoints.test.ts`.
 - Specific baseline fixture files or temp-fixture helpers, if needed.
 
 Protected paths must include generated artifacts, unrelated D7/D8

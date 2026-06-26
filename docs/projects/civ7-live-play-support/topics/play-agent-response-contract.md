@@ -23,8 +23,8 @@ civ7 game ...
 Do not use `bun packages/cli/bin/run.js` as the play-agent command surface. It
 is a package-development entrypoint that relies on generated `dist` modules and
 can disappear or go stale during active play. Build, test, and relink through
-root scripts such as `bun run build:cli`, `bun run test:cli:play`, and
-`bun run link:cli`; then execute live turns through `civ7 game ...`.
+Nx targets such as `nx build civ7-cli`, `nx run civ7-cli:test:play`, and
+`nx run civ7-cli:link:global`; then execute live turns through `civ7 game ...`.
 
 ## Domain Split
 

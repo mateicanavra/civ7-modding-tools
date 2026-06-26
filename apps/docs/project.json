@@ -1,0 +1,33 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-docs",
+  "tags": ["kind:app"],
+  "targets": {
+    "dev": {
+      "command": "bun run scripts/dev-staged.ts",
+      "dependsOn": ["^build", "sync"],
+      "cache": false,
+      "continuous": true,
+      "options": {
+        "cwd": "apps/docs"
+      }
+    },
+    "build": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["sync"],
+      "options": {
+        "cwd": "apps/docs"
+      }
+    },
+    "sync": {
+      "command": "bun run scripts/sync-resources.ts",
+      "cache": true,
+      "outputs": ["{projectRoot}/public/civ7-official/**"],
+      "options": {
+        "cwd": "apps/docs"
+      }
+    }
+  }
+}

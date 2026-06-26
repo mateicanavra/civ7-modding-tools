@@ -110,7 +110,9 @@ function staticResponse(assetsRoot: string, pathname: string): Response {
   const finalPath = existsSync(filePath) && statSync(filePath).isFile() ? filePath : fallbackPath;
 
   if (!existsSync(finalPath)) {
-    return new Response("Studio assets not found. Run `bun run build` first.", { status: 503 });
+    return new Response("Studio assets not found. Run `nx run mapgen-studio:build` first.", {
+      status: 503,
+    });
   }
   return new Response(readFileSync(finalPath), {
     headers: {

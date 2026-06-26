@@ -235,7 +235,7 @@ D10 must name the touched public surfaces before implementation. Required base s
 - `habitat check --json` when D7 projects D10 refusals into check output.
 - `habitat hook pre-commit` and any hook trace/human output that exposes generated-zone refusal.
 - Nx `generated:check` target and output if D10 changes drift/freshness behavior or target metadata.
-- `tools/habitat-harness/docs/IMPLEMENTED-SURFACE.md`, `CAPABILITIES.md`, and any docs examples that promise file-layer/generated-zone behavior.
+- `tools/habitat/docs/IMPLEMENTED-SURFACE.md`, `CAPABILITIES.md`, and any docs examples that promise file-layer/generated-zone behavior.
 - Generated/help surfaces if command metadata changes.
 - Package exports only if D10 introduces exported zone types/functions; current `generated-zones.ts` is not exported from `src/index.ts`, so adding exports would itself be a D0-controlled public change.
 

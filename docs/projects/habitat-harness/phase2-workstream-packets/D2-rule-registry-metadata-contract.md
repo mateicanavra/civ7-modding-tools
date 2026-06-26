@@ -56,7 +56,7 @@ implemented in parallel if their write sets do not overlap.
 
 ## Current State-Space Problem
 
-`/tools/habitat-harness/src/rules/rules.json` mixes stable fields, prose fields,
+`/tools/habitat/src/rules/rules.json` mixes stable fields, prose fields,
 tool-specific fields, hook fields, generated-zone fields, and wrapped-test
 fields. `plugin.js` separately encodes owner roots and alias construction.
 `classifyRuleScope` uses string scope heuristics.
@@ -134,19 +134,19 @@ Non-claims:
 Update:
 
 - rule-pack contract record;
-- `tools/habitat-harness/docs/DOMAIN-MAPPING.md`;
+- `tools/habitat/docs/DOMAIN-MAPPING.md`;
 - taxonomy references if owner roots change;
 - OpenSpec packets that cite rule metadata;
 - tests that fixture registry records.
 
 ## Validation Commands / Receipt Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/rule-selection.test.ts test/rules/pattern-authority-manifest.test.ts`:
   expected exit 0; schema and selector receipt for registry facets.
-- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/rules/rules.json`:
+- `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/rules/rules.json`:
   expected exit 0; command behavior receipt that registry ownership remains
   discoverable.
-- `nx show project @internal/habitat-harness`: expected exit 0; graph metadata
+- `nx show project habitat`: expected exit 0; graph metadata
   receipt that registry-derived targets remain visible.
 - Cache stance: graph metadata may be cached, but the packet must record the
   exact JSON target metadata used.

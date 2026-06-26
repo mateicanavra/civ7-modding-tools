@@ -1,0 +1,81 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "mapgen-studio",
+  "tags": ["kind:app"],
+  "targets": {
+    "dev": {
+      "command": "vite",
+      "dependsOn": ["serve-daemon"],
+      "cache": false,
+      "continuous": true,
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "serve-daemon": {
+      "command": "bun src/server/daemon/daemon.ts",
+      "dependsOn": [
+        "^build",
+        {
+          "projects": ["mod-swooper-maps"],
+          "target": "build:studio-recipes"
+        }
+      ],
+      "cache": false,
+      "continuous": true,
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "build": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": ["{projectRoot}/dist/**"],
+      "dependsOn": ["build:vite"],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "check": {
+      "command": "tsc --noEmit",
+      "dependsOn": [
+        "^build",
+        {
+          "projects": ["mod-swooper-maps"],
+          "target": "build:studio-recipes"
+        }
+      ],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "test": {
+      "command": "vitest run --config ../../vitest.config.ts --project mapgen-studio",
+      "dependsOn": [
+        "^build",
+        {
+          "projects": ["mod-swooper-maps"],
+          "target": "build:studio-recipes"
+        }
+      ],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    },
+    "build:vite": {
+      "command": "vite build",
+      "dependsOn": [
+        "check",
+        "^build",
+        {
+          "projects": ["mod-swooper-maps"],
+          "target": "build:studio-recipes"
+        }
+      ],
+      "outputs": ["{projectRoot}/dist/**"],
+      "options": {
+        "cwd": "apps/mapgen-studio"
+      }
+    }
+  }
+}

@@ -96,17 +96,17 @@ Evidence:
 
 - `docs/projects/habitat-harness/domain-refactor-prep/phase2-goal.md:16` requires validation command results in the final handoff before goal attachment.
 - `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:151` through `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:162` provides a command list, but frames it as commands that should be rerun during packet design, not attachment proof.
-- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:158` uses `--cwd tools/habitat-harness`, which is not an absolute path argument.
+- `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:158` uses `--cwd tools/habitat`, which is not an absolute path argument.
 - `docs/projects/habitat-harness/domain-refactor-prep/code-topology-map.md:163` records full-suite reliability as a proof concern but does not add a blocking validation gate.
-- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:78` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:79` reports `@internal/habitat-harness:check` passed but `@internal/habitat-harness:test` failed twice.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:78` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:79` reports `@habitat/cli:check` passed but `@habitat/cli:test` failed twice.
 - `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:94` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:97` gives the concrete failure and false-green alias evidence.
-- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:114` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124` contains a stronger future packet proof command set than the consolidated corpus, including `@internal/habitat-harness:test` and `@internal/habitat-harness:habitat:rule:biome-ci`.
+- `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:114` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124` contains a stronger future packet proof command set than the consolidated corpus, including `@habitat/cli:test` and `@habitat/cli:habitat:rule:biome-ci`.
 
 Required fix before goal attachment:
 
 - Add a goal-attachment validation record or final handoff section that records exact command, branch, commit, result, proof class, cache/freshness caveat, and non-claims.
 - Include at minimum the full Nx harness test target and the false-green alias proof commands from `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:118` through `docs/projects/habitat-harness/domain-refactor-prep/agent-scratch/wave2-build-nx-tooling.md:124`.
-- Do not let `/Users/mateicanavra/.bun/bin/bun run --cwd tools/habitat-harness test` substitute for `/Users/mateicanavra/.bun/bin/nx run @internal/habitat-harness:test --outputStyle=static`; those prove different things.
+- Do not let `/Users/mateicanavra/.bun/bin/bun run --cwd tools/habitat test` substitute for `/Users/mateicanavra/.bun/bin/nx run @habitat/cli:test --outputStyle=static`; those prove different things.
 
 Goal attachment impact: blocks until validation results are recorded or explicitly marked unresolved with owner and trigger.
 
@@ -149,7 +149,7 @@ Goal attachment impact: does not need to block if `docs/projects/habitat-harness
 ## Optional Improvements
 
 - Add a final handoff template under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/docs/projects/habitat-harness/domain-refactor-prep/` that records preflight, validation commands, `git status`, `git log -1`, `/opt/homebrew/bin/gt log --no-interactive`, commit hash, and proof-class labels.
-- Normalize command examples so every path argument is absolute, including `--cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness`.
+- Normalize command examples so every path argument is absolute, including `--cwd /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat`.
 - In `docs/projects/habitat-harness/domain-refactor-prep/domino-candidate-ledger.md`, split "Proof Class" into "Minimum proof gates" and "Non-claims" so packet authors cannot read broad proof names as closure.
 - Add a short "cached Nx result is not fresh command behavior" reminder next to any Nx proof command list.
 

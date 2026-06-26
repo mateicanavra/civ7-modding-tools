@@ -1,0 +1,22 @@
+{
+  "id": "cli-smoke",
+  "ownerTool": "command-check",
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "scope": "Habitat CLI help and JSON check report surface",
+  "forbids": "Habitat CLI help or selected-check JSON output becoming unparseable",
+  "why": "The Toolkit package owns the CLI surface smoke proof.",
+  "detect": ["bun", ".habitat/habitat/toolkit/_self/check/cli-smoke/cli-smoke.check.ts"],
+  "remediate": "Restore the Habitat CLI help surface and CheckReport JSON schema compatibility.",
+  "message": "Habitat CLI smoke validation failed.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["tools/habitat/bin/**", "tools/habitat/src/cli/**"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

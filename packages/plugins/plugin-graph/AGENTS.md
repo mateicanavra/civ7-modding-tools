@@ -9,9 +9,9 @@ This package hosts the XML crawler and graph utilities used by the CLI and other
 - No CLI-specific side effects or file-system writes—functions should accept inputs and return data.
 - When modifying code here, run:
   ```bash
-  nx run @civ7/plugin-graph:build
-  nx run @civ7/plugin-graph:lint
-  nx run @civ7/plugin-graph:test
+  nx run plugin-graph:build
+  nx run plugin-graph:lint
+  nx run plugin-graph:test
   ```
   (tests are currently minimal; add coverage for new logic—see `TESTING.md`.)
 

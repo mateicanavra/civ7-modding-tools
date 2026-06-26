@@ -23,15 +23,15 @@ Primary packet inputs read:
 
 Relevant present-behavior evidence read:
 
-- `tools/habitat-harness/src/lib/generated-zones.ts`
-- `tools/habitat-harness/scripts/verify-generated-zones.mjs`
-- `tools/habitat-harness/src/lib/hooks.ts`
-- `tools/habitat-harness/src/lib/grit.ts`
-- `tools/habitat-harness/src/lib/grit-apply.ts`
-- `tools/habitat-harness/src/plugin.js`
-- `tools/habitat-harness/src/rules/rules.json`
+- `tools/habitat/src/lib/generated-zones.ts`
+- `tools/habitat/scripts/verify-generated-zones.mjs`
+- `tools/habitat/src/lib/hooks.ts`
+- `tools/habitat/src/lib/grit.ts`
+- `tools/habitat/src/lib/grit-apply.ts`
+- `tools/habitat/src/plugin.js`
+- `tools/habitat/src/rules/rules.json`
 - `biome.json`, `.gritignore`, `.habitat/grit.yaml`, `nx.json`
-- `tools/habitat-harness/test/lib/{hooks.test.ts,biome-closure.test.ts,grit-adapter.test.ts,grit-apply.test.ts,enforcement-surface.test.ts,classify.test.ts}`
+- `tools/habitat/test/lib/{hooks.test.ts,biome-closure.test.ts,grit-adapter.test.ts,grit-apply.test.ts,enforcement-surface.test.ts,classify.test.ts}`
 
 ## Vendor Authority Findings
 
@@ -101,9 +101,9 @@ Current repo facts:
 - `files.includes` excludes `.nx`, `.civ7/outputs`, archives, `mods/mod-swooper-maps/src/maps/generated/**`,
   `packages/civ7-types/generated/**`, and `packages/civ7-map-policy/src/civ7-tables.gen.ts` with
   regular `!` patterns, not `!!`.
-- `tools/habitat-harness/test/lib/biome-closure.test.ts` asserts these protected/generated
+- `tools/habitat/test/lib/biome-closure.test.ts` asserts these protected/generated
   exclusions and the single Biome rule-registry row.
-- `tools/habitat-harness/src/lib/hooks.ts` does not use Biome's native `--staged`; it passes
+- `tools/habitat/src/lib/hooks.ts` does not use Biome's native `--staged`; it passes
   explicit staged file paths to `biome format --write --no-errors-on-unmatched` after a Habitat
   index-worktree split refusal and file-layer check.
 
@@ -137,9 +137,9 @@ Sources:
 
 Resolved current repo metadata proves:
 
-- `nx show projects --with-target generated:check` returns only `@internal/habitat-harness`.
-- `nx show target @internal/habitat-harness:generated:check --json` resolves:
-  - command: `bun tools/habitat-harness/scripts/verify-generated-zones.mjs`
+- `nx show projects --with-target generated:check` returns only `@habitat/cli`.
+- `nx show target @habitat/cli:generated:check --json` resolves:
+  - command: `bun tools/habitat/scripts/verify-generated-zones.mjs`
   - `cache: false`
   - `dependsOn`: `@swooper/mapgen-core:build`, `@civ7/map-policy:verify`
   - inputs over map-generation scripts/configs/generated output, map-policy verify script/table,
@@ -179,7 +179,7 @@ Present code hard-codes:
 - `civ7-types-generated`
 - `civ7-map-policy-tables`
 
-in `tools/habitat-harness/src/lib/generated-zones.ts`, with host-specific paths and remediation.
+in `tools/habitat/src/lib/generated-zones.ts`, with host-specific paths and remediation.
 `rules.json` also carries `generatedZone` ids directly in file-layer rows. The packet names
 G-HOST as a dependency but does not specify the join shape between D2 rule facts, G-HOST host
 declarations, and D10 guard decisions.
@@ -213,7 +213,7 @@ The D10 packet mentions both but does not make their different proof classes nor
 
 The packet currently requires:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/generated-zones.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/generated-zones.test.ts`
 
 but no such current test file exists. Relevant current tests are `hooks.test.ts`,
 `biome-closure.test.ts`, `grit-adapter.test.ts`, `grit-apply.test.ts`,
@@ -253,7 +253,7 @@ can be a cache-hit proof.
 
 **Repair demand:** Make D10 validation record:
 
-- resolved target metadata via `nx show target @internal/habitat-harness:generated:check --json`;
+- resolved target metadata via `nx show target @habitat/cli:generated:check --json`;
 - `generated:check` expected `cache: false`;
 - dependency target observations separately from D10's own freshness result;
 - no claim that Nx cache status proves generated-zone policy correctness.
@@ -267,9 +267,9 @@ These should be required before packet acceptance, not as source implementation 
 ```sh
 git status --short --branch
 nx show projects --with-target generated:check
-nx show target @internal/habitat-harness:generated:check --json
-nx show target @internal/habitat-harness:grit:check --json
-nx show target @internal/habitat-harness:biome:ci --json
+nx show target @habitat/cli:generated:check --json
+nx show target @habitat/cli:grit:check --json
+nx show target @habitat/cli:biome:ci --json
 bun run openspec -- validate deep-habitat-d10-protected-zone-authority --strict
 bun run openspec:validate
 git diff --check
@@ -278,7 +278,7 @@ git diff --check
 Expected design-time outcomes:
 
 - clean starting and ending worktree unless only scratch/review artifacts are intentionally edited;
-- `generated:check` resolves on `@internal/habitat-harness`;
+- `generated:check` resolves on `@habitat/cli`;
 - `generated:check` has `cache: false`;
 - `generated:check` has explicit `dependsOn` for `@swooper/mapgen-core:build` and
   `@civ7/map-policy:verify`;
@@ -290,10 +290,10 @@ Expected design-time outcomes:
 These prove present contracts and are appropriate while repairing the packet:
 
 ```sh
-bun run --cwd tools/habitat-harness test -- test/lib/biome-closure.test.ts
-bun run --cwd tools/habitat-harness test -- test/lib/hooks.test.ts
-bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-apply.test.ts
-bun run --cwd tools/habitat-harness test -- test/lib/enforcement-surface.test.ts test/lib/classify.test.ts
+bun run --cwd tools/habitat test -- test/lib/biome-closure.test.ts
+bun run --cwd tools/habitat test -- test/lib/hooks.test.ts
+bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts test/lib/grit-apply.test.ts
+bun run --cwd tools/habitat test -- test/lib/enforcement-surface.test.ts test/lib/classify.test.ts
 ```
 
 Expected current-code outcomes:
@@ -310,9 +310,9 @@ Expected current-code outcomes:
 These should be required only after D10 implementation starts:
 
 ```sh
-bun run --cwd tools/habitat-harness test -- <new D10 declaration/guard tests>
+bun run --cwd tools/habitat test -- <new D10 declaration/guard tests>
 bun run habitat check --staged --tool file-layer --json
-nx run @internal/habitat-harness:generated:check --outputStyle=static
+nx run @habitat/cli:generated:check --outputStyle=static
 bun run openspec -- validate deep-habitat-d10-protected-zone-authority --strict
 bun run openspec:validate
 git diff --check

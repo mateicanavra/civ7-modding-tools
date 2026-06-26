@@ -2,7 +2,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "plugins": [
     {
-      "plugin": "./tools/habitat-harness/src/nx-plugin.ts",
+      "plugin": "./tools/habitat/src/nx-plugin.ts",
       "options": {
         "checkTargetName": "habitat:check",
         "boundariesTargetName": "boundaries",
@@ -23,34 +23,25 @@
       ],
       "cache": true
     },
-    "build:studio-recipes": {
-      "dependsOn": ["^build"],
-      "outputs": [
-        "{projectRoot}/dist/**",
-        "{projectRoot}/mod/**",
-        "{projectRoot}/src/maps/generated/**"
-      ],
-      "cache": true
-    },
     "deploy": {
       "dependsOn": [
         "build",
         {
-          "projects": ["@mateicanavra/civ7-cli"],
+          "projects": ["civ7-cli"],
           "target": "build"
         }
       ],
       "cache": false
     },
-    "deploy:studio": {
+    "habitat:check": {
       "dependsOn": [
         "build",
         {
-          "projects": ["@mateicanavra/civ7-cli"],
+          "projects": ["habitat"],
           "target": "build"
         }
       ],
-      "cache": false
+      "cache": true
     },
     "dev": {
       "cache": false,
@@ -64,14 +55,6 @@
       "cache": true
     },
     "test": {
-      "dependsOn": ["^build"],
-      "cache": true
-    },
-    "test:studio-run-in-game": {
-      "dependsOn": ["^build"],
-      "cache": true
-    },
-    "test:architecture-cutover": {
       "dependsOn": ["^build"],
       "cache": true
     },

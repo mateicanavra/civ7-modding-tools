@@ -6,8 +6,8 @@ Accepted for design/specification from the code/vendor topology lane. No
 unresolved P1/P2 findings remain on the current disk state.
 
 This is not source implementation acceptance. The current Habitat source still
-contains host-specific facts in `tools/habitat-harness/src/lib/generated-zones.ts`
-and `tools/habitat-harness/src/lib/grit-apply.ts`; the repaired packet now treats
+contains host-specific facts in `tools/habitat/src/lib/generated-zones.ts`
+and `tools/habitat/src/lib/grit-apply.ts`; the repaired packet now treats
 those files as current-behavior evidence and keeps source work blocked behind
 accepted/live G-HOST projections, concrete D0 rows, and D1 output-family handling.
 
@@ -20,11 +20,11 @@ accepted/live G-HOST projections, concrete D0 rows, and D1 output-family handlin
 - Current packet:
   `openspec/changes/deep-habitat-host-policy-boundary-gate/**`
 - Current code topology:
-  `tools/habitat-harness/src/lib/generated-zones.ts`,
-  `tools/habitat-harness/src/lib/grit-apply.ts`,
-  `tools/habitat-harness/src/plugin.js`,
-  `tools/habitat-harness/src/rules/rules.json`,
-  `tools/habitat-harness/scripts/verify-generated-zones.mjs`,
+  `tools/habitat/src/lib/generated-zones.ts`,
+  `tools/habitat/src/lib/grit-apply.ts`,
+  `tools/habitat/src/plugin.js`,
+  `tools/habitat/src/rules/rules.json`,
+  `tools/habitat/scripts/verify-generated-zones.mjs`,
   `biome.json`, `.gritignore`, `.gitignore`, and `nx.json`.
 
 ## P1 Findings
@@ -66,11 +66,11 @@ Habitat package topology as the first implementation's internal owner module.
 
 - The file does not exist yet, matching the packet's design/specification-only
   status.
-- `tools/habitat-harness/package.json` uses `type: module`, exports only
-  `.`/`./plugin`/`./rules`, and `tools/habitat-harness/src/index.ts` does not
+- `tools/habitat/package.json` uses `type: module`, exports only
+  `.`/`./plugin`/`./rules`, and `tools/habitat/src/index.ts` does not
   export host policy. That matches the packet requirement that host declarations
   stay internal unless a later packet and D0 rows make them public.
-- `tools/habitat-harness/tsconfig.json` includes `src/**/*.ts`, so
+- `tools/habitat/tsconfig.json` includes `src/**/*.ts`, so
   `src/lib/host-policy.ts` is a normal internal TypeScript source location.
 - The packet explicitly blocks user-authored config files, repo-authored data
   files, documented declaration locations, and public declaration exports for
@@ -89,7 +89,7 @@ generated-check drift observation, not a D10 guard/protected/generated fact.
   rows, do not authorize hand edits under `mod/**`, and cannot be consumed by
   D10 until a later accepted row upgrades them.
 - Current Nx metadata still wires these paths through
-  `@internal/habitat-harness:generated:check`, with `cache: false` and the
+  `@habitat/cli:generated:check`, with `cache: false` and the
   existing `verify-generated-zones.mjs` snapshot/restore drift script. That is
   native generated-drift observation, not D10 mutation authority.
 
@@ -98,7 +98,7 @@ generated-check drift observation, not a D10 guard/protected/generated fact.
 Accepted. The packet preserves native tool ownership.
 
 - Nx remains owner of target resolution, dependency metadata, cache flags, and
-  target inputs. The inspected `@internal/habitat-harness` project metadata keeps
+  target inputs. The inspected `@habitat/cli` project metadata keeps
   `generated:check` in Nx with `cache: false` and explicit dependencies on
   `@swooper/mapgen-core:build` and `@civ7/map-policy:verify`.
 - Biome remains owner of formatting/lint configuration. `biome.json` excludes
@@ -137,7 +137,7 @@ Accepted. The repaired packet does not pretend current source is already generic
   -> exit 0.
 - `bun run openspec:validate` -> exit 0; 249 OpenSpec items passed, 0 failed.
 - `git diff --check` -> exit 0.
-- `nx show project @internal/habitat-harness --json` -> confirmed native target
+- `nx show project @habitat/cli --json` -> confirmed native target
   topology for `generated:check`, `biome:*`, `grit:check`, and `boundaries`.
 - Targeted `rg`/`nl`/`node` inspections over active G-HOST artifacts, Habitat
   source, native config, and rule metadata.

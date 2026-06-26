@@ -1,7 +1,7 @@
 {
   "id": "file-layer-pnpm-artifacts",
   "ownerTool": "file-layer",
-  "ownerProject": "@internal/habitat-harness",
+  "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "staged package-manager artifacts",
   "forbids": "pnpm-lock.yaml or pnpm-workspace.yaml",

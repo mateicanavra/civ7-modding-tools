@@ -162,7 +162,7 @@ If you set Railway **Root Directory** to `apps/mapgen-studio`, Bun workspaces wi
 1. **Local test first:**
    ```bash
    bun install
-   bun run dev:mapgen-studio
+   nx run mapgen-studio:dev
    # Open http://localhost:5173 - should see "MapGen Studio" page
    ```
 
@@ -241,10 +241,10 @@ EOF
 bun install
 
 # 3. Test locally
-bun run dev:mapgen-studio
+nx run mapgen-studio:dev
 
 # 4. Test build
-bunx turbo run build --filter=mapgen-studio
+nx run mapgen-studio:build
 
 # 5. If using Railway CLI:
 railway login --browserless

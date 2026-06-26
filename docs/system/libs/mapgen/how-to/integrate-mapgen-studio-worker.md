@@ -157,7 +157,7 @@ Current canon:
 ## Verification
 
 You’re wired correctly if:
-- you can run `mod-swooper-maps/standard` in Studio (`bun run dev:mapgen-studio`),
+- you can run `mod-swooper-maps/standard` in Studio (`nx run mapgen-studio:dev`),
 - step progress updates show start/finish ordering,
 - viz layers appear when steps emit `context.viz?.dumpGrid(...)` (or other viz methods),
 - canceling a run does not “spam” progress events after cancel.

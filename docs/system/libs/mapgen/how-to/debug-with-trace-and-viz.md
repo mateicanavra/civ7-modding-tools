@@ -45,7 +45,7 @@ bun run --cwd mods/mod-swooper-maps viz:standard
 ```
 
 Notes:
-- Canonical deploy-equivalent builds use Nx from repo root (see `bun run dev:mapgen-studio` / `nx run mapgen-studio:build`).
+- Canonical deploy-equivalent builds use Nx from repo root (see `nx run mapgen-studio:dev` / `nx run mapgen-studio:build`).
 - The `viz:*` scripts run a small preflight to build dist-exported workspace deps (adapter/core/viz) when needed in a fresh checkout.
 
 The script accepts optional CLI args: `width height seed` (see code in the anchors).
@@ -84,7 +84,7 @@ So:
 From the repo root:
 
 ```bash
-bun run dev:mapgen-studio
+nx run mapgen-studio:dev
 ```
 
 ### 2) Switch to Dump mode and open the folder

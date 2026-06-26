@@ -31,8 +31,8 @@ const foundationStages = foundationStageDirs();
 const artifactsFile = path.join(foundationStage, "artifacts.ts");
 findings.push(...assertContains(artifactsFile, "volcanism", "foundation-plates-schema"));
 
-const foundationOpContractFiles = walkFiles(path.join(foundationDomain, "ops"), [".ts"]).filter((file) =>
-  file.endsWith("contract.ts")
+const foundationOpContractFiles = walkFiles(path.join(foundationDomain, "ops"), [".ts"]).filter(
+  (file) => file.endsWith("contract.ts")
 );
 const foundationStepContractFiles = foundationStages.flatMap((stageDir) =>
   walkFiles(stageDir, [".ts"]).filter((file) => file.endsWith("contract.ts"))
@@ -83,7 +83,12 @@ for (const file of foundationSurfaceFiles) {
     )
   );
   for (const match of read(file).matchAll(/\bcomputeTectonics\b/gu)) {
-    findings.push({ file: repoRel(file), line: lineOf(read(file), match.index ?? 0), rule: "legacy-compute-tectonics", detail: match[0] });
+    findings.push({
+      file: repoRel(file),
+      line: lineOf(read(file), match.index ?? 0),
+      rule: "legacy-compute-tectonics",
+      detail: match[0],
+    });
   }
 }
 
@@ -98,7 +103,12 @@ if (
   /\bcomputeTectonicHistory\b/u.test(foundationIndexText) ||
   /\bcomputeTectonicHistory\b/u.test(tectonicsContractText)
 ) {
-  findings.push({ file: repoRel(tectonicsContract), line: 1, rule: "legacy-aggregate-tectonics", detail: "computeTectonicHistory" });
+  findings.push({
+    file: repoRel(tectonicsContract),
+    line: 1,
+    rule: "legacy-aggregate-tectonics",
+    detail: "computeTectonicHistory",
+  });
 }
 for (const op of [
   "computeEraPlateMembership",
@@ -158,13 +168,29 @@ const strategyFiles = [
 const allowedStrategyImports = new Set(["@swooper/mapgen-core/authoring", "../contract.js"]);
 for (const file of strategyFiles) {
   const sources = importSources(file).map((source) => source.source);
-  findings.push(...textFindings(file, ["domain/foundation/lib/tectonics/", "lib/tectonics/"], "tectonics-strategy-shim"));
+  findings.push(
+    ...textFindings(
+      file,
+      ["domain/foundation/lib/tectonics/", "lib/tectonics/"],
+      "tectonics-strategy-shim"
+    )
+  );
   if (!sources.some((source) => source.startsWith("../rules/"))) {
-    findings.push({ file: repoRel(file), line: 1, rule: "tectonics-strategy-rules-import", detail: "missing ../rules import" });
+    findings.push({
+      file: repoRel(file),
+      line: 1,
+      rule: "tectonics-strategy-rules-import",
+      detail: "missing ../rules import",
+    });
   }
   for (const source of sources) {
     if (!source.startsWith("../rules/") && !allowedStrategyImports.has(source)) {
-      findings.push({ file: repoRel(file), line: 1, rule: "tectonics-strategy-import", detail: source });
+      findings.push({
+        file: repoRel(file),
+        line: 1,
+        rule: "tectonics-strategy-import",
+        detail: source,
+      });
     }
   }
 }
@@ -179,18 +205,41 @@ for (const file of [
   "compute-tracer-advection",
   "compute-tectonic-provenance",
 ].map((op) => path.join(foundationDomain, `ops/${op}/rules/index.ts`))) {
-  for (const match of read(file).matchAll(/^\s*export\s+\{[^}]+\}\s+from\s+["'][^"']*lib\/tectonics\/[^"']+["'];?/gmu)) {
-    findings.push({ file: repoRel(file), line: lineOf(read(file), match.index ?? 0), rule: "tectonics-rules-reexport-shim", detail: match[0].trim() });
+  for (const match of read(file).matchAll(
+    /^\s*export\s+\{[^}]+\}\s+from\s+["'][^"']*lib\/tectonics\/[^"']+["'];?/gmu
+  )) {
+    findings.push({
+      file: repoRel(file),
+      line: lineOf(read(file), match.index ?? 0),
+      rule: "tectonics-rules-reexport-shim",
+      detail: match[0].trim(),
+    });
   }
 }
 
 findings.push(
-  ...assertContains(artifactsFile, "artifact:foundation.mantlePotential", "foundation-artifact-tags"),
+  ...assertContains(
+    artifactsFile,
+    "artifact:foundation.mantlePotential",
+    "foundation-artifact-tags"
+  ),
   ...assertContains(artifactsFile, "artifact:foundation.mantleForcing", "foundation-artifact-tags"),
   ...assertContains(artifactsFile, "artifact:foundation.plateMotion", "foundation-artifact-tags"),
-  ...assertContains(artifactsFile, "artifact:foundation.tectonicProvenance", "foundation-artifact-tags"),
-  ...assertContains(path.join(modRoot, "src/recipes/standard/map-artifacts.ts"), "artifact:map.foundationTectonicHistoryTiles", "foundation-map-artifact-tags"),
-  ...assertContains(path.join(modRoot, "src/recipes/standard/map-artifacts.ts"), "artifact:map.foundationTectonicProvenanceTiles", "foundation-map-artifact-tags")
+  ...assertContains(
+    artifactsFile,
+    "artifact:foundation.tectonicProvenance",
+    "foundation-artifact-tags"
+  ),
+  ...assertContains(
+    path.join(modRoot, "src/recipes/standard/map-artifacts.ts"),
+    "artifact:map.foundationTectonicHistoryTiles",
+    "foundation-map-artifact-tags"
+  ),
+  ...assertContains(
+    path.join(modRoot, "src/recipes/standard/map-artifacts.ts"),
+    "artifact:map.foundationTectonicProvenanceTiles",
+    "foundation-map-artifact-tags"
+  )
 );
 
 const projectionContract = path.join(
@@ -199,14 +248,40 @@ const projectionContract = path.join(
 );
 const projectionStep = path.join(stagesRoot, "foundation-projection/steps/projection.ts");
 findings.push(
-  ...assertContains(projectionContract, "foundationArtifacts.tectonicProvenance", "projection-requires-provenance"),
-  ...assertContains(projectionContract, "foundationArtifacts.plateMotion", "projection-plate-motion-contract"),
-  ...assertContains(projectionStep, "const plateMotion = deps.artifacts.foundationPlateMotion.read(context);", "projection-plate-motion-source"),
+  ...assertContains(
+    projectionContract,
+    "foundationArtifacts.tectonicProvenance",
+    "projection-requires-provenance"
+  ),
+  ...assertContains(
+    projectionContract,
+    "foundationArtifacts.plateMotion",
+    "projection-plate-motion-contract"
+  ),
+  ...assertContains(
+    projectionStep,
+    "const plateMotion = deps.artifacts.foundationPlateMotion.read(context);",
+    "projection-plate-motion-source"
+  ),
   ...assertContains(projectionStep, "plateMotion,", "projection-plate-motion-source"),
-  ...assertContains(projectionStep, "platesResult.plates.movementU", "projection-plate-motion-source"),
-  ...assertContains(projectionStep, "platesResult.plates.movementV", "projection-plate-motion-source")
+  ...assertContains(
+    projectionStep,
+    "platesResult.plates.movementU",
+    "projection-plate-motion-source"
+  ),
+  ...assertContains(
+    projectionStep,
+    "platesResult.plates.movementV",
+    "projection-plate-motion-source"
+  )
 );
-findings.push(...textFindings(projectionStep, ["plateGraph.plates[", ".velocityX", ".velocityY"], "projection-legacy-motion-source"));
+findings.push(
+  ...textFindings(
+    projectionStep,
+    ["plateGraph.plates[", ".velocityX", ".velocityY"],
+    "projection-legacy-motion-source"
+  )
+);
 
 assertNoFindings("foundation-contract-surfaces", findings);
 

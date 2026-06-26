@@ -42,17 +42,17 @@ Repo and D6 packet sources read:
 
 Code, pattern, and test sources read:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-failures.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/grit-injected-probe.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/habitat-process.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/workspace-tools.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/rules/rules.json`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-failures.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/grit-injected-probe.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/habitat-process.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/workspace-tools.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/rules/rules.json`
 - All 32 files under `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/checks`
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/.habitat/patterns/active/apply/docs_local_checkout_paths_rewrite.md`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-adapter.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/grit/grit-patterns.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-adapter.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-injected-probe.test.ts`
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/grit/grit-patterns.test.ts`
 
 Official/native vendor sources used:
 
@@ -230,20 +230,20 @@ set. This investigation confirms it:
 
 Allowed later D6 source/test candidates:
 
-- `tools/habitat-harness/src/lib/grit.ts`
-- `tools/habitat-harness/src/lib/grit-failures.ts` for diagnostic subset/facade
-- `tools/habitat-harness/src/lib/grit-injected-probe.ts`
-- Grit-scoped projections in `tools/habitat-harness/src/lib/habitat-process.ts`
+- `tools/habitat/src/lib/grit.ts`
+- `tools/habitat/src/lib/grit-failures.ts` for diagnostic subset/facade
+- `tools/habitat/src/lib/grit-injected-probe.ts`
+- Grit-scoped projections in `tools/habitat/src/lib/habitat-process.ts`
   only if D15 is not triggered
-- `tools/habitat-harness/src/lib/workspace-tools.ts` only for command
+- `tools/habitat/src/lib/workspace-tools.ts` only for command
   materialization proof if D0/D1 require it
-- `tools/habitat-harness/src/rules/rules.json` only after live D2 Grit facts
+- `tools/habitat/src/rules/rules.json` only after live D2 Grit facts
   are the source of truth
 - `.habitat/patterns/active/checks/**` only for diagnostic fixture/capability
   repairs, not governance admission
-- `tools/habitat-harness/test/lib/grit-adapter.test.ts`
-- `tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
-- `tools/habitat-harness/test/grit/grit-patterns.test.ts`
+- `tools/habitat/test/lib/grit-adapter.test.ts`
+- `tools/habitat/test/lib/grit-injected-probe.test.ts`
+- `tools/habitat/test/grit/grit-patterns.test.ts`
 - D6 OpenSpec/workstream/docs surfaces required by accepted packet repairs
 
 Protected from D6:
@@ -278,7 +278,7 @@ Protected from D6:
 Commands run:
 
 - `bun run openspec -- validate deep-habitat-d6-diagnostic-pattern-catalog --strict`: passed, change is valid.
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`: passed, 3 files and 31 tests.
+- `bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`: passed, 3 files and 31 tests.
 - `bun run habitat check --tool grit-check --json`: failed with exit 1. Source Grit checks projected `GritMalformedJson` because Habitat requires exact JSON and observed wrapper text. The docs advisory rule also reported one `docs-local-checkout-paths` finding.
 - `grit --version`: failed, command not found.
 - `bunx --bun grit --version`: passed, `grit 0.1.1`.
@@ -321,7 +321,7 @@ current-tree command D6 cares about.
 Repair: update `tasks.md`, `workstream/phase-record.md`, and proposal validation
 text to use exact commands:
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`
+- `bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts test/lib/grit-injected-probe.test.ts test/grit/grit-patterns.test.ts`
 - `bun run habitat check --tool grit-check --json`
 - `bun run openspec -- validate deep-habitat-d6-diagnostic-pattern-catalog --strict`
 - `bun run openspec:validate`

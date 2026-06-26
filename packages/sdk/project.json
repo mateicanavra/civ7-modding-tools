@@ -1,0 +1,16 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-sdk",
+  "tags": ["kind:sdk"],
+  "targets": {
+    "publish:npm": {
+      "command": "bun publish --access public",
+      "dependsOn": ["build", "lint", "test", "check"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/sdk"
+      }
+    }
+  }
+}

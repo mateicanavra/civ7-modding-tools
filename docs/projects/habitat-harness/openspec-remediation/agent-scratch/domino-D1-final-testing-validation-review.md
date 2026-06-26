@@ -28,7 +28,7 @@ Repair requirement:
 Replace the label with the exact command, for example:
 
 ```bash
-bun run --cwd tools/habitat-harness test -- test/commands/habitat-entrypoints.test.ts test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts
+bun run --cwd tools/habitat test -- test/commands/habitat-entrypoints.test.ts test/lib/proof-artifact.test.ts test/lib/verify-proof.test.ts test/lib/hooks.test.ts test/lib/grit-apply.test.ts
 ```
 
 Keep the existing expected status, oracle, bad case, cache stance, and non-claims.
@@ -40,7 +40,7 @@ References:
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/design.md`, sections `Target Semantic Objects` and `Adapter Command Artifact`.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/specs/habitat-harness/spec.md`, requirement `Adapter Command Artifacts Are Compatibility-Bounded`.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, items `5.5` and `6.2`.
-- Current test evidence: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/proof-artifact.test.ts`.
+- Current test evidence: `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/proof-artifact.test.ts`.
 
 D1 correctly says adapter artifacts must be path-safe, redacted, retention-bounded, bounded in raw output metadata, and non-claiming. The current named test file covers unsafe path IDs, secret redaction, non-claim merge, and writing under a controlled root. It does not currently assert retention semantics or bounded raw-output metadata. The OpenSpec requirement likewise has scenarios for unsafe ID, redaction, and legacy path, but not retention or bounded stdout/stderr/hash/byte/truncation metadata.
 
@@ -63,8 +63,8 @@ Then update `tasks.md` item `6.2` and the phase-record gate so the bad case is n
 
 References:
 
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/verify-proof.test.ts`.
-- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/grit-apply.test.ts`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/verify-proof.test.ts`.
+- `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/grit-apply.test.ts`.
 - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d1-receipt-contract-boundary/tasks.md`, items `5.2`, `5.4`, `6.3`, and `6.5`.
 
 The current verify test proves skipped Nx state when failed check is passed without an affected result. It does not directly inject the contradictory constructor state "failed check plus affected result". The current apply tests prove important failure states remain failures, but they do not directly construct `ok: true` with a failure tag.
@@ -82,7 +82,7 @@ D1's task/gate text already requires these contradictions to be impossible or re
 ## Gates That Still Let Implementation Decide The Oracle
 
 1. `Combined focused D1 tests`: no exact command is specified, so the implementation agent can decide which focused tests are included in the combined gate.
-2. `bun run --cwd tools/habitat-harness test -- test/lib/proof-artifact.test.ts`: the oracle says retention-bounded / bounded raw-output metadata, but the bad case and current spec scenarios only falsify unsafe IDs and redaction. Retention and bounded raw-output semantics remain implementation-defined.
+2. `bun run --cwd tools/habitat test -- test/lib/proof-artifact.test.ts`: the oracle says retention-bounded / bounded raw-output metadata, but the bad case and current spec scenarios only falsify unsafe IDs and redaction. Retention and bounded raw-output semantics remain implementation-defined.
 
 ## Verification Performed
 

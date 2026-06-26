@@ -48,12 +48,12 @@ None.
 The packet's current declaration matrix covers the three file-layer generated
 surfaces that are real generic Habitat facts today:
 
-- `tools/habitat-harness/src/lib/generated-zones.ts:17` defines
+- `tools/habitat/src/lib/generated-zones.ts:17` defines
   `swooper-map-generated`, `civ7-types-generated`, and
   `civ7-map-policy-tables`.
-- `tools/habitat-harness/src/rules/rules.json:570`,
-  `tools/habitat-harness/src/rules/rules.json:584`, and
-  `tools/habitat-harness/src/rules/rules.json:598` are the current
+- `tools/habitat/src/rules/rules.json:570`,
+  `tools/habitat/src/rules/rules.json:584`, and
+  `tools/habitat/src/rules/rules.json:598` are the current
   `file-layer` rules that consume those ids.
 - `openspec/changes/deep-habitat-host-policy-boundary-gate/design.md:65`
   declares the same three rows with owners, consumer projections, recovery, and
@@ -69,15 +69,15 @@ tables, `.civ7/outputs/**`, lockfiles, `dist/**`, and `mod/**`.
 The `mod/**` rows are correctly classified as drift-observation input, not D10
 guard/protected/generated declarations:
 
-- `tools/habitat-harness/scripts/verify-generated-zones.mjs:7` snapshots
+- `tools/habitat/scripts/verify-generated-zones.mjs:7` snapshots
   `mods/mod-swooper-maps/src/maps/generated`, `mod/config`,
   `mod/swooper-maps.modinfo`, and `mod/text/en_us/MapText.xml`.
-- `tools/habitat-harness/scripts/verify-generated-zones.mjs:24` runs the map
+- `tools/habitat/scripts/verify-generated-zones.mjs:24` runs the map
   artifact generator and restores snapshots at
-  `tools/habitat-harness/scripts/verify-generated-zones.mjs:32`.
-- `tools/habitat-harness/src/plugin.js:130` exposes that verifier as the Nx
+  `tools/habitat/scripts/verify-generated-zones.mjs:32`.
+- `tools/habitat/src/plugin.js:130` exposes that verifier as the Nx
   `generated:check` target, with `mod/**` inputs at
-  `tools/habitat-harness/src/plugin.js:145`.
+  `tools/habitat/src/plugin.js:145`.
 - The packet explicitly refuses to promote those `mod/**` paths into D10 facts
   without a later accepted declaration row:
   `openspec/changes/deep-habitat-host-policy-boundary-gate/design.md:70` and
@@ -93,16 +93,16 @@ generated-zone declaration.
 The packet correctly separates G-HOST from native tool ownership:
 
 - Nx owns target inference, dependencies, cache flags, and inputs:
-  `tools/habitat-harness/src/plugin.js:130`.
+  `tools/habitat/src/plugin.js:130`.
 - Grit owns scan-root validation and pattern execution:
-  `tools/habitat-harness/src/lib/grit.ts:82`,
-  `tools/habitat-harness/src/lib/grit.ts:682`.
+  `tools/habitat/src/lib/grit.ts:82`,
+  `tools/habitat/src/lib/grit.ts:682`.
 - Grit apply currently discovers source roots from `mods/*/src/{recipes,maps}`:
-  `tools/habitat-harness/src/lib/grit-apply.ts:1122`.
+  `tools/habitat/src/lib/grit-apply.ts:1122`.
 - The MapGen public-ops validation is real host-specific logic in generic
   transaction code today:
-  `tools/habitat-harness/src/lib/grit-apply.ts:866` and
-  `tools/habitat-harness/src/lib/grit-apply.ts:908`.
+  `tools/habitat/src/lib/grit-apply.ts:866` and
+  `tools/habitat/src/lib/grit-apply.ts:908`.
 - G-HOST records those as host declarations/projections, not native-tool
   replacement semantics:
   `openspec/changes/deep-habitat-host-policy-boundary-gate/design.md:81`.
@@ -124,9 +124,9 @@ downstream packet status:
 
 The current generator topology supports the D13 projection need. The schema
 admits unsupported names such as `mod`, `engine`, `control`, `adapter`, `sdk`,
-and `tooling` (`tools/habitat-harness/src/generators/project/schema.json:18`),
+and `tooling` (`tools/habitat/src/generators/project/schema.json:18`),
 while runtime refuses anything outside `plugin`, `foundation`, and `app`
-(`tools/habitat-harness/src/generators/project/generator.cjs:51`). The G-HOST
+(`tools/habitat/src/generators/project/generator.cjs:51`). The G-HOST
 matrix correctly keeps host-owned support/refusal facts behind a declaration
 instead of letting schema enum values become authority:
 `openspec/changes/deep-habitat-host-policy-boundary-gate/design.md:74`.

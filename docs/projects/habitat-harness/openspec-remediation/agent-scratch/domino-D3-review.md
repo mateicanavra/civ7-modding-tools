@@ -41,12 +41,12 @@ Directly relevant references read:
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/design.md`
   - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/openspec/changes/deep-habitat-d2-rule-registry-metadata-contract/specs/habitat-harness/spec.md`
 - Relevant Habitat code/docs/tests:
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/verify.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/commands/graph.ts`
-  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/test/lib/classify.test.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/verify.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/commands/graph.ts`
+  - `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/test/lib/classify.test.ts`
   - `docs/CAPABILITIES.md`
 
 Commands run as review evidence only:
@@ -55,9 +55,9 @@ Commands run as review evidence only:
 - `git worktree list`
 - `gt status`
 - `bun run openspec -- validate deep-habitat-d3-workspace-graph-boundary --strict` passed.
-- `bun run habitat classify tools/habitat-harness/src/plugin.js` passed and emitted current classify JSON.
-- `nx show project @internal/habitat-harness --json` passed and showed `habitat:rule:biome-ci` depends on `{"projects":["biome"],"target":"ci"}`.
-- `nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache` exited 0 after Nx printed that `dependsOn` is misconfigured and the project pattern matches no projects.
+- `bun run habitat classify tools/habitat/src/plugin.js` passed and emitted current classify JSON.
+- `nx show project @habitat/cli --json` passed and showed `habitat:rule:biome-ci` depends on `{"projects":["biome"],"target":"ci"}`.
+- `nx run @habitat/cli:habitat:rule:biome-ci --skip-nx-cache` exited 0 after Nx printed that `dependsOn` is misconfigured and the project pattern matches no projects.
 - `git diff --check` passed.
 
 # Acceptance Verdict
@@ -74,7 +74,7 @@ The source D3 packet identifies a concrete false-green risk: `habitat:rule:biome
 
 The generated D3 scaffold does not preserve that as a normative requirement or implementation task. `proposal.md`, `design.md`, `tasks.md`, and `specs/habitat-harness/spec.md` mention target availability and "No fake target aliases", but they never name `node -e ""`, missing-project alias dependencies, dependency execution evidence, cache-disabled alias proof, or the required failure behavior.
 
-Current review evidence confirms this is not theoretical. In `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:182`, `dependencyForTarget` parses colon-delimited target strings into project/target dependency objects. At `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:208`, the `biome-ci` rule passes `biomeCiTargetName`, which becomes project `biome`, target `ci`. `nx show project @internal/habitat-harness --json` shows that dependency in the generated target, and `nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache` exits 0 despite Nx warning that the project pattern matches no projects.
+Current review evidence confirms this is not theoretical. In `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:182`, `dependencyForTarget` parses colon-delimited target strings into project/target dependency objects. At `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:208`, the `biome-ci` rule passes `biomeCiTargetName`, which becomes project `biome`, target `ci`. `nx show project @habitat/cli --json` shows that dependency in the generated target, and `nx run @habitat/cli:habitat:rule:biome-ci --skip-nx-cache` exits 0 despite Nx warning that the project pattern matches no projects.
 
 This blocks acceptance because D3's main hazard can still be implemented as a false-green wrapper while satisfying the current scaffold's vague tasks.
 
@@ -82,7 +82,7 @@ This blocks acceptance because D3's main hazard can still be implemented as a fa
 
 The source packet requires `HabitatGraphFact` and `HabitatTargetFact` as discriminated states: available target, unavailable target, alias target, broad aggregate target, and graph-error. The generated design reduces that to "Make target availability a graph fact consumed by classify and verify" and "Define graph metadata ownership and target alias policy."
 
-That is a design question, not an implementation step. Current code already has incomplete graph-state language in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:196` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:211`, where classify exposes `ClassifiedTarget` and `UnavailableClassifiedTarget`. It also hard-codes `check`/`test` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:1032` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:1055`, and workspace `lint` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:1058` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:1071`.
+That is a design question, not an implementation step. Current code already has incomplete graph-state language in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:196` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:211`, where classify exposes `ClassifiedTarget` and `UnavailableClassifiedTarget`. It also hard-codes `check`/`test` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:1032` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:1055`, and workspace `lint` at `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:1058` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:1071`.
 
 D3 does not decide whether these current types are the target contract, compatibility facts to migrate, or incomplete target states. It also does not name where alias-target and graph-error states live. That ambiguity is black ice: an implementation agent could bolt a new helper onto `plugin.js`, leave classify's DTO unchanged, and still claim the broad task is done.
 
@@ -90,7 +90,7 @@ D3 does not decide whether these current types are the target contract, compatib
 
 The source packet's boundary is explicit: centralize owner-root and target alias construction behind graph functions consumed by both plugin and classify; plugin and classify must not retain separate owner-root maps. The scaffold never names the current duplicate surfaces or the target module boundary.
 
-Current duplicate truth is visible in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:17` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/plugin.js:24` (`OWNER_ROOTS`), `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts:21` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/nx-projects.ts:52` (Nx project metadata reader and target lookup), and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:846` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:875` (classify assembly).
+Current duplicate truth is visible in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:17` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/plugin.js:24` (`OWNER_ROOTS`), `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts:21` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/nx-projects.ts:52` (Nx project metadata reader and target lookup), and `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:846` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:875` (classify assembly).
 
 The generated phase record says the executor must record the write set later. For D3, that is too late: the packet's purpose is to decide whether graph truth moves to a single owned service or stays split. Without an approved write set and protected path list, adjacent domains can still claim parts of the same authority.
 
@@ -100,8 +100,8 @@ The generated phase record says the executor must record the write set later. Fo
 
 The scaffold's validation gates are:
 
-- `nx show project @internal/habitat-harness`
-- `bun run habitat classify tools/habitat-harness/src/plugin.js`
+- `nx show project @habitat/cli`
+- `bun run habitat classify tools/habitat/src/plugin.js`
 - OpenSpec validation
 - `git diff --check`
 
@@ -119,7 +119,7 @@ D3 correctly says it requires D0 and D2, but the D0 and D2 review ledgers are st
 
 ## P2-4: Verify is listed as a consumer without an integration contract
 
-The product scenario says classify, check, and verify depend on graph truth. The concrete design and spec mostly describe classify target availability. `verify` currently uses fixed affected targets in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:614` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:622` and runs `nx affected` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:722` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat-harness/src/lib/command-engine.ts:729`.
+The product scenario says classify, check, and verify depend on graph truth. The concrete design and spec mostly describe classify target availability. `verify` currently uses fixed affected targets in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:614` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:622` and runs `nx affected` in `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:722` through `/Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-deep-habitat-openspec-remediation/tools/habitat/src/lib/command-engine.ts:729`.
 
 D3 does not decide whether verify must consume the new graph service, only record graph facts in receipts later, or remain out of scope. That mismatch will cause either under-implementation or scope creep.
 
@@ -173,7 +173,7 @@ Replace task 2 with concrete tasks similar to:
 ```text
 - Add the graph-fact contract and service in the owning Habitat graph module.
 - Move owner-root resolution and alias dependency construction out of plugin-local constants/string splitting.
-- Update `tools/habitat-harness/src/plugin.js` to consume structured alias dependency facts and reject unresolved dependencies before emitting no-op wrapper targets.
+- Update `tools/habitat/src/plugin.js` to consume structured alias dependency facts and reject unresolved dependencies before emitting no-op wrapper targets.
 - Update classify to consume the same graph fact service and preserve unavailable/refusal facts in JSON without constructing runnable commands.
 - Add tests for the current `habitat:rule:biome-ci` missing-project dependency and an injected missing-project alias.
 ```
@@ -181,10 +181,10 @@ Replace task 2 with concrete tasks similar to:
 Add validation gates similar to:
 
 ```text
-- `nx show project @internal/habitat-harness --json`: assert `habitat:rule:biome-ci` depends on the real Habitat Biome target, not `projects:["biome"], target:"ci"`.
+- `nx show project @habitat/cli --json`: assert `habitat:rule:biome-ci` depends on the real Habitat Biome target, not `projects:["biome"], target:"ci"`.
 - Inject a missing-project alias fixture and assert graph-fact resolution reports/refuses it before wrapper execution.
-- `nx run @internal/habitat-harness:habitat:rule:biome-ci --skip-nx-cache`: assert dependency execution evidence includes the canonical Biome target or the command fails; a successful no-op wrapper without dependency execution is failure.
-- `bun run habitat classify tools/habitat-harness/src/plugin.js --json` or equivalent: assert target facts distinguish project targets, workspace gates, unavailable targets, and graph refusals.
+- `nx run @habitat/cli:habitat:rule:biome-ci --skip-nx-cache`: assert dependency execution evidence includes the canonical Biome target or the command fails; a successful no-op wrapper without dependency execution is failure.
+- `bun run habitat classify tools/habitat/src/plugin.js --json` or equivalent: assert target facts distinguish project targets, workspace gates, unavailable targets, and graph refusals.
 ```
 
 # Non-Claims

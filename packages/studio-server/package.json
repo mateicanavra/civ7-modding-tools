@@ -3,11 +3,6 @@
   "version": "0.1.0",
   "description": "MapGen Studio server: oRPC contract-first API surface (Effect + Bun) for the Civ7 direct-control studio endpoints",
   "private": true,
-  "nx": {
-    "tags": [
-      "kind:control"
-    ]
-  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

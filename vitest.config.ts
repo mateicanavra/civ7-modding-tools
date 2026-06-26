@@ -111,21 +111,21 @@ export default defineConfig({
       },
       {
         extends: true,
-        root: r("tools/habitat-harness"),
+        root: r("tools/habitat"),
         resolve: {
           alias: [
             {
-              find: /^@internal\/habitat-harness\/(.+)$/,
-              replacement: `${r("tools/habitat-harness/src")}/$1`,
+              find: /^@habitat\/cli\/(.+)$/,
+              replacement: `${r("tools/habitat/src")}/$1`,
             },
             {
-              find: /^@internal\/habitat-harness$/,
-              replacement: r("tools/habitat-harness/src/index.ts"),
+              find: /^@habitat\/cli$/,
+              replacement: r("tools/habitat/src/index.ts"),
             },
           ],
         },
         test: {
-          name: "habitat-harness",
+          name: "habitat",
           env: {
             NODE_ENV: "production",
           },

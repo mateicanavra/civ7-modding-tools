@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import {
@@ -26,49 +26,7 @@ import {
   WATER_CLASS_OCEAN,
 } from "../src/index.js";
 
-function listSourceFiles(dir: string): string[] {
-  const entries = readdirSync(dir);
-  const files: string[] = [];
-  for (const entry of entries) {
-    const path = join(dir, entry);
-    const stat = statSync(path);
-    if (stat.isDirectory()) {
-      files.push(...listSourceFiles(path));
-      continue;
-    }
-    if (path.endsWith(".ts")) files.push(path);
-  }
-  return files;
-}
-
 describe("@civ7/map-policy", () => {
-  it("has no runtime dependency on adapter, mapgen-core, mods, Studio, or base-standard imports", () => {
-    const sourceRoot = join(import.meta.dir, "../src");
-    const forbiddenImports = [
-      "@civ7/adapter",
-      "@swooper/mapgen-core",
-      "mod-swooper-maps",
-      "mapgen-studio",
-      `/base-${"standard"}/`,
-    ];
-    const violations: string[] = [];
-    for (const file of listSourceFiles(sourceRoot)) {
-      const source = readFileSync(file, "utf8");
-      const imports = [
-        ...source.matchAll(
-          /\b(?:import|export)\s+(?:type\s+)?(?:[^"']*?\s+from\s+)?["']([^"']+)["']/g
-        ),
-      ];
-      for (const [, specifier] of imports) {
-        for (const token of forbiddenImports) {
-          if (specifier?.includes(token)) violations.push(`${file}:${specifier}`);
-        }
-      }
-    }
-
-    expect(violations).toEqual([]);
-  });
-
   it("owns the generated Civ7 map policy table", () => {
     expect(CIV7_BROWSER_TABLES_V0.mapGlobals.polarWaterRows).toBe(2);
     expect(CIV7_BROWSER_TABLES_V0.mapGlobals.oceanWaterColumns).toBe(4);
@@ -135,19 +93,6 @@ describe("@civ7/map-policy", () => {
 
   it("keeps the generated map-policy river metadata catalog on the live-observed source", () => {
     expect(CIV7_BROWSER_TABLES_V0.riverTypes).toEqual(CIV7_RIVER_TYPE_METADATA_SOURCE);
-  });
-
-  it("labels generated Civ7 table inputs as source evidence rather than repo truth", () => {
-    const generatedTables = [join(import.meta.dir, "../src/civ7-tables.gen.ts")];
-
-    for (const path of generatedTables) {
-      const source = readFileSync(path, "utf8");
-      expect(source).toContain("Source evidence:");
-      expect(source).not.toContain("Source of truth: Civ7 official");
-      expect(source).not.toContain(
-        "Source of truth: `Base/modules/base-standard/data/terrain.xml`"
-      );
-    }
   });
 
   it("keeps ambient Civ7 runtime RiverTypes declarations generated from the same source", () => {

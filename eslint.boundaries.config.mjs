@@ -11,7 +11,7 @@
  *   bun run nx run-many -t boundaries
  * Locked at adoption: any red edge is a violation, not negotiable debt.
  * Revising the taxonomy is a deliberate change to taxonomy.md + this file
- * together (revision protocol in tools/habitat-harness/README.md).
+ * together (revision protocol in tools/habitat/README.md).
  */
 import nxPlugin from "@nx/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
@@ -117,6 +117,10 @@ const allow = [
   "./providers/**",
   "./resources/**",
   "./service/**",
+  "../../../../resources/**",
+  "../../service/model/rules/dto/registry.schema.ts",
+  "../../host/**",
+  "../../rules/**",
 ];
 
 export default [

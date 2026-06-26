@@ -2,23 +2,6 @@
   "name": "@mateicanavra/civ7-sdk",
   "version": "0.0.0",
   "private": false,
-  "nx": {
-    "tags": [
-      "kind:sdk"
-    ],
-    "targets": {
-      "publish:npm": {
-        "dependsOn": [
-          "build",
-          "lint",
-          "test",
-          "check"
-        ],
-        "cache": false,
-        "outputs": []
-      }
-    }
-  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -45,8 +28,7 @@
     "lint": "biome check .",
     "check": "tsc -p tsconfig.json --noEmit",
     "clean": "rimraf dist",
-    "prepublishOnly": "node -e \"\"",
-    "publish:npm": "bun publish --access public"
+    "prepublishOnly": "node -e \"\""
   },
   "dependencies": {
     "@civ7/adapter": "workspace:*",

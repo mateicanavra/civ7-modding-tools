@@ -32,15 +32,15 @@ Repo and D6 sources read:
   - `D1-proof-contract-boundary.md`
   - `D2-rule-registry-metadata-contract.md`
 - Current Habitat code and tests:
-  - `tools/habitat-harness/src/lib/grit.ts`
-  - `tools/habitat-harness/src/lib/grit-failures.ts`
-  - `tools/habitat-harness/src/lib/grit-injected-probe.ts`
-  - `tools/habitat-harness/src/lib/diagnostics.ts`
-  - `tools/habitat-harness/src/lib/command-engine.ts`
-  - `tools/habitat-harness/test/lib/grit-adapter.test.ts`
-  - `tools/habitat-harness/test/lib/grit-injected-probe.test.ts`
-  - `tools/habitat-harness/test/grit/grit-patterns.test.ts`
-  - `tools/habitat-harness/test/commands/habitat-commands.test.ts`
+  - `tools/habitat/src/lib/grit.ts`
+  - `tools/habitat/src/lib/grit-failures.ts`
+  - `tools/habitat/src/lib/grit-injected-probe.ts`
+  - `tools/habitat/src/lib/diagnostics.ts`
+  - `tools/habitat/src/lib/command-engine.ts`
+  - `tools/habitat/test/lib/grit-adapter.test.ts`
+  - `tools/habitat/test/lib/grit-injected-probe.test.ts`
+  - `tools/habitat/test/grit/grit-patterns.test.ts`
+  - `tools/habitat/test/commands/habitat-commands.test.ts`
 
 ## Smell Inventory
 
@@ -97,13 +97,13 @@ The repaired packet should slice later implementation like this:
 
 | Gate | Oracle | Bad case |
 | --- | --- | --- |
-| `bun run --cwd tools/habitat-harness test -- test/lib/grit-adapter.test.ts` | Parser/acquisition distinguishes parsed report, no JSON, malformed JSON, command failure, schema drift, unexpected shape, truncated output, projection miss, unexpected identity, scan-root refusal, and cache provenance missing. | `ok: true` with failure fields, malformed wrapper text treated as clean, or apply failure tag accepted as diagnostic state. |
-| `bun run --cwd tools/habitat-harness test -- test/lib/grit-injected-probe.test.ts` | Probe run requires fresh observable cache, exact matching probe, outside-scope control, cleanup/final-status state, and diagnostic-only validation class. | Control path matching succeeds, missing cache provenance passes, dirty final status is not represented, or proof wording is treated as governance. |
+| `bun run --cwd tools/habitat test -- test/lib/grit-adapter.test.ts` | Parser/acquisition distinguishes parsed report, no JSON, malformed JSON, command failure, schema drift, unexpected shape, truncated output, projection miss, unexpected identity, scan-root refusal, and cache provenance missing. | `ok: true` with failure fields, malformed wrapper text treated as clean, or apply failure tag accepted as diagnostic state. |
+| `bun run --cwd tools/habitat test -- test/lib/grit-injected-probe.test.ts` | Probe run requires fresh observable cache, exact matching probe, outside-scope control, cleanup/final-status state, and diagnostic-only validation class. | Control path matching succeeds, missing cache provenance passes, dirty final status is not represented, or proof wording is treated as governance. |
 | New D6 diagnostic failure subset test | D6 acquisition/projection/probe states cannot contain `GritApply*` tags. | Any apply tag is accepted by diagnostic acquisition or injected probe failure. |
 | New D2 projection integration test | D6 consumes `ruleGritFacts`; missing or malformed Grit identity fails before native command execution. | `gritPattern ?? rule.id` fallback survives. |
 | New structured adapter projection test | Adapter failure is structured data first and rendered text second. | `findAdapterFailure()`-style regex over diagnostic messages is required for machine behavior. |
 | New scan-root decision test | Every scan-root family has a closed accepted/refused state. | Empty, outside, missing, generated, protected, unapproved, docs, test expansion, and injected mirror roots collapse into generic command failure text. |
-| `bun run --cwd tools/habitat-harness test -- test/grit/grit-patterns.test.ts` | Native Grit fixture samples pass and stay distinct from Habitat wrapper/current-tree diagnostic runs. | Native fixture success is claimed as wrapper proof or structural cleanliness. |
+| `bun run --cwd tools/habitat test -- test/grit/grit-patterns.test.ts` | Native Grit fixture samples pass and stay distinct from Habitat wrapper/current-tree diagnostic runs. | Native fixture success is claimed as wrapper proof or structural cleanliness. |
 | `bun run habitat check --tool grit-check --json` | D0/D1-compatible check JSON shows diagnostic findings/failures without adapter failure becoming structural pass. | Adapter failure yields `ok: true`, or D6 emits new JSON fields without D0 disposition. |
 | `bun run openspec -- validate deep-habitat-d6-diagnostic-pattern-catalog --strict` and `bun run openspec:validate` | Packet validates and includes scenarios for every D6 state family above. | Spec has only broad "diagnostic runs" / "diagnostic cannot run" scenarios. |
 | `git diff --check` and `git status --short --branch` | Formatting is clean; probe tests leave no source-tree residue. | Probe cleanup leaves tracked or untracked files. |

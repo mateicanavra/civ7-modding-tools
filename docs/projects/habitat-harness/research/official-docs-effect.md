@@ -59,7 +59,7 @@ Retrieval date: 2026-06-14. Source policy: official Effect documentation only fo
 
 ## Non-Applicable Areas
 
-- Local applicability note: `tools/habitat-harness/package.json` currently declares oclif/Nx dependencies and no `effect` or `@effect/platform` dependency; `rg` over `tools/habitat-harness`, `docs/projects/habitat-harness`, root `package.json`, and the Habitat package found no Effect imports or dependency strings. Therefore official Effect docs are not directly descriptive of current Habitat implementation behavior; they are applicable only to future adoption/design work.
+- Local applicability note: `tools/habitat/package.json` currently declares oclif/Nx dependencies and no `effect` or `@effect/platform` dependency; `rg` over `tools/habitat`, `docs/projects/habitat-harness`, root `package.json`, and the Habitat package found no Effect imports or dependency strings. Therefore official Effect docs are not directly descriptive of current Habitat implementation behavior; they are applicable only to future adoption/design work.
 - Effect docs do not define Habitat's five owner layers, taxonomy, ratchet invariant, baseline expansion rules, or classify/generate workflow. Those remain governed by `docs/projects/habitat-harness/FRAME.md`, `taxonomy.md`, rule-pack code, and OpenSpec changes.
 - Effect docs do not establish Grit/Biome/Nx safety semantics. They can shape orchestration wrappers, but they do not prove that a codemod is safe or that a baseline is shrink-only.
 - Official docs surfaced `@effect/platform/Command` and platform runtime guidance, not a requirement to use `@effect/cli`. Do not infer a CLI framework migration from these sources.

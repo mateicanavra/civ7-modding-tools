@@ -1,0 +1,132 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "civ7-cli",
+  "tags": ["kind:app"],
+  "targets": {
+    "build:tsc": {
+      "command": "tsc -b --force",
+      "dependsOn": ["clean:dist", "^build"],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/**"],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "build:manifest": {
+      "command": "oclif manifest",
+      "dependsOn": ["build:tsc"],
+      "cache": true,
+      "outputs": ["{projectRoot}/oclif.manifest.json"],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "build:bin-mode": {
+      "command": "chmod +x bin/run.js",
+      "dependsOn": ["build:manifest"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "build": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": ["{projectRoot}/dist/**", "{projectRoot}/oclif.manifest.json"],
+      "dependsOn": ["build:bin-mode"],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "test:play": {
+      "command": "vitest run --project cli game.play.end-turn.test.ts game.play.population-placement.test.ts game.play.attribute-tradition.test.ts game.play.town-focus.test.ts game.play.unit-target.test.ts game.play.progression-read.test.ts game.play.tactical-read.test.ts game.play.watch.test.ts game.play.topics.test.ts game.play.promotion-readiness.test.ts game.play.rehydrate.test.ts game.play.settlement-recommendations.test.ts game/play/ready-city.test.ts game/play/unit-move-preview.test.ts game/play/ready-unit.test.ts game/play/notification/queue.test.ts game/play/notification/dismiss-queue.test.ts game/play/notification/dismiss.test.ts game/play/notification/hud.test.ts game/play/priorities.test.ts game/play/semantic-envelope.test.ts game.play.first-meet.test.ts game.play.operation-wrappers.test.ts game.play.technology.test.ts game.play.culture.test.ts game.play.narrative.test.ts game.play.diplomacy-response.test.ts game.play.production.test.ts game.play.celebration-government.test.ts",
+      "dependsOn": ["build"],
+      "cache": true,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "link:global": {
+      "command": "bun link",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "unlink:global": {
+      "command": "bun unlink",
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "readme": {
+      "command": "oclif readme",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": ["{projectRoot}/README.md"],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "pack:prepare": {
+      "command": "node -e \"\"",
+      "cache": false,
+      "outputs": [],
+      "dependsOn": ["build", "readme"],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "version:readme": {
+      "command": "git add README.md",
+      "dependsOn": ["readme"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "data:zip:default": {
+      "command": "node bin/run.js data zip default",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "data:unzip:default": {
+      "command": "node bin/run.js data unzip default",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "mod:git:import": {
+      "command": "node bin/run.js mod git import",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    },
+    "publish:npm": {
+      "command": "bun publish --access public",
+      "dependsOn": ["build", "lint", "test", "check"],
+      "cache": false,
+      "outputs": [],
+      "options": {
+        "cwd": "packages/cli"
+      }
+    }
+  }
+}

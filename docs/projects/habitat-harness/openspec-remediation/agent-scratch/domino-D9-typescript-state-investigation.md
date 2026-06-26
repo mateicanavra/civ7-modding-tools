@@ -8,7 +8,7 @@ The simpler model is an `ApplyTransactionRecord` union built from separately own
 
 ## Current Impossible States
 
-Current evidence is `tools/habitat-harness/src/lib/grit-apply.ts`, `tools/habitat-harness/src/lib/command-engine.ts`, `tools/habitat-harness/src/commands/fix.ts`, `tools/habitat-harness/src/index.ts`, and `tools/habitat-harness/test/lib/grit-apply.test.ts`.
+Current evidence is `tools/habitat/src/lib/grit-apply.ts`, `tools/habitat/src/lib/command-engine.ts`, `tools/habitat/src/commands/fix.ts`, `tools/habitat/src/index.ts`, and `tools/habitat/test/lib/grit-apply.test.ts`.
 
 | Current shape | Impossible states admitted | Required D9 collapse |
 | --- | --- | --- |
@@ -259,7 +259,7 @@ The packet's validation section should require tests with explicit bad cases, no
 | Public command projection test | `habitat fix --dry-run` output and exit code are derived from dry-run outcome only; live apply states never appear in dry-run output. |
 | Non-claim test | Apply success includes D1 non-claims such as not runtime/product/current-tree clean proof; formatter/gate success cannot erase them. |
 
-The focused suite remains `bun run --cwd tools/habitat-harness test -- test/lib/grit-apply.test.ts`, but D9 should also require command-layer tests for `commands/fix.ts` and export/compatibility tests if `src/index.ts` changes. OpenSpec validation alone is not enough.
+The focused suite remains `bun run --cwd tools/habitat test -- test/lib/grit-apply.test.ts`, but D9 should also require command-layer tests for `commands/fix.ts` and export/compatibility tests if `src/index.ts` changes. OpenSpec validation alone is not enough.
 
 ## Packet Repairs Required Before Acceptance
 

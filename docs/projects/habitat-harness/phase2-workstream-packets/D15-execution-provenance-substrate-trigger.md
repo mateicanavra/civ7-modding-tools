@@ -132,7 +132,7 @@ the exact trigger and dependency impact.
 
 ## Validation Commands / Trigger Check Template
 
-- `bun run --cwd tools/habitat-harness test -- test/lib/habitat-process.test.ts test/lib/effect-runtime.test.ts`:
+- `bun run --cwd tools/habitat test -- test/lib/habitat-process.test.ts test/lib/effect-runtime.test.ts`:
   expected exit 0 only if a later accepted packet changes command-result or
   execution-runtime behavior.
 - `git status --short --branch`: expected exit 0; command-observation capture must not

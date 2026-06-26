@@ -75,7 +75,7 @@ export const morphologyArtifacts = {
 ## Verification
 
 - Run:
-  - `bun run test:mapgen`
+  - `nx run mapgen-core:test`
   - `bun run --cwd mods/mod-swooper-maps test`
 - Run a traced execution and confirm:
   - the artifact id appears in the satisfied tag set after the publishing step,

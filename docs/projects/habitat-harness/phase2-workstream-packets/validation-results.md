@@ -23,10 +23,10 @@ receipt. It exists to make the packet-suite closure provenance explicit.
 | `git diff --check` | Passed | Docs hygiene | No whitespace errors in the current diff. |
 | `bun install` | Passed in 65 ms; no dependency changes | Dependency state | Checked 1699 installs across 1805 packages. |
 | `bun run build` | Passed | Build receipt | Ran root Nx build; Nx read 30 of 47 tasks from local cache. |
-| `bun run lint` | Passed | Hygiene receipt | Runs `nx run @internal/habitat-harness:biome:ci`; Biome checked 2475 files. |
-| `nx show project @internal/habitat-harness` | Passed | Workspace graph metadata | Project metadata exposes Habitat targets and package exports for Phase 2 packet design. |
-| `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat-harness/src/plugin.js` | Passed | Command behavior evidence | Classified `tools/habitat-harness/src/plugin.js` as `@internal/habitat-harness`; required targets were `nx run @internal/habitat-harness:check`, `nx run @internal/habitat-harness:test`, and `bun run lint`. |
-| `bun run --cwd tools/habitat-harness test` | Failed | Current receipt risk | 210 tests passed; `test/lib/boundary-taxonomy.test.ts` failed because `audit.ok` was false. This is current behavior evidence and remains a Phase 2 receipt risk, not packet-suite implementation closure. |
+| `bun run lint` | Passed | Hygiene receipt | Runs `nx run @habitat/cli:biome:ci`; Biome checked 2475 files. |
+| `nx show project @habitat/cli` | Passed | Workspace graph metadata | Project metadata exposes Habitat targets and package exports for Phase 2 packet design. |
+| `bun run habitat classify /Users/mateicanavra/Documents/.nosync/DEV/worktrees/wt-codex-habitat-toolkit-domain-refactor-frame/tools/habitat/src/plugin.js` | Passed | Command behavior evidence | Classified `tools/habitat/src/plugin.js` as `@habitat/cli`; required targets were `nx run @habitat/cli:check`, `nx run @habitat/cli:test`, and `bun run lint`. |
+| `bun run --cwd tools/habitat test` | Failed | Current receipt risk | 210 tests passed; `test/lib/boundary-taxonomy.test.ts` failed because `audit.ok` was false. This is current behavior evidence and remains a Phase 2 receipt risk, not packet-suite implementation closure. |
 | `bun run habitat check --json` | Failed | Current-tree Habitat receipt risk | Failed on current-tree issues: `workspace-entrypoints`, Grit adapter `GritMalformedJson` projections, `nx-boundaries` ENOENT for `apps/hr-scratch-discovery-app/src/index.ts`, and advisory `doc-ambiguity`. This is current behavior evidence, not a packet-suite docs regression. |
 
 ## Post-Repair Rerun

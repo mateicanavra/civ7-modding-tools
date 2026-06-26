@@ -40,7 +40,7 @@ Applied inputs:
 - Vendor tools are resources and providers, not loose executable names.
 - Domain services own Habitat decisions. Providers own external execution.
 - `.habitat` is authored data only. Managing code stays under
-  `tools/habitat-harness`.
+  `tools/habitat`.
 - Runtime Habitat code must use Habitat domain language. Workstream terms such
   as D-number, refactor, migration, proof, and evidence belong only in explicit
   receipt/workstream/verification surfaces.
@@ -153,12 +153,12 @@ closure.
 
 | Priority | Smell | Exact evidence | State-space defect | Collapse move | Public-contract risk | Required tests/commands |
 |---|---|---|---|---|---|---|
-| P0 | Library-local runtime execution | `tools/habitat-harness/src/lib/workspace-tools.ts` `materializeHabitatCommand()` calls `Effect.runSync`; historical `src/lib/effect-runtime.ts`/`src/substrate/runtime/run.ts` exposed `runHabitatEffect()` | Any library can become its own runtime edge and bypass shared lifecycle/error policy | Keep `Effect.run*` only at service runtime, host/framework entrypoints, and tests; replace materialization with provider service calls; keep the generic runner deleted | Package consumers import `materializeHabitatCommand`; hooks and spawn depend on it | Static guard for `Effect.run*`; `bun run --cwd tools/habitat-harness check`; public export audit |
+| P0 | Library-local runtime execution | `tools/habitat/src/lib/workspace-tools.ts` `materializeHabitatCommand()` calls `Effect.runSync`; historical `src/lib/effect-runtime.ts`/`src/substrate/runtime/run.ts` exposed `runHabitatEffect()` | Any library can become its own runtime edge and bypass shared lifecycle/error policy | Keep `Effect.run*` only at service runtime, host/framework entrypoints, and tests; replace materialization with provider service calls; keep the generic runner deleted | Package consumers import `materializeHabitatCommand`; hooks and spawn depend on it | Static guard for `Effect.run*`; `bun run --cwd tools/habitat check`; public export audit |
 | P0 | Process execution duplication | `src/lib/spawn.ts`; `src/lib/habitat-process.ts`; `src/lib/hook-runtime/command-runner.ts`; `src/lib/baseline-core/context.ts` | Multiple command result shapes hide exit, signal, env, cwd, cache, timing, and failure distinctions | One `CommandRunner` Effect service with live/fake layers; provider-specific command builders consume it | CLI, hooks, baseline integrity, verify, graph, and Grit can change stdout/stderr/exit behavior | Command parity for `check`, `fix --dry-run`, `verify`, `graph --json`, hooks; fake CommandRunner unit matrix |
 | P0 | Direct mutable IO in domain modules | `rules/registry/load.ts`; `baseline-core/state.ts`; `baseline-core/integrity.ts`; `workspace-graph/inventory.ts`; `adapters/grit/request.ts`; `adapters/grit/scan-roots/index.ts`; `hook-runtime/staged-worktree.ts`; `check/render.ts`; `graph.ts` | Domain functions can read/write current checkout or temp dirs outside resource scopes | Move fs/time/temp writes into `FileSystemProvider`, `WorkspaceProvider`, `ResourceScope`; keep pure parse functions | Baseline writes, report output, graph temp cleanup, registry load, Grit cache paths | Fake FS tests, malformed JSON tests, temp finalizer tests, final clean worktree proof |
 | P0 | Direct clock use | `habitat-process.ts`; `check/execution.ts`; `check/report.ts`; `check/selection.ts`; `commands/verify.ts`; `hook-runtime/runtime.ts` | Time becomes nondeterministic data and cannot be tested or replayed | Use Effect `Clock`/`TestClock` behind `HabitatClock` service | Duration fields in reports/receipts/hooks may change shape or precision | TestClock unit tests, golden shape checks, no direct `Date.now` outside providers |
 | P0 | Error model split | Generic `throw new Error` in `rules/registry/load.ts`, `rules/registry/graph.ts`, `workspace-graph/states.ts`, `baseline-core/state.ts`, `baseline-core/integrity.ts`, `check/report.ts`, `check/render.ts`, generators, plugin | Expected failures, defects, refusals, and user errors share one thrown string channel | Introduce tagged domain errors and refusal data; render only at adapter/report boundaries | Error messages and exit codes are user-visible | Tagged error unit matrix; CLI invalid registry/baseline/selector parity |
-| P0 | Public barrel leaks internals | `tools/habitat-harness/src/index.ts` exports runtime, process, workspace tool provider, registry internals, Grit failure helpers, rule execution, host policy schema; `rules/registry/index.ts`, `lib/classify.ts`, `lib/host-policy.ts` use broad barrels | Any internal type becomes de facto public contract and blocks refactor | Create explicit public contract exports; move test/internal imports to internal paths; forbid `export *` from internal modules | External package imports may break; package `exports` points at `src/index.ts` | Public-surface compatibility matrix update; `rg` callsite audit; package build/typecheck |
+| P0 | Public barrel leaks internals | `tools/habitat/src/index.ts` exports runtime, process, workspace tool provider, registry internals, Grit failure helpers, rule execution, host policy schema; `rules/registry/index.ts`, `lib/classify.ts`, `lib/host-policy.ts` use broad barrels | Any internal type becomes de facto public contract and blocks refactor | Create explicit public contract exports; move test/internal imports to internal paths; forbid `export *` from internal modules | External package imports may break; package `exports` points at `src/index.ts` | Public-surface compatibility matrix update; `rg` callsite audit; package build/typecheck |
 | P1 | Option/flag soup instead of services | `HookRuntime` has optional `runCommand`, `pathExists`, `fileHash`, `nowMs`, `reporter`, `resourcePolicy`, `trace`; Grit options include optional process layer/cache/diagnostic flags; baseline context takes optional `runCommand`/paths/registry | Objects can represent partially provided runtimes and untested combinations | Replace option bags with request discriminated unions and provided services/layers | Existing tests may rely on ad hoc injection | Fake layer tests for hooks/Grit/baseline; constructors reject invalid states |
 | P1 | One-implementation abstractions | `WorkspaceToolProvider` wraps a fixed map and is also materialized sync; `NxWorkspaceGraphProjectReader` is the only reader class; `HookReporter` is a one-method object | Extra abstraction increases states without capability boundaries | Convert to functions where pure or service tags where provider-owned; remove one-method interfaces unless identity/lifecycle exists | Test helpers and package exports may import them | Type-only callsite audit; refactor tests for live/fake services |
 | P1 | Vendor names used as domain ownership | `rules/registry/schema.ts` `ownerTool` combines authority and executable; `check/report.ts` emits `ownerTool`; workspace tools still map render/tool labels such as `format-check`; pattern validation has `ownerTool` | Records cannot distinguish domain authority, provider, and proof class | Replace with `domainAuthorityId`, `providerId`, `capabilityId`, and render-facing tool labels where needed | CheckReport v1 includes `ownerTool`; changing it is a compatibility event | D0 public JSON decision; if preserved, map new internals back to v1 label |
@@ -177,7 +177,7 @@ converted to adapter/public-contract entrypoints or deleted after their logic is
 relocated. They are not kept as alternate implementation paths.
 
 ```text
-tools/habitat-harness/src/
+tools/habitat/src/
   bin/
     habitat.ts
   commands/
@@ -362,8 +362,8 @@ tools/habitat-harness/src/
 
 Non-target directories:
 
-- Canonical domain target path is `tools/habitat-harness/src/domains/**`.
-  `tools/habitat-harness/src/domain/**` is forbidden and must not be created.
+- Canonical domain target path is `tools/habitat/src/domains/**`.
+  `tools/habitat/src/domain/**` is forbidden and must not be created.
 - `src/lib/**`: staging only; no new feature ownership.
 - `src/base/**`: drained into `src/commands/base/**`.
 - `src/adapters/**`: drained into provider/domain homes. An adapter facade can
@@ -493,8 +493,8 @@ Planning artifacts:
 
 Source implementation gates, assigned to later packets:
 
-- `bun run --cwd tools/habitat-harness check`
-- `bun run --cwd tools/habitat-harness test`
+- `bun run --cwd tools/habitat check`
+- `bun run --cwd tools/habitat test`
 - `bun run habitat:check -- --json`
 - `bun run habitat fix -- --dry-run`
 - `bun run habitat verify -- --base <Graphite parent>`
