@@ -1,6 +1,6 @@
 # Next Grit Extraction Slices
 
-Status: updated after systematic source-check adapter burn-down
+Status: updated after final source-check runtime deletion
 
 ## Completed Canary
 
@@ -49,18 +49,18 @@ Converted and deleted adapters:
 - `require_typed_placement_outcomes_before_apply`
 - `restrict_recipes_to_public_domain_surfaces`
 
-## Slice 1: Split Final Source-Check Holdback And Delete Runtime
+## Completed Final Source-Check Holdback Split
 
-Goal: split `require_explicit_mapgen_sdk_opt_in` so the SDK opt-in predicate can become Grit authority and the overlapping mapgen-core adapter-import predicate can defer to `preserve_mapgen_core_runtime_neutrality`.
+Goal completed: split `require_explicit_mapgen_sdk_opt_in` so the SDK opt-in predicate became Grit authority and the overlapping mapgen-core adapter-import predicate defers to `preserve_mapgen_core_runtime_neutrality`.
 
-Expected moves:
+Completed moves:
 
 - Keep SDK entrypoint opt-in/source-shape authority in the packet, preferably as Grit pattern authority.
 - Remove or demote the overlapping mapgen-core `@civ7/adapter/civ7` import ban branch from this packet because `preserve_mapgen_core_runtime_neutrality` now owns it through Grit.
-- Convert the residual rule away from `source-check`, delete `require_explicit_mapgen_sdk_opt_in.rule.mjs`, then delete `rule-runtime.policy.mjs` when no importers remain.
+- Convert the residual rule away from `source-check`, delete `require_explicit_mapgen_sdk_opt_in.rule.mjs`, then delete `rule-runtime.policy.mjs`.
 - Regenerate execution-surface analytics and prove `source-check` has zero active rules.
 
-## Slice 2: Promote Existing Non-Adapter Patterns Where Runner Ownership Is Clear
+## Slice 1: Promote Existing Non-Adapter Patterns Where Runner Ownership Is Clear
 
 Goal: normalize rules that already have pattern authority but are not active source-check adapters, especially where command-check is only duplicating text/source matching.
 
@@ -68,11 +68,11 @@ Goal: normalize rules that already have pattern authority but are not active sou
 | ---: | --- | --- | --- |
 | 1 | `prohibit_product_scan_roots_in_grit_provider` | global-docs-toolkit | Prevents product/domain scan-root literals such as packages, apps, mods, and .civ7 from being hard-coded inside the generic Grit provider. |
 
-## Slice 3: Consolidate Deleted Stale Adapter Rows
+## Slice 2: Consolidate Deleted Stale Adapter Rows
 
 Goal: no file deletion remains for the four stale adapters; follow-up work should split or consolidate the command-check records themselves where the matrix marks them mixed.
 
-## Slice 4: Split Broad Command-Check Bundles And Mixed Helpers
+## Slice 3: Split Broad Command-Check Bundles And Mixed Helpers
 
 Goal: split `needs_split` rows assertion-by-assertion. Port Grit-shaped assertions first; keep generated-output, graph, exact topology, or runtime/package behavior in package-local validators, Nx, or data-driven structural checks.
 
@@ -87,7 +87,6 @@ Goal: split `needs_split` rows assertion-by-assertion. Port Grit-shaped assertio
 | `preserve_standard_stage_topology_and_path_invariants` | mapgen-pipeline | Do not force the whole rule into Grit. Split retired alias bans from canonical topology/order and stage-directory invariants; the latter wants a small data-driven structural checker or single source manifest. |
 | `prohibit_cross_op_runtime_calls` | mapgen-domain | Split source-import authority into Grit and consolidate orchestration-call detection with prohibit_runtime_orchestration_helpers_in_domain_ops. |
 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | mapgen-pipeline | Category notes already call this a mixed packet; split into at least ecology terminology, scoped runtime RNG/fudge helpers, and legacy official generator surfaces before choosing Grit rows. |
-| `require_explicit_mapgen_sdk_opt_in` | mapgen-other | Despite runtime-helper delegation, this is still a strong adapter deletion candidate because the helper is only import/export matching. Review adjustment: adapter-crosswalk identified a mixed helper; split SDK opt-in authority from mapgen-core adapter-import neutrality before deleting the adapter. |
 | `require_owned_domain_config_catalog_surfaces` | mapgen-domain | Likely yields at least one Grit rule plus one data-driven exact-surface rule. |
 | `require_projection_calls_in_projection_steps` | mapgen-other | Split into Grit candidates for forbidden projection/physics calls and separate structural/topology assertions for required owners/tokens. |
 | `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | Split Grit-able source/retired topology checks from active-root existence/currentness. |
@@ -95,6 +94,6 @@ Goal: split `needs_split` rows assertion-by-assertion. Port Grit-shaped assertio
 | `validate_mapgen_docs_anchors_and_references` | global-docs-toolkit | Split text-shape policy from reference-existence validation. Do not port the whole Python script to Grit as one large pattern. |
 | `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | Split topology/stage-id overlap from package-local authoring-model validation. Public schema derivation and focus-path semantics belong with the package validator, not Grit. |
 
-## Slice 5: Non-Grit Cleanup
+## Slice 4: Non-Grit Cleanup
 
-Goal: move or preserve non-Grit rows in the right owner model: generated/currentness checks to Nx or package validators, file-layer protection to data-driven path rules, runtime/tool smoke checks to package-local validators. Do this after source-check adapter deletion has reduced the confusing execution surface.
+Goal: move or preserve non-Grit rows in the right owner model: generated/currentness checks to Nx or package validators, file-layer protection to data-driven path rules, runtime/tool smoke checks to package-local validators. Do this now that source-check adapter deletion has removed the confusing execution surface.

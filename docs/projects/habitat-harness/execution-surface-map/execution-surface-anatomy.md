@@ -4,7 +4,7 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 ## Read
 
-- `.rule.mjs` is currently a mixed surface: source-check adapter contract plus predicate payload.
+- No active source-check `.rule.mjs` modules remain.
 - No `.rule.mjs` module currently shows separable fixture/support-file signals.
 - Grit pattern examples in `.pattern.md` are not treated as fixture/support unless a runtime consumes them as separate support files.
 - Build/currentness and package-local command ties are flagged as transient dependency candidates for later pruning.
@@ -13,18 +13,17 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 | role | surface count |
 | --- | --- |
-| adapter | 74 |
-| fixture-support | 10 |
-| policy-predicate | 39 |
-| transient-dependency | 143 |
+| policy-predicate | 38 |
+| transient-dependency | 141 |
+| adapter | 73 |
 | entrypoint | 236 |
+| fixture-support | 9 |
 | runner-runtime | 124 |
 
 ## Surface Families
 
 | family | count | sample read |
 | --- | --- | --- |
-| rule-module | 1 | .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs: Centralized temporary source-check adapter support: the runner imports this module, while diagnosticsForRule carries the legacy predicate payload. |
 | apply-pattern | 2 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/require_public_domain_surfaces_in_recipes_and_maps.apply.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | pattern | 36 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.<br>.habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md: Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files. |
 | rule-json | 73 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.<br>.habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.rule.json: Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text. |
@@ -40,21 +39,17 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 
 ## Source-Check Rule Modules
 
-- Modules: 1
-- Expected adapter export shape: 1
-- Transitional runtime imports: 1
+- Modules: 0
+- Expected adapter export shape: 0
+- Transitional runtime imports: 0
 - Separable fixture/support candidates: 0
 
-| runtime helper | module count | sample modules |
-| --- | --- | --- |
-| policy | 1 | .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs |
-| sdkMapgenEntrypointDiagnostics | 1 | .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs |
+_None._
 
 ## Transient Dependency Candidates
 
 | path | kind | signals |
 | --- | --- | --- |
-| .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs | rule-module | imports transitional source-check runtime |
 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md | pattern | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh | check-script | build/currentness or ordering tie; reaches package/app/mod boundary |
@@ -95,7 +90,7 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/require_runtime_domain_op_bundle_imports.pattern.md | pattern | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs | check-script | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts | check-script | reaches package/app/mod boundary |
-| .habitat/civ7/mapgen/sdk/blueprints/mapgen-entrypoint/execution/check/require_explicit_mapgen_sdk_opt_in/require_explicit_mapgen_sdk_opt_in.pattern.md | pattern | build/currentness or ordering tie |
+| .habitat/civ7/mapgen/sdk/blueprints/mapgen-entrypoint/execution/check/require_explicit_mapgen_sdk_opt_in/require_explicit_mapgen_sdk_opt_in.pattern.md | pattern | build/currentness or ordering tie; reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts | check-script | build/currentness or ordering tie; reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs | check-script | build/currentness or ordering tie; reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.rule.json | rule-json | build/currentness or ordering tie |
@@ -104,12 +99,11 @@ This companion report separates runnable behavior from adapter glue, runner/runt
 | .habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts | check-script | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.check.mjs | check-script | reaches package/app/mod boundary |
 | .habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs | check-script | build/currentness or ordering tie; reaches package/app/mod boundary |
+| .habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.rule.json | rule-json | build/currentness or ordering tie |
 
 ## Fixture/Support Files
 
 | path | support file | virtual filenames | lines |
 | --- | --- | --- | --- |
 | .habitat/_support/execution/command-check/mapgen-static-check-lib.mjs | mapgen-static-check-lib | 0 | 161 |
-| .habitat/_support/execution/README.md | README | 0 | 20 |
-| .habitat/_support/execution/source-check/adapters/require_explicit_mapgen_sdk_opt_in.rule.mjs | require_explicit_mapgen_sdk_opt_in.rule | 0 | 9 |
-| .habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs | rule-runtime.policy | 0 | 523 |
+| .habitat/_support/execution/README.md | README | 0 | 18 |

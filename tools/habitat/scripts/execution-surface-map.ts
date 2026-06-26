@@ -1278,7 +1278,7 @@ function renderMarkdown(report: ReturnType<typeof buildReport>): string {
     `- Expected export shape: ${report.executionAnatomy.ruleModule.expectedExportShape}`,
     `- Transitional runtime imports: ${report.executionAnatomy.ruleModule.transitionalRuntimeImports}`,
     `- Separable fixture/support candidates: ${report.executionAnatomy.ruleModule.separableSupportCandidates}`,
-    `- Candidate extensions: ${report.executionAnatomy.ruleModule.candidateExtensions.join(", ")}`,
+    `- Candidate extensions: ${report.executionAnatomy.ruleModule.candidateExtensions.join(", ") || "none"}`,
     "",
     markdownTable(["runtime helper", "module count", "sample modules"], helperRows),
     "## `.rule.mjs` Module Details",
@@ -1344,6 +1344,10 @@ function renderAnatomyMarkdown(report: ReturnType<typeof buildReport>): string {
       surface.surfaceKind,
       surface.anatomy.transientSignals.join("; "),
     ]);
+  const ruleModuleRead =
+    report.executionAnatomy.ruleModule.total === 0
+      ? "- No active source-check `.rule.mjs` modules remain."
+      : "- `.rule.mjs` is currently a mixed surface: source-check adapter contract plus predicate payload.";
 
   return [
     "# Execution Surface Anatomy",
@@ -1352,7 +1356,7 @@ function renderAnatomyMarkdown(report: ReturnType<typeof buildReport>): string {
     "",
     "## Read",
     "",
-    "- `.rule.mjs` is currently a mixed surface: source-check adapter contract plus predicate payload.",
+    ruleModuleRead,
     "- No `.rule.mjs` module currently shows separable fixture/support-file signals.",
     "- Grit pattern examples in `.pattern.md` are not treated as fixture/support unless a runtime consumes them as separate support files.",
     "- Build/currentness and package-local command ties are flagged as transient dependency candidates for later pruning.",
@@ -1465,7 +1469,7 @@ function main(): void {
   console.log(`Wrote ${posixRel(args.repoRoot, args.outMd)}`);
   if (args.outAnatomyMd) console.log(`Wrote ${posixRel(args.repoRoot, args.outAnatomyMd)}`);
   console.log(
-    `Surfaces: ${report.summary.totalSurfaces}; rule-json: ${report.summary.surfacesByKind["rule-json"]}; rule-module: ${report.summary.surfacesByKind["rule-module"]}`
+    `Surfaces: ${report.summary.totalSurfaces}; rule-json: ${report.summary.surfacesByKind["rule-json"] ?? 0}; rule-module: ${report.summary.surfacesByKind["rule-module"] ?? 0}`
   );
 }
 

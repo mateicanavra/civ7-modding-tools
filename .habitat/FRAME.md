@@ -114,10 +114,9 @@ Use this model when reading a packet:
 
 - `*.rule.json` is runner/catalog metadata. It tells the Toolkit how current
   execution is wired; it is not the final source of policy truth.
-- `.habitat/_support/execution/source-check/adapters/*.rule.mjs` is
-  transitional source-check adapter support while `ownerTool: source-check`
-  remains in the registry. Inline path/source regexes, identifiers, and
-  diagnostic messages in these files are behavior, not fixtures.
+- `.habitat/_support/execution/source-check/` was transitional source-check
+  adapter support. It is now deleted: zero `ownerTool: source-check` records,
+  zero central `.rule.mjs` adapters, and no `rule-runtime.policy.mjs` remain.
 - `.habitat/_support/execution/` is a temporary support island under the
   authority tree. It is not a niche, blueprint, category, artifact kind, or
   final source of authored authority.
@@ -132,8 +131,9 @@ Use this model when reading a packet:
 - `*.fix.*`, `*.generate.*`, and `*.operation.md` are operation surfaces, not
   default enforcement rules.
 
-Do not move source-check adapter literals into `fixtures/` unless the literal
-is proven to be support data needed to run a flow rather than policy behavior.
+Do not recreate source-check adapter literals or move old adapter literals into
+`fixtures/`; the remaining policy payloads now belong in Grit patterns or the
+appropriate non-source-check owner.
 Do not move `.pattern.md` examples merely because they are examples.
 
 ## Selection Commitments

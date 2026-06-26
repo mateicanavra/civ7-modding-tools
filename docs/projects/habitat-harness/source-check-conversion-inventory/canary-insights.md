@@ -16,7 +16,7 @@ Status: completed canary evidence
 
 ## What Still Needs Work
 
-- `rule-runtime.policy.mjs` remains because 1 active source-check adapter still imports it.
 - The systematic burn-down after this canary converted the other 25 straightforward adapter-backed Grit rows.
+- The final split after the systematic burn-down converted `require_explicit_mapgen_sdk_opt_in`, deleted the last source-check adapter, and deleted `rule-runtime.policy.mjs`.
 - Mixed command-check bundles still need split work before their Grit-shaped assertions can be extracted cleanly.
-- The next split wave should start with `require_explicit_mapgen_sdk_opt_in`, then delete the final adapter and runtime if zero importers remain.
+- The next split wave should start with command-check bundles now that the source-check adapter/runtime surface is gone.

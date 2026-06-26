@@ -72,7 +72,8 @@ Also extract after splitting:
 
 No blockers for this lane artifact.
 
-Synthesis should account for two ownerTool mismatches: `prohibit_cross_op_runtime_calls`
-and `require_public_ecology_surfaces_and_retired_topology_removal` are
-`command-check` records but also have centralized source-check adapters and
-adjacent Grit patterns.
+Synthesis already deleted the stale centralized source-check adapters for
+`prohibit_cross_op_runtime_calls` and
+`require_public_ecology_surfaces_and_retired_topology_removal`. The remaining
+work is splitting or consolidating their command-check records, not adapter
+cleanup.

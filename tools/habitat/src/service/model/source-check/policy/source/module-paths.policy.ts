@@ -1,9 +1,6 @@
-// Habitat hierarchy V1 integration note: source-check execution uses centralized
-// temporary support adapters under `.habitat/_support/execution`. Packet
-// directories remain the authoring sites for policy metadata and patterns.
-export const sourceCheckRuleRuntimeRepoPath =
-  ".habitat/_support/execution/source-check/runtime/rule-runtime.policy.mjs";
-
+// Source-check has no active rule records after the Grit migration. Keep the
+// retired module path convention only so stale selections fail with the same
+// loader diagnostics if a source-check record is reintroduced.
 export const sourceCheckRuleModulesRepoPath =
   ".habitat/_support/execution/source-check/adapters";
 

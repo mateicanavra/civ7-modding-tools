@@ -38,9 +38,6 @@ or {
   `import $imports from "@civ7/adapter/civ7"` where {
     $filename <: r".*packages/sdk/src/.*\.ts$",
     ! $filename <: includes "packages/sdk/src/mapgen/"
-  },
-  `import $imports from "@civ7/adapter/civ7"` where {
-    $filename <: r".*packages/mapgen-core/src/.*\.ts$"
   }
 }
 ```
@@ -77,10 +74,6 @@ import { createCiv7Adapter } from "@civ7/adapter/civ7";
 
 export const adapter = createCiv7Adapter;
 
-// @filename: packages/mapgen-core/src/authoring/maps.ts
-import { createCiv7Adapter } from "@civ7/adapter/civ7";
-
-export const adapter = createCiv7Adapter;
 ```
 
 ## Ignores fixture

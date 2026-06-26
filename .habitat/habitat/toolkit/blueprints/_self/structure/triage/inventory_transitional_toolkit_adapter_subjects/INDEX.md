@@ -7,16 +7,16 @@ and command routing remain Toolkit implementation details under
 `tools/habitat`.
 
 Integration note: some Toolkit files still reference the previous
-`.habitat/tooling/components/*` paths for generator schemas and source-check
-loader modules. Those references are compatibility debt for a later Toolkit
-integration slice, not evidence that this subject is the runtime resolver.
+`.habitat/tooling/components/*` paths for generator schemas. Those references
+are compatibility debt for a later Toolkit integration slice, not evidence that
+this subject is the runtime resolver.
 
 ## Transitional Subjects
 
 | Subject | Current Authority Path | Contents | Source Before Move | Integration State |
 | --- | --- | --- | --- | --- |
 | `preserve_generator_schema_contracts` | `habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/` | Generator schema writer and generated Nx schema JSON bridge assets. | `tools/habitat/scripts/write-preserve_generator_schema_contracts.ts`, `tools/habitat/src/generators/scaffold/*/support/schema.json` | Generator schema paths updated; writer still exists only as a command adapter. |
-| `source-check execution support` | `_support/execution/source-check/` | Retired native source-check runtime and per-rule `.mjs` adapters centralized outside packet authoring sites. | `tools/habitat/src/service/model/source-check/policy/source/**` | Loader paths point at centralized support; target state is conversion to Grit-backed packet-local patterns. |
+| `source-check execution support` | deleted | Retired native source-check runtime and per-rule `.mjs` adapters were centralized outside packet authoring sites, then deleted after conversion to Grit-backed packet-local patterns. | `tools/habitat/src/service/model/source-check/policy/source/**` | Closed: zero active `ownerTool: source-check` records, zero adapters, and no `rule-runtime.policy.mjs`. |
 
 Do not add new adapter subjects here unless they are admitted by `.habitat/AUTHORITY.md`.
 
