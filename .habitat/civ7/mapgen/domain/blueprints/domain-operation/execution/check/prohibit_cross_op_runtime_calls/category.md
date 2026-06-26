@@ -23,7 +23,6 @@ Files:
 - `prohibit_cross_op_runtime_calls.check.mjs`
 - `prohibit_cross_op_runtime_calls.pattern.md`
 - `prohibit_cross_op_runtime_calls.rule.json`
-- `prohibit_cross_op_runtime_calls.rule.mjs`
 
 Evidence: The check forbids domain op runtime entrypoints from importing sibling ops, the ops barrel, or orchestration helpers.
 

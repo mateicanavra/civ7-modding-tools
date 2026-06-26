@@ -22,7 +22,6 @@ Files:
 - `prohibit_relative_domain_reaches_from_recipes_and_maps.baseline.json`
 - `prohibit_relative_domain_reaches_from_recipes_and_maps.pattern.md`
 - `prohibit_relative_domain_reaches_from_recipes_and_maps.rule.json`
-- `prohibit_relative_domain_reaches_from_recipes_and_maps.rule.mjs`
 
 Evidence: The pattern forbids recipes/maps from reaching local domain source through relative paths.
 

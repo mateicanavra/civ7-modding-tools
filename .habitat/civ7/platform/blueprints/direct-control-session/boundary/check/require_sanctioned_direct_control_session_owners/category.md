@@ -22,7 +22,6 @@ Files:
 - `require_sanctioned_direct_control_session_owners.baseline.json`
 - `require_sanctioned_direct_control_session_owners.pattern.md`
 - `require_sanctioned_direct_control_session_owners.rule.json`
-- `require_sanctioned_direct_control_session_owners.rule.mjs`
 
 Evidence: The pattern prevents caller-local Civ7 direct-control session construction outside sanctioned owners.
 

@@ -23,7 +23,6 @@ Files:
 - `require_public_domain_surfaces_in_recipes_and_maps.baseline.json`
 - `require_public_domain_surfaces_in_recipes_and_maps.pattern.md`
 - `require_public_domain_surfaces_in_recipes_and_maps.rule.json`
-- `require_public_domain_surfaces_in_recipes_and_maps.rule.mjs`
 
 Evidence: The pattern prevents recipe and map source from importing deep domain internals instead of public domain surfaces.
 

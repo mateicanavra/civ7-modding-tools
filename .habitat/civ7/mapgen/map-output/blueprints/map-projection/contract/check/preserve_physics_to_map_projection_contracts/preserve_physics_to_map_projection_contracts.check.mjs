@@ -9,7 +9,7 @@ import {
   repoRoot,
   stagesRoot,
   walkFiles,
-} from "../../../../../../_shared/mapgen-static-check-lib.mjs";
+} from "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const physicsRoots = [
   "foundation",

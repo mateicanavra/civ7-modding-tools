@@ -22,7 +22,6 @@ Files:
 - `require_runtime_domain_op_bundle_imports.baseline.json`
 - `require_runtime_domain_op_bundle_imports.pattern.md`
 - `require_runtime_domain_op_bundle_imports.rule.json`
-- `require_runtime_domain_op_bundle_imports.rule.mjs`
 
 Evidence: The pattern requires recipe runtime modules to import runtime op bundles rather than contract roots.
 

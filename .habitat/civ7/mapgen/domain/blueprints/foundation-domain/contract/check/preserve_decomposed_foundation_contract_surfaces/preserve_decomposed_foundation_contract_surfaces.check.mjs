@@ -13,7 +13,7 @@ import {
   stagesRoot,
   textFindings,
   walkFiles,
-} from "../../../../../../_shared/mapgen-static-check-lib.mjs";
+} from "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const foundationDomain = path.join(modRoot, "src/domain/foundation");
 const foundationStage = path.join(stagesRoot, "foundation");

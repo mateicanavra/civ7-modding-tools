@@ -22,7 +22,6 @@ Files:
 - `require_typed_dependency_and_effect_tag_constants.baseline.json`
 - `require_typed_dependency_and_effect_tag_constants.pattern.md`
 - `require_typed_dependency_and_effect_tag_constants.rule.json`
-- `require_typed_dependency_and_effect_tag_constants.rule.mjs`
 
 Evidence: The pattern requires typed dependency/effect tag constants in step contracts instead of drifting string literals.
 

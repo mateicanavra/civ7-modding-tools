@@ -4,6 +4,10 @@ Status: working normative reference for the current niche/blueprint authority tr
 
 This document defines the current target shape for `.habitat` authority artifacts. It captures the corrected organization where niches are jurisdictions and blueprints are buildable/enforceable things inside those jurisdictions. It does not define final resolver metadata, support-file ontology, cascade semantics, or typed blueprint manifests.
 
+`.habitat/_support/execution/` is a temporary execution-support bridge outside
+the authority hierarchy. It is not a niche and must not be used as a precedent
+for new authored policy placement.
+
 ## Core Decision
 
 Habitat organizes authority by niche first, then blueprint. A niche is an authored jurisdiction: an area, domain, package family, or governed place. A blueprint is a constructible/enforceable thing inside that niche: a surface, package shape, service module, generated artifact shape, runtime boundary, or workflow object that has lifecycle artifacts.

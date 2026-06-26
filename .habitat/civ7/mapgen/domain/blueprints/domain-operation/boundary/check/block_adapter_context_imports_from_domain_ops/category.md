@@ -22,7 +22,6 @@ Files:
 - `block_adapter_context_imports_from_domain_ops.baseline.json`
 - `block_adapter_context_imports_from_domain_ops.pattern.md`
 - `block_adapter_context_imports_from_domain_ops.rule.json`
-- `block_adapter_context_imports_from_domain_ops.rule.mjs`
 
 Evidence: The pattern prevents domain ops from crossing into adapter/context ownership.
 

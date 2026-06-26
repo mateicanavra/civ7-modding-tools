@@ -7,7 +7,7 @@ import {
   read,
   repoRel,
   walkFiles,
-} from "../../../../../../_shared/mapgen-static-check-lib.mjs";
+} from "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const allowed = new Set([
   "src/recipes/standard/stages/placement/steps/place-discoveries/materialize.ts:official-discovery-generator",

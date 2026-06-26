@@ -22,7 +22,6 @@ Files:
 - `require_domain_contract_roots_in_step_contracts.baseline.json`
 - `require_domain_contract_roots_in_step_contracts.pattern.md`
 - `require_domain_contract_roots_in_step_contracts.rule.json`
-- `require_domain_contract_roots_in_step_contracts.rule.mjs`
 
 Evidence: The pattern allows step contracts to import only domain contract roots, not runtime or private domain files.
 

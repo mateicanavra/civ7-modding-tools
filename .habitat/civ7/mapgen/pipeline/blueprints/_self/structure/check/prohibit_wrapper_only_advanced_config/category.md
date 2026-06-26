@@ -22,7 +22,6 @@ Files:
 - `prohibit_wrapper_only_advanced_config.baseline.json`
 - `prohibit_wrapper_only_advanced_config.pattern.md`
 - `prohibit_wrapper_only_advanced_config.rule.json`
-- `prohibit_wrapper_only_advanced_config.rule.mjs`
 
 Evidence: The pattern prevents retired wrapper-only advanced config from reappearing in standard recipe/map configs.
 

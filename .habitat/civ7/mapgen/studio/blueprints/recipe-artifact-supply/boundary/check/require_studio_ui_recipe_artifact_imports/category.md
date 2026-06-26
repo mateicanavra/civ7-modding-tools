@@ -22,7 +22,6 @@ Files:
 - `require_studio_ui_recipe_artifact_imports.baseline.json`
 - `require_studio_ui_recipe_artifact_imports.pattern.md`
 - `require_studio_ui_recipe_artifact_imports.rule.json`
-- `require_studio_ui_recipe_artifact_imports.rule.mjs`
 
 Evidence: The pattern requires Studio UI to import recipe artifacts/configs instead of runtime recipe modules.
 

@@ -7,7 +7,7 @@ import {
   modRoot,
   readMod,
   stagesRoot,
-} from "../../../../../../_shared/mapgen-static-check-lib.mjs";
+} from "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs";
 
 const expectedStageIds = [
   "foundation",

@@ -22,7 +22,6 @@ Files:
 - `preserve_mapgen_core_runtime_neutrality.baseline.json`
 - `preserve_mapgen_core_runtime_neutrality.pattern.md`
 - `preserve_mapgen_core_runtime_neutrality.rule.json`
-- `preserve_mapgen_core_runtime_neutrality.rule.mjs`
 
 Evidence: The pattern keeps mapgen-core production source independent from Civ7 runtime APIs and adapter imports.
 

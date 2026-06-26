@@ -22,7 +22,6 @@ Files:
 - `prohibit_runtime_calls_to_runvalidated.baseline.json`
 - `prohibit_runtime_calls_to_runvalidated.pattern.md`
 - `prohibit_runtime_calls_to_runvalidated.rule.json`
-- `prohibit_runtime_calls_to_runvalidated.rule.mjs`
 
 Evidence: The pattern forbids runtime layers from calling runValidated.
 
