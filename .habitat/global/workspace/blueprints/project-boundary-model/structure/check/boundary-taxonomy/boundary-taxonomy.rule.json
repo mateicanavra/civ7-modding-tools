@@ -1,5 +1,6 @@
 {
   "id": "boundary-taxonomy",
+  "title": "Validate Boundary Taxonomy Against Workspace Graph",
   "ownerTool": "command-check",
   "ownerProject": "habitat",
   "lane": "enforced",

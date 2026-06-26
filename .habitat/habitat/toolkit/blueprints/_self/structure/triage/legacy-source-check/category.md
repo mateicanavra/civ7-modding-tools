@@ -1,4 +1,8 @@
-# legacy-source-check
+# Preserve Legacy Source-Check Runtime During Cutover
+
+Subject ID: `legacy-source-check`
+
+Title: Preserve Legacy Source-Check Runtime During Cutover
 
 Blueprint: `_self`
 

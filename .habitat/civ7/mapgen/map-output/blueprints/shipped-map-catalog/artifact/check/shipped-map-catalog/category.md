@@ -1,4 +1,8 @@
-# shipped-map-catalog
+# Block Studio Config Leakage Into Shipped Catalog
+
+Subject ID: `shipped-map-catalog`
+
+Title: Block Studio Config Leakage Into Shipped Catalog
 
 Blueprint: `shipped-map-catalog`
 

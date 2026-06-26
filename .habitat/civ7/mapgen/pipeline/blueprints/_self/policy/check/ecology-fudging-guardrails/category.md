@@ -1,4 +1,8 @@
-# ecology-fudging-guardrails
+# Prohibit Ecology Fudge Terms And Legacy Generator Surfaces
+
+Subject ID: `ecology-fudging-guardrails`
+
+Title: Prohibit Ecology Fudge Terms And Legacy Generator Surfaces
 
 Blueprint: `_self`
 

@@ -1,4 +1,8 @@
-# domain-ops-boundary-imports
+# Block Adapter Context Imports From Domain Ops
+
+Subject ID: `domain-ops-boundary-imports`
+
+Title: Block Adapter Context Imports From Domain Ops
 
 Blueprint: `domain-operation`
 

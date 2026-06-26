@@ -1,5 +1,6 @@
 {
   "id": "worker-bundle",
+  "title": "Ensure Studio Worker Bundle Is Browser-Safe",
   "ownerTool": "command-check",
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
@@ -16,7 +17,10 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["apps/mapgen-studio/dist/**/*.js", "apps/mapgen-studio/dist/**/*.mjs"]
+      "patterns": [
+        "apps/mapgen-studio/dist/**/*.js",
+        "apps/mapgen-studio/dist/**/*.mjs"
+      ]
     },
     {
       "kind": "project-owner"

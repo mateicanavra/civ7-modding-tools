@@ -1,4 +1,8 @@
-# standard-contract-manifest
+# Verify Runtime Stage Order Matches Contract Manifest
+
+Subject ID: `standard-contract-manifest`
+
+Title: Verify Runtime Stage Order Matches Contract Manifest
 
 Blueprint: `standard-recipe`
 

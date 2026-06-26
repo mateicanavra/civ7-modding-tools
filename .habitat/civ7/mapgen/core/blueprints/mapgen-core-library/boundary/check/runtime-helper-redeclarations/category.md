@@ -1,4 +1,8 @@
-# runtime-helper-redeclarations
+# Prohibit Runtime Helper Redeclarations
+
+Subject ID: `runtime-helper-redeclarations`
+
+Title: Prohibit Runtime Helper Redeclarations
 
 Blueprint: `mapgen-core-library`
 

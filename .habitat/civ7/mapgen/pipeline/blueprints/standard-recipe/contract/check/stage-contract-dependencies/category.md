@@ -1,4 +1,8 @@
-# stage-contract-dependencies
+# Require Typed Dependency And Effect Tag Constants
+
+Subject ID: `stage-contract-dependencies`
+
+Title: Require Typed Dependency And Effect Tag Constants
 
 Blueprint: `standard-recipe`
 

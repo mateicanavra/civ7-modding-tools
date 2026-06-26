@@ -1,4 +1,8 @@
-# mapgen-core-runtime-civ7
+# Preserve MapGen Core Runtime Neutrality
+
+Subject ID: `mapgen-core-runtime-civ7`
+
+Title: Preserve MapGen Core Runtime Neutrality
 
 Blueprint: `mapgen-core-library`
 

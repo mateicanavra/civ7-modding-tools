@@ -1,4 +1,8 @@
-# file-layer-host-protected-surfaces
+# Require Owner Workflow For Host-Protected Surfaces
+
+Subject ID: `file-layer-host-protected-surfaces`
+
+Title: Require Owner Workflow For Host-Protected Surfaces
 
 Blueprint: `_self`
 

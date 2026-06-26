@@ -1,4 +1,8 @@
-# standard-map-entrypoints
+# Validate Generated Map Entrypoint Contracts
+
+Subject ID: `standard-map-entrypoints`
+
+Title: Validate Generated Map Entrypoint Contracts
 
 Blueprint: `generated-map-entrypoint`
 

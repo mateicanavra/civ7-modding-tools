@@ -1,4 +1,8 @@
-# op-calls-op
+# Prohibit Cross-Op Runtime Calls
+
+Subject ID: `op-calls-op`
+
+Title: Prohibit Cross-Op Runtime Calls
 
 Blueprint: `domain-operation`
 

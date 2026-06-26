@@ -1,22 +1,32 @@
 {
   "id": "habitat-provider-domain-paths",
+  "title": "Prohibit Product Scan Roots In Grit Provider",
   "ownerTool": "grit-check",
   "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "tools/habitat/src/providers/grit/**",
   "forbids": "product/domain scan roots hard-coded inside the Grit provider",
   "why": "The Grit provider is a generic tool capability; repo-specific scan roots are rule registry metadata.",
-  "detect": ["habitat", "check", "--tool", "grit-check"],
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
   "remediate": null,
   "message": "Move product-specific scan roots out of the Grit provider and into rule registry metadata.",
   "exceptionPath": "none",
   "patternName": "habitat_provider_domain_paths",
   "hookCheck": true,
-  "scanRoots": ["tools/habitat/src/providers/grit"],
+  "scanRoots": [
+    "tools/habitat/src/providers/grit"
+  ],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["tools/habitat/src/providers/grit/**"]
+      "patterns": [
+        "tools/habitat/src/providers/grit/**"
+      ]
     },
     {
       "kind": "project-owner"

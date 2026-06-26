@@ -1,4 +1,8 @@
-# recipe-domain-surface
+# Restrict Recipes To Public Domain Surfaces
+
+Subject ID: `recipe-domain-surface`
+
+Title: Restrict Recipes To Public Domain Surfaces
 
 Blueprint: `domain-public-surface`
 

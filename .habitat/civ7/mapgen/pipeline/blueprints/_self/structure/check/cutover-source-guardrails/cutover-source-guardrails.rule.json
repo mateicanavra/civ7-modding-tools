@@ -1,5 +1,6 @@
 {
   "id": "cutover-source-guardrails",
+  "title": "Prohibit Cutover Shims, Dual Paths, And Legacy Stage Aliases",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

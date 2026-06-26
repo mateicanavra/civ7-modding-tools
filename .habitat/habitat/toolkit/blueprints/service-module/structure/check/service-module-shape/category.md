@@ -1,4 +1,8 @@
-# service-module-shape
+# Validate Habitat Service Module File Shape
+
+Subject ID: `service-module-shape`
+
+Title: Validate Habitat Service Module File Shape
 
 Blueprint: `service-module`
 

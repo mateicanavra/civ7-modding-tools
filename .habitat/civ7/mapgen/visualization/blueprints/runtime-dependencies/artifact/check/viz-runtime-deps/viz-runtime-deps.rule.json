@@ -1,5 +1,6 @@
 {
   "id": "viz-runtime-deps",
+  "title": "Verify Visualization Runtime Build Artifacts",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

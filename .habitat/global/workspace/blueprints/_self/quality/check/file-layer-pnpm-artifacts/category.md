@@ -1,4 +1,8 @@
-# file-layer-pnpm-artifacts
+# Prohibit pnpm Artifacts In Bun Workspace
+
+Subject ID: `file-layer-pnpm-artifacts`
+
+Title: Prohibit pnpm Artifacts In Bun Workspace
 
 Blueprint: `_self`
 

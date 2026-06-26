@@ -1,4 +1,8 @@
-# file-layer-swooper-map-generated
+# Protect Generated Map Entrypoints From Hand Edits
+
+Subject ID: `file-layer-swooper-map-generated`
+
+Title: Protect Generated Map Entrypoints From Hand Edits
 
 Blueprint: `generated-map-entrypoint`
 

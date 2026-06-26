@@ -1,5 +1,6 @@
 {
   "id": "foundation-contract-surfaces",
+  "title": "Preserve Decomposed Foundation Contract Surfaces",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

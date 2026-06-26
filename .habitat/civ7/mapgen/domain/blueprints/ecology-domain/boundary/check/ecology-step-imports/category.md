@@ -1,4 +1,8 @@
-# ecology-step-imports
+# Require Public Ecology Surfaces And Retired Topology Removal
+
+Subject ID: `ecology-step-imports`
+
+Title: Require Public Ecology Surfaces And Retired Topology Removal
 
 Blueprint: `ecology-domain`
 

@@ -1,5 +1,6 @@
 {
   "id": "domain-config-catalogs",
+  "title": "Require Owned Domain Config Catalog Surfaces",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

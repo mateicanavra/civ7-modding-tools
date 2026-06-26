@@ -1,12 +1,16 @@
 {
   "id": "standard-contract-manifest",
+  "title": "Verify Runtime Stage Order Matches Contract Manifest",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "standard recipe stage contract manifest",
   "forbids": "runtime standard stages and the Studio recipe-DAG contract manifest drifting apart",
   "why": "The contract manifest is the structural order source shared by runtime stages and Studio recipe-DAG metadata.",
-  "detect": ["bun", ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/standard-contract-manifest/standard-contract-manifest.check.ts"],
+  "detect": [
+    "bun",
+    ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/standard-contract-manifest/standard-contract-manifest.check.ts"
+  ],
   "remediate": "Update the standard contract manifest and runtime stages together.",
   "message": "Standard recipe contract manifest drifted from runtime stages.",
   "exceptionPath": "none",

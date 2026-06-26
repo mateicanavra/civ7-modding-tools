@@ -1,4 +1,8 @@
-# habitat-provider-domain-paths
+# Prohibit Product Scan Roots In Grit Provider
+
+Subject ID: `habitat-provider-domain-paths`
+
+Title: Prohibit Product Scan Roots In Grit Provider
 
 Blueprint: `grit-provider`
 

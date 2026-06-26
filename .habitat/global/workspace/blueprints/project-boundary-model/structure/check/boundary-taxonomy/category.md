@@ -1,4 +1,8 @@
-# boundary-taxonomy
+# Validate Boundary Taxonomy Against Workspace Graph
+
+Subject ID: `boundary-taxonomy`
+
+Title: Validate Boundary Taxonomy Against Workspace Graph
 
 Blueprint: `project-boundary-model`
 

@@ -1,4 +1,8 @@
-# file-layer-civ7-types-generated
+# Block Hand-Edits To Generated Civ7 Types
+
+Subject ID: `file-layer-civ7-types-generated`
+
+Title: Block Hand-Edits To Generated Civ7 Types
 
 Blueprint: `civ7-types`
 

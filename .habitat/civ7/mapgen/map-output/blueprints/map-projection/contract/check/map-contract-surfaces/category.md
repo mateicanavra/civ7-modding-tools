@@ -1,4 +1,8 @@
-# map-contract-surfaces
+# Preserve Physics-To-Map Projection Contracts
+
+Subject ID: `map-contract-surfaces`
+
+Title: Preserve Physics-To-Map Projection Contracts
 
 Blueprint: `map-projection`
 

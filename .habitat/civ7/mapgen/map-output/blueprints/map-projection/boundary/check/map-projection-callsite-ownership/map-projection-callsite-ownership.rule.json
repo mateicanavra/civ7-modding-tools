@@ -1,5 +1,6 @@
 {
   "id": "map-projection-callsite-ownership",
+  "title": "Require Projection Calls In Projection Steps",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
@@ -15,7 +16,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
+      ]
     }
   ]
 }

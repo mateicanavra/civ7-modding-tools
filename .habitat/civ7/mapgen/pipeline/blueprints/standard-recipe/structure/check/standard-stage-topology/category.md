@@ -1,4 +1,8 @@
-# standard-stage-topology
+# Preserve Standard Stage Topology And Path Invariants
+
+Subject ID: `standard-stage-topology`
+
+Title: Preserve Standard Stage Topology And Path Invariants
 
 Blueprint: `standard-recipe`
 

@@ -1,4 +1,8 @@
-# empty-schema-default
+# Prohibit Empty Object Defaults In Contract Schemas
+
+Subject ID: `empty-schema-default`
+
+Title: Prohibit Empty Object Defaults In Contract Schemas
 
 Blueprint: `standard-recipe`
 

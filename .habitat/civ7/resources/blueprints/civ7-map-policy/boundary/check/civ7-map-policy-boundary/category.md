@@ -1,4 +1,8 @@
-# civ7-map-policy-boundary
+# Ensure Map-Policy Dependency Independence
+
+Subject ID: `civ7-map-policy-boundary`
+
+Title: Ensure Map-Policy Dependency Independence
 
 Blueprint: `civ7-map-policy`
 

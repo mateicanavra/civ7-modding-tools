@@ -1,4 +1,8 @@
-# domain-ops-projection-effects
+# Prohibit Domain Ops Projection Effect Dependencies
+
+Subject ID: `domain-ops-projection-effects`
+
+Title: Prohibit Domain Ops Projection Effect Dependencies
 
 Blueprint: `map-projection`
 

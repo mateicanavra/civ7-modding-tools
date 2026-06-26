@@ -1,4 +1,8 @@
-# cli-smoke
+# Verify Habitat CLI Smoke Contract
+
+Subject ID: `cli-smoke`
+
+Title: Verify Habitat CLI Smoke Contract
 
 Blueprint: `cli`
 

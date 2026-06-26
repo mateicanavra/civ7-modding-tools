@@ -1,12 +1,19 @@
 {
   "id": "file-layer-civ7-types-generated",
+  "title": "Block Hand-Edits To Generated Civ7 Types",
   "ownerTool": "file-layer",
   "ownerProject": "habitat",
   "lane": "enforced",
   "scope": "staged changes under packages/civ7-types/generated/**",
   "forbids": "staged hand-edits to generated Civ7 declaration files",
   "why": "Civ7 generated types are produced by the external resources workflow.",
-  "detect": ["habitat", "check", "--staged", "--tool", "file-layer"],
+  "detect": [
+    "habitat",
+    "check",
+    "--staged",
+    "--tool",
+    "file-layer"
+  ],
   "remediate": "Use the resources workflow documented in docs/process/resources-submodule.md.",
   "message": "Generated Civ7 declaration files are protected from hand edit.",
   "exceptionPath": "none",
@@ -14,7 +21,9 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": ["packages/civ7-types/generated/**"]
+      "patterns": [
+        "packages/civ7-types/generated/**"
+      ]
     }
   ]
 }

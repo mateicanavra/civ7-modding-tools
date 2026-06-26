@@ -1,4 +1,8 @@
-# step-contract-domain-surface
+# Require Domain Contract Roots In Step Contracts
+
+Subject ID: `step-contract-domain-surface`
+
+Title: Require Domain Contract Roots In Step Contracts
 
 Blueprint: `domain-public-surface`
 

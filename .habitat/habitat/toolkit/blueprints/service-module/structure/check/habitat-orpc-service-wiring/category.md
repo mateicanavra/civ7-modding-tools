@@ -1,4 +1,8 @@
-# habitat-orpc-service-wiring
+# Enforce Habitat oRPC Service Wiring Shape
+
+Subject ID: `habitat-orpc-service-wiring`
+
+Title: Enforce Habitat oRPC Service Wiring Shape
 
 Blueprint: `service-module`
 

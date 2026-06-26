@@ -1,4 +1,8 @@
-# adapter-base-standard-import
+# Enforce Adapter-Only Base-Standard Imports
+
+Subject ID: `adapter-base-standard-import`
+
+Title: Enforce Adapter-Only Base-Standard Imports
 
 Blueprint: `civ7-adapter`
 

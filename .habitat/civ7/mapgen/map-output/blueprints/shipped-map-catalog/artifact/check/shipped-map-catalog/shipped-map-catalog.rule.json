@@ -1,12 +1,16 @@
 {
   "id": "shipped-map-catalog",
+  "title": "Block Studio Config Leakage Into Shipped Catalog",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "Swooper Maps shipped mod catalog artifacts",
   "forbids": "transient Studio map config identifiers in shipped map catalog artifacts",
   "why": "Studio's transient current map config must not leak into shipped Civ7 mod catalog metadata.",
-  "detect": ["bun", ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/shipped-map-catalog/shipped-map-catalog.check.ts"],
+  "detect": [
+    "bun",
+    ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/shipped-map-catalog/shipped-map-catalog.check.ts"
+  ],
   "remediate": "Regenerate shipped mod catalog artifacts without the transient studio-current map config.",
   "message": "Shipped map catalog contains transient Studio map config identifiers.",
   "exceptionPath": "none",

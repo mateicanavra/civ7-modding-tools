@@ -1,4 +1,8 @@
-# sdk-mapgen-entrypoint
+# Require Explicit MapGen SDK Opt-In
+
+Subject ID: `sdk-mapgen-entrypoint`
+
+Title: Require Explicit MapGen SDK Opt-In
 
 Blueprint: `mapgen-entrypoint`
 

@@ -1,5 +1,6 @@
 {
   "id": "map-contract-surfaces",
+  "title": "Preserve Physics-To-Map Projection Contracts",
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",

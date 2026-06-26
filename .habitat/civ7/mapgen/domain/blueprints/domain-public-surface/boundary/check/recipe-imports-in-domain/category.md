@@ -1,4 +1,8 @@
-# recipe-imports-in-domain
+# Prohibit Recipe Imports In Domain Source
+
+Subject ID: `recipe-imports-in-domain`
+
+Title: Prohibit Recipe Imports In Domain Source
 
 Blueprint: `domain-public-surface`
 

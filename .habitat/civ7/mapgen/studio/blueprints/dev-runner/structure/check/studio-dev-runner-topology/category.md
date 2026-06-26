@@ -1,4 +1,8 @@
-# studio-dev-runner-topology
+# Enforce Studio Dev Runner Topology
+
+Subject ID: `studio-dev-runner-topology`
+
+Title: Enforce Studio Dev Runner Topology
 
 Blueprint: `dev-runner`
 

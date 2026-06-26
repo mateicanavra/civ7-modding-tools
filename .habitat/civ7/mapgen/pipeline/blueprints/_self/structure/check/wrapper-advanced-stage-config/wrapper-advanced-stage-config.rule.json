@@ -1,18 +1,27 @@
 {
   "id": "wrapper-advanced-stage-config",
+  "title": "Prohibit Wrapper-Only Advanced Config",
   "ownerTool": "source-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "scope": "standard recipe and map config source",
   "forbids": "wrapper-only advanced stage config surfaces",
   "why": "Standard recipe config must use supported step/domain config paths.",
-  "detect": ["habitat", "check", "--tool", "source-check"],
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "source-check"
+  ],
   "remediate": null,
   "message": "Do not reintroduce wrapper-only `advanced` stage config surfaces.",
   "exceptionPath": "none",
   "patternName": "wrapper_advanced_stage_config",
   "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard", "mods/mod-swooper-maps/src/maps"],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard",
+    "mods/mod-swooper-maps/src/maps"
+  ],
   "pathCoverage": [
     {
       "kind": "exact-path",
