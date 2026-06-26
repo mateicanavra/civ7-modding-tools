@@ -1,0 +1,25 @@
+# viz-runtime-deps
+
+Blueprint: `core-sdk`
+
+Primary category: `artifact`
+
+Secondary categories: `execution`
+
+Artifact kind: `check`
+
+Lifecycle: `steady`
+
+Admission: `admitted`
+
+Authority path: `.habitat/civ7/mapgen/blueprints/core-sdk/artifact/check/viz-runtime-deps`
+
+Files:
+- `viz-runtime-deps.baseline.json`
+- `viz-runtime-deps.check.mjs`
+- `viz-runtime-deps.rule.json`
+
+Evidence: The check requires built adapter/core/viz artifacts needed by Studio worker and browser diagnostics.
+
+Notes:
+- This is a read-only currentness/prerequisite check; it should not rebuild artifacts.

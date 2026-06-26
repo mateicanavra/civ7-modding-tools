@@ -46,11 +46,11 @@ describe("rule registry contract", () => {
     const registryDir = "/repo/.habitat";
     const fallbackIndex = path.join(
       registryDir,
-      "habitat/toolkit/_self/triage/structure/rule-pack-index/index.json"
+      "habitat/blueprints/toolkit/structure/triage/rule-pack-index/index.json"
     );
     const rulePath = path.join(
       registryDir,
-      "global/repository/_self/check/structure/sample-rule/sample-rule.rule.json"
+      "global/blueprints/workspace/structure/check/sample-rule/sample-rule.rule.json"
     );
     const fileSystem = virtualRegistryFileSystem({
       [fallbackIndex]: JSON.stringify({
