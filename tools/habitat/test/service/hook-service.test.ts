@@ -31,7 +31,7 @@ import { hookRouter } from "@habitat/cli/service/modules/hook/router";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
+import { makeTestHabitatServiceDeps, makeTestRuleFacts } from "../support/habitat-service-deps";
 
 type StructuralCheckPolicy = {
   readonly createReport: (options?: CheckOptions) => Effect.Effect<CheckReport>;
@@ -53,9 +53,10 @@ vi.mock("@habitat/cli/service/model/check/policy/structural/index", async (impor
 });
 
 const prePushAffectedTargets = "check,lint";
-const prePushSourceArtifactTargets = "source:check";
+const prePushGritRuleArtifactTargets = "habitat:rule:require_runtime_domain_op_bundle_imports";
 const prePushNonSourceRuleArtifactTargets = "habitat:rule:enforce_workspace_import_boundaries";
-const prePushMixedRuleArtifactTargets = "source:check,habitat:rule:enforce_workspace_import_boundaries";
+const prePushMixedRuleArtifactTargets =
+  "habitat:rule:enforce_workspace_import_boundaries,habitat:rule:require_runtime_domain_op_bundle_imports";
 const prePushBoundaryTaxonomyTargets = "lint";
 const prePushStructuralTargetDeclarationTargets = "lint";
 const prePushNoChangedSourceCheck =
@@ -249,7 +250,7 @@ describe("Habitat hook service", () => {
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
-      {},
+      { sourceCheckHookEnabled: true },
       makeFakeGitProviderLayer((argv, options) => {
         const stdout =
           argv.join(" ") === "diff --name-only -z HEAD~1 HEAD" ? `${changedPath}\0` : "";
@@ -277,7 +278,7 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("uses source-check target only for source rule artifact pre-push changes", async () => {
+  test("uses the owning Grit rule target for migrated source rule artifact pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPath = ".habitat/rules/require_runtime_domain_op_bundle_imports/rule.json";
@@ -308,7 +309,7 @@ describe("Habitat hook service", () => {
     expect(affectedRequests).toEqual([
       {
         base: "HEAD~1",
-        targets: prePushSourceArtifactTargets.split(","),
+        targets: prePushGritRuleArtifactTargets.split(","),
         head: "HEAD",
         excludeTaskDependencies: true,
       },
@@ -352,7 +353,7 @@ describe("Habitat hook service", () => {
     ]);
   });
 
-  test("uses source-check plus owning rule targets for mixed rule artifact pre-push changes", async () => {
+  test("uses owning rule targets for mixed rule artifact pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPaths = [
@@ -671,6 +672,7 @@ function runPrePushHookServiceInTest(
     readonly pathExists?: (targetPath: string) => boolean;
     readonly reporterEvents?: HabitatReportEvent[];
     readonly resourcePolicy?: HookResourcePolicy;
+    readonly sourceCheckHookEnabled?: boolean;
   } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
@@ -696,6 +698,7 @@ function runPreCommitHookServiceInTest(
     readonly pathExists?: (targetPath: string) => boolean;
     readonly reporterEvents?: HabitatReportEvent[];
     readonly resourcePolicy?: HookResourcePolicy;
+    readonly sourceCheckHookEnabled?: boolean;
   } = {},
   gitLayer = makeFakeGitProviderLayer((argv, options) => commandResult(argv, options.cwd, "")),
   nx = nxLayer(),
@@ -723,6 +726,7 @@ function hookServiceContext(options: {
   readonly hashFile?: (targetPath: string) => string | null;
   readonly pathExists?: (targetPath: string) => boolean;
   readonly reporterEvents?: HabitatReportEvent[];
+  readonly sourceCheckHookEnabled?: boolean;
 }) {
   return Effect.gen(function* () {
     const biome = yield* BiomeProvider;
@@ -752,10 +756,36 @@ function hookServiceContext(options: {
                 },
               }
             : {}),
+          ...(options.sourceCheckHookEnabled
+            ? { rules: makeSyntheticSourceCheckHookRules() }
+            : {}),
         }),
       },
     };
   });
+}
+
+function makeSyntheticSourceCheckHookRules() {
+  const rules = makeTestRuleFacts();
+  return {
+    ...rules,
+    source: [
+      {
+        id: "hook-source-check-probe",
+        lane: "enforced" as const,
+        message: "source-check hook check probe",
+        patternName: "hook-source-check-probe",
+        pathCoverage: [
+          {
+            kind: "exact-path" as const,
+            patterns: ["packages/example/src/**", "packages/sdk/src/**"],
+          },
+        ],
+        scanRoots: ["packages/example/src", "packages/sdk/src"],
+      },
+    ],
+    hookCheck: [{ id: "hook-source-check-probe", hookCheck: true as const }],
+  };
 }
 
 function commandResult(

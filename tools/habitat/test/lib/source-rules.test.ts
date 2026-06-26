@@ -11,7 +11,7 @@ import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 describe("source-check rule execution", () => {
-  test("refuses native source rules without exact path coverage", async () => {
+  test("reports missing implementations for retired native source rules", async () => {
     const results = await Effect.runPromise(
       runSourceRulesEffect(
         [
@@ -36,9 +36,10 @@ describe("source-check rule execution", () => {
       diagnostics: [
         {
           ruleId: "enforce_adapter_only_base_standard_imports",
-          path: ".habitat/tooling/components/preserve_legacy_source_check_runtime_during_cutover/rules/enforce_adapter_only_base_standard_imports.rule.mjs",
-          message:
-            "Source-check rules must declare exact path coverage before native source execution.",
+          path: ".habitat/_support/execution/source-check/adapters/enforce_adapter_only_base_standard_imports.rule.mjs",
+          message: expect.stringContaining(
+            "No repo source-check implementation is registered for enforce_adapter_only_base_standard_imports."
+          ),
           severity: "error",
           baselined: false,
         },
