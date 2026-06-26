@@ -9,28 +9,28 @@ import {
   NativeDiagnosticCatalogEntrySchema,
   observedNativeDiagnosticIdentity,
   renderDiagnosticProviderFailure,
-} from "@internal/habitat-harness/core/domains/diagnostic-pattern-catalog/index";
-import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
-import { repoRoot, toRepoRelative } from "@internal/habitat-harness/substrate/lib/paths";
+} from "@internal/habitat-harness/service/model/check/diagnostics/index";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
 import {
   type HabitatProcessRequest,
   makeHabitatCommandResult,
   type OutputCapture,
-} from "@internal/habitat-harness/substrate/providers/command/index";
-import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/substrate/providers/grit/constants";
-import { gritRuleResultsFromReport } from "@internal/habitat-harness/substrate/providers/grit/diagnostics";
+} from "@internal/habitat-harness/resources/command/index";
+import { defaultGritCommandTimeoutMs } from "@internal/habitat-harness/providers/grit/constants";
+import { gritRuleResultsFromReport } from "@internal/habitat-harness/providers/grit/diagnostics";
 import {
   discoverPatternScanRoots,
   makeFakeGritProviderLayer,
   runGritDiagnosticOutcomesEffect,
   runGritRulesEffect,
   validateScanRoots,
-} from "@internal/habitat-harness/substrate/providers/grit/index";
+} from "@internal/habitat-harness/providers/grit/index";
 import {
   parseGritCheckOutput,
   parseGritCheckTextOutput,
-} from "@internal/habitat-harness/substrate/providers/grit/output";
-import { decidePatternScanRoots } from "@internal/habitat-harness/substrate/providers/grit/scan-roots/index";
+} from "@internal/habitat-harness/providers/grit/output";
+import { decidePatternScanRoots } from "@internal/habitat-harness/providers/grit/scan-roots/index";
+import { repoRoot, toRepoRelative } from "@internal/habitat-harness/resources/paths";
 import { Effect, type Layer } from "effect";
 import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";

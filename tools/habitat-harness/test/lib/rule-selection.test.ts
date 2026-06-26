@@ -1,8 +1,4 @@
-import type { RuleSourceFacts } from "@internal/habitat-harness/core/domains/rule-registry/index";
-import {
-  type RuleSelection,
-  selectRules,
-} from "@internal/habitat-harness/core/domains/rule-selection/index";
+import type { HarnessRule } from "@internal/habitat-harness/service/model/check/rule-runtime/architecture";
 import {
   approvedScanRootsForRules,
   checkCommandContext,
@@ -12,9 +8,13 @@ import {
   stagedSourceCheckNotApplicableRecords,
   stagedSourceCheckPaths,
   structuralCheckRequest,
-} from "@internal/habitat-harness/core/domains/structural-check/index";
-import { validateCheckReport } from "@internal/habitat-harness/core/domains/structural-check/schema";
-import type { HarnessRule } from "@internal/habitat-harness/core/rules/architecture";
+} from "@internal/habitat-harness/service/model/check/structural/index";
+import { validateCheckReport } from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { RuleSourceFacts } from "@internal/habitat-harness/service/model/rules/registry/index";
+import {
+  type RuleSelection,
+  selectRules,
+} from "@internal/habitat-harness/service/model/rules/selection/index";
 import { describe, expect, test } from "vitest";
 
 const fakeRules: HarnessRule[] = [

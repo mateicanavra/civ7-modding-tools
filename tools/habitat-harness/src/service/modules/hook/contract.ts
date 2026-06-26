@@ -1,9 +1,8 @@
-import type { ContractProcedure } from "@orpc/contract";
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const HookServiceRunInputSchema = Type.Object(
   {
@@ -20,29 +19,21 @@ const HookServiceRunOutputSchema = Type.Object(
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Raw hook command streams for CLI handoff." }
+  { additionalProperties: false, description: "Habitat hook service execution result." }
 );
 export type HookServiceRunOutput = Static<typeof HookServiceRunOutputSchema>;
 
 const HookServiceRunInputStandardSchema = toStandardSchema(HookServiceRunInputSchema);
 const HookServiceRunOutputStandardSchema = toStandardSchema(HookServiceRunOutputSchema);
 
-export type HookServiceRunContract = ContractProcedure<
+export const hookServiceRunContract: HabitatServiceProcedureContract<
   typeof HookServiceRunInputStandardSchema,
-  typeof HookServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const hookServiceRunContract: HookServiceRunContract = eoc
+  typeof HookServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(HookServiceRunInputStandardSchema)
   .output(HookServiceRunOutputStandardSchema);
 
-export type HookServiceContract = Readonly<{
-  run: HookServiceRunContract;
-}>;
-
-export const hookServiceContract: HookServiceContract = {
+export const hookServiceContract = {
   run: hookServiceRunContract,
 };

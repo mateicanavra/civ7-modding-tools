@@ -1,19 +1,19 @@
 import path from "node:path";
 import type { GraphServiceRunInput } from "@internal/habitat-harness/service/modules/graph/contract";
 import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
-import { CommandUnavailable } from "@internal/habitat-harness/substrate/errors/index";
-import { repoRoot } from "@internal/habitat-harness/substrate/lib/paths";
 import {
   captureOutput,
   makeHabitatCommandResult,
-} from "@internal/habitat-harness/substrate/providers/command/index";
+} from "@internal/habitat-harness/resources/command/index";
+import { CommandUnavailable } from "@internal/habitat-harness/resources/errors/index";
 import {
   affectedArgv,
   graphArgv,
   makeFakeNxProviderLayer,
   type NxGraphRequest,
   NxProvider,
-} from "@internal/habitat-harness/substrate/providers/nx/index";
+} from "@internal/habitat-harness/providers/nx/index";
+import { repoRoot } from "@internal/habitat-harness/resources/paths";
 import { Effect, Layer } from "effect";
 import { withFiberContext } from "effect-orpc/node";
 import { describe, expect, test } from "vitest";

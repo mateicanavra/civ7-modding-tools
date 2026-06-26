@@ -1,17 +1,15 @@
-import { VerifyReceiptSchema } from "@internal/habitat-harness/core/domains/proof-contract/schema";
-import { CheckReportSchema } from "@internal/habitat-harness/core/domains/structural-check/schema";
-import { VerifyTargetPlanSchema } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
-import type { ContractProcedure } from "@orpc/contract";
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
+import { CheckReportSchema } from "@internal/habitat-harness/service/model/check/structural/schema";
+import { VerifyTargetPlanSchema } from "@internal/habitat-harness/service/model/workspace/index";
+import { VerifyReceiptSchema } from "@internal/habitat-harness/service/model/verify/proof/schema";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const VerifyServiceRunInputSchema = Type.Object(
   {
     base: Type.Optional(Type.String({ minLength: 1 })),
-    commandArgs: Type.Optional(Type.Array(Type.String())),
     affectedExecution: Type.Optional(
       Type.Union([Type.Literal("run"), Type.Literal("plan-only")], {
         description:
@@ -29,7 +27,7 @@ const VerifyServiceAffectedResultSchema = Type.Object(
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Raw affected command streams for CLI handoff." }
+  { additionalProperties: false, description: "Habitat affected verification execution result." }
 );
 export type VerifyServiceAffectedResult = Static<typeof VerifyServiceAffectedResultSchema>;
 
@@ -61,22 +59,14 @@ export type VerifyServiceRunOutput = Static<typeof VerifyServiceRunOutputSchema>
 const VerifyServiceRunInputStandardSchema = toStandardSchema(VerifyServiceRunInputSchema);
 const VerifyServiceRunOutputStandardSchema = toStandardSchema(VerifyServiceRunOutputSchema);
 
-export type VerifyServiceRunContract = ContractProcedure<
+export const verifyServiceRunContract: HabitatServiceProcedureContract<
   typeof VerifyServiceRunInputStandardSchema,
-  typeof VerifyServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const verifyServiceRunContract: VerifyServiceRunContract = eoc
+  typeof VerifyServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(VerifyServiceRunInputStandardSchema)
   .output(VerifyServiceRunOutputStandardSchema);
 
-export type VerifyServiceContract = Readonly<{
-  run: VerifyServiceRunContract;
-}>;
-
-export const verifyServiceContract: VerifyServiceContract = {
+export const verifyServiceContract = {
   run: verifyServiceRunContract,
 };

@@ -68,55 +68,53 @@ const depConstraints = [
   },
   { sourceTag: "kind:tooling", onlyDependOnLibsWithTags: ["kind:tooling", "kind:foundation"] },
   {
-    sourceTag: "habitat:substrate",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:provider"],
-  },
-  {
-    sourceTag: "habitat:provider",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:core", "habitat:provider"],
-  },
-  {
-    sourceTag: "habitat:core",
-    onlyDependOnLibsWithTags: ["habitat:substrate", "habitat:provider", "habitat:core"],
+    sourceTag: "habitat:runtime",
+    onlyDependOnLibsWithTags: ["habitat:runtime", "habitat:service"],
   },
   {
     sourceTag: "habitat:service",
+    onlyDependOnLibsWithTags: ["habitat:runtime", "habitat:service"],
+  },
+  {
+    sourceTag: "habitat:cli",
+    onlyDependOnLibsWithTags: ["habitat:service", "habitat:cli"],
+  },
+  {
+    sourceTag: "layer:service-entry",
+    onlyDependOnLibsWithTags: ["layer:service-shell", "layer:service-entry"],
+  },
+  {
+    sourceTag: "layer:service-shell",
     onlyDependOnLibsWithTags: [
-      "habitat:substrate",
-      "habitat:provider",
-      "habitat:core",
-      "habitat:service",
+      "layer:service-model",
+      "layer:service-module",
+      "layer:resource-provider",
     ],
   },
   {
-    sourceTag: "habitat:workspace",
+    sourceTag: "layer:service-module",
     onlyDependOnLibsWithTags: [
-      "habitat:substrate",
-      "habitat:provider",
-      "habitat:core",
-      "habitat:workspace",
+      "layer:service-shell",
+      "layer:service-model",
+      "layer:resource-provider",
     ],
   },
   {
-    sourceTag: "habitat:host",
-    onlyDependOnLibsWithTags: [
-      "habitat:core",
-      "habitat:service",
-      "habitat:workspace",
-      "habitat:host",
-    ],
+    sourceTag: "layer:service-model",
+    onlyDependOnLibsWithTags: ["layer:service-model", "layer:resource-provider"],
+  },
+  {
+    sourceTag: "layer:resource-provider",
+    onlyDependOnLibsWithTags: ["layer:resource-provider", "layer:service-model"],
   },
 ];
 
 const allow = [
   "/base-standard/**",
-  "./workspace/plugin/nx-plugin.ts",
-  "../../core/domains/source-check/module-paths.ts",
-  "../../substrate/lib/artifact-paths.ts",
-  "../../substrate/lib/paths.ts",
-  "../../substrate/providers/nx/rule-registry-loader.ts",
-  "../../substrate/providers/nx/schema.ts",
-  "../../substrate/providers/nx/targets.ts",
+  "./nx-plugin.ts",
+  "./providers/**",
+  "./resources/**",
+  "./service/**",
 ];
 
 export default [

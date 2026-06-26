@@ -1,26 +1,29 @@
-import type { Router } from "@orpc/server";
-import type { HabitatServiceContext } from "./context.js";
-import { habitatServiceContract } from "./contract.js";
-import { habitatServiceImplementer } from "./impl.js";
-import { checkRouter } from "./modules/check/router.js";
-import { classifyRouter } from "./modules/classify/router.js";
-import { fixRouter } from "./modules/fix/router.js";
-import { graphRouter } from "./modules/graph/router.js";
-import { hookRouter } from "./modules/hook/router.js";
-import { transactionsRouter } from "./modules/transactions/router.js";
-import { verifyRouter } from "./modules/verify/router.js";
+import { service } from "@internal/habitat-harness/service/impl";
+import type { HabitatServiceContext } from "@internal/habitat-harness/service/base";
+import { checkRouter } from "@internal/habitat-harness/service/modules/check/router";
+import { classifyRouter } from "@internal/habitat-harness/service/modules/classify/router";
+import { fixRouter } from "@internal/habitat-harness/service/modules/fix/router";
+import { graphRouter } from "@internal/habitat-harness/service/modules/graph/router";
+import { hookRouter } from "@internal/habitat-harness/service/modules/hook/router";
+import { verifyRouter } from "@internal/habitat-harness/service/modules/verify/router";
+import { createRouterClient } from "@orpc/server";
 
-const habitatServiceRouterDefinition = {
+export const habitatServiceRouter = service.router({
   check: checkRouter,
   classify: classifyRouter,
   fix: fixRouter,
   graph: graphRouter,
   hook: hookRouter,
-  transactions: transactionsRouter,
   verify: verifyRouter,
-};
-
-export const habitatServiceRouter: Router<typeof habitatServiceContract, HabitatServiceContext> =
-  habitatServiceImplementer.router(habitatServiceRouterDefinition);
+});
 
 export type HabitatServiceRouter = typeof habitatServiceRouter;
+
+export function createHabitatServiceClient(
+  context: HabitatServiceContext = {},
+  router: HabitatServiceRouter = habitatServiceRouter
+) {
+  return createRouterClient(router, { context });
+}
+
+export type HabitatServiceClient = ReturnType<typeof createHabitatServiceClient>;

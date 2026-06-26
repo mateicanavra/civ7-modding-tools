@@ -2,13 +2,13 @@ import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PatternGeneratorOptionsSchema } from "@internal/habitat-harness/workspace/generators/pattern/schema";
-import { HabitatProjectGeneratorNxSchema } from "@internal/habitat-harness/workspace/generators/project/schema";
+import { PatternGeneratorOptionsSchema } from "@internal/habitat-harness/service/modules/scaffold/pattern/schema";
+import { HabitatProjectGeneratorNxSchema } from "@internal/habitat-harness/service/modules/scaffold/project/schema";
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const schemaPaths = [
-  "src/workspace/generators/project/schema.json",
-  "src/workspace/generators/pattern/schema.json",
+  "src/service/modules/scaffold/project/schema.json",
+  "src/service/modules/scaffold/pattern/schema.json",
 ] as const;
 
 writeSchema(schemaPaths[0], HabitatProjectGeneratorNxSchema);

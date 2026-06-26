@@ -1,22 +1,18 @@
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
 import {
-  CheckCommandContextSchema,
   CheckReportSchema,
   SelectorRequestSchema,
-} from "@internal/habitat-harness/core/domains/structural-check/schema";
-import type { ContractProcedure } from "@orpc/contract";
+} from "@internal/habitat-harness/service/model/check/structural/schema";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const CheckServiceRunInputSchema = Type.Object(
   {
     selectors: Type.Optional(SelectorRequestSchema),
     base: Type.Optional(Type.String({ minLength: 1 })),
     baselineIntegrity: Type.Optional(Type.Boolean()),
-    command: Type.Optional(CheckCommandContextSchema),
-    commandArgs: Type.Optional(Type.Array(Type.String())),
     staged: Type.Optional(Type.Boolean()),
     stagedPaths: Type.Optional(Type.Array(Type.String())),
   },
@@ -28,8 +24,6 @@ const CheckServiceExpandBaselineInputSchema = Type.Object(
   {
     selectors: Type.Optional(SelectorRequestSchema),
     base: Type.Optional(Type.String({ minLength: 1 })),
-    command: Type.Optional(CheckCommandContextSchema),
-    commandArgs: Type.Optional(Type.Array(Type.String())),
   },
   { additionalProperties: false, description: "Habitat check baseline expansion request." }
 );
@@ -67,36 +61,23 @@ const CheckServiceExpandBaselineOutputStandardSchema = toStandardSchema(
   CheckServiceExpandBaselineOutputSchema
 );
 
-export type CheckServiceRunContract = ContractProcedure<
+export const checkServiceRunContract: HabitatServiceProcedureContract<
   typeof CheckServiceRunInputStandardSchema,
-  typeof CheckServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export type CheckServiceExpandBaselineContract = ContractProcedure<
-  typeof CheckServiceExpandBaselineInputStandardSchema,
-  typeof CheckServiceExpandBaselineOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const checkServiceRunContract: CheckServiceRunContract = eoc
+  typeof CheckServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(CheckServiceRunInputStandardSchema)
   .output(CheckServiceRunOutputStandardSchema);
 
-export const checkServiceExpandBaselineContract: CheckServiceExpandBaselineContract = eoc
+export const checkServiceExpandBaselineContract: HabitatServiceProcedureContract<
+  typeof CheckServiceExpandBaselineInputStandardSchema,
+  typeof CheckServiceExpandBaselineOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(CheckServiceExpandBaselineInputStandardSchema)
   .output(CheckServiceExpandBaselineOutputStandardSchema);
 
-export type CheckServiceContract = Readonly<{
-  run: CheckServiceRunContract;
-  expandBaseline: CheckServiceExpandBaselineContract;
-}>;
-
-export const checkServiceContract: CheckServiceContract = {
+export const checkServiceContract = {
   run: checkServiceRunContract,
   expandBaseline: checkServiceExpandBaselineContract,
 };

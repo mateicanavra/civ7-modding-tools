@@ -1,11 +1,11 @@
-import { classifyTargetResult } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
+import { classifyTargetResult } from "@internal/habitat-harness/service/model/workspace/index";
 import { Effect } from "effect";
-import { implementer } from "./context.js";
+import { module } from "./module.js";
 
 export const classifyRouter = {
-  run: implementer.run.effect(({ context, input }) =>
-    Effect.promise(() => classifyTargetResult(input.target, context.options ?? {}))
-  ),
+  run: module.run.effect(function* ({ context, input }) {
+    return yield* Effect.promise(() => classifyTargetResult(input.target, context.options ?? {}));
+  }),
 };
 
 export const router = classifyRouter;

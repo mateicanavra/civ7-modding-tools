@@ -1,12 +1,12 @@
-import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
+import type { WorkspaceGraphProjectReader } from "@internal/habitat-harness/service/model/workspace/index";
 import {
   classifyPath,
   classifyPathResult,
   classifyTarget,
   classifyTargetResult,
   validateClassifyResult,
-} from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
-import type { WorkspaceProject } from "@internal/habitat-harness/substrate/providers/nx/schema";
+} from "@internal/habitat-harness/service/model/workspace/index";
+import type { WorkspaceProject } from "@internal/habitat-harness/providers/nx/schema";
 import { describe, expect, test } from "vitest";
 
 const fixtureNxProjects: WorkspaceGraphProjectReader = {
@@ -53,7 +53,7 @@ const fixtureNxProjects: WorkspaceGraphProjectReader = {
 
 describe("Habitat classify D4 result model", () => {
   test("classifies project paths with D2 routing and D3 target guidance", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/workspace/plugin.ts", {
+    const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       nxProjects: fixtureNxProjects,
     });
 
@@ -232,7 +232,7 @@ index 3333333..4444444 100644
   });
 
   test("renders malformed graph metadata as a D3-owned graph-refusal state", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/workspace/plugin.ts", {
+    const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       nxProjects: {
         async readProjects() {
           return [
@@ -254,14 +254,14 @@ index 3333333..4444444 100644
   });
 
   test("renders Nx graph read failures as D3-owned graph-refusal states", async () => {
-    const readFailure = await classifyPathResult("tools/habitat-harness/src/workspace/plugin.ts", {
+    const readFailure = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       nxProjects: {
         async readProjects() {
           throw new Error("cannot read project graph");
         },
       },
     });
-    const result = await classifyPathResult("tools/habitat-harness/src/workspace/plugin.ts", {
+    const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       nxProjects: {
         async readProjects() {
           throw new Error("Nx daemon unavailable");
@@ -283,7 +283,7 @@ index 3333333..4444444 100644
   });
 
   test("renders missing-project graph aliases as graph-refusal states", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/workspace/plugin.ts", {
+    const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       nxProjects: {
         async readProjects() {
           return [project("@civ7/adapter", "packages/civ7-adapter", "kind:adapter", ["check"])];
@@ -299,7 +299,7 @@ index 3333333..4444444 100644
   });
 
   test("renders missing-target graph aliases as graph-refusal states", async () => {
-    const result = await classifyPathResult("tools/habitat-harness/src/workspace/plugin.ts", {
+    const result = await classifyPathResult("tools/habitat-harness/src/nx-plugin.ts", {
       nxProjects: {
         async readProjects() {
           return [
@@ -324,7 +324,7 @@ index 3333333..4444444 100644
 
 describe("Habitat classify public API", () => {
   test("classifyPath returns the owned D4 path model directly", async () => {
-    const result = await classifyPath("tools/habitat-harness/src/workspace/plugin.ts", {
+    const result = await classifyPath("tools/habitat-harness/src/nx-plugin.ts", {
       nxProjects: fixtureNxProjects,
     });
 

@@ -3,7 +3,7 @@ import {
   patternRuleReferenceFromRule,
   type RegisteredPatternManifest,
   validatePatternManifest,
-} from "@internal/habitat-harness/core/domains/pattern-governance/index";
+} from "@internal/habitat-harness/service/model/fix/policy/patterns/index";
 import { describe, expect, test } from "vitest";
 
 describe("pattern manifest validator", () => {

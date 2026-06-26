@@ -3,15 +3,14 @@ import {
   NxProvider,
   spawnResultFromCommandProviderError,
   spawnResultFromCommandResult,
-} from "@internal/habitat-harness/substrate/providers/nx/index";
+} from "@internal/habitat-harness/providers/nx/index";
 import {
   acquireTempDirectory,
   readText,
-} from "@internal/habitat-harness/substrate/resources/index";
+} from "@internal/habitat-harness/resources/platform/index";
 import { ORPCError } from "@orpc/server";
 import { Data, Effect } from "effect";
-import { implementer } from "./context.js";
-import type { GraphServiceRunInput } from "./contract.js";
+import { module } from "./module.js";
 
 class GraphJsonParseFailed extends Data.TaggedError("GraphJsonParseFailed")<{
   readonly path: string;
@@ -24,42 +23,44 @@ class GraphJsonShapeInvalid extends Data.TaggedError("GraphJsonShapeInvalid")<{
 }> {}
 
 export const graphRouter = {
-  run: implementer.run.effect(({ input }) => runGraphService(input)),
+  run: module.run.effect(function* ({ context, input = {} }) {
+    const nx = context.nx ?? (yield* NxProvider);
+    const acquireGraphTempDirectory = context.acquireTempDirectory ?? acquireTempDirectory;
+    const readGraphText = context.readText ?? readText;
+    return yield* Effect.scoped(
+      Effect.gen(function* () {
+        const tempDir = yield* acquireGraphTempDirectory("habitat-graph-").pipe(
+          Effect.mapError(graphServiceInternalError)
+        );
+        const graphPath = path.join(tempDir, "graph.json");
+        const spawnResult = yield* nx.graph({ outputPath: graphPath }).pipe(
+          Effect.match({
+            onFailure: spawnResultFromCommandProviderError,
+            onSuccess: spawnResultFromCommandResult,
+          })
+        );
+        if (spawnResult.exitCode !== 0) return spawnResult;
+
+        const graphText = yield* readGraphText(graphPath).pipe(
+          Effect.mapError(graphServiceInternalError)
+        );
+        const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
+          Effect.mapError(graphServiceInternalError)
+        );
+        const selectedPayload = yield* selectGraphPayload(graphPath, graphPayload).pipe(
+          Effect.mapError(graphServiceInternalError)
+        );
+        return {
+          exitCode: 0,
+          stdout: `${JSON.stringify(selectedPayload, null, input.json ? 0 : 2)}\n`,
+          stderr: "",
+        };
+      })
+    );
+  }),
 };
 
 export const router = graphRouter;
-
-function runGraphService(input: GraphServiceRunInput = {}) {
-  return Effect.scoped(
-    Effect.gen(function* () {
-      const tempDir = yield* acquireTempDirectory("habitat-graph-").pipe(
-        Effect.mapError(graphServiceInternalError)
-      );
-      const graphPath = path.join(tempDir, "graph.json");
-      const nx = yield* NxProvider;
-      const spawnResult = yield* nx.graph({ outputPath: graphPath }).pipe(
-        Effect.match({
-          onFailure: spawnResultFromCommandProviderError,
-          onSuccess: spawnResultFromCommandResult,
-        })
-      );
-      if (spawnResult.exitCode !== 0) return spawnResult;
-
-      const graphText = yield* readText(graphPath).pipe(Effect.mapError(graphServiceInternalError));
-      const graphPayload = yield* parseGraphJson(graphPath, graphText).pipe(
-        Effect.mapError(graphServiceInternalError)
-      );
-      const selectedPayload = yield* selectGraphPayload(graphPath, graphPayload).pipe(
-        Effect.mapError(graphServiceInternalError)
-      );
-      return {
-        exitCode: 0,
-        stdout: `${JSON.stringify(selectedPayload, null, input.json ? 0 : 2)}\n`,
-        stderr: "",
-      };
-    })
-  );
-}
 
 function parseGraphJson(graphPath: string, graphText: string) {
   return Effect.try({

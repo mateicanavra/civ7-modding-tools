@@ -1,10 +1,9 @@
-import { ClassifyResultSchema } from "@internal/habitat-harness/core/domains/workspace-graph-integration/schema";
-import type { ContractProcedure } from "@orpc/contract";
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
+import { ClassifyResultSchema } from "@internal/habitat-harness/service/model/workspace/schema";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const ClassifyServiceRunInputSchema = Type.Object(
   {
@@ -17,22 +16,14 @@ export type ClassifyServiceRunInput = Static<typeof ClassifyServiceRunInputSchem
 const ClassifyServiceRunInputStandardSchema = toStandardSchema(ClassifyServiceRunInputSchema);
 const ClassifyServiceRunOutputStandardSchema = toStandardSchema(ClassifyResultSchema);
 
-export type ClassifyServiceRunContract = ContractProcedure<
+export const classifyServiceRunContract: HabitatServiceProcedureContract<
   typeof ClassifyServiceRunInputStandardSchema,
-  typeof ClassifyServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const classifyServiceRunContract: ClassifyServiceRunContract = eoc
+  typeof ClassifyServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(ClassifyServiceRunInputStandardSchema)
   .output(ClassifyServiceRunOutputStandardSchema);
 
-export type ClassifyServiceContract = Readonly<{
-  run: ClassifyServiceRunContract;
-}>;
-
-export const classifyServiceContract: ClassifyServiceContract = {
+export const classifyServiceContract = {
   run: classifyServiceRunContract,
 };

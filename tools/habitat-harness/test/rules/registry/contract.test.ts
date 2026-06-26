@@ -1,16 +1,20 @@
+import { rules } from "@internal/habitat-harness/service/model/check/rule-runtime/architecture";
 import {
   parseRuleRegistryDocument,
   parseRuleRegistryText,
-} from "@internal/habitat-harness/core/domains/rule-registry/index";
-import { rules } from "@internal/habitat-harness/core/rules/architecture";
+} from "@internal/habitat-harness/service/model/rules/registry/index";
 import { describe, expect, test } from "vitest";
 import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
-    expect(rules).toHaveLength(49);
-    expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(34);
-    expect(rules.filter((rule) => rule.ownerTool === "habitat")).toHaveLength(3);
+    expect(rules).toHaveLength(46);
+    expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(33);
+    expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(5);
+    expect(rules.filter((rule) => rule.ownerTool === "file-layer")).toHaveLength(5);
+    expect(rules.filter((rule) => rule.ownerTool === "format-check")).toHaveLength(1);
+    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(1);
+    expect(rules.filter((rule) => rule.ownerTool === "nx")).toHaveLength(1);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
     expect(
       rules

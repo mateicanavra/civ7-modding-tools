@@ -21,9 +21,9 @@ const mockGraphRun = vi.hoisted(() => vi.fn());
 const mockHookRun = vi.hoisted(() => vi.fn());
 const mockVerifyRun = vi.hoisted(() => vi.fn());
 
-vi.mock("../../src/core/domains/structural-check/index.js", async (importOriginal) => {
+vi.mock("../../src/service/model/check/structural/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../../src/core/domains/structural-check/index.js")>();
+    await importOriginal<typeof import("../../src/service/model/check/structural/index.js")>();
   return {
     ...actual,
     checkCommandContext: vi.fn((argv: string[]) => ({
@@ -49,16 +49,18 @@ vi.mock("../../src/core/domains/structural-check/index.js", async (importOrigina
   };
 });
 
-vi.mock("../../src/core/domains/proof-contract/index.js", async (importOriginal) => {
+vi.mock("../../src/service/model/verify/proof/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../../src/core/domains/proof-contract/index.js")>();
+    await importOriginal<
+      typeof import("../../src/service/model/verify/proof/index.js")
+    >();
   return {
     ...actual,
     stringifyVerifyReceipt: vi.fn((receipt) => JSON.stringify(receipt, null, 2)),
   };
 });
 
-vi.mock("../../src/service/client.js", () => ({
+vi.mock("../../src/service/router.js", () => ({
   createHabitatServiceClient: vi.fn(() => ({
     check: { expandBaseline: mockCheckExpandBaseline, run: mockCheckRun },
     classify: { run: mockClassifyRun },
@@ -69,16 +71,16 @@ vi.mock("../../src/service/client.js", () => ({
   })),
 }));
 
-import * as verifyReceipt from "@internal/habitat-harness/core/domains/proof-contract/index";
-import * as checkReport from "@internal/habitat-harness/core/domains/structural-check/index";
-import * as classify from "@internal/habitat-harness/core/domains/workspace-graph-integration/index";
-import Check from "@internal/habitat-harness/host/commands/check";
-import Classify from "@internal/habitat-harness/host/commands/classify";
-import Fix from "@internal/habitat-harness/host/commands/fix";
-import Graph from "@internal/habitat-harness/host/commands/graph";
-import Hook from "@internal/habitat-harness/host/commands/hook";
-import Verify from "@internal/habitat-harness/host/commands/verify";
-import * as serviceClient from "@internal/habitat-harness/service/client";
+import Check from "@internal/habitat-harness/cli/commands/check";
+import Classify from "@internal/habitat-harness/cli/commands/classify";
+import Fix from "@internal/habitat-harness/cli/commands/fix";
+import Graph from "@internal/habitat-harness/cli/commands/graph";
+import Hook from "@internal/habitat-harness/cli/commands/hook";
+import Verify from "@internal/habitat-harness/cli/commands/verify";
+import * as checkReport from "@internal/habitat-harness/service/model/check/structural/index";
+import * as classify from "@internal/habitat-harness/service/model/workspace/index";
+import * as verifyReceipt from "@internal/habitat-harness/service/model/verify/proof/index";
+import * as serviceClient from "@internal/habitat-harness/service/router";
 
 describe("Habitat oclif commands", () => {
   let stdout: string[];
@@ -125,7 +127,7 @@ describe("Habitat oclif commands", () => {
     mockGraphRun.mockResolvedValue({ exitCode: 0, stdout: '{"nodes":{}}\n', stderr: "" });
     mockHookRun.mockResolvedValue({ exitCode: 0, stdout: "hook ok\n", stderr: "" });
     mockVerifyRun.mockImplementation(
-      async (input: { base?: string; commandArgs?: string[]; affectedExecution?: string }) => {
+      async (input: { base?: string; affectedExecution?: string }) => {
         const base = input.base ?? "merge-base";
         return {
           kind: "completed",
@@ -183,11 +185,6 @@ describe("Habitat oclif commands", () => {
           tool: "source-check",
         },
         staged: true,
-        command: expect.objectContaining({
-          argv: expect.arrayContaining(["--json", "--rule", "adapter-boundary"]),
-          bin: "habitat",
-          id: "check",
-        }),
       })
     );
     expect(checkReport.renderCheckReport).toHaveBeenCalledWith(mockReport, {
@@ -208,11 +205,6 @@ describe("Habitat oclif commands", () => {
           tool: undefined,
         },
         base: "main",
-        command: expect.objectContaining({
-          argv: ["--expand-baseline", "--rule", "demo-rule"],
-          bin: "habitat",
-          id: "check",
-        }),
       })
     );
     expect(mockCheckRun).not.toHaveBeenCalled();
@@ -268,7 +260,6 @@ describe("Habitat oclif commands", () => {
     expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
     expect(mockVerifyRun).toHaveBeenCalledWith({
       base: "HEAD~1",
-      commandArgs: ["--base", "HEAD~1"],
       affectedExecution: "run",
     });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
@@ -281,7 +272,6 @@ describe("Habitat oclif commands", () => {
 
     expect(mockVerifyRun).toHaveBeenCalledWith({
       base: "HEAD~1",
-      commandArgs: ["--base", "HEAD~1", "--json"],
       affectedExecution: "plan-only",
     });
     expect(checkReport.verifyCheckSummary).toHaveBeenCalledWith(mockReport);
@@ -301,7 +291,7 @@ describe("Habitat oclif commands", () => {
   });
 
   test("classify emits ownership JSON", async () => {
-    await Classify.run(["tools/habitat-harness/src/host/commands/check.ts"]);
+    await Classify.run(["tools/habitat-harness/src/cli/commands/check.ts"]);
 
     const payload: unknown = JSON.parse(capturedOutput());
     expect(Value.Check(classify.ClassifyResultSchema, payload)).toBe(true);
@@ -312,7 +302,7 @@ describe("Habitat oclif commands", () => {
     expect(result.owner.tags).toEqual(["kind:tooling"]);
     expect(serviceClient.createHabitatServiceClient).toHaveBeenCalled();
     expect(mockClassifyRun).toHaveBeenCalledWith({
-      target: "tools/habitat-harness/src/host/commands/check.ts",
+      target: "tools/habitat-harness/src/cli/commands/check.ts",
     });
   });
 
@@ -335,14 +325,14 @@ describe("Habitat oclif commands", () => {
 
 function verifyReceiptPayload(
   base: string,
-  input: { base?: string; commandArgs?: string[]; affectedExecution?: string }
+  input: { base?: string; affectedExecution?: string }
 ) {
   const planned = input.affectedExecution === "plan-only";
   return {
     schemaVersion: 1,
     outcome: planned ? "planned" : "succeeded",
     command: {
-      argv: ["habitat", "verify", ...(input.commandArgs ?? [])],
+      argv: ["habitat", "verify"],
       cwd: "/repo",
       env: {},
       startedAt: "2026-06-13T00:00:00.000Z",

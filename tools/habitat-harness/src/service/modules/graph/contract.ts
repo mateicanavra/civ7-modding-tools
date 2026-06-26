@@ -1,9 +1,8 @@
-import type { ContractProcedure } from "@orpc/contract";
+import { habitatServiceErrorMap } from "@internal/habitat-harness/service/errors";
+import type { HabitatServiceProcedureContract } from "@internal/habitat-harness/service/procedure-contract";
+import { toStandardSchema } from "@internal/habitat-harness/service/typebox-standard-schema";
 import { eoc } from "effect-orpc";
 import { type Static, Type } from "typebox";
-import { type HabitatServiceErrorMap, habitatServiceErrorMap } from "../../errors.js";
-import type { HabitatServiceProcedureMeta } from "../../metadata.js";
-import { toStandardSchema } from "../../typebox-standard-schema.js";
 
 const GraphServiceRunInputSchema = Type.Object(
   {
@@ -19,29 +18,21 @@ const GraphServiceRunOutputSchema = Type.Object(
     stdout: Type.String(),
     stderr: Type.String(),
   },
-  { additionalProperties: false, description: "Raw graph command streams for CLI handoff." }
+  { additionalProperties: false, description: "Habitat graph service execution result." }
 );
 export type GraphServiceRunOutput = Static<typeof GraphServiceRunOutputSchema>;
 
 const GraphServiceRunInputStandardSchema = toStandardSchema(GraphServiceRunInputSchema);
 const GraphServiceRunOutputStandardSchema = toStandardSchema(GraphServiceRunOutputSchema);
 
-export type GraphServiceRunContract = ContractProcedure<
+export const graphServiceRunContract: HabitatServiceProcedureContract<
   typeof GraphServiceRunInputStandardSchema,
-  typeof GraphServiceRunOutputStandardSchema,
-  HabitatServiceErrorMap,
-  HabitatServiceProcedureMeta
->;
-
-export const graphServiceRunContract: GraphServiceRunContract = eoc
+  typeof GraphServiceRunOutputStandardSchema
+> = eoc
   .errors(habitatServiceErrorMap)
   .input(GraphServiceRunInputStandardSchema)
   .output(GraphServiceRunOutputStandardSchema);
 
-export type GraphServiceContract = Readonly<{
-  run: GraphServiceRunContract;
-}>;
-
-export const graphServiceContract: GraphServiceContract = {
+export const graphServiceContract = {
   run: graphServiceRunContract,
 };
