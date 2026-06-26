@@ -161,7 +161,7 @@ What intentionally did not land:
 
 - support-artifact ontology;
 - implementation adapter schema;
-- blueprint structure;
+- final blueprint manifest structure;
 - final resolver metadata.
 
 ### 9. Define The Authority Tree Shape
@@ -172,37 +172,39 @@ model.
 Current rule:
 
 ```text
-.habitat/<authority-area>/blueprints/<blueprint>/<category>/<kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
 ```
 
 Key decisions:
 
-- Authority area is jurisdiction.
-- Blueprint is the broad authored concept and portable future unit.
+- Niche is jurisdiction.
+- Blueprint is the buildable/enforceable thing inside a niche.
+- `_self` is the temporary blueprint placeholder for niche-wide authority.
 - Category is a single-word universal engineering purpose.
 - Artifact kind carries mutability and execution intent.
 - Narrow subjects, maintenance chores, and runner names are not blueprints.
 
-### 10. Flatten And Blueprint The Authority Tree
+### 10. Flatten, Categorize, And Correct The Blueprint Tree
 
-Outcome: all current packets were moved out of provisional layer buckets, then physically organized under broad blueprints. The current packet shape is:
+Outcome: all current packets were moved out of provisional layer buckets, categorized, then corrected so broad areas are niches and buildable/enforceable things are blueprints. The current packet shape is:
 
 ```text
-.habitat/<authority-area>/blueprints/<blueprint>/<category>/<kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
 ```
 
 What landed:
 
 - 80 packets classified by universal single-word category.
-- Broad blueprints such as `workspace`, `documentation`, `toolkit`, `platform-integration`, `official-resources`, `core-sdk`, `domain-model`, `standard-pipeline`, `map-output`, and `studio`.
+- Niche paths such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
+- Blueprint paths such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `worker-bundle`.
 - Artifact kinds remain `check`, `fix`, `generate`, `migrate`, and `triage`.
 - Toolkit triage remains explicitly non-default executable authority.
 
 Current semantic review:
 
-- The tree now centers on the blueprint as the authored concept, not on narrow subjects.
+- The tree now separates niche jurisdiction from blueprint identity.
 - Categories and artifact kinds are visible without becoming the top-level domain axis.
-- The next resolver pass must discover this blueprint path shape directly.
+- The next resolver pass must discover this niche/blueprint path shape directly.
 
 ### 11. Bridge Package Scripts Through Habitat Check
 
@@ -265,10 +267,10 @@ default inclusion, and error reporting. The observed `Internal Server Error`
 is not a surprise and should not be papered over as a one-off bug.
 
 Current direction: treat full-suite execution as a likely scrap-and-rebuild
-surface. The rebuild should start from the flattened authority tree:
+surface. The rebuild should start from the corrected niche/blueprint authority tree:
 
 - discover executable packets from `.habitat/**/blueprints/<blueprint>/<category>/<kind>/<packet>/`;
-- infer authority area, blueprint, category, artifact kind, and packet identity from the path;
+- infer niche, blueprint, category, artifact kind, and packet identity from the path;
 - exclude `<category>/triage` packets from default execution;
 - refuse unknown, stale, or not-yet-admitted packets with explicit selector or
   admission diagnostics;
@@ -299,9 +301,9 @@ What this domino should do:
   - if it already has a Habitat rule, rewire the caller to
     `habitat check --rule ...`;
   - if it is a standalone script that should be Habitat-owned, move it into the
-    appropriate `.habitat/<authority-area>/blueprints/<blueprint>/<category>/check/<packet>/` packet, register it,
-    add an empty or existing baseline as appropriate, and route it through
-    `habitat check --rule ...`;
+    appropriate `.habitat/<niche>/blueprints/<blueprint>/<category>/check/<packet>/`
+    packet, register it, add an empty or existing baseline as appropriate, and
+    route it through `habitat check --rule ...`;
   - if it is redundant after a Habitat route exists, remove the alias instead
     of keeping a shadow policy name.
 - Leave package-local operational workflows in place when they run product
@@ -384,7 +386,7 @@ Scope guard:
 ### 14. Full-Suite Runner Rebuild
 
 Goal: replace the broken plain `habitat check` aggregate with a runner that
-understands the flattened authority tree directly.
+understands the niche/blueprint authority tree directly.
 
 Expected direction:
 
@@ -393,7 +395,7 @@ Expected direction:
   - `.habitat/**/blueprints/*/*/fix/*/`
   - `.habitat/**/blueprints/*/*/generate/*/`
   - `.habitat/**/blueprints/*/*/migrate/*/`
-- Infer authority area and blueprint from the path before the category.
+- Infer niche and blueprint from the path before the category.
 - Infer kind from the directory below category.
 - Infer packet identity from the directory below kind.
 - Exclude `<category>/triage` packets from default execution.
@@ -429,16 +431,17 @@ Why not now:
 Before more execution evidence exists, renaming and reshaping risks encoding a
 theory instead of observed structure.
 
-### 16. Blueprint Model Design
+### 16. Blueprint Manifest Design
 
-Goal: define blueprint as the executable/enforceable unit inside a niche.
+Goal: define a typed manifest for blueprint identity, cascade rules, and lifecycle artifacts.
 
 Current direction:
 
 - Niche remains jurisdiction.
-- Blueprint becomes a designed model for creating, maintaining, or evolving a
-  class of thing.
+- Blueprint is now physically represented as a designed model for creating,
+  maintaining, or evolving a class of thing.
 - A niche may contain multiple blueprints.
+- `_self` remains a temporary placeholder, not the final ontology term.
 
 Open examples:
 
@@ -451,8 +454,8 @@ Open examples:
 Scope guard:
 
 - Do not collapse niche into blueprint.
-- Do not force current artifact packets to become blueprint directories until
-  the model is proven.
+- Do not promote niches or packet handles into blueprint directories without
+  evidence that they are buildable/enforceable things.
 
 ### 17. Toolkit Simplification And Service-Model Cleanup
 

@@ -11,13 +11,13 @@ The key distinction:
 
 Do not introduce a separate `.habitat` tooling config just to map operations to commands. Generic Habitat dispatch belongs in Toolkit code. Repo-authored policy needs a Habitat packet identity.
 
-## Provisional Blueprint Hierarchy
+## Provisional Niche/Blueprint Hierarchy
 
-The current `.habitat` tree groups authority packets by broad blueprint, then by universal category, then by artifact kind. This is a provisional classification layout, not a parseable manifest and not a completed runtime migration.
+The current `.habitat` tree groups authority packets by niche, then by blueprint, then by universal category, then by artifact kind. This is a provisional classification layout, not a parseable manifest and not a completed runtime migration.
 
 ```text
 .habitat
-  <authority-area>
+  <niche>
     blueprints
       <blueprint>
         <category>
@@ -26,20 +26,22 @@ The current `.habitat` tree groups authority packets by broad blueprint, then by
 
   civ7
     mapgen
-      blueprints
-        standard-pipeline
-          boundary
-            check
-              sibling-stage-step-imports
-          execution
-            check
-              runtime-run-validated
-          policy
-            check
-              rng-authority-static
+      pipeline
+        blueprints
+          standard-recipe
+            boundary
+              check
+                sibling-stage-step-imports
+            execution
+              check
+                runtime-run-validated
+          _self
+            policy
+              check
+                rng-authority-static
 ```
 
-Authority areas and blueprints are nouns. They should not encode a runner, file type, current defect, or narrow maintenance task. A blueprint is the thing being authored and enforced; categories describe universal engineering purpose; artifact kinds define mutability.
+Niches are authored jurisdictions. Blueprints are buildable or enforceable things inside those jurisdictions. `_self` is the temporary blueprint placeholder for niche-wide authority. Neither niches nor blueprints should encode a runner, file type, current defect, or narrow maintenance task. Categories describe universal engineering purpose; artifact kinds define mutability.
 
 Rule-owned files use the same packet-name prefix:
 
@@ -75,15 +77,16 @@ Structural transition. A migrate operation answers how Habitat may move authored
 
 - Artifact kind names are verbs: `check`, `fix`, `generate`, `migrate`.
 - Category names are single-word universal purposes: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, `policy`.
-- Blueprint names are broad authored concepts such as `workspace`, `documentation`, `toolkit`, `platform-integration`, `official-resources`, `core-sdk`, `domain-model`, `standard-pipeline`, `map-output`, and `studio`.
+- Niche names are authored jurisdictions such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
+- Blueprint names are constructible or enforceable things such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `worker-bundle`.
 - Runner names are implementation details: Grit, Biome, Nx, Vitest, Bun, shell.
 - Rule IDs are stable registry handles, not ontology roots.
 - Narrow rule handles do not become blueprints unless a later domain pass proves a distinct authored concept with its own lifecycle.
 
 ## What Belongs In Parseable Config Later
 
-If future parseable config is introduced, it should store authored repository policy only: admitted packets, blueprint/cascade rules, scope, severity, lane, exceptions, and refusal rules. It should not store generic Toolkit dispatch such as "format uses Biome" or "source patterns use Grit" unless this repo deliberately overrides a Toolkit default.
+If future parseable config is introduced, it should store authored repository policy only: admitted packets, niche and blueprint relationships, cascade rules, scope, severity, lane, exceptions, and refusal rules. It should not store generic Toolkit dispatch such as "format uses Biome" or "source patterns use Grit" unless this repo deliberately overrides a Toolkit default.
 
 ## Compatibility Debt
 
-Toolkit discovery still needs a dedicated resolver pass for the blueprint path shape. Curated `habitat check --rule <id>` is the proven bridge; broad full-suite execution remains a rebuild target.
+Toolkit discovery still needs a dedicated resolver pass for the niche/blueprint path shape. Curated `habitat check --rule <id>` is the proven bridge; broad full-suite execution remains a rebuild target.

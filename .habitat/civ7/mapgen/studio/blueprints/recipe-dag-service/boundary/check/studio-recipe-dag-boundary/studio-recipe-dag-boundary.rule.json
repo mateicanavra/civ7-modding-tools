@@ -1,0 +1,26 @@
+{
+  "id": "studio-recipe-dag-boundary",
+  "ownerTool": "command-check",
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "scope": "MapGen Studio recipe-DAG service import graph",
+  "forbids": "Studio recipe-DAG service depending on runtime recipe modules, generated maps, dist/mod outputs, or authoring roots instead of contract-only surfaces",
+  "why": "The Studio recipe-DAG service consumes contract metadata, not runtime MapGen recipe implementation.",
+  "detect": ["bun", ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/studio-recipe-dag-boundary/studio-recipe-dag-boundary.check.ts"],
+  "remediate": "Route Studio recipe-DAG metadata through contract-only recipe surfaces.",
+  "message": "Studio recipe-DAG import graph crossed runtime recipe boundaries.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/src/server/recipeDag/service.ts",
+        "mods/mod-swooper-maps/src/recipes/studio-contracts/**",
+        "mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

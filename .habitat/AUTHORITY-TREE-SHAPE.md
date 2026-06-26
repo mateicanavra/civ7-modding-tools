@@ -1,19 +1,23 @@
 # Habitat Authority Tree Shape
 
-Status: working normative reference for the current blueprint authority tree
+Status: working normative reference for the current niche/blueprint authority tree
 
-This document defines the current target shape for `.habitat` authority artifacts. It captures the blueprint-based organization now used by the tree. It does not define final resolver metadata, support-file ontology, cascade semantics, or typed blueprint manifests.
+This document defines the current target shape for `.habitat` authority artifacts. It captures the corrected organization where niches are jurisdictions and blueprints are buildable/enforceable things inside those jurisdictions. It does not define final resolver metadata, support-file ontology, cascade semantics, or typed blueprint manifests.
 
 ## Core Decision
 
-Habitat organizes authority around broad blueprints. A blueprint is the thing being authored: the system, surface, package class, or workflow shape that needs to exist in a particular form and have particular interactions.
+Habitat organizes authority by niche first, then blueprint. A niche is an authored jurisdiction: an area, domain, package family, or governed place. A blueprint is a constructible/enforceable thing inside that niche: a surface, package shape, service module, generated artifact shape, runtime boundary, or workflow object that has lifecycle artifacts.
 
 Target shape:
 
 ```text
 .habitat/
-  <authority-area>/
+  <niche>/
     blueprints/
+      _self/
+        <category>/
+          check/
+            <packet>/
       <blueprint>/
         <category>/
           check/
@@ -28,30 +32,35 @@ Target shape:
             <packet>/
 ```
 
-Category names are single-word universal purpose categories: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, and `policy`. Artifact-kind directories are mutability classes: `check`, `fix`, `generate`, `migrate`, and `triage`.
+`_self` is the temporary blueprint name for packets that describe the niche itself rather than a child constructible thing. Category names are single-word universal purpose categories: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, and `policy`. Artifact-kind directories are mutability classes: `check`, `fix`, `generate`, `migrate`, and `triage`.
 
 ## Concepts
 
-### Authority Area
+### Niche
 
-The path above `blueprints/` is the authored jurisdiction. It answers where in this repository's governed ecosystem the blueprint belongs. Examples include `global`, `docs`, `habitat`, `civ7`, and `civ7/mapgen`.
+The path above `blueprints/` is the authored jurisdiction. It answers where in this repository's governed ecosystem the authority belongs. Examples include `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
+
+Niches may nest when the language and authority become more specific. A niche is not itself assumed to be buildable. It may contain `_self` authority plus child blueprints.
 
 ### Blueprint
 
-A blueprint is the portable concept-level unit. It owns the lifecycle artifacts that define, enforce, generate, fix, or migrate the thing being authored. Blueprints are intentionally broader than maintenance tasks or individual rule subjects.
+A blueprint is the portable concept-level unit inside a niche. It owns lifecycle artifacts that define, enforce, generate, fix, or migrate the thing being authored. Blueprints are intentionally broader than individual rule subjects, but narrower than areas such as `workspace`, `documentation`, `toolkit`, `platform`, `resources`, `domain`, `pipeline`, `map-output`, or `studio`.
 
-Current blueprints include:
+Current blueprint examples include:
 
-- `civ7/blueprints/official-resources`
-- `civ7/blueprints/platform-integration`
-- `civ7/mapgen/blueprints/core-sdk`
-- `civ7/mapgen/blueprints/domain-model`
-- `civ7/mapgen/blueprints/map-output`
-- `civ7/mapgen/blueprints/standard-pipeline`
-- `civ7/mapgen/blueprints/studio`
-- `docs/blueprints/documentation`
-- `global/blueprints/workspace`
-- `habitat/blueprints/toolkit`
+- `global/workspace/blueprints/project-boundary-model`
+- `docs/blueprints/docs-site`
+- `habitat/toolkit/blueprints/service-module`
+- `civ7/platform/blueprints/civ7-adapter`
+- `civ7/resources/blueprints/civ7-map-policy`
+- `civ7/mapgen/domain/blueprints/domain-public-surface`
+- `civ7/mapgen/pipeline/blueprints/standard-recipe`
+- `civ7/mapgen/map-output/blueprints/map-projection`
+- `civ7/mapgen/studio/blueprints/worker-bundle`
+
+### `_self`
+
+`_self` is a staging name for authority about the niche as a whole. It is not a final ontology term. It prevents niche-wide authority from being mixed with child blueprint names while the final manifest model is still being designed.
 
 ### Category
 
@@ -69,12 +78,12 @@ The leaf folders are current artifact packets. They are gathered enforceable or 
 
 ## Negative Rules
 
-- Do not promote narrow subjects, maintenance chores, runner names, or current defect names into blueprints.
+- Do not promote niches, package areas, maintenance chores, runner names, or current defect names into blueprints.
 - Do not create categories from domain terms such as `mapgen`, `docs-site`, `source-check`, or `guardrail`.
-- Do not place artifact-kind directories directly under authority areas; they belong under a blueprint category.
+- Do not place artifact-kind directories directly under niches; they belong under a blueprint category.
 - Do not classify mutating work as `check`.
 - Do not treat `triage` as admitted executable authority.
 
 ## Current Classification Rule
 
-Classify each packet by its blueprint first, then by universal category, then by artifact kind. If a packet is mixed or unclear, place it under the best-fit category with kind `triage` and record the semantic issue in `category.md`.
+Classify each packet by niche first, then blueprint, then universal category, then artifact kind. If a packet is about the niche overall, place it under `_self`. If a packet is mixed or unclear, keep the best-fit category and record the semantic issue in `category.md`.

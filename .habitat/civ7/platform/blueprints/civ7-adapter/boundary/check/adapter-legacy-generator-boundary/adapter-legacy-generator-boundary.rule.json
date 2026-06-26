@@ -1,0 +1,25 @@
+{
+  "id": "adapter-legacy-generator-boundary",
+  "ownerTool": "command-check",
+  "ownerProject": "civ7-adapter",
+  "lane": "enforced",
+  "scope": "packages/civ7-adapter/src/**",
+  "forbids": "adapter-local ad-hoc RNG/fudge constructs and direct natural-wonder generator calls",
+  "why": "The Civ7 adapter may wrap approved engine generator surfaces, but it should not grow product planning logic or unmodeled generator entrypoints.",
+  "detect": [
+    "bun",
+    ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/adapter-legacy-generator-boundary/adapter-legacy-generator-boundary.check.ts"
+  ],
+  "remediate": "Keep product planning logic in MapGen domains and route new engine-generator access through an explicit adapter method and reviewed Habitat rule update.",
+  "message": "Civ7 adapter contains an unapproved RNG, fudge, or legacy generator construct.",
+  "exceptionPath": "none",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["packages/civ7-adapter/src/**"]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}
