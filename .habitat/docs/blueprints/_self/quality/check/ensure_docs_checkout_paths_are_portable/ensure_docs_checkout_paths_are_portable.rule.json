@@ -1,19 +1,25 @@
 {
   "id": "ensure_docs_checkout_paths_are_portable",
   "title": "Ensure Docs Checkout Paths Are Portable",
-  "ownerTool": "command-check",
+  "ownerTool": "grit-check",
   "ownerProject": "habitat",
   "lane": "advisory",
   "scope": "docs/**/*.md",
   "forbids": "absolute local checkout paths that carry a docs/...md suffix",
   "why": "Docs should survive checkout moves, worktree renames, user-home differences, and thread handoffs; the pattern layer owns suffix-based rewrite hygiene for host-local docs references.",
   "detect": [
-    "node",
-    ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.check.mjs"
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
   ],
   "remediate": "Use repo-relative docs paths so the reference survives checkout moves, worktree renames, and different user-home layouts.",
   "message": "Replace local absolute docs paths with durable repo-relative docs paths.",
   "exceptionPath": "none",
+  "patternName": "docs_local_checkout_paths",
+  "scanRoots": [
+    "docs"
+  ],
   "pathCoverage": [
     {
       "kind": "exact-path",

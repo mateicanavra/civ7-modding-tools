@@ -21,7 +21,8 @@ const BUILT_IN_APPLY_ADMISSIONS = [
   {
     kind: "apply-admission",
     patternId: "ensure_docs_checkout_paths_are_portable",
-    manifestPath: ".habitat/patterns/apply/docs_local_checkout_paths_rewrite.md",
+    manifestPath:
+      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
     transactionInputRef: "patterns:ensure_docs_checkout_paths_are_portable:transaction-input",
     transactionInputRuleIds: ["ensure_docs_checkout_paths_are_portable"],
     dryRunRoots: ["docs"],

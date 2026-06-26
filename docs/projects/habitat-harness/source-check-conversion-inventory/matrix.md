@@ -1,6 +1,6 @@
 # Rule/Adapter Disposition Matrix
 
-Status: updated after final source-check runtime deletion
+Status: updated after command-check split canary
 
 ## Coverage
 
@@ -17,8 +17,8 @@ Status: updated after final source-check runtime deletion
 | Disposition | Count |
 | --- | ---: |
 | `data_driven_import_path_rule` | 8 |
-| `grit_pattern_authority` | 38 |
-| `needs_split` | 15 |
+| `grit_pattern_authority` | 41 |
+| `needs_split` | 12 |
 | `package_local_test_or_validator` | 12 |
 
 ## Grit Pattern Authority
@@ -30,6 +30,7 @@ Status: updated after final source-check runtime deletion
 | `enforce_adapter_only_base_standard_imports` | platform-resources | grit-check | no | no | excellent: existing pattern.md already expresses the adapter predicate with structural TypeScript imports and path filters. |
 | `enforce_studio_rpc_eventhub_topology` | mapgen-other | command-check | no | no | high: source presence/absence and call/object-shape constraints over fixed TS files are Grit pattern authority candidates |
 | `ensure_map_policy_dependency_independence` | platform-resources | command-check | no | no | strong: pure import/export legality over TypeScript source with a small forbidden-specifier list and exact package path scope. |
+| `ensure_docs_checkout_paths_are_portable` | global-docs-toolkit | grit-check | no | no | converted split canary: docs apply-backed Grit diagnostics preserve advisory severity and intentionally narrow the old command heuristic to rewrite-backed findings. |
 | `preserve_mapgen_core_runtime_neutrality` | mapgen-other | grit-check | no | no | high: existing .pattern.md expresses import, identifier, and source-text constraints with path guards |
 | `preserve_physics_to_map_projection_contracts` | mapgen-other | command-check | no | no | high: path-scoped string/source matching and effect-name regex constraints are clean Grit pattern authority candidates |
 | `preserve_transport_pure_orpc_contracts` | platform-resources | grit-check | no | no | converted canary: existing pattern.md expresses all adapter predicate branches with structural imports, export const matching, export-from matching, regex name filters, and path filters. |
@@ -40,6 +41,7 @@ Status: updated after final source-check runtime deletion
 | `prohibit_domain_ops_projection_effect_dependencies` | mapgen-other | grit-check | no | no | high: existing .pattern.md cleanly captures path-scoped string/source matching |
 | `prohibit_empty_object_defaults_in_contract_schemas` | mapgen-pipeline | grit-check | no | no | high: existing Grit pattern directly represents the property/default object-literal predicate and scoped contract paths. |
 | `prohibit_product_scan_roots_in_grit_provider` | global-docs-toolkit | grit-check | no | no | already Grit: the existing TypeScript Grit pattern text-matches provider source under tools/habitat/src/providers/grit. |
+| `prohibit_cross_op_runtime_calls` | mapgen-domain | grit-check | no | no | converted split canary: cross-op import/export/dynamic source authority is now Grit, while duplicated ops.bind/runValidated detection was deleted in favor of prohibit_runtime_orchestration_helpers_in_domain_ops. |
 | `prohibit_recipe_imports_in_domain_source` | mapgen-domain | grit-check | no | no | high: existing .pattern.md directly expresses the predicate with filename and source constraints. |
 | `prohibit_relative_domain_reaches_from_recipes_and_maps` | mapgen-domain | grit-check | no | no | high: existing .pattern.md expresses all file-depth import/export cases as filename/source regex constraints. |
 | `prohibit_retired_domain_root_catalogs` | mapgen-domain | grit-check | no | no | high: existing .pattern.md is a direct filename-only structural pattern. |
@@ -54,6 +56,7 @@ Status: updated after final source-check runtime deletion
 | `require_domain_contract_roots_in_step_contracts` | mapgen-domain | grit-check | no | no | high: existing .pattern.md directly expresses path-scoped import/export source constraints. |
 | `require_explicit_mapgen_sdk_opt_in` | mapgen-other | grit-check | no | no | high: final split kept SDK opt-in import/export and SDK adapter-import predicates as Grit authority; the overlapping mapgen-core branch is owned by preserve_mapgen_core_runtime_neutrality. |
 | `require_narrow_game_ui_bridge_bootstrap` | platform-resources | command-check | no | no | strong but with one presence-check caveat: forbidden imports/tokens are direct Grit matches, and required import/install shape should be expressible with contains/not over the exact file. |
+| `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | grit-check | no | no | converted split canary: source import/export and retired-path predicates are now Grit; active-root existence/currentness was demoted from this packet. |
 | `require_public_domain_surfaces_in_recipes_and_maps` | mapgen-domain | grit-check | no | no | high: existing .pattern.md expresses the check; existing .apply.pattern.md is a separate fix operation candidate, not a runtime fixture. |
 | `require_public_domain_surfaces_in_tests` | mapgen-domain | command-check | no | no | high: this is path-scoped import/export source matching; no package runtime behavior is checked. |
 | `require_runtime_domain_op_bundle_imports` | mapgen-pipeline | grit-check | no | no | high: existing Grit import_statement source regex matches the adapter predicate. |
@@ -71,15 +74,12 @@ Status: updated after final source-check runtime deletion
 | `block_unapproved_base_standard_boundary_leaks` | platform-resources | command-check | no | yes | mixed: the runtime import boundary overlaps the existing enforce_adapter_only_base_standard_imports Grit/source-check rule, but the broad string scan and allowlist debt are not clean Grit authority as written. |
 | `enforce_domain_refactor_boundary_profile` | mapgen-domain | command-check | no | yes | mixed: many rg-style source predicates can become Grit or data-driven rules, but the profile wrapper, env gating, JSDoc/schema checks, missing-file topology checks, and duplicated assertions should not remain one Habitat rule. |
 | `enforce_studio_dev_runner_topology` | mapgen-other | command-check | no | yes | low for whole rule: JSON target dependency/order assertions and config loading are not Grit; some source-token/file-existence assertions are separable |
-| `ensure_docs_checkout_paths_are_portable` | global-docs-toolkit | command-check | no | yes | high for the text/rewrite predicate: the existing markdown Grit pattern already expresses the suffix-based rewrite. The command-check diagnostic duplicates part of that behavior. |
 | `preserve_decomposed_foundation_contract_surfaces` | mapgen-domain | command-check | no | yes | mixed: import/text bans and re-export shim scans are Grit candidates; expected-presence assertions and exact contract/source currentness are better split into data-driven structural checks or package-local validators. |
 | `preserve_morphology_contracts_and_overlay_ownership` | mapgen-domain | command-check | no | yes | mixed: source text/import bans are Grit candidates; exact expected contract contents and single-owner publisher assertions need a separate data-driven or package-local validation model. |
 | `preserve_standard_stage_topology_and_path_invariants` | mapgen-pipeline | command-check | no | yes | medium: legacy alias text bans are Grit-friendly, but exact stage-order and directory-topology parity should become a data-driven topology rule or manifest-backed check. |
-| `prohibit_cross_op_runtime_calls` | mapgen-domain | command-check | no | yes | stale adapter deleted; cross-op import/export/dynamic predicate is already Grit-shaped, but ops.bind/runValidated overlaps with prohibit_runtime_orchestration_helpers_in_domain_ops and should consolidate rather than stay duplicated here. |
 | `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces` | mapgen-pipeline | command-check | no | yes | medium-high: most assertions are path-scoped token/source bans that Grit can express, but the packet mixes semantic ecology policy, runtime-adjacent RNG bans, and legacy generator boundary bans. |
 | `require_owned_domain_config_catalog_surfaces` | mapgen-domain | command-check | no | yes | mixed: op import bans and milestone token bans are Grit/source-text candidates; exact export list and required-token presence are better split into data-driven structural checks. |
 | `require_projection_calls_in_projection_steps` | mapgen-other | command-check | no | yes | medium: forbidden call placement is Grit-shaped, but exact caller ownership lists and required source/contract token assertions should be separated before conversion |
-| `require_public_ecology_surfaces_and_retired_topology_removal` | mapgen-domain | command-check | no | yes | stale adapter deleted; import/export and retired-path predicates are already Grit-shaped, while active-root existence is a separate topology/currentness assertion. |
 | `require_recipe_dag_contract_metadata` | mapgen-other | command-check | no | yes | medium: direct import/source bans are Grit-shaped, but local import-graph closure and expected graph membership require a graph-aware validator or package-local boundary test |
 | `validate_mapgen_docs_anchors_and_references` | global-docs-toolkit | command-check | no | yes | medium: toc/heading/alias/text-shape checks are plausible Grit markdown authority, but anchor target existence and router target liveness remain validator behavior. |
 | `verify_standard_recipe_public_authoring_surface` | mapgen-pipeline | command-check | no | yes | low for the whole rule: the main oracle is derived authoring-model semantics, though a few static sub-assertions may become separate structural checks. |
@@ -125,4 +125,5 @@ Canonical rule rows do not currently land here. The four stale adapter-support f
 - The final residual, `require_explicit_mapgen_sdk_opt_in`, was split: SDK opt-in authority stayed in the SDK packet as `grit-check`, while the overlapping mapgen-core adapter-import branch remains owned by `preserve_mapgen_core_runtime_neutrality`.
 - The source-check execution surface is now gone: zero source-check rule records, zero centralized adapters, and `rule-runtime.policy.mjs` deleted.
 - Broad command-check bundles are now the main source of state explosion. Treat `needs_split` rows as assertion-level extraction work, not as whole-packet conversions.
+- The command-check split canary converted three mixed rows at assertion level: `prohibit_cross_op_runtime_calls`, `require_public_ecology_surfaces_and_retired_topology_removal`, and `ensure_docs_checkout_paths_are_portable`.
 - File-layer, Nx, generated-zone, and graph-backed rows fit the allowed enum imperfectly. They are kept in `data_driven_import_path_rule` with notes instead of expanding the classification vocabulary midstream.

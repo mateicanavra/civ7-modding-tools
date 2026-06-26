@@ -20,11 +20,11 @@ Authority path: `.habitat/civ7/mapgen/domain/blueprints/domain-operation/executi
 
 Files:
 - `prohibit_cross_op_runtime_calls.baseline.json`
-- `prohibit_cross_op_runtime_calls.check.mjs`
 - `prohibit_cross_op_runtime_calls.pattern.md`
 - `prohibit_cross_op_runtime_calls.rule.json`
 
-Evidence: The check forbids domain op runtime entrypoints from importing sibling ops, the ops barrel, or orchestration helpers.
+Evidence: The pattern forbids domain op runtime entrypoints from importing sibling ops or the ops barrel. Orchestration helper calls are owned by `prohibit_runtime_orchestration_helpers_in_domain_ops`.
 
 Notes:
 - This is not a universal operation-atomicity category; it is runtime/composition phase purity.
+- Split canary: duplicate `ops.bind` / `runValidated` command-script detection was removed in favor of the existing Grit-owned orchestration helper rule.
