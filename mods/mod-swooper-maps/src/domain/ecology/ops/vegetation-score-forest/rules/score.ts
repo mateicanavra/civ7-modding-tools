@@ -11,6 +11,9 @@ function bandpass(x: number, lo: number, hi: number, s: number): number {
   return clamp01(inLo * outHi);
 }
 
+/**
+ * Scores temperate forest suitability from water, energy, biomass, and fertility.
+ */
 export function scoreForestSuitability(args: {
   size: number;
   landMask: Uint8Array;

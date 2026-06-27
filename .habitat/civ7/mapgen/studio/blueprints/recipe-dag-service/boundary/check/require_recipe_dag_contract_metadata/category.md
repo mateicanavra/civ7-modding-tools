@@ -26,4 +26,5 @@ Files:
 Evidence: The check keeps the recipe-DAG service import graph on contract-only surfaces and away from runtime recipe/generated output roots.
 
 Notes:
+- Residual owner class: package-local validator; recipe DAG metadata correctness is Studio package contract behavior.
 - Direct source/import prohibitions moved to `prohibit_recipe_dag_runtime_source_dependencies`.

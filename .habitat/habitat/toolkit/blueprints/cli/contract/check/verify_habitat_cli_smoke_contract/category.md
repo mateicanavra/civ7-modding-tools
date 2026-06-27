@@ -26,4 +26,5 @@ Files:
 Evidence: The check validates Habitat CLI help and selected-check JSON report shape.
 
 Notes:
+- Residual owner class: toolkit validator; CLI smoke behavior is Habitat Toolkit contract validation.
 - Uses another rule as a probe; this coupling should be revisited.

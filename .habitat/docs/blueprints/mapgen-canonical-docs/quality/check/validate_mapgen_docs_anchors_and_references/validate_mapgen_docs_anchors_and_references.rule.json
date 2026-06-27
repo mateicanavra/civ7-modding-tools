@@ -9,7 +9,7 @@
   "why": "MapGen docs are enforcement inputs (stage-order sync); broken anchor targets and reference-policy regressions silently break that loop.",
   "detect": [
     "python3",
-    ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py"
+    "docs/system/libs/mapgen/tools/validate-anchors-and-references.py"
   ],
   "remediate": null,
   "message": "Fix the reported doc anchor targets or reference warnings; see docs/system/libs/mapgen/MAPGEN.md conventions.",

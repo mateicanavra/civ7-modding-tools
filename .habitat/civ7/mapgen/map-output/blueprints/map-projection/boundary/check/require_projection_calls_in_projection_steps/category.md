@@ -26,4 +26,5 @@ Files:
 Evidence: The check requires dedicated projection step callsites and plotRivers materialization/contract tokens.
 
 Notes:
+- Residual owner class: package-local validator; projection call placement still has runtime/source-shape assertions not yet admitted to a narrower owner.
 - Source-placement prohibitions moved to `prohibit_misplaced_projection_adapter_calls`.

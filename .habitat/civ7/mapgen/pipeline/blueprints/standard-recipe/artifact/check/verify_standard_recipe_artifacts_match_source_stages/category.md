@@ -26,4 +26,5 @@ Files:
 Evidence: The check derives recipe schema/default/UI metadata from source stages and rejects drift.
 
 Notes:
+- Residual owner class: Nx/package artifact validator; generated artifact currentness belongs to target ordering and package verification.
 - none

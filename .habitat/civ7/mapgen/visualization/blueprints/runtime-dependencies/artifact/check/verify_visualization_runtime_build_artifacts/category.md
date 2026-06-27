@@ -26,4 +26,5 @@ Files:
 Evidence: The check requires built adapter/core/viz artifacts needed by Studio worker and browser diagnostics.
 
 Notes:
+- Residual owner class: Nx/package artifact validator; runtime build artifact availability belongs to package/Nx preflight.
 - This is a read-only currentness/prerequisite check; it should not rebuild artifacts.

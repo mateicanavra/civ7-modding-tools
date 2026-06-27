@@ -26,4 +26,5 @@ Files:
 Evidence: The check ensures the built browser worker bundle does not contain Node, base-standard, or runtime-only symbols.
 
 Notes:
+- Residual owner class: package-local runtime validator; browser bundle safety is package/runtime behavior.
 - none

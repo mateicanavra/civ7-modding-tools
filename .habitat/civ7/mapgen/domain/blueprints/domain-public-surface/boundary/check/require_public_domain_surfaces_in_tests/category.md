@@ -26,4 +26,5 @@ Files:
 Evidence: The check prevents package tests from deep-importing domain internals except public domain/ops/config surfaces.
 
 Notes:
+- Residual owner class: package-local validator; test import surface policy is retained as a test/package boundary validator.
 - Test-specific scan, same ownership seam as production code.

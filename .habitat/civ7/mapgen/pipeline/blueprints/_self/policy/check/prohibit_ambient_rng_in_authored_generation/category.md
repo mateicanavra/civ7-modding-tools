@@ -27,4 +27,5 @@ Files:
 Evidence: The check forbids ambient RNG, official generators, Math.random, and internal core RNG helpers in authored generation.
 
 Notes:
+- Residual owner class: future owner gap; command-check still owns a policy/source predicate until a narrow Grit or policy runner replaces it.
 - none
