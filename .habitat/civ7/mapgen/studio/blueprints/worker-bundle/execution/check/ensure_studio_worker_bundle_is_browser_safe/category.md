@@ -4,7 +4,7 @@ Subject ID: `ensure_studio_worker_bundle_is_browser_safe`
 
 Title: Ensure Studio Worker Bundle Is Browser-Safe
 
-Blueprint: `ensure_studio_worker_bundle_is_browser_safe`
+Blueprint: `worker-bundle`
 
 Primary category: `execution`
 
@@ -16,7 +16,7 @@ Lifecycle: `steady`
 
 Admission: `admitted`
 
-Authority path: `.habitat/civ7/mapgen/studio/blueprints/ensure_studio_worker_bundle_is_browser_safe/execution/check/ensure_studio_worker_bundle_is_browser_safe`
+Authority path: `.habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe`
 
 Files:
 - `ensure_studio_worker_bundle_is_browser_safe.baseline.json`
