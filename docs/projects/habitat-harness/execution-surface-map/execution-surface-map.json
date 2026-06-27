@@ -2,19 +2,19 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 579,
+    "totalSurfaces": 575,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "apply-pattern": 2,
       "pattern": 82,
-      "rule-json": 125,
-      "check-script": 31,
+      "rule-json": 124,
+      "check-script": 27,
       "structure-spec": 8,
       "fix-script": 1,
       "operation-note": 3,
       "generate-script": 2,
-      "package-script": 136,
+      "package-script": 137,
       "nx-target": 55,
       "nx-plugin": 1,
       "nx-target-default": 9,
@@ -22,37 +22,37 @@
     },
     "surfacesByRole": {
       "policy_pattern": 84,
-      "runner_metadata": 125,
-      "command_check_executor": 31,
+      "runner_metadata": 124,
+      "command_check_executor": 27,
       "structure_authority": 8,
       "operation_surface": 6,
-      "workspace_entrypoint": 201,
+      "workspace_entrypoint": 202,
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
       "unknown": 9,
-      "habitat": 367,
-      "direct-script": 34,
-      "package": 138,
+      "habitat": 362,
+      "direct-script": 30,
+      "package": 139,
       "nx": 65
     },
     "surfacesByBucket": {
-      "mutation_surface": 126,
-      "package_boundary_tie": 101,
+      "mutation_surface": 123,
+      "package_boundary_tie": 100,
       "unknown_invocation": 9,
-      "habitat_invoked": 367,
-      "nx_ordering_tie": 111,
-      "direct_script_invoked": 34,
-      "package_invoked": 203
+      "habitat_invoked": 362,
+      "nx_ordering_tie": 109,
+      "direct_script_invoked": 30,
+      "package_invoked": 204
     },
     "sanityAssertions": []
   },
   "executionAnatomy": {
     "roleCounts": {
       "policy-predicate": 92,
-      "transient-dependency": 182,
-      "adapter": 125,
-      "entrypoint": 234,
+      "transient-dependency": 179,
+      "adapter": 124,
+      "entrypoint": 231,
       "fixture-support": 11,
       "runner-runtime": 124
     },
@@ -121,24 +121,6 @@
       ]
     },
     {
-      "target": "git",
-      "targetClass": "workspace-tool",
-      "references": 22,
-      "sourceCount": 22,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.check.mjs",
-        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
-        ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
-        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
-        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts"
-      ]
-    },
-    {
       "target": "@habitat/cli/service/model/check/index",
       "targetClass": "habitat-toolkit",
       "references": 21,
@@ -157,11 +139,30 @@
       ]
     },
     {
+      "target": "git",
+      "targetClass": "workspace-tool",
+      "references": 21,
+      "sourceCount": 21,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.check.mjs",
+        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
+        ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/verify_standard_recipe_public_authoring_surface/verify_standard_recipe_public_authoring_surface.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.check.mjs"
+      ]
+    },
+    {
       "target": "bun",
       "targetClass": "workspace-tool",
-      "references": 36,
-      "sourceCount": 19,
+      "references": 38,
+      "sourceCount": 20,
       "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/quality/check/validate_ecology_op_contract_quality/validate_ecology_op_contract_quality.rule.json",
         ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.rule.json",
         ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.rule.json",
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.rule.json",
@@ -170,8 +171,7 @@
         ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.rule.json",
         ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.rule.json",
         ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.rule.json",
-        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/prohibit_adapter_local_legacy_generator_logic/prohibit_adapter_local_legacy_generator_logic.rule.json",
-        ".habitat/civ7/platform/blueprints/intelligence-bridge/boundary/check/require_narrow_game_ui_bridge_bootstrap/require_narrow_game_ui_bridge_bootstrap.rule.json"
+        ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/prohibit_adapter_local_legacy_generator_logic/prohibit_adapter_local_legacy_generator_logic.rule.json"
       ]
     },
     {
@@ -450,21 +450,6 @@
       ]
     },
     {
-      "target": "./",
-      "targetClass": "relative",
-      "references": 7,
-      "sourceCount": 7,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/prohibit_cross_op_runtime_calls.pattern.md",
-        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_root_config_facade_imports_in_domain_ops/prohibit_root_config_facade_imports_in_domain_ops.pattern.md",
-        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_recipe_imports_in_domain_source/prohibit_recipe_imports_in_domain_source.pattern.md",
-        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_relative_domain_reaches_from_recipes_and_maps/prohibit_relative_domain_reaches_from_recipes_and_maps.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/prohibit_sibling_stage_private_step_imports/prohibit_sibling_stage_private_step_imports.pattern.md",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/require_shared_visualization_contracts_at_stage_surfaces.pattern.md",
-        ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py"
-      ]
-    },
-    {
       "target": "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy",
       "targetClass": "habitat-toolkit",
       "references": 7,
@@ -523,6 +508,34 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps",
+      "targetClass": "mod",
+      "references": 7,
+      "sourceCount": 6,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/quality/check/validate_ecology_op_contract_quality/validate_ecology_op_contract_quality.rule.json",
+        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
+        ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs",
+        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
+      ]
+    },
+    {
+      "target": "./",
+      "targetClass": "relative",
+      "references": 6,
+      "sourceCount": 6,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/prohibit_cross_op_runtime_calls.pattern.md",
+        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_root_config_facade_imports_in_domain_ops/prohibit_root_config_facade_imports_in_domain_ops.pattern.md",
+        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_recipe_imports_in_domain_source/prohibit_recipe_imports_in_domain_source.pattern.md",
+        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_relative_domain_reaches_from_recipes_and_maps/prohibit_relative_domain_reaches_from_recipes_and_maps.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/prohibit_sibling_stage_private_step_imports/prohibit_sibling_stage_private_step_imports.pattern.md",
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/require_shared_visualization_contracts_at_stage_surfaces.pattern.md"
+      ]
+    },
+    {
       "target": "@habitat/cli/cli/base/HabitatCommand",
       "targetClass": "habitat-toolkit",
       "references": 6,
@@ -562,20 +575,6 @@
         "tools/habitat/src/service/model/check/policy/structural/selection.policy.ts",
         "tools/habitat/src/service/modules/check/model/policy/baseline-expansion.policy.ts",
         "tools/habitat/src/service/modules/check/module.ts"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/",
-      "targetClass": "mod",
-      "references": 6,
-      "sourceCount": 6,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_entrypoint_self_reexports/prohibit_domain_entrypoint_self_reexports.pattern.md",
-        ".habitat/civ7/mapgen/domain/blueprints/_self/execution/check/prohibit_rng_callback_state_in_ops/prohibit_rng_callback_state_in_ops.pattern.md",
-        ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md",
-        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/prohibit_cross_op_runtime_calls.pattern.md",
-        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_runtime_orchestration_helpers_in_domain_ops/prohibit_runtime_orchestration_helpers_in_domain_ops.pattern.md"
       ]
     },
     {
@@ -659,19 +658,6 @@
       ]
     },
     {
-      "target": "node",
-      "targetClass": "workspace-tool",
-      "references": 9,
-      "sourceCount": 5,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.rule.json",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.rule.json",
-        ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.rule.json",
-        ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.rule.json",
-        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts"
-      ]
-    },
-    {
       "target": "@habitat/cli/resources/errors/index",
       "targetClass": "habitat-toolkit",
       "references": 5,
@@ -698,16 +684,16 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps",
+      "target": "mods/mod-swooper-maps/src/domain/",
       "targetClass": "mod",
       "references": 5,
       "sourceCount": 5,
       "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/blueprints/generated-map-entrypoint/artifact/check/validate_generated_map_entrypoint_contracts/validate_generated_map_entrypoint_contracts.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/verify_standard_recipe_artifacts_match_source_stages.check.ts",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
-        ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs",
-        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
+        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_entrypoint_self_reexports/prohibit_domain_entrypoint_self_reexports.pattern.md",
+        ".habitat/civ7/mapgen/domain/blueprints/_self/execution/check/prohibit_rng_callback_state_in_ops/prohibit_rng_callback_state_in_ops.pattern.md",
+        ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md",
+        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/prohibit_cross_op_runtime_calls.pattern.md",
+        ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_runtime_orchestration_helpers_in_domain_ops/prohibit_runtime_orchestration_helpers_in_domain_ops.pattern.md"
       ]
     },
     {
@@ -859,15 +845,15 @@
       ]
     },
     {
-      "target": "../",
-      "targetClass": "relative",
-      "references": 4,
+      "target": "node",
+      "targetClass": "workspace-tool",
+      "references": 7,
       "sourceCount": 4,
       "sampleSources": [
-        ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
-        "tools/habitat/src/providers/grit/scan-roots/index.ts",
-        "tools/habitat/src/service/model/source-check/policy/source-scope.policy.ts",
-        "tools/habitat/src/service/modules/hook/model/policy/resource-inspection.policy.ts"
+        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/require_public_domain_surfaces_in_tests.rule.json",
+        ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.rule.json",
+        ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.rule.json",
+        "tools/habitat/src/service/model/check/policy/structural/command-execution.policy.ts"
       ]
     },
     {
@@ -952,18 +938,6 @@
         "tools/habitat/src/service/modules/fix/contract.ts",
         "tools/habitat/src/service/modules/hook/contract.ts",
         "tools/habitat/src/service/modules/verify/contract.ts"
-      ]
-    },
-    {
-      "target": "apps/mapgen-studio",
-      "targetClass": "app",
-      "references": 4,
-      "sourceCount": 4,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-        ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.check.mjs",
-        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
       ]
     },
     {
@@ -1131,6 +1105,17 @@
       ]
     },
     {
+      "target": "../",
+      "targetClass": "relative",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/scan-roots/index.ts",
+        "tools/habitat/src/service/model/source-check/policy/source-scope.policy.ts",
+        "tools/habitat/src/service/modules/hook/model/policy/resource-inspection.policy.ts"
+      ]
+    },
+    {
       "target": "../../vitest.config.ts",
       "targetClass": "relative",
       "references": 3,
@@ -1186,6 +1171,17 @@
       ]
     },
     {
+      "target": "apps/mapgen-studio",
+      "targetClass": "app",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/enforce_studio_dev_runner_topology.check.ts",
+        ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/ensure_studio_worker_bundle_is_browser_safe.check.mjs",
+        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
+      ]
+    },
+    {
       "target": "apps/mapgen-studio/src/server/recipeDag/service.ts",
       "targetClass": "app",
       "references": 3,
@@ -1194,17 +1190,6 @@
         ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/boundary/check/require_studio_ui_recipe_artifact_imports/require_studio_ui_recipe_artifact_imports.pattern.md",
         ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/prohibit_recipe_dag_runtime_source_dependencies/prohibit_recipe_dag_runtime_source_dependencies.pattern.md",
         ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain",
-      "targetClass": "mod",
-      "references": 3,
-      "sourceCount": 3,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
-        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
       ]
     },
     {
@@ -1812,6 +1797,16 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/domain",
+      "targetClass": "mod",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
+        ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/prohibit_product_scan_roots_in_grit_provider.pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/domain/ecology/config.ts",
       "targetClass": "mod",
       "references": 2,
@@ -1819,16 +1814,6 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md",
         ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_wrapper_only_advanced_config/prohibit_wrapper_only_advanced_config.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/domain/ecology/ops/",
-      "targetClass": "mod",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.pattern.md"
       ]
     },
     {
@@ -1879,16 +1864,6 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/prohibit_cross_op_runtime_calls.pattern.md",
         ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_runtime_orchestration_helpers_in_domain_ops/prohibit_runtime_orchestration_helpers_in_domain_ops.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes",
-      "targetClass": "mod",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts"
       ]
     },
     {
@@ -1959,16 +1934,6 @@
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md",
         ".habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names/prohibit_milestone_prefixed_standard_recipe_tag_catalog_names.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
-      "targetClass": "mod",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-        ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_foundation_advanced_cast_merge_fragments/prohibit_foundation_advanced_cast_merge_fragments.pattern.md"
       ]
     },
     {
@@ -2129,16 +2094,6 @@
       "sampleSources": [
         "tools/habitat/src/providers/nx/graph.ts",
         "tools/habitat/src/service/modules/verify/model/policy/receipt.policy.ts"
-      ]
-    },
-    {
-      "target": "packages/mapgen-core/src",
-      "targetClass": "package",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/contract/check/preserve_physics_to_map_projection_contracts/preserve_physics_to_map_projection_contracts.check.mjs",
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
       ]
     },
     {
@@ -2831,15 +2786,6 @@
       ]
     },
     {
-      "target": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-      "targetClass": "habitat-authority",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.rule.json"
-      ]
-    },
-    {
       "target": ".habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/require_owned_domain_config_catalog_surfaces/require_owned_domain_config_catalog_surfaces.check.mjs",
       "targetClass": "habitat-authority",
       "references": 2,
@@ -2975,15 +2921,6 @@
       ]
     },
     {
-      "target": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-      "targetClass": "habitat-authority",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.rule.json"
-      ]
-    },
-    {
       "target": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/require_recipe_dag_contract_metadata.check.ts",
       "targetClass": "habitat-authority",
       "references": 2,
@@ -3074,24 +3011,6 @@
       ]
     },
     {
-      "target": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
-      "targetClass": "habitat-authority",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.rule.json"
-      ]
-    },
-    {
-      "target": ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts",
-      "targetClass": "habitat-authority",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.rule.json"
-      ]
-    },
-    {
       "target": ".habitat/habitat/toolkit/blueprints/cli/contract/check/verify_habitat_cli_smoke_contract/verify_habitat_cli_smoke_contract.check.ts",
       "targetClass": "habitat-authority",
       "references": 2,
@@ -3116,6 +3035,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/generate_generator_schema_contracts.operation.md"
+      ]
+    },
+    {
+      "target": "tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts",
+      "targetClass": "habitat-toolkit",
+      "references": 2,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.rule.json"
       ]
     },
     {
@@ -3911,6 +3839,15 @@
       ]
     },
     {
+      "target": "./scripts/validate-ecology-op-contract-quality.ts",
+      "targetClass": "relative",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "mods/mod-swooper-maps/package.json#scripts.validate:ecology-op-contract-quality"
+      ]
+    },
+    {
       "target": "./shared-types.js",
       "targetClass": "relative",
       "references": 1,
@@ -4109,15 +4046,6 @@
       ]
     },
     {
-      "target": "@habitat/cli/resources/paths",
-      "targetClass": "habitat-toolkit",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts"
-      ]
-    },
-    {
       "target": "@habitat/cli/runtime/service-context",
       "targetClass": "habitat-toolkit",
       "references": 1,
@@ -4133,15 +4061,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/cli/base/HabitatCommand.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy",
-      "targetClass": "habitat-toolkit",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts"
       ]
     },
     {
@@ -4169,15 +4088,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/cli/base/HabitatCommand.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/validation/validate_boundary_taxonomy_against_workspace_graph-inputs",
-      "targetClass": "habitat-toolkit",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts"
       ]
     },
     {
@@ -4667,6 +4577,15 @@
       ]
     },
     {
+      "target": "bun ./scripts/validate-ecology-op-contract-quality.ts",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "mods/mod-swooper-maps/package.json#scripts.validate:ecology-op-contract-quality"
+      ]
+    },
+    {
       "target": "bun ./src/dev/diagnostics/analyze-dump.ts",
       "targetClass": "workspace-tool",
       "references": 1,
@@ -4718,6 +4637,15 @@
       "sourceCount": 1,
       "sampleSources": [
         "mods/mod-swooper-maps/project.json#targets.viz:standard"
+      ]
+    },
+    {
+      "target": "bun habitat check --tool grit-check && bun habitat check --tool structure-check && bun habitat check --tool command-check",
+      "targetClass": "workspace-tool",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "package.json#scripts.ci:architecture-strict-core"
       ]
     },
     {
@@ -5378,69 +5306,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/dist/recipes/standard.js",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/dist/recipes/standard.presets.json",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/mod/",
       "targetClass": "mod",
       "references": 1,
@@ -5510,33 +5375,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/block_studio_config_leakage_into_shipped_catalog.check.ts"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/package.json",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
       ]
     },
     {
@@ -5645,6 +5483,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/domain/ecology/ops/",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces.pattern.md"
       ]
     },
     {
@@ -5945,15 +5792,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/maps/configs",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/maps/configs/",
       "targetClass": "mod",
       "references": 1,
@@ -6014,15 +5852,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/prohibit_retired_domain_root_catalogs/prohibit_retired_domain_root_catalogs.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/maps/presets",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
       ]
     },
     {
@@ -6104,6 +5933,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_wrapper_only_advanced_config/prohibit_wrapper_only_advanced_config.pattern.md"
+      ]
+    },
+    {
+      "target": "mods/mod-swooper-maps/src/recipes",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/service/modules/fix/model/policy/pattern-apply-admissions.policy.ts"
       ]
     },
     {
@@ -6548,15 +6386,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology-features/steps/features.ts",
       "targetClass": "mod",
       "references": 1,
@@ -6653,15 +6482,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_relative_domain_reaches_from_recipes_and_maps/prohibit_relative_domain_reaches_from_recipes_and_maps.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
       ]
     },
     {
@@ -7178,6 +6998,15 @@
       ]
     },
     {
+      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
+      "targetClass": "mod",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_foundation_advanced_cast_merge_fragments/prohibit_foundation_advanced_cast_merge_fragments.pattern.md"
+      ]
+    },
+    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection",
       "targetClass": "mod",
       "references": 1,
@@ -7265,33 +7094,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/require_shared_visualization_contracts_at_stage_surfaces.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
       ]
     },
     {
@@ -7439,15 +7241,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/.",
       "targetClass": "mod",
       "references": 1,
@@ -7484,24 +7277,6 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains",
       "targetClass": "mod",
       "references": 1,
@@ -7520,30 +7295,12 @@
       ]
     },
     {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ]
-    },
-    {
       "target": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing/steps/demo.ts",
       "targetClass": "mod",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/prohibit_morphology_dual_read_tokens/prohibit_morphology_dual_read_tokens.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/src/recipes/standard/stages/placement",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
       ]
     },
     {
@@ -7679,15 +7436,6 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/prohibit_sibling_stage_private_step_imports/prohibit_sibling_stage_private_step_imports.pattern.md"
-      ]
-    },
-    {
-      "target": "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
-      "targetClass": "mod",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
       ]
     },
     {
@@ -8258,21 +8006,21 @@
       ]
     },
     {
-      "target": "packages/mapgen-core/dist",
-      "targetClass": "package",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-      ]
-    },
-    {
       "target": "packages/mapgen-core/dist/index.js",
       "targetClass": "package",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs"
+      ]
+    },
+    {
+      "target": "packages/mapgen-core/src",
+      "targetClass": "package",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/map-output/blueprints/map-projection/contract/check/preserve_physics_to_map_projection_contracts/preserve_physics_to_map_projection_contracts.check.mjs"
       ]
     },
     {
@@ -9780,295 +9528,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-      "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "apps/mapgen-studio",
-          "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
-          "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
-          "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
-          "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
-          "mods/mod-swooper-maps/dist/recipes/standard.js",
-          "mods/mod-swooper-maps/dist/recipes/standard.presets.json",
-          "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
-          "mods/mod-swooper-maps/package.json",
-          "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-          "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
-          "mods/mod-swooper-maps/src/domain",
-          "mods/mod-swooper-maps/src/maps/configs",
-          "mods/mod-swooper-maps/src/maps/presets",
-          "mods/mod-swooper-maps/src/recipes",
-          "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
-          "packages/mapgen-core/dist",
-          "packages/mapgen-core/src"
-        ],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
-        "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [
-          "Run `bun run --cwd apps/mapgen-studio ensure:require_studio_ui_recipe_artifact_imports` to refresh the package-local artifacts."
-        ],
-        "knownMutationVerbs": [
-          "generate"
-        ],
-        "all": [
-          {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "cwd-assumption",
-            "value": "Run `bun run --cwd apps/mapgen-studio ensure:require_studio_ui_recipe_artifact_imports` to refresh the package-local artifacts.",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "generate",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "apps/mapgen-studio",
-            "targetClass": "app"
-          },
-          {
-            "kind": "path-reference",
-            "value": "dist",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.js",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.presets.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/package.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/configs",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/presets",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/dist",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "git",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie",
-          "reaches package/app/mod boundary"
-        ]
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked",
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.rule.json",
-      "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "declaredOwnerTool": "command-check",
-      "invokedBy": [
-        "habitat"
-      ],
-      "detectCommand": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-        "node"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node"
-        ],
-        "directHabitatPathCalls": [
-          ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-          ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-        ],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": "node",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "adapter",
-          "transient-dependency"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "habitat_invoked",
-        "nx_ordering_tie"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs",
       "path": ".habitat/civ7/mapgen/visualization/blueprints/runtime-dependencies/artifact/check/verify_visualization_runtime_build_artifacts/verify_visualization_runtime_build_artifacts.check.mjs",
       "surfaceKind": "check-script",
@@ -11523,183 +10982,6 @@
             "kind": "shell-command",
             "value": "grit-check",
             "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "adapter"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "habitat_invoked"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-      "path": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "mods/mod-swooper-maps/src/domain/",
-          "mods/mod-swooper-maps/src/domain/ecology/ops/",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing",
-          "mods/mod-swooper-maps/src/recipes/standard/stages/placement"
-        ],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">"
-        ],
-        "all": [
-          {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain/ecology/ops/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/ecology/steps/",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-erosion",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-routing",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes/standard/stages/placement",
-            "targetClass": "mod"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": [
-          "reaches package/app/mod boundary"
-        ]
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked",
-        "mutation_surface",
-        "package_boundary_tie"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.rule.json",
-      "path": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "declaredOwnerTool": "command-check",
-      "invokedBy": [
-        "habitat"
-      ],
-      "detectCommand": [
-        ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [
-          ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-          ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh"
-        ],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/enforce_domain_refactor_boundary_profile/enforce_domain_refactor_boundary_profile.check.sh",
-            "targetClass": "habitat-authority"
           }
         ]
       },
@@ -16846,6 +16128,89 @@
       },
       "buckets": [
         "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/quality/check/validate_ecology_op_contract_quality/validate_ecology_op_contract_quality.rule.json",
+      "path": ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/quality/check/validate_ecology_op_contract_quality/validate_ecology_op_contract_quality.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "command-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        "--cwd",
+        "bun",
+        "mods/mod-swooper-maps",
+        "run",
+        "validate:ecology-op-contract-quality"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "mods/mod-swooper-maps",
+          "mods/mod-swooper-maps"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "mods/mod-swooper-maps",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "--cwd",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "bun",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "mods/mod-swooper-maps",
+            "targetClass": "mod"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "run",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "validate:ecology-op-contract-quality",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked",
+        "package_boundary_tie"
       ]
     },
     {
@@ -25347,295 +24712,6 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-      "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [
-          "apps/mapgen-studio",
-          "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
-          "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
-          "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
-          "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
-          "mods/mod-swooper-maps/dist/recipes/standard.js",
-          "mods/mod-swooper-maps/dist/recipes/standard.presets.json",
-          "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
-          "mods/mod-swooper-maps/package.json",
-          "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-          "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
-          "mods/mod-swooper-maps/src/domain",
-          "mods/mod-swooper-maps/src/maps/configs",
-          "mods/mod-swooper-maps/src/maps/presets",
-          "mods/mod-swooper-maps/src/recipes",
-          "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
-          "packages/mapgen-core/dist",
-          "packages/mapgen-core/src"
-        ],
-        "childProcessCalls": [
-          "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
-        ],
-        "shellCommandCalls": [
-          "git",
-          "node:child_process",
-          "node:fs",
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [
-          "Run `bun run --cwd apps/mapgen-studio ensure:require_studio_ui_recipe_artifact_imports` to refresh the package-local artifacts."
-        ],
-        "knownMutationVerbs": [
-          "generate"
-        ],
-        "all": [
-          {
-            "kind": "child-process",
-            "value": "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "cwd-assumption",
-            "value": "Run `bun run --cwd apps/mapgen-studio ensure:require_studio_ui_recipe_artifact_imports` to refresh the package-local artifacts.",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "generate",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "apps/mapgen-studio",
-            "targetClass": "app"
-          },
-          {
-            "kind": "path-reference",
-            "value": "dist",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard-artifacts.d.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard-artifacts.js",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.d.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.defaults.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.js",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.presets.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/dist/recipes/standard.schema.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/package.json",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/scripts/generate-map-artifacts.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/scripts/generate-studio-recipe-types.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/domain",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/configs",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/maps/presets",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/src/recipes",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "mods/mod-swooper-maps/tsup.studio-recipes.config.ts",
-            "targetClass": "mod"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/dist",
-            "targetClass": "package"
-          },
-          {
-            "kind": "path-reference",
-            "value": "packages/mapgen-core/src",
-            "targetClass": "package"
-          },
-          {
-            "kind": "shell-command",
-            "value": "git",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:child_process",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "transient-dependency"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie",
-          "reaches package/app/mod boundary"
-        ]
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked",
-        "mutation_surface",
-        "nx_ordering_tie",
-        "package_boundary_tie"
-      ]
-    },
-    {
-      "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.rule.json",
-      "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.rule.json",
-      "surfaceKind": "rule-json",
-      "surfaceRole": "runner_metadata",
-      "declaredOwnerTool": "command-check",
-      "invokedBy": [
-        "habitat"
-      ],
-      "detectCommand": [
-        ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-        "node"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node"
-        ],
-        "directHabitatPathCalls": [
-          ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-          ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs"
-        ],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "path-reference",
-            "value": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/artifact/check/verify_studio_recipe_artifacts_are_current/verify_studio_recipe_artifacts_are_current.check.mjs",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": "node",
-            "targetClass": "workspace-tool"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node",
-            "targetClass": "workspace-tool"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "adapter",
-          "transient-dependency"
-        ],
-        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
-        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
-        "supportSignals": [],
-        "transientSignals": [
-          "build/currentness or ordering tie"
-        ]
-      },
-      "buckets": [
-        "habitat_invoked",
-        "nx_ordering_tie"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/boundary/check/require_studio_ui_recipe_artifact_imports/require_studio_ui_recipe_artifact_imports.pattern.md",
       "path": ".habitat/civ7/mapgen/studio/blueprints/recipe-artifact-supply/boundary/check/require_studio_ui_recipe_artifact_imports/require_studio_ui_recipe_artifact_imports.pattern.md",
       "surfaceKind": "pattern",
@@ -29379,102 +28455,6 @@
       ]
     },
     {
-      "id": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
-      "path": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "__future__",
-          "argparse",
-          "dataclasses",
-          "pathlib",
-          "re",
-          "sys"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [
-          ">",
-          "rm"
-        ],
-        "all": [
-          {
-            "kind": "import",
-            "value": "__future__",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "import",
-            "value": "argparse",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "dataclasses",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "pathlib",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "re",
-            "targetClass": "external"
-          },
-          {
-            "kind": "import",
-            "value": "sys",
-            "targetClass": "external"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": ">",
-            "targetClass": "unknown"
-          },
-          {
-            "kind": "mutation-verb",
-            "value": "rm",
-            "targetClass": "external"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "path-reference",
-            "value": "./",
-            "targetClass": "relative"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked",
-        "mutation_surface"
-      ]
-    },
-    {
       "id": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.rule.json",
       "path": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.rule.json",
       "surfaceKind": "rule-json",
@@ -29484,7 +28464,7 @@
         "habitat"
       ],
       "detectCommand": [
-        ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
+        "docs/system/libs/mapgen/tools/validate-anchors-and-references.py",
         "python3"
       ],
       "isDirectEntrypoint": false,
@@ -29496,22 +28476,14 @@
         "shellCommandCalls": [
           "python3"
         ],
-        "directHabitatPathCalls": [
-          ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
-          ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py"
-        ],
+        "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "path-reference",
-            "value": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
-            "targetClass": "habitat-authority"
-          },
-          {
             "kind": "rule-detect-command",
-            "value": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
-            "targetClass": "habitat-authority"
+            "value": "docs/system/libs/mapgen/tools/validate-anchors-and-references.py",
+            "targetClass": "unknown"
           },
           {
             "kind": "rule-detect-command",
@@ -29799,85 +28771,6 @@
       ]
     },
     {
-      "id": ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts",
-      "path": ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "@habitat/cli/resources/paths",
-          "@habitat/cli/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy",
-          "@habitat/cli/validation/validate_boundary_taxonomy_against_workspace_graph-inputs",
-          "node:fs/promises",
-          "node:path"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node:fs/promises",
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "@habitat/cli/resources/paths",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "@habitat/cli/validation/validate_boundary_taxonomy_against_workspace_graph-inputs",
-            "targetClass": "habitat-toolkit"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs/promises",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs/promises",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [],
-        "transientSignals": []
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked"
-      ]
-    },
-    {
       "id": ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.rule.json",
       "path": ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.rule.json",
       "surfaceKind": "rule-json",
@@ -29887,8 +28780,8 @@
         "habitat"
       ],
       "detectCommand": [
-        ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts",
-        "bun"
+        "bun",
+        "tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -29899,27 +28792,24 @@
         "shellCommandCalls": [
           "bun"
         ],
-        "directHabitatPathCalls": [
-          ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts",
-          ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts"
-        ],
+        "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
             "kind": "path-reference",
-            "value": ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts",
-            "targetClass": "habitat-authority"
-          },
-          {
-            "kind": "rule-detect-command",
-            "value": ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts",
-            "targetClass": "habitat-authority"
+            "value": "tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts",
+            "targetClass": "habitat-toolkit"
           },
           {
             "kind": "rule-detect-command",
             "value": "bun",
             "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts",
+            "targetClass": "habitat-toolkit"
           },
           {
             "kind": "shell-command",
@@ -33147,6 +32037,57 @@
       ]
     },
     {
+      "id": "mods/mod-swooper-maps/package.json#scripts.validate:ecology-op-contract-quality",
+      "path": "mods/mod-swooper-maps/package.json",
+      "surfaceKind": "package-script",
+      "surfaceRole": "workspace_entrypoint",
+      "invokedBy": [
+        "package"
+      ],
+      "packageScript": {
+        "packagePath": "mods/mod-swooper-maps/package.json",
+        "packageName": "mod-swooper-maps",
+        "name": "validate:ecology-op-contract-quality",
+        "command": "bun ./scripts/validate-ecology-op-contract-quality.ts"
+      },
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "bun ./scripts/validate-ecology-op-contract-quality.ts"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "./scripts/validate-ecology-op-contract-quality.ts",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "shell-command",
+            "value": "bun ./scripts/validate-ecology-op-contract-quality.ts",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint"
+        ],
+        "summary": "Workspace entrypoint that may invoke Habitat or package-local work.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "package_invoked"
+      ]
+    },
+    {
       "id": "mods/mod-swooper-maps/package.json#scripts.verify",
       "path": "mods/mod-swooper-maps/package.json",
       "surfaceKind": "package-script",
@@ -35014,7 +33955,7 @@
         "packagePath": "package.json",
         "packageName": "civ7-modding-tools",
         "name": "ci:architecture-strict-core",
-        "command": "REFRACTOR_DOMAINS=\"foundation,morphology,hydrology,ecology,placement,narrative\" DOMAIN_REFACTOR_GUARDRAILS_PROFILE=full DOMAIN_REFACTOR_GUARDRAILS_REQUIRE_FULL=1 bun habitat check --rule enforce_domain_refactor_boundary_profile"
+        "command": "bun habitat check --tool grit-check && bun habitat check --tool structure-check && bun habitat check --tool command-check"
       },
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -35022,11 +33963,19 @@
         "relativeHabitatImports": [],
         "packageAppModImports": [],
         "childProcessCalls": [],
-        "shellCommandCalls": [],
+        "shellCommandCalls": [
+          "bun habitat check --tool grit-check && bun habitat check --tool structure-check && bun habitat check --tool command-check"
+        ],
         "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
-        "all": []
+        "all": [
+          {
+            "kind": "shell-command",
+            "value": "bun habitat check --tool grit-check && bun habitat check --tool structure-check && bun habitat check --tool command-check",
+            "targetClass": "workspace-tool"
+          }
+        ]
       },
       "anatomy": {
         "roles": [

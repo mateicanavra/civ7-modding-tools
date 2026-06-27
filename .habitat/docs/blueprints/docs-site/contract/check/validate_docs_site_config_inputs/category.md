@@ -26,4 +26,5 @@ Files:
 Evidence: The check validates docs-site `docs.json` publication navigation semantics.
 
 Notes:
+- Residual owner class: docs validator; docs-site config input validity is docs package behavior.
 - Root file presence moved to `require_docs_site_root_inputs`.

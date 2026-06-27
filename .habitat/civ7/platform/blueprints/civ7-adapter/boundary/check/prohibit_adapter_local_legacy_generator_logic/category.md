@@ -26,4 +26,5 @@ Files:
 Evidence: The check prevents adapter-local legacy generator and ad-hoc RNG/fudge constructs.
 
 Notes:
+- Residual owner class: future owner gap; pure adapter source predicate should become Grit in a later source-rule wave.
 - none

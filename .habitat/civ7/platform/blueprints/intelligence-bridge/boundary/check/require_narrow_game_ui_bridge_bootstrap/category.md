@@ -26,4 +26,5 @@ Files:
 Evidence: The check requires the bridge UI bootstrap to use the narrow game-ui entrypoint and avoid root oRPC/client-server primitives.
 
 Notes:
+- Residual owner class: future owner gap; bridge bootstrap source-shape assertions should become Grit when required-shape patterns are extracted.
 - none

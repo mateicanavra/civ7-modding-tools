@@ -1,3 +1,6 @@
+/**
+ * Validates vegetation-substrate inputs and returns the expected grid size.
+ */
 export function validateVegetationSubstrateInputs(args: {
   width: number;
   height: number;

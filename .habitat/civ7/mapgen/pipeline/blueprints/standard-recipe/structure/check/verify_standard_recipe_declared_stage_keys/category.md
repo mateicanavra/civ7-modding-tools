@@ -26,5 +26,6 @@ Files:
 Evidence: The check asserts the literal `orderStandardStages({ ... })` key order in the standard recipe source.
 
 Notes:
+- Residual owner class: package-local contract validator; declared stage keys are manifest/recipe semantics, not file-tree topology.
 - Split from `preserve_standard_stage_topology_and_path_invariants` when pure file-tree topology moved to `structure-check`.
 - This remains command-owned because it parses source declaration order; it is not file-tree topology.

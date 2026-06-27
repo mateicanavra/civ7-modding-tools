@@ -101,8 +101,7 @@ function habitatToolingStructuralTargetNames(paths: readonly string[]): readonly
 
 function isBoundaryTaxonomyToolingPath(filePath: string): boolean {
   return (
-    filePath ===
-      ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts" ||
+    filePath === "tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts" ||
     filePath === "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts" ||
     filePath === "tools/habitat/src/validation/validate_boundary_taxonomy_against_workspace_graph-inputs.ts"
   );

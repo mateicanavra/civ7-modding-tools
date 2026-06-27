@@ -20,7 +20,6 @@ Authority path: `.habitat/docs/blueprints/mapgen-canonical-docs/quality/check/va
 
 Files:
 - `validate_mapgen_docs_anchors_and_references.baseline.json`
-- `validate_mapgen_docs_anchors_and_references.check.py`
 - `validate_mapgen_docs_anchors_and_references.rule.json`
 
 Evidence: The residual check validates repo-relative anchor target existence and reference warning policy for MapGen docs.
@@ -28,3 +27,4 @@ Evidence: The residual check validates repo-relative anchor target existence and
 Notes:
 - This is docs quality and navigability, not a MapGen-specific category.
 - Markdown shape predicates for the mini XML `<toc>` and `## Ground truth anchors` heading now live in narrow Grit packets.
+- Residual owner class: docs validator. The executable lives at `docs/system/libs/mapgen/tools/validate-anchors-and-references.py`; this packet is Habitat metadata/delegation.

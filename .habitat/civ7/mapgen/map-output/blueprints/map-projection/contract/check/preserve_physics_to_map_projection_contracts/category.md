@@ -26,4 +26,5 @@ Files:
 Evidence: The check keeps physics/map contracts from requiring map artifacts/effects and validates canonical effect names.
 
 Notes:
+- Residual owner class: package-local validator; contract parity checks stay with the projection package surface.
 - none
