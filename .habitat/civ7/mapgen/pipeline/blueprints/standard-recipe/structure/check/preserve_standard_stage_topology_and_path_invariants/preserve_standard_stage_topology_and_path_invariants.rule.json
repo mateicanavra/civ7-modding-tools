@@ -1,23 +1,26 @@
 {
   "id": "preserve_standard_stage_topology_and_path_invariants",
   "title": "Preserve Standard Stage Topology And Path Invariants",
-  "ownerTool": "command-check",
+  "ownerTool": "structure-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/recipes/standard/recipe.ts and standard stage directories",
-  "forbids": "standard recipe stage order drift or map-shaped helper stage directories outside the recipe topology",
-  "why": "The standard MapGen pipeline topology is structural authority; product behavior tests should not own it.",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard stage directories",
+  "forbids": "standard recipe stage directory drift, missing stage entrypoints, or retired stage directories",
+  "why": "The standard MapGen pipeline file tree is structural authority; source-order and runtime parity checks are owned by separate rules.",
   "detect": [
-    ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs"
+    "habitat",
+    "check",
+    "--tool",
+    "structure-check"
   ],
   "remediate": null,
   "message": "Update the standard topology intentionally and move any helper directory out of stage shape.",
   "exceptionPath": "none",
+  "structureFile": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.structure.toml",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
         "mods/mod-swooper-maps/src/recipes/standard/stages/*"
       ]
     }

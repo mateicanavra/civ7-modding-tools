@@ -152,6 +152,7 @@ const knownToolSelectors = new Set([
   "habitat",
   "nx",
   "source-check",
+  "structure-check",
 ]);
 
 function isKnownToolSelector(kind: RuleSelectorKind, value: string): boolean {

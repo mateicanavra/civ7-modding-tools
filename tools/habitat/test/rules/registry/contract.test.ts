@@ -26,9 +26,10 @@ describe("rule registry contract", () => {
       readText: readTextSync,
     }).rules;
 
-    expect(rules).toHaveLength(74);
+    expect(rules).toHaveLength(75);
     expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(0);
     expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(31);
+    expect(rules.filter((rule) => rule.ownerTool === "structure-check")).toHaveLength(1);
     expect(rules.filter((rule) => rule.ownerTool === "file-layer")).toHaveLength(5);
     expect(rules.filter((rule) => rule.ownerTool === "format-check")).toHaveLength(1);
     expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(36);
@@ -197,6 +198,28 @@ describe("rule registry contract", () => {
     expectInvalid(
       parseRuleRegistryDocument(
         registryDocument([{ ...baseRule({ ownerTool: "source-check" }) }]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([{ ...baseRule({ ownerTool: "structure-check" }) }]),
+        "inline-registry.json"
+      ),
+      "registry-schema-invalid"
+    );
+
+    expectInvalid(
+      parseRuleRegistryDocument(
+        registryDocument([
+          {
+            ...baseRule({ ownerTool: "structure-check" }),
+            structureFile: ".habitat/sample/sample.structure.toml",
+            patternName: "not_structure_authority",
+          },
+        ]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"

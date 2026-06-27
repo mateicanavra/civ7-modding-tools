@@ -50,6 +50,12 @@ export const service: EffectImplementerInternal<
         readDirectory: context.deps.platform.readDirectory,
         readText: context.deps.platform.readText,
       },
+      structureFileSystem: {
+        isDirectory: context.deps.platform.isDirectory,
+        isFile: context.deps.platform.isFileEffect,
+        readDirectory: context.deps.platform.readDirectory,
+        readText: context.deps.platform.readText,
+      },
     };
 
     return next({

@@ -274,6 +274,9 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
     for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
+  if (rule.ownerTool === "structure-check") {
+    inputs.add(workspaceInput(rule.structureFile));
+  }
   if (rule.ownerTool === "habitat" || rule.ownerTool === "command-check") {
     inputs.add(`{workspaceRoot}/.habitat/**/${rule.id}/**`);
   }

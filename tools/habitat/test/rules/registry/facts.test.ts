@@ -7,6 +7,7 @@ import {
   ruleManifestFacts,
   ruleRoutingFacts,
   ruleSourceFacts,
+  ruleStructureFacts,
 } from "@habitat/cli/service/model/rules/index";
 import { workspaceGraphTargetNames } from "@habitat/cli/service/model/workspace/index";
 import { describe, expect, test } from "vitest";
@@ -53,8 +54,13 @@ describe("rule registry facts", () => {
       ownerTool: "file-layer",
       generatedZone: "swooper-map-generated",
     });
+    const structureRule = baseRule({
+      id: "structure-rule",
+      ownerTool: "structure-check",
+      structureFile: ".habitat/sample/sample.structure.toml",
+    });
 
-    expect(ruleCommandExecutionFacts([commandRule, gritRule, fileLayerRule])).toEqual([
+    expect(ruleCommandExecutionFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
       {
         id: "sample-rule",
         ownerTool: "command-check",
@@ -63,7 +69,7 @@ describe("rule registry facts", () => {
         message: "Fix the structural issue.",
       },
     ]);
-    expect(ruleSourceFacts([commandRule, gritRule, fileLayerRule])).toEqual([
+    expect(ruleSourceFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
       {
         id: "rule",
         lane: "enforced",
@@ -73,13 +79,22 @@ describe("rule registry facts", () => {
         scanRoots: ["packages"],
       },
     ]);
-    expect(ruleFileLayerFacts([commandRule, gritRule, fileLayerRule])).toEqual([
+    expect(ruleFileLayerFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
       {
         id: "file-layer-rule",
         ownerTool: "file-layer",
         lane: "enforced",
         message: "Fix the structural issue.",
         generatedZone: "swooper-map-generated",
+      },
+    ]);
+    expect(ruleStructureFacts([commandRule, gritRule, fileLayerRule, structureRule])).toEqual([
+      {
+        id: "structure-rule",
+        lane: "enforced",
+        message: "Fix the structural issue.",
+        pathCoverage: [{ kind: "project-owner" }],
+        structureFile: ".habitat/sample/sample.structure.toml",
       },
     ]);
   });

@@ -1,0 +1,59 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "standard-stage-root"
+root = "mods/mod-swooper-maps/src/recipes/standard/stages"
+kind = "directory"
+mode = "closed"
+required = [
+  "foundation-mantle",
+  "foundation-lithosphere",
+  "foundation-tectonics",
+  "foundation-orogeny",
+  "foundation-projection",
+  "morphology-coasts",
+  "morphology-routing",
+  "morphology-erosion",
+  "morphology-features",
+  "morphology-shelf",
+  "hydrology-climate-baseline",
+  "hydrology-hydrography",
+  "hydrology-climate-refine",
+  "ecology-pedology",
+  "ecology-biomes",
+  "map-morphology",
+  "map-hydrology",
+  "map-elevation",
+  "map-rivers",
+  "ecology-features",
+  "map-ecology",
+  "placement",
+  "ecology",
+  "foundation",
+  "morphology",
+]
+allowed = [
+  "*-public-config.ts",
+]
+forbidden = [
+  "hydrology-pre",
+  "hydrology-core",
+  "hydrology-post",
+  "narrative-pre",
+  "narrative-mid",
+  "narrative-post",
+  "advanced",
+  "_legacy-*",
+]
+
+[[scopes]]
+name = "active-stage-directories"
+root = "mods/mod-swooper-maps/src/recipes/standard/stages/{foundation-mantle,foundation-lithosphere,foundation-tectonics,foundation-orogeny,foundation-projection,morphology-coasts,morphology-routing,morphology-erosion,morphology-features,morphology-shelf,hydrology-climate-baseline,hydrology-hydrography,hydrology-climate-refine,ecology-pedology,ecology-biomes,map-morphology,map-hydrology,map-elevation,map-rivers,ecology-features,map-ecology,placement}"
+kind = "directory"
+mode = "open"
+
+[[scopes]]
+name = "active-stage-entrypoints"
+root = "mods/mod-swooper-maps/src/recipes/standard/stages/{foundation-mantle,foundation-lithosphere,foundation-tectonics,foundation-orogeny,foundation-projection,morphology-coasts,morphology-routing,morphology-erosion,morphology-features,morphology-shelf,hydrology-climate-baseline,hydrology-hydrography,hydrology-climate-refine,ecology-pedology,ecology-biomes,map-morphology,map-hydrology,map-elevation,map-rivers,ecology-features,map-ecology,placement}/index.ts"
+kind = "file"
+mode = "open"
