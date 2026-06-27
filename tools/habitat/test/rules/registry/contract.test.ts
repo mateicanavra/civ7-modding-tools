@@ -28,10 +28,10 @@ describe("rule registry contract", () => {
 
     expect(rules).toHaveLength(73);
     expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(0);
-    expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(36);
+    expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(33);
     expect(rules.filter((rule) => rule.ownerTool === "file-layer")).toHaveLength(5);
     expect(rules.filter((rule) => rule.ownerTool === "format-check")).toHaveLength(1);
-    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(30);
+    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(33);
     expect(rules.filter((rule) => rule.ownerTool === "nx")).toHaveLength(1);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
     expect(
