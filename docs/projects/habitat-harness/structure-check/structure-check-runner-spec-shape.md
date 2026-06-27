@@ -52,10 +52,6 @@ category.md
 ```toml
 schemaVersion = 1
 
-[metadata]
-description = "Standard recipe stage topology"
-notes = "File-tree shape only. Source imports/calls belong to Grit; freshness belongs to package validators."
-
 [[scopes]]
 name = "standard-stage-root"
 root = "mods/mod-swooper-maps/src/recipes/standard/stages"
@@ -121,7 +117,7 @@ Each `[[scopes]]` entry is evaluated independently.
 | --- | --- |
 | `name` | Stable diagnostic label for the scope. |
 | `root` | Repo-relative glob. Every matched root is checked independently. |
-| `kind` | Expected root kind: `directory`, `file`, or `any`. The first implementation should support `directory`; `file` can be admitted only if a canary needs it. |
+| `kind` | Expected root kind: `directory` or `file`. Use another scope when child kind matters. |
 | `mode` | `open` allows undeclared direct children. `closed` requires every direct child to match `required` or `allowed` and not match `forbidden`. |
 | `required` | Direct-child glob patterns that must each match at least once under every matched root. |
 | `allowed` | Direct-child glob patterns that are admitted in a closed scope but are not required. |
@@ -182,6 +178,16 @@ Diagnostics should identify:
 - actual child path when available;
 - failure kind: missing required match, forbidden match, unexpected child,
   root missing, wrong root kind, or pattern conflict.
+
+## V1 Closed Contract
+
+The first implementation treats the TOML as a closed contract:
+
+- top-level fields are only `schemaVersion` and `scopes`;
+- scope fields are only `name`, `root`, `kind`, `mode`, `required`,
+  `allowed`, and `forbidden`;
+- unsupported fields fail clearly instead of being carried as comments or
+  metadata.
 
 ## Baselines
 

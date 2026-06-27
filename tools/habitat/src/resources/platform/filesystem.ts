@@ -11,6 +11,15 @@ export interface HabitatDirectoryEntry {
   readonly kind: "directory" | "file" | "other";
 }
 
+export interface HabitatFileSystemReadPort<R = never> {
+  readonly isDirectory: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
+  readonly isFile: (targetPath: string) => Effect.Effect<boolean, unknown, R>;
+  readonly readDirectory: (
+    targetPath: string
+  ) => Effect.Effect<readonly HabitatDirectoryEntry[], unknown, R>;
+  readonly readText: (targetPath: string) => Effect.Effect<string, unknown, R>;
+}
+
 export function isDirectory(
   targetPath: string
 ): Effect.Effect<boolean, FileReadFailed, FileSystem.FileSystem> {

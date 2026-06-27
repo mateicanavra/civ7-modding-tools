@@ -11,6 +11,7 @@ import {
   ruleRoutingFacts,
   ruleSelectorFacts,
   ruleSourceFacts,
+  ruleStructureFacts,
 } from "./facts.policy.js";
 import { ruleGraphFacts } from "./graph.policy.js";
 
@@ -22,6 +23,7 @@ export interface RuleFactsCatalog {
   readonly commandExecution: ReturnType<typeof ruleCommandExecutionFacts>;
   readonly source: ReturnType<typeof ruleSourceFacts>;
   readonly grit: ReturnType<typeof ruleGritFacts>;
+  readonly structure: ReturnType<typeof ruleStructureFacts>;
   readonly fileLayer: ReturnType<typeof ruleFileLayerFacts>;
   readonly hookCheck: ReturnType<typeof ruleHookCheckFacts>;
   readonly routing: ReturnType<typeof ruleRoutingFacts>;
@@ -38,6 +40,7 @@ export function ruleFactsCatalog(document: RuleRegistryDocumentV1): RuleFactsCat
     commandExecution: ruleCommandExecutionFacts(records),
     source: ruleSourceFacts(records),
     grit: ruleGritFacts(records),
+    structure: ruleStructureFacts(records),
     fileLayer: ruleFileLayerFacts(records),
     hookCheck: ruleHookCheckFacts(records),
     routing: ruleRoutingFacts(records),

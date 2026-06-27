@@ -1,4 +1,5 @@
 import type { FileSystem } from "@effect/platform";
+import type { HabitatFileSystemReadPort } from "@habitat/cli/resources/platform/index";
 import type {
   CommandProviderError,
   HabitatCommandResult,
@@ -31,6 +32,7 @@ export interface StructuralExecutionContext {
   readonly nx: StructuralNxPort;
   readonly rules: RuleFactsCatalog;
   readonly sourceFileSystem: SourceRuleFileSystem<FileSystem.FileSystem>;
+  readonly structureFileSystem: HabitatFileSystemReadPort<FileSystem.FileSystem>;
 }
 
 export interface StructuralBiomePort {
