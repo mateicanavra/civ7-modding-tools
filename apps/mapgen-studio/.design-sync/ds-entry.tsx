@@ -13,3 +13,15 @@ export * from "@/components/ui/index";
 export * from "@/ui/components/index";
 export { OptionSelect } from "@/ui/components/OptionSelect";
 export { StageViewTabs } from "@/ui/components/StageViewTabs";
+
+// Batch 1 (2026-06): floating shell chrome + preset dialog flows. FieldRow is
+// already re-exported through `@/ui/components/index` (the `./fields` barrel), so
+// it is surfaced via componentSrcMap alone — re-exporting it here would collide.
+export { LeftDock } from "@/app/LeftDock";
+export { RightDock } from "@/app/RightDock";
+export { ErrorBanner } from "@/app/ErrorBanner";
+export {
+  PresetErrorDialog,
+  PresetSaveDialog,
+  PresetConfirmDialog,
+} from "@/features/presets/PresetDialogs";
