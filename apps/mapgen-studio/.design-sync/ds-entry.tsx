@@ -25,3 +25,21 @@ export {
   PresetSaveDialog,
   PresetConfirmDialog,
 } from "@/features/presets/PresetDialogs";
+
+// Batch 2 (2026-06): the rjsf config-form cluster — the design-system-skinned
+// RJSF widgets + field/object/array templates that drive the schema config form.
+// Not in any source barrel, so re-exported explicitly here.
+export {
+  TextWidget,
+  TextareaWidget,
+  NumberWidget,
+  SelectWidget,
+  CheckboxWidget,
+  SwitchWidget,
+  TagSelectWidget,
+} from "@/features/configOverrides/rjsfWidgets";
+export {
+  BrowserConfigFieldTemplate,
+  BrowserConfigObjectFieldTemplate,
+  BrowserConfigArrayFieldTemplate,
+} from "@/features/configOverrides/rjsfTemplates";
