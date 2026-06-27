@@ -1,0 +1,38 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "service-module-roots"
+root = "tools/habitat/src/service/modules/*"
+kind = "directory"
+mode = "closed"
+required = [
+  "contract.ts",
+  "module.ts",
+]
+allowed = [
+  "project.json",
+  "router.ts",
+  "contract",
+  "generators",
+  "middleware",
+  "model",
+  "policy",
+  "router",
+]
+
+[[scopes]]
+name = "service-model-roots"
+root = "tools/habitat/src/service/model/*"
+kind = "directory"
+mode = "closed"
+allowed = [
+  "index.ts",
+  "*.dto.ts",
+  "*.errors.ts",
+  "*.policy.ts",
+  "*.schema.ts",
+  "dto",
+  "errors",
+  "policy",
+  "repositories",
+]

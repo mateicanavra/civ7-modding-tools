@@ -33,8 +33,6 @@ for (const moduleName of sortedChildren(modulesRoot)) {
 
   const children = sortedChildren(modulePath);
   const childSet = new Set(children);
-  requireModuleFile(moduleName, childSet, "contract.ts");
-  requireModuleFile(moduleName, childSet, "module.ts");
   if (!childSet.has("router.ts") && !childSet.has("router")) {
     report(moduleName, "service modules must declare router.ts or router/.");
   }
@@ -45,14 +43,12 @@ for (const moduleName of sortedChildren(modulesRoot)) {
     const stat = fs.statSync(childPath);
     if (stat.isDirectory()) {
       if (!moduleRootDirectories.has(child)) {
-        report(relativePath, `unknown module root directory '${child}'.`);
         continue;
       }
       validateKnownDirectory(childPath, child);
       continue;
     }
     if (!moduleRootFiles.has(child)) {
-      report(relativePath, `unknown loose module root file '${child}'.`);
       continue;
     }
   }
@@ -60,13 +56,11 @@ for (const moduleName of sortedChildren(modulesRoot)) {
 
 for (const domainName of sortedChildren(serviceModelRoot)) {
   const domainPath = path.join(serviceModelRoot, domainName);
-  const relativePath = repoPath(domainPath);
   const stat = fs.statSync(domainPath);
   if (stat.isDirectory()) {
     validateModelDirectory(domainPath, { strictPolicyNames: true });
     continue;
   }
-  report(relativePath, `unknown loose service model file '${domainName}'.`);
 }
 
 if (issues.length > 0) {
@@ -267,12 +261,6 @@ function isSourceFile(basename: string): boolean {
     basename.endsWith(".cjs") ||
     basename.endsWith(".json")
   );
-}
-
-function requireModuleFile(moduleName: string, childSet: ReadonlySet<string>, file: string): void {
-  if (!childSet.has(file)) {
-    report(moduleName, `service modules must declare ${file}.`);
-  }
 }
 
 function sortedChildren(directory: string): string[] {

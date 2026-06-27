@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 function fail(message: string): never {
@@ -13,12 +13,6 @@ function main(): void {
   }).trim();
   const docsRoot = join(repoRoot, "apps/docs");
   const docsJsonPath = join(docsRoot, "docs.json");
-  const indexMdxRoot = join(docsRoot, "index.mdx");
-  const llmsTxtPath = join(docsRoot, "public", "llms.txt");
-
-  if (!existsSync(docsJsonPath)) fail("docs.json missing");
-  if (!existsSync(indexMdxRoot)) fail("index.mdx missing");
-  if (!existsSync(llmsTxtPath)) fail("public/llms.txt missing");
 
   const json = JSON.parse(readFileSync(docsJsonPath, "utf8"));
   if (!json.name) fail("docs.json: missing name");

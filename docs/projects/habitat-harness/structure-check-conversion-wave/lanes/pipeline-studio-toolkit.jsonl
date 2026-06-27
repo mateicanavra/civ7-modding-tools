@@ -1,0 +1,5 @@
+{"ruleId":"enforce_studio_dev_runner_topology","outcome":"split","moved":["studio-dev-devlive-file-absent"],"retained":["package-json scripts","Nx target shape","evaluated Vite config","required source tokens"]}
+{"ruleId":"enforce_studio_rpc_eventhub_topology","outcome":"split","moved":["studio-rpc-eventhub-source-bans"],"retained":["studio-rpc-handler-mounted"]}
+{"ruleId":"validate_habitat_service_module_file_shape","outcome":"split","moved":["service-module-root-topology"],"retained":["recursive suffix validation","router.ts or router/ residual"]}
+{"ruleId":"verify_runtime_stage_order_matches_contract_manifest","outcome":"retained","reason":"runtime package module parity"}
+{"ruleId":"verify_standard_recipe_declared_stage_keys","outcome":"retained","reason":"source declaration order"}
