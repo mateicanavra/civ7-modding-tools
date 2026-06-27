@@ -32,7 +32,8 @@ blueprint, category, artifact kind, or authored policy root.
 - Rule identity is co-located as `<packet>.rule.json`.
 - Pattern, baseline, command-check, and provisional operation files are co-located with their packets.
 - Transitional source-check adapters and shared execution helpers are centralized under `.habitat/_support/execution/` rather than packet authoring sites.
-- The Toolkit compatibility registry index lives at `.habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json`.
+- The Toolkit rule registry owner-root index lives at `.habitat/index.json` as root registry metadata, not as an authority packet.
+- The current tree has zero `triage` packets; the kind remains reserved for future unadmitted evidence only.
 
 ## Authority Rules
 
@@ -68,7 +69,7 @@ Owner-tool classes such as `source-check`, `command-check`, `file-layer`, `forma
 
 ## Migration Implications
 
-Next consolidation work should teach Toolkit discovery to route by the niche/blueprint path shape, keep `triage` excluded from default execution, convert transitional source/command checks into clearer admitted artifacts, and continue migrating embedded structural authority from tests/scripts into this tree.
+Next consolidation work should teach Toolkit discovery to route by the niche/blueprint path shape, continue keeping any future `triage` evidence excluded from default execution, convert transitional source/command checks into clearer admitted artifacts, and continue migrating embedded structural authority from tests/scripts into this tree.
 
 ## Stop Conditions
 
