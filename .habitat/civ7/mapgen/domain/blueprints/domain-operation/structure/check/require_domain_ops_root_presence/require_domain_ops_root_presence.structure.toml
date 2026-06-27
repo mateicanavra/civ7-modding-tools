@@ -1,0 +1,43 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "ecology-ops-root"
+root = "mods/mod-swooper-maps/src/domain/ecology/ops"
+kind = "directory"
+mode = "open"
+
+[[scopes]]
+name = "foundation-ops-root"
+root = "mods/mod-swooper-maps/src/domain/foundation/ops"
+kind = "directory"
+mode = "open"
+
+[[scopes]]
+name = "hydrology-ops-root"
+root = "mods/mod-swooper-maps/src/domain/hydrology/ops"
+kind = "directory"
+mode = "open"
+
+[[scopes]]
+name = "morphology-ops-root"
+root = "mods/mod-swooper-maps/src/domain/morphology/ops"
+kind = "directory"
+mode = "open"
+
+[[scopes]]
+name = "narrative-ops-root"
+root = "mods/mod-swooper-maps/src/domain/narrative/ops"
+kind = "directory"
+mode = "open"
+
+[[scopes]]
+name = "placement-ops-root"
+root = "mods/mod-swooper-maps/src/domain/placement/ops"
+kind = "directory"
+mode = "open"
+
+[[scopes]]
+name = "resources-ops-root"
+root = "mods/mod-swooper-maps/src/domain/resources/ops"
+kind = "directory"
+mode = "open"

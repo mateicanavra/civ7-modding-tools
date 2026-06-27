@@ -26,4 +26,4 @@ Files:
 Evidence: The check preserves morphology contract surfaces and rejects runtime IDs, overlay leakage, legacy imports, and old config keys.
 
 Notes:
-- Domain-specific bundle; later split may separate contract shape from topology cleanup.
+- Residual command-check after Grit extraction; retains positive belt-driver currentness and cross-file HOTSPOTS overlay ownership.

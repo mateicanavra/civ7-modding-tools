@@ -23,7 +23,7 @@ Files:
 - `preserve_decomposed_foundation_contract_surfaces.check.mjs`
 - `preserve_decomposed_foundation_contract_surfaces.rule.json`
 
-Evidence: The check preserves decomposed foundation contracts and rejects legacy config bags, shims, and bad projection dependencies.
+Evidence: The command check preserves positive/currentness assertions for decomposed foundation contracts, artifact tags, required strategy rules imports, and projection plate-motion/provenance source.
 
 Notes:
-- Domain-specific bundle; later split may find separate structure or boundary packets.
+- Source-shape and retired-token bans were extracted to Grit packets in the same foundation-domain contract check lane.
