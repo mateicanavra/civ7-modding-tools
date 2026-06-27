@@ -13,6 +13,13 @@
     "rootDir": "../src",
     "outDir": "../dist/types"
   },
-  "include": ["../src/components/ui", "../src/ui/components"],
+  "include": [
+    "../src/components/ui",
+    "../src/ui/components",
+    "../src/app/LeftDock.tsx",
+    "../src/app/RightDock.tsx",
+    "../src/app/ErrorBanner.tsx",
+    "../src/features/presets/PresetDialogs.tsx"
+  ],
   "exclude": ["../src/DELETE-WHEN-DONE", "**/*.test.tsx", "**/*.test.ts"]
 }
