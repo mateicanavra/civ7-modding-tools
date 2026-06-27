@@ -18,7 +18,17 @@ if [ "${DS_SKIP_VITE:-0}" != "1" ]; then
 fi
 
 # 2. Declaration tree (real prop contracts incl. inherited React/Radix props).
-node_modules/.bin/tsc -p .design-sync/tsconfig.dts.json
+#    Declaration emit is BEST-EFFORT: tsconfig.dts.json sets noEmitOnError:false so
+#    tsc still writes the .d.ts tree on type errors, but then EXITS non-zero — which
+#    `set -e` would treat as fatal. Some app sources pulled into the include graph
+#    carry pre-existing type issues that never surface in the esbuild app build
+#    (e.g. src/lib/orpc.ts TS7056 "inferred type too long", reached via
+#    PipelineStage's type-only useRecipeDagQuery import). Those must NOT abort the
+#    converter: the emitted declarations still beat empty {[key]:unknown} contracts,
+#    and the render-check + grading remain the real quality gates. So tolerate a
+#    non-zero tsc exit.
+node_modules/.bin/tsc -p .design-sync/tsconfig.dts.json \
+  || echo "design-sync: tsc declaration emit reported errors (non-fatal; .d.ts still emitted)"
 
 # 3. Resolvable copy of the compiled stylesheet, placed next to the fonts.
 SRC="$(ls -1 dist/assets/index-*.css | head -1)"
