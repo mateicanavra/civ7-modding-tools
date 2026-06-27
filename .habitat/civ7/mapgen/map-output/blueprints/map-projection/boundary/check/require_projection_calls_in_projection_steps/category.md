@@ -23,7 +23,7 @@ Files:
 - `require_projection_calls_in_projection_steps.check.mjs`
 - `require_projection_calls_in_projection_steps.rule.json`
 
-Evidence: The check pins adapter projection callsites to dedicated projection steps and prevents physics-stage direct reads.
+Evidence: The check requires dedicated projection step callsites and plotRivers materialization/contract tokens.
 
 Notes:
-- none
+- Source-placement prohibitions moved to `prohibit_misplaced_projection_adapter_calls`.

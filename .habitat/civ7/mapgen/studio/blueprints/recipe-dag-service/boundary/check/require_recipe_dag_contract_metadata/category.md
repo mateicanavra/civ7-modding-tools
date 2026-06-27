@@ -23,7 +23,7 @@ Files:
 - `require_recipe_dag_contract_metadata.check.ts`
 - `require_recipe_dag_contract_metadata.rule.json`
 
-Evidence: The check keeps the recipe-DAG service on contract-only surfaces and away from runtime recipe/generated output roots.
+Evidence: The check keeps the recipe-DAG service import graph on contract-only surfaces and away from runtime recipe/generated output roots.
 
 Notes:
-- none
+- Direct source/import prohibitions moved to `prohibit_recipe_dag_runtime_source_dependencies`.

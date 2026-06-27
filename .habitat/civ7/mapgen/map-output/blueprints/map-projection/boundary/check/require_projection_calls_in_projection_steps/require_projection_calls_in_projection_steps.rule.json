@@ -4,20 +4,23 @@
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
-  "forbids": "Civ7 adapter map-projection calls outside their dedicated projection steps, physics stages reading engine projection state, or row-major odd-r tile callsites",
-  "why": "Map projection and Civ7 materialization capability ownership is structural authority.",
+  "scope": "dedicated map projection step files and contracts",
+  "forbids": "missing required projection owner callsites or missing plotRivers materialization and contract tokens",
+  "why": "Required map projection callsites and contract metadata remain data-driven structural authority after source-placement prohibitions split to Grit.",
   "detect": [
     ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/require_projection_calls_in_projection_steps.check.mjs"
   ],
   "remediate": null,
-  "message": "Move adapter projection calls to the owning map projection step or use authored artifacts upstream.",
+  "message": "Required map projection owner callsite or plotRivers contract token drifted.",
   "exceptionPath": "none",
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts"
       ]
     }
   ]
