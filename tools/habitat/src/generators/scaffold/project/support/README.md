@@ -1,7 +1,6 @@
 # Project Generator Schema
 
-HABITAT TODO: `schema.json` moved to
-`.habitat/tooling/components/preserve_generator_schema_contracts/scaffold/project/schema.json`.
-`tools/habitat/generators.json` now points at the Habitat authority
-copy. This package-local directory should keep only generator implementation
-source.
+The committed Nx schema is generated into
+`.habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json`.
+`tools/habitat/generators.json` points at that Habitat authority copy. This
+package-local directory keeps only generator implementation source.

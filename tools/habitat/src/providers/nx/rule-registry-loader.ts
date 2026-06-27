@@ -46,18 +46,6 @@ function findRuleRegistryIndexPath(registryDir: string): string {
   const directIndex = path.join(registryDir, "index.json");
   if (fs.existsSync(directIndex)) return directIndex;
 
-  const candidates = findFiles(registryDir, (filePath) =>
-    filePath.endsWith("/preserve_transitional_rule_pack_owner_roots/index.json")
-  );
-  if (candidates.length === 1) return candidates[0] as string;
-  if (candidates.length > 1) {
-    throw registryLoadError("Habitat rule registry is invalid", [
-      {
-        path: registryDir,
-        message: `Expected one rule-pack index, found ${candidates.length}.`,
-      },
-    ]);
-  }
   throw registryLoadError("Habitat rule registry is invalid", [
     {
       path: registryDir,

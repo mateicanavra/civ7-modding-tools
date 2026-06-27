@@ -99,23 +99,21 @@ pure parser and audit model with fixtures.
 
 The rule registry is authored under the authority tree as
 `.habitat/**/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/<packet>.rule.json`.
-The current
-compatibility index is
-`.habitat/habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json`. At this
-state it contains 60 registered rules:
+The owner-root index is root registry metadata at `.habitat/index.json`. At this
+state it contains 125 registered rules:
 
 | Habitat lane | Count | Role |
 | --- | ---: | --- |
-| Pattern checks | 29 | Source-shape diagnostics over registered scan roots. |
+| Pattern checks | 79 | Source-shape diagnostics over registered scan roots. |
+| Structure checks | 8 | Native file-tree topology checks. |
 | File protection | 5 | Generated-zone and forbidden-file staged checks. |
-| Native checks | 1 | Habitat structural rules and built-in checks. |
-| Command checks | 23 | Existing command-line gates wrapped without changing their semantics. |
+| Command checks | 31 | Existing command-line gates wrapped without changing their semantics. |
 | Formatter hygiene | 1 | Hygiene-layer CI gate. |
 | Project boundaries | 1 | Project-plane import boundary enforcement. |
 
 Lane state:
 
-- 59 enforced rules fail `habitat check` on unbaselined violations.
+- 124 enforced rules fail `habitat check` on unbaselined violations.
 - 1 advisory rule reports findings without failing the check.
 
 Owner state:

@@ -1,20 +1,27 @@
-// Habitat-owned generated-schema adapter.
+// Habitat-owned generated-schema operation.
 //
-// Integration note: generator metadata now reads the schemas from this
-// authority-tree packet. The Toolkit still needs a first-class generator schema
-// packet model, but the compatibility writer no longer emits the retired
-// `.habitat/tooling/components` paths.
+// Generator metadata reads the committed schemas from this authority-tree
+// packet. This writer keeps the JSON outputs converged with the Toolkit
+// TypeBox schemas that Nx generators cannot consume directly.
 import { execFileSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { PatternGeneratorOptionsSchema } from "@habitat/cli/generators/scaffold/pattern/support/schema";
-import { HabitatProjectGeneratorNxSchema } from "@habitat/cli/generators/scaffold/project/support/schema";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
+const { HabitatProjectGeneratorNxSchema } = await import(
+  pathToFileURL(
+    join(repoRoot, "tools/habitat/src/generators/scaffold/project/support/schema.ts")
+  ).href
+);
+const { PatternGeneratorOptionsSchema } = await import(
+  pathToFileURL(
+    join(repoRoot, "tools/habitat/src/generators/scaffold/pattern/support/schema.ts")
+  ).href
+);
 const schemaPaths = [
-  ".habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/scaffold-project.schema.json",
-  ".habitat/habitat/toolkit/blueprints/generator/contract/triage/preserve_generator_schema_contracts/scaffold-pattern.schema.json",
+  ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json",
+  ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-pattern.schema.json",
 ] as const;
 
 writeSchema(schemaPaths[0], HabitatProjectGeneratorNxSchema);

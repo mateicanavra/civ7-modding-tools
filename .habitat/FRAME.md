@@ -292,13 +292,14 @@ decision, keep it decomposed and choose a smaller or cleaner cluster.
 
 ## First Pruning Targets
 
-Start with high-confidence caveats, not a broad sweep:
+Start with high-confidence caveats, not a broad sweep. The Toolkit triage
+packet cleanup is complete: the registry owner-root index is root metadata at
+`.habitat/index.json`, generator schemas live in a `contract/generate` packet,
+and the completed transitional adapter ledger was removed. There are no current
+`triage` packets.
 
-- Toolkit triage/support packets:
-  `.habitat/_support/execution/`,
-  `preserve_transitional_rule_pack_owner_roots`,
-  `inventory_transitional_toolkit_adapter_subjects`, and
-  `preserve_generator_schema_contracts`.
+- Toolkit support bridges:
+  `.habitat/_support/execution/`.
 - Duplicate adapter boundary authority:
   `enforce_adapter_only_base_standard_imports` and
   `block_unapproved_base_standard_boundary_leaks`.
