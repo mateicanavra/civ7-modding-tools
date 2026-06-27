@@ -39,13 +39,14 @@ Status: closed.
 
 ## Expected Reds After Closure
 
-- `structure-check` is red only on
-  `require_ecology_canonical_op_module_topology`, which exposes 42 current-tree
-  topology diagnostics. That is real topology debt, not an extraction failure.
-- `command-check` remains red on retained/pre-existing rows:
-  - `verify_studio_recipe_artifacts_are_current`
-  - `validate_mapgen_docs_anchors_and_references`
-  - `validate_boundary_taxonomy_against_workspace_graph`
+- Resolved by the follow-up residual-owner closure pass:
+  - `require_ecology_canonical_op_module_topology` is now green.
+  - `verify_studio_recipe_artifacts_are_current` was removed from Habitat
+    authority and left to package/Nx ownership.
+  - `validate_mapgen_docs_anchors_and_references` moved to docs-owned tooling
+    and is green.
+  - `validate_boundary_taxonomy_against_workspace_graph` moved its executable
+    adapter into Habitat Toolkit tooling and is green.
 
 ## Closure Boundary
 

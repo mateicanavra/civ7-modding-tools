@@ -55,5 +55,5 @@ The standard recipe often introduces explicit projection steps whose job is to:
 ## Ground truth anchors
 
 - Policy (contracts/invariants): `docs/system/libs/mapgen/policies/TRUTH-VS-PROJECTION.md`
-- Foundation projection step (tile projections + viz emissions): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation/steps/projection.ts`
+- Foundation projection step (tile projections + viz emissions): `mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts`
 - Map projection no-water-drift invariant (policy): `mods/mod-swooper-maps/src/recipes/standard/projection-policies/noWaterDrift.ts`

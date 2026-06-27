@@ -9,7 +9,7 @@
   "why": "Project-kind taxonomy is Habitat Toolkit authority over workspace boundary facts.",
   "detect": [
     "bun",
-    ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts"
+    "tools/habitat/scripts/validate-boundary-taxonomy-against-workspace-graph.ts"
   ],
   "remediate": "Align package manifests, nx.json/project metadata, eslint.boundaries.config.mjs, and docs/projects/habitat-harness/taxonomy.md.",
   "message": "Habitat boundary taxonomy validation failed.",

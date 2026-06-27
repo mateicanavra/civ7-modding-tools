@@ -11,6 +11,9 @@ function bandpass(x: number, lo: number, hi: number, s: number): number {
   return clamp01(inLo * outHi);
 }
 
+/**
+ * Scores savanna woodland suitability from warm, seasonal, biomass-bearing fields.
+ */
 export function scoreSavannaWoodlandSuitability(args: {
   size: number;
   landMask: Uint8Array;

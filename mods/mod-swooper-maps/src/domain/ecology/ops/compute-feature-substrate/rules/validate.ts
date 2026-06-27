@@ -9,6 +9,9 @@ type ComputeInputs = Readonly<{
   sinkMask: Uint8Array;
 }>;
 
+/**
+ * Validates feature-substrate inputs and returns the expected grid size.
+ */
 export function validateFeatureSubstrateInputs(input: ComputeInputs): number {
   const width = input.width | 0;
   const height = input.height | 0;

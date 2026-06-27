@@ -1,4 +1,3 @@
-// Habitat-owned command-check adapter for boundary taxonomy validation.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { repoRoot } from "@habitat/cli/resources/paths";
@@ -12,9 +11,8 @@ import {
   readWorkspaceManifestProjects,
 } from "@habitat/cli/validation/validate_boundary_taxonomy_against_workspace_graph-inputs";
 
-const taxonomy = parseBoundaryTaxonomy(
-  await readFile(path.join(repoRoot, "docs/projects/habitat-harness/taxonomy.md"), "utf8")
-);
+const taxonomyPath = path.join(repoRoot, "docs/projects/habitat-harness/taxonomy.md");
+const taxonomy = parseBoundaryTaxonomy(await readFile(taxonomyPath, "utf8"));
 const manifests = await readWorkspaceManifestProjects(repoRoot);
 const { projects, graphEdges } = await readNxProjectMetadataFromGraph();
 const configConstraints = await readBoundaryConfigConstraints(
@@ -29,16 +27,24 @@ const audit = auditBoundaryTaxonomy({
   graphEdges,
 });
 
-const summary = {
-  ok: audit.ok,
-  projectCount: audit.projectCount,
-  nxProjectCount: audit.nxProjectCount,
-  graphEdgeCount: audit.graphEdgeCount,
-  issueCount: audit.issues.length,
-  noteCount: audit.notes.length,
-};
+console.log(
+  JSON.stringify(
+    {
+      ok: audit.ok,
+      projectCount: audit.projectCount,
+      nxProjectCount: audit.nxProjectCount,
+      graphEdgeCount: audit.graphEdgeCount,
+      issueCount: audit.issues.length,
+      noteCount: audit.notes.length,
+    },
+    null,
+    2
+  )
+);
 
-console.log(JSON.stringify(summary, null, 2));
+for (const note of audit.notes) {
+  console.error(`note:${note.reason}: ${note.message}`);
+}
 
 if (!audit.ok) {
   for (const issue of audit.issues) {

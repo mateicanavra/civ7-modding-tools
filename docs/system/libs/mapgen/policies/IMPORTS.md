@@ -101,5 +101,5 @@ This policy is the simplest guardrail that keeps the ecosystem coherent: use the
 - Target posture for packaging and boundaries: `docs/projects/engine-refactor-v1/resources/spec/SPEC-packaging-and-file-structure.md`
 - Recipe import guard: Habitat `grit-recipe-domain-surface` and
   `grit-domain-deep-import` rules in
-  `.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/recipe-domain-surface/recipe-domain-surface.rule.json` and
-  `.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/domain-deep-import/domain-deep-import.rule.json`
+  `.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/restrict_recipes_to_public_domain_surfaces/restrict_recipes_to_public_domain_surfaces.rule.json` and
+  `.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/prohibit_relative_domain_reaches_from_recipes_and_maps/prohibit_relative_domain_reaches_from_recipes_and_maps.rule.json`

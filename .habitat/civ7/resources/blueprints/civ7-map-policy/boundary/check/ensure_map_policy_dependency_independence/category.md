@@ -26,4 +26,5 @@ Files:
 Evidence: The check keeps civ7-map-policy independent from adapter, MapGen, mods, Studio, and base-standard dependencies.
 
 Notes:
+- Residual owner class: future owner gap; pure import-boundary predicate should become Grit or a generic import-boundary owner.
 - none

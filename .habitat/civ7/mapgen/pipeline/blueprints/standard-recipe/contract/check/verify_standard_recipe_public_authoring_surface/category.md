@@ -26,4 +26,5 @@ Files:
 Evidence: The check asserts public authoring keys, strict schemas, and hidden operation envelopes for standard stages.
 
 Notes:
+- Residual owner class: package-local contract validator; public authoring surface parity is package behavior, not topology.
 - none

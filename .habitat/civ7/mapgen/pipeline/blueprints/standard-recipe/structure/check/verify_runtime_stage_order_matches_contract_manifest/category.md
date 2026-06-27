@@ -26,4 +26,5 @@ Files:
 Evidence: The check compares runtime stage/step order with the Studio recipe-DAG contract manifest.
 
 Notes:
+- Residual owner class: package-local contract validator; runtime stage order parity is graph/order semantics outside structure-check.
 - Primary oracle is topology/order parity; it also protects a derived manifest.

@@ -26,4 +26,5 @@ Files:
 Evidence: The check runs docs-site link validation over a temporary pages-only copy.
 
 Notes:
+- Residual owner class: docs validator; link integrity is docs runtime/content validation.
 - none

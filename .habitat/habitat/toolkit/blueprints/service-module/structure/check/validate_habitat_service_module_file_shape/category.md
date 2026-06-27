@@ -26,5 +26,6 @@ Files:
 Evidence: The check enforces recursive Toolkit service module/model suffix shape and residual router shape.
 
 Notes:
+- Residual owner class: toolkit validator; service-module file shape remains a Habitat Toolkit validator until converted to structure-check.
 - Direct service module/model root topology moved to `validate_habitat_service_module_root_topology`.
 - Residual command-check remains for recursive suffix validation and router file-or-directory shape that TOML v1 cannot express cleanly.

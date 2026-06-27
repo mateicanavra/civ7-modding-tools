@@ -1,3 +1,6 @@
+/**
+ * Validates sagebrush steppe scoring inputs and returns the expected grid size.
+ */
 export function validateVegetationScoreInputs(args: {
   width: number;
   height: number;

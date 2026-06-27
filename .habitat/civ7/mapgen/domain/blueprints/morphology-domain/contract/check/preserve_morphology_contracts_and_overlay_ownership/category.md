@@ -26,4 +26,5 @@ Files:
 Evidence: The check preserves morphology contract surfaces and rejects runtime IDs, overlay leakage, legacy imports, and old config keys.
 
 Notes:
+- Residual owner class: package-local validator; residual contract/currentness checks remain package-local after Grit extraction.
 - Residual command-check after Grit extraction; retains positive belt-driver currentness and cross-file HOTSPOTS overlay ownership.

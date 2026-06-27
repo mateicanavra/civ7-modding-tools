@@ -26,5 +26,6 @@ Files:
 Evidence: The check requires the daemon to mount the Studio RPC handler through the runtime context.
 
 Notes:
+- Residual owner class: future owner gap; remaining file-shape assertions are structure-check candidates but not converted in this closure slice.
 - EventHub lifecycle source bans moved to `prohibit_studio_rpc_eventhub_lifecycle_leaks`.
 - Remaining positive call-presence assertion stays command-check because it is not a forbidden source pattern or file-tree topology.

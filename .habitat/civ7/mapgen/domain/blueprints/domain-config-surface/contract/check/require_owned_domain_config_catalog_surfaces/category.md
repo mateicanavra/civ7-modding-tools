@@ -26,4 +26,5 @@ Files:
 Evidence: The residual command check constrains exact positive morphology config facade exports and required standard tag catalog tokens.
 
 Notes:
+- Residual owner class: package-local validator; exact positive catalog checks remain in the MapGen domain package until a generic catalog validator exists.
 - Package-local validator residual retained because the exact positive export and token-presence assertions are currentness/package-surface checks, not Grit or structure-check authority.

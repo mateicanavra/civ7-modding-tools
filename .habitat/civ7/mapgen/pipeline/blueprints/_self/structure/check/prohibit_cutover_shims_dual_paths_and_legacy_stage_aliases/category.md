@@ -27,4 +27,5 @@ Files:
 Evidence: The check scans runtime source for shim, shadow, comparison, dual-path, and legacy stage-token surfaces after cutover.
 
 Notes:
+- Residual owner class: future owner gap; transitional compatibility residue should be deleted or split in a later compatibility cleanup.
 - Lifecycle is transition because this prevents regression to retired paths; transition is not a primary category.
