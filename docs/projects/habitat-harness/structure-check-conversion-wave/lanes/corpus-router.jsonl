@@ -1,0 +1,4 @@
+{"finding":"stale-prior-row","ruleId":"preserve_standard_stage_topology_and_path_invariants","disposition":"already-converted-to-structure-check"}
+{"finding":"false-structure-path","ruleId":"validate_boundary_taxonomy_against_workspace_graph","disposition":"nx-data graph/taxonomy validation"}
+{"finding":"false-structure-path","ruleId":"verify_runtime_stage_order_matches_contract_manifest","disposition":"package-local runtime parity"}
+{"finding":"false-structure-path","ruleId":"verify_standard_recipe_declared_stage_keys","disposition":"source declaration order"}

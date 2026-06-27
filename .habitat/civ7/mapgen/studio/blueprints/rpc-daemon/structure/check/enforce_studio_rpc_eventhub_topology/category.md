@@ -23,7 +23,8 @@ Files:
 - `enforce_studio_rpc_eventhub_topology.check.ts`
 - `enforce_studio_rpc_eventhub_topology.rule.json`
 
-Evidence: The check enforces RPC daemon/EventHub lifecycle placement and construction topology.
+Evidence: The check requires the daemon to mount the Studio RPC handler through the runtime context.
 
 Notes:
-- Subject name says boundary, but failure is lifecycle/topology placement.
+- EventHub lifecycle source bans moved to `prohibit_studio_rpc_eventhub_lifecycle_leaks`.
+- Remaining positive call-presence assertion stays command-check because it is not a forbidden source pattern or file-tree topology.

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -85,7 +85,6 @@ for (const script of ["dev", "dev:frontend", "dev:server"]) {
 }
 if (JSON.stringify(appPackage.scripts).includes("devLive.ts")) failures.push("app scripts mention devLive.ts");
 if (JSON.stringify(appPackage.scripts).includes("bun --watch")) failures.push("app scripts mention bun --watch");
-if (existsSync(join(appRoot, "src/server/daemon/devLive.ts"))) failures.push("devLive.ts still exists");
 
 const daemonSource = readFileSync(join(appRoot, "src/server/daemon/daemon.ts"), "utf8");
 const viteSource = readFileSync(join(appRoot, "vite.config.ts"), "utf8");
