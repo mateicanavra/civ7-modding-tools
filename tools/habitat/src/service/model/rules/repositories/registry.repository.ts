@@ -275,20 +275,13 @@ function ruleRegistryIndexPath<R>(
       return directIndex;
     }
 
-    const candidates = yield* findFiles(registryDir, fileSystem, (filePath) =>
-      filePath.endsWith("/preserve_transitional_rule_pack_owner_roots/index.json")
-    );
-    if (candidates.length === 1) return candidates[0] as string;
     return yield* Effect.fail(
       new RuleRegistryLoadFailed({
         issues: [
           {
             code: "registry-schema-invalid",
             path: registryDir,
-            message:
-              candidates.length > 1
-                ? `Expected one rule-pack index, found ${candidates.length}.`
-                : "Missing rule-pack index.json.",
+            message: "Missing rule-pack index.json.",
           },
         ],
       })
@@ -305,25 +298,16 @@ function ruleRegistryIndexPathSync(
     fileSystem.readText(directIndex);
     return directIndex;
   } catch {
-    // The authority-tree layout stores the registry index as a subject artifact.
+    throw new RuleRegistryLoadFailed({
+      issues: [
+        {
+          code: "registry-schema-invalid",
+          path: registryDir,
+          message: "Missing rule-pack index.json.",
+        },
+      ],
+    });
   }
-
-  const candidates = findFilesSync(registryDir, fileSystem, (filePath) =>
-    filePath.endsWith("/preserve_transitional_rule_pack_owner_roots/index.json")
-  );
-  if (candidates.length === 1) return candidates[0] as string;
-  throw new RuleRegistryLoadFailed({
-    issues: [
-      {
-        code: "registry-schema-invalid",
-        path: registryDir,
-        message:
-          candidates.length > 1
-            ? `Expected one rule-pack index, found ${candidates.length}.`
-            : "Missing rule-pack index.json.",
-      },
-    ],
-  });
 }
 
 function ruleFilePathsSync(registryDir: string, fileSystem: RuleRegistrySyncFileSystem): string[] {

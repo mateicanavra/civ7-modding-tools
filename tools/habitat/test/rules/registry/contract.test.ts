@@ -43,18 +43,15 @@ describe("rule registry contract", () => {
     expect(rules.every((rule) => rule.pathCoverage.length > 0)).toBe(true);
   });
 
-  test("async directory loading falls back when the root index is absent", async () => {
+  test("async directory loading uses the root registry index", async () => {
     const registryDir = "/repo/.habitat";
-    const fallbackIndex = path.join(
-      registryDir,
-      "habitat/toolkit/blueprints/_self/structure/triage/preserve_transitional_rule_pack_owner_roots/index.json"
-    );
+    const rootIndex = path.join(registryDir, "index.json");
     const rulePath = path.join(
       registryDir,
       "global/workspace/blueprints/project-boundary-model/structure/check/sample-rule/sample-rule.rule.json"
     );
     const fileSystem = virtualRegistryFileSystem({
-      [fallbackIndex]: JSON.stringify({
+      [rootIndex]: JSON.stringify({
         schemaVersion: 1,
         ownerRoots: {
           habitat: "tools/habitat",
