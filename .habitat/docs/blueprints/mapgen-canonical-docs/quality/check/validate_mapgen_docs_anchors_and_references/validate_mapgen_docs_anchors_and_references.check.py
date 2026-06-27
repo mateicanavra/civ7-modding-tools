@@ -41,13 +41,6 @@ def find_repo_root(start: Path) -> Path:
     raise RuntimeError("Could not locate repo root (no .git found in parents).")
 
 
-def first_nonempty_line(lines: list[str]) -> str | None:
-    for line in lines:
-        if line.strip():
-            return line
-    return None
-
-
 def iter_markdown_files(doc_root: Path, exclude_dirs: set[str]) -> list[Path]:
     files: list[Path] = []
     for path in doc_root.rglob("*.md"):
@@ -127,16 +120,6 @@ def check_file(
     text = file_path.read_text(encoding="utf-8", errors="replace")
     lines = text.splitlines()
 
-    first_line = first_nonempty_line(lines)
-    if first_line is None or not first_line.strip().startswith("<toc>"):
-        findings.append(
-            Finding(
-                severity="error",
-                file=rel,
-                message="Missing mini XML <toc> at top (first non-empty line must start with '<toc>').",
-            )
-        )
-
     if forbid_workspace_aliases and "@mapgen/" in text:
         findings.append(
             Finding(
@@ -185,13 +168,6 @@ def check_file(
 
     section = anchors_section_lines(lines)
     if section is None:
-        findings.append(
-            Finding(
-                severity="error",
-                file=rel,
-                message="Missing '## Ground truth anchors' section (required for canonical MapGen docs).",
-            )
-        )
         return findings
 
     anchor_tokens = extract_backticked_file_paths(section)
@@ -224,8 +200,8 @@ def check_file(
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Validate canonical MapGen docs: require mini XML <toc>, require 'Ground truth anchors' sections, "
-            "and ensure anchored file paths exist (excluding _archive/ and optional research/adrs)."
+            "Validate canonical MapGen docs: ensure anchored file paths exist and apply docs "
+            "reference warning policies (excluding _archive/ and optional research/adrs)."
         )
     )
     parser.add_argument(
@@ -303,4 +279,3 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-

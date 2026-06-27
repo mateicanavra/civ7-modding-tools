@@ -1,0 +1,36 @@
+{
+  "id": "prohibit_narrative_swatches_stage_token",
+  "title": "Prohibit Narrative Swatches Stage Token",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "standard recipe, maps, and tests",
+  "forbids": "the retired narrative-swatches stage token",
+  "why": "Narrative swatches are not part of the current standard stage topology.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not reference the retired narrative-swatches stage token.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_narrative_swatches_stage_token",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard",
+    "mods/mod-swooper-maps/src/maps",
+    "mods/mod-swooper-maps/test"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.ts",
+        "mods/mod-swooper-maps/test/**/*.ts"
+      ]
+    }
+  ]
+}

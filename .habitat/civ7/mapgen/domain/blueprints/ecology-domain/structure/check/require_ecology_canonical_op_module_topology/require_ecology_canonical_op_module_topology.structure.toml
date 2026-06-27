@@ -1,0 +1,32 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "ecology-op-module-roots"
+root = "mods/mod-swooper-maps/src/domain/ecology/ops/!(*.*)"
+kind = "directory"
+mode = "open"
+required = [
+  "contract.ts",
+  "types.ts",
+  "index.ts",
+  "rules",
+  "strategies",
+]
+
+[[scopes]]
+name = "ecology-op-rules-entrypoints"
+root = "mods/mod-swooper-maps/src/domain/ecology/ops/*/rules"
+kind = "directory"
+mode = "open"
+required = [
+  "index.ts",
+]
+
+[[scopes]]
+name = "ecology-op-strategy-entrypoints"
+root = "mods/mod-swooper-maps/src/domain/ecology/ops/*/strategies"
+kind = "directory"
+mode = "open"
+required = [
+  "index.ts",
+]

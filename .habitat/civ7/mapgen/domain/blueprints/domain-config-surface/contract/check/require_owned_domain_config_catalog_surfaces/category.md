@@ -23,7 +23,7 @@ Files:
 - `require_owned_domain_config_catalog_surfaces.check.mjs`
 - `require_owned_domain_config_catalog_surfaces.rule.json`
 
-Evidence: The check constrains domain config facade exports and catalog naming/placement for owned config surfaces.
+Evidence: The residual command check constrains exact positive morphology config facade exports and required standard tag catalog tokens.
 
 Notes:
-- Mixed contract and structure; category is contracts because the config/catalog surface is the oracle.
+- Package-local validator residual retained because the exact positive export and token-presence assertions are currentness/package-surface checks, not Grit or structure-check authority.

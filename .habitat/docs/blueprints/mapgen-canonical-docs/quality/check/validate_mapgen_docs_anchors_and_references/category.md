@@ -1,8 +1,8 @@
-# Validate MapGen Docs Anchors And References
+# Validate MapGen Docs Anchor Targets And Reference Warnings
 
 Subject ID: `validate_mapgen_docs_anchors_and_references`
 
-Title: Validate MapGen Docs Anchors And References
+Title: Validate MapGen Docs Anchor Targets And Reference Warnings
 
 Blueprint: `mapgen-canonical-docs`
 
@@ -23,7 +23,8 @@ Files:
 - `validate_mapgen_docs_anchors_and_references.check.py`
 - `validate_mapgen_docs_anchors_and_references.rule.json`
 
-Evidence: The check validates docs table-of-contents anchors and repo-relative doc references for MapGen docs.
+Evidence: The residual check validates repo-relative anchor target existence and reference warning policy for MapGen docs.
 
 Notes:
 - This is docs quality and navigability, not a MapGen-specific category.
+- Markdown shape predicates for the mini XML `<toc>` and `## Ground truth anchors` heading now live in narrow Grit packets.

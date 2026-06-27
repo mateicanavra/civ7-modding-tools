@@ -4,14 +4,14 @@
   "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation domain ops, standard foundation stage contracts, and foundation map projection source",
-  "forbids": "legacy foundation config bags, removed plate kinematics, aggregate tectonics surfaces, lib/tectonics shims, or non-canonical foundation projection dependencies",
-  "why": "Foundation contract shape is structural authority for MapGen pipeline composition.",
+  "scope": "foundation tectonics contract, foundation strategy currentness, foundation artifacts, and foundation projection source",
+  "forbids": "missing decomposed foundation operation names, artifact tags, required strategy rules imports, or projection plate-motion/provenance currentness",
+  "why": "Foundation contract currentness is a package-local validator for MapGen pipeline composition; source-token bans are owned by narrow Grit packets.",
   "detect": [
     ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/preserve_decomposed_foundation_contract_surfaces/preserve_decomposed_foundation_contract_surfaces.check.mjs"
   ],
   "remediate": null,
-  "message": "Keep foundation contracts decomposed, typed, and routed through canonical artifact surfaces.",
+  "message": "Keep foundation positive/currentness contract surfaces aligned with decomposed foundation outputs.",
   "exceptionPath": "none",
   "pathCoverage": [
     {
@@ -19,8 +19,11 @@
       "patterns": [
         "mods/mod-swooper-maps/src/domain/foundation/**/*.ts",
         "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/**/*.ts",
         "mods/mod-swooper-maps/src/recipes/standard/map-artifacts.ts",
-        "mods/mod-swooper-maps/src/maps/**/*.ts"
+        "mods/mod-swooper-maps/src/maps/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.json"
       ]
     }
   ]
