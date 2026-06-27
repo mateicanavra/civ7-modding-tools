@@ -43,3 +43,7 @@ export {
   BrowserConfigObjectFieldTemplate,
   BrowserConfigArrayFieldTemplate,
 } from "@/features/configOverrides/rjsfTemplates";
+
+// Batch 3 (2026-06): the recipe-DAG stage view — the dependency graph rendered
+// as a first-class stage (SVG node/lane/edge canvas from a RecipeDagResult).
+export { PipelineStage } from "@/features/recipeDag/PipelineStage";
