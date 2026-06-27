@@ -1,0 +1,10 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "domain-tree-artifacts-modules"
+root = "mods/mod-swooper-maps/src/domain/**/!(*.*)"
+kind = "directory"
+mode = "open"
+forbidden = [
+  "artifacts.ts",
+]

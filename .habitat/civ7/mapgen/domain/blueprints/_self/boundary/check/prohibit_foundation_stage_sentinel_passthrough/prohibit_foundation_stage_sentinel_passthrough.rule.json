@@ -1,0 +1,36 @@
+{
+  "id": "prohibit_foundation_stage_sentinel_passthrough",
+  "title": "Prohibit Foundation Stage Sentinel Passthrough",
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "current standard foundation stage entrypoints",
+  "forbids": "foundation studio step sentinel passthrough tokens",
+  "why": "Foundation stages should expose owned public config instead of forwarding retired studio sentinel metadata.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not restore foundation stage studio sentinel passthrough tokens.",
+  "exceptionPath": "none",
+  "patternName": "prohibit_foundation_stage_sentinel_passthrough",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-{lithosphere,mantle,orogeny,projection,tectonics}/index.ts"
+      ]
+    }
+  ]
+}
