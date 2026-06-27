@@ -1,16 +1,19 @@
 # Habitat Authority Contract
 
-Status: active authority frame with provisional niche/blueprint hierarchy
+Status: active authority frame with provisional physical hierarchy
 
 ## What This Establishes
 
 Use `.habitat/FRAME.md` as the current living lens for authority-tree
-direction, source order, stack geolocation, and pruning posture. This file
-defines the durable authority contract that the frame applies.
+direction, source order, stack geolocation, and pruning posture. Use
+`.habitat/AUTHORITY-ONTOLOGY.md` as the normative conceptual model for Habitat,
+blueprints, instances, capabilities, niches, admission, and authority
+activation. This file defines the durable authority contract that those frames
+apply to the current repository tree.
 
 `.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
 
-The current hierarchy is:
+The current physical hierarchy is:
 
 ```text
 .habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/
@@ -69,7 +72,13 @@ Owner-tool classes such as `source-check`, `command-check`, `file-layer`, `forma
 
 ## Migration Implications
 
-Next consolidation work should teach Toolkit discovery to route by the niche/blueprint path shape, continue keeping any future `triage` evidence excluded from default execution, convert transitional source/command checks into clearer admitted artifacts, and continue migrating embedded structural authority from tests/scripts into this tree.
+Next consolidation work should teach Toolkit discovery to route by the
+niche/blueprint path shape, continue keeping any future `triage` evidence
+excluded from default execution, convert transitional source/command checks into
+clearer admitted artifacts, and continue migrating embedded structural authority
+from tests/scripts into this tree. Future layout and registry changes should use
+`AUTHORITY-ONTOLOGY.md` as the concept source for distinguishing blueprint kind
+authority, instance facts, capability facets, and niche governance.
 
 ## Stop Conditions
 
