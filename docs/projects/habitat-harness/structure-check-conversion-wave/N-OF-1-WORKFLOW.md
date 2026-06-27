@@ -1,213 +1,196 @@
-# N-of-1 Mixed Command-Check Cleanup Workflow
+# N-of-1 Mixed Command-Check Prep Workflow
 
 ## Purpose
 
-This is the end-to-end operating workflow for one leading agent to clean up a
-bounded Habitat authority segment, such as one domain, niche, blueprint, or
-small related packet family.
+This is the single-agent workflow for preparing one bounded Habitat segment for
+later mechanical extraction.
 
-The workflow is not a separate investigation project. It is the execution loop:
-look, analyze, classify, change, prove, and close.
+Round 1 is preparation only. The agent does not implement rule moves, edit
+command scripts, create Grit patterns, or author `.structure.toml` files. The
+agent turns the existing corpus into implementation-ready extraction rows.
 
-## Current Starting State
+Round 2 is the implementation pass. The same agent can be compacted and then
+reused to execute the rows it prepared.
 
-The starting corpus is partially prepared, not absent.
+## What Already Exists
 
-Use these existing inputs first:
+The classification work is not starting over.
 
-1. `docs/projects/habitat-harness/command-check-split-systematic-wave/`
+The existing inputs are:
+
+1. `docs/projects/habitat-harness/command-check-split-systematic-wave/assertion-corpus.jsonl`
 2. `docs/projects/habitat-harness/structure-check-conversion-wave/assertion-corpus.jsonl`
-3. `docs/projects/habitat-harness/structure-check-conversion-wave/closure.md`
+3. `docs/projects/habitat-harness/structure-check-conversion-wave/mechanical-extraction-inputs.jsonl`
 4. `docs/projects/habitat-harness/execution-surface-map/`
-5. Direct current files under `.habitat/**`
+5. Current `.habitat/**` rule packets and current package source.
 
-The corpus is good enough to execute from, but it is not final authority by
-itself. The first stage reconciles those rows against current disk so stale rows
-do not drive changes.
+The first corpus already classified many assertions. The prep task is to
+reconcile, normalize, and fill in the implementation inputs that make later
+extraction mechanical.
 
-## Agent Contract
+## Round 1 Output Contract
 
-One agent owns the whole loop for its assigned segment.
+For its assigned segment, the agent must leave a parseable extraction ledger.
 
-That agent may inspect multiple rules or subjects in the segment. It should not
-hand off midway unless the segment crosses into a different domain owner or a
-stop condition is reached.
+Each assertion row needs:
 
-The unit of work is an assertion, not a command script. A command script can be
-deleted or shrunk only when every branch inside it has an owner.
+- `ruleId`
+- `assertionId`
+- `assertionSummary`
+- `sourceFiles`
+- `commandScript`
+- prior owner/disposition from the existing corpus
+- final owner for the next implementation pass
+- prep status
+- next-round action
+- target packet or residual owner hint
+- extraction inputs, such as remove-from script, structure scope hints, Grit
+  scope files, companion proof commands, retained residual owner, or explicit
+  non-structure notes
+- proof commands
+- confidence and notes
 
-## Stage 1: Reconcile The Segment
+The canonical current prep ledger is
+`mechanical-extraction-inputs.jsonl`.
 
-Inputs:
+## Stage 1: Reconcile Existing Corpus
 
-- prior corpus rows for the segment;
-- current `.rule.json`, `.check.*`, `.pattern.md`, `.structure.toml`, baseline,
-  and `category.md` files;
-- execution-surface analytics.
+Goal: establish current truth without recreating the whole investigation.
 
 Actions:
 
-1. List every current command-check rule in the segment.
-2. Join each current rule to prior corpus rows.
-3. Mark each row as one of:
-   - `already-converted`
-   - `ready-to-classify`
-   - `stale-row`
-   - `new-current-row`
-   - `blocked-by-missing-source`
-4. Add any current command-check branch that the old corpus missed.
+1. Start from existing assertion rows for the segment.
+2. Check that each `ruleId`, `rule.json`, and `.check.*` path still exists.
+3. Mark stale rows as stale only if current disk proves they are already
+   converted or deleted.
+4. Add only genuinely missing current branches that are still in the command
+   script.
+
+Do not reclassify rows that are already specific and current. Preserve the old
+classification unless direct source evidence shows it is wrong.
 
 Exit artifact:
 
-- a segment assertion ledger with one row per assertion.
+- current assertion rows for the segment, with stale rows removed or marked.
 
-## Stage 2: Analyze Assertions
+## Stage 2: Normalize To Extraction Actions
 
-For each assertion row, inspect the direct source. Do not infer from rule names
-alone.
+Goal: turn classification into next-turn instructions.
 
-Required source reads:
+For each assertion, record exactly one final owner:
 
-- the `rule.json`;
-- the `.check.*` script;
-- adjacent `category.md`;
-- adjacent `.pattern.md` or `.structure.toml`, if present;
-- referenced package/source files;
-- narrower companion Habitat rules if the assertion may already be owned.
-
-Exit condition:
-
-- the agent can describe what the assertion proves without naming the current
-  implementation mechanism.
-
-## Stage 3: Classify Ownership
-
-Assign exactly one owner disposition per assertion:
-
-| Owner | Use When |
+| Final owner | Meaning |
 | --- | --- |
-| `structure-check` | Current-tree file/directory topology expressible in TOML v1: root globs, direct-child `required`/`allowed`/`forbidden`, `open`/`closed`, file/directory kind. |
-| `grit-check` | Source, Markdown, import/export, call, identifier, or token shape that Grit can express as a diagnostic. |
+| `structure-check` | Pure current-tree file/directory topology expressible in TOML v1. |
+| `grit-check` | Source, Markdown, import/export, call, identifier, or token shape that Grit should own. |
 | `existing-rule` | A narrower accepted Habitat rule already owns the assertion. |
-| `nx-data` | Package JSON scripts, Nx targets, target order, workspace graph, dependency graph, or build/currentness metadata. |
-| `package-local-validator` | Runtime/API behavior, evaluated config, generated-output equivalence, package semantics, or command output correctness. |
-| `delete-demote` | Transitional residue, duplicate debt, stale compatibility material, or not worth enforcing. |
+| `package-local-validator` | Runtime/API behavior, exact positive currentness, generated-output equivalence, evaluated config, docs reference resolution, or package semantics. |
+| `nx-data` | Package JSON/Nx target graph/order/workspace graph metadata. |
+| `delete-demote` | Transitional wrapper, stale compatibility branch, duplicate, or branch not worth preserving. |
+| `needs-split` | One prior assertion row still contains multiple proof classes and must be split before code edits. |
 
-Structure-check exclusions are strict. Do not route source syntax, import/export
-law, graph traversal, evaluated config, generated freshness, package JSON shape,
-Nx target semantics, or runtime behavior into structure-check.
-
-Exit artifact:
-
-- each assertion row has an owner, evidence refs, confidence, and proof plan.
-
-## Stage 4: Implement The Clear Rows
-
-Implement rows whose owner and proof are clear.
-
-For `structure-check`:
-
-1. Add a sibling or split packet with `ownerTool: "structure-check"`.
-2. Add `structureFile` pointing at a repo-relative `.structure.toml`.
-3. Express only TOML v1 topology.
-4. Add/update baseline.
-5. Remove that branch from the old `.check.*` script.
-
-For `grit-check`:
-
-1. Add or reuse a `.pattern.md`.
-2. Set `ownerTool: "grit-check"`.
-3. Preserve advisory/failure semantics intentionally.
-4. Remove the duplicated branch from the command script only after proof.
-
-For `existing-rule`:
-
-1. Run the companion rule proof.
-2. Remove duplicate command logic only if coverage matches.
-
-For `nx-data`, `package-local-validator`, and unresolved residuals:
-
-1. Keep or narrow the command-check residual for now.
-2. Record the future owner.
-3. Do not pretend the assertion is structure-check or Grit.
-
-For `delete-demote`:
-
-1. Delete only after confirming no remaining branch depends on it.
-2. Update adjacent docs and corpus rows.
-
-Exit condition:
-
-- no removed command-check branch lacks a replacement owner or explicit
-  deletion/demotion decision.
-
-## Stage 5: Prove The Segment
-
-Run focused proof first:
-
-- converted structure rule:
-  `bun tools/habitat/bin/dev.ts check --rule <rule-id> --tool structure-check --json`
-- converted Grit rule:
-  `bun tools/habitat/bin/dev.ts check --rule <rule-id> --tool grit-check --json`
-- residual command rule:
-  `bun tools/habitat/bin/dev.ts check --rule <rule-id> --json`
-- companion existing rule:
-  `bun tools/habitat/bin/dev.ts check --rule <companion-rule-id> --json`
-
-Then run aggregate proof appropriate to the segment:
-
-- `bun tools/habitat/bin/dev.ts check --tool structure-check --json`
-- `bun tools/habitat/bin/dev.ts check --tool grit-check --json`
-- `bun tools/habitat/bin/dev.ts check --tool command-check --json`
-
-Known reds may be accepted only if they are named, current, and unrelated to the
-segment changes.
+This stage is not broad semantic discovery. It only converts prior
+classification into concrete extraction work.
 
 Exit artifact:
 
-- proof ledger with exact commands and result labels.
+- each row has a final owner, prep status, next-round action, and extraction
+  inputs.
 
-## Stage 6: Close The Segment
+## Stage 3: Fill Mechanical Inputs
 
-Before committing:
+Goal: make Round 2 implementation straightforward.
 
-1. Update adjacent `category.md` files.
-2. Update `.habitat/SUBJECT-CATEGORIES.md`.
-3. Update the segment assertion ledger.
-4. Regenerate execution-surface analytics if surfaces changed.
-5. Parse JSON/JSONL artifacts.
-6. Run `git diff --check`.
-7. Run nearest Habitat checks/tests/builds required by touched code.
+For `structure-check` rows, log:
 
-Closure requires:
+- expected root/path globs;
+- required, allowed, or forbidden child hints;
+- exact old command-script branch to remove later;
+- proposed target packet location;
+- focused proof command.
 
-- every assertion in the segment is converted, retained with a real owner,
-  deleted/demoted, or explicitly blocked;
-- command scripts are not left with hidden branches removed from the ledger;
-- no stale file references remain in docs or analytics;
-- the worktree is committed cleanly.
+For `grit-check` rows, log:
 
-## Stop Conditions
+- source files or globs to scan;
+- forbidden tokens/imports/calls/Markdown shape;
+- proposed target packet location;
+- exact old command-script branch to remove later;
+- focused proof command.
 
-Stop the segment and record the blocker if:
+For `existing-rule` rows, log:
 
-- TOML v1 cannot express the topology without new structure-check semantics;
-- the old command script infers authority from current source instead of an
-  explicit accepted expectation;
-- converting would require changing the structure-check runner;
-- a supposed Grit conversion requires broad regex noise instead of a real
-  structural/source pattern;
-- package runtime/generated/currentness behavior is being pulled into Habitat
-  authority without an accepted owner model.
+- companion rule id/proof command;
+- exact old command-script branch to remove later;
+- whether a coverage gap remains.
 
-## Multi-Agent Expansion
+For `package-local-validator` and `nx-data` rows, log:
 
-This N-of-1 workflow is the unit to give to each future lane agent.
+- why this is not structure-check or Grit;
+- where it should remain for now;
+- what future owner would replace the residual command check, if known.
 
-Each agent gets one bounded segment, runs all six stages, and leaves behind its
-segment ledger and proof ledger. The orchestrator only integrates completed
-segments, resolves cross-segment owner conflicts, and runs aggregate proof.
+For `delete-demote` rows, log:
 
-The multi-agent version is therefore parallel N-of-1 execution, not a different
-process.
+- branch to delete;
+- reason not to preserve it.
+
+Exit artifact:
+
+- the segment is ready for implementation without another classification pass.
+
+## Stage 4: Prep Review
+
+Goal: prevent the next implementation pass from discovering avoidable ambiguity.
+
+Review axes:
+
+1. **Corpus completeness:** every current branch in the segment's command
+   script appears in the extraction ledger.
+2. **Owner correctness:** no source predicate is routed to structure-check, no
+   topology is hidden in Grit, and no package/runtime/currentness behavior is
+   laundered into Habitat static authority.
+3. **Mechanical readiness:** every implementable row names what to create,
+   what to remove, and what proof to run.
+4. **Residual honesty:** retained rows are retained because their proof class is
+   wrong for structure/Grit, not because the prep was incomplete.
+
+Accepted P1/P2 review findings must be fixed before Round 1 closes.
+
+## Stage 5: Round 1 Closure
+
+Round 1 closes when:
+
+- the segment extraction ledger parses;
+- every row has a final owner and prep status;
+- every implementable row has a next-round action and proof command;
+- every retained row names the proof class that keeps it out of structure/Grit;
+- review findings are fixed or explicitly dispositioned;
+- no implementation code edits have been made.
+
+## Round 2: Mechanical Extraction
+
+Round 2 starts from the prep ledger, ideally after compacting and reusing the
+same agent.
+
+The Round 2 agent:
+
+1. implements `structure-check`, `grit-check`, `existing-rule`, and
+   `delete-demote` rows that are marked ready;
+2. narrows or deletes command scripts only after every removed branch has a
+   destination;
+3. leaves `package-local-validator` and `nx-data` rows as honest residuals
+   unless an accepted owner already exists;
+4. updates adjacent `category.md`, `.habitat/SUBJECT-CATEGORIES.md`, analytics,
+   and proof ledgers;
+5. runs focused and aggregate proof;
+6. commits a clean worktree.
+
+## Multi-Agent Use
+
+The multi-agent version is parallel N-of-1 prep or extraction over bounded
+segments.
+
+Each agent receives one segment and this workflow. Each agent produces or
+consumes a segment extraction ledger. The orchestrator only resolves
+cross-segment conflicts and runs final aggregate proof.
 
