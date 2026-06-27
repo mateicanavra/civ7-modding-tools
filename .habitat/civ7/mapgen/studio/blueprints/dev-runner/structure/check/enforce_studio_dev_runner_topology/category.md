@@ -23,7 +23,8 @@ Files:
 - `enforce_studio_dev_runner_topology.check.ts`
 - `enforce_studio_dev_runner_topology.rule.json`
 
-Evidence: The check enforces Studio dev/serve-daemon topology, package script absence, and Vite generated/deploy output ignores.
+Evidence: The check enforces Studio dev/serve-daemon Nx/package-script topology and Vite generated/deploy output ignores.
 
 Notes:
-- none
+- Retired `devLive.ts` file absence moved to `prohibit_retired_studio_devlive_daemon_file`.
+- Remaining package script, Nx target, evaluated Vite config, and source-token assertions are not `structure-check` ownership.

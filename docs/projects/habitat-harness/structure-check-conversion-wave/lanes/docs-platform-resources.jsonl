@@ -1,0 +1,3 @@
+{"ruleId":"validate_docs_site_config_inputs","outcome":"split","moved":["docs-site-root-input-presence"],"retained":["docs-json-navigation-shape"]}
+{"ruleId":"validate_mapgen_docs_anchors_and_references","outcome":"retained","reason":"Markdown shape/reference validator and warning policy, not file-tree topology"}
+{"ruleId":"validate_boundary_taxonomy_against_workspace_graph","outcome":"retained","reason":"workspace graph/taxonomy consistency"}

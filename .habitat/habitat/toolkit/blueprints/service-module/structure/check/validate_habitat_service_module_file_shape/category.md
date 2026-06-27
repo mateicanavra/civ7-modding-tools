@@ -23,7 +23,8 @@ Files:
 - `validate_habitat_service_module_file_shape.check.ts`
 - `validate_habitat_service_module_file_shape.rule.json`
 
-Evidence: The check enforces Toolkit service module/model file tree, suffix shape, and module layout.
+Evidence: The check enforces recursive Toolkit service module/model suffix shape and residual router shape.
 
 Notes:
-- Custom filesystem validator; target state is positive subject-local allowlist.
+- Direct service module/model root topology moved to `validate_habitat_service_module_root_topology`.
+- Residual command-check remains for recursive suffix validation and router file-or-directory shape that TOML v1 cannot express cleanly.

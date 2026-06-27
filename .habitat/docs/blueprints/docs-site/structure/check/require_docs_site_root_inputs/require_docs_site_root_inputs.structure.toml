@@ -1,0 +1,20 @@
+schemaVersion = 1
+
+[[scopes]]
+name = "docs-site-root-inputs"
+root = "apps/docs"
+kind = "directory"
+mode = "open"
+required = [
+  "docs.json",
+  "index.mdx",
+]
+
+[[scopes]]
+name = "docs-site-public-inputs"
+root = "apps/docs/public"
+kind = "directory"
+mode = "open"
+required = [
+  "llms.txt",
+]

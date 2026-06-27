@@ -2,14 +2,15 @@
   "schemaVersion": 1,
   "generatedBy": "tools/habitat/scripts/execution-surface-map.ts",
   "summary": {
-    "totalSurfaces": 475,
+    "totalSurfaces": 485,
     "totalSupportFiles": 2,
     "totalSupportVirtualFilenames": 0,
     "surfacesByKind": {
       "apply-pattern": 2,
-      "pattern": 39,
-      "rule-json": 74,
+      "pattern": 40,
+      "rule-json": 79,
       "check-script": 31,
+      "structure-spec": 4,
       "fix-script": 1,
       "operation-note": 2,
       "generate-script": 1,
@@ -20,25 +21,26 @@
       "habitat-cli-source": 124
     },
     "surfacesByRole": {
-      "policy_pattern": 41,
-      "runner_metadata": 74,
+      "policy_pattern": 42,
+      "runner_metadata": 79,
       "command_check_executor": 31,
+      "structure_authority": 4,
       "operation_surface": 4,
       "workspace_entrypoint": 201,
       "toolkit_runner": 124
     },
     "entrypointsByInvoker": {
       "unknown": 8,
-      "habitat": 265,
+      "habitat": 275,
       "direct-script": 34,
       "package": 137,
       "nx": 65
     },
     "surfacesByBucket": {
       "mutation_surface": 118,
-      "package_boundary_tie": 60,
+      "package_boundary_tie": 61,
       "unknown_invocation": 8,
-      "habitat_invoked": 265,
+      "habitat_invoked": 275,
       "nx_ordering_tie": 106,
       "direct_script_invoked": 34,
       "package_invoked": 202
@@ -47,9 +49,9 @@
   },
   "executionAnatomy": {
     "roleCounts": {
-      "policy-predicate": 41,
-      "transient-dependency": 141,
-      "adapter": 74,
+      "policy-predicate": 46,
+      "transient-dependency": 142,
+      "adapter": 79,
       "entrypoint": 233,
       "fixture-support": 9,
       "runner-runtime": 124
@@ -67,8 +69,8 @@
     {
       "target": "grit-check",
       "targetClass": "workspace-tool",
-      "references": 77,
-      "sourceCount": 41,
+      "references": 79,
+      "sourceCount": 42,
       "sampleSources": [
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.rule.json",
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/execution/check/preserve_mapgen_core_runtime_neutrality/preserve_mapgen_core_runtime_neutrality.rule.json",
@@ -139,8 +141,8 @@
     {
       "target": "grit\nlanguage js(typescript)\n\nor {",
       "targetClass": "workspace-tool",
-      "references": 20,
-      "sourceCount": 20,
+      "references": 21,
+      "sourceCount": 21,
       "sampleSources": [
         ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/boundary/check/prohibit_runtime_helper_redeclarations/prohibit_runtime_helper_redeclarations.pattern.md",
         ".habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/block_adapter_context_imports_from_domain_ops/block_adapter_context_imports_from_domain_ops.pattern.md",
@@ -362,7 +364,7 @@
         ".habitat/civ7/mapgen/map-output/blueprints/map-projection/contract/check/preserve_physics_to_map_projection_contracts/preserve_physics_to_map_projection_contracts.check.mjs",
         ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ambient_rng_in_authored_generation/prohibit_ambient_rng_in_authored_generation.check.mjs",
         ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases.check.mjs",
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs"
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs"
       ]
     },
     {
@@ -1108,6 +1110,17 @@
       ]
     },
     {
+      "target": "@habitat/cli/resources/platform/index",
+      "targetClass": "habitat-toolkit",
+      "references": 3,
+      "sourceCount": 3,
+      "sampleSources": [
+        "tools/habitat/src/providers/grit/resource.ts",
+        "tools/habitat/src/resources/command/runner.ts",
+        "tools/habitat/src/service/model/check/policy/structural/context.policy.ts"
+      ]
+    },
+    {
       "target": "@habitat/cli/service/model/baseline/index",
       "targetClass": "habitat-toolkit",
       "references": 3,
@@ -1517,6 +1530,16 @@
       ]
     },
     {
+      "target": ".habitat/",
+      "targetClass": "habitat-authority",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        "tools/habitat/src/service/model/rules/policy/artifact-paths.policy.ts",
+        "tools/habitat/src/service/modules/fix/model/dto/pattern-management.schema.ts"
+      ]
+    },
+    {
       "target": ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
       "targetClass": "habitat-authority",
       "references": 2,
@@ -1534,16 +1557,6 @@
       "sampleSources": [
         "tools/habitat/src/service/model/source-check/policy/source/source-rules.policy.ts",
         "tools/habitat/src/service/modules/fix/model/policy/pattern-artifact-paths.policy.ts"
-      ]
-    },
-    {
-      "target": "@habitat/cli/resources/platform/index",
-      "targetClass": "habitat-toolkit",
-      "references": 2,
-      "sourceCount": 2,
-      "sampleSources": [
-        "tools/habitat/src/providers/grit/resource.ts",
-        "tools/habitat/src/resources/command/runner.ts"
       ]
     },
     {
@@ -1574,6 +1587,16 @@
       "sampleSources": [
         ".habitat/docs/blueprints/docs-site/contract/check/validate_docs_site_config_inputs/validate_docs_site_config_inputs.check.ts",
         ".habitat/docs/blueprints/docs-site/quality/check/verify_docs_site_link_integrity/verify_docs_site_link_integrity.check.ts"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/server/daemon/daemon.ts",
+      "targetClass": "app",
+      "references": 2,
+      "sourceCount": 2,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md",
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts"
       ]
     },
     {
@@ -2723,21 +2746,21 @@
       ]
     },
     {
-      "target": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs",
-      "targetClass": "habitat-authority",
-      "references": 2,
-      "sourceCount": 1,
-      "sampleSources": [
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.rule.json"
-      ]
-    },
-    {
       "target": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.check.ts",
       "targetClass": "habitat-authority",
       "references": 2,
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_runtime_stage_order_matches_contract_manifest/verify_runtime_stage_order_matches_contract_manifest.rule.json"
+      ]
+    },
+    {
+      "target": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs",
+      "targetClass": "habitat-authority",
+      "references": 2,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.rule.json"
       ]
     },
     {
@@ -3776,15 +3799,6 @@
       ]
     },
     {
-      "target": ".habitat/",
-      "targetClass": "habitat-authority",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/model/rules/policy/artifact-paths.policy.ts"
-      ]
-    },
-    {
       "target": ".habitat/_support/execution/source-check/adapters",
       "targetClass": "habitat-support",
       "references": 1,
@@ -3818,15 +3832,6 @@
       "sourceCount": 1,
       "sampleSources": [
         "tools/habitat/src/service/model/rules/policy/artifact-paths.policy.ts"
-      ]
-    },
-    {
-      "target": ".habitat/patterns/apply/",
-      "targetClass": "habitat-authority",
-      "references": 1,
-      "sourceCount": 1,
-      "sampleSources": [
-        "tools/habitat/src/service/modules/fix/model/dto/pattern-management.schema.ts"
       ]
     },
     {
@@ -3899,6 +3904,15 @@
       "sourceCount": 1,
       "sampleSources": [
         ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/validate_boundary_taxonomy_against_workspace_graph/validate_boundary_taxonomy_against_workspace_graph.check.ts"
+      ]
+    },
+    {
+      "target": "@habitat/cli/service/model/structure-check/index",
+      "targetClass": "habitat-toolkit",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        "tools/habitat/src/service/model/check/policy/structural/execution.policy.ts"
       ]
     },
     {
@@ -4154,12 +4168,12 @@
       ]
     },
     {
-      "target": "apps/mapgen-studio/src/server/daemon/daemon.ts",
+      "target": "apps/mapgen-studio/src/server/daemon/daemon",
       "targetClass": "app",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts"
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md"
       ]
     },
     {
@@ -4199,12 +4213,30 @@
       ]
     },
     {
+      "target": "apps/mapgen-studio/src/server/studio/context",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md"
+      ]
+    },
+    {
       "target": "apps/mapgen-studio/src/server/studio/context.ts",
       "targetClass": "app",
       "references": 1,
       "sourceCount": 1,
       "sampleSources": [
-        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts"
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md"
+      ]
+    },
+    {
+      "target": "apps/mapgen-studio/src/server/studio/engines.ts",
+      "targetClass": "app",
+      "references": 1,
+      "sourceCount": 1,
+      "sampleSources": [
+        ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md"
       ]
     },
     {
@@ -19258,91 +19290,19 @@
       ]
     },
     {
-      "id": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs",
-      "path": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs",
-      "surfaceKind": "check-script",
-      "surfaceRole": "command_check_executor",
-      "invokedBy": [
-        "direct-script",
-        "habitat"
-      ],
-      "isDirectEntrypoint": false,
-      "staticTies": {
-        "imports": [
-          "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-          "node:fs",
-          "node:path"
-        ],
-        "relativeHabitatImports": [],
-        "packageAppModImports": [],
-        "childProcessCalls": [],
-        "shellCommandCalls": [
-          "node:fs",
-          "node:path"
-        ],
-        "directHabitatPathCalls": [],
-        "cwdAssumptions": [],
-        "knownMutationVerbs": [],
-        "all": [
-          {
-            "kind": "import",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "import",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "import",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "path-reference",
-            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
-            "targetClass": "relative"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:fs",
-            "targetClass": "node-builtin"
-          },
-          {
-            "kind": "shell-command",
-            "value": "node:path",
-            "targetClass": "node-builtin"
-          }
-        ]
-      },
-      "anatomy": {
-        "roles": [
-          "entrypoint",
-          "fixture-support"
-        ],
-        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
-        "supportSignals": [
-          "references fixture/support path"
-        ],
-        "transientSignals": []
-      },
-      "buckets": [
-        "direct_script_invoked",
-        "habitat_invoked"
-      ]
-    },
-    {
       "id": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.rule.json",
       "path": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.rule.json",
       "surfaceKind": "rule-json",
       "surfaceRole": "runner_metadata",
-      "declaredOwnerTool": "command-check",
+      "declaredOwnerTool": "structure-check",
       "invokedBy": [
         "habitat"
       ],
       "detectCommand": [
-        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs"
+        "--tool",
+        "check",
+        "habitat",
+        "structure-check"
       ],
       "isDirectEntrypoint": false,
       "staticTies": {
@@ -19351,22 +19311,29 @@
         "packageAppModImports": [],
         "childProcessCalls": [],
         "shellCommandCalls": [],
-        "directHabitatPathCalls": [
-          ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs",
-          ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs"
-        ],
+        "directHabitatPathCalls": [],
         "cwdAssumptions": [],
         "knownMutationVerbs": [],
         "all": [
           {
-            "kind": "path-reference",
-            "value": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs",
-            "targetClass": "habitat-authority"
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
           },
           {
             "kind": "rule-detect-command",
-            "value": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.check.mjs",
-            "targetClass": "habitat-authority"
+            "value": "check",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "structure-check",
+            "targetClass": "external"
           }
         ]
       },
@@ -19376,6 +19343,38 @@
         ],
         "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
         "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.structure.toml",
+      "path": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/preserve_standard_stage_topology_and_path_invariants.structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
         "supportSignals": [],
         "transientSignals": []
       },
@@ -19528,6 +19527,107 @@
             "kind": "shell-command",
             "value": "bun",
             "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs",
+      "path": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs",
+      "surfaceKind": "check-script",
+      "surfaceRole": "command_check_executor",
+      "invokedBy": [
+        "direct-script",
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [
+          "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs"
+        ],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "import",
+            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+            "targetClass": "relative"
+          },
+          {
+            "kind": "path-reference",
+            "value": "../../../../../../../../_support/execution/command-check/mapgen-static-check-lib.mjs",
+            "targetClass": "relative"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "entrypoint",
+          "fixture-support"
+        ],
+        "summary": "Command-check executable surface invoked through Habitat metadata or direct references.",
+        "supportSignals": [
+          "references fixture/support path"
+        ],
+        "transientSignals": []
+      },
+      "buckets": [
+        "direct_script_invoked",
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.rule.json",
+      "path": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "command-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [
+          ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs",
+          ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs"
+        ],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs",
+            "targetClass": "habitat-authority"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/verify_standard_recipe_declared_stage_keys.check.mjs",
+            "targetClass": "habitat-authority"
           }
         ]
       },
@@ -19982,6 +20082,99 @@
         ],
         "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
         "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/prohibit_retired_studio_devlive_daemon_file/prohibit_retired_studio_devlive_daemon_file.rule.json",
+      "path": ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/prohibit_retired_studio_devlive_daemon_file/prohibit_retired_studio_devlive_daemon_file.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "structure-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        "--tool",
+        "check",
+        "habitat",
+        "structure-check"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "check",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "structure-check",
+            "targetClass": "external"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/prohibit_retired_studio_devlive_daemon_file/prohibit_retired_studio_devlive_daemon_file.structure.toml",
+      "path": ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/prohibit_retired_studio_devlive_daemon_file/prohibit_retired_studio_devlive_daemon_file.structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
         "supportSignals": [],
         "transientSignals": []
       },
@@ -20945,6 +21138,149 @@
       ]
     },
     {
+      "id": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md",
+      "path": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.pattern.md",
+      "surfaceKind": "pattern",
+      "surfaceRole": "policy_pattern",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [
+          "apps/mapgen-studio/src/server/daemon/daemon",
+          "apps/mapgen-studio/src/server/daemon/daemon.ts",
+          "apps/mapgen-studio/src/server/studio/context",
+          "apps/mapgen-studio/src/server/studio/context.ts",
+          "apps/mapgen-studio/src/server/studio/engines.ts"
+        ],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit\nlanguage js(typescript)\n\nor {"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/daemon/daemon",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/daemon/daemon.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/studio/context",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/studio/context.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "path-reference",
+            "value": "apps/mapgen-studio/src/server/studio/engines.ts",
+            "targetClass": "app"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit\nlanguage js(typescript)\n\nor {",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate",
+          "transient-dependency"
+        ],
+        "summary": "Grit pattern authority: pattern text and embedded examples stay local unless another runtime consumes separate support files.",
+        "supportSignals": [],
+        "transientSignals": [
+          "reaches package/app/mod boundary"
+        ]
+      },
+      "buckets": [
+        "habitat_invoked",
+        "package_boundary_tie"
+      ]
+    },
+    {
+      "id": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.rule.json",
+      "path": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/boundary/check/prohibit_studio_rpc_eventhub_lifecycle_leaks/prohibit_studio_rpc_eventhub_lifecycle_leaks.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "grit-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        "--tool",
+        "check",
+        "grit-check",
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [
+          "grit-check"
+        ],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "check",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
+            "kind": "shell-command",
+            "value": "grit-check",
+            "targetClass": "workspace-tool"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
       "id": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts",
       "path": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/enforce_studio_rpc_eventhub_topology.check.ts",
       "surfaceKind": "check-script",
@@ -20962,8 +21298,7 @@
         ],
         "relativeHabitatImports": [],
         "packageAppModImports": [
-          "apps/mapgen-studio/src/server/daemon/daemon.ts",
-          "apps/mapgen-studio/src/server/studio/context.ts"
+          "apps/mapgen-studio/src/server/daemon/daemon.ts"
         ],
         "childProcessCalls": [
           "\"git\" [\"rev-parse\", \"--show-toplevel\"] {\n  encoding: \"utf8\",\n}"
@@ -21001,11 +21336,6 @@
           {
             "kind": "path-reference",
             "value": "apps/mapgen-studio/src/server/daemon/daemon.ts",
-            "targetClass": "app"
-          },
-          {
-            "kind": "path-reference",
-            "value": "apps/mapgen-studio/src/server/studio/context.ts",
             "targetClass": "app"
           },
           {
@@ -23560,6 +23890,99 @@
       ]
     },
     {
+      "id": ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/require_docs_site_root_inputs.rule.json",
+      "path": ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/require_docs_site_root_inputs.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "structure-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        "--tool",
+        "check",
+        "habitat",
+        "structure-check"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "check",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "structure-check",
+            "targetClass": "external"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/require_docs_site_root_inputs.structure.toml",
+      "path": ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/require_docs_site_root_inputs.structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
       "id": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
       "path": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/validate_mapgen_docs_anchors_and_references.check.py",
       "surfaceKind": "check-script",
@@ -24715,6 +25138,99 @@
         ],
         "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
         "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_root_topology/validate_habitat_service_module_root_topology.rule.json",
+      "path": ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_root_topology/validate_habitat_service_module_root_topology.rule.json",
+      "surfaceKind": "rule-json",
+      "surfaceRole": "runner_metadata",
+      "declaredOwnerTool": "structure-check",
+      "invokedBy": [
+        "habitat"
+      ],
+      "detectCommand": [
+        "--tool",
+        "check",
+        "habitat",
+        "structure-check"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": [
+          {
+            "kind": "rule-detect-command",
+            "value": "--tool",
+            "targetClass": "unknown"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "check",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "habitat",
+            "targetClass": "external"
+          },
+          {
+            "kind": "rule-detect-command",
+            "value": "structure-check",
+            "targetClass": "external"
+          }
+        ]
+      },
+      "anatomy": {
+        "roles": [
+          "adapter"
+        ],
+        "summary": "Runner metadata that selects owner tool, scan roots, path coverage, detect command text, and reporting text.",
+        "runnerContract": "Read by Habitat registry/catalog loading; not policy authority by itself.",
+        "supportSignals": [],
+        "transientSignals": []
+      },
+      "buckets": [
+        "habitat_invoked"
+      ]
+    },
+    {
+      "id": ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_root_topology/validate_habitat_service_module_root_topology.structure.toml",
+      "path": ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_root_topology/validate_habitat_service_module_root_topology.structure.toml",
+      "surfaceKind": "structure-spec",
+      "surfaceRole": "structure_authority",
+      "invokedBy": [
+        "habitat"
+      ],
+      "isDirectEntrypoint": false,
+      "staticTies": {
+        "imports": [],
+        "relativeHabitatImports": [],
+        "packageAppModImports": [],
+        "childProcessCalls": [],
+        "shellCommandCalls": [],
+        "directHabitatPathCalls": [],
+        "cwdAssumptions": [],
+        "knownMutationVerbs": [],
+        "all": []
+      },
+      "anatomy": {
+        "roles": [
+          "policy-predicate"
+        ],
+        "summary": "Structure-check TOML authority: declarative file-tree topology consumed by the native Habitat structure-check runner.",
         "supportSignals": [],
         "transientSignals": []
       },
@@ -38882,6 +39398,7 @@
         "imports": [
           "@effect/platform",
           "@habitat/cli/resources/command/index",
+          "@habitat/cli/resources/platform/index",
           "@habitat/cli/service/model/baseline/index",
           "@habitat/cli/service/model/check/index",
           "@habitat/cli/service/model/diagnostics/policy/rule-runtime/architecture.policy",
@@ -38907,6 +39424,11 @@
           {
             "kind": "import",
             "value": "@habitat/cli/resources/command/index",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/resources/platform/index",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -38978,6 +39500,7 @@
           "@habitat/cli/service/model/rules/index",
           "@habitat/cli/service/model/rules/policy/catalog.policy",
           "@habitat/cli/service/model/rules/policy/selection.policy",
+          "@habitat/cli/service/model/structure-check/index",
           "effect"
         ],
         "relativeHabitatImports": [],
@@ -39031,6 +39554,11 @@
           {
             "kind": "import",
             "value": "@habitat/cli/service/model/rules/policy/selection.policy",
+            "targetClass": "habitat-toolkit"
+          },
+          {
+            "kind": "import",
+            "value": "@habitat/cli/service/model/structure-check/index",
             "targetClass": "habitat-toolkit"
           },
           {
@@ -41457,7 +41985,7 @@
           "nx-options-only"
         ],
         "directHabitatPathCalls": [
-          ".habitat/patterns/apply/"
+          ".habitat/"
         ],
         "cwdAssumptions": [],
         "knownMutationVerbs": [
@@ -41476,7 +42004,7 @@
           },
           {
             "kind": "path-reference",
-            "value": ".habitat/patterns/apply/",
+            "value": ".habitat/",
             "targetClass": "habitat-authority"
           },
           {

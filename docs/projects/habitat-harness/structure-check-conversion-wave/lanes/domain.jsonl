@@ -1,0 +1,4 @@
+{"ruleId":"enforce_domain_refactor_boundary_profile","outcome":"retained","reason":"aggregate profile mixes auto-detected topology, source predicates, existing-rule delegations, and transitional wrapper behavior"}
+{"ruleId":"preserve_decomposed_foundation_contract_surfaces","outcome":"retained","reason":"mostly source predicates and exact contract/currentness assertions; no accepted literal TOML scope in this wave"}
+{"ruleId":"preserve_morphology_contracts_and_overlay_ownership","outcome":"retained","reason":"source predicates and ownership/currentness assertions; no accepted literal TOML scope in this wave"}
+{"ruleId":"require_owned_domain_config_catalog_surfaces","outcome":"retained","reason":"exact facade exports and tag catalog semantics are not file-tree topology"}

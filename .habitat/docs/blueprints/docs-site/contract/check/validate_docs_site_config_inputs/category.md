@@ -23,7 +23,7 @@ Files:
 - `validate_docs_site_config_inputs.check.ts`
 - `validate_docs_site_config_inputs.rule.json`
 
-Evidence: The check validates docs-site config/root file shape and publication navigation requirements.
+Evidence: The check validates docs-site `docs.json` publication navigation semantics.
 
 Notes:
-- none
+- Root file presence moved to `require_docs_site_root_inputs`.
