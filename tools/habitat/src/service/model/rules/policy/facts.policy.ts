@@ -10,6 +10,7 @@ import type {
   RuleRoutingFacts,
   RuleSelectorFacts,
   RuleSourceFacts,
+  RuleStructureFacts,
 } from "../dto/registry.schema.js";
 
 type SelectorRecordInput = Pick<RuleRegistryRecordV1, "id" | "ownerProject" | "ownerTool">;
@@ -24,6 +25,7 @@ type RoutingRecordInput = Pick<
 type BaselineRecordInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath">;
 type SourceRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "source-check" }>;
 type GritRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "grit-check" }>;
+type StructureRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "structure-check" }>;
 type ManifestRecordInput = SourceRecordInput & { manifestPath: string };
 type FileLayerRecordInput = Extract<RuleRegistryRecordV1, { ownerTool: "file-layer" }>;
 type CommandRecordInput = Extract<
@@ -104,6 +106,24 @@ export function ruleGritFacts(records: readonly RuleRegistryRecordV1[]): RuleGri
           : { ...coverage }
       ),
       scanRoots: [...rule.scanRoots],
+    }));
+}
+
+export function ruleStructureFacts(
+  records: readonly RuleRegistryRecordV1[]
+): RuleStructureFacts[] {
+  return records
+    .filter((rule): rule is StructureRecordInput => rule.ownerTool === "structure-check")
+    .map((rule) => ({
+      id: rule.id,
+      lane: rule.lane,
+      message: rule.message,
+      pathCoverage: rule.pathCoverage.map((coverage) =>
+        coverage.kind === "exact-path"
+          ? { kind: coverage.kind, patterns: [...coverage.patterns] }
+          : { ...coverage }
+      ),
+      structureFile: rule.structureFile,
     }));
 }
 
