@@ -27,7 +27,10 @@
     "Toaster": { "cardMode": "single", "primaryStory": "Notifications" },
     "PresetErrorDialog": { "cardMode": "single", "viewport": "680x420" },
     "PresetSaveDialog": { "cardMode": "single", "viewport": "680x460" },
-    "PresetConfirmDialog": { "cardMode": "single", "viewport": "680x340" }
+    "PresetConfirmDialog": { "cardMode": "single", "viewport": "680x340" },
+    "BrowserConfigFieldTemplate": { "cardMode": "column" },
+    "BrowserConfigObjectFieldTemplate": { "cardMode": "column" },
+    "BrowserConfigArrayFieldTemplate": { "cardMode": "column" }
   },
   "docsMap": {
     "Button": ".design-sync/groups/primitives.md",
@@ -61,7 +64,17 @@
     "RightDock": ".design-sync/groups/layout.md",
     "ExplorePanel": ".design-sync/groups/panels.md",
     "GameConsole": ".design-sync/groups/panels.md",
-    "RecipePanel": ".design-sync/groups/panels.md"
+    "RecipePanel": ".design-sync/groups/panels.md",
+    "TextWidget": ".design-sync/groups/forms.md",
+    "TextareaWidget": ".design-sync/groups/forms.md",
+    "NumberWidget": ".design-sync/groups/forms.md",
+    "SelectWidget": ".design-sync/groups/forms.md",
+    "CheckboxWidget": ".design-sync/groups/forms.md",
+    "SwitchWidget": ".design-sync/groups/forms.md",
+    "TagSelectWidget": ".design-sync/groups/forms.md",
+    "BrowserConfigFieldTemplate": ".design-sync/groups/forms.md",
+    "BrowserConfigObjectFieldTemplate": ".design-sync/groups/forms.md",
+    "BrowserConfigArrayFieldTemplate": ".design-sync/groups/forms.md"
   },
   "componentSrcMap": {
     "Button": "src/components/ui/button.tsx",
@@ -95,6 +108,16 @@
     "ErrorBanner": "src/app/ErrorBanner.tsx",
     "PresetErrorDialog": "src/features/presets/PresetDialogs.tsx",
     "PresetSaveDialog": "src/features/presets/PresetDialogs.tsx",
-    "PresetConfirmDialog": "src/features/presets/PresetDialogs.tsx"
+    "PresetConfirmDialog": "src/features/presets/PresetDialogs.tsx",
+    "TextWidget": "src/features/configOverrides/rjsfWidgets.tsx",
+    "TextareaWidget": "src/features/configOverrides/rjsfWidgets.tsx",
+    "NumberWidget": "src/features/configOverrides/rjsfWidgets.tsx",
+    "SelectWidget": "src/features/configOverrides/rjsfWidgets.tsx",
+    "CheckboxWidget": "src/features/configOverrides/rjsfWidgets.tsx",
+    "SwitchWidget": "src/features/configOverrides/rjsfWidgets.tsx",
+    "TagSelectWidget": "src/features/configOverrides/rjsfWidgets.tsx",
+    "BrowserConfigFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
+    "BrowserConfigObjectFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
+    "BrowserConfigArrayFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx"
   }
 }
