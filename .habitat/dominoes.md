@@ -1,491 +1,432 @@
 # Habitat Dominoes
 
-Status: working sequence ledger
+Status: active sequence ledger for Habitat authority activation
 
-This document records the current ratchet sequence for Habitat authority work.
-It is not a full roadmap and should not become an exhaustive backlog. Each
-domino is a concrete move that makes the next move simpler or more obvious.
+This document records the next reviewable domino sequence for the Habitat
+authority tree. It is governed by `.habitat/DOMINO-FRAME.md`; this ledger is
+the execution-facing companion, not a replacement frame or exhaustive backlog.
 
-The current priority is authority content and package integration. Deep Habitat
-Toolkit redesign is a separate effort unless a narrow Toolkit fix is required
-to keep the authority ratchet moving.
+## Status And Source Order
 
-## Sequence Rule
+Use this source order when selecting or judging the next domino:
 
-Prefer the next irreversible, testable integration move over broad redesign.
-When a domino lands, reassess the tree and runner surface before committing to
-the next one.
+1. Direct user decisions and current repo instructions.
+2. `.habitat/DOMINO-FRAME.md`.
+3. `.habitat/AUTHORITY-ONTOLOGY.md`.
+4. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
+   `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
+   `.habitat/SUBJECT-CATEGORIES.md`.
+5. Current `.habitat` tree shape, packet metadata, toolkit behavior, and fresh
+   command evidence.
+6. Historical branch, PR, and session context as discovery material only.
 
-Every domino should reduce future states. A scan or ledger is not progress by
-itself; it only counts inside a vertical slice that also moves or deletes
-authority, rewires callers, proves behavior, and leaves fewer places for policy
-to hide.
+The center of gravity has moved. Package-script cleanup is not the active
+driver anymore. Source-check retirement and mixed command-check extraction are
+landed enough to stop driving the plan. The full-suite runner rebuild moves
+later, after admitted authority exists and can project into execution.
 
-Do not use this sequence to justify speculative ontology work. Ontology and
-resolver design should only harden after the gathered authority content proves
-the need.
+The next regime is not another cleanup pass. It is the point where the
+authority model starts operating vertically: blueprint authority, instance
+facts, capability attachment, niche admission, and execution projection become
+real for one narrow pilot before they are generalized.
 
-## Completed Dominoes
+## Target Regime: Authority Activation
 
-### 1. Recover The Normative Frame
+Authority Activation is the next whole regime for Habitat.
 
-Outcome: Habitat is the authority tree for repo structure and policy. The core
-frame is allowlist-first pattern definition, followed by burn-down against those
-patterns.
+In this regime:
 
-What landed:
-
-- Preserved runtime/context work as the good foundation from the earlier
-  Toolkit effort.
-- Rejected broad implementation improvisation as the wrong mode for the current
-  phase.
-- Established that `.habitat` owns authored authority content while
-  `tools/habitat` owns Toolkit execution mechanics.
-
-### 2. Gather Baked-In Authority Content
-
-Outcome: patterns, rule records, baselines, scripts, and related enforcement
-assets were pulled out of scattered package/tool locations and collected under
-`.habitat`.
-
-What landed:
-
-- Consolidated rule-like assets from package-local and Toolkit-local surfaces.
-- Kept operational product/runtime scripts with their consumers when they are
-  not Habitat-scoped linting, fixing, generation, migration, or checking.
-- Recorded compatibility debt instead of blocking the content move on complete
-  runner integration.
-
-### 3. Co-Locate Rule Packets By Subject
-
-Outcome: the first gathered authority corpus was reorganized from type buckets
-into packet folders, one folder per gathered authority handle.
-
-What landed:
-
-- Moved `rule.json`, matching pattern Markdown, baselines, apply/check scripts,
-  and same-subject loose scripts together.
-- Established packet-level co-location as the transition shape before final
-  ontology.
-- Avoided early niche grouping during the co-location pass.
-
-### 4. Establish Shallow Niche Jurisdictions
-
-Outcome: packets were moved into a first-pass niche hierarchy based on durable
-jurisdiction rather than runner type, file type, rule ID, or current defect
-name.
-
-Current niche model:
-
-- `global/repository`
-- `habitat/toolkit`
-- `docs/content`
-- `docs/projects`
-- `docs/site`
-- `civ7/resources`
-- `civ7/platform`
-- `civ7/mapgen/core`
-- `civ7/mapgen/pipeline`
-- `civ7/mapgen/studio`
-
-What landed:
-
-- Removed bad niche labels that described artifact classes instead of
+- Blueprint authority defines a constructible kind and the facts required to
+  admit instances of that kind.
+- Instance facts are declared by the instance, not inferred from runner history
+  or packet path convenience.
+- Capabilities attach to admitted instances when the blueprint allows them and
+  the instance facts satisfy their requirements.
+- Niches govern admission by accepted facts instead of acting only as folder
   jurisdictions.
-- Introduced `civ7/resources` for official-resource-derived generated
-  projections.
-- Kept MapGen pipeline special cases such as ecology and placement as packet
-  names, not niche names.
+- Execution tools are projections of admitted authority. They are adapters and
+  evidence rails, not ontology sources.
+- Transitional `category.md`, `<packet>.rule.json`, and packet path metadata
+  either serve the migrated slice temporarily or get pruned when admitted
+  authority makes them redundant.
 
-### 5. Normalize Rule Packet File Names
+The destination is meaningfully different from the current tree: an agent can
+start with one admitted instance, know its blueprint, capabilities, niche
+admission basis, and narrow execution projection, and then author or inspect the
+slice without reverse-engineering the old packet registry.
 
-Outcome: rule-owned files were normalized to a consistent dot-pattern inside
-each packet.
+That destination is not a final global schema. It is a vertical pilot that
+proves the activation stack end to end and gives the next pilot something real
+to copy, refine, or reject.
 
-What landed:
+## Domino Selection Rule
 
-- `<rule>.rule.json`
-- `<rule>.pattern.md`
-- `<rule>.baseline.json`
-- transitional scripts such as `<rule>.check.mjs` or `<rule>.check.sh`
+Choose the largest bounded vertical slice that makes the next largest slice
+more mechanical.
 
-This was a mechanical legibility pass, not a final support-artifact ontology.
+A good domino must do at least one of these:
 
-### 6. Separate Mutating Operations From Read-Only Checks
+- admit a concept into the authority model;
+- move a fact from transitional metadata into its owning authority surface;
+- delete, demote, or fence a misleading bridge;
+- create a narrow projection adapter for admitted authority;
+- provide proof that falsifies or validates the next ordering decision.
 
-Outcome: obvious mutating preflight helpers were split away from Habitat
-`check` packets, and package-local ensure/build workflows were kept with their
-consumers.
+A scan, ledger, or design note only counts when it enables one of those moves
+inside the same branch or explicitly proves that the branch must stop before
+implementation.
 
-What landed:
+Avoid horizontal cleanup unless it is necessary for the active vertical pilot.
+Avoid runner rebuilding until admitted authority exists for it to discover.
 
-- Read-only Habitat checks for currentness/shape where appropriate.
-- Package-local ensure scripts for workflows that build or refresh product
-  outputs.
-- Provisional docs operations for fix/generate behaviors without pretending
-  they are read-only checks.
+## Completed Domino Index
 
-### 7. Migrate First MapGen Static Guardrail Batch
+| Domino | Result |
+| --- | --- |
+| 1. Recover normative frame | Habitat was re-centered as the authority tree for repo structure and policy. |
+| 2. Gather authority content | Scattered rule-like assets were gathered under `.habitat` while non-Habitat runtime workflows stayed with their consumers. |
+| 3. Co-locate rule packets by subject | Rule records, patterns, baselines, and same-subject scripts were grouped into transition packets. |
+| 4. Establish shallow niche jurisdictions | Packets moved under durable jurisdiction paths instead of runner, file-type, or defect labels. |
+| 5. Normalize packet filenames | Rule packet files received consistent dot-pattern names for legibility. |
+| 6. Separate mutating operations from checks | Read-only checks, repair operations, and generate operations stopped sharing one execution meaning. |
+| 7. Migrate first MapGen static guardrails | Clear static architecture checks moved into Habitat-owned transitional packets. |
+| 8. Define artifact kinds | Check, fix, generate, and migrate were recorded as mutability and execution intent kinds. |
+| 9. Define authority tree shape | The current transitional niche, blueprint, category, kind, and packet path was documented. |
+| 10. Flatten and correct the tree | Layer buckets collapsed into the current visible authority-tree projection. |
+| 11. Bridge selected package callers | Curated selected-rule execution proved package callers can route through Habitat without direct `.habitat` script paths. |
+| 12. Retire source-check as a driver | Source-check-shaped work was moved or demoted enough that it no longer owns the next plan. |
+| 13. Extract mixed command checks | Mixed command-check packets were split enough to prove proof-class separation and stop treating the junk drawer as the center. |
+| 14. Close triage/residual owner cleanup | Triage packets and residual owners were removed, moved, or retained honestly enough to expose the ontology problem. |
+| 15. Polish authority ontology and frame | The ontology and operating frame now name Habitat, blueprint, instance, capability, niche, and proof-class separation as the governing model. |
 
-Outcome: the clearest package-local static/source-shape architecture tests were
-moved into Habitat-owned check packets.
+This index is intentionally compressed. Completed branches matter because they
+changed what the next agent should do; they are not the active plan.
 
-What landed:
+## Remaining Dominoes
 
-- Transitional `command-check` packets for MapGen static guardrails that still
-  need script-based execution.
-- Deleted fully migrated package tests where Habitat had parity.
-- Package scripts still call direct `.habitat` script paths as a temporary
-  bridge because the Habitat runner still has path/discovery debt.
+### 16. Re-Geolocate The Domino Ledger
 
-Important boundary:
+Purpose: replace the stale cleanup-ledger handoff with the Authority Activation
+sequence.
 
-- Runtime/product behavior tests stayed package-local.
-- Broad wrapped package-test execution was not reintroduced as the Habitat
-  model.
+Done Means:
 
-### 8. Define Artifact Kinds
+- This document names Authority Activation as the target regime.
+- Stale cleanup items are marked as no longer active drivers.
+- Remaining dominoes are ordered around a vertical pilot, not around broad
+  package-script or runner cleanup.
+- Each remaining domino includes Done Means, Moves It Forward, Dependencies,
+  and Proof.
 
-Outcome: `.habitat/ARTIFACT-KINDS.md` captured the current top-level executable
-artifact kinds and mutability rules.
+Moves It Forward:
 
-Current kinds:
+- Preserve `.habitat/DOMINO-FRAME.md` as the baseline frame.
+- Rewrite this ledger into regime, selection, completed index, remaining
+  dominoes, falsifier gates, and closure contract.
+- Remove stale active guidance that would send the next agent back to old
+  cleanup work.
 
-- `check`: read-only evaluation.
-- `fix`: idempotent repair of existing authored files.
-- `generate`: materialization of declared generated or scaffolded outputs.
-- `migrate`: intentional transition from one accepted authored shape to
-  another.
+Dependencies:
 
-What intentionally did not land:
+- The framing branch must remain the parent.
+- Authority ontology polish must stay accepted as the conceptual baseline.
 
-- support-artifact ontology;
-- implementation adapter schema;
-- final blueprint manifest structure;
-- final resolver metadata.
+Proof:
 
-### 9. Define The Authority Tree Shape
+- `git diff --check` passes.
+- The Habitat toolkit-local check requested for this branch passes or reports a
+  bounded pre-existing limitation.
+- Stale active-guidance phrase search has no hits.
 
-Outcome: `.habitat/AUTHORITY-TREE-SHAPE.md` recorded the current jurisdiction
-model.
+### 17. Select One Vertical Activation Pilot Corpus
 
-Current rule:
+Purpose: choose the narrow corpus that will prove Authority Activation end to
+end.
 
-```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
-```
+Done Means:
 
-Key decisions:
+- One pilot corpus is selected and justified against the selection rule.
+- The branch records why rejected candidate corpora are too broad, too runtime
+  heavy, or too weak to prove activation.
+- The selected slice has a concrete current packet or authority surface to
+  migrate.
 
-- Niche is jurisdiction.
-- Blueprint is the buildable/enforceable thing inside a niche.
-- `_self` is the temporary blueprint placeholder for niche-wide authority.
-- Category is a single-word universal engineering purpose.
-- Artifact kind carries mutability and execution intent.
-- Narrow subjects, maintenance chores, and runner names are not blueprints.
+Moves It Forward:
 
-### 10. Flatten, Categorize, And Correct The Blueprint Tree
+- Compare `docs-site` and `habitat/toolkit/generator` first.
+- Prefer the candidate with one visible blueprint candidate, one plausible
+  instance, one narrow capability, and one niche admission rule.
+- Avoid MapGen runtime/product proof as the first pilot unless all smaller
+  candidates fail.
 
-Outcome: all current packets were moved out of provisional layer buckets, categorized, then corrected so broad areas are niches and buildable/enforceable things are blueprints. The current packet shape is:
+Dependencies:
 
-```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
-```
+- Domino 16 is landed.
+- Current `.habitat` authority docs are read as source, not rewritten as part
+  of pilot selection.
 
-What landed:
+Proof:
 
-- 80 packets classified by universal single-word category.
-- Niche paths such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, `civ7/resources`, and `civ7/mapgen/domain`.
-- Blueprint paths such as `project-boundary-model`, `docs-site`, `service-module`, `civ7-adapter`, `civ7-map-policy`, `domain-public-surface`, `standard-recipe`, `map-projection`, and `ensure_studio_worker_bundle_is_browser_safe`.
-- Artifact kinds remain `check`, `fix`, `generate`, `migrate`, and `triage`.
-- Toolkit triage remains explicitly non-default executable authority.
+- A short pilot-selection record exists in the owning authority tree location.
+- The selected corpus lists the existing packets, docs, and commands that will
+  be touched by the next domino.
+- The record names the proof classes that the pilot can and cannot exercise.
 
-Current semantic review:
+### 18. Admit One Pilot Blueprint Definition
 
-- The tree now separates niche jurisdiction from blueprint identity.
-- Categories and artifact kinds are visible without becoming the top-level domain axis.
-- The next resolver pass must discover this niche/blueprint path shape directly.
+Purpose: make one blueprint a real authority definition instead of a path label.
 
-### 11. Bridge Package Scripts Through Habitat Check
+Done Means:
 
-Goal: packages should run Habitat-owned checks through the Habitat command
-surface instead of calling `.habitat/.../*.check.*` directly.
+- The pilot blueprint defines the constructible kind it governs.
+- It states required instance facts without designing the global schema.
+- It names allowed or expected capabilities for the pilot slice.
+- It identifies which existing packet metadata remains transitional.
 
-Status: landed as `agent-DRA-habitat-check-runner-bridge`.
+Moves It Forward:
 
-What landed:
-
-- Fixed the narrow async registry fallback issue that prevented selected
-  checks from reaching the flattened authority-tree rule-pack index.
-- Added repeatable `--rule` selection so package scripts can run curated rule
-  groups through `habitat check --rule <id> --rule <id>`.
-- Added command-check runner inference for direct packet-local `.mjs`, `.sh`,
-  and `.py` detects.
-- Rewired the MapGen static guardrail package scripts through Habitat command
-  invocations.
-- Rewired the root strict domain-refactor guardrail alias through Habitat while
-  preserving its existing environment profile.
-- Preserved the existing check set; did not redesign check semantics in this
-  slice.
-- Kept `<category>/triage` excluded from default execution.
-
-What this proved:
-
-- A single rule can run through `habitat check --rule <id>`.
-- A curated package group can run through Habitat without hard-coded `.habitat`
-  script paths in package scripts.
-- `mods/mod-swooper-maps` architecture static guardrails run through Habitat.
-- Existing package scripts retain their prior behavioral scope.
-
-What this did not prove:
-
-- Plain `habitat check` / graph-wide `nx run-many -t habitat:check` full-suite execution remains
-  broken and should not be treated as a known-good aggregate.
-- Root/package lint aliases should collapse into package-level `lint` scripts.
-  Profiled non-lint callers such as `ci:architecture-strict-core` may still
-  exist when they preserve an explicit environment profile while routing
-  through Habitat.
-- Existing rule violations, including the strict domain-refactor guardrail
-  failure, remain policy burn-down work after the runner bridge reaches the
+- Author the smallest blueprint definition needed for the selected pilot.
+- Use current ontology terms exactly: blueprint, instance, capability, niche.
+- Reject path-derived facts that should belong to the instance or admission
   rule.
+- Keep execution adapter concerns out of blueprint authority.
 
-## Known Runner Debt
+Dependencies:
 
-### Full-Suite `habitat check`
+- Domino 17 selected a pilot with enough surface area to admit a blueprint.
+- Existing `.habitat/AUTHORITY-ONTOLOGY.md` remains the conceptual source.
 
-The selected-rule path and the full-suite path are now intentionally separated
-in the working model.
+Proof:
 
-`habitat check --rule <id>` is the proven bridge. It uses explicit rule
-selection, resolves a curated packet set, applies baselines, and can support
-package scripts while the broader runner is being redesigned.
+- Adjacent authority docs or metadata show the blueprint as the source for the
+  pilot kind.
+- No broad schema is introduced beyond the facts needed by the pilot.
+- Review can point to one before/after conceptual owner change.
 
-Plain `habitat check` / graph-wide `nx run-many -t habitat:check` is not
-currently a trustworthy aggregate. It still tries to run the accumulated default rule universe through
-old assumptions about registry shape, artifact admission, packet identity,
-default inclusion, and error reporting. The observed `Internal Server Error`
-is not a surprise and should not be papered over as a one-off bug.
+### 19. Admit One Pilot Instance Plus One Capability
 
-Current direction: treat full-suite execution as a likely scrap-and-rebuild
-surface. The rebuild should start from the corrected niche/blueprint authority tree:
+Purpose: prove that a concrete instance can declare facts and receive a
+capability under the pilot blueprint.
 
-- discover executable packets from `.habitat/**/blueprints/<blueprint>/<category>/<kind>/<packet>/`;
-- infer niche, blueprint, category, artifact kind, and packet identity from the path;
-- exclude `<category>/triage` packets from default execution;
-- refuse unknown, stale, or not-yet-admitted packets with explicit selector or
-  admission diagnostics;
-- report per-packet failures directly, not as generic service errors;
-- preserve curated `--rule` execution as the compatibility bridge while this is
-  rebuilt.
+Done Means:
 
-Do not let the broken full-suite path drive the authority ontology. The current
-Toolkit internals are overfit to earlier shapes and should not be used as proof
-that the flattened model is wrong.
+- One concrete pilot instance exists as an admitted authority object.
+- The instance declares the facts needed by the pilot blueprint.
+- One capability attaches to the instance through an explicit allowed relation.
+- Transitional packet metadata for the same facts is either demoted or marked
+  for removal in Domino 22.
 
-## Active Next Domino
+Moves It Forward:
 
-### 12. Package Script Cleanup
+- Choose the smallest instance that is already implied by the selected corpus.
+- Define only the capability needed to make the pilot useful.
+- Keep capability authority separate from execution implementation.
+- Record any fact that is still duplicated in legacy packet metadata.
 
-Goal: remove obvious lint/check/structure authority from root and package
-`package.json` surfaces by moving simple enforcement scripts into `.habitat`
-and rewiring callers through `habitat check --rule ...`.
+Dependencies:
 
-This is a cleanup domino, not an audit domino. The deliverable is less cruft:
-fewer package scripts that act like policy, fewer direct script paths, and
-fewer duplicate enforcement surfaces.
+- Domino 18 admitted the pilot blueprint.
+- The selected corpus has one concrete authority surface that can be treated as
+  an instance without inventing a fake object.
 
-What this domino should do:
+Proof:
 
-- Walk every root/package `package.json` script once.
-- For every clearly simple lint/check/structure script:
-  - if it already has a Habitat rule, rewire the caller to
-    `habitat check --rule ...`;
-  - if it is a standalone script that should be Habitat-owned, move it into the
-    appropriate `.habitat/<niche>/blueprints/<blueprint>/<category>/check/<packet>/`
-    packet, register it, add an empty or existing baseline as appropriate, and
-    route it through `habitat check --rule ...`;
-  - if it is redundant after a Habitat route exists, remove the alias instead
-    of keeping a shadow policy name.
-- Leave package-local operational workflows in place when they run product
-  behavior, builds, dev servers, generated-output refresh, or tool-required
-  package checks.
-- Leave scripts whose authority is embedded in tests for the next domino. Do
-  not partially extract those in this pass.
-- Avoid broad `habitat check`; use curated `--rule` calls only.
+- The instance and capability can be inspected without reading the runner.
+- Capability attachment can be traced to blueprint permission and instance
+  facts.
+- Any duplicated transitional fact is explicitly listed for pruning.
 
-Acceptance shape:
+### 20. Admit One Niche Selector Or Governance Rule
 
-- No root/package script directly invokes `.habitat/**/<packet>.check.*` when a
-  registered rule can be called.
-- Any simple package-visible lint/check script that belongs to Habitat is moved
-  fully into a Habitat check packet and made runnable by rule ID.
-- Package scripts that remain are clearly operational, tool-required, package
-  test entrypoints, or short aliases into Habitat/Nx.
-- The changed root/package scripts are verified directly.
-- The worktree is clean and committed.
+Purpose: make niche admission real for the pilot.
 
-Scope guard:
+Done Means:
 
-- Do not create a classification ledger as a substitute for moving or deleting
-  script authority.
-- Do not migrate authority embedded inside test files or broad package test
-  suites.
-- Do not repair underlying rule violations such as strict domain-refactor
-  guardrail findings here.
-- Do not rely on broad `habitat check` as proof.
-- Do not redesign full-suite runner discovery in this slice.
+- One niche selector or governance rule admits the pilot instance by accepted
+  facts.
+- The rule explains what facts matter for admission and which facts do not.
+- The niche stops being only a folder jurisdiction for the migrated slice.
 
-## Planned Dominoes
+Moves It Forward:
 
-### 13. Embedded Hidden Authority Migration
+- Use the pilot instance facts from Domino 19.
+- Keep niche governance separate from blueprint definition and capability
+  attachment.
+- Prefer one admission rule over a general selector framework.
+- Record falsifiers that would force the pilot back to blueprint or instance
+  design.
 
-Goal: extract structural authority that is still baked into package tests or
-other embedded locations, one vertical cluster at a time.
+Dependencies:
 
-This is separate from package script cleanup because these checks are not simple
-script moves. They require reading the test oracle, splitting structure from
-runtime/product behavior, migrating only the structural authority, and then
-deleting or narrowing the original test.
+- Domino 19 admitted an instance with inspectable facts.
+- The selected niche is stable enough to govern one pilot slice.
 
-First cluster completed: MapGen authoring-surface authority plus same-class
-Studio, Civ7 resource, and platform static authority found during the
-systematic embedded-authority pass.
+Proof:
 
-Migrated packets include:
+- The pilot instance can be explained as admitted, rejected, or out of scope by
+  the niche rule.
+- The rule does not rely on the old runner registry as authority.
+- Review can identify the exact admission basis.
 
-- `verify_standard_recipe_public_authoring_surface`
-- `validate_generated_map_entrypoint_contracts`
-- `verify_standard_recipe_artifacts_match_source_stages`
-- `verify_runtime_stage_order_matches_contract_manifest`
-- `block_studio_config_leakage_into_shipped_catalog`
-- `prohibit_ecology_fudge_terms_and_legacy_generator_surfaces`
-- `ensure_map_policy_dependency_independence`
-- `preserve_evidence_provenance_labels`
-- `require_recipe_dag_contract_metadata`
-- `enforce_studio_dev_runner_topology`
-- `enforce_studio_rpc_eventhub_topology`
-- `require_narrow_game_ui_bridge_bootstrap`
-- `prohibit_adapter_local_legacy_generator_logic`
+### 21. Build The Narrow Projection Adapter
 
-Later embedded clusters:
+Purpose: let execution consume the admitted pilot authority without rebuilding
+the full runner.
 
-- Remaining Studio config tests that must still be split assertion-by-assertion
-  before migration.
-- Core/platform public-surface authority beyond the migrated bridge and adapter
-  checks, such as direct-control public API boundaries.
+Done Means:
 
-Scope guard:
+- One narrow adapter projects the admitted pilot blueprint, instance,
+  capability, and niche admission into the existing execution surface needed by
+  the pilot.
+- The adapter is explicitly an adapter, not the authority source.
+- Existing selected-rule or local toolkit behavior still works for the pilot
+  slice.
 
-- Move structural authority into Habitat.
-- Keep runtime behavior, product correctness, dev-server behavior, generated
-  bundle proof, and integration behavior package-local.
-- Delete or narrow the original test only after Habitat has parity for the
-  migrated structural oracle.
-- Use transitional scripts only where Grit/source-check is not yet viable.
+Moves It Forward:
 
-### 14. Full-Suite Runner Rebuild
+- Build only the projection path needed by the pilot.
+- Preserve existing compatibility paths outside the migrated slice.
+- Add diagnostics that distinguish admission failure from execution failure if
+  the pilot surface can exercise that distinction.
+- Stop if implementation requires finalizing the full global schema.
 
-Goal: replace the broken plain `habitat check` aggregate with a runner that
-understands the niche/blueprint authority tree directly.
+Dependencies:
 
-Expected direction:
+- Domino 20 admitted the pilot through one niche rule.
+- There is a current execution surface worth projecting into for the pilot.
 
-- Discover executable packets from:
-  - `.habitat/**/blueprints/*/*/check/*/`
-  - `.habitat/**/blueprints/*/*/fix/*/`
-  - `.habitat/**/blueprints/*/*/generate/*/`
-  - `.habitat/**/blueprints/*/*/migrate/*/`
-- Infer niche and blueprint from the path before the category.
-- Infer kind from the directory below category.
-- Infer packet identity from the directory below kind.
-- Exclude `<category>/triage` packets from default execution.
-- Avoid metadata declarations for facts already recoverable from the tree.
-- Preserve selected-rule execution as the compatibility path.
-- Produce explicit admission, selector, and packet execution diagnostics instead
-  of generic `Internal Server Error` failures.
+Proof:
 
-Why this comes after package-script cleanup and at least one embedded migration:
+- A focused command or local test exercises the pilot projection.
+- The proof does not claim broad `habitat check` correctness.
+- Failure output, if touched, names the authority layer that failed.
 
-The runner should be rebuilt around a smaller, cleaner caller surface and a
-proven set of migrated packets. Rebuilding it before removing obvious package
-script cruft risks preserving compatibility for states that should disappear.
+### 22. Prune Transitional Packet Metadata For The Migrated Slice
 
-### 15. Sift, Rename, And Reclassify Packets
+Purpose: remove duplicated or misleading packet metadata once the pilot
+authority owns the facts.
 
-Goal: after the runner bridge and two or three migrated clusters exist, do a
-semantic reclassification pass on packet names, niche placement, and artifact
-kind assignment.
+Done Means:
 
-Questions to resolve then:
+- Transitional metadata for the migrated slice is removed, demoted, or fenced.
+- Remaining `<packet>.rule.json`, `category.md`, or path-derived metadata is
+  limited to runner compatibility or documented transitional use.
+- The migrated slice no longer teaches future agents that packet metadata is
+  the conceptual source.
 
-- Which packets are real checks versus future migrations, fixes, generators, or
-  package-local tests?
-- Which packets should be renamed from defect-shaped names to broader authority
-  concepts?
-- Which packets should move from parent niches into proven child niches such as
-  future `pipeline/recipes` or `pipeline/stages`?
-- Which Toolkit triage packets should be admitted, split, or removed?
+Moves It Forward:
 
-Why not now:
+- Start from duplicated facts listed in Dominoes 18 and 19.
+- Delete facts now owned by blueprint, instance, capability, or niche authority.
+- Keep only metadata still needed by the narrow projection adapter.
+- Update local docs if a reader would otherwise infer the old ownership model.
 
-Before more execution evidence exists, renaming and reshaping risks encoding a
-theory instead of observed structure.
+Dependencies:
 
-### 16. Blueprint Manifest Design
+- Domino 21 proved the pilot projection can run from admitted authority.
+- Duplicated facts have been identified before deletion.
 
-Goal: define a typed manifest for blueprint identity, cascade rules, and lifecycle artifacts.
+Proof:
 
-Current direction:
+- Focused inspection shows migrated facts now have a single conceptual owner.
+- Focused command proof still passes for the pilot slice.
+- No unrelated packet cleanup is bundled into this branch.
 
-- Niche remains jurisdiction.
-- Blueprint is now physically represented as a designed model for creating,
-  maintaining, or evolving a class of thing.
-- A niche may contain multiple blueprints.
-- `_self` remains a temporary placeholder, not the final ontology term.
+### 23. Repeat Activation Slices
 
-Open examples:
+Purpose: prove the activation model across a second and third corpus before
+making it the default shape.
 
-- stage blueprint;
-- recipe blueprint;
-- contract blueprint;
-- map projection blueprint;
-- service module blueprint.
+Done Means:
 
-Scope guard:
+- At least two additional vertical slices repeat the blueprint, instance,
+  capability, niche, projection, and pruning loop.
+- Differences between slices are recorded as model refinements or explicit
+  rejected generalizations.
+- The authority model becomes easier to apply with each slice.
 
-- Do not collapse niche into blueprint.
-- Do not promote niches or packet handles into blueprint directories without
-  evidence that they are buildable/enforceable things.
+Moves It Forward:
 
-### 17. Toolkit Simplification And Service-Model Cleanup
+- Pick the next corpus that stresses the weakest proven part of the pilot.
+- Reuse the pilot shape where it held.
+- Change the model only when a second slice produces source-backed pressure.
+- Keep branch layers reviewable and vertically complete.
 
-Goal: return to the Habitat Toolkit itself after authority content and command
-integration have stabilized.
+Dependencies:
 
-Known concern:
+- Domino 22 completed the first migrated slice.
+- The first pilot has a clear copyable pattern or named failure mode.
 
-The current Toolkit internals remain over-engineered. Some validation scripts
-and service-model concepts are wrong or too precise. They should not drive the
-authority ontology.
+Proof:
 
-Likely future cleanup:
+- Each repeated slice has its own focused proof.
+- Model changes are tied to concrete slice evidence.
+- Review can compare slices without reconstructing the old packet history.
 
-- Simplify resolver/admission primitives.
-- Retire transitional `command-check` junk-drawer behavior where possible.
-- Replace AST-ish schema validation scripts with proper validators or remove
-  them when they are not Habitat authority.
-- Preserve the runtime/context foundation that has already proven useful.
+### 24. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
-This is intentionally later. The current ratchet is authority content first,
-then package command integration, then resolver alignment.
+Purpose: rebuild broad Habitat discovery only after authority admission has
+enough real shape to discover.
 
-## Current Hand-Off
+Done Means:
 
-The next implementation context should start with Domino 12:
+- The broad runner discovers admitted authority rather than deriving ontology
+  from packet paths.
+- Default inclusion, selector behavior, diagnostics, and failure reporting use
+  admitted blueprint, instance, capability, and niche facts.
+- Compatibility metadata remains only for unmigrated slices or deliberate
+  adapter boundaries.
 
-1. Scan root/package `package.json` files for lint/check/structure scripts.
-2. Move or rewire only the obvious simple Habitat authority.
-3. Delete redundant aliases where the Habitat route replaces them.
-4. Leave operational scripts and embedded-test authority alone.
-5. Verify changed callers directly; do not use broad `habitat check` as the
-   acceptance proof.
+Moves It Forward:
+
+- Use repeated activation slices as the corpus for runner behavior.
+- Keep selected-rule compatibility until migrated authority can replace it.
+- Rebuild diagnostics around authority-layer failures.
+- Retire legacy assumptions only when their migrated replacements exist.
+
+Dependencies:
+
+- Domino 23 proves the activation model across multiple slices.
+- There is enough admitted authority to define default discovery honestly.
+
+Proof:
+
+- Focused runner tests cover admitted and non-admitted slices.
+- Broad execution no longer fails because old registry assumptions leak into
+  authority discovery.
+- Review can map runner behavior back to admitted authority, not path guesses.
+
+## Reorder/Falsifier Gates
+
+Reorder the sequence if any of these become true:
+
+- Pilot selection proves both `docs-site` and `habitat/toolkit/generator` are
+  too weak to exercise blueprint, instance, capability, niche, and projection
+  together.
+- The selected pilot requires MapGen runtime/product proof before authority
+  activation can be observed.
+- Blueprint admission cannot be stated without first defining an instance fact
+  surface.
+- Instance or capability admission requires a niche governance decision first.
+- The narrow projection adapter cannot be built without a full runner rebuild.
+- Two branches in a row add docs or ledgers without moving, admitting, pruning,
+  deleting, demoting, or proving a concrete authority surface.
+
+Stop and reframe if the work starts treating runner labels, packet names,
+categories, or current folder paths as ontology instead of transition evidence.
+
+## Closure Contract
+
+Every branch in this sequence must close with:
+
+- the before/after authority state named in plain language;
+- the exact domino it advances or falsifies;
+- proof classes labeled honestly;
+- broad `habitat check` excluded from proof unless the branch is the runner
+  rebuild domino;
+- stale metadata, compatibility bridges, and deferred cleanups named if they
+  remain in the touched slice;
+- Graphite branch and commit state clean.
+
+The user should be able to read the branch and know what changed in the model,
+what became easier next, and what still has to be knocked down.
