@@ -8,8 +8,10 @@ Use `.habitat/FRAME.md` as the current living lens for authority-tree
 direction, source order, stack geolocation, and pruning posture. Use
 `.habitat/AUTHORITY-ONTOLOGY.md` as the normative conceptual model for Habitat,
 blueprints, instances, capabilities, niches, admission, and authority
-activation. This file defines the durable authority contract that those frames
-apply to the current repository tree.
+activation. Use `.habitat/DOMINO-FRAME.md` as the operating frame for choosing,
+reviewing, and carrying authority-tree dominoes across Graphite branches and
+agent handoffs. This file defines the durable authority contract that those
+frames apply to the current repository tree.
 
 `.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
 
@@ -19,7 +21,9 @@ The current physical hierarchy is:
 .habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/
 ```
 
-Niches are authored jurisdictions. Blueprints are buildable or enforceable things inside those jurisdictions. Categories are single-word universal engineering purpose groupings. Artifact kinds define mutability.
+Niches are authored jurisdictions. Blueprints are constructible kinds or
+lifecycle-owned shapes inside those jurisdictions. Categories are single-word
+universal engineering purpose groupings. Artifact kinds define mutability.
 
 Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
 
@@ -30,7 +34,8 @@ blueprint, category, artifact kind, or authored policy root.
 ## Already True
 
 - Collected packets live under niche-local blueprint paths.
-- Niche-wide authority uses `_self` as a temporary blueprint placeholder.
+- Niche-wide authority uses `_self` as a temporary niche-authority
+  packet-placement placeholder.
 - Packet-local `category.md` files record current category, lifecycle, admission, evidence, and caveats.
 - Rule identity is co-located as `<packet>.rule.json`.
 - Pattern, baseline, command-check, and provisional operation files are co-located with their packets.

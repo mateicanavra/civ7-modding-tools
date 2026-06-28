@@ -9,8 +9,10 @@ The current layout is a niche/blueprint authority tree:
 ```
 
 - `<niche>` is the authored jurisdiction, such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, or `civ7/mapgen/domain`.
-- `<blueprint>` is the buildable or enforceable thing inside that niche.
-- `_self` is the staging blueprint for packets about the niche as a whole.
+- `<blueprint>` is the constructible kind or lifecycle-owned shape inside that
+  niche.
+- `_self` is the temporary niche-authority packet-placement placeholder for
+  packets about the niche as a whole.
 - `<category>` is one of the universal single-word purpose categories in `SUBJECT-CATEGORIES.md`.
 - `<artifact-kind>` is `check`, `fix`, `generate`, `migrate`, or `triage`.
 - `<packet>` is the current gathered authority packet.
@@ -22,6 +24,7 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `AUTHORITY.md`: what may be authoritative here and what remains Toolkit execution machinery.
 - `AUTHORITY-ONTOLOGY.md`: normative conceptual model for Habitat, blueprints, instances, capabilities, niches, admission, and authority activation.
 - `AUTHORITY-TREE-SHAPE.md`: the current niche/blueprint tree shape.
+- `DOMINO-FRAME.md`: operating frame for choosing and carrying authority-tree dominoes across branches, agents, and review loops.
 - `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
 - `SUBJECT-CATEGORIES.md`: universal category model plus the current packet ledger.
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.
