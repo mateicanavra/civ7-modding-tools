@@ -33,6 +33,7 @@ import { useConfigCollapse } from "../../features/configOverrides/useConfigColla
 import { formatMapConfigSaveDeployPhaseLabel } from "../../features/mapConfigSave/status";
 import { LAYOUT } from "../constants";
 import type { PipelineConfig, RecipeSettings, SelectOption } from "../types";
+import { DisclosureHeader } from "./DisclosureHeader";
 import { OptionSelect } from "./OptionSelect";
 // ============================================================================
 // Props
@@ -203,7 +204,6 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
   const textMuted = "text-muted-foreground/70";
   const borderColor = "border-border";
   const borderSubtle = "border-border-subtle";
-  const hoverBg = "hover:bg-accent";
   const iconBtn =
     "h-7 w-7 flex items-center justify-center rounded transition-colors shrink-0 text-muted-foreground hover:text-foreground hover:bg-accent";
   const iconBtnActive =
@@ -223,23 +223,22 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
       >
         {/* Header */}
         <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-          <button
-            type="button"
-            onClick={() => setRecipeCollapsed(!recipeCollapsed)}
-            aria-expanded={!recipeCollapsed}
-            aria-controls="recipe-panel-recipe-section"
-            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
-              <span className={`text-[13px] font-semibold ${textPrimary}`}>Recipe</span>
-            </div>
-            {isDirty && (
-              <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
-                Modified
-              </span>
-            )}
-          </button>
+          <DisclosureHeader
+            className="px-3 py-2.5"
+            chevron={false}
+            expanded={!recipeCollapsed}
+            onToggle={() => setRecipeCollapsed(!recipeCollapsed)}
+            controls="recipe-panel-recipe-section"
+            icon={<BookOpen className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />}
+            title={<span className={`text-[13px] font-semibold ${textPrimary}`}>Recipe</span>}
+            trailing={
+              isDirty ? (
+                <span className="text-[9px] font-medium uppercase tracking-wider text-primary">
+                  Modified
+                </span>
+              ) : null
+            }
+          />
         </div>
 
         {/* Recipe & Preset Selection */}
@@ -288,66 +287,77 @@ export const RecipePanel: React.FC<RecipePanelProps> = ({
 
         {/* Config Section Header */}
         <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-          <div
-            role="button"
-            tabIndex={0}
-            aria-expanded={!configCollapsed}
-            aria-controls="recipe-panel-config-section"
-            onClick={() => setConfigCollapsed(!configCollapsed)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setConfigCollapsed(!configCollapsed);
-              }
-            }}
-            className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors cursor-pointer ${hoverBg}`}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />
-              <span className={`text-[13px] font-semibold ${textPrimary}`}>Config</span>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <span
-                  className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? "text-primary" : textMuted}`}
-                >
-                  On
-                </span>
+          <DisclosureHeader
+            className="px-3 py-2.5 cursor-pointer"
+            chevron={false}
+            expanded={!configCollapsed}
+            onToggle={() => setConfigCollapsed(!configCollapsed)}
+            controls="recipe-panel-config-section"
+            icon={<Settings className={`w-4 h-4 shrink-0 ${textSecondary}`} aria-hidden="true" />}
+            title={<span className={`text-[13px] font-semibold ${textPrimary}`}>Config</span>}
+            // role="button" div (not a <button>) because the trailing zone nests
+            // interactive controls; the Enter/Space keyboard contract comes from
+            // the primitive (p.onKeyDown).
+            render={(p) => (
+              <div
+                role={p.role}
+                tabIndex={p.tabIndex}
+                aria-expanded={p["aria-expanded"]}
+                aria-controls={p["aria-controls"]}
+                onClick={p.onClick}
+                onKeyDown={p.onKeyDown}
+                className={p.className}
+              >
+                {p.children}
+              </div>
+            )}
+            trailing={
+              <>
+                {/* Caller-owned stopPropagation: clicking the On label / Switch
+                    must NOT toggle the section. */}
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <span
+                    className={`text-[9px] font-medium uppercase tracking-wider ${overridesDisabled ? "text-primary" : textMuted}`}
+                  >
+                    On
+                  </span>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Switch
+                        checked={!overridesDisabled}
+                        onCheckedChange={(checked) => setOverridesDisabled(!checked)}
+                        aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+
+                {/* Focus button self-guards its own click. */}
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Switch
-                      checked={!overridesDisabled}
-                      onCheckedChange={(checked) => setOverridesDisabled(!checked)}
-                      aria-label={overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
-                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowAllSteps(!showAllSteps);
+                      }}
+                      aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
+                      aria-pressed={showAllSteps}
+                      className={!showAllSteps ? iconBtnActive : iconBtn}
+                    >
+                      <Focus className="w-3.5 h-3.5" aria-hidden="true" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {overridesDisabled ? "Enable Overrides" : "Disable Overrides"}
+                    {showAllSteps ? "Focus Current Step" : "Show All Steps"}
                   </TooltipContent>
                 </Tooltip>
-              </div>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowAllSteps(!showAllSteps);
-                    }}
-                    aria-label={showAllSteps ? "Focus Current Step" : "Show All Steps"}
-                    aria-pressed={showAllSteps}
-                    className={!showAllSteps ? iconBtnActive : iconBtn}
-                  >
-                    <Focus className="w-3.5 h-3.5" aria-hidden="true" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {showAllSteps ? "Focus Current Step" : "Show All Steps"}
-                </TooltipContent>
-              </Tooltip>
-            </div>
-          </div>
+              </>
+            }
+          />
         </div>
 
         {/* Config Content */}

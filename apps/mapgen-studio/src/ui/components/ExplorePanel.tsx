@@ -7,7 +7,6 @@
 import {
   Activity,
   Bug,
-  ChevronDown,
   CircleDot,
   Compass,
   Flame,
@@ -33,6 +32,7 @@ import type {
   StepOption,
   VariantOption,
 } from "../types";
+import { DisclosureHeader } from "./DisclosureHeader";
 import { WaterStatsSection } from "./WaterStatsSection";
 // ============================================================================
 // Props
@@ -252,7 +252,6 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
   const textSecondary = "text-muted-foreground";
   const textMuted = "text-muted-foreground/70";
   const borderSubtle = "border-border-subtle";
-  const hoverBg = "hover:bg-accent";
   const listMaxHeight = "max-h-[200px]";
   // Stage list styles
   const stageItemBase = `w-full text-left px-3 py-2 text-data font-medium transition-colors cursor-pointer flex items-center gap-2`;
@@ -368,30 +367,20 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
     >
       {/* 1. STAGE SECTION */}
       <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-        <button
-          type="button"
-          onClick={() => setIsStageExpanded(!isStageExpanded)}
-          aria-expanded={isStageExpanded}
-          aria-controls="explore-stage-list"
-          className={`w-full flex items-center justify-between px-3 py-2.5 transition-colors ${hoverBg}`}
-        >
-          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-            <Compass className={`w-4 h-4 shrink-0 ${textSecondary}`} />
-            <span className={`text-[13px] font-semibold ${textPrimary}`}>Stage</span>
-            {!isStageExpanded ? (
-              <span className={`text-[12px] font-semibold ${textPrimary} truncate`}>
-                {currentStage?.label ?? ""}
-              </span>
-            ) : null}
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-label ${textMuted}`}>{stages.length}</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStageExpanded ? "rotate-180" : ""}`}
-            />
-          </div>
-        </button>
+        <DisclosureHeader
+          className="px-3 py-2.5"
+          expanded={isStageExpanded}
+          onToggle={setIsStageExpanded}
+          controls="explore-stage-list"
+          icon={<Compass className={`w-4 h-4 shrink-0 ${textSecondary}`} />}
+          title={<span className={`text-[13px] font-semibold ${textPrimary}`}>Stage</span>}
+          summary={
+            <span className={`text-[12px] font-semibold ${textPrimary} truncate`}>
+              {currentStage?.label ?? ""}
+            </span>
+          }
+          trailing={<span className={`text-label ${textMuted}`}>{stages.length}</span>}
+        />
       </div>
       {isStageExpanded ? (
         <div
@@ -414,31 +403,24 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
 
       {/* 2. STEP SECTION */}
       <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-        <button
-          type="button"
-          onClick={() => setIsStepExpanded(!isStepExpanded)}
-          aria-expanded={isStepExpanded}
-          aria-controls="explore-step-list"
-          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}
-        >
-          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-            <Layers className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
+        <DisclosureHeader
+          className="px-3 py-2"
+          expanded={isStepExpanded}
+          onToggle={setIsStepExpanded}
+          controls="explore-step-list"
+          icon={<Layers className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />}
+          title={
             <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
               Step
             </span>
-            {!isStepExpanded ? (
-              <span className={`text-data font-mono ${textPrimary} truncate`}>
-                {currentStep?.label ?? ""}
-              </span>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-label ${textMuted}`}>{steps.length}</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isStepExpanded ? "rotate-180" : ""}`}
-            />
-          </div>
-        </button>
+          }
+          summary={
+            <span className={`text-data font-mono ${textPrimary} truncate`}>
+              {currentStep?.label ?? ""}
+            </span>
+          }
+          trailing={<span className={`text-label ${textMuted}`}>{steps.length}</span>}
+        />
       </div>
       {isStepExpanded ? (
         <div
@@ -476,31 +458,24 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
           the list, not to the view toolbar (Pass-3 explore-toolbar spec). It is
           a sibling of the disclosure button, never nested inside it. */}
       <div className={`flex-shrink-0 border-b ${borderSubtle} flex items-center`}>
-        <button
-          type="button"
-          onClick={() => setIsLayersExpanded(!isLayersExpanded)}
-          aria-expanded={isLayersExpanded}
-          aria-controls="explore-layers-list"
-          className={`flex-1 min-w-0 flex items-center justify-between pl-3 pr-2 py-2 transition-colors ${hoverBg}`}
-        >
-          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-            <SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
+        <DisclosureHeader
+          className="w-auto flex-1 min-w-0 pl-3 pr-2 py-2"
+          expanded={isLayersExpanded}
+          onToggle={setIsLayersExpanded}
+          controls="explore-layers-list"
+          icon={<SquareStack className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />}
+          title={
             <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
               Data
             </span>
-            {!isLayersExpanded ? (
-              <span className={`text-data font-mono ${textPrimary} truncate`}>
-                {currentLayer?.label ?? ""}
-              </span>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-label ${textMuted}`}>{dataTypeOptions.length}</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${isLayersExpanded ? "rotate-180" : ""}`}
-            />
-          </div>
-        </button>
+          }
+          summary={
+            <span className={`text-data font-mono ${textPrimary} truncate`}>
+              {currentLayer?.label ?? ""}
+            </span>
+          }
+          trailing={<span className={`text-label ${textMuted}`}>{dataTypeOptions.length}</span>}
+        />
         <Tooltip>
           <TooltipTrigger asChild>
             <button
@@ -527,26 +502,26 @@ export const ExplorePanel: React.FC<ExplorePanelProps> = ({
             return (
               <React.Fragment key={group.key || "__ungrouped__"}>
                 {group.key ? (
-                  <button
-                    type="button"
-                    onClick={() => toggleGroupExpanded(group.key)}
-                    className={`w-full px-3 pt-2 pb-1 flex items-center justify-between text-label uppercase tracking-wider ${textMuted} ${hoverBg}`}
-                    aria-expanded={expanded}
-                    aria-controls={groupListId(group.key)}
-                  >
-                    {/* The toggle's accessible name is the visible group name; the
-                        expand/collapse state is already conveyed by aria-expanded,
-                        so no aria-label override is needed (it would have masked the
-                        group name from assistive tech). */}
-                    <span className="truncate">{group.label}</span>
-                    <div className="flex items-center gap-2">
+                  // The toggle's accessible name is the visible group name; the
+                  // expand/collapse state is conveyed by aria-expanded, so no
+                  // aria-label override is needed (it would mask the group name).
+                  // Row eyebrow type (text-label/uppercase) stays on the title
+                  // node — never the merged row class — so the feature-tier cn
+                  // can't clobber the dense font-size against the color.
+                  <DisclosureHeader
+                    className="px-3 pt-2 pb-1"
+                    expanded={expanded}
+                    onToggle={() => toggleGroupExpanded(group.key)}
+                    controls={groupListId(group.key)}
+                    title={
+                      <span className="text-label uppercase tracking-wider text-muted-foreground/70 truncate">
+                        {group.label}
+                      </span>
+                    }
+                    trailing={
                       <span className={`text-label ${textMuted}`}>{group.items.length}</span>
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`}
-                        aria-hidden="true"
-                      />
-                    </div>
-                  </button>
+                    }
+                  />
                 ) : null}
                 {expanded ? (
                   <div id={group.key ? groupListId(group.key) : undefined}>

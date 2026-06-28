@@ -1,6 +1,7 @@
 import type { RecipeDagResult } from "@civ7/studio-server/contract";
 import { AlertTriangle, ChevronDown, Loader2, Workflow } from "lucide-react";
 import React, { useMemo, useState } from "react";
+import { EmptyState } from "../../ui/components/EmptyState";
 import { formatArtifactLabel, resolveArtifactGroupDomainId } from "./artifactPresentation";
 import {
   chooseRecipeDagDomainId,
@@ -177,19 +178,41 @@ export function PipelineStage(props: PipelineStageProps) {
       >
         <div className="relative min-h-0 flex-1 overflow-auto px-4 pb-4 pt-14 custom-scrollbar">
           {status === "loading" || status === "idle" ? (
-            <CenteredState
-              icon={<Loader2 className="h-5 w-5 animate-spin" />}
-              title="Loading recipe pipeline"
-              message="Reading authored artifact contracts for the selected recipe."
-            />
+            <div className="absolute inset-0 flex items-center justify-center px-4">
+              <EmptyState
+                className="max-w-[420px]"
+                icon={<Loader2 className="h-5 w-5 animate-spin" />}
+                title={
+                  <span className="text-data font-medium text-foreground">
+                    Loading recipe pipeline
+                  </span>
+                }
+                message={
+                  <span className="text-label text-muted-foreground">
+                    Reading authored artifact contracts for the selected recipe.
+                  </span>
+                }
+              />
+            </div>
           ) : null}
 
           {status === "error" ? (
-            <CenteredState
-              icon={<AlertTriangle className="h-5 w-5" />}
-              title="Recipe pipeline unavailable"
-              message={error ?? "Studio could not load the dependency graph for this recipe."}
-            />
+            <div className="absolute inset-0 flex items-center justify-center px-4">
+              <EmptyState
+                className="max-w-[420px]"
+                icon={<AlertTriangle className="h-5 w-5" />}
+                title={
+                  <span className="text-data font-medium text-foreground">
+                    Recipe pipeline unavailable
+                  </span>
+                }
+                message={
+                  <span className="text-label text-muted-foreground">
+                    {error ?? "Studio could not load the dependency graph for this recipe."}
+                  </span>
+                }
+              />
+            </div>
           ) : null}
 
           {status === "ready" && dag && layout ? (
@@ -639,20 +662,6 @@ function PhaseLaneLabel(props: { phaseId: string; x: number; y: number; accent: 
         aria-hidden="true"
       />
       <span>{props.phaseId}</span>
-    </div>
-  );
-}
-
-function CenteredState(props: { icon: React.ReactNode; title: string; message: string }) {
-  return (
-    <div className="absolute inset-0 flex items-center justify-center px-4">
-      <div className="flex max-w-[420px] flex-col items-center gap-3 rounded-xl border border-border/60 bg-popover/40 px-8 py-6 text-center backdrop-blur-sm">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground">
-          {props.icon}
-        </div>
-        <span className="text-data font-medium text-foreground">{props.title}</span>
-        <span className="text-label text-muted-foreground">{props.message}</span>
-      </div>
     </div>
   );
 }
