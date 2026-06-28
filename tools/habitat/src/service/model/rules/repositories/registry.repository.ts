@@ -11,12 +11,20 @@ import {
   RuleRegistryDocumentV1Schema,
   RuleRegistryIndexV1Schema,
   RuleRegistryRecordV1Schema,
+  RuleRegistryRecordInputV1Schema,
 } from "../dto/registry.schema.ts";
+import {
+  enrichPacketRuleRecord,
+  isPacketRulePath,
+  isStalePrefixedPacketRolePath,
+  packetLocationFromArtifactPath,
+} from "../policy/packet-derivation.policy.ts";
 
 export type RuleRegistryIssueCode =
   | "registry-json-invalid"
   | "registry-schema-invalid"
-  | "registry-duplicate-rule-id";
+  | "registry-duplicate-rule-id"
+  | "registry-stale-packet-role";
 
 export interface RuleRegistryIssue {
   code: RuleRegistryIssueCode;
@@ -133,9 +141,7 @@ function loadRuleRegistryDirectory<R>(
     );
     const rulePaths = yield* ruleFilePaths(registryDir, fileSystem);
     const rules = yield* Effect.all(
-      rulePaths.map((rulePath) =>
-        parseRegistryJson<RuleRegistryRecordV1, R>(rulePath, RuleRegistryRecordV1Schema, fileSystem)
-      )
+      rulePaths.map((rulePath) => parsePacketRuleJson<R>(rulePath, fileSystem))
     );
     const result = parseRuleRegistryDocument(
       {
@@ -161,9 +167,7 @@ function loadRuleRegistryDirectorySync(
     fileSystem
   );
   const rules = ruleFilePathsSync(registryDir, fileSystem)
-    .map((rulePath) =>
-      parseRegistryJsonSync<RuleRegistryRecordV1>(rulePath, RuleRegistryRecordV1Schema, fileSystem)
-    )
+    .map((rulePath) => parsePacketRuleJsonSync(rulePath, fileSystem))
     .sort((left, right) => left.id.localeCompare(right.id));
   const result = parseRuleRegistryDocument(
     {
@@ -175,6 +179,26 @@ function loadRuleRegistryDirectorySync(
   );
   if (result.ok) return result.document;
   throw new RuleRegistryLoadFailed({ issues: result.issues });
+}
+
+function parsePacketRuleJsonSync(
+  filePath: string,
+  fileSystem: RuleRegistrySyncFileSystem
+): RuleRegistryRecordV1 {
+  const parsed = parseRegistryJsonSync<unknown>(filePath, RuleRegistryRecordInputV1Schema, fileSystem);
+  try {
+    return enrichPacketRuleRecord(filePath, parsed);
+  } catch (error) {
+    throw new RuleRegistryLoadFailed({
+      issues: [
+        {
+          code: "registry-schema-invalid",
+          path: filePath,
+          message: error instanceof Error ? error.message : "Invalid packet rule metadata.",
+        },
+      ],
+    });
+  }
 }
 
 function parseRegistryJsonSync<T>(
@@ -207,6 +231,34 @@ function parseRegistryJsonSync<T>(
     });
   }
   return Value.Parse(schema, parsed) as T;
+}
+
+function parsePacketRuleJson<R = never>(
+  filePath: string,
+  fileSystem: RuleRegistryFileSystem<R>
+): Effect.Effect<RuleRegistryRecordV1, RuleRegistryLoadFailed | unknown, R> {
+  return Effect.gen(function* () {
+    const parsed = yield* parseRegistryJson<unknown, R>(
+      filePath,
+      RuleRegistryRecordInputV1Schema,
+      fileSystem
+    );
+    try {
+      return enrichPacketRuleRecord(filePath, parsed);
+    } catch (error) {
+      return yield* Effect.fail(
+        new RuleRegistryLoadFailed({
+          issues: [
+            {
+              code: "registry-schema-invalid",
+              path: filePath,
+              message: error instanceof Error ? error.message : "Invalid packet rule metadata.",
+            },
+          ],
+        })
+      );
+    }
+  });
 }
 
 function parseRuleRegistryTextOrThrow(text: string, sourcePath: string): RuleRegistryDocumentV1 {
@@ -258,9 +310,14 @@ function ruleFilePaths<R>(
   fileSystem: RuleRegistryFileSystem<R>
 ): Effect.Effect<string[], unknown, R> {
   return Effect.gen(function* () {
-    return (yield* findFiles(registryDir, fileSystem, (filePath) =>
-      filePath.endsWith(".rule.json")
-    )).sort();
+    const candidates = (
+      yield* findFiles(registryDir, fileSystem, isRuleRecordCandidatePath)
+    ).sort();
+    const issues = staleRuleRecordIssues(candidates);
+    if (issues.length > 0) {
+      return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
+    }
+    return candidates.filter(isPacketRulePath);
   });
 }
 
@@ -311,9 +368,47 @@ function ruleRegistryIndexPathSync(
 }
 
 function ruleFilePathsSync(registryDir: string, fileSystem: RuleRegistrySyncFileSystem): string[] {
-  return findFilesSync(registryDir, fileSystem, (filePath) =>
-    filePath.endsWith(".rule.json")
-  ).sort();
+  const candidates = findFilesSync(registryDir, fileSystem, isRuleRecordCandidatePath).sort();
+  const issues = staleRuleRecordIssues(candidates);
+  if (issues.length > 0) throw new RuleRegistryLoadFailed({ issues });
+  return candidates.filter(isPacketRulePath);
+}
+
+function isRuleRecordCandidatePath(filePath: string): boolean {
+  const fileName = filePath.split("/").at(-1);
+  return fileName === "rule.json" || filePath.endsWith(".rule.json");
+}
+
+function staleRuleRecordIssues(paths: readonly string[]): RuleRegistryIssue[] {
+  const issues: RuleRegistryIssue[] = [];
+  const canonicalByPacket = new Map<string, string>();
+  for (const rulePath of paths) {
+    if (!isPacketRulePath(rulePath)) {
+      issues.push({
+        code: isStalePrefixedPacketRolePath(rulePath)
+          ? "registry-stale-packet-role"
+          : "registry-schema-invalid",
+        path: rulePath,
+        message: isStalePrefixedPacketRolePath(rulePath)
+          ? "Packet rule files must be named rule.json; prefixed rule filenames are stale."
+          : "Rule file must be named rule.json inside a Habitat packet directory.",
+      });
+      continue;
+    }
+    const location = packetLocationFromArtifactPath(rulePath);
+    if (!location) continue;
+    const existing = canonicalByPacket.get(location.packetDir);
+    if (existing) {
+      issues.push({
+        code: "registry-schema-invalid",
+        path: rulePath,
+        message: `Duplicate packet rule files: ${existing} and ${rulePath}.`,
+      });
+      continue;
+    }
+    canonicalByPacket.set(location.packetDir, rulePath);
+  }
+  return issues;
 }
 
 function findFiles<R>(

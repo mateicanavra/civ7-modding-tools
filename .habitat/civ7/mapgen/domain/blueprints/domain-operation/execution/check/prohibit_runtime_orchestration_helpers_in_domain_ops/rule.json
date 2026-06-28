@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts",
+  "forbids": "domain op runtime entrypoints calling ops.bind or runValidated",
+  "why": "Domain ops are atomic runtime units; orchestration belongs in step/stage composition, not inside op entrypoints.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Domain op runtime entrypoints must not call ops.bind or runValidated.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"
+      ]
+    }
+  ]
+}

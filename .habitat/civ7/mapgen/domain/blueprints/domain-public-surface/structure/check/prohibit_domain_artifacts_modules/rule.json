@@ -1,0 +1,24 @@
+{
+  "ownerTool": "structure-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain",
+  "forbids": "artifacts.ts modules under domain source",
+  "why": "Domain artifact catalogs are retired in favor of owned public domain surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "structure-check"
+  ],
+  "remediate": "Remove domain artifacts.ts modules and route artifact ownership through current public surfaces.",
+  "message": "Domain artifacts.ts modules are retired.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/**/artifacts.ts"
+      ]
+    }
+  ]
+}

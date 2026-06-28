@@ -1,0 +1,29 @@
+{
+  "ownerTool": "structure-check",
+  "ownerProject": "civ7-docs",
+  "lane": "enforced",
+  "scope": "apps/docs root inputs",
+  "forbids": "missing docs site root files",
+  "why": "The docs app needs its root page, Mintlify config, and LLM summary input present before semantic docs validation can run.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "structure-check"
+  ],
+  "remediate": "Restore apps/docs/docs.json, apps/docs/index.mdx, and apps/docs/public/llms.txt.",
+  "message": "Docs site root input files are missing.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/docs/docs.json",
+        "apps/docs/index.mdx",
+        "apps/docs/public/llms.txt"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

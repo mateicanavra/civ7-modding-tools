@@ -449,8 +449,12 @@ function loadBaseRuleIdsFromDirectoryEffect(
 function baseRuleIdFromRegistryPath(repoPath: string): string | undefined {
   const oldMatch = /\/rules\/([^/]+)\/rule\.json$/u.exec(repoPath);
   if (oldMatch?.[1]) return oldMatch[1];
-  const currentMatch = /\/([^/]+)\/\1\.rule\.json$/u.exec(repoPath);
-  return currentMatch?.[1];
+  const currentPacketMatch =
+    /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/rule\.json$/u.exec(repoPath);
+  if (currentPacketMatch?.[1]) return currentPacketMatch[1];
+  const stalePacketMatch =
+    /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/\1\.rule\.json$/u.exec(repoPath);
+  return stalePacketMatch?.[1];
 }
 
 function loadBaseBaselineKeysEffect(
@@ -603,7 +607,7 @@ function subjectLocalBaselinePathForRule(
 ): Effect.Effect<string | null, never, any> {
   const registryRoot = path.join(context.repoRoot, ruleRegistryRepoPath);
   return findBaselineFiles(registryRoot, context, (filePath) =>
-    toPosixPath(filePath).endsWith(`/${ruleId}/${ruleId}.baseline.json`)
+    toPosixPath(filePath).endsWith(`/${ruleId}/baseline.json`)
   ).pipe(
     Effect.map((candidates) => candidates.sort()[0] ?? null),
     Effect.catchAll(() => Effect.succeed(null))

@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mapgen-core",
+  "lane": "enforced",
+  "scope": "packages/mapgen-core/src/**/*.ts excluding src/dev",
+  "forbids": "Civ7 adapter value imports, /base-standard paths, runtime globals, adapter creation, or unsafe engine casts in mapgen-core production source",
+  "why": "mapgen-core is a pure TypeScript engine; Civ7 coupling belongs in adapters.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Remove Civ7 runtime coupling from mapgen-core production source.",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages/mapgen-core/src"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/mapgen-core/src/**/*.ts"
+      ]
+    }
+  ]
+}

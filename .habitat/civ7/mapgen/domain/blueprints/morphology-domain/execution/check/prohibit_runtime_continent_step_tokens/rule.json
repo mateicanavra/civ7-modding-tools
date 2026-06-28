@@ -1,0 +1,29 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/{morphology*,hydrology-climate-baseline}/**/*.ts",
+  "forbids": "runtime continent identifiers and markLandmassId calls in morphology or hydrology implementation files",
+  "why": "Morphology and hydrology stages consume canonical artifacts instead of direct runtime continent marking.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Route landmass identity through canonical artifacts instead of runtime continent step tokens.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline/**/*.ts"
+      ]
+    }
+  ]
+}

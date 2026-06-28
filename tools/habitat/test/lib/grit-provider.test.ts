@@ -702,7 +702,7 @@ Processed 1 files and found 1 matches
 
     expect(observedRequest?.argv.slice(0, 2)).toEqual([
       "apply",
-      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
+      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
     ]);
     expect(observedRequest?.argv).toContain("docs");
     expect(observedRequest?.argv.slice(-4)).toEqual([
@@ -840,7 +840,7 @@ Processed 2 files and found 1 matches
     ]);
     expect(observedRequests[1]?.argv.slice(0, 2)).toEqual([
       "apply",
-      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md",
+      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
     ]);
     expect(observedRequests[1]?.argv).toContain("docs");
     expect(observedRequests[1]?.argv.slice(-4)).toEqual([

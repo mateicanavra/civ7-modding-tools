@@ -1,0 +1,34 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/*/index.ts",
+  "forbids": "domain entrypoints re-exporting deep @mapgen/domain surfaces",
+  "why": "Domain roots are public surfaces and should not launder deep domain paths back through themselves.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not re-export deep @mapgen/domain surfaces from a domain root entrypoint.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+    "mods/mod-swooper-maps/src/domain/foundation/index.ts",
+    "mods/mod-swooper-maps/src/domain/hydrology/index.ts",
+    "mods/mod-swooper-maps/src/domain/morphology/index.ts",
+    "mods/mod-swooper-maps/src/domain/narrative/index.ts",
+    "mods/mod-swooper-maps/src/domain/placement/index.ts",
+    "mods/mod-swooper-maps/src/domain/resources/index.ts"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/*/index.ts"
+      ]
+    }
+  ]
+}

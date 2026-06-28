@@ -1,0 +1,34 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/domain/*/ops/**/*.ts",
+  "forbids": "RngFunction, options.rng, and ctx.rng in domain ops",
+  "why": "Domain ops should receive deterministic authored inputs instead of ambient RNG callbacks or state.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not use RNG callback/state surfaces inside domain ops.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/ecology/ops",
+    "mods/mod-swooper-maps/src/domain/foundation/ops",
+    "mods/mod-swooper-maps/src/domain/hydrology/ops",
+    "mods/mod-swooper-maps/src/domain/morphology/ops",
+    "mods/mod-swooper-maps/src/domain/narrative/ops",
+    "mods/mod-swooper-maps/src/domain/placement/ops",
+    "mods/mod-swooper-maps/src/domain/resources/ops"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/*/ops/**/*.ts"
+      ]
+    }
+  ]
+}

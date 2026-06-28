@@ -1,0 +1,29 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/{contract.ts,*.contract.ts}",
+  "forbids": "string literal dependency keys in standard recipe stage step contracts",
+  "why": "Step contracts compose typed dependency/effect tags and artifact contracts; string literals drift from the owning surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Use typed dependency tag constants or artifact contract references instead of string literal dependency keys.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/contract.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.contract.ts"
+      ]
+    }
+  ]
+}

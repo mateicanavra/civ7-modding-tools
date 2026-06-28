@@ -1,0 +1,25 @@
+{
+  "ownerTool": "command-check",
+  "ownerProject": "civ7-map-policy",
+  "lane": "enforced",
+  "scope": "@civ7/map-policy source imports and exports",
+  "forbids": "runtime dependency on Civ7 adapter, MapGen, mods, Studio, or base-standard implementation paths",
+  "why": "The map policy package owns pure resource-derived policy facts; package tests should not own its dependency boundary.",
+  "detect": [
+    "bun",
+    ".habitat/civ7/resources/blueprints/civ7-map-policy/boundary/check/ensure_map_policy_dependency_independence/check.ts"
+  ],
+  "remediate": "Move runtime or MapGen-specific dependencies out of @civ7/map-policy.",
+  "message": "@civ7/map-policy depends on forbidden runtime or product surfaces.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/civ7-map-policy/src/**"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

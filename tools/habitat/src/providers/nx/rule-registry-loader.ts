@@ -9,7 +9,14 @@ import {
   RuleRegistryIndexV1Schema,
   type RuleRegistryRecordV1,
   RuleRegistryRecordV1Schema,
+  RuleRegistryRecordInputV1Schema,
 } from "../../service/model/rules/dto/registry.schema.ts";
+import {
+  enrichPacketRuleRecord,
+  isPacketRulePath,
+  isStalePrefixedPacketRolePath,
+  packetLocationFromArtifactPath,
+} from "../../service/model/rules/policy/packet-derivation.policy.ts";
 
 export type NxRuleRegistryRecord = RuleRegistryRecordV1;
 export type NxRuleRegistryDocument = RuleRegistryDocumentV1;
@@ -29,7 +36,7 @@ function loadRuleRegistryDirectory(registryDir: string): NxRuleRegistryDocument 
   const indexPath = findRuleRegistryIndexPath(registryDir);
   const index = parseJsonFile<RuleRegistryIndexV1>(indexPath, RuleRegistryIndexV1Schema);
   const rules = findRuleRecordPaths(registryDir)
-    .map((rulePath) => parseJsonFile<NxRuleRegistryRecord>(rulePath, RuleRegistryRecordV1Schema))
+    .map(parseRuleRecordFile)
     .sort((left, right) => left.id.localeCompare(right.id));
 
   return parseRuleRegistryDocument(
@@ -55,7 +62,12 @@ function findRuleRegistryIndexPath(registryDir: string): string {
 }
 
 function findRuleRecordPaths(registryDir: string): string[] {
-  return findFiles(registryDir, (filePath) => filePath.endsWith(".rule.json")).sort();
+  const candidates = findFiles(registryDir, isRuleRecordCandidatePath).sort();
+  const issues = staleRuleRecordIssues(candidates);
+  if (issues.length > 0) {
+    throw registryLoadError("Habitat rule registry is invalid", issues);
+  }
+  return candidates.filter(isPacketRulePath);
 }
 
 function findFiles(root: string, predicate: (filePath: string) => boolean): string[] {
@@ -84,6 +96,20 @@ function parseJsonFile<T>(filePath: string, schema: TSchema): T {
     );
   }
   return Value.Parse(schema, parsed) as T;
+}
+
+function parseRuleRecordFile(filePath: string): NxRuleRegistryRecord {
+  const parsed = parseJsonFile<unknown>(filePath, RuleRegistryRecordInputV1Schema);
+  try {
+    return enrichPacketRuleRecord(filePath, parsed);
+  } catch (error) {
+    throw registryLoadError("Habitat rule registry is invalid", [
+      {
+        path: filePath,
+        message: error instanceof Error ? error.message : "Invalid packet rule metadata.",
+      },
+    ]);
+  }
 }
 
 function readJsonFile(filePath: string): unknown {
@@ -130,6 +156,39 @@ function duplicateRuleIdIssues(
     path: sourcePath,
     message: `Duplicate Habitat rule id: ${JSON.stringify(id)}.`,
   }));
+}
+
+function isRuleRecordCandidatePath(filePath: string): boolean {
+  const fileName = filePath.split("/").at(-1);
+  return fileName === "rule.json" || filePath.endsWith(".rule.json");
+}
+
+function staleRuleRecordIssues(paths: readonly string[]): RuleRegistryIssue[] {
+  const issues: RuleRegistryIssue[] = [];
+  const canonicalByPacket = new Map<string, string>();
+  for (const rulePath of paths) {
+    if (!isPacketRulePath(rulePath)) {
+      issues.push({
+        path: rulePath,
+        message: isStalePrefixedPacketRolePath(rulePath)
+          ? "Packet rule files must be named rule.json; prefixed rule filenames are stale."
+          : "Rule file must be named rule.json inside a Habitat packet directory.",
+      });
+      continue;
+    }
+    const location = packetLocationFromArtifactPath(rulePath);
+    if (!location) continue;
+    const existing = canonicalByPacket.get(location.packetDir);
+    if (existing) {
+      issues.push({
+        path: rulePath,
+        message: `Duplicate packet rule files: ${existing} and ${rulePath}.`,
+      });
+      continue;
+    }
+    canonicalByPacket.set(location.packetDir, rulePath);
+  }
+  return issues;
 }
 
 function registryLoadError(heading: string, issues: readonly RuleRegistryIssue[]): Error {

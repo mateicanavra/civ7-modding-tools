@@ -1,0 +1,32 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "selected morphology contract and map-morphology plot-mountains source",
+  "forbids": "legacy foundationPlates, foundationArtifacts.plates, tectonic-history, or tectonic-provenance dependencies in morphology contracts/source",
+  "why": "Morphology belt-driver contracts should use canonical belt driver artifacts rather than retired plate dependency surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Use canonical belt-driver artifacts instead of legacy plate-driver dependencies.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-coasts/steps/landmassPlates.contract.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology-features/steps/mountains.contract.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-morphology/steps/plotMountains.ts"
+      ]
+    }
+  ]
+}

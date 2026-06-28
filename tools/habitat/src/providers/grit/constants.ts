@@ -10,7 +10,7 @@ export const protectedScanRootPrefixes = [
 ];
 
 export const docsLocalCheckoutPathsRewritePattern =
-  ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md";
+  ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md";
 
 export const gritCandidateExtensions = new Set([
   ".cjs",

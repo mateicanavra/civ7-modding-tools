@@ -1,0 +1,30 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "foundation public index and foundation tectonics contract",
+  "forbids": "computeTectonicHistory aggregate operation surfaces",
+  "why": "Foundation tectonics is decomposed into focused operation contracts.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Remove legacy computeTectonicHistory aggregate surfaces.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/foundation/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.ts"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/index.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/steps/tectonics.contract.ts"
+      ]
+    }
+  ]
+}

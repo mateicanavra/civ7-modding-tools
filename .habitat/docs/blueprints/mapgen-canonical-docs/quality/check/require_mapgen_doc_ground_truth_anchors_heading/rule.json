@@ -1,0 +1,27 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "scope": "docs/system/libs/mapgen/**/*.md",
+  "forbids": "non-router canonical MapGen Markdown docs without a Ground truth anchors section",
+  "why": "MapGen docs are enforcement inputs; the source-shape requirement for anchor sections belongs in Grit while target resolution stays in the docs validator.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": "Add a ## Ground truth anchors section or mark the document as an intentional legacy router.",
+  "message": "Non-router canonical MapGen docs must include a ## Ground truth anchors section.",
+  "scanRoots": [
+    "docs/system/libs/mapgen"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "docs/system/libs/mapgen/**/*.md"
+      ]
+    }
+  ]
+}

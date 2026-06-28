@@ -1,0 +1,27 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "scope": "docs/system/libs/mapgen/**/*.md",
+  "forbids": "canonical MapGen Markdown docs whose first non-empty line does not start with <toc>",
+  "why": "MapGen docs are navigational enforcement inputs; their mini table-of-contents block must remain a static Markdown shape invariant.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": "Add the mini XML <toc> block as the first non-empty content in the MapGen doc.",
+  "message": "Canonical MapGen docs must start with a mini XML <toc> block.",
+  "scanRoots": [
+    "docs/system/libs/mapgen"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "docs/system/libs/mapgen/**/*.md"
+      ]
+    }
+  ]
+}

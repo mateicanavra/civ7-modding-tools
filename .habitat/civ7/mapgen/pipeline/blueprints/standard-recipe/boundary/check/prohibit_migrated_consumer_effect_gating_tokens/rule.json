@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts",
+  "forbids": "retired engine coastlines/landmass gates and morphologyArtifacts.topography in the migrated map-hydrology lakes contract",
+  "why": "The map-hydrology migrated consumer boundary should consume current standard recipe surfaces rather than old morphology effect gates.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Keep migrated map-hydrology consumers off retired morphology and engine effect gates.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.contract.ts"
+      ]
+    }
+  ]
+}

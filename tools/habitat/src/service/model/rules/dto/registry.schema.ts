@@ -20,6 +20,8 @@ const RuleIdentitySchema = Type.Object(
   { additionalProperties: false }
 );
 
+const RuleIdentityInputSchema = Type.Omit(RuleIdentitySchema, ["id", "title"]);
+
 const RuleReportSchema = Type.Object(
   {
     forbids: Type.String({ minLength: 1 }),
@@ -35,6 +37,14 @@ const RuleExceptionMetadataSchema = Type.Object(
   {
     scope: Type.String({ minLength: 1 }),
     exceptionPath: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const RuleExceptionMetadataInputSchema = Type.Object(
+  {
+    scope: Type.String({ minLength: 1 }),
+    exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
@@ -79,7 +89,18 @@ const RequiredRuleMetadataSchema = Type.Interface(
   { additionalProperties: false }
 );
 
+const RequiredRuleMetadataInputSchema = Type.Interface(
+  [RuleIdentityInputSchema, RuleReportSchema, RuleExceptionMetadataInputSchema],
+  {
+    pathCoverage: RulePathCoverageSchema,
+  },
+  { additionalProperties: false }
+);
+
 const RequiredCommandRuleMetadataSchema = Type.Omit(RequiredRuleMetadataSchema, ["ownerTool"]);
+const RequiredCommandRuleMetadataInputSchema = Type.Omit(RequiredRuleMetadataInputSchema, [
+  "ownerTool",
+]);
 export const RuleRoutingFactsSchema = Type.Interface(
   [Type.Pick(RuleIdentitySchema, ["id", "ownerTool", "ownerProject"])],
   {
@@ -117,6 +138,14 @@ const CommandRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+const CommandRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
+  {
+    ownerTool: DirectCommandOwnerToolSchema,
+  },
+  { additionalProperties: false }
+);
+
 const StructureCheckRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
@@ -126,8 +155,25 @@ const StructureCheckRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+const StructureCheckRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
+  {
+    ownerTool: Type.Literal("structure-check"),
+  },
+  { additionalProperties: false }
+);
+
 const NxRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
+  {
+    ownerTool: Type.Literal("nx"),
+    graphTarget: GraphTargetSchema,
+  },
+  { additionalProperties: false }
+);
+
+const NxRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
   {
     ownerTool: Type.Literal("nx"),
     graphTarget: GraphTargetSchema,
@@ -147,11 +193,35 @@ export const SourceCheckRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+const SourceCheckRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
+  {
+    ownerTool: Type.Literal("source-check"),
+    patternName: Type.Optional(Type.String({ minLength: 1 })),
+    scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
+    hookCheck: Type.Optional(HookCheckSchema),
+    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
 export const GritCheckRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
   {
     ownerTool: Type.Literal("grit-check"),
     patternName: Type.String({ minLength: 1 }),
+    scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
+    hookCheck: Type.Optional(HookCheckSchema),
+    manifestPath: Type.Optional(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
+const GritCheckRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
+  {
+    ownerTool: Type.Literal("grit-check"),
+    patternName: Type.Optional(Type.String({ minLength: 1 })),
     scanRoots: Type.Array(PatternScanRootSchema, { minItems: 1 }),
     hookCheck: Type.Optional(HookCheckSchema),
     manifestPath: Type.Optional(Type.String({ minLength: 1 })),
@@ -168,8 +238,26 @@ const GeneratedZoneFileLayerRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+const GeneratedZoneFileLayerRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
+  {
+    ownerTool: Type.Literal("file-layer"),
+    generatedZone: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
 const ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema = Type.Interface(
   [RequiredCommandRuleMetadataSchema],
+  {
+    ownerTool: Type.Literal("file-layer"),
+    forbiddenFileNames: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const ForbiddenFileNameFileLayerRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
   {
     ownerTool: Type.Literal("file-layer"),
     forbiddenFileNames: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
@@ -186,6 +274,15 @@ const HostSurfaceFileLayerRuleRegistryRecordV1Schema = Type.Interface(
   { additionalProperties: false }
 );
 
+const HostSurfaceFileLayerRuleRegistryRecordInputV1Schema = Type.Interface(
+  [RequiredCommandRuleMetadataInputSchema],
+  {
+    ownerTool: Type.Literal("file-layer"),
+    hostSurfaceGuard: Type.Literal(true),
+  },
+  { additionalProperties: false }
+);
+
 export const RuleRegistryRecordV1Schema = Type.Union([
   CommandRuleRegistryRecordV1Schema,
   StructureCheckRuleRegistryRecordV1Schema,
@@ -195,6 +292,17 @@ export const RuleRegistryRecordV1Schema = Type.Union([
   GeneratedZoneFileLayerRuleRegistryRecordV1Schema,
   ForbiddenFileNameFileLayerRuleRegistryRecordV1Schema,
   HostSurfaceFileLayerRuleRegistryRecordV1Schema,
+]);
+
+export const RuleRegistryRecordInputV1Schema = Type.Union([
+  CommandRuleRegistryRecordInputV1Schema,
+  StructureCheckRuleRegistryRecordInputV1Schema,
+  NxRuleRegistryRecordInputV1Schema,
+  GritCheckRuleRegistryRecordInputV1Schema,
+  SourceCheckRuleRegistryRecordInputV1Schema,
+  GeneratedZoneFileLayerRuleRegistryRecordInputV1Schema,
+  ForbiddenFileNameFileLayerRuleRegistryRecordInputV1Schema,
+  HostSurfaceFileLayerRuleRegistryRecordInputV1Schema,
 ]);
 
 export const RuleRegistryDocumentV1Schema = Type.Object(
@@ -351,6 +459,7 @@ export const RuleHookCheckFactsSchema = Type.Interface(
 );
 
 export type RuleRegistryRecordV1 = Static<typeof RuleRegistryRecordV1Schema>;
+export type RuleRegistryRecordInputV1 = Static<typeof RuleRegistryRecordInputV1Schema>;
 export type RuleRegistryDocumentV1 = Static<typeof RuleRegistryDocumentV1Schema>;
 export type RuleRegistryIndexV1 = Static<typeof RuleRegistryIndexV1Schema>;
 export type RuleSelectorFacts = Static<typeof RuleSelectorFactsSchema>;

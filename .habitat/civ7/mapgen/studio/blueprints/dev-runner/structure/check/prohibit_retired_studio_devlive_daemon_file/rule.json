@@ -1,0 +1,27 @@
+{
+  "ownerTool": "structure-check",
+  "ownerProject": "mapgen-studio",
+  "lane": "enforced",
+  "scope": "apps/mapgen-studio/src/server/daemon",
+  "forbids": "the retired devLive.ts daemon file",
+  "why": "Studio dev execution no longer uses a package-local devLive daemon surface.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "structure-check"
+  ],
+  "remediate": "Keep Studio dev orchestration in Nx targets and the current daemon entrypoint.",
+  "message": "Retired Studio devLive daemon file is present.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "apps/mapgen-studio/src/server/daemon/devLive.ts"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

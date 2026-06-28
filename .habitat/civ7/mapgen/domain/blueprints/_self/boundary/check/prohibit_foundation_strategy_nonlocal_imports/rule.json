@@ -1,0 +1,35 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "foundation decomposed tectonics strategies",
+  "forbids": "strategy imports outside @swooper/mapgen-core/authoring, ../contract.js, and ../rules/*",
+  "why": "Foundation strategy modules should stay local to their op module contracts and rules.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Keep decomposed foundation strategy imports local to the op module.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-hotspot-events/strategies",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-segment-events/strategies",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-history-rollups/strategies",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonics-current/strategies",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection/strategies",
+    "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance/strategies"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/strategies/**/*.ts"
+      ]
+    }
+  ]
+}

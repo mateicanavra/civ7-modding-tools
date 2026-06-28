@@ -1,0 +1,21 @@
+{
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/recipe.ts",
+  "forbids": "literal standard recipe stage key drift from the accepted stage order",
+  "why": "The recipe source declaration is the package-owned stage order surface; file-tree topology is checked separately by structure-check.",
+  "detect": [
+    ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/check.mjs"
+  ],
+  "remediate": null,
+  "message": "Update the standard recipe stage declaration intentionally when changing stage order.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/recipe.ts"
+      ]
+    }
+  ]
+}

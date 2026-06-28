@@ -41,15 +41,20 @@ The current `.habitat` tree groups authority packets by niche, then by blueprint
                 prohibit_ambient_rng_in_authored_generation
 ```
 
-Niches are authored jurisdictions. Blueprints are buildable or enforceable things inside those jurisdictions. `_self` is the temporary blueprint placeholder for niche-wide authority. Neither niches nor blueprints should encode a runner, file type, current defect, or narrow maintenance task. Categories describe universal engineering purpose; artifact kinds define mutability.
+Niches are authored jurisdictions. Blueprints are constructible kinds or
+lifecycle-owned shapes inside those jurisdictions. `_self` is the temporary
+niche-authority packet-placement placeholder. Neither niches nor blueprints
+should encode a runner, file type, current defect, or narrow maintenance task.
+Categories describe universal engineering purpose; artifact kinds define
+mutability.
 
-Rule-owned files use the same packet-name prefix:
+Packet child files use generic role names:
 
-- `<packet>.rule.json`
-- `<packet>.baseline.json`
-- `<packet>.pattern.md`
-- `<packet>.check.{sh,mjs,py,ts}` for transitional read-only command checks
-- `<packet>.operation.md` for provisional non-check operation identity
+- `rule.json`
+- `baseline.json`
+- `pattern.md`
+- `check.{sh,mjs,ts}` for transitional read-only command checks
+- `operation.md` for provisional non-check operation identity
 
 ## Domain Operations
 

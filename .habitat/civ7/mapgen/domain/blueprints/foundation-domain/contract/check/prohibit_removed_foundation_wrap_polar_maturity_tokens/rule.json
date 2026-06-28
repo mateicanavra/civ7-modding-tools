@@ -1,0 +1,43 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "foundation domain, foundation standard stage, and maps source surfaces",
+  "forbids": "removed foundation wrap/polar/maturity source tokens in foundation surfaces",
+  "why": "Foundation surfaces must expose decomposed contract inputs instead of retired wrap, polar, and maturity token names.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Remove retired foundation wrap/polar/maturity tokens from foundation surfaces.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/foundation",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics",
+    "mods/mod-swooper-maps/src/maps"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/**/*.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.ts",
+        "mods/mod-swooper-maps/src/maps/**/*.json"
+      ]
+    }
+  ]
+}

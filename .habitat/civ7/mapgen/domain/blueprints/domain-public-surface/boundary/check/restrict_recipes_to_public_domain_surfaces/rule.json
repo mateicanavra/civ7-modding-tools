@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/**/*.ts",
+  "forbids": "recipes importing non-public domain subpaths",
+  "why": "Recipes compose domains only through stable public surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Recipes may import @mapgen/domain/<domain>, @mapgen/domain/<domain>/ops, or /config.js only.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/**/*.ts"
+      ]
+    }
+  ]
+}

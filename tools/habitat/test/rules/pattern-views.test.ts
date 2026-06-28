@@ -165,7 +165,7 @@ describe("pattern management views", () => {
     expect(
       Value.Check(
         ApplyPatternPathSchema,
-        ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/ensure_docs_checkout_paths_are_portable.pattern.md"
+        ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md"
       )
     ).toBe(true);
     expect(Value.Check(ApplyPatternPathSchema, ".habitat/patterns/apply/../x.md")).toBe(false);

@@ -1,0 +1,29 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/{*contract.ts,*artifacts.ts}",
+  "forbids": "runtime continent identifiers in morphology contract files",
+  "why": "Morphology contracts describe typed stage dependencies; runtime continent identifiers belong in implementation artifacts, not contract boundaries.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Keep runtime continent identifiers out of morphology contract files.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*contract.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*artifacts.ts"
+      ]
+    }
+  ]
+}

@@ -16,8 +16,8 @@ Use this source order when selecting or judging the next domino:
 4. `.habitat/AUTHORITY.md`, `.habitat/AUTHORITY-TREE-SHAPE.md`,
    `.habitat/AUTHORITY-TOOL-SEPARATION.md`, `.habitat/ARTIFACT-KINDS.md`, and
    `.habitat/SUBJECT-CATEGORIES.md`.
-5. Current `.habitat` tree shape, packet metadata, toolkit behavior, and fresh
-   command evidence.
+5. Current `.habitat` tree shape, generic packet role files, Toolkit behavior,
+   and fresh command evidence.
 6. Historical branch, PR, and session context as discovery material only.
 
 The center of gravity has moved. Package-script cleanup is not the active
@@ -46,9 +46,8 @@ In this regime:
   jurisdictions.
 - Execution tools are projections of admitted authority. They are adapters and
   evidence rails, not ontology sources.
-- Transitional `category.md`, `<packet>.rule.json`, and packet path metadata
-  either serve the migrated slice temporarily or get pruned when admitted
-  authority makes them redundant.
+- Transitional `rule.json` routing metadata either serves the migrated slice
+  temporarily or gets pruned when admitted authority makes it redundant.
 
 The destination is meaningfully different from the current tree: an agent can
 start with one admitted instance, know its blueprint, capabilities, niche
@@ -98,45 +97,12 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 13. Extract mixed command checks | Mixed command-check packets were split enough to prove proof-class separation and stop treating the junk drawer as the center. |
 | 14. Close triage/residual owner cleanup | Triage packets and residual owners were removed, moved, or retained honestly enough to expose the ontology problem. |
 | 15. Polish authority ontology and frame | The ontology and operating frame now name Habitat, blueprint, instance, capability, niche, and proof-class separation as the governing model. |
+| 16. Normalize packet role metadata | Packet paths now own semantic placement, child files use generic role names, `rule.json` keeps only non-derived execution facts, and packet `category.md` files are gone. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
-
-### 16. Re-Geolocate The Domino Ledger
-
-Purpose: replace the stale cleanup-ledger handoff with the Authority Activation
-sequence.
-
-Done Means:
-
-- This document names Authority Activation as the target regime.
-- Stale cleanup items are marked as no longer active drivers.
-- Remaining dominoes are ordered around a vertical pilot, not around broad
-  package-script or runner cleanup.
-- Each remaining domino includes Done Means, Moves It Forward, Dependencies,
-  and Proof.
-
-Moves It Forward:
-
-- Preserve `.habitat/DOMINO-FRAME.md` as the baseline frame.
-- Rewrite this ledger into regime, selection, completed index, remaining
-  dominoes, falsifier gates, and closure contract.
-- Remove stale active guidance that would send the next agent back to old
-  cleanup work.
-
-Dependencies:
-
-- The framing branch must remain the parent.
-- Authority ontology polish must stay accepted as the conceptual baseline.
-
-Proof:
-
-- `git diff --check` passes.
-- The Habitat toolkit-local check requested for this branch passes or reports a
-  bounded pre-existing limitation.
-- Stale active-guidance phrase search has no hits.
 
 ### 17. Select One Vertical Activation Pilot Corpus
 
@@ -213,7 +179,7 @@ Done Means:
 - One concrete pilot instance exists as an admitted authority object.
 - The instance declares the facts needed by the pilot blueprint.
 - One capability attaches to the instance through an explicit allowed relation.
-- Transitional packet metadata for the same facts is either demoted or marked
+- Transitional rule metadata for the same facts is either demoted or marked
   for removal in Domino 22.
 
 Moves It Forward:
@@ -309,8 +275,8 @@ authority owns the facts.
 Done Means:
 
 - Transitional metadata for the migrated slice is removed, demoted, or fenced.
-- Remaining `<packet>.rule.json`, `category.md`, or path-derived metadata is
-  limited to runner compatibility or documented transitional use.
+- Remaining `rule.json` metadata is limited to runner compatibility or
+  documented transitional use.
 - The migrated slice no longer teaches future agents that packet metadata is
   the conceptual source.
 

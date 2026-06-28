@@ -98,16 +98,16 @@ pure parser and audit model with fixtures.
 ## Rule Pack
 
 The rule registry is authored under the authority tree as
-`.habitat/**/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/<packet>.rule.json`.
+`.habitat/**/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/rule.json`.
 The owner-root index is root registry metadata at `.habitat/index.json`. At this
-state it contains 125 registered rules:
+state it contains 124 registered rules:
 
 | Habitat lane | Count | Role |
 | --- | ---: | --- |
 | Pattern checks | 79 | Source-shape diagnostics over registered scan roots. |
 | Structure checks | 8 | Native file-tree topology checks. |
 | File protection | 5 | Generated-zone and forbidden-file staged checks. |
-| Command checks | 31 | Existing command-line gates wrapped without changing their semantics. |
+| Command checks | 30 | Existing command-line gates wrapped without changing their semantics. |
 | Formatter hygiene | 1 | Hygiene-layer CI gate. |
 | Project boundaries | 1 | Project-plane import boundary enforcement. |
 

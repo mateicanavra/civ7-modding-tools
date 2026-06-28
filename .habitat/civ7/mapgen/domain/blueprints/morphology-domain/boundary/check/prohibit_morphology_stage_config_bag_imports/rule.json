@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts",
+  "forbids": "@mapgen/domain/config in morphology stage files",
+  "why": "Morphology stage source should consume typed contract and artifact surfaces instead of the legacy domain config bag.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not import @mapgen/domain/config from morphology stage files.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts"
+      ]
+    }
+  ]
+}

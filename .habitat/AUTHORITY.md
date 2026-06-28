@@ -36,9 +36,12 @@ blueprint, category, artifact kind, or authored policy root.
 - Collected packets live under niche-local blueprint paths.
 - Niche-wide authority uses `_self` as a temporary niche-authority
   packet-placement placeholder.
-- Packet-local `category.md` files record current category, lifecycle, admission, evidence, and caveats.
-- Rule identity is co-located as `<packet>.rule.json`.
-- Pattern, baseline, command-check, and provisional operation files are co-located with their packets.
+- Packet semantics are derived from the hierarchy: niche, blueprint, category,
+  artifact kind, and packet id come from the directory path.
+- Rule identity is co-located as `rule.json`; the packet id, title, structure
+  role path, and default pattern identity are derived by Toolkit readers.
+- Pattern, baseline, command-check, and provisional operation files are
+  co-located with their packets under generic role filenames.
 - Transitional source-check adapters and shared execution helpers are centralized under `.habitat/_support/execution/` rather than packet authoring sites.
 - The Toolkit rule registry owner-root index lives at `.habitat/index.json` as root registry metadata, not as an authority packet.
 - The current tree has zero `triage` packets; the kind remains reserved for future unadmitted evidence only.
@@ -46,10 +49,10 @@ blueprint, category, artifact kind, or authored policy root.
 ## Authority Rules
 
 1. A structural check packet is admitted only by a packet folder under a blueprint at `<category>/check/<packet>`.
-2. A structural rule is admitted only by that folder's `<packet>.rule.json` record or documented transitional support under `.habitat/_support/execution/`.
-3. A source-pattern rule is authored as `<packet>.pattern.md` in the owning packet folder until the final manifest shape is accepted.
-4. Baseline/current-tree evidence is accepted only when co-located with the owning packet as `<packet>.baseline.json` until the final manifest shape is accepted.
-5. A command-backed check is accepted only when its script is read-only and co-located as `<packet>.check.{sh,mjs,py,ts}`.
+2. A structural rule is admitted only by that folder's `rule.json` record or documented transitional support under `.habitat/_support/execution/`.
+3. A source-pattern rule is authored as `pattern.md` in the owning packet folder until the final manifest shape is accepted.
+4. Baseline/current-tree evidence is accepted only when co-located with the owning packet as `baseline.json` until the final manifest shape is accepted.
+5. A command-backed check is accepted only when its script is read-only and co-located as `check.{sh,mjs,ts}`.
 6. Habitat-owned fix/generate/migrate operations require explicit operation identity and must not be registered as read-only checks unless they are genuinely read-only.
 7. `triage` packets are excluded from default execution until admitted, split, renamed, or removed.
 8. No new loose lint, validation, structural-check, or pattern script may be introduced as authored policy without Habitat authority-tree identity.
@@ -77,13 +80,14 @@ Owner-tool classes such as `source-check`, `command-check`, `file-layer`, `forma
 
 ## Migration Implications
 
-Next consolidation work should teach Toolkit discovery to route by the
-niche/blueprint path shape, continue keeping any future `triage` evidence
-excluded from default execution, convert transitional source/command checks into
-clearer admitted artifacts, and continue migrating embedded structural authority
-from tests/scripts into this tree. Future layout and registry changes should use
-`AUTHORITY-ONTOLOGY.md` as the concept source for distinguishing blueprint kind
-authority, instance facts, capability facets, and niche governance.
+Toolkit discovery now routes packet rule identity from the niche/blueprint path
+shape and generic role filenames. Next consolidation work should continue
+keeping any future `triage` evidence excluded from default execution, convert
+transitional command checks into clearer admitted artifacts, and continue
+migrating embedded structural authority from tests/scripts into this tree.
+Future layout and registry changes should use `AUTHORITY-ONTOLOGY.md` as the
+concept source for distinguishing blueprint kind authority, instance facts,
+capability facets, and niche governance.
 
 ## Stop Conditions
 

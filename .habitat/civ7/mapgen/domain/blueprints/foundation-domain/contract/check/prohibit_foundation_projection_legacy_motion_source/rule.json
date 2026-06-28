@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "foundation projection step source",
+  "forbids": "projection source reads from legacy plateGraph.plates velocity fields",
+  "why": "Projection must consume canonical foundation plate-motion artifacts.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Read projection motion from the canonical plate-motion artifact surface.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/steps/projection.ts"
+      ]
+    }
+  ]
+}

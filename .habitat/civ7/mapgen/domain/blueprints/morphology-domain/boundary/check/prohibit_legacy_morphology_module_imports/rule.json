@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/src/**/*.ts",
+  "forbids": "imports or source references to retired morphology module paths",
+  "why": "Retired morphology module paths must stay removed after morphology contracts moved to canonical public surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Use current morphology public surfaces instead of retired morphology module paths.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/**/*.ts"
+      ]
+    }
+  ]
+}

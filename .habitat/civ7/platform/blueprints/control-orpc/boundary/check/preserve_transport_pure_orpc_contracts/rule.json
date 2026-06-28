@@ -1,0 +1,29 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "control-orpc",
+  "lane": "enforced",
+  "scope": "packages/civ7-control-orpc/src/modules/**/contract.ts and root index",
+  "forbids": "direct-control imports in contracts or contract-local schemas from public root",
+  "why": "oRPC contracts are transport-pure public contracts; runtime control stays in procedures/services.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Keep control-oRPC contracts transport-pure and keep module-local schemas private.",
+  "hookCheck": true,
+  "scanRoots": [
+    "packages/civ7-control-orpc/src"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "packages/civ7-control-orpc/src/modules/**/contract.ts",
+        "packages/civ7-control-orpc/src/index.ts"
+      ]
+    }
+  ]
+}

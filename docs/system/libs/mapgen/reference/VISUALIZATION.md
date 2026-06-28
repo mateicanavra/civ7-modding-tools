@@ -64,4 +64,4 @@ Forbidden shapes:
 - Viz dump sink (mod-owned): `mods/mod-swooper-maps/src/dev/viz/dump.ts`
 - Standard-recipe stage/step ownership guard:
   Habitat `grit-viz-contract-ownership` in
-  `.habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/require_shared_visualization_contracts_at_stage_surfaces.rule.json`
+  `.habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/boundary/check/require_shared_visualization_contracts_at_stage_surfaces/rule.json`

@@ -57,8 +57,8 @@ completed implementation record.
 ## Ground truth anchors
 
 - Habitat command guardrails:
-  `.habitat/civ7/mapgen/domain/blueprints/domain-operation/structure/check/require_domain_ops_root_presence/require_domain_ops_root_presence.rule.json` and
-  `.habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/enforce_adapter_only_base_standard_imports/enforce_adapter_only_base_standard_imports.rule.json`
+  `.habitat/civ7/mapgen/domain/blueprints/domain-operation/structure/check/require_domain_ops_root_presence/rule.json` and
+  `.habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/enforce_adapter_only_base_standard_imports/rule.json`
 - Pattern rule catalog: `.habitat/patterns/checks/`
 - Guard command wiring: `package.json`
 - Normalization packet source table:

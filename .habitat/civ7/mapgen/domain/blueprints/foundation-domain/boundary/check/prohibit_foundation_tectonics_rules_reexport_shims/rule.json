@@ -1,0 +1,28 @@
+{
+  "ownerTool": "grit-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "decomposed foundation tectonics rules indexes",
+  "forbids": "rules indexes re-exporting shared lib/tectonics modules as shims",
+  "why": "Decomposed tectonics rule indexes must own local rule surfaces.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "grit-check"
+  ],
+  "remediate": null,
+  "message": "Do not re-export shared lib/tectonics modules from foundation tectonics rules indexes.",
+  "hookCheck": true,
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/foundation/ops"
+  ],
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/foundation/ops/*/rules/index.ts"
+      ]
+    }
+  ]
+}

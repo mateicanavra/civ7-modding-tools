@@ -1,0 +1,25 @@
+{
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "mods/mod-swooper-maps/test/**/*.{ts,tsx}, packages/*/test/**/*.{ts,tsx}",
+  "forbids": "test files deep-importing domain internals instead of public domain surfaces",
+  "why": "Tests should exercise domain contracts through the same public surfaces as product code unless an explicit architecture decision owns a deeper reach.",
+  "detect": [
+    "node",
+    ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/check.mjs"
+  ],
+  "remediate": null,
+  "message": "Use @mapgen/domain/<domain>, /ops, or /config.js from tests instead of domain internals.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/test/**/*.ts",
+        "mods/mod-swooper-maps/test/**/*.tsx",
+        "packages/*/test/**/*.ts",
+        "packages/*/test/**/*.tsx"
+      ]
+    }
+  ]
+}

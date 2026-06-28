@@ -1,0 +1,28 @@
+{
+  "ownerTool": "structure-check",
+  "ownerProject": "habitat",
+  "lane": "enforced",
+  "scope": "tools/habitat/src/service/modules/* and tools/habitat/src/service/model/*",
+  "forbids": "service module and service-model root children outside the admitted topology",
+  "why": "The Habitat Toolkit service layer should keep a predictable root file tree before deeper suffix validation runs.",
+  "detect": [
+    "habitat",
+    "check",
+    "--tool",
+    "structure-check"
+  ],
+  "remediate": "Move service files into the admitted module/model root tree.",
+  "message": "Habitat service module root topology validation failed.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "tools/habitat/src/service/modules/*",
+        "tools/habitat/src/service/model/*"
+      ]
+    },
+    {
+      "kind": "project-owner"
+    }
+  ]
+}

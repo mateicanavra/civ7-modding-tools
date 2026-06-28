@@ -649,7 +649,8 @@ Future physical layouts should preserve these constraints:
 - same-kind child containers should not blur with local support artifacts;
 - metadata should avoid duplicating identity that is already supplied by an
   owning manifest or folder;
-- current `category.md` plus `<packet>.rule.json` metadata is transitional.
+- current packet paths plus generic role files are transitional physical
+  machinery, not final ontology.
 
 ## Current Tree Compatibility
 

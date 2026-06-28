@@ -527,7 +527,7 @@ function lsTreeMock(
     argv,
     cwd,
     `${options.rulePackAtBase
-      .map((id) => `.habitat/global/workspace/blueprints/project-boundary-model/structure/check/${id}/${id}.rule.json`)
+      .map((id) => `.habitat/global/workspace/blueprints/project-boundary-model/structure/check/${id}/rule.json`)
       .join("\n")}\n`
   );
 }
@@ -648,7 +648,7 @@ function writeSubjectLocalBaselineFile(repoRoot: string, ruleId: string, entries
   );
   mkdirSync(packetDir, { recursive: true });
   writeFileSync(
-    path.join(packetDir, `${ruleId}.baseline.json`),
+    path.join(packetDir, `baseline.json`),
     `${JSON.stringify(entries, null, 2)}\n`
   );
 }

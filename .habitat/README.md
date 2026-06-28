@@ -26,7 +26,7 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `AUTHORITY-TREE-SHAPE.md`: the current niche/blueprint tree shape.
 - `DOMINO-FRAME.md`: operating frame for choosing and carrying authority-tree dominoes across branches, agents, and review loops.
 - `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
-- `SUBJECT-CATEGORIES.md`: universal category model plus the current packet ledger.
+- `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.
 - `config.md`: human-readable operation model; not parsed as tool dispatch config.
 
@@ -34,13 +34,18 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 
 Packet folders may contain:
 
-- `<packet>.rule.json`: rule metadata.
-- `<packet>.baseline.json`: baseline, fixture, current-tree, or generated-artifact evidence.
-- `<packet>.pattern.md`: primary authored pattern source.
-- `<packet>.apply.pattern.md`: secondary apply pattern source.
-- `<packet>.check.{sh,mjs,py,ts}`: transitional read-only command adapter.
-- `<packet>.operation.md`: provisional identity for non-check operations.
-- `category.md`: temporary working metadata for classification and semantic notes.
+- `rule.json`: execution/routing metadata; identity and placement are derived from the packet path.
+- `baseline.json`: baseline, fixture, current-tree, or generated-artifact evidence.
+- `pattern.md`: primary authored pattern source.
+- `apply.pattern.md`: secondary apply pattern source.
+- `structure.toml`: structure-check topology source.
+- `check.{sh,mjs,ts}`: transitional read-only command adapter.
+- `fix.mjs`, `generate.{sh,ts}`: mutating operation implementation.
+- `operation.md`: provisional identity for non-check operations.
+
+Do not reintroduce packet-prefixed role filenames or packet-local
+`category.md`. If a semantic fact is derivable from the directory path or role
+filename, it belongs there rather than in metadata.
 
 ## Compatibility Notes
 

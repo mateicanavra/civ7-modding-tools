@@ -270,7 +270,7 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.ownerTool === "grit-check") {
-    inputs.add(workspaceInput(`.habitat/**/${rule.id}/${rule.id}.pattern.md`));
+    inputs.add(workspaceInput(`.habitat/**/${rule.id}/pattern.md`));
     for (const scopeInput of sourceCheckRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }

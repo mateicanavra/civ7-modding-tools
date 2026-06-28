@@ -48,6 +48,106 @@ describe("rule registry contract", () => {
     const rootIndex = path.join(registryDir, "index.json");
     const rulePath = path.join(
       registryDir,
+      "global/workspace/blueprints/project-boundary-model/structure/check/sample-rule/rule.json"
+    );
+    const fileSystem = virtualRegistryFileSystem({
+      [rootIndex]: JSON.stringify({
+        schemaVersion: 1,
+        ownerRoots: {
+          habitat: "tools/habitat",
+        },
+      }),
+      [rulePath]: JSON.stringify(packetRuleInput()),
+    });
+
+    const document = await Effect.runPromise(
+      loadRuleRegistryDocumentEffect(registryDir, fileSystem)
+    );
+
+    expect(document.rules.map((rule) => rule.id)).toEqual(["sample-rule"]);
+  });
+
+  test("derives packet identity, title, default exception, and structure role path", async () => {
+    const registryDir = "/repo/.habitat";
+    const rootIndex = path.join(registryDir, "index.json");
+    const rulePath = path.join(
+      registryDir,
+      "docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/rule.json"
+    );
+    const fileSystem = virtualRegistryFileSystem({
+      [rootIndex]: JSON.stringify({
+        schemaVersion: 1,
+        ownerRoots: {
+          habitat: "tools/habitat",
+        },
+      }),
+      [rulePath]: JSON.stringify(packetRuleInput({ ownerTool: "structure-check" })),
+    });
+
+    const document = await Effect.runPromise(
+      loadRuleRegistryDocumentEffect(registryDir, fileSystem)
+    );
+
+    expect(document.rules).toEqual([
+      expect.objectContaining({
+        id: "require_docs_site_root_inputs",
+        title: "Require Docs Site Root Inputs",
+        exceptionPath: "none",
+        structureFile:
+          ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/structure.toml",
+      }),
+    ]);
+  });
+
+  test("preserves explicit patternName override while deriving the default", async () => {
+    const registryDir = "/repo/.habitat";
+    const rootIndex = path.join(registryDir, "index.json");
+    const defaultPatternRule = path.join(
+      registryDir,
+      "docs/blueprints/_self/quality/check/default_pattern_probe/rule.json"
+    );
+    const overridePatternRule = path.join(
+      registryDir,
+      "docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/rule.json"
+    );
+    const fileSystem = virtualRegistryFileSystem({
+      [rootIndex]: JSON.stringify({
+        schemaVersion: 1,
+        ownerRoots: {
+          habitat: "tools/habitat",
+        },
+      }),
+      [defaultPatternRule]: JSON.stringify(
+        packetRuleInput({ ownerTool: "grit-check", scanRoots: ["docs"] })
+      ),
+      [overridePatternRule]: JSON.stringify(
+        packetRuleInput({
+          ownerTool: "grit-check",
+          patternName: "docs_local_checkout_paths",
+          scanRoots: ["docs"],
+        })
+      ),
+    });
+
+    const document = await Effect.runPromise(
+      loadRuleRegistryDocumentEffect(registryDir, fileSystem)
+    );
+
+    expect(document.rules.map((rule) => [rule.id, "patternName" in rule && rule.patternName])).toEqual([
+      ["default_pattern_probe", "default_pattern_probe"],
+      ["ensure_docs_checkout_paths_are_portable", "docs_local_checkout_paths"],
+    ]);
+  });
+
+  test("rejects stale prefixed packet rule files", async () => {
+    const registryDir = "/repo/.habitat";
+    const rootIndex = path.join(registryDir, "index.json");
+    const currentRule = path.join(
+      registryDir,
+      "global/workspace/blueprints/project-boundary-model/structure/check/sample-rule/rule.json"
+    );
+    const staleRule = path.join(
+      registryDir,
       "global/workspace/blueprints/project-boundary-model/structure/check/sample-rule/sample-rule.rule.json"
     );
     const fileSystem = virtualRegistryFileSystem({
@@ -57,14 +157,13 @@ describe("rule registry contract", () => {
           habitat: "tools/habitat",
         },
       }),
-      [rulePath]: JSON.stringify(baseRule()),
+      [currentRule]: JSON.stringify(packetRuleInput()),
+      [staleRule]: JSON.stringify(baseRule()),
     });
 
-    const document = await Effect.runPromise(
-      loadRuleRegistryDocumentEffect(registryDir, fileSystem)
+    await expect(Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))).rejects.toThrow(
+      "prefixed rule filenames are stale"
     );
-
-    expect(document.rules.map((rule) => rule.id)).toEqual(["sample-rule"]);
   });
 
   test("rejects invalid JSON before schema validation", () => {
@@ -307,6 +406,17 @@ function virtualRegistryFileSystem(files: Record<string, string>): RuleRegistryF
         ? Effect.succeed(files[registryPath] as string)
         : Effect.fail(new Error(`missing file: ${registryPath}`)),
   };
+}
+
+function packetRuleInput(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  const rule: Record<string, unknown> = { ...baseRule(), ...overrides };
+  const ruleId = rule.id;
+  delete rule.id;
+  delete rule.title;
+  delete rule.structureFile;
+  if (rule.exceptionPath === "none") delete rule.exceptionPath;
+  if (rule.patternName === ruleId) delete rule.patternName;
+  return rule;
 }
 
 function directoryEntries(

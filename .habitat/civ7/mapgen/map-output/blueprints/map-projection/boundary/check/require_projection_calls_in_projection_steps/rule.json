@@ -1,0 +1,24 @@
+{
+  "ownerTool": "command-check",
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "scope": "dedicated map projection step files and contracts",
+  "forbids": "missing required projection owner callsites or missing plotRivers materialization and contract tokens",
+  "why": "Required map projection callsites and contract metadata remain data-driven structural authority after source-placement prohibitions split to Grit.",
+  "detect": [
+    ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/check.mjs"
+  ],
+  "remediate": null,
+  "message": "Required map projection owner callsite or plotRivers contract token drifted.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-elevation/steps/buildElevation.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-hydrology/steps/lakes.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts"
+      ]
+    }
+  ]
+}
