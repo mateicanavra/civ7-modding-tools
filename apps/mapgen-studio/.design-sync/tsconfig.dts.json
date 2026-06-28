@@ -1,0 +1,18 @@
+{
+  "//": "design-sync: emit a .d.ts tree the converter can extract real prop types from. Output goes to dist/types (auto-detected by findTypesRoot; dist/ is gitignored). Errors are non-fatal — partial declarations still beat empty {[key]:unknown} contracts.",
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationMap": false,
+    "noEmitOnError": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "skipLibCheck": true,
+    "rootDir": "../src",
+    "outDir": "../dist/types"
+  },
+  "include": ["../src/components/ui", "../src/ui/components"],
+  "exclude": ["../src/DELETE-WHEN-DONE", "**/*.test.tsx", "**/*.test.ts"]
+}
