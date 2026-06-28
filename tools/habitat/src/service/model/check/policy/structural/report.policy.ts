@@ -70,7 +70,7 @@ export function createCheckReportEffect(
       if (!execution) throw new Error(`habitat internal error: missing rule result for ${rule.id}`);
       Value.Parse(RuleExecutionPlanSchema, {
         ruleId: rule.id,
-        ownerTool: rule.ownerTool,
+        runner: rule.runner.name,
         lane: reportFacts.lane,
         disposition: execution.disposition,
       });
@@ -184,14 +184,13 @@ function ruleReportFromDiagnostics(input: {
         : "pass";
   return {
     ruleId: input.ruleId,
-    ownerTool: input.reportFacts.ownerTool,
+    runner: input.reportFacts.runner.name,
     lane: input.reportFacts.lane,
     status,
     locked: input.locked,
     durationMs: input.durationMs,
     timing: input.timing,
     diagnostics: input.diagnostics,
-    detect: input.reportFacts.detect,
     message: input.reportFacts.message,
     remediate: input.reportFacts.remediate,
   };
@@ -210,7 +209,7 @@ function baselineIntegrityReportEffect(
     const integrityFindings = yield* baselineIntegrityFindingsEffect(integrity);
     return {
       ruleId: "baseline-integrity",
-      ownerTool: "habitat-builtin",
+      runner: "habitat",
       lane: "enforced",
       status: integrity.status === "refused" ? "fail" : "pass",
       locked: true,
@@ -222,7 +221,6 @@ function baselineIntegrityReportEffect(
         severity: "error" as const,
         baselined: false,
       })),
-      detect: ["habitat", "check", "(built-in)"],
       message:
         "Baselines are shrink-only; additions are valid only in the change that introduces the rule itself.",
       remediate: null,

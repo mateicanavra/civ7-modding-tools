@@ -1,14 +1,8 @@
 {
-  "ownerTool": "command-check",
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "scope": "MapGen Studio recipe-DAG service import graph and required contract metadata surfaces",
   "forbids": "Studio recipe-DAG import graph reaching generated maps, dist/mod outputs, runtime stage indexes, recipe runtime files, or authoring roots instead of contract-only surfaces",
   "why": "The Studio recipe-DAG service consumes contract metadata through a graph-aware contract-only boundary; direct source-token bans are split to Grit.",
-  "detect": [
-    "bun",
-    ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/check.ts"
-  ],
   "remediate": "Route Studio recipe-DAG metadata through contract-only recipe surfaces.",
   "message": "Studio recipe-DAG import graph crossed contract-only boundaries.",
   "pathCoverage": [

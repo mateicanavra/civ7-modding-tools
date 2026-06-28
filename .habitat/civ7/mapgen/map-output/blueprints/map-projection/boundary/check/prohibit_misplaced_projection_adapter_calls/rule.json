@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
   "forbids": "map projection adapter calls outside their owning projection steps, physics-stage engine projection reads, or row-major odd-r tile callsites",
   "why": "Projection engine calls are structural source authority when the allowed callsites are exact recipe step files.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": "Move projection adapter calls to their owning map projection step or consume authored artifacts upstream.",
   "message": "Projection adapter call crossed its owning step boundary.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
     }
   ]
 }

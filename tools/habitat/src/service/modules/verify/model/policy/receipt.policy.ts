@@ -167,7 +167,7 @@ function selectorState(
   summary: VerifyCheckSummary
 ): VerifyReceipt["habitatCheck"]["selectorState"] {
   const selectors = summary.requestedSelectors;
-  if (!selectors.owner && !selectors.rule && !selectors.tool) {
+  if (!selectors.owner && !selectors.rule && !selectors.runner) {
     return Value.Parse(VerifySelectorStateSchema, { kind: "none" });
   }
   return Value.Parse(VerifySelectorStateSchema, {

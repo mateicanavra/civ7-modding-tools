@@ -23,7 +23,9 @@ function stageStepIds(stage: { steps: readonly { contract: { id: string } }[] })
 const runtimeStageIds = STANDARD_STAGES.map((stage: { id: string }) => stage.id);
 const manifestStageIds = standardStageContractManifest.map((stage: { id: string }) => stage.id);
 if (JSON.stringify(runtimeStageIds) !== JSON.stringify(manifestStageIds)) {
-  failures.push(`stage order differs: ${JSON.stringify(runtimeStageIds)} !== ${JSON.stringify(manifestStageIds)}`);
+  failures.push(
+    `stage order differs: ${JSON.stringify(runtimeStageIds)} !== ${JSON.stringify(manifestStageIds)}`
+  );
 }
 
 for (const stage of STANDARD_STAGES) {
@@ -37,7 +39,9 @@ for (const stage of STANDARD_STAGES) {
   const runtimeSteps = stageStepIds(stage);
   const manifestSteps = stageStepIds(manifestStage);
   if (JSON.stringify(runtimeSteps) !== JSON.stringify(manifestSteps)) {
-    failures.push(`${stage.id}: step order differs ${JSON.stringify(runtimeSteps)} !== ${JSON.stringify(manifestSteps)}`);
+    failures.push(
+      `${stage.id}: step order differs ${JSON.stringify(runtimeSteps)} !== ${JSON.stringify(manifestSteps)}`
+    );
   }
 }
 

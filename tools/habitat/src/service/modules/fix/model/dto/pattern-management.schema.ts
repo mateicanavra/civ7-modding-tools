@@ -6,9 +6,9 @@ export const PatternLifecycleSchema = Type.Union([
   Type.Literal("registered-enforced"),
 ]);
 
-export const PatternOwnerToolSchema = Type.Union([
-  Type.Literal("source-check"),
-  Type.Literal("pattern-apply"),
+export const PatternPatternRoleSchema = Type.Union([
+  Type.Literal("diagnostic"),
+  Type.Literal("apply"),
 ]);
 
 export const PatternSourceKindSchema = Type.Union([
@@ -77,7 +77,7 @@ export const PatternManifestBaseSchema = Type.Object(
     lifecycle: PatternLifecycleSchema,
     openspecChangeId: NonEmptyStringSchema,
     ownerProject: NonEmptyStringSchema,
-    ownerTool: PatternOwnerToolSchema,
+    patternRole: PatternPatternRoleSchema,
   },
   { additionalProperties: false }
 );
@@ -186,7 +186,7 @@ export const PatternRuleReferenceSchema = Type.Object(
     ruleId: NonEmptyStringSchema,
     patternName: NonEmptyStringSchema,
     manifestPath: NonEmptyStringSchema,
-    ownerTool: NonEmptyStringSchema,
+    patternRole: NonEmptyStringSchema,
     lifecycle: Type.Union([Type.Literal("advisory"), Type.Literal("enforced")]),
   },
   { additionalProperties: false }
@@ -237,7 +237,7 @@ export const CandidatePatternIdentitySchema = Type.Pick(CandidatePatternManifest
   "patternName",
   "openspecChangeId",
   "ownerProject",
-  "ownerTool",
+  "patternRole",
 ]);
 
 export const PatternViewSchema = Type.Object(
@@ -409,7 +409,7 @@ export const PatternStateSchema = Type.Union([
 ]);
 
 export type PatternLifecycle = Static<typeof PatternLifecycleSchema>;
-export type PatternOwnerTool = Static<typeof PatternOwnerToolSchema>;
+export type PatternPatternRole = Static<typeof PatternPatternRoleSchema>;
 export type PatternSourceKind = Static<typeof PatternSourceKindSchema>;
 export type PatternCurrentTreeResultClass = Static<typeof PatternCurrentTreeResultClassSchema>;
 export type PatternBaselineAction = Static<typeof PatternBaselineActionSchema>;

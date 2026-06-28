@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation domain, foundation standard stage, and maps source surfaces",
   "forbids": "the retired computeTectonics source token in foundation surfaces",
   "why": "Foundation surfaces must depend on decomposed tectonics operations rather than the retired monolithic computeTectonics contract.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Remove legacy computeTectonics references from foundation surfaces.",
   "hookCheck": true,

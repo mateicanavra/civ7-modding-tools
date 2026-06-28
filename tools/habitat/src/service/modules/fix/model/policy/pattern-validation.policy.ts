@@ -1,3 +1,4 @@
+import type { PacketRunner } from "@habitat/cli/service/model/rules/index";
 import { Value } from "typebox/value";
 import {
   type PatternLifecycle,
@@ -11,9 +12,9 @@ import { patternCandidateRoot, patternManifestPath } from "./pattern-artifact-pa
 
 export interface PatternRulePackReferenceInput {
   id: string;
-  patternName?: string;
+  runner?: PacketRunner;
   manifestPath?: string;
-  ownerTool?: string;
+  patternRole?: string;
   lane?: "advisory" | "enforced";
 }
 
@@ -188,21 +189,21 @@ function checkRegisteredContradictions(
       )
     );
   }
-  if (manifest.ownerTool === "source-check" && manifest.applySafety.kind === "apply") {
+  if (manifest.patternRole === "diagnostic" && manifest.applySafety.kind === "apply") {
     issues.push(
       issue(
         "apply-safety-contradicted",
         "applySafety.kind",
-        "source-check manifests must not request apply admission."
+        "Diagnostic pattern manifests must not request apply admission."
       )
     );
   }
-  if (manifest.ownerTool === "pattern-apply" && manifest.applySafety.kind === "not-apply") {
+  if (manifest.patternRole === "apply" && manifest.applySafety.kind === "not-apply") {
     issues.push(
       issue(
         "apply-safety-missing",
         "applySafety.kind",
-        "pattern-apply manifests must include apply admission inputs."
+        "Apply pattern manifests must include apply admission inputs."
       )
     );
   }
@@ -228,7 +229,7 @@ function checkRuleReference(
     return;
   }
 
-  for (const field of ["patternName", "manifestPath", "ownerTool", "lifecycle"] as const) {
+  for (const field of ["patternName", "manifestPath", "patternRole", "lifecycle"] as const) {
     if (!reference[field]) {
       issues.push(
         issue(
@@ -272,12 +273,12 @@ function checkRuleReference(
       )
     );
   }
-  if (reference.ownerTool && reference.ownerTool !== manifest.ownerTool) {
+  if (reference.patternRole && reference.patternRole !== manifest.patternRole) {
     issues.push(
       issue(
         "contradicted-manifest",
-        "ownerTool",
-        `Manifest ownerTool '${manifest.ownerTool}' does not match rule-pack ownerTool '${reference.ownerTool}'.`
+        "patternRole",
+        `Manifest patternRole '${manifest.patternRole}' does not match rule-pack patternRole '${reference.patternRole}'.`
       )
     );
   }

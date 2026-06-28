@@ -88,7 +88,11 @@ const studioContractsSource = await readFile(studioContractsPath, "utf8");
 const graph = await collectLocalImportGraph(servicePath);
 const graphPaths = [...graph.keys()].map(rel).sort();
 
-requireIncludes(serviceSource, 'from "mod-swooper-maps/recipes/studio-contracts"', "service source");
+requireIncludes(
+  serviceSource,
+  'from "mod-swooper-maps/recipes/studio-contracts"',
+  "service source"
+);
 requireIncludes(serviceSource, "@swooper/mapgen-core/authoring/recipe-dag", "service source");
 requireIncludes(studioContractsSource, "../standard/contract-manifest.js", "studio contracts");
 
@@ -112,7 +116,8 @@ for (const graphPath of graphPaths) {
     /^mods\/mod-swooper-maps\/(?:dist|mod)\//,
     /^mods\/mod-swooper-maps\/src\/maps\/generated\//,
   ]) {
-    if (forbidden.test(graphPath)) failures.push(`import graph includes forbidden path ${graphPath}`);
+    if (forbidden.test(graphPath))
+      failures.push(`import graph includes forbidden path ${graphPath}`);
   }
   if (
     graphPath === "mods/mod-swooper-maps/src/recipes/standard/recipe.ts" ||

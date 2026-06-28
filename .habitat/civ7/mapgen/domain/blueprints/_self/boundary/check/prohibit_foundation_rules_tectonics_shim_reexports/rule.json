@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation decomposed tectonics rules",
   "forbids": "rules re-exporting shared lib/tectonics modules",
   "why": "Rules folders should own local rule surfaces instead of acting as shims over shared tectonics modules.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not re-export shared tectonics modules from decomposed foundation rules.",
   "hookCheck": true,
@@ -27,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/rules/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/rules/**/*.ts"]
     }
   ]
 }

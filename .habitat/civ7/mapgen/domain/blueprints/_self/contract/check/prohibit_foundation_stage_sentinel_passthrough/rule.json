@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "current standard foundation stage entrypoints",
   "forbids": "foundation studio step sentinel passthrough tokens",
   "why": "Foundation stages should expose owned public config instead of forwarding retired studio sentinel metadata.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not restore foundation stage studio sentinel passthrough tokens.",
   "hookCheck": true,

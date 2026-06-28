@@ -1,23 +1,12 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
-  "scope": "apps/mapgen-studio/src/server/{daemon,studio}/**/*.ts",
   "forbids": "daemon-owned EventHub lifecycle, EventHub injection into RPC handler calls, or EventHub exposure from Studio server context",
   "why": "The daemon mounts Studio RPC; EventHub lifecycle belongs inside the Studio runtime context.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": "Keep EventHub creation and shutdown inside the Studio runtime context.",
   "message": "Studio RPC daemon leaked EventHub lifecycle ownership.",
   "hookCheck": true,
-  "scanRoots": [
-    "apps/mapgen-studio/src/server/daemon",
-    "apps/mapgen-studio/src/server/studio"
-  ],
+  "scanRoots": ["apps/mapgen-studio/src/server/daemon", "apps/mapgen-studio/src/server/studio"],
   "pathCoverage": [
     {
       "kind": "exact-path",

@@ -41,7 +41,7 @@ describe("Habitat pattern generator", () => {
       patternName: "dra_metadata_probe",
       lifecycle: "candidate",
       openspecChangeId: "habitat-pattern-generator-metadata-repair",
-      ownerTool: "source-check",
+      patternRole: "diagnostic",
       registration: { accepted: false },
     });
     expect(
@@ -343,17 +343,20 @@ function emptyRuleRegistryDocument(rules: unknown[] = []) {
 function existingRegistryRule(ruleId: string) {
   return {
     id: ruleId,
-    ownerTool: "command-check",
     ownerProject: "habitat",
     lane: "enforced",
-    scope: "workspace",
     forbids: "test fixture",
     why: "test fixture",
-    detect: ["habitat", "check", "--rule", ruleId],
     remediate: null,
     message: "test fixture",
     exceptionPath: "none",
     pathCoverage: [{ kind: "project-owner" }],
+    runner: {
+      name: "habitat",
+      mode: "script",
+      scriptPath: `.habitat/fixtures/blueprints/_self/quality/check/${ruleId}/check.mjs`,
+      runtime: "node",
+    },
   };
 }
 
@@ -410,7 +413,7 @@ function registeredManifest(
     lifecycle: "registered-advisory",
     openspecChangeId: "habitat-pattern-generator-metadata-repair",
     ownerProject: "habitat",
-    ownerTool: "source-check",
+    patternRole: "diagnostic",
     normativeSources: [
       {
         kind: "accepted-spec",

@@ -4,6 +4,7 @@ import type { StagedMutationPath } from "../dto/protected-zone.schema.js";
 import {
   declarationForFileLayerRule,
   declarationForHostSurfacePath,
+  isDeclarationFileLayerRule,
 } from "./protected-zone-declarations.policy.js";
 import {
   decisionDiagnostic,
@@ -17,6 +18,7 @@ export function runFileLayerProtectedMutationRule(
 ): { exitCode: number; diagnostics: HabitatDiagnostic[] } {
   if ("hostSurfaceGuard" in rule) return runHostSurfaceGuardRule(rule, context);
 
+  if (!isDeclarationFileLayerRule(rule)) return { exitCode: 0, diagnostics: [] };
   const declarationState = declarationForFileLayerRule(rule);
   const readinessDiagnostic = declarationReadinessDiagnostic(rule, declarationState);
   if (readinessDiagnostic) return { exitCode: 1, diagnostics: [readinessDiagnostic] };

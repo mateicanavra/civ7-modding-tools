@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
   "forbids": "ops using adapter/context crossing constructs",
   "why": "Domain ops stay pure and composable; adapter/context belongs outside domain implementation.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Remove adapter/context crossing from domain ops.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
     }
   ]
 }

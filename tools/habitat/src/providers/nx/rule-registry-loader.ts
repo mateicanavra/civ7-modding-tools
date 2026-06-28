@@ -1,22 +1,21 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { TSchema } from "typebox";
-import { Value } from "typebox/value";
 import {
   type RuleRegistryDocumentV1,
   RuleRegistryDocumentV1Schema,
   type RuleRegistryIndexV1,
   RuleRegistryIndexV1Schema,
-  type RuleRegistryRecordV1,
-  RuleRegistryRecordV1Schema,
   RuleRegistryRecordInputV1Schema,
-} from "../../service/model/rules/dto/registry.schema.ts";
+  type RuleRegistryRecordV1,
+} from "@habitat/cli/service/model/rules/dto/registry.schema";
 import {
   enrichPacketRuleRecord,
   isPacketRulePath,
   isStalePrefixedPacketRolePath,
   packetLocationFromArtifactPath,
-} from "../../service/model/rules/policy/packet-derivation.policy.ts";
+} from "@habitat/cli/service/model/rules/policy/packet-derivation.policy";
+import type { TSchema } from "typebox";
+import { Value } from "typebox/value";
 
 export type NxRuleRegistryRecord = RuleRegistryRecordV1;
 export type NxRuleRegistryDocument = RuleRegistryDocumentV1;
@@ -101,7 +100,7 @@ function parseJsonFile<T>(filePath: string, schema: TSchema): T {
 function parseRuleRecordFile(filePath: string): NxRuleRegistryRecord {
   const parsed = parseJsonFile<unknown>(filePath, RuleRegistryRecordInputV1Schema);
   try {
-    return enrichPacketRuleRecord(filePath, parsed);
+    return enrichPacketRuleRecord(filePath, parsed, packetRoleFilenames(filePath));
   } catch (error) {
     throw registryLoadError("Habitat rule registry is invalid", [
       {
@@ -110,6 +109,13 @@ function parseRuleRecordFile(filePath: string): NxRuleRegistryRecord {
       },
     ]);
   }
+}
+
+function packetRoleFilenames(filePath: string): readonly string[] {
+  return fs
+    .readdirSync(path.dirname(filePath), { withFileTypes: true })
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name);
 }
 
 function readJsonFile(filePath: string): unknown {

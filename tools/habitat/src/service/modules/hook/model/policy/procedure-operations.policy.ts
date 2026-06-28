@@ -33,8 +33,8 @@ import type {
   PrePushBaseDecision,
   PrePushChangedPathsResult,
   PrePushHookSourceCheckResult,
+  StagedHookCheckPhase,
   StagedHookCheckResult,
-  StagedHookCheckTool,
 } from "./procedure-context.policy.js";
 import { localHookNotice } from "./procedure-context.policy.js";
 import {
@@ -326,10 +326,10 @@ export function prePushHookSourceCheck(
   changedPaths: readonly string[]
 ): HookRouterEffect<PrePushHookSourceCheckResult> {
   return Effect.gen(function* () {
-    const argv = ["--hook-check", "--tool", "source-check", "--json"];
+    const argv = ["--hook-check", "--runner", "grit", "--json"];
     const startedAtMs = yield* hookNow();
     const report = yield* context.createCheckReport({
-      tool: "source-check",
+      runner: "grit",
       hookCheck: true,
       staged: true,
       stagedPaths: changedPaths,
@@ -404,14 +404,15 @@ export function resolvePrePushBase(
 
 export function stagedHookCheck(
   context: HookProcedureContext,
-  tool: StagedHookCheckTool,
+  phase: StagedHookCheckPhase,
   stagedPaths: readonly string[]
 ): HookRouterEffect<StagedHookCheckResult> {
   return Effect.gen(function* () {
-    const argv = ["--staged", "--tool", tool, "--json"];
+    const runner = runnerForStagedHookCheckPhase(phase);
+    const argv = ["--staged", "--runner", runner, "--json"];
     const startedAtMs = yield* hookNow();
     const report = yield* context.createCheckReport({
-      tool,
+      runner,
       staged: true,
       stagedPaths,
       command: checkCommandContext(argv),
@@ -420,9 +421,13 @@ export function stagedHookCheck(
       ...spawnResultFromCheckReport(report),
       check: { report, summary: hookCheckSummary(report) },
     };
-    yield* recordInProcessHookCheck(context, tool, argv, startedAtMs, result.exitCode);
+    yield* recordInProcessHookCheck(context, phase, argv, startedAtMs, result.exitCode);
     return result;
   });
+}
+
+function runnerForStagedHookCheckPhase(phase: StagedHookCheckPhase): "grit" | "habitat" {
+  return phase === "source-check" ? "grit" : "habitat";
 }
 
 export function recordHookCommand(
@@ -468,7 +473,7 @@ function hashRepoRelativeFile(
 
 function hookSourceCheckApprovedRoots(context: HookProcedureContext): string[] {
   const hookRuleIds = context.rules.hookCheck.map((rule) => rule.id);
-  return approvedScanRootsForRules(factsForRuleIds(context.rules.source, hookRuleIds));
+  return approvedScanRootsForRules(factsForRuleIds(context.rules.grit, hookRuleIds));
 }
 
 function hookSourceCheckEnabled(context: HookProcedureContext): boolean {
@@ -493,7 +498,7 @@ function stagedHookCheckCommandResult(result: StagedHookCheckResult): HookCheckC
 
 function recordInProcessHookCheck(
   context: HookProcedureContext,
-  phase: StagedHookCheckTool,
+  phase: StagedHookCheckPhase,
   argv: readonly string[],
   startedAtMs: number,
   exitCode: number

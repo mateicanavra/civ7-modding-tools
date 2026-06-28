@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/**/*.ts",
   "forbids": "@mapgen/domain/tags and @mapgen/domain/artifacts shim imports",
   "why": "Retired tag and artifact shims should not become public domain ownership again.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Use the current owning public surface instead of retired domain tag/artifact shims.",
   "hookCheck": true,
@@ -22,9 +14,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/**/*.ts"]
     }
   ]
 }

@@ -1,10 +1,10 @@
 import type { FileSystem } from "@effect/platform";
-import type { HabitatFileSystemReadPort } from "@habitat/cli/resources/platform/index";
 import type {
   CommandProviderError,
   HabitatCommandResult,
   HabitatProcessRequest,
 } from "@habitat/cli/resources/command/index";
+import type { HabitatFileSystemReadPort } from "@habitat/cli/resources/platform/index";
 import type { BaselineFileSystemPort } from "@habitat/cli/service/model/baseline/index";
 import type {
   RuleExecutionDisposition,

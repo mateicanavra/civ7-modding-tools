@@ -7,7 +7,7 @@ const ICONS = { pass: "✓", fail: "✗", "advisory-findings": "▲" } as const;
 export function renderRule(r: RuleReport): string {
   const lines: string[] = [];
   const lock = r.locked && r.lane === "enforced" ? " [locked]" : "";
-  lines.push(`${ICONS[r.status]} ${r.ruleId} (${r.ownerTool}, ${r.lane})${lock}${timingLabel(r)}`);
+  lines.push(`${ICONS[r.status]} ${r.ruleId} (${r.runner}, ${r.lane})${lock}${timingLabel(r)}`);
   for (const d of r.diagnostics) {
     const mark = d.baselined ? "  [baselined] " : "  ";
     const loc = d.line ? `${d.path}:${d.line}` : d.path;

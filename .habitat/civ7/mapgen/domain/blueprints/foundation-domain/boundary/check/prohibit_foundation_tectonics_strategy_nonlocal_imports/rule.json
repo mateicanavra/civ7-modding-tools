@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "decomposed foundation tectonics default strategies",
   "forbids": "strategy imports outside core authoring, ../contract.js, and ../rules/*",
   "why": "Decomposed tectonics strategies must stay local to their contract and rule surfaces.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Keep foundation tectonics strategy imports local to the strategy contract and rules.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/foundation/ops"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain/foundation/ops"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/*/strategies/default.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/*/strategies/default.ts"]
     }
   ]
 }

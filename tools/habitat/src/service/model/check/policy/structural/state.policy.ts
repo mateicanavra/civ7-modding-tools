@@ -33,7 +33,7 @@ export type RuleSelectionOutcome = Static<typeof RuleSelectionOutcomeSchema>;
 export const RuleExecutionPlanSchema = Type.Object(
   {
     ruleId: RuleIdSchema,
-    ownerTool: Type.String({ minLength: 1 }),
+    runner: Type.String({ minLength: 1 }),
     lane: RuleLaneSchema,
     disposition: RuleExecutionDispositionSchema,
   },

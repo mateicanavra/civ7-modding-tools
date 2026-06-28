@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "hydrology domain and standard hydrology stages",
   "forbids": "narrative domain imports in hydrology source",
   "why": "Hydrology should not cross into narrative domain ownership.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not import narrative domain internals from hydrology surfaces.",
   "hookCheck": true,

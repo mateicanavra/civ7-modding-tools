@@ -10,14 +10,12 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repoRoot = findRepoRoot(dirname(fileURLToPath(import.meta.url)));
 const { HabitatProjectGeneratorNxSchema } = await import(
-  pathToFileURL(
-    join(repoRoot, "tools/habitat/src/generators/scaffold/project/support/schema.ts")
-  ).href
+  pathToFileURL(join(repoRoot, "tools/habitat/src/generators/scaffold/project/support/schema.ts"))
+    .href
 );
 const { PatternGeneratorOptionsSchema } = await import(
-  pathToFileURL(
-    join(repoRoot, "tools/habitat/src/generators/scaffold/pattern/support/schema.ts")
-  ).href
+  pathToFileURL(join(repoRoot, "tools/habitat/src/generators/scaffold/pattern/support/schema.ts"))
+    .href
 );
 const schemaPaths = [
   ".habitat/habitat/toolkit/blueprints/generator/contract/generate/generate_generator_schema_contracts/scaffold-project.schema.json",

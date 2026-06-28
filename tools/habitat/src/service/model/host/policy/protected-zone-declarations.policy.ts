@@ -19,12 +19,12 @@ import {
   hostSurfaceDecisionForPath,
 } from "./host-policy-decisions.policy.js";
 
-type GeneratedZoneRule = Extract<RuleFileLayerFacts, { generatedZone: string }>;
-type ForbiddenFileNameRule = Extract<RuleFileLayerFacts, { forbiddenFileNames: readonly string[] }>;
+type GeneratedZoneRule = RuleFileLayerFacts & { generatedZone: string };
+type ForbiddenFileNameRule = RuleFileLayerFacts & { forbiddenFileNames: string[] };
 type DeclarationFileLayerRule = GeneratedZoneRule | ForbiddenFileNameRule;
 
 export function declarationForFileLayerRule(rule: DeclarationFileLayerRule): DeclarationReadiness {
-  if ("generatedZone" in rule) return generatedSurfaceDeclaration(rule);
+  if (isGeneratedZoneRule(rule)) return generatedSurfaceDeclaration(rule);
   return forbiddenArtifactDeclaration(rule);
 }
 
@@ -110,6 +110,20 @@ function generatedSurfaceDeclaration(rule: GeneratedZoneRule): DeclarationReadin
       recovery: decision.recovery,
     }),
   });
+}
+
+export function isDeclarationFileLayerRule(
+  rule: RuleFileLayerFacts
+): rule is DeclarationFileLayerRule {
+  return isGeneratedZoneRule(rule) || isForbiddenFileNameRule(rule);
+}
+
+function isGeneratedZoneRule(rule: RuleFileLayerFacts): rule is GeneratedZoneRule {
+  return typeof rule.generatedZone === "string";
+}
+
+function isForbiddenFileNameRule(rule: RuleFileLayerFacts): rule is ForbiddenFileNameRule {
+  return Array.isArray(rule.forbiddenFileNames);
 }
 
 function forbiddenArtifactDeclaration(rule: ForbiddenFileNameRule): DeclarationReadiness {

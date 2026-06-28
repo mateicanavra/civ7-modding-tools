@@ -1,13 +1,8 @@
 {
-  "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation tectonics contract, foundation strategy currentness, foundation artifacts, and foundation projection source",
   "forbids": "missing decomposed foundation operation names, artifact tags, required strategy rules imports, or projection plate-motion/provenance currentness",
   "why": "Foundation contract currentness is a package-local validator for MapGen pipeline composition; source-token bans are owned by narrow Grit packets.",
-  "detect": [
-    ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/preserve_decomposed_foundation_contract_surfaces/check.mjs"
-  ],
   "remediate": null,
   "message": "Keep foundation positive/currentness contract surfaces aligned with decomposed foundation outputs.",
   "pathCoverage": [

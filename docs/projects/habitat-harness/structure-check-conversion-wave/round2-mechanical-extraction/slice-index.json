@@ -5,33 +5,23 @@
   "totalRows": 74,
   "lanes": {
     "domain-aggregate": {
-      "ruleIds": [
-        "enforce_domain_refactor_boundary_profile"
-      ],
+      "ruleIds": ["enforce_domain_refactor_boundary_profile"],
       "rows": 35
     },
     "foundation-contracts": {
-      "ruleIds": [
-        "preserve_decomposed_foundation_contract_surfaces"
-      ],
+      "ruleIds": ["preserve_decomposed_foundation_contract_surfaces"],
       "rows": 16
     },
     "morphology-overlay": {
-      "ruleIds": [
-        "preserve_morphology_contracts_and_overlay_ownership"
-      ],
+      "ruleIds": ["preserve_morphology_contracts_and_overlay_ownership"],
       "rows": 14
     },
     "domain-config-catalog": {
-      "ruleIds": [
-        "require_owned_domain_config_catalog_surfaces"
-      ],
+      "ruleIds": ["require_owned_domain_config_catalog_surfaces"],
       "rows": 4
     },
     "docs-reference": {
-      "ruleIds": [
-        "validate_mapgen_docs_anchors_and_references"
-      ],
+      "ruleIds": ["validate_mapgen_docs_anchors_and_references"],
       "rows": 5
     }
   }

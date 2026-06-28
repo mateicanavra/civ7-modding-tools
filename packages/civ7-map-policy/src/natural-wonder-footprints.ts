@@ -63,11 +63,7 @@ const EVEN_DIRECTION_OFFSETS: readonly NaturalWonderFootprintOffset[] = [
  * reserves/reads back the ANCHOR only and the engine stamps the remaining cells.
  * A concrete direction still resolves the geometric model (diagnostics/tests).
  */
-const SELF_ORIENTING_FOUR_TILE_CLASSES = new Set([
-  "FOURPARALLELAGRM",
-  "FOURADJACENT",
-  "FOURL",
-]);
+const SELF_ORIENTING_FOUR_TILE_CLASSES = new Set(["FOURPARALLELAGRM", "FOURADJACENT", "FOURL"]);
 
 /** True for the 4-tile classes the engine refuses to stamp at a forced concrete
  * direction (see {@link SELF_ORIENTING_FOUR_TILE_CLASSES}). */
@@ -229,12 +225,7 @@ function footprintOffsetsForParity(
       return [ANCHOR, { dx: 1, dy: 0 }, { dx: 2, dy: 0 }, { dx: 3, dy: 0 }];
     case "FOURL":
       // gen-time-pinned (ledger §A2): L-tetromino hypothesis (3 along dir + 1 turn).
-      return [
-        ANCHOR,
-        primary,
-        chainOffset(anchorParity, primary, d),
-        clockwise,
-      ];
+      return [ANCHOR, primary, chainOffset(anchorParity, primary, d), clockwise];
     default:
       return null;
   }

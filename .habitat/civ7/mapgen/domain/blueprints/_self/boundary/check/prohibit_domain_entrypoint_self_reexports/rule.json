@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/domain/*/index.ts",
   "forbids": "domain entrypoints re-exporting deep @mapgen/domain surfaces",
   "why": "Domain roots are public surfaces and should not launder deep domain paths back through themselves.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not re-export deep @mapgen/domain surfaces from a domain root entrypoint.",
   "hookCheck": true,
@@ -26,9 +18,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/*/index.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/*/index.ts"]
     }
   ]
 }

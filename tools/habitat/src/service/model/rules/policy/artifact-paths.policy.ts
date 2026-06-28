@@ -2,7 +2,7 @@ import type { RuleRegistryRecordV1 } from "../dto/registry.schema.js";
 
 export interface HabitatArtifactRulePathInput {
   readonly id: string;
-  readonly ownerTool: RuleRegistryRecordV1["ownerTool"];
+  readonly runner: RuleRegistryRecordV1["runner"];
   readonly manifestPath?: string;
 }
 
@@ -20,7 +20,7 @@ export function ruleArtifactPathFacts(
 ): HabitatArtifactRulePathInput[] {
   return rules.map((rule) => ({
     id: rule.id,
-    ownerTool: rule.ownerTool,
+    runner: rule.runner,
     ...("manifestPath" in rule && rule.manifestPath ? { manifestPath: rule.manifestPath } : {}),
   }));
 }
@@ -55,7 +55,7 @@ function classifyHabitatArtifactPaths(
   const rulesById = new Map(rules.map((rule) => [rule.id, rule]));
   const sourceManifestPaths = new Set(
     rules
-      .filter((rule) => rule.ownerTool === "source-check")
+      .filter((rule) => rule.runner.name === "grit")
       .flatMap((rule) => (rule.manifestPath ? [normalizeRepoPath(rule.manifestPath)] : []))
   );
 
@@ -71,8 +71,8 @@ function classifyHabitatArtifactPaths(
       const rule = rulesById.get(ruleId);
       if (!rule) {
         hasUnclassifiedArtifact = true;
-      } else if (rule.ownerTool === "source-check") {
-        hasSourceCheckArtifact = true;
+      } else if (rule.runner.name === "grit") {
+        nonSourceCheckRuleArtifactIds.add(rule.id);
       } else {
         nonSourceCheckRuleArtifactIds.add(rule.id);
       }

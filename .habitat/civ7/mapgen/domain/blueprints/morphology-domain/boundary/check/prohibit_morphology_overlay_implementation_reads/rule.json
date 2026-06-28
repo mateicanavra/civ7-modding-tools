@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*.ts",
   "forbids": "overlay implementation reads in morphology non-contract step files",
   "why": "Morphology implementations should not depend on overlay implementation internals.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not read overlay implementation modules from morphology step implementations.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*.ts"]
     }
   ]
 }

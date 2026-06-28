@@ -12,7 +12,7 @@ describe("workspace tool command materialization", () => {
       argv: ["run", "--cwd", repoRoot, "grit", "--version"],
       executionPlane: "workspace-bun-run",
     });
-    expect(materializeDefaultHabitatCommand("format-check", ["--version"])).toMatchObject({
+    expect(materializeDefaultHabitatCommand("biome", ["--version"])).toMatchObject({
       executable: "bun",
       cwd: repoRoot,
       argv: ["run", "--cwd", repoRoot, "biome", "--version"],

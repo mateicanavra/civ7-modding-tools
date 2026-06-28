@@ -10,7 +10,6 @@ import type {
 import {
   RuleRegistryDocumentV1Schema,
   RuleRegistryIndexV1Schema,
-  RuleRegistryRecordV1Schema,
   RuleRegistryRecordInputV1Schema,
 } from "../dto/registry.schema.ts";
 import {
@@ -100,6 +99,8 @@ export function parseRuleRegistryDocument(
   const document = value as RuleRegistryDocumentV1;
   const duplicateIssues = duplicateRuleIdIssues(document.rules, sourcePath);
   if (duplicateIssues.length > 0) return { ok: false, issues: duplicateIssues };
+  const semanticsIssues = ruleRunnerSemanticsIssues(document.rules, sourcePath);
+  if (semanticsIssues.length > 0) return { ok: false, issues: semanticsIssues };
 
   return { ok: true, document };
 }
@@ -185,9 +186,13 @@ function parsePacketRuleJsonSync(
   filePath: string,
   fileSystem: RuleRegistrySyncFileSystem
 ): RuleRegistryRecordV1 {
-  const parsed = parseRegistryJsonSync<unknown>(filePath, RuleRegistryRecordInputV1Schema, fileSystem);
+  const parsed = parseRegistryJsonSync<unknown>(
+    filePath,
+    RuleRegistryRecordInputV1Schema,
+    fileSystem
+  );
   try {
-    return enrichPacketRuleRecord(filePath, parsed);
+    return enrichPacketRuleRecord(filePath, parsed, packetRoleFilenamesSync(filePath, fileSystem));
   } catch (error) {
     throw new RuleRegistryLoadFailed({
       issues: [
@@ -244,7 +249,11 @@ function parsePacketRuleJson<R = never>(
       fileSystem
     );
     try {
-      return enrichPacketRuleRecord(filePath, parsed);
+      return enrichPacketRuleRecord(
+        filePath,
+        parsed,
+        yield* packetRoleFilenames(filePath, fileSystem)
+      );
     } catch (error) {
       return yield* Effect.fail(
         new RuleRegistryLoadFailed({
@@ -258,6 +267,27 @@ function parsePacketRuleJson<R = never>(
         })
       );
     }
+  });
+}
+
+function packetRoleFilenamesSync(
+  filePath: string,
+  fileSystem: RuleRegistrySyncFileSystem
+): readonly string[] {
+  return fileSystem
+    .readDirectory(path.dirname(filePath))
+    .filter((entry) => entry.kind === "file")
+    .map((entry) => entry.name);
+}
+
+function packetRoleFilenames<R>(
+  filePath: string,
+  fileSystem: RuleRegistryFileSystem<R>
+): Effect.Effect<readonly string[], unknown, R> {
+  return Effect.gen(function* () {
+    return (yield* fileSystem.readDirectory(path.dirname(filePath)))
+      .filter((entry) => entry.kind === "file")
+      .map((entry) => entry.name);
   });
 }
 
@@ -310,9 +340,11 @@ function ruleFilePaths<R>(
   fileSystem: RuleRegistryFileSystem<R>
 ): Effect.Effect<string[], unknown, R> {
   return Effect.gen(function* () {
-    const candidates = (
-      yield* findFiles(registryDir, fileSystem, isRuleRecordCandidatePath)
-    ).sort();
+    const candidates = (yield* findFiles(
+      registryDir,
+      fileSystem,
+      isRuleRecordCandidatePath
+    )).sort();
     const issues = staleRuleRecordIssues(candidates);
     if (issues.length > 0) {
       return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
@@ -466,4 +498,89 @@ function duplicateRuleIdIssues(
     path: sourcePath,
     message: `Duplicate Habitat rule id: ${JSON.stringify(id)}.`,
   }));
+}
+
+function ruleRunnerSemanticsIssues(
+  rules: readonly RuleRegistryRecordV1[],
+  sourcePath: string
+): RuleRegistryIssue[] {
+  const issues: RuleRegistryIssue[] = [];
+  rules.forEach((rule, index) => {
+    const path = `${sourcePath}/rules/${index}`;
+    if (rule.runner.name === "grit") {
+      if (!Array.isArray(rule.scanRoots)) {
+        issues.push(runnerIssue(path, rule.id, "grit runner records must declare scanRoots."));
+      }
+      if (rule.patternName && rule.patternName !== rule.runner.patternName) {
+        issues.push(
+          runnerIssue(path, rule.id, "patternName must match the derived grit runner patternName.")
+        );
+      }
+    } else {
+      if (rule.scanRoots) {
+        issues.push(
+          runnerIssue(path, rule.id, "scanRoots are only valid for grit runner records.")
+        );
+      }
+      if (rule.patternName) {
+        issues.push(
+          runnerIssue(path, rule.id, "patternName is only valid for grit runner records.")
+        );
+      }
+      if (rule.manifestPath) {
+        issues.push(
+          runnerIssue(path, rule.id, "manifestPath is only valid for grit runner records.")
+        );
+      }
+      if (rule.hookCheck) {
+        issues.push(runnerIssue(path, rule.id, "hookCheck is only valid for grit runner records."));
+      }
+    }
+
+    if (rule.runner.name === "nx") {
+      if (
+        !rule.graphTarget ||
+        rule.graphTarget.project !== rule.runner.target.project ||
+        rule.graphTarget.target !== rule.runner.target.target
+      ) {
+        issues.push(runnerIssue(path, rule.id, "nx runner records must mirror graphTarget."));
+      }
+    } else if (rule.graphTarget) {
+      issues.push(runnerIssue(path, rule.id, "graphTarget is only valid for nx runner records."));
+    }
+
+    const fileLayerFacetCount = [
+      rule.generatedZone,
+      rule.forbiddenFileNames,
+      rule.hostSurfaceGuard,
+    ].filter(Boolean).length;
+    if (rule.runner.name === "habitat" && rule.runner.mode === "file-layer") {
+      if (fileLayerFacetCount !== 1) {
+        issues.push(
+          runnerIssue(
+            path,
+            rule.id,
+            "file-layer runner records must declare exactly one guard facet."
+          )
+        );
+      }
+    } else if (fileLayerFacetCount > 0) {
+      issues.push(
+        runnerIssue(
+          path,
+          rule.id,
+          "file-layer guard facets are only valid for file-layer runner records."
+        )
+      );
+    }
+  });
+  return issues;
+}
+
+function runnerIssue(path: string, ruleId: string, message: string): RuleRegistryIssue {
+  return {
+    code: "registry-schema-invalid",
+    path,
+    message: `${ruleId}: ${message}`,
+  };
 }

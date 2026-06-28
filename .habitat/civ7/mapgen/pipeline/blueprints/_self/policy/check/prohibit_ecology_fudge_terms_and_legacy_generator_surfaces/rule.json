@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "MapGen ecology, hydrology, placement, and adapter planning source surfaces",
   "forbids": "probabilistic fudge constructs, ad-hoc RNG calls, and legacy Civ7 generator calls in scoped planning surfaces",
   "why": "These source-token guardrails are structural enforcement and should be owned by Habitat rather than package tests.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": "Remove probabilistic fudge constructs or explicitly reclassify the invariant before changing this check.",
   "message": "MapGen source planning surface contains forbidden fudge, RNG, or legacy generator construct.",
   "hookCheck": true,

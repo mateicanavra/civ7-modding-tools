@@ -26,7 +26,10 @@ const WIDTH = process.env.CENSUS_W ? Number(process.env.CENSUS_W) : 106;
 const HEIGHT = process.env.CENSUS_H ? Number(process.env.CENSUS_H) : 66;
 
 const SEEDS = (() => {
-  const parsed = process.argv.slice(2).map(Number).filter((n) => Number.isInteger(n));
+  const parsed = process.argv
+    .slice(2)
+    .map(Number)
+    .filter((n) => Number.isInteger(n));
   return parsed.length > 0 ? parsed : [1337];
 })();
 
@@ -37,7 +40,16 @@ function terrainHistogram(values: ReadonlyArray<number | null>, idx: (n: string)
   const HILL = idx("TERRAIN_HILL");
   const MOUNTAIN = idx("TERRAIN_MOUNTAIN");
   const NAVR = idx("TERRAIN_NAVIGABLE_RIVER");
-  const c = { ocean: 0, coast: 0, flat: 0, hill: 0, mountain: 0, navRiver: 0, other: 0, nullTiles: 0 };
+  const c = {
+    ocean: 0,
+    coast: 0,
+    flat: 0,
+    hill: 0,
+    mountain: 0,
+    navRiver: 0,
+    other: 0,
+    nullTiles: 0,
+  };
   for (const v of values) {
     if (v === null || v === undefined) c.nullTiles += 1;
     else if (v === OCEAN) c.ocean += 1;
@@ -81,7 +93,13 @@ function main(): number {
   const { mapInfo } = createFinalSurfaceParityMapInfo(WIDTH, HEIGHT);
 
   for (const seed of SEEDS) {
-    const snap = runLocalFinalSurfaceSnapshot({ width: WIDTH, height: HEIGHT, seed, config, override });
+    const snap = runLocalFinalSurfaceSnapshot({
+      width: WIDTH,
+      height: HEIGHT,
+      seed,
+      config,
+      override,
+    });
     const adapter = createMockAdapter({
       width: WIDTH,
       height: HEIGHT,

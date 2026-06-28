@@ -13,58 +13,102 @@ import { join } from "node:path";
 // offsets. Emits a single pretty (2-space) JSON object on stdout.
 // ============================================================================
 
-const runDir = process.argv[2], label = process.argv[3] || "";
+const runDir = process.argv[2],
+  label = process.argv[3] || "";
 const m = JSON.parse(readFileSync(join(runDir, "manifest.json"), "utf8"));
 
 // --- manifest helpers (copied from sibling tools) ---------------------------
-const pick = (k) => { const a = m.layers.filter((l) => l.kind === "grid" && l.dataTypeKey === k); return a.length ? a.slice().sort((x, y) => (y.stepIndex ?? 0) - (x.stepIndex ?? 0))[0] : null; };
+const pick = (k) => {
+  const a = m.layers.filter((l) => l.kind === "grid" && l.dataTypeKey === k);
+  return a.length ? a.slice().sort((x, y) => (y.stepIndex ?? 0) - (x.stepIndex ?? 0))[0] : null;
+};
 // rd returns { v, w, h } like drowned.mjs (width/height from the layer dims),
 // or null if the layer is absent so optional layers can be skipped gracefully.
 const rd = (k, kind) => {
-  const l = pick(k); if (!l) return null;
+  const l = pick(k);
+  if (!l) return null;
   const b = readFileSync(join(runDir, l.field.data.path));
   const d = l.dims;
-  if (kind === "u8") return { v: new Uint8Array(b.buffer, b.byteOffset, b.byteLength), w: d.width, h: d.height };
-  if (kind === "i16") return { v: new Int16Array(b.buffer, b.byteOffset, Math.floor(b.byteLength / 2)), w: d.width, h: d.height };
-  if (kind === "f32") return { v: new Float32Array(b.buffer, b.byteOffset, Math.floor(b.byteLength / 4)), w: d.width, h: d.height };
+  if (kind === "u8")
+    return { v: new Uint8Array(b.buffer, b.byteOffset, b.byteLength), w: d.width, h: d.height };
+  if (kind === "i16")
+    return {
+      v: new Int16Array(b.buffer, b.byteOffset, Math.floor(b.byteLength / 2)),
+      w: d.width,
+      h: d.height,
+    };
+  if (kind === "f32")
+    return {
+      v: new Float32Array(b.buffer, b.byteOffset, Math.floor(b.byteLength / 4)),
+      w: d.width,
+      h: d.height,
+    };
   return null;
 };
 
 // --- layers (same keys as the sibling tools) --------------------------------
-const land = rd("map.morphology.continents.landMask", "u8");          // required
-const crust = rd("foundation.crustTiles.type", "u8");                 // 1 = continental
-const buoy = rd("foundation.crustTiles.buoyancy", "f32");             // optional
-const elev = rd("morphology.topography.elevation", "i16");            // required
-const bathy = rd("morphology.topography.bathymetry", "i16");          // optional
-const shelf = rd("map.morphology.coasts.shelfMask", "u8");            // optional
-const coastal = rd("map.morphology.coasts.coastalWater", "u8");       // optional
+const land = rd("map.morphology.continents.landMask", "u8"); // required
+const crust = rd("foundation.crustTiles.type", "u8"); // 1 = continental
+const buoy = rd("foundation.crustTiles.buoyancy", "f32"); // optional
+const elev = rd("morphology.topography.elevation", "i16"); // required
+const bathy = rd("morphology.topography.bathymetry", "i16"); // optional
+const shelf = rd("map.morphology.coasts.shelfMask", "u8"); // optional
+const coastal = rd("map.morphology.coasts.coastalWater", "u8"); // optional
 
-if (!land) { console.error("FATAL: missing required layer map.morphology.continents.landMask"); process.exit(1); }
-if (!elev) { console.error("FATAL: missing required layer morphology.topography.elevation"); process.exit(1); }
+if (!land) {
+  console.error("FATAL: missing required layer map.morphology.continents.landMask");
+  process.exit(1);
+}
+if (!elev) {
+  console.error("FATAL: missing required layer morphology.topography.elevation");
+  process.exit(1);
+}
 
 // Width/height come from the layer dims (as in drowned.mjs: land.w, land.h).
-const W = land.w, H = land.h, N = W * H;
+const W = land.w,
+  H = land.h,
+  N = W * H;
 
 const notes = [];
 
 // --- odd-r hex neighbours (copied verbatim from drowned.mjs) ----------------
 const DIFF = [
-  [[+1, 0], [0, -1], [-1, -1], [-1, 0], [-1, +1], [0, +1]],
-  [[+1, 0], [+1, -1], [0, -1], [-1, 0], [0, +1], [+1, +1]],
+  [
+    [+1, 0],
+    [0, -1],
+    [-1, -1],
+    [-1, 0],
+    [-1, +1],
+    [0, +1],
+  ],
+  [
+    [+1, 0],
+    [+1, -1],
+    [0, -1],
+    [-1, 0],
+    [0, +1],
+    [+1, +1],
+  ],
 ];
 function neighbors(x, y) {
   const out = [];
-  for (const [dx, dy] of DIFF[y & 1]) { const nx = x + dx, ny = y + dy; if (nx >= 0 && ny >= 0 && nx < W && ny < H) out.push(ny * W + nx); }
+  for (const [dx, dy] of DIFF[y & 1]) {
+    const nx = x + dx,
+      ny = y + dy;
+    if (nx >= 0 && ny >= 0 && nx < W && ny < H) out.push(ny * W + nx);
+  }
   return out;
 }
 
 // --- small numeric helpers --------------------------------------------------
-const pct = (x, d) => (d > 0 ? +(100 * x / d).toFixed(2) : null);
+const pct = (x, d) => (d > 0 ? +((100 * x) / d).toFixed(2) : null);
 function quantile(sortedAsc, p) {
   if (!sortedAsc.length) return null;
   return sortedAsc[Math.floor(p * (sortedAsc.length - 1))];
 }
-function median(sortedAsc) { return quantile(sortedAsc, 0.5); }
+function median(sortedAsc) {
+  return quantile(sortedAsc, 0.5);
+}
 
 // ============================================================================
 // Sea level — derived as in hypso.mjs (infer from water elevation).
@@ -75,14 +119,19 @@ function median(sortedAsc) { return quantile(sortedAsc, 0.5); }
 // elevation among water tiles; otherwise the field is already sea-level-relative
 // and sea level = 0. We print which branch we used.
 // ============================================================================
-let waterMaxElev = -Infinity, sawWater = false;
+let waterMaxElev = -Infinity,
+  sawWater = false;
 for (let i = 0; i < N; i++) {
-  if (land.v[i] !== 1) { sawWater = true; if (elev.v[i] > waterMaxElev) waterMaxElev = elev.v[i]; }
+  if (land.v[i] !== 1) {
+    sawWater = true;
+    if (elev.v[i] > waterMaxElev) waterMaxElev = elev.v[i];
+  }
 }
 let seaLevel, seaLevelMode;
 if (sawWater && waterMaxElev > 0) {
   seaLevel = waterMaxElev;
-  seaLevelMode = "inferred-from-water-elevation (field not sea-level-relative; seaLevel = max elevation among water tiles)";
+  seaLevelMode =
+    "inferred-from-water-elevation (field not sea-level-relative; seaLevel = max elevation among water tiles)";
 } else {
   seaLevel = 0;
   seaLevelMode = "zero (elevations already sea-level-relative; no water tile has elevation > 0)";
@@ -98,23 +147,37 @@ const rel = (i) => elev.v[i] - seaLevel;
 //   (bimodal antimode).
 // ============================================================================
 function computeR1() {
-  if (!crust) { notes.push("R1 skipped: missing foundation.crustTiles.type"); return null; }
+  if (!crust) {
+    notes.push("R1 skipped: missing foundation.crustTiles.type");
+    return null;
+  }
   const relVals = [];
-  let emerged = 0, drowned = 0, nearBand = 0;
+  let emerged = 0,
+    drowned = 0,
+    nearBand = 0;
   for (let i = 0; i < N; i++) {
     if (crust.v[i] !== 1) continue;
     const r = rel(i);
     relVals.push(r);
-    if (r > 0) emerged++; else drowned++;
+    if (r > 0) emerged++;
+    else drowned++;
     if (Math.abs(r) <= 10) nearBand++;
   }
   const n = relVals.length;
-  if (n === 0) { notes.push("R1 skipped: no continental-crust tiles"); return null; }
+  if (n === 0) {
+    notes.push("R1 skipped: no continental-crust tiles");
+    return null;
+  }
   const sorted = relVals.slice().sort((a, b) => a - b);
-  const p10 = quantile(sorted, 0.10), p50 = quantile(sorted, 0.50), p90 = quantile(sorted, 0.90);
+  const p10 = quantile(sorted, 0.1),
+    p50 = quantile(sorted, 0.5),
+    p90 = quantile(sorted, 0.9);
 
   // bimodality: histogram of continental rel over [-80, 60] in 28 bins.
-  const LO = -80, HI = 60, NB = 28, w = (HI - LO) / NB;
+  const LO = -80,
+    HI = 60,
+    NB = 28,
+    w = (HI - LO) / NB;
   const hgram = new Array(NB).fill(0);
   for (const r of relVals) {
     if (r < LO || r >= HI) continue;
@@ -129,22 +192,34 @@ function computeR1() {
   const bWater = binOf(0);
   const bAbove = binOf(25);
   const bBelow = binOf(-25);
-  const cWater = hgram[bWater], cAbove = hgram[bAbove], cBelow = hgram[bBelow];
+  const cWater = hgram[bWater],
+    cAbove = hgram[bAbove],
+    cBelow = hgram[bBelow];
   const antimodeAtWaterline = cWater < cAbove && cWater < cBelow;
 
   return {
     n,
     contEmergedPct: pct(emerged, n),
     contDrownedPct: pct(drowned, n),
-    relP10: p10, relP50: p50, relP90: p90,
-    relSpread: (p90 != null && p10 != null) ? p90 - p10 : null,
+    relP10: p10,
+    relP50: p50,
+    relP90: p90,
+    relSpread: p90 != null && p10 != null ? p90 - p10 : null,
     nearWaterlineBandPct: pct(nearBand, n),
     bimodalCheck: {
       antimodeAtWaterline,
       waterlineBinCount: cWater,
       aboveBinCount: cAbove,
       belowBinCount: cBelow,
-      bins: { lo: LO, hi: HI, nbins: NB, width: w, waterlineBin: bWater, aboveBin: bAbove, belowBin: bBelow },
+      bins: {
+        lo: LO,
+        hi: HI,
+        nbins: NB,
+        width: w,
+        waterlineBin: bWater,
+        aboveBin: bAbove,
+        belowBin: bBelow,
+      },
     },
   };
 }
@@ -156,22 +231,39 @@ function computeR1() {
 //   separation between the two modes.
 // ============================================================================
 function computeR2() {
-  if (!bathy) { notes.push("R2 skipped: missing morphology.topography.bathymetry"); return null; }
-  const shelfVals = [], deepVals = [];
-  let total = 0, shelfN = 0, deepN = 0, midN = 0;
+  if (!bathy) {
+    notes.push("R2 skipped: missing morphology.topography.bathymetry");
+    return null;
+  }
+  const shelfVals = [],
+    deepVals = [];
+  let total = 0,
+    shelfN = 0,
+    deepN = 0,
+    midN = 0;
   for (let i = 0; i < N; i++) {
     if (land.v[i] !== 0) continue;
     const b = bathy.v[i];
     if (b > 0) continue; // only sea floor (<= 0)
     total++;
-    if (b >= -30) { shelfN++; shelfVals.push(b); }
-    else if (b <= -60) { deepN++; deepVals.push(b); }
-    else { midN++; }
+    if (b >= -30) {
+      shelfN++;
+      shelfVals.push(b);
+    } else if (b <= -60) {
+      deepN++;
+      deepVals.push(b);
+    } else {
+      midN++;
+    }
   }
-  if (total === 0) { notes.push("R2 skipped: no water tiles with bathymetry <= 0"); return null; }
+  if (total === 0) {
+    notes.push("R2 skipped: no water tiles with bathymetry <= 0");
+    return null;
+  }
   shelfVals.sort((a, b) => a - b);
   deepVals.sort((a, b) => a - b);
-  const shelfMedian = median(shelfVals), deepMedian = median(deepVals);
+  const shelfMedian = median(shelfVals),
+    deepMedian = median(deepVals);
   return {
     waterTilesWithBathy: total,
     shelfPct: pct(shelfN, total),
@@ -179,7 +271,7 @@ function computeR2() {
     midPct: pct(midN, total),
     shelfMedian,
     deepMedian,
-    separation: (shelfMedian != null && deepMedian != null) ? shelfMedian - deepMedian : null,
+    separation: shelfMedian != null && deepMedian != null ? shelfMedian - deepMedian : null,
   };
 }
 
@@ -195,7 +287,9 @@ function computeR3() {
   let components = null;
   if (crust) {
     const comp = new Int32Array(N).fill(-1);
-    let nComp = 0, substantial = 0, withEmerged = 0;
+    let nComp = 0,
+      substantial = 0,
+      withEmerged = 0;
     const stack = [];
     for (let s = 0; s < N; s++) {
       if (crust.v[s] !== 1 || comp[s] !== -1) continue;
@@ -204,17 +298,25 @@ function computeR3() {
       comp[s] = id;
       stack.length = 0;
       stack.push(s);
-      let size = 0, hasLand = false;
+      let size = 0,
+        hasLand = false;
       while (stack.length) {
         const i = stack.pop();
         size++;
         if (land.v[i] === 1) hasLand = true;
-        const y = (i / W) | 0, x = i - y * W;
+        const y = (i / W) | 0,
+          x = i - y * W;
         for (const ni of neighbors(x, y)) {
-          if (crust.v[ni] === 1 && comp[ni] === -1) { comp[ni] = id; stack.push(ni); }
+          if (crust.v[ni] === 1 && comp[ni] === -1) {
+            comp[ni] = id;
+            stack.push(ni);
+          }
         }
       }
-      if (size >= 13) { substantial++; if (hasLand) withEmerged++; }
+      if (size >= 13) {
+        substantial++;
+        if (hasLand) withEmerged++;
+      }
     }
     components = {
       substantialContComponents: substantial,
@@ -230,14 +332,24 @@ function computeR3() {
   if (shelf) {
     const dist = new Int32Array(N).fill(-1);
     const q = [];
-    for (let i = 0; i < N; i++) if (land.v[i] === 1) { dist[i] = 0; q.push(i); }
+    for (let i = 0; i < N; i++)
+      if (land.v[i] === 1) {
+        dist[i] = 0;
+        q.push(i);
+      }
     let head = 0;
     while (head < q.length) {
       const i = q[head++];
-      const y = (i / W) | 0, x = i - y * W;
-      for (const ni of neighbors(x, y)) if (dist[ni] === -1) { dist[ni] = dist[i] + 1; q.push(ni); }
+      const y = (i / W) | 0,
+        x = i - y * W;
+      for (const ni of neighbors(x, y))
+        if (dist[ni] === -1) {
+          dist[ni] = dist[i] + 1;
+          q.push(ni);
+        }
     }
-    let shelfWater = 0, orphan = 0;
+    let shelfWater = 0,
+      orphan = 0;
     for (let i = 0; i < N; i++) {
       if (shelf.v[i] !== 1 || land.v[i] === 1) continue; // shelfMask water tiles
       shelfWater++;
@@ -249,7 +361,14 @@ function computeR3() {
   }
 
   if (components == null && orphanShelfPct == null) return null;
-  return { ...(components || { substantialContComponents: null, withEmergedCore: null, emergedCoreFraction: null }), orphanShelfPct };
+  return {
+    ...(components || {
+      substantialContComponents: null,
+      withEmergedCore: null,
+      emergedCoreFraction: null,
+    }),
+    orphanShelfPct,
+  };
 }
 
 // ============================================================================
@@ -261,7 +380,11 @@ function computeR3() {
 function computeR4() {
   const comp = new Int32Array(N).fill(-1);
   let nComp = 0;
-  let specks = 0, micro = 0, small = 0, large = 0, largest = 0;
+  let specks = 0,
+    micro = 0,
+    small = 0,
+    large = 0,
+    largest = 0;
   const stack = [];
   for (let s = 0; s < N; s++) {
     if (land.v[s] !== 1 || comp[s] !== -1) continue;
@@ -273,9 +396,13 @@ function computeR4() {
     while (stack.length) {
       const i = stack.pop();
       size++;
-      const y = (i / W) | 0, x = i - y * W;
+      const y = (i / W) | 0,
+        x = i - y * W;
       for (const ni of neighbors(x, y)) {
-        if (land.v[ni] === 1 && comp[ni] === -1) { comp[ni] = id; stack.push(ni); }
+        if (land.v[ni] === 1 && comp[ni] === -1) {
+          comp[ni] = id;
+          stack.push(ni);
+        }
       }
     }
     if (size > largest) largest = size;
@@ -285,10 +412,13 @@ function computeR4() {
     else large++;
   }
   return {
-    specks, micro, small, large,
+    specks,
+    micro,
+    small,
+    large,
     totalLandmasses: nComp,
     largestSize: largest,
-    middleNonEmpty: (micro + small) > 0,
+    middleNonEmpty: micro + small > 0,
   };
 }
 
@@ -313,7 +443,9 @@ const out = {
     "R1.antimodeAtWaterline": R1 ? R1.bimodalCheck.antimodeAtWaterline : null,
     "R2.separation": R2 ? R2.separation : null,
     "R3.emergedCoreFraction": R3 ? R3.emergedCoreFraction : null,
-    "R4.buckets": R4 ? { specks: R4.specks, micro: R4.micro, small: R4.small, large: R4.large } : null,
+    "R4.buckets": R4
+      ? { specks: R4.specks, micro: R4.micro, small: R4.small, large: R4.large }
+      : null,
   },
   notes,
 };

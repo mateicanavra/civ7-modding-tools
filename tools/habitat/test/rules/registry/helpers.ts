@@ -1,4 +1,5 @@
 import type {
+  PacketRunner,
   parseRuleRegistryDocument,
   RuleRegistryRecordV1,
 } from "@habitat/cli/service/model/rules/index";
@@ -26,17 +27,54 @@ export function expectInvalid(
 export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryRecordV1 {
   const rule = {
     id: "sample-rule",
-    ownerTool: "command-check",
     ownerProject: "habitat",
     lane: "enforced",
-    scope: "workspace",
     forbids: "broken structure",
     why: "Keeps the workspace structurally coherent.",
-    detect: ["habitat", "check", "--rule", "sample-rule"],
     remediate: null,
     message: "Fix the structural issue.",
     exceptionPath: "none",
     pathCoverage: [{ kind: "project-owner" }],
+    runner: habitatScriptRunner("sample-rule"),
   } satisfies RuleRegistryRecordV1;
   return { ...rule, ...overrides } as RuleRegistryRecordV1;
+}
+
+export function habitatScriptRunner(
+  id: string,
+  runtime: "bun" | "node" | "bash" = "node"
+): PacketRunner {
+  const filename = runtime === "bash" ? "check.sh" : runtime === "bun" ? "check.ts" : "check.mjs";
+  return {
+    name: "habitat",
+    mode: "script",
+    scriptPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/${filename}`,
+    runtime,
+  };
+}
+
+export function gritRunner(id: string): PacketRunner {
+  return {
+    name: "grit",
+    patternPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md`,
+    patternName: id,
+  };
+}
+
+export function habitatStructureRunner(id: string): PacketRunner {
+  return {
+    name: "habitat",
+    mode: "structure",
+    structurePath: `.habitat/fixtures/blueprints/_self/structure/check/${id}/structure.toml`,
+  };
+}
+
+export function habitatFileLayerRunner(
+  guard: "generated-zone" | "forbidden-file-name" | "host-surface"
+): PacketRunner {
+  return { name: "habitat", mode: "file-layer", guard };
+}
+
+export function nxRunner(project = "habitat", target = "test"): PacketRunner {
+  return { name: "nx", target: { project, target } };
 }

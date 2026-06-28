@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/maps/**/*.ts and mods/mod-swooper-maps/test/standard-run.test.ts",
   "forbids": "legacy landmass and oceanSeparation config keys in maps and standard-run test source",
   "why": "Morphology configuration should flow through current typed config surfaces rather than retired key names.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Remove legacy morphology config keys from map and standard-run source.",
   "hookCheck": true,

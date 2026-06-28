@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/domain/**/*.ts",
   "forbids": "UnknownRecord and INTERNAL_METADATA_KEY in domain source",
   "why": "Domain config should stay typed and explicit rather than relying on unknown bag metadata escape hatches.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not use unknown-bag config escape hatches in domain source.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/*.ts"]
     }
   ]
 }

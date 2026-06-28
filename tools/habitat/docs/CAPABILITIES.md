@@ -39,7 +39,7 @@ The direct command `bun habitat` dispatches through the root `habitat` script to
 
 | Command | Root usage | Actual capability |
 | --- | --- | --- |
-| `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--tool` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
+| `check` | `bun habitat check`; graph entrypoint: `nx run-many -t habitat:check` | Runs Habitat checks, supports `--owner`, repeatable `--rule`, and `--runner` selection, applies baselines, appends built-in `baseline-integrity`, and exits non-zero on unbaselined enforced violations. Curated `--rule` execution remains a diagnostic selector; package scripts do not own Habitat rule lists. |
 | `verify` | `bun habitat verify [--base <ref>]` | Runs Habitat check first, then affected workspace verification over build, check, test, boundary, formatter, pattern, and generated-zone gates. JSON mode emits a structured verification receipt. |
 | `classify` | `bun habitat classify <path-or-diff>` | Classifies a path, diff text, or patch file into owning project metadata, tags, rule-routing facts, graph-backed target guidance, explicit unavailable target facts, and refusal states for malformed/pathless or unresolved inputs. |
 | `fix` | `bun habitat fix` | Runs the approved Habitat apply transaction, then hands changed files to the formatter. Live writes require a clean worktree unless explicitly overridden by the transaction API. |
@@ -61,10 +61,10 @@ Root scripts also expose graph-owned entrypoints:
   script or graph target because this checkout no longer has an active testable
   pattern corpus for that command.
 - `bun run check` runs graph-discovered package check targets.
-- `bun habitat hook pre-push` runs changed-path hook source checks in
+- `bun habitat hook pre-push` runs changed-path hook Grit checks in
   process. Ordinary source changes then run affected package checks plus
   explicit validation targets; Habitat artifact-only changes run Habitat
-  structural/source-check targets instead of generic product `check`.
+  structural or owning-rule targets instead of generic product `check`.
 - `bun run verify` runs the heavier repo-wide verification aggregate.
 - `bun run ci` runs the full repo-wide build, check, lint, and test aggregate
   without re-entering `verify`.
@@ -143,21 +143,20 @@ The baseline model is:
 - Baseline expansion is an authoring-only path behind `--expand-baseline` and
   the rule-introduction contract.
 
-## Source Diagnostics
+## Grit Diagnostics
 
-Habitat owns the source-check contract. The current source-check engine runs
-registered source rules through per-rule source-check modules.
+Habitat owns the Grit diagnostic contract. A packet with `pattern.md` derives
+the `grit` runner; hook and check execution select those packets through the
+runner surface rather than authored owner-tool metadata.
 
-Current active source-check state:
+Current active Grit state:
 
-- 29 registered source-check rules in the rule registry.
-- 29 rule implementation modules under
-  `tools/habitat/src/service/modules/check/source/rules`.
-- Shared source-check TypeScript/text helpers live in
-  `tools/habitat/src/service/modules/check/source/rule-runtime.mjs`.
+- Registered Grit rules live as `pattern.md` sibling role files inside packet
+  directories.
+- Hook eligibility uses `hookCheck` plus the packet's `scanRoots`.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
-- Habitat reports source-rule diagnostics back to Habitat rule IDs.
+- Habitat reports Grit diagnostics back to Habitat rule IDs.
 
 The active pattern checks cover families such as:
 

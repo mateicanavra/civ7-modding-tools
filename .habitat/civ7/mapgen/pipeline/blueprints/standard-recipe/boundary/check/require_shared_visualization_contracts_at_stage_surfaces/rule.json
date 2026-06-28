@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "standard recipe stage visualization files",
   "forbids": "shared steps/viz.ts hubs or cross-step private viz imports",
   "why": "Stable/shared visualization contracts are stage surfaces; step-private viz stays private.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Use stages/<stage>/viz.ts for shared visualization contracts.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
     }
   ]
 }

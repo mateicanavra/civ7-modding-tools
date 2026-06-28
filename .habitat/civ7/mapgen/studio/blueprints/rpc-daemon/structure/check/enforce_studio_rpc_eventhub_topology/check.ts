@@ -6,7 +6,10 @@ import { join } from "node:path";
 const repoRoot = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
-const daemonSource = readFileSync(join(repoRoot, "apps/mapgen-studio/src/server/daemon/daemon.ts"), "utf8");
+const daemonSource = readFileSync(
+  join(repoRoot, "apps/mapgen-studio/src/server/daemon/daemon.ts"),
+  "utf8"
+);
 const failures: string[] = [];
 
 if (!daemonSource.includes("createStudioRpcHandler(context")) {

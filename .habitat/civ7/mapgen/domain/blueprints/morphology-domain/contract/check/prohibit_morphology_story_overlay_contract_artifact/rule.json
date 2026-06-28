@@ -1,22 +1,12 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*contract.ts",
   "forbids": "story overlay artifact dependencies in morphology step contracts",
   "why": "Story overlay artifacts are narrative-owned and should not become morphology contract dependencies.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not add story overlay artifact dependencies to morphology step contracts.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
       "kind": "exact-path",

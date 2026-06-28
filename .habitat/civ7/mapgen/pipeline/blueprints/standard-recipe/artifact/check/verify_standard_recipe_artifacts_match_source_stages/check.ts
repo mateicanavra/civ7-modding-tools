@@ -13,11 +13,8 @@ const failures: string[] = [];
 const { STANDARD_STAGES } = await import(
   pathToFileURL(join(modRoot, "src/recipes/standard/recipe.ts")).href
 );
-const {
-  deriveRecipeConfigSchema,
-  deriveStageAuthoringModel,
-  stripSchemaMetadataRoot,
-} = await import(pathToFileURL(join(repoRoot, "packages/mapgen-core/src/authoring/index.ts")).href);
+const { deriveRecipeConfigSchema, deriveStageAuthoringModel, stripSchemaMetadataRoot } =
+  await import(pathToFileURL(join(repoRoot, "packages/mapgen-core/src/authoring/index.ts")).href);
 const { normalizeStrict } = await import(
   pathToFileURL(join(repoRoot, "packages/mapgen-core/src/compiler/normalize.ts")).href
 );
@@ -94,7 +91,9 @@ const ALLOWED_RAW_OP_ENVELOPE_PATHS = new Set([
 function collectRawOpEnvelopePaths(value: unknown, path: string[] = []): string[] {
   if (!value || typeof value !== "object") return [];
   if (Array.isArray(value)) {
-    return value.flatMap((item, index) => collectRawOpEnvelopePaths(item, [...path, String(index)]));
+    return value.flatMap((item, index) =>
+      collectRawOpEnvelopePaths(item, [...path, String(index)])
+    );
   }
   const obj = value as Record<string, unknown>;
   const paths: string[] = [];

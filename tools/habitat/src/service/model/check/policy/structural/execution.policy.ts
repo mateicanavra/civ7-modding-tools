@@ -1,7 +1,5 @@
 import type { CheckOptions } from "@habitat/cli/service/model/check/index";
 import type {
-  RuleCommandExecutionFacts,
-  RuleGraphFacts,
   RuleHookCheckFacts,
   RuleSelectorFacts,
   RuleSourceFacts,
@@ -12,7 +10,6 @@ import { runStructureRulesEffect } from "@habitat/cli/service/model/structure-ch
 import { Clock, Effect } from "effect";
 import {
   executeCommandRulesEffect,
-  executeFormatRulesEffect,
   executeGraphBackedCommandRulesEffect,
 } from "./command-execution.policy.js";
 import type { RuleExecutionRecord, StructuralExecutionContext } from "./context.policy.js";
@@ -36,31 +33,36 @@ export function rulesForExecution(
     stagedPaths?: readonly string[];
   } = {}
 ): RuleSelectorFacts[] {
+  const explicitlySelectedRules = applyExecutionSelection(selectedRules, options.selection);
   const rules = shouldUseDefaultLocalLane(options)
-    ? selectedRules.filter((rule) => defaultLocalRuleTools.has(rule.ownerTool))
-    : [...selectedRules];
+    ? explicitlySelectedRules.filter((rule) => defaultLocalRunners.has(rule.runner.name))
+    : explicitlySelectedRules;
   if (!options.hookCheck) return rules;
   const hookRuleIds = new Set((options.hookCheckFacts ?? []).map((rule) => rule.id));
-  return rules.filter(
-    (rule) =>
-      (rule.ownerTool !== "source-check" && rule.ownerTool !== "grit-check") ||
-      hookRuleIds.has(rule.id)
-  );
+  return rules.filter((rule) => rule.runner.name !== "grit" || hookRuleIds.has(rule.id));
 }
 
-const defaultLocalRuleTools = new Set([
-  "command-check",
-  "file-layer",
-  "grit-check",
-  "habitat",
-  "source-check",
-  "structure-check",
-]);
+const defaultLocalRunners = new Set(["grit", "habitat"]);
 
 function shouldUseDefaultLocalLane(options: { selection?: RuleSelection; staged?: boolean }) {
   if (options.staged) return false;
   const selection = options.selection ?? {};
-  return !selection.owner && !selection.rule && !selection.tool;
+  return !selection.owner && !selection.rule && !selection.runner;
+}
+
+function applyExecutionSelection(
+  rules: readonly RuleSelectorFacts[],
+  selection: RuleSelection = {}
+): RuleSelectorFacts[] {
+  return rules.filter((rule) => {
+    if (selection.owner && rule.ownerProject !== selection.owner) return false;
+    if (selection.runner && rule.runner.name !== selection.runner) return false;
+    const requestedRules = new Set([
+      ...(selection.rule ? [selection.rule] : []),
+      ...(selection.rules ?? []),
+    ]);
+    return requestedRules.size === 0 || requestedRules.has(rule.id);
+  });
 }
 
 export function executeSelectedRulesEffect(
@@ -88,27 +90,14 @@ export function executeSelectedRulesEffect(
     );
 
     const commandRules = factsForRuleIds(context.rules.commandExecution, selectedRuleIds);
-    const graphRulesById = factsByRuleId(
-      factsForRuleIds(
-        context.rules.graph,
-        commandRules.map((rule) => rule.id)
-      )
-    );
-    yield* executeFormatRulesEffect(
-      commandRules.filter((rule) => rule.ownerTool === "format-check"),
+    yield* executeGraphBackedCommandRulesEffect(
+      factsForRuleIds(context.rules.graph, selectedRuleIds).filter(
+        (rule) => rule.alias.kind === "depends-on"
+      ),
       results,
       context
     );
-    const remainingCommandRules = commandRules.filter((rule) => rule.ownerTool !== "format-check");
-    const graphBackedRules = remainingCommandRules.filter((rule) =>
-      isGraphBackedCommandRule(rule, graphRulesById)
-    );
-    yield* executeGraphBackedCommandRulesEffect(graphBackedRules, graphRulesById, results, context);
-    yield* executeCommandRulesEffect(
-      remainingCommandRules.filter((rule) => !isGraphBackedCommandRule(rule, graphRulesById)),
-      results,
-      context
-    );
+    yield* executeCommandRulesEffect(commandRules, results, context);
     yield* executeFileLayerRulesEffect(
       factsForRuleIds(context.rules.fileLayer, selectedRuleIds),
       results,
@@ -143,7 +132,7 @@ function executeStructureRulesEffect(
             structureRules.length > 1
               ? {
                   kind: "shared",
-                  groupId: "structure-check:rules",
+                  groupId: "habitat:structure-rules",
                   durationMs,
                   ruleCount: structureRules.length,
                 }
@@ -156,13 +145,6 @@ function executeStructureRulesEffect(
 }
 
 type StructureRuleFact = StructuralExecutionContext["rules"]["structure"][number];
-
-function isGraphBackedCommandRule(
-  rule: RuleCommandExecutionFacts,
-  graphRulesById: ReadonlyMap<string, RuleGraphFacts>
-): boolean {
-  return graphRulesById.get(rule.id)?.alias.kind === "depends-on";
-}
 
 function factsByRuleId<T extends { id: string }>(facts: readonly T[]): Map<string, T> {
   return new Map(facts.map((fact) => [fact.id, fact]));

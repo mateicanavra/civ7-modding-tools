@@ -37,7 +37,6 @@ export class HabitatConfig extends Context.Tag("@habitat/cli/HabitatConfig")<
 
 export const defaultWorkspaceToolPolicies = new Map<string, WorkspaceToolPolicy>([
   ["biome", { executable: "biome", strategy: "bun-run" }],
-  ["format-check", { executable: "biome", strategy: "bun-run" }],
   ["nx", { executable: "nx", strategy: "bun-run" }],
   ["grit", { executable: "grit", strategy: "bun-run" }],
 ]);

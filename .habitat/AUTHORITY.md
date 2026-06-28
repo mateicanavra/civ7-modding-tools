@@ -40,9 +40,9 @@ blueprint, category, artifact kind, or authored policy root.
   artifact kind, and packet id come from the directory path.
 - Rule identity is co-located as `rule.json`; the packet id, title, structure
   role path, and default pattern identity are derived by Toolkit readers.
-- Pattern, baseline, command-check, and provisional operation files are
+- Pattern, baseline, Habitat script, and provisional operation files are
   co-located with their packets under generic role filenames.
-- Transitional source-check adapters and shared execution helpers are centralized under `.habitat/_support/execution/` rather than packet authoring sites.
+- Transitional shared execution helpers are centralized under `.habitat/_support/execution/` rather than packet authoring sites.
 - The Toolkit rule registry owner-root index lives at `.habitat/index.json` as root registry metadata, not as an authority packet.
 - The current tree has zero `triage` packets; the kind remains reserved for future unadmitted evidence only.
 
@@ -55,7 +55,7 @@ blueprint, category, artifact kind, or authored policy root.
 5. A command-backed check is accepted only when its script is read-only and co-located as `check.{sh,mjs,ts}`.
 6. Habitat-owned fix/generate/migrate operations require explicit operation identity and must not be registered as read-only checks unless they are genuinely read-only.
 7. `triage` packets are excluded from default execution until admitted, split, renamed, or removed.
-8. No new loose lint, validation, structural-check, or pattern script may be introduced as authored policy without Habitat authority-tree identity.
+8. No new loose lint, validation, topology, or pattern script may be introduced as authored policy without Habitat authority-tree identity.
 
 ## Current Niches
 
@@ -74,9 +74,12 @@ blueprint, category, artifact kind, or authored policy root.
 | `civ7/mapgen/map-output/**` | Map output contracts, generated entrypoints, projection callsites, and shipped catalogs. |
 | `civ7/mapgen/studio/**` | Studio integration, recipe artifacts, worker safety, and dev runner topology. |
 
-## Current Owner-Tool Classes
+## Current Runners
 
-Owner-tool classes such as `source-check`, `command-check`, `file-layer`, `format-check`, `nx`, and `grit-check` describe existing rule execution adapters. They are not top-level ontology categories and should not become authority-tree directories.
+Runners are execution owners, not ontology categories. `grit` runs `pattern.md`;
+`habitat` runs Habitat-native packet forms such as `structure.toml`,
+`check.*`, and file-layer guards; `nx` runs graph targets. These runner names
+must not become authority-tree directories.
 
 ## Migration Implications
 

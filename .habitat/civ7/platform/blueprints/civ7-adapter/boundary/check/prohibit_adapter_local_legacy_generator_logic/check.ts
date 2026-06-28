@@ -28,10 +28,7 @@ function walkFiles(rootDir: string, exts: readonly string[]): string[] {
   return out.sort((a, b) => a.localeCompare(b));
 }
 
-function scanFile(
-  absFile: string,
-  patterns: readonly { name: string; re: RegExp }[]
-): Finding[] {
+function scanFile(absFile: string, patterns: readonly { name: string; re: RegExp }[]): Finding[] {
   const text = readFileSync(absFile, "utf8");
   const lines = text.split(/\r?\n/u);
   const relFile = path.relative(repoRoot, absFile);
@@ -39,7 +36,8 @@ function scanFile(
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i] ?? "";
     for (const { name, re } of patterns) {
-      if (re.test(line)) findings.push({ file: relFile, line: i + 1, pattern: name, text: line.trim() });
+      if (re.test(line))
+        findings.push({ file: relFile, line: i + 1, pattern: name, text: line.trim() });
     }
   }
   return findings;

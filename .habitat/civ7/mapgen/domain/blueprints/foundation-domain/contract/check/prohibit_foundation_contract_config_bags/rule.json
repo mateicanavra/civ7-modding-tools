@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation op and standard foundation step contract source",
   "forbids": "foundation contracts importing domain config bags or using FoundationConfigSchema",
   "why": "Foundation contracts must expose decomposed typed inputs rather than root config-bag surfaces.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Remove foundation config-bag references from contract surfaces.",
   "hookCheck": true,

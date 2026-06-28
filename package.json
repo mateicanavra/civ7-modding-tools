@@ -19,7 +19,7 @@
     "resources:status": "bash ./packages/cli/scripts/resources-submodule/status.sh",
     "resources:unlock": "python3 ./packages/cli/scripts/resources-submodule/unlock-submodule.py",
     "refresh:data": "bun run resources:init && nx run civ7-cli:data:zip:default && nx run civ7-cli:data:unzip:default",
-    "ci:architecture-strict-core": "bun habitat check --tool grit-check && bun habitat check --tool structure-check && bun habitat check --tool command-check",
+    "ci:architecture-strict-core": "bun habitat check --runner grit && bun habitat check --runner habitat",
     "deploy:mods": "nx run-many --targets=deploy",
     "gt:import-worktree": "bash ./scripts/graphite-import-worktree.sh",
     "gt:import-pr": "bash ./scripts/graphite-import-pr.sh",

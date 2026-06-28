@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*",
   "forbids": "decomposed foundation tectonics ops importing legacy compute-tectonic-history internals",
   "why": "Decomposed tectonics operations own their local contracts and rules instead of reaching into the retired aggregate implementation.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not import legacy compute-tectonic-history internals from decomposed foundation ops.",
   "hookCheck": true,
@@ -27,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*"]
     }
   ]
 }

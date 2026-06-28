@@ -1,13 +1,8 @@
 {
-  "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "morphology belt-driver contract currentness and narrative hotspot producer ownership",
   "forbids": "missing canonical belt-driver contract references or additional HOTSPOTS story overlay publishers",
   "why": "Morphology contract surfaces are structural boundaries between physics stages, map projection, and narrative-owned overlays.",
-  "detect": [
-    ".habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/preserve_morphology_contracts_and_overlay_ownership/check.mjs"
-  ],
   "remediate": null,
   "message": "Route morphology data through canonical artifacts and keep overlay/effect ownership at its owning stage.",
   "pathCoverage": [

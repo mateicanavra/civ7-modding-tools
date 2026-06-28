@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "standard recipe, maps, and tests",
   "forbids": "the retired narrative-swatches stage token",
   "why": "Narrative swatches are not part of the current standard stage topology.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not reference the retired narrative-swatches stage token.",
   "hookCheck": true,

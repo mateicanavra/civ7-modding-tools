@@ -29,9 +29,9 @@ import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
 
 const fakeRules: RuleRegistryRecordV1[] = [
-  fakeRule("alpha-rule", "tool-a", "@scope/alpha"),
-  fakeRule("beta-rule", "tool-b", "@scope/beta"),
-  fakeRule("gamma-rule", "tool-a", "@scope/gamma"),
+  fakeRule("alpha-rule", "grit", "@scope/alpha"),
+  fakeRule("beta-rule", "habitat", "@scope/beta"),
+  fakeRule("gamma-rule", "grit", "@scope/gamma"),
 ];
 
 describe("rule selector boundary", () => {
@@ -47,22 +47,22 @@ describe("rule selector boundary", () => {
       ]);
   });
 
-  test("selects valid owner, rule, and tool filters", () => {
+  test("selects valid owner, rule, and runner filters", () => {
     expect(selectedIds({ owner: "@scope/alpha" })).toEqual(["alpha-rule"]);
     expect(selectedIds({ rule: "beta-rule" })).toEqual(["beta-rule"]);
     expect(selectedIds({ rules: ["alpha-rule", "gamma-rule"] })).toEqual([
       "alpha-rule",
       "gamma-rule",
     ]);
-    expect(selectedIds({ tool: "tool-a" })).toEqual(["alpha-rule", "gamma-rule"]);
+    expect(selectedIds({ runner: "grit" })).toEqual(["alpha-rule", "gamma-rule"]);
   });
 
-  test("unions repeated rule selectors before intersecting owner and tool", () => {
-    expect(selectedIds({ rules: ["alpha-rule", "gamma-rule"], tool: "tool-a" })).toEqual([
+  test("unions repeated rule selectors before intersecting owner and runner", () => {
+    expect(selectedIds({ rules: ["alpha-rule", "gamma-rule"], runner: "grit" })).toEqual([
       "alpha-rule",
       "gamma-rule",
     ]);
-    expect(selectedIds({ rules: ["alpha-rule", "beta-rule"], tool: "tool-a" })).toEqual([
+    expect(selectedIds({ rules: ["alpha-rule", "beta-rule"], runner: "grit" })).toEqual([
       "alpha-rule",
     ]);
     expect(
@@ -72,7 +72,7 @@ describe("rule selector boundary", () => {
     });
   });
 
-  test("reports unknown owner, rule, and tool selectors with structured facts", () => {
+  test("reports unknown owner, rule, and runner selectors with structured facts", () => {
     expect(selectionFailure({ owner: "@scope/missing" })).toMatchObject({
       reason: "unknown-selector",
       selectorFacts: [
@@ -95,21 +95,21 @@ describe("rule selector boundary", () => {
         { kind: "rule", requestedValue: "missing-rule", known: false },
       ],
     });
-    expect(selectionFailure({ tool: "missing-tool" })).toMatchObject({
+    expect(selectionFailure({ runner: "missing-runner" })).toMatchObject({
       reason: "unknown-selector",
-      selectorFacts: [{ kind: "tool", requestedValue: "missing-tool", known: false }],
+      selectorFacts: [{ kind: "runner", requestedValue: "missing-runner", known: false }],
     });
   });
 
   test("reports a value used in the wrong selector namespace", () => {
-    expect(selectionFailure({ rule: "tool-a" })).toMatchObject({
+    expect(selectionFailure({ rule: "grit" })).toMatchObject({
       reason: "wrong-selector-namespace",
       selectorFacts: [
         {
           kind: "rule",
-          requestedValue: "tool-a",
+          requestedValue: "grit",
           known: false,
-          matchedNamespace: "tool",
+          matchedNamespace: "runner",
           matchingRuleIds: [],
         },
       ],
@@ -117,7 +117,7 @@ describe("rule selector boundary", () => {
   });
 
   test("reports valid selectors whose intersection contains no rules", () => {
-    expect(selectionFailure({ owner: "@scope/alpha", tool: "tool-b" })).toMatchObject({
+    expect(selectionFailure({ owner: "@scope/alpha", runner: "habitat" })).toMatchObject({
       reason: "empty-selection",
       selectorFacts: [
         {
@@ -127,8 +127,8 @@ describe("rule selector boundary", () => {
           matchingRuleIds: ["alpha-rule"],
         },
         {
-          kind: "tool",
-          requestedValue: "tool-b",
+          kind: "runner",
+          requestedValue: "habitat",
           known: true,
           matchingRuleIds: ["beta-rule"],
         },
@@ -136,7 +136,7 @@ describe("rule selector boundary", () => {
       emptyIntersection: {
         matchingRuleIdsBySelector: {
           "owner:@scope/alpha": ["alpha-rule"],
-          "tool:tool-b": ["beta-rule"],
+          "runner:habitat": ["beta-rule"],
         },
       },
     });
@@ -158,7 +158,7 @@ describe("rule selector boundary", () => {
     expect(report.rules).toHaveLength(1);
     expect(report.rules[0]).toMatchObject({
       ruleId: "rule-selection-integrity",
-      ownerTool: "habitat-builtin",
+      runner: "habitat",
       status: "fail",
     });
     expect(report.rules[0].diagnostics[0].message).toContain("Unknown Habitat rule id");
@@ -176,7 +176,7 @@ describe("rule selector boundary", () => {
       rules: [
         {
           ruleId: "demo-rule",
-          ownerTool: "command-check",
+          runner: "habitat",
           lane: "enforced",
           status: "fail",
           locked: true,
@@ -190,7 +190,6 @@ describe("rule selector boundary", () => {
               baselined: false,
             },
           ],
-          detect: ["demo"],
           message: "demo",
           remediate: null,
         },
@@ -204,7 +203,7 @@ describe("rule selector boundary", () => {
   test("renders shared check work once instead of per-rule fake durations", () => {
     const report = {
       schemaVersion: 1,
-      command: "habitat check --tool source-check",
+      command: "habitat check --runner grit",
       startedAt: "2026-06-21T00:00:00.000Z",
       ok: true,
       rules: [
@@ -212,7 +211,7 @@ describe("rule selector boundary", () => {
           durationMs: 2500,
           timing: {
             kind: "shared",
-            groupId: "source-check:source-rules",
+            groupId: "grit:source-rules",
             durationMs: 2500,
             ruleCount: 2,
           },
@@ -221,7 +220,7 @@ describe("rule selector boundary", () => {
           durationMs: 2500,
           timing: {
             kind: "shared",
-            groupId: "source-check:source-rules",
+            groupId: "grit:source-rules",
             durationMs: 2500,
             ruleCount: 2,
           },
@@ -232,20 +231,20 @@ describe("rule selector boundary", () => {
     const rendered = renderCheckReport(report);
 
     expect(rendered).toContain(
-      "alpha-pattern (source-check, enforced) [locked] — shared:source-check:source-rules"
+      "alpha-pattern (grit, enforced) [locked] — shared:grit:source-rules"
     );
-    expect(rendered).toContain(
-      "beta-pattern (source-check, enforced) [locked] — shared:source-check:source-rules"
-    );
-    expect(rendered).toContain("shared work:\n  source-check:source-rules: 2500ms across 2 rules");
+    expect(rendered).toContain("beta-pattern (grit, enforced) [locked] — shared:grit:source-rules");
+    expect(rendered).toContain("shared work:\n  grit:source-rules: 2500ms across 2 rules");
   });
 
   test("staged execution preserves selected rules for explicit not-applicable disposition", () => {
-    const stagedEligible = fakeRule("hook", "source-check", "@habitat/cli", {
+    const stagedEligible = fakeRule("hook", "grit", "@habitat/cli", {
       hookCheck: true,
     });
-    const currentTreeOnly = fakeRule("current-tree", "source-check", "@habitat/cli");
-    const nativeRule = fakeRule("file-layer-rule", "file-layer", "@habitat/cli");
+    const currentTreeOnly = fakeRule("current-tree", "grit", "@habitat/cli");
+    const nativeRule = fakeRule("file-layer-rule", "habitat", "@habitat/cli", {
+      runner: { name: "habitat", mode: "file-layer", guard: "host-surface" },
+    });
 
     expect(
       rulesForExecution([stagedEligible, currentTreeOnly, nativeRule], {
@@ -257,40 +256,45 @@ describe("rule selector boundary", () => {
     ).toEqual(["hook", "current-tree", "file-layer-rule"]);
   });
 
-  test("default local execution excludes graph and hygiene proof rules", () => {
-    const local = fakeRule("local-source", "source-check", "@habitat/cli");
-    const fileLayer = fakeRule("local-file", "file-layer", "@habitat/cli");
+  test("default local execution excludes graph-backed rules", () => {
+    const local = fakeRule("local-source", "grit", "@habitat/cli");
+    const fileLayer = fakeRule("local-file", "habitat", "@habitat/cli", {
+      runner: { name: "habitat", mode: "file-layer", guard: "host-surface" },
+    });
     const graph = fakeRule("graph-proof", "nx", "@habitat/cli");
-    const hygiene = fakeRule("format-proof", "format-check", "@habitat/cli");
+    const hygiene = fakeRule("format-proof", "habitat", "@habitat/cli");
     const target = fakeRule("target-proof", "nx", "@habitat/cli");
 
     expect(
       rulesForExecution([local, fileLayer, graph, hygiene, target]).map((rule) => rule.id)
-    ).toEqual(["local-source", "local-file"]);
+    ).toEqual(["local-source", "local-file", "format-proof"]);
   });
 
-  test("explicit selectors preserve graph and hygiene proof rules", () => {
+  test("explicit runner selectors do not widen beyond the selected runner", () => {
     const graph = fakeRule("graph-proof", "nx", "@habitat/cli");
-    const hygiene = fakeRule("format-proof", "format-check", "@habitat/cli");
+    const hygiene = fakeRule("format-proof", "habitat", "@habitat/cli");
 
     expect(
-      rulesForExecution([graph, hygiene], { selection: { tool: "nx" } }).map((rule) => rule.id)
-    ).toEqual(["graph-proof", "format-proof"]);
+      rulesForExecution([graph, hygiene], { selection: { runner: "nx" } }).map((rule) => rule.id)
+    ).toEqual(["graph-proof"]);
   });
 
-  test("command-check execution infers runners for direct script detects", async () => {
+  test("Habitat script execution runs adjacent executable role files", async () => {
     const requests: Array<{ executable: string; argv: readonly string[] }> = [];
     const results = new Map();
     await Effect.runPromise(
       executeCommandRulesEffect(
         [
-          fakeCommandRule("direct-js", [
+          fakeCommandRule(
+            "direct-js",
             ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.mjs",
-          ]),
-          fakeCommandRule("direct-sh", [
+            "node"
+          ),
+          fakeCommandRule(
+            "direct-sh",
             ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.sh",
-          ]),
-          fakeCommandRule("explicit-node", ["node", ".habitat/checks/explicit.check.mjs"]),
+            "bash"
+          ),
         ],
         results,
         {
@@ -309,26 +313,18 @@ describe("rule selector boundary", () => {
     expect(requests).toEqual([
       {
         executable: "node",
-        argv: [
-          ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.mjs",
-        ],
+        argv: [".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.mjs"],
       },
       {
         executable: "bash",
-        argv: [
-          ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.sh",
-        ],
-      },
-      {
-        executable: "node",
-        argv: [".habitat/checks/explicit.check.mjs"],
+        argv: [".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.sh"],
       },
     ]);
-    expect([...results.keys()].sort()).toEqual(["direct-js", "direct-sh", "explicit-node"]);
+    expect([...results.keys()].sort()).toEqual(["direct-js", "direct-sh"]);
   });
 
   test("staged execution does not drop source-check rules when staged paths are outside approved roots", () => {
-    const stagedEligible = fakeRule("hook", "source-check", "@habitat/cli", {
+    const stagedEligible = fakeRule("hook", "grit", "@habitat/cli", {
       hookCheck: true,
     });
 
@@ -407,22 +403,21 @@ function selectionFailure(selection: RuleSelection) {
 
 function fakeRule(
   id: string,
-  ownerTool: string,
+  runnerName: "grit" | "habitat" | "nx",
   ownerProject: string,
   overrides: Partial<RuleRegistryRecordV1> = {}
 ): RuleRegistryRecordV1 {
   return {
     id,
-    ownerTool,
     ownerProject,
     lane: "enforced",
-    scope: ".",
     forbids: "test fixture",
     why: "test fixture",
-    detect: ["true"],
     remediate: null,
     message: "test fixture",
     exceptionPath: "none",
+    runner: runnerFor(id, runnerName),
+    pathCoverage: [{ kind: "project-owner" }],
     ...overrides,
   };
 }
@@ -430,13 +425,12 @@ function fakeRule(
 function passingRule(id: string, overrides: Record<string, unknown> = {}) {
   return {
     ruleId: id,
-    ownerTool: "source-check",
+    runner: "grit",
     lane: "enforced",
     status: "pass",
     locked: true,
     durationMs: 1,
     diagnostics: [],
-    detect: ["demo"],
     message: "demo",
     remediate: null,
     ...overrides,
@@ -449,16 +443,50 @@ function fakeSourceRuleFact(id: string, scanRoots: readonly string[]): RuleSourc
     patternName: "fixture_pattern",
     lane: "enforced",
     message: "test fixture",
+    runner: {
+      name: "grit",
+      patternPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md`,
+      patternName: "fixture_pattern",
+    },
+    pathCoverage: [{ kind: "project-owner" }],
     scanRoots: [...scanRoots],
   };
 }
 
-function fakeCommandRule(id: string, detect: readonly string[]): RuleCommandExecutionFacts {
+function fakeCommandRule(
+  id: string,
+  scriptPath: string,
+  runtime: "bun" | "node" | "bash"
+): RuleCommandExecutionFacts {
   return {
     id,
-    ownerTool: "command-check",
     lane: "enforced",
-    detect: [...detect],
+    runner: {
+      name: "habitat",
+      mode: "script",
+      scriptPath,
+      runtime,
+    },
     message: `${id} failed.`,
+  };
+}
+
+function runnerFor(
+  id: string,
+  runnerName: "grit" | "habitat" | "nx"
+): RuleRegistryRecordV1["runner"] {
+  if (runnerName === "grit") {
+    return {
+      name: "grit",
+      patternPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md`,
+      patternName: id,
+    };
+  }
+  if (runnerName === "nx") return { name: "nx", target: { project: "habitat", target: "test" } };
+  return {
+    name: "habitat",
+    mode: "script",
+    scriptPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/check.mjs`,
+    runtime: "node",
   };
 }

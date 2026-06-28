@@ -1,13 +1,8 @@
 {
-  "ownerTool": "command-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/{domain,recipes/standard,maps}/**/*.{ts,json}",
   "forbids": "shim, shadow, compare, dual-path, and legacy stage-token surfaces in runtime source",
   "why": "Cutover work should delete obsolete paths rather than preserve parallel runtime semantics.",
-  "detect": [
-    ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/check.mjs"
-  ],
   "remediate": null,
   "message": "Delete obsolete cutover terminology and legacy stage tokens from runtime source.",
   "pathCoverage": [

@@ -177,7 +177,12 @@ export const defaultStrategy = createStrategy(ComputeSculptContinentalMarginCont
           elevation[i] = clampInt16(existing);
           continue;
         }
-        const target = evaluateSlopeTarget({ hop, apronLength: apronLengthScale[i], relief, config });
+        const target = evaluateSlopeTarget({
+          hop,
+          apronLength: apronLengthScale[i],
+          relief,
+          config,
+        });
         elevation[i] = clampInt16(Math.round(Math.min(existing, target)));
       }
     }

@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/maps/**/*.ts",
   "forbids": "legacy hydrology climate, lakes, and rivers config keys in maps",
   "why": "Hydrology map configuration should use the current step/public config shape rather than retired bag keys.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not use legacy hydrology config key tokens in map source.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/maps"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/maps"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/maps/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/maps/**/*.ts"]
     }
   ]
 }

@@ -270,7 +270,7 @@ describe("Habitat hook service", () => {
     expect(result.stdout).toContain("[source-check changed-path hook check]");
     expect(checkRequests).toEqual([
       expect.objectContaining({
-        tool: "source-check",
+        runner: "grit",
         hookCheck: true,
         staged: true,
         stagedPaths: [changedPath],
@@ -281,7 +281,8 @@ describe("Habitat hook service", () => {
   test("uses the owning Grit rule target for migrated source rule artifact pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath = ".habitat/rules/require_runtime_domain_op_bundle_imports/rule.json";
+    const changedPath =
+      ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -319,7 +320,8 @@ describe("Habitat hook service", () => {
   test("uses the owning rule target for non-source rule artifact pre-push changes", async () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
-    const changedPath = ".habitat/rules/enforce_workspace_import_boundaries/rule.json";
+    const changedPath =
+      ".habitat/global/workspace/blueprints/project-boundary-model/boundary/check/enforce_workspace_import_boundaries/rule.json";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -357,8 +359,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const changedPaths = [
-      ".habitat/rules/require_runtime_domain_op_bundle_imports/rule.json",
-      ".habitat/rules/enforce_workspace_import_boundaries/rule.json",
+      ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/rule.json",
+      ".habitat/global/workspace/blueprints/project-boundary-model/boundary/check/enforce_workspace_import_boundaries/rule.json",
     ];
 
     const result = await runPrePushHookServiceInTest(
@@ -447,7 +449,8 @@ describe("Habitat hook service", () => {
     const fake = makePrePushFixture();
     const affectedRequests: NxAffectedRequest[] = [];
     const runTargetRequests: NxRunTargetRequest[] = [];
-    const changedPath = "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts";
+    const changedPath =
+      "tools/habitat/src/service/model/graph/policy/validate_boundary_taxonomy_against_workspace_graph.policy.ts";
 
     const result = await runPrePushHookServiceInTest(
       { base: "HEAD~1" },
@@ -593,7 +596,7 @@ describe("Habitat hook service", () => {
     expect(result.stderr).toBe("");
     expect(result.stdout).toContain("habitat hook pre-commit\n");
     expect(result.stdout).toContain("\n[file-layer staged check]\n");
-    expect(result.stdout).toContain('"command": "habitat check --staged --tool file-layer --json"');
+    expect(result.stdout).toContain('"command": "habitat check --staged --runner habitat --json"');
     expect(result.stdout).toContain('"ruleId": "prohibit_pnpm_artifacts_in_bun_workspace"');
     expect(result.stdout).toContain("biome: no staged supported files\n");
     expect(result.stdout).toContain(
@@ -756,9 +759,7 @@ function hookServiceContext(options: {
                 },
               }
             : {}),
-          ...(options.sourceCheckHookEnabled
-            ? { rules: makeSyntheticSourceCheckHookRules() }
-            : {}),
+          ...(options.sourceCheckHookEnabled ? { rules: makeSyntheticSourceCheckHookRules() } : {}),
         }),
       },
     };
@@ -983,13 +984,12 @@ function fileLayerPassingCheckReport(command: string): CheckReport {
     rules: [
       {
         ruleId: "prohibit_pnpm_artifacts_in_bun_workspace",
-        ownerTool: "file-layer",
+        runner: "habitat",
         lane: "enforced",
         status: "pass",
         locked: true,
         durationMs: 1,
         diagnostics: [],
-        detect: ["habitat", "check", "--tool", "file-layer"],
         message: "File-layer pnpm artifacts are controlled by package manager commands.",
         remediate: null,
       },

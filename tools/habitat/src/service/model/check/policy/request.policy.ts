@@ -25,7 +25,7 @@ export function normalizeSelectorRequest(selection: RuleSelection): SelectorRequ
     ...(selection.owner ? { owner: selection.owner } : {}),
     ...(ruleValues.length === 1 ? { rule: ruleValues[0] } : {}),
     ...(ruleValues.length > 1 ? { rules: ruleValues } : {}),
-    ...(selection.tool ? { tool: selection.tool } : {}),
+    ...(selection.runner ? { runner: selection.runner } : {}),
   };
 }
 

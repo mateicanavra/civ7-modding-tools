@@ -1,5 +1,5 @@
-import path from "node:path";
 import { createRequire } from "node:module";
+import path from "node:path";
 import type {
   HabitatDirectoryEntry,
   HabitatFileSystemReadPort,
@@ -72,9 +72,7 @@ export function parseStructureCheckSpec(
   if (issues.length > 0) {
     return {
       ok: false,
-      message: issues
-        .map((issue) => `${issue.instancePath || "/"} ${issue.message}`)
-        .join("; "),
+      message: issues.map((issue) => `${issue.instancePath || "/"} ${issue.message}`).join("; "),
     };
   }
   return { ok: true, spec: Value.Parse(StructureCheckSpecSchema, parsed) };
@@ -103,14 +101,14 @@ function runStructureRuleEffect(
   }
 ): Effect.Effect<RuleRunResult, never, any> {
   return Effect.gen(function* () {
-    const structurePath = path.resolve(options.repoRoot, rule.structureFile);
+    const structurePath = path.resolve(options.repoRoot, rule.runner.structurePath);
     const text = yield* options.fileSystem.readText(structurePath).pipe(Effect.either);
     if (text._tag === "Left") {
       const diagnostics = [
         diagnostic(rule, {
           kind: "structure-file-invalid",
-          path: rule.structureFile,
-          message: `Unable to read structure file ${rule.structureFile}.`,
+          path: rule.runner.structurePath,
+          message: `Unable to read structure file ${rule.runner.structurePath}.`,
         }),
       ];
       return { exitCode: 1, diagnostics };
@@ -120,8 +118,8 @@ function runStructureRuleEffect(
       const diagnostics = [
         diagnostic(rule, {
           kind: "structure-file-invalid",
-          path: rule.structureFile,
-          message: `Invalid structure-check TOML: ${parsed.message}`,
+          path: rule.runner.structurePath,
+          message: `Invalid Habitat structure TOML: ${parsed.message}`,
         }),
       ];
       return { exitCode: 1, diagnostics };
@@ -298,13 +296,13 @@ function pathKindEffect(
 ): Effect.Effect<MatchedRoot["kind"], never, any> {
   return Effect.gen(function* () {
     const absolute = path.resolve(options.repoRoot, repoPath);
-    const isDirectory = yield* options.fileSystem.isDirectory(absolute).pipe(
-      Effect.catchAll(() => Effect.succeed(false))
-    );
+    const isDirectory = yield* options.fileSystem
+      .isDirectory(absolute)
+      .pipe(Effect.catchAll(() => Effect.succeed(false)));
     if (isDirectory) return "directory" as const;
-    const isFile = yield* options.fileSystem.isFile(absolute).pipe(
-      Effect.catchAll(() => Effect.succeed(false))
-    );
+    const isFile = yield* options.fileSystem
+      .isFile(absolute)
+      .pipe(Effect.catchAll(() => Effect.succeed(false)));
     if (isFile) return "file" as const;
     return "missing" as const;
   });

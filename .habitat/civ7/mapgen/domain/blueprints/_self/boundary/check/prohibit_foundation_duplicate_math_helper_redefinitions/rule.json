@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation tectonics strategy and hotspot modules",
   "forbids": "duplicate clamp/math helper function declarations",
   "why": "Canonical math helpers should live in the owned shared surface rather than being redeclared across tectonics modules.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Use the canonical foundation math helper instead of redeclaring it locally.",
   "hookCheck": true,
@@ -31,9 +23,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/**"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/**"]
     }
   ]
 }

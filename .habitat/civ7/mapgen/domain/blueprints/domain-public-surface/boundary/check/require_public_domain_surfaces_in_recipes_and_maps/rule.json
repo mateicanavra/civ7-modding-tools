@@ -1,23 +1,12 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/*/src/{recipes,maps}/**/*.{ts,tsx}",
   "forbids": "recipe/map source deep-importing domain ops internals, ops-by-id, rules, or strategies",
   "why": "Domain surfaces are named contracts; recipe/map code composes through public entrypoints.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Import domain code through @mapgen/domain/<domain>, /ops, or /config.js rather than deep internals.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/maps"],
   "pathCoverage": [
     {
       "kind": "exact-path",

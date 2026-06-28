@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "habitat",
   "lane": "enforced",
-  "scope": "packages/**/*.ts outside packages/civ7-adapter",
   "forbids": "runtime /base-standard/ imports outside @civ7/adapter",
   "why": "The adapter is the sole owner of Civ7 engine imports; provenance strings remain covered by wrapped-rule ownership until H6 adjudication.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Move /base-standard/ runtime imports into @civ7/adapter.",
   "hookCheck": true,
-  "scanRoots": [
-    "packages"
-  ],
+  "scanRoots": ["packages"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/**/*.ts"
-      ]
+      "patterns": ["packages/**/*.ts"]
     }
   ]
 }

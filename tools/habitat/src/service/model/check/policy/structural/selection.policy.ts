@@ -21,7 +21,7 @@ export function selectorRefusalReportEffect(
       reports: [
         {
           ruleId: "rule-selection-integrity",
-          ownerTool: "habitat-builtin",
+          runner: "habitat",
           lane: "enforced",
           status: "fail",
           locked: true,
@@ -35,11 +35,10 @@ export function selectorRefusalReportEffect(
               baselined: false,
             },
           ],
-          detect: ["habitat", "check", "(selector-validation)"],
           message:
-            "Requested Habitat selectors must match real rule owners, rule ids, tools, and non-empty intersections before rule execution.",
+            "Requested Habitat selectors must match real rule owners, rule ids, runners, and non-empty intersections before rule execution.",
           remediate:
-            "Use --owner for owner project ids, --rule for rule ids, --tool for enforcement tool ids, or omit selectors to run all rules.",
+            "Use --owner for owner project ids, --rule for rule ids, --runner for derived runners, or omit selectors to run all rules.",
         },
       ],
     });

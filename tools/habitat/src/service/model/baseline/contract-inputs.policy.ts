@@ -13,7 +13,7 @@ export function baselineContractInputs(rules: RuleFactsCatalog, ruleIds?: readon
       ...(selector
         ? {
             ownerProject: selector.ownerProject,
-            ownerTool: selector.ownerTool,
+            runner: selector.runner.name,
           }
         : {}),
     };

@@ -137,7 +137,7 @@ export function boundariesTarget(): NxTargetDefinition {
 
 export function sourceCheckTarget(inputs = habitatInputs()): NxTargetDefinition {
   return {
-    command: "bun tools/habitat/bin/dev.ts check --tool source-check",
+    command: "bun tools/habitat/bin/dev.ts check --runner grit",
     options: workspaceCwd,
     cache: true,
     inputs,
@@ -149,7 +149,7 @@ export function sourceCheckTarget(inputs = habitatInputs()): NxTargetDefinition 
 
 export function generatedCheckTarget(): NxTargetDefinition {
   return {
-    command: "bun tools/habitat/bin/dev.ts check --tool file-layer",
+    command: "bun tools/habitat/bin/dev.ts check --runner habitat",
     options: workspaceCwd,
     cache: false,
     inputs: habitatInputs(),

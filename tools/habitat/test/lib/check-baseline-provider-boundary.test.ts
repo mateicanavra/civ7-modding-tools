@@ -109,7 +109,7 @@ describe("check and baseline provider boundaries", () => {
 
   test("staged file-layer checks render GitProvider failures as diagnostics", async () => {
     const fileLayerRule = makeTestHabitatServiceDeps().rules.selector.find(
-      (rule) => rule.ownerTool === "file-layer"
+      (rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer"
     );
     expect(fileLayerRule).toBeDefined();
     const gitCalls: string[][] = [];
@@ -150,7 +150,6 @@ function baselineRule(id: string) {
     id,
     exceptionPath: "none",
     ownerProject: "habitat",
-    ownerTool: "source-check",
   } as const;
 }
 

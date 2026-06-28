@@ -160,7 +160,9 @@ function sameSet(left: readonly string[], right: readonly string[]): boolean {
 const stageIds = STANDARD_STAGES.map((stage: { id: string }) => stage.id);
 const expectedStageIds = Object.keys(STANDARD_PUBLIC_KEYS);
 if (!sameSet(stageIds, expectedStageIds)) {
-  failures.push(`standard stage ids differ: ${JSON.stringify(stageIds)} !== ${JSON.stringify(expectedStageIds)}`);
+  failures.push(
+    `standard stage ids differ: ${JSON.stringify(stageIds)} !== ${JSON.stringify(expectedStageIds)}`
+  );
 }
 
 for (const stage of STANDARD_STAGES) {
@@ -176,14 +178,18 @@ for (const stage of STANDARD_STAGES) {
   if (authoring.config.layer !== expectedLayer) {
     failures.push(`${stage.id}: expected ${expectedLayer}, got ${authoring.config.layer}`);
   }
-  if ((authoring.config.schema as { additionalProperties?: unknown }).additionalProperties !== false) {
+  if (
+    (authoring.config.schema as { additionalProperties?: unknown }).additionalProperties !== false
+  ) {
     failures.push(`${stage.id}: public config schema must be strict`);
   }
 
   const actualKeys = Object.keys(schemaProperties(authoring.config.schema)).sort();
   const sortedExpectedKeys = [...expectedKeys].sort();
   if (!sameSet(actualKeys, sortedExpectedKeys)) {
-    failures.push(`${stage.id}: public keys ${JSON.stringify(actualKeys)} !== ${JSON.stringify(sortedExpectedKeys)}`);
+    failures.push(
+      `${stage.id}: public keys ${JSON.stringify(actualKeys)} !== ${JSON.stringify(sortedExpectedKeys)}`
+    );
   }
 
   const openObjects = collectOpenObjectSchemaPaths(authoring.config.schema);
@@ -199,7 +205,9 @@ for (const stage of STANDARD_STAGES) {
   for (const step of authoring.runtime.steps) {
     const focusPath = authoring.config.focusPathsByStepId[step.stepId] ?? [];
     if (focusPath.includes("strategy") || focusPath.includes("config")) {
-      failures.push(`${stage.id}.${step.stepId}: focus path bypasses public config (${focusPath.join(".")})`);
+      failures.push(
+        `${stage.id}.${step.stepId}: focus path bypasses public config (${focusPath.join(".")})`
+      );
     }
     if (focusPath.length > 0) {
       try {

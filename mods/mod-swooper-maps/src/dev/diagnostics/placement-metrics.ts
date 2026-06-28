@@ -30,9 +30,9 @@ import {
   isPlainObject as isCanonicalMapConfigObject,
 } from "../../maps/configs/canonical.js";
 import swooperEarthlikeConfigRaw from "../../maps/configs/swooper-earthlike.config.json";
+import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import standardRecipe from "../../recipes/standard/recipe.js";
 import { initializeStandardRuntime } from "../../recipes/standard/runtime.js";
-import { mapArtifacts } from "../../recipes/standard/map-artifacts.js";
 import { ecologyArtifacts } from "../../recipes/standard/stages/ecology/artifacts.js";
 import { hydrologyClimateRefineArtifacts } from "../../recipes/standard/stages/hydrology-climate-refine/artifacts.js";
 import { hydrologyHydrographyArtifacts } from "../../recipes/standard/stages/hydrology-hydrography/artifacts.js";

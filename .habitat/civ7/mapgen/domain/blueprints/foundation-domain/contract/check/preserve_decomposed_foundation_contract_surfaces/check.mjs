@@ -16,10 +16,7 @@ const findings = [];
 const artifactsFile = path.join(foundationStage, "artifacts.ts");
 findings.push(...assertContains(artifactsFile, "volcanism", "foundation-plates-schema"));
 
-const tectonicsContract = path.join(
-  stagesRoot,
-  "foundation-tectonics/steps/tectonics.contract.ts"
-);
+const tectonicsContract = path.join(stagesRoot, "foundation-tectonics/steps/tectonics.contract.ts");
 for (const op of [
   "computeEraPlateMembership",
   "computeEraTectonicFields",

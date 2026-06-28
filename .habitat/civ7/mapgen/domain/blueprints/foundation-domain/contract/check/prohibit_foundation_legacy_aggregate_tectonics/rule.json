@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation public index and foundation tectonics contract",
   "forbids": "computeTectonicHistory aggregate operation surfaces",
   "why": "Foundation tectonics is decomposed into focused operation contracts.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Remove legacy computeTectonicHistory aggregate surfaces.",
   "hookCheck": true,

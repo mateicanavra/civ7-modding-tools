@@ -19,7 +19,8 @@ if (!source.includes("installCiv7GameUiIntelligenceBridge")) {
   failures.push("UI bootstrap must install through installCiv7GameUiIntelligenceBridge");
 }
 for (const forbidden of ['@civ7/control-orpc";', "RPCHandler", "RPCLink"]) {
-  if (source.includes(forbidden)) failures.push(`UI bootstrap contains forbidden token ${forbidden}`);
+  if (source.includes(forbidden))
+    failures.push(`UI bootstrap contains forbidden token ${forbidden}`);
 }
 
 if (failures.length > 0) {

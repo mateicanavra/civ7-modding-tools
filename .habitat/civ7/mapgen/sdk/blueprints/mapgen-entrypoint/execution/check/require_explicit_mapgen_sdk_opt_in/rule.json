@@ -1,29 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "civ7-sdk",
   "lane": "enforced",
-  "scope": "packages/sdk/src/**/*.ts",
   "forbids": "SDK root importing/exporting ./mapgen or Civ7 adapter imports outside mapgen runtime subpath",
   "why": "General SDK authoring APIs stay runtime-neutral; mapgen bindings are explicit opt-in.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Keep Civ7 map runtime bindings behind @mateicanavra/civ7-sdk/mapgen.",
   "hookCheck": true,
-  "scanRoots": [
-    "packages/sdk/src"
-  ],
+  "scanRoots": ["packages/sdk/src"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/sdk/src/index.ts",
-        "packages/sdk/src/**/*.ts"
-      ]
+      "patterns": ["packages/sdk/src/index.ts", "packages/sdk/src/**/*.ts"]
     }
   ]
 }

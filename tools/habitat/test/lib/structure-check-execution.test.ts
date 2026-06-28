@@ -1,8 +1,8 @@
-import { Effect } from "effect";
-import { describe, expect, test } from "vitest";
+import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
 import { executeSelectedRulesEffect } from "@habitat/cli/service/model/check/policy/structural/execution.policy";
 import { ruleFactsCatalog } from "@habitat/cli/service/model/rules/index";
-import type { HabitatDirectoryEntry } from "@habitat/cli/resources/platform/index";
+import { Effect } from "effect";
+import { describe, expect, test } from "vitest";
 
 const repoRoot = "/repo";
 
@@ -36,44 +36,49 @@ required = ["src"]
         {
           id: "sample-structure-rule",
           title: "Sample Structure Rule",
-          ownerTool: "structure-check",
           ownerProject: "habitat",
           lane: "enforced",
-          scope: "pkg",
           forbids: "missing structure",
           why: "The test proves native structure execution.",
-          detect: ["habitat", "check", "--tool", "structure-check"],
           remediate: null,
           message: "Fix structure.",
           exceptionPath: "none",
-          structureFile: ".habitat/sample/sample.structure.toml",
+          runner: {
+            name: "habitat",
+            mode: "structure",
+            structurePath: ".habitat/sample/sample.structure.toml",
+          },
           pathCoverage: [{ kind: "exact-path", patterns: ["pkg"] }],
         },
       ],
     });
 
     const results = await Effect.runPromise(
-      executeSelectedRulesEffect(rules.selector, {}, {
-        baselineFileSystem: fileSystemPort(fixture),
-        biome: { run: () => failIfCalled("biome") },
-        command: { run: () => failIfCalled("command") },
-        git: {
-          diffNameOnly: () => failIfCalled("git.diffNameOnly"),
-          diffNameStatus: () => failIfCalled("git.diffNameStatus"),
-          lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
-          mergeBase: () => failIfCalled("git.mergeBase"),
-          show: () => failIfCalled("git.show"),
-        },
-        grit: { runRules: () => failIfCalled("grit") },
-        nx: {
-          runMany: () => failIfCalled("nx.runMany"),
-          runTarget: () => failIfCalled("nx.runTarget"),
-        },
-        repoRoot,
-        rules,
-        sourceFileSystem: fileSystemPort(fixture),
-        structureFileSystem: fileSystemPort(fixture),
-      })
+      executeSelectedRulesEffect(
+        rules.selector,
+        {},
+        {
+          baselineFileSystem: fileSystemPort(fixture),
+          biome: { run: () => failIfCalled("biome") },
+          command: { run: () => failIfCalled("command") },
+          git: {
+            diffNameOnly: () => failIfCalled("git.diffNameOnly"),
+            diffNameStatus: () => failIfCalled("git.diffNameStatus"),
+            lsTreeNameOnly: () => failIfCalled("git.lsTreeNameOnly"),
+            mergeBase: () => failIfCalled("git.mergeBase"),
+            show: () => failIfCalled("git.show"),
+          },
+          grit: { runRules: () => failIfCalled("grit") },
+          nx: {
+            runMany: () => failIfCalled("nx.runMany"),
+            runTarget: () => failIfCalled("nx.runTarget"),
+          },
+          repoRoot,
+          rules,
+          sourceFileSystem: fileSystemPort(fixture),
+          structureFileSystem: fileSystemPort(fixture),
+        }
+      )
     );
 
     expect(results.get("sample-structure-rule")?.result).toEqual({

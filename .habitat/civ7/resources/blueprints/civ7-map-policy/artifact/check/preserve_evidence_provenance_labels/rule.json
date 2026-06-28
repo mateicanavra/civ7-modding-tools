@@ -1,22 +1,14 @@
 {
-  "ownerTool": "command-check",
   "ownerProject": "civ7-map-policy",
   "lane": "enforced",
-  "scope": "generated Civ7 map policy source provenance labels",
   "forbids": "generated table headers that claim repository truth instead of source evidence",
   "why": "Generated map policy tables are evidence-derived projections; their source labels are structural documentation of authority.",
-  "detect": [
-    "bun",
-    ".habitat/civ7/resources/blueprints/civ7-map-policy/artifact/check/preserve_evidence_provenance_labels/check.ts"
-  ],
   "remediate": "Regenerate Civ7 map policy tables with source-evidence provenance labels.",
   "message": "Civ7 map policy generated table provenance labels drifted.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "packages/civ7-map-policy/src/civ7-tables.gen.ts"
-      ]
+      "patterns": ["packages/civ7-map-policy/src/civ7-tables.gen.ts"]
     },
     {
       "kind": "project-owner"

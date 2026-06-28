@@ -16,7 +16,16 @@ import {
 } from "@habitat/cli/service/model/rules/index";
 import { Effect } from "effect";
 import { describe, expect, test } from "vitest";
-import { baseRule, expectInvalid, registryDocument } from "./helpers.js";
+import {
+  baseRule,
+  expectInvalid,
+  gritRunner,
+  habitatFileLayerRunner,
+  habitatScriptRunner,
+  habitatStructureRunner,
+  nxRunner,
+  registryDocument,
+} from "./helpers.js";
 
 describe("rule registry contract", () => {
   test("loads the current registry through the TypeBox schema", () => {
@@ -27,18 +36,20 @@ describe("rule registry contract", () => {
     }).rules;
 
     expect(rules).toHaveLength(124);
-    expect(rules.filter((rule) => rule.ownerTool === "source-check")).toHaveLength(0);
-    expect(rules.filter((rule) => rule.ownerTool === "command-check")).toHaveLength(30);
-    expect(rules.filter((rule) => rule.ownerTool === "structure-check")).toHaveLength(8);
-    expect(rules.filter((rule) => rule.ownerTool === "file-layer")).toHaveLength(5);
-    expect(rules.filter((rule) => rule.ownerTool === "format-check")).toHaveLength(1);
-    expect(rules.filter((rule) => rule.ownerTool === "grit-check")).toHaveLength(79);
-    expect(rules.filter((rule) => rule.ownerTool === "nx")).toHaveLength(1);
+    expect(rules.filter((rule) => rule.runner.name === "grit")).toHaveLength(79);
+    expect(
+      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "script")
+    ).toHaveLength(31);
+    expect(
+      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "structure")
+    ).toHaveLength(8);
+    expect(
+      rules.filter((rule) => rule.runner.name === "habitat" && rule.runner.mode === "file-layer")
+    ).toHaveLength(5);
+    expect(rules.filter((rule) => rule.runner.name === "nx")).toHaveLength(1);
     expect(rules.filter((rule) => rule.lane === "advisory")).toHaveLength(1);
     expect(
-      rules
-        .filter((rule) => rule.ownerTool === "source-check")
-        .every((rule) => rule.scanRoots.length > 0)
+      rules.filter((rule) => rule.runner.name === "grit").every((rule) => rule.scanRoots.length > 0)
     ).toBe(true);
     expect(rules.every((rule) => rule.pathCoverage.length > 0)).toBe(true);
   });
@@ -58,6 +69,7 @@ describe("rule registry contract", () => {
         },
       }),
       [rulePath]: JSON.stringify(packetRuleInput()),
+      [path.join(path.dirname(rulePath), "check.mjs")]: "",
     });
 
     const document = await Effect.runPromise(
@@ -81,7 +93,8 @@ describe("rule registry contract", () => {
           habitat: "tools/habitat",
         },
       }),
-      [rulePath]: JSON.stringify(packetRuleInput({ ownerTool: "structure-check" })),
+      [rulePath]: JSON.stringify(packetRuleInput()),
+      [path.join(path.dirname(rulePath), "structure.toml")]: "",
     });
 
     const document = await Effect.runPromise(
@@ -93,8 +106,12 @@ describe("rule registry contract", () => {
         id: "require_docs_site_root_inputs",
         title: "Require Docs Site Root Inputs",
         exceptionPath: "none",
-        structureFile:
-          ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/structure.toml",
+        runner: {
+          name: "habitat",
+          mode: "structure",
+          structurePath:
+            ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/structure.toml",
+        },
       }),
     ]);
   });
@@ -117,23 +134,27 @@ describe("rule registry contract", () => {
           habitat: "tools/habitat",
         },
       }),
-      [defaultPatternRule]: JSON.stringify(
-        packetRuleInput({ ownerTool: "grit-check", scanRoots: ["docs"] })
-      ),
+      [defaultPatternRule]: JSON.stringify(packetRuleInput({ scanRoots: ["docs"] })),
+      [path.join(path.dirname(defaultPatternRule), "pattern.md")]: "",
       [overridePatternRule]: JSON.stringify(
         packetRuleInput({
-          ownerTool: "grit-check",
           patternName: "docs_local_checkout_paths",
           scanRoots: ["docs"],
         })
       ),
+      [path.join(path.dirname(overridePatternRule), "pattern.md")]: "",
     });
 
     const document = await Effect.runPromise(
       loadRuleRegistryDocumentEffect(registryDir, fileSystem)
     );
 
-    expect(document.rules.map((rule) => [rule.id, "patternName" in rule && rule.patternName])).toEqual([
+    expect(
+      document.rules.map((rule) => [
+        rule.id,
+        rule.runner.name === "grit" && rule.runner.patternName,
+      ])
+    ).toEqual([
       ["default_pattern_probe", "default_pattern_probe"],
       ["ensure_docs_checkout_paths_are_portable", "docs_local_checkout_paths"],
     ]);
@@ -158,12 +179,13 @@ describe("rule registry contract", () => {
         },
       }),
       [currentRule]: JSON.stringify(packetRuleInput()),
+      [path.join(path.dirname(currentRule), "check.mjs")]: "",
       [staleRule]: JSON.stringify(baseRule()),
     });
 
-    await expect(Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))).rejects.toThrow(
-      "prefixed rule filenames are stale"
-    );
+    await expect(
+      Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))
+    ).rejects.toThrow("prefixed rule filenames are stale");
   });
 
   test("rejects invalid JSON before schema validation", () => {
@@ -208,7 +230,7 @@ describe("rule registry contract", () => {
     });
   });
 
-  test("rejects unknown adapters and unsupported lanes", () => {
+  test("rejects stale execution metadata and unsupported lanes", () => {
     expectInvalid(
       parseRuleRegistryDocument(
         registryDocument([{ ...baseRule(), ownerTool: "unknown-tool" }]),
@@ -226,7 +248,7 @@ describe("rule registry contract", () => {
     );
   });
 
-  test("rejects missing identity facts", () => {
+  test("rejects missing derived identity facts in normalized records", () => {
     const { id: _id, ...missingId } = baseRule();
 
     expectInvalid(
@@ -263,13 +285,13 @@ describe("rule registry contract", () => {
     }
   });
 
-  test("rejects contradicted variant fields", () => {
+  test("rejects contradicted derived runner fields", () => {
     expectInvalid(
       parseRuleRegistryDocument(
         registryDocument([
           {
             ...baseRule(),
-            ownerTool: "nx",
+            runner: nxRunner(),
           },
         ]),
         "inline-registry.json"
@@ -282,8 +304,8 @@ describe("rule registry contract", () => {
         registryDocument([
           {
             ...baseRule(),
-            ownerTool: "nx",
-            nxTarget: "habitat:test:wrapped",
+            runner: nxRunner(),
+            graphTarget: { project: "habitat", target: "different" },
           },
         ]),
         "inline-registry.json"
@@ -293,15 +315,7 @@ describe("rule registry contract", () => {
 
     expectInvalid(
       parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule({ ownerTool: "source-check" }) }]),
-        "inline-registry.json"
-      ),
-      "registry-schema-invalid"
-    );
-
-    expectInvalid(
-      parseRuleRegistryDocument(
-        registryDocument([{ ...baseRule({ ownerTool: "structure-check" }) }]),
+        registryDocument([{ ...baseRule({ runner: gritRunner("sample-rule") }) }]),
         "inline-registry.json"
       ),
       "registry-schema-invalid"
@@ -311,7 +325,7 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "structure-check" }),
+            ...baseRule({ runner: habitatStructureRunner("sample-rule") }),
             structureFile: ".habitat/sample/sample.structure.toml",
             patternName: "not_structure_authority",
           },
@@ -325,7 +339,7 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "source-check" }),
+            ...baseRule({ runner: gritRunner("sample-rule") }),
             patternName: "sample_pattern",
           },
         ]),
@@ -338,7 +352,7 @@ describe("rule registry contract", () => {
       parseRuleRegistryDocument(
         registryDocument([
           {
-            ...baseRule({ ownerTool: "file-layer" }),
+            ...baseRule({ runner: habitatFileLayerRunner("generated-zone") }),
             generatedZone: "generated-zone",
             forbiddenFileNames: ["pnpm-lock.yaml"],
           },
@@ -414,6 +428,7 @@ function packetRuleInput(overrides: Record<string, unknown> = {}): Record<string
   delete rule.id;
   delete rule.title;
   delete rule.structureFile;
+  delete rule.runner;
   if (rule.exceptionPath === "none") delete rule.exceptionPath;
   if (rule.patternName === ruleId) delete rule.patternName;
   return rule;

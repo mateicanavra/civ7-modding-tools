@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "standard foundation stage index files",
   "forbids": "advanced cast/merge fragments, studio step sentinels, and advancedRecord step passthroughs in foundation stage indexes",
   "why": "Foundation stages must preserve typed decomposed contracts instead of rebuilding wrapper-only advanced config paths.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Remove foundation advanced cast/merge fragments from stage indexes.",
   "hookCheck": true,

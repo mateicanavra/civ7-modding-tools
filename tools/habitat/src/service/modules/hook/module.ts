@@ -63,7 +63,7 @@ export const module: HabitatModule<"hook", HookModuleContext> = service.hook.use
           continueAfterFileLayer: continuePreCommitAfterFileLayer,
           finish: finishPreCommit,
           runBiome: preCommitBiomeProviderStep,
-          stagedCheck: (tool, stagedPaths) => stagedHookCheck(hookContext, tool, stagedPaths),
+          stagedCheck: (phase, stagedPaths) => stagedHookCheck(hookContext, phase, stagedPaths),
           summaryAllowsNextStage: checkSummaryAllowsNextStage,
         },
         prePush: {

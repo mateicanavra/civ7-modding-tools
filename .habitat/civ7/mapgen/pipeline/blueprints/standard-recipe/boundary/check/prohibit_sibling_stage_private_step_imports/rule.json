@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts",
   "forbids": "stage code importing another stage's steps implementation",
   "why": "Stages compose through recipe/domain contracts, not sibling step internals.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not import sibling stage steps; promote a contract or domain surface.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/recipes/standard/stages"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/**/*.ts"]
     }
   ]
 }

@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "decomposed foundation tectonics default strategies",
   "forbids": "direct imports of shared lib/tectonics shims",
   "why": "Decomposed tectonics strategies must consume local rules rather than shared shim modules.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not import shared lib/tectonics shims from foundation tectonics strategies.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/foundation/ops"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain/foundation/ops"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/*/strategies/default.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/*/strategies/default.ts"]
     }
   ]
 }

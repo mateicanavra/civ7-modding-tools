@@ -58,7 +58,7 @@ function routingFact(
 ): RuleRouting {
   return {
     ruleId: rule.id,
-    ownerTool: rule.ownerTool,
+    runner: rule.runner.name,
     ownerProject: rule.ownerProject,
     coverageKind,
     reason,

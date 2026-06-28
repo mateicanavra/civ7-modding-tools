@@ -38,8 +38,8 @@ Packet folders may contain:
 - `baseline.json`: baseline, fixture, current-tree, or generated-artifact evidence.
 - `pattern.md`: primary authored pattern source.
 - `apply.pattern.md`: secondary apply pattern source.
-- `structure.toml`: structure-check topology source.
-- `check.{sh,mjs,ts}`: transitional read-only command adapter.
+- `structure.toml`: Habitat-native topology source.
+- `check.{sh,mjs,ts}`: Habitat-native read-only script adapter.
 - `fix.mjs`, `generate.{sh,ts}`: mutating operation implementation.
 - `operation.md`: provisional identity for non-check operations.
 

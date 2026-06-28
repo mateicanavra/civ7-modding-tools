@@ -287,7 +287,7 @@ function readCurrentRuleRegistryEffect(
           ...(selector
             ? {
                 ownerProject: selector.ownerProject,
-                ownerTool: selector.ownerTool,
+                runner: selector.runner.name,
               }
             : {}),
         };
@@ -449,11 +449,13 @@ function loadBaseRuleIdsFromDirectoryEffect(
 function baseRuleIdFromRegistryPath(repoPath: string): string | undefined {
   const oldMatch = /\/rules\/([^/]+)\/rule\.json$/u.exec(repoPath);
   if (oldMatch?.[1]) return oldMatch[1];
-  const currentPacketMatch =
-    /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/rule\.json$/u.exec(repoPath);
+  const currentPacketMatch = /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/rule\.json$/u.exec(
+    repoPath
+  );
   if (currentPacketMatch?.[1]) return currentPacketMatch[1];
-  const stalePacketMatch =
-    /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/\1\.rule\.json$/u.exec(repoPath);
+  const stalePacketMatch = /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/\1\.rule\.json$/u.exec(
+    repoPath
+  );
   return stalePacketMatch?.[1];
 }
 
@@ -558,7 +560,7 @@ function acceptedRuleIntroductionManifest(
     manifest.comparisonBase !== base ||
     manifest.baselinePath !== baselinePath ||
     manifest.ownerProject !== currentRule?.ownerProject ||
-    manifest.ownerTool !== currentRule?.ownerTool ||
+    manifest.runner !== currentRule?.runner ||
     manifestKeys.length !== manifest.initialBaselineKeys.length ||
     !sameLengthList(manifestKeys, sortedKeys)
   ) {

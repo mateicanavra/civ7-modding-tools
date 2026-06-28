@@ -35,18 +35,23 @@ function canonicalize(value: unknown): unknown {
 }
 
 function stableHash(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalize(value)))
+    .digest("hex");
 }
 
 function configHashFor(config: { config: unknown }): string {
   return stableHash(config.config);
 }
 
-function envelopeHashFor(config: {
-  id: string;
-  recipe: string;
-  latitudeBounds?: unknown;
-}, configHash: string): string {
+function envelopeHashFor(
+  config: {
+    id: string;
+    recipe: string;
+    latitudeBounds?: unknown;
+  },
+  configHash: string
+): string {
   return stableHash({
     id: config.id,
     recipe: config.recipe,
@@ -73,7 +78,9 @@ const generatedIds = readdirSync(generatedDir)
   .sort();
 
 if (JSON.stringify(generatedIds) !== JSON.stringify(configIds)) {
-  failures.push(`generated map ids differ from config ids: ${JSON.stringify(generatedIds)} !== ${JSON.stringify(configIds)}`);
+  failures.push(
+    `generated map ids differ from config ids: ${JSON.stringify(generatedIds)} !== ${JSON.stringify(configIds)}`
+  );
 }
 
 for (const id of configIds) {
@@ -94,16 +101,14 @@ for (const id of configIds) {
       "uses canonical public config envelope",
     ],
     [source.includes(`sourceConfigId: ${JSON.stringify(id)}`), "records sourceConfigId"],
-    [
-      source.includes(`configHash: ${JSON.stringify(expectedConfigHash)}`),
-      "records configHash",
-    ],
+    [source.includes(`configHash: ${JSON.stringify(expectedConfigHash)}`), "records configHash"],
     [
       source.includes(`envelopeHash: ${JSON.stringify(expectedEnvelopeHash)}`),
       "records envelopeHash",
     ],
     [
-      createMapConfigExpression(source) === "canonicalRecipeConfig<StandardRecipeConfig>(mapConfig)",
+      createMapConfigExpression(source) ===
+        "canonicalRecipeConfig<StandardRecipeConfig>(mapConfig)",
       "createMap config property uses canonical public config envelope",
     ],
     [

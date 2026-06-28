@@ -72,7 +72,7 @@ describe("Habitat check service", () => {
         });
         return yield* withFiberContext(() =>
           reportCheck({
-            selectors: { rule: "enforce_formatting_and_import_hygiene", tool: "biome" },
+            selectors: { rule: "enforce_formatting_and_import_hygiene", runner: "habitat" },
             baselineIntegrity: true,
             base: "origin/main",
             staged: true,
@@ -86,7 +86,7 @@ describe("Habitat check service", () => {
     expect(observed).toEqual([
       {
         rule: "enforce_formatting_and_import_hygiene",
-        tool: "biome",
+        runner: "habitat",
         base: "origin/main",
         baselineIntegrity: true,
         command: {
@@ -114,8 +114,14 @@ describe("Habitat check service", () => {
     const command = {
       bin: "habitat" as const,
       id: "check" as const,
-      argv: ["--rule", "prohibit_cross_op_runtime_calls", "--rule", "preserve_standard_stage_topology_and_path_invariants"],
-      serialized: "habitat check --rule prohibit_cross_op_runtime_calls --rule preserve_standard_stage_topology_and_path_invariants",
+      argv: [
+        "--rule",
+        "prohibit_cross_op_runtime_calls",
+        "--rule",
+        "preserve_standard_stage_topology_and_path_invariants",
+      ],
+      serialized:
+        "habitat check --rule prohibit_cross_op_runtime_calls --rule preserve_standard_stage_topology_and_path_invariants",
     };
 
     await Effect.runPromise(
@@ -126,7 +132,12 @@ describe("Habitat check service", () => {
         return yield* withFiberContext(() =>
           reportCheck({
             command,
-            selectors: { rules: ["prohibit_cross_op_runtime_calls", "preserve_standard_stage_topology_and_path_invariants"] },
+            selectors: {
+              rules: [
+                "prohibit_cross_op_runtime_calls",
+                "preserve_standard_stage_topology_and_path_invariants",
+              ],
+            },
           })
         );
       })
@@ -134,7 +145,10 @@ describe("Habitat check service", () => {
 
     expect(observed).toEqual([
       {
-        rules: ["prohibit_cross_op_runtime_calls", "preserve_standard_stage_topology_and_path_invariants"],
+        rules: [
+          "prohibit_cross_op_runtime_calls",
+          "preserve_standard_stage_topology_and_path_invariants",
+        ],
         baselineIntegrity: false,
         command,
         repoRoot,

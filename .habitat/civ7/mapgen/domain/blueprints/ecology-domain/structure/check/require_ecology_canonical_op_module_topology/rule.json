@@ -1,24 +1,14 @@
 {
-  "ownerTool": "structure-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/domain/ecology/ops/*",
   "forbids": "ecology op modules missing canonical topology direct children",
   "why": "Ecology is the canonical exemplar for decomposed op module topology; support directories, schema quality, and JSDoc quality remain outside structure-check.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "structure-check"
-  ],
   "remediate": "Restore contract.ts, index.ts, strategies/index.ts, and rules/index.ts where a rules directory exists for each ecology op module.",
   "message": "An ecology op module is missing canonical topology.",
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/ecology/ops/*"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/ecology/ops/*"]
     }
   ]
 }

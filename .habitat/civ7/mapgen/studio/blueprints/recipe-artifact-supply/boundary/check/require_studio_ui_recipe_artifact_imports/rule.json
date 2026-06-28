@@ -1,29 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "habitat",
   "lane": "enforced",
-  "scope": "apps/mapgen-studio/src/**/*.{ts,tsx}",
   "forbids": "Studio UI importing runtime recipe modules instead of artifact exports",
   "why": "The browser UI consumes schema/default/meta artifacts; runtime recipes stay worker-side.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": "Use mod-swooper-maps/recipes/*-artifacts.",
   "message": "MapGen Studio UI must import recipe artifacts, not runtime recipe modules.",
   "hookCheck": true,
-  "scanRoots": [
-    "apps/mapgen-studio/src"
-  ],
+  "scanRoots": ["apps/mapgen-studio/src"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "apps/mapgen-studio/src/**/*.ts",
-        "apps/mapgen-studio/src/**/*.tsx"
-      ]
+      "patterns": ["apps/mapgen-studio/src/**/*.ts", "apps/mapgen-studio/src/**/*.tsx"]
     }
   ]
 }

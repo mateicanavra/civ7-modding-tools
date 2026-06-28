@@ -26,6 +26,8 @@ export function ruleGraphFacts(
       id: rule.id,
       ownerProject: rule.ownerProject,
       ownerRoot: root,
+      lane: rule.lane,
+      message: rule.message,
       alias: ruleGraphAlias(rule, graphTargetNames),
     };
   });
@@ -43,15 +45,10 @@ function ruleGraphAlias(
       target: { project: "habitat", target: targetNames.biomeCi },
     };
   }
-  if (rule.ownerTool === "nx") {
-    if (!rule.graphTarget) {
-      throw new Error(
-        `Habitat graph metadata contract failure: missing graphTarget for nx rule '${rule.id}'.`
-      );
-    }
+  if (rule.runner.name === "nx") {
     return {
       kind: "depends-on",
-      target: { ...rule.graphTarget },
+      target: { ...rule.runner.target },
     };
   }
   return { kind: "direct-rule-check" };

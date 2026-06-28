@@ -111,7 +111,7 @@ export function executeGritSourceRulesEffect(
         results.set(rule.id, {
           result,
           durationMs,
-          timing: sharedExecutionTiming("grit-check:rules", durationMs, gritRules),
+          timing: sharedExecutionTiming("grit:rules", durationMs, gritRules),
           disposition: { kind: "executed", durationMs },
         });
       }

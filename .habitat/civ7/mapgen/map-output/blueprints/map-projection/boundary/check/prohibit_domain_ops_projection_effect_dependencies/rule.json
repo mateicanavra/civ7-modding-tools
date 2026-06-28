@@ -1,28 +1,16 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts",
   "forbids": "ops depending on map projection/effect artifact keys",
   "why": "Domain ops should not encode runtime map artifact/effect dependencies.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Remove map projection/effect dependency keys from domain ops.",
   "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain"
-  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
     }
   ]
 }

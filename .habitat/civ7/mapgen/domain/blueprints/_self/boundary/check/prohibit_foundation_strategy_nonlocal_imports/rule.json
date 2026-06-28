@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "foundation decomposed tectonics strategies",
   "forbids": "strategy imports outside @swooper/mapgen-core/authoring, ../contract.js, and ../rules/*",
   "why": "Foundation strategy modules should stay local to their op module contracts and rules.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Keep decomposed foundation strategy imports local to the op module.",
   "hookCheck": true,
@@ -27,9 +19,7 @@
   "pathCoverage": [
     {
       "kind": "exact-path",
-      "patterns": [
-        "mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/strategies/**/*.ts"
-      ]
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*/strategies/**/*.ts"]
     }
   ]
 }

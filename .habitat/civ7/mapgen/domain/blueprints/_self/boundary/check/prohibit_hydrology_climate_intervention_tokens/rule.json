@@ -1,16 +1,8 @@
 {
-  "ownerTool": "grit-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "hydrology domain and standard hydrology stages",
   "forbids": "climate.swatches and climate.story authored in hydrology surfaces",
   "why": "Narrative intervention tokens do not belong in hydrology domain or hydrology runtime stage authority.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "grit-check"
-  ],
   "remediate": null,
   "message": "Do not author narrative climate intervention tokens in hydrology.",
   "hookCheck": true,

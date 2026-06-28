@@ -1,6 +1,7 @@
 import path from "node:path";
 import { Value } from "typebox/value";
 import type {
+  PacketRunner,
   RuleRegistryRecordInputV1,
   RuleRegistryRecordV1,
 } from "../dto/registry.schema.ts";
@@ -14,6 +15,7 @@ export const packetBaselineFilename = "baseline.json";
 export const packetPatternFilename = "pattern.md";
 export const packetApplyPatternFilename = "apply.pattern.md";
 export const packetStructureFilename = "structure.toml";
+export const packetScriptFilenames = ["check.ts", "check.mjs", "check.sh"] as const;
 
 const packetRoleFilenames = new Set([
   packetRuleFilename,
@@ -72,10 +74,7 @@ export function packetLocationFromArtifactPath(filePath: string): HabitatPacketR
   };
 }
 
-export function packetRolePath(
-  location: HabitatPacketLocation,
-  roleFilename: string
-): string {
+export function packetRolePath(location: HabitatPacketLocation, roleFilename: string): string {
   return `${location.packetDir}/${roleFilename}`;
 }
 
@@ -99,7 +98,8 @@ export function isStalePrefixedPacketRolePath(filePath: string): boolean {
 
 export function enrichPacketRuleRecord(
   rulePath: string,
-  rawRecord: unknown
+  rawRecord: unknown,
+  roleFilenames: readonly string[] = []
 ): RuleRegistryRecordV1 {
   const location = packetLocationFromArtifactPath(rulePath);
   if (!location) {
@@ -108,20 +108,113 @@ export function enrichPacketRuleRecord(
     );
   }
 
-  const input = Value.Parse(RuleRegistryRecordInputV1Schema, rawRecord) as RuleRegistryRecordInputV1;
+  const input = Value.Parse(
+    RuleRegistryRecordInputV1Schema,
+    rawRecord
+  ) as RuleRegistryRecordInputV1;
+  const runner = packetRunnerFromShape(location, input, roleFilenames);
   const record: RuleRegistryRecordV1 = {
     ...input,
     id: location.packetId,
     title: titleFromPacketId(location.packetId),
     exceptionPath: input.exceptionPath ?? "none",
-    ...(input.ownerTool === "structure-check"
-      ? { structureFile: packetRolePath(location, packetStructureFilename) }
-      : {}),
-    ...(input.ownerTool === "source-check" || input.ownerTool === "grit-check"
-      ? { patternName: input.patternName ?? location.packetId }
-      : {}),
+    runner,
   } as RuleRegistryRecordV1;
   return Value.Parse(RuleRegistryRecordV1Schema, record) as RuleRegistryRecordV1;
+}
+
+export function packetRunnerFromShape(
+  location: HabitatPacketLocation,
+  input: RuleRegistryRecordInputV1,
+  roleFilenames: readonly string[]
+): PacketRunner {
+  const roles = new Set(roleFilenames);
+  const candidates: PacketRunner[] = [];
+
+  if (roles.has(packetPatternFilename)) {
+    candidates.push({
+      name: "grit",
+      patternPath: packetRolePath(location, packetPatternFilename),
+      ...(roles.has(packetApplyPatternFilename)
+        ? { applyPatternPath: packetRolePath(location, packetApplyPatternFilename) }
+        : {}),
+      patternName: input.patternName ?? location.packetId,
+    });
+  } else if (roles.has(packetApplyPatternFilename)) {
+    throw new Error(`Packet '${location.packetId}' has apply.pattern.md without pattern.md.`);
+  }
+
+  if (roles.has(packetStructureFilename)) {
+    candidates.push({
+      name: "habitat",
+      mode: "structure",
+      structurePath: packetRolePath(location, packetStructureFilename),
+    });
+  }
+
+  const scriptRoleFilenames = packetScriptFilenames.filter((filename) => roles.has(filename));
+  if (scriptRoleFilenames.length > 1) {
+    throw new Error(
+      `Packet '${location.packetId}' has multiple check.* executable role files: ${scriptRoleFilenames.join(
+        ", "
+      )}.`
+    );
+  }
+  const [scriptRoleFilename] = scriptRoleFilenames;
+  if (scriptRoleFilename) {
+    candidates.push({
+      name: "habitat",
+      mode: "script",
+      scriptPath: packetRolePath(location, scriptRoleFilename),
+      runtime: scriptRuntime(scriptRoleFilename),
+    });
+  }
+
+  const fileLayerGuard = fileLayerGuardFromInput(location.packetId, input);
+  if (fileLayerGuard) {
+    candidates.push({ name: "habitat", mode: "file-layer", guard: fileLayerGuard });
+  }
+
+  if (input.graphTarget) {
+    candidates.push({
+      name: "nx",
+      target: { ...input.graphTarget },
+    });
+  }
+
+  if (candidates.length !== 1) {
+    throw new Error(
+      `Packet '${location.packetId}' must expose exactly one execution shape; found ${candidates.length}.`
+    );
+  }
+  const runner = candidates[0] as PacketRunner;
+  if (runner.name === "grit" && !input.scanRoots) {
+    throw new Error(`Packet '${location.packetId}' derives grit runner but has no scanRoots.`);
+  }
+  return runner;
+}
+
+function scriptRuntime(roleFilename: (typeof packetScriptFilenames)[number]) {
+  if (roleFilename === "check.ts") return "bun";
+  if (roleFilename === "check.mjs") return "node";
+  return "bash";
+}
+
+function fileLayerGuardFromInput(
+  packetId: string,
+  input: RuleRegistryRecordInputV1
+): Extract<PacketRunner, { name: "habitat"; mode: "file-layer" }>["guard"] | undefined {
+  const guards = [
+    input.generatedZone ? "generated-zone" : undefined,
+    input.forbiddenFileNames ? "forbidden-file-name" : undefined,
+    input.hostSurfaceGuard ? "host-surface" : undefined,
+  ].filter((guard): guard is "generated-zone" | "forbidden-file-name" | "host-surface" =>
+    Boolean(guard)
+  );
+  if (guards.length > 1) {
+    throw new Error(`Packet '${packetId}' has multiple file-layer guard facets.`);
+  }
+  return guards[0];
 }
 
 function toPosixPath(filePath: string): string {

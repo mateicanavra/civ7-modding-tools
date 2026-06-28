@@ -1,16 +1,8 @@
 {
-  "ownerTool": "structure-check",
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
-  "scope": "mods/mod-swooper-maps/src/recipes/standard/stages",
   "forbids": "missing runtime stage roots for full-profile migrated domains",
   "why": "Full-profile domain topology depends on the explicit standard recipe stage roots that are wired in this stack.",
-  "detect": [
-    "habitat",
-    "check",
-    "--tool",
-    "structure-check"
-  ],
   "remediate": "Restore the configured stage root or update standard recipe topology authority intentionally.",
   "message": "A full-profile domain stage root is missing.",
   "exceptionPath": "narrative and resources have no runtime stage roots in this stack",

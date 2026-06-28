@@ -144,7 +144,6 @@ describe("one /rpc mount serves the whole unified contract", () => {
       expect(unifiedKeys).toContain(key);
     }
   });
-
 });
 
 async function listenWithStudioServer(overrides: Partial<StudioServerContext>): Promise<{

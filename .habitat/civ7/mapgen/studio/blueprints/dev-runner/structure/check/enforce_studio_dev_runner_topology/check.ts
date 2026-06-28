@@ -72,7 +72,8 @@ if (serveDaemon) {
     failures.push(`serve-daemon.command drifted: ${serveDaemon.command}`);
   }
   if (serveDaemon.executor !== undefined) failures.push("serve-daemon.executor must be undefined");
-  if (serveDaemon.options?.script !== undefined) failures.push("serve-daemon.options.script must be undefined");
+  if (serveDaemon.options?.script !== undefined)
+    failures.push("serve-daemon.options.script must be undefined");
   if (serveDaemon.continuous !== true) failures.push("serve-daemon.continuous must be true");
   if (!JSON.stringify(serveDaemon.dependsOn).includes("build:studio-recipes")) {
     failures.push("serve-daemon.dependsOn must include build:studio-recipes");
@@ -81,10 +82,13 @@ if (serveDaemon) {
 
 const appPackage = readJson<PackageJson>(join(appRoot, "package.json"));
 for (const script of ["dev", "dev:frontend", "dev:server"]) {
-  if (appPackage.scripts?.[script] !== undefined) failures.push(`app package must not define ${script}`);
+  if (appPackage.scripts?.[script] !== undefined)
+    failures.push(`app package must not define ${script}`);
 }
-if (JSON.stringify(appPackage.scripts).includes("devLive.ts")) failures.push("app scripts mention devLive.ts");
-if (JSON.stringify(appPackage.scripts).includes("bun --watch")) failures.push("app scripts mention bun --watch");
+if (JSON.stringify(appPackage.scripts).includes("devLive.ts"))
+  failures.push("app scripts mention devLive.ts");
+if (JSON.stringify(appPackage.scripts).includes("bun --watch"))
+  failures.push("app scripts mention bun --watch");
 
 const daemonSource = readFileSync(join(appRoot, "src/server/daemon/daemon.ts"), "utf8");
 const viteSource = readFileSync(join(appRoot, "vite.config.ts"), "utf8");
