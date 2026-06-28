@@ -30,7 +30,8 @@
     "PresetConfirmDialog": { "cardMode": "single", "viewport": "680x340" },
     "BrowserConfigFieldTemplate": { "cardMode": "column" },
     "BrowserConfigObjectFieldTemplate": { "cardMode": "column" },
-    "BrowserConfigArrayFieldTemplate": { "cardMode": "column" }
+    "BrowserConfigArrayFieldTemplate": { "cardMode": "column" },
+    "PipelineStage": { "cardMode": "single", "viewport": "1080x620" }
   },
   "docsMap": {
     "Button": ".design-sync/groups/primitives.md",
@@ -74,7 +75,8 @@
     "TagSelectWidget": ".design-sync/groups/forms.md",
     "BrowserConfigFieldTemplate": ".design-sync/groups/forms.md",
     "BrowserConfigObjectFieldTemplate": ".design-sync/groups/forms.md",
-    "BrowserConfigArrayFieldTemplate": ".design-sync/groups/forms.md"
+    "BrowserConfigArrayFieldTemplate": ".design-sync/groups/forms.md",
+    "PipelineStage": ".design-sync/groups/panels.md"
   },
   "componentSrcMap": {
     "Button": "src/components/ui/button.tsx",
@@ -118,6 +120,7 @@
     "TagSelectWidget": "src/features/configOverrides/rjsfWidgets.tsx",
     "BrowserConfigFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
     "BrowserConfigObjectFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
-    "BrowserConfigArrayFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx"
+    "BrowserConfigArrayFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
+    "PipelineStage": "src/features/recipeDag/PipelineStage.tsx"
   }
 }

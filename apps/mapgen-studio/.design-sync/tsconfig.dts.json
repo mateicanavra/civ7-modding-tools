@@ -21,7 +21,8 @@
     "../src/app/ErrorBanner.tsx",
     "../src/features/presets/PresetDialogs.tsx",
     "../src/features/configOverrides/rjsfWidgets.tsx",
-    "../src/features/configOverrides/rjsfTemplates.tsx"
+    "../src/features/configOverrides/rjsfTemplates.tsx",
+    "../src/features/recipeDag/PipelineStage.tsx"
   ],
   "exclude": ["../src/DELETE-WHEN-DONE", "**/*.test.tsx", "**/*.test.ts"]
 }
