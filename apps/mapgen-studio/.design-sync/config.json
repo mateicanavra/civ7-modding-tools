@@ -24,7 +24,10 @@
     "Separator": { "cardMode": "column" },
     "Tabs": { "cardMode": "column" },
     "Textarea": { "cardMode": "column" },
-    "Toaster": { "cardMode": "single", "primaryStory": "Notifications" }
+    "Toaster": { "cardMode": "single", "primaryStory": "Notifications" },
+    "PresetErrorDialog": { "cardMode": "single", "viewport": "680x420" },
+    "PresetSaveDialog": { "cardMode": "single", "viewport": "680x460" },
+    "PresetConfirmDialog": { "cardMode": "single", "viewport": "680x340" }
   },
   "docsMap": {
     "Button": ".design-sync/groups/primitives.md",
@@ -42,6 +45,7 @@
     "Textarea": ".design-sync/groups/primitives.md",
     "Tooltip": ".design-sync/groups/primitives.md",
     "Toaster": ".design-sync/groups/primitives.md",
+    "FieldRow": ".design-sync/groups/primitives.md",
     "AppBrand": ".design-sync/groups/composites.md",
     "AppHeader": ".design-sync/groups/composites.md",
     "AppFooter": ".design-sync/groups/composites.md",
@@ -49,6 +53,12 @@
     "ViewControls": ".design-sync/groups/composites.md",
     "WaterStatsSection": ".design-sync/groups/composites.md",
     "OptionSelect": ".design-sync/groups/composites.md",
+    "ErrorBanner": ".design-sync/groups/composites.md",
+    "PresetErrorDialog": ".design-sync/groups/composites.md",
+    "PresetSaveDialog": ".design-sync/groups/composites.md",
+    "PresetConfirmDialog": ".design-sync/groups/composites.md",
+    "LeftDock": ".design-sync/groups/layout.md",
+    "RightDock": ".design-sync/groups/layout.md",
     "ExplorePanel": ".design-sync/groups/panels.md",
     "GameConsole": ".design-sync/groups/panels.md",
     "RecipePanel": ".design-sync/groups/panels.md"
@@ -79,6 +89,12 @@
     "WaterStatsSection": "src/ui/components/WaterStatsSection.tsx",
     "OptionSelect": "src/ui/components/OptionSelect.tsx",
     "StageViewTabs": "src/ui/components/StageViewTabs.tsx",
-    "FieldRow": null
+    "FieldRow": "src/ui/components/fields/FieldRow.tsx",
+    "LeftDock": "src/app/LeftDock.tsx",
+    "RightDock": "src/app/RightDock.tsx",
+    "ErrorBanner": "src/app/ErrorBanner.tsx",
+    "PresetErrorDialog": "src/features/presets/PresetDialogs.tsx",
+    "PresetSaveDialog": "src/features/presets/PresetDialogs.tsx",
+    "PresetConfirmDialog": "src/features/presets/PresetDialogs.tsx"
   }
 }
