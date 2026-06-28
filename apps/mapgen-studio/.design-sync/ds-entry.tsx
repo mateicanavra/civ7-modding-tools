@@ -47,3 +47,8 @@ export {
 // Batch 3 (2026-06): the recipe-DAG stage view — the dependency graph rendered
 // as a first-class stage (SVG node/lane/edge canvas from a RecipeDagResult).
 export { PipelineStage } from "@/features/recipeDag/PipelineStage";
+
+// Batch 5 (2026-06): the config-authoring ENGINE — composes the Batch-2 rjsf
+// widgets + templates against a real schema (@rjsf/core + ajv8). This is the
+// working whole; SchemaForm is its internal rjsf bridge, not a separate card.
+export { SchemaConfigForm } from "@/features/configOverrides/SchemaConfigForm";

@@ -33,7 +33,8 @@
     "BrowserConfigFieldTemplate": { "cardMode": "column" },
     "BrowserConfigObjectFieldTemplate": { "cardMode": "column" },
     "BrowserConfigArrayFieldTemplate": { "cardMode": "column" },
-    "PipelineStage": { "cardMode": "single", "viewport": "1080x620" }
+    "PipelineStage": { "cardMode": "single", "viewport": "1080x620" },
+    "SchemaConfigForm": { "cardMode": "column" }
   },
   "docsMap": {
     "Button": ".design-sync/groups/primitives.md",
@@ -80,7 +81,8 @@
     "BrowserConfigFieldTemplate": ".design-sync/groups/forms.md",
     "BrowserConfigObjectFieldTemplate": ".design-sync/groups/forms.md",
     "BrowserConfigArrayFieldTemplate": ".design-sync/groups/forms.md",
-    "PipelineStage": ".design-sync/groups/panels.md"
+    "PipelineStage": ".design-sync/groups/panels.md",
+    "SchemaConfigForm": ".design-sync/groups/forms.md"
   },
   "componentSrcMap": {
     "Button": "src/components/ui/button.tsx",
@@ -127,6 +129,7 @@
     "BrowserConfigFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
     "BrowserConfigObjectFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
     "BrowserConfigArrayFieldTemplate": "src/features/configOverrides/rjsfTemplates.tsx",
-    "PipelineStage": "src/features/recipeDag/PipelineStage.tsx"
+    "PipelineStage": "src/features/recipeDag/PipelineStage.tsx",
+    "SchemaConfigForm": "src/features/configOverrides/SchemaConfigForm.tsx"
   }
 }
