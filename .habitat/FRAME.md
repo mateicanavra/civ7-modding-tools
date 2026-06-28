@@ -79,19 +79,24 @@ select, run, report, fix, generate, or migrate authority artifacts, but Toolkit
 internals, runner types, adapter names, and current implementation defects do
 not define the authority ontology.
 
-The current target tree remains:
+The current pruning target tree remains:
 
 ```text
 .habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
 ```
 
-The tree is intentionally decomposed:
+This tree is intentionally decomposed for the current gathered packet corpus:
 
 - niche: authored jurisdiction;
-- blueprint: the buildable or enforceable thing inside the niche;
+- blueprint: the constructible kind or lifecycle-owned shape inside the niche;
 - category: universal engineering-purpose class;
 - kind: mutability and execution intent;
 - packet: current artifact bundle or authority unit.
+
+The durable ontology is narrower than this physical decomposition. Habitat,
+blueprint, instance, capability, and niche are conceptual authority types.
+Category, kind, and packet are current pruning axes and may change when typed
+blueprint, capability, niche, and instance manifests are designed.
 
 ## WHY
 
@@ -178,9 +183,9 @@ Violating any of these forces a reframe:
 
 1. `.habitat` owns authored Habitat authority; `tools/habitat` owns execution
    mechanics.
-2. Niche is jurisdiction; blueprint is the thing being authored or enforced;
-   category is purpose; kind is mutability; packet is the current artifact
-   bundle.
+2. Niche and blueprint are durable ontology terms. Niche is jurisdiction;
+   blueprint is the constructible thing being authored or enforced. Category,
+   kind, and packet are current decomposition axes for gathered authority.
 3. Classify by assertion oracle and mutability, not by file name, target name,
    current path, runner type, or historical defect label.
 4. Habitat owns true structural authority. Package tests own runtime behavior,
@@ -202,8 +207,10 @@ Violating any of these forces a reframe:
 These can change without reframing while the hard core holds:
 
 - Exact subject names, human titles, and executable slugs.
-- The temporary `_self` blueprint placeholder.
+- The temporary `_self` niche-authority packet-placement placeholder.
 - Packet-local `category.md` records as the current metadata carrier.
+- Exact blueprint-definition folder names, manifest schemas, same-kind nesting
+  cascade rules, conflict handling, and deprecation semantics.
 - Transitional command-check scripts for read-only authority that cannot yet be
   expressed through Grit, Nx, Biome, or another durable adapter.
 - Provisional operation notes for fix/generate behavior until typed operation

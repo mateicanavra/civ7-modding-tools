@@ -45,11 +45,17 @@ The stable relationship is:
 
 ```text
 Habitat contains the authority system.
-Blueprint defines a kind.
+Blueprint defines a constructible kind.
 Instance instantiates one primary blueprint.
 Capability attaches to an instance when allowed by that blueprint.
 Niche admits instances by accepted facts, including blueprint and capability.
 ```
+
+Same-kind nesting has different semantics for each concept:
+
+- blueprint nesting is monotonic kind narrowing;
+- capability nesting is namespacing plus explicit relationship facts;
+- niche nesting is governed-space containment, not type inheritance.
 
 ## Habitat
 
@@ -91,10 +97,11 @@ authority, and instance facts.
 
 ## Blueprint
 
-A blueprint is a stateless, constructible, enforceable schematic for a kind of
-thing.
+A blueprint is an encapsulated constructible definition for a kind of thing.
 
-A blueprint defines a kind. It never represents a concrete instance.
+A blueprint defines a kind. It never represents a concrete instance. A child
+blueprint narrows its parent kind; it must not be an unrelated support surface,
+runner, current defect, or one-off package concern.
 
 Blueprints are:
 
@@ -104,6 +111,15 @@ Blueprints are:
 - compositional;
 - enforceable.
 
+A blueprint definition includes identity, version, instance anchor grammar,
+canonical shape, construction, migration, validation, repair, capability
+policy, and child-blueprint relationships.
+
+The side-chat term `kernel` is useful shorthand for "constructive definition,"
+but it is not normative vocabulary. Do not turn `kernel` into a required
+folder, manifest key, or separate authority plane without a later accepted
+layout design.
+
 ### What A Blueprint Answers
 
 A blueprint answers:
@@ -112,7 +128,50 @@ A blueprint answers:
 - what structure that kind requires;
 - where the instance manifest lives;
 - which capabilities are required, default, allowed, or forbidden;
-- which rules, repairs, generators, and migrations keep the kind valid.
+- how instances of the kind are generated, identified, and migrated between
+  versions;
+- which checks, repairs, validators, and governance policies keep the kind
+  valid.
+
+### Constructive Definition And Governance
+
+A blueprint owns both constructive definition and governance. These are useful
+semantic roles, not necessarily final directory names.
+
+Constructive definition answers:
+
+- how to identify an instance of the kind;
+- where its `habitat.toml` manifest is anchored;
+- what file, manifest, schema, or tree shape is canonical;
+- how to construct or generate a new instance;
+- how to migrate an instance between blueprint versions.
+
+Governance answers:
+
+- what must remain true after construction;
+- what is allowed or forbidden;
+- which checks and validators apply;
+- what can be repaired safely;
+- what boundaries the kind must preserve.
+
+Policy is not a separate owner outside the blueprint. Blueprint policy is part
+of the blueprint definition. Conversely, generation and migration are not merely
+policy when they define or transition the kind.
+
+### Nested Blueprints
+
+Nested blueprints are same-kind specializations. If `app/web/static` is a child
+of `app/web`, then `static` is a narrower kind of web app.
+
+Support files, test fixtures, runner adapters, generated indexes, current
+defect names, and implementation chores are not child blueprints.
+
+The exact cascade and override model for parent and child blueprints is still
+open. Until that model is accepted, child blueprints should be treated as
+explicit specializations whose inherited or additional authority must be
+declared rather than inferred from folder depth alone. Child blueprints may add
+or narrow authority. Weakening parent authority requires explicit deprecation,
+migration, or conflict handling rather than silent replacement.
 
 ### Instance Anchor Contract
 
@@ -145,7 +204,7 @@ allowed = [
 forbidden = ["civ7-runtime-mod"]
 ```
 
-### Blueprint Capability Policy
+### Capability Policy Inside Blueprint Definition
 
 Blueprints aggregate capability policy for their kind. A blueprint should define
 which capabilities are:
@@ -174,6 +233,12 @@ artifact surface, or multi-root construct.
 An instance is identified by an instance manifest at the blueprint-defined
 anchor. The manifest is normally `habitat.toml`.
 
+No `habitat.toml` means no admitted instance. Candidate roots can be discovered
+or generated, but admission requires manifest facts at the blueprint-defined
+anchor. A compatibility bridge may only proxy or materialize those manifest
+facts during migration; it must not admit an instance by bypassing the manifest
+model.
+
 ### What An Instance Answers
 
 An instance answers:
@@ -183,7 +248,7 @@ An instance answers:
 - which blueprint version it uses;
 - where its roots are;
 - which capabilities it activates;
-- which explicit niches include it, if any;
+- which niches it requests or declares as facts, if any;
 - which capability configuration values are accepted facts for this instance.
 
 ### Instance Facts Are Not Policy
@@ -234,6 +299,11 @@ A capability describes something an instance does, exposes, or participates in
 across blueprint kinds. A capability is not itself a constructible kind, a
 niche, or a generated object.
 
+Capabilities are monotonic. A valid capability activation may add accepted
+facts, config requirements, checks, repairs, validators, or niche-admission
+facts. It must not weaken blueprint authority, erase another capability's
+accepted facts, or silently override niche governance.
+
 ### What A Capability Answers
 
 A capability answers:
@@ -273,6 +343,17 @@ writes-this-one-temp-file
 Those belong as rules or config under a capability, not as separate
 capabilities.
 
+### Nested Capabilities
+
+Capability nesting is namespacing plus declared relationship facts, not
+inheritance. A nested capability may refine vocabulary or group related facets,
+but it does not automatically inherit, override, or weaken parent capability
+authority.
+
+Any relationship between parent and child capabilities must be declared
+explicitly. The exact capability relationship schema remains open; likely
+relationships include `requires`, `implies`, `conflictsWith`, and `refines`.
+
 ### Capability Definition Example
 
 ```toml
@@ -300,8 +381,8 @@ activatesRules = [
   "prohibit_client_secret_exposure"
 ]
 
-activatesNicheSelectors = [
-  "security.auth-capable"
+exposesFacts = [
+  "capability:authentication"
 ]
 ```
 
@@ -310,6 +391,10 @@ activatesNicheSelectors = [
 A capability is not about generating things. A capability may have checks,
 repairs, docs, or generators around its own metadata, but generation is
 incidental.
+
+A capability normally has no constructive definition. If it needs install or
+setup mechanics, model those as setup/configuration support for the capability,
+not as a blueprint-style constructive core.
 
 If `auth` is a constructible generated module shape, that shape is a blueprint.
 If `authentication` is behavior that an app or package exposes, that behavior is
@@ -334,7 +419,8 @@ A niche is a governed, operable domain space.
 
 A niche is where domain-specific or cross-cutting governance lives: policies,
 workflows, roles, agents, skills, scheduled work, reviews, and additional
-authority.
+authority. Human stewards, teams, service agents, and AI agents should be
+modeled as agent or role records, not as separate peer ontology roots.
 
 ### What A Niche Answers
 
@@ -347,7 +433,10 @@ A niche answers:
 
 ### Admission
 
-A niche can admit instances by accepted facts:
+A niche admits instances by accepted facts. It does not admit raw folders,
+packets, source files, or blueprints directly.
+
+Accepted admission facts may include:
 
 - explicit instance membership;
 - blueprint kind;
@@ -381,6 +470,19 @@ If an instance declares `authentication`, then the `security` niche admits that
 instance. The security niche does not own or redefine authentication; it uses
 authentication as an admission fact.
 
+Explicit niche declarations in an instance manifest are requested facts, not
+unilateral membership. They become accepted membership only when validated by
+niche admission metadata or an explicit niche membership selector.
+
+Admission should be treated as a derived fact with provenance:
+
+```text
+instance + niche selector + consumed accepted facts -> niche membership
+```
+
+Path-only or root-only admission is transitional unless the path or root is an
+accepted fact of a manifest-backed instance.
+
 ### Niche Authority
 
 Niche authority is additive. A niche cannot weaken blueprint authority or
@@ -389,6 +491,10 @@ for admitted instances.
 
 Niche overlap is allowed only when policies are additive or conflicts are made
 explicit.
+
+Parent and child niches do not imply type inheritance. Any membership,
+authority, or workflow inheritance between niches must be declared by niche
+metadata or derived admission facts, not inferred from path nesting alone.
 
 ## Relationship Rules
 
@@ -409,12 +515,15 @@ Habitat global authority
 ```text
 1. Habitat defines available blueprints, capabilities, and niches.
 2. A blueprint defines a constructible kind and its instance manifest anchor.
-3. A concrete instance appears with a manifest at the blueprint-defined anchor.
+3. A candidate root becomes an instance when a valid manifest appears at the
+   blueprint-defined anchor.
 4. The instance declares its blueprint, roots, and selected capabilities.
 5. Habitat validates selected capabilities against blueprint capability policy.
-6. Valid capabilities activate their capability authority.
-7. Niches admit the instance by blueprint, capability, roots, metadata, or explicit membership.
-8. Niche policies and workflows apply additively.
+6. Valid capabilities activate their capability authority and add accepted
+   facts.
+7. Niches consume accepted facts through selectors and admit matching
+   instances.
+8. Niche policies, workflows, agents, and skills apply additively.
 ```
 
 ### Core Constraints
@@ -426,7 +535,8 @@ Capabilities define reusable facets, not generated shapes.
 Niches govern admitted instances, not blueprint semantics.
 Blueprint authority cannot be weakened by capabilities or niches.
 Capabilities compose additively and must surface conflicts.
-Niche overlap is valid only when policies are additive or conflicts are explicit.
+Niches admit instances, not raw folders or blueprint definitions.
+Niche overlap is valid only when governance is additive or conflicts are explicit.
 ```
 
 ## Manifest Placement
@@ -510,83 +620,36 @@ roots = [
 This is valid only if the blueprint says multi-project runtime instances are
 anchored under `features/<id>/`.
 
-## Target File Naming
+## Physical Layout Commitments
 
-Future authority packets should avoid redundant filename prefixes inside
-same-named parent directories.
+This ontology is semantic first. It defines concepts, relationships,
+activation, and identity. It does not select the final folder names for
+blueprint internals, capability internals, niche internals, packet metadata, or
+support artifacts.
 
-Preferred:
-
-```text
-.habitat/
-  capabilities/
-    authentication/
-      capability.toml
-
-      enforce_auth_boundary/
-        rule.json
-        pattern.md
-
-      require_declared_auth_roots/
-        rule.json
-        structure.toml
-
-      prohibit_client_secret_exposure/
-        rule.json
-        pattern.md
-```
-
-Avoid:
+These terms are explicitly not accepted as final physical layout commitments:
 
 ```text
-enforce_auth_boundary/
-  enforce_auth_boundary.rule.json
-  enforce_auth_boundary.pattern.md
+kernel/
+rules/
+packets/
+authority/
+_authority/
 ```
 
-The packet folder already supplies the rule identity.
+They may still be useful discussion terms or transitional paths in a later
+layout design, but they should not be treated as ontology.
 
-## Rule Metadata Consolidation
+Future physical layouts should preserve these constraints:
 
-Future authority packets should not split stable rule metadata across
-`category.md` and `rule.json`. The intended target is one rule metadata file,
-such as `rule.json`, `rule.toml`, or `rule.md`, with any large human rationale
-kept in a companion document only when needed.
-
-The current `category.md` plus `<packet>.rule.json` shape is transitional.
-
-## Capability Internal Organization
-
-Capabilities should start flat.
-
-Inside a capability, the capability itself is already the relevant concern.
-Avoid introducing category directories such as `boundary`, `structure`, or
-`execution` until the capability grows enough to justify subdivision.
-
-Prefer:
-
-```text
-capabilities/authentication/
-  capability.toml
-  enforce_auth_boundary/
-    rule.json
-    pattern.md
-  require_declared_auth_roots/
-    rule.json
-    structure.toml
-```
-
-The rule metadata can still record concern and tool facts:
-
-```json
-{
-  "kind": "check",
-  "tool": "grit-check",
-  "concern": "boundary"
-}
-```
-
-The filesystem should not duplicate every metadata axis by default.
+- primary ontology roots such as `blueprints`, `capabilities`, and `niches`
+  should not be underscored;
+- support, generated, cache, and runner-bridge directories may use reserved
+  naming to signal non-authority or derived material;
+- same-kind child containers should not blur with local support artifacts;
+- metadata should avoid duplicating identity that is already supplied by an
+  owning manifest or folder;
+- current `category.md` plus `<packet>.rule.json` metadata is transitional.
 
 ## Current Tree Compatibility
 

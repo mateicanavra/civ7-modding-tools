@@ -1,14 +1,16 @@
 # Habitat Authority Tree Shape
 
-Status: working normative reference for the current niche/blueprint authority tree
+Status: current transitional physical reference for the niche/blueprint packet tree
 
-This document defines the current physical target shape for `.habitat`
+This document defines the current physical packet shape for `.habitat`
 authority artifacts. It captures the transitional organization where niches are
-jurisdictions and blueprints are buildable/enforceable things inside those
-jurisdictions. The normative conceptual model for Habitat, blueprints,
-instances, capabilities, niches, admission, and authority activation lives in
-`AUTHORITY-ONTOLOGY.md`. This document does not define final resolver metadata,
-support-file ontology, cascade semantics, or typed blueprint manifests.
+jurisdictions and blueprints are constructible kinds or lifecycle-owned shapes
+inside those jurisdictions. It is the active pruning and packet-placement
+reference, not the final blueprint-definition layout. The normative conceptual
+model for Habitat, blueprints, instances, capabilities, niches, admission, and
+authority activation lives in `AUTHORITY-ONTOLOGY.md`. This document does not
+define final resolver metadata, support-file ontology, cascade semantics, or
+typed blueprint manifests.
 
 `.habitat/_support/execution/` is a temporary execution-support bridge outside
 the authority hierarchy. It is not a niche and must not be used as a precedent
@@ -16,9 +18,9 @@ for new authored policy placement.
 
 ## Core Decision
 
-Habitat organizes authority by niche first, then blueprint. A niche is an authored jurisdiction: an area, domain, package family, or governed place. A blueprint is a constructible/enforceable thing inside that niche: a surface, package shape, service module, generated artifact shape, runtime boundary, or workflow object that has lifecycle artifacts.
+Habitat currently organizes gathered packets by niche first, then blueprint. A niche is an authored jurisdiction: an area, domain, package family, or governed place. A blueprint is a constructible kind or lifecycle-owned shape inside that niche: a surface, package shape, service module, generated artifact shape, runtime boundary, or workflow object that has lifecycle artifacts. Enforcement attaches to that kind; being enforceable does not by itself make something a blueprint. Runtime boundaries and workflow objects qualify only when they are manifest-backed constructible kinds or lifecycle-owned shapes, not runner classes, commands, or current defect labels.
 
-Target shape:
+Current pruning shape:
 
 ```text
 .habitat/
@@ -42,7 +44,7 @@ Target shape:
             <packet>/
 ```
 
-`_self` is the temporary blueprint name for packets that describe the niche itself rather than a child constructible thing. Category names are single-word universal purpose categories: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, and `policy`. Artifact-kind directories are mutability classes: `check`, `fix`, `generate`, `migrate`, and `triage`.
+`_self` is the temporary packet-placement name for packets that describe the niche itself rather than a child constructible thing. It is not a blueprint and must not become a final ontology term. Category names are single-word universal purpose categories: `boundary`, `structure`, `contract`, `execution`, `artifact`, `quality`, and `policy`. Artifact-kind directories are mutability classes: `check`, `fix`, `generate`, `migrate`, and `triage`.
 
 ## Concepts
 
@@ -54,7 +56,20 @@ Niches may nest when the language and authority become more specific. A niche is
 
 ### Blueprint
 
-A blueprint is the portable concept-level unit inside a niche. It owns lifecycle artifacts that define, enforce, generate, fix, or migrate the thing being authored. Blueprints are intentionally broader than individual rule subjects, but narrower than areas such as `workspace`, `documentation`, `toolkit`, `platform`, `resources`, `domain`, `pipeline`, `map-output`, or `studio`.
+A blueprint is the portable concept-level unit inside a niche. In the ontology,
+blueprints are encapsulated constructible definitions whose child blueprints
+monotonically specialize the parent kind. In this transitional physical tree,
+blueprint directories hold gathered packets that define, enforce, generate,
+fix, or migrate the thing being authored.
+
+Blueprints are intentionally broader than individual rule subjects, but
+narrower than areas such as `workspace`, `documentation`, `toolkit`,
+`platform`, `resources`, `domain`, `pipeline`, `map-output`, or `studio`.
+
+The current category/artifact-kind/packet folders are not the final anatomy of
+a blueprint definition. They are the current decomposition used to keep gathered
+authority sortable while final typed blueprint manifests and cascade semantics
+remain open.
 
 Current blueprint examples include:
 
@@ -66,11 +81,20 @@ Current blueprint examples include:
 - `civ7/mapgen/domain/blueprints/domain-public-surface`
 - `civ7/mapgen/pipeline/blueprints/standard-recipe`
 - `civ7/mapgen/map-output/blueprints/map-projection`
+
+Known transitional misfit, not a blueprint exemplar:
+
 - `civ7/mapgen/studio/blueprints/ensure_studio_worker_bundle_is_browser_safe`
+  is a check/defect-shaped slug. Treat it as a pruning target to decompose
+  under the appropriate constructible blueprint, package-local proof, or
+  Nx-ordering owner before preserving it as Habitat authority.
 
 ### `_self`
 
-`_self` is a staging name for authority about the niche as a whole. It is not a final ontology term. It prevents niche-wide authority from being mixed with child blueprint names while the final manifest model is still being designed.
+`_self` is a staging name for authority about the niche as a whole. It is not a
+blueprint and not a final ontology term. It prevents niche-wide packets from
+being mixed with child blueprint names while the final manifest model is still
+being designed.
 
 ### Category
 
