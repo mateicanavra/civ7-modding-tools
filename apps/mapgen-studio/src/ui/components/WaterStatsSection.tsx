@@ -9,13 +9,14 @@
 // the run compares to its baseline (plan vs engine counts, mismatches) plus
 // jump-to-layer chips for the underlying evidence.
 // ============================================================================
-import { ChevronDown, Droplets } from "lucide-react";
+import { Droplets } from "lucide-react";
 import React from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../components/ui";
 import type {
   RiverLakeFloodplainInspectorSummary,
   RiverLakeInspectorLayerRef,
 } from "../../features/viz/riverLakeInspector";
+import { DisclosureHeader } from "./DisclosureHeader";
 
 // ============================================================================
 // Props
@@ -92,7 +93,6 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
   const textSecondary = "text-muted-foreground";
   const textMuted = "text-muted-foreground/70";
   const borderSubtle = "border-border-subtle";
-  const hoverBg = "hover:bg-accent";
 
   const divergenceTotal = rows.reduce(
     (total, row) =>
@@ -106,33 +106,26 @@ export const WaterStatsSection: React.FC<WaterStatsSectionProps> = ({
   return (
     <>
       <div className={`flex-shrink-0 border-b ${borderSubtle}`}>
-        <button
-          type="button"
-          onClick={() => onExpandedChange(!expanded)}
-          aria-expanded={expanded}
-          aria-controls="explore-water-stats-list"
-          className={`w-full flex items-center justify-between px-3 py-2 transition-colors ${hoverBg}`}
-        >
-          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-            <Droplets className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />
+        <DisclosureHeader
+          className="px-3 py-2"
+          expanded={expanded}
+          onToggle={onExpandedChange}
+          controls="explore-water-stats-list"
+          icon={<Droplets className={`w-3.5 h-3.5 shrink-0 ${textSecondary}`} />}
+          title={
             <span className={`text-data font-semibold ${textSecondary} uppercase tracking-wider`}>
               Water stats
             </span>
-            {!expanded ? (
-              <span
-                className={`text-label truncate ${divergenceTotal > 0 ? "text-warning" : textMuted}`}
-              >
-                {collapsedSummary}
-              </span>
-            ) : null}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className={`text-label ${textMuted}`}>{rows.length}</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 ${textMuted} transition-transform ${expanded ? "rotate-180" : ""}`}
-            />
-          </div>
-        </button>
+          }
+          summary={
+            <span
+              className={`text-label truncate ${divergenceTotal > 0 ? "text-warning" : textMuted}`}
+            >
+              {collapsedSummary}
+            </span>
+          }
+          trailing={<span className={`text-label ${textMuted}`}>{rows.length}</span>}
+        />
       </div>
       {expanded ? (
         <div

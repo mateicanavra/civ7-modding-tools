@@ -8,6 +8,12 @@
 export { AppBrand } from "./AppBrand";
 export { AppFooter, type AppFooterProps, FOOTER_HEIGHT } from "./AppFooter";
 export { AppHeader, type AppHeaderProps } from "./AppHeader";
+export {
+  DisclosureHeader,
+  type DisclosureHeaderProps,
+  type DisclosureRootRenderProps,
+} from "./DisclosureHeader";
+export { EmptyState, type EmptyStateProps } from "./EmptyState";
 export { ExplorePanel, type ExplorePanelProps } from "./ExplorePanel";
 // Form fields (only `FieldRow` remains — the old lightMode/hex field set was
 // dead and removed; UI primitives now live in `src/components/ui` (shadcn)).

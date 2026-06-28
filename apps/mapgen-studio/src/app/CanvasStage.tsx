@@ -3,6 +3,7 @@ import type { MutableRefObject } from "react";
 
 import { DeckCanvas, type DeckCanvasApi } from "../features/viz/DeckCanvas";
 import type { Bounds, VizLayerEntryV1 } from "../features/viz/model";
+import { EmptyState } from "../ui/components/EmptyState";
 
 export type CanvasStageProps = {
   apiRef: MutableRefObject<DeckCanvasApi | null>;
@@ -101,14 +102,18 @@ export function CanvasStage(props: CanvasStageProps) {
             }}
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center gap-3 rounded-xl border border-border/60 bg-popover/40 px-8 py-6 text-center backdrop-blur-sm">
-              <span className="text-label uppercase tracking-[0.2em] text-muted-foreground/70">
-                Awaiting matter
-              </span>
-              <span className="text-data font-medium text-muted-foreground">
-                Click Run to generate a map
-              </span>
-            </div>
+            <EmptyState
+              title={
+                <span className="text-label uppercase tracking-[0.2em] text-muted-foreground/70">
+                  Awaiting matter
+                </span>
+              }
+              message={
+                <span className="text-data font-medium text-muted-foreground">
+                  Click Run to generate a map
+                </span>
+              }
+            />
           </div>
         </div>
       ) : null}
