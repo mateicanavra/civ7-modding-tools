@@ -254,4 +254,17 @@ describe("useBrowserRun — auto-run trio (BR-1..BR-5)", () => {
     act(() => vi.advanceTimersByTime(50)); // 300 since reschedule → fire once
     expect(runnerActions.start).toHaveBeenCalledTimes(1);
   });
+
+  it("BR-13 (improve): disabling MID-debounce leaks no timer — the partially-elapsed run never fires", () => {
+    // Distinct from BR-1(a), which disables immediately: here the 300ms timer has
+    // already partially elapsed when auto-run is disabled. The guarantee holds only
+    // because the disable-arm (E1) and the timer ref live in the SAME hook as the
+    // schedule-arm (E2) — split them across hooks and the ref-holder leaks this timer.
+    const { view, runnerActions } = renderBrowserRun();
+    act(() => view.result.current.setAutoRunEnabled(true)); // schedule 300ms
+    act(() => vi.advanceTimersByTime(150)); // mid-debounce
+    act(() => view.result.current.setAutoRunEnabled(false)); // E1 cancels the in-flight timer
+    act(() => vi.advanceTimersByTime(300)); // well past the original deadline
+    expect(runnerActions.start).not.toHaveBeenCalled();
+  });
 });

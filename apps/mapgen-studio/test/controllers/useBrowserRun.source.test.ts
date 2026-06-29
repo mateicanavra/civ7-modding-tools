@@ -43,6 +43,14 @@ describe("useBrowserRun source — atomic trio + partition", () => {
     expect(hook.match(/useEffect\(/g)).toHaveLength(3);
   });
 
+  it("BR-13: the debounce timer ref + pending ref live in the SAME hook as the trio (no cross-hook leak)", () => {
+    // The structural guarantee the behavioral BR-13 test can only observe: the
+    // timer/pending refs are declared here alongside their three effects. A
+    // refactor that split the disable-arm from this ref would leak the timer.
+    expect(hook).toMatch(/const autoRunTimerRef = useRef/);
+    expect(hook).toMatch(/const autoRunPendingRef = useRef/);
+  });
+
   it("receives the busy flags as params — never re-derives them via useStudioOperations", () => {
     expect(hook).not.toMatch(/useStudioOperations/);
     expect(hook).toMatch(/runInGameRunning/);
