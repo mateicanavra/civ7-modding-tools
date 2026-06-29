@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_domain_artifacts_modules",
+  "title": "Prohibit Domain Artifacts Modules",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "domain-public-surface",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "artifacts.ts modules under domain source",
@@ -10,5 +19,15 @@
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/domain/**/artifacts.ts"]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/structure/check/prohibit_domain_artifacts_modules/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/structure/check/prohibit_domain_artifacts_modules/structure.toml"
+    }
+  }
 }

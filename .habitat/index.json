@@ -1,5 +1,5 @@
 {
-  "$comment": "Root registry metadata for Habitat rule discovery. Packet rule records live under .habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/rule.json, with identity and placement derived from the packet path. Sibling role files derive runner shape. ownerProject = the workspace project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only.",
+  "$comment": "Root registry metadata for Habitat rule discovery. Habitat discovers .habitat/**/rule.json manifests. Each manifest owns stable rule identity, current placement inventory facts, explicit runner file references, and artifact references. Physical location is not rule identity. ownerProject = the workspace project whose habitat:check target runs this rule. lane: enforced rules fail `habitat check`; advisory rules report only.",
   "schemaVersion": 1,
   "ownerRoots": {
     "control-orpc": "packages/civ7-control-orpc",

@@ -35,18 +35,24 @@ required = ["src"]
       rules: [
         {
           id: "sample-structure-rule",
+          schemaVersion: 1,
           title: "Sample Structure Rule",
+          placement: {
+            niche: "fixtures",
+            blueprint: "_self",
+            category: "structure",
+            artifactKind: "check",
+          },
           ownerProject: "habitat",
           lane: "enforced",
           forbids: "missing structure",
           why: "The test proves native structure execution.",
           remediate: null,
           message: "Fix structure.",
-          exceptionPath: "none",
           runner: {
             name: "habitat",
             mode: "structure",
-            structurePath: ".habitat/sample/sample.structure.toml",
+            files: { structure: ".habitat/sample/sample.structure.toml" },
           },
           pathCoverage: [{ kind: "exact-path", patterns: ["pkg"] }],
         },

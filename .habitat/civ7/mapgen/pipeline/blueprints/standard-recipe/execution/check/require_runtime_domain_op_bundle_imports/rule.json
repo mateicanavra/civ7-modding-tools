@@ -1,16 +1,35 @@
 {
+  "schemaVersion": 1,
+  "id": "require_runtime_domain_op_bundle_imports",
+  "title": "Require Runtime Domain Op Bundle Imports",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "standard-recipe",
+    "category": "execution",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "recipe compilation importing domain contract roots instead of runtime ops",
   "why": "Compiled recipes use runtime op bundles; contracts are for step/domain boundaries.",
   "remediate": null,
   "message": "Recipe runtime files must import @mapgen/domain/<domain>/ops for runtime domains.",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": ["mods/*/src/recipes/**/recipe.ts"]
     }
-  ]
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/execution/check/require_runtime_domain_op_bundle_imports/pattern.md"
+    },
+    "patternName": "require_runtime_domain_op_bundle_imports"
+  }
 }

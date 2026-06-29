@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "preserve_physics_to_map_projection_contracts",
+  "title": "Preserve Physics To Map Projection Contracts",
+  "placement": {
+    "niche": "civ7/mapgen/map-output",
+    "blueprint": "map-projection",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "physics contracts requiring map artifacts/effects, realized-map artifact tags, or non-canonical map effect names",
@@ -14,5 +23,16 @@
         "packages/mapgen-core/src/**/*.ts"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/contract/check/preserve_physics_to_map_projection_contracts/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/contract/check/preserve_physics_to_map_projection_contracts/check.mjs"
+    }
+  }
 }

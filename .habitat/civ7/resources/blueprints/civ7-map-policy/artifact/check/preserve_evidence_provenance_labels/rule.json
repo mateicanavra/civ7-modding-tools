@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "preserve_evidence_provenance_labels",
+  "title": "Preserve Evidence Provenance Labels",
+  "placement": {
+    "niche": "civ7/resources",
+    "blueprint": "civ7-map-policy",
+    "category": "artifact",
+    "artifactKind": "check"
+  },
   "ownerProject": "civ7-map-policy",
   "lane": "enforced",
   "forbids": "generated table headers that claim repository truth instead of source evidence",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/resources/blueprints/civ7-map-policy/artifact/check/preserve_evidence_provenance_labels/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/resources/blueprints/civ7-map-policy/artifact/check/preserve_evidence_provenance_labels/check.ts"
+    }
+  }
 }

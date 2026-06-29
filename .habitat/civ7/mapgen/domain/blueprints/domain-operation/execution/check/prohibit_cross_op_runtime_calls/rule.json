@@ -1,16 +1,35 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_cross_op_runtime_calls",
+  "title": "Prohibit Cross Op Runtime Calls",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "domain-operation",
+    "category": "execution",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "domain op runtime entrypoints importing sibling op runtimes or importing the domain ops barrel",
   "why": "Domain ops stay atomic; step and stage composition owns cross-op orchestration.",
   "remediate": null,
   "message": "Move op composition into the owning step/stage or public domain surface.",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/*/index.ts"]
     }
-  ]
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/domain-operation/execution/check/prohibit_cross_op_runtime_calls/pattern.md"
+    },
+    "patternName": "prohibit_cross_op_runtime_calls"
+  }
 }

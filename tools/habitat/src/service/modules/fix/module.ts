@@ -14,7 +14,7 @@ import type {
 } from "./model/dto/index.js";
 import {
   admittedApplyTransactionInputs as admittedApplyTransactionInputsFromRules,
-  defaultApplyAdmissions,
+  defaultApplyAdmissions as defaultApplyAdmissionsFromRules,
   type PatternApplyGritPort,
   renderPatternApply,
   runPatternApplyTransaction,
@@ -32,7 +32,7 @@ interface FixGitPort {
 
 export interface FixModuleContext {
   readonly admittedApplyTransactionInputs: ReturnType<typeof makeAdmittedApplyTransactionInputs>;
-  readonly defaultApplyAdmissions: typeof defaultApplyAdmissions;
+  readonly defaultApplyAdmissions: ReturnType<typeof makeDefaultApplyAdmissions>;
   readonly missingAdmissionRefusal: typeof missingAdmissionRefusal;
   readonly renderPatternApply: typeof renderPatternApply;
   readonly runPatternApplyTransactions: ReturnType<typeof makeRunPatternApplyTransactions>;
@@ -45,8 +45,9 @@ export interface FixPatternApplyIntent {
 export const module: HabitatModule<"fix", FixModuleContext> = service.fix.use(
   ({ context, next }) => {
     const admittedApplyTransactionInputs = makeAdmittedApplyTransactionInputs(
-      context.deps.rules.selector
+      context.deps.rules.grit
     );
+    const defaultApplyAdmissions = makeDefaultApplyAdmissions(context.deps.rules.grit);
     const runPatternApplyTransactions = makeRunPatternApplyTransactions(
       context.deps.grit,
       context.deps.git,
@@ -64,7 +65,15 @@ export const module: HabitatModule<"fix", FixModuleContext> = service.fix.use(
   }
 );
 
-function makeAdmittedApplyTransactionInputs(ruleFacts: readonly { id: string }[]) {
+function makeDefaultApplyAdmissions(
+  ruleFacts: Parameters<typeof defaultApplyAdmissionsFromRules>[0]
+) {
+  return () => defaultApplyAdmissionsFromRules(ruleFacts);
+}
+
+function makeAdmittedApplyTransactionInputs(
+  ruleFacts: Parameters<typeof admittedApplyTransactionInputsFromRules>[0]
+) {
   return () => admittedApplyTransactionInputsFromRules(ruleFacts);
 }
 

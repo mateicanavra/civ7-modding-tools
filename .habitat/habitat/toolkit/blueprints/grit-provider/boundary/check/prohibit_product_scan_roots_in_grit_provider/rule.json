@@ -1,12 +1,19 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_product_scan_roots_in_grit_provider",
+  "title": "Prohibit Product Scan Roots In Grit Provider",
+  "placement": {
+    "niche": "habitat/toolkit",
+    "blueprint": "grit-provider",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "product/domain scan roots hard-coded inside the Grit provider",
   "why": "The Grit provider is a generic tool capability; repo-specific scan roots are rule registry metadata.",
   "remediate": null,
   "message": "Move product-specific scan roots out of the Grit provider and into rule registry metadata.",
-  "hookCheck": true,
-  "scanRoots": ["tools/habitat/src/providers/grit"],
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -15,5 +22,17 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "scanRoots": ["tools/habitat/src/providers/grit"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/habitat/toolkit/blueprints/grit-provider/boundary/check/prohibit_product_scan_roots_in_grit_provider/pattern.md"
+    },
+    "patternName": "prohibit_product_scan_roots_in_grit_provider"
+  }
 }

@@ -1,7 +1,7 @@
 import type {
-  PacketRunner,
   parseRuleRegistryDocument,
   RuleRegistryRecordV1,
+  RuleRunner,
 } from "@habitat/cli/service/model/rules/index";
 import { expect } from "vitest";
 
@@ -27,14 +27,24 @@ export function expectInvalid(
 export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryRecordV1 {
   const rule = {
     id: "sample-rule",
+    schemaVersion: 1,
+    title: "Sample Rule",
+    placement: {
+      niche: "fixtures",
+      blueprint: "_self",
+      category: "quality",
+      artifactKind: "check",
+    },
     ownerProject: "habitat",
     lane: "enforced",
     forbids: "broken structure",
     why: "Keeps the workspace structurally coherent.",
     remediate: null,
     message: "Fix the structural issue.",
-    exceptionPath: "none",
     pathCoverage: [{ kind: "project-owner" }],
+    artifacts: {
+      baseline: ".habitat/fixtures/blueprints/_self/quality/check/sample-rule/baseline.json",
+    },
     runner: habitatScriptRunner("sample-rule"),
   } satisfies RuleRegistryRecordV1;
   return { ...rule, ...overrides } as RuleRegistryRecordV1;
@@ -43,38 +53,38 @@ export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryR
 export function habitatScriptRunner(
   id: string,
   runtime: "bun" | "node" | "bash" = "node"
-): PacketRunner {
+): RuleRunner {
   const filename = runtime === "bash" ? "check.sh" : runtime === "bun" ? "check.ts" : "check.mjs";
   return {
     name: "habitat",
     mode: "script",
-    scriptPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/${filename}`,
+    files: { script: `.habitat/fixtures/blueprints/_self/quality/check/${id}/${filename}` },
     runtime,
   };
 }
 
-export function gritRunner(id: string): PacketRunner {
+export function gritRunner(id: string): RuleRunner {
   return {
     name: "grit",
-    patternPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md`,
+    files: { pattern: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md` },
     patternName: id,
   };
 }
 
-export function habitatStructureRunner(id: string): PacketRunner {
+export function habitatStructureRunner(id: string): RuleRunner {
   return {
     name: "habitat",
     mode: "structure",
-    structurePath: `.habitat/fixtures/blueprints/_self/structure/check/${id}/structure.toml`,
+    files: { structure: `.habitat/fixtures/blueprints/_self/structure/check/${id}/structure.toml` },
   };
 }
 
 export function habitatFileLayerRunner(
   guard: "generated-zone" | "forbidden-file-name" | "host-surface"
-): PacketRunner {
+): RuleRunner {
   return { name: "habitat", mode: "file-layer", guard };
 }
 
-export function nxRunner(project = "habitat", target = "test"): PacketRunner {
+export function nxRunner(project = "habitat", target = "test"): RuleRunner {
   return { name: "nx", target: { project, target } };
 }

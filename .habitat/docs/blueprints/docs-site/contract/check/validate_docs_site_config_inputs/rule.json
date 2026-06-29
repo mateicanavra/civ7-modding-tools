@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "validate_docs_site_config_inputs",
+  "title": "Validate Docs Site Config Inputs",
+  "placement": {
+    "niche": "docs",
+    "blueprint": "docs-site",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "civ7-docs",
   "lane": "enforced",
   "forbids": "docs site configuration without a structured navigation object",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/docs/blueprints/docs-site/contract/check/validate_docs_site_config_inputs/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/docs/blueprints/docs-site/contract/check/validate_docs_site_config_inputs/check.ts"
+    }
+  }
 }

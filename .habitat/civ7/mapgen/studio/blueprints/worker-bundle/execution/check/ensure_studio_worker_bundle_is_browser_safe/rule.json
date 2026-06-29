@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "ensure_studio_worker_bundle_is_browser_safe",
+  "title": "Ensure Studio Worker Bundle Is Browser Safe",
+  "placement": {
+    "niche": "civ7/mapgen/studio",
+    "blueprint": "worker-bundle",
+    "category": "execution",
+    "artifactKind": "check"
+  },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
   "forbids": "Studio worker bundle leaking Civ7 runtime imports, engine globals, or Node builtins",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/studio/blueprints/worker-bundle/execution/check/ensure_studio_worker_bundle_is_browser_safe/check.mjs"
+    }
+  }
 }

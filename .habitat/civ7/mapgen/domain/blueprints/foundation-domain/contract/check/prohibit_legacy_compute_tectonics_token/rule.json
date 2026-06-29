@@ -1,21 +1,19 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_legacy_compute_tectonics_token",
+  "title": "Prohibit Legacy Compute Tectonics Token",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "foundation-domain",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "the retired computeTectonics source token in foundation surfaces",
   "why": "Foundation surfaces must depend on decomposed tectonics operations rather than the retired monolithic computeTectonics contract.",
   "remediate": null,
   "message": "Remove legacy computeTectonics references from foundation surfaces.",
-  "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/foundation",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection",
-    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics",
-    "mods/mod-swooper-maps/src/maps"
-  ],
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -31,5 +29,26 @@
         "mods/mod-swooper-maps/src/maps/**/*.json"
       ]
     }
-  ]
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/foundation",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics",
+    "mods/mod-swooper-maps/src/maps"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_legacy_compute_tectonics_token/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/prohibit_legacy_compute_tectonics_token/pattern.md"
+    },
+    "patternName": "prohibit_legacy_compute_tectonics_token"
+  }
 }

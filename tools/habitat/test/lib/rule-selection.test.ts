@@ -286,6 +286,11 @@ describe("rule selector boundary", () => {
       executeCommandRulesEffect(
         [
           fakeCommandRule(
+            "direct-bun",
+            ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.ts",
+            "bun"
+          ),
+          fakeCommandRule(
             "direct-js",
             ".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.mjs",
             "node"
@@ -312,6 +317,10 @@ describe("rule selector boundary", () => {
 
     expect(requests).toEqual([
       {
+        executable: "bun",
+        argv: [".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.ts"],
+      },
+      {
         executable: "node",
         argv: [".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.mjs"],
       },
@@ -320,7 +329,7 @@ describe("rule selector boundary", () => {
         argv: [".habitat/civ7/mapgen/domain/blueprints/_self/structure/check/direct/check.sh"],
       },
     ]);
-    expect([...results.keys()].sort()).toEqual(["direct-js", "direct-sh"]);
+    expect([...results.keys()].sort()).toEqual(["direct-bun", "direct-js", "direct-sh"]);
   });
 
   test("staged execution does not drop source-check rules when staged paths are outside approved roots", () => {
@@ -445,7 +454,7 @@ function fakeSourceRuleFact(id: string, scanRoots: readonly string[]): RuleSourc
     message: "test fixture",
     runner: {
       name: "grit",
-      patternPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md`,
+      files: { pattern: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md` },
       patternName: "fixture_pattern",
     },
     pathCoverage: [{ kind: "project-owner" }],
@@ -464,7 +473,7 @@ function fakeCommandRule(
     runner: {
       name: "habitat",
       mode: "script",
-      scriptPath,
+      files: { script: scriptPath },
       runtime,
     },
     message: `${id} failed.`,
@@ -478,7 +487,7 @@ function runnerFor(
   if (runnerName === "grit") {
     return {
       name: "grit",
-      patternPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md`,
+      files: { pattern: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md` },
       patternName: id,
     };
   }
@@ -486,7 +495,7 @@ function runnerFor(
   return {
     name: "habitat",
     mode: "script",
-    scriptPath: `.habitat/fixtures/blueprints/_self/quality/check/${id}/check.mjs`,
+    files: { script: `.habitat/fixtures/blueprints/_self/quality/check/${id}/check.mjs` },
     runtime: "node",
   };
 }

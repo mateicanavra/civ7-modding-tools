@@ -4,6 +4,8 @@ export interface HabitatArtifactRulePathInput {
   readonly id: string;
   readonly runner: RuleRegistryRecordV1["runner"];
   readonly manifestPath?: string;
+  readonly manifestFilePath?: string;
+  readonly artifacts?: RuleRegistryRecordV1["artifacts"];
 }
 
 export interface HabitatArtifactPathPlan {
@@ -22,6 +24,10 @@ export function ruleArtifactPathFacts(
     id: rule.id,
     runner: rule.runner,
     ...("manifestPath" in rule && rule.manifestPath ? { manifestPath: rule.manifestPath } : {}),
+    ...("manifestFilePath" in rule && rule.manifestFilePath
+      ? { manifestFilePath: rule.manifestFilePath }
+      : {}),
+    ...("artifacts" in rule && rule.artifacts ? { artifacts: rule.artifacts } : {}),
   }));
 }
 
@@ -52,7 +58,7 @@ function classifyHabitatArtifactPaths(
   let hasSourceCheckArtifact = false;
   let hasUnclassifiedArtifact = false;
   const nonSourceCheckRuleArtifactIds = new Set<string>();
-  const rulesById = new Map(rules.map((rule) => [rule.id, rule]));
+  const rulesByArtifactPath = artifactPathIndex(rules);
   const sourceManifestPaths = new Set(
     rules
       .filter((rule) => rule.runner.name === "grit")
@@ -66,16 +72,9 @@ function classifyHabitatArtifactPaths(
       continue;
     }
 
-    const ruleId = ruleArtifactId(filePath);
-    if (ruleId) {
-      const rule = rulesById.get(ruleId);
-      if (!rule) {
-        hasUnclassifiedArtifact = true;
-      } else if (rule.runner.name === "grit") {
-        nonSourceCheckRuleArtifactIds.add(rule.id);
-      } else {
-        nonSourceCheckRuleArtifactIds.add(rule.id);
-      }
+    const referencedRule = rulesByArtifactPath.get(filePath);
+    if (referencedRule) {
+      nonSourceCheckRuleArtifactIds.add(referencedRule.id);
       continue;
     }
 
@@ -89,6 +88,35 @@ function classifyHabitatArtifactPaths(
   };
 }
 
+function artifactPathIndex(
+  rules: readonly HabitatArtifactRulePathInput[]
+): Map<string, HabitatArtifactRulePathInput> {
+  const index = new Map<string, HabitatArtifactRulePathInput>();
+  for (const rule of rules) {
+    for (const artifactPath of referencedArtifactPaths(rule)) {
+      index.set(normalizeRepoPath(artifactPath), rule);
+    }
+  }
+  return index;
+}
+
+function referencedArtifactPaths(rule: HabitatArtifactRulePathInput): string[] {
+  const paths: string[] = [];
+  if (rule.manifestFilePath) paths.push(rule.manifestFilePath);
+  if (rule.runner.name === "grit") {
+    paths.push(rule.runner.files.pattern);
+    if (rule.runner.files.applyPattern) paths.push(rule.runner.files.applyPattern);
+  }
+  if (rule.runner.name === "habitat" && rule.runner.mode === "structure") {
+    paths.push(rule.runner.files.structure);
+  }
+  if (rule.runner.name === "habitat" && rule.runner.mode === "script") {
+    paths.push(rule.runner.files.script);
+  }
+  if (rule.artifacts?.baseline) paths.push(rule.artifacts.baseline);
+  return paths;
+}
+
 function normalizeRepoPath(filePath: string): string {
   return filePath.replace(/\\/g, "/").replace(/^\.\//, "");
 }
@@ -99,26 +127,4 @@ function isHabitatArtifactPath(filePath: string): boolean {
 
 function isGritPatternArtifactPath(filePath: string): boolean {
   return filePath.startsWith(".habitat/patterns/");
-}
-
-function ruleArtifactId(filePath: string): string | undefined {
-  const parts = filePath.split("/");
-  const blueprintIndex = parts.indexOf("blueprints");
-  if (parts[0] === ".habitat" && blueprintIndex >= 1) {
-    const artifactKind = parts[blueprintIndex + 3];
-    const packetId = parts[blueprintIndex + 4];
-    if (
-      packetId &&
-      (artifactKind === "check" ||
-        artifactKind === "fix" ||
-        artifactKind === "generate" ||
-        artifactKind === "migrate" ||
-        artifactKind === "triage")
-    ) {
-      return packetId;
-    }
-  }
-
-  const legacyRulesMatch = /^\.habitat\/rules\/([^/]+)(?:\/|$)/.exec(filePath);
-  return legacyRulesMatch?.[1];
 }

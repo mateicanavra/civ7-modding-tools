@@ -109,8 +109,9 @@ describe("pattern management views", () => {
   });
 
   test("default apply admissions return through admitted state", () => {
-    const admissions = defaultApplyAdmissions();
-    const transactionInputs = admittedApplyTransactionInputs(makeTestRuleFacts().selector);
+    const ruleFacts = makeTestRuleFacts().grit;
+    const admissions = defaultApplyAdmissions(ruleFacts);
+    const transactionInputs = admittedApplyTransactionInputs(ruleFacts);
 
     expect(admissions.length).toBeGreaterThan(0);
     for (const admission of admissions) {
@@ -129,16 +130,24 @@ describe("pattern management views", () => {
       expect.arrayContaining([
         expect.objectContaining({
           patternId: "deep-import-to-public-surface",
+          manifestPath:
+            ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
           dryRunCommands: [
             expect.objectContaining({
+              patternPath:
+                ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
               roots: ["mods/mod-swooper-maps/src/maps", "mods/mod-swooper-maps/src/recipes"],
             }),
           ],
         }),
         expect.objectContaining({
           patternId: "ensure_docs_checkout_paths_are_portable",
+          manifestPath:
+            ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
           dryRunCommands: [
             expect.objectContaining({
+              patternPath:
+                ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
               roots: ["docs"],
             }),
           ],
@@ -148,7 +157,7 @@ describe("pattern management views", () => {
   });
 
   test("missing rule facts do not synthesize transaction inputs", () => {
-    expect(applyTransactionInputsFromRuleFacts(defaultApplyAdmissions(), [])).toEqual([]);
+    expect(applyTransactionInputsFromRuleFacts(defaultApplyAdmissions([]), [])).toEqual([]);
   });
 
   test("apply transaction paths stay repo-relative and non-traversing", () => {
@@ -159,14 +168,11 @@ describe("pattern management views", () => {
     expect(
       Value.Check(
         ApplyPatternPathSchema,
-        ".habitat/patterns/apply/deep_import_to_public_surface.md"
+        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
       )
     ).toBe(true);
     expect(
-      Value.Check(
-        ApplyPatternPathSchema,
-        ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md"
-      )
+      Value.Check(ApplyPatternPathSchema, ".habitat/future/ontology/docs-portability/pattern.md")
     ).toBe(true);
     expect(Value.Check(ApplyPatternPathSchema, ".habitat/patterns/apply/../x.md")).toBe(false);
   });

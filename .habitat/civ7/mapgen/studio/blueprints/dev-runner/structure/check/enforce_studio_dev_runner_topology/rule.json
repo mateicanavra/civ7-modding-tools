@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "enforce_studio_dev_runner_topology",
+  "title": "Enforce Studio Dev Runner Topology",
+  "placement": {
+    "niche": "civ7/mapgen/studio",
+    "blueprint": "dev-runner",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
   "forbids": "root dev aliases, package daemon watcher scripts, dev target topology drift, or generated/deploy outputs triggering Vite reloads",
@@ -19,5 +28,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/studio/blueprints/dev-runner/structure/check/enforce_studio_dev_runner_topology/check.ts"
+    }
+  }
 }

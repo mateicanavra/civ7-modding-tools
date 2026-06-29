@@ -1,16 +1,35 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_foundation_tectonics_strategy_nonlocal_imports",
+  "title": "Prohibit Foundation Tectonics Strategy Nonlocal Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "foundation-domain",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "strategy imports outside core authoring, ../contract.js, and ../rules/*",
   "why": "Decomposed tectonics strategies must stay local to their contract and rule surfaces.",
   "remediate": null,
   "message": "Keep foundation tectonics strategy imports local to the strategy contract and rules.",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/domain/foundation/ops"],
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/*/strategies/default.ts"]
     }
-  ]
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain/foundation/ops"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/boundary/check/prohibit_foundation_tectonics_strategy_nonlocal_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/boundary/check/prohibit_foundation_tectonics_strategy_nonlocal_imports/pattern.md"
+    },
+    "patternName": "prohibit_foundation_tectonics_strategy_nonlocal_imports"
+  }
 }

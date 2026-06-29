@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "verify_standard_recipe_declared_stage_keys",
+  "title": "Verify Standard Recipe Declared Stage Keys",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "standard-recipe",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "literal standard recipe stage key drift from the accepted stage order",
@@ -10,5 +19,16 @@
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/recipes/standard/recipe.ts"]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/verify_standard_recipe_declared_stage_keys/check.mjs"
+    }
+  }
 }

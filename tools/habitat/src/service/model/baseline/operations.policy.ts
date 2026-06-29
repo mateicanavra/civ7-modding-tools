@@ -1,11 +1,8 @@
 import path from "node:path";
-import {
-  baselineRepoPath,
-  baselinesRepoPath,
-  ruleRegistryRepoPath,
-} from "@habitat/cli/resources/artifact-paths";
+import { baselinesRepoPath, ruleRegistryRepoPath } from "@habitat/cli/resources/artifact-paths";
 import { renderHabitatError } from "@habitat/cli/resources/errors/index";
 import {
+  loadRuleRegistryDocumentEffect,
   parseRuleRegistryDocument,
   ruleBaselineFacts,
   ruleSelectorFacts,
@@ -48,11 +45,18 @@ export function loadBaselineStateEffect(
 ) {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
-    const p = baselinePathForRule(rule.id, context);
-    if (yield* fileExists(p, context)) return yield* parseBaselineFileEffect(p, rule.id, context);
-    const subjectLocalBaseline = yield* subjectLocalBaselinePathForRule(rule.id, context);
-    if (subjectLocalBaseline) {
-      return yield* parseBaselineFileEffect(subjectLocalBaseline, rule.id, context);
+    if (rule.baselinePath) {
+      const explicitPath = path.join(context.repoRoot, rule.baselinePath);
+      if (yield* fileExists(explicitPath, context)) {
+        return yield* parseBaselineFileEffect(explicitPath, rule.id, context);
+      }
+      return {
+        kind: "baseline-refusal" as const,
+        ruleId: rule.id,
+        path: rule.baselinePath,
+        reason: "missing-baseline" as const,
+        message: `Registered rule '${rule.id}' declares baseline '${rule.baselinePath}' but the file does not exist.`,
+      };
     }
 
     if (rule.exceptionPath && rule.exceptionPath !== "none") {
@@ -138,7 +142,7 @@ export function checkBaselineIntegrityEffect(
 
     for (const [ruleId, state] of contract.states) {
       if (state.kind !== "explicit-empty" && state.kind !== "explicit-debt") continue;
-      const before = yield* loadBaseBaselineKeysEffect(mb, ruleId, context);
+      const before = yield* loadBaseBaselineKeysEffect(mb, ruleId, state.path, context);
       if (!before.ok) {
         refusals.push(before.refusal);
         continue;
@@ -150,7 +154,7 @@ export function checkBaselineIntegrityEffect(
         refusals.push({
           kind: "baseline-refusal",
           ruleId,
-          path: baselineRepoPath(ruleId),
+          path: state.path,
           reason: "baseline-growth-existing-rule",
           addedKeys: added,
           message:
@@ -160,7 +164,7 @@ export function checkBaselineIntegrityEffect(
         continue;
       }
 
-      const manifest = acceptedRuleIntroductionManifest(ruleId, added, base, context);
+      const manifest = acceptedRuleIntroductionManifest(ruleId, added, base, state.path, context);
       if (!manifest.ok) refusals.push(manifest.refusal);
     }
 
@@ -184,7 +188,7 @@ export function guardBaselineExpansionEffect(
     const context = yield* resolveBaselineAuthorityContext(options);
     const uniqueKeys = sortedUnique(keys);
     const mb = yield* mergeBaseEffect(base, context);
-    const baselinePath = baselineRepoPath(ruleId);
+    const baselinePath = baselineContractPathForRule(ruleId, context);
     if (!mb) {
       return expansionRefusal({
         kind: "baseline-refusal",
@@ -218,7 +222,13 @@ export function guardBaselineExpansionEffect(
       });
     }
 
-    const manifest = acceptedRuleIntroductionManifest(ruleId, uniqueKeys, base, context);
+    const manifest = acceptedRuleIntroductionManifest(
+      ruleId,
+      uniqueKeys,
+      base,
+      baselinePath,
+      context
+    );
     if (!manifest.ok) return expansionRefusal(manifest.refusal);
 
     return {
@@ -239,9 +249,13 @@ export function writeBaselineEffect(
 ): Effect.Effect<void, unknown, any> {
   return Effect.gen(function* () {
     const context = yield* resolveBaselineAuthorityContext(options);
-    yield* context.fileSystem.makeDirectory(context.baselinesDir);
+    const baselinePath = absoluteBaselinePath(
+      baselineContractPathForRule(ruleId, context),
+      context
+    );
+    yield* context.fileSystem.makeDirectory(path.dirname(baselinePath));
     yield* context.fileSystem.writeText(
-      baselinePathForRule(ruleId, context),
+      baselinePath,
       `${JSON.stringify([...keys].sort(), null, 2)}\n`
     );
   });
@@ -269,18 +283,17 @@ function readCurrentRuleRegistryEffect(
   fileSystem: BaselineFileSystemPort
 ): Effect.Effect<BaselineRuleContractInput[], never, any> {
   return Effect.gen(function* () {
-    const registryPath = path.join(root, ruleRegistryRepoPath, "rules.json");
-    const raw = yield* fileSystem
-      .readText(registryPath)
-      .pipe(Effect.catchAll(() => Effect.succeed(null)));
-    if (raw === null) return [];
     try {
-      const parsed = parseRuleRegistryDocument(JSON.parse(raw), registryPath);
-      if (!parsed.ok) return [];
+      const parsed = yield* loadRuleRegistryDocumentEffect(path.join(root, ruleRegistryRepoPath), {
+        isDirectory: fileSystem.isDirectory,
+        readDirectory: fileSystem.readDirectory,
+        readText: fileSystem.readText,
+      }).pipe(Effect.catchAll(() => Effect.succeed(null)));
+      if (parsed === null) return [];
       const selectorsByRuleId = new Map(
-        ruleSelectorFacts(parsed.document.rules).map((fact) => [fact.id, fact])
+        ruleSelectorFacts(parsed.rules).map((fact) => [fact.id, fact])
       );
-      return ruleBaselineFacts(parsed.document.rules).map((fact) => {
+      return ruleBaselineFacts(parsed.rules).map((fact) => {
         const selector = selectorsByRuleId.get(fact.id);
         return {
           ...fact,
@@ -437,31 +450,37 @@ function loadBaseRuleIdsFromDirectoryEffect(
   return Effect.gen(function* () {
     const lines = yield* context.git.lsTreeNameOnly(mb, registryPath, { cwd: context.repoRoot });
     if (lines === null) return null;
-    const ids = lines
+    const manifestPaths = lines
       .filter((line) => line.startsWith(`${registryPath}/`))
-      .map((line) => baseRuleIdFromRegistryPath(line))
-      .filter((id): id is string => Boolean(id))
+      .filter((line) => line.endsWith("/rule.json"))
       .sort();
+    const ids: string[] = [];
+    for (const manifestPath of manifestPaths) {
+      const raw = yield* context.git.show(mb, manifestPath, { cwd: context.repoRoot });
+      if (raw === null) return null;
+      const id = baseRuleIdFromManifestText(raw);
+      if (!id) return null;
+      ids.push(id);
+    }
     return ids.length === 0 ? null : new Set(ids);
   });
 }
 
-function baseRuleIdFromRegistryPath(repoPath: string): string | undefined {
-  const oldMatch = /\/rules\/([^/]+)\/rule\.json$/u.exec(repoPath);
-  if (oldMatch?.[1]) return oldMatch[1];
-  const currentPacketMatch = /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/rule\.json$/u.exec(
-    repoPath
-  );
-  if (currentPacketMatch?.[1]) return currentPacketMatch[1];
-  const stalePacketMatch = /\/blueprints\/[^/]+\/[^/]+\/[^/]+\/([^/]+)\/\1\.rule\.json$/u.exec(
-    repoPath
-  );
-  return stalePacketMatch?.[1];
+function baseRuleIdFromManifestText(raw: string): string | undefined {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined;
+    const id = (parsed as { id?: unknown }).id;
+    return typeof id === "string" && id.length > 0 ? id : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function loadBaseBaselineKeysEffect(
   mb: string,
   ruleId: string,
+  baselinePath: string,
   context: RequiredBaselineAuthorityContext
 ): Effect.Effect<
   { ok: true; keys: string[] } | { ok: false; refusal: BaselineRefusal },
@@ -469,7 +488,6 @@ function loadBaseBaselineKeysEffect(
   any
 > {
   return Effect.gen(function* () {
-    const baselinePath = baselineRepoPath(ruleId);
     const beforeRaw = yield* gitShowMovedAuthoredArtifactEffect(
       mb,
       baselinePath,
@@ -531,12 +549,12 @@ function acceptedRuleIntroductionManifest(
   ruleId: string,
   keys: readonly string[],
   base: string,
+  baselinePath: string,
   context: RequiredBaselineAuthorityContext
 ): { ok: true } | { ok: false; refusal: BaselineRefusal } {
   const manifest = context.ruleIntroductionManifests.find(
     (candidate) => candidate.ruleId === ruleId
   );
-  const baselinePath = baselineRepoPath(ruleId);
   if (!manifest) {
     return {
       ok: false,
@@ -603,35 +621,20 @@ function baselinePathForRule(
   return path.join(context.baselinesDir, `${ruleId}.json`);
 }
 
-function subjectLocalBaselinePathForRule(
+function baselineContractPathForRule(
   ruleId: string,
-  context: Pick<RequiredBaselineAuthorityContext, "repoRoot" | "fileSystem">
-): Effect.Effect<string | null, never, any> {
-  const registryRoot = path.join(context.repoRoot, ruleRegistryRepoPath);
-  return findBaselineFiles(registryRoot, context, (filePath) =>
-    toPosixPath(filePath).endsWith(`/${ruleId}/baseline.json`)
-  ).pipe(
-    Effect.map((candidates) => candidates.sort()[0] ?? null),
-    Effect.catchAll(() => Effect.succeed(null))
-  );
+  context: Pick<RequiredBaselineAuthorityContext, "baselinesDir" | "registry" | "repoRoot">
+): string {
+  const rule = context.registry.find((candidate) => candidate.id === ruleId);
+  if (rule?.baselinePath) return rule.baselinePath;
+  return toAuthorityRelative(baselinePathForRule(ruleId, context), context);
 }
 
-function findBaselineFiles(
-  root: string,
-  context: Pick<RequiredBaselineAuthorityContext, "fileSystem">,
-  predicate: (filePath: string) => boolean
-): Effect.Effect<string[], unknown, any> {
-  return Effect.gen(function* () {
-    const entries = yield* context.fileSystem.readDirectory(root);
-    const groups = yield* Effect.all(
-      entries.map((entry) => {
-        const absolute = path.join(root, entry.name);
-        if (entry.kind === "directory") return findBaselineFiles(absolute, context, predicate);
-        return Effect.succeed(entry.kind === "file" && predicate(absolute) ? [absolute] : []);
-      })
-    );
-    return groups.flat();
-  });
+function absoluteBaselinePath(
+  baselinePath: string,
+  context: Pick<RequiredBaselineAuthorityContext, "repoRoot">
+): string {
+  return path.isAbsolute(baselinePath) ? baselinePath : path.join(context.repoRoot, baselinePath);
 }
 
 function toPosixPath(filePath: string): string {

@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "validate_ecology_op_contract_quality",
+  "title": "Validate Ecology Op Contract Quality",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "ecology-domain",
+    "category": "quality",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "ecology contract schemas missing descriptions and exported ecology operation functions missing JSDoc",
@@ -16,5 +25,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/quality/check/validate_ecology_op_contract_quality/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bash",
+    "files": {
+      "script": ".habitat/civ7/mapgen/domain/blueprints/ecology-domain/quality/check/validate_ecology_op_contract_quality/check.sh"
+    }
+  }
 }

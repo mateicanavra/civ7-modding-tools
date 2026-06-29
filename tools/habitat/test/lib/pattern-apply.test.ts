@@ -20,6 +20,9 @@ import { Value } from "typebox/value";
 import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
+const deepImportApplyPatternPath =
+  ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md";
+
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {
     expect(
@@ -331,7 +334,7 @@ function applyAdmission(overrides: Partial<ApplyAdmission> = {}): ApplyAdmission
   return {
     kind: "apply-admission",
     patternId: "deep-import-to-public-surface",
-    manifestPath: ".habitat/patterns/apply/deep_import_to_public_surface.md",
+    manifestPath: deepImportApplyPatternPath,
     transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
     transactionInputRuleIds: ["require_public_domain_surfaces_in_recipes_and_maps"],
     dryRunRoots: ["tools/habitat/test/fixtures"],
@@ -344,13 +347,13 @@ function transactionInput(overrides: Partial<ApplyTransactionInput> = {}): Apply
   return {
     kind: "apply-transaction-input",
     patternId: "deep-import-to-public-surface",
-    manifestPath: ".habitat/patterns/apply/deep_import_to_public_surface.md",
+    manifestPath: deepImportApplyPatternPath,
     transactionInputRef: "patterns:deep-import-to-public-surface:transaction-input",
     dryRunCommands: [
       {
         kind: "dry-run-command",
         commandId: "habitat-fix-deep-import-dry-run",
-        patternPath: ".habitat/patterns/apply/deep_import_to_public_surface.md",
+        patternPath: deepImportApplyPatternPath,
         roots: ["tools/habitat/test/fixtures"],
         output: "compact",
       },

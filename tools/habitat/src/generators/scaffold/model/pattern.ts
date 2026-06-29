@@ -37,12 +37,9 @@ export interface PatternScaffoldHostFacts {
   readonly activePatternPath: (
     options: Pick<NormalizedPatternScaffoldOptions, "patternName">
   ) => string;
-  readonly activeBaselinePath: (
+  readonly ruleManifestIdCollisionPath: (
     options: Pick<NormalizedPatternScaffoldOptions, "ruleId">
-  ) => string;
-  readonly registeredRulePath: (
-    options: Pick<NormalizedPatternScaffoldOptions, "ruleId">
-  ) => string;
+  ) => string | null;
   readonly candidateArtifactPaths: (
     options: Pick<NormalizedPatternScaffoldOptions, "ruleId" | "patternName">
   ) => PatternCandidateArtifactPaths;
@@ -141,13 +138,10 @@ function firstActiveCollision(
   facts: PatternScaffoldHostFacts
 ): PatternScaffoldDecision | null {
   const activePatternPath = facts.activePatternPath(options);
-  const baselinePath = facts.activeBaselinePath(options);
   if (facts.pathExists(activePatternPath)) return refuseCandidateCollision(activePatternPath);
-  if (options.lifecycle === "candidate" && facts.pathExists(baselinePath)) {
-    return refuseCandidateCollision(baselinePath);
-  }
-  if (facts.pathExists(facts.registeredRulePath(options))) {
-    return refuseCandidateCollision(`registered rule ${options.ruleId}`);
+  const collisionPath = facts.ruleManifestIdCollisionPath(options);
+  if (collisionPath) {
+    return refuseCandidateCollision(`registered rule ${options.ruleId} at ${collisionPath}`);
   }
   return null;
 }

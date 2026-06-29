@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases",
+  "title": "Prohibit Cutover Shims Dual Paths And Legacy Stage Aliases",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "_self",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "shim, shadow, compare, dual-path, and legacy stage-token surfaces in runtime source",
@@ -17,5 +26,16 @@
         "mods/mod-swooper-maps/src/maps/**/*.json"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/blueprints/_self/structure/check/prohibit_cutover_shims_dual_paths_and_legacy_stage_aliases/check.mjs"
+    }
+  }
 }

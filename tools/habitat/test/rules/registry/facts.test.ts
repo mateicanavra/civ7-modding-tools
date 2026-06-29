@@ -142,6 +142,7 @@ describe("rule registry facts", () => {
     ).toEqual([
       {
         id: "sample-rule",
+        baselinePath: ".habitat/fixtures/blueprints/_self/quality/check/sample-rule/baseline.json",
         exceptionPath:
           ".habitat/civ7/platform/blueprints/civ7-adapter/boundary/check/block_unapproved_base_standard_boundary_leaks/check.sh#ALLOWLIST",
       },

@@ -1,17 +1,19 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces",
+  "title": "Prohibit Ecology Fudge Terms And Legacy Generator Surfaces",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "_self",
+    "category": "policy",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "probabilistic fudge constructs, ad-hoc RNG calls, and legacy Civ7 generator calls in scoped planning surfaces",
   "why": "These source-token guardrails are structural enforcement and should be owned by Habitat rather than package tests.",
   "remediate": "Remove probabilistic fudge constructs or explicitly reclassify the invariant before changing this check.",
   "message": "MapGen source planning surface contains forbidden fudge, RNG, or legacy generator construct.",
-  "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain/ecology",
-    "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes",
-    "mods/mod-swooper-maps/src/domain/placement",
-    "mods/mod-swooper-maps/src/recipes/standard/stages"
-  ],
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -29,5 +31,22 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/ecology",
+    "mods/mod-swooper-maps/src/domain/hydrology/ops/plan-lakes",
+    "mods/mod-swooper-maps/src/domain/placement",
+    "mods/mod-swooper-maps/src/recipes/standard/stages"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/blueprints/_self/policy/check/prohibit_ecology_fudge_terms_and_legacy_generator_surfaces/pattern.md"
+    },
+    "patternName": "prohibit_ecology_fudge_terms_and_legacy_generator_surfaces"
+  }
 }

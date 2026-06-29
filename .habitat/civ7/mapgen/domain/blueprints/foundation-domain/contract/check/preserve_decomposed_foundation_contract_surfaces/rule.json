@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "preserve_decomposed_foundation_contract_surfaces",
+  "title": "Preserve Decomposed Foundation Contract Surfaces",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "foundation-domain",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "missing decomposed foundation operation names, artifact tags, required strategy rules imports, or projection plate-motion/provenance currentness",
@@ -18,5 +27,16 @@
         "mods/mod-swooper-maps/src/maps/**/*.json"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/preserve_decomposed_foundation_contract_surfaces/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/domain/blueprints/foundation-domain/contract/check/preserve_decomposed_foundation_contract_surfaces/check.mjs"
+    }
+  }
 }

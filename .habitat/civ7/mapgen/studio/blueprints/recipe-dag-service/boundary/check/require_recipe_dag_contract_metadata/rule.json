@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "require_recipe_dag_contract_metadata",
+  "title": "Require Recipe Dag Contract Metadata",
+  "placement": {
+    "niche": "civ7/mapgen/studio",
+    "blueprint": "recipe-dag-service",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
   "forbids": "Studio recipe-DAG import graph reaching generated maps, dist/mod outputs, runtime stage indexes, recipe runtime files, or authoring roots instead of contract-only surfaces",
@@ -17,5 +26,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/studio/blueprints/recipe-dag-service/boundary/check/require_recipe_dag_contract_metadata/check.ts"
+    }
+  }
 }

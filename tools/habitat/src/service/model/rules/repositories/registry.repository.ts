@@ -12,18 +12,12 @@ import {
   RuleRegistryIndexV1Schema,
   RuleRegistryRecordInputV1Schema,
 } from "../dto/registry.schema.ts";
-import {
-  enrichPacketRuleRecord,
-  isPacketRulePath,
-  isStalePrefixedPacketRolePath,
-  packetLocationFromArtifactPath,
-} from "../policy/packet-derivation.policy.ts";
 
 export type RuleRegistryIssueCode =
   | "registry-json-invalid"
   | "registry-schema-invalid"
   | "registry-duplicate-rule-id"
-  | "registry-stale-packet-role";
+  | "registry-missing-referenced-file";
 
 export interface RuleRegistryIssue {
   code: RuleRegistryIssueCode;
@@ -142,7 +136,7 @@ function loadRuleRegistryDirectory<R>(
     );
     const rulePaths = yield* ruleFilePaths(registryDir, fileSystem);
     const rules = yield* Effect.all(
-      rulePaths.map((rulePath) => parsePacketRuleJson<R>(rulePath, fileSystem))
+      rulePaths.map((rulePath) => parseRuleManifestJson<R>(rulePath, fileSystem))
     );
     const result = parseRuleRegistryDocument(
       {
@@ -168,7 +162,7 @@ function loadRuleRegistryDirectorySync(
     fileSystem
   );
   const rules = ruleFilePathsSync(registryDir, fileSystem)
-    .map((rulePath) => parsePacketRuleJsonSync(rulePath, fileSystem))
+    .map((rulePath) => parseRuleManifestJsonSync(rulePath, fileSystem))
     .sort((left, right) => left.id.localeCompare(right.id));
   const result = parseRuleRegistryDocument(
     {
@@ -182,28 +176,19 @@ function loadRuleRegistryDirectorySync(
   throw new RuleRegistryLoadFailed({ issues: result.issues });
 }
 
-function parsePacketRuleJsonSync(
+function parseRuleManifestJsonSync(
   filePath: string,
   fileSystem: RuleRegistrySyncFileSystem
 ): RuleRegistryRecordV1 {
-  const parsed = parseRegistryJsonSync<unknown>(
+  const parsed = parseRegistryJsonSync<RuleRegistryRecordV1>(
     filePath,
     RuleRegistryRecordInputV1Schema,
     fileSystem
   );
-  try {
-    return enrichPacketRuleRecord(filePath, parsed, packetRoleFilenamesSync(filePath, fileSystem));
-  } catch (error) {
-    throw new RuleRegistryLoadFailed({
-      issues: [
-        {
-          code: "registry-schema-invalid",
-          path: filePath,
-          message: error instanceof Error ? error.message : "Invalid packet rule metadata.",
-        },
-      ],
-    });
-  }
+  const record = { ...parsed, manifestFilePath: toRepoRelativeManifestPath(filePath) };
+  const issues = referencedFileIssues(record, filePath, fileSystem);
+  if (issues.length > 0) throw new RuleRegistryLoadFailed({ issues });
+  return record;
 }
 
 function parseRegistryJsonSync<T>(
@@ -238,56 +223,22 @@ function parseRegistryJsonSync<T>(
   return Value.Parse(schema, parsed) as T;
 }
 
-function parsePacketRuleJson<R = never>(
+function parseRuleManifestJson<R = never>(
   filePath: string,
   fileSystem: RuleRegistryFileSystem<R>
 ): Effect.Effect<RuleRegistryRecordV1, RuleRegistryLoadFailed | unknown, R> {
   return Effect.gen(function* () {
-    const parsed = yield* parseRegistryJson<unknown, R>(
+    const parsed = yield* parseRegistryJson<RuleRegistryRecordV1, R>(
       filePath,
       RuleRegistryRecordInputV1Schema,
       fileSystem
     );
-    try {
-      return enrichPacketRuleRecord(
-        filePath,
-        parsed,
-        yield* packetRoleFilenames(filePath, fileSystem)
-      );
-    } catch (error) {
-      return yield* Effect.fail(
-        new RuleRegistryLoadFailed({
-          issues: [
-            {
-              code: "registry-schema-invalid",
-              path: filePath,
-              message: error instanceof Error ? error.message : "Invalid packet rule metadata.",
-            },
-          ],
-        })
-      );
+    const record = { ...parsed, manifestFilePath: toRepoRelativeManifestPath(filePath) };
+    const issues = yield* referencedFileIssuesEffect(record, filePath, fileSystem);
+    if (issues.length > 0) {
+      return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
     }
-  });
-}
-
-function packetRoleFilenamesSync(
-  filePath: string,
-  fileSystem: RuleRegistrySyncFileSystem
-): readonly string[] {
-  return fileSystem
-    .readDirectory(path.dirname(filePath))
-    .filter((entry) => entry.kind === "file")
-    .map((entry) => entry.name);
-}
-
-function packetRoleFilenames<R>(
-  filePath: string,
-  fileSystem: RuleRegistryFileSystem<R>
-): Effect.Effect<readonly string[], unknown, R> {
-  return Effect.gen(function* () {
-    return (yield* fileSystem.readDirectory(path.dirname(filePath)))
-      .filter((entry) => entry.kind === "file")
-      .map((entry) => entry.name);
+    return record;
   });
 }
 
@@ -349,7 +300,7 @@ function ruleFilePaths<R>(
     if (issues.length > 0) {
       return yield* Effect.fail(new RuleRegistryLoadFailed({ issues }));
     }
-    return candidates.filter(isPacketRulePath);
+    return candidates;
   });
 }
 
@@ -403,44 +354,26 @@ function ruleFilePathsSync(registryDir: string, fileSystem: RuleRegistrySyncFile
   const candidates = findFilesSync(registryDir, fileSystem, isRuleRecordCandidatePath).sort();
   const issues = staleRuleRecordIssues(candidates);
   if (issues.length > 0) throw new RuleRegistryLoadFailed({ issues });
-  return candidates.filter(isPacketRulePath);
+  return candidates;
 }
 
 function isRuleRecordCandidatePath(filePath: string): boolean {
   const fileName = filePath.split("/").at(-1);
-  return fileName === "rule.json" || filePath.endsWith(".rule.json");
+  return fileName === "rule.json" || Boolean(fileName?.endsWith(".rule.json"));
 }
 
 function staleRuleRecordIssues(paths: readonly string[]): RuleRegistryIssue[] {
-  const issues: RuleRegistryIssue[] = [];
-  const canonicalByPacket = new Map<string, string>();
-  for (const rulePath of paths) {
-    if (!isPacketRulePath(rulePath)) {
-      issues.push({
-        code: isStalePrefixedPacketRolePath(rulePath)
-          ? "registry-stale-packet-role"
-          : "registry-schema-invalid",
-        path: rulePath,
-        message: isStalePrefixedPacketRolePath(rulePath)
-          ? "Packet rule files must be named rule.json; prefixed rule filenames are stale."
-          : "Rule file must be named rule.json inside a Habitat packet directory.",
-      });
-      continue;
-    }
-    const location = packetLocationFromArtifactPath(rulePath);
-    if (!location) continue;
-    const existing = canonicalByPacket.get(location.packetDir);
-    if (existing) {
-      issues.push({
-        code: "registry-schema-invalid",
-        path: rulePath,
-        message: `Duplicate packet rule files: ${existing} and ${rulePath}.`,
-      });
-      continue;
-    }
-    canonicalByPacket.set(location.packetDir, rulePath);
-  }
-  return issues;
+  return paths.flatMap((rulePath) =>
+    rulePath.endsWith(".rule.json")
+      ? [
+          {
+            code: "registry-schema-invalid" as const,
+            path: rulePath,
+            message: "Rule manifest files must be named rule.json.",
+          },
+        ]
+      : []
+  );
 }
 
 function findFiles<R>(
@@ -479,6 +412,87 @@ function toPosixPath(filePath: string): string {
   return filePath.split(path.sep).join("/");
 }
 
+function toRepoRelativeManifestPath(filePath: string): string {
+  const normalized = toPosixPath(filePath);
+  const habitatIndex = normalized.lastIndexOf("/.habitat/");
+  if (habitatIndex >= 0) return normalized.slice(habitatIndex + 1);
+  if (normalized.startsWith(".habitat/")) return normalized;
+  return normalized;
+}
+
+function referencedFilePaths(rule: RuleRegistryRecordV1): string[] {
+  const paths: string[] = [];
+  switch (rule.runner.name) {
+    case "grit":
+      paths.push(rule.runner.files.pattern);
+      if (rule.runner.files.applyPattern) paths.push(rule.runner.files.applyPattern);
+      break;
+    case "habitat":
+      if (rule.runner.mode === "structure") paths.push(rule.runner.files.structure);
+      if (rule.runner.mode === "script") paths.push(rule.runner.files.script);
+      break;
+    case "nx":
+      break;
+  }
+  if (rule.artifacts?.baseline) paths.push(rule.artifacts.baseline);
+  return paths;
+}
+
+function referencedFileIssues(
+  rule: RuleRegistryRecordV1,
+  manifestPath: string,
+  fileSystem: RuleRegistrySyncFileSystem
+): RuleRegistryIssue[] {
+  const repoRoot = repoRootForManifestPath(manifestPath);
+  return referencedFilePaths(rule)
+    .filter((repoPath) => !syncFileExists(path.join(repoRoot, repoPath), fileSystem))
+    .map((repoPath) => ({
+      code: "registry-missing-referenced-file" as const,
+      path: manifestPath,
+      message: `${rule.id}: referenced runner or artifact file does not exist: ${repoPath}.`,
+    }));
+}
+
+function syncFileExists(filePath: string, fileSystem: RuleRegistrySyncFileSystem): boolean {
+  try {
+    fileSystem.readText(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function referencedFileIssuesEffect<R>(
+  rule: RuleRegistryRecordV1,
+  manifestPath: string,
+  fileSystem: RuleRegistryFileSystem<R>
+): Effect.Effect<RuleRegistryIssue[], unknown, R> {
+  return Effect.gen(function* () {
+    const repoRoot = repoRootForManifestPath(manifestPath);
+    const issues: RuleRegistryIssue[] = [];
+    for (const repoPath of referencedFilePaths(rule)) {
+      const absolute = path.join(repoRoot, repoPath);
+      const result = yield* fileSystem.readText(absolute).pipe(Effect.either);
+      if (result._tag === "Left") {
+        issues.push({
+          code: "registry-missing-referenced-file",
+          path: manifestPath,
+          message: `${rule.id}: referenced runner or artifact file does not exist: ${repoPath}.`,
+        });
+      }
+    }
+    return issues;
+  });
+}
+
+function repoRootForManifestPath(manifestPath: string): string {
+  const normalized = toPosixPath(manifestPath);
+  const habitatIndex = normalized.lastIndexOf("/.habitat/");
+  if (habitatIndex >= 0) return normalized.slice(0, habitatIndex);
+  if (normalized.startsWith(".habitat/")) return ".";
+  return path.dirname(manifestPath);
+}
+
 function renderRuleRegistryIssues(heading: string, issues: readonly RuleRegistryIssue[]): string {
   return `${heading}:\n${issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n")}`;
 }
@@ -487,17 +501,19 @@ function duplicateRuleIdIssues(
   rules: readonly RuleRegistryRecordV1[],
   sourcePath: string
 ): RuleRegistryIssue[] {
-  const seen = new Set<string>();
-  const duplicateIds = new Set<string>();
+  const pathsById = new Map<string, string[]>();
   for (const rule of rules) {
-    if (seen.has(rule.id)) duplicateIds.add(rule.id);
-    seen.add(rule.id);
+    const manifestPath = rule.manifestFilePath ?? sourcePath;
+    pathsById.set(rule.id, [...(pathsById.get(rule.id) ?? []), manifestPath]);
   }
-  return [...duplicateIds].sort().map((id) => ({
-    code: "registry-duplicate-rule-id",
-    path: sourcePath,
-    message: `Duplicate Habitat rule id: ${JSON.stringify(id)}.`,
-  }));
+  return [...pathsById.entries()]
+    .filter(([, paths]) => paths.length > 1)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([id, paths]) => ({
+      code: "registry-duplicate-rule-id",
+      path: sourcePath,
+      message: `Duplicate Habitat rule id: ${JSON.stringify(id)} in ${paths.join(", ")}.`,
+    }));
 }
 
 function ruleRunnerSemanticsIssues(

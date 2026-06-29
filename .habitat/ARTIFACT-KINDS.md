@@ -50,6 +50,10 @@ Any script registered as a `check` but observed writing files, refreshing genera
 
 ## Runner Responsibilities
 
-The runner should infer authority area, blueprint, category, kind, and packet identity from the tree path. It should select by kind before execution, enforce mutability guarantees, exclude `triage` by default, and keep implementation dispatch in `tools/habitat`.
+Habitat should read authority area, blueprint, category, kind, and rule identity
+from the manifest. The current tree path should match those inventory facts,
+but it is not the source of identity. Execution should select by manifest
+runner and kind, enforce mutability guarantees, exclude `triage` by default,
+and keep implementation dispatch in `tools/habitat`.
 
 Implementation adapters such as Grit, Biome, Nx, file-layer, source-check, command-check, shell, Node, Python, or Vitest are not artifact kinds.

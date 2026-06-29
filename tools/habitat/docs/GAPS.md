@@ -64,10 +64,12 @@ and fail through Habitat, but they do not apply repairs.
 
 Current apply state:
 
-- `.habitat/patterns/apply/deep_import_to_public_surface.md` is wired into
+- The co-located `apply.pattern.md` role for
+  `require_public_domain_surfaces_in_recipes_and_maps` is wired into
   `habitat fix`.
-- `.habitat/patterns/apply/helper_redeclarations_to_imports.md` exists but
-  is not wired into `habitat fix`.
+- The co-located `apply.pattern.md` role for
+  `prohibit_runtime_helper_redeclarations` exists but is not wired into
+  `habitat fix`.
 - No general mapping exists from each diagnostic Habitat rule to a safe apply
   pattern.
 

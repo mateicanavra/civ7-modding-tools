@@ -1,6 +1,6 @@
 # Habitat Subject Categories
 
-Status: active category model and packet-derivation contract
+Status: active category model and manifest placement contract
 
 This document defines the universal Habitat authority packet categories. It is
 not a runner config, artifact-kind schema, blueprint schema, per-packet ledger,
@@ -35,28 +35,27 @@ words so they remain stable authority-tree path segments.
 Do not create categories from blueprint names, niches, runner names, owner
 tools, artifact kinds, current defect names, or narrow product handles.
 
-## Derivation Contract
+## Placement Contract
 
-Packet semantic placement is derived from the hierarchy:
+The current physical hierarchy is:
 
 ```text
 .habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/
 ```
 
-The path owns these facts:
+The manifest repeats these facts under `placement` so rule inventory remains
+location-independent while the tree is being reorganized:
 
 - niche;
 - blueprint;
 - category;
-- artifact kind;
-- packet id;
-- default human title derived from the packet id.
+- artifact kind.
 
 Child filenames own artifact roles:
 
 | Role filename | Meaning |
 | --- | --- |
-| `rule.json` | Execution/routing metadata for an admitted rule. |
+| `rule.json` | Location-independent rule manifest: stable identity, current placement, policy/routing facts, runner file refs, and artifact refs. |
 | `baseline.json` | Baseline, fixture, current-tree, or generated-artifact evidence. |
 | `pattern.md` | Primary authored pattern source. |
 | `apply.pattern.md` | Secondary apply pattern source. |
@@ -66,10 +65,10 @@ Child filenames own artifact roles:
 | `generate.ts`, `generate.sh` | Generate operation implementation. |
 | `operation.md` | Provisional identity for non-check operations until typed manifests exist. |
 
-If a fact can be derived from the path or role filename, it must not be repeated
-in packet metadata. `rule.json` keeps only non-derived execution and routing
-facts such as owner project, owner tool, lane, scope, report text, scan roots,
-graph target, generated/file-layer facts, and true exception notes.
+`rule.json` is the inventory source for current placement while the physical
+tree is still changing. Do not add `ownerTool`, `detect`, registry prose
+`scope`, packet-prefixed role filenames, or packet-local `category.md`.
+Runner entrypoints and baselines must be explicit manifest references.
 
 ## Admission Reading
 

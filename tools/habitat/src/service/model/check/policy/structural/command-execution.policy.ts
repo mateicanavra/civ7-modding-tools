@@ -181,9 +181,9 @@ function commandInvocationFromRunner(runner: RuleCommandExecutionFacts["runner"]
   readonly executable: string;
   readonly argv: readonly string[];
 } {
-  if (runner.runtime === "bun") return { executable: "bun", argv: [runner.scriptPath] };
-  if (runner.runtime === "node") return { executable: "node", argv: [runner.scriptPath] };
-  return { executable: "bash", argv: [runner.scriptPath] };
+  if (runner.runtime === "bun") return { executable: "bun", argv: [runner.files.script] };
+  if (runner.runtime === "node") return { executable: "node", argv: [runner.files.script] };
+  return { executable: "bash", argv: [runner.files.script] };
 }
 
 function executeCommandRuleGroupEffect(

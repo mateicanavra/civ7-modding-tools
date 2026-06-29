@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "verify_standard_recipe_artifacts_match_source_stages",
+  "title": "Verify Standard Recipe Artifacts Match Source Stages",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "standard-recipe",
+    "category": "artifact",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "generated standard recipe artifacts that drift from source stages or contain unexpected raw operation envelopes outside the explicit internal-as-public foundation-orogeny exception",
@@ -17,5 +26,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/artifact/check/verify_standard_recipe_artifacts_match_source_stages/check.ts"
+    }
+  }
 }

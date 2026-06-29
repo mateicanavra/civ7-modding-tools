@@ -1,11 +1,25 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_foundation_duplicate_math_helper_redefinitions",
+  "title": "Prohibit Foundation Duplicate Math Helper Redefinitions",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "_self",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "duplicate clamp/math helper function declarations",
   "why": "Canonical math helpers should live in the owned shared surface rather than being redeclared across tectonics modules.",
   "remediate": null,
   "message": "Use the canonical foundation math helper instead of redeclaring it locally.",
-  "hookCheck": true,
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/**"]
+    }
+  ],
   "scanRoots": [
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership/strategies",
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields/strategies",
@@ -20,10 +34,15 @@
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plate-graph/index.ts",
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-plates-tensors/lib/project-plates.ts"
   ],
-  "pathCoverage": [
-    {
-      "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/**"]
-    }
-  ]
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_duplicate_math_helper_redefinitions/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_duplicate_math_helper_redefinitions/pattern.md"
+    },
+    "patternName": "prohibit_foundation_duplicate_math_helper_redefinitions"
+  }
 }

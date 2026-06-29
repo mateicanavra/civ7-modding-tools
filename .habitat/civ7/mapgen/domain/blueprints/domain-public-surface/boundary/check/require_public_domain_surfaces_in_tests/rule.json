@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "require_public_domain_surfaces_in_tests",
+  "title": "Require Public Domain Surfaces In Tests",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "domain-public-surface",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "test files deep-importing domain internals instead of public domain surfaces",
@@ -15,5 +24,16 @@
         "packages/*/test/**/*.tsx"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_tests/check.mjs"
+    }
+  }
 }

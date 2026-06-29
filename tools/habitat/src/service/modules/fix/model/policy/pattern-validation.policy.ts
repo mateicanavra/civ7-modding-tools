@@ -1,4 +1,4 @@
-import type { PacketRunner } from "@habitat/cli/service/model/rules/index";
+import type { RuleRunner } from "@habitat/cli/service/model/rules/index";
 import { Value } from "typebox/value";
 import {
   type PatternLifecycle,
@@ -12,7 +12,7 @@ import { patternCandidateRoot, patternManifestPath } from "./pattern-artifact-pa
 
 export interface PatternRulePackReferenceInput {
   id: string;
-  runner?: PacketRunner;
+  runner?: RuleRunner;
   manifestPath?: string;
   patternRole?: string;
   lane?: "advisory" | "enforced";

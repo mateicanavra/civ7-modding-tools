@@ -5,7 +5,6 @@ import {
 } from "@habitat/cli/service/model/diagnostics/index";
 import type { RuleSourceFacts } from "@habitat/cli/service/model/rules/index";
 import { Effect } from "effect";
-import { docsLocalCheckoutPathsRewritePattern } from "./constants.js";
 import type { GritProviderRequirements, GritProviderService } from "./resource.js";
 import {
   decidePatternScanRoots,
@@ -47,7 +46,18 @@ export function runDocsApplyBackedDiagnosticOutcomesEffect(
     );
   }
 
-  return docsApplyDryRunProgram(scanRoots, options.grit).pipe(
+  const patternPaths = sortedUnique(selectedRules.map((rule) => rule.runner.files.pattern));
+  if (patternPaths.length !== 1) {
+    return Effect.succeed(
+      providerFailedOutcomes(
+        selectedRules,
+        "GritCommandFailed",
+        "Expected one manifest-declared docs apply pattern path."
+      )
+    );
+  }
+
+  return docsApplyDryRunProgram(patternPaths[0], scanRoots, options.grit).pipe(
     Effect.match({
       onFailure: (error) =>
         providerFailedOutcomes(
@@ -99,12 +109,16 @@ function nativeDiagnosticEntry(rule: RuleSourceFacts) {
   });
 }
 
-function docsApplyDryRunProgram(scanRoots: readonly string[], grit: GritProviderService) {
+function docsApplyDryRunProgram(
+  patternPath: string,
+  scanRoots: readonly string[],
+  grit: GritProviderService
+) {
   return Effect.scoped(
     Effect.gen(function* () {
       return yield* grit.applyDryRun({
         commandId: "docs-apply-dry-run",
-        patternPath: docsLocalCheckoutPathsRewritePattern,
+        patternPath,
         scanRoots,
         output: "standard",
         cacheMode: "isolated",

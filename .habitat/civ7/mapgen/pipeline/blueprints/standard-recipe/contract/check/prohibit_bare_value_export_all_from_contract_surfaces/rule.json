@@ -1,12 +1,19 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_bare_value_export_all_from_contract_surfaces",
+  "title": "Prohibit Bare Value Export All From Contract Surfaces",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "standard-recipe",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "bare value export * in contract/public-surface files; export type * is allowed",
   "why": "Contract/public surfaces should publish named values; type-star exports remain safe type-only API aggregation.",
   "remediate": null,
   "message": "Replace value export * with named exports, or use export type * for type-only surfaces.",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -19,5 +26,17 @@
         "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
       ]
     }
-  ]
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/prohibit_bare_value_export_all_from_contract_surfaces/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/contract/check/prohibit_bare_value_export_all_from_contract_surfaces/pattern.md"
+    },
+    "patternName": "prohibit_bare_value_export_all_from_contract_surfaces"
+  }
 }

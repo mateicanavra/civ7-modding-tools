@@ -40,7 +40,7 @@ export const RepoRelativePathSchema = Type.String({
 export const ApplyPatternPathSchema = Type.String({
   minLength: 1,
   pattern:
-    "^\\.habitat/(?:patterns/apply/[A-Za-z0-9_-]+(?:/[A-Za-z0-9_-]+)*\\.md|[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*(?:/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*)*\\.pattern\\.md|[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*(?:/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*)*/blueprints/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*/pattern\\.md)$",
+    "^\\.habitat/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*(?:/[A-Za-z0-9_@+-][A-Za-z0-9._@+-]*)*/(?:apply\\.)?pattern\\.md$",
 });
 
 export const PatternApplySafetySchema = Type.Union([

@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "require_docs_site_root_inputs",
+  "title": "Require Docs Site Root Inputs",
+  "placement": {
+    "niche": "docs",
+    "blueprint": "docs-site",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "civ7-docs",
   "lane": "enforced",
   "forbids": "missing docs site root files",
@@ -13,5 +22,15 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/docs/blueprints/docs-site/structure/check/require_docs_site_root_inputs/structure.toml"
+    }
+  }
 }

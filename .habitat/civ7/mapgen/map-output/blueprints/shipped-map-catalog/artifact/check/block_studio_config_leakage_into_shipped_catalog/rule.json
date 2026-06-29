@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "block_studio_config_leakage_into_shipped_catalog",
+  "title": "Block Studio Config Leakage Into Shipped Catalog",
+  "placement": {
+    "niche": "civ7/mapgen/map-output",
+    "blueprint": "shipped-map-catalog",
+    "category": "artifact",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "transient Studio map config identifiers in shipped map catalog artifacts",
@@ -17,5 +26,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/map-output/blueprints/shipped-map-catalog/artifact/check/block_studio_config_leakage_into_shipped_catalog/check.ts"
+    }
+  }
 }

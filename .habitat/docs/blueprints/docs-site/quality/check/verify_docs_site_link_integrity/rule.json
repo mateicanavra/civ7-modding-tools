@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "verify_docs_site_link_integrity",
+  "title": "Verify Docs Site Link Integrity",
+  "placement": {
+    "niche": "docs",
+    "blueprint": "docs-site",
+    "category": "quality",
+    "artifactKind": "check"
+  },
   "ownerProject": "civ7-docs",
   "lane": "enforced",
   "forbids": "broken Mintlify page links in the docs site",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/docs/blueprints/docs-site/quality/check/verify_docs_site_link_integrity/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/docs/blueprints/docs-site/quality/check/verify_docs_site_link_integrity/check.ts"
+    }
+  }
 }

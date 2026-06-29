@@ -1,16 +1,35 @@
 {
+  "schemaVersion": 1,
+  "id": "block_engine_runtime_imports_from_domain_ops",
+  "title": "Block Engine Runtime Imports From Domain Ops",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "domain-operation",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "domain ops importing engine runtime entrypoints as values",
   "why": "Domain ops stay portable domain logic; engine runtime entrypoints belong behind approved domain/runtime surfaces.",
   "remediate": null,
   "message": "Do not import engine runtime entrypoints from domain ops.",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
     }
-  ]
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/block_engine_runtime_imports_from_domain_ops/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/block_engine_runtime_imports_from_domain_ops/pattern.md"
+    },
+    "patternName": "block_engine_runtime_imports_from_domain_ops"
+  }
 }

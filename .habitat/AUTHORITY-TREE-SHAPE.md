@@ -109,10 +109,12 @@ An artifact-kind directory answers what Habitat is allowed to do: read-only eval
 ### Packet
 
 The leaf folders are current artifact packets. They are gathered enforceable or
-executable units, not necessarily final blueprint internals. Packet identity and
-semantic placement are derived from the path. Child filenames are generic role
-names such as `rule.json`, `baseline.json`, `pattern.md`, `structure.toml`,
-`check.ts`, `generate.ts`, or `operation.md`.
+executable units, not necessarily final blueprint internals. The path is current
+inventory placement. Rule identity, current placement facts, runner file
+references, and baseline references are authored in `rule.json` so the same
+rule can move without changing identity or behavior. Child filenames remain
+generic role names such as `rule.json`, `baseline.json`, `pattern.md`,
+`structure.toml`, `check.ts`, `generate.ts`, or `operation.md`.
 
 ## Negative Rules
 
@@ -126,6 +128,6 @@ names such as `rule.json`, `baseline.json`, `pattern.md`, `structure.toml`,
 
 Classify each packet by niche first, then blueprint, then universal category,
 then artifact kind. If a packet is about the niche overall, place it under
-`_self`. If a packet is mixed or unclear, choose the best-fit path and preserve
-only non-derived execution facts in the relevant role file or durable authority
-doc. Do not add packet-local classification metadata.
+`_self`. If a packet is mixed or unclear, choose the best-fit current placement
+and preserve the same facts in the manifest `placement` field. Do not add a
+second packet-local classification file.

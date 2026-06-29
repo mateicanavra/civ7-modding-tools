@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "validate_mapgen_docs_anchors_and_references",
+  "title": "Validate Mapgen Docs Anchors And References",
+  "placement": {
+    "niche": "docs",
+    "blueprint": "mapgen-canonical-docs",
+    "category": "quality",
+    "artifactKind": "check"
+  },
   "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "mapgen canonical docs with dead anchor paths or strict reference-policy violations",
@@ -10,5 +19,16 @@
       "kind": "exact-path",
       "patterns": ["docs/system/libs/mapgen/**"]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bash",
+    "files": {
+      "script": ".habitat/docs/blueprints/mapgen-canonical-docs/quality/check/validate_mapgen_docs_anchors_and_references/check.sh"
+    }
+  }
 }

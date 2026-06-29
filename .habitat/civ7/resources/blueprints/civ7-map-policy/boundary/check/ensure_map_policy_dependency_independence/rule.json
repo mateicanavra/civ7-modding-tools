@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "ensure_map_policy_dependency_independence",
+  "title": "Ensure Map Policy Dependency Independence",
+  "placement": {
+    "niche": "civ7/resources",
+    "blueprint": "civ7-map-policy",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "civ7-map-policy",
   "lane": "enforced",
   "forbids": "runtime dependency on Civ7 adapter, MapGen, mods, Studio, or base-standard implementation paths",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/resources/blueprints/civ7-map-policy/boundary/check/ensure_map_policy_dependency_independence/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/resources/blueprints/civ7-map-policy/boundary/check/ensure_map_policy_dependency_independence/check.ts"
+    }
+  }
 }

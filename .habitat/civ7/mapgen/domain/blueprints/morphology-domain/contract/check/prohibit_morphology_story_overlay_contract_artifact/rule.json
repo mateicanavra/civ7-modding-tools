@@ -1,12 +1,19 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_morphology_story_overlay_contract_artifact",
+  "title": "Prohibit Morphology Story Overlay Contract Artifact",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "morphology-domain",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "story overlay artifact dependencies in morphology step contracts",
   "why": "Story overlay artifacts are narrative-owned and should not become morphology contract dependencies.",
   "remediate": null,
   "message": "Do not add story overlay artifact dependencies to morphology step contracts.",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
   "pathCoverage": [
     {
       "kind": "exact-path",
@@ -14,5 +21,17 @@
         "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/steps/**/*contract.ts"
       ]
     }
-  ]
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes/standard/stages"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/prohibit_morphology_story_overlay_contract_artifact/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/prohibit_morphology_story_overlay_contract_artifact/pattern.md"
+    },
+    "patternName": "prohibit_morphology_story_overlay_contract_artifact"
+  }
 }

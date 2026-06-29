@@ -1,20 +1,39 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_domain_tag_artifact_shim_imports",
+  "title": "Prohibit Domain Tag Artifact Shim Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "_self",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "@mapgen/domain/tags and @mapgen/domain/artifacts shim imports",
   "why": "Retired tag and artifact shims should not become public domain ownership again.",
   "remediate": null,
   "message": "Use the current owning public surface instead of retired domain tag/artifact shims.",
-  "hookCheck": true,
-  "scanRoots": [
-    "mods/mod-swooper-maps/src/domain",
-    "mods/mod-swooper-maps/src/recipes",
-    "mods/mod-swooper-maps/src/maps"
-  ],
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/**/*.ts"]
     }
-  ]
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain",
+    "mods/mod-swooper-maps/src/recipes",
+    "mods/mod-swooper-maps/src/maps"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_tag_artifact_shim_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_domain_tag_artifact_shim_imports/pattern.md"
+    },
+    "patternName": "prohibit_domain_tag_artifact_shim_imports"
+  }
 }

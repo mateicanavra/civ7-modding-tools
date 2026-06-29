@@ -97,14 +97,15 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 13. Extract mixed command checks | Mixed command-check packets were split enough to prove proof-class separation and stop treating the junk drawer as the center. |
 | 14. Close triage/residual owner cleanup | Triage packets and residual owners were removed, moved, or retained honestly enough to expose the ontology problem. |
 | 15. Polish authority ontology and frame | The ontology and operating frame now name Habitat, blueprint, instance, capability, niche, and proof-class separation as the governing model. |
-| 16. Normalize packet role metadata | Packet paths now own semantic placement, child files use generic role names, `rule.json` keeps only non-derived execution facts, and packet `category.md` files are gone. |
+| 16. Normalize packet role metadata | Child files use generic role names, `rule.json` stopped carrying owner-tool/detect/scope duplication, and packet `category.md` files are gone. |
+| 17. Make rule manifests location independent | `rule.json` now owns stable rule identity, current placement inventory facts, explicit runner file references, and explicit artifact references; Toolkit discovery no longer depends on the packet path grammar. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
 
-### 17. Select One Vertical Activation Pilot Corpus
+### 18. Select One Vertical Activation Pilot Corpus
 
 Purpose: choose the narrow corpus that will prove Authority Activation end to
 end.
@@ -127,7 +128,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 16 is landed.
+- Domino 17 is landed.
 - Current `.habitat` authority docs are read as source, not rewritten as part
   of pilot selection.
 
@@ -138,7 +139,7 @@ Proof:
   be touched by the next domino.
 - The record names the proof classes that the pilot can and cannot exercise.
 
-### 18. Admit One Pilot Blueprint Definition
+### 19. Admit One Pilot Blueprint Definition
 
 Purpose: make one blueprint a real authority definition instead of a path label.
 
@@ -159,7 +160,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 17 selected a pilot with enough surface area to admit a blueprint.
+- Domino 18 selected a pilot with enough surface area to admit a blueprint.
 - Existing `.habitat/AUTHORITY-ONTOLOGY.md` remains the conceptual source.
 
 Proof:
@@ -169,7 +170,7 @@ Proof:
 - No broad schema is introduced beyond the facts needed by the pilot.
 - Review can point to one before/after conceptual owner change.
 
-### 19. Admit One Pilot Instance Plus One Capability
+### 20. Admit One Pilot Instance Plus One Capability
 
 Purpose: prove that a concrete instance can declare facts and receive a
 capability under the pilot blueprint.
@@ -191,7 +192,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 18 admitted the pilot blueprint.
+- Domino 19 admitted the pilot blueprint.
 - The selected corpus has one concrete authority surface that can be treated as
   an instance without inventing a fake object.
 
@@ -202,7 +203,7 @@ Proof:
   facts.
 - Any duplicated transitional fact is explicitly listed for pruning.
 
-### 20. Admit One Niche Selector Or Governance Rule
+### 21. Admit One Niche Selector Or Governance Rule
 
 Purpose: make niche admission real for the pilot.
 
@@ -224,7 +225,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 19 admitted an instance with inspectable facts.
+- Domino 20 admitted an instance with inspectable facts.
 - The selected niche is stable enough to govern one pilot slice.
 
 Proof:
@@ -234,7 +235,7 @@ Proof:
 - The rule does not rely on the old runner registry as authority.
 - Review can identify the exact admission basis.
 
-### 21. Build The Narrow Projection Adapter
+### 22. Build The Narrow Projection Adapter
 
 Purpose: let execution consume the admitted pilot authority without rebuilding
 the full runner.
@@ -258,7 +259,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 20 admitted the pilot through one niche rule.
+- Domino 21 admitted the pilot through one niche rule.
 - There is a current execution surface worth projecting into for the pilot.
 
 Proof:
@@ -267,7 +268,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 22. Prune Transitional Packet Metadata For The Migrated Slice
+### 23. Prune Transitional Packet Metadata For The Migrated Slice
 
 Purpose: remove duplicated or misleading packet metadata once the pilot
 authority owns the facts.
@@ -289,7 +290,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 21 proved the pilot projection can run from admitted authority.
+- Domino 22 proved the pilot projection can run from admitted authority.
 - Duplicated facts have been identified before deletion.
 
 Proof:
@@ -298,7 +299,7 @@ Proof:
 - Focused command proof still passes for the pilot slice.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 23. Repeat Activation Slices
+### 24. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -320,7 +321,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 22 completed the first migrated slice.
+- Domino 23 completed the first migrated slice.
 - The first pilot has a clear copyable pattern or named failure mode.
 
 Proof:
@@ -329,7 +330,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 24. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 25. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.
@@ -352,7 +353,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 23 proves the activation model across multiple slices.
+- Domino 24 proves the activation model across multiple slices.
 - There is enough admitted authority to define default discovery honestly.
 
 Proof:

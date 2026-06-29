@@ -97,23 +97,23 @@ pure parser and audit model with fixtures.
 
 ## Rule Pack
 
-The rule registry is authored under the authority tree as
-`.habitat/**/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/rule.json`.
-The owner-root index is root registry metadata at `.habitat/index.json`. At this
-state it contains 124 registered rules:
+The rule registry is authored as location-independent manifests discovered at
+`.habitat/**/rule.json`. Each manifest owns stable rule identity, current
+placement inventory facts, explicit runner file references, and explicit
+artifact references. The owner-root index is root registry metadata at
+`.habitat/index.json`. At this state it contains 124 registered rules:
 
 | Habitat lane | Count | Role |
 | --- | ---: | --- |
-| Pattern checks | 79 | Source-shape diagnostics over registered scan roots. |
-| Structure checks | 8 | Native file-tree topology checks. |
-| File protection | 5 | Generated-zone and forbidden-file staged checks. |
-| Command checks | 30 | Existing command-line gates wrapped without changing their semantics. |
-| Formatter hygiene | 1 | Hygiene-layer CI gate. |
-| Project boundaries | 1 | Project-plane import boundary enforcement. |
+| `grit` | 79 | Source-shape diagnostics over registered scan roots. |
+| `habitat:structure` | 8 | Native file-tree topology checks. |
+| `habitat:file-layer` | 5 | Generated-zone and forbidden-file staged checks. |
+| `habitat:script` | 31 | Read-only script-backed gates wrapped without changing their semantics. |
+| `nx` | 1 | Project-plane import boundary enforcement through the graph. |
 
 Lane state:
 
-- 124 enforced rules fail `habitat check` on unbaselined violations.
+- 123 enforced rules fail `habitat check` on unbaselined violations.
 - 1 advisory rule reports findings without failing the check.
 
 Owner state:
@@ -128,8 +128,9 @@ Owner state:
 
 ## Baselines
 
-Baselines live under `.habitat/baselines/<rule-id>.json`.
-They are contract artifacts, not ordinary snapshots.
+Baselines are explicit manifest artifact references, currently sibling
+`baseline.json` files for the live corpus. They are contract artifacts, not
+ordinary snapshots.
 
 The baseline model is:
 
@@ -145,14 +146,15 @@ The baseline model is:
 
 ## Grit Diagnostics
 
-Habitat owns the Grit diagnostic contract. A packet with `pattern.md` derives
-the `grit` runner; hook and check execution select those packets through the
-runner surface rather than authored owner-tool metadata.
+Habitat owns the Grit diagnostic contract. A manifest with
+`runner.name: "grit"` points at the `pattern.md` file to execute; hook and
+check execution select those manifests through the runner surface rather than
+authored owner-tool metadata or sibling-file inference.
 
 Current active Grit state:
 
-- Registered Grit rules live as `pattern.md` sibling role files inside packet
-  directories.
+- Registered Grit rules currently point at `pattern.md` sibling role files
+  inside packet directories.
 - Hook eligibility uses `hookCheck` plus the packet's `scanRoots`.
 - Patterns are diagnostic/enforcing checks, not automatic transforms by
   default.
@@ -187,11 +189,12 @@ small.
 
 Apply state:
 
-- Apply patterns under `.habitat/patterns/apply`: 2 files.
-- Wired into `habitat fix`: only
-  `.habitat/patterns/apply/deep_import_to_public_surface.md`.
-- Not wired into `habitat fix`:
-  `.habitat/patterns/apply/helper_redeclarations_to_imports.md`.
+- Apply patterns are co-located `apply.pattern.md` role files referenced by
+  rule manifests: 2 files.
+- Wired into `habitat fix`: the apply role for
+  `require_public_domain_surfaces_in_recipes_and_maps`.
+- Not wired into `habitat fix`: the apply role for
+  `prohibit_runtime_helper_redeclarations`.
 
 The apply transaction:
 
@@ -253,8 +256,9 @@ Registered advisory/enforced lifecycle:
 - validates an accepted pattern manifest;
 - validates an explicit baseline contract and rule-introduction manifest;
 - refuses collisions;
-- writes the active `.habitat/patterns/checks/<pattern>.md` file;
-- appends the rule-pack entry to the rule registry;
+- refuses live registration writes; accepted active rules must be authored as
+  location-independent `rule.json` manifests with explicit runner and artifact
+  references through pattern management, not the candidate generator;
 
 ## Hooks
 

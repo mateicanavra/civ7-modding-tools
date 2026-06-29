@@ -1,16 +1,35 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_domain_ops_projection_effect_dependencies",
+  "title": "Prohibit Domain Ops Projection Effect Dependencies",
+  "placement": {
+    "niche": "civ7/mapgen/map-output",
+    "blueprint": "map-projection",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "ops depending on map projection/effect artifact keys",
   "why": "Domain ops should not encode runtime map artifact/effect dependencies.",
   "remediate": null,
   "message": "Remove map projection/effect dependency keys from domain ops.",
-  "hookCheck": true,
-  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "pathCoverage": [
     {
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/domain/**/ops/**/*.ts"]
     }
-  ]
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_domain_ops_projection_effect_dependencies/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_domain_ops_projection_effect_dependencies/pattern.md"
+    },
+    "patternName": "prohibit_domain_ops_projection_effect_dependencies"
+  }
 }

@@ -17,7 +17,7 @@ const rule = {
   runner: {
     name: "habitat" as const,
     mode: "structure" as const,
-    structurePath: ".habitat/sample/sample.structure.toml",
+    files: { structure: ".habitat/sample/sample.structure.toml" },
   },
 };
 

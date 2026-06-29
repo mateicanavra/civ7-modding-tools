@@ -8,36 +8,61 @@ const GraphTargetSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const GritPacketRunnerSchema = Type.Object(
+const RulePlacementV1Schema = Type.Object(
+  {
+    niche: Type.String({ minLength: 1 }),
+    blueprint: Type.String({ minLength: 1 }),
+    category: Type.String({ minLength: 1 }),
+    artifactKind: Type.String({ minLength: 1 }),
+  },
+  { additionalProperties: false }
+);
+
+const GritRuleRunnerSchema = Type.Object(
   {
     name: Type.Literal("grit"),
-    patternPath: Type.String({ minLength: 1 }),
-    applyPatternPath: Type.Optional(Type.String({ minLength: 1 })),
+    files: Type.Object(
+      {
+        pattern: Type.String({ minLength: 1 }),
+        applyPattern: Type.Optional(Type.String({ minLength: 1 })),
+      },
+      { additionalProperties: false }
+    ),
     patternName: Type.String({ minLength: 1 }),
   },
   { additionalProperties: false }
 );
 
-const HabitatStructurePacketRunnerSchema = Type.Object(
+const HabitatStructureRuleRunnerSchema = Type.Object(
   {
     name: Type.Literal("habitat"),
     mode: Type.Literal("structure"),
-    structurePath: Type.String({ minLength: 1 }),
+    files: Type.Object(
+      {
+        structure: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
   },
   { additionalProperties: false }
 );
 
-const HabitatScriptPacketRunnerSchema = Type.Object(
+const HabitatScriptRuleRunnerSchema = Type.Object(
   {
     name: Type.Literal("habitat"),
     mode: Type.Literal("script"),
-    scriptPath: Type.String({ minLength: 1 }),
+    files: Type.Object(
+      {
+        script: Type.String({ minLength: 1 }),
+      },
+      { additionalProperties: false }
+    ),
     runtime: Type.Union([Type.Literal("bun"), Type.Literal("node"), Type.Literal("bash")]),
   },
   { additionalProperties: false }
 );
 
-const HabitatFileLayerPacketRunnerSchema = Type.Object(
+const HabitatFileLayerRuleRunnerSchema = Type.Object(
   {
     name: Type.Literal("habitat"),
     mode: Type.Literal("file-layer"),
@@ -50,7 +75,7 @@ const HabitatFileLayerPacketRunnerSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const NxPacketRunnerSchema = Type.Object(
+const NxRuleRunnerSchema = Type.Object(
   {
     name: Type.Literal("nx"),
     target: GraphTargetSchema,
@@ -58,12 +83,12 @@ const NxPacketRunnerSchema = Type.Object(
   { additionalProperties: false }
 );
 
-const PacketRunnerSchema = Type.Union([
-  GritPacketRunnerSchema,
-  HabitatStructurePacketRunnerSchema,
-  HabitatScriptPacketRunnerSchema,
-  HabitatFileLayerPacketRunnerSchema,
-  NxPacketRunnerSchema,
+const RuleRunnerSchema = Type.Union([
+  GritRuleRunnerSchema,
+  HabitatStructureRuleRunnerSchema,
+  HabitatScriptRuleRunnerSchema,
+  HabitatFileLayerRuleRunnerSchema,
+  NxRuleRunnerSchema,
 ]);
 
 const RulePathCoverageSchema = Type.Array(
@@ -88,7 +113,18 @@ const RulePathCoverageSchema = Type.Array(
   { minItems: 1 }
 );
 
-const RuleMetadataInputShape = {
+const RuleArtifactRefsV1Schema = Type.Object(
+  {
+    baseline: Type.Optional(Type.String({ minLength: 1 })),
+  },
+  { additionalProperties: false }
+);
+
+const RuleManifestShape = {
+  schemaVersion: Type.Literal(1),
+  id: Type.String({ minLength: 1 }),
+  title: Type.String({ minLength: 1 }),
+  placement: RulePlacementV1Schema,
   ownerProject: Type.String({ minLength: 1 }),
   lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
   forbids: Type.String({ minLength: 1 }),
@@ -105,19 +141,18 @@ const RuleMetadataInputShape = {
   generatedZone: Type.Optional(Type.String({ minLength: 1 })),
   forbiddenFileNames: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
   hostSurfaceGuard: Type.Optional(Type.Literal(true)),
+  artifacts: Type.Optional(RuleArtifactRefsV1Schema),
+  runner: RuleRunnerSchema,
 };
 
-export const RuleRegistryRecordInputV1Schema = Type.Object(RuleMetadataInputShape, {
+export const RuleRegistryRecordInputV1Schema = Type.Object(RuleManifestShape, {
   additionalProperties: false,
 });
 
 export const RuleRegistryRecordV1Schema = Type.Object(
   {
-    id: Type.String({ minLength: 1 }),
-    title: Type.Optional(Type.String({ minLength: 1 })),
-    ...RuleMetadataInputShape,
-    exceptionPath: Type.String({ minLength: 1 }),
-    runner: PacketRunnerSchema,
+    ...RuleManifestShape,
+    manifestFilePath: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
@@ -149,7 +184,7 @@ export const RuleSelectorFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
     ownerProject: Type.String({ minLength: 1 }),
-    runner: PacketRunnerSchema,
+    runner: RuleRunnerSchema,
   },
   { additionalProperties: false }
 );
@@ -157,7 +192,7 @@ export const RuleSelectorFactsSchema = Type.Object(
 export const RuleReportFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
-    runner: PacketRunnerSchema,
+    runner: RuleRunnerSchema,
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
     remediate: Type.Union([Type.String(), Type.Null()]),
@@ -168,7 +203,8 @@ export const RuleReportFactsSchema = Type.Object(
 export const RuleBaselineFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
-    exceptionPath: Type.String({ minLength: 1 }),
+    exceptionPath: Type.Optional(Type.String({ minLength: 1 })),
+    baselinePath: Type.Optional(Type.String({ minLength: 1 })),
   },
   { additionalProperties: false }
 );
@@ -176,7 +212,7 @@ export const RuleBaselineFactsSchema = Type.Object(
 export const RuleRoutingFactsSchema = Type.Object(
   {
     id: Type.String({ minLength: 1 }),
-    runner: PacketRunnerSchema,
+    runner: RuleRunnerSchema,
     ownerProject: Type.String({ minLength: 1 }),
     pathCoverage: RulePathCoverageSchema,
   },
@@ -209,7 +245,7 @@ export const RuleCommandExecutionFactsSchema = Type.Object(
     id: Type.String({ minLength: 1 }),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
-    runner: HabitatScriptPacketRunnerSchema,
+    runner: HabitatScriptRuleRunnerSchema,
   },
   { additionalProperties: false }
 );
@@ -219,7 +255,7 @@ export const RuleSourceFactsSchema = Type.Object(
     id: Type.String({ minLength: 1 }),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
-    runner: GritPacketRunnerSchema,
+    runner: GritRuleRunnerSchema,
     patternName: Type.String({ minLength: 1 }),
     pathCoverage: RulePathCoverageSchema,
     scanRoots: Type.Array(Type.String({ minLength: 1 }), { minItems: 1 }),
@@ -244,7 +280,7 @@ export const RuleFileLayerFactsSchema = Type.Object(
     id: Type.String({ minLength: 1 }),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
-    runner: HabitatFileLayerPacketRunnerSchema,
+    runner: HabitatFileLayerRuleRunnerSchema,
     generatedZone: Type.Optional(Type.String({ minLength: 1 })),
     forbiddenFileNames: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
     hostSurfaceGuard: Type.Optional(Type.Literal(true)),
@@ -257,7 +293,7 @@ export const RuleStructureFactsSchema = Type.Object(
     id: Type.String({ minLength: 1 }),
     lane: Type.Union([Type.Literal("enforced"), Type.Literal("advisory")]),
     message: Type.String({ minLength: 1 }),
-    runner: HabitatStructurePacketRunnerSchema,
+    runner: HabitatStructureRuleRunnerSchema,
     pathCoverage: RulePathCoverageSchema,
   },
   { additionalProperties: false }
@@ -271,8 +307,10 @@ export const RuleHookCheckFactsSchema = Type.Object(
   { additionalProperties: false }
 );
 
-export type PacketRunner = Static<typeof PacketRunnerSchema>;
-export type PacketRunnerName = PacketRunner["name"];
+export type RuleRunner = Static<typeof RuleRunnerSchema>;
+export type RuleRunnerName = RuleRunner["name"];
+export type RulePlacementV1 = Static<typeof RulePlacementV1Schema>;
+export type RuleArtifactRefsV1 = Static<typeof RuleArtifactRefsV1Schema>;
 export type RuleRegistryRecordV1 = Static<typeof RuleRegistryRecordV1Schema>;
 export type RuleRegistryRecordInputV1 = Static<typeof RuleRegistryRecordInputV1Schema>;
 export type RuleRegistryDocumentV1 = Static<typeof RuleRegistryDocumentV1Schema>;

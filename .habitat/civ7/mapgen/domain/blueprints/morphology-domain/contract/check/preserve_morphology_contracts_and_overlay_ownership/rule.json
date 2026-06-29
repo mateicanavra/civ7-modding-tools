@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "preserve_morphology_contracts_and_overlay_ownership",
+  "title": "Preserve Morphology Contracts And Overlay Ownership",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "morphology-domain",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "missing canonical belt-driver contract references or additional HOTSPOTS story overlay publishers",
@@ -13,5 +22,16 @@
         "mods/mod-swooper-maps/src/domain/**/*.ts"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/preserve_morphology_contracts_and_overlay_ownership/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/domain/blueprints/morphology-domain/contract/check/preserve_morphology_contracts_and_overlay_ownership/check.mjs"
+    }
+  }
 }

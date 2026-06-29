@@ -36,10 +36,13 @@ blueprint, category, artifact kind, or authored policy root.
 - Collected packets live under niche-local blueprint paths.
 - Niche-wide authority uses `_self` as a temporary niche-authority
   packet-placement placeholder.
-- Packet semantics are derived from the hierarchy: niche, blueprint, category,
-  artifact kind, and packet id come from the directory path.
-- Rule identity is co-located as `rule.json`; the packet id, title, structure
-  role path, and default pattern identity are derived by Toolkit readers.
+- Rule manifests are discovered at `.habitat/**/rule.json`.
+- Rule identity is manifest-authored as `id`; physical path is not identity.
+- Current placement is manifest-authored as inventory metadata. It records
+  where the rule belongs now without freezing the final ontology or requiring
+  the manifest to live at that path forever.
+- Runner files and baselines are explicit manifest references, even when they
+  are currently sibling role files.
 - Pattern, baseline, Habitat script, and provisional operation files are
   co-located with their packets under generic role filenames.
 - Transitional shared execution helpers are centralized under `.habitat/_support/execution/` rather than packet authoring sites.
@@ -48,11 +51,17 @@ blueprint, category, artifact kind, or authored policy root.
 
 ## Authority Rules
 
-1. A structural check packet is admitted only by a packet folder under a blueprint at `<category>/check/<packet>`.
-2. A structural rule is admitted only by that folder's `rule.json` record or documented transitional support under `.habitat/_support/execution/`.
-3. A source-pattern rule is authored as `pattern.md` in the owning packet folder until the final manifest shape is accepted.
-4. Baseline/current-tree evidence is accepted only when co-located with the owning packet as `baseline.json` until the final manifest shape is accepted.
-5. A command-backed check is accepted only when its script is read-only and co-located as `check.{sh,mjs,ts}`.
+1. A structural check is admitted into the current inventory only by a
+   `rule.json` manifest with stable identity, current placement, and explicit
+   runner/artifact references.
+2. A source-pattern rule is authored as a `grit` runner manifest pointing at
+   its `pattern.md` file.
+3. Baseline/current-tree evidence is accepted only when referenced from the
+   owning rule manifest.
+4. A command-backed check is accepted only when its manifest points at a
+   read-only `check.{sh,mjs,ts}` script.
+5. Current placement should match the best known niche/blueprint/category/kind,
+   but moving the manifest is an inventory operation, not an identity change.
 6. Habitat-owned fix/generate/migrate operations require explicit operation identity and must not be registered as read-only checks unless they are genuinely read-only.
 7. `triage` packets are excluded from default execution until admitted, split, renamed, or removed.
 8. No new loose lint, validation, topology, or pattern script may be introduced as authored policy without Habitat authority-tree identity.
@@ -83,14 +92,13 @@ must not become authority-tree directories.
 
 ## Migration Implications
 
-Toolkit discovery now routes packet rule identity from the niche/blueprint path
-shape and generic role filenames. Next consolidation work should continue
-keeping any future `triage` evidence excluded from default execution, convert
-transitional command checks into clearer admitted artifacts, and continue
-migrating embedded structural authority from tests/scripts into this tree.
-Future layout and registry changes should use `AUTHORITY-ONTOLOGY.md` as the
-concept source for distinguishing blueprint kind authority, instance facts,
-capability facets, and niche governance.
+Toolkit discovery now routes through location-independent rule manifests:
+identity, current placement, runner entrypoints, and baselines are read from
+`rule.json`. Next consolidation work can physically move manifests and their
+referenced files into better blueprint, capability, or niche locations without
+changing rule identity or behavior. Future layout and registry changes should
+use `AUTHORITY-ONTOLOGY.md` as the concept source for distinguishing blueprint
+kind authority, instance facts, capability facets, and niche governance.
 
 ## Stop Conditions
 
@@ -98,7 +106,8 @@ Stop a consolidation slice if it creates any of these states:
 
 - authored structural policy exists with no Habitat identity;
 - generic tool dispatch is modeled as repo-authored `.habitat` config instead of Toolkit source;
-- a pattern, baseline, or adapter exists outside its packet folder with no bridge rationale such as `.habitat/_support/execution/README.md`;
+- a pattern, baseline, or adapter exists outside manifest references with no
+  authority or bridge rationale;
 - external config claims structural meaning not represented in `.habitat`;
 - tests are used as structural gates without Habitat registration or explicit product-test classification;
 - niches, narrow subjects, runner names, or current defect names are promoted into blueprints without domain proof.

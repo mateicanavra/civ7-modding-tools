@@ -1,11 +1,25 @@
 {
+  "schemaVersion": 1,
+  "id": "prohibit_foundation_decomposed_ops_legacy_internal_imports",
+  "title": "Prohibit Foundation Decomposed Ops Legacy Internal Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "_self",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "decomposed foundation tectonics ops importing legacy compute-tectonic-history internals",
   "why": "Decomposed tectonics operations own their local contracts and rules instead of reaching into the retired aggregate implementation.",
   "remediate": null,
   "message": "Do not import legacy compute-tectonic-history internals from decomposed foundation ops.",
-  "hookCheck": true,
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*"]
+    }
+  ],
   "scanRoots": [
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-plate-membership",
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-era-tectonic-fields",
@@ -16,10 +30,15 @@
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tracer-advection",
     "mods/mod-swooper-maps/src/domain/foundation/ops/compute-tectonic-provenance"
   ],
-  "pathCoverage": [
-    {
-      "kind": "exact-path",
-      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/compute-*"]
-    }
-  ]
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_decomposed_ops_legacy_internal_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/_self/boundary/check/prohibit_foundation_decomposed_ops_legacy_internal_imports/pattern.md"
+    },
+    "patternName": "prohibit_foundation_decomposed_ops_legacy_internal_imports"
+  }
 }

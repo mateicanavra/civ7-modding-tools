@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "require_narrow_game_ui_bridge_bootstrap",
+  "title": "Require Narrow Game Ui Bridge Bootstrap",
+  "placement": {
+    "niche": "civ7/platform",
+    "blueprint": "intelligence-bridge",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-intelligence-bridge",
   "lane": "enforced",
   "forbids": "UI bootstrap importing the root control-oRPC package or client/server RPC primitives instead of the narrow game-ui entrypoint",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/platform/blueprints/intelligence-bridge/boundary/check/require_narrow_game_ui_bridge_bootstrap/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/platform/blueprints/intelligence-bridge/boundary/check/require_narrow_game_ui_bridge_bootstrap/check.ts"
+    }
+  }
 }

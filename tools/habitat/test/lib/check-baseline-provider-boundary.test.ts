@@ -42,6 +42,40 @@ describe("check and baseline provider boundaries", () => {
       }
       if (
         argv[0] === "show" &&
+        argv[1] ===
+          "merge-base-sha:.habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/rule.json"
+      ) {
+        return commandResult(
+          argv,
+          options.cwd,
+          JSON.stringify(
+            {
+              schemaVersion: 1,
+              id: "existing-rule",
+              title: "Existing Rule",
+              placement: {
+                niche: "global/workspace",
+                blueprint: "project-boundary-model",
+                category: "structure",
+                artifactKind: "check",
+              },
+              ownerProject: "habitat",
+              lane: "enforced",
+              runner: {
+                name: "grit",
+                files: {
+                  pattern:
+                    ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/pattern.md",
+                },
+              },
+            },
+            null,
+            2
+          )
+        );
+      }
+      if (
+        argv[0] === "show" &&
         argv[1] === "merge-base-sha:.habitat/baselines/existing-rule.json"
       ) {
         return commandResult(argv, options.cwd, "[]\n");
@@ -82,6 +116,10 @@ describe("check and baseline provider boundaries", () => {
         "merge-base-sha:tools/habitat/src/service/model/check/policy/rule-runtime/rules.json",
       ],
       ["ls-tree", "-r", "--name-only", "merge-base-sha", ".habitat"],
+      [
+        "show",
+        "merge-base-sha:.habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/rule.json",
+      ],
       ["show", "merge-base-sha:.habitat/baselines/existing-rule.json"],
     ]);
   });
@@ -148,8 +186,9 @@ describe("check and baseline provider boundaries", () => {
 function baselineRule(id: string) {
   return {
     id,
-    exceptionPath: "none",
+    baselinePath: `.habitat/baselines/${id}.json`,
     ownerProject: "habitat",
+    runner: "grit",
   } as const;
 }
 

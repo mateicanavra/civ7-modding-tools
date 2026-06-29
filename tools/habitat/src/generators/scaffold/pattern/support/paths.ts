@@ -1,20 +1,7 @@
-import {
-  baselineRepoPath,
-  checkPatternRoot,
-  patternCandidateRoot,
-  ruleRegistryRepoPath,
-} from "@habitat/cli/resources/artifact-paths";
+import { checkPatternRoot, patternCandidateRoot } from "@habitat/cli/resources/artifact-paths";
 
 export function activePatternPathFor(options: { readonly patternName: string }) {
   return `${checkPatternRoot}/${options.patternName}.md`;
-}
-
-export function activeBaselinePathFor(options: { readonly ruleId: string }) {
-  return baselineRepoPath(options.ruleId);
-}
-
-export function registeredRulePathFor(options: { readonly ruleId: string }) {
-  return `${ruleRegistryRepoPath}/${options.ruleId}/rule.json`;
 }
 
 export function candidateArtifactPaths(options: {

@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "require_owned_domain_config_catalog_surfaces",
+  "title": "Require Owned Domain Config Catalog Surfaces",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "domain-config-surface",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "missing required morphology config facade exports or owner tag catalog tokens",
@@ -13,5 +22,16 @@
         "mods/mod-swooper-maps/src/recipes/standard/tags.ts"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/require_owned_domain_config_catalog_surfaces/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/domain/blueprints/domain-config-surface/contract/check/require_owned_domain_config_catalog_surfaces/check.mjs"
+    }
+  }
 }

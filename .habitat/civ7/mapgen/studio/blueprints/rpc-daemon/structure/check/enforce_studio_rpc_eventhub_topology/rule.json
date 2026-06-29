@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "enforce_studio_rpc_eventhub_topology",
+  "title": "Enforce Studio Rpc Eventhub Topology",
+  "placement": {
+    "niche": "civ7/mapgen/studio",
+    "blueprint": "rpc-daemon",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "mapgen-studio",
   "lane": "enforced",
   "forbids": "a daemon entrypoint that no longer mounts createStudioRpcHandler(context)",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/civ7/mapgen/studio/blueprints/rpc-daemon/structure/check/enforce_studio_rpc_eventhub_topology/check.ts"
+    }
+  }
 }

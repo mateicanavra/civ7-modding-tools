@@ -257,23 +257,24 @@ function inputsForRuleTarget(rule: NxRuleRegistryRecord, ownerRoot: string): str
   const inputs = new Set<string>([
     "{workspaceRoot}/package.json",
     "{workspaceRoot}/bun.lock",
-    `{workspaceRoot}/.habitat/**/${rule.id}/**`,
     ...covered.inputs,
   ]);
+  if (rule.manifestFilePath) inputs.add(workspaceInput(rule.manifestFilePath));
+  if (rule.artifacts?.baseline) inputs.add(workspaceInput(rule.artifacts.baseline));
   if (rule.ownerProject === "habitat") {
     inputs.add("{workspaceRoot}/tools/habitat/src/**");
   }
   if (isPatternBackedRule(rule)) {
-    inputs.add(workspaceInput(rule.runner.patternPath));
-    if (rule.runner.applyPatternPath) inputs.add(workspaceInput(rule.runner.applyPatternPath));
+    inputs.add(workspaceInput(rule.runner.files.pattern));
+    if (rule.runner.files.applyPattern) inputs.add(workspaceInput(rule.runner.files.applyPattern));
     for (const scopeInput of gritRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }
   if (rule.runner.name === "habitat" && rule.runner.mode === "structure") {
-    inputs.add(workspaceInput(rule.runner.structurePath));
+    inputs.add(workspaceInput(rule.runner.files.structure));
   }
-  if (rule.runner.name === "habitat" && rule.runner.mode !== "structure") {
-    inputs.add(`{workspaceRoot}/.habitat/**/${rule.id}/**`);
+  if (rule.runner.name === "habitat" && rule.runner.mode === "script") {
+    inputs.add(workspaceInput(rule.runner.files.script));
   }
   return [...inputs];
 }
@@ -297,8 +298,8 @@ function inputsForSourceCheckTarget(rules: readonly NxRuleRegistryRecord[]): str
   ]);
   for (const rule of rules) {
     if (!isPatternBackedRule(rule)) continue;
-    inputs.add(workspaceInput(rule.runner.patternPath));
-    if (rule.runner.applyPatternPath) inputs.add(workspaceInput(rule.runner.applyPatternPath));
+    inputs.add(workspaceInput(rule.runner.files.pattern));
+    if (rule.runner.files.applyPattern) inputs.add(workspaceInput(rule.runner.files.applyPattern));
     for (const scopeInput of gritRuleScopeInputs(rule)) inputs.add(scopeInput);
     if (rule.manifestPath) inputs.add(workspaceInput(rule.manifestPath));
   }

@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "require_projection_calls_in_projection_steps",
+  "title": "Require Projection Calls In Projection Steps",
+  "placement": {
+    "niche": "civ7/mapgen/map-output",
+    "blueprint": "map-projection",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "missing required projection owner callsites or missing plotRivers materialization and contract tokens",
@@ -15,5 +24,16 @@
         "mods/mod-swooper-maps/src/recipes/standard/stages/map-rivers/steps/plotRivers.contract.ts"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/require_projection_calls_in_projection_steps/check.mjs"
+    }
+  }
 }

@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "verify_habitat_cli_smoke_contract",
+  "title": "Verify Habitat Cli Smoke Contract",
+  "placement": {
+    "niche": "habitat/toolkit",
+    "blueprint": "cli",
+    "category": "contract",
+    "artifactKind": "check"
+  },
   "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "Habitat CLI help or selected-check JSON output becoming unparseable",
@@ -13,5 +22,16 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/habitat/toolkit/blueprints/cli/contract/check/verify_habitat_cli_smoke_contract/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "bun",
+    "files": {
+      "script": ".habitat/habitat/toolkit/blueprints/cli/contract/check/verify_habitat_cli_smoke_contract/check.ts"
+    }
+  }
 }

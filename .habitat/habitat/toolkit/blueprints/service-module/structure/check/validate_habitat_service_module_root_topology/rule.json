@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "validate_habitat_service_module_root_topology",
+  "title": "Validate Habitat Service Module Root Topology",
+  "placement": {
+    "niche": "habitat/toolkit",
+    "blueprint": "service-module",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "habitat",
   "lane": "enforced",
   "forbids": "service module and service-model root children outside the admitted topology",
@@ -13,5 +22,15 @@
     {
       "kind": "project-owner"
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_root_topology/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/habitat/toolkit/blueprints/service-module/structure/check/validate_habitat_service_module_root_topology/structure.toml"
+    }
+  }
 }

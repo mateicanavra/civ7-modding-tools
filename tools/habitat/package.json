@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "description": "Repo-local enforcement harness: single entrypoint over all structural checks, with ratchet baselines (see docs/projects/habitat-harness/FRAME.md)",
-  "habitatHierarchyV1IntegrationNote": "Some Grit validation inputs still reference flat .habitat/patterns paths; rewire these through the accepted authority resolver in a follow-up Toolkit integration slice.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

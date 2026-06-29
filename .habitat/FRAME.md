@@ -23,8 +23,8 @@ Use this order when sources disagree:
 5. `docs/projects/habitat-harness/FRAME.md`,
    `docs/projects/habitat-harness/dra-takeover-frame.md`, and current
    Habitat recovery/workstream records.
-6. Current `.habitat` packet paths, generic role files, rule metadata,
-   patterns, baselines, operation notes, and Toolkit discovery behavior.
+6. Current `.habitat` manifests, packet paths, generic role files, patterns,
+   baselines, operation notes, and Toolkit discovery behavior.
 7. Current source code, tests, scripts, package metadata, Nx metadata, and
    fresh command behavior.
 8. Prior session summaries and archived project notes as discovery material
@@ -118,7 +118,9 @@ as architecture.
 Use this model when reading a packet:
 
 - `rule.json` is runner/catalog metadata. It tells the Toolkit how current
-  execution is wired; identity and placement are derived from the packet path.
+  execution is wired. It now owns stable rule identity, current placement
+  inventory facts, explicit runner file references, and explicit artifact
+  references; the packet path is current placement evidence, not identity.
 - `.habitat/_support/execution/source-check/` was transitional source-check
   adapter support. It is now deleted: zero `ownerTool: source-check` records,
   zero central `.rule.mjs` adapters, and no `rule-runtime.policy.mjs` remain.
@@ -208,7 +210,10 @@ These can change without reframing while the hard core holds:
 
 - Exact subject names, human titles, and executable slugs.
 - The temporary `_self` niche-authority packet-placement placeholder.
-- Generic packet role filenames as the current metadata carrier.
+- Generic packet role filenames as the current colocated file convention.
+- `rule.json` as the current location-independent inventory manifest until
+  typed blueprint, instance, capability, and niche authority manifests replace
+  its transitional placement facts.
 - Exact blueprint-definition folder names, manifest schemas, same-kind nesting
   cascade rules, conflict handling, and deprecation semantics.
 - Transitional command-check scripts for read-only authority that cannot yet be

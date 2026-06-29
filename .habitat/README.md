@@ -30,23 +30,33 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `dominoes.md`: working ratchet sequence for authority-tree and runner integration dominoes.
 - `config.md`: human-readable operation model; not parsed as tool dispatch config.
 
-## Packet Files
+## Rule Manifest Files
+
+Habitat discovers rule manifests by finding `.habitat/**/rule.json`.
+The current niche/blueprint path is inventory placement, not identity:
+moving a manifest does not change the rule when its `id`, `placement`,
+`runner`, and artifact references stay the same.
 
 Packet folders may contain:
 
-- `rule.json`: execution/routing metadata; identity and placement are derived from the packet path.
-- `baseline.json`: baseline, fixture, current-tree, or generated-artifact evidence.
-- `pattern.md`: primary authored pattern source.
+- `rule.json`: rule manifest with stable `id`, `title`, current `placement`,
+  policy/routing fields, explicit `runner`, and explicit artifact references.
+- `baseline.json`: baseline, fixture, current-tree, or generated-artifact
+  evidence referenced from `rule.json`.
+- `pattern.md`: primary authored pattern source referenced from `rule.json`.
 - `apply.pattern.md`: secondary apply pattern source.
-- `structure.toml`: Habitat-native topology source.
-- `check.{sh,mjs,ts}`: Habitat-native read-only script adapter.
+- `structure.toml`: Habitat-native topology source referenced from `rule.json`.
+- `check.{sh,mjs,ts}`: Habitat-native read-only script adapter referenced
+  from `rule.json`.
 - `fix.mjs`, `generate.{sh,ts}`: mutating operation implementation.
 - `operation.md`: provisional identity for non-check operations.
 
 Do not reintroduce packet-prefixed role filenames or packet-local
-`category.md`. If a semantic fact is derivable from the directory path or role
-filename, it belongs there rather than in metadata.
+`category.md`. Do not derive rule identity or execution entrypoints from the
+current packet path. The path is current placement evidence only.
 
 ## Compatibility Notes
 
-Curated `habitat check --rule <id>` execution is the currently proven bridge. Broad full-suite execution still has known resolver/admission debt and should be rebuilt around the niche/blueprint path shape with `triage` excluded by default.
+Curated `habitat check --rule <id>` execution is the currently proven bridge.
+Broad full-suite execution should be rebuilt around admitted authority once
+blueprints, instances, capabilities, and niche governance have a vertical pilot.

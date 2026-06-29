@@ -101,14 +101,14 @@ function runStructureRuleEffect(
   }
 ): Effect.Effect<RuleRunResult, never, any> {
   return Effect.gen(function* () {
-    const structurePath = path.resolve(options.repoRoot, rule.runner.structurePath);
+    const structurePath = path.resolve(options.repoRoot, rule.runner.files.structure);
     const text = yield* options.fileSystem.readText(structurePath).pipe(Effect.either);
     if (text._tag === "Left") {
       const diagnostics = [
         diagnostic(rule, {
           kind: "structure-file-invalid",
-          path: rule.runner.structurePath,
-          message: `Unable to read structure file ${rule.runner.structurePath}.`,
+          path: rule.runner.files.structure,
+          message: `Unable to read structure file ${rule.runner.files.structure}.`,
         }),
       ];
       return { exitCode: 1, diagnostics };
@@ -118,7 +118,7 @@ function runStructureRuleEffect(
       const diagnostics = [
         diagnostic(rule, {
           kind: "structure-file-invalid",
-          path: rule.runner.structurePath,
+          path: rule.runner.files.structure,
           message: `Invalid Habitat structure TOML: ${parsed.message}`,
         }),
       ];

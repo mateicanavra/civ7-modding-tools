@@ -22,7 +22,7 @@ type RoutingRecordInput = Pick<
   RuleRegistryRecordV1,
   "id" | "runner" | "ownerProject" | "pathCoverage"
 >;
-type BaselineRecordInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath">;
+type BaselineRecordInput = Pick<RuleRegistryRecordV1, "id" | "exceptionPath" | "artifacts">;
 type GritRunner = Extract<RuleRegistryRecordV1["runner"], { name: "grit" }>;
 type StructureRunner = Extract<
   RuleRegistryRecordV1["runner"],
@@ -70,7 +70,8 @@ export function ruleRoutingFacts(records: readonly RoutingRecordInput[]): RuleRo
 export function ruleBaselineFacts(records: readonly BaselineRecordInput[]): RuleBaselineFacts[] {
   return records.map((rule) => ({
     id: rule.id,
-    exceptionPath: rule.exceptionPath,
+    ...(rule.exceptionPath ? { exceptionPath: rule.exceptionPath } : {}),
+    ...(rule.artifacts?.baseline ? { baselinePath: rule.artifacts.baseline } : {}),
   }));
 }
 

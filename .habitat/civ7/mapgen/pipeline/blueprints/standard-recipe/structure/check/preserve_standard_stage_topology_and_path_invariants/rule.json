@@ -1,4 +1,13 @@
 {
+  "schemaVersion": 1,
+  "id": "preserve_standard_stage_topology_and_path_invariants",
+  "title": "Preserve Standard Stage Topology And Path Invariants",
+  "placement": {
+    "niche": "civ7/mapgen/pipeline",
+    "blueprint": "standard-recipe",
+    "category": "structure",
+    "artifactKind": "check"
+  },
   "ownerProject": "mod-swooper-maps",
   "lane": "enforced",
   "forbids": "standard recipe stage directory drift, missing stage entrypoints, or retired stage directories",
@@ -10,5 +19,15 @@
       "kind": "exact-path",
       "patterns": ["mods/mod-swooper-maps/src/recipes/standard/stages/*"]
     }
-  ]
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "structure",
+    "files": {
+      "structure": ".habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/structure/check/preserve_standard_stage_topology_and_path_invariants/structure.toml"
+    }
+  }
 }

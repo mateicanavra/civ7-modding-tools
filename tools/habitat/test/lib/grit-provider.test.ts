@@ -720,12 +720,18 @@ describe("Grit check provider parser and diagnostics", () => {
   });
 
   test("projects selected docs local-path findings from Grit rewrite dry-run output", async () => {
+    const relocatedPatternPath = ".habitat/future/docs-portability/pattern.md";
     const rule = fakeGritRule(
       "ensure_docs_checkout_paths_are_portable",
       "docs_local_checkout_paths",
       {
         lane: "advisory",
         scanRoots: ["docs"],
+        runner: {
+          name: "grit",
+          files: { pattern: relocatedPatternPath },
+          patternName: "docs_local_checkout_paths",
+        },
       }
     );
     let observedRequest: HabitatProcessRequest | undefined;
@@ -745,10 +751,7 @@ Processed 1 files and found 1 matches
 
     const results = await runGritRules([rule], { grit: fakeGrit });
 
-    expect(observedRequest?.argv.slice(0, 2)).toEqual([
-      "apply",
-      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
-    ]);
+    expect(observedRequest?.argv.slice(0, 2)).toEqual(["apply", relocatedPatternPath]);
     expect(observedRequest?.argv).toContain("docs");
     expect(observedRequest?.argv.slice(-4)).toEqual([
       "--dry-run",
@@ -843,6 +846,7 @@ Processed 1 files and found 1 matches
   });
 
   test("splits mixed source and docs Grit selections by output contract", async () => {
+    const relocatedPatternPath = ".habitat/future/docs-portability/pattern.md";
     const sourceRule = fakeGritRule(
       "require_public_domain_surfaces_in_recipes_and_maps",
       "domain_deep_import",
@@ -856,6 +860,11 @@ Processed 1 files and found 1 matches
       {
         lane: "advisory",
         scanRoots: ["docs"],
+        runner: {
+          name: "grit",
+          files: { pattern: relocatedPatternPath },
+          patternName: "docs_local_checkout_paths",
+        },
       }
     );
     const observedRequests: HabitatProcessRequest[] = [];
@@ -899,10 +908,7 @@ Processed 2 files and found 1 matches
       "error",
       "mods/mod-swooper-maps/src/maps",
     ]);
-    expect(observedRequests[1]?.argv.slice(0, 2)).toEqual([
-      "apply",
-      ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
-    ]);
+    expect(observedRequests[1]?.argv.slice(0, 2)).toEqual(["apply", relocatedPatternPath]);
     expect(observedRequests[1]?.argv).toContain("docs");
     expect(observedRequests[1]?.argv.slice(-4)).toEqual([
       "--dry-run",
@@ -1107,6 +1113,11 @@ function fakeGritRule(
     patternName: pattern,
     lane: "enforced",
     message: "test rule",
+    runner: {
+      name: "grit",
+      files: { pattern: `.habitat/test/${pattern}/pattern.md` },
+      patternName: pattern,
+    },
     scanRoots: ["packages"],
     ...overrides,
   };
