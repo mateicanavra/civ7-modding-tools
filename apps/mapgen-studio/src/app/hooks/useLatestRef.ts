@@ -20,6 +20,7 @@ import { type RefObject, useRef } from "react";
  */
 export function useLatestRef<T>(value: T): RefObject<T> {
   const ref = useRef(value);
+  // eslint-disable-next-line react-hooks/refs -- This render-phase ref write IS the hook's purpose: the write is idempotent, derives only from the current value, and affects nothing this render returns. React's own docs sanction caching the latest value this way (see the doc comment above). This is the single sanctioned site; all other "latest ref" mirrors route through here.
   ref.current = value;
   return ref;
 }

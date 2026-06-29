@@ -362,6 +362,7 @@ export function StudioShell(props: StudioShellProps) {
     browserRunning,
     setLocalError,
   });
+  // eslint-disable-next-line react-hooks/refs -- Host-owned event sink: `vizIngestRef` is declared with a no-op default (line ~304) and consumed by the `onVizEvent` callback created in render scope ABOVE this point, so it cannot route through `useLatestRef` (the consumer precedes `viz`). Wiring it to `viz.ingest` here is the deliberate "create sink early, point it at viz once viz exists" pattern; the write is idempotent and does not affect this render's output.
   vizIngestRef.current = viz.ingest;
   // Deck-camera auto-fit (slice 2.7b): the ordered per-space + first-paint refit
   // pair and their guard refs, consuming the viz read-projection BY VALUE and the
