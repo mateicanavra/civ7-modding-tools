@@ -79,18 +79,22 @@ select, run, report, fix, generate, or migrate authority artifacts, but Toolkit
 internals, runner types, adapter names, and current implementation defects do
 not define the authority ontology.
 
-The current pruning target tree remains:
+The current pruning target tree is:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/rules/<packet>/
+.habitat/<niche>/rules/<context>/<packet>/
 ```
 
 This tree is intentionally decomposed for the current gathered packet corpus:
 
 - niche: authored jurisdiction;
 - blueprint: the constructible kind or lifecycle-owned shape inside the niche;
-- category: universal engineering-purpose class;
-- kind: mutability and execution intent;
+- rules: transitional niche-wide or current-context inventory, not blueprint
+  authority;
+- category: universal engineering-purpose class in `rule.json`;
+- kind: mutability and execution intent in `rule.json`;
 - packet: current artifact bundle or authority unit.
 
 The durable ontology is narrower than this physical decomposition. Habitat,

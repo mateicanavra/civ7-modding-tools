@@ -131,23 +131,21 @@ describe("pattern management views", () => {
         expect.objectContaining({
           patternId: "deep-import-to-public-surface",
           manifestPath:
-            ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
+            ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
           dryRunCommands: [
             expect.objectContaining({
               patternPath:
-                ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
+                ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md",
               roots: ["mods/mod-swooper-maps/src/maps", "mods/mod-swooper-maps/src/recipes"],
             }),
           ],
         }),
         expect.objectContaining({
           patternId: "ensure_docs_checkout_paths_are_portable",
-          manifestPath:
-            ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
+          manifestPath: ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
           dryRunCommands: [
             expect.objectContaining({
-              patternPath:
-                ".habitat/docs/blueprints/_self/quality/check/ensure_docs_checkout_paths_are_portable/pattern.md",
+              patternPath: ".habitat/docs/rules/ensure_docs_checkout_paths_are_portable/pattern.md",
               roots: ["docs"],
             }),
           ],
@@ -168,7 +166,7 @@ describe("pattern management views", () => {
     expect(
       Value.Check(
         ApplyPatternPathSchema,
-        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
+        ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md"
       )
     ).toBe(true);
     expect(

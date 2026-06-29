@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "preserve_morphology_contracts_and_overlay_ownership",
+  "title": "Preserve Morphology Contracts And Overlay Ownership",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "morphology-domain",
+    "category": "contract",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "missing canonical belt-driver contract references or additional HOTSPOTS story overlay publishers",
+  "why": "Morphology contract surfaces are structural boundaries between physics stages, map projection, and narrative-owned overlays.",
+  "remediate": null,
+  "message": "Route morphology data through canonical artifacts and keep overlay/effect ownership at its owning stage.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/morphology*/**/*.ts",
+        "mods/mod-swooper-maps/src/domain/**/*.ts"
+      ]
+    }
+  ],
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/rules/morphology-domain/preserve_morphology_contracts_and_overlay_ownership/baseline.json"
+  },
+  "runner": {
+    "name": "habitat",
+    "mode": "script",
+    "runtime": "node",
+    "files": {
+      "script": ".habitat/civ7/mapgen/domain/rules/morphology-domain/preserve_morphology_contracts_and_overlay_ownership/check.mjs"
+    }
+  }
+}

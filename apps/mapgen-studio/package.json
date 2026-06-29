@@ -8,7 +8,7 @@
     "serve": "bun src/server/daemon/daemon.ts --assets-root dist",
     "gen:civ7-tables": "bun ../../scripts/mapgen-studio/generate-civ7-browser-tables.ts",
     "ensure:studio-recipe-artifacts": "node ./scripts/ensure-studio-recipe-artifacts.mjs",
-    "lint:react-compiler": "node ../../.habitat/civ7/mapgen/studio/_self/check/worker-bundle/lint-react-compiler.mjs",
+    "lint:react-compiler": "node ../../.habitat/civ7/mapgen/studio/blueprints/worker-bundle/ensure_studio_worker_bundle_is_browser_safe/lint-react-compiler.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

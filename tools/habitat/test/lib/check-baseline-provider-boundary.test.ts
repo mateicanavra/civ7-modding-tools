@@ -37,13 +37,13 @@ describe("check and baseline provider boundaries", () => {
         return commandResult(
           argv,
           options.cwd,
-          ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/rule.json\n"
+          ".habitat/global/workspace/blueprints/project-boundary-model/existing-rule/rule.json\n"
         );
       }
       if (
         argv[0] === "show" &&
         argv[1] ===
-          "merge-base-sha:.habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/rule.json"
+          "merge-base-sha:.habitat/global/workspace/blueprints/project-boundary-model/existing-rule/rule.json"
       ) {
         return commandResult(
           argv,
@@ -65,7 +65,7 @@ describe("check and baseline provider boundaries", () => {
                 name: "grit",
                 files: {
                   pattern:
-                    ".habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/pattern.md",
+                    ".habitat/global/workspace/blueprints/project-boundary-model/existing-rule/pattern.md",
                 },
               },
             },
@@ -118,7 +118,7 @@ describe("check and baseline provider boundaries", () => {
       ["ls-tree", "-r", "--name-only", "merge-base-sha", ".habitat"],
       [
         "show",
-        "merge-base-sha:.habitat/global/workspace/blueprints/project-boundary-model/structure/check/existing-rule/rule.json",
+        "merge-base-sha:.habitat/global/workspace/blueprints/project-boundary-model/existing-rule/rule.json",
       ],
       ["show", "merge-base-sha:.habitat/baselines/existing-rule.json"],
     ]);

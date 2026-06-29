@@ -8,7 +8,8 @@ or replacement metadata plane.
 
 The category answers: what failure class is this packet trying to prevent, or
 what system guarantee is it preserving? Category names are intentionally single
-words so they remain stable authority-tree path segments.
+words so they remain stable manifest placement values. They are not physical
+packet path segments in the current tree.
 
 ## Category Model
 
@@ -40,10 +41,12 @@ tools, artifact kinds, current defect names, or narrow product handles.
 The current physical hierarchy is:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/rules/<packet>/
+.habitat/<niche>/rules/<context>/<packet>/
 ```
 
-The manifest repeats these facts under `placement` so rule inventory remains
+The manifest owns these facts under `placement` so rule inventory remains
 location-independent while the tree is being reorganized:
 
 - niche;

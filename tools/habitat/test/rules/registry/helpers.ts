@@ -43,7 +43,7 @@ export function baseRule(overrides: Record<string, unknown> = {}): RuleRegistryR
     message: "Fix the structural issue.",
     pathCoverage: [{ kind: "project-owner" }],
     artifacts: {
-      baseline: ".habitat/fixtures/blueprints/_self/quality/check/sample-rule/baseline.json",
+      baseline: ".habitat/fixtures/rules/sample-rule/baseline.json",
     },
     runner: habitatScriptRunner("sample-rule"),
   } satisfies RuleRegistryRecordV1;
@@ -58,7 +58,7 @@ export function habitatScriptRunner(
   return {
     name: "habitat",
     mode: "script",
-    files: { script: `.habitat/fixtures/blueprints/_self/quality/check/${id}/${filename}` },
+    files: { script: `.habitat/fixtures/rules/${id}/${filename}` },
     runtime,
   };
 }
@@ -66,7 +66,7 @@ export function habitatScriptRunner(
 export function gritRunner(id: string): RuleRunner {
   return {
     name: "grit",
-    files: { pattern: `.habitat/fixtures/blueprints/_self/quality/check/${id}/pattern.md` },
+    files: { pattern: `.habitat/fixtures/rules/${id}/pattern.md` },
     patternName: id,
   };
 }
@@ -75,7 +75,7 @@ export function habitatStructureRunner(id: string): RuleRunner {
   return {
     name: "habitat",
     mode: "structure",
-    files: { structure: `.habitat/fixtures/blueprints/_self/structure/check/${id}/structure.toml` },
+    files: { structure: `.habitat/fixtures/rules/${id}/structure.toml` },
   };
 }
 

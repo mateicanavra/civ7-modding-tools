@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_runtime_helper_redeclarations",
+  "title": "Prohibit Runtime Helper Redeclarations",
+  "placement": {
+    "niche": "civ7/mapgen/core",
+    "blueprint": "mapgen-core-library",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "runtime layers redeclaring shared clamp/range/roll helpers",
+  "why": "Shared deterministic helpers live in @swooper/mapgen-core.",
+  "remediate": null,
+  "message": "Use shared helpers from @swooper/mapgen-core instead of redeclaring them.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/*/src/recipes/**/stages/**/steps/**/*.ts",
+        "mods/*/src/domain/**/ops/**/strategies/**/*.ts"
+      ]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/recipes", "mods/mod-swooper-maps/src/domain"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/prohibit_runtime_helper_redeclarations/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/prohibit_runtime_helper_redeclarations/pattern.md",
+      "applyPattern": ".habitat/civ7/mapgen/core/blueprints/mapgen-core-library/prohibit_runtime_helper_redeclarations/apply.pattern.md"
+    },
+    "patternName": "prohibit_runtime_helper_redeclarations"
+  }
+}

@@ -105,13 +105,14 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 19. Move the Recipe Kind Pocket | Standard-recipe evidence was physically moved into `recipe`, `recipe-stage`, `recipe-step`, `swooper-maps-standard-recipe`, and coarse `mapgen-pipeline` contexts while preserving rule IDs and execution behavior. |
 | 20. Select the Domain Operation Kind Pocket | Re-reading the changed Recipe slice selected `domain-operation` and bounded strategy-file pressure as the next slice; `AUTHORITY-DOMAIN-OPERATION-SLICE.md` now specifies the implementation boundary. |
 | 21. Move the Domain Operation Kind Pocket | The misplaced map projection/effect dependency guard moved into `domain-operation`; foundation strategy rows stayed contextual with consolidation pressure instead of becoming blueprints by path inheritance. |
+| 22. Unnest Rule Packet Paths | Category and artifact-kind directories were removed from live packet paths; real or still-plausible blueprint owners stayed under `blueprints/<owner>/<packet>`, while `_self` and explicit current-context inventories moved under `rules`. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
 
-### 22. Repeat Bounded Kind-Family Slices
+### 23. Repeat Bounded Kind-Family Slices
 
 Purpose: continue the same method across adjacent kind families.
 
@@ -129,14 +130,15 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 21 moved the Domain Operation Kind Pocket.
+- Domino 22 removed category/artifact-kind physical nesting without demoting
+  actual blueprint pockets.
 
 Proof:
 
 - Each slice has focused proof and leaves a clearer owner map than it started
   with.
 
-### 23. Build Narrow Projection From Moved Authority
+### 24. Build Narrow Projection From Moved Authority
 
 Purpose: let execution consume moved authority only after multiple slices give
 it something honest to discover.
@@ -159,7 +161,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 22 has repeated bounded slices enough to expose projection needs.
+- Domino 23 has repeated bounded slices enough to expose projection needs.
 
 Proof:
 
@@ -167,7 +169,7 @@ Proof:
 - The proof does not claim broad `habitat check` correctness.
 - Failure output, if touched, names the authority layer that failed.
 
-### 24. Prune Transitional Packet Metadata For Moved Slices
+### 25. Prune Transitional Packet Metadata For Moved Slices
 
 Purpose: remove duplicated or misleading packet metadata once moved authority
 owns the facts.
@@ -189,7 +191,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 23 proved projection can run from moved authority.
+- Domino 24 proved projection can run from moved authority.
 - Duplicated facts have been identified before deletion.
 
 Proof:
@@ -198,7 +200,7 @@ Proof:
 - Focused command proof still passes for moved slices.
 - No unrelated packet cleanup is bundled into this branch.
 
-### 25. Repeat Activation Slices
+### 26. Repeat Activation Slices
 
 Purpose: prove the activation model across a second and third corpus before
 making it the default shape.
@@ -220,7 +222,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 24 pruned transitional metadata for moved slices.
+- Domino 25 pruned transitional metadata for moved slices.
 - The first moved slices have a clear copyable pattern or named failure mode.
 
 Proof:
@@ -229,7 +231,7 @@ Proof:
 - Model changes are tied to concrete slice evidence.
 - Review can compare slices without reconstructing the old packet history.
 
-### 26. Rebuild Full-Suite Runner Discovery From Admitted Authority
+### 27. Rebuild Full-Suite Runner Discovery From Admitted Authority
 
 Purpose: rebuild broad Habitat discovery only after authority admission has
 enough real shape to discover.
@@ -252,7 +254,7 @@ Moves It Forward:
 
 Dependencies:
 
-- Domino 25 proves the activation model across multiple slices.
+- Domino 26 proves the activation model across multiple slices.
 - There is enough admitted authority to define default discovery honestly.
 
 Proof:

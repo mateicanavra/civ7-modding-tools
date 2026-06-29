@@ -21,7 +21,7 @@ import { describe, expect, test } from "vitest";
 import { makeTestHabitatServiceDeps } from "../support/habitat-service-deps";
 
 const deepImportApplyPatternPath =
-  ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/boundary/check/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md";
+  ".habitat/civ7/mapgen/domain/blueprints/domain-public-surface/require_public_domain_surfaces_in_recipes_and_maps/apply.pattern.md";
 
 describe("pattern apply", () => {
   test("requires apply admission before a transaction request is valid", () => {

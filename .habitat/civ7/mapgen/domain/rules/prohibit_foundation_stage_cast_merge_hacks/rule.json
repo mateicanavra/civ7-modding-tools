@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_foundation_stage_cast_merge_hacks",
+  "title": "Prohibit Foundation Stage Cast Merge Hacks",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "_self",
+    "category": "contract",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "foundation stage advanced cast/merge fallback hacks",
+  "why": "Foundation stage config should use the owned public config shape instead of wrapper-era unknown-object merge fallbacks.",
+  "remediate": null,
+  "message": "Do not restore foundation stage advanced config cast/merge fallback hacks.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-{lithosphere,mantle,orogeny,projection,tectonics}/index.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_foundation_stage_cast_merge_hacks/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_foundation_stage_cast_merge_hacks/pattern.md"
+    },
+    "patternName": "prohibit_foundation_stage_cast_merge_hacks"
+  }
+}

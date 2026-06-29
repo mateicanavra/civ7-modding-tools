@@ -12,7 +12,11 @@ Habitat has three separate concerns that must not be collapsed:
 - Blueprint: the thing being authored and enforced.
 - Artifact kind: what Habitat is allowed to do with one packet.
 
-The current tree shape is `.habitat/**/blueprints/<blueprint>/<category>/<kind>/<packet>/`. The category is the universal engineering-purpose grouping. The kind is the mutability class.
+The current tree shape co-locates packet role files at
+`.habitat/**/blueprints/<blueprint>/<packet>/` for blueprint-owned packets and
+`.habitat/**/rules/<packet>/` or `.habitat/**/rules/<context>/<packet>/` for
+niche/context inventory. Category and artifact kind are manifest placement
+facts, not directories.
 
 ## Kinds
 

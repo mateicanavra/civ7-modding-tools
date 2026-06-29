@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_hydrology_narrative_domain_imports",
+  "title": "Prohibit Hydrology Narrative Domain Imports",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "_self",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "narrative domain imports in hydrology source",
+  "why": "Hydrology should not cross into narrative domain ownership.",
+  "remediate": null,
+  "message": "Do not import narrative domain internals from hydrology surfaces.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/domain/hydrology/**",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-*"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/hydrology",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-baseline",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-hydrography",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/hydrology-climate-refine"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_hydrology_narrative_domain_imports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_hydrology_narrative_domain_imports/pattern.md"
+    },
+    "patternName": "prohibit_hydrology_narrative_domain_imports"
+  }
+}

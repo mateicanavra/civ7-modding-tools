@@ -8,7 +8,7 @@
     "prepare": "husky",
     "build": "nx run-many --targets=build",
     "check": "nx run-many --targets=check",
-    "docs:project": "./.habitat/docs/blueprints/docs-site/artifact/generate/generate_docs_sidebar_from_docs_tree/generate.sh && bunx docsify-cli serve ./docs --port 7979",
+    "docs:project": "./.habitat/docs/blueprints/docs-site/generate_docs_sidebar_from_docs_tree/generate.sh && bunx docsify-cli serve ./docs --port 7979",
     "restart:mapgen-studio": "bash ./scripts/restart-mapgen-studio.sh",
     "dev:mapgen-studio:restart": "bun run restart:mapgen-studio",
     "lint": "nx run-many --targets=lint",

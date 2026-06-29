@@ -11,53 +11,48 @@ The key distinction:
 
 Do not introduce a separate `.habitat` tooling config just to map operations to commands. Generic Habitat dispatch belongs in Toolkit code. Repo-authored policy needs a Habitat packet identity.
 
-## Provisional Niche/Blueprint Hierarchy
+## Provisional Niche/Blueprint/Rules Hierarchy
 
-The current `.habitat` tree groups authority packets by niche, then by blueprint, then by universal category, then by artifact kind. This is a provisional classification layout, not a parseable manifest and not a completed runtime migration.
+The current `.habitat` tree groups authority packets by niche, then by either
+blueprint owner or transitional `rules` inventory. Category and artifact kind
+are manifest placement facts, not physical directories. This is a provisional
+classification layout, not a parseable manifest and not a completed runtime
+migration.
 
 ```text
 .habitat
   <niche>
     blueprints
       <blueprint>
-        <category>
-          <kind>
-            <artifact-packet>
+        <artifact-packet>
+    rules
+      <artifact-packet>
+      <context>
+        <artifact-packet>
 
   civ7
     mapgen
       pipeline
         blueprints
           recipe
-            execution
-              check
-                require_runtime_domain_op_bundle_imports
+            require_runtime_domain_op_bundle_imports
           recipe-stage
-            boundary
-              check
-                prohibit_sibling_stage_private_step_imports
+            prohibit_sibling_stage_private_step_imports
           recipe-step
-            contract
-              check
-                require_typed_dependency_and_effect_tag_constants
-          _self
-            policy
-              check
-                prohibit_ambient_rng_in_authored_generation
+            require_typed_dependency_and_effect_tag_constants
+        rules
+          prohibit_ambient_rng_in_authored_generation
         swooper-maps-standard-recipe
-          blueprints
-            _self
-              structure
-                check
-                  preserve_standard_stage_topology_and_path_invariants
+          rules
+            preserve_standard_stage_topology_and_path_invariants
 ```
 
 Niches are authored jurisdictions. Blueprints are constructible kinds or
-lifecycle-owned shapes inside those jurisdictions. `_self` is the temporary
-niche-authority packet-placement placeholder. Neither niches nor blueprints
-should encode a runner, file type, current defect, or narrow maintenance task.
-Categories describe universal engineering purpose; artifact kinds define
-mutability.
+lifecycle-owned shapes inside those jurisdictions. `rules` holds niche-wide or
+current-context rule inventory that must not be called blueprint authority.
+Neither niches nor blueprints should encode a runner, file type, current
+defect, or narrow maintenance task. Categories describe universal engineering
+purpose; artifact kinds define mutability.
 
 Packet child files use generic role names:
 
@@ -109,4 +104,6 @@ If future parseable config is introduced, it should store authored repository po
 
 ## Compatibility Debt
 
-Toolkit discovery still needs a dedicated resolver pass for the niche/blueprint path shape. Curated `habitat check --rule <id>` is the proven bridge; broad full-suite execution remains a rebuild target.
+Toolkit discovery reads location-independent `rule.json` manifests. Curated
+`habitat check --rule <id>` is the proven bridge; broad full-suite execution
+remains a rebuild target.

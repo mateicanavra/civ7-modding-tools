@@ -363,18 +363,56 @@ function isRuleRecordCandidatePath(filePath: string): boolean {
 }
 
 function staleRuleRecordIssues(paths: readonly string[]): RuleRegistryIssue[] {
-  return paths.flatMap((rulePath) =>
-    rulePath.endsWith(".rule.json")
-      ? [
-          {
-            code: "registry-schema-invalid" as const,
-            path: rulePath,
-            message: "Rule manifest files must be named rule.json.",
-          },
-        ]
-      : []
+  return paths.flatMap((rulePath) => {
+    const issues: RuleRegistryIssue[] = [];
+    if (rulePath.endsWith(".rule.json")) {
+      issues.push({
+        code: "registry-schema-invalid",
+        path: rulePath,
+        message: "Rule manifest files must be named rule.json.",
+      });
+    }
+    if (usesStaleCategoryKindPath(rulePath)) {
+      issues.push({
+        code: "registry-schema-invalid",
+        path: rulePath,
+        message:
+          "Rule packets must not use category/artifact-kind path nesting; use blueprints/<owner>/<packet> or rules/<packet>.",
+      });
+    }
+    return issues;
+  });
+}
+
+function usesStaleCategoryKindPath(rulePath: string): boolean {
+  const segments = rulePath.split("/");
+  const blueprintIndex = segments.lastIndexOf("blueprints");
+  if (blueprintIndex < 0) return false;
+  const category = segments[blueprintIndex + 2];
+  const artifactKind = segments[blueprintIndex + 3];
+  const packet = segments[blueprintIndex + 4];
+  const fileName = segments[blueprintIndex + 5];
+  return (
+    category !== undefined &&
+    artifactKind !== undefined &&
+    packet !== undefined &&
+    fileName === "rule.json" &&
+    staleCategories.has(category) &&
+    staleArtifactKinds.has(artifactKind)
   );
 }
+
+const staleCategories = new Set([
+  "boundary",
+  "structure",
+  "contract",
+  "execution",
+  "artifact",
+  "quality",
+  "policy",
+]);
+
+const staleArtifactKinds = new Set(["check", "fix", "generate", "migrate", "triage"]);
 
 function findFiles<R>(
   root: string,

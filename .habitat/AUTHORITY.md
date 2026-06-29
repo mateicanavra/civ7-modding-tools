@@ -15,15 +15,19 @@ frames apply to the current repository tree.
 
 `.habitat` is the durable repository-local source of truth for structural enforcement intent. Other files may execute, bridge, cache, generate, or test that intent, but they do not define it independently.
 
-The current physical hierarchy is:
+The current physical hierarchy has two packet lanes:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/rules/<packet>/
+.habitat/<niche>/rules/<context>/<packet>/
 ```
 
 Niches are authored jurisdictions. Blueprints are constructible kinds or
-lifecycle-owned shapes inside those jurisdictions. Categories are single-word
-universal engineering purpose groupings. Artifact kinds define mutability.
+lifecycle-owned shapes inside those jurisdictions. The `rules` lane is
+transitional inventory for niche-wide or current-context rules that must not be
+smuggled into blueprint authority. Categories and artifact kinds are manifest
+placement facts, not physical grouping directories.
 
 Execution mechanics stay in Habitat Toolkit source under `tools/habitat`. External tools such as Nx, Biome, Grit, Husky, CI, shell scripts, and package scripts are invocation mechanisms whose structural meaning must trace back to this tree.
 
@@ -33,9 +37,10 @@ blueprint, category, artifact kind, or authored policy root.
 
 ## Already True
 
-- Collected packets live under niche-local blueprint paths.
-- Niche-wide authority uses `_self` as a temporary niche-authority
-  packet-placement placeholder.
+- Collected packets live under niche-local blueprint paths or niche/context
+  `rules` inventory paths.
+- Niche-wide authority no longer uses `_self` as a physical blueprint path.
+  Existing `_self` placement facts remain transitional manifest inventory only.
 - Rule manifests are discovered at `.habitat/**/rule.json`.
 - Rule identity is manifest-authored as `id`; physical path is not identity.
 - Current placement is manifest-authored as inventory metadata. It records
@@ -60,8 +65,9 @@ blueprint, category, artifact kind, or authored policy root.
    owning rule manifest.
 4. A command-backed check is accepted only when its manifest points at a
    read-only `check.{sh,mjs,ts}` script.
-5. Current placement should match the best known niche/blueprint/category/kind,
-   but moving the manifest is an inventory operation, not an identity change.
+5. Current placement should match the best known niche, owner, category, and
+   artifact kind in `rule.json`, but moving the manifest is an inventory
+   operation, not an identity change.
 6. Habitat-owned fix/generate/migrate operations require explicit operation identity and must not be registered as read-only checks unless they are genuinely read-only.
 7. `triage` packets are excluded from default execution until admitted, split, renamed, or removed.
 8. No new loose lint, validation, topology, or pattern script may be introduced as authored policy without Habitat authority-tree identity.
@@ -96,9 +102,12 @@ Toolkit discovery now routes through location-independent rule manifests:
 identity, current placement, runner entrypoints, and baselines are read from
 `rule.json`. Next consolidation work can physically move manifests and their
 referenced files into better blueprint, capability, or niche locations without
-changing rule identity or behavior. Future layout and registry changes should
-use `AUTHORITY-ONTOLOGY.md` as the concept source for distinguishing blueprint
-kind authority, instance facts, capability facets, and niche governance.
+changing rule identity or behavior. The current physical tree intentionally
+keeps real or still-plausible constructible owners under `blueprints/`, while
+using `rules/` for niche-wide and explicitly contextual inventory. Future
+layout and registry changes should use `AUTHORITY-ONTOLOGY.md` as the concept
+source for distinguishing blueprint kind authority, instance facts, capability
+facets, and niche governance.
 
 ## Stop Conditions
 

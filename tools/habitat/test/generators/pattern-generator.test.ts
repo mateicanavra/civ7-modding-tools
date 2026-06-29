@@ -26,9 +26,7 @@ describe("Habitat pattern generator", () => {
     expect(tree.exists(candidatePaths.patternPath)).toBe(true);
     expect(tree.exists(candidatePaths.manifestPath)).toBe(true);
     expect(tree.exists(".habitat/patterns/checks/dra_metadata_probe.md")).toBe(false);
-    expect(
-      tree.exists(".habitat/docs/blueprints/_self/quality/check/dra-metadata-probe/rule.json")
-    ).toBe(false);
+    expect(tree.exists(".habitat/docs/rules/dra-metadata-probe/rule.json")).toBe(false);
     expect(readJson(tree, indexPath)).toMatchObject({
       schemaVersion: 1,
       ownerRoots: { habitat: "tools/habitat" },
@@ -325,10 +323,7 @@ function createPatternTree(
   for (const rule of rulesJson.rules) {
     const id = (rule as { id?: unknown }).id;
     if (typeof id !== "string") continue;
-    tree.write(
-      `.habitat/docs/blueprints/_self/quality/check/${id}/rule.json`,
-      `${JSON.stringify(rule, null, 2)}\n`
-    );
+    tree.write(`.habitat/docs/rules/${id}/rule.json`, `${JSON.stringify(rule, null, 2)}\n`);
   }
   return tree;
 }
@@ -362,13 +357,13 @@ function existingRegistryRule(ruleId: string) {
     message: "test fixture",
     pathCoverage: [{ kind: "project-owner" }],
     artifacts: {
-      baseline: `.habitat/docs/blueprints/_self/quality/check/${ruleId}/baseline.json`,
+      baseline: `.habitat/docs/rules/${ruleId}/baseline.json`,
     },
     runner: {
       name: "habitat",
       mode: "script",
       files: {
-        script: `.habitat/docs/blueprints/_self/quality/check/${ruleId}/check.mjs`,
+        script: `.habitat/docs/rules/${ruleId}/check.mjs`,
       },
       runtime: "node",
     },
@@ -404,9 +399,7 @@ function assertNoPromotionWrites(
   expect(tree.exists(candidatePaths.manifestPath)).toBe(false);
   expect(tree.read(manifestPath, "utf8")).toBe(beforeManifest);
   expect(tree.exists(`.habitat/patterns/checks/${manifest.patternName}.md`)).toBe(false);
-  expect(
-    tree.exists(`.habitat/docs/blueprints/_self/quality/check/${manifest.ruleId}/rule.json`)
-  ).toBe(false);
+  expect(tree.exists(`.habitat/docs/rules/${manifest.ruleId}/rule.json`)).toBe(false);
   expect(tree.read(indexPath, "utf8")).toBe(beforeIndex);
 }
 

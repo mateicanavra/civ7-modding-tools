@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_foundation_advanced_cast_merge_fragments",
+  "title": "Prohibit Foundation Advanced Cast Merge Fragments",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "foundation-domain",
+    "category": "contract",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "advanced cast/merge fragments, studio step sentinels, and advancedRecord step passthroughs in foundation stage indexes",
+  "why": "Foundation stages must preserve typed decomposed contracts instead of rebuilding wrapper-only advanced config paths.",
+  "remediate": null,
+  "message": "Remove foundation advanced cast/merge fragments from stage indexes.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": [
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/index.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/index.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts",
+        "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts"
+      ]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-lithosphere/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-mantle/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-orogeny/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-projection/index.ts",
+    "mods/mod-swooper-maps/src/recipes/standard/stages/foundation-tectonics/index.ts"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/rules/foundation-domain/prohibit_foundation_advanced_cast_merge_fragments/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/rules/foundation-domain/prohibit_foundation_advanced_cast_merge_fragments/pattern.md"
+    },
+    "patternName": "prohibit_foundation_advanced_cast_merge_fragments"
+  }
+}

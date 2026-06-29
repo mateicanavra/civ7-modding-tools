@@ -2,19 +2,23 @@
 
 This directory is the repository's authority tree for Habitat enforcement. The Habitat SDK code under `tools/habitat` manages, validates, and executes these artifacts, but package source, root scripts, tests, CI, hooks, and tool configs are not independent sources of enforcement truth.
 
-The current layout is a niche/blueprint authority tree:
+The current layout is a niche authority tree with two packet lanes:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/rules/<packet>/
+.habitat/<niche>/rules/<context>/<packet>/
 ```
 
 - `<niche>` is the authored jurisdiction, such as `global/workspace`, `docs`, `habitat/toolkit`, `civ7/platform`, or `civ7/mapgen/domain`.
 - `<blueprint>` is the constructible kind or lifecycle-owned shape inside that
   niche.
-- `_self` is the temporary niche-authority packet-placement placeholder for
-  packets about the niche as a whole.
-- `<category>` is one of the universal single-word purpose categories in `SUBJECT-CATEGORIES.md`.
-- `<artifact-kind>` is `check`, `fix`, `generate`, `migrate`, or `triage`.
+- `rules/` is transitional rule inventory for niche-wide or current-context
+  rules that must not be represented as blueprint authority.
+- `<context>` is a current-context grouping such as `foundation-domain` when
+  the slice frame says that label is not an accepted blueprint.
+- Category and artifact kind live in `rule.json` placement metadata, not in
+  physical directories.
 - `<packet>` is the current gathered authority packet.
 
 This is not a final machine-readable ontology, and it is not evidence that runtime integration has been fully rebuilt. It is the current authority layout for continued reduction.
@@ -38,7 +42,7 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 ## Rule Manifest Files
 
 Habitat discovers rule manifests by finding `.habitat/**/rule.json`.
-The current niche/blueprint path is inventory placement, not identity:
+The current niche/blueprint/rules path is inventory placement, not identity:
 moving a manifest does not change the rule when its `id`, `placement`,
 `runner`, and artifact references stay the same.
 

@@ -164,8 +164,7 @@ describe("pattern manifest validator", () => {
         id: "registration-probe",
         runner: {
           name: "grit",
-          patternPath:
-            ".habitat/fixtures/blueprints/_self/quality/check/registration-probe/pattern.md",
+          patternPath: ".habitat/fixtures/rules/registration-probe/pattern.md",
           patternName: "registration_probe",
         },
         manifestPath: patternManifestPath("registration-probe"),

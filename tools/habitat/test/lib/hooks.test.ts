@@ -506,8 +506,7 @@ function makeSyntheticSourceCheckHookRules() {
         message: "source-check hook check probe",
         runner: {
           name: "grit" as const,
-          patternPath:
-            ".habitat/fixtures/blueprints/_self/quality/check/hook-source-check-probe/pattern.md",
+          patternPath: ".habitat/fixtures/rules/hook-source-check-probe/pattern.md",
           patternName: "hook-source-check-probe",
         },
         patternName: "hook-source-check-probe",

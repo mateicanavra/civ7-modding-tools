@@ -248,7 +248,7 @@ The first bounded input group is the Recipe Kind Pocket.
 
 Primary evidence input:
 
-- `.habitat/civ7/mapgen/pipeline/blueprints/standard-recipe/**`
+- `.habitat/civ7/mapgen/pipeline/swooper-maps-standard-recipe/rules/**`
 - `mods/mod-swooper-maps/src/recipes/standard/recipe.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/contract-manifest.ts`
 - `mods/mod-swooper-maps/src/recipes/standard/stages/*`
@@ -256,9 +256,9 @@ Primary evidence input:
 
 Secondary evidence input, only when needed by a recipe/stage/step rule:
 
-- `.habitat/civ7/mapgen/pipeline/blueprints/_self/**`
+- `.habitat/civ7/mapgen/pipeline/rules/**`
 - `.habitat/civ7/mapgen/domain/blueprints/domain-public-surface/**`
-- `.habitat/civ7/mapgen/domain/blueprints/*/contract/**` rows that point
+- `.habitat/civ7/mapgen/domain/rules/*/**` rows that point
   directly at recipe stage or step contracts.
 - `.habitat/civ7/mapgen/map-output/blueprints/map-projection/**` rows that
   point directly at recipe projection steps.

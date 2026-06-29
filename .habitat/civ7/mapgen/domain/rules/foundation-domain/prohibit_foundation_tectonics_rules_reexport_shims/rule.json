@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_foundation_tectonics_rules_reexport_shims",
+  "title": "Prohibit Foundation Tectonics Rules Reexport Shims",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "foundation-domain",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "rules indexes re-exporting shared lib/tectonics modules as shims",
+  "why": "Decomposed tectonics rule indexes must own local rule surfaces.",
+  "remediate": null,
+  "message": "Do not re-export shared lib/tectonics modules from foundation tectonics rules indexes.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/foundation/ops/*/rules/index.ts"]
+    }
+  ],
+  "scanRoots": ["mods/mod-swooper-maps/src/domain/foundation/ops"],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/rules/foundation-domain/prohibit_foundation_tectonics_rules_reexport_shims/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/rules/foundation-domain/prohibit_foundation_tectonics_rules_reexport_shims/pattern.md"
+    },
+    "patternName": "prohibit_foundation_tectonics_rules_reexport_shims"
+  }
+}

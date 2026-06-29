@@ -90,6 +90,34 @@ describe("location-independent rule manifests", () => {
     ]);
   });
 
+  test("rejects stale category and artifact-kind packet nesting", async () => {
+    const registryDir = "/repo/.habitat";
+    const rulePath = path.join(
+      registryDir,
+      "docs/blueprints/docs-site/quality/check/stale-shape/rule.json"
+    );
+    const scriptPath = ".habitat/execution/rules/stale-shape/check.mjs";
+    const fileSystem = virtualRegistryFileSystem({
+      [path.join(registryDir, "index.json")]: JSON.stringify(rulePackIndex()),
+      [rulePath]: JSON.stringify(
+        ruleManifest({
+          id: "stale-shape",
+          runner: {
+            name: "habitat",
+            mode: "script",
+            runtime: "node",
+            files: { script: scriptPath },
+          },
+        })
+      ),
+      [path.join("/repo", scriptPath)]: "",
+    });
+
+    await expect(
+      Effect.runPromise(loadRuleRegistryDocumentEffect(registryDir, fileSystem))
+    ).rejects.toThrow(/must not use category\/artifact-kind path nesting/);
+  });
+
   test("rejects duplicate manifest ids independent of physical location", async () => {
     const registryDir = "/repo/.habitat";
     const firstRulePath = path.join(registryDir, "inventory/current/rules/first/rule.json");

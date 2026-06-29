@@ -657,12 +657,15 @@ Future physical layouts should preserve these constraints:
 The current authority tree still uses transitional physical concepts:
 
 ```text
-.habitat/<niche>/blueprints/<blueprint>/<category>/<artifact-kind>/<packet>/
+.habitat/<niche>/blueprints/<blueprint>/<packet>/
+.habitat/<niche>/rules/<packet>/
+.habitat/<niche>/rules/<context>/<packet>/
 ```
 
 That layout remains the active physical packet layout until a migration changes
-it. This ontology is the normative conceptual reference for deciding what that
-layout means and what future layouts should converge toward.
+it. Category and artifact kind are manifest placement facts in this transitional
+state. This ontology is the normative conceptual reference for deciding what
+that layout means and what future layouts should converge toward.
 
 When this document conflicts with current packet mechanics, treat the current
 mechanics as transitional implementation state and this document as the

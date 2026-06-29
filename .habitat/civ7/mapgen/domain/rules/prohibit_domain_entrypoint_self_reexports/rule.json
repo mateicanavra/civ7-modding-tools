@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "prohibit_domain_entrypoint_self_reexports",
+  "title": "Prohibit Domain Entrypoint Self Reexports",
+  "placement": {
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "_self",
+    "category": "boundary",
+    "artifactKind": "check"
+  },
+  "ownerProject": "mod-swooper-maps",
+  "lane": "enforced",
+  "forbids": "domain entrypoints re-exporting deep @mapgen/domain surfaces",
+  "why": "Domain roots are public surfaces and should not launder deep domain paths back through themselves.",
+  "remediate": null,
+  "message": "Do not re-export deep @mapgen/domain surfaces from a domain root entrypoint.",
+  "pathCoverage": [
+    {
+      "kind": "exact-path",
+      "patterns": ["mods/mod-swooper-maps/src/domain/*/index.ts"]
+    }
+  ],
+  "scanRoots": [
+    "mods/mod-swooper-maps/src/domain/ecology/index.ts",
+    "mods/mod-swooper-maps/src/domain/foundation/index.ts",
+    "mods/mod-swooper-maps/src/domain/hydrology/index.ts",
+    "mods/mod-swooper-maps/src/domain/morphology/index.ts",
+    "mods/mod-swooper-maps/src/domain/narrative/index.ts",
+    "mods/mod-swooper-maps/src/domain/placement/index.ts",
+    "mods/mod-swooper-maps/src/domain/resources/index.ts"
+  ],
+  "hookCheck": true,
+  "artifacts": {
+    "baseline": ".habitat/civ7/mapgen/domain/rules/prohibit_domain_entrypoint_self_reexports/baseline.json"
+  },
+  "runner": {
+    "name": "grit",
+    "files": {
+      "pattern": ".habitat/civ7/mapgen/domain/rules/prohibit_domain_entrypoint_self_reexports/pattern.md"
+    },
+    "patternName": "prohibit_domain_entrypoint_self_reexports"
+  }
+}
