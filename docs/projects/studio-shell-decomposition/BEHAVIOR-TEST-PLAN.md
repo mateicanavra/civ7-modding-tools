@@ -15,6 +15,16 @@
 
 ---
 
+## 0b. Design-gate-review reconciliation (2026-06-28 — applied after the adversarial design review)
+
+The Phase-7 design-review surfaced a blocker + gaps; the change set was fixed and re-validated `--strict`. Deltas this plan now reflects (authoritative over the older table wording below where they conflict):
+- **`useDeckAutofit` is a SEPARATE slice** (the autofit effects 608/617 depend on viz VALUES produced by `useVizSelection`, so they cannot live in `useViewportLayout` which is called first). The autofit specs **VL-3, VL-4, VL-5, LS-7 move from §3.2 to a new §3.2a (`useDeckAutofit`)**, lifted AFTER `useVizSelection`, receiving `deckApiRef`/`viewportSize`/`deckApiReadyTick` + the viz read-projection. `useViewportLayout` keeps VL-1/VL-2.
+- **+VL-6 (E27 — DAG fetch-gate):** new gating test under `useViewportLayout`. Oracle: the recipe-DAG query is `enabled === (stageView==='pipeline')`, fetches once per recipe, no focus/interval refetch. Falsifier: extraction flips it to eager `enabled:true` (copy-paste from sibling queries). Kind: pure (query-options assertion) + source-text.
+- **+ADD-1b (live-sync identity):** sibling of ADD-1 for the `applyAuthoringSnapshot` path. Oracle: after sync-from-live, the apply-effect's `applyPresetConfig` spy stays 0 because host `livePresets[0].config` is referentially `lastRunInGameSource.pipelineConfig`. Falsifier: host rebuild/normalize of live-preset config breaks `===` → just-synced config reverts. Kind: renderHook (jsdom) + pure-driver.
+- **PL-7/PL-11 oracles extended:** assert `rememberRepoBackedConfig` runs BEFORE the key-flip `setRecipeSettings` (the apply-effect resolver must see the new repo-backed entry).
+- **renderHook is now PRIMARY (not fallback) for ADD-2/ADD-3/BG-4** (jsdom landed in Step 0): a same-commit renderHook read of the busy boolean + its gated consumer is the gating oracle; the source-text "no `useState`+`useEffect` republish" check is the supplement.
+- **Ledger:** 106 → **108** gating specs (+VL-6, +ADD-1b).
+
 ## 1. Corrected slice set (the target this plan gates)
 
 Per [`INVESTIGATION-FINDINGS.md` §7.8](./INVESTIGATION-FINDINGS.md), the **draft's 11-hook map is superseded**. The verified target is **~10 controller hooks + a host coordination layer + module pure-helpers + a `useLatestRef` helper**:

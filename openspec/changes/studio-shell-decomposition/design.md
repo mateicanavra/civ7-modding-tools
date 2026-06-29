@@ -9,9 +9,10 @@ apps/mapgen-studio/src/app/
   StudioShell.tsx              # HOST: layout + error-boundary + shortcuts host + coordination wiring (~200-300 lines)
   controllers/
     useStudioOperations.ts     # coordination, init FIRST
-    useViewportLayout.ts
+    useViewportLayout.ts       # viewport/ResizeObserver, deckApiRef, panel geometry, DAG query+prune — NO viz dependency; init early
     useBrowserRun.ts
-    useVizSelection.ts
+    useVizSelection.ts         # useVizState + selection cascade; produces the viz read-projection
+    useDeckAutofit.ts          # autofit effects (608/617) + lastAutoFitSpaceRef/hasEverSeenVizManifestRef + Fit handler — called AFTER useVizSelection
     usePresetLifecycle.ts
     useSaveDeploy.ts
     useRunInGame.ts
@@ -40,16 +41,17 @@ apps/mapgen-studio/test/controllers/*.test.ts(x)          # gating tests (jsdom-
 ## 3. Cross-hook contracts (the "atomic move with contract" mechanisms)
 
 - **`useLatestRef<T>(value): MutableRefObject<T>`** — `const r = useRef(value); r.current = value; return r;`. Render-phase write only. Used for `shortcutsRef` and the operation/viz latest-value refs.
-- **`markPresetApplied({key, config})`** — synchronous callback exposed by `usePresetLifecycle` (sole owner of `lastAppliedPresetRef`). Writes the ref in-call (never in an effect), preserving the EXACT `config` object reference (relies on `repoBacked.ts` `toRepoBackedPreset` storing `config: args.config` with no clone). `useSaveDeploy`/`useRunInGame` call it immediately before their `setRecipeSettings`/`setPipelineConfig` batch. Passing the mutable ref by parameter is forbidden.
+- **`markPresetApplied({key, config})`** — synchronous callback exposed by `usePresetLifecycle` (sole owner of `lastAppliedPresetRef`). Writes the ref in-call (never in an effect), preserving the EXACT `config` object reference. `useSaveDeploy`/`useRunInGame` call it immediately before their `setRecipeSettings`/`setPipelineConfig` batch. Passing the mutable ref by parameter is forbidden. Two `===`-identity invariants must hold for the apply-effect skip-guard (`lastApplied.config === resolved.config`) to survive extraction: **(a) repo-backed save path** — `rememberRepoBackedConfig` stores `config: args.config` (no clone, `repoBacked.ts`) AND runs BEFORE the `setRecipeSettings` that flips the preset key (so the apply-effect's `resolvePreset(builtin:id)` sees the just-remembered identical object); **(b) live-sync path** — the host `livePresets[0].config` stays referentially `lastRunInGameSource.pipelineConfig` (no clone/re-normalize), so `resolvePreset(LIVE_GAME_PRESET_KEY).config === provedRunInGameSource.pipelineConfig`. Each path has its own gating contract test (ADD-1 save; ADD-1b live-sync).
 - **`applyAuthoringSnapshot(snapshot)`** — owned by `usePresetLifecycle` (authoring layer); performs the 5-setter ordered write (`setWorldSettings → setPipelineConfig → setSetupConfig → setOverridesDisabled → setRecipeSettings`) and calls `markPresetApplied` first. `useRunInGame.syncStudioFromLiveGame` calls this one action.
 - **Busy-flag threading** — busy booleans are threaded as values into `useBrowserRun`'s auto-run effect and `useVizSelection`'s `allowPendingSelection`. No hook republishes them.
 - **Viz read-projection** — only `{activeBounds, manifest, effectiveLayer}` is threaded out of `useVizSelection`; the mutable `viz` object and the `setSelectedStageId/StepId` setters stay inside it.
-- **`deckApiRef`** — single owner `useViewportLayout`; threaded by reference to `useVizSelection` autofit consumers (the autofit effects themselves live in `useViewportLayout` per §7.7).
+- **`deckApiRef`** — single owner `useViewportLayout`; threaded BY REFERENCE to `useDeckAutofit`. The autofit effects (608/617) live in **`useDeckAutofit`** (called after `useVizSelection`), which receives `deckApiRef`/`viewportSize`/`deckApiReadyTick` from `useViewportLayout` AND the viz read-projection (`activeBounds`/`manifest`/`effectiveLayer.spaceId`) BY VALUE from `useVizSelection` — because the autofit effects' dependency arrays need those viz VALUES to re-fire (a ref would never re-trigger the once-per-spaceId / first-manifest autofit). `useVizSelection` itself does NOT read `deckApiRef`/`viewportSize`/`deckApiReadyTick` (corrects the stale dep claim in INVESTIGATION-FINDINGS §4).
+- **`error`/`status` are HOST-derived** — `useStudioOperations` exposes ONLY the op state/setters + `runInGameRunning`/`saveDeployRunning` + `setLocalError`/`clearLocalErrorIfCurrent`. The host (after both `useStudioOperations` and `useBrowserRun` have run) derives `browserRunning`-composite, `error = localError ?? browserRunner.state.error`, `status`, and `operationControlsDisabled` as synchronous render-scope consts. The error/status derivation MUST NOT be placed inside `useStudioOperations` (that would reintroduce a `browserRunner` ordering dependency).
 
 ## 4. Hard init-order invariants (must all hold in the host render)
 
-1. `useStudioOperations` **first** (op state + busy/error source).
-2. `useViewportLayout` **before** `useVizSelection` (autofit reads `deckApiRef`/`viewportSize`).
+1. `useStudioOperations` **first** (op state + busy source; host derives error/status after `useBrowserRun`).
+2. `useViewportLayout` **before** `useVizSelection` (it owns `deckApiRef`/`viewportSize`, has NO viz dependency). `useDeckAutofit` is called **after** `useVizSelection` (it consumes the viz read-projection by value + `deckApiRef`/`viewportSize`/`deckApiReadyTick`). This resolves the earlier contradiction: the autofit effects depend on viz VALUES, so they cannot live in a hook ordered before `useVizSelection`.
 3. `overlayDataTypeKey` computed **before** `useVizState` (circular dep, internal to `useVizSelection`).
 4. `useLiveRuntime` **before** `useRunInGame` (adoption effect needs both op setters).
 5. `useSaveDeploy` initialized **before** the operation-adoption effect fires.
@@ -57,7 +59,8 @@ apps/mapgen-studio/test/controllers/*.test.ts(x)          # gating tests (jsdom-
 
 ## 5. Slice classification
 
-- **Pure-move:** module pure-helpers, `useViewportLayout`, `useKeyboardShortcuts`, `useBrowserRun`, `useVizSelection`, `useLiveRuntime`, `useSetupControls`.
+- **Pure-move (trivial relocation):** module pure-helpers, `useViewportLayout`, `useKeyboardShortcuts`, `useLiveRuntime`, `useSetupControls`.
+- **Atomic-move (behavior-identical, but carries an ordered effect group — NOT a trivial compile-and-move):** `useBrowserRun` (auto-run trio Tier-A), `useVizSelection` (stage→step→viz cascade + the era→overlay 4th atomic group), `useDeckAutofit` (the deck-autofit Tier-B ordered pair). Each is done only when its ordered-group gating tests are green.
 - **Atomic-move-with-contract:** `useStudioOperations` (synchronous busy/error), `usePresetLifecycle` (`markPresetApplied` identity + `applyAuthoringSnapshot` order), `useSaveDeploy` + `useRunInGame` (call those contracts in the prescribed order).
 - **Improve (separate, flagged, tested):** IMPROVE-1 (remove dead `setLiveRuntimeSnapshot`), IMPROVE-2 (`useLatestRef`), BR-13 (no leaked auto-run timer via ref co-location).
 
@@ -68,7 +71,7 @@ apps/mapgen-studio/test/controllers/*.test.ts(x)          # gating tests (jsdom-
 3. auto-run trio (929/939/973) — in `useBrowserRun`; prefer extracting as a pure state machine driven by fake timers.
 4. era-clamp (2164) → overlay-variant-pref (2198) — in `useVizSelection`; output persists, so reversal is a real bug.
 
-Lower-risk ordered pairs (keep relative order within their hook): deck-autofit (608/617, `useViewportLayout`); overlay-prune→variant-pref + era→overlay (`useVizSelection`); save-deploy waiter mirror→cleanup (548/558, `useSaveDeploy`).
+Lower-risk ordered pairs (keep relative order within their hook): deck-autofit (608/617, **`useDeckAutofit`**); overlay-prune→variant-pref + era→overlay (`useVizSelection`); save-deploy waiter mirror→cleanup (548/558, `useSaveDeploy`).
 
 ## 7. Review lanes (required before each slice closes)
 

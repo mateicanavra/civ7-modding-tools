@@ -1,14 +1,13 @@
 ## ADDED Requirements
 
-### Requirement: StudioShell is a thin host
+### Requirement: StudioShell behaves identically as a thin host
 
-After the decomposition, `StudioShell` SHALL contain only layout, the error-boundary host, the global-shortcuts host, and the coordination wiring that assembles controller hooks into JSX. All domain orchestration glue (handlers, derived memos, orchestration effects, and their coordinating refs) SHALL live in controller hooks under `app/controllers/`. The host SHALL NOT inline or re-derive any pure logic that already lives in `features/*` or `app/*` modules.
+After the decomposition, the application's observable behavior SHALL be identical to its pre-decomposition behavior across every flow (authoring, browser run/auto-run, viz/layer selection, save/deploy, run-in-game, live runtime, setup, shortcuts). The host SHALL delegate domain orchestration to controller hooks and retain only layout, the error-boundary host, the global-shortcuts host, and the cross-cutting coordination wiring; it SHALL NOT inline or re-derive any pure logic that already lives in `features/*` or `app/*` modules. The host's structural shape (orchestration relocated, not inlined) and the file/hook topology are NON-NORMATIVE here — they are enforced by the architecture-boundary review lane and `habitat classify`, not by a behavior test (the topology lives in design.md).
 
-#### Scenario: Host delegates every domain to a controller hook
-- **WHEN** the decomposition is complete
-- **THEN** `StudioShell` reads each domain's state and handlers from a controller hook (`useStudioOperations`, `useViewportLayout`, `useBrowserRun`, `useVizSelection`, `usePresetLifecycle`, `useSaveDeploy`, `useRunInGame`, `useLiveRuntime`, `useSetupControls`, `useKeyboardShortcuts`)
-- **AND** the rendered output and every user-observable interaction are identical to the pre-decomposition behavior
-- **AND** no domain `useEffect`/`useCallback`/`useMemo` orchestration remains defined inline in the host beyond the assembly of JSX and the coordination wiring
+#### Scenario: Behavior is identical after the host collapses
+- **WHEN** the decomposition is complete and the host is reduced to layout + error-boundary + shortcuts host + coordination wiring
+- **THEN** every flow's user-observable behavior matches the pre-decomposition baseline (verified by the union of the per-slice parity gating tests plus the manual in-game proofs)
+- **AND** no domain orchestration logic is re-derived in the host that duplicates `features/*`/`app/*` pure logic
 
 ### Requirement: Every extraction is a behavior-preserving move verified against the behavior-test plan
 
@@ -34,13 +33,17 @@ A behavior change SHALL NOT be smuggled into a slice labeled a pure move. Author
 
 ### Requirement: Effect execution order is preserved per atomic group
 
-React fires effects in call order. The decomposition SHALL preserve hook call order = effect fire order. The four atomic effect groups SHALL each be lifted into a single hook with their coordinating refs and their relative source order intact: (1) preset default-seed (410) → preset-apply (435); (2) stage-default (857) → step-default (862) → viz-sync (867); (3) the auto-run trio (929/939/973); (4) era-clamp (2164) → overlay-variant-preference (2198).
+React fires effects in call order. The decomposition SHALL preserve hook call order = effect fire order. The four atomic effect groups SHALL each be lifted into a single hook with their coordinating refs and their relative source order intact, identified by semantics + the ref they coordinate (concrete line anchors live in design.md / the behavior-test plan, which are re-anchorable without changing this contract): (1) the **preset default-seed effect → preset-apply effect**, sharing `lastAppliedPresetRef`; (2) the **stage-default → step-default → viz-sync** cascade; (3) the **auto-run trio** (disable-arm, debounce-arm, pending-flush-arm), sharing `autoRunPendingRef`/`autoRunTimerRef`; (4) the **era-clamp effect → overlay-variant-preference effect**, sharing ownership of `manualEra`. The two lower-risk Tier-B ordered pairs SHALL likewise keep their relative source order within their owning hook: the **deck-autofit pair** (space-change fit before first-manifest fit) and the **save-deploy waiter pair** (terminal-waiter mirror/resolve before unmount-cleanup).
 
 #### Scenario: An atomic effect group stays co-resident and ordered
 - **WHEN** an atomic group is extracted
-- **THEN** both/all of its effects and their shared refs live in the same hook
+- **THEN** all of its effects and their shared refs live in the same hook
 - **AND** the earlier effect's body precedes the later effect's body in source order
 - **AND** the group's coordinating refs (`lastAppliedPresetRef`, `autoRunPendingRef`/`autoRunTimerRef`, `manualEra` ownership) are not shared with any other hook
+
+#### Scenario: Tier-B ordered pairs keep relative order
+- **WHEN** the deck-autofit pair or the save-deploy waiter pair is extracted
+- **THEN** the space-change autofit body precedes the first-manifest autofit body (so the first-manifest fit wins the initial camera), and the waiter mirror/resolve body precedes the unmount-cleanup body (so an operation completing at unmount resolves rather than reports a spurious "wait cancelled")
 
 #### Scenario: The stage→step→viz cascade keeps its dependency contract
 - **WHEN** the viz-sync effect (867) is extracted
@@ -75,7 +78,7 @@ When auto-run is enabled and not gated, a settled configuration change SHALL tri
 
 ### Requirement: Preset application is atomic and identity-preserving
 
-Preset application SHALL replace the pipeline config only when `normalizeStrict` returns zero errors (otherwise the config is left untouched and an error is surfaced). The `lastAppliedPresetRef` skip-guard SHALL remain a single-owner `===` object-identity check: after a save, the preset-apply effect SHALL NOT re-run `applyPresetConfig` for the just-saved config. `lastAppliedPresetRef` SHALL be owned by exactly one hook (`usePresetLifecycle`); other hooks SHALL record an applied preset only via a synchronous `markPresetApplied({key, config})` callback that preserves the exact config object reference.
+Preset application SHALL replace the pipeline config only when `normalizeStrict` returns zero errors (otherwise the config is left untouched and an error is surfaced). The `lastAppliedPresetRef` skip-guard SHALL remain a single-owner `===` object-identity check: after a save OR a live-sync, the preset-apply effect SHALL NOT re-run `applyPresetConfig` for the just-applied config. `lastAppliedPresetRef` SHALL be owned by exactly one hook; other hooks SHALL record an applied preset only via a synchronous `markPresetApplied({key, config})` callback that preserves the exact config object reference. Two object-identity invariants make the `===` guard survive extraction and SHALL be preserved: (a) the repo-backed save path SHALL store, in the repo-backed preset, the SAME config object that the apply-effect resolver returns (no clone/re-normalize), and the repo-backed entry SHALL be recorded BEFORE the preset-key change that triggers the apply-effect; (b) the live-sync path SHALL keep the host live-preset config referentially equal to the proved run-in-game source config, so resolving the live-game preset returns that identical object.
 
 #### Scenario: A failed preset does not mutate config
 - **WHEN** a selected preset fails schema validation
@@ -84,8 +87,13 @@ Preset application SHALL replace the pipeline config only when `normalizeStrict`
 
 #### Scenario: Saving does not re-apply and clobber the config
 - **WHEN** a save-to-current completes and selects the saved preset key
-- **THEN** the preset-apply effect's `===` guard short-circuits (the stored config object is the same reference the resolver returns)
+- **THEN** the repo-backed preset entry is recorded before the preset-key change, and the preset-apply effect's `===` guard short-circuits (the stored config object is the same reference the resolver returns)
 - **AND** `applyPresetConfig` is not called again for that config (the saved config is not reverted)
+
+#### Scenario: Live-sync does not re-apply and clobber the synced config
+- **WHEN** sync-from-live-game applies the proved source via `applyAuthoringSnapshot` and selects the live-game (or durable) preset key
+- **THEN** the host live-preset config is referentially the proved source config, so the apply-effect's `===` guard short-circuits
+- **AND** `applyPresetConfig` is not called again for that config (the just-synced config is not reverted)
 
 ### Requirement: Authoring-snapshot sync preserves setter write order
 
@@ -140,6 +148,39 @@ The full selection cascade (`useVizState` + stage/step/dataType/space/render-mod
 - **WHEN** the selection is read by JSX and by the change-handler callbacks in a render
 - **THEN** all read the identical `selection` object (no independent re-derivation that could disagree)
 
+#### Scenario: Default selection prefers the first tile-space grid layer
+- **WHEN** a freshly generated manifest emits a world-space layer first and a tile-space grid layer later, with no prior user selection
+- **THEN** the default resolved selection lands on the first tile-space grid layer (not the first-emitted world-space layer)
+
+### Requirement: The map canvas stays mounted under the pipeline view
+
+While the Pipeline (DAG) view is shown, the map canvas SHALL remain mounted (hidden via CSS), never unmounted. The host-collapse work SHALL preserve this so deck camera state and in-flight generation loops survive the tab switch.
+
+#### Scenario: Switching to the pipeline view does not unmount the canvas
+- **WHEN** the stage view switches from map to pipeline and back
+- **THEN** the map canvas is hidden (CSS) while pipeline is active but is not unmounted/remounted
+- **AND** deck camera state and any in-flight generation are preserved across the switch
+
+### Requirement: The recipe-DAG query is gated on the pipeline view
+
+The recipe-DAG query SHALL fetch only when the Pipeline view is active and SHALL NOT prefetch or refetch on window focus / interval (its result is cached with infinite stale time per recipe).
+
+#### Scenario: DAG query fires only when pipeline is visible
+- **WHEN** the studio is on the map view
+- **THEN** the recipe-DAG query is disabled (no fetch)
+- **WHEN** the user switches to the pipeline view
+- **THEN** the query fetches once for that recipe and is not re-fetched on focus or interval
+
+### Requirement: Saved setup-config selection replaces, never merges
+
+Selecting a saved setup config SHALL replace the entire `setupConfig` (it SHALL NOT merge over the prior state, so no stale key survives). Any subsequent edit or live-sync SHALL flip the selector to "Custom" (via normalized-JSON equality), and re-selecting SHALL restore the file exactly.
+
+#### Scenario: Selecting a saved config replaces setup state and drift shows Custom
+- **WHEN** a saved setup config is selected
+- **THEN** the entire `setupConfig` is replaced by the file-derived state (no merged-over stale keys)
+- **WHEN** the user then edits any setup option or a live-sync writes a different setup
+- **THEN** the saved-config selector reports "Custom" (drift detected by normalized-JSON equality)
+
 ### Requirement: Render-phase latest-value refs are not deferred into effects
 
 The render-phase latest-value ref writes (`runInGameOperationRef`/`saveDeployOperationCurrentRef`, `vizIngestRef`, `shortcutsRef`) SHALL remain assignments executed during render, never moved into a `useEffect`. The pattern SHALL be formalized as a `useLatestRef(value)` helper that writes during render.
@@ -159,12 +200,12 @@ The render-phase latest-value ref writes (`runInGameOperationRef`/`saveDeployOpe
 
 ### Requirement: Controller-hook test infrastructure is available
 
-The repository SHALL provide a DOM test environment for controller-hook tests without changing the existing node-environment tests. `@testing-library/react` and a jsdom (or happy-dom) environment SHALL be scoped via `environmentMatchGlobs` to `test/controllers/**` only.
+The repository SHALL provide a DOM test environment for controller-hook tests under `test/controllers/` (enabling `renderHook` + React Testing Library) WITHOUT changing the environment of the existing node tests. The scoping mechanism is non-normative (chosen in design.md — vitest-4 per-file environment override).
 
-#### Scenario: Controller tests run in jsdom; existing tests stay node
+#### Scenario: Controller tests run in a DOM env; existing tests stay node
 - **WHEN** the `mapgen-studio` vitest project runs
-- **THEN** tests under `test/controllers/**` execute in a DOM environment with `renderHook` available
-- **AND** the pre-existing `mapgen-studio` tests continue to run in the `node` environment and stay green
+- **THEN** tests under `test/controllers/` execute in a DOM environment with `renderHook` available
+- **AND** the pre-existing `mapgen-studio` tests continue to run in `node` and stay green
 
 ### Requirement: Dead write-only live-runtime snapshot state is removed
 
