@@ -77,10 +77,14 @@ describe("StudioShell source — 2.7 seam + cascade no longer host-owned", () =>
     expect(host).toMatch(/\n {2}vizIngestRef\.current = viz\.ingest;/);
   });
 
-  it("keeps deck-autofit refs + backgroundGridEnabled host-side reading viz BY VALUE (2.7b boundary)", () => {
-    expect(host).toMatch(/hasEverSeenVizManifestRef/);
-    expect(host).toMatch(/lastAutoFitSpaceRef/);
+  it("keeps backgroundGridEnabled host-side; delegates deck-autofit to useDeckAutofit (2.7b boundary)", () => {
+    // backgroundGridEnabled mixes host showGrid with viz reads → stays host.
     expect(host).toMatch(/const backgroundGridEnabled = useMemo/);
+    // The autofit guard refs + effects moved OUT to useDeckAutofit (slice 2.7b);
+    // the host delegates and no longer owns them.
+    expect(host).toMatch(/useDeckAutofit\(\{/);
+    expect(host).not.toMatch(/hasEverSeenVizManifestRef/);
+    expect(host).not.toMatch(/lastAutoFitSpaceRef/);
   });
 
   it("no longer owns the viz cascade (selectLayerFor / dataTypeModel / useVizState moved out)", () => {
