@@ -96,7 +96,6 @@ export function useLiveRuntime(args: UseLiveRuntimeArgs): UseLiveRuntimeResult {
     bindingStatus: "unbound-runtime",
     failureCount: 0,
   });
-  const [, setLiveRuntimeSnapshot] = useState<LiveRuntimeSnapshotState | null>(null);
   const [liveRuntimeSuggestions, setLiveRuntimeSuggestions] = useState<
     ReadonlyArray<LiveRuntimeSuggestionRecord>
   >([]);
@@ -165,7 +164,6 @@ export function useLiveRuntime(args: UseLiveRuntimeArgs): UseLiveRuntimeResult {
         });
         liveSnapshotFailureCountRef.current =
           snapshotState.status === "ok" ? 0 : liveSnapshotFailureCountRef.current + 1;
-        setLiveRuntimeSnapshot(snapshotState);
         setLiveRuntime((current) => ({
           ...current,
           snapshotStatus: snapshotState.status,
@@ -190,7 +188,6 @@ export function useLiveRuntime(args: UseLiveRuntimeArgs): UseLiveRuntimeResult {
           requestKey: request.key,
           error: err instanceof Error ? err.message : "Live snapshot unavailable",
         };
-        setLiveRuntimeSnapshot(snapshotState);
         setLiveRuntime((current) => ({
           ...current,
           snapshotStatus: "error",

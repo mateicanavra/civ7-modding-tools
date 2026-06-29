@@ -31,6 +31,19 @@ describe("useLiveRuntime source — failureCount is display-only, no cadence (LR
   });
 });
 
+describe("useLiveRuntime source — IMPROVE-1 (dead write-only snapshot state removed)", () => {
+  it("IMPROVE-1: the unread `setLiveRuntimeSnapshot` state + its writes are gone", () => {
+    // The `[, setLiveRuntimeSnapshot]` state value was never read (discarded slot);
+    // its two writer calls only triggered redundant re-renders with identical output.
+    // Removing them is behavior-neutral (the `snapshotState` local is still consumed by
+    // the `setLiveRuntime((current) => …)` derivation in both branches).
+    expect(hook).not.toMatch(/setLiveRuntimeSnapshot/);
+    // The snapshot-state builder + type are still used (the local feeds setLiveRuntime).
+    expect(hook).toMatch(/const snapshotState = buildLiveRuntimeSnapshotState\(/);
+    expect(hook).toMatch(/snapshotStatus: snapshotState\.status,/);
+  });
+});
+
 describe("useLiveRuntime source — atomic mount-lifecycle group (invariant b)", () => {
   it("the abort/mounted refs + mount-lifecycle effect + the 3 read fns are co-resident in the hook", () => {
     // The mount-lifecycle effect aborts BOTH controllers on unmount; the refs and the
