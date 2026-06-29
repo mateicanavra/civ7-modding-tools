@@ -28,7 +28,7 @@ This is not a final machine-readable ontology, and it is not evidence that runti
 - `AUTHORITY-SLICE-FRAME.md`: normative frame for bounded authority-slice
   work, including how to classify current rules without promoting packet
   labels into ontology.
-- `AUTHORITY-DOMAIN-OPERATION-SLICE.md`: implementation-ready spec for the
+- `AUTHORITY-DOMAIN-OPERATION-SLICE.md`: completed-slice reference for the
   Domain Operation Kind Pocket slice selected after the Recipe Kind Pocket.
 - `ARTIFACT-KINDS.md`: mutability rules for `check`, `fix`, `generate`, `migrate`, and `triage`.
 - `SUBJECT-CATEGORIES.md`: universal category model and derivation rules.

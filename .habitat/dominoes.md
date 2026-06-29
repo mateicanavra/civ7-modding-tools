@@ -104,46 +104,12 @@ Avoid runner rebuilding until admitted authority exists for it to discover.
 | 18. Frame bounded authority slice work | `AUTHORITY-SLICE-FRAME.md` now governs bounded kind-family slices, supersedes broad pilot-corpus selection, and sets the Recipe Kind Pocket as the first working example. |
 | 19. Move the Recipe Kind Pocket | Standard-recipe evidence was physically moved into `recipe`, `recipe-stage`, `recipe-step`, `swooper-maps-standard-recipe`, and coarse `mapgen-pipeline` contexts while preserving rule IDs and execution behavior. |
 | 20. Select the Domain Operation Kind Pocket | Re-reading the changed Recipe slice selected `domain-operation` and bounded strategy-file pressure as the next slice; `AUTHORITY-DOMAIN-OPERATION-SLICE.md` now specifies the implementation boundary. |
+| 21. Move the Domain Operation Kind Pocket | The misplaced map projection/effect dependency guard moved into `domain-operation`; foundation strategy rows stayed contextual with consolidation pressure instead of becoming blueprints by path inheritance. |
 
 This index is intentionally compressed. Completed branches matter because they
 changed what the next agent should do; they are not the active plan.
 
 ## Remaining Dominoes
-
-### 21. Move The Domain Operation Kind Pocket
-
-Purpose: admit the next bounded kind family exposed by the Recipe Kind Pocket:
-domain operation modules, with strategy-file rules treated as operation-internal
-pressure unless the source order proves otherwise.
-
-Done Means:
-
-- Existing `domain-operation` rules are preserved or corrected as operation
-  blueprint governance.
-- Misplaced adjacent rules named in `AUTHORITY-DOMAIN-OPERATION-SLICE.md` are
-  moved, rejected with evidence, or left contextual with explicit rationale.
-- Strategy-file rules are moved only as `domain-operation` subcomponent
-  governance or left contextual with consolidation pressure named.
-- Rule IDs, runner files, baselines, and behavior are preserved.
-
-Moves It Forward:
-
-- Moves from the Recipe slice's adjacent dependency pressure into a second
-  constructible kind pocket.
-- Prevents foundation/morphology/ecology labels from becoming blueprints by
-  path inheritance.
-- Makes later recipe-step, map projection, and domain-context cleanup easier by
-  clarifying the operation boundary first.
-
-Dependencies:
-
-- Domino 20 selected and specified the slice.
-
-Proof:
-
-- Focused moved-rule checks pass.
-- Static scans show moved manifests have no stale old file references.
-- Review finds no P1/P2 ontology drift or duplicate-authority residue.
 
 ### 22. Repeat Bounded Kind-Family Slices
 

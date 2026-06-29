@@ -3,8 +3,8 @@
   "id": "prohibit_domain_ops_projection_effect_dependencies",
   "title": "Prohibit Domain Ops Projection Effect Dependencies",
   "placement": {
-    "niche": "civ7/mapgen/map-output",
-    "blueprint": "map-projection",
+    "niche": "civ7/mapgen/domain",
+    "blueprint": "domain-operation",
     "category": "boundary",
     "artifactKind": "check"
   },
@@ -23,12 +23,12 @@
   "scanRoots": ["mods/mod-swooper-maps/src/domain"],
   "hookCheck": true,
   "artifacts": {
-    "baseline": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_domain_ops_projection_effect_dependencies/baseline.json"
+    "baseline": ".habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/prohibit_domain_ops_projection_effect_dependencies/baseline.json"
   },
   "runner": {
     "name": "grit",
     "files": {
-      "pattern": ".habitat/civ7/mapgen/map-output/blueprints/map-projection/boundary/check/prohibit_domain_ops_projection_effect_dependencies/pattern.md"
+      "pattern": ".habitat/civ7/mapgen/domain/blueprints/domain-operation/boundary/check/prohibit_domain_ops_projection_effect_dependencies/pattern.md"
     },
     "patternName": "prohibit_domain_ops_projection_effect_dependencies"
   }
