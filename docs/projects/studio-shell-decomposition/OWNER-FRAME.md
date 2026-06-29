@@ -200,6 +200,20 @@ features/mapConfigSave/status.ts   # P0: move isSaveDeployTerminal + saveDeployR
 
 **Open design decisions for Phase 7 (resolve explicitly, no "maybe"):** (1) does `useStudioOperations` also hold `browserRunning` (i.e. own browserRunner) or receive it — keep error/status/busy all synchronous either way; (2) exact home of `provedRunInGameSource`/`livePresets`/`displayedPresetOptions`/`materializationMode` host-vs-hook (§7.6 says host); (3) whether `useVizSelection` is one hook or one hook + extracted pure `selectFromModel`/era/overlay helpers (prefer pure helpers for testability).
 
+## 10. Verification reality (CORRECTED 2026-06-28 — load-bearing for every Phase-8 slice)
+
+**Verification method (do not regress):**
+- **NEVER pipe a test run to `tail`/`head`** — the pipe's exit code is `tail`'s (0), which MASKS vitest failures. Capture the real result: `… > out.txt 2>&1; echo "exit=$?"` then grep `out.txt`, OR run as a background task (its completion reports the command's real exit code).
+- **Fresh worktree needs built dists** for tests to run: workspace subpaths (e.g. `@civ7/studio-server/contract`) resolve only from built `dist`. Run `bunx nx run mapgen-studio:test --outputStyle=static` once (builds `^deps` + regenerates studio recipes; nx-cached after). **Once dists exist, fast filtered runs work:** `cd apps/mapgen-studio && bunx vitest run --config ../../vitest.config.ts --project mapgen-studio <filter>; echo "exit=$?"`.
+
+**Parity baseline = NOT "all green." There are 6 PRE-EXISTING failures (EXTERIOR to this workstream):**
+- `test/config/defaultConfigSchema.test.ts` (5) + `test/config/standardRecipeArtifactGuards.test.ts` (1).
+- Cause: the `mod-swooper-maps` recipe evolved (foundation split into `foundation-mantle`/`foundation-lithosphere`/…; morphology `shelf` → `continentalMargin`) but the studio config-schema tests were not updated. Confirmed pre-existing: `git diff 5aa6ccf7c..<my stack>` shows ZERO changes under `test/config/` or `mod-swooper-maps`/`mapgen-core`; the recipe source already uses the new structure.
+- **Exterior:** recipe artifacts are a stable input per the brief; not StudioShell orchestration. Flagged to the user as a separate repo-health item; NOT fixed inside this decomposition.
+- **A slice is green iff the failure set stays EXACTLY these 6** (same files/tests), with all controller/parity tests passing. Track the failure SET, not a zero count.
+
+**Dependency posture (per user directive 2026-06-28):** use latest modern versions within the min-age policy; if a conflict arises, upgrade across the board + normalize. Test deps added are the current latest (`@testing-library/react@16.3.2`, `@testing-library/dom@10.4.1`, `jsdom@29.1.1`), installed via `bun add` (lockfile tool-managed), no peer conflict, no `trustedDependencies` change. No across-the-board upgrade is triggered by this work; broader monorepo dep normalization is a separate initiative (flag, don't fold into the parity gate).
+
 ## 7. Reusable precedent (Pass 2 review machinery)
 
 Pass 2's review loop = 6 lanes (architecture-boundary · direct-control · product/runtime-parity · typescript/schema · dev-platform · adversarial-orphan) + always-on proof gates (frozen lockfile → baseline build/check → `openspec validate --strict` → `habitat classify` → `git diff --check`/`gt status` → one logical change per branch). I will adapt these lanes to my parity-focused review (behavior / architecture-boundary / maintainability) and reuse the proof-gate spine.
